@@ -1,7 +1,6 @@
-<h1 align="center">Yuan</h1>
-<h2 align="center">Yuan is a Money OS</h2>
+<h1 align="center">Yuan is a Money OS</h1>
 <h3 align="center">For everyone defend their own wealth.</h3>
-<h3 align="center">AI empowers, world-wide, cloud native, and privacy.</h3>
+<h3 align="center">AI empowers, global market, serverless, cloud native, and privacy.</h3>
 <h4 align="center">>> Access the <a align="center" href="https://y.ntnl.io">Yuan GUI</a> by any device!</h4>
 <h4 align="center">Open source is coming soon...</h4>
 
@@ -15,6 +14,16 @@
 [![Bugs Open][bugs-open-shield]][bugs-open-url]
 [![Bugs Closed][bugs-closed-shield]][bugs-closed-url]
 ![Bugs Closed][language-shield]
+
+## Plan to open source
+
+1. Network protocol and infrastructure;
+2. Data models;
+3. The Yuan GUI;
+4. Engine: Kernel, units and main scenes;
+5. Some Apps based on Yuan OS;
+6. Extra Tools, Libs and SDKs;
+7. ...and more
 
 ## Star History
 
