@@ -15,6 +15,11 @@
 [![Bugs Closed][bugs-closed-shield]][bugs-closed-url]
 ![Bugs Closed][language-shield]
 
+## List
+
+1. Public data source for research startup: [Yuan-Public-Data](https://github.com/No-Trade-No-Life/Yuan-Public-Data)
+2. Public workspace for AI & human to learn: [Yuan-Public-Workspace](https://github.com/No-Trade-No-Life/Yuan-Public-Workspace)
+
 ## Plan to open source
 
 1. Network protocol and infrastructure;
