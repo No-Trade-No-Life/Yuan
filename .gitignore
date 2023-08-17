@@ -134,3 +134,13 @@ common/deploy/
 common/temp/
 common/autoinstallers/*/.npmrc
 **/.rush/temp/
+
+# Heft
+.heft
+
+# Build
+dist
+lib
+out
+temp
+tsdoc-metadata.json

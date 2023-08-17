@@ -1,0 +1,25 @@
+{
+  "name": "@yuants/template",
+  "version": "0.0.0",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "heft test --clean && api-extractor run --local && tool-dependency-hash @yuants/template"
+  },
+  "publishConfig": {
+    "registry": "https://npm.ntnl.io"
+  },
+  "devDependencies": {
+    "@types/node": "18",
+    "rimraf": "^2.6.2",
+    "@types/heft-jest": "1.0.3",
+    "@rushstack/heft": "~0.47.5",
+    "@rushstack/heft-jest-plugin": "~0.3.30",
+    "@rushstack/heft-node-rig": "~1.10.7",
+    "@microsoft/api-extractor": "~7.30.0",
+    "typescript": "~4.7.4",
+    "@yuants/tool-dependency-hash": "workspace:*"
+  },
+  "dependencies": {
+    "rxjs": "~7.5.6"
+  }
+}
