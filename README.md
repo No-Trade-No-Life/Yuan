@@ -5,27 +5,15 @@
 <h4 align="center">Open source is coming soon...</h4>
 
 ---
-<div style="display: flex; flex-wrap: wrap; gap: 0 1em;">
 
 [![Stargazers][stars-shield]][stars-url]
-
 [![Forks][forks-shield]][forks-url]
-
 [![MIT License][license-shield]][license-url]
-
 [![Issues][issues-shield]][issues-url]
-
 [![Bugs Open][bugs-open-shield]][bugs-open-url]
-
 [![Bugs Closed][bugs-closed-shield]][bugs-closed-url]
-
 ![Bugs Closed][language-shield]
-
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![Contributors](https://img.shields.io/badge/contributors-2-orange.svg?style=for-the-badge)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
-
-</div>
+[![Contributors](https://img.shields.io/github/all-contributors/No-Trade-No-Life/Yuan?color=ee8449&style=for-the-badge)](#contributors)
 
 ## List 📖
 
@@ -56,6 +44,7 @@ $ rush update && rush build
 [![Star History Chart](https://api.star-history.com/svg?repos=No-Trade-No-Life/Yuan&type=Date)](https://star-history.com/#No-Trade-No-Life/Yuan&Date)
 
 <!-- CONTRIBUTING -->
+
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
@@ -74,6 +63,7 @@ Don't forget to give the project a star! Thanks again!
 ## Contributors
 
 Thanks sincerely to the contributors:
+
 <!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
 <!-- prettier-ignore-start -->
 <!-- markdownlint-disable -->
