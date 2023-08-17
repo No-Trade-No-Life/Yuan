@@ -1,7 +1,4 @@
 <h1 align="center">Yuan is a Money OS</h1>
-<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
-<!-- ALL-CONTRIBUTORS-BADGE:END -->
 <h3 align="center">For everyone defend their own wealth.</h3>
 <h3 align="center">AI empowers, global market, serverless, cloud native, and privacy.</h3>
 <h4 align="center">>> Access the <a align="center" href="https://y.ntnl.io">Yuan GUI</a> by any device!</h4>
@@ -17,6 +14,10 @@
 [![Bugs Open][bugs-open-shield]][bugs-open-url]
 [![Bugs Closed][bugs-closed-shield]][bugs-closed-url]
 ![Bugs Closed][language-shield]
+
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 ## List 📖
 
@@ -75,19 +76,6 @@ Thanks sincerely to the contributors:
     </tr>
   </tbody>
 </table>
-
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-<a href="https://github.com/No-Trade-No-Life/Yuan/graphs/contributors">
-   <img src="https://contributors-img.web.app/image?repo=No-Trade-No-Life/Yuan" />
-</a>
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
 
 <!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
