@@ -15,15 +15,24 @@
 [![Bugs Closed][bugs-closed-shield]][bugs-closed-url]
 ![Bugs Closed][language-shield]
 
-## List
+## List 📖
 
 1. Public data source for research startup: [Yuan-Public-Data](https://github.com/No-Trade-No-Life/Yuan-Public-Data)
 2. Public workspace for AI & human to learn: [Yuan-Public-Workspace](https://github.com/No-Trade-No-Life/Yuan-Public-Workspace)
 
+## Getting started 🚀
+
+```bash
+# Install Rush.js for monorepo management
+$ npm install -g @microsoft/rush
+# Install dependencies and build projects
+$ rush update && rush build
+```
+
 ## Plan to open source
 
-1. Network protocol and infrastructure;
-2. Data models;
+1. Data models;
+2. Network protocol and infrastructure;
 3. The Yuan GUI;
 4. Engine: Kernel, units and main scenes;
 5. Some Apps based on Yuan OS;
@@ -34,11 +43,38 @@
 
 [![Star History Chart](https://api.star-history.com/svg?repos=No-Trade-No-Life/Yuan&type=Date)](https://star-history.com/#No-Trade-No-Life/Yuan&Date)
 
+<!-- CONTRIBUTING -->
+## Contributing
+
+Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+Don't forget to give the project a star! Thanks again!
+
+1. Fork the Project
+2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to the Branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Contributors
+
+Thanks sincerely to the contributors:
 
 <a href="https://github.com/No-Trade-No-Life/Yuan/graphs/contributors">
    <img src="https://contributors-img.web.app/image?repo=No-Trade-No-Life/Yuan" />
 </a>
+
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 
 [license-shield]: https://img.shields.io/github/license/No-Trade-No-Life/Yuan.svg?style=for-the-badge
 [license-url]: https://github.com/No-Trade-No-Life/Yuan/blob/main/LICENSE
