@@ -1,4 +1,7 @@
 <h1 align="center">Yuan is a Money OS</h1>
+<!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
+[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+<!-- ALL-CONTRIBUTORS-BADGE:END -->
 <h3 align="center">For everyone defend their own wealth.</h3>
 <h3 align="center">AI empowers, global market, serverless, cloud native, and privacy.</h3>
 <h4 align="center">>> Access the <a align="center" href="https://y.ntnl.io">Yuan GUI</a> by any device!</h4>
@@ -62,6 +65,21 @@ Don't forget to give the project a star! Thanks again!
 ## Contributors
 
 Thanks sincerely to the contributors:
+<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
+<!-- prettier-ignore-start -->
+<!-- markdownlint-disable -->
+<table>
+  <tbody>
+    <tr>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/zccz14"><img src="https://avatars.githubusercontent.com/u/12707521?v=4?s=100" width="100px;" alt="Zheng Chen"/><br /><sub><b>Zheng Chen</b></sub></a><br /><a href="#infra-zccz14" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#design-zccz14" title="Design">🎨</a> <a href="https://github.com/No-Trade-No-Life/Yuan/commits?author=zccz14" title="Code">💻</a></td>
+    </tr>
+  </tbody>
+</table>
+
+<!-- markdownlint-restore -->
+<!-- prettier-ignore-end -->
+
+<!-- ALL-CONTRIBUTORS-LIST:END -->
 
 <a href="https://github.com/No-Trade-No-Life/Yuan/graphs/contributors">
    <img src="https://contributors-img.web.app/image?repo=No-Trade-No-Life/Yuan" />
