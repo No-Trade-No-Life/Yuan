@@ -5,19 +5,27 @@
 <h4 align="center">Open source is coming soon...</h4>
 
 ---
+<div style="display: flex; flex-wrap: wrap; gap: 0 1em;">
 
 [![Stargazers][stars-shield]][stars-url]
+
 [![Forks][forks-shield]][forks-url]
-[![Contributors][contributors-shield]][contributors-url]
+
 [![MIT License][license-shield]][license-url]
+
 [![Issues][issues-shield]][issues-url]
+
 [![Bugs Open][bugs-open-shield]][bugs-open-url]
+
 [![Bugs Closed][bugs-closed-shield]][bugs-closed-url]
+
 ![Bugs Closed][language-shield]
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
+[![Contributors](https://img.shields.io/badge/contributors-2-orange.svg?style=for-the-badge)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
+
+</div>
 
 ## List 📖
 
@@ -72,7 +80,7 @@ Thanks sincerely to the contributors:
 <table>
   <tbody>
     <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/zccz14"><img src="https://avatars.githubusercontent.com/u/12707521?v=4?s=100" width="100px;" alt="Zheng Chen"/><br /><sub><b>Zheng Chen</b></sub></a><br /><a href="#infra-zccz14" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#design-zccz14" title="Design">🎨</a> <a href="https://github.com/No-Trade-No-Life/Yuan/commits?author=zccz14" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/zccz14"><img src="https://avatars.githubusercontent.com/u/12707521?v=4?s=100" width="100px;" alt="Zheng Chen"/><br /><sub><b>Zheng Chen</b></sub></a><br /><a href="#mentoring-zccz14" title="Mentoring">🧑‍🏫</a> <a href="https://github.com/No-Trade-No-Life/Yuan/commits?author=zccz14" title="Code">💻</a> <a href="#design-zccz14" title="Design">🎨</a> <a href="https://github.com/No-Trade-No-Life/Yuan/pulls?q=is%3Apr+reviewed-by%3Azccz14" title="Reviewed Pull Requests">👀</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://blog.thrimbda.com"><img src="https://avatars.githubusercontent.com/u/15231162?v=4?s=100" width="100px;" alt="Siyuan Wang"/><br /><sub><b>Siyuan Wang</b></sub></a><br /><a href="https://github.com/No-Trade-No-Life/Yuan/commits?author=Thrimbda" title="Code">💻</a> <a href="#infra-Thrimbda" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
     </tr>
   </tbody>

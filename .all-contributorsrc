@@ -13,9 +13,10 @@
       "avatar_url": "https://avatars.githubusercontent.com/u/12707521?v=4",
       "profile": "https://github.com/zccz14",
       "contributions": [
-        "infra",
+        "mentoring",
+        "code",
         "design",
-        "code"
+        "review"
       ]
     },
     {
@@ -29,6 +30,7 @@
       ]
     }
   ],
+  "badgeTemplate": "[![Contributors](https://img.shields.io/badge/contributors-<%= contributors.length %>-orange.svg?style=for-the-badge)](#contributors-)",
   "contributorsPerLine": 7,
   "skipCi": true,
   "repoType": "github",
