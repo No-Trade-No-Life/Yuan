@@ -27,6 +27,16 @@
         "code",
         "infra"
       ]
+    },
+    {
+      "login": "zcc14",
+      "name": "zcc14",
+      "avatar_url": "https://avatars.githubusercontent.com/u/75727352?v=4",
+      "profile": "https://github.com/zcc14",
+      "contributions": [
+        "mentoring",
+        "review"
+      ]
     }
   ],
   "contributorsPerLine": 7,
