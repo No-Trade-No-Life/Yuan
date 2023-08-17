@@ -16,7 +16,7 @@
 ![Bugs Closed][language-shield]
 
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-2-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 ## List 📖
@@ -73,6 +73,7 @@ Thanks sincerely to the contributors:
   <tbody>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/zccz14"><img src="https://avatars.githubusercontent.com/u/12707521?v=4?s=100" width="100px;" alt="Zheng Chen"/><br /><sub><b>Zheng Chen</b></sub></a><br /><a href="#infra-zccz14" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a> <a href="#design-zccz14" title="Design">🎨</a> <a href="https://github.com/No-Trade-No-Life/Yuan/commits?author=zccz14" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/zcc14"><img src="https://avatars.githubusercontent.com/u/75727352?v=4?s=100" width="100px;" alt="zcc14"/><br /><sub><b>zcc14</b></sub></a><br /><a href="#mentoring-zcc14" title="Mentoring">🧑‍🏫</a> <a href="https://github.com/No-Trade-No-Life/Yuan/pulls?q=is%3Apr+reviewed-by%3Azcc14" title="Reviewed Pull Requests">👀</a></td>
     </tr>
   </tbody>
 </table>
