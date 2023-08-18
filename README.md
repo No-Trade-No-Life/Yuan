@@ -16,7 +16,7 @@
   <h3 align="center">Yuan</h3>
   <p align="center">
     <p>The money OS for everyone defend their own wealth.</p>
-    <p>AI empowers, global market, serverless, cloud native, and privacy.</p>
+    <p>AI empowered, global market, serverless, cloud native, and privacy.</p>
     <a align="center" href="https://y.ntnl.io">Access the Yuan GUI from any device »</a>
     <br />
     <br />
@@ -26,10 +26,44 @@
   </p>
 </div>
 
-## Resource List 📖
+## About The Project
 
-1. Public workspace for AI & human to learn: [Yuan-Public-Workspace](https://github.com/No-Trade-No-Life/Yuan-Public-Workspace)
-2. Public data source for research startup: [Yuan-Public-Data](https://github.com/No-Trade-No-Life/Yuan-Public-Data)
+<img width="2560" alt="image" src="https://github.com/No-Trade-No-Life/Yuan/assets/12707521/b31243a9-18d5-45ed-9c73-6806a8f60f00">
+
+I'm a software engineer, and I want to make money by quantitative and automatically trading.
+
+There are many great tools and platforms available; however, I didn't find one that suited my needs so I created Yuan.
+
+Heres's why:
+
+- 🔐 Your trading strategy is absolutely secret. You should test and run in your own device, so it will not be stolen by anyone else.
+- 🆓 You shouldn't paid for the public historical data. It should be easy to accessed, and without any limitations and costs.
+- You can work everywhere from any device, including PC and Mobile. Just in browser.
+- 💡 You can ask AI assistant for writing strategy code even if you cannot programming. Just tell the idea and run!
+- Write once, Run and Trade everywhere. You can trade in any global market without change any code.
+- It's not expensive to run and maintain a highly avaiable trading system.
+
+Further more, I think it can help you managing your money dispersed across many accounts. You can really control your money by the Operating System - Yuan.
+
+## Built with
+
+[![TypeScript](https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=FFFFFF)](https://github.com/microsoft/TypeScript)
+[![reactivex](https://img.shields.io/badge/reactivex-B7178C?style=for-the-badge&logo=reactivex&logoColor=FFFFFF)](https://github.com/ReactiveX/rxjs)
+[![react](https://img.shields.io/badge/react-000000?style=for-the-badge&logo=react&logoColor=61DAFB)](https://github.com/facebook/react)
+[![kubernetes](https://img.shields.io/badge/kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=FFFFFF)](https://github.com/kubernetes/kubernetes)
+[![docker](https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=FFFFFF)](https://www.docker.com/)
+[![prometheus](https://img.shields.io/badge/prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=FFFFFF)](https://prometheus.io/)
+[![mongodb](https://img.shields.io/badge/mongodb-47A248?style=for-the-badge&logo=mongodb&logoColor=FFFFFF)](https://github.com/mongodb/mongo)
+[![zeromq](https://img.shields.io/badge/zeromq-DF0000?style=for-the-badge&logo=zeromq&logoColor=FFFFFF)](https://zeromq.org/)
+[![openai](https://img.shields.io/badge/openai-412991?style=for-the-badge&logo=openai&logoColor=FFFFFF)](https://openai.com/)
+[![nginx](https://img.shields.io/badge/nginx-009639?style=for-the-badge&logo=nginx&logoColor=FFFFFF)](https://www.nginx.com/)
+[![pnpm](https://img.shields.io/badge/pnpm-F69220?style=for-the-badge&logo=pnpm&logoColor=FFFFFF)](https://github.com/pnpm/pnpm)
+[![monaco editor](https://img.shields.io/badge/monaco-646CFF?style=for-the-badge&logo=visualstudiocode&logoColor=FFFFFF)](https://github.com/microsoft/monaco-editor)
+[![vite](https://img.shields.io/badge/vite-646CFF?style=for-the-badge&logo=vite&logoColor=FFFFFF)](https://github.com/vitejs/vite)
+[![rollup](https://img.shields.io/badge/rollup-EC4A3F?style=for-the-badge&logo=rollupdotjs&logoColor=FFFFFF)](https://rollupjs.org/)
+[![ajv](https://img.shields.io/badge/ajv-000000?style=for-the-badge&logo=ajv&logoColor=23C8D2)](https://github.com/ajv-validator/ajv)
+[![webrtc](https://img.shields.io/badge/webrtc-333333?style=for-the-badge&logo=webrtc&logoColor=FFFFFF)](https://webrtc.org/)
+[![letsencrypt](https://img.shields.io/badge/letsencrypt-003A70?style=for-the-badge&logo=letsencrypt&logoColor=FFFFFF)](https://letsencrypt.org/)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -106,6 +140,13 @@ Thanks sincerely to the contributors:
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Acknowledgments 📖
+
+1. Public workspace for AI & human to learn: [Yuan-Public-Workspace](https://github.com/No-Trade-No-Life/Yuan-Public-Workspace)
+2. Public data source for research startup: [Yuan-Public-Data](https://github.com/No-Trade-No-Life/Yuan-Public-Data)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
