@@ -28,6 +28,15 @@
         "code",
         "infra"
       ]
+    },
+    {
+      "login": "mage1028",
+      "name": "Jinhaolin",
+      "avatar_url": "https://avatars.githubusercontent.com/u/23522436?v=4",
+      "profile": "https://github.com/mage1028",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "badgeTemplate": "[![All Contributors](https://img.shields.io/github/all-contributors/No-Trade-No-Life/Yuan?color=ee8449&style=flat-square)](#contributors)",
