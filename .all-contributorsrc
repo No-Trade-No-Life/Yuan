@@ -37,6 +37,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "HoboChen",
+      "name": "Hobo Chen",
+      "avatar_url": "https://avatars.githubusercontent.com/u/11043091?v=4",
+      "profile": "https://192217.space",
+      "contributions": [
+        "bug"
+      ]
     }
   ],
   "badgeTemplate": "[![All Contributors](https://img.shields.io/github/all-contributors/No-Trade-No-Life/Yuan?color=ee8449&style=flat-square)](#contributors)",
