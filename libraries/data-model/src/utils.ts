@@ -79,8 +79,8 @@ export const getProfit = (
   (variant === 'LONG' ? 1 : -1) *
   volume *
   (closePrice - openPrice) *
-  (product.value_speed ?? 1) *
-  (product.is_underlying_base_currency === true ? 1 / closePrice : 1) *
+  (product.value_scale ?? 1) *
+  (product.value_unit === 'BASE' ? 1 / closePrice : 1) *
   (product.base_currency !== currency
     ? (variant === 'LONG'
         ? quotes(`${product.base_currency}${currency}`)?.bid
@@ -108,9 +108,9 @@ export const getClosePriceByDesiredProfit = (
           : quotes(`${product.base_currency}${currency}`)?.ask) ?? 1
       : 1;
 
-  const beta = desiredProfit / (variant_coefficient * volume * (product.value_speed ?? 1));
+  const beta = desiredProfit / (variant_coefficient * volume * (product.value_scale ?? 1));
 
-  if (product.is_underlying_base_currency) {
+  if (product.value_unit === 'BASE') {
     return openPrice + beta / cross_product_exchange_rate;
   }
   if (product.quoted_currency === currency) {
@@ -136,14 +136,14 @@ export const getMargin = (
   quote: (product_id: string) => { ask: number; bid: number } | undefined,
 ) =>
   volume *
-  (product.is_underlying_base_currency ? 1 : openPrice) *
+  (product.value_unit === 'BASE' ? 1 : openPrice) *
   (product.margin_rate ?? 1) *
   (product.base_currency !== currency
     ? (variant === 'LONG'
         ? quote(`${product.base_currency}${currency}`)?.bid
         : quote(`${product.base_currency}${currency}`)?.ask) ?? 1
     : 1) *
-  (product.value_speed ?? 1);
+  (product.value_scale ?? 1);
 
 /**
  * all the time is formatted as `yyyy-MM-dd HH:mm:ssXXX`.

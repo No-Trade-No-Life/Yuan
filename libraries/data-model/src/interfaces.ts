@@ -40,27 +40,6 @@ export interface IProduct {
   quoted_currency?: string;
 
   /**
-   * Is the underlying asset the base currency?
-   * 标的物是基准货币吗？
-   *
-   * One lot corresponds to the quantity of the underlying asset specified by value_speed, which can be the base currency or other commodities.
-   * 1 手对应 value_speed 数量的标的物，此标的物可以是基准货币或其他商品。
-   *
-   * - For commodities, including spot and futures, this value is usually false, because one lot corresponds to a multiple of value_speed of the commodity quantity.
-   * - 对于商品，包括现货和期货，此值通常为 false，因为 1 手对应着 value_speed 倍数的商品数量。
-   *
-   * - For forex, this value is usually true, because one lot corresponds to a multiple of value_speed of the equivalent of the base currency in any currency.
-   * - 对于外汇，此值通常为 true，因为 1 手对应着 value_speed 倍数的基础货币等值的任一货币。
-   *
-   * If the value is empty, it is semantically equivalent to false.
-   * 如果值为空，语义上等同于 false.
-   *
-   * If this value is true, an additional division by the "closing price" of this product is required in the standard yield formula.
-   * 如果此值为 true，需要在标准收益公式中额外除以本品种的"平仓时的价格"。
-   */
-  is_underlying_base_currency?: boolean;
-
-  /**
    * price step, default is 1
    * 报价单位，默认为 1
    */
@@ -71,16 +50,20 @@ export interface IProduct {
    */
   volume_step?: number;
   /**
-   * Value speed, default is 1
-   * 价值速率，默认为 1
+   * Value scale, default is 1
    *
    * The quantity of the underlying asset specified by one lot.
-   * 1 手对应的标的物的数量
-   *
-   * ~~For every 1 lot increase in price, the settlement asset income obtained~~
-   * ~~每做多 1 手，价格每上升 1，获得的结算资产收益~~
    */
-  value_speed?: number;
+  value_scale?: number;
+  /**
+   * Value unit, default is "NORM"
+   *
+   * - `NORM`: 1 lot represents {@link value_scale} units of product itself. (stocks, commodity futures, bonds futures, etc.)
+   * - `BASE`: 1 lot represents {@link value_scale} units of base currency. (forex, bonds spot, etc.)
+   *
+   * - If this value is `BASE` an additional division by the "closing price" of this product is required in the standard profit formula.
+   */
+  value_unit?: string;
 
   /**
    * Margin rate
