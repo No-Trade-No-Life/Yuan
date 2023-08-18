@@ -10,20 +10,26 @@
 [![Bugs Open][bugs-open-shield]][bugs-open-url]
 [![Bugs Closed][bugs-closed-shield]][bugs-closed-url]
 
-
+<br />
 <div align="center">
+  <img src="https://y.ntnl.io/yuan.svg" alt="Logo" width="80" height="80" />
   <h3 align="center">Yuan</h3>
+  <p align="center">
+    <p>The money OS for everyone defend their own wealth.</p>
+    <p>AI empowers, global market, serverless, cloud native, and privacy.</p>
+    <a align="center" href="https://y.ntnl.io">Access the Yuan GUI from any device »</a>
+    <br />
+    <br />
+    <a href="https://github.com/No-Trade-No-Life/Yuan/issues/new?assignees=&labels=type%2Fbug+%F0%9F%90%9B&projects=&template=bug_report.yaml&title=bug%3A+%3Ctitle%3E">Report Bug 🐛</a>
+    ·
+    <a href="https://github.com/No-Trade-No-Life/Yuan/issues/new?assignees=&labels=type%2Ffeature+%F0%9F%92%A1&projects=&template=feature_request.yaml&title=feat%3A+%3Ctitle%3E">Request Feature 💡</a>
+  </p>
 </div>
-<h4 align="center">The money OS for everyone defend their own wealth.</h4>
-<h4 align="center">AI empowers, global market, serverless, cloud native, and privacy.</h4>
-<p align="center">
-  <a align="center" href="https://y.ntnl.io">Access the Yuan GUI from any device »</a>
-</p>
 
 ## Resource List 📖
 
-1. Public data source for research startup: [Yuan-Public-Data](https://github.com/No-Trade-No-Life/Yuan-Public-Data)
-2. Public workspace for AI & human to learn: [Yuan-Public-Workspace](https://github.com/No-Trade-No-Life/Yuan-Public-Workspace)
+1. Public workspace for AI & human to learn: [Yuan-Public-Workspace](https://github.com/No-Trade-No-Life/Yuan-Public-Workspace)
+2. Public data source for research startup: [Yuan-Public-Data](https://github.com/No-Trade-No-Life/Yuan-Public-Data)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
