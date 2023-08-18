@@ -70,8 +70,6 @@ export interface IOrder {
     inferred_base_currency_price?: number;
     order_direction: string;
     order_id?: string;
-    order_id_client?: string;
-    order_id_exchange?: string;
     order_type: string;
     position_id: string;
     price?: number;
@@ -89,14 +87,14 @@ export interface IOrder {
 export interface IPeriod {
     close: number;
     datasource_id: string;
+    duration: string;
     high: number;
     low: number;
     open: number;
     open_interest?: number;
-    period_in_sec: number;
     product_id: string;
     spread?: number;
-    timestamp: number;
+    start_at: number;
     volume: number;
 }
 

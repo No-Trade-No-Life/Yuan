@@ -135,6 +135,80 @@ export interface IProduct {
 }
 
 /**
+ * Period: Market transaction data during a certain period of time
+ * Period: 某个时间段内的市场成交行情数据
+ * @public
+ */
+
+export interface IPeriod {
+  /**
+   * Data source ID
+   * 数据源 ID
+   */
+  datasource_id: string;
+  /**
+   * Product ID
+   * 品种 ID
+   */
+  product_id: string;
+  /**
+   * duration, in RFC3339 Duration format
+   *
+   * - `PT1M`: 1 minute
+   * - `PT5M`: 5 minutes
+   * - `PT15M`: 15 minutes
+   * - `PT30M`: 30 minutes
+   * - `PT1H`: 1 hour
+   * - `PT2H`: 2 hours
+   * - `PT4H`: 4 hours
+   * - `P1D`: 1 day
+   * - `P1W`: 1 week
+   * - `P1M`: 1 month
+   * - `P1Y`: 1 year
+   */
+  duration: string;
+  /**
+   * Start timestamp (in ms)
+   */
+  start_at: number;
+  /**
+   * Open price
+   * 开盘价
+   */
+  open: number;
+  /**
+   * Highest price
+   * 最高价
+   */
+  high: number;
+  /**
+   * Lowest price
+   * 最低价
+   */
+  low: number;
+  /**
+   * Closed price
+   * 收盘价
+   */
+  close: number;
+  /**
+   * Volume
+   * 成交量
+   */
+  volume: number;
+  /**
+   * Open interest
+   * 持仓量
+   */
+  open_interest?: number;
+  /**
+   * Spread
+   * 点差
+   */
+  spread?: number;
+}
+
+/**
  * Order: Changes the {@link IPosition} of the {@link IAccountInfo} in the account through a trading command.
  * 订单: 通过交易命令改变账户内 {@link IAccountInfo} 头寸 {@link IPosition}
  * @public
@@ -144,16 +218,6 @@ export interface IOrder {
    * Order ID
    */
   order_id?: string;
-  /**
-   * Client order ID (if any).
-   * 客户端订单ID
-   */
-  order_id_client?: string;
-  /**
-   * Exchange order ID (if any).
-   * 交易所订单ID (如果有)
-   */
-  order_id_exchange?: string;
 
   /**
    * Account ID.
@@ -207,6 +271,43 @@ export interface IOrder {
   volume: number;
 
   /**
+   * Submit order timestamp.
+   */
+  submit_at?: number;
+  /**
+   * Order filled timestamp.
+   */
+  filled_at?: number;
+  /**
+   * Order price.
+   * 委托价
+   */
+  price?: number;
+  /**
+   * Traded volume.
+   * 成交量
+   */
+  traded_volume?: number;
+  /**
+   * Traded price.
+   * 成交价
+   */
+  traded_price?: number;
+  /**
+   * Order status.
+   *
+   * - `ACCEPTED`: Order accepted by the exchange
+   * - `TRADED`: Order partially filled
+   * - `CANCELLED`: Order cancelled
+   */
+  status?: string;
+  /**
+   * Order comment.
+   * 订单注释
+   */
+  comment?: string;
+
+  /**
    * Profit and loss correction in non-standard models.
    * 非标准模型下的盈亏修正
    *
@@ -252,42 +353,6 @@ export interface IOrder {
    * 参考 [如何计算盈亏](https://tradelife.feishu.cn/wiki/wikcnRNzWSF7jtkH8nGruaMhhlh)
    */
   inferred_base_currency_price?: number;
-  /**
-   * Submit order timestamp.
-   */
-  submit_at?: number;
-  /**
-   * Order filled timestamp.
-   */
-  filled_at?: number;
-  /**
-   * Order price.
-   * 委托价
-   */
-  price?: number;
-  /**
-   * Traded volume.
-   * 成交量
-   */
-  traded_volume?: number;
-  /**
-   * Traded price.
-   * 成交价
-   */
-  traded_price?: number;
-  /**
-   * Order status.
-   *
-   * - `ACCEPTED`: Order accepted by the exchange
-   * - `TRADED`: Order partially filled
-   * - `CANCELLED`: Order cancelled
-   */
-  status?: string;
-  /**
-   * Order comment.
-   * 订单注释
-   */
-  comment?: string;
 }
 
 /**
@@ -478,70 +543,6 @@ export interface IAccountInfo {
    * (用于处理冲突: 应当总是接受最新的信息)
    */
   updated_at: number;
-}
-
-/**
- * Period: Market transaction data during a certain period of time
- * Period: 某个时间段内的市场成交行情数据
- * @public
- */
-
-export interface IPeriod {
-  /**
-   * Data source ID
-   * 数据源 ID
-   */
-  datasource_id: string;
-  /**
-   * Product ID
-   * 品种 ID
-   */
-  product_id: string;
-  /**
-   * Period (in seconds)
-   * 时间周期 (秒)
-   */
-  period_in_sec: number;
-  /**
-   * Start timestamp (open, in microseconds)
-   * 开始时间戳 (open)
-   */
-  timestamp: number;
-  /**
-   * Open price
-   * 开盘价
-   */
-  open: number;
-  /**
-   * Highest price
-   * 最高价
-   */
-  high: number;
-  /**
-   * Lowest price
-   * 最低价
-   */
-  low: number;
-  /**
-   * Closed price
-   * 收盘价
-   */
-  close: number;
-  /**
-   * Volume
-   * 成交量
-   */
-  volume: number;
-  /**
-   * Open interest
-   * 持仓量
-   */
-  open_interest?: number;
-  /**
-   * Spread
-   * 点差
-   */
-  spread?: number;
 }
 
 /**
