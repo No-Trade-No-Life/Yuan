@@ -117,7 +117,6 @@ export interface IProduct {
     allow_short?: boolean;
     base_currency: string;
     datasource_id: string;
-    is_underlying_base_currency?: boolean;
     margin_rate?: number;
     max_position?: number;
     max_volume?: number;
@@ -127,7 +126,8 @@ export interface IProduct {
     quoted_currency?: string;
     spread?: number;
     value_based_cost?: number;
-    value_speed?: number;
+    value_scale?: number;
+    value_unit?: string;
     volume_based_cost?: number;
     volume_step?: number;
 }

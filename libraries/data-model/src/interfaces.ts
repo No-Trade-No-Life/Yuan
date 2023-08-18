@@ -58,8 +58,8 @@ export interface IProduct {
   /**
    * Value unit, default is "NORM"
    *
-   * - `NORM`: 1 lot represents {@link value_scale} units of product itself. (stocks, commodity futures, bonds futures, etc.)
-   * - `BASE`: 1 lot represents {@link value_scale} units of base currency. (forex, bonds spot, etc.)
+   * - `NORM`: 1 lot represents {@link IProduct.value_scale} units of product itself. (stocks, commodity futures, bonds futures, etc.)
+   * - `BASE`: 1 lot represents {@link IProduct.value_scale} units of base currency. (forex, bonds spot, etc.)
    *
    * - If this value is `BASE` an additional division by the "closing price" of this product is required in the standard profit formula.
    */
