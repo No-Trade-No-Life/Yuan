@@ -95,19 +95,11 @@ rush update && rush build
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Star History
-
-[![Star History Chart](https://api.star-history.com/svg?repos=No-Trade-No-Life/Yuan&type=Date)](https://star-history.com/#No-Trade-No-Life/Yuan&Date)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-<!-- CONTRIBUTING -->
-
 ## Contributing
 
 Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply open an issue with the tag "enhancement".
+If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply [open a feature request issue](https://github.com/No-Trade-No-Life/Yuan/issues/new?assignees=&labels=type%2Ffeature+%F0%9F%92%A1&projects=&template=feature_request.yaml&title=feat%3A+%3Ctitle%3E).
 Don't forget to give the project a star! Thanks again!
 
 1. Fork the Project
@@ -149,6 +141,14 @@ Thanks sincerely to the contributors:
 2. Public data source for research startup: [Yuan-Public-Data](https://github.com/No-Trade-No-Life/Yuan-Public-Data)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=No-Trade-No-Life/Yuan&type=Date)](https://star-history.com/#No-Trade-No-Life/Yuan&Date)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+<!-- CONTRIBUTING -->
 
 [license-shield]: https://img.shields.io/github/license/No-Trade-No-Life/Yuan.svg?style=for-the-badge
 [license-url]: https://github.com/No-Trade-No-Life/Yuan/blob/main/LICENSE
