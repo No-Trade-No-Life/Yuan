@@ -46,6 +46,15 @@
       "contributions": [
         "bug"
       ]
+    },
+    {
+      "login": "linxuyalun",
+      "name": "Yalun Lin Hsu",
+      "avatar_url": "https://avatars.githubusercontent.com/u/25969296?v=4",
+      "profile": "http://linxuyalun.github.io",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "badgeTemplate": "[![All Contributors](https://img.shields.io/github/all-contributors/No-Trade-No-Life/Yuan?color=ee8449&style=flat-square)](#contributors)",
