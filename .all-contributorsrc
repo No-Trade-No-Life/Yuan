@@ -64,6 +64,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "StayRealMayDay",
+      "name": "Haoran Ren",
+      "avatar_url": "https://avatars.githubusercontent.com/u/26059707?v=4",
+      "profile": "https://github.com/StayRealMayDay",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "badgeTemplate": "[![All Contributors](https://img.shields.io/github/all-contributors/No-Trade-No-Life/Yuan?color=ee8449&style=flat-square)](#contributors)",
