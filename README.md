@@ -130,6 +130,7 @@ Thanks sincerely to the contributors:
     </tr>
     <tr>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/pruderior"><img src="https://avatars.githubusercontent.com/u/34360187?v=4?s=100" width="100px;" alt="pruderior"/><br /><sub><b>pruderior</b></sub></a><br /><a href="https://github.com/No-Trade-No-Life/Yuan/commits?author=pruderior" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Hikaru518"><img src="https://avatars.githubusercontent.com/u/7864982?v=4?s=100" width="100px;" alt="playground"/><br /><sub><b>playground</b></sub></a><br /><a href="https://github.com/No-Trade-No-Life/Yuan/commits?author=Hikaru518" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
