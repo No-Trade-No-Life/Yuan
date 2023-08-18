@@ -73,6 +73,15 @@
       "contributions": [
         "code"
       ]
+    },
+    {
+      "login": "pruderior",
+      "name": "pruderior",
+      "avatar_url": "https://avatars.githubusercontent.com/u/34360187?v=4",
+      "profile": "https://github.com/pruderior",
+      "contributions": [
+        "code"
+      ]
     }
   ],
   "badgeTemplate": "[![All Contributors](https://img.shields.io/github/all-contributors/No-Trade-No-Life/Yuan?color=ee8449&style=flat-square)](#contributors)",
