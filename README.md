@@ -1,47 +1,65 @@
-<h1 align="center">Yuan is a Money OS</h1>
-<h3 align="center">For everyone defend their own wealth.</h3>
-<h3 align="center">AI empowers, global market, serverless, cloud native, and privacy.</h3>
-<h4 align="center">>> Access the <a align="center" href="https://y.ntnl.io">Yuan GUI</a> by any device!</h4>
-<h4 align="center">Open source is coming soon...</h4>
+<a name="readme-top"></a>
 
----
-
-[![Stargazers][stars-shield]][stars-url]
+![Language TS][language-shield]
+[![Contributors](https://img.shields.io/github/all-contributors/No-Trade-No-Life/Yuan?color=ee8449&style=for-the-badge)](#contributors)
 [![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
 [![MIT License][license-shield]][license-url]
+
 [![Issues][issues-shield]][issues-url]
 [![Bugs Open][bugs-open-shield]][bugs-open-url]
 [![Bugs Closed][bugs-closed-shield]][bugs-closed-url]
-![Bugs Closed][language-shield]
-[![Contributors](https://img.shields.io/github/all-contributors/No-Trade-No-Life/Yuan?color=ee8449&style=for-the-badge)](#contributors)
 
-## List 📖
+
+<div align="center">
+  <h3 align="center">Yuan</h3>
+</div>
+<h4 align="center">The money OS for everyone defend their own wealth.</h4>
+<h4 align="center">AI empowers, global market, serverless, cloud native, and privacy.</h4>
+<p align="center">
+  <a align="center" href="https://y.ntnl.io">Access the Yuan GUI from any device »</a>
+</p>
+
+## Resource List 📖
 
 1. Public data source for research startup: [Yuan-Public-Data](https://github.com/No-Trade-No-Life/Yuan-Public-Data)
 2. Public workspace for AI & human to learn: [Yuan-Public-Workspace](https://github.com/No-Trade-No-Life/Yuan-Public-Workspace)
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Getting started 🚀
 
+Prerequisites: `nodejs >= 18.17.0` and [rush](https://rushjs.io/) for monorepo management.
+
 ```bash
-# Install Rush.js for monorepo management
-$ npm install -g @microsoft/rush
-# Install dependencies and build projects
-$ rush update && rush build
+npm install -g @microsoft/rush
 ```
+
+Then you can install dependencies and build projects
+
+```bash
+rush update && rush build
+```
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 
 ## Plan to open source
 
 1. Data models;
-2. Network protocol and infrastructure;
-3. The Yuan GUI;
-4. Engine: Kernel, units and main scenes;
-5. Some Apps based on Yuan OS;
-6. Extra Tools, Libs and SDKs;
-7. ...and more
+2. Network: protocol, services and infrastructure;
+3. Time Machine: kernel, units and scenes;
+4. Some applications;
+5. The Yuan GUI;
+6. ...and more
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Star History
 
 [![Star History Chart](https://api.star-history.com/svg?repos=No-Trade-No-Life/Yuan&type=Date)](https://star-history.com/#No-Trade-No-Life/Yuan&Date)
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 <!-- CONTRIBUTING -->
 
@@ -80,6 +98,8 @@ Thanks sincerely to the contributors:
 <!-- prettier-ignore-end -->
 
 <!-- ALL-CONTRIBUTORS-LIST:END -->
+
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 [license-shield]: https://img.shields.io/github/license/No-Trade-No-Life/Yuan.svg?style=for-the-badge
 [license-url]: https://github.com/No-Trade-No-Life/Yuan/blob/main/LICENSE
