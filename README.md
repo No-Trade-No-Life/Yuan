@@ -126,6 +126,7 @@ Thanks sincerely to the contributors:
       <td align="center" valign="top" width="14.28%"><a href="https://192217.space"><img src="https://avatars.githubusercontent.com/u/11043091?v=4?s=100" width="100px;" alt="Hobo Chen"/><br /><sub><b>Hobo Chen</b></sub></a><br /><a href="https://github.com/No-Trade-No-Life/Yuan/issues?q=author%3AHoboChen" title="Bug reports">🐛</a></td>
       <td align="center" valign="top" width="14.28%"><a href="http://linxuyalun.github.io"><img src="https://avatars.githubusercontent.com/u/25969296?v=4?s=100" width="100px;" alt="Yalun Lin Hsu"/><br /><sub><b>Yalun Lin Hsu</b></sub></a><br /><a href="https://github.com/No-Trade-No-Life/Yuan/commits?author=linxuyalun" title="Code">💻</a></td>
       <td align="center" valign="top" width="14.28%"><a href="https://github.com/SakurazukaKen"><img src="https://avatars.githubusercontent.com/u/9213509?v=4?s=100" width="100px;" alt="SakurazukaKen"/><br /><sub><b>SakurazukaKen</b></sub></a><br /><a href="https://github.com/No-Trade-No-Life/Yuan/commits?author=SakurazukaKen" title="Code">💻</a></td>
+      <td align="center" valign="top" width="14.28%"><a href="https://github.com/StayRealMayDay"><img src="https://avatars.githubusercontent.com/u/26059707?v=4?s=100" width="100px;" alt="Haoran Ren"/><br /><sub><b>Haoran Ren</b></sub></a><br /><a href="https://github.com/No-Trade-No-Life/Yuan/commits?author=StayRealMayDay" title="Code">💻</a></td>
     </tr>
   </tbody>
 </table>
