@@ -15,8 +15,8 @@
   <img src="https://y.ntnl.io/yuan.svg" alt="Logo" width="80" height="80" />
   <h3 align="center">Yuan</h3>
   <p align="center">
-    <p>The money OS for everyone defend their own wealth.</p>
-    <p>AI empowered, global market, serverless, cloud native, and privacy.</p>
+    <p>The money OS for everyone defends their own wealth.</p>
+    <p>AI empowered, global market, serverless, cloud-native, and privacy.</p>
     <a align="center" href="https://y.ntnl.io">Access the Yuan GUI from any device »</a>
     <br />
     <br />
