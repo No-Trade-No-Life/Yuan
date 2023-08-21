@@ -38,7 +38,7 @@ There are many great tools and platforms available. However, I didn't find one t
 Here's why:
 
 - My trading strategy is secret. I am afraid someone illegally obtains the results. I can test and run it on trusted devices.
-The historical data is highly reused and never updated anymore. I can download the data once and use it forever. So the data should be free.
+- The historical data is highly reused and never updated anymore. I can download the data once and use it forever. So the data should be free.
 - Most devices have installed browsers. I can work everywhere through a browser. Fast starting without installing Python or other prerequisites.
 - The market is similar around the world. I can trade in any global market without changing any strategy code. Write once, and run everywhere.
 - Real-world trading is important. The trading system should be highly available. I can easily create and maintain ones.
