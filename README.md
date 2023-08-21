@@ -30,20 +30,24 @@
 
 <img width="2560" alt="image" src="https://github.com/No-Trade-No-Life/Yuan/assets/12707521/b31243a9-18d5-45ed-9c73-6806a8f60f00">
 
-I'm a software engineer, and I want to make money by quantitative and automatically trading.
 
-There are many great tools and platforms available; however, I didn't find one that suited my needs so I created Yuan.
+I'm a software engineer. And I want to make money through quantitative and automatic trading.
 
-Heres's why:
+There are many great tools and platforms available. However, I didn't find one that suited my need, so I created Yuan.
 
-- 🔐 Your trading strategy is absolutely secret. You should test and run in your own device, so it will not be stolen by anyone else.
-- 🆓 You shouldn't paid for the public historical data. It should be easy to accessed, and without any limitations and costs.
-- You can work everywhere from any device, including PC and Mobile. Just in browser.
-- 💡 You can ask AI assistant for writing strategy code even if you cannot programming. Just tell the idea and run!
-- Write once, Run and Trade everywhere. You can trade in any global market without change any code.
-- It's not expensive to run and maintain a highly avaiable trading system.
+Here's why:
 
-Further more, I think it can help you managing your money dispersed across many accounts. You can really control your money by the Operating System - Yuan.
+- My trading strategy is secret. I am afraid someone illegally obtains the results. I can test and run it on trusted devices.
+The historical data is highly reused and never updated anymore. I can download the data once and use it forever. So the data should be free.
+- Most devices have installed browsers. I can work everywhere through a browser. Fast starting without installing Python or other prerequisites.
+- The market is similar around the world. I can trade in any global market without changing any strategy code. Write once, and run everywhere.
+- Real-world trading is important. The trading system should be highly available. I can easily create and maintain ones.
+
+For more general usages:
+- Maybe you feel troubled about coding. You can ask an AI assistant for help. Just tell AI your idea and run. AI can complete the code.
+- Maybe you need to manage your money dispersed across many accounts.
+
+In summary, I hope Yuan can be an operating system, which helps you control your money.
 
 ## Built with
 
