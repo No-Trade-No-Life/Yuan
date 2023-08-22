@@ -6,6 +6,7 @@
 [![Stargazers][stars-shield]][stars-url]
 [![MIT License][license-shield]][license-url]
 
+[![Discord](https://img.shields.io/discord/1141802173676654675?style=for-the-badge&logo=discord)](https://discord.gg/BRH2447DUV)
 [![Issues][issues-shield]][issues-url]
 [![Bugs Open][bugs-open-shield]][bugs-open-url]
 [![Bugs Closed][bugs-closed-shield]][bugs-closed-url]
@@ -23,6 +24,8 @@
     <a href="https://github.com/No-Trade-No-Life/Yuan/issues/new?assignees=&labels=type%2Fbug+%F0%9F%90%9B&projects=&template=bug_report.yaml&title=bug%3A+%3Ctitle%3E">Report Bug 🐛</a>
     ·
     <a href="https://github.com/No-Trade-No-Life/Yuan/issues/new?assignees=&labels=type%2Ffeature+%F0%9F%92%A1&projects=&template=feature_request.yaml&title=feat%3A+%3Ctitle%3E">Request Feature 💡</a>
+    ·
+    <a href="https://discord.gg/BRH2447DUV">Join Discord</a>
   </p>
 </div>
 
@@ -145,6 +148,10 @@ Thanks sincerely to the contributors:
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
+
+## Contact
+
+- Join Discord server: [![Discord](https://img.shields.io/discord/1141802173676654675?style=for-the-badge&logo=discord)](https://discord.gg/BRH2447DUV)
 
 ## Acknowledgments 📖
 
