@@ -143,7 +143,7 @@
   //     "tools",      // non-shipping projects that are part of the developer toolchain
   //     "prototypes"  // experiments that should mostly be ignored by the review process
   //   ],
-  // 
+  //
   //   /**
   //    * A list of NPM package scopes that will be excluded from review.
   //    * We recommend to exclude TypeScript typings (the "@types" scope), because
@@ -173,14 +173,12 @@
     //   "[^@]+@users\\.noreply\\.github\\.com",
     //   "rush-bot@example\\.org"
     // ],
-
     /**
      * When Rush reports that the address is malformed, the notice can include an example
      * of a recommended email.  Make sure it conforms to one of the allowedEmailRegExps
      * expressions.
      */
     // "sampleEmail": "example@users.noreply.github.com",
-
     /**
      * The commit message to use when committing changes during 'rush publish'.
      *
@@ -189,7 +187,6 @@
      * in the commit message, and then customize Rush's message to contain that string.
      */
     // "versionBumpCommitMessage": "Bump versions [skip ci]",
-
     /**
      * The commit message to use when committing changes during 'rush version'.
      *
@@ -198,13 +195,12 @@
      * in the commit message, and then customize Rush's message to contain that string.
      */
     // "changeLogUpdateCommitMessage": "Update changelogs [skip ci]",
-
     /**
      * The commit message to use when commiting changefiles during 'rush change --commit'
      *
      * If no commit message is set it will default to 'Rush change'
      */
-     // "changefilesCommitMessage": "Rush change"
+    // "changefilesCommitMessage": "Rush change"
   },
 
   "repository": {
@@ -288,7 +284,7 @@
     //    * The folder name for this variant.
     //    */
     //   "variantName": "old-sdk",
-    // 
+    //
     //   /**
     //    * An informative description
     //    */
@@ -314,13 +310,13 @@
   // "hotfixChangeEnabled": false,
 
   /**
-    * This is an optional, but recommended, list of allowed tags that can be applied to Rush projects
-    * using the "tags" setting in this file.  This list is useful for preventing mistakes such as misspelling,
-    * and it also provides a centralized place to document your tags.  If "allowedProjectTags" list is
-    * not specified, then any valid tag is allowed.  A tag name must be one or more words
-    * separated by hyphens or slashes, where a word may contain lowercase ASCII letters, digits,
-    * ".", and "@" characters.
-    */
+   * This is an optional, but recommended, list of allowed tags that can be applied to Rush projects
+   * using the "tags" setting in this file.  This list is useful for preventing mistakes such as misspelling,
+   * and it also provides a centralized place to document your tags.  If "allowedProjectTags" list is
+   * not specified, then any valid tag is allowed.  A tag name must be one or more words
+   * separated by hyphens or slashes, where a word may contain lowercase ASCII letters, digits,
+   * ".", and "@" characters.
+   */
   // "allowedProjectTags": [ "tools", "frontend-team", "1.0.0-release" ],
 
   /**
@@ -337,19 +333,19 @@
     //    * The NPM package name of the project (must match package.json)
     //    */
     //   "packageName": "my-app",
-    // 
+    //
     //   /**
     //    * The path to the project folder, relative to the rush.json config file.
     //    */
     //   "projectFolder": "apps/my-app",
-    // 
+    //
     //   /**
     //    * An optional category for usage in the "browser-approved-packages.json"
     //    * and "nonbrowser-approved-packages.json" files.  The value must be one of the
     //    * strings from the "reviewCategories" defined above.
     //    */
     //   "reviewCategory": "production",
-    // 
+    //
     //   /**
     //    * A list of Rush project names that are to be installed from NPM
     //    * instead of linking to the local project.
@@ -376,20 +372,20 @@
     //   "decoupledLocalDependencies": [
     //     // "my-toolchain"
     //   ],
-    // 
+    //
     //   /**
     //    * If true, then this project will be ignored by the "rush check" command.
     //    * The default value is false.
     //    */
     //   // "skipRushCheck": false,
-    // 
+    //
     //   /**
     //    * A flag indicating that changes to this project will be published to npm, which affects
     //    * the Rush change and publish workflows. The default value is false.
     //    * NOTE: "versionPolicyName" and "shouldPublish" are alternatives; you cannot specify them both.
     //    */
     //   // "shouldPublish": false,
-    // 
+    //
     //   /**
     //    * Facilitates postprocessing of a project's files prior to publishing.
     //    *
@@ -398,14 +394,14 @@
     //    * must contain its own package.json file, which is typically a build output.
     //    */
     //   // "publishFolder": "temp/publish",
-    // 
+    //
     //   /**
     //    * An optional version policy associated with the project.  Version policies are defined
     //    * in "version-policies.json" file.  See the "rush publish" documentation for more info.
     //    * NOTE: "versionPolicyName" and "shouldPublish" are alternatives; you cannot specify them both.
     //    */
     //   // "versionPolicyName": "",
-    // 
+    //
     //   /**
     //    * An optional set of custom tags that can be used to select this project.  For example,
     //    * adding "my-custom-tag" will allow this project to be selected by the
@@ -415,14 +411,14 @@
     //    */
     //   // "tags": [ "1.0.0-release", "frontend-team" ]
     // },
-    // 
+    //
     // {
     //   "packageName": "my-controls",
     //   "projectFolder": "libraries/my-controls",
     //   "reviewCategory": "production",
     //   "tags": [ "frontend-team" ]
     // },
-    // 
+    //
     // {
     //   "packageName": "my-toolchain",
     //   "projectFolder": "tools/my-toolchain",
@@ -436,6 +432,10 @@
     {
       "packageName": "@yuants/template",
       "projectFolder": "tools/template"
+    },
+    {
+      "packageName": "@yuants/data-model",
+      "projectFolder": "libraries/data-model"
     }
   ]
 }
