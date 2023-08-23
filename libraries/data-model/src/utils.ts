@@ -168,3 +168,21 @@ export const formatTime = (time: Date | number | string, timeZone: string | unde
  * @returns Universal Unique ID string
  */
 export const UUID = () => v4();
+
+/**
+ * convert params to path.
+ * Path is splitted by `/`.
+ * Escape to `\/` if a param including `/`.
+ * @public
+ */
+export const encodePath = (...params: any[]): string =>
+  params.map((param) => `${param}`.replace(/\//g, '\\/')).join('/');
+
+/**
+ * convert path to params.
+ * Path is splitted by `/`.
+ * Escape to `\/` if a param including `/`.
+ * @public
+ */
+export const decodePath = (path: string): string[] =>
+  path.split(/(?<!\\)\//g).map((x) => x.replace(/\\\//g, '/'));

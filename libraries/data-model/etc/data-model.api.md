@@ -10,6 +10,12 @@ import { Observable } from 'rxjs';
 export const createEmptyAccountInfo: (account_id: string, currency: string, leverage?: number, initial_balance?: number) => IAccountInfo;
 
 // @public
+export const decodePath: (path: string) => string[];
+
+// @public
+export const encodePath: (...params: any[]) => string;
+
+// @public
 export const formatTime: (time: Date | number | string, timeZone?: string | undefined) => string;
 
 // @public (undocumented)
