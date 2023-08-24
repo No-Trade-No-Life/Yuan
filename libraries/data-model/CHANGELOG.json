@@ -1,0 +1,39 @@
+{
+  "name": "@yuants/data-model",
+  "entries": [
+    {
+      "version": "0.1.2",
+      "tag": "@yuants/data-model_v0.1.2",
+      "date": "Thu, 24 Aug 2023 20:34:16 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "opt the package size"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/tool-dependency-hash\" to `0.0.2`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.1.1",
+      "tag": "@yuants/data-model_v0.1.1",
+      "date": "Thu, 24 Aug 2023 20:27:01 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "init"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/tool-dependency-hash\" to `0.0.1`"
+          }
+        ]
+      }
+    }
+  ]
+}

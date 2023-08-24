@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/tool-dependency-hash",
+      "comment": "",
+      "type": "none"
+    }
+  ],
+  "packageName": "@yuants/tool-dependency-hash"
+}
