@@ -427,7 +427,8 @@
     // }
     {
       "packageName": "@yuants/tool-dependency-hash",
-      "projectFolder": "tools/dependency-hash"
+      "projectFolder": "tools/dependency-hash",
+      "shouldPublish": true
     },
     {
       "packageName": "@yuants/template",
@@ -435,7 +436,8 @@
     },
     {
       "packageName": "@yuants/data-model",
-      "projectFolder": "libraries/data-model"
+      "projectFolder": "libraries/data-model",
+      "shouldPublish": true
     }
   ]
 }

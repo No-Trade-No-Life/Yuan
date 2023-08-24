@@ -1,13 +1,19 @@
 {
   "name": "@yuants/tool-dependency-hash",
-  "version": "0.0.0",
+  "version": "0.0.2",
   "main": "lib/index.js",
   "bin": "cli.js",
+  "files": [
+    "dist",
+    "lib",
+    "temp"
+  ],
   "scripts": {
     "build": "heft test --clean && api-extractor run --local && node cli.js @yuants/tool-dependency-hash"
   },
   "publishConfig": {
-    "registry": "https://npm.ntnl.io"
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
   },
   "devDependencies": {
     "@types/node": "18",
