@@ -40,5 +40,5 @@ jobs:
         run: node common/scripts/install-run-rush.js change --verify
       - name: Rush Install
         run: node common/scripts/install-run-rush.js install
-      - name: Rush rebuild
-        run: node common/scripts/install-run-rush.js rebuild --verbose
+      - name: Rush build
+        run: node common/scripts/install-run-rush.js build --verbose
