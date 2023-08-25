@@ -16,28 +16,28 @@
     "access": "public"
   },
   "devDependencies": {
-    "@types/node": "18",
-    "typescript": "~4.7.4",
-    "@types/uuid": "~8.3.4",
-    "@types/heft-jest": "1.0.3",
+    "@microsoft/api-extractor": "~7.30.0",
     "@rushstack/heft": "~0.47.5",
     "@rushstack/heft-jest-plugin": "~0.3.30",
     "@rushstack/heft-node-rig": "~1.10.7",
-    "@microsoft/api-extractor": "~7.30.0",
+    "@types/heft-jest": "1.0.3",
     "@types/json-schema": "7.0.11",
+    "@types/node": "18",
+    "@types/path-browserify": "~1.0.0",
+    "@types/uuid": "~8.3.4",
     "@yuants/tool-dependency-hash": "workspace:*",
-    "@types/path-browserify": "~1.0.0"
+    "typescript": "~4.7.4"
   },
   "dependencies": {
-    "rxjs": "~7.5.6",
-    "uuid": "~8.3.2",
+    "@datastructures-js/priority-queue": "~6.3.0",
     "@yuants/protocol": "workspace:*",
     "@yuants/utils": "workspace:*",
-    "@datastructures-js/priority-queue": "~6.3.0",
     "date-fns": "~2.30.0",
-    "promjs": "~0.4.2",
     "json-schema": "~0.4.0",
     "path-browserify": "~1.0.1",
-    "quadprog": "~1.6.1"
+    "promjs": "~0.4.2",
+    "quadprog": "~1.6.1",
+    "rxjs": "~7.5.6",
+    "uuid": "~8.3.2"
   }
 }
