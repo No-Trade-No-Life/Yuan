@@ -453,6 +453,11 @@
       "packageName": "@yuants/kernel",
       "projectFolder": "libraries/kernel",
       "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/agent",
+      "projectFolder": "libraries/agent",
+      "shouldPublish": true
     }
   ]
 }
