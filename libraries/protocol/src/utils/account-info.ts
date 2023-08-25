@@ -2,6 +2,7 @@ import { from, groupBy, map, mergeMap, Observable, reduce, toArray } from 'rxjs'
 import { IAccountInfo, IPosition } from '../model';
 
 /**
+ * Merge Positions by their product_id and variant
  * @public
  */
 export const mergeAccountInfoPositions = (info: IAccountInfo): Observable<IAccountInfo> => {
