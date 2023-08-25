@@ -448,6 +448,11 @@
       "packageName": "@yuants/protocol",
       "projectFolder": "libraries/protocol",
       "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/kernel",
+      "projectFolder": "libraries/kernel",
+      "shouldPublish": true
     }
   ]
 }

@@ -1,0 +1,43 @@
+{
+  "name": "@yuants/kernel",
+  "version": "0.0.0",
+  "main": "lib/index.js",
+  "module": "dist/index.js",
+  "files": [
+    "dist",
+    "lib",
+    "temp"
+  ],
+  "scripts": {
+    "build": "heft test --clean && api-extractor run --local && tool-dependency-hash @yuants/kernel"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  },
+  "devDependencies": {
+    "@microsoft/api-extractor": "~7.30.0",
+    "@rushstack/heft": "~0.47.5",
+    "@rushstack/heft-jest-plugin": "~0.3.30",
+    "@rushstack/heft-node-rig": "~1.10.7",
+    "@types/heft-jest": "1.0.3",
+    "@types/json-schema": "7.0.11",
+    "@types/node": "18",
+    "@types/path-browserify": "~1.0.0",
+    "@types/uuid": "~8.3.4",
+    "@yuants/tool-dependency-hash": "workspace:*",
+    "typescript": "~4.7.4"
+  },
+  "dependencies": {
+    "@datastructures-js/priority-queue": "~6.3.0",
+    "@yuants/protocol": "workspace:*",
+    "@yuants/utils": "workspace:*",
+    "date-fns": "~2.30.0",
+    "json-schema": "~0.4.0",
+    "path-browserify": "~1.0.1",
+    "promjs": "~0.4.2",
+    "quadprog": "~1.6.1",
+    "rxjs": "~7.5.6",
+    "uuid": "~8.3.2"
+  }
+}
