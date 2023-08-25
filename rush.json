@@ -438,6 +438,16 @@
       "packageName": "@yuants/data-model",
       "projectFolder": "libraries/data-model",
       "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/utils",
+      "projectFolder": "libraries/utils",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/protocol",
+      "projectFolder": "libraries/protocol",
+      "shouldPublish": true
     }
   ]
 }
