@@ -311,7 +311,7 @@ export function mapOrderDirectionToNetPositionCoef(direction: OrderDirection): n
 // @public
 export function mapPositionVariantToNetPositionCoef(variant: PositionVariant): number;
 
-// @public (undocumented)
+// @public
 export const mergeAccountInfoPositions: (info: IAccountInfo) => Observable<IAccountInfo>;
 
 // @public (undocumented)
