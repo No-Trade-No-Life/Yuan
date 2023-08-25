@@ -12,17 +12,18 @@
     "build": "heft test --clean && api-extractor run --local && tool-dependency-hash @yuants/utils"
   },
   "publishConfig": {
-    "registry": "https://registry.npmjs.org"
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
   },
   "devDependencies": {
-    "@types/node": "18",
-    "typescript": "~4.7.4",
-    "@types/heft-jest": "1.0.3",
+    "@microsoft/api-extractor": "~7.30.0",
     "@rushstack/heft": "~0.47.5",
     "@rushstack/heft-jest-plugin": "~0.3.30",
     "@rushstack/heft-node-rig": "~1.10.7",
-    "@microsoft/api-extractor": "~7.30.0",
-    "@yuants/tool-dependency-hash": "workspace:*"
+    "@types/heft-jest": "1.0.3",
+    "@types/node": "18",
+    "@yuants/tool-dependency-hash": "workspace:*",
+    "typescript": "~4.7.4"
   },
   "dependencies": {
     "rxjs": "~7.5.6"
