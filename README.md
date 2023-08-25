@@ -90,21 +90,24 @@ rush update && rush build
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+### Packages
 
-## Plan to open source
+- [@yuants/data-model](libraries/data-model) Data Model and related utils.
+- [@yuants/protocol](libraries/protocol) Network protocol, service definition and infrastruture.
+- [@yuants/utils](libraries/utils) Some general utils that is not found in community.
+- [@yuants/kernel](libraries/kernel) The kernel of Time-Machine. Time-Machine can travel from the history to the future. This package also contains some useful units and scenes.
+- [@yuants/agent](libraries/agent) Agent is a trading bot. Agent is the core of trading strategy.
 
-1. Data models;
-2. Network: protocol, services and infrastructure;
-3. Time Machine: kernel, units and scenes;
-4. Some applications;
-5. The Yuan GUI;
-6. ...and more
+### Plan to open source
+
+- [ ] Some applications (host, market-data-collector, agent-daemon, trade-copier, notifier, and so on);
+- [ ] The Yuan GUI;
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ## Contributing
 
-Contributions are what make the open source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
+Contributions make the open-source community a fantastic place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
 
 If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also simply [open a feature request issue](https://github.com/No-Trade-No-Life/Yuan/issues/new?assignees=&labels=type%2Ffeature+%F0%9F%92%A1&projects=&template=feature_request.yaml&title=feat%3A+%3Ctitle%3E).
 Don't forget to give the project a star! Thanks again!
@@ -153,10 +156,17 @@ Thanks sincerely to the contributors:
 
 - Join Discord server: [![Discord](https://img.shields.io/discord/1141802173676654675?style=for-the-badge&logo=discord)](https://discord.gg/BRH2447DUV)
 
+<p align="right">(<a href="#readme-top">back to top</a>)</p>
+
 ## Acknowledgments 📖
 
-1. Public workspace for AI & human to learn: [Yuan-Public-Workspace](https://github.com/No-Trade-No-Life/Yuan-Public-Workspace)
-2. Public data source for research startup: [Yuan-Public-Data](https://github.com/No-Trade-No-Life/Yuan-Public-Data)
+1. [Yuan-Public-Workspace](https://github.com/No-Trade-No-Life/Yuan-Public-Workspace)
+   You can learn how to write strategy models from this repository. You can easily import it to your workspace from the GUI. The repository is embedded in AI with a vector database.
+   Contribute with your examples is greatly appreciated!
+1. [Yuan-Public-Data](https://github.com/No-Trade-No-Life/Yuan-Public-Data)
+   Our public data is maintained here as a repository. Free to use.
+   Welcome to contribute if you have other data!
+   
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
