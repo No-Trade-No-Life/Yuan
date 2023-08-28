@@ -431,6 +431,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/tool-docker-bake",
+      "projectFolder": "tools/docker-bake",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/template",
       "projectFolder": "tools/template"
     },
