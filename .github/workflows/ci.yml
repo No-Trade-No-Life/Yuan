@@ -40,7 +40,12 @@ jobs:
         run: node common/scripts/install-run-rush.js change --verify
       - name: Rush Install
         run: node common/scripts/install-run-rush.js install
+
       - name: Rush build
+        env:
+          REGISTRY: ghcr.io
+          REGISTRY_NAMESPACE: no-trade-no-life/yuan
+          CI_RUN: 'true'
         run: node common/scripts/install-run-rush.js build --verbose
 
       - name: Check docker bake file existence
