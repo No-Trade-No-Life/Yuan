@@ -17,6 +17,7 @@
    * and then specify those projects in the "additionalProjectsToInclude" list.
    */
   "deploymentProjectNames": [
+    "@yuants/app-host",
     "@yuants/app-agent"
   ],
   /**

@@ -465,9 +465,12 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/app-host",
+      "projectFolder": "apps/host"
+    },
+    {
       "packageName": "@yuants/app-agent",
-      "projectFolder": "apps/agent",
-      "shouldPublish": true
+      "projectFolder": "apps/agent"
     }
   ]
 }
