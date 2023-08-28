@@ -101,6 +101,7 @@ const createWorker = () => {
   return workerInstance;
 };
 
+// dewit
 const run = async () => {
   let currentMainWorker = createWorker();
 
