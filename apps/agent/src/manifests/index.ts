@@ -52,7 +52,7 @@ export const make_docker_compose_file = async (ctx: IDeploySpec, envCtx: IEnvCon
   const paths = [ctx.env!.AGENT_CONF_PATH];
   return {
     [`agent-${account_id.toLocaleLowerCase()}`]: {
-      image: `registry.ap-southeast-1.aliyuncs.com/ntnl-y/app-agent:${ctx.version ?? envCtx.version}`,
+      image: `ghcr.io/no-trade-no-life/yuan/app-agent:${ctx.version ?? envCtx.version}`,
       restart: 'always',
       volumes: [
         ...(await Promise.all(
@@ -145,9 +145,7 @@ export const make_k8s_resource_objects = async (ctx: IDeploySpec, envCtx: IEnvCo
             containers: [
               {
                 env: makeK8sEnvs(ctx.env),
-                image: `registry.ap-southeast-1.aliyuncs.com/ntnl-y/app-agent:${
-                  ctx.version ?? envCtx.version
-                }`,
+                image: `ghcr.io/no-trade-no-life/yuan/app-agent:${ctx.version ?? envCtx.version}`,
                 imagePullPolicy: 'IfNotPresent',
                 name: 'agent',
                 resources: {
