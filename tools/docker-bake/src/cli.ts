@@ -46,7 +46,7 @@ const imageTag =
 fs.writeFileSync(outTagFile, imageTag);
 
 const registry = process.env.REGISTRY ?? 'ghcr.io';
-const namespace = process.env.REGISTRY_NAMESPACE ?? 'no-trade-no-life/yuan';
+const namespace = process.env.REGISTRY_NAMESPACE ?? 'no-trade-no-life';
 const version = process.env.VERSION ?? imageTag;
 const auth: { username: string; password: string } | undefined =
   process.env.REGISTRY_USERNAME && process.env.REGISTRY_PASSWORD

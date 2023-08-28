@@ -54,7 +54,7 @@ jobs:
       - name: Rush build
         env:
           REGISTRY: ghcr.io
-          REGISTRY_NAMESPACE: no-trade-no-life/yuan
+          REGISTRY_NAMESPACE: no-trade-no-life
           CI_RUN: 'true'
         run: node common/scripts/install-run-rush.js build --verbose
 
