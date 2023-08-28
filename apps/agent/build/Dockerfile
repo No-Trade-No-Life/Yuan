@@ -3,6 +3,7 @@
 FROM node:18.17.0-bullseye-slim
 
 LABEL maintainer="Siyuan Wang <c.one@thrimbda.com>"
+LABEL org.opencontainers.image.source="https://github.com/No-Trade-No-Life/Yuan"
 
 # https://github.com/nodejs/docker-node/blob/main/docs/BestPractices.md#handling-kernel-signals
 ARG TINI_VERSION=v0.19.0
