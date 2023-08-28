@@ -1,6 +1,6 @@
 {
   "cSpell.words": ["datasource", "forex", "yuants"],
   "files.associations": {
-    "rush.json": "jsonc"
+    "*.json": "jsonc"
   }
 }
