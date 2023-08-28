@@ -1,0 +1,29 @@
+{
+  "name": "@yuants/tool-docker-bake",
+  "version": "0.0.0",
+  "main": "lib/index.js",
+  "bin": "cli.js",
+  "scripts": {
+    "build": "heft test --clean && api-extractor run --local && tool-dependency-hash @yuants/tool-docker-bake"
+  },
+  "publishConfig": {
+    "registry": "https://npm.ntnl.io"
+  },
+  "devDependencies": {
+    "@types/node": "18",
+    "@types/heft-jest": "1.0.3",
+    "@rushstack/heft": "~0.47.5",
+    "@rushstack/heft-jest-plugin": "~0.3.30",
+    "@rushstack/heft-node-rig": "~1.10.7",
+    "@microsoft/api-extractor": "~7.30.0",
+    "typescript": "~4.7.4",
+    "@types/lodash": "~4.14.188",
+    "@yuants/tool-dependency-hash": "workspace:*"
+  },
+  "dependencies": {
+    "lodash": "~4.17.21",
+    "@microsoft/rush-lib": "~5.101.0",
+    "axios": "~1.3.2",
+    "rxjs": "~7.8.0"
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/tool-docker-bake",
+      "comment": "init",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/tool-docker-bake"
+}
