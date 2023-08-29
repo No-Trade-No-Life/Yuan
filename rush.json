@@ -476,6 +476,11 @@
       "packageName": "@yuants/app-mongodb-storage",
       "projectFolder": "apps/mongodb-storage",
       "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/app-trade-copier",
+      "projectFolder": "apps/trade-copier",
+      "shouldPublish": true
     }
   ]
 }
