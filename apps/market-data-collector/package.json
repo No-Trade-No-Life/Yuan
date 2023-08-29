@@ -15,23 +15,23 @@
     "temp"
   ],
   "devDependencies": {
-    "@types/node": "18",
-    "@types/heft-jest": "1.0.3",
+    "@microsoft/api-extractor": "~7.30.0",
     "@rushstack/heft": "~0.47.5",
     "@rushstack/heft-jest-plugin": "~0.3.30",
     "@rushstack/heft-node-rig": "~1.10.7",
-    "@microsoft/api-extractor": "~7.30.0",
-    "typescript": "~4.7.4",
-    "@yuants/tool-docker-bake": "workspace:*",
-    "@yuants/tool-dependency-hash": "workspace:*",
     "@types/cron": "~2.0.1",
-    "@types/json-schema": "~7.0.11"
+    "@types/heft-jest": "1.0.3",
+    "@types/json-schema": "~7.0.11",
+    "@types/node": "18",
+    "@yuants/tool-dependency-hash": "workspace:*",
+    "@yuants/tool-docker-bake": "workspace:*",
+    "typescript": "~4.7.4"
   },
   "dependencies": {
-    "rxjs": "~7.5.6",
     "@yuants/protocol": "workspace:*",
-    "cron": "~2.3.0",
+    "@yuants/utils": "workspace:*",
     "ajv": "~8.12.0",
-    "@yuants/utils": "workspace:*"
+    "cron": "~2.3.0",
+    "rxjs": "~7.5.6"
   }
 }
