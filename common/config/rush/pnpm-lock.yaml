@@ -109,7 +109,7 @@ importers:
       '@yuants/protocol': workspace:*
       '@yuants/tool-dependency-hash': workspace:*
       '@yuants/tool-docker-bake': workspace:*
-      '@yuants/utils': '*'
+      '@yuants/utils': workspace:*
       ajv: ~8.12.0
       ajv-formats: ~2.1.1
       json-schema: ~0.4.0
@@ -119,7 +119,7 @@ importers:
     dependencies:
       '@types/json-schema': 7.0.12
       '@yuants/protocol': link:../../libraries/protocol
-      '@yuants/utils': 0.0.0
+      '@yuants/utils': link:../../libraries/utils
       ajv: 8.12.0
       ajv-formats: 2.1.1
       mongodb: 4.8.1
@@ -2168,12 +2168,6 @@ packages:
 
   /@yarnpkg/lockfile/1.0.2:
     resolution: {integrity: sha512-MqJ00WXw89ga0rK6GZkdmmgv3bAsxpJixyTthjcix73O44pBqotyU2BejBkLuIsaOBI6SEu77vAnSyLe5iIHkw==}
-    dev: false
-
-  /@yuants/utils/0.0.0:
-    resolution: {integrity: sha512-hBIo1q6OZg+yRhWstjZsvEpZhG9d2rlCvha0ltjJczyiJ2lFGp6MzZOzF8eBpp9dV6mwicphE1xkQ/T5MMVcLQ==}
-    dependencies:
-      rxjs: 7.5.7
     dev: false
 
   /@zkochan/cmd-shim/5.4.1:
