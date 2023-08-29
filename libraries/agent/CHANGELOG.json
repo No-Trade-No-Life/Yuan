@@ -1,0 +1,23 @@
+{
+  "name": "@yuants/agent",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/agent_v0.0.1",
+      "date": "Tue, 29 Aug 2023 15:01:01 GMT",
+      "comments": {
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.0.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.0.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.0.1`"
+          }
+        ]
+      }
+    }
+  ]
+}

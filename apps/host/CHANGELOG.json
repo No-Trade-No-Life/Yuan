@@ -1,0 +1,20 @@
+{
+  "name": "@yuants/app-host",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/app-host_v0.0.1",
+      "date": "Tue, 29 Aug 2023 15:01:01 GMT",
+      "comments": {
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.0.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/tool-docker-bake\" to `0.0.1`"
+          }
+        ]
+      }
+    }
+  ]
+}

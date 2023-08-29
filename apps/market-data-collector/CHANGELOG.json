@@ -1,0 +1,28 @@
+{
+  "name": "@yuants/app-market-data-collector",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/app-market-data-collector_v0.0.1",
+      "date": "Tue, 29 Aug 2023 15:01:01 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "init"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.0.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.0.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/tool-docker-bake\" to `0.0.1`"
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/tool-docker-bake",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/tool-docker-bake_v0.0.1",
+      "date": "Tue, 29 Aug 2023 15:01:01 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "init"
+          }
+        ]
+      }
+    }
+  ]
+}

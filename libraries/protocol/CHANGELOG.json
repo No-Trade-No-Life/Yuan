@@ -1,0 +1,22 @@
+{
+  "name": "@yuants/protocol",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/protocol_v0.0.1",
+      "date": "Tue, 29 Aug 2023 15:01:01 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "init"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.0.1`"
+          }
+        ]
+      }
+    }
+  ]
+}
