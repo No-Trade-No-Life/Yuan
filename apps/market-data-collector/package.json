@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-market-data-collector",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "main": "lib/index.js",
   "scripts": {
     "build": "heft test --clean && api-extractor run --local && tool-dependency-hash @yuants/app-market-data-collector && tool-docker-bake @yuants/app-market-data-collector apps/market-data-collector"
