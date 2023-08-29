@@ -25,7 +25,7 @@ export const make_json_schema = (): JSONSchema7 => ({
 
 export const make_docker_compose_file = async (ctx: IDeploySpec, envCtx: IEnvContext) => ({
   trade_copier: {
-    image: `registry.ap-southeast-1.aliyuncs.com/ntnl-y/app-trade-copier:${ctx.version ?? envCtx.version}`,
+    image: `ghcr.io/no-trade-no-life/app-trade-copier:${ctx.version ?? envCtx.version}`,
     environment: makeDockerEnvs(ctx.env),
   },
 });
@@ -61,9 +61,7 @@ export const make_k8s_resource_objects = async (ctx: IDeploySpec, envCtx: IEnvCo
             containers: [
               {
                 env: makeK8sEnvs(ctx.env),
-                image: `registry.ap-southeast-1.aliyuncs.com/ntnl-y/app-trade-copier:${
-                  ctx.version ?? envCtx.version
-                }`,
+                image: `ghcr.io/no-trade-no-life/app-trade-copier:${ctx.version ?? envCtx.version}`,
                 imagePullPolicy: 'IfNotPresent',
                 name: 'trade-copier',
                 resources: {
