@@ -1,0 +1,37 @@
+{
+  "name": "@yuants/app-market-data-collector",
+  "version": "0.0.0",
+  "main": "lib/index.js",
+  "scripts": {
+    "build": "heft test --clean && api-extractor run --local && tool-dependency-hash @yuants/app-market-data-collector && tool-docker-bake @yuants/app-market-data-collector apps/market-data-collector"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  },
+  "files": [
+    "dist",
+    "lib",
+    "temp"
+  ],
+  "devDependencies": {
+    "@types/node": "18",
+    "@types/heft-jest": "1.0.3",
+    "@rushstack/heft": "~0.47.5",
+    "@rushstack/heft-jest-plugin": "~0.3.30",
+    "@rushstack/heft-node-rig": "~1.10.7",
+    "@microsoft/api-extractor": "~7.30.0",
+    "typescript": "~4.7.4",
+    "@yuants/tool-docker-bake": "workspace:*",
+    "@yuants/tool-dependency-hash": "workspace:*",
+    "@types/cron": "~2.0.1",
+    "@types/json-schema": "~7.0.11"
+  },
+  "dependencies": {
+    "rxjs": "~7.5.6",
+    "@yuants/protocol": "workspace:*",
+    "cron": "~2.3.0",
+    "ajv": "~8.12.0",
+    "@yuants/utils": "workspace:*"
+  }
+}

@@ -465,16 +465,39 @@
       "shouldPublish": true
     },
     {
-      "packageName": "@yuants/app-host",
-      "projectFolder": "apps/host"
+      "packageName": "@yuants/app-agent",
+      "projectFolder": "apps/agent",
+      "shouldPublish": true
     },
     {
-      "packageName": "@yuants/app-agent",
-      "projectFolder": "apps/agent"
+      "packageName": "@yuants/app-email-notifier",
+      "projectFolder": "apps/email-notifier",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/app-feishu-notifier",
+      "projectFolder": "apps/feishu-notifier",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/app-host",
+      "projectFolder": "apps/host",
+      "shouldPublish": true
     },
     {
       "packageName": "@yuants/app-mongodb-storage",
       "projectFolder": "apps/mongodb-storage",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/app-market-data-collector",
+      "projectFolder": "apps/market-data-collector",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/app-metrics-collector",
+      "projectFolder": "apps/metrics-collector",
+
       "shouldPublish": true
     },
     {

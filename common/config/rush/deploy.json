@@ -17,9 +17,13 @@
    * and then specify those projects in the "additionalProjectsToInclude" list.
    */
   "deploymentProjectNames": [
-    "@yuants/app-host",
     "@yuants/app-agent",
+    "@yuants/app-email-notifier",
+    "@yuants/app-feishu-notifier",
+    "@yuants/app-host",
     "@yuants/app-mongodb-storage",
+    "@yuants/app-metrics-collector",
+    "@yuants/app-market-data-collector",
     "@yuants/app-trade-copier"
   ],
   /**
