@@ -6,7 +6,11 @@ on:
     branches: ['main']
 
   workflow_dispatch:
-
+    inputs:
+      rebuild:
+        description: 'Rebuild all images'
+        required: false
+        default: 'false'
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -51,7 +55,16 @@ jobs:
       - name: Rush Install
         run: node common/scripts/install-run-rush.js install
 
+      - name: Rush rebuild
+        if: ${{ github.event.inputs.rebuild == 'true' }}
+        env:
+          REGISTRY: ghcr.io
+          REGISTRY_NAMESPACE: no-trade-no-life
+          CI_RUN: 'true'
+        run: node common/scripts/install-run-rush.js rebuild --verbose
+
       - name: Rush build
+        if: ${{ github.event.inputs.rebuild != 'true' }}
         env:
           REGISTRY: ghcr.io
           REGISTRY_NAMESPACE: no-trade-no-life

@@ -35,7 +35,7 @@ export const make_json_schema = (): JSONSchema7 => {
 
 export const make_docker_compose_file = async (ctx: IDeploySpec, envCtx: IEnvContext) => ({
   host: {
-    image: `ghcr.io/no-trade-no-life/host:${ctx.version ?? envCtx.version}`,
+    image: `ghcr.io/no-trade-no-life/app-host:${ctx.version ?? envCtx.version}`,
     ports: [['host', 8888]]
       .filter(([name]) => ctx.network?.port_forward?.[name] !== undefined)
       .map(([name, targetPort]) => `${ctx.network!.port_forward![name]}:${targetPort}`),
@@ -80,7 +80,7 @@ export const make_k8s_resource_objects = async (ctx: IDeploySpec, envCtx: IEnvCo
             containers: [
               {
                 name: 'host',
-                image: `ghcr.io/no-trade-no-life/host:${ctx.version ?? envCtx.version}`,
+                image: `ghcr.io/no-trade-no-life/app-host:${ctx.version ?? envCtx.version}`,
                 imagePullPolicy: 'IfNotPresent',
                 env: makeK8sEnvs(ctx.env),
                 ports: [
