@@ -6,8 +6,14 @@
     "build": "heft test --clean && api-extractor run --local && tool-dependency-hash @yuants/template"
   },
   "publishConfig": {
-    "registry": "https://npm.ntnl.io"
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
   },
+  "files": [
+    "dist",
+    "lib",
+    "temp"
+  ],
   "devDependencies": {
     "@types/node": "18",
     "rimraf": "^2.6.2",
