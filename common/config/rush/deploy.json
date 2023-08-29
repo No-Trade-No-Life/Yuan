@@ -18,7 +18,8 @@
    */
   "deploymentProjectNames": [
     "@yuants/app-host",
-    "@yuants/app-agent"
+    "@yuants/app-agent",
+    "@yuants/app-mongodb-storage"
   ],
   /**
    * When deploying a local Rush project, the package.json "devDependencies" are normally excluded.

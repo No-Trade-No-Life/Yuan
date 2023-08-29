@@ -471,6 +471,11 @@
     {
       "packageName": "@yuants/app-agent",
       "projectFolder": "apps/agent"
+    },
+    {
+      "packageName": "@yuants/app-mongodb-storage",
+      "projectFolder": "apps/mongodb-storage",
+      "shouldPublish": true
     }
   ]
 }

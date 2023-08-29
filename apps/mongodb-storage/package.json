@@ -1,0 +1,40 @@
+{
+  "name": "@yuants/app-mongodb-storage",
+  "version": "0.0.0",
+  "main": "lib/index.js",
+  "module": "dist/index.js",
+  "files": [
+    "dist",
+    "lib",
+    "temp"
+  ],
+  "scripts": {
+    "build": "heft test --clean && api-extractor run --local && tool-dependency-hash @yuants/app-mongodb-storage && tool-docker-bake @yuants/app-mongodb-storage apps/mongodb-storage"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  },
+  "devDependencies": {
+    "@microsoft/api-extractor": "~7.30.0",
+    "@rushstack/heft": "~0.47.5",
+    "@rushstack/heft-jest-plugin": "~0.3.30",
+    "@rushstack/heft-node-rig": "~1.10.7",
+    "@types/heft-jest": "1.0.3",
+    "@types/json-schema": "~7.0.11",
+    "@types/node": "18",
+    "@yuants/tool-dependency-hash": "workspace:*",
+    "@yuants/tool-docker-bake": "workspace:*",
+    "json-schema": "~0.4.0",
+    "typescript": "~4.7.4"
+  },
+  "dependencies": {
+    "@types/json-schema": "~7.0.11",
+    "@yuants/protocol": "workspace:*",
+    "@yuants/utils": "workspace:*",
+    "ajv": "~8.12.0",
+    "ajv-formats": "~2.1.1",
+    "mongodb": "~4.8.0",
+    "rxjs": "7.5.7"
+  }
+}
