@@ -2,20 +2,22 @@ name: Release
 on:
   push:
     branches: ['main']
+  pull_request:
+    branches: ['main']
   # manually trigger
   workflow_dispatch:
     inputs:
       rebuild:
-        type: boolean
+        type: string
         description: 'Rebuild All Packages'
         required: false
-        default: false
+        default: 'false'
 
 jobs:
   build:
     uses: ./.github/workflows/ci.yml
     with:
-      rebuild: ${{ inputs.rebuild }}
+      rebuild: ${{ inputs.rebuild == 'true' }}
 
   docker-build:
     runs-on: ubuntu-latest
@@ -25,6 +27,10 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: docker-artifacts
+
+      - run: |
+          ls .
+          ls ./common/temp
 
       - name: Check docker bake file existence
         id: check_files
