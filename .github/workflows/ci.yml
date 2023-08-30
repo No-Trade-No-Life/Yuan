@@ -73,14 +73,26 @@ jobs:
           CI_RUN: 'true'
         run: node common/scripts/install-run-rush.js build --verbose
 
+      - name: Check docker bake file existence
+        id: bake_file_existence
+        uses: andstor/file-existence-action@v2
+        with:
+          files: './common/temp/docker-bake.json'
+
+      - name: package docker deploy artifacts
+        run: |
+          tar -zcvf ./common/temp/docker-deploy.tar.gz \
+            ./common/temp/docker-bake.json \
+            ./common/temp/out
+
       - name: Upload docker artifacts
         uses: actions/upload-artifact@v3
+        if: ${{ steps.bake_file_existence.outputs.files_exists == 'true' }}
         with:
           name: docker-artifacts
           retention-days: 1
           path: |
-            ./common/temp/docker-bake.json
-            ./common/temp/out
+            ./common/temp/docker-deploy.tar.gz
 
       - name: Upload npm artifacts
         uses: actions/upload-artifact@v3

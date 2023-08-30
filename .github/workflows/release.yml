@@ -30,8 +30,7 @@ jobs:
         continue-on-error: true
 
       - run: |
-          ls .
-          ls ./common/temp
+          tar -zxvf docker-artifacts/docker-bake.json.tar.gz -C ./common/temp
 
       - name: Check docker bake file existence
         id: check_files
