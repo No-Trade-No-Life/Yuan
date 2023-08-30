@@ -2,8 +2,6 @@ name: Release
 on:
   push:
     branches: ['main']
-  pull_request:
-    branches: ['main']
   # manually trigger
   workflow_dispatch:
     inputs:
@@ -16,11 +14,11 @@ on:
 jobs:
   build:
     uses: ./.github/workflows/ci.yml
-    # debug
     with:
       rebuild: ${{ inputs.rebuild == 'true' }}
 
   docker-build:
+    # TODO: see if build has output
     runs-on: ubuntu-latest
     needs: build
     steps:
