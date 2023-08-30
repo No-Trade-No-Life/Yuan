@@ -51,7 +51,7 @@ const MetricCronjobStatus = PromRegistry.create(
 
 const schema: JSONSchema7 = {
   type: 'object',
-  title: '历史行情数据同步者配置',
+  title: 'Historical Market Data Collector Config',
   properties: {
     datasource_id: {
       type: 'string',

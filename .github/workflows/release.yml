@@ -6,25 +6,35 @@ on:
   workflow_dispatch:
     inputs:
       rebuild:
-        type: boolean
+        type: string
         description: 'Rebuild All Packages'
         required: false
-        default: false
+        default: 'false'
 
 jobs:
   build:
     uses: ./.github/workflows/ci.yml
     with:
-      rebuild: ${{ inputs.rebuild }}
+      rebuild: ${{ inputs.rebuild == 'true' }}
 
   docker-build:
+    # TODO: see if build has output
     runs-on: ubuntu-latest
     needs: build
     steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
       - name: Get artifact
         uses: actions/download-artifact@v3
         with:
           name: docker-artifacts
+        continue-on-error: true
+
+      - run: |
+          tar -zxvf docker-deploy.tar.gz
+        continue-on-error: true
 
       - name: Check docker bake file existence
         id: check_files
