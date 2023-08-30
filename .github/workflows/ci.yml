@@ -80,6 +80,7 @@ jobs:
           files: './common/temp/docker-bake.json'
 
       - name: package docker deploy artifacts
+        if: ${{ steps.bake_file_existence.outputs.files_exists == 'true' }}
         run: |
           tar -zcvf ./common/temp/docker-deploy.tar.gz \
             ./common/temp/docker-bake.json \
