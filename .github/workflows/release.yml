@@ -35,11 +35,7 @@ jobs:
         continue-on-error: true
 
       - run: |
-          mkdir -p ./common/temp
-          ls -al
-          tar -zxvf docker-deploy.tar.gz -C ./common/temp
-          ls -al
-          ls -al ./common/temp
+          tar -zxvf docker-deploy.tar.gz
         continue-on-error: true
 
       - name: Check docker bake file existence
