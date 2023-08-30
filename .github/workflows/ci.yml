@@ -90,4 +90,5 @@ jobs:
             **/lib
             **/temp
             **/package.json
+            !node_modules
           if-no-files-found: error
