@@ -33,20 +33,20 @@
 
 <img width="2560" alt="image" src="https://github.com/No-Trade-No-Life/Yuan/assets/12707521/b31243a9-18d5-45ed-9c73-6806a8f60f00">
 
-
 I'm a software engineer. And I want to make money through quantitative and automatic trading.
 
-There are many great tools and platforms available. However, I didn't find one that suited my need, so I created Yuan.
+There are many great tools and platforms available. However, I didn't find one that suited my needs, so I created Yuan.
 
 Here's why:
 
-- My trading strategy is secret. I am afraid someone illegally obtains the results. I can test and run it on trusted devices.
+- My trading strategy is secret. I am afraid someone illegally obtained the results. I can test and run it on trusted devices.
 - The historical data is highly reused and never updated anymore. I can download the data once and use it forever. So the data should be free.
 - Most devices have installed browsers. I can work everywhere through a browser. Fast starting without installing Python or other prerequisites.
 - The market is similar around the world. I can trade in any global market without changing any strategy code. Write once, and run everywhere.
 - Real-world trading is important. The trading system should be highly available. I can easily create and maintain ones.
 
 For more general usages:
+
 - Maybe you feel troubled about coding. You can ask an AI assistant for help. Just tell AI your idea and run. AI can complete the code.
 - Maybe you need to manage your money dispersed across many accounts.
 
@@ -92,15 +92,32 @@ rush update && rush build
 
 ### Packages
 
+#### Libraries
+
+All the libraries should be independent of the platform by default. They can be used in the browser, node.js, or other platforms. And provide both ESM and CommonJS modules.
+
 - [@yuants/data-model](libraries/data-model) Data Model and related utils.
-- [@yuants/protocol](libraries/protocol) Network protocol, service definition and infrastruture.
-- [@yuants/utils](libraries/utils) Some general utils that is not found in community.
-- [@yuants/kernel](libraries/kernel) The kernel of Time-Machine. Time-Machine can travel from the history to the future. This package also contains some useful units and scenes.
-- [@yuants/agent](libraries/agent) Agent is a trading bot. Agent is the core of trading strategy.
+- [@yuants/protocol](libraries/protocol) Network protocol, service definition and infrastructure.
+- [@yuants/utils](libraries/utils) Some general utils that are not found in the community.
+- [@yuants/kernel](libraries/kernel) The kernel of Time-Machine. Time-Machine can travel from history to the future. This package also contains some useful units and scenes.
+- [@yuants/agent](libraries/agent) Agent is a trading bot. The agent contains the core of the trading strategy.
+
+#### Apps
+
+All the apps should provide an image and publish it as a npm package. You can deploy the app by docker and Kubernetes. You can find the [App List](https://github.com/orgs/No-Trade-No-Life/packages?tab=packages&q=app-) and get the image.
+
+- [@yuants/app-host](apps/host) Host is a very light-weighted message broker. Terminals can connect to the host and send messages to each other. Notice that all terminals in a host should trust each other. In practice, all the terminals in a host belong to the same owner. There's no need to verify every message. You can deploy multiple hosts to isolate the risk.
+- [@yuants/app-market-data-collector](apps/market-data-collector) This will deploy a terminal as a data-collecting service. The terminal collects market data from the market terminals continuously.
+- [@yuants/app-agent](apps/agent) This will deploy a terminal as the daemon service of the agent. You can run the agent in **real mode**. It can automatically correct the history data error. It can also automatically restart the agent when it crashes.
+- [@yuants/app-mongodb-storage](apps/mongodb-storage) This will deploy a terminal as a storage service. It stores data in MongoDB.
+- [@yuants/app-email-notifier](apps/email-notifier) This will deploy a terminal as a notifier service. It sends notifications to your email.
+- [@yuants/app-feishu-notifier](apps/feishu-notifier) This will deploy a terminal as a notifier service. It sends notifications to your Feishu by a Feishu bot.
+- [@yuants/app-trade-copier](apps/trade-copier) This will deploy a terminal as a trade copier service. It watches the source accounts and ensures the target accounts follow the source accounts.
+- [@yuants/app-metrics-collector](apps/metrics-collector) This will deploy a terminal as a metrics-collecting service. The metrics collector collects metrics from terminals continuously. It works with Prometheus.
 
 ### Plan to open source
 
-- [ ] Some applications (host, market-data-collector, agent-daemon, trade-copier, notifier, and so on);
+- [ ] Some market services (CTP, IB, etc.);
 - [ ] The Yuan GUI;
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -114,7 +131,7 @@ Don't forget to give the project a star! Thanks again!
 
 1. Fork the Project
 2. Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
 
@@ -166,7 +183,6 @@ Thanks sincerely to the contributors:
 1. [Yuan-Public-Data](https://github.com/No-Trade-No-Life/Yuan-Public-Data)
    Our public data is maintained here as a repository. Free to use.
    Welcome to contribute if you have other data!
-   
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
