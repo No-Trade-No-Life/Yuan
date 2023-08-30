@@ -31,7 +31,8 @@ jobs:
 
       - run: |
           mkdir -p ./common/temp
-          tar -zxvf docker-bake.json.tar.gz -C ./common/temp
+          ls -al
+          tar -zxvf docker-deploy.tar.gz -C ./common/temp
 
       - name: Check docker bake file existence
         id: check_files
