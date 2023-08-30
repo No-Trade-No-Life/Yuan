@@ -105,5 +105,5 @@ jobs:
             ./*/*/lib
             ./*/*/temp
             ./*/*/package.json
-            !node_modules
+            !common
           if-no-files-found: error

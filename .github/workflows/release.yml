@@ -16,6 +16,8 @@ on:
 jobs:
   build:
     uses: ./.github/workflows/ci.yml
+    # debug
+    if: ${{ false }}
     with:
       rebuild: ${{ inputs.rebuild == 'true' }}
 
@@ -37,6 +39,9 @@ jobs:
           mkdir -p ./common/temp
           ls -al
           tar -zxvf docker-deploy.tar.gz -C ./common/temp
+          ls -al
+          ls -al ./common/temp
+        continue-on-error: true
 
       - name: Check docker bake file existence
         id: check_files
