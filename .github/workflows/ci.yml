@@ -41,7 +41,9 @@ jobs:
         with:
           path: |
             common/temp/build-cache
-          key: ${{ runner.os }}-rush-build-cache
+          key: ${{ runner.os }}-rush-build-cache-${{ github.sha}}
+          restore-keys: |
+            ${{ runner.os }}-rush-build-cache-
 
       - name: Cache pnpm
         uses: actions/cache@v3
@@ -74,6 +76,7 @@ jobs:
       - run: |
           ls -al
           ls -al common/temp
+          ls -al common/temp/out
 
       - name: Upload docker artifacts
         uses: actions/upload-artifact@v3
