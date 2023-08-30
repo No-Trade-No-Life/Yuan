@@ -2,6 +2,18 @@
   "name": "@yuants/app-host",
   "entries": [
     {
+      "version": "0.0.2",
+      "tag": "@yuants/app-host_v0.0.2",
+      "date": "Wed, 30 Aug 2023 19:52:44 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "use toolkit and extension"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.1",
       "tag": "@yuants/app-host_v0.0.1",
       "date": "Tue, 29 Aug 2023 15:01:01 GMT",

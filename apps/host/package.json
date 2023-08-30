@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-host",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Host",
   "scripts": {
     "build": "heft test --clean && api-extractor run --local && tool-dependency-hash @yuants/app-host && tool-docker-bake @yuants/app-host apps/host && yuan-toolkit post-build"
@@ -24,10 +24,10 @@
     "@types/node": "18",
     "@types/uuid": "~8.3.4",
     "@types/ws": "~8.5.3",
+    "@yuants/extension": "workspace:*",
     "@yuants/tool-dependency-hash": "workspace:*",
     "@yuants/tool-docker-bake": "workspace:*",
     "@yuants/tool-kit": "workspace:*",
-    "@yuants/extension": "workspace:*",
     "typescript": "~4.7.4"
   },
   "dependencies": {
