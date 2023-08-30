@@ -1,0 +1,68 @@
+name: Release
+on:
+  push:
+    branches: ['main']
+  # manually trigger
+  workflow_dispatch:
+    inputs:
+      rebuild:
+        type: boolean
+        description: 'Rebuild All Packages'
+        required: false
+        default: false
+
+jobs:
+  build:
+    uses: ./.github/workflows/ci.yml
+    with:
+      rebuild: ${{ inputs.rebuild }}
+
+  docker-build:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Get artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: docker-artifacts
+
+      - name: Check docker bake file existence
+        id: check_files
+        uses: andstor/file-existence-action@v2
+        with:
+          files: './common/temp/docker-bake.json'
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        id: cache
+        if: ${{ steps.check_files.outputs.files_exists == 'true' }}
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+        id: buildx
+        if: ${{ steps.check_files.outputs.files_exists == 'true' }}
+
+      - name: Login to GHCR
+        uses: docker/login-action@v2
+        if: ${{ steps.check_files.outputs.files_exists == 'true' }}
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build And Push Image
+        uses: docker/bake-action@v1.1.3
+        if: ${{ steps.check_files.outputs.files_exists == 'true' }}
+        with:
+          push: true
+          files: ./common/temp/docker-bake.json
+
+  # npm-publish:
+  #   runs-on: ubuntu-latest
+  #   needs: build
+  #   if: ${{ github.event_name == 'workflow_dispatch' }}
