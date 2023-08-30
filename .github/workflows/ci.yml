@@ -77,8 +77,8 @@ jobs:
           name: docker-artifacts
           retention-days: 1
           path: |
-            common/temp/docker-bake.json
-            common/temp/out
+            ./common/temp/docker-bake.json
+            ./common/temp/out
 
       - name: Upload npm artifacts
         uses: actions/upload-artifact@v3
