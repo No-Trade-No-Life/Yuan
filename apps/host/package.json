@@ -24,10 +24,10 @@
     "@types/node": "18",
     "@types/uuid": "~8.3.4",
     "@types/ws": "~8.5.3",
+    "@yuants/extension": "workspace:*",
     "@yuants/tool-dependency-hash": "workspace:*",
     "@yuants/tool-docker-bake": "workspace:*",
     "@yuants/tool-kit": "workspace:*",
-    "@yuants/extension": "workspace:*",
     "typescript": "~4.7.4"
   },
   "dependencies": {
