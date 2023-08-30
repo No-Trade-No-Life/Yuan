@@ -74,7 +74,7 @@ terminal.setupService('UpdateDataRecords', (msg) => {
                 {
                   key: { frozen_at: 1 },
                 },
-                // 对所有 Tags 建立索引
+                // Create indexes for all tags
                 ...Object.keys(records[0].tags).map((key) => ({ key: { ['tags.' + key]: 1 } })),
               ]),
             ),

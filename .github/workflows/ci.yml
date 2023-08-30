@@ -73,11 +73,6 @@ jobs:
           CI_RUN: 'true'
         run: node common/scripts/install-run-rush.js build --verbose
 
-      - run: |
-          ls -al
-          ls -al common/temp
-          ls -al common/temp/out
-
       - name: Upload docker artifacts
         uses: actions/upload-artifact@v3
         with:
