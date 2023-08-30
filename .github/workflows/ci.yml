@@ -86,9 +86,9 @@ jobs:
           name: npm-artifacts
           retention-days: 1
           path: |
-            **/dist
-            **/lib
-            **/temp
-            **/package.json
+            ./*/*/dist
+            ./*/*/lib
+            ./*/*/temp
+            ./*/*/package.json
             !node_modules
           if-no-files-found: error
