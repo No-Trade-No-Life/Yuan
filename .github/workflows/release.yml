@@ -27,6 +27,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: docker-artifacts
+        continue-on-error: true
 
       - run: |
           ls .
