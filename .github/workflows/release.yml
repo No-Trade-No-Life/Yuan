@@ -17,7 +17,6 @@ jobs:
   build:
     uses: ./.github/workflows/ci.yml
     # debug
-    if: ${{ false }}
     with:
       rebuild: ${{ inputs.rebuild == 'true' }}
 

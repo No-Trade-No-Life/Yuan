@@ -32,7 +32,6 @@ jobs:
         with:
           path: |
             common/temp/install-run
-            common/temp/build-cache
             ~/.rush
           key: ${{ runner.os }}-${{ hashFiles('rush.json') }}
 
