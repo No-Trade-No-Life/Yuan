@@ -17,6 +17,31 @@ jobs:
     with:
       rebuild: ${{ inputs.rebuild == 'true' }}
 
+  gh-pages:
+    # TODO: see if build has output
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: npm-artifacts
+        continue-on-error: true
+
+      - name: Deploy UI Web on gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          external_repository: No-Trade-No-Life/No-Trade-No-Life.github.io
+          publish_branch: main
+          publish_dir: ./ui/web/dist
+          cname: y.ntnl.io
+
   docker-build:
     # TODO: see if build has output
     runs-on: ubuntu-latest
