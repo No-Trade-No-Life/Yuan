@@ -144,7 +144,7 @@ function getPackageDir(packageName: string) {
 }
 
 async function resolveVersion(packageName: string, ver?: string) {
-  const meta = await fetch(join(`https://registry.npmjs.org`, packageName)).then((x) => x.json());
+  const meta = await fetch(`https://registry.npmjs.org/${packageName}`).then((x) => x.json());
   const version = ver || meta['dist-tags'].latest;
   return { meta, version };
 }
