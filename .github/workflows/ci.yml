@@ -72,6 +72,16 @@ jobs:
           CI_RUN: 'true'
         run: node common/scripts/install-run-rush.js build --verbose
 
+      - name: Deploy UI Web on gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          external_repository: No-Trade-No-Life/No-Trade-No-Life.github.io
+          publish_branch: main
+          publish_dir: ./ui/web/dist
+          cname: y.ntnl.io
+
       - name: Check docker bake file existence
         id: bake_file_existence
         uses: andstor/file-existence-action@v2
