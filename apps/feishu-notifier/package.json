@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-feishu-notifier",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "lib/index.js",
   "scripts": {
     "build": "heft test --clean && api-extractor run --local && tool-dependency-hash @yuants/app-feishu-notifier && tool-docker-bake @yuants/app-feishu-notifier apps/feishu-notifier && yuan-toolkit post-build"
@@ -22,10 +22,10 @@
     "@types/heft-jest": "1.0.3",
     "@types/json-schema": "~7.0.11",
     "@types/node": "18",
+    "@yuants/extension": "workspace:*",
     "@yuants/tool-dependency-hash": "workspace:*",
     "@yuants/tool-docker-bake": "workspace:*",
     "@yuants/tool-kit": "workspace:*",
-    "@yuants/extension": "workspace:*",
     "json-schema": "~0.4.0",
     "typescript": "~4.7.4"
   },

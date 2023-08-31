@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-trade-copier",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [
@@ -21,21 +21,21 @@
     "@rushstack/heft-jest-plugin": "~0.3.30",
     "@rushstack/heft-node-rig": "~1.10.7",
     "@types/heft-jest": "1.0.3",
-    "@types/node": "18",
-    "@yuants/tool-docker-bake": "workspace:*",
-    "@yuants/tool-dependency-hash": "workspace:*",
-    "@yuants/tool-kit": "workspace:*",
-    "@yuants/extension": "workspace:*",
     "@types/json-schema": "~7.0.11",
-    "typescript": "~4.7.4",
-    "json-schema": "~0.4.0"
+    "@types/node": "18",
+    "@yuants/extension": "workspace:*",
+    "@yuants/tool-dependency-hash": "workspace:*",
+    "@yuants/tool-docker-bake": "workspace:*",
+    "@yuants/tool-kit": "workspace:*",
+    "json-schema": "~0.4.0",
+    "typescript": "~4.7.4"
   },
   "dependencies": {
-    "@yuants/protocol": "workspace:*",
-    "rxjs": "~7.5.6",
-    "@yuants/utils": "workspace:*",
     "@types/json-schema": "~7.0.11",
+    "@yuants/protocol": "workspace:*",
+    "@yuants/utils": "workspace:*",
     "ajv": "~8.12.0",
-    "ajv-formats": "~2.1.1"
+    "ajv-formats": "~2.1.1",
+    "rxjs": "~7.5.6"
   }
 }
