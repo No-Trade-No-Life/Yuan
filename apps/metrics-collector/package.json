@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "main": "lib/index.js",
   "scripts": {
-    "build": "heft test --clean && api-extractor run --local && tool-dependency-hash @yuants/app-metrics-collector && tool-docker-bake @yuants/app-metrics-collector apps/metrics-collector"
+    "build": "heft test --clean && api-extractor run --local && tool-dependency-hash @yuants/app-metrics-collector && tool-docker-bake @yuants/app-metrics-collector apps/metrics-collector && yuan-toolkit post-build"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
@@ -24,6 +24,8 @@
     "@types/node": "18",
     "@yuants/tool-dependency-hash": "workspace:*",
     "@yuants/tool-docker-bake": "workspace:*",
+    "@yuants/tool-kit": "workspace:*",
+    "@yuants/extension": "workspace:*",
     "typescript": "~4.7.4"
   },
   "dependencies": {
