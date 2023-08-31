@@ -1,0 +1,20 @@
+body {
+  color: var(--semi-color-text-0);
+  background-color: var(--semi-color-bg-0);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+#root .flexlayout__tabset-selected {
+  background-image: none;
+}
+
+body[theme-mode='dark'] .flexlayout__tab {
+  background-color: #141414;
+}

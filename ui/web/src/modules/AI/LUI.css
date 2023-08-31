@@ -1,0 +1,42 @@
+.MessageList {
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  overflow-x: hidden;
+  height: 100%;
+  width: 100%;
+  padding: 10px;
+  box-sizing: border-box;
+}
+.MessageItem {
+  /** add boxshadow as card  */
+  display: flex;
+  width: 100%;
+}
+
+.MessageItem.is-user.is-small {
+  justify-content: flex-start;
+  flex-direction: row-reverse;
+}
+
+.MessageItem-pop {
+  background-color: var(--semi-color-fill-1);
+  color: var(--semi-color-text-1);
+  padding: 10px;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.2);
+  border-radius: 5px;
+  margin: 5px;
+  max-width: 80%;
+  white-space: break-spaces;
+  overflow: hidden;
+}
+
+.MessageItem .semi-avatar {
+  margin-top: 5px;
+}
+.MessageItem.is-user .MessageItem-pop {
+  /** user color */
+  background-color: rgba(var(--semi-blue-3), 1);
+  /* color: black; */
+  font-weight: bold;
+}
