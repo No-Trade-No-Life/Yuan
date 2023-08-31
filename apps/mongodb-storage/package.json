@@ -9,7 +9,7 @@
     "temp"
   ],
   "scripts": {
-    "build": "heft test --clean && api-extractor run --local && tool-dependency-hash @yuants/app-mongodb-storage && tool-docker-bake @yuants/app-mongodb-storage apps/mongodb-storage"
+    "build": "heft test --clean && api-extractor run --local && tool-dependency-hash @yuants/app-mongodb-storage && tool-docker-bake @yuants/app-mongodb-storage apps/mongodb-storage && yuan-toolkit post-build"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
@@ -25,6 +25,8 @@
     "@types/node": "18",
     "@yuants/tool-dependency-hash": "workspace:*",
     "@yuants/tool-docker-bake": "workspace:*",
+    "@yuants/tool-kit": "workspace:*",
+    "@yuants/extension": "workspace:*",
     "json-schema": "~0.4.0",
     "typescript": "~4.7.4"
   },

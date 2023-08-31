@@ -19,10 +19,12 @@ importers:
       '@types/path-browserify': ~1.0.0
       '@types/uuid': ~9.0.2
       '@yuants/agent': workspace:*
+      '@yuants/extension': workspace:*
       '@yuants/kernel': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-dependency-hash': workspace:*
       '@yuants/tool-docker-bake': workspace:*
+      '@yuants/tool-kit': workspace:*
       ajv: ~8.12.0
       fs-extra: ~11.1.1
       javascript-obfuscator: ~4.0.2
@@ -54,8 +56,10 @@ importers:
       '@types/node': 18.17.12
       '@types/path-browserify': 1.0.0
       '@types/uuid': 9.0.2
+      '@yuants/extension': link:../../libraries/extension
       '@yuants/tool-dependency-hash': link:../../tools/dependency-hash
       '@yuants/tool-docker-bake': link:../../tools/docker-bake
+      '@yuants/tool-kit': link:../../tools/toolkit
       typescript: 4.7.4
 
   ../../apps/email-notifier:
@@ -68,9 +72,11 @@ importers:
       '@types/json-schema': ~7.0.11
       '@types/node': '18'
       '@types/nodemailer': ~6.4.7
+      '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-dependency-hash': workspace:*
       '@yuants/tool-docker-bake': workspace:*
+      '@yuants/tool-kit': workspace:*
       nodemailer: ~6.8.0
       rxjs: ~7.5.6
       typescript: ~4.7.4
@@ -87,8 +93,10 @@ importers:
       '@types/json-schema': 7.0.12
       '@types/node': 18.17.12
       '@types/nodemailer': 6.4.9
+      '@yuants/extension': link:../../libraries/extension
       '@yuants/tool-dependency-hash': link:../../tools/dependency-hash
       '@yuants/tool-docker-bake': link:../../tools/docker-bake
+      '@yuants/tool-kit': link:../../tools/toolkit
       typescript: 4.7.4
 
   ../../apps/feishu-notifier:
@@ -100,9 +108,11 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': ~7.0.11
       '@types/node': '18'
+      '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-dependency-hash': workspace:*
       '@yuants/tool-docker-bake': workspace:*
+      '@yuants/tool-kit': workspace:*
       axios: ~1.2.3
       json-schema: ~0.4.0
       rxjs: ~7.5.6
@@ -119,8 +129,10 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': 7.0.12
       '@types/node': 18.17.12
+      '@yuants/extension': link:../../libraries/extension
       '@yuants/tool-dependency-hash': link:../../tools/dependency-hash
       '@yuants/tool-docker-bake': link:../../tools/docker-bake
+      '@yuants/tool-kit': link:../../tools/toolkit
       json-schema: 0.4.0
       typescript: 4.7.4
 
@@ -177,9 +189,11 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': ~7.0.11
       '@types/node': '18'
+      '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-dependency-hash': workspace:*
       '@yuants/tool-docker-bake': workspace:*
+      '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
       ajv: ~8.12.0
       cron: ~2.3.0
@@ -200,8 +214,10 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': 7.0.12
       '@types/node': 18.17.12
+      '@yuants/extension': link:../../libraries/extension
       '@yuants/tool-dependency-hash': link:../../tools/dependency-hash
       '@yuants/tool-docker-bake': link:../../tools/docker-bake
+      '@yuants/tool-kit': link:../../tools/toolkit
       typescript: 4.7.4
 
   ../../apps/metrics-collector:
@@ -213,9 +229,11 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': ~7.0.11
       '@types/node': '18'
+      '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-dependency-hash': workspace:*
       '@yuants/tool-docker-bake': workspace:*
+      '@yuants/tool-kit': workspace:*
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
@@ -229,8 +247,10 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': 7.0.12
       '@types/node': 18.17.12
+      '@yuants/extension': link:../../libraries/extension
       '@yuants/tool-dependency-hash': link:../../tools/dependency-hash
       '@yuants/tool-docker-bake': link:../../tools/docker-bake
+      '@yuants/tool-kit': link:../../tools/toolkit
       typescript: 4.7.4
 
   ../../apps/mongodb-storage:
@@ -242,9 +262,11 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': ~7.0.11
       '@types/node': '18'
+      '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-dependency-hash': workspace:*
       '@yuants/tool-docker-bake': workspace:*
+      '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
       ajv: ~8.12.0
       ajv-formats: ~2.1.1
@@ -267,8 +289,10 @@ importers:
       '@rushstack/heft-node-rig': 1.10.13_@rushstack+heft@0.47.11
       '@types/heft-jest': 1.0.3
       '@types/node': 18.17.12
+      '@yuants/extension': link:../../libraries/extension
       '@yuants/tool-dependency-hash': link:../../tools/dependency-hash
       '@yuants/tool-docker-bake': link:../../tools/docker-bake
+      '@yuants/tool-kit': link:../../tools/toolkit
       json-schema: 0.4.0
       typescript: 4.7.4
 
@@ -281,9 +305,11 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': ~7.0.11
       '@types/node': '18'
+      '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-dependency-hash': workspace:*
       '@yuants/tool-docker-bake': workspace:*
+      '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
       ajv: ~8.12.0
       ajv-formats: ~2.1.1
@@ -304,8 +330,10 @@ importers:
       '@rushstack/heft-node-rig': 1.10.13_@rushstack+heft@0.47.11
       '@types/heft-jest': 1.0.3
       '@types/node': 18.17.12
+      '@yuants/extension': link:../../libraries/extension
       '@yuants/tool-dependency-hash': link:../../tools/dependency-hash
       '@yuants/tool-docker-bake': link:../../tools/docker-bake
+      '@yuants/tool-kit': link:../../tools/toolkit
       json-schema: 0.4.0
       typescript: 4.7.4
 

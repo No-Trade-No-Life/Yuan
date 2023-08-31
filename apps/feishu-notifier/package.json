@@ -3,7 +3,7 @@
   "version": "0.0.1",
   "main": "lib/index.js",
   "scripts": {
-    "build": "heft test --clean && api-extractor run --local && tool-dependency-hash @yuants/app-feishu-notifier && tool-docker-bake @yuants/app-feishu-notifier apps/feishu-notifier"
+    "build": "heft test --clean && api-extractor run --local && tool-dependency-hash @yuants/app-feishu-notifier && tool-docker-bake @yuants/app-feishu-notifier apps/feishu-notifier && yuan-toolkit post-build"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
@@ -24,6 +24,8 @@
     "@types/node": "18",
     "@yuants/tool-dependency-hash": "workspace:*",
     "@yuants/tool-docker-bake": "workspace:*",
+    "@yuants/tool-kit": "workspace:*",
+    "@yuants/extension": "workspace:*",
     "json-schema": "~0.4.0",
     "typescript": "~4.7.4"
   },
