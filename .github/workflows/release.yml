@@ -30,6 +30,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: npm-artifacts
+          path: ./ui/web/dist
         continue-on-error: true
 
       - name: Deploy UI Web on gh-pages
