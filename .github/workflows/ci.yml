@@ -70,6 +70,7 @@ jobs:
           REGISTRY: ghcr.io
           REGISTRY_NAMESPACE: no-trade-no-life
           CI_RUN: 'true'
+          NODE_OPTIONS: '--max-old-space-size=8192'
         run: node common/scripts/install-run-rush.js build --verbose
 
       - name: Deploy UI Web on gh-pages
