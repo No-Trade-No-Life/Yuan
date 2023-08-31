@@ -115,10 +115,18 @@ All the apps should provide an image and publish it as a npm package. You can de
 - [@yuants/app-trade-copier](apps/trade-copier) This will deploy a terminal as a trade copier service. It watches the source accounts and ensures the target accounts follow the source accounts.
 - [@yuants/app-metrics-collector](apps/metrics-collector) This will deploy a terminal as a metrics-collecting service. The metrics collector collects metrics from terminals continuously. It works with Prometheus.
 
+#### Web UI
+
+[@yuants/ui-web](ui/web) is the GUI.
+You can do anything with the GUI because we prefer to implement the feature in GUI rather than CLI.
+All the users use the same GUI distribution. It's independent of hosts and scenes.
+User has their own workspace locally. The workspace is secret.
+You can install extensions to enhance your workspace.
+Any device with a modern browser can access the GUI and its features. But currently, the layout on the desktop is the most friendly. We will enhance the experience of mobile in the future.
+
 ### Plan to open source
 
 - [ ] Some market services (CTP, IB, etc.);
-- [ ] The Yuan GUI;
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
