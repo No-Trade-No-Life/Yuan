@@ -36,7 +36,7 @@ i18n
     // you can use the i18n.changeLanguage function to change the language manually: https://www.i18next.com/overview/api#changelanguage
     // if you're using a language detector, do not define the lng option
     saveMissing: true,
-    missingKeyHandler: (lngs, namespace, key, fallbackValue) => {
+    missingKeyHandler: (lngs: readonly string[], namespace: string, key: string, fallbackValue: string) => {
       console.log('missingKeyHandler', lngs, namespace, key, fallbackValue);
     },
 
