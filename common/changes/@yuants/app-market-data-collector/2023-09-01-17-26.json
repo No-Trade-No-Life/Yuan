@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-market-data-collector",
+      "comment": "use a new crashloopBackOff logic for job retries",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-market-data-collector"
+}
