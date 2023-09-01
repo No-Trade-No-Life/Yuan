@@ -358,6 +358,10 @@ export class Terminal {
     cancelOrder: (order: IOrder) => Observable<(IResponse<void> & IResponse<unknown>) | undefined>;
     // (undocumented)
     _conn: IConnection<ITerminalMessage>;
+    // Warning: (ae-forgotten-export) The symbol "ICopyDataRecordsRequest" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    copyDataRecords: (req: ICopyDataRecordsRequest, target_terminal_id: string) => Observable<undefined>;
     datasourceIds$: Observable<string[]>;
     feed: (channel_id: string, data: any, target_terminal_id: string) => void;
     // (undocumented)
