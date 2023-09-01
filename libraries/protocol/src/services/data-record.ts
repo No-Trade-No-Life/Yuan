@@ -30,6 +30,30 @@ export interface IRemoveDataRecordsRequest {
   id: string;
 }
 
+/**
+ * Request to copy data records to receiver terminal.
+ *
+ * Response when all data records arrived the target.
+ *
+ * 1. The source terminal asks the target terminal to copy data records to the receiver terminal.
+ * 2. The target terminal push data records to the receiver terminal.
+ *    the receiver terminal MUST implement `UpdateDataRecords`.
+ *    the target terminal serially micro-batching calls `UpdateDataRecords` to the receiver terminal.
+ * 3. After all data records arrived the receiver terminal, the target terminal responses to the source terminal.
+ *
+ * E1. the target terminal SHOULD response error if any error occurred during the process.
+ *
+ * Recommended if the source terminal does not care about the content of data records.
+ *
+ * @public
+ */
+export interface ICopyDataRecordsRequest extends IQueryDataRecordsRequest {
+  /**
+   * the receiver terminal that will receive `UpdateDataRecords` messages.
+   */
+  receiver_terminal_id: string;
+}
+
 declare module '.' {
   /**
    * - Data record related interfaces have been loaded
@@ -50,6 +74,11 @@ declare module '.' {
 
     RemoveDataRecords: {
       req: IRemoveDataRecordsRequest;
+      res: IResponse;
+      frame: void;
+    };
+    CopyDataRecords: {
+      req: ICopyDataRecordsRequest;
       res: IResponse;
       frame: void;
     };
