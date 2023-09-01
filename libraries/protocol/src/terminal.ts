@@ -728,11 +728,14 @@ export class Terminal {
   copyDataRecords = (req: ICopyDataRecordsRequest, target_terminal_id: string) =>
     this.request('CopyDataRecords', target_terminal_id, req).pipe(
       mergeMap((msg) => {
-        if (msg.res && msg.res.code !== 0) {
-          throw Error(`ServerError: ${msg.res.code}: ${msg.res.message}`);
+        if (msg.res) {
+          if (msg.res.code !== 0) {
+            throw Error(`ServerError: ${msg.res.code}: ${msg.res.message}`);
+          }
+          // emit an signal to indicate that the copy is complete
+          return of(void 0);
         }
-        // emit an signal to indicate that the copy is complete
-        return of(void 0);
+        return EMPTY;
       }),
     );
 
