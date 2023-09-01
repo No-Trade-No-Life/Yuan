@@ -14,6 +14,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    outputs:
+      bake_file_existence: ${{ steps.bake_file_existence.outputs.files_exists }}
     steps:
       - uses: actions/checkout@v3
         with:

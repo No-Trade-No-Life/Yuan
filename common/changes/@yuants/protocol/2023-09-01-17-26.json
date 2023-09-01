@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "add copyDataRecords in terminal",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

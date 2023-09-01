@@ -44,7 +44,11 @@ import {
   ITick,
 } from './model';
 import { IService, ITerminalMessage } from './services';
-import { IQueryDataRecordsRequest, IRemoveDataRecordsRequest } from './services/data-record';
+import {
+  ICopyDataRecordsRequest,
+  IQueryDataRecordsRequest,
+  IRemoveDataRecordsRequest,
+} from './services/data-record';
 import { PromRegistry } from './services/metrics';
 import { IQueryHistoryOrdersRequest, IQueryPeriodsRequest, IQueryProductsRequest } from './services/pull';
 import { mergeAccountInfoPositions } from './utils/account-info';
@@ -720,6 +724,17 @@ export class Terminal {
       target_terminal_id,
     });
   };
+
+  copyDataRecords = (req: ICopyDataRecordsRequest, target_terminal_id: string) =>
+    this.request('CopyDataRecords', target_terminal_id, req).pipe(
+      mergeMap((msg) => {
+        if (msg.res && msg.res.code !== 0) {
+          throw Error(`ServerError: ${msg.res.code}: ${msg.res.message}`);
+        }
+        // emit an signal to indicate that the copy is complete
+        return of(void 0);
+      }),
+    );
 
   queryDataRecords = <T>(req: IQueryDataRecordsRequest, target_terminal_id: string) =>
     this.request('QueryDataRecords', target_terminal_id, req).pipe(
