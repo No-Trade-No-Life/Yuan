@@ -101,12 +101,13 @@ All the libraries should be independent of the platform by default. They can be 
 - [@yuants/utils](libraries/utils) Some general utils that are not found in the community.
 - [@yuants/kernel](libraries/kernel) The kernel of Time-Machine. Time-Machine can travel from history to the future. This package also contains some useful units and scenes.
 - [@yuants/agent](libraries/agent) Agent is a trading bot. The agent contains the core of the trading strategy.
+- [@yuants/extension](libraries/extension) This defined the extension interface. You can use extensions to enhance your experience.
 
 #### Apps
 
-All the apps should provide an image and publish it as a npm package. You can deploy the app by docker and Kubernetes. You can find the [App List](https://github.com/orgs/No-Trade-No-Life/packages?tab=packages&q=app-) and get the image.
+All the apps should provide an image and publish it as a npm package. You can deploy the app by docker and Kubernetes. You can find the [App List](https://github.com/orgs/No-Trade-No-Life/packages?tab=packages&q=app-) and get the image. And all the apps implemented the extension interface. So you can trend them as extensions.
 
-- [@yuants/app-host](apps/host) Host is a very light-weighted message broker. Terminals can connect to the host and send messages to each other. Notice that all terminals in a host should trust each other. In practice, all the terminals in a host belong to the same owner. There's no need to verify every message. You can deploy multiple hosts to isolate the risk.
+- [@yuants/app-host](apps/host) Host is a very lightweight message broker. Terminals can connect to the host and send messages to each other. Notice that all terminals in a host should trust each other. In practice, all the terminals in a host belong to the same owner. There's no need to verify every message. You can deploy multiple hosts to isolate the risk.
 - [@yuants/app-market-data-collector](apps/market-data-collector) This will deploy a terminal as a data-collecting service. The terminal collects market data from the market terminals continuously.
 - [@yuants/app-agent](apps/agent) This will deploy a terminal as the daemon service of the agent. You can run the agent in **real mode**. It can automatically correct the history data error. It can also automatically restart the agent when it crashes.
 - [@yuants/app-mongodb-storage](apps/mongodb-storage) This will deploy a terminal as a storage service. It stores data in MongoDB.
@@ -124,9 +125,19 @@ User has their own workspace locally. The workspace is secret.
 You can install extensions to enhance your workspace.
 Any device with a modern browser can access the GUI and its features. But currently, the layout on the desktop is the most friendly. We will enhance the experience of mobile in the future.
 
+#### Toolkit
+
+[@yuants/tool-kit](tools/toolkit) is all you need. This provides a CLI when you need to build an extension. It helps you to build a docker image, create a bundle and more. To ensure your extension is ready to use.
+
+#### Vendors
+
+Vendors include markets, exchanges and data sources. You can access the global market through various vendors. For some legal reason, they are probably not open to everyone. But you can use them in Yuan if you gain permission from the provider.
+
+Every vendor is a gateway to connect the external service directly. Your private data including account info and market data will not be stored in Yuan Cloud Service. You can deploy the vendor in your own cloud or local machine.
+
 ### Plan to open source
 
-- [ ] Some market services (CTP, IB, etc.);
+- [ ] Some vendors (CTP, IB, etc.);
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
