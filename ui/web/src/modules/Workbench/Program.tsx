@@ -1,6 +1,9 @@
+import { Actions, TabNode } from 'flexlayout-react';
 import { Range } from 'monaco-editor';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ReplaySubject, Subject, bufferTime, filter } from 'rxjs';
+import { layoutModel$ } from '../../layout-model';
 import { MonacoEditor } from '../Editor/Monaco';
 
 const error = console.error.bind(console);
@@ -23,7 +26,14 @@ console.info = (...params: any[]) => {
 const log$ = new ReplaySubject<string>(1000);
 export const clearLogAction$ = new Subject<void>();
 
-export const Program = React.memo(() => {
+export const Program = React.memo((props: { node?: TabNode }) => {
+  const { t } = useTranslation();
+  useEffect(() => {
+    if (props.node) {
+      layoutModel$.value.doAction(Actions.renameTab(props.node.getId(), t('Program')));
+    }
+  }, [t]);
+
   return (
     <MonacoEditor
       value=""

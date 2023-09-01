@@ -5,6 +5,7 @@ import * as _kernel from '@yuants/kernel';
 import * as FlexLayout from 'flexlayout-react';
 import { useObservableState } from 'observable-hooks';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Route, Routes } from 'react-router-dom';
 import * as rx from 'rxjs';
 import { isDarkMode$ } from './common/Darkmode';
@@ -27,6 +28,7 @@ import { FinancialStatementsPanel } from './modules/Fund/FinancialStatementsPane
 import { RealtimeAsset } from './modules/Fund/RealtimeAsset';
 import { GeneralSpecificRelationList } from './modules/GeneralSpecificRelations/GeneralSpecificRelationList';
 import { AccountReplay } from './modules/Kernel/AccountReplay';
+import i18n from './modules/Locale/i18n';
 import { Market } from './modules/Market';
 import { ManualTradePanel } from './modules/Order/ManualTradePanel';
 import { OrderListPanel } from './modules/Order/OrderListPanel';
@@ -43,7 +45,7 @@ import { HostList } from './modules/Workbench/HostList';
 import { Program } from './modules/Workbench/Program';
 import { Explorer } from './modules/Workspace/Explorer';
 
-Object.assign(globalThis, { rx, _kernel, Extensions });
+Object.assign(globalThis, { rx, _kernel, Extensions, i18n });
 
 const AvailableComponents: Record<string, React.ComponentType> = {
   Explorer,
@@ -77,6 +79,7 @@ const AvailableComponents: Record<string, React.ComponentType> = {
 
 function AppLayout() {
   const model = useObservableState(layoutModel$);
+  const { t } = useTranslation();
 
   const factory = (node: FlexLayout.TabNode) => {
     const component = node.getComponent();
@@ -165,7 +168,7 @@ function AppLayout() {
               layoutModelJson$.next(model.toJson());
             }}
             onTabSetPlaceHolder={(node) => {
-              return <Empty title="欢迎回来">假设此处有一些向导...</Empty>;
+              return <Empty title={t('Welcome')}>{t('Guide Placeholder')}</Empty>;
             }}
             onAuxMouseClick={(node, e) => {
               if (

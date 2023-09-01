@@ -18,6 +18,7 @@ import { DockLocation } from 'flexlayout-react';
 import { useObservableState } from 'observable-hooks';
 import path from 'path-browserify';
 import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { filter, from, lastValueFrom, map, mergeMap, toArray } from 'rxjs';
 import { unzip } from 'unzipit';
 import { terminal$ } from '../../common/create-connection';
@@ -31,7 +32,7 @@ import { currentHostConfig$ } from '../Workbench/model';
 import { NewWorkspaceButton } from './NewWorkspace';
 import { sendFileByAirdrop } from './airdrop';
 
-export const Explorer = React.memo(() => {
+export const Explorer = React.memo((props: { node?: FlexLayout.TabNode }) => {
   const model = useObservableState(layoutModel$);
   const terminal = useObservableState(terminal$);
   const currentHostConfig = useObservableState(currentHostConfig$);
@@ -44,6 +45,14 @@ export const Explorer = React.memo(() => {
   ];
   const [treeData, setTreeData] = useState(initialData);
   const [treeKey, setTreeKey] = useState(0);
+
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (props.node) {
+      model.doAction(FlexLayout.Actions.renameTab(props.node.getId(), t('Workspace')));
+    }
+  }, [t]);
 
   useEffect(() => {
     const sub = FsBackend$.subscribe(() => {

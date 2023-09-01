@@ -11,6 +11,7 @@ import {
 import { Avatar, Button, Dropdown, Modal, Tag, Toast, Typography } from '@douyinfe/semi-ui';
 import { useObservableState } from 'observable-hooks';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { authState$, supabase } from '../../common/supabase';
 import { initialJson, layoutModelJson$, layoutUpdate$, openSingletonComponent } from '../../layout-model';
 import { userLocale, userTimezone } from '../Locale/utils';
@@ -20,6 +21,7 @@ export const UserMenu = React.memo(() => {
   const authState = useObservableState(authState$);
   const currentHostConfig = useObservableState(currentHostConfig$);
   const isHostMode = !!currentHostConfig;
+  const { t } = useTranslation();
 
   return (
     <Dropdown
@@ -36,19 +38,19 @@ export const UserMenu = React.memo(() => {
                   triggerLoginModalAction$.next();
                 }}
               >
-                登录
+                {t('Login')}
               </Dropdown.Item>
               <Dropdown.Divider />
             </>
           )}
-          <Dropdown.Title>应用工具</Dropdown.Title>
+          <Dropdown.Title>{t('UserMenu.Applications')}</Dropdown.Title>
           <Dropdown.Item
             icon={<IconComment />}
             onClick={() => {
-              openSingletonComponent('LUI', 'AI助理');
+              openSingletonComponent('LUI', t('AI Assistant'));
             }}
           >
-            AI 助理
+            {t('AI Assistant')}
           </Dropdown.Item>
           <Dropdown.Item
             disabled={!isHostMode}
