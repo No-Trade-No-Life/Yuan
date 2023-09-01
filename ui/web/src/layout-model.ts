@@ -1,6 +1,7 @@
 import * as FlexLayout from 'flexlayout-react';
 import { BehaviorSubject, bufferCount, combineLatest, first, map, Subject } from 'rxjs';
 import { createPersistBehaviorSubject } from './common/utils';
+import i18n from './modules/Locale/i18n';
 
 export const initialJson: FlexLayout.IJsonModel = {
   global: {
@@ -15,7 +16,7 @@ export const initialJson: FlexLayout.IJsonModel = {
       children: [
         {
           type: 'tab',
-          name: '工作区',
+          name: i18n.t('Workspace'),
           id: 'Explorer',
           component: 'Explorer',
           enableDrag: false,
@@ -23,7 +24,7 @@ export const initialJson: FlexLayout.IJsonModel = {
         },
         {
           type: 'tab',
-          name: '模型配置',
+          name: i18n.t('AgentConfForm'),
           id: 'AgentConfForm',
           component: 'AgentConfForm',
           enableDrag: false,
@@ -37,7 +38,7 @@ export const initialJson: FlexLayout.IJsonModel = {
       children: [
         {
           type: 'tab',
-          name: '程序输出',
+          name: i18n.t('Program'),
           id: 'Program',
           enableClose: false,
           component: 'Program',

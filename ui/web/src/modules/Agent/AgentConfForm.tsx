@@ -2,9 +2,11 @@ import { IconFile, IconPlay, IconRefresh, IconSave, IconWrench } from '@douyinfe
 import { Button, Divider, Layout, Space, Toast } from '@douyinfe/semi-ui';
 import { AgentScene, IAgentConf, agentConfSchema } from '@yuants/agent';
 import Ajv from 'ajv';
+import { Actions, TabNode } from 'flexlayout-react';
 import { JSONSchema7 } from 'json-schema';
 import { useObservableState } from 'observable-hooks';
-import React from 'react';
+import React, { useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   BehaviorSubject,
   Subject,
@@ -21,7 +23,7 @@ import {
 } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
 import { createPersistBehaviorSubject } from '../../common/utils';
-import { openSingletonComponent } from '../../layout-model';
+import { layoutModel$, openSingletonComponent } from '../../layout-model';
 import { AccountFrameUnit } from '../AccountInfo/AccountFrameUnit';
 import { accountFrameSeries$, accountPerformance$ } from '../AccountInfo/model';
 import { fs } from '../FileSystem/api';
@@ -181,10 +183,17 @@ runAgentAction$.subscribe(async () => {
   complete$.next(true);
 });
 
-export const AgentConfForm = React.memo(() => {
+export const AgentConfForm = React.memo((props: { node?: TabNode }) => {
   const agentConf = useObservableState(agentConf$);
   const schema = useObservableState(agentConfSchema$) || {};
   const complete = useObservableState(complete$);
+  const { t } = useTranslation();
+
+  useEffect(() => {
+    if (props.node) {
+      layoutModel$.value.doAction(Actions.renameTab(props.node.getId(), t('AgentConfForm')));
+    }
+  }, [t]);
 
   return (
     <Layout style={{ width: '100%', height: '100%', overflow: 'hidden' }}>

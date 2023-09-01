@@ -1,7 +1,7 @@
 import { IconArrowDown, IconArrowUp, IconCopyAdd, IconDelete } from '@douyinfe/semi-icons';
 import { Button } from '@douyinfe/semi-ui';
 import { ButtonProps } from '@douyinfe/semi-ui/lib/es/button';
-import { FormContextType, getUiOptions, IconButtonProps, RJSFSchema, StrictRJSFSchema } from '@rjsf/utils';
+import { FormContextType, IconButtonProps, RJSFSchema, StrictRJSFSchema, getUiOptions } from '@rjsf/utils';
 
 // The `type` for IconButtonProps collides with the `type` for `ButtonProps` so omit it to avoid Typescript issue
 export type MyIconButtonProps<
@@ -15,7 +15,7 @@ export default function IconButton<
   S extends StrictRJSFSchema = RJSFSchema,
   F extends FormContextType = any,
 >(props: MyIconButtonProps<T, S, F> & ButtonProps) {
-  const { iconType = 'primary', icon, uiSchema, registry, ...otherProps } = props;
+  const { iconType = 'primary', icon, uiSchema, registry, children, ...otherProps } = props;
   return (
     <Button
       type={iconType as any}
@@ -26,6 +26,7 @@ export default function IconButton<
         props.onClick?.(e);
       }}
       {...otherProps}
+      children={children as any}
     />
   );
 }
@@ -33,7 +34,16 @@ export default function IconButton<
 export function AddButton<T = any, S extends StrictRJSFSchema = RJSFSchema, F extends FormContextType = any>(
   props: MyIconButtonProps<T, S, F>,
 ) {
-  return <IconButton title="Add Item" {...props} iconType="primary" icon={<IconCopyAdd />} />;
+  const { children, ...others } = props;
+  return (
+    <IconButton
+      title="Add Item"
+      {...others}
+      children={children as any}
+      iconType="primary"
+      icon={<IconCopyAdd />}
+    />
+  );
 }
 
 export function MoveDownButton<
@@ -41,7 +51,8 @@ export function MoveDownButton<
   S extends StrictRJSFSchema = RJSFSchema,
   F extends FormContextType = any,
 >(props: MyIconButtonProps<T, S, F>) {
-  return <IconButton title="Move down" {...props} icon={<IconArrowDown />} />;
+  const { children, ...others } = props;
+  return <IconButton title="Move down" {...others} children={children as any} icon={<IconArrowDown />} />;
 }
 
 export function MoveUpButton<
@@ -49,7 +60,8 @@ export function MoveUpButton<
   S extends StrictRJSFSchema = RJSFSchema,
   F extends FormContextType = any,
 >(props: MyIconButtonProps<T, S, F>) {
-  return <IconButton title="Move up" {...props} icon={<IconArrowUp />} />;
+  const { children, ...others } = props;
+  return <IconButton title="Move up" {...others} children={children as any} icon={<IconArrowUp />} />;
 }
 
 export function RemoveButton<
@@ -59,10 +71,12 @@ export function RemoveButton<
 >(props: MyIconButtonProps<T, S, F>) {
   // The `block` prop is not part of the `IconButtonProps` defined in the template, so get it from the uiSchema instead
   const options = getUiOptions<T, S, F>(props.uiSchema);
+  const { children, ...others } = props;
   return (
     <IconButton
       title="Remove"
-      {...props}
+      {...others}
+      children={children as any}
       type="danger"
       block={!!options.block}
       iconType="primary"

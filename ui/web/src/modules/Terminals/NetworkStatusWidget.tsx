@@ -6,6 +6,7 @@ import { bufferTime, combineLatest, map, switchMap } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
 import { openSingletonComponent } from '../../layout-model';
 import { currentHostConfig$ } from '../Workbench/model';
+import { useTranslation } from 'react-i18next';
 
 export const secretURL = (url: string) => {
   try {
@@ -18,6 +19,7 @@ export const secretURL = (url: string) => {
 };
 
 export const NetworkStatusWidget = React.memo(() => {
+  const { t } = useTranslation();
   const config = useObservableState(currentHostConfig$);
 
   const network$ = useObservable(() =>
@@ -103,7 +105,7 @@ export const NetworkStatusWidget = React.memo(() => {
             config ? <IconSignal style={{ color: +network[1] > 0 ? 'green' : 'red' }} /> : <IconDesktop />
           }
         >
-          {config ? `${config.name} / ${config.TERMINAL_ID}` : '无主机模式'}
+          {config ? `${config.name} / ${config.TERMINAL_ID}` : t('No Host')}
         </Typography.Text>
       </Popover>
     </Space>

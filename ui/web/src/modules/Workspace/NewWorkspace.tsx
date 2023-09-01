@@ -1,8 +1,10 @@
 import { IconFolderOpen } from '@douyinfe/semi-icons';
 import { Button, Modal, Typography } from '@douyinfe/semi-ui';
+import { useTranslation } from 'react-i18next';
 import { workspaceRoot$ } from '../FileSystem/api';
 
 export const NewWorkspaceButton = () => {
+  const { t } = useTranslation();
   const connectToWorkspace = async () => {
     Modal.confirm({
       title: '本地目录授权',
@@ -40,7 +42,7 @@ export const NewWorkspaceButton = () => {
 
   return (
     <Button icon={<IconFolderOpen />} onClick={connectToWorkspace}>
-      打开
+      {t('Open')}
     </Button>
   );
 };
