@@ -1,7 +1,7 @@
 name: Bug Report
 description: Bug report for YUAN
-labels: ["type/bug \U0001F41B"]
-title: "bug: <title>"
+labels: [bug]
+title: 'bug: <title>'
 body:
   - type: markdown
     attributes:

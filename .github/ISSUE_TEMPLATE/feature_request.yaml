@@ -1,7 +1,7 @@
 name: Feature Request
 description: Feature request for YUAN
-labels: ["type/feature \U0001F4A1"]
-title: "feat: <title>"
+labels: [enhancement]
+title: 'feat: <title>'
 body:
   - type: markdown
     attributes:
