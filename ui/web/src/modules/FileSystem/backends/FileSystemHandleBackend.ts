@@ -7,11 +7,10 @@ export class FileSystemHandleBackend implements IFileSystemBackend {
   private request$ = new Subject<void>();
   private response$ = this.request$.pipe(
     mergeMap(async () => {
-      if ((await this.root.queryPermission({ mode: 'readwrite' })) === 'granted') {
-        return;
-      }
-
       try {
+        if ((await this.root.queryPermission({ mode: 'readwrite' })) === 'granted') {
+          return true;
+        }
         // await new Promise<void>((resolve, reject) => {
         //   Modal.confirm({
         //     title: '文件系统授权',
