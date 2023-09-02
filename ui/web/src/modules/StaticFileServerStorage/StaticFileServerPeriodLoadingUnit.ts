@@ -2,7 +2,7 @@ import { BasicUnit, Kernel, PeriodDataUnit, ProductDataUnit, formatTime } from '
 import { IPeriod, IProduct } from '@yuants/protocol';
 import { parse as csvParse } from 'csv-parse/browser/esm/sync';
 import { parse } from 'date-fns';
-import { from, lastValueFrom, map, mergeMap, toArray } from 'rxjs';
+import { filter, from, lastValueFrom, map, mergeMap, toArray } from 'rxjs';
 
 const mapPeriodToDuration: Record<string, string> = {
   60: 'PT1M',
@@ -107,13 +107,19 @@ export class StaticFileServerPeriodLoadingUnit extends BasicUnit {
               period_in_sec: task.period_in_sec,
             }),
           ),
+          filter(
+            (period) =>
+              period.timestamp_in_us >= task.start_time_in_us &&
+              period.timestamp_in_us <= task.end_time_in_us,
+          ),
           toArray(),
           map((periods) => {
             periods.sort((a, b) => a.timestamp_in_us - b.timestamp_in_us);
             periods.forEach((period, idx) => {
               const spread = period.spread || theProduct.spread || 0;
-              // 推入 Period 数据
-              // ISSUE: 将开盘时的K线也推入队列，产生一个模拟的事件，可以提早确认上一根K线的收盘
+              // Push Period Data
+              // ISSUE: Push the K-line at the opening time into the queue, which generates a simulated event,
+              //        which can confirm the closing of the previous K-line early
               const openEventId = this.kernel.alloc(period.timestamp_in_us / 1000);
               this.mapEventIdToPeriod.set(openEventId, {
                 ...period,
@@ -123,7 +129,8 @@ export class StaticFileServerPeriodLoadingUnit extends BasicUnit {
                 volume: 0,
                 spread,
               });
-              // ISSUE: 一般来说，K线的收盘时间戳是开盘时间戳 + 周期，但是在历史数据中，K线的收盘时间戳可能会比开盘时间戳 + 周期要早
+              // ISSUE: Generally speaking, the closing timestamp of the K-line is the opening timestamp + period,
+              //        but in historical data, the closing timestamp of the K-line may be earlier than the opening timestamp + period
               const inferred_close_timestamp = Math.min(
                 period.timestamp_in_us / 1000 + period.period_in_sec * 1000 - 1,
                 (periods[idx + 1]?.timestamp_in_us ?? Infinity) / 1000 - 1,
