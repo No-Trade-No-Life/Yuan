@@ -4,6 +4,7 @@ import { AgentScene, IAgentConf, agentConfSchema } from '@yuants/agent';
 import Ajv from 'ajv';
 import { Actions, TabNode } from 'flexlayout-react';
 import { JSONSchema7 } from 'json-schema';
+import { parse } from 'jsonc-parser';
 import { useObservableState } from 'observable-hooks';
 import React, { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -226,7 +227,7 @@ export const AgentConfForm = React.memo((props: { node?: TabNode }) => {
                 const filename = prompt('配置文件路径');
                 if (filename) {
                   const content = await fs.readFile(filename);
-                  const json = JSON.parse(content);
+                  const json = parse(content);
                   agentConf$.next(json);
                   Toast.success(`加载 ${filename} 完成`);
                 }
