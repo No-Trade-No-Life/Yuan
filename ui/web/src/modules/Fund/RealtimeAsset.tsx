@@ -2,6 +2,7 @@ import { Button, Card, Descriptions, Empty, Space, Table, Toast, Typography } fr
 import { IAccountInfo, Terminal } from '@yuants/protocol';
 import { format } from 'date-fns';
 import { Actions, TabNode } from 'flexlayout-react';
+import { parse } from 'jsonc-parser';
 import { useObservable, useObservableState } from 'observable-hooks';
 import React, { useEffect } from 'react';
 import {
@@ -237,7 +238,7 @@ export const RealtimeAsset = React.memo((props: { node?: TabNode }) => {
             retry({ delay: 1000 }),
           ),
         ),
-        map((x) => JSON.parse(x) as IFundConfig),
+        map((x) => parse(x) as IFundConfig),
         mergeMap((config) => fromConfig(config)),
       ),
     [configFile],

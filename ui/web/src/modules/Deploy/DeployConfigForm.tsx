@@ -2,6 +2,7 @@ import { IconRefresh } from '@douyinfe/semi-icons';
 import { Button, Space, Table, Toast, Typography } from '@douyinfe/semi-ui';
 import { IDeploySpec, IEnvContext } from '@yuants/protocol';
 import { Actions, TabNode } from 'flexlayout-react';
+import { parse } from 'jsonc-parser';
 import path from 'path-browserify';
 import React, { useEffect, useState } from 'react';
 import { concatMap, from, map, mergeMap, reduce, toArray } from 'rxjs';
@@ -26,7 +27,7 @@ export const DeployConfigForm = React.memo((props: { node?: TabNode }) => {
 
   const parseConfigs = async (path: string): Promise<IDeploySpec[]> => {
     if (path.endsWith('.json')) {
-      return JSON.parse(await fs.readFile(path));
+      return parse(await fs.readFile(path));
     } else if (path.endsWith('.yaml') || path.endsWith('.yml')) {
       return YAML.parse(await fs.readFile(path));
     } else if (path.endsWith('.ts')) {
