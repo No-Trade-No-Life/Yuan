@@ -31,6 +31,7 @@ export default (context: IExtensionContext) => {
       };
     },
     make_k8s_resource_objects: async (ctx, envCtx) => {
+      const terminal_id = ctx.env?.TERMINAL_ID ?? 'TradeCopier';
       return {
         deployment: {
           apiVersion: 'apps/v1',
@@ -138,10 +139,10 @@ export default (context: IExtensionContext) => {
                       runbook_url: 'https://tradelife.feishu.cn/wiki/wikcnwLKfcKGaIaAZhasEXM7ipc',
                       summary: 'Trade Copier Metrics 请求失败',
                     },
-                    expr: 'rate(hv_terminal_metric_fetch_errors_total{terminal_id=~"^trade-copier/.+"}[5m]) != 0',
+                    expr: `rate(terminal_metrics_fetch_errors_total{terminal_id="${terminal_id}"}[5m]) != 0`,
                     for: '5m',
                     labels: {
-                      severity: 'error',
+                      severity: 'critical',
                     },
                   },
                   {
