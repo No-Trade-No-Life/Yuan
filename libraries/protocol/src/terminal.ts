@@ -16,12 +16,14 @@ import {
   first,
   from,
   groupBy,
+  interval,
   map,
   merge,
   mergeAll,
   mergeMap,
   of,
   pairwise,
+  race,
   repeat,
   retry,
   share,
@@ -54,6 +56,7 @@ import {
 import { PromRegistry } from './services/metrics';
 import { IQueryHistoryOrdersRequest, IQueryPeriodsRequest, IQueryProductsRequest } from './services/pull';
 import { mergeAccountInfoPositions } from './utils/account-info';
+import { Subscription } from '@influxdata/influxdb-client-browser';
 
 const TerminalReceiveMassageTotal = PromRegistry.create('counter', 'terminal_receive_message_total');
 const TerminalTransmittedMessageTotal = PromRegistry.create('counter', 'terminal_transmitted_message_total');
@@ -101,6 +104,8 @@ const FrameTransmittedTotal = PromRegistry.create(
   'terminal_frame_transmitted_total',
   'terminal_frame_transmitted_total Terminal frame transmitted',
 );
+const MetricSubmitOrderCount = PromRegistry.create('counter', 'account_submit_order_count');
+
 type IServiceHandler<T extends string = string> = T extends keyof IService
   ? (
       msg: ITerminalMessage & Pick<IService[T], 'req'> & { method: T },
@@ -294,13 +299,69 @@ export class Terminal {
             return EMPTY;
           }
 
-          const req$ = group.pipe(
-            tap((msg) => {
-              RequestReceivedTotal.inc({
-                method: msg.method,
-                source_terminal_id: msg.source_terminal_id,
-                target_terminal_id: msg.target_terminal_id,
+          const preHandleAction$ = new Subject<{ req: ITerminalMessage }>();
+          const postHandleAction$ = new Subject<{ req: ITerminalMessage; res: ITerminalMessage }>();
+
+          // ISSUE: Keepalive for every queued request before they are handled,
+          preHandleAction$.subscribe(({ req }) => {
+            const sub = interval(5000).subscribe(() => {
+              this._conn.output$.next({
+                trace_id: req.trace_id,
+                method: req.method,
+                // ISSUE: Reverse source / target as response, otherwise the host cannot guarantee the forwarding direction
+                source_terminal_id: this.terminalInfo.terminal_id,
+                target_terminal_id: req.source_terminal_id,
               });
+            });
+
+            postHandleAction$
+              .pipe(
+                //
+                first(({ req: req1 }) => req1 === req),
+              )
+              .subscribe(() => {
+                sub.unsubscribe();
+              });
+          });
+
+          // Metrics
+          preHandleAction$.subscribe(({ req }) => {
+            const tsStart = Date.now();
+            RequestReceivedTotal.inc({
+              method: req.method,
+              source_terminal_id: req.source_terminal_id,
+              target_terminal_id: req.target_terminal_id,
+            });
+
+            postHandleAction$.pipe(first(({ req: req1 }) => req1 === req)).subscribe(({ req, res }) => {
+              const labels = {
+                server_id: this.terminalInfo.terminal_id,
+                method: res.method,
+                code: `${res.frame !== undefined ? 0 : res.res?.code ?? 520}`,
+              };
+              MetricWsRequestTotal.inc(labels);
+              MetricWsRequestDurationBucket.observe(Date.now() - tsStart, labels);
+              if (res.res !== undefined) {
+                ResponseTransmittedTotal.inc({
+                  method: req.method,
+                  source_terminal_id: req.source_terminal_id,
+                  target_terminal_id: req.target_terminal_id,
+                  code: `${res.frame !== undefined ? 0 : res.res?.code ?? 520}`,
+                });
+              }
+              if (res.frame !== undefined) {
+                FrameTransmittedTotal.inc({
+                  method: req.method,
+                  source_terminal_id: req.source_terminal_id,
+                  target_terminal_id: req.target_terminal_id,
+                });
+              }
+            });
+          });
+
+          return group.pipe(
+            tap((msg) => {
+              preHandleAction$.next({ req: msg });
             }),
             groupBy((msg) => msg.source_terminal_id),
             // Token Bucket Algorithm
@@ -323,18 +384,13 @@ export class Terminal {
                 ),
               ),
             ),
-            share(),
-          );
-
-          const resp$ = req$.pipe(
             mergeMap((msg) => {
-              const tsStart = Date.now();
               const output$ = new Subject<
                 Omit<ITerminalMessage, 'trace_id' | 'method' | 'source_terminal_id' | 'target_terminal_id'>
               >();
               const res$: Observable<
                 Omit<ITerminalMessage, 'trace_id' | 'method' | 'source_terminal_id' | 'target_terminal_id'>
-              > = msg.res ? of(msg) : handler(msg, output$);
+              > = msg.res ? of(msg) : defer(() => handler(msg, output$));
               // ISSUE: output$.pipe(...) must be returned first to ensure that mergeMap has been subscribed before res$ starts write into output$
               setTimeout(() => {
                 res$.subscribe(output$);
@@ -373,62 +429,12 @@ export class Terminal {
                     target_terminal_id: msg.source_terminal_id,
                   }),
                 ),
-                tap((resp: ITerminalMessage) => {
-                  const labels = {
-                    server_id: this.terminalInfo.terminal_id,
-                    method: resp.method,
-                    code: `${resp.frame !== undefined ? 0 : resp.res?.code ?? 520}`,
-                  };
-                  MetricWsRequestTotal.inc(labels);
-                  MetricWsRequestDurationBucket.observe(Date.now() - tsStart, labels);
-                  if (resp.res !== undefined) {
-                    ResponseTransmittedTotal.inc({
-                      method: msg.method,
-                      source_terminal_id: msg.source_terminal_id,
-                      target_terminal_id: msg.target_terminal_id,
-                      code: `${resp.frame !== undefined ? 0 : resp.res?.code ?? 520}`,
-                    });
-                  }
-                  if (resp.frame !== undefined) {
-                    FrameTransmittedTotal.inc({
-                      method: msg.method,
-                      source_terminal_id: msg.source_terminal_id,
-                      target_terminal_id: msg.target_terminal_id,
-                    });
-                  }
+                tap((res: ITerminalMessage) => {
+                  postHandleAction$.next({ req: msg, res });
                 }),
               );
             }, concurrency),
-            shareReplay(1),
           );
-
-          // ISSUE: Keepalive for every queued request before they are handled,
-          const Keepalive$ = req$.pipe(
-            //
-            mergeMap((msg) =>
-              defer(() =>
-                of({
-                  trace_id: msg.trace_id,
-                  method: msg.method,
-                  // ISSUE: Reverse source / target as response, otherwise the host cannot guarantee the forwarding direction
-                  source_terminal_id: this.terminalInfo.terminal_id,
-                  target_terminal_id: msg.source_terminal_id,
-                }),
-              ).pipe(
-                //
-                repeat({ delay: 5000 }),
-                takeUntil(
-                  resp$.pipe(
-                    //
-                    first((v) => v.trace_id === msg.trace_id && v.method === msg.method),
-                  ),
-                ),
-                catchError(() => EMPTY),
-              ),
-            ),
-          );
-
-          return merge(resp$, Keepalive$);
         }),
       )
       .subscribe((msg) => {
@@ -464,7 +470,6 @@ export class Terminal {
    * Middleware：SubmitOrderCount
    */
   private setupPredefinedMiddleware = () => {
-    const MetricSubmitOrderCount = PromRegistry.create('counter', 'account_submit_order_count');
     this._conn.input$
       .pipe(
         //
