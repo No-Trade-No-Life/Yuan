@@ -17,6 +17,7 @@ import {
   from,
   groupBy,
   map,
+  merge,
   mergeAll,
   mergeMap,
   of,
@@ -25,6 +26,7 @@ import {
   retry,
   share,
   shareReplay,
+  takeUntil,
   takeWhile,
   tap,
   timeout,
@@ -292,7 +294,7 @@ export class Terminal {
             return EMPTY;
           }
 
-          return group.pipe(
+          const req$ = group.pipe(
             tap((msg) => {
               RequestReceivedTotal.inc({
                 method: msg.method,
@@ -321,6 +323,10 @@ export class Terminal {
                 ),
               ),
             ),
+            share(),
+          );
+
+          const resp$ = req$.pipe(
             mergeMap((msg) => {
               const tsStart = Date.now();
               const output$ = new Subject<
@@ -385,6 +391,7 @@ export class Terminal {
                   }
                   if (resp.frame !== undefined) {
                     FrameTransmittedTotal.inc({
+                      method: msg.method,
                       source_terminal_id: msg.source_terminal_id,
                       target_terminal_id: msg.target_terminal_id,
                     });
@@ -392,7 +399,36 @@ export class Terminal {
                 }),
               );
             }, concurrency),
+            shareReplay(1),
           );
+
+          // ISSUE: Keepalive for every queued request before they are handled,
+          const Keepalive$ = req$.pipe(
+            //
+            mergeMap((msg) =>
+              defer(() =>
+                of({
+                  trace_id: msg.trace_id,
+                  method: msg.method,
+                  // ISSUE: Reverse source / target as response, otherwise the host cannot guarantee the forwarding direction
+                  source_terminal_id: this.terminalInfo.terminal_id,
+                  target_terminal_id: msg.source_terminal_id,
+                }),
+              ).pipe(
+                //
+                repeat({ delay: 5000 }),
+                takeUntil(
+                  resp$.pipe(
+                    //
+                    first((v) => v.trace_id === msg.trace_id && v.method === msg.method),
+                  ),
+                ),
+                catchError(() => EMPTY),
+              ),
+            ),
+          );
+
+          return merge(resp$, Keepalive$);
         }),
       )
       .subscribe((msg) => {
