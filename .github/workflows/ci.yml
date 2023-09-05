@@ -14,6 +14,10 @@ on:
       NPM_AUTH_TOKEN:
         description: 'NPM Auth Token'
         required: true
+    outputs:
+      bake_file_existence:
+        description: 'Docker bake file existence'
+        value: ${{ jobs.build.outputs.bake_file_existence}}
 
 jobs:
   build:
