@@ -284,7 +284,7 @@ defer(() =>
                       }),
                       map(() => ({ ...task, state: 'success' })),
                       catchError((err) => {
-                        console.error(new Date(), `Task: ${group.key} Failed`, err);
+                        console.error(new Date(), `Task: ${group.key} Failed`, `${err}`);
                         MetricPullSourceBucket.observe(Date.now() - startTime, {
                           status: 'error',
                           datasource_id: task.datasource_id,

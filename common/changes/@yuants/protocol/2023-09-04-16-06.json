@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "keepalive for queued request",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

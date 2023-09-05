@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-market-data-collector",
+      "comment": "error printing format",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-market-data-collector"
+}
