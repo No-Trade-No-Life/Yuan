@@ -2,6 +2,18 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.1.2",
+      "tag": "@yuants/protocol_v0.1.2",
+      "date": "Tue, 05 Sep 2023 17:24:13 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix metrics"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.1",
       "tag": "@yuants/protocol_v0.1.1",
       "date": "Tue, 05 Sep 2023 10:00:19 GMT",
