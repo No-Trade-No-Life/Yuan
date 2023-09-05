@@ -18,17 +18,14 @@ import {
   groupBy,
   interval,
   map,
-  merge,
   mergeAll,
   mergeMap,
   of,
   pairwise,
-  race,
   repeat,
   retry,
   share,
   shareReplay,
-  takeUntil,
   takeWhile,
   tap,
   timeout,
@@ -56,7 +53,6 @@ import {
 import { PromRegistry } from './services/metrics';
 import { IQueryHistoryOrdersRequest, IQueryPeriodsRequest, IQueryProductsRequest } from './services/pull';
 import { mergeAccountInfoPositions } from './utils/account-info';
-import { Subscription } from '@influxdata/influxdb-client-browser';
 
 const TerminalReceiveMassageTotal = PromRegistry.create('counter', 'terminal_receive_message_total');
 const TerminalTransmittedMessageTotal = PromRegistry.create('counter', 'terminal_transmitted_message_total');
@@ -75,15 +71,10 @@ const AccountInfoPositionFloatingProfit = PromRegistry.create(
 const DatasourceQuoteAsk = PromRegistry.create('gauge', 'datasource_quote_ask');
 const DatasourceQuoteBid = PromRegistry.create('gauge', 'datasource_quote_bid');
 
-const MetricWsRequestTotal = PromRegistry.create(
-  'counter',
-  'ws_request_total',
-  'ws_request_total Total requests send to hv',
-);
-const MetricWsRequestDurationBucket = PromRegistry.create(
+const RequestDurationBucket = PromRegistry.create(
   'histogram',
-  'ws_request_duration_milliseconds',
-  'ws_request_duration_milliseconds Request Duration bucket in 1, 10, 100, 1000, 10000 ms',
+  'terminal_request_duration_milliseconds',
+  'terminal_request_duration_milliseconds Request Duration bucket in 1, 10, 100, 1000, 10000 ms',
   [1, 10, 100, 1000, 10000],
 );
 
@@ -93,17 +84,6 @@ const RequestReceivedTotal = PromRegistry.create(
   'terminal_request_received_total Terminal request received',
 );
 
-const ResponseTransmittedTotal = PromRegistry.create(
-  'counter',
-  'terminal_response_transmitted_total',
-  'terminal_response_transmitted_total Terminal response transmitted',
-);
-
-const FrameTransmittedTotal = PromRegistry.create(
-  'counter',
-  'terminal_frame_transmitted_total',
-  'terminal_frame_transmitted_total Terminal frame transmitted',
-);
 const MetricSubmitOrderCount = PromRegistry.create('counter', 'account_submit_order_count');
 
 type IServiceHandler<T extends string = string> = T extends keyof IService
@@ -334,28 +314,12 @@ export class Terminal {
             });
 
             postHandleAction$.pipe(first(({ req: req1 }) => req1 === req)).subscribe(({ req, res }) => {
-              const labels = {
-                server_id: this.terminalInfo.terminal_id,
-                method: res.method,
-                code: `${res.frame !== undefined ? 0 : res.res?.code ?? 520}`,
-              };
-              MetricWsRequestTotal.inc(labels);
-              MetricWsRequestDurationBucket.observe(Date.now() - tsStart, labels);
-              if (res.res !== undefined) {
-                ResponseTransmittedTotal.inc({
-                  method: req.method,
-                  source_terminal_id: req.source_terminal_id,
-                  target_terminal_id: req.target_terminal_id,
-                  code: `${res.frame !== undefined ? 0 : res.res?.code ?? 520}`,
-                });
-              }
-              if (res.frame !== undefined) {
-                FrameTransmittedTotal.inc({
-                  method: req.method,
-                  source_terminal_id: req.source_terminal_id,
-                  target_terminal_id: req.target_terminal_id,
-                });
-              }
+              RequestDurationBucket.observe(Date.now() - tsStart, {
+                method: req.method,
+                source_terminal_id: req.source_terminal_id,
+                target_terminal_id: req.target_terminal_id,
+                code: res.res?.code ?? 520,
+              });
             });
           });
 
@@ -430,7 +394,9 @@ export class Terminal {
                   }),
                 ),
                 tap((res: ITerminalMessage) => {
-                  postHandleAction$.next({ req: msg, res });
+                  if (res.res !== undefined) {
+                    postHandleAction$.next({ req: msg, res });
+                  }
                 }),
               );
             }, concurrency),
