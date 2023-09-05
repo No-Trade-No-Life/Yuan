@@ -2,6 +2,21 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.1.1",
+      "tag": "@yuants/protocol_v0.1.1",
+      "date": "Tue, 05 Sep 2023 10:00:19 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add copyDataRecords in terminal"
+          },
+          {
+            "comment": "keepalive for queued request"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.0",
       "tag": "@yuants/protocol_v0.1.0",
       "date": "Fri, 01 Sep 2023 14:25:44 GMT",

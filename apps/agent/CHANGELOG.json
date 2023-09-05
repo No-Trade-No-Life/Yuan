@@ -2,6 +2,29 @@
   "name": "@yuants/app-agent",
   "entries": [
     {
+      "version": "0.0.4",
+      "tag": "@yuants/app-agent_v0.0.4",
+      "date": "Tue, 05 Sep 2023 10:00:19 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove manifests/index.ts"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/agent\" to `0.0.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.0.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.1.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.3",
       "tag": "@yuants/app-agent_v0.0.3",
       "date": "Fri, 01 Sep 2023 14:25:44 GMT",
