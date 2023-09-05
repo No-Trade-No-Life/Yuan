@@ -109,7 +109,7 @@ jobs:
       - name: Publish NPM Package
         if: ${{ github.ref == 'refs/heads/main' }}
         env:
-          NPM_AUTH_TOKEN: ${{ secret.NPM_AUTH_TOKEN }}
+          NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
         run: rush publish -p --include-all
 
       - name: Upload npm artifacts
