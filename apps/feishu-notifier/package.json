@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-feishu-notifier",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "main": "lib/index.js",
   "scripts": {
     "build": "heft test --clean && api-extractor run --local && tool-dependency-hash @yuants/app-feishu-notifier && tool-docker-bake @yuants/app-feishu-notifier apps/feishu-notifier && yuan-toolkit post-build"

@@ -1,6 +1,14 @@
 # Change Log - @yuants/app-trade-copier
 
-This log was last generated on Fri, 01 Sep 2023 14:25:44 GMT and should not be manually modified.
+This log was last generated on Tue, 05 Sep 2023 10:00:19 GMT and should not be manually modified.
+
+## 0.0.4
+Tue, 05 Sep 2023 10:00:19 GMT
+
+### Patches
+
+- fix alerting rule
+- remove manifests/index.ts
 
 ## 0.0.3
 Fri, 01 Sep 2023 14:25:44 GMT
