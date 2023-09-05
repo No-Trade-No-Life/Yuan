@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-host",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Host",
   "scripts": {
     "build": "heft test --clean && api-extractor run --local && tool-dependency-hash @yuants/app-host && tool-docker-bake @yuants/app-host apps/host && yuan-toolkit post-build"
