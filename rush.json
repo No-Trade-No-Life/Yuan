@@ -516,6 +516,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/vendor-ctp",
+      "projectFolder": "apps/vendor-ctp",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/ui-web",
       "projectFolder": "ui/web"
     }

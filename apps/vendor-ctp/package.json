@@ -1,0 +1,42 @@
+{
+  "name": "@yuants/vendor-ctp",
+  "version": "0.0.0",
+  "main": "lib/index.js",
+  "files": [
+    "dist",
+    "lib",
+    "temp",
+    "build",
+    "ctp"
+  ],
+  "scripts": {
+    "build": "heft test --clean && node ./lib/scripts/build-ctp-types.js && node ./lib/scripts/build-ctp-bridge.js && tool-dependency-hash @yuants/vendor-ctp && tool-docker-bake @yuants/vendor-ctp apps/vendor-ctp && yuan-toolkit post-build"
+  },
+  "publishConfig": {
+    "registry": "https://npm.ntnl.io"
+  },
+  "devDependencies": {
+    "@types/node": "18",
+    "@types/heft-jest": "1.0.3",
+    "@rushstack/heft": "~0.47.5",
+    "@rushstack/heft-jest-plugin": "~0.3.30",
+    "@rushstack/heft-node-rig": "~1.10.7",
+    "@microsoft/api-extractor": "~7.30.0",
+    "typescript": "~4.7.4",
+    "@types/uuid": "~8.3.4",
+    "@types/json-schema": "~7.0.11",
+    "@yuants/tool-docker-bake": "latest",
+    "@yuants/tool-kit": "latest",
+    "@yuants/extension": "latest",
+    "@yuants/tool-dependency-hash": "latest"
+  },
+  "dependencies": {
+    "rxjs": "~7.5.6",
+    "zeromq": "^6.0.0-beta.6",
+    "@yuants/protocol": "latest",
+    "@yuants/utils": "latest",
+    "binary-parser-encoder": "~1.5.3",
+    "uuid": "~9.0.0",
+    "date-fns": "~2.29.3"
+  }
+}
