@@ -135,7 +135,7 @@ Vendors include markets, exchanges, and data sources. You can access the global 
 
 Every vendor is a gateway to connect the external service directly. Your private data including account info and market data will not be stored in Yuan Cloud Service. You can deploy the vendor in your own cloud or local machine.
 
-- [@yuants/vendor-ctp](apps/vendor-ctp) This connects to the "Comprehensive Transaction Platform" (CTP). The CTP platform was developed by the Shanghai Futures Exchange (SHFE). CTP provides China's future exchanges. To comply with regulations, you might have to grant permission to your broker.
+- [@yuants/vendor-ctp](apps/vendor-ctp) This connects to the "Comprehensive Transaction Platform" (CTP). The CTP platform was developed by the Shanghai Futures Exchange (SHFE). CTP provides China's future exchanges. To comply with regulations, you might have to request permission from your broker company.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
