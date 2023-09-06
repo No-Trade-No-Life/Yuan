@@ -39,11 +39,11 @@ There are many great tools and platforms available. However, I didn't find one t
 
 Here's why:
 
-- My trading strategy is secret. I am afraid someone illegally obtained the results. I can test and run it on trusted devices.
-- The historical data is highly reused and never updated anymore. I can download the data once and use it forever. So the data should be free.
-- Most devices have installed browsers. I can work everywhere through a browser. Fast starting without installing Python or other prerequisites.
-- The market is similar around the world. I can trade in any global market without changing any strategy code. Write once, and run everywhere.
-- Real-world trading is important. The trading system should be highly available. I can easily create and maintain ones.
+- My trading strategy is secret. I am afraid someone illegally obtained the results. I want to test and run it on trusted devices.
+- The historical data is highly reused and never updated anymore. I want to download the data once and use it forever. So the data should be free.
+- I want to work everywhere from any device. I don't want to install prerequisites (Python or any others) before starting my work. Most devices have installed browsers. So I want to use a browser to work.
+- The market is similar around the world. I want to trade in any global market without changing any strategy code. Write once, and run everywhere.
+- Real-world trading is important. The trading system should be highly available. I want to create and maintain them easily.
 
 For more general usages:
 
@@ -76,7 +76,7 @@ In summary, I hope Yuan can be an operating system, which helps you control your
 
 ## Getting started 🚀
 
-Prerequisites: `nodejs >= 18.17.0` and [rush](https://rushjs.io/) for monorepo management.
+Prerequisites: `nodejs >= 18.17.0`, [docker](https://www.docker.com/) for image build, and [rush](https://rushjs.io/) for mono repo management.
 
 ```bash
 npm install -g @microsoft/rush
@@ -105,7 +105,7 @@ All the libraries should be independent of the platform by default. They can be 
 
 #### Apps
 
-All the apps should provide an image and publish it as a npm package. You can deploy the app by docker and Kubernetes. You can find the [App List](https://github.com/orgs/No-Trade-No-Life/packages?tab=packages&q=app-) and get the image. And all the apps implemented the extension interface. So you can trend them as extensions.
+All the apps should provide an image and publish it as a npm package. You can deploy the app by docker and Kubernetes. You can find the [App List](https://github.com/orgs/No-Trade-No-Life/packages?tab=packages&q=app-) and get the image. All the apps implemented the extension interface. So you can treat them as extensions.
 
 - [@yuants/app-host](apps/host) Host is a very lightweight message broker. Terminals can connect to the host and send messages to each other. Notice that all terminals in a host should trust each other. In practice, all the terminals in a host belong to the same owner. There's no need to verify every message. You can deploy multiple hosts to isolate the risk.
 - [@yuants/app-market-data-collector](apps/market-data-collector) This will deploy a terminal as a data-collecting service. The terminal collects market data from the market terminals continuously.
@@ -131,7 +131,7 @@ Any device with a modern browser can access the GUI and its features. But curren
 
 #### Vendors
 
-Vendors include markets, exchanges and data sources. You can access the global market through various vendors. For some legal reason, they are probably not open to everyone. But you can use them in Yuan if you gain permission from the provider.
+Vendors include markets, exchanges and data sources. You can access the global market through various vendors. For some legal reason, they are probably not open to everyone. But you can use them if you gain permission from the provider.
 
 Every vendor is a gateway to connect the external service directly. Your private data including account info and market data will not be stored in Yuan Cloud Service. You can deploy the vendor in your own cloud or local machine.
 
@@ -197,7 +197,7 @@ Thanks sincerely to the contributors:
 ## Acknowledgments 📖
 
 1. [Yuan-Public-Workspace](https://github.com/No-Trade-No-Life/Yuan-Public-Workspace)
-   You can learn how to write strategy models from this repository. You can easily import it to your workspace from the GUI. The repository is embedded in AI with a vector database.
+   You can learn how to write strategy models from this repository. You can import it to your workspace from the GUI. The repository is embedded in AI with a vector database.
    Contribute with your examples is greatly appreciated!
 1. [Yuan-Public-Data](https://github.com/No-Trade-No-Life/Yuan-Public-Data)
    Our public data is maintained here as a repository. Free to use.
