@@ -43,7 +43,7 @@ Here's why:
 - The historical data is highly reused and never updated anymore. I want to download the data once and use it forever. So the data should be free.
 - I want to work everywhere from any device. I don't want to install prerequisites (Python or any others) before starting my work. Most devices have installed browsers. So I want to use a browser to work.
 - The market is similar around the world. I want to trade in any global market without changing any strategy code. Write once, and run everywhere.
-- Real-world trading is important. The trading system should be highly available. I want to easily create and maintain ones.
+- Real-world trading is important. The trading system should be highly available. I want to create and maintain ones easily.
 
 For more general usages:
 
@@ -197,7 +197,7 @@ Thanks sincerely to the contributors:
 ## Acknowledgments 📖
 
 1. [Yuan-Public-Workspace](https://github.com/No-Trade-No-Life/Yuan-Public-Workspace)
-   You can learn how to write strategy models from this repository. You can easily import it to your workspace from the GUI. The repository is embedded in AI with a vector database.
+   You can learn how to write strategy models from this repository. You can import it to your workspace from the GUI. The repository is embedded in AI with a vector database.
    Contribute with your examples is greatly appreciated!
 1. [Yuan-Public-Data](https://github.com/No-Trade-No-Life/Yuan-Public-Data)
    Our public data is maintained here as a repository. Free to use.
