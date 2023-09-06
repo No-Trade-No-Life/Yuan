@@ -2,6 +2,18 @@
   "name": "@yuants/tool-kit",
   "entries": [
     {
+      "version": "0.1.0",
+      "tag": "@yuants/tool-kit_v0.1.0",
+      "date": "Wed, 06 Sep 2023 15:33:08 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "merge dependency-hash and docker-bake into toolkit"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.0",
       "tag": "@yuants/tool-kit_v0.0.0",
       "date": "Wed, 30 Aug 2023 19:52:44 GMT",
