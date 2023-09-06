@@ -24,7 +24,8 @@
     "@yuants/app-mongodb-storage",
     "@yuants/app-metrics-collector",
     "@yuants/app-market-data-collector",
-    "@yuants/app-trade-copier"
+    "@yuants/app-trade-copier",
+    "@yuants/vendor-ctp"
   ],
   /**
    * When deploying a local Rush project, the package.json "devDependencies" are normally excluded.
