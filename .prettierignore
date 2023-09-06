@@ -24,8 +24,8 @@ shrinkwrap.json
 dist
 lib
 out
-**/ctp/ctp/build/
-**/ctp/src/assets/
+apps/vendor-ctp/ctp/build/
+apps/vendor-ctp/src/assets/
 .venv
 
 # 每个包内部生成的 API Report
