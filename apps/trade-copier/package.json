@@ -9,7 +9,7 @@
     "temp"
   ],
   "scripts": {
-    "build": "heft test --clean && api-extractor run --local && tool-dependency-hash @yuants/app-trade-copier && tool-docker-bake @yuants/app-trade-copier apps/trade-copier && yuan-toolkit post-build"
+    "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
@@ -24,8 +24,6 @@
     "@types/json-schema": "~7.0.11",
     "@types/node": "18",
     "@yuants/extension": "workspace:*",
-    "@yuants/tool-dependency-hash": "workspace:*",
-    "@yuants/tool-docker-bake": "workspace:*",
     "@yuants/tool-kit": "workspace:*",
     "json-schema": "~0.4.0",
     "typescript": "~4.7.4"

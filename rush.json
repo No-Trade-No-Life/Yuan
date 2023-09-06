@@ -426,23 +426,9 @@
     //   "tags": [ "tools" ]
     // }
     {
-      "packageName": "@yuants/tool-dependency-hash",
-      "projectFolder": "tools/dependency-hash",
-      "shouldPublish": true
-    },
-    {
-      "packageName": "@yuants/tool-docker-bake",
-      "projectFolder": "tools/docker-bake",
-      "shouldPublish": true
-    },
-    {
       "packageName": "@yuants/tool-kit",
       "projectFolder": "tools/toolkit",
       "shouldPublish": true
-    },
-    {
-      "packageName": "@yuants/template",
-      "projectFolder": "tools/template"
     },
     {
       "packageName": "@yuants/data-model",

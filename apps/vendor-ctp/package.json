@@ -10,7 +10,7 @@
     "ctp"
   ],
   "scripts": {
-    "build": "heft test --clean && node ./lib/scripts/build-ctp-types.js && node ./lib/scripts/build-ctp-bridge.js && tool-dependency-hash @yuants/vendor-ctp && tool-docker-bake @yuants/vendor-ctp apps/vendor-ctp && yuan-toolkit post-build"
+    "build": "heft test --clean && node ./lib/scripts/build-ctp-types.js && node ./lib/scripts/build-ctp-bridge.js && yuan-toolkit post-build"
   },
   "dependencies": {
     "@yuants/protocol": "workspace:*",
@@ -31,8 +31,6 @@
     "@types/node": "18",
     "@types/uuid": "~8.3.4",
     "@yuants/extension": "workspace:*",
-    "@yuants/tool-dependency-hash": "workspace:*",
-    "@yuants/tool-docker-bake": "workspace:*",
     "@yuants/tool-kit": "workspace:*",
     "typescript": "~4.7.4"
   },

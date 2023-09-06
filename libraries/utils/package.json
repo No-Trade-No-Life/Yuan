@@ -9,7 +9,7 @@
     "temp"
   ],
   "scripts": {
-    "build": "heft test --clean && api-extractor run --local && tool-dependency-hash @yuants/utils"
+    "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
@@ -22,7 +22,7 @@
     "@rushstack/heft-node-rig": "~1.10.7",
     "@types/heft-jest": "1.0.3",
     "@types/node": "18",
-    "@yuants/tool-dependency-hash": "workspace:*",
+    "@yuants/tool-kit": "workspace:*",
     "typescript": "~4.7.4"
   },
   "dependencies": {

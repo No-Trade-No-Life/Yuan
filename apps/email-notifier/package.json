@@ -4,7 +4,7 @@
   "main": "lib/index.js",
   "module": "dist/index.js",
   "scripts": {
-    "build": "heft test --clean && api-extractor run --local && tool-dependency-hash @yuants/app-email-notifier && tool-docker-bake @yuants/app-email-notifier apps/email-notifier && yuan-toolkit post-build"
+    "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
@@ -25,8 +25,6 @@
     "@types/node": "18",
     "@types/nodemailer": "~6.4.7",
     "@yuants/extension": "workspace:*",
-    "@yuants/tool-dependency-hash": "workspace:*",
-    "@yuants/tool-docker-bake": "workspace:*",
     "@yuants/tool-kit": "workspace:*",
     "typescript": "~4.7.4"
   },

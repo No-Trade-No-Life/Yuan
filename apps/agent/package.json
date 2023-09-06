@@ -23,8 +23,6 @@
     "@types/path-browserify": "~1.0.0",
     "@types/uuid": "~9.0.2",
     "@yuants/extension": "workspace:*",
-    "@yuants/tool-dependency-hash": "workspace:*",
-    "@yuants/tool-docker-bake": "workspace:*",
     "@yuants/tool-kit": "workspace:*",
     "typescript": "~4.7.4"
   },
@@ -42,6 +40,6 @@
     "yaml": "~2.3.1"
   },
   "scripts": {
-    "build": "heft test --clean && api-extractor run --local && tool-dependency-hash @yuants/app-agent && tool-docker-bake @yuants/app-agent apps/agent && yuan-toolkit post-build"
+    "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
   }
 }

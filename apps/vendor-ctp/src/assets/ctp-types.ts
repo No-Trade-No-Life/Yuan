@@ -10767,7 +10767,7 @@ export interface ICThostFtdcReqOpenAccountField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -10861,7 +10861,7 @@ export interface ICThostFtdcReqCancelAccountField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -10955,7 +10955,7 @@ export interface ICThostFtdcReqChangeAccountField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -11041,7 +11041,7 @@ export interface ICThostFtdcReqTransferField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -11133,7 +11133,7 @@ export interface ICThostFtdcRspTransferField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -11243,7 +11243,7 @@ export interface ICThostFtdcReqRepealField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -11349,7 +11349,7 @@ export interface ICThostFtdcRspRepealField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -11445,7 +11445,7 @@ export interface ICThostFtdcReqQueryAccountField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -11523,7 +11523,7 @@ export interface ICThostFtdcRspQueryAccountField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -11605,7 +11605,7 @@ export interface ICThostFtdcFutureSignIOField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -11651,7 +11651,7 @@ export interface ICThostFtdcRspFutureSignInField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -11705,7 +11705,7 @@ export interface ICThostFtdcReqFutureSignOutField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -11751,7 +11751,7 @@ export interface ICThostFtdcRspFutureSignOutField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -11801,7 +11801,7 @@ export interface ICThostFtdcReqQueryTradeResultBySerialField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -11859,7 +11859,7 @@ export interface ICThostFtdcRspQueryTradeResultBySerialField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -11915,7 +11915,7 @@ export interface ICThostFtdcReqDayEndFileReadyField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -11955,7 +11955,7 @@ export interface ICThostFtdcVerifyFuturePasswordField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -12049,7 +12049,7 @@ export interface ICThostFtdcReqSyncKeyField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -12093,7 +12093,7 @@ export interface ICThostFtdcRspSyncKeyField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -12141,7 +12141,7 @@ export interface ICThostFtdcNotifyQueryAccountField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -12299,7 +12299,7 @@ export interface ICThostFtdcNotifyFutureSignInField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -12353,7 +12353,7 @@ export interface ICThostFtdcNotifyFutureSignOutField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -12403,7 +12403,7 @@ export interface ICThostFtdcNotifySyncKeyField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -12505,7 +12505,7 @@ export interface ICThostFtdcOpenAccountField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -12603,7 +12603,7 @@ export interface ICThostFtdcCancelAccountField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -12701,7 +12701,7 @@ export interface ICThostFtdcChangeAccountField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -12921,7 +12921,7 @@ export interface ICThostFtdcReserveOpenAccountConfirmField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -13007,7 +13007,7 @@ export interface ICThostFtdcReserveOpenAccountField {
   TradeTime: string;
   // 银行流水号
   BankSerial: string;
-  // 交易系统日期
+  // 交易系统日期 
   TradingDay: string;
   // 银期平台消息流水号
   PlateSerial: number;
@@ -14196,3 +14196,4 @@ export interface ICThostFtdcSyncDeltaEWarrantOffsetField {
   // 追平序号
   SyncDeltaSequenceNo: number;
 }
+
