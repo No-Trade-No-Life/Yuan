@@ -54,7 +54,7 @@ const makeTsInterfaceLiteral =
               mapTypeNameToDataTypeMeta[field.type].enums.length !== 0
                 ? mapTypeNameToDataTypeMeta[field.type].name
                 : mapTypeNameToDataTypeMeta[field.type].type
-            }`,
+            };`,
           ]),
           `}`,
           ``,
