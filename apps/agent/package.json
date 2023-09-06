@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-agent",
-  "version": "0.0.5",
+  "version": "0.0.6",
   "main": "lib/index.js",
   "publishConfig": {
     "registry": "https://registry.npmjs.org",

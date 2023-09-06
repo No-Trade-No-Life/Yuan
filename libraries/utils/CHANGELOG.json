@@ -2,6 +2,18 @@
   "name": "@yuants/utils",
   "entries": [
     {
+      "version": "0.0.2",
+      "tag": "@yuants/utils_v0.0.2",
+      "date": "Wed, 06 Sep 2023 15:33:08 GMT",
+      "comments": {
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.1.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.1",
       "tag": "@yuants/utils_v0.0.1",
       "date": "Tue, 29 Aug 2023 15:01:01 GMT",
