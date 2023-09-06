@@ -1,0 +1,4 @@
+# We have generated files in the source tree, so we need to tell GitHub to ignore them
+**/include/*                 linguist-vendored
+*.GENERATED.hpp              linguist-generated
+*.GENERATED.cpp              linguist-generated
