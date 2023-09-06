@@ -13,7 +13,8 @@
     "build": "heft test --clean && node ./lib/scripts/build-ctp-types.js && node ./lib/scripts/build-ctp-bridge.js && tool-dependency-hash @yuants/vendor-ctp && tool-docker-bake @yuants/vendor-ctp apps/vendor-ctp && yuan-toolkit post-build"
   },
   "publishConfig": {
-    "registry": "https://npm.ntnl.io"
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
   },
   "devDependencies": {
     "@types/node": "18",
