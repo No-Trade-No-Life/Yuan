@@ -131,13 +131,11 @@ Any device with a modern browser can access the GUI and its features. But curren
 
 #### Vendors
 
-Vendors include markets, exchanges and data sources. You can access the global market through various vendors. For some legal reason, they are probably not open to everyone. But you can use them if you gain permission from the provider.
+Vendors include markets, exchanges, and data sources. You can access the global market through various vendors. For some legal reason, they are probably not open to everyone. But you can use them if you gain permission from the provider.
 
 Every vendor is a gateway to connect the external service directly. Your private data including account info and market data will not be stored in Yuan Cloud Service. You can deploy the vendor in your own cloud or local machine.
 
-### Plan to open source
-
-- [ ] Some vendors (CTP, IB, etc.);
+- [@yuants/vendor-ctp](apps/vendor-ctp) This connects to the "Comprehensive Transaction Platform" (CTP). The CTP platform was developed by the Shanghai Futures Exchange (SHFE). CTP provides China's future exchanges. To comply with regulations, you might have to grant permission to your broker.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
