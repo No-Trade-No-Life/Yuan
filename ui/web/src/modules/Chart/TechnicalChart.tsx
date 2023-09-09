@@ -75,7 +75,7 @@ export const TechnicalChart = React.memo((props: { node?: TabNode }) => {
         title: string;
         type: string;
         color: string;
-        data: Array<{ timestamp_in_us: number; value: number }>;
+        data: Array<{ timestamp: number; value: number }>;
       }[]
     > = {};
     series.forEach((series) => {
@@ -91,7 +91,7 @@ export const TechnicalChart = React.memo((props: { node?: TabNode }) => {
           ? DEFAULT_SINGLE_COLOR_SCHEME[brothers.length % DEFAULT_SINGLE_COLOR_SCHEME.length]
           : colorConfig;
       const data = Array.from({ length: time_series.length }, (_, i) => ({
-        timestamp_in_us: time_series[i],
+        timestamp: time_series[i],
         value: series[i],
       }));
       brothers.push({
