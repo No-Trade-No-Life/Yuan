@@ -46,7 +46,7 @@ export const useOHLC = (datasource_id: string, product_id: string, period_in_sec
   useEffect(() => {
     const period = periods[idx];
     if (period) {
-      time[idx] = period.timestamp_in_us;
+      time[idx] = period.timestamp_in_us / 1000;
       open[idx] = period.open;
       high[idx] = period.high;
       low[idx] = period.low;

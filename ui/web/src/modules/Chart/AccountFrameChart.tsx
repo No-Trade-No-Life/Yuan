@@ -7,24 +7,24 @@ export const AccountFrameChart = React.memo(() => {
   const positionValueSeries = useObservableState(accountFrameSeries$);
 
   const balanceData = useMemo(
-    () => positionValueSeries.map((e) => ({ timestamp_in_us: e.timestamp_in_us, value: e.balance })),
+    () => positionValueSeries.map((e) => ({ timestamp: e.timestamp_in_us / 1000, value: e.balance })),
     [positionValueSeries],
   );
 
   const equityData = useMemo(
-    () => positionValueSeries.map((e) => ({ timestamp_in_us: e.timestamp_in_us, value: e.equity })),
+    () => positionValueSeries.map((e) => ({ timestamp: e.timestamp_in_us / 1000, value: e.equity })),
     [positionValueSeries],
   );
   const marginData = useMemo(
-    () => positionValueSeries.map((e) => ({ timestamp_in_us: e.timestamp_in_us, value: e.margin })),
+    () => positionValueSeries.map((e) => ({ timestamp: e.timestamp_in_us / 1000, value: e.margin })),
     [positionValueSeries],
   );
   const requireData = useMemo(
-    () => positionValueSeries.map((e) => ({ timestamp_in_us: e.timestamp_in_us, value: e.require })),
+    () => positionValueSeries.map((e) => ({ timestamp: e.timestamp_in_us / 1000, value: e.require })),
     [positionValueSeries],
   );
   const profitData = useMemo(
-    () => positionValueSeries.map((e) => ({ timestamp_in_us: e.timestamp_in_us, value: e.profit })),
+    () => positionValueSeries.map((e) => ({ timestamp: e.timestamp_in_us / 1000, value: e.profit })),
     [positionValueSeries],
   );
 

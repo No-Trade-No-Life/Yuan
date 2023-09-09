@@ -327,7 +327,7 @@ export const CandlestickSeries = React.memo(
 export const LineSeries = React.memo(
   (props: {
     options?: { title?: string; color?: string };
-    data: Array<{ timestamp_in_us: number; value: number }>;
+    data: Array<{ timestamp: number; value: number }>;
   }) => {
     const chartApi = useContext(ChartApiContext);
     const seriesApiRef = useRef<ISeriesApi<'Line'>>();
@@ -354,7 +354,7 @@ export const LineSeries = React.memo(
       () =>
         props.data.map(
           (period): LineData => ({
-            time: (period.timestamp_in_us / 1e6) as UTCTimestamp,
+            time: (period.timestamp / 1e3) as UTCTimestamp,
             // ISSUE: Inf / -Inf 会导致坐标轴出问题，直接按 NaN 处理
             value: period.value === Infinity || period.value === -Infinity ? NaN : period.value,
             color:
@@ -380,7 +380,7 @@ export const LineSeries = React.memo(
 export const HistogramSeries = React.memo(
   (props: {
     options?: { title?: string; color?: string };
-    data: Array<{ timestamp_in_us: number; value: number }>;
+    data: Array<{ timestamp: number; value: number }>;
   }) => {
     const chartApi = useContext(ChartApiContext);
     const seriesApiRef = useRef<ISeriesApi<'Histogram'>>();
@@ -416,7 +416,7 @@ export const HistogramSeries = React.memo(
       () =>
         props.data.map(
           (period): LineData => ({
-            time: (period.timestamp_in_us / 1e6) as UTCTimestamp,
+            time: (period.timestamp / 1e3) as UTCTimestamp,
             value: period.value,
             color: Number.isNaN(period.value)
               ? 'transparent'
