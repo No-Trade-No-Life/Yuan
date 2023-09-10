@@ -121,6 +121,7 @@ export interface IAgentConf {
     is_real?: boolean;
     leverage?: number;
     period_self_check_interval_in_second?: number;
+    position_limit?: number;
     publish_account?: boolean;
     resume_on_source_margin_below?: number;
     start_time?: string;

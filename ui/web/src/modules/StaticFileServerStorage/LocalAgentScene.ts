@@ -10,6 +10,7 @@ import {
   OrderMatchingUnit,
   PeriodDataUnit,
   PortfolioSimulatorUnit,
+  PositionLimitOrderMappingUnit,
   ProductDataUnit,
   QuoteDataUnit,
   SeriesDataUnit,
@@ -74,6 +75,41 @@ export const LocalAgentScene = async (agentConf: IAgentConf) => {
     end_time: resolved_end_timestamp,
   });
 
+  let positionLimitAccountInfoUnit: AccountSimulatorUnit | undefined;
+  let positionLimitAccountPerformanceUnit: AccountPerformanceUnit | undefined;
+  let positionLimitOrderMatchingUnit: OrderMatchingUnit | undefined;
+  let positionLimitHistoryOrderUnit: HistoryOrderUnit | undefined;
+
+  if (agentConf.position_limit) {
+    positionLimitHistoryOrderUnit = new HistoryOrderUnit(kernel, quoteDataUnit, productDataUnit);
+    positionLimitOrderMatchingUnit = new OrderMatchingUnit(
+      kernel,
+      productDataUnit,
+      periodDataUnit,
+      positionLimitHistoryOrderUnit,
+    );
+    positionLimitAccountInfoUnit = new AccountSimulatorUnit(
+      kernel,
+      productDataUnit,
+      quoteDataUnit,
+      positionLimitHistoryOrderUnit,
+      createEmptyAccountInfo(
+        `${resolved_account_id}-PL`,
+        resolved_currency,
+        agentConf.leverage,
+        agentConf.initial_balance,
+      ),
+    );
+    const positionLimitUnit = new PositionLimitOrderMappingUnit(
+      kernel,
+      agentConf.position_limit,
+      originOrderMatchingUnit,
+      positionLimitOrderMatchingUnit,
+      positionLimitAccountInfoUnit,
+    );
+    positionLimitAccountPerformanceUnit = new AccountPerformanceUnit(kernel, positionLimitAccountInfoUnit);
+  }
+
   let counterpartyAccountInfoUnit: AccountSimulatorUnit | undefined;
   let counterpartyAccountPerformanceUnit: AccountPerformanceUnit | undefined;
   let counterpartyHistoryOrderUnit: HistoryOrderUnit | undefined;
@@ -88,7 +124,7 @@ export const LocalAgentScene = async (agentConf: IAgentConf) => {
     );
     const counterpartyUnit = new CounterpartyOrderMappingUnit(
       kernel,
-      originOrderMatchingUnit,
+      positionLimitOrderMatchingUnit || originOrderMatchingUnit,
       counterpartyOrderMatchingUnit,
     );
     const counterpartyAccountInfo = createEmptyAccountInfo(
@@ -201,18 +237,21 @@ export const LocalAgentScene = async (agentConf: IAgentConf) => {
     portfolioAccountInfoUnit ||
     stopLossAccountInfoUnit ||
     counterpartyAccountInfoUnit ||
+    positionLimitAccountInfoUnit ||
     originAccountInfoUnit;
 
   const accountPerformanceUnit =
     portfolioAccountPerformanceUnit ||
     stopLossAccountPerformanceUnit ||
     counterpartyAccountPerformanceUnit ||
+    positionLimitAccountPerformanceUnit ||
     originAccountPerformanceUnit;
 
   const historyOrderUnit =
     portfolioHistoryOrderUnit ||
     stopLossHistoryOrderUnit ||
     counterpartyHistoryOrderUnit ||
+    positionLimitHistoryOrderUnit ||
     originHistoryOrderUnit;
 
   return {

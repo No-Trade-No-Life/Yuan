@@ -1,10 +1,11 @@
 import { IconRefresh, IconSetting } from '@douyinfe/semi-icons';
 import { Button, Empty, Space } from '@douyinfe/semi-ui';
-import { HistoryOrderUnit, PeriodDataUnit, Series, SeriesDataUnit } from '@yuants/kernel';
+import { PeriodDataUnit, Series, SeriesDataUnit } from '@yuants/kernel';
 import { TabNode } from 'flexlayout-react';
 import { useObservableState } from 'observable-hooks';
 import React, { useEffect, useMemo, useState } from 'react';
 import { currentKernel$ } from '../Kernel/model';
+import { orders$ } from '../Order/model';
 import {
   CandlestickSeries,
   Chart,
@@ -105,12 +106,7 @@ export const TechnicalChart = React.memo((props: { node?: TabNode }) => {
     return mapChartIdToDisplayConfigList;
   }, [series]);
 
-  const orders = useMemo(
-    () =>
-      kernel?.units.find((unit): unit is HistoryOrderUnit => unit instanceof HistoryOrderUnit)
-        ?.historyOrders ?? [],
-    [kernel],
-  );
+  const orders = useObservableState(orders$);
 
   if (!kernel || periodsOptions.length === 0) {
     return <Empty title="无走势图可用" description={'请先运行代码 或 账户回放'} />;

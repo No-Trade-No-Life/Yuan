@@ -565,6 +565,27 @@ export class PortfolioSimulatorUnit extends BasicUnit {
 }
 
 // @public
+export class PositionLimitOrderMappingUnit extends BasicUnit {
+    constructor(kernel: Kernel, positionLimit: number, sourceOrderMatchingUnit: OrderMatchingUnit, targetOrderMatchingUnit: OrderMatchingUnit, targetAccountInfoUnit: AccountSimulatorUnit);
+    // (undocumented)
+    a: () => void;
+    // (undocumented)
+    kernel: Kernel;
+    // (undocumented)
+    onDispose(): void | Promise<void>;
+    // (undocumented)
+    onInit(): void | Promise<void>;
+    // (undocumented)
+    positionLimit: number;
+    // (undocumented)
+    sourceOrderMatchingUnit: OrderMatchingUnit;
+    // (undocumented)
+    targetAccountInfoUnit: AccountSimulatorUnit;
+    // (undocumented)
+    targetOrderMatchingUnit: OrderMatchingUnit;
+}
+
+// @public
 export class ProductDataUnit extends BasicUnit {
     // (undocumented)
     mapProductIdToProduct: Record<string, IProduct>;
