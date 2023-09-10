@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/agent",
+      "comment": "add position limit option",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/agent"
+}
