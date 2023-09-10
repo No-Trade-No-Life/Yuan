@@ -1,5 +1,5 @@
 {
-  "cSpell.words": ["datasource", "feishu", "forex", "yuants"],
+  "cSpell.words": ["datasource", "feishu", "forex", "yuants", "counterparty"],
   "files.associations": {
     "*.json": "jsonc"
   }
