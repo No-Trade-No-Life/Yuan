@@ -34,7 +34,7 @@ When the trade copier starts, it will do the following things:
 ### Model
 
 - You can specify a certain product of a source account to a certain product of a target account.
-- You can specify `multiple` to scale the position. The value of `multiple` should be `>= 0`.
+- You can scale the position by specifying `multiple`. The value of `multiple` should be `>= 0`.
 - You can ignore some positions by specifying `exclusive_comment_pattern`. The value of `exclusive_comment_pattern` should be a regular expression. If the comment of a position matches the regular expression, the position will be ignored.
 
 ```ts
@@ -55,7 +55,7 @@ interface ITradeCopyRelation {
 A: **It's very dangerous.** It may cause position oscillation. Orders may be over-submitted or under-submitted. Your account balance maybe rapidly decrease. You should avoid this problem.
 
 1. Ensure there's only one trade copier app instance in one host.
-2. Ensure every account is under only one trade copier's control if you have multiple hosts.
+2. Ensure every target account is under only one trade copier's control if you have multiple hosts.
 
 #### Q: What if multiple source accounts work with same target account?
 
