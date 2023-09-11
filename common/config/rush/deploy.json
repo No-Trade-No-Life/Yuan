@@ -18,6 +18,7 @@
    */
   "deploymentProjectNames": [
     "@yuants/app-agent",
+    "@yuants/app-alert-receiver",
     "@yuants/app-email-notifier",
     "@yuants/app-feishu-notifier",
     "@yuants/app-host",
