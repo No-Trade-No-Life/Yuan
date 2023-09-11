@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-trade-copier",
+      "comment": "update default CPU/Mem limit and create README.md",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-trade-copier"
+}

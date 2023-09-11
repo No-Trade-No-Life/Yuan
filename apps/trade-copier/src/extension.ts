@@ -67,8 +67,8 @@ export default (context: IExtensionContext) => {
                     name: 'trade-copier',
                     resources: {
                       limits: {
-                        cpu: ctx.cpu?.max ?? '100m',
-                        memory: ctx.memory?.max ?? '128Mi',
+                        cpu: ctx.cpu?.max ?? '200m',
+                        memory: ctx.memory?.max ?? '256Mi',
                       },
                       requests: {
                         cpu: ctx.cpu?.min ?? '20m',
