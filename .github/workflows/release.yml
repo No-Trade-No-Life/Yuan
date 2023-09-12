@@ -19,7 +19,7 @@ jobs:
     secrets:
       NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
 
-  gh-pages:
+  gh-pages-global:
     runs-on: ubuntu-latest
     needs: build
     steps:
@@ -42,6 +42,30 @@ jobs:
           publish_branch: main
           publish_dir: ./ui/web/dist
           cname: y.ntnl.io
+
+  gh-pages-cn:
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - name: Get artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: web-artifacts
+          path: ./ui/web/dist
+
+      - name: Deploy UI Web on gh-pages
+        uses: peaceiris/actions-gh-pages@v3
+        if: ${{ github.ref == 'refs/heads/main' }}
+        with:
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY_CN }}
+          external_repository: No-Trade-No-Life/gh-pages-cn
+          publish_branch: main
+          publish_dir: ./ui/web/dist
+          cname: y.ntnl.tech
 
   docker-build:
     runs-on: ubuntu-latest
