@@ -22,6 +22,7 @@ import { AccountFrameChart } from './modules/Chart/AccountFrameChart';
 import { TechnicalChart } from './modules/Chart/TechnicalChart';
 import { DeployConfigForm } from './modules/Deploy/DeployConfigForm';
 import { FileEditor } from './modules/Editor/FileEditor';
+import { ExtensionPanel } from './modules/Extensions/ExtensionPanel';
 import * as Extensions from './modules/Extensions/utils';
 import { ClearingAndSettlement } from './modules/Fund/ClearingAndSettlement';
 import { FinancialStatementsPanel } from './modules/Fund/FinancialStatementsPanel';
@@ -51,6 +52,7 @@ const AvailableComponents: Record<string, React.ComponentType> = {
   Explorer,
   AccountReplay,
   AccountFrameChart,
+  ExtensionPanel,
   Program,
   AccountInfoPanel,
   SubscriptionRelationList,

@@ -30,6 +30,14 @@ export const initialJson: FlexLayout.IJsonModel = {
           enableDrag: false,
           enableClose: false,
         },
+        {
+          type: 'tab',
+          name: i18n.t('ExtensionPanel'),
+          id: 'ExtensionPanel',
+          component: 'ExtensionPanel',
+          enableDrag: false,
+          enableClose: false,
+        },
       ],
     },
     {

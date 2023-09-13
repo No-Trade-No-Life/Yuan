@@ -3,8 +3,8 @@ import { formatTime } from '@yuants/kernel';
 // @ts-ignore
 import untar from 'js-untar';
 import { dirname, join } from 'path-browserify';
-import { defer, mergeMap, retry, timer } from 'rxjs';
-import { fs } from '../FileSystem/api';
+import { BehaviorSubject, defer, mergeMap, retry, switchMap, timeout } from 'rxjs';
+import { FsBackend$, fs } from '../FileSystem/api';
 
 export const downloadTgz = async (packageName: string, ver?: string) => {
   const { meta, version } = await resolveVersion(packageName);
@@ -58,7 +58,15 @@ const importModule = (code: string) => {
   return module;
 };
 
-export const activeExtensions = new Set<string>();
+interface IActiveExtensionInstance {
+  packageJson: {
+    name: string;
+    description?: string;
+    version: string;
+  };
+}
+
+export const activeExtensions$ = new BehaviorSubject<IActiveExtensionInstance[]>([]);
 export const DeployProviders: Record<string, IDeployProvider> = {};
 export const ImageTags: Record<string, string> = {};
 
@@ -67,6 +75,7 @@ export const loadExtension = async (packageName: string) => {
 
   try {
     const packageDir = getPackageDir(packageName);
+    const packageJson = JSON.parse(await fs.readFile(join(packageDir, 'package.json')));
     const imageTagFilename = join(packageDir, 'temp/image-tag');
     if (await fs.exists(imageTagFilename)) {
       ImageTags[packageName] = await fs.readFile(imageTagFilename);
@@ -81,6 +90,12 @@ export const loadExtension = async (packageName: string) => {
         },
       });
     }
+    activeExtensions$.next(
+      [...activeExtensions$.value.filter((x) => x.packageJson.name !== packageName), { packageJson }].sort(
+        (a, b) => a.packageJson.name.localeCompare(b.packageJson.name),
+      ),
+    );
+
     console.debug(formatTime(Date.now()), `load extension "${packageName}" successfully`);
   } catch (e) {
     console.debug(formatTime(Date.now()), `load extension "${packageName}" failed:`, e);
@@ -88,25 +103,27 @@ export const loadExtension = async (packageName: string) => {
   }
 };
 
-defer(() => timer(1000))
-  .pipe(
-    mergeMap(async () => {
-      const files = await fs.readdir('/.Y/extensions');
-      for (const file of files) {
+FsBackend$.pipe(
+  switchMap(() =>
+    defer(() => fs.readdir('/.Y/extensions')).pipe(
+      timeout(200),
+      retry({ delay: 200 }),
+
+      mergeMap((files) => files),
+      mergeMap(async (file) => {
         try {
           const dirname = join('/.Y/extensions', file);
           const stat = await fs.stat(dirname);
           if (stat.isDirectory()) {
             const packageJson = JSON.parse(await fs.readFile(join(dirname, 'package.json')));
             await loadExtension(packageJson.name);
-            activeExtensions.add(packageJson.name);
           }
         } catch (e) {}
-      }
-    }),
-    retry(),
-  )
-  .subscribe();
+      }, 1),
+      retry({ delay: 1000 }),
+    ),
+  ),
+).subscribe();
 
 export async function installExtensionFromTgz(tgzFilename: string) {
   const tgz = await fs.readAsBlob(tgzFilename);
