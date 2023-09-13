@@ -111,6 +111,10 @@ export class AgentUnit extends BasicUnit {
 
 function makeScriptRunner(script: string): () => any {
   const globalContext = {
+    // Issue: block access to globalThis and its properties for security
+    globalThis: {},
+    ...Object.fromEntries(Object.keys(globalThis).map((key) => [key, undefined])),
+    // Supply some global variables
     PositionVariant,
     OrderDirection,
     OrderType,
