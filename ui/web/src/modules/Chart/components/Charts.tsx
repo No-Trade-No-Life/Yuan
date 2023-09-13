@@ -17,6 +17,9 @@ import {
 import React, { ReactNode, createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { BehaviorSubject } from 'rxjs';
 
+const upColor = 'rgba(255,82,82, 0.8)';
+const downColor = 'rgba(0, 150, 136, 0.8)';
+
 const chartDefaultOptions: DeepPartial<ChartOptions> = {
   layout: {
     backgroundColor: '#000000',
@@ -170,7 +173,7 @@ export const Chart = React.memo((props: { children: ReactNode }) => {
         // TODO: Emit Event with index
         const serieses = model._private__serieses;
         serieses.forEach((series: any) => {
-          const { title, color } = series._private__options;
+          const { yuan_title: title, color } = series._private__options;
           const p = series._internal_dataAt(index);
           // console.info('##', p, index, series);
           if (p === undefined || p === null || Number.isNaN(p)) {
@@ -279,6 +282,7 @@ export const CandlestickSeries = React.memo(
   (props: { title?: string; data: IPeriod[]; children?: React.ReactElement }) => {
     const chartApi = useContext(ChartApiContext);
     const [seriesApi, setSeriesApi] = useState<ISeriesApi<'Candlestick'>>();
+    const [volumeSeriesApi, setVolumeSeriesApi] = useState<ISeriesApi<'Histogram'>>();
 
     useEffect(() => {
       if (chartApi) {
@@ -287,10 +291,37 @@ export const CandlestickSeries = React.memo(
         const series = chartApi.addCandlestickSeries({
           borderVisible: false,
           lastValueVisible: false,
-          title: props.title || `${sample?.datasource_id} ${sample?.product_id} ${sample?.period_in_sec}`,
           priceFormat: { type: 'price', precision, minMove: +(0.1 ** precision).toFixed(precision) },
+          upColor: upColor,
+          downColor: downColor,
+          wickUpColor: upColor,
+          wickDownColor: downColor,
+          borderUpColor: upColor,
+          borderDownColor: downColor,
+          ...{
+            yuan_title:
+              props.title || `${sample?.datasource_id} ${sample?.product_id} ${sample?.period_in_sec}`,
+          },
         });
         setSeriesApi(series);
+
+        const volumeSeries = chartApi.addHistogramSeries({
+          lastValueVisible: false,
+          priceFormat: {
+            type: 'volume',
+          },
+          color: 'white',
+          priceScaleId: 'volume',
+          ...{ yuan_title: 'VOL' },
+        });
+        chartApi.priceScale('volume').applyOptions({
+          scaleMargins: {
+            top: 0.8,
+            bottom: 0,
+          },
+        });
+        setVolumeSeriesApi(volumeSeries);
+
         return () => {
           chartApi.removeSeries(series);
           setSeriesApi(undefined);
@@ -309,6 +340,15 @@ export const CandlestickSeries = React.memo(
         })),
       [props.data],
     );
+    const volumeData = useMemo(
+      () =>
+        props.data.map((period) => ({
+          time: (period.timestamp_in_us / 1e6) as UTCTimestamp,
+          value: period.volume,
+          color: period.close > period.open ? upColor : downColor,
+        })),
+      [props.data],
+    );
 
     useEffect(() => {
       if (chartApi && seriesApi) {
@@ -316,6 +356,12 @@ export const CandlestickSeries = React.memo(
         seriesApi.setData(candlestickData);
       }
     }, [chartApi, seriesApi, candlestickData]);
+    useEffect(() => {
+      if (chartApi && volumeSeriesApi) {
+        //
+        volumeSeriesApi.setData(volumeData);
+      }
+    }, [chartApi, volumeSeriesApi, volumeData]);
 
     if (props.children) {
       return React.cloneElement(props.children, { ...props.children.props, seriesApi: seriesApi });
@@ -339,8 +385,10 @@ export const LineSeries = React.memo(
           lineWidth: 1,
           priceLineVisible: false,
           lastValueVisible: false,
-          ...props.options,
           priceFormat: { type: 'price', precision, minMove: +(0.1 ** precision).toFixed(precision) },
+          ...props.options,
+          title: undefined,
+          ...{ yuan_title: props.options?.title },
         });
         seriesApiRef.current = series;
         return () => {
@@ -391,8 +439,10 @@ export const HistogramSeries = React.memo(
         const series = chartApi.addHistogramSeries({
           priceLineVisible: false,
           lastValueVisible: false,
-          ...props.options,
           priceFormat: { type: 'price', precision, minMove: +(0.1 ** precision).toFixed(precision) },
+          ...props.options,
+          title: undefined,
+          ...{ yuan_title: props.options?.title },
         });
         seriesApiRef.current = series;
         return () => {
