@@ -20,6 +20,7 @@ import { JSONSchema7 } from 'json-schema';
 import {
   EMPTY,
   Observable,
+  TimeoutError,
   catchError,
   combineLatest,
   defer,
@@ -35,17 +36,28 @@ import {
   pairwise,
   reduce,
   repeat,
+  retry,
   shareReplay,
   tap,
   throwError,
+  timeout,
   toArray,
 } from 'rxjs';
-import { ITradeCopyRelation } from './utils';
 
 const HV_URL = process.env.HV_URL || 'ws://localhost:8888';
 const TERMINAL_ID = process.env.TERMINAL_ID || `TradeCopier`;
 const terminal = new Terminal(HV_URL, { terminal_id: TERMINAL_ID, name: 'Trade Copier' });
 const STORAGE_TERMINAL_ID = process.env.STORAGE_TERMINAL_ID!;
+
+interface ITradeCopyRelation {
+  source_account_id: string;
+  source_product_id: string;
+  target_account_id: string;
+  target_product_id: string;
+  multiple: number;
+  /** 根据正则表达式匹配头寸的备注 (黑名单) */
+  exclusive_comment_pattern?: string;
+}
 
 interface ITradeCopierConfig {
   multiple?: number;
@@ -128,7 +140,7 @@ const config$ = defer(() =>
     }
     return of(data);
   }),
-  tap((config) => console.info(formatTime(Date.now()), '读取配置', JSON.stringify(config))),
+  tap((config) => console.info(formatTime(Date.now()), 'LoadConfig', JSON.stringify(config))),
   tap((config) => {
     for (const task of config.tasks) {
       const labels = {
@@ -145,11 +157,20 @@ const config$ = defer(() =>
     }
   }),
   catchError((err) => {
-    terminal.terminalInfo.status = '错误的配置格式';
+    terminal.terminalInfo.status = 'InvalidConfig';
     throw err;
   }),
   shareReplay(1),
 );
+
+config$
+  .pipe(
+    //
+    first(),
+  )
+  .subscribe(() => {
+    terminal.terminalInfo.status = 'OK';
+  });
 
 // Suggestions: alert when the lag is too high
 const MetricTimeLag = PromRegistry.create(
@@ -172,6 +193,12 @@ const MetricMatrixUp = PromRegistry.create(
   'status of account_id-product_id, when multiple above 0, the value of this metric is 1 otherwise 0',
 );
 
+const MetricsAccountSubscribeStatus = PromRegistry.create(
+  'gauge',
+  'trade_copier_account_subscribe_status',
+  'status of account_id, 1 for success, 0 for failure',
+);
+
 // All the accounts involved
 const allAccountIds$ = config$.pipe(
   mergeMap((x) => x.tasks),
@@ -185,19 +212,38 @@ const allAccountIds$ = config$.pipe(
 allAccountIds$
   .pipe(
     mergeMap((x) => x),
-    map((account_id) =>
-      terminal.useAccountInfo(account_id).pipe(
-        //
-        first(),
-      ),
+    mergeMap((account_id) =>
+      defer(() => terminal.useAccountInfo(account_id))
+        .pipe(
+          //
+          first(),
+        )
+        .pipe(
+          tap((accountInfo) => {
+            MetricsAccountSubscribeStatus.set(1, {
+              account_id: accountInfo.account_id,
+              terminal_id: TERMINAL_ID,
+            });
+          }),
+          timeout({ each: 60_000, meta: `SubscribeAccountInfoTimeout, account_id: ${account_id}` }),
+          catchError((e) => {
+            MetricsAccountSubscribeStatus.set(0, {
+              account_id,
+              terminal_id: TERMINAL_ID,
+            });
+            console.error(
+              formatTime(Date.now()),
+              `SubscribeAccountInfoError`,
+              account_id,
+              `${e instanceof TimeoutError ? `${e}: ${e.info?.meta}` : e}`,
+            );
+            return EMPTY;
+          }),
+          repeat({ delay: 1000 }),
+        ),
     ),
-    toArray(),
-    mergeMap((x) => combineLatest(x)),
   )
-  .subscribe((x) => {
-    console.info(new Date(), `SubscribeSuccess`, `total ${x.length} accounts`);
-    terminal.terminalInfo.status = 'OK';
-  });
+  .subscribe();
 
 // Observe the time lag between two account info
 allAccountIds$
@@ -236,7 +282,7 @@ config$
     mergeMap(({ group: groupWithSameTarget, products }) => {
       console.info(
         formatTime(Date.now()),
-        '设置跟单账户',
+        'SetupTradeCopyAccount',
         groupWithSameTarget.key,
         JSON.stringify(groupWithSameTarget.tasks),
       );
@@ -247,7 +293,7 @@ config$
         mergeMap(() => {
           const t = Date.now();
 
-          // 重置残差率
+          // Reset residual error volume
           const product_ids = groupWithSameTarget.tasks
             .filter((task) => task.target_account_id === groupWithSameTarget.key)
             .map((v) => v.target_product_id);
@@ -269,7 +315,13 @@ config$
             filter((info) => info.timestamp_in_us / 1000 > t),
             map((info) => mergePositions(info.positions)),
             first(),
-
+            tap((positions) => {
+              console.info(formatTime(Date.now()), `TargetAccountInfo`, JSON.stringify(positions));
+            }),
+            timeout({
+              each: 30_000,
+              meta: `TargetAccountInfoTimeout, target_account_id: ${groupWithSameTarget.key}`,
+            }),
             mergeMap((positions) => {
               // Target Positions
               const desiredTargetPositions$ = of(0).pipe(
@@ -290,6 +342,17 @@ config$
                     first(),
                   );
                 }),
+                tap((list) => {
+                  console.info(formatTime(Date.now()), `SourceAccountInfo`, JSON.stringify(list));
+                }),
+                timeout({
+                  each: 30_000,
+                  meta: `SourceAccountInfoTimeout, target_account_id: ${
+                    groupWithSameTarget.key
+                  }, source_account_id: ${Array.from(
+                    new Set(groupWithSameTarget.tasks.map((v) => v.source_account_id)),
+                  )}`,
+                }),
                 // Summary the source accounts
                 mergeMap((list: { info: IAccountInfo; task: ITradeCopyRelation }[]) =>
                   from(list).pipe(
@@ -306,7 +369,7 @@ config$
                                   position.comment ?? '',
                                 );
                               } catch (e) {
-                                console.error(new Date(), e);
+                                console.error(formatTime(Date.now()), e);
                                 // if the expression is invalid, treat it as a fatal error,
                                 // filter all the positions, which is equivalent to close all the positions.
                                 return false;
@@ -415,27 +478,53 @@ config$
               ),
             ),
             // NOTE: here goes the algorithm trading
+            filter((orders) => orders.length > 0),
             mergeMap((orders) =>
               of(orders).pipe(
                 //
                 tap((orders) => {
-                  console.info(new Date(), `OrdersToSubmit`, groupWithSameTarget.key, JSON.stringify(orders));
+                  console.info(
+                    formatTime(Date.now()),
+                    `OrdersToSubmit`,
+                    groupWithSameTarget.key,
+                    JSON.stringify(orders),
+                  );
                 }),
                 mergeAll(),
                 mergeMap((order) =>
                   terminal.submitOrder(order).pipe(
                     catchError((e) => {
-                      console.error(new Date(), 'FailedToSubmitOrder', groupWithSameTarget.key, order, e);
+                      console.error(
+                        formatTime(Date.now()),
+                        'FailedToSubmitOrder',
+                        groupWithSameTarget.key,
+                        order,
+                        e,
+                      );
                       return EMPTY;
                     }),
                   ),
                 ),
+                toArray(),
+                tap(() => {
+                  console.info(
+                    formatTime(Date.now()),
+                    `SucceedToSubmitOrders`,
+                    groupWithSameTarget.key,
+                    JSON.stringify(orders),
+                  );
+                }),
               ),
             ),
           );
         }),
         catchError((e) => {
-          console.error(formatTime(Date.now()), 'LoopError', groupWithSameTarget.key, `${e}`);
+          console.error(
+            formatTime(Date.now()),
+            'LoopError',
+            groupWithSameTarget.key,
+            `${e instanceof TimeoutError ? `${e}: ${e.info?.meta}` : e}`,
+          );
           return EMPTY;
         }),
         repeat({ delay: 2000 }),
