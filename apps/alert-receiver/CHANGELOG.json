@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/app-alert-receiver",
+  "entries": [
+    {
+      "version": "0.0.0",
+      "tag": "@yuants/app-alert-receiver_v0.0.0",
+      "date": "Thu, 14 Sep 2023 13:25:35 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "init"
+          }
+        ]
+      }
+    }
+  ]
+}

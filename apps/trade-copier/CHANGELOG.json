@@ -2,6 +2,28 @@
   "name": "@yuants/app-trade-copier",
   "entries": [
     {
+      "version": "0.1.0",
+      "tag": "@yuants/app-trade-copier_v0.1.0",
+      "date": "Thu, 14 Sep 2023 13:25:35 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "update default CPU/Mem limit and create README.md"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "refactor: rewrite trade copy logic"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.1.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.6",
       "tag": "@yuants/app-trade-copier_v0.0.6",
       "date": "Wed, 06 Sep 2023 15:33:08 GMT",
