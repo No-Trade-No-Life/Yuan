@@ -1,6 +1,17 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Wed, 06 Sep 2023 15:33:08 GMT and should not be manually modified.
+This log was last generated on Thu, 14 Sep 2023 13:25:35 GMT and should not be manually modified.
+
+## 0.1.0
+Thu, 14 Sep 2023 13:25:35 GMT
+
+### Minor changes
+
+- add position limit unit
+
+### Patches
+
+- update some docs
 
 ## 0.0.5
 Wed, 06 Sep 2023 15:33:08 GMT

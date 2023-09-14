@@ -1,6 +1,18 @@
 # Change Log - @yuants/agent
 
-This log was last generated on Wed, 06 Sep 2023 15:33:08 GMT and should not be manually modified.
+This log was last generated on Thu, 14 Sep 2023 13:25:35 GMT and should not be manually modified.
+
+## 0.1.0
+Thu, 14 Sep 2023 13:25:35 GMT
+
+### Minor changes
+
+- change useOHLC's time from us to ms unit
+
+### Patches
+
+- add position limit option
+- use a virtual globalThis in agent env
 
 ## 0.0.5
 Wed, 06 Sep 2023 15:33:08 GMT
