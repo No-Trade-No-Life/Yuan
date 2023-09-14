@@ -34,7 +34,7 @@ When the trade copier starts, it will do the following things:
 ### Model
 
 - You can specify a certain product of a source account to a certain product of a target account.
-- You can scale the position by specifying `multiple`. The value of `multiple` should be `>= 0`.
+- You can scale the position by specifying `multiple`. Trade copier will scale the position by `multiple` times. Trade copier will close the positions if the value of `multiple` is equal to 0. If the value of `multiple` is negative, the position's direction will be flip from `LONG` to `SHORT` and vice versa.
 - You can ignore some positions by specifying `exclusive_comment_pattern`. The value of `exclusive_comment_pattern` should be a regular expression. If the comment of a position matches the regular expression, the position will be ignored.
 
 ```ts

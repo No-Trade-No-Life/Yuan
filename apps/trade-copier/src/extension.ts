@@ -152,7 +152,7 @@ export default (context: IExtensionContext) => {
                       runbook_url: 'https://tradelife.feishu.cn/wiki/wikcnXBLuFIJFKM6DYp8I94zDwf',
                       summary: '账户流终止',
                     },
-                    expr: 'sum by (account_id) (rate(trade_copier_account_info_time_lag_ms_count{account_id=~".+"}[1m])) == 0',
+                    expr: 'sum by (account_id) (trade_copier_account_subscribe_status) == 0',
                     for: '5m',
                     labels: {
                       severity: 'critical',

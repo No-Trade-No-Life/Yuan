@@ -1,13 +1,16 @@
+import { formatTime } from '@yuants/data-model';
+import { diffPosition, mergePositions } from '@yuants/kernel';
 import {
+  IAccountInfo,
   IOrder,
   IPosition,
   IProduct,
-  mapPositionVariantToNetPositionCoef,
   OrderDirection,
   OrderType,
   PositionVariant,
   PromRegistry,
   Terminal,
+  mapPositionVariantToNetPositionCoef,
 } from '@yuants/protocol';
 import { roundToStep } from '@yuants/utils';
 import Ajv from 'ajv';
@@ -15,31 +18,28 @@ import addFormats from 'ajv-formats';
 import { randomUUID } from 'crypto';
 import { JSONSchema7 } from 'json-schema';
 import {
+  EMPTY,
+  Observable,
+  TimeoutError,
   catchError,
   combineLatest,
-  combineLatestWith,
   defer,
   distinct,
-  EMPTY,
   filter,
   first,
   from,
   groupBy,
   map,
-  merge,
+  mergeAll,
   mergeMap,
-  Observable,
   of,
   pairwise,
   reduce,
   repeat,
-  share,
   shareReplay,
-  skip,
   tap,
   throwError,
   timeout,
-  timer,
   toArray,
 } from 'rxjs';
 
@@ -139,7 +139,7 @@ const config$ = defer(() =>
     }
     return of(data);
   }),
-  tap((config) => console.info(new Date(), '读取配置', JSON.stringify(config))),
+  tap((config) => console.info(formatTime(Date.now()), 'LoadConfig', JSON.stringify(config))),
   tap((config) => {
     for (const task of config.tasks) {
       const labels = {
@@ -156,13 +156,22 @@ const config$ = defer(() =>
     }
   }),
   catchError((err) => {
-    terminal.terminalInfo.status = '错误的配置格式';
+    terminal.terminalInfo.status = 'InvalidConfig';
     throw err;
   }),
   shareReplay(1),
 );
 
-// 建议当 Lag 过高时进行报警
+config$
+  .pipe(
+    //
+    first(),
+  )
+  .subscribe(() => {
+    terminal.terminalInfo.status = 'OK';
+  });
+
+// Suggestions: alert when the lag is too high
 const MetricTimeLag = PromRegistry.create(
   'histogram',
   'trade_copier_account_info_time_lag_ms',
@@ -170,7 +179,7 @@ const MetricTimeLag = PromRegistry.create(
   [500, 1000, 1500, 2000, 10000],
 );
 
-// 建议长期高于 1 时报警
+// Suggestion: alert when the error ratio is above 1 for a while
 const MetricErrorVolumeRatio = PromRegistry.create(
   'gauge',
   'trade_copier_error_volume_ratio',
@@ -183,7 +192,13 @@ const MetricMatrixUp = PromRegistry.create(
   'status of account_id-product_id, when multiple above 0, the value of this metric is 1 otherwise 0',
 );
 
-// 所有涉及的账户
+const MetricsAccountSubscribeStatus = PromRegistry.create(
+  'gauge',
+  'trade_copier_account_subscribe_status',
+  'status of account_id, 1 for success, 0 for failure',
+);
+
+// All the accounts involved
 const allAccountIds$ = config$.pipe(
   mergeMap((x) => x.tasks),
   mergeMap((task) => of(task.source_account_id, task.target_account_id)),
@@ -192,25 +207,44 @@ const allAccountIds$ = config$.pipe(
   shareReplay(1),
 );
 
-// 检查所有账户的订阅是否成功
+// Check if all the accounts are subscribed successfully
 allAccountIds$
   .pipe(
     mergeMap((x) => x),
-    map((account_id) =>
-      terminal.useAccountInfo(account_id).pipe(
-        //
-        first(),
-      ),
+    mergeMap((account_id) =>
+      defer(() => terminal.useAccountInfo(account_id))
+        .pipe(
+          //
+          first(),
+        )
+        .pipe(
+          tap((accountInfo) => {
+            MetricsAccountSubscribeStatus.set(1, {
+              account_id: accountInfo.account_id,
+              terminal_id: TERMINAL_ID,
+            });
+          }),
+          timeout({ each: 60_000, meta: `SubscribeAccountInfoTimeout, account_id: ${account_id}` }),
+          catchError((e) => {
+            MetricsAccountSubscribeStatus.set(0, {
+              account_id,
+              terminal_id: TERMINAL_ID,
+            });
+            console.error(
+              formatTime(Date.now()),
+              `SubscribeAccountInfoError`,
+              account_id,
+              `${e instanceof TimeoutError ? `${e}: ${e.info?.meta}` : e}`,
+            );
+            return EMPTY;
+          }),
+          repeat({ delay: 1000 }),
+        ),
     ),
-    toArray(),
-    mergeMap((x) => combineLatest(x)),
   )
-  .subscribe((x) => {
-    console.info(new Date(), `成功订阅所有相关的 ${x.length} 个账户`);
-    terminal.terminalInfo.status = 'OK';
-  });
+  .subscribe();
 
-// 检查两次账户流信息之间的时间差
+// Observe the time lag between two account info
 allAccountIds$
   .pipe(
     mergeMap((x) => x),
@@ -236,302 +270,263 @@ config$
         map((tasks) => ({ key: group.key, tasks })),
       ),
     ),
-    // 查询所有跟单账户内的品种信息
+    // query all the products in the target account
     mergeMap((group) =>
       defer(() => useProducts(group.key).pipe(first())).pipe(
-        // 打包
+        // package
         map((products) => ({ products, group })),
       ),
     ),
 
     mergeMap(({ group: groupWithSameTarget, products }) => {
-      console.info(new Date(), '设置跟单账户', groupWithSameTarget.key);
-
-      const sourceAccountInfos$ = from(groupWithSameTarget.tasks).pipe(
-        // 组合最新的一批信号源
-        map((task) =>
-          terminal.useAccountInfo(task.source_account_id).pipe(
-            // 打标
-            map((info) => ({ info, task })),
-          ),
-        ),
-        toArray(),
-        mergeMap((x) => combineLatest(x)),
-        shareReplay(1),
+      console.info(
+        formatTime(Date.now()),
+        'SetupTradeCopyAccount',
+        groupWithSameTarget.key,
+        JSON.stringify(groupWithSameTarget.tasks),
       );
 
-      const source$: Observable<IPosition[]> = sourceAccountInfos$
-        .pipe(
-          tap((x) => console.info(new Date(), '阵列输入', groupWithSameTarget.key, JSON.stringify(x))),
-          // foreach position
-          mergeMap((x) =>
-            from(x).pipe(
-              mergeMap(({ task, info }) =>
-                from(info.positions).pipe(
-                  // 仅需要对应的品种
-                  filter((position) => position.product_id === task.source_product_id),
-                  // 根据头寸的备注过滤头寸
-                  filter((position) => {
-                    if (task.exclusive_comment_pattern) {
-                      try {
-                        return !new RegExp(task.exclusive_comment_pattern).test(position.comment ?? '');
-                      } catch (e) {
-                        console.error(new Date(), e);
-                        return false; // 如果表达式构造出错，认为是严重的错误，直接过滤所有相关头寸，等效于平仓
-                      }
-                    }
-                    // 如果没有配置表达式（包括留空串），认为是一律通过
-                    return true;
-                  }),
-                  // 改名
-                  map((position) => ({
-                    ...position,
-                    product_id: task.target_product_id,
-                  })),
-                  // 倍数 (允许反向)
-                  map((position) => {
-                    const netPosition =
-                      mapPositionVariantToNetPositionCoef(position.variant) * position.volume;
-                    const newNetVolume = netPosition * task.multiple; // HERE
-                    const variant = newNetVolume > 0 ? PositionVariant.LONG : PositionVariant.SHORT;
-                    const volume = Math.abs(newNetVolume);
+      return defer(() => of(0)).pipe(
+        // Log
+        tap(() => console.info(formatTime(Date.now()), 'LoopStart', groupWithSameTarget.key)),
+        mergeMap(() => {
+          const t = Date.now();
 
-                    return {
-                      ...position,
-                      volume,
-                      free_volume: volume,
-                      variant,
-                    };
-                  }),
-                  // 过滤为 0 和运算结果非法的头寸
-                  filter((position) => position.volume > 0),
-                ),
-              ),
-
-              // 合并相同性质的头寸
-              groupBy((position) => position.product_id),
-              mergeMap((groupWithSameProductId) =>
-                groupWithSameProductId.pipe(
-                  groupBy((position) => position.variant),
-                  mergeMap((groupWithSameVariant) =>
-                    groupWithSameVariant.pipe(
-                      reduce(
-                        (acc: IPosition, cur): IPosition => ({
-                          ...acc,
-                          volume: acc.volume + cur.volume,
-                          free_volume: acc.free_volume + cur.free_volume,
-                          position_price:
-                            (acc.position_price * acc.volume + cur.position_price * cur.volume) /
-                            (acc.volume + cur.volume),
-                          floating_profit: acc.floating_profit + cur.floating_profit,
-                        }),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              toArray(),
-            ),
-          ),
-        )
-        .pipe(
-          //
-          share(),
-        );
-
-      const target$ = terminal.useAccountInfo(groupWithSameTarget.key);
-      // 仅由 target$ 触发;
-      // source$ 的更新不应触发后续的重新计算
-      const positionDiff$ = target$.pipe(
-        //
-        combineLatestWith(
-          config$.pipe(
-            first(),
-            map((config) => config.tasks),
-          ),
-        ),
-        tap(([info, tasks]) => {
-          // 重置残差率
-          const product_ids = tasks
-            .filter((task) => task.target_account_id === info.account_id)
+          // Reset residual error volume
+          const product_ids = groupWithSameTarget.tasks
+            .filter((task) => task.target_account_id === groupWithSameTarget.key)
             .map((v) => v.target_product_id);
           for (const product_id of product_ids) {
             MetricErrorVolumeRatio.reset({
-              account_id: info.account_id,
+              account_id: groupWithSameTarget.key,
               product_id,
               variant: PositionVariant.LONG,
             });
             MetricErrorVolumeRatio.reset({
-              account_id: info.account_id,
+              account_id: groupWithSameTarget.key,
               product_id,
               variant: PositionVariant.SHORT,
             });
           }
-        }),
-        map(([info]) => info),
-        map((info) => info.positions),
-        mergeMap((positions) =>
-          from(positions).pipe(
-            // 合并相同性质的头寸
-            groupBy((position) => position.product_id),
-            mergeMap((groupWithSameProductId) =>
-              groupWithSameProductId.pipe(
-                groupBy((position) => position.variant),
-                mergeMap((groupWithSameVariant) =>
-                  groupWithSameVariant.pipe(
-                    reduce(
-                      (acc, cur): IPosition => ({
-                        ...acc,
-                        volume: acc.volume + cur.volume,
-                        free_volume: acc.free_volume + cur.free_volume,
-                        position_price:
-                          (acc.position_price * acc.volume + cur.position_price * cur.volume) /
-                          (acc.volume + cur.volume),
-                        floating_profit: acc.floating_profit + cur.floating_profit,
-                      }),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            toArray(),
-          ),
-        ),
-        //
-        map((targetPositions) =>
-          //  取 Replay 的最新值 (但不监听它的更新)
-          defer(() => source$.pipe(first())).pipe(
-            // 打包
-            map((sourcePositions) => ({ targetPositions, sourcePositions })),
-            tap((x) => console.info(new Date(), '头寸对比', groupWithSameTarget.key, JSON.stringify(x))),
-            mergeMap(({ targetPositions, sourcePositions }) =>
-              // Join Positions Table with key product_id and variant
-              merge<any>(
-                // 列改名
-                from(sourcePositions).pipe(
-                  map((position) => ({
-                    product_id: position.product_id,
-                    variant: position.variant,
-                    volumeInSource: position.volume,
-                  })),
-                ),
-                from(targetPositions).pipe(
-                  map((position) => ({
-                    product_id: position.product_id,
-                    variant: position.variant,
-                    volumeInTarget: position.volume,
-                  })),
-                ),
-              ).pipe(
-                groupBy((pos) => pos.product_id),
-                mergeMap((group) =>
-                  group.pipe(
-                    groupBy((pos) => pos.variant),
-                    mergeMap((subGroup) =>
-                      subGroup.pipe(
-                        // Merge
-                        reduce(
-                          (
-                            acc: {
-                              product_id: string;
-                              variant: PositionVariant;
-                              volumeInSource: number;
-                              volumeInTarget: number;
-                            },
-                            cur,
-                          ) => ({ ...acc, ...cur }),
-                        ),
+
+          return defer(() => terminal.useAccountInfo(groupWithSameTarget.key)).pipe(
+            //
+            filter((info) => info.timestamp_in_us / 1000 > t),
+            map((info) => mergePositions(info.positions)),
+            first(),
+            tap((positions) => {
+              console.info(formatTime(Date.now()), `TargetAccountInfo`, JSON.stringify(positions));
+            }),
+            timeout({
+              each: 30_000,
+              meta: `TargetAccountInfoTimeout, target_account_id: ${groupWithSameTarget.key}`,
+            }),
+            mergeMap((positions) => {
+              // Target Positions
+              const desiredTargetPositions$ = of(0).pipe(
+                // Combine the latest source accounts, drop expired ones
+                mergeMap(() => {
+                  const t = Date.now();
+                  return combineLatest(
+                    groupWithSameTarget.tasks.map((task) =>
+                      terminal.useAccountInfo(task.source_account_id).pipe(
+                        // drop the expired account info
+                        filter((info) => info.timestamp_in_us / 1000 > t),
+                        // bind info and task relation
+                        map((info) => ({ info, task })),
                       ),
                     ),
-                    map((pos) => ({
-                      product_id: pos.product_id,
-                      variant: pos.variant,
-                      volumeInSource: pos.volumeInSource ?? 0,
-                      volumeInTarget: pos.volumeInTarget ?? 0,
-                      errorVolume: (pos.volumeInSource ?? 0) - (pos.volumeInTarget ?? 0),
-                    })),
-                    tap((x) => {
-                      const error_ratio = x.errorVolume / (products[x.product_id]?.volume_step ?? 1);
-                      console.info(
-                        new Date(),
-                        '头寸残差',
+                  ).pipe(
+                    // Grab the first one, all the source accounts are ready
+                    first(),
+                  );
+                }),
+                tap((list) => {
+                  console.info(formatTime(Date.now()), `SourceAccountInfo`, JSON.stringify(list));
+                }),
+                timeout({
+                  each: 30_000,
+                  meta: `SourceAccountInfoTimeout, target_account_id: ${
+                    groupWithSameTarget.key
+                  }, source_account_id: ${Array.from(
+                    new Set(groupWithSameTarget.tasks.map((v) => v.source_account_id)),
+                  )}`,
+                }),
+                // Summary the source accounts
+                mergeMap((list: { info: IAccountInfo; task: ITradeCopyRelation }[]) =>
+                  from(list).pipe(
+                    mergeMap(({ task, info }) =>
+                      from(info.positions)
+                        .pipe(
+                          // keep the positions with the same product_id
+                          filter((position) => position.product_id === task.source_product_id),
+                          // filter by comment
+                          filter((position) => {
+                            if (task.exclusive_comment_pattern) {
+                              try {
+                                return !new RegExp(task.exclusive_comment_pattern).test(
+                                  position.comment ?? '',
+                                );
+                              } catch (e) {
+                                console.error(formatTime(Date.now()), e);
+                                // if the expression is invalid, treat it as a fatal error,
+                                // filter all the positions, which is equivalent to close all the positions.
+                                return false;
+                              }
+                            }
+                            // if the expression is not set, pass the filter
+                            return true;
+                          }),
+                          groupBy(() => task.target_product_id),
+                          mergeMap((groupWithSameTargetProductId) =>
+                            groupWithSameTargetProductId.pipe(
+                              // Get net position (long for positive, short for negative)
+                              map(
+                                (position) =>
+                                  (position.variant === PositionVariant.LONG
+                                    ? 1
+                                    : position.variant === PositionVariant.SHORT
+                                    ? -1
+                                    : 0) *
+                                    position.volume *
+                                    task.multiple || 0, // Invalid position will fallback to zero.
+                              ),
+                              // sum up to target volume
+                              reduce((acc, cur) => acc + cur),
+                              // recover to target position
+                              map(
+                                (netVolume): IPosition => ({
+                                  product_id: groupWithSameTargetProductId.key,
+                                  variant: netVolume > 0 ? PositionVariant.LONG : PositionVariant.SHORT,
+                                  volume: Math.abs(netVolume),
+                                  free_volume: Math.abs(netVolume),
+                                  position_price: 0,
+                                  floating_profit: 0,
+                                  closable_price: 0,
+                                  position_id: '',
+                                }),
+                              ),
+                            ),
+                          ),
+                        )
+                        .pipe(
+                          // change the product_id to target_product_id
+                          map((position) => ({
+                            ...position,
+                            product_id: task.target_product_id,
+                          })),
+                          // multiply the volume by multiple (negative for opposite direction)
+                          map((position): IPosition => {
+                            const netPosition =
+                              mapPositionVariantToNetPositionCoef(position.variant) * position.volume;
+                            const newNetVolume = netPosition * task.multiple; // HERE
+                            const variant = newNetVolume > 0 ? PositionVariant.LONG : PositionVariant.SHORT;
+                            const volume = Math.abs(newNetVolume);
+
+                            return {
+                              ...position,
+                              volume,
+                              free_volume: volume,
+                              variant,
+                            };
+                          }),
+                          // filter out 0 and invalid positions
+                          filter((position) => position.volume > 0),
+                        ),
+                    ),
+                    toArray(),
+                    map((positions) => mergePositions(positions)),
+                  ),
+                ),
+              );
+
+              return desiredTargetPositions$.pipe(
+                //
+                map((desiredTargetPositions) => diffPosition(desiredTargetPositions, positions)),
+              );
+            }),
+
+            mergeMap((positionDiffList) =>
+              from(positionDiffList).pipe(
+                //
+                filter((positionDiff) => positionDiff.error_volume !== 0),
+                map(
+                  (item): IOrder => ({
+                    client_order_id: randomUUID(),
+                    account_id: groupWithSameTarget.key,
+                    type: OrderType.MARKET,
+                    product_id: item.product_id,
+                    // ISSUE: 必须使用 Math.floor，避免震荡下单 ("千分之五手问题")
+                    volume: roundToStep(
+                      Math.abs(item.error_volume),
+                      products[item.product_id]?.volume_step ?? 1,
+                      Math.floor,
+                    ),
+                    direction:
+                      item.variant === PositionVariant.LONG
+                        ? item.error_volume > 0
+                          ? OrderDirection.OPEN_LONG
+                          : OrderDirection.CLOSE_LONG
+                        : item.error_volume > 0
+                        ? OrderDirection.OPEN_SHORT
+                        : OrderDirection.CLOSE_SHORT,
+                  }),
+                ),
+                filter((v) => v.volume > 0),
+                toArray(),
+              ),
+            ),
+            // NOTE: here goes the algorithm trading
+            filter((orders) => orders.length > 0),
+            mergeMap((orders) =>
+              of(orders).pipe(
+                //
+                tap((orders) => {
+                  console.info(
+                    formatTime(Date.now()),
+                    `OrdersToSubmit`,
+                    groupWithSameTarget.key,
+                    JSON.stringify(orders),
+                  );
+                }),
+                mergeAll(),
+                mergeMap((order) =>
+                  terminal.submitOrder(order).pipe(
+                    catchError((e) => {
+                      console.error(
+                        formatTime(Date.now()),
+                        'FailedToSubmitOrder',
                         groupWithSameTarget.key,
-                        `error_ratio=${error_ratio.toFixed(4)}`,
-                        JSON.stringify(x),
+                        order,
+                        e,
                       );
-                      MetricErrorVolumeRatio.set(error_ratio, {
-                        account_id: groupWithSameTarget.key,
-                        product_id: x.product_id,
-                        variant: x.variant,
-                      });
+                      return EMPTY;
                     }),
                   ),
                 ),
-                //
-              ),
-            ),
-          ),
-        ),
-      );
-
-      const ordersToSend$ = positionDiff$.pipe(
-        mergeMap((items) =>
-          items
-            .pipe(
-              filter((item) => item.errorVolume !== 0),
-              map(
-                (item): IOrder => ({
-                  client_order_id: randomUUID(),
-                  account_id: groupWithSameTarget.key,
-                  type: OrderType.MARKET,
-                  product_id: item.product_id,
-                  // ISSUE: 必须使用 Math.floor，避免震荡下单 ("千分之五手问题")
-                  volume: roundToStep(
-                    Math.abs(item.errorVolume),
-                    products[item.product_id]?.volume_step ?? 1,
-                    Math.floor,
-                  ),
-                  direction:
-                    item.variant === PositionVariant.LONG
-                      ? item.errorVolume > 0
-                        ? OrderDirection.OPEN_LONG
-                        : OrderDirection.CLOSE_LONG
-                      : item.errorVolume > 0
-                      ? OrderDirection.OPEN_SHORT
-                      : OrderDirection.CLOSE_SHORT,
+                toArray(),
+                tap(() => {
+                  console.info(
+                    formatTime(Date.now()),
+                    `SucceedToSubmitOrders`,
+                    groupWithSameTarget.key,
+                    JSON.stringify(orders),
+                  );
                 }),
               ),
-            )
-            .pipe(
-              filter((v) => v.volume > 0),
-              toArray(),
             ),
-        ),
-        share(),
-      );
-
-      return defer(() => ordersToSend$.pipe(first())).pipe(
-        tap((x) => console.info(new Date(), `计划下单`, groupWithSameTarget.key, JSON.stringify(x))),
-        mergeMap((v) => v),
-        mergeMap((order) =>
-          terminal.submitOrder(order).pipe(
-            timeout(30000),
-            catchError((e) => {
-              console.error(new Date(), '下单失败', groupWithSameTarget.key, order, e);
-              return EMPTY;
-            }),
-          ),
-        ),
-
-        repeat({
-          delay: () =>
-            // target$ 可能没有及时更新
-            timer(2000).pipe(
-              mergeMap(() => target$),
-              // 等到下一个 target$ 再进行下一波下单
-              skip(1),
-            ),
+          );
         }),
+        catchError((e) => {
+          console.error(
+            formatTime(Date.now()),
+            'LoopError',
+            groupWithSameTarget.key,
+            `${e instanceof TimeoutError ? `${e}: ${e.info?.meta}` : e}`,
+          );
+          return EMPTY;
+        }),
+        repeat({ delay: 2000 }),
       );
     }),
   )

@@ -150,9 +150,9 @@ export const createEmptyAccountInfo = (
 });
 
 /**
- * 合并相同 product_id/variant 的头寸
- * @param positions - 头寸列表
- * @returns - 合并后的头寸列表
+ * Merge Positions by product_id/variant
+ * @param positions - List of Positions
+ * @returns - Merged Positions
  *
  * @public
  */
@@ -186,15 +186,15 @@ export const mergePositions = (positions: IPosition[]): IPosition[] => {
  * @public
  */
 export interface IPositionDiff {
-  /** 品种 ID */
+  /** Product ID */
   product_id: string;
-  /** 持仓方向 */
+  /** position variant LONG/SHORT */
   variant: PositionVariant;
-  /** 源持仓 volume */
+  /** source volume */
   volume_in_source: number;
-  /** 目标持仓 volume */
+  /** Target volume */
   volume_in_target: number;
-  /** 持仓差距 */
+  /** Error Volume */
   error_volume: number;
 }
 
@@ -280,6 +280,7 @@ export const diffPosition = (source: IPosition[], target: IPosition[]): IPositio
 
   return diff;
 
+  // // the code below is more readable yet haven't been tested
   // const mapPositionIdVariantToDiff: Record<string, IPositionDiff> = {};
 
   // for (const position of source) {
