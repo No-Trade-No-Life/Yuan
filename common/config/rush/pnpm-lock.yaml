@@ -685,6 +685,7 @@ importers:
       fuse.js: ~6.6.2
       i18next: ~23.4.6
       i18next-browser-languagedetector: ~7.1.0
+      i18next-http-backend: ~2.2.2
       idb-keyval: ^6.2.0
       js-untar: ~2.0.0
       jsonc-parser: ~3.2.0
@@ -728,6 +729,7 @@ importers:
       fuse.js: 6.6.2
       i18next: 23.4.6
       i18next-browser-languagedetector: 7.1.0
+      i18next-http-backend: 2.2.2
       idb-keyval: 6.2.1
       js-untar: 2.0.0
       jsonc-parser: 3.2.0
@@ -4313,6 +4315,14 @@ packages:
       luxon: 3.4.2
     dev: false
 
+  /cross-fetch/3.1.6:
+    resolution: {integrity: sha512-riRvo06crlE8HiqOwIpQhxwdOk4fOeR7FVM/wXoxchFEqMNUjvbs3bfo4OTgMEMHzppd4DxFBDbyySj8Cv781g==}
+    dependencies:
+      node-fetch: 2.7.0
+    transitivePeerDependencies:
+      - encoding
+    dev: false
+
   /cross-fetch/3.1.8:
     resolution: {integrity: sha512-cvA+JwZoU0Xq+h6WkMvAUqPEYy92Obet6UdKLfW60qn99ftItKjB5T+BkyWOFWe2pUyfQ+IJHmpOTznqk1M6Kg==}
     dependencies:
@@ -6211,6 +6221,14 @@ packages:
     resolution: {integrity: sha512-cr2k7u1XJJ4HTOjM9GyOMtbOA47RtUoWRAtt52z43r3AoMs2StYKyjS3URPhzHaf+mn10hY9dZWamga5WPQjhA==}
     dependencies:
       '@babel/runtime': 7.22.11
+    dev: false
+
+  /i18next-http-backend/2.2.2:
+    resolution: {integrity: sha512-mJu4ZqzDtBiU3O4GV9AbK5ekEqoDMdMnCl3pkdXmb5b8yoIH//u8FsmIe6C5qXb3teZu+j6VMi20tjUgzeABiw==}
+    dependencies:
+      cross-fetch: 3.1.6
+    transitivePeerDependencies:
+      - encoding
     dev: false
 
   /i18next/23.4.6:

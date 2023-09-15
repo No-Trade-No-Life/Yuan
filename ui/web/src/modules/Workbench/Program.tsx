@@ -30,7 +30,7 @@ export const Program = React.memo((props: { node?: TabNode }) => {
   const { t } = useTranslation();
   useEffect(() => {
     if (props.node) {
-      layoutModel$.value.doAction(Actions.renameTab(props.node.getId(), t('Program')));
+      layoutModel$.value.doAction(Actions.renameTab(props.node.getId(), t('common:Program')));
     }
   }, [t]);
 

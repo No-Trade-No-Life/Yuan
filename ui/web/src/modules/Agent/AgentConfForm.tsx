@@ -192,7 +192,7 @@ export const AgentConfForm = React.memo((props: { node?: TabNode }) => {
 
   useEffect(() => {
     if (props.node) {
-      layoutModel$.value.doAction(Actions.renameTab(props.node.getId(), t('AgentConfForm')));
+      layoutModel$.value.doAction(Actions.renameTab(props.node.getId(), t('common:AgentConfForm')));
     }
   }, [t]);
 

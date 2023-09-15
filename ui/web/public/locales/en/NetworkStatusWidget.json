@@ -1,0 +1,14 @@
+{
+  "No_Host": "No Host",
+  "config": "Config",
+  "disconnect": "Disconnect",
+  "download_rate": "Download",
+  "host_label": "Label",
+  "host_url": "Host URL",
+  "not_configured": "Not Configured",
+  "offline": "Offline",
+  "online": "Online",
+  "status": "Status",
+  "terminal_id": "Terminal ID",
+  "upload_rate": "Upload"
+}

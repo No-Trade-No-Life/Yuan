@@ -26,7 +26,7 @@ Generally, basic data model will be associated with many derived relations.
 
 - [General Specific Relations](src/modules/GeneralSpecificRelations) This provides the corresponding relations between general and specific products.
 - [Pull Source Relation](src/modules/PullSourceRelations) This provides which OHLC data need to pull.
-- [Subscription Relation](src/modules/SubscriptionRelation/) This provides which OHLC data need to subscribe.
+- [Subscription Relation](src/modules/SubscriptionRelation/) This provides which channel need to subscribe.
 - [TradeCopier](src/modules/TradeCopier) This provides config management for Trade Copier
 
 #### User Stories & Business Scenes
@@ -78,3 +78,27 @@ No need to view these modules. They are deprecated.
 - [Analyze](src/modules/Analyze) Deprecated.
 - [Shell](src/modules/Shell/) Deprecated.
 - [StopLoss](src/modules/StopLoss) Deprecated.
+
+### Internationalize & Localize
+
+We strongly recommend you to install VSCode extension: [**i18n Ally**](https://github.com/lokalise/i18n-ally) developed by **Lokalise**. Read its documentation to learn how to use it. You will found an amazing experience.
+
+The only config to the i18n Ally is Display Language (`i18n-ally.displayLanguage`). You can set it to `zh`, `en` or others according to your preference. Please note you should set it in the User configuration, not the Workspace configuration.
+
+We prefer to use namespace to organize i18n keys. The name of namespace is corresponding to the name of React component. We assume every exported React component has an unique name and has its own namespace. And the file name is same with the component's name. Tiny components inner a module and never be exported can have a simpler and replicable name.
+
+We don't like to repeat namespace as the prefix of key. For example, we don't like to use `SomeComponent_xxx` and `SomeComponent_yyy` as the key. We prefer to use `xxx`, `yyyy` with namespace `SomeComponent` as the key.
+
+```ts
+// Bad
+const { t } = useTranslation();
+
+t('SomeComponent_xxx');
+t('SomeComponent_yyy');
+
+// Good
+const { t } = useTranslation('SomeComponent');
+
+t('xxx');
+t('yyy');
+```
