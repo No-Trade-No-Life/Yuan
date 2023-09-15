@@ -1,6 +1,14 @@
 {
-  "cSpell.words": ["datasource", "feishu", "forex", "yuants", "counterparty"],
+  "cSpell.words": ["counterparty", "datasource", "feishu", "forex", "kbps", "OHLC", "yuants"],
   "files.associations": {
     "*.json": "jsonc"
-  }
+  },
+  "i18n-ally.localesPaths": ["ui/web/public/locales"],
+  "i18n-ally.sortKeys": true,
+  "i18n-ally.keepFulfilled": true,
+  "i18n-ally.keystyle": "nested",
+  "i18n-ally.enabledFrameworks": ["react-i18next"],
+  "i18n-ally.extract.autoDetect": true,
+  "i18n-ally.dirStructure": "dir",
+  "i18n-ally.namespace": true
 }

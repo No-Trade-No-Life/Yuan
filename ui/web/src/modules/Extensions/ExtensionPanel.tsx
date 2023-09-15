@@ -8,13 +8,13 @@ import { layoutModel$ } from '../../layout-model';
 import { activeExtensions$, installExtension, loadExtension } from './utils';
 
 export const ExtensionPanel = React.memo((props: { node?: TabNode }) => {
-  const { t } = useTranslation();
+  const { t } = useTranslation('ExtensionPanel');
   const activeExtensions = useObservableState(activeExtensions$);
 
   const [isProcessing, setProgressing] = useState(false);
   useEffect(() => {
     if (props.node) {
-      layoutModel$.value.doAction(Actions.renameTab(props.node.getId(), t('ExtensionPanel')));
+      layoutModel$.value.doAction(Actions.renameTab(props.node.getId(), t('common:ExtensionPanel')));
     }
   }, [t]);
 
@@ -23,15 +23,15 @@ export const ExtensionPanel = React.memo((props: { node?: TabNode }) => {
     try {
       await installExtension(name);
       await loadExtension(name);
-      Toast.success(t(`Extension Install successfully {{name}}`, { name }));
+      Toast.success(`${t('install_succeed')}: ${name}`);
     } catch (e) {
-      Toast.error(`${t('Extension install failed')}: ${e}`);
+      Toast.error(`${t('install failed')}: ${name}: ${e}`);
     }
     setProgressing(false);
   }
 
   const handleInstall = async () => {
-    const name = prompt(t('please input extension name'));
+    const name = prompt(t('install_prompt'));
     if (!name) return;
     await handleInstallExtension(name);
   };
@@ -40,12 +40,12 @@ export const ExtensionPanel = React.memo((props: { node?: TabNode }) => {
     <Space vertical align="start" style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
       <Space>
         <Button loading={isProcessing} onClick={handleInstall}>
-          {t('Install new extension...')}
+          {t('install_new_button')}
         </Button>
       </Space>
       <div style={{ width: '100%', overflow: 'auto' }}>
         <Typography.Title heading={5}>
-          {t('Installed')} ({activeExtensions.length})
+          {t('installed')} ({activeExtensions.length})
         </Typography.Title>
         <List
           style={{ width: '100%' }}
@@ -61,7 +61,7 @@ export const ExtensionPanel = React.memo((props: { node?: TabNode }) => {
                   icon={<IconArrowUp />}
                   onClick={() => handleInstallExtension(instance.packageJson.name)}
                 >
-                  {t('Upgrade')}
+                  {t('upgrade')}
                 </Button>
               </Space>
               {/* <pre>{JSON.stringify(instance.packageJson, null, 2)}</pre> */}

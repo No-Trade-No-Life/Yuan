@@ -3,7 +3,7 @@ import { BehaviorSubject, bufferCount, combineLatest, first, map, Subject } from
 import { createPersistBehaviorSubject } from './common/utils';
 import i18n from './modules/Locale/i18n';
 
-export const initialJson: FlexLayout.IJsonModel = {
+export const initialJson = (): FlexLayout.IJsonModel => ({
   global: {
     // FIXED: 修复对多屏幕支持的问题后，再开启此功能
     // tabEnableFloat: true
@@ -16,7 +16,7 @@ export const initialJson: FlexLayout.IJsonModel = {
       children: [
         {
           type: 'tab',
-          name: i18n.t('Workspace'),
+          name: i18n.t('common:Workspace'),
           id: 'Explorer',
           component: 'Explorer',
           enableDrag: false,
@@ -24,7 +24,7 @@ export const initialJson: FlexLayout.IJsonModel = {
         },
         {
           type: 'tab',
-          name: i18n.t('AgentConfForm'),
+          name: i18n.t('common:AgentConfForm'),
           id: 'AgentConfForm',
           component: 'AgentConfForm',
           enableDrag: false,
@@ -32,7 +32,7 @@ export const initialJson: FlexLayout.IJsonModel = {
         },
         {
           type: 'tab',
-          name: i18n.t('ExtensionPanel'),
+          name: i18n.t('common:ExtensionPanel'),
           id: 'ExtensionPanel',
           component: 'ExtensionPanel',
           enableDrag: false,
@@ -46,7 +46,7 @@ export const initialJson: FlexLayout.IJsonModel = {
       children: [
         {
           type: 'tab',
-          name: i18n.t('Program'),
+          name: i18n.t('common:Program'),
           id: 'Program',
           enableClose: false,
           component: 'Program',
@@ -67,9 +67,9 @@ export const initialJson: FlexLayout.IJsonModel = {
       },
     ],
   },
-};
+});
 
-export const layoutModelJson$ = createPersistBehaviorSubject('layout', initialJson);
+export const layoutModelJson$ = createPersistBehaviorSubject('layout', initialJson());
 
 export const layoutUpdate$ = new Subject<void>();
 
@@ -87,7 +87,7 @@ layoutModelJson$
     layoutUpdate$.next();
   });
 
-export const layoutModel$ = new BehaviorSubject(FlexLayout.Model.fromJson(initialJson));
+export const layoutModel$ = new BehaviorSubject(FlexLayout.Model.fromJson(initialJson()));
 layoutModel$.subscribe((layoutModel) => {
   Object.assign(globalThis, { layoutModel, Actions: FlexLayout.Actions });
 });

@@ -1,0 +1,14 @@
+{
+  "No_Host": "无主机模式",
+  "config": "配置",
+  "disconnect": "断开",
+  "download_rate": "下行速率",
+  "host_label": "主机标签",
+  "host_url": "主机地址",
+  "not_configured": "未配置",
+  "offline": "离线",
+  "online": "在线",
+  "status": "连接状态",
+  "terminal_id": "终端ID",
+  "upload_rate": "上行速率"
+}

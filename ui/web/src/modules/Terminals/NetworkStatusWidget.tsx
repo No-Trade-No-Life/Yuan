@@ -2,11 +2,11 @@ import { IconDesktop, IconSignal, IconUnlink, IconWrench } from '@douyinfe/semi-
 import { Button, Card, Descriptions, Popover, Space, Typography } from '@douyinfe/semi-ui';
 import { useObservable, useObservableState } from 'observable-hooks';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 import { bufferTime, combineLatest, map, switchMap } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
 import { openSingletonComponent } from '../../layout-model';
 import { currentHostConfig$ } from '../Workbench/model';
-import { useTranslation } from 'react-i18next';
 
 export const secretURL = (url: string) => {
   try {
@@ -19,7 +19,7 @@ export const secretURL = (url: string) => {
 };
 
 export const NetworkStatusWidget = React.memo(() => {
-  const { t } = useTranslation();
+  const { t } = useTranslation(['NetworkStatusWidget', 'translation']);
   const config = useObservableState(currentHostConfig$);
 
   const network$ = useObservable(() =>
@@ -50,42 +50,44 @@ export const NetworkStatusWidget = React.memo(() => {
               data={[
                 //
                 {
-                  key: '主机标签',
-                  value: <Typography.Text>{config?.name ?? '未配置'}</Typography.Text>,
+                  key: t('host_label'),
+                  value: <Typography.Text>{config?.name ?? t('not_configured')}</Typography.Text>,
                 },
                 {
-                  key: '主机地址',
+                  key: t('host_url'),
                   value: (
-                    <Typography.Text copyable={{ content: config?.HV_URL ?? '未配置' }}>
-                      {secretURL(config?.HV_URL ?? '未配置')}
+                    <Typography.Text copyable={{ content: config?.HV_URL ?? t('not_configured') }}>
+                      {secretURL(config?.HV_URL ?? t('not_configured'))}
                     </Typography.Text>
                   ),
                 },
                 {
-                  key: '终端ID',
-                  value: <Typography.Text copyable>{config?.TERMINAL_ID ?? '未配置'}</Typography.Text>,
+                  key: t('terminal_id'),
+                  value: (
+                    <Typography.Text copyable>{config?.TERMINAL_ID ?? t('not_configured')}</Typography.Text>
+                  ),
                 },
                 {
-                  key: '上行速率',
+                  key: t('upload_rate'),
                   value: `${network[0]} kbps`,
                 },
                 {
-                  key: '下行速率',
+                  key: t('download_rate'),
                   value: `${network[1]} kbps`,
                 },
                 {
-                  key: '连接状态',
-                  value: <Typography.Text>{+network[1] > 0 ? '在线' : '离线'}</Typography.Text>,
+                  key: t('status'),
+                  value: <Typography.Text>{+network[1] > 0 ? t('online') : t('offline')}</Typography.Text>,
                 },
               ]}
             ></Descriptions>
             <Button
               icon={<IconWrench />}
               onClick={() => {
-                openSingletonComponent('HostList', '主机配置');
+                openSingletonComponent('HostList', t('common:HostList'));
               }}
             >
-              配置
+              {t('config')}
             </Button>
             <Button
               icon={<IconUnlink />}
@@ -95,7 +97,7 @@ export const NetworkStatusWidget = React.memo(() => {
                 location.reload();
               }}
             >
-              断开
+              {t('disconnect')}
             </Button>
           </Card>
         }
@@ -105,7 +107,7 @@ export const NetworkStatusWidget = React.memo(() => {
             config ? <IconSignal style={{ color: +network[1] > 0 ? 'green' : 'red' }} /> : <IconDesktop />
           }
         >
-          {config ? `${config.name} / ${config.TERMINAL_ID}` : t('No Host')}
+          {config ? `${config.name} / ${config.TERMINAL_ID}` : t('No_Host')}
         </Typography.Text>
       </Popover>
     </Space>

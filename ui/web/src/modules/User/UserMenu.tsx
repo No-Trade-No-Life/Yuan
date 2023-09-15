@@ -4,6 +4,7 @@ import {
   IconGithubLogo,
   IconHelpCircle,
   IconInfoCircle,
+  IconLanguage,
   IconMenu,
   IconUndo,
   IconUser,
@@ -14,6 +15,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { authState$, supabase } from '../../common/supabase';
 import { initialJson, layoutModelJson$, layoutUpdate$, openSingletonComponent } from '../../layout-model';
+import i18n from '../Locale/i18n';
 import { userLocale, userTimezone } from '../Locale/utils';
 import { currentHostConfig$ } from '../Workbench/model';
 import { triggerLoginModalAction$ } from './Login';
@@ -21,7 +23,7 @@ export const UserMenu = React.memo(() => {
   const authState = useObservableState(authState$);
   const currentHostConfig = useObservableState(currentHostConfig$);
   const isHostMode = !!currentHostConfig;
-  const { t } = useTranslation();
+  const { t } = useTranslation('UserMenu');
 
   return (
     <Dropdown
@@ -43,7 +45,7 @@ export const UserMenu = React.memo(() => {
               <Dropdown.Divider />
             </>
           )}
-          <Dropdown.Title>{t('UserMenu.Applications')}</Dropdown.Title>
+          <Dropdown.Title>{t('Applications')}</Dropdown.Title>
           <Dropdown.Item
             icon={<IconComment />}
             onClick={() => {
@@ -73,11 +75,22 @@ export const UserMenu = React.memo(() => {
           <Dropdown.Item
             icon={<IconUndo />}
             onClick={() => {
-              layoutModelJson$.next(initialJson);
+              layoutModelJson$.next(initialJson());
               layoutUpdate$.next();
             }}
           >
             重置布局
+          </Dropdown.Item>
+          <Dropdown.Item
+            icon={<IconLanguage />}
+            onClick={() => {
+              const targetLang = prompt(`${t('change_language_prompt')}: (${i18n.languages.join(' / ')})`);
+              if (targetLang) {
+                i18n.changeLanguage(targetLang);
+              }
+            }}
+          >
+            {t('change_language')}
           </Dropdown.Item>
           <Dropdown.Divider />
           <Dropdown.Title>数据管理</Dropdown.Title>

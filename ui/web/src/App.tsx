@@ -42,6 +42,7 @@ import { TerminalList } from './modules/Terminals/TerminalList';
 import { TradeCopyRelationList } from './modules/TradeCopier/TradeCopyRelationList';
 import { Login } from './modules/User/Login';
 import { UserMenu } from './modules/User/UserMenu';
+import { HomePage } from './modules/Workbench/HomePage';
 import { HostList } from './modules/Workbench/HostList';
 import { Program } from './modules/Workbench/Program';
 import { Explorer } from './modules/Workspace/Explorer';
@@ -103,7 +104,7 @@ function AppLayout() {
               icon={<IconUndo />}
               type="primary"
               onClick={() => {
-                layoutModelJson$.next(initialJson);
+                layoutModelJson$.next(initialJson());
                 layoutUpdate$.next();
               }}
             >
@@ -169,8 +170,8 @@ function AppLayout() {
             onModelChange={(model) => {
               layoutModelJson$.next(model.toJson());
             }}
-            onTabSetPlaceHolder={(node) => {
-              return <Empty title={t('Welcome')}>{t('Guide Placeholder')}</Empty>;
+            onTabSetPlaceHolder={() => {
+              return <HomePage />;
             }}
             onAuxMouseClick={(node, e) => {
               if (

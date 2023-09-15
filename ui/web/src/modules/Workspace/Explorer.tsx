@@ -10,7 +10,7 @@ import {
   IconMore,
   IconSend,
 } from '@douyinfe/semi-icons';
-import { Button, Dropdown, Space, Toast, Tree } from '@douyinfe/semi-ui';
+import { Button, Dropdown, Modal, Space, Toast, Tree, Typography } from '@douyinfe/semi-ui';
 import { TreeNodeData } from '@douyinfe/semi-ui/lib/es/tree/interface';
 import copy from 'copy-to-clipboard';
 import * as FlexLayout from 'flexlayout-react';
@@ -27,9 +27,8 @@ import { agentConf$, reloadSchemaAction$ } from '../Agent/AgentConfForm';
 import { writeManifestsFromBatchTasks } from '../Agent/utils';
 import { openFileEditor } from '../Editor/FileEditor';
 import { installExtensionFromTgz } from '../Extensions/utils';
-import { FsBackend$, fs } from '../FileSystem/api';
+import { FsBackend$, fs, workspaceRoot$ } from '../FileSystem/api';
 import { currentHostConfig$ } from '../Workbench/model';
-import { NewWorkspaceButton } from './NewWorkspace';
 import { sendFileByAirdrop } from './airdrop';
 
 export const Explorer = React.memo((props: { node?: FlexLayout.TabNode }) => {
@@ -46,11 +45,11 @@ export const Explorer = React.memo((props: { node?: FlexLayout.TabNode }) => {
   const [treeData, setTreeData] = useState(initialData);
   const [treeKey, setTreeKey] = useState(0);
 
-  const { t } = useTranslation();
+  const { t } = useTranslation('Explorer');
 
   useEffect(() => {
     if (props.node) {
-      model.doAction(FlexLayout.Actions.renameTab(props.node.getId(), t('Workspace')));
+      model.doAction(FlexLayout.Actions.renameTab(props.node.getId(), t('common:Workspace')));
     }
   }, [t]);
 
@@ -99,10 +98,47 @@ export const Explorer = React.memo((props: { node?: FlexLayout.TabNode }) => {
     setTreeData((origin) => updateTreeData(origin, node.key, nodes));
   };
 
+  const connectToWorkspace = async () => {
+    Modal.confirm({
+      title: '本地目录授权',
+      content: (
+        <>
+          <Typography.Text>
+            <p>Yuan 将会在您的授权下访问您本地计算机的工作区。</p>
+            <p>工作区存储了您的产出(策略与指标)及其运行所需的配置。</p>
+            <p>您的任何代码产出都不会上传至服务器，非常安全。</p>
+            <p>在开始之前，我们需要获得您的授权。</p>
+          </Typography.Text>
+          <Typography.Text size="small">
+            <p>得益于 Web 技术的发展，我们有办法直接在浏览器中连接到您本地的文件目录，而无须您打包上传。</p>
+            <p>
+              您可以选择任意方式在各个计算机之间同步该工作区，例如 Git, Dropbox, OneDrive, Google Drive
+              甚至用U盘拷贝。
+            </p>
+            <p>对目录的访问授权仅会有效至 Yuan 的所有标签页被关闭，下次打开 Yuan 需要重新授权。</p>
+            <br />
+            <p>需要 Chrome 86 / Edge 86 及其以上版本浏览器</p>
+          </Typography.Text>
+        </>
+      ),
+      okText: '同意并继续',
+      cancelText: '不同意',
+      onOk: async () => {
+        const root: FileSystemDirectoryHandle = await showDirectoryPicker({
+          mode: 'readwrite',
+        });
+        await root.requestPermission({ mode: 'readwrite' });
+        workspaceRoot$.next(root);
+      },
+    });
+  };
+
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
       <Space>
-        <NewWorkspaceButton />
+        <Button disabled={!window.showDirectoryPicker} icon={<IconFolderOpen />} onClick={connectToWorkspace}>
+          {t('open_new')}
+        </Button>
         <Button
           icon={<IconImport />}
           onClick={async () => {
@@ -120,7 +156,7 @@ export const Explorer = React.memo((props: { node?: FlexLayout.TabNode }) => {
             Toast.success(`示例项目导入完毕`);
           }}
         >
-          导入示例项目
+          {t('import_examples')}
         </Button>
       </Space>
       <Tree
