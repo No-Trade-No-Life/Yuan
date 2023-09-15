@@ -568,8 +568,6 @@ export class PortfolioSimulatorUnit extends BasicUnit {
 export class PositionLimitOrderMappingUnit extends BasicUnit {
     constructor(kernel: Kernel, positionLimit: number, sourceOrderMatchingUnit: OrderMatchingUnit, targetOrderMatchingUnit: OrderMatchingUnit, targetAccountInfoUnit: AccountSimulatorUnit);
     // (undocumented)
-    a: () => void;
-    // (undocumented)
     kernel: Kernel;
     // (undocumented)
     onDispose(): void | Promise<void>;

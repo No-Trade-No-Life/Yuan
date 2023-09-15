@@ -127,9 +127,9 @@ export default (context: IExtensionContext) => {
                   {
                     alert: 'MongodbDown',
                     annotations: {
-                      description: 'Mongodb 实例下线',
+                      description: 'Mongodb instance down: {{$labels.instance}}',
                       runbook_url: 'https://tradelife.feishu.cn/wiki/wikcnRmuo4NSVUCFyMiGI5jFrBc',
-                      summary: 'MongoDB 下线 instance: {{$labels.instance}}',
+                      summary: 'MongoDB instance down',
                     },
                     expr: 'mongodb_up == 0',
                     labels: {

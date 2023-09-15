@@ -104,9 +104,9 @@ export default (context: IExtensionContext) => {
                       description:
                         'Cronjob {{$labels.datasource_id}}-{{$labels.product_id}}-{{$labels.period_in_sec}} Failed',
                       runbook_url: 'https://tradelife.feishu.cn/wiki/wikcnHcDrpMQi2Og6ALlpvrxHBS',
-                      summary: 'Cronjob Failed',
+                      summary: 'Market data Collector Cronjob Failed',
                     },
-                    for: '1m',
+                    for: '5m',
                     expr: 'sum(market_data_collector_cronjob_status{status="error"}) by (datasource_id, product_id, period_in_sec) > 0',
                     labels: {
                       severity: 'error',

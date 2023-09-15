@@ -25,8 +25,6 @@ export class PositionLimitOrderMappingUnit extends BasicUnit {
 
   private subscriptions: Subscription[] = [];
 
-  a = () => {};
-
   onInit(): void | Promise<void> {
     this.subscriptions.push(
       this.sourceOrderMatchingUnit.orderSubmitted$
