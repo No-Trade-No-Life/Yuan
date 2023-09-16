@@ -5,7 +5,7 @@ import * as _kernel from '@yuants/kernel';
 import * as FlexLayout from 'flexlayout-react';
 import { useObservableState } from 'observable-hooks';
 import React, { useEffect, useState } from 'react';
-import { useTranslation } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { Route, Routes } from 'react-router-dom';
 import * as rx from 'rxjs';
 import { isDarkMode$ } from './common/Darkmode';
@@ -169,6 +169,13 @@ function AppLayout() {
           <FlexLayout.Layout
             onModelChange={(model) => {
               layoutModelJson$.next(model.toJson());
+            }}
+            onRenderTab={(node, renderValues) => {
+              const type = node.getComponent();
+              const i18nKey = `common:${type}`;
+              if (i18n.exists(i18nKey)) {
+                renderValues.content = <Trans i18nKey={`common:${type}`}></Trans>;
+              }
             }}
             onTabSetPlaceHolder={() => {
               return <HomePage />;

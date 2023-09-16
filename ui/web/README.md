@@ -85,9 +85,11 @@ We strongly recommend you to install VSCode extension: [**i18n Ally**](https://g
 
 The only config to the i18n Ally is Display Language (`i18n-ally.displayLanguage`). You can set it to `zh`, `en` or others according to your preference. Please note you should set it in the User configuration, not the Workspace configuration.
 
+All the translation files are in the [`public/locales`](public/locales) directory.
+
 We prefer to use namespace to organize i18n keys. The name of namespace is corresponding to the name of React component. We assume every exported React component has an unique name and has its own namespace. And the file name is same with the component's name. Tiny components inner a module and never be exported can have a simpler and replicable name.
 
-We don't like to repeat namespace as the prefix of key. For example, we don't like to use `SomeComponent_xxx` and `SomeComponent_yyy` as the key. We prefer to use `xxx`, `yyyy` with namespace `SomeComponent` as the key.
+We don't like to repeat namespace as the prefix of key. For example, we don't like to use `SomeComponent_xxx` and `SomeComponent_yyy` as the key. We prefer to use `xxx`, `yyy` with namespace `SomeComponent` as the key.
 
 ```ts
 // Bad
