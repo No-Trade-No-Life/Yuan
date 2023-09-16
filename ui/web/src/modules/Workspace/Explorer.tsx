@@ -49,7 +49,7 @@ export const Explorer = React.memo((props: { node?: FlexLayout.TabNode }) => {
 
   useEffect(() => {
     if (props.node) {
-      model.doAction(FlexLayout.Actions.renameTab(props.node.getId(), t('common:Workspace')));
+      model.doAction(FlexLayout.Actions.renameTab(props.node.getId(), t('common:Explorer')));
     }
   }, [t]);
 
