@@ -198,12 +198,6 @@ defer(() =>
                       product_id: task.product_id,
                       period_in_sec: '' + task.period_in_sec,
                     });
-                    MetricCronjobStatus.set(0, {
-                      status: 'error',
-                      datasource_id: task.datasource_id,
-                      product_id: task.product_id,
-                      period_in_sec: '' + task.period_in_sec,
-                    });
                   }),
                   mergeMap(() =>
                     term.queryDataRecords<IPeriod>(
@@ -277,6 +271,18 @@ defer(() =>
                         console.info(new Date(), `CompletePullData: ${group.key}`);
                         MetricPullSourceBucket.observe(Date.now() - startTime, {
                           status: 'success',
+                          datasource_id: task.datasource_id,
+                          product_id: task.product_id,
+                          period_in_sec: '' + task.period_in_sec,
+                        });
+                        MetricCronjobStatus.set(0, {
+                          status: 'running',
+                          datasource_id: task.datasource_id,
+                          product_id: task.product_id,
+                          period_in_sec: '' + task.period_in_sec,
+                        });
+                        MetricCronjobStatus.set(0, {
+                          status: 'error',
                           datasource_id: task.datasource_id,
                           product_id: task.product_id,
                           period_in_sec: '' + task.period_in_sec,

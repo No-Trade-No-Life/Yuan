@@ -221,10 +221,10 @@ export default (context: IExtensionContext) => {
                   {
                     alert: 'AgentDataSelfCheckError',
                     annotations: {
-                      description: 'Agent data self check error',
-                      runbook_url: 'https://tradelife.feishu.cn/wiki/IsrNwMB9biXfO8kQyUYcBdo1nBb',
-                      summary:
+                      description:
                         'agent data self check error: {{$labels.account_id}}-{{$labels.datasource_id}}-{{$labels.product_id}}-{{$labels.period_in_sec}}',
+                      runbook_url: 'https://tradelife.feishu.cn/wiki/IsrNwMB9biXfO8kQyUYcBdo1nBb',
+                      summary: 'Agent data self check error',
                     },
                     expr: 'sum (period_data_checking_unit_period_self_check_total{status="error"}) by (account_id, datasource_id, product_id, period_in_sec) > 0',
                     for: '5m',
@@ -235,10 +235,10 @@ export default (context: IExtensionContext) => {
                   {
                     alert: 'AgentPositionAbruptChangeError',
                     annotations: {
-                      description: 'Agent position abrupt change error',
-                      runbook_url: 'https://tradelife.feishu.cn/wiki/FfsZwWQ5piwfQKkYBcPcVSMxn9g',
-                      summary:
+                      description:
                         'agent position change abruptly: {{$labels.account_id}}-{{$labels.product_id}}',
+                      runbook_url: 'https://tradelife.feishu.cn/wiki/FfsZwWQ5piwfQKkYBcPcVSMxn9g',
+                      summary: 'Agent position abrupt change error',
                     },
                     expr: 'sum (agent_position_error_volume) by (account_id, product_id) > 0',
                     for: '5m',

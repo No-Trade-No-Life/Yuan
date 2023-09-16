@@ -14,7 +14,6 @@ import {
   from,
   map,
   mergeMap,
-  Observable,
   of,
   shareReplay,
   Subject,
@@ -28,7 +27,7 @@ import {
 interface IAlertManagerMessage {
   receiver: string;
   status: string;
-  alerts: IAlert[];
+  alerts: IAlertManagerItem[];
   groupLabels: Record<string, string>;
   commonLabels: Record<string, string>;
   commonAnnotations: Record<string, string>;
@@ -38,7 +37,7 @@ interface IAlertManagerMessage {
   truncatedAlerts: number;
 }
 
-interface IAlert {
+interface IAlertManagerItem {
   status: string;
   labels: Record<string, string>;
   annotations: Record<string, string>;
@@ -49,24 +48,27 @@ interface IAlert {
 }
 
 interface IAlertInfo {
-  /** Alert name */
+  /** current value of the alerting metrics */
+  metric_value?: number;
+  /** alert start time */
+  start_time: number;
+  /** alert end time */
+  end_time: number;
+  /** description of alert */
+  description?: string;
+  /** status of the alert */
+  resolved: boolean;
+}
+
+interface IAlertGroup {
   name: string;
   /** Severity */
   severity: AlertSeverity;
-  /** current value of the alerting metrics */
-  metric_value?: number;
-  /** link */
-  metric_url?: string;
-  /** alert start time */
-  start_time_in_us: number;
-  /** alert end time */
-  end_time_in_us: number;
-  /** description of alerting */
-  description?: string;
-  /** run book URL */
-  run_book_url?: string;
-  /** summary */
+  env: string;
   summary: string;
+  run_book_url?: string;
+  alerts: IAlertInfo[];
+  external_url?: string;
 }
 
 enum AlertSeverity {
@@ -145,19 +147,27 @@ const configSchema: JSONSchema7 = {
 const ajv = new Ajv();
 const validate = ajv.compile(configSchema);
 
-const makeNotifyMessage = (ctx: IAlertInfo) => {
-  // TODO(wsy): i18n
+const makeNotifyMessage = (ctx: IAlertGroup) => {
   return [
     //
-    `[${ctx.end_time_in_us === 0 ? 'firing' : 'resolved'}] ${ctx.severity} 告警：${ctx.name}`,
-    `告警环境: ${ENV}`,
-    `告警状况：${ctx.summary}`,
-    `告警规则描述：${ctx.description ? ctx.description : '无'}`,
-    `告警规则文档：${ctx.run_book_url ? ctx.run_book_url : '无'}`,
-    `开始时间：${moment.utc(ctx.start_time_in_us / 1000).format()}`,
-    `结束时间: ${ctx.end_time_in_us !== 0 ? moment.utc(ctx.end_time_in_us / 1000).format() : '还未结束'}`,
-    `告警指标当前值：${ctx.metric_value ? ctx.metric_value : '无'}`,
-    `告警指标链接：${ctx.metric_url ? ctx.metric_url : '无'}`,
+    `${ctx.severity} Alerting: ${ctx.name}`,
+    `env: ${ctx.env}`,
+    `summary: ${ctx.summary}`,
+    `url: ${ctx.external_url ?? 'None'}`,
+    `run_book_url: ${ctx.run_book_url ?? 'None'}`,
+    `details:`,
+    ...ctx.alerts.map((alert) => {
+      return [
+        //
+        `###########`,
+        `- description: ${alert.description ?? 'None'}`,
+        `  status: ${alert.resolved ? 'resolved' : 'firing'}`,
+        `  start_time: ${moment.utc(alert.start_time).format()}`,
+        `  end_time: ${alert.end_time !== 0 ? moment.utc(alert.end_time).format() : 'still firing'}`,
+        `  metric_value: ${alert.metric_value ?? 'None'}`,
+        `###########`,
+      ].join('\n');
+    }),
   ].join('\n');
 };
 
@@ -192,7 +202,7 @@ const term = new Terminal(HV_URL, {
   status: 'OK',
 });
 
-const keepAliveSignal$ = new Subject();
+const keepAliveSignal$ = new Subject<void>();
 
 keepAliveSignal$
   .pipe(
@@ -204,14 +214,21 @@ keepAliveSignal$
     catchError((e) => {
       if (e instanceof TimeoutError) {
         console.error(new Date(), 'WatchdogFailed', '超过 300 秒没有收到 Watchdog');
-        const alert: IAlertInfo = {
+        const alert: IAlertGroup = {
           name: 'WatchdogFailed',
+          // TODO: read from alertmanager
+          env: ENV,
           severity: AlertSeverity.CRITICAL,
-          start_time_in_us: Date.now(),
-          end_time_in_us: 0,
           summary: 'AlertReceiver 超过 5 分钟未收到 Watchdog 消息',
           run_book_url: 'https://tradelife.feishu.cn/wiki/wikcn8hGhnA1fPBztoGyh6rRzqe',
-          description: 'AlertReceiver 超过 5 分钟未收到 Watchdog 消息',
+          alerts: [
+            {
+              start_time: Date.now(),
+              end_time: 0,
+              description: 'AlertReceiver 超过 5 分钟未收到 Watchdog 消息',
+              resolved: false,
+            },
+          ],
         };
         return sendAlert(alert);
       }
@@ -227,40 +244,40 @@ httpServer.use(express.json({ limit: '128mb' }));
 
 httpServer.post('/alertmanager', (req, res) => {
   // receive alerts from alertmanager
-  console.info(new Date(), 'Alert received', JSON.stringify(req.body));
+  console.info(new Date(), 'AlertReceived', JSON.stringify(req.body));
   of(req.body as IAlertManagerMessage)
     .pipe(
       //
-      mergeMap((msg) =>
-        from(msg.alerts).pipe(
+      filter((msg) => msg.commonLabels['alertname'] !== undefined),
+      mergeMap((msg) => {
+        return from(msg.alerts).pipe(
           //
-          filter((alert) => !!alert.labels['alertname']),
-          mergeMap((alert): Observable<IAlertInfo> => {
-            if (alert.labels['alertname'] === 'Watchdog') {
-              keepAliveSignal$.next(undefined);
-              return EMPTY;
-            }
-            return of({
-              name: alert.labels['alertname'],
-              // resolved 属于 INFO
-              severity:
-                alert.endsAt === '0001-01-01T00:00:00Z'
-                  ? ((alert.labels['severity'].toUpperCase() ?? 'UNKNOWN') as AlertSeverity)
-                  : AlertSeverity.INFO,
-              metric_value: alert.annotations['current_value']
-                ? +alert.annotations['current_value']
+          filter((item) => !!item.labels['alertname']),
+          map(
+            (item): IAlertInfo => ({
+              metric_value: item.annotations['current_value']
+                ? +item.annotations['current_value']
                 : undefined,
-              metric_url: alert.generatorURL,
-              start_time_in_us: new Date(alert.startsAt).getTime() * 1000,
-              end_time_in_us:
-                alert.endsAt !== '0001-01-01T00:00:00Z' ? new Date(alert.endsAt).getTime() * 1000 : 0,
-              summary: `${alert.annotations['summary'] ?? ''} ${JSON.stringify(alert.labels)}`,
-              run_book_url: alert.annotations['runbook_url'],
-              description: alert.annotations['description'],
-            });
-          }),
-        ),
-      ),
+              start_time: new Date(item.startsAt).getTime(),
+              end_time: item.endsAt !== '0001-01-01T00:00:00Z' ? new Date(item.endsAt).getTime() : 0,
+              description: item.annotations['description'],
+              resolved: item.endsAt !== '0001-01-01T00:00:00Z',
+            }),
+          ),
+          toArray(),
+          map(
+            (alerts): IAlertGroup => ({
+              name: msg.commonLabels['alertname'],
+              severity: (msg.commonLabels['severity'].toUpperCase() ?? 'UNKNOWN') as AlertSeverity,
+              env: ENV,
+              summary: msg.commonAnnotations['summary'] ?? 'None',
+              run_book_url: msg.commonAnnotations['runbook_url'] ?? 'None',
+              external_url: msg.externalURL,
+              alerts,
+            }),
+          ),
+        );
+      }),
       mergeMap((alert) => sendAlert(alert)),
       toArray(),
     )
@@ -271,13 +288,14 @@ httpServer.post('/alertmanager', (req, res) => {
 
 httpServer.listen(3000);
 
-function sendAlert(alert: IAlertInfo) {
+function sendAlert(alert: IAlertGroup) {
   return config$.pipe(
     //
     first(),
     mergeMap((config) =>
       from(config.receivers).pipe(
         //
+        filter((v) => (config.route_match[alert.severity] ?? config.route_match['UNKNOWN']) === v.route),
         tap((v) => {
           console.info(
             new Date(),
@@ -288,15 +306,12 @@ function sendAlert(alert: IAlertInfo) {
             }),
           );
         }),
-        mergeMap((v) => {
-          if ((config.route_match[alert.severity] ?? config.route_match['UNKNOWN']) === v.route) {
-            return term.request('Notify', config.notify_terminals[v.type], {
-              receiver_id: v.receiver_id,
-              message: makeNotifyMessage(alert),
-            });
-          }
-          return EMPTY;
-        }),
+        mergeMap((v) =>
+          term.request('Notify', config.notify_terminals[v.type], {
+            receiver_id: v.receiver_id,
+            message: makeNotifyMessage(alert),
+          }),
+        ),
         catchError((err) => {
           console.error(new Date(), 'NotifyFailed', err);
           return EMPTY;
