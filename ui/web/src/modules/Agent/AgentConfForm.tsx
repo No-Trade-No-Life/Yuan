@@ -3,6 +3,7 @@ import { Button, Divider, Layout, Space, Toast } from '@douyinfe/semi-ui';
 import { AgentScene, IAgentConf, agentConfSchema } from '@yuants/agent';
 import Ajv from 'ajv';
 import { Actions, TabNode } from 'flexlayout-react';
+import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
 import { parse } from 'jsonc-parser';
 import { useObservableState } from 'observable-hooks';
@@ -81,7 +82,7 @@ const extractAgentMetaInfoFromFilename = (script_path: string) =>
       script_params_schema: agentUnit.paramsSchema,
     })),
     catchError((e) => {
-      Toast.error(`创建应用原型失败，请检查代码是否有误: ${e}`);
+      Toast.error(`${t('AgentConfForm:prototype_failed')}: ${e}`);
       console.error(e);
       throw e;
     }),
@@ -90,27 +91,26 @@ const extractAgentMetaInfoFromFilename = (script_path: string) =>
 reloadSchemaAction$
   .pipe(
     debounceTime(500),
-    mergeMap(() => agentConf$.pipe(first())),
-    filter((v): v is Exclude<typeof v, undefined> => !!v),
-
-    map((agentConf) => agentConf.entry!),
-    tap({
-      next: (script_path) => {
-        Toast.info(`正在解析代码参数... ${script_path}`);
-      },
-    }),
-    switchMap((script_path) =>
-      extractAgentMetaInfoFromFilename(script_path).pipe(
-        //
-        catchError(() => []),
+    mergeMap(() =>
+      agentConf$.pipe(
+        first(),
+        filter((v): v is Exclude<typeof v, undefined> => !!v),
+        map((agentConf) => agentConf.entry!),
+        switchMap((script_path) => extractAgentMetaInfoFromFilename(script_path)),
+        tap((meta) => {
+          agentConfSchema$.next(mapScriptParamsSchemaToAgentConfSchema(meta.script_params_schema));
+        }),
+        tap({
+          subscribe: () => {
+            Toast.info(t('AgentConfForm:prototype_start'));
+          },
+          complete: () => {
+            Toast.success(t('AgentConfForm:prototype_succeed'));
+          },
+        }),
       ),
     ),
-    tap({
-      next: (meta) => {
-        Toast.success(`代码参数解析成功`);
-        agentConfSchema$.next(mapScriptParamsSchemaToAgentConfSchema(meta.script_params_schema));
-      },
-    }),
+    catchError((err, caught$) => caught$),
   )
   .subscribe();
 
@@ -126,9 +126,10 @@ runAgentAction$.subscribe(async () => {
     const validator = new Ajv({ strictSchema: false });
     const isValid = validator.validate(agentConfSchema, agentConf);
     if (!isValid) {
-      Toast.error(`参数校验失败，请检查脚本参数`);
+      const msg = validator.errors?.map((e) => e.message).join();
+      Toast.error(`${t('AgentConfForm:config_invalid')}: ${msg}`);
       console.error(validator.errors);
-      throw validator.errors?.map((e) => e.message).join();
+      throw msg;
     }
     if (currentHostConfig$.value === null) {
       const agentCode = await bundleCode(agentConf.entry!);
@@ -147,7 +148,7 @@ runAgentAction$.subscribe(async () => {
       accountPerformance$.next(scene.accountPerformanceUnit.performance);
       accountFrameSeries$.next(accountFrameUnit.data);
       if (Object.keys(scene.agentUnit.record_table).length > 0) {
-        openSingletonComponent('RecordTablePanel', '样本分析');
+        openSingletonComponent('RecordTablePanel', t('common:RecordTablePanel'));
       }
     } else {
       const terminal = await firstValueFrom(terminal$);
@@ -167,18 +168,18 @@ runAgentAction$.subscribe(async () => {
       accountPerformance$.next(scene.accountPerformanceUnit.performance);
       accountFrameSeries$.next(accountFrameUnit.data);
       if (Object.keys(scene.agentUnit.record_table).length > 0) {
-        openSingletonComponent('RecordTablePanel', '样本分析');
+        openSingletonComponent('RecordTablePanel', t('common:RecordTablePanel'));
       }
     }
 
-    openSingletonComponent('OrderListPanel', '订单列表');
-    openSingletonComponent('TechnicalChart', '走势图');
-    openSingletonComponent('AccountFrameChart', '账户走势图');
-    openSingletonComponent('AccountPerformancePanel', '账户性能');
+    openSingletonComponent('OrderListPanel', t('common:OrderListPanel'));
+    openSingletonComponent('TechnicalChart', t('common:TechnicalChart'));
+    openSingletonComponent('AccountFrameChart', t('common:AccountFrameChart'));
+    openSingletonComponent('AccountPerformancePanel', t('common:AccountPerformancePanel'));
 
-    Toast.success(`运行完毕`);
+    Toast.success(t('AgentConfForm:run_succeed'));
   } catch (e) {
-    Toast.error(`创建实例失败，请检查代码或配置是否有问题: ${e}`);
+    Toast.error(`${t('AgentConfForm:run_failed')}: ${e}`);
     console.error(e);
   }
   complete$.next(true);

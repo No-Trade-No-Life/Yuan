@@ -1,8 +1,13 @@
 {
+  "AccountFrameChart": "Account trend chart",
+  "AccountPerformancePanel": "Account performance",
   "AgentConfForm": "Agent",
   "Explorer": "Explorer",
   "ExtensionPanel": "Extensions",
   "HostList": "Hosts",
+  "OrderListPanel": "Order List",
   "Program": "Outputs",
+  "RecordTablePanel": "Sample analysis",
+  "TechnicalChart": "Technical Chart",
   "Workspace": "Workspace"
 }
