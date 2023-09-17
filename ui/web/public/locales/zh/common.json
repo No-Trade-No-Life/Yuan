@@ -1,8 +1,13 @@
 {
+  "AccountFrameChart": "账户走势图",
+  "AccountPerformancePanel": "账户性能",
   "AgentConfForm": "模型配置",
   "Explorer": "工作区",
   "ExtensionPanel": "应用拓展",
   "HostList": "主机配置",
+  "OrderListPanel": "订单列表",
   "Program": "程序输出",
+  "RecordTablePanel": "样本分析",
+  "TechnicalChart": "走势图",
   "Workspace": "工作区"
 }

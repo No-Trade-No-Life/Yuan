@@ -1,0 +1,23 @@
+{
+  "bundle": "Bundle",
+  "bundle_failed": "Failed to bundle {{ source }} to {{ target }}",
+  "bundle_succeed": "Bundle {{ source }} to {{ target }} successfully",
+  "config_invalid": "Model configuration parameter verification failed",
+  "load_config": "Load config",
+  "load_config_failed": "Load {{ filename }} Failed: {{ message }}",
+  "load_config_filename_prompt": "Please enter the configuration file path",
+  "load_config_succeed": "Loading {{ filename }} completed",
+  "prototype_failed": "Failed to create application prototype, please check the code for errors",
+  "prototype_start": "Creating model prototype...",
+  "prototype_succeed": "The model prototype was created successfully and the model parameters were successfully parsed.",
+  "refresh_schema": "Refresh",
+  "require_config": "Model configuration not found, please parse the model configuration first",
+  "require_entry_field": "The model entry path field needs to be supplemented",
+  "run": "Run",
+  "run_failed": "Failed to run the model instance, please check if there is a problem with the code or configuration",
+  "run_succeed": "Run completed",
+  "save_config": "Save config",
+  "save_config_failed": "Failed to save {{ filename }}",
+  "save_config_filename_prompt": "Please enter the path to save the configuration",
+  "save_config_succeed": "Save {{ filename }} successfully"
+}

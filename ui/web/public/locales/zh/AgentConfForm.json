@@ -1,0 +1,23 @@
+{
+  "bundle": "打包",
+  "bundle_failed": "打包 {{ source }} 到 {{ target }} 失败",
+  "bundle_succeed": "打包 {{ source }} 到 {{ target }} 成功",
+  "config_invalid": "模型配置参数校验失败",
+  "load_config": "载入配置",
+  "load_config_failed": "加载 {{ filename }} 失败: {{ message }}",
+  "load_config_filename_prompt": "请输入配置文件路径",
+  "load_config_succeed": "加载 {{ filename }} 完成",
+  "prototype_failed": "创建应用原型失败，请检查代码是否有误",
+  "prototype_start": "正在创建模型原型...",
+  "prototype_succeed": "模型原型创建成功，成功解析模型参数",
+  "refresh_schema": "刷新表单",
+  "require_config": "未找到模型配置，请先解析模型配置",
+  "require_entry_field": "需要补充模型入口路径字段",
+  "run": "运行",
+  "run_failed": "运行模型实例失败，请检查代码或配置是否有问题",
+  "run_succeed": "运行完毕",
+  "save_config": "保存配置",
+  "save_config_failed": "保存 {{ filename }} 失败",
+  "save_config_filename_prompt": "请输入保存配置的路径",
+  "save_config_succeed": "保存 {{ filename }} 成功"
+}

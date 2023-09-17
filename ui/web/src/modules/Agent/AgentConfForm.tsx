@@ -3,6 +3,7 @@ import { Button, Divider, Layout, Space, Toast } from '@douyinfe/semi-ui';
 import { AgentScene, IAgentConf, agentConfSchema } from '@yuants/agent';
 import Ajv from 'ajv';
 import { Actions, TabNode } from 'flexlayout-react';
+import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
 import { parse } from 'jsonc-parser';
 import { useObservableState } from 'observable-hooks';
@@ -81,7 +82,7 @@ const extractAgentMetaInfoFromFilename = (script_path: string) =>
       script_params_schema: agentUnit.paramsSchema,
     })),
     catchError((e) => {
-      Toast.error(`创建应用原型失败，请检查代码是否有误: ${e}`);
+      Toast.error(`${t('AgentConfForm:prototype_failed')}: ${e}`);
       console.error(e);
       throw e;
     }),
@@ -90,27 +91,26 @@ const extractAgentMetaInfoFromFilename = (script_path: string) =>
 reloadSchemaAction$
   .pipe(
     debounceTime(500),
-    mergeMap(() => agentConf$.pipe(first())),
-    filter((v): v is Exclude<typeof v, undefined> => !!v),
-
-    map((agentConf) => agentConf.entry!),
-    tap({
-      next: (script_path) => {
-        Toast.info(`正在解析代码参数... ${script_path}`);
-      },
-    }),
-    switchMap((script_path) =>
-      extractAgentMetaInfoFromFilename(script_path).pipe(
-        //
-        catchError(() => []),
+    mergeMap(() =>
+      agentConf$.pipe(
+        first(),
+        filter((v): v is Exclude<typeof v, undefined> => !!v),
+        map((agentConf) => agentConf.entry!),
+        switchMap((script_path) => extractAgentMetaInfoFromFilename(script_path)),
+        tap((meta) => {
+          agentConfSchema$.next(mapScriptParamsSchemaToAgentConfSchema(meta.script_params_schema));
+        }),
+        tap({
+          subscribe: () => {
+            Toast.info(t('AgentConfForm:prototype_start'));
+          },
+          complete: () => {
+            Toast.success(t('AgentConfForm:prototype_succeed'));
+          },
+        }),
       ),
     ),
-    tap({
-      next: (meta) => {
-        Toast.success(`代码参数解析成功`);
-        agentConfSchema$.next(mapScriptParamsSchemaToAgentConfSchema(meta.script_params_schema));
-      },
-    }),
+    catchError((err, caught$) => caught$),
   )
   .subscribe();
 
@@ -126,9 +126,10 @@ runAgentAction$.subscribe(async () => {
     const validator = new Ajv({ strictSchema: false });
     const isValid = validator.validate(agentConfSchema, agentConf);
     if (!isValid) {
-      Toast.error(`参数校验失败，请检查脚本参数`);
+      const msg = validator.errors?.map((e) => e.message).join();
+      Toast.error(`${t('AgentConfForm:config_invalid')}: ${msg}`);
       console.error(validator.errors);
-      throw validator.errors?.map((e) => e.message).join();
+      throw msg;
     }
     if (currentHostConfig$.value === null) {
       const agentCode = await bundleCode(agentConf.entry!);
@@ -147,7 +148,7 @@ runAgentAction$.subscribe(async () => {
       accountPerformance$.next(scene.accountPerformanceUnit.performance);
       accountFrameSeries$.next(accountFrameUnit.data);
       if (Object.keys(scene.agentUnit.record_table).length > 0) {
-        openSingletonComponent('RecordTablePanel', '样本分析');
+        openSingletonComponent('RecordTablePanel', t('common:RecordTablePanel'));
       }
     } else {
       const terminal = await firstValueFrom(terminal$);
@@ -167,18 +168,18 @@ runAgentAction$.subscribe(async () => {
       accountPerformance$.next(scene.accountPerformanceUnit.performance);
       accountFrameSeries$.next(accountFrameUnit.data);
       if (Object.keys(scene.agentUnit.record_table).length > 0) {
-        openSingletonComponent('RecordTablePanel', '样本分析');
+        openSingletonComponent('RecordTablePanel', t('common:RecordTablePanel'));
       }
     }
 
-    openSingletonComponent('OrderListPanel', '订单列表');
-    openSingletonComponent('TechnicalChart', '走势图');
-    openSingletonComponent('AccountFrameChart', '账户走势图');
-    openSingletonComponent('AccountPerformancePanel', '账户性能');
+    openSingletonComponent('OrderListPanel', t('common:OrderListPanel'));
+    openSingletonComponent('TechnicalChart', t('common:TechnicalChart'));
+    openSingletonComponent('AccountFrameChart', t('common:AccountFrameChart'));
+    openSingletonComponent('AccountPerformancePanel', t('common:AccountPerformancePanel'));
 
-    Toast.success(`运行完毕`);
+    Toast.success(t('AgentConfForm:run_succeed'));
   } catch (e) {
-    Toast.error(`创建实例失败，请检查代码或配置是否有问题: ${e}`);
+    Toast.error(`${t('AgentConfForm:run_failed')}: ${e}`);
     console.error(e);
   }
   complete$.next(true);
@@ -188,7 +189,7 @@ export const AgentConfForm = React.memo((props: { node?: TabNode }) => {
   const agentConf = useObservableState(agentConf$);
   const schema = useObservableState(agentConfSchema$) || {};
   const complete = useObservableState(complete$);
-  const { t } = useTranslation();
+  const { t } = useTranslation('AgentConfForm');
 
   useEffect(() => {
     if (props.node) {
@@ -202,14 +203,13 @@ export const AgentConfForm = React.memo((props: { node?: TabNode }) => {
         <Space style={{ width: '100%', flexWrap: 'wrap' }}>
           <Button
             icon={<IconPlay />}
-            title="运行代码"
             loading={!complete}
             onClick={() => {
               clearLogAction$.next();
               runAgentAction$.next();
             }}
           >
-            运行
+            {t('run')}
           </Button>
           <Button
             icon={<IconRefresh />}
@@ -217,65 +217,72 @@ export const AgentConfForm = React.memo((props: { node?: TabNode }) => {
               reloadSchemaAction$.next();
             }}
           >
-            刷新表单
+            {t('refresh_schema')}
           </Button>
           <Button
             icon={<IconFile />}
-            title="从文件载入配置"
             onClick={async () => {
+              const filename = prompt(t('load_config_filename_prompt'));
+              if (!filename) return;
               try {
-                const filename = prompt('配置文件路径');
-                if (filename) {
-                  const content = await fs.readFile(filename);
-                  const json = parse(content);
-                  agentConf$.next(json);
-                  Toast.success(`加载 ${filename} 完成`);
-                }
+                const content = await fs.readFile(filename);
+                const json = parse(content);
+                agentConf$.next(json);
+                Toast.success(t('load_config_succeed', { filename, interpolation: { escapeValue: false } }));
               } catch (e) {
-                Toast.error(`加载失败: ${e}`);
+                Toast.error(
+                  `${t('load_config_failed', { filename, interpolation: { escapeValue: false } })}: ${e}`,
+                );
               }
             }}
           >
-            载入配置
+            {t('load_config')}
           </Button>
           <Button
             icon={<IconSave />}
-            title="保存配置到文件"
             onClick={async () => {
+              if (!agentConf) return;
+              if (!agentConf.entry) return;
+              const filename = prompt(t('save_config_filename_prompt'));
+              if (!filename) return;
               try {
-                if (!agentConf) return;
-                if (!agentConf.entry) return;
-                const saveFilename = prompt('保存路径');
-                if (saveFilename) {
-                  const bundled_code = await bundleCode(agentConf.entry);
-                  await fs.writeFile(saveFilename, JSON.stringify({ ...agentConf, bundled_code }, null, 2));
-                  Toast.success(`保存到 ${saveFilename}`);
-                }
+                const bundled_code = await bundleCode(agentConf.entry);
+                await fs.writeFile(filename, JSON.stringify({ ...agentConf, bundled_code }, null, 2));
+                Toast.success(t('save_config_succeed', { filename, interpolation: { escapeValue: false } }));
               } catch (e) {
-                Toast.error(`保存失败: ${e}`);
+                Toast.error(
+                  `${t('save_config_failed', { filename, interpolation: { escapeValue: false } })}: ${e}`,
+                );
               }
             }}
           >
-            保存配置
+            {t('save_config')}
           </Button>
           <Button
             icon={<IconWrench />}
             onClick={async () => {
+              if (!agentConf) {
+                Toast.error(t('require_config'));
+                return;
+              }
+              if (!agentConf.entry) {
+                Toast.error(t('require_entry_field'));
+                return;
+              }
+              const source = agentConf.entry;
+              const target = `${source}.bundle.js`;
               try {
-                if (agentConf) {
-                  const agentCode = await bundleCode(agentConf.entry!);
-                  const bundleFilename = `${agentConf.entry}.bundle.js`;
-                  await fs.writeFile(bundleFilename, agentCode);
-                  Toast.success(`构建完成，保存到 ${bundleFilename}`);
-                } else {
-                  Toast.error(`请先解析模型配置`);
-                }
+                const agentCode = await bundleCode(source);
+                await fs.writeFile(target, agentCode);
+                Toast.success(t('bundle_succeed', { source, target, interpolation: { escapeValue: false } }));
               } catch (e) {
-                Toast.error(`保存失败: ${e}`);
+                Toast.error(
+                  `${t('bundle_failed', { source, target, interpolation: { escapeValue: false } })}: ${e}`,
+                );
               }
             }}
           >
-            构建
+            {t('bundle')}
           </Button>
         </Space>
         <Divider />
