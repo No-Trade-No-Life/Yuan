@@ -23,14 +23,17 @@ import {
   TimeoutError,
   catchError,
   combineLatest,
+  combineLatestWith,
+  concatMap,
   defer,
+  delay,
   distinct,
   filter,
   first,
   from,
+  generate,
   groupBy,
   map,
-  mergeAll,
   mergeMap,
   of,
   pairwise,
@@ -67,6 +70,14 @@ interface ITradeCopierConfig {
     multiple: number;
     max_position: number;
   }>;
+}
+
+interface ITradeCopierTWAPConfig {
+  account_id: string;
+  product_id: string;
+  max_duration: number;
+  min_volume: number;
+  interval: number;
 }
 
 const configSchema: JSONSchema7 = {
@@ -109,9 +120,32 @@ const configSchema: JSONSchema7 = {
   },
 };
 
+const twapConfigSchema: JSONSchema7 = {
+  type: 'object',
+  required: ['account_id', 'max_duration', 'minimum_volume'],
+  properties: {
+    account_id: {
+      type: 'string',
+    },
+    product_id: {
+      type: 'string',
+    },
+    max_duration: {
+      type: 'number',
+    },
+    min_volume: {
+      type: 'number',
+    },
+    interval: {
+      type: 'number',
+    },
+  },
+};
+
 const ajv = new Ajv();
 addFormats(ajv);
-const validate = ajv.compile(configSchema);
+
+const twapValidate = ajv.compile(twapConfigSchema);
 
 const useProducts = (() => {
   const hub: Record<string, Observable<Record<string, IProduct>>> = {};
@@ -123,6 +157,29 @@ const useProducts = (() => {
       shareReplay(1),
     ));
 })();
+
+const twapConfig$ = defer(() =>
+  terminal.queryDataRecords<ITradeCopierTWAPConfig>(
+    {
+      type: 'trade_copier_twap_config',
+    },
+    STORAGE_TERMINAL_ID,
+  ),
+).pipe(
+  //
+  map((record) => {
+    const config = record.origin;
+    if (!twapValidate(config)) {
+      throw new Error(`Invalid TWAP config: ${ajv.errorsText(twapValidate.errors)}`);
+    }
+    return config;
+  }),
+  toArray(),
+  repeat({ delay: 5_000 }),
+  shareReplay(1),
+);
+
+const validate = ajv.compile(configSchema);
 
 const config$ = defer(() =>
   terminal.queryDataRecords<ITradeCopyRelation>({ type: 'trade_copy_relation' }, STORAGE_TERMINAL_ID),
@@ -446,75 +503,145 @@ config$
               );
             }),
 
-            mergeMap((positionDiffList) =>
-              from(positionDiffList).pipe(
+            // NOTE: here goes the algorithm trading
+            combineLatestWith(twapConfig$.pipe(first())),
+            mergeMap(([positionDiffList, twapConfig]) => {
+              const mapKeyToTWAPConfig = Object.fromEntries(
+                twapConfig.map((v) => [`${v.account_id}-${v.product_id}`, v]),
+              );
+              return from(positionDiffList).pipe(
                 //
                 filter((positionDiff) => positionDiff.error_volume !== 0),
-                map(
-                  (item): IOrder => ({
-                    client_order_id: randomUUID(),
-                    account_id: groupWithSameTarget.key,
-                    type: OrderType.MARKET,
-                    product_id: item.product_id,
-                    // ISSUE: 必须使用 Math.floor，避免震荡下单 ("千分之五手问题")
-                    volume: roundToStep(
-                      Math.abs(item.error_volume),
-                      products[item.product_id]?.volume_step ?? 1,
-                      Math.floor,
-                    ),
-                    direction:
-                      item.variant === PositionVariant.LONG
-                        ? item.error_volume > 0
-                          ? OrderDirection.OPEN_LONG
-                          : OrderDirection.CLOSE_LONG
-                        : item.error_volume > 0
-                        ? OrderDirection.OPEN_SHORT
-                        : OrderDirection.CLOSE_SHORT,
-                  }),
-                ),
-                filter((v) => v.volume > 0),
-                toArray(),
-              ),
-            ),
-            // NOTE: here goes the algorithm trading
-            filter((orders) => orders.length > 0),
-            mergeMap((orders) =>
-              of(orders).pipe(
-                //
-                tap((orders) => {
-                  console.info(
-                    formatTime(Date.now()),
-                    `OrdersToSubmit`,
-                    groupWithSameTarget.key,
-                    JSON.stringify(orders),
+                mergeMap((positionDiff) => {
+                  const volume = Math.abs(positionDiff.error_volume);
+                  const config = mapKeyToTWAPConfig[`${groupWithSameTarget.key}-${positionDiff.product_id}`];
+                  // if the config is not set or the volume is too small, no need to use TWAP
+                  if (config === undefined || volume < config.min_volume) {
+                    return of({
+                      client_order_id: randomUUID(),
+                      account_id: groupWithSameTarget.key,
+                      type: OrderType.MARKET,
+                      product_id: positionDiff.product_id,
+                      // ISSUE: 必须使用 Math.floor，避免震荡下单 ("千分之五手问题")
+                      volume: roundToStep(
+                        volume,
+                        products[positionDiff.product_id]?.volume_step ?? 1,
+                        Math.floor,
+                      ),
+                      direction:
+                        positionDiff.variant === PositionVariant.LONG
+                          ? positionDiff.error_volume > 0
+                            ? OrderDirection.OPEN_LONG
+                            : OrderDirection.CLOSE_LONG
+                          : positionDiff.error_volume > 0
+                          ? OrderDirection.OPEN_SHORT
+                          : OrderDirection.CLOSE_SHORT,
+                    }).pipe(
+                      //
+                      tap((order) => {
+                        console.info(
+                          formatTime(Date.now()),
+                          `OrderToSubmit`,
+                          groupWithSameTarget.key,
+                          JSON.stringify(order),
+                        );
+                      }),
+                      concatMap((order) =>
+                        terminal.submitOrder(order).pipe(
+                          tap(() => {
+                            console.info(
+                              formatTime(Date.now()),
+                              `SucceedToSubmitOrder`,
+                              groupWithSameTarget.key,
+                              JSON.stringify(order),
+                            );
+                          }),
+                          catchError((e) => {
+                            console.error(
+                              formatTime(Date.now()),
+                              'FailedToSubmitOrder',
+                              groupWithSameTarget.key,
+                              order,
+                              e,
+                            );
+                            return EMPTY;
+                          }),
+                        ),
+                      ),
+                    );
+                  }
+
+                  // perform TWAP
+                  const { order_count, volume_per_order } = calcTWAPOrderVolumes(
+                    config,
+                    volume,
+                    products[positionDiff.product_id],
                   );
-                }),
-                mergeAll(),
-                mergeMap((order) =>
-                  terminal.submitOrder(order).pipe(
-                    catchError((e) => {
-                      console.error(
-                        formatTime(Date.now()),
-                        'FailedToSubmitOrder',
-                        groupWithSameTarget.key,
-                        order,
-                        e,
-                      );
-                      return EMPTY;
+                  return generate({
+                    initialState: 0,
+                    condition: (i) => i < order_count,
+                    iterate: (i) => i + 1,
+                    resultSelector: (i: number): IOrder => ({
+                      client_order_id: randomUUID(),
+                      account_id: groupWithSameTarget.key,
+                      type: OrderType.MARKET,
+                      product_id: positionDiff.product_id,
+                      // ISSUE: 必须使用 Math.floor，避免震荡下单 ("千分之五手问题")
+                      volume:
+                        i < order_count - 1
+                          ? volume_per_order
+                          : roundToStep(
+                              volume - volume_per_order * order_count,
+                              products[positionDiff.product_id]?.volume_step ?? 1,
+                              Math.floor,
+                            ),
+                      direction:
+                        positionDiff.variant === PositionVariant.LONG
+                          ? positionDiff.error_volume > 0
+                            ? OrderDirection.OPEN_LONG
+                            : OrderDirection.CLOSE_LONG
+                          : positionDiff.error_volume > 0
+                          ? OrderDirection.OPEN_SHORT
+                          : OrderDirection.CLOSE_SHORT,
                     }),
-                  ),
-                ),
-                toArray(),
-                tap(() => {
-                  console.info(
-                    formatTime(Date.now()),
-                    `SucceedToSubmitOrders`,
-                    groupWithSameTarget.key,
-                    JSON.stringify(orders),
+                  }).pipe(
+                    //
+                    tap((order) => {
+                      console.info(
+                        formatTime(Date.now()),
+                        `OrderToSubmit`,
+                        groupWithSameTarget.key,
+                        JSON.stringify(order),
+                      );
+                    }),
+                    concatMap((order) =>
+                      terminal.submitOrder(order).pipe(
+                        tap(() => {
+                          console.info(
+                            formatTime(Date.now()),
+                            `SucceedToSubmitOrder`,
+                            groupWithSameTarget.key,
+                            JSON.stringify(order),
+                          );
+                        }),
+                        catchError((e) => {
+                          console.error(
+                            formatTime(Date.now()),
+                            'FailedToSubmitOrder',
+                            groupWithSameTarget.key,
+                            order,
+                            e,
+                          );
+                          return EMPTY;
+                        }),
+                      ),
+                    ),
+                    delay(config.interval),
                   );
                 }),
-              ),
-            ),
+                toArray(),
+              );
+            }),
           );
         }),
         catchError((e) => {
@@ -531,3 +658,18 @@ config$
     }),
   )
   .subscribe();
+
+const calcTWAPOrderVolumes = (config: ITradeCopierTWAPConfig, volume: number, product: IProduct) => {
+  const order_count = Math.floor(config.max_duration / config.interval);
+  const volume_per_order = roundToStep(volume / order_count, product?.volume_step ?? 1, Math.floor);
+  if (volume_per_order < config.min_volume) {
+    return {
+      order_count: Math.ceil(volume / config.min_volume),
+      volume_per_order: config.min_volume,
+    };
+  }
+  return {
+    order_count,
+    volume_per_order,
+  };
+};
