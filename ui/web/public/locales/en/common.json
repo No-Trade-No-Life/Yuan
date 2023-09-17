@@ -1,6 +1,8 @@
 {
+  "About": "About",
   "AccountFrameChart": "Account trend chart",
   "AccountPerformancePanel": "Account performance",
+  "AgentBatchBackTest": "Batch backtesting {{ filename }}",
   "AgentConfForm": "Agent",
   "Explorer": "Explorer",
   "ExtensionPanel": "Extensions",
@@ -9,5 +11,18 @@
   "Program": "Outputs",
   "RecordTablePanel": "Sample analysis",
   "TechnicalChart": "Technical Chart",
-  "Workspace": "Workspace"
+  "Workspace": "Workspace",
+  "cancel": "Cancel",
+  "confirm_delete": "Confirm Delete",
+  "confirm_delete_cancel": "Cancel",
+  "confirm_delete_note": "This operation will be irreversible",
+  "confirm_delete_ok": "Delete",
+  "file_written": "File written: {{ filename }}",
+  "order_direction_close_long": "Close long",
+  "order_direction_close_short": "Close short",
+  "order_direction_open_long": "Open long",
+  "order_direction_open_short": "Open short",
+  "position_long": "",
+  "position_short": "",
+  "submit": "Submit"
 }

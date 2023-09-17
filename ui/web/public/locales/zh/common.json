@@ -1,6 +1,8 @@
 {
+  "About": "关于",
   "AccountFrameChart": "账户走势图",
   "AccountPerformancePanel": "账户性能",
+  "AgentBatchBackTest": "批量回测 {{ filename }}",
   "AgentConfForm": "模型配置",
   "Explorer": "工作区",
   "ExtensionPanel": "应用拓展",
@@ -9,5 +11,18 @@
   "Program": "程序输出",
   "RecordTablePanel": "样本分析",
   "TechnicalChart": "走势图",
-  "Workspace": "工作区"
+  "Workspace": "工作区",
+  "cancel": "取消",
+  "confirm_delete": "确定是否删除？",
+  "confirm_delete_cancel": "取消",
+  "confirm_delete_note": "此操作将不可逆",
+  "confirm_delete_ok": "删除",
+  "file_written": "已写入文件: {{ filename }}",
+  "order_direction_close_long": "平多",
+  "order_direction_close_short": "平空",
+  "order_direction_open_long": "开多",
+  "order_direction_open_short": "开空",
+  "position_long": "多",
+  "position_short": "空",
+  "submit": "提交"
 }

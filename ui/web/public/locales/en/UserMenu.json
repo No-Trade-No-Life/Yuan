@@ -1,7 +1,14 @@
 {
   "AI Assistant": "AI Assistant",
   "Applications": "Applications",
-  "Login": "Login",
+  "about": "About",
   "change_language": "Change language",
-  "change_language_prompt": "The name of language to change"
+  "change_language_prompt": "The name of language to change",
+  "open_source": "Open-Source in GitHub",
+  "reset_layout": "Reset layout",
+  "settings": "Settings",
+  "sign_in": "Sign In",
+  "sign_out": "Sign Out",
+  "sign_out_failed": "Sign out failed",
+  "user_manual": "User manual"
 }

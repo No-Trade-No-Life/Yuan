@@ -1,14 +1,14 @@
 import { Layout, Space, Typography } from '@douyinfe/semi-ui';
-import { Login } from '@icon-park/react';
 import { Actions, Layout as FlexLayout, TabNode } from 'flexlayout-react';
 import { useObservableState } from 'observable-hooks';
 import React, { useEffect, useState } from 'react';
-import { Trans } from 'react-i18next';
+import { Trans, useTranslation } from 'react-i18next';
 import { isDarkMode$ } from '../../common/Darkmode';
 import { ErrorBoundary } from '../../common/ErrorBoundary';
 import { layoutModel$, layoutModelJson$ } from '../../layout-model';
 import i18n from '../Locale/i18n';
 import { NetworkStatusWidget } from '../Terminals/NetworkStatusWidget';
+import { Login } from '../User/Login';
 import { UserMenu } from '../User/UserMenu';
 import { HomePage } from './HomePage';
 import { NotFound } from './NotFound';
@@ -21,6 +21,7 @@ export const registerComponent = (components: Record<string, React.ComponentType
 
 // ISSUE: React.memo will cause layout tab label not change while change language
 export const DesktopLayout = () => {
+  const {} = useTranslation('common');
   const model = useObservableState(layoutModel$);
 
   const factory = (node: TabNode) => {
@@ -81,7 +82,14 @@ export const DesktopLayout = () => {
               const type = node.getComponent();
               const i18nKey = `common:${type}`;
               if (i18n.exists(i18nKey)) {
-                renderValues.content = <Trans i18nKey={i18nKey}></Trans>;
+                const config = node.getConfig();
+                renderValues.content = (
+                  <Trans
+                    i18nKey={i18nKey}
+                    values={config}
+                    tOptions={{ interpolation: { escapeValue: false } }}
+                  ></Trans>
+                );
               }
             }}
             onTabSetPlaceHolder={() => {
