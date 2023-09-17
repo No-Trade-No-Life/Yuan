@@ -1,0 +1,17 @@
+{
+  "bundle": "Bundle",
+  "bundle_failed": "Failed to bundle {{ source }} to {{ target }}",
+  "bundle_succeed": "Bundle {{ source }} to {{ target }} successfully",
+  "load_config": "Load config",
+  "load_config_failed": "Load {{ filename }} Failed: {{ message }}",
+  "load_config_filename_prompt": "Please enter the configuration file path",
+  "load_config_succeed": "Loading {{ filename }} completed",
+  "refresh_schema": "Refresh",
+  "require_config": "Model configuration not found, please parse the model configuration first",
+  "require_entry_field": "The model entry path field needs to be supplemented",
+  "run": "Run",
+  "save_config": "Save config",
+  "save_config_failed": "Failed to save {{ filename }}",
+  "save_config_filename_prompt": "Please enter the path to save the configuration",
+  "save_config_succeed": "Save {{ filename }} successfully"
+}

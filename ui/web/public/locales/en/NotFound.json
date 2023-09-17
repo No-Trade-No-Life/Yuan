@@ -1,0 +1,6 @@
+{
+  "close_this_only": "Close This Only",
+  "page_not_found": "Not Found",
+  "page_not_found_note": "Component \"{{ component }}\" not found.\n<p> 1. You might need to refresh page to update Yuan. </p>\n<p> 2. You might need to check some extension's version. </p>\n<p> 3. if not, you might just need to close this. </p>\n",
+  "reset_layout": "Reset Layout"
+}
