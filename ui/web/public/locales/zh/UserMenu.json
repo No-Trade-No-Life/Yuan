@@ -1,7 +1,14 @@
 {
   "AI Assistant": "AI 助理",
   "Applications": "应用场景",
-  "Login": "登录",
+  "about": "关于",
   "change_language": "变更语言",
-  "change_language_prompt": "请输入要变更到的语言"
+  "change_language_prompt": "请输入要变更到的语言",
+  "open_source": "开源项目",
+  "reset_layout": "重置布局",
+  "settings": "设置",
+  "sign_in": "登录",
+  "sign_out": "退出登录",
+  "sign_out_failed": "登出失败",
+  "user_manual": "用户手册"
 }

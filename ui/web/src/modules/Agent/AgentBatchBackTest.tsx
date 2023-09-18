@@ -15,10 +15,11 @@ import { formatTime } from '@yuants/kernel';
 import copy from 'copy-to-clipboard';
 import { formatDuration, intervalToDuration } from 'date-fns';
 import ExcelJS from 'exceljs';
-import { Actions, TabNode } from 'flexlayout-react';
+import { TabNode } from 'flexlayout-react';
 import { useObservable, useObservableState } from 'observable-hooks';
 import path from 'path-browserify';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import {
   EMPTY,
   catchError,
@@ -49,6 +50,7 @@ import {
 import Worker from './webworker?worker';
 
 export const AgentBatchBackTest = React.memo((props: { node?: TabNode }) => {
+  const { t } = useTranslation('AgentBatchBackTest');
   const filename: string = props.node?.getConfig()?.filename ?? '';
   const [results, setResults] = useState([] as Array<IBatchAgentResultItem>);
   const [progress, setProgress] = useState({ current: 0, startTime: 0, endTime: 0 });
@@ -67,12 +69,6 @@ export const AgentBatchBackTest = React.memo((props: { node?: TabNode }) => {
 
   const currentHost = useObservableState(currentHostConfig$);
   const [selectedRows, setSelectedRows] = useState<IBatchAgentResultItem[]>([]);
-
-  useEffect(() => {
-    if (filename) {
-      props.node?.getModel().doAction(Actions.renameTab(props.node.getId(), `批量回测 ${filename}`));
-    }
-  }, [filename]);
 
   const tasks = useObservableState(
     useObservable(

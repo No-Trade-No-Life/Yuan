@@ -9,14 +9,13 @@ import {
   IconUndo,
   IconUser,
 } from '@douyinfe/semi-icons';
-import { Avatar, Button, Dropdown, Modal, Tag, Toast, Typography } from '@douyinfe/semi-ui';
+import { Avatar, Button, Dropdown, Tag, Toast } from '@douyinfe/semi-ui';
 import { useObservableState } from 'observable-hooks';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { authState$, supabase } from '../../common/supabase';
 import { initialJson, layoutModelJson$, layoutUpdate$, openSingletonComponent } from '../../layout-model';
 import i18n from '../Locale/i18n';
-import { userLocale, userTimezone } from '../Locale/utils';
 import { currentHostConfig$ } from '../Workbench/model';
 import { triggerLoginModalAction$ } from './Login';
 export const UserMenu = React.memo(() => {
@@ -40,7 +39,7 @@ export const UserMenu = React.memo(() => {
                   triggerLoginModalAction$.next();
                 }}
               >
-                {t('Login')}
+                {t('sign_in')}
               </Dropdown.Item>
               <Dropdown.Divider />
             </>
@@ -71,7 +70,7 @@ export const UserMenu = React.memo(() => {
             账户回放 <Tag>主机模式可用</Tag>
           </Dropdown.Item>
           <Dropdown.Divider />
-          <Dropdown.Title>设置</Dropdown.Title>
+          <Dropdown.Title>{t('settings')}</Dropdown.Title>
           <Dropdown.Item
             icon={<IconUndo />}
             onClick={() => {
@@ -79,7 +78,7 @@ export const UserMenu = React.memo(() => {
               layoutUpdate$.next();
             }}
           >
-            重置布局
+            {t('reset_layout')}
           </Dropdown.Item>
           <Dropdown.Item
             icon={<IconLanguage />}
@@ -151,32 +150,22 @@ export const UserMenu = React.memo(() => {
             订阅关系列表 <Tag>主机模式可用</Tag>
           </Dropdown.Item>
           <Dropdown.Divider />
-          <Dropdown.Title>关于</Dropdown.Title>
+          <Dropdown.Title>{t('about')}</Dropdown.Title>
           <Dropdown.Item
             icon={<IconHelpCircle />}
             onClick={() => {
               open('https://tradelife.feishu.cn/wiki/wikcngXV0voYLV2ihtdNyU2i96g');
             }}
           >
-            用户手册
+            {t('user_manual')}
           </Dropdown.Item>
           <Dropdown.Item
             icon={<IconInfoCircle />}
             onClick={() => {
-              Modal.info({
-                title: '关于',
-                content: (
-                  <Typography.Paragraph>
-                    <Typography.Paragraph>GIT HASH: {__COMMIT_HASH__}</Typography.Paragraph>
-                    <Typography.Paragraph>时区: {userTimezone}</Typography.Paragraph>
-                    <Typography.Paragraph>语言: {userLocale}</Typography.Paragraph>
-                  </Typography.Paragraph>
-                ),
-                hasCancel: false,
-              });
+              openSingletonComponent('About', t('common:About'));
             }}
           >
-            关于
+            {t('about')}
           </Dropdown.Item>
           <Dropdown.Item
             icon={<IconGithubLogo />}
@@ -184,7 +173,7 @@ export const UserMenu = React.memo(() => {
               open('https://github.com/No-Trade-No-Life/Yuan');
             }}
           >
-            开源项目
+            {t('open_source')}
           </Dropdown.Item>
           {authState && (
             <>
@@ -194,11 +183,11 @@ export const UserMenu = React.memo(() => {
                 onClick={async () => {
                   const { error } = await supabase.auth.signOut();
                   if (error) {
-                    Toast.error(`登出失败: ${error.message}`);
+                    Toast.error(`${t('sign_out_failed')}: ${error.message}`);
                   }
                 }}
               >
-                退出登录
+                {t('sign_out')}
               </Dropdown.Item>
             </>
           )}

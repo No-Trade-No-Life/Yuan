@@ -1,4 +1,9 @@
 {
+  "agree": "Agree and continue",
+  "disagree": "Decline",
   "import_examples": "Import Examples",
-  "open_new": "Open New..."
+  "import_examples_succeed": "The sample project is imported",
+  "open_new": "Open local",
+  "request_fs_permission": "Requires local directory permissions",
+  "request_fs_permission_note": "<p>Yuan will have access to your local computer's workspace with your authorization. \n</p>\n\n<p>The workspace stores your outputs (strategies and indicators) and the configuration required to run them. \n</p>\n\n<p>None of your code output will be uploaded to the server, which is very safe. \n</p>\n\n<p>Before we begin, we need your authorization. \n</p>\n\n\n<br />\n\n\n<i>\n  \n<p> Thanks to the development of web technology, we have a way to connect to your local file directory directly in the browser without you having to package and upload it. \n</p>\n  \n<p> You can choose any method to synchronize the workspace between computers, such as Git, Dropbox, OneDrive, Google Drive or even copy it with a USB flash drive. \n</p>\n  \n<p>The access authorization to the directory will only be valid until all tabs of Yuan are closed. You will need to re-authorize next time you open Yuan. \n</p>\n\n</i>\n\n\n<br />\n\n\n<p>Requires Chrome 86 / Edge 86 and above</p>"
 }

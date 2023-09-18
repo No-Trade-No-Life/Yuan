@@ -29,6 +29,7 @@ import { RecordTablePanel } from './modules/Shell/RecordTablePanel';
 import { SubscriptionRelationList } from './modules/SubscriptionRelation/SubscriptionRelationList';
 import { TerminalList } from './modules/Terminals/TerminalList';
 import { TradeCopyRelationList } from './modules/TradeCopier/TradeCopyRelationList';
+import { About } from './modules/Workbench/About';
 import { DesktopLayout, registerComponent } from './modules/Workbench/DesktopLayout';
 import { HostList } from './modules/Workbench/HostList';
 import { Program } from './modules/Workbench/Program';
@@ -38,6 +39,7 @@ Object.assign(globalThis, { rx, _kernel, i18n });
 
 registerComponent({
   Explorer,
+  About,
   AccountReplay,
   AccountFrameChart,
   ExtensionPanel,

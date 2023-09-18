@@ -15,6 +15,7 @@ import {
   createChart,
 } from 'lightweight-charts/dist/lightweight-charts.esm.development.js'; // 必须使用 development 版本，否则 API 名称对不上
 import React, { ReactNode, createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BehaviorSubject } from 'rxjs';
 
 const upColor = 'rgba(255,82,82, 0.8)';
@@ -500,31 +501,33 @@ export const ChartGroup = React.memo((props: { children: React.ReactNode }) => {
 });
 
 export const OrderSeries = React.memo((props: { orders: IOrder[]; seriesApi?: ISeriesApi<any> }) => {
+  const { t } = useTranslation(['OrderSeries', 'common']);
+  const directionMapper = {
+    //
+    [OrderDirection.OPEN_LONG]: t('common:order_direction_open_long'),
+    [OrderDirection.OPEN_SHORT]: t('common:order_direction_open_short'),
+    [OrderDirection.CLOSE_LONG]: t('common:order_direction_close_long'),
+    [OrderDirection.CLOSE_SHORT]: t('common:order_direction_close_short'),
+  };
   const ordersMarkers = useMemo((): SeriesMarker<Time>[] => {
     return props.orders.map((order): SeriesMarker<Time> => {
       const dir = {
         //
-        [OrderDirection.OPEN_LONG]: '多',
-        [OrderDirection.OPEN_SHORT]: '空',
-        [OrderDirection.CLOSE_SHORT]: '多',
-        [OrderDirection.CLOSE_LONG]: '空',
+        [OrderDirection.OPEN_LONG]: 1,
+        [OrderDirection.OPEN_SHORT]: -1,
+        [OrderDirection.CLOSE_SHORT]: 1,
+        [OrderDirection.CLOSE_LONG]: -1,
       }[order.direction];
-      const text = {
-        //
-        [OrderDirection.OPEN_LONG]: '开多',
-        [OrderDirection.OPEN_SHORT]: '开空',
-        [OrderDirection.CLOSE_LONG]: '平多',
-        [OrderDirection.CLOSE_SHORT]: '平空',
-      }[order.direction];
+      const text = directionMapper[order.direction];
       return {
         time: (order.timestamp_in_us! / 1e6) as UTCTimestamp,
-        position: dir === '多' ? 'belowBar' : 'aboveBar',
-        color: dir === '多' ? '#2196F3' : '#e91e63',
-        shape: dir === '多' ? 'arrowUp' : 'arrowDown',
+        position: dir > 0 ? 'belowBar' : 'aboveBar',
+        color: dir > 0 ? '#2196F3' : '#e91e63',
+        shape: dir > 0 ? 'arrowUp' : 'arrowDown',
         text: `${text} @ ${order.traded_price} (${order.traded_volume})`,
       };
     });
-  }, [props.orders]);
+  }, [props.orders, directionMapper]);
   useEffect(() => {
     if (props.seriesApi) {
       props.seriesApi.setMarkers(ordersMarkers);
