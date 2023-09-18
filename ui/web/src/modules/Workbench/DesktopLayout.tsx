@@ -6,13 +6,11 @@ import { Trans, useTranslation } from 'react-i18next';
 import { isDarkMode$ } from '../../common/Darkmode';
 import { ErrorBoundary } from '../../common/ErrorBoundary';
 import { layoutModel$, layoutModelJson$ } from '../../layout-model';
-import i18n from '../Locale/i18n';
 import { NetworkStatusWidget } from '../Terminals/NetworkStatusWidget';
 import { Login } from '../User/Login';
 import { UserMenu } from '../User/UserMenu';
 import { HomePage } from './HomePage';
 import { NotFound } from './NotFound';
-
 const AvailableComponents: Record<string, React.ComponentType> = {};
 
 export const registerComponent = (components: Record<string, React.ComponentType>) => {
@@ -21,7 +19,7 @@ export const registerComponent = (components: Record<string, React.ComponentType
 
 // ISSUE: React.memo will cause layout tab label not change while change language
 export const DesktopLayout = () => {
-  const {} = useTranslation('common');
+  const { t, i18n } = useTranslation('common');
   const model = useObservableState(layoutModel$);
 
   const factory = (node: TabNode) => {
@@ -52,24 +50,21 @@ export const DesktopLayout = () => {
   return (
     <Layout style={{ height: '100%' }}>
       <Layout.Header style={{ padding: 4 }}>
-        <Layout>
-          <Layout.Content>
-            <Space>
-              <div></div>
-              <Typography.Title heading={3}>
-                <b style={{ color: 'red' }}>Y</b>uan
-              </Typography.Title>
-            </Space>
-          </Layout.Content>
-          <Layout.Sider>
+        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+          <Space>
+            <Typography.Title heading={3}>
+              <b style={{ color: 'red' }}>Y</b>uan
+            </Typography.Title>
+          </Space>
+          <Space>
             <ErrorBoundary>
               <Space>
                 <NetworkStatusWidget />
                 <UserMenu />
               </Space>
             </ErrorBoundary>
-          </Layout.Sider>
-        </Layout>
+          </Space>
+        </Space>
       </Layout.Header>
       <Layout.Content style={{ position: 'relative' }}>
         <Login />

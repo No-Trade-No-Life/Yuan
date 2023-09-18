@@ -22,6 +22,7 @@
     "@rollup/browser": "~3.26.2",
     "@supabase/supabase-js": "~2.31.0",
     "@yuants/agent": "workspace:*",
+    "@yuants/data-model": "workspace:*",
     "@yuants/extension": "workspace:*",
     "@yuants/kernel": "workspace:*",
     "@yuants/protocol": "workspace:*",
@@ -34,7 +35,7 @@
     "downloadjs": "~1.4.7",
     "exceljs": "~4.3.0",
     "flexlayout-react": "~0.7.4",
-    "fuse.js": "~6.6.2",
+    "fzf": "~0.5.2",
     "i18next": "~23.4.6",
     "i18next-browser-languagedetector": "~7.1.0",
     "i18next-http-backend": "~2.2.2",
@@ -51,8 +52,7 @@
     "rxjs": "^7.5.6",
     "unzipit": "~1.4.3",
     "uuid": "~9.0.0",
-    "yaml": "~2.2.1",
-    "@yuants/data-model": "workspace:*"
+    "yaml": "~2.2.1"
   },
   "devDependencies": {
     "@originjs/vite-plugin-commonjs": "~1.0.3",
