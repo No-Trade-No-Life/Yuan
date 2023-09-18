@@ -10,7 +10,6 @@ import {
   PositionVariant,
   PromRegistry,
   Terminal,
-  mapPositionVariantToNetPositionCoef,
 } from '@yuants/protocol';
 import { roundToStep } from '@yuants/utils';
 import Ajv from 'ajv';
@@ -26,7 +25,6 @@ import {
   combineLatestWith,
   concatMap,
   defer,
-  delay,
   distinct,
   filter,
   first,
@@ -75,9 +73,7 @@ interface ITradeCopierConfig {
 interface ITradeCopierTWAPConfig {
   account_id: string;
   product_id: string;
-  max_duration: number;
-  min_volume: number;
-  interval: number;
+  max_volume_per_order: number;
 }
 
 const configSchema: JSONSchema7 = {
@@ -122,7 +118,7 @@ const configSchema: JSONSchema7 = {
 
 const twapConfigSchema: JSONSchema7 = {
   type: 'object',
-  required: ['account_id', 'max_duration', 'minimum_volume'],
+  required: ['account_id', 'product_id', 'max_volume_per_order'],
   properties: {
     account_id: {
       type: 'string',
@@ -130,13 +126,7 @@ const twapConfigSchema: JSONSchema7 = {
     product_id: {
       type: 'string',
     },
-    max_duration: {
-      type: 'number',
-    },
-    min_volume: {
-      type: 'number',
-    },
-    interval: {
+    max_volume_per_order: {
       type: 'number',
     },
   },
@@ -413,86 +403,58 @@ config$
                 mergeMap((list: { info: IAccountInfo; task: ITradeCopyRelation }[]) =>
                   from(list).pipe(
                     mergeMap(({ task, info }) =>
-                      from(info.positions)
-                        .pipe(
-                          // keep the positions with the same product_id
-                          filter((position) => position.product_id === task.source_product_id),
-                          // filter by comment
-                          filter((position) => {
-                            if (task.exclusive_comment_pattern) {
-                              try {
-                                return !new RegExp(task.exclusive_comment_pattern).test(
-                                  position.comment ?? '',
-                                );
-                              } catch (e) {
-                                console.error(formatTime(Date.now()), e);
-                                // if the expression is invalid, treat it as a fatal error,
-                                // filter all the positions, which is equivalent to close all the positions.
-                                return false;
-                              }
+                      from(info.positions).pipe(
+                        // keep the positions with the same product_id
+                        filter((position) => position.product_id === task.source_product_id),
+                        // filter by comment
+                        filter((position) => {
+                          if (task.exclusive_comment_pattern) {
+                            try {
+                              return !new RegExp(task.exclusive_comment_pattern).test(position.comment ?? '');
+                            } catch (e) {
+                              console.error(formatTime(Date.now()), e);
+                              // if the expression is invalid, treat it as a fatal error,
+                              // filter all the positions, which is equivalent to close all the positions.
+                              return false;
                             }
-                            // if the expression is not set, pass the filter
-                            return true;
-                          }),
-                          groupBy(() => task.target_product_id),
-                          mergeMap((groupWithSameTargetProductId) =>
-                            groupWithSameTargetProductId.pipe(
-                              // Get net position (long for positive, short for negative)
-                              map(
-                                (position) =>
-                                  (position.variant === PositionVariant.LONG
-                                    ? 1
-                                    : position.variant === PositionVariant.SHORT
-                                    ? -1
-                                    : 0) *
-                                    position.volume *
-                                    task.multiple || 0, // Invalid position will fallback to zero.
-                              ),
-                              // sum up to target volume
-                              reduce((acc, cur) => acc + cur),
-                              // recover to target position
-                              map(
-                                (netVolume): IPosition => ({
-                                  product_id: groupWithSameTargetProductId.key,
-                                  variant: netVolume > 0 ? PositionVariant.LONG : PositionVariant.SHORT,
-                                  volume: Math.abs(netVolume),
-                                  free_volume: Math.abs(netVolume),
-                                  position_price: 0,
-                                  floating_profit: 0,
-                                  closable_price: 0,
-                                  position_id: '',
-                                }),
-                              ),
+                          }
+                          // if the expression is not set, pass the filter
+                          return true;
+                        }),
+                        groupBy(() => task.target_product_id),
+                        mergeMap((groupWithSameTargetProductId) =>
+                          groupWithSameTargetProductId.pipe(
+                            // Get net position (long for positive, short for negative)
+                            map(
+                              (position) =>
+                                (position.variant === PositionVariant.LONG
+                                  ? 1
+                                  : position.variant === PositionVariant.SHORT
+                                  ? -1
+                                  : 0) *
+                                position.volume *
+                                (task.multiple || 0), // Invalid position will fallback to zero.
+                            ),
+                            // sum up to target volume
+                            reduce((acc, cur) => acc + cur),
+                            // recover to target position
+                            map(
+                              (netVolume): IPosition => ({
+                                product_id: groupWithSameTargetProductId.key,
+                                variant: netVolume > 0 ? PositionVariant.LONG : PositionVariant.SHORT,
+                                volume: Math.abs(netVolume),
+                                free_volume: Math.abs(netVolume),
+                                position_price: 0,
+                                floating_profit: 0,
+                                closable_price: 0,
+                                position_id: '',
+                              }),
                             ),
                           ),
-                        )
-                        .pipe(
-                          // change the product_id to target_product_id
-                          map((position) => ({
-                            ...position,
-                            product_id: task.target_product_id,
-                          })),
-                          // multiply the volume by multiple (negative for opposite direction)
-                          map((position): IPosition => {
-                            const netPosition =
-                              mapPositionVariantToNetPositionCoef(position.variant) * position.volume;
-                            const newNetVolume = netPosition * task.multiple; // HERE
-                            const variant = newNetVolume > 0 ? PositionVariant.LONG : PositionVariant.SHORT;
-                            const volume = Math.abs(newNetVolume);
-
-                            return {
-                              ...position,
-                              volume,
-                              free_volume: volume,
-                              variant,
-                            };
-                          }),
-                          // filter out 0 and invalid positions
-                          filter((position) => position.volume > 0),
                         ),
+                      ),
                     ),
                     toArray(),
-                    map((positions) => mergePositions(positions)),
                   ),
                 ),
               );
@@ -512,11 +474,19 @@ config$
               return from(positionDiffList).pipe(
                 //
                 filter((positionDiff) => positionDiff.error_volume !== 0),
+                tap((positionDiff) => {
+                  console.info(formatTime(Date.now()), `PositionDiff`, JSON.stringify(positionDiff));
+                }),
                 mergeMap((positionDiff) => {
                   const volume = Math.abs(positionDiff.error_volume);
                   const config = mapKeyToTWAPConfig[`${groupWithSameTarget.key}-${positionDiff.product_id}`];
                   // if the config is not set or the volume is too small, no need to use TWAP
-                  if (config === undefined || volume < config.min_volume) {
+                  if (config === undefined || volume < config.max_volume_per_order) {
+                    console.info(
+                      formatTime(Date.now()),
+                      `TWAPConfigNotSetOrVolumeTooSmall`,
+                      `${groupWithSameTarget.key}-${positionDiff.product_id}`,
+                    );
                     return of({
                       client_order_id: randomUUID(),
                       account_id: groupWithSameTarget.key,
@@ -538,6 +508,7 @@ config$
                           : OrderDirection.CLOSE_SHORT,
                     }).pipe(
                       //
+                      filter((order) => order.volume > 0),
                       tap((order) => {
                         console.info(
                           formatTime(Date.now()),
@@ -572,10 +543,14 @@ config$
                   }
 
                   // perform TWAP
-                  const { order_count, volume_per_order } = calcTWAPOrderVolumes(
-                    config,
-                    volume,
-                    products[positionDiff.product_id],
+                  const order_count = Math.ceil(volume / config.max_volume_per_order);
+                  console.info(
+                    formatTime(Date.now()),
+                    `TWAPInitiated`,
+                    `with config ${JSON.stringify(config)}, total ${order_count} orders, volume per order ${
+                      config.max_volume_per_order
+                    }`,
+                    `${groupWithSameTarget.key}-${positionDiff.product_id}`,
                   );
                   return generate({
                     initialState: 0,
@@ -589,9 +564,9 @@ config$
                       // ISSUE: 必须使用 Math.floor，避免震荡下单 ("千分之五手问题")
                       volume:
                         i < order_count - 1
-                          ? volume_per_order
+                          ? config.max_volume_per_order
                           : roundToStep(
-                              volume - volume_per_order * order_count,
+                              volume - config.max_volume_per_order * (order_count - 1),
                               products[positionDiff.product_id]?.volume_step ?? 1,
                               Math.floor,
                             ),
@@ -606,6 +581,7 @@ config$
                     }),
                   }).pipe(
                     //
+                    filter((order) => order.volume > 0),
                     tap((order) => {
                       console.info(
                         formatTime(Date.now()),
@@ -636,7 +612,6 @@ config$
                         }),
                       ),
                     ),
-                    delay(config.interval),
                   );
                 }),
                 toArray(),
@@ -658,18 +633,3 @@ config$
     }),
   )
   .subscribe();
-
-const calcTWAPOrderVolumes = (config: ITradeCopierTWAPConfig, volume: number, product: IProduct) => {
-  const order_count = Math.floor(config.max_duration / config.interval);
-  const volume_per_order = roundToStep(volume / order_count, product?.volume_step ?? 1, Math.floor);
-  if (volume_per_order < config.min_volume) {
-    return {
-      order_count: Math.ceil(volume / config.min_volume),
-      volume_per_order: config.min_volume,
-    };
-  }
-  return {
-    order_count,
-    volume_per_order,
-  };
-};
