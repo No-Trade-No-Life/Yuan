@@ -144,6 +144,14 @@ export const UserMenu = React.memo(() => {
           <Dropdown.Item
             disabled={!isHostMode}
             onClick={() => {
+              openSingletonComponent('TradeConfigList', '交易配置列表');
+            }}
+          >
+            交易配置列表 <Tag>主机模式可用</Tag>
+          </Dropdown.Item>
+          <Dropdown.Item
+            disabled={!isHostMode}
+            onClick={() => {
               openSingletonComponent('SubscriptionRelationList', '订阅关系列表');
             }}
           >

@@ -34,6 +34,7 @@ import { DesktopLayout, registerComponent } from './modules/Workbench/DesktopLay
 import { HostList } from './modules/Workbench/HostList';
 import { Program } from './modules/Workbench/Program';
 import { Explorer } from './modules/Workspace/Explorer';
+import { TradeConfigList } from './modules/TradeCopier/TradeConfigList';
 
 Object.assign(globalThis, { rx, _kernel, i18n });
 
@@ -48,6 +49,7 @@ registerComponent({
   SubscriptionRelationList,
   OrderListPanel,
   TerminalList,
+  TradeConfigList,
   AccountList,
   ManualTradePanel,
   FinancialStatementsPanel,
