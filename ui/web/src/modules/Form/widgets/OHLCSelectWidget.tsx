@@ -2,9 +2,9 @@ import { IconSearch } from '@douyinfe/semi-icons';
 import { AutoComplete } from '@douyinfe/semi-ui';
 import { FormContextType, RJSFSchema, StrictRJSFSchema, WidgetProps } from '@rjsf/utils';
 import { decodePath } from '@yuants/agent';
-import Fuse from 'fuse.js';
+import { Fzf } from 'fzf';
 import { useObservableState } from 'observable-hooks';
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
 import { OHLCIdList$ } from '../../Workbench/model';
 
 const mapPeriodInSecToReadable: Record<string, string> = {
@@ -15,6 +15,20 @@ const mapPeriodInSecToReadable: Record<string, string> = {
   3600: '1小时',
   14400: '4小时',
   86400: '1日',
+};
+
+const HighlightChars = (props: { str: string; indices: Set<number> }) => {
+  const chars = props.str.split('');
+
+  const nodes = chars.map((char, i) => {
+    if (props.indices.has(i)) {
+      return <b key={i}>{char}</b>;
+    } else {
+      return char;
+    }
+  });
+
+  return <>{nodes}</>;
 };
 
 export function OHLCSelectWidget<
@@ -34,16 +48,23 @@ export function OHLCSelectWidget<
     });
   }, [OHLCIdList]);
 
-  const fuse = useMemo(() => {
-    return new Fuse(options, {
-      keys: ['label'],
+  const fzf = useMemo(() => {
+    return new Fzf(options, {
+      selector: (item) => item.label,
     });
   }, [options]);
 
-  const [candidates, setCandidates] = useState(options);
+  const entries = useMemo(() => fzf.find(props.value), [props.value, fzf]);
+  const candidates = useMemo(() => entries.map((x) => ({ ...x.item, entry: x })), [entries]);
+
+  interface Option {
+    label: string;
+    value: string;
+    entry: (typeof entries)[number];
+  }
 
   return (
-    <AutoComplete
+    <AutoComplete<Option>
       style={{ width: '100%', minWidth: 240 }}
       prefix={<IconSearch />}
       value={props.value}
@@ -52,12 +73,15 @@ export function OHLCSelectWidget<
       onChange={(x: any) => {
         props.onChange(x);
       }}
-      onSearch={(x: string) => {
-        if (x === '') {
-          setCandidates(options);
-        } else {
-          setCandidates(fuse.search(x).map((v) => v.item));
-        }
+      renderItem={(option: Option) => {
+        return (
+          <div>
+            <div>
+              <HighlightChars str={option.label} indices={option.entry.positions} />
+            </div>
+            <pre>{option.value}</pre>
+          </div>
+        );
       }}
       emptyContent={null}
       placeholder="K线品种选择"
