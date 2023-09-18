@@ -10,6 +10,7 @@ declare interface FileSystemDirectoryHandle {
 }
 
 declare const __COMMIT_HASH__: string;
+declare const __BUILT_AT__: number;
 
 // https://github.com/DefinitelyTyped/DefinitelyTyped/blob/master/types/wicg-file-system-access/index.d.ts
 type WriteParams =
