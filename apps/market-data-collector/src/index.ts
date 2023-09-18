@@ -124,7 +124,7 @@ defer(() =>
     map((dataRecord) => {
       const config = dataRecord.origin;
       if (!validate(config)) {
-        throw `Invalid config file: ${ajv.errorsText(validate.errors)}`;
+        throw new Error(`Invalid config file: ${ajv.errorsText(validate.errors)}`);
       }
       return config;
     }),
