@@ -1,5 +1,6 @@
 {
-  "build_version": "Build from",
+  "built_at": "Built at",
+  "build_version": "Built from",
   "language": "Language",
   "timezone": "Time zone"
 }

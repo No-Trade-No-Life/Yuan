@@ -1,4 +1,5 @@
 import { Descriptions, Space, Typography } from '@douyinfe/semi-ui';
+import { formatTime } from '@yuants/data-model';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { userTimezone } from '../Locale/utils';
@@ -22,6 +23,10 @@ export const About = React.memo(() => {
                 {__COMMIT_HASH__}
               </Typography.Text>
             ),
+          },
+          {
+            key: t('built_at'),
+            value: formatTime(__BUILT_AT__),
           },
           {
             key: t('timezone'),
