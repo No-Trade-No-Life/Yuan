@@ -1,7 +1,6 @@
 import { formatTime } from '@yuants/data-model';
-import { diffPosition, mergePositions } from '@yuants/kernel';
+import { IPositionDiff, diffPosition, mergePositions } from '@yuants/kernel';
 import {
-  IAccountInfo,
   IOrder,
   IPosition,
   IProduct,
@@ -19,6 +18,7 @@ import { JSONSchema7 } from 'json-schema';
 import {
   EMPTY,
   Observable,
+  Subject,
   TimeoutError,
   catchError,
   combineLatest,
@@ -311,185 +311,150 @@ config$
   .pipe(
     mergeMap((x) => x.tasks),
     groupBy((task) => task.target_account_id),
+    // split tasks into different groups by target_account_id and target_product_id,
+    // each group will be processed concurrently
     mergeMap((group) =>
       group.pipe(
-        toArray(),
-        map((tasks) => ({ key: group.key, tasks })),
+        groupBy((task) => task.target_product_id),
+        mergeMap((subGroup) =>
+          subGroup.pipe(
+            //
+            toArray(),
+            map((tasks) => ({
+              target_account_id: group.key,
+              target_product_id: subGroup.key,
+              tasks,
+            })),
+          ),
+        ),
       ),
     ),
     // query all the products in the target account
     mergeMap((group) =>
-      defer(() => useProducts(group.key).pipe(first())).pipe(
+      defer(() => useProducts(group.target_account_id).pipe(first())).pipe(
         // package
         map((products) => ({ products, group })),
       ),
     ),
-
     mergeMap(({ group: groupWithSameTarget, products }) => {
       console.info(
         formatTime(Date.now()),
         'SetupTradeCopyAccount',
-        groupWithSameTarget.key,
+        groupWithSameTarget.target_account_id,
         JSON.stringify(groupWithSameTarget.tasks),
       );
 
-      return defer(() => of(0)).pipe(
-        // Log
-        tap(() => console.info(formatTime(Date.now()), 'LoopStart', groupWithSameTarget.key)),
-        mergeMap(() => {
-          const t = Date.now();
+      const ConcurrentOrderPlaceAction$ = new Subject<IOrder[]>();
 
-          // Reset residual error volume
-          const product_ids = groupWithSameTarget.tasks
-            .filter((task) => task.target_account_id === groupWithSameTarget.key)
-            .map((v) => v.target_product_id);
-          for (const product_id of product_ids) {
-            MetricErrorVolumeRatio.reset({
-              account_id: groupWithSameTarget.key,
-              product_id,
-              variant: PositionVariant.LONG,
-            });
-            MetricErrorVolumeRatio.reset({
-              account_id: groupWithSameTarget.key,
-              product_id,
-              variant: PositionVariant.SHORT,
-            });
-          }
-
-          return defer(() => terminal.useAccountInfo(groupWithSameTarget.key)).pipe(
-            //
-            filter((info) => info.timestamp_in_us / 1000 > t),
-            map((info) => mergePositions(info.positions)),
-            first(),
-            tap((positions) => {
-              console.info(formatTime(Date.now()), `TargetAccountInfo`, JSON.stringify(positions));
-            }),
-            timeout({
-              each: 30_000,
-              meta: `TargetAccountInfoTimeout, target_account_id: ${groupWithSameTarget.key}`,
-            }),
-            mergeMap((positions) => {
-              // Target Positions
-              const desiredTargetPositions$ = of(0).pipe(
-                // Combine the latest source accounts, drop expired ones
-                mergeMap(() => {
-                  const t = Date.now();
-                  return combineLatest(
-                    groupWithSameTarget.tasks.map((task) =>
-                      terminal.useAccountInfo(task.source_account_id).pipe(
-                        // drop the expired account info
-                        filter((info) => info.timestamp_in_us / 1000 > t),
-                        // bind info and task relation
-                        map((info) => ({ info, task })),
-                      ),
-                    ),
-                  ).pipe(
-                    // Grab the first one, all the source accounts are ready
-                    first(),
+      ConcurrentOrderPlaceAction$.pipe(
+        mergeMap((orders) =>
+          from(orders).pipe(
+            filter((order) => order.volume > 0),
+            mergeMap((order) =>
+              // TODO(wsy): make this a function
+              terminal.submitOrder(order).pipe(
+                tap(() => {
+                  console.info(
+                    formatTime(Date.now()),
+                    `SucceedToSubmitOrder`,
+                    groupWithSameTarget.target_account_id,
+                    JSON.stringify(order),
                   );
                 }),
-                tap((list) => {
-                  console.info(formatTime(Date.now()), `SourceAccountInfo`, JSON.stringify(list));
+                catchError((e) => {
+                  console.error(
+                    formatTime(Date.now()),
+                    'FailedToSubmitOrder',
+                    groupWithSameTarget.target_account_id,
+                    JSON.stringify(order),
+                    e,
+                  );
+                  return EMPTY;
                 }),
-                timeout({
-                  each: 30_000,
-                  meta: `SourceAccountInfoTimeout, target_account_id: ${
-                    groupWithSameTarget.key
-                  }, source_account_id: ${Array.from(
-                    new Set(groupWithSameTarget.tasks.map((v) => v.source_account_id)),
-                  )}`,
-                }),
-                // Summary the source accounts
-                mergeMap((list: { info: IAccountInfo; task: ITradeCopyRelation }[]) =>
-                  from(list).pipe(
-                    mergeMap(({ task, info }) =>
-                      from(info.positions).pipe(
-                        // keep the positions with the same product_id
-                        filter((position) => position.product_id === task.source_product_id),
-                        // filter by comment
-                        filter((position) => {
-                          if (task.exclusive_comment_pattern) {
-                            try {
-                              return !new RegExp(task.exclusive_comment_pattern).test(position.comment ?? '');
-                            } catch (e) {
-                              console.error(formatTime(Date.now()), e);
-                              // if the expression is invalid, treat it as a fatal error,
-                              // filter all the positions, which is equivalent to close all the positions.
-                              return false;
-                            }
-                          }
-                          // if the expression is not set, pass the filter
-                          return true;
-                        }),
-                        groupBy(() => task.target_product_id),
-                        mergeMap((groupWithSameTargetProductId) =>
-                          groupWithSameTargetProductId.pipe(
-                            // Get net position (long for positive, short for negative)
-                            map(
-                              (position) =>
-                                (position.variant === PositionVariant.LONG
-                                  ? 1
-                                  : position.variant === PositionVariant.SHORT
-                                  ? -1
-                                  : 0) *
-                                position.volume *
-                                (task.multiple || 0), // Invalid position will fallback to zero.
-                            ),
-                            // sum up to target volume
-                            reduce((acc, cur) => acc + cur),
-                            // recover to target position
-                            map(
-                              (netVolume): IPosition => ({
-                                product_id: groupWithSameTargetProductId.key,
-                                variant: netVolume > 0 ? PositionVariant.LONG : PositionVariant.SHORT,
-                                volume: Math.abs(netVolume),
-                                free_volume: Math.abs(netVolume),
-                                position_price: 0,
-                                floating_profit: 0,
-                                closable_price: 0,
-                                position_id: '',
-                              }),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    toArray(),
-                  ),
-                ),
-              );
+              ),
+            ),
+            toArray(),
+          ),
+        ),
+        timeout({
+          each: 30_000,
+          meta: `SimpleOrderTraderTimeout, target_account_id: ${groupWithSameTarget.target_account_id}`,
+        }),
+      ).subscribe(() => {
+        LoopCompleteAction$.next();
+      });
 
-              return desiredTargetPositions$.pipe(
-                //
-                map((desiredTargetPositions) => diffPosition(desiredTargetPositions, positions)),
-              );
+      const SerialOrderPlaceAction$ = new Subject<IOrder[]>();
+
+      SerialOrderPlaceAction$.pipe(
+        mergeMap((orders) =>
+          from(orders).pipe(
+            filter((order) => order.volume > 0),
+            concatMap((order) =>
+              // TODO(wsy): make this a function
+              terminal.submitOrder(order).pipe(
+                tap(() => {
+                  console.info(
+                    formatTime(Date.now()),
+                    `SucceedToSubmitOrder`,
+                    groupWithSameTarget.target_account_id,
+                    JSON.stringify(order),
+                  );
+                }),
+                catchError((e) => {
+                  console.error(
+                    formatTime(Date.now()),
+                    'FailedToSubmitOrder',
+                    groupWithSameTarget.target_account_id,
+                    JSON.stringify(order),
+                    e,
+                  );
+                  return EMPTY;
+                }),
+              ),
+            ),
+            toArray(),
+          ),
+        ),
+        timeout({
+          each: 30_000,
+          meta: `SimpleOrderTraderTimeout, target_account_id: ${groupWithSameTarget.target_account_id}`,
+        }),
+      ).subscribe(() => {
+        LoopCompleteAction$.next();
+      });
+
+      const CyberTradeOrderDispatchAction$ = new Subject<IPositionDiff[]>();
+
+      CyberTradeOrderDispatchAction$.pipe(
+        //
+        combineLatestWith(tradeConfig$.pipe(first())),
+        mergeMap(([positionDiffList, tradeConfig]) => {
+          const mapKeyToTradeConfig = Object.fromEntries(
+            tradeConfig.map((v) => [`${v.account_id}-${v.product_id}`, v]),
+          );
+          return from(positionDiffList).pipe(
+            //
+            filter((positionDiff) => positionDiff.error_volume !== 0),
+            tap((positionDiff) => {
+              console.info(formatTime(Date.now()), `PositionDiff`, JSON.stringify(positionDiff));
             }),
-
-            // NOTE: here goes the algorithm trading
-            combineLatestWith(tradeConfig$.pipe(first())),
-            mergeMap(([positionDiffList, tradeConfig]) => {
-              const mapKeyToTradeConfig = Object.fromEntries(
-                tradeConfig.map((v) => [`${v.account_id}-${v.product_id}`, v]),
-              );
-              return from(positionDiffList).pipe(
-                //
-                filter((positionDiff) => positionDiff.error_volume !== 0),
-                tap((positionDiff) => {
-                  console.info(formatTime(Date.now()), `PositionDiff`, JSON.stringify(positionDiff));
-                }),
-                mergeMap((positionDiff) => {
-                  const volume = Math.abs(positionDiff.error_volume);
-                  const config = mapKeyToTradeConfig[`${groupWithSameTarget.key}-${positionDiff.product_id}`];
-                  // if the config is not set or the volume is too small, no need to use Trade Algo
-                  if (config === undefined || volume < config.max_volume_per_order) {
-                    console.info(
-                      formatTime(Date.now()),
-                      `TradeConfigNotSetOrVolumeTooSmall`,
-                      `${groupWithSameTarget.key}-${positionDiff.product_id}`,
-                    );
-                    return of({
+            mergeMap((positionDiff): Observable<{ orders: IOrder[]; strategy: string }> => {
+              const volume = Math.abs(positionDiff.error_volume);
+              const config =
+                mapKeyToTradeConfig[`${groupWithSameTarget.target_account_id}-${positionDiff.product_id}`];
+              // if the config is not set or the volume is too small, no need to use Trade Algorithm
+              if (config === undefined || volume < config.max_volume_per_order) {
+                console.info(
+                  formatTime(Date.now()),
+                  `TradeConfigNotSetOrVolumeTooSmall`,
+                  `${groupWithSameTarget.target_account_id}-${positionDiff.product_id}`,
+                );
+                return of({
+                  orders: [
+                    {
                       client_order_id: randomUUID(),
-                      account_id: groupWithSameTarget.key,
+                      account_id: groupWithSameTarget.target_account_id,
                       type: OrderType.MARKET,
                       product_id: positionDiff.product_id,
                       // ISSUE: 必须使用 Math.floor，避免震荡下单 ("千分之五手问题")
@@ -506,124 +471,243 @@ config$
                           : positionDiff.error_volume > 0
                           ? OrderDirection.OPEN_SHORT
                           : OrderDirection.CLOSE_SHORT,
-                    }).pipe(
-                      //
-                      filter((order) => order.volume > 0),
-                      tap((order) => {
-                        console.info(
-                          formatTime(Date.now()),
-                          `OrderToSubmit`,
-                          groupWithSameTarget.key,
-                          JSON.stringify(order),
-                        );
-                      }),
-                      concatMap((order) =>
-                        terminal.submitOrder(order).pipe(
-                          tap(() => {
-                            console.info(
-                              formatTime(Date.now()),
-                              `SucceedToSubmitOrder`,
-                              groupWithSameTarget.key,
-                              JSON.stringify(order),
-                            );
-                          }),
-                          catchError((e) => {
-                            console.error(
-                              formatTime(Date.now()),
-                              'FailedToSubmitOrder',
-                              groupWithSameTarget.key,
-                              order,
-                              e,
-                            );
-                            return EMPTY;
-                          }),
+                    },
+                  ],
+                  strategy: 'concurrent',
+                });
+              }
+              // perform Trade Algorithm
+              const order_count = Math.ceil(volume / config.max_volume_per_order);
+              console.info(
+                formatTime(Date.now()),
+                `TradeConfigInitiated`,
+                `with config ${JSON.stringify(config)}, total ${order_count} orders, volume per order ${
+                  config.max_volume_per_order
+                }`,
+                `${groupWithSameTarget.target_account_id}-${positionDiff.product_id}`,
+              );
+              return generate({
+                initialState: 0,
+                condition: (i) => i < order_count,
+                iterate: (i) => i + 1,
+                resultSelector: (i: number): IOrder => ({
+                  client_order_id: randomUUID(),
+                  account_id: groupWithSameTarget.target_account_id,
+                  type: OrderType.MARKET,
+                  product_id: positionDiff.product_id,
+                  // ISSUE: 必须使用 Math.floor，避免震荡下单 ("千分之五手问题")
+                  volume:
+                    i < order_count - 1
+                      ? config.max_volume_per_order
+                      : roundToStep(
+                          volume - config.max_volume_per_order * (order_count - 1),
+                          products[positionDiff.product_id]?.volume_step ?? 1,
+                          Math.floor,
                         ),
-                      ),
-                    );
-                  }
-
-                  // perform Trade Algorithm
-                  const order_count = Math.ceil(volume / config.max_volume_per_order);
-                  console.info(
-                    formatTime(Date.now()),
-                    `TradeConfigInitiated`,
-                    `with config ${JSON.stringify(config)}, total ${order_count} orders, volume per order ${
-                      config.max_volume_per_order
-                    }`,
-                    `${groupWithSameTarget.key}-${positionDiff.product_id}`,
-                  );
-                  return generate({
-                    initialState: 0,
-                    condition: (i) => i < order_count,
-                    iterate: (i) => i + 1,
-                    resultSelector: (i: number): IOrder => ({
-                      client_order_id: randomUUID(),
-                      account_id: groupWithSameTarget.key,
-                      type: OrderType.MARKET,
-                      product_id: positionDiff.product_id,
-                      // ISSUE: 必须使用 Math.floor，避免震荡下单 ("千分之五手问题")
-                      volume:
-                        i < order_count - 1
-                          ? config.max_volume_per_order
-                          : roundToStep(
-                              volume - config.max_volume_per_order * (order_count - 1),
-                              products[positionDiff.product_id]?.volume_step ?? 1,
-                              Math.floor,
-                            ),
-                      direction:
-                        positionDiff.variant === PositionVariant.LONG
-                          ? positionDiff.error_volume > 0
-                            ? OrderDirection.OPEN_LONG
-                            : OrderDirection.CLOSE_LONG
-                          : positionDiff.error_volume > 0
-                          ? OrderDirection.OPEN_SHORT
-                          : OrderDirection.CLOSE_SHORT,
-                    }),
-                  }).pipe(
-                    //
-                    filter((order) => order.volume > 0),
-                    tap((order) => {
-                      console.info(
-                        formatTime(Date.now()),
-                        `OrderToSubmit`,
-                        groupWithSameTarget.key,
-                        JSON.stringify(order),
-                      );
-                    }),
-                    concatMap((order) =>
-                      terminal.submitOrder(order).pipe(
-                        tap(() => {
-                          console.info(
-                            formatTime(Date.now()),
-                            `SucceedToSubmitOrder`,
-                            groupWithSameTarget.key,
-                            JSON.stringify(order),
-                          );
-                        }),
-                        catchError((e) => {
-                          console.error(
-                            formatTime(Date.now()),
-                            'FailedToSubmitOrder',
-                            groupWithSameTarget.key,
-                            order,
-                            e,
-                          );
-                          return EMPTY;
-                        }),
-                      ),
-                    ),
-                  );
+                  direction:
+                    positionDiff.variant === PositionVariant.LONG
+                      ? positionDiff.error_volume > 0
+                        ? OrderDirection.OPEN_LONG
+                        : OrderDirection.CLOSE_LONG
+                      : positionDiff.error_volume > 0
+                      ? OrderDirection.OPEN_SHORT
+                      : OrderDirection.CLOSE_SHORT,
                 }),
+              }).pipe(
+                //
                 toArray(),
+                map((orders) => ({ orders, strategy: 'serial' })),
               );
             }),
+          );
+        }),
+      ).subscribe(({ orders, strategy }) => {
+        if (strategy === 'serial') {
+          SerialOrderPlaceAction$.next(orders);
+        } else {
+          ConcurrentOrderPlaceAction$.next(orders);
+        }
+      });
+
+      const LoopCompleteAction$ = new Subject<void>();
+
+      const LoopStartAction$ = new Subject<void>();
+      LoopCompleteAction$.pipe(
+        //
+        map(() => Date.now()),
+      ).subscribe((t) => {
+        CalcPositionDiffAction$.next(t);
+      });
+
+      const CalcPositionDiffAction$ = new Subject<number>();
+      CalcPositionDiffAction$.pipe(
+        tap(() => {
+          // Reset residual error volume
+          const product_ids = groupWithSameTarget.tasks
+            .filter((task) => task.target_account_id === groupWithSameTarget.target_account_id)
+            .map((v) => v.target_product_id);
+          for (const product_id of product_ids) {
+            MetricErrorVolumeRatio.reset({
+              account_id: groupWithSameTarget.target_account_id,
+              product_id,
+              variant: PositionVariant.LONG,
+            });
+            MetricErrorVolumeRatio.reset({
+              account_id: groupWithSameTarget.target_account_id,
+              product_id,
+              variant: PositionVariant.SHORT,
+            });
+          }
+        }),
+        mergeMap((t) =>
+          combineLatest([
+            terminal.useAccountInfo(groupWithSameTarget.target_account_id).pipe(
+              //
+              filter((info) => info.timestamp_in_us / 1000 > t),
+            ),
+            ...groupWithSameTarget.tasks.map((task) =>
+              terminal.useAccountInfo(task.source_account_id).pipe(
+                //
+                filter((info) => info.timestamp_in_us / 1000 > t),
+                map((info) => ({
+                  info,
+                  task,
+                })),
+              ),
+            ),
+          ]),
+        ),
+        first(),
+        timeout({
+          each: 30_000,
+          meta: `AccountInfoTimeout, target_account_id: ${
+            groupWithSameTarget.target_account_id
+          }, source_account_id: ${Array.from(
+            new Set(groupWithSameTarget.tasks.map((v) => v.source_account_id)),
+          )}`,
+        }),
+        tap(([targetAccountInfo, ...SourceAccountInfoTaskList]) => {
+          console.info(
+            formatTime(Date.now()),
+            `AccountInfoReady`,
+            `targetAccountInfo: `,
+            JSON.stringify(targetAccountInfo),
+            `SourceAccountInfoTaskList: `,
+            JSON.stringify(SourceAccountInfoTaskList),
+          );
+        }),
+        mergeMap(([targetAccountInfo, ...SourceAccountInfoTaskList]) => {
+          const targetPositions = mergePositions(targetAccountInfo.positions);
+          const desiredTargetPositions$ = from(SourceAccountInfoTaskList).pipe(
+            mergeMap(({ info, task }) =>
+              from(info.positions).pipe(
+                // keep the positions with the same product_id
+                filter((position) => position.product_id === task.source_product_id),
+                // filter by comment
+                filter((position) => {
+                  if (task.exclusive_comment_pattern) {
+                    try {
+                      return !new RegExp(task.exclusive_comment_pattern).test(position.comment ?? '');
+                    } catch (e) {
+                      console.error(formatTime(Date.now()), e);
+                      // if the expression is invalid, treat it as a fatal error,
+                      // filter all the positions, which is equivalent to close all the positions.
+                      return false;
+                    }
+                  }
+                  // if the expression is not set, pass the filter
+                  return true;
+                }),
+                map(
+                  (position) =>
+                    (position.variant === PositionVariant.LONG
+                      ? 1
+                      : position.variant === PositionVariant.SHORT
+                      ? -1
+                      : 0) *
+                    position.volume *
+                    (task.multiple || 0), // Invalid position will fallback to zero.
+                ),
+              ),
+            ),
+
+            // sum up to target volume
+            reduce((acc, cur) => acc + cur),
+            // recover to target position
+            map(
+              (netVolume): IPosition => ({
+                product_id: groupWithSameTarget.target_product_id,
+                variant: netVolume > 0 ? PositionVariant.LONG : PositionVariant.SHORT,
+                volume: Math.abs(netVolume),
+                free_volume: Math.abs(netVolume),
+                position_price: 0,
+                floating_profit: 0,
+                closable_price: 0,
+                position_id: '',
+              }),
+            ),
+            toArray(),
+          );
+
+          return desiredTargetPositions$.pipe(
+            //
+            map((desiredTargetPositions) => diffPosition(desiredTargetPositions, targetPositions)),
+            tap((positionDiffList) => {
+              for (const positionDiff of positionDiffList) {
+                const volume_step = products[positionDiff.product_id]?.volume_step ?? 1;
+                const error_ratio = positionDiff.error_volume / volume_step;
+                console.info(
+                  formatTime(Date.now()),
+                  `ErrorVolumeRatio`,
+                  groupWithSameTarget.target_account_id,
+                  groupWithSameTarget.target_product_id,
+                  `error_ratio = ${error_ratio.toFixed(4)}`,
+                  JSON.stringify(positionDiff),
+                );
+                MetricErrorVolumeRatio.set(error_ratio, {
+                  account_id: groupWithSameTarget.target_account_id,
+                  product_id: positionDiff.product_id,
+                  variant: positionDiff.variant,
+                });
+              }
+            }),
+          );
+        }),
+      ).subscribe((positionDiffList) => {
+        CyberTradeOrderDispatchAction$.next(positionDiffList);
+      });
+
+      return generate({
+        initialState: 0,
+        iterate: (i) => i + 1,
+      }).pipe(
+        //
+        tap(() => {
+          console.info(
+            formatTime(Date.now()),
+            'LoopStart',
+            groupWithSameTarget.target_account_id,
+            groupWithSameTarget.target_product_id,
+          );
+        }),
+        tap((i) => {
+          LoopStartAction$.next();
+        }),
+        mergeMap(() => LoopCompleteAction$),
+        tap(() => {
+          console.info(
+            formatTime(Date.now()),
+            'LoopComplete',
+            groupWithSameTarget.target_account_id,
+            groupWithSameTarget.target_product_id,
           );
         }),
         catchError((e) => {
           console.error(
             formatTime(Date.now()),
             'LoopError',
-            groupWithSameTarget.key,
+            groupWithSameTarget.target_account_id,
+            groupWithSameTarget.target_product_id,
             `${e instanceof TimeoutError ? `${e}: ${e.info?.meta}` : e}`,
           );
           return EMPTY;
