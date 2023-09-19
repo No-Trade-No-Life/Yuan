@@ -70,7 +70,7 @@ interface ITradeCopierConfig {
   }>;
 }
 
-interface ITradeCopierTWAPConfig {
+interface ITradeCopierTradeConfig {
   account_id: string;
   product_id: string;
   max_volume_per_order: number;
@@ -116,7 +116,7 @@ const configSchema: JSONSchema7 = {
   },
 };
 
-const twapConfigSchema: JSONSchema7 = {
+const tradeConfigSchema: JSONSchema7 = {
   type: 'object',
   required: ['account_id', 'product_id', 'max_volume_per_order'],
   properties: {
@@ -135,7 +135,7 @@ const twapConfigSchema: JSONSchema7 = {
 const ajv = new Ajv();
 addFormats(ajv);
 
-const twapValidate = ajv.compile(twapConfigSchema);
+const tradeConfigValidate = ajv.compile(tradeConfigSchema);
 
 const useProducts = (() => {
   const hub: Record<string, Observable<Record<string, IProduct>>> = {};
@@ -148,10 +148,10 @@ const useProducts = (() => {
     ));
 })();
 
-const twapConfig$ = defer(() =>
-  terminal.queryDataRecords<ITradeCopierTWAPConfig>(
+const tradeConfig$ = defer(() =>
+  terminal.queryDataRecords<ITradeCopierTradeConfig>(
     {
-      type: 'trade_copier_twap_config',
+      type: 'trade_copier_trade_config',
     },
     STORAGE_TERMINAL_ID,
   ),
@@ -159,8 +159,8 @@ const twapConfig$ = defer(() =>
   //
   map((record) => {
     const config = record.origin;
-    if (!twapValidate(config)) {
-      throw new Error(`Invalid TWAP config: ${ajv.errorsText(twapValidate.errors)}`);
+    if (!tradeConfigValidate(config)) {
+      throw new Error(`Invalid Trade config: ${ajv.errorsText(tradeConfigValidate.errors)}`);
     }
     return config;
   }),
@@ -466,10 +466,10 @@ config$
             }),
 
             // NOTE: here goes the algorithm trading
-            combineLatestWith(twapConfig$.pipe(first())),
-            mergeMap(([positionDiffList, twapConfig]) => {
-              const mapKeyToTWAPConfig = Object.fromEntries(
-                twapConfig.map((v) => [`${v.account_id}-${v.product_id}`, v]),
+            combineLatestWith(tradeConfig$.pipe(first())),
+            mergeMap(([positionDiffList, tradeConfig]) => {
+              const mapKeyToTradeConfig = Object.fromEntries(
+                tradeConfig.map((v) => [`${v.account_id}-${v.product_id}`, v]),
               );
               return from(positionDiffList).pipe(
                 //
@@ -479,12 +479,12 @@ config$
                 }),
                 mergeMap((positionDiff) => {
                   const volume = Math.abs(positionDiff.error_volume);
-                  const config = mapKeyToTWAPConfig[`${groupWithSameTarget.key}-${positionDiff.product_id}`];
-                  // if the config is not set or the volume is too small, no need to use TWAP
+                  const config = mapKeyToTradeConfig[`${groupWithSameTarget.key}-${positionDiff.product_id}`];
+                  // if the config is not set or the volume is too small, no need to use Trade Algo
                   if (config === undefined || volume < config.max_volume_per_order) {
                     console.info(
                       formatTime(Date.now()),
-                      `TWAPConfigNotSetOrVolumeTooSmall`,
+                      `TradeConfigNotSetOrVolumeTooSmall`,
                       `${groupWithSameTarget.key}-${positionDiff.product_id}`,
                     );
                     return of({
@@ -542,11 +542,11 @@ config$
                     );
                   }
 
-                  // perform TWAP
+                  // perform Trade Algorithm
                   const order_count = Math.ceil(volume / config.max_volume_per_order);
                   console.info(
                     formatTime(Date.now()),
-                    `TWAPInitiated`,
+                    `TradeConfigInitiated`,
                     `with config ${JSON.stringify(config)}, total ${order_count} orders, volume per order ${
                       config.max_volume_per_order
                     }`,
