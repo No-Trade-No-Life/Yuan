@@ -54,7 +54,8 @@ export function OHLCSelectWidget<
     });
   }, [options]);
 
-  const entries = useMemo(() => fzf.find(props.value), [props.value, fzf]);
+  // ISSUE: fzf.find(undefined) will throw Error
+  const entries = useMemo(() => fzf.find(props.value || ''), [props.value, fzf]);
   const candidates = useMemo(() => entries.map((x) => ({ ...x.item, entry: x })), [entries]);
 
   interface Option {
