@@ -14,7 +14,6 @@ import { roundToStep } from '@yuants/utils';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import { randomUUID } from 'crypto';
-import { LOADIPHLPAPI } from 'dns';
 import { JSONSchema7 } from 'json-schema';
 import {
   EMPTY,
@@ -27,7 +26,6 @@ import {
   concatMap,
   defaultIfEmpty,
   defer,
-  delayWhen,
   distinct,
   filter,
   first,
@@ -36,12 +34,12 @@ import {
   groupBy,
   lastValueFrom,
   map,
-  merge,
   mergeMap,
   of,
   pairwise,
   reduce,
   repeat,
+  retry,
   shareReplay,
   tap,
   throwError,
@@ -141,17 +139,6 @@ const ajv = new Ajv();
 addFormats(ajv);
 
 const tradeConfigValidate = ajv.compile(tradeConfigSchema);
-
-const useProducts = (() => {
-  const hub: Record<string, Observable<Record<string, IProduct>>> = {};
-  return (account_id: string) =>
-    (hub[account_id] ??= defer(() =>
-      terminal.queryProducts({ datasource_id: account_id }, STORAGE_TERMINAL_ID),
-    ).pipe(
-      map((products) => Object.fromEntries(products.map((product) => [product.product_id, product]))),
-      shareReplay(1),
-    ));
-})();
 
 const tradeConfig$ = defer(() =>
   terminal.queryDataRecords<ITradeCopierTradeConfig>(
@@ -376,7 +363,7 @@ async function setup() {
     ).subscribe((t) => {
       mapKeyToCalcPositionDiffAction[`${group.target_account_id}-${group.target_product_id}`].next(t);
     });
-    mapKeyToStartAction[`${group.target_account_id}-${group.target_product_id}`] = new Subject<void>();
+    mapKeyToStartAction[`${group.target_account_id}-${group.target_product_id}`] = StartAction$;
 
     // setup CompleteAction
     const CompleteAction$ = new Subject<void>();
@@ -393,6 +380,7 @@ async function setup() {
     ).subscribe(() => {
       mapKeyToStartAction[`${group.target_account_id}-${group.target_product_id}`].next();
     });
+    mapKeyToCompleteAction[`${group.target_account_id}-${group.target_product_id}`] = CompleteAction$;
 
     // setup CalcPositionDiffAction
     const CalcPositionDiffAction$ = new Subject<number>();
@@ -456,10 +444,11 @@ async function setup() {
               group.target_product_id,
               `${e instanceof TimeoutError ? `${e}: ${e.info?.meta}` : e}`,
             );
-            return EMPTY;
+            throw e;
           }),
+          retry(),
           tap(([targetAccountInfo, ...SourceAccountInfoTaskList]) => {
-            console.info(
+            console.debug(
               formatTime(Date.now()),
               `AccountInfoReady`,
               `targetAccountInfo: `,
@@ -554,6 +543,8 @@ async function setup() {
         positionDiffList,
       );
     });
+    mapKeyToCalcPositionDiffAction[`${group.target_account_id}-${group.target_product_id}`] =
+      CalcPositionDiffAction$;
 
     // setup CyberTradeOrderDispatchAction
     const CyberTradeOrderDispatchAction$ = new Subject<IPositionDiff[]>();
@@ -678,6 +669,8 @@ async function setup() {
         );
       }
     });
+    mapKeyToCyberTradeOrderDispatchAction[`${group.target_account_id}-${group.target_product_id}`] =
+      CyberTradeOrderDispatchAction$;
 
     // setup SerialOrderPlaceAction
     const SerialOrderPlaceAction$ = new Subject<IOrder[]>();
@@ -728,10 +721,11 @@ async function setup() {
     ).subscribe(() => {
       mapKeyToCompleteAction[`${group.target_account_id}-${group.target_product_id}`].next();
     });
+    mapKeyToSerialOrderPlaceAction[`${group.target_account_id}-${group.target_product_id}`] =
+      SerialOrderPlaceAction$;
 
     // setup ConcurrentOrderPlaceAction
     const ConcurrentOrderPlaceAction$ = new Subject<IOrder[]>();
-
     ConcurrentOrderPlaceAction$.pipe(
       tap((orders) => {
         console.debug(
@@ -779,6 +773,8 @@ async function setup() {
     ).subscribe(() => {
       mapKeyToCompleteAction[`${group.target_account_id}-${group.target_product_id}`].next();
     });
+    mapKeyToConcurrentOrderPlaceAction[`${group.target_account_id}-${group.target_product_id}`] =
+      ConcurrentOrderPlaceAction$;
   }
 
   // first driving force of GOD.
