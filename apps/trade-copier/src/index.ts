@@ -1,6 +1,7 @@
 import { formatTime } from '@yuants/data-model';
 import { IPositionDiff, diffPosition, mergePositions } from '@yuants/kernel';
 import {
+  IAccountInfo,
   IOrder,
   IPosition,
   IProduct,
@@ -44,6 +45,7 @@ import {
   tap,
   throwError,
   timeout,
+  timer,
   toArray,
 } from 'rxjs';
 
@@ -311,7 +313,14 @@ const mapKeyToTaskGroup: Record<
 
 const mapKeyToStartAction: Record<string, Subject<void>> = {};
 const mapKeyToCompleteAction: Record<string, Subject<void>> = {};
-const mapKeyToCalcPositionDiffAction: Record<string, Subject<number>> = {};
+const mapKeyToAccountInfoAggregateAction: Record<string, Subject<number>> = {};
+const mapKeyToCalcPositionDiffAction: Record<
+  string,
+  Subject<{
+    targetAccountInfo: IAccountInfo;
+    sourceAccountInfoTaskList: Array<{ info: IAccountInfo; task: ITradeCopyRelation }>;
+  }>
+> = {};
 const mapKeyToCyberTradeOrderDispatchAction: Record<string, Subject<IPositionDiff[]>> = {};
 const mapKeyToSerialOrderPlaceAction: Record<string, Subject<IOrder[]>> = {};
 const mapKeyToConcurrentOrderPlaceAction: Record<string, Subject<IOrder[]>> = {};
@@ -349,68 +358,69 @@ async function setup() {
 
     // setup StartAction
     const StartAction$ = new Subject<void>();
+    mapKeyToStartAction[`${group.target_account_id}-${group.target_product_id}`] = StartAction$;
+    StartAction$.subscribe(() => {
+      console.debug(
+        formatTime(Date.now()),
+        'StartActionTriggered',
+        group.target_account_id,
+        group.target_product_id,
+      );
+    });
+    StartAction$.subscribe(() => {
+      // Reset residual error volume
+      const product_ids = group.tasks
+        .filter((task) => task.target_account_id === group.target_account_id)
+        .map((v) => v.target_product_id);
+      for (const product_id of product_ids) {
+        MetricErrorVolumeRatio.reset({
+          account_id: group.target_account_id,
+          product_id,
+          variant: PositionVariant.LONG,
+        });
+        MetricErrorVolumeRatio.reset({
+          account_id: group.target_account_id,
+          product_id,
+          variant: PositionVariant.SHORT,
+        });
+      }
+    });
     StartAction$.pipe(
       //
       map(() => Date.now()),
-      tap(() => {
-        console.debug(
-          formatTime(Date.now()),
-          'StartActionTriggered',
-          group.target_account_id,
-          group.target_product_id,
-        );
-      }),
     ).subscribe((t) => {
-      mapKeyToCalcPositionDiffAction[`${group.target_account_id}-${group.target_product_id}`].next(t);
+      mapKeyToAccountInfoAggregateAction[`${group.target_account_id}-${group.target_product_id}`].next(t);
     });
-    mapKeyToStartAction[`${group.target_account_id}-${group.target_product_id}`] = StartAction$;
 
     // setup CompleteAction
     const CompleteAction$ = new Subject<void>();
-    CompleteAction$.pipe(
-      //
-      tap(() => {
-        console.debug(
-          formatTime(Date.now()),
-          'CompleteActionTriggered',
-          group.target_account_id,
-          group.target_product_id,
-        );
-      }),
-    ).subscribe(() => {
+    mapKeyToCompleteAction[`${group.target_account_id}-${group.target_product_id}`] = CompleteAction$;
+    CompleteAction$.subscribe(() => {
+      console.debug(
+        formatTime(Date.now()),
+        'CompleteActionTriggered',
+        group.target_account_id,
+        group.target_product_id,
+      );
+    });
+    CompleteAction$.subscribe(() => {
       mapKeyToStartAction[`${group.target_account_id}-${group.target_product_id}`].next();
     });
-    mapKeyToCompleteAction[`${group.target_account_id}-${group.target_product_id}`] = CompleteAction$;
 
-    // setup CalcPositionDiffAction
-    const CalcPositionDiffAction$ = new Subject<number>();
-    CalcPositionDiffAction$.pipe(
-      tap(() => {
-        console.debug(
-          formatTime(Date.now()),
-          'CalcPositionDiffActionTriggered',
-          group.target_account_id,
-          group.target_product_id,
-        );
-      }),
-      tap(() => {
-        // Reset residual error volume
-        const product_ids = group.tasks
-          .filter((task) => task.target_account_id === group.target_account_id)
-          .map((v) => v.target_product_id);
-        for (const product_id of product_ids) {
-          MetricErrorVolumeRatio.reset({
-            account_id: group.target_account_id,
-            product_id,
-            variant: PositionVariant.LONG,
-          });
-          MetricErrorVolumeRatio.reset({
-            account_id: group.target_account_id,
-            product_id,
-            variant: PositionVariant.SHORT,
-          });
-        }
-      }),
+    // setup AccountInfoAggregateAction
+    const AccountInfoAggregateAction$ = new Subject<number>();
+    mapKeyToAccountInfoAggregateAction[`${group.target_account_id}-${group.target_product_id}`] =
+      AccountInfoAggregateAction$;
+    AccountInfoAggregateAction$.subscribe(() => {
+      console.debug(
+        formatTime(Date.now()),
+        'AccountInfoAggregateActionTriggered',
+        group.target_account_id,
+        group.target_product_id,
+      );
+    });
+    AccountInfoAggregateAction$.pipe(
+      //
       mergeMap((t) =>
         combineLatest([
           terminal.useAccountInfo(group.target_account_id).pipe(
@@ -447,117 +457,134 @@ async function setup() {
             throw e;
           }),
           retry(),
-          tap(([targetAccountInfo, ...SourceAccountInfoTaskList]) => {
-            console.debug(
-              formatTime(Date.now()),
-              `AccountInfoReady`,
-              `targetAccountInfo: `,
-              JSON.stringify(targetAccountInfo),
-              `SourceAccountInfoTaskList: `,
-              JSON.stringify(SourceAccountInfoTaskList),
-            );
-          }),
-          mergeMap(([targetAccountInfo, ...SourceAccountInfoTaskList]) => {
-            const targetPositions = mergePositions(targetAccountInfo.positions).filter(
-              (position) => position.product_id === group.target_product_id,
-            );
-            const desiredTargetPositions$ = from(SourceAccountInfoTaskList).pipe(
-              mergeMap(({ info, task }) =>
-                from(info.positions).pipe(
-                  // keep the positions with the same product_id
-                  filter((position) => position.product_id === task.source_product_id),
-                  // filter by comment
-                  filter((position) => {
-                    if (task.exclusive_comment_pattern) {
-                      try {
-                        return !new RegExp(task.exclusive_comment_pattern).test(position.comment ?? '');
-                      } catch (e) {
-                        console.error(formatTime(Date.now()), e);
-                        // if the expression is invalid, treat it as a fatal error,
-                        // filter all the positions, which is equivalent to close all the positions.
-                        return false;
-                      }
-                    }
-                    // if the expression is not set, pass the filter
-                    return true;
-                  }),
-                  map(
-                    (position) =>
-                      (position.variant === PositionVariant.LONG
-                        ? 1
-                        : position.variant === PositionVariant.SHORT
-                        ? -1
-                        : 0) *
-                      position.volume *
-                      (task.multiple || 0), // Invalid position will fallback to zero.
-                  ),
-                ),
-              ),
-
-              // sum up to target volume
-              reduce((acc, cur) => acc + cur),
-              // recover to target position
-              map(
-                (netVolume): IPosition => ({
-                  product_id: group.target_product_id,
-                  variant: netVolume > 0 ? PositionVariant.LONG : PositionVariant.SHORT,
-                  volume: Math.abs(netVolume),
-                  free_volume: Math.abs(netVolume),
-                  position_price: 0,
-                  floating_profit: 0,
-                  closable_price: 0,
-                  position_id: '',
-                }),
-              ),
-              toArray(),
-            );
-
-            return desiredTargetPositions$.pipe(
-              //
-              map((desiredTargetPositions) => diffPosition(desiredTargetPositions, targetPositions)),
-              tap((positionDiffList) => {
-                for (const positionDiff of positionDiffList) {
-                  const volume_step = group.products[positionDiff.product_id]?.volume_step ?? 1;
-                  const error_ratio = positionDiff.error_volume / volume_step;
-                  console.info(
-                    formatTime(Date.now()),
-                    `ErrorVolumeRatio`,
-                    group.target_account_id,
-                    group.target_product_id,
-                    `error_ratio = ${error_ratio.toFixed(4)}`,
-                    JSON.stringify(positionDiff),
-                  );
-                  MetricErrorVolumeRatio.set(error_ratio, {
-                    account_id: group.target_account_id,
-                    product_id: positionDiff.product_id,
-                    variant: positionDiff.variant,
-                  });
-                }
-              }),
-            );
-          }),
+          map(([targetAccountInfo, ...sourceAccountInfoTaskList]) => ({
+            targetAccountInfo,
+            sourceAccountInfoTaskList,
+          })),
         ),
       ),
+    ).subscribe((result) => {
+      mapKeyToCalcPositionDiffAction[`${group.target_account_id}-${group.target_product_id}`].next(result);
+    });
+
+    // setup CalcPositionDiffAction
+    const CalcPositionDiffAction$ = new Subject<{
+      targetAccountInfo: IAccountInfo;
+      sourceAccountInfoTaskList: Array<{ info: IAccountInfo; task: ITradeCopyRelation }>;
+    }>();
+    mapKeyToCalcPositionDiffAction[`${group.target_account_id}-${group.target_product_id}`] =
+      CalcPositionDiffAction$;
+    CalcPositionDiffAction$.subscribe(({ targetAccountInfo, sourceAccountInfoTaskList }) => {
+      console.debug(
+        formatTime(Date.now()),
+        'CalcPositionDiffActionTriggered',
+        group.target_account_id,
+        group.target_product_id,
+        JSON.stringify(targetAccountInfo),
+        JSON.stringify(sourceAccountInfoTaskList),
+      );
+    });
+    CalcPositionDiffAction$.pipe(
+      mergeMap(({ targetAccountInfo, sourceAccountInfoTaskList }) => {
+        const targetPositions = mergePositions(targetAccountInfo.positions).filter(
+          (position) => position.product_id === group.target_product_id,
+        );
+        const desiredTargetPositions$ = from(sourceAccountInfoTaskList).pipe(
+          mergeMap(({ info, task }) =>
+            from(info.positions).pipe(
+              // keep the positions with the same product_id
+              filter((position) => position.product_id === task.source_product_id),
+              // filter by comment
+              filter((position) => {
+                if (task.exclusive_comment_pattern) {
+                  try {
+                    return !new RegExp(task.exclusive_comment_pattern).test(position.comment ?? '');
+                  } catch (e) {
+                    console.error(formatTime(Date.now()), e);
+                    // if the expression is invalid, treat it as a fatal error,
+                    // filter all the positions, which is equivalent to close all the positions.
+                    return false;
+                  }
+                }
+                // if the expression is not set, pass the filter
+                return true;
+              }),
+              map(
+                (position) =>
+                  (position.variant === PositionVariant.LONG
+                    ? 1
+                    : position.variant === PositionVariant.SHORT
+                    ? -1
+                    : 0) *
+                  position.volume *
+                  (task.multiple || 0), // Invalid position will fallback to zero.
+              ),
+            ),
+          ),
+
+          // sum up to target volume
+          reduce((acc, cur) => acc + cur),
+          // recover to target position
+          map(
+            (netVolume): IPosition => ({
+              product_id: group.target_product_id,
+              variant: netVolume > 0 ? PositionVariant.LONG : PositionVariant.SHORT,
+              volume: Math.abs(netVolume),
+              free_volume: Math.abs(netVolume),
+              position_price: 0,
+              floating_profit: 0,
+              closable_price: 0,
+              position_id: '',
+            }),
+          ),
+          toArray(),
+        );
+
+        return desiredTargetPositions$.pipe(
+          //
+          map((desiredTargetPositions) => diffPosition(desiredTargetPositions, targetPositions)),
+          tap((positionDiffList) => {
+            for (const positionDiff of positionDiffList) {
+              const volume_step = group.products[positionDiff.product_id]?.volume_step ?? 1;
+              const error_ratio = positionDiff.error_volume / volume_step;
+              console.info(
+                formatTime(Date.now()),
+                `ErrorVolumeRatio`,
+                group.target_account_id,
+                group.target_product_id,
+                `error_ratio = ${error_ratio.toFixed(4)}`,
+                JSON.stringify(positionDiff),
+              );
+              MetricErrorVolumeRatio.set(error_ratio, {
+                account_id: group.target_account_id,
+                product_id: positionDiff.product_id,
+                variant: positionDiff.variant,
+              });
+            }
+          }),
+        );
+      }),
     ).subscribe((positionDiffList) => {
       mapKeyToCyberTradeOrderDispatchAction[`${group.target_account_id}-${group.target_product_id}`].next(
         positionDiffList,
       );
     });
-    mapKeyToCalcPositionDiffAction[`${group.target_account_id}-${group.target_product_id}`] =
-      CalcPositionDiffAction$;
 
     // setup CyberTradeOrderDispatchAction
     const CyberTradeOrderDispatchAction$ = new Subject<IPositionDiff[]>();
+    mapKeyToCyberTradeOrderDispatchAction[`${group.target_account_id}-${group.target_product_id}`] =
+      CyberTradeOrderDispatchAction$;
+    CyberTradeOrderDispatchAction$.subscribe((positionDiffList) => {
+      console.debug(
+        formatTime(Date.now()),
+        'CyberTradeOrderDispatchActionTriggered',
+        group.target_account_id,
+        group.target_product_id,
+        JSON.stringify(positionDiffList),
+      );
+    });
     CyberTradeOrderDispatchAction$.pipe(
       //
-      tap(() => {
-        console.debug(
-          formatTime(Date.now()),
-          'CyberTradeOrderDispatchActionTriggered',
-          group.target_account_id,
-          group.target_product_id,
-        );
-      }),
       combineLatestWith(tradeConfig$.pipe(first())),
       mergeMap(([positionDiffList, tradeConfig]) => {
         const mapKeyToTradeConfig = Object.fromEntries(
@@ -566,9 +593,6 @@ async function setup() {
         return from(positionDiffList).pipe(
           //
           filter((positionDiff) => positionDiff.error_volume !== 0),
-          tap((positionDiff) => {
-            console.info(formatTime(Date.now()), `PositionDiff`, JSON.stringify(positionDiff));
-          }),
           mergeMap((positionDiff): Observable<{ orders: IOrder[]; strategy: string }> => {
             const volume = Math.abs(positionDiff.error_volume);
             const config = mapKeyToTradeConfig[`${group.target_account_id}-${positionDiff.product_id}`];
@@ -658,7 +682,9 @@ async function setup() {
       }),
     ).subscribe(({ orders, strategy }) => {
       if (orders.length === 0) {
-        mapKeyToCompleteAction[`${group.target_account_id}-${group.target_product_id}`].next();
+        timer(1000).subscribe(() => {
+          mapKeyToCompleteAction[`${group.target_account_id}-${group.target_product_id}`].next();
+        });
         return;
       }
       if (strategy === 'serial') {
@@ -669,27 +695,26 @@ async function setup() {
         );
       }
     });
-    mapKeyToCyberTradeOrderDispatchAction[`${group.target_account_id}-${group.target_product_id}`] =
-      CyberTradeOrderDispatchAction$;
 
     // setup SerialOrderPlaceAction
     const SerialOrderPlaceAction$ = new Subject<IOrder[]>();
+    mapKeyToSerialOrderPlaceAction[`${group.target_account_id}-${group.target_product_id}`] =
+      SerialOrderPlaceAction$;
+    SerialOrderPlaceAction$.subscribe((orders) => {
+      console.debug(
+        formatTime(Date.now()),
+        'SerialOrderPlaceActionTriggered',
+        group.target_account_id,
+        group.target_product_id,
+        `total ${orders.length} orders`,
+        JSON.stringify(orders),
+      );
+    });
     SerialOrderPlaceAction$.pipe(
-      tap((orders) => {
-        console.debug(
-          formatTime(Date.now()),
-          'SerialOrderPlaceActionTriggered',
-          group.target_account_id,
-          group.target_product_id,
-          `total ${orders.length} orders`,
-          JSON.stringify(orders),
-        );
-      }),
       mergeMap((orders) =>
         from(orders).pipe(
           filter((order) => order.volume > 0),
           concatMap((order) =>
-            // TODO(wsy): make this a function
             terminal.submitOrder(order).pipe(
               tap(() => {
                 console.info(
@@ -721,27 +746,26 @@ async function setup() {
     ).subscribe(() => {
       mapKeyToCompleteAction[`${group.target_account_id}-${group.target_product_id}`].next();
     });
-    mapKeyToSerialOrderPlaceAction[`${group.target_account_id}-${group.target_product_id}`] =
-      SerialOrderPlaceAction$;
 
     // setup ConcurrentOrderPlaceAction
     const ConcurrentOrderPlaceAction$ = new Subject<IOrder[]>();
+    mapKeyToConcurrentOrderPlaceAction[`${group.target_account_id}-${group.target_product_id}`] =
+      ConcurrentOrderPlaceAction$;
+    ConcurrentOrderPlaceAction$.subscribe((orders) => {
+      console.debug(
+        formatTime(Date.now()),
+        'ConcurrentOrderPlaceActionTriggered',
+        group.target_account_id,
+        group.target_product_id,
+        `total ${orders.length} orders`,
+        JSON.stringify(orders),
+      );
+    });
     ConcurrentOrderPlaceAction$.pipe(
-      tap((orders) => {
-        console.debug(
-          formatTime(Date.now()),
-          'ConcurrentOrderPlaceActionTriggered',
-          group.target_account_id,
-          group.target_product_id,
-          `total ${orders.length} orders`,
-          JSON.stringify(orders),
-        );
-      }),
       mergeMap((orders) =>
         from(orders).pipe(
           filter((order) => order.volume > 0),
           mergeMap((order) =>
-            // TODO(wsy): make this a function
             terminal.submitOrder(order).pipe(
               tap(() => {
                 console.info(
@@ -773,8 +797,6 @@ async function setup() {
     ).subscribe(() => {
       mapKeyToCompleteAction[`${group.target_account_id}-${group.target_product_id}`].next();
     });
-    mapKeyToConcurrentOrderPlaceAction[`${group.target_account_id}-${group.target_product_id}`] =
-      ConcurrentOrderPlaceAction$;
   }
 
   // first driving force of GOD.
