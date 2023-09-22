@@ -1,3 +1,4 @@
+import { formatTime } from '@yuants/data-model';
 import {
   AccountSimulatorUnit,
   BasicUnit,
@@ -144,6 +145,7 @@ function makeScriptRunner(script: string): () => any {
     useExchange,
     useSeries,
     useState,
+    formatTime,
   };
 
   const x = Object.entries(globalContext);
