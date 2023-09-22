@@ -61,6 +61,8 @@ export class AgentUnit extends BasicUnit {
     // (undocumented)
     accountInfoUnit: AccountSimulatorUnit;
     // (undocumented)
+    cleanups: Set<() => void>;
+    // (undocumented)
     static currentAgent: AgentUnit | null;
     // (undocumented)
     dataLoadingTaskUnit: DataLoadingTaskUnit;
@@ -68,6 +70,8 @@ export class AgentUnit extends BasicUnit {
     execute(): any;
     // (undocumented)
     kernel: Kernel;
+    // (undocumented)
+    onDispose(): void | Promise<void>;
     // (undocumented)
     onEvent(): void | Promise<void>;
     // (undocumented)

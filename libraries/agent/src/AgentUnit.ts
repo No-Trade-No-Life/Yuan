@@ -104,6 +104,14 @@ export class AgentUnit extends BasicUnit {
     return this.execute();
   }
 
+  cleanups = new Set<() => void>();
+
+  onDispose(): void | Promise<void> {
+    for (const cleanup of this.cleanups) {
+      cleanup();
+    }
+  }
+
   paramsSchema: JSONSchema7 = { type: 'object', properties: {} };
 
   record_table: Record<string, Record<string, any>[]> = {};

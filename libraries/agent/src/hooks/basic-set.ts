@@ -34,8 +34,16 @@ export const useEffect = (fn: () => void | (() => void), deps?: any[]) => {
     theRef.current.deps.length !== deps.length ||
     theRef.current.deps.some((v, i) => v !== deps[i])
   ) {
-    theRef.current.cleanup?.();
-    theRef.current.cleanup = fn() || undefined;
+    const cleanups = AgentUnit.currentAgent!.cleanups;
+    const currentCleanUp = theRef.current.cleanup;
+    if (currentCleanUp && cleanups.has(currentCleanUp)) {
+      cleanups.delete(currentCleanUp);
+      currentCleanUp();
+    }
+    const nextCleanUp = (theRef.current.cleanup = fn() || undefined);
+    if (nextCleanUp) {
+      cleanups.add(nextCleanUp);
+    }
     theRef.current.deps = deps;
   }
 };
