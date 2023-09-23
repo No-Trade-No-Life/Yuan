@@ -1,6 +1,18 @@
 # Trade Copier
 
-A trade copier is an app that copies trades from some accounts to others.
+A [trade copier](https://github.com/No-Trade-No-Life/Yuan/tree/main/apps/trade-copier) is an app that copies trades from some accounts to others.
+
+```mermaid
+graph LR;
+
+SourceAccount1_Product1 -->|x2| TargetAccount1_Product1;
+SourceAccount1_Product2 -->|x1| TargetAccount2_Product2;
+SourceAccount3_Product1 -->|x-1| TargetAccount1_Product1;
+SourceAccount1_Product1 -->|x3| TargetAccount2_Product1;
+SourceAccount2_Product1 -->|x3| TargetAccount1_Product1;
+SourceAccount2_Product2 -->|x2| TargetAccount2_Product2;
+SourceAccount3_Product2.A -->|x0.5| TargetAccount2_Product2;
+```
 
 - If you want to follow the signals from some agent models in your accounts.
 - If you want to follow some traders' trades in your accounts.
@@ -14,8 +26,9 @@ A trade copier is an app that copies trades from some accounts to others.
 3. Prepare the accounts you want to copy trades from and to.
 4. Ensure the products configured in the storage. (You can use the GUI to finish this step.)
 5. Write data records of `trade_copy_relation` in the storage. (You can use the GUI to finish this step.)
-6. Deploy this app in the host.
-7. Restart this app if you update the `trade_copy_relation` records.
+6. If you want to use trading algorithm, you need to write data records of `trade_copier_trade_config` in the storage. (You can use the GUI to finish this step).
+7. Deploy this app in the host.
+8. Restart this app if you update the `trade_copy_relation` records.
 
 ## Technical Notes
 
@@ -23,13 +36,27 @@ When the trade copier starts, it will do the following things:
 
 1. Load relations of trade copier `trade_copy_relation` from the storage. See the `ITradeCopyRelation` interface.
 2. Subscribe related account info as `Observable<IAccountInfo>`.
-3. For each target account,
+3. For **each target account** and **each target product**,
    1. Combine the latest related source account info list as `Observable<IAccountInfo[]>`;
    2. Summary the target account's target position;
    3. Submit orders if the target position is not equal to the target account's current position;
    4. Wait until the order-submitting request done (no matter succeeds or fails);
    5. Wait until the next target account info feed back, to ensure the target account's current position is updated;
    6. Loop until the target account's target position is equal to the target account's current position.
+
+```mermaid
+graph TD;
+StartAction -->|Immediately| AccountInfoAggregateAction;
+AccountInfoAggregateAction -.->|wait for target and source accounts| CalcPositionDiffAction;
+AccountInfoAggregateAction -.->|timeout in 30s and retry| AccountInfoAggregateAction;
+CalcPositionDiffAction -->|position diff list| CyberTradeOrderDispatchAction;
+CyberTradeOrderDispatchAction -.->|if no order, delay 1s| CompleteAction;
+CyberTradeOrderDispatchAction -->|if algorithm configured| SerialOrderPlaceAction;
+CyberTradeOrderDispatchAction -->|if algorithm undefined| ConcurrentOrderPlaceAction;
+SerialOrderPlaceAction -.->|Orders all settled| CompleteAction;
+ConcurrentOrderPlaceAction -.->|Orders all settled| CompleteAction;
+CompleteAction -->|Immediately| StartAction;
+```
 
 ### Model
 
@@ -45,6 +72,11 @@ interface ITradeCopyRelation {
   target_product_id: string;
   multiple: number;
   exclusive_comment_pattern?: string;
+}
+interface ITradeCopierTradeConfig {
+  account_id: string;
+  product_id: string;
+  max_volume_per_order: number;
 }
 ```
 
