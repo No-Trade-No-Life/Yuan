@@ -42,9 +42,7 @@ export default (context: IExtensionContext) => {
     make_docker_compose_file: async (ctx, envCtx) => {
       return {
         [`webhook-receiver-alert`]: {
-          image: `registry.ap-southeast-1.aliyuncs.com/ntnl-y/app-alert-receiver:${
-            ctx.version ?? envCtx.version
-          }`,
+          image: `ghcr.io/no-trade-no-life/app-alert-receiver:${ctx.version ?? envCtx.version}`,
           ports: [['http', 3000]]
             .filter(([name]) => ctx.network?.port_forward?.[name] !== undefined)
             .map(([name, targetPort]) => `${ctx.network!.port_forward![name]}:${targetPort}`),
@@ -90,9 +88,7 @@ export default (context: IExtensionContext) => {
                 containers: [
                   {
                     env: makeK8sEnvs(ctx.env),
-                    image: `registry.ap-southeast-1.aliyuncs.com/ntnl-y/app-alert-receiver:${
-                      ctx.version ?? envCtx.version
-                    }`,
+                    image: `ghcr.io/no-trade-no-life/app-alert-receiver:${ctx.version ?? envCtx.version}`,
                     imagePullPolicy: 'IfNotPresent',
                     name: 'alert-receiver',
                     ports: [
