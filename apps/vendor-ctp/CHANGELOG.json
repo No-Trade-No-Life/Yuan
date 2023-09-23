@@ -2,6 +2,18 @@
   "name": "@yuants/vendor-ctp",
   "entries": [
     {
+      "version": "0.0.2",
+      "tag": "@yuants/vendor-ctp_v0.0.2",
+      "date": "Sat, 23 Sep 2023 11:42:29 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "update image tag"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.1",
       "tag": "@yuants/vendor-ctp_v0.0.1",
       "date": "Wed, 06 Sep 2023 15:33:08 GMT",
