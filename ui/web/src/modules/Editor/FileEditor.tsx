@@ -8,7 +8,7 @@ import { useObservable, useObservableState } from 'observable-hooks';
 import React, { useEffect, useRef, useState } from 'react';
 import { BehaviorSubject, defer, mergeMap, pipe, retry, tap } from 'rxjs';
 import { isDarkMode$ } from '../../common/Darkmode';
-import { layoutModel$ } from '../../layout-model';
+import { closeCurrentTab, layoutModel$ } from '../../layout-model';
 import { rollupLoadEvent$ } from '../Agent/utils';
 import { fs } from '../FileSystem/api';
 
@@ -179,12 +179,8 @@ export const FileEditor = React.memo((props: { node?: TabNode }) => {
       id: 'close',
       label: 'Close',
       keybindings: [monaco.KeyMod.Alt | monaco.KeyCode.KeyW],
-      run: async () => {
-        const nodeId = props.node?.getId();
-        // console.info(new Date(), `closing tab ${nodeId} ${filename}`);
-        if (nodeId) {
-          layoutModel$.value.doAction(Actions.deleteTab(nodeId));
-        }
+      run: () => {
+        closeCurrentTab();
       },
     });
   }, [editor]);

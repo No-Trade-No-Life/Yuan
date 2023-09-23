@@ -1,4 +1,5 @@
 import * as FlexLayout from 'flexlayout-react';
+import hotkeys from 'hotkeys-js';
 import { BehaviorSubject, bufferCount, combineLatest, first, map, Subject } from 'rxjs';
 import { createPersistBehaviorSubject } from './common/utils';
 import i18n from './modules/Locale/i18n';
@@ -109,3 +110,18 @@ export function openSingletonComponent(component: string, nodeName?: string, toN
     );
   }
 }
+
+export const closeCurrentTab = () => {
+  const model = layoutModel$.value;
+  const tabset = model.getActiveTabset();
+  const nodeId = tabset?.getSelectedNode()?.getId();
+  if (nodeId) {
+    model.doAction(FlexLayout.Actions.deleteTab(nodeId));
+  }
+};
+
+hotkeys('alt+w', function (event, handler) {
+  // Prevent the default refresh event under WINDOWS system
+  event.preventDefault();
+  closeCurrentTab();
+});
