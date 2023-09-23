@@ -2,6 +2,30 @@
   "name": "@yuants/app-alert-receiver",
   "entries": [
     {
+      "version": "0.1.1",
+      "tag": "@yuants/app-alert-receiver_v0.1.1",
+      "date": "Sat, 23 Sep 2023 11:42:29 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix image tag"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/app-alert-receiver_v0.1.0",
+      "date": "Sat, 23 Sep 2023 10:45:15 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "refactor: group alerts with same alertname together!"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.0",
       "tag": "@yuants/app-alert-receiver_v0.0.0",
       "date": "Thu, 14 Sep 2023 13:25:35 GMT",

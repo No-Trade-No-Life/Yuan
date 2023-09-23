@@ -2,6 +2,18 @@
   "name": "@yuants/app-market-data-collector",
   "entries": [
     {
+      "version": "0.0.7",
+      "tag": "@yuants/app-market-data-collector_v0.0.7",
+      "date": "Sat, 23 Sep 2023 10:45:15 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "ajust metrics"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.6",
       "tag": "@yuants/app-market-data-collector_v0.0.6",
       "date": "Wed, 06 Sep 2023 15:33:08 GMT",
