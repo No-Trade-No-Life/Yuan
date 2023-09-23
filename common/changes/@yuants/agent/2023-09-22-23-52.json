@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/agent",
+      "comment": "support formatTime in agent code",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/agent"
+}

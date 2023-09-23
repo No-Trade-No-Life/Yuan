@@ -11,9 +11,16 @@
   "scripts": {
     "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
   },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org",
-    "access": "public"
+  "dependencies": {
+    "@yuants/data-model": "workspace:*",
+    "@yuants/kernel": "workspace:*",
+    "@yuants/protocol": "workspace:*",
+    "@yuants/utils": "workspace:*",
+    "date-fns": "~2.30.0",
+    "json-schema": "~0.4.0",
+    "promjs": "~0.4.2",
+    "rxjs": "~7.5.6",
+    "uuid": "~8.3.2"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "~7.30.0",
@@ -27,14 +34,8 @@
     "@yuants/tool-kit": "workspace:*",
     "typescript": "~4.7.4"
   },
-  "dependencies": {
-    "@yuants/kernel": "workspace:*",
-    "@yuants/protocol": "workspace:*",
-    "@yuants/utils": "workspace:*",
-    "date-fns": "~2.30.0",
-    "json-schema": "~0.4.0",
-    "promjs": "~0.4.2",
-    "rxjs": "~7.5.6",
-    "uuid": "~8.3.2"
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   }
 }

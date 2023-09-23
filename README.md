@@ -86,6 +86,8 @@ export default () => {
 };
 ```
 
+More examples can be found [here](https://github.com/No-Trade-No-Life/Yuan-Public-Workspace).
+
 **Local, cloud...or hybrid!**
 
 Yuan is a hybrid-cloud software that allows you to deploy your trading system in your home or public cloud simultaneously. You can start using your home PC and then gradually switch to the public cloud as your business grows. Choosing between your home PC or the public cloud will depend on your availability, costs, privacy, and security requirements.
