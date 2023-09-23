@@ -37,7 +37,7 @@ export default (context: IExtensionContext) => {
       const userId = ctx.env!.USER_ID;
       return {
         [`ctp-${brokerId}-${userId}`]: {
-          image: `registry.ap-southeast-1.aliyuncs.com/ntnl-y/vendor-ctp:${ctx.version ?? envCtx.version}`,
+          image: `ghcr.io/no-trade-no-life/vendor-ctp:${ctx.version ?? envCtx.version}`,
           restart: 'always',
           environment: makeDockerEnvs(ctx.env),
         },
@@ -79,9 +79,7 @@ export default (context: IExtensionContext) => {
                 containers: [
                   {
                     env: makeK8sEnvs(ctx.env),
-                    image: `registry.ap-southeast-1.aliyuncs.com/ntnl-y/vendor-ctp:${
-                      ctx.version ?? envCtx.version
-                    }`,
+                    image: `ghcr.io/no-trade-no-life/vendor-ctp:${ctx.version ?? envCtx.version}`,
                     imagePullPolicy: 'IfNotPresent',
                     // NOTE: 当前健康检查不可用
                     // livenessProbe: {
