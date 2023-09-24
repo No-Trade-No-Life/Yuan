@@ -50,19 +50,27 @@ rollupLoadEvent$.subscribe(({ id, content }) => {
 });
 
 export const openFileEditor = (filename: string) => {
-  layoutModel$.value.doAction(
-    Actions.addNode(
-      {
-        type: 'tab',
-        name: '代码',
-        component: 'FileEditor',
-        config: { filename: filename },
-      },
-      '#main',
-      DockLocation.CENTER,
-      0,
-    ),
-  );
+  const mainPanel = layoutModel$.value.getNodeById('#main');
+  const tabNode = mainPanel
+    ?.getChildren()
+    .find((node) => node instanceof TabNode && node.getConfig()?.filename === filename);
+  if (tabNode !== undefined) {
+    layoutModel$.value.doAction(Actions.selectTab(tabNode.getId()));
+  } else {
+    layoutModel$.value.doAction(
+      Actions.addNode(
+        {
+          type: 'tab',
+          name: '代码',
+          component: 'FileEditor',
+          config: { filename: filename },
+        },
+        '#main',
+        DockLocation.CENTER,
+        0,
+      ),
+    );
+  }
 };
 
 export const FileEditor = React.memo((props: { node?: TabNode }) => {
