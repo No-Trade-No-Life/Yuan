@@ -28,7 +28,7 @@ SourceAccount3_Product2.A -->|x0.5| TargetAccount2_Product2;
 5. Write data records of `trade_copy_relation` in the storage. (You can use the GUI to finish this step.)
 6. If you want to use trading algorithm, you need to write data records of `trade_copier_trade_config` in the storage. (You can use the GUI to finish this step).
 7. Deploy this app in the host.
-8. Restart this app if you update the `trade_copy_relation` records.
+8. Restart this app if you update the `trade_copy_relation` or the `trade_copier_trade_config` records.
 
 ## Technical Notes
 
