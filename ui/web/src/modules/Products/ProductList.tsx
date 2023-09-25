@@ -5,6 +5,8 @@ import { useObservable, useObservableState } from 'observable-hooks';
 import React, { useState } from 'react';
 import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
+import { openSingletonComponent } from '../../layout-model';
+import { registerCommand } from '../CommandCenter/CommandCenter';
 import Form from '../Form';
 import { SearchButton } from '../Market/SearchButton';
 
@@ -311,4 +313,8 @@ export const ProductList = React.memo(() => {
       </Modal>
     </Space>
   );
+});
+
+registerCommand('ProductList', () => {
+  openSingletonComponent('ProductList');
 });

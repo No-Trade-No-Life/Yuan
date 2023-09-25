@@ -2,12 +2,12 @@ import { IconFile, IconPlay, IconRefresh, IconSave, IconWrench } from '@douyinfe
 import { Button, Divider, Layout, Space, Toast } from '@douyinfe/semi-ui';
 import { AgentScene, IAgentConf, agentConfSchema } from '@yuants/agent';
 import Ajv from 'ajv';
-import { Actions, TabNode } from 'flexlayout-react';
+import { TabNode } from 'flexlayout-react';
 import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
 import { parse } from 'jsonc-parser';
 import { useObservableState } from 'observable-hooks';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   BehaviorSubject,
@@ -25,9 +25,10 @@ import {
 } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
 import { createPersistBehaviorSubject } from '../../common/utils';
-import { layoutModel$, openSingletonComponent } from '../../layout-model';
+import { openSingletonComponent } from '../../layout-model';
 import { AccountFrameUnit } from '../AccountInfo/AccountFrameUnit';
 import { accountFrameSeries$, accountPerformance$ } from '../AccountInfo/model';
+import { executeCommand, registerCommand } from '../CommandCenter/CommandCenter';
 import { fs } from '../FileSystem/api';
 import Form from '../Form';
 import { currentKernel$ } from '../Kernel/model';
@@ -191,12 +192,6 @@ export const AgentConfForm = React.memo((props: { node?: TabNode }) => {
   const complete = useObservableState(complete$);
   const { t } = useTranslation('AgentConfForm');
 
-  useEffect(() => {
-    if (props.node) {
-      layoutModel$.value.doAction(Actions.renameTab(props.node.getId(), t('common:AgentConfForm')));
-    }
-  }, [t]);
-
   return (
     <Layout style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
       <Layout.Header>
@@ -205,8 +200,7 @@ export const AgentConfForm = React.memo((props: { node?: TabNode }) => {
             icon={<IconPlay />}
             loading={!complete}
             onClick={() => {
-              clearLogAction$.next();
-              runAgentAction$.next();
+              executeCommand('Agent.Run');
             }}
           >
             {t('run')}
@@ -214,72 +208,31 @@ export const AgentConfForm = React.memo((props: { node?: TabNode }) => {
           <Button
             icon={<IconRefresh />}
             onClick={() => {
-              reloadSchemaAction$.next();
+              executeCommand('Agent.Reload');
             }}
           >
             {t('refresh_schema')}
           </Button>
           <Button
             icon={<IconFile />}
-            onClick={async () => {
-              const filename = prompt(t('load_config_filename_prompt'));
-              if (!filename) return;
-              try {
-                const content = await fs.readFile(filename);
-                const json = parse(content);
-                agentConf$.next(json);
-                Toast.success(t('load_config_succeed', { filename, interpolation: { escapeValue: false } }));
-              } catch (e) {
-                Toast.error(
-                  `${t('load_config_failed', { filename, interpolation: { escapeValue: false } })}: ${e}`,
-                );
-              }
+            onClick={() => {
+              executeCommand('Agent.LoadConfig');
             }}
           >
             {t('load_config')}
           </Button>
           <Button
             icon={<IconSave />}
-            onClick={async () => {
-              if (!agentConf) return;
-              if (!agentConf.entry) return;
-              const filename = prompt(t('save_config_filename_prompt'));
-              if (!filename) return;
-              try {
-                const bundled_code = await bundleCode(agentConf.entry);
-                await fs.writeFile(filename, JSON.stringify({ ...agentConf, bundled_code }, null, 2));
-                Toast.success(t('save_config_succeed', { filename, interpolation: { escapeValue: false } }));
-              } catch (e) {
-                Toast.error(
-                  `${t('save_config_failed', { filename, interpolation: { escapeValue: false } })}: ${e}`,
-                );
-              }
+            onClick={() => {
+              executeCommand('Agent.SaveConfig');
             }}
           >
             {t('save_config')}
           </Button>
           <Button
             icon={<IconWrench />}
-            onClick={async () => {
-              if (!agentConf) {
-                Toast.error(t('require_config'));
-                return;
-              }
-              if (!agentConf.entry) {
-                Toast.error(t('require_entry_field'));
-                return;
-              }
-              const source = agentConf.entry;
-              const target = `${source}.bundle.js`;
-              try {
-                const agentCode = await bundleCode(source);
-                await fs.writeFile(target, agentCode);
-                Toast.success(t('bundle_succeed', { source, target, interpolation: { escapeValue: false } }));
-              } catch (e) {
-                Toast.error(
-                  `${t('bundle_failed', { source, target, interpolation: { escapeValue: false } })}: ${e}`,
-                );
-              }
+            onClick={() => {
+              executeCommand('Agent.Bundle');
             }}
           >
             {t('bundle')}
@@ -300,4 +253,75 @@ export const AgentConfForm = React.memo((props: { node?: TabNode }) => {
       </Layout.Content>
     </Layout>
   );
+});
+
+registerCommand('Agent.Run', () => {
+  clearLogAction$.next();
+  runAgentAction$.next();
+});
+
+registerCommand('Agent.Reload', () => {
+  reloadSchemaAction$.next();
+});
+
+registerCommand('Agent.Bundle', async () => {
+  const agentConf = agentConf$.value;
+  if (!agentConf) {
+    Toast.error(t('AgentConfForm:require_config'));
+    return;
+  }
+  if (!agentConf.entry) {
+    Toast.error(t('AgentConfForm:require_entry_field'));
+    return;
+  }
+  const source = agentConf.entry;
+  const target = `${source}.bundle.js`;
+  try {
+    const agentCode = await bundleCode(source);
+    await fs.writeFile(target, agentCode);
+    Toast.success(
+      t('AgentConfForm:bundle_succeed', { source, target, interpolation: { escapeValue: false } }),
+    );
+  } catch (e) {
+    Toast.error(
+      `${t('AgentConfForm:bundle_failed', { source, target, interpolation: { escapeValue: false } })}: ${e}`,
+    );
+  }
+});
+
+registerCommand('Agent.SaveConfig', async () => {
+  const agentConf = agentConf$.value;
+
+  if (!agentConf) return;
+  if (!agentConf.entry) return;
+  const filename = prompt(t('AgentConfForm:save_config_filename_prompt'));
+  if (!filename) return;
+  try {
+    const bundled_code = await bundleCode(agentConf.entry);
+    await fs.writeFile(filename, JSON.stringify({ ...agentConf, bundled_code }, null, 2));
+    Toast.success(
+      t('AgentConfForm:save_config_succeed', { filename, interpolation: { escapeValue: false } }),
+    );
+  } catch (e) {
+    Toast.error(
+      `${t('AgentConfForm:save_config_failed', { filename, interpolation: { escapeValue: false } })}: ${e}`,
+    );
+  }
+});
+
+registerCommand('Agent.LoadConfig', async () => {
+  const filename = prompt(t('AgentConfForm:load_config_filename_prompt'));
+  if (!filename) return;
+  try {
+    const content = await fs.readFile(filename);
+    const json = parse(content);
+    agentConf$.next(json);
+    Toast.success(
+      t('AgentConfForm:load_config_succeed', { filename, interpolation: { escapeValue: false } }),
+    );
+  } catch (e) {
+    Toast.error(
+      `${t('AgentConfForm:load_config_failed', { filename, interpolation: { escapeValue: false } })}: ${e}`,
+    );
+  }
 });

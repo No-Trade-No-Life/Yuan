@@ -4,6 +4,8 @@ import { useObservableState } from 'observable-hooks';
 import React from 'react';
 import { defer, repeat, retry, shareReplay, switchMap, toArray } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
+import { openSingletonComponent } from '../../layout-model';
+import { registerCommand } from '../CommandCenter/CommandCenter';
 import { TerminalListItem } from './TerminalListItem';
 
 export const terminalList$ = terminal$.pipe(
@@ -33,4 +35,8 @@ export const TerminalList = React.memo(() => {
       ))}
     </List>
   );
+});
+
+registerCommand('TerminalList', () => {
+  openSingletonComponent('TerminalList');
 });

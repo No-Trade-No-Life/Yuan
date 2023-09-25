@@ -1,0 +1,15 @@
+.CommandCenterList {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.CommandCenterList .semi-spin {
+  max-height: 400px;
+  overflow: auto;
+}
+
+.CommandCenterListItem:hover,
+.CommandCenterListItem:first-child {
+  background-color: var(--semi-color-fill-0);
+  cursor: pointer;
+}

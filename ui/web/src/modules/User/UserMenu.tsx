@@ -10,14 +10,37 @@ import {
   IconUser,
 } from '@douyinfe/semi-icons';
 import { Avatar, Button, Dropdown, Tag, Toast } from '@douyinfe/semi-ui';
+import { t } from 'i18next';
 import { useObservableState } from 'observable-hooks';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { authState$, supabase } from '../../common/supabase';
-import { initialJson, layoutModelJson$, layoutUpdate$, openSingletonComponent } from '../../layout-model';
+import { executeCommand, registerCommand } from '../CommandCenter/CommandCenter';
 import i18n from '../Locale/i18n';
 import { currentHostConfig$ } from '../Workbench/model';
-import { triggerLoginModalAction$ } from './Login';
+
+registerCommand('ChangeLanguage', () => {
+  const targetLang = prompt(`${t('UserMenu:change_language_prompt')}: (${i18n.languages.join(' / ')})`);
+  if (targetLang) {
+    i18n.changeLanguage(targetLang);
+  }
+});
+
+registerCommand('UserManual', () => {
+  open('https://tradelife.feishu.cn/wiki/wikcngXV0voYLV2ihtdNyU2i96g');
+});
+
+registerCommand('OpenSource', () => {
+  open('https://github.com/No-Trade-No-Life/Yuan');
+});
+
+registerCommand('Logout', async () => {
+  const { error } = await supabase.auth.signOut();
+  if (error) {
+    Toast.error(`${t('UserMenu:sign_out_failed')}: ${error.message}`);
+  }
+});
+
 export const UserMenu = React.memo(() => {
   const authState = useObservableState(authState$);
   const currentHostConfig = useObservableState(currentHostConfig$);
@@ -36,7 +59,7 @@ export const UserMenu = React.memo(() => {
               <Dropdown.Item
                 icon={<IconUser />}
                 onClick={() => {
-                  triggerLoginModalAction$.next();
+                  executeCommand('Login');
                 }}
               >
                 {t('sign_in')}
@@ -48,7 +71,7 @@ export const UserMenu = React.memo(() => {
           <Dropdown.Item
             icon={<IconComment />}
             onClick={() => {
-              openSingletonComponent('LUI', t('AI Assistant'));
+              executeCommand('AI');
             }}
           >
             {t('AI Assistant')}
@@ -56,7 +79,7 @@ export const UserMenu = React.memo(() => {
           <Dropdown.Item
             disabled={!isHostMode}
             onClick={() => {
-              openSingletonComponent('ManualTradePanel', '手动交易');
+              executeCommand('ManualTradePanel');
             }}
           >
             手动交易 <Tag>主机模式可用</Tag>
@@ -64,7 +87,7 @@ export const UserMenu = React.memo(() => {
           <Dropdown.Item
             disabled={!isHostMode}
             onClick={() => {
-              openSingletonComponent('AccountReplay', '账户回放');
+              executeCommand('AccountReplay');
             }}
           >
             账户回放 <Tag>主机模式可用</Tag>
@@ -74,8 +97,7 @@ export const UserMenu = React.memo(() => {
           <Dropdown.Item
             icon={<IconUndo />}
             onClick={() => {
-              layoutModelJson$.next(initialJson());
-              layoutUpdate$.next();
+              executeCommand('ResetLayout');
             }}
           >
             {t('reset_layout')}
@@ -83,10 +105,7 @@ export const UserMenu = React.memo(() => {
           <Dropdown.Item
             icon={<IconLanguage />}
             onClick={() => {
-              const targetLang = prompt(`${t('change_language_prompt')}: (${i18n.languages.join(' / ')})`);
-              if (targetLang) {
-                i18n.changeLanguage(targetLang);
-              }
+              executeCommand('ChangeLanguage');
             }}
           >
             {t('change_language')}
@@ -96,7 +115,7 @@ export const UserMenu = React.memo(() => {
           <Dropdown.Item
             disabled={!isHostMode}
             onClick={() => {
-              openSingletonComponent('TerminalList', '终端列表', 'border_left');
+              executeCommand('TerminalList');
             }}
           >
             终端列表 <Tag>主机模式可用</Tag>
@@ -104,7 +123,7 @@ export const UserMenu = React.memo(() => {
           <Dropdown.Item
             disabled={!isHostMode}
             onClick={() => {
-              openSingletonComponent('AccountList', '账户列表', 'border_left');
+              executeCommand('AccountList');
             }}
           >
             账户列表 <Tag>主机模式可用</Tag>
@@ -112,7 +131,7 @@ export const UserMenu = React.memo(() => {
           <Dropdown.Item
             disabled={!isHostMode}
             onClick={() => {
-              openSingletonComponent('ProductList', '品种列表');
+              executeCommand('ProductList');
             }}
           >
             品种列表 <Tag>主机模式可用</Tag>
@@ -120,7 +139,7 @@ export const UserMenu = React.memo(() => {
           <Dropdown.Item
             disabled={!isHostMode}
             onClick={() => {
-              openSingletonComponent('PullSourceRelationList', '同步关系列表');
+              executeCommand('PullSourceRelationList');
             }}
           >
             同步关系列表 <Tag>主机模式可用</Tag>
@@ -128,7 +147,7 @@ export const UserMenu = React.memo(() => {
           <Dropdown.Item
             disabled={!isHostMode}
             onClick={() => {
-              openSingletonComponent('GeneralSpecificRelationList', '标准品种关系列表');
+              executeCommand('GeneralSpecificRelationList');
             }}
           >
             标准品种关系列表 <Tag>主机模式可用</Tag>
@@ -136,7 +155,7 @@ export const UserMenu = React.memo(() => {
           <Dropdown.Item
             disabled={!isHostMode}
             onClick={() => {
-              openSingletonComponent('TradeCopyRelationList', '跟单关系列表');
+              executeCommand('TradeCopyRelationList');
             }}
           >
             跟单关系列表 <Tag>主机模式可用</Tag>
@@ -144,7 +163,7 @@ export const UserMenu = React.memo(() => {
           <Dropdown.Item
             disabled={!isHostMode}
             onClick={() => {
-              openSingletonComponent('TradeConfigList', '交易配置列表');
+              executeCommand('TradeConfigList');
             }}
           >
             交易配置列表 <Tag>主机模式可用</Tag>
@@ -152,7 +171,7 @@ export const UserMenu = React.memo(() => {
           <Dropdown.Item
             disabled={!isHostMode}
             onClick={() => {
-              openSingletonComponent('SubscriptionRelationList', '订阅关系列表');
+              executeCommand('SubscriptionRelationList');
             }}
           >
             订阅关系列表 <Tag>主机模式可用</Tag>
@@ -162,7 +181,7 @@ export const UserMenu = React.memo(() => {
           <Dropdown.Item
             icon={<IconHelpCircle />}
             onClick={() => {
-              open('https://tradelife.feishu.cn/wiki/wikcngXV0voYLV2ihtdNyU2i96g');
+              executeCommand('UserManual');
             }}
           >
             {t('user_manual')}
@@ -170,7 +189,7 @@ export const UserMenu = React.memo(() => {
           <Dropdown.Item
             icon={<IconInfoCircle />}
             onClick={() => {
-              openSingletonComponent('About', t('common:About'));
+              executeCommand('About');
             }}
           >
             {t('about')}
@@ -178,7 +197,7 @@ export const UserMenu = React.memo(() => {
           <Dropdown.Item
             icon={<IconGithubLogo />}
             onClick={() => {
-              open('https://github.com/No-Trade-No-Life/Yuan');
+              executeCommand('OpenSource');
             }}
           >
             {t('open_source')}
@@ -188,11 +207,8 @@ export const UserMenu = React.memo(() => {
               <Dropdown.Divider />
               <Dropdown.Item
                 icon={<IconExit />}
-                onClick={async () => {
-                  const { error } = await supabase.auth.signOut();
-                  if (error) {
-                    Toast.error(`${t('sign_out_failed')}: ${error.message}`);
-                  }
+                onClick={() => {
+                  executeCommand('Logout');
                 }}
               >
                 {t('sign_out')}
