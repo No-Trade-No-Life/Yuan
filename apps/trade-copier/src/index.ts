@@ -159,7 +159,6 @@ const tradeConfig$ = defer(() =>
     return config;
   }),
   toArray(),
-  repeat({ delay: 5_000 }),
   shareReplay(1),
 );
 
@@ -175,7 +174,7 @@ const config$ = defer(() =>
   mergeMap((data) => {
     const isValid = validate(data);
     if (!isValid) {
-      console.error(validate.errors);
+      console.error(formatTime(Date.now()), validate.errors);
       return throwError(() => 'ERROR CONFIG');
     }
     return of(data);
@@ -354,18 +353,15 @@ async function setup() {
   );
 
   for (const group of groups) {
-    mapKeyToTaskGroup[`${group.target_account_id}-${group.target_product_id}`] = group;
+    const key = `${group.target_account_id}-${group.target_product_id}`;
+
+    mapKeyToTaskGroup[key] = group;
 
     // setup StartAction
     const StartAction$ = new Subject<void>();
-    mapKeyToStartAction[`${group.target_account_id}-${group.target_product_id}`] = StartAction$;
+    mapKeyToStartAction[key] = StartAction$;
     StartAction$.subscribe(() => {
-      console.debug(
-        formatTime(Date.now()),
-        'StartActionTriggered',
-        group.target_account_id,
-        group.target_product_id,
-      );
+      console.debug(formatTime(Date.now()), 'StartActionTriggered', key);
     });
     StartAction$.subscribe(() => {
       // Reset residual error volume
@@ -389,35 +385,24 @@ async function setup() {
       //
       map(() => Date.now()),
     ).subscribe((t) => {
-      mapKeyToAccountInfoAggregateAction[`${group.target_account_id}-${group.target_product_id}`].next(t);
+      mapKeyToAccountInfoAggregateAction[key].next(t);
     });
 
     // setup CompleteAction
     const CompleteAction$ = new Subject<void>();
-    mapKeyToCompleteAction[`${group.target_account_id}-${group.target_product_id}`] = CompleteAction$;
+    mapKeyToCompleteAction[key] = CompleteAction$;
     CompleteAction$.subscribe(() => {
-      console.debug(
-        formatTime(Date.now()),
-        'CompleteActionTriggered',
-        group.target_account_id,
-        group.target_product_id,
-      );
+      console.debug(formatTime(Date.now()), 'CompleteActionTriggered', key);
     });
     CompleteAction$.subscribe(() => {
-      mapKeyToStartAction[`${group.target_account_id}-${group.target_product_id}`].next();
+      mapKeyToStartAction[key].next();
     });
 
     // setup AccountInfoAggregateAction
     const AccountInfoAggregateAction$ = new Subject<number>();
-    mapKeyToAccountInfoAggregateAction[`${group.target_account_id}-${group.target_product_id}`] =
-      AccountInfoAggregateAction$;
+    mapKeyToAccountInfoAggregateAction[key] = AccountInfoAggregateAction$;
     AccountInfoAggregateAction$.subscribe(() => {
-      console.debug(
-        formatTime(Date.now()),
-        'AccountInfoAggregateActionTriggered',
-        group.target_account_id,
-        group.target_product_id,
-      );
+      console.debug(formatTime(Date.now()), 'AccountInfoAggregateActionTriggered', key);
     });
     AccountInfoAggregateAction$.pipe(
       //
@@ -450,8 +435,7 @@ async function setup() {
             console.error(
               formatTime(Date.now()),
               `AccountInfoError`,
-              group.target_account_id,
-              group.target_product_id,
+              key,
               `${e instanceof TimeoutError ? `${e}: ${e.info?.meta}` : e}`,
             );
             throw e;
@@ -464,7 +448,7 @@ async function setup() {
         ),
       ),
     ).subscribe((result) => {
-      mapKeyToCalcPositionDiffAction[`${group.target_account_id}-${group.target_product_id}`].next(result);
+      mapKeyToCalcPositionDiffAction[key].next(result);
     });
 
     // setup CalcPositionDiffAction
@@ -472,14 +456,12 @@ async function setup() {
       targetAccountInfo: IAccountInfo;
       sourceAccountInfoTaskList: Array<{ info: IAccountInfo; task: ITradeCopyRelation }>;
     }>();
-    mapKeyToCalcPositionDiffAction[`${group.target_account_id}-${group.target_product_id}`] =
-      CalcPositionDiffAction$;
+    mapKeyToCalcPositionDiffAction[key] = CalcPositionDiffAction$;
     CalcPositionDiffAction$.subscribe(({ targetAccountInfo, sourceAccountInfoTaskList }) => {
       console.debug(
         formatTime(Date.now()),
         'CalcPositionDiffActionTriggered',
-        group.target_account_id,
-        group.target_product_id,
+        key,
         JSON.stringify(targetAccountInfo),
         JSON.stringify(sourceAccountInfoTaskList),
       );
@@ -500,7 +482,7 @@ async function setup() {
                   try {
                     return !new RegExp(task.exclusive_comment_pattern).test(position.comment ?? '');
                   } catch (e) {
-                    console.error(formatTime(Date.now()), e);
+                    console.error(formatTime(Date.now()), key, e);
                     // if the expression is invalid, treat it as a fatal error,
                     // filter all the positions, which is equivalent to close all the positions.
                     return false;
@@ -550,8 +532,7 @@ async function setup() {
               console.info(
                 formatTime(Date.now()),
                 `ErrorVolumeRatio`,
-                group.target_account_id,
-                group.target_product_id,
+                key,
                 `error_ratio = ${error_ratio.toFixed(4)}`,
                 JSON.stringify(positionDiff),
               );
@@ -565,21 +546,17 @@ async function setup() {
         );
       }),
     ).subscribe((positionDiffList) => {
-      mapKeyToCyberTradeOrderDispatchAction[`${group.target_account_id}-${group.target_product_id}`].next(
-        positionDiffList,
-      );
+      mapKeyToCyberTradeOrderDispatchAction[key].next(positionDiffList);
     });
 
     // setup CyberTradeOrderDispatchAction
     const CyberTradeOrderDispatchAction$ = new Subject<IPositionDiff[]>();
-    mapKeyToCyberTradeOrderDispatchAction[`${group.target_account_id}-${group.target_product_id}`] =
-      CyberTradeOrderDispatchAction$;
+    mapKeyToCyberTradeOrderDispatchAction[key] = CyberTradeOrderDispatchAction$;
     CyberTradeOrderDispatchAction$.subscribe((positionDiffList) => {
       console.debug(
         formatTime(Date.now()),
         'CyberTradeOrderDispatchActionTriggered',
-        group.target_account_id,
-        group.target_product_id,
+        key,
         JSON.stringify(positionDiffList),
       );
     });
@@ -595,14 +572,10 @@ async function setup() {
           filter((positionDiff) => positionDiff.error_volume !== 0),
           mergeMap((positionDiff): Observable<{ orders: IOrder[]; strategy: string }> => {
             const volume = Math.abs(positionDiff.error_volume);
-            const config = mapKeyToTradeConfig[`${group.target_account_id}-${positionDiff.product_id}`];
+            const config = mapKeyToTradeConfig[key];
             // if the config is not set or the volume is too small, no need to use Trade Algorithm
             if (config === undefined || volume < config.max_volume_per_order) {
-              console.info(
-                formatTime(Date.now()),
-                `TradeConfigNotSetOrVolumeTooSmall`,
-                `${group.target_account_id}-${positionDiff.product_id}`,
-              );
+              console.info(formatTime(Date.now()), `TradeConfigNotSetOrVolumeTooSmall`, key);
               const rounded_volume = roundToStep(
                 volume,
                 group.products[positionDiff.product_id]?.volume_step ?? 1,
@@ -641,7 +614,7 @@ async function setup() {
               `with config ${JSON.stringify(config)}, total ${order_count} orders, volume per order ${
                 config.max_volume_per_order
               }`,
-              `${group.target_account_id}-${positionDiff.product_id}`,
+              key,
             );
             return generate({
               initialState: 0,
@@ -676,6 +649,13 @@ async function setup() {
               map((orders) => ({ orders, strategy: 'serial' })),
             );
           }),
+          toArray(),
+          map((orderPackList) => {
+            if (orderPackList.some((pack) => pack.strategy === 'serial')) {
+              return { orders: orderPackList.flatMap((pack) => pack.orders), strategy: 'serial' };
+            }
+            return { orders: orderPackList.flatMap((pack) => pack.orders), strategy: 'concurrent' };
+          }),
           filter(({ orders }) => orders.length > 0),
           defaultIfEmpty({ orders: [] as IOrder[], strategy: 'none' }),
         );
@@ -683,29 +663,25 @@ async function setup() {
     ).subscribe(({ orders, strategy }) => {
       if (orders.length === 0) {
         timer(1000).subscribe(() => {
-          mapKeyToCompleteAction[`${group.target_account_id}-${group.target_product_id}`].next();
+          mapKeyToCompleteAction[key].next();
         });
         return;
       }
       if (strategy === 'serial') {
-        mapKeyToSerialOrderPlaceAction[`${group.target_account_id}-${group.target_product_id}`].next(orders);
+        mapKeyToSerialOrderPlaceAction[key].next(orders);
       } else {
-        mapKeyToConcurrentOrderPlaceAction[`${group.target_account_id}-${group.target_product_id}`].next(
-          orders,
-        );
+        mapKeyToConcurrentOrderPlaceAction[key].next(orders);
       }
     });
 
     // setup SerialOrderPlaceAction
     const SerialOrderPlaceAction$ = new Subject<IOrder[]>();
-    mapKeyToSerialOrderPlaceAction[`${group.target_account_id}-${group.target_product_id}`] =
-      SerialOrderPlaceAction$;
+    mapKeyToSerialOrderPlaceAction[key] = SerialOrderPlaceAction$;
     SerialOrderPlaceAction$.subscribe((orders) => {
       console.debug(
         formatTime(Date.now()),
         'SerialOrderPlaceActionTriggered',
-        group.target_account_id,
-        group.target_product_id,
+        key,
         `total ${orders.length} orders`,
         JSON.stringify(orders),
       );
@@ -717,25 +693,14 @@ async function setup() {
           concatMap((order) =>
             terminal.submitOrder(order).pipe(
               tap(() => {
-                console.info(
-                  formatTime(Date.now()),
-                  `SucceedToSubmitOrder`,
-                  group.target_account_id,
-                  JSON.stringify(order),
-                );
+                console.info(formatTime(Date.now()), `SucceedToSubmitOrder`, key, JSON.stringify(order));
               }),
               timeout({
                 each: 30_000,
                 meta: `SerialOrderPlaceAction, target_account_id: ${group.target_account_id}, target_product_id: ${group.target_product_id}`,
               }),
               catchError((e) => {
-                console.error(
-                  formatTime(Date.now()),
-                  'FailedToSubmitOrder',
-                  group.target_account_id,
-                  JSON.stringify(order),
-                  e,
-                );
+                console.error(formatTime(Date.now()), 'FailedToSubmitOrder', key, JSON.stringify(order), e);
                 return EMPTY;
               }),
             ),
@@ -744,19 +709,17 @@ async function setup() {
         ),
       ),
     ).subscribe(() => {
-      mapKeyToCompleteAction[`${group.target_account_id}-${group.target_product_id}`].next();
+      mapKeyToCompleteAction[key].next();
     });
 
     // setup ConcurrentOrderPlaceAction
     const ConcurrentOrderPlaceAction$ = new Subject<IOrder[]>();
-    mapKeyToConcurrentOrderPlaceAction[`${group.target_account_id}-${group.target_product_id}`] =
-      ConcurrentOrderPlaceAction$;
+    mapKeyToConcurrentOrderPlaceAction[key] = ConcurrentOrderPlaceAction$;
     ConcurrentOrderPlaceAction$.subscribe((orders) => {
       console.debug(
         formatTime(Date.now()),
         'ConcurrentOrderPlaceActionTriggered',
-        group.target_account_id,
-        group.target_product_id,
+        key,
         `total ${orders.length} orders`,
         JSON.stringify(orders),
       );
@@ -768,25 +731,14 @@ async function setup() {
           mergeMap((order) =>
             terminal.submitOrder(order).pipe(
               tap(() => {
-                console.info(
-                  formatTime(Date.now()),
-                  `SucceedToSubmitOrder`,
-                  group.target_account_id,
-                  JSON.stringify(order),
-                );
+                console.info(formatTime(Date.now()), `SucceedToSubmitOrder`, key, JSON.stringify(order));
               }),
               timeout({
                 each: 30_000,
                 meta: `ConcurrentOrderPlaceAction, target_account_id: ${group.target_account_id}, target_product_id: ${group.target_product_id}`,
               }),
               catchError((e) => {
-                console.error(
-                  formatTime(Date.now()),
-                  'FailedToSubmitOrder',
-                  group.target_account_id,
-                  JSON.stringify(order),
-                  e,
-                );
+                console.error(formatTime(Date.now()), 'FailedToSubmitOrder', key, JSON.stringify(order), e);
                 return EMPTY;
               }),
             ),
@@ -795,7 +747,7 @@ async function setup() {
         ),
       ),
     ).subscribe(() => {
-      mapKeyToCompleteAction[`${group.target_account_id}-${group.target_product_id}`].next();
+      mapKeyToCompleteAction[key].next();
     });
   }
 
