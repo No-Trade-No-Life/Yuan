@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-trade-copier
 
-This log was last generated on Sat, 23 Sep 2023 10:45:15 GMT and should not be manually modified.
+This log was last generated on Mon, 25 Sep 2023 09:52:07 GMT and should not be manually modified.
+
+## 0.2.1
+Mon, 25 Sep 2023 09:52:07 GMT
+
+### Patches
+
+- hotfix: make sure each calculation node emit one and only one event
 
 ## 0.2.0
 Sat, 23 Sep 2023 10:45:15 GMT

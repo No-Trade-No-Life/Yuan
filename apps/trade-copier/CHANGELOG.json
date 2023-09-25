@@ -2,6 +2,18 @@
   "name": "@yuants/app-trade-copier",
   "entries": [
     {
+      "version": "0.2.1",
+      "tag": "@yuants/app-trade-copier_v0.2.1",
+      "date": "Mon, 25 Sep 2023 09:52:07 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "hotfix: make sure each calculation node emit one and only one event"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.0",
       "tag": "@yuants/app-trade-copier_v0.2.0",
       "date": "Sat, 23 Sep 2023 10:45:15 GMT",
