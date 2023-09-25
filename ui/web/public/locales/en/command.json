@@ -1,0 +1,13 @@
+{
+  "AI": "Chat to AI",
+  "AccountList": "View Accounts",
+  "ChangeLanguage": "Change Language",
+  "ProductList": "View Products",
+  "ResetLayout": "Reset Layout",
+  "TerminalList": "View Terminals",
+  "TradeConfigList": "Manage Trade Configs",
+  "TradeCopier": {
+    "Restart": "Restart Trade Copier"
+  },
+  "TradeCopyRelationList": "Manage Trade Copier Relations"
+}

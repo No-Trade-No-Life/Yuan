@@ -3,13 +3,11 @@ import { Button, Descriptions, List, Space, TagGroup, Toast, Typography } from '
 import { formatTime } from '@yuants/kernel';
 import { IDataRecord, ITerminalInfo } from '@yuants/protocol';
 import { formatDuration, intervalToDuration } from 'date-fns';
-import { useObservableState } from 'observable-hooks';
 import React from 'react';
-import { EMPTY, catchError, tap } from 'rxjs';
+import { EMPTY, catchError, first, mergeMap, tap } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
 
 export const TerminalListItem = React.memo((props: { terminalInfo: IDataRecord<ITerminalInfo> }) => {
-  const terminal = useObservableState(terminal$);
   const term = props.terminalInfo;
   const isOnline = term.updated_at + 60_000 > Date.now();
   return (
@@ -57,24 +55,7 @@ export const TerminalListItem = React.memo((props: { terminalInfo: IDataRecord<I
         <Button
           disabled={!term.origin.serviceInfo?.['Terminate']}
           onClick={() => {
-            terminal
-              ?.request('Terminate', term.origin.terminal_id, {})
-              .pipe(
-                tap((msg) => {
-                  if (msg.res) {
-                    if (msg.res.code === 0) {
-                      Toast.success(`成功终止: ${term.origin.terminal_id}`);
-                    } else {
-                      Toast.error(`终止失败: ${msg.res.code} ${msg.res.message}`);
-                    }
-                  }
-                }),
-                catchError((err) => {
-                  Toast.error(`终止异常: ${err}`);
-                  return EMPTY;
-                }),
-              )
-              .subscribe();
+            terminate(term.origin.terminal_id);
           }}
         >
           终止
@@ -83,3 +64,28 @@ export const TerminalListItem = React.memo((props: { terminalInfo: IDataRecord<I
     </List.Item>
   );
 });
+
+export function terminate(terminal_id: string) {
+  terminal$
+    .pipe(
+      first(),
+      mergeMap((terminal) =>
+        terminal.request('Terminate', terminal_id, {}).pipe(
+          tap((msg) => {
+            if (msg.res) {
+              if (msg.res.code === 0) {
+                Toast.success(`成功终止: ${terminal_id}`);
+              } else {
+                Toast.error(`终止失败: ${msg.res.code} ${msg.res.message}`);
+              }
+            }
+          }),
+          catchError((err) => {
+            Toast.error(`终止异常: ${err}`);
+            return EMPTY;
+          }),
+        ),
+      ),
+    )
+    .subscribe();
+}

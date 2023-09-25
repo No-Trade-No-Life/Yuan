@@ -2,6 +2,7 @@ import * as FlexLayout from 'flexlayout-react';
 import hotkeys from 'hotkeys-js';
 import { BehaviorSubject, bufferCount, combineLatest, first, map, Subject } from 'rxjs';
 import { createPersistBehaviorSubject } from './common/utils';
+import { registerCommand } from './modules/CommandCenter/CommandCenter';
 import i18n from './modules/Locale/i18n';
 
 export const initialJson = (): FlexLayout.IJsonModel => ({
@@ -98,7 +99,9 @@ export function openSingletonComponent(component: string, nodeName?: string, toN
   const nodeId = component;
   const node = model.getNodeById(nodeId);
   if (node) {
-    model.doAction(FlexLayout.Actions.selectTab(node.getId()));
+    if (!node.isVisible()) {
+      model.doAction(FlexLayout.Actions.selectTab(node.getId()));
+    }
   } else {
     model.doAction(
       FlexLayout.Actions.addNode(
@@ -124,4 +127,9 @@ hotkeys('alt+w', function (event, handler) {
   // Prevent the default refresh event under WINDOWS system
   event.preventDefault();
   closeCurrentTab();
+});
+
+registerCommand('ResetLayout', () => {
+  layoutModelJson$.next(initialJson());
+  layoutUpdate$.next();
 });

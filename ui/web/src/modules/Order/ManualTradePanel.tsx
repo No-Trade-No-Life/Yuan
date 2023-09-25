@@ -4,7 +4,9 @@ import { useObservable, useObservableState } from 'observable-hooks';
 import React, { useState } from 'react';
 import { first, mergeMap, of } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
+import { openSingletonComponent } from '../../layout-model';
 import { accountIds$ } from '../AccountInfo/model';
+import { registerCommand } from '../CommandCenter/CommandCenter';
 import { Form } from '../Form';
 
 export const ManualTradePanel = React.memo(() => {
@@ -141,4 +143,8 @@ export const ManualTradePanel = React.memo(() => {
       ></Form>
     </Space>
   );
+});
+
+registerCommand('ManualTradePanel', () => {
+  openSingletonComponent('ManualTradePanel');
 });

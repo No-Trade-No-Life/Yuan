@@ -6,6 +6,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { isDarkMode$ } from '../../common/Darkmode';
 import { ErrorBoundary } from '../../common/ErrorBoundary';
 import { layoutModel$, layoutModelJson$ } from '../../layout-model';
+import { CommandCenter } from '../CommandCenter/CommandCenter';
 import { NetworkStatusWidget } from '../Terminals/NetworkStatusWidget';
 import { Login } from '../User/Login';
 import { UserMenu } from '../User/UserMenu';
@@ -55,6 +56,9 @@ export const DesktopLayout = () => {
             <Typography.Title heading={3}>
               <b style={{ color: 'red' }}>Y</b>uan
             </Typography.Title>
+          </Space>
+          <Space>
+            <CommandCenter />
           </Space>
           <Space>
             <ErrorBoundary>

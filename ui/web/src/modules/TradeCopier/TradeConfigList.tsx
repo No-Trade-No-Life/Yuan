@@ -1,11 +1,13 @@
 import { IconCopyAdd, IconDelete, IconEdit, IconRefresh, IconSearch } from '@douyinfe/semi-icons';
 import { Button, Modal, Popconfirm, Space, Table, Toast } from '@douyinfe/semi-ui';
+import { IDataRecord } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import React, { useState } from 'react';
 import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
-import { terminal$ } from '../../common/create-connection';
-import { IDataRecord } from '@yuants/protocol';
 import { v4 } from 'uuid';
+import { terminal$ } from '../../common/create-connection';
+import { openSingletonComponent } from '../../layout-model';
+import { registerCommand } from '../CommandCenter/CommandCenter';
 import Form from '../Form';
 
 interface ITradeCopierTradeConfig {
@@ -220,4 +222,7 @@ export const TradeConfigList = React.memo(() => {
       </Modal>
     </Space>
   );
+});
+registerCommand('TradeConfigList', () => {
+  openSingletonComponent('TradeConfigList');
 });

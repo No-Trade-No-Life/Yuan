@@ -6,7 +6,9 @@ import { useObservableState } from 'observable-hooks';
 import React, { useState } from 'react';
 import { authState$ } from '../../common/supabase';
 import { createPersistBehaviorSubject } from '../../common/utils';
+import { openSingletonComponent } from '../../layout-model';
 import { agentConf$ } from '../Agent/AgentConfForm';
+import { registerCommand } from '../CommandCenter/CommandCenter';
 import { fs } from '../FileSystem/api';
 import { triggerLoginModalAction$ } from '../User/Login';
 import './LUI.css';
@@ -27,6 +29,10 @@ const historyMessages$ = createPersistBehaviorSubject<IMessage[]>('history-messa
 const pushHistoryMessages = (...messages: IMessage[]) => {
   historyMessages$.next([...(historyMessages$.value || []), ...messages]);
 };
+
+registerCommand('AI', () => {
+  openSingletonComponent('LUI');
+});
 
 export const LUI = React.memo((props: { node?: TabNode }) => {
   const width = props.node?.getRect().width ?? Infinity;

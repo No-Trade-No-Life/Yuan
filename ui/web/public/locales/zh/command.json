@@ -1,0 +1,13 @@
+{
+  "AI": "与AI聊天",
+  "AccountList": "账户列表",
+  "ChangeLanguage": "变更语言",
+  "ProductList": "品种列表",
+  "ResetLayout": "重置布局",
+  "TerminalList": "终端列表",
+  "TradeConfigList": "交易配置列表",
+  "TradeCopier": {
+    "Restart": "重启跟单阵列"
+  },
+  "TradeCopyRelationList": "跟单关系列表"
+}

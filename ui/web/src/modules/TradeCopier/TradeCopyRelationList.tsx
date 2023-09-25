@@ -6,7 +6,10 @@ import React, { useState } from 'react';
 import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
 import { v4 } from 'uuid';
 import { terminal$ } from '../../common/create-connection';
+import { openSingletonComponent } from '../../layout-model';
+import { registerCommand } from '../CommandCenter/CommandCenter';
 import Form from '../Form';
+import { terminate } from '../Terminals/TerminalListItem';
 
 // TODO: Import
 interface ITradeCopyRelation {
@@ -245,4 +248,12 @@ export const TradeCopyRelationList = React.memo(() => {
       </Modal>
     </Space>
   );
+});
+
+registerCommand('TradeCopyRelationList', () => {
+  openSingletonComponent('TradeCopyRelationList');
+});
+
+registerCommand('TradeCopier.Restart', () => {
+  terminate('TradeCopier');
 });
