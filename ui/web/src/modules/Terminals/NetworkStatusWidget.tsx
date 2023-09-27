@@ -84,7 +84,7 @@ export const NetworkStatusWidget = React.memo(() => {
             <Button
               icon={<IconWrench />}
               onClick={() => {
-                openSingletonComponent('HostList', t('common:HostList'));
+                openSingletonComponent('HostList');
               }}
             >
               {t('config')}

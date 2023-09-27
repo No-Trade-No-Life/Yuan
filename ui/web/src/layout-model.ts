@@ -18,7 +18,6 @@ export const initialJson = (): FlexLayout.IJsonModel => ({
       children: [
         {
           type: 'tab',
-          name: i18n.t('common:Workspace'),
           id: 'Explorer',
           component: 'Explorer',
           enableDrag: false,
@@ -26,7 +25,6 @@ export const initialJson = (): FlexLayout.IJsonModel => ({
         },
         {
           type: 'tab',
-          name: i18n.t('common:AgentConfForm'),
           id: 'AgentConfForm',
           component: 'AgentConfForm',
           enableDrag: false,
@@ -34,7 +32,6 @@ export const initialJson = (): FlexLayout.IJsonModel => ({
         },
         {
           type: 'tab',
-          name: i18n.t('common:ExtensionPanel'),
           id: 'ExtensionPanel',
           component: 'ExtensionPanel',
           enableDrag: false,
@@ -48,7 +45,6 @@ export const initialJson = (): FlexLayout.IJsonModel => ({
       children: [
         {
           type: 'tab',
-          name: i18n.t('common:Program'),
           id: 'Program',
           enableClose: false,
           component: 'Program',

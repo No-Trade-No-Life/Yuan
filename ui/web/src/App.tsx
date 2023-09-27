@@ -14,7 +14,6 @@ import { TechnicalChart } from './modules/Chart/TechnicalChart';
 import { DeployConfigForm } from './modules/Deploy/DeployConfigForm';
 import { FileEditor } from './modules/Editor/FileEditor';
 import { ExtensionPanel } from './modules/Extensions/ExtensionPanel';
-import { ClearingAndSettlement } from './modules/Fund/ClearingAndSettlement';
 import { FinancialStatementsPanel } from './modules/Fund/FinancialStatementsPanel';
 import { RealtimeAsset } from './modules/Fund/RealtimeAsset';
 import { GeneralSpecificRelationList } from './modules/GeneralSpecificRelations/GeneralSpecificRelationList';
@@ -28,47 +27,46 @@ import { PullSourceRelationList } from './modules/PullSourceRelations/PullSource
 import { RecordTablePanel } from './modules/Shell/RecordTablePanel';
 import { SubscriptionRelationList } from './modules/SubscriptionRelation/SubscriptionRelationList';
 import { TerminalList } from './modules/Terminals/TerminalList';
+import { TradeConfigList } from './modules/TradeCopier/TradeConfigList';
 import { TradeCopyRelationList } from './modules/TradeCopier/TradeCopyRelationList';
 import { About } from './modules/Workbench/About';
 import { DesktopLayout, registerComponent } from './modules/Workbench/DesktopLayout';
 import { HostList } from './modules/Workbench/HostList';
 import { Program } from './modules/Workbench/Program';
 import { Explorer } from './modules/Workspace/Explorer';
-import { TradeConfigList } from './modules/TradeCopier/TradeConfigList';
 
 Object.assign(globalThis, { rx, _kernel, i18n });
 
 registerComponent({
-  Explorer,
   About,
-  AccountReplay,
   AccountFrameChart,
-  ExtensionPanel,
-  Program,
   AccountInfoPanel,
-  SubscriptionRelationList,
+  AccountList,
+  AccountPerformancePanel,
+  AccountReplay,
+  AgentBatchBackTest,
+  AgentConfForm,
+  DeployConfigForm,
+  Explorer,
+  ExtensionPanel,
+  FinancialStatementsPanel,
+  FileEditor,
+  GeneralSpecificRelationList,
+  HostList,
+  LUI,
+  ManualTradePanel,
+  Market,
   OrderListPanel,
+  ProductList,
+  Program,
+  PullSourceRelationList,
+  RealtimeAsset,
+  RecordTablePanel,
+  SubscriptionRelationList,
+  TechnicalChart,
   TerminalList,
   TradeConfigList,
-  AccountList,
-  ManualTradePanel,
-  FinancialStatementsPanel,
-  HostList,
-  ClearingAndSettlement,
-  Market,
-  RealtimeAsset,
-  DeployConfigForm,
-  ProductList,
-  FileEditor,
-  PullSourceRelationList,
-  GeneralSpecificRelationList,
   TradeCopyRelationList,
-  LUI,
-  TechnicalChart,
-  AccountPerformancePanel,
-  AgentConfForm,
-  AgentBatchBackTest,
-  RecordTablePanel,
 });
 
 function AppLayout() {

@@ -11,8 +11,8 @@ import {
   IconSend,
 } from '@douyinfe/semi-icons';
 import { Button, Dropdown, Modal, Space, Toast, Tree } from '@douyinfe/semi-ui';
-import { formatTime } from '@yuants/data-model';
 import { TreeNodeData } from '@douyinfe/semi-ui/lib/es/tree/interface';
+import { formatTime } from '@yuants/data-model';
 import copy from 'copy-to-clipboard';
 import * as FlexLayout from 'flexlayout-react';
 import { DockLocation } from 'flexlayout-react';
@@ -47,12 +47,6 @@ export const Explorer = React.memo((props: { node?: FlexLayout.TabNode }) => {
   const [treeKey, setTreeKey] = useState(0);
 
   const { t } = useTranslation('Explorer');
-
-  useEffect(() => {
-    if (props.node) {
-      model.doAction(FlexLayout.Actions.renameTab(props.node.getId(), t('common:Explorer')));
-    }
-  }, [t]);
 
   useEffect(() => {
     const sub = FsBackend$.subscribe(() => {

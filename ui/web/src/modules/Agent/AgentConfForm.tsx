@@ -149,7 +149,7 @@ runAgentAction$.subscribe(async () => {
       accountPerformance$.next(scene.accountPerformanceUnit.performance);
       accountFrameSeries$.next(accountFrameUnit.data);
       if (Object.keys(scene.agentUnit.record_table).length > 0) {
-        openSingletonComponent('RecordTablePanel', t('common:RecordTablePanel'));
+        openSingletonComponent('RecordTablePanel');
       }
     } else {
       const terminal = await firstValueFrom(terminal$);
@@ -169,14 +169,14 @@ runAgentAction$.subscribe(async () => {
       accountPerformance$.next(scene.accountPerformanceUnit.performance);
       accountFrameSeries$.next(accountFrameUnit.data);
       if (Object.keys(scene.agentUnit.record_table).length > 0) {
-        openSingletonComponent('RecordTablePanel', t('common:RecordTablePanel'));
+        openSingletonComponent('RecordTablePanel');
       }
     }
 
-    openSingletonComponent('OrderListPanel', t('common:OrderListPanel'));
-    openSingletonComponent('TechnicalChart', t('common:TechnicalChart'));
-    openSingletonComponent('AccountFrameChart', t('common:AccountFrameChart'));
-    openSingletonComponent('AccountPerformancePanel', t('common:AccountPerformancePanel'));
+    openSingletonComponent('OrderListPanel');
+    openSingletonComponent('TechnicalChart');
+    openSingletonComponent('AccountFrameChart');
+    openSingletonComponent('AccountPerformancePanel');
 
     Toast.success(t('AgentConfForm:run_succeed'));
   } catch (e) {

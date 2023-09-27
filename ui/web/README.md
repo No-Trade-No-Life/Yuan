@@ -55,6 +55,7 @@ Thanks to the community, we have some UI enhancement modules. These modules enca
 These modules are general purpose. They are not related to any specific business. So we can develop them independently and feed back to the community.
 
 - [FileSystem](src/modules/FileSystem) This provides a promise-style filesystem API. Use FileSystemHandle and IndexedDB internally.
+- [CommandCenter](src/modules/CommandCenter) This provides a command center module. Other modules and extensions can register commands or execute commands.
 
 #### Connects to the Yuan Cloud Service
 
@@ -104,3 +105,26 @@ const { t } = useTranslation('SomeComponent');
 t('xxx');
 t('yyy');
 ```
+
+#### Special namespace
+
+Note that some special namespaces are reserved for special usage.
+
+- i18n key formed with `"command:<id>"` will be used for translating the command's display name.
+- i18n key formed with `"page:<id>"` will be used for translating the title of the page.
+
+## Layout & Pages
+
+There are several pages from different modules.
+
+There are two kinds of layout: DesktopLayout and MobileLayout. They are used to render different UI according to the screen size.
+
+With large screen, DesktopLayout will be used. DesktopLayout use [flexlayout-react](https://github.com/caplin/FlexLayout) to render the layout. You can drag and drop the panels to change the layout.
+
+With small screen, MobileLayout will be used. In mobile layout, you can view only one page at a time. You can swipe left to go-back or right to go-forward by the history.
+
+Pages have the responsibility to self-adjust the layout according to the screen size.
+
+Some Tips:
+
+- use `<Table />` in large screen and use `<List />` in small screen.

@@ -1,10 +1,9 @@
 import { IconArrowUp } from '@douyinfe/semi-icons';
 import { Button, List, Space, Tag, Toast, Typography } from '@douyinfe/semi-ui';
-import { Actions, TabNode } from 'flexlayout-react';
+import { TabNode } from 'flexlayout-react';
 import { useObservableState } from 'observable-hooks';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { layoutModel$ } from '../../layout-model';
 import { activeExtensions$, installExtension, loadExtension } from './utils';
 
 export const ExtensionPanel = React.memo((props: { node?: TabNode }) => {
@@ -12,11 +11,6 @@ export const ExtensionPanel = React.memo((props: { node?: TabNode }) => {
   const activeExtensions = useObservableState(activeExtensions$);
 
   const [isProcessing, setProgressing] = useState(false);
-  useEffect(() => {
-    if (props.node) {
-      layoutModel$.value.doAction(Actions.renameTab(props.node.getId(), t('common:ExtensionPanel')));
-    }
-  }, [t]);
 
   async function handleInstallExtension(name: string) {
     setProgressing(true);
