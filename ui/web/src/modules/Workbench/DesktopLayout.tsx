@@ -20,7 +20,7 @@ export const registerComponent = (components: Record<string, React.ComponentType
 
 // ISSUE: React.memo will cause layout tab label not change while change language
 export const DesktopLayout = () => {
-  const { t, i18n } = useTranslation('common');
+  const { t, i18n } = useTranslation(['common', 'page']);
   const model = useObservableState(layoutModel$);
 
   const factory = (node: TabNode) => {
@@ -79,7 +79,7 @@ export const DesktopLayout = () => {
             }}
             onRenderTab={(node, renderValues) => {
               const type = node.getComponent();
-              const i18nKey = `common:${type}`;
+              const i18nKey = `page:${type}`;
               if (i18n.exists(i18nKey)) {
                 const config = node.getConfig();
                 renderValues.content = (

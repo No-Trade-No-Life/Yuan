@@ -1,5 +1,8 @@
 import { Descriptions, Divider, Table, Tooltip } from '@douyinfe/semi-ui';
 import React from 'react';
+import { openSingletonComponent } from '../../layout-model';
+import { registerCommand } from '../CommandCenter/CommandCenter';
+import { ClearingAndSettlement } from './ClearingAndSettlement';
 import { InvestorDetails, useFinancialReport } from './useFinancialReport';
 
 type InvestorSts = InvestorDetails & {
@@ -135,6 +138,12 @@ export const FinancialStatementsPanel = React.memo(() => {
       <Table columns={metaCols} dataSource={metaDisplay} pagination={false} />
       <br />
       <Table columns={recordsCols} dataSource={recordsDisplay} pagination={false} />
+      <br />
+      <ClearingAndSettlement />
     </>
   );
+});
+
+registerCommand('FinancialStatementsPanel', () => {
+  openSingletonComponent('FinancialStatementsPanel');
 });
