@@ -29,6 +29,8 @@ import {
 import { terminal$ } from '../../common/create-connection';
 import { useAccountInfo, useTick } from '../../common/source';
 import { fs } from '../FileSystem/api';
+import { registerCommand } from '../CommandCenter/CommandCenter';
+import { openPage } from '../../layout-model';
 
 interface IFundComponentConfig {
   //
@@ -384,3 +386,7 @@ function sendReportToInvestor(terminal: Terminal, fundInfo: IFundInfo, investor:
       }),
     );
 }
+
+registerCommand('RealtimeAsset', ({ filename }) => {
+  openPage('RealtimeAsset', { filename });
+});

@@ -5,7 +5,7 @@ import { useObservable, useObservableState } from 'observable-hooks';
 import React, { useState } from 'react';
 import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
-import { openSingletonComponent } from '../../layout-model';
+import { openPage } from '../../layout-model';
 import { registerCommand } from '../CommandCenter/CommandCenter';
 import Form from '../Form';
 
@@ -229,5 +229,5 @@ export const GeneralSpecificRelationList = React.memo(() => {
 });
 
 registerCommand('GeneralSpecificRelationList', () => {
-  openSingletonComponent('GeneralSpecificRelationList');
+  openPage('GeneralSpecificRelationList');
 });

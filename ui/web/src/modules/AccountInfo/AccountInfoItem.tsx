@@ -1,10 +1,10 @@
 import { Button, Descriptions, List, Space, Spin, Typography } from '@douyinfe/semi-ui';
 import { formatTime } from '@yuants/kernel';
-import { Actions, DockLocation } from 'flexlayout-react';
 import { useObservableState } from 'observable-hooks';
 import React from 'react';
 import { useAccountInfo } from '../../common/source';
 import { layoutModel$ } from '../../layout-model';
+import { executeCommand } from '../CommandCenter/CommandCenter';
 
 export const AccountInfoItem = React.memo((props: { account_id: string }) => {
   const accountInfo = useObservableState(useAccountInfo(props.account_id));
@@ -40,27 +40,7 @@ export const AccountInfoItem = React.memo((props: { account_id: string }) => {
         <Button
           onClick={() => {
             const account_id = props.account_id;
-            const nodeId = `AccountInfo/${props.account_id}`;
-            const node = model.getNodeById(nodeId);
-
-            if (node) {
-              model.doAction(Actions.selectTab(node.getId()));
-            } else {
-              model.doAction(
-                Actions.addNode(
-                  {
-                    id: `AccountInfo/${account_id}`,
-                    type: 'tab',
-                    component: 'AccountInfoPanel',
-                    name: `账户详情 ${account_id}`,
-                    config: { account_id: account_id },
-                  },
-                  '#main',
-                  DockLocation.CENTER,
-                  0,
-                ),
-              );
-            }
+            executeCommand('AccountInfoPanel', { account_id });
           }}
         >
           详情

@@ -1,12 +1,14 @@
 import { IconRefresh } from '@douyinfe/semi-icons';
 import { Button, Space, Table, Toast, Typography } from '@douyinfe/semi-ui';
 import { IDeploySpec, IEnvContext } from '@yuants/protocol';
-import { Actions, TabNode } from 'flexlayout-react';
+import { TabNode } from 'flexlayout-react';
 import { parse } from 'jsonc-parser';
 import path from 'path-browserify';
 import React, { useEffect, useState } from 'react';
 import { concatMap, from, map, mergeMap, reduce, toArray } from 'rxjs';
 import YAML from 'yaml';
+import { openPage } from '../../layout-model';
+import { registerCommand } from '../CommandCenter/CommandCenter';
 import { DeployProviders, ImageTags } from '../Extensions/utils';
 import { fs } from '../FileSystem/api';
 import { loadManifests } from './utils';
@@ -51,12 +53,6 @@ export const DeployConfigForm = React.memo((props: { node?: TabNode }) => {
       );
     }
   }, [filename, refreshCount]);
-
-  useEffect(() => {
-    if (filename) {
-      props.node?.getModel().doAction(Actions.renameTab(props.node.getId(), `部署配置 ${filename}`));
-    }
-  }, [filename]);
 
   const makeDockerCompose = () => {
     from(manifests)
@@ -230,4 +226,8 @@ export const DeployConfigForm = React.memo((props: { node?: TabNode }) => {
       ></Table>
     </Space>
   );
+});
+
+registerCommand('DeployConfigForm', ({ filename }) => {
+  openPage('DeployConfigForm', { filename });
 });

@@ -2,7 +2,7 @@ import { Descriptions, Space, Typography } from '@douyinfe/semi-ui';
 import { formatTime } from '@yuants/data-model';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { openSingletonComponent } from '../../layout-model';
+import { openPage } from '../../layout-model';
 import { registerCommand } from '../CommandCenter/CommandCenter';
 import { userTimezone } from '../Locale/utils';
 
@@ -45,5 +45,5 @@ export const About = React.memo(() => {
 });
 
 registerCommand('About', () => {
-  openSingletonComponent('About');
+  openPage('About');
 });

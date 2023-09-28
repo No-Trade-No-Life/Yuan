@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
 import { v4 } from 'uuid';
 import { terminal$ } from '../../common/create-connection';
-import { openSingletonComponent } from '../../layout-model';
+import { openPage } from '../../layout-model';
 import { registerCommand } from '../CommandCenter/CommandCenter';
 import Form from '../Form';
 
@@ -224,5 +224,5 @@ export const TradeConfigList = React.memo(() => {
   );
 });
 registerCommand('TradeConfigList', () => {
-  openSingletonComponent('TradeConfigList');
+  openPage('TradeConfigList');
 });

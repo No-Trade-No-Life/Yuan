@@ -35,7 +35,9 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
+import { openPage } from '../../layout-model';
 import { agentConf$, runAgentAction$ } from '../Agent/AgentConfForm';
+import { registerCommand } from '../CommandCenter/CommandCenter';
 import { fs } from '../FileSystem/api';
 import { clearLogAction$ } from '../Workbench/Program';
 import { currentHostConfig$ } from '../Workbench/model';
@@ -524,4 +526,8 @@ export const AgentBatchBackTest = React.memo((props: { node?: TabNode }) => {
       ></Table>
     </Space>
   );
+});
+
+registerCommand('AgentBatchBackTest', ({ filename }) => {
+  openPage('AgentBatchBackTest', { filename });
 });

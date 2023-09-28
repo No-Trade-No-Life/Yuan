@@ -25,7 +25,7 @@ import {
 } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
 import { createPersistBehaviorSubject } from '../../common/utils';
-import { openSingletonComponent } from '../../layout-model';
+import { openPage } from '../../layout-model';
 import { AccountFrameUnit } from '../AccountInfo/AccountFrameUnit';
 import { accountFrameSeries$, accountPerformance$ } from '../AccountInfo/model';
 import { executeCommand, registerCommand } from '../CommandCenter/CommandCenter';
@@ -149,7 +149,7 @@ runAgentAction$.subscribe(async () => {
       accountPerformance$.next(scene.accountPerformanceUnit.performance);
       accountFrameSeries$.next(accountFrameUnit.data);
       if (Object.keys(scene.agentUnit.record_table).length > 0) {
-        openSingletonComponent('RecordTablePanel');
+        openPage('RecordTablePanel');
       }
     } else {
       const terminal = await firstValueFrom(terminal$);
@@ -169,14 +169,14 @@ runAgentAction$.subscribe(async () => {
       accountPerformance$.next(scene.accountPerformanceUnit.performance);
       accountFrameSeries$.next(accountFrameUnit.data);
       if (Object.keys(scene.agentUnit.record_table).length > 0) {
-        openSingletonComponent('RecordTablePanel');
+        openPage('RecordTablePanel');
       }
     }
 
-    openSingletonComponent('OrderListPanel');
-    openSingletonComponent('TechnicalChart');
-    openSingletonComponent('AccountFrameChart');
-    openSingletonComponent('AccountPerformancePanel');
+    openPage('OrderListPanel');
+    openPage('TechnicalChart');
+    openPage('AccountFrameChart');
+    openPage('AccountPerformancePanel');
 
     Toast.success(t('AgentConfForm:run_succeed'));
   } catch (e) {

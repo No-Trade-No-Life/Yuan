@@ -14,7 +14,9 @@ import { useObservable, useObservableState } from 'observable-hooks';
 import React, { useEffect, useMemo, useState } from 'react';
 import { BehaviorSubject, distinctUntilChanged, interval, map, mergeMap } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
+import { openPage } from '../../layout-model';
 import { CandlestickSeries, Chart, ChartGroup } from '../Chart/components/Charts';
+import { registerCommand } from '../CommandCenter/CommandCenter';
 
 export const Market = React.memo((props: { node?: TabNode }) => {
   const initialConfig = (props.node?.getConfig() ?? {
@@ -143,4 +145,8 @@ export const Market = React.memo((props: { node?: TabNode }) => {
       </Layout.Content>
     </Layout>
   );
+});
+
+registerCommand('Market', (params) => {
+  openPage('Market', params);
 });

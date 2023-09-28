@@ -7,6 +7,8 @@ import { useObservable, useObservableState } from 'observable-hooks';
 import React from 'react';
 import { from, groupBy, map, mergeMap, reduce, toArray } from 'rxjs';
 import { useAccountInfo } from '../../common/source';
+import { openPage } from '../../layout-model';
+import { registerCommand } from '../CommandCenter/CommandCenter';
 
 export const AccountInfoPanel = React.memo((props: { node?: TabNode }) => {
   const accountId = props.node?.getConfig()?.account_id ?? '';
@@ -355,4 +357,8 @@ export const AccountInfoPanel = React.memo((props: { node?: TabNode }) => {
       </Collapse>
     </Space>
   );
+});
+
+registerCommand('AccountInfoPanel', ({ account_id }) => {
+  openPage('AccountInfoPanel', { account_id });
 });

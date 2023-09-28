@@ -6,7 +6,7 @@ import { useObservableState } from 'observable-hooks';
 import React, { useState } from 'react';
 import { authState$ } from '../../common/supabase';
 import { createPersistBehaviorSubject } from '../../common/utils';
-import { openSingletonComponent } from '../../layout-model';
+import { openPage } from '../../layout-model';
 import { agentConf$ } from '../Agent/AgentConfForm';
 import { registerCommand } from '../CommandCenter/CommandCenter';
 import { fs } from '../FileSystem/api';
@@ -31,7 +31,7 @@ const pushHistoryMessages = (...messages: IMessage[]) => {
 };
 
 registerCommand('AI', () => {
-  openSingletonComponent('LUI');
+  openPage('LUI');
 });
 
 export const LUI = React.memo((props: { node?: TabNode }) => {

@@ -1,12 +1,11 @@
 import { Button, Descriptions, Modal, Space, Toast, Typography } from '@douyinfe/semi-ui';
-import { Actions, DockLocation } from 'flexlayout-react';
 import { JSONSchema7 } from 'json-schema';
 import { useObservable, useObservableState } from 'observable-hooks';
 import React, { useMemo, useState } from 'react';
 import { defer, first, mergeMap, of, shareReplay, switchMap, tap } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
 import { PERIOD_IN_SEC_TO_LABEL } from '../../common/utils';
-import { layoutModel$ } from '../../layout-model';
+import { executeCommand } from '../CommandCenter/CommandCenter';
 import { Form } from '../Form';
 
 export const datasourceIds$ = defer(() => terminal$).pipe(
@@ -108,21 +107,7 @@ export const SearchButton = React.memo(() => {
             <Button
               disabled={!(formData.datasource_id && formData.product_id && formData.period_in_sec)}
               onClick={() => {
-                layoutModel$.value.doAction(
-                  Actions.addNode(
-                    {
-                      type: 'tab',
-                      name: `行情 ${formData.product_id}/${
-                        PERIOD_IN_SEC_TO_LABEL[formData.period_in_sec!] || `${formData.period_in_sec}秒`
-                      }`,
-                      component: 'Market',
-                      config: formData,
-                    },
-                    '#main',
-                    DockLocation.CENTER,
-                    0,
-                  ),
-                );
+                executeCommand('Market', formData);
               }}
             >
               打开行情图表
