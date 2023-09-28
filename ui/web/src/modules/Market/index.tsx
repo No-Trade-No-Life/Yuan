@@ -9,21 +9,17 @@ import {
   QuoteDataUnit,
   RealtimePeriodLoadingUnit,
 } from '@yuants/kernel';
-import { TabNode } from 'flexlayout-react';
 import { useObservable, useObservableState } from 'observable-hooks';
 import React, { useEffect, useMemo, useState } from 'react';
 import { BehaviorSubject, distinctUntilChanged, interval, map, mergeMap } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
-import { openPage } from '../../layout-model';
 import { CandlestickSeries, Chart, ChartGroup } from '../Chart/components/Charts';
 import { registerCommand } from '../CommandCenter/CommandCenter';
+import { openPage, usePageParams } from '../Pages';
 
-export const Market = React.memo((props: { node?: TabNode }) => {
-  const initialConfig = (props.node?.getConfig() ?? {
-    datasource_id: '',
-    product_id: '',
-    period_in_sec: 0,
-  }) as {
+export const Market = React.memo(() => {
+  const params = usePageParams();
+  const initialConfig = params as {
     datasource_id: string;
     product_id: string;
     period_in_sec: number;

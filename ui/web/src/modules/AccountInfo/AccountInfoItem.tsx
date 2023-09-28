@@ -3,12 +3,10 @@ import { formatTime } from '@yuants/kernel';
 import { useObservableState } from 'observable-hooks';
 import React from 'react';
 import { useAccountInfo } from '../../common/source';
-import { layoutModel$ } from '../../layout-model';
 import { executeCommand } from '../CommandCenter/CommandCenter';
 
 export const AccountInfoItem = React.memo((props: { account_id: string }) => {
   const accountInfo = useObservableState(useAccountInfo(props.account_id));
-  const model = useObservableState(layoutModel$);
   const timeLag = Date.now() - (accountInfo?.timestamp_in_us ?? NaN) / 1000;
   return (
     <List.Item>

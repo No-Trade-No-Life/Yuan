@@ -1,4 +1,3 @@
-import { TabNode } from 'flexlayout-react';
 import { Range } from 'monaco-editor';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
@@ -25,7 +24,7 @@ console.info = (...params: any[]) => {
 const log$ = new ReplaySubject<string>(1000);
 export const clearLogAction$ = new Subject<void>();
 
-export const Program = React.memo((props: { node?: TabNode }) => {
+export const Program = React.memo(() => {
   const { t } = useTranslation();
 
   return (

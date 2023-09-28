@@ -4,8 +4,8 @@ import { useObservableState } from 'observable-hooks';
 import React from 'react';
 import { defer, repeat, retry, shareReplay, switchMap, toArray } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
-import { openPage } from '../../layout-model';
 import { registerCommand } from '../CommandCenter/CommandCenter';
+import { openPage } from '../Pages';
 import { TerminalListItem } from './TerminalListItem';
 
 export const terminalList$ = terminal$.pipe(

@@ -1,16 +1,15 @@
 import { IconRefresh } from '@douyinfe/semi-icons';
 import { Button, Space, Table, Toast, Typography } from '@douyinfe/semi-ui';
 import { IDeploySpec, IEnvContext } from '@yuants/protocol';
-import { TabNode } from 'flexlayout-react';
 import { parse } from 'jsonc-parser';
 import path from 'path-browserify';
 import React, { useEffect, useState } from 'react';
 import { concatMap, from, map, mergeMap, reduce, toArray } from 'rxjs';
 import YAML from 'yaml';
-import { openPage } from '../../layout-model';
 import { registerCommand } from '../CommandCenter/CommandCenter';
 import { DeployProviders, ImageTags } from '../Extensions/utils';
 import { fs } from '../FileSystem/api';
+import { openPage, usePageParams } from '../Pages';
 import { loadManifests } from './utils';
 
 // FYI: https://stackoverflow.com/a/30106551
@@ -22,8 +21,8 @@ const stringToBase64String = (str: string) => {
   );
 };
 
-export const DeployConfigForm = React.memo((props: { node?: TabNode }) => {
-  const filename: string = props.node?.getConfig()?.filename ?? '';
+export const DeployConfigForm = React.memo(() => {
+  const { filename } = usePageParams() as { filename: string };
 
   const [refreshCount, setRefreshCount] = useState(0);
 

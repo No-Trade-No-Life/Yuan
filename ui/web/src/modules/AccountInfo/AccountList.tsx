@@ -1,8 +1,8 @@
 import { List } from '@douyinfe/semi-ui';
 import { useObservableState } from 'observable-hooks';
 import React from 'react';
-import { openPage } from '../../layout-model';
 import { registerCommand } from '../CommandCenter/CommandCenter';
+import { openPage } from '../Pages';
 import { AccountInfoItem } from './AccountInfoItem';
 import { accountIds$ } from './model';
 

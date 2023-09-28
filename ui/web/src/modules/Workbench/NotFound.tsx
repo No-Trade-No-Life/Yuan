@@ -1,12 +1,12 @@
 import { IconClose, IconUndo } from '@douyinfe/semi-icons';
 import { Button, Empty, Space, Typography } from '@douyinfe/semi-ui';
-import { Actions, TabNode } from 'flexlayout-react';
 import React from 'react';
-import { initialJson, layoutModel$, layoutModelJson$, layoutUpdate$ } from '../../layout-model';
 import { Trans, useTranslation } from 'react-i18next';
+import { executeCommand } from '../CommandCenter/CommandCenter';
+import { usePageType } from '../Pages';
 
-export const NotFound = React.memo((props: { node?: TabNode }) => {
-  const component = props.node?.getComponent() ?? 'UNKNOWN';
+export const NotFound = React.memo(() => {
+  const component = usePageType();
   const { t } = useTranslation('NotFound');
   return (
     <Empty
@@ -18,8 +18,7 @@ export const NotFound = React.memo((props: { node?: TabNode }) => {
           icon={<IconUndo />}
           type="primary"
           onClick={() => {
-            layoutModelJson$.next(initialJson());
-            layoutUpdate$.next();
+            executeCommand('ResetLayout');
           }}
         >
           {t('reset_layout')}
@@ -28,9 +27,7 @@ export const NotFound = React.memo((props: { node?: TabNode }) => {
           icon={<IconClose />}
           type="tertiary"
           onClick={() => {
-            if (props.node) {
-              layoutModel$.value.doAction(Actions.deleteTab(props.node.getId()));
-            }
+            executeCommand('ClosePage');
           }}
         >
           {t('close_this_only')}

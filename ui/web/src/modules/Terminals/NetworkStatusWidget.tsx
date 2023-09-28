@@ -5,7 +5,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { bufferTime, combineLatest, map, switchMap } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
-import { openPage } from '../../layout-model';
+import { openPage } from '../Pages';
 import { currentHostConfig$ } from '../Workbench/model';
 
 export const secretURL = (url: string) => {

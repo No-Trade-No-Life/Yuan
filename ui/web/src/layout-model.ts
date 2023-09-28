@@ -4,7 +4,7 @@ import { BehaviorSubject, bufferCount, combineLatest, first, map, Subject } from
 import { createPersistBehaviorSubject } from './common/utils';
 import { registerCommand } from './modules/CommandCenter/CommandCenter';
 
-export const initialJson = (): FlexLayout.IJsonModel => ({
+const initialJson = (): FlexLayout.IJsonModel => ({
   global: {
     // FIXED: 修复对多屏幕支持的问题后，再开启此功能
     // tabEnableFloat: true
@@ -60,7 +60,7 @@ export const initialJson = (): FlexLayout.IJsonModel => ({
 
 export const layoutModelJson$ = createPersistBehaviorSubject('layout', initialJson());
 
-export const layoutUpdate$ = new Subject<void>();
+const layoutUpdate$ = new Subject<void>();
 
 combineLatest([layoutModelJson$, layoutUpdate$]).subscribe(([json]) => {
   layoutModel$.next(FlexLayout.Model.fromJson(json!));
@@ -114,7 +114,17 @@ export function openPage(pageKey: string, params = {}) {
   );
 }
 
-export const closeCurrentTab = () => {
+export function openExistPage(pageId: string) {
+  const model = layoutModel$.value;
+  const node = model.getNodeById(pageId);
+  if (node) {
+    if (!node.isVisible()) {
+      model.doAction(FlexLayout.Actions.selectTab(pageId));
+    }
+  }
+}
+
+const closeCurrentTab = () => {
   const model = layoutModel$.value;
   const tabset = model.getActiveTabset();
   const nodeId = tabset?.getSelectedNode()?.getId();
@@ -132,4 +142,8 @@ hotkeys('alt+w', function (event, handler) {
 registerCommand('ResetLayout', () => {
   layoutModelJson$.next(initialJson());
   layoutUpdate$.next();
+});
+
+registerCommand('ClosePage', () => {
+  closeCurrentTab();
 });

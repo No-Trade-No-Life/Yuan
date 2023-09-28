@@ -2,7 +2,6 @@ import { IconFile, IconPlay, IconRefresh, IconSave, IconWrench } from '@douyinfe
 import { Button, Divider, Layout, Space, Toast } from '@douyinfe/semi-ui';
 import { AgentScene, IAgentConf, agentConfSchema } from '@yuants/agent';
 import Ajv from 'ajv';
-import { TabNode } from 'flexlayout-react';
 import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
 import { parse } from 'jsonc-parser';
@@ -25,7 +24,7 @@ import {
 } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
 import { createPersistBehaviorSubject } from '../../common/utils';
-import { openPage } from '../../layout-model';
+import { openExistPage, openPage } from '../Pages';
 import { AccountFrameUnit } from '../AccountInfo/AccountFrameUnit';
 import { accountFrameSeries$, accountPerformance$ } from '../AccountInfo/model';
 import { executeCommand, registerCommand } from '../CommandCenter/CommandCenter';
@@ -186,7 +185,7 @@ runAgentAction$.subscribe(async () => {
   complete$.next(true);
 });
 
-export const AgentConfForm = React.memo((props: { node?: TabNode }) => {
+export const AgentConfForm = React.memo(() => {
   const agentConf = useObservableState(agentConf$);
   const schema = useObservableState(agentConfSchema$) || {};
   const complete = useObservableState(complete$);
@@ -253,6 +252,10 @@ export const AgentConfForm = React.memo((props: { node?: TabNode }) => {
       </Layout.Content>
     </Layout>
   );
+});
+
+registerCommand('AgentConfForm', () => {
+  openExistPage('AgentConfForm');
 });
 
 registerCommand('Agent.Run', () => {

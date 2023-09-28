@@ -14,7 +14,6 @@ import { Button, Dropdown, Modal, Space, Toast, Tree } from '@douyinfe/semi-ui';
 import { TreeNodeData } from '@douyinfe/semi-ui/lib/es/tree/interface';
 import { formatTime } from '@yuants/data-model';
 import copy from 'copy-to-clipboard';
-import * as FlexLayout from 'flexlayout-react';
 import { useObservableState } from 'observable-hooks';
 import path from 'path-browserify';
 import React, { useEffect, useState } from 'react';
@@ -22,7 +21,6 @@ import { Trans, useTranslation } from 'react-i18next';
 import { filter, from, lastValueFrom, map, mergeMap, toArray } from 'rxjs';
 import { unzip } from 'unzipit';
 import { terminal$ } from '../../common/create-connection';
-import { layoutModel$ } from '../../layout-model';
 import { agentConf$, reloadSchemaAction$ } from '../Agent/AgentConfForm';
 import { writeManifestsFromBatchTasks } from '../Agent/utils';
 import { executeCommand } from '../CommandCenter/CommandCenter';
@@ -31,8 +29,7 @@ import { FsBackend$, fs, workspaceRoot$ } from '../FileSystem/api';
 import { currentHostConfig$ } from '../Workbench/model';
 import { sendFileByAirdrop } from './airdrop';
 
-export const Explorer = React.memo((props: { node?: FlexLayout.TabNode }) => {
-  const model = useObservableState(layoutModel$);
+export const Explorer = React.memo(() => {
   const terminal = useObservableState(terminal$);
   const currentHostConfig = useObservableState(currentHostConfig$);
 
@@ -210,7 +207,7 @@ export const Explorer = React.memo((props: { node?: FlexLayout.TabNode }) => {
                             onClick={() => {
                               agentConf$.next({ ...agentConf$.value, entry: data.key });
                               reloadSchemaAction$.next();
-                              layoutModel$.value.doAction(FlexLayout.Actions.selectTab('AgentConfForm'));
+                              executeCommand('AgentConfForm');
                             }}
                           >
                             作为模型

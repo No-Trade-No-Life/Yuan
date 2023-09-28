@@ -1,7 +1,6 @@
 import { IconRefresh, IconSetting } from '@douyinfe/semi-icons';
 import { Button, Empty, Space } from '@douyinfe/semi-ui';
 import { PeriodDataUnit, Series, SeriesDataUnit } from '@yuants/kernel';
-import { TabNode } from 'flexlayout-react';
 import { useObservableState } from 'observable-hooks';
 import React, { useEffect, useMemo, useState } from 'react';
 import { currentKernel$ } from '../Kernel/model';
@@ -43,7 +42,7 @@ const resolveChartId = (series: Series): string => {
   throw new Error(`chart config illegal: ${series.series_id} (${series.name})`);
 };
 
-export const TechnicalChart = React.memo((props: { node?: TabNode }) => {
+export const TechnicalChart = React.memo(() => {
   const [frame, setFrame] = useState(0);
   const kernel = useObservableState(currentKernel$);
   const [periodKey, setPeriodKey] = useState(undefined as string | undefined);

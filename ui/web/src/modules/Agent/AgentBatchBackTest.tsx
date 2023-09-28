@@ -15,7 +15,6 @@ import { formatTime } from '@yuants/kernel';
 import copy from 'copy-to-clipboard';
 import { formatDuration, intervalToDuration } from 'date-fns';
 import ExcelJS from 'exceljs';
-import { TabNode } from 'flexlayout-react';
 import { useObservable, useObservableState } from 'observable-hooks';
 import path from 'path-browserify';
 import React, { useState } from 'react';
@@ -35,10 +34,10 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { openPage } from '../../layout-model';
 import { agentConf$, runAgentAction$ } from '../Agent/AgentConfForm';
 import { registerCommand } from '../CommandCenter/CommandCenter';
 import { fs } from '../FileSystem/api';
+import { openPage, usePageParams } from '../Pages';
 import { clearLogAction$ } from '../Workbench/Program';
 import { currentHostConfig$ } from '../Workbench/model';
 import { BatchProfitDrawbackRatioChart } from './BatchProfitDrawbackRatioChart';
@@ -51,9 +50,9 @@ import {
 } from './utils';
 import Worker from './webworker?worker';
 
-export const AgentBatchBackTest = React.memo((props: { node?: TabNode }) => {
+export const AgentBatchBackTest = React.memo(() => {
   const { t } = useTranslation('AgentBatchBackTest');
-  const filename: string = props.node?.getConfig()?.filename ?? '';
+  const { filename } = usePageParams() as { filename: string };
   const [results, setResults] = useState([] as Array<IBatchAgentResultItem>);
   const [progress, setProgress] = useState({ current: 0, startTime: 0, endTime: 0 });
 

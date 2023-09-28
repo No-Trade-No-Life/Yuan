@@ -1,12 +1,11 @@
 import { IconArrowUp } from '@douyinfe/semi-icons';
 import { Button, List, Space, Tag, Toast, Typography } from '@douyinfe/semi-ui';
-import { TabNode } from 'flexlayout-react';
 import { useObservableState } from 'observable-hooks';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { activeExtensions$, installExtension, loadExtension } from './utils';
 
-export const ExtensionPanel = React.memo((props: { node?: TabNode }) => {
+export const ExtensionPanel = React.memo(() => {
   const { t } = useTranslation('ExtensionPanel');
   const activeExtensions = useObservableState(activeExtensions$);
 
