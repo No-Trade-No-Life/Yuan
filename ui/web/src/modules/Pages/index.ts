@@ -1,8 +1,8 @@
-export { openExistPage, openPage } from '../../layout-model';
 export {
   registerComponent,
   usePageParams,
   usePageTitle,
   usePageType,
   usePageViewport,
-} from '../Workbench/DesktopLayout';
+} from '../DesktopLayout/DesktopLayout';
+export { openExistPage, openPage } from '../DesktopLayout/layout-model';

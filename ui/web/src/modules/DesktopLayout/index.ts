@@ -1,2 +1,2 @@
-export { openExistPage, openPage } from '../../layout-model';
-export { DesktopLayout } from '../Workbench/DesktopLayout';
+import './index.css';
+export { DesktopLayout } from './DesktopLayout';

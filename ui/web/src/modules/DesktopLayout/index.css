@@ -1,0 +1,7 @@
+#root .flexlayout__tabset-selected {
+  background-image: none;
+}
+
+body[theme-mode='dark'] .flexlayout__tab {
+  background-color: #141414;
+}

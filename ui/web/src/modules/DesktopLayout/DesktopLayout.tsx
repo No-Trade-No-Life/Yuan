@@ -5,13 +5,13 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { isDarkMode$ } from '../../common/Darkmode';
 import { ErrorBoundary } from '../../common/ErrorBoundary';
-import { layoutModel$, layoutModelJson$ } from '../../layout-model';
 import { CommandCenter } from '../CommandCenter/CommandCenter';
 import { NetworkStatusWidget } from '../Terminals/NetworkStatusWidget';
 import { Login } from '../User/Login';
 import { UserMenu } from '../User/UserMenu';
-import { HomePage } from './HomePage';
-import { NotFound } from './NotFound';
+import { HomePage } from '../Workbench/HomePage';
+import { NotFound } from '../Workbench/NotFound';
+import { layoutModel$, layoutModelJson$ } from './layout-model';
 const AvailableComponents: Record<string, React.ComponentType> = {};
 
 export const registerComponent = (components: Record<string, React.ComponentType>) => {

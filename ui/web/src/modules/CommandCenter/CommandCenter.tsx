@@ -100,7 +100,7 @@ export const CommandCenter = React.memo(() => {
                 className="CommandCenterListItem"
                 onClick={() => {
                   isCommandCenterOpen$.next(false);
-                  item.item.handler();
+                  executeCommand(item.item.id, {});
                 }}
               >
                 <Space vertical align="start">
