@@ -1,6 +1,5 @@
 import '@icon-park/react/styles/index.css';
 import * as _kernel from '@yuants/kernel';
-import { Route, Routes } from 'react-router-dom';
 import * as rx from 'rxjs';
 import './common/page';
 import { LUI } from './modules/AI/LUI';
@@ -69,17 +68,8 @@ registerComponent({
   TradeCopyRelationList,
 });
 
-function AppLayout() {
-  return <DesktopLayout />;
-}
-
 const App = () => {
-  return (
-    <Routes>
-      <Route path="/" element={<AppLayout />}></Route>
-      <Route path="/popout" element={<div />}></Route>
-    </Routes>
-  );
+  return <DesktopLayout />;
 };
 
 export default App;

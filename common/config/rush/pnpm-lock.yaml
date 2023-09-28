@@ -700,7 +700,6 @@ importers:
       react: ^18.2.0
       react-dom: ^18.2.0
       react-i18next: ~13.2.1
-      react-router-dom: ^6.3.0
       rxjs: ^7.5.6
       typescript: ^4.6.4
       unzipit: ~1.4.3
@@ -745,7 +744,6 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-i18next: 13.2.1_98cade5ad3a97019d15195744e997f78
-      react-router-dom: 6.15.0_react-dom@18.2.0+react@18.2.0
       rxjs: 7.5.7
       unzipit: 1.4.3
       uuid: 9.0.0
@@ -2354,11 +2352,6 @@ packages:
       mz: 2.7.0
       write-file-atomic: 3.0.3
       write-yaml-file: 4.2.0
-    dev: false
-
-  /@remix-run/router/1.8.0:
-    resolution: {integrity: sha512-mrfKqIHnSZRyIzBcanNJmVQELTnX+qagEDlcKO90RgRBVOZGSGvZKeDihTRfWcqoDn5N/NkUcwWTccnpN18Tfg==}
-    engines: {node: '>=14.0.0'}
     dev: false
 
   /@rjsf/core/5.1.0_@rjsf+utils@5.1.0+react@18.2.0:
@@ -8776,29 +8769,6 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-draggable: 4.4.5_react-dom@18.2.0+react@18.2.0
-    dev: false
-
-  /react-router-dom/6.15.0_react-dom@18.2.0+react@18.2.0:
-    resolution: {integrity: sha512-aR42t0fs7brintwBGAv2+mGlCtgtFQeOzK0BM1/OiqEzRejOZtpMZepvgkscpMUnKb8YO84G7s3LsHnnDNonbQ==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      react: '>=16.8'
-      react-dom: '>=16.8'
-    dependencies:
-      '@remix-run/router': 1.8.0
-      react: 18.2.0
-      react-dom: 18.2.0_react@18.2.0
-      react-router: 6.15.0_react@18.2.0
-    dev: false
-
-  /react-router/6.15.0_react@18.2.0:
-    resolution: {integrity: sha512-NIytlzvzLwJkCQj2HLefmeakxxWHWAP+02EGqWEZy+DgfHHKQMUoBBjUQLOtFInBMhWtb3hiUy6MfFgwLjXhqg==}
-    engines: {node: '>=14.0.0'}
-    peerDependencies:
-      react: '>=16.8'
-    dependencies:
-      '@remix-run/router': 1.8.0
-      react: 18.2.0
     dev: false
 
   /react-sortable-hoc/2.0.0_react-dom@18.2.0+react@18.2.0:
