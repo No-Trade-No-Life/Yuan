@@ -27,12 +27,15 @@ export const usePageParams = () => {
 
 export const usePageTitle = (title: string) => {
   const node = useContext(TabNodeContext);
+  const nodeId = node?.getId();
 
+  // ISSUE: node cannot be treat as deps. Or it will cause infinite rendering
+  // (node change -> rename tab -> layout change -> node change -> ...)
   useEffect(() => {
-    if (node) {
-      node.getModel().doAction(Actions.renameTab(node.getId(), title));
+    if (nodeId) {
+      layoutModel$.value.doAction(Actions.renameTab(nodeId, title));
     }
-  }, [title, node]);
+  }, [title, nodeId]);
 };
 
 export const usePageType = () => {
