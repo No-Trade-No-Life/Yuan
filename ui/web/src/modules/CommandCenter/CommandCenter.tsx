@@ -16,19 +16,19 @@ hotkeys('command+k,ctrl+k', () => {
 
 interface ICommand {
   id: string;
-  handler: () => void | Promise<void>;
+  handler: (params: any) => void | Promise<void>;
 }
 
 const commandList$ = new BehaviorSubject<ICommand[]>([]);
 
 const isCommandCenterOpen$ = new BehaviorSubject(false);
 
-export const registerCommand = (id: string, handler: () => void) => {
+export const registerCommand = (id: string, handler: (params: any) => void) => {
   commandList$.next([...commandList$.value.filter((cmd) => cmd.id !== id), { id, handler }]);
 };
 
-export const executeCommand = async (id: string) => {
-  const maybePromise = commandList$.value.find((cmd) => cmd.id === id)?.handler();
+export const executeCommand = async (id: string, params = {}) => {
+  const maybePromise = commandList$.value.find((cmd) => cmd.id === id)?.handler(params);
   if (maybePromise instanceof Promise) {
     await maybePromise;
   }
@@ -85,7 +85,10 @@ export const CommandCenter = React.memo(() => {
                 }}
                 onChange={(v) => (!v ? setSearch('') : setSearch(v))}
                 onEnterPress={() => {
-                  list[0]?.item.handler();
+                  const commandId = list[0]?.item.id;
+                  if (commandId) {
+                    executeCommand(commandId);
+                  }
                   isCommandCenterOpen$.next(false);
                 }}
                 prefix={<IconSearch />}
@@ -97,7 +100,7 @@ export const CommandCenter = React.memo(() => {
                 className="CommandCenterListItem"
                 onClick={() => {
                   isCommandCenterOpen$.next(false);
-                  item.item.handler();
+                  executeCommand(item.item.id, {});
                 }}
               >
                 <Space vertical align="start">

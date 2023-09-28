@@ -4,10 +4,10 @@ import { useObservable, useObservableState } from 'observable-hooks';
 import React, { useState } from 'react';
 import { first, mergeMap, of } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
-import { openSingletonComponent } from '../../layout-model';
 import { accountIds$ } from '../AccountInfo/model';
 import { registerCommand } from '../CommandCenter/CommandCenter';
 import { Form } from '../Form';
+import { openPage } from '../Pages';
 
 export const ManualTradePanel = React.memo(() => {
   const [order, setOrder] = useState(undefined as IOrder | undefined);
@@ -146,5 +146,5 @@ export const ManualTradePanel = React.memo(() => {
 });
 
 registerCommand('ManualTradePanel', () => {
-  openSingletonComponent('ManualTradePanel');
+  openPage('ManualTradePanel');
 });

@@ -5,9 +5,9 @@ import { useObservable, useObservableState } from 'observable-hooks';
 import React, { useState } from 'react';
 import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
-import { openSingletonComponent } from '../../layout-model';
 import { registerCommand } from '../CommandCenter/CommandCenter';
 import Form from '../Form';
+import { openPage } from '../Pages';
 
 // TODO: Import
 interface IPullSourceRelation {
@@ -283,5 +283,5 @@ export const PullSourceRelationList = React.memo(() => {
 });
 
 registerCommand('PullSourceRelationList', () => {
-  openSingletonComponent('PullSourceRelationList');
+  openPage('PullSourceRelationList');
 });

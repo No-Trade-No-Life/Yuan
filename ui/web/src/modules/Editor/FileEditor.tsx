@@ -1,16 +1,16 @@
 import { Toast } from '@douyinfe/semi-ui';
-import { Actions, DockLocation, TabNode } from 'flexlayout-react';
 import * as monaco from 'monaco-editor';
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
 import { useObservable, useObservableState } from 'observable-hooks';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { BehaviorSubject, defer, mergeMap, pipe, retry, tap } from 'rxjs';
 import { isDarkMode$ } from '../../common/Darkmode';
-import { closeCurrentTab, layoutModel$ } from '../../layout-model';
 import { rollupLoadEvent$ } from '../Agent/utils';
+import { executeCommand, registerCommand } from '../CommandCenter/CommandCenter';
 import { fs } from '../FileSystem/api';
+import { openPage, usePageParams, usePageTitle } from '../Pages';
 
 Object.assign(globalThis, { monaco });
 
@@ -49,32 +49,9 @@ rollupLoadEvent$.subscribe(({ id, content }) => {
   }
 });
 
-export const openFileEditor = (filename: string) => {
-  const mainPanel = layoutModel$.value.getNodeById('#main');
-  const tabNode = mainPanel
-    ?.getChildren()
-    .find((node) => node instanceof TabNode && node.getConfig()?.filename === filename);
-  if (tabNode !== undefined) {
-    layoutModel$.value.doAction(Actions.selectTab(tabNode.getId()));
-  } else {
-    layoutModel$.value.doAction(
-      Actions.addNode(
-        {
-          type: 'tab',
-          name: '代码',
-          component: 'FileEditor',
-          config: { filename: filename },
-        },
-        '#main',
-        DockLocation.CENTER,
-        0,
-      ),
-    );
-  }
-};
-
-export const FileEditor = React.memo((props: { node?: TabNode }) => {
-  const [filename, setFilename] = useState<string>(props.node?.getConfig()?.filename ?? '');
+export const FileEditor = React.memo(() => {
+  const params = usePageParams();
+  const [filename, setFilename] = useState<string>(params.filename ?? '');
   const uri = monaco.Uri.file(filename);
   const model = monaco.editor.getModel(uri);
 
@@ -109,15 +86,13 @@ export const FileEditor = React.memo((props: { node?: TabNode }) => {
     ),
   );
 
-  useEffect(() => {
-    if (props.node) {
-      const current = monaco.editor.getModel(monaco.Uri.file(filename))?.getValue();
-      const last = fileSaveState[filename];
-      layoutModel$.value.doAction(
-        Actions.renameTab(props.node.getId(), last !== current ? filename + '*' : filename),
-      );
-    }
+  const title = useMemo(() => {
+    const current = monaco.editor.getModel(monaco.Uri.file(filename))?.getValue();
+    const last = fileSaveState[filename];
+    return last !== current ? filename + '*' : filename;
   }, [filename, fileSaveState]);
+
+  usePageTitle(title);
 
   const containerRef = useRef<any>();
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
@@ -188,7 +163,7 @@ export const FileEditor = React.memo((props: { node?: TabNode }) => {
       label: 'Close',
       keybindings: [monaco.KeyMod.Alt | monaco.KeyCode.KeyW],
       run: () => {
-        closeCurrentTab();
+        executeCommand('ClosePage');
       },
     });
   }, [editor]);
@@ -269,4 +244,8 @@ monaco.editor.registerEditorOpener({
     }
     return false;
   },
+});
+
+registerCommand('FileEditor', ({ filename }) => {
+  openPage('FileEditor', { filename });
 });

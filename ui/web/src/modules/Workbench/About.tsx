@@ -2,9 +2,9 @@ import { Descriptions, Space, Typography } from '@douyinfe/semi-ui';
 import { formatTime } from '@yuants/data-model';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { openSingletonComponent } from '../../layout-model';
 import { registerCommand } from '../CommandCenter/CommandCenter';
 import { userTimezone } from '../Locale/utils';
+import { openPage } from '../Pages';
 
 export const About = React.memo(() => {
   const { t, i18n } = useTranslation('About');
@@ -45,5 +45,5 @@ export const About = React.memo(() => {
 });
 
 registerCommand('About', () => {
-  openSingletonComponent('About');
+  openPage('About');
 });

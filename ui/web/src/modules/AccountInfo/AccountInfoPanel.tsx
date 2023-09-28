@@ -2,14 +2,15 @@ import { IconInfoCircle } from '@douyinfe/semi-icons';
 import { Collapse, Descriptions, Empty, Space, Table, Tooltip, Typography } from '@douyinfe/semi-ui';
 import { IPosition, OrderDirection, OrderType, PositionVariant } from '@yuants/protocol';
 import { format } from 'date-fns';
-import { TabNode } from 'flexlayout-react';
 import { useObservable, useObservableState } from 'observable-hooks';
 import React from 'react';
 import { from, groupBy, map, mergeMap, reduce, toArray } from 'rxjs';
 import { useAccountInfo } from '../../common/source';
+import { registerCommand } from '../CommandCenter/CommandCenter';
+import { openPage, usePageParams } from '../Pages';
 
-export const AccountInfoPanel = React.memo((props: { node?: TabNode }) => {
-  const accountId = props.node?.getConfig()?.account_id ?? '';
+export const AccountInfoPanel = React.memo(() => {
+  const { account_id: accountId } = usePageParams();
 
   const accountInfo$ = useObservable(() => useAccountInfo(accountId));
 
@@ -355,4 +356,8 @@ export const AccountInfoPanel = React.memo((props: { node?: TabNode }) => {
       </Collapse>
     </Space>
   );
+});
+
+registerCommand('AccountInfoPanel', ({ account_id }) => {
+  openPage('AccountInfoPanel', { account_id });
 });

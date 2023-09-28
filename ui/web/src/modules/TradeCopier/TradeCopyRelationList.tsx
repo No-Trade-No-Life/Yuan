@@ -6,9 +6,9 @@ import React, { useState } from 'react';
 import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
 import { v4 } from 'uuid';
 import { terminal$ } from '../../common/create-connection';
-import { openSingletonComponent } from '../../layout-model';
 import { registerCommand } from '../CommandCenter/CommandCenter';
 import Form from '../Form';
+import { openPage } from '../Pages';
 import { terminate } from '../Terminals/TerminalListItem';
 
 // TODO: Import
@@ -251,7 +251,7 @@ export const TradeCopyRelationList = React.memo(() => {
 });
 
 registerCommand('TradeCopyRelationList', () => {
-  openSingletonComponent('TradeCopyRelationList');
+  openPage('TradeCopyRelationList');
 });
 
 registerCommand('TradeCopier.Restart', () => {

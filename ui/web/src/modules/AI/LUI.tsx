@@ -1,15 +1,14 @@
 import { IconDelete, IconSend, IconUser } from '@douyinfe/semi-icons';
 import { Avatar, Button, Space, TextArea } from '@douyinfe/semi-ui';
 import { format } from 'date-fns';
-import { TabNode } from 'flexlayout-react';
 import { useObservableState } from 'observable-hooks';
 import React, { useState } from 'react';
 import { authState$ } from '../../common/supabase';
 import { createPersistBehaviorSubject } from '../../common/utils';
-import { openSingletonComponent } from '../../layout-model';
 import { agentConf$ } from '../Agent/AgentConfForm';
 import { registerCommand } from '../CommandCenter/CommandCenter';
 import { fs } from '../FileSystem/api';
+import { openPage, usePageViewport } from '../Pages';
 import { triggerLoginModalAction$ } from '../User/Login';
 import './LUI.css';
 
@@ -31,11 +30,12 @@ const pushHistoryMessages = (...messages: IMessage[]) => {
 };
 
 registerCommand('AI', () => {
-  openSingletonComponent('LUI');
+  openPage('LUI');
 });
 
-export const LUI = React.memo((props: { node?: TabNode }) => {
-  const width = props.node?.getRect().width ?? Infinity;
+export const LUI = React.memo(() => {
+  const viewport = usePageViewport();
+  const width = viewport?.w ?? Infinity;
   const [isLoading, setLoading] = useState(false);
 
   const authState = useObservableState(authState$);

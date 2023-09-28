@@ -4,12 +4,12 @@ import { useObservableState } from 'observable-hooks';
 import React, { useState } from 'react';
 import { terminal$ } from '../../common/create-connection';
 import { PERIOD_IN_SEC_TO_LABEL } from '../../common/utils';
-import { openSingletonComponent } from '../../layout-model';
 import { AccountFrameUnit } from '../AccountInfo/AccountFrameUnit';
 import { accountFrameSeries$, accountIds$, accountPerformance$ } from '../AccountInfo/model';
 import { registerCommand } from '../CommandCenter/CommandCenter';
 import { Form } from '../Form';
 import { orders$ } from '../Order/model';
+import { openPage } from '../Pages';
 import { currentKernel$ } from './model';
 
 export const AccountReplay = React.memo(() => {
@@ -155,5 +155,5 @@ export const AccountReplay = React.memo(() => {
 });
 
 registerCommand('AccountReplay', () => {
-  openSingletonComponent('AccountReplay');
+  openPage('AccountReplay');
 });

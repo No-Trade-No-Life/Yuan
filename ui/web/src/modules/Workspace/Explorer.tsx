@@ -14,8 +14,6 @@ import { Button, Dropdown, Modal, Space, Toast, Tree } from '@douyinfe/semi-ui';
 import { TreeNodeData } from '@douyinfe/semi-ui/lib/es/tree/interface';
 import { formatTime } from '@yuants/data-model';
 import copy from 'copy-to-clipboard';
-import * as FlexLayout from 'flexlayout-react';
-import { DockLocation } from 'flexlayout-react';
 import { useObservableState } from 'observable-hooks';
 import path from 'path-browserify';
 import React, { useEffect, useState } from 'react';
@@ -23,17 +21,15 @@ import { Trans, useTranslation } from 'react-i18next';
 import { filter, from, lastValueFrom, map, mergeMap, toArray } from 'rxjs';
 import { unzip } from 'unzipit';
 import { terminal$ } from '../../common/create-connection';
-import { layoutModel$ } from '../../layout-model';
 import { agentConf$, reloadSchemaAction$ } from '../Agent/AgentConfForm';
 import { writeManifestsFromBatchTasks } from '../Agent/utils';
-import { openFileEditor } from '../Editor/FileEditor';
+import { executeCommand } from '../CommandCenter/CommandCenter';
 import { installExtensionFromTgz } from '../Extensions/utils';
 import { FsBackend$, fs, workspaceRoot$ } from '../FileSystem/api';
 import { currentHostConfig$ } from '../Workbench/model';
 import { sendFileByAirdrop } from './airdrop';
 
-export const Explorer = React.memo((props: { node?: FlexLayout.TabNode }) => {
-  const model = useObservableState(layoutModel$);
+export const Explorer = React.memo(() => {
   const terminal = useObservableState(terminal$);
   const currentHostConfig = useObservableState(currentHostConfig$);
 
@@ -211,7 +207,7 @@ export const Explorer = React.memo((props: { node?: FlexLayout.TabNode }) => {
                             onClick={() => {
                               agentConf$.next({ ...agentConf$.value, entry: data.key });
                               reloadSchemaAction$.next();
-                              layoutModel$.value.doAction(FlexLayout.Actions.selectTab('AgentConfForm'));
+                              executeCommand('AgentConfForm');
                             }}
                           >
                             作为模型
@@ -220,19 +216,7 @@ export const Explorer = React.memo((props: { node?: FlexLayout.TabNode }) => {
                         {data.key.match(/\.json$/) ? (
                           <Dropdown.Item
                             onClick={() => {
-                              model.doAction(
-                                FlexLayout.Actions.addNode(
-                                  {
-                                    type: 'tab',
-                                    name: `实时资产`,
-                                    component: 'RealtimeAsset',
-                                    config: { filename: data.key },
-                                  },
-                                  '#main',
-                                  DockLocation.CENTER,
-                                  0,
-                                ),
-                              );
+                              executeCommand('RealtimeAsset', { filename: data.key });
                             }}
                           >
                             作为基金结算配置
@@ -241,19 +225,7 @@ export const Explorer = React.memo((props: { node?: FlexLayout.TabNode }) => {
                         {data.key.match(/\.batch.ts$/) ? (
                           <Dropdown.Item
                             onClick={() => {
-                              model.doAction(
-                                FlexLayout.Actions.addNode(
-                                  {
-                                    type: 'tab',
-                                    name: `批量回测`,
-                                    component: 'AgentBatchBackTest',
-                                    config: { filename: data.key },
-                                  },
-                                  '#main',
-                                  DockLocation.CENTER,
-                                  0,
-                                ),
-                              );
+                              executeCommand('AgentBatchBackTest', { filename: data.key });
                             }}
                           >
                             作为批量回测配置
@@ -272,19 +244,7 @@ export const Explorer = React.memo((props: { node?: FlexLayout.TabNode }) => {
                         {data.key.match(/\.?manifests\.(json|yaml|yml|ts)$/) ? (
                           <Dropdown.Item
                             onClick={() => {
-                              model.doAction(
-                                FlexLayout.Actions.addNode(
-                                  {
-                                    type: 'tab',
-                                    name: `部署配置`,
-                                    component: 'DeployConfigForm',
-                                    config: { filename: data.key },
-                                  },
-                                  '#main',
-                                  DockLocation.CENTER,
-                                  0,
-                                ),
-                              );
+                              executeCommand('DeployConfigForm', { filename: data.key });
                             }}
                           >
                             作为部署配置
@@ -339,7 +299,7 @@ export const Explorer = React.memo((props: { node?: FlexLayout.TabNode }) => {
           );
         }}
         onSelect={(path) => {
-          openFileEditor(path);
+          executeCommand('FileEditor', { filename: path });
         }}
         treeData={[...treeData]}
       ></Tree>

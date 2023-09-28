@@ -1,11 +1,10 @@
 import * as FlexLayout from 'flexlayout-react';
 import hotkeys from 'hotkeys-js';
 import { BehaviorSubject, bufferCount, combineLatest, first, map, Subject } from 'rxjs';
-import { createPersistBehaviorSubject } from './common/utils';
-import { registerCommand } from './modules/CommandCenter/CommandCenter';
-import i18n from './modules/Locale/i18n';
+import { createPersistBehaviorSubject } from '../../common/utils';
+import { registerCommand } from '../CommandCenter/CommandCenter';
 
-export const initialJson = (): FlexLayout.IJsonModel => ({
+const initialJson = (): FlexLayout.IJsonModel => ({
   global: {
     // FIXED: 修复对多屏幕支持的问题后，再开启此功能
     // tabEnableFloat: true
@@ -55,21 +54,13 @@ export const initialJson = (): FlexLayout.IJsonModel => ({
   layout: {
     type: 'row',
     weight: 100,
-    children: [
-      {
-        id: '#main',
-        type: 'tabset',
-        active: true,
-        enableDeleteWhenEmpty: false,
-        children: [],
-      },
-    ],
+    children: [],
   },
 });
 
 export const layoutModelJson$ = createPersistBehaviorSubject('layout', initialJson());
 
-export const layoutUpdate$ = new Subject<void>();
+const layoutUpdate$ = new Subject<void>();
 
 combineLatest([layoutModelJson$, layoutUpdate$]).subscribe(([json]) => {
   layoutModel$.next(FlexLayout.Model.fromJson(json!));
@@ -90,27 +81,50 @@ layoutModel$.subscribe((layoutModel) => {
   Object.assign(globalThis, { layoutModel, Actions: FlexLayout.Actions });
 });
 
-export function openSingletonComponent(component: string, nodeName?: string, toNodeId = '#main') {
+export function openPage(pageKey: string, params = {}) {
+  const pageId = JSON.stringify({ pageKey, params });
   const model = layoutModel$.value;
-  const nodeId = component;
-  const node = model.getNodeById(nodeId);
+
+  const theNode = model.getNodeById(pageId);
+  if (theNode) {
+    if (!theNode.isVisible()) {
+      model.doAction(FlexLayout.Actions.selectTab(theNode.getId()));
+    }
+    return;
+  }
+
+  const activeTabset = model.getActiveTabset();
+  if (!activeTabset) {
+    alert('No Active Tabset');
+    return;
+  }
+  model.doAction(
+    FlexLayout.Actions.addNode(
+      {
+        id: pageId,
+        type: 'tab',
+        component: pageKey,
+        config: params,
+      },
+      activeTabset.getId(),
+      FlexLayout.DockLocation.CENTER,
+      0,
+      true,
+    ),
+  );
+}
+
+export function openExistPage(pageId: string) {
+  const model = layoutModel$.value;
+  const node = model.getNodeById(pageId);
   if (node) {
     if (!node.isVisible()) {
-      model.doAction(FlexLayout.Actions.selectTab(node.getId()));
+      model.doAction(FlexLayout.Actions.selectTab(pageId));
     }
-  } else {
-    model.doAction(
-      FlexLayout.Actions.addNode(
-        { id: nodeId, name: nodeName, component },
-        toNodeId,
-        FlexLayout.DockLocation.CENTER,
-        -1,
-      ),
-    );
   }
 }
 
-export const closeCurrentTab = () => {
+const closeCurrentTab = () => {
   const model = layoutModel$.value;
   const tabset = model.getActiveTabset();
   const nodeId = tabset?.getSelectedNode()?.getId();
@@ -128,4 +142,8 @@ hotkeys('alt+w', function (event, handler) {
 registerCommand('ResetLayout', () => {
   layoutModelJson$.next(initialJson());
   layoutUpdate$.next();
+});
+
+registerCommand('ClosePage', () => {
+  closeCurrentTab();
 });

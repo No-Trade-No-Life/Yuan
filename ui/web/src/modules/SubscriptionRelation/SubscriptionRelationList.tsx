@@ -5,9 +5,9 @@ import { useObservable, useObservableState } from 'observable-hooks';
 import React, { useState } from 'react';
 import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
-import { openSingletonComponent } from '../../layout-model';
 import { registerCommand } from '../CommandCenter/CommandCenter';
 import Form from '../Form';
+import { openPage } from '../Pages';
 
 const TYPE = 'subscription_relation';
 
@@ -228,5 +228,5 @@ export const SubscriptionRelationList = React.memo(() => {
   );
 });
 registerCommand('SubscriptionRelationList', () => {
-  openSingletonComponent('SubscriptionRelationList');
+  openPage('SubscriptionRelationList');
 });

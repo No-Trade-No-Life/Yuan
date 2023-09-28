@@ -1,7 +1,7 @@
 import { Descriptions, Divider, Table, Tooltip } from '@douyinfe/semi-ui';
 import React from 'react';
-import { openSingletonComponent } from '../../layout-model';
 import { registerCommand } from '../CommandCenter/CommandCenter';
+import { openPage } from '../Pages';
 import { ClearingAndSettlement } from './ClearingAndSettlement';
 import { InvestorDetails, useFinancialReport } from './useFinancialReport';
 
@@ -145,5 +145,5 @@ export const FinancialStatementsPanel = React.memo(() => {
 });
 
 registerCommand('FinancialStatementsPanel', () => {
-  openSingletonComponent('FinancialStatementsPanel');
+  openPage('FinancialStatementsPanel');
 });

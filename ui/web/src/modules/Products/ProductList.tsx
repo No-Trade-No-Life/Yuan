@@ -5,10 +5,10 @@ import { useObservable, useObservableState } from 'observable-hooks';
 import React, { useState } from 'react';
 import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
-import { openSingletonComponent } from '../../layout-model';
 import { registerCommand } from '../CommandCenter/CommandCenter';
 import Form from '../Form';
 import { SearchButton } from '../Market/SearchButton';
+import { openPage } from '../Pages';
 
 export const ProductList = React.memo(() => {
   const [refreshId, setRefreshId] = useState(0);
@@ -316,5 +316,5 @@ export const ProductList = React.memo(() => {
 });
 
 registerCommand('ProductList', () => {
-  openSingletonComponent('ProductList');
+  openPage('ProductList');
 });

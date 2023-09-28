@@ -5,7 +5,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { bufferTime, combineLatest, map, switchMap } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
-import { openSingletonComponent } from '../../layout-model';
+import { openPage } from '../Pages';
 import { currentHostConfig$ } from '../Workbench/model';
 
 export const secretURL = (url: string) => {
@@ -84,7 +84,7 @@ export const NetworkStatusWidget = React.memo(() => {
             <Button
               icon={<IconWrench />}
               onClick={() => {
-                openSingletonComponent('HostList');
+                openPage('HostList');
               }}
             >
               {t('config')}

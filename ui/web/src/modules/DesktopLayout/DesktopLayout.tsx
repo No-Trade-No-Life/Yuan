@@ -1,21 +1,57 @@
 import { Layout, Space, Typography } from '@douyinfe/semi-ui';
 import { Actions, Layout as FlexLayout, TabNode } from 'flexlayout-react';
 import { useObservableState } from 'observable-hooks';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { isDarkMode$ } from '../../common/Darkmode';
 import { ErrorBoundary } from '../../common/ErrorBoundary';
-import { layoutModel$, layoutModelJson$ } from '../../layout-model';
 import { CommandCenter } from '../CommandCenter/CommandCenter';
 import { NetworkStatusWidget } from '../Terminals/NetworkStatusWidget';
 import { Login } from '../User/Login';
 import { UserMenu } from '../User/UserMenu';
-import { HomePage } from './HomePage';
-import { NotFound } from './NotFound';
+import { HomePage } from '../Workbench/HomePage';
+import { NotFound } from '../Workbench/NotFound';
+import { layoutModel$, layoutModelJson$ } from './layout-model';
 const AvailableComponents: Record<string, React.ComponentType> = {};
 
 export const registerComponent = (components: Record<string, React.ComponentType>) => {
   Object.assign(AvailableComponents, components);
+};
+
+const TabNodeContext = React.createContext<TabNode | null>(null);
+
+export const usePageParams = () => {
+  const node = useContext(TabNodeContext);
+  return node?.getConfig() ?? {};
+};
+
+export const usePageTitle = (title: string) => {
+  const node = useContext(TabNodeContext);
+
+  useEffect(() => {
+    if (node) {
+      node.getModel().doAction(Actions.renameTab(node.getId(), title));
+    }
+  }, [title, node]);
+};
+
+export const usePageType = () => {
+  const node = useContext(TabNodeContext);
+  return node?.getComponent() ?? '';
+};
+
+export const usePageViewport = () => {
+  const node = useContext(TabNodeContext);
+  const rect = node?.getRect();
+  if (rect) {
+    return {
+      x: rect.x,
+      y: rect.y,
+      w: rect.width,
+      h: rect.height,
+    };
+  }
+  return undefined;
 };
 
 // ISSUE: React.memo will cause layout tab label not change while change language
@@ -32,7 +68,11 @@ export const DesktopLayout = () => {
       }
     };
     const theNode = getNode();
-    return <ErrorBoundary>{theNode ? React.cloneElement(theNode, { node }) : null}</ErrorBoundary>;
+    return (
+      <ErrorBoundary>
+        <TabNodeContext.Provider value={node}>{theNode}</TabNodeContext.Provider>
+      </ErrorBoundary>
+    );
   };
 
   const isDarkMode = useObservableState(isDarkMode$);

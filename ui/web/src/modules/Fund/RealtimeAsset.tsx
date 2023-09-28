@@ -1,10 +1,9 @@
 import { Button, Card, Descriptions, Empty, Space, Table, Toast, Typography } from '@douyinfe/semi-ui';
 import { IAccountInfo, Terminal } from '@yuants/protocol';
 import { format } from 'date-fns';
-import { Actions, TabNode } from 'flexlayout-react';
 import { parse } from 'jsonc-parser';
 import { useObservable, useObservableState } from 'observable-hooks';
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   EMPTY,
   Observable,
@@ -28,7 +27,9 @@ import {
 } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
 import { useAccountInfo, useTick } from '../../common/source';
+import { registerCommand } from '../CommandCenter/CommandCenter';
 import { fs } from '../FileSystem/api';
+import { openPage, usePageParams, usePageTitle } from '../Pages';
 
 interface IFundComponentConfig {
   //
@@ -224,8 +225,9 @@ const getReport = (info: IFundInfo, investor_id: string): string => {
   ].join('\n');
 };
 
-export const RealtimeAsset = React.memo((props: { node?: TabNode }) => {
-  const configFile = props.node?.getConfig()?.filename ?? '';
+export const RealtimeAsset = React.memo(() => {
+  const params = usePageParams();
+  const configFile = params.filename ?? '';
 
   const fundInfo$ = useObservable(
     (x$) =>
@@ -246,11 +248,8 @@ export const RealtimeAsset = React.memo((props: { node?: TabNode }) => {
 
   const fundInfo = useObservableState(fundInfo$);
   const fundName = fundInfo?.accountInfo.account_id;
-  useEffect(() => {
-    if (fundName) {
-      props.node?.getModel().doAction(Actions.renameTab(props.node.getId(), `基金 ${fundName}`));
-    }
-  }, [fundName]);
+  const title = `基金 ${fundName}`;
+  usePageTitle(title);
 
   if (!fundInfo) {
     return (
@@ -384,3 +383,7 @@ function sendReportToInvestor(terminal: Terminal, fundInfo: IFundInfo, investor:
       }),
     );
 }
+
+registerCommand('RealtimeAsset', ({ filename }) => {
+  openPage('RealtimeAsset', { filename });
+});
