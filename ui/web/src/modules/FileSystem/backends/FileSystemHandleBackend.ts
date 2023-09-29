@@ -1,4 +1,3 @@
-// import { Modal } from '@douyinfe/semi-ui';
 import { basename, dirname } from 'path-browserify';
 import { Subject, filter, firstValueFrom, mergeMap, shareReplay } from 'rxjs';
 import { IFileSystemBackend, IFileSystemStatResult } from '../interfaces';
@@ -11,18 +10,7 @@ export class FileSystemHandleBackend implements IFileSystemBackend {
         if ((await this.root.queryPermission({ mode: 'readwrite' })) === 'granted') {
           return true;
         }
-        // await new Promise<void>((resolve, reject) => {
-        //   Modal.confirm({
-        //     title: '文件系统授权',
-        //     content: '请授权文件系统访问权限',
-        //     onOk: () => {
-        //       resolve();
-        //     },
-        //     onCancel: () => {
-        //       reject();
-        //     }
-        //   });
-        // });
+
         await this.root.requestPermission({ mode: 'readwrite' });
         return true;
       } catch (e) {}
@@ -32,31 +20,37 @@ export class FileSystemHandleBackend implements IFileSystemBackend {
   );
   constructor(private root: FileSystemDirectoryHandle) {}
 
+  private mapPathToHandle = new Map<string, FileSystemHandle>();
+
   private async resolveHandle(path: string): Promise<FileSystemHandle | null> {
+    const cached = this.mapPathToHandle.get(path);
+    if (cached) {
+      return cached;
+    }
     this.request$.next();
     await firstValueFrom(this.response$);
-    const paths = path.split('/').filter(Boolean);
-    let ptr = this.root;
-    for (const name of paths) {
-      if (!ptr) {
-        return null;
-      }
-      let isFound = false;
-      for await (const [_name, _handle] of ptr.entries()) {
-        if (name === _name) {
-          isFound = true;
-          if (_handle instanceof FileSystemDirectoryHandle) {
-            ptr = _handle;
-          } else {
-            return _handle;
-          }
-        }
-      }
-      if (!isFound) {
+    if (path === '/') {
+      return this.root;
+    }
+    const dir = dirname(path);
+    const base = basename(path);
+    const dirHandle = await this.resolveHandle(dir);
+    if (!(dirHandle instanceof FileSystemDirectoryHandle)) {
+      return null;
+    }
+    try {
+      const res = await dirHandle.getDirectoryHandle(base);
+      this.mapPathToHandle.set(path, res);
+      return res;
+    } catch (e) {
+      try {
+        const res = await dirHandle.getFileHandle(base);
+        this.mapPathToHandle.set(path, res);
+        return res;
+      } catch (e) {
         return null;
       }
     }
-    return ptr;
   }
 
   async readdir(path: string): Promise<string[]> {
