@@ -1,3 +1,4 @@
+import { formatTime } from '@yuants/data-model';
 import { IPeriod, PromRegistry, Terminal } from '@yuants/protocol';
 import { batchGroupBy, switchMapWithComplete } from '@yuants/utils';
 import Ajv from 'ajv';
@@ -136,7 +137,7 @@ defer(() =>
         //
         distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
         tap((config) => {
-          console.info(new Date(), `DetectConfigurationChange: ${JSON.stringify(config)}`);
+          console.info(formatTime(Date.now()), `DetectConfigurationChange: ${JSON.stringify(config)}`);
         }),
         switchMapWithComplete((task) =>
           new Observable<ITask>((subscriber) => {
@@ -153,7 +154,7 @@ defer(() =>
             //
             tap({
               unsubscribe: () => {
-                console.info(new Date(), `StopSyncing: ${JSON.stringify(task)}`);
+                console.info(formatTime(Date.now()), `StopSyncing: ${JSON.stringify(task)}`);
                 MetricCronjobStatus.set(0, {
                   status: 'running',
                   datasource_id: task.datasource_id,
@@ -170,7 +171,7 @@ defer(() =>
             }),
             tap({
               subscribe: () => {
-                console.info(new Date(), `StartSyncing: ${JSON.stringify(task)}`);
+                console.info(formatTime(Date.now()), `StartSyncing: ${JSON.stringify(task)}`);
                 MetricCronjobStatus.set(1, {
                   status: 'running',
                   datasource_id: task.datasource_id,
@@ -191,7 +192,7 @@ defer(() =>
                 return timer(task.current_backOff_time).pipe(
                   //
                   tap(() => {
-                    console.info(new Date(), `EvaluateParams, config: ${JSON.stringify(task)}`);
+                    console.info(formatTime(Date.now()), `EvaluateParams, config: ${JSON.stringify(task)}`);
                     MetricCronjobStatus.set(1, {
                       status: 'running',
                       datasource_id: task.datasource_id,
@@ -224,7 +225,7 @@ defer(() =>
                     let startTime: number;
                     return defer(() => {
                       console.info(
-                        new Date(),
+                        formatTime(Date.now()),
                         `StartsToPullData, last pull time: ${new Date(
                           lastTime,
                         )}, range: [${lastTime}, ${Date.now()}]`,
@@ -268,7 +269,7 @@ defer(() =>
                     }).pipe(
                       //
                       tap(() => {
-                        console.info(new Date(), `CompletePullData: ${group.key}`);
+                        console.info(formatTime(Date.now()), `CompletePullData: ${group.key}`);
                         MetricPullSourceBucket.observe(Date.now() - startTime, {
                           status: 'success',
                           datasource_id: task.datasource_id,
@@ -290,7 +291,7 @@ defer(() =>
                       }),
                       map(() => ({ ...task, state: 'success' })),
                       catchError((err) => {
-                        console.error(new Date(), `Task: ${group.key} Failed`, `${err}`);
+                        console.error(formatTime(Date.now()), `Task: ${group.key} Failed`, `${err}`);
                         MetricPullSourceBucket.observe(Date.now() - startTime, {
                           status: 'error',
                           datasource_id: task.datasource_id,

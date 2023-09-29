@@ -1,3 +1,4 @@
+import { formatTime } from '@yuants/data-model';
 import { IAccountInfo, IOrder, Terminal } from '@yuants/protocol';
 import { Subject, catchError, defer, filter, from, map, mergeMap, of, retry, tap, toArray } from 'rxjs';
 import { Kernel } from '../kernel';
@@ -10,11 +11,11 @@ import {
   OrderMatchingUnit,
 } from '../units';
 import { AccountFrameUnit } from '../units/AccountFrameUnit';
-import { ActivePortfolioParamUnit, covariance_matrix } from '../units/ActivePortfolioParamUnit';
+import { ActivePortfolioOptimizeSimulatorUnit } from '../units/ActivePortfolioOptimizeSimulatorUnit';
+import { ActivePortfolioParamUnit } from '../units/ActivePortfolioParamUnit';
 import { createEmptyAccountInfo } from '../utils';
 import { OrderMergeReplayScene } from './OrderMergeReplayScene';
 import { IShellConf, ShellScene } from './ShellScene';
-import { ActivePortfolioOptimizeSimulatorUnit } from '../units/ActivePortfolioOptimizeSimulatorUnit';
 
 /**
  * @public
@@ -118,10 +119,13 @@ export const ActivePortfolioManagementScene = (
         }).pipe(
           tap({
             subscribe: () => {
-              console.info(new Date(), `批量回测子任务开始: ${i + 1}/${shellConfigs.length}`);
+              console.info(formatTime(Date.now()), `批量回测子任务开始: ${i + 1}/${shellConfigs.length}`);
             },
             error: (err) => {
-              console.info(new Date(), `批量回测子任务异常: ${i + 1}/${shellConfigs.length}: ${err}`);
+              console.info(
+                formatTime(Date.now()),
+                `批量回测子任务异常: ${i + 1}/${shellConfigs.length}: ${err}`,
+              );
             },
           }),
           retry({ delay: 10_000, count: 3 }), // 最多重试3次，防止卡死流程

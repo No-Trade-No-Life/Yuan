@@ -1,6 +1,5 @@
 import { PriorityQueue } from '@datastructures-js/priority-queue';
-import { v4 } from 'uuid';
-import { formatTime } from './utils';
+import { formatTime, UUID } from '@yuants/data-model';
 
 /**
  * 内核功能单元
@@ -40,7 +39,7 @@ export interface IKernelUnit {
  * @public
  */
 export class Kernel {
-  constructor(public id: string = v4()) {}
+  constructor(public id: string = UUID()) {}
   private eventCnt: number = 0;
   private queue = new PriorityQueue<number>(
     (a, b) => this.mapIdToTimestamp.get(a)! - this.mapIdToTimestamp.get(b)!,
@@ -113,7 +112,7 @@ export class Kernel {
           // Kernel 不应当假设一定会被上报，由上层功能单元负责读取数据并上报
           this.chronologicErrors++;
           console.info(
-            new Date(),
+            formatTime(Date.now()),
             `Kernel ${this.id} 时序错误: 事件ID=${id} 事件时间=${formatTime(
               timestamp,
             )} < 当前事件时间=${formatTime(this.currentTimestamp)}`,

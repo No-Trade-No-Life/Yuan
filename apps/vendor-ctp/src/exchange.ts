@@ -1,3 +1,4 @@
+import { formatTime } from '@yuants/data-model';
 import {
   IAccountInfo,
   IAccountMoney,
@@ -104,7 +105,7 @@ export const requestZMQ = <Req, Rep>(
   conn: IConnection<IBridgeMessage<Req, Rep>>,
   req: { method: string; params: Req },
 ) => {
-  console.info(new Date(), req);
+  console.info(formatTime(Date.now()), req);
   const requestID = requestIDGen();
   const ret = conn.input$.pipe(
     //
@@ -133,7 +134,7 @@ export const requestZMQ = <Req, Rep>(
     }),
     timeout({ each: 5000, meta: `requestZMQ Timeout: ${req.method}` }),
     catchError((e) => {
-      console.error(new Date(), e, 'REQ: ', req);
+      console.error(formatTime(Date.now()), e, 'REQ: ', req);
       throw e;
     }),
   );
@@ -578,7 +579,7 @@ const zmqConn = createZMQConnection(process.env.ZMQ_PUSH_URL!, process.env.ZMQ_P
 //     //
 //     filter((msg) => msg.res?.event === 'OnFrontDisconnected'),
 //     tap(() => {
-//       console.info(new Date(), 'OnFrontDisconnected', 'shutting down...');
+//       console.info(formatTime(Date.now()), 'OnFrontDisconnected', 'shutting down...');
 //     })
 //   )
 //   .subscribe(() => {
@@ -620,7 +621,7 @@ const products$ = defer(() => loginRes$.pipe(first())).pipe(
 products$
   .pipe(delayWhen((products) => terminal.updateProducts(products, STORAGE_TERMINAL_ID)))
   .subscribe(() => {
-    console.info(new Date(), '更新品种信息成功');
+    console.info(formatTime(Date.now()), '更新品种信息成功');
   });
 
 const mapProductIdToProduct$ = products$.pipe(

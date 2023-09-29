@@ -1,5 +1,5 @@
 import { Button, Descriptions, List, Space, Spin, Typography } from '@douyinfe/semi-ui';
-import { formatTime } from '@yuants/kernel';
+import { formatTime } from '@yuants/data-model';
 import { useObservableState } from 'observable-hooks';
 import React from 'react';
 import { useAccountInfo } from '../../common/source';

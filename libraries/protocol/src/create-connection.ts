@@ -1,3 +1,4 @@
+import { formatTime } from '@yuants/data-model';
 import WebSocket from 'isomorphic-ws';
 import {
   bufferTime,
@@ -63,15 +64,15 @@ export function createConnectionWs<T = any>(URL: string): IConnection<T> {
   const connect = () => {
     const ws = (serviceWsRef.current = new WebSocket(URL));
     ws.addEventListener('open', () => {
-      console.debug(new Date(), 'connection established', URL);
+      console.debug(formatTime(Date.now()), 'connection established', URL);
       connection$.next(ws);
     });
     ws.addEventListener('error', (e: any) => {
-      console.error(new Date(), 'WebSocketConnectionError', e.error);
+      console.error(formatTime(Date.now()), 'WebSocketConnectionError', e.error);
       ws.close();
     });
     ws.addEventListener('close', () => {
-      console.debug(new Date(), 'connection closed', URL);
+      console.debug(formatTime(Date.now()), 'connection closed', URL);
       // Allow external control of reconnection through output.complete or output.error
       if (!output$.isStopped) {
         setTimeout(connect, 1000); // reconnect after 1 sec
@@ -83,7 +84,7 @@ export function createConnectionWs<T = any>(URL: string): IConnection<T> {
         // Issue: The browser does not have the `ws.terminate()` method
         // Also, say goodbye to the host before leaving out of "politeness"
         ws.close();
-        console.info(new Date(), 'connection terminated: 60s timeout');
+        console.info(formatTime(Date.now()), 'connection terminated: 60s timeout');
       },
     });
     msg$.pipe(map((x) => x.data)).subscribe((x) => {
@@ -101,11 +102,11 @@ export function createConnectionWs<T = any>(URL: string): IConnection<T> {
       }
     },
     complete: () => {
-      console.debug(new Date(), 'connection closing because output complete', URL);
+      console.debug(formatTime(Date.now()), 'connection closing because output complete', URL);
       serviceWsRef.current?.close();
     },
     error: () => {
-      console.debug(new Date(), 'connection closing because output error', URL);
+      console.debug(formatTime(Date.now()), 'connection closing because output error', URL);
       serviceWsRef.current?.close();
     },
   });

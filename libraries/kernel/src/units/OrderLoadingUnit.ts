@@ -1,7 +1,7 @@
+import { formatTime } from '@yuants/data-model';
 import { IOrder, Terminal } from '@yuants/protocol';
 import { lastValueFrom, map, tap, toArray } from 'rxjs';
 import { Kernel } from '../kernel';
-import { formatTime } from '../utils';
 import { BasicUnit } from './BasicUnit';
 import { HistoryOrderUnit } from './HistoryOrderUnit';
 

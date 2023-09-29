@@ -1,16 +1,4 @@
 import { IAccountInfo, IPosition, IProduct, PositionVariant } from '@yuants/protocol';
-import { format } from 'date-fns';
-
-/**
- * @internal
- */
-export const formatTime = (time: Date | number) => {
-  try {
-    return format(time, 'yyyy-MM-dd HH:mm:ss');
-  } catch (e) {
-    return 'Invalid Date';
-  }
-};
 
 /**
  * 计算盈亏

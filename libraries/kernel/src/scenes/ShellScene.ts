@@ -1,7 +1,7 @@
+import { UUID } from '@yuants/data-model';
 import { IAccountInfo, Terminal } from '@yuants/protocol';
 import { JSONSchema7 } from 'json-schema';
 import { Subject } from 'rxjs';
-import { v4 } from 'uuid';
 import { Kernel } from '../kernel';
 import {
   AccountPerformanceUnit,
@@ -278,7 +278,7 @@ export const ShellScene = async (
   shellConf: IShellConf,
   scriptResolver: { readFile: (path: string) => Promise<string> },
 ) => {
-  const resolved_account_id = shellConf.account_id || v4();
+  const resolved_account_id = shellConf.account_id || UUID();
   const resolved_currency = shellConf.currency || 'YYY';
 
   const resolved_start_timestamp = shellConf.start_time ? Date.parse(shellConf.start_time) : 0;

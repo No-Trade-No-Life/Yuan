@@ -1,19 +1,19 @@
+import { UUID } from '@yuants/data-model';
 import { IAccountInfo, IOrder, OrderDirection, OrderType, PositionVariant } from '@yuants/protocol';
 import { roundToStep } from '@yuants/utils';
 import { Kernel } from '../kernel';
+import { diffPosition, mergePositions } from '../utils';
 import { AccountPerformanceUnit, IAccountPerformance } from './AccountPerformanceUnit';
 import { AccountSimulatorUnit } from './AccountSimulatorUnit';
 import { ActivePortfolioParamUnit, covariance_matrix } from './ActivePortfolioParamUnit';
 import { BasicUnit } from './BasicUnit';
+import { HistoryOrderUnit } from './HistoryOrderUnit';
 import { OrderMatchingUnit } from './OrderMatchingUnit';
 import { PeriodDataUnit } from './PeriodDataUnit';
+import { IPortfolioStatistics } from './PortfolioSimulatorUnit';
 import { ProductDataUnit } from './ProductDataUnit';
 //@ts-ignore
 import qp from 'quadprog';
-import { v4 } from 'uuid';
-import { diffPosition, mergePositions } from '../utils';
-import { HistoryOrderUnit } from './HistoryOrderUnit';
-import { IPortfolioStatistics } from './PortfolioSimulatorUnit';
 
 /**
  * @public
@@ -232,7 +232,7 @@ export class ActivePortfolioOptimizeSimulatorUnit extends BasicUnit {
     // 根据仓位差异下单
     for (const positionDiff of positionDiffs) {
       const order: IOrder = {
-        client_order_id: v4(),
+        client_order_id: UUID(),
         account_id: this.targetAccountInfoUnit.accountInfo.account_id,
         product_id: positionDiff.product_id,
         position_id:

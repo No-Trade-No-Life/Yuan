@@ -1,7 +1,7 @@
+import { formatTime } from '@yuants/data-model';
 import { IProduct, Terminal } from '@yuants/protocol';
 import { defaultIfEmpty, filter, lastValueFrom, map, mergeMap, of, tap, throwIfEmpty, toArray } from 'rxjs';
 import { Kernel } from '../kernel';
-import { formatTime } from '../utils';
 import { BasicUnit } from './BasicUnit';
 import { ProductDataUnit } from './ProductDataUnit';
 

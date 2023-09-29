@@ -1,3 +1,4 @@
+import { formatTime } from '@yuants/data-model';
 import { PromRegistry, Terminal } from '@yuants/protocol';
 import http from 'http';
 import { EMPTY, catchError, filter, first, from, map, mergeMap, tap, timeout, toArray } from 'rxjs';
@@ -56,7 +57,7 @@ const server = http.createServer((req, res) => {
             ),
             toArray(),
             tap((metrics) => {
-              console.debug(new Date(), `MetricsFetched from terminals: ${metrics.length}`);
+              console.debug(formatTime(Date.now()), `MetricsFetched from terminals: ${metrics.length}`);
             }),
             map((metrics) => metrics.join('\n')),
           ),

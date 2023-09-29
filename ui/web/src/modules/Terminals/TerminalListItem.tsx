@@ -1,6 +1,6 @@
 import { IconLink, IconUnlink } from '@douyinfe/semi-icons';
 import { Button, Descriptions, List, Space, TagGroup, Toast, Typography } from '@douyinfe/semi-ui';
-import { formatTime } from '@yuants/kernel';
+import { formatTime } from '@yuants/data-model';
 import { IDataRecord, ITerminalInfo } from '@yuants/protocol';
 import { formatDuration, intervalToDuration } from 'date-fns';
 import React from 'react';

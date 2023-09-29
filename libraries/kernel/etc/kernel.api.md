@@ -143,11 +143,6 @@ export class DataLoadingTaskUnit extends BasicUnit {
 // @public
 export const diffPosition: (source: IPosition[], target: IPosition[]) => IPositionDiff[];
 
-// Warning: (ae-internal-missing-underscore) The name "formatTime" should be prefixed with an underscore because the declaration is marked as @internal
-//
-// @internal (undocumented)
-export const formatTime: (time: Date | number) => string;
-
 // @public
 export const getClosePriceByDesiredProfit: (product: IProduct, openPrice: number, volume: number, desiredProfit: number, variant: PositionVariant, currency: string, quotes: (product_id: string) => {
     ask: number;
@@ -831,9 +826,9 @@ export class StopLossOrderMapperUnit extends BasicUnit {
 
 // Warnings were encountered during analysis:
 //
-// src/scenes/ActivePortfolioManagementScene.ts:313:5 - (ae-forgotten-export) The symbol "AccountFrameUnit" needs to be exported by the entry point index.d.ts
-// src/scenes/ActivePortfolioManagementScene.ts:316:5 - (ae-forgotten-export) The symbol "ActivePortfolioOptimizeSimulatorUnit" needs to be exported by the entry point index.d.ts
-// src/scenes/ActivePortfolioManagementScene.ts:317:5 - (ae-forgotten-export) The symbol "ActivePortfolioParamUnit" needs to be exported by the entry point index.d.ts
+// src/scenes/ActivePortfolioManagementScene.ts:317:5 - (ae-forgotten-export) The symbol "AccountFrameUnit" needs to be exported by the entry point index.d.ts
+// src/scenes/ActivePortfolioManagementScene.ts:320:5 - (ae-forgotten-export) The symbol "ActivePortfolioOptimizeSimulatorUnit" needs to be exported by the entry point index.d.ts
+// src/scenes/ActivePortfolioManagementScene.ts:321:5 - (ae-forgotten-export) The symbol "ActivePortfolioParamUnit" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

@@ -1,7 +1,7 @@
+import { formatTime } from '@yuants/data-model';
 import { IPeriod, Terminal } from '@yuants/protocol';
 import { lastValueFrom, map, retry, tap } from 'rxjs';
 import { Kernel } from '../kernel';
-import { formatTime } from '../utils';
 import { BasicUnit } from './BasicUnit';
 import { PeriodDataUnit } from './PeriodDataUnit';
 import { ProductDataUnit } from './ProductDataUnit';

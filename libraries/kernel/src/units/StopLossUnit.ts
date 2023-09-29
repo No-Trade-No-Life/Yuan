@@ -1,6 +1,6 @@
+import { UUID } from '@yuants/data-model';
 import { IOrder, OrderDirection, OrderType, PositionVariant } from '@yuants/protocol';
 import { Subscription } from 'rxjs';
-import { v4 } from 'uuid';
 import { Kernel } from '../kernel';
 import { getClosePriceByDesiredProfit, mergePositions } from '../utils';
 import { AccountPerformanceUnit } from './AccountPerformanceUnit';
@@ -94,7 +94,7 @@ export class StopLossOrderMapperUnit extends BasicUnit {
         const mergedPositions = mergePositions(this.sourceAccountSimulatorUnit.accountInfo.positions);
         for (const position of mergedPositions) {
           const order: IOrder = {
-            client_order_id: v4(),
+            client_order_id: UUID(),
             account_id: this.account_id,
             product_id: position.product_id,
             position_id: position.position_id,
@@ -145,7 +145,7 @@ export class StopLossOrderMapperUnit extends BasicUnit {
           continue;
         }
         const order: IOrder = {
-          client_order_id: v4(),
+          client_order_id: UUID(),
           account_id: this.account_id,
           product_id: position.product_id,
           position_id: position.position_id,

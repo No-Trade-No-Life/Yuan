@@ -1,7 +1,7 @@
+import { formatTime } from '@yuants/data-model';
 import { PromRegistry, Terminal } from '@yuants/protocol';
 import { EMPTY, Subscription, defer, mergeMap, repeat, retry, tap } from 'rxjs';
 import { Kernel } from '../kernel';
-import { formatTime } from '../utils';
 import { BasicUnit } from './BasicUnit';
 import { PeriodDataUnit } from './PeriodDataUnit';
 
@@ -106,7 +106,7 @@ export class PeriodDataCheckingUnit extends BasicUnit {
                 )
               ) {
                 console.error(
-                  new Date(),
+                  formatTime(Date.now()),
                   `数据自检失败`,
                   datasource_id,
                   product_id,

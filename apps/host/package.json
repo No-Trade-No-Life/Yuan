@@ -2,18 +2,21 @@
   "name": "@yuants/app-host",
   "version": "0.0.6",
   "description": "Host",
-  "scripts": {
-    "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
-  },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org",
-    "access": "public"
-  },
   "files": [
     "dist",
     "lib",
     "temp"
   ],
+  "scripts": {
+    "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
+  },
+  "dependencies": {
+    "@yuants/data-model": "workspace:*",
+    "@yuants/protocol": "workspace:*",
+    "promjs": "~0.4.2",
+    "rxjs": "~7.5.6",
+    "ws": "~8.8.1"
+  },
   "devDependencies": {
     "@microsoft/api-extractor": "~7.30.0",
     "@rushstack/heft": "~0.47.5",
@@ -22,17 +25,13 @@
     "@types/heft-jest": "1.0.3",
     "@types/json-schema": "~7.0.11",
     "@types/node": "18",
-    "@types/uuid": "~8.3.4",
     "@types/ws": "~8.5.3",
     "@yuants/extension": "workspace:*",
     "@yuants/tool-kit": "workspace:*",
     "typescript": "~4.7.4"
   },
-  "dependencies": {
-    "@yuants/protocol": "workspace:*",
-    "promjs": "~0.4.2",
-    "rxjs": "~7.5.6",
-    "uuid": "~9.0.0",
-    "ws": "~8.8.1"
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   }
 }

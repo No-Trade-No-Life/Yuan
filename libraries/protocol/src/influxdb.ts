@@ -1,4 +1,5 @@
 import { Point } from '@influxdata/influxdb-client-browser';
+import { formatTime } from '@yuants/data-model';
 import Axios from 'axios';
 import { isNode } from 'browser-or-node';
 import { bufferTime, filter, Subject } from 'rxjs';
@@ -106,10 +107,10 @@ export class InfluxClient {
       httpsAgent,
     })
       .then(() => {
-        console.debug(new Date(), `post influx succeed for ${lines.length} points`);
+        console.debug(formatTime(Date.now()), `post influx succeed for ${lines.length} points`);
       })
       .catch((e) => {
-        console.debug(new Date(), `post influx failed for ${lines.length} points: ${e}`);
+        console.debug(formatTime(Date.now()), `post influx failed for ${lines.length} points: ${e}`);
       });
   }
 }

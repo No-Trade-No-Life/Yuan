@@ -1,4 +1,5 @@
-import { BasicUnit, Kernel, PeriodDataUnit, ProductDataUnit, formatTime } from '@yuants/kernel';
+import { formatTime } from '@yuants/data-model';
+import { BasicUnit, Kernel, PeriodDataUnit, ProductDataUnit } from '@yuants/kernel';
 import { IPeriod, IProduct } from '@yuants/protocol';
 import { parse as csvParse } from 'csv-parse/browser/esm/sync';
 import { parse } from 'date-fns';

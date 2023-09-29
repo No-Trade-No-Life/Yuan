@@ -1,3 +1,4 @@
+import { formatTime } from '@yuants/data-model';
 import { IDataRecord, IPeriod, ISubscriptionRelation, Terminal } from '@yuants/protocol';
 import {
   Subscription,
@@ -145,11 +146,11 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
           origin: v,
         })),
         tap((task) => {
-          console.info(new Date(), '添加 pull source relation', JSON.stringify(task));
+          console.info(formatTime(Date.now()), '添加 pull source relation', JSON.stringify(task));
         }),
         toArray(),
         tap((v) => {
-          console.info(new Date(), '更新 pull source relation', JSON.stringify(v));
+          console.info(formatTime(Date.now()), '更新 pull source relation', JSON.stringify(v));
         }),
         delayWhen((v) => this.terminal.updateDataRecords(v, 'MongoDB')),
         retry({ delay: 1000, count: 5 }),
@@ -171,7 +172,7 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
               filter((service) => service.datasource_id === datasource_id),
               tap((service) => {
                 console.info(
-                  new Date(),
+                  formatTime(Date.now()),
                   '更新订阅关系',
                   JSON.stringify({
                     channel_id: encodeChannelId('Period', datasource_id, product_id, period_in_sec),
@@ -193,7 +194,7 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
                 ),
               ),
               tap(() => {
-                console.info(new Date(), '订阅关系更新成功');
+                console.info(formatTime(Date.now()), '订阅关系更新成功');
               }),
             ),
           ),

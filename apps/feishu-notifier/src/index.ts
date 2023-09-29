@@ -1,3 +1,4 @@
+import { formatTime } from '@yuants/data-model';
 import { IResponse, Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/notify';
@@ -52,9 +53,9 @@ const token$ = of({ expire: 0 }).pipe(
       map((resp) => resp.data as { code: number; msg: string; expire: number; app_access_token: string }),
       tap((resp) => {
         if (resp.code !== 0) {
-          console.error(new Date(), 'SendFeishuMessageError', JSON.stringify(resp));
+          console.error(formatTime(Date.now()), 'SendFeishuMessageError', JSON.stringify(resp));
         } else {
-          console.info(new Date(), 'TokenExpire', resp.expire);
+          console.info(formatTime(Date.now()), 'TokenExpire', resp.expire);
         }
       }),
       mergeMap((v) => {
@@ -134,7 +135,7 @@ function sendFeishuMessage(receiver_id: string, msg: string): Observable<IRespon
         map((resp) => resp.data as { code: number; msg: string; data: { message_id: string } }),
         tap((resp) => {
           if (resp.code !== 0) {
-            console.error(new Date(), 'SendFeishuMessageError', JSON.stringify(resp));
+            console.error(formatTime(Date.now()), 'SendFeishuMessageError', JSON.stringify(resp));
           }
         }),
         mergeMap((v) => {
@@ -164,7 +165,7 @@ function sendFeishuMessage(receiver_id: string, msg: string): Observable<IRespon
               map((resp) => resp.data as { code: number; msg: string; data: { message_id: string } }),
               tap((resp) => {
                 if (resp.code !== 0) {
-                  console.error(new Date(), 'MakeUrgentFailed', JSON.stringify(resp));
+                  console.error(formatTime(Date.now()), 'MakeUrgentFailed', JSON.stringify(resp));
                 }
               }),
               filter((v) => v.code === 0),

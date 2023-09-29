@@ -1,7 +1,7 @@
 import { encodePath } from '@yuants/agent';
+import { formatTime, UUID } from '@yuants/data-model';
 import {
   BehaviorSubject,
-  ReplaySubject,
   defer,
   delayWhen,
   distinct,
@@ -9,9 +9,9 @@ import {
   first,
   map,
   mergeMap,
+  ReplaySubject,
   toArray,
 } from 'rxjs';
-import { v4 } from 'uuid';
 import { createPersistBehaviorSubject } from '../../common/utils';
 
 export interface IHostConfigItem {
@@ -61,16 +61,19 @@ initAction$
     delayWhen(() => hostConfigList$.pipe(first((v) => v !== undefined))),
   )
   .subscribe((action) => {
-    console.info(new Date(), `从URL中解析到主机地址: ${action.payload.URL}`);
+    console.info(formatTime(Date.now()), `从URL中解析到主机地址: ${action.payload.URL}`);
     const theConfig = hostConfigList$.value?.find((item) => item.HV_URL === action.payload.URL);
     if (theConfig) {
-      console.info(new Date(), `本地配置中已经存在相同的主机 ${theConfig.name} ${theConfig.HV_URL}`);
+      console.info(
+        formatTime(Date.now()),
+        `本地配置中已经存在相同的主机 ${theConfig.name} ${theConfig.HV_URL}`,
+      );
       currentHostConfig$.next(theConfig);
     } else {
       const config: IHostConfigItem = {
         HV_URL: action.payload.URL,
         name: action.payload.name,
-        TERMINAL_ID: `GUI/${v4()}`,
+        TERMINAL_ID: `GUI/${UUID()}`,
       };
 
       hostConfigList$.next([...(hostConfigList$.value || []), config]);
