@@ -3,7 +3,7 @@ import { formatTime } from '@yuants/kernel';
 // @ts-ignore
 import untar from 'js-untar';
 import { dirname, join } from 'path-browserify';
-import { BehaviorSubject, defer, mergeMap, retry, switchMap, timeout } from 'rxjs';
+import { BehaviorSubject, defer, from, lastValueFrom, mergeMap, retry, switchMap, timeout } from 'rxjs';
 import { FsBackend$, fs } from '../FileSystem/api';
 
 export const downloadTgz = async (packageName: string, ver?: string) => {
@@ -64,6 +64,7 @@ interface IActiveExtensionInstance {
     description?: string;
     version: string;
   };
+  loadTime: number;
 }
 
 export const activeExtensions$ = new BehaviorSubject<IActiveExtensionInstance[]>([]);
@@ -71,8 +72,8 @@ export const DeployProviders: Record<string, IDeployProvider> = {};
 export const ImageTags: Record<string, string> = {};
 
 export const loadExtension = async (packageName: string) => {
-  console.debug(formatTime(Date.now()), `load extension "${packageName}"...`);
-
+  const t = Date.now();
+  console.debug(formatTime(t), `load extension "${packageName}"...`);
   try {
     const packageDir = getPackageDir(packageName);
     const packageJson = JSON.parse(await fs.readFile(join(packageDir, 'package.json')));
@@ -90,13 +91,16 @@ export const loadExtension = async (packageName: string) => {
         },
       });
     }
+    const tE = Date.now();
+    const loadTime = tE - t;
     activeExtensions$.next(
-      [...activeExtensions$.value.filter((x) => x.packageJson.name !== packageName), { packageJson }].sort(
-        (a, b) => a.packageJson.name.localeCompare(b.packageJson.name),
-      ),
+      [
+        ...activeExtensions$.value.filter((x) => x.packageJson.name !== packageName),
+        { packageJson, loadTime },
+      ].sort((a, b) => a.packageJson.name.localeCompare(b.packageJson.name)),
     );
 
-    console.debug(formatTime(Date.now()), `load extension "${packageName}" successfully`);
+    console.debug(formatTime(tE), `load extension "${packageName}" successfully in ${loadTime}ms`);
   } catch (e) {
     console.debug(formatTime(Date.now()), `load extension "${packageName}" failed:`, e);
     throw e;
@@ -126,6 +130,7 @@ FsBackend$.pipe(
 ).subscribe();
 
 export async function installExtensionFromTgz(tgzFilename: string) {
+  const t = Date.now();
   const tgz = await fs.readAsBlob(tgzFilename);
   const tarball = await new Response(
     tgz.stream().pipeThrough(
@@ -143,17 +148,24 @@ export async function installExtensionFromTgz(tgzFilename: string) {
   }
   const packageJson = JSON.parse(packageJsonFile.readAsString());
   const packageName = packageJson.name;
-  for (const file of files) {
-    console.debug(formatTime(Date.now()), `extension "${packageName}" extracting file "${file.name}"...`);
-    const filename = join(
-      '/.Y/extensions',
-      packageName.replace('@', '').replace('/', '-'),
-      file.name.replace(/^package\//, ''),
-    );
-    await fs.ensureDir(dirname(filename));
-    await fs.writeFile(filename, file.blob);
-  }
-  console.info(formatTime(Date.now()), `extension "${packageName}" installed`);
+  // Parallel: Very Fast for large amount of files
+  await lastValueFrom(
+    from(files).pipe(
+      mergeMap(async (file) => {
+        console.debug(formatTime(Date.now()), `extension "${packageName}" extracting file "${file.name}"...`);
+        const filename = join(
+          '/.Y/extensions',
+          packageName.replace('@', '').replace('/', '-'),
+          file.name.replace(/^package\//, ''),
+        );
+        await fs.ensureDir(dirname(filename));
+        await fs.writeFile(filename, file.blob);
+      }),
+    ),
+  );
+  const tE = Date.now();
+  const dur = tE - t;
+  console.info(formatTime(Date.now()), `extension "${packageName}" installed in ${dur}ms`);
 }
 
 function getPackageDir(packageName: string) {

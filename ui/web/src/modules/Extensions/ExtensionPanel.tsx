@@ -1,5 +1,6 @@
 import { IconArrowUp } from '@douyinfe/semi-icons';
 import { Button, List, Space, Tag, Toast, Typography } from '@douyinfe/semi-ui';
+import { Time } from '@icon-park/react';
 import { useObservableState } from 'observable-hooks';
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -48,7 +49,10 @@ export const ExtensionPanel = React.memo(() => {
               <Space vertical align="start">
                 <Typography.Title heading={6}>{instance.packageJson.name}</Typography.Title>
                 <Typography.Paragraph>{instance.packageJson.description}</Typography.Paragraph>
-                <Tag>{instance.packageJson.version}</Tag>
+                <Space>
+                  <Tag>{instance.packageJson.version}</Tag>
+                  <Time theme="outline" /> {instance.loadTime}ms
+                </Space>
                 <Button
                   loading={isProcessing}
                   icon={<IconArrowUp />}
