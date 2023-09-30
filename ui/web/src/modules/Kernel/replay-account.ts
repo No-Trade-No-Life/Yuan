@@ -30,7 +30,6 @@ export {};
 //   toArray
 // } from 'rxjs';
 // import { terminal$ } from './create-connection';
-// import { useProducts } from './source';
 // import { PERIOD_IN_SEC_TO_LABEL } from './utils';
 
 // interface PeriodTask {

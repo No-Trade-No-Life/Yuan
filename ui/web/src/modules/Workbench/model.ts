@@ -12,7 +12,7 @@ import {
   ReplaySubject,
   toArray,
 } from 'rxjs';
-import { createPersistBehaviorSubject } from '../../common/utils';
+import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehaviorSubject';
 
 export interface IHostConfigItem {
   //

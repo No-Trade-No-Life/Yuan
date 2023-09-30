@@ -15,9 +15,9 @@ import copy from 'copy-to-clipboard';
 import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
 import { useObservableState } from 'observable-hooks';
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import Form from '../Form';
+import { registerPage } from '../Pages';
 import { secretURL } from '../Terminals/NetworkStatusWidget';
 import { IHostConfigItem, currentHostConfig$, hostConfigList$ } from './model';
 
@@ -40,7 +40,7 @@ const configSchema = (): JSONSchema7 => ({
   },
 });
 
-export const HostList = React.memo(() => {
+registerPage('HostList', () => {
   const configs = useObservableState(hostConfigList$, []);
   const { t } = useTranslation('HostList');
 
@@ -137,6 +137,7 @@ export const HostList = React.memo(() => {
     </Space>
   );
 });
+
 function userForm<T>(title: string, schema: JSONSchema7, initialData?: any) {
   return new Promise<IHostConfigItem>((resolve, reject) => {
     let data = initialData;

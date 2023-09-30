@@ -4,10 +4,10 @@ import { OrderDirection, OrderType } from '@yuants/protocol';
 import { stringify } from 'csv-stringify/browser/esm/sync';
 import download from 'downloadjs';
 import { useObservableState } from 'observable-hooks';
-import React from 'react';
+import { registerPage } from '../Pages';
 import { orders$ } from './model';
 
-export const OrderListPanel = React.memo(() => {
+registerPage('OrderListPanel', () => {
   const orders = useObservableState(orders$);
 
   const handleExportOrderList = () => {

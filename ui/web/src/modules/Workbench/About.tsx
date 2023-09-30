@@ -1,12 +1,10 @@
 import { Descriptions, Space, Typography } from '@douyinfe/semi-ui';
 import { formatTime } from '@yuants/data-model';
-import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { registerCommand } from '../CommandCenter/CommandCenter';
 import { userTimezone } from '../Locale/utils';
-import { openPage } from '../Pages';
+import { registerPage } from '../Pages';
 
-export const About = React.memo(() => {
+registerPage('About', () => {
   const { t, i18n } = useTranslation('About');
   return (
     <Space style={{ padding: '2em' }}>
@@ -42,8 +40,4 @@ export const About = React.memo(() => {
       />
     </Space>
   );
-});
-
-registerCommand('About', () => {
-  openPage('About');
 });

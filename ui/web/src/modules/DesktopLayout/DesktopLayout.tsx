@@ -1,21 +1,27 @@
-import { Layout, Space, Typography } from '@douyinfe/semi-ui';
+import { IconRefresh } from '@douyinfe/semi-icons';
+import { Button, Empty, Layout, Space, Typography } from '@douyinfe/semi-ui';
 import { Actions, Layout as FlexLayout, TabNode } from 'flexlayout-react';
 import { useObservableState } from 'observable-hooks';
 import React, { useContext, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { isDarkMode$ } from '../../common/Darkmode';
-import { ErrorBoundary } from '../../common/ErrorBoundary';
-import { CommandCenter } from '../CommandCenter/CommandCenter';
+import { isDarkMode$ } from '../Workbench/darkmode';
+import { ErrorBoundary } from '../Pages/ErrorBoundary';
+import { CommandCenter, registerCommand } from '../CommandCenter';
 import { NetworkStatusWidget } from '../Terminals/NetworkStatusWidget';
 import { Login } from '../User/Login';
 import { UserMenu } from '../User/UserMenu';
 import { HomePage } from '../Workbench/HomePage';
 import { NotFound } from '../Workbench/NotFound';
-import { layoutModel$, layoutModelJson$ } from './layout-model';
+import { layoutModel$, layoutModelJson$, openPage } from './layout-model';
 const AvailableComponents: Record<string, React.ComponentType> = {};
 
 export const registerComponent = (components: Record<string, React.ComponentType>) => {
   Object.assign(AvailableComponents, components);
+};
+
+export const registerPage = (type: string, component: React.ComponentType) => {
+  AvailableComponents[type] = React.memo(component);
+  registerCommand(type, (params) => openPage(type, params));
 };
 
 const TabNodeContext = React.createContext<TabNode | null>(null);
@@ -71,8 +77,27 @@ export const DesktopLayout = () => {
       }
     };
     const theNode = getNode();
+
     return (
-      <ErrorBoundary>
+      <ErrorBoundary
+        fallback={({ error, reset }) => {
+          return (
+            <Empty
+              title={`错误: ${error}`}
+              description="渲染过程发生错误，请打开 F12 查看问题，并报告给 Yuan 的维护者"
+            >
+              <Button
+                icon={<IconRefresh />}
+                onClick={() => {
+                  reset();
+                }}
+              >
+                重试
+              </Button>
+            </Empty>
+          );
+        }}
+      >
         <TabNodeContext.Provider value={node}>{theNode}</TabNodeContext.Provider>
       </ErrorBoundary>
     );
@@ -104,12 +129,14 @@ export const DesktopLayout = () => {
             <CommandCenter />
           </Space>
           <Space>
-            <ErrorBoundary>
-              <Space>
+            <Space>
+              <ErrorBoundary>
                 <NetworkStatusWidget />
+              </ErrorBoundary>
+              <ErrorBoundary>
                 <UserMenu />
-              </Space>
-            </ErrorBoundary>
+              </ErrorBoundary>
+            </Space>
           </Space>
         </Space>
       </Layout.Header>

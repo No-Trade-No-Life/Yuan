@@ -1,18 +1,28 @@
 import { Banner, Button, Space, Toast, Typography } from '@douyinfe/semi-ui';
 import { AccountReplayScene, HistoryOrderUnit, StopLossAccountReplayScene } from '@yuants/kernel';
 import { useObservableState } from 'observable-hooks';
-import React, { useState } from 'react';
-import { terminal$ } from '../../common/create-connection';
-import { PERIOD_IN_SEC_TO_LABEL } from '../../common/utils';
+import { useState } from 'react';
 import { AccountFrameUnit } from '../AccountInfo/AccountFrameUnit';
 import { accountFrameSeries$, accountIds$, accountPerformance$ } from '../AccountInfo/model';
-import { registerCommand } from '../CommandCenter/CommandCenter';
 import { Form } from '../Form';
 import { orders$ } from '../Order/model';
-import { openPage } from '../Pages';
+import { registerPage } from '../Pages';
+import { terminal$ } from '../Terminals';
 import { currentKernel$ } from './model';
 
-export const AccountReplay = React.memo(() => {
+const PERIOD_IN_SEC_TO_LABEL: Record<number, string> = {
+  60: '1分钟',
+  300: '5分钟',
+  900: '15分钟',
+  1800: '30分钟',
+  3600: '1小时',
+  14400: '4小时',
+  86400: '1天',
+  [7 * 86400]: '1周',
+  [30 * 86400]: '1月',
+};
+
+registerPage('AccountReplay', () => {
   const terminal = useObservableState(terminal$);
   const accountList = useObservableState(accountIds$, []);
 
@@ -152,8 +162,4 @@ export const AccountReplay = React.memo(() => {
       </Space>
     </div>
   );
-});
-
-registerCommand('AccountReplay', () => {
-  openPage('AccountReplay');
 });

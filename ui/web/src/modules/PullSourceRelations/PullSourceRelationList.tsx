@@ -2,12 +2,11 @@ import { IconCopyAdd, IconDelete, IconEdit, IconRefresh, IconSearch } from '@dou
 import { Button, Modal, Popconfirm, Space, Table, Toast } from '@douyinfe/semi-ui';
 import { IDataRecord } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
-import { terminal$ } from '../../common/create-connection';
-import { registerCommand } from '../CommandCenter/CommandCenter';
+import { terminal$ } from '../Terminals';
 import Form from '../Form';
-import { openPage } from '../Pages';
+import { registerPage } from '../Pages';
 
 // TODO: Import
 interface IPullSourceRelation {
@@ -37,7 +36,7 @@ const mapPullSourceRelationToDataRecord = (x: IPullSourceRelation): IDataRecord<
   origin: x,
 });
 
-export const PullSourceRelationList = React.memo(() => {
+registerPage('PullSourceRelationList', () => {
   const [refreshId, setRefreshId] = useState(0);
   const [isSearchModalVisible, setSearchModalVisible] = useState(false);
 
@@ -280,8 +279,4 @@ export const PullSourceRelationList = React.memo(() => {
       </Modal>
     </Space>
   );
-});
-
-registerCommand('PullSourceRelationList', () => {
-  openPage('PullSourceRelationList');
 });

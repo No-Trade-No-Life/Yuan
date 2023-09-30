@@ -1,15 +1,14 @@
 import { Button, Space, Toast } from '@douyinfe/semi-ui';
 import { IOrder, OrderDirection, OrderType } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { first, mergeMap, of } from 'rxjs';
-import { terminal$ } from '../../common/create-connection';
 import { accountIds$ } from '../AccountInfo/model';
-import { registerCommand } from '../CommandCenter/CommandCenter';
 import { Form } from '../Form';
-import { openPage } from '../Pages';
+import { registerPage } from '../Pages';
+import { terminal$ } from '../Terminals';
 
-export const ManualTradePanel = React.memo(() => {
+registerPage('ManualTradePanel', () => {
   const [order, setOrder] = useState(undefined as IOrder | undefined);
   const [cancelFormData, setCancelFormData] = useState(
     undefined as
@@ -143,8 +142,4 @@ export const ManualTradePanel = React.memo(() => {
       ></Form>
     </Space>
   );
-});
-
-registerCommand('ManualTradePanel', () => {
-  openPage('ManualTradePanel');
 });

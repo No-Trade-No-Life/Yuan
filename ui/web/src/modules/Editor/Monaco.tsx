@@ -1,7 +1,7 @@
 import * as monaco from 'monaco-editor';
 import { useObservableState } from 'observable-hooks';
 import React, { FC, useEffect, useRef } from 'react';
-import { isDarkMode$ } from '../../common/Darkmode';
+import { isDarkMode$ } from '../Workbench/darkmode';
 
 export const MonacoEditor: FC<{
   value: string;

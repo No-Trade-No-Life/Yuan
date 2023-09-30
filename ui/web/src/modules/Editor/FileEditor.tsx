@@ -4,13 +4,13 @@ import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
 import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker';
 import { useObservable, useObservableState } from 'observable-hooks';
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { BehaviorSubject, defer, mergeMap, pipe, retry, tap } from 'rxjs';
-import { isDarkMode$ } from '../../common/Darkmode';
+import { isDarkMode$ } from '../Workbench/darkmode';
 import { rollupLoadEvent$ } from '../Agent/utils';
-import { executeCommand, registerCommand } from '../CommandCenter/CommandCenter';
+import { executeCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
-import { openPage, usePageParams, usePageTitle } from '../Pages';
+import { registerPage, usePageParams, usePageTitle } from '../Pages';
 
 Object.assign(globalThis, { monaco });
 
@@ -49,9 +49,13 @@ rollupLoadEvent$.subscribe(({ id, content }) => {
   }
 });
 
-export const FileEditor = React.memo(() => {
+registerPage('FileEditor', () => {
   const params = usePageParams();
-  const [filename, setFilename] = useState<string>(params.filename ?? '');
+  const [filename, setFilename] = useState<string>(params.filename);
+  if (!filename) {
+    throw 'No Filename';
+  }
+
   const uri = monaco.Uri.file(filename);
   const model = monaco.editor.getModel(uri);
 
@@ -244,8 +248,4 @@ monaco.editor.registerEditorOpener({
     }
     return false;
   },
-});
-
-registerCommand('FileEditor', ({ filename }) => {
-  openPage('FileEditor', { filename });
 });

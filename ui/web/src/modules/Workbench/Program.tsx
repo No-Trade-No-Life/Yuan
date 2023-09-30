@@ -1,8 +1,8 @@
 import { Range } from 'monaco-editor';
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ReplaySubject, Subject, bufferTime, filter } from 'rxjs';
 import { MonacoEditor } from '../Editor/Monaco';
+import { registerPage } from '../Pages';
 
 const error = console.error.bind(console);
 console.error = (...params: any[]) => {
@@ -24,7 +24,7 @@ console.info = (...params: any[]) => {
 const log$ = new ReplaySubject<string>(1000);
 export const clearLogAction$ = new Subject<void>();
 
-export const Program = React.memo(() => {
+registerPage('Program', () => {
   const { t } = useTranslation();
 
   return (

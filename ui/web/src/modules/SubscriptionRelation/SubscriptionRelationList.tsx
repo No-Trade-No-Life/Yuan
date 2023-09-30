@@ -2,12 +2,11 @@ import { IconCopyAdd, IconDelete, IconEdit, IconRefresh, IconSearch } from '@dou
 import { Button, Modal, Popconfirm, Space, Table, Toast } from '@douyinfe/semi-ui';
 import { IDataRecord, ISubscriptionRelation } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
-import { terminal$ } from '../../common/create-connection';
-import { registerCommand } from '../CommandCenter/CommandCenter';
+import { terminal$ } from '../Terminals';
 import Form from '../Form';
-import { openPage } from '../Pages';
+import { registerPage } from '../Pages';
 
 const TYPE = 'subscription_relation';
 
@@ -46,7 +45,7 @@ const schemaOnEdit = {
   },
 };
 
-export const SubscriptionRelationList = React.memo(() => {
+registerPage('SubscriptionRelationList', () => {
   const [refreshId, setRefreshId] = useState(0);
   const [isSearchModalVisible, setSearchModalVisible] = useState(false);
 
@@ -226,7 +225,4 @@ export const SubscriptionRelationList = React.memo(() => {
       </Modal>
     </Space>
   );
-});
-registerCommand('SubscriptionRelationList', () => {
-  openPage('SubscriptionRelationList');
 });

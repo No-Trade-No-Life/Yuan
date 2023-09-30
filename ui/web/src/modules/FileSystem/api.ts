@@ -1,6 +1,6 @@
 import { dirname } from 'path-browserify';
 import { BehaviorSubject } from 'rxjs';
-import { createPersistBehaviorSubject } from '../../common/utils';
+import { createPersistBehaviorSubject } from './createPersistBehaviorSubject';
 import { FileSystemHandleBackend } from './backends/FileSystemHandleBackend';
 import { IndexedDBBackend } from './backends/IndexedDBBackend';
 import { IFileSystemBackend } from './interfaces';

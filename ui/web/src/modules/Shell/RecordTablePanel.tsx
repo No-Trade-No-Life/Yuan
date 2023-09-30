@@ -1,10 +1,11 @@
 import { Descriptions, List, Select, Space, Typography } from '@douyinfe/semi-ui';
 import { useObservable, useObservableState } from 'observable-hooks';
-import React, { useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { from, groupBy, map, mergeMap, pipe, toArray } from 'rxjs';
+import { registerPage } from '../Pages';
 import { recordTable$ } from './model';
 
-export const RecordTablePanel = React.memo(() => {
+registerPage('RecordTablePanel', () => {
   const recordTable = useObservableState(recordTable$);
   const [tableName, setTableName] = useState('');
   const [groups, setGroups] = useState<string[]>([]);

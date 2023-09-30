@@ -2,7 +2,7 @@ import { IconClose, IconUndo } from '@douyinfe/semi-icons';
 import { Button, Empty, Space, Typography } from '@douyinfe/semi-ui';
 import React from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { executeCommand } from '../CommandCenter/CommandCenter';
+import { executeCommand } from '../CommandCenter';
 import { usePageType } from '../Pages';
 
 export const NotFound = React.memo(() => {

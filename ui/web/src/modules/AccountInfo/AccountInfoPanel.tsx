@@ -3,13 +3,11 @@ import { Collapse, Descriptions, Empty, Space, Table, Tooltip, Typography } from
 import { IPosition, OrderDirection, OrderType, PositionVariant } from '@yuants/protocol';
 import { format } from 'date-fns';
 import { useObservable, useObservableState } from 'observable-hooks';
-import React from 'react';
 import { from, groupBy, map, mergeMap, reduce, toArray } from 'rxjs';
-import { useAccountInfo } from '../../common/source';
-import { registerCommand } from '../CommandCenter/CommandCenter';
-import { openPage, usePageParams } from '../Pages';
+import { registerPage, usePageParams } from '../Pages';
+import { useAccountInfo } from './model';
 
-export const AccountInfoPanel = React.memo(() => {
+registerPage('AccountInfoPanel', () => {
   const { account_id: accountId } = usePageParams();
 
   const accountInfo$ = useObservable(() => useAccountInfo(accountId));
@@ -356,8 +354,4 @@ export const AccountInfoPanel = React.memo(() => {
       </Collapse>
     </Space>
   );
-});
-
-registerCommand('AccountInfoPanel', ({ account_id }) => {
-  openPage('AccountInfoPanel', { account_id });
 });

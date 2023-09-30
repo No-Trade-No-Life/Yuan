@@ -17,9 +17,9 @@ import {
   toArray,
 } from 'rxjs';
 import * as ts from 'typescript';
-import { terminal$ } from '../../common/create-connection';
 import { fs } from '../FileSystem/api';
 import { LocalAgentScene } from '../StaticFileServerStorage/LocalAgentScene';
+import { terminal$ } from '../Terminals/create-connection'; // ISSUE: WebWorker import this (Expected ":" but found "body")
 import { currentHostConfig$ } from '../Workbench/model';
 
 export const rollupLoadEvent$ = new Subject<{ id: string; content: string }>();

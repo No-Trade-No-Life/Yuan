@@ -3,13 +3,12 @@ import { Button, Space, Table, Toast, Typography } from '@douyinfe/semi-ui';
 import { IDeploySpec, IEnvContext } from '@yuants/protocol';
 import { parse } from 'jsonc-parser';
 import path from 'path-browserify';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { concatMap, from, map, mergeMap, reduce, toArray } from 'rxjs';
 import YAML from 'yaml';
-import { registerCommand } from '../CommandCenter/CommandCenter';
 import { DeployProviders, ImageTags } from '../Extensions/utils';
 import { fs } from '../FileSystem/api';
-import { openPage, usePageParams } from '../Pages';
+import { registerPage, usePageParams } from '../Pages';
 import { loadManifests } from './utils';
 
 // FYI: https://stackoverflow.com/a/30106551
@@ -21,7 +20,7 @@ const stringToBase64String = (str: string) => {
   );
 };
 
-export const DeployConfigForm = React.memo(() => {
+registerPage('DeployConfigForm', () => {
   const { filename } = usePageParams() as { filename: string };
 
   const [refreshCount, setRefreshCount] = useState(0);
@@ -225,8 +224,4 @@ export const DeployConfigForm = React.memo(() => {
       ></Table>
     </Space>
   );
-});
-
-registerCommand('DeployConfigForm', ({ filename }) => {
-  openPage('DeployConfigForm', { filename });
 });
