@@ -4,8 +4,8 @@ import { IPosition, OrderDirection, OrderType, PositionVariant } from '@yuants/p
 import { format } from 'date-fns';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { from, groupBy, map, mergeMap, reduce, toArray } from 'rxjs';
-import { useAccountInfo } from '../../common/source';
 import { registerPage, usePageParams } from '../Pages';
+import { useAccountInfo } from './model';
 
 registerPage('AccountInfoPanel', () => {
   const { account_id: accountId } = usePageParams();

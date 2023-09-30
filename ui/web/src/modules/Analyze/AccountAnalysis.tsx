@@ -21,7 +21,7 @@ export {};
 //   throwIfEmpty
 // } from 'rxjs';
 // import YAML from 'yaml';
-// import { terminal$ } from '../../common/create-connection';
+// import { terminal$ } from '../Terminals';
 // import { batchReplayAccount } from '../../common/replay-account';
 // import { PERIOD_IN_SEC_TO_LABEL } from '../../common/utils';
 // import { accountIds$ } from '../AccountInfo/model';

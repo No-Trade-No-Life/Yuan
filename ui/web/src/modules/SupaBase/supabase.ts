@@ -1,6 +1,5 @@
 import { User, createClient } from '@supabase/supabase-js';
-import { BehaviorSubject, fromEvent } from 'rxjs';
-import { createPersistBehaviorSubject } from './utils';
+import { BehaviorSubject } from 'rxjs';
 
 export const supabase = createClient(
   'https://makcbuwrvhmfggzvhtux.supabase.co',

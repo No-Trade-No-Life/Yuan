@@ -1,6 +1,6 @@
 import { Terminal } from '@yuants/protocol';
 import { debounceTime, first, map, shareReplay } from 'rxjs';
-import { currentHostConfig$ } from '../modules/Workbench/model';
+import { currentHostConfig$ } from '../Workbench/model';
 
 export const terminal$ = currentHostConfig$.pipe(
   debounceTime(100),

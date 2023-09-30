@@ -6,7 +6,7 @@ import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { BehaviorSubject, defer, mergeMap, pipe, retry, tap } from 'rxjs';
-import { isDarkMode$ } from '../../common/Darkmode';
+import { isDarkMode$ } from '../Workbench/darkmode';
 import { rollupLoadEvent$ } from '../Agent/utils';
 import { executeCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';

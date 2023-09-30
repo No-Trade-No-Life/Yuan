@@ -1,7 +1,7 @@
 import { Chart } from '@antv/g2';
 import { useObservableState } from 'observable-hooks';
 import React, { useEffect, useMemo, useRef } from 'react';
-import { isDarkMode$ } from '../../common/Darkmode';
+import { isDarkMode$ } from '../Workbench/darkmode';
 import { accountPerformance$ } from '../AccountInfo/model';
 
 export const WeeklyProfitChart = React.memo(() => {

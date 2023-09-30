@@ -15,15 +15,3 @@ export const createPersistBehaviorSubject = <T>(key: string, initialValue: T) =>
   });
   return subject$;
 };
-
-export const PERIOD_IN_SEC_TO_LABEL: Record<number, string> = {
-  60: '1分钟',
-  300: '5分钟',
-  900: '15分钟',
-  1800: '30分钟',
-  3600: '1小时',
-  14400: '4小时',
-  86400: '1天',
-  [7 * 86400]: '1周',
-  [30 * 86400]: '1月',
-};

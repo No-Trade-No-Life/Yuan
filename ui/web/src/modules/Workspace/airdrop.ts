@@ -2,7 +2,7 @@ import { Modal, Toast } from '@douyinfe/semi-ui';
 import { Terminal } from '@yuants/protocol';
 import { dirname } from 'path-browserify';
 import { bufferTime, defer, lastValueFrom, mergeMap } from 'rxjs';
-import { terminal$ } from '../../common/create-connection';
+import { terminal$ } from '../Terminals';
 import { fs } from '../FileSystem/api';
 
 export const sendFileByAirdrop = async (terminal: Terminal, target_terminal_id: string, filename: string) => {

@@ -1,7 +1,7 @@
 import { Chart } from '@antv/g2';
 import { useObservableState } from 'observable-hooks';
 import React, { useEffect, useMemo, useRef } from 'react';
-import { isDarkMode$ } from '../../common/Darkmode';
+import { isDarkMode$ } from '../Workbench/darkmode';
 import { IBatchAgentResultItem } from './utils';
 
 export const BatchProfitDrawbackRatioChart = React.memo((props: { results: IBatchAgentResultItem[] }) => {

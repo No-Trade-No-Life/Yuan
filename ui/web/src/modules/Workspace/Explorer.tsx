@@ -21,7 +21,7 @@ import React, { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { filter, from, lastValueFrom, map, mergeMap, toArray } from 'rxjs';
 import { unzip } from 'unzipit';
-import { terminal$ } from '../../common/create-connection';
+import { terminal$ } from '../Terminals';
 import { agentConf$, reloadSchemaAction$ } from '../Agent/AgentConfForm';
 import { writeManifestsFromBatchTasks } from '../Agent/utils';
 import { executeCommand, registerCommand } from '../CommandCenter';

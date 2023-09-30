@@ -3,10 +3,10 @@ import { IOrder, OrderDirection, OrderType } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import { first, mergeMap, of } from 'rxjs';
-import { terminal$ } from '../../common/create-connection';
 import { accountIds$ } from '../AccountInfo/model';
 import { Form } from '../Form';
 import { registerPage } from '../Pages';
+import { terminal$ } from '../Terminals';
 
 registerPage('ManualTradePanel', () => {
   const [order, setOrder] = useState(undefined as IOrder | undefined);

@@ -2,7 +2,7 @@ import { BasicUnit, IAccountPerformance, IShellConf, ShellScene } from '@yuants/
 import { IAccountInfo } from '@yuants/protocol';
 import { JSONSchema7 } from 'json-schema';
 import { Observable, firstValueFrom, from, map, toArray } from 'rxjs';
-import { terminal$ } from '../../common/create-connection';
+import { terminal$ } from '../Terminals';
 import { fs } from '../FileSystem/api';
 
 export type IEnumerableJsonSchema<T> = JSONSchema7;

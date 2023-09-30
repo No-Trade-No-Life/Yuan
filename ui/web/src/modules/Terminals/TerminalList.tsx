@@ -2,9 +2,9 @@ import { List } from '@douyinfe/semi-ui';
 import { ITerminalInfo } from '@yuants/protocol';
 import { useObservableState } from 'observable-hooks';
 import { defer, repeat, retry, shareReplay, switchMap, toArray } from 'rxjs';
-import { terminal$ } from '../../common/create-connection';
 import { registerPage } from '../Pages';
 import { TerminalListItem } from './TerminalListItem';
+import { terminal$ } from './create-connection';
 
 export const terminalList$ = terminal$.pipe(
   switchMap((terminal) =>

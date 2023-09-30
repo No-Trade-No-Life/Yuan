@@ -4,10 +4,10 @@ import { IProduct } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
-import { terminal$ } from '../../common/create-connection';
 import Form from '../Form';
 import { SearchButton } from '../Market/SearchButton';
 import { registerPage } from '../Pages';
+import { terminal$ } from '../Terminals';
 
 registerPage('ProductList', () => {
   const [refreshId, setRefreshId] = useState(0);

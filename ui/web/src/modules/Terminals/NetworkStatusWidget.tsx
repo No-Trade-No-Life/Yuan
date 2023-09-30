@@ -4,7 +4,7 @@ import { useObservable, useObservableState } from 'observable-hooks';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { bufferTime, combineLatest, map, switchMap } from 'rxjs';
-import { terminal$ } from '../../common/create-connection';
+import { terminal$ } from '../Terminals';
 import { openPage } from '../Pages';
 import { currentHostConfig$ } from '../Workbench/model';
 

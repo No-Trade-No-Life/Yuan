@@ -4,7 +4,7 @@ import { IDataRecord, ISubscriptionRelation } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
-import { terminal$ } from '../../common/create-connection';
+import { terminal$ } from '../Terminals';
 import Form from '../Form';
 import { registerPage } from '../Pages';
 

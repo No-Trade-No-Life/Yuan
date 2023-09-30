@@ -14,9 +14,9 @@ import { t } from 'i18next';
 import { useObservableState } from 'observable-hooks';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { authState$, supabase } from '../../common/supabase';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import i18n from '../Locale/i18n';
+import { authState$, supabase } from '../SupaBase';
 import { currentHostConfig$ } from '../Workbench/model';
 
 registerCommand('ChangeLanguage', () => {

@@ -2,8 +2,8 @@ import { Button, Descriptions, List, Space, Spin, Typography } from '@douyinfe/s
 import { formatTime } from '@yuants/data-model';
 import { useObservableState } from 'observable-hooks';
 import React from 'react';
-import { useAccountInfo } from '../../common/source';
 import { executeCommand } from '../CommandCenter';
+import { useAccountInfo } from './model';
 
 export const AccountInfoItem = React.memo((props: { account_id: string }) => {
   const accountInfo = useObservableState(useAccountInfo(props.account_id));

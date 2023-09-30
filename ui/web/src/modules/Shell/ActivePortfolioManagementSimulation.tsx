@@ -6,7 +6,7 @@ export default {};
 // import { useObservable, useObservableState } from 'observable-hooks';
 // import React, { useEffect, useState } from 'react';
 // import { EMPTY, defer, filter, map, mergeMap, pipe, retry, switchMap, tap } from 'rxjs';
-// import { terminal$ } from '../../common/create-connection';
+// import { terminal$ } from '../Terminals';
 // import { accountFrameSeries$, accountPerformance$ } from '../AccountInfo/model';
 // import { fs } from '../FileSystem/api';
 // import { currentKernel$ } from '../Kernel/model';

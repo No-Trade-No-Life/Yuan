@@ -3,12 +3,12 @@ import { Avatar, Button, Space, TextArea } from '@douyinfe/semi-ui';
 import { format } from 'date-fns';
 import { useObservableState } from 'observable-hooks';
 import { useState } from 'react';
-import { authState$ } from '../../common/supabase';
-import { createPersistBehaviorSubject } from '../../common/utils';
+import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehaviorSubject';
 import { agentConf$ } from '../Agent/AgentConfForm';
 import { registerCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import { openPage, registerPage, usePageViewport } from '../Pages';
+import { authState$ } from '../SupaBase';
 import { triggerLoginModalAction$ } from '../User/Login';
 import './LUI.css';
 

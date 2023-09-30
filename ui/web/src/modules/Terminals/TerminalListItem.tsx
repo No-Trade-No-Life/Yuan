@@ -5,7 +5,7 @@ import { IDataRecord, ITerminalInfo } from '@yuants/protocol';
 import { formatDuration, intervalToDuration } from 'date-fns';
 import React from 'react';
 import { EMPTY, catchError, first, mergeMap, tap } from 'rxjs';
-import { terminal$ } from '../../common/create-connection';
+import { terminal$ } from '../Terminals';
 
 export const TerminalListItem = React.memo((props: { terminalInfo: IDataRecord<ITerminalInfo> }) => {
   const term = props.terminalInfo;

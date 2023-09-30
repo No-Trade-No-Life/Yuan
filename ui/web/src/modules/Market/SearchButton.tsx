@@ -3,10 +3,21 @@ import { JSONSchema7 } from 'json-schema';
 import { useObservable, useObservableState } from 'observable-hooks';
 import React, { useMemo, useState } from 'react';
 import { defer, first, mergeMap, of, shareReplay, switchMap, tap } from 'rxjs';
-import { terminal$ } from '../../common/create-connection';
-import { PERIOD_IN_SEC_TO_LABEL } from '../../common/utils';
 import { executeCommand } from '../CommandCenter';
 import { Form } from '../Form';
+import { terminal$ } from '../Terminals';
+
+const PERIOD_IN_SEC_TO_LABEL: Record<number, string> = {
+  60: '1分钟',
+  300: '5分钟',
+  900: '15分钟',
+  1800: '30分钟',
+  3600: '1小时',
+  14400: '4小时',
+  86400: '1天',
+  [7 * 86400]: '1周',
+  [30 * 86400]: '1月',
+};
 
 export const datasourceIds$ = defer(() => terminal$).pipe(
   switchMap((terminal) => terminal.datasourceIds$),

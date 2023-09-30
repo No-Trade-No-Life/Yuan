@@ -12,9 +12,9 @@ import {
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useEffect, useMemo, useState } from 'react';
 import { BehaviorSubject, distinctUntilChanged, interval, map, mergeMap } from 'rxjs';
-import { terminal$ } from '../../common/create-connection';
 import { CandlestickSeries, Chart, ChartGroup } from '../Chart/components/Charts';
 import { registerPage, usePageParams } from '../Pages';
+import { terminal$ } from '../Terminals';
 
 registerPage('Market', () => {
   const params = usePageParams();

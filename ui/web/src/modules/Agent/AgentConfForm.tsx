@@ -21,8 +21,7 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { terminal$ } from '../../common/create-connection';
-import { createPersistBehaviorSubject } from '../../common/utils';
+import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehaviorSubject';
 import { AccountFrameUnit } from '../AccountInfo/AccountFrameUnit';
 import { accountFrameSeries$, accountPerformance$ } from '../AccountInfo/model';
 import { executeCommand, registerCommand } from '../CommandCenter';
@@ -33,6 +32,7 @@ import { orders$ } from '../Order/model';
 import { openExistPage, openPage, registerPage } from '../Pages';
 import { recordTable$ } from '../Shell/model';
 import { LocalAgentScene } from '../StaticFileServerStorage/LocalAgentScene';
+import { terminal$ } from '../Terminals';
 import { clearLogAction$ } from '../Workbench/Program';
 import { currentHostConfig$ } from '../Workbench/model';
 import { bundleCode } from './utils';

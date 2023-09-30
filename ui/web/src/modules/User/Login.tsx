@@ -3,8 +3,8 @@ import { Github, Wechat } from '@icon-park/react';
 import { useObservableState } from 'observable-hooks';
 import React, { useState } from 'react';
 import { BehaviorSubject, Subject, defer, mergeMap, tap, throttleTime } from 'rxjs';
-import { supabase } from '../../common/supabase';
 import { registerCommand } from '../CommandCenter';
+import { supabase } from '../SupaBase';
 
 export const triggerLoginModalAction$ = new Subject<void>();
 

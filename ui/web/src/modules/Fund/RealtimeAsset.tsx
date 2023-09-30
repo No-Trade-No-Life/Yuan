@@ -25,10 +25,10 @@ import {
   tap,
   toArray,
 } from 'rxjs';
-import { terminal$ } from '../../common/create-connection';
-import { useAccountInfo, useTick } from '../../common/source';
+import { useAccountInfo } from '../AccountInfo';
 import { fs } from '../FileSystem/api';
 import { registerPage, usePageParams, usePageTitle } from '../Pages';
+import { terminal$, useTick } from '../Terminals';
 
 interface IFundComponentConfig {
   //
