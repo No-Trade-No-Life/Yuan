@@ -1,3 +1,4 @@
+import { formatTime } from '@yuants/data-model';
 import {
   catchError,
   concatMap,
@@ -49,7 +50,7 @@ export const createZMQConnection = (ZMQ_PUSH_URL: string, ZMQ_PULL_URL: string) 
   );
 
   pushSock.events.on('accept', (e) => {
-    console.debug(new Date(), 'onAccept', e.address);
+    console.debug(formatTime(Date.now()), 'onAccept', e.address);
     connection$.next(e);
   });
 
@@ -57,7 +58,7 @@ export const createZMQConnection = (ZMQ_PUSH_URL: string, ZMQ_PULL_URL: string) 
     .pipe(
       //
       tap((rep) => {
-        console.debug(new Date(), `ZMQ PULL: ${rep}`);
+        console.debug(formatTime(Date.now()), `ZMQ PULL: ${rep}`);
       }),
       map((msg) => JSON.parse(msg.toString())),
     )
@@ -72,7 +73,7 @@ export const createZMQConnection = (ZMQ_PUSH_URL: string, ZMQ_PULL_URL: string) 
         of(req).pipe(
           map((msg) => JSON.stringify([msg])),
           tap((reqString) => {
-            console.debug(new Date(), `ZMQ PUSH: ${reqString}`);
+            console.debug(formatTime(Date.now()), `ZMQ PUSH: ${reqString}`);
           }),
           mergeMap((reqString) => pushSock.send(reqString)),
           delayWhen(() =>

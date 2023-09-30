@@ -1,4 +1,5 @@
 import { AgentUnit, IAgentConf } from '@yuants/agent';
+import { UUID } from '@yuants/data-model';
 import {
   AccountPerformanceUnit,
   AccountSimulatorUnit,
@@ -17,7 +18,6 @@ import {
   StopLossOrderMapperUnit,
   createEmptyAccountInfo,
 } from '@yuants/kernel';
-import { v4 } from 'uuid';
 import { StaticFileServerPeriodLoadingUnit } from './StaticFileServerPeriodLoadingUnit';
 
 /**
@@ -28,7 +28,7 @@ import { StaticFileServerPeriodLoadingUnit } from './StaticFileServerPeriodLoadi
 export const LocalAgentScene = async (agentConf: IAgentConf) => {
   const agentCode = agentConf.bundled_code;
   if (!agentCode) throw new Error('agentConf.bundled_code is required');
-  const resolved_account_id = agentConf.account_id || v4();
+  const resolved_account_id = agentConf.account_id || UUID();
   const resolved_currency = agentConf.currency || 'YYY';
 
   const resolved_start_timestamp = agentConf.start_time ? Date.parse(agentConf.start_time) : 0;

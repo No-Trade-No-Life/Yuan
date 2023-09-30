@@ -1,3 +1,4 @@
+import { formatTime } from '@yuants/data-model';
 import { lastValueFrom, map, mergeMap, range, tap, timer } from 'rxjs';
 import { Terminal } from './terminal';
 
@@ -25,7 +26,7 @@ describe('terminal', () => {
         return timer(5000).pipe(
           //
           tap(() => {
-            console.info(new Date(), 'server: test');
+            console.info(formatTime(Date.now()), 'server: test');
           }),
           map(() => ({ res: { code: 0, message: 'OK' } })),
         );

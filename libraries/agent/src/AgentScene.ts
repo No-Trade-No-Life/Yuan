@@ -1,3 +1,4 @@
+import { UUID } from '@yuants/data-model';
 import {
   AccountPerformanceMetricsUnit,
   AccountPerformanceUnit,
@@ -27,7 +28,6 @@ import {
 import { IAccountInfo, Terminal } from '@yuants/protocol';
 import { JSONSchema7 } from 'json-schema';
 import { Subject } from 'rxjs';
-import { v4 } from 'uuid';
 import { AgentUnit } from './AgentUnit';
 
 /**
@@ -179,7 +179,7 @@ export const agentConfSchema: JSONSchema7 = {
 export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
   const agentCode = agentConf.bundled_code;
   if (!agentCode) throw new Error(`agentConf.bundled_code is required`);
-  const resolved_account_id = agentConf.account_id || v4();
+  const resolved_account_id = agentConf.account_id || UUID();
   const resolved_currency = agentConf.currency || 'YYY';
 
   const resolved_start_timestamp = agentConf.start_time ? Date.parse(agentConf.start_time) : 0;

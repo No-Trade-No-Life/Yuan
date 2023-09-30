@@ -1,10 +1,10 @@
+import { formatTime } from '@yuants/data-model';
 import { IDeployProvider, IExtensionContext } from '@yuants/extension';
-import { formatTime } from '@yuants/kernel';
-// @ts-ignore
-import untar from 'js-untar';
 import { dirname, join } from 'path-browserify';
 import { BehaviorSubject, defer, from, lastValueFrom, mergeMap, retry, switchMap, timeout } from 'rxjs';
 import { FsBackend$, fs } from '../FileSystem/api';
+// @ts-ignore
+import untar from 'js-untar';
 
 export const downloadTgz = async (packageName: string, ver?: string) => {
   const { meta, version } = await resolveVersion(packageName);
@@ -29,7 +29,7 @@ export const installExtension = async (packageName: string, ver?: string) => {
     await downloadTgz(packageName);
   }
   await installExtensionFromTgz(tgzFilename);
-  console.debug(new Date(), `install extension "${packageName}" successfully`);
+  console.debug(formatTime(Date.now()), `install extension "${packageName}" successfully`);
 };
 
 export const PREINSTALLED_EXTENSIONS = [

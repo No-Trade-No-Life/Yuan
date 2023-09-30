@@ -1,4 +1,5 @@
 import { IAgentConf, agentConfSchema } from '@yuants/agent';
+import { UUID, formatTime } from '@yuants/data-model';
 import { diffPosition } from '@yuants/kernel';
 import { IAccountInfo, PromRegistry, Terminal, mergeAccountInfoPositions } from '@yuants/protocol';
 import Ajv from 'ajv';
@@ -20,7 +21,6 @@ import {
   tap,
   timer,
 } from 'rxjs';
-import { v4 } from 'uuid';
 import { Worker } from 'worker_threads';
 
 const workspaceRoot = path.resolve(process.env.YUAN_WORKSPACE!);
@@ -32,7 +32,7 @@ if (!validator.validate(agentConfSchema, agentConf)) {
   console.error(`Agent Config validation failed`, validator.errors);
   process.exit(1);
 }
-const accountId = agentConf.account_id || v4();
+const accountId = agentConf.account_id || UUID();
 const TERMINAL_ID = process.env.TERMINAL_ID || `agent/${accountId}`;
 
 const MetricPositionError = PromRegistry.create(
@@ -108,7 +108,12 @@ const run = async () => {
   if (agentConf.period_self_check_interval_in_second) {
     const interval = agentConf.period_self_check_interval_in_second * 1000;
 
-    console.info(new Date(), 'SelfCheckConfigDetected', 'Start Worker Rotate Process, interval: ', interval);
+    console.info(
+      formatTime(Date.now()),
+      'SelfCheckConfigDetected',
+      'Start Worker Rotate Process, interval: ',
+      interval,
+    );
 
     await firstValueFrom(currentMainWorker.accountInfo$);
 
@@ -123,7 +128,7 @@ const run = async () => {
         ),
         tap(() => {
           console.info(
-            new Date(),
+            formatTime(Date.now()),
             'WorkerRotateStart',
             'current main Worker terminalId: ',
             currentMainWorker.terminalId,
@@ -146,7 +151,7 @@ const run = async () => {
               const lastMainWorker = currentMainWorker;
               currentMainWorker = workerInstance;
               console.info(
-                new Date(),
+                formatTime(Date.now()),
                 'WorkerRotateEnd',
                 'killing previous main worker, new main worker terminalId: ',
                 currentMainWorker.terminalId,

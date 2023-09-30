@@ -11,7 +11,7 @@ import {
   Typography,
 } from '@douyinfe/semi-ui';
 import { IAgentConf } from '@yuants/agent';
-import { formatTime } from '@yuants/kernel';
+import { formatTime } from '@yuants/data-model';
 import copy from 'copy-to-clipboard';
 import { formatDuration, intervalToDuration } from 'date-fns';
 import ExcelJS from 'exceljs';
@@ -99,13 +99,13 @@ export const AgentBatchBackTest = React.memo(() => {
                   setResults((results) => results.concat(result));
                 },
                 subscribe: () => {
-                  console.info(new Date(), `批量回测子任务开始: ${i}/${tasks.length}`);
+                  console.info(formatTime(Date.now()), `批量回测子任务开始: ${i}/${tasks.length}`);
                 },
                 error: (err) => {
-                  console.info(new Date(), `批量回测子任务异常: ${i}/${tasks.length}: ${err}`);
+                  console.info(formatTime(Date.now()), `批量回测子任务异常: ${i}/${tasks.length}: ${err}`);
                 },
                 complete: () => {
-                  console.info(new Date(), `批量回测子任务完成: ${i}/${tasks.length}`);
+                  console.info(formatTime(Date.now()), `批量回测子任务完成: ${i}/${tasks.length}`);
                   setProgress((x) => ({
                     ...x,
                     current: x.current + 1,
@@ -134,13 +134,13 @@ export const AgentBatchBackTest = React.memo(() => {
                 setResults((results) => results.concat(result));
               },
               subscribe: () => {
-                console.info(new Date(), `批量回测子任务开始: ${i}/${tasks.length}`);
+                console.info(formatTime(Date.now()), `批量回测子任务开始: ${i}/${tasks.length}`);
               },
               error: (err) => {
-                console.info(new Date(), `批量回测子任务异常: ${i}/${tasks.length}: ${err}`);
+                console.info(formatTime(Date.now()), `批量回测子任务异常: ${i}/${tasks.length}: ${err}`);
               },
               complete: () => {
-                console.info(new Date(), `批量回测子任务完成: ${i}/${tasks.length}`);
+                console.info(formatTime(Date.now()), `批量回测子任务完成: ${i}/${tasks.length}`);
                 setProgress((x) => ({
                   ...x,
                   current: x.current + 1,

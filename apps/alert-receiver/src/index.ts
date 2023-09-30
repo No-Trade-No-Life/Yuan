@@ -1,3 +1,4 @@
+import { formatTime } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
 import Ajv from 'ajv';
 import express from 'express';
@@ -208,12 +209,12 @@ keepAliveSignal$
   .pipe(
     //
     tap(() => {
-      console.info(new Date(), 'WatchdogReceived');
+      console.info(formatTime(Date.now()), 'WatchdogReceived');
     }),
     timeout(5 * 60_000),
     catchError((e) => {
       if (e instanceof TimeoutError) {
-        console.error(new Date(), 'WatchdogFailed', '超过 300 秒没有收到 Watchdog');
+        console.error(formatTime(Date.now()), 'WatchdogFailed', '超过 300 秒没有收到 Watchdog');
         const alert: IAlertGroup = {
           name: 'WatchdogFailed',
           // TODO: read from alertmanager
@@ -244,7 +245,7 @@ httpServer.use(express.json({ limit: '128mb' }));
 
 httpServer.post('/alertmanager', (req, res) => {
   // receive alerts from alertmanager
-  console.info(new Date(), 'AlertReceived', JSON.stringify(req.body));
+  console.info(formatTime(Date.now()), 'AlertReceived', JSON.stringify(req.body));
   of(req.body as IAlertManagerMessage)
     .pipe(
       //
@@ -298,7 +299,7 @@ function sendAlert(alert: IAlertGroup) {
         filter((v) => (config.route_match[alert.severity] ?? config.route_match['UNKNOWN']) === v.route),
         tap((v) => {
           console.info(
-            new Date(),
+            formatTime(Date.now()),
             'MatchingAlertsWithReceivers',
             JSON.stringify({
               alert,
@@ -313,7 +314,7 @@ function sendAlert(alert: IAlertGroup) {
           }),
         ),
         catchError((err) => {
-          console.error(new Date(), 'NotifyFailed', err);
+          console.error(formatTime(Date.now()), 'NotifyFailed', err);
           return EMPTY;
         }),
       ),

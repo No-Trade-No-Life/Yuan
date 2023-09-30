@@ -1,6 +1,6 @@
+import { UUID } from '@yuants/data-model';
 import { IOrder, IPosition, IProduct, OrderDirection, OrderType, PositionVariant } from '@yuants/protocol';
 import { roundToStep } from '@yuants/utils';
-import { v4 } from 'uuid';
 import { Series } from '../SeriesDataUnit';
 import { ScriptUnit } from './ScriptUnit';
 import { ScriptNode } from './script-node';
@@ -252,7 +252,7 @@ export const useSinglePosition = (
   setTakeProfitPrice: (v: number) => void;
   setStopLossPrice: (v: number) => void;
 } & IPosition => {
-  const position_id = useRef(v4()).current;
+  const position_id = useRef(UUID()).current;
   const shell = useShell();
   const position = shell.accountInfoUnit.getPosition(position_id, product_id, variant);
   const stopLossOrderRef = useRef<IOrder | null>(null);
@@ -289,7 +289,7 @@ export const useSinglePosition = (
           return;
         }
         const order: IOrder = {
-          client_order_id: v4(),
+          client_order_id: UUID(),
           account_id: shell.accountInfoUnit.accountInfo.account_id,
           product_id: position.product_id,
           position_id: position.position_id,
@@ -309,7 +309,7 @@ export const useSinglePosition = (
           return;
         }
         const order: IOrder = {
-          client_order_id: v4(),
+          client_order_id: UUID(),
           account_id: shell.accountInfoUnit.accountInfo.account_id,
           product_id: position.product_id,
           position_id: position.position_id,
@@ -331,7 +331,7 @@ export const useSinglePosition = (
   useEffect(() => {
     if (takeProfitPrice && position.volume) {
       const order: IOrder = {
-        client_order_id: v4(),
+        client_order_id: UUID(),
         account_id: shell.accountInfoUnit.accountInfo.account_id,
         product_id,
         position_id,
@@ -354,7 +354,7 @@ export const useSinglePosition = (
   useEffect(() => {
     if (stopLossPrice && position.volume) {
       const order: IOrder = {
-        client_order_id: v4(),
+        client_order_id: UUID(),
         account_id: shell.accountInfoUnit.accountInfo.account_id,
         product_id,
         position_id,

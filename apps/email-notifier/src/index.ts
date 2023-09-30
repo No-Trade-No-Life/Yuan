@@ -1,3 +1,4 @@
+import { formatTime } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/notify';
@@ -32,7 +33,7 @@ term.setupService('Notify', (msg) => {
   ).pipe(
     //
     tap((info) => {
-      console.info(new Date(), 'SendEmail', msg.trace_id, info.messageId, info.response);
+      console.info(formatTime(Date.now()), 'SendEmail', msg.trace_id, info.messageId, info.response);
     }),
     map(() => ({ res: { code: 0, message: 'OK' } })),
   );

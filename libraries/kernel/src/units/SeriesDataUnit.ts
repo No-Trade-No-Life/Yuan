@@ -1,4 +1,4 @@
-import { v4 } from 'uuid';
+import { UUID } from '@yuants/data-model';
 import { BasicUnit } from './BasicUnit';
 
 /**
@@ -9,7 +9,7 @@ export class Series extends Array<number> {
   /**
    * 序列 UUID
    */
-  series_id = v4();
+  series_id = UUID();
   /**
    * 序列名称 (可重复)
    */

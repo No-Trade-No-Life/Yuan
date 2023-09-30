@@ -105,9 +105,9 @@ export default {};
 //               mergeMap((result, i) => {
 //                 if (result) {
 //                   setResults((results) => results.concat(result));
-//                   console.info(new Date(), result.performance);
+//                   console.info(formatTime(Date.now()), result.performance);
 //                 }
-//                 console.info(new Date(), `批量回测子任务结束: ${i + 1}/${tasks.length}`);
+//                 console.info(formatTime(Date.now()), `批量回测子任务结束: ${i + 1}/${tasks.length}`);
 //                 setProgress((x) => ({
 //                   ...x,
 //                   current: x.current + 1,

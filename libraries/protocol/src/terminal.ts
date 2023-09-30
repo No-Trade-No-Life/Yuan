@@ -1,3 +1,4 @@
+import { UUID, formatTime } from '@yuants/data-model';
 import { batchGroupBy, rateLimitMap, switchMapWithComplete } from '@yuants/utils';
 import { isNode } from 'browser-or-node';
 import {
@@ -32,7 +33,6 @@ import {
   timer,
   toArray,
 } from 'rxjs';
-import { v4 } from 'uuid';
 import { IConnection, createConnectionJson } from './create-connection';
 import {
   IAccountInfo,
@@ -155,7 +155,7 @@ export class Terminal {
     target_terminal_id: string,
     req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req'],
   ): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage> {
-    const trace_id = v4();
+    const trace_id = UUID();
     const msg: ITerminalMessage = {
       trace_id,
       method,
@@ -191,7 +191,7 @@ export class Terminal {
       });
       if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
         console.debug(
-          new Date(),
+          formatTime(Date.now()),
           'Terminal',
           'RX',
           msg.trace_id,
@@ -210,7 +210,7 @@ export class Terminal {
       });
       if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
         console.debug(
-          new Date(),
+          formatTime(Date.now()),
           'Terminal',
           'TX',
           msg.trace_id,
@@ -361,7 +361,7 @@ export class Terminal {
               }, 0);
               return output$.pipe(
                 catchError((err) => {
-                  console.error(new Date(), `ServerError`, msg, err);
+                  console.error(formatTime(Date.now()), `ServerError`, msg, err);
                   // TODO: add Metric Error here
                   return of({
                     res: { code: 500, message: `InternalError: ${err}` },
@@ -724,7 +724,7 @@ export class Terminal {
    */
   feed = (channel_id: string, data: any, target_terminal_id: string) => {
     this._conn.output$.next({
-      trace_id: v4(),
+      trace_id: UUID(),
       method: 'Feed',
       frame: { channel_id, data },
       source_terminal_id: this.terminalInfo.terminal_id,
@@ -960,7 +960,7 @@ export class Terminal {
               (a, b) => a.consumer_terminal_ids.join(',') === b.consumer_terminal_ids.join(','),
             ),
             tap((relation) => {
-              console.info(new Date(), 'SubscriptionRelationUpdated', relation);
+              console.info(formatTime(Date.now()), 'SubscriptionRelationUpdated', relation);
             }),
             switchMapWithComplete((relation) => {
               // Update service list
@@ -991,10 +991,10 @@ export class Terminal {
                     }
                   },
                   unsubscribe: () => {
-                    console.info(new Date(), 'tick subscription stopped', relation);
+                    console.info(formatTime(Date.now()), 'tick subscription stopped', relation);
                   },
                   subscribe: () => {
-                    console.info(new Date(), 'tick subscription started', relation);
+                    console.info(formatTime(Date.now()), 'tick subscription started', relation);
                   },
                 }),
               );
@@ -1030,7 +1030,7 @@ export class Terminal {
               (a, b) => a.consumer_terminal_ids.join(',') === b.consumer_terminal_ids.join(','),
             ),
             tap((relation) => {
-              console.info(new Date(), 'SubscriptionRelationUpdated', relation);
+              console.info(formatTime(Date.now()), 'SubscriptionRelationUpdated', relation);
             }),
             switchMapWithComplete((relation) => {
               // Update service list
@@ -1053,10 +1053,10 @@ export class Terminal {
                     }
                   },
                   unsubscribe: () => {
-                    console.info(new Date(), 'Period subscription ended', relation);
+                    console.info(formatTime(Date.now()), 'Period subscription ended', relation);
                   },
                   subscribe: () => {
-                    console.info(new Date(), 'Period subscription started', relation);
+                    console.info(formatTime(Date.now()), 'Period subscription started', relation);
                   },
                 }),
               );

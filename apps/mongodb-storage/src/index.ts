@@ -1,3 +1,4 @@
+import { formatTime } from '@yuants/data-model';
 import { IDataRecord, PromRegistry, Terminal } from '@yuants/protocol';
 import { MongoClient } from 'mongodb';
 import { bufferTime, concatWith, delayWhen, from, groupBy, map, mergeMap, of, tap, toArray } from 'rxjs';
@@ -19,7 +20,7 @@ const mongo = new MongoClient(process.env.MONGO_URI!);
 const db = mongo.db();
 
 db.stats().then((v) => {
-  console.info(new Date(), 'Connected', JSON.stringify(v));
+  console.info(formatTime(Date.now()), 'Connected', JSON.stringify(v));
   terminal.terminalInfo.status = 'OK';
 });
 
@@ -58,7 +59,7 @@ terminal.setupService('UpdateDataRecords', (msg) => {
         return group.pipe(
           toArray(),
           tap((records) => {
-            console.info(new Date(), `数据集 ${group.key} 准备写入 ${records.length} 条数据`);
+            console.info(formatTime(Date.now()), `数据集 ${group.key} 准备写入 ${records.length} 条数据`);
           }),
           delayWhen((records) =>
             from(
@@ -80,7 +81,7 @@ terminal.setupService('UpdateDataRecords', (msg) => {
             ),
           ),
           tap((records) => {
-            console.info(new Date(), `数据集 ${group.key} 维护索引完毕`);
+            console.info(formatTime(Date.now()), `数据集 ${group.key} 维护索引完毕`);
           }),
 
           mergeMap((records) =>
@@ -98,7 +99,7 @@ terminal.setupService('UpdateDataRecords', (msg) => {
           mergeMap((updateManyOps) => collection.bulkWrite(updateManyOps)),
           tap((records) => {
             console.info(
-              new Date(),
+              formatTime(Date.now()),
               `数据集 ${group.key} 批量写入结果 ${records.ok};`,
               `新增 ${records.upsertedCount} 条;`,
               `插入 ${records.insertedCount} 条;`,
@@ -131,11 +132,15 @@ terminal.setupService('RemoveDataRecords', (msg) => {
     return of({ res: { code: 400, message: `Must provide type` } });
   }
   const collection = db.collection(msg.req.type);
-  console.info(new Date(), `数据集 ${msg.req.type} 准备删除数据`, msg.req);
+  console.info(formatTime(Date.now()), `数据集 ${msg.req.type} 准备删除数据`, msg.req);
 
   return from(collection.deleteMany({ id: msg.req.id })).pipe(
     tap((result) => {
-      console.info(new Date(), `数据集 ${msg.req.type} 删除数据结果:`, `删除 ${result.deletedCount} 条;`);
+      console.info(
+        formatTime(Date.now()),
+        `数据集 ${msg.req.type} 删除数据结果:`,
+        `删除 ${result.deletedCount} 条;`,
+      );
     }),
     // 返回一个空对象，防止客户端超时报错
     bufferTime(2000),
@@ -151,7 +156,7 @@ terminal.setupService('QueryDataRecords', (msg) => {
   const startTime = Date.now();
   const collection = db.collection(msg.req.type);
 
-  console.info(new Date(), `数据集 ${msg.req.type} 准备查询数据`, msg.req);
+  console.info(formatTime(Date.now()), `数据集 ${msg.req.type} 准备查询数据`, msg.req);
 
   // 按时间查找的情况
   const cursor = collection.find<IDataRecord<any>>(
@@ -214,7 +219,7 @@ terminal.setupService('QueryDataRecords', (msg) => {
     map((records) => ({ frame: records })),
     concatWith(of({ res: { code: 0, message: 'OK' } })),
     tap((data) => {
-      console.info(new Date(), `数据集 ${msg.req.type} 查询结果`);
+      console.info(formatTime(Date.now()), `数据集 ${msg.req.type} 查询结果`);
     }),
   );
 });

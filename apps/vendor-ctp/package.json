@@ -13,12 +13,12 @@
     "build": "heft test --clean && node ./lib/scripts/build-ctp-types.js && node ./lib/scripts/build-ctp-bridge.js && yuan-toolkit post-build"
   },
   "dependencies": {
+    "@yuants/data-model": "workspace:*",
     "@yuants/protocol": "workspace:*",
     "@yuants/utils": "workspace:*",
     "binary-parser-encoder": "~1.5.3",
     "date-fns": "~2.29.3",
     "rxjs": "~7.5.6",
-    "uuid": "~9.0.0",
     "zeromq": "6.0.0-beta.6"
   },
   "devDependencies": {
@@ -29,7 +29,6 @@
     "@types/heft-jest": "1.0.3",
     "@types/json-schema": "~7.0.11",
     "@types/node": "18",
-    "@types/uuid": "~8.3.4",
     "@yuants/extension": "workspace:*",
     "@yuants/tool-kit": "workspace:*",
     "typescript": "~4.7.4"

@@ -1,4 +1,5 @@
 import { Button, Card, Descriptions, Empty, Space, Table, Toast, Typography } from '@douyinfe/semi-ui';
+import { formatTime } from '@yuants/data-model';
 import { IAccountInfo, Terminal } from '@yuants/protocol';
 import { format } from 'date-fns';
 import { parse } from 'jsonc-parser';
@@ -375,10 +376,10 @@ function sendReportToInvestor(terminal: Terminal, fundInfo: IFundInfo, investor:
       tap((msg) => {
         if (msg.res?.code === 0) {
           Toast.success(`成功发送报告至 ${investor.name} ${investor.email}`);
-          console.info(new Date(), `成功发送报告至 ${investor.name} ${investor.email}`);
+          console.info(formatTime(Date.now()), `成功发送报告至 ${investor.name} ${investor.email}`);
         } else {
           Toast.error(`发送报告失败 ${investor.name} ${investor.email}`);
-          console.info(new Date(), `发送报告失败 ${investor.name} ${investor.email}`);
+          console.info(formatTime(Date.now()), `发送报告失败 ${investor.name} ${investor.email}`);
         }
       }),
     );

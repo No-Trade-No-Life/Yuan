@@ -1,3 +1,4 @@
+import { formatTime } from '@yuants/data-model';
 import { createServer } from 'http';
 import { Observable, bindCallback, fromEvent, merge } from 'rxjs';
 import WebSocket from 'ws';
@@ -33,14 +34,14 @@ merge(
   bindCallback(process.once).call(process, 'SIGINT'),
   bindCallback(process.once).call(process, 'SIGTERM'),
 ).subscribe((sig) => {
-  console.info(new Date(), sig, 'terminate signal received, gracefully shutting down');
+  console.info(formatTime(Date.now()), sig, 'terminate signal received, gracefully shutting down');
   // ISSUE: 关闭所有连接，提早终端感知到并重连
   for (const ws of wss.clients) {
     ws.close();
   }
   wss.close();
   server.close();
-  console.info(new Date(), 'GracefullyShutdown', 'Done clean up');
+  console.info(formatTime(Date.now()), 'GracefullyShutdown', 'Done clean up');
   process.exit(0);
 });
 
@@ -50,13 +51,13 @@ server.on('upgrade', (request, socket, head) => {
   const host_token = params.get('host_token');
   const terminal_id = params.get('terminal_id');
   if (!((!process.env.HOST_TOKEN || host_token === process.env.HOST_TOKEN) && terminal_id)) {
-    console.info(new Date(), 'Auth Failed', { terminal_id, host_token });
+    console.info(formatTime(Date.now()), 'Auth Failed', { terminal_id, host_token });
     socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
     socket.destroy();
     return;
   }
   wss.handleUpgrade(request, socket, head, (ws) => {
-    console.info(new Date(), 'New Connection', { terminal_id });
+    console.info(formatTime(Date.now()), 'New Connection', { terminal_id });
     mapTerminalIdToSocket[terminal_id]?.close(); // 关闭旧连接
     mapTerminalIdToSocket[terminal_id] = ws; // 注册终端
     // 配置消息转发

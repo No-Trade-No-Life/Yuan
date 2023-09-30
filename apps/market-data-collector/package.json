@@ -2,18 +2,22 @@
   "name": "@yuants/app-market-data-collector",
   "version": "0.0.7",
   "main": "lib/index.js",
-  "scripts": {
-    "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
-  },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org",
-    "access": "public"
-  },
   "files": [
     "dist",
     "lib",
     "temp"
   ],
+  "scripts": {
+    "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
+  },
+  "dependencies": {
+    "@yuants/data-model": "workspace:*",
+    "@yuants/protocol": "workspace:*",
+    "@yuants/utils": "workspace:*",
+    "ajv": "~8.12.0",
+    "cron": "~2.3.0",
+    "rxjs": "~7.5.6"
+  },
   "devDependencies": {
     "@microsoft/api-extractor": "~7.30.0",
     "@rushstack/heft": "~0.47.5",
@@ -27,11 +31,8 @@
     "@yuants/tool-kit": "workspace:*",
     "typescript": "~4.7.4"
   },
-  "dependencies": {
-    "@yuants/protocol": "workspace:*",
-    "@yuants/utils": "workspace:*",
-    "ajv": "~8.12.0",
-    "cron": "~2.3.0",
-    "rxjs": "~7.5.6"
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   }
 }

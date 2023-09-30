@@ -1,4 +1,4 @@
-import { formatTime } from '@yuants/data-model';
+import { UUID, formatTime } from '@yuants/data-model';
 import { IPositionDiff, diffPosition, mergePositions } from '@yuants/kernel';
 import {
   IAccountInfo,
@@ -14,7 +14,6 @@ import {
 import { roundToStep } from '@yuants/utils';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
-import { randomUUID } from 'crypto';
 import { JSONSchema7 } from 'json-schema';
 import {
   EMPTY,
@@ -587,7 +586,7 @@ async function setup() {
               return of({
                 orders: [
                   {
-                    client_order_id: randomUUID(),
+                    client_order_id: UUID(),
                     account_id: group.target_account_id,
                     type: OrderType.MARKET,
                     product_id: positionDiff.product_id,
@@ -621,7 +620,7 @@ async function setup() {
               condition: (i) => i < order_count,
               iterate: (i) => i + 1,
               resultSelector: (i: number): IOrder => ({
-                client_order_id: randomUUID(),
+                client_order_id: UUID(),
                 account_id: group.target_account_id,
                 type: OrderType.MARKET,
                 product_id: positionDiff.product_id,

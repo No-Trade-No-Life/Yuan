@@ -11,9 +11,17 @@
   "scripts": {
     "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
   },
-  "publishConfig": {
-    "registry": "https://registry.npmjs.org",
-    "access": "public"
+  "dependencies": {
+    "@datastructures-js/priority-queue": "~6.3.0",
+    "@yuants/data-model": "workspace:*",
+    "@yuants/protocol": "workspace:*",
+    "@yuants/utils": "workspace:*",
+    "date-fns": "~2.30.0",
+    "json-schema": "~0.4.0",
+    "path-browserify": "~1.0.1",
+    "promjs": "~0.4.2",
+    "quadprog": "~1.6.1",
+    "rxjs": "~7.5.6"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "~7.30.0",
@@ -24,20 +32,11 @@
     "@types/json-schema": "7.0.11",
     "@types/node": "18",
     "@types/path-browserify": "~1.0.0",
-    "@types/uuid": "~8.3.4",
     "@yuants/tool-kit": "workspace:*",
     "typescript": "~4.7.4"
   },
-  "dependencies": {
-    "@datastructures-js/priority-queue": "~6.3.0",
-    "@yuants/protocol": "workspace:*",
-    "@yuants/utils": "workspace:*",
-    "date-fns": "~2.30.0",
-    "json-schema": "~0.4.0",
-    "path-browserify": "~1.0.1",
-    "promjs": "~0.4.2",
-    "quadprog": "~1.6.1",
-    "rxjs": "~7.5.6",
-    "uuid": "~8.3.2"
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   }
 }

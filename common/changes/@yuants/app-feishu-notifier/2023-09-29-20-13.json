@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-feishu-notifier",
+      "comment": "use formatTime and UUID from data-model",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-feishu-notifier"
+}

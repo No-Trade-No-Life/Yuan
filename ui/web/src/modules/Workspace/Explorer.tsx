@@ -1,10 +1,10 @@
 import {
   IconCopy,
   IconDelete,
-  IconEdit,
   IconFile,
   IconFolder,
   IconFolderOpen,
+  IconForward,
   IconImport,
   IconLoading,
   IconMore,
@@ -14,6 +14,7 @@ import { Button, Dropdown, Modal, Space, Toast, Tree } from '@douyinfe/semi-ui';
 import { TreeNodeData } from '@douyinfe/semi-ui/lib/es/tree/interface';
 import { formatTime } from '@yuants/data-model';
 import copy from 'copy-to-clipboard';
+import { t } from 'i18next';
 import { useObservableState } from 'observable-hooks';
 import path from 'path-browserify';
 import React, { useEffect, useState } from 'react';
@@ -23,13 +24,14 @@ import { unzip } from 'unzipit';
 import { terminal$ } from '../../common/create-connection';
 import { agentConf$, reloadSchemaAction$ } from '../Agent/AgentConfForm';
 import { writeManifestsFromBatchTasks } from '../Agent/utils';
-import { executeCommand } from '../CommandCenter/CommandCenter';
+import { executeCommand, registerCommand } from '../CommandCenter/CommandCenter';
 import { installExtensionFromTgz } from '../Extensions/utils';
 import { FsBackend$, fs, workspaceRoot$ } from '../FileSystem/api';
 import { currentHostConfig$ } from '../Workbench/model';
 import { sendFileByAirdrop } from './airdrop';
 
 export const Explorer = React.memo(() => {
+  const { t } = useTranslation('Explorer');
   const terminal = useObservableState(terminal$);
   const currentHostConfig = useObservableState(currentHostConfig$);
 
@@ -41,8 +43,6 @@ export const Explorer = React.memo(() => {
   ];
   const [treeData, setTreeData] = useState(initialData);
   const [treeKey, setTreeKey] = useState(0);
-
-  const { t } = useTranslation('Explorer');
 
   useEffect(() => {
     const sub = FsBackend$.subscribe(() => {
@@ -162,46 +162,7 @@ export const Explorer = React.memo(() => {
                       }}
                     >
                       <Dropdown.Menu>
-                        <Dropdown.Item
-                          icon={<IconCopy />}
-                          onClick={() => {
-                            copy(data.key);
-                            Toast.success(`复制到剪贴板: ${data.key}`);
-                          }}
-                        >
-                          复制路径
-                        </Dropdown.Item>
-                        {isLeaf ? null : (
-                          <Dropdown.Item
-                            icon={<IconFile />}
-                            onClick={async () => {
-                              const name = prompt(`于 ${data.key} 目录下创建文件，请输入文件名`);
-                              if (name) {
-                                const thePath = path.join(data.key, name);
-                                await fs.writeFile(thePath, '');
-                                Toast.success(`创建文件成功: ${thePath}`);
-                              }
-                            }}
-                          >
-                            创建文件...
-                          </Dropdown.Item>
-                        )}
-                        {isLeaf ? null : (
-                          <Dropdown.Item
-                            icon={<IconFolder />}
-                            onClick={async () => {
-                              const name = prompt(`于 ${data.key} 目录下创建目录，请输入目录名`);
-                              if (name) {
-                                const thePath = path.join(data.key, name);
-                                await fs.mkdir(thePath);
-                                Toast.success(`创建目录成功: ${thePath}`);
-                              }
-                            }}
-                          >
-                            创建目录...
-                          </Dropdown.Item>
-                        )}
-                        <Dropdown.Divider />
+                        <Dropdown.Title>{t('open')}</Dropdown.Title>
                         {data.key.match(/\.ts$/) ? (
                           <Dropdown.Item
                             onClick={() => {
@@ -210,35 +171,35 @@ export const Explorer = React.memo(() => {
                               executeCommand('AgentConfForm');
                             }}
                           >
-                            作为模型
+                            {t('open_as_agent')}
                           </Dropdown.Item>
                         ) : null}
-                        {data.key.match(/\.json$/) ? (
+                        {data.key.match(/\.fund\.json$/) ? (
                           <Dropdown.Item
                             onClick={() => {
                               executeCommand('RealtimeAsset', { filename: data.key });
                             }}
                           >
-                            作为基金结算配置
+                            {t('open_as_fund')}
                           </Dropdown.Item>
                         ) : null}
-                        {data.key.match(/\.batch.ts$/) ? (
+                        {data.key.match(/\.batch\.ts$/) ? (
                           <Dropdown.Item
                             onClick={() => {
                               executeCommand('AgentBatchBackTest', { filename: data.key });
                             }}
                           >
-                            作为批量回测配置
+                            {t('open_as_batch_backtest')}
                           </Dropdown.Item>
                         ) : null}
                         {data.key.match(/\.batch\.ts$/) && !!currentHostConfig$.value ? (
                           <Dropdown.Item
                             onClick={async () => {
                               await writeManifestsFromBatchTasks(data.key, currentHostConfig$.value?.HV_URL!);
-                              Toast.success(`生成部署配置成功`);
+                              Toast.success(t('common:succeed'));
                             }}
                           >
-                            生成部署配置
+                            {t('open_as_batch_agent_manifest')}
                           </Dropdown.Item>
                         ) : null}
                         {data.key.match(/\.?manifests\.(json|yaml|yml|ts)$/) ? (
@@ -247,7 +208,7 @@ export const Explorer = React.memo(() => {
                               executeCommand('DeployConfigForm', { filename: data.key });
                             }}
                           >
-                            作为部署配置
+                            {t('open_as_manifests')}
                           </Dropdown.Item>
                         ) : null}
                         {data.key.match(/\.tgz$/) ? (
@@ -256,37 +217,74 @@ export const Explorer = React.memo(() => {
                               installExtensionFromTgz(data.key);
                             }}
                           >
-                            安装拓展
+                            {t('open_as_extension_package')}
                           </Dropdown.Item>
                         ) : null}
                         <Dropdown.Divider />
-                        <Dropdown.Item disabled icon={<IconEdit />}>
-                          重命名
+                        <Dropdown.Title>{t('actions')}</Dropdown.Title>
+                        <Dropdown.Item
+                          icon={<IconCopy />}
+                          onClick={() => {
+                            copy(data.key);
+                            Toast.success(t('common:copied'));
+                          }}
+                        >
+                          {t('copy_filename')}
+                        </Dropdown.Item>
+                        {isLeaf ? null : (
+                          <Dropdown.Item
+                            icon={<IconFile />}
+                            onClick={() => {
+                              executeCommand('CreateFile', { baseDir: data.key });
+                            }}
+                          >
+                            {t('create_file')}
+                          </Dropdown.Item>
+                        )}
+                        {isLeaf ? null : (
+                          <Dropdown.Item
+                            icon={<IconFolder />}
+                            onClick={() => {
+                              executeCommand('CreateDirectory', { baseDir: data.key });
+                            }}
+                          >
+                            {t('create_directory')}
+                          </Dropdown.Item>
+                        )}
+                        <Dropdown.Item disabled icon={<IconForward />}>
+                          {t('move')}
                         </Dropdown.Item>
                         <Dropdown.Item
                           type="danger"
                           icon={<IconDelete />}
                           onClick={async () => {
-                            if (!confirm(`递归删除 ${data.key}，此操作无法恢复`)) {
+                            if (
+                              !confirm(
+                                t('delete_confirm', {
+                                  path: data.key,
+                                  interpolation: { escapeValue: false },
+                                }),
+                              )
+                            ) {
                               return;
                             }
                             await fs.rm(data.key);
-                            Toast.success(`删除成功 ${data.key}`);
+                            Toast.success(t('common:succeed'));
                           }}
                         >
-                          删除
+                          {t('delete')}
                         </Dropdown.Item>
                         <Dropdown.Item
                           icon={<IconSend />}
                           disabled={!data.isLeaf || !currentHostConfig}
                           onClick={() => {
                             if (!terminal) return;
-                            const target_terminal_id = prompt('投送目标终端');
+                            const target_terminal_id = prompt(t('airdrop_target'));
                             if (!target_terminal_id) return;
                             sendFileByAirdrop(terminal, target_terminal_id, data.key);
                           }}
                         >
-                          隔空投递
+                          {t('airdrop')}
                         </Dropdown.Item>
                       </Dropdown.Menu>
                     </div>
@@ -305,4 +303,24 @@ export const Explorer = React.memo(() => {
       ></Tree>
     </Space>
   );
+});
+
+registerCommand('CreateFile', async ({ baseDir = '/' }) => {
+  const name = prompt(t('common:CreateFile_prompt', { baseDir, interpolation: { escapeValue: false } }));
+  if (name) {
+    const filename = path.join(baseDir, name);
+    await fs.writeFile(filename, '');
+    Toast.success(t('common:CreateFile_succeed', { filename, interpolation: { escapeValue: false } }));
+  }
+});
+
+registerCommand('CreateDirectory', async ({ baseDir = '/' }) => {
+  const name = prompt(t('common:CreateDirectory_prompt', { baseDir, interpolation: { escapeValue: false } }));
+  if (name) {
+    const thePath = path.join(baseDir, name);
+    await fs.mkdir(thePath);
+    Toast.success(
+      t('common:CreateDirectory_succeed', { path: thePath, interpolation: { escapeValue: false } }),
+    );
+  }
 });

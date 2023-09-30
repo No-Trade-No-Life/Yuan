@@ -113,18 +113,24 @@ Note that some special namespaces are reserved for special usage.
 - i18n key formed with `"command:<id>"` will be used for translating the command's display name.
 - i18n key formed with `"page:<id>"` will be used for translating the title of the page.
 
-## Layout & Pages
+### Layouts & Pages
 
 There are several pages from different modules.
 
+**Page** is a top-level React component with some serializable params.
+Module ["Pages"](src/modules/Pages) provides the layout-independent model and methods to manipulate pages.
+
+**Layout** is a top-top-level React component that indicates how to render the pages.
+
+Layout should respond to the device screen size and adjust the layout accordingly, while the page should respond to the page's inner viewport.
+
 There are two kinds of layout: DesktopLayout and MobileLayout. They are used to render different UI according to the screen size.
 
-With large screen, DesktopLayout will be used. DesktopLayout use [flexlayout-react](https://github.com/caplin/FlexLayout) to render the layout. You can drag and drop the panels to change the layout.
+With large screen, module ["DesktopLayout"](src/modules/DesktopLayout) will be used. You can manage multiple pages in one screen. DesktopLayout use [flexlayout-react](https://github.com/caplin/FlexLayout) to render the layout. You can drag and drop the panels to change the layout.
 
 With small screen, MobileLayout will be used. In mobile layout, you can view only one page at a time. You can swipe left to go-back or right to go-forward by the history.
 
-Pages have the responsibility to self-adjust the layout according to the screen size.
-
-Some Tips:
+Some Tips for responsive design:
 
 - use `<Table />` in large screen and use `<List />` in small screen.
+- use `<Modal />` and other pop-ups in large screen and use a single page in small screen.

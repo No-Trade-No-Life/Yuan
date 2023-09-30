@@ -1,10 +1,10 @@
 import { IconCopyAdd, IconDelete, IconEdit, IconRefresh, IconSearch } from '@douyinfe/semi-icons';
 import { Button, Modal, Popconfirm, Space, Table, Toast } from '@douyinfe/semi-ui';
+import { UUID } from '@yuants/data-model';
 import { IDataRecord } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import React, { useState } from 'react';
 import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
-import { v4 } from 'uuid';
 import { terminal$ } from '../../common/create-connection';
 import { registerCommand } from '../CommandCenter/CommandCenter';
 import Form from '../Form';
@@ -26,7 +26,7 @@ interface ITradeCopyRelation {
 const TYPE = 'trade_copy_relation';
 
 const mapTradeCopyRelationToDataRecord = (x: ITradeCopyRelation): IDataRecord<ITradeCopyRelation> => {
-  const id = x.id || v4();
+  const id = x.id || UUID();
   return {
     id,
     type: TYPE,

@@ -1,10 +1,15 @@
 {
+  "CreateDirectory_prompt": "Create a directory under the {{ baseDir }} directory, please enter the directory name",
+  "CreateDirectory_succeed": "Directory created successfully: {{ path }}",
+  "CreateFile_prompt": "Create a file in the {{ baseDir }} directory, please enter the file name",
+  "CreateFile_succeed": "File created successfully: {{ filename }}",
   "Workspace": "Workspace",
   "cancel": "Cancel",
   "confirm_delete": "Confirm Delete",
   "confirm_delete_cancel": "Cancel",
   "confirm_delete_note": "This operation will be irreversible",
   "confirm_delete_ok": "Delete",
+  "copied": "Copied",
   "file_written": "File written: {{ filename }}",
   "order_direction_close_long": "Close long",
   "order_direction_close_short": "Close short",
@@ -12,5 +17,6 @@
   "order_direction_open_short": "Open short",
   "position_long": "",
   "position_short": "",
-  "submit": "Submit"
+  "submit": "Submit",
+  "succeed": "Succeed"
 }

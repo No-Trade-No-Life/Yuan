@@ -1,10 +1,15 @@
 {
+  "CreateDirectory_prompt": "于 {{ baseDir }} 目录下创建目录，请输入目录名",
+  "CreateDirectory_succeed": "创建目录成功: {{ path }}",
+  "CreateFile_prompt": "于 {{ baseDir }} 目录下创建文件，请输入文件名",
+  "CreateFile_succeed": "创建文件成功: {{ filename }}",
   "Workspace": "",
   "cancel": "取消",
   "confirm_delete": "确定是否删除？",
   "confirm_delete_cancel": "取消",
   "confirm_delete_note": "此操作将不可逆",
   "confirm_delete_ok": "删除",
+  "copied": "已复制",
   "file_written": "已写入文件: {{ filename }}",
   "order_direction_close_long": "平多",
   "order_direction_close_short": "平空",
@@ -12,5 +17,6 @@
   "order_direction_open_short": "开空",
   "position_long": "多",
   "position_short": "空",
-  "submit": "提交"
+  "submit": "提交",
+  "succeed": "成功"
 }

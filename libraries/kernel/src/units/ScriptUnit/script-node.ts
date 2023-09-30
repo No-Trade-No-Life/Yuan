@@ -1,7 +1,7 @@
+import { UUID } from '@yuants/data-model';
 import { OrderDirection, OrderType, PositionVariant } from '@yuants/protocol';
 import { JSONSchema7 } from 'json-schema';
 import path from 'path-browserify';
-import { v4 } from 'uuid';
 import { ScriptUnit } from './ScriptUnit';
 import {
   _nodeStack,
@@ -68,7 +68,7 @@ export class ScriptNode {
     public scriptConf: Record<string, any>,
   ) {}
 
-  id = v4();
+  id = UUID();
 
   _hooks: any[] = [];
   _hookIdx: number = 0;

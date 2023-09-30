@@ -1,6 +1,6 @@
+import { formatTime, UUID } from '@yuants/data-model';
 import { IAccountInfo, IOrder, OrderDirection, OrderType, PositionVariant } from '@yuants/protocol';
 import { roundToStep } from '@yuants/utils';
-import { v4 } from 'uuid';
 import { Kernel } from '../kernel';
 import { diffPosition, mergePositions } from '../utils';
 import { AccountPerformanceUnit, IAccountPerformance } from './AccountPerformanceUnit';
@@ -139,7 +139,7 @@ export class PortfolioSimulatorUnit extends BasicUnit {
           const coefficient = this.coefficient_fn(ctx);
           this.mapAccountIdToCoefficient[accountInfoUnit.accountInfo.account_id] = coefficient;
         } catch (e) {
-          console.error(new Date(), 'Coefficient function calculate error: ', e, 'ctx: ', ctx);
+          console.error(formatTime(Date.now()), 'Coefficient function calculate error: ', e, 'ctx: ', ctx);
           this.mapAccountIdToCoefficient[accountInfoUnit.accountInfo.account_id] = 0;
         }
         this.current_week_start_timestamp = this.kernel.currentTimestamp;
@@ -174,7 +174,7 @@ export class PortfolioSimulatorUnit extends BasicUnit {
     for (const positionDiff of positionDiffs) {
       // 逻辑有问题
       const order: IOrder = {
-        client_order_id: v4(),
+        client_order_id: UUID(),
         account_id: this.targetAccountInfoUnit.accountInfo.account_id,
         product_id: positionDiff.product_id,
         position_id:
