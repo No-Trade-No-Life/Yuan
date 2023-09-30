@@ -1,12 +1,13 @@
 import { IconInfoCircle } from '@douyinfe/semi-icons';
 import { Descriptions, Space, Tooltip } from '@douyinfe/semi-ui';
 import { useObservableState } from 'observable-hooks';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { WeeklyEquityChart } from '../Chart/WeeklyEquityChart';
 import { WeeklyProfitChart } from '../Chart/WeeklyProfitChart';
+import { registerPage } from '../Pages';
 import { accountPerformance$ } from './model';
 
-export const AccountPerformancePanel = React.memo(() => {
+registerPage('AccountPerformancePanel', () => {
   const performance = useObservableState(accountPerformance$);
 
   const data = useMemo(

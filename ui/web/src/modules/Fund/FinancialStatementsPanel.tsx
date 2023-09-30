@@ -1,7 +1,5 @@
 import { Descriptions, Divider, Table, Tooltip } from '@douyinfe/semi-ui';
-import React from 'react';
-import { registerCommand } from '../CommandCenter';
-import { openPage } from '../Pages';
+import { registerPage } from '../Pages';
 import { ClearingAndSettlement } from './ClearingAndSettlement';
 import { InvestorDetails, useFinancialReport } from './useFinancialReport';
 
@@ -28,7 +26,7 @@ const toDisplayWithRate = (amount: string, rate: number): string => {
   return `${amount} (${toRate(rate)})`;
 };
 
-export const FinancialStatementsPanel = React.memo(() => {
+registerPage('FinancialStatementsPanel', () => {
   const { history } = useFinancialReport();
   const latest = history[history.length - 1];
   if (!latest) return <>no data</>;
@@ -142,8 +140,4 @@ export const FinancialStatementsPanel = React.memo(() => {
       <ClearingAndSettlement />
     </>
   );
-});
-
-registerCommand('FinancialStatementsPanel', () => {
-  openPage('FinancialStatementsPanel');
 });

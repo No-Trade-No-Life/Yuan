@@ -4,7 +4,6 @@ import { IAccountInfo, Terminal } from '@yuants/protocol';
 import { format } from 'date-fns';
 import { parse } from 'jsonc-parser';
 import { useObservable, useObservableState } from 'observable-hooks';
-import React from 'react';
 import {
   EMPTY,
   Observable,
@@ -28,9 +27,8 @@ import {
 } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
 import { useAccountInfo, useTick } from '../../common/source';
-import { registerCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
-import { openPage, usePageParams, usePageTitle } from '../Pages';
+import { registerPage, usePageParams, usePageTitle } from '../Pages';
 
 interface IFundComponentConfig {
   //
@@ -226,7 +224,7 @@ const getReport = (info: IFundInfo, investor_id: string): string => {
   ].join('\n');
 };
 
-export const RealtimeAsset = React.memo(() => {
+registerPage('RealtimeAsset', () => {
   const params = usePageParams();
   const configFile = params.filename ?? '';
 
@@ -384,7 +382,3 @@ function sendReportToInvestor(terminal: Terminal, fundInfo: IFundInfo, investor:
       }),
     );
 }
-
-registerCommand('RealtimeAsset', ({ filename }) => {
-  openPage('RealtimeAsset', { filename });
-});

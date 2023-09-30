@@ -3,12 +3,12 @@ import { Button, Modal, Popconfirm, Space, Table, Toast } from '@douyinfe/semi-u
 import { UUID } from '@yuants/data-model';
 import { IDataRecord } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
 import { registerCommand } from '../CommandCenter';
 import Form from '../Form';
-import { openPage } from '../Pages';
+import { registerPage } from '../Pages';
 import { terminate } from '../Terminals/TerminalListItem';
 
 // TODO: Import
@@ -72,7 +72,7 @@ const schemaOnEdit = {
   },
 };
 
-export const TradeCopyRelationList = React.memo(() => {
+registerPage('TradeCopyRelationList', () => {
   const [refreshId, setRefreshId] = useState(0);
   const [isSearchModalVisible, setSearchModalVisible] = useState(false);
 
@@ -248,10 +248,6 @@ export const TradeCopyRelationList = React.memo(() => {
       </Modal>
     </Space>
   );
-});
-
-registerCommand('TradeCopyRelationList', () => {
-  openPage('TradeCopyRelationList');
 });
 
 registerCommand('TradeCopier.Restart', () => {

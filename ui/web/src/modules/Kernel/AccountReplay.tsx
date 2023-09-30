@@ -1,18 +1,17 @@
 import { Banner, Button, Space, Toast, Typography } from '@douyinfe/semi-ui';
 import { AccountReplayScene, HistoryOrderUnit, StopLossAccountReplayScene } from '@yuants/kernel';
 import { useObservableState } from 'observable-hooks';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { terminal$ } from '../../common/create-connection';
 import { PERIOD_IN_SEC_TO_LABEL } from '../../common/utils';
 import { AccountFrameUnit } from '../AccountInfo/AccountFrameUnit';
 import { accountFrameSeries$, accountIds$, accountPerformance$ } from '../AccountInfo/model';
-import { registerCommand } from '../CommandCenter';
 import { Form } from '../Form';
 import { orders$ } from '../Order/model';
-import { openPage } from '../Pages';
+import { registerPage } from '../Pages';
 import { currentKernel$ } from './model';
 
-export const AccountReplay = React.memo(() => {
+registerPage('AccountReplay', () => {
   const terminal = useObservableState(terminal$);
   const accountList = useObservableState(accountIds$, []);
 
@@ -152,8 +151,4 @@ export const AccountReplay = React.memo(() => {
       </Space>
     </div>
   );
-});
-
-registerCommand('AccountReplay', () => {
-  openPage('AccountReplay');
 });

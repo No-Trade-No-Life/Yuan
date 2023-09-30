@@ -1,9 +1,10 @@
 import { useObservableState } from 'observable-hooks';
-import React, { useMemo } from 'react';
+import { useMemo } from 'react';
 import { accountFrameSeries$ } from '../AccountInfo/model';
+import { registerPage } from '../Pages';
 import { Chart, ChartGroup, LineSeries } from './components/Charts';
 
-export const AccountFrameChart = React.memo(() => {
+registerPage('AccountFrameChart', () => {
   const positionValueSeries = useObservableState(accountFrameSeries$);
 
   const balanceData = useMemo(

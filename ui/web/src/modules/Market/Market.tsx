@@ -10,14 +10,13 @@ import {
   RealtimePeriodLoadingUnit,
 } from '@yuants/kernel';
 import { useObservable, useObservableState } from 'observable-hooks';
-import React, { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { BehaviorSubject, distinctUntilChanged, interval, map, mergeMap } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
 import { CandlestickSeries, Chart, ChartGroup } from '../Chart/components/Charts';
-import { registerCommand } from '../CommandCenter';
-import { openPage, usePageParams } from '../Pages';
+import { registerPage, usePageParams } from '../Pages';
 
-export const Market = React.memo(() => {
+registerPage('Market', () => {
   const params = usePageParams();
   const initialConfig = params as {
     datasource_id: string;
@@ -141,8 +140,4 @@ export const Market = React.memo(() => {
       </Layout.Content>
     </Layout>
   );
-});
-
-registerCommand('Market', (params) => {
-  openPage('Market', params);
 });

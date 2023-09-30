@@ -1,12 +1,10 @@
 import { List } from '@douyinfe/semi-ui';
 import { useObservableState } from 'observable-hooks';
-import React from 'react';
-import { registerCommand } from '../CommandCenter';
-import { openPage } from '../Pages';
+import { registerPage } from '../Pages';
 import { AccountInfoItem } from './AccountInfoItem';
 import { accountIds$ } from './model';
 
-export const AccountList = React.memo(() => {
+registerPage('AccountList', () => {
   const accountIds = useObservableState(accountIds$, []);
 
   return (
@@ -16,8 +14,4 @@ export const AccountList = React.memo(() => {
       ))}
     </List>
   );
-});
-
-registerCommand('AccountList', () => {
-  openPage('AccountList');
 });

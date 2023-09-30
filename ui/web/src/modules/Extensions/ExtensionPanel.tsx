@@ -2,11 +2,12 @@ import { IconArrowUp } from '@douyinfe/semi-icons';
 import { Button, List, Space, Tag, Toast, Typography } from '@douyinfe/semi-ui';
 import { Time } from '@icon-park/react';
 import { useObservableState } from 'observable-hooks';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { registerPage } from '../Pages';
 import { activeExtensions$, installExtension, loadExtension } from './utils';
 
-export const ExtensionPanel = React.memo(() => {
+registerPage('ExtensionPanel', () => {
   const { t } = useTranslation('ExtensionPanel');
   const activeExtensions = useObservableState(activeExtensions$);
 

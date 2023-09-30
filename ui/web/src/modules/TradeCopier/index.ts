@@ -1,0 +1,2 @@
+import './TradeConfigList';
+import './TradeCopyRelationList';

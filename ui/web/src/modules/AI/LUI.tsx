@@ -2,13 +2,13 @@ import { IconDelete, IconSend, IconUser } from '@douyinfe/semi-icons';
 import { Avatar, Button, Space, TextArea } from '@douyinfe/semi-ui';
 import { format } from 'date-fns';
 import { useObservableState } from 'observable-hooks';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { authState$ } from '../../common/supabase';
 import { createPersistBehaviorSubject } from '../../common/utils';
 import { agentConf$ } from '../Agent/AgentConfForm';
 import { registerCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
-import { openPage, usePageViewport } from '../Pages';
+import { openPage, registerPage, usePageViewport } from '../Pages';
 import { triggerLoginModalAction$ } from '../User/Login';
 import './LUI.css';
 
@@ -33,7 +33,7 @@ registerCommand('AI', () => {
   openPage('LUI');
 });
 
-export const LUI = React.memo(() => {
+registerPage('LUI', () => {
   const viewport = usePageViewport();
   const width = viewport?.w ?? Infinity;
   const [isLoading, setLoading] = useState(false);

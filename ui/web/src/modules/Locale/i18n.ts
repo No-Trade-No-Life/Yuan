@@ -25,4 +25,6 @@ i18n
     },
   });
 
+Object.assign(globalThis, { i18n });
+
 export default i18n;

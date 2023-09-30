@@ -1,5 +1,6 @@
 export {
   registerComponent,
+  registerPage,
   usePageParams,
   usePageTitle,
   usePageType,

@@ -2,15 +2,14 @@ import { IconCopyAdd, IconDelete, IconEdit, IconRefresh, IconSearch } from '@dou
 import { Button, Modal, Space, Table, Toast } from '@douyinfe/semi-ui';
 import { IProduct } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
-import { registerCommand } from '../CommandCenter';
 import Form from '../Form';
 import { SearchButton } from '../Market/SearchButton';
-import { openPage } from '../Pages';
+import { registerPage } from '../Pages';
 
-export const ProductList = React.memo(() => {
+registerPage('ProductList', () => {
   const [refreshId, setRefreshId] = useState(0);
   const [isSearchModalVisible, setSearchModalVisible] = useState(false);
 
@@ -313,8 +312,4 @@ export const ProductList = React.memo(() => {
       </Modal>
     </Space>
   );
-});
-
-registerCommand('ProductList', () => {
-  openPage('ProductList');
 });

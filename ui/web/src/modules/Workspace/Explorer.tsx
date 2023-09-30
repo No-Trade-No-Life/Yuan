@@ -29,8 +29,9 @@ import { installExtensionFromTgz } from '../Extensions/utils';
 import { FsBackend$, fs, workspaceRoot$ } from '../FileSystem/api';
 import { currentHostConfig$ } from '../Workbench/model';
 import { sendFileByAirdrop } from './airdrop';
+import { registerPage } from '../Pages';
 
-export const Explorer = React.memo(() => {
+registerPage('Explorer', () => {
   const { t } = useTranslation('Explorer');
   const terminal = useObservableState(terminal$);
   const currentHostConfig = useObservableState(currentHostConfig$);

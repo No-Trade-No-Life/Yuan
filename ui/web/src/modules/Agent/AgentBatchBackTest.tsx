@@ -17,7 +17,7 @@ import { formatDuration, intervalToDuration } from 'date-fns';
 import ExcelJS from 'exceljs';
 import { useObservable, useObservableState } from 'observable-hooks';
 import path from 'path-browserify';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   EMPTY,
@@ -35,9 +35,8 @@ import {
   tap,
 } from 'rxjs';
 import { agentConf$, runAgentAction$ } from '../Agent/AgentConfForm';
-import { executeCommand, registerCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
-import { openPage, usePageParams } from '../Pages';
+import { registerPage, usePageParams } from '../Pages';
 import { clearLogAction$ } from '../Workbench/Program';
 import { currentHostConfig$ } from '../Workbench/model';
 import { BatchProfitDrawbackRatioChart } from './BatchProfitDrawbackRatioChart';
@@ -50,7 +49,7 @@ import {
 } from './utils';
 import Worker from './webworker?worker';
 
-export const AgentBatchBackTest = React.memo(() => {
+registerPage('AgentBatchBackTest', () => {
   const { t } = useTranslation('AgentBatchBackTest');
   const { filename } = usePageParams() as { filename: string };
   const [results, setResults] = useState([] as Array<IBatchAgentResultItem>);
@@ -525,8 +524,4 @@ export const AgentBatchBackTest = React.memo(() => {
       ></Table>
     </Space>
   );
-});
-
-registerCommand('AgentBatchBackTest', ({ filename }) => {
-  openPage('AgentBatchBackTest', { filename });
 });
