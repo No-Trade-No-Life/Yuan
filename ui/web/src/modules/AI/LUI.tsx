@@ -6,7 +6,7 @@ import React, { useState } from 'react';
 import { authState$ } from '../../common/supabase';
 import { createPersistBehaviorSubject } from '../../common/utils';
 import { agentConf$ } from '../Agent/AgentConfForm';
-import { registerCommand } from '../CommandCenter/CommandCenter';
+import { registerCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import { openPage, usePageViewport } from '../Pages';
 import { triggerLoginModalAction$ } from '../User/Login';

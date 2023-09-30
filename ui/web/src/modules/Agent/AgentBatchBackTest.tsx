@@ -35,7 +35,7 @@ import {
   tap,
 } from 'rxjs';
 import { agentConf$, runAgentAction$ } from '../Agent/AgentConfForm';
-import { registerCommand } from '../CommandCenter/CommandCenter';
+import { executeCommand, registerCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import { openPage, usePageParams } from '../Pages';
 import { clearLogAction$ } from '../Workbench/Program';

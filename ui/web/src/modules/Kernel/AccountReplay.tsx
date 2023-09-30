@@ -6,7 +6,7 @@ import { terminal$ } from '../../common/create-connection';
 import { PERIOD_IN_SEC_TO_LABEL } from '../../common/utils';
 import { AccountFrameUnit } from '../AccountInfo/AccountFrameUnit';
 import { accountFrameSeries$, accountIds$, accountPerformance$ } from '../AccountInfo/model';
-import { registerCommand } from '../CommandCenter/CommandCenter';
+import { registerCommand } from '../CommandCenter';
 import { Form } from '../Form';
 import { orders$ } from '../Order/model';
 import { openPage } from '../Pages';

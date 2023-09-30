@@ -1,7 +1,7 @@
 import { List } from '@douyinfe/semi-ui';
 import { useObservableState } from 'observable-hooks';
 import React from 'react';
-import { registerCommand } from '../CommandCenter/CommandCenter';
+import { registerCommand } from '../CommandCenter';
 import { openPage } from '../Pages';
 import { AccountInfoItem } from './AccountInfoItem';
 import { accountIds$ } from './model';

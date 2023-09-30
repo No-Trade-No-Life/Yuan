@@ -4,7 +4,7 @@ import { useObservableState } from 'observable-hooks';
 import React, { useState } from 'react';
 import { BehaviorSubject, Subject, defer, mergeMap, tap, throttleTime } from 'rxjs';
 import { supabase } from '../../common/supabase';
-import { registerCommand } from '../CommandCenter/CommandCenter';
+import { registerCommand } from '../CommandCenter';
 
 export const triggerLoginModalAction$ = new Subject<void>();
 

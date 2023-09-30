@@ -1,6 +1,6 @@
 import { Descriptions, Divider, Table, Tooltip } from '@douyinfe/semi-ui';
 import React from 'react';
-import { registerCommand } from '../CommandCenter/CommandCenter';
+import { registerCommand } from '../CommandCenter';
 import { openPage } from '../Pages';
 import { ClearingAndSettlement } from './ClearingAndSettlement';
 import { InvestorDetails, useFinancialReport } from './useFinancialReport';

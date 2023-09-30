@@ -28,7 +28,7 @@ import {
 } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
 import { useAccountInfo, useTick } from '../../common/source';
-import { registerCommand } from '../CommandCenter/CommandCenter';
+import { registerCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import { openPage, usePageParams, usePageTitle } from '../Pages';
 

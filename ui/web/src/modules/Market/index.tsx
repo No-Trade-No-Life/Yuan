@@ -14,7 +14,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { BehaviorSubject, distinctUntilChanged, interval, map, mergeMap } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
 import { CandlestickSeries, Chart, ChartGroup } from '../Chart/components/Charts';
-import { registerCommand } from '../CommandCenter/CommandCenter';
+import { registerCommand } from '../CommandCenter';
 import { openPage, usePageParams } from '../Pages';
 
 export const Market = React.memo(() => {

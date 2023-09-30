@@ -8,7 +8,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { BehaviorSubject, defer, mergeMap, pipe, retry, tap } from 'rxjs';
 import { isDarkMode$ } from '../../common/Darkmode';
 import { rollupLoadEvent$ } from '../Agent/utils';
-import { executeCommand, registerCommand } from '../CommandCenter/CommandCenter';
+import { executeCommand, registerCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import { openPage, usePageParams, usePageTitle } from '../Pages';
 

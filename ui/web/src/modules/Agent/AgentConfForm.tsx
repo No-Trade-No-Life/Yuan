@@ -27,7 +27,7 @@ import { createPersistBehaviorSubject } from '../../common/utils';
 import { openExistPage, openPage } from '../Pages';
 import { AccountFrameUnit } from '../AccountInfo/AccountFrameUnit';
 import { accountFrameSeries$, accountPerformance$ } from '../AccountInfo/model';
-import { executeCommand, registerCommand } from '../CommandCenter/CommandCenter';
+import { executeCommand, registerCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import Form from '../Form';
 import { currentKernel$ } from '../Kernel/model';

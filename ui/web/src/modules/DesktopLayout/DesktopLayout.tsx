@@ -5,7 +5,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { isDarkMode$ } from '../../common/Darkmode';
 import { ErrorBoundary } from '../../common/ErrorBoundary';
-import { CommandCenter } from '../CommandCenter/CommandCenter';
+import { CommandCenter } from '../CommandCenter';
 import { NetworkStatusWidget } from '../Terminals/NetworkStatusWidget';
 import { Login } from '../User/Login';
 import { UserMenu } from '../User/UserMenu';

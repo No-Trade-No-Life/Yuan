@@ -5,7 +5,7 @@ import React, { useMemo, useState } from 'react';
 import { defer, first, mergeMap, of, shareReplay, switchMap, tap } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
 import { PERIOD_IN_SEC_TO_LABEL } from '../../common/utils';
-import { executeCommand } from '../CommandCenter/CommandCenter';
+import { executeCommand } from '../CommandCenter';
 import { Form } from '../Form';
 
 export const datasourceIds$ = defer(() => terminal$).pipe(

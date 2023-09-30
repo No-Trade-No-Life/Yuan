@@ -6,7 +6,7 @@ import path from 'path-browserify';
 import React, { useEffect, useState } from 'react';
 import { concatMap, from, map, mergeMap, reduce, toArray } from 'rxjs';
 import YAML from 'yaml';
-import { registerCommand } from '../CommandCenter/CommandCenter';
+import { registerCommand } from '../CommandCenter';
 import { DeployProviders, ImageTags } from '../Extensions/utils';
 import { fs } from '../FileSystem/api';
 import { openPage, usePageParams } from '../Pages';

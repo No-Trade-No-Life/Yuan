@@ -2,7 +2,7 @@ import { Descriptions, Space, Typography } from '@douyinfe/semi-ui';
 import { formatTime } from '@yuants/data-model';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { registerCommand } from '../CommandCenter/CommandCenter';
+import { registerCommand } from '../CommandCenter';
 import { userTimezone } from '../Locale/utils';
 import { openPage } from '../Pages';
 

@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { first, mergeMap, of } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
 import { accountIds$ } from '../AccountInfo/model';
-import { registerCommand } from '../CommandCenter/CommandCenter';
+import { registerCommand } from '../CommandCenter';
 import { Form } from '../Form';
 import { openPage } from '../Pages';
 

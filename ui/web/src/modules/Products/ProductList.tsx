@@ -5,7 +5,7 @@ import { useObservable, useObservableState } from 'observable-hooks';
 import React, { useState } from 'react';
 import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
 import { terminal$ } from '../../common/create-connection';
-import { registerCommand } from '../CommandCenter/CommandCenter';
+import { registerCommand } from '../CommandCenter';
 import Form from '../Form';
 import { SearchButton } from '../Market/SearchButton';
 import { openPage } from '../Pages';

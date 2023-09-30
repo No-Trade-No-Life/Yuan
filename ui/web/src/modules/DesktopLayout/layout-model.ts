@@ -2,7 +2,7 @@ import * as FlexLayout from 'flexlayout-react';
 import hotkeys from 'hotkeys-js';
 import { BehaviorSubject, bufferCount, combineLatest, first, map, Subject } from 'rxjs';
 import { createPersistBehaviorSubject } from '../../common/utils';
-import { registerCommand } from '../CommandCenter/CommandCenter';
+import { registerCommand } from '../CommandCenter';
 
 const initialJson = (): FlexLayout.IJsonModel => ({
   global: {

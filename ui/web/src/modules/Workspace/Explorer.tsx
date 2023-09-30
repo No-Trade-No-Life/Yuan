@@ -24,7 +24,7 @@ import { unzip } from 'unzipit';
 import { terminal$ } from '../../common/create-connection';
 import { agentConf$, reloadSchemaAction$ } from '../Agent/AgentConfForm';
 import { writeManifestsFromBatchTasks } from '../Agent/utils';
-import { executeCommand, registerCommand } from '../CommandCenter/CommandCenter';
+import { executeCommand, registerCommand } from '../CommandCenter';
 import { installExtensionFromTgz } from '../Extensions/utils';
 import { FsBackend$, fs, workspaceRoot$ } from '../FileSystem/api';
 import { currentHostConfig$ } from '../Workbench/model';

@@ -3,7 +3,7 @@ import { formatTime } from '@yuants/data-model';
 import { useObservableState } from 'observable-hooks';
 import React from 'react';
 import { useAccountInfo } from '../../common/source';
-import { executeCommand } from '../CommandCenter/CommandCenter';
+import { executeCommand } from '../CommandCenter';
 
 export const AccountInfoItem = React.memo((props: { account_id: string }) => {
   const accountInfo = useObservableState(useAccountInfo(props.account_id));

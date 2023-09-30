@@ -6,7 +6,7 @@ import { useObservable, useObservableState } from 'observable-hooks';
 import React from 'react';
 import { from, groupBy, map, mergeMap, reduce, toArray } from 'rxjs';
 import { useAccountInfo } from '../../common/source';
-import { registerCommand } from '../CommandCenter/CommandCenter';
+import { registerCommand } from '../CommandCenter';
 import { openPage, usePageParams } from '../Pages';
 
 export const AccountInfoPanel = React.memo(() => {
