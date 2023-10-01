@@ -4,8 +4,10 @@ import { useMemo, useState } from 'react';
 import { from, groupBy, map, mergeMap, pipe, toArray } from 'rxjs';
 import { registerPage } from '../Pages';
 import { recordTable$ } from './model';
+import { useTranslation } from 'react-i18next';
 
 registerPage('RecordTablePanel', () => {
+  const { t } = useTranslation('RecordTablePanel');
   const recordTable = useObservableState(recordTable$);
   const [tableName, setTableName] = useState('');
   const [groups, setGroups] = useState<string[]>([]);
@@ -74,7 +76,7 @@ registerPage('RecordTablePanel', () => {
   return (
     <Space vertical align="start">
       <Select
-        prefix="表"
+        prefix={t('table')}
         value={tableName}
         onChange={(v) => {
           if (typeof v === 'string') {
@@ -84,7 +86,7 @@ registerPage('RecordTablePanel', () => {
         optionList={tableNames.map((k) => ({ value: k, label: k }))}
       ></Select>
       <Select
-        prefix="组"
+        prefix={t('group')}
         multiple
         value={groups}
         onChange={(e) => {
@@ -94,7 +96,7 @@ registerPage('RecordTablePanel', () => {
       ></Select>
 
       <Select
-        prefix="值"
+        prefix={t('value')}
         multiple
         value={values}
         onChange={(e) => {
@@ -102,35 +104,40 @@ registerPage('RecordTablePanel', () => {
         }}
         optionList={properties.flatMap((k) => [
           {
-            label: `计数:${k}`,
+            label: t('count', { value: k }),
             value: `count:${k}`,
           },
           {
-            label: `求和:${k}`,
+            label: t('sum', { value: k }),
             value: `sum:${k}`,
           },
           {
-            label: `平均值:${k}`,
+            label: t('avg', { value: k }),
             value: `avg:${k}`,
           },
         ])}
       ></Select>
       <Typography.Text>
-        总样本数: {originData.length} 组数: {data.length}
+        {t('description_text', {
+          total: originData.length,
+          groups: data.length,
+        })}
       </Typography.Text>
       <List
         dataSource={data}
+        emptyContent={t('common:empty')}
         renderItem={(item) => (
           <List.Item>
             <div>
               <Descriptions
                 data={[
-                  { key: '组别', value: item.groupKey || '*' },
-                  { key: '组内样本', value: item.samples },
+                  { key: t('group_key'), value: item.groupKey || '*' },
+                  { key: t('samples'), value: item.samples },
                 ]}
               />
               <List
                 dataSource={item.values}
+                emptyContent={t('common:empty')}
                 renderItem={(x) => (
                   <List.Item>
                     <div>

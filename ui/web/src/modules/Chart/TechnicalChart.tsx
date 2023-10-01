@@ -14,6 +14,7 @@ import {
   LineSeries,
   OrderSeries,
 } from './components/Charts';
+import { useTranslation } from 'react-i18next';
 const DEFAULT_SINGLE_COLOR_SCHEME: string[] = [
   '#5B8FF9',
   '#61DDAA',
@@ -44,6 +45,7 @@ const resolveChartId = (series: Series): string => {
 };
 
 registerPage('TechnicalChart', () => {
+  const [t] = useTranslation('TechnicalChart');
   const [frame, setFrame] = useState(0);
   const kernel = useObservableState(currentKernel$);
   const [periodKey, setPeriodKey] = useState(undefined as string | undefined);
@@ -109,7 +111,7 @@ registerPage('TechnicalChart', () => {
   const orders = useObservableState(orders$);
 
   if (!kernel || periodsOptions.length === 0) {
-    return <Empty title="无走势图可用" description={'请先运行代码 或 账户回放'} />;
+    return <Empty title={t('empty_reminder')} description={t('empty_reminder_description')} />;
   }
 
   const hasAuxChart =

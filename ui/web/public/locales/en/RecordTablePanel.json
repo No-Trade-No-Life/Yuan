@@ -1,0 +1,11 @@
+{
+  "avg": "Average: {{ value }}",
+  "count": "Count: {{ value }}",
+  "description_text": "Total number of samples: {{ total }} Number of groups: {{ groups }}",
+  "group": "Group",
+  "group_key": "Group Key",
+  "samples": "Samples in group",
+  "sum": "Sum: {{ value }}",
+  "table": "Table",
+  "value": "value"
+}

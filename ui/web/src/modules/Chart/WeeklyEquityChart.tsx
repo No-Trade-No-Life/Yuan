@@ -3,8 +3,10 @@ import { useObservableState } from 'observable-hooks';
 import React, { useEffect, useMemo, useRef } from 'react';
 import { isDarkMode$ } from '../Workbench/darkmode';
 import { accountPerformance$ } from '../AccountInfo/model';
+import { useTranslation } from 'react-i18next';
 
 export const WeeklyEquityChart = React.memo(() => {
+  const [t] = useTranslation('WeeklyEquityChart');
   const accountPerformance = useObservableState(accountPerformance$);
   const data = useMemo(
     () =>
@@ -25,7 +27,7 @@ export const WeeklyEquityChart = React.memo(() => {
         marginLeft: 80,
         autoFit: true,
       });
-      chart.title('每周净值曲线图');
+      chart.title(t('weekly_equity_chart'));
       chart.line().data(data).encode('x', 'week').encode('y', 'value');
       chart.render();
     }

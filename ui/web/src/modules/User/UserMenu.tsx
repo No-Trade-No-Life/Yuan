@@ -76,22 +76,6 @@ export const UserMenu = React.memo(() => {
           >
             {t('AI Assistant')}
           </Dropdown.Item>
-          <Dropdown.Item
-            disabled={!isHostMode}
-            onClick={() => {
-              executeCommand('ManualTradePanel');
-            }}
-          >
-            手动交易 <Tag>主机模式可用</Tag>
-          </Dropdown.Item>
-          <Dropdown.Item
-            disabled={!isHostMode}
-            onClick={() => {
-              executeCommand('AccountReplay');
-            }}
-          >
-            账户回放 <Tag>主机模式可用</Tag>
-          </Dropdown.Item>
           <Dropdown.Divider />
           <Dropdown.Title>{t('settings')}</Dropdown.Title>
           <Dropdown.Item
@@ -109,72 +93,6 @@ export const UserMenu = React.memo(() => {
             }}
           >
             {t('change_language')}
-          </Dropdown.Item>
-          <Dropdown.Divider />
-          <Dropdown.Title>数据管理</Dropdown.Title>
-          <Dropdown.Item
-            disabled={!isHostMode}
-            onClick={() => {
-              executeCommand('TerminalList');
-            }}
-          >
-            终端列表 <Tag>主机模式可用</Tag>
-          </Dropdown.Item>
-          <Dropdown.Item
-            disabled={!isHostMode}
-            onClick={() => {
-              executeCommand('AccountList');
-            }}
-          >
-            账户列表 <Tag>主机模式可用</Tag>
-          </Dropdown.Item>
-          <Dropdown.Item
-            disabled={!isHostMode}
-            onClick={() => {
-              executeCommand('ProductList');
-            }}
-          >
-            品种列表 <Tag>主机模式可用</Tag>
-          </Dropdown.Item>
-          <Dropdown.Item
-            disabled={!isHostMode}
-            onClick={() => {
-              executeCommand('PullSourceRelationList');
-            }}
-          >
-            同步关系列表 <Tag>主机模式可用</Tag>
-          </Dropdown.Item>
-          <Dropdown.Item
-            disabled={!isHostMode}
-            onClick={() => {
-              executeCommand('GeneralSpecificRelationList');
-            }}
-          >
-            标准品种关系列表 <Tag>主机模式可用</Tag>
-          </Dropdown.Item>
-          <Dropdown.Item
-            disabled={!isHostMode}
-            onClick={() => {
-              executeCommand('TradeCopyRelationList');
-            }}
-          >
-            跟单关系列表 <Tag>主机模式可用</Tag>
-          </Dropdown.Item>
-          <Dropdown.Item
-            disabled={!isHostMode}
-            onClick={() => {
-              executeCommand('TradeConfigList');
-            }}
-          >
-            交易配置列表 <Tag>主机模式可用</Tag>
-          </Dropdown.Item>
-          <Dropdown.Item
-            disabled={!isHostMode}
-            onClick={() => {
-              executeCommand('SubscriptionRelationList');
-            }}
-          >
-            订阅关系列表 <Tag>主机模式可用</Tag>
           </Dropdown.Item>
           <Dropdown.Divider />
           <Dropdown.Title>{t('about')}</Dropdown.Title>
