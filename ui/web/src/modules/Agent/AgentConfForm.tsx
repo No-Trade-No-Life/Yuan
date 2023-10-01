@@ -21,15 +21,15 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehaviorSubject';
 import { AccountFrameUnit } from '../AccountInfo/AccountFrameUnit';
 import { accountFrameSeries$, accountPerformance$ } from '../AccountInfo/model';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
+import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehaviorSubject';
 import Form from '../Form';
 import { currentKernel$ } from '../Kernel/model';
 import { orders$ } from '../Order/model';
-import { openExistPage, openPage, registerPage } from '../Pages';
+import { registerPage } from '../Pages';
 import { recordTable$ } from '../Shell/model';
 import { LocalAgentScene } from '../StaticFileServerStorage/LocalAgentScene';
 import { terminal$ } from '../Terminals';
@@ -147,7 +147,7 @@ runAgentAction$.subscribe(async () => {
       accountPerformance$.next(scene.accountPerformanceUnit.performance);
       accountFrameSeries$.next(accountFrameUnit.data);
       if (Object.keys(scene.agentUnit.record_table).length > 0) {
-        openPage('RecordTablePanel');
+        executeCommand('Page.open', { type: 'RecordTablePanel' });
       }
     } else {
       const terminal = await firstValueFrom(terminal$);
@@ -167,14 +167,14 @@ runAgentAction$.subscribe(async () => {
       accountPerformance$.next(scene.accountPerformanceUnit.performance);
       accountFrameSeries$.next(accountFrameUnit.data);
       if (Object.keys(scene.agentUnit.record_table).length > 0) {
-        openPage('RecordTablePanel');
+        executeCommand('Page.open', { type: 'RecordTablePanel' });
       }
     }
 
-    openPage('OrderListPanel');
-    openPage('TechnicalChart');
-    openPage('AccountFrameChart');
-    openPage('AccountPerformancePanel');
+    executeCommand('Page.open', { type: 'OrderListPanel' });
+    executeCommand('Page.open', { type: 'TechnicalChart' });
+    executeCommand('Page.open', { type: 'AccountFrameChart' });
+    executeCommand('Page.open', { type: 'AccountPerformancePanel' });
 
     Toast.success(t('AgentConfForm:run_succeed'));
   } catch (e) {
@@ -255,7 +255,7 @@ registerPage('AgentConfForm', () => {
 
 // Override Default Behavior
 registerCommand('AgentConfForm', () => {
-  openExistPage('AgentConfForm');
+  executeCommand('Page.select', { id: 'AgentConfForm' });
 });
 
 registerCommand('Agent.Run', () => {

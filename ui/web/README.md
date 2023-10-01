@@ -110,8 +110,8 @@ t('yyy');
 
 Note that some special namespaces are reserved for special usage.
 
-- i18n key formed with `"command:<id>"` will be used for translating the command's display name.
-- i18n key formed with `"page:<id>"` will be used for translating the title of the page.
+- i18n key formed with `"commands:<id>"` will be used for translating the command's display name.
+- i18n key formed with `"pages:<id>"` will be used for translating the title of the page.
 
 ### Layouts & Pages
 

@@ -104,7 +104,7 @@ export const CommandCenter = React.memo(() => {
                 }}
               >
                 <Space vertical align="start">
-                  {i18n.exists(`command:${item.item.id}`) && <div>{t(`command:${item.item.id}`)}</div>}
+                  {i18n.exists(`commands:${item.item.id}`) && <div>{t(`commands:${item.item.id}`)}</div>}
                   <div>
                     <HighlightChars str={item.item.id} indices={item.positions} />
                   </div>

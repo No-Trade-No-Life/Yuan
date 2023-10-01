@@ -1,9 +1,2 @@
-export {
-  registerComponent,
-  registerPage,
-  usePageParams,
-  usePageTitle,
-  usePageType,
-  usePageViewport,
-} from '../DesktopLayout/DesktopLayout';
-export { openExistPage, openPage } from '../DesktopLayout/layout-model';
+export { Page, usePageParams, usePageTitle, usePageType, usePageViewport } from './Page';
+export { registerPage } from './model';

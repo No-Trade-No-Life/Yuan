@@ -4,8 +4,8 @@ import { useObservable, useObservableState } from 'observable-hooks';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { bufferTime, combineLatest, map, switchMap } from 'rxjs';
+import { executeCommand } from '../CommandCenter';
 import { terminal$ } from '../Terminals';
-import { openPage } from '../Pages';
 import { currentHostConfig$ } from '../Workbench/model';
 
 export const secretURL = (url: string) => {
@@ -84,7 +84,7 @@ export const NetworkStatusWidget = React.memo(() => {
             <Button
               icon={<IconWrench />}
               onClick={() => {
-                openPage('HostList');
+                executeCommand('Page.open', { type: 'HostList' });
               }}
             >
               {t('config')}
