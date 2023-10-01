@@ -1,8 +1,8 @@
 import * as FlexLayout from 'flexlayout-react';
 import hotkeys from 'hotkeys-js';
 import { BehaviorSubject, bufferCount, combineLatest, first, map, Subject } from 'rxjs';
-import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehaviorSubject';
 import { registerCommand } from '../CommandCenter';
+import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehaviorSubject';
 
 const initialJson = (): FlexLayout.IJsonModel => ({
   global: {
@@ -20,6 +20,7 @@ const initialJson = (): FlexLayout.IJsonModel => ({
           id: 'Explorer',
           component: 'Explorer',
           enableDrag: false,
+          enableRename: false,
           enableClose: false,
         },
         {
@@ -27,12 +28,14 @@ const initialJson = (): FlexLayout.IJsonModel => ({
           id: 'AgentConfForm',
           component: 'AgentConfForm',
           enableDrag: false,
+          enableRename: false,
           enableClose: false,
         },
         {
           type: 'tab',
           id: 'ExtensionPanel',
           component: 'ExtensionPanel',
+          enableRename: false,
           enableDrag: false,
           enableClose: false,
         },
@@ -46,6 +49,8 @@ const initialJson = (): FlexLayout.IJsonModel => ({
           type: 'tab',
           id: 'Program',
           enableClose: false,
+          enableRename: false,
+          enableDrag: false,
           component: 'Program',
         },
       ],
@@ -93,9 +98,14 @@ export function openPage(pageKey: string, params = {}) {
     return;
   }
 
-  const activeTabset = model.getActiveTabset();
+  const activeTabset =
+    model.getActiveTabset() ||
+    model
+      .getRoot()
+      .getChildren()
+      .find((node) => node.getType() === 'tabset');
   if (!activeTabset) {
-    alert('No Active Tabset');
+    // NO
     return;
   }
   model.doAction(
@@ -104,11 +114,12 @@ export function openPage(pageKey: string, params = {}) {
         id: pageId,
         type: 'tab',
         component: pageKey,
+        enableRename: false,
         config: params,
       },
       activeTabset.getId(),
       FlexLayout.DockLocation.CENTER,
-      0,
+      -1,
       true,
     ),
   );
