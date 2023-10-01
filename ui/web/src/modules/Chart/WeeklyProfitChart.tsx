@@ -3,8 +3,10 @@ import { useObservableState } from 'observable-hooks';
 import React, { useEffect, useMemo, useRef } from 'react';
 import { isDarkMode$ } from '../Workbench/darkmode';
 import { accountPerformance$ } from '../AccountInfo/model';
+import { useTranslation } from 'react-i18next';
 
 export const WeeklyProfitChart = React.memo(() => {
+  const [t] = useTranslation('WeeklyProfitChart');
   const accountPerformance = useObservableState(accountPerformance$);
   const data = useMemo(
     () =>
@@ -24,7 +26,7 @@ export const WeeklyProfitChart = React.memo(() => {
         autoFit: true,
         marginLeft: 80,
       });
-      chart.title('每周盈亏分布图');
+      chart.title(t('weekly_pnl_distribution_chart'));
       chart.interval().data(data).encode('x', 'week').encode('y', 'value');
       chart.render();
     }

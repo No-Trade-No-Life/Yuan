@@ -1,0 +1,11 @@
+{
+  "avg": "平均：{{ value }}",
+  "count": "计数：{{ value }}",
+  "description_text": "总样本数: {{ total }} 组数: {{ groups }}",
+  "group": "组",
+  "group_key": "组别",
+  "samples": "组内样本",
+  "sum": "求和：{{ value }}",
+  "table": "表",
+  "value": "值"
+}

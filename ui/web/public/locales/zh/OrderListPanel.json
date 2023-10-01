@@ -1,0 +1,19 @@
+{
+  "comment": "订单备注",
+  "direction": "方向",
+  "fok": "",
+  "inferred_base_currency_price": "基准货币报价",
+  "limit": "限价单",
+  "market": "市价单",
+  "order_id": "订单ID",
+  "order_type": "类型",
+  "position_id": "头寸ID",
+  "price": "委托价",
+  "product_id": "品种",
+  "profit_correction": "盈亏修正",
+  "stop": "触发单",
+  "timestamp": "时间",
+  "traded_price": "成交价",
+  "traded_volume": "成交量",
+  "volume": "委托量"
+}

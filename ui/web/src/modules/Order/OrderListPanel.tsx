@@ -6,8 +6,10 @@ import download from 'downloadjs';
 import { useObservableState } from 'observable-hooks';
 import { registerPage } from '../Pages';
 import { orders$ } from './model';
+import { useTranslation } from 'react-i18next';
 
 registerPage('OrderListPanel', () => {
+  const [t] = useTranslation('OrderListPanel');
   const orders = useObservableState(orders$);
 
   const handleExportOrderList = () => {
@@ -44,25 +46,25 @@ registerPage('OrderListPanel', () => {
         dataSource={orders}
         pagination={{ pageSize: 10 }}
         columns={[
-          { title: '订单ID', render: (_, order) => order.client_order_id },
-          { title: '头寸ID', render: (_, order) => order.position_id },
-          { title: '品种', render: (_, order) => order.product_id },
+          { title: t('order_id'), render: (_, order) => order.client_order_id },
+          { title: t('position_id'), render: (_, order) => order.position_id },
+          { title: t('product_id'), render: (_, order) => order.product_id },
           {
-            title: '时间',
+            title: t('timestamp'),
             render: (_, order) => new Date((order.timestamp_in_us ?? 0) / 1000).toLocaleString(),
           },
           {
-            title: '方向',
+            title: t('direction'),
             render: (_, order) => {
               return (
                 <Tag>
                   {
                     {
                       //
-                      [OrderDirection.OPEN_LONG]: '开多',
-                      [OrderDirection.CLOSE_LONG]: '平多',
-                      [OrderDirection.OPEN_SHORT]: '开空',
-                      [OrderDirection.CLOSE_SHORT]: '平空',
+                      [OrderDirection.OPEN_LONG]: t('common:order_direction_open_long'),
+                      [OrderDirection.CLOSE_LONG]: t('common:order_direction_close_long'),
+                      [OrderDirection.OPEN_SHORT]: t('common:order_direction_open_short'),
+                      [OrderDirection.CLOSE_SHORT]: t('common:order_direction_close_short'),
                     }[order.direction]
                   }
                 </Tag>
@@ -70,16 +72,16 @@ registerPage('OrderListPanel', () => {
             },
           },
           {
-            title: '类型',
+            title: t('order_type'),
             render: (_, order) => {
               return (
                 <Tag>
                   {
                     {
                       //
-                      [OrderType.MARKET]: '市价单',
-                      [OrderType.LIMIT]: '限价单',
-                      [OrderType.STOP]: '触发单',
+                      [OrderType.MARKET]: t('market'),
+                      [OrderType.LIMIT]: t('limit'),
+                      [OrderType.STOP]: t('stop'),
                       [OrderType.FOK]: 'FOK',
                       [OrderType.IOC]: 'IOC',
                     }[order.type]
@@ -88,13 +90,13 @@ registerPage('OrderListPanel', () => {
               );
             },
           },
-          { title: '成交价', dataIndex: 'traded_price' },
-          { title: '成交量', dataIndex: 'traded_volume' },
-          { title: '委托价', dataIndex: 'price' },
-          { title: '委托量', dataIndex: 'volume' },
-          { title: '基准货币报价', dataIndex: 'inferred_base_currency_price' },
-          { title: '盈亏修正', dataIndex: 'profit_correction' },
-          { title: '订单备注', dataIndex: 'comment' },
+          { title: t('traded_price'), dataIndex: 'traded_price' },
+          { title: t('traded_volume'), dataIndex: 'traded_volume' },
+          { title: t('price'), dataIndex: 'price' },
+          { title: t('volume'), dataIndex: 'volume' },
+          { title: t('inferred_base_currency_price'), dataIndex: 'inferred_base_currency_price' },
+          { title: t('profit_correction'), dataIndex: 'profit_correction' },
+          { title: t('comment'), dataIndex: 'comment' },
         ]}
       ></Table>
     </div>
