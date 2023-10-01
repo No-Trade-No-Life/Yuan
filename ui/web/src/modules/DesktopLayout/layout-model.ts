@@ -86,7 +86,7 @@ layoutModel$.subscribe((layoutModel) => {
   Object.assign(globalThis, { layoutModel, Actions: FlexLayout.Actions });
 });
 
-export function openPage(pageKey: string, params = {}) {
+registerCommand('Page.open', ({ type: pageKey, params = {} }) => {
   const pageId = JSON.stringify({ pageKey, params });
   const model = layoutModel$.value;
 
@@ -123,9 +123,9 @@ export function openPage(pageKey: string, params = {}) {
       true,
     ),
   );
-}
+});
 
-export function openExistPage(pageId: string) {
+registerCommand('Page.select', ({ id: pageId }) => {
   const model = layoutModel$.value;
   const node = model.getNodeById(pageId);
   if (node) {
@@ -133,7 +133,7 @@ export function openExistPage(pageId: string) {
       model.doAction(FlexLayout.Actions.selectTab(pageId));
     }
   }
-}
+});
 
 const closeCurrentTab = () => {
   const model = layoutModel$.value;
@@ -157,4 +157,8 @@ registerCommand('ResetLayout', () => {
 
 registerCommand('ClosePage', () => {
   closeCurrentTab();
+});
+
+registerCommand('Page.changeTitle', ({ pageId, title }) => {
+  layoutModel$.value.doAction(FlexLayout.Actions.renameTab(pageId, title));
 });

@@ -5,6 +5,7 @@
   "CreateFile_succeed": "File created successfully: {{ filename }}",
   "Workspace": "Workspace",
   "cancel": "Cancel",
+  "close": "Close",
   "confirm_delete": "Confirm Delete",
   "confirm_delete_cancel": "Cancel",
   "confirm_delete_note": "This operation will be irreversible",
@@ -17,6 +18,8 @@
   "order_direction_open_short": "Open short",
   "position_long": "",
   "position_short": "",
+  "report_bug": "Report",
+  "retry": "Retry",
   "submit": "Submit",
   "succeed": "Succeed"
 }

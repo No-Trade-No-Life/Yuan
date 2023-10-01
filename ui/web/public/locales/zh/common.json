@@ -5,6 +5,7 @@
   "CreateFile_succeed": "创建文件成功: {{ filename }}",
   "Workspace": "",
   "cancel": "取消",
+  "close": "关闭",
   "confirm_delete": "确定是否删除？",
   "confirm_delete_cancel": "取消",
   "confirm_delete_note": "此操作将不可逆",
@@ -17,6 +18,8 @@
   "order_direction_open_short": "开空",
   "position_long": "多",
   "position_short": "空",
+  "report_bug": "报告缺陷",
+  "retry": "重试",
   "submit": "提交",
   "succeed": "成功"
 }
