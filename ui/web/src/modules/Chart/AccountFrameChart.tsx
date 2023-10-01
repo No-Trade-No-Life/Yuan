@@ -3,8 +3,10 @@ import { useMemo } from 'react';
 import { accountFrameSeries$ } from '../AccountInfo/model';
 import { registerPage } from '../Pages';
 import { Chart, ChartGroup, LineSeries } from './components/Charts';
+import { useTranslation } from 'react-i18next';
 
 registerPage('AccountFrameChart', () => {
+  const { t, ready } = useTranslation('AccountFrameChart');
   const positionValueSeries = useObservableState(accountFrameSeries$);
 
   const balanceData = useMemo(
@@ -29,20 +31,24 @@ registerPage('AccountFrameChart', () => {
     [positionValueSeries],
   );
 
+  if (!ready) {
+    return null;
+  }
+
   return (
     <div style={{ height: '100%' }}>
       <ChartGroup>
         <div style={{ height: '50%' }}>
           <Chart>
-            <LineSeries options={{ title: '余额', color: 'yellow' }} data={balanceData} />
-            <LineSeries options={{ title: '净值', color: 'green' }} data={equityData} />
+            <LineSeries options={{ title: t('balance'), color: 'yellow' }} data={balanceData} />
+            <LineSeries options={{ title: t('equity'), color: 'green' }} data={equityData} />
           </Chart>
         </div>
         <div style={{ height: '50%' }}>
           <Chart>
-            <LineSeries options={{ title: '浮动盈亏', color: 'purple' }} data={profitData} />
-            <LineSeries options={{ title: '使用保证金', color: 'green' }} data={marginData} />
-            <LineSeries options={{ title: '需要的保证金', color: 'orange' }} data={requireData} />
+            <LineSeries options={{ title: t('pnl'), color: 'purple' }} data={profitData} />
+            <LineSeries options={{ title: t('used_margin'), color: 'green' }} data={marginData} />
+            <LineSeries options={{ title: t('required_margin'), color: 'orange' }} data={requireData} />
           </Chart>
         </div>
       </ChartGroup>

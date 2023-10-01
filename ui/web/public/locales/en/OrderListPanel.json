@@ -1,0 +1,19 @@
+{
+  "comment": "Comment",
+  "direction": "Direction",
+  "fok": "",
+  "inferred_base_currency_price": "Base currency quote",
+  "limit": "Limit order",
+  "market": "Market order",
+  "order_id": "Order ID",
+  "order_type": "Type",
+  "position_id": "Position ID",
+  "price": "Price",
+  "product_id": "Product ID",
+  "profit_correction": "P&L correction",
+  "stop": "Stop order",
+  "timestamp": "Time",
+  "traded_price": "Traded price",
+  "traded_volume": "Traded Volume",
+  "volume": "Volume"
+}
