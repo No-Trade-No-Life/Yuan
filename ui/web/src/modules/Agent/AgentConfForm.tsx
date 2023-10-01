@@ -242,6 +242,7 @@ registerPage('AgentConfForm', () => {
         <Form
           schema={schema}
           formData={agentConf}
+          formContext={{ 'i18n:ns': 'AgentConfForm' }}
           onChange={(e) => {
             agentConf$.next(e.formData);
           }}

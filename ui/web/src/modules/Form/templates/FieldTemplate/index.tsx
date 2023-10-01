@@ -3,11 +3,12 @@ import { Space, Tooltip, Typography } from '@douyinfe/semi-ui';
 import {
   FieldTemplateProps,
   FormContextType,
-  getTemplate,
-  getUiOptions,
   RJSFSchema,
   StrictRJSFSchema,
+  getTemplate,
+  getUiOptions,
 } from '@rjsf/utils';
+import { useTranslation } from 'react-i18next';
 
 /** The `FieldTemplate` component is the template used by `SchemaField` to render any field. It renders the field
  * content, (label, description, children, errors and help) inside of a `WrapIfAdditional` component.
@@ -23,20 +24,12 @@ export function FieldTemplate<
     children,
     classNames,
     style,
-    description,
     disabled,
-    displayLabel,
-    errors,
-    formContext,
-    help,
     hidden,
     id,
     label,
     onDropPropertyClick,
     onKeyChange,
-    rawErrors,
-    rawDescription,
-    rawHelp,
     readonly,
     registry,
     required,
@@ -50,6 +43,14 @@ export function FieldTemplate<
     registry,
     uiOptions,
   );
+  const ns = props.formContext?.['i18n:ns'] ?? 'schemas';
+  const { i18n } = useTranslation(ns);
+  const i18nKeyTitle = `${ns}:${id}.title`;
+  const i18nTitle = i18n.exists(i18nKeyTitle) ? i18n.t(i18nKeyTitle) : props.label;
+  const i18nKeyDescription = `${ns}:${id}.description`;
+  const i18nDescription = i18n.exists(i18nKeyDescription)
+    ? i18n.t(i18nKeyDescription)
+    : props.schema.description;
 
   if (hidden) {
     return <div className="YField-hidden">{children}</div>;
@@ -73,9 +74,9 @@ export function FieldTemplate<
       >
         <Space vertical align="start">
           <Space>
-            <Typography.Text strong>{props.label}</Typography.Text>
-            {props.schema.description ? (
-              <Tooltip position="left" style={{ minWidth: 180 }} content={props.schema.description}>
+            <Typography.Text strong>{i18nTitle}</Typography.Text>
+            {i18nDescription ? (
+              <Tooltip position="left" style={{ minWidth: 180 }} content={i18nDescription}>
                 <IconInfoCircle />
               </Tooltip>
             ) : null}
