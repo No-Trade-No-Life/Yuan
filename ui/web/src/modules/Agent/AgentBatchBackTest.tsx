@@ -1,4 +1,4 @@
-import { IconExport, IconImport, IconPlay, IconSearch } from '@douyinfe/semi-icons';
+import { IconCode, IconExport, IconImport, IconPlay, IconSearch } from '@douyinfe/semi-icons';
 import {
   Button,
   Descriptions,
@@ -35,6 +35,7 @@ import {
   tap,
 } from 'rxjs';
 import { agentConf$, runAgentAction$ } from '../Agent/AgentConfForm';
+import { executeCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import { registerPage, usePageParams } from '../Pages';
 import { clearLogAction$ } from '../Workbench/Program';
@@ -250,13 +251,21 @@ registerPage('AgentBatchBackTest', () => {
 
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
-      <Typography.Text>批量回测配置: {filename}</Typography.Text>
       <Space>
-        <Typography.Text>共 {tasks.length} 个任务</Typography.Text>
-        <InputNumber prefix="并发数" value={jobs} onChange={(e) => setJobs(+e)} />
         <Button onClick={handleStart} icon={<IconPlay />} loading={isStartLoading}>
           启动
         </Button>
+        <Button
+          icon={<IconCode />}
+          onClick={() => {
+            executeCommand('FileEditor', { filename });
+          }}
+        >
+          查看源码
+        </Button>
+        <Typography.Text>共 {tasks.length} 个任务</Typography.Text>
+        <InputNumber prefix="并发数" value={jobs} onChange={(e) => setJobs(+e)} />
+
         <Button onClick={handleExportExcel} icon={<IconExport />} loading={isExportLoading}>
           导出 Excel
         </Button>
@@ -338,12 +347,15 @@ registerPage('AgentBatchBackTest', () => {
               {
                 key: '已进行时长 / 预计总时长',
                 value: `${formatDuration({
-                  ...intervalToDuration({ start: progress.startTime, end: progress.endTime }),
+                  ...intervalToDuration({ start: progress.startTime || 0, end: progress.endTime || 0 }),
                   seconds: 0,
                 })} / ${formatDuration({
                   ...intervalToDuration({
                     start: 0,
-                    end: ((progress.endTime - progress.startTime) / progress.current) * tasks.length || 0,
+                    end:
+                      progress.current === 0
+                        ? 0
+                        : ((progress.endTime - progress.startTime) / progress.current) * tasks.length || 0,
                   }),
                   seconds: 0,
                 })}`,
@@ -352,15 +364,18 @@ registerPage('AgentBatchBackTest', () => {
                 key: '预计结束时间',
                 value: formatTime(
                   progress.startTime +
-                    (((progress.endTime - progress.startTime) / progress.current) * tasks.length || 0),
+                    (((progress.endTime - progress.startTime) / progress.current) * tasks.length || 0) || 0,
                 ),
               },
               {
                 key: '预计剩余时长',
                 value: formatDuration({
                   ...intervalToDuration({
-                    start: progress.endTime - progress.startTime,
-                    end: ((progress.endTime - progress.startTime) / progress.current) * tasks.length || 0,
+                    start: progress.endTime - progress.startTime || 0,
+                    end:
+                      progress.current === 0
+                        ? 0
+                        : ((progress.endTime - progress.startTime) / progress.current) * tasks.length || 0,
                   }),
                   seconds: 0,
                 }),
