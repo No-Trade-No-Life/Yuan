@@ -13,6 +13,68 @@
   "refresh_schema": "Refresh",
   "require_config": "Model configuration not found, please parse the model configuration first",
   "require_entry_field": "The model entry path field needs to be supplemented",
+  "root_account_id": {
+    "title": "Account ID"
+  },
+  "root_agent_params": {
+    "title": "Agent params"
+  },
+  "root_allow_fallback_specific_product": {
+    "title": "Allow specific breed information not to be found"
+  },
+  "root_as_counterparty": {
+    "description": "When the original account is long, it will become short, and vice versa.",
+    "title": "As Counterparty"
+  },
+  "root_coefficient_fn_str": {
+    "title": "Position mapping function"
+  },
+  "root_currency": {
+    "title": "Account currency"
+  },
+  "root_disable_log": {
+    "title": "Disable printing log"
+  },
+  "root_end_time": {
+    "description": "Pull historical data in advance of the end of the interval; real-time mandatory set to the current time, non-real-time leave blank to indicate that the pulling of data infinitely late; time zone in accordance with the local time zone to fill in the",
+    "title": "End Time of History"
+  },
+  "root_entry": {
+    "description": "The entry path of agent code",
+    "title": "Entry"
+  },
+  "root_initial_balance": {
+    "title": "Initial balance"
+  },
+  "root_is_real": {
+    "description": "In the real offer mode, real-time quotes will be subscribed, while in the non-real offer mode, only historical data will be used.",
+    "title": "Real Mode"
+  },
+  "root_leverage": {
+    "title": "Account leverage"
+  },
+  "root_period_self_check_interval_in_second": {
+    "description": "How many seconds to perform data self-test every time, unit is seconds, 0 = disable self-test",
+    "title": "Data self-test cycle"
+  },
+  "root_position_limit": {
+    "title": "Position limits"
+  },
+  "root_publish_account": {
+    "description": "Agree to publish the simulated account information flow, historical orders, and variety parameter configurations for this run to the host. \nThe code will not be leaked.",
+    "title": "Publish account to host"
+  },
+  "root_resume_on_source_margin_below": {
+    "title": "Margin Threshold for Resume Trading"
+  },
+  "root_start_time": {
+    "description": "The starting point of the interval to pull historical data in advance; if it is left blank during the real offer, it means not to pull it; when it is not the real offer, it means the infinitely early data will be pulled; the time zone is filled in according to the local time zone",
+    "title": "Start Time of History"
+  },
+  "root_use_general_product": {
+    "description": "Treat general product as product",
+    "title": "Use General Product"
+  },
   "run": "Run",
   "run_failed": "Failed to run the model instance, please check if there is a problem with the code or configuration",
   "run_succeed": "Run completed",

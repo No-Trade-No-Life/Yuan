@@ -11,6 +11,7 @@ import {
   titleId,
   UiSchema,
 } from '@rjsf/utils';
+import { useTranslation } from 'react-i18next';
 
 /** The `ObjectFieldTemplate` is the template to use to render all the inner properties of an object along with the
  * title and description if available. If the object is expandable, then an `AddButton` is also rendered after all
@@ -119,16 +120,21 @@ export default function ObjectFieldTemplate<
     </>
   );
 
+  // const ns = props.formContext?.['i18n:ns'] ?? 'schemas';
+  // const { i18n } = useTranslation(ns);
+  // const i18nKey = `${ns}:${props.idSchema.$id}.title`;
+  // const theTitle = uiOptions.title || (i18n.exists(i18nKey) ? i18n.t(i18nKey) : title);
+
   return (
     <Space vertical align="start" className="Y-ObjectField">
-      <TitleFieldTemplate
+      {/* <TitleFieldTemplate
         id={titleId<T>(idSchema)}
-        title={uiOptions.title || title}
+        title={theTitle}
         required={required}
         schema={schema}
         uiSchema={uiSchema}
         registry={registry}
-      />
+      /> */}
       {content}
     </Space>
   );

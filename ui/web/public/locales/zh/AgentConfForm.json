@@ -13,6 +13,68 @@
   "refresh_schema": "刷新表单",
   "require_config": "未找到模型配置，请先解析模型配置",
   "require_entry_field": "需要补充模型入口路径字段",
+  "root_account_id": {
+    "title": "账户ID"
+  },
+  "root_agent_params": {
+    "title": "自定义参数"
+  },
+  "root_allow_fallback_specific_product": {
+    "title": "允许找不到具体品种信息"
+  },
+  "root_as_counterparty": {
+    "description": "原账户做多时会变成做空，反之亦然。",
+    "title": "作为对手盘"
+  },
+  "root_coefficient_fn_str": {
+    "title": "仓位映射函数"
+  },
+  "root_currency": {
+    "title": "账户币种"
+  },
+  "root_disable_log": {
+    "title": "禁用打印日志"
+  },
+  "root_end_time": {
+    "description": "提前拉取历史数据的区间终点；实盘时强制设定为当前时间，非实盘时留空表示拉取无穷晚的数据；时区按照本地时区填写",
+    "title": "历史数据结束时间"
+  },
+  "root_entry": {
+    "description": "",
+    "title": "模型入口路径"
+  },
+  "root_initial_balance": {
+    "title": "初始余额"
+  },
+  "root_is_real": {
+    "description": "实盘模式下会订阅实时行情，非实盘模式仅会使用历史数据",
+    "title": "实盘模式"
+  },
+  "root_leverage": {
+    "title": "账户杠杆"
+  },
+  "root_period_self_check_interval_in_second": {
+    "description": "每隔多少秒进行一次数据自检，单位为秒，0 = 禁用自检",
+    "title": "数据自检周期"
+  },
+  "root_position_limit": {
+    "title": "仓位限制"
+  },
+  "root_publish_account": {
+    "description": "同意将此次运行的模拟账户信息流、历史订单、品种参数配置发布到主机。代码不会泄密。",
+    "title": "发布账户到主机"
+  },
+  "root_resume_on_source_margin_below": {
+    "title": "恢复交易的使用保证金阈值"
+  },
+  "root_start_time": {
+    "description": "提前拉取历史数据的区间起点；实盘时如果留空表示不拉取，非实盘时留空表示拉取无穷早的数据；时区按照本地时区填写",
+    "title": "历史数据开始时间"
+  },
+  "root_use_general_product": {
+    "description": "使用标准品种信息作为品种信息",
+    "title": "使用标准品种信息"
+  },
   "run": "运行",
   "run_failed": "运行模型实例失败，请检查代码或配置是否有问题",
   "run_succeed": "运行完毕",
