@@ -81,5 +81,6 @@
   "save_config": "Save config",
   "save_config_failed": "Failed to save {{ filename }}",
   "save_config_filename_prompt": "Please enter the path to save the configuration",
-  "save_config_succeed": "Save {{ filename }} successfully"
+  "save_config_succeed": "Save {{ filename }} successfully",
+  "view_source": "View Source"
 }
