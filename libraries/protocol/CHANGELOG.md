@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Wed, 06 Sep 2023 15:33:08 GMT and should not be manually modified.
+This log was last generated on Tue, 03 Oct 2023 17:45:31 GMT and should not be manually modified.
+
+## 0.1.4
+Tue, 03 Oct 2023 17:45:31 GMT
+
+### Patches
+
+- use formatTime and UUID from data-model
 
 ## 0.1.3
 Wed, 06 Sep 2023 15:33:08 GMT

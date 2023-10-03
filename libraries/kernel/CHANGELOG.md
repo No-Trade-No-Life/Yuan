@@ -1,6 +1,13 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Thu, 14 Sep 2023 13:25:35 GMT and should not be manually modified.
+This log was last generated on Tue, 03 Oct 2023 17:45:31 GMT and should not be manually modified.
+
+## 0.1.1
+Tue, 03 Oct 2023 17:45:31 GMT
+
+### Patches
+
+- use formatTime and UUID from data-model
 
 ## 0.1.0
 Thu, 14 Sep 2023 13:25:35 GMT

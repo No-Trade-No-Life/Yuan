@@ -2,6 +2,26 @@
   "name": "@yuants/agent",
   "entries": [
     {
+      "version": "0.2.1",
+      "tag": "@yuants/agent_v0.2.1",
+      "date": "Tue, 03 Oct 2023 17:45:31 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "use formatTime and UUID from data-model"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.1.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.1.4`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.0",
       "tag": "@yuants/agent_v0.2.0",
       "date": "Sat, 23 Sep 2023 10:45:15 GMT",
