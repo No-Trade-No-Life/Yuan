@@ -61,6 +61,8 @@ interface ITradeCopyRelation {
   multiple: number;
   /** 根据正则表达式匹配头寸的备注 (黑名单) */
   exclusive_comment_pattern?: string;
+  /** disable this relation (equivalent to not set before) */
+  disabled?: boolean;
 }
 
 interface ITradeCopierConfig {
@@ -113,6 +115,9 @@ const configSchema: JSONSchema7 = {
           exclusive_comment_pattern: {
             type: 'string',
             format: 'regex',
+          },
+          disabled: {
+            type: 'boolean',
           },
         },
       },
@@ -168,6 +173,7 @@ const config$ = defer(() =>
 ).pipe(
   //
   map((msg) => msg.origin),
+  filter((msg) => !msg.disabled),
   toArray(),
   map((data): ITradeCopierConfig => ({ tasks: data })),
   mergeMap((data) => {

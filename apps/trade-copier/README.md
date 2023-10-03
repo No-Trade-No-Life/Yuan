@@ -72,6 +72,7 @@ interface ITradeCopyRelation {
   target_product_id: string;
   multiple: number;
   exclusive_comment_pattern?: string;
+  disabled?: boolean;
 }
 interface ITradeCopierTradeConfig {
   account_id: string;
