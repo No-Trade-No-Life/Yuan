@@ -1,14 +1,15 @@
 import { IconCopyAdd, IconDelete, IconEdit, IconRefresh, IconSearch } from '@douyinfe/semi-icons';
-import { Button, Modal, Popconfirm, Space, Table, Toast } from '@douyinfe/semi-ui';
+import { Button, Modal, Popconfirm, Space, Switch, Table, Toast } from '@douyinfe/semi-ui';
 import { UUID } from '@yuants/data-model';
 import { IDataRecord } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
-import { terminal$ } from '../Terminals';
 import { registerCommand } from '../CommandCenter';
 import Form from '../Form';
 import { registerPage } from '../Pages';
+import { terminal$ } from '../Terminals';
 import { terminate } from '../Terminals/TerminalListItem';
 
 // TODO: Import
@@ -21,6 +22,7 @@ interface ITradeCopyRelation {
   multiple: number;
   /** 根据正则表达式匹配头寸的备注 (黑名单) */
   exclusive_comment_pattern?: string;
+  disabled?: boolean;
 }
 
 const TYPE = 'trade_copy_relation';
@@ -69,10 +71,14 @@ const schemaOnEdit = {
       type: 'string',
       format: 'regex',
     },
+    disabled: {
+      type: 'boolean',
+    },
   },
 };
 
 registerPage('TradeCopyRelationList', () => {
+  const { t } = useTranslation('TradeCopyRelationList');
   const [refreshId, setRefreshId] = useState(0);
   const [isSearchModalVisible, setSearchModalVisible] = useState(false);
 
@@ -88,6 +94,12 @@ registerPage('TradeCopyRelationList', () => {
             .queryDataRecords<ITradeCopyRelation>(
               {
                 type: TYPE,
+                options: {
+                  sort: [
+                    ['origin.source_account_id', 1],
+                    ['origin.source_product_id', 1],
+                  ],
+                },
               },
               'MongoDB',
             )
@@ -137,6 +149,7 @@ registerPage('TradeCopyRelationList', () => {
       </Space>
       <Table
         dataSource={records}
+        pagination={false}
         style={{ width: '100%' }}
         columns={[
           //
@@ -148,6 +161,29 @@ registerPage('TradeCopyRelationList', () => {
           {
             title: '根据正则表达式匹配头寸的备注 (黑名单)',
             render: (_, record) => record.origin.exclusive_comment_pattern,
+          },
+          {
+            title: '禁用',
+            render: (_, record) => (
+              <Switch
+                onChange={(v) => {
+                  const next = mapTradeCopyRelationToDataRecord({ ...record.origin, disabled: v });
+                  terminal$
+                    .pipe(
+                      first(),
+                      mergeMap((terminal) => terminal.updateDataRecords([next], 'MongoDB')),
+                      tap({
+                        complete: () => {
+                          Toast.success(`成功更新数据记录 ${record.id}`);
+                          setRefreshId((x) => x + 1);
+                        },
+                      }),
+                    )
+                    .subscribe();
+                }}
+                checked={!!record.origin.disabled}
+              />
+            ),
           },
           {
             title: '操作',
@@ -223,6 +259,7 @@ registerPage('TradeCopyRelationList', () => {
             setFormData(data.formData);
           }}
           schema={schemaOnEdit}
+          formContext={{ 'i18n:ns': 'TradeCopyRelationList' }}
         >
           <div></div>
         </Form>
@@ -242,6 +279,7 @@ registerPage('TradeCopyRelationList', () => {
             _setSearchFormData(data.formData);
           }}
           schema={schemaOnEdit}
+          formContext={{ 'i18n:ns': 'TradeCopyRelationList' }}
         >
           <div></div>
         </Form>
