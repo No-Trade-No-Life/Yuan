@@ -1,12 +1,14 @@
 import { IconCopyAdd, IconDelete, IconEdit, IconRefresh, IconSearch } from '@douyinfe/semi-icons';
 import { Button, Modal, Popconfirm, Space, Table, Toast } from '@douyinfe/semi-ui';
+import { StockMarket } from '@icon-park/react';
 import { IDataRecord } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
-import { terminal$ } from '../Terminals';
+import { executeCommand } from '../CommandCenter';
 import Form from '../Form';
 import { registerPage } from '../Pages';
+import { terminal$ } from '../Terminals';
 
 // TODO: Import
 interface IPullSourceRelation {
@@ -20,10 +22,6 @@ interface IPullSourceRelation {
   // 对于国内的品种，使用 CST 时区比较好
   // 例如 "0 * * * 1-5" (EET) 表示 EET 时区的工作日每小时的0分拉取数据。
   cron_timezone: string;
-  /** 超时时间 (in ms) */
-  timeout: number;
-  /** 失败后重试的次数 (默认为 0 - 不重试) */
-  retry_times: number;
 }
 
 const mapPullSourceRelationToDataRecord = (x: IPullSourceRelation): IDataRecord<IPullSourceRelation> => ({
@@ -53,7 +51,13 @@ registerPage('PullSourceRelationList', () => {
               {
                 type: 'pull_source_relation',
                 tags: {},
-                options: {},
+                options: {
+                  sort: [
+                    ['origin.datasource_id', 1],
+                    ['origin.product_id', 1],
+                    ['origin.period_in_sec', 1],
+                  ],
+                },
               },
               'MongoDB',
             )
@@ -111,12 +115,20 @@ registerPage('PullSourceRelationList', () => {
           { title: '周期 (s)', render: (_, record) => record.origin.period_in_sec },
           { title: 'Cron 模式', render: (_, record) => record.origin.cron_pattern },
           { title: 'Cron 时区', render: (_, record) => record.origin.cron_timezone },
-          { title: '超时 (ms)', render: (_, record) => record.origin.timeout },
-          { title: '重试次数', render: (_, record) => record.origin.retry_times },
           {
             title: '操作',
             render: (_, record) => (
               <Space>
+                <Button
+                  icon={<StockMarket />}
+                  onClick={() => {
+                    executeCommand('Market', {
+                      datasource_id: record.origin.datasource_id,
+                      product_id: record.origin.product_id,
+                      period_in_sec: record.origin.period_in_sec,
+                    });
+                  }}
+                ></Button>
                 <Button
                   icon={<IconEdit />}
                   onClick={() => {
@@ -211,14 +223,6 @@ registerPage('PullSourceRelationList', () => {
                 type: 'string',
                 title: 'CronJob 的评估时区',
               },
-              timeout: {
-                type: 'number',
-                title: '超时时间 (in ms)',
-              },
-              retry_times: {
-                type: 'number',
-                title: '失败后重试的次数 (默认为 0 - 不重试)',
-              },
             },
           }}
         >
@@ -262,14 +266,6 @@ registerPage('PullSourceRelationList', () => {
               cron_timezone: {
                 type: 'string',
                 title: 'CronJob 的评估时区',
-              },
-              timeout: {
-                type: 'number',
-                title: '超时时间 (in ms)',
-              },
-              retry_times: {
-                type: 'number',
-                title: '失败后重试的次数 (默认为 0 - 不重试)',
               },
             },
           }}
