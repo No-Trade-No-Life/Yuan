@@ -1,5 +1,6 @@
-import { IconRefresh } from '@douyinfe/semi-icons';
-import { Button, Layout, Space, Typography } from '@douyinfe/semi-ui';
+import { IconDownload, IconRefresh } from '@douyinfe/semi-icons';
+import { Button, Layout, Space, Toast, Typography } from '@douyinfe/semi-ui';
+import { formatTime } from '@yuants/data-model';
 import {
   HistoryPeriodLoadingUnit,
   Kernel,
@@ -9,10 +10,12 @@ import {
   QuoteDataUnit,
   RealtimePeriodLoadingUnit,
 } from '@yuants/kernel';
+import { t } from 'i18next';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useEffect, useMemo, useState } from 'react';
-import { BehaviorSubject, distinctUntilChanged, interval, map, mergeMap } from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged, first, interval, map, mergeMap, tap, throwError } from 'rxjs';
 import { CandlestickSeries, Chart, ChartGroup } from '../Chart/components/Charts';
+import { executeCommand, registerCommand } from '../CommandCenter';
 import { registerPage, usePageParams } from '../Pages';
 import { terminal$ } from '../Terminals';
 
@@ -85,12 +88,12 @@ registerPage('Market', () => {
     }
   }, [scene]);
 
-  const status$ = useObservable(
+  const timestamp$ = useObservable(
     (s) =>
       s.pipe(
         mergeMap(([scene]) =>
           interval(1000).pipe(
-            map(() => scene?.kernel.status),
+            map(() => scene?.kernel.currentTimestamp),
             distinctUntilChanged(),
           ),
         ),
@@ -98,7 +101,7 @@ registerPage('Market', () => {
     [scene],
   );
 
-  const status = useObservableState(status$);
+  const timestamp = useObservableState(timestamp$);
   const [cnt, setCnt] = useState(0);
 
   const periodKey = [datasource_id, product_id, period_in_sec].join();
@@ -128,7 +131,15 @@ registerPage('Market', () => {
               setCnt((x) => x + 1);
             }}
           ></Button>
-          <Typography.Text>内核状态: {status}</Typography.Text>
+          <Button
+            icon={<IconDownload />}
+            onClick={() => {
+              executeCommand('fetchOHLCV', { datasource_id, product_id, period_in_sec });
+            }}
+          >
+            拉取历史
+          </Button>
+          <Typography.Text>{timestamp && formatTime(timestamp)}</Typography.Text>
         </Space>
       </Layout.Header>
       <Layout.Content>
@@ -140,4 +151,50 @@ registerPage('Market', () => {
       </Layout.Content>
     </Layout>
   );
+});
+
+registerCommand('fetchOHLCV', (params) => {
+  const datasource_id = params.datasource_id || prompt('datasource_id');
+  const product_id = params.product_id || prompt('product_id');
+  const period_in_sec = params.period_in_sec || +prompt('period_in_sec')!;
+  const start_time = params.start_time || new Date(prompt('start_time') || Date.now()).getTime();
+  const end_time = params.end_time || new Date(prompt('end_time') || Date.now()).getTime();
+
+  terminal$
+    .pipe(
+      first(),
+      tap(() => Toast.info(`开始拉取 ${datasource_id} / ${product_id} / ${period_in_sec} 历史数据...`)),
+      mergeMap((terminal) =>
+        terminal.terminalInfos$.pipe(
+          first(),
+          mergeMap((infos) => {
+            const target_terminal_id = infos.find((info) =>
+              info.services?.find((service) => service.datasource_id === datasource_id),
+            )?.terminal_id;
+            if (target_terminal_id) {
+              return terminal.copyDataRecords(
+                {
+                  type: 'period',
+                  time_range: [start_time, end_time],
+                  tags: {
+                    datasource_id,
+                    product_id,
+                    period_in_sec: '' + period_in_sec,
+                  },
+                  receiver_terminal_id: 'MongoDB',
+                },
+                target_terminal_id,
+              );
+            }
+            return throwError(() => `DataSource Not Unavailable: ${datasource_id}`);
+          }),
+        ),
+      ),
+      tap({
+        complete: () => {
+          Toast.info(t('common:succeed'));
+        },
+      }),
+    )
+    .subscribe();
 });
