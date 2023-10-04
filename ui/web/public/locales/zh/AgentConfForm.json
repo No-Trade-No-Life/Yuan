@@ -81,5 +81,6 @@
   "save_config": "保存配置",
   "save_config_failed": "保存 {{ filename }} 失败",
   "save_config_filename_prompt": "请输入保存配置的路径",
-  "save_config_succeed": "保存 {{ filename }} 成功"
+  "save_config_succeed": "保存 {{ filename }} 成功",
+  "view_source": "查看源代码"
 }

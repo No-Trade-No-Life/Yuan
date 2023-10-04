@@ -1,4 +1,4 @@
-import { IconFile, IconPlay, IconRefresh, IconSave, IconWrench } from '@douyinfe/semi-icons';
+import { IconCode, IconFile, IconPlay, IconRefresh, IconSave, IconWrench } from '@douyinfe/semi-icons';
 import { Button, Divider, Layout, Space, Toast } from '@douyinfe/semi-ui';
 import { AgentScene, IAgentConf, agentConfSchema } from '@yuants/agent';
 import Ajv from 'ajv';
@@ -234,6 +234,14 @@ registerPage('AgentConfForm', () => {
             }}
           >
             {t('bundle')}
+          </Button>
+          <Button
+            icon={<IconCode />}
+            onClick={() => {
+              executeCommand('FileEditor', { filename: agentConf?.entry });
+            }}
+          >
+            {t('view_source')}
           </Button>
         </Space>
         <Divider />

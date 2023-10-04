@@ -1,9 +1,11 @@
 import { IconCopyAdd, IconDelete, IconEdit, IconRefresh, IconSearch } from '@douyinfe/semi-icons';
 import { Button, Modal, Space, Table, Toast } from '@douyinfe/semi-ui';
+import { StockMarket } from '@icon-park/react';
 import { IProduct } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
+import { executeCommand } from '../CommandCenter';
 import Form from '../Form';
 import { SearchButton } from '../Market/SearchButton';
 import { registerPage } from '../Pages';
@@ -123,6 +125,19 @@ registerPage('ProductList', () => {
             title: '操作',
             render: (_, record) => (
               <Space>
+                <Button
+                  icon={<StockMarket />}
+                  onClick={() => {
+                    const period_in_sec = prompt('period_in_sec');
+                    if (period_in_sec) {
+                      executeCommand('Market', {
+                        datasource_id: record.origin.datasource_id,
+                        product_id: record.origin.product_id,
+                        period_in_sec: +period_in_sec,
+                      });
+                    }
+                  }}
+                ></Button>
                 <Button
                   icon={<IconEdit />}
                   onClick={() => {

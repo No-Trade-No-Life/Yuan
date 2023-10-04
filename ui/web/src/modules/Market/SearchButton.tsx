@@ -1,8 +1,8 @@
-import { Button, Descriptions, Modal, Space, Toast, Typography } from '@douyinfe/semi-ui';
+import { Button, Descriptions, Modal, Space, Typography } from '@douyinfe/semi-ui';
 import { JSONSchema7 } from 'json-schema';
 import { useObservable, useObservableState } from 'observable-hooks';
 import React, { useMemo, useState } from 'react';
-import { defer, first, mergeMap, of, shareReplay, switchMap, tap } from 'rxjs';
+import { defer, first, mergeMap, of, shareReplay, switchMap } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
 import { Form } from '../Form';
 import { terminal$ } from '../Terminals';
@@ -134,30 +134,7 @@ export const SearchButton = React.memo(() => {
                 )
               }
               onClick={() => {
-                terminal$
-                  .pipe(
-                    first(),
-                    tap(() =>
-                      Toast.info(
-                        `开始拉取 ${formData.datasource_id} / ${formData.product_id} / ${formData.period_in_sec} 历史数据...`,
-                      ),
-                    ),
-                    mergeMap((terminal) =>
-                      terminal.queryPeriods(
-                        {
-                          datasource_id: formData.datasource_id,
-                          product_id: formData.product_id,
-                          period_in_sec: formData.period_in_sec!,
-                          start_time_in_us: new Date(formData.start_time!).getTime() * 1000,
-                          end_time_in_us: new Date(formData.end_time!).getTime() * 1000,
-                          pull_source: true,
-                        },
-                        'MongoDB',
-                      ),
-                    ),
-                    tap((msg) => Toast.info(`拉取历史数据, 共 ${msg.length} 条数据`)),
-                  )
-                  .subscribe();
+                executeCommand('fetchOHLCV', formData);
               }}
             >
               拉取历史行情
