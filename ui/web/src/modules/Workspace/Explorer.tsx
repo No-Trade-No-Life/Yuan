@@ -17,19 +17,20 @@ import copy from 'copy-to-clipboard';
 import { t } from 'i18next';
 import { useObservableState } from 'observable-hooks';
 import path from 'path-browserify';
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { filter, from, lastValueFrom, map, mergeMap, toArray } from 'rxjs';
 import { unzip } from 'unzipit';
-import { terminal$ } from '../Terminals';
 import { agentConf$, reloadSchemaAction$ } from '../Agent/AgentConfForm';
 import { writeManifestsFromBatchTasks } from '../Agent/utils';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { installExtensionFromTgz } from '../Extensions/utils';
 import { FsBackend$, fs, workspaceRoot$ } from '../FileSystem/api';
+import { showForm } from '../Form';
+import { registerPage } from '../Pages';
+import { terminal$ } from '../Terminals';
 import { currentHostConfig$ } from '../Workbench/model';
 import { sendFileByAirdrop } from './airdrop';
-import { registerPage } from '../Pages';
 
 registerPage('Explorer', () => {
   const { t } = useTranslation('Explorer');
@@ -278,9 +279,12 @@ registerPage('Explorer', () => {
                         <Dropdown.Item
                           icon={<IconSend />}
                           disabled={!data.isLeaf || !currentHostConfig}
-                          onClick={() => {
+                          onClick={async () => {
                             if (!terminal) return;
-                            const target_terminal_id = prompt(t('airdrop_target'));
+                            const target_terminal_id = await showForm<string>({
+                              type: 'string',
+                              title: t('airdrop_target'),
+                            });
                             if (!target_terminal_id) return;
                             sendFileByAirdrop(terminal, target_terminal_id, data.key);
                           }}
@@ -307,7 +311,10 @@ registerPage('Explorer', () => {
 });
 
 registerCommand('CreateFile', async ({ baseDir = '/' }) => {
-  const name = prompt(t('common:CreateFile_prompt', { baseDir, interpolation: { escapeValue: false } }));
+  const name = await showForm<string>({
+    type: 'string',
+    title: t('common:CreateFile_prompt', { baseDir, interpolation: { escapeValue: false } }),
+  });
   if (name) {
     const filename = path.join(baseDir, name);
     await fs.writeFile(filename, '');
@@ -316,7 +323,10 @@ registerCommand('CreateFile', async ({ baseDir = '/' }) => {
 });
 
 registerCommand('CreateDirectory', async ({ baseDir = '/' }) => {
-  const name = prompt(t('common:CreateDirectory_prompt', { baseDir, interpolation: { escapeValue: false } }));
+  const name = await showForm<string>({
+    type: 'string',
+    title: t('common:CreateDirectory_prompt', { baseDir, interpolation: { escapeValue: false } }),
+  });
   if (name) {
     const thePath = path.join(baseDir, name);
     await fs.mkdir(thePath);

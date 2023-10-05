@@ -1,8 +1,12 @@
 {
   "install failed": "Install failed",
+  "install_all": "Upgrade all",
   "install_new_button": "Install New...",
   "install_prompt": "The name of extension to install",
   "install_succeed": "Install succeed",
   "installed": "Installed",
+  "uninstall": "Uninstall",
+  "uninstall_failed": "Extension uninstall failed",
+  "uninstall_succeed": "Extension uninstalled successfully",
   "upgrade": "Upgrade"
 }

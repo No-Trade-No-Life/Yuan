@@ -32,6 +32,15 @@ export const installExtension = async (packageName: string, ver?: string) => {
   console.debug(formatTime(Date.now()), `install extension "${packageName}" successfully`);
 };
 
+export const uninstallExtension = async (packageName: string) => {
+  await fs.rm(getPackageDir(packageName));
+  activeExtensions$.next(
+    [...activeExtensions$.value.filter((x) => x.packageJson.name !== packageName)].sort((a, b) =>
+      a.packageJson.name.localeCompare(b.packageJson.name),
+    ),
+  );
+};
+
 export const PREINSTALLED_EXTENSIONS = [
   //
   '@yuants/app-host',

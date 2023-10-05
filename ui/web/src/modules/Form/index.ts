@@ -1,7 +1,11 @@
-import { createElement, ComponentType } from 'react';
-import { FormContextType, RJSFSchema, StrictRJSFSchema } from '@rjsf/utils';
+import { Modal } from '@douyinfe/semi-ui';
+import { ModalReactProps } from '@douyinfe/semi-ui/lib/es/modal';
 import { FormProps, ThemeProps, withTheme } from '@rjsf/core';
-
+import { FormContextType, RJSFSchema, StrictRJSFSchema } from '@rjsf/utils';
+import validator from '@rjsf/validator-ajv8';
+import { t } from 'i18next';
+import { JSONSchema7 } from 'json-schema';
+import React, { ComponentType, createElement } from 'react';
 import Templates, { generateTemplates } from './templates';
 import Widgets, { generateWidgets } from './widgets';
 
@@ -28,11 +32,41 @@ export function generateForm<
 
 const _Form = generateForm();
 
-import validator from '@rjsf/validator-ajv8';
-
 export const Form = (props: Omit<FormProps<any, any, any>, 'validator'>) =>
   createElement(_Form, { ...props, validator });
 
 export { Templates, Theme, Widgets, generateTemplates, generateWidgets };
 
 export default Form;
+
+export const showForm = <T>(schema: JSONSchema7, initialData?: any) => {
+  return new Promise<T>((resolve, reject) => {
+    let data = initialData;
+    let modal: ReturnType<typeof Modal.info> | undefined;
+    function getProps(): ModalReactProps {
+      return {
+        content: React.createElement(
+          Form,
+          {
+            schema,
+            formData: data,
+            onChange: (e) => {
+              data = e.formData;
+              modal?.update(getProps());
+            },
+          },
+          React.createElement('div'),
+        ),
+        onCancel: () => {
+          reject(new Error('User Cancelled'));
+        },
+        onOk: () => {
+          resolve(data);
+        },
+        okText: t('common:submit'),
+        cancelText: t('common:cancel'),
+      };
+    }
+    modal = Modal.info(getProps());
+  });
+};

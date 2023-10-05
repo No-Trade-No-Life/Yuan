@@ -9,18 +9,26 @@ import {
   IconUndo,
   IconUser,
 } from '@douyinfe/semi-icons';
-import { Avatar, Button, Dropdown, Tag, Toast } from '@douyinfe/semi-ui';
+import { Avatar, Button, Dropdown, Toast } from '@douyinfe/semi-ui';
 import { t } from 'i18next';
 import { useObservableState } from 'observable-hooks';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { executeCommand, registerCommand } from '../CommandCenter';
+import { showForm } from '../Form';
 import i18n from '../Locale/i18n';
 import { authState$, supabase } from '../SupaBase';
-import { currentHostConfig$ } from '../Workbench/model';
 
-registerCommand('ChangeLanguage', () => {
-  const targetLang = prompt(`${t('UserMenu:change_language_prompt')}: (${i18n.languages.join(' / ')})`);
+registerCommand('ChangeLanguage', async () => {
+  const targetLang = await showForm<string>(
+    {
+      type: 'string',
+      title: t('UserMenu:change_language_prompt'),
+      enum: ['zh', 'en'],
+    },
+    i18n.language,
+  );
+
   if (targetLang) {
     i18n.changeLanguage(targetLang);
   }
@@ -43,8 +51,6 @@ registerCommand('Logout', async () => {
 
 export const UserMenu = React.memo(() => {
   const authState = useObservableState(authState$);
-  const currentHostConfig = useObservableState(currentHostConfig$);
-  const isHostMode = !!currentHostConfig;
   const { t } = useTranslation('UserMenu');
 
   return (

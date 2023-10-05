@@ -26,7 +26,7 @@ import { accountFrameSeries$, accountPerformance$ } from '../AccountInfo/model';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehaviorSubject';
-import Form from '../Form';
+import Form, { showForm } from '../Form';
 import { currentKernel$ } from '../Kernel/model';
 import { orders$ } from '../Order/model';
 import { registerPage } from '../Pages';
@@ -306,7 +306,10 @@ registerCommand('Agent.SaveConfig', async () => {
 
   if (!agentConf) return;
   if (!agentConf.entry) return;
-  const filename = prompt(t('AgentConfForm:save_config_filename_prompt'));
+  const filename = await showForm<string>({
+    type: 'string',
+    title: t('AgentConfForm:save_config_filename_prompt'),
+  });
   if (!filename) return;
   try {
     const bundled_code = await bundleCode(agentConf.entry);
@@ -322,7 +325,10 @@ registerCommand('Agent.SaveConfig', async () => {
 });
 
 registerCommand('Agent.LoadConfig', async () => {
-  const filename = prompt(t('AgentConfForm:load_config_filename_prompt'));
+  const filename = await showForm<string>({
+    type: 'string',
+    title: t('AgentConfForm:load_config_filename_prompt'),
+  });
   if (!filename) return;
   try {
     const content = await fs.readFile(filename);

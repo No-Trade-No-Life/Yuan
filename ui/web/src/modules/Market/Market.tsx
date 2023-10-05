@@ -16,6 +16,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { BehaviorSubject, distinctUntilChanged, first, interval, map, mergeMap, tap, throwError } from 'rxjs';
 import { CandlestickSeries, Chart, ChartGroup } from '../Chart/components/Charts';
 import { executeCommand, registerCommand } from '../CommandCenter';
+import { showForm } from '../Form';
 import { registerPage, usePageParams } from '../Pages';
 import { terminal$ } from '../Terminals';
 
@@ -153,12 +154,18 @@ registerPage('Market', () => {
   );
 });
 
-registerCommand('fetchOHLCV', (params) => {
-  const datasource_id = params.datasource_id || prompt('datasource_id');
-  const product_id = params.product_id || prompt('product_id');
-  const period_in_sec = params.period_in_sec || +prompt('period_in_sec')!;
-  const start_time = params.start_time || new Date(prompt('start_time') || Date.now()).getTime();
-  const end_time = params.end_time || new Date(prompt('end_time') || Date.now()).getTime();
+registerCommand('fetchOHLCV', async (params) => {
+  const datasource_id =
+    params.datasource_id || (await showForm<string>({ type: 'string', title: 'datasource_id' }));
+  const product_id = params.product_id || (await showForm<string>({ type: 'string', title: 'product_id' }));
+  const period_in_sec =
+    params.period_in_sec || +(await showForm<string>({ type: 'string', title: 'period_in_sec' }));
+  const start_time =
+    params.start_time ||
+    new Date((await showForm<string>({ type: 'string', title: 'start_time' })) || Date.now()).getTime();
+  const end_time =
+    params.end_time ||
+    new Date((await showForm<string>({ type: 'string', title: 'end_time' })) || Date.now()).getTime();
 
   terminal$
     .pipe(
