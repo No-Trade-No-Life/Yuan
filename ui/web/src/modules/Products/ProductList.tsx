@@ -6,7 +6,7 @@ import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
-import Form from '../Form';
+import Form, { showForm } from '../Form';
 import { SearchButton } from '../Market/SearchButton';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
@@ -34,6 +34,10 @@ registerPage('ProductList', () => {
                 options: {
                   limit: 200,
                   skip: 0,
+                  sort: [
+                    ['tags.datasource_id', 1],
+                    ['tags.product_id', 1],
+                  ],
                 },
               },
               'MongoDB',
@@ -127,8 +131,8 @@ registerPage('ProductList', () => {
               <Space>
                 <Button
                   icon={<StockMarket />}
-                  onClick={() => {
-                    const period_in_sec = prompt('period_in_sec');
+                  onClick={async () => {
+                    const period_in_sec = await showForm<string>({ type: 'string', title: 'period_in_sec' });
                     if (period_in_sec) {
                       executeCommand('Market', {
                         datasource_id: record.origin.datasource_id,

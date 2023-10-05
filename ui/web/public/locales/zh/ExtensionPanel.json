@@ -1,8 +1,12 @@
 {
   "install failed": "拓展安装失败",
+  "install_all": "升级全部",
   "install_new_button": "安装拓展",
   "install_prompt": "请输入需要安装的拓展的名字",
   "install_succeed": "拓展安装成功",
   "installed": "已安装",
+  "uninstall": "卸载",
+  "uninstall_failed": "拓展卸载失败",
+  "uninstall_succeed": "拓展卸载成功",
   "upgrade": "升级"
 }

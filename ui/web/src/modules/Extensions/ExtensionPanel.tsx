@@ -1,41 +1,40 @@
-import { IconArrowUp } from '@douyinfe/semi-icons';
+import { IconArrowUp, IconDelete } from '@douyinfe/semi-icons';
 import { Button, List, Space, Tag, Toast, Typography } from '@douyinfe/semi-ui';
 import { Time } from '@icon-park/react';
+import { t } from 'i18next';
 import { useObservableState } from 'observable-hooks';
-import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { BehaviorSubject } from 'rxjs';
+import { executeCommand, registerCommand } from '../CommandCenter';
+import { showForm } from '../Form';
 import { registerPage } from '../Pages';
-import { activeExtensions$, installExtension, loadExtension } from './utils';
+import { activeExtensions$, installExtension, loadExtension, uninstallExtension } from './utils';
+
+const isProcessing$ = new BehaviorSubject<Record<string, boolean>>({});
 
 registerPage('ExtensionPanel', () => {
   const { t } = useTranslation('ExtensionPanel');
   const activeExtensions = useObservableState(activeExtensions$);
-
-  const [isProcessing, setProgressing] = useState(false);
-
-  async function handleInstallExtension(name: string) {
-    setProgressing(true);
-    try {
-      await installExtension(name);
-      await loadExtension(name);
-      Toast.success(`${t('install_succeed')}: ${name}`);
-    } catch (e) {
-      Toast.error(`${t('install failed')}: ${name}: ${e}`);
-    }
-    setProgressing(false);
-  }
-
-  const handleInstall = async () => {
-    const name = prompt(t('install_prompt'));
-    if (!name) return;
-    await handleInstallExtension(name);
-  };
+  const isProcessing = useObservableState(isProcessing$);
 
   return (
     <Space vertical align="start" style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
       <Space>
-        <Button loading={isProcessing} onClick={handleInstall}>
+        <Button
+          onClick={() => {
+            executeCommand('Extension.install');
+          }}
+        >
           {t('install_new_button')}
+        </Button>
+        <Button
+          onClick={() => {
+            for (const extension of activeExtensions) {
+              executeCommand('Extension.install', { name: extension.packageJson.name });
+            }
+          }}
+        >
+          {t('install_all')}
         </Button>
       </Space>
       <div style={{ width: '100%', overflow: 'auto' }}>
@@ -54,19 +53,58 @@ registerPage('ExtensionPanel', () => {
                   <Tag>{instance.packageJson.version}</Tag>
                   <Time theme="outline" /> {instance.loadTime}ms
                 </Space>
-                <Button
-                  loading={isProcessing}
-                  icon={<IconArrowUp />}
-                  onClick={() => handleInstallExtension(instance.packageJson.name)}
-                >
-                  {t('upgrade')}
-                </Button>
+                <Space>
+                  <Button
+                    loading={isProcessing[instance.packageJson.name]}
+                    icon={<IconArrowUp />}
+                    onClick={() => {
+                      executeCommand('Extension.install', { name: instance.packageJson.name });
+                    }}
+                  >
+                    {t('upgrade')}
+                  </Button>
+                  <Button
+                    icon={<IconDelete />}
+                    onClick={() => {
+                      executeCommand('Extension.uninstall', { name: instance.packageJson.name });
+                    }}
+                  >
+                    {t('uninstall')}
+                  </Button>
+                </Space>
               </Space>
-              {/* <pre>{JSON.stringify(instance.packageJson, null, 2)}</pre> */}
             </List.Item>
           )}
         ></List>
       </div>
     </Space>
   );
+});
+
+registerCommand('Extension.install', async (params) => {
+  const name =
+    params.name || (await showForm<string>({ type: 'string', title: t('ExtensionPanel:install_prompt') }));
+  if (!name) return;
+  isProcessing$.next({ ...isProcessing$.value, [name]: true });
+  try {
+    await installExtension(name);
+    await loadExtension(name);
+    Toast.success(`${t('ExtensionPanel:install_succeed')}: ${name}`);
+  } catch (e) {
+    Toast.error(`${t('ExtensionPanel:install failed')}: ${name}: ${e}`);
+  }
+  isProcessing$.next({ ...isProcessing$.value, [name]: false });
+});
+
+registerCommand('Extension.uninstall', async (params) => {
+  const name = params.name;
+  if (!name) return;
+  isProcessing$.next({ ...isProcessing$.value, [name]: true });
+  try {
+    await uninstallExtension(name);
+    Toast.success(`${t('ExtensionPanel:uninstall_succeed')}: ${name}`);
+  } catch (e) {
+    Toast.success(`${t('ExtensionPanel:uninstall_failed')}: ${name}: ${e}`);
+  }
+  isProcessing$.next({ ...isProcessing$.value, [name]: false });
 });
