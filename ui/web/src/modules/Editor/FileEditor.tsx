@@ -1,4 +1,5 @@
 import { Toast } from '@douyinfe/semi-ui';
+import { t } from 'i18next';
 import * as monaco from 'monaco-editor';
 import editorWorker from 'monaco-editor/esm/vs/editor/editor.worker?worker';
 import jsonWorker from 'monaco-editor/esm/vs/language/json/json.worker?worker';
@@ -6,11 +7,11 @@ import tsWorker from 'monaco-editor/esm/vs/language/typescript/ts.worker?worker'
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { BehaviorSubject, defer, mergeMap, pipe, retry, tap } from 'rxjs';
-import { isDarkMode$ } from '../Workbench/darkmode';
 import { rollupLoadEvent$ } from '../Agent/utils';
 import { executeCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import { registerPage, usePageParams, usePageTitle } from '../Pages';
+import { isDarkMode$ } from '../Workbench/darkmode';
 
 Object.assign(globalThis, { monaco });
 
@@ -40,7 +41,7 @@ self.MonacoEnvironment = {
 rollupLoadEvent$.subscribe(({ id, content }) => {
   try {
     const uri = monaco.Uri.file(id);
-    // ISSUE: 过度添加 Model 会导致 "[g7a] REFUSES to accept new listeners because it exceeded its threshold by far"
+    // ISSUE: if don't check model exists, it will cause "[g7a] REFUSES to accept new listeners because it exceeded its threshold by far"
     if (monaco.editor.getModel(uri) === null) {
       monaco.editor.createModel(content, undefined, uri);
     }
@@ -154,7 +155,7 @@ registerPage('FileEditor', () => {
               [filename]: code,
             };
             fileSaveState$.next(fileSaveState);
-            Toast.success(`保存成功 ${filename}`);
+            Toast.success(`${t('common:saved')}: ${filename}`);
           }
         }
       },

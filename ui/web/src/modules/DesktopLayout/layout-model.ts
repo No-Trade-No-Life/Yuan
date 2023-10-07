@@ -6,7 +6,7 @@ import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehavio
 
 const initialJson = (): FlexLayout.IJsonModel => ({
   global: {
-    // FIXED: 修复对多屏幕支持的问题后，再开启此功能
+    // FIXED: multiple-window will cause terminals conflict, so disable it
     // tabEnableFloat: true
   },
   borders: [
@@ -86,7 +86,7 @@ layoutModel$.subscribe((layoutModel) => {
   Object.assign(globalThis, { layoutModel, Actions: FlexLayout.Actions });
 });
 
-registerCommand('Page.open', ({ type: pageKey, params = {} }) => {
+registerCommand('Page.open', ({ type: pageKey, params = {}, parentId: _parentId }) => {
   const pageId = JSON.stringify({ pageKey, params });
   const model = layoutModel$.value;
 
@@ -98,14 +98,16 @@ registerCommand('Page.open', ({ type: pageKey, params = {} }) => {
     return;
   }
 
-  const activeTabset =
-    model.getActiveTabset() ||
+  const parentId =
+    _parentId ||
+    model.getActiveTabset()?.getId() ||
     model
       .getRoot()
       .getChildren()
-      .find((node) => node.getType() === 'tabset');
-  if (!activeTabset) {
-    // NO
+      .find((node) => node.getType() === 'tabset')
+      ?.getId();
+  if (!parentId) {
+    // NO PARENT: BAD REQUEST
     return;
   }
   model.doAction(
@@ -117,7 +119,7 @@ registerCommand('Page.open', ({ type: pageKey, params = {} }) => {
         enableRename: false,
         config: params,
       },
-      activeTabset.getId(),
+      parentId,
       FlexLayout.DockLocation.CENTER,
       -1,
       true,
@@ -157,6 +159,10 @@ registerCommand('ResetLayout', () => {
 
 registerCommand('ClosePage', () => {
   closeCurrentTab();
+});
+
+registerCommand('Page.close', ({ pageId }) => {
+  layoutModel$.value.doAction(FlexLayout.Actions.deleteTab(pageId));
 });
 
 registerCommand('Page.changeTitle', ({ pageId, title }) => {

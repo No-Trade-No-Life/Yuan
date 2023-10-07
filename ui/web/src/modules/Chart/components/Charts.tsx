@@ -13,7 +13,7 @@ import {
   TimeRange,
   UTCTimestamp,
   createChart,
-} from 'lightweight-charts/dist/lightweight-charts.esm.development.js'; // 必须使用 development 版本，否则 API 名称对不上
+} from 'lightweight-charts/dist/lightweight-charts.esm.development.js'; // must use development version to dynamically inject API
 import React, { ReactNode, createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BehaviorSubject } from 'rxjs';
@@ -49,7 +49,8 @@ const chartDefaultOptions: DeepPartial<ChartOptions> = {
 };
 const ChartApiContext = createContext<IChartApi | null>(null);
 
-// ISSUE: 这是一个 Lightweight Chart 未合并的 API
+// ISSUE: This is Lightweight Chart unmerged API
+// TODO: This API is merged and publish in lightweight-charts 4.1, re-eval it.
 // Reference: https://github.com/tradingview/lightweight-charts/issues/438
 let injected = false;
 const injectApiToChart = (chart: any) => {
@@ -130,7 +131,7 @@ export const Chart = React.memo((props: { children: ReactNode }) => {
 
   const chartApi$ = useMemo(() => new BehaviorSubject<IChartApi | null>(null), []);
 
-  // 初始化
+  // create chart api
   useEffect(() => {
     if (chartContainerRef.current) {
       chartContainerRef.current.innerHTML = ''; // clear HTML
@@ -147,7 +148,7 @@ export const Chart = React.memo((props: { children: ReactNode }) => {
     }
   }, []);
 
-  // 自动缩放
+  // auto resize chart
   useEffect(() => {
     const el = chartContainerRef.current;
     if (chartApi && el) {
@@ -178,7 +179,7 @@ export const Chart = React.memo((props: { children: ReactNode }) => {
           const p = series._internal_dataAt(index);
           // console.info('##', p, index, series);
           if (p === undefined || p === null || Number.isNaN(p)) {
-            // 不显示 null 的数据
+            // hide null data
           } else if (typeof p === 'number') {
             texts.push(`<div style="color:${color}">${title}=${p}</div>`);
           } else {
@@ -200,7 +201,7 @@ export const Chart = React.memo((props: { children: ReactNode }) => {
     }
   }, [chartApi]);
 
-  // 加入 ChartGroup
+  // join to ChartGroup
   useEffect(() => {
     if (chartApi && group) {
       group.add(chartApi);
@@ -210,7 +211,7 @@ export const Chart = React.memo((props: { children: ReactNode }) => {
     }
   }, [chartApi]);
 
-  // 同步时间区间
+  // sync time range among charts in a group.
   useEffect(() => {
     if (chartApi) {
       const timeScaleApi = chartApi.timeScale();
@@ -234,12 +235,12 @@ export const Chart = React.memo((props: { children: ReactNode }) => {
     }
   }, [chartApi]);
 
-  // 同步 Crosshair
+  // Sync Crosshair
   useEffect(() => {
     if (chartApi && group) {
       const handler = (e: MouseEventParams) => {
-        // 同步各个 Panel 的 CrossHair
-        // 此处用到了上面注入的 API
+        // Sync crosshair of charts in one group
+        // NOTE: use injected API.
         const { time, point } = e;
         if (time !== undefined) {
           group.forEach((otherChart: IChartApi) => {
@@ -404,7 +405,7 @@ export const LineSeries = React.memo(
         props.data.map(
           (period): LineData => ({
             time: (period.timestamp / 1e3) as UTCTimestamp,
-            // ISSUE: Inf / -Inf 会导致坐标轴出问题，直接按 NaN 处理
+            // ISSUE: Inf / -Inf cause axis disappear, norm to NaN
             value: period.value === Infinity || period.value === -Infinity ? NaN : period.value,
             color:
               Number.isNaN(period.value) || period.value === Infinity || period.value === -Infinity

@@ -13,6 +13,7 @@
   "copied": "已复制",
   "empty": "暂无数据",
   "file_written": "已写入文件: {{ filename }}",
+  "login": "登录",
   "order_direction_close_long": "平多",
   "order_direction_close_short": "平空",
   "order_direction_open_long": "开多",
@@ -21,6 +22,7 @@
   "position_short": "空",
   "report_bug": "报告缺陷",
   "retry": "重试",
+  "saved": "已保存",
   "submit": "提交",
   "succeed": "成功"
 }

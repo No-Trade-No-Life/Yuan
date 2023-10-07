@@ -1,6 +1,7 @@
 {
   "comment": "订单备注",
   "direction": "方向",
+  "export_as_csv": "导出订单列表到 CSV",
   "fok": "",
   "inferred_base_currency_price": "基准货币报价",
   "limit": "限价单",

@@ -21,7 +21,7 @@ import {
 import { StaticFileServerPeriodLoadingUnit } from './StaticFileServerPeriodLoadingUnit';
 
 /**
- * 本地模型场景 (模型回测 only)
+ * For back-test only
  *
  * @public
  */
@@ -152,7 +152,6 @@ export const LocalAgentScene = async (agentConf: IAgentConf) => {
   let portfolioHistoryOrderUnit: HistoryOrderUnit | undefined;
 
   if (agentConf.resume_on_source_margin_below) {
-    // TODO: 止损信号
     const stopLossInitAccountInfo = createEmptyAccountInfo(
       `${resolved_account_id}-SL`,
       resolved_currency,

@@ -1,9 +1,6 @@
 import { AccountPerformanceUnit, AccountSimulatorUnit, BasicUnit, Kernel } from '@yuants/kernel';
 import { IAccountFrame } from './model';
 
-/**
- * 账户帧单元
- */
 export class AccountFrameUnit extends BasicUnit {
   constructor(
     public kernel: Kernel,
@@ -24,7 +21,7 @@ export class AccountFrameUnit extends BasicUnit {
       require: this.accountPerformanceUnit.performance.maintenance_margin,
     };
     const idx = this.data.length - 1;
-    // 保证每个帧的时间戳不重复
+    // ensure unique timestamp
     if (idx >= 0 && this.data[idx].timestamp_in_us === metric.timestamp_in_us) {
       this.data[idx] = metric;
     } else {

@@ -1,15 +1,16 @@
 import { IconDelete, IconSend, IconUser } from '@douyinfe/semi-icons';
 import { Avatar, Button, Space, TextArea } from '@douyinfe/semi-ui';
 import { format } from 'date-fns';
+import { t } from 'i18next';
 import { useObservableState } from 'observable-hooks';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { agentConf$ } from '../Agent/AgentConfForm';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehaviorSubject';
 import { registerPage, usePageViewport } from '../Pages';
 import { authState$ } from '../SupaBase';
-import { triggerLoginModalAction$ } from '../User/Login';
 import './LUI.css';
 
 interface IMessage {
@@ -17,23 +18,22 @@ interface IMessage {
   content: string;
 }
 
-const initialMessages: Array<IMessage> = [
-  {
-    role: 'assistant',
-    content: '我是 Yuan AI 助理，可以帮助您编写专业的量化模型代码，请说明您的模型思路与规则。',
-  },
-];
-
-const historyMessages$ = createPersistBehaviorSubject<IMessage[]>('history-messages', initialMessages);
+const historyMessages$ = createPersistBehaviorSubject<IMessage[]>('history-messages', []);
 const pushHistoryMessages = (...messages: IMessage[]) => {
   historyMessages$.next([...(historyMessages$.value || []), ...messages]);
 };
 
-registerCommand('AI', () => {
-  executeCommand('Page.open', { type: 'LUI' });
+registerCommand('AI.clean', () => {
+  historyMessages$.next([
+    {
+      role: 'assistant',
+      content: t('AI:hello'),
+    },
+  ]);
 });
 
-registerPage('LUI', () => {
+registerPage('AI', () => {
+  const { t } = useTranslation('AI');
   const viewport = usePageViewport();
   const width = viewport?.w ?? Infinity;
   const [isLoading, setLoading] = useState(false);
@@ -42,19 +42,26 @@ registerPage('LUI', () => {
 
   const messages = useObservableState(historyMessages$) || [];
   const [userInput, setUserInput] = useState('');
+
+  useEffect(() => {
+    if (messages.length === 0) {
+      executeCommand('AI.clean');
+    }
+  }, []);
+
   const handleSend = async () => {
     if (!authState) {
-      triggerLoginModalAction$.next();
+      executeCommand('Login');
       return;
     }
 
     const message = userInput.trim();
     setUserInput('');
-    if (!message) return; // 过滤 EMPTY
+    if (!message) return;
     pushHistoryMessages({ role: 'user', content: message });
     //
     setLoading(true);
-    // ISSUE: 提前申请文件系统权限
+    // ISSUE: Request FS first
     try {
       if (!(await fs.stat('/AIGC')).isDirectory()) {
         throw Error('Not a directory');
@@ -87,7 +94,7 @@ registerPage('LUI', () => {
           () => {
             pushHistoryMessages({
               role: 'assistant',
-              content: `服务异常，请稍后再试`,
+              content: t('server_error'),
             });
           },
         );
@@ -105,16 +112,16 @@ registerPage('LUI', () => {
 
           const filename = `/AIGC/${format(new Date(), 'yyyy-MM-dd-HH-mm-ss')}.ts`;
           const code = [
-            `// 用户提示词:`,
+            `// User Prompt`,
             ...question.split('\n').map((x) => '// ' + x),
-            `// AI备注:`,
+            `// Assistant Note:`,
             ...(resp.data.message.remark as string).split('\n').map((x) => '// ' + x),
-            `// AIGC:`,
+            `// AIGC Result:`,
             resp.data.message.code,
           ].join('\n');
           await fs.writeFile(filename, code);
 
-          pushHistoryMessages({ role: 'assistant', content: `代码已经保存到 ${filename}` });
+          pushHistoryMessages({ role: 'assistant', content: `${t('common:saved')}: ${filename}` });
           agentConf$.next({ ...agentConf$.value, entry: filename });
         } else {
           pushHistoryMessages({ role: 'assistant', content: resp.data.message.content });
@@ -130,19 +137,19 @@ registerPage('LUI', () => {
           <div className={`MessageItem is-${message.role} ${width < 1080 ? 'is-small' : 'is-large'}`}>
             <Avatar>{message.role === 'assistant' ? 'Y' : 'U'}</Avatar>
             <pre className="MessageItem-pop">
-              {typeof message.content === 'string' ? message.content : '[不支持查看该消息，请更新后重试]'}
+              {typeof message.content === 'string' ? message.content : t('unsupported_message')}
             </pre>
           </div>
         ))}
       </div>
-      {messages.length > 1 && (
+      {messages.length > 0 && (
         <Button
           icon={<IconDelete />}
           onClick={() => {
-            historyMessages$.next(initialMessages);
+            executeCommand('AI.clean');
           }}
         >
-          清理聊天记录
+          {t('clean')}
         </Button>
       )}
       <Space align="end" style={{ width: '100%' }}>
@@ -154,7 +161,7 @@ registerPage('LUI', () => {
           autosize
           rows={1}
           style={{ flexGrow: 1 }}
-          placeholder={authState ? 'Ctrl / ⌘ + ↵ 可以快捷发送' : '请登录后使用'}
+          placeholder={authState ? t('input_placeholder') : t('login_first')}
           onKeyDown={(e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
               handleSend();
@@ -163,11 +170,11 @@ registerPage('LUI', () => {
         />
         {authState ? (
           <Button icon={<IconSend />} loading={isLoading} onClick={handleSend}>
-            发送
+            {t('send')}
           </Button>
         ) : (
           <Button icon={<IconUser />} loading={isLoading} onClick={handleSend}>
-            请登录后使用
+            {t('login_first')}
           </Button>
         )}
       </Space>

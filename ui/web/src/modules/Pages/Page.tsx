@@ -93,3 +93,8 @@ export const usePageViewport = () => {
   const page = useContext(PageContext);
   return page?.viewport;
 };
+
+export const usePageId = () => {
+  const page = useContext(PageContext);
+  return page?.id ?? '';
+};

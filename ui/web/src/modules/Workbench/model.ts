@@ -56,18 +56,15 @@ initAction$
       (action): action is { type: string; payload: { name: string; URL: string } } =>
         action.type === 'ConfigHost',
     ),
-    // ISSUE: 等 currentHostConfig$ 先加载完毕
+    // ISSUE: wait currentHostConfig$ loaded
     delayWhen(() => currentHostConfig$.pipe(first((v) => v !== undefined))),
     delayWhen(() => hostConfigList$.pipe(first((v) => v !== undefined))),
   )
   .subscribe((action) => {
-    console.info(formatTime(Date.now()), `从URL中解析到主机地址: ${action.payload.URL}`);
+    console.info(formatTime(Date.now()), `Parsed host from URL: ${action.payload.URL}`);
     const theConfig = hostConfigList$.value?.find((item) => item.HV_URL === action.payload.URL);
     if (theConfig) {
-      console.info(
-        formatTime(Date.now()),
-        `本地配置中已经存在相同的主机 ${theConfig.name} ${theConfig.HV_URL}`,
-      );
+      console.info(formatTime(Date.now()), `Host existed ${theConfig.name} ${theConfig.HV_URL}`);
       currentHostConfig$.next(theConfig);
     } else {
       const config: IHostConfigItem = {
@@ -98,13 +95,13 @@ const mapDurationLiteralToPeriodInSec: Record<string, number> = {
   P1D: 86400,
 };
 
-// for 无主机模式
+// for No-Host Mode
 currentHostConfig$
   .pipe(
     //
     filter((x) => x === null),
     mergeMap(() => {
-      // 无主机模式
+      // No-Host Mode
       return defer(() => fetch(`${PublicDataURL$.value || 'https://y.ntnl.io/Yuan-Public-Data'}/index`)).pipe(
         //
 

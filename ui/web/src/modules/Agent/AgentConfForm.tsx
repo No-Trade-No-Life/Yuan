@@ -77,7 +77,6 @@ const extractAgentMetaInfoFromFilename = (script_path: string) =>
   }).pipe(
     //
     map((agentUnit) => ({
-      /** Script 参数 Schema */
       script_params_schema: agentUnit.paramsSchema,
     })),
     catchError((e) => {

@@ -1,4 +1,5 @@
 {
+  "AI": "AI助理",
   "About": "关于",
   "AccountFrameChart": "账户走势图",
   "AccountInfoPanel": "账户信息 {{ account_id }}",
@@ -14,7 +15,7 @@
   "FinancialStatementsPanel": "基金结算",
   "GeneralSpecificRelationList": "标准品种关系列表",
   "HostList": "主机配置",
-  "LUI": "AI助理",
+  "Login": "登录",
   "ManualTradePanel": "手动交易",
   "Market": "市场行情 {{ product_id }}",
   "OrderListPanel": "订单列表",

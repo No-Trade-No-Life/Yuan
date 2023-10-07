@@ -1,0 +1,15 @@
+{
+  "email_error": "Please input the correct email address",
+  "email_placeholder": "Your email",
+  "email_sending": "Sending verification code to {{email}}...",
+  "email_sent": "The verification code has been sent to {{email}}, please check it",
+  "login_by_email": "Email Login",
+  "login_failed": "Login failed",
+  "login_failed_empty_email": "Your email",
+  "login_succeed": "Login successful",
+  "login_wechat": "WeChat login",
+  "otp_error": "Please enter the correct 6-digit verification code",
+  "otp_placeholder": "6-digit code you received",
+  "send_email": "Send Code",
+  "third_party_login": "Third-Party"
+}

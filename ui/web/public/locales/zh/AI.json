@@ -1,0 +1,9 @@
+{
+  "clean": "清理聊天记录",
+  "hello": "我是 Yuan AI 助理，可以帮助您编写专业的量化模型代码，请说明您的模型思路与规则。",
+  "input_placeholder": "Ctrl / ⌘ + ↵ 可以快捷发送",
+  "login_first": "请登录后使用",
+  "send": "发送",
+  "server_error": "服务异常，请稍后再试",
+  "unsupported_message": "[不支持查看该消息，请更新后重试]"
+}

@@ -25,9 +25,9 @@ import { currentHostConfig$ } from '../Workbench/model';
 export const rollupLoadEvent$ = new Subject<{ id: string; content: string }>();
 
 /**
- * 从入口开始打包一个 Agent 代码
- * @param entry 入口路径
- * @returns IIFE 格式的代码
+ * Bundle code from entry
+ * @param entry entry filename
+ * @returns IIFE-formatted code
  */
 export const bundleCode = async (entry: string) => {
   const bundle = await rollup.rollup({
@@ -47,14 +47,14 @@ export const bundleCode = async (entry: string) => {
         async resolveId(source, importer = '/', options) {
           function* candidate() {
             if (source[0] === '.') {
-              // 相对路径
+              // relative path
               yield path.join(importer, '..', source);
               yield path.join(importer, '..', source + '.js');
               yield path.join(importer, '..', source + '.ts');
               yield path.join(importer, '..', source, 'index.ts');
               yield path.join(importer, '..', source, 'index.js');
             } else {
-              // 绝对路径
+              // absolute path
               yield path.join('/', source);
               yield path.join('/', source + '.js');
               yield path.join('/', source + '.ts');
@@ -62,11 +62,9 @@ export const bundleCode = async (entry: string) => {
               yield path.join('/', source, 'index.js');
             }
           }
-          console.debug(`于 ${importer} 解析路径 ${source} ...`);
           for (const filename of candidate()) {
             try {
-              const content = await fs.readFile(filename);
-              console.debug(`于 ${importer} 解析路径 ${source} ... 得到 ${filename}`);
+              await fs.readFile(filename);
               return filename;
             } catch (e) {
               //
@@ -178,7 +176,7 @@ export type IEnumerableJsonSchema<T> = JSONSchema7;
 // [ [1] ] => [ [1] ]
 // [ [1, 2] ] => [ [1], [2] ]
 // [ [1, 2], [3, 4] ] => [ [1, 3], [1, 4], [2, 3], [2, 4] ]
-/** 笛卡尔积 */
+/** cartesian product */
 export const cartesianProduct = <T>([head, ...tail]: T[][]): T[][] =>
   head?.flatMap((xx) => cartesianProduct(tail).map((xxx) => [xx, ...xxx])) ?? [[]];
 
@@ -293,7 +291,7 @@ async function generateEquityImage(accountInfos: IAccountInfo[]): Promise<string
   const mapX = (v: number) => Math.round((1 - (maxX - v) / (maxX - minX)) * 200);
   const mapY = (v: number) => Math.round(((maxY - v) / (maxY - minY)) * 100);
 
-  // ISSUE: OffscreenCanvas 会使得 vite build 失败，但是可以忽略
+  // ISSUE: OffscreenCanvas cause vite build failed, but it works in browser, so we use @ts-ignore
   // @ts-ignore
   const canvas = new OffscreenCanvas(200, 100);
   const ctx = canvas.getContext('2d');
