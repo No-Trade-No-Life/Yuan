@@ -28,5 +28,6 @@
   "TechnicalChart": "Technical Chart",
   "TerminalList": "Terminals",
   "TradeConfigList": "Trade Configs",
-  "TradeCopyRelationList": "Trade Copier Relations"
+  "TradeCopyRelationList": "Trade Copier Relations",
+  "UserProfile": "User Profile"
 }
