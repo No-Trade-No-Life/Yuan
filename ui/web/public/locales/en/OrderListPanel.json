@@ -1,6 +1,7 @@
 {
   "comment": "Comment",
   "direction": "Direction",
+  "export_as_csv": "Export order list to CSV",
   "fok": "",
   "inferred_base_currency_price": "Base currency quote",
   "limit": "Limit order",

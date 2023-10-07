@@ -13,6 +13,7 @@
   "copied": "Copied",
   "empty": "No data",
   "file_written": "File written: {{ filename }}",
+  "login": "Log in",
   "order_direction_close_long": "Close long",
   "order_direction_close_short": "Close short",
   "order_direction_open_long": "Open long",
@@ -21,6 +22,7 @@
   "position_short": "",
   "report_bug": "Report",
   "retry": "Retry",
+  "saved": "Saved",
   "submit": "Submit",
   "succeed": "Succeed"
 }

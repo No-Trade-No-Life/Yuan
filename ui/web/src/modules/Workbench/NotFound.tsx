@@ -1,18 +1,16 @@
 import { IconClose, IconUndo } from '@douyinfe/semi-icons';
-import { Button, Empty, Space, Typography } from '@douyinfe/semi-ui';
-import React from 'react';
+import { Button, Space, Typography } from '@douyinfe/semi-ui';
 import { Trans, useTranslation } from 'react-i18next';
 import { executeCommand } from '../CommandCenter';
-import { usePageType } from '../Pages';
+import { registerPage, usePageType } from '../Pages';
 
-export const NotFound = React.memo(() => {
+registerPage('NotFound', () => {
   const component = usePageType();
   const { t } = useTranslation('NotFound');
   return (
-    <Empty
-      title={<Typography.Title heading={4}>{t('page_not_found')}</Typography.Title>}
-      description={<Trans t={t} i18nKey={'page_not_found_note'} values={{ component }}></Trans>}
-    >
+    <Space vertical style={{ width: '100%', height: '100%' }}>
+      <Typography.Title heading={4}>{t('page_not_found')}</Typography.Title>
+      <Trans t={t} i18nKey={'page_not_found_note'} values={{ component }}></Trans>
       <Space align="center">
         <Button
           icon={<IconUndo />}
@@ -33,6 +31,6 @@ export const NotFound = React.memo(() => {
           {t('close_this_only')}
         </Button>
       </Space>
-    </Empty>
+    </Space>
   );
 });

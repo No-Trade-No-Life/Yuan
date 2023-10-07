@@ -19,7 +19,7 @@ console.info = (...params: any[]) => {
   log$.next(params.join(' '));
   info(...params);
 };
-// console.debug, console.log 不覆盖
+// don't override console.debug, console.log
 
 const log$ = new ReplaySubject<string>(1000);
 export const clearLogAction$ = new Subject<void>();

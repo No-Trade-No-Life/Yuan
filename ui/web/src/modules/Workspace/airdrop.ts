@@ -18,7 +18,7 @@ export const sendFileByAirdrop = async (terminal: Terminal, target_terminal_id: 
 
 declare module '@yuants/protocol/lib/services' {
   /**
-   * - AirDrop 隔空投递
+   * - AirDrop
    */
   export interface IService {
     AirDrop: {

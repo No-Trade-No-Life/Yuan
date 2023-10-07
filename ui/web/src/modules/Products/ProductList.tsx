@@ -4,6 +4,7 @@ import { StockMarket } from '@icon-park/react';
 import { IProduct } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
 import Form, { showForm } from '../Form';
@@ -12,6 +13,7 @@ import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 
 registerPage('ProductList', () => {
+  const { t } = useTranslation('ProductList');
   const [refreshId, setRefreshId] = useState(0);
   const [isSearchModalVisible, setSearchModalVisible] = useState(false);
 

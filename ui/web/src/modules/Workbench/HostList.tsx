@@ -82,8 +82,8 @@ registerPage('HostList', () => {
                   icon={<IconSend />}
                   onClick={() => {
                     currentHostConfig$.next(config);
+                    // ISSUE: ensure currentHostConfig saved before refresh
                     setTimeout(() => {
-                      // ISSUE: 在保证切换 terminal 能正常 GC 掉旧的 terminal 之前，刷新页面以确保状态干净。
                       window.location.reload();
                     }, 500);
                   }}

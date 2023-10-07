@@ -1,0 +1,9 @@
+{
+  "clean": "Clear chat history",
+  "hello": "I am Yuan AI assistant. I can help you write professional quantitative model code. Please explain your model ideas and rules.",
+  "input_placeholder": "Ctrl / ⌘ ↵ can be quickly sent",
+  "login_first": "Login to use",
+  "send": "Send",
+  "server_error": "Service abnormality, please try again later",
+  "unsupported_message": "[Viewing this message is not supported, please update and try again]"
+}

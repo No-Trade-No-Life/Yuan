@@ -9,7 +9,7 @@ import { orders$ } from './model';
 import { useTranslation } from 'react-i18next';
 
 registerPage('OrderListPanel', () => {
-  const [t] = useTranslation('OrderListPanel');
+  const { t } = useTranslation('OrderListPanel');
   const orders = useObservableState(orders$);
 
   const handleExportOrderList = () => {
@@ -39,7 +39,7 @@ registerPage('OrderListPanel', () => {
     <div>
       <Space>
         <Button icon={<IconExport />} onClick={handleExportOrderList}>
-          导出订单列表到 CSV
+          {t('export_as_csv')}
         </Button>
       </Space>
       <Table

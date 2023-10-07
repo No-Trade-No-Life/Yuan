@@ -3,6 +3,7 @@ import { Button, Empty, Space } from '@douyinfe/semi-ui';
 import { PeriodDataUnit, Series, SeriesDataUnit } from '@yuants/kernel';
 import { useObservableState } from 'observable-hooks';
 import { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { currentKernel$ } from '../Kernel/model';
 import { orders$ } from '../Order/model';
 import { registerPage } from '../Pages';
@@ -14,7 +15,6 @@ import {
   LineSeries,
   OrderSeries,
 } from './components/Charts';
-import { useTranslation } from 'react-i18next';
 const DEFAULT_SINGLE_COLOR_SCHEME: string[] = [
   '#5B8FF9',
   '#61DDAA',
@@ -29,7 +29,7 @@ const DEFAULT_SINGLE_COLOR_SCHEME: string[] = [
 const resolveChartId = (series: Series): string => {
   const chartConfig = series.tags['chart'];
   if (series.parent === undefined) {
-    // 主图ID = TimeSeries 的 ID
+    // Main Chart ID is the TimeSeries's ID
     return series.series_id;
   }
   if (chartConfig === undefined) {
@@ -115,9 +115,9 @@ registerPage('TechnicalChart', () => {
   }
 
   const hasAuxChart =
-    // 有两个或以上的图
+    // more than 1 charts
     Object.keys(displayConfigList).length > 1 ||
-    // 有一个图，但不是主图
+    // only 1 chart but not the main chart
     (Object.keys(displayConfigList).length === 1 && !displayConfigList[timeSeriesList[0]?.series_id]);
 
   return (

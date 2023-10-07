@@ -7,7 +7,6 @@ import { CommandCenter } from '../CommandCenter';
 import { Page } from '../Pages';
 import { ErrorBoundary } from '../Pages/ErrorBoundary';
 import { NetworkStatusWidget } from '../Terminals/NetworkStatusWidget';
-import { Login } from '../User/Login';
 import { UserMenu } from '../User/UserMenu';
 import { HomePage } from '../Workbench/HomePage';
 import { isDarkMode$ } from '../Workbench/darkmode';
@@ -38,7 +37,7 @@ export const DesktopLayout = () => {
   const [style, setStyle] = useState('');
 
   useEffect(() => {
-    // ISSUE: 使用 raw import css 可以不追加 css link 到 head 中，可以正确随系统切换暗黑主题
+    // ISSUE: use css by raw import will not produce side-effect. we can easily switch between dark and light
     if (isDarkMode) {
       import('flexlayout-react/style/dark.css?raw').then((mod) => setStyle(mod.default));
     } else {
@@ -75,7 +74,6 @@ export const DesktopLayout = () => {
         </Space>
       </Layout.Header>
       <Layout.Content style={{ position: 'relative' }}>
-        <Login />
         {model && (
           <FlexLayout
             onModelChange={(model) => {
