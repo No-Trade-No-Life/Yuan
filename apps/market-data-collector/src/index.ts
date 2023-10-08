@@ -167,6 +167,12 @@ defer(() =>
                   product_id: task.product_id,
                   period_in_sec: '' + task.period_in_sec,
                 });
+                MetricCronjobStatus.set(1, {
+                  status: 'success',
+                  datasource_id: task.datasource_id,
+                  product_id: task.product_id,
+                  period_in_sec: '' + task.period_in_sec,
+                });
               },
             }),
             tap({
@@ -174,6 +180,18 @@ defer(() =>
                 console.info(formatTime(Date.now()), `StartSyncing: ${JSON.stringify(task)}`);
                 MetricCronjobStatus.set(1, {
                   status: 'running',
+                  datasource_id: task.datasource_id,
+                  product_id: task.product_id,
+                  period_in_sec: '' + task.period_in_sec,
+                });
+                MetricCronjobStatus.set(0, {
+                  status: 'error',
+                  datasource_id: task.datasource_id,
+                  product_id: task.product_id,
+                  period_in_sec: '' + task.period_in_sec,
+                });
+                MetricCronjobStatus.set(0, {
+                  status: 'success',
                   datasource_id: task.datasource_id,
                   product_id: task.product_id,
                   period_in_sec: '' + task.period_in_sec,
@@ -195,6 +213,18 @@ defer(() =>
                     console.info(formatTime(Date.now()), `EvaluateParams, config: ${JSON.stringify(task)}`);
                     MetricCronjobStatus.set(1, {
                       status: 'running',
+                      datasource_id: task.datasource_id,
+                      product_id: task.product_id,
+                      period_in_sec: '' + task.period_in_sec,
+                    });
+                    MetricCronjobStatus.set(0, {
+                      status: 'error',
+                      datasource_id: task.datasource_id,
+                      product_id: task.product_id,
+                      period_in_sec: '' + task.period_in_sec,
+                    });
+                    MetricCronjobStatus.set(0, {
+                      status: 'success',
                       datasource_id: task.datasource_id,
                       product_id: task.product_id,
                       period_in_sec: '' + task.period_in_sec,
@@ -288,6 +318,12 @@ defer(() =>
                           product_id: task.product_id,
                           period_in_sec: '' + task.period_in_sec,
                         });
+                        MetricCronjobStatus.set(1, {
+                          status: 'success',
+                          datasource_id: task.datasource_id,
+                          product_id: task.product_id,
+                          period_in_sec: '' + task.period_in_sec,
+                        });
                       }),
                       map(() => ({ ...task, state: 'success' })),
                       catchError((err) => {
@@ -306,6 +342,12 @@ defer(() =>
                         });
                         MetricCronjobStatus.set(1, {
                           status: 'error',
+                          datasource_id: task.datasource_id,
+                          product_id: task.product_id,
+                          period_in_sec: '' + task.period_in_sec,
+                        });
+                        MetricCronjobStatus.set(0, {
+                          status: 'success',
                           datasource_id: task.datasource_id,
                           product_id: task.product_id,
                           period_in_sec: '' + task.period_in_sec,
