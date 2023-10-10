@@ -1,0 +1,23 @@
+{
+  "home.welcomeTitle": {
+    "message": "{value} 欢迎你"
+  },
+  "home.getStartedButton": {
+    "message": "快速启动"
+  },
+  "home.readTheDocsButton": {
+    "message": "阅读文档"
+  },
+  "home.features.gui.title": {
+    "message": "强大的 Web GUI"
+  },
+  "home.features.language.title": {
+    "message": "简单的语言和 AI 助手"
+  },
+  "home.features.deploy.title": {
+    "message": "本地，云上...任何智能设备"
+  },
+  "home.features.ecosystem.title": {
+    "message": "插件优先的生态系统"
+  }
+}

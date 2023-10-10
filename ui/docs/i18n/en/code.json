@@ -1,0 +1,23 @@
+{
+  "home.welcomeTitle": {
+    "message": "Hello from {value}"
+  },
+  "home.getStartedButton": {
+    "message": "Get Started"
+  },
+  "home.readTheDocsButton": {
+    "message": "Read The Docs"
+  },
+  "home.features.gui.title": {
+    "message": "Powerful Web GUI"
+  },
+  "home.features.language.title": {
+    "message": "Simple language and AI assistant"
+  },
+  "home.features.deploy.title": {
+    "message": "Local, cloud...or hybrid!"
+  },
+  "home.features.ecosystem.title": {
+    "message": "Extension-first Ecosystem"
+  }
+}
