@@ -79,7 +79,7 @@ jobs:
         uses: actions/download-artifact@v3
         with:
           name: docs-artifacts
-          path: ./ui/docs/dist
+          path: ./ui/docs/build
 
       - name: Deploy UI Web on gh-pages
         uses: peaceiris/actions-gh-pages@v3
