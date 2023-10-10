@@ -85,7 +85,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         if: ${{ github.ref == 'refs/heads/main' }}
         with:
-          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY }}
+          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY_DOC }}
           external_repository: No-Trade-No-Life/home-page
           publish_branch: main
           publish_dir: ./ui/docs/build
