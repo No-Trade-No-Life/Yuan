@@ -2,11 +2,10 @@ import { IconInfoCircle } from '@douyinfe/semi-icons';
 import { Descriptions, Space, Tooltip } from '@douyinfe/semi-ui';
 import { useObservableState } from 'observable-hooks';
 import { useMemo } from 'react';
+import { Trans, useTranslation } from 'react-i18next';
 import { WeeklyEquityChart } from '../Chart/WeeklyEquityChart';
-import { WeeklyProfitChart } from '../Chart/WeeklyProfitChart';
 import { registerPage } from '../Pages';
 import { accountPerformance$ } from './model';
-import { Trans, useTranslation } from 'react-i18next';
 
 registerPage('AccountPerformancePanel', () => {
   const [t] = useTranslation('AccountPerformancePanel');
@@ -348,7 +347,6 @@ registerPage('AccountPerformancePanel', () => {
         }}
       ></Descriptions>
       <WeeklyEquityChart />
-      <WeeklyProfitChart />
     </Space>
   );
 });
