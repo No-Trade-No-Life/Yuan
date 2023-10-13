@@ -89,14 +89,6 @@ const schema: JSONSchema7 = {
       type: 'string',
       title: 'Timezone of CronJob',
     },
-    timeout: {
-      type: 'number',
-      title: 'Timeout (in ms)',
-    },
-    retry_times: {
-      type: 'number',
-      title: 'Retry Times (defaults to 0 - no retry)',
-    },
   },
 };
 const ajv = new Ajv();

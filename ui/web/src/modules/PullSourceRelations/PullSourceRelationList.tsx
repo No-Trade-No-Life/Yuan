@@ -1,12 +1,13 @@
 import { IconCopyAdd, IconDelete, IconEdit, IconRefresh, IconSearch } from '@douyinfe/semi-icons';
-import { Button, Modal, Popconfirm, Space, Table, Toast } from '@douyinfe/semi-ui';
+import { Button, Popconfirm, Space, Table, Toast } from '@douyinfe/semi-ui';
 import { StockMarket } from '@icon-park/react';
 import { IDataRecord } from '@yuants/protocol';
+import { JSONSchema7 } from 'json-schema';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
-import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
+import { combineLatest, filter, first, mergeMap, tap, toArray } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
-import Form from '../Form';
+import { showForm } from '../Form';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 
@@ -34,12 +35,36 @@ const mapPullSourceRelationToDataRecord = (x: IPullSourceRelation): IDataRecord<
   origin: x,
 });
 
+const schema: JSONSchema7 = {
+  type: 'object',
+  title: '历史行情数据同步者配置',
+  properties: {
+    datasource_id: {
+      type: 'string',
+      title: '数据源 ID',
+    },
+    product_id: {
+      type: 'string',
+      title: '品种 ID',
+    },
+    period_in_sec: {
+      type: 'number',
+      title: '周期 (秒)',
+    },
+    cron_pattern: {
+      type: 'string',
+      title: 'CronJob 模式: 定义拉取数据的时机',
+    },
+    cron_timezone: {
+      type: 'string',
+      title: 'CronJob 的评估时区',
+    },
+  },
+};
 registerPage('PullSourceRelationList', () => {
   const [refreshId, setRefreshId] = useState(0);
-  const [isSearchModalVisible, setSearchModalVisible] = useState(false);
 
-  const [_searchFormData, _setSearchFormData] = useState({});
-  const [searchFormData, setSearchFormData] = useState({} as any);
+  const [searchFormData, setSearchFormData] = useState({} as IPullSourceRelation);
 
   const records$ = useObservable(
     (input$) =>
@@ -62,6 +87,20 @@ registerPage('PullSourceRelationList', () => {
               'MongoDB',
             )
             .pipe(
+              filter(
+                (record) =>
+                  !searchFormData.datasource_id ||
+                  record.origin.datasource_id === searchFormData.datasource_id,
+              ),
+              filter(
+                (record) =>
+                  !searchFormData.product_id || record.origin.product_id === searchFormData.product_id,
+              ),
+              filter(
+                (record) =>
+                  !searchFormData.period_in_sec ||
+                  record.origin.period_in_sec === searchFormData.period_in_sec,
+              ),
               //
               toArray(),
             ),
@@ -71,26 +110,39 @@ registerPage('PullSourceRelationList', () => {
   );
 
   const records = useObservableState(records$);
-
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [formData, setFormData] = useState({} as IPullSourceRelation);
+  const updateData = (formData: IPullSourceRelation) => {
+    const record = mapPullSourceRelationToDataRecord(formData);
+    terminal$
+      .pipe(
+        first(),
+        mergeMap((terminal) => terminal.updateDataRecords([record], 'MongoDB')),
+        tap({
+          complete: () => {
+            Toast.success(`成功更新数据记录 ${record.id}`);
+            setRefreshId((x) => x + 1);
+          },
+        }),
+      )
+      .subscribe();
+  };
 
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
       <Space>
         <Button
           icon={<IconSearch />}
-          onClick={() => {
-            setSearchModalVisible(true);
+          onClick={async () => {
+            const data = await showForm<IPullSourceRelation>(schema, searchFormData);
+            setSearchFormData(data);
           }}
         >
           搜索
         </Button>
         <Button
           icon={<IconCopyAdd />}
-          onClick={() => {
-            setFormData({} as IPullSourceRelation);
-            setModalVisible(true);
+          onClick={async () => {
+            const data = await showForm<IPullSourceRelation>(schema, {});
+            updateData(data);
           }}
         >
           添加
@@ -131,10 +183,9 @@ registerPage('PullSourceRelationList', () => {
                 ></Button>
                 <Button
                   icon={<IconEdit />}
-                  onClick={() => {
-                    setFormData(record.origin);
-
-                    setModalVisible(true);
+                  onClick={async () => {
+                    const data = await showForm<IPullSourceRelation>(schema, record.origin);
+                    updateData(data);
                   }}
                 ></Button>
 
@@ -173,106 +224,6 @@ registerPage('PullSourceRelationList', () => {
           },
         ]}
       ></Table>
-      <Modal
-        visible={isModalVisible}
-        onCancel={() => {
-          setModalVisible(false);
-        }}
-        onOk={() => {
-          const record = mapPullSourceRelationToDataRecord(formData);
-          terminal$
-            .pipe(
-              first(),
-              mergeMap((terminal) => terminal.updateDataRecords([record], 'MongoDB')),
-              tap({
-                complete: () => {
-                  Toast.success(`成功更新数据记录 ${record.id}`);
-                  setRefreshId((x) => x + 1);
-                },
-              }),
-            )
-            .subscribe();
-        }}
-      >
-        <Form
-          formData={formData}
-          onChange={(data) => {
-            setFormData(data.formData);
-          }}
-          schema={{
-            type: 'object',
-            title: '历史行情数据同步者配置',
-            properties: {
-              datasource_id: {
-                type: 'string',
-                title: '数据源 ID',
-              },
-              product_id: {
-                type: 'string',
-                title: '品种 ID',
-              },
-              period_in_sec: {
-                type: 'number',
-                title: '周期 (秒)',
-              },
-              cron_pattern: {
-                type: 'string',
-                title: 'CronJob 模式: 定义拉取数据的时机',
-              },
-              cron_timezone: {
-                type: 'string',
-                title: 'CronJob 的评估时区',
-              },
-            },
-          }}
-        >
-          <div></div>
-        </Form>
-      </Modal>
-      <Modal
-        visible={isSearchModalVisible}
-        onCancel={() => {
-          setSearchModalVisible(false);
-        }}
-        onOk={() => {
-          setSearchFormData(_searchFormData);
-        }}
-      >
-        <Form
-          formData={_searchFormData}
-          onChange={(data) => {
-            _setSearchFormData(data.formData);
-          }}
-          schema={{
-            type: 'object',
-            title: '历史行情数据同步者配置',
-            properties: {
-              datasource_id: {
-                type: 'string',
-                title: '数据源 ID',
-              },
-              product_id: {
-                type: 'string',
-                title: '品种 ID',
-              },
-              period_in_sec: {
-                type: 'number',
-                title: '周期 (秒)',
-              },
-              cron_pattern: {
-                type: 'string',
-                title: 'CronJob 模式: 定义拉取数据的时机',
-              },
-              cron_timezone: {
-                type: 'string',
-                title: 'CronJob 的评估时区',
-              },
-            },
-          }}
-        >
-          <div></div>
-        </Form>
-      </Modal>
     </Space>
   );
 });
