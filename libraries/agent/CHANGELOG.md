@@ -1,6 +1,13 @@
 # Change Log - @yuants/agent
 
-This log was last generated on Tue, 03 Oct 2023 17:45:31 GMT and should not be manually modified.
+This log was last generated on Fri, 13 Oct 2023 09:22:20 GMT and should not be manually modified.
+
+## 0.2.2
+Fri, 13 Oct 2023 09:22:20 GMT
+
+### Patches
+
+- hotfix: publish account info for position limit account
 
 ## 0.2.1
 Tue, 03 Oct 2023 17:45:31 GMT
