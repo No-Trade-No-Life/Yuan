@@ -309,6 +309,21 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
       positionLimitAccountInfoUnit,
     );
     positionLimitAccountPerformanceUnit = new AccountPerformanceUnit(kernel, positionLimitAccountInfoUnit);
+
+    if (agentConf.publish_account) {
+      const unit = new BasicUnit(kernel);
+      const accountInfo$ = new Subject<IAccountInfo>();
+      terminal.provideAccountInfo(accountInfo$);
+      unit.onIdle = () => {
+        accountInfo$.next(positionLimitAccountInfoUnit!.accountInfo);
+      };
+      // 装载指标单元
+      const account_id = positionLimitAccountPerformanceUnit.performance.account_id;
+      new KernelFramesMetricsUnit(kernel, account_id);
+      new QuoteMetricsUnit(kernel, account_id, quoteDataUnit);
+      new PeriodMetricsUnit(kernel, account_id, periodDataUnit);
+      new AccountPerformanceMetricsUnit(kernel, positionLimitAccountPerformanceUnit);
+    }
   }
 
   let counterpartyAccountInfoUnit: AccountSimulatorUnit | undefined;
