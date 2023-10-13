@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/kernel",
+      "comment": "add new fields of Account Performance",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/kernel"
+}

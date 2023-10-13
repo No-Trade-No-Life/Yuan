@@ -109,6 +109,8 @@ export interface IAccountPerformance {
 
   _position_performance_list: Record<string, IAccountPositionPerformance>;
   _history_position_performance: IAccountPositionPerformance[];
+  _history_weekly_equity: Array<{ high: number; low: number }>;
+  _weekly_first_timestamp: number[];
   // _alive_position_id_list: string[];
   /** 总持仓次数 */
   total_positions: number;
@@ -188,6 +190,8 @@ export class AccountPerformanceUnit extends BasicUnit {
     _daily_return_ratio_list: [],
     _weekly_return_ratio_list: [],
     _weekly_equity: [],
+    _history_weekly_equity: [],
+    _weekly_first_timestamp: [],
     today_first_equity: NaN,
     today_profit: NaN,
     expect_everyday_profit: NaN,
@@ -441,6 +445,23 @@ export class AccountPerformanceUnit extends BasicUnit {
         )
       : acc.min_profit_lower_fence_out_count;
 
+    const _weekly_first_timestamp = isSameWeek
+      ? acc._weekly_first_timestamp
+      : [...acc._weekly_first_timestamp, timestamp];
+
+    const _history_weekly_equity = isSameWeek
+      ? equity >= acc._history_weekly_equity[acc._history_weekly_equity.length - 1].low &&
+        equity <= acc._history_weekly_equity[acc._history_weekly_equity.length - 1].high
+        ? acc._history_weekly_equity
+        : [
+            ...acc._history_weekly_equity.slice(0, -1),
+            {
+              high: Math.max(equity, acc._history_weekly_equity[acc._history_weekly_equity.length - 1].high),
+              low: Math.min(equity, acc._history_weekly_equity[acc._history_weekly_equity.length - 1].low),
+            },
+          ]
+      : [...acc._history_weekly_equity, { high: equity, low: equity }];
+
     return {
       account_id: acc.account_id,
       timestamp,
@@ -494,6 +515,8 @@ export class AccountPerformanceUnit extends BasicUnit {
       _weekly_equity,
       _position_performance_list,
       _history_position_performance,
+      _history_weekly_equity,
+      _weekly_first_timestamp,
       min_profit_p25,
       min_profit_p75,
       min_profit_interquartile_range,

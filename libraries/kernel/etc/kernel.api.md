@@ -231,6 +231,11 @@ export interface IAccountPerformance {
     first_timestamp: number;
     // (undocumented)
     _history_position_performance: IAccountPositionPerformance[];
+    // (undocumented)
+    _history_weekly_equity: Array<{
+        high: number;
+        low: number;
+    }>;
     integral_maintenance_margin: number;
     maintenance_margin: number;
     max_drawdown: number;
@@ -267,6 +272,8 @@ export interface IAccountPerformance {
     volatility_everyweek_profit: number;
     // (undocumented)
     _weekly_equity: number[];
+    // (undocumented)
+    _weekly_first_timestamp: number[];
     weekly_return_ratio: number;
     // (undocumented)
     _weekly_return_ratio_list: number[];

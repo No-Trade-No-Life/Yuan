@@ -1,3 +1,4 @@
+import { format } from 'date-fns';
 import EChartsReact from 'echarts-for-react';
 import { useObservableState } from 'observable-hooks';
 import React from 'react';
@@ -15,21 +16,24 @@ export const WeeklyEquityChart = React.memo(() => {
         title: {
           text: t('weekly_equity_chart'),
         },
-        xAxis: {
-          type: 'value',
-        },
-        yAxis: {
-          type: 'value',
-        },
         tooltip: {
           trigger: 'axis',
-          formatter: (params: any) => {
-            return `Week #${params?.[0]?.value?.[0]}: ${params?.[0]?.value?.[1]}`;
-          },
         },
-
+        xAxis: {
+          data: accountPerformance._weekly_first_timestamp.map((v) => format(v, 'yyyy-MM-dd')),
+        },
+        yAxis: {},
         series: [
-          { type: 'line', data: accountPerformance._weekly_equity.map((v, i) => ({ value: [i, v] })) },
+          {
+            type: 'candlestick',
+            // O-C-L-H
+            data: accountPerformance._history_weekly_equity.map((v, i) => [
+              accountPerformance._weekly_equity[i],
+              accountPerformance._weekly_equity[i + 1] || accountPerformance.equity,
+              v.high,
+              v.low,
+            ]),
+          },
         ],
       }}
     />
