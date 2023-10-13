@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/agent",
+      "comment": "hotfix: publish account info for position limit account",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/agent"
+}
