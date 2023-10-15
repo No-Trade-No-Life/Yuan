@@ -29,7 +29,7 @@ export const WeeklyEquityChart = React.memo(() => {
             // O-C-L-H
             data: accountPerformance._history_weekly_equity.map((v, i) => [
               accountPerformance._weekly_equity[i],
-              accountPerformance._weekly_equity[i + 1] || accountPerformance.equity,
+              accountPerformance._weekly_equity[i + 1] ?? accountPerformance.equity,
               v.high,
               v.low,
             ]),
