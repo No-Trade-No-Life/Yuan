@@ -4,6 +4,7 @@
   "CreateFile_prompt": "Create a file in the {{ baseDir }} directory, please enter the file name",
   "CreateFile_succeed": "File created successfully: {{ filename }}",
   "Workspace": "Workspace",
+  "YuanCoin": "Yuan Coin",
   "cancel": "Cancel",
   "close": "Close",
   "confirm_delete": "Confirm Delete",

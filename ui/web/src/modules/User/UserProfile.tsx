@@ -1,12 +1,15 @@
 import { IconArrowUp } from '@douyinfe/semi-icons';
-import { Avatar, Button, Descriptions, Space } from '@douyinfe/semi-ui';
+import { Avatar, Button, Descriptions, Space, Toast } from '@douyinfe/semi-ui';
 import { useObservableState } from 'observable-hooks';
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { executeCommand } from '../CommandCenter';
+import { showForm } from '../Form';
 import { registerPage, usePageId } from '../Pages';
 import { authState$, supabase } from '../SupaBase';
 
 registerPage('UserProfile', () => {
+  const { t } = useTranslation('UserProfile');
   const authState = useObservableState(authState$);
   const [balance, setBalance] = useState(0);
   useEffect(() => {
@@ -49,10 +52,29 @@ registerPage('UserProfile', () => {
               ),
             },
             {
-              key: '原石',
+              key: t('common:YuanCoin'),
               value: (
                 <Space>
-                  {balance} <Button>充值</Button>
+                  {balance}{' '}
+                  <Button
+                    onClick={async () => {
+                      const volume = await showForm({ type: 'number' });
+                      const res = await supabase
+                        .from('order')
+                        .insert({
+                          volume: volume,
+                        })
+                        .select();
+                      if (res.error) {
+                        Toast.error(`${res.error.code}: ${res.error.message}`);
+                      }
+                      if (res.data?.[0]) {
+                        Toast.success(`Succ: ${res.data?.[0].id}`);
+                      }
+                    }}
+                  >
+                    充值
+                  </Button>
                 </Space>
               ),
             },
