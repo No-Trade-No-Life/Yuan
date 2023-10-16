@@ -65,7 +65,7 @@ export const getClosePriceByDesiredProfit = (
 
   const beta = desiredProfit / (variant_coefficient * volume * (product.value_speed ?? 1));
 
-  if (product.is_underlying_base_currency) {
+  if (!product.is_underlying_base_currency) {
     return openPrice + beta / cross_product_exchange_rate;
   }
   if (product.quoted_currency === currency) {
