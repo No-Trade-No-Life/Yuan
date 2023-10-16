@@ -66,6 +66,8 @@ export interface IAgentConf {
   allow_fallback_specific_product?: boolean;
   /** 止损后恢复开仓的保证金阈值（小于） */
   resume_on_source_margin_below?: number;
+  /** 止损浮亏阈值 */
+  stop_loss_drawdown_quota?: number;
   /** 仓位映射函数 */
   coefficient_fn_str?: string;
   /** 是否禁用打印日志 */
@@ -151,6 +153,10 @@ export const agentConfSchema: JSONSchema7 = {
     resume_on_source_margin_below: {
       type: 'number',
       title: '恢复交易的使用保证金线',
+    },
+    stop_loss_drawdown_quota: {
+      type: 'number',
+      title: '止损浮亏阈值',
     },
     coefficient_fn_str: {
       type: 'string',
@@ -385,7 +391,7 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
   let portfolioAccountPerformanceUnit: AccountPerformanceUnit | undefined;
   let portfolioHistoryOrderUnit: HistoryOrderUnit | undefined;
 
-  if (agentConf.resume_on_source_margin_below) {
+  if (agentConf.resume_on_source_margin_below && agentConf.stop_loss_drawdown_quota) {
     // TODO: 止损信号
     const stopLossInitAccountInfo = createEmptyAccountInfo(
       `${resolved_account_id}-SL`,
@@ -401,19 +407,6 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
       stopLossHistoryOrderUnit,
     );
 
-    new StopLossOrderMapperUnit(
-      kernel,
-      stopLossInitAccountInfo.account_id,
-      agentConf.resume_on_source_margin_below,
-      productDataUnit,
-      quoteDataUnit,
-      originAccountInfoUnit,
-      originAccountPerformanceUnit,
-      originHistoryOrderUnit,
-      stopLossOrderMatchingUnit,
-      stopLossHistoryOrderUnit,
-    );
-
     stopLossAccountInfoUnit = new AccountSimulatorUnit(
       kernel,
       productDataUnit,
@@ -422,6 +415,22 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
       stopLossInitAccountInfo,
     );
     stopLossAccountPerformanceUnit = new AccountPerformanceUnit(kernel, stopLossAccountInfoUnit);
+
+    new StopLossOrderMapperUnit(
+      kernel,
+      stopLossInitAccountInfo.account_id,
+      agentConf.resume_on_source_margin_below,
+      agentConf.stop_loss_drawdown_quota,
+      productDataUnit,
+      quoteDataUnit,
+      positionLimitAccountInfoUnit || originAccountInfoUnit,
+      positionLimitAccountPerformanceUnit || originAccountPerformanceUnit,
+      positionLimitHistoryOrderUnit || originHistoryOrderUnit,
+      stopLossAccountInfoUnit,
+      stopLossOrderMatchingUnit,
+      stopLossHistoryOrderUnit,
+    );
+
     if (agentConf.publish_account) {
       const unit = new BasicUnit(kernel);
       const accountInfo$ = new Subject<IAccountInfo>();

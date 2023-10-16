@@ -129,6 +129,7 @@ export interface IAgentConf {
     publish_account?: boolean;
     resume_on_source_margin_below?: number;
     start_time?: string;
+    stop_loss_drawdown_quota?: number;
     use_general_product?: boolean;
 }
 

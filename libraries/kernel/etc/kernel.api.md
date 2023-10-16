@@ -792,15 +792,8 @@ export const ShellScene: (terminal: Terminal, shellConf: IShellConf, scriptResol
 }>;
 
 // @public
-export const StopLossAccountReplayScene: (terminal: Terminal, account_id: string, currency: string, leverage: number, start_timestamp: number, end_timestamp: number, period_in_sec: number, resumeOnSourceMarginBelow: number, datasource_id?: string) => {
-    kernel: Kernel;
-    accountInfoUnit: AccountSimulatorUnit;
-    accountPerformanceUnit: AccountPerformanceUnit;
-};
-
-// @public
 export class StopLossOrderMapperUnit extends BasicUnit {
-    constructor(kernel: Kernel, account_id: string, resumeOnSourceMarginBelow: number, productDataUnit: ProductDataUnit, quoteDataUnit: QuoteDataUnit, sourceAccountSimulatorUnit: AccountSimulatorUnit, sourceAccountPerformanceUnit: AccountPerformanceUnit, sourceHistoryOrderUnit: HistoryOrderUnit, targetOrderMatchingUnit: OrderMatchingUnit, targetHistoryOrderUnit: HistoryOrderUnit);
+    constructor(kernel: Kernel, account_id: string, resumeOnSourceMarginBelow: number, stopLossDrawdownQuota: number, productDataUnit: ProductDataUnit, quoteDataUnit: QuoteDataUnit, sourceAccountSimulatorUnit: AccountSimulatorUnit, sourceAccountPerformanceUnit: AccountPerformanceUnit, sourceHistoryOrderUnit: HistoryOrderUnit, targetAccountSimulatorUnit: AccountSimulatorUnit, targetOrderMatchingUnit: OrderMatchingUnit, targetHistoryOrderUnit: HistoryOrderUnit);
     // (undocumented)
     account_id: string;
     // (undocumented)
@@ -825,6 +818,10 @@ export class StopLossOrderMapperUnit extends BasicUnit {
     sourceAccountSimulatorUnit: AccountSimulatorUnit;
     // (undocumented)
     sourceHistoryOrderUnit: HistoryOrderUnit;
+    // (undocumented)
+    stopLossDrawdownQuota: number;
+    // (undocumented)
+    targetAccountSimulatorUnit: AccountSimulatorUnit;
     // (undocumented)
     targetHistoryOrderUnit: HistoryOrderUnit;
     // (undocumented)

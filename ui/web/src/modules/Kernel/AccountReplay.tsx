@@ -1,5 +1,5 @@
 import { Banner, Button, Space, Toast, Typography } from '@douyinfe/semi-ui';
-import { AccountReplayScene, HistoryOrderUnit, StopLossAccountReplayScene } from '@yuants/kernel';
+import { AccountReplayScene, HistoryOrderUnit } from '@yuants/kernel';
 import { useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import { AccountFrameUnit } from '../AccountInfo/AccountFrameUnit';
@@ -118,29 +118,16 @@ registerPage('AccountReplay', () => {
             if (terminal) {
               Toast.info(`账户 ${formData.account_id} 重放...`);
 
-              const { kernel, accountInfoUnit, accountPerformanceUnit } =
-                formData.resume_on_source_margin_below
-                  ? StopLossAccountReplayScene(
-                      terminal,
-                      formData.account_id,
-                      formData.currency,
-                      formData.leverage,
-                      formData.start_time ? new Date(formData.start_time!).getTime() : 0,
-                      formData.end_time ? new Date(formData.end_time!).getTime() : Date.now(),
-                      formData.period_in_sec,
-                      formData.resume_on_source_margin_below,
-                      formData.datasource_id,
-                    )
-                  : AccountReplayScene(
-                      terminal,
-                      formData.account_id,
-                      formData.currency,
-                      formData.leverage,
-                      formData.start_time ? new Date(formData.start_time!).getTime() : 0,
-                      formData.end_time ? new Date(formData.end_time!).getTime() : Date.now(),
-                      formData.period_in_sec,
-                      formData.datasource_id,
-                    );
+              const { kernel, accountInfoUnit, accountPerformanceUnit } = AccountReplayScene(
+                terminal,
+                formData.account_id,
+                formData.currency,
+                formData.leverage,
+                formData.start_time ? new Date(formData.start_time!).getTime() : 0,
+                formData.end_time ? new Date(formData.end_time!).getTime() : Date.now(),
+                formData.period_in_sec,
+                formData.datasource_id,
+              );
 
               const accountFrameUnit = new AccountFrameUnit(kernel, accountInfoUnit, accountPerformanceUnit);
 

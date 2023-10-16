@@ -398,19 +398,6 @@ export const ShellScene = async (
       stopLossHistoryOrderUnit,
     );
 
-    new StopLossOrderMapperUnit(
-      kernel,
-      stopLossInitAccountInfo.account_id,
-      shellConf.resume_on_source_margin_below,
-      productDataUnit,
-      quoteDataUnit,
-      accountInfoUnit,
-      accountPerformanceUnit,
-      historyOrderUnit,
-      stopLossOrderMatchingUnit,
-      stopLossHistoryOrderUnit,
-    );
-
     stopLossAccountInfoUnit = new AccountSimulatorUnit(
       kernel,
       productDataUnit,
@@ -419,6 +406,22 @@ export const ShellScene = async (
       stopLossInitAccountInfo,
     );
     stopLossAccountPerformanceUnit = new AccountPerformanceUnit(kernel, stopLossAccountInfoUnit);
+
+    new StopLossOrderMapperUnit(
+      kernel,
+      stopLossInitAccountInfo.account_id,
+      30000,
+      shellConf.resume_on_source_margin_below,
+      productDataUnit,
+      quoteDataUnit,
+      accountInfoUnit,
+      accountPerformanceUnit,
+      historyOrderUnit,
+      stopLossAccountInfoUnit,
+      stopLossOrderMatchingUnit,
+      stopLossHistoryOrderUnit,
+    );
+
     if (shellConf.publish_account) {
       const unit = new BasicUnit(kernel);
       const accountInfo$ = new Subject<IAccountInfo>();

@@ -17,5 +17,5 @@ export * from './QuoteDataUnit';
 export * from './RealtimePeriodLoadingUnit';
 export * from './ScriptUnit';
 export * from './SeriesDataUnit';
-export * from './StopLossUnit';
+export * from './StopLossOrderMappingUnit';
 export * from './metrics';
