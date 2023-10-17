@@ -13,6 +13,8 @@ export const supabase = createClient(
   },
 );
 
+Object.assign(globalThis, { supabase });
+
 export const authState$ = new BehaviorSubject<
   { user: User; refresh_token: string; access_token: string } | undefined
 >(undefined);

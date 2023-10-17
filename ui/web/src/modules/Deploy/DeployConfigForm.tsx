@@ -2,6 +2,7 @@ import { IconRefresh } from '@douyinfe/semi-icons';
 import { Button, Space, Table, Toast, Typography } from '@douyinfe/semi-ui';
 import { IDeploySpec, IEnvContext } from '@yuants/protocol';
 import { parse } from 'jsonc-parser';
+import { useObservableState } from 'observable-hooks';
 import path from 'path-browserify';
 import { useEffect, useState } from 'react';
 import { concatMap, from, map, mergeMap, reduce, toArray } from 'rxjs';
@@ -9,6 +10,7 @@ import YAML from 'yaml';
 import { DeployProviders, ImageTags } from '../Extensions/utils';
 import { fs } from '../FileSystem/api';
 import { registerPage, usePageParams } from '../Pages';
+import { authState$, supabase } from '../SupaBase';
 import { loadManifests } from './utils';
 
 // FYI: https://stackoverflow.com/a/30106551
@@ -22,6 +24,8 @@ const stringToBase64String = (str: string) => {
 
 registerPage('DeployConfigForm', () => {
   const { filename } = usePageParams() as { filename: string };
+
+  const authState = useObservableState(authState$);
 
   const [refreshCount, setRefreshCount] = useState(0);
 
@@ -188,6 +192,15 @@ registerPage('DeployConfigForm', () => {
       });
   };
 
+  const handleDeployToCloud = async () => {
+    await supabase.from('manifest').insert(
+      manifests.map((v) => ({
+        // user_id: authState?.user.id,
+        content: v,
+      })),
+    );
+  };
+
   return (
     <Space vertical align="start">
       <Typography.Text>部署配置: {filename}</Typography.Text>
@@ -200,6 +213,9 @@ registerPage('DeployConfigForm', () => {
         ></Button>
         <Button onClick={makeDockerCompose}>生成 Docker Compose 配置文件</Button>
         <Button onClick={makeK8sResource}>生成 K8s 资源文件</Button>
+        <Button disabled={!authState} onClick={handleDeployToCloud}>
+          部署到 Yuan Cloud
+        </Button>
       </Space>
       <Table
         dataSource={manifests}

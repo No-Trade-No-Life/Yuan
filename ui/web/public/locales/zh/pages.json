@@ -28,5 +28,6 @@
   "TechnicalChart": "走势图",
   "TerminalList": "终端列表",
   "TradeConfigList": "交易配置列表",
-  "TradeCopyRelationList": "跟单关系列表"
+  "TradeCopyRelationList": "跟单关系列表",
+  "UserProfile": "用户档案"
 }

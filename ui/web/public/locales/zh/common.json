@@ -4,6 +4,7 @@
   "CreateFile_prompt": "于 {{ baseDir }} 目录下创建文件，请输入文件名",
   "CreateFile_succeed": "创建文件成功: {{ filename }}",
   "Workspace": "",
+  "YuanCoin": "原石",
   "cancel": "取消",
   "close": "关闭",
   "confirm_delete": "确定是否删除？",
