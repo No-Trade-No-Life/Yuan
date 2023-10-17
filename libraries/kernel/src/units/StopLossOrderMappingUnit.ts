@@ -6,10 +6,10 @@ import { getClosePriceByDesiredProfit, mergePositions } from '../utils';
 import { AccountPerformanceUnit } from './AccountPerformanceUnit';
 import { AccountSimulatorUnit } from './AccountSimulatorUnit';
 import { BasicUnit } from './BasicUnit';
-import { HistoryOrderUnit } from './HistoryOrderUnit';
 import { OrderMatchingUnit } from './OrderMatchingUnit';
 import { ProductDataUnit } from './ProductDataUnit';
 import { QuoteDataUnit } from './QuoteDataUnit';
+import { HistoryOrderUnit } from './HistoryOrderUnit';
 
 /**
  * 止损单元
@@ -22,12 +22,14 @@ export class StopLossOrderMapperUnit extends BasicUnit {
     public kernel: Kernel,
     public account_id: string,
     public resumeOnSourceMarginBelow: number,
+    public stopLossDrawdownQuota: number,
     public productDataUnit: ProductDataUnit,
     public quoteDataUnit: QuoteDataUnit,
     public sourceAccountSimulatorUnit: AccountSimulatorUnit,
     public sourceAccountPerformanceUnit: AccountPerformanceUnit,
     public sourceHistoryOrderUnit: HistoryOrderUnit,
     // NOTE: 绑定了 targetHistoryOrderUnit 的 OrderMatchingUnit
+    public targetAccountSimulatorUnit: AccountSimulatorUnit,
     public targetOrderMatchingUnit: OrderMatchingUnit,
     public targetHistoryOrderUnit: HistoryOrderUnit,
   ) {
@@ -38,8 +40,9 @@ export class StopLossOrderMapperUnit extends BasicUnit {
   in_stop_loss_state: boolean = false;
   private stopLossOrderIds = new Set<string>();
 
-  private last_max_maintenance_margin: number = 0;
   private subscriptions: Subscription[] = [];
+
+  private stopLossEventTimestamp: number = 0;
 
   onInit(): void | Promise<void> {
     this.subscriptions.push(
@@ -55,6 +58,7 @@ export class StopLossOrderMapperUnit extends BasicUnit {
     if (!this.in_stop_loss_state) {
       if (this.stopLossOrderIds.has(order.client_order_id)) {
         this.in_stop_loss_state = true;
+        this.stopLossEventTimestamp = this.kernel.currentTimestamp;
         this.kernel.log?.(`止损状态开始: 发现止损单已经成交: ${order.client_order_id}`);
       }
     }
@@ -64,9 +68,7 @@ export class StopLossOrderMapperUnit extends BasicUnit {
     if (!this.in_stop_loss_state) {
       // 正常跟单
       // 因为还没有止损，所以将所有订单都复制到目标订单单元
-      this.targetHistoryOrderUnit.updateOrder({ ...order, account_id: this.account_id });
-      // // NOTE: 可能需要通过 OrderMatchingUnit 来进行撮合
-      // this.targetOrderMatchingUnit.submitOrder({ ...order, account_id: this.account_id });
+      this.targetOrderMatchingUnit.submitOrder({ ...order, account_id: this.account_id });
     }
   }
 
@@ -87,9 +89,11 @@ export class StopLossOrderMapperUnit extends BasicUnit {
       for (let order of ordersRemains) {
         order.type = OrderType.MARKET;
       }
-
       // 处于止损状态，检测是否可以恢复跟单
-      if (this.sourceAccountSimulatorUnit.accountInfo.money.used < this.resumeOnSourceMarginBelow) {
+      if (
+        this.sourceAccountSimulatorUnit.accountInfo.money.used < this.resumeOnSourceMarginBelow &&
+        this.kernel.currentTimestamp !== this.stopLossEventTimestamp
+      ) {
         // 达到重新开仓条件
         const mergedPositions = mergePositions(this.sourceAccountSimulatorUnit.accountInfo.positions);
         for (const position of mergedPositions) {
@@ -108,8 +112,6 @@ export class StopLossOrderMapperUnit extends BasicUnit {
           this.targetOrderMatchingUnit.submitOrder(order);
         }
         this.in_stop_loss_state = false;
-        this.last_max_maintenance_margin =
-          this.sourceAccountPerformanceUnit.performance.max_maintenance_margin;
         this.kernel.log?.(
           `止损状态结束: 恢复跟单 ${this.sourceAccountSimulatorUnit.accountInfo.money.used} < ${this.resumeOnSourceMarginBelow}`,
         );
@@ -119,12 +121,13 @@ export class StopLossOrderMapperUnit extends BasicUnit {
       // 未触发止损
       // 计算止损线
       const drawdown_quota =
-        this.last_max_maintenance_margin - this.sourceAccountPerformanceUnit.performance.maintenance_margin;
+        // this.last_max_maintenance_margin - this.sourceAccountPerformanceUnit.performance.maintenance_margin;
+        this.stopLossDrawdownQuota + this.targetAccountSimulatorUnit.accountInfo.money.profit;
       // 维护 STOP 单，全部重新挂单
       this.targetOrderMatchingUnit.cancelOrder(...this.stopLossOrderIds);
       this.stopLossOrderIds.clear();
       const mapProductIdVariantToClosePrice: Record<string, number> = {};
-      const mergedPositions = mergePositions(this.sourceAccountSimulatorUnit.accountInfo.positions);
+      const mergedPositions = mergePositions(this.targetAccountSimulatorUnit.accountInfo.positions);
       for (const position of mergedPositions) {
         const theProduct = this.productDataUnit.mapProductIdToProduct[position.product_id];
         const price = getClosePriceByDesiredProfit(
@@ -133,13 +136,13 @@ export class StopLossOrderMapperUnit extends BasicUnit {
           position.volume,
           -(drawdown_quota - position.floating_profit),
           position.variant,
-          this.sourceAccountSimulatorUnit.accountInfo.money.currency,
+          this.targetAccountSimulatorUnit.accountInfo.money.currency,
           (product_id) => this.quoteDataUnit.mapProductIdToQuote[product_id],
         );
         mapProductIdVariantToClosePrice[`${position.product_id}${position.variant}`] = price;
       }
       // ISSUE: 需要按照计算好的平仓价格分别平掉每一个头寸
-      for (const position of this.sourceAccountSimulatorUnit.accountInfo.positions) {
+      for (const position of this.targetAccountSimulatorUnit.accountInfo.positions) {
         const closePrice = mapProductIdVariantToClosePrice[`${position.product_id}${position.variant}`];
         if (Number.isNaN(closePrice)) {
           continue;

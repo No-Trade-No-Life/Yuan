@@ -151,7 +151,7 @@ export const LocalAgentScene = async (agentConf: IAgentConf) => {
   let portfolioAccountPerformanceUnit: AccountPerformanceUnit | undefined;
   let portfolioHistoryOrderUnit: HistoryOrderUnit | undefined;
 
-  if (agentConf.resume_on_source_margin_below) {
+  if (agentConf.resume_on_source_margin_below && agentConf.stop_loss_drawdown_quota) {
     const stopLossInitAccountInfo = createEmptyAccountInfo(
       `${resolved_account_id}-SL`,
       resolved_currency,
@@ -166,19 +166,6 @@ export const LocalAgentScene = async (agentConf: IAgentConf) => {
       stopLossHistoryOrderUnit,
     );
 
-    new StopLossOrderMapperUnit(
-      kernel,
-      stopLossInitAccountInfo.account_id,
-      agentConf.resume_on_source_margin_below,
-      productDataUnit,
-      quoteDataUnit,
-      originAccountInfoUnit,
-      originAccountPerformanceUnit,
-      originHistoryOrderUnit,
-      stopLossOrderMatchingUnit,
-      stopLossHistoryOrderUnit,
-    );
-
     stopLossAccountInfoUnit = new AccountSimulatorUnit(
       kernel,
       productDataUnit,
@@ -187,6 +174,21 @@ export const LocalAgentScene = async (agentConf: IAgentConf) => {
       stopLossInitAccountInfo,
     );
     stopLossAccountPerformanceUnit = new AccountPerformanceUnit(kernel, stopLossAccountInfoUnit);
+
+    new StopLossOrderMapperUnit(
+      kernel,
+      stopLossInitAccountInfo.account_id,
+      agentConf.resume_on_source_margin_below,
+      agentConf.stop_loss_drawdown_quota,
+      productDataUnit,
+      quoteDataUnit,
+      positionLimitAccountInfoUnit || originAccountInfoUnit,
+      positionLimitAccountPerformanceUnit || originAccountPerformanceUnit,
+      positionLimitHistoryOrderUnit || originHistoryOrderUnit,
+      stopLossAccountInfoUnit,
+      stopLossOrderMatchingUnit,
+      stopLossHistoryOrderUnit,
+    );
 
     if (agentConf.coefficient_fn_str) {
       const portfolioInitAccountInfo = createEmptyAccountInfo(
