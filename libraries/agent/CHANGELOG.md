@@ -1,6 +1,13 @@
 # Change Log - @yuants/agent
 
-This log was last generated on Fri, 13 Oct 2023 09:22:20 GMT and should not be manually modified.
+This log was last generated on Thu, 19 Oct 2023 18:36:28 GMT and should not be manually modified.
+
+## 0.2.3
+Thu, 19 Oct 2023 18:36:28 GMT
+
+### Patches
+
+- add stop loss
 
 ## 0.2.2
 Fri, 13 Oct 2023 09:22:20 GMT

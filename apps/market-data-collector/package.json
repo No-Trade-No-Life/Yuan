@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-market-data-collector",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "main": "lib/index.js",
   "files": [
     "dist",

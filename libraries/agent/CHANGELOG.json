@@ -2,6 +2,29 @@
   "name": "@yuants/agent",
   "entries": [
     {
+      "version": "0.2.3",
+      "tag": "@yuants/agent_v0.2.3",
+      "date": "Thu, 19 Oct 2023 18:36:28 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add stop loss"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.1.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.2.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.1.5`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.2",
       "tag": "@yuants/agent_v0.2.2",
       "date": "Fri, 13 Oct 2023 09:22:20 GMT",

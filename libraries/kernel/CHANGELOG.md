@@ -1,6 +1,18 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Tue, 03 Oct 2023 17:45:31 GMT and should not be manually modified.
+This log was last generated on Thu, 19 Oct 2023 18:36:28 GMT and should not be manually modified.
+
+## 0.2.0
+Thu, 19 Oct 2023 18:36:28 GMT
+
+### Minor changes
+
+- add new fields of Account Performance
+
+### Patches
+
+- bug fix
+- add stop loss
 
 ## 0.1.1
 Tue, 03 Oct 2023 17:45:31 GMT
