@@ -1,0 +1,39 @@
+name: Bump Version
+on:
+  # manually trigger
+  workflow_dispatch:
+    inputs:
+      rebuild:
+        type: string
+        description: 'Rebuild All Packages'
+        required: false
+        default: 'false'
+
+jobs:
+  gh-pages-global:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18.17.0
+
+      - name: rush publish
+        run: node common/scripts/install-run-rush.js publish -a
+
+      - name: git add
+        run: git add .
+
+      - name: rush change
+        run: node common/scripts/install-run-rush.js change --bulk --message "Bump Version" --bump-type none
+
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: 'chore: bump version'
+          base: main
+          title: 'chore: bump version'
