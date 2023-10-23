@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-trade-copier
 
-This log was last generated on Thu, 19 Oct 2023 18:36:28 GMT and should not be manually modified.
+This log was last generated on Mon, 23 Oct 2023 17:50:57 GMT and should not be manually modified.
+
+## 0.3.2
+Mon, 23 Oct 2023 17:50:57 GMT
+
+### Patches
+
+- fix account info stop alerting
 
 ## 0.3.1
 Thu, 19 Oct 2023 18:36:28 GMT

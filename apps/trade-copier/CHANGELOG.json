@@ -2,6 +2,18 @@
   "name": "@yuants/app-trade-copier",
   "entries": [
     {
+      "version": "0.3.2",
+      "tag": "@yuants/app-trade-copier_v0.3.2",
+      "date": "Mon, 23 Oct 2023 17:50:57 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix account info stop alerting"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.1",
       "tag": "@yuants/app-trade-copier_v0.3.1",
       "date": "Thu, 19 Oct 2023 18:36:28 GMT",
