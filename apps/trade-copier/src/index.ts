@@ -256,6 +256,13 @@ const allAccountIds$ = config$.pipe(
 allAccountIds$
   .pipe(
     mergeMap((x) => x),
+    // init the status to 0
+    tap((account_id) => {
+      MetricsAccountSubscribeStatus.set(0, {
+        account_id,
+        terminal_id: TERMINAL_ID,
+      });
+    }),
     mergeMap((account_id) =>
       defer(() => terminal.useAccountInfo(account_id))
         .pipe(
@@ -283,7 +290,8 @@ allAccountIds$
             );
             return EMPTY;
           }),
-          repeat({ delay: 1000 }),
+          retry({ delay: 10_000 }),
+          repeat({ delay: 10_000 }),
         ),
     ),
   )
