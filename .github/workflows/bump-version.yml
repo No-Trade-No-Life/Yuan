@@ -2,20 +2,19 @@ name: Bump Version
 on:
   # manually trigger
   workflow_dispatch:
-    inputs:
-      rebuild:
-        type: string
-        description: 'Rebuild All Packages'
-        required: false
-        default: 'false'
 
 jobs:
-  gh-pages-global:
+  bump-version:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
         with:
           fetch-depth: 0
+
+      - name: setup git
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
       - uses: actions/setup-node@v3
         with:
