@@ -51,7 +51,8 @@ export const buildDockerImage = async () => {
 
   const registry = process.env.REGISTRY ?? 'ghcr.io';
   const namespace = process.env.REGISTRY_NAMESPACE ?? 'no-trade-no-life';
-  const version = process.env.VERSION ?? imageTag;
+  const version =
+    process.env.VERSION ?? packageJson?.publishConfig?.access === 'public' ? packageJson.version : imageTag;
   const auth: { username: string; password: string } | undefined =
     process.env.REGISTRY_USERNAME && process.env.REGISTRY_PASSWORD
       ? {
