@@ -139,7 +139,9 @@ registerPage('AccountReplay', () => {
                 );
                 Toast.success(`账户 ${formData.account_id} 重放完成`);
                 accountFrameSeries$.next(accountFrameUnit.data);
-                accountPerformance$.next(accountPerformanceUnit.performance);
+                accountPerformance$.next(
+                  Object.fromEntries(accountPerformanceUnit.mapAccountIdToPerformance.entries()),
+                );
               });
             }
           }}

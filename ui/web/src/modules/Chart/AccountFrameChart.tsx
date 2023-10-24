@@ -1,34 +1,38 @@
+import { Select } from '@douyinfe/semi-ui';
 import { useObservableState } from 'observable-hooks';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { accountFrameSeries$ } from '../AccountInfo/model';
 import { registerPage } from '../Pages';
 import { Chart, ChartGroup, LineSeries } from './components/Charts';
-import { useTranslation } from 'react-i18next';
 
 registerPage('AccountFrameChart', () => {
   const { t, ready } = useTranslation('AccountFrameChart');
-  const positionValueSeries = useObservableState(accountFrameSeries$);
+  const mapAccountIdToFrames = useObservableState(accountFrameSeries$);
+  const accountIdOptions = Object.keys(mapAccountIdToFrames);
+  const [accountId, setAccountId] = useState(accountIdOptions[0] || '');
+  const accountFrames = mapAccountIdToFrames[accountId] || [];
 
   const balanceData = useMemo(
-    () => positionValueSeries.map((e) => ({ timestamp: e.timestamp_in_us / 1000, value: e.balance })),
-    [positionValueSeries],
+    () => accountFrames.map((e) => ({ timestamp: e.timestamp_in_us / 1000, value: e.balance })),
+    [accountFrames],
   );
 
   const equityData = useMemo(
-    () => positionValueSeries.map((e) => ({ timestamp: e.timestamp_in_us / 1000, value: e.equity })),
-    [positionValueSeries],
+    () => accountFrames.map((e) => ({ timestamp: e.timestamp_in_us / 1000, value: e.equity })),
+    [accountFrames],
   );
   const marginData = useMemo(
-    () => positionValueSeries.map((e) => ({ timestamp: e.timestamp_in_us / 1000, value: e.margin })),
-    [positionValueSeries],
+    () => accountFrames.map((e) => ({ timestamp: e.timestamp_in_us / 1000, value: e.margin })),
+    [accountFrames],
   );
   const requireData = useMemo(
-    () => positionValueSeries.map((e) => ({ timestamp: e.timestamp_in_us / 1000, value: e.require })),
-    [positionValueSeries],
+    () => accountFrames.map((e) => ({ timestamp: e.timestamp_in_us / 1000, value: e.require })),
+    [accountFrames],
   );
   const profitData = useMemo(
-    () => positionValueSeries.map((e) => ({ timestamp: e.timestamp_in_us / 1000, value: e.profit })),
-    [positionValueSeries],
+    () => accountFrames.map((e) => ({ timestamp: e.timestamp_in_us / 1000, value: e.profit })),
+    [accountFrames],
   );
 
   if (!ready) {
@@ -37,6 +41,13 @@ registerPage('AccountFrameChart', () => {
 
   return (
     <div style={{ height: '100%' }}>
+      <Select
+        value={accountId}
+        onChange={(v) => {
+          setAccountId(v as string);
+        }}
+        optionList={accountIdOptions.map((v) => ({ label: v, value: v }))}
+      />
       <ChartGroup>
         <div style={{ height: '50%' }}>
           <Chart>

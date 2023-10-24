@@ -1,8 +1,8 @@
 import { PromRegistry } from '@yuants/protocol';
-import { Kernel } from '../../kernel';
-import { BasicUnit } from '../BasicUnit';
-import { AccountPerformanceUnit } from '../AccountPerformanceUnit';
 import { GaugeType } from 'promjs';
+import { Kernel } from '../../kernel';
+import { AccountPerformanceHubUnit } from '../AccountPerformanceHubUnit';
+import { BasicUnit } from '../BasicUnit';
 
 const MetricMaxEquity: GaugeType = PromRegistry.create(
   'gauge',
@@ -58,23 +58,25 @@ const MetricPaybackPeriodInDays: GaugeType = PromRegistry.create(
  * @public
  */
 export class AccountPerformanceMetricsUnit extends BasicUnit {
-  constructor(public kernel: Kernel, public accountPerformanceUnit: AccountPerformanceUnit) {
+  constructor(public kernel: Kernel, public accountPerformanceUnit: AccountPerformanceHubUnit) {
     super(kernel);
   }
 
   onEvent(): void | Promise<void> {
-    const labels = {
-      account_id: this.accountPerformanceUnit.performance.account_id,
-    };
-    MetricMaxEquity.set(this.accountPerformanceUnit.performance.max_equity, labels);
-    MetricDrawdown.set(this.accountPerformanceUnit.performance.drawdown, labels);
-    MetricMaxDrawdown.set(this.accountPerformanceUnit.performance.max_drawdown, labels);
-    MetricProfitDrawdownRatio.set(this.accountPerformanceUnit.performance.profit_drawdown_ratio, labels);
-    MetricMaintenanceMargin.set(this.accountPerformanceUnit.performance.maintenance_margin, labels);
-    MetricMaxMaintenanceMargin.set(this.accountPerformanceUnit.performance.max_maintenance_margin, labels);
-    MetricFirstOrderTimestamp.set(this.accountPerformanceUnit.performance.first_order_timestamp, labels);
-    MetricTotalDays.set(this.accountPerformanceUnit.performance.total_days, labels);
-    MetricAvgProfitPerDay.set(this.accountPerformanceUnit.performance.avg_profit_per_day, labels);
-    MetricPaybackPeriodInDays.set(this.accountPerformanceUnit.performance.payback_period_in_days, labels);
+    for (const [account_id, performance] of this.accountPerformanceUnit.mapAccountIdToPerformance.entries()) {
+      const labels = {
+        account_id,
+      };
+      MetricMaxEquity.set(performance.max_equity, labels);
+      MetricDrawdown.set(performance.drawdown, labels);
+      MetricMaxDrawdown.set(performance.max_drawdown, labels);
+      MetricProfitDrawdownRatio.set(performance.profit_drawdown_ratio, labels);
+      MetricMaintenanceMargin.set(performance.maintenance_margin, labels);
+      MetricMaxMaintenanceMargin.set(performance.max_maintenance_margin, labels);
+      MetricFirstOrderTimestamp.set(performance.first_order_timestamp, labels);
+      MetricTotalDays.set(performance.total_days, labels);
+      MetricAvgProfitPerDay.set(performance.avg_profit_per_day, labels);
+      MetricPaybackPeriodInDays.set(performance.payback_period_in_days, labels);
+    }
   }
 }

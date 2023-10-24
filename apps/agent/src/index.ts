@@ -1,7 +1,7 @@
 import { IAgentConf, agentConfSchema } from '@yuants/agent';
 import { UUID, formatTime } from '@yuants/data-model';
-import { diffPosition } from '@yuants/kernel';
-import { IAccountInfo, PromRegistry, Terminal, mergeAccountInfoPositions } from '@yuants/protocol';
+import { IPositionDiff, diffPosition } from '@yuants/kernel';
+import { IAccountInfo, PromRegistry, Terminal } from '@yuants/protocol';
 import Ajv from 'ajv';
 import fs from 'fs-extra';
 import path from 'path';
@@ -63,7 +63,7 @@ const nextTerminalID = (() => {
 interface IWorkerInstance {
   terminalId: string;
   worker: Worker;
-  accountInfo$: Observable<IAccountInfo>;
+  accountInfo$: Observable<Record<string, IAccountInfo>>;
   errorTotal$: Observable<number>;
 }
 
@@ -86,8 +86,7 @@ const createWorker = () => {
   const accountInfo$ = fromEvent(worker, 'message').pipe(
     //
     filter((v: any) => v.channel === 'account_info'),
-    map((v: any) => v.account_info as IAccountInfo),
-    mergeMap((accountInfo) => mergeAccountInfoPositions(accountInfo)),
+    map((v: any) => v.account_info as Record<string, IAccountInfo>),
   );
 
   const errorTotal$ = fromEvent(worker, 'message').pipe(
@@ -141,12 +140,21 @@ const run = async () => {
             combineLatestWith(currentMainWorker.accountInfo$),
             first(),
             delayWhen(([a, b]) => {
-              const positionDiff = diffPosition(a.positions, b.positions);
-              for (const diff of positionDiff) {
-                MetricPositionError.set(diff.error_volume, {
-                  account_id: agentConf.account_id!,
-                  product_id: diff.product_id,
-                });
+              const accountIds = new Set([...Object.keys(a), ...Object.keys(b)]);
+              const positionDiff: IPositionDiff[] = [];
+              // check all accounts if any of abrupt
+              for (const accountId of accountIds) {
+                const thePositionDiff = diffPosition(
+                  a[accountId]?.positions ?? [],
+                  b[accountId]?.positions ?? [],
+                );
+                positionDiff.push(...thePositionDiff);
+                for (const diff of thePositionDiff) {
+                  MetricPositionError.set(diff.error_volume, {
+                    account_id: accountId,
+                    product_id: diff.product_id,
+                  });
+                }
               }
               const lastMainWorker = currentMainWorker;
               currentMainWorker = workerInstance;

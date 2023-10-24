@@ -7,11 +7,13 @@ import { useAgent, useEffect, useRef, useState } from './basic-set';
  * 使用单个头寸的管理器
  * @param product_id - 品种ID
  * @param variant - 头寸类型
+ * @param account_id - 账户ID
  * @public
  */
 export const useSinglePosition = (
   product_id: string,
   variant: PositionVariant,
+  account_id?: string,
 ): {
   targetVolume: number;
   takeProfitPrice: number;
@@ -22,7 +24,8 @@ export const useSinglePosition = (
 } & IPosition => {
   const position_id = useRef(UUID()).current;
   const agent = useAgent();
-  const position = agent.accountInfoUnit.getPosition(position_id, product_id, variant);
+  const theAccountId = account_id || agent.options.account_id;
+  const position = agent.accountInfoUnit.getPosition(theAccountId, position_id, product_id, variant);
   const stopLossOrderRef = useRef<IOrder | null>(null);
   const takeProfitOrderRef = useRef<IOrder | null>(null);
 
@@ -58,7 +61,7 @@ export const useSinglePosition = (
         }
         const order: IOrder = {
           client_order_id: UUID(),
-          account_id: agent.accountInfoUnit.accountInfo.account_id,
+          account_id: theAccountId,
           product_id: position.product_id,
           position_id: position.position_id,
           type: OrderType.MARKET,
@@ -78,7 +81,7 @@ export const useSinglePosition = (
         }
         const order: IOrder = {
           client_order_id: UUID(),
-          account_id: agent.accountInfoUnit.accountInfo.account_id,
+          account_id: theAccountId,
           product_id: position.product_id,
           position_id: position.position_id,
           type: OrderType.MARKET,
@@ -100,7 +103,7 @@ export const useSinglePosition = (
     if (takeProfitPrice && position.volume) {
       const order: IOrder = {
         client_order_id: UUID(),
-        account_id: agent.accountInfoUnit.accountInfo.account_id,
+        account_id: theAccountId,
         product_id,
         position_id,
         type: OrderType.LIMIT,
@@ -123,7 +126,7 @@ export const useSinglePosition = (
     if (stopLossPrice && position.volume) {
       const order: IOrder = {
         client_order_id: UUID(),
-        account_id: agent.accountInfoUnit.accountInfo.account_id,
+        account_id: theAccountId,
         product_id,
         position_id,
         type: OrderType.STOP,

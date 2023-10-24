@@ -1,10 +1,9 @@
 import { UUID } from '@yuants/data-model';
 import {
+  AccountInfoUnit,
+  AccountPerformanceHubUnit,
   AccountPerformanceMetricsUnit,
-  AccountPerformanceUnit,
-  AccountSimulatorUnit,
   BasicUnit,
-  CounterpartyOrderMappingUnit,
   DataLoadingTaskUnit,
   HistoryOrderUnit,
   HistoryPeriodLoadingUnit,
@@ -14,16 +13,12 @@ import {
   PeriodDataCheckingUnit,
   PeriodDataUnit,
   PeriodMetricsUnit,
-  PortfolioSimulatorUnit,
-  PositionLimitOrderMappingUnit,
   ProductDataUnit,
   ProductLoadingUnit,
   QuoteDataUnit,
   QuoteMetricsUnit,
   RealtimePeriodLoadingUnit,
   SeriesDataUnit,
-  StopLossOrderMapperUnit,
-  createEmptyAccountInfo,
 } from '@yuants/kernel';
 import { IAccountInfo, Terminal } from '@yuants/protocol';
 import { JSONSchema7 } from 'json-schema';
@@ -150,29 +145,9 @@ export const agentConfSchema: JSONSchema7 = {
       type: 'boolean',
       title: '允许找不到具体品种信息',
     },
-    resume_on_source_margin_below: {
-      type: 'number',
-      title: '恢复交易的使用保证金线',
-    },
-    stop_loss_drawdown_quota: {
-      type: 'number',
-      title: '止损浮亏阈值',
-    },
-    coefficient_fn_str: {
-      type: 'string',
-      title: '仓位映射函数',
-    },
     disable_log: {
       type: 'boolean',
       title: '禁用打印日志',
-    },
-    as_counterparty: {
-      type: 'boolean',
-      title: '是否作为对手盘交易（反向开平仓）',
-    },
-    position_limit: {
-      type: 'number',
-      title: '仓位限制',
     },
   },
 };
@@ -238,303 +213,52 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
     );
   }
 
-  const originHistoryOrderUnit = new HistoryOrderUnit(kernel, quoteDataUnit, productDataUnit);
-  const originOrderMatchingUnit = new OrderMatchingUnit(
-    kernel,
-    productDataUnit,
-    periodDataUnit,
-    originHistoryOrderUnit,
+  const historyOrderUnit = new HistoryOrderUnit(kernel, quoteDataUnit, productDataUnit);
+  const orderMatchingUnit = new OrderMatchingUnit(kernel, productDataUnit, periodDataUnit, historyOrderUnit);
+  const accountInfoUnit = new AccountInfoUnit(kernel, productDataUnit, quoteDataUnit, historyOrderUnit);
+  accountInfoUnit.useAccount(
+    resolved_account_id,
+    resolved_currency,
+    agentConf.leverage,
+    agentConf.initial_balance,
   );
-  const originAccountInfoUnit = new AccountSimulatorUnit(
-    kernel,
-    productDataUnit,
-    quoteDataUnit,
-    originHistoryOrderUnit,
-    createEmptyAccountInfo(
-      resolved_account_id,
-      resolved_currency,
-      agentConf.leverage,
-      agentConf.initial_balance,
-    ),
-  );
-  const originAccountPerformanceUnit = new AccountPerformanceUnit(kernel, originAccountInfoUnit);
+  const accountPerformanceUnit = new AccountPerformanceHubUnit(kernel, accountInfoUnit);
   if (agentConf.publish_account) {
     const unit = new BasicUnit(kernel);
-    const accountInfo$ = new Subject<IAccountInfo>();
-    terminal.provideAccountInfo(accountInfo$);
+    const mapAccountIdToAccountInfo$: Record<string, Subject<IAccountInfo>> = {};
+    accountInfoUnit.mapAccountIdToAccountInfo.forEach((accountInfo) => {
+      const accountInfo$ = (mapAccountIdToAccountInfo$[accountInfo.account_id] = new Subject());
+      terminal.provideAccountInfo(accountInfo$);
+    });
     unit.onIdle = () => {
-      accountInfo$.next(originAccountInfoUnit.accountInfo);
+      for (const accountInfo of accountInfoUnit.mapAccountIdToAccountInfo.values()) {
+        const accountInfo$ = mapAccountIdToAccountInfo$[accountInfo.account_id];
+        accountInfo$.next(accountInfo);
+      }
+    };
+    unit.onDispose = () => {
+      for (const accountInfo$ of Object.values(mapAccountIdToAccountInfo$)) {
+        accountInfo$.complete();
+      }
     };
     // 装载指标单元
-    const account_id = originAccountInfoUnit.accountInfo.account_id;
-    const kernelFramesMetricsUnit = new KernelFramesMetricsUnit(kernel, account_id);
-    const quoteMetricsUnit = new QuoteMetricsUnit(kernel, account_id, quoteDataUnit);
-    const periodMetricsUnit = new PeriodMetricsUnit(kernel, account_id, periodDataUnit);
-    const accountPerformanceMetricsUnit = new AccountPerformanceMetricsUnit(
-      kernel,
-      originAccountPerformanceUnit,
-    );
+    const kernelFramesMetricsUnit = new KernelFramesMetricsUnit(kernel, resolved_account_id);
+    const quoteMetricsUnit = new QuoteMetricsUnit(kernel, resolved_account_id, quoteDataUnit);
+    const periodMetricsUnit = new PeriodMetricsUnit(kernel, resolved_account_id, periodDataUnit);
+    const accountPerformanceMetricsUnit = new AccountPerformanceMetricsUnit(kernel, accountPerformanceUnit);
     // TODO: clean up when dispose
   }
 
   const agentUnit = new AgentUnit(kernel, agentCode, agentConf.agent_params || {}, {
     start_time: resolved_start_timestamp,
     end_time: resolved_end_timestamp,
+    account_id: resolved_account_id,
+    currency: resolved_currency,
+    leverage: agentConf.leverage || 1,
+    initial_balance: agentConf.initial_balance || 0,
   });
 
-  let positionLimitAccountInfoUnit: AccountSimulatorUnit | undefined;
-  let positionLimitAccountPerformanceUnit: AccountPerformanceUnit | undefined;
-  let positionLimitOrderMatchingUnit: OrderMatchingUnit | undefined;
-  let positionLimitHistoryOrderUnit: HistoryOrderUnit | undefined;
-
-  if (agentConf.position_limit) {
-    positionLimitHistoryOrderUnit = new HistoryOrderUnit(kernel, quoteDataUnit, productDataUnit);
-    positionLimitOrderMatchingUnit = new OrderMatchingUnit(
-      kernel,
-      productDataUnit,
-      periodDataUnit,
-      positionLimitHistoryOrderUnit,
-    );
-    positionLimitAccountInfoUnit = new AccountSimulatorUnit(
-      kernel,
-      productDataUnit,
-      quoteDataUnit,
-      positionLimitHistoryOrderUnit,
-      createEmptyAccountInfo(
-        `${resolved_account_id}-PL`,
-        resolved_currency,
-        agentConf.leverage,
-        agentConf.initial_balance,
-      ),
-    );
-    const positionLimitUnit = new PositionLimitOrderMappingUnit(
-      kernel,
-      agentConf.position_limit,
-      originOrderMatchingUnit,
-      positionLimitOrderMatchingUnit,
-      positionLimitAccountInfoUnit,
-    );
-    positionLimitAccountPerformanceUnit = new AccountPerformanceUnit(kernel, positionLimitAccountInfoUnit);
-
-    if (agentConf.publish_account) {
-      const unit = new BasicUnit(kernel);
-      const accountInfo$ = new Subject<IAccountInfo>();
-      terminal.provideAccountInfo(accountInfo$);
-      unit.onIdle = () => {
-        accountInfo$.next(positionLimitAccountInfoUnit!.accountInfo);
-      };
-      // 装载指标单元
-      const account_id = positionLimitAccountPerformanceUnit.performance.account_id;
-      new KernelFramesMetricsUnit(kernel, account_id);
-      new QuoteMetricsUnit(kernel, account_id, quoteDataUnit);
-      new PeriodMetricsUnit(kernel, account_id, periodDataUnit);
-      new AccountPerformanceMetricsUnit(kernel, positionLimitAccountPerformanceUnit);
-    }
-  }
-
-  let counterpartyAccountInfoUnit: AccountSimulatorUnit | undefined;
-  let counterpartyAccountPerformanceUnit: AccountPerformanceUnit | undefined;
-  let counterpartyHistoryOrderUnit: HistoryOrderUnit | undefined;
-
-  if (agentConf.as_counterparty) {
-    counterpartyHistoryOrderUnit = new HistoryOrderUnit(kernel, quoteDataUnit, productDataUnit);
-    const counterpartyOrderMatchingUnit = new OrderMatchingUnit(
-      kernel,
-      productDataUnit,
-      periodDataUnit,
-      counterpartyHistoryOrderUnit,
-    );
-    const counterpartyUnit = new CounterpartyOrderMappingUnit(
-      kernel,
-      positionLimitOrderMatchingUnit || originOrderMatchingUnit,
-      counterpartyOrderMatchingUnit,
-    );
-    const counterpartyAccountInfo = createEmptyAccountInfo(
-      `${resolved_account_id}-CP`,
-      resolved_currency,
-      agentConf.leverage,
-      agentConf.initial_balance,
-    );
-    counterpartyAccountInfoUnit = new AccountSimulatorUnit(
-      kernel,
-      productDataUnit,
-      quoteDataUnit,
-      counterpartyHistoryOrderUnit,
-      counterpartyAccountInfo,
-    );
-    counterpartyAccountPerformanceUnit = new AccountPerformanceUnit(kernel, counterpartyAccountInfoUnit);
-    if (agentConf.publish_account) {
-      const unit = new BasicUnit(kernel);
-      const accountInfo$ = new Subject<IAccountInfo>();
-      terminal.provideAccountInfo(accountInfo$);
-      unit.onIdle = () => {
-        accountInfo$.next(counterpartyAccountInfoUnit!.accountInfo);
-      };
-      // 装载指标单元
-      const account_id = counterpartyAccountPerformanceUnit.performance.account_id;
-      const kernelFramesMetricsUnit = new KernelFramesMetricsUnit(kernel, account_id);
-      const quoteMetricsUnit = new QuoteMetricsUnit(kernel, account_id, quoteDataUnit);
-      const periodMetricsUnit = new PeriodMetricsUnit(kernel, account_id, periodDataUnit);
-      const reverseDirectionAccountMetricsUnit = new AccountPerformanceMetricsUnit(
-        kernel,
-        counterpartyAccountPerformanceUnit,
-      );
-      // TODO: clean up when dispose
-    }
-  }
-
-  let stopLossAccountInfoUnit: AccountSimulatorUnit | undefined;
-  let stopLossAccountPerformanceUnit: AccountPerformanceUnit | undefined;
-  let stopLossHistoryOrderUnit: HistoryOrderUnit | undefined;
-
-  let portfolioAccountInfoUnit: AccountSimulatorUnit | undefined;
-  let portfolioAccountPerformanceUnit: AccountPerformanceUnit | undefined;
-  let portfolioHistoryOrderUnit: HistoryOrderUnit | undefined;
-
-  if (agentConf.resume_on_source_margin_below && agentConf.stop_loss_drawdown_quota) {
-    // TODO: 止损信号
-    const stopLossInitAccountInfo = createEmptyAccountInfo(
-      `${resolved_account_id}-SL`,
-      resolved_currency,
-      agentConf.leverage,
-      agentConf.initial_balance,
-    );
-    stopLossHistoryOrderUnit = new HistoryOrderUnit(kernel, quoteDataUnit, productDataUnit);
-    const stopLossOrderMatchingUnit = new OrderMatchingUnit(
-      kernel,
-      productDataUnit,
-      periodDataUnit,
-      stopLossHistoryOrderUnit,
-    );
-
-    stopLossAccountInfoUnit = new AccountSimulatorUnit(
-      kernel,
-      productDataUnit,
-      quoteDataUnit,
-      stopLossHistoryOrderUnit,
-      stopLossInitAccountInfo,
-    );
-    stopLossAccountPerformanceUnit = new AccountPerformanceUnit(kernel, stopLossAccountInfoUnit);
-
-    new StopLossOrderMapperUnit(
-      kernel,
-      stopLossInitAccountInfo.account_id,
-      agentConf.resume_on_source_margin_below,
-      agentConf.stop_loss_drawdown_quota,
-      productDataUnit,
-      quoteDataUnit,
-      positionLimitAccountInfoUnit || originAccountInfoUnit,
-      positionLimitAccountPerformanceUnit || originAccountPerformanceUnit,
-      positionLimitHistoryOrderUnit || originHistoryOrderUnit,
-      stopLossAccountInfoUnit,
-      stopLossOrderMatchingUnit,
-      stopLossHistoryOrderUnit,
-    );
-
-    if (agentConf.publish_account) {
-      const unit = new BasicUnit(kernel);
-      const accountInfo$ = new Subject<IAccountInfo>();
-      terminal.provideAccountInfo(accountInfo$);
-      unit.onIdle = () => {
-        accountInfo$.next(stopLossAccountInfoUnit!.accountInfo);
-      };
-      // 装载指标单元
-      const account_id = stopLossAccountPerformanceUnit.performance.account_id;
-      const kernelFramesMetricsUnit = new KernelFramesMetricsUnit(kernel, account_id);
-      const quoteMetricsUnit = new QuoteMetricsUnit(kernel, account_id, quoteDataUnit);
-      const periodMetricsUnit = new PeriodMetricsUnit(kernel, account_id, periodDataUnit);
-      const stopLossAccountMetricsUnit = new AccountPerformanceMetricsUnit(
-        kernel,
-        stopLossAccountPerformanceUnit,
-      );
-      // TODO: clean up when dispose
-    }
-
-    if (agentConf.coefficient_fn_str) {
-      const portfolioInitAccountInfo = createEmptyAccountInfo(
-        `${resolved_account_id}-PF`,
-        resolved_currency,
-        agentConf.leverage,
-        agentConf.initial_balance,
-      );
-      portfolioHistoryOrderUnit = new HistoryOrderUnit(kernel, quoteDataUnit, productDataUnit);
-      const portfolioOrderMatchingUnit = new OrderMatchingUnit(
-        kernel,
-        productDataUnit,
-        periodDataUnit,
-        portfolioHistoryOrderUnit,
-      );
-      portfolioAccountInfoUnit = new AccountSimulatorUnit(
-        kernel,
-        productDataUnit,
-        quoteDataUnit,
-        portfolioHistoryOrderUnit,
-        portfolioInitAccountInfo,
-      );
-      portfolioAccountPerformanceUnit = new AccountPerformanceUnit(kernel, portfolioAccountInfoUnit);
-      const portfolioSimulatorUnit = new PortfolioSimulatorUnit(
-        kernel,
-        agentConf.coefficient_fn_str,
-        periodDataUnit,
-        productDataUnit,
-        {
-          [`${resolved_account_id}-SL`]: {
-            accountInfoUnit: stopLossAccountInfoUnit,
-            accountPerformanceUnit: stopLossAccountPerformanceUnit,
-            originAccountInfoUnit: originAccountInfoUnit,
-            originAccountPerformanceUnit: originAccountPerformanceUnit,
-            historyOrderUnit: stopLossHistoryOrderUnit,
-          },
-        },
-        portfolioAccountInfoUnit,
-        portfolioAccountPerformanceUnit,
-        portfolioOrderMatchingUnit,
-      );
-      if (agentConf.publish_account) {
-        const unit = new BasicUnit(kernel);
-        const accountInfo$ = new Subject<IAccountInfo>();
-        terminal.provideAccountInfo(accountInfo$);
-        unit.onIdle = () => {
-          accountInfo$.next(portfolioAccountInfoUnit!.accountInfo);
-        };
-
-        // 装载指标单元
-        const account_id = portfolioAccountPerformanceUnit.performance.account_id;
-        const kernelFramesMetricsUnit = new KernelFramesMetricsUnit(kernel, account_id);
-        const quoteMetricsUnit = new QuoteMetricsUnit(kernel, account_id, quoteDataUnit);
-        const periodMetricsUnit = new PeriodMetricsUnit(kernel, account_id, periodDataUnit);
-        const portfolioAccountMetricsUnit = new AccountPerformanceMetricsUnit(
-          kernel,
-          portfolioAccountPerformanceUnit,
-        );
-        // TODO: clean up when dispose
-      }
-    }
-  }
   await agentUnit.execute();
-
-  // these lines of code implies that there is a certain priority of units,
-  // maybe we should make it more explicit.
-  const accountInfoUnit =
-    portfolioAccountInfoUnit ||
-    stopLossAccountInfoUnit ||
-    counterpartyAccountInfoUnit ||
-    positionLimitAccountInfoUnit ||
-    originAccountInfoUnit;
-
-  const accountPerformanceUnit =
-    portfolioAccountPerformanceUnit ||
-    stopLossAccountPerformanceUnit ||
-    counterpartyAccountPerformanceUnit ||
-    positionLimitAccountPerformanceUnit ||
-    originAccountPerformanceUnit;
-
-  const historyOrderUnit =
-    portfolioHistoryOrderUnit ||
-    stopLossHistoryOrderUnit ||
-    counterpartyHistoryOrderUnit ||
-    positionLimitHistoryOrderUnit ||
-    originHistoryOrderUnit;
 
   return {
     kernel,
@@ -546,21 +270,5 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
     accountInfoUnit,
     accountPerformanceUnit,
     historyOrderUnit,
-
-    originAccountInfoUnit,
-    originAccountPerformanceUnit,
-    originHistoryOrderUnit,
-
-    counterpartyAccountInfoUnit,
-    counterpartyAccountPerformanceUnit,
-    counterpartyHistoryOrderUnit,
-
-    stopLossAccountInfoUnit,
-    stopLossAccountPerformanceUnit,
-    stopLossHistoryOrderUnit,
-
-    portfolioAccountInfoUnit,
-    portfolioAccountPerformanceUnit,
-    portfolioHistoryOrderUnit,
   };
 };

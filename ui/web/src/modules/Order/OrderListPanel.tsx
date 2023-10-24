@@ -4,9 +4,9 @@ import { OrderDirection, OrderType } from '@yuants/protocol';
 import { stringify } from 'csv-stringify/browser/esm/sync';
 import download from 'downloadjs';
 import { useObservableState } from 'observable-hooks';
+import { useTranslation } from 'react-i18next';
 import { registerPage } from '../Pages';
 import { orders$ } from './model';
-import { useTranslation } from 'react-i18next';
 
 registerPage('OrderListPanel', () => {
   const { t } = useTranslation('OrderListPanel');
@@ -46,6 +46,7 @@ registerPage('OrderListPanel', () => {
         dataSource={orders}
         pagination={{ pageSize: 10 }}
         columns={[
+          { title: t('account_id'), render: (_, order) => order.account_id },
           { title: t('order_id'), render: (_, order) => order.client_order_id },
           { title: t('position_id'), render: (_, order) => order.position_id },
           { title: t('product_id'), render: (_, order) => order.product_id },

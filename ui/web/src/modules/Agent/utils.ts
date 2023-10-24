@@ -250,7 +250,7 @@ export interface IBatchAgentResultItem {
   equityImageSrc: string;
 }
 
-export const runBatchBackTestWorkItem = async (agentConf: IAgentConf): Promise<IBatchAgentResultItem> => {
+export const runBatchBackTestWorkItem = async (agentConf: IAgentConf): Promise<IBatchAgentResultItem[]> => {
   if (!agentConf.bundled_code) throw new Error('No bundled_code');
   const scene = currentHostConfig$.value
     ? await AgentScene(await firstValueFrom(terminal$), {
@@ -261,21 +261,28 @@ export const runBatchBackTestWorkItem = async (agentConf: IAgentConf): Promise<I
 
   const kernel = scene.kernel;
 
-  const accountInfos: IAccountInfo[] = [];
+  const accountInfoLists: Record<string, IAccountInfo[]> = {};
   new BasicUnit(kernel).onEvent = () => {
-    accountInfos.push(scene.accountInfoUnit.accountInfo);
+    for (const [accountId, accountInfo] of scene.accountInfoUnit.mapAccountIdToAccountInfo.entries()) {
+      (accountInfoLists[accountId] ??= []).push(accountInfo);
+    }
   };
 
   await kernel.start();
 
-  const dataUrl = await generateEquityImage(accountInfos);
+  const results: IBatchAgentResultItem[] = [];
 
-  return {
-    agentConf: agentConf,
-    performance: scene.accountPerformanceUnit.performance,
-    accountInfo: scene.accountInfoUnit.accountInfo,
-    equityImageSrc: dataUrl,
-  };
+  for (const [accountId, accountInfos] of Object.entries(accountInfoLists)) {
+    const dataUrl = await generateEquityImage(accountInfos);
+    results.push({
+      agentConf: agentConf,
+      performance: scene.accountPerformanceUnit.mapAccountIdToPerformance.get(accountId)!,
+      accountInfo: scene.accountInfoUnit.mapAccountIdToAccountInfo.get(accountId)!,
+      equityImageSrc: dataUrl,
+    });
+  }
+
+  return results;
 };
 
 async function generateEquityImage(accountInfos: IAccountInfo[]): Promise<string> {

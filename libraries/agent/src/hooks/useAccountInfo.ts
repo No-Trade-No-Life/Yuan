@@ -1,8 +1,15 @@
 import { useAgent } from './basic-set';
 
 /**
- * 使用账户信息
- * @returns 账户信息
+ * use Account Info
  * @public
  */
-export const useAccountInfo = () => useAgent().accountInfoUnit.accountInfo;
+export const useAccountInfo = (account_id?: string) => {
+  const agent = useAgent();
+  return agent.accountInfoUnit.useAccount(
+    account_id || agent.options.account_id,
+    agent.options.currency,
+    agent.options.leverage,
+    agent.options.initial_balance,
+  );
+};

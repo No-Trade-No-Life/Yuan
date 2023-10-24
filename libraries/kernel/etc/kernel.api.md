@@ -9,16 +9,55 @@ import { IOrder } from '@yuants/protocol';
 import { IPeriod } from '@yuants/protocol';
 import { IPosition } from '@yuants/protocol';
 import { IProduct } from '@yuants/protocol';
-import { JSONSchema7 } from 'json-schema';
 import { Observable } from 'rxjs';
 import { PositionVariant } from '@yuants/protocol';
 import { Terminal } from '@yuants/protocol';
 
 // @public (undocumented)
-export class AccountPerformanceMetricsUnit extends BasicUnit {
-    constructor(kernel: Kernel, accountPerformanceUnit: AccountPerformanceUnit);
+export class AccountInfoUnit extends BasicUnit {
+    constructor(kernel: Kernel, productDataUnit: ProductDataUnit, quoteDataUnit: QuoteDataUnit, historyOrderUnit: HistoryOrderUnit);
     // (undocumented)
-    accountPerformanceUnit: AccountPerformanceUnit;
+    getPosition: (account_id: string, position_id: string, product_id: string, variant: PositionVariant) => IPosition;
+    // (undocumented)
+    historyOrderUnit: HistoryOrderUnit;
+    // (undocumented)
+    kernel: Kernel;
+    // (undocumented)
+    mapAccountIdToAccountInfo: Map<string, IAccountInfo>;
+    // (undocumented)
+    onDispose(): void | Promise<void>;
+    // (undocumented)
+    onEvent(): void | Promise<void>;
+    // (undocumented)
+    onInit(): void | Promise<void>;
+    // (undocumented)
+    productDataUnit: ProductDataUnit;
+    // (undocumented)
+    quoteDataUnit: QuoteDataUnit;
+    // (undocumented)
+    updateAccountInfo(accountId: string): void;
+    // (undocumented)
+    useAccount(account_id: string, currency: string, leverage?: number, initial_balance?: number): IAccountInfo;
+}
+
+// @public (undocumented)
+export class AccountPerformanceHubUnit extends BasicUnit {
+    constructor(kernel: Kernel, accountInfoUnit: AccountInfoUnit);
+    // (undocumented)
+    accountInfoUnit: AccountInfoUnit;
+    // (undocumented)
+    kernel: Kernel;
+    // (undocumented)
+    mapAccountIdToPerformance: Map<string, IAccountPerformance>;
+    // (undocumented)
+    onEvent(): void | Promise<void>;
+}
+
+// @public (undocumented)
+export class AccountPerformanceMetricsUnit extends BasicUnit {
+    constructor(kernel: Kernel, accountPerformanceUnit: AccountPerformanceHubUnit);
+    // (undocumented)
+    accountPerformanceUnit: AccountPerformanceHubUnit;
     // (undocumented)
     kernel: Kernel;
     // (undocumented)
@@ -43,11 +82,11 @@ export class AccountPerformanceUnit extends BasicUnit {
 // @public
 export const AccountReplayScene: (terminal: Terminal, account_id: string, currency: string, leverage: number, start_timestamp: number, end_timestamp: number, period_in_sec: number, datasource_id?: string) => {
     kernel: Kernel;
-    accountInfoUnit: AccountSimulatorUnit;
-    accountPerformanceUnit: AccountPerformanceUnit;
+    accountInfoUnit: AccountInfoUnit;
+    accountPerformanceUnit: AccountPerformanceHubUnit;
 };
 
-// @public
+// @public @deprecated
 export class AccountSimulatorUnit extends BasicUnit {
     constructor(kernel: Kernel, productDataUnit: ProductDataUnit, quoteDataUnit: QuoteDataUnit, historyOrderUnit: HistoryOrderUnit, accountInfo: IAccountInfo);
     // (undocumented)
@@ -71,23 +110,6 @@ export class AccountSimulatorUnit extends BasicUnit {
 }
 
 // @public
-export const ActivePortfolioManagementScene: (currency: string, terminal: Terminal, shellConfigs: IShellConf[], scriptResolver: {
-    readFile: (path: string) => Promise<string>;
-}, leverage?: number) => {
-    runScene: () => void;
-    batchResult$: Observable<IBatchShellResultItem | undefined>;
-    activePortfolioManagementResult$: Observable<    {
-    kernel: Kernel;
-    benchmarkAccountPerformanceUnit: AccountPerformanceUnit;
-    benchmarkAccountFrameUnit: AccountFrameUnit;
-    activePortfolioAccountPerformanceUnit: AccountPerformanceUnit;
-    activePortfolioAccountFrameUnit: AccountFrameUnit;
-    activePortfolioOptimizeManagementUnit: ActivePortfolioOptimizeSimulatorUnit;
-    mapAccountIdToActivePortfolioParamUnit: Record<string, ActivePortfolioParamUnit>;
-    }>;
-};
-
-// @public
 export class BasicUnit implements IKernelUnit {
     constructor(kernel: Kernel);
     // (undocumented)
@@ -100,21 +122,6 @@ export class BasicUnit implements IKernelUnit {
     onIdle(): void | Promise<void>;
     // (undocumented)
     onInit(): void | Promise<void>;
-}
-
-// @public
-export class CounterpartyOrderMappingUnit extends BasicUnit {
-    constructor(kernel: Kernel, sourceOrderMatchingUnit: OrderMatchingUnit, targetOrderMatchingUnit: OrderMatchingUnit);
-    // (undocumented)
-    kernel: Kernel;
-    // (undocumented)
-    onDispose(): void | Promise<void>;
-    // (undocumented)
-    onInit(): void | Promise<void>;
-    // (undocumented)
-    sourceOrderMatchingUnit: OrderMatchingUnit;
-    // (undocumented)
-    targetOrderMatchingUnit: OrderMatchingUnit;
 }
 
 // @public
@@ -164,8 +171,6 @@ export const getProfit: (product: IProduct, openPrice: number, closePrice: numbe
 // @public
 export class HistoryOrderUnit extends BasicUnit {
     constructor(kernel: Kernel, quoteDataUnit: QuoteDataUnit, productDataUnit: ProductDataUnit);
-    // @deprecated
-    currentOrders: IOrder[];
     historyOrders: IOrder[];
     // (undocumented)
     kernel: Kernel;
@@ -282,32 +287,6 @@ export interface IAccountPerformance {
     yearly_return_ratio: number;
 }
 
-// @public (undocumented)
-export interface IActivePortfolioManagementParameters {
-    // (undocumented)
-    account_ids: string[];
-    // (undocumented)
-    daily_alpha_list: number[];
-    // (undocumented)
-    daily_V: number[][];
-    // (undocumented)
-    weekly_alpha_list: number[];
-    // (undocumented)
-    weekly_V: number[][];
-}
-
-// @public (undocumented)
-export interface IBatchShellResultItem {
-    // (undocumented)
-    accountInfo: IAccountInfo;
-    // (undocumented)
-    equityImageSrc: string;
-    // (undocumented)
-    performance: IAccountPerformance;
-    // (undocumented)
-    shellConf: IShellConf;
-}
-
 // @public
 export interface IKernelUnit {
     kernel: Kernel;
@@ -344,36 +323,6 @@ export interface IPositionDiff {
     variant: PositionVariant;
     volume_in_source: number;
     volume_in_target: number;
-}
-
-// @public
-export interface ISeries {
-    // (undocumented)
-    series_id: string;
-    // (undocumented)
-    tags: Record<string, any>;
-    // (undocumented)
-    value: number[];
-}
-
-// @public
-export interface IShellConf {
-    account_id?: string;
-    allow_fallback_specific_product?: boolean;
-    coefficient_fn_str?: string;
-    currency?: string;
-    disable_log?: boolean;
-    end_time?: string;
-    initial_balance?: number;
-    is_real?: boolean;
-    leverage?: number;
-    period_self_check_interval_in_second?: number;
-    publish_account?: boolean;
-    resume_on_source_margin_below?: number;
-    script_params?: Record<string, any>;
-    script_path: string;
-    start_time?: string;
-    use_general_product?: boolean;
 }
 
 // @public
@@ -567,25 +516,6 @@ export class PortfolioSimulatorUnit extends BasicUnit {
 }
 
 // @public
-export class PositionLimitOrderMappingUnit extends BasicUnit {
-    constructor(kernel: Kernel, positionLimit: number, sourceOrderMatchingUnit: OrderMatchingUnit, targetOrderMatchingUnit: OrderMatchingUnit, targetAccountInfoUnit: AccountSimulatorUnit);
-    // (undocumented)
-    kernel: Kernel;
-    // (undocumented)
-    onDispose(): void | Promise<void>;
-    // (undocumented)
-    onInit(): void | Promise<void>;
-    // (undocumented)
-    positionLimit: number;
-    // (undocumented)
-    sourceOrderMatchingUnit: OrderMatchingUnit;
-    // (undocumented)
-    targetAccountInfoUnit: AccountSimulatorUnit;
-    // (undocumented)
-    targetOrderMatchingUnit: OrderMatchingUnit;
-}
-
-// @public
 export class ProductDataUnit extends BasicUnit {
     // (undocumented)
     mapProductIdToProduct: Record<string, IProduct>;
@@ -616,9 +546,6 @@ export class ProductLoadingUnit extends BasicUnit {
     // (undocumented)
     terminal: Terminal;
 }
-
-// @public
-export const productsSchema: JSONSchema7;
 
 // @public
 export class QuoteDataUnit extends BasicUnit {
@@ -670,88 +597,6 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
 }
 
 // @public
-export class ScriptNode {
-    constructor(shell: ScriptUnit, path: string, referrer_path: string, scriptConf: Record<string, any>);
-    // (undocumented)
-    children: ScriptNode[];
-    // (undocumented)
-    getParamsSchema: () => JSONSchema7;
-    // (undocumented)
-    _hookIdx: number;
-    // (undocumented)
-    _hooks: any[];
-    // (undocumented)
-    id: string;
-    // (undocumented)
-    init(): Promise<void>;
-    // (undocumented)
-    _paramsSchema: JSONSchema7;
-    // (undocumented)
-    path: string;
-    // (undocumented)
-    referrer_path: string;
-    // (undocumented)
-    resolved_path: string;
-    // (undocumented)
-    resolveScript(id: string, ref: string): Promise<{
-        path: string;
-        content: string;
-    }>;
-    // (undocumented)
-    scriptConf: Record<string, any>;
-    // (undocumented)
-    shell: ScriptUnit;
-    // (undocumented)
-    update(): void;
-}
-
-// @public
-export class ScriptUnit extends BasicUnit {
-    constructor(kernel: Kernel, productDataUnit: ProductDataUnit, productLoadingUnit: ProductLoadingUnit | null, periodLoadingUnit: HistoryPeriodLoadingUnit | null, periodDataUnit: PeriodDataUnit, orderMatchingUnit: OrderMatchingUnit, accountInfoUnit: AccountSimulatorUnit, seriesDataUnit: SeriesDataUnit, scriptResolver: {
-        readFile: (path: string) => Promise<string>;
-    }, scriptPath: string, scriptParams: Record<string, any>, options: {
-        start_time: number;
-        end_time: number;
-    });
-    // (undocumented)
-    accountInfoUnit: AccountSimulatorUnit;
-    init(): Promise<void>;
-    // (undocumented)
-    kernel: Kernel;
-    // (undocumented)
-    onEvent(): void | Promise<void>;
-    // (undocumented)
-    options: {
-        start_time: number;
-        end_time: number;
-    };
-    // (undocumented)
-    orderMatchingUnit: OrderMatchingUnit;
-    // (undocumented)
-    periodDataUnit: PeriodDataUnit;
-    // (undocumented)
-    periodLoadingUnit: HistoryPeriodLoadingUnit | null;
-    // (undocumented)
-    productDataUnit: ProductDataUnit;
-    // (undocumented)
-    productLoadingUnit: ProductLoadingUnit | null;
-    // (undocumented)
-    record_table: Record<string, Record<string, string | number>[]>;
-    // (undocumented)
-    root: ScriptNode;
-    // (undocumented)
-    scriptParams: Record<string, any>;
-    // (undocumented)
-    scriptPath: string;
-    // (undocumented)
-    scriptResolver: {
-        readFile: (path: string) => Promise<string>;
-    };
-    // (undocumented)
-    seriesDataUnit: SeriesDataUnit;
-}
-
-// @public
 export class Series extends Array<number> {
     findParentWard(predicate: (series: Series) => any): Series | undefined;
     name: string | undefined;
@@ -767,29 +612,6 @@ export class SeriesDataUnit extends BasicUnit {
     // (undocumented)
     series: Series[];
 }
-
-// @public
-export const shellConfSchema: JSONSchema7;
-
-// @public
-export const ShellScene: (terminal: Terminal, shellConf: IShellConf, scriptResolver: {
-    readFile: (path: string) => Promise<string>;
-}) => Promise<{
-    kernel: Kernel;
-    accountInfoUnit: AccountSimulatorUnit;
-    accountPerformanceUnit: AccountPerformanceUnit;
-    scriptUnit: ScriptUnit;
-    periodDataUnit: PeriodDataUnit;
-    quoteDataUnit: QuoteDataUnit;
-    productDataUnit: ProductDataUnit;
-    historyOrderUnit: HistoryOrderUnit;
-    stopLossAccountInfoUnit: AccountSimulatorUnit | undefined;
-    stopLossAccountPerformanceUnit: AccountPerformanceUnit | undefined;
-    stopLossHistoryOrderUnit: HistoryOrderUnit | undefined;
-    portfolioAccountInfoUnit: AccountSimulatorUnit | undefined;
-    portfolioAccountPerformanceUnit: AccountPerformanceUnit | undefined;
-    portfolioHistoryOrderUnit: HistoryOrderUnit | undefined;
-}>;
 
 // @public
 export class StopLossOrderMapperUnit extends BasicUnit {
@@ -827,12 +649,6 @@ export class StopLossOrderMapperUnit extends BasicUnit {
     // (undocumented)
     targetOrderMatchingUnit: OrderMatchingUnit;
 }
-
-// Warnings were encountered during analysis:
-//
-// src/scenes/ActivePortfolioManagementScene.ts:317:5 - (ae-forgotten-export) The symbol "AccountFrameUnit" needs to be exported by the entry point index.d.ts
-// src/scenes/ActivePortfolioManagementScene.ts:320:5 - (ae-forgotten-export) The symbol "ActivePortfolioOptimizeSimulatorUnit" needs to be exported by the entry point index.d.ts
-// src/scenes/ActivePortfolioManagementScene.ts:321:5 - (ae-forgotten-export) The symbol "ActivePortfolioParamUnit" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

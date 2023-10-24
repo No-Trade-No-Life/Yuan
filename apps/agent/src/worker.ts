@@ -16,7 +16,7 @@ const run = async () => {
     // postCurrentAccountInfo();
     parentPort?.postMessage({
       channel: 'account_info',
-      account_info: scene.accountInfoUnit.accountInfo,
+      account_info: Object.fromEntries(scene.accountInfoUnit.mapAccountIdToAccountInfo.entries()),
     });
     const periodDataCheckingUnit = scene.kernel.units.find((v) => v instanceof PeriodDataCheckingUnit);
     if (periodDataCheckingUnit) {

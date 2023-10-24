@@ -1,6 +1,6 @@
 import { IconRefresh, IconSetting } from '@douyinfe/semi-icons';
-import { Button, Empty, Space } from '@douyinfe/semi-ui';
-import { PeriodDataUnit, Series, SeriesDataUnit } from '@yuants/kernel';
+import { Button, Empty, Select, Space } from '@douyinfe/semi-ui';
+import { AccountInfoUnit, PeriodDataUnit, Series, SeriesDataUnit } from '@yuants/kernel';
 import { useObservableState } from 'observable-hooks';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -108,7 +108,13 @@ registerPage('TechnicalChart', () => {
     return mapChartIdToDisplayConfigList;
   }, [series]);
 
-  const orders = useObservableState(orders$);
+  const all_orders = useObservableState(orders$);
+  const accountInfoUnit = kernel?.units.find(
+    (unit): unit is AccountInfoUnit => unit instanceof AccountInfoUnit,
+  );
+  const accountIdOptions = [...(accountInfoUnit?.mapAccountIdToAccountInfo.keys() ?? [])];
+  const [accountId, setAccountId] = useState(accountIdOptions[0] || '');
+  const orders = all_orders.filter((order) => order.account_id === accountId);
 
   if (!kernel || periodsOptions.length === 0) {
     return <Empty title={t('empty_reminder')} description={t('empty_reminder_description')} />;
@@ -123,6 +129,13 @@ registerPage('TechnicalChart', () => {
   return (
     <Space vertical align="start" style={{ height: '100%', width: '100%' }}>
       <Space>
+        <Select
+          value={accountId}
+          onChange={(v) => {
+            setAccountId(v as string);
+          }}
+          optionList={accountIdOptions.map((v) => ({ label: v, value: v }))}
+        ></Select>
         <Button
           icon={<IconRefresh />}
           onClick={() => {

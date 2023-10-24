@@ -431,7 +431,7 @@ registerPage('AgentBatchBackTest', () => {
           },
           {
             title: '账户',
-            render: (_, x) => x.agentConf.account_id,
+            render: (_, x) => x.accountInfo.account_id,
           },
           {
             title: '回溯历史',

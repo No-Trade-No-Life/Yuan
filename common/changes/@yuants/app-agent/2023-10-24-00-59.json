@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-agent",
+      "comment": "support multiple account-management",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-agent"
+}
