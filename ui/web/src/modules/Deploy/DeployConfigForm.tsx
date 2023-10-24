@@ -1,6 +1,6 @@
 import { IconRefresh } from '@douyinfe/semi-icons';
 import { Button, Space, Table, Toast, Typography } from '@douyinfe/semi-ui';
-import { IDeploySpec, IEnvContext } from '@yuants/protocol';
+import { IDeploySpec, IEnvContext } from '@yuants/extension';
 import { parse } from 'jsonc-parser';
 import { useObservableState } from 'observable-hooks';
 import path from 'path-browserify';

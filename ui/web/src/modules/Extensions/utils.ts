@@ -87,7 +87,9 @@ export const loadExtension = async (packageName: string) => {
     const packageDir = getPackageDir(packageName);
     const packageJson = JSON.parse(await fs.readFile(join(packageDir, 'package.json')));
     const imageTagFilename = join(packageDir, 'temp/image-tag');
-    if (await fs.exists(imageTagFilename)) {
+    if (packageJson?.publishConfig?.access === 'public') {
+      ImageTags[packageName] = packageJson.version;
+    } else if (await fs.exists(imageTagFilename)) {
       ImageTags[packageName] = await fs.readFile(imageTagFilename);
     }
     const extensionBundleFilename = join(packageDir, 'dist/extension.bundle.js');

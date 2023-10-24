@@ -1,4 +1,4 @@
-import { IDeploySpec } from '@yuants/protocol';
+import { IDeploySpec } from '@yuants/extension';
 import { from, lastValueFrom, toArray } from 'rxjs';
 import { bundleCode } from '../Agent/utils';
 
