@@ -45,7 +45,13 @@ export const LocalAgentScene = async (agentConf: IAgentConf) => {
   };
   const periodLoadingUnit = new StaticFileServerPeriodLoadingUnit(kernel, productDataUnit, periodDataUnit);
   const historyOrderUnit = new HistoryOrderUnit(kernel, quoteDataUnit, productDataUnit);
-  const orderMatchingUnit = new OrderMatchingUnit(kernel, productDataUnit, periodDataUnit, historyOrderUnit);
+  const orderMatchingUnit = new OrderMatchingUnit(
+    kernel,
+    productDataUnit,
+    periodDataUnit,
+    historyOrderUnit,
+    quoteDataUnit,
+  );
   const accountInfoUnit = new AccountInfoUnit(kernel, productDataUnit, quoteDataUnit, historyOrderUnit);
   accountInfoUnit.useAccount(
     resolved_account_id,

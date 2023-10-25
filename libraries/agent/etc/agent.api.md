@@ -135,6 +135,11 @@ export const useEffect: (fn: () => void | (() => void), deps?: any[]) => void;
 
 // @public
 export const useExchange: () => {
+    getQuote: (product_id: string) => {
+        ask: number;
+        bid: number;
+    };
+    getOrderById: (orderId: string) => IOrder | undefined;
     listOrders: () => IOrder[];
     submitOrder: (...orders: IOrder[]) => void;
     cancelOrder: (...orderIds: string[]) => void;

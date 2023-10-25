@@ -382,7 +382,7 @@ export class OrderLoadingUnit extends BasicUnit {
 
 // @public
 export class OrderMatchingUnit extends BasicUnit {
-    constructor(kernel: Kernel, productDataUnit: ProductDataUnit, periodDataUnit: PeriodDataUnit, historyOrderUnit: HistoryOrderUnit);
+    constructor(kernel: Kernel, productDataUnit: ProductDataUnit, periodDataUnit: PeriodDataUnit, historyOrderUnit: HistoryOrderUnit, quoteDataUnit: QuoteDataUnit);
     // (undocumented)
     cancelOrder(...orderIds: string[]): void;
     // (undocumented)
@@ -405,6 +405,8 @@ export class OrderMatchingUnit extends BasicUnit {
     periodDataUnit: PeriodDataUnit;
     // (undocumented)
     productDataUnit: ProductDataUnit;
+    // (undocumented)
+    quoteDataUnit: QuoteDataUnit;
     // (undocumented)
     submitOrder(...orders: IOrder[]): void;
 }
