@@ -59,18 +59,8 @@ export interface IAgentConf {
   period_self_check_interval_in_second?: number;
   /** 允许找不到具体品种信息 */
   allow_fallback_specific_product?: boolean;
-  /** 止损后恢复开仓的保证金阈值（小于） */
-  resume_on_source_margin_below?: number;
-  /** 止损浮亏阈值 */
-  stop_loss_drawdown_quota?: number;
-  /** 仓位映射函数 */
-  coefficient_fn_str?: string;
   /** 是否禁用打印日志 */
   disable_log?: boolean;
-  /** 是否作为对手盘交易（反向开平仓） */
-  as_counterparty?: boolean;
-  /** Position Limit (Maximum Position) */
-  position_limit?: number;
 }
 
 /**

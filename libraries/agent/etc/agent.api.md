@@ -110,9 +110,7 @@ export interface IAgentConf {
     account_id?: string;
     agent_params?: Record<string, any>;
     allow_fallback_specific_product?: boolean;
-    as_counterparty?: boolean;
     bundled_code?: string;
-    coefficient_fn_str?: string;
     currency?: string;
     disable_log?: boolean;
     end_time?: string;
@@ -121,11 +119,8 @@ export interface IAgentConf {
     is_real?: boolean;
     leverage?: number;
     period_self_check_interval_in_second?: number;
-    position_limit?: number;
     publish_account?: boolean;
-    resume_on_source_margin_below?: number;
     start_time?: string;
-    stop_loss_drawdown_quota?: number;
     use_general_product?: boolean;
 }
 
