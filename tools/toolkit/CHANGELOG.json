@@ -2,6 +2,18 @@
   "name": "@yuants/tool-kit",
   "entries": [
     {
+      "version": "0.1.1",
+      "tag": "@yuants/tool-kit_v0.1.1",
+      "date": "Thu, 26 Oct 2023 18:03:30 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "use semver as image tag"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.0",
       "tag": "@yuants/tool-kit_v0.1.0",
       "date": "Wed, 06 Sep 2023 15:33:08 GMT",
