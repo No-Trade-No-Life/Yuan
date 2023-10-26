@@ -501,7 +501,13 @@ export const ChartGroup = React.memo((props: { children: React.ReactNode }) => {
   );
 });
 
-export const OrderSeries = React.memo((props: { orders: IOrder[]; seriesApi?: ISeriesApi<any> }) => {
+interface IOrderSeriesProps {
+  period_in_sec: number;
+  orders: IOrder[];
+  seriesApi?: ISeriesApi<any>;
+}
+
+export const OrderSeries = React.memo((props: IOrderSeriesProps) => {
   const { t } = useTranslation(['OrderSeries', 'common']);
   const directionMapper = {
     //
@@ -520,15 +526,18 @@ export const OrderSeries = React.memo((props: { orders: IOrder[]; seriesApi?: IS
         [OrderDirection.CLOSE_LONG]: -1,
       }[order.direction];
       const text = directionMapper[order.direction];
+      // Issue: TradingView Chart will place order annotation in the next bar, so we need to align the order's time to bar's start-time
+      const divider = (props.period_in_sec ?? 1) * 1e6;
+      const alignedTimestampInUs = Math.floor(order.timestamp_in_us! / divider) * divider;
       return {
-        time: (order.timestamp_in_us! / 1e6) as UTCTimestamp,
+        time: (alignedTimestampInUs / 1e6) as UTCTimestamp,
         position: dir > 0 ? 'belowBar' : 'aboveBar',
         color: dir > 0 ? '#2196F3' : '#e91e63',
         shape: dir > 0 ? 'arrowUp' : 'arrowDown',
         text: `${text} @ ${order.traded_price} (${order.traded_volume})`,
       };
     });
-  }, [props.orders, directionMapper]);
+  }, [props.period_in_sec, props.orders, directionMapper]);
   useEffect(() => {
     if (props.seriesApi) {
       props.seriesApi.setMarkers(ordersMarkers);
