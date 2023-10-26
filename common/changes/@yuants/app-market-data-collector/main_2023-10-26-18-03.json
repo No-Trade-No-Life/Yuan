@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Bump Version",
+      "type": "none",
+      "packageName": "@yuants/app-market-data-collector"
+    }
+  ],
+  "packageName": "@yuants/app-market-data-collector",
+  "email": "41898282+github-actions[bot]@users.noreply.github.com"
+}

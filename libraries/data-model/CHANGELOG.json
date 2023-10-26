@@ -2,6 +2,18 @@
   "name": "@yuants/data-model",
   "entries": [
     {
+      "version": "0.1.5",
+      "tag": "@yuants/data-model_v0.1.5",
+      "date": "Thu, 26 Oct 2023 18:03:30 GMT",
+      "comments": {
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.1.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.4",
       "tag": "@yuants/data-model_v0.1.4",
       "date": "Thu, 19 Oct 2023 18:36:28 GMT",

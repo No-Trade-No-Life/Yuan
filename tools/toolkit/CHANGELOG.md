@@ -1,6 +1,13 @@
 # Change Log - @yuants/tool-kit
 
-This log was last generated on Wed, 06 Sep 2023 15:33:08 GMT and should not be manually modified.
+This log was last generated on Thu, 26 Oct 2023 18:03:30 GMT and should not be manually modified.
+
+## 0.1.1
+Thu, 26 Oct 2023 18:03:30 GMT
+
+### Patches
+
+- use semver as image tag
 
 ## 0.1.0
 Wed, 06 Sep 2023 15:33:08 GMT

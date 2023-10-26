@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Bump Version",
+      "type": "none",
+      "packageName": "@yuants/app-alert-receiver"
+    }
+  ],
+  "packageName": "@yuants/app-alert-receiver",
+  "email": "41898282+github-actions[bot]@users.noreply.github.com"
+}
