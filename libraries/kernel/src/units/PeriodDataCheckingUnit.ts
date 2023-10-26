@@ -19,7 +19,6 @@ export class PeriodDataCheckingUnit extends BasicUnit {
   constructor(
     public kernel: Kernel,
     public terminal: Terminal,
-    public account_id: string,
     public periodDataUnit: PeriodDataUnit,
     public interval: number,
   ) {
@@ -122,14 +121,14 @@ export class PeriodDataCheckingUnit extends BasicUnit {
             }
             this.errorTotal += errorTotal;
             MetricPeriodDataCheckingUnitPeriodSelfCheckTotal.set(errorTotal, {
-              account_id: this.account_id,
+              kernel_id: this.kernel.id,
               status: 'error',
               datasource_id,
               product_id,
               period_in_sec,
             });
             MetricPeriodDataCheckingUnitPeriodSelfCheckTotal.set(successTotal, {
-              account_id: this.account_id,
+              kernel_id: this.kernel.id,
               status: 'success',
               datasource_id,
               product_id,

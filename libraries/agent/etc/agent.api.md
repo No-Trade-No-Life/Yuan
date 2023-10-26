@@ -4,8 +4,8 @@
 
 ```ts
 
-import { AccountPerformanceUnit } from '@yuants/kernel';
-import { AccountSimulatorUnit } from '@yuants/kernel';
+import { AccountInfoUnit } from '@yuants/kernel';
+import { AccountPerformanceHubUnit } from '@yuants/kernel';
 import { BasicUnit } from '@yuants/kernel';
 import { DataLoadingTaskUnit } from '@yuants/kernel';
 import { HistoryOrderUnit } from '@yuants/kernel';
@@ -35,21 +35,9 @@ export const AgentScene: (terminal: Terminal, agentConf: IAgentConf) => Promise<
     periodDataUnit: PeriodDataUnit;
     quoteDataUnit: QuoteDataUnit;
     productDataUnit: ProductDataUnit;
-    accountInfoUnit: AccountSimulatorUnit;
-    accountPerformanceUnit: AccountPerformanceUnit;
+    accountInfoUnit: AccountInfoUnit;
+    accountPerformanceUnit: AccountPerformanceHubUnit;
     historyOrderUnit: HistoryOrderUnit;
-    originAccountInfoUnit: AccountSimulatorUnit;
-    originAccountPerformanceUnit: AccountPerformanceUnit;
-    originHistoryOrderUnit: HistoryOrderUnit;
-    counterpartyAccountInfoUnit: AccountSimulatorUnit | undefined;
-    counterpartyAccountPerformanceUnit: AccountPerformanceUnit | undefined;
-    counterpartyHistoryOrderUnit: HistoryOrderUnit | undefined;
-    stopLossAccountInfoUnit: AccountSimulatorUnit | undefined;
-    stopLossAccountPerformanceUnit: AccountPerformanceUnit | undefined;
-    stopLossHistoryOrderUnit: HistoryOrderUnit | undefined;
-    portfolioAccountInfoUnit: AccountSimulatorUnit | undefined;
-    portfolioAccountPerformanceUnit: AccountPerformanceUnit | undefined;
-    portfolioHistoryOrderUnit: HistoryOrderUnit | undefined;
 }>;
 
 // @public
@@ -59,7 +47,7 @@ export class AgentUnit extends BasicUnit {
         end_time: number;
     });
     // (undocumented)
-    accountInfoUnit: AccountSimulatorUnit;
+    accountInfoUnit: AccountInfoUnit;
     // (undocumented)
     cleanups: Set<() => void>;
     // (undocumented)
@@ -111,30 +99,27 @@ export const encodePath: (...params: any[]) => string;
 
 // @public (undocumented)
 export interface IAgentConf {
-    account_id?: string;
     agent_params?: Record<string, any>;
     allow_fallback_specific_product?: boolean;
-    as_counterparty?: boolean;
     bundled_code?: string;
-    coefficient_fn_str?: string;
-    currency?: string;
     disable_log?: boolean;
     end_time?: string;
     entry?: string;
-    initial_balance?: number;
     is_real?: boolean;
-    leverage?: number;
+    kernel_id?: string;
     period_self_check_interval_in_second?: number;
-    position_limit?: number;
     publish_account?: boolean;
-    resume_on_source_margin_below?: number;
     start_time?: string;
-    stop_loss_drawdown_quota?: number;
     use_general_product?: boolean;
 }
 
 // @public
-export const useAccountInfo: () => IAccountInfo;
+export const useAccountInfo: (options?: {
+    account_id?: string;
+    currency?: string;
+    leverage?: number;
+    initial_balance?: number;
+}) => IAccountInfo;
 
 // @public
 export const useAgent: () => AgentUnit;
@@ -144,6 +129,11 @@ export const useEffect: (fn: () => void | (() => void), deps?: any[]) => void;
 
 // @public
 export const useExchange: () => {
+    getQuote: (product_id: string) => {
+        ask: number;
+        bid: number;
+    };
+    getOrderById: (orderId: string) => IOrder | undefined;
     listOrders: () => IOrder[];
     submitOrder: (...orders: IOrder[]) => void;
     cancelOrder: (...orderIds: string[]) => void;
@@ -208,7 +198,7 @@ export const useRef: <T>(initial_value: T) => {
 export const useSeries: (name: string, parent: Series | undefined, tags?: Record<string, any>) => Series;
 
 // @public
-export const useSinglePosition: (product_id: string, variant: PositionVariant) => {
+export const useSinglePosition: (product_id: string, variant: PositionVariant, account_id?: string) => {
     targetVolume: number;
     takeProfitPrice: number;
     stopLossPrice: number;

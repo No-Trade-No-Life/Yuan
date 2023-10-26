@@ -1,6 +1,6 @@
-import { formatTime } from '@yuants/data-model';
+import { UUID, formatTime } from '@yuants/data-model';
 import {
-  AccountSimulatorUnit,
+  AccountInfoUnit,
   BasicUnit,
   DataLoadingTaskUnit,
   Kernel,
@@ -44,7 +44,7 @@ export class AgentUnit extends BasicUnit {
   productLoadingUnit?: ProductLoadingUnit;
   dataLoadingTaskUnit: DataLoadingTaskUnit;
   periodDataUnit: PeriodDataUnit;
-  accountInfoUnit: AccountSimulatorUnit;
+  accountInfoUnit: AccountInfoUnit;
   seriesDataUnit: SeriesDataUnit;
 
   /**
@@ -55,11 +55,14 @@ export class AgentUnit extends BasicUnit {
     public kernel: Kernel,
     public script: string,
     public params: Record<string, any>,
-    public options: { start_time: number; end_time: number },
+    public options: {
+      start_time: number;
+      end_time: number;
+    },
   ) {
     super(kernel);
     this.accountInfoUnit = kernel.units.find(
-      (unit): unit is AccountSimulatorUnit => unit instanceof AccountSimulatorUnit,
+      (unit): unit is AccountInfoUnit => unit instanceof AccountInfoUnit,
     )!;
     this.orderMatchingUnit = kernel.units.find(
       (unit): unit is OrderMatchingUnit => unit instanceof OrderMatchingUnit,
@@ -146,6 +149,7 @@ function makeScriptRunner(script: string): () => any {
     useSeries,
     useState,
     formatTime,
+    UUID,
   };
 
   const x = Object.entries(globalContext);

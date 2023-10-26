@@ -431,7 +431,7 @@ registerPage('AgentBatchBackTest', () => {
           },
           {
             title: '账户',
-            render: (_, x) => x.agentConf.account_id,
+            render: (_, x) => x.accountInfo.account_id,
           },
           {
             title: '回溯历史',
@@ -526,7 +526,7 @@ registerPage('AgentBatchBackTest', () => {
                       bundled_code,
                     };
                     if (copy(JSON.stringify(theConfig, null, 2))) {
-                      Toast.success(`复制 ${x.agentConf.account_id} 成功`);
+                      Toast.success(`复制成功`);
                     }
                   }}
                 >

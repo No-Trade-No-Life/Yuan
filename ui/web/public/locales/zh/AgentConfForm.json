@@ -50,6 +50,10 @@
     "description": "实盘模式下会订阅实时行情，非实盘模式仅会使用历史数据",
     "title": "实盘模式"
   },
+  "root_kernel_id": {
+    "description": "用于标识内核程序ID，在同个主机中唯一，默认通过 UUID 生成，实盘时建议手动指定。",
+    "title": "内核ID"
+  },
   "root_leverage": {
     "title": "账户杠杆"
   },

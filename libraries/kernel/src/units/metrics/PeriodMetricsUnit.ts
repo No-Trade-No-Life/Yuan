@@ -12,7 +12,7 @@ const MetricPeriodDataUnitPeriodsTotal = PromRegistry.create(
  * @public
  */
 export class PeriodMetricsUnit extends BasicUnit {
-  constructor(public kernel: Kernel, public account_id: string, public periodDataUnit: PeriodDataUnit) {
+  constructor(public kernel: Kernel, public periodDataUnit: PeriodDataUnit) {
     super(kernel);
   }
 
@@ -20,7 +20,7 @@ export class PeriodMetricsUnit extends BasicUnit {
     for (const periods of Object.values(this.periodDataUnit.data)) {
       if (periods.length > 0) {
         MetricPeriodDataUnitPeriodsTotal.set(periods.length, {
-          account_id: this.account_id,
+          kernel_id: this.kernel.id,
           datasource_id: periods[0].datasource_id,
           product_id: periods[0].product_id,
           period_in_sec: periods[0].period_in_sec,

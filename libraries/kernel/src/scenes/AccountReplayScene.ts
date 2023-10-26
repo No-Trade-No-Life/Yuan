@@ -1,19 +1,18 @@
-import { IAccountInfo, IProduct, Terminal } from '@yuants/protocol';
+import { IProduct, Terminal } from '@yuants/protocol';
 import { lastValueFrom, map, toArray } from 'rxjs';
 import { Kernel } from '../kernel';
 import {
-  AccountPerformanceUnit,
-  AccountSimulatorUnit,
+  AccountInfoUnit,
+  AccountPerformanceHubUnit,
   BasicUnit,
-  HistoryPeriodLoadingUnit,
   HistoryOrderUnit,
+  HistoryPeriodLoadingUnit,
   OrderLoadingUnit,
   PeriodDataUnit,
   ProductDataUnit,
   ProductLoadingUnit,
   QuoteDataUnit,
 } from '../units';
-import { createEmptyAccountInfo } from '../utils';
 
 /**
  * 内建场景: 账户回放
@@ -115,14 +114,9 @@ export const AccountReplayScene = (
 
   const periodDataUnit = new PeriodDataUnit(kernel, quoteDataUnit);
   const periodLoadingUnit = new HistoryPeriodLoadingUnit(kernel, terminal, productDataUnit, periodDataUnit);
-  const initAccountInfo: IAccountInfo = createEmptyAccountInfo(account_id, currency, leverage);
-  const accountInfoUnit = new AccountSimulatorUnit(
-    kernel,
-    productDataUnit,
-    quoteDataUnit,
-    historyOrderUnit,
-    initAccountInfo,
-  );
-  const accountPerformanceUnit = new AccountPerformanceUnit(kernel, accountInfoUnit);
+  const accountInfoUnit = new AccountInfoUnit(kernel, productDataUnit, quoteDataUnit, historyOrderUnit);
+  accountInfoUnit.useAccount(account_id, currency, leverage);
+
+  const accountPerformanceUnit = new AccountPerformanceHubUnit(kernel, accountInfoUnit);
   return { kernel, accountInfoUnit, accountPerformanceUnit };
 };

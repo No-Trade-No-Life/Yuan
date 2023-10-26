@@ -18,16 +18,14 @@ interface IMatchingRange {
  * @public
  */
 export class OrderMatchingUnit extends BasicUnit {
-  private quoteDataUnit: QuoteDataUnit;
-
   constructor(
     public kernel: Kernel,
     public productDataUnit: ProductDataUnit,
     public periodDataUnit: PeriodDataUnit,
     public historyOrderUnit: HistoryOrderUnit,
+    public quoteDataUnit: QuoteDataUnit,
   ) {
     super(kernel);
-    this.quoteDataUnit = kernel.units.find((unit): unit is QuoteDataUnit => unit instanceof QuoteDataUnit)!;
   }
 
   private subscriptions: Subscription[] = [];

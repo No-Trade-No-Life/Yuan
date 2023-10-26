@@ -11,7 +11,6 @@ export const BatchProfitDrawbackRatioChart = React.memo((props: { results: IBatc
         .map((v) => {
           return {
             value: v.performance.profit_drawdown_ratio,
-            as_counterparty: !!v.agentConf.as_counterparty,
           };
         })
         .filter((x) => x.value !== Infinity && x.value !== -Infinity),
@@ -34,7 +33,6 @@ export const BatchProfitDrawbackRatioChart = React.memo((props: { results: IBatc
         .rect()
         .data(data)
         .encode('x', 'value')
-        .encode('color', 'as_counterparty')
         .transform({ type: 'binX', y: 'count' })
         .transform({ type: 'stackY', orderBy: 'series' })
         .style('inset', 0.5);

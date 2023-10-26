@@ -1,6 +1,4 @@
-import { IProduct } from '@yuants/protocol';
 import { useAgent, useEffect } from './basic-set';
-import { useProduct } from './useProduct';
 
 /**
  * 使用参数 (string)

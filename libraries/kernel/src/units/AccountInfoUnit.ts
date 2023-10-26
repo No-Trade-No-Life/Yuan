@@ -2,24 +2,21 @@ import { IAccountInfo, IPosition, OrderDirection, PositionVariant } from '@yuant
 import { roundToStep } from '@yuants/utils';
 import { Subscription } from 'rxjs';
 import { Kernel } from '../kernel';
-import { getMargin, getProfit } from '../utils';
+import { createEmptyAccountInfo, getMargin, getProfit } from '../utils';
 import { BasicUnit } from './BasicUnit';
 import { HistoryOrderUnit } from './HistoryOrderUnit';
 import { ProductDataUnit } from './ProductDataUnit';
 import { QuoteDataUnit } from './QuoteDataUnit';
 
 /**
- * 账户模拟单元
- * @deprecated - use AccountInfoUnit instead
  * @public
  */
-export class AccountSimulatorUnit extends BasicUnit {
+export class AccountInfoUnit extends BasicUnit {
   constructor(
     public kernel: Kernel,
     public productDataUnit: ProductDataUnit,
     public quoteDataUnit: QuoteDataUnit,
     public historyOrderUnit: HistoryOrderUnit,
-    public accountInfo: IAccountInfo,
   ) {
     super(kernel);
   }
@@ -35,12 +32,31 @@ export class AccountSimulatorUnit extends BasicUnit {
     }
   }
 
-  private mapPositionIdToPosition: Record<string, IPosition> = {};
-
   private orderIdx = 0;
 
-  getPosition(position_id: string, product_id: string, variant: PositionVariant): IPosition {
-    return (this.mapPositionIdToPosition[position_id] ??= {
+  private mapAccountIdToBalance: Record<string, number> = {};
+
+  private mapAccountIdToPositionIdToPosition: Record<string, Record<string, IPosition>> = {};
+
+  mapAccountIdToAccountInfo: Map<string, IAccountInfo> = new Map();
+
+  useAccount(account_id: string, currency: string, leverage?: number, initial_balance?: number) {
+    const accountInfo = this.mapAccountIdToAccountInfo.get(account_id);
+    if (accountInfo) {
+      return accountInfo;
+    }
+    const newAccountInfo = createEmptyAccountInfo(account_id, currency, leverage, initial_balance);
+    this.mapAccountIdToAccountInfo.set(account_id, newAccountInfo);
+    return newAccountInfo;
+  }
+
+  getPosition = (
+    account_id: string,
+    position_id: string,
+    product_id: string,
+    variant: PositionVariant,
+  ): IPosition => {
+    return ((this.mapAccountIdToPositionIdToPosition[account_id] ??= {})[position_id] ??= {
       position_id,
       product_id,
       variant,
@@ -50,17 +66,26 @@ export class AccountSimulatorUnit extends BasicUnit {
       floating_profit: 0,
       free_volume: 0,
     });
-  }
+  };
 
-  onEvent(): void {
+  updateAccountInfo(accountId: string) {
+    const theAccountInfo = this.mapAccountIdToAccountInfo.get(accountId);
+
+    if (!theAccountInfo) {
+      return;
+    }
+
     // 根据订单更新头寸
     // ISSUE: 假设订单一旦成交即全部成交
-    let balance = this.accountInfo.money.balance;
     for (let idx = this.orderIdx; idx < this.historyOrderUnit.historyOrders.length; idx++) {
       const order = this.historyOrderUnit.historyOrders[idx];
+      if (order.account_id !== accountId) {
+        continue;
+      }
 
       if (order.profit_correction) {
-        balance += order.profit_correction;
+        this.mapAccountIdToBalance[accountId] =
+          (this.mapAccountIdToBalance[accountId] || 0) + order.profit_correction;
       }
 
       const theProduct = this.productDataUnit.mapProductIdToProduct[order.product_id]!;
@@ -68,7 +93,7 @@ export class AccountSimulatorUnit extends BasicUnit {
       // 假设所有的 order 都有 position_id
       const variant =
         order.direction === OrderDirection.OPEN_LONG ? PositionVariant.LONG : PositionVariant.SHORT;
-      const thePosition = this.getPosition(order.position_id!, order.product_id, variant);
+      const thePosition = this.getPosition(accountId, order.position_id!, order.product_id, variant);
       if (order.direction === OrderDirection.OPEN_LONG || order.direction === OrderDirection.OPEN_SHORT) {
         // 开仓
         if (thePosition.volume === 0) {
@@ -86,7 +111,7 @@ export class AccountSimulatorUnit extends BasicUnit {
             free_volume: nextVolume,
             position_price: nextPositionPrice,
           };
-          this.mapPositionIdToPosition[order.position_id!] = position;
+          this.mapAccountIdToPositionIdToPosition[accountId][order.position_id!] = position;
         }
       } else {
         // 平仓
@@ -101,27 +126,28 @@ export class AccountSimulatorUnit extends BasicUnit {
           const nextVolume = roundToStep(thePosition.volume - tradedVolume, theProduct.volume_step ?? 1);
           // 如果头寸已经平仓完了，就删除头寸
           if (nextVolume === 0) {
-            delete this.mapPositionIdToPosition[order.position_id!];
+            delete this.mapAccountIdToPositionIdToPosition[accountId][order.position_id!];
           }
           thePosition.volume = nextVolume;
           thePosition.free_volume = nextVolume;
           // 更新余额
-          balance += getProfit(
-            theProduct,
-            thePosition.position_price,
-            order.traded_price!,
-            tradedVolume,
-            thePosition.variant,
-            this.accountInfo.money.currency,
-            (product_id) => this.quoteDataUnit.mapProductIdToQuote[product_id],
-          );
+          this.mapAccountIdToBalance[accountId] =
+            (this.mapAccountIdToBalance[accountId] || 0) +
+            getProfit(
+              theProduct,
+              thePosition.position_price,
+              order.traded_price!,
+              tradedVolume,
+              thePosition.variant,
+              theAccountInfo.money.currency,
+              (product_id) => this.quoteDataUnit.mapProductIdToQuote[product_id],
+            );
         }
       }
     }
-    this.orderIdx = this.historyOrderUnit.historyOrders.length;
 
     // 检查因为报价变化导致的头寸变化
-    const positions = Object.values(this.mapPositionIdToPosition)
+    const positions = Object.values(this.mapAccountIdToPositionIdToPosition[accountId] ?? {})
       .filter((pos) => pos.volume > 0) // 过滤掉空的头寸
       .map((position): IPosition => {
         const product_id = position.product_id;
@@ -135,7 +161,7 @@ export class AccountSimulatorUnit extends BasicUnit {
             closable_price,
             position.volume,
             position.variant,
-            this.accountInfo.money.currency,
+            theAccountInfo.money.currency,
             (product_id) => this.quoteDataUnit.mapProductIdToQuote[product_id],
           );
           const nextPosition = {
@@ -143,7 +169,7 @@ export class AccountSimulatorUnit extends BasicUnit {
             closable_price,
             floating_profit,
           };
-          this.mapPositionIdToPosition[nextPosition.position_id] = nextPosition;
+          this.mapAccountIdToPositionIdToPosition[accountId][nextPosition.position_id] = nextPosition;
           return nextPosition;
         }
         return position;
@@ -161,22 +187,23 @@ export class AccountSimulatorUnit extends BasicUnit {
           cur.position_price,
           cur.volume,
           cur.variant,
-          this.accountInfo.money.currency,
+          theAccountInfo.money.currency,
           (product_id) => this.quoteDataUnit.mapProductIdToQuote[product_id],
         ) /
-          (this.accountInfo.money.leverage ?? 1)
+          (theAccountInfo.money.leverage ?? 1)
       );
     }, 0);
     // 维护账户
+    const balance = this.mapAccountIdToBalance[accountId] || 0;
     const profit = positions.reduce((acc, cur) => acc + cur.floating_profit, 0);
     const equity = balance + profit;
     const free = equity - used;
     const timestamp_in_us = this.kernel.currentTimestamp * 1000;
-    this.accountInfo = {
-      ...this.accountInfo,
+    this.mapAccountIdToAccountInfo.set(accountId, {
+      ...theAccountInfo,
       timestamp_in_us,
       money: {
-        ...this.accountInfo.money,
+        ...theAccountInfo.money,
         equity,
         balance,
         profit,
@@ -184,6 +211,13 @@ export class AccountSimulatorUnit extends BasicUnit {
         free,
       },
       positions,
-    };
+    });
+  }
+
+  onEvent(): void | Promise<void> {
+    for (const accountId of this.mapAccountIdToAccountInfo.keys()) {
+      this.updateAccountInfo(accountId);
+    }
+    this.orderIdx = this.historyOrderUnit.historyOrders.length;
   }
 }

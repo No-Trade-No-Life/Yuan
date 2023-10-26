@@ -143,7 +143,9 @@ runAgentAction$.subscribe(async () => {
       recordTable$.next(scene.agentUnit.record_table);
 
       orders$.next(scene.historyOrderUnit.historyOrders);
-      accountPerformance$.next(scene.accountPerformanceUnit.performance);
+      accountPerformance$.next(
+        Object.fromEntries(scene.accountPerformanceUnit.mapAccountIdToPerformance.entries()),
+      );
       accountFrameSeries$.next(accountFrameUnit.data);
       if (Object.keys(scene.agentUnit.record_table).length > 0) {
         executeCommand('Page.open', { type: 'RecordTablePanel' });
@@ -163,7 +165,9 @@ runAgentAction$.subscribe(async () => {
       recordTable$.next(scene.agentUnit.record_table);
 
       orders$.next(scene.historyOrderUnit.historyOrders);
-      accountPerformance$.next(scene.accountPerformanceUnit.performance);
+      accountPerformance$.next(
+        Object.fromEntries(scene.accountPerformanceUnit.mapAccountIdToPerformance.entries()),
+      );
       accountFrameSeries$.next(accountFrameUnit.data);
       if (Object.keys(scene.agentUnit.record_table).length > 0) {
         executeCommand('Page.open', { type: 'RecordTablePanel' });

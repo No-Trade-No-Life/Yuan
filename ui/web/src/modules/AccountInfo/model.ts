@@ -1,4 +1,4 @@
-import { AccountPerformanceUnit, IAccountPerformance } from '@yuants/kernel';
+import { IAccountPerformance } from '@yuants/kernel';
 import { IAccountInfo } from '@yuants/protocol';
 import { BehaviorSubject, Observable, defer, shareReplay, switchMap } from 'rxjs';
 import { terminal$ } from '../Terminals';
@@ -26,7 +26,5 @@ export interface IAccountFrame {
   require: number;
 }
 
-export const accountFrameSeries$ = new BehaviorSubject<IAccountFrame[]>([]);
-export const accountPerformance$ = new BehaviorSubject<IAccountPerformance>(
-  AccountPerformanceUnit.makeInitAccountPerformance(''),
-);
+export const accountFrameSeries$ = new BehaviorSubject<Record<string, IAccountFrame[]>>({});
+export const accountPerformance$ = new BehaviorSubject<Record<string, IAccountPerformance>>({});

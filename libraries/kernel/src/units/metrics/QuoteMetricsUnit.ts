@@ -12,19 +12,19 @@ const MetricQuoteDataUnitQuotes = PromRegistry.create(
  * @public
  */
 export class QuoteMetricsUnit extends BasicUnit {
-  constructor(public kernel: Kernel, public account_id: string, public quoteDataUnit: QuoteDataUnit) {
+  constructor(public kernel: Kernel, public quoteDataUnit: QuoteDataUnit) {
     super(kernel);
   }
 
   onEvent(): void | Promise<void> {
     for (const [product_id, quote] of Object.entries(this.quoteDataUnit.mapProductIdToQuote)) {
       MetricQuoteDataUnitQuotes.set(quote.ask, {
-        account_id: this.account_id,
+        kernel_id: this.kernel.id,
         product_id: product_id,
         side: 'ask',
       });
       MetricQuoteDataUnitQuotes.set(quote.bid, {
-        account_id: this.account_id,
+        kernel_id: this.kernel.id,
         product_id: product_id,
         side: 'bid',
       });

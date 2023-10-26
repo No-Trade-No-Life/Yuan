@@ -22,16 +22,10 @@ export class HistoryOrderUnit extends BasicUnit {
   /** 订单更新事件 */
   orderUpdated$ = this._orderUpdated$.asObservable();
 
-  /**
-   * 最近更新的订单的脉冲信号
-   * @deprecated - 使用 idx + historyOrders 代替
-   */
-  currentOrders: IOrder[] = [];
   /** 历史订单列表 */
   historyOrders: IOrder[] = [];
   /** 更新订单 */
   updateOrder(order: IOrder) {
-    this.currentOrders.push(order);
     this.historyOrders.push(order);
 
     // 抄送报价

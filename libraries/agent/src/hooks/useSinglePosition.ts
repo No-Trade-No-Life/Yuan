@@ -2,9 +2,12 @@ import { UUID } from '@yuants/data-model';
 import { IOrder, IPosition, IProduct, OrderDirection, OrderType, PositionVariant } from '@yuants/protocol';
 import { roundToStep } from '@yuants/utils';
 import { useAgent, useEffect, useRef, useState } from './basic-set';
+import { useAccountInfo } from './useAccountInfo';
+import { useExchange } from './useExchange';
 
 /**
  * 使用单个头寸的管理器
+ * @param account_id - 账户ID
  * @param product_id - 品种ID
  * @param variant - 头寸类型
  * @public
@@ -12,6 +15,7 @@ import { useAgent, useEffect, useRef, useState } from './basic-set';
 export const useSinglePosition = (
   product_id: string,
   variant: PositionVariant,
+  account_id?: string,
 ): {
   targetVolume: number;
   takeProfitPrice: number;
@@ -22,7 +26,10 @@ export const useSinglePosition = (
 } & IPosition => {
   const position_id = useRef(UUID()).current;
   const agent = useAgent();
-  const position = agent.accountInfoUnit.getPosition(position_id, product_id, variant);
+  const ex = useExchange();
+  const accountInfo = useAccountInfo({ account_id });
+  const accountId = accountInfo.account_id;
+  const position = agent.accountInfoUnit.getPosition(accountId, position_id, product_id, variant);
   const stopLossOrderRef = useRef<IOrder | null>(null);
   const takeProfitOrderRef = useRef<IOrder | null>(null);
 
@@ -58,7 +65,7 @@ export const useSinglePosition = (
         }
         const order: IOrder = {
           client_order_id: UUID(),
-          account_id: agent.accountInfoUnit.accountInfo.account_id,
+          account_id: accountId,
           product_id: position.product_id,
           position_id: position.position_id,
           type: OrderType.MARKET,
@@ -66,9 +73,9 @@ export const useSinglePosition = (
             position.variant === PositionVariant.LONG ? OrderDirection.OPEN_LONG : OrderDirection.OPEN_SHORT,
           volume: roundToStep(targetVolume - position.volume, volume_step),
         };
-        agent.orderMatchingUnit.submitOrder(order);
+        ex.submitOrder(order);
         return () => {
-          agent.orderMatchingUnit.cancelOrder(order.client_order_id);
+          ex.cancelOrder(order.client_order_id);
         };
       }
       if (targetVolume < position.volume) {
@@ -78,7 +85,7 @@ export const useSinglePosition = (
         }
         const order: IOrder = {
           client_order_id: UUID(),
-          account_id: agent.accountInfoUnit.accountInfo.account_id,
+          account_id: accountId,
           product_id: position.product_id,
           position_id: position.position_id,
           type: OrderType.MARKET,
@@ -88,9 +95,9 @@ export const useSinglePosition = (
               : OrderDirection.CLOSE_SHORT,
           volume,
         };
-        if (order.volume) agent.orderMatchingUnit.submitOrder(order);
+        if (order.volume) ex.submitOrder(order);
         return () => {
-          agent.orderMatchingUnit.cancelOrder(order.client_order_id);
+          ex.cancelOrder(order.client_order_id);
         };
       }
     }
@@ -100,7 +107,7 @@ export const useSinglePosition = (
     if (takeProfitPrice && position.volume) {
       const order: IOrder = {
         client_order_id: UUID(),
-        account_id: agent.accountInfoUnit.accountInfo.account_id,
+        account_id: accountId,
         product_id,
         position_id,
         type: OrderType.LIMIT,
@@ -110,11 +117,11 @@ export const useSinglePosition = (
         volume: position.volume,
       };
       takeProfitOrderRef.current = order;
-      agent.orderMatchingUnit.submitOrder(order);
+      ex.submitOrder(order);
       return () => {
         // 撤单
         takeProfitOrderRef.current = null;
-        agent.orderMatchingUnit.cancelOrder(order.client_order_id);
+        ex.cancelOrder(order.client_order_id);
       };
     }
   }, [takeProfitPrice, position.volume]);
@@ -123,7 +130,7 @@ export const useSinglePosition = (
     if (stopLossPrice && position.volume) {
       const order: IOrder = {
         client_order_id: UUID(),
-        account_id: agent.accountInfoUnit.accountInfo.account_id,
+        account_id: accountId,
         product_id,
         position_id,
         type: OrderType.STOP,
@@ -133,11 +140,11 @@ export const useSinglePosition = (
         volume: position.volume,
       };
       stopLossOrderRef.current = order;
-      agent.orderMatchingUnit.submitOrder(order);
+      ex.submitOrder(order);
       return () => {
         // 撤单
         stopLossOrderRef.current = null;
-        agent.orderMatchingUnit.cancelOrder(order.client_order_id);
+        ex.cancelOrder(order.client_order_id);
       };
     }
   }, [stopLossPrice, position.volume]);

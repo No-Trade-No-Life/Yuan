@@ -1,7 +1,8 @@
 import { IconInfoCircle } from '@douyinfe/semi-icons';
-import { Descriptions, Space, Tooltip } from '@douyinfe/semi-ui';
+import { Descriptions, Select, Space, Tooltip } from '@douyinfe/semi-ui';
+import { AccountPerformanceUnit, IAccountPerformance } from '@yuants/kernel';
 import { useObservableState } from 'observable-hooks';
-import { useMemo } from 'react';
+import { useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { WeeklyEquityChart } from '../Chart/WeeklyEquityChart';
 import { registerPage } from '../Pages';
@@ -10,29 +11,21 @@ import { accountPerformance$ } from './model';
 registerPage('AccountPerformancePanel', () => {
   const [t] = useTranslation('AccountPerformancePanel');
 
-  const performance = useObservableState(accountPerformance$);
-
-  const data = useMemo(
-    () =>
-      performance._history_position_performance
-        .map((x, idx) => ({
-          x: x.min_profit,
-          CDF: idx / performance._history_position_performance.length,
-        }))
-        .map((item, idx, arr) => ({
-          ...item,
-          PDF:
-            idx > 0
-              ? arr[idx].x - arr[idx - 1].x > 0
-                ? (arr[idx].CDF - arr[idx - 1].CDF) / (arr[idx].x - arr[idx - 1].x)
-                : 0
-              : 0,
-        })),
-    [performance],
-  );
+  const mapAccountIdToPerformance = useObservableState(accountPerformance$);
+  const accountIdOptions = Object.keys(mapAccountIdToPerformance);
+  const [accountId, setAccountId] = useState(accountIdOptions[0] || '');
+  const performance: IAccountPerformance | undefined =
+    mapAccountIdToPerformance[accountId] || AccountPerformanceUnit.makeInitAccountPerformance(accountId);
 
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
+      <Select
+        value={accountId}
+        onChange={(v) => {
+          setAccountId(v as string);
+        }}
+        optionList={accountIdOptions.map((v) => ({ label: v, value: v }))}
+      ></Select>
       <Descriptions
         data={[
           {
@@ -346,7 +339,7 @@ registerPage('AccountPerformancePanel', () => {
           width: '100%',
         }}
       ></Descriptions>
-      <WeeklyEquityChart />
+      <WeeklyEquityChart accountId={accountId} />
     </Space>
   );
 });
