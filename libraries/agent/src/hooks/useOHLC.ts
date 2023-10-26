@@ -1,5 +1,5 @@
+import { decodePath } from '@yuants/data-model';
 import { useAgent, useEffect, useMemo, useSeries } from '.';
-import { decodePath } from '../utils';
 
 /**
  * 使用 OHLC(V) 数据

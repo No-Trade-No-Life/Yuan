@@ -1,7 +1,7 @@
 import { IconSearch } from '@douyinfe/semi-icons';
 import { AutoComplete } from '@douyinfe/semi-ui';
 import { FormContextType, RJSFSchema, StrictRJSFSchema, WidgetProps } from '@rjsf/utils';
-import { decodePath } from '@yuants/agent';
+import { decodePath } from '@yuants/data-model';
 import { Fzf } from 'fzf';
 import { useObservableState } from 'observable-hooks';
 import { useMemo } from 'react';

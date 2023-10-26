@@ -91,12 +91,6 @@ export class AgentUnit extends BasicUnit {
     };
 }
 
-// @public
-export const decodePath: (path: string) => string[];
-
-// @public
-export const encodePath: (...params: any[]) => string;
-
 // @public (undocumented)
 export interface IAgentConf {
     agent_params?: Record<string, any>;
