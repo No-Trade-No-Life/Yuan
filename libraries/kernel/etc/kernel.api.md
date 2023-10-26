@@ -607,43 +607,6 @@ export class SeriesDataUnit extends BasicUnit {
     series: Series[];
 }
 
-// @public
-export class StopLossOrderMapperUnit extends BasicUnit {
-    constructor(kernel: Kernel, account_id: string, resumeOnSourceMarginBelow: number, stopLossDrawdownQuota: number, productDataUnit: ProductDataUnit, quoteDataUnit: QuoteDataUnit, sourceAccountSimulatorUnit: AccountSimulatorUnit, sourceAccountPerformanceUnit: AccountPerformanceUnit, sourceHistoryOrderUnit: HistoryOrderUnit, targetAccountSimulatorUnit: AccountSimulatorUnit, targetOrderMatchingUnit: OrderMatchingUnit, targetHistoryOrderUnit: HistoryOrderUnit);
-    // (undocumented)
-    account_id: string;
-    // (undocumented)
-    in_stop_loss_state: boolean;
-    // (undocumented)
-    kernel: Kernel;
-    // (undocumented)
-    onDispose(): void | Promise<void>;
-    // (undocumented)
-    onEvent(): void;
-    // (undocumented)
-    onInit(): void | Promise<void>;
-    // (undocumented)
-    productDataUnit: ProductDataUnit;
-    // (undocumented)
-    quoteDataUnit: QuoteDataUnit;
-    // (undocumented)
-    resumeOnSourceMarginBelow: number;
-    // (undocumented)
-    sourceAccountPerformanceUnit: AccountPerformanceUnit;
-    // (undocumented)
-    sourceAccountSimulatorUnit: AccountSimulatorUnit;
-    // (undocumented)
-    sourceHistoryOrderUnit: HistoryOrderUnit;
-    // (undocumented)
-    stopLossDrawdownQuota: number;
-    // (undocumented)
-    targetAccountSimulatorUnit: AccountSimulatorUnit;
-    // (undocumented)
-    targetHistoryOrderUnit: HistoryOrderUnit;
-    // (undocumented)
-    targetOrderMatchingUnit: OrderMatchingUnit;
-}
-
 // (No @packageDocumentation comment for this package)
 
 ```

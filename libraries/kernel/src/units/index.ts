@@ -16,5 +16,4 @@ export * from './ProductLoadingUnit';
 export * from './QuoteDataUnit';
 export * from './RealtimePeriodLoadingUnit';
 export * from './SeriesDataUnit';
-export * from './StopLossOrderMappingUnit';
 export * from './metrics';

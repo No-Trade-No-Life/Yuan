@@ -108,7 +108,7 @@ export default (context: IExtensionContext) => {
               },
             };
 
-      const escapedAccountID = kernel_id.replace(/\/|_/g, '').toLocaleLowerCase();
+      const escapedKernelID = kernel_id.replace(/\/|_/g, '').toLocaleLowerCase();
 
       return {
         deployment: {
@@ -118,9 +118,9 @@ export default (context: IExtensionContext) => {
             labels: {
               'y.ntnl.io/version': ctx.version ?? envCtx.version,
               'y.ntnl.io/component': 'agent',
-              'y.ntnl.io/account_id': escapedAccountID,
+              'y.ntnl.io/kernel_id': escapedKernelID,
             },
-            name: `agent-${escapedAccountID}`,
+            name: `agent-${escapedKernelID}`,
             namespace: 'yuan',
           },
           spec: {
@@ -128,7 +128,7 @@ export default (context: IExtensionContext) => {
             selector: {
               matchLabels: {
                 'y.ntnl.io/component': 'agent',
-                'y.ntnl.io/account_id': escapedAccountID,
+                'y.ntnl.io/kernel_id': escapedKernelID,
               },
             },
             template: {
@@ -136,7 +136,7 @@ export default (context: IExtensionContext) => {
                 labels: {
                   'y.ntnl.io/version': ctx.version ?? envCtx.version,
                   'y.ntnl.io/component': 'agent',
-                  'y.ntnl.io/account_id': escapedAccountID,
+                  'y.ntnl.io/kernel_id': escapedKernelID,
                 },
               },
               spec: {
@@ -168,7 +168,7 @@ export default (context: IExtensionContext) => {
                   {
                     name: 'agent-config',
                     secret: {
-                      secretName: `agent-${escapedAccountID}-config`,
+                      secretName: `agent-${escapedKernelID}-config`,
                       items: await Promise.all(
                         Object.entries(filesystemMapping).map(async ([k, { path }]) => ({
                           key: k,
@@ -192,12 +192,12 @@ export default (context: IExtensionContext) => {
           apiVersion: 'v1',
           kind: 'Secret',
           metadata: {
-            name: `agent-${escapedAccountID}-config`,
+            name: `agent-${escapedKernelID}-config`,
             namespace: 'yuan',
             labels: {
               'y.ntnl.io/version': ctx.version ?? envCtx.version,
               'y.ntnl.io/component': 'agent',
-              'y.ntnl.io/account_id': escapedAccountID,
+              'y.ntnl.io/kernel_id': escapedKernelID,
             },
           },
           data: Object.fromEntries(Object.entries(filesystemMapping).map(([k, { content }]) => [k, content])),
@@ -222,11 +222,11 @@ export default (context: IExtensionContext) => {
                     alert: 'AgentDataSelfCheckError',
                     annotations: {
                       description:
-                        'agent data self check error: {{$labels.account_id}}-{{$labels.datasource_id}}-{{$labels.product_id}}-{{$labels.period_in_sec}}',
+                        'agent data self check error: {{$labels.kernel_id}}-{{$labels.datasource_id}}-{{$labels.product_id}}-{{$labels.period_in_sec}}',
                       runbook_url: 'https://tradelife.feishu.cn/wiki/IsrNwMB9biXfO8kQyUYcBdo1nBb',
                       summary: 'Agent data self check error',
                     },
-                    expr: 'sum (period_data_checking_unit_period_self_check_total{status="error"}) by (account_id, datasource_id, product_id, period_in_sec) > 0',
+                    expr: 'sum (period_data_checking_unit_period_self_check_total{status="error"}) by (kernel_id, datasource_id, product_id, period_in_sec) > 0',
                     for: '5m',
                     labels: {
                       severity: 'warning',

@@ -97,6 +97,7 @@ export const agentConfSchema: JSONSchema7 = {
     },
     kernel_id: {
       type: 'string',
+      default: 'Model',
     },
     use_general_product: {
       type: 'boolean',
