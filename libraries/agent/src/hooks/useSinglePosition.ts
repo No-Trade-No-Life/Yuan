@@ -2,6 +2,7 @@ import { UUID } from '@yuants/data-model';
 import { IOrder, IPosition, IProduct, OrderDirection, OrderType, PositionVariant } from '@yuants/protocol';
 import { roundToStep } from '@yuants/utils';
 import { useAgent, useEffect, useRef, useState } from './basic-set';
+import { useAccountInfo } from './useAccountInfo';
 import { useExchange } from './useExchange';
 
 /**
@@ -12,9 +13,9 @@ import { useExchange } from './useExchange';
  * @public
  */
 export const useSinglePosition = (
-  account_id: string,
   product_id: string,
   variant: PositionVariant,
+  account_id?: string,
 ): {
   targetVolume: number;
   takeProfitPrice: number;
@@ -26,7 +27,9 @@ export const useSinglePosition = (
   const position_id = useRef(UUID()).current;
   const agent = useAgent();
   const ex = useExchange();
-  const position = agent.accountInfoUnit.getPosition(account_id, position_id, product_id, variant);
+  const accountInfo = useAccountInfo({ account_id });
+  const accountId = accountInfo.account_id;
+  const position = agent.accountInfoUnit.getPosition(accountId, position_id, product_id, variant);
   const stopLossOrderRef = useRef<IOrder | null>(null);
   const takeProfitOrderRef = useRef<IOrder | null>(null);
 
@@ -62,7 +65,7 @@ export const useSinglePosition = (
         }
         const order: IOrder = {
           client_order_id: UUID(),
-          account_id: account_id,
+          account_id: accountId,
           product_id: position.product_id,
           position_id: position.position_id,
           type: OrderType.MARKET,
@@ -82,7 +85,7 @@ export const useSinglePosition = (
         }
         const order: IOrder = {
           client_order_id: UUID(),
-          account_id: account_id,
+          account_id: accountId,
           product_id: position.product_id,
           position_id: position.position_id,
           type: OrderType.MARKET,
@@ -104,7 +107,7 @@ export const useSinglePosition = (
     if (takeProfitPrice && position.volume) {
       const order: IOrder = {
         client_order_id: UUID(),
-        account_id: account_id,
+        account_id: accountId,
         product_id,
         position_id,
         type: OrderType.LIMIT,
@@ -127,7 +130,7 @@ export const useSinglePosition = (
     if (stopLossPrice && position.volume) {
       const order: IOrder = {
         client_order_id: UUID(),
-        account_id: account_id,
+        account_id: accountId,
         product_id,
         position_id,
         type: OrderType.STOP,

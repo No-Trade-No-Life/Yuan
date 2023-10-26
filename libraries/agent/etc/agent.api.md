@@ -114,7 +114,12 @@ export interface IAgentConf {
 }
 
 // @public
-export const useAccountInfo: (account_id: string, currency?: string, leverage?: number, initial_balance?: number) => IAccountInfo;
+export const useAccountInfo: (options?: {
+    account_id?: string;
+    currency?: string;
+    leverage?: number;
+    initial_balance?: number;
+}) => IAccountInfo;
 
 // @public
 export const useAgent: () => AgentUnit;
@@ -193,7 +198,7 @@ export const useRef: <T>(initial_value: T) => {
 export const useSeries: (name: string, parent: Series | undefined, tags?: Record<string, any>) => Series;
 
 // @public
-export const useSinglePosition: (account_id: string, product_id: string, variant: PositionVariant) => {
+export const useSinglePosition: (product_id: string, variant: PositionVariant, account_id?: string) => {
     targetVolume: number;
     takeProfitPrice: number;
     stopLossPrice: number;

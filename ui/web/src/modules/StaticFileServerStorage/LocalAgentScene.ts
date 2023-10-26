@@ -26,7 +26,7 @@ export const LocalAgentScene = async (agentConf: IAgentConf) => {
   const resolved_start_timestamp = agentConf.start_time ? Date.parse(agentConf.start_time) : 0;
   const resolved_end_timestamp = agentConf.end_time ? Date.parse(agentConf.end_time) : Date.now();
 
-  const kernel = new Kernel();
+  const kernel = new Kernel(agentConf.kernel_id);
   if (agentConf.disable_log) {
     kernel.log = undefined;
   }
