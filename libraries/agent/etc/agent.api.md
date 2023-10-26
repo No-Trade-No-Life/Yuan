@@ -45,10 +45,6 @@ export class AgentUnit extends BasicUnit {
     constructor(kernel: Kernel, script: string, params: Record<string, any>, options: {
         start_time: number;
         end_time: number;
-        account_id: string;
-        currency: string;
-        leverage?: number;
-        initial_balance?: number;
     });
     // (undocumented)
     accountInfoUnit: AccountInfoUnit;
@@ -70,10 +66,6 @@ export class AgentUnit extends BasicUnit {
     options: {
         start_time: number;
         end_time: number;
-        account_id: string;
-        currency: string;
-        leverage?: number;
-        initial_balance?: number;
     };
     // (undocumented)
     orderMatchingUnit: OrderMatchingUnit;
@@ -107,17 +99,14 @@ export const encodePath: (...params: any[]) => string;
 
 // @public (undocumented)
 export interface IAgentConf {
-    account_id?: string;
     agent_params?: Record<string, any>;
     allow_fallback_specific_product?: boolean;
     bundled_code?: string;
-    currency?: string;
     disable_log?: boolean;
     end_time?: string;
     entry?: string;
-    initial_balance?: number;
     is_real?: boolean;
-    leverage?: number;
+    kernel_id?: string;
     period_self_check_interval_in_second?: number;
     publish_account?: boolean;
     start_time?: string;
@@ -125,7 +114,7 @@ export interface IAgentConf {
 }
 
 // @public
-export const useAccountInfo: (account_id?: string) => IAccountInfo;
+export const useAccountInfo: (account_id: string, currency?: string, leverage?: number, initial_balance?: number) => IAccountInfo;
 
 // @public
 export const useAgent: () => AgentUnit;
@@ -204,7 +193,7 @@ export const useRef: <T>(initial_value: T) => {
 export const useSeries: (name: string, parent: Series | undefined, tags?: Record<string, any>) => Series;
 
 // @public
-export const useSinglePosition: (product_id: string, variant: PositionVariant, account_id?: string) => {
+export const useSinglePosition: (account_id: string, product_id: string, variant: PositionVariant) => {
     targetVolume: number;
     takeProfitPrice: number;
     stopLossPrice: number;

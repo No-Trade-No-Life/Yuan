@@ -1,4 +1,3 @@
-import { UUID } from '@yuants/data-model';
 import {
   AccountInfoUnit,
   AccountPerformanceHubUnit,
@@ -45,14 +44,8 @@ export interface IAgentConf {
 
   /** 发布账户到主机 */
   publish_account?: boolean;
-  /** 发布账户 ID */
-  account_id?: string;
-  /** 初始余额 */
-  initial_balance?: number;
-  /** 账户保证金货币 */
-  currency?: string;
-  /** 系统杠杆率 */
-  leverage?: number;
+  /** Kernel ID */
+  kernel_id?: string;
   /** 使用标准品种信息 */
   use_general_product?: boolean;
   /** 实盘数据自检时间间隔 */
@@ -102,22 +95,8 @@ export const agentConfSchema: JSONSchema7 = {
       title: '发布账户到主机',
       description: '同意将此次运行的模拟账户信息流、历史订单、品种参数配置发布到主机',
     },
-    account_id: {
+    kernel_id: {
       type: 'string',
-      title: '账户ID',
-    },
-    initial_balance: {
-      type: 'number',
-      title: '初始余额',
-    },
-    currency: {
-      type: 'string',
-      title: '账户的保证金货币',
-    },
-    leverage: {
-      type: 'number',
-      title: '账户系统杠杆率',
-      default: 1,
     },
     use_general_product: {
       type: 'boolean',
@@ -150,13 +129,11 @@ export const agentConfSchema: JSONSchema7 = {
 export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
   const agentCode = agentConf.bundled_code;
   if (!agentCode) throw new Error(`agentConf.bundled_code is required`);
-  const resolved_account_id = agentConf.account_id || UUID();
-  const resolved_currency = agentConf.currency || 'YYY';
 
   const resolved_start_timestamp = agentConf.start_time ? Date.parse(agentConf.start_time) : 0;
   const resolved_end_timestamp = agentConf.end_time ? Date.parse(agentConf.end_time) : Date.now();
 
-  const kernel = new Kernel();
+  const kernel = new Kernel(agentConf.kernel_id);
   if (agentConf.disable_log) {
     kernel.log = undefined;
   }
@@ -197,7 +174,6 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
     const dataCheckingUnit = new PeriodDataCheckingUnit(
       kernel,
       terminal,
-      resolved_account_id,
       periodDataUnit,
       agentConf.period_self_check_interval_in_second * 1000,
     );
@@ -212,12 +188,7 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
     quoteDataUnit,
   );
   const accountInfoUnit = new AccountInfoUnit(kernel, productDataUnit, quoteDataUnit, historyOrderUnit);
-  accountInfoUnit.useAccount(
-    resolved_account_id,
-    resolved_currency,
-    agentConf.leverage,
-    agentConf.initial_balance,
-  );
+
   const accountPerformanceUnit = new AccountPerformanceHubUnit(kernel, accountInfoUnit);
   if (agentConf.publish_account) {
     const unit = new BasicUnit(kernel);
@@ -238,20 +209,16 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
       }
     };
     // 装载指标单元
-    const kernelFramesMetricsUnit = new KernelFramesMetricsUnit(kernel, resolved_account_id);
-    const quoteMetricsUnit = new QuoteMetricsUnit(kernel, resolved_account_id, quoteDataUnit);
-    const periodMetricsUnit = new PeriodMetricsUnit(kernel, resolved_account_id, periodDataUnit);
-    const accountPerformanceMetricsUnit = new AccountPerformanceMetricsUnit(kernel, accountPerformanceUnit);
+    new KernelFramesMetricsUnit(kernel);
+    new QuoteMetricsUnit(kernel, quoteDataUnit);
+    new PeriodMetricsUnit(kernel, periodDataUnit);
+    new AccountPerformanceMetricsUnit(kernel, accountPerformanceUnit);
     // TODO: clean up when dispose
   }
 
   const agentUnit = new AgentUnit(kernel, agentCode, agentConf.agent_params || {}, {
     start_time: resolved_start_timestamp,
     end_time: resolved_end_timestamp,
-    account_id: resolved_account_id,
-    currency: resolved_currency,
-    leverage: agentConf.leverage || 1,
-    initial_balance: agentConf.initial_balance || 0,
   });
 
   await agentUnit.execute();

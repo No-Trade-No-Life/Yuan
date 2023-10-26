@@ -8,7 +8,7 @@ const MetricKernelFrames = PromRegistry.create('gauge', 'kernel_frames', 'kernel
  * @public
  */
 export class KernelFramesMetricsUnit extends BasicUnit {
-  constructor(public kernel: Kernel, public account_id: string) {
+  constructor(public kernel: Kernel) {
     super(kernel);
   }
 
@@ -16,6 +16,6 @@ export class KernelFramesMetricsUnit extends BasicUnit {
 
   onEvent(): void | Promise<void> {
     this.frameCnt++;
-    MetricKernelFrames.set(this.frameCnt, { account_id: this.account_id });
+    MetricKernelFrames.set(this.frameCnt, { kernel_id: this.kernel.id });
   }
 }

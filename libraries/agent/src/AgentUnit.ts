@@ -58,10 +58,6 @@ export class AgentUnit extends BasicUnit {
     public options: {
       start_time: number;
       end_time: number;
-      account_id: string;
-      currency: string;
-      leverage?: number;
-      initial_balance?: number;
     },
   ) {
     super(kernel);

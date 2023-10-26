@@ -344,9 +344,7 @@ export class Kernel {
 
 // @public (undocumented)
 export class KernelFramesMetricsUnit extends BasicUnit {
-    constructor(kernel: Kernel, account_id: string);
-    // (undocumented)
-    account_id: string;
+    constructor(kernel: Kernel);
     // (undocumented)
     frameCnt: number;
     // (undocumented)
@@ -423,9 +421,7 @@ export const OrderMergeReplayScene: (kernel: Kernel, init_account_info: IAccount
 
 // @public
 export class PeriodDataCheckingUnit extends BasicUnit {
-    constructor(kernel: Kernel, terminal: Terminal, account_id: string, periodDataUnit: PeriodDataUnit, interval: number);
-    // (undocumented)
-    account_id: string;
+    constructor(kernel: Kernel, terminal: Terminal, periodDataUnit: PeriodDataUnit, interval: number);
     // (undocumented)
     errorTotal: number;
     // (undocumented)
@@ -469,9 +465,7 @@ export class PeriodDataUnit extends BasicUnit {
 
 // @public (undocumented)
 export class PeriodMetricsUnit extends BasicUnit {
-    constructor(kernel: Kernel, account_id: string, periodDataUnit: PeriodDataUnit);
-    // (undocumented)
-    account_id: string;
+    constructor(kernel: Kernel, periodDataUnit: PeriodDataUnit);
     // (undocumented)
     kernel: Kernel;
     // (undocumented)
@@ -560,9 +554,7 @@ export class QuoteDataUnit extends BasicUnit {
 
 // @public (undocumented)
 export class QuoteMetricsUnit extends BasicUnit {
-    constructor(kernel: Kernel, account_id: string, quoteDataUnit: QuoteDataUnit);
-    // (undocumented)
-    account_id: string;
+    constructor(kernel: Kernel, quoteDataUnit: QuoteDataUnit);
     // (undocumented)
     kernel: Kernel;
     // (undocumented)

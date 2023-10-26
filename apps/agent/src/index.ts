@@ -32,8 +32,8 @@ if (!validator.validate(agentConfSchema, agentConf)) {
   console.error(`Agent Config validation failed`, validator.errors);
   process.exit(1);
 }
-const accountId = agentConf.account_id || UUID();
-const TERMINAL_ID = process.env.TERMINAL_ID || `agent/${accountId}`;
+const kernelId = agentConf.kernel_id || UUID();
+const TERMINAL_ID = process.env.TERMINAL_ID || `agent/${kernelId}`;
 
 const MetricPositionError = PromRegistry.create(
   'gauge',
@@ -135,7 +135,7 @@ const run = async () => {
         }),
         mergeMap(() => {
           const workerInstance = createWorker();
-          MetricBackupWorkerTotal.inc({ account_id: agentConf.account_id! });
+          MetricBackupWorkerTotal.inc({ kernel_id: agentConf.kernel_id! });
           return workerInstance.accountInfo$.pipe(
             combineLatestWith(currentMainWorker.accountInfo$),
             first(),

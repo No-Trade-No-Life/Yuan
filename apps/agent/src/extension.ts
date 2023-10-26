@@ -41,16 +41,16 @@ export default (context: IExtensionContext) => {
         throw new Error('AGENT_CONF_PATH is required for docker compose deployment');
       }
 
-      const account_id = agentConf.account_id;
-      if (account_id === undefined) {
-        throw new Error('account_id is required');
+      const kernel_id = agentConf.kernel_id;
+      if (kernel_id === undefined) {
+        throw new Error('kernel_id is required');
       }
       if (!agentConf.bundled_code) {
         throw new Error(`bundled_code is required`);
       }
       const paths = [ctx.env!.AGENT_CONF_PATH];
       return {
-        [`agent-${account_id.toLocaleLowerCase()}`]: {
+        [`agent-${kernel_id.toLocaleLowerCase()}`]: {
           image: `ghcr.io/no-trade-no-life/app-agent:${ctx.version ?? envCtx.version}`,
           restart: 'always',
           volumes: [
@@ -80,9 +80,9 @@ export default (context: IExtensionContext) => {
         agentConf = ctx.one_json;
       }
 
-      const account_id = agentConf.account_id;
-      if (account_id === undefined) {
-        throw new Error('account_id is required');
+      const kernel_id = agentConf.kernel_id;
+      if (kernel_id === undefined) {
+        throw new Error('kernel_id is required');
       }
       if (!agentConf.bundled_code) {
         throw new Error(`bundled_code is required`);
@@ -108,7 +108,7 @@ export default (context: IExtensionContext) => {
               },
             };
 
-      const escapedAccountID = account_id.replace(/\/|_/g, '').toLocaleLowerCase();
+      const escapedAccountID = kernel_id.replace(/\/|_/g, '').toLocaleLowerCase();
 
       return {
         deployment: {
