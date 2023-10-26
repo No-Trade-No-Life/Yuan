@@ -1,5 +1,4 @@
-import { encodePath } from '@yuants/agent';
-import { formatTime, UUID } from '@yuants/data-model';
+import { encodePath, formatTime, UUID } from '@yuants/data-model';
 import {
   BehaviorSubject,
   defer,

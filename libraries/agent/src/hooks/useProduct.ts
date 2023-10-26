@@ -1,5 +1,5 @@
+import { decodePath } from '@yuants/data-model';
 import { IProduct } from '@yuants/protocol';
-import { decodePath } from '../utils';
 import { useAgent, useEffect, useMemo } from './basic-set';
 
 /**

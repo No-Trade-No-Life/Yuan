@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/agent",
+      "comment": "use encodePath & decodePath in data-model package",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/agent"
+}
