@@ -1,6 +1,14 @@
 # Change Log - @yuants/agent
 
-This log was last generated on Thu, 26 Oct 2023 18:03:30 GMT and should not be manually modified.
+This log was last generated on Mon, 30 Oct 2023 15:33:47 GMT and should not be manually modified.
+
+## 0.3.1
+Mon, 30 Oct 2023 15:33:47 GMT
+
+### Patches
+
+- use encodePath & decodePath in data-model package
+- crush on real mode account publishing
 
 ## 0.3.0
 Thu, 26 Oct 2023 18:03:30 GMT
