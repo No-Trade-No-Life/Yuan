@@ -35,7 +35,7 @@ registerCommand('ChangeLanguage', async () => {
 });
 
 registerCommand('UserManual', () => {
-  open('https://tradelife.feishu.cn/wiki/wikcngXV0voYLV2ihtdNyU2i96g');
+  open('https://www.ntnl.io/docs/intro');
 });
 
 registerCommand('OpenSource', () => {

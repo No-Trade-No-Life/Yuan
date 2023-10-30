@@ -16,11 +16,13 @@
   <img src="https://y.ntnl.io/yuan.svg" alt="Logo" width="80" height="80" />
   <h3 align="center">Yuan</h3>
   <p align="center">
-    <p>The money OS for everyone defends their own wealth.</p>
+    <p>The investment Operating System for everyone</p>
     <p>AI empowered, global market, serverless, cloud-native, and privacy.</p>
     <a align="center" href="https://y.ntnl.io">Access the Yuan GUI from any device »</a>
     <br />
     <br />
+    <a href="https://www.ntnl.io">Read the Docs 📖</a>
+    ·
     <a href="https://github.com/No-Trade-No-Life/Yuan/issues/new?assignees=&labels=bug&projects=&template=bug_report.yaml&title=bug%3A+%3Ctitle%3E">Report Bug 🐛</a>
     ·
     <a href="https://github.com/No-Trade-No-Life/Yuan/issues/new?assignees=&labels=enhancement&projects=&template=feature_request.yaml&title=feat%3A+%3Ctitle%3E">Request Feature 💡</a>

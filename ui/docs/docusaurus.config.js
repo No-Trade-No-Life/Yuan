@@ -7,7 +7,7 @@ const darkCodeTheme = require('prism-react-renderer/themes/dracula');
 /** @type {import('@docusaurus/types').Config} */
 const config = {
   title: 'Yuan',
-  tagline: `The money OS for everyone defends their own wealth.`,
+  tagline: `The investment OS for everyone.`,
   favicon: 'img/yuan.svg',
 
   // Set the production url of your site here
