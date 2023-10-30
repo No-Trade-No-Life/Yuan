@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/agent",
+      "comment": "crush on real mode account publishing",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/agent"
+}

@@ -194,12 +194,12 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
   if (agentConf.publish_account) {
     const unit = new BasicUnit(kernel);
     const mapAccountIdToAccountInfo$: Record<string, Subject<IAccountInfo>> = {};
-    accountInfoUnit.mapAccountIdToAccountInfo.forEach((accountInfo) => {
-      const accountInfo$ = (mapAccountIdToAccountInfo$[accountInfo.account_id] = new Subject());
-      terminal.provideAccountInfo(accountInfo$);
-    });
     unit.onIdle = () => {
       for (const accountInfo of accountInfoUnit.mapAccountIdToAccountInfo.values()) {
+        if (!mapAccountIdToAccountInfo$[accountInfo.account_id]) {
+          mapAccountIdToAccountInfo$[accountInfo.account_id] = new Subject();
+          terminal.provideAccountInfo(mapAccountIdToAccountInfo$[accountInfo.account_id]);
+        }
         const accountInfo$ = mapAccountIdToAccountInfo$[accountInfo.account_id];
         accountInfo$.next(accountInfo);
       }
