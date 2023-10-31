@@ -4,11 +4,11 @@ import { currentHostConfig$ } from '../Workbench/model';
 
 export const terminal$ = currentHostConfig$.pipe(
   debounceTime(100),
-  first((config) => !!(config?.HV_URL && config.TERMINAL_ID)),
+  first((config) => !!(config?.host_url && config.terminal_id)),
   map(
     (config) =>
-      new Terminal(config?.HV_URL!, {
-        terminal_id: config?.TERMINAL_ID!,
+      new Terminal(config?.host_url!, {
+        terminal_id: config?.terminal_id!,
         name: 'Workbench GUI',
         status: 'OK',
       }),

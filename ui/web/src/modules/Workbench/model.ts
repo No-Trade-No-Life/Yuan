@@ -16,8 +16,8 @@ import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehavio
 export interface IHostConfigItem {
   //
   name: string;
-  HV_URL: string;
-  TERMINAL_ID: string;
+  host_url: string;
+  terminal_id: string;
 }
 
 export const hostConfigList$ = createPersistBehaviorSubject<IHostConfigItem[]>('host-config-list', []);
@@ -61,15 +61,15 @@ initAction$
   )
   .subscribe((action) => {
     console.info(formatTime(Date.now()), `Parsed host from URL: ${action.payload.URL}`);
-    const theConfig = hostConfigList$.value?.find((item) => item.HV_URL === action.payload.URL);
+    const theConfig = hostConfigList$.value?.find((item) => item.host_url === action.payload.URL);
     if (theConfig) {
-      console.info(formatTime(Date.now()), `Host existed ${theConfig.name} ${theConfig.HV_URL}`);
+      console.info(formatTime(Date.now()), `Host existed ${theConfig.name} ${theConfig.host_url}`);
       currentHostConfig$.next(theConfig);
     } else {
       const config: IHostConfigItem = {
-        HV_URL: action.payload.URL,
+        host_url: action.payload.URL,
         name: action.payload.name,
-        TERMINAL_ID: `GUI/${UUID()}`,
+        terminal_id: `GUI/${UUID()}`,
       };
 
       hostConfigList$.next([...(hostConfigList$.value || []), config]);
@@ -79,10 +79,7 @@ initAction$
 
 export const OHLCIdList$ = new BehaviorSubject<string[]>([]);
 
-export const PublicDataURL$ = createPersistBehaviorSubject(
-  'PublicDataURL',
-  'https://y.ntnl.io/Yuan-Public-Data',
-);
+const PUBLIC_DATA_URL = 'https://y.ntnl.io/Yuan-Public-Data';
 
 const mapDurationLiteralToPeriodInSec: Record<string, number> = {
   PT1M: 60,
@@ -101,7 +98,7 @@ currentHostConfig$
     filter((x) => x === null),
     mergeMap(() => {
       // No-Host Mode
-      return defer(() => fetch(`${PublicDataURL$.value || 'https://y.ntnl.io/Yuan-Public-Data'}/index`)).pipe(
+      return defer(() => fetch(`${PUBLIC_DATA_URL}/index`)).pipe(
         //
 
         mergeMap((x) => x.text()),
