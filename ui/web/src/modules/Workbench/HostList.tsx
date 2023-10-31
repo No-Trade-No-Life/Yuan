@@ -1,4 +1,12 @@
-import { IconDelete, IconEdit, IconExport, IconPlus, IconSend, IconShareStroked } from '@douyinfe/semi-icons';
+import {
+  IconCode,
+  IconDelete,
+  IconEdit,
+  IconExport,
+  IconPlus,
+  IconSend,
+  IconShareStroked,
+} from '@douyinfe/semi-icons';
 import {
   Button,
   ButtonGroup,
@@ -16,6 +24,7 @@ import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
 import { useObservableState } from 'observable-hooks';
 import { useTranslation } from 'react-i18next';
+import { executeCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import Form from '../Form';
 import { registerPage } from '../Pages';
@@ -48,7 +57,7 @@ registerPage('HostList', () => {
 
   return (
     <Space vertical align="start">
-      <ButtonGroup>
+      <Space>
         <Button
           icon={<IconPlus />}
           onClick={async () => {
@@ -61,15 +70,6 @@ registerPage('HostList', () => {
         <Button
           icon={<IconExport />}
           onClick={async () => {
-            await fs.writeFile(HOST_CONFIG, JSON.stringify(configs, null, 2));
-            Toast.success(`${t('common:export_succeed')}: ${HOST_CONFIG}`);
-          }}
-        >
-          {t('common:export')}
-        </Button>
-        <Button
-          icon={<IconExport />}
-          onClick={async () => {
             const configs = JSON.parse(await fs.readFile(HOST_CONFIG));
             hostConfigList$.next(configs);
             Toast.success(`${t('common:import_succeed')}: ${HOST_CONFIG}`);
@@ -77,7 +77,24 @@ registerPage('HostList', () => {
         >
           {t('common:import')}
         </Button>
-      </ButtonGroup>
+        <Button
+          icon={<IconExport />}
+          onClick={async () => {
+            await fs.writeFile(HOST_CONFIG, JSON.stringify(configs, null, 2));
+            Toast.success(`${t('common:export_succeed')}: ${HOST_CONFIG}`);
+          }}
+        >
+          {t('common:export')}
+        </Button>
+        <Button
+          icon={<IconCode />}
+          onClick={() => {
+            executeCommand('FileEditor', { filename: HOST_CONFIG });
+          }}
+        >
+          {t('common:view_source')}
+        </Button>
+      </Space>
       <List
         dataSource={configs}
         renderItem={(config, idx) => (
