@@ -197,7 +197,10 @@ registerPage('Explorer', () => {
                         {data.key.match(/\.batch\.ts$/) && !!currentHostConfig$.value ? (
                           <Dropdown.Item
                             onClick={async () => {
-                              await writeManifestsFromBatchTasks(data.key, currentHostConfig$.value?.HV_URL!);
+                              await writeManifestsFromBatchTasks(
+                                data.key,
+                                currentHostConfig$.value?.host_url!,
+                              );
                               Toast.success(t('common:succeed'));
                             }}
                           >

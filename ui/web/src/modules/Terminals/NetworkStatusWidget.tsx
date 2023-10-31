@@ -56,15 +56,15 @@ export const NetworkStatusWidget = React.memo(() => {
                 {
                   key: t('host_url'),
                   value: (
-                    <Typography.Text copyable={{ content: config?.HV_URL ?? t('not_configured') }}>
-                      {secretURL(config?.HV_URL ?? t('not_configured'))}
+                    <Typography.Text copyable={{ content: config?.host_url ?? t('not_configured') }}>
+                      {secretURL(config?.host_url ?? t('not_configured'))}
                     </Typography.Text>
                   ),
                 },
                 {
                   key: t('terminal_id'),
                   value: (
-                    <Typography.Text copyable>{config?.TERMINAL_ID ?? t('not_configured')}</Typography.Text>
+                    <Typography.Text copyable>{config?.terminal_id ?? t('not_configured')}</Typography.Text>
                   ),
                 },
                 {
@@ -107,7 +107,7 @@ export const NetworkStatusWidget = React.memo(() => {
             config ? <IconSignal style={{ color: +network[1] > 0 ? 'green' : 'red' }} /> : <IconDesktop />
           }
         >
-          {config ? `${config.name} / ${config.TERMINAL_ID}` : t('No_Host')}
+          {config ? `${config.name} / ${config.terminal_id}` : t('No_Host')}
         </Typography.Text>
       </Popover>
     </Space>

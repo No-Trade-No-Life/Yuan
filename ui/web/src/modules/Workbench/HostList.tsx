@@ -1,4 +1,12 @@
-import { IconDelete, IconEdit, IconPlus, IconSend, IconShareStroked } from '@douyinfe/semi-icons';
+import {
+  IconCode,
+  IconDelete,
+  IconEdit,
+  IconExport,
+  IconPlus,
+  IconSend,
+  IconShareStroked,
+} from '@douyinfe/semi-icons';
 import {
   Button,
   ButtonGroup,
@@ -16,6 +24,8 @@ import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
 import { useObservableState } from 'observable-hooks';
 import { useTranslation } from 'react-i18next';
+import { executeCommand } from '../CommandCenter';
+import { fs } from '../FileSystem/api';
 import Form from '../Form';
 import { registerPage } from '../Pages';
 import { secretURL } from '../Terminals/NetworkStatusWidget';
@@ -23,7 +33,7 @@ import { IHostConfigItem, currentHostConfig$, hostConfigList$ } from './model';
 
 const configSchema = (): JSONSchema7 => ({
   type: 'object',
-  required: ['TERMINAL_ID', 'HV_URL'],
+  required: ['terminal_id', 'host_url'],
   properties: {
     name: {
       type: 'string',
@@ -31,22 +41,23 @@ const configSchema = (): JSONSchema7 => ({
       description: t('HostList:host_label_note'),
       default: t('HostList:host_label_default'),
     },
-    TERMINAL_ID: {
+    terminal_id: {
       type: 'string',
       title: t('HostList:terminal_id'),
       description: t('HostList:terminal_id_note'),
     },
-    HV_URL: { type: 'string', title: t('HostList:host_url'), description: t('HostList:host_url_note') },
+    host_url: { type: 'string', title: t('HostList:host_url'), description: t('HostList:host_url_note') },
   },
 });
 
 registerPage('HostList', () => {
   const configs = useObservableState(hostConfigList$, []);
   const { t } = useTranslation('HostList');
+  const HOST_CONFIG = '/hosts.json';
 
   return (
     <Space vertical align="start">
-      <ButtonGroup>
+      <Space>
         <Button
           icon={<IconPlus />}
           onClick={async () => {
@@ -56,7 +67,34 @@ registerPage('HostList', () => {
         >
           {t('add_host')}
         </Button>
-      </ButtonGroup>
+        <Button
+          icon={<IconExport />}
+          onClick={async () => {
+            const configs = JSON.parse(await fs.readFile(HOST_CONFIG));
+            hostConfigList$.next(configs);
+            Toast.success(`${t('common:import_succeed')}: ${HOST_CONFIG}`);
+          }}
+        >
+          {t('common:import')}
+        </Button>
+        <Button
+          icon={<IconExport />}
+          onClick={async () => {
+            await fs.writeFile(HOST_CONFIG, JSON.stringify(configs, null, 2));
+            Toast.success(`${t('common:export_succeed')}: ${HOST_CONFIG}`);
+          }}
+        >
+          {t('common:export')}
+        </Button>
+        <Button
+          icon={<IconCode />}
+          onClick={() => {
+            executeCommand('FileEditor', { filename: HOST_CONFIG });
+          }}
+        >
+          {t('common:view_source')}
+        </Button>
+      </Space>
       <List
         dataSource={configs}
         renderItem={(config, idx) => (
@@ -69,12 +107,12 @@ registerPage('HostList', () => {
                   {
                     key: t('host_url'),
                     value: (
-                      <Typography.Text copyable={{ content: config.HV_URL }}>
-                        {secretURL(config.HV_URL)}
+                      <Typography.Text copyable={{ content: config.host_url }}>
+                        {secretURL(config.host_url)}
                       </Typography.Text>
                     ),
                   },
-                  { key: t('terminal_id'), value: config.TERMINAL_ID },
+                  { key: t('terminal_id'), value: config.terminal_id },
                 ]}
               ></Descriptions>
               <ButtonGroup>
@@ -107,7 +145,7 @@ registerPage('HostList', () => {
                       window.btoa(
                         JSON.stringify({
                           type: 'ConfigHost',
-                          payload: { name: config.name, URL: config.HV_URL },
+                          payload: { name: config.name, URL: config.host_url },
                         }),
                       ),
                     );

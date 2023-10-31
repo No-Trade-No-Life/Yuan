@@ -13,7 +13,11 @@
   "confirm_delete_ok": "Delete",
   "copied": "Copied",
   "empty": "No data",
+  "export": "Export",
+  "export_succeed": "Exported succeed",
   "file_written": "File written: {{ filename }}",
+  "import": "Import",
+  "import_succeed": "Imported succeed",
   "login": "Log in",
   "order_direction_close_long": "Close long",
   "order_direction_close_short": "Close short",
@@ -25,5 +29,6 @@
   "retry": "Retry",
   "saved": "Saved",
   "submit": "Submit",
-  "succeed": "Succeed"
+  "succeed": "Succeed",
+  "view_source": "Code"
 }

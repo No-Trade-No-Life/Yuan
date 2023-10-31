@@ -13,7 +13,11 @@
   "confirm_delete_ok": "删除",
   "copied": "已复制",
   "empty": "暂无数据",
+  "export": "导出",
+  "export_succeed": "导出成功",
   "file_written": "已写入文件: {{ filename }}",
+  "import": "导入",
+  "import_succeed": "成功导入",
   "login": "登录",
   "order_direction_close_long": "平多",
   "order_direction_close_short": "平空",
@@ -25,5 +29,6 @@
   "retry": "重试",
   "saved": "已保存",
   "submit": "提交",
-  "succeed": "成功"
+  "succeed": "成功",
+  "view_source": "源码"
 }

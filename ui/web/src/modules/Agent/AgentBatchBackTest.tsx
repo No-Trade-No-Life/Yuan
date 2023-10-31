@@ -324,7 +324,7 @@ registerPage('AgentBatchBackTest', () => {
           onClick={async (e) => {
             await fs.ensureDir(path.join(path.dirname(filename), `agentConfs`));
             const agentConfList = selectedRows.map((v) => v.agentConf);
-            const manifests = await makeManifestsFromAgentConfList(agentConfList, currentHost?.HV_URL!);
+            const manifests = await makeManifestsFromAgentConfList(agentConfList, currentHost?.host_url!);
             await fs.writeFile(`${filename}.manifest.json`, JSON.stringify(manifests, null, 2));
             Toast.success(`导出部署配置成功`);
           }}
