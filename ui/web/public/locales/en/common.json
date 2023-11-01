@@ -16,6 +16,7 @@
   "export": "Export",
   "export_succeed": "Exported succeed",
   "file_written": "File written: {{ filename }}",
+  "help_url": "https://www.ntnl.io/docs/intro",
   "import": "Import",
   "import_succeed": "Imported succeed",
   "login": "Log in",

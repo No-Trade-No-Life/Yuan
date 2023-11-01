@@ -34,8 +34,8 @@ registerCommand('ChangeLanguage', async () => {
   }
 });
 
-registerCommand('UserManual', () => {
-  open('https://www.ntnl.io/docs/intro');
+registerCommand('Help', () => {
+  open(t('common:help_url'));
 });
 
 registerCommand('OpenSource', () => {
@@ -105,7 +105,7 @@ export const UserMenu = React.memo(() => {
           <Dropdown.Item
             icon={<IconHelpCircle />}
             onClick={() => {
-              executeCommand('UserManual');
+              executeCommand('Help');
             }}
           >
             {t('user_manual')}

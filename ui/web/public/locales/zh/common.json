@@ -16,6 +16,7 @@
   "export": "导出",
   "export_succeed": "导出成功",
   "file_written": "已写入文件: {{ filename }}",
+  "help_url": "https://www.ntnl.io/zh-Hans/docs/intro",
   "import": "导入",
   "import_succeed": "成功导入",
   "login": "登录",
