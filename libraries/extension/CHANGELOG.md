@@ -1,6 +1,13 @@
 # Change Log - @yuants/extension
 
-This log was last generated on Thu, 26 Oct 2023 18:03:30 GMT and should not be manually modified.
+This log was last generated on Thu, 02 Nov 2023 17:35:35 GMT and should not be manually modified.
+
+## 0.1.0
+Thu, 02 Nov 2023 17:35:35 GMT
+
+### Minor changes
+
+- update schema and validation
 
 ## 0.0.2
 Thu, 26 Oct 2023 18:03:30 GMT
