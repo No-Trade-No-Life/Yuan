@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-agent",
+      "comment": "update schema and validation",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-agent"
+}
