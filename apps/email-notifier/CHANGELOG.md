@@ -1,6 +1,11 @@
 # Change Log - @yuants/app-email-notifier
 
-This log was last generated on Thu, 26 Oct 2023 18:03:30 GMT and should not be manually modified.
+This log was last generated on Thu, 02 Nov 2023 17:35:35 GMT and should not be manually modified.
+
+## 0.0.10
+Thu, 02 Nov 2023 17:35:35 GMT
+
+_Version update only_
 
 ## 0.0.9
 Thu, 26 Oct 2023 18:03:30 GMT
