@@ -19,12 +19,13 @@ export interface IDeploySpec {
     cpu?: IResourceClaim;
     env?: Record<string, string>;
     filesystem?: Record<string, string>;
+    key: string;
     memory?: IResourceClaim;
     network?: {
         port_forward?: Record<string, number>;
         backward_proxy?: Record<string, string>;
     };
-    one_json?: any;
+    one_json?: string;
     package: string;
     version?: string;
 }

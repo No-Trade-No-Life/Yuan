@@ -6,6 +6,10 @@ import { JSONSchema7, JSONSchema7Definition } from 'json-schema';
  */
 export interface IDeploySpec {
   /**
+   * The unique identifier of the deployment
+   */
+  key: string;
+  /**
    * The image tag used for deployment
    */
   version?: string;
@@ -64,7 +68,7 @@ export interface IDeploySpec {
    *
    * should be serializable
    */
-  one_json?: any;
+  one_json?: string;
 }
 
 /**
@@ -166,8 +170,13 @@ export const mergeSchema = (packageSchema: JSONSchema7): JSONSchema7 => {
   return {
     type: 'object',
     title: packageSchema?.title ?? 'Yuan Deploy Specification',
-    required: ['package', ...(packageSchema.required?.filter((v) => v !== 'package') ?? [])],
+    required: ['package', 'key', ...(packageSchema.required?.filter((v) => v !== 'package') ?? [])],
     properties: {
+      key: {
+        title: 'component deployment Key',
+        description: 'Specify the unique identifier of the deployment',
+        type: 'string',
+      },
       version: {
         title: 'Image Tag',
         description: 'Specify the Image Tag to deploy, leave empty to use the latest image',
@@ -186,6 +195,20 @@ export const mergeSchema = (packageSchema: JSONSchema7): JSONSchema7 => {
         ...extractProperties(packageSchema?.properties?.annotations),
         type: 'object',
         additionalProperties: { type: 'string' },
+      },
+      cpu: {
+        type: 'object',
+        properties: {
+          min: { type: 'string' },
+          max: { type: 'string' },
+        },
+      },
+      memory: {
+        type: 'object',
+        properties: {
+          min: { type: 'string' },
+          max: { type: 'string' },
+        },
       },
       network: {
         type: 'object',
@@ -210,6 +233,10 @@ export const mergeSchema = (packageSchema: JSONSchema7): JSONSchema7 => {
         ...extractProperties(packageSchema?.properties?.filesystem),
         type: 'object',
         additionalProperties: { type: 'string' },
+      },
+      one_json: {
+        type: 'string',
+        description: 'Inline JSON Data',
       },
     },
   };

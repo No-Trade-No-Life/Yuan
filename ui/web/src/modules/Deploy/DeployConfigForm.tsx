@@ -1,6 +1,6 @@
 import { IconRefresh } from '@douyinfe/semi-icons';
 import { Button, Space, Table, Toast, Typography } from '@douyinfe/semi-ui';
-import { IDeploySpec, IEnvContext } from '@yuants/extension';
+import { IDeploySpec, IEnvContext, mergeSchema } from '@yuants/extension';
 import { parse } from 'jsonc-parser';
 import { useObservableState } from 'observable-hooks';
 import path from 'path-browserify';
@@ -12,6 +12,7 @@ import { fs } from '../FileSystem/api';
 import { registerPage, usePageParams } from '../Pages';
 import { authState$, supabase } from '../SupaBase';
 import { loadManifests } from './utils';
+import Ajv from 'ajv';
 
 // FYI: https://stackoverflow.com/a/30106551
 const stringToBase64String = (str: string) => {
@@ -21,6 +22,8 @@ const stringToBase64String = (str: string) => {
     }),
   );
 };
+
+const ajv = new Ajv();
 
 registerPage('DeployConfigForm', () => {
   const { filename } = usePageParams() as { filename: string };
@@ -65,6 +68,10 @@ registerPage('DeployConfigForm', () => {
           const task = DeployProviders[packageName];
           if (!task) {
             throw `Invalid package name ${packageName}`;
+          }
+          const validate = ajv.compile(mergeSchema(task.make_json_schema()));
+          if (!validate(config)) {
+            throw new Error(`Invalid config ${JSON.stringify(validate.errors)}`);
           }
           const envCtx: IEnvContext = {
             version: ImageTags[packageName],
@@ -132,6 +139,10 @@ registerPage('DeployConfigForm', () => {
           const task = DeployProviders[packageName];
           if (!task) {
             throw `Invalid package name ${packageName}`;
+          }
+          const validate = ajv.compile(mergeSchema(task.make_json_schema()));
+          if (!validate(config)) {
+            throw new Error(`Invalid config ${JSON.stringify(validate.errors)}`);
           }
           const envCtx: IEnvContext = {
             version: ImageTags[packageName],
