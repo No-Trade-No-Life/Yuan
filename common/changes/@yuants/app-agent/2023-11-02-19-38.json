@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-agent",
+      "comment": "manifest fix",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-agent"
+}

@@ -190,6 +190,7 @@ export const mergeSchema = (packageSchema: JSONSchema7): JSONSchema7 => {
       env: {
         ...extractProperties(packageSchema?.properties?.env),
         type: 'object',
+        additionalProperties: { type: 'string' },
       },
       annotations: {
         ...extractProperties(packageSchema?.properties?.annotations),

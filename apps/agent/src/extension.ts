@@ -104,7 +104,7 @@ export default (context: IExtensionContext) => {
           : {
               [await envCtx.createHashOfSHA256('/agent_conf.json')]: {
                 path: '/agent_conf.json',
-                content: await envCtx.toBase64String(JSON.stringify(ctx.one_json)),
+                content: await envCtx.toBase64String(JSON.stringify(agentConf)),
               },
             };
 
