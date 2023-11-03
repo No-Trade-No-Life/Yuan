@@ -33,6 +33,7 @@ import { shareHosts$ } from '../Host/model';
 import { registerPage } from '../Pages';
 import { secretURL } from '../Terminals/NetworkStatusWidget';
 import { IHostConfigItem, currentHostConfig$, hostConfigList$ } from './model';
+import { authState$ } from '../SupaBase';
 
 const configSchema = (): JSONSchema7 => ({
   type: 'object',
@@ -56,6 +57,7 @@ const configSchema = (): JSONSchema7 => ({
 registerPage('HostList', () => {
   const configs = useObservableState(hostConfigList$, []) || [];
   const { t } = useTranslation('HostList');
+  const auth = useObservableState(authState$);
   const HOST_CONFIG = '/hosts.json';
 
   const sharedHosts = useObservableState(shareHosts$, []);
@@ -74,6 +76,7 @@ registerPage('HostList', () => {
         </Button>
         <Button
           icon={<IconPlus />}
+          disabled={!auth}
           onClick={async () => {
             executeCommand('SharedHost.New');
           }}
@@ -108,54 +111,56 @@ registerPage('HostList', () => {
           {t('common:view_source')}
         </Button>
       </Space>
-      <Table
-        dataSource={sharedHosts}
-        columns={[
-          //
-          {
-            title: t('host_url'),
-            render: (_, host) => (
-              <Typography.Text
-                copyable={{
-                  content: `wss://api.ntnl.io/hosts?host_id=${host.id}&host_token=${host.host_token}`,
-                }}
-              >
-                {secretURL(`wss://api.ntnl.io/hosts?host_id=${host.id}&host_token=${host.host_token}`)}
-              </Typography.Text>
-            ),
-          },
-          {
-            title: t('common:actions'),
-            render: (_, host) => (
-              <Space>
-                <Button
-                  icon={<IconCopyAdd />}
-                  onClick={() => {
-                    const nextConfig = {
-                      name: `SharedHost-${configs.length}`,
-                      host_url: `wss://api.ntnl.io/hosts?host_id=${host.id}&host_token=${host.host_token}`,
-                      terminal_id: `Owner`,
-                    };
-                    hostConfigList$.next([...configs, nextConfig]);
-                    Toast.success(`${t('common:succeed')}: ${nextConfig.name}`);
+      {auth && (
+        <Table
+          dataSource={sharedHosts}
+          columns={[
+            //
+            {
+              title: t('host_url'),
+              render: (_, host) => (
+                <Typography.Text
+                  copyable={{
+                    content: `wss://api.ntnl.io/hosts?host_id=${host.id}&host_token=${host.host_token}`,
                   }}
                 >
-                  {t('add_to_list')}
-                </Button>
-                <Button
-                  type="danger"
-                  icon={<IconDelete />}
-                  onClick={() => {
-                    executeCommand('SharedHost.Delete', { host_id: host.id });
-                  }}
-                >
-                  {t('common:delete')}
-                </Button>
-              </Space>
-            ),
-          },
-        ]}
-      ></Table>
+                  {secretURL(`wss://api.ntnl.io/hosts?host_id=${host.id}&host_token=${host.host_token}`)}
+                </Typography.Text>
+              ),
+            },
+            {
+              title: t('common:actions'),
+              render: (_, host) => (
+                <Space>
+                  <Button
+                    icon={<IconCopyAdd />}
+                    onClick={() => {
+                      const nextConfig = {
+                        name: `SharedHost-${configs.length}`,
+                        host_url: `wss://api.ntnl.io/hosts?host_id=${host.id}&host_token=${host.host_token}`,
+                        terminal_id: `Owner`,
+                      };
+                      hostConfigList$.next([...configs, nextConfig]);
+                      Toast.success(`${t('common:succeed')}: ${nextConfig.name}`);
+                    }}
+                  >
+                    {t('add_to_list')}
+                  </Button>
+                  <Button
+                    type="danger"
+                    icon={<IconDelete />}
+                    onClick={() => {
+                      executeCommand('SharedHost.Delete', { host_id: host.id });
+                    }}
+                  >
+                    {t('common:delete')}
+                  </Button>
+                </Space>
+              ),
+            },
+          ]}
+        ></Table>
+      )}
       <List
         dataSource={configs}
         renderItem={(config, idx) => (
