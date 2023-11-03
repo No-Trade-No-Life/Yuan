@@ -1,5 +1,6 @@
 import {
   IconCode,
+  IconCopyAdd,
   IconDelete,
   IconEdit,
   IconExport,
@@ -15,6 +16,7 @@ import {
   Modal,
   Popconfirm,
   Space,
+  Table,
   Toast,
   Typography,
 } from '@douyinfe/semi-ui';
@@ -27,6 +29,7 @@ import { useTranslation } from 'react-i18next';
 import { executeCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import Form from '../Form';
+import { shareHosts$ } from '../Host/model';
 import { registerPage } from '../Pages';
 import { secretURL } from '../Terminals/NetworkStatusWidget';
 import { IHostConfigItem, currentHostConfig$, hostConfigList$ } from './model';
@@ -51,9 +54,11 @@ const configSchema = (): JSONSchema7 => ({
 });
 
 registerPage('HostList', () => {
-  const configs = useObservableState(hostConfigList$, []);
+  const configs = useObservableState(hostConfigList$, []) || [];
   const { t } = useTranslation('HostList');
   const HOST_CONFIG = '/hosts.json';
+
+  const sharedHosts = useObservableState(shareHosts$, []);
 
   return (
     <Space vertical align="start">
@@ -66,6 +71,14 @@ registerPage('HostList', () => {
           }}
         >
           {t('add_host')}
+        </Button>
+        <Button
+          icon={<IconPlus />}
+          onClick={async () => {
+            executeCommand('SharedHost.New');
+          }}
+        >
+          {t('new_shared_host')}
         </Button>
         <Button
           icon={<IconExport />}
@@ -95,6 +108,54 @@ registerPage('HostList', () => {
           {t('common:view_source')}
         </Button>
       </Space>
+      <Table
+        dataSource={sharedHosts}
+        columns={[
+          //
+          {
+            title: t('host_url'),
+            render: (_, host) => (
+              <Typography.Text
+                copyable={{
+                  content: `wss://api.ntnl.io/hosts?host_id=${host.id}&host_token=${host.host_token}`,
+                }}
+              >
+                {secretURL(`wss://api.ntnl.io/hosts?host_id=${host.id}&host_token=${host.host_token}`)}
+              </Typography.Text>
+            ),
+          },
+          {
+            title: t('common:actions'),
+            render: (_, host) => (
+              <Space>
+                <Button
+                  icon={<IconCopyAdd />}
+                  onClick={() => {
+                    const nextConfig = {
+                      name: `SharedHost-${configs.length}`,
+                      host_url: `wss://api.ntnl.io/hosts?host_id=${host.id}&host_token=${host.host_token}`,
+                      terminal_id: `Owner`,
+                    };
+                    hostConfigList$.next([...configs, nextConfig]);
+                    Toast.success(`${t('common:succeed')}: ${nextConfig.name}`);
+                  }}
+                >
+                  {t('add_to_list')}
+                </Button>
+                <Button
+                  type="danger"
+                  icon={<IconDelete />}
+                  onClick={() => {
+                    executeCommand('SharedHost.Delete', { host_id: host.id });
+                  }}
+                >
+                  {t('common:delete')}
+                </Button>
+              </Space>
+            ),
+          },
+        ]}
+      ></Table>
       <List
         dataSource={configs}
         renderItem={(config, idx) => (

@@ -1,5 +1,6 @@
 {
   "add_host": "New",
+  "add_to_list": "Add to host list",
   "connect": "connect",
   "edit_host": "Edit host",
   "host_label": "Host label",
@@ -8,6 +9,7 @@
   "host_url": "Host URL",
   "host_url_note": "Please ask your hosting administrator",
   "link_copied": "Link copied",
+  "new_shared_host": "Create shared host",
   "terminal_id": "Terminal ID",
   "terminal_id_note": "A flag to distinguish it from other terminals in the same host. It cannot be repeated in the same host."
 }
