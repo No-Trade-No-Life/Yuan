@@ -2,6 +2,50 @@
   "name": "@yuants/app-agent",
   "entries": [
     {
+      "version": "0.2.1",
+      "tag": "@yuants/app-agent_v0.2.1",
+      "date": "Thu, 02 Nov 2023 19:46:45 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "manifest fix"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.1.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.2.0",
+      "tag": "@yuants/app-agent_v0.2.0",
+      "date": "Thu, 02 Nov 2023 17:35:35 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "update schema and validation"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.1.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.1",
       "tag": "@yuants/app-agent_v0.1.1",
       "date": "Mon, 30 Oct 2023 15:33:47 GMT",

@@ -77,7 +77,7 @@ export default (context: IExtensionContext) => {
         const agentConfText = await envCtx.readFile(ctx.env!.AGENT_CONF_PATH);
         agentConf = JSON.parse(agentConfText!) as IAgentConf;
       } else {
-        agentConf = ctx.one_json;
+        agentConf = JSON.parse(ctx.one_json!) as IAgentConf;
       }
 
       const kernel_id = agentConf.kernel_id;
@@ -104,7 +104,7 @@ export default (context: IExtensionContext) => {
           : {
               [await envCtx.createHashOfSHA256('/agent_conf.json')]: {
                 path: '/agent_conf.json',
-                content: await envCtx.toBase64String(JSON.stringify(ctx.one_json)),
+                content: await envCtx.toBase64String(JSON.stringify(agentConf)),
               },
             };
 
