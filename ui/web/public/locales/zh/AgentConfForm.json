@@ -17,9 +17,11 @@
     "title": "账户ID"
   },
   "root_agent_params": {
+    "description": "模型代码中定义的自定义参数",
     "title": "自定义参数"
   },
   "root_allow_fallback_specific_product": {
+    "description": "未定义品种信息时，允许使用默认值，不抛出异常",
     "title": "允许找不到具体品种信息"
   },
   "root_as_counterparty": {
@@ -33,10 +35,11 @@
     "title": "账户币种"
   },
   "root_disable_log": {
+    "description": "不打印日志可以加快回测速度。批量回测时强制禁用",
     "title": "禁用打印日志"
   },
   "root_end_time": {
-    "description": "提前拉取历史数据的区间终点；实盘时强制设定为当前时间，非实盘时留空表示拉取无穷晚的数据；时区按照本地时区填写",
+    "description": "提前拉取历史数据的区间终点；实盘时强制设定为当前时间；非实盘时留空表示拉取无穷晚的数据；时区按照本地时区填写",
     "title": "历史数据结束时间"
   },
   "root_entry": {
@@ -72,7 +75,7 @@
     "title": "恢复交易的使用保证金阈值"
   },
   "root_start_time": {
-    "description": "提前拉取历史数据的区间起点；实盘时如果留空表示不拉取，非实盘时留空表示拉取无穷早的数据；时区按照本地时区填写",
+    "description": "提前拉取历史数据的区间起点；留空表示拉取无穷早的数据；时区按照本地时区填写",
     "title": "历史数据开始时间"
   },
   "root_use_general_product": {

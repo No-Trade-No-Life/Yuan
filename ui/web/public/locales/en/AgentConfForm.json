@@ -17,10 +17,12 @@
     "title": "Account ID"
   },
   "root_agent_params": {
+    "description": "Custom parameters defined in agent code",
     "title": "Agent params"
   },
   "root_allow_fallback_specific_product": {
-    "title": "Allow specific breed information not to be found"
+    "description": "When the product is not defined, the default value is allowed and no exception is thrown.",
+    "title": "Allow specific product not found"
   },
   "root_as_counterparty": {
     "description": "When the original account is long, it will become short, and vice versa.",
@@ -33,10 +35,11 @@
     "title": "Account currency"
   },
   "root_disable_log": {
-    "title": "Disable printing log"
+    "description": "Not printing logs can speed up backtesting. \nForced to disable during batch backtesting",
+    "title": "Disable log"
   },
   "root_end_time": {
-    "description": "Pull historical data in advance of the end of the interval; real-time mandatory set to the current time, non-real-time leave blank to indicate that the pulling of data infinitely late; time zone in accordance with the local time zone to fill in the",
+    "description": "Pull the end point of the interval of historical data in advance; it is forced to be set to the current time in real time; in non-real time, leave it blank to pull infinitely later data; the time zone is filled in according to the local time zone",
     "title": "End Time of History"
   },
   "root_entry": {
@@ -72,7 +75,7 @@
     "title": "Margin Threshold for Resume Trading"
   },
   "root_start_time": {
-    "description": "The starting point of the interval to pull historical data in advance; if it is left blank during the real offer, it means not to pull it; when it is not the real offer, it means the infinitely early data will be pulled; the time zone is filled in according to the local time zone",
+    "description": "Pull the starting point of the interval of historical data in advance; leave it blank to pull infinitely early data; fill in the time zone according to the local time zone",
     "title": "Start Time of History"
   },
   "root_use_general_product": {

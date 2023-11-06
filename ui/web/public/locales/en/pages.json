@@ -24,6 +24,7 @@
   "PullSourceRelationList": "Pull Source Relations",
   "RealtimeAsset": "Realtime Assets",
   "RecordTablePanel": "Sample analysis",
+  "SampleScatter": "Sample Scatter of {{ id }}",
   "SubscriptionRelationList": "Subscriptions",
   "TechnicalChart": "Technical Chart",
   "TerminalList": "Terminals",
