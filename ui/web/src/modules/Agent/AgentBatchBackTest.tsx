@@ -36,11 +36,12 @@ import {
 } from 'rxjs';
 import { agentConf$, runAgentAction$ } from '../Agent/AgentConfForm';
 import { executeCommand } from '../CommandCenter';
+import { useValue } from '../Data';
 import { fs } from '../FileSystem/api';
+import { showForm } from '../Form';
 import { registerPage, usePageParams } from '../Pages';
 import { clearLogAction$ } from '../Workbench/Program';
 import { currentHostConfig$ } from '../Workbench/model';
-import { BatchProfitDrawbackRatioChart } from './BatchProfitDrawbackRatioChart';
 import {
   IBatchAgentResultItem,
   bundleCode,
@@ -65,6 +66,8 @@ registerPage('AgentBatchBackTest', () => {
   const [retrieveConditionInput, setRetrieveConditionInput] = useState('');
 
   const [retrievedResults, setRetrievedResults] = useState<IBatchAgentResultItem[]>([]);
+  const dataId = `AgentBatchBackTest.Results/${filename}`;
+  const [analysisData, setAnalysisData] = useValue<Array<{ x: number; y: number; z: number }>>(dataId, []);
 
   const [jobs, setJobs] = useState(window.navigator.hardwareConcurrency || 1);
 
@@ -250,7 +253,7 @@ registerPage('AgentBatchBackTest', () => {
   };
 
   return (
-    <Space vertical align="start" style={{ width: '100%' }}>
+    <Space vertical align="start" style={{ width: '100%', flexWrap: 'wrap' }}>
       <Space>
         <Button onClick={handleStart} icon={<IconPlay />} loading={isStartLoading}>
           启动
@@ -330,6 +333,38 @@ registerPage('AgentBatchBackTest', () => {
           }}
         >
           导出部署配置
+        </Button>
+        <Button
+          onClick={async (e) => {
+            const res = await showForm<{ x?: string; y?: string; z?: string }>({
+              type: 'object',
+              properties: {
+                x: {
+                  type: 'string',
+                  title: 'X轴映射函数',
+                  default: 'x.performance.profit_drawdown_ratio',
+                },
+                y: {
+                  type: 'string',
+                  title: 'Y轴映射函数',
+                  default: 'x.performance.weekly_return_ratio',
+                },
+                z: {
+                  type: 'string',
+                  title: 'Z轴映射函数',
+                  default: 'x.performance.max_maintenance_margin',
+                },
+              },
+            });
+            const fx = new Function('x', `return (${res.x || 'undefined'})`);
+            const fy = new Function('x', `return (${res.y || 'undefined'})`);
+            const fz = new Function('x', `return (${res.z || 'undefined'})`);
+            const data = retrievedResults.map((item) => ({ x: fx(item), y: fy(item), z: fz(item) }));
+            setAnalysisData(data);
+            executeCommand('SampleScatter', { id: dataId });
+          }}
+        >
+          散点图
         </Button>
       </Space>
       {isStartLoading && (
@@ -411,7 +446,6 @@ registerPage('AgentBatchBackTest', () => {
           },
         ]}
       ></Descriptions>
-      <BatchProfitDrawbackRatioChart results={retrievedResults} />
       <Table
         dataSource={retrievedResults}
         rowKey={(e) => e?.accountInfo.account_id ?? ''}
@@ -423,11 +457,12 @@ registerPage('AgentBatchBackTest', () => {
           },
         }}
         columns={[
-          //
           {
             title: '净值曲线缩略图',
             width: 200,
-            render: (_, x) => <img src={x.equityImageSrc}></img>,
+            render: (_, x) => (
+              <img style={{ margin: -16, height: 80, width: '100%' }} src={x.equityImageSrc}></img>
+            ),
           },
           {
             title: '账户',
