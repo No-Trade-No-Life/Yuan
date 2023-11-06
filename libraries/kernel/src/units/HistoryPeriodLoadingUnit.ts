@@ -88,4 +88,21 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
       this.mapEventIdToPeriod.delete(this.kernel.currentEventId);
     }
   }
+
+  dump() {
+    return {
+      periodTasks: this.periodTasks,
+      mapEventIdToPeriod: Object.fromEntries(this.mapEventIdToPeriod.entries()),
+    };
+  }
+
+  restore(state: any): void {
+    this.periodTasks = this.periodTasks;
+    this.mapEventIdToPeriod = new Map(
+      Object.entries(state.mapEventIdToPeriod).map(([k, v]: [string, any]): [number, IPeriod] => [
+        Number(k),
+        v,
+      ]),
+    );
+  }
 }

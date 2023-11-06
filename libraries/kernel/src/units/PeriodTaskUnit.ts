@@ -17,4 +17,15 @@ export class DataLoadingTaskUnit extends BasicUnit {
   }[] = [];
 
   productTasks: { datasource_id: string; product_id: string }[] = [];
+
+  dump() {
+    return {
+      periodTasks: this.periodTasks,
+      productTasks: this.productTasks,
+    };
+  }
+  restore(state: any): void {
+    this.periodTasks = state.periodTasks;
+    this.productTasks = state.productTasks;
+  }
 }

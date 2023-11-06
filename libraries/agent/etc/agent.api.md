@@ -55,6 +55,11 @@ export class AgentUnit extends BasicUnit {
     // (undocumented)
     dataLoadingTaskUnit: DataLoadingTaskUnit;
     // (undocumented)
+    dump(): {
+        hooks: any[];
+        record_table: Record<string, Record<string, any>[]>;
+    };
+    // (undocumented)
     execute(): any;
     // (undocumented)
     kernel: Kernel;
@@ -81,6 +86,8 @@ export class AgentUnit extends BasicUnit {
     productLoadingUnit?: ProductLoadingUnit;
     // (undocumented)
     record_table: Record<string, Record<string, any>[]>;
+    // (undocumented)
+    restore(state: any): void;
     // (undocumented)
     script: string;
     // (undocumented)

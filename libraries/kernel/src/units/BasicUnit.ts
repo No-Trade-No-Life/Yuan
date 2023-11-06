@@ -12,6 +12,10 @@ export class BasicUnit implements IKernelUnit {
   constructor(public kernel: Kernel) {
     kernel.addUnit(this);
   }
+  dump() {
+    return {};
+  }
+  restore(state: any): void {}
   onInit(): void | Promise<void> {}
   onEvent(): void | Promise<void> {}
   onIdle(): void | Promise<void> {}

@@ -119,6 +119,18 @@ export class AgentUnit extends BasicUnit {
   paramsSchema: JSONSchema7 = { type: 'object', properties: {} };
 
   record_table: Record<string, Record<string, any>[]> = {};
+
+  dump() {
+    return {
+      hooks: this._hooks.map((x) => x.current),
+      record_table: this.record_table,
+    };
+  }
+
+  restore(state: any): void {
+    this._hooks = state.hooks;
+    this.record_table = state.record_table;
+  }
 }
 
 function makeScriptRunner(script: string): () => any {

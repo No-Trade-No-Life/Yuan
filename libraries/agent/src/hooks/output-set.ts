@@ -15,14 +15,15 @@ export const useSeries = (
   tags: Record<string, any> = {},
 ): Series => {
   const agent = useAgent();
-  return useMemo(() => {
+  const seriesIdx = useMemo(() => agent.seriesDataUnit.series.length, []);
+  if (agent.seriesDataUnit.series.length <= seriesIdx) {
     const series = new Series();
     series.name = name;
     series.tags = tags;
     series.parent = parent;
     agent.seriesDataUnit.series.push(series);
-    return series;
-  }, []);
+  }
+  return agent.seriesDataUnit.series[seriesIdx];
 };
 
 /**
