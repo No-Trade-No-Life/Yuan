@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-agent
 
-This log was last generated on Thu, 02 Nov 2023 19:46:45 GMT and should not be manually modified.
+This log was last generated on Tue, 07 Nov 2023 08:14:53 GMT and should not be manually modified.
+
+## 0.3.0
+Tue, 07 Nov 2023 08:14:53 GMT
+
+### Minor changes
+
+- feat: support kernel dump & restore
 
 ## 0.2.1
 Thu, 02 Nov 2023 19:46:45 GMT
