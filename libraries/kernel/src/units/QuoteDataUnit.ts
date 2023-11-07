@@ -6,4 +6,12 @@ import { BasicUnit } from './BasicUnit';
  */
 export class QuoteDataUnit extends BasicUnit {
   mapProductIdToQuote: Record<string, { ask: number; bid: number }> = {};
+  dump() {
+    return {
+      mapProductIdToQuote: this.mapProductIdToQuote,
+    };
+  }
+  restore(state: any): void {
+    this.mapProductIdToQuote = state.mapProductIdToQuote;
+  }
 }

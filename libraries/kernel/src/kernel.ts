@@ -28,6 +28,15 @@ export interface IKernelUnit {
    * 内核将被销毁时调用
    */
   onDispose(): void | Promise<void>;
+
+  /**
+   * dump state from unit
+   */
+  dump(): any;
+  /**
+   * restore state
+   */
+  restore(state: any): void;
 }
 
 /**
@@ -164,5 +173,37 @@ export class Kernel {
    */
   log: ((...params: any[]) => void) | undefined = (...params: any[]) => {
     console.info(`#${this.currentEventId}`, formatTime(this.currentTimestamp), ...params);
+  };
+
+  dump = () => {
+    return {
+      kernel: {
+        id: this.id,
+        eventCnt: this.eventCnt,
+        currentEventId: this.currentEventId,
+        currentTimestamp: this.currentTimestamp,
+        status: this.status,
+        isTerminating: this.isTerminating,
+        queue: this.queue.toArray().map((id) => [id, this.mapIdToTimestamp.get(id)!]),
+      },
+      units: this.units.map((unit) => unit.dump()),
+    };
+  };
+
+  restore = (state: any) => {
+    this.id = state.kernel.id;
+    this.eventCnt = state.kernel.eventCnt;
+    this.currentEventId = state.kernel.currentEventId;
+    this.currentTimestamp = state.kernel.currentTimestamp;
+    this.status = state.kernel.status;
+    this.isTerminating = state.kernel.isTerminating;
+    this.queue.clear();
+    state.kernel.queue.forEach(([id, t]: [number, number]) => {
+      this.queue.enqueue(id);
+      this.mapIdToTimestamp.set(id, t);
+    });
+    this.units.forEach((unit, idx) => {
+      unit.restore(state.units[idx]);
+    });
   };
 }

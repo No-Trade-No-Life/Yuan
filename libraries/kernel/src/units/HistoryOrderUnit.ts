@@ -48,4 +48,13 @@ export class HistoryOrderUnit extends BasicUnit {
 
     this._orderUpdated$.next(order);
   }
+
+  dump() {
+    return {
+      historyOrders: this.historyOrders,
+    };
+  }
+  restore(state: any) {
+    this.historyOrders = state.historyOrders;
+  }
 }

@@ -2,6 +2,31 @@
   "name": "@yuants/app-agent",
   "entries": [
     {
+      "version": "0.3.0",
+      "tag": "@yuants/app-agent_v0.3.0",
+      "date": "Tue, 07 Nov 2023 08:14:53 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "feat: support kernel dump & restore"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/agent\" to `0.4.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.4.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.1",
       "tag": "@yuants/app-agent_v0.2.1",
       "date": "Thu, 02 Nov 2023 19:46:45 GMT",

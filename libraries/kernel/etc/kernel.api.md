@@ -17,6 +17,15 @@ import { Terminal } from '@yuants/protocol';
 export class AccountInfoUnit extends BasicUnit {
     constructor(kernel: Kernel, productDataUnit: ProductDataUnit, quoteDataUnit: QuoteDataUnit, historyOrderUnit: HistoryOrderUnit);
     // (undocumented)
+    dump(): {
+        mapAccountIdToAccountInfo: {
+            [k: string]: IAccountInfo;
+        };
+        mapAccountIdToBalance: Record<string, number>;
+        mapAccountIdToPositionIdToPosition: Record<string, Record<string, IPosition>>;
+        orderIdx: number;
+    };
+    // (undocumented)
     getPosition: (account_id: string, position_id: string, product_id: string, variant: PositionVariant) => IPosition;
     // (undocumented)
     historyOrderUnit: HistoryOrderUnit;
@@ -35,6 +44,8 @@ export class AccountInfoUnit extends BasicUnit {
     // (undocumented)
     quoteDataUnit: QuoteDataUnit;
     // (undocumented)
+    restore(state: any): void;
+    // (undocumented)
     updateAccountInfo(accountId: string): void;
     // (undocumented)
     useAccount(account_id: string, currency: string, leverage?: number, initial_balance?: number): IAccountInfo;
@@ -46,11 +57,19 @@ export class AccountPerformanceHubUnit extends BasicUnit {
     // (undocumented)
     accountInfoUnit: AccountInfoUnit;
     // (undocumented)
+    dump(): {
+        mapAccountIdToPerformance: {
+            [k: string]: IAccountPerformance;
+        };
+    };
+    // (undocumented)
     kernel: Kernel;
     // (undocumented)
     mapAccountIdToPerformance: Map<string, IAccountPerformance>;
     // (undocumented)
     onEvent(): void | Promise<void>;
+    // (undocumented)
+    restore(state: any): void;
 }
 
 // @public (undocumented)
@@ -70,6 +89,10 @@ export class AccountPerformanceUnit extends BasicUnit {
     // (undocumented)
     accountUnit: AccountSimulatorUnit;
     // (undocumented)
+    dump(): {
+        performance: IAccountPerformance;
+    };
+    // (undocumented)
     kernel: Kernel;
     static makeInitAccountPerformance: (account_id: string) => IAccountPerformance;
     // (undocumented)
@@ -77,6 +100,8 @@ export class AccountPerformanceUnit extends BasicUnit {
     // (undocumented)
     performance: IAccountPerformance;
     static reduceAccountPerformance: (acc: IAccountPerformance, cur: IAccountInfo) => IAccountPerformance;
+    // (undocumented)
+    restore(state: any): void;
 }
 
 // @public
@@ -113,6 +138,8 @@ export class AccountSimulatorUnit extends BasicUnit {
 export class BasicUnit implements IKernelUnit {
     constructor(kernel: Kernel);
     // (undocumented)
+    dump(): {};
+    // (undocumented)
     kernel: Kernel;
     // (undocumented)
     onDispose(): void | Promise<void>;
@@ -122,6 +149,8 @@ export class BasicUnit implements IKernelUnit {
     onIdle(): void | Promise<void>;
     // (undocumented)
     onInit(): void | Promise<void>;
+    // (undocumented)
+    restore(state: any): void;
 }
 
 // @public
@@ -130,6 +159,20 @@ export const createEmptyAccountInfo: (account_id: string, currency: string, leve
 // @public (undocumented)
 export class DataLoadingTaskUnit extends BasicUnit {
     constructor(kernel: Kernel);
+    // (undocumented)
+    dump(): {
+        periodTasks: {
+            datasource_id: string;
+            product_id: string;
+            period_in_sec: number;
+            start_time_in_us: number;
+            end_time_in_us: number;
+        }[];
+        productTasks: {
+            datasource_id: string;
+            product_id: string;
+        }[];
+    };
     // (undocumented)
     kernel: Kernel;
     // (undocumented)
@@ -145,6 +188,8 @@ export class DataLoadingTaskUnit extends BasicUnit {
         datasource_id: string;
         product_id: string;
     }[];
+    // (undocumented)
+    restore(state: any): void;
 }
 
 // @public
@@ -171,6 +216,10 @@ export const getProfit: (product: IProduct, openPrice: number, closePrice: numbe
 // @public
 export class HistoryOrderUnit extends BasicUnit {
     constructor(kernel: Kernel, quoteDataUnit: QuoteDataUnit, productDataUnit: ProductDataUnit);
+    // (undocumented)
+    dump(): {
+        historyOrders: IOrder[];
+    };
     historyOrders: IOrder[];
     // (undocumented)
     kernel: Kernel;
@@ -179,12 +228,27 @@ export class HistoryOrderUnit extends BasicUnit {
     productDataUnit: ProductDataUnit;
     // (undocumented)
     quoteDataUnit: QuoteDataUnit;
+    // (undocumented)
+    restore(state: any): void;
     updateOrder(order: IOrder): void;
 }
 
 // @public
 export class HistoryPeriodLoadingUnit extends BasicUnit {
     constructor(kernel: Kernel, terminal: Terminal, productDataUnit: ProductDataUnit, periodDataUnit: PeriodDataUnit);
+    // (undocumented)
+    dump(): {
+        periodTasks: {
+            datasource_id: string;
+            product_id: string;
+            period_in_sec: number;
+            start_time_in_us: number;
+            end_time_in_us: number;
+        }[];
+        mapEventIdToPeriod: {
+            [k: string]: IPeriod;
+        };
+    };
     // (undocumented)
     kernel: Kernel;
     // (undocumented)
@@ -203,6 +267,8 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
     }[];
     // (undocumented)
     productDataUnit: ProductDataUnit;
+    // (undocumented)
+    restore(state: any): void;
     // (undocumented)
     terminal: Terminal;
 }
@@ -289,11 +355,13 @@ export interface IAccountPerformance {
 
 // @public
 export interface IKernelUnit {
+    dump(): any;
     kernel: Kernel;
     onDispose(): void | Promise<void>;
     onEvent(): void | Promise<void>;
     onIdle(): void | Promise<void>;
     onInit(): void | Promise<void>;
+    restore(state: any): void;
 }
 
 // @public (undocumented)
@@ -334,8 +402,23 @@ export class Kernel {
     currentEventId: number;
     currentTimestamp: number;
     // (undocumented)
+    dump: () => {
+        kernel: {
+            id: string;
+            eventCnt: number;
+            currentEventId: number;
+            currentTimestamp: number;
+            status: "created" | "initializing" | "running" | "terminating" | "terminated" | "idle";
+            isTerminating: boolean;
+            queue: number[][];
+        };
+        units: any[];
+    };
+    // (undocumented)
     id: string;
     log: ((...params: any[]) => void) | undefined;
+    // (undocumented)
+    restore: (state: any) => void;
     start(): Promise<void>;
     status: 'created' | 'initializing' | 'running' | 'terminating' | 'terminated' | 'idle';
     terminate(): void;
@@ -384,6 +467,15 @@ export class OrderMatchingUnit extends BasicUnit {
     // (undocumented)
     cancelOrder(...orderIds: string[]): void;
     // (undocumented)
+    dump(): {
+        mapOrderIdToOrder: Map<string, IOrder>;
+        mapProductIdToRange: Map<string, {
+            ask: IMatchingRange;
+            bid: IMatchingRange;
+        }>;
+        prevPeriodMap: Record<string, IPeriod>;
+    };
+    // (undocumented)
     getOrderById(id: string): IOrder | undefined;
     // (undocumented)
     historyOrderUnit: HistoryOrderUnit;
@@ -405,6 +497,8 @@ export class OrderMatchingUnit extends BasicUnit {
     productDataUnit: ProductDataUnit;
     // (undocumented)
     quoteDataUnit: QuoteDataUnit;
+    // (undocumented)
+    restore(state: any): void;
     // (undocumented)
     submitOrder(...orders: IOrder[]): void;
 }
@@ -453,12 +547,16 @@ export class PeriodDataUnit extends BasicUnit {
     // (undocumented)
     data: Record<string, IPeriod[]>;
     // (undocumented)
+    dump(): {};
+    // (undocumented)
     kernel: Kernel;
     // (undocumented)
     onEvent(): void;
     periodUpdated$: Observable<IPeriod>;
     // (undocumented)
     quoteDataUnit: QuoteDataUnit;
+    // (undocumented)
+    restore(state: any): void;
     // (undocumented)
     updatePeriod(period: IPeriod): void;
 }
@@ -514,7 +612,13 @@ export class PortfolioSimulatorUnit extends BasicUnit {
 // @public
 export class ProductDataUnit extends BasicUnit {
     // (undocumented)
+    dump(): {
+        mapProductIdToProduct: Record<string, IProduct>;
+    };
+    // (undocumented)
     mapProductIdToProduct: Record<string, IProduct>;
+    // (undocumented)
+    restore(state: any): void;
 }
 
 // @public
@@ -523,6 +627,13 @@ export class ProductLoadingUnit extends BasicUnit {
         use_general_product?: boolean | undefined;
         allow_fallback_specific_product?: boolean | undefined;
     } | undefined);
+    // (undocumented)
+    dump(): {
+        productTasks: {
+            datasource_id: string;
+            product_id: string;
+        }[];
+    };
     // (undocumented)
     kernel: Kernel;
     // (undocumented)
@@ -540,16 +651,27 @@ export class ProductLoadingUnit extends BasicUnit {
         product_id: string;
     }[];
     // (undocumented)
+    restore(state: any): void;
+    // (undocumented)
     terminal: Terminal;
 }
 
 // @public
 export class QuoteDataUnit extends BasicUnit {
     // (undocumented)
+    dump(): {
+        mapProductIdToQuote: Record<string, {
+            ask: number;
+            bid: number;
+        }>;
+    };
+    // (undocumented)
     mapProductIdToQuote: Record<string, {
         ask: number;
         bid: number;
     }>;
+    // (undocumented)
+    restore(state: any): void;
 }
 
 // @public (undocumented)
@@ -604,8 +726,18 @@ export class Series extends Array<number> {
 // @public
 export class SeriesDataUnit extends BasicUnit {
     // (undocumented)
+    dump(): {
+        series: Series[];
+    };
+    // (undocumented)
+    restore(state: any): void;
+    // (undocumented)
     series: Series[];
 }
+
+// Warnings were encountered during analysis:
+//
+// src/units/OrderMatchingUnit.ts:235:11 - (ae-forgotten-export) The symbol "IMatchingRange" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

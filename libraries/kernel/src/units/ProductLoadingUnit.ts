@@ -135,4 +135,14 @@ export class ProductLoadingUnit extends BasicUnit {
       );
     }
   }
+
+  dump() {
+    return {
+      productTasks: this.productTasks,
+    };
+  }
+
+  restore(state: any) {
+    this.productTasks = state.productTasks;
+  }
 }

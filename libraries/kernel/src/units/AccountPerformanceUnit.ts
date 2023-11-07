@@ -525,4 +525,13 @@ export class AccountPerformanceUnit extends BasicUnit {
       min_profit_lower_fence_out_count,
     };
   };
+
+  dump() {
+    return {
+      performance: this.performance,
+    };
+  }
+  restore(state: any) {
+    this.performance = state.performance;
+  }
 }

@@ -42,4 +42,16 @@ export class PeriodDataUnit extends BasicUnit {
     };
     this._periodUpdated$.next(period);
   }
+
+  dump(): {} {
+    return {
+      data: this.data,
+      currentPeriod: this.currentPeriod,
+    };
+  }
+
+  restore(state: any): void {
+    this.data = state.data;
+    this.currentPeriod = state.currentPeriod;
+  }
 }

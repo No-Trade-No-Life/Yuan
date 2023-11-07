@@ -1,5 +1,6 @@
 {
   "add_host": "新增",
+  "add_to_list": "添加到主机列表",
   "connect": "连接",
   "edit_host": "编辑主机",
   "host_label": "主机标签",
@@ -8,6 +9,7 @@
   "host_url": "主机地址",
   "host_url_note": "请询问您的主机管理员",
   "link_copied": "已复制链接",
+  "new_shared_host": "创建共享型主机",
   "terminal_id": "终端ID",
   "terminal_id_note": "同一主机中与其他终端区分的标志，同一主机内不能重复"
 }
