@@ -175,6 +175,7 @@ export const mergeSchema = (packageSchema: JSONSchema7): JSONSchema7 => {
       key: {
         title: 'component deployment Key',
         description: 'Specify the unique identifier of the deployment',
+        pattern: '[a-z0-9]([-a-z0-9]*[a-z0-9])?(\\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*',
         type: 'string',
       },
       version: {
