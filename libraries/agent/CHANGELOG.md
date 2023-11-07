@@ -1,6 +1,13 @@
 # Change Log - @yuants/agent
 
-This log was last generated on Mon, 30 Oct 2023 15:33:47 GMT and should not be manually modified.
+This log was last generated on Tue, 07 Nov 2023 08:14:53 GMT and should not be manually modified.
+
+## 0.4.0
+Tue, 07 Nov 2023 08:14:53 GMT
+
+### Minor changes
+
+- feat: support kernel dump & restore
 
 ## 0.3.1
 Mon, 30 Oct 2023 15:33:47 GMT
