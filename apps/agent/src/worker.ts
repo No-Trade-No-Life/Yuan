@@ -2,6 +2,7 @@ import { AgentScene } from '@yuants/agent';
 import { formatTime } from '@yuants/data-model';
 import { BasicUnit, PeriodDataCheckingUnit } from '@yuants/kernel';
 import { Terminal } from '@yuants/protocol';
+import { of } from 'rxjs';
 import { parentPort, workerData } from 'worker_threads';
 
 const { agent_conf, terminal_id } = workerData;
@@ -26,6 +27,17 @@ const run = async () => {
       });
     }
   };
+
+  terminal.setupService('KernelDump', () =>
+    of({ res: { code: 0, message: 'OK', data: scene.kernel.dump() } }),
+  );
+
+  terminal.setupService('KernelRestore', (msg) => {
+    scene.kernel.terminate();
+    scene.kernel.restore((msg.req as any)!.data);
+    scene.kernel.start();
+    return of({ res: { code: 0, message: 'OK' } });
+  });
 
   await scene.kernel.start();
 };

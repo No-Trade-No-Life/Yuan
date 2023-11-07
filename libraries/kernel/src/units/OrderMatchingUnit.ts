@@ -228,4 +228,18 @@ export class OrderMatchingUnit extends BasicUnit {
       this.kernel.log?.('撮合成功，申请重计算', id);
     }
   }
+
+  dump() {
+    return {
+      mapOrderIdToOrder: this.mapOrderIdToOrder,
+      mapProductIdToRange: this.mapProductIdToRange,
+      prevPeriodMap: this.prevPeriodMap,
+    };
+  }
+
+  restore(state: any) {
+    this.mapOrderIdToOrder = state.mapOrderIdToOrder;
+    this.mapProductIdToRange = state.mapProductIdToRange;
+    this.prevPeriodMap = state.prevPeriodMap;
+  }
 }

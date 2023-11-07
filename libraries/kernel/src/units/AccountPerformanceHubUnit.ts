@@ -22,4 +22,16 @@ export class AccountPerformanceHubUnit extends BasicUnit {
       this.mapAccountIdToPerformance.set(accountId, performance);
     }
   }
+  dump() {
+    return {
+      mapAccountIdToPerformance: Object.fromEntries(this.mapAccountIdToPerformance.entries()),
+    };
+  }
+  restore(state: any): void {
+    this.mapAccountIdToPerformance = new Map(
+      Object.entries(state.mapAccountIdToPerformance).map(
+        ([k, v]: [string, any]): [string, IAccountPerformance] => [k, v],
+      ),
+    );
+  }
 }

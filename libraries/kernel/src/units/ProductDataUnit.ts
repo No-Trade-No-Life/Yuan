@@ -7,4 +7,13 @@ import { BasicUnit } from './BasicUnit';
  */
 export class ProductDataUnit extends BasicUnit {
   mapProductIdToProduct: Record<string, IProduct> = {};
+
+  dump() {
+    return {
+      mapProductIdToProduct: this.mapProductIdToProduct,
+    };
+  }
+  restore(state: any): void {
+    this.mapProductIdToProduct = state.mapProductIdToProduct;
+  }
 }

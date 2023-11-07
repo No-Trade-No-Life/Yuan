@@ -62,4 +62,14 @@ export class Series extends Array<number> {
  */
 export class SeriesDataUnit extends BasicUnit {
   series: Series[] = [];
+
+  dump() {
+    return {
+      series: this.series,
+    };
+  }
+
+  restore(state: any): void {
+    this.series = state.series;
+  }
 }

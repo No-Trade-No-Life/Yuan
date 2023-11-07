@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/agent",
+      "comment": "feat: support kernel dump & restore",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/agent"
+}

@@ -220,4 +220,25 @@ export class AccountInfoUnit extends BasicUnit {
     }
     this.orderIdx = this.historyOrderUnit.historyOrders.length;
   }
+
+  dump() {
+    return {
+      mapAccountIdToAccountInfo: Object.fromEntries(this.mapAccountIdToAccountInfo.entries()),
+      mapAccountIdToBalance: this.mapAccountIdToBalance,
+      mapAccountIdToPositionIdToPosition: this.mapAccountIdToPositionIdToPosition,
+      orderIdx: this.orderIdx,
+    };
+  }
+
+  restore(state: any) {
+    this.mapAccountIdToAccountInfo = new Map(
+      Object.entries(state.mapAccountIdToAccountInfo).map(([key, value]: any): [string, IAccountInfo] => [
+        key,
+        value,
+      ]),
+    );
+    this.mapAccountIdToBalance = state.mapAccountIdToBalance;
+    this.mapAccountIdToPositionIdToPosition = state.mapAccountIdToPositionIdToPosition;
+    this.orderIdx = state.orderIdx;
+  }
 }
