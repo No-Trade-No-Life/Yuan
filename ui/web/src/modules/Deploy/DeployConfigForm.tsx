@@ -1,18 +1,29 @@
 import { IconRefresh } from '@douyinfe/semi-icons';
 import { Button, Space, Table, Toast, Typography } from '@douyinfe/semi-ui';
 import { IDeploySpec, IEnvContext, mergeSchema } from '@yuants/extension';
+import Ajv from 'ajv';
 import { parse } from 'jsonc-parser';
 import { useObservableState } from 'observable-hooks';
 import path from 'path-browserify';
 import { useEffect, useState } from 'react';
-import { concatMap, from, map, mergeMap, reduce, toArray } from 'rxjs';
+import {
+  EMPTY,
+  catchError,
+  concatMap,
+  delayWhen,
+  from,
+  lastValueFrom,
+  map,
+  mergeMap,
+  reduce,
+  toArray,
+} from 'rxjs';
 import YAML from 'yaml';
 import { DeployProviders, ImageTags } from '../Extensions/utils';
 import { fs } from '../FileSystem/api';
 import { registerPage, usePageParams } from '../Pages';
 import { authState$, supabase } from '../SupaBase';
 import { loadManifests } from './utils';
-import Ajv from 'ajv';
 
 // FYI: https://stackoverflow.com/a/30106551
 const stringToBase64String = (str: string) => {
@@ -204,11 +215,40 @@ registerPage('DeployConfigForm', () => {
   };
 
   const handleDeployToCloud = async () => {
-    await supabase.from('manifest').insert(
-      manifests.map((v) => ({
-        // user_id: authState?.user.id,
-        content: v,
-      })),
+    await lastValueFrom(
+      from(manifests).pipe(
+        //
+        map((config) => {
+          const packageName = config.package;
+          const task = DeployProviders[packageName];
+          if (!task) {
+            throw `Invalid package name ${packageName}`;
+          }
+          const validate = ajv.compile(mergeSchema(task.make_json_schema()));
+          if (!validate(config)) {
+            throw new Error(`Invalid config ${JSON.stringify(validate.errors)}`);
+          }
+          return {
+            version: ImageTags[packageName],
+            ...config,
+          };
+        }),
+        catchError((e) => {
+          Toast.error(`Manifest 格式错误: ${e}`);
+          return EMPTY;
+        }),
+        toArray(),
+        delayWhen((manifests) =>
+          from(
+            supabase.from('manifest').insert(
+              manifests.map((v) => ({
+                // user_id: authState?.user.id,
+                content: v,
+              })),
+            ),
+          ),
+        ),
+      ),
     );
   };
 
