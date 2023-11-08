@@ -33,6 +33,8 @@ interface IPullSourceRelation {
   cron_pattern: string;
   /** Timezone for CronJob evaluation */
   cron_timezone: string;
+  /** disable this relation (false equivalent to not set before) */
+  disabled?: boolean;
 }
 
 interface ITask extends IPullSourceRelation {
@@ -121,6 +123,7 @@ defer(() =>
       }
       return config;
     }),
+    filter((v) => !v.disabled),
     toArray(),
     repeat({ delay: 5000 }),
     batchGroupBy((config) => `${config.datasource_id}:${config.product_id}:${config.period_in_sec}`),

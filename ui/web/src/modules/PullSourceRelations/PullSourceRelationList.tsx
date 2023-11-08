@@ -1,5 +1,5 @@
 import { IconCopyAdd, IconDelete, IconEdit, IconRefresh, IconSearch } from '@douyinfe/semi-icons';
-import { Button, Popconfirm, Space, Table, Toast } from '@douyinfe/semi-ui';
+import { Button, Popconfirm, Space, Switch, Table, Toast } from '@douyinfe/semi-ui';
 import { StockMarket } from '@icon-park/react';
 import { IDataRecord } from '@yuants/protocol';
 import { JSONSchema7 } from 'json-schema';
@@ -23,6 +23,8 @@ interface IPullSourceRelation {
   // 对于国内的品种，使用 CST 时区比较好
   // 例如 "0 * * * 1-5" (EET) 表示 EET 时区的工作日每小时的0分拉取数据。
   cron_timezone: string;
+  /** disable this relation (equivalent to not set before) */
+  disabled?: boolean;
 }
 
 const mapPullSourceRelationToDataRecord = (x: IPullSourceRelation): IDataRecord<IPullSourceRelation> => ({
@@ -38,6 +40,7 @@ const mapPullSourceRelationToDataRecord = (x: IPullSourceRelation): IDataRecord<
 const schema: JSONSchema7 = {
   type: 'object',
   title: '历史行情数据同步者配置',
+  required: ['datasource_id', 'product_id', 'period_in_sec', 'cron_pattern', 'cron_timezone'],
   properties: {
     datasource_id: {
       type: 'string',
@@ -58,6 +61,10 @@ const schema: JSONSchema7 = {
     cron_timezone: {
       type: 'string',
       title: 'CronJob 的评估时区',
+    },
+    disabled: {
+      type: 'boolean',
+      title: '是否禁用',
     },
   },
 };
@@ -167,6 +174,29 @@ registerPage('PullSourceRelationList', () => {
           { title: '周期 (s)', render: (_, record) => record.origin.period_in_sec },
           { title: 'Cron 模式', render: (_, record) => record.origin.cron_pattern },
           { title: 'Cron 时区', render: (_, record) => record.origin.cron_timezone },
+          {
+            title: '禁用',
+            render: (_, record) => (
+              <Switch
+                onChange={(v) => {
+                  const next = mapPullSourceRelationToDataRecord({ ...record.origin, disabled: v });
+                  terminal$
+                    .pipe(
+                      first(),
+                      mergeMap((terminal) => terminal.updateDataRecords([next], 'MongoDB')),
+                      tap({
+                        complete: () => {
+                          Toast.success(`成功更新数据记录 ${record.id}`);
+                          setRefreshId((x) => x + 1);
+                        },
+                      }),
+                    )
+                    .subscribe();
+                }}
+                checked={!!record.origin.disabled}
+              />
+            ),
+          },
           {
             title: '操作',
             render: (_, record) => (
