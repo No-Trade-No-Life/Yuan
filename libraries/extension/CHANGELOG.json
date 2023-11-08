@@ -2,6 +2,23 @@
   "name": "@yuants/extension",
   "entries": [
     {
+      "version": "0.1.2",
+      "tag": "@yuants/extension_v0.1.2",
+      "date": "Wed, 08 Nov 2023 19:50:42 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "apply manifests contraint"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.1",
       "tag": "@yuants/extension_v0.1.1",
       "date": "Thu, 02 Nov 2023 19:46:45 GMT",
