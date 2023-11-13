@@ -8,23 +8,11 @@ sidebar_position: 3
 
 The standard margin model is:
 
-$$
-\sum_{p \in Positions} \frac{p.volume \times p.value_speed  \times infer_f(p) \times base_currency_exchange(p) \times  p.margin\_rate }{account.money.leverage}} 
-$$
+Used Margin = sum of all positions' used margin / account's leverage.
 
-$$
-times infer_f(p) = \begin{cases}  
-  1,       & FX and Bond Spot \\
-  p.开仓价, & \text{otherwise}
-\end{cases}
-$$
-
-$$
-base_currency_exchange(p) = \begin{cases}
-    \text{price of product.base_currency vs account.money.currency when opening the position},  & product.base_currency \ne account.money.currency \\
-    1,                          & \text{otherwise}
-\end{cases}
-$$
+- Each position's used margin = Position Volume \* Product Value Speed \* Factor of Asset \* Base Currency Exchange Rate \* Product Margin Rate
+- Factor of Asset = 1 if FX or Bond Spot, otherwise Open Price of Position.
+- Base Currency Exchange Rate = the exchange rate of **product's base currency** vs **account's margin currency** at the time of position opening.
 
 Once a position is opened, the used margin will not change with the price.
 
