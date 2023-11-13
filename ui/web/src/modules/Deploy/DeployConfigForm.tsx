@@ -1,5 +1,5 @@
 import { IconRefresh } from '@douyinfe/semi-icons';
-import { Button, Space, Table, Toast, Typography } from '@douyinfe/semi-ui';
+import { Button, Select, Space, Table, Toast, Typography } from '@douyinfe/semi-ui';
 import { IDeploySpec, IEnvContext, mergeSchema } from '@yuants/extension';
 import Ajv from 'ajv';
 import { t } from 'i18next';
@@ -22,6 +22,7 @@ import {
 import YAML from 'yaml';
 import { DeployProviders, ImageTags } from '../Extensions/utils';
 import { fs } from '../FileSystem/api';
+import { shareHosts$ } from '../Host/model';
 import { registerPage, usePageParams } from '../Pages';
 import { authState$, supabase } from '../SupaBase';
 import { loadManifests } from './utils';
@@ -55,6 +56,9 @@ registerPage('DeployConfigForm', () => {
     throw new Error(`Invalid file extension ${path}`);
   };
   const [manifests, setManifests] = useState<IDeploySpec[]>([]);
+  const [hostId, setHostId] = useState<string>('');
+
+  const hosts = useObservableState(shareHosts$, []) || [];
 
   useEffect(() => {
     if (filename) {
@@ -243,8 +247,9 @@ registerPage('DeployConfigForm', () => {
           from(
             supabase.from('manifest').insert(
               manifests.map((v) => ({
-                // user_id: authState?.user.id,
                 content: v,
+                deploy_key: v.key,
+                host_id: hostId === '' ? null : hostId,
               })),
             ),
           ),
@@ -266,6 +271,17 @@ registerPage('DeployConfigForm', () => {
         ></Button>
         <Button onClick={makeDockerCompose}>生成 Docker Compose 配置文件</Button>
         <Button onClick={makeK8sResource}>生成 K8s 资源文件</Button>
+        <Select
+          placeholder={'选择主机'}
+          optionList={[
+            ...hosts.map((v) => ({ label: !!v.name ? v.name : v.id, value: v.id })),
+            { label: '非共享', value: '' },
+          ]}
+          value={hostId}
+          onChange={(v) => {
+            setHostId(v as string);
+          }}
+        ></Select>
         <Button disabled={!authState} onClick={handleDeployToCloud}>
           部署到 Yuan Cloud
         </Button>
