@@ -3,7 +3,7 @@ import { Button, Modal, Popconfirm, Space, Table, Toast } from '@douyinfe/semi-u
 import { IDataRecord } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
-import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
+import { combineLatest, filter, first, mergeMap, tap, toArray } from 'rxjs';
 import Form from '../Form';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
@@ -74,6 +74,18 @@ registerPage('GeneralSpecificRelationList', () => {
             )
             .pipe(
               //
+              filter(
+                (record) =>
+                  (searchFormData.general_product_id
+                    ? record.origin.general_product_id === searchFormData.general_product_id
+                    : true) &&
+                  (searchFormData.specific_datasource_id
+                    ? record.origin.specific_datasource_id === searchFormData.specific_datasource_id
+                    : true) &&
+                  (searchFormData.specific_product_id
+                    ? record.origin.specific_product_id === searchFormData.specific_product_id
+                    : true),
+              ),
               toArray(),
             ),
         ),

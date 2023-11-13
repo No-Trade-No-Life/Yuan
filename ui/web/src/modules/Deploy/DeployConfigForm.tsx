@@ -2,6 +2,7 @@ import { IconRefresh } from '@douyinfe/semi-icons';
 import { Button, Space, Table, Toast, Typography } from '@douyinfe/semi-ui';
 import { IDeploySpec, IEnvContext, mergeSchema } from '@yuants/extension';
 import Ajv from 'ajv';
+import { t } from 'i18next';
 import { parse } from 'jsonc-parser';
 import { useObservableState } from 'observable-hooks';
 import path from 'path-browserify';
@@ -250,6 +251,7 @@ registerPage('DeployConfigForm', () => {
         ),
       ),
     );
+    Toast.success(`${t('common:succeed')}`);
   };
 
   return (
@@ -271,12 +273,13 @@ registerPage('DeployConfigForm', () => {
       <Table
         dataSource={manifests}
         columns={[
+          { title: 'Key', render: (_, v) => v.key },
           {
             title: '包名',
             render: (_, v) => v.package,
           },
           {
-            title: 'Image Tag',
+            title: '版本',
             render: (_, v) => v.version ?? ImageTags[v.package],
           },
           {

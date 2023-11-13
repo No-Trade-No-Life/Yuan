@@ -6,6 +6,7 @@ import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
+import { InlineAccountId } from '../AccountInfo';
 import { registerCommand } from '../CommandCenter';
 import Form from '../Form';
 import { registerPage } from '../Pages';
@@ -153,9 +154,15 @@ registerPage('TradeCopyRelationList', () => {
         style={{ width: '100%' }}
         columns={[
           //
-          { title: '源账户 ID', render: (_, record) => record.origin.source_account_id },
+          {
+            title: '源账户 ID',
+            render: (_, record) => <InlineAccountId account_id={record.origin.source_account_id} />,
+          },
           { title: '源品种 ID', render: (_, record) => record.origin.source_product_id },
-          { title: '目标账户 ID', render: (_, record) => record.origin.target_account_id },
+          {
+            title: '目标账户 ID',
+            render: (_, record) => <InlineAccountId account_id={record.origin.target_account_id} />,
+          },
           { title: '目标品种ID', render: (_, record) => record.origin.target_product_id },
           { title: '头寸倍数', render: (_, record) => record.origin.multiple },
           {

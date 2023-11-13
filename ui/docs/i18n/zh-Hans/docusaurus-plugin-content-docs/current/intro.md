@@ -22,9 +22,9 @@ sidebar_position: 1
 // It's a simple trend-tracking trading strategy that uses the SMA indicator.
 import { useSMA } from '@libs';
 export default () => {
-  const { close } = useParamOHLC();
+  const { product_id, close } = useParamOHLC();
   const ma20 = useSMA(close, 20);
-  const pL = useSinglePosition(PositionVariant.LONG);
+  const pL = useSinglePosition(product_id, PositionVariant.LONG);
   useEffect(() => {
     const idx = close.length - 2;
     if (close[idx] > ma20[idx]) {
