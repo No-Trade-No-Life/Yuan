@@ -178,7 +178,7 @@ export default () => {
 };
 ```
 
-Read more about [Series](./what-is-series).
+<!-- Read more about [Series](./what-is-series). -->
 
 ### useOHLC
 
