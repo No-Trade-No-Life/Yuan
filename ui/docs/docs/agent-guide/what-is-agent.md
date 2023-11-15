@@ -26,21 +26,21 @@ export default () => {
 In this function, you can use Yuan's built-in functions to get the data you need, and then use the data to calculate the trading signals.
 
 ```ts
-import { useSMA } from '@libs';
+import { useSMA, useSimplePositionManager } from '@libs';
 
 export default () => {
-  const { product_id, close } = useParamOHLC();
+  const { close } = useOHLC('Y', 'XAUUSD');
   const ma20 = useSMA(close, 20);
-  const pL = useSinglePosition(product_id, PositionVariant.LONG);
-
+  const accountInfo = useAccountInfo();
+  const [targetVolume, setTargetVolume] = useSimplePositionManager(accountInfo.account_id, 'XAUUSD');
   useEffect(() => {
     const idx = close.length - 2;
     if (close[idx] > ma20[idx]) {
-      pL.setTargetPosition(1);
+      setTargetVolume(1);
     } else {
-      pL.setTargetPosition(0);
+      setTargetVolume(0);
     }
-  });
+  }, [close.length]);
 };
 ```
 
