@@ -2,6 +2,23 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.1.7",
+      "tag": "@yuants/protocol_v0.1.7",
+      "date": "Wed, 15 Nov 2023 16:04:13 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "polling terminal_info interval changed to reduce storage workload"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.6",
       "tag": "@yuants/protocol_v0.1.6",
       "date": "Thu, 26 Oct 2023 18:03:30 GMT",
