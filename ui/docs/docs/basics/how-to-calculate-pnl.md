@@ -17,9 +17,9 @@ sidebar_position: 4
 
 This standard equation applies to the calculation of PnL in ideal cases for all known products such as stocks, foreign exchange, bonds, commodity futures, precious metals, option contracts, etc.
 
-- Supplement: Value speed is a constant for the same product, usually 1 in stocks, and is called "contract size" in futures or options contracts.
-- Supplement: Floating PnL is the PnL calculated by substituting "Close Price = Current Closable Price" into the formula.
-- Supplement : For cases where the base currency and margin currency are different , it is not possible to directly obtain the base currency exchange rate at the time of position squaring from historical orders. However, the exchange usually directly gives the standard PnL of the order. At this time, the price of the base currency against the margin currency at the time of position squaring can be deduced from the PnL.
+- Value speed is a constant for the same product, usually 1 in stocks, and is called "contract size" in futures or options contracts.
+- Floating PnL is the PnL calculated by substituting "Close Price = Current Closable Price" into the formula.
+- For cases where the base currency and margin currency are different , it is not possible to directly obtain the base currency exchange rate at the time of position squaring from historical orders. However, the exchange usually directly gives the standard PnL of the order. At this time, the price of the base currency against the margin currency at the time of position squaring can be deduced from the PnL.
 
 ## PnL correction
 
