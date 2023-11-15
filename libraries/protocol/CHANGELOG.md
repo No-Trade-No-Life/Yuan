@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Thu, 26 Oct 2023 18:03:30 GMT and should not be manually modified.
+This log was last generated on Wed, 15 Nov 2023 16:04:13 GMT and should not be manually modified.
+
+## 0.1.7
+Wed, 15 Nov 2023 16:04:13 GMT
+
+### Patches
+
+- polling terminal_info interval changed to reduce storage workload
 
 ## 0.1.6
 Thu, 26 Oct 2023 18:03:30 GMT

@@ -1,6 +1,13 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Tue, 07 Nov 2023 08:14:53 GMT and should not be manually modified.
+This log was last generated on Wed, 15 Nov 2023 16:04:13 GMT and should not be manually modified.
+
+## 0.4.1
+Wed, 15 Nov 2023 16:04:13 GMT
+
+### Patches
+
+- smart data checking for reducing storage workload
 
 ## 0.4.0
 Tue, 07 Nov 2023 08:14:53 GMT
