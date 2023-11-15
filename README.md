@@ -72,19 +72,20 @@ If you're interested in developing a trading strategy without the need to learn 
 
 ```ts
 // It's a simple trend-tracking trading strategy that uses the SMA indicator.
-import { useSMA } from '@libs';
+import { useSMA, useSimplePositionManager } from '@libs';
 export default () => {
-  const { product_id, close } = useParamOHLC();
+  const { close } = useOHLC('Y', 'XAUUSD');
   const ma20 = useSMA(close, 20);
-  const pL = useSinglePosition(product_id, PositionVariant.LONG);
+  const accountInfo = useAccountInfo();
+  const [targetVolume, setTargetVolume] = useSimplePositionManager(accountInfo.account_id, 'XAUUSD');
   useEffect(() => {
     const idx = close.length - 2;
     if (close[idx] > ma20[idx]) {
-      pL.setTargetPosition(1);
+      setTargetVolume(1);
     } else {
-      pL.setTargetPosition(0);
+      setTargetVolume(0);
     }
-  });
+  }, [close.length]);
 };
 ```
 
