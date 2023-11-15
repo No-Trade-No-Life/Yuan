@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-market-data-collector",
+      "comment": "polling interval change for storage workload",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-market-data-collector"
+}

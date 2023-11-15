@@ -125,7 +125,8 @@ defer(() =>
     }),
     filter((v) => !v.disabled),
     toArray(),
-    repeat({ delay: 5000 }),
+    // ISSUE: Storage Workload
+    repeat({ delay: 30_000 }),
     batchGroupBy((config) => `${config.datasource_id}:${config.product_id}:${config.period_in_sec}`),
     mergeMap((group) =>
       group.pipe(

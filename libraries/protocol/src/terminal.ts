@@ -476,7 +476,8 @@ export class Terminal {
     toArray(),
     timeout(60000),
     retry({ delay: 1000 }),
-    repeat({ delay: 1000 }),
+    // ISSUE: Storage workload
+    repeat({ delay: 10000 }),
     shareReplay(1),
   );
 
