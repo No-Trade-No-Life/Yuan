@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "polling terminal_info interval changed to reduce storage workload",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

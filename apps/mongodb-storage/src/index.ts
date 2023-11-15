@@ -105,7 +105,8 @@ terminal.setupService('UpdateDataRecords', (msg) => {
               `插入 ${records.insertedCount} 条;`,
               `更新 ${records.modifiedCount} 条;`,
             );
-            MetricWriteRecordsTotal.add(records.upsertedCount, {
+            const total = records.upsertedCount + records.insertedCount + records.modifiedCount;
+            MetricWriteRecordsTotal.add(total, {
               type: group.key,
               source_terminal_id: msg.source_terminal_id ?? 'unknown',
               target_terminal_id: TERMINAL_ID,

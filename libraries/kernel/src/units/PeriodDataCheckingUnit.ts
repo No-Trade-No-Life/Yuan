@@ -39,13 +39,15 @@ export class PeriodDataCheckingUnit extends BasicUnit {
   onInit() {
     for (const task of this.periodTasks) {
       const { datasource_id, product_id, period_in_sec, start_time_in_us } = task;
+      let lastCheckedTimestamp = start_time_in_us / 1000;
+      let lastCheckedIndex = 0;
       const sub = defer(() =>
         this.terminal.queryPeriods(
           {
             datasource_id,
             product_id,
             period_in_sec,
-            start_time_in_us: start_time_in_us * 1000,
+            start_time_in_us: lastCheckedTimestamp * 1000,
             end_time_in_us: Date.now() * 1000,
           },
           'MongoDB',
@@ -56,16 +58,17 @@ export class PeriodDataCheckingUnit extends BasicUnit {
             subscribe: () => {
               this.kernel.log?.(
                 formatTime(Date.now()),
-                `数据自检开始`,
+                `DataChecking Start`,
                 datasource_id,
                 product_id,
                 period_in_sec,
+                `Last Checked: ${formatTime(lastCheckedTimestamp)} at Series[${lastCheckedIndex}]`,
               );
             },
             finalize: () => {
               this.kernel.log?.(
                 formatTime(Date.now()),
-                `数据自检结束`,
+                `DataChecking Finish`,
                 datasource_id,
                 product_id,
                 period_in_sec,
@@ -80,7 +83,7 @@ export class PeriodDataCheckingUnit extends BasicUnit {
             expected.sort((a, b) => a.timestamp_in_us - b.timestamp_in_us);
             this.kernel.log?.(
               formatTime(Date.now()),
-              `数据自检`,
+              `DataChecking`,
               `预期数据的最后一根K线: ${formatTime(expected[expected.length - 1]?.timestamp_in_us / 1000)}`,
             );
             let successTotal = 0;
@@ -90,7 +93,7 @@ export class PeriodDataCheckingUnit extends BasicUnit {
               idx < expected.length - 1; // NOTE: 不检查最后一根K线，因为最新的 K线可能尚未稳定
               idx++
             ) {
-              const actualPeriod = actual[idx];
+              const actualPeriod = actual[lastCheckedIndex + idx];
               const expectedPeriod = expected[idx];
               if (
                 !(
@@ -106,7 +109,7 @@ export class PeriodDataCheckingUnit extends BasicUnit {
               ) {
                 console.error(
                   formatTime(Date.now()),
-                  `数据自检失败`,
+                  `DataChecking Failed`,
                   datasource_id,
                   product_id,
                   period_in_sec,
@@ -119,6 +122,19 @@ export class PeriodDataCheckingUnit extends BasicUnit {
                 successTotal++;
               }
             }
+
+            if (errorTotal === 0) {
+              // No Error, step lastChecked forward.
+              // ISSUE: -2 because periods may be overlapped
+              if (expected.length >= 2) {
+                const nextTimestampInUs = expected[expected.length - 2].timestamp_in_us;
+                const nextIdx = actual.findIndex((x) => x.timestamp_in_us === nextTimestampInUs);
+                // NOTE: nextIdx !== -1, because checking is passed, so the period must be found.
+                lastCheckedTimestamp = nextTimestampInUs / 1000;
+                lastCheckedIndex = nextIdx;
+              }
+            }
+
             this.errorTotal += errorTotal;
             MetricPeriodDataCheckingUnitPeriodSelfCheckTotal.set(errorTotal, {
               kernel_id: this.kernel.id,

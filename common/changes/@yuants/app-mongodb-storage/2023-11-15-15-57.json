@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-mongodb-storage",
+      "comment": "fix write record metrics",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-mongodb-storage"
+}

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/kernel",
+      "comment": "smart data checking for reducing storage workload",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/kernel"
+}
