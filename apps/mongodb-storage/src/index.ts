@@ -209,6 +209,7 @@ terminal.setupService('QueryDataRecords', (msg) => {
         });
       },
       complete: () => {
+        cursor.close();
         MetricReadDurationBucket.observe(Date.now() - startTime, {
           type: msg.req.type,
           source_terminal_id: msg.source_terminal_id ?? 'unknown',
