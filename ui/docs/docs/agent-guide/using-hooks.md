@@ -369,7 +369,7 @@ export default () => {
 You can learn more about Agent Hooks in the following articles:
 
 - [Using Position Manager](./using-position-manager)
-- Using Technical Indicators (TODO)
+- [Using Technical Indicators](./using-technical-indicators)
 - Using Account Transformation (TODO)
 
 You can find out more custom hooks resource in the repo:
