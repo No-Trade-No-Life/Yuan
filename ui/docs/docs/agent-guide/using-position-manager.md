@@ -4,11 +4,11 @@ sidebar_position: 3
 
 # Using Position Manager
 
+**Position Manager** helps managing positions by order operations, which is one of advanced forms of hook.
+
 > Prerequisite Reading:
 >
 > - [Using Hooks](./using-hooks)
-
-**Position Manager** is one of advanced forms of hook, which helps you to manage positions by order operations.
 
 You can compose your own position manager by using the basic hooks.
 
