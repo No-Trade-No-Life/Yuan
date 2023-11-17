@@ -35,6 +35,8 @@ interface IPullSourceRelation {
   cron_timezone: string;
   /** disable this relation (false equivalent to not set before) */
   disabled?: boolean;
+  /** default to 0, means start from the latest period, above 0 means pull start from earlier periods */
+  replay_count?: number;
 }
 
 interface ITask extends IPullSourceRelation {
@@ -236,6 +238,7 @@ defer(() =>
                           period_in_sec: '' + task.period_in_sec,
                         },
                         options: {
+                          skip: task.replay_count || 0,
                           sort: [['frozen_at', -1]],
                           limit: 1,
                         },
