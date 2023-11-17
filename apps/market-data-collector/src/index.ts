@@ -127,12 +127,19 @@ defer(() =>
 )
   .pipe(
     //
-    map((dataRecord) => {
+    mergeMap((dataRecord) => {
       const config = dataRecord.origin;
       if (!validate(config)) {
-        throw new Error(`Invalid config file: ${ajv.errorsText(validate.errors)}`);
+        console.error(
+          formatTime(Date.now()),
+          `InvalidConfig`,
+          `${config.datasource_id}:${config.product_id}:${config.period_in_sec}: ${ajv.errorsText(
+            validate.errors,
+          )}`,
+        );
+        return EMPTY;
       }
-      return config;
+      return of(config);
     }),
     filter((v) => !v.disabled),
     toArray(),
