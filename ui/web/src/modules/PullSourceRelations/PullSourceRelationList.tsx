@@ -25,6 +25,8 @@ interface IPullSourceRelation {
   cron_timezone: string;
   /** disable this relation (equivalent to not set before) */
   disabled?: boolean;
+  /** default to 0, means start from the latest period, above 0 means pull start from earlier periods */
+  replay_count?: number;
 }
 
 const mapPullSourceRelationToDataRecord = (x: IPullSourceRelation): IDataRecord<IPullSourceRelation> => ({
@@ -61,6 +63,10 @@ const schema: JSONSchema7 = {
     cron_timezone: {
       type: 'string',
       title: 'CronJob 的评估时区',
+    },
+    replay_count: {
+      type: 'number',
+      title: 'Replay Count',
     },
     disabled: {
       type: 'boolean',
@@ -174,6 +180,7 @@ registerPage('PullSourceRelationList', () => {
           { title: '周期 (s)', render: (_, record) => record.origin.period_in_sec },
           { title: 'Cron 模式', render: (_, record) => record.origin.cron_pattern },
           { title: 'Cron 时区', render: (_, record) => record.origin.cron_timezone },
+          { title: '回溯数量', render: (_, record) => record.origin.replay_count ?? 0 },
           {
             title: '禁用',
             render: (_, record) => (
