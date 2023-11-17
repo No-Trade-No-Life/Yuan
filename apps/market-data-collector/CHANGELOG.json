@@ -2,6 +2,26 @@
   "name": "@yuants/app-market-data-collector",
   "entries": [
     {
+      "version": "0.0.16",
+      "tag": "@yuants/app-market-data-collector_v0.0.16",
+      "date": "Fri, 17 Nov 2023 15:44:25 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add new option for replay periods"
+          },
+          {
+            "comment": "refine json schema"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.15",
       "tag": "@yuants/app-market-data-collector_v0.0.15",
       "date": "Wed, 15 Nov 2023 16:04:13 GMT",
