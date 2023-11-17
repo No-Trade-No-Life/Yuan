@@ -500,6 +500,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/app-general-data-source",
+      "projectFolder": "apps/general-data-source",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/app-metrics-collector",
       "projectFolder": "apps/metrics-collector",
 
