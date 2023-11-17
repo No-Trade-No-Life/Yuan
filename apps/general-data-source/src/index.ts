@@ -4,11 +4,14 @@ import { JSONSchema7 } from 'json-schema';
 import {
   EMPTY,
   Observable,
+  Subject,
   catchError,
   defer,
   delayWhen,
+  first,
   from,
   groupBy,
+  interval,
   map,
   mergeMap,
   of,
@@ -66,9 +69,13 @@ const term = new Terminal(HV_URL, {
   terminal_id: TERMINAL_ID,
   name: 'General Data Source',
   status: 'OK',
+  services: [
+    {
+      datasource_id: 'Y',
+    },
+  ],
 });
 
-// FIXME: what if dependent data source is not ready?
 const syncData = (
   general_product_id: string,
   period_in_sec: number,
@@ -115,8 +122,8 @@ const syncData = (
           period_in_sec,
           timestamp_in_us: +periods[0].timestamp_in_us,
           open: periods.map((v) => v.open).reduce((acc, cur) => acc + cur, 0) / periods.length,
-          high: periods.map((v) => v.high).reduce((acc, cur) => Math.max(acc, cur), 0),
-          low: periods.map((v) => v.low).reduce((acc, cur) => Math.min(acc, cur), 0),
+          high: periods.map((v) => v.high).reduce((acc, cur) => Math.max(acc, cur), -Infinity),
+          low: periods.map((v) => v.low).reduce((acc, cur) => Math.min(acc, cur), Infinity),
           close: periods.map((v) => v.close).reduce((acc, cur) => acc + cur, 0) / periods.length,
           volume: periods.map((v) => v.volume).reduce((acc, cur) => acc + cur, 0) / periods.length,
         })),
@@ -204,14 +211,21 @@ const mapProductIdToGSRList$ = defer(() =>
 
 term.setupService(
   'CopyDataRecords',
-  (msg) => {
+  (msg, output$) => {
     if (msg.req.tags?.product_id === undefined || msg.req.tags?.period_in_sec === undefined) {
       return of({ res: { code: 400, message: 'product_id or period_in_sec is required' } });
     }
     const { product_id, period_in_sec } = msg.req.tags;
     const [start_time, end_time] = msg.req.time_range || [0, Date.now()];
     console.info(new Date(), `CopyDataRecords`, JSON.stringify(msg.req));
+
+    // keep alive
+    const keepalive = interval(5_000).subscribe(() => {
+      output$.next({});
+    });
+
     return mapProductIdToGSRList$.pipe(
+      first(),
       map((mapProductIdToGSRList) => {
         const gsrList = mapProductIdToGSRList[product_id];
         if (!gsrList) {
@@ -226,7 +240,12 @@ term.setupService(
         ),
       ),
       tap((periods) => {
-        console.debug(new Date(), `QueryPeriods`, `返回了 ${periods.length} 条数据`);
+        console.debug(new Date(), `CopyDataRecords`, `返回了 ${periods.length} 条数据`);
+      }),
+      tap({
+        finalize: () => {
+          keepalive.unsubscribe();
+        },
       }),
       map(() => ({
         res: {
