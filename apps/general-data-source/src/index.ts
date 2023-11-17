@@ -79,7 +79,8 @@ const syncData = (
   const [start, end] = time_range;
   console.info(
     new Date(),
-    `开始同步标准品种: ${general_product_id}，周期: ${period_in_sec}, 起止时间：[${start}, ${end}]，成分品种: [${gsrList
+    `GeneralDataSourceSyncStarted`,
+    `product_id: ${general_product_id}, period: ${period_in_sec}, time range: [${start}, ${end}], gsr: [${gsrList
       .map((v) => `${v.specific_datasource_id}-${v.specific_product_id}`)
       .join(', ')}]`,
   );
@@ -125,11 +126,11 @@ const syncData = (
     tap((v) => {
       console.info(
         new Date(),
-        `标准品种：${general_product_id}，周期：${period_in_sec} 计算完成，总计 ${v.length} 条数据`,
+        `general product: ${general_product_id}, period: ${period_in_sec} calculation done, total ${v.length} periods`,
       );
     }),
     tap(() => {
-      console.info(new Date(), `标准品种：${general_product_id}，周期：${period_in_sec} 同步完成`);
+      console.info(new Date(), `general product: ${general_product_id}, period: ${period_in_sec} complete`);
       // MetricSyncDurationBucket.observe(Date.now() - startTime, {
       //   status: 'success',
       //   general_product_id: general_product_id,
@@ -147,7 +148,11 @@ const syncData = (
       // });
     }),
     catchError((err) => {
-      console.info(new Date(), `标准品种：${general_product_id}，周期：${period_in_sec} 同步失败`, err);
+      console.info(
+        new Date(),
+        `general product: ${general_product_id}, period: ${period_in_sec} failed`,
+        err,
+      );
       // MetricSyncDurationBucket.observe(Date.now() - startTime, {
       //   status: 'error',
       //   general_product_id: general_product_id,
@@ -205,6 +210,7 @@ term.setupService(
     }
     const { product_id, period_in_sec } = msg.req.tags;
     const [start_time, end_time] = msg.req.time_range || [0, Date.now()];
+    console.info(new Date(), `CopyDataRecords`, JSON.stringify(msg.req));
     return mapProductIdToGSRList$.pipe(
       map((mapProductIdToGSRList) => {
         const gsrList = mapProductIdToGSRList[product_id];
