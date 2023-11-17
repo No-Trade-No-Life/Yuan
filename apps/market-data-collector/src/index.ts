@@ -72,6 +72,7 @@ const MetricCronjobStatus = PromRegistry.create(
 const schema: JSONSchema7 = {
   type: 'object',
   title: 'Historical Market Data Collector Config',
+  required: ['datasource_id', 'product_id', 'period_in_sec', 'cron_pattern', 'cron_timezone'],
   properties: {
     datasource_id: {
       type: 'string',
@@ -92,6 +93,14 @@ const schema: JSONSchema7 = {
     cron_timezone: {
       type: 'string',
       title: 'Timezone of CronJob',
+    },
+    replay_count: {
+      type: 'number',
+      title: 'Replay Count',
+    },
+    disabled: {
+      type: 'boolean',
+      title: 'Disable this relation',
     },
   },
 };
