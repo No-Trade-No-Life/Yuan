@@ -1,6 +1,14 @@
 # Change Log - @yuants/app-market-data-collector
 
-This log was last generated on Wed, 15 Nov 2023 16:04:13 GMT and should not be manually modified.
+This log was last generated on Fri, 17 Nov 2023 15:44:25 GMT and should not be manually modified.
+
+## 0.0.16
+Fri, 17 Nov 2023 15:44:25 GMT
+
+### Patches
+
+- add new option for replay periods
+- refine json schema
 
 ## 0.0.15
 Wed, 15 Nov 2023 16:04:13 GMT
