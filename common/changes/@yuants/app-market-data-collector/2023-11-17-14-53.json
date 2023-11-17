@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-market-data-collector",
+      "comment": "add new option for replay periods",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-market-data-collector"
+}

@@ -25,6 +25,7 @@
     "@yuants/app-mongodb-storage",
     "@yuants/app-metrics-collector",
     "@yuants/app-market-data-collector",
+    "@yuants/app-general-data-source",
     "@yuants/app-trade-copier",
     "@yuants/vendor-ctp"
   ],
