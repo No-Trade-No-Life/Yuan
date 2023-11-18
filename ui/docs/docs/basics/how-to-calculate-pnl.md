@@ -4,20 +4,27 @@ sidebar_position: 4
 
 # How to calculate PnL
 
-> PnL = Standard PnL + PnL Correction
+> $\text{PnL} = \text{Standard PnL} + \text{PnL Correction}$
 
 ## Standard PnL
 
-**Standard PnL = Position Direction \* Position Volume \* (Close Price - Open Price) \* Product Value Speed \* Factor of Asset \* Base Currency Exchange Rate
-**
+$$
+\text{Standard PnL} = D \times V \times (P_c - P_o) \times S \times f \times P_{BM}
+$$
 
-- Position Direction = 1 if long, -1 if short;
-- Factor of Asset = 1 / Close Price if foreign exchange or bond spot, otherwise 1;
-- Base Currency Exchange Rate = the exchange rate of **product's base currency** vs **account's margin currency** at the time of position exiting.
+While:
+
+- Direction $D$ = 1 if long, -1 if short;
+- Volume $V$ = the number of lots;
+- Close Price $P_c$ = the price of the product at the time of position exiting;
+- Open Price $P_o$ = the price of the product at the time of position opening;
+- Value Scale $S$ = the value scale of the product;
+- Factor of Asset $f$ = $\frac{1}{P_c}$ if foreign exchange or bond spot, otherwise 1;
+- Base Currency Exchange Rate $P_{BM}$ = the exchange rate of **product's base currency** vs **account's margin currency** at the time of position exiting.
 
 This standard equation applies to the calculation of PnL in ideal cases for all known products such as stocks, foreign exchange, bonds, commodity futures, precious metals, option contracts, etc.
 
-- Value speed is a constant for the same product, usually 1 in stocks, and is called "contract size" in futures or options contracts.
+- Value scale (Value speed) is a constant for the same product, usually 1 in stocks, and is called "contract size" in futures or options contracts.
 - Floating PnL is the PnL calculated by substituting "Close Price = Current Closable Price" into the formula.
 - For cases where the base currency and margin currency are different , it is not possible to directly obtain the base currency exchange rate at the time of position squaring from historical orders. However, the exchange usually directly gives the standard PnL of the order. At this time, the price of the base currency against the margin currency at the time of position squaring can be deduced from the PnL.
 
@@ -43,4 +50,4 @@ However, the exchange will definitely give the final true PnL in the settlement,
 
 So, we can use the following equation to calculate the PnL correction:
 
-PnL Correction = PnL - Standard PnL
+$$\text{PnL Correction} = \text{PnL} - \text{Standard PnL}$$

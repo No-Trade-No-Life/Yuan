@@ -363,6 +363,8 @@ export class Terminal {
     // (undocumented)
     copyDataRecords: (req: ICopyDataRecordsRequest, target_terminal_id: string) => Observable<undefined>;
     datasourceIds$: Observable<string[]>;
+    // (undocumented)
+    dispose(): void;
     feed: (channel_id: string, data: any, target_terminal_id: string) => void;
     // (undocumented)
     HV_URL: string;

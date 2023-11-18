@@ -46,7 +46,7 @@ const config: Config = {
           // Remove this to remove the "edit this page" links.
           editUrl: 'https://github.com/No-Trade-No-Life/Yuan/tree/main/ui/docs',
           remarkPlugins: [remarkMath],
-          rehypePlugins: [rehypeKatex],
+          rehypePlugins: [[rehypeKatex, { strict: false }]],
         },
         blog: {
           showReadingTime: true,
