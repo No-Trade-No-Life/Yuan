@@ -2,6 +2,28 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.2.0",
+      "tag": "@yuants/protocol_v0.2.0",
+      "date": "Sat, 18 Nov 2023 15:49:27 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "dispose terminal"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "fix terminal disposing"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.7",
       "tag": "@yuants/protocol_v0.1.7",
       "date": "Wed, 15 Nov 2023 16:04:13 GMT",

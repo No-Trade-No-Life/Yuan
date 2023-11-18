@@ -1,6 +1,17 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Wed, 15 Nov 2023 16:04:13 GMT and should not be manually modified.
+This log was last generated on Sat, 18 Nov 2023 15:49:27 GMT and should not be manually modified.
+
+## 0.2.0
+Sat, 18 Nov 2023 15:49:27 GMT
+
+### Minor changes
+
+- dispose terminal
+
+### Patches
+
+- fix terminal disposing
 
 ## 0.1.7
 Wed, 15 Nov 2023 16:04:13 GMT
