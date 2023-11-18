@@ -1,4 +1,4 @@
-import { formatTime } from '@yuants/data-model';
+import { encodePath, formatTime } from '@yuants/data-model';
 import { IDataRecord, IPeriod, ISubscriptionRelation, Terminal } from '@yuants/protocol';
 import {
   Subscription,
@@ -21,9 +21,6 @@ import { Kernel } from '../kernel';
 import { BasicUnit } from './BasicUnit';
 import { PeriodDataUnit } from './PeriodDataUnit';
 import { ProductDataUnit } from './ProductDataUnit';
-
-const encodeChannelId = (...params: any[]) =>
-  params.map((param) => `${param}`.replace(/\//g, '\\/')).join('/');
 
 const mapSubscriptionRelationToDataRecord = (
   origin: ISubscriptionRelation,
@@ -175,7 +172,7 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
                   formatTime(Date.now()),
                   '更新订阅关系',
                   JSON.stringify({
-                    channel_id: encodeChannelId('Period', datasource_id, product_id, period_in_sec),
+                    channel_id: encodePath('Period', datasource_id, product_id, period_in_sec),
                     provider_terminal_id: terminal.terminal_id,
                     consumer_terminal_id: this.terminal.terminalInfo.terminal_id,
                   }),
@@ -185,7 +182,7 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
                 this.terminal.updateDataRecords(
                   [
                     mapSubscriptionRelationToDataRecord({
-                      channel_id: encodeChannelId('Period', datasource_id, product_id, period_in_sec),
+                      channel_id: encodePath('Period', datasource_id, product_id, period_in_sec),
                       provider_terminal_id: terminal.terminal_id,
                       consumer_terminal_id: this.terminal.terminalInfo.terminal_id,
                     }),

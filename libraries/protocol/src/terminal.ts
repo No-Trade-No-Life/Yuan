@@ -1,10 +1,11 @@
-import { UUID, formatTime } from '@yuants/data-model';
+import { UUID, decodePath, encodePath, formatTime } from '@yuants/data-model';
 import { batchGroupBy, rateLimitMap, switchMapWithComplete } from '@yuants/utils';
 import { isNode } from 'browser-or-node';
 import {
   EMPTY,
   Observable,
   Subject,
+  Subscription,
   bufferCount,
   catchError,
   concatMap,
@@ -150,6 +151,13 @@ export class Terminal {
     this.setupReportTerminalInfo();
   }
 
+  private _subscriptions: Subscription[] = [];
+
+  dispose() {
+    this._conn.output$.complete();
+    this._subscriptions.forEach((sub) => sub.unsubscribe());
+  }
+
   request<T extends string>(
     method: T,
     target_terminal_id: string,
@@ -182,7 +190,7 @@ export class Terminal {
   }
 
   private setupDebugLog = () => {
-    this._conn.input$.subscribe((msg) => {
+    const sub1 = this._conn.input$.subscribe((msg) => {
       TerminalReceiveMassageTotal.inc({
         //
         method: msg.method,
@@ -201,7 +209,7 @@ export class Terminal {
         );
       }
     });
-    this._conn.output$.subscribe((msg) => {
+    const sub2 = this._conn.output$.subscribe((msg) => {
       TerminalTransmittedMessageTotal.inc({
         //
         method: msg.method,
@@ -220,6 +228,7 @@ export class Terminal {
         );
       }
     });
+    this._subscriptions.push(sub1, sub2);
   };
 
   private setupReportTerminalInfo = () => {
@@ -267,7 +276,7 @@ export class Terminal {
   };
 
   private setupServer = () => {
-    this._conn.input$
+    const sub = this._conn.input$
       .pipe(
         filter((msg) => msg.frame === undefined && msg.res === undefined),
         groupBy((msg) => msg.method),
@@ -406,6 +415,7 @@ export class Terminal {
       .subscribe((msg) => {
         this._conn.output$.next(msg);
       });
+    this._subscriptions.push(sub);
   };
 
   private setupPredefinedServerHandlers = () => {
@@ -436,7 +446,7 @@ export class Terminal {
    * Middleware：SubmitOrderCount
    */
   private setupPredefinedMiddleware = () => {
-    this._conn.input$
+    const sub = this._conn.input$
       .pipe(
         //
         filter((msg) => msg.frame === undefined && msg.res === undefined),
@@ -459,6 +469,8 @@ export class Terminal {
         ),
       )
       .subscribe();
+
+    this._subscriptions.push(sub);
   };
 
   /**
@@ -569,7 +581,7 @@ export class Terminal {
                 this.updateDataRecords(
                   [
                     mapSubscriptionRelationToDataRecord({
-                      channel_id: encodeChannelId('AccountInfo', account_id),
+                      channel_id: encodePath('AccountInfo', account_id),
                       provider_terminal_id: terminal.terminal_id,
                       consumer_terminal_id: this.terminalInfo.terminal_id,
                     }),
@@ -585,7 +597,7 @@ export class Terminal {
           first(), // subscribe success
         ),
       ).pipe(
-        mergeMap(() => this.useFeed<IAccountInfo>(encodeChannelId('AccountInfo', account_id))),
+        mergeMap(() => this.useFeed<IAccountInfo>(encodePath('AccountInfo', account_id))),
         timeout(60000),
         retry({ delay: 5000 }),
         shareReplay(1),
@@ -609,7 +621,7 @@ export class Terminal {
                 this.updateDataRecords(
                   [
                     mapSubscriptionRelationToDataRecord({
-                      channel_id: encodeChannelId('Period', datasource_id, product_id, period_in_sec),
+                      channel_id: encodePath('Period', datasource_id, product_id, period_in_sec),
                       provider_terminal_id: terminal.terminal_id,
                       consumer_terminal_id: this.terminalInfo.terminal_id,
                     }),
@@ -625,9 +637,7 @@ export class Terminal {
           first(),
         ),
       ).pipe(
-        mergeMap(() =>
-          this.useFeed<IPeriod>(encodeChannelId('Period', datasource_id, product_id, period_in_sec)),
-        ),
+        mergeMap(() => this.useFeed<IPeriod>(encodePath('Period', datasource_id, product_id, period_in_sec))),
         timeout(60000),
         retry({ delay: 5000 }),
         shareReplay(1),
@@ -651,7 +661,7 @@ export class Terminal {
                 this.updateDataRecords(
                   [
                     mapSubscriptionRelationToDataRecord({
-                      channel_id: encodeChannelId('Tick', datasource_id, product_id),
+                      channel_id: encodePath('Tick', datasource_id, product_id),
                       provider_terminal_id: terminal.terminal_id,
                       consumer_terminal_id: this.terminalInfo.terminal_id,
                     }),
@@ -667,7 +677,7 @@ export class Terminal {
           first(),
         ),
       ).pipe(
-        mergeMap(() => this.useFeed<ITick>(encodeChannelId('Tick', datasource_id, product_id))),
+        mergeMap(() => this.useFeed<ITick>(encodePath('Tick', datasource_id, product_id))),
         filter((v): v is Exclude<typeof v, undefined> => !!v),
         timeout(60000),
         retry({ delay: 5000 }),
@@ -943,7 +953,7 @@ export class Terminal {
    * Provide a Tick data stream, push to all subscriber terminals
    */
   provideTicks = (datasource_id: string, useTicks: (product_id: string) => Observable<ITick>) => {
-    this.subscriptionSnapshotOfTick$
+    const sub = this.subscriptionSnapshotOfTick$
       .pipe(
         //
         mergeMap((relations) =>
@@ -968,7 +978,7 @@ export class Terminal {
               if (!this.terminalInfo.services!.some((x) => x.datasource_id === relation.datasource_id)) {
                 this.terminalInfo.services!.push({ datasource_id: relation.datasource_id });
               }
-              const channel_id = encodeChannelId('Tick', relation.datasource_id, relation.product_id);
+              const channel_id = encodePath('Tick', relation.datasource_id, relation.product_id);
               return useTicks(relation.product_id).pipe(
                 //
                 tap({
@@ -1004,6 +1014,7 @@ export class Terminal {
         ),
       )
       .subscribe();
+    this._subscriptions.push(sub);
   };
 
   /**
@@ -1013,7 +1024,7 @@ export class Terminal {
     datasource_id: string,
     usePeriods: (product_id: string, period_in_sec: number) => Observable<IPeriod[]>,
   ) => {
-    this.subscriptionSnapshotOfPeriod$
+    const sub = this.subscriptionSnapshotOfPeriod$
       .pipe(
         //
         mergeMap((relations) =>
@@ -1038,7 +1049,7 @@ export class Terminal {
               if (!this.terminalInfo.services!.some((x) => x.datasource_id === relation.datasource_id)) {
                 this.terminalInfo.services!.push({ datasource_id: relation.datasource_id });
               }
-              const channel_id = encodeChannelId(
+              const channel_id = encodePath(
                 'Period',
                 relation.datasource_id,
                 relation.product_id,
@@ -1066,6 +1077,7 @@ export class Terminal {
         ),
       )
       .subscribe();
+    this._subscriptions.push(sub);
   };
 
   /**
@@ -1073,15 +1085,15 @@ export class Terminal {
    */
   provideAccountInfo = (accountInfo$: Observable<IAccountInfo>) => {
     // setup services
-    accountInfo$.pipe(first()).subscribe((info) => {
+    const sub = accountInfo$.pipe(first()).subscribe((info) => {
       // if there is no service, add one
       if (!this.terminalInfo.services!.some((x) => x.account_id === info.account_id)) {
         this.terminalInfo.services!.push({ account_id: info.account_id });
       }
-      const channel_id = encodeChannelId(`AccountInfo`, info.account_id);
+      const channel_id = encodePath(`AccountInfo`, info.account_id);
       // push to all subscriber terminals
-      accountInfo$.subscribe((accountInfo) => {
-        this.subscriptionSnapshotOfAccountInfo$
+      const sub1 = accountInfo$.subscribe((accountInfo) => {
+        const sub = this.subscriptionSnapshotOfAccountInfo$
           .pipe(
             //
             first(),
@@ -1099,10 +1111,12 @@ export class Terminal {
             ),
           )
           .subscribe();
+        this._subscriptions.push(sub);
       });
+      this._subscriptions.push(sub1);
 
       // Metrics
-      accountInfo$
+      const sub2 = accountInfo$
         .pipe(
           //
           mergeMap(mergeAccountInfoPositions),
@@ -1176,6 +1190,7 @@ export class Terminal {
             });
           }
         });
+      this._subscriptions.push(sub2);
     });
   };
 
@@ -1243,7 +1258,7 @@ export class Terminal {
       from(list)
         .pipe(
           mergeMap((relation) =>
-            of(decodeChannelId(relation.channel_id)).pipe(
+            of(decodePath(relation.channel_id)).pipe(
               //
               filter(([type]) => type === 'AccountInfo'),
               map(([, account_id]) => ({
@@ -1276,7 +1291,7 @@ export class Terminal {
       from(list)
         .pipe(
           mergeMap((relation) =>
-            of(decodeChannelId(relation.channel_id)).pipe(
+            of(decodePath(relation.channel_id)).pipe(
               //
               filter(([type]) => type === 'Tick'),
               map(([, datasource_id, product_id]) => ({
@@ -1319,7 +1334,7 @@ export class Terminal {
       from(list)
         .pipe(
           mergeMap((relation) =>
-            of(decodeChannelId(relation.channel_id)).pipe(
+            of(decodePath(relation.channel_id)).pipe(
               //
               filter(([type]) => type === 'Period'),
               map(([, datasource_id, product_id, period_in_sec]) => ({
@@ -1441,9 +1456,3 @@ const mapSubscriptionRelationToDataRecord = (
   },
   origin,
 });
-
-const encodeChannelId = (...params: any[]) =>
-  params.map((param) => `${param}`.replace(/\//g, '\\/')).join('/');
-
-const decodeChannelId = (channel_id: string) =>
-  channel_id.split(/(?<!\\)\//g).map((x) => x.replace(/\\\//g, '/'));
