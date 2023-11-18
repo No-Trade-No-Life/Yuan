@@ -2,6 +2,28 @@
   "name": "@yuants/kernel",
   "entries": [
     {
+      "version": "0.4.2",
+      "tag": "@yuants/kernel_v0.4.2",
+      "date": "Sat, 18 Nov 2023 15:49:27 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refer encodeChannelId to encodePath"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.2.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.1",
       "tag": "@yuants/kernel_v0.4.1",
       "date": "Wed, 15 Nov 2023 16:04:13 GMT",
