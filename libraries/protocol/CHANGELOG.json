@@ -2,6 +2,23 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.2.1",
+      "tag": "@yuants/protocol_v0.2.1",
+      "date": "Sat, 18 Nov 2023 17:16:51 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "QueryPeriods may returns out of range periods"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.0",
       "tag": "@yuants/protocol_v0.2.0",
       "date": "Sat, 18 Nov 2023 15:49:27 GMT",
