@@ -233,7 +233,7 @@ export class Terminal {
 
   private setupReportTerminalInfo = () => {
     // Periodically report the value of terminalInfo
-    defer(() =>
+    const sub = defer(() =>
       this.updateDataRecords(
         [
           {
@@ -256,6 +256,7 @@ export class Terminal {
         repeat({ delay: 5000 }),
       )
       .subscribe();
+    this._subscriptions.push(sub);
   };
 
   setupService = <T extends string>(
