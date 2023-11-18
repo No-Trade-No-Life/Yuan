@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "QueryPeriods may returns out of range periods",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

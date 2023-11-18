@@ -893,6 +893,17 @@ export class Terminal {
           },
           target_terminal_id,
         ).pipe(
+          // ISSUE: unknown reason, sometimes the data will be out of range, but frozen_at is null.
+          filter((dataRecord) => {
+            if (
+              dataRecord.origin.timestamp_in_us + dataRecord.origin.period_in_sec * 1e6 <
+              req.start_time_in_us
+            ) {
+              console.warn(formatTime(Date.now()), 'QueryPeriods', 'Dirty Data', JSON.stringify(dataRecord));
+              return false;
+            }
+            return true;
+          }),
           map((dataRecord) => dataRecord.origin),
           toArray(),
         ),
