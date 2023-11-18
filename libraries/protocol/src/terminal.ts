@@ -1069,11 +1069,10 @@ export class Terminal {
               );
               return usePeriods(relation.product_id, relation.period_in_sec).pipe(
                 //
-                mergeAll(),
                 tap({
-                  next: (period) => {
+                  next: (periods) => {
                     for (const target_terminal_id of relation.consumer_terminal_ids) {
-                      this.feed(channel_id, period, target_terminal_id);
+                      this.feed(channel_id, periods, target_terminal_id);
                     }
                   },
                   unsubscribe: () => {
