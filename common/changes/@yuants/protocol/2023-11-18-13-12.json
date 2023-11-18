@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "fix terminal disposing",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
