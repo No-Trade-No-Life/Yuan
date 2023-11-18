@@ -186,10 +186,6 @@ registerPage('HostList', () => {
                   icon={<IconSend />}
                   onClick={() => {
                     currentHostConfig$.next(config);
-                    // ISSUE: ensure currentHostConfig saved before refresh
-                    setTimeout(() => {
-                      window.location.reload();
-                    }, 500);
                   }}
                 >
                   {t('connect')}
