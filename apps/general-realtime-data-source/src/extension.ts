@@ -3,7 +3,7 @@ export default (context: IExtensionContext) => {
   context.registerDeployProvider({
     make_json_schema: () => ({
       type: 'object',
-      title: 'General Data Source',
+      title: 'General Realtime Data Source',
       properties: {
         env: {
           type: 'object',
@@ -12,14 +12,13 @@ export default (context: IExtensionContext) => {
             TERMINAL_ID: { type: 'string' },
             HV_URL: { type: 'string' },
             STORAGE_TERMINAL_ID: { type: 'string' },
-            QUERY_CONCURRENCY: { type: 'number' },
           },
         },
       },
     }),
     make_docker_compose_file: async (ctx, envCtx) => ({
-      [`general-data-source`]: {
-        image: `ghcr.io/no-trade-no-life/app-general-data-source:${ctx.version ?? envCtx.version}`,
+      [`general-realtime-data-source`]: {
+        image: `ghcr.io/no-trade-no-life/app-general-realtime-data-source:${ctx.version ?? envCtx.version}`,
         environment: makeDockerEnvs(ctx.env),
       },
     }),
@@ -31,34 +30,34 @@ export default (context: IExtensionContext) => {
           metadata: {
             labels: {
               'y.ntnl.io/version': ctx.version ?? envCtx.version,
-              'y.ntnl.io/component': 'general-data-source',
+              'y.ntnl.io/component': 'general-realtime-data-source',
             },
-            name: `general-data-source`,
+            name: `general-realtime-data-source`,
             namespace: 'yuan',
           },
           spec: {
             replicas: 1,
             selector: {
               matchLabels: {
-                'y.ntnl.io/component': 'general-data-source',
+                'y.ntnl.io/component': 'general-realtime-data-source',
               },
             },
             template: {
               metadata: {
                 labels: {
                   'y.ntnl.io/version': ctx.version ?? envCtx.version,
-                  'y.ntnl.io/component': 'general-data-source',
+                  'y.ntnl.io/component': 'general-realtime-data-source',
                 },
               },
               spec: {
                 containers: [
                   {
                     env: makeK8sEnvs(ctx.env),
-                    image: `ghcr.io/no-trade-no-life/app-general-data-source:${
+                    image: `ghcr.io/no-trade-no-life/app-general-realtime-data-source:${
                       ctx.version ?? envCtx.version
                     }`,
                     imagePullPolicy: 'IfNotPresent',
-                    name: 'general-data-source',
+                    name: 'general-realtime-data-source',
                     resources: {
                       limits: {
                         cpu: ctx.cpu?.max ?? '400m',
@@ -71,7 +70,7 @@ export default (context: IExtensionContext) => {
                     },
                   },
                 ],
-                hostname: 'general-data-source',
+                hostname: 'general-realtime-data-source',
                 imagePullSecrets: [
                   {
                     name: 'pull-secret',
