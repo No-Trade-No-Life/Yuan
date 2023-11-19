@@ -1,0 +1,34 @@
+{
+  "name": "@yuants/app-general-data-source",
+  "entries": [
+    {
+      "version": "0.0.2",
+      "tag": "@yuants/app-general-data-source_v0.0.2",
+      "date": "Fri, 17 Nov 2023 16:15:22 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "update logs and extension"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/app-general-data-source_v0.0.1",
+      "date": "Fri, 17 Nov 2023 15:44:25 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "init project"
+          }
+        ]
+      }
+    }
+  ]
+}

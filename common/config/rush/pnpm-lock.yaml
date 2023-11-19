@@ -173,7 +173,6 @@ importers:
       '@rushstack/heft': ~0.47.5
       '@rushstack/heft-jest-plugin': ~0.3.30
       '@rushstack/heft-node-rig': ~1.10.7
-      '@types/cron': ~2.0.1
       '@types/heft-jest': 1.0.3
       '@types/json-schema': ~7.0.11
       '@types/node': '18'
@@ -196,7 +195,41 @@ importers:
       '@rushstack/heft': 0.47.11
       '@rushstack/heft-jest-plugin': 0.3.45_@rushstack+heft@0.47.11
       '@rushstack/heft-node-rig': 1.10.13_@rushstack+heft@0.47.11
-      '@types/cron': 2.0.1
+      '@types/heft-jest': 1.0.3
+      '@types/json-schema': 7.0.12
+      '@types/node': 18.17.12
+      '@yuants/extension': link:../../libraries/extension
+      '@yuants/tool-kit': link:../../tools/toolkit
+      typescript: 4.7.4
+
+  ../../apps/general-realtime-data-source:
+    specifiers:
+      '@microsoft/api-extractor': ~7.30.0
+      '@rushstack/heft': ~0.47.5
+      '@rushstack/heft-jest-plugin': ~0.3.30
+      '@rushstack/heft-node-rig': ~1.10.7
+      '@types/heft-jest': 1.0.3
+      '@types/json-schema': ~7.0.11
+      '@types/node': '18'
+      '@yuants/extension': workspace:*
+      '@yuants/protocol': workspace:*
+      '@yuants/tool-kit': workspace:*
+      '@yuants/utils': workspace:*
+      ajv: ~8.12.0
+      cron: ~2.3.0
+      rxjs: ~7.5.6
+      typescript: ~4.7.4
+    dependencies:
+      '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/utils': link:../../libraries/utils
+      ajv: 8.12.0
+      cron: 2.3.1
+      rxjs: 7.5.7
+    devDependencies:
+      '@microsoft/api-extractor': 7.30.1
+      '@rushstack/heft': 0.47.11
+      '@rushstack/heft-jest-plugin': 0.3.45_@rushstack+heft@0.47.11
+      '@rushstack/heft-node-rig': 1.10.13_@rushstack+heft@0.47.11
       '@types/heft-jest': 1.0.3
       '@types/json-schema': 7.0.12
       '@types/node': 18.17.12
@@ -9875,7 +9908,7 @@ packages:
       jest-get-type: 29.6.3
       jest-matcher-utils: 29.6.4
       jest-message-util: 29.6.3
-      jest-util: 29.6.3
+      jest-util: 29.7.0
     dev: true
 
   /express/4.18.2:
@@ -12249,18 +12282,6 @@ packages:
       picomatch: 2.3.1
     dev: true
 
-  /jest-util/29.6.3:
-    resolution: {integrity: sha512-QUjna/xSy4B32fzcKTSz1w7YYzgiHrjjJjevdRf61HYk998R5vVMMNmrHESYZVDS5DSWs+1srPLPKxXPkeSDOA==}
-    engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
-    dependencies:
-      '@jest/types': 29.6.3
-      '@types/node': 18.17.12
-      chalk: 4.1.2
-      ci-info: 3.8.0
-      graceful-fs: 4.2.11
-      picomatch: 2.3.1
-    dev: true
-
   /jest-util/29.7.0:
     resolution: {integrity: sha512-z6EbKajIpqGKU56y5KBUgy1dt1ihhQJgWzUlZHArA/+X2ad7Cb5iF+AK1EWVL/Bo7Rz9uurpqw6SiBCefUbCGA==}
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
@@ -12271,7 +12292,6 @@ packages:
       ci-info: 3.8.0
       graceful-fs: 4.2.11
       picomatch: 2.3.1
-    dev: false
 
   /jest-validate/27.5.1:
     resolution: {integrity: sha512-thkNli0LYTmOI1tDB3FI1S1RTp/Bqyd9pTarJwL87OIBFuqEb5Apv5EaApEudYg4g86e3CT6kM0RowkhtEnCBQ==}
