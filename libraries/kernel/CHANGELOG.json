@@ -2,6 +2,23 @@
   "name": "@yuants/kernel",
   "entries": [
     {
+      "version": "0.4.7",
+      "tag": "@yuants/kernel_v0.4.7",
+      "date": "Tue, 21 Nov 2023 17:11:58 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "RealtimePeriodLoadingUnit back to 'Feed' interface"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.6",
       "tag": "@yuants/kernel_v0.4.6",
       "date": "Tue, 21 Nov 2023 12:39:54 GMT",
