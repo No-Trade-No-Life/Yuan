@@ -866,6 +866,19 @@ export interface ITerminalInfo {
   >;
 
   /**
+   * If client terminal wants to send a request to a server terminal, it needs to know the server terminal id.
+   *
+   * Client should check the terminal candidates before sending a request.
+   *
+   * If a terminal's discriminator matches the request, it is a candidate.
+   *
+   * If multiple terminals are candidates, the client can choose anyone to send the request.
+   *
+   * If the discriminator is undefined, it means that the terminal's id should be explicitly specified when sending a request.
+   */
+  discriminator?: JSONSchema7;
+
+  /**
    * Status text
    * 状态文字
    *

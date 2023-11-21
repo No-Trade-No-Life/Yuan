@@ -105,9 +105,7 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
 
   async onInit() {
     // ISSUE: period_stream 依赖订阅关系的存在性，因此要先添加订阅关系
-    defer(() =>
-      this.terminal.queryDataRecords<IPullSourceRelation>({ type: 'pull_source_relation' }, 'MongoDB'),
-    )
+    defer(() => this.terminal.queryDataRecords<IPullSourceRelation>({ type: 'pull_source_relation' }))
       .pipe(
         map((v) => v.origin),
         toArray(),
@@ -149,7 +147,7 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
         tap((v) => {
           console.info(formatTime(Date.now()), '更新 pull source relation', JSON.stringify(v));
         }),
-        delayWhen((v) => this.terminal.updateDataRecords(v, 'MongoDB')),
+        delayWhen((v) => this.terminal.updateDataRecords(v)),
         retry({ delay: 1000, count: 5 }),
       )
       .subscribe();
@@ -179,16 +177,13 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
                 );
               }),
               mergeMap(() =>
-                this.terminal.updateDataRecords(
-                  [
-                    mapSubscriptionRelationToDataRecord({
-                      channel_id: encodePath('Period', datasource_id, product_id, period_in_sec),
-                      provider_terminal_id: terminal.terminal_id,
-                      consumer_terminal_id: this.terminal.terminalInfo.terminal_id,
-                    }),
-                  ],
-                  'MongoDB',
-                ),
+                this.terminal.updateDataRecords([
+                  mapSubscriptionRelationToDataRecord({
+                    channel_id: encodePath('Period', datasource_id, product_id, period_in_sec),
+                    provider_terminal_id: terminal.terminal_id,
+                    consumer_terminal_id: this.terminal.terminalInfo.terminal_id,
+                  }),
+                ]),
               ),
               tap(() => {
                 console.info(formatTime(Date.now()), '订阅关系更新成功');
@@ -201,15 +196,12 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
 
       let updated_since = Date.now();
       const sub = defer(() =>
-        this.terminal.queryDataRecords<IPeriod>(
-          {
-            type: 'period_stream',
-            tags: { datasource_id, product_id, period_in_sec: period_in_sec.toString() },
-            updated_since,
-            options: { sort: [['tags.timestamp_in_us', 1]] },
-          },
-          'MongoDB',
-        ),
+        this.terminal.queryDataRecords<IPeriod>({
+          type: 'period_stream',
+          tags: { datasource_id, product_id, period_in_sec: period_in_sec.toString() },
+          updated_since,
+          options: { sort: [['tags.timestamp_in_us', 1]] },
+        }),
       )
         .pipe(
           //

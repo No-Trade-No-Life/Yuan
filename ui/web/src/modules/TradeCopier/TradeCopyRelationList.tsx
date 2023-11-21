@@ -92,18 +92,15 @@ registerPage('TradeCopyRelationList', () => {
         //
         mergeMap(([terminal, [searchFormData]]) =>
           terminal
-            .queryDataRecords<ITradeCopyRelation>(
-              {
-                type: TYPE,
-                options: {
-                  sort: [
-                    ['origin.source_account_id', 1],
-                    ['origin.source_product_id', 1],
-                  ],
-                },
+            .queryDataRecords<ITradeCopyRelation>({
+              type: TYPE,
+              options: {
+                sort: [
+                  ['origin.source_account_id', 1],
+                  ['origin.source_product_id', 1],
+                ],
               },
-              'MongoDB',
-            )
+            })
             .pipe(
               //
               toArray(),
@@ -178,7 +175,7 @@ registerPage('TradeCopyRelationList', () => {
                   terminal$
                     .pipe(
                       first(),
-                      mergeMap((terminal) => terminal.updateDataRecords([next], 'MongoDB')),
+                      mergeMap((terminal) => terminal.updateDataRecords([next])),
                       tap({
                         complete: () => {
                           Toast.success(`成功更新数据记录 ${record.id}`);
@@ -214,13 +211,10 @@ registerPage('TradeCopyRelationList', () => {
                         //
                         first(),
                         mergeMap((terminal) =>
-                          terminal.removeDataRecords(
-                            {
-                              type: TYPE,
-                              id: record.id,
-                            },
-                            'MongoDB',
-                          ),
+                          terminal.removeDataRecords({
+                            type: TYPE,
+                            id: record.id,
+                          }),
                         ),
                         tap({
                           complete: () => {
@@ -249,7 +243,7 @@ registerPage('TradeCopyRelationList', () => {
           terminal$
             .pipe(
               first(),
-              mergeMap((terminal) => terminal.updateDataRecords([record], 'MongoDB')),
+              mergeMap((terminal) => terminal.updateDataRecords([record])),
               tap({
                 complete: () => {
                   Toast.success(`成功更新数据记录 ${record.id}`);

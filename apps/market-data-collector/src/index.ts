@@ -118,12 +118,9 @@ const term = new Terminal(HV_URL, {
 });
 
 defer(() =>
-  term.queryDataRecords<IPullSourceRelation>(
-    {
-      type: 'pull_source_relation',
-    },
-    STORAGE_TERMINAL_ID,
-  ),
+  term.queryDataRecords<IPullSourceRelation>({
+    type: 'pull_source_relation',
+  }),
 )
   .pipe(
     //
@@ -245,22 +242,19 @@ defer(() =>
                     });
                   }),
                   mergeMap(() =>
-                    term.queryDataRecords<IPeriod>(
-                      {
-                        type: 'period',
-                        tags: {
-                          datasource_id: task.datasource_id,
-                          product_id: task.product_id,
-                          period_in_sec: '' + task.period_in_sec,
-                        },
-                        options: {
-                          skip: task.replay_count || 0,
-                          sort: [['frozen_at', -1]],
-                          limit: 1,
-                        },
+                    term.queryDataRecords<IPeriod>({
+                      type: 'period',
+                      tags: {
+                        datasource_id: task.datasource_id,
+                        product_id: task.product_id,
+                        period_in_sec: '' + task.period_in_sec,
                       },
-                      STORAGE_TERMINAL_ID,
-                    ),
+                      options: {
+                        skip: task.replay_count || 0,
+                        sort: [['frozen_at', -1]],
+                        limit: 1,
+                      },
+                    }),
                   ),
                   map((v) => v.frozen_at),
                   filter((v): v is Exclude<typeof v, null> => !!v),

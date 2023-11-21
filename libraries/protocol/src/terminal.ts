@@ -1,5 +1,6 @@
 import { UUID, decodePath, encodePath, formatTime } from '@yuants/data-model';
 import { batchGroupBy, rateLimitMap, switchMapWithComplete } from '@yuants/utils';
+import Ajv from 'ajv';
 import { isNode } from 'browser-or-node';
 import {
   EMPTY,
@@ -20,7 +21,6 @@ import {
   groupBy,
   interval,
   map,
-  mergeAll,
   mergeMap,
   of,
   pairwise,
@@ -160,33 +160,64 @@ export class Terminal {
 
   request<T extends string>(
     method: T,
-    target_terminal_id: string,
+    target_terminal_id: string | undefined,
     req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req'],
   ): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage> {
     const trace_id = UUID();
-    const msg: ITerminalMessage = {
-      trace_id,
-      method,
-      target_terminal_id,
-      source_terminal_id: this.terminalInfo.terminal_id,
-      req,
-    };
     return defer(() => {
-      this._conn.output$.next(msg);
-      return this._conn.input$.pipe(
-        filter((m) => m.trace_id === trace_id),
-        // complete immediately when res is received
-        takeWhile((msg1) => msg1.res === undefined, true),
+      if (target_terminal_id !== undefined) {
+        return of(target_terminal_id);
+      }
+      return this.terminalInfos$.pipe(
+        mergeMap((x) => x),
+        filter((terminalInfo) => {
+          if (!terminalInfo.discriminator) return false;
+          return new Ajv({ strict: false }).validate(terminalInfo.discriminator, { method, req });
+        }),
+        map((terminalInfo) => terminalInfo.terminal_id),
+        toArray(),
+        map((arr) => {
+          const N = arr.length;
+          if (N === 0) {
+            throw Error(`No terminal available for request: method=${method} req=${JSON.stringify(req)}`);
+          }
+          // Hash the trace_id to select a terminal
+          let sum = 0;
+          for (let i = trace_id.length - 1; i >= 0; i--) {
+            // NOTE: trace_id UUID 0-9 (48-57) + a-f (97-102)
+            const num = trace_id.charCodeAt(i);
+            // num >>6 === 0 => num < 64 => 0-9 (48-57)
+            // num >>6 !== 0 => num >= 64 => a-f (97-102)
+            sum = ((sum << 4) + (num >> 6 ? num - 87 : num - 48)) % N;
+          }
+          return arr[sum];
+        }),
       );
     }).pipe(
-      //
-      timeout({
-        first: 30000,
-        each: 10000,
-        meta: `request Timeout: method=${msg.method} target=${target_terminal_id}`,
+      map(
+        (target_terminal_id): ITerminalMessage => ({
+          trace_id,
+          method,
+          target_terminal_id,
+          source_terminal_id: this.terminalInfo.terminal_id,
+          req,
+        }),
+      ),
+      mergeMap((msg): Observable<any> => {
+        this._conn.output$.next(msg);
+        return this._conn.input$.pipe(
+          filter((m) => m.trace_id === trace_id),
+          // complete immediately when res is received
+          takeWhile((msg1) => msg1.res === undefined, true),
+          timeout({
+            first: 30000,
+            each: 10000,
+            meta: `request Timeout: method=${msg.method} target=${target_terminal_id}`,
+          }),
+          share(),
+        );
       }),
-      share(),
-    ) as any;
+    );
   }
 
   private setupDebugLog = () => {
@@ -479,7 +510,12 @@ export class Terminal {
    */
   terminalInfos$ = defer(() =>
     this.queryDataRecords<ITerminalInfo>(
-      { type: 'terminal_info', options: { sort: [['tags.terminal_id', 1]] } },
+      {
+        type: 'terminal_info',
+        options: { sort: [['tags.terminal_id', 1]] },
+      },
+      // ISSUE: Must specified the terminal_id
+      // TODO: Extract terminalInfo router terminal later
       'MongoDB',
     ),
   ).pipe(
@@ -535,12 +571,9 @@ export class Terminal {
     const hub: Record<string, Observable<IProduct[]>> = {};
     return (datasource_id: string) =>
       (hub[datasource_id] ??= defer(() =>
-        this.queryProducts(
-          {
-            datasource_id,
-          },
-          'MongoDB',
-        ),
+        this.queryProducts({
+          datasource_id,
+        }),
       ).pipe(
         //
         timeout(60000),
@@ -579,16 +612,13 @@ export class Terminal {
             from(terminal.services || []).pipe(
               filter((service) => service.account_id === account_id),
               delayWhen(() =>
-                this.updateDataRecords(
-                  [
-                    mapSubscriptionRelationToDataRecord({
-                      channel_id: encodePath('AccountInfo', account_id),
-                      provider_terminal_id: terminal.terminal_id,
-                      consumer_terminal_id: this.terminalInfo.terminal_id,
-                    }),
-                  ],
-                  'MongoDB',
-                ).pipe(
+                this.updateDataRecords([
+                  mapSubscriptionRelationToDataRecord({
+                    channel_id: encodePath('AccountInfo', account_id),
+                    provider_terminal_id: terminal.terminal_id,
+                    consumer_terminal_id: this.terminalInfo.terminal_id,
+                  }),
+                ]).pipe(
                   // ISSUE: delayWhen must return at least one data, otherwise the entire stream will end
                   concatWith(of(0)),
                 ),
@@ -619,16 +649,13 @@ export class Terminal {
             from(terminal.services || []).pipe(
               filter((service) => service.datasource_id === datasource_id),
               delayWhen(() =>
-                this.updateDataRecords(
-                  [
-                    mapSubscriptionRelationToDataRecord({
-                      channel_id: encodePath('Period', datasource_id, product_id, period_in_sec),
-                      provider_terminal_id: terminal.terminal_id,
-                      consumer_terminal_id: this.terminalInfo.terminal_id,
-                    }),
-                  ],
-                  'MongoDB',
-                ).pipe(
+                this.updateDataRecords([
+                  mapSubscriptionRelationToDataRecord({
+                    channel_id: encodePath('Period', datasource_id, product_id, period_in_sec),
+                    provider_terminal_id: terminal.terminal_id,
+                    consumer_terminal_id: this.terminalInfo.terminal_id,
+                  }),
+                ]).pipe(
                   //
                   concatWith(of(0)),
                 ),
@@ -659,16 +686,13 @@ export class Terminal {
             from(terminal.services || []).pipe(
               filter((service) => service.datasource_id === datasource_id),
               delayWhen(() =>
-                this.updateDataRecords(
-                  [
-                    mapSubscriptionRelationToDataRecord({
-                      channel_id: encodePath('Tick', datasource_id, product_id),
-                      provider_terminal_id: terminal.terminal_id,
-                      consumer_terminal_id: this.terminalInfo.terminal_id,
-                    }),
-                  ],
-                  'MongoDB',
-                ).pipe(
+                this.updateDataRecords([
+                  mapSubscriptionRelationToDataRecord({
+                    channel_id: encodePath('Tick', datasource_id, product_id),
+                    provider_terminal_id: terminal.terminal_id,
+                    consumer_terminal_id: this.terminalInfo.terminal_id,
+                  }),
+                ]).pipe(
                   //
                   concatWith(of(0)),
                 ),
@@ -744,7 +768,7 @@ export class Terminal {
     });
   };
 
-  copyDataRecords = (req: ICopyDataRecordsRequest, target_terminal_id: string) =>
+  copyDataRecords = (req: ICopyDataRecordsRequest, target_terminal_id?: string) =>
     this.request('CopyDataRecords', target_terminal_id, req).pipe(
       mergeMap((msg) => {
         if (msg.res) {
@@ -758,7 +782,7 @@ export class Terminal {
       }),
     );
 
-  queryDataRecords = <T>(req: IQueryDataRecordsRequest, target_terminal_id: string) =>
+  queryDataRecords = <T>(req: IQueryDataRecordsRequest, target_terminal_id?: string) =>
     this.request('QueryDataRecords', target_terminal_id, req).pipe(
       mergeMap((msg) => {
         if (msg.frame) {
@@ -773,7 +797,7 @@ export class Terminal {
       }),
     );
 
-  updateDataRecords = (records: IDataRecord<any>[], target_terminal_id: string) =>
+  updateDataRecords = (records: IDataRecord<any>[], target_terminal_id?: string) =>
     this.request('UpdateDataRecords', target_terminal_id, records).pipe(
       mergeMap((msg) => {
         if (msg.res) {
@@ -785,7 +809,7 @@ export class Terminal {
       }),
     );
 
-  removeDataRecords = (req: IRemoveDataRecordsRequest, target_terminal_id: string) =>
+  removeDataRecords = (req: IRemoveDataRecordsRequest, target_terminal_id?: string) =>
     this.request('RemoveDataRecords', target_terminal_id, req).pipe(
       mergeMap((msg) => {
         if (msg.res) {
@@ -797,7 +821,7 @@ export class Terminal {
       }),
     );
 
-  queryHistoryOrders = (req: IQueryHistoryOrdersRequest, target_terminal_id: string) => {
+  queryHistoryOrders = (req: IQueryHistoryOrdersRequest, target_terminal_id?: string) => {
     return of(0).pipe(
       //
       delayWhen(() => {
@@ -844,7 +868,7 @@ export class Terminal {
     );
   };
 
-  queryPeriods = (req: IQueryPeriodsRequest, target_terminal_id: string) => {
+  queryPeriods = (req: IQueryPeriodsRequest, target_terminal_id?: string) => {
     return of(0).pipe(
       //
       delayWhen(() => {
@@ -911,7 +935,7 @@ export class Terminal {
     );
   };
 
-  queryProducts = (req: IQueryProductsRequest, target_terminal_id: string) => {
+  queryProducts = (req: IQueryProductsRequest, target_terminal_id?: string) => {
     return of(0).pipe(
       //
       delayWhen(() => {
@@ -1208,7 +1232,7 @@ export class Terminal {
   /**
    * Push history orders to all subscriber terminals
    */
-  updateHistoryOrders = (orders: IOrder[], target_terminal_id: string) => {
+  updateHistoryOrders = (orders: IOrder[], target_terminal_id?: string) => {
     return from(orders).pipe(
       //
       map(mapOrderToDataRecord),
@@ -1221,7 +1245,7 @@ export class Terminal {
   /**
    * Push history Periods to all subscriber terminals
    */
-  updatePeriods = (periods: IPeriod[], target_terminal_id: string) => {
+  updatePeriods = (periods: IPeriod[], target_terminal_id?: string) => {
     return from(periods).pipe(
       //
       map(mapPeriodToDataRecord),
@@ -1234,7 +1258,7 @@ export class Terminal {
   /**
    * Push Products to all subscriber terminals
    */
-  updateProducts = (products: IProduct[], target_terminal_id: string) => {
+  updateProducts = (products: IProduct[], target_terminal_id?: string) => {
     return from(products).pipe(
       //
       map(mapProductToDataRecord),
@@ -1248,10 +1272,10 @@ export class Terminal {
    * Subscription snapshot of the same host
    */
   subscriptionSnapshot$ = defer(() =>
-    this.queryDataRecords<ISubscriptionRelation>(
-      { type: 'subscription_relation', tags: { provider_terminal_id: this.terminalInfo.terminal_id } },
-      'MongoDB',
-    ),
+    this.queryDataRecords<ISubscriptionRelation>({
+      type: 'subscription_relation',
+      tags: { provider_terminal_id: this.terminalInfo.terminal_id },
+    }),
   ).pipe(
     //
     map((x) => x.origin),

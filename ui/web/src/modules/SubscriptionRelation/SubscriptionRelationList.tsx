@@ -58,21 +58,18 @@ registerPage('SubscriptionRelationList', () => {
         //
         mergeMap(([terminal, [searchFormData]]) =>
           terminal
-            .queryDataRecords<ISubscriptionRelation>(
-              {
-                type: TYPE,
-                tags: {
-                  ...(searchFormData.channel_id ? { channel_id: searchFormData.channel_id } : {}),
-                  ...(searchFormData.provider_terminal_id
-                    ? { provider_terminal_id: searchFormData.provider_terminal_id }
-                    : {}),
-                  ...(searchFormData.consumer_terminal_id
-                    ? { consumer_terminal_id: searchFormData.consumer_terminal_id }
-                    : {}),
-                },
+            .queryDataRecords<ISubscriptionRelation>({
+              type: TYPE,
+              tags: {
+                ...(searchFormData.channel_id ? { channel_id: searchFormData.channel_id } : {}),
+                ...(searchFormData.provider_terminal_id
+                  ? { provider_terminal_id: searchFormData.provider_terminal_id }
+                  : {}),
+                ...(searchFormData.consumer_terminal_id
+                  ? { consumer_terminal_id: searchFormData.consumer_terminal_id }
+                  : {}),
               },
-              'MongoDB',
-            )
+            })
             .pipe(
               //
               toArray(),
@@ -148,13 +145,10 @@ registerPage('SubscriptionRelationList', () => {
                         //
                         first(),
                         mergeMap((terminal) =>
-                          terminal.removeDataRecords(
-                            {
-                              type: TYPE,
-                              id: record.id,
-                            },
-                            'MongoDB',
-                          ),
+                          terminal.removeDataRecords({
+                            type: TYPE,
+                            id: record.id,
+                          }),
                         ),
                         tap({
                           complete: () => {
@@ -183,7 +177,7 @@ registerPage('SubscriptionRelationList', () => {
           terminal$
             .pipe(
               first(),
-              mergeMap((terminal) => terminal.updateDataRecords([record], 'MongoDB')),
+              mergeMap((terminal) => terminal.updateDataRecords([record])),
               tap({
                 complete: () => {
                   Toast.success(`成功更新数据记录 ${record.id}`);

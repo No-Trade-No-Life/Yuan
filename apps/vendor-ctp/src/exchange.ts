@@ -76,7 +76,6 @@ import { IBridgeMessage, createZMQConnection } from './bridge';
 
 const ACCOUNT_ID = `${process.env.BROKER_ID!}/${process.env.USER_ID!}`;
 const DATASOURCE_ID = ACCOUNT_ID;
-const STORAGE_TERMINAL_ID = process.env.STORAGE_TERMINAL_ID!;
 
 const parseCTPTime = (date: string, time: string): Date =>
   parse(`${date}-${time}`, 'yyyyMMdd-HH:mm:ss', new Date());
@@ -618,11 +617,9 @@ const products$ = defer(() => loginRes$.pipe(first())).pipe(
   shareReplay(1),
 );
 
-products$
-  .pipe(delayWhen((products) => terminal.updateProducts(products, STORAGE_TERMINAL_ID)))
-  .subscribe(() => {
-    console.info(formatTime(Date.now()), '更新品种信息成功');
-  });
+products$.pipe(delayWhen((products) => terminal.updateProducts(products))).subscribe(() => {
+  console.info(formatTime(Date.now()), '更新品种信息成功');
+});
 
 const mapProductIdToProduct$ = products$.pipe(
   map((products) => Object.fromEntries(products.map((v) => [v.product_id, v]))),
@@ -654,7 +651,7 @@ terminal.setupService('QueryHistoryOrders', () =>
     mergeMap(([loginRes, settlementRes]) =>
       queryHistoryOrders(zmqConn, loginRes.BrokerID, settlementRes.InvestorID).pipe(
         //
-        delayWhen((data) => terminal.updateHistoryOrders(data, STORAGE_TERMINAL_ID)),
+        delayWhen((data) => terminal.updateHistoryOrders(data)),
         map((data) => ({ res: { code: 0, message: 'OK', data: data } })),
       ),
     ),

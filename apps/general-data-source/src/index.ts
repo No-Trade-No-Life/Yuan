@@ -61,7 +61,6 @@ const ajv = new Ajv();
 const validate = ajv.compile(schema);
 
 const HV_URL = process.env.HV_URL!;
-const STORAGE_TERMINAL_ID = process.env.STORAGE_TERMINAL_ID!;
 const QUERY_CONCURRENCY = +process.env.QUERY_CONCURRENCY! || 10;
 const TERMINAL_ID = process.env.TERMINAL_ID || 'GeneralDataSource';
 
@@ -95,18 +94,15 @@ const syncData = (
     //
     map((gsr) =>
       defer(() =>
-        term.queryDataRecords<IPeriod>(
-          {
-            type: 'period',
-            tags: {
-              datasource_id: gsr.specific_datasource_id,
-              product_id: gsr.specific_product_id,
-              period_in_sec: '' + period_in_sec,
-            },
-            time_range: [start, end],
+        term.queryDataRecords<IPeriod>({
+          type: 'period',
+          tags: {
+            datasource_id: gsr.specific_datasource_id,
+            product_id: gsr.specific_product_id,
+            period_in_sec: '' + period_in_sec,
           },
-          STORAGE_TERMINAL_ID,
-        ),
+          time_range: [start, end],
+        }),
       ).pipe(
         //
         map((v) => v.origin),
@@ -181,12 +177,9 @@ const syncData = (
 };
 
 const mapProductIdToGSRList$ = defer(() =>
-  term.queryDataRecords<IGeneralSpecificRelation>(
-    {
-      type: 'general_specific_relation',
-    },
-    STORAGE_TERMINAL_ID,
-  ),
+  term.queryDataRecords<IGeneralSpecificRelation>({
+    type: 'general_specific_relation',
+  }),
 ).pipe(
   //
   map((record) => {
@@ -236,7 +229,7 @@ term.setupService(
       mergeMap((gsrList) =>
         syncData(product_id, +period_in_sec, gsrList, [start_time, end_time]).pipe(
           //
-          delayWhen((periods) => term.updatePeriods(periods, STORAGE_TERMINAL_ID)),
+          delayWhen((periods) => term.updatePeriods(periods)),
         ),
       ),
       tap((periods) => {

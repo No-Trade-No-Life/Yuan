@@ -64,12 +64,9 @@ registerPage('TradeConfigList', () => {
         //
         mergeMap(([terminal, [searchFormData]]) =>
           terminal
-            .queryDataRecords<ITradeCopierTradeConfig>(
-              {
-                type: TYPE,
-              },
-              'MongoDB',
-            )
+            .queryDataRecords<ITradeCopierTradeConfig>({
+              type: TYPE,
+            })
             .pipe(
               //
               toArray(),
@@ -144,13 +141,10 @@ registerPage('TradeConfigList', () => {
                         //
                         first(),
                         mergeMap((terminal) =>
-                          terminal.removeDataRecords(
-                            {
-                              type: TYPE,
-                              id: record.id,
-                            },
-                            'MongoDB',
-                          ),
+                          terminal.removeDataRecords({
+                            type: TYPE,
+                            id: record.id,
+                          }),
                         ),
                         tap({
                           complete: () => {
@@ -179,7 +173,7 @@ registerPage('TradeConfigList', () => {
           terminal$
             .pipe(
               first(),
-              mergeMap((terminal) => terminal.updateDataRecords([record], 'MongoDB')),
+              mergeMap((terminal) => terminal.updateDataRecords([record])),
               tap({
                 complete: () => {
                   Toast.success(`成功更新数据记录 ${record.id}`);

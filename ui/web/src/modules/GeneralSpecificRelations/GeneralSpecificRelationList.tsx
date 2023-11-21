@@ -64,14 +64,11 @@ registerPage('GeneralSpecificRelationList', () => {
         //
         mergeMap(([terminal, [searchFormData]]) =>
           terminal
-            .queryDataRecords<IGeneralSpecificRelation>(
-              {
-                type: 'general_specific_relation',
-                tags: {},
-                options: {},
-              },
-              'MongoDB',
-            )
+            .queryDataRecords<IGeneralSpecificRelation>({
+              type: 'general_specific_relation',
+              tags: {},
+              options: {},
+            })
             .pipe(
               //
               filter(
@@ -159,13 +156,10 @@ registerPage('GeneralSpecificRelationList', () => {
                           //
                           first(),
                           mergeMap((terminal) =>
-                            terminal.removeDataRecords(
-                              {
-                                type: 'general_specific_relation',
-                                id: record.id,
-                              },
-                              'MongoDB',
-                            ),
+                            terminal.removeDataRecords({
+                              type: 'general_specific_relation',
+                              id: record.id,
+                            }),
                           ),
                           tap({
                             complete: () => {
@@ -195,7 +189,7 @@ registerPage('GeneralSpecificRelationList', () => {
           terminal$
             .pipe(
               first(),
-              mergeMap((terminal) => terminal.updateDataRecords([record], 'MongoDB')),
+              mergeMap((terminal) => terminal.updateDataRecords([record])),
               tap({
                 complete: () => {
                   Toast.success(`成功更新数据记录 ${record.id}`);

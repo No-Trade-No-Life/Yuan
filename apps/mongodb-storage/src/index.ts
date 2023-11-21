@@ -13,6 +13,12 @@ const terminal = new Terminal(HV_URL, {
       storage: {},
     },
   ],
+  discriminator: {
+    type: 'object',
+    properties: {
+      method: { enum: ['QueryDataRecords', 'UpdateDataRecords', 'RemoveDataRecords'] },
+    },
+  },
 });
 
 const mongo = new MongoClient(process.env.MONGO_URI!);
