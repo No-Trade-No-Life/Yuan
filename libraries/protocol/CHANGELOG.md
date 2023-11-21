@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Sat, 18 Nov 2023 18:35:47 GMT and should not be manually modified.
+This log was last generated on Tue, 21 Nov 2023 10:59:13 GMT and should not be manually modified.
+
+## 0.3.0
+Tue, 21 Nov 2023 10:59:13 GMT
+
+### Minor changes
+
+- add discriminator
 
 ## 0.2.2
 Sat, 18 Nov 2023 18:35:47 GMT

@@ -2,6 +2,34 @@
   "name": "@yuants/app-agent",
   "entries": [
     {
+      "version": "0.3.6",
+      "tag": "@yuants/app-agent_v0.3.6",
+      "date": "Tue, 21 Nov 2023 10:59:13 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove 'MongoDB' hard-coded terminal_id"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/agent\" to `0.4.5`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.4.5`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.3.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.5",
       "tag": "@yuants/app-agent_v0.3.5",
       "date": "Sat, 18 Nov 2023 18:35:47 GMT",
