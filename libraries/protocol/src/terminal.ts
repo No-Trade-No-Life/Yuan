@@ -186,8 +186,8 @@ export class Terminal {
           for (let i = trace_id.length - 1; i >= 0; i--) {
             // NOTE: trace_id UUID 0-9 (48-57) + a-f (97-102)
             const num = trace_id.charCodeAt(i);
-            // num >>6 !== 0 => num < 64 => 0-9 (48-57)
-            // num >>6 === 0 => num >= 64 => a-f (97-102)
+            // num >>6 === 0 => num < 64 => 0-9 (48-57)
+            // num >>6 !== 0 => num >= 64 => a-f (97-102)
             sum = ((sum << 4) + (num >> 6 ? num - 87 : num - 48)) % N;
           }
           return arr[sum];
