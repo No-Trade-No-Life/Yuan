@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "fix request load balancer",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
