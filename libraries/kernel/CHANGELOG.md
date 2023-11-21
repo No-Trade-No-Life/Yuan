@@ -1,6 +1,13 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Tue, 21 Nov 2023 12:39:54 GMT and should not be manually modified.
+This log was last generated on Tue, 21 Nov 2023 17:11:58 GMT and should not be manually modified.
+
+## 0.4.7
+Tue, 21 Nov 2023 17:11:58 GMT
+
+### Patches
+
+- RealtimePeriodLoadingUnit back to 'Feed' interface
 
 ## 0.4.6
 Tue, 21 Nov 2023 12:39:54 GMT
