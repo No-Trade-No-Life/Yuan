@@ -542,16 +542,12 @@ export class PeriodDataCheckingUnit extends BasicUnit {
 // @public
 export class PeriodDataUnit extends BasicUnit {
     constructor(kernel: Kernel, quoteDataUnit: QuoteDataUnit);
-    // @deprecated (undocumented)
-    currentPeriod: IPeriod | null;
     // (undocumented)
     data: Record<string, IPeriod[]>;
     // (undocumented)
     dump(): {};
     // (undocumented)
     kernel: Kernel;
-    // (undocumented)
-    onEvent(): void;
     periodUpdated$: Observable<IPeriod>;
     // (undocumented)
     quoteDataUnit: QuoteDataUnit;
