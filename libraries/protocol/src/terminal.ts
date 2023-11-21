@@ -169,6 +169,7 @@ export class Terminal {
         return of(target_terminal_id);
       }
       return this.terminalInfos$.pipe(
+        first(),
         mergeMap((x) => x),
         filter((terminalInfo) => {
           if (!terminalInfo.discriminator) return false;
@@ -181,7 +182,11 @@ export class Terminal {
           if (N === 0) {
             throw Error(`No terminal available for request: method=${method} req=${JSON.stringify(req)}`);
           }
-          // Hash the trace_id to select a terminal
+          // No need to balance workload
+          if (N === 1) {
+            return arr[0];
+          }
+          // Load Balance: Hash the trace_id to select a terminal
           let sum = 0;
           for (let i = trace_id.length - 1; i >= 0; i--) {
             // NOTE: trace_id UUID 0-9 (48-57) + a-f (97-102)
