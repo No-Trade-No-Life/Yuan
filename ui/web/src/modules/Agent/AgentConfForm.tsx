@@ -1,4 +1,12 @@
-import { IconCode, IconFile, IconPlay, IconRefresh, IconSave, IconWrench } from '@douyinfe/semi-icons';
+import {
+  IconCloud,
+  IconCode,
+  IconFile,
+  IconPlay,
+  IconRefresh,
+  IconSave,
+  IconWrench,
+} from '@douyinfe/semi-icons';
 import { Button, Divider, Layout, Space, Toast } from '@douyinfe/semi-ui';
 import { AgentScene, IAgentConf, agentConfSchema } from '@yuants/agent';
 import Ajv from 'ajv';
@@ -24,6 +32,7 @@ import {
 import { AccountFrameUnit } from '../AccountInfo/AccountFrameUnit';
 import { accountFrameSeries$, accountPerformance$ } from '../AccountInfo/model';
 import { executeCommand, registerCommand } from '../CommandCenter';
+import { resolveVersion } from '../Extensions';
 import { fs } from '../FileSystem/api';
 import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehaviorSubject';
 import Form, { showForm } from '../Form';
@@ -32,6 +41,7 @@ import { orders$ } from '../Order/model';
 import { registerPage } from '../Pages';
 import { recordTable$ } from '../Shell/model';
 import { LocalAgentScene } from '../StaticFileServerStorage/LocalAgentScene';
+import { authState$, supabase } from '../SupaBase';
 import { terminal$ } from '../Terminals';
 import { clearLogAction$ } from '../Workbench/Program';
 import { currentHostConfig$ } from '../Workbench/model';
@@ -192,6 +202,7 @@ registerPage('AgentConfForm', () => {
   const schema = useObservableState(agentConfSchema$) || {};
   const complete = useObservableState(complete$);
   const { t } = useTranslation('AgentConfForm');
+  const authState = useObservableState(authState$);
 
   return (
     <Layout style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
@@ -244,7 +255,28 @@ registerPage('AgentConfForm', () => {
               executeCommand('FileEditor', { filename: agentConf?.entry });
             }}
           >
-            {t('view_source')}
+            {t('common:view_source')}
+          </Button>
+          <Button
+            icon={<IconCloud />}
+            disabled={!authState}
+            onClick={async () => {
+              const { version } = await resolveVersion('@yuants/app-agent');
+              const res = await supabase.from('agent').insert({
+                host_url: currentHostConfig$.value?.host_url,
+                key: agentConf?.kernel_id ?? 'Model',
+                version: version,
+                one_json: agentConf,
+              });
+              if (res.error) {
+                Toast.error(`${t('common:failed')}: ${res.error.code} ${res.error.message}`);
+                return;
+              }
+              Toast.success(t('common:succeed'));
+              executeCommand('CloudAgentList');
+            }}
+          >
+            {t('cloud_deploy')}
           </Button>
         </Space>
         <Divider />

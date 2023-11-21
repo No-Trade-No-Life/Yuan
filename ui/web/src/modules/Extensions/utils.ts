@@ -183,8 +183,8 @@ function getPackageDir(packageName: string) {
   return join('/.Y/extensions', packageName.replace('@', '').replace('/', '-'));
 }
 
-async function resolveVersion(packageName: string, ver?: string) {
+export async function resolveVersion(packageName: string, ver?: string) {
   const meta = await fetch(`https://registry.npmjs.org/${packageName}`).then((x) => x.json());
-  const version = ver || meta['dist-tags'].latest;
+  const version: string = ver || meta['dist-tags'].latest;
   return { meta, version };
 }
