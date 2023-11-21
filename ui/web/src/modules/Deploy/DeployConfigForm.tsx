@@ -1,5 +1,5 @@
-import { IconRefresh } from '@douyinfe/semi-icons';
-import { Button, Select, Space, Table, Toast, Typography } from '@douyinfe/semi-ui';
+import { IconCode, IconRefresh } from '@douyinfe/semi-icons';
+import { Button, Select, Space, Table, Toast } from '@douyinfe/semi-ui';
 import { IDeploySpec, IEnvContext, mergeSchema } from '@yuants/extension';
 import Ajv from 'ajv';
 import { t } from 'i18next';
@@ -20,6 +20,7 @@ import {
   toArray,
 } from 'rxjs';
 import YAML from 'yaml';
+import { executeCommand } from '../CommandCenter';
 import { DeployProviders, ImageTags } from '../Extensions/utils';
 import { fs } from '../FileSystem/api';
 import { shareHosts$ } from '../Host/model';
@@ -261,8 +262,15 @@ registerPage('DeployConfigForm', () => {
 
   return (
     <Space vertical align="start">
-      <Typography.Text>部署配置: {filename}</Typography.Text>
       <Space align="start">
+        <Button
+          icon={<IconCode />}
+          onClick={() => {
+            executeCommand('FileEditor', { filename: filename });
+          }}
+        >
+          {t('common:view_source')}
+        </Button>
         <Button
           onClick={() => {
             setRefreshCount(refreshCount + 1);
