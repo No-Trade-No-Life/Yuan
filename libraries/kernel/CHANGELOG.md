@@ -1,6 +1,13 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Sat, 18 Nov 2023 18:35:47 GMT and should not be manually modified.
+This log was last generated on Tue, 21 Nov 2023 10:59:13 GMT and should not be manually modified.
+
+## 0.4.5
+Tue, 21 Nov 2023 10:59:13 GMT
+
+### Patches
+
+- remove 'MongoDB' hard-coded terminal_id
 
 ## 0.4.4
 Sat, 18 Nov 2023 18:35:47 GMT
