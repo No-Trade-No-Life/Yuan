@@ -11,7 +11,6 @@ import {
   map,
   mergeAll,
   mergeMap,
-  repeat,
   retry,
   tap,
   timer,
@@ -39,13 +38,13 @@ const mapSubscriptionRelationToDataRecord = (
 });
 
 const mapPeriodInSecToCronPattern: Record<string, string> = {
-  60: '* * * * 1-5',
-  300: '*/5 * * * 1-5',
-  900: '*/15 * * * 1-5',
-  1800: '*/30 * * * 1-5',
-  3600: '0 * * * 1-5',
-  14400: '0 */4 * * 1-5',
-  86400: '0 16 * * 1-5',
+  60: '* * * * *',
+  300: '*/5 * * * *',
+  900: '*/15 * * * *',
+  1800: '*/30 * * * *',
+  3600: '0 * * * *',
+  14400: '0 */4 * * *',
+  86400: '0 0 * * *',
 };
 
 interface IPullSourceRelation {
@@ -79,7 +78,7 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
     super(kernel);
     this.kernel = kernel;
   }
-  private mapEventIdToPeriod = new Map<number, IPeriod>();
+  private mapEventIdToPeriod = new Map<number, IPeriod[]>();
 
   periodTasks: {
     datasource_id: string;
@@ -94,9 +93,12 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
     }
   }
   onEvent(): void | Promise<void> {
-    const period = this.mapEventIdToPeriod.get(this.kernel.currentEventId);
-    if (period) {
-      this.periodDataUnit.updatePeriod(period);
+    const periods = this.mapEventIdToPeriod.get(this.kernel.currentEventId);
+    if (periods) {
+      periods.forEach((period) => {
+        this.periodDataUnit.updatePeriod(period);
+      });
+
       this.mapEventIdToPeriod.delete(this.kernel.currentEventId);
     }
   }
@@ -127,7 +129,7 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
           product_id: task.product_id,
           period_in_sec: task.period_in_sec,
           cron_pattern: mapPeriodInSecToCronPattern[task.period_in_sec],
-          cron_timezone: ['TQ'].includes(task.datasource_id) ? 'Asia/Shanghai' : 'EET',
+          cron_timezone: 'GMT',
           timeout: ~~((task.period_in_sec * 1000) / 3),
           retry_times: 3,
         })),
@@ -158,68 +160,63 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
       const theProduct = this.productDataUnit.mapProductIdToProduct[product_id];
 
       // ISSUE: period_stream 依赖订阅关系的存在性，因此要先添加订阅关系
-      defer(() => this.terminal.terminalInfos$)
-        .pipe(
-          first(),
-          mergeAll(),
-          mergeMap((terminal) =>
-            from(terminal.services || []).pipe(
-              filter((service) => service.datasource_id === datasource_id),
-              tap((service) => {
-                console.info(
-                  formatTime(Date.now()),
-                  '更新订阅关系',
-                  JSON.stringify({
-                    channel_id: encodePath('Period', datasource_id, product_id, period_in_sec),
-                    provider_terminal_id: terminal.terminal_id,
-                    consumer_terminal_id: this.terminal.terminalInfo.terminal_id,
-                  }),
-                );
-              }),
-              mergeMap(() =>
-                this.terminal.updateDataRecords([
-                  mapSubscriptionRelationToDataRecord({
-                    channel_id: encodePath('Period', datasource_id, product_id, period_in_sec),
-                    provider_terminal_id: terminal.terminal_id,
-                    consumer_terminal_id: this.terminal.terminalInfo.terminal_id,
-                  }),
-                ]),
+      this.subscriptions.push(
+        defer(() => this.terminal.terminalInfos$)
+          .pipe(
+            first(),
+            mergeAll(),
+            mergeMap((terminal) =>
+              from(terminal.services || []).pipe(
+                filter((service) => service.datasource_id === datasource_id),
+                tap((service) => {
+                  console.info(
+                    formatTime(Date.now()),
+                    '更新订阅关系',
+                    JSON.stringify({
+                      channel_id: encodePath('Period', datasource_id, product_id, period_in_sec),
+                      provider_terminal_id: terminal.terminal_id,
+                      consumer_terminal_id: this.terminal.terminalInfo.terminal_id,
+                    }),
+                  );
+                }),
+                mergeMap(() =>
+                  this.terminal.updateDataRecords([
+                    mapSubscriptionRelationToDataRecord({
+                      channel_id: encodePath('Period', datasource_id, product_id, period_in_sec),
+                      provider_terminal_id: terminal.terminal_id,
+                      consumer_terminal_id: this.terminal.terminalInfo.terminal_id,
+                    }),
+                  ]),
+                ),
+                tap(() => {
+                  console.info(formatTime(Date.now()), '订阅关系更新成功');
+                }),
               ),
-              tap(() => {
-                console.info(formatTime(Date.now()), '订阅关系更新成功');
-              }),
             ),
-          ),
-          retry({ delay: 1000 }),
-        )
-        .subscribe();
+            retry({ delay: 1000 }),
+          )
+          .subscribe(),
+      );
 
-      let updated_since = Date.now();
-      const sub = defer(() =>
-        this.terminal.queryDataRecords<IPeriod>({
-          type: 'period_stream',
-          tags: { datasource_id, product_id, period_in_sec: period_in_sec.toString() },
-          updated_since,
-          options: { sort: [['tags.timestamp_in_us', 1]] },
+      const channelId = encodePath('Period', datasource_id, product_id, period_in_sec);
+      // ISSUE: Period[].length >= 2 to ensure overlay
+      this.subscriptions.push(
+        this.terminal.useFeed<IPeriod[]>(channelId).subscribe((periods) => {
+          if (periods.length < 2) {
+            console.warn(
+              formatTime(Date.now()),
+              `Period feeds too less. channel="${channelId}"`,
+              JSON.stringify(periods),
+            );
+            return;
+          }
+          const eventId = this.kernel.alloc(Date.now());
+          this.mapEventIdToPeriod.set(
+            eventId,
+            periods.map((period) => ({ ...period, spread: period.spread || theProduct.spread || 0 })),
+          );
         }),
-      )
-        .pipe(
-          //
-          tap((x) => {
-            updated_since = Math.max(updated_since, x.updated_at);
-            // ISSUE: 对于实时数据单元，要使用 Date.now() 作为时间戳，而不是数据自身的 updated_at
-            // 否则会导致调度错误，时间倒流，从而导致此事件无法被响应
-            const id = this.kernel.alloc(Date.now());
-            this.mapEventIdToPeriod.set(id, {
-              ...x.origin,
-              spread: x.origin.spread || theProduct.spread || 0,
-            });
-          }),
-          retry({ delay: 1000 }),
-          repeat({ delay: 1000 }),
-        )
-        .subscribe();
-      this.subscriptions.push(sub);
+      );
     }
   }
   onDispose(): void | Promise<void> {

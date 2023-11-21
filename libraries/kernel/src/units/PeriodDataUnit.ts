@@ -20,22 +20,19 @@ export class PeriodDataUnit extends BasicUnit {
 
   data: Record<string, IPeriod[]> = {};
 
-  /**
-   * @deprecated - use 'periodUpdated$' to subscribe changes
-   */
-  currentPeriod: IPeriod | null = null;
-
-  onEvent(): void {
-    this.currentPeriod = null;
-  }
-
   updatePeriod(period: IPeriod) {
     const key = [period.datasource_id, period.product_id, period.period_in_sec].join();
     const list = (this.data[key] ??= []);
     const idx = list.length - 1;
-    const updateIdx = idx >= 0 && list[idx].timestamp_in_us === period.timestamp_in_us ? idx : idx + 1;
-    this.currentPeriod = list[updateIdx] = period;
-    // 抄送报价
+
+    // ISSUE: skip if the period is older than the latest period
+    if (list[idx]?.timestamp_in_us > period.timestamp_in_us) return;
+
+    // Overwrite Period or Append Period
+    const updateIdx = list[idx]?.timestamp_in_us === period.timestamp_in_us ? idx : idx + 1;
+    // Update Period
+    list[updateIdx] = period;
+    // Copy to QuoteDataUnit
     this.quoteDataUnit.mapProductIdToQuote[period.product_id] = {
       bid: period.close,
       ask: period.close + (period.spread || 0),
@@ -46,12 +43,10 @@ export class PeriodDataUnit extends BasicUnit {
   dump(): {} {
     return {
       data: this.data,
-      currentPeriod: this.currentPeriod,
     };
   }
 
   restore(state: any): void {
     this.data = state.data;
-    this.currentPeriod = state.currentPeriod;
   }
 }

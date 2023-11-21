@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/kernel",
+      "comment": "RealtimePeriodLoadingUnit back to 'Feed' interface",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/kernel"
+}
