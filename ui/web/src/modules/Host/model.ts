@@ -1,4 +1,6 @@
+import { Toast } from '@douyinfe/semi-ui';
 import { UUID } from '@yuants/data-model';
+import { t } from 'i18next';
 import { Subject, defer, repeat, shareReplay } from 'rxjs';
 import { registerCommand } from '../CommandCenter';
 import { supabase } from '../SupaBase';
@@ -23,6 +25,12 @@ export const shareHosts$ = defer(async () => {
 registerCommand('SharedHost.New', async () => {
   const res = await supabase.from('host').insert({ host_token: UUID() }).select();
   refreshAction$.next();
+  if (res.error) {
+    Toast.error(`${t('common:failed')}: ${res.error.code}, ${res.error.message}`);
+    console.error(res.error);
+    return;
+  }
+  Toast.success(t('common:succeed'));
 });
 
 registerCommand('SharedHost.Delete', async ({ host_id }) => {

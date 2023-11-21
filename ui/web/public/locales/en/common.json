@@ -17,6 +17,7 @@
   "empty": "No data",
   "export": "Export",
   "export_succeed": "Exported succeed",
+  "failed": "",
   "file_written": "File written: {{ filename }}",
   "help_url": "https://www.ntnl.io/docs/intro",
   "import": "Import",
