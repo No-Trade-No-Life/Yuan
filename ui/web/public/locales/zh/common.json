@@ -23,6 +23,7 @@
   "import": "导入",
   "import_succeed": "成功导入",
   "login": "登录",
+  "open": "打开",
   "order_direction_close_long": "平多",
   "order_direction_close_short": "平空",
   "order_direction_open_long": "开多",

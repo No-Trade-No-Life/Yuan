@@ -8,6 +8,7 @@
   "AccountReplay": "Account Replay",
   "AgentBatchBackTest": "Batch backtesting {{ filename }}",
   "AgentConfForm": "Agent",
+  "CloudAgentList": "Cloud Agents",
   "DeployConfigForm": "Deploy Configs {{ filename }}",
   "Explorer": "Explorer",
   "ExtensionPanel": "Extensions",

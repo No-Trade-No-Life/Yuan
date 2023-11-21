@@ -8,6 +8,7 @@
   "AccountReplay": "账户回放",
   "AgentBatchBackTest": "批量回测 {{ filename }}",
   "AgentConfForm": "模型配置",
+  "CloudAgentList": "云模型",
   "DeployConfigForm": "部署配置 {{ filename }}",
   "Explorer": "工作区",
   "ExtensionPanel": "应用拓展",
