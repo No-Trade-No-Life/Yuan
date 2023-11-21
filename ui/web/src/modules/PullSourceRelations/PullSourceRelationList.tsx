@@ -85,20 +85,17 @@ registerPage('PullSourceRelationList', () => {
         //
         mergeMap(([terminal, [searchFormData]]) =>
           terminal
-            .queryDataRecords<IPullSourceRelation>(
-              {
-                type: 'pull_source_relation',
-                tags: {},
-                options: {
-                  sort: [
-                    ['origin.datasource_id', 1],
-                    ['origin.product_id', 1],
-                    ['origin.period_in_sec', 1],
-                  ],
-                },
+            .queryDataRecords<IPullSourceRelation>({
+              type: 'pull_source_relation',
+              tags: {},
+              options: {
+                sort: [
+                  ['origin.datasource_id', 1],
+                  ['origin.product_id', 1],
+                  ['origin.period_in_sec', 1],
+                ],
               },
-              'MongoDB',
-            )
+            })
             .pipe(
               filter(
                 (record) =>
@@ -128,7 +125,7 @@ registerPage('PullSourceRelationList', () => {
     terminal$
       .pipe(
         first(),
-        mergeMap((terminal) => terminal.updateDataRecords([record], 'MongoDB')),
+        mergeMap((terminal) => terminal.updateDataRecords([record])),
         tap({
           complete: () => {
             Toast.success(`成功更新数据记录 ${record.id}`);
@@ -190,7 +187,7 @@ registerPage('PullSourceRelationList', () => {
                   terminal$
                     .pipe(
                       first(),
-                      mergeMap((terminal) => terminal.updateDataRecords([next], 'MongoDB')),
+                      mergeMap((terminal) => terminal.updateDataRecords([next])),
                       tap({
                         complete: () => {
                           Toast.success(`成功更新数据记录 ${record.id}`);
@@ -236,13 +233,10 @@ registerPage('PullSourceRelationList', () => {
                         //
                         first(),
                         mergeMap((terminal) =>
-                          terminal.removeDataRecords(
-                            {
-                              type: 'pull_source_relation',
-                              id: record.id,
-                            },
-                            'MongoDB',
-                          ),
+                          terminal.removeDataRecords({
+                            type: 'pull_source_relation',
+                            id: record.id,
+                          }),
                         ),
                         tap({
                           complete: () => {

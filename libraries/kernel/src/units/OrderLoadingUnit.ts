@@ -29,14 +29,11 @@ export class OrderLoadingUnit extends BasicUnit {
       );
       const orders = await lastValueFrom(
         this.terminal
-          .queryDataRecords<IOrder>(
-            {
-              type: 'order',
-              time_range: [start_time, end_time],
-              tags: { account_id },
-            },
-            'MongoDB',
-          )
+          .queryDataRecords<IOrder>({
+            type: 'order',
+            time_range: [start_time, end_time],
+            tags: { account_id },
+          })
           .pipe(
             //
             map((dataRecord) => dataRecord.origin),

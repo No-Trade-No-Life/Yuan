@@ -26,24 +26,21 @@ registerPage('ProductList', () => {
         //
         mergeMap(([terminal, [searchFormData]]) =>
           terminal
-            .queryDataRecords<IProduct>(
-              {
-                type: 'product',
-                tags: {
-                  datasource_id: searchFormData.datasource_id || undefined,
-                  product_id: searchFormData.product_id || undefined,
-                },
-                options: {
-                  limit: 200,
-                  skip: 0,
-                  sort: [
-                    ['tags.datasource_id', 1],
-                    ['tags.product_id', 1],
-                  ],
-                },
+            .queryDataRecords<IProduct>({
+              type: 'product',
+              tags: {
+                datasource_id: searchFormData.datasource_id || undefined,
+                product_id: searchFormData.product_id || undefined,
               },
-              'MongoDB',
-            )
+              options: {
+                limit: 200,
+                skip: 0,
+                sort: [
+                  ['tags.datasource_id', 1],
+                  ['tags.product_id', 1],
+                ],
+              },
+            })
             .pipe(
               //
               toArray(),
@@ -167,7 +164,7 @@ registerPage('ProductList', () => {
           terminal$
             .pipe(
               first(),
-              mergeMap((terminal) => terminal.updateProducts([formData], 'MongoDB')),
+              mergeMap((terminal) => terminal.updateProducts([formData])),
               tap({
                 complete: () => {
                   Toast.success(`成功更新品种 ${formData.datasource_id}/${formData.product_id}`);

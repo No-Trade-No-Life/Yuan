@@ -25,7 +25,7 @@ registerPage('ManualTradePanel', () => {
       account_id
         ? terminal$.pipe(
             first(),
-            mergeMap((terminal) => terminal.queryProducts({ datasource_id: account_id }, 'MongoDB')),
+            mergeMap((terminal) => terminal.queryProducts({ datasource_id: account_id })),
           )
         : of([]),
     ),

@@ -7,11 +7,10 @@ export default (context: IExtensionContext) => {
       properties: {
         env: {
           type: 'object',
-          required: ['HV_URL', 'STORAGE_TERMINAL_ID'],
+          required: ['HV_URL'],
           properties: {
             TERMINAL_ID: { type: 'string' },
             HV_URL: { type: 'string' },
-            STORAGE_TERMINAL_ID: { type: 'string' },
             QUERY_CONCURRENCY: { type: 'number' },
           },
         },

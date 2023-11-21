@@ -45,7 +45,7 @@ export const SearchButton = React.memo(() => {
         ? terminal$.pipe(
             //
             first(),
-            mergeMap((terminal) => terminal.queryProducts({ datasource_id }, 'MongoDB')),
+            mergeMap((terminal) => terminal.queryProducts({ datasource_id })),
           )
         : of([]),
     ),

@@ -8,7 +8,7 @@ export default (context: IExtensionContext) => {
       properties: {
         env: {
           type: 'object',
-          required: ['HV_URL', 'STORAGE_TERMINAL_ID'],
+          required: ['HV_URL'],
           properties: {
             AGENT_CONF_PATH: {
               title: 'Agent Config File Path',
@@ -16,10 +16,6 @@ export default (context: IExtensionContext) => {
             },
             HV_URL: {
               title: 'Host URL',
-              type: 'string',
-            },
-            STORAGE_TERMINAL_ID: {
-              title: 'Storage Terminal ID',
               type: 'string',
             },
           },

@@ -15,7 +15,6 @@ export default (context: IExtensionContext) => {
             'PASSWORD',
             'APP_ID',
             'AUTH_CODE',
-            'STORAGE_TERMINAL_ID',
           ],
           properties: {
             HV_URL: { type: 'string' },
@@ -27,7 +26,6 @@ export default (context: IExtensionContext) => {
             PASSWORD: { type: 'string', format: 'password' },
             APP_ID: { type: 'string' },
             AUTH_CODE: { type: 'string' },
-            STORAGE_TERMINAL_ID: { type: 'string' },
           },
         },
       },

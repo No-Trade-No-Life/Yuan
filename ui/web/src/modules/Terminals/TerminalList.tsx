@@ -10,7 +10,10 @@ export const terminalList$ = terminal$.pipe(
   switchMap((terminal) =>
     defer(() =>
       terminal.queryDataRecords<ITerminalInfo>(
-        { type: 'terminal_info', options: { sort: [['tags.terminal_id', 1]] } },
+        {
+          type: 'terminal_info',
+          options: { sort: [['tags.terminal_id', 1]] },
+        },
         'MongoDB',
       ),
     ).pipe(

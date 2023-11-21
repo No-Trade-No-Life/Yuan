@@ -56,17 +56,14 @@ export const AccountReplayScene = (
       if (product.base_currency !== currency && product.quoted_currency !== currency) {
         const [productA] = await lastValueFrom(
           terminal
-            .queryDataRecords<IProduct>(
-              {
-                type: 'product',
-                tags: {
-                  datasource_id: datasource_id ?? account_id,
-                  base_currency: product.base_currency,
-                  quoted_currency: currency,
-                },
+            .queryDataRecords<IProduct>({
+              type: 'product',
+              tags: {
+                datasource_id: datasource_id ?? account_id,
+                base_currency: product.base_currency,
+                quoted_currency: currency,
               },
-              'MongoDB',
-            )
+            })
             .pipe(
               map((dataRecord) => dataRecord.origin),
               toArray(),
@@ -77,17 +74,14 @@ export const AccountReplayScene = (
         }
         const [productB] = await lastValueFrom(
           terminal
-            .queryDataRecords<IProduct>(
-              {
-                type: 'product',
-                tags: {
-                  datasource_id: datasource_id ?? account_id,
-                  base_currency: currency,
-                  quoted_currency: product.base_currency,
-                },
+            .queryDataRecords<IProduct>({
+              type: 'product',
+              tags: {
+                datasource_id: datasource_id ?? account_id,
+                base_currency: currency,
+                quoted_currency: product.base_currency,
               },
-              'MongoDB',
-            )
+            })
             .pipe(
               map((dataRecord) => dataRecord.origin),
               toArray(),

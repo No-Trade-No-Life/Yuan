@@ -153,7 +153,6 @@ export const makeManifestsFromAgentConfList = async (
       package: '@yuants/app-agent',
       env: {
         HV_URL: hv_url,
-        STORAGE_TERMINAL_ID: 'MongoDB',
       },
       one_json: theConfig,
     };

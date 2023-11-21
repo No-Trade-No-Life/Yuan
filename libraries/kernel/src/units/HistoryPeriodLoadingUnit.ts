@@ -39,7 +39,7 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
       );
       const theProduct = this.productDataUnit.mapProductIdToProduct[product_id];
       await lastValueFrom(
-        this.terminal.queryPeriods(task, 'MongoDB').pipe(
+        this.terminal.queryPeriods(task).pipe(
           tap((x) => {
             this.kernel.log?.(
               `${formatTime(Date.now())} 加载完毕 "${task.datasource_id}" / "${task.product_id}" / "${

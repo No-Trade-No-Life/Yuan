@@ -42,16 +42,13 @@ export class PeriodDataCheckingUnit extends BasicUnit {
       let lastCheckedTimestamp = start_time_in_us / 1000;
       let lastCheckedIndex = 0;
       const sub = defer(() =>
-        this.terminal.queryPeriods(
-          {
-            datasource_id,
-            product_id,
-            period_in_sec,
-            start_time_in_us: lastCheckedTimestamp * 1000,
-            end_time_in_us: Date.now() * 1000,
-          },
-          'MongoDB',
-        ),
+        this.terminal.queryPeriods({
+          datasource_id,
+          product_id,
+          period_in_sec,
+          start_time_in_us: lastCheckedTimestamp * 1000,
+          end_time_in_us: Date.now() * 1000,
+        }),
       )
         .pipe(
           tap({

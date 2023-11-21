@@ -44,10 +44,10 @@ export class ProductLoadingUnit extends BasicUnit {
       );
       await lastValueFrom(
         this.terminal
-          .queryDataRecords<IProduct>(
-            { type: 'product', tags: { datasource_id: task.datasource_id, product_id: task.product_id } },
-            'MongoDB',
-          )
+          .queryDataRecords<IProduct>({
+            type: 'product',
+            tags: { datasource_id: task.datasource_id, product_id: task.product_id },
+          })
           .pipe(
             // ISSUE: 有时候确实没有定义这个品种，技术指标观察器的场景中只需要行情数据，不强制需要品种信息
             // 在其他场景中，如果忘记配置品种信息，造成的潜在危害更大，因此用配置按需抑制此错误
@@ -63,10 +63,7 @@ export class ProductLoadingUnit extends BasicUnit {
               this.kernel.log?.(formatTime(Date.now()), `具体品种`, JSON.stringify(specificProduct));
               if (this.options?.use_general_product) {
                 return this.terminal
-                  .queryDataRecords<IGeneralSpecificRelation>(
-                    { type: 'general_specific_relation' },
-                    'MongoDB',
-                  )
+                  .queryDataRecords<IGeneralSpecificRelation>({ type: 'general_specific_relation' })
                   .pipe(
                     map((x) => x.origin),
                     filter(
@@ -85,10 +82,10 @@ export class ProductLoadingUnit extends BasicUnit {
                   .pipe(
                     mergeMap((general_product_id) =>
                       this.terminal
-                        .queryDataRecords<IProduct>(
-                          { type: 'product', tags: { datasource_id: 'Y', product_id: general_product_id } },
-                          'MongoDB',
-                        )
+                        .queryDataRecords<IProduct>({
+                          type: 'product',
+                          tags: { datasource_id: 'Y', product_id: general_product_id },
+                        })
                         .pipe(
                           //
                           throwIfEmpty(() => new Error(`无法找到 ${general_product_id} 的标准品种`)),

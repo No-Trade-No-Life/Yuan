@@ -51,7 +51,6 @@ import {
 const HV_URL = process.env.HV_URL || 'ws://localhost:8888';
 const TERMINAL_ID = process.env.TERMINAL_ID || `TradeCopier`;
 const terminal = new Terminal(HV_URL, { terminal_id: TERMINAL_ID, name: 'Trade Copier' });
-const STORAGE_TERMINAL_ID = process.env.STORAGE_TERMINAL_ID!;
 
 interface ITradeCopyRelation {
   source_account_id: string;
@@ -147,12 +146,9 @@ addFormats(ajv);
 const tradeConfigValidate = ajv.compile(tradeConfigSchema);
 
 const tradeConfig$ = defer(() =>
-  terminal.queryDataRecords<ITradeCopierTradeConfig>(
-    {
-      type: 'trade_copier_trade_config',
-    },
-    STORAGE_TERMINAL_ID,
-  ),
+  terminal.queryDataRecords<ITradeCopierTradeConfig>({
+    type: 'trade_copier_trade_config',
+  }),
 ).pipe(
   //
   map((record) => {
@@ -169,7 +165,7 @@ const tradeConfig$ = defer(() =>
 const validate = ajv.compile(configSchema);
 
 const config$ = defer(() =>
-  terminal.queryDataRecords<ITradeCopyRelation>({ type: 'trade_copy_relation' }, STORAGE_TERMINAL_ID),
+  terminal.queryDataRecords<ITradeCopyRelation>({ type: 'trade_copy_relation' }),
 ).pipe(
   //
   map((msg) => msg.origin),
