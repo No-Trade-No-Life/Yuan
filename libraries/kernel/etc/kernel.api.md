@@ -515,11 +515,9 @@ export const OrderMergeReplayScene: (kernel: Kernel, init_account_info: IAccount
 
 // @public
 export class PeriodDataCheckingUnit extends BasicUnit {
-    constructor(kernel: Kernel, terminal: Terminal, periodDataUnit: PeriodDataUnit, interval: number);
+    constructor(kernel: Kernel, terminal: Terminal, periodDataUnit: PeriodDataUnit);
     // (undocumented)
     errorTotal: number;
-    // (undocumented)
-    interval: number;
     // (undocumented)
     kernel: Kernel;
     // (undocumented)
@@ -621,7 +619,6 @@ export class ProductDataUnit extends BasicUnit {
 export class ProductLoadingUnit extends BasicUnit {
     constructor(kernel: Kernel, terminal: Terminal, productDataUnit: ProductDataUnit, options?: {
         use_general_product?: boolean | undefined;
-        allow_fallback_specific_product?: boolean | undefined;
     } | undefined);
     // (undocumented)
     dump(): {
@@ -637,7 +634,6 @@ export class ProductLoadingUnit extends BasicUnit {
     // (undocumented)
     options?: {
         use_general_product?: boolean | undefined;
-        allow_fallback_specific_product?: boolean | undefined;
     } | undefined;
     // (undocumented)
     productDataUnit: ProductDataUnit;

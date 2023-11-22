@@ -104,27 +104,18 @@ const createWorker = () => {
 const run = async () => {
   let currentMainWorker = createWorker();
 
-  if (agentConf.period_self_check_interval_in_second) {
-    const interval = agentConf.period_self_check_interval_in_second * 1000;
-
-    console.info(
-      formatTime(Date.now()),
-      'SelfCheckConfigDetected',
-      'Start Worker Rotate Process, interval: ',
-      interval,
-    );
+  if (agentConf.is_real) {
+    console.info(formatTime(Date.now()), 'SelfCheckConfigDetected', 'Start Worker Rotate Process');
 
     await firstValueFrom(currentMainWorker.accountInfo$);
 
-    defer(() => timer(interval))
-      .pipe(
+    defer(() =>
+      currentMainWorker.errorTotal$.pipe(
         //
-        delayWhen(() =>
-          currentMainWorker.errorTotal$.pipe(
-            //
-            first((v) => v > 0),
-          ),
-        ),
+        first((v) => v > 0),
+      ),
+    )
+      .pipe(
         tap(() => {
           console.info(
             formatTime(Date.now()),

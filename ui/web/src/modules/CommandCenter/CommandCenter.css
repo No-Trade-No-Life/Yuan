@@ -9,7 +9,7 @@
 }
 
 .CommandCenterListItem:hover,
-.CommandCenterListItem:first-child {
+.CommandCenterListItem.is-selected {
   background-color: var(--semi-color-fill-0);
   cursor: pointer;
 }

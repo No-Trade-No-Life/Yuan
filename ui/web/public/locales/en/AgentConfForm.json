@@ -21,10 +21,6 @@
     "description": "Custom parameters defined in agent code",
     "title": "Agent params"
   },
-  "root_allow_fallback_specific_product": {
-    "description": "When the product is not defined, the default value is allowed and no exception is thrown.",
-    "title": "Allow specific product not found"
-  },
   "root_as_counterparty": {
     "description": "When the original account is long, it will become short, and vice versa.",
     "title": "As Counterparty"
@@ -61,16 +57,8 @@
   "root_leverage": {
     "title": "Account leverage"
   },
-  "root_period_self_check_interval_in_second": {
-    "description": "How many seconds to perform data self-test every time, unit is seconds, 0 = disable self-test",
-    "title": "Data self-test cycle"
-  },
   "root_position_limit": {
     "title": "Position limits"
-  },
-  "root_publish_account": {
-    "description": "Agree to publish the simulated account information flow, historical orders, and variety parameter configurations for this run to the host. \nThe code will not be leaked.",
-    "title": "Publish account to host"
   },
   "root_resume_on_source_margin_below": {
     "title": "Margin Threshold for Resume Trading"
