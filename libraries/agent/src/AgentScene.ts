@@ -42,16 +42,10 @@ export interface IAgentConf {
   /** 历史数据结束时间 */
   end_time?: string;
 
-  /** 发布账户到主机 */
-  publish_account?: boolean;
   /** Kernel ID */
   kernel_id?: string;
   /** 使用标准品种信息 */
   use_general_product?: boolean;
-  /** 实盘数据自检时间间隔 */
-  period_self_check_interval_in_second?: number;
-  /** 允许找不到具体品种信息 */
-  allow_fallback_specific_product?: boolean;
   /** 是否禁用打印日志 */
   disable_log?: boolean;
 }
@@ -90,11 +84,6 @@ export const agentConfSchema: JSONSchema7 = {
         '提前拉取历史数据的区间终点；实盘时强制设定为当前时间，非实盘时留空表示拉取无穷晚的数据；时区按照本地时区填写',
       format: 'date-time',
     },
-    publish_account: {
-      type: 'boolean',
-      title: '发布账户到主机',
-      description: '同意将此次运行的模拟账户信息流、历史订单、品种参数配置发布到主机',
-    },
     kernel_id: {
       type: 'string',
       default: 'Model',
@@ -104,16 +93,6 @@ export const agentConfSchema: JSONSchema7 = {
       title: '使用标准品种信息',
       description: '使用标准品种信息作为品种信息，但仍沿用具体品种的行情数据',
       default: false,
-    },
-    period_self_check_interval_in_second: {
-      type: 'number',
-      title: '自检周期（秒）',
-      description: '每隔多少秒进行一次自检 (0 = 不自检)',
-      default: 0,
-    },
-    allow_fallback_specific_product: {
-      type: 'boolean',
-      title: '允许找不到具体品种信息',
     },
     disable_log: {
       type: 'boolean',
@@ -141,7 +120,6 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
   const productDataUnit = new ProductDataUnit(kernel);
   const productLoadingUnit = new ProductLoadingUnit(kernel, terminal, productDataUnit, {
     use_general_product: agentConf.use_general_product,
-    allow_fallback_specific_product: agentConf.allow_fallback_specific_product,
   });
   const quoteDataUnit = new QuoteDataUnit(kernel);
   const periodDataUnit = new PeriodDataUnit(kernel, quoteDataUnit);
@@ -166,18 +144,13 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
       periodDataUnit,
     );
   }
-  if (agentConf.period_self_check_interval_in_second) {
+  if (agentConf.is_real) {
     new BasicUnit(kernel).onInit = () => {
       for (const periodTask of periodLoadingUnit.periodTasks) {
         dataCheckingUnit.periodTasks.push({ ...periodTask });
       }
     };
-    const dataCheckingUnit = new PeriodDataCheckingUnit(
-      kernel,
-      terminal,
-      periodDataUnit,
-      agentConf.period_self_check_interval_in_second * 1000,
-    );
+    const dataCheckingUnit = new PeriodDataCheckingUnit(kernel, terminal, periodDataUnit);
   }
 
   const historyOrderUnit = new HistoryOrderUnit(kernel, quoteDataUnit, productDataUnit);
@@ -191,7 +164,7 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
   const accountInfoUnit = new AccountInfoUnit(kernel, productDataUnit, quoteDataUnit, historyOrderUnit);
 
   const accountPerformanceUnit = new AccountPerformanceHubUnit(kernel, accountInfoUnit);
-  if (agentConf.publish_account) {
+  if (agentConf.is_real) {
     const unit = new BasicUnit(kernel);
     const mapAccountIdToAccountInfo$: Record<string, Subject<IAccountInfo>> = {};
     unit.onIdle = () => {

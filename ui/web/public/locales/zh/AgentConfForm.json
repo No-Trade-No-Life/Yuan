@@ -21,10 +21,6 @@
     "description": "模型代码中定义的自定义参数",
     "title": "自定义参数"
   },
-  "root_allow_fallback_specific_product": {
-    "description": "未定义品种信息时，允许使用默认值，不抛出异常",
-    "title": "允许找不到具体品种信息"
-  },
   "root_as_counterparty": {
     "description": "原账户做多时会变成做空，反之亦然。",
     "title": "作为对手盘"
@@ -51,7 +47,7 @@
     "title": "初始余额"
   },
   "root_is_real": {
-    "description": "实盘模式下会订阅实时行情，非实盘模式仅会使用历史数据",
+    "description": "实盘模式下会订阅实时行情，非实盘模式仅会使用历史数据。",
     "title": "实盘模式"
   },
   "root_kernel_id": {
@@ -61,16 +57,8 @@
   "root_leverage": {
     "title": "账户杠杆"
   },
-  "root_period_self_check_interval_in_second": {
-    "description": "每隔多少秒进行一次数据自检，单位为秒，0 = 禁用自检",
-    "title": "数据自检周期"
-  },
   "root_position_limit": {
     "title": "仓位限制"
-  },
-  "root_publish_account": {
-    "description": "同意将此次运行的模拟账户信息流、历史订单、品种参数配置发布到主机。代码不会泄密。",
-    "title": "发布账户到主机"
   },
   "root_resume_on_source_margin_below": {
     "title": "恢复交易的使用保证金阈值"

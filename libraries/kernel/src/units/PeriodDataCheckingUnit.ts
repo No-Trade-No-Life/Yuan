@@ -16,12 +16,7 @@ const MetricPeriodDataCheckingUnitPeriodSelfCheckTotal = PromRegistry.create(
  */
 export class PeriodDataCheckingUnit extends BasicUnit {
   //
-  constructor(
-    public kernel: Kernel,
-    public terminal: Terminal,
-    public periodDataUnit: PeriodDataUnit,
-    public interval: number,
-  ) {
+  constructor(public kernel: Kernel, public terminal: Terminal, public periodDataUnit: PeriodDataUnit) {
     super(kernel);
   }
 
@@ -39,6 +34,7 @@ export class PeriodDataCheckingUnit extends BasicUnit {
   onInit() {
     for (const task of this.periodTasks) {
       const { datasource_id, product_id, period_in_sec, start_time_in_us } = task;
+      const interval = period_in_sec * 1000;
       let lastCheckedTimestamp = start_time_in_us / 1000;
       let lastCheckedIndex = 0;
       const sub = defer(() =>
@@ -150,9 +146,9 @@ export class PeriodDataCheckingUnit extends BasicUnit {
             return EMPTY;
           }),
 
-          retry({ delay: this.interval }),
+          retry({ delay: interval }),
           repeat({
-            delay: this.interval,
+            delay: interval,
           }),
         )
         .subscribe();

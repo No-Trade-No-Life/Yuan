@@ -28,7 +28,6 @@ export class ProductLoadingUnit extends BasicUnit {
     public productDataUnit: ProductDataUnit,
     public options?: {
       use_general_product?: boolean;
-      allow_fallback_specific_product?: boolean;
     },
   ) {
     super(kernel);
@@ -51,13 +50,6 @@ export class ProductLoadingUnit extends BasicUnit {
           .pipe(
             // ISSUE: 有时候确实没有定义这个品种，技术指标观察器的场景中只需要行情数据，不强制需要品种信息
             // 在其他场景中，如果忘记配置品种信息，造成的潜在危害更大，因此用配置按需抑制此错误
-            toArray(),
-            mergeMap((x) => {
-              if (x.length === 0 && !this.options?.allow_fallback_specific_product) {
-                throw new Error(`无法找到 ${task.datasource_id} / ${task.product_id} 的具体品种`);
-              }
-              return x;
-            }),
             map((x) => x.origin),
             mergeMap((specificProduct) => {
               this.kernel.log?.(formatTime(Date.now()), `具体品种`, JSON.stringify(specificProduct));

@@ -557,7 +557,6 @@ registerPage('AgentBatchBackTest', () => {
                     const theConfig: IAgentConf = {
                       ...x.agentConf,
                       is_real: true,
-                      publish_account: true,
                       bundled_code,
                     };
                     if (copy(JSON.stringify(theConfig, null, 2))) {

@@ -41,9 +41,7 @@ registerPage('Market', () => {
     if (terminal && datasource_id && product_id && period_in_sec) {
       const kernel = new Kernel();
       const productDataUnit = new ProductDataUnit(kernel);
-      const productLoadingUnit = new ProductLoadingUnit(kernel, terminal, productDataUnit, {
-        allow_fallback_specific_product: true,
-      });
+      const productLoadingUnit = new ProductLoadingUnit(kernel, terminal, productDataUnit, {});
       const quoteDataUnit = new QuoteDataUnit(kernel);
       const periodDataUnit = new PeriodDataUnit(kernel, quoteDataUnit);
       const periodLoadingUnit = new HistoryPeriodLoadingUnit(

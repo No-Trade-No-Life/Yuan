@@ -101,15 +101,12 @@ export class AgentUnit extends BasicUnit {
 // @public (undocumented)
 export interface IAgentConf {
     agent_params?: Record<string, any>;
-    allow_fallback_specific_product?: boolean;
     bundled_code?: string;
     disable_log?: boolean;
     end_time?: string;
     entry?: string;
     is_real?: boolean;
     kernel_id?: string;
-    period_self_check_interval_in_second?: number;
-    publish_account?: boolean;
     start_time?: string;
     use_general_product?: boolean;
 }

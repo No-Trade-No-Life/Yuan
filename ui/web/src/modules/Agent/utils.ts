@@ -146,7 +146,6 @@ export const makeManifestsFromAgentConfList = async (
     const theConfig: IAgentConf = {
       ...agentConf,
       is_real: true,
-      publish_account: true,
       bundled_code,
     };
     const manifest: IDeploySpec = {

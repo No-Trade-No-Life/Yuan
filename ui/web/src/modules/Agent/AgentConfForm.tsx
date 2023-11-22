@@ -266,7 +266,7 @@ registerPage('AgentConfForm', () => {
                 host_url: currentHostConfig$.value?.host_url,
                 key: agentConf?.kernel_id ?? 'Model',
                 version: version,
-                one_json: agentConf,
+                one_json: { ...agentConf, is_real: true },
               });
               if (res.error) {
                 Toast.error(`${t('common:failed')}: ${res.error.code} ${res.error.message}`);
