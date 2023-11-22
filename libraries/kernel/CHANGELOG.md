@@ -1,6 +1,13 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Tue, 21 Nov 2023 17:11:58 GMT and should not be manually modified.
+This log was last generated on Wed, 22 Nov 2023 10:30:07 GMT and should not be manually modified.
+
+## 0.5.0
+Wed, 22 Nov 2023 10:30:07 GMT
+
+### Minor changes
+
+- remove allow_fallback_specific_product concept
 
 ## 0.4.7
 Tue, 21 Nov 2023 17:11:58 GMT
