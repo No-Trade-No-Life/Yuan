@@ -5,6 +5,7 @@ import {
   IconPlay,
   IconRefresh,
   IconSave,
+  IconUndo,
   IconWrench,
 } from '@douyinfe/semi-icons';
 import { Button, Divider, Layout, Space, Toast } from '@douyinfe/semi-ui';
@@ -75,6 +76,7 @@ export const reloadSchemaAction$ = new Subject<void>();
 
 const extractAgentMetaInfoFromFilename = (script_path: string) =>
   defer(async () => {
+    if (!script_path) return null;
     if (currentHostConfig$.value === null) {
       const agentCode = await bundleCode(script_path);
       const scene = await LocalAgentScene({ bundled_code: agentCode });
@@ -87,7 +89,7 @@ const extractAgentMetaInfoFromFilename = (script_path: string) =>
   }).pipe(
     //
     map((agentUnit) => ({
-      script_params_schema: agentUnit.paramsSchema,
+      script_params_schema: agentUnit?.paramsSchema ?? {},
     })),
     catchError((e) => {
       Toast.error(`${t('AgentConfForm:prototype_failed')}: ${e}`);
@@ -226,6 +228,14 @@ registerPage('AgentConfForm', () => {
             {t('refresh_schema')}
           </Button>
           <Button
+            icon={<IconUndo />}
+            onClick={() => {
+              executeCommand('Agent.Reset');
+            }}
+          >
+            {t('common:reset')}
+          </Button>
+          <Button
             icon={<IconFile />}
             onClick={() => {
               executeCommand('Agent.LoadConfig');
@@ -261,12 +271,19 @@ registerPage('AgentConfForm', () => {
             icon={<IconCloud />}
             disabled={!authState}
             onClick={async () => {
+              if (!agentConf) return;
               const { version } = await resolveVersion('@yuants/app-agent');
+              const bundled_code = await bundleCode(agentConf.entry || '');
               const res = await supabase.from('agent').insert({
                 host_url: currentHostConfig$.value?.host_url,
-                key: agentConf?.kernel_id ?? 'Model',
+                key: agentConf.kernel_id ?? 'Model',
                 version: version,
-                one_json: { ...agentConf, is_real: true },
+                one_json: {
+                  //
+                  ...agentConf,
+                  is_real: true,
+                  bundled_code: bundled_code,
+                },
               });
               if (res.error) {
                 Toast.error(`${t('common:failed')}: ${res.error.code} ${res.error.message}`);
@@ -377,4 +394,8 @@ registerCommand('Agent.LoadConfig', async () => {
       `${t('AgentConfForm:load_config_failed', { filename, interpolation: { escapeValue: false } })}: ${e}`,
     );
   }
+});
+
+registerCommand('Agent.Reset', async () => {
+  agentConf$.next({});
 });
