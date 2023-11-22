@@ -1,9 +1,22 @@
 import { IconInfoCircle } from '@douyinfe/semi-icons';
 import { Collapse, Descriptions, Empty, Space, Table, Tooltip, Typography } from '@douyinfe/semi-ui';
+import { encodePath, formatTime } from '@yuants/data-model';
 import { IPosition, OrderDirection, OrderType, PositionVariant } from '@yuants/protocol';
 import { format } from 'date-fns';
 import { useObservable, useObservableState } from 'observable-hooks';
-import { from, groupBy, map, mergeMap, reduce, toArray } from 'rxjs';
+import {
+  defer,
+  distinctUntilChanged,
+  filter,
+  from,
+  groupBy,
+  map,
+  mergeMap,
+  reduce,
+  skip,
+  tap,
+  toArray,
+} from 'rxjs';
 import { registerPage, usePageParams } from '../Pages';
 import { useAccountInfo } from './model';
 
@@ -13,6 +26,30 @@ registerPage('AccountInfoPanel', () => {
   const accountInfo$ = useObservable(() => useAccountInfo(accountId));
 
   const accountInfo = useObservableState(accountInfo$);
+
+  useObservableState(
+    useObservable(() =>
+      defer(() => Notification.requestPermission()).pipe(
+        filter((x) => x === 'granted'),
+        mergeMap(() => useAccountInfo(accountId)),
+        map((x) => ({
+          origin: x,
+          hash: `${x.account_id} ${x.positions.map((x) => `${x.product_id} ${x.volume}`)}`,
+        })),
+        distinctUntilChanged((x, y) => x.hash === y.hash),
+        skip(1),
+        tap((x) => {
+          if (Notification.permission === 'granted') {
+            new Notification('头寸变化', {
+              body: `账户: ${x.origin.account_id}\n${formatTime(Date.now())}`,
+              renotify: true,
+              tag: encodePath('AccountInfoPositionChange', x.origin.account_id),
+            });
+          }
+        }),
+      ),
+    ),
+  );
 
   if (!accountInfo) {
     return <Empty title={'加载中'}></Empty>;
