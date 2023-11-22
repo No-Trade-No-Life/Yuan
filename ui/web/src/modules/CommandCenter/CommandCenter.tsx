@@ -53,6 +53,8 @@ export const CommandCenter = React.memo(() => {
   const isCommandCenterOpen = useObservableState(isCommandCenterOpen$);
   const commandList = useObservableState(commandList$);
 
+  const [selectedIndex, setSelectedIndex] = useState(0);
+
   const fzf = useMemo(() => new Fzf(commandList, { selector: (cmd) => cmd.id }), [commandList]);
 
   const [search, setSearch] = useState('');
@@ -64,6 +66,11 @@ export const CommandCenter = React.memo(() => {
   }, [isCommandCenterOpen]);
 
   const list = useMemo(() => fzf.find(search || ''), [fzf, search]);
+
+  useEffect(() => {
+    // @ts-ignore
+    document.getElementsByClassName('CommandCenterListItem is-selected')[0]?.scrollIntoViewIfNeeded(false);
+  }, [selectedIndex]);
 
   return (
     <Popover
@@ -84,8 +91,18 @@ export const CommandCenter = React.memo(() => {
                   setSearch(v.currentTarget.value);
                 }}
                 onChange={(v) => (!v ? setSearch('') : setSearch(v))}
+                onKeyDown={(e) => {
+                  if (list.length > 0) {
+                    if (e.key === 'ArrowUp') {
+                      setSelectedIndex((x) => (x - 1 + list.length) % list.length);
+                    }
+                    if (e.key === 'ArrowDown') {
+                      setSelectedIndex((x) => (x + 1) % list.length);
+                    }
+                  }
+                }}
                 onEnterPress={() => {
-                  const commandId = list[0]?.item.id;
+                  const commandId = list[selectedIndex]?.item.id;
                   if (commandId) {
                     executeCommand(commandId);
                   }
@@ -97,7 +114,7 @@ export const CommandCenter = React.memo(() => {
             }
             renderItem={(item, idx) => (
               <List.Item
-                className="CommandCenterListItem"
+                className={`CommandCenterListItem ${idx === selectedIndex ? 'is-selected' : ''}`}
                 onClick={() => {
                   isCommandCenterOpen$.next(false);
                   executeCommand(item.item.id, {});
