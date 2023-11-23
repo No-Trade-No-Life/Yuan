@@ -18,7 +18,7 @@ const agents$ = defer(async () => {
     id: string;
     created_at: string;
     one_json: IAgentConf;
-    key: string;
+    kernel_id: string;
     version: string;
     host_id: string;
     host_url: string;
@@ -50,8 +50,8 @@ registerPage('CloudAgentList', () => {
         columns={[
           //
           {
-            title: 'Key',
-            render: (_, v) => v.key,
+            title: 'Kernel ID',
+            render: (_, v) => v.kernel_id,
           },
           {
             title: 'Host URL',

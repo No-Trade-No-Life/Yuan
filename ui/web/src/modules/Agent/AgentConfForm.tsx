@@ -276,7 +276,7 @@ registerPage('AgentConfForm', () => {
               const bundled_code = await bundleCode(agentConf.entry || '');
               const res = await supabase.from('agent').insert({
                 host_url: currentHostConfig$.value?.host_url,
-                key: agentConf.kernel_id ?? 'Model',
+                kernel_id: agentConf.kernel_id ?? 'Model',
                 version: version,
                 one_json: {
                   //
