@@ -53,8 +53,6 @@ export const CommandCenter = React.memo(() => {
   const isCommandCenterOpen = useObservableState(isCommandCenterOpen$);
   const commandList = useObservableState(commandList$);
 
-  const [selectedIndex, setSelectedIndex] = useState(0);
-
   const fzf = useMemo(() => new Fzf(commandList, { selector: (cmd) => cmd.id }), [commandList]);
 
   const [search, setSearch] = useState('');
@@ -66,6 +64,12 @@ export const CommandCenter = React.memo(() => {
   }, [isCommandCenterOpen]);
 
   const list = useMemo(() => fzf.find(search || ''), [fzf, search]);
+
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  // reset index = 0 when list changed
+  useEffect(() => {
+    setSelectedIndex(0);
+  }, [list]);
 
   useEffect(() => {
     // @ts-ignore
