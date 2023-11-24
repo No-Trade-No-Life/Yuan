@@ -1075,7 +1075,9 @@ export class Terminal {
             toArray(),
           ),
         ),
-        batchGroupBy((relation) => `${relation.datasource_id}\n${relation.product_id}`),
+        batchGroupBy((relation) =>
+          encodePath(relation.datasource_id, relation.product_id, relation.period_in_sec),
+        ),
         mergeMap((group) =>
           group.pipe(
             //

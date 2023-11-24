@@ -1,6 +1,11 @@
 # Change Log - @yuants/app-general-data-source
 
-This log was last generated on Fri, 24 Nov 2023 10:40:29 GMT and should not be manually modified.
+This log was last generated on Fri, 24 Nov 2023 16:07:44 GMT and should not be manually modified.
+
+## 0.0.10
+Fri, 24 Nov 2023 16:07:44 GMT
+
+_Version update only_
 
 ## 0.0.9
 Fri, 24 Nov 2023 10:40:29 GMT
