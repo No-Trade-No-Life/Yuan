@@ -94,6 +94,7 @@ export interface IEnvContext {
   version: string;
 
   /**
+   * @deprecated
    * Resolves the path and gives the absolute path. Resolve does not verify the existence of the file.
    *
    * @param path - An absolute path under the current Workspace, or a relative path to the Manifests' own absolute path.
@@ -103,6 +104,7 @@ export interface IEnvContext {
   resolveLocal: (path: string) => Promise<string>;
 
   /**
+   * @deprecated
    * Reads a file and encodes it in UTF-8 format.
    *
    * Reads the file pointed to by `path` and returns the UTF-8 encoded string. If the path does not point to a file, returns undefined.
@@ -119,6 +121,7 @@ export interface IEnvContext {
    */
 
   /**
+   * @deprecated
    * Reads the file pointed to by `path` and returns the base64 encoded string. If the path does not point to a file, returns undefined.
    * @param path - An absolute path under the current Workspace, or a relative path to the Manifests' own absolute path.
    *               It is required to be resolvable by the provider of {@link IEnvContext}.
@@ -127,6 +130,7 @@ export interface IEnvContext {
   readFileAsBase64: (path: string) => Promise<string>;
 
   /**
+   * @deprecated
    * Encodes a UTF-8 string in base64 format.
    * @param str - The string to encode.
    * @returns The base64 encoded string.
@@ -134,6 +138,7 @@ export interface IEnvContext {
   toBase64String: (str: string) => Promise<string>;
 
   /**
+   * @deprecated
    * Reads the file names in the directory pointed to by `path`. If the path does not point to a directory, returns an empty array.
    * @param path - An absolute path under the current Workspace, or a relative path to the Manifests' own absolute path.
    *               It is required to be resolvable by the provider of {@link IEnvContext}.
@@ -142,6 +147,7 @@ export interface IEnvContext {
   readdir: (path: string) => Promise<string[]>;
 
   /**
+   * @deprecated
    * Determines whether the path points to a directory.
    * @param path - An absolute path under the current Workspace, or a relative path to the Manifests' own absolute path.
    *               It is required to be resolvable by the provider of {@link IEnvContext}.
@@ -261,7 +267,7 @@ export interface IDeployProvider {
    * @param envCtx - The environment context.
    * @returns The Docker Compose file.
    */
-  make_docker_compose_file: (ctx: IDeploySpec, envCtx: IEnvContext) => Promise<object>;
+  make_docker_compose_file: (ctx: IDeploySpec, envCtx: IEnvContext) => Promise<unknown>;
 
   /**
    * Generates Kubernetes resource objects for the deployment specification.
@@ -269,7 +275,7 @@ export interface IDeployProvider {
    * @param envCtx - The environment context.
    * @returns The Kubernetes resource objects.
    */
-  make_k8s_resource_objects: (ctx: IDeploySpec, envCtx: IEnvContext) => Promise<object>;
+  make_k8s_resource_objects: (ctx: IDeploySpec, envCtx: IEnvContext) => Promise<Record<string, unknown>>;
 }
 
 /**

@@ -8,9 +8,9 @@ import { JSONSchema7 } from 'json-schema';
 
 // @public
 export interface IDeployProvider {
-    make_docker_compose_file: (ctx: IDeploySpec, envCtx: IEnvContext) => Promise<object>;
+    make_docker_compose_file: (ctx: IDeploySpec, envCtx: IEnvContext) => Promise<unknown>;
     make_json_schema: () => JSONSchema7;
-    make_k8s_resource_objects: (ctx: IDeploySpec, envCtx: IEnvContext) => Promise<object>;
+    make_k8s_resource_objects: (ctx: IDeploySpec, envCtx: IEnvContext) => Promise<Record<string, unknown>>;
 }
 
 // @public
@@ -33,11 +33,17 @@ export interface IDeploySpec {
 // @public
 export interface IEnvContext {
     createHashOfSHA256: (content: string) => Promise<string>;
+    // @deprecated (undocumented)
     isDirectory: (path: string) => Promise<boolean>;
+    // @deprecated (undocumented)
     readdir: (path: string) => Promise<string[]>;
+    // @deprecated (undocumented)
     readFile: (path: string) => Promise<string>;
+    // @deprecated (undocumented)
     readFileAsBase64: (path: string) => Promise<string>;
+    // @deprecated (undocumented)
     resolveLocal: (path: string) => Promise<string>;
+    // @deprecated (undocumented)
     toBase64String: (str: string) => Promise<string>;
     version: string;
 }
