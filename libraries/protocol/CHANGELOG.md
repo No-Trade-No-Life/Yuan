@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Tue, 21 Nov 2023 12:39:54 GMT and should not be manually modified.
+This log was last generated on Fri, 24 Nov 2023 16:07:44 GMT and should not be manually modified.
+
+## 0.3.2
+Fri, 24 Nov 2023 16:07:44 GMT
+
+### Patches
+
+- fix subscribe periods with multiple period_in_sec issue
 
 ## 0.3.1
 Tue, 21 Nov 2023 12:39:54 GMT
