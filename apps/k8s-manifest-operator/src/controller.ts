@@ -135,7 +135,7 @@ const reconcile = async (obj: IDeployResource, childChanged = false) => {
       }),
       mergeMap((resources) =>
         from(resources).pipe(
-          mergeMap(({ kind, resource }) =>
+          mergeMap((resource) =>
             from(
               genericApi.read({
                 metadata: makeNamespacedName(resource),
@@ -147,7 +147,12 @@ const reconcile = async (obj: IDeployResource, childChanged = false) => {
               catchError((err) => {
                 if (err instanceof k8s.HttpError) {
                   if (err.response.statusCode === 404) {
-                    console.info(new Date(), `Controller`, namespacedName.toString(), `Creating ${kind}`);
+                    console.info(
+                      new Date(),
+                      `Controller`,
+                      namespacedName.toString(),
+                      `Creating ${resource.kind}`,
+                    );
                     return from(genericApi.create(resource)).pipe(
                       //
                       retry({ count: 3, delay: 1000 }),
@@ -156,7 +161,7 @@ const reconcile = async (obj: IDeployResource, childChanged = false) => {
                           new Date(),
                           `Controller`,
                           namespacedName.toString(),
-                          `Error ${kind}`,
+                          `Error ${resource.kind}`,
                           err,
                         );
                         return EMPTY;
@@ -169,7 +174,13 @@ const reconcile = async (obj: IDeployResource, childChanged = false) => {
               }),
               // NOTE: we don't handle update, to handle update, we need to compare the desired state and the current state here
               catchError((err) => {
-                console.error(new Date(), `Controller`, namespacedName.toString(), `Error ${kind}`, err);
+                console.error(
+                  new Date(),
+                  `Controller`,
+                  namespacedName.toString(),
+                  `Error ${resource.kind}`,
+                  err,
+                );
                 return EMPTY;
               }),
               tap(() => {
@@ -178,13 +189,15 @@ const reconcile = async (obj: IDeployResource, childChanged = false) => {
                   type: 'Ready',
                   status: 'True',
                   lastTransitionTime: new Date(),
-                  message: `Managed ${kind} ${desiredNsName.toString()} successfully`,
-                  reason: `ManagedResource${kind}Ready`,
+                  message: `Managed ${resource.kind} ${desiredNsName.toString()} successfully`,
+                  reason: `ManagedResource${resource.kind}Ready`,
                   observedGeneration: exists.metadata.generation || 0,
                 };
                 const index = exists.status!.conditions.findIndex(
                   (v) =>
-                    v.type === 'Ready' && v.status === 'True' && v.reason === `ManagedResource${kind}Ready`,
+                    v.type === 'Ready' &&
+                    v.status === 'True' &&
+                    v.reason === `ManagedResource${resource.kind}Ready`,
                 );
                 if (index === -1) {
                   exists.status!.conditions.push(condition);

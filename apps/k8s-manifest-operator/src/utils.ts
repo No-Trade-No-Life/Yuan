@@ -1,19 +1,6 @@
 import * as k8s from '@kubernetes/client-node';
 import { formatTime } from '@yuants/data-model';
-import {
-  EMPTY,
-  Observable,
-  catchError,
-  concatWith,
-  defer,
-  filter,
-  from,
-  lastValueFrom,
-  mergeMap,
-  of,
-  retry,
-  shareReplay,
-} from 'rxjs';
+import { Observable, defer, mergeMap, retry, shareReplay } from 'rxjs';
 import { IDeployResource } from './model';
 // @ts-ignore
 import { IDeployProvider, IEnvContext, IExtensionContext } from '@yuants/extension';
@@ -29,124 +16,9 @@ export class NamespacedName {
   }
 }
 
-export function makeNamespacedName(namespace: string, name: string): NamespacedName;
-export function makeNamespacedName(obj: k8s.KubernetesObject): NamespacedName;
-
-export function makeNamespacedName(
-  namespaceOrObj: string | k8s.KubernetesObject,
-  name?: string,
-): NamespacedName {
-  if (typeof namespaceOrObj === 'string') {
-    return new NamespacedName(namespaceOrObj, name!);
-  } else {
-    return new NamespacedName(namespaceOrObj.metadata!.namespace!, namespaceOrObj.metadata!.name!);
-  }
+export function makeNamespacedName(namespaceOrObj: k8s.KubernetesObject): NamespacedName {
+  return new NamespacedName(namespaceOrObj.metadata!.namespace!, namespaceOrObj.metadata!.name!);
 }
-
-export const sync = async (client: k8s.KubernetesObjectApi, manifests: IDeployResource[]) => {
-  // apply
-  await lastValueFrom(
-    from(manifests).pipe(
-      mergeMap((x) => apply(client, x as IDeployResource)),
-      concatWith(of(void 0)),
-    ),
-  );
-
-  // delete
-  await lastValueFrom(
-    from(client.list('yuan.ntnl.io/v1alpha1', 'Component', 'yuan')).pipe(
-      retry({ count: 3, delay: 1000 }),
-      catchError((err) => {
-        console.error(new Date(), `Server`, `ListError`, err);
-        return EMPTY;
-      }),
-      mergeMap((res) => res.body.items),
-      filter((x) => !manifests.find((y) => y.metadata?.name === x.metadata?.name)),
-      mergeMap((x) => {
-        const namespacedName = makeNamespacedName(x);
-        return from(client.delete(x)).pipe(
-          //
-          retry({ count: 3, delay: 1000 }),
-          mergeMap(() => EMPTY),
-          catchError((err) => {
-            console.error(new Date(), `Server`, namespacedName.toString(), `Error`, err);
-            return EMPTY;
-          }),
-        );
-      }),
-      concatWith(of(void 0)),
-    ),
-  );
-};
-
-export const apply = async (client: k8s.KubernetesObjectApi, desired: IDeployResource) => {
-  const namespacedName = makeNamespacedName(desired);
-  await lastValueFrom(
-    from(
-      client.read({
-        metadata: {
-          name: desired.metadata.name!,
-          namespace: desired.metadata.namespace!,
-        },
-        apiVersion: desired.apiVersion!,
-        kind: desired.kind!,
-      }),
-    ).pipe(
-      catchError((err) => {
-        if (err instanceof k8s.HttpError) {
-          if (err.response.statusCode === 404) {
-            console.info(new Date(), `Server`, namespacedName.toString(), `Creating`);
-            return from(client.create(desired)).pipe(
-              //
-              retry({ count: 3, delay: 1000 }),
-              mergeMap(() => EMPTY),
-            );
-          }
-        }
-        throw err;
-      }),
-      mergeMap((res) => {
-        const exists = res.body as IDeployResource;
-        return from(
-          client.patch(
-            { ...desired, metadata: exists.metadata },
-            undefined,
-            undefined,
-            undefined,
-            undefined,
-            {
-              headers: {
-                'Content-Type': 'application/merge-patch+json',
-              },
-            },
-          ),
-        ).pipe(
-          //
-          retry({ count: 3, delay: 1000 }),
-          mergeMap(() => EMPTY),
-        );
-      }),
-      catchError((err) => {
-        console.error(new Date(), `Server`, namespacedName.toString(), `Error`, err);
-        return EMPTY;
-      }),
-      concatWith(of(void 0)),
-    ),
-  );
-};
-
-export const deleteResource = async (client: k8s.KubernetesObjectApi, desired: IDeployResource) => {
-  const namespacedName = makeNamespacedName(desired);
-  await lastValueFrom(
-    from(client.delete(desired)).pipe(
-      catchError((err) => {
-        console.error(new Date(), `Server`, namespacedName.toString(), `Error`, err);
-        return EMPTY;
-      }),
-      concatWith(of(void 0)),
-    ),
-  );
-};
 
 const downloadTgz = async (packageName: string, ver?: string) => {
   const { meta, version } = await resolveVersion(packageName, ver);
@@ -250,7 +122,7 @@ export const useResources = (cr: IDeployResource) => {
 
       const k8s_resources = await provider.make_k8s_resource_objects(manifest, envCtx);
       console.info(new Date(), `ResolvedResources`, Object.keys(k8s_resources));
-      return Object.entries(k8s_resources).map(([name, obj]: [string, any]) => {
+      return Object.values(k8s_resources).map((obj: any) => {
         obj.metadata!.ownerReferences = [
           {
             apiVersion: cr.apiVersion,
@@ -261,10 +133,7 @@ export const useResources = (cr: IDeployResource) => {
             controller: true,
           },
         ];
-        return {
-          kind: name,
-          resource: obj,
-        };
+        return obj as k8s.KubernetesObject;
       });
     }),
   );
