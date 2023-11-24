@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-agent",
+      "comment": "update extension k8s objects generation logic",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-agent"
+}
