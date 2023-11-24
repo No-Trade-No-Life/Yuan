@@ -2,6 +2,23 @@
   "name": "@yuants/extension",
   "entries": [
     {
+      "version": "0.2.0",
+      "tag": "@yuants/extension_v0.2.0",
+      "date": "Fri, 24 Nov 2023 10:40:29 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "refine types"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.2",
       "tag": "@yuants/extension_v0.1.2",
       "date": "Wed, 08 Nov 2023 19:50:42 GMT",

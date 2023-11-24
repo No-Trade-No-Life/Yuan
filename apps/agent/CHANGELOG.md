@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-agent
 
-This log was last generated on Wed, 22 Nov 2023 10:30:07 GMT and should not be manually modified.
+This log was last generated on Fri, 24 Nov 2023 10:40:29 GMT and should not be manually modified.
+
+## 0.4.1
+Fri, 24 Nov 2023 10:40:29 GMT
+
+### Patches
+
+- update extension k8s objects generation logic
 
 ## 0.4.0
 Wed, 22 Nov 2023 10:30:07 GMT
