@@ -2,6 +2,28 @@
   "name": "@yuants/app-agent",
   "entries": [
     {
+      "version": "0.4.1",
+      "tag": "@yuants/app-agent_v0.4.1",
+      "date": "Fri, 24 Nov 2023 10:40:29 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "update extension k8s objects generation logic"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.0",
       "tag": "@yuants/app-agent_v0.4.0",
       "date": "Wed, 22 Nov 2023 10:30:07 GMT",
