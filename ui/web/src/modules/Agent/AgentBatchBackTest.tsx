@@ -1,4 +1,4 @@
-import { IconCode, IconExport, IconImport, IconPlay, IconSearch } from '@douyinfe/semi-icons';
+import { IconCloud, IconCode, IconExport, IconImport, IconPlay, IconSearch } from '@douyinfe/semi-icons';
 import {
   Button,
   Descriptions,
@@ -10,9 +10,7 @@ import {
   Toast,
   Typography,
 } from '@douyinfe/semi-ui';
-import { IAgentConf } from '@yuants/agent';
 import { formatTime } from '@yuants/data-model';
-import copy from 'copy-to-clipboard';
 import { formatDuration, intervalToDuration } from 'date-fns';
 import ExcelJS from 'exceljs';
 import { useObservable, useObservableState } from 'observable-hooks';
@@ -40,11 +38,11 @@ import { useValue } from '../Data';
 import { fs } from '../FileSystem/api';
 import { showForm } from '../Form';
 import { registerPage, usePageParams } from '../Pages';
+import { authState$ } from '../SupaBase';
 import { clearLogAction$ } from '../Workbench/Program';
 import { currentHostConfig$ } from '../Workbench/model';
 import {
   IBatchAgentResultItem,
-  bundleCode,
   loadBatchTasks,
   makeManifestsFromAgentConfList,
   runBatchBackTestWorkItem,
@@ -252,6 +250,8 @@ registerPage('AgentBatchBackTest', () => {
     );
   };
 
+  const authState = useObservableState(authState$);
+
   return (
     <Space vertical align="start" style={{ width: '100%', flexWrap: 'wrap' }}>
       <Space>
@@ -333,6 +333,17 @@ registerPage('AgentBatchBackTest', () => {
           }}
         >
           导出部署配置
+        </Button>
+        <Button
+          disabled={!authState || !currentHost}
+          icon={<IconCloud />}
+          onClick={async (e) => {
+            for (const agentConf of tasks) {
+              await executeCommand('Agent.DeployToCloud', { agentConf });
+            }
+          }}
+        >
+          部署到云
         </Button>
         <Button
           onClick={async (e) => {
@@ -553,18 +564,10 @@ registerPage('AgentBatchBackTest', () => {
                 </Button>
                 <Button
                   onClick={async () => {
-                    const bundled_code = await bundleCode(x.agentConf.entry!);
-                    const theConfig: IAgentConf = {
-                      ...x.agentConf,
-                      is_real: true,
-                      bundled_code,
-                    };
-                    if (copy(JSON.stringify(theConfig, null, 2))) {
-                      Toast.success(`复制成功`);
-                    }
+                    executeCommand('Agent.DeployToCloud', { agentConf: x.agentConf });
                   }}
                 >
-                  复制实盘配置
+                  部署到云
                 </Button>
               </Space>
             ),

@@ -5,10 +5,14 @@ import { formatTime } from '@yuants/data-model';
 import { t } from 'i18next';
 import { useObservableState } from 'observable-hooks';
 import { Subject, defer, repeat, shareReplay } from 'rxjs';
+import { executeCommand, registerCommand } from '../CommandCenter';
+import { resolveVersion } from '../Extensions';
 import { registerPage } from '../Pages';
 import { supabase } from '../SupaBase';
 import { secretURL } from '../Terminals/NetworkStatusWidget';
+import { currentHostConfig$ } from '../Workbench/model';
 import { agentConf$ } from './AgentConfForm';
+import { bundleCode } from './utils';
 
 const refreshAction$ = new Subject<void>();
 
@@ -97,4 +101,26 @@ registerPage('CloudAgentList', () => {
       ></Table>
     </Space>
   );
+});
+
+registerCommand('Agent.DeployToCloud', async ({ agentConf }: { agentConf: IAgentConf }) => {
+  const { version } = await resolveVersion('@yuants/app-agent');
+  const bundled_code = await bundleCode(agentConf.entry || '');
+  const res = await supabase.from('agent').insert({
+    host_url: currentHostConfig$.value?.host_url,
+    kernel_id: agentConf.kernel_id ?? 'Model',
+    version: version,
+    one_json: {
+      //
+      ...agentConf,
+      is_real: true,
+      bundled_code: bundled_code,
+    },
+  });
+  if (res.error) {
+    Toast.error(`${t('common:failed')}: ${res.error.code} ${res.error.message}`);
+    return;
+  }
+  Toast.success(`${t('common:succeed')}: ${agentConf.kernel_id}`);
+  executeCommand('CloudAgentList');
 });

@@ -1,7 +1,8 @@
 import { IconCommand, IconSearch } from '@douyinfe/semi-icons';
-import { Button, Input, List, Popover, Space } from '@douyinfe/semi-ui';
+import { Button, Input, List, Popover, Space, Toast } from '@douyinfe/semi-ui';
 import { Fzf } from 'fzf';
 import hotkeys from 'hotkeys-js';
+import { t } from 'i18next';
 import { useObservableState } from 'observable-hooks';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -28,7 +29,11 @@ export const registerCommand = (id: string, handler: (params: any) => void) => {
 };
 
 export const executeCommand = async (id: string, params = {}) => {
-  const maybePromise = commandList$.value.find((cmd) => cmd.id === id)?.handler(params);
+  const command = commandList$.value.find((cmd) => cmd.id === id);
+  if (!command) {
+    Toast.error(`${t('CommandCenter:command_not_found')}: ${id}`);
+  }
+  const maybePromise = command?.handler(params);
   if (maybePromise instanceof Promise) {
     await maybePromise;
   }

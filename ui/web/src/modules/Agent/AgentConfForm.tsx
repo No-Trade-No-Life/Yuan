@@ -33,7 +33,6 @@ import {
 import { AccountFrameUnit } from '../AccountInfo/AccountFrameUnit';
 import { accountFrameSeries$, accountPerformance$ } from '../AccountInfo/model';
 import { executeCommand, registerCommand } from '../CommandCenter';
-import { resolveVersion } from '../Extensions';
 import { fs } from '../FileSystem/api';
 import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehaviorSubject';
 import Form, { showForm } from '../Form';
@@ -42,7 +41,7 @@ import { orders$ } from '../Order/model';
 import { registerPage } from '../Pages';
 import { recordTable$ } from '../Shell/model';
 import { LocalAgentScene } from '../StaticFileServerStorage/LocalAgentScene';
-import { authState$, supabase } from '../SupaBase';
+import { authState$ } from '../SupaBase';
 import { terminal$ } from '../Terminals';
 import { clearLogAction$ } from '../Workbench/Program';
 import { currentHostConfig$ } from '../Workbench/model';
@@ -272,25 +271,7 @@ registerPage('AgentConfForm', () => {
             disabled={!authState}
             onClick={async () => {
               if (!agentConf) return;
-              const { version } = await resolveVersion('@yuants/app-agent');
-              const bundled_code = await bundleCode(agentConf.entry || '');
-              const res = await supabase.from('agent').insert({
-                host_url: currentHostConfig$.value?.host_url,
-                kernel_id: agentConf.kernel_id ?? 'Model',
-                version: version,
-                one_json: {
-                  //
-                  ...agentConf,
-                  is_real: true,
-                  bundled_code: bundled_code,
-                },
-              });
-              if (res.error) {
-                Toast.error(`${t('common:failed')}: ${res.error.code} ${res.error.message}`);
-                return;
-              }
-              Toast.success(t('common:succeed'));
-              executeCommand('CloudAgentList');
+              await executeCommand('Agent.DeployToCloud', { agentConf });
             }}
           >
             {t('cloud_deploy')}
