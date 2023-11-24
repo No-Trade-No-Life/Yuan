@@ -490,6 +490,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/app-k8s-manifest-operator",
+      "projectFolder": "apps/k8s-manifest-operator",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/app-mongodb-storage",
       "projectFolder": "apps/mongodb-storage",
       "shouldPublish": true

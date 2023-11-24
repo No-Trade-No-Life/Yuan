@@ -1404,7 +1404,7 @@ export class Terminal {
                         datasource_id: groupDatasource.key,
                         product_id: groupProduct.key,
                         period_in_sec: groupPeriod.key,
-                        consumer_terminal_ids: x,
+                        consumer_terminal_ids: x.sort(),
                       })),
                     ),
                   ),
