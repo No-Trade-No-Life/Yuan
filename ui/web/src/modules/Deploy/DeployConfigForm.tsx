@@ -110,7 +110,7 @@ registerPage('DeployConfigForm', () => {
           return [config, envCtx, task] as const;
         }),
         concatMap(async ([ctx, envCtx, tasks]) => await tasks.make_docker_compose_file(ctx, envCtx)),
-        reduce((acc, cur) => ({ ...acc, ...cur }), {}),
+        reduce((acc, cur: any) => ({ ...acc, ...cur }), {}),
         map((v) => ({
           version: '3.9',
           services: v,

@@ -26,7 +26,6 @@ export default (context: IExtensionContext) => {
             type: 'string',
           },
         },
-        // one_json: agentConfSchema,
       },
     }),
     make_docker_compose_file: async (ctx, envCtx) => {
@@ -64,18 +63,10 @@ export default (context: IExtensionContext) => {
     },
     make_k8s_resource_objects: async (ctx, envCtx) => {
       // if there's no AGENT_CONF_PATH, we will use the default agent_conf.json
-      if (ctx?.env?.AGENT_CONF_PATH === undefined && ctx.one_json === undefined) {
-        throw new Error('AGENT_CONF_PATH or volume_data.agent_conf is required for k8s deployment');
+      if (ctx.one_json === undefined) {
+        throw new Error('volume_data.agent_conf is required for k8s deployment');
       }
-
-      let agentConf: IAgentConf;
-      if (ctx?.env?.AGENT_CONF_PATH !== undefined) {
-        const agentConfText = await envCtx.readFile(ctx.env!.AGENT_CONF_PATH);
-        agentConf = JSON.parse(agentConfText!) as IAgentConf;
-      } else {
-        agentConf = JSON.parse(ctx.one_json!) as IAgentConf;
-      }
-
+      const agentConf: IAgentConf = JSON.parse(ctx.one_json);
       const kernel_id = agentConf.kernel_id;
       if (kernel_id === undefined) {
         throw new Error('kernel_id is required');
@@ -83,28 +74,7 @@ export default (context: IExtensionContext) => {
       if (!agentConf.bundled_code) {
         throw new Error(`bundled_code is required`);
       }
-
-      const filesystemMapping =
-        ctx.one_json === undefined
-          ? Object.fromEntries(
-              await Promise.all(
-                [ctx.env!.AGENT_CONF_PATH].map(
-                  async (path) =>
-                    [
-                      await envCtx.createHashOfSHA256(path),
-                      { path, content: await envCtx.readFileAsBase64(path) },
-                    ] as const,
-                ),
-              ),
-            )
-          : {
-              [await envCtx.createHashOfSHA256('/agent_conf.json')]: {
-                path: '/agent_conf.json',
-                content: await envCtx.toBase64String(JSON.stringify(agentConf)),
-              },
-            };
-
-      const escapedKernelID = kernel_id.replace(/\/|_/g, '').toLocaleLowerCase();
+      const manifest_key = ctx.key;
 
       return {
         deployment: {
@@ -114,9 +84,9 @@ export default (context: IExtensionContext) => {
             labels: {
               'y.ntnl.io/version': ctx.version ?? envCtx.version,
               'y.ntnl.io/component': 'agent',
-              'y.ntnl.io/kernel_id': escapedKernelID,
+              'y.ntnl.io/manifest-key': manifest_key,
             },
-            name: `agent-${escapedKernelID}`,
+            name: `agent-${manifest_key}`,
             namespace: 'yuan',
           },
           spec: {
@@ -124,7 +94,7 @@ export default (context: IExtensionContext) => {
             selector: {
               matchLabels: {
                 'y.ntnl.io/component': 'agent',
-                'y.ntnl.io/kernel_id': escapedKernelID,
+                'y.ntnl.io/manifest-key': manifest_key,
               },
             },
             template: {
@@ -132,7 +102,7 @@ export default (context: IExtensionContext) => {
                 labels: {
                   'y.ntnl.io/version': ctx.version ?? envCtx.version,
                   'y.ntnl.io/component': 'agent',
-                  'y.ntnl.io/kernel_id': escapedKernelID,
+                  'y.ntnl.io/manifest-key': manifest_key,
                 },
               },
               spec: {
@@ -148,8 +118,8 @@ export default (context: IExtensionContext) => {
                         memory: ctx.memory?.max ?? '256Mi',
                       },
                       requests: {
-                        cpu: ctx.cpu?.min ?? '200m',
-                        memory: ctx.memory?.min ?? '256Mi',
+                        cpu: ctx.cpu?.min ?? '20m',
+                        memory: ctx.memory?.min ?? '128Mi',
                       },
                     },
                     volumeMounts: [
@@ -164,13 +134,13 @@ export default (context: IExtensionContext) => {
                   {
                     name: 'agent-config',
                     secret: {
-                      secretName: `agent-${escapedKernelID}-config`,
-                      items: await Promise.all(
-                        Object.entries(filesystemMapping).map(async ([k, { path }]) => ({
-                          key: k,
-                          path: path.substring(1),
-                        })),
-                      ),
+                      secretName: `agent-${manifest_key}`,
+                      items: [
+                        {
+                          key: 'agent_conf.json',
+                          path: 'agent_conf.json',
+                        },
+                      ],
                     },
                   },
                 ],
@@ -188,15 +158,18 @@ export default (context: IExtensionContext) => {
           apiVersion: 'v1',
           kind: 'Secret',
           metadata: {
-            name: `agent-${escapedKernelID}-config`,
+            name: `agent-${manifest_key}`,
             namespace: 'yuan',
             labels: {
               'y.ntnl.io/version': ctx.version ?? envCtx.version,
               'y.ntnl.io/component': 'agent',
-              'y.ntnl.io/kernel_id': escapedKernelID,
+              'y.ntnl.io/manifest-key': manifest_key,
             },
           },
-          data: Object.fromEntries(Object.entries(filesystemMapping).map(([k, { content }]) => [k, content])),
+          // data: Object.fromEntries(Object.entries(filesystemMapping).map(([k, { content }]) => [k, content])),
+          data: {
+            'agent_conf.json': await envCtx.toBase64String(ctx.one_json!),
+          },
         },
         prometheusRule: {
           apiVersion: 'monitoring.coreos.com/v1',
@@ -205,14 +178,15 @@ export default (context: IExtensionContext) => {
             labels: {
               'y.ntnl.io/component': 'agent',
               'y.ntnl.io/version': ctx.version ?? envCtx.version,
+              'y.ntnl.io/manifest-key': manifest_key,
             },
-            name: 'agent-prometheus-rules',
+            name: `agent-${manifest_key}`,
             namespace: 'yuan',
           },
           spec: {
             groups: [
               {
-                name: 'agent.rules',
+                name: `agent.rules-${manifest_key}`,
                 rules: [
                   {
                     alert: 'AgentDataSelfCheckError',
