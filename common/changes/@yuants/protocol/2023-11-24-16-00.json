@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "fix subscribe periods with multiple period_in_sec issue",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
