@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/app-k8s-manifest-operator",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/app-k8s-manifest-operator_v0.0.1",
+      "date": "Fri, 24 Nov 2023 17:11:56 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "init project"
+          }
+        ]
+      }
+    }
+  ]
+}
