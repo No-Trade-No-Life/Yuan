@@ -1,36 +1,61 @@
 {
   "home.features.deploy.description": {
-    "message": "得益于最新的技术和云原生架构，Yuan 可以访问云服务器，或者您的本地机器，甚至智能手表等 LOT 设备，所有这些都连接到同一个交易网络。"
+    "message": "没有技术绑架。从您的个人电脑开始。渐进式地按需切换至云。保持丝滑、统一的用户体验。"
   },
   "home.features.deploy.title": {
-    "message": "本地，云上...任何智能设备"
-  },
-  "home.features.ecosystem.description": {
-    "message": "在 Yuan 中，拓展被视为一等公民。您可以使用扩展来添加新功能、连接更多市场并增强您的体验。"
-  },
-  "home.features.ecosystem.title": {
-    "message": "插件优先的生态系统"
+    "message": "混合部署"
   },
   "home.features.gui.description": {
-    "message": "Yuan 拥有强大的浏览器原生 GUI，基于最新的网络技术，为您的量化交易之旅提供动力。"
+    "message": "开箱即用。无需安装。点击即玩。"
   },
   "home.features.gui.title": {
     "message": "强大的 Web GUI"
   },
   "home.features.language.description": {
-    "message": "使用世界上最流行的编程语言 Javascript/Typescript 编写您的交易策略，无需考虑环境设置。"
+    "message": "使用 Javascript / Typescript 编写您的交易策略。超过 1200 万开发者的共同选择。"
   },
   "home.features.language.title": {
-    "message": "简单的语言和 AI 助手"
+    "message": "最流行的编程语言"
   },
+  "home.features.ai-assistant.description": {
+    "message": "不会写代码？人工智能助手来帮忙。您只需像老板一样决策即可。"
+  },
+  "home.features.ai-assistant.title": {
+    "message": "人工智能助手"
+  },
+  "home.features.real-world-trading.description": {
+    "message": "不仅限于回测。我们已经准备好在实盘中运行您的策略。"
+  },
+  "home.features.real-world-trading.title": {
+    "message": "实盘交易"
+  },
+  "home.features.unified-trading-interface.description": {
+    "message": "连接到不同的券商，无需更改代码。"
+  },
+  "home.features.unified-trading-interface.title": {
+    "message": "统一交易接口"
+  },
+  "home.features.security-privacy.description": {
+    "message": "您的文件存储在本地。您的工作成果受到您的操作系统的保护。"
+  },
+  "home.features.security-privacy.title": {
+    "message": "隐私与安全"
+  },
+  "home.features.free.description": {
+    "message": "我们来自开源社区。不必担心我们停止服务。基础功能永久免费。"
+  },
+  "home.features.free.title": {
+    "message": "社区承诺"
+  },
+
   "home.getStartedButton": {
-    "message": "快速启动"
+    "message": "立即启动"
   },
   "home.readTheDocsButton": {
     "message": "阅读文档"
   },
   "home.slogan": {
-    "message": "面向个人的投资操作系统"
+    "message": "适合每个人的投资操作系统"
   },
   "home.welcomeTitle": {
     "message": "{value} 欢迎你"
