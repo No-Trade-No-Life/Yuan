@@ -33,7 +33,9 @@
 
 ## About The Project
 
-<img width="2560" alt="image" src="https://github.com/No-Trade-No-Life/Yuan/assets/12707521/b31243a9-18d5-45ed-9c73-6806a8f60f00">
+![image](https://github.com/No-Trade-No-Life/Yuan/assets/12707521/badf274a-7249-44c8-84fa-943ac6651d96)
+
+![image](https://github.com/No-Trade-No-Life/Yuan/assets/12707521/6bac83f1-434d-400f-b6a1-a0874a812d5a)
 
 I'm a software engineer. And I want to make money through quantitative and automatic trading.
 
