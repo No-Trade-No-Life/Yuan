@@ -123,11 +123,15 @@ registerPage('AI', () => {
 
           pushHistoryMessages({ role: 'assistant', content: `${t('common:saved')}: ${filename}` });
           agentConf$.next({ ...agentConf$.value, entry: filename });
+          gtag('event', 'ai_agent_complete');
         } else {
           pushHistoryMessages({ role: 'assistant', content: resp.data.message.content });
         }
+        gtag('event', 'ai_complete', { type: resp.data.messageType });
       }
-    } catch (e) {}
+    } catch (e) {
+      gtag('event', 'ai_error', { message: `${e}` });
+    }
     setLoading(false);
   };
   return (

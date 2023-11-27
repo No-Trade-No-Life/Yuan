@@ -41,4 +41,4 @@ declare module 'lightweight-charts/dist/lightweight-charts.esm.development.js' {
   export * from 'lightweight-charts';
 }
 
-declare function gtag(...args: any[]);
+declare function gtag(op: 'event', eventName: string, args?: {});

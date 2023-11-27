@@ -130,6 +130,7 @@ registerPage('TechnicalChart', () => {
     <Space vertical align="start" style={{ height: '100%', width: '100%' }}>
       <Space>
         <Select
+          prefix={t('common:account')}
           value={accountId}
           onChange={(v) => {
             setAccountId(v as string);
