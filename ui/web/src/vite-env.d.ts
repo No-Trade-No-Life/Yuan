@@ -40,3 +40,5 @@ declare function showSaveFilePicker(): Promise<FileSystemFileHandle>;
 declare module 'lightweight-charts/dist/lightweight-charts.esm.development.js' {
   export * from 'lightweight-charts';
 }
+
+declare function gtag(...args: any[]);

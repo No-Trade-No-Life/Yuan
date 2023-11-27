@@ -191,9 +191,11 @@ runAgentAction$.subscribe(async () => {
     executeCommand('Page.open', { type: 'AccountPerformancePanel' });
 
     Toast.success(t('AgentConfForm:run_succeed'));
+    gtag('event', 'agent_run_complete');
   } catch (e) {
     Toast.error(`${t('AgentConfForm:run_failed')}: ${e}`);
     console.error(e);
+    gtag('event', 'agent_run_error', { message: `${e}` });
   }
   complete$.next(true);
 });
