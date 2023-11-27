@@ -1,10 +1,11 @@
 import { IconInfoCircle } from '@douyinfe/semi-icons';
-import { Descriptions, Select, Space, Tooltip } from '@douyinfe/semi-ui';
+import { Button, Descriptions, Select, Space, Tooltip } from '@douyinfe/semi-ui';
 import { AccountPerformanceUnit, IAccountPerformance } from '@yuants/kernel';
 import { useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { WeeklyEquityChart } from '../Chart/WeeklyEquityChart';
+import { executeCommand } from '../CommandCenter';
 import { registerPage } from '../Pages';
 import { accountPerformance$ } from './model';
 
@@ -19,13 +20,44 @@ registerPage('AccountPerformancePanel', () => {
 
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
-      <Select
-        value={accountId}
-        onChange={(v) => {
-          setAccountId(v as string);
-        }}
-        optionList={accountIdOptions.map((v) => ({ label: v, value: v }))}
-      ></Select>
+      <Space>
+        <Select
+          prefix={t('common:account')}
+          value={accountId}
+          onChange={(v) => {
+            setAccountId(v as string);
+          }}
+          optionList={accountIdOptions.map((v) => ({ label: v, value: v }))}
+        ></Select>
+        <Button
+          onClick={() => {
+            executeCommand('TechnicalChart');
+          }}
+        >
+          {t('pages:TechnicalChart')}
+        </Button>
+        <Button
+          onClick={() => {
+            executeCommand('OrderListPanel');
+          }}
+        >
+          {t('pages:OrderListPanel')}
+        </Button>
+        <Button
+          onClick={() => {
+            executeCommand('AccountFrameChart');
+          }}
+        >
+          {t('pages:AccountFrameChart')}
+        </Button>
+        <Button
+          onClick={() => {
+            executeCommand('RecordTablePanel');
+          }}
+        >
+          {t('pages:RecordTablePanel')}
+        </Button>
+      </Space>
       <Descriptions
         data={[
           {

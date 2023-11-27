@@ -5,6 +5,7 @@
   "CreateFile_succeed": "File created successfully: {{ filename }}",
   "Workspace": "Workspace",
   "YuanCoin": "Yuan Coin",
+  "account": "Account",
   "actions": "Actions",
   "cancel": "Cancel",
   "close": "Close",

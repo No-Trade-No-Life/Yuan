@@ -5,6 +5,7 @@
   "CreateFile_succeed": "创建文件成功: {{ filename }}",
   "Workspace": "",
   "YuanCoin": "原石",
+  "account": "账户",
   "actions": "操作",
   "cancel": "取消",
   "close": "关闭",

@@ -158,9 +158,6 @@ runAgentAction$.subscribe(async () => {
         Object.fromEntries(scene.accountPerformanceUnit.mapAccountIdToPerformance.entries()),
       );
       accountFrameSeries$.next(accountFrameUnit.data);
-      if (Object.keys(scene.agentUnit.record_table).length > 0) {
-        executeCommand('Page.open', { type: 'RecordTablePanel' });
-      }
     } else {
       const terminal = await firstValueFrom(terminal$);
       const agentCode = await bundleCode(agentConf.entry!);
@@ -180,14 +177,8 @@ runAgentAction$.subscribe(async () => {
         Object.fromEntries(scene.accountPerformanceUnit.mapAccountIdToPerformance.entries()),
       );
       accountFrameSeries$.next(accountFrameUnit.data);
-      if (Object.keys(scene.agentUnit.record_table).length > 0) {
-        executeCommand('Page.open', { type: 'RecordTablePanel' });
-      }
     }
 
-    executeCommand('Page.open', { type: 'OrderListPanel' });
-    executeCommand('Page.open', { type: 'TechnicalChart' });
-    executeCommand('Page.open', { type: 'AccountFrameChart' });
     executeCommand('Page.open', { type: 'AccountPerformancePanel' });
 
     Toast.success(t('AgentConfForm:run_succeed'));

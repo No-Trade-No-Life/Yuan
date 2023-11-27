@@ -42,6 +42,7 @@ registerPage('AccountFrameChart', () => {
   return (
     <div style={{ height: '100%' }}>
       <Select
+        prefix={t('common:account')}
         value={accountId}
         onChange={(v) => {
           setAccountId(v as string);
