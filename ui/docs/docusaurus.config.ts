@@ -35,6 +35,11 @@ const config: Config = {
     mermaid: true,
   },
   themes: ['@docusaurus/theme-mermaid'],
+  scripts: [
+    //
+    '/head_script.js',
+    // 'https://docusaurus.io/script.js',
+  ],
 
   presets: [
     [
