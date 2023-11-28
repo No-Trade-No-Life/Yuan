@@ -36,6 +36,10 @@ const config: Config = {
   },
   themes: ['@docusaurus/theme-mermaid'],
   scripts: [
+    {
+      src: 'https://www.googletagmanager.com/gtag/js?id=G-Z8KKJBPT59',
+      async: true,
+    },
     //
     '/head_script.js',
     // 'https://docusaurus.io/script.js',
