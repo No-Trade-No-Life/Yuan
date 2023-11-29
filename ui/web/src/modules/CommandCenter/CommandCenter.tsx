@@ -6,14 +6,10 @@ import { t } from 'i18next';
 import { useObservableState } from 'observable-hooks';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, Subject, debounceTime } from 'rxjs';
 import './CommandCenter.css';
 
 export const openCommandCenterAction$ = new Subject<void>();
-
-hotkeys('command+k,ctrl+k', () => {
-  isCommandCenterOpen$.next(true);
-});
 
 interface ICommand {
   id: string;
@@ -56,7 +52,17 @@ const HighlightChars = (props: { str: string; indices: Set<number> }) => {
 export const CommandCenter = React.memo(() => {
   const { t, i18n } = useTranslation(['CommandCenter', 'command']);
   const isCommandCenterOpen = useObservableState(isCommandCenterOpen$);
-  const commandList = useObservableState(commandList$);
+  const commandList = useObservableState(commandList$.pipe(debounceTime(50)), []);
+
+  useEffect(() => {
+    const key = 'command+k,ctrl+k';
+    hotkeys(key, () => {
+      isCommandCenterOpen$.next(true);
+    });
+    return () => {
+      hotkeys.unbind(key);
+    };
+  }, []);
 
   const fzf = useMemo(() => new Fzf(commandList, { selector: (cmd) => cmd.id }), [commandList]);
 
