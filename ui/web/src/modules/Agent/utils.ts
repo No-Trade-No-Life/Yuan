@@ -21,6 +21,7 @@ import { fs } from '../FileSystem/api';
 import { LocalAgentScene } from '../StaticFileServerStorage/LocalAgentScene';
 import { terminal$ } from '../Terminals/create-connection'; // ISSUE: WebWorker import this (Expected ":" but found "body")
 import { currentHostConfig$ } from '../Workbench/model';
+import { UUID } from '@yuants/data-model';
 
 export const rollupLoadEvent$ = new Subject<{ id: string; content: string }>();
 
@@ -72,6 +73,77 @@ export const bundleCode = async (entry: string) => {
           }
         },
         async load(id) {
+          const content = await fs.readFile(id);
+          rollupLoadEvent$.next({ id, content });
+          if (id.endsWith('.ts')) {
+            const transpiled = ts.transpile(content, { target: ts.ScriptTarget.ESNext });
+            return transpiled;
+          }
+          return content;
+        },
+      },
+    ],
+  });
+  const output = await bundle.generate({ format: 'iife' });
+  let agentCode = output.output[0].code;
+  return agentCode;
+};
+
+/**
+ * Bundle code from entry
+ * @param entry entry filename
+ * @returns IIFE-formatted code
+ */
+export const bundleCodeFromInMemoryCode = async (entry_code: string) => {
+  const mainId = '/' + UUID();
+  const bundle = await rollup.rollup({
+    input: [mainId],
+    onLog: (level, log, handler) => {
+      if (log.code === 'CIRCULAR_DEPENDENCY') {
+        return; // Ignore circular dependency warnings
+      }
+      if (log.code === 'MISSING_NAME_OPTION_FOR_IIFE_EXPORT') {
+        return; // Ignore missing IIFE name
+      }
+      handler(level, log);
+    },
+    plugins: [
+      {
+        name: 'rollup-plugin-yuan',
+        async resolveId(source, importer = '/', options) {
+          if (source === mainId) {
+            return mainId;
+          }
+          function* candidate() {
+            if (source[0] === '.') {
+              // relative path
+              yield path.join(importer, '..', source);
+              yield path.join(importer, '..', source + '.js');
+              yield path.join(importer, '..', source + '.ts');
+              yield path.join(importer, '..', source, 'index.ts');
+              yield path.join(importer, '..', source, 'index.js');
+            } else {
+              // absolute path
+              yield path.join('/', source);
+              yield path.join('/', source + '.js');
+              yield path.join('/', source + '.ts');
+              yield path.join('/', source, 'index.ts');
+              yield path.join('/', source, 'index.js');
+            }
+          }
+          for (const filename of candidate()) {
+            try {
+              await fs.readFile(filename);
+              return filename;
+            } catch (e) {
+              //
+            }
+          }
+        },
+        async load(id) {
+          if (id === mainId) {
+            return entry_code;
+          }
           const content = await fs.readFile(id);
           rollupLoadEvent$.next({ id, content });
           if (id.endsWith('.ts')) {
