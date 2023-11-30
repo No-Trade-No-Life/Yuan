@@ -161,7 +161,7 @@ defer(() =>
               },
               start: true,
               timeZone: task.cron_timezone,
-              runOnInit: true,
+              // runOnInit: true,
             });
             return () => job.stop();
           }).pipe(
@@ -245,25 +245,34 @@ defer(() =>
                     });
                   }),
                   mergeMap(() =>
-                    term.queryDataRecords<IPeriod>({
-                      type: 'period',
-                      tags: {
-                        datasource_id: task.datasource_id,
-                        product_id: task.product_id,
-                        period_in_sec: '' + task.period_in_sec,
-                      },
-                      options: {
-                        skip: task.replay_count || 0,
-                        sort: [['frozen_at', -1]],
-                        limit: 1,
-                      },
-                    }),
+                    term
+                      .queryDataRecords<IPeriod>({
+                        type: 'period',
+                        tags: {
+                          datasource_id: task.datasource_id,
+                          product_id: task.product_id,
+                          period_in_sec: '' + task.period_in_sec,
+                        },
+                        options: {
+                          skip: task.replay_count || 0,
+                          sort: [['frozen_at', -1]],
+                          limit: 1,
+                        },
+                      })
+                      .pipe(
+                        //
+                        retry({ delay: 5_000 }),
+                      ),
                   ),
                   map((v) => v.frozen_at),
                   filter((v): v is Exclude<typeof v, null> => !!v),
                   defaultIfEmpty(0),
                   first(),
                   mergeMap((lastTime) => {
+                    // if (Date.now() - lastTime < task.period_in_sec * 1000) {
+                    //   console.info(new Date(), `SkipPullData, last pull time: ${new Date(lastTime)}`);
+                    //   return EMPTY;
+                    // }
                     let startTime: number;
                     return defer(() => {
                       console.info(
