@@ -6,6 +6,7 @@ import { BehaviorSubject, EMPTY, Subject, catchError, defer, raceWith, tap, time
 import { registerPage } from '../Pages';
 import { authState$ } from '../SupaBase';
 import { IChatMessage, IMessageCardProps } from './model';
+import { executeCommand } from '../CommandCenter';
 
 const mapMessageTypeToComponent: Record<string, React.ComponentType<IMessageCardProps<any>>> = {};
 
@@ -95,7 +96,20 @@ registerPage('Copilot', () => {
   }, [messages]);
 
   if (!authState) {
-    return <Empty>Login first to use this feature.</Empty>;
+    return (
+      <Empty>
+        <Typography.Text
+          link={{
+            onClick: () => {
+              executeCommand('Login');
+            },
+          }}
+        >
+          Login
+        </Typography.Text>{' '}
+        first to use this feature.
+      </Empty>
+    );
   }
   return (
     <Space vertical style={{ width: '100%', height: '100%' }}>
