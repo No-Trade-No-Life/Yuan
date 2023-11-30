@@ -22,7 +22,7 @@ sidebar_position: 1
 // It's a simple trend-tracking trading strategy that uses the SMA indicator.
 import { useSMA, useSimplePositionManager } from '@libs';
 export default () => {
-  const { close } = useOHLC('Y', 'XAUUSD');
+  const { close } = useOHLC('Y', 'XAUUSD', 'PT1H');
   const ma20 = useSMA(close, 20);
   const accountInfo = useAccountInfo();
   const [targetVolume, setTargetVolume] = useSimplePositionManager(accountInfo.account_id, 'XAUUSD');
