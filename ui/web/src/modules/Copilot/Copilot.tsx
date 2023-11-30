@@ -2,11 +2,11 @@ import { IconClear, IconSend } from '@douyinfe/semi-icons';
 import { Button, Card, Empty, Space, TextArea, Typography } from '@douyinfe/semi-ui';
 import { useObservableState } from 'observable-hooks';
 import React, { useEffect, useMemo, useState } from 'react';
-import { EMPTY, Subject, catchError, defer, raceWith, tap, timeout } from 'rxjs';
+import { BehaviorSubject, EMPTY, Subject, catchError, defer, raceWith, tap, timeout } from 'rxjs';
 import { registerPage } from '../Pages';
 import { authState$ } from '../SupaBase';
-import { IMessageCardProps } from './model';
 import { exampleMessages } from './case';
+import { IMessageCardProps } from './model';
 
 interface IChatMessage<T extends string, P extends {}> {
   type: T;
@@ -32,23 +32,31 @@ registerPage('Copilot', () => {
   const [userInput, setUserInput] = useState('');
   const [isLoading, setLoading] = useState(false);
   const authState = useObservableState(authState$);
-  const [messages, setMessages] = useState<IChatMessage<any, any>[]>(
-    // [],
-    exampleMessages,
+
+  const messages$ = useMemo(
+    () =>
+      new BehaviorSubject<IChatMessage<any, any>[]>(
+        // []
+        exampleMessages,
+      ),
+    [],
   );
+  const messages = useObservableState(messages$);
 
   const stop$ = useMemo(() => new Subject<void>(), []);
   const handleSend = async () => {
     if (!userInput || !authState) return;
     defer(async () => {
       const theUserInput = userInput;
-      setMessages((x) => x.concat({ type: 'UserText', payload: { text: theUserInput } }));
+      messages$.next(messages$.value.concat([{ type: 'UserText', payload: { text: theUserInput } }]));
       setUserInput('');
+
+      const messagesToSend = messages$.value.filter((v) => v.type !== 'SystemError');
 
       const res = await fetch(`https://api.ntnl.io/copilot`, {
         mode: 'cors',
         method: 'POST',
-        body: JSON.stringify({ messages }),
+        body: JSON.stringify({ messages: messagesToSend }),
         credentials: 'include',
         // TODO: use cookies
         headers: {
@@ -59,8 +67,8 @@ registerPage('Copilot', () => {
       });
 
       const json = await res.json();
-      const newMessages = json.data.messages;
-      setMessages((x) => x.concat(newMessages));
+      const newMessages: IChatMessage<any, any>[] = json.data.messages;
+      messages$.next(messages$.value.concat(newMessages));
     })
       .pipe(
         tap({
@@ -75,7 +83,7 @@ registerPage('Copilot', () => {
         timeout({ first: 240_000 }),
         catchError((err) => {
           console.error(err);
-          setMessages((x) => x.concat([{ type: 'SystemError', payload: { error: `${err}` } }]));
+          messages$.next(messages$.value.concat([{ type: 'SystemError', payload: { error: `${err}` } }]));
           return EMPTY;
         }),
       )
@@ -197,7 +205,7 @@ registerPage('Copilot', () => {
               icon={<IconClear />}
               type="danger"
               onClick={() => {
-                setMessages((x) => []);
+                messages$.next([]);
               }}
             >
               Clear
