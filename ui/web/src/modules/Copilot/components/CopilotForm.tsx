@@ -23,26 +23,23 @@ export default ({
       }
       actions={[
         //
-        formData && (
-          <Button
-            icon={<IconTick />}
-            onClick={() => {
-              sendMessages([{ type: 'UserFormInput', payload: { id: payload.id, answer: formData } }]);
-            }}
-          >
-            Submit
-          </Button>
-        ),
-        !formData && (
-          <Button
-            icon={<IconFastForward />}
-            onClick={() => {
-              sendMessages([{ type: 'UserFormInput', payload: { id: payload.id, answer: formData } }]);
-            }}
-          >
-            Not sure. Skip
-          </Button>
-        ),
+        <Button
+          icon={<IconTick />}
+          disabled={!formData}
+          onClick={() => {
+            sendMessages([{ type: 'UserFormInput', payload: { id: payload.id, answer: formData } }]);
+          }}
+        >
+          Submit
+        </Button>,
+        <Button
+          icon={<IconFastForward />}
+          onClick={() => {
+            sendMessages([{ type: 'UserFormInput', payload: { id: payload.id, answer: undefined } }]);
+          }}
+        >
+          Not sure. Skip
+        </Button>,
       ]}
     >
       <Form
