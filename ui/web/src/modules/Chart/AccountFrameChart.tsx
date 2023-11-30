@@ -1,7 +1,8 @@
-import { Select } from '@douyinfe/semi-ui';
+import { Space } from '@douyinfe/semi-ui';
 import { useObservableState } from 'observable-hooks';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { AccountSelector } from '../AccountInfo';
 import { accountFrameSeries$ } from '../AccountInfo/model';
 import { registerPage } from '../Pages';
 import { Chart, ChartGroup, LineSeries } from './components/Charts';
@@ -9,8 +10,8 @@ import { Chart, ChartGroup, LineSeries } from './components/Charts';
 registerPage('AccountFrameChart', () => {
   const { t, ready } = useTranslation('AccountFrameChart');
   const mapAccountIdToFrames = useObservableState(accountFrameSeries$);
-  const accountIdOptions = Object.keys(mapAccountIdToFrames);
-  const [accountId, setAccountId] = useState(accountIdOptions[0] || '');
+  const accountIdOptions = useMemo(() => Object.keys(mapAccountIdToFrames), [mapAccountIdToFrames]);
+  const [accountId, setAccountId] = useState('');
   const accountFrames = mapAccountIdToFrames[accountId] || [];
 
   const balanceData = useMemo(
@@ -41,14 +42,9 @@ registerPage('AccountFrameChart', () => {
 
   return (
     <div style={{ height: '100%' }}>
-      <Select
-        prefix={t('common:account')}
-        value={accountId}
-        onChange={(v) => {
-          setAccountId(v as string);
-        }}
-        optionList={accountIdOptions.map((v) => ({ label: v, value: v }))}
-      />
+      <Space>
+        <AccountSelector value={accountId} onChange={setAccountId} candidates={accountIdOptions} />
+      </Space>
       <ChartGroup>
         <div style={{ height: '50%' }}>
           <Chart>
