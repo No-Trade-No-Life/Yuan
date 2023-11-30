@@ -4,6 +4,9 @@ import { bundleCodeFromInMemoryCode } from '../../Agent/utils';
 import { MonacoEditor } from '../../Editor/Monaco';
 import { LocalAgentScene } from '../../StaticFileServerStorage/LocalAgentScene';
 import { IMessageCardProps } from '../model';
+import { format } from 'date-fns';
+import { fs } from '../../FileSystem/api';
+import { t } from 'i18next';
 
 export default ({
   sendMessages,
@@ -32,15 +35,27 @@ export default ({
               const schema = scene.agentUnit.paramsSchema;
 
               appendMessages([{ type: 'AgentConfigForm', payload: { bundled_code, schema } }]);
+              gtag('event', 'copilot_agent_code_complete');
             } catch (e) {
               Toast.error(`Compile Error: ${e}`);
               sendMessages([{ type: 'UserText', payload: { text: `${e}` } }]);
+              gtag('event', 'copilot_agent_code_error', { message: `${e}` });
             }
           }}
         >
           OK, test it!
         </Button>,
-        <Button icon={<IconSave />} type="secondary">
+        <Button
+          icon={<IconSave />}
+          type="secondary"
+          onClick={async () => {
+            const filename = `/AIGC/${format(new Date(), 'yyyy-MM-dd-HH-mm-ss')}.ts`;
+            await fs.ensureDir('/AIGC');
+            await fs.writeFile(filename, payload.code);
+            Toast.success(`${t('common:saved')}: ${filename}`);
+            gtag('event', 'copilot_agent_code_saved');
+          }}
+        >
           Save to my workspace
         </Button>,
       ]}
