@@ -1,4 +1,4 @@
-import { IconHelpCircle, IconTick } from '@douyinfe/semi-icons';
+import { IconFastForward, IconHelpCircle, IconTick } from '@douyinfe/semi-icons';
 import { Button, Card, Space, Typography } from '@douyinfe/semi-ui';
 import { JSONSchema7 } from 'json-schema';
 import { useState } from 'react';
@@ -23,14 +23,26 @@ export default ({
       }
       actions={[
         //
-        <Button
-          icon={<IconTick />}
-          onClick={() => {
-            sendMessages([{ type: 'UserFormInput', payload: { id: payload.id, answer: formData } }]);
-          }}
-        >
-          Submit
-        </Button>,
+        formData && (
+          <Button
+            icon={<IconTick />}
+            onClick={() => {
+              sendMessages([{ type: 'UserFormInput', payload: { id: payload.id, answer: formData } }]);
+            }}
+          >
+            Submit
+          </Button>
+        ),
+        !formData && (
+          <Button
+            icon={<IconFastForward />}
+            onClick={() => {
+              sendMessages([{ type: 'UserFormInput', payload: { id: payload.id, answer: formData } }]);
+            }}
+          >
+            Not sure. Skip
+          </Button>
+        ),
       ]}
     >
       <Form
