@@ -73,15 +73,15 @@ export default () => {
     },
   },
   {
-    type: 'CopilotForm',
+    type: 'AgentConfigForm',
     payload: {
-      id: UUID(),
       schema: {
         title: '模型的自定义参数',
         type: 'object',
         properties: {
           SomeKey: {
             type: 'string',
+            format: 'OHLC-key',
           },
         },
       },

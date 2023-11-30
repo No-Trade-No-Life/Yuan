@@ -4,5 +4,7 @@ export interface IChatMessage<T extends string, P extends {}> {
 }
 export interface IMessageCardProps<P = {}> {
   payload: P;
+  appendMessages: (message: IChatMessage<any, any>[]) => void;
+  send: () => void;
   sendMessages: (messages: IChatMessage<any, any>[]) => void;
 }

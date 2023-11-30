@@ -152,15 +152,24 @@ registerPage('Copilot', () => {
             </Space>
           </Space>
         )}
-        {messages.map((msg) => {
+        {messages.map((msg, idx) => {
           const component = mapMessageTypeToComponent[msg.type];
           if (!component) return null;
+
+          const send = sendCurrentMessages;
+
+          const appendMessages = (msgList: IChatMessage<any, any>[]) => {
+            messages$.next(messages$.value.slice(0, idx + 1).concat(msgList));
+          };
+
           return React.createElement(component, {
             payload: msg.payload,
+            appendMessages,
             sendMessages: (msgList) => {
-              messages$.next(messages$.value.concat(msgList));
-              sendCurrentMessages();
+              appendMessages(msgList);
+              send();
             },
+            send,
           });
         })}
         {isLoading && (

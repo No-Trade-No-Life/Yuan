@@ -1,4 +1,4 @@
-import { IconClose, IconCode, IconSave, IconTick } from '@douyinfe/semi-icons';
+import { IconCode, IconSave, IconTick } from '@douyinfe/semi-icons';
 import { Button, Card, Space, Typography } from '@douyinfe/semi-ui';
 import { MonacoEditor } from '../../Editor/Monaco';
 import { IMessageCardProps } from '../model';
@@ -19,9 +19,8 @@ export default ({
       style={{ width: '100%', flexShrink: 0 }}
       actions={[
         //
-        <Button icon={<IconTick />}>OK, test it!</Button>,
-        <Button icon={<IconClose />} type="danger">
-          It's not my style!
+        <Button icon={<IconTick />} onClick={() => {}}>
+          OK, test it!
         </Button>,
         <Button icon={<IconSave />} type="secondary">
           Save to my workspace
