@@ -1,15 +1,18 @@
 import { IconHelpCircle, IconTick } from '@douyinfe/semi-icons';
 import { Button, Card, Space, Typography } from '@douyinfe/semi-ui';
 import { JSONSchema7 } from 'json-schema';
+import { useState } from 'react';
 import Form from '../../Form';
 import { IMessageCardProps } from '../model';
 
 export default ({
+  sendMessages,
   payload,
 }: IMessageCardProps<{
   id: string;
   schema: JSONSchema7;
 }>) => {
+  const [formData, setFormData] = useState(undefined);
   return (
     <Card
       style={{ width: '100%', flexShrink: 0 }}
@@ -20,10 +23,23 @@ export default ({
       }
       actions={[
         //
-        <Button icon={<IconTick />}>Submit</Button>,
+        <Button
+          icon={<IconTick />}
+          onClick={() => {
+            sendMessages([{ type: 'UserFormInput', payload: { id: payload.id, answer: formData } }]);
+          }}
+        >
+          Submit
+        </Button>,
       ]}
     >
-      <Form schema={payload.schema}>
+      <Form
+        schema={payload.schema}
+        formData={formData}
+        onChange={(e) => {
+          setFormData(e.formData);
+        }}
+      >
         <div></div>
       </Form>
     </Card>

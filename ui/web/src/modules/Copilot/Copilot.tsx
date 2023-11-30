@@ -6,12 +6,7 @@ import { BehaviorSubject, EMPTY, Subject, catchError, defer, raceWith, tap, time
 import { registerPage } from '../Pages';
 import { authState$ } from '../SupaBase';
 import { exampleMessages } from './case';
-import { IMessageCardProps } from './model';
-
-interface IChatMessage<T extends string, P extends {}> {
-  type: T;
-  payload: P;
-}
+import { IChatMessage, IMessageCardProps } from './model';
 
 const mapMessageTypeToComponent: Record<string, React.ComponentType<IMessageCardProps<any>>> = {};
 
@@ -23,10 +18,12 @@ const emptyHints = [
 
 export function registerCopilotMessageBlock<P extends {}>(
   type: string,
-  component: React.ComponentType<{ payload: P }>,
+  component: React.ComponentType<IMessageCardProps<any>>,
 ) {
   mapMessageTypeToComponent[type] = component;
 }
+
+const API_ENDPOINT = `https://api.ntnl.io/copilot`;
 
 registerPage('Copilot', () => {
   const [userInput, setUserInput] = useState('');
@@ -44,16 +41,12 @@ registerPage('Copilot', () => {
   const messages = useObservableState(messages$);
 
   const stop$ = useMemo(() => new Subject<void>(), []);
-  const handleSend = async () => {
-    if (!userInput || !authState) return;
-    defer(async () => {
-      const theUserInput = userInput;
-      messages$.next(messages$.value.concat([{ type: 'UserText', payload: { text: theUserInput } }]));
-      setUserInput('');
 
+  const sendCurrentMessages = () => {
+    defer(async () => {
       const messagesToSend = messages$.value.filter((v) => v.type !== 'SystemError');
 
-      const res = await fetch(`https://api.ntnl.io/copilot`, {
+      const res = await fetch(API_ENDPOINT, {
         mode: 'cors',
         method: 'POST',
         body: JSON.stringify({ messages: messagesToSend }),
@@ -88,6 +81,14 @@ registerPage('Copilot', () => {
         }),
       )
       .subscribe();
+  };
+
+  const handleSend = async () => {
+    if (!userInput || !authState) return;
+    const theUserInput = userInput;
+    messages$.next(messages$.value.concat([{ type: 'UserText', payload: { text: theUserInput } }]));
+    setUserInput('');
+    sendCurrentMessages();
   };
 
   useEffect(() => {
@@ -154,7 +155,13 @@ registerPage('Copilot', () => {
         {messages.map((msg) => {
           const component = mapMessageTypeToComponent[msg.type];
           if (!component) return null;
-          return React.createElement(component, { payload: msg.payload });
+          return React.createElement(component, {
+            payload: msg.payload,
+            sendMessages: (msgList) => {
+              messages$.next(messages$.value.concat(msgList));
+              sendCurrentMessages();
+            },
+          });
         })}
         {isLoading && (
           <Card title={'Copilot: Thinking'} style={{ width: '100%', height: 200, flexShrink: 0 }} loading>
