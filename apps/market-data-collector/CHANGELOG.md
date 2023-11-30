@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-market-data-collector
 
-This log was last generated on Fri, 24 Nov 2023 16:07:44 GMT and should not be manually modified.
+This log was last generated on Thu, 30 Nov 2023 17:00:34 GMT and should not be manually modified.
+
+## 0.0.25
+Thu, 30 Nov 2023 17:00:34 GMT
+
+### Patches
+
+- enable runOnInit option for retry after crash
 
 ## 0.0.24
 Fri, 24 Nov 2023 16:07:44 GMT
