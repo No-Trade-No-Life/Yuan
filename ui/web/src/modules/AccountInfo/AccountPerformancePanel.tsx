@@ -1,34 +1,29 @@
 import { IconInfoCircle } from '@douyinfe/semi-icons';
-import { Button, Descriptions, Select, Space, Tooltip } from '@douyinfe/semi-ui';
+import { Button, Descriptions, Space, Tooltip } from '@douyinfe/semi-ui';
 import { AccountPerformanceUnit, IAccountPerformance } from '@yuants/kernel';
 import { useObservableState } from 'observable-hooks';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { WeeklyEquityChart } from '../Chart/WeeklyEquityChart';
 import { executeCommand } from '../CommandCenter';
 import { registerPage } from '../Pages';
+import { AccountSelector } from './AccountSelector';
 import { accountPerformance$ } from './model';
 
 registerPage('AccountPerformancePanel', () => {
   const [t] = useTranslation('AccountPerformancePanel');
 
   const mapAccountIdToPerformance = useObservableState(accountPerformance$);
-  const accountIdOptions = Object.keys(mapAccountIdToPerformance);
+  const accountIdOptions = useMemo(() => Object.keys(mapAccountIdToPerformance), [mapAccountIdToPerformance]);
   const [accountId, setAccountId] = useState(accountIdOptions[0] || '');
+
   const performance: IAccountPerformance | undefined =
     mapAccountIdToPerformance[accountId] || AccountPerformanceUnit.makeInitAccountPerformance(accountId);
 
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
       <Space>
-        <Select
-          prefix={t('common:account')}
-          value={accountId}
-          onChange={(v) => {
-            setAccountId(v as string);
-          }}
-          optionList={accountIdOptions.map((v) => ({ label: v, value: v }))}
-        ></Select>
+        <AccountSelector value={accountId} onChange={setAccountId} candidates={accountIdOptions} />
         <Button
           onClick={() => {
             executeCommand('TechnicalChart');
