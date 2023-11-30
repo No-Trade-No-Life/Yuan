@@ -19,6 +19,7 @@ import {
   mergeMap,
   of,
   repeat,
+  retry,
   switchMap,
   tap,
   timer,
@@ -140,7 +141,8 @@ defer(() =>
     }),
     filter((v) => !v.disabled),
     toArray(),
-    // ISSUE: Storage Workload
+    retry({ delay: 5_000 }),
+    // ISSUE: to enlighten Storage Workload
     repeat({ delay: 30_000 }),
     batchGroupBy((config) => `${config.datasource_id}:${config.product_id}:${config.period_in_sec}`),
     mergeMap((group) =>
@@ -159,6 +161,7 @@ defer(() =>
               },
               start: true,
               timeZone: task.cron_timezone,
+              runOnInit: true,
             });
             return () => job.stop();
           }).pipe(
