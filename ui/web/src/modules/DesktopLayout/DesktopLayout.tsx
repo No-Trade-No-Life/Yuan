@@ -4,6 +4,7 @@ import { useObservableState } from 'observable-hooks';
 import { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { CommandCenter } from '../CommandCenter';
+import { LanguageSelector } from '../Locale/LanguageSelector';
 import { Page } from '../Pages';
 import { ErrorBoundary } from '../Pages/ErrorBoundary';
 import { NetworkStatusWidget } from '../Terminals/NetworkStatusWidget';
@@ -11,6 +12,7 @@ import { UserMenu } from '../User/UserMenu';
 import { HomePage } from '../Workbench/HomePage';
 import { isDarkMode$ } from '../Workbench/darkmode';
 import { layoutModel$, layoutModelJson$ } from './layout-model';
+import { DarkmodeSwitch } from '../Workbench/DarkmodeSwitch';
 
 // ISSUE: React.memo will cause layout tab label not change while change language
 export const DesktopLayout = () => {
@@ -65,6 +67,12 @@ export const DesktopLayout = () => {
             <Space>
               <ErrorBoundary>
                 <NetworkStatusWidget />
+              </ErrorBoundary>
+              <ErrorBoundary>
+                <LanguageSelector />
+              </ErrorBoundary>
+              <ErrorBoundary>
+                <DarkmodeSwitch />
               </ErrorBoundary>
               <ErrorBoundary>
                 <UserMenu />

@@ -24,7 +24,10 @@ registerCommand('ChangeLanguage', async () => {
     {
       type: 'string',
       title: t('UserMenu:change_language_prompt'),
-      enum: ['zh', 'en'],
+      oneOf: [
+        { const: 'zh-Hans', title: '简体中文' },
+        { const: 'en', title: 'English' },
+      ],
     },
     i18n.language,
   );
