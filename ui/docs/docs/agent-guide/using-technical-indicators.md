@@ -42,7 +42,7 @@ Very simple. Isn't it? Let's use it in agent.
 ```ts
 import { useSMA } from '@libs';
 export default () => {
-  const { close } = useOHLC('Y', 'XAUUSD');
+  const { close } = useOHLC('Y', 'XAUUSD', 'PT1H');
   const ma20 = useSMA(close, 20);
   const ma60 = useSMA(close, 60);
   // do something

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/agent",
+      "comment": "useOHLC support RFC3339 time duration",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/agent"
+}

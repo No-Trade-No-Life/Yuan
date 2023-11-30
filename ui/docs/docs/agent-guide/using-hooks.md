@@ -201,11 +201,11 @@ export default () => {
 
 - The first parameter is the datasource_id.
 - The second parameter is the product_id.
-- The third parameter is the period in seconds. (60 = 1min, 300 = 5min, 900 = 15min, 3600 = 1hour, 86400 = 1day, ...)
+- The third parameter can be a string or a number. if it's a string, it should be a [RFC-3339 duration](https://www.rfc-editor.org/rfc/rfc3339#appendix-A) string. If it's a number (deprecated), it should be the period in seconds (60 = 1min, 300 = 5min, 900 = 15min, 3600 = 1hour, 86400 = 1day, ...).
 
 ```ts
 export default () => {
-  const { time, open, high, low, close, volume } = useOHLC('Y', 'XAUUSD', 300);
+  const { time, open, high, low, close, volume } = useOHLC('Y', 'XAUUSD', 'PT1H');
 };
 ```
 
@@ -355,7 +355,7 @@ const useEquitySeries = (account_id: string, clock: Series) => {
 
 export default () => {
   const accountInfo = useAccountInfo();
-  const { close } = useOHLC('Y', 'XAUUSD', 3600);
+  const { close } = useOHLC('Y', 'XAUUSD', 'PT1H');
   const equitySeries = useEquitySeries(accountInfo.account_id, close);
   // you can also create series for another account
   const accountInfo2 = useAccountInfo({ account_id: 'interesting' });

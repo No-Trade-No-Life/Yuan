@@ -147,7 +147,7 @@ export const useMemo: <T>(fn: () => T, deps: any[]) => T;
 export const useMemoAsync: <T>(fn: () => Promise<T>, deps?: any[]) => Promise<T>;
 
 // @public
-export const useOHLC: (datasource_id: string, product_id: string, period_in_sec: number) => {
+export const useOHLC: (datasource_id: string, product_id: string, period: number | string) => {
     time: Series;
     open: Series;
     high: Series;
