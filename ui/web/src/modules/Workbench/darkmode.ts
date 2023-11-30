@@ -1,22 +1,35 @@
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 export const isDarkMode$ = new BehaviorSubject<boolean>(false);
 
-const mql = window.matchMedia('(prefers-color-scheme: dark)');
-function matchMode(e: any) {
-  const body = document.body;
-  if (e.matches) {
-    isDarkMode$.next(true);
-    if (!body.hasAttribute('theme-mode')) {
-      body.setAttribute('theme-mode', 'dark');
+isDarkMode$.subscribe((isDark) => {
+  if (isDark) {
+    if (!document.body.hasAttribute('theme-mode')) {
+      document.body.setAttribute('theme-mode', 'dark');
     }
   } else {
-    isDarkMode$.next(false);
-    if (body.hasAttribute('theme-mode')) {
-      body.removeAttribute('theme-mode');
+    if (document.body.hasAttribute('theme-mode')) {
+      document.body.removeAttribute('theme-mode');
     }
   }
-}
+});
 
-mql.addListener(matchMode);
-matchMode(mql);
+// Follow system dark mode
+new Observable<boolean>((subscriber) => {
+  const mql = window.matchMedia('(prefers-color-scheme: dark)');
+  function matchMode(e: any) {
+    if (e.matches) {
+      subscriber.next(true);
+    } else {
+      subscriber.next(false);
+    }
+  }
+  matchMode(mql);
+
+  mql.addEventListener('change', matchMode);
+  return () => {
+    mql.removeEventListener('change', matchMode);
+  };
+}).subscribe((v) => {
+  isDarkMode$.next(v);
+});

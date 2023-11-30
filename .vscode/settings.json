@@ -1,5 +1,16 @@
 {
-  "cSpell.words": ["counterparty", "datasource", "feishu", "forex", "gtag", "kbps", "OHLC", "twap", "yuants"],
+  "cSpell.words": [
+    "counterparty",
+    "Darkmode",
+    "datasource",
+    "feishu",
+    "forex",
+    "gtag",
+    "kbps",
+    "OHLC",
+    "twap",
+    "yuants"
+  ],
   "files.associations": {
     "*.json": "jsonc"
   },
