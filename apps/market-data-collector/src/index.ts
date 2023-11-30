@@ -264,6 +264,10 @@ defer(() =>
                   defaultIfEmpty(0),
                   first(),
                   mergeMap((lastTime) => {
+                    if (Date.now() - lastTime < task.period_in_sec * 1000) {
+                      console.info(new Date(), `SkipPullData, last pull time: ${new Date(lastTime)}`);
+                      return EMPTY;
+                    }
                     let startTime: number;
                     return defer(() => {
                       console.info(
