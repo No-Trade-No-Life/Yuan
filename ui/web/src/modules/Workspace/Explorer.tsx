@@ -91,26 +91,16 @@ registerPage('Explorer', () => {
     setTreeData((origin) => updateTreeData(origin, node.key, nodes));
   };
 
-  const connectToWorkspace = async () => {
-    Modal.confirm({
-      title: t('request_fs_permission'),
-      content: <Trans t={t} i18nKey={'request_fs_permission_note'} />,
-      okText: t('agree'),
-      cancelText: t('disagree'),
-      onOk: async () => {
-        const root: FileSystemDirectoryHandle = await showDirectoryPicker({
-          mode: 'readwrite',
-        });
-        await root.requestPermission({ mode: 'readwrite' });
-        workspaceRoot$.next(root);
-      },
-    });
-  };
-
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
       <Space>
-        <Button disabled={!window.showDirectoryPicker} icon={<IconFolderOpen />} onClick={connectToWorkspace}>
+        <Button
+          disabled={!window.showDirectoryPicker}
+          icon={<IconFolderOpen />}
+          onClick={() => {
+            executeCommand('workspace.open');
+          }}
+        >
           {t('open_new')}
         </Button>
         <Button
@@ -337,4 +327,20 @@ registerCommand('CreateDirectory', async ({ baseDir = '/' }) => {
       t('common:CreateDirectory_succeed', { path: thePath, interpolation: { escapeValue: false } }),
     );
   }
+});
+
+registerCommand('workspace.open', async () => {
+  Modal.confirm({
+    title: t('Explorer:request_fs_permission'),
+    content: <Trans t={t} i18nKey={'Explorer:request_fs_permission_note'} />,
+    okText: t('Explorer:agree'),
+    cancelText: t('Explorer:disagree'),
+    onOk: async () => {
+      const root: FileSystemDirectoryHandle = await showDirectoryPicker({
+        mode: 'readwrite',
+      });
+      await root.requestPermission({ mode: 'readwrite' });
+      workspaceRoot$.next(root);
+    },
+  });
 });

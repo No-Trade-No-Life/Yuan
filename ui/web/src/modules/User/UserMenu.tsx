@@ -1,5 +1,4 @@
 import {
-  IconComment,
   IconExit,
   IconGithubLogo,
   IconHelpCircle,
@@ -10,6 +9,7 @@ import {
   IconUser,
 } from '@douyinfe/semi-icons';
 import { Avatar, Button, Dropdown, Toast } from '@douyinfe/semi-ui';
+import { SmartOptimization } from '@icon-park/react';
 import { t } from 'i18next';
 import { useObservableState } from 'observable-hooks';
 import React from 'react';
@@ -75,12 +75,12 @@ export const UserMenu = React.memo(() => {
           )}
           <Dropdown.Title>{t('Applications')}</Dropdown.Title>
           <Dropdown.Item
-            icon={<IconComment />}
+            icon={<SmartOptimization />}
             onClick={() => {
-              executeCommand('AI');
+              executeCommand('Copilot');
             }}
           >
-            {t('AI Assistant')}
+            {t('Copilot')}
           </Dropdown.Item>
           <Dropdown.Divider />
           <Dropdown.Title>{t('settings')}</Dropdown.Title>
