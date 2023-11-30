@@ -76,14 +76,8 @@ export const reloadSchemaAction$ = new Subject<void>();
 const extractAgentMetaInfoFromFilename = (script_path: string) =>
   defer(async () => {
     if (!script_path) return null;
-    if (currentHostConfig$.value === null) {
-      const agentCode = await bundleCode(script_path);
-      const scene = await LocalAgentScene({ bundled_code: agentCode });
-      return scene.agentUnit;
-    }
-    const terminal = await firstValueFrom(terminal$);
     const agentCode = await bundleCode(script_path);
-    const scene = await AgentScene(terminal, { bundled_code: agentCode });
+    const scene = await LocalAgentScene({ bundled_code: agentCode });
     return scene.agentUnit;
   }).pipe(
     //

@@ -1,9 +1,13 @@
 import { IconCode, IconSave, IconTick } from '@douyinfe/semi-icons';
-import { Button, Card, Space, Typography } from '@douyinfe/semi-ui';
+import { Button, Card, Space, Toast, Typography } from '@douyinfe/semi-ui';
+import { bundleCodeFromInMemoryCode } from '../../Agent/utils';
 import { MonacoEditor } from '../../Editor/Monaco';
+import { LocalAgentScene } from '../../StaticFileServerStorage/LocalAgentScene';
 import { IMessageCardProps } from '../model';
 
 export default ({
+  sendMessages,
+  appendMessages,
   payload,
 }: IMessageCardProps<{
   code: string;
@@ -19,7 +23,21 @@ export default ({
       style={{ width: '100%', flexShrink: 0 }}
       actions={[
         //
-        <Button icon={<IconTick />} onClick={() => {}}>
+        <Button
+          icon={<IconTick />}
+          onClick={async () => {
+            try {
+              const bundled_code = await bundleCodeFromInMemoryCode(payload.code);
+              const scene = await LocalAgentScene({ bundled_code });
+              const schema = scene.agentUnit.paramsSchema;
+
+              appendMessages([{ type: 'AgentConfigForm', payload: { bundled_code, schema } }]);
+            } catch (e) {
+              Toast.error(`Compile Error: ${e}`);
+              sendMessages([{ type: 'UserText', payload: { text: `${e}` } }]);
+            }
+          }}
+        >
           OK, test it!
         </Button>,
         <Button icon={<IconSave />} type="secondary">

@@ -72,19 +72,4 @@ export default () => {
         'The double moving average model uses two simple moving averages (SMA), one with a short period and one with a long period. The model generates a buy signal when the short-period SMA crosses above the long-period SMA, and a sell signal when the short-period SMA crosses below the long-period SMA. The useSeriesMap function is used to iterate over the data points and compare the current and previous values of the SMAs to determine the signals.',
     },
   },
-  {
-    type: 'AgentConfigForm',
-    payload: {
-      schema: {
-        title: '模型的自定义参数',
-        type: 'object',
-        properties: {
-          SomeKey: {
-            type: 'string',
-            format: 'OHLC-key',
-          },
-        },
-      },
-    },
-  },
 ];

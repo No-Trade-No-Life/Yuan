@@ -5,7 +5,6 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { BehaviorSubject, EMPTY, Subject, catchError, defer, raceWith, tap, timeout } from 'rxjs';
 import { registerPage } from '../Pages';
 import { authState$ } from '../SupaBase';
-import { exampleMessages } from './case';
 import { IChatMessage, IMessageCardProps } from './model';
 
 const mapMessageTypeToComponent: Record<string, React.ComponentType<IMessageCardProps<any>>> = {};
@@ -33,8 +32,8 @@ registerPage('Copilot', () => {
   const messages$ = useMemo(
     () =>
       new BehaviorSubject<IChatMessage<any, any>[]>(
-        // []
-        exampleMessages,
+        [],
+        // exampleMessages,
       ),
     [],
   );
@@ -93,7 +92,7 @@ registerPage('Copilot', () => {
 
   useEffect(() => {
     document.querySelector('.bottom')?.scrollIntoView();
-  }, [isLoading]);
+  }, [messages]);
 
   if (!authState) {
     return <Empty>Login first to use this feature.</Empty>;
