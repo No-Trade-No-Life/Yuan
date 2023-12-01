@@ -9,7 +9,7 @@ import { executeCommand, registerCommand } from '../CommandCenter';
 import { resolveVersion } from '../Extensions';
 import { registerPage } from '../Pages';
 import { supabase } from '../SupaBase';
-import { secretURL } from '../Terminals/NetworkStatusWidget';
+import { secretURL } from '../Workbench/HostList';
 import { currentHostConfig$ } from '../Workbench/model';
 import { agentConf$ } from './AgentConfForm';
 import { bundleCode } from './utils';
