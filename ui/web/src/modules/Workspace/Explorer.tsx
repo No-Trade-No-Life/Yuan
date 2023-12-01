@@ -27,6 +27,7 @@ import { executeCommand, registerCommand } from '../CommandCenter';
 import { installExtensionFromTgz } from '../Extensions/utils';
 import { FsBackend$, fs, workspaceRoot$ } from '../FileSystem/api';
 import { showForm } from '../Form';
+import i18n from '../Locale/i18n';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 import { currentHostConfig$ } from '../Workbench/model';
@@ -351,6 +352,7 @@ registerCommand('CreateDirectory', async ({ baseDir = '/' }) => {
 });
 
 registerCommand('workspace.open', async () => {
+  await i18n.loadNamespaces('Explorer');
   Modal.confirm({
     title: t('Explorer:request_fs_permission'),
     content: <Trans t={t} i18nKey={'Explorer:request_fs_permission_note'} />,

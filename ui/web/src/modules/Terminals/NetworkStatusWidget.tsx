@@ -43,7 +43,6 @@ export const NetworkStatusWidget = React.memo(() => {
   return (
     <Space>
       <Popover
-        position="bottomRight"
         content={
           <Card style={{ minWidth: 200 }}>
             <Descriptions
@@ -81,24 +80,26 @@ export const NetworkStatusWidget = React.memo(() => {
                 },
               ]}
             ></Descriptions>
-            <Button
-              icon={<IconWrench />}
-              onClick={() => {
-                executeCommand('Page.open', { type: 'HostList' });
-              }}
-            >
-              {t('config')}
-            </Button>
-            <Button
-              icon={<IconUnlink />}
-              disabled={!currentHostConfig$.value}
-              onClick={() => {
-                currentHostConfig$.next(null);
-                location.reload();
-              }}
-            >
-              {t('disconnect')}
-            </Button>
+            <Space>
+              <Button
+                icon={<IconWrench />}
+                onClick={() => {
+                  executeCommand('Page.open', { type: 'HostList' });
+                }}
+              >
+                {t('config')}
+              </Button>
+              <Button
+                icon={<IconUnlink />}
+                disabled={!currentHostConfig$.value}
+                onClick={() => {
+                  currentHostConfig$.next(null);
+                  location.reload();
+                }}
+              >
+                {t('disconnect')}
+              </Button>
+            </Space>
           </Card>
         }
       >
