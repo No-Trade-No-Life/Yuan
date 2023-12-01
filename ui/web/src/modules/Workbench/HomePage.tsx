@@ -48,7 +48,7 @@ export const HomePage = React.memo(() => {
             },
           }}
         >
-          Connect Hosts...
+          Connect Host...
         </Typography.Text>
         <Typography.Text
           icon={<SmartOptimization theme="outline" size="16" />}

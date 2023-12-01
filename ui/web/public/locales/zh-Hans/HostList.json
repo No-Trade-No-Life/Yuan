@@ -2,8 +2,11 @@
   "add_dedicated_host": "添加专用主机",
   "add_host": "新增",
   "add_to_list": "添加到主机列表",
+  "config": "配置",
   "connect": "连接",
   "dedicated_hosts": "专用主机列表",
+  "disconnect": "断开",
+  "download_rate": "下行速率",
   "edit_host": "编辑主机",
   "host_label": "主机标签",
   "host_label_default": "未命名主机",
@@ -12,7 +15,13 @@
   "host_url_note": "请询问您的主机管理员",
   "link_copied": "已复制链接",
   "new_shared_host": "创建共享型主机",
+  "No_Host": "无主机模式",
+  "not_configured": "未配置",
+  "offline": "离线",
+  "online": "在线",
   "shared_hosts": "共享型主机列表",
+  "status": "连接状态",
   "terminal_id": "终端ID",
-  "terminal_id_note": "同一主机中与其他终端区分的标志，同一主机内不能重复"
+  "terminal_id_note": "同一主机中与其他终端区分的标志，同一主机内不能重复",
+  "upload_rate": "上行速率"
 }

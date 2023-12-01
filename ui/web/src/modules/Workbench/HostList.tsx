@@ -6,10 +6,12 @@ import {
   IconLink,
   IconPlus,
   IconShareStroked,
+  IconUnlink,
 } from '@douyinfe/semi-icons';
 import {
   Button,
   ButtonGroup,
+  Card,
   Descriptions,
   List,
   Modal,
@@ -25,13 +27,14 @@ import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
 import { useObservableState } from 'observable-hooks';
 import { useTranslation } from 'react-i18next';
+import { bufferTime, combineLatest, map, of, shareReplay, switchMap } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import Form from '../Form';
 import { shareHosts$ } from '../Host/model';
 import { registerPage } from '../Pages';
 import { authState$ } from '../SupaBase';
-import { secretURL } from '../Terminals/NetworkStatusWidget';
+import { terminal$ } from '../Terminals';
 import { IHostConfigItem, currentHostConfig$, hostConfigList$ } from './model';
 
 const configSchema = (): JSONSchema7 => ({
@@ -53,17 +56,57 @@ const configSchema = (): JSONSchema7 => ({
   },
 });
 
+export const secretURL = (url: string) => {
+  try {
+    const theUrl = new URL(url);
+    theUrl.searchParams.set('host_token', '******');
+    return theUrl.toString();
+  } catch (e) {
+    return url;
+  }
+};
+
+export const network$ = terminal$.pipe(
+  switchMap((terminal) =>
+    terminal
+      ? combineLatest([
+          terminal._conn.output$.pipe(
+            bufferTime(2000),
+            map((buffer) => ((JSON.stringify(buffer).length / 2e3) * 8).toFixed(1)),
+          ),
+          terminal._conn.input$.pipe(
+            bufferTime(2000),
+            map((buffer) => ((JSON.stringify(buffer).length / 2e3) * 8).toFixed(1)),
+          ),
+        ])
+      : of(['0.0', '0.0']),
+  ),
+  shareReplay(1),
+);
+
 registerPage('HostList', () => {
   const configs = useObservableState(hostConfigList$, []) || [];
   const { t } = useTranslation('HostList');
   const auth = useObservableState(authState$);
   const HOST_CONFIG = '/hosts.json';
+  const config = useObservableState(currentHostConfig$);
+
+  const network = useObservableState(network$, ['0.0', '0.0'] as [string, string]);
 
   const sharedHosts = useObservableState(shareHosts$, []);
 
   return (
     <Space vertical align="start">
       <Space>
+        <Button
+          icon={<IconUnlink />}
+          disabled={!currentHostConfig$.value}
+          onClick={() => {
+            currentHostConfig$.next(null);
+          }}
+        >
+          {t('disconnect')}
+        </Button>
         <Button
           icon={<IconPlus />}
           onClick={async () => {
@@ -110,6 +153,45 @@ registerPage('HostList', () => {
           {t('common:view_source')}
         </Button>
       </Space>
+
+      {config && (
+        <Card style={{ minWidth: 200 }}>
+          <Descriptions
+            data={[
+              //
+              {
+                key: t('host_label'),
+                value: <Typography.Text>{config.name}</Typography.Text>,
+              },
+              {
+                key: t('host_url'),
+                value: (
+                  <Typography.Text copyable={{ content: config.host_url }}>
+                    {secretURL(config.host_url)}
+                  </Typography.Text>
+                ),
+              },
+              {
+                key: t('terminal_id'),
+                value: <Typography.Text copyable>{config.terminal_id}</Typography.Text>,
+              },
+              {
+                key: t('upload_rate'),
+                value: `${network[0]} kbps`,
+              },
+              {
+                key: t('download_rate'),
+                value: `${network[1]} kbps`,
+              },
+              {
+                key: t('status'),
+                value: <Typography.Text>{+network[1] > 0 ? t('online') : t('offline')}</Typography.Text>,
+              },
+            ]}
+          ></Descriptions>
+        </Card>
+      )}
+
       {auth && (
         <>
           <Typography.Title heading={5}>{t('shared_hosts')}</Typography.Title>

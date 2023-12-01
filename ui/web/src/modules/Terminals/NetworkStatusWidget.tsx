@@ -1,117 +1,21 @@
-import { IconDesktop, IconSignal, IconUnlink, IconWrench } from '@douyinfe/semi-icons';
-import { Button, Card, Descriptions, Popover, Space, Typography } from '@douyinfe/semi-ui';
-import { useObservable, useObservableState } from 'observable-hooks';
+import { Button } from '@douyinfe/semi-ui';
+import { CloseWifi, Wifi } from '@icon-park/react';
+import { useObservableState } from 'observable-hooks';
 import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { bufferTime, combineLatest, map, of, switchMap } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
-import { terminal$ } from '../Terminals';
 import { currentHostConfig$ } from '../Workbench/model';
 
-export const secretURL = (url: string) => {
-  try {
-    const theUrl = new URL(url);
-    theUrl.searchParams.set('host_token', '******');
-    return theUrl.toString();
-  } catch (e) {
-    return url;
-  }
-};
-
 export const NetworkStatusWidget = React.memo(() => {
-  const { t } = useTranslation(['NetworkStatusWidget', 'translation']);
   const config = useObservableState(currentHostConfig$);
 
-  const network$ = useObservable(() =>
-    terminal$.pipe(
-      switchMap((terminal) =>
-        terminal
-          ? combineLatest([
-              terminal._conn.output$.pipe(
-                bufferTime(2000),
-                map((buffer) => ((JSON.stringify(buffer).length / 2e3) * 8).toFixed(1)),
-              ),
-              terminal._conn.input$.pipe(
-                bufferTime(2000),
-                map((buffer) => ((JSON.stringify(buffer).length / 2e3) * 8).toFixed(1)),
-              ),
-            ])
-          : of(['0.0', '0.0']),
-      ),
-    ),
-  );
-
-  const network = useObservableState(network$, ['0.0', '0.0'] as [string, string]);
   return (
-    <Space>
-      <Popover
-        content={
-          <Card style={{ minWidth: 200 }}>
-            <Descriptions
-              data={[
-                //
-                {
-                  key: t('host_label'),
-                  value: <Typography.Text>{config?.name ?? t('not_configured')}</Typography.Text>,
-                },
-                {
-                  key: t('host_url'),
-                  value: (
-                    <Typography.Text copyable={{ content: config?.host_url ?? t('not_configured') }}>
-                      {secretURL(config?.host_url ?? t('not_configured'))}
-                    </Typography.Text>
-                  ),
-                },
-                {
-                  key: t('terminal_id'),
-                  value: (
-                    <Typography.Text copyable>{config?.terminal_id ?? t('not_configured')}</Typography.Text>
-                  ),
-                },
-                {
-                  key: t('upload_rate'),
-                  value: `${network[0]} kbps`,
-                },
-                {
-                  key: t('download_rate'),
-                  value: `${network[1]} kbps`,
-                },
-                {
-                  key: t('status'),
-                  value: <Typography.Text>{+network[1] > 0 ? t('online') : t('offline')}</Typography.Text>,
-                },
-              ]}
-            ></Descriptions>
-            <Space>
-              <Button
-                icon={<IconWrench />}
-                onClick={() => {
-                  executeCommand('Page.open', { type: 'HostList' });
-                }}
-              >
-                {t('config')}
-              </Button>
-              <Button
-                icon={<IconUnlink />}
-                disabled={!currentHostConfig$.value}
-                onClick={() => {
-                  currentHostConfig$.next(null);
-                }}
-              >
-                {t('disconnect')}
-              </Button>
-            </Space>
-          </Card>
-        }
-      >
-        <Typography.Text
-          icon={
-            config ? <IconSignal style={{ color: +network[1] > 0 ? 'green' : 'red' }} /> : <IconDesktop />
-          }
-        >
-          {config ? `${config.name} / ${config.terminal_id}` : t('No_Host')}
-        </Typography.Text>
-      </Popover>
-    </Space>
+    <Button
+      type="tertiary"
+      theme="borderless"
+      icon={config ? <Wifi size={20} /> : <CloseWifi size={20} />}
+      onClick={() => {
+        executeCommand('HostList');
+      }}
+    ></Button>
   );
 });
