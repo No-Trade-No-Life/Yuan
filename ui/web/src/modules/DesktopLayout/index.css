@@ -2,6 +2,10 @@
   background-image: none;
 }
 
+body[theme-mode='dark'] {
+  color-scheme: dark;
+}
+
 body[theme-mode='dark'] .flexlayout__tab {
   background-color: #141414;
 }
