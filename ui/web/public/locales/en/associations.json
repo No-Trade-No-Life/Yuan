@@ -1,0 +1,9 @@
+{
+  "FileEditor": "Editor",
+  "AgentConfForm": "Run Agent",
+  "AgentBatchBackTest": "Batch Back-test",
+  "AgentBatchBackTest_generate": "Batch generate manifest",
+  "DeployConfigForm": "Deploy",
+  "Extension": "Install Extension",
+  "RealtimeAsset": "Realtime Asset"
+}

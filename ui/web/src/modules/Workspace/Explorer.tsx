@@ -16,7 +16,7 @@ import { formatTime } from '@yuants/data-model';
 import copy from 'copy-to-clipboard';
 import { t } from 'i18next';
 import { useObservableState } from 'observable-hooks';
-import path from 'path-browserify';
+import path, { dirname } from 'path-browserify';
 import { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { filter, from, lastValueFrom, map, mergeMap, toArray } from 'rxjs';
@@ -32,14 +32,80 @@ import { terminal$ } from '../Terminals';
 import { currentHostConfig$ } from '../Workbench/model';
 import { sendFileByAirdrop } from './airdrop';
 
+/**
+ * File is associated with Command
+ */
+interface IAssociationRule {
+  /** i18n_key = `association:${id}`  */
+  id: string;
+
+  match: (ctx: { path: string; isFile: boolean }) => boolean;
+  action: (ctx: { path: string; isFile: boolean }) => void;
+}
+
+const rules: IAssociationRule[] = [
+  {
+    id: 'AgentBatchBackTest',
+    match: ({ path, isFile }) => isFile && !!path.match(/\.batch\.ts$/),
+    action: ({ path }) => {
+      executeCommand('AgentBatchBackTest', { filename: path });
+    },
+  },
+  {
+    id: 'AgentBatchBackTest_generate',
+    match: ({ path, isFile }) => isFile && !!path.match(/\.batch\.ts$/) && !!currentHostConfig$.value,
+    action: async ({ path }) => {
+      await writeManifestsFromBatchTasks(path, currentHostConfig$.value?.host_url!);
+      Toast.success(t('common:succeed'));
+    },
+  },
+  {
+    id: 'AgentConfForm',
+    match: ({ path, isFile }) => isFile && !!path.match(/\.ts$/),
+    action: ({ path }) => {
+      agentConf$.next({ ...agentConf$.value, entry: path });
+      reloadSchemaAction$.next();
+      executeCommand('AgentConfForm', { filename: path });
+    },
+  },
+  {
+    id: 'DeployConfigForm',
+    match: ({ path, isFile }) => isFile && !!path.match(/\.?manifests\.(json|yaml|yml|ts)$/),
+    action: ({ path }) => {
+      executeCommand('DeployConfigForm', { filename: path });
+    },
+  },
+  {
+    id: 'Extension',
+    match: ({ path, isFile }) => isFile && !!path.match(/\.tgz$/),
+    action: ({ path }) => {
+      installExtensionFromTgz(path);
+    },
+  },
+  {
+    id: 'RealtimeAsset',
+    match: ({ path, isFile }) => isFile && !!path.match(/\.fund\.json$/),
+    action: ({ path }) => {
+      executeCommand('RealtimeAsset', { filename: path });
+    },
+  },
+  {
+    id: 'FileEditor',
+    match: ({ isFile }) => isFile,
+    action: ({ path }) => {
+      executeCommand('FileEditor', { filename: path });
+    },
+  },
+];
+
 registerPage('Explorer', () => {
-  const { t } = useTranslation('Explorer');
+  const { t, ready } = useTranslation(['Explorer', 'associations']);
   const terminal = useObservableState(terminal$);
   const currentHostConfig = useObservableState(currentHostConfig$);
 
   const initialData: TreeNodeData[] = [
     {
-      label: '/',
+      label: workspaceRoot$.value?.name ?? t('TempDirectory'),
       key: '/',
     },
   ];
@@ -68,17 +134,17 @@ registerPage('Explorer', () => {
     });
   }
 
-  const handleLoadData = async (node?: TreeNodeData) => {
-    if (!node) {
+  const handleLoadNode = async (nodeKey?: string) => {
+    if (!nodeKey) {
       return;
     }
     const nodes = await lastValueFrom(
-      from(fs.stat(node.key)).pipe(
+      from(fs.stat(nodeKey)).pipe(
         filter((s) => s.isDirectory()),
-        mergeMap(() => fs.readdir(node.key)),
+        mergeMap(() => fs.readdir(nodeKey)),
         mergeMap((v) => v),
         mergeMap((name) => {
-          const _path = path.posix.join(node.key, name);
+          const _path = path.posix.join(nodeKey, name);
           return from(fs.stat(_path)).pipe(
             //
             map((stats) => ({ label: name, key: _path, isLeaf: stats.isFile() })),
@@ -88,8 +154,10 @@ registerPage('Explorer', () => {
         map((x) => x.sort((a, b) => +a.isLeaf - +b.isLeaf || a.label.localeCompare(b.label))),
       ),
     );
-    setTreeData((origin) => updateTreeData(origin, node.key, nodes));
+    setTreeData((origin) => updateTreeData(origin, nodeKey, nodes));
   };
+
+  if (!ready) return null;
 
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
@@ -106,21 +174,7 @@ registerPage('Explorer', () => {
         <Button
           icon={<IconImport />}
           onClick={async () => {
-            const res = await unzip(`https://y.ntnl.io/Yuan-Public-Workspace/Yuan-Public-Workspace-main.zip`);
-            for (const [filename, entry] of Object.entries(res.entries)) {
-              if (!entry.isDirectory) {
-                const thePath = path.resolve('/', filename);
-                if (thePath[0] === '/') {
-                  await fs.ensureDir(path.dirname(thePath));
-                  fs.writeFile(thePath, await entry.blob());
-                  console.info(
-                    formatTime(Date.now()),
-                    t('common:file_written', { filename: thePath, interpolation: { escapeValue: false } }),
-                  );
-                }
-              }
-            }
-            Toast.success(t('import_examples_succeed'));
+            executeCommand('workspace.import_examples');
           }}
         >
           {t('import_examples')}
@@ -128,13 +182,30 @@ registerPage('Explorer', () => {
       </Space>
       <Tree
         key={treeKey}
-        loadData={handleLoadData}
+        loadData={(node) => handleLoadNode(node?.key)}
         loadedKeys={[]}
+        treeData={[...treeData]}
         style={{ width: '100%' }}
+        onExpand={(expendKeys, props) => {
+          if (props.expanded) {
+            handleLoadNode(props.node.key);
+          }
+        }}
         renderFullLabel={({ className, onExpand, onClick, data, expandStatus }) => {
           const { label, isLeaf } = data;
+          const context = { path: data.key, isFile: !!isLeaf };
+
+          const matchedRules = rules.filter((rule) => rule.match(context));
+
           return (
-            <li className={className} role="treeitem" onClick={isLeaf ? onClick : onExpand}>
+            <li
+              className={className}
+              role="treeitem"
+              onClick={isLeaf ? onClick : onExpand}
+              onDoubleClick={() => {
+                matchedRules[0]?.action(context);
+              }}
+            >
               <Space style={{ width: '100%' }}>
                 {isLeaf ? (
                   <IconFile />
@@ -155,66 +226,17 @@ registerPage('Explorer', () => {
                     >
                       <Dropdown.Menu>
                         <Dropdown.Title>{t('open')}</Dropdown.Title>
-                        {data.key.match(/\.ts$/) ? (
+
+                        {matchedRules.map((rule, idx) => (
                           <Dropdown.Item
                             onClick={() => {
-                              agentConf$.next({ ...agentConf$.value, entry: data.key });
-                              reloadSchemaAction$.next();
-                              executeCommand('AgentConfForm');
+                              rule.action(context);
                             }}
                           >
-                            {t('open_as_agent')}
+                            {t(`associations:${rule.id}`)} {idx === 0 && `(${t('common:default')})`}
                           </Dropdown.Item>
-                        ) : null}
-                        {data.key.match(/\.fund\.json$/) ? (
-                          <Dropdown.Item
-                            onClick={() => {
-                              executeCommand('RealtimeAsset', { filename: data.key });
-                            }}
-                          >
-                            {t('open_as_fund')}
-                          </Dropdown.Item>
-                        ) : null}
-                        {data.key.match(/\.batch\.ts$/) ? (
-                          <Dropdown.Item
-                            onClick={() => {
-                              executeCommand('AgentBatchBackTest', { filename: data.key });
-                            }}
-                          >
-                            {t('open_as_batch_backtest')}
-                          </Dropdown.Item>
-                        ) : null}
-                        {data.key.match(/\.batch\.ts$/) && !!currentHostConfig$.value ? (
-                          <Dropdown.Item
-                            onClick={async () => {
-                              await writeManifestsFromBatchTasks(
-                                data.key,
-                                currentHostConfig$.value?.host_url!,
-                              );
-                              Toast.success(t('common:succeed'));
-                            }}
-                          >
-                            {t('open_as_batch_agent_manifest')}
-                          </Dropdown.Item>
-                        ) : null}
-                        {data.key.match(/\.?manifests\.(json|yaml|yml|ts)$/) ? (
-                          <Dropdown.Item
-                            onClick={() => {
-                              executeCommand('DeployConfigForm', { filename: data.key });
-                            }}
-                          >
-                            {t('open_as_manifests')}
-                          </Dropdown.Item>
-                        ) : null}
-                        {data.key.match(/\.tgz$/) ? (
-                          <Dropdown.Item
-                            onClick={() => {
-                              installExtensionFromTgz(data.key);
-                            }}
-                          >
-                            {t('open_as_extension_package')}
-                          </Dropdown.Item>
-                        ) : null}
+                        ))}
+
                         <Dropdown.Divider />
                         <Dropdown.Title>{t('actions')}</Dropdown.Title>
                         <Dropdown.Item
@@ -229,8 +251,9 @@ registerPage('Explorer', () => {
                         {isLeaf ? null : (
                           <Dropdown.Item
                             icon={<IconFile />}
-                            onClick={() => {
-                              executeCommand('CreateFile', { baseDir: data.key });
+                            onClick={async () => {
+                              await executeCommand('CreateFile', { baseDir: data.key });
+                              await handleLoadNode(data.key);
                             }}
                           >
                             {t('create_file')}
@@ -239,8 +262,9 @@ registerPage('Explorer', () => {
                         {isLeaf ? null : (
                           <Dropdown.Item
                             icon={<IconFolder />}
-                            onClick={() => {
-                              executeCommand('CreateDirectory', { baseDir: data.key });
+                            onClick={async () => {
+                              await executeCommand('CreateDirectory', { baseDir: data.key });
+                              await handleLoadNode(data.key);
                             }}
                           >
                             {t('create_directory')}
@@ -264,6 +288,7 @@ registerPage('Explorer', () => {
                               return;
                             }
                             await fs.rm(data.key);
+                            await handleLoadNode(dirname(data.key));
                             Toast.success(t('common:succeed'));
                           }}
                         >
@@ -294,10 +319,6 @@ registerPage('Explorer', () => {
             </li>
           );
         }}
-        onSelect={(path) => {
-          executeCommand('FileEditor', { filename: path });
-        }}
-        treeData={[...treeData]}
       ></Tree>
     </Space>
   );
@@ -343,4 +364,22 @@ registerCommand('workspace.open', async () => {
       workspaceRoot$.next(root);
     },
   });
+});
+
+registerCommand('workspace.import_examples', async () => {
+  const res = await unzip(`https://y.ntnl.io/Yuan-Public-Workspace/Yuan-Public-Workspace-main.zip`);
+  for (const [filename, entry] of Object.entries(res.entries)) {
+    if (!entry.isDirectory) {
+      const thePath = path.resolve('/', filename);
+      if (thePath[0] === '/') {
+        await fs.ensureDir(path.dirname(thePath));
+        fs.writeFile(thePath, await entry.blob());
+        console.info(
+          formatTime(Date.now()),
+          t('common:file_written', { filename: thePath, interpolation: { escapeValue: false } }),
+        );
+      }
+    }
+  }
+  Toast.success(t('common:import_succeed'));
 });

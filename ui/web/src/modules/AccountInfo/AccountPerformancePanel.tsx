@@ -106,7 +106,7 @@ registerPage('AccountPerformancePanel', () => {
                 </Tooltip>
               </>
             ),
-            value: `${performance.payback_period_in_days.toFixed(1)}天`,
+            value: `${performance.payback_period_in_days.toFixed(1)}`,
           },
           {
             key: (
