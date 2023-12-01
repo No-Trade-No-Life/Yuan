@@ -2,7 +2,7 @@ import { Button, Descriptions, Modal, Space, Typography } from '@douyinfe/semi-u
 import { JSONSchema7 } from 'json-schema';
 import { useObservable, useObservableState } from 'observable-hooks';
 import React, { useMemo, useState } from 'react';
-import { defer, first, mergeMap, of, shareReplay, switchMap } from 'rxjs';
+import { defer, filter, first, mergeMap, of, shareReplay, switchMap } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
 import { Form } from '../Form';
 import { terminal$ } from '../Terminals';
@@ -20,7 +20,7 @@ const PERIOD_IN_SEC_TO_LABEL: Record<number, string> = {
 };
 
 export const datasourceIds$ = defer(() => terminal$).pipe(
-  switchMap((terminal) => terminal.datasourceIds$),
+  switchMap((terminal) => terminal?.datasourceIds$ ?? of([])),
   shareReplay(1),
 );
 
@@ -44,6 +44,7 @@ export const SearchButton = React.memo(() => {
       datasource_id
         ? terminal$.pipe(
             //
+            filter((x): x is Exclude<typeof x, null> => !!x),
             first(),
             mergeMap((terminal) => terminal.queryProducts({ datasource_id })),
           )

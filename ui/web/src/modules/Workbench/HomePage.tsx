@@ -1,4 +1,4 @@
-import { IconFolderOpen } from '@douyinfe/semi-icons';
+import { IconFolderOpen, IconLink } from '@douyinfe/semi-icons';
 import { Space, Typography } from '@douyinfe/semi-ui';
 import { Book, Github, SmartOptimization } from '@icon-park/react';
 import React from 'react';
@@ -38,6 +38,17 @@ export const HomePage = React.memo(() => {
           }}
         >
           Open Workspace...
+        </Typography.Text>
+        <Typography.Text
+          icon={<IconLink />}
+          strong
+          link={{
+            onClick: () => {
+              executeCommand('HostList');
+            },
+          }}
+        >
+          Connect Hosts...
         </Typography.Text>
         <Typography.Text
           icon={<SmartOptimization theme="outline" size="16" />}

@@ -324,6 +324,7 @@ registerPage('RealtimeAsset', () => {
             onClick={() => {
               terminal$
                 .pipe(
+                  filter((x): x is Exclude<typeof x, null> => !!x),
                   first(),
                   mergeMap((terminal) =>
                     from(fundInfo.config.investors).pipe(
@@ -343,6 +344,7 @@ registerPage('RealtimeAsset', () => {
                   onClick={() => {
                     terminal$
                       .pipe(
+                        filter((x): x is Exclude<typeof x, null> => !!x),
                         first(),
                         mergeMap((terminal) => sendReportToInvestor(terminal, fundInfo, investor)),
                       )

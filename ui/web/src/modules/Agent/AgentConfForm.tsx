@@ -134,7 +134,9 @@ runAgentAction$.subscribe(async () => {
       console.error(validator.errors);
       throw msg;
     }
-    if (currentHostConfig$.value === null) {
+    const terminal = await firstValueFrom(terminal$);
+
+    if (terminal === null) {
       const agentCode = await bundleCode(agentConf.entry!);
       const scene = await LocalAgentScene({ ...agentConf, bundled_code: agentCode });
       const accountFrameUnit = new AccountFrameUnit(
@@ -153,7 +155,6 @@ runAgentAction$.subscribe(async () => {
       );
       accountFrameSeries$.next(accountFrameUnit.data);
     } else {
-      const terminal = await firstValueFrom(terminal$);
       const agentCode = await bundleCode(agentConf.entry!);
       const scene = await AgentScene(terminal, { ...agentConf, bundled_code: agentCode });
       const accountFrameUnit = new AccountFrameUnit(

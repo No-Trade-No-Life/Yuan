@@ -5,7 +5,7 @@ import { IDataRecord } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
+import { EMPTY, combineLatest, filter, first, mergeMap, tap, toArray } from 'rxjs';
 import { InlineAccountId } from '../AccountInfo';
 import { registerCommand } from '../CommandCenter';
 import Form from '../Form';
@@ -91,8 +91,8 @@ registerPage('TradeCopyRelationList', () => {
       combineLatest([terminal$, input$]).pipe(
         //
         mergeMap(([terminal, [searchFormData]]) =>
-          terminal
-            .queryDataRecords<ITradeCopyRelation>({
+          (
+            terminal?.queryDataRecords<ITradeCopyRelation>({
               type: TYPE,
               options: {
                 sort: [
@@ -100,11 +100,11 @@ registerPage('TradeCopyRelationList', () => {
                   ['origin.source_product_id', 1],
                 ],
               },
-            })
-            .pipe(
-              //
-              toArray(),
-            ),
+            }) ?? EMPTY
+          ).pipe(
+            //
+            toArray(),
+          ),
         ),
       ),
     [searchFormData, refreshId],
@@ -174,6 +174,7 @@ registerPage('TradeCopyRelationList', () => {
                   const next = mapTradeCopyRelationToDataRecord({ ...record.origin, disabled: v });
                   terminal$
                     .pipe(
+                      filter((x): x is Exclude<typeof x, null> => !!x),
                       first(),
                       mergeMap((terminal) => terminal.updateDataRecords([next])),
                       tap({
@@ -209,6 +210,7 @@ registerPage('TradeCopyRelationList', () => {
                     terminal$
                       .pipe(
                         //
+                        filter((x): x is Exclude<typeof x, null> => !!x),
                         first(),
                         mergeMap((terminal) =>
                           terminal.removeDataRecords({
@@ -242,6 +244,7 @@ registerPage('TradeCopyRelationList', () => {
           const record = mapTradeCopyRelationToDataRecord(formData);
           terminal$
             .pipe(
+              filter((x): x is Exclude<typeof x, null> => !!x),
               first(),
               mergeMap((terminal) => terminal.updateDataRecords([record])),
               tap({

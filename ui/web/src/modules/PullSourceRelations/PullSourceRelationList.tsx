@@ -5,7 +5,7 @@ import { IDataRecord } from '@yuants/protocol';
 import { JSONSchema7 } from 'json-schema';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
-import { combineLatest, filter, first, mergeMap, tap, toArray } from 'rxjs';
+import { EMPTY, combineLatest, filter, first, mergeMap, tap, toArray } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
 import { showForm } from '../Form';
 import { registerPage } from '../Pages';
@@ -84,8 +84,8 @@ registerPage('PullSourceRelationList', () => {
       combineLatest([terminal$, input$]).pipe(
         //
         mergeMap(([terminal, [searchFormData]]) =>
-          terminal
-            .queryDataRecords<IPullSourceRelation>({
+          (
+            terminal?.queryDataRecords<IPullSourceRelation>({
               type: 'pull_source_relation',
               tags: {},
               options: {
@@ -95,25 +95,23 @@ registerPage('PullSourceRelationList', () => {
                   ['origin.period_in_sec', 1],
                 ],
               },
-            })
-            .pipe(
-              filter(
-                (record) =>
-                  !searchFormData.datasource_id ||
-                  record.origin.datasource_id === searchFormData.datasource_id,
-              ),
-              filter(
-                (record) =>
-                  !searchFormData.product_id || record.origin.product_id === searchFormData.product_id,
-              ),
-              filter(
-                (record) =>
-                  !searchFormData.period_in_sec ||
-                  record.origin.period_in_sec === searchFormData.period_in_sec,
-              ),
-              //
-              toArray(),
+            }) ?? EMPTY
+          ).pipe(
+            filter(
+              (record) =>
+                !searchFormData.datasource_id || record.origin.datasource_id === searchFormData.datasource_id,
             ),
+            filter(
+              (record) =>
+                !searchFormData.product_id || record.origin.product_id === searchFormData.product_id,
+            ),
+            filter(
+              (record) =>
+                !searchFormData.period_in_sec || record.origin.period_in_sec === searchFormData.period_in_sec,
+            ),
+            //
+            toArray(),
+          ),
         ),
       ),
     [searchFormData, refreshId],
@@ -124,6 +122,7 @@ registerPage('PullSourceRelationList', () => {
     const record = mapPullSourceRelationToDataRecord(formData);
     terminal$
       .pipe(
+        filter((x): x is Exclude<typeof x, null> => !!x),
         first(),
         mergeMap((terminal) => terminal.updateDataRecords([record])),
         tap({
@@ -186,6 +185,7 @@ registerPage('PullSourceRelationList', () => {
                   const next = mapPullSourceRelationToDataRecord({ ...record.origin, disabled: v });
                   terminal$
                     .pipe(
+                      filter((x): x is Exclude<typeof x, null> => !!x),
                       first(),
                       mergeMap((terminal) => terminal.updateDataRecords([next])),
                       tap({
@@ -231,6 +231,7 @@ registerPage('PullSourceRelationList', () => {
                     terminal$
                       .pipe(
                         //
+                        filter((x): x is Exclude<typeof x, null> => !!x),
                         first(),
                         mergeMap((terminal) =>
                           terminal.removeDataRecords({

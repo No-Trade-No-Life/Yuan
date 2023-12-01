@@ -3,10 +3,10 @@ import { Button, Modal, Popconfirm, Space, Table, Toast } from '@douyinfe/semi-u
 import { IDataRecord, ISubscriptionRelation } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
-import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
-import { terminal$ } from '../Terminals';
+import { EMPTY, combineLatest, filter, first, mergeMap, tap, toArray } from 'rxjs';
 import Form from '../Form';
 import { registerPage } from '../Pages';
+import { terminal$ } from '../Terminals';
 
 const TYPE = 'subscription_relation';
 
@@ -57,8 +57,8 @@ registerPage('SubscriptionRelationList', () => {
       combineLatest([terminal$, input$]).pipe(
         //
         mergeMap(([terminal, [searchFormData]]) =>
-          terminal
-            .queryDataRecords<ISubscriptionRelation>({
+          (
+            terminal?.queryDataRecords<ISubscriptionRelation>({
               type: TYPE,
               tags: {
                 ...(searchFormData.channel_id ? { channel_id: searchFormData.channel_id } : {}),
@@ -69,11 +69,11 @@ registerPage('SubscriptionRelationList', () => {
                   ? { consumer_terminal_id: searchFormData.consumer_terminal_id }
                   : {}),
               },
-            })
-            .pipe(
-              //
-              toArray(),
-            ),
+            }) ?? EMPTY
+          ).pipe(
+            //
+            toArray(),
+          ),
         ),
       ),
     [searchFormData, refreshId],
@@ -143,6 +143,7 @@ registerPage('SubscriptionRelationList', () => {
                     terminal$
                       .pipe(
                         //
+                        filter((x): x is Exclude<typeof x, null> => !!x),
                         first(),
                         mergeMap((terminal) =>
                           terminal.removeDataRecords({
@@ -176,6 +177,7 @@ registerPage('SubscriptionRelationList', () => {
           const record = mapSubscriptionRelationToDataRecord(formData);
           terminal$
             .pipe(
+              filter((x): x is Exclude<typeof x, null> => !!x),
               first(),
               mergeMap((terminal) => terminal.updateDataRecords([record])),
               tap({

@@ -3,7 +3,7 @@ import { Button, Modal, Popconfirm, Space, Table, Toast } from '@douyinfe/semi-u
 import { IDataRecord } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
-import { combineLatest, filter, first, mergeMap, tap, toArray } from 'rxjs';
+import { EMPTY, combineLatest, filter, first, mergeMap, tap, toArray } from 'rxjs';
 import Form from '../Form';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
@@ -63,28 +63,28 @@ registerPage('GeneralSpecificRelationList', () => {
       combineLatest([terminal$, input$]).pipe(
         //
         mergeMap(([terminal, [searchFormData]]) =>
-          terminal
-            .queryDataRecords<IGeneralSpecificRelation>({
+          (
+            terminal?.queryDataRecords<IGeneralSpecificRelation>({
               type: 'general_specific_relation',
               tags: {},
               options: {},
-            })
-            .pipe(
-              //
-              filter(
-                (record) =>
-                  (searchFormData.general_product_id
-                    ? record.origin.general_product_id === searchFormData.general_product_id
-                    : true) &&
-                  (searchFormData.specific_datasource_id
-                    ? record.origin.specific_datasource_id === searchFormData.specific_datasource_id
-                    : true) &&
-                  (searchFormData.specific_product_id
-                    ? record.origin.specific_product_id === searchFormData.specific_product_id
-                    : true),
-              ),
-              toArray(),
+            }) ?? EMPTY
+          ).pipe(
+            //
+            filter(
+              (record) =>
+                (searchFormData.general_product_id
+                  ? record.origin.general_product_id === searchFormData.general_product_id
+                  : true) &&
+                (searchFormData.specific_datasource_id
+                  ? record.origin.specific_datasource_id === searchFormData.specific_datasource_id
+                  : true) &&
+                (searchFormData.specific_product_id
+                  ? record.origin.specific_product_id === searchFormData.specific_product_id
+                  : true),
             ),
+            toArray(),
+          ),
         ),
       ),
     [searchFormData, refreshId],
@@ -154,6 +154,7 @@ registerPage('GeneralSpecificRelationList', () => {
                       terminal$
                         .pipe(
                           //
+                          filter((x): x is Exclude<typeof x, null> => !!x),
                           first(),
                           mergeMap((terminal) =>
                             terminal.removeDataRecords({
@@ -188,6 +189,7 @@ registerPage('GeneralSpecificRelationList', () => {
           const record = mapGeneralSpecificRelationToDataRecord(formData);
           terminal$
             .pipe(
+              filter((x): x is Exclude<typeof x, null> => !!x),
               first(),
               mergeMap((terminal) => terminal.updateDataRecords([record])),
               tap({

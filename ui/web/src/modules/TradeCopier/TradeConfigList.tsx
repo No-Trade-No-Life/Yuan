@@ -4,10 +4,10 @@ import { UUID } from '@yuants/data-model';
 import { IDataRecord } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
-import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
-import { terminal$ } from '../Terminals';
+import { EMPTY, combineLatest, filter, first, mergeMap, tap, toArray } from 'rxjs';
 import Form from '../Form';
 import { registerPage } from '../Pages';
+import { terminal$ } from '../Terminals';
 
 interface ITradeCopierTradeConfig {
   id?: string;
@@ -63,14 +63,14 @@ registerPage('TradeConfigList', () => {
       combineLatest([terminal$, input$]).pipe(
         //
         mergeMap(([terminal, [searchFormData]]) =>
-          terminal
-            .queryDataRecords<ITradeCopierTradeConfig>({
+          (
+            terminal?.queryDataRecords<ITradeCopierTradeConfig>({
               type: TYPE,
-            })
-            .pipe(
-              //
-              toArray(),
-            ),
+            }) ?? EMPTY
+          ).pipe(
+            //
+            toArray(),
+          ),
         ),
       ),
     [searchFormData, refreshId],
@@ -139,6 +139,7 @@ registerPage('TradeConfigList', () => {
                     terminal$
                       .pipe(
                         //
+                        filter((x): x is Exclude<typeof x, null> => !!x),
                         first(),
                         mergeMap((terminal) =>
                           terminal.removeDataRecords({
@@ -172,6 +173,7 @@ registerPage('TradeConfigList', () => {
           const record = mapTradeCopierTradeConfigToDataRecord(formData);
           terminal$
             .pipe(
+              filter((x): x is Exclude<typeof x, null> => !!x),
               first(),
               mergeMap((terminal) => terminal.updateDataRecords([record])),
               tap({

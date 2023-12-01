@@ -5,7 +5,7 @@ import { IProduct } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { combineLatest, first, mergeMap, tap, toArray } from 'rxjs';
+import { EMPTY, combineLatest, filter, first, mergeMap, tap, toArray } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
 import Form, { showForm } from '../Form';
 import { SearchButton } from '../Market/SearchButton';
@@ -25,8 +25,8 @@ registerPage('ProductList', () => {
       combineLatest([terminal$, input$]).pipe(
         //
         mergeMap(([terminal, [searchFormData]]) =>
-          terminal
-            .queryDataRecords<IProduct>({
+          (
+            terminal?.queryDataRecords<IProduct>({
               type: 'product',
               tags: {
                 datasource_id: searchFormData.datasource_id || undefined,
@@ -40,11 +40,11 @@ registerPage('ProductList', () => {
                   ['tags.product_id', 1],
                 ],
               },
-            })
-            .pipe(
-              //
-              toArray(),
-            ),
+            }) ?? EMPTY
+          ).pipe(
+            //
+            toArray(),
+          ),
         ),
       ),
     [searchFormData, refreshId],
@@ -163,6 +163,7 @@ registerPage('ProductList', () => {
         onOk={() => {
           terminal$
             .pipe(
+              filter((x): x is Exclude<typeof x, null> => !!x),
               first(),
               mergeMap((terminal) => terminal.updateProducts([formData])),
               tap({

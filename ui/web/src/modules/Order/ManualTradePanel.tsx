@@ -2,7 +2,7 @@ import { Button, Space, Toast } from '@douyinfe/semi-ui';
 import { IOrder, OrderDirection, OrderType } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
-import { first, mergeMap, of } from 'rxjs';
+import { filter, first, mergeMap, of } from 'rxjs';
 import { accountIds$ } from '../AccountInfo/model';
 import { Form } from '../Form';
 import { registerPage } from '../Pages';
@@ -24,6 +24,7 @@ registerPage('ManualTradePanel', () => {
     mergeMap(([account_id]) =>
       account_id
         ? terminal$.pipe(
+            filter((x): x is Exclude<typeof x, null> => !!x),
             first(),
             mergeMap((terminal) => terminal.queryProducts({ datasource_id: account_id })),
           )
@@ -93,6 +94,7 @@ registerPage('ManualTradePanel', () => {
           order &&
             terminal$
               .pipe(
+                filter((x): x is Exclude<typeof x, null> => !!x),
                 first(),
                 mergeMap((terminal) => terminal.submitOrder(order)),
               )
@@ -128,6 +130,7 @@ registerPage('ManualTradePanel', () => {
           cancelFormData &&
             terminal$
               .pipe(
+                filter((x): x is Exclude<typeof x, null> => !!x),
                 first(),
                 mergeMap((terminal) => terminal.cancelOrder(cancelFormData as IOrder)),
               )

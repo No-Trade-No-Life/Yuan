@@ -3,7 +3,7 @@ import { Button, Card, Descriptions, Popover, Space, Typography } from '@douyinf
 import { useObservable, useObservableState } from 'observable-hooks';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { bufferTime, combineLatest, map, switchMap } from 'rxjs';
+import { bufferTime, combineLatest, map, of, switchMap } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
 import { terminal$ } from '../Terminals';
 import { currentHostConfig$ } from '../Workbench/model';
@@ -25,16 +25,18 @@ export const NetworkStatusWidget = React.memo(() => {
   const network$ = useObservable(() =>
     terminal$.pipe(
       switchMap((terminal) =>
-        combineLatest([
-          terminal._conn.output$.pipe(
-            bufferTime(2000),
-            map((buffer) => ((JSON.stringify(buffer).length / 2e3) * 8).toFixed(1)),
-          ),
-          terminal._conn.input$.pipe(
-            bufferTime(2000),
-            map((buffer) => ((JSON.stringify(buffer).length / 2e3) * 8).toFixed(1)),
-          ),
-        ]),
+        terminal
+          ? combineLatest([
+              terminal._conn.output$.pipe(
+                bufferTime(2000),
+                map((buffer) => ((JSON.stringify(buffer).length / 2e3) * 8).toFixed(1)),
+              ),
+              terminal._conn.input$.pipe(
+                bufferTime(2000),
+                map((buffer) => ((JSON.stringify(buffer).length / 2e3) * 8).toFixed(1)),
+              ),
+            ])
+          : of(['0.0', '0.0']),
       ),
     ),
   );
@@ -43,7 +45,6 @@ export const NetworkStatusWidget = React.memo(() => {
   return (
     <Space>
       <Popover
-        position="bottomRight"
         content={
           <Card style={{ minWidth: 200 }}>
             <Descriptions
@@ -81,24 +82,25 @@ export const NetworkStatusWidget = React.memo(() => {
                 },
               ]}
             ></Descriptions>
-            <Button
-              icon={<IconWrench />}
-              onClick={() => {
-                executeCommand('Page.open', { type: 'HostList' });
-              }}
-            >
-              {t('config')}
-            </Button>
-            <Button
-              icon={<IconUnlink />}
-              disabled={!currentHostConfig$.value}
-              onClick={() => {
-                currentHostConfig$.next(null);
-                location.reload();
-              }}
-            >
-              {t('disconnect')}
-            </Button>
+            <Space>
+              <Button
+                icon={<IconWrench />}
+                onClick={() => {
+                  executeCommand('Page.open', { type: 'HostList' });
+                }}
+              >
+                {t('config')}
+              </Button>
+              <Button
+                icon={<IconUnlink />}
+                disabled={!currentHostConfig$.value}
+                onClick={() => {
+                  currentHostConfig$.next(null);
+                }}
+              >
+                {t('disconnect')}
+              </Button>
+            </Space>
           </Card>
         }
       >

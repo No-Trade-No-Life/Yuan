@@ -322,8 +322,9 @@ export interface IBatchAgentResultItem {
 
 export const runBatchBackTestWorkItem = async (agentConf: IAgentConf): Promise<IBatchAgentResultItem[]> => {
   if (!agentConf.bundled_code) throw new Error('No bundled_code');
-  const scene = currentHostConfig$.value
-    ? await AgentScene(await firstValueFrom(terminal$), {
+  const terminal = await firstValueFrom(terminal$);
+  const scene = terminal
+    ? await AgentScene(terminal, {
         ...agentConf,
         disable_log: true,
       })
