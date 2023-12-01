@@ -2,8 +2,8 @@ import { Modal, Toast } from '@douyinfe/semi-ui';
 import { Terminal } from '@yuants/protocol';
 import { dirname } from 'path-browserify';
 import { bufferTime, defer, lastValueFrom, mergeMap } from 'rxjs';
-import { terminal$ } from '../Terminals';
 import { fs } from '../FileSystem/api';
+import { terminal$ } from '../Terminals';
 
 export const sendFileByAirdrop = async (terminal: Terminal, target_terminal_id: string, filename: string) => {
   //
@@ -30,7 +30,7 @@ declare module '@yuants/protocol/lib/services' {
 }
 
 terminal$.subscribe((terminal) => {
-  terminal.setupService('AirDrop', (msg) =>
+  terminal?.setupService('AirDrop', (msg) =>
     defer(async () => {
       const { filename, content } = msg.req;
       const ok = await new Promise((resolve, reject) => {

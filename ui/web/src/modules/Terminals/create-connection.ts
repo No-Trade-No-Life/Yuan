@@ -2,13 +2,14 @@ import { Terminal } from '@yuants/protocol';
 import { Observable, filter, shareReplay, switchMap } from 'rxjs';
 import { currentHostConfig$ } from '../Workbench/model';
 
-export const terminal$ = currentHostConfig$.pipe(
-  filter(
-    (config): config is Exclude<typeof config, undefined | null> =>
-      !!(config && config.host_url && config.terminal_id),
-  ),
+export const terminal$: Observable<Terminal | null> = currentHostConfig$.pipe(
+  filter((config): config is Exclude<typeof config, undefined> => config !== undefined),
   switchMap((config) => {
-    return new Observable<Terminal>((subscriber) => {
+    return new Observable<Terminal | null>((subscriber) => {
+      if (!config) {
+        subscriber.next(null);
+        return;
+      }
       const terminal = new Terminal(config.host_url, {
         terminal_id: config.terminal_id,
         name: 'Workbench GUI',
@@ -25,10 +26,8 @@ export const terminal$ = currentHostConfig$.pipe(
 );
 
 terminal$.forEach((terminal) => {
-  const connection = terminal._conn;
-
   // for DEBUG
-  connection.connection$.forEach((conn) => Object.assign(globalThis, { _conn: conn }));
+  terminal?._conn.connection$.forEach((conn) => Object.assign(globalThis, { _conn: conn }));
 
   Object.assign(globalThis, { terminal });
 });
