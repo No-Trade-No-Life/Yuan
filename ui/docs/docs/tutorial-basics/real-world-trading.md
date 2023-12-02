@@ -2,9 +2,7 @@
 sidebar_position: 1
 ---
 
-# What is Yuan
-
-## Real world trading
+# Real world trading
 
 It's a simple context diagram for real world trading.
 
