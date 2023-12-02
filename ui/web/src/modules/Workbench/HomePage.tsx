@@ -28,17 +28,20 @@ export const HomePage = React.memo(() => {
       </Space>
       <Space vertical align="start" style={{ marginTop: '3em' }}>
         <Typography.Title heading={3}>Go</Typography.Title>
-        <Typography.Text
-          icon={<IconFolderOpen />}
-          strong
-          link={{
-            onClick: () => {
-              executeCommand('workspace.open');
-            },
-          }}
-        >
-          Open Workspace...
-        </Typography.Text>
+        {!!window['showDirectoryPicker'] && (
+          <Typography.Text
+            icon={<IconFolderOpen />}
+            strong
+            link={{
+              onClick: () => {
+                executeCommand('workspace.open');
+              },
+            }}
+          >
+            Open Workspace...
+          </Typography.Text>
+        )}
+
         <Typography.Text
           icon={<IconLink />}
           strong
