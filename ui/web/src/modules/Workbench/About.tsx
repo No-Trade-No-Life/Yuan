@@ -1,11 +1,13 @@
 import { Descriptions, Space, Typography } from '@douyinfe/semi-ui';
 import { formatTime } from '@yuants/data-model';
+import { useObservableState } from 'observable-hooks';
 import { useTranslation } from 'react-i18next';
-import { userTimezone } from '../Locale/utils';
+import { region$, userTimezone } from '../Locale/utils';
 import { registerPage } from '../Pages';
 
 registerPage('About', () => {
   const { t, i18n } = useTranslation('About');
+  const region = useObservableState(region$);
   return (
     <Space style={{ padding: '2em' }}>
       <Descriptions
@@ -27,6 +29,10 @@ registerPage('About', () => {
           {
             key: t('built_at'),
             value: formatTime(__BUILT_AT__),
+          },
+          {
+            key: t('region'),
+            value: region,
           },
           {
             key: t('timezone'),
