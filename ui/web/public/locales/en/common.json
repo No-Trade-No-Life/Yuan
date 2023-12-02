@@ -5,6 +5,7 @@
   "CreateFile_succeed": "File created successfully: {{ filename }}",
   "Workspace": "Workspace",
   "YuanCoin": "Yuan Coin",
+  "accept": "Accept",
   "account": "Account",
   "actions": "Actions",
   "cancel": "Cancel",
@@ -14,6 +15,7 @@
   "confirm_delete_note": "This operation will be irreversible",
   "confirm_delete_ok": "Delete",
   "copied": "Copied",
+  "decline": "Decline",
   "default": "Default",
   "delete": "delete",
   "empty": "No data",
@@ -25,6 +27,8 @@
   "import": "Import",
   "import_succeed": "Imported succeed",
   "login": "Log in",
+  "need_login": "You need to log in to continue",
+  "no": "",
   "open": "Open",
   "order_direction_close_long": "Close long",
   "order_direction_close_short": "Close short",
@@ -38,5 +42,6 @@
   "saved": "Saved",
   "submit": "Submit",
   "succeed": "Succeed",
-  "view_source": "Code"
+  "view_source": "Code",
+  "yes": ""
 }

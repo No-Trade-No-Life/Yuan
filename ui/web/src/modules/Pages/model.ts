@@ -7,6 +7,7 @@ export const registerPage = (type: string, component: React.ComponentType) => {
   AvailableComponents[type] = React.memo(() => {
     useEffect(() => {
       gtag('event', 'yuan_page_view', { type });
+      gtag('event', `yuan_page_view_${type}`);
     }, []);
     return React.createElement(component);
   });

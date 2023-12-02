@@ -1,6 +1,7 @@
 {
-  "built_at": "Built at",
   "build_version": "Built from",
+  "built_at": "Built at",
   "language": "Language",
+  "region": "",
   "timezone": "Time zone"
 }
