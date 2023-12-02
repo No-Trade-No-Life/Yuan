@@ -39,7 +39,37 @@ export { Templates, Theme, Widgets, generateTemplates, generateWidgets };
 
 export default Form;
 
-export const showForm = <T>(schema: JSONSchema7, initialData?: any) => {
+/**
+ * Request user to input data according to the schema.
+ * @param schema - JSON Schema (https://json-schema.org/)
+ * @param initialData - Initial data to be filled in the form
+ * @returns Promise of user input data
+ */
+export const showForm = <T>(schema: JSONSchema7, initialData?: any): Promise<T> => {
+  // Open a confirm modal for boolean type
+  if (schema.type === 'boolean') {
+    return new Promise<any>((resolve, reject) => {
+      // boolean form is usually used for confirmation
+      // but for different situations, we need to use different okText and cancelText
+      // for example, when we want to delete a file, we need to use 'Delete' and 'Cancel'.
+      // but when we want to overwrite a file, we need to use 'Overwrite' and 'Cancel'.
+      // the fallback is just 'Yes' and 'No'. Not so bad.
+
+      Modal.confirm({
+        title: schema.title,
+        content: schema.description,
+        okText: t('common:yes'),
+        cancelText: t('common:no'),
+        onOk: () => {
+          resolve(true);
+        },
+        onCancel: () => {
+          resolve(false);
+        },
+      });
+    });
+  }
+
   return new Promise<T>((resolve, reject) => {
     let data = initialData;
     let modal: ReturnType<typeof Modal.info> | undefined;

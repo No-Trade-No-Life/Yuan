@@ -279,12 +279,13 @@ registerPage('Explorer', () => {
                           icon={<IconDelete />}
                           onClick={async () => {
                             if (
-                              !confirm(
-                                t('delete_confirm', {
+                              !(await showForm({
+                                type: 'boolean',
+                                title: t('delete_confirm', {
                                   path: data.key,
                                   interpolation: { escapeValue: false },
                                 }),
-                              )
+                              }))
                             ) {
                               return;
                             }
@@ -364,6 +365,15 @@ registerCommand('workspace.open', async () => {
       });
       await root.requestPermission({ mode: 'readwrite' });
       workspaceRoot$.next(root);
+      if (
+        await showForm<boolean>({
+          type: 'boolean',
+          title: t('Explorer:request_import'),
+          description: t('Explorer:request_import_note'),
+        })
+      ) {
+        executeCommand('workspace.import_examples');
+      }
     },
   });
 });
