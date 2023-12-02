@@ -42,6 +42,9 @@ declare module 'lightweight-charts/dist/lightweight-charts.esm.development.js' {
 }
 
 /**
- * https://developers.google.com/tag-platform/gtagjs/reference
+ * Google Tag API
+ *
+ * @param eventName - Event name, case sensitive, use letters, numbers, underscore. Rules: https://support.google.com/analytics/answer/13316687
+ * @see https://developers.google.com/tag-platform/gtagjs/reference
  */
 declare function gtag(op: 'event', eventName: string, args?: {});

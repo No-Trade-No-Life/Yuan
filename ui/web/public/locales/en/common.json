@@ -27,6 +27,7 @@
   "import": "Import",
   "import_succeed": "Imported succeed",
   "login": "Log in",
+  "need_login": "You need to log in to continue",
   "no": "",
   "open": "Open",
   "order_direction_close_long": "Close long",

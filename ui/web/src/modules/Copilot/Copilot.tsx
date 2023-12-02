@@ -1,12 +1,13 @@
-import { IconClear, IconSend } from '@douyinfe/semi-icons';
-import { Button, Card, Empty, Space, TextArea, Typography } from '@douyinfe/semi-ui';
+import { IconClear, IconSend, IconUser } from '@douyinfe/semi-icons';
+import { Button, Card, Empty, Space, TextArea, Toast, Typography } from '@douyinfe/semi-ui';
+import { t } from 'i18next';
 import { useObservableState } from 'observable-hooks';
 import React, { useEffect, useMemo, useState } from 'react';
 import { BehaviorSubject, EMPTY, Subject, catchError, defer, raceWith, tap, timeout } from 'rxjs';
+import { executeCommand } from '../CommandCenter';
 import { registerPage } from '../Pages';
 import { authState$ } from '../SupaBase';
 import { IChatMessage, IMessageCardProps } from './model';
-import { executeCommand } from '../CommandCenter';
 
 const mapMessageTypeToComponent: Record<string, React.ComponentType<IMessageCardProps<any>>> = {};
 
@@ -84,7 +85,14 @@ registerPage('Copilot', () => {
   };
 
   const handleSend = async () => {
-    if (!userInput || !authState) return;
+    if (!userInput) return;
+    gtag('event', 'copilot_push_message');
+    if (!authState) {
+      gtag('event', 'copilot_push_message_401');
+      Toast.info(t('common:need_login'));
+      executeCommand('Login');
+      return;
+    }
     const theUserInput = userInput;
     messages$.next(messages$.value.concat([{ type: 'UserText', payload: { text: theUserInput } }]));
     setUserInput('');
@@ -95,22 +103,6 @@ registerPage('Copilot', () => {
     document.querySelector('.bottom')?.scrollIntoView();
   }, [messages]);
 
-  if (!authState) {
-    return (
-      <Empty>
-        <Typography.Text
-          link={{
-            onClick: () => {
-              executeCommand('Login');
-            },
-          }}
-        >
-          Login
-        </Typography.Text>{' '}
-        first to use this feature.
-      </Empty>
-    );
-  }
   return (
     <Space vertical style={{ width: '100%', height: '100%' }}>
       <Space

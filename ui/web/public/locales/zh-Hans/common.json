@@ -27,6 +27,7 @@
   "import": "导入",
   "import_succeed": "成功导入",
   "login": "登录",
+  "need_login": "您需要登录才能继续",
   "no": "否",
   "open": "打开",
   "order_direction_close_long": "平多",
