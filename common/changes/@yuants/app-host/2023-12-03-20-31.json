@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-host",
+      "comment": "fix bug of ListTerminals",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-host"
+}
