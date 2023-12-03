@@ -831,6 +831,20 @@ export interface ITerminalInfo {
   start_timestamp_in_ms?: number;
 
   /**
+   * Terminal Information Update Timestamp
+   */
+  updated_at?: number;
+
+  /**
+   * Terminal's subscriptions
+   *
+   * terminal itself is a consumer.
+   *
+   * map provider_terminal_id to channel_id[]
+   */
+  subscriptions?: Record<string, string[]>;
+
+  /**
    * Terminal service name
    * 终端服务名称
    *

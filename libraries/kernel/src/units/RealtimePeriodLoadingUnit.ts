@@ -179,6 +179,12 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
                     }),
                   );
                 }),
+                tap(() => {
+                  this.terminal.subscribeChannel(
+                    terminal.terminal_id,
+                    encodePath('Period', datasource_id, product_id, period_in_sec),
+                  );
+                }),
                 mergeMap(() =>
                   this.terminal.updateDataRecords([
                     mapSubscriptionRelationToDataRecord({

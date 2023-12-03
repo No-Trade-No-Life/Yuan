@@ -251,7 +251,9 @@ export interface ITerminalInfo {
     }>;
     start_timestamp_in_ms?: number;
     status?: string;
+    subscriptions?: Record<string, string[]>;
     terminal_id: string;
+    updated_at?: number;
 }
 
 // @public
@@ -405,6 +407,8 @@ export class Terminal {
     }) => void;
     // (undocumented)
     submitOrder: (order: IOrder) => Observable<(IResponse<void> & IResponse<unknown>) | undefined>;
+    // (undocumented)
+    subscribeChannel: (provider_terminal_id: string, channel_id: string) => void;
     subscriptionSnapshot$: Observable<ISubscriptionRelation[]>;
     subscriptionSnapshotOfAccountInfo$: Observable<{
         account_id: string;
@@ -426,6 +430,8 @@ export class Terminal {
     // (undocumented)
     terminalInfoInput: Omit<ITerminalInfo, 'serviceInfo'>;
     terminalInfos$: Observable<ITerminalInfo[]>;
+    // (undocumented)
+    unsubscribeChannel: (provider_terminal_id: string, channel_id: string) => void;
     // (undocumented)
     updateDataRecords: (records: IDataRecord<any>[], target_terminal_id?: string) => Observable<never>;
     updateHistoryOrders: (orders: IOrder[], target_terminal_id?: string) => Observable<never[]>;

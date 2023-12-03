@@ -1,3 +1,5 @@
+import { ITerminalInfo } from '../model';
+
 declare module '.' {
   /**
    * - Global predefined interfaces (Ping, Terminate) have been loaded
@@ -12,6 +14,16 @@ declare module '.' {
 
     Terminate: {
       req: {};
+      res: IResponse<void>;
+      frame: void;
+    };
+    ListTerminals: {
+      req: {};
+      res: IResponse<ITerminalInfo[]>;
+      frame: void;
+    };
+    UpdateTerminalInfo: {
+      req: ITerminalInfo;
       res: IResponse<void>;
       frame: void;
     };

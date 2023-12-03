@@ -1,6 +1,7 @@
 import { formatTime } from '@yuants/data-model';
+import { ITerminalInfo, Terminal } from '@yuants/protocol';
 import { createServer } from 'http';
-import { Observable, bindCallback, fromEvent, merge } from 'rxjs';
+import { Observable, bindCallback, first, fromEvent, interval, map, merge, of, shareReplay } from 'rxjs';
 import WebSocket from 'ws';
 
 const mapTerminalIdToSocket: Record<string, WebSocket.WebSocket> = {};
@@ -68,3 +69,26 @@ server.on('upgrade', (request, socket, head) => {
 });
 
 server.listen(8888);
+
+const HOST_URL = `ws://localhost:8888?host_token=${process.env.HOST_TOKEN}`;
+const terminal = new Terminal(HOST_URL, {
+  terminal_id: '@host',
+  name: 'Host Terminal',
+});
+
+const terminalInfos = new Map<string, ITerminalInfo>();
+
+const listTerminalsMessage$ = interval(1000).pipe(
+  map(() => ({ res: { code: 0, message: 'OK', data: Object.values(terminalInfos.values()) } })),
+  shareReplay(1),
+);
+
+terminal.setupService('ListTerminals', () => listTerminalsMessage$.pipe(first()));
+
+terminal.setupService('UpdateTerminalInfo', (msg) => {
+  // if (msg.source_terminal_id !== msg.req.terminal_id) {
+  //   return of({ res: { code: 403, message: 'Permission Denied' } });
+  // }
+  terminalInfos.set(msg.req.terminal_id, msg.req);
+  return of({ res: { code: 0, message: 'OK' } });
+});
