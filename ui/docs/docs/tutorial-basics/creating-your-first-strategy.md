@@ -202,3 +202,7 @@ You can also back-test the strategy in other products. For example, you can back
 There are some other examples in the `/@models` folder of your workspace. You can learn more from them.
 
 If you want to learn more about the Yuan, please read the [Guide - Agent](/docs/category/guide---agent) section.
+
+:::warning[Disclaimer]
+These materials have been prepared solely for informational purposes and do not constitute a recommendation to make or dispose of any investment or engage in any particular investment strategy. These materials include general information and have not been tailored for any specific recipient or recipients. Information or data shown or used in these materials were obtained from sources believed to be reliable, but accuracy is not guaranteed.
+:::

@@ -1,3 +1,4 @@
+import { encodePath } from '@yuants/data-model';
 import { IDataRecord, IPeriod, ISubscriptionRelation, Terminal } from '@yuants/protocol';
 import Ajv from 'ajv';
 import { JSONSchema7 } from 'json-schema';
@@ -99,9 +100,6 @@ const mapProductIdToGSRList$ = defer(() =>
   shareReplay(1),
 );
 
-const encodeChannelId = (...params: any[]) =>
-  params.map((param) => `${param}`.replace(/\//g, '\\/')).join('/');
-
 const mapSubscriptionRelationToDataRecord = (
   origin: ISubscriptionRelation,
 ): IDataRecord<ISubscriptionRelation> => ({
@@ -144,15 +142,16 @@ const subscribePeriods = (product_id: string, period_in_sec: number) => {
                     new Date(),
                     `UpdateSubscriptionRelation`,
                     JSON.stringify({
-                      channel_id: encodeChannelId(
-                        'Period',
-                        gsr.specific_datasource_id,
-                        product_id,
-                        period_in_sec,
-                      ),
+                      channel_id: encodePath('Period', gsr.specific_datasource_id, product_id, period_in_sec),
                       provider_terminal_id: terminal.terminal_id,
                       consumer_terminal_id: term.terminalInfo.terminal_id,
                     }),
+                  );
+                }),
+                tap(() => {
+                  term.subscribeChannel(
+                    terminal.terminal_id,
+                    encodePath('Period', gsr.specific_datasource_id, product_id, period_in_sec),
                   );
                 }),
                 mergeMap(() =>
@@ -160,7 +159,7 @@ const subscribePeriods = (product_id: string, period_in_sec: number) => {
                     .updateDataRecords(
                       [
                         mapSubscriptionRelationToDataRecord({
-                          channel_id: encodeChannelId(
+                          channel_id: encodePath(
                             'Period',
                             gsr.specific_datasource_id,
                             product_id,
@@ -182,7 +181,7 @@ const subscribePeriods = (product_id: string, period_in_sec: number) => {
             first(),
             mergeMap(() =>
               term.useFeed<IPeriod[]>(
-                encodeChannelId('Period', gsr.specific_datasource_id, product_id, period_in_sec),
+                encodePath('Period', gsr.specific_datasource_id, product_id, period_in_sec),
               ),
             ),
           ),

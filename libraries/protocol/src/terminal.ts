@@ -269,6 +269,20 @@ export class Terminal {
 
   private setupReportTerminalInfo = () => {
     // Periodically report the value of terminalInfo
+    this._subscriptions.push(
+      defer(() => {
+        this.terminalInfo.updated_at = Date.now();
+        return this.request('UpdateTerminalInfo', '@host', this.terminalInfo);
+      })
+        .pipe(
+          //
+          timeout(5000),
+          retry({ delay: 1000 }),
+          repeat({ delay: 5000 }),
+        )
+        .subscribe(),
+    );
+    // DEPRECATED: Use UpdateTerminalInfo instead
     const sub = defer(() =>
       this.updateDataRecords(
         [
@@ -293,6 +307,27 @@ export class Terminal {
       )
       .subscribe();
     this._subscriptions.push(sub);
+  };
+
+  subscribeChannel = (provider_terminal_id: string, channel_id: string) => {
+    // Assume that it's low frequency to subscribe a channel
+    const channels = ((this.terminalInfo.subscriptions ??= {})[provider_terminal_id] ??= []);
+    if (channels.includes(channel_id)) return;
+    channels.push(channel_id);
+  };
+
+  unsubscribeChannel = (provider_terminal_id: string, channel_id: string) => {
+    // Assume that it's low frequency to unsubscribe a channel
+    if (!this.terminalInfo.subscriptions) return;
+    const channels = this.terminalInfo.subscriptions[provider_terminal_id];
+    if (!channels) return;
+    const idx = channels.indexOf(channel_id);
+    if (idx === -1) return;
+    channels.splice(idx, 1);
+    if (channels.length > 0) return;
+    delete this.terminalInfo.subscriptions[provider_terminal_id];
+    if (Object.keys(this.terminalInfo.subscriptions).length > 0) return;
+    delete this.terminalInfo.subscriptions;
   };
 
   setupService = <T extends string>(
@@ -616,6 +651,9 @@ export class Terminal {
           mergeMap((terminal) =>
             from(terminal.services || []).pipe(
               filter((service) => service.account_id === account_id),
+              tap(() => {
+                this.subscribeChannel(terminal.terminal_id, encodePath('AccountInfo', account_id));
+              }),
               delayWhen(() =>
                 this.updateDataRecords([
                   mapSubscriptionRelationToDataRecord({
@@ -653,6 +691,12 @@ export class Terminal {
           mergeMap((terminal) =>
             from(terminal.services || []).pipe(
               filter((service) => service.datasource_id === datasource_id),
+              tap(() => {
+                this.subscribeChannel(
+                  terminal.terminal_id,
+                  encodePath('Period', datasource_id, product_id, period_in_sec),
+                );
+              }),
               delayWhen(() =>
                 this.updateDataRecords([
                   mapSubscriptionRelationToDataRecord({
@@ -690,6 +734,9 @@ export class Terminal {
           mergeMap((terminal) =>
             from(terminal.services || []).pipe(
               filter((service) => service.datasource_id === datasource_id),
+              tap(() => {
+                this.subscribeChannel(terminal.terminal_id, encodePath('Tick', datasource_id, product_id));
+              }),
               delayWhen(() =>
                 this.updateDataRecords([
                   mapSubscriptionRelationToDataRecord({
