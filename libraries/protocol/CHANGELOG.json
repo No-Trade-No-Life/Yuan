@@ -2,6 +2,23 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.4.0",
+      "tag": "@yuants/protocol_v0.4.0",
+      "date": "Sun, 03 Dec 2023 04:38:50 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "new terminal info syncing & subscription"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.2",
       "tag": "@yuants/protocol_v0.3.2",
       "date": "Fri, 24 Nov 2023 16:07:44 GMT",
