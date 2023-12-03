@@ -7,14 +7,14 @@ import React from 'react';
 import { EMPTY, catchError, filter, first, mergeMap, tap } from 'rxjs';
 import { terminal$ } from '../Terminals';
 
-export const TerminalListItem = React.memo((props: { terminalInfo: IDataRecord<ITerminalInfo> }) => {
+export const TerminalListItem = React.memo((props: { terminalInfo: ITerminalInfo }) => {
   const term = props.terminalInfo;
-  const isOnline = term.updated_at + 60_000 > Date.now();
+  const isOnline = (term.updated_at || 0) + 60_000 > Date.now();
   return (
     <List.Item>
       <Space vertical align="start">
         <Typography.Title heading={6} copyable>
-          {term.origin.terminal_id}
+          {term.terminal_id}
         </Typography.Title>
         {isOnline ? (
           <Typography.Text type="success">
@@ -34,13 +34,13 @@ export const TerminalListItem = React.memo((props: { terminalInfo: IDataRecord<I
         <Descriptions
           data={[
             //
-            { key: '终端名字', value: term.origin.name },
-            { key: '最近启动时间', value: formatTime(term.origin.start_timestamp_in_ms!) },
-            { key: '最近更新时间', value: formatTime(term.updated_at) },
+            { key: '终端名字', value: term.name },
+            { key: '最近启动时间', value: formatTime(term.start_timestamp_in_ms!) },
+            { key: '最近更新时间', value: term.updated_at && formatTime(term.updated_at) },
             {
               key: '启动时长',
               value: formatDuration(
-                intervalToDuration({ start: term.origin.start_timestamp_in_ms!, end: Date.now() }),
+                intervalToDuration({ start: term.start_timestamp_in_ms!, end: Date.now() }),
               ),
             },
           ]}
@@ -48,14 +48,14 @@ export const TerminalListItem = React.memo((props: { terminalInfo: IDataRecord<I
         <TagGroup
           maxTagCount={3}
           showPopover
-          tagList={Object.values(term.origin.serviceInfo || {}).map((info) => ({
+          tagList={Object.values(term.serviceInfo || {}).map((info) => ({
             children: info.method,
           }))}
         ></TagGroup>
         <Button
-          disabled={!term.origin.serviceInfo?.['Terminate']}
+          disabled={!term.serviceInfo?.['Terminate']}
           onClick={() => {
-            terminate(term.origin.terminal_id);
+            terminate(term.terminal_id);
           }}
         >
           终止
