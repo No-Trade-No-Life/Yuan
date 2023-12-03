@@ -2,7 +2,7 @@
   "bundle": "Bundle",
   "bundle_failed": "Failed to bundle {{ source }} to {{ target }}",
   "bundle_succeed": "Bundle {{ source }} to {{ target }} successfully",
-  "cloud_deploy": "Deploy to cloud",
+  "cloud_deploy": "Deploy to Cloud",
   "config_invalid": "Model configuration parameter verification failed",
   "load_config": "Load config",
   "load_config_failed": "Load {{ filename }} Failed: {{ message }}",

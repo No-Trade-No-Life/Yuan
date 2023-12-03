@@ -28,7 +28,7 @@
   "import_succeed": "Imported succeed",
   "login": "Log in",
   "need_login": "You need to log in to continue",
-  "no": "",
+  "no": "No",
   "open": "Open",
   "order_direction_close_long": "Close long",
   "order_direction_close_short": "Close short",
@@ -43,5 +43,5 @@
   "submit": "Submit",
   "succeed": "Succeed",
   "view_source": "Code",
-  "yes": ""
+  "yes": "Yes"
 }
