@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-host
 
-This log was last generated on Sun, 03 Dec 2023 04:38:50 GMT and should not be manually modified.
+This log was last generated on Sun, 03 Dec 2023 20:52:03 GMT and should not be manually modified.
+
+## 0.1.1
+Sun, 03 Dec 2023 20:52:03 GMT
+
+### Patches
+
+- fix bug of ListTerminals
 
 ## 0.1.0
 Sun, 03 Dec 2023 04:38:50 GMT
