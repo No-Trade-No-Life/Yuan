@@ -2,6 +2,31 @@
   "name": "@yuants/kernel",
   "entries": [
     {
+      "version": "0.5.2",
+      "tag": "@yuants/kernel_v0.5.2",
+      "date": "Sun, 03 Dec 2023 04:38:50 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix initial_balance not working"
+          },
+          {
+            "comment": "new terminal info syncing & subscription"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.4.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.1",
       "tag": "@yuants/kernel_v0.5.1",
       "date": "Fri, 24 Nov 2023 16:07:44 GMT",

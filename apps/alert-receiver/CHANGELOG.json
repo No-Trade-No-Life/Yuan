@@ -2,6 +2,23 @@
   "name": "@yuants/app-alert-receiver",
   "entries": [
     {
+      "version": "0.1.16",
+      "tag": "@yuants/app-alert-receiver_v0.1.16",
+      "date": "Sun, 03 Dec 2023 04:38:50 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.4.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.15",
       "tag": "@yuants/app-alert-receiver_v0.1.15",
       "date": "Fri, 24 Nov 2023 16:07:44 GMT",

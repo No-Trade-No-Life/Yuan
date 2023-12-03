@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-host
 
-This log was last generated on Fri, 24 Nov 2023 16:07:44 GMT and should not be manually modified.
+This log was last generated on Sun, 03 Dec 2023 04:38:50 GMT and should not be manually modified.
+
+## 0.1.0
+Sun, 03 Dec 2023 04:38:50 GMT
+
+### Minor changes
+
+- in-host terminal & in-memory terminal info storage
 
 ## 0.0.20
 Fri, 24 Nov 2023 16:07:44 GMT
