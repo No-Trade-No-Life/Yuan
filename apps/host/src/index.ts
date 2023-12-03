@@ -79,7 +79,7 @@ const terminal = new Terminal(HOST_URL, {
 const terminalInfos = new Map<string, ITerminalInfo>();
 
 const listTerminalsMessage$ = interval(1000).pipe(
-  map(() => ({ res: { code: 0, message: 'OK', data: Object.values(terminalInfos.values()) } })),
+  map(() => ({ res: { code: 0, message: 'OK', data: [...terminalInfos.values()] } })),
   shareReplay(1),
 );
 
