@@ -10,7 +10,6 @@ import {
   bufferCount,
   catchError,
   concatMap,
-  concatWith,
   defer,
   delayWhen,
   distinct,
@@ -282,31 +281,6 @@ export class Terminal {
         )
         .subscribe(),
     );
-    // DEPRECATED: Use UpdateTerminalInfo instead
-    const sub = defer(() =>
-      this.updateDataRecords(
-        [
-          {
-            id: this.terminalInfo.terminal_id,
-            type: 'terminal_info',
-            created_at: this.terminalInfo.start_timestamp_in_ms!,
-            frozen_at: null,
-            updated_at: Date.now(),
-            tags: { terminal_id: this.terminalInfo.terminal_id },
-            origin: this.terminalInfo,
-          },
-        ],
-        'MongoDB',
-      ),
-    )
-      .pipe(
-        //
-        timeout(5000),
-        retry({ delay: 1000 }),
-        repeat({ delay: 5000 }),
-      )
-      .subscribe();
-    this._subscriptions.push(sub);
   };
 
   subscribeChannel = (provider_terminal_id: string, channel_id: string) => {
@@ -548,21 +522,12 @@ export class Terminal {
   /**
    * Terminal List of the same host
    */
-  terminalInfos$ = defer(() =>
-    this.queryDataRecords<ITerminalInfo>(
-      {
-        type: 'terminal_info',
-        options: { sort: [['tags.terminal_id', 1]] },
-      },
-      // ISSUE: Must specified the terminal_id
-      // TODO: Extract terminalInfo router terminal later
-      'MongoDB',
-    ),
-  ).pipe(
+  terminalInfos$ = defer(() => this.request('ListTerminals', '@host', {})).pipe(
     // ISSUE: filter out terminals that have not been updated for a long time
-    filter((x) => Date.now() - x.updated_at < 60_000),
-    map((x) => x.origin),
+    mergeMap((x) => x.res?.data ?? []),
+    filter((x) => Date.now() - x.updated_at! < 60_000),
     toArray(),
+    map((arr) => arr.sort((a, b) => a.terminal_id.localeCompare(b.terminal_id))),
     timeout(60000),
     retry({ delay: 1000 }),
     // ISSUE: Storage workload
@@ -654,18 +619,6 @@ export class Terminal {
               tap(() => {
                 this.subscribeChannel(terminal.terminal_id, encodePath('AccountInfo', account_id));
               }),
-              delayWhen(() =>
-                this.updateDataRecords([
-                  mapSubscriptionRelationToDataRecord({
-                    channel_id: encodePath('AccountInfo', account_id),
-                    provider_terminal_id: terminal.terminal_id,
-                    consumer_terminal_id: this.terminalInfo.terminal_id,
-                  }),
-                ]).pipe(
-                  // ISSUE: delayWhen must return at least one data, otherwise the entire stream will end
-                  concatWith(of(0)),
-                ),
-              ),
             ),
           ),
           first(), // subscribe success
@@ -697,18 +650,6 @@ export class Terminal {
                   encodePath('Period', datasource_id, product_id, period_in_sec),
                 );
               }),
-              delayWhen(() =>
-                this.updateDataRecords([
-                  mapSubscriptionRelationToDataRecord({
-                    channel_id: encodePath('Period', datasource_id, product_id, period_in_sec),
-                    provider_terminal_id: terminal.terminal_id,
-                    consumer_terminal_id: this.terminalInfo.terminal_id,
-                  }),
-                ]).pipe(
-                  //
-                  concatWith(of(0)),
-                ),
-              ),
             ),
           ),
           first(),
@@ -737,18 +678,6 @@ export class Terminal {
               tap(() => {
                 this.subscribeChannel(terminal.terminal_id, encodePath('Tick', datasource_id, product_id));
               }),
-              delayWhen(() =>
-                this.updateDataRecords([
-                  mapSubscriptionRelationToDataRecord({
-                    channel_id: encodePath('Tick', datasource_id, product_id),
-                    provider_terminal_id: terminal.terminal_id,
-                    consumer_terminal_id: this.terminalInfo.terminal_id,
-                  }),
-                ]).pipe(
-                  //
-                  concatWith(of(0)),
-                ),
-              ),
             ),
           ),
           first(),
@@ -1325,17 +1254,20 @@ export class Terminal {
   /**
    * Subscription snapshot of the same host
    */
-  subscriptionSnapshot$ = defer(() =>
-    this.queryDataRecords<ISubscriptionRelation>({
-      type: 'subscription_relation',
-      tags: { provider_terminal_id: this.terminalInfo.terminal_id },
-    }),
-  ).pipe(
-    //
-    map((x) => x.origin),
+  subscriptionSnapshot$ = this.terminalInfos$.pipe(
+    mergeMap((x) => x),
+    mergeMap((terminalInfo) =>
+      from(terminalInfo.subscriptions?.[this.terminalInfo.terminal_id] ?? []).pipe(
+        map(
+          (channel_id): ISubscriptionRelation => ({
+            provider_terminal_id: this.terminalInfo.terminal_id,
+            consumer_terminal_id: terminalInfo.terminal_id,
+            channel_id,
+          }),
+        ),
+      ),
+    ),
     toArray(),
-    retry({ delay: 30000 }),
-    repeat({ delay: 5000 }),
     shareReplay(1),
   );
 
@@ -1528,20 +1460,4 @@ const mapProductToDataRecord = (product: IProduct): IDataRecord<IProduct> => ({
     ...(product.quoted_currency ? { quoted_currency: product.quoted_currency } : {}),
   },
   origin: product,
-});
-
-const mapSubscriptionRelationToDataRecord = (
-  origin: ISubscriptionRelation,
-): IDataRecord<ISubscriptionRelation> => ({
-  id: `${origin.channel_id}/${origin.provider_terminal_id}/${origin.consumer_terminal_id}`,
-  type: 'subscription_relation',
-  created_at: null,
-  updated_at: Date.now(),
-  frozen_at: null,
-  tags: {
-    channel_id: origin.channel_id,
-    provider_terminal_id: origin.provider_terminal_id,
-    consumer_terminal_id: origin.consumer_terminal_id,
-  },
-  origin,
 });

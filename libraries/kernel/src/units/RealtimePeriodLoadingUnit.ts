@@ -1,5 +1,5 @@
 import { encodePath, formatTime } from '@yuants/data-model';
-import { IDataRecord, IPeriod, ISubscriptionRelation, Terminal } from '@yuants/protocol';
+import { IPeriod, Terminal } from '@yuants/protocol';
 import {
   Subscription,
   defer,
@@ -20,22 +20,6 @@ import { Kernel } from '../kernel';
 import { BasicUnit } from './BasicUnit';
 import { PeriodDataUnit } from './PeriodDataUnit';
 import { ProductDataUnit } from './ProductDataUnit';
-
-const mapSubscriptionRelationToDataRecord = (
-  origin: ISubscriptionRelation,
-): IDataRecord<ISubscriptionRelation> => ({
-  id: `${origin.channel_id}/${origin.provider_terminal_id}/${origin.consumer_terminal_id}`,
-  type: 'subscription_relation',
-  created_at: null,
-  updated_at: Date.now(),
-  frozen_at: null,
-  tags: {
-    channel_id: origin.channel_id,
-    provider_terminal_id: origin.provider_terminal_id,
-    consumer_terminal_id: origin.consumer_terminal_id,
-  },
-  origin,
-});
 
 const mapPeriodInSecToCronPattern: Record<string, string> = {
   60: '* * * * *',
@@ -168,34 +152,15 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
             mergeMap((terminal) =>
               from(terminal.services || []).pipe(
                 filter((service) => service.datasource_id === datasource_id),
-                tap((service) => {
+                tap(() => {
+                  const channel_id = encodePath('Period', datasource_id, product_id, period_in_sec);
+                  this.terminal.subscribeChannel(terminal.terminal_id, channel_id);
                   console.info(
                     formatTime(Date.now()),
-                    '更新订阅关系',
-                    JSON.stringify({
-                      channel_id: encodePath('Period', datasource_id, product_id, period_in_sec),
-                      provider_terminal_id: terminal.terminal_id,
-                      consumer_terminal_id: this.terminal.terminalInfo.terminal_id,
-                    }),
+                    'SubscribeChannel',
+                    `channel="${channel_id}"`,
+                    `provider="${terminal.terminal_id}"`,
                   );
-                }),
-                tap(() => {
-                  this.terminal.subscribeChannel(
-                    terminal.terminal_id,
-                    encodePath('Period', datasource_id, product_id, period_in_sec),
-                  );
-                }),
-                mergeMap(() =>
-                  this.terminal.updateDataRecords([
-                    mapSubscriptionRelationToDataRecord({
-                      channel_id: encodePath('Period', datasource_id, product_id, period_in_sec),
-                      provider_terminal_id: terminal.terminal_id,
-                      consumer_terminal_id: this.terminal.terminalInfo.terminal_id,
-                    }),
-                  ]),
-                ),
-                tap(() => {
-                  console.info(formatTime(Date.now()), '订阅关系更新成功');
                 }),
               ),
             ),

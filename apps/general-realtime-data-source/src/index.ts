@@ -1,12 +1,11 @@
-import { encodePath } from '@yuants/data-model';
-import { IDataRecord, IPeriod, ISubscriptionRelation, Terminal } from '@yuants/protocol';
+import { encodePath, formatTime } from '@yuants/data-model';
+import { IPeriod, Terminal } from '@yuants/protocol';
 import Ajv from 'ajv';
 import { JSONSchema7 } from 'json-schema';
 import {
   EMPTY,
   Observable,
   combineLatest,
-  concatWith,
   defer,
   filter,
   first,
@@ -100,22 +99,6 @@ const mapProductIdToGSRList$ = defer(() =>
   shareReplay(1),
 );
 
-const mapSubscriptionRelationToDataRecord = (
-  origin: ISubscriptionRelation,
-): IDataRecord<ISubscriptionRelation> => ({
-  id: `${origin.channel_id}/${origin.provider_terminal_id}/${origin.consumer_terminal_id}`,
-  type: 'subscription_relation',
-  created_at: null,
-  updated_at: Date.now(),
-  frozen_at: null,
-  tags: {
-    channel_id: origin.channel_id,
-    provider_terminal_id: origin.provider_terminal_id,
-    consumer_terminal_id: origin.consumer_terminal_id,
-  },
-  origin,
-});
-
 const subscribePeriods = (product_id: string, period_in_sec: number) => {
   return mapProductIdToGSRList$.pipe(
     first(),
@@ -138,43 +121,19 @@ const subscribePeriods = (product_id: string, period_in_sec: number) => {
               from(terminal.services || []).pipe(
                 filter((service) => service.datasource_id === gsr.specific_datasource_id),
                 tap((service) => {
+                  const channel_id = encodePath(
+                    'Period',
+                    gsr.specific_datasource_id,
+                    product_id,
+                    period_in_sec,
+                  );
+                  term.subscribeChannel(terminal.terminal_id, channel_id);
                   console.info(
-                    new Date(),
-                    `UpdateSubscriptionRelation`,
-                    JSON.stringify({
-                      channel_id: encodePath('Period', gsr.specific_datasource_id, product_id, period_in_sec),
-                      provider_terminal_id: terminal.terminal_id,
-                      consumer_terminal_id: term.terminalInfo.terminal_id,
-                    }),
+                    formatTime(Date.now()),
+                    'SubscribeChannel',
+                    `channel="${channel_id}"`,
+                    `provider="${terminal.terminal_id}"`,
                   );
-                }),
-                tap(() => {
-                  term.subscribeChannel(
-                    terminal.terminal_id,
-                    encodePath('Period', gsr.specific_datasource_id, product_id, period_in_sec),
-                  );
-                }),
-                mergeMap(() =>
-                  term
-                    .updateDataRecords(
-                      [
-                        mapSubscriptionRelationToDataRecord({
-                          channel_id: encodePath(
-                            'Period',
-                            gsr.specific_datasource_id,
-                            product_id,
-                            period_in_sec,
-                          ),
-                          provider_terminal_id: terminal.terminal_id,
-                          consumer_terminal_id: term.terminalInfo.terminal_id,
-                        }),
-                      ],
-                      STORAGE_TERMINAL_ID,
-                    )
-                    .pipe(concatWith(of(0))),
-                ),
-                tap(() => {
-                  console.info(new Date(), `UpdateSubscriptionRelation Success`);
                 }),
               ),
             ),
