@@ -46,6 +46,7 @@ export class AccountInfoUnit extends BasicUnit {
       return accountInfo;
     }
     const newAccountInfo = createEmptyAccountInfo(account_id, currency, leverage, initial_balance);
+    this.mapAccountIdToBalance[account_id] = newAccountInfo.money.balance;
     this.mapAccountIdToAccountInfo.set(account_id, newAccountInfo);
     return newAccountInfo;
   }

@@ -1,4 +1,4 @@
-import { UUID, formatTime } from '@yuants/data-model';
+import { UUID, formatTime, getProfit } from '@yuants/data-model';
 import {
   AccountInfoUnit,
   BasicUnit,
@@ -11,6 +11,7 @@ import {
   SeriesDataUnit,
 } from '@yuants/kernel';
 import { OrderDirection, OrderType, PositionVariant } from '@yuants/protocol';
+import { roundToStep } from '@yuants/utils';
 import { JSONSchema7 } from 'json-schema';
 import {
   useAccountInfo,
@@ -161,6 +162,8 @@ function makeScriptRunner(script: string): () => any {
     useSeries,
     useState,
     formatTime,
+    roundToStep,
+    getProfit,
     UUID,
   };
 
