@@ -76,7 +76,7 @@ export default () => {
 7. Well done! We have run our first agent.
 
 :::info
-You can find more details about the agent in the [Agent Guide](/docs/agent-guide) section.
+You can find more details about the agent in the [Guide - Agent](/docs/category/guide---agent) section.
 :::
 
 ## Implement the strategy
