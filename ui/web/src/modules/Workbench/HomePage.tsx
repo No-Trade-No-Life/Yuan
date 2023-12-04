@@ -23,11 +23,22 @@ export const HomePage = React.memo(() => {
       <Space vertical align="start" style={{ width: '100%' }}>
         <Typography.Title>Yuan</Typography.Title>
         <Typography.Title heading={2} type="tertiary">
-          The investment OS for everyone.
+          {t('common:slogan')}
         </Typography.Title>
       </Space>
       <Space vertical align="start" style={{ marginTop: '3em' }}>
         <Typography.Title heading={3}>Go</Typography.Title>
+        <Typography.Text
+          icon={<SmartOptimization theme="outline" size="16" />}
+          strong
+          link={{
+            onClick: () => {
+              executeCommand('Copilot');
+            },
+          }}
+        >
+          Yuan Copilot
+        </Typography.Text>
         {!!window['showDirectoryPicker'] && (
           <Typography.Text
             icon={<IconFolderOpen />}
@@ -38,7 +49,7 @@ export const HomePage = React.memo(() => {
               },
             }}
           >
-            Open Workspace...
+            {t('HomePage:open_workspace')}
           </Typography.Text>
         )}
 
@@ -51,19 +62,9 @@ export const HomePage = React.memo(() => {
             },
           }}
         >
-          Connect Host...
+          {t('HomePage:connect_host')}
         </Typography.Text>
-        <Typography.Text
-          icon={<SmartOptimization theme="outline" size="16" />}
-          strong
-          link={{
-            onClick: () => {
-              executeCommand('Copilot');
-            },
-          }}
-        >
-          Yuan Copilot
-        </Typography.Text>
+
         <Typography.Text
           icon={<Book theme="outline" size="16" />}
           strong
@@ -73,7 +74,7 @@ export const HomePage = React.memo(() => {
             },
           }}
         >
-          Documentation
+          {t('HomePage:documentation')}
         </Typography.Text>
         <Typography.Text
           icon={<Github theme="outline" size="16" />}

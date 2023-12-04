@@ -2,9 +2,9 @@ import { IconTick, IconWrench } from '@douyinfe/semi-icons';
 import { Button, Card, Space, Toast, Typography } from '@douyinfe/semi-ui';
 import { IAgentConf } from '@yuants/agent';
 import Ajv from 'ajv';
-import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { AccountFrameUnit } from '../../AccountInfo/AccountFrameUnit';
 import { accountFrameSeries$, accountPerformance$ } from '../../AccountInfo/model';
 import { executeCommand } from '../../CommandCenter';
@@ -22,13 +22,14 @@ export default ({
   bundled_code: string;
   schema: JSONSchema7;
 }>) => {
+  const { t } = useTranslation('Copilot');
   const [formData, setFormData] = useState(undefined);
   return (
     <Card
       style={{ width: '100%', flexShrink: 0 }}
       title={
         <Space>
-          <IconWrench /> <Typography.Text strong>Agent Configuration</Typography.Text>
+          <IconWrench /> <Typography.Text strong>{t('Copilot:AgentConfigForm:title')}</Typography.Text>
         </Space>
       }
       actions={[
@@ -76,7 +77,7 @@ export default ({
             gtag('event', 'agent_run_complete');
           }}
         >
-          Run
+          {t('Copilot:AgentConfigForm:run')}
         </Button>,
       ]}
     >
