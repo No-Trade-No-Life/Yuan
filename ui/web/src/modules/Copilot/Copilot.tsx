@@ -133,7 +133,7 @@ registerPage('Copilot', () => {
             <Empty image={<img src={'/yuan.svg'} width={128} height={128}></img>}></Empty>
             <Typography.Title>Yuan Copilot</Typography.Title>
             <Typography.Title heading={2} type="tertiary">
-              {t('common:slogan')}
+              {t('Copilot:slogan')}
             </Typography.Title>
             <Space align="start" style={{ width: '80%', marginTop: '2em' }}>
               <TextArea

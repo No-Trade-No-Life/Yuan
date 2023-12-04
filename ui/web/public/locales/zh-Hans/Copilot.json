@@ -27,6 +27,7 @@
   "prompt_example_3": "当价格高于布林线上轨时，做多",
   "prompt_example_4": "搞个 RSI + BOLL 的策略",
   "send": "发送",
+  "slogan": "量化交易人工智能助手",
   "stop": "中止",
   "system_error": "系统错误",
   "thinking": "Copilot: 思考中",
