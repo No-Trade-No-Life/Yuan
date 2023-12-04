@@ -1,10 +1,12 @@
-import { Checkbox, Input, InputNumber, Radio, RadioGroup } from '@douyinfe/semi-ui';
+import { Checkbox, Input, InputNumber } from '@douyinfe/semi-ui';
 import { FormContextType, RJSFSchema, StrictRJSFSchema, WidgetProps } from '@rjsf/utils';
+import { useTranslation } from 'react-i18next';
 import { OHLCSelectWidget } from './OHLCSelectWidget';
 
 export function TextWidget<T = any, S extends StrictRJSFSchema = RJSFSchema, F extends FormContextType = any>(
   props: WidgetProps<T, S, F>,
 ) {
+  const { t } = useTranslation();
   if (props.schema.format === 'OHLC-key') {
     return <OHLCSelectWidget {...props} />;
   }
@@ -33,7 +35,7 @@ export function TextWidget<T = any, S extends StrictRJSFSchema = RJSFSchema, F e
             }
           }}
         >
-          Other
+          {t('common:other')}
         </Checkbox>
         <Input
           type="text"

@@ -1,4 +1,7 @@
 {
+  "connect_host": "连接主机...",
+  "documentation": "官方文档",
   "guide": "假设此处有一些向导",
+  "open_workspace": "打开工作区...",
   "welcome": "欢迎回来"
 }

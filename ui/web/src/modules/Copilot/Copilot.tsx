@@ -1,21 +1,17 @@
-import { IconClear, IconSend, IconUser } from '@douyinfe/semi-icons';
+import { IconClear, IconFolderOpen, IconLink, IconSend } from '@douyinfe/semi-icons';
 import { Button, Card, Empty, Space, TextArea, Toast, Typography } from '@douyinfe/semi-ui';
-import { t } from 'i18next';
+import { Book, Github } from '@icon-park/react';
 import { useObservableState } from 'observable-hooks';
 import React, { useEffect, useMemo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { BehaviorSubject, EMPTY, Subject, catchError, defer, raceWith, tap, timeout } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
+import { region$ } from '../Locale/utils';
 import { registerPage } from '../Pages';
 import { authState$ } from '../SupaBase';
 import { IChatMessage, IMessageCardProps } from './model';
 
 const mapMessageTypeToComponent: Record<string, React.ComponentType<IMessageCardProps<any>>> = {};
-
-const emptyHints = [
-  //
-  'Show me a double moving average strategy',
-  'Write a BOLL trading model',
-];
 
 export function registerCopilotMessageBlock<P extends {}>(
   type: string,
@@ -30,6 +26,18 @@ registerPage('Copilot', () => {
   const [userInput, setUserInput] = useState('');
   const [isLoading, setLoading] = useState(false);
   const authState = useObservableState(authState$);
+  const { t } = useTranslation('Copilot');
+
+  const examples = useMemo(
+    () => [
+      //
+      t('Copilot:prompt_example_1'),
+      t('Copilot:prompt_example_2'),
+      t('Copilot:prompt_example_3'),
+      t('Copilot:prompt_example_4'),
+    ],
+    [t],
+  );
 
   const messages$ = useMemo(
     () =>
@@ -42,6 +50,8 @@ registerPage('Copilot', () => {
   const messages = useObservableState(messages$);
 
   const stop$ = useMemo(() => new Subject<void>(), []);
+
+  const region = useObservableState(region$);
 
   const sendCurrentMessages = () => {
     defer(async () => {
@@ -93,6 +103,7 @@ registerPage('Copilot', () => {
       executeCommand('Login');
       return;
     }
+    gtag('event', 'copilot_push_message_200');
     const theUserInput = userInput;
     messages$.next(messages$.value.concat([{ type: 'UserText', payload: { text: theUserInput } }]));
     setUserInput('');
@@ -121,6 +132,9 @@ registerPage('Copilot', () => {
           <Space vertical style={{ width: '100%', height: '100%', justifyContent: 'center' }}>
             <Empty image={<img src={'/yuan.svg'} width={128} height={128}></img>}></Empty>
             <Typography.Title>Yuan Copilot</Typography.Title>
+            <Typography.Title heading={2} type="tertiary">
+              {t('common:slogan')}
+            </Typography.Title>
             <Space align="start" style={{ width: '80%', marginTop: '2em' }}>
               <TextArea
                 value={userInput}
@@ -130,7 +144,7 @@ registerPage('Copilot', () => {
                 autosize
                 rows={1}
                 style={{ flexGrow: 1 }}
-                placeholder={'Ctrl + Enter to send'}
+                placeholder={t('Copilot:input_placeholder')}
                 onKeyDown={(e) => {
                   if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                     handleSend();
@@ -138,15 +152,16 @@ registerPage('Copilot', () => {
                 }}
               />
               <Button disabled={!userInput} icon={<IconSend />} loading={isLoading} onClick={handleSend}>
-                Send
+                {t('Copilot:send')}
               </Button>
             </Space>
-            <Typography.Text style={{ marginTop: '2em' }}>Try asking</Typography.Text>
-            <Space style={{ width: '60%', flexWrap: 'wrap' }}>
-              {emptyHints.map((hint) => (
+            <Typography.Text style={{ marginTop: '2em' }}>{t('Copilot:try_asking')}</Typography.Text>
+            <Space style={{ flexWrap: 'wrap' }}>
+              {examples.map((hint) => (
                 <Typography.Text
                   size="small"
                   style={{ cursor: 'pointer' }}
+                  link={{}}
                   onClick={() => {
                     setUserInput(hint);
                   }}
@@ -154,6 +169,58 @@ registerPage('Copilot', () => {
                   {hint}
                 </Typography.Text>
               ))}
+            </Space>
+
+            <Typography.Text style={{ marginTop: '2em' }}>{t('Copilot:extra_action')}</Typography.Text>
+            <Space style={{ flexWrap: 'wrap' }}>
+              {!!window['showDirectoryPicker'] && (
+                <Typography.Text
+                  icon={<IconFolderOpen />}
+                  strong
+                  link={{
+                    onClick: () => {
+                      executeCommand('workspace.open');
+                    },
+                  }}
+                >
+                  {t('Copilot:open_workspace')}
+                </Typography.Text>
+              )}
+
+              <Typography.Text
+                icon={<IconLink />}
+                strong
+                link={{
+                  onClick: () => {
+                    executeCommand('HostList');
+                  },
+                }}
+              >
+                {t('Copilot:connect_host')}
+              </Typography.Text>
+
+              <Typography.Text
+                icon={<Book theme="outline" size="16" />}
+                strong
+                link={{
+                  onClick: () => {
+                    executeCommand('Help');
+                  },
+                }}
+              >
+                {t('Copilot:documentation')}
+              </Typography.Text>
+              <Typography.Text
+                icon={<Github theme="outline" size="16" />}
+                strong
+                link={{
+                  onClick: () => {
+                    executeCommand('OpenSource');
+                  },
+                }}
+              >
+                GitHub
+              </Typography.Text>
             </Space>
           </Space>
         )}
@@ -178,7 +245,7 @@ registerPage('Copilot', () => {
           });
         })}
         {isLoading && (
-          <Card title={'Copilot: Thinking'} style={{ width: '100%', height: 200, flexShrink: 0 }} loading>
+          <Card title={t('Copilot:thinking')} style={{ width: '100%', height: 200, flexShrink: 0 }} loading>
             Loading
           </Card>
         )}
@@ -197,7 +264,7 @@ registerPage('Copilot', () => {
             autosize
             rows={1}
             style={{ flexGrow: 1 }}
-            placeholder={'Ctrl + Enter to send'}
+            placeholder={t('Copilot:input_placeholder')}
             onKeyDown={(e) => {
               if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                 handleSend();
@@ -206,7 +273,7 @@ registerPage('Copilot', () => {
           />
           {!isLoading && (
             <Button disabled={!userInput} icon={<IconSend />} loading={isLoading} onClick={handleSend}>
-              Send
+              {t('Copilot:send')}
             </Button>
           )}
 
@@ -218,7 +285,7 @@ registerPage('Copilot', () => {
                 stop$.next();
               }}
             >
-              Stop
+              {t('Copilot:stop')}
             </Button>
           )}
           {!isLoading && messages.length > 0 && (
@@ -229,7 +296,7 @@ registerPage('Copilot', () => {
                 messages$.next([]);
               }}
             >
-              Clear
+              {t('Copilot:clear')}
             </Button>
           )}
         </Space>

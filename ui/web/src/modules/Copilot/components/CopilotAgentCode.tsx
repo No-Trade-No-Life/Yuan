@@ -1,12 +1,12 @@
 import { IconCode, IconSave, IconTick } from '@douyinfe/semi-icons';
 import { Button, Card, Space, Toast, Typography } from '@douyinfe/semi-ui';
+import { format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 import { bundleCodeFromInMemoryCode } from '../../Agent/utils';
 import { MonacoEditor } from '../../Editor/Monaco';
+import { fs } from '../../FileSystem/api';
 import { LocalAgentScene } from '../../StaticFileServerStorage/LocalAgentScene';
 import { IMessageCardProps } from '../model';
-import { format } from 'date-fns';
-import { fs } from '../../FileSystem/api';
-import { t } from 'i18next';
 
 export default ({
   sendMessages,
@@ -16,11 +16,12 @@ export default ({
   code: string;
   remark: string;
 }>) => {
+  const { t } = useTranslation();
   return (
     <Card
       title={
         <Space>
-          <IconCode /> <Typography.Text strong>Agent Code</Typography.Text>
+          <IconCode /> <Typography.Text strong>{t('Copilot:CopilotAgentCode:title')}</Typography.Text>
         </Space>
       }
       style={{ width: '100%', flexShrink: 0 }}
@@ -43,7 +44,7 @@ export default ({
             }
           }}
         >
-          OK, test it!
+          {t('Copilot:CopilotAgentCode:code_complete')}
         </Button>,
         <Button
           icon={<IconSave />}
@@ -56,7 +57,7 @@ export default ({
             gtag('event', 'copilot_agent_code_saved');
           }}
         >
-          Save to my workspace
+          {t('Copilot:CopilotAgentCode:save_code')}
         </Button>,
       ]}
     >

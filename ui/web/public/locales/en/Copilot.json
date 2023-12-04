@@ -1,0 +1,34 @@
+{
+  "AgentConfigForm": {
+    "run": "Run",
+    "title": "Agent Configuration"
+  },
+  "CopilotAgentCode": {
+    "code_complete": "OK, test it!",
+    "save_code": "Save to my workspace",
+    "title": "Agent Code"
+  },
+  "CopilotForm": {
+    "skip": "Not sure. Skip",
+    "submit": "Submit",
+    "title": "Copilot: Require more context"
+  },
+  "CopilotText": {
+    "title": "Copilot: Message"
+  },
+  "clear": "Clear",
+  "connect_host": "Connect Host...",
+  "documentation": "Documentation",
+  "extra_action": "Or you might need",
+  "input_placeholder": "Ctrl + Enter to send",
+  "open_workspace": "Open Workspace...",
+  "prompt_example_1": "Show me a double moving average strategy",
+  "prompt_example_2": "Write a BOLL trading model",
+  "prompt_example_3": "When price > Boll upper, open the long position",
+  "prompt_example_4": "Make a RSI + BOLL strategy",
+  "send": "Send",
+  "stop": "Stop",
+  "system_error": "System Error",
+  "thinking": "Copilot: Thinking",
+  "try_asking": "Try asking"
+}

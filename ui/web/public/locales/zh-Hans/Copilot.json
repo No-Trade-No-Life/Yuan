@@ -1,0 +1,34 @@
+{
+  "AgentConfigForm": {
+    "run": "运行",
+    "title": "模型运行配置"
+  },
+  "CopilotAgentCode": {
+    "code_complete": "没问题，开始测试！",
+    "save_code": "保存到工作区",
+    "title": "模型代码"
+  },
+  "CopilotForm": {
+    "skip": "我不确定，先跳过。",
+    "submit": "确定提交",
+    "title": "Copilot: 需要更多上下文"
+  },
+  "CopilotText": {
+    "title": "Copilot 消息"
+  },
+  "clear": "清空",
+  "connect_host": "连接主机...",
+  "documentation": "官方文档",
+  "extra_action": "或者您需要",
+  "input_placeholder": "按 Ctrl + Enter 发送",
+  "open_workspace": "打开工作区...",
+  "prompt_example_1": "给我来个双均线策略",
+  "prompt_example_2": "写一个布林线交易模型",
+  "prompt_example_3": "当价格高于布林线上轨时，做多",
+  "prompt_example_4": "搞个 RSI + BOLL 的策略",
+  "send": "发送",
+  "stop": "中止",
+  "system_error": "系统错误",
+  "thinking": "Copilot: 思考中",
+  "try_asking": "尝试输入"
+}
