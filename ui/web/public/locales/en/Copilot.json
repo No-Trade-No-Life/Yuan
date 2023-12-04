@@ -27,6 +27,7 @@
   "prompt_example_3": "When price > Boll upper, open the long position",
   "prompt_example_4": "Make a RSI + BOLL strategy",
   "send": "Send",
+  "slogan": "Quant Trading AI Assistant",
   "stop": "Stop",
   "system_error": "System Error",
   "thinking": "Copilot: Thinking",
