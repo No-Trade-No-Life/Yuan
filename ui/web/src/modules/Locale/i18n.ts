@@ -11,7 +11,11 @@ i18n
     // resources,
     debug: true,
 
-    fallbackLng: 'en',
+    fallbackLng: {
+      'zh-CN': ['zh-Hans', 'en'],
+      'zh-Hant': ['zh-Hans', 'en'],
+      default: ['en'],
+    },
     defaultNS: 'common',
 
     detection: {

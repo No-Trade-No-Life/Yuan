@@ -1,4 +1,7 @@
 {
+  "connect_host": "Connect Host...",
+  "documentation": "Documentation",
   "guide": "Guide TBD",
+  "open_workspace": "Open Workspace...",
   "welcome": "Welcome"
 }

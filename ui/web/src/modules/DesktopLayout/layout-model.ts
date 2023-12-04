@@ -59,7 +59,21 @@ const initialJson = (): FlexLayout.IJsonModel => ({
   layout: {
     type: 'row',
     weight: 100,
-    children: [],
+    children: [
+      {
+        type: 'tabset',
+        children: [
+          {
+            type: 'tab',
+            id: '{"pageKey":"Copilot","params":{}}',
+            component: 'Copilot',
+            config: {},
+            enableRename: false,
+          },
+        ],
+        active: true,
+      },
+    ],
   },
 });
 

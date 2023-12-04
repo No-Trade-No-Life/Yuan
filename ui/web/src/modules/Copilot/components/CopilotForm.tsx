@@ -2,6 +2,7 @@ import { IconFastForward, IconHelpCircle, IconTick } from '@douyinfe/semi-icons'
 import { Button, Card, Space, Typography } from '@douyinfe/semi-ui';
 import { JSONSchema7 } from 'json-schema';
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import Form from '../../Form';
 import { IMessageCardProps } from '../model';
 
@@ -12,13 +13,14 @@ export default ({
   id: string;
   schema: JSONSchema7;
 }>) => {
+  const { t } = useTranslation('Copilot');
   const [formData, setFormData] = useState(undefined);
   return (
     <Card
       style={{ width: '100%', flexShrink: 0 }}
       title={
         <Space>
-          <IconHelpCircle /> <Typography.Text strong>Require more context</Typography.Text>
+          <IconHelpCircle /> <Typography.Text strong>{t('Copilot:CopilotForm:title')}</Typography.Text>
         </Space>
       }
       actions={[
@@ -30,7 +32,7 @@ export default ({
             sendMessages([{ type: 'UserFormInput', payload: { id: payload.id, answer: formData } }]);
           }}
         >
-          Submit
+          {t('Copilot:CopilotForm:submit')}
         </Button>,
         <Button
           icon={<IconFastForward />}
@@ -38,7 +40,7 @@ export default ({
             sendMessages([{ type: 'UserFormInput', payload: { id: payload.id, answer: undefined } }]);
           }}
         >
-          Not sure. Skip
+          {t('Copilot:CopilotForm:skip')}
         </Button>,
       ]}
     >
