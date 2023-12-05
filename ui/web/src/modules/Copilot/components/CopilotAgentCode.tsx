@@ -3,6 +3,7 @@ import { Button, Card, Space, Toast, Typography } from '@douyinfe/semi-ui';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import { bundleCodeFromInMemoryCode } from '../../Agent/utils';
+import { executeCommand } from '../../CommandCenter';
 import { MonacoEditor } from '../../Editor/Monaco';
 import { fs } from '../../FileSystem/api';
 import { LocalAgentScene } from '../../StaticFileServerStorage/LocalAgentScene';
@@ -31,6 +32,7 @@ export default ({
           icon={<IconTick />}
           onClick={async () => {
             try {
+              await executeCommand('workspace.import_examples');
               const bundled_code = await bundleCodeFromInMemoryCode(payload.code);
               const scene = await LocalAgentScene({ bundled_code });
               const schema = scene.agentUnit.paramsSchema;
