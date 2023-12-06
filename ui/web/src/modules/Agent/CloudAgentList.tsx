@@ -145,6 +145,7 @@ registerCommand('Agent.DeployToCloud', async ({ agentConf }: { agentConf: IAgent
     Toast.error(`${t('common:failed')}: ${res.error.code} ${res.error.message}`);
     return;
   }
+  gtag('event', 'agent_deploy_complete');
   Toast.success(`${t('common:succeed')}: ${agentConf.kernel_id}`);
   executeCommand('CloudAgentList');
 });
