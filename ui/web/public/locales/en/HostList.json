@@ -1,4 +1,5 @@
 {
+  "No_Host": "No Host",
   "add_dedicated_host": "Add dedicated host",
   "add_host": "New",
   "add_to_list": "Add to host list",
@@ -15,7 +16,6 @@
   "host_url_note": "Please ask your hosting administrator",
   "link_copied": "Link copied",
   "new_shared_host": "Create shared host",
-  "No_Host": "No Host",
   "not_configured": "Not Configured",
   "offline": "Offline",
   "online": "Online",

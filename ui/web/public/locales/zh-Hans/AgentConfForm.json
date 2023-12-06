@@ -4,6 +4,7 @@
   "bundle_succeed": "打包 {{ source }} 到 {{ target }} 成功",
   "cloud_deploy": "部署到云",
   "config_invalid": "模型配置参数校验失败",
+  "input_kernel_id": "模型ID",
   "load_config": "载入配置",
   "load_config_failed": "加载 {{ filename }} 失败: {{ message }}",
   "load_config_filename_prompt": "请输入配置文件路径",
@@ -78,5 +79,6 @@
   "save_config_failed": "保存 {{ filename }} 失败",
   "save_config_filename_prompt": "请输入保存配置的路径",
   "save_config_succeed": "保存 {{ filename }} 成功",
+  "select_host": "将模型部署到哪个主机上？",
   "view_source": "查看源代码"
 }

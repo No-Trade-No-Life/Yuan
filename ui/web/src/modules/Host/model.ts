@@ -14,10 +14,12 @@ export const shareHosts$ = defer(async () => {
     name: string;
     host_token: string;
   }> = res.data || [];
-  return data;
+  return data.map((item) => ({
+    ...item,
+    host_url: `wss://api.ntnl.io/hosts?host_id=${item.id}&host_token=${item.host_token}`,
+  }));
 }).pipe(
   //
-
   repeat({ delay: () => refreshAction$ }),
   shareReplay(1),
 );

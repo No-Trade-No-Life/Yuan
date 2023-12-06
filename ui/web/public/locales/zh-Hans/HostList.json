@@ -1,4 +1,5 @@
 {
+  "No_Host": "无主机模式",
   "add_dedicated_host": "添加专用主机",
   "add_host": "新增",
   "add_to_list": "添加到主机列表",
@@ -15,7 +16,6 @@
   "host_url_note": "请询问您的主机管理员",
   "link_copied": "已复制链接",
   "new_shared_host": "创建共享型主机",
-  "No_Host": "无主机模式",
   "not_configured": "未配置",
   "offline": "离线",
   "online": "在线",
