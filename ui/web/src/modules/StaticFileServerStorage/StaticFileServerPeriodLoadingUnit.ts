@@ -70,7 +70,9 @@ export class StaticFileServerPeriodLoadingUnit extends BasicUnit {
     );
     for (const task of this.periodTasks) {
       if (!this.productDataUnit.mapProductIdToProduct[task.product_id]) {
-        this.productDataUnit.mapProductIdToProduct[task.product_id] = {
+        this.productDataUnit.mapProductIdToProduct[task.product_id] = mapProductIdToProduct[
+          task.product_id
+        ] || {
           datasource_id: task.datasource_id,
           product_id: task.product_id,
           base_currency: 'YYY',
