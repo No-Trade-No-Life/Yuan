@@ -68,12 +68,22 @@ export class StaticFileServerPeriodLoadingUnit extends BasicUnit {
         )
         .map((v: IProduct) => [v.product_id, v]),
     );
-    this.productDataUnit.mapProductIdToProduct = mapProductIdToProduct;
+    for (const task of this.periodTasks) {
+      if (!this.productDataUnit.mapProductIdToProduct[task.product_id]) {
+        this.productDataUnit.mapProductIdToProduct[task.product_id] = mapProductIdToProduct[
+          task.product_id
+        ] || {
+          datasource_id: task.datasource_id,
+          product_id: task.product_id,
+          base_currency: 'YYY',
+        };
+      }
+    }
     for (const task of this.periodTasks) {
       const dirPath = `OHLC/${task.product_id}/${mapPeriodToDuration[task.period_in_sec]}`;
       const files = storageIndex.filter((path) => path.startsWith(dirPath));
-      const theProduct = mapProductIdToProduct[task.product_id];
-      if (files.length === 0 || !theProduct) {
+      const theProduct = this.productDataUnit.mapProductIdToProduct[task.product_id];
+      if (files.length === 0) {
         this.kernel.log?.(
           `${formatTime(Date.now())} 未找到 "${task.product_id}" / "${task.period_in_sec}" 的历史数据`,
         );
