@@ -1,5 +1,5 @@
 import { IconClear, IconFolderOpen, IconLink, IconSend } from '@douyinfe/semi-icons';
-import { Button, Card, Empty, Space, TextArea, Toast, Typography } from '@douyinfe/semi-ui';
+import { Button, Card, Empty, Space, TextArea, Typography } from '@douyinfe/semi-ui';
 import { Book, Github } from '@icon-park/react';
 import { useObservableState } from 'observable-hooks';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -9,6 +9,7 @@ import { executeCommand } from '../CommandCenter';
 import { region$ } from '../Locale/utils';
 import { registerPage } from '../Pages';
 import { authState$ } from '../SupaBase';
+import { ensureAuthenticated } from '../User';
 import { IChatMessage, IMessageCardProps } from './model';
 
 const mapMessageTypeToComponent: Record<string, React.ComponentType<IMessageCardProps<any>>> = {};
@@ -99,10 +100,8 @@ registerPage('Copilot', () => {
     gtag('event', 'copilot_push_message');
     if (!authState) {
       gtag('event', 'copilot_push_message_401');
-      Toast.info(t('common:need_login'));
-      executeCommand('Login');
-      return;
     }
+    await ensureAuthenticated();
     gtag('event', 'copilot_push_message_200');
     const theUserInput = userInput;
     messages$.next(messages$.value.concat([{ type: 'UserText', payload: { text: theUserInput } }]));

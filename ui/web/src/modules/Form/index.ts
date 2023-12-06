@@ -95,6 +95,7 @@ export const showForm = <T>(schema: JSONSchema7, initialData?: any): Promise<T> 
         },
         okText: t('common:submit'),
         cancelText: t('common:cancel'),
+        style: { width: '80%', maxWidth: 800 },
       };
     }
     modal = Modal.info(getProps());

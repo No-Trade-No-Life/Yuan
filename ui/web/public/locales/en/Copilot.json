@@ -16,6 +16,10 @@
   "CopilotText": {
     "title": "Copilot: Message"
   },
+  "SystemBacktestResult": {
+    "deploy": "Deploy",
+    "title": "Backtest Result"
+  },
   "clear": "Clear",
   "connect_host": "Connect Host...",
   "documentation": "Documentation",
