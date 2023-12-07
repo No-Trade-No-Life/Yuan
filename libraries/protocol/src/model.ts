@@ -851,7 +851,7 @@ export interface ITerminalInfo {
    * Can be duplicated, readable by humans
    * 可重复, 人类可读
    */
-  name: string;
+  name?: string;
 
   /**
    * List of service metadata provided by the terminal
@@ -863,7 +863,7 @@ export interface ITerminalInfo {
    * Service information provided by the terminal
    * 终端提供的服务信息
    */
-  serviceInfo: Record<
+  serviceInfo?: Record<
     string,
     {
       /**
@@ -878,6 +878,9 @@ export interface ITerminalInfo {
       schema: JSONSchema7;
     }
   >;
+
+  /** Provider Channel ID Schema */
+  channelIdSchemas?: JSONSchema7[];
 
   /**
    * If client terminal wants to send a request to a server terminal, it needs to know the server terminal id.
