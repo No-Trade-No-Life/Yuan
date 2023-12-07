@@ -7,11 +7,12 @@ import { JSONSchema7 } from 'json-schema';
 import {
   EMPTY,
   Observable,
+  Subject,
+  Subscription,
   catchError,
   defaultIfEmpty,
   defer,
   distinctUntilChanged,
-  expand,
   filter,
   first,
   from,
@@ -20,7 +21,6 @@ import {
   of,
   repeat,
   retry,
-  switchMap,
   tap,
   timer,
   toArray,
@@ -40,7 +40,7 @@ interface IPullSourceRelation {
   replay_count?: number;
 }
 
-interface ITask extends IPullSourceRelation {
+interface ITask {
   /**
    * State of the task
    * - `running`: task is running
@@ -54,7 +54,7 @@ interface ITask extends IPullSourceRelation {
    * each time it will wait for a certain amount of time before retrying,
    * this wait time is increased linearly until it reaches 5min
    */
-  current_backOff_time: number;
+  current_back_off_time: number;
 }
 
 const MetricPullSourceBucket = PromRegistry.create(
@@ -106,7 +106,6 @@ const schema: JSONSchema7 = {
   },
 };
 const ajv = new Ajv();
-const validate = ajv.compile(schema);
 
 const HV_URL = process.env.HV_URL!;
 const STORAGE_TERMINAL_ID = process.env.STORAGE_TERMINAL_ID!;
@@ -118,12 +117,18 @@ const term = new Terminal(HV_URL, {
   status: 'OK',
 });
 
-defer(() =>
-  term.queryDataRecords<IPullSourceRelation>({
-    type: 'pull_source_relation',
-  }),
-)
-  .pipe(
+const listWatchConfigs = <T>(
+  type: string,
+  jsonSchema: JSONSchema7,
+  groupKey: (config: T) => string,
+  filterCondition: (config: T) => boolean = () => true,
+) => {
+  const validate = ajv.compile(jsonSchema);
+  return defer(() =>
+    term.queryDataRecords<T>({
+      type,
+    }),
+  ).pipe(
     //
     mergeMap((dataRecord) => {
       const config = dataRecord.origin;
@@ -131,259 +136,58 @@ defer(() =>
         console.error(
           formatTime(Date.now()),
           `InvalidConfig`,
-          `${config.datasource_id}:${config.product_id}:${config.period_in_sec}: ${ajv.errorsText(
-            validate.errors,
-          )}`,
+          `${JSON.stringify(config)}: ${ajv.errorsText(validate.errors)}`,
         );
         return EMPTY;
       }
       return of(config);
     }),
-    filter((v) => !v.disabled),
+    filter(filterCondition),
     toArray(),
     retry({ delay: 5_000 }),
     // ISSUE: to enlighten Storage Workload
     repeat({ delay: 30_000 }),
-    batchGroupBy((config) => `${config.datasource_id}:${config.product_id}:${config.period_in_sec}`),
-    mergeMap((group) =>
-      group.pipe(
+    batchGroupBy(groupKey),
+    map((group): Observable<T> & { key: string } => {
+      const filtered = group.pipe(
         //
         distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
         tap((config) => {
           console.info(formatTime(Date.now()), `DetectConfigurationChange: ${JSON.stringify(config)}`);
         }),
+      );
+      return Object.assign(filtered, { key: group.key });
+    }),
+  );
+};
+
+const config$ = listWatchConfigs(
+  'pull_source_relation',
+  schema,
+  (config: IPullSourceRelation) => `${config.datasource_id}:${config.product_id}:${config.period_in_sec}`,
+  (config) => !config.disabled,
+);
+
+const configEvent$ = new Subject<{
+  psr: IPullSourceRelation;
+  event: 'upsert' | 'delete';
+}>();
+
+config$
+  .pipe(
+    //
+    mergeMap((group) =>
+      group.pipe(
+        //
         switchMapWithComplete((task) =>
-          new Observable<ITask>((subscriber) => {
-            const job = new CronJob.CronJob({
-              cronTime: task.cron_pattern,
-              onTick: () => {
-                subscriber.next({ ...task, state: 'running', current_backOff_time: 0 });
-              },
-              start: true,
-              timeZone: task.cron_timezone,
-              // runOnInit: true,
-            });
-            return () => job.stop();
-          }).pipe(
-            //
-            tap({
-              unsubscribe: () => {
-                console.info(formatTime(Date.now()), `StopSyncing: ${JSON.stringify(task)}`);
-                MetricCronjobStatus.set(0, {
-                  status: 'running',
-                  datasource_id: task.datasource_id,
-                  product_id: task.product_id,
-                  period_in_sec: '' + task.period_in_sec,
-                });
-                MetricCronjobStatus.set(0, {
-                  status: 'error',
-                  datasource_id: task.datasource_id,
-                  product_id: task.product_id,
-                  period_in_sec: '' + task.period_in_sec,
-                });
-                MetricCronjobStatus.set(1, {
-                  status: 'success',
-                  datasource_id: task.datasource_id,
-                  product_id: task.product_id,
-                  period_in_sec: '' + task.period_in_sec,
-                });
-              },
-            }),
+          of(task).pipe(
             tap({
               subscribe: () => {
-                console.info(formatTime(Date.now()), `StartSyncing: ${JSON.stringify(task)}`);
-                MetricCronjobStatus.set(1, {
-                  status: 'running',
-                  datasource_id: task.datasource_id,
-                  product_id: task.product_id,
-                  period_in_sec: '' + task.period_in_sec,
-                });
-                MetricCronjobStatus.set(0, {
-                  status: 'error',
-                  datasource_id: task.datasource_id,
-                  product_id: task.product_id,
-                  period_in_sec: '' + task.period_in_sec,
-                });
-                MetricCronjobStatus.set(0, {
-                  status: 'success',
-                  datasource_id: task.datasource_id,
-                  product_id: task.product_id,
-                  period_in_sec: '' + task.period_in_sec,
-                });
+                configEvent$.next({ psr: task, event: 'upsert' });
               },
-            }),
-          ),
-        ),
-        switchMap((task) =>
-          of(task).pipe(
-            //
-            expand((task) => {
-              if (task.state === 'success') {
-                return EMPTY;
-              } else {
-                return timer(task.current_backOff_time).pipe(
-                  //
-                  tap(() => {
-                    console.info(formatTime(Date.now()), `EvaluateParams, config: ${JSON.stringify(task)}`);
-                    MetricCronjobStatus.set(1, {
-                      status: 'running',
-                      datasource_id: task.datasource_id,
-                      product_id: task.product_id,
-                      period_in_sec: '' + task.period_in_sec,
-                    });
-                    MetricCronjobStatus.set(0, {
-                      status: 'error',
-                      datasource_id: task.datasource_id,
-                      product_id: task.product_id,
-                      period_in_sec: '' + task.period_in_sec,
-                    });
-                    MetricCronjobStatus.set(0, {
-                      status: 'success',
-                      datasource_id: task.datasource_id,
-                      product_id: task.product_id,
-                      period_in_sec: '' + task.period_in_sec,
-                    });
-                  }),
-                  mergeMap(() =>
-                    term
-                      .queryDataRecords<IPeriod>({
-                        type: 'period',
-                        tags: {
-                          datasource_id: task.datasource_id,
-                          product_id: task.product_id,
-                          period_in_sec: '' + task.period_in_sec,
-                        },
-                        options: {
-                          skip: task.replay_count || 0,
-                          sort: [['frozen_at', -1]],
-                          limit: 1,
-                        },
-                      })
-                      .pipe(
-                        //
-                        retry({ delay: 5_000 }),
-                      ),
-                  ),
-                  map((v) => v.frozen_at),
-                  filter((v): v is Exclude<typeof v, null> => !!v),
-                  defaultIfEmpty(0),
-                  first(),
-                  mergeMap((lastTime) => {
-                    // if (Date.now() - lastTime < task.period_in_sec * 1000) {
-                    //   console.info(new Date(), `SkipPullData, last pull time: ${new Date(lastTime)}`);
-                    //   return EMPTY;
-                    // }
-                    let startTime: number;
-                    return defer(() => {
-                      console.info(
-                        formatTime(Date.now()),
-                        `StartsToPullData, last pull time: ${new Date(
-                          lastTime,
-                        )}, range: [${lastTime}, ${Date.now()}]`,
-                        `config: ${JSON.stringify(task)}`,
-                      );
-                      startTime = Date.now();
-                      return term.terminalInfos$.pipe(
-                        //
-                        mergeMap((infos) =>
-                          from(infos).pipe(
-                            //
-                            mergeMap((info) => {
-                              if (
-                                (info.services || []).find(
-                                  (service) => service.datasource_id === task.datasource_id,
-                                )
-                              ) {
-                                return of(info.terminal_id);
-                              }
-                              return EMPTY;
-                            }),
-                          ),
-                        ),
-                        first(),
-                        mergeMap((target_terminal_id) =>
-                          term.copyDataRecords(
-                            {
-                              type: 'period',
-                              tags: {
-                                datasource_id: task.datasource_id,
-                                product_id: task.product_id,
-                                period_in_sec: '' + task.period_in_sec,
-                              },
-                              time_range: [lastTime, Date.now()],
-                              receiver_terminal_id: STORAGE_TERMINAL_ID,
-                            },
-                            target_terminal_id,
-                          ),
-                        ),
-                      );
-                    }).pipe(
-                      //
-                      tap(() => {
-                        console.info(formatTime(Date.now()), `CompletePullData: ${group.key}`);
-                        MetricPullSourceBucket.observe(Date.now() - startTime, {
-                          status: 'success',
-                          datasource_id: task.datasource_id,
-                          product_id: task.product_id,
-                          period_in_sec: '' + task.period_in_sec,
-                        });
-                        MetricCronjobStatus.set(0, {
-                          status: 'running',
-                          datasource_id: task.datasource_id,
-                          product_id: task.product_id,
-                          period_in_sec: '' + task.period_in_sec,
-                        });
-                        MetricCronjobStatus.set(0, {
-                          status: 'error',
-                          datasource_id: task.datasource_id,
-                          product_id: task.product_id,
-                          period_in_sec: '' + task.period_in_sec,
-                        });
-                        MetricCronjobStatus.set(1, {
-                          status: 'success',
-                          datasource_id: task.datasource_id,
-                          product_id: task.product_id,
-                          period_in_sec: '' + task.period_in_sec,
-                        });
-                      }),
-                      map(() => ({ ...task, state: 'success' })),
-                      catchError((err) => {
-                        console.error(formatTime(Date.now()), `Task: ${group.key} Failed`, `${err}`);
-                        MetricPullSourceBucket.observe(Date.now() - startTime, {
-                          status: 'error',
-                          datasource_id: task.datasource_id,
-                          product_id: task.product_id,
-                          period_in_sec: '' + task.period_in_sec,
-                        });
-                        MetricCronjobStatus.set(0, {
-                          status: 'running',
-                          datasource_id: task.datasource_id,
-                          product_id: task.product_id,
-                          period_in_sec: '' + task.period_in_sec,
-                        });
-                        MetricCronjobStatus.set(1, {
-                          status: 'error',
-                          datasource_id: task.datasource_id,
-                          product_id: task.product_id,
-                          period_in_sec: '' + task.period_in_sec,
-                        });
-                        MetricCronjobStatus.set(0, {
-                          status: 'success',
-                          datasource_id: task.datasource_id,
-                          product_id: task.product_id,
-                          period_in_sec: '' + task.period_in_sec,
-                        });
-                        return of({
-                          ...task,
-                          state: 'error',
-                          // at most 5min
-                          current_backOff_time: Math.min(task.current_backOff_time + 10_000, 300_000),
-                        });
-                      }),
-                    );
-                  }),
-                );
-              }
+              unsubscribe: () => {
+                configEvent$.next({ psr: task, event: 'delete' });
+              },
             }),
           ),
         ),
@@ -391,3 +195,277 @@ defer(() =>
     ),
   )
   .subscribe();
+
+// For GC
+const mapKeyToCron: Record<string, CronJob.CronJob> = {};
+const mapKeyToSubscriptions: Record<string, Subscription[]> = {};
+
+const mapKeyToTask: Record<string, ITask> = {};
+configEvent$.subscribe(({ psr, event }) => {
+  const key = `${psr.datasource_id}:${psr.product_id}:${psr.period_in_sec}`;
+  if (event === 'upsert') {
+    if (mapKeyToSubscriptions[key]) {
+      mapKeyToSubscriptions[key].forEach((subscription) => subscription.unsubscribe());
+    }
+    if (mapKeyToCron[key]) {
+      mapKeyToCron[key].stop();
+    }
+    console.info(formatTime(Date.now()), `StartSyncing: ${JSON.stringify(psr)}`);
+    MetricCronjobStatus.set(1, {
+      status: 'running',
+      datasource_id: psr.datasource_id,
+      product_id: psr.product_id,
+      period_in_sec: '' + psr.period_in_sec,
+    });
+    MetricCronjobStatus.set(0, {
+      status: 'error',
+      datasource_id: psr.datasource_id,
+      product_id: psr.product_id,
+      period_in_sec: '' + psr.period_in_sec,
+    });
+    MetricCronjobStatus.set(0, {
+      status: 'success',
+      datasource_id: psr.datasource_id,
+      product_id: psr.product_id,
+      period_in_sec: '' + psr.period_in_sec,
+    });
+
+    const taskStartAction = new Subject<void>();
+    const getLastTimeAction = new Subject<void>();
+    const copyDataAction = new Subject<number>();
+    const taskStopAction = new Subject<number>();
+
+    const subs: Subscription[] = [];
+    mapKeyToSubscriptions[key] = subs;
+
+    mapKeyToCron[key] = new CronJob.CronJob({
+      cronTime: psr.cron_pattern,
+      onTick: () => {
+        taskStartAction.next();
+      },
+      start: true,
+      timeZone: psr.cron_timezone,
+    });
+
+    subs.push(
+      taskStartAction.subscribe(() => {
+        console.info(formatTime(Date.now()), `EvaluateParams, config: ${JSON.stringify(psr)}`);
+        MetricCronjobStatus.set(1, {
+          status: 'running',
+          datasource_id: psr.datasource_id,
+          product_id: psr.product_id,
+          period_in_sec: '' + psr.period_in_sec,
+        });
+        MetricCronjobStatus.set(0, {
+          status: 'error',
+          datasource_id: psr.datasource_id,
+          product_id: psr.product_id,
+          period_in_sec: '' + psr.period_in_sec,
+        });
+        MetricCronjobStatus.set(0, {
+          status: 'success',
+          datasource_id: psr.datasource_id,
+          product_id: psr.product_id,
+          period_in_sec: '' + psr.period_in_sec,
+        });
+      }),
+    );
+    subs.push(
+      taskStartAction.subscribe(() => {
+        const task = mapKeyToTask[key];
+        timer(task.current_back_off_time).subscribe(() => {
+          getLastTimeAction.next();
+        });
+      }),
+    );
+
+    subs.push(
+      getLastTimeAction.subscribe(() => {
+        defer(() =>
+          term.queryDataRecords<IPeriod>({
+            type: 'period',
+            tags: {
+              datasource_id: psr.datasource_id,
+              product_id: psr.product_id,
+              period_in_sec: '' + psr.period_in_sec,
+            },
+            options: {
+              skip: psr.replay_count || 0,
+              sort: [['frozen_at', -1]],
+              limit: 1,
+            },
+          }),
+        )
+          .pipe(
+            //
+            toArray(),
+            retry({ delay: 5_000 }),
+            mergeMap((v) => v),
+          )
+          .pipe(
+            //
+            map((v) => v.frozen_at),
+            filter((v): v is Exclude<typeof v, null> => !!v),
+            defaultIfEmpty(0),
+            first(),
+          )
+          .subscribe((lastTime) => {
+            copyDataAction.next(lastTime);
+          });
+      }),
+    );
+
+    subs.push(
+      copyDataAction.subscribe((lastTime) => {
+        let startTime: number;
+        defer(() => {
+          console.info(
+            formatTime(Date.now()),
+            `StartsToPullData, last pull time: ${new Date(lastTime)}, range: [${lastTime}, ${Date.now()}]`,
+            `config: ${JSON.stringify(psr)}`,
+          );
+          startTime = Date.now();
+          return term.terminalInfos$.pipe(
+            //
+            mergeMap((infos) =>
+              from(infos).pipe(
+                //
+                mergeMap((info) => {
+                  if ((info.services || []).find((service) => service.datasource_id === psr.datasource_id)) {
+                    return of(info.terminal_id);
+                  }
+                  return EMPTY;
+                }),
+              ),
+            ),
+            first(),
+            mergeMap((target_terminal_id) =>
+              term.copyDataRecords(
+                {
+                  type: 'period',
+                  tags: {
+                    datasource_id: psr.datasource_id,
+                    product_id: psr.product_id,
+                    period_in_sec: '' + psr.period_in_sec,
+                  },
+                  time_range: [lastTime, Date.now()],
+                  receiver_terminal_id: STORAGE_TERMINAL_ID,
+                },
+                target_terminal_id,
+              ),
+            ),
+            map(() => Date.now() - startTime),
+            tap(() => {
+              console.info(formatTime(Date.now()), `CompletePullData: ${key}`);
+              const task = mapKeyToTask[key];
+              mapKeyToTask[key] = {
+                ...task,
+                state: 'success',
+              };
+            }),
+            catchError((err) => {
+              const task = mapKeyToTask[key];
+              mapKeyToTask[key] = {
+                state: 'error',
+                // at most 5min
+                current_back_off_time: Math.min(task.current_back_off_time + 10_000, 300_000),
+              };
+              console.error(formatTime(Date.now()), `Task: ${key} Failed`, `${err}`);
+              return of(Date.now() - startTime);
+            }),
+          );
+        }).subscribe((duration) => {
+          taskStopAction.next(duration);
+        });
+      }),
+    );
+
+    subs.push(
+      taskStopAction.subscribe((duration) => {
+        const task = mapKeyToTask[key];
+        if (task.state === 'success') {
+          MetricPullSourceBucket.observe(duration, {
+            status: 'success',
+            datasource_id: psr.datasource_id,
+            product_id: psr.product_id,
+            period_in_sec: '' + psr.period_in_sec,
+          });
+          MetricCronjobStatus.set(0, {
+            status: 'running',
+            datasource_id: psr.datasource_id,
+            product_id: psr.product_id,
+            period_in_sec: '' + psr.period_in_sec,
+          });
+          MetricCronjobStatus.set(0, {
+            status: 'error',
+            datasource_id: psr.datasource_id,
+            product_id: psr.product_id,
+            period_in_sec: '' + psr.period_in_sec,
+          });
+          MetricCronjobStatus.set(1, {
+            status: 'success',
+            datasource_id: psr.datasource_id,
+            product_id: psr.product_id,
+            period_in_sec: '' + psr.period_in_sec,
+          });
+        } else {
+          MetricPullSourceBucket.observe(duration, {
+            status: 'error',
+            datasource_id: psr.datasource_id,
+            product_id: psr.product_id,
+            period_in_sec: '' + psr.period_in_sec,
+          });
+          MetricCronjobStatus.set(0, {
+            status: 'running',
+            datasource_id: psr.datasource_id,
+            product_id: psr.product_id,
+            period_in_sec: '' + psr.period_in_sec,
+          });
+          MetricCronjobStatus.set(1, {
+            status: 'error',
+            datasource_id: psr.datasource_id,
+            product_id: psr.product_id,
+            period_in_sec: '' + psr.period_in_sec,
+          });
+          MetricCronjobStatus.set(0, {
+            status: 'success',
+            datasource_id: psr.datasource_id,
+            product_id: psr.product_id,
+            period_in_sec: '' + psr.period_in_sec,
+          });
+          taskStartAction.next();
+        }
+      }),
+    );
+  }
+  if (event === 'delete') {
+    console.info(formatTime(Date.now()), `StopSyncing: ${JSON.stringify(psr)}`);
+    MetricCronjobStatus.set(0, {
+      status: 'running',
+      datasource_id: psr.datasource_id,
+      product_id: psr.product_id,
+      period_in_sec: '' + psr.period_in_sec,
+    });
+    MetricCronjobStatus.set(0, {
+      status: 'error',
+      datasource_id: psr.datasource_id,
+      product_id: psr.product_id,
+      period_in_sec: '' + psr.period_in_sec,
+    });
+    MetricCronjobStatus.set(1, {
+      status: 'success',
+      datasource_id: psr.datasource_id,
+      product_id: psr.product_id,
+      period_in_sec: '' + psr.period_in_sec,
+    });
+    if (mapKeyToCron[key]) {
+      mapKeyToCron[key].stop();
+    }
+    if (mapKeyToSubscriptions[key]) {
+      mapKeyToSubscriptions[key].forEach((subscription) => subscription.unsubscribe());
+    }
+    delete mapKeyToSubscriptions[key];
+    delete mapKeyToCron[key];
+    delete mapKeyToTask[key];
+  }
+});
