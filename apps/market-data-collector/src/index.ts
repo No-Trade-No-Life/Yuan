@@ -12,7 +12,6 @@ import {
   catchError,
   defaultIfEmpty,
   defer,
-  distinctUntilChanged,
   filter,
   first,
   from,
@@ -101,38 +100,30 @@ const term = new Terminal(HV_URL, {
   status: 'OK',
 });
 
-const listWatchConfigs = <T>(
-  type: string,
-  groupKey: (config: T) => string,
-  consumer: (config: T) => Observable<unknown>,
+const listWatch = <T, K>(
+  list$: Observable<T[]>,
+  hashKey: (config: T) => string,
+  consumer: (config: T) => Observable<K>,
 ) =>
-  defer(() =>
-    term.queryDataRecords<T>({
-      type,
-    }),
-  )
-    .pipe(
-      //
-      map((x) => x.origin),
-      toArray(),
-      retry({ delay: 5_000 }),
-      // ISSUE: to enlighten Storage Workload
-      repeat({ delay: 30_000 }),
-    )
-    .pipe(
-      batchGroupBy(groupKey),
-      mergeMap((group) =>
-        group.pipe(
-          //
-          distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
-          switchMapWithComplete(consumer),
-        ),
-      ),
-    );
+  list$.pipe(
+    batchGroupBy(hashKey),
+    mergeMap((group) => group.pipe(switchMapWithComplete(consumer))),
+  );
 
-listWatchConfigs(
-  'pull_source_relation',
-  (config: IPullSourceRelation) => `${config.datasource_id}:${config.product_id}:${config.period_in_sec}`,
+listWatch(
+  defer(() =>
+    term.queryDataRecords<IPullSourceRelation>({
+      type: 'pull_source_relation',
+    }),
+  ).pipe(
+    //
+    map((x) => x.origin),
+    toArray(),
+    retry({ delay: 5_000 }),
+    // ISSUE: to enlighten Storage Workload
+    repeat({ delay: 30_000 }),
+  ),
+  (config) => JSON.stringify(config),
   (task) => runTask(task),
 ).subscribe();
 
@@ -190,7 +181,7 @@ const runTask = (psr: IPullSourceRelation) =>
 
     subs.push(
       fromCronJob({ cronTime: psr.cron_pattern, timeZone: psr.cron_timezone }).subscribe(() => {
-        if (state !== 'running') {
+        if (state === 'success') {
           taskStartAction$.next();
         }
       }),
