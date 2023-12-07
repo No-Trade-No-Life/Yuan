@@ -247,7 +247,7 @@ export class Terminal {
   requestService = <T extends string>(
     method: T,
     req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req'],
-  ) => {
+  ): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage> => {
     const trace_id = UUID();
     return defer(() => {
       return this.terminalInfos$.pipe(
@@ -672,7 +672,7 @@ export class Terminal {
         (!provider_terminal_id && candidates.length > 0) ||
         (provider_terminal_id && !candidates.includes(provider_terminal_id))
       ) {
-        provider_terminal_id = candidates[0];
+        provider_terminal_id = loadBalancer(candidates, UUID())!;
         this.subscribeChannel(provider_terminal_id, channel_id);
       }
     });
