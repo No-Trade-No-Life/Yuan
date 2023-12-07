@@ -1,5 +1,22 @@
+import { JSONSchema7 } from 'json-schema';
 import { useAgent, useEffect } from './basic-set';
 
+/**
+ * Use parameter defined by JSON Schema
+ *
+ * @param key - Parameter name
+ * @param schema - JSON Schema (https://json-schema.org/)
+ * @returns Parameter value
+ */
+export const useParamSchema = <T>(key: string, schema: JSONSchema7): T => {
+  const agent = useAgent();
+
+  useEffect(() => {
+    agent.paramsSchema.properties![key] = schema;
+  }, []);
+
+  return agent.params[key] ?? schema.default;
+};
 /**
  * 使用参数 (string)
  * @param key - 参数名
@@ -7,14 +24,8 @@ import { useAgent, useEffect } from './basic-set';
  * @returns 参数值
  * @public
  */
-export const useParamString = (key: string, defaultValue = ''): string => {
-  const agent = useAgent();
-
-  useEffect(() => {
-    agent.paramsSchema.properties![key] = { type: 'string', default: defaultValue };
-  }, []);
-  return agent.params[key] ?? defaultValue;
-};
+export const useParamString = (key: string, defaultValue = ''): string =>
+  useParamSchema(key, { type: 'string', default: defaultValue });
 
 /**
  * 使用参数 (number)
@@ -23,13 +34,8 @@ export const useParamString = (key: string, defaultValue = ''): string => {
  * @returns 参数值
  * @public
  */
-export const useParamNumber = (key: string, defaultValue = 0): number => {
-  const node = useAgent();
-  useEffect(() => {
-    node.paramsSchema.properties![key] = { type: 'number', default: defaultValue };
-  }, []);
-  return node.params[key] ?? defaultValue;
-};
+export const useParamNumber = (key: string, defaultValue = 0): number =>
+  useParamSchema(key, { type: 'number', default: defaultValue });
 
 /**
  * 使用参数 (boolean)
@@ -38,10 +44,5 @@ export const useParamNumber = (key: string, defaultValue = 0): number => {
  * @returns 参数值
  * @public
  */
-export const useParamBoolean = (key: string, defaultValue = false): boolean => {
-  const node = useAgent();
-  useEffect(() => {
-    node.paramsSchema.properties![key] = { type: 'boolean', default: defaultValue };
-  }, []);
-  return node.params[key] ?? defaultValue;
-};
+export const useParamBoolean = (key: string, defaultValue = false): boolean =>
+  useParamSchema(key, { type: 'boolean', default: defaultValue });
