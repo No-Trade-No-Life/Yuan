@@ -670,7 +670,7 @@ export class Terminal {
       }
       if (
         (!provider_terminal_id && candidates.length > 0) ||
-        (provider_terminal_id && !candidates.includes(provider_terminal_id))
+        (provider_terminal_id && candidates.length > 0 && !candidates.includes(provider_terminal_id))
       ) {
         provider_terminal_id = loadBalancer(candidates, UUID())!;
         this.subscribeChannel(provider_terminal_id, channel_id);
