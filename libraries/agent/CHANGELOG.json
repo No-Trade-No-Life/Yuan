@@ -2,6 +2,31 @@
   "name": "@yuants/agent",
   "entries": [
     {
+      "version": "0.7.0",
+      "tag": "@yuants/agent_v0.7.0",
+      "date": "Thu, 07 Dec 2023 19:30:49 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "feat: add useParamSchema hook"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.5.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.5.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.6.0",
       "tag": "@yuants/agent_v0.6.0",
       "date": "Sun, 03 Dec 2023 04:38:50 GMT",

@@ -1,6 +1,13 @@
 # Change Log - @yuants/agent
 
-This log was last generated on Sun, 03 Dec 2023 04:38:50 GMT and should not be manually modified.
+This log was last generated on Thu, 07 Dec 2023 19:30:49 GMT and should not be manually modified.
+
+## 0.7.0
+Thu, 07 Dec 2023 19:30:49 GMT
+
+### Minor changes
+
+- feat: add useParamSchema hook
 
 ## 0.6.0
 Sun, 03 Dec 2023 04:38:50 GMT
