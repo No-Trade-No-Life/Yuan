@@ -93,7 +93,7 @@ const ajv = new Ajv();
 
 const HV_URL = process.env.HV_URL!;
 const STORAGE_TERMINAL_ID = process.env.STORAGE_TERMINAL_ID!;
-const TERMINAL_ID = process.env.TERMINAL_ID || 'DataCollector/history-market-data';
+const TERMINAL_ID = process.env.TERMINAL_ID || 'HistoricalMarketDataCollector';
 
 const term = new Terminal(HV_URL, {
   terminal_id: TERMINAL_ID,
@@ -103,54 +103,36 @@ const term = new Terminal(HV_URL, {
 
 const listWatchConfigs = <T>(
   type: string,
-  jsonSchema: JSONSchema7,
   groupKey: (config: T) => string,
-  filterCondition: (config: T) => boolean = () => true,
   consumer: (config: T) => Observable<unknown>,
-) => {
-  const validate = ajv.compile(jsonSchema);
-  return defer(() =>
+) =>
+  defer(() =>
     term.queryDataRecords<T>({
       type,
     }),
-  ).pipe(
-    //
-    mergeMap((dataRecord) => {
-      const config = dataRecord.origin;
-      if (!validate(config)) {
-        console.error(
-          formatTime(Date.now()),
-          `InvalidConfig`,
-          `${JSON.stringify(config)}: ${ajv.errorsText(validate.errors)}`,
-        );
-        return EMPTY;
-      }
-      return of(config);
-    }),
-    filter(filterCondition),
-    toArray(),
-    retry({ delay: 5_000 }),
-    // ISSUE: to enlighten Storage Workload
-    repeat({ delay: 30_000 }),
-    batchGroupBy(groupKey),
-    mergeMap((group) =>
-      group.pipe(
-        //
-        distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
-        tap((config) => {
-          console.info(formatTime(Date.now()), `DetectConfigurationChange: ${JSON.stringify(config)}`);
-        }),
-        switchMapWithComplete((task) => consumer(task)),
+  )
+    .pipe(
+      //
+      map((x) => x.origin),
+      toArray(),
+      retry({ delay: 5_000 }),
+      // ISSUE: to enlighten Storage Workload
+      repeat({ delay: 30_000 }),
+    )
+    .pipe(
+      batchGroupBy(groupKey),
+      mergeMap((group) =>
+        group.pipe(
+          //
+          distinctUntilChanged((a, b) => JSON.stringify(a) === JSON.stringify(b)),
+          switchMapWithComplete(consumer),
+        ),
       ),
-    ),
-  );
-};
+    );
 
 listWatchConfigs(
   'pull_source_relation',
-  schema,
   (config: IPullSourceRelation) => `${config.datasource_id}:${config.product_id}:${config.period_in_sec}`,
-  (config) => !config.disabled,
   (task) => runTask(task),
 ).subscribe();
 
@@ -168,9 +150,15 @@ const fromCronJob = (options: Omit<CronJob.CronJobParameters, 'onTick' | 'start'
     };
   });
 
+const validate = ajv.compile(schema);
 const runTask = (psr: IPullSourceRelation) =>
   new Observable((subscriber) => {
+    if (psr.disabled) return;
     const title = JSON.stringify(psr);
+    if (!validate(psr)) {
+      console.error(formatTime(Date.now()), `InvalidConfig`, `${title}: ${ajv.errorsText(validate.errors)}`);
+      return;
+    }
 
     console.info(formatTime(Date.now()), `StartSyncing: ${title}`);
 
