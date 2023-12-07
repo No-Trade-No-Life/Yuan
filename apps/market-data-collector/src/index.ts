@@ -102,8 +102,8 @@ const term = new Terminal(HV_URL, {
 
 const listWatch = <T, K>(
   list$: Observable<T[]>,
-  hashKey: (config: T) => string,
-  consumer: (config: T) => Observable<K>,
+  hashKey: (item: T) => string,
+  consumer: (item: T) => Observable<K>,
 ) =>
   list$.pipe(
     batchGroupBy(hashKey),
@@ -143,7 +143,7 @@ const fromCronJob = (options: Omit<CronJob.CronJobParameters, 'onTick' | 'start'
 
 const validate = ajv.compile(schema);
 const runTask = (psr: IPullSourceRelation) =>
-  new Observable((subscriber) => {
+  new Observable<void>((subscriber) => {
     if (psr.disabled) return;
     const title = JSON.stringify(psr);
     if (!validate(psr)) {
