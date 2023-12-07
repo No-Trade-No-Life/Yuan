@@ -7,11 +7,13 @@ import { JSONSchema7 } from 'json-schema';
 import {
   EMPTY,
   Observable,
+  OperatorFunction,
   Subject,
   Subscription,
   catchError,
   defaultIfEmpty,
   defer,
+  distinctUntilChanged,
   filter,
   first,
   from,
@@ -19,6 +21,7 @@ import {
   map,
   mergeMap,
   of,
+  pipe,
   repeat,
   retry,
   tap,
@@ -101,31 +104,40 @@ const term = new Terminal(HV_URL, {
 });
 
 const listWatch = <T, K>(
-  list$: Observable<T[]>,
   hashKey: (item: T) => string,
   consumer: (item: T) => Observable<K>,
-): Observable<K> =>
-  list$.pipe(
+): OperatorFunction<T[], K> =>
+  pipe(
     batchGroupBy(hashKey),
-    mergeMap((group) => group.pipe(switchMapWithComplete(consumer))),
+    mergeMap((group) =>
+      group.pipe(
+        // Take first but not complete until group complete
+        distinctUntilChanged(() => true),
+        switchMapWithComplete(consumer),
+      ),
+    ),
   );
 
-listWatch<IPullSourceRelation, void>(
-  defer(() =>
-    term.queryDataRecords<IPullSourceRelation>({
-      type: 'pull_source_relation',
-    }),
-  ).pipe(
+defer(() =>
+  term.queryDataRecords<IPullSourceRelation>({
+    type: 'pull_source_relation',
+  }),
+)
+  .pipe(
     //
     map((x) => x.origin),
     toArray(),
     retry({ delay: 5_000 }),
     // ISSUE: to enlighten Storage Workload
     repeat({ delay: 30_000 }),
-  ),
-  (config) => JSON.stringify(config),
-  (task) => runTask(task),
-).subscribe();
+  )
+  .pipe(
+    listWatch(
+      (config) => JSON.stringify(config),
+      (task) => runTask(task),
+    ),
+  )
+  .subscribe();
 
 const fromCronJob = (options: Omit<CronJob.CronJobParameters, 'onTick' | 'start'>) =>
   new Observable((subscriber) => {
