@@ -141,7 +141,7 @@ defer(() =>
 
 const fromCronJob = (options: Omit<CronJob.CronJobParameters, 'onTick' | 'start'>) =>
   new Observable((subscriber) => {
-    const sub = new CronJob.CronJob({
+    const job = new CronJob.CronJob({
       ...options,
       onTick: () => {
         subscriber.next();
@@ -149,7 +149,7 @@ const fromCronJob = (options: Omit<CronJob.CronJobParameters, 'onTick' | 'start'
       start: true,
     });
     return () => {
-      sub.stop();
+      job.stop();
     };
   });
 
@@ -178,7 +178,7 @@ const runTask = (psr: IPullSourceRelation) =>
      * - `error`: task is failed
      * - `success`: task is completed
      */
-    let state: string = 'success';
+    let status: string = 'success';
     /**
      * Current backOff time (in ms)
      * task behaves like a pod of k8s, when it is failed, it enters crashLoopBackOff state,
@@ -193,7 +193,7 @@ const runTask = (psr: IPullSourceRelation) =>
 
     subs.push(
       fromCronJob({ cronTime: psr.cron_pattern, timeZone: psr.cron_timezone }).subscribe(() => {
-        if (state === 'success') {
+        if (status === 'success') {
           taskStartAction$.next();
         }
       }),
@@ -206,14 +206,14 @@ const runTask = (psr: IPullSourceRelation) =>
       }),
     );
 
-    const reportState = () => {
+    const reportStatus = () => {
       const tags = {
         datasource_id: psr.datasource_id,
         product_id: psr.product_id,
         period_in_sec: '' + psr.period_in_sec,
       };
       for (const s of ['running', 'error', 'success']) {
-        MetricCronjobStatus.set(state === s ? 1 : 0, {
+        MetricCronjobStatus.set(status === s ? 1 : 0, {
           ...tags,
           status: s,
         });
@@ -221,11 +221,12 @@ const runTask = (psr: IPullSourceRelation) =>
     };
 
     // Metrics State
-    subs.push(interval(1000).subscribe(reportState));
+    subs.push(interval(1000).subscribe(reportStatus));
 
     // Wait for current_back_off_time to start
     subs.push(
       taskStartAction$.subscribe(() => {
+        status = 'running';
         timer(current_back_off_time).subscribe(() => {
           getLastTimeAction$.next();
         });
@@ -336,7 +337,7 @@ const runTask = (psr: IPullSourceRelation) =>
 
     subs.push(
       copyDataComplete$.subscribe(() => {
-        state = 'success';
+        status = 'success';
         completed_at = Date.now();
         console.info(formatTime(Date.now()), `CompletePullData: ${title}`);
         copyDataFinalize$.next();
@@ -345,7 +346,7 @@ const runTask = (psr: IPullSourceRelation) =>
 
     subs.push(
       copyDataError$.subscribe((err) => {
-        state = 'error';
+        status = 'error';
         completed_at = Date.now();
         // at most 5min
         current_back_off_time = Math.min(current_back_off_time + 10_000, 300_000);
@@ -358,7 +359,7 @@ const runTask = (psr: IPullSourceRelation) =>
     subs.push(
       copyDataFinalize$.subscribe(() => {
         MetricPullSourceBucket.observe(completed_at - started_at, {
-          status: state,
+          status: status,
           datasource_id: psr.datasource_id,
           product_id: psr.product_id,
           period_in_sec: '' + psr.period_in_sec,
@@ -369,7 +370,7 @@ const runTask = (psr: IPullSourceRelation) =>
     // Retry Task if error
     subs.push(
       copyDataFinalize$.subscribe(() => {
-        if (state === 'error') {
+        if (status === 'error') {
           taskStartAction$.next();
         }
       }),
@@ -377,7 +378,7 @@ const runTask = (psr: IPullSourceRelation) =>
 
     return () => {
       console.info(formatTime(Date.now()), `StopSyncing: ${title}`);
-      reportState();
+      reportStatus();
       subs.forEach((sub) => sub.unsubscribe());
     };
   });
