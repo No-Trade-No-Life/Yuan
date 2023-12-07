@@ -104,13 +104,13 @@ const listWatch = <T, K>(
   list$: Observable<T[]>,
   hashKey: (item: T) => string,
   consumer: (item: T) => Observable<K>,
-) =>
+): Observable<K> =>
   list$.pipe(
     batchGroupBy(hashKey),
     mergeMap((group) => group.pipe(switchMapWithComplete(consumer))),
   );
 
-listWatch(
+listWatch<IPullSourceRelation, void>(
   defer(() =>
     term.queryDataRecords<IPullSourceRelation>({
       type: 'pull_source_relation',
