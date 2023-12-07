@@ -4,6 +4,7 @@
   "bundle_succeed": "Bundle {{ source }} to {{ target }} successfully",
   "cloud_deploy": "Deploy to Cloud",
   "config_invalid": "Model configuration parameter verification failed",
+  "input_kernel_id": "Agent ID",
   "load_config": "Load config",
   "load_config_failed": "Load {{ filename }} Failed: {{ message }}",
   "load_config_filename_prompt": "Please enter the configuration file path",
@@ -78,5 +79,6 @@
   "save_config_failed": "Failed to save {{ filename }}",
   "save_config_filename_prompt": "Please enter the path to save the configuration",
   "save_config_succeed": "Save {{ filename }} successfully",
+  "select_host": "On which host will the model be deployed?",
   "view_source": "View Source"
 }

@@ -16,6 +16,10 @@
   "CopilotText": {
     "title": "Copilot 消息"
   },
+  "SystemBacktestResult": {
+    "deploy": "部署到实盘",
+    "title": "回测结果"
+  },
   "clear": "清空",
   "connect_host": "连接主机...",
   "documentation": "官方文档",
