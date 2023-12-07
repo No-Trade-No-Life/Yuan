@@ -111,7 +111,7 @@ const listWatch = <T, K>(
     batchGroupBy(hashKey),
     mergeMap((group) =>
       group.pipe(
-        //
+        // Take first but not complete until group complete
         distinctUntilChanged(() => true),
         switchMapWithComplete(consumer),
       ),
