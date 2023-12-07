@@ -7,6 +7,7 @@ import { useAgent, useEffect } from './basic-set';
  * @param key - Parameter name
  * @param schema - JSON Schema (https://json-schema.org/)
  * @returns Parameter value
+ * @public
  */
 export const useParamSchema = <T>(key: string, schema: JSONSchema7): T => {
   const agent = useAgent();
