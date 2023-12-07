@@ -179,6 +179,9 @@ export const useParamOHLC: (key: string) => {
 export const useParamProduct: (key: string) => IProduct;
 
 // @public
+export const useParamSchema: <T>(key: string, schema: JSONSchema7) => T;
+
+// @public
 export const useParamString: (key: string, defaultValue?: string) => string;
 
 // @public

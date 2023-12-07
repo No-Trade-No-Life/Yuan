@@ -1,6 +1,7 @@
 import { decodePath } from '@yuants/data-model';
 import { IProduct } from '@yuants/protocol';
 import { useAgent, useEffect, useMemo } from './basic-set';
+import { useParamSchema } from './params-set';
 
 /**
  * 使用品种信息
@@ -23,23 +24,21 @@ export const useProduct = (datasource_id: string, product_id: string): IProduct 
     }
   );
 };
+
 /**
- * 使用参数 (品种)
- * @param key - 参数名
+ * Use parameter as Product
+ * @param key - parameter's name
  * @public
  */
 export const useParamProduct = (key: string): IProduct => {
-  const agent = useAgent();
-  useEffect(() => {
-    agent.paramsSchema.properties![key] = {
-      type: 'string',
-      format: 'product-key',
-    };
-  }, []);
+  const productKey = useParamSchema<string>(key, {
+    type: 'string',
+    format: 'product-key',
+  });
 
   const { datasource_id, product_id } = useMemo(() => {
-    const [datasource_id = '', product_id = ''] = decodePath(agent.params[key] || '');
+    const [datasource_id = '', product_id = ''] = decodePath(productKey || '');
     return { datasource_id, product_id };
-  }, [agent.params[key]]);
+  }, []);
   return useProduct(datasource_id, product_id);
 };

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/agent",
+      "comment": "feat: add useParamSchema hook",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/agent"
+}

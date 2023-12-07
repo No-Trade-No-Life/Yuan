@@ -1,5 +1,5 @@
 import { decodePath } from '@yuants/data-model';
-import { useAgent, useEffect, useMemo, useSeries } from '.';
+import { useAgent, useEffect, useMemo, useParamSchema, useSeries } from '.';
 
 const mapDurationToPeriodInSec = (duration: string) => {
   const match = duration.match(
@@ -86,18 +86,15 @@ export const useOHLC = (datasource_id: string, product_id: string, period: numbe
  * @public
  */
 export const useParamOHLC = (key: string) => {
-  const agent = useAgent();
-  useEffect(() => {
-    agent.paramsSchema.properties![key] = {
-      type: 'string',
-      format: 'OHLC-key',
-    };
-  }, []);
+  const OHLCKey = useParamSchema<string>(key, {
+    type: 'string',
+    format: 'OHLC-key',
+  });
   const { datasource_id, product_id, period_in_sec } = useMemo(() => {
-    const [datasource_id = '', product_id = '', _period_in_sec] = decodePath(agent.params[key] || '');
+    const [datasource_id = '', product_id = '', _period_in_sec] = decodePath(OHLCKey || '');
     const period_in_sec = +_period_in_sec;
     return { datasource_id, product_id, period_in_sec };
-  }, [agent.params[key]]);
+  }, []);
 
   const periods = useOHLC(datasource_id, product_id, period_in_sec);
   return { datasource_id, product_id, period_in_sec, ...periods };
