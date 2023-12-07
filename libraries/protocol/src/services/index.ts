@@ -11,18 +11,12 @@ export interface IService {}
  * @public
  */
 export interface ITerminalMessage {
-  trace_id: string;
-  method: string;
-  /**
-   * (Network layer) Indicates the target terminal of the data frame
-   * (网络层) 表明数据帧的目标终端
-   */
-  target_terminal_id: string;
-  /**
-   * (Network layer) Indicates the source terminal of the data frame
-   * (网络层) 表明数据帧的来源终端
-   */
   source_terminal_id: string;
+  target_terminal_id: string;
+  trace_id: string;
+
+  method?: string;
+  channel_id?: string;
   req?: unknown;
   res?: IResponse<unknown>;
   frame?: unknown;

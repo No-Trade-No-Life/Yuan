@@ -2,6 +2,7 @@ import { UUID, decodePath, encodePath, formatTime } from '@yuants/data-model';
 import { batchGroupBy, rateLimitMap, switchMapWithComplete } from '@yuants/utils';
 import Ajv from 'ajv';
 import { isNode } from 'browser-or-node';
+import { JSONSchema7 } from 'json-schema';
 import {
   EMPTY,
   Observable,
@@ -85,8 +86,6 @@ const RequestReceivedTotal = PromRegistry.create(
   'terminal_request_received_total Terminal request received',
 );
 
-const MetricSubmitOrderCount = PromRegistry.create('counter', 'account_submit_order_count');
-
 type IServiceHandler<T extends string = string> = T extends keyof IService
   ? (
       msg: ITerminalMessage & Pick<IService[T], 'req'> & { method: T },
@@ -108,42 +107,61 @@ type IServiceHandler<T extends string = string> = T extends keyof IService
       Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>
     >;
 
+interface IServiceOptions {
+  concurrent?: number;
+  rateLimitConfig?: {
+    count: number;
+    period: number;
+  };
+}
+
+const loadBalancer = (arr: string[], seed: string): string | undefined => {
+  const N = arr.length;
+  if (N === 0) {
+    return undefined;
+  }
+  // No need to balance workload
+  if (N === 1) {
+    return arr[0];
+  }
+  // Load Balance: Hash the trace_id to select a terminal
+  let sum = 0;
+  for (let i = seed.length - 1; i >= 0; i--) {
+    // NOTE: trace_id UUID 0-9 (48-57) + a-f (97-102)
+    const num = seed.charCodeAt(i);
+    // num >>6 === 0 => num < 64 => 0-9 (48-57)
+    // num >>6 !== 0 => num >= 64 => a-f (97-102)
+    sum = ((sum << 4) + (num >> 6 ? num - 87 : num - 48)) % N;
+  }
+  return arr[sum];
+};
+
 /**
  * Terminal
  *
  * @public
  */
 export class Terminal {
-  terminalInfo: ITerminalInfo;
   _conn: IConnection<ITerminalMessage>;
   private _serviceHandlers: Record<string, IServiceHandler> = {};
-  private _serviceConcurrent: Record<string, number> = {};
-  private _serviceRateLimit: Record<
-    string,
-    | {
-        count: number;
-        period: number;
-      }
-    | undefined
-  > = {};
+  private _serviceOptions: Record<string, IServiceOptions> = {};
 
   constructor(
-    public HV_URL: string,
-    public terminalInfoInput: Omit<ITerminalInfo, 'serviceInfo'>,
+    public host_url: string,
+    public terminalInfo: ITerminalInfo,
     connection?: IConnection<ITerminalMessage>,
   ) {
-    this.terminalInfo = { ...terminalInfoInput, serviceInfo: {} };
-    const url = new URL(HV_URL);
+    this.terminalInfo = { ...terminalInfo, serviceInfo: {}, channelIdSchemas: [] };
+    const url = new URL(host_url);
 
     const terminal_id = this.terminalInfo.terminal_id;
     url.searchParams.set('terminal_id', terminal_id); // make sure terminal_id is in the connection parameters
-    this.HV_URL = url.toString();
-    this._conn = connection || createConnectionJson(this.HV_URL);
-    this.terminalInfo.services ??= [];
+    this.host_url = url.toString();
+
+    this._conn = connection || createConnectionJson(this.host_url);
     this.setupDebugLog();
     this.setupServer();
     this.setupPredefinedServerHandlers();
-    this.setupPredefinedMiddleware();
 
     this.terminalInfo.start_timestamp_in_ms ??= Date.now();
     this.terminalInfo.status ??= 'INIT';
@@ -178,24 +196,11 @@ export class Terminal {
         map((terminalInfo) => terminalInfo.terminal_id),
         toArray(),
         map((arr) => {
-          const N = arr.length;
-          if (N === 0) {
+          const target = loadBalancer(arr, trace_id);
+          if (!target) {
             throw Error(`No terminal available for request: method=${method} req=${JSON.stringify(req)}`);
           }
-          // No need to balance workload
-          if (N === 1) {
-            return arr[0];
-          }
-          // Load Balance: Hash the trace_id to select a terminal
-          let sum = 0;
-          for (let i = trace_id.length - 1; i >= 0; i--) {
-            // NOTE: trace_id UUID 0-9 (48-57) + a-f (97-102)
-            const num = trace_id.charCodeAt(i);
-            // num >>6 === 0 => num < 64 => 0-9 (48-57)
-            // num >>6 !== 0 => num >= 64 => a-f (97-102)
-            sum = ((sum << 4) + (num >> 6 ? num - 87 : num - 48)) % N;
-          }
-          return arr[sum];
+          return target;
         }),
       );
     }).pipe(
@@ -208,31 +213,84 @@ export class Terminal {
           req,
         }),
       ),
-      mergeMap((msg): Observable<any> => {
-        this._conn.output$.next(msg);
-        return this._conn.input$.pipe(
-          filter((m) => m.trace_id === trace_id),
-          // complete immediately when res is received
-          takeWhile((msg1) => msg1.res === undefined, true),
-          timeout({
-            first: 30000,
-            each: 10000,
-            meta: `request Timeout: method=${msg.method} target=${target_terminal_id}`,
-          }),
-          share(),
-        );
-      }),
+      mergeMap(this._doRequest),
     );
   }
 
+  provideService = <T extends string>(
+    method: T,
+    requestSchema: JSONSchema7,
+    handler: IServiceHandler<T>,
+    options?: IServiceOptions,
+  ) => {
+    //
+    (this.terminalInfo.serviceInfo ??= {})[method] = { method, schema: requestSchema };
+    this._serviceHandlers[method] = handler;
+    this._serviceOptions[method] = options || {};
+  };
+
+  private _doRequest = (msg: ITerminalMessage): Observable<any> => {
+    this._conn.output$.next(msg);
+    return this._conn.input$.pipe(
+      filter((m) => m.trace_id === msg.trace_id),
+      // complete immediately when res is received
+      takeWhile((msg1) => msg1.res === undefined, true),
+      timeout({
+        first: 30000,
+        each: 10000,
+        meta: `request Timeout: method=${msg.method} target=${msg.target_terminal_id}`,
+      }),
+      share(),
+    );
+  };
+
+  requestService = <T extends string>(
+    method: T,
+    req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req'],
+  ) => {
+    const trace_id = UUID();
+    return defer(() => {
+      return this.terminalInfos$.pipe(
+        first(),
+        mergeMap((x) => x),
+        filter((terminalInfo) => {
+          if (!terminalInfo.serviceInfo?.[method]) return false;
+          return new Ajv({ strict: false }).validate(terminalInfo.serviceInfo[method].schema, req);
+        }),
+        map((terminalInfo) => terminalInfo.terminal_id),
+        toArray(),
+        map((arr) => {
+          const target = loadBalancer(arr, trace_id);
+          if (!target) {
+            throw Error(`No terminal available for request: method=${method} req=${JSON.stringify(req)}`);
+          }
+          return target;
+        }),
+      );
+    }).pipe(
+      map(
+        (target_terminal_id): ITerminalMessage => ({
+          trace_id,
+          method,
+          target_terminal_id,
+          source_terminal_id: this.terminalInfo.terminal_id,
+          req,
+        }),
+      ),
+      mergeMap(this._doRequest),
+    );
+  };
+
   private setupDebugLog = () => {
     const sub1 = this._conn.input$.subscribe((msg) => {
-      TerminalReceiveMassageTotal.inc({
-        //
-        method: msg.method,
-        target_terminal_id: msg.target_terminal_id,
-        source_terminal_id: msg.source_terminal_id,
-      });
+      if (msg.method) {
+        TerminalReceiveMassageTotal.inc({
+          //
+          method: msg.method,
+          target_terminal_id: msg.target_terminal_id,
+          source_terminal_id: msg.source_terminal_id,
+        });
+      }
       if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
         console.debug(
           formatTime(Date.now()),
@@ -246,12 +304,14 @@ export class Terminal {
       }
     });
     const sub2 = this._conn.output$.subscribe((msg) => {
-      TerminalTransmittedMessageTotal.inc({
-        //
-        method: msg.method,
-        target_terminal_id: msg.target_terminal_id,
-        source_terminal_id: msg.source_terminal_id,
-      });
+      if (msg.method) {
+        TerminalTransmittedMessageTotal.inc({
+          //
+          method: msg.method,
+          target_terminal_id: msg.target_terminal_id,
+          source_terminal_id: msg.source_terminal_id,
+        });
+      }
       if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
         console.debug(
           formatTime(Date.now()),
@@ -330,6 +390,9 @@ export class Terminal {
     delete this.terminalInfo.subscriptions;
   };
 
+  /**
+   * @deprecated - Use provideService instead
+   */
   setupService = <T extends string>(
     method: T,
     handler: IServiceHandler<T>,
@@ -340,21 +403,22 @@ export class Terminal {
       period: number;
     },
   ) => {
-    this.terminalInfo.serviceInfo[method] = { method, schema: {} };
+    (this.terminalInfo.serviceInfo ??= {})[method] = { method, schema: {} };
     this._serviceHandlers[method] = handler;
-    this._serviceConcurrent[method] = concurrent;
-
-    rateLimitConfig && (this._serviceRateLimit[method] = rateLimitConfig);
+    this._serviceOptions[method] = {
+      concurrent,
+      rateLimitConfig,
+    };
   };
 
   private setupServer = () => {
     const sub = this._conn.input$
       .pipe(
-        filter((msg) => msg.frame === undefined && msg.res === undefined),
-        groupBy((msg) => msg.method),
+        filter((msg) => msg.method !== undefined && msg.frame === undefined && msg.res === undefined),
+        groupBy((msg) => msg.method!),
         mergeMap((group) => {
           const handler = this._serviceHandlers[group.key];
-          const concurrency = this._serviceConcurrent[group.key];
+          const concurrency = this._serviceOptions[group.key]?.concurrent ?? Infinity;
 
           if (!handler) {
             return EMPTY;
@@ -388,19 +452,23 @@ export class Terminal {
           // Metrics
           preHandleAction$.subscribe(({ req }) => {
             const tsStart = Date.now();
-            RequestReceivedTotal.inc({
-              method: req.method,
-              source_terminal_id: req.source_terminal_id,
-              target_terminal_id: req.target_terminal_id,
-            });
-
-            postHandleAction$.pipe(first(({ req: req1 }) => req1 === req)).subscribe(({ req, res }) => {
-              RequestDurationBucket.observe(Date.now() - tsStart, {
+            if (req.method) {
+              RequestReceivedTotal.inc({
                 method: req.method,
                 source_terminal_id: req.source_terminal_id,
                 target_terminal_id: req.target_terminal_id,
-                code: res.res?.code ?? 520,
               });
+            }
+
+            postHandleAction$.pipe(first(({ req: req1 }) => req1 === req)).subscribe(({ req, res }) => {
+              if (req.method) {
+                RequestDurationBucket.observe(Date.now() - tsStart, {
+                  method: req.method,
+                  source_terminal_id: req.source_terminal_id,
+                  target_terminal_id: req.target_terminal_id,
+                  code: res.res?.code ?? 520,
+                });
+              }
             });
           });
 
@@ -425,7 +493,7 @@ export class Terminal {
                       target_terminal_id: msg.target_terminal_id,
                     });
                   },
-                  this._serviceRateLimit[subGroup.key]!,
+                  this._serviceOptions[subGroup.key]?.rateLimitConfig,
                 ),
               ),
             ),
@@ -491,14 +559,15 @@ export class Terminal {
   };
 
   private setupPredefinedServerHandlers = () => {
-    this.setupService('Ping', () => of({ res: { code: 0, message: 'Pong' } }));
-    this.setupService('Metrics', () =>
+    this.provideService('Ping', {}, () => of({ res: { code: 0, message: 'Pong' } }));
+
+    this.provideService('Metrics', {}, () =>
       of({
         res: { code: 0, message: 'OK', data: { metrics: PromRegistry.metrics() } },
       }),
     );
     if (isNode) {
-      this.setupService('Terminate', () => {
+      this.provideService('Terminate', {}, () => {
         return of({ res: { code: 0, message: 'OK' } }).pipe(
           tap(() => {
             timer(1000)
@@ -514,35 +583,106 @@ export class Terminal {
     }
   };
 
-  /**
-   * Middleware：SubmitOrderCount
-   */
-  private setupPredefinedMiddleware = () => {
-    const sub = this._conn.input$
-      .pipe(
-        //
-        filter((msg) => msg.frame === undefined && msg.res === undefined),
-        filter((msg) => msg.method === 'SubmitOrder'),
-        mergeMap((reqMsg) =>
-          this._conn.output$.pipe(
-            //
-            filter((resMsg) => resMsg.res !== undefined),
-            first((resMsg) => resMsg.trace_id === reqMsg.trace_id),
-            tap((resMsg) => {
-              const req = reqMsg.req as IOrder;
-              MetricSubmitOrderCount.inc({
-                terminal_id: this.terminalInfo.terminal_id,
-                terminal_name: this.terminalInfo.name,
-                account_id: req.account_id,
-                code: resMsg.res!.code,
-              });
-            }),
-          ),
-        ),
-      )
-      .subscribe();
+  provideChannel = <T>(channelIdSchema: JSONSchema7, handler: (channel_id: string) => Observable<T>) => {
+    const validate = new Ajv({ strict: false }).compile(channelIdSchema);
+    (this.terminalInfo.channelIdSchemas ??= []).push(channelIdSchema);
 
+    // map terminalInfos to Record<channel_id, target_terminal_id[]>
+    const mapChannelIdToTargetTerminalIds$ = this.terminalInfos$.pipe(
+      mergeMap((x) =>
+        from(x).pipe(
+          mergeMap((terminalInfo) =>
+            from(terminalInfo.subscriptions?.[this.terminalInfo.terminal_id] ?? []).pipe(
+              filter((channel_id) => validate(channel_id)),
+              map((channel_id) => ({ consumer_terminal_id: terminalInfo.terminal_id, channel_id })),
+              groupBy((x) => x.channel_id),
+              mergeMap((group) =>
+                group.pipe(
+                  map((x) => x.consumer_terminal_id),
+                  toArray(),
+                  map((arr) => [group.key, arr] as [string, string[]]),
+                ),
+              ),
+            ),
+          ),
+          toArray(),
+          map((entries) => Object.fromEntries(entries)),
+        ),
+      ),
+      shareReplay(1),
+    );
+
+    const mapChannelIdToSubject: Record<string, Observable<T>> = {};
+    const sub = mapChannelIdToTargetTerminalIds$.subscribe((theMap) => {
+      for (const channel_id of Object.keys(theMap)) {
+        if (!mapChannelIdToSubject[channel_id]) {
+          // NOTE: the payload should be immediately sent to the consumer.
+          mapChannelIdToSubject[channel_id] = handler(channel_id);
+          const subscriptionToHandler = mapChannelIdToSubject[channel_id].subscribe((payload) => {
+            mapChannelIdToTargetTerminalIds$.pipe(first()).subscribe((theMap) => {
+              const target_terminal_ids = theMap[channel_id];
+              if (!target_terminal_ids) {
+                // unsubscribe if no consumer
+                subscriptionToHandler.unsubscribe();
+                delete mapChannelIdToSubject[channel_id];
+                return;
+              }
+              // multicast to all consumers
+              for (const target_terminal_id of target_terminal_ids) {
+                this._conn.output$.next({
+                  trace_id: UUID(),
+                  channel_id,
+                  frame: payload,
+                  source_terminal_id: this.terminalInfo.terminal_id,
+                  target_terminal_id,
+                });
+              }
+            });
+          });
+        }
+      }
+    });
     this._subscriptions.push(sub);
+  };
+
+  consumeChannel = <T>(channel_id: string): Observable<T> => {
+    // candidate target_terminal_id list
+    const candidates$ = this.terminalInfos$.pipe(
+      mergeMap((x) =>
+        from(x).pipe(
+          filter(
+            (terminalInfo) =>
+              terminalInfo.channelIdSchemas?.some((schema) =>
+                new Ajv({ strict: false }).validate(schema, channel_id),
+              ) ?? false,
+          ),
+          map((x) => x.terminal_id),
+          toArray(),
+        ),
+      ),
+      shareReplay(1),
+    );
+    let provider_terminal_id: string | undefined;
+    const sub = candidates$.subscribe((candidates) => {
+      if (provider_terminal_id && !candidates.includes(provider_terminal_id)) {
+        this.unsubscribeChannel(provider_terminal_id, channel_id);
+        provider_terminal_id = undefined;
+      }
+      if (
+        (!provider_terminal_id && candidates.length > 0) ||
+        (provider_terminal_id && !candidates.includes(provider_terminal_id))
+      ) {
+        provider_terminal_id = candidates[0];
+        this.subscribeChannel(provider_terminal_id, channel_id);
+      }
+    });
+    this._subscriptions.push(sub);
+
+    return this._conn.input$.pipe(
+      filter((msg) => msg.channel_id === channel_id && msg.source_terminal_id === provider_terminal_id),
+      map((msg) => msg.frame as T),
+      share(),
+    );
   };
 
   /**

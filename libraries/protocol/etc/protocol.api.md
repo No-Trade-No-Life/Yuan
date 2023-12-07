@@ -234,13 +234,14 @@ export interface ISubscriptionRelation {
 
 // @public
 export interface ITerminalInfo {
+    channelIdSchemas?: JSONSchema7[];
     discriminator?: JSONSchema7;
     env?: string;
-    name: string;
+    name?: string;
     owner?: string;
     // @deprecated
     ping?: number;
-    serviceInfo: Record<string, {
+    serviceInfo?: Record<string, {
         method: string;
         schema: JSONSchema7;
     }>;
@@ -259,14 +260,18 @@ export interface ITerminalInfo {
 // @public
 export interface ITerminalMessage {
     // (undocumented)
+    channel_id?: string;
+    // (undocumented)
     frame?: unknown;
     // (undocumented)
-    method: string;
+    method?: string;
     // (undocumented)
     req?: unknown;
     // (undocumented)
     res?: IResponse<unknown>;
+    // (undocumented)
     source_terminal_id: string;
+    // (undocumented)
     target_terminal_id: string;
     // (undocumented)
     trace_id: string;
@@ -355,12 +360,14 @@ export const PromRegistry: Registry;
 
 // @public
 export class Terminal {
-    constructor(HV_URL: string, terminalInfoInput: Omit<ITerminalInfo, 'serviceInfo'>, connection?: IConnection<ITerminalMessage>);
+    constructor(host_url: string, terminalInfo: ITerminalInfo, connection?: IConnection<ITerminalMessage>);
     accountIds$: Observable<string[]>;
     // (undocumented)
     cancelOrder: (order: IOrder) => Observable<(IResponse<void> & IResponse<unknown>) | undefined>;
     // (undocumented)
     _conn: IConnection<ITerminalMessage>;
+    // (undocumented)
+    consumeChannel: <T>(channel_id: string) => Observable<T>;
     // Warning: (ae-forgotten-export) The symbol "ICopyDataRecordsRequest" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -370,11 +377,18 @@ export class Terminal {
     dispose(): void;
     feed: (channel_id: string, data: any, target_terminal_id: string) => void;
     // (undocumented)
-    HV_URL: string;
+    host_url: string;
     // (undocumented)
     modifyOrder: (order: IOrder) => Observable<(IResponse<void> & IResponse<unknown>) | undefined>;
     provideAccountInfo: (accountInfo$: Observable<IAccountInfo>) => void;
+    // (undocumented)
+    provideChannel: <T>(channelIdSchema: JSONSchema7, handler: (channel_id: string) => Observable<T>) => void;
     providePeriods: (datasource_id: string, usePeriods: (product_id: string, period_in_sec: number) => Observable<IPeriod[]>) => void;
+    // Warning: (ae-forgotten-export) The symbol "IServiceHandler" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-forgotten-export) The symbol "IServiceOptions" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    provideService: <T extends string>(method: T, requestSchema: JSONSchema7, handler: IServiceHandler<T>, options?: IServiceOptions) => void;
     provideTicks: (datasource_id: string, useTicks: (product_id: string) => Observable<ITick>) => void;
     // Warning: (ae-forgotten-export) The symbol "IQueryDataRecordsRequest" needs to be exported by the entry point index.d.ts
     //
@@ -398,9 +412,9 @@ export class Terminal {
     removeDataRecords: (req: IRemoveDataRecordsRequest, target_terminal_id?: string) => Observable<never>;
     // (undocumented)
     request<T extends string>(method: T, target_terminal_id: string | undefined, req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req']): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage>;
-    // Warning: (ae-forgotten-export) The symbol "IServiceHandler" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
+    requestService: <T extends string>(method: T, req: T extends keyof IService ? IService[T]["req"] : unknown) => Observable<any>;
+    // @deprecated (undocumented)
     setupService: <T extends string>(method: T, handler: IServiceHandler<T>, concurrent?: number, rateLimitConfig?: {
         count: number;
         period: number;
@@ -427,8 +441,6 @@ export class Terminal {
     }[]>;
     // (undocumented)
     terminalInfo: ITerminalInfo;
-    // (undocumented)
-    terminalInfoInput: Omit<ITerminalInfo, 'serviceInfo'>;
     terminalInfos$: Observable<ITerminalInfo[]>;
     // (undocumented)
     unsubscribeChannel: (provider_terminal_id: string, channel_id: string) => void;
