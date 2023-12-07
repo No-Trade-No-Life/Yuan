@@ -2,6 +2,23 @@
   "name": "@yuants/app-market-data-collector",
   "entries": [
     {
+      "version": "0.0.29",
+      "tag": "@yuants/app-market-data-collector_v0.0.29",
+      "date": "Thu, 07 Dec 2023 20:19:54 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor using subject pipe pattern"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.28",
       "tag": "@yuants/app-market-data-collector_v0.0.28",
       "date": "Thu, 07 Dec 2023 19:30:49 GMT",
