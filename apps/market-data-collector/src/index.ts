@@ -13,6 +13,7 @@ import {
   catchError,
   defaultIfEmpty,
   defer,
+  distinctUntilChanged,
   filter,
   first,
   from,
@@ -111,7 +112,7 @@ const listWatch = <T, K>(
     mergeMap((group) =>
       group.pipe(
         //
-        first(),
+        distinctUntilChanged(() => true),
         switchMapWithComplete(consumer),
       ),
     ),
