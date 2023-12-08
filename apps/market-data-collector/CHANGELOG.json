@@ -2,6 +2,23 @@
   "name": "@yuants/app-market-data-collector",
   "entries": [
     {
+      "version": "0.0.32",
+      "tag": "@yuants/app-market-data-collector_v0.0.32",
+      "date": "Fri, 08 Dec 2023 04:56:54 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix peformance issue for 1k labels"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.31",
       "tag": "@yuants/app-market-data-collector_v0.0.31",
       "date": "Fri, 08 Dec 2023 00:35:02 GMT",
