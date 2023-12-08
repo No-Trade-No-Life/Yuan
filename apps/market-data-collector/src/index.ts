@@ -223,7 +223,8 @@ const runTask = (psr: IPullSourceRelation) =>
     };
 
     // Metrics State
-    subs.push(interval(1000).subscribe(reportStatus));
+    // TODO: optimize the performance of Metric.set
+    subs.push(interval(10_000).subscribe(reportStatus));
 
     // Wait for current_back_off_time to start
     subs.push(

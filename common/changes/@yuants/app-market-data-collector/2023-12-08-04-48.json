@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-market-data-collector",
+      "comment": "fix peformance issue for 1k labels",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-market-data-collector"
+}
