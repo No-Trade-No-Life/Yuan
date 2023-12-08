@@ -159,18 +159,18 @@ const runTask = (psr: IPullSourceRelation) =>
     if (psr.disabled) return;
     const title = JSON.stringify(psr);
     if (!validate(psr)) {
-      console.error(formatTime(Date.now()), `InvalidConfig`, `${title}: ${ajv.errorsText(validate.errors)}`);
+      console.error(formatTime(Date.now()), `InvalidConfig`, `${ajv.errorsText(validate.errors)}`, title);
       return;
     }
 
-    console.info(formatTime(Date.now()), `StartSyncing: ${title}`);
+    console.info(formatTime(Date.now()), `StartSyncing`, title);
 
-    const taskStartAction$ = new Subject<void>();
-    const getLastTimeAction$ = new Subject<void>();
-    const copyDataAction$ = new Subject<number>();
-    const copyDataComplete$ = new Subject<void>();
-    const copyDataError$ = new Subject<any>();
-    const copyDataFinalize$ = new Subject<void>();
+    const taskScheduled$ = new Subject<void>();
+    const taskStart$ = new Subject<void>();
+    const copyDataAction$ = new Subject<void>();
+    const taskComplete$ = new Subject<void>();
+    const taskError$ = new Subject<void>();
+    const taskFinalize$ = new Subject<void>();
 
     /**
      * State of the task
@@ -188,21 +188,23 @@ const runTask = (psr: IPullSourceRelation) =>
     let current_back_off_time: number = 0;
     let started_at = 0;
     let completed_at = 0;
+    let lastTime = 0;
+    let err: any;
 
     const subs: Subscription[] = [];
 
     subs.push(
       fromCronJob({ cronTime: psr.cron_pattern, timeZone: psr.cron_timezone }).subscribe(() => {
         if (status === 'success') {
-          taskStartAction$.next();
+          taskScheduled$.next();
         }
       }),
     );
 
     // Log
     subs.push(
-      taskStartAction$.subscribe(() => {
-        console.info(formatTime(Date.now()), `TaskStart, config: ${title}`);
+      taskScheduled$.subscribe(() => {
+        console.info(formatTime(Date.now()), `TaskScheduled`, title);
       }),
     );
 
@@ -225,17 +227,24 @@ const runTask = (psr: IPullSourceRelation) =>
 
     // Wait for current_back_off_time to start
     subs.push(
-      taskStartAction$.subscribe(() => {
-        status = 'running';
-        timer(current_back_off_time).subscribe(() => {
-          getLastTimeAction$.next();
-        });
+      taskScheduled$.subscribe(() => {
+        if (status !== 'running') {
+          status = 'running';
+          taskStart$.next();
+        }
+      }),
+    );
+
+    // Log
+    subs.push(
+      taskStart$.subscribe(() => {
+        console.info(formatTime(Date.now()), `TaskStarted`, title);
       }),
     );
 
     // Fetch Last Updated Period
     subs.push(
-      getLastTimeAction$.subscribe(() => {
+      taskStart$.subscribe(() => {
         defer(() =>
           term.queryDataRecords<IPeriod>({
             type: 'period',
@@ -264,20 +273,17 @@ const runTask = (psr: IPullSourceRelation) =>
             defaultIfEmpty(0),
             first(),
           )
-          .subscribe((lastTime) => {
-            copyDataAction$.next(lastTime);
+          .subscribe((t) => {
+            lastTime = t;
+            copyDataAction$.next();
           });
       }),
     );
 
     // Log
     subs.push(
-      copyDataAction$.subscribe((lastTime) => {
-        console.info(
-          formatTime(Date.now()),
-          `StartsToCopyData, last copied time: ${new Date(lastTime)}, range: [${lastTime}, ${Date.now()}]`,
-          `config: ${title}`,
-        );
+      copyDataAction$.subscribe(() => {
+        console.info(formatTime(Date.now()), `StartsToCopyData`, `from=${formatTime(lastTime)}`, title);
       }),
     );
 
@@ -290,7 +296,7 @@ const runTask = (psr: IPullSourceRelation) =>
     subs.push(
       copyDataAction$
         .pipe(
-          mergeMap((lastTime) =>
+          mergeMap(() =>
             term.terminalInfos$.pipe(
               //
               mergeMap((infos) =>
@@ -323,10 +329,11 @@ const runTask = (psr: IPullSourceRelation) =>
                 ),
               ),
               tap(() => {
-                copyDataComplete$.next();
+                taskComplete$.next();
               }),
-              catchError((err, caught$) => {
-                copyDataError$.next(err);
+              catchError((e, caught$) => {
+                err = e;
+                taskError$.next();
                 return EMPTY;
               }),
             ),
@@ -336,28 +343,28 @@ const runTask = (psr: IPullSourceRelation) =>
     );
 
     subs.push(
-      copyDataComplete$.subscribe(() => {
+      taskComplete$.subscribe(() => {
         status = 'success';
         completed_at = Date.now();
-        console.info(formatTime(Date.now()), `CompletePullData: ${title}`);
-        copyDataFinalize$.next();
+        console.info(formatTime(Date.now()), `TaskComplete`, title);
+        taskFinalize$.next();
       }),
     );
 
     subs.push(
-      copyDataError$.subscribe((err) => {
+      taskError$.subscribe(() => {
         status = 'error';
         completed_at = Date.now();
         // at most 5min
         current_back_off_time = Math.min(current_back_off_time + 10_000, 300_000);
-        console.error(formatTime(Date.now()), `Task: ${title} Failed`, `${err}`);
-        copyDataFinalize$.next();
+        console.error(formatTime(Date.now()), `TaskError`, `${err}`, title);
+        taskFinalize$.next();
       }),
     );
 
     // Metrics Latency
     subs.push(
-      copyDataFinalize$.subscribe(() => {
+      taskFinalize$.subscribe(() => {
         MetricPullSourceBucket.observe(completed_at - started_at, {
           status: status,
           datasource_id: psr.datasource_id,
@@ -369,15 +376,17 @@ const runTask = (psr: IPullSourceRelation) =>
 
     // Retry Task if error
     subs.push(
-      copyDataFinalize$.subscribe(() => {
+      taskFinalize$.subscribe(() => {
         if (status === 'error') {
-          taskStartAction$.next();
+          timer(current_back_off_time).subscribe(() => {
+            taskScheduled$.next();
+          });
         }
       }),
     );
 
     return () => {
-      console.info(formatTime(Date.now()), `StopSyncing: ${title}`);
+      console.info(formatTime(Date.now()), `StopSyncing`, title);
       reportStatus();
       subs.forEach((sub) => sub.unsubscribe());
     };
