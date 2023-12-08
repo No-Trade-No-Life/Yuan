@@ -257,11 +257,7 @@ export class Terminal {
         first(),
         mergeMap((x) => x),
         combineLatestWith(this._mapTerminalIdAndMethodToValidator$.pipe(first())),
-        filter(([terminalInfo, map]) => {
-          const validator = map[terminalInfo.terminal_id]?.[method];
-          if (!validator) return false;
-          return validator(req);
-        }),
+        filter(([terminalInfo, map]) => map[terminalInfo.terminal_id]?.[method]?.(req)),
         map(([terminalInfo]) => terminalInfo.terminal_id),
         toArray(),
         map((arr) => {
