@@ -20,7 +20,7 @@ const transporter = createTransport({
   },
 });
 
-term.setupService('Notify', (msg) => {
+term.provideService('Notify', {}, (msg) => {
   // extract first line as Subject
   const [subject, ...content] = msg.req.message.split('\n');
   return defer(() =>

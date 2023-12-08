@@ -416,11 +416,6 @@ export class Terminal {
     request<T extends string>(method: T, target_terminal_id: string | undefined, req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req']): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage>;
     // (undocumented)
     requestService: <T extends string>(method: T, req: T extends keyof IService ? IService[T]["req"] : unknown) => Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage>;
-    // @deprecated (undocumented)
-    setupService: <T extends string>(method: T, handler: IServiceHandler<T>, concurrent?: number, rateLimitConfig?: {
-        count: number;
-        period: number;
-    }) => void;
     // (undocumented)
     submitOrder: (order: IOrder) => Observable<(IResponse<void> & IResponse<unknown>) | undefined>;
     // (undocumented)

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-email-notifier",
+      "comment": "migrate to provideService API",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-email-notifier"
+}

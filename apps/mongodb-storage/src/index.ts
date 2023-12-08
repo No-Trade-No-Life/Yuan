@@ -55,7 +55,7 @@ const MetricWriteDurationBucket = PromRegistry.create(
   'storage_write_duration_milliseconds Storage write duration bucket in 1, 10, 100, 1000, 10000, 30000 ms',
   [1, 10, 100, 1000, 10000, 30_000],
 );
-terminal.setupService('UpdateDataRecords', (msg) => {
+terminal.provideService('UpdateDataRecords', {}, (msg) => {
   const startTime = Date.now();
   return from(msg.req)
     .pipe(
@@ -134,7 +134,7 @@ terminal.setupService('UpdateDataRecords', (msg) => {
     );
 });
 
-terminal.setupService('RemoveDataRecords', (msg) => {
+terminal.provideService('RemoveDataRecords', {}, (msg) => {
   if (!msg.req.type) {
     return of({ res: { code: 400, message: `Must provide type` } });
   }
@@ -156,7 +156,7 @@ terminal.setupService('RemoveDataRecords', (msg) => {
   );
 });
 
-terminal.setupService('QueryDataRecords', (msg) => {
+terminal.provideService('QueryDataRecords', {}, (msg) => {
   if (!msg.req.type) {
     return of({ res: { code: 400, message: `Must provide type` } });
   }

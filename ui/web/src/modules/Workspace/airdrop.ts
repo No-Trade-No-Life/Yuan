@@ -30,7 +30,7 @@ declare module '@yuants/protocol/lib/services' {
 }
 
 terminal$.subscribe((terminal) => {
-  terminal?.setupService('AirDrop', (msg) =>
+  terminal?.provideService('AirDrop', {}, (msg) =>
     defer(async () => {
       const { filename, content } = msg.req;
       const ok = await new Promise((resolve, reject) => {

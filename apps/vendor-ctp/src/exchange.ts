@@ -638,60 +638,94 @@ const accountInfo$ = defer(() => mapProductIdToProduct$.pipe(first())).pipe(
 
 terminal.provideAccountInfo(accountInfo$);
 
-terminal.setupService('QueryProducts', () =>
-  products$.pipe(
-    //
-    map((data) => ({ res: { code: 0, message: 'OK', data: data } })),
-  ),
+terminal.provideService(
+  'QueryProducts',
+  {
+    required: ['datasource_id'],
+    properties: {
+      datasource_id: { const: DATASOURCE_ID },
+    },
+  },
+  () =>
+    products$.pipe(
+      //
+      map((data) => ({ res: { code: 0, message: 'OK', data: data } })),
+    ),
 );
 
-terminal.setupService('QueryHistoryOrders', () =>
-  combineLatest([loginRes$, settlement$]).pipe(
-    first(),
-    mergeMap(([loginRes, settlementRes]) =>
-      queryHistoryOrders(zmqConn, loginRes.BrokerID, settlementRes.InvestorID).pipe(
-        //
-        delayWhen((data) => terminal.updateHistoryOrders(data)),
-        map((data) => ({ res: { code: 0, message: 'OK', data: data } })),
+terminal.provideService(
+  'QueryHistoryOrders',
+  {
+    required: ['account_id'],
+    properties: {
+      account_id: { const: ACCOUNT_ID },
+    },
+  },
+  (msg) =>
+    combineLatest([loginRes$, settlement$]).pipe(
+      first(),
+      mergeMap(([loginRes, settlementRes]) =>
+        queryHistoryOrders(zmqConn, loginRes.BrokerID, settlementRes.InvestorID).pipe(
+          //
+          delayWhen((data) => terminal.updateHistoryOrders(data)),
+          map((data) => ({ res: { code: 0, message: 'OK', data: data } })),
+        ),
       ),
     ),
-  ),
 );
 
-terminal.setupService('SubmitOrder', (msg) => {
-  if (!mutable) {
-    return of({ res: { code: 403, message: 'ReadOnly Account!' } });
-  }
-  return combineLatest([loginRes$, settlement$]).pipe(
-    first(),
-    mergeMap(([loginRes, settlementRes]) =>
-      submitOrder(
-        zmqConn,
-        loginRes.BrokerID,
-        settlementRes.InvestorID,
-        loginRes.FrontID,
-        loginRes.SessionID,
-        msg.req,
+terminal.provideService(
+  'SubmitOrder',
+  {
+    required: ['account_id'],
+    properties: {
+      account_id: { const: ACCOUNT_ID },
+    },
+  },
+  (msg) => {
+    if (!mutable) {
+      return of({ res: { code: 403, message: 'ReadOnly Account!' } });
+    }
+    return combineLatest([loginRes$, settlement$]).pipe(
+      first(),
+      mergeMap(([loginRes, settlementRes]) =>
+        submitOrder(
+          zmqConn,
+          loginRes.BrokerID,
+          settlementRes.InvestorID,
+          loginRes.FrontID,
+          loginRes.SessionID,
+          msg.req,
+        ),
       ),
-    ),
-  );
-});
+    );
+  },
+);
 
-terminal.setupService('CancelOrder', (msg) => {
-  if (!mutable) {
-    return of({ res: { code: 403, message: 'ReadOnly Account!' } });
-  }
-  return combineLatest([loginRes$, settlement$]).pipe(
-    first(),
-    mergeMap(([loginRes, settlementRes]) =>
-      cancelOrder(
-        zmqConn,
-        loginRes.BrokerID,
-        settlementRes.InvestorID,
-        loginRes.FrontID,
-        loginRes.SessionID,
-        msg.req,
+terminal.provideService(
+  'CancelOrder',
+  {
+    required: ['account_id'],
+    properties: {
+      account_id: { const: ACCOUNT_ID },
+    },
+  },
+  (msg) => {
+    if (!mutable) {
+      return of({ res: { code: 403, message: 'ReadOnly Account!' } });
+    }
+    return combineLatest([loginRes$, settlement$]).pipe(
+      first(),
+      mergeMap(([loginRes, settlementRes]) =>
+        cancelOrder(
+          zmqConn,
+          loginRes.BrokerID,
+          settlementRes.InvestorID,
+          loginRes.FrontID,
+          loginRes.SessionID,
+          msg.req,
+        ),
       ),
-    ),
-  );
-});
+    );
+  },
+);

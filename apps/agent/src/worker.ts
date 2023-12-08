@@ -28,16 +28,32 @@ const run = async () => {
     }
   };
 
-  terminal.setupService('KernelDump', () =>
-    of({ res: { code: 0, message: 'OK', data: scene.kernel.dump() } }),
+  terminal.provideService(
+    'KernelDump',
+    {
+      required: ['kernel_id'],
+      properties: {
+        kernel_id: { const: scene.kernel.id },
+      },
+    },
+    () => of({ res: { code: 0, message: 'OK', data: scene.kernel.dump() } }),
   );
 
-  terminal.setupService('KernelRestore', (msg) => {
-    scene.kernel.terminate();
-    scene.kernel.restore((msg.req as any)!.data);
-    scene.kernel.start();
-    return of({ res: { code: 0, message: 'OK' } });
-  });
+  terminal.provideService(
+    'KernelRestore',
+    {
+      required: ['kernel_id'],
+      properties: {
+        kernel_id: { const: scene.kernel.id },
+      },
+    },
+    (msg) => {
+      scene.kernel.terminate();
+      scene.kernel.restore((msg.req as any)!.data);
+      scene.kernel.start();
+      return of({ res: { code: 0, message: 'OK' } });
+    },
+  );
 
   await scene.kernel.start();
 };

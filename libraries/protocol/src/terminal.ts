@@ -391,27 +391,6 @@ export class Terminal {
     delete this.terminalInfo.subscriptions;
   };
 
-  /**
-   * @deprecated - Use provideService instead
-   */
-  setupService = <T extends string>(
-    method: T,
-    handler: IServiceHandler<T>,
-    concurrent: number = Infinity,
-    // Client Perspective Rate Limit, mainly for preventing DOS attack
-    rateLimitConfig?: {
-      count: number;
-      period: number;
-    },
-  ) => {
-    (this.terminalInfo.serviceInfo ??= {})[method] = { method, schema: {} };
-    this._serviceHandlers[method] = handler;
-    this._serviceOptions[method] = {
-      concurrent,
-      rateLimitConfig,
-    };
-  };
-
   private setupServer = () => {
     const sub = this._conn.input$
       .pipe(
