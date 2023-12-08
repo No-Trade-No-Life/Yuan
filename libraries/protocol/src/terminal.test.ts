@@ -20,8 +20,9 @@ describe('terminal', () => {
       terminal_id: 'ut/server',
     });
 
-    server.setupService(
+    server.provideService(
       'test',
+      {},
       () => {
         return timer(5000).pipe(
           //
@@ -31,7 +32,7 @@ describe('terminal', () => {
           map(() => ({ res: { code: 0, message: 'OK' } })),
         );
       },
-      1,
+      { concurrent: 1 },
     );
 
     // all 10 requests should be response without error

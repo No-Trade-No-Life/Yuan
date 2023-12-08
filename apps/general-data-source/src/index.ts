@@ -202,8 +202,20 @@ const mapProductIdToGSRList$ = defer(() =>
   shareReplay(1),
 );
 
-term.setupService(
+term.provideService(
   'CopyDataRecords',
+  {
+    required: ['type', 'tags'],
+    properties: {
+      type: { const: 'period' },
+      tags: {
+        required: ['datasource_id'],
+        properties: {
+          datasource_id: { const: 'Y' },
+        },
+      },
+    },
+  },
   (msg, output$) => {
     if (msg.req.tags?.product_id === undefined || msg.req.tags?.period_in_sec === undefined) {
       return of({ res: { code: 400, message: 'product_id or period_in_sec is required' } });
@@ -251,5 +263,5 @@ term.setupService(
       }),
     );
   },
-  QUERY_CONCURRENCY,
+  { concurrent: QUERY_CONCURRENCY },
 );

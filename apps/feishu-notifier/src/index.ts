@@ -87,7 +87,7 @@ term._conn.input$
   )
   .subscribe();
 
-term.setupService('Notify', (msg) =>
+term.provideService('Notify', {}, (msg) =>
   sendFeishuMessage(msg.req.receiver_id, msg.req.message).pipe(
     //
     map((v) => ({ res: v })),

@@ -83,9 +83,9 @@ const listTerminalsMessage$ = interval(1000).pipe(
   shareReplay(1),
 );
 
-terminal.setupService('ListTerminals', () => listTerminalsMessage$.pipe(first()));
+terminal.provideService('ListTerminals', {}, () => listTerminalsMessage$.pipe(first()));
 
-terminal.setupService('UpdateTerminalInfo', (msg) => {
+terminal.provideService('UpdateTerminalInfo', {}, (msg) => {
   // if (msg.source_terminal_id !== msg.req.terminal_id) {
   //   return of({ res: { code: 403, message: 'Permission Denied' } });
   // }
