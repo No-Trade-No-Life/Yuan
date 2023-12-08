@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Thu, 07 Dec 2023 19:30:49 GMT and should not be manually modified.
+This log was last generated on Fri, 08 Dec 2023 14:47:10 GMT and should not be manually modified.
+
+## 0.5.1
+Fri, 08 Dec 2023 14:47:10 GMT
+
+### Patches
+
+- apply the new optimized prom client
 
 ## 0.5.0
 Thu, 07 Dec 2023 19:30:49 GMT

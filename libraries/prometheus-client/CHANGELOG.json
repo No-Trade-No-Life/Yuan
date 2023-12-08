@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/prometheus-client",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/prometheus-client_v0.0.1",
+      "date": "Fri, 08 Dec 2023 14:47:10 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove rxjs"
+          }
+        ]
+      }
+    }
+  ]
+}
