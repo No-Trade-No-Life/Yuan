@@ -1,55 +1,54 @@
 import { PromRegistry } from '@yuants/protocol';
-import { GaugeType } from 'promjs';
 import { Kernel } from '../../kernel';
 import { AccountPerformanceHubUnit } from '../AccountPerformanceHubUnit';
 import { BasicUnit } from '../BasicUnit';
 
-const MetricMaxEquity: GaugeType = PromRegistry.create(
+const MetricMaxEquity = PromRegistry.create(
   'gauge',
   'account_performance_unit_max_equity',
   'account_performance_unit_max_equity account performance unit max equity',
 );
-const MetricDrawdown: GaugeType = PromRegistry.create(
+const MetricDrawdown = PromRegistry.create(
   'gauge',
   'account_performance_unit_drawdown',
   'account_performance_unit_drawdown account_performance_unit drawdown',
 );
-const MetricMaxDrawdown: GaugeType = PromRegistry.create(
+const MetricMaxDrawdown = PromRegistry.create(
   'gauge',
   'account_performance_unit_max_drawdown',
   'account_performance_unit_max_drawdown account_performance_unit max drawdown',
 );
-const MetricProfitDrawdownRatio: GaugeType = PromRegistry.create(
+const MetricProfitDrawdownRatio = PromRegistry.create(
   'gauge',
   'account_performance_unit_profit_drawdown_ratio',
   'account_performance_unit_profit_drawdown_ratio account_performance_unit profit drawdown ratio',
 );
-const MetricMaintenanceMargin: GaugeType = PromRegistry.create(
+const MetricMaintenanceMargin = PromRegistry.create(
   'gauge',
   'account_performance_unit_maintenance_margin',
   'account_performance_unit_maintenance_margin account_performance_unit maintenance margin',
 );
-const MetricMaxMaintenanceMargin: GaugeType = PromRegistry.create(
+const MetricMaxMaintenanceMargin = PromRegistry.create(
   'gauge',
   'account_performance_unit_max_maintenance_margin',
   'account_performance_unit_max_maintenance_margin account_performance_unit max maintenance margin',
 );
-const MetricFirstOrderTimestamp: GaugeType = PromRegistry.create(
+const MetricFirstOrderTimestamp = PromRegistry.create(
   'gauge',
   'account_performance_unit_first_order_timestamp',
   'account_performance_unit_first_order_timestamp account_performance_unit first order timestamp',
 );
-const MetricTotalDays: GaugeType = PromRegistry.create(
+const MetricTotalDays = PromRegistry.create(
   'gauge',
   'account_performance_unit_total_days',
   'account_performance_unit_total_days account_performance_unit total days',
 );
-const MetricAvgProfitPerDay: GaugeType = PromRegistry.create(
+const MetricAvgProfitPerDay = PromRegistry.create(
   'gauge',
   'account_performance_unit_avg_profit_per_day',
   'account_performance_unit_avg_profit_per_day account_performance_unit avg profit per day',
 );
-const MetricPaybackPeriodInDays: GaugeType = PromRegistry.create(
+const MetricPaybackPeriodInDays = PromRegistry.create(
   'gauge',
   'account_performance_unit_payback_period_in_days',
   'account_performance_unit_payback_period_in_days account_performance_unit payback period in days',

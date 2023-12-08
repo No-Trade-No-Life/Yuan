@@ -22,6 +22,9 @@ interface RegistryItem<T extends CollectorType> {
   };
 }
 
+/**
+ * @public
+ */
 export class Registry {
   private data: {
     [K in CollectorType]: RegistryItem<K>;
