@@ -1,4 +1,3 @@
-import prom from '.';
 import { Registry } from './registry';
 
 describe('promjs', () => {
@@ -10,7 +9,7 @@ describe('promjs', () => {
 
   beforeEach(() => {
     desired = [];
-    registry = prom();
+    registry = new Registry();
     errors = [];
     const counter = registry.create('counter', 'my_counter', 'A counter for things');
     const gauge = registry.create('gauge', 'my_gauge', 'A gauge for stuffs');

@@ -15,12 +15,6 @@ export type CounterType = Counter;
 // @public (undocumented)
 export type CounterValue = number;
 
-// Warning: (ae-forgotten-export) The symbol "Registry" needs to be exported by the entry point index.d.ts
-//
-// @public (undocumented)
-const _default: () => Registry;
-export default _default;
-
 // Warning: (ae-forgotten-export) The symbol "Gauge" needs to be exported by the entry point index.d.ts
 //
 // @public (undocumented)
@@ -63,6 +57,28 @@ export interface Metric<T extends MetricValue> {
 
 // @public (undocumented)
 export type MetricValue = CounterValue | HistogramValue;
+
+// @public (undocumented)
+export class Registry {
+    constructor();
+    // (undocumented)
+    clear(): this;
+    // (undocumented)
+    create(type: 'counter', name: string, help?: string): Counter;
+    // (undocumented)
+    create(type: 'gauge', name: string, help?: string): Gauge;
+    // (undocumented)
+    create(type: 'histogram', name: string, help?: string, histogramBuckets?: number[]): Histogram;
+    // (undocumented)
+    get(type: 'counter', name: string): Counter | undefined;
+    // (undocumented)
+    get(type: 'gauge', name: string): Gauge | undefined;
+    // (undocumented)
+    get(type: 'histogram', name: string): Histogram | undefined;
+    metrics(): string;
+    // (undocumented)
+    reset(): this;
+}
 
 // @public (undocumented)
 export type RegistryType = Registry;

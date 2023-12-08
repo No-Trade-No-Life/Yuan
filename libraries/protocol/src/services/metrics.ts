@@ -1,4 +1,4 @@
-import { Registry } from 'promjs/registry';
+import { Registry } from '@yuants/prometheus-client';
 
 /**
  * Prometheus Metrics Registry

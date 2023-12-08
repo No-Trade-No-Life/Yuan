@@ -6,7 +6,7 @@
 
 import { JSONSchema7 } from 'json-schema';
 import { Observable } from 'rxjs';
-import { Registry } from 'promjs/registry';
+import { Registry } from '@yuants/prometheus-client';
 import { Subject } from 'rxjs';
 
 // @public

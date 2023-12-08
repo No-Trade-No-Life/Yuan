@@ -25,7 +25,5 @@
     "@yuants/tool-kit": "workspace:*",
     "typescript": "~4.7.4"
   },
-  "dependencies": {
-    "rxjs": "~7.5.6"
-  }
+  "dependencies": {}
 }

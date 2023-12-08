@@ -22,7 +22,8 @@
     "promjs": "~0.4.2",
     "rxjs": "~7.5.6",
     "url": "~0.11.0",
-    "ws": "~8.11.0"
+    "ws": "~8.11.0",
+    "@yuants/prometheus-client": "workspace:*"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "~7.30.0",
