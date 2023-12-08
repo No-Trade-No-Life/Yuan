@@ -465,6 +465,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/prometheus-client",
+      "projectFolder": "libraries/prometheus-client",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/app-alert-receiver",
       "projectFolder": "apps/alert-receiver",
       "shouldPublish": true
