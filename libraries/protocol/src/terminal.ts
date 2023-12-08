@@ -165,6 +165,7 @@ export class Terminal {
 
     this.terminalInfo.start_timestamp_in_ms ??= Date.now();
     this.terminalInfo.status ??= 'INIT';
+    this.terminalInfo.services ??= [];
 
     this.setupReportTerminalInfo();
   }

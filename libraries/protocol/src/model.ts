@@ -856,6 +856,8 @@ export interface ITerminalInfo {
   /**
    * List of service metadata provided by the terminal
    * 终端提供的服务元信息列表
+   *
+   * @deprecated - use serviceInfo instead
    */
   services?: Array<{ account_id?: string; datasource_id?: string; storage?: {} }>;
 
@@ -892,6 +894,8 @@ export interface ITerminalInfo {
    * If multiple terminals are candidates, the client can choose anyone to send the request.
    *
    * If the discriminator is undefined, it means that the terminal's id should be explicitly specified when sending a request.
+   *
+   * @deprecated - use serviceInfo instead
    */
   discriminator?: JSONSchema7;
 
