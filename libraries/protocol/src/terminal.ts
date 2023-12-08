@@ -1,6 +1,6 @@
 import { UUID, decodePath, encodePath, formatTime } from '@yuants/data-model';
 import { batchGroupBy, rateLimitMap, switchMapWithComplete } from '@yuants/utils';
-import Ajv from 'ajv';
+import Ajv, { ValidateFunction } from 'ajv';
 import { isNode } from 'browser-or-node';
 import { JSONSchema7 } from 'json-schema';
 import {
@@ -10,6 +10,7 @@ import {
   Subscription,
   bufferCount,
   catchError,
+  combineLatestWith,
   concatMap,
   concatWith,
   defer,
@@ -31,6 +32,7 @@ import {
   shareReplay,
   takeWhile,
   tap,
+  throttleTime,
   timeout,
   timer,
   toArray,
@@ -165,6 +167,7 @@ export class Terminal {
 
     this.terminalInfo.start_timestamp_in_ms ??= Date.now();
     this.terminalInfo.status ??= 'INIT';
+    this.terminalInfo.services ??= [];
 
     this.setupReportTerminalInfo();
   }
@@ -253,11 +256,9 @@ export class Terminal {
       return this.terminalInfos$.pipe(
         first(),
         mergeMap((x) => x),
-        filter((terminalInfo) => {
-          if (!terminalInfo.serviceInfo?.[method]) return false;
-          return new Ajv({ strict: false }).validate(terminalInfo.serviceInfo[method].schema, req);
-        }),
-        map((terminalInfo) => terminalInfo.terminal_id),
+        combineLatestWith(this._mapTerminalIdAndMethodToValidator$.pipe(first())),
+        filter(([terminalInfo, map]) => map[terminalInfo.terminal_id]?.[method]?.(req)),
+        map(([terminalInfo]) => terminalInfo.terminal_id),
         toArray(),
         map((arr) => {
           const target = loadBalancer(arr, trace_id);
@@ -709,6 +710,33 @@ export class Terminal {
     repeat({ delay: 10000 }),
     shareReplay(1),
   );
+
+  private _mapTerminalIdAndMethodToValidator$: Observable<Record<string, Record<string, ValidateFunction>>> =
+    this.terminalInfos$.pipe(
+      //
+      throttleTime(30_000),
+      mergeMap((x) =>
+        from(x).pipe(
+          mergeMap((terminalInfo) =>
+            from(Object.entries(terminalInfo.serviceInfo || {})).pipe(
+              map(([method, serviceInfo]): [string, ValidateFunction] => [
+                method,
+                new Ajv().compile(serviceInfo.schema),
+              ]),
+              toArray(),
+              map((arr) => Object.fromEntries(arr)),
+              map((mapMethodToValidator): [string, Record<string, ValidateFunction>] => [
+                terminalInfo.terminal_id,
+                mapMethodToValidator,
+              ]),
+            ),
+          ),
+          toArray(),
+          map((arr) => Object.fromEntries(arr)),
+        ),
+      ),
+      shareReplay(1),
+    );
 
   /**
    * Account ID List of the same host

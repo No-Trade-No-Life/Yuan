@@ -235,6 +235,7 @@ export interface ISubscriptionRelation {
 // @public
 export interface ITerminalInfo {
     channelIdSchemas?: JSONSchema7[];
+    // @deprecated
     discriminator?: JSONSchema7;
     env?: string;
     name?: string;
@@ -245,6 +246,7 @@ export interface ITerminalInfo {
         method: string;
         schema: JSONSchema7;
     }>;
+    // @deprecated
     services?: Array<{
         account_id?: string;
         datasource_id?: string;
