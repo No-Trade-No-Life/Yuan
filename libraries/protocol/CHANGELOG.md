@@ -1,6 +1,14 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Fri, 08 Dec 2023 14:47:10 GMT and should not be manually modified.
+This log was last generated on Fri, 08 Dec 2023 17:01:42 GMT and should not be manually modified.
+
+## 0.6.0
+Fri, 08 Dec 2023 17:01:42 GMT
+
+### Minor changes
+
+- terminal's services is undefined. mark services and discriminator as deprecated. add validator cache to speed up request
+- migrate to provideService API, remove setupService API
 
 ## 0.5.1
 Fri, 08 Dec 2023 14:47:10 GMT

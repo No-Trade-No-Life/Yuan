@@ -2,6 +2,26 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.6.0",
+      "tag": "@yuants/protocol_v0.6.0",
+      "date": "Fri, 08 Dec 2023 17:01:42 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "terminal's services is undefined. mark services and discriminator as deprecated. add validator cache to speed up request"
+          },
+          {
+            "comment": "migrate to provideService API, remove setupService API"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.1",
       "tag": "@yuants/protocol_v0.5.1",
       "date": "Fri, 08 Dec 2023 14:47:10 GMT",
