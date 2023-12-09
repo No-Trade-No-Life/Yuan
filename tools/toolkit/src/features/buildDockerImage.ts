@@ -135,6 +135,14 @@ export const buildDockerImage = async () => {
         /// Prepare docker-bake.json
         const packageJson = require(path.resolve(thisProject.projectFolder, 'package.json'));
 
+        for (const file of packageJson?.io_ntnl?.deploy_files || []) {
+          const src = path.resolve(thisProject.projectFolder, file);
+          const dest = absArtifactDir;
+          const newPath = path.join(dest, thisProject.projectRelativeFolder, path.basename(src));
+          fs.emptyDirSync(newPath);
+          fs.copySync(src, newPath);
+        }
+
         interface IImageSpec {
           dockerfile: string;
           name: string;
