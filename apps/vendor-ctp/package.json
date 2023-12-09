@@ -36,5 +36,14 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
+  },
+  "io_ntnl": {
+    "deploy_files": [
+      "dist",
+      "lib",
+      "temp",
+      "build",
+      "ctp"
+    ]
   }
 }
