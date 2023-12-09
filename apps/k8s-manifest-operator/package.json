@@ -6,6 +6,9 @@
     "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build",
     "dev": "node lib/index.js"
   },
+  "files": [
+    "dist/extension.bundle.js"
+  ],
   "dependencies": {
     "@kubernetes/client-node": "0.20.0",
     "@yuants/extension": "workspace:*",
@@ -32,5 +35,12 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
     "access": "public"
+  },
+  "io_ntnl": {
+    "deploy_files": [
+      "dist",
+      "lib",
+      "temp"
+    ]
   }
 }
