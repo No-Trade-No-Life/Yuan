@@ -1,6 +1,17 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Sat, 09 Dec 2023 19:25:13 GMT and should not be manually modified.
+This log was last generated on Sat, 09 Dec 2023 20:53:56 GMT and should not be manually modified.
+
+## 0.9.0
+Sat, 09 Dec 2023 20:53:56 GMT
+
+### Minor changes
+
+- metric channel_id messages
+
+### Patches
+
+- fix channel regexp escape issue
 
 ## 0.8.0
 Sat, 09 Dec 2023 19:25:13 GMT
