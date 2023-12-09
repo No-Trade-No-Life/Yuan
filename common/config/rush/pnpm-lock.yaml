@@ -253,14 +253,12 @@ importers:
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
-      promjs: ~0.4.2
       rxjs: ~7.5.6
       typescript: ~4.7.4
       ws: ~8.8.1
     dependencies:
       '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
-      promjs: 0.4.2
       rxjs: 7.5.7
       ws: 8.8.1
     devDependencies:
@@ -526,7 +524,6 @@ importers:
       '@yuants/utils': workspace:*
       date-fns: ~2.30.0
       json-schema: ~0.4.0
-      promjs: ~0.4.2
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
@@ -536,7 +533,6 @@ importers:
       '@yuants/utils': link:../utils
       date-fns: 2.30.0
       json-schema: 0.4.0
-      promjs: 0.4.2
       rxjs: 7.5.7
     devDependencies:
       '@microsoft/api-extractor': 7.30.1
@@ -674,7 +670,6 @@ importers:
 
   ../../libraries/protocol:
     specifiers:
-      '@influxdata/influxdb-client-browser': ~1.29.0
       '@microsoft/api-extractor': ~7.30.0
       '@rushstack/heft': ~0.47.5
       '@rushstack/heft-jest-plugin': ~0.3.30
@@ -687,24 +682,19 @@ importers:
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
       ajv: ~8.12.0
-      axios: ~0.27.2
       browser-or-node: ~2.0.0
       isomorphic-ws: ~5.0.0
-      promjs: ~0.4.2
       rxjs: ~7.5.6
       typescript: ~4.7.4
       url: ~0.11.0
       ws: ~8.11.0
     dependencies:
-      '@influxdata/influxdb-client-browser': 1.29.0
       '@yuants/data-model': link:../data-model
       '@yuants/prometheus-client': link:../prometheus-client
       '@yuants/utils': link:../utils
       ajv: 8.12.0
-      axios: 0.27.2
       browser-or-node: 2.0.0
       isomorphic-ws: 5.0.0_ws@8.11.0
-      promjs: 0.4.2
       rxjs: 7.5.7
       url: 0.11.1
       ws: 8.11.0
@@ -4492,10 +4482,6 @@ packages:
       react-dom: 18.2.0_react@18.2.0
     dev: false
 
-  /@influxdata/influxdb-client-browser/1.29.0:
-    resolution: {integrity: sha512-7Qep9AeYIu0nBuN8tL99SlHO+rVaPeiBoLhmvgqvVJPpRUW2/0XD4h5uAk7LRjweVJazBhuy235RgzdL3tV8jQ==}
-    dev: false
-
   /@istanbuljs/load-nyc-config/1.1.0:
     resolution: {integrity: sha512-VjeHSlIzpv/NyD3N0YuHfXOPDIixcA1q2ZV98wsMqcYlPmv2n3Yb2lYP9XMElnaFVXg5A7YLTeLu6V84uQDjmQ==}
     engines: {node: '>=8'}
@@ -7030,15 +7016,6 @@ packages:
     resolution: {integrity: sha512-cD8FOb0tRH3uuEe6+evtAbgJtfxr7ly3fQjYcMcuPlgkwVS9xboaVIpcDV+cYQe+yGykgwZCs1pzjntcGa6l5g==}
     dependencies:
       follow-redirects: 1.15.2
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
-  /axios/0.27.2:
-    resolution: {integrity: sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==}
-    dependencies:
-      follow-redirects: 1.15.2
-      form-data: 4.0.0
     transitivePeerDependencies:
       - debug
     dev: false
@@ -15846,10 +15823,6 @@ packages:
     resolution: {integrity: sha512-nolQXZ/4L+bP/UGlkfaIujX9BKxGwmQ9OT4mOt5yvy8iK1h3wqTEJCijzGANTCCl9nWjY41juyAn2K3Q1hLLTg==}
     dependencies:
       asap: 2.0.6
-    dev: false
-
-  /promjs/0.4.2:
-    resolution: {integrity: sha512-qvHcTU9xwEieFOf2Qnf5JYPKkdJU2lRbJfJvJspw6XpnoH7VPmNfnJJnOLPfN8ODJMBLRt8wEPVjxyyn0Or6RQ==}
     dev: false
 
   /prompts/2.4.2:
