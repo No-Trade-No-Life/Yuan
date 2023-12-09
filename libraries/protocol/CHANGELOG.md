@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Fri, 08 Dec 2023 17:01:42 GMT and should not be manually modified.
+This log was last generated on Sat, 09 Dec 2023 11:57:57 GMT and should not be manually modified.
+
+## 0.7.0
+Sat, 09 Dec 2023 11:57:57 GMT
+
+### Minor changes
+
+- feat: use new provideChannel API; fix: Ajv strict warning log; fix: requestService routing; feat: terminalInfos$ use new API from host
 
 ## 0.6.0
 Fri, 08 Dec 2023 17:01:42 GMT

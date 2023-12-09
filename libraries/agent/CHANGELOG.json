@@ -2,6 +2,26 @@
   "name": "@yuants/agent",
   "entries": [
     {
+      "version": "0.7.3",
+      "tag": "@yuants/agent_v0.7.3",
+      "date": "Sat, 09 Dec 2023 11:57:57 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.5.6`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.7.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.7.2",
       "tag": "@yuants/agent_v0.7.2",
       "date": "Fri, 08 Dec 2023 17:01:42 GMT",
