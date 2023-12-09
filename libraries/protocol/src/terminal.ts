@@ -10,7 +10,7 @@ import {
   Subscription,
   bufferCount,
   catchError,
-  combineLatestWith,
+  combineLatest,
   concatMap,
   concatWith,
   defer,
@@ -253,12 +253,17 @@ export class Terminal {
   ): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage> => {
     const trace_id = UUID();
     return defer(() => {
-      return this.terminalInfos$.pipe(
-        first(),
-        mergeMap((x) => x),
-        combineLatestWith(this._mapTerminalIdAndMethodToValidator$.pipe(first())),
-        filter(([terminalInfo, map]) => map[terminalInfo.terminal_id]?.[method]?.(req)),
-        map(([terminalInfo]) => terminalInfo.terminal_id),
+      return combineLatest([
+        this.terminalInfos$.pipe(first()),
+        this._mapTerminalIdAndMethodToValidator$.pipe(first()),
+      ]).pipe(
+        mergeMap(([terminalInfos, mapValidator]) =>
+          from(terminalInfos).pipe(
+            //
+            filter((terminalInfo) => mapValidator[terminalInfo.terminal_id]?.[method]?.(req)),
+          ),
+        ),
+        map((terminalInfo) => terminalInfo.terminal_id),
         toArray(),
         map((arr) => {
           const target = loadBalancer(arr, trace_id);
@@ -668,22 +673,13 @@ export class Terminal {
   /**
    * Terminal List of the same host
    */
-  terminalInfos$ = defer(() =>
-    this.queryDataRecords<ITerminalInfo>(
-      {
-        type: 'terminal_info',
-        options: { sort: [['tags.terminal_id', 1]] },
-      },
-      // ISSUE: Must specified the terminal_id
-      // TODO: Extract terminalInfo router terminal later
-      'MongoDB',
-    ),
-  ).pipe(
+  terminalInfos$: Observable<ITerminalInfo[]> = defer(() => this.request('ListTerminals', '@host', {})).pipe(
+    filter((msg) => !!msg.res),
+    map((msg) => msg.res?.data ?? []),
+    mergeMap((x) => x),
     // ISSUE: filter out terminals that have not been updated for a long time
-    filter((x) => Date.now() - x.updated_at < 60_000),
-    map((x) => x.origin),
+    filter((x) => Date.now() - x.updated_at! < 60_000),
     toArray(),
-    timeout(60000),
     retry({ delay: 1000 }),
     // ISSUE: Storage workload
     repeat({ delay: 10000 }),
@@ -700,7 +696,7 @@ export class Terminal {
             from(Object.entries(terminalInfo.serviceInfo || {})).pipe(
               map(([method, serviceInfo]): [string, ValidateFunction] => [
                 method,
-                new Ajv().compile(serviceInfo.schema),
+                new Ajv({ strict: false }).compile(serviceInfo.schema),
               ]),
               toArray(),
               map((arr) => Object.fromEntries(arr)),
@@ -1188,6 +1184,11 @@ export class Terminal {
    * Provide a Tick data stream, push to all subscriber terminals
    */
   provideTicks = (datasource_id: string, useTicks: (product_id: string) => Observable<ITick>) => {
+    this.provideChannel<ITick>({ pattern: `^Tick/${encodePath(datasource_id)}/.+$` }, (channel_id) => {
+      const [, datasourceId, product_id] = decodePath(channel_id);
+      if (datasourceId !== datasource_id || !product_id) return EMPTY;
+      return useTicks(product_id);
+    });
     const sub = this.subscriptionSnapshotOfTick$
       .pipe(
         //
@@ -1259,6 +1260,14 @@ export class Terminal {
     datasource_id: string,
     usePeriods: (product_id: string, period_in_sec: number) => Observable<IPeriod[]>,
   ) => {
+    this.provideChannel<IPeriod[]>(
+      { pattern: `^Period/${encodePath(datasource_id)}/.+/.+$` },
+      (channel_id) => {
+        const [, datasourceId, product_id, period_in_sec] = encodePath(channel_id);
+        if (datasourceId !== datasource_id || !product_id || !period_in_sec) return EMPTY;
+        return usePeriods(product_id, +period_in_sec);
+      },
+    );
     const sub = this.subscriptionSnapshotOfPeriod$
       .pipe(
         //
@@ -1322,11 +1331,13 @@ export class Terminal {
   provideAccountInfo = (accountInfo$: Observable<IAccountInfo>) => {
     // setup services
     const sub = accountInfo$.pipe(first()).subscribe((info) => {
+      const channel_id = encodePath(`AccountInfo`, info.account_id);
+      this.provideChannel({ const: channel_id }, () => accountInfo$);
+      // DEPRECATED behavior
       // if there is no service, add one
       if (!this.terminalInfo.services!.some((x) => x.account_id === info.account_id)) {
         this.terminalInfo.services!.push({ account_id: info.account_id });
       }
-      const channel_id = encodePath(`AccountInfo`, info.account_id);
       // push to all subscriber terminals
       const sub1 = accountInfo$.subscribe((accountInfo) => {
         const sub = this.subscriptionSnapshotOfAccountInfo$
