@@ -1,6 +1,11 @@
 # Change Log - @yuants/utils
 
-This log was last generated on Thu, 26 Oct 2023 18:03:30 GMT and should not be manually modified.
+This log was last generated on Sat, 09 Dec 2023 15:43:11 GMT and should not be manually modified.
+
+## 0.0.4
+Sat, 09 Dec 2023 15:43:11 GMT
+
+_Version update only_
 
 ## 0.0.3
 Thu, 26 Oct 2023 18:03:30 GMT

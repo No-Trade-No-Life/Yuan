@@ -2,6 +2,26 @@
   "name": "@yuants/tool-kit",
   "entries": [
     {
+      "version": "0.1.2",
+      "tag": "@yuants/tool-kit_v0.1.2",
+      "date": "Sat, 09 Dec 2023 15:43:11 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "support additional deploy dependencies file"
+          },
+          {
+            "comment": "fix bugs"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.1",
       "tag": "@yuants/tool-kit_v0.1.1",
       "date": "Thu, 26 Oct 2023 18:03:30 GMT",
