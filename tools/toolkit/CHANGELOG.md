@@ -1,6 +1,14 @@
 # Change Log - @yuants/tool-kit
 
-This log was last generated on Thu, 26 Oct 2023 18:03:30 GMT and should not be manually modified.
+This log was last generated on Sat, 09 Dec 2023 15:43:11 GMT and should not be manually modified.
+
+## 0.1.2
+Sat, 09 Dec 2023 15:43:11 GMT
+
+### Patches
+
+- support additional deploy dependencies file
+- fix bugs
 
 ## 0.1.1
 Thu, 26 Oct 2023 18:03:30 GMT
