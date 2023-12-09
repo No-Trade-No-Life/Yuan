@@ -2,6 +2,40 @@
   "name": "@yuants/vendor-ctp",
   "entries": [
     {
+      "version": "0.0.24",
+      "tag": "@yuants/vendor-ctp_v0.0.24",
+      "date": "Sat, 09 Dec 2023 16:37:39 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "apply new app publish mechanism"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.1.7`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.7.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.0.5`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.1.3`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.23",
       "tag": "@yuants/vendor-ctp_v0.0.23",
       "date": "Sat, 09 Dec 2023 16:08:43 GMT",
