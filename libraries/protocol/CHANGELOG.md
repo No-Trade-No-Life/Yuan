@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Sat, 09 Dec 2023 16:37:39 GMT and should not be manually modified.
+This log was last generated on Sat, 09 Dec 2023 19:25:13 GMT and should not be manually modified.
+
+## 0.8.0
+Sat, 09 Dec 2023 19:25:13 GMT
+
+### Minor changes
+
+- consumeChannel, requestService
 
 ## 0.7.3
 Sat, 09 Dec 2023 16:37:39 GMT

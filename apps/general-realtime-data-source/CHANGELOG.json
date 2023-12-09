@@ -2,6 +2,28 @@
   "name": "@yuants/app-general-realtime-data-source",
   "entries": [
     {
+      "version": "0.0.14",
+      "tag": "@yuants/app-general-realtime-data-source_v0.0.14",
+      "date": "Sat, 09 Dec 2023 19:25:13 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "consumeChannel, requestService"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.8.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.13",
       "tag": "@yuants/app-general-realtime-data-source_v0.0.13",
       "date": "Sat, 09 Dec 2023 16:37:39 GMT",
