@@ -385,7 +385,7 @@ export class Terminal {
     // (undocumented)
     removeDataRecords: (req: IRemoveDataRecordsRequest) => Observable<never>;
     // (undocumented)
-    request<T extends string>(method: T, target_terminal_id: string | undefined, req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req']): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage>;
+    request<T extends string>(method: T, target_terminal_id: string, req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req']): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage>;
     // (undocumented)
     requestService: <T extends string>(method: T, req: T extends keyof IService ? IService[T]["req"] : unknown) => Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage>;
     // (undocumented)

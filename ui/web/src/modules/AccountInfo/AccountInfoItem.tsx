@@ -1,12 +1,13 @@
 import { Button, Descriptions, List, Space, Spin, Typography } from '@douyinfe/semi-ui';
 import { formatTime } from '@yuants/data-model';
 import { useObservableState } from 'observable-hooks';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { executeCommand } from '../CommandCenter';
 import { useAccountInfo } from './model';
 
 export const AccountInfoItem = React.memo((props: { account_id: string }) => {
-  const accountInfo = useObservableState(useAccountInfo(props.account_id));
+  const accountInfo$ = useMemo(() => useAccountInfo(props.account_id), [props.account_id]);
+  const accountInfo = useObservableState(accountInfo$);
   const timeLag = Date.now() - (accountInfo?.timestamp_in_us ?? NaN) / 1000;
   return (
     <List.Item>
