@@ -26,7 +26,6 @@ Generally, basic data model will be associated with many derived relations.
 
 - [General Specific Relations](src/modules/GeneralSpecificRelations) This provides the corresponding relations between general and specific products.
 - [Pull Source Relation](src/modules/PullSourceRelations) This provides which OHLC data need to pull.
-- [Subscription Relation](src/modules/SubscriptionRelation/) This provides which channel need to subscribe.
 - [TradeCopier](src/modules/TradeCopier) This provides config management for Trade Copier
 
 #### User Stories & Business Scenes

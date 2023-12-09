@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-host",
+      "comment": "consumeChannel, requestService",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-host"
+}

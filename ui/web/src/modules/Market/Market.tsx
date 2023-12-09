@@ -181,30 +181,16 @@ registerCommand('fetchOHLCV', async (params) => {
       first(),
       tap(() => Toast.info(`开始拉取 ${datasource_id} / ${product_id} / ${period_in_sec} 历史数据...`)),
       mergeMap((terminal) =>
-        terminal.terminalInfos$.pipe(
-          first(),
-          mergeMap((infos) => {
-            const target_terminal_id = infos.find((info) =>
-              info.services?.find((service) => service.datasource_id === datasource_id),
-            )?.terminal_id;
-            if (target_terminal_id) {
-              return terminal.copyDataRecords(
-                {
-                  type: 'period',
-                  time_range: [start_time, end_time],
-                  tags: {
-                    datasource_id,
-                    product_id,
-                    period_in_sec: '' + period_in_sec,
-                  },
-                  receiver_terminal_id: 'MongoDB',
-                },
-                target_terminal_id,
-              );
-            }
-            return throwError(() => `DataSource Not Unavailable: ${datasource_id}`);
-          }),
-        ),
+        terminal.copyDataRecords({
+          type: 'period',
+          time_range: [start_time, end_time],
+          tags: {
+            datasource_id,
+            product_id,
+            period_in_sec: '' + period_in_sec,
+          },
+          receiver_terminal_id: 'MongoDB',
+        }),
       ),
       tap({
         complete: () => {

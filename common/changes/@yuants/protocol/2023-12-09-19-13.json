@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "consumeChannel, requestService",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

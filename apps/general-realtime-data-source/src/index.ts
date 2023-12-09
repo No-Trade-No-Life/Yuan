@@ -1,19 +1,16 @@
 import { encodePath } from '@yuants/data-model';
-import { IDataRecord, IPeriod, ISubscriptionRelation, Terminal } from '@yuants/protocol';
+import { IPeriod, Terminal } from '@yuants/protocol';
 import Ajv from 'ajv';
 import { JSONSchema7 } from 'json-schema';
 import {
   EMPTY,
   Observable,
   combineLatest,
-  concatWith,
   defer,
-  filter,
   first,
   from,
   groupBy,
   map,
-  mergeAll,
   mergeMap,
   of,
   repeat,
@@ -57,7 +54,6 @@ const ajv = new Ajv();
 const validate = ajv.compile(schema);
 
 const HV_URL = process.env.HV_URL!;
-const STORAGE_TERMINAL_ID = process.env.STORAGE_TERMINAL_ID!;
 const TERMINAL_ID = process.env.TERMINAL_ID || 'GeneralRealtimeDataSource';
 
 const term = new Terminal(HV_URL, {
@@ -72,12 +68,9 @@ const term = new Terminal(HV_URL, {
 });
 
 const mapProductIdToGSRList$ = defer(() =>
-  term.queryDataRecords<IGeneralSpecificRelation>(
-    {
-      type: 'general_specific_relation',
-    },
-    STORAGE_TERMINAL_ID,
-  ),
+  term.queryDataRecords<IGeneralSpecificRelation>({
+    type: 'general_specific_relation',
+  }),
 ).pipe(
   //
   map((record) => {
@@ -100,22 +93,6 @@ const mapProductIdToGSRList$ = defer(() =>
   shareReplay(1),
 );
 
-const mapSubscriptionRelationToDataRecord = (
-  origin: ISubscriptionRelation,
-): IDataRecord<ISubscriptionRelation> => ({
-  id: `${origin.channel_id}/${origin.provider_terminal_id}/${origin.consumer_terminal_id}`,
-  type: 'subscription_relation',
-  created_at: null,
-  updated_at: Date.now(),
-  frozen_at: null,
-  tags: {
-    channel_id: origin.channel_id,
-    provider_terminal_id: origin.provider_terminal_id,
-    consumer_terminal_id: origin.consumer_terminal_id,
-  },
-  origin,
-});
-
 const subscribePeriods = (product_id: string, period_in_sec: number) => {
   return mapProductIdToGSRList$.pipe(
     first(),
@@ -129,61 +106,9 @@ const subscribePeriods = (product_id: string, period_in_sec: number) => {
     }),
     mergeMap((gsrList) =>
       from(gsrList).pipe(
-        //
         map((gsr) =>
-          defer(() => term.terminalInfos$).pipe(
-            first(),
-            mergeAll(),
-            mergeMap((terminal) =>
-              from(terminal.services || []).pipe(
-                filter((service) => service.datasource_id === gsr.specific_datasource_id),
-                tap((service) => {
-                  console.info(
-                    new Date(),
-                    `UpdateSubscriptionRelation`,
-                    JSON.stringify({
-                      channel_id: encodePath('Period', gsr.specific_datasource_id, product_id, period_in_sec),
-                      provider_terminal_id: terminal.terminal_id,
-                      consumer_terminal_id: term.terminalInfo.terminal_id,
-                    }),
-                  );
-                }),
-                tap(() => {
-                  term.subscribeChannel(
-                    terminal.terminal_id,
-                    encodePath('Period', gsr.specific_datasource_id, product_id, period_in_sec),
-                  );
-                }),
-                mergeMap(() =>
-                  term
-                    .updateDataRecords(
-                      [
-                        mapSubscriptionRelationToDataRecord({
-                          channel_id: encodePath(
-                            'Period',
-                            gsr.specific_datasource_id,
-                            product_id,
-                            period_in_sec,
-                          ),
-                          provider_terminal_id: terminal.terminal_id,
-                          consumer_terminal_id: term.terminalInfo.terminal_id,
-                        }),
-                      ],
-                      STORAGE_TERMINAL_ID,
-                    )
-                    .pipe(concatWith(of(0))),
-                ),
-                tap(() => {
-                  console.info(new Date(), `UpdateSubscriptionRelation Success`);
-                }),
-              ),
-            ),
-            first(),
-            mergeMap(() =>
-              term.useFeed<IPeriod[]>(
-                encodePath('Period', gsr.specific_datasource_id, product_id, period_in_sec),
-              ),
-            ),
+          term.consumeChannel<IPeriod[]>(
+            encodePath('Period', gsr.specific_datasource_id, product_id, period_in_sec),
           ),
         ),
         toArray(),

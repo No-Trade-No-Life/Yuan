@@ -1,5 +1,5 @@
 import { UUID, decodePath, encodePath, formatTime } from '@yuants/data-model';
-import { batchGroupBy, rateLimitMap, switchMapWithComplete } from '@yuants/utils';
+import { rateLimitMap } from '@yuants/utils';
 import Ajv, { ValidateFunction } from 'ajv';
 import { isNode } from 'browser-or-node';
 import { JSONSchema7 } from 'json-schema';
@@ -12,11 +12,9 @@ import {
   catchError,
   combineLatest,
   concatMap,
-  concatWith,
   defer,
   delayWhen,
   distinct,
-  distinctUntilChanged,
   filter,
   first,
   from,
@@ -38,16 +36,7 @@ import {
   toArray,
 } from 'rxjs';
 import { IConnection, createConnectionJson } from './create-connection';
-import {
-  IAccountInfo,
-  IDataRecord,
-  IOrder,
-  IPeriod,
-  IProduct,
-  ISubscriptionRelation,
-  ITerminalInfo,
-  ITick,
-} from './model';
+import { IAccountInfo, IDataRecord, IOrder, IPeriod, IProduct, ITerminalInfo, ITick } from './model';
 import { IService, ITerminalMessage } from './services';
 import {
   ICopyDataRecordsRequest,
@@ -72,8 +61,6 @@ const AccountInfoPositionFloatingProfit = PromRegistry.create(
   'gauge',
   'account_info_position_floating_profit',
 );
-const DatasourceQuoteAsk = PromRegistry.create('gauge', 'datasource_quote_ask');
-const DatasourceQuoteBid = PromRegistry.create('gauge', 'datasource_quote_bid');
 
 const RequestDurationBucket = PromRegistry.create(
   'histogram',
@@ -348,41 +335,18 @@ export class Terminal {
         )
         .subscribe(),
     );
-    // DEPRECATED: Use UpdateTerminalInfo instead
-    const sub = defer(() =>
-      this.updateDataRecords(
-        [
-          {
-            id: this.terminalInfo.terminal_id,
-            type: 'terminal_info',
-            created_at: this.terminalInfo.start_timestamp_in_ms!,
-            frozen_at: null,
-            updated_at: Date.now(),
-            tags: { terminal_id: this.terminalInfo.terminal_id },
-            origin: this.terminalInfo,
-          },
-        ],
-        'MongoDB',
-      ),
-    )
-      .pipe(
-        //
-        timeout(5000),
-        retry({ delay: 1000 }),
-        repeat({ delay: 5000 }),
-      )
-      .subscribe();
-    this._subscriptions.push(sub);
   };
 
-  subscribeChannel = (provider_terminal_id: string, channel_id: string) => {
+  private _subscribeChannel = (provider_terminal_id: string, channel_id: string) => {
+    console.info(formatTime(Date.now()), 'Terminal', 'subscribe', channel_id, 'to', provider_terminal_id);
     // Assume that it's low frequency to subscribe a channel
     const channels = ((this.terminalInfo.subscriptions ??= {})[provider_terminal_id] ??= []);
     if (channels.includes(channel_id)) return;
     channels.push(channel_id);
   };
 
-  unsubscribeChannel = (provider_terminal_id: string, channel_id: string) => {
+  private _unsubscribeChannel = (provider_terminal_id: string, channel_id: string) => {
+    console.info(formatTime(Date.now()), 'Terminal', 'unsubscribe', channel_id, 'to', provider_terminal_id);
     // Assume that it's low frequency to unsubscribe a channel
     if (!this.terminalInfo.subscriptions) return;
     const channels = this.terminalInfo.subscriptions[provider_terminal_id];
@@ -630,45 +594,60 @@ export class Terminal {
     this._subscriptions.push(sub);
   };
 
-  consumeChannel = <T>(channel_id: string): Observable<T> => {
-    // candidate target_terminal_id list
-    const candidates$ = this.terminalInfos$.pipe(
-      mergeMap((x) =>
-        from(x).pipe(
-          filter(
-            (terminalInfo) =>
-              terminalInfo.channelIdSchemas?.some((schema) =>
-                new Ajv({ strict: false }).validate(schema, channel_id),
-              ) ?? false,
-          ),
-          map((x) => x.terminal_id),
-          toArray(),
-        ),
-      ),
-      shareReplay(1),
-    );
-    let provider_terminal_id: string | undefined;
-    const sub = candidates$.subscribe((candidates) => {
-      if (provider_terminal_id && !candidates.includes(provider_terminal_id)) {
-        this.unsubscribeChannel(provider_terminal_id, channel_id);
-        provider_terminal_id = undefined;
-      }
-      if (
-        (!provider_terminal_id && candidates.length > 0) ||
-        (provider_terminal_id && candidates.length > 0 && !candidates.includes(provider_terminal_id))
-      ) {
-        provider_terminal_id = loadBalancer(candidates, UUID())!;
-        this.subscribeChannel(provider_terminal_id, channel_id);
-      }
-    });
-    this._subscriptions.push(sub);
+  private _mapChannelIdToSubject: Record<string, Observable<any>> = {};
 
-    return this._conn.input$.pipe(
-      filter((msg) => msg.channel_id === channel_id && msg.source_terminal_id === provider_terminal_id),
-      map((msg) => msg.frame as T),
-      share(),
-    );
-  };
+  consumeChannel = <T>(channel_id: string): Observable<T> =>
+    // Cache by channel_id
+    (this._mapChannelIdToSubject[channel_id] ??= new Observable<T>((subscriber) => {
+      console.info(formatTime(Date.now()), 'Terminal', 'consumeChannel', 'subscribe', channel_id);
+      // candidate target_terminal_id list
+      const candidates$ = this.terminalInfos$.pipe(
+        mergeMap((x) =>
+          from(x).pipe(
+            filter(
+              (terminalInfo) =>
+                terminalInfo.channelIdSchemas?.some((schema) =>
+                  new Ajv({ strict: false }).validate(schema, channel_id),
+                ) ?? false,
+            ),
+            map((x) => x.terminal_id),
+            toArray(),
+          ),
+        ),
+        shareReplay(1),
+      );
+      let provider_terminal_id: string | undefined;
+      const sub = candidates$.subscribe((candidates) => {
+        if (provider_terminal_id && !candidates.includes(provider_terminal_id)) {
+          this._unsubscribeChannel(provider_terminal_id, channel_id);
+          provider_terminal_id = undefined;
+        }
+        if (
+          (!provider_terminal_id && candidates.length > 0) ||
+          (provider_terminal_id && candidates.length > 0 && !candidates.includes(provider_terminal_id))
+        ) {
+          provider_terminal_id = loadBalancer(candidates, UUID())!;
+          this._subscribeChannel(provider_terminal_id, channel_id);
+        }
+      });
+      this._subscriptions.push(sub);
+      const sub1 = this._conn.input$
+        .pipe(
+          filter((msg) => msg.channel_id === channel_id && msg.source_terminal_id === provider_terminal_id),
+          map((msg) => msg.frame as T),
+        )
+        .subscribe((payload) => {
+          subscriber.next(payload);
+        });
+      this._subscriptions.push(sub1);
+      return () => {
+        console.info(formatTime(Date.now()), 'ConsumeChannel', 'consumeChannel', 'unsubscribe', channel_id);
+        sub1.unsubscribe();
+      };
+    }).pipe(
+      //
+      shareReplay({ bufferSize: 1, refCount: true }),
+    ));
 
   /**
    * Terminal List of the same host
@@ -766,205 +745,44 @@ export class Terminal {
       ));
   })();
 
-  useFeed = (() => {
-    const hub: Record<string, Observable<any>> = {};
-    return <T>(channel_id: string): Observable<T> =>
-      (hub[channel_id] ??= defer(() =>
-        this._conn.input$.pipe(
-          filter((msg: any): msg is IService['Feed'] => msg.method === 'Feed'),
-          filter((msg) => msg.frame.channel_id === channel_id),
-          map((msg) => msg.frame.data as T),
-          filter((v): v is Exclude<typeof v, undefined> => !!v),
-          shareReplay(1),
-        ),
-      ));
-  })();
-
   /**
    * use account info data stream
    */
-  useAccountInfo = (() => {
-    const hub: Record<string, Observable<IAccountInfo>> = {};
-
-    return (account_id: string) =>
-      (hub[account_id] ??= defer(() =>
-        this.terminalInfos$.pipe(
-          first(),
-          mergeMap((x) => x),
-          mergeMap((terminal) =>
-            from(terminal.services || []).pipe(
-              filter((service) => service.account_id === account_id),
-              tap(() => {
-                this.subscribeChannel(terminal.terminal_id, encodePath('AccountInfo', account_id));
-              }),
-              delayWhen(() =>
-                this.updateDataRecords([
-                  mapSubscriptionRelationToDataRecord({
-                    channel_id: encodePath('AccountInfo', account_id),
-                    provider_terminal_id: terminal.terminal_id,
-                    consumer_terminal_id: this.terminalInfo.terminal_id,
-                  }),
-                ]).pipe(
-                  // ISSUE: delayWhen must return at least one data, otherwise the entire stream will end
-                  concatWith(of(0)),
-                ),
-              ),
-            ),
-          ),
-          first(), // subscribe success
-        ),
-      ).pipe(
-        mergeMap(() => this.useFeed<IAccountInfo>(encodePath('AccountInfo', account_id))),
-        timeout(60000),
-        retry({ delay: 5000 }),
-        shareReplay(1),
-      ));
-  })();
+  useAccountInfo = (account_id: string) =>
+    this.consumeChannel<IAccountInfo>(encodePath('AccountInfo', account_id));
 
   /**
    * use period data stream
    */
-  usePeriod = (() => {
-    const hub: Record<string, Observable<IPeriod>> = {};
-    return (datasource_id: string, product_id: string, period_in_sec: number) =>
-      (hub[[datasource_id, product_id, period_in_sec].join('\n')] ??= defer(() =>
-        this.terminalInfos$.pipe(
-          first(),
-          mergeMap((x) => x),
-          mergeMap((terminal) =>
-            from(terminal.services || []).pipe(
-              filter((service) => service.datasource_id === datasource_id),
-              tap(() => {
-                this.subscribeChannel(
-                  terminal.terminal_id,
-                  encodePath('Period', datasource_id, product_id, period_in_sec),
-                );
-              }),
-              delayWhen(() =>
-                this.updateDataRecords([
-                  mapSubscriptionRelationToDataRecord({
-                    channel_id: encodePath('Period', datasource_id, product_id, period_in_sec),
-                    provider_terminal_id: terminal.terminal_id,
-                    consumer_terminal_id: this.terminalInfo.terminal_id,
-                  }),
-                ]).pipe(
-                  //
-                  concatWith(of(0)),
-                ),
-              ),
-            ),
-          ),
-          first(),
-        ),
-      ).pipe(
-        mergeMap(() => this.useFeed<IPeriod>(encodePath('Period', datasource_id, product_id, period_in_sec))),
-        timeout(60000),
-        retry({ delay: 5000 }),
-        shareReplay(1),
-      ));
-  })();
+  usePeriod = (datasource_id: string, product_id: string, period_in_sec: number) =>
+    this.consumeChannel<IPeriod[]>(encodePath('Period', datasource_id, product_id, period_in_sec));
 
   /**
    * use tick data stream
    */
-  useTick = (() => {
-    const hub: Record<string, Observable<ITick>> = {};
-    return (datasource_id: string, product_id: string) =>
-      (hub[[datasource_id, product_id].join('\n')] ??= defer(() =>
-        this.terminalInfos$.pipe(
-          first(),
-          mergeMap((x) => x),
-          mergeMap((terminal) =>
-            from(terminal.services || []).pipe(
-              filter((service) => service.datasource_id === datasource_id),
-              tap(() => {
-                this.subscribeChannel(terminal.terminal_id, encodePath('Tick', datasource_id, product_id));
-              }),
-              delayWhen(() =>
-                this.updateDataRecords([
-                  mapSubscriptionRelationToDataRecord({
-                    channel_id: encodePath('Tick', datasource_id, product_id),
-                    provider_terminal_id: terminal.terminal_id,
-                    consumer_terminal_id: this.terminalInfo.terminal_id,
-                  }),
-                ]).pipe(
-                  //
-                  concatWith(of(0)),
-                ),
-              ),
-            ),
-          ),
-          first(),
-        ),
-      ).pipe(
-        mergeMap(() => this.useFeed<ITick>(encodePath('Tick', datasource_id, product_id))),
-        filter((v): v is Exclude<typeof v, undefined> => !!v),
-        timeout(60000),
-        retry({ delay: 5000 }),
-        shareReplay(1),
-      ));
-  })();
+  useTick = (datasource_id: string, product_id: string) =>
+    this.consumeChannel<ITick>(encodePath('Tick', datasource_id, product_id));
 
   submitOrder = (order: IOrder) =>
-    this.terminalInfos$.pipe(
-      mergeMap((v) => v),
-      mergeMap((info) =>
-        from(info.services || []).pipe(
-          filter((service) => service.account_id !== undefined && service.account_id === order.account_id),
-          map(() => info.terminal_id),
-        ),
-      ),
-      first(),
-
-      mergeMap((target_terminal_id) => this.request('SubmitOrder', target_terminal_id, order)),
+    this.requestService('SubmitOrder', order).pipe(
       map((msg) => msg.res),
+      filter((v): v is Exclude<typeof v, undefined> => v !== undefined),
     );
 
   modifyOrder = (order: IOrder) =>
-    this.terminalInfos$.pipe(
-      mergeMap((v) => v),
-      mergeMap((info) =>
-        from(info.services || []).pipe(
-          filter((service) => service.account_id !== undefined && service.account_id === order.account_id),
-          map(() => info.terminal_id),
-        ),
-      ),
-      first(),
-
-      mergeMap((target_terminal_id) => this.request('ModifyOrder', target_terminal_id, order)),
+    this.requestService('ModifyOrder', order).pipe(
       map((msg) => msg.res),
+      filter((v): v is Exclude<typeof v, undefined> => v !== undefined),
     );
 
   cancelOrder = (order: IOrder) =>
-    this.terminalInfos$.pipe(
-      mergeMap((v) => v),
-      mergeMap((info) =>
-        from(info.services || []).pipe(
-          filter((service) => service.account_id !== undefined && service.account_id === order.account_id),
-          map(() => info.terminal_id),
-        ),
-      ),
-      first(),
-
-      mergeMap((target_terminal_id) => this.request('CancelOrder', target_terminal_id, order)),
+    this.requestService('CancelOrder', order).pipe(
       map((msg) => msg.res),
+      filter((v): v is Exclude<typeof v, undefined> => v !== undefined),
     );
 
-  /**
-   * Push a data frame into subscription data stream
-   */
-  feed = (channel_id: string, data: any, target_terminal_id: string) => {
-    this._conn.output$.next({
-      trace_id: UUID(),
-      method: 'Feed',
-      frame: { channel_id, data },
-      source_terminal_id: this.terminalInfo.terminal_id,
-      target_terminal_id,
-    });
-  };
-
-  copyDataRecords = (req: ICopyDataRecordsRequest, target_terminal_id?: string) =>
-    this.request('CopyDataRecords', target_terminal_id, req).pipe(
+  copyDataRecords = (req: ICopyDataRecordsRequest) =>
+    this.requestService('CopyDataRecords', req).pipe(
       mergeMap((msg) => {
         if (msg.res) {
           if (msg.res.code !== 0) {
@@ -977,8 +795,8 @@ export class Terminal {
       }),
     );
 
-  queryDataRecords = <T>(req: IQueryDataRecordsRequest, target_terminal_id?: string) =>
-    this.request('QueryDataRecords', target_terminal_id, req).pipe(
+  queryDataRecords = <T>(req: IQueryDataRecordsRequest) =>
+    this.requestService('QueryDataRecords', req).pipe(
       mergeMap((msg) => {
         if (msg.frame) {
           return msg.frame as IDataRecord<T>[];
@@ -992,8 +810,8 @@ export class Terminal {
       }),
     );
 
-  updateDataRecords = (records: IDataRecord<any>[], target_terminal_id?: string) =>
-    this.request('UpdateDataRecords', target_terminal_id, records).pipe(
+  updateDataRecords = (records: IDataRecord<any>[]) =>
+    this.requestService('UpdateDataRecords', records).pipe(
       mergeMap((msg) => {
         if (msg.res) {
           if (msg.res.code !== 0) {
@@ -1004,8 +822,8 @@ export class Terminal {
       }),
     );
 
-  removeDataRecords = (req: IRemoveDataRecordsRequest, target_terminal_id?: string) =>
-    this.request('RemoveDataRecords', target_terminal_id, req).pipe(
+  removeDataRecords = (req: IRemoveDataRecordsRequest) =>
+    this.requestService('RemoveDataRecords', req).pipe(
       mergeMap((msg) => {
         if (msg.res) {
           if (msg.res.code !== 0) {
@@ -1016,45 +834,30 @@ export class Terminal {
       }),
     );
 
-  queryHistoryOrders = (req: IQueryHistoryOrdersRequest, target_terminal_id?: string) => {
+  queryHistoryOrders = (req: IQueryHistoryOrdersRequest) => {
     return of(0).pipe(
       //
       delayWhen(() => {
         if (req.pull_source) {
-          return this.terminalInfos$
-            .pipe(
-              mergeMap((v) => v),
-              mergeMap((info) =>
-                from(info.services || []).pipe(
-                  filter((service) => req.account_id !== undefined && service.account_id === req.account_id),
-                  map(() => info.terminal_id),
-                ),
-              ),
-              first(),
-            )
-            .pipe(
-              mergeMap((target_terminal_id) => this.request('QueryHistoryOrders', target_terminal_id, req)),
-              map((msg) => msg.res),
-              filter((v): v is Exclude<typeof v, undefined> => v !== undefined),
-              map((res) => {
-                if (res.code !== 0) {
-                  throw new Error(res.message ?? 'UnknownError');
-                }
-                return res;
-              }),
-            );
+          return this.requestService('QueryHistoryOrders', req).pipe(
+            map((msg) => msg.res),
+            filter((v): v is Exclude<typeof v, undefined> => v !== undefined),
+            map((res) => {
+              if (res.code !== 0) {
+                throw new Error(res.message ?? 'UnknownError');
+              }
+              return res;
+            }),
+          );
         }
         return of(0);
       }),
       mergeMap(() =>
-        this.queryDataRecords<IOrder>(
-          {
-            type: 'order',
-            time_range: [(req.start_time_in_us ?? 0) / 1000, Date.now()],
-            tags: { account_id: req.account_id },
-          },
-          target_terminal_id,
-        ).pipe(
+        this.queryDataRecords<IOrder>({
+          type: 'order',
+          time_range: [(req.start_time_in_us ?? 0) / 1000, Date.now()],
+          tags: { account_id: req.account_id },
+        }).pipe(
           //
           map((dataRecord) => dataRecord.origin),
           toArray(),
@@ -1063,55 +866,34 @@ export class Terminal {
     );
   };
 
-  queryPeriods = (req: IQueryPeriodsRequest, target_terminal_id?: string) => {
+  queryPeriods = (req: IQueryPeriodsRequest) => {
     return of(0).pipe(
       //
       delayWhen(() => {
         if (req.pull_source) {
-          return this.terminalInfos$
-            .pipe(
-              mergeMap((v) => v),
-              mergeMap((info) =>
-                from(info.services || []).pipe(
-                  filter(
-                    (service) =>
-                      req.datasource_id !== undefined && service.datasource_id === req.datasource_id,
-                  ),
-                  map(() => info.terminal_id),
-                ),
-              ),
-              first(),
-            )
-            .pipe(
-              mergeMap((target_terminal_id) => this.request('QueryPeriods', target_terminal_id, req)),
-              map((msg) => msg.res),
-              filter((v): v is Exclude<typeof v, undefined> => v !== undefined),
-              map((res) => {
-                if (res.code !== 0) {
-                  throw new Error(res.message ?? 'UnknownError');
-                }
-                return res;
-              }),
-            );
+          return this.requestService('QueryPeriods', req).pipe(
+            map((msg) => msg.res),
+            filter((v): v is Exclude<typeof v, undefined> => v !== undefined),
+            map((res) => {
+              if (res.code !== 0) {
+                throw new Error(res.message ?? 'UnknownError');
+              }
+              return res;
+            }),
+          );
         }
         return of(0);
       }),
       mergeMap(() =>
-        this.queryDataRecords<IPeriod>(
-          {
-            type: 'period',
-            time_range: [
-              (req.start_time_in_us ?? 0) / 1000,
-              (req.end_time_in_us ?? Date.now() * 1000) / 1000,
-            ],
-            tags: {
-              datasource_id: req.datasource_id,
-              product_id: req.product_id,
-              period_in_sec: '' + req.period_in_sec,
-            },
+        this.queryDataRecords<IPeriod>({
+          type: 'period',
+          time_range: [(req.start_time_in_us ?? 0) / 1000, (req.end_time_in_us ?? Date.now() * 1000) / 1000],
+          tags: {
+            datasource_id: req.datasource_id,
+            product_id: req.product_id,
+            period_in_sec: '' + req.period_in_sec,
           },
-          target_terminal_id,
-        ).pipe(
+        }).pipe(
           // ISSUE: unknown reason, sometimes the data will be out of range, but frozen_at is null.
           filter((dataRecord) => {
             if (
@@ -1130,49 +912,31 @@ export class Terminal {
     );
   };
 
-  queryProducts = (req: IQueryProductsRequest, target_terminal_id?: string) => {
+  queryProducts = (req: IQueryProductsRequest) => {
     return of(0).pipe(
       //
       delayWhen(() => {
         if (req.pull_source) {
-          return this.terminalInfos$
-            .pipe(
-              mergeMap((v) => v),
-              mergeMap((info) =>
-                from(info.services || []).pipe(
-                  filter(
-                    (service) =>
-                      req.datasource_id !== undefined && service.datasource_id === req.datasource_id,
-                  ),
-                  map(() => info.terminal_id),
-                ),
-              ),
-              first(),
-            )
-            .pipe(
-              mergeMap((target_terminal_id) => this.request('QueryProducts', target_terminal_id, req)),
-              map((msg) => msg.res),
-              filter((v): v is Exclude<typeof v, undefined> => v !== undefined),
-              map((res) => {
-                if (res.code !== 0) {
-                  throw new Error(res.message ?? 'UnknownError');
-                }
-                return res;
-              }),
-            );
+          return this.requestService('QueryProducts', req).pipe(
+            map((msg) => msg.res),
+            filter((v): v is Exclude<typeof v, undefined> => v !== undefined),
+            map((res) => {
+              if (res.code !== 0) {
+                throw new Error(res.message ?? 'UnknownError');
+              }
+              return res;
+            }),
+          );
         }
         return of(0);
       }),
       mergeMap(() =>
-        this.queryDataRecords<IProduct>(
-          {
-            type: 'product',
-            tags: {
-              datasource_id: req.datasource_id!,
-            },
+        this.queryDataRecords<IProduct>({
+          type: 'product',
+          tags: {
+            datasource_id: req.datasource_id!,
           },
-          target_terminal_id,
-        ).pipe(
+        }).pipe(
           map((dataRecord) => dataRecord.origin),
           toArray(),
         ),
@@ -1189,68 +953,6 @@ export class Terminal {
       if (datasourceId !== datasource_id || !product_id) return EMPTY;
       return useTicks(product_id);
     });
-    const sub = this.subscriptionSnapshotOfTick$
-      .pipe(
-        //
-        mergeMap((relations) =>
-          from(relations).pipe(
-            //
-            filter((relation) => relation.datasource_id === datasource_id),
-            toArray(),
-          ),
-        ),
-        batchGroupBy((relation) => `${relation.datasource_id}\n${relation.product_id}`),
-        mergeMap((group) =>
-          group.pipe(
-            //
-            distinctUntilChanged(
-              (a, b) => a.consumer_terminal_ids.join(',') === b.consumer_terminal_ids.join(','),
-            ),
-            tap((relation) => {
-              console.info(formatTime(Date.now()), 'SubscriptionRelationUpdated', relation);
-            }),
-            switchMapWithComplete((relation) => {
-              // Update service list
-              if (!this.terminalInfo.services!.some((x) => x.datasource_id === relation.datasource_id)) {
-                this.terminalInfo.services!.push({ datasource_id: relation.datasource_id });
-              }
-              const channel_id = encodePath('Tick', relation.datasource_id, relation.product_id);
-              return useTicks(relation.product_id).pipe(
-                //
-                tap({
-                  next: (tick) => {
-                    // multicast
-                    for (const target_terminal_id of relation.consumer_terminal_ids) {
-                      this.feed(channel_id, tick, target_terminal_id);
-                    }
-                    // metrics
-                    if (tick.ask) {
-                      DatasourceQuoteAsk.set(tick.ask, {
-                        datasource_id: tick.datasource_id,
-                        product_id: tick.product_id,
-                      });
-                    }
-                    if (tick.bid) {
-                      DatasourceQuoteBid.set(tick.bid, {
-                        datasource_id: tick.datasource_id,
-                        product_id: tick.product_id,
-                      });
-                    }
-                  },
-                  unsubscribe: () => {
-                    console.info(formatTime(Date.now()), 'tick subscription stopped', relation);
-                  },
-                  subscribe: () => {
-                    console.info(formatTime(Date.now()), 'tick subscription started', relation);
-                  },
-                }),
-              );
-            }),
-          ),
-        ),
-      )
-      .subscribe();
-    this._subscriptions.push(sub);
   };
 
   /**
@@ -1268,61 +970,6 @@ export class Terminal {
         return usePeriods(product_id, +period_in_sec);
       },
     );
-    const sub = this.subscriptionSnapshotOfPeriod$
-      .pipe(
-        //
-        mergeMap((relations) =>
-          from(relations).pipe(
-            //
-            filter((relation) => relation.datasource_id === datasource_id),
-            toArray(),
-          ),
-        ),
-        batchGroupBy((relation) =>
-          encodePath(relation.datasource_id, relation.product_id, relation.period_in_sec),
-        ),
-        mergeMap((group) =>
-          group.pipe(
-            //
-            distinctUntilChanged(
-              (a, b) => a.consumer_terminal_ids.join(',') === b.consumer_terminal_ids.join(','),
-            ),
-            tap((relation) => {
-              console.info(formatTime(Date.now()), 'SubscriptionRelationUpdated', relation);
-            }),
-            switchMapWithComplete((relation) => {
-              // Update service list
-              if (!this.terminalInfo.services!.some((x) => x.datasource_id === relation.datasource_id)) {
-                this.terminalInfo.services!.push({ datasource_id: relation.datasource_id });
-              }
-              const channel_id = encodePath(
-                'Period',
-                relation.datasource_id,
-                relation.product_id,
-                relation.period_in_sec,
-              );
-              return usePeriods(relation.product_id, relation.period_in_sec).pipe(
-                //
-                tap({
-                  next: (periods) => {
-                    for (const target_terminal_id of relation.consumer_terminal_ids) {
-                      this.feed(channel_id, periods, target_terminal_id);
-                    }
-                  },
-                  unsubscribe: () => {
-                    console.info(formatTime(Date.now()), 'Period subscription ended', relation);
-                  },
-                  subscribe: () => {
-                    console.info(formatTime(Date.now()), 'Period subscription started', relation);
-                  },
-                }),
-              );
-            }),
-          ),
-        ),
-      )
-      .subscribe();
-    this._subscriptions.push(sub);
   };
 
   /**
@@ -1333,34 +980,6 @@ export class Terminal {
     const sub = accountInfo$.pipe(first()).subscribe((info) => {
       const channel_id = encodePath(`AccountInfo`, info.account_id);
       this.provideChannel({ const: channel_id }, () => accountInfo$);
-      // DEPRECATED behavior
-      // if there is no service, add one
-      if (!this.terminalInfo.services!.some((x) => x.account_id === info.account_id)) {
-        this.terminalInfo.services!.push({ account_id: info.account_id });
-      }
-      // push to all subscriber terminals
-      const sub1 = accountInfo$.subscribe((accountInfo) => {
-        const sub = this.subscriptionSnapshotOfAccountInfo$
-          .pipe(
-            //
-            first(),
-            mergeMap((relations) =>
-              from(relations).pipe(
-                //
-                filter((relation) => relation.account_id === accountInfo.account_id),
-                tap((relation) => {
-                  // 推流
-                  for (const target_terminal_id of relation.consumer_terminal_ids) {
-                    this.feed(channel_id, accountInfo, target_terminal_id);
-                  }
-                }),
-              ),
-            ),
-          )
-          .subscribe();
-        this._subscriptions.push(sub);
-      });
-      this._subscriptions.push(sub1);
 
       // Metrics
       const sub2 = accountInfo$
@@ -1439,17 +1058,18 @@ export class Terminal {
         });
       this._subscriptions.push(sub2);
     });
+    this._subscriptions.push(sub);
   };
 
   /**
    * Push history orders to all subscriber terminals
    */
-  updateHistoryOrders = (orders: IOrder[], target_terminal_id?: string) => {
+  updateHistoryOrders = (orders: IOrder[]) => {
     return from(orders).pipe(
       //
       map(mapOrderToDataRecord),
       bufferCount(2000),
-      concatMap((records) => this.updateDataRecords(records, target_terminal_id)),
+      concatMap((records) => this.updateDataRecords(records)),
       toArray(),
     );
   };
@@ -1457,12 +1077,12 @@ export class Terminal {
   /**
    * Push history Periods to all subscriber terminals
    */
-  updatePeriods = (periods: IPeriod[], target_terminal_id?: string) => {
+  updatePeriods = (periods: IPeriod[]) => {
     return from(periods).pipe(
       //
       map(mapPeriodToDataRecord),
       bufferCount(2000),
-      concatMap((records) => this.updateDataRecords(records, target_terminal_id)),
+      concatMap((records) => this.updateDataRecords(records)),
       toArray(),
     );
   };
@@ -1470,159 +1090,15 @@ export class Terminal {
   /**
    * Push Products to all subscriber terminals
    */
-  updateProducts = (products: IProduct[], target_terminal_id?: string) => {
+  updateProducts = (products: IProduct[]) => {
     return from(products).pipe(
       //
       map(mapProductToDataRecord),
       bufferCount(2000),
-      concatMap((records) => this.updateDataRecords(records, target_terminal_id)),
+      concatMap((records) => this.updateDataRecords(records)),
       toArray(),
     );
   };
-
-  /**
-   * Subscription snapshot of the same host
-   */
-  subscriptionSnapshot$ = defer(() =>
-    this.queryDataRecords<ISubscriptionRelation>({
-      type: 'subscription_relation',
-      tags: { provider_terminal_id: this.terminalInfo.terminal_id },
-    }),
-  ).pipe(
-    //
-    map((x) => x.origin),
-    toArray(),
-    retry({ delay: 30000 }),
-    repeat({ delay: 5000 }),
-    shareReplay(1),
-  );
-
-  /**
-   * Account ID subscription snapshot of the same host
-   */
-  subscriptionSnapshotOfAccountInfo$ = this.subscriptionSnapshot$.pipe(
-    mergeMap((list) =>
-      from(list)
-        .pipe(
-          mergeMap((relation) =>
-            of(decodePath(relation.channel_id)).pipe(
-              //
-              filter(([type]) => type === 'AccountInfo'),
-              map(([, account_id]) => ({
-                account_id,
-                consumer_terminal_id: relation.consumer_terminal_id,
-              })),
-            ),
-          ),
-        )
-        .pipe(
-          groupBy((x) => x.account_id),
-          mergeMap((groupAccount) =>
-            groupAccount.pipe(
-              map((x) => x.consumer_terminal_id),
-              toArray(),
-              map((x) => ({ account_id: groupAccount.key, consumer_terminal_ids: x })),
-            ),
-          ),
-          toArray(),
-        ),
-    ),
-    shareReplay(1),
-  );
-
-  /**
-   * Tick Subscription snapshot of the same host
-   */
-  subscriptionSnapshotOfTick$ = this.subscriptionSnapshot$.pipe(
-    mergeMap((list) =>
-      from(list)
-        .pipe(
-          mergeMap((relation) =>
-            of(decodePath(relation.channel_id)).pipe(
-              //
-              filter(([type]) => type === 'Tick'),
-              map(([, datasource_id, product_id]) => ({
-                datasource_id,
-                product_id,
-                consumer_terminal_id: relation.consumer_terminal_id,
-              })),
-            ),
-          ),
-        )
-        .pipe(
-          groupBy((x) => x.datasource_id),
-          mergeMap((groupDataSource) =>
-            groupDataSource.pipe(
-              groupBy((x) => x.product_id),
-              mergeMap((groupProduct) =>
-                groupProduct.pipe(
-                  map((x) => x.consumer_terminal_id),
-                  toArray(),
-                  map((x) => ({
-                    datasource_id: groupDataSource.key,
-                    product_id: groupProduct.key,
-                    consumer_terminal_ids: x,
-                  })),
-                ),
-              ),
-            ),
-          ),
-          toArray(),
-        ),
-    ),
-    shareReplay(1),
-  );
-
-  /**
-   * Period Subscription snapshot of the same host
-   */
-  subscriptionSnapshotOfPeriod$ = this.subscriptionSnapshot$.pipe(
-    mergeMap((list) =>
-      from(list)
-        .pipe(
-          mergeMap((relation) =>
-            of(decodePath(relation.channel_id)).pipe(
-              //
-              filter(([type]) => type === 'Period'),
-              map(([, datasource_id, product_id, period_in_sec]) => ({
-                datasource_id,
-                product_id,
-                period_in_sec: +period_in_sec,
-                consumer_terminal_id: relation.consumer_terminal_id,
-              })),
-            ),
-          ),
-        )
-        .pipe(
-          groupBy((x) => x.datasource_id),
-          mergeMap((groupDatasource) =>
-            groupDatasource.pipe(
-              groupBy((x) => x.product_id),
-              mergeMap((groupProduct) =>
-                groupProduct.pipe(
-                  groupBy((x) => x.period_in_sec),
-                  mergeMap((groupPeriod) =>
-                    groupPeriod.pipe(
-                      map((x) => x.consumer_terminal_id),
-                      toArray(),
-                      map((x) => ({
-                        datasource_id: groupDatasource.key,
-                        product_id: groupProduct.key,
-                        period_in_sec: groupPeriod.key,
-                        consumer_terminal_ids: x.sort(),
-                      })),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-
-          toArray(),
-        ),
-    ),
-    shareReplay(1),
-  );
 }
 
 /**
@@ -1686,20 +1162,4 @@ const mapProductToDataRecord = (product: IProduct): IDataRecord<IProduct> => ({
     ...(product.quoted_currency ? { quoted_currency: product.quoted_currency } : {}),
   },
   origin: product,
-});
-
-const mapSubscriptionRelationToDataRecord = (
-  origin: ISubscriptionRelation,
-): IDataRecord<ISubscriptionRelation> => ({
-  id: `${origin.channel_id}/${origin.provider_terminal_id}/${origin.consumer_terminal_id}`,
-  type: 'subscription_relation',
-  created_at: null,
-  updated_at: Date.now(),
-  frozen_at: null,
-  tags: {
-    channel_id: origin.channel_id,
-    provider_terminal_id: origin.provider_terminal_id,
-    consumer_terminal_id: origin.consumer_terminal_id,
-  },
-  origin,
 });

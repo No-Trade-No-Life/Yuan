@@ -976,30 +976,6 @@ export interface IServiceInfo {
 }
 
 /**
- * Subscription Relation
- * 订阅关系
- *
- * @public
- */
-export interface ISubscriptionRelation {
-  /**
-   * Subscription channel ID
-   * 订阅频道
-   */
-  channel_id: string;
-  /**
-   * Producer terminal ID
-   * 生产者 终端ID
-   */
-  provider_terminal_id: string;
-  /**
-   * Consumer terminal ID
-   * 消费者 终端ID
-   */
-  consumer_terminal_id: string;
-}
-
-/**
  * Data Record
  * 数据记录
  *

@@ -1,15 +1,13 @@
 import { encodePath, formatTime } from '@yuants/data-model';
-import { IDataRecord, IPeriod, ISubscriptionRelation, Terminal } from '@yuants/protocol';
+import { IPeriod, Terminal } from '@yuants/protocol';
 import {
   Subscription,
   defer,
   delayWhen,
   filter,
-  first,
   firstValueFrom,
   from,
   map,
-  mergeAll,
   mergeMap,
   retry,
   tap,
@@ -20,22 +18,6 @@ import { Kernel } from '../kernel';
 import { BasicUnit } from './BasicUnit';
 import { PeriodDataUnit } from './PeriodDataUnit';
 import { ProductDataUnit } from './ProductDataUnit';
-
-const mapSubscriptionRelationToDataRecord = (
-  origin: ISubscriptionRelation,
-): IDataRecord<ISubscriptionRelation> => ({
-  id: `${origin.channel_id}/${origin.provider_terminal_id}/${origin.consumer_terminal_id}`,
-  type: 'subscription_relation',
-  created_at: null,
-  updated_at: Date.now(),
-  frozen_at: null,
-  tags: {
-    channel_id: origin.channel_id,
-    provider_terminal_id: origin.provider_terminal_id,
-    consumer_terminal_id: origin.consumer_terminal_id,
-  },
-  origin,
-});
 
 const mapPeriodInSecToCronPattern: Record<string, string> = {
   60: '* * * * *',
@@ -159,55 +141,10 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
       const { datasource_id, product_id, period_in_sec } = task;
       const theProduct = this.productDataUnit.mapProductIdToProduct[product_id];
 
-      // ISSUE: period_stream 依赖订阅关系的存在性，因此要先添加订阅关系
-      this.subscriptions.push(
-        defer(() => this.terminal.terminalInfos$)
-          .pipe(
-            first(),
-            mergeAll(),
-            mergeMap((terminal) =>
-              from(terminal.services || []).pipe(
-                filter((service) => service.datasource_id === datasource_id),
-                tap((service) => {
-                  console.info(
-                    formatTime(Date.now()),
-                    '更新订阅关系',
-                    JSON.stringify({
-                      channel_id: encodePath('Period', datasource_id, product_id, period_in_sec),
-                      provider_terminal_id: terminal.terminal_id,
-                      consumer_terminal_id: this.terminal.terminalInfo.terminal_id,
-                    }),
-                  );
-                }),
-                tap(() => {
-                  this.terminal.subscribeChannel(
-                    terminal.terminal_id,
-                    encodePath('Period', datasource_id, product_id, period_in_sec),
-                  );
-                }),
-                mergeMap(() =>
-                  this.terminal.updateDataRecords([
-                    mapSubscriptionRelationToDataRecord({
-                      channel_id: encodePath('Period', datasource_id, product_id, period_in_sec),
-                      provider_terminal_id: terminal.terminal_id,
-                      consumer_terminal_id: this.terminal.terminalInfo.terminal_id,
-                    }),
-                  ]),
-                ),
-                tap(() => {
-                  console.info(formatTime(Date.now()), '订阅关系更新成功');
-                }),
-              ),
-            ),
-            retry({ delay: 1000 }),
-          )
-          .subscribe(),
-      );
-
       const channelId = encodePath('Period', datasource_id, product_id, period_in_sec);
       // ISSUE: Period[].length >= 2 to ensure overlay
       this.subscriptions.push(
-        this.terminal.useFeed<IPeriod[]>(channelId).subscribe((periods) => {
+        this.terminal.consumeChannel<IPeriod[]>(channelId).subscribe((periods) => {
           if (periods.length < 2) {
             console.warn(
               formatTime(Date.now()),

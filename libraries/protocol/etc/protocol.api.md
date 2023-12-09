@@ -97,26 +97,6 @@ export interface IEnvContext {
 }
 
 // @public
-export interface IInfluxPoint {
-    // (undocumented)
-    fields?: Record<string, string | number>;
-    // (undocumented)
-    measurement: string;
-    // (undocumented)
-    tags?: Record<string, string>;
-    // (undocumented)
-    timestamp?: Date | string | number;
-}
-
-// @public
-export class InfluxClient {
-    constructor(dsn: string);
-    // (undocumented)
-    dsn: string;
-    writePoint(point: IInfluxPoint): void;
-}
-
-// @public
 export interface IOrder {
     account_id: string;
     client_order_id: string;
@@ -223,13 +203,6 @@ export interface IServiceInfo {
     name?: string;
     service_id: string;
     ttl_in_sec?: number;
-}
-
-// @public
-export interface ISubscriptionRelation {
-    channel_id: string;
-    consumer_terminal_id: string;
-    provider_terminal_id: string;
 }
 
 // @public
@@ -365,7 +338,7 @@ export class Terminal {
     constructor(host_url: string, terminalInfo: ITerminalInfo, connection?: IConnection<ITerminalMessage>);
     accountIds$: Observable<string[]>;
     // (undocumented)
-    cancelOrder: (order: IOrder) => Observable<(IResponse<void> & IResponse<unknown>) | undefined>;
+    cancelOrder: (order: IOrder) => Observable<IResponse<void> & IResponse<unknown>>;
     // (undocumented)
     _conn: IConnection<ITerminalMessage>;
     // (undocumented)
@@ -373,15 +346,14 @@ export class Terminal {
     // Warning: (ae-forgotten-export) The symbol "ICopyDataRecordsRequest" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    copyDataRecords: (req: ICopyDataRecordsRequest, target_terminal_id?: string) => Observable<undefined>;
+    copyDataRecords: (req: ICopyDataRecordsRequest) => Observable<undefined>;
     datasourceIds$: Observable<string[]>;
     // (undocumented)
     dispose(): void;
-    feed: (channel_id: string, data: any, target_terminal_id: string) => void;
     // (undocumented)
     host_url: string;
     // (undocumented)
-    modifyOrder: (order: IOrder) => Observable<(IResponse<void> & IResponse<unknown>) | undefined>;
+    modifyOrder: (order: IOrder) => Observable<IResponse<void> & IResponse<unknown>>;
     provideAccountInfo: (accountInfo$: Observable<IAccountInfo>) => void;
     // (undocumented)
     provideChannel: <T>(channelIdSchema: JSONSchema7, handler: (channel_id: string) => Observable<T>) => void;
@@ -395,61 +367,39 @@ export class Terminal {
     // Warning: (ae-forgotten-export) The symbol "IQueryDataRecordsRequest" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    queryDataRecords: <T>(req: IQueryDataRecordsRequest, target_terminal_id?: string) => Observable<IDataRecord<T>>;
+    queryDataRecords: <T>(req: IQueryDataRecordsRequest) => Observable<IDataRecord<T>>;
     // Warning: (ae-forgotten-export) The symbol "IQueryHistoryOrdersRequest" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    queryHistoryOrders: (req: IQueryHistoryOrdersRequest, target_terminal_id?: string) => Observable<IOrder[]>;
+    queryHistoryOrders: (req: IQueryHistoryOrdersRequest) => Observable<IOrder[]>;
     // Warning: (ae-forgotten-export) The symbol "IQueryPeriodsRequest" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    queryPeriods: (req: IQueryPeriodsRequest, target_terminal_id?: string) => Observable<IPeriod[]>;
+    queryPeriods: (req: IQueryPeriodsRequest) => Observable<IPeriod[]>;
     // Warning: (ae-forgotten-export) The symbol "IQueryProductsRequest" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    queryProducts: (req: IQueryProductsRequest, target_terminal_id?: string) => Observable<IProduct[]>;
+    queryProducts: (req: IQueryProductsRequest) => Observable<IProduct[]>;
     // Warning: (ae-forgotten-export) The symbol "IRemoveDataRecordsRequest" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
-    removeDataRecords: (req: IRemoveDataRecordsRequest, target_terminal_id?: string) => Observable<never>;
+    removeDataRecords: (req: IRemoveDataRecordsRequest) => Observable<never>;
     // (undocumented)
     request<T extends string>(method: T, target_terminal_id: string | undefined, req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req']): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage>;
     // (undocumented)
     requestService: <T extends string>(method: T, req: T extends keyof IService ? IService[T]["req"] : unknown) => Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage>;
     // (undocumented)
-    submitOrder: (order: IOrder) => Observable<(IResponse<void> & IResponse<unknown>) | undefined>;
-    // (undocumented)
-    subscribeChannel: (provider_terminal_id: string, channel_id: string) => void;
-    subscriptionSnapshot$: Observable<ISubscriptionRelation[]>;
-    subscriptionSnapshotOfAccountInfo$: Observable<{
-        account_id: string;
-        consumer_terminal_ids: string[];
-    }[]>;
-    subscriptionSnapshotOfPeriod$: Observable<{
-        datasource_id: string;
-        product_id: string;
-        period_in_sec: number;
-        consumer_terminal_ids: string[];
-    }[]>;
-    subscriptionSnapshotOfTick$: Observable<{
-        datasource_id: string;
-        product_id: string;
-        consumer_terminal_ids: string[];
-    }[]>;
+    submitOrder: (order: IOrder) => Observable<IResponse<void> & IResponse<unknown>>;
     // (undocumented)
     terminalInfo: ITerminalInfo;
     terminalInfos$: Observable<ITerminalInfo[]>;
     // (undocumented)
-    unsubscribeChannel: (provider_terminal_id: string, channel_id: string) => void;
-    // (undocumented)
-    updateDataRecords: (records: IDataRecord<any>[], target_terminal_id?: string) => Observable<never>;
-    updateHistoryOrders: (orders: IOrder[], target_terminal_id?: string) => Observable<never[]>;
-    updatePeriods: (periods: IPeriod[], target_terminal_id?: string) => Observable<never[]>;
-    updateProducts: (products: IProduct[], target_terminal_id?: string) => Observable<never[]>;
+    updateDataRecords: (records: IDataRecord<any>[]) => Observable<never>;
+    updateHistoryOrders: (orders: IOrder[]) => Observable<never[]>;
+    updatePeriods: (periods: IPeriod[]) => Observable<never[]>;
+    updateProducts: (products: IProduct[]) => Observable<never[]>;
     useAccountInfo: (account_id: string) => Observable<IAccountInfo>;
-    // (undocumented)
-    useFeed: <T>(channel_id: string) => Observable<T>;
-    usePeriod: (datasource_id: string, product_id: string, period_in_sec: number) => Observable<IPeriod>;
+    usePeriod: (datasource_id: string, product_id: string, period_in_sec: number) => Observable<IPeriod[]>;
     useProducts: (datasource_id: string) => Observable<IProduct[]>;
     useTick: (datasource_id: string, product_id: string) => Observable<ITick>;
 }
