@@ -3,11 +3,7 @@
   "version": "0.0.23",
   "main": "lib/index.js",
   "files": [
-    "dist",
-    "lib",
-    "temp",
-    "build",
-    "ctp"
+    "dist/extension.bundle.js"
   ],
   "scripts": {
     "build": "heft test --clean && node ./lib/scripts/build-ctp-types.js && node ./lib/scripts/build-ctp-bridge.js && yuan-toolkit post-build"
@@ -36,5 +32,14 @@
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org"
+  },
+  "io_ntnl": {
+    "deploy_files": [
+      "dist",
+      "lib",
+      "temp",
+      "build",
+      "ctp"
+    ]
   }
 }

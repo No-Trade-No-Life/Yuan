@@ -137,14 +137,11 @@ export const buildDockerImage = async () => {
 
         for (const file of packageJson?.io_ntnl?.deploy_files || []) {
           const src = path.resolve(thisProject.projectFolder, file);
-          if (fs.statSync(src).isFile()) {
-            const dest = path.join(absArtifactDir, thisProject.projectRelativeFolder);
-            fs.copySync(src, dest);
-          } else {
-            const dest = path.join(absArtifactDir, thisProject.projectRelativeFolder, path.basename(src));
+          const dest = path.join(absArtifactDir, thisProject.projectRelativeFolder, path.basename(src));
+          if (fs.statSync(src).isDirectory()) {
             fs.emptyDirSync(dest);
-            fs.copySync(src, dest);
           }
+          fs.copySync(src, dest);
         }
 
         interface IImageSpec {
