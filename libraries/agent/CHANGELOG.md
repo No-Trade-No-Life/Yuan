@@ -1,6 +1,13 @@
 # Change Log - @yuants/agent
 
-This log was last generated on Sat, 09 Dec 2023 16:37:39 GMT and should not be manually modified.
+This log was last generated on Sat, 09 Dec 2023 19:25:13 GMT and should not be manually modified.
+
+## 0.7.7
+Sat, 09 Dec 2023 19:25:13 GMT
+
+### Patches
+
+- consumeChannel, requestService API
 
 ## 0.7.6
 Sat, 09 Dec 2023 16:37:39 GMT
