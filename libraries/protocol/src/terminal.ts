@@ -1263,7 +1263,7 @@ export class Terminal {
     this.provideChannel<IPeriod[]>(
       { pattern: `^Period/${encodePath(datasource_id)}/.+/.+$` },
       (channel_id) => {
-        const [, datasourceId, product_id, period_in_sec] = encodePath(channel_id);
+        const [, datasourceId, product_id, period_in_sec] = decodePath(channel_id);
         if (datasourceId !== datasource_id || !product_id || !period_in_sec) return EMPTY;
         return usePeriods(product_id, +period_in_sec);
       },
