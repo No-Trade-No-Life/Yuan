@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "fix channel regexp escape issue",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

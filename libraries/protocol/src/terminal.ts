@@ -49,6 +49,16 @@ import { mergeAccountInfoPositions } from './utils/account-info';
 
 const TerminalReceiveMassageTotal = PromRegistry.create('counter', 'terminal_receive_message_total');
 const TerminalTransmittedMessageTotal = PromRegistry.create('counter', 'terminal_transmitted_message_total');
+
+const TerminalReceiveChannelMassageTotal = PromRegistry.create(
+  'counter',
+  'terminal_received_channel_message_total',
+);
+const TerminalTransmittedChannelMessageTotal = PromRegistry.create(
+  'counter',
+  'terminal_transmitted_channel_message_total',
+);
+
 const AccountInfoEquity = PromRegistry.create('gauge', 'account_info_equity');
 const AccountInfoBalance = PromRegistry.create('gauge', 'account_info_balance');
 const AccountInfoProfit = PromRegistry.create('gauge', 'account_info_profit');
@@ -104,26 +114,11 @@ interface IServiceOptions {
   };
 }
 
-const loadBalancer = (arr: string[], seed: string): string | undefined => {
-  const N = arr.length;
-  if (N === 0) {
-    return undefined;
-  }
-  // No need to balance workload
-  if (N === 1) {
-    return arr[0];
-  }
-  // Load Balance: Hash the trace_id to select a terminal
-  let sum = 0;
-  for (let i = seed.length - 1; i >= 0; i--) {
-    // NOTE: trace_id UUID 0-9 (48-57) + a-f (97-102)
-    const num = seed.charCodeAt(i);
-    // num >>6 === 0 => num < 64 => 0-9 (48-57)
-    // num >>6 !== 0 => num >= 64 => a-f (97-102)
-    sum = ((sum << 4) + (num >> 6 ? num - 87 : num - 48)) % N;
-  }
-  return arr[sum];
-};
+/**
+ * Replace all special characters with escape characters
+ * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions
+ */
+const escapeRegExp = (string: string): string => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
 
 /**
  * Terminal
@@ -168,43 +163,31 @@ export class Terminal {
 
   request<T extends string>(
     method: T,
-    target_terminal_id: string | undefined,
+    target_terminal_id: string,
     req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req'],
   ): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage> {
     const trace_id = UUID();
-    return defer(() => {
-      if (target_terminal_id !== undefined) {
-        return of(target_terminal_id);
-      }
-      return this.terminalInfos$.pipe(
-        first(),
-        mergeMap((x) => x),
-        filter((terminalInfo) => {
-          if (!terminalInfo.discriminator) return false;
-          return new Ajv({ strict: false }).validate(terminalInfo.discriminator, { method, req });
+    const msg = {
+      trace_id,
+      method,
+      target_terminal_id,
+      source_terminal_id: this.terminalInfo.terminal_id,
+      req,
+    };
+    return defer((): Observable<any> => {
+      this._conn.output$.next(msg);
+      return this._conn.input$.pipe(
+        filter((m) => m.trace_id === msg.trace_id),
+        // complete immediately when res is received
+        takeWhile((msg1) => msg1.res === undefined, true),
+        timeout({
+          first: 30000,
+          each: 10000,
+          meta: `request Timeout: method=${msg.method} target=${msg.target_terminal_id}`,
         }),
-        map((terminalInfo) => terminalInfo.terminal_id),
-        toArray(),
-        map((arr) => {
-          const target = loadBalancer(arr, trace_id);
-          if (!target) {
-            throw Error(`No terminal available for request: method=${method} req=${JSON.stringify(req)}`);
-          }
-          return target;
-        }),
+        share(),
       );
-    }).pipe(
-      map(
-        (target_terminal_id): ITerminalMessage => ({
-          trace_id,
-          method,
-          target_terminal_id,
-          source_terminal_id: this.terminalInfo.terminal_id,
-          req,
-        }),
-      ),
-      mergeMap(this._doRequest),
-    );
+    });
   }
 
   provideService = <T extends string>(
@@ -219,26 +202,10 @@ export class Terminal {
     this._serviceOptions[method] = options || {};
   };
 
-  private _doRequest = (msg: ITerminalMessage): Observable<any> => {
-    this._conn.output$.next(msg);
-    return this._conn.input$.pipe(
-      filter((m) => m.trace_id === msg.trace_id),
-      // complete immediately when res is received
-      takeWhile((msg1) => msg1.res === undefined, true),
-      timeout({
-        first: 30000,
-        each: 10000,
-        meta: `request Timeout: method=${msg.method} target=${msg.target_terminal_id}`,
-      }),
-      share(),
-    );
-  };
-
   requestService = <T extends string>(
     method: T,
     req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req'],
   ): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage> => {
-    const trace_id = UUID();
     return defer(() => {
       return combineLatest([
         this.terminalInfos$.pipe(first()),
@@ -253,24 +220,16 @@ export class Terminal {
         map((terminalInfo) => terminalInfo.terminal_id),
         toArray(),
         map((arr) => {
-          const target = loadBalancer(arr, trace_id);
-          if (!target) {
+          if (arr.length === 0) {
             throw Error(`No terminal available for request: method=${method} req=${JSON.stringify(req)}`);
           }
+          const target = arr[~~(Math.random() * arr.length)]; // Simple Random Load Balancer
           return target;
         }),
       );
     }).pipe(
-      map(
-        (target_terminal_id): ITerminalMessage => ({
-          trace_id,
-          method,
-          target_terminal_id,
-          source_terminal_id: this.terminalInfo.terminal_id,
-          req,
-        }),
-      ),
-      mergeMap(this._doRequest),
+      //
+      mergeMap((target_terminal_id) => this.request(method, target_terminal_id, req)),
     );
   };
 
@@ -278,12 +237,19 @@ export class Terminal {
     const sub1 = this._conn.input$.subscribe((msg) => {
       if (msg.method) {
         TerminalReceiveMassageTotal.inc({
-          //
-          method: msg.method,
           target_terminal_id: msg.target_terminal_id,
           source_terminal_id: msg.source_terminal_id,
+          method: msg.method,
         });
       }
+      if (msg.channel_id) {
+        TerminalReceiveChannelMassageTotal.inc({
+          target_terminal_id: msg.target_terminal_id,
+          source_terminal_id: msg.source_terminal_id,
+          channel_id: msg.channel_id,
+        });
+      }
+
       if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
         console.debug(
           formatTime(Date.now()),
@@ -299,12 +265,19 @@ export class Terminal {
     const sub2 = this._conn.output$.subscribe((msg) => {
       if (msg.method) {
         TerminalTransmittedMessageTotal.inc({
-          //
-          method: msg.method,
           target_terminal_id: msg.target_terminal_id,
           source_terminal_id: msg.source_terminal_id,
+          method: msg.method,
         });
       }
+      if (msg.channel_id) {
+        TerminalTransmittedChannelMessageTotal.inc({
+          target_terminal_id: msg.target_terminal_id,
+          source_terminal_id: msg.source_terminal_id,
+          channel_id: msg.channel_id,
+        });
+      }
+
       if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
         console.debug(
           formatTime(Date.now()),
@@ -626,7 +599,7 @@ export class Terminal {
           (!provider_terminal_id && candidates.length > 0) ||
           (provider_terminal_id && candidates.length > 0 && !candidates.includes(provider_terminal_id))
         ) {
-          provider_terminal_id = loadBalancer(candidates, UUID())!;
+          provider_terminal_id = candidates[~~(Math.random() * candidates.length)]; // Simple Random Load Balancer
           this._subscribeChannel(provider_terminal_id, channel_id);
         }
       });
@@ -641,7 +614,7 @@ export class Terminal {
         });
       this._subscriptions.push(sub1);
       return () => {
-        console.info(formatTime(Date.now()), 'ConsumeChannel', 'consumeChannel', 'unsubscribe', channel_id);
+        console.info(formatTime(Date.now()), 'Terminal', 'consumeChannel', 'unsubscribe', channel_id);
         sub1.unsubscribe();
       };
     }).pipe(
@@ -948,11 +921,14 @@ export class Terminal {
    * Provide a Tick data stream, push to all subscriber terminals
    */
   provideTicks = (datasource_id: string, useTicks: (product_id: string) => Observable<ITick>) => {
-    this.provideChannel<ITick>({ pattern: `^Tick/${encodePath(datasource_id)}/.+$` }, (channel_id) => {
-      const [, datasourceId, product_id] = decodePath(channel_id);
-      if (datasourceId !== datasource_id || !product_id) return EMPTY;
-      return useTicks(product_id);
-    });
+    this.provideChannel<ITick>(
+      { pattern: `^Tick/${escapeRegExp(encodePath(datasource_id))}/.+$` },
+      (channel_id) => {
+        const [, datasourceId, product_id] = decodePath(channel_id);
+        if (datasourceId !== datasource_id || !product_id) return EMPTY;
+        return useTicks(product_id);
+      },
+    );
   };
 
   /**
@@ -963,7 +939,7 @@ export class Terminal {
     usePeriods: (product_id: string, period_in_sec: number) => Observable<IPeriod[]>,
   ) => {
     this.provideChannel<IPeriod[]>(
-      { pattern: `^Period/${encodePath(datasource_id)}/.+/.+$` },
+      { pattern: `^Period/${escapeRegExp(encodePath(datasource_id))}/.+/.+$` },
       (channel_id) => {
         const [, datasourceId, product_id, period_in_sec] = decodePath(channel_id);
         if (datasourceId !== datasource_id || !product_id || !period_in_sec) return EMPTY;
