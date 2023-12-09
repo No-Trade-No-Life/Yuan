@@ -1,16 +1,9 @@
 import { IAccountPerformance } from '@yuants/kernel';
-import { IAccountInfo } from '@yuants/protocol';
-import { BehaviorSubject, EMPTY, Observable, defer, of, shareReplay, switchMap } from 'rxjs';
+import { BehaviorSubject, EMPTY, defer, of, shareReplay, switchMap } from 'rxjs';
 import { terminal$ } from '../Terminals';
 
-export const useAccountInfo = (() => {
-  const hub: Record<string, Observable<IAccountInfo>> = {};
-  return (account_id: string) =>
-    (hub[account_id] ??= defer(() => terminal$).pipe(
-      switchMap((terminal) => terminal?.useAccountInfo(account_id) ?? EMPTY),
-      shareReplay(1),
-    ));
-})();
+export const useAccountInfo = (account_id: string) =>
+  terminal$.pipe(switchMap((terminal) => terminal?.useAccountInfo(account_id) ?? EMPTY));
 
 export const accountIds$ = defer(() => terminal$).pipe(
   switchMap((terminal) => terminal?.accountIds$ ?? of([])),

@@ -13,7 +13,6 @@
   "dependencies": {
     "@yuants/data-model": "workspace:*",
     "@yuants/protocol": "workspace:*",
-    "promjs": "~0.4.2",
     "rxjs": "~7.5.6",
     "ws": "~8.8.1"
   },

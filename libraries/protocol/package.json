@@ -12,14 +12,11 @@
     "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
   },
   "dependencies": {
-    "@influxdata/influxdb-client-browser": "~1.29.0",
     "@yuants/data-model": "workspace:*",
     "@yuants/utils": "workspace:*",
     "ajv": "~8.12.0",
-    "axios": "~0.27.2",
     "browser-or-node": "~2.0.0",
     "isomorphic-ws": "~5.0.0",
-    "promjs": "~0.4.2",
     "rxjs": "~7.5.6",
     "url": "~0.11.0",
     "ws": "~8.11.0",

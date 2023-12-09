@@ -16,11 +16,9 @@ import {
   distinctUntilChanged,
   filter,
   first,
-  from,
   interval,
   map,
   mergeMap,
-  of,
   pipe,
   repeat,
   retry,
@@ -298,47 +296,25 @@ const runTask = (psr: IPullSourceRelation) =>
       copyDataAction$
         .pipe(
           mergeMap(() =>
-            term.terminalInfos$.pipe(
-              //
-              mergeMap((infos) =>
-                from(infos).pipe(
-                  //
-                  mergeMap((info) => {
-                    if (
-                      (info.services || []).find((service) => service.datasource_id === psr.datasource_id)
-                    ) {
-                      return of(info.terminal_id);
-                    }
-                    return EMPTY;
-                  }),
-                ),
-              ),
-              first(),
-              mergeMap((target_terminal_id) =>
-                term.copyDataRecords(
-                  {
-                    type: 'period',
-                    tags: {
-                      datasource_id: psr.datasource_id,
-                      product_id: psr.product_id,
-                      period_in_sec: '' + psr.period_in_sec,
-                    },
-                    time_range: [lastTime, Date.now()],
-                    receiver_terminal_id: STORAGE_TERMINAL_ID,
-                  },
-                  target_terminal_id,
-                ),
-              ),
-              tap(() => {
-                taskComplete$.next();
-              }),
-              catchError((e, caught$) => {
-                err = e;
-                taskError$.next();
-                return EMPTY;
-              }),
-            ),
+            term.copyDataRecords({
+              type: 'period',
+              tags: {
+                datasource_id: psr.datasource_id,
+                product_id: psr.product_id,
+                period_in_sec: '' + psr.period_in_sec,
+              },
+              time_range: [lastTime, Date.now()],
+              receiver_terminal_id: STORAGE_TERMINAL_ID,
+            }),
           ),
+          tap(() => {
+            taskComplete$.next();
+          }),
+          catchError((e, caught$) => {
+            err = e;
+            taskError$.next();
+            return EMPTY;
+          }),
         )
         .subscribe(),
     );
