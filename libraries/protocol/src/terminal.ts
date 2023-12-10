@@ -12,15 +12,18 @@ import {
   catchError,
   combineLatest,
   concatMap,
+  debounceTime,
   defer,
   delayWhen,
   distinct,
+  distinctUntilChanged,
   filter,
   first,
   from,
   groupBy,
   interval,
   map,
+  mergeAll,
   mergeMap,
   of,
   pairwise,
@@ -30,7 +33,6 @@ import {
   shareReplay,
   takeWhile,
   tap,
-  throttleTime,
   timeout,
   timer,
   toArray,
@@ -639,29 +641,57 @@ export class Terminal {
   );
 
   private _mapTerminalIdAndMethodToValidator$: Observable<Record<string, Record<string, ValidateFunction>>> =
-    this.terminalInfos$.pipe(
-      //
-      throttleTime(30_000),
-      mergeMap((x) =>
-        from(x).pipe(
-          mergeMap((terminalInfo) =>
-            from(Object.entries(terminalInfo.serviceInfo || {})).pipe(
-              map(([method, serviceInfo]): [string, ValidateFunction] => [
-                method,
-                new Ajv({ strict: false }).compile(serviceInfo.schema),
-              ]),
-              toArray(),
-              map((arr) => Object.fromEntries(arr)),
-              map((mapMethodToValidator): [string, Record<string, ValidateFunction>] => [
-                terminalInfo.terminal_id,
-                mapMethodToValidator,
-              ]),
+    new Observable<Record<string, Record<string, ValidateFunction>>>((subscriber) => {
+      const mapTerminalIdAndMethodToValidator: Record<string, Record<string, ValidateFunction>> = {};
+      const update$ = new Subject<void>();
+      const sub1 = this.terminalInfos$
+        .pipe(
+          //
+          mergeAll(),
+          groupBy((v) => v.terminal_id),
+          mergeMap((groupByTerminalId) =>
+            groupByTerminalId.pipe(
+              //
+              tap(() => {
+                const terminal_id = groupByTerminalId.key;
+                mapTerminalIdAndMethodToValidator[terminal_id] ??= {};
+              }),
+              mergeMap((terminalInfo) => Object.entries(terminalInfo.serviceInfo || {})),
+              groupBy(([method]) => method),
+              mergeMap((groupByMethod) =>
+                groupByMethod.pipe(
+                  distinctUntilChanged(
+                    ([, { schema: schema1 }], [, { schema: schema2 }]) =>
+                      JSON.stringify(schema1) === JSON.stringify(schema2),
+                  ),
+                  tap(([, { schema }]) => {
+                    const validator = new Ajv({ strict: false }).compile(schema);
+                    const terminal_id = groupByTerminalId.key;
+                    const method = groupByMethod.key;
+                    mapTerminalIdAndMethodToValidator[terminal_id][method] = validator;
+                    update$.next();
+                  }),
+                ),
+              ),
             ),
           ),
-          toArray(),
-          map((arr) => Object.fromEntries(arr)),
-        ),
-      ),
+        )
+        .subscribe();
+
+      const sub2 = update$
+        .pipe(
+          debounceTime(200),
+          map(() => mapTerminalIdAndMethodToValidator),
+        )
+        .subscribe(subscriber);
+
+      return () => {
+        sub1.unsubscribe();
+        sub2.unsubscribe();
+        update$.complete();
+      };
+    }).pipe(
+      //
       shareReplay(1),
     );
 

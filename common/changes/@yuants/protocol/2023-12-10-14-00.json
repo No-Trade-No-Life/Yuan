@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "refactor(protocol): compile method validator only if it changed",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
