@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Sat, 09 Dec 2023 20:53:56 GMT and should not be manually modified.
+This log was last generated on Sun, 10 Dec 2023 15:01:12 GMT and should not be manually modified.
+
+## 0.9.1
+Sun, 10 Dec 2023 15:01:12 GMT
+
+### Patches
+
+- refactor(protocol): compile method validator only if it changed
 
 ## 0.9.0
 Sat, 09 Dec 2023 20:53:56 GMT
