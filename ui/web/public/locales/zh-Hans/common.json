@@ -38,6 +38,7 @@
   "other": "其他",
   "position_long": "多",
   "position_short": "空",
+  "reference_error": "引用错误: 无法于 {{importer}} 找到 {{source}}，请检查工作区中是否存在该文件。",
   "report_bug": "报告缺陷",
   "reset": "重置",
   "retry": "重试",

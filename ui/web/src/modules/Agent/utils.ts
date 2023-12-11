@@ -1,7 +1,9 @@
 import * as rollup from '@rollup/browser';
 import { AgentScene, IAgentConf } from '@yuants/agent';
+import { UUID } from '@yuants/data-model';
 import { BasicUnit, IAccountPerformance } from '@yuants/kernel';
 import { IAccountInfo, IDeploySpec } from '@yuants/protocol';
+import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
 import * as path from 'path-browserify';
 import {
@@ -20,8 +22,6 @@ import * as ts from 'typescript';
 import { fs } from '../FileSystem/api';
 import { LocalAgentScene } from '../StaticFileServerStorage/LocalAgentScene';
 import { terminal$ } from '../Terminals/create-connection'; // ISSUE: WebWorker import this (Expected ":" but found "body")
-import { currentHostConfig$ } from '../Workbench/model';
-import { UUID } from '@yuants/data-model';
 
 export const rollupLoadEvent$ = new Subject<{ id: string; content: string }>();
 
@@ -71,6 +71,9 @@ export const bundleCode = async (entry: string) => {
               //
             }
           }
+          throw new Error(
+            t('common:reference_error', { importer, source, interpolation: { escapeValue: false } }),
+          );
         },
         async load(id) {
           const content = await fs.readFile(id);
