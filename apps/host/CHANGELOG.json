@@ -2,6 +2,23 @@
   "name": "@yuants/app-host",
   "entries": [
     {
+      "version": "0.1.13",
+      "tag": "@yuants/app-host_v0.1.13",
+      "date": "Mon, 11 Dec 2023 13:08:40 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.9.3`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.12",
       "tag": "@yuants/app-host_v0.1.12",
       "date": "Mon, 11 Dec 2023 11:13:42 GMT",
