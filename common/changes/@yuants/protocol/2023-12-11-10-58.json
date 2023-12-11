@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "Ajv Compiler Performance Issue",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
