@@ -1,4 +1,4 @@
-import { encodePath } from '@yuants/data-model';
+import { encodePath, formatTime } from '@yuants/data-model';
 import { IPeriod, Terminal } from '@yuants/protocol';
 import Ajv from 'ajv';
 import { JSONSchema7 } from 'json-schema';
@@ -99,7 +99,7 @@ const subscribePeriods = (product_id: string, period_in_sec: number) => {
     mergeMap((mapProductIdToGSRList) => {
       const gsrList = mapProductIdToGSRList[product_id];
       if (!gsrList) {
-        console.error(new Date(), `Cannot find gsrList for ${product_id}`);
+        console.error(formatTime(Date.now()), `Cannot find gsrList for ${product_id}`);
         return EMPTY;
       }
       return of(gsrList);
@@ -108,7 +108,7 @@ const subscribePeriods = (product_id: string, period_in_sec: number) => {
       from(gsrList).pipe(
         map((gsr) =>
           term.consumeChannel<IPeriod[]>(
-            encodePath('Period', gsr.specific_datasource_id, product_id, period_in_sec),
+            encodePath('Period', gsr.specific_datasource_id, gsr.specific_product_id, period_in_sec),
           ),
         ),
         toArray(),
@@ -158,7 +158,7 @@ const subscribePeriods = (product_id: string, period_in_sec: number) => {
     }),
     tap((periods) => {
       console.info(
-        new Date(),
+        formatTime(Date.now()),
         `SubscribePeriods`,
         JSON.stringify({
           product_id,

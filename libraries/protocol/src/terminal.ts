@@ -518,14 +518,14 @@ export class Terminal {
             from(terminalInfo.subscriptions?.[this.terminalInfo.terminal_id] ?? []).pipe(
               filter((channel_id) => validate(channel_id)),
               map((channel_id) => ({ consumer_terminal_id: terminalInfo.terminal_id, channel_id })),
-              groupBy((x) => x.channel_id),
-              mergeMap((group) =>
-                group.pipe(
-                  map((x) => x.consumer_terminal_id),
-                  toArray(),
-                  map((arr) => [group.key, arr] as [string, string[]]),
-                ),
-              ),
+            ),
+          ),
+          groupBy((x) => x.channel_id),
+          mergeMap((group) =>
+            group.pipe(
+              map((x) => x.consumer_terminal_id),
+              toArray(),
+              map((arr) => [group.key, arr] as [string, string[]]),
             ),
           ),
           toArray(),
