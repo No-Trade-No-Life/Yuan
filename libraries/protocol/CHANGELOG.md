@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Mon, 11 Dec 2023 11:13:42 GMT and should not be manually modified.
+This log was last generated on Mon, 11 Dec 2023 13:08:40 GMT and should not be manually modified.
+
+## 0.9.3
+Mon, 11 Dec 2023 13:08:40 GMT
+
+### Patches
+
+- fix provideChannel
 
 ## 0.9.2
 Mon, 11 Dec 2023 11:13:42 GMT

@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-general-realtime-data-source
 
-This log was last generated on Mon, 11 Dec 2023 11:13:42 GMT and should not be manually modified.
+This log was last generated on Mon, 11 Dec 2023 13:08:40 GMT and should not be manually modified.
+
+## 0.0.18
+Mon, 11 Dec 2023 13:08:40 GMT
+
+### Patches
+
+- fix provideChannel
 
 ## 0.0.17
 Mon, 11 Dec 2023 11:13:42 GMT
