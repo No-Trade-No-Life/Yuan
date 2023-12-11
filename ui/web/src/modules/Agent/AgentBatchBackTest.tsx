@@ -23,6 +23,7 @@ import {
   defer,
   filter,
   first,
+  firstValueFrom,
   from,
   fromEvent,
   map,
@@ -37,6 +38,7 @@ import { executeCommand } from '../CommandCenter';
 import { useValue } from '../Data';
 import { fs } from '../FileSystem/api';
 import { showForm } from '../Form';
+import { shareHosts$ } from '../Host/model';
 import { registerPage, usePageParams } from '../Pages';
 import { authState$ } from '../SupaBase';
 import { clearLogAction$ } from '../Workbench/Program';
@@ -338,12 +340,21 @@ registerPage('AgentBatchBackTest', () => {
           disabled={!authState || !currentHost}
           icon={<IconCloud />}
           onClick={async (e) => {
+            const sharedHosts = await firstValueFrom(shareHosts$);
+            const host_url = await showForm<string>({
+              title: t('AgentConfForm:select_host'),
+              type: 'string',
+              examples: sharedHosts.map((host) => host.host_url),
+            });
             for (const agentConf of tasks) {
-              await executeCommand('Agent.DeployToCloud', { agentConf });
+              await executeCommand('Agent.DeployToCloud', {
+                agentConf,
+                host_url,
+              });
             }
           }}
         >
-          部署到云
+          全部部署到云
         </Button>
         <Button
           onClick={async (e) => {

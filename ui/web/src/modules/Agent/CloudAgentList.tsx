@@ -106,46 +106,52 @@ registerPage('CloudAgentList', () => {
   );
 });
 
-registerCommand('Agent.DeployToCloud', async ({ agentConf }: { agentConf: IAgentConf }) => {
-  await ensureAuthenticated();
-  const { version } = await resolveVersion('@yuants/app-agent');
-  const bundled_code = agentConf.entry ? await bundleCode(agentConf.entry || '') : agentConf.bundled_code;
-  const sharedHosts = await firstValueFrom(shareHosts$);
+registerCommand(
+  'Agent.DeployToCloud',
+  async (ctx: { agentConf: IAgentConf; host_url?: string; kernel_id?: string }) => {
+    await ensureAuthenticated();
+    const { version } = await resolveVersion('@yuants/app-agent');
+    const bundled_code = ctx.agentConf.entry
+      ? await bundleCode(ctx.agentConf.entry || '')
+      : ctx.agentConf.bundled_code;
+    const sharedHosts = await firstValueFrom(shareHosts$);
 
-  await i18n.loadNamespaces('AgentConfForm');
+    await i18n.loadNamespaces('AgentConfForm');
 
-  const answer = await showForm<{ kernel_id: string; host_url: string }>({
-    type: 'object',
-    properties: {
-      kernel_id: {
-        title: t('AgentConfForm:input_kernel_id'),
-        type: 'string',
-      },
-      host_url: {
+    const host_url =
+      ctx.host_url ??
+      (await showForm<string>({
         title: t('AgentConfForm:select_host'),
         type: 'string',
         examples: sharedHosts.map((host) => host.host_url),
-      },
-    },
-  });
+      }));
 
-  const res = await supabase.from('agent').insert({
-    host_url: answer.host_url,
-    kernel_id: answer.kernel_id,
-    version: version,
-    one_json: {
-      //
-      ...agentConf,
-      kernel_id: answer.kernel_id,
-      is_real: true,
-      bundled_code: bundled_code,
-    },
-  });
-  if (res.error) {
-    Toast.error(`${t('common:failed')}: ${res.error.code} ${res.error.message}`);
-    return;
-  }
-  gtag('event', 'agent_deploy_complete');
-  Toast.success(`${t('common:succeed')}: ${agentConf.kernel_id}`);
-  executeCommand('CloudAgentList');
-});
+    const kernel_id =
+      ctx.kernel_id ||
+      ctx.agentConf.kernel_id ||
+      (await showForm<string>({
+        type: 'string',
+        title: t('AgentConfForm:input_kernel_id'),
+      }));
+
+    const res = await supabase.from('agent').insert({
+      host_url: host_url,
+      kernel_id: kernel_id,
+      version: version,
+      one_json: {
+        //
+        ...ctx.agentConf,
+        kernel_id,
+        is_real: true,
+        bundled_code: bundled_code,
+      },
+    });
+    if (res.error) {
+      Toast.error(`${t('common:failed')}: ${res.error.code} ${res.error.message}`);
+      return;
+    }
+    gtag('event', 'agent_deploy_complete');
+    Toast.success(`${t('common:succeed')}: ${kernel_id}`);
+    executeCommand('CloudAgentList');
+  },
+);
