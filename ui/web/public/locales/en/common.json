@@ -38,6 +38,7 @@
   "other": "Other",
   "position_long": "",
   "position_short": "",
+  "reference_error": "Reference error: Unable to find {{source}} in {{importer}}, please check if the file exists in the workspace.",
   "report_bug": "Report",
   "reset": "Reset",
   "retry": "Retry",

@@ -61,19 +61,19 @@ const rules: IAssociationRule[] = [
     },
   },
   {
+    id: 'DeployConfigForm',
+    match: ({ path, isFile }) => isFile && !!path.match(/\.?manifests\.(json|yaml|yml|ts)$/),
+    action: ({ path }) => {
+      executeCommand('DeployConfigForm', { filename: path });
+    },
+  },
+  {
     id: 'AgentConfForm',
     match: ({ path, isFile }) => isFile && !!path.match(/\.ts$/),
     action: ({ path }) => {
       agentConf$.next({ ...agentConf$.value, entry: path });
       reloadSchemaAction$.next();
       executeCommand('AgentConfForm', { filename: path });
-    },
-  },
-  {
-    id: 'DeployConfigForm',
-    match: ({ path, isFile }) => isFile && !!path.match(/\.?manifests\.(json|yaml|yml|ts)$/),
-    action: ({ path }) => {
-      executeCommand('DeployConfigForm', { filename: path });
     },
   },
   {
@@ -104,9 +104,11 @@ registerPage('Explorer', () => {
   const terminal = useObservableState(terminal$);
   const currentHostConfig = useObservableState(currentHostConfig$);
 
+  const rootName = workspaceRoot$.value?.name ?? t('TempDirectory');
+
   const initialData: TreeNodeData[] = [
     {
-      label: workspaceRoot$.value?.name ?? t('TempDirectory'),
+      label: rootName,
       key: '/',
     },
   ];
@@ -195,6 +197,7 @@ registerPage('Explorer', () => {
         renderFullLabel={({ className, onExpand, onClick, data, expandStatus }) => {
           const { label, isLeaf } = data;
           const context = { path: data.key, isFile: !!isLeaf };
+          const filename = data.key;
 
           const matchedRules = rules.filter((rule) => rule.match(context));
 
@@ -217,7 +220,7 @@ registerPage('Explorer', () => {
                 ) : (
                   <IconFolder />
                 )}
-                <span>{label}</span>
+                <span>{filename === '/' ? rootName : label}</span>
                 <Dropdown
                   content={
                     <div

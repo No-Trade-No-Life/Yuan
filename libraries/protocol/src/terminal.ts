@@ -10,9 +10,7 @@ import {
   Subscription,
   bufferCount,
   catchError,
-  combineLatest,
   concatMap,
-  debounceTime,
   defer,
   delayWhen,
   distinct,
@@ -148,6 +146,8 @@ export class Terminal {
     this.setupDebugLog();
     this.setupServer();
     this.setupPredefinedServerHandlers();
+    this._setupChannelValidatorSubscription();
+    this._setupTerminalIdAndMethodValidatorSubscription();
 
     this.terminalInfo.start_timestamp_in_ms ??= Date.now();
     this.terminalInfo.status ??= 'INIT';
@@ -209,14 +209,13 @@ export class Terminal {
     req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req'],
   ): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage> => {
     return defer(() => {
-      return combineLatest([
-        this.terminalInfos$.pipe(first()),
-        this._mapTerminalIdAndMethodToValidator$.pipe(first()),
-      ]).pipe(
-        mergeMap(([terminalInfos, mapValidator]) =>
+      return this.terminalInfos$.pipe(first()).pipe(
+        mergeMap((terminalInfos) =>
           from(terminalInfos).pipe(
             //
-            filter((terminalInfo) => mapValidator[terminalInfo.terminal_id]?.[method]?.(req)),
+            filter((terminalInfo) =>
+              this._mapTerminalIdAndMethodToValidator[terminalInfo.terminal_id]?.[method]?.(req),
+            ),
           ),
         ),
         map((terminalInfo) => terminalInfo.terminal_id),
@@ -571,6 +570,33 @@ export class Terminal {
 
   private _mapChannelIdToSubject: Record<string, Observable<any>> = {};
 
+  // ISSUE: Ajv is very slow and cause a lot CPU utilization, so we must cache the compiled validator
+  private _mapTerminalIdToChannelValidators: Record<string, ValidateFunction[]> = {};
+
+  private _setupChannelValidatorSubscription() {
+    this._subscriptions.push(
+      this.terminalInfos$
+        .pipe(
+          mergeAll(),
+          groupBy((v) => v.terminal_id),
+          mergeMap((groupByTerminalId) =>
+            groupByTerminalId.pipe(
+              mergeMap((terminalInfo) => of(terminalInfo.channelIdSchemas || [])),
+              distinctUntilChanged(
+                (schemas1, schemas2) => JSON.stringify(schemas1) === JSON.stringify(schemas2),
+              ),
+              tap((schemas) => {
+                this._mapTerminalIdToChannelValidators[groupByTerminalId.key] = schemas.map((schema) =>
+                  new Ajv({ strict: false }).compile(schema),
+                );
+              }),
+            ),
+          ),
+        )
+        .subscribe(),
+    );
+  }
+
   consumeChannel = <T>(channel_id: string): Observable<T> =>
     // Cache by channel_id
     (this._mapChannelIdToSubject[channel_id] ??= new Observable<T>((subscriber) => {
@@ -579,11 +605,10 @@ export class Terminal {
       const candidates$ = this.terminalInfos$.pipe(
         mergeMap((x) =>
           from(x).pipe(
-            filter(
-              (terminalInfo) =>
-                terminalInfo.channelIdSchemas?.some((schema) =>
-                  new Ajv({ strict: false }).validate(schema, channel_id),
-                ) ?? false,
+            filter((terminalInfo) =>
+              this._mapTerminalIdToChannelValidators[terminalInfo.terminal_id]?.some((validator) =>
+                validator(channel_id),
+              ),
             ),
             map((x) => x.terminal_id),
             toArray(),
@@ -640,22 +665,18 @@ export class Terminal {
     shareReplay(1),
   );
 
-  private _mapTerminalIdAndMethodToValidator$: Observable<Record<string, Record<string, ValidateFunction>>> =
-    new Observable<Record<string, Record<string, ValidateFunction>>>((subscriber) => {
-      const mapTerminalIdAndMethodToValidator: Record<string, Record<string, ValidateFunction>> = {};
-      const update$ = new Subject<void>();
-      const sub1 = this.terminalInfos$
+  // ISSUE: Ajv is very slow and cause a lot CPU utilization, so we must cache the compiled validator
+  private _mapTerminalIdAndMethodToValidator: Record<string, Record<string, ValidateFunction>> = {};
+
+  private _setupTerminalIdAndMethodValidatorSubscription() {
+    this._subscriptions.push(
+      this.terminalInfos$
         .pipe(
           //
           mergeAll(),
           groupBy((v) => v.terminal_id),
           mergeMap((groupByTerminalId) =>
             groupByTerminalId.pipe(
-              //
-              tap(() => {
-                const terminal_id = groupByTerminalId.key;
-                mapTerminalIdAndMethodToValidator[terminal_id] ??= {};
-              }),
               mergeMap((terminalInfo) => Object.entries(terminalInfo.serviceInfo || {})),
               groupBy(([method]) => method),
               mergeMap((groupByMethod) =>
@@ -665,45 +686,38 @@ export class Terminal {
                       JSON.stringify(schema1) === JSON.stringify(schema2),
                   ),
                   tap(([, { schema }]) => {
-                    const validator = new Ajv({ strict: false }).compile(schema);
-                    const terminal_id = groupByTerminalId.key;
-                    const method = groupByMethod.key;
-                    mapTerminalIdAndMethodToValidator[terminal_id][method] = validator;
-                    update$.next();
+                    (this._mapTerminalIdAndMethodToValidator[groupByTerminalId.key] ??= {})[
+                      groupByMethod.key
+                    ] = new Ajv({ strict: false }).compile(schema);
                   }),
                 ),
               ),
             ),
           ),
         )
-        .subscribe();
-
-      const sub2 = update$
-        .pipe(
-          debounceTime(200),
-          map(() => mapTerminalIdAndMethodToValidator),
-        )
-        .subscribe(subscriber);
-
-      return () => {
-        sub1.unsubscribe();
-        sub2.unsubscribe();
-        update$.complete();
-      };
-    }).pipe(
-      //
-      shareReplay(1),
+        .subscribe(),
     );
+  }
 
   /**
    * Account ID List of the same host
    */
-  accountIds$ = this.terminalInfos$.pipe(
+  accountIds$: Observable<string[]> = this.terminalInfos$.pipe(
     mergeMap((terminals) =>
       from(terminals).pipe(
-        mergeMap((terminal) => terminal.services || []),
-        map((service) => service.account_id),
-        filter((v): v is Exclude<typeof v, undefined> => !!v),
+        mergeMap((terminalInfo) =>
+          from(terminalInfo.channelIdSchemas || []).pipe(
+            mergeMap((channelIdSchema) => {
+              if (typeof channelIdSchema.const === 'string') {
+                const [type, accountId] = decodePath(channelIdSchema.const);
+                if (type === 'AccountInfo' && accountId) {
+                  return of(accountId);
+                }
+              }
+              return EMPTY;
+            }),
+          ),
+        ),
         distinct(),
         toArray(),
         map((arr) => arr.sort()),
@@ -715,11 +729,16 @@ export class Terminal {
   /**
    * Data source ID List of the same host
    */
-  datasourceIds$ = this.terminalInfos$.pipe(
+  datasourceIds$: Observable<string[]> = this.terminalInfos$.pipe(
     mergeMap((terminals) =>
       from(terminals).pipe(
-        mergeMap((terminal) => terminal.services || []),
-        map((service) => service.datasource_id),
+        map((terminalInfo) => {
+          const a = terminalInfo.serviceInfo?.['QueryProducts']?.schema?.properties?.['datasource_id'];
+          if (typeof a === 'object' && typeof a.const === 'string') {
+            return a.const;
+          }
+          return undefined;
+        }),
         filter((v): v is Exclude<typeof v, undefined> => !!v),
         distinct(),
         toArray(),
