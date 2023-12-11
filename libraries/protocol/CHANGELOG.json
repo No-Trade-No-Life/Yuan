@@ -2,6 +2,26 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.9.2",
+      "tag": "@yuants/protocol_v0.9.2",
+      "date": "Mon, 11 Dec 2023 11:13:42 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Ajv Compiler Performance Issue"
+          },
+          {
+            "comment": "Recognize account and datasource in new way"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.9.1",
       "tag": "@yuants/protocol_v0.9.1",
       "date": "Sun, 10 Dec 2023 15:01:12 GMT",
