@@ -702,12 +702,22 @@ export class Terminal {
   /**
    * Account ID List of the same host
    */
-  accountIds$ = this.terminalInfos$.pipe(
+  accountIds$: Observable<string[]> = this.terminalInfos$.pipe(
     mergeMap((terminals) =>
       from(terminals).pipe(
-        mergeMap((terminal) => terminal.services || []),
-        map((service) => service.account_id),
-        filter((v): v is Exclude<typeof v, undefined> => !!v),
+        mergeMap((terminalInfo) =>
+          from(terminalInfo.channelIdSchemas || []).pipe(
+            mergeMap((channelIdSchema) => {
+              if (typeof channelIdSchema.const === 'string') {
+                const [type, accountId] = decodePath(channelIdSchema.const);
+                if (type === 'AccountInfo' && accountId) {
+                  return of(accountId);
+                }
+              }
+              return EMPTY;
+            }),
+          ),
+        ),
         distinct(),
         toArray(),
         map((arr) => arr.sort()),
@@ -719,11 +729,16 @@ export class Terminal {
   /**
    * Data source ID List of the same host
    */
-  datasourceIds$ = this.terminalInfos$.pipe(
+  datasourceIds$: Observable<string[]> = this.terminalInfos$.pipe(
     mergeMap((terminals) =>
       from(terminals).pipe(
-        mergeMap((terminal) => terminal.services || []),
-        map((service) => service.datasource_id),
+        map((terminalInfo) => {
+          const a = terminalInfo.serviceInfo?.['QueryProducts']?.schema?.properties?.['datasource_id'];
+          if (typeof a === 'object' && typeof a.const === 'string') {
+            return a.const;
+          }
+          return undefined;
+        }),
         filter((v): v is Exclude<typeof v, undefined> => !!v),
         distinct(),
         toArray(),
