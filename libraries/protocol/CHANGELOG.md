@@ -1,6 +1,14 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Sun, 10 Dec 2023 15:01:12 GMT and should not be manually modified.
+This log was last generated on Mon, 11 Dec 2023 11:13:42 GMT and should not be manually modified.
+
+## 0.9.2
+Mon, 11 Dec 2023 11:13:42 GMT
+
+### Patches
+
+- Ajv Compiler Performance Issue
+- Recognize account and datasource in new way
 
 ## 0.9.1
 Sun, 10 Dec 2023 15:01:12 GMT
