@@ -221,7 +221,6 @@ const runTask = (psr: IPullSourceRelation) =>
     };
 
     // Metrics State
-    // TODO: optimize the performance of Metric.set
     subs.push(interval(10_000).subscribe(reportStatus));
 
     // Wait for current_back_off_time to start
@@ -296,25 +295,30 @@ const runTask = (psr: IPullSourceRelation) =>
       copyDataAction$
         .pipe(
           mergeMap(() =>
-            term.copyDataRecords({
-              type: 'period',
-              tags: {
-                datasource_id: psr.datasource_id,
-                product_id: psr.product_id,
-                period_in_sec: '' + psr.period_in_sec,
-              },
-              time_range: [lastTime, Date.now()],
-              receiver_terminal_id: STORAGE_TERMINAL_ID,
-            }),
+            term
+              .copyDataRecords({
+                type: 'period',
+                tags: {
+                  datasource_id: psr.datasource_id,
+                  product_id: psr.product_id,
+                  period_in_sec: '' + psr.period_in_sec,
+                },
+                time_range: [lastTime, Date.now()],
+                receiver_terminal_id: STORAGE_TERMINAL_ID,
+              })
+              .pipe(
+                tap(() => {
+                  taskComplete$.next();
+                }),
+                // ISSUE: catch error will replace the whole stream with EMPTY, therefore it must be placed inside mergeMap
+                // so that the outer stream subscription will not be affected
+                catchError((e) => {
+                  err = e;
+                  taskError$.next();
+                  return EMPTY;
+                }),
+              ),
           ),
-          tap(() => {
-            taskComplete$.next();
-          }),
-          catchError((e, caught$) => {
-            err = e;
-            taskError$.next();
-            return EMPTY;
-          }),
         )
         .subscribe(),
     );
@@ -355,6 +359,7 @@ const runTask = (psr: IPullSourceRelation) =>
     subs.push(
       taskFinalize$.subscribe(() => {
         if (status === 'error') {
+          console.info(formatTime(Date.now()), `TaskRetry`, title);
           timer(current_back_off_time).subscribe(() => {
             taskScheduled$.next();
           });
