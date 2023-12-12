@@ -125,7 +125,7 @@ registerPage('DeployConfigForm', () => {
             v,
           ].join('\n'),
         ),
-        mergeMap((v) => fs.writeFile('/docker-compose.yaml', v)),
+        mergeMap((v) => fs.writeFile(`${filename}.docker-compose.yaml`, v)),
       )
       .subscribe({
         error: (e) => {
@@ -138,7 +138,7 @@ registerPage('DeployConfigForm', () => {
           console.info(
             `  docker compose -f ${path.join(
               '$YUAN_WORKSPACE',
-              '/docker-compose.yaml',
+              `${filename}.docker-compose.yaml`,
             )} up -d --remove-orphans`,
           );
         },
@@ -205,7 +205,7 @@ registerPage('DeployConfigForm', () => {
             v,
           ].join('\n'),
         ),
-        mergeMap((v) => fs.writeFile('/k8s.yaml', v)),
+        mergeMap((v) => fs.writeFile(`${filename}.k8s.yaml`, v)),
       )
       .subscribe({
         error: (e) => {
@@ -215,7 +215,7 @@ registerPage('DeployConfigForm', () => {
         complete: () => {
           Toast.success(`生成 K8s 资源成功`);
           console.info(`运行命令，更新资源到 K8s 集群`);
-          console.info(`  kubectl apply -f $YUAN_WORKSPACE/k8s.yaml`);
+          console.info(`  kubectl apply -f $YUAN_WORKSPACE${filename}.k8s.yaml`);
         },
       });
   };
