@@ -327,6 +327,7 @@ const runTask = (psr: IPullSourceRelation) =>
       taskComplete$.subscribe(() => {
         status = 'success';
         completed_at = Date.now();
+        current_back_off_time = 0; // reset
         console.info(formatTime(Date.now()), `TaskComplete`, title);
         taskFinalize$.next();
       }),
