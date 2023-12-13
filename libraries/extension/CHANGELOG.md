@@ -1,6 +1,13 @@
 # Change Log - @yuants/extension
 
-This log was last generated on Sat, 09 Dec 2023 16:37:39 GMT and should not be manually modified.
+This log was last generated on Wed, 13 Dec 2023 10:27:58 GMT and should not be manually modified.
+
+## 0.2.3
+Wed, 13 Dec 2023 10:27:58 GMT
+
+### Patches
+
+- chore: remove @deprecated tag for toBase64String
 
 ## 0.2.2
 Sat, 09 Dec 2023 16:37:39 GMT
