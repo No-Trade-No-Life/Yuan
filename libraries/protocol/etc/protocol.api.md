@@ -62,41 +62,6 @@ export interface IDataRecord<T = unknown> {
 }
 
 // @public
-export interface IDeploySpec {
-    annotations?: Record<string, string>;
-    cpu?: IResourceClaim;
-    env?: Record<string, string>;
-    filesystem?: Record<string, string>;
-    memory?: IResourceClaim;
-    network?: {
-        port_forward?: Record<string, number>;
-        backward_proxy?: Record<string, string>;
-    };
-    one_json?: any;
-    package: string;
-    version?: string;
-}
-
-// @public
-export interface IDeployTasks {
-    make_docker_compose_file: (ctx: IDeploySpec, envCtx: IEnvContext) => Promise<object>;
-    make_json_schema: () => JSONSchema7;
-    make_k8s_resource_objects: (ctx: IDeploySpec, envCtx: IEnvContext) => Promise<object>;
-}
-
-// @public
-export interface IEnvContext {
-    createHashOfSHA256: (content: string) => Promise<string>;
-    isDirectory: (path: string) => Promise<boolean>;
-    readdir: (path: string) => Promise<string[]>;
-    readFile: (path: string) => Promise<string>;
-    readFileAsBase64: (path: string) => Promise<string>;
-    resolveLocal: (path: string) => Promise<string>;
-    toBase64String: (str: string) => Promise<string>;
-    version: string;
-}
-
-// @public
 export interface IOrder {
     account_id: string;
     client_order_id: string;
@@ -174,12 +139,6 @@ export interface IProductPositionSummary {
     net_volume: number;
     position_price: number;
     product_id: string;
-}
-
-// @public
-export interface IResourceClaim {
-    max?: string;
-    min?: string;
 }
 
 // @public
@@ -280,15 +239,6 @@ export interface ITrade {
 }
 
 // @public
-export function makeDockerEnvs(env?: Record<string, string>): string[];
-
-// @public
-export function makeK8sEnvs(env?: Record<string, string>): {
-    name: string;
-    value: string;
-}[];
-
-// @public
 export function mapOrderDirectionToNetPositionCoef(direction: OrderDirection): number;
 
 // @public
@@ -296,9 +246,6 @@ export function mapPositionVariantToNetPositionCoef(variant: PositionVariant): n
 
 // @public
 export const mergeAccountInfoPositions: (info: IAccountInfo) => Observable<IAccountInfo>;
-
-// @public (undocumented)
-export const mergeSchema: (packageSchema: JSONSchema7) => JSONSchema7;
 
 // @public
 export enum OrderDirection {

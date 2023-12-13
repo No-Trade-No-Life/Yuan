@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "chore: remove useless files as it has been moved out",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
