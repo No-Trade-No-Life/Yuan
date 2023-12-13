@@ -131,14 +131,6 @@ export interface IEnvContext {
 
   /**
    * @deprecated
-   * Encodes a UTF-8 string in base64 format.
-   * @param str - The string to encode.
-   * @returns The base64 encoded string.
-   */
-  toBase64String: (str: string) => Promise<string>;
-
-  /**
-   * @deprecated
    * Reads the file names in the directory pointed to by `path`. If the path does not point to a directory, returns an empty array.
    * @param path - An absolute path under the current Workspace, or a relative path to the Manifests' own absolute path.
    *               It is required to be resolvable by the provider of {@link IEnvContext}.
@@ -154,6 +146,13 @@ export interface IEnvContext {
    * @returns True if the path points to a directory, false otherwise.
    */
   isDirectory: (path: string) => Promise<boolean>;
+
+  /**
+   * Encodes a UTF-8 string in base64 format.
+   * @param str - The string to encode.
+   * @returns The base64 encoded string.
+   */
+  toBase64String: (str: string) => Promise<string>;
 
   /**
    * Calculates the SHA256 hash of a string.

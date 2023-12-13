@@ -43,7 +43,6 @@ export interface IEnvContext {
     readFileAsBase64: (path: string) => Promise<string>;
     // @deprecated (undocumented)
     resolveLocal: (path: string) => Promise<string>;
-    // @deprecated (undocumented)
     toBase64String: (str: string) => Promise<string>;
     version: string;
 }
