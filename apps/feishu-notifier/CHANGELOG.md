@@ -1,6 +1,11 @@
 # Change Log - @yuants/app-feishu-notifier
 
-This log was last generated on Wed, 13 Dec 2023 10:27:58 GMT and should not be manually modified.
+This log was last generated on Wed, 13 Dec 2023 12:12:11 GMT and should not be manually modified.
+
+## 0.0.35
+Wed, 13 Dec 2023 12:12:11 GMT
+
+_Version update only_
 
 ## 0.0.34
 Wed, 13 Dec 2023 10:27:58 GMT

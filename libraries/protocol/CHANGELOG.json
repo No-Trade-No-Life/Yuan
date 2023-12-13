@@ -2,6 +2,23 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.9.4",
+      "tag": "@yuants/protocol_v0.9.4",
+      "date": "Wed, 13 Dec 2023 12:12:11 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "chore: remove useless files as it has been moved out"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.9.3",
       "tag": "@yuants/protocol_v0.9.3",
       "date": "Mon, 11 Dec 2023 13:08:40 GMT",
