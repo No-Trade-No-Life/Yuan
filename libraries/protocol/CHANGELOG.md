@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Mon, 11 Dec 2023 13:08:40 GMT and should not be manually modified.
+This log was last generated on Wed, 13 Dec 2023 12:12:11 GMT and should not be manually modified.
+
+## 0.9.4
+Wed, 13 Dec 2023 12:12:11 GMT
+
+### Patches
+
+- chore: remove useless files as it has been moved out
 
 ## 0.9.3
 Mon, 11 Dec 2023 13:08:40 GMT
