@@ -1,8 +1,9 @@
 import * as rollup from '@rollup/browser';
 import { AgentScene, IAgentConf } from '@yuants/agent';
 import { UUID } from '@yuants/data-model';
+import { IDeploySpec } from '@yuants/extension';
 import { BasicUnit, IAccountPerformance } from '@yuants/kernel';
-import { IAccountInfo, IDeploySpec } from '@yuants/protocol';
+import { IAccountInfo } from '@yuants/protocol';
 import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
 import * as path from 'path-browserify';
@@ -224,11 +225,12 @@ export const makeManifestsFromAgentConfList = async (
       bundled_code,
     };
     const manifest: IDeploySpec = {
+      key: agentConf.kernel_id!,
       package: '@yuants/app-agent',
       env: {
         HV_URL: hv_url,
       },
-      one_json: theConfig,
+      one_json: JSON.stringify(theConfig),
     };
     ret.push(manifest);
   }
