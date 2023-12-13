@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/extension",
+      "comment": "chore: remove @deprecated tag for toBase64String",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/extension"
+}
