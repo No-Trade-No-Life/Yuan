@@ -143,6 +143,9 @@ export const bundleCodeFromInMemoryCode = async (entry_code: string) => {
               //
             }
           }
+          throw new Error(
+            t('common:reference_error', { importer, source, interpolation: { escapeValue: false } }),
+          );
         },
         async load(id) {
           if (id === mainId) {

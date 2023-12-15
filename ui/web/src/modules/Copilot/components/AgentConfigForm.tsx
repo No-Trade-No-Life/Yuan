@@ -101,7 +101,10 @@ export default ({
 
               Toast.success(t('AgentConfForm:run_succeed'));
               gtag('event', 'agent_run_complete');
-            } catch (e) {}
+            } catch (e) {
+              Toast.error(`${t('common:failed')}: ${e}`);
+              gtag('event', 'agent_run_error', { message: `${e}` });
+            }
             setLoading(false);
           }}
         >
