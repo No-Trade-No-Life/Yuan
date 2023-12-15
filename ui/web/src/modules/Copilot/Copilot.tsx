@@ -112,18 +112,6 @@ registerPage('Copilot', () => {
   useEffect(() => {
     document.querySelector('.bottom')?.scrollIntoView();
   }, [messages]);
-  useEffect(() => {
-    messages$.next([
-      {
-        type: 'CopilotAgentCode',
-        payload: {
-          code: 'import { useBOLL, useSimplePositionManager } from "@libs";\n\nexport default () => {\n  const { product_id, close } = useParamOHLC("SomeKey");\n  const idx = close.length - 2;\n\n  const { UPPER, MIDDLE } = useBOLL(close);\n\n  const accountInfo = useAccountInfo();\n\n  const [targetVolume, setTargetVolume] = useSimplePositionManager(\n    accountInfo.account_id,\n    product_id\n  );\n\n  useEffect(() => {\n    if (idx < 1) return; // 确保有足够的数据生成布林线\n    if (close[idx] > UPPER[idx]) {\n      setTargetVolume(1); // 当价格高于布林线上轨时，做多\n    }\n    if (close[idx] < MIDDLE[idx]) {\n      setTargetVolume(0); // 当价格跌破布林线中轨时平仓\n    }\n  }, [idx]);\n};',
-          remark:
-            '模型开发方法：\n1. 使用useBOLL函数获取布林线的上轨和中轨。\n2. 使用useSimplePositionManager管理仓位。\n3. 在useEffect中，当价格高于布林线上轨时，调用setTargetVolume(1)做多。\n4. 当价格跌破布林线中轨时，调用setTargetVolume(0)平仓。\n5. 注意检查数据索引，确保有足够的数据生成布林线。\n\n如果对模型有任何疑问，可以向用户提问。',
-        },
-      },
-    ]);
-  }, []);
 
   return (
     <Space vertical style={{ width: '100%', height: '100%' }}>
