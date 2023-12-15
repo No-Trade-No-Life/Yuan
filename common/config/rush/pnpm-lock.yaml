@@ -863,6 +863,8 @@ importers:
       react: ^18.2.0
       react-dom: ^18.2.0
       react-i18next: ~13.2.1
+      react-markdown: ~9.0.1
+      rehype-raw: ~7.0.0
       rxjs: ^7.5.6
       typescript: ^4.6.4
       unzipit: ~1.4.3
@@ -908,6 +910,8 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-i18next: 13.2.1_98cade5ad3a97019d15195744e997f78
+      react-markdown: 9.0.1_a7729073fe0d318b643532c3a284e042
+      rehype-raw: 7.0.0
       rxjs: 7.5.7
       unzipit: 1.4.3
       yaml: 2.2.2
@@ -11345,6 +11349,10 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
+  /html-url-attributes/3.0.0:
+    resolution: {integrity: sha512-/sXbVCWayk6GDVg3ctOX6nxaVj7So40FcFAnWlWGNAB1LpYKcV5Cd10APjPjW80O7zYW2MsjBV4zZ7IZO5fVow==}
+    dev: false
+
   /html-void-elements/1.0.5:
     resolution: {integrity: sha512-uE/TxKuyNIcx44cIWnjr/rfIATDH7ZaOMmstu0CwhFG1Dunhlp4OC6/NMbhiwoq5BpW0ubi303qnEk/PZj614w==}
     dev: false
@@ -16129,6 +16137,28 @@ packages:
       '@babel/runtime': 7.22.11
       react-loadable: /@docusaurus/react-loadable/5.5.2_react@18.2.0
       webpack: 5.88.2
+    dev: false
+
+  /react-markdown/9.0.1_a7729073fe0d318b643532c3a284e042:
+    resolution: {integrity: sha512-186Gw/vF1uRkydbsOIkcGXw7aHq0sZOCRFFjGrr7b9+nVZg4UfA4enXCaxm4fUzecU38sWfrNDitGhshuU7rdg==}
+    peerDependencies:
+      '@types/react': '>=18'
+      react: '>=18'
+    dependencies:
+      '@types/hast': 3.0.3
+      '@types/react': 18.2.37
+      devlop: 1.1.0
+      hast-util-to-jsx-runtime: 2.2.0
+      html-url-attributes: 3.0.0
+      mdast-util-to-hast: 13.0.2
+      react: 18.2.0
+      remark-parse: 11.0.0
+      remark-rehype: 11.0.0
+      unified: 11.0.4
+      unist-util-visit: 5.0.0
+      vfile: 6.0.1
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /react-refresh/0.14.0:

@@ -229,18 +229,23 @@ registerPage('Copilot', () => {
 
           const send = sendCurrentMessages;
 
-          const appendMessages = (msgList: IChatMessage<any, any>[]) => {
+          const appendMessage = (msgList: IChatMessage<any, any>[]) => {
+            // messages$.next(messages$.value.slice(0, idx + 1).concat(msgList));
+            messages$.next(messages$.value.concat(msgList));
+          };
+          const replaceMessages = (msgList: IChatMessage<any, any>[]) => {
             messages$.next(messages$.value.slice(0, idx + 1).concat(msgList));
           };
 
           return React.createElement(component, {
             payload: msg.payload,
-            appendMessages,
+            replaceMessage: replaceMessages,
             sendMessages: (msgList) => {
-              appendMessages(msgList);
+              appendMessage(msgList);
               send();
             },
             send,
+            appendMessage,
           });
         })}
         {isLoading && (

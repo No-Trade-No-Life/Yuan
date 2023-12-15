@@ -53,7 +53,9 @@
     "react-i18next": "~13.2.1",
     "rxjs": "^7.5.6",
     "unzipit": "~1.4.3",
-    "yaml": "~2.2.1"
+    "yaml": "~2.2.1",
+    "react-markdown": "~9.0.1",
+    "rehype-raw": "~7.0.0"
   },
   "devDependencies": {
     "@originjs/vite-plugin-commonjs": "~1.0.3",
