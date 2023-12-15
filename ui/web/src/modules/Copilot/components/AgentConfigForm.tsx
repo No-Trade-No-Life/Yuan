@@ -15,7 +15,7 @@ import { LocalAgentScene } from '../../StaticFileServerStorage/LocalAgentScene';
 import { IMessageCardProps } from '../model';
 
 export default ({
-  appendMessages,
+  replaceMessage: appendMessages,
   sendMessages,
   payload,
 }: IMessageCardProps<{
@@ -83,6 +83,18 @@ export default ({
                     account_performance: Object.fromEntries(
                       scene.accountPerformanceUnit.mapAccountIdToPerformance.entries(),
                     ),
+                  },
+                },
+              ]);
+              sendMessages([
+                {
+                  type: 'Backtest',
+                  payload: {
+                    agent_conf: agentConf,
+                    account_performance: Object.fromEntries(
+                      scene.accountPerformanceUnit.mapAccountIdToPerformance.entries(),
+                    ),
+                    language: 'Chinese', //TODO
                   },
                 },
               ]);

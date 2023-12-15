@@ -18,7 +18,9 @@
   },
   "SystemBacktestResult": {
     "deploy": "部署到实盘",
-    "title": "回测结果"
+    "title": "回测结果",
+    "retest": "换个品种/参数最优化",
+    "suggestion": "如果你想优化这个模型，可以参照以下建议或者直接打字询问我"
   },
   "clear": "清空",
   "connect_host": "连接主机...",

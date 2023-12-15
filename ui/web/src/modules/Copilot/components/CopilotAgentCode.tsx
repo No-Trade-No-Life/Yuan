@@ -8,10 +8,11 @@ import { MonacoEditor } from '../../Editor/Monaco';
 import { fs } from '../../FileSystem/api';
 import { LocalAgentScene } from '../../StaticFileServerStorage/LocalAgentScene';
 import { IMessageCardProps } from '../model';
-
+import Markdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
 export default ({
   sendMessages,
-  appendMessages,
+  replaceMessage: appendMessages,
   payload,
 }: IMessageCardProps<{
   code: string;
@@ -64,7 +65,7 @@ export default ({
       ]}
     >
       <Space vertical align="start" style={{ width: '100%' }}>
-        <Typography.Text>{payload.remark}</Typography.Text>
+        <Markdown rehypePlugins={[rehypeRaw]}>{payload.remark}</Markdown>
         <div style={{ width: '100%', height: 400 }}>
           <MonacoEditor
             value={payload.code}

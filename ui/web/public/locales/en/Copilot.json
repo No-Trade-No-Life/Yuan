@@ -18,7 +18,9 @@
   },
   "SystemBacktestResult": {
     "deploy": "Deploy",
-    "title": "Backtest Result"
+    "title": "Backtest Result",
+    "retest": "Parameter optimization",
+    "suggestion": "If you want to refine this model, you can follow these suggestions, or directly ask me"
   },
   "clear": "Clear",
   "connect_host": "Connect Host...",
