@@ -1,4 +1,4 @@
-import { IconClear, IconFolderOpen, IconLink, IconSend } from '@douyinfe/semi-icons';
+import { IconClear, IconFolderOpen, IconLink, IconSend, IconYoutube } from '@douyinfe/semi-icons';
 import { Button, Card, Empty, Space, TextArea, Typography } from '@douyinfe/semi-ui';
 import { Book, Github } from '@icon-park/react';
 import { useObservableState } from 'observable-hooks';
@@ -30,12 +30,25 @@ registerPage('Copilot', () => {
   const { t } = useTranslation('Copilot');
 
   const examples = useMemo(
-    () => [
+    (): Array<{ icon?: React.ReactNode; title?: string; content: string }> => [
       //
-      t('Copilot:prompt_example_1'),
-      t('Copilot:prompt_example_2'),
-      t('Copilot:prompt_example_3'),
-      t('Copilot:prompt_example_4'),
+      {
+        content: t('Copilot:prompt_example_1'),
+      },
+      {
+        content: t('Copilot:prompt_example_2'),
+      },
+      {
+        content: t('Copilot:prompt_example_3'),
+      },
+      {
+        content: t('Copilot:prompt_example_4'),
+      },
+      {
+        icon: <IconYoutube />,
+        title: t('Copilot:prompt_example_5_title'),
+        content: t('Copilot:prompt_example_5'),
+      },
     ],
     [t],
   );
@@ -49,6 +62,15 @@ registerPage('Copilot', () => {
     [],
   );
   const messages = useObservableState(messages$);
+
+  useEffect(() => {
+    const sub = messages$.subscribe((messages) => {
+      Object.assign(globalThis, { copilotMessages: messages });
+    });
+    return () => {
+      sub.unsubscribe();
+    };
+  }, []);
 
   const stop$ = useMemo(() => new Subject<void>(), []);
 
@@ -162,10 +184,11 @@ registerPage('Copilot', () => {
                   style={{ cursor: 'pointer' }}
                   link={{}}
                   onClick={() => {
-                    setUserInput(hint);
+                    setUserInput(hint.content);
                   }}
+                  icon={hint.icon}
                 >
-                  {hint}
+                  {hint.title || hint.content}
                 </Typography.Text>
               ))}
             </Space>
