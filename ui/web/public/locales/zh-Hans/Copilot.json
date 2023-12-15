@@ -13,14 +13,18 @@
     "submit": "确定提交",
     "title": "Copilot: 需要更多上下文"
   },
+  "CopilotStrategySummary": {
+    "submit": "没问题，生成策略代码",
+    "title": "Copilot: 策略总结"
+  },
   "CopilotText": {
     "title": "Copilot 消息"
   },
   "SystemBacktestResult": {
     "deploy": "部署到实盘",
-    "title": "回测结果",
     "retest": "换个品种/参数最优化",
-    "suggestion": "如果你想优化这个模型，可以参照以下建议或者直接打字询问我"
+    "suggestion": "如果你想优化这个模型，可以参照以下建议或者直接打字询问我",
+    "title": "回测结果"
   },
   "clear": "清空",
   "connect_host": "连接主机...",
@@ -32,6 +36,8 @@
   "prompt_example_2": "写一个布林线交易模型",
   "prompt_example_3": "当价格高于布林线上轨时，做多",
   "prompt_example_4": "搞个 RSI + BOLL 的策略",
+  "prompt_example_5": "帮我将这个视频转成量化策略，https://www.youtube.com/watch?v=zTifAuhDadY",
+  "prompt_example_5_title": "视频转策略",
   "send": "发送",
   "slogan": "量化交易人工智能助手",
   "stop": "中止",
