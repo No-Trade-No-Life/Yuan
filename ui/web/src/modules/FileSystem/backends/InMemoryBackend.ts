@@ -29,7 +29,7 @@ export class InMemoryBackend implements IFileSystemBackend {
     };
   }
   async readFile(path: string): Promise<string> {
-    return atob(await this.readFileAsBase64(path));
+    return b64_to_utf8(await this.readFileAsBase64(path));
   }
 
   async readFileAsBase64(path: string): Promise<string> {
@@ -45,10 +45,12 @@ export class InMemoryBackend implements IFileSystemBackend {
   async writeFile(path: string, content: FileSystemWriteChunkType): Promise<void> {
     if (content instanceof Blob) {
       this.files[path] = { type: 'file', contentBase64: await blobToBase64(content) };
+      return;
     }
 
     if (typeof content === 'string') {
-      this.files[path] = { type: 'file', contentBase64: btoa(content) };
+      this.files[path] = { type: 'file', contentBase64: utf8_to_b64(content) };
+      return;
     }
 
     throw Error('Not Impleemented');
@@ -75,4 +77,11 @@ function blobToBase64(blob: Blob) {
     reader.onloadend = () => resolve((reader.result as string).replace(/^.+;base64,/, ''));
     reader.readAsDataURL(blob);
   });
+}
+function utf8_to_b64(str: string): string {
+  return btoa(unescape(encodeURIComponent(str)));
+}
+
+function b64_to_utf8(str: string): string {
+  return decodeURIComponent(escape(atob(str)));
 }

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/agent",
+      "comment": "fix globalThis has number key error",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/agent"
+}
