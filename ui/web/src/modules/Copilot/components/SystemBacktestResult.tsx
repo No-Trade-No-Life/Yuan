@@ -1,4 +1,4 @@
-import { IconInfoCircle, IconTestScoreStroked, IconTick } from '@douyinfe/semi-icons';
+import { IconBeaker, IconInfoCircle, IconTestScoreStroked, IconTick } from '@douyinfe/semi-icons';
 import { Button, Card, Descriptions, Space, Tooltip, Typography } from '@douyinfe/semi-ui';
 import { SmartOptimization } from '@icon-park/react';
 import { IAgentConf } from '@yuants/agent';
@@ -63,6 +63,22 @@ export default ({
           }}
         >
           {t('Copilot:SystemBacktestResult:analyze')}
+        </Button>,
+        <Button
+          icon={<IconBeaker />}
+          onClick={async () => {
+            replaceMessage([
+              {
+                type: 'OptimizeParams',
+                payload: {
+                  language: i18n.language,
+                },
+              },
+            ]);
+            send();
+          }}
+        >
+          {t('Copilot:SystemBacktestResult:optimize')}
         </Button>,
         messages.filter((msg) => msg.type === 'SystemBacktestResult').length > 1 ? (
           <Button

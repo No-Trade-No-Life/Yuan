@@ -16,6 +16,10 @@
   "CopilotModelCompareResult": {
     "title": "模型对比分析"
   },
+  "CopilotParamList": {
+    "code_complete": "开始参数最优化",
+    "title": "Copilot: 备选参数列表"
+  },
   "CopilotStrategySummary": {
     "submit": "没问题，生成策略代码",
     "title": "Copilot: 策略总结"
@@ -27,9 +31,13 @@
     "analyze": "帮我分析",
     "compare": "哪个策略最好？",
     "deploy": "部署到实盘",
+    "optimize": "执行参数最优化",
     "retest": "换个品种/参数最优化",
     "suggestion": "如果你想优化这个模型，可以参照以下建议或者直接打字询问我",
     "title": "回测结果"
+  },
+  "SystemBatchBacktestResult": {
+    "title": "批量回测结果"
   },
   "clear": "清空",
   "connect_host": "连接主机...",
@@ -43,6 +51,8 @@
   "prompt_example_4": "搞个 RSI + BOLL 的策略",
   "prompt_example_5": "帮我将这个视频转成量化策略，https://www.youtube.com/watch?v=PFYA-WSwWh8",
   "prompt_example_5_title": "视频转策略",
+  "render_error": "",
+  "render_error_hint": "",
   "send": "发送",
   "slogan": "量化交易人工智能助手",
   "stop": "中止",
