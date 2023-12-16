@@ -1,4 +1,4 @@
-import { IconCode, IconSave, IconTick } from '@douyinfe/semi-icons';
+import { IconClose, IconCode, IconSave, IconTick } from '@douyinfe/semi-icons';
 import { Button, Card, Space, Toast, Typography } from '@douyinfe/semi-ui';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
@@ -49,6 +49,14 @@ export default ({
           }}
         >
           {t('Copilot:CopilotAgentCode:code_complete')}
+        </Button>,
+        <Button
+          icon={<IconClose />}
+          onClick={async () => {
+            replaceMessage([]);
+          }}
+        >
+          {t('Copilot:CopilotAgentCode:code_report_error')}
         </Button>,
         <Button
           icon={<IconSave />}
