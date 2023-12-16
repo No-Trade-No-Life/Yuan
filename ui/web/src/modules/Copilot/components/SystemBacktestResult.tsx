@@ -441,7 +441,7 @@ export default ({
             width: '100%',
           }}
         ></Descriptions>
-        <WeeklyEquityChart accountId={accountId} />
+        <WeeklyEquityChart accountPerformance={performance} />
       </Space>
     </Card>
   );
