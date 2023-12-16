@@ -388,7 +388,7 @@ registerCommand('workspace.import_examples', async () => {
       const thePath = path.resolve('/', filename);
       if (thePath[0] === '/') {
         await fs.ensureDir(path.dirname(thePath));
-        fs.writeFile(thePath, await entry.blob());
+        await fs.writeFile(thePath, await entry.blob());
         console.info(
           formatTime(Date.now()),
           t('common:file_written', { filename: thePath, interpolation: { escapeValue: false } }),

@@ -1,7 +1,7 @@
 import { dirname } from 'path-browserify';
 import { BehaviorSubject } from 'rxjs';
 import { FileSystemHandleBackend } from './backends/FileSystemHandleBackend';
-import { InMemoryBackend } from './backends/InMemoryBackend';
+import { IndexedDBBackend } from './backends/IndexedDBBackend';
 import { createPersistBehaviorSubject } from './createPersistBehaviorSubject';
 import { IFileSystemBackend } from './interfaces';
 
@@ -19,7 +19,7 @@ const createFileSystemApi = (backend: IFileSystemBackend) => {
   return { ...backend, ensureDir };
 };
 
-export const FsBackend$ = new BehaviorSubject<IFileSystemBackend>(new InMemoryBackend());
+export const FsBackend$ = new BehaviorSubject<IFileSystemBackend>(new IndexedDBBackend());
 const FsFrontend$ = new BehaviorSubject(createFileSystemApi(FsBackend$.value));
 FsBackend$.subscribe((backend) => {
   FsFrontend$.next(createFileSystemApi(backend));

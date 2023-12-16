@@ -139,7 +139,12 @@ function makeScriptRunner(script: string): () => any {
   const globalContext = {
     // Issue: block access to globalThis and its properties for security
     globalThis: {},
-    ...Object.fromEntries(Object.keys(globalThis).map((key) => [key, undefined])),
+    ...Object.fromEntries(
+      Object.keys(globalThis)
+        // Issue: Must be identifier, may throw Error: unexpected number
+        .filter((key) => key.match(/^[_A-Za-z][_A-Za-z0-9]+$/))
+        .map((key) => [key, undefined]),
+    ),
     // Supply some global variables
     PositionVariant,
     OrderDirection,
