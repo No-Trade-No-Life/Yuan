@@ -1,6 +1,7 @@
 import i18n from 'i18next';
 import DetectBrowserLanguage from 'i18next-browser-languagedetector';
 import HttpApi from 'i18next-http-backend';
+import { join } from 'path-browserify';
 import { initReactI18next } from 'react-i18next';
 
 i18n
@@ -25,10 +26,10 @@ i18n
       useSuspense: false,
     },
     backend: {
-      loadPath: '/locales/{{lng}}/{{ns}}.json',
+      loadPath: join(import.meta.env.BASE_URL, '/locales/{{lng}}/{{ns}}.json'),
     },
   });
 
-Object.assign(globalThis, { i18n });
+Object.assign(globalThis, { i18n, BASE_URL: import.meta.env.BASE_URL });
 
 export default i18n;

@@ -2,6 +2,7 @@ import { IconClear, IconFolderOpen, IconLink, IconSend, IconYoutube } from '@dou
 import { Button, Card, Empty, Space, TextArea, Typography } from '@douyinfe/semi-ui';
 import { Book, Github } from '@icon-park/react';
 import { useObservableState } from 'observable-hooks';
+import { join } from 'path-browserify';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BehaviorSubject, EMPTY, Subject, catchError, defer, raceWith, tap, timeout } from 'rxjs';
@@ -151,7 +152,9 @@ registerPage('Copilot', () => {
       >
         {messages.length === 0 && (
           <Space vertical style={{ width: '100%', height: '100%', justifyContent: 'center' }}>
-            <Empty image={<img src={'/yuan.svg'} width={128} height={128}></img>}></Empty>
+            <Empty
+              image={<img src={join(import.meta.env.BASE_URL, '/yuan.svg')} width={128} height={128}></img>}
+            ></Empty>
             <Typography.Title>Yuan Copilot</Typography.Title>
             <Typography.Title heading={2} type="tertiary">
               {t('Copilot:slogan')}
