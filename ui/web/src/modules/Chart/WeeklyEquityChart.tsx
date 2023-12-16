@@ -1,16 +1,12 @@
 import { IAccountPerformance } from '@yuants/kernel';
 import { format } from 'date-fns';
 import EChartsReact from 'echarts-for-react';
-import { useObservableState } from 'observable-hooks';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { accountPerformance$ } from '../AccountInfo/model';
 
-export const WeeklyEquityChart = React.memo((props: { accountId: string }) => {
+export const WeeklyEquityChart = React.memo((props: { accountPerformance?: IAccountPerformance }) => {
   const [t] = useTranslation('WeeklyEquityChart');
-  const mapAccountIdToAccountPerformance = useObservableState(accountPerformance$);
-  const accountPerformance: IAccountPerformance | undefined =
-    mapAccountIdToAccountPerformance[props.accountId];
+  const accountPerformance: IAccountPerformance | undefined = props.accountPerformance;
 
   if (!accountPerformance) return null;
 
