@@ -14,6 +14,7 @@ import { IMessageCardProps } from '../model';
 export default ({
   replaceMessage,
   send,
+  messages,
   payload,
 }: IMessageCardProps<{
   agent_conf: IAgentConf;
@@ -63,22 +64,24 @@ export default ({
         >
           {t('Copilot:SystemBacktestResult:analyze')}
         </Button>,
-        <Button
-          icon={<SmartOptimization />}
-          onClick={async () => {
-            replaceMessage([
-              {
-                type: 'ModelCompare',
-                payload: {
-                  language: i18n.language,
+        messages.filter((msg) => msg.type === 'SystemBacktestResult').length > 1 ? (
+          <Button
+            icon={<SmartOptimization />}
+            onClick={async () => {
+              replaceMessage([
+                {
+                  type: 'ModelCompare',
+                  payload: {
+                    language: i18n.language,
+                  },
                 },
-              },
-            ]);
-            send();
-          }}
-        >
-          {t('Copilot:SystemBacktestResult:compare')}
-        </Button>,
+              ]);
+              send();
+            }}
+          >
+            {t('Copilot:SystemBacktestResult:compare')}
+          </Button>
+        ) : null,
       ]}
     >
       <Space vertical align="start" style={{ width: '100%' }}>
