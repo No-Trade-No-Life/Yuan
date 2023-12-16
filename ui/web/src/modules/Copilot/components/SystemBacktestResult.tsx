@@ -1,5 +1,6 @@
 import { IconInfoCircle, IconTestScoreStroked, IconTick } from '@douyinfe/semi-icons';
 import { Button, Card, Descriptions, Space, Tooltip, Typography } from '@douyinfe/semi-ui';
+import { SmartOptimization } from '@icon-park/react';
 import { IAgentConf } from '@yuants/agent';
 import { AccountPerformanceUnit, IAccountPerformance } from '@yuants/kernel';
 import { useMemo, useState } from 'react';
@@ -7,9 +8,12 @@ import { Trans, useTranslation } from 'react-i18next';
 import { AccountSelector } from '../../AccountInfo';
 import { WeeklyEquityChart } from '../../Chart/WeeklyEquityChart';
 import { executeCommand } from '../../CommandCenter';
+import i18n from '../../Locale/i18n';
 import { IMessageCardProps } from '../model';
 
 export default ({
+  replaceMessage,
+  send,
   payload,
 }: IMessageCardProps<{
   agent_conf: IAgentConf;
@@ -42,6 +46,38 @@ export default ({
           }}
         >
           {t('Copilot:SystemBacktestResult:deploy')}
+        </Button>,
+        <Button
+          icon={<SmartOptimization />}
+          onClick={async () => {
+            replaceMessage([
+              {
+                type: 'Backtest',
+                payload: {
+                  language: i18n.language,
+                },
+              },
+            ]);
+            send();
+          }}
+        >
+          {t('Copilot:SystemBacktestResult:analyze')}
+        </Button>,
+        <Button
+          icon={<SmartOptimization />}
+          onClick={async () => {
+            replaceMessage([
+              {
+                type: 'ModelCompare',
+                payload: {
+                  language: i18n.language,
+                },
+              },
+            ]);
+            send();
+          }}
+        >
+          {t('Copilot:SystemBacktestResult:compare')}
         </Button>,
       ]}
     >

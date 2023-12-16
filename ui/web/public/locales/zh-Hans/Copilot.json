@@ -8,6 +8,9 @@
     "save_code": "保存到工作区",
     "title": "模型代码"
   },
+  "CopilotModelCompareResult": {
+    "title": "模型对比分析"
+  },
   "CopilotForm": {
     "skip": "我不确定，先跳过。",
     "submit": "确定提交",
@@ -21,6 +24,8 @@
     "title": "Copilot 消息"
   },
   "SystemBacktestResult": {
+    "analyze": "帮我分析",
+    "compare": "哪个策略最好？",
     "deploy": "部署到实盘",
     "retest": "换个品种/参数最优化",
     "suggestion": "如果你想优化这个模型，可以参照以下建议或者直接打字询问我",

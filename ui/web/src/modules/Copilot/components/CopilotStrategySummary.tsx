@@ -7,7 +7,6 @@ import rehypeRaw from 'rehype-raw';
 
 export default ({
   payload,
-  sendMessages,
   send,
 }: IMessageCardProps<{
   text: string;
