@@ -7,12 +7,13 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BehaviorSubject, EMPTY, Subject, catchError, defer, raceWith, tap, timeout } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
+import i18n from '../Locale/i18n';
 import { region$ } from '../Locale/utils';
 import { registerPage } from '../Pages';
+import { ErrorBoundary } from '../Pages/ErrorBoundary';
 import { authState$ } from '../SupaBase';
 import { ensureAuthenticated } from '../User';
 import { IChatMessage, IMessageCardProps } from './model';
-import i18n from '../Locale/i18n';
 
 const mapMessageTypeToComponent: Record<string, React.ComponentType<IMessageCardProps<any>>> = {};
 
@@ -267,14 +268,21 @@ registerPage('Copilot', () => {
           const replaceMessages = (msgList: IChatMessage<any, any>[]) => {
             messages$.next(messages$.value.slice(0, idx + 1).concat(msgList));
           };
-
-          return React.createElement(component, {
-            payload: msg.payload,
-            messages,
-            replaceMessage: replaceMessages,
-            send,
-            appendMessage,
-          });
+          return (
+            <ErrorBoundary
+              fallback={(props) => {
+                return <Typography.Text type="danger">Error: ${`${props.error}`}</Typography.Text>;
+              }}
+            >
+              {React.createElement(component, {
+                payload: msg.payload,
+                messages,
+                replaceMessage: replaceMessages,
+                send,
+                appendMessage,
+              })}
+            </ErrorBoundary>
+          );
         })}
         {isLoading && (
           <Card title={t('Copilot:thinking')} style={{ width: '100%', height: 200, flexShrink: 0 }} loading>
