@@ -2,17 +2,17 @@ import { IconCode, IconSave, IconTick } from '@douyinfe/semi-icons';
 import { Button, Card, Space, Toast, Typography } from '@douyinfe/semi-ui';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
+import Markdown from 'react-markdown';
+import rehypeRaw from 'rehype-raw';
 import { bundleCodeFromInMemoryCode } from '../../Agent/utils';
 import { executeCommand } from '../../CommandCenter';
 import { MonacoEditor } from '../../Editor/Monaco';
 import { fs } from '../../FileSystem/api';
 import { LocalAgentScene } from '../../StaticFileServerStorage/LocalAgentScene';
 import { IMessageCardProps } from '../model';
-import Markdown from 'react-markdown';
-import rehypeRaw from 'rehype-raw';
 export default ({
-  sendMessages,
-  replaceMessage: appendMessages,
+  replaceMessage,
+  send,
   payload,
 }: IMessageCardProps<{
   code: string;
@@ -38,11 +38,12 @@ export default ({
               const scene = await LocalAgentScene({ bundled_code });
               const schema = scene.agentUnit.paramsSchema;
 
-              appendMessages([{ type: 'AgentConfigForm', payload: { bundled_code, schema } }]);
+              replaceMessage([{ type: 'AgentConfigForm', payload: { bundled_code, schema } }]);
               gtag('event', 'copilot_agent_code_complete');
             } catch (e) {
               Toast.error(`Compile Error: ${e}`);
-              sendMessages([{ type: 'UserText', payload: { text: `${e}` } }]);
+              replaceMessage([{ type: 'UserText', payload: { text: `${e}` } }]);
+              send();
               gtag('event', 'copilot_agent_code_error', { message: `${e}` });
             }
           }}

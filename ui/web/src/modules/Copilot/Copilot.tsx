@@ -265,11 +265,8 @@ registerPage('Copilot', () => {
 
           return React.createElement(component, {
             payload: msg.payload,
+            messages,
             replaceMessage: replaceMessages,
-            sendMessages: (msgList) => {
-              appendMessage(msgList);
-              send();
-            },
             send,
             appendMessage,
           });

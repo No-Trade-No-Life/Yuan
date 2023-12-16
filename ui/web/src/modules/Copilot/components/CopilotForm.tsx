@@ -7,7 +7,8 @@ import Form from '../../Form';
 import { IMessageCardProps } from '../model';
 
 export default ({
-  sendMessages,
+  replaceMessage,
+  send,
   payload,
 }: IMessageCardProps<{
   id: string;
@@ -29,7 +30,8 @@ export default ({
           icon={<IconTick />}
           disabled={!formData}
           onClick={() => {
-            sendMessages([{ type: 'UserFormInput', payload: { id: payload.id, answer: formData } }]);
+            replaceMessage([{ type: 'UserFormInput', payload: { id: payload.id, answer: formData } }]);
+            send();
           }}
         >
           {t('Copilot:CopilotForm:submit')}
@@ -37,7 +39,8 @@ export default ({
         <Button
           icon={<IconFastForward />}
           onClick={() => {
-            sendMessages([{ type: 'UserFormInput', payload: { id: payload.id, answer: undefined } }]);
+            replaceMessage([{ type: 'UserFormInput', payload: { id: payload.id, answer: undefined } }]);
+            send();
           }}
         >
           {t('Copilot:CopilotForm:skip')}

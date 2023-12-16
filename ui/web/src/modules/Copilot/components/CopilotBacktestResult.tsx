@@ -1,13 +1,14 @@
 import { IconComment, IconTick } from '@douyinfe/semi-icons';
 import { Button, Card, Space, Typography } from '@douyinfe/semi-ui';
 import { useTranslation } from 'react-i18next';
-import { IMessageCardProps } from '../model';
 import Markdown from 'react-markdown';
 import rehypeRaw from 'rehype-raw';
+import { IMessageCardProps } from '../model';
 
 export default ({
   payload,
-  sendMessages,
+  replaceMessage,
+  send,
 }: IMessageCardProps<{
   suggestions: string[];
   summary: string;
@@ -42,7 +43,8 @@ export default ({
                   theme="light"
                   style={{ marginTop: 8 }}
                   onClick={() => {
-                    sendMessages([{ type: 'OptimizeModel', payload: { text: suggestion } }]);
+                    replaceMessage([{ type: 'OptimizeModel', payload: { text: suggestion } }]);
+                    send();
                   }}
                 >
                   {suggestion}

@@ -13,6 +13,9 @@
     "submit": "Submit",
     "title": "Copilot: Require more context"
   },
+  "CopilotModelCompareResult": {
+    "title": "Strategies Analysis"
+  },
   "CopilotStrategySummary": {
     "submit": "OK, Generate Code",
     "title": "Copilot: Strategy Summary"
@@ -21,6 +24,8 @@
     "title": "Copilot: Message"
   },
   "SystemBacktestResult": {
+    "analyze": "Help me analyze",
+    "compare": "Which is best?",
     "deploy": "Deploy",
     "retest": "Parameter optimization",
     "suggestion": "If you want to refine this model, you can follow these suggestions, or directly ask me",
