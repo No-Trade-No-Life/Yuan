@@ -16,6 +16,10 @@
   "CopilotModelCompareResult": {
     "title": "Strategies Analysis"
   },
+  "CopilotParamList": {
+    "code_complete": "Optimize the params",
+    "title": "Copilot: Parameter List"
+  },
   "CopilotStrategySummary": {
     "submit": "OK, Generate Code",
     "title": "Copilot: Strategy Summary"
@@ -27,9 +31,13 @@
     "analyze": "Help me analyze",
     "compare": "Which is best?",
     "deploy": "Deploy",
+    "optimize": "Param Optimize",
     "retest": "Parameter optimization",
     "suggestion": "If you want to refine this model, you can follow these suggestions, or directly ask me",
     "title": "Backtest Result"
+  },
+  "SystemBatchBacktestResult": {
+    "title": "Batch Backtest Result"
   },
   "clear": "Clear",
   "connect_host": "Connect Host...",
@@ -43,6 +51,8 @@
   "prompt_example_4": "Make a RSI + BOLL strategy",
   "prompt_example_5": "Please help me to convert this video to strategy, https://www.youtube.com/watch?v=PFYA-WSwWh8",
   "prompt_example_5_title": "Convert video to strategy",
+  "render_error": "",
+  "render_error_hint": "",
   "send": "Send",
   "slogan": "Quant Trading AI Assistant",
   "stop": "Stop",
