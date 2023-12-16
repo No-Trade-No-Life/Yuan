@@ -15,6 +15,7 @@ export default ({ payload }: IMessageCardProps<{ text: string }>) => {
           src={`https://www.youtube.com/embed/${youtube_url_matched[1]}`}
           title="YouTube video player"
           frameBorder="0"
+          style={{ flexShrink: 0, maxWidth: '100%' }}
           allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
           allowFullScreen
         ></iframe>
