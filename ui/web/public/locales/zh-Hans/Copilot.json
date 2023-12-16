@@ -8,13 +8,13 @@
     "save_code": "保存到工作区",
     "title": "模型代码"
   },
-  "CopilotModelCompareResult": {
-    "title": "模型对比分析"
-  },
   "CopilotForm": {
     "skip": "我不确定，先跳过。",
     "submit": "确定提交",
     "title": "Copilot: 需要更多上下文"
+  },
+  "CopilotModelCompareResult": {
+    "title": "模型对比分析"
   },
   "CopilotStrategySummary": {
     "submit": "没问题，生成策略代码",
@@ -41,7 +41,7 @@
   "prompt_example_2": "写一个布林线交易模型",
   "prompt_example_3": "当价格高于布林线上轨时，做多",
   "prompt_example_4": "搞个 RSI + BOLL 的策略",
-  "prompt_example_5": "帮我将这个视频转成量化策略，https://www.youtube.com/watch?v=zTifAuhDadY",
+  "prompt_example_5": "帮我将这个视频转成量化策略，https://www.youtube.com/watch?v=PFYA-WSwWh8",
   "prompt_example_5_title": "视频转策略",
   "send": "发送",
   "slogan": "量化交易人工智能助手",

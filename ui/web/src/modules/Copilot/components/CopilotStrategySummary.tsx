@@ -7,6 +7,7 @@ import rehypeRaw from 'rehype-raw';
 
 export default ({
   payload,
+  replaceMessage,
   send,
 }: IMessageCardProps<{
   text: string;
@@ -25,6 +26,7 @@ export default ({
         <Button
           icon={<IconTick />}
           onClick={() => {
+            replaceMessage([]);
             send();
           }}
         >

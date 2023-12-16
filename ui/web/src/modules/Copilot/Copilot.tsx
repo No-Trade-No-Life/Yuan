@@ -12,6 +12,7 @@ import { registerPage } from '../Pages';
 import { authState$ } from '../SupaBase';
 import { ensureAuthenticated } from '../User';
 import { IChatMessage, IMessageCardProps } from './model';
+import i18n from '../Locale/i18n';
 
 const mapMessageTypeToComponent: Record<string, React.ComponentType<IMessageCardProps<any>>> = {};
 
@@ -127,7 +128,11 @@ registerPage('Copilot', () => {
     await ensureAuthenticated();
     gtag('event', 'copilot_push_message_200');
     const theUserInput = userInput;
-    messages$.next(messages$.value.concat([{ type: 'UserText', payload: { text: theUserInput } }]));
+    messages$.next(
+      messages$.value.concat([
+        { type: 'UserText', payload: { text: theUserInput, language: i18n.language } },
+      ]),
+    );
     setUserInput('');
     sendCurrentMessages();
   };
