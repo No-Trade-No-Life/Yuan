@@ -100,7 +100,9 @@ const createWorker = () => {
   return workerInstance;
 };
 
-// dewit
+const alertingSet = new Set<{ account_id: string; product_id: string }>();
+
+// dewit (this is from Palpatine's line in Star Wars, meaning "do it")
 const run = async () => {
   let currentMainWorker = createWorker();
 
@@ -112,6 +114,15 @@ const run = async () => {
     defer(() =>
       currentMainWorker.errorTotal$.pipe(
         //
+        tap(() => {
+          for (const alert of alertingSet) {
+            MetricPositionError.set(0, {
+              account_id: alert.account_id,
+              product_id: alert.product_id,
+            });
+          }
+          alertingSet.clear();
+        }),
         first((v) => v > 0),
       ),
     )
@@ -145,6 +156,7 @@ const run = async () => {
                     account_id: accountId,
                     product_id: diff.product_id,
                   });
+                  alertingSet.add({ account_id: accountId, product_id: diff.product_id });
                 }
               }
               const lastMainWorker = currentMainWorker;
