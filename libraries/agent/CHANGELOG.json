@@ -2,6 +2,23 @@
   "name": "@yuants/agent",
   "entries": [
     {
+      "version": "0.7.13",
+      "tag": "@yuants/agent_v0.7.13",
+      "date": "Tue, 19 Dec 2023 08:32:33 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix globalThis has number key error"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.7.12",
       "tag": "@yuants/agent_v0.7.12",
       "date": "Wed, 13 Dec 2023 12:12:11 GMT",
