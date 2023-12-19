@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-agent",
+      "comment": "fix: reset alert status after self check",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-agent"
+}
