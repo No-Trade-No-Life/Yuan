@@ -383,18 +383,23 @@ registerCommand('workspace.open', async () => {
 
 registerCommand('workspace.import_examples', async () => {
   const res = await unzip(`https://y.ntnl.io/Yuan-Public-Workspace/Yuan-Public-Workspace-main.zip`);
-  for (const [filename, entry] of Object.entries(res.entries)) {
-    if (!entry.isDirectory) {
-      const thePath = path.resolve('/', filename);
-      if (thePath[0] === '/') {
-        await fs.ensureDir(path.dirname(thePath));
-        await fs.writeFile(thePath, await entry.blob());
-        console.info(
-          formatTime(Date.now()),
-          t('common:file_written', { filename: thePath, interpolation: { escapeValue: false } }),
-        );
-      }
-    }
-  }
+  // Speed up: write files in parallel
+  await lastValueFrom(
+    from(Object.entries(res.entries)).pipe(
+      mergeMap(async ([filename, entry]) => {
+        if (!entry.isDirectory) {
+          const thePath = path.resolve('/', filename);
+          if (thePath[0] === '/') {
+            await fs.ensureDir(path.dirname(thePath));
+            await fs.writeFile(thePath, await entry.blob());
+            console.info(
+              formatTime(Date.now()),
+              t('common:file_written', { filename: thePath, interpolation: { escapeValue: false } }),
+            );
+          }
+        }
+      }),
+    ),
+  );
   Toast.success(t('common:import_succeed'));
 });
