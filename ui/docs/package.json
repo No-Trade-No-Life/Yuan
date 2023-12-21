@@ -23,7 +23,7 @@
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "@docusaurus/theme-search-algolia": "~2.4.3",
-    "@docusaurus/theme-mermaid": "~3.0.0",
+    "@docusaurus/theme-mermaid": "3.0.0",
     "remark-math": "6",
     "rehype-katex": "7"
   },
