@@ -1,12 +1,13 @@
 import { IconArrowUp, IconDelete } from '@douyinfe/semi-icons';
-import { Button, List, Space, Tag, Toast, Typography } from '@douyinfe/semi-ui';
+import { List, Space, Tag, Toast, Typography } from '@douyinfe/semi-ui';
 import { Time } from '@icon-park/react';
 import { t } from 'i18next';
 import { useObservableState } from 'observable-hooks';
 import { useTranslation } from 'react-i18next';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, from, lastValueFrom, mergeMap } from 'rxjs';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { showForm } from '../Form';
+import { Button } from '../Interactive';
 import { registerPage } from '../Pages';
 import { activeExtensions$, installExtension, loadExtension, uninstallExtension } from './utils';
 
@@ -20,19 +21,17 @@ registerPage('ExtensionPanel', () => {
   return (
     <Space vertical align="start" style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
       <Space>
+        <Button onClick={() => executeCommand('Extension.install')}>{t('install_new_button')}</Button>
         <Button
-          onClick={() => {
-            executeCommand('Extension.install');
-          }}
-        >
-          {t('install_new_button')}
-        </Button>
-        <Button
-          onClick={() => {
-            for (const extension of activeExtensions) {
-              executeCommand('Extension.install', { name: extension.packageJson.name });
-            }
-          }}
+          onClick={() =>
+            lastValueFrom(
+              from(activeExtensions).pipe(
+                mergeMap((extension) =>
+                  executeCommand('Extension.install', { name: extension.packageJson.name }),
+                ),
+              ),
+            )
+          }
         >
           {t('install_all')}
         </Button>
@@ -55,19 +54,15 @@ registerPage('ExtensionPanel', () => {
                 </Space>
                 <Space>
                   <Button
-                    loading={isProcessing[instance.packageJson.name]}
+                    disabled={isProcessing[instance.packageJson.name]}
                     icon={<IconArrowUp />}
-                    onClick={() => {
-                      executeCommand('Extension.install', { name: instance.packageJson.name });
-                    }}
+                    onClick={() => executeCommand('Extension.install', { name: instance.packageJson.name })}
                   >
                     {t('upgrade')}
                   </Button>
                   <Button
                     icon={<IconDelete />}
-                    onClick={() => {
-                      executeCommand('Extension.uninstall', { name: instance.packageJson.name });
-                    }}
+                    onClick={() => executeCommand('Extension.uninstall', { name: instance.packageJson.name })}
                   >
                     {t('uninstall')}
                   </Button>

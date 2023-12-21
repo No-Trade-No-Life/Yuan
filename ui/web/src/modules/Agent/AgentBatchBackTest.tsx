@@ -33,7 +33,7 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { agentConf$, runAgentAction$ } from '../Agent/AgentConfForm';
+import { agentConf$, runAgent } from '../Agent/AgentConfForm';
 import { executeCommand } from '../CommandCenter';
 import { useValue } from '../Data';
 import { fs } from '../FileSystem/api';
@@ -568,7 +568,7 @@ registerPage('AgentBatchBackTest', () => {
                 <Button
                   onClick={() => {
                     agentConf$.next(x.agentConf);
-                    runAgentAction$.next();
+                    runAgent();
                   }}
                 >
                   详情
