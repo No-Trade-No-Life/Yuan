@@ -5,6 +5,7 @@
   },
   "CopilotAgentCode": {
     "code_complete": "没问题，开始测试！",
+    "code_report_error": "有问题，需要修改",
     "save_code": "保存到工作区",
     "title": "模型代码"
   },

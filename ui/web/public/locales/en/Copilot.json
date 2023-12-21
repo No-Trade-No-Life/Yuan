@@ -5,6 +5,7 @@
   },
   "CopilotAgentCode": {
     "code_complete": "OK, test it!",
+    "code_report_error": "Report issue",
     "save_code": "Save to my workspace",
     "title": "Agent Code"
   },

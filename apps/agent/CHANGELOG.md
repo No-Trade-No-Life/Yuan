@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-agent
 
-This log was last generated on Wed, 13 Dec 2023 12:12:11 GMT and should not be manually modified.
+This log was last generated on Tue, 19 Dec 2023 08:32:33 GMT and should not be manually modified.
+
+## 0.4.18
+Tue, 19 Dec 2023 08:32:33 GMT
+
+### Patches
+
+- fix: reset alert status after self check
 
 ## 0.4.17
 Wed, 13 Dec 2023 12:12:11 GMT

@@ -211,7 +211,7 @@ export default (context: IExtensionContext) => {
                       summary: 'Agent position abrupt change error',
                     },
                     expr: 'sum (agent_position_error_volume) by (account_id, product_id) > 0',
-                    for: '5m',
+                    for: '30s',
                     labels: {
                       severity: 'critical',
                     },
