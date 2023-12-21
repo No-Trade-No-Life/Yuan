@@ -8,7 +8,7 @@ import {
   IconUndo,
   IconWrench,
 } from '@douyinfe/semi-icons';
-import { Button, Divider, Layout, Space, Toast } from '@douyinfe/semi-ui';
+import { Divider, Layout, Space, Toast } from '@douyinfe/semi-ui';
 import { AgentScene, IAgentConf, agentConfSchema } from '@yuants/agent';
 import Ajv from 'ajv';
 import { t } from 'i18next';
@@ -36,6 +36,7 @@ import { executeCommand, registerCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehaviorSubject';
 import Form, { showForm } from '../Form';
+import { Button } from '../Interactive';
 import { currentKernel$ } from '../Kernel/model';
 import { orders$ } from '../Order/model';
 import { registerPage } from '../Pages';
@@ -44,7 +45,6 @@ import { LocalAgentScene } from '../StaticFileServerStorage/LocalAgentScene';
 import { authState$ } from '../SupaBase';
 import { terminal$ } from '../Terminals';
 import { clearLogAction$ } from '../Workbench/Program';
-import { currentHostConfig$ } from '../Workbench/model';
 import { bundleCode } from './utils';
 
 const mapScriptParamsSchemaToAgentConfSchema = (schema: JSONSchema7): JSONSchema7 => ({
@@ -70,7 +70,6 @@ agentConf$.subscribe((agentConf) => {
 });
 
 const complete$ = new BehaviorSubject<boolean>(true);
-export const runAgentAction$ = new Subject<void>();
 export const reloadSchemaAction$ = new Subject<void>();
 
 const extractAgentMetaInfoFromFilename = (script_path: string) =>
@@ -117,7 +116,7 @@ reloadSchemaAction$
   )
   .subscribe();
 
-runAgentAction$.subscribe(async () => {
+export const runAgent = async () => {
   const agentConf = agentConf$.value;
   const agentConfSchema = await firstValueFrom(agentConfSchema$);
   if (!agentConfSchema || !agentConf) {
@@ -184,7 +183,7 @@ runAgentAction$.subscribe(async () => {
     gtag('event', 'agent_run_error', { message: `${e}` });
   }
   complete$.next(true);
-});
+};
 
 registerPage('AgentConfForm', () => {
   const agentConf = useObservableState(agentConf$);
@@ -197,70 +196,34 @@ registerPage('AgentConfForm', () => {
     <Layout style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
       <Layout.Header>
         <Space style={{ width: '100%', flexWrap: 'wrap' }}>
-          <Button
-            icon={<IconPlay />}
-            loading={!complete}
-            onClick={() => {
-              executeCommand('Agent.Run');
-            }}
-          >
+          <Button icon={<IconPlay />} disabled={!complete} onClick={() => executeCommand('Agent.Run')}>
             {t('run')}
           </Button>
-          <Button
-            icon={<IconRefresh />}
-            onClick={() => {
-              executeCommand('Agent.Reload');
-            }}
-          >
+          <Button icon={<IconRefresh />} onClick={() => executeCommand('Agent.Reload')}>
             {t('refresh_schema')}
           </Button>
-          <Button
-            icon={<IconUndo />}
-            onClick={() => {
-              executeCommand('Agent.Reset');
-            }}
-          >
+          <Button icon={<IconUndo />} onClick={() => executeCommand('Agent.Reset')}>
             {t('common:reset')}
           </Button>
-          <Button
-            icon={<IconFile />}
-            onClick={() => {
-              executeCommand('Agent.LoadConfig');
-            }}
-          >
+          <Button icon={<IconFile />} onClick={() => executeCommand('Agent.LoadConfig')}>
             {t('load_config')}
           </Button>
-          <Button
-            icon={<IconSave />}
-            onClick={() => {
-              executeCommand('Agent.SaveConfig');
-            }}
-          >
+          <Button icon={<IconSave />} onClick={() => executeCommand('Agent.SaveConfig')}>
             {t('save_config')}
           </Button>
-          <Button
-            icon={<IconWrench />}
-            onClick={() => {
-              executeCommand('Agent.Bundle');
-            }}
-          >
+          <Button icon={<IconWrench />} onClick={() => executeCommand('Agent.Bundle')}>
             {t('bundle')}
           </Button>
           <Button
             icon={<IconCode />}
-            onClick={() => {
-              executeCommand('FileEditor', { filename: agentConf?.entry });
-            }}
+            onClick={() => executeCommand('FileEditor', { filename: agentConf?.entry })}
           >
             {t('common:view_source')}
           </Button>
           <Button
             icon={<IconCloud />}
             disabled={!authState}
-            onClick={async () => {
-              if (!agentConf) return;
-              await executeCommand('Agent.DeployToCloud', { agentConf });
-            }}
+            onClick={() => executeCommand('Agent.DeployToCloud', { agentConf })}
           >
             {t('cloud_deploy')}
           </Button>
@@ -288,9 +251,9 @@ registerCommand('AgentConfForm', () => {
   executeCommand('Page.select', { id: 'AgentConfForm' });
 });
 
-registerCommand('Agent.Run', () => {
+registerCommand('Agent.Run', async () => {
   clearLogAction$.next();
-  runAgentAction$.next();
+  await runAgent();
 });
 
 registerCommand('Agent.Reload', () => {

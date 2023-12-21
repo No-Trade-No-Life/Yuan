@@ -10,7 +10,7 @@ import {
   IconMore,
   IconSend,
 } from '@douyinfe/semi-icons';
-import { Button, Dropdown, Modal, Space, Toast, Tree } from '@douyinfe/semi-ui';
+import { Dropdown, Modal, Space, Toast, Tree } from '@douyinfe/semi-ui';
 import { TreeNodeData } from '@douyinfe/semi-ui/lib/es/tree/interface';
 import { formatTime } from '@yuants/data-model';
 import copy from 'copy-to-clipboard';
@@ -27,6 +27,7 @@ import { executeCommand, registerCommand } from '../CommandCenter';
 import { installExtensionFromTgz } from '../Extensions/utils';
 import { FsBackend$, fs, workspaceRoot$ } from '../FileSystem/api';
 import { showForm } from '../Form';
+import { Button } from '../Interactive';
 import i18n from '../Locale/i18n';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
@@ -168,18 +169,11 @@ registerPage('Explorer', () => {
         <Button
           disabled={!window.showDirectoryPicker}
           icon={<IconFolderOpen />}
-          onClick={() => {
-            executeCommand('workspace.open');
-          }}
+          onClick={() => executeCommand('workspace.open')}
         >
           {t('open_new')}
         </Button>
-        <Button
-          icon={<IconImport />}
-          onClick={async () => {
-            executeCommand('workspace.import_examples');
-          }}
-        >
+        <Button icon={<IconImport />} onClick={() => executeCommand('workspace.import_examples')}>
           {t('import_examples')}
         </Button>
       </Space>
@@ -357,44 +351,57 @@ registerCommand('CreateDirectory', async ({ baseDir = '/' }) => {
 
 registerCommand('workspace.open', async () => {
   await i18n.loadNamespaces('Explorer');
-  Modal.confirm({
-    title: t('Explorer:request_fs_permission'),
-    content: <Trans t={t} i18nKey={'Explorer:request_fs_permission_note'} />,
-    okText: t('Explorer:agree'),
-    cancelText: t('Explorer:disagree'),
-    onOk: async () => {
-      const root: FileSystemDirectoryHandle = await showDirectoryPicker({
-        mode: 'readwrite',
-      });
-      await root.requestPermission({ mode: 'readwrite' });
-      workspaceRoot$.next(root);
-      if (
-        await showForm<boolean>({
-          type: 'boolean',
-          title: t('Explorer:request_import'),
-          description: t('Explorer:request_import_note'),
-        })
-      ) {
-        executeCommand('workspace.import_examples');
-      }
-    },
+  const confirm = await new Promise<boolean>((resolve) => {
+    Modal.confirm({
+      title: t('Explorer:request_fs_permission'),
+      content: <Trans t={t} i18nKey={'Explorer:request_fs_permission_note'} />,
+      okText: t('Explorer:agree'),
+      cancelText: t('Explorer:disagree'),
+      onOk: () => {
+        resolve(true);
+      },
+      onCancel: () => {
+        resolve(false);
+      },
+    });
   });
+  if (!confirm) return;
+
+  const root: FileSystemDirectoryHandle = await showDirectoryPicker({
+    mode: 'readwrite',
+  });
+  await root.requestPermission({ mode: 'readwrite' });
+  workspaceRoot$.next(root);
+  if (
+    await showForm<boolean>({
+      type: 'boolean',
+      title: t('Explorer:request_import'),
+      description: t('Explorer:request_import_note'),
+    })
+  ) {
+    await executeCommand('workspace.import_examples');
+  }
 });
 
 registerCommand('workspace.import_examples', async () => {
   const res = await unzip(`https://y.ntnl.io/Yuan-Public-Workspace/Yuan-Public-Workspace-main.zip`);
-  for (const [filename, entry] of Object.entries(res.entries)) {
-    if (!entry.isDirectory) {
-      const thePath = path.resolve('/', filename);
-      if (thePath[0] === '/') {
-        await fs.ensureDir(path.dirname(thePath));
-        await fs.writeFile(thePath, await entry.blob());
-        console.info(
-          formatTime(Date.now()),
-          t('common:file_written', { filename: thePath, interpolation: { escapeValue: false } }),
-        );
-      }
-    }
-  }
+  // Speed up: write files in parallel
+  await lastValueFrom(
+    from(Object.entries(res.entries)).pipe(
+      mergeMap(async ([filename, entry]) => {
+        if (!entry.isDirectory) {
+          const thePath = path.resolve('/', filename);
+          if (thePath[0] === '/') {
+            await fs.ensureDir(path.dirname(thePath));
+            await fs.writeFile(thePath, await entry.blob());
+            console.info(
+              formatTime(Date.now()),
+              t('common:file_written', { filename: thePath, interpolation: { escapeValue: false } }),
+            );
+          }
+        }
+      }),
+    ),
+  );
   Toast.success(t('common:import_succeed'));
 });

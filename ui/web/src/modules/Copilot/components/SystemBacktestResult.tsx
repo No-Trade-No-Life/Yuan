@@ -1,5 +1,5 @@
 import { IconBeaker, IconInfoCircle, IconTestScoreStroked, IconTick } from '@douyinfe/semi-icons';
-import { Button, Card, Descriptions, Space, Tooltip, Typography } from '@douyinfe/semi-ui';
+import { Card, Descriptions, Space, Tooltip, Typography } from '@douyinfe/semi-ui';
 import { SmartOptimization } from '@icon-park/react';
 import { IAgentConf } from '@yuants/agent';
 import { AccountPerformanceUnit, IAccountPerformance } from '@yuants/kernel';
@@ -8,6 +8,7 @@ import { Trans, useTranslation } from 'react-i18next';
 import { AccountSelector } from '../../AccountInfo';
 import { WeeklyEquityChart } from '../../Chart/WeeklyEquityChart';
 import { executeCommand } from '../../CommandCenter';
+import { Button } from '../../Interactive';
 import i18n from '../../Locale/i18n';
 import { IMessageCardProps } from '../model';
 
@@ -42,9 +43,7 @@ export default ({
         //
         <Button
           icon={<IconTick />}
-          onClick={async () => {
-            await executeCommand('Agent.DeployToCloud', { agentConf: payload.agent_conf });
-          }}
+          onClick={() => executeCommand('Agent.DeployToCloud', { agentConf: payload.agent_conf })}
         >
           {t('Copilot:SystemBacktestResult:deploy')}
         </Button>,
@@ -103,34 +102,10 @@ export default ({
       <Space vertical align="start" style={{ width: '100%' }}>
         <Space>
           <AccountSelector value={accountId} onChange={setAccountId} candidates={accountIdOptions} />
-          <Button
-            onClick={() => {
-              executeCommand('TechnicalChart');
-            }}
-          >
-            {t('pages:TechnicalChart')}
-          </Button>
-          <Button
-            onClick={() => {
-              executeCommand('OrderListPanel');
-            }}
-          >
-            {t('pages:OrderListPanel')}
-          </Button>
-          <Button
-            onClick={() => {
-              executeCommand('AccountFrameChart');
-            }}
-          >
-            {t('pages:AccountFrameChart')}
-          </Button>
-          <Button
-            onClick={() => {
-              executeCommand('RecordTablePanel');
-            }}
-          >
-            {t('pages:RecordTablePanel')}
-          </Button>
+          <Button onClick={() => executeCommand('TechnicalChart')}>{t('pages:TechnicalChart')}</Button>
+          <Button onClick={() => executeCommand('OrderListPanel')}>{t('pages:OrderListPanel')}</Button>
+          <Button onClick={() => executeCommand('AccountFrameChart')}>{t('pages:AccountFrameChart')}</Button>
+          <Button onClick={() => executeCommand('RecordTablePanel')}>{t('pages:RecordTablePanel')}</Button>
         </Space>
         <Descriptions
           data={[
