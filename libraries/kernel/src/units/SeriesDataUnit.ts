@@ -28,16 +28,34 @@ export class Series extends Array<number> {
   /** 额外属性 */
   tags: Record<string, any> = {};
 
+  private _root: Series | undefined;
+
   /** 解释属性值 */
   resolveValue(tagName: string) {
     return this.findParentWard((series) => series.tags[tagName] !== undefined)?.tags[tagName];
+  }
+
+  get currentIndex() {
+    return this.resolveRoot().length - 1;
+  }
+
+  get previousIndex() {
+    return this.resolveRoot().length - 2;
+  }
+
+  get currentValue() {
+    return this[this.currentIndex];
+  }
+
+  get previousValue() {
+    return this[this.previousIndex];
   }
 
   /**
    * 获取根节点序列
    */
   resolveRoot(): Series {
-    return this.parent ? this.parent.resolveRoot() : this;
+    return (this._root ??= this.parent ? this.parent.resolveRoot() : this);
   }
 
   /**
