@@ -3,7 +3,7 @@
   "email_placeholder": "Your email",
   "email_sending": "Sending verification code to {{email}}...",
   "email_sent": "The verification code has been sent to {{email}}, please check it",
-  "login_by_email": "Email Login",
+  "login_by_email": "Email SignUp Or Login",
   "login_failed": "Login failed",
   "login_failed_empty_email": "Your email",
   "login_succeed": "Login successful",
