@@ -2,8 +2,14 @@
   "home.slogan": {
     "message": "The investment OS for everyone"
   },
+  "home.heroTitle": {
+    "message": "Yuan - The Investment OS For Everyone"
+  },
+  "home.heroSubTitle": {
+    "message": "Enhance your quant strategies with our AI-powered platform, you can use Human Language to create and optimize your personal quantitative models. Like ChatGPT but for quantitative traders."
+  },
   "home.welcomeTitle": {
-    "message": "Hello from {value}"
+    "message": "{value}"
   },
   "theme.admonition.caution": {
     "description": "The default label used for the Caution admonition (:::caution)",
@@ -20,6 +26,9 @@
   "theme.admonition.note": {
     "description": "The default label used for the Note admonition (:::note)",
     "message": "note"
+  },
+  "home.features.ai-assistant.description": {
+    "message": "Have trouble with quant coding? AI works for you. You make decisions like a boss."
   },
   "theme.admonition.tip": {
     "description": "The default label used for the Tip admonition (:::tip)",

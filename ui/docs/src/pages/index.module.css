@@ -5,9 +5,16 @@
 
 .heroBanner {
   padding: 4rem 0;
-  text-align: center;
   position: relative;
   overflow: hidden;
+  height: 85vh;
+  margin-top: 15vh;
+  background: radial-gradient(
+    106.9% 91.8% at 100% 100%,
+    rgba(61, 161, 255, 1) 5%,
+    rgba(255, 255, 255, 1),
+    rgb(255, 255, 255) 100%
+  );
 }
 
 @media screen and (max-width: 996px) {

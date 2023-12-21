@@ -1,0 +1,39 @@
+.hero {
+  font-size: 3em;
+  font-weight: 600;
+}
+
+.heroContent {
+  margin-left: 10vw;
+  max-width: 40vw;
+  word-wrap: break-word;
+}
+
+.heroSubTitle {
+  font-size: 1.5em;
+  color: rgb(91, 94, 118);
+}
+
+@media screen and (max-width: 996px) {
+  .iframe {
+    display: none;
+  }
+  .heroContent {
+    max-width: 100vw;
+  }
+}
+
+.buttons {
+  margin-top: 5vh;
+  gap: 12px;
+}
+
+.heroBanner {
+  gap: 100px;
+  display: flex;
+}
+
+.iframe {
+  border-radius: 15px;
+  overflow: hidden;
+}

@@ -5,7 +5,7 @@ import remarkMath from 'remark-math';
 import rehypeKatex from 'rehype-katex';
 
 const config: Config = {
-  title: 'Yuan',
+  title: 'Yuan - Quantitative Strategy Platform Based on ChatGPT',
   tagline: `The investment OS for everyone.`,
   favicon: 'img/yuan.svg',
 
@@ -80,6 +80,7 @@ const config: Config = {
 
   themeConfig: {
     // Replace with your project's social card
+    metadata: [{ name: 'keywords', content: 'Quant, Trade, LLM, AI, Quantitative Strategy' }],
     image: 'img/docusaurus-social-card.jpg',
     navbar: {
       title: 'Yuan',
