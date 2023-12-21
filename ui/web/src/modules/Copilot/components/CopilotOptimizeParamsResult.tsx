@@ -157,7 +157,7 @@ export default ({
       ]}
     >
       <Space vertical align="start" style={{ width: '100%' }}>
-        <Typography.Title heading={3}>{t('Copilot.CopilotParamList.params')}</Typography.Title>
+        <Typography.Title heading={3}>{t('Copilot:CopilotParamList:params')}</Typography.Title>
         {Object.entries(payload.agent_params).map(([key, candidates]) => (
           <Typography.Text>
             {key}:{' '}
@@ -180,7 +180,7 @@ export default ({
         </div>
 
         {started && [
-          <Typography.Title heading={6}>{t('Copilot.CopilotParamList.progress')}</Typography.Title>,
+          <Typography.Title heading={6}>{t('Copilot:CopilotParamList:progress')}</Typography.Title>,
           <Progress
             // percent={total.current ? Math.round((progress.current / total.current) * 100) : 0}
             percent={total.current ? Math.round((progress.current / total.current) * 100) : 0}
