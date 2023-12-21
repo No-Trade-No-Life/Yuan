@@ -30,6 +30,7 @@ export const createEmptyAccountInfo = (
 });
 
 /**
+ * Merge Positions by their product_id and variant
  * @public
  */
 export const mergeAccountInfoPositions = (info: IAccountInfo): Observable<IAccountInfo> => {

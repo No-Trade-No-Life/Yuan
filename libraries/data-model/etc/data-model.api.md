@@ -183,7 +183,7 @@ export interface ITick {
     volume: number;
 }
 
-// @public (undocumented)
+// @public
 export const mergeAccountInfoPositions: (info: IAccountInfo) => Observable<IAccountInfo>;
 
 // @public @deprecated
