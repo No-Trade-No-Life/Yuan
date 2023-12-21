@@ -1,5 +1,6 @@
 import { IconClose, IconCode, IconSave, IconTick } from '@douyinfe/semi-icons';
-import { Button, Card, Space, Toast, Typography } from '@douyinfe/semi-ui';
+import { Card, Space, Toast, Typography } from '@douyinfe/semi-ui';
+import { Button } from '../../Interactive';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import Markdown from 'react-markdown';

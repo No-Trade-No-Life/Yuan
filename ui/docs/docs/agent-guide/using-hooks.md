@@ -12,7 +12,7 @@ Thinking in composable functions, you can build a robust strategy easily.
 
 ## Basic Hooks
 
-### useRef
+### `useRef`
 
 The agent is a stateless function, so it cannot store data in the function body.
 
@@ -45,7 +45,7 @@ export default () => {
 - `useRef` can be called multiple times, and each call will create a new ref.
 - Don't place the hook in a conditional statement or loop, it should be placed at the top level of the function body. **So as all the hooks.**
 
-### useEffect
+### `useEffect`
 
 When you want to do some side-effects, you can use `useEffect`.
 
@@ -114,7 +114,7 @@ export default () => {
 - When the agent is stopping, the cleanup function will be executed.
 - It's useful when you want to do some cleanup logic, such as canceling a order.
 
-### useState
+### `useState`
 
 `useState` is used to store the state of the agent.
 
@@ -131,7 +131,7 @@ export default () => {
 
 - `useState` returns a tuple, the first item is the state, the second item is the function to change the state.
 
-### useMemo
+### `useMemo`
 
 `useMemo` is used to cache the result of a function. Usually used in expensive computation or cache an object reference.
 
@@ -157,36 +157,6 @@ export default () => {
 };
 ```
 
-### useSeries
-
-`useSeries` is used to create a Series.
-
-Series is an array that can be used to store time series data.
-
-- Recommend to store technical indicators in Series.
-
-```ts
-export default () => {
-  const series = useSeries();
-  useEffect(() => {
-    series.push(Math.random());
-  });
-};
-```
-
-You can also specify the options to initialize the Series.
-
-```ts
-export default () => {
-  const series = useSeries('series-name', close, { display: 'line', chart: 'new' });
-  useEffect(() => {
-    series.push(Math.random());
-  });
-};
-```
-
-<!-- Read more about [Series](./what-is-series). -->
-
 ### Caveats
 
 - The agent is a stateless function, so you should not use `var` or `let` to declare variables.
@@ -195,7 +165,7 @@ export default () => {
 
 ## Data Hooks
 
-### useOHLC
+### `useOHLC`
 
 `useOHLC` is used to get the OHLC(+V) data.
 
@@ -209,10 +179,10 @@ export default () => {
 };
 ```
 
-- `time`, `open`, `high`, `low`, `close`, `volume` are all Series.
+- `time`, `open`, `high`, `low`, `close`, `volume` are all [Time Series](./using-time-series.md).
 - `time` is the series of timestamp epoch in milliseconds.
 
-### useProduct
+### `useProduct`
 
 `useProduct` is used to get the [product](../basics/what-is-product) information.
 
@@ -223,7 +193,7 @@ export default () => {
 };
 ```
 
-### useAccountInfo
+### `useAccountInfo`
 
 `useAccountInfo` is used to get the account information.
 
@@ -264,7 +234,7 @@ export default () => {
 - Every account has independent money, positions and orders. You can maintain multiple accounts in one agent.
 - If the account_id is not specified, kernel_id will be treated as the account_id.
 
-### useExchange
+### `useExchange`
 
 `useExchange` is used to execute order operation.
 
@@ -300,7 +270,7 @@ You can set up custom parameters. So you can change the parameters without chang
 - Useful when you want to fit multiple products in one agent code.
 - Useful when you want to optimize the parameters for different products.
 
-### useParamString
+### `useParamString`
 
 `useParamString` is used to get the parameter string of the agent.
 
@@ -318,13 +288,13 @@ You can find the parameter string in the AgentConf form. If not, click the 'refr
 - Parameter hooks with same name will return the same value.
 - An error will thrown if the parameter is not provided and no default value.
 
-### useParamNumber
+### `useParamNumber`
 
 `useParamNumber` is used to get the parameter number of the agent.
 
 - Similar with `useParamString`, but the return value is a number.
 
-### useParamBoolean
+### `useParamBoolean`
 
 `useParamBoolean` is used to get the parameter boolean of the agent.
 
@@ -368,6 +338,7 @@ export default () => {
 
 You can learn more about Agent Hooks in the following articles:
 
+- [Using Time Series](./using-time-series.md)
 - [Using Position Manager](./using-position-manager)
 - [Using Technical Indicators](./using-technical-indicators)
 - Using Account Transformation (TODO)

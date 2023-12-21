@@ -1,6 +1,17 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Wed, 13 Dec 2023 12:12:11 GMT and should not be manually modified.
+This log was last generated on Thu, 21 Dec 2023 11:26:42 GMT and should not be manually modified.
+
+## 0.10.0
+Thu, 21 Dec 2023 11:26:42 GMT
+
+### Minor changes
+
+- merge model interfaces with data-model package
+
+### Patches
+
+- refactor some interface (useless)
 
 ## 0.9.4
 Wed, 13 Dec 2023 12:12:11 GMT

@@ -38,6 +38,28 @@ export interface IProduct {
    * 对于非外汇品种，quoted_currency 应当为空。
    */
   quoted_currency?: string;
+  /**
+   * Is the underlying asset the base currency?
+   * 标的物是基准货币吗？
+   *
+   * One lot corresponds to the quantity of the underlying asset specified by value_speed, which can be the base currency or other commodities.
+   * 1 手对应 value_speed 数量的标的物，此标的物可以是基准货币或其他商品。
+   *
+   * - For commodities, including spot and futures, this value is usually false, because one lot corresponds to a multiple of value_speed of the commodity quantity.
+   * - 对于商品，包括现货和期货，此值通常为 false，因为 1 手对应着 value_speed 倍数的商品数量。
+   *
+   * - For forex, this value is usually true, because one lot corresponds to a multiple of value_speed of the equivalent of the base currency in any currency.
+   * - 对于外汇，此值通常为 true，因为 1 手对应着 value_speed 倍数的基础货币等值的任一货币。
+   *
+   * If the value is empty, it is semantically equivalent to false.
+   * 如果值为空，语义上等同于 false.
+   *
+   * If this value is true, an additional division by the "closing price" of this product is required in the standard yield formula.
+   * 如果此值为 true，需要在标准收益公式中额外除以本品种的"平仓时的价格"。
+   *
+   * @deprecated use value_unit instead
+   */
+  is_underlying_base_currency?: boolean;
 
   /**
    * price step, default is 1
@@ -55,6 +77,18 @@ export interface IProduct {
    * The quantity of the underlying asset specified by one lot.
    */
   value_scale?: number;
+  /**
+   * Value speed, default is 1
+   * 价值速率，默认为 1
+   *
+   * The quantity of the underlying asset specified by one lot.
+   * 1 手对应的标的物的数量
+   *
+   * ~~For every 1 lot increase in price, the settlement asset income obtained~~
+   * ~~每做多 1 手，价格每上升 1，获得的结算资产收益~~
+   * @deprecated use value_scale instead
+   */
+  value_speed?: number;
   /**
    * Value unit, default is "NORM"
    *
@@ -149,11 +183,23 @@ export interface IPeriod {
    * - `P1M`: 1 month
    * - `P1Y`: 1 year
    */
-  duration: string;
+  duration?: string;
+  /**
+   * Period (in seconds)
+   * 时间周期 (秒)
+   * @deprecated use duration instead
+   */
+  period_in_sec: number;
+  /**
+   * Start timestamp (open, in microseconds)
+   * 开始时间戳 (open)
+   * @deprecated use start_at instead
+   */
+  timestamp_in_us: number;
   /**
    * Start timestamp (in ms)
    */
-  start_at: number;
+  start_at?: number;
   /**
    * Open price
    * 开盘价
@@ -192,6 +238,113 @@ export interface IPeriod {
 }
 
 /**
+ * 订单类型
+ * Order Type
+ * @public
+ * @deprecated use string instead
+ */
+
+export enum OrderType {
+  /**
+   * Market Order: Executed at the current market price
+   * 市价单: 以市场价格成交
+   *
+   * The most common and simple order type, no need to specify an order price
+   * 最普遍而简单的订单类型，不需要指定委托价
+   */
+  MARKET = 0,
+  /**
+   * Limit Order: Limits the price at which the order can be executed
+   * 限价单: 限制成交的价格
+   *
+   * - BUY LIMIT: The execution price will not be higher than the order price
+   * - SELL LIMIT: The execution price will not be lower than the order price
+   *
+   * - BUY LIMIT: 成交价不会高于委托价
+   * - SELL LIMIT: 成交价不会低于委托价
+   */
+  LIMIT = 1,
+  /**
+   * Stop Order: Triggers a market order when the market price reaches the order price
+   * 触发单: 市场价达到委托价时触发市价单
+   *
+   * - BUY STOP: Place an order when the market price is higher than the order price
+   * - SELL STOP: Place an order when the market price is lower than the order price
+   *
+   * - BUY STOP: 市场价高于委托价时下单
+   * - SELL STOP: 市场价低于委托价时下单
+   */
+  STOP = 2,
+  /**
+   * Fill or Kill: Requires immediate and complete
+   * 即成或撤单: Fill or Kill
+   *
+   * It is required to be executed immediately and completely when placing an order, otherwise it will be cancelled
+   * 下单时要求立即全部成交，否则撤单
+   */
+  FOK = 3,
+  /**
+   * Immediate or Cancel: Requires immediate execution, allows partial execution, and cancels the rest
+   * 即成余撤单: Immediate or Cancel
+   *
+   * It is required to be executed immediately when placing an order, allows partial execution, and cancels the rest
+   * 下单时要求立即成交，允许部分成交，未成交的直接撤单
+   */
+  IOC = 4,
+}
+
+/**
+ * 订单方向
+ * @public
+ * @deprecated use string instead
+ */
+
+export enum OrderDirection {
+  /**
+   * Open long position
+   * 开多
+   */
+  OPEN_LONG = 0,
+  /**
+   * Close long position
+   * 平多
+   */
+  CLOSE_LONG = 1,
+  /**
+   * Open short position
+   * 开空
+   */
+  OPEN_SHORT = 2,
+  /**
+   * Close short position
+   * 平空
+   */
+  CLOSE_SHORT = 3,
+}
+/**
+ * 订单状态
+ * @public
+ * @deprecated use string instead
+ */
+
+export enum OrderStatus {
+  /**
+   * Order accepted by the exchange
+   * 交易所已接受委托
+   */
+  ACCEPTED = 0,
+  /**
+   * Order partially filled
+   * 已成交
+   */
+  TRADED = 1,
+  /**
+   * Order cancelled
+   * 已撤单
+   */
+  CANCELLED = 2,
+}
+/**
  * Order: Changes the {@link IPosition} of the {@link IAccountInfo} in the account through a trading command.
  * 订单: 通过交易命令改变账户内 {@link IAccountInfo} 头寸 {@link IPosition}
  * @public
@@ -201,7 +354,24 @@ export interface IOrder {
    * Order ID
    */
   order_id?: string;
-
+  /**
+   * Client order ID.
+   * 客户端订单ID
+   * @deprecated use order_id instead.
+   */
+  client_order_id: string;
+  /**
+   * Exchange order ID (if any).
+   * 交易所订单ID (如果有)
+   * @deprecated use order_id instead.
+   */
+  exchange_order_id?: string;
+  /**
+   * Order source specified by the order placer.
+   * 下单器指定的订单来源
+   * @deprecated to remove
+   */
+  originator?: string;
   /**
    * Account ID.
    * 账户 ID
@@ -226,18 +396,29 @@ export interface IOrder {
    *
    * {@link IPosition.position_id}
    */
-  position_id: string;
-
+  position_id?: string;
+  /**
+   * Order type.
+   * 订单类型
+   * @deprecated use order_type instead
+   */
+  type: OrderType;
   /**
    * Order matching type.
    *
-   * - `LIMIT`: Limits the price at which the order can be executed
+   * - `LIMIT`: Limits the price at which the order can be executed (default)
    * - `MARKET`: Executed at the current market price
    * - `STOP`: Triggers a market order when the market price reaches the order price
    * - `FOK`: Requires immediate and complete
    * - `IOC`: Requires immediate execution, allows partial execution, and cancels the rest
    */
-  order_type: string;
+  order_type?: string;
+  /**
+   * Order direction.
+   * 订单方向
+   * @deprecated use order_direction instead
+   */
+  direction: OrderDirection;
   /**
    * Order direction.
    *
@@ -246,12 +427,18 @@ export interface IOrder {
    * - `OPEN_SHORT`: Open short position
    * - `CLOSE_SHORT`: Close short position
    */
-  order_direction: string;
+  order_direction?: string;
   /**
    * Order volume.
    * 委托量
    */
   volume: number;
+  /**
+   * Order timestamp / trade timestamp.
+   * 下单时间戳 / 成交时间戳
+   * @deprecated use submit_at, filled_at instead
+   */
+  timestamp_in_us?: number;
 
   /**
    * Submit order timestamp.
@@ -278,12 +465,18 @@ export interface IOrder {
   traded_price?: number;
   /**
    * Order status.
+   * 订单状态
+   * @deprecated use order_status instead
+   */
+  status?: OrderStatus;
+  /**
+   * Order status.
    *
    * - `ACCEPTED`: Order accepted by the exchange
    * - `TRADED`: Order partially filled
    * - `CANCELLED`: Order cancelled
    */
-  status?: string;
+  order_status?: string;
   /**
    * Order comment.
    * 订单注释
@@ -336,8 +529,38 @@ export interface IOrder {
    * 参考 [如何计算盈亏](https://tradelife.feishu.cn/wiki/wikcnRNzWSF7jtkH8nGruaMhhlh)
    */
   inferred_base_currency_price?: number;
+  /**
+   * Take profit price (ignored for now).
+   * 止盈价 (暂时不可用)
+   * @deprecated to remove
+   */
+  take_profit_price?: number;
+  /**
+   * Stop loss price (ignored for now).
+   * 止损价 (暂时不可用)
+   * @deprecated to remove
+   */
+  stop_loss_price?: number;
 }
 
+/**
+ * Position variant.
+ * @public
+ * @deprecated use Position.direction instead
+ */
+
+export enum PositionVariant {
+  /**
+   * Long position.
+   * 做多
+   */
+  LONG = 0,
+  /**
+   * Short position.
+   * 做空
+   */
+  SHORT = 1,
+}
 /**
  * Position: Atomic position information.
  * 原子性的持仓头寸信息
@@ -359,6 +582,10 @@ export interface IPosition {
    */
   product_id: string;
   /**
+   * Position direction (LONG | SHORT)
+   */
+  direction?: string;
+  /**
    * Position variant.
    * 仓位类型
    *
@@ -367,8 +594,10 @@ export interface IPosition {
    *
    * - `LONG`: Long position
    * - `SHORT`: Short position
+   *
+   * @deprecated use direction instead
    */
-  variant: string;
+  variant: PositionVariant;
   /**
    * Position volume (non-negative).
    * 持仓量 (非负)
@@ -525,7 +754,17 @@ export interface IAccountInfo {
    * (Used to handle conflicts: always accept the latest information)
    * (用于处理冲突: 应当总是接受最新的信息)
    */
-  updated_at: number;
+  updated_at?: number;
+  /**
+   * Timestamp when the account information was generated.
+   * 账户信息产生的时间戳
+   *
+   * (Used to handle conflicts: always accept the latest information)
+   * (用于处理冲突: 应当总是接受最新的信息)
+   *
+   * @deprecated use updated_at instead
+   */
+  timestamp_in_us: number;
 }
 
 /**
@@ -600,4 +839,60 @@ export interface IDataRecord<T = unknown> {
    * The original value of the record, which does not support efficient retrieval.
    */
   origin: T;
+}
+/**
+ * Tick: Market transaction data at a certain moment
+ * Tick: 某个时刻的市场成交行情数据
+ * @public
+ */
+
+export interface ITick {
+  /**
+   * Data source ID
+   * 数据源 ID
+   */
+  datasource_id: string;
+  /**
+   * Product ID
+   * 品种 ID
+   */
+  product_id: string;
+  /**
+   * Timestamp (in microseconds)
+   * 时间戳
+   * @deprecated use updated_at instead
+   */
+  timestamp_in_us: number;
+  /**
+   * Timestamp (in ms)
+   * 时间戳
+   */
+  updated_at?: number;
+  /**
+   * Price
+   * 成交价
+   */
+  price: number;
+  /**
+   * Volume
+   * 成交量
+   */
+  volume: number;
+  /**
+   * Open interest
+   * 持仓量
+   */
+  open_interest?: number;
+  /**
+   * Spread
+   * 点差
+   */
+  spread?: number;
+  /**
+   * Ask price
+   * 卖一价
+   */
+  ask?: number;
+  /** 买一价 */
+  bid?: number;
 }

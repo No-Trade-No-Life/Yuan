@@ -1,4 +1,4 @@
-import { UUID, formatTime, getProfit } from '@yuants/data-model';
+import { UUID, decodePath, encodePath, formatTime, getProfit } from '@yuants/data-model';
 import {
   AccountInfoUnit,
   BasicUnit,
@@ -21,17 +21,11 @@ import {
   useMemo,
   useMemoAsync,
   useOHLC,
-  useParamBoolean,
-  useParamNumber,
-  useParamOHLC,
-  useParamProduct,
   useParamSchema,
-  useParamString,
   useProduct,
   useRecordTable,
   useRef,
   useSeries,
-  useSinglePosition,
   useState,
 } from './hooks';
 
@@ -156,20 +150,16 @@ function makeScriptRunner(script: string): () => any {
     useAccountInfo,
     useLog,
     useParamSchema,
-    useParamString,
-    useParamNumber,
-    useParamBoolean,
-    useParamProduct,
-    useParamOHLC,
     useProduct,
     useOHLC,
     useRecordTable,
-    useSinglePosition,
     useExchange,
     useSeries,
     useState,
     formatTime,
     roundToStep,
+    encodePath,
+    decodePath,
     getProfit,
     UUID,
   };

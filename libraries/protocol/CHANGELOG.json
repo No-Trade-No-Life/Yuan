@@ -2,6 +2,33 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.10.0",
+      "tag": "@yuants/protocol_v0.10.0",
+      "date": "Thu, 21 Dec 2023 11:26:42 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor some interface (useless)"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "merge model interfaces with data-model package"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.2.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.9.4",
       "tag": "@yuants/protocol_v0.9.4",
       "date": "Wed, 13 Dec 2023 12:12:11 GMT",

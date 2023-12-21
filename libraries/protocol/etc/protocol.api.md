@@ -4,8 +4,20 @@
 
 ```ts
 
+import { IAccountInfo } from '@yuants/data-model';
+import { IAccountMoney } from '@yuants/data-model';
+import { IDataRecord } from '@yuants/data-model';
+import { IOrder } from '@yuants/data-model';
+import { IPeriod } from '@yuants/data-model';
+import { IPosition } from '@yuants/data-model';
+import { IProduct } from '@yuants/data-model';
+import { ITick } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
 import { Observable } from 'rxjs';
+import { OrderDirection } from '@yuants/data-model';
+import { OrderStatus } from '@yuants/data-model';
+import { OrderType } from '@yuants/data-model';
+import { PositionVariant } from '@yuants/data-model';
 import { Registry } from '@yuants/prometheus-client';
 import { Subject } from 'rxjs';
 
@@ -15,33 +27,9 @@ export function createConnectionJson<T = any>(URL: string): IConnection<T>;
 // @public
 export function createConnectionWs<T = any>(URL: string): IConnection<T>;
 
-// @public
-export interface IAccountInfo {
-    account_id: string;
-    money: IAccountMoney;
-    orders: IOrder[];
-    positions: IPosition[];
-    timestamp_in_us: number;
-}
+export { IAccountInfo }
 
-// @alpha @deprecated
-export interface IAccountingAsset {
-    account_id: string;
-    active: number;
-    asset_id: string;
-    inactive: number;
-}
-
-// @public
-export interface IAccountMoney {
-    balance: number;
-    currency: string;
-    equity: number;
-    free: number;
-    leverage?: number;
-    profit: number;
-    used: number;
-}
+export { IAccountMoney }
 
 // @public
 export interface IConnection<T> {
@@ -50,96 +38,15 @@ export interface IConnection<T> {
     output$: Subject<T>;
 }
 
-// @public
-export interface IDataRecord<T = unknown> {
-    created_at: number | null;
-    frozen_at: number | null;
-    id: string;
-    origin: T;
-    tags: Record<string, string>;
-    type: string;
-    updated_at: number;
-}
+export { IDataRecord }
 
-// @public
-export interface IOrder {
-    account_id: string;
-    client_order_id: string;
-    comment?: string;
-    direction: OrderDirection;
-    exchange_order_id?: string;
-    inferred_base_currency_price?: number;
-    originator?: string;
-    position_id?: string;
-    price?: number;
-    product_id: string;
-    profit_correction?: number;
-    real_profit?: number;
-    status?: OrderStatus;
-    stop_loss_price?: number;
-    take_profit_price?: number;
-    timestamp_in_us?: number;
-    traded_price?: number;
-    traded_volume?: number;
-    type: OrderType;
-    volume: number;
-}
+export { IOrder }
 
-// @public
-export interface IPeriod {
-    close: number;
-    datasource_id: string;
-    high: number;
-    low: number;
-    open: number;
-    open_interest?: number;
-    period_in_sec: number;
-    product_id: string;
-    spread?: number;
-    timestamp_in_us: number;
-    volume: number;
-}
+export { IPeriod }
 
-// @public
-export interface IPosition {
-    closable_price: number;
-    comment?: string;
-    floating_profit: number;
-    free_volume: number;
-    position_id: string;
-    position_price: number;
-    product_id: string;
-    variant: PositionVariant;
-    volume: number;
-}
+export { IPosition }
 
-// @public
-export interface IProduct {
-    allow_long?: boolean;
-    allow_short?: boolean;
-    base_currency: string;
-    datasource_id: string;
-    is_underlying_base_currency?: boolean;
-    margin_rate?: number;
-    max_position?: number;
-    max_volume?: number;
-    name?: string;
-    price_step?: number;
-    product_id: string;
-    quoted_currency?: string;
-    spread?: number;
-    value_based_cost?: number;
-    value_speed?: number;
-    volume_based_cost?: number;
-    volume_step?: number;
-}
-
-// @public
-export interface IProductPositionSummary {
-    net_volume: number;
-    position_price: number;
-    product_id: string;
-}
+export { IProduct }
 
 // @public
 export interface IResponse<T = void> {
@@ -153,15 +60,6 @@ export interface IResponse<T = void> {
 
 // @public
 export interface IService {
-}
-
-// @public @deprecated
-export interface IServiceInfo {
-    account_id?: string;
-    datasource_id?: string;
-    name?: string;
-    service_id: string;
-    ttl_in_sec?: number;
 }
 
 // @public
@@ -211,71 +109,15 @@ export interface ITerminalMessage {
     trace_id: string;
 }
 
-// @public
-export interface ITick {
-    ask?: number;
-    bid?: number;
-    datasource_id: string;
-    open_interest?: number;
-    price: number;
-    product_id: string;
-    spread?: number;
-    timestamp_in_us: number;
-    volume: number;
-}
+export { ITick }
 
-// @public
-export interface ITrade {
-    close_price: number;
-    close_timestamp_in_us: number;
-    cost: number;
-    direction: TradeDirection;
-    net_profit: number;
-    open_price: number;
-    open_timestamp_in_us: number;
-    product_id: string;
-    profit: number;
-    volume: number;
-}
+export { OrderDirection }
 
-// @public
-export function mapOrderDirectionToNetPositionCoef(direction: OrderDirection): number;
+export { OrderStatus }
 
-// @public
-export function mapPositionVariantToNetPositionCoef(variant: PositionVariant): number;
+export { OrderType }
 
-// @public
-export const mergeAccountInfoPositions: (info: IAccountInfo) => Observable<IAccountInfo>;
-
-// @public
-export enum OrderDirection {
-    CLOSE_LONG = 1,
-    CLOSE_SHORT = 3,
-    OPEN_LONG = 0,
-    OPEN_SHORT = 2
-}
-
-// @public
-export enum OrderStatus {
-    ACCEPTED = 0,
-    CANCELLED = 2,
-    TRADED = 1
-}
-
-// @public
-export enum OrderType {
-    FOK = 3,
-    IOC = 4,
-    LIMIT = 1,
-    MARKET = 0,
-    STOP = 2
-}
-
-// @public
-export enum PositionVariant {
-    LONG = 0,
-    SHORT = 1
-}
+export { PositionVariant }
 
 // @public
 export const PromRegistry: Registry;
@@ -349,12 +191,6 @@ export class Terminal {
     usePeriod: (datasource_id: string, product_id: string, period_in_sec: number) => Observable<IPeriod[]>;
     useProducts: (datasource_id: string) => Observable<IProduct[]>;
     useTick: (datasource_id: string, product_id: string) => Observable<ITick>;
-}
-
-// @public
-export enum TradeDirection {
-    LONG = 0,
-    SHORT = 1
 }
 
 ```

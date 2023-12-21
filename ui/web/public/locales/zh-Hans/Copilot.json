@@ -19,6 +19,8 @@
   },
   "CopilotParamList": {
     "code_complete": "开始参数最优化",
+    "params": "最优化参数备选",
+    "progress": "参数最优化进度",
     "title": "Copilot: 备选参数列表"
   },
   "CopilotStrategySummary": {

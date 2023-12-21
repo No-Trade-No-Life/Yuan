@@ -3,7 +3,7 @@
   "email_placeholder": "请输入您的邮箱",
   "email_sending": "正在发送验证码到 {{email}}...",
   "email_sent": "验证码已发送至 {{email}}，请查收",
-  "login_by_email": "邮箱登录",
+  "login_by_email": "邮箱注册或登录",
   "login_failed": "登录失败",
   "login_failed_empty_email": "请输入邮箱",
   "login_succeed": "登录成功",
