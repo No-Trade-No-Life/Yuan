@@ -1,5 +1,5 @@
 ---
-sidebar_position: 4
+sidebar_position: 5
 ---
 
 # Using Technical Indicators
@@ -20,7 +20,7 @@ Let's see how to implement it.
 export const useSMA = (source: Series, period: number): Series => {
   const SMA = useSeries(`SMA(${source.name},${period})`, source, { display: 'line' });
   useEffect(() => {
-    const i = source.length - 1;
+    const i = source.currentIndex;
     if (i < 0) return;
     // slice the window
     const values = source.slice(Math.max(0, i - period), i + 1);
@@ -49,22 +49,6 @@ export default () => {
 };
 ```
 
-## Visualization
-
-You can specify the third parameter of `useSeries` to control the visualization.
-
-You can specify the display type of the series.
-
-- It will hide the series by default.
-- You can draw line chart by specify `display: 'line'`.
-- You can draw histogram by specify `display: 'hist'`.
-
-You can specify which chart to place the series.
-
-- It will place the series follow the parent series by default.
-- You can place the series on a new chart by specify `chart: 'new'`.
-- You can place the series follow another series by specify `chart: anotherSeries.id`.
-
 ## Improve Code
 
 You can use dynamic programming to improve the calculation performance of technical indicators.
@@ -79,7 +63,7 @@ The next time, you can use the previous sum to calculate the current sum.
 export const useSUM = (source: Series, period: number) => {
   const SUM = useSeries(`SUM(${source.name}, ${period})`, source, {});
   useEffect(() => {
-    const i = source.length - 1;
+    const i = source.currentIndex;
     if (i < 0) return;
     SUM[i] = (source[i] || 0) + (i > 0 ? SUM[i - 1] : 0) - (i - period >= 0 ? source[i - period] || 0 : 0);
   });
@@ -90,7 +74,7 @@ export const useSMA = (source: Series, period: number): Series => {
   const SUM = useSUM(source, period);
   const SMA = useSeries(`SMA(${source.name},${period})`, source, { display: 'line' });
   useEffect(() => {
-    const i = source.length - 1;
+    const i = source.currentIndex;
     if (i < 0) return;
     SMA[i] = SUM[i] / Math.min(i + 1, period);
   });
@@ -114,7 +98,7 @@ export const useSeriesMap = (
 ) => {
   const series = useSeries(name, parent, tags);
   useEffect(() => {
-    const i = parent.length - 1;
+    const i = series.currentIndex;
     if (i < 0) return;
     series[i] = fn(i, series);
   });

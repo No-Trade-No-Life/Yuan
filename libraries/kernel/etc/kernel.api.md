@@ -706,9 +706,17 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
 
 // @public
 export class Series extends Array<number> {
+    // (undocumented)
+    get currentIndex(): number;
+    // (undocumented)
+    get currentValue(): number;
     findParentWard(predicate: (series: Series) => any): Series | undefined;
     name: string | undefined;
     parent: Series | undefined;
+    // (undocumented)
+    get previousIndex(): number;
+    // (undocumented)
+    get previousValue(): number;
     resolveRoot(): Series;
     resolveValue(tagName: string): any;
     series_id: string;
