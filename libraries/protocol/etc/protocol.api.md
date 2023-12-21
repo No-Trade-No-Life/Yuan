@@ -4,6 +4,8 @@
 
 ```ts
 
+import { IAccountMoney } from '@yuants/data-model';
+import { IDataRecord } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
 import { Observable } from 'rxjs';
 import { Registry } from '@yuants/prometheus-client';
@@ -24,24 +26,7 @@ export interface IAccountInfo {
     timestamp_in_us: number;
 }
 
-// @alpha @deprecated
-export interface IAccountingAsset {
-    account_id: string;
-    active: number;
-    asset_id: string;
-    inactive: number;
-}
-
-// @public
-export interface IAccountMoney {
-    balance: number;
-    currency: string;
-    equity: number;
-    free: number;
-    leverage?: number;
-    profit: number;
-    used: number;
-}
+export { IAccountMoney }
 
 // @public
 export interface IConnection<T> {
@@ -50,16 +35,7 @@ export interface IConnection<T> {
     output$: Subject<T>;
 }
 
-// @public
-export interface IDataRecord<T = unknown> {
-    created_at: number | null;
-    frozen_at: number | null;
-    id: string;
-    origin: T;
-    tags: Record<string, string>;
-    type: string;
-    updated_at: number;
-}
+export { IDataRecord }
 
 // @public
 export interface IOrder {
@@ -135,13 +111,6 @@ export interface IProduct {
 }
 
 // @public
-export interface IProductPositionSummary {
-    net_volume: number;
-    position_price: number;
-    product_id: string;
-}
-
-// @public
 export interface IResponse<T = void> {
     // (undocumented)
     code: number;
@@ -153,15 +122,6 @@ export interface IResponse<T = void> {
 
 // @public
 export interface IService {
-}
-
-// @public @deprecated
-export interface IServiceInfo {
-    account_id?: string;
-    datasource_id?: string;
-    name?: string;
-    service_id: string;
-    ttl_in_sec?: number;
 }
 
 // @public
@@ -223,29 +183,6 @@ export interface ITick {
     timestamp_in_us: number;
     volume: number;
 }
-
-// @public
-export interface ITrade {
-    close_price: number;
-    close_timestamp_in_us: number;
-    cost: number;
-    direction: TradeDirection;
-    net_profit: number;
-    open_price: number;
-    open_timestamp_in_us: number;
-    product_id: string;
-    profit: number;
-    volume: number;
-}
-
-// @public
-export function mapOrderDirectionToNetPositionCoef(direction: OrderDirection): number;
-
-// @public
-export function mapPositionVariantToNetPositionCoef(variant: PositionVariant): number;
-
-// @public
-export const mergeAccountInfoPositions: (info: IAccountInfo) => Observable<IAccountInfo>;
 
 // @public
 export enum OrderDirection {
@@ -349,12 +286,6 @@ export class Terminal {
     usePeriod: (datasource_id: string, product_id: string, period_in_sec: number) => Observable<IPeriod[]>;
     useProducts: (datasource_id: string) => Observable<IProduct[]>;
     useTick: (datasource_id: string, product_id: string) => Observable<ITick>;
-}
-
-// @public
-export enum TradeDirection {
-    LONG = 0,
-    SHORT = 1
 }
 
 ```
