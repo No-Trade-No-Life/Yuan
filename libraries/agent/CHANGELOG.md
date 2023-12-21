@@ -1,6 +1,17 @@
 # Change Log - @yuants/agent
 
-This log was last generated on Tue, 19 Dec 2023 08:32:33 GMT and should not be manually modified.
+This log was last generated on Thu, 21 Dec 2023 11:26:42 GMT and should not be manually modified.
+
+## 0.8.0
+Thu, 21 Dec 2023 11:26:42 GMT
+
+### Minor changes
+
+- remove useParamString,Number,Boolean,Product,OHLC, useSinglePosition and add encodePath and decodePath utils
+
+### Patches
+
+- upgrade 
 
 ## 0.7.13
 Tue, 19 Dec 2023 08:32:33 GMT
