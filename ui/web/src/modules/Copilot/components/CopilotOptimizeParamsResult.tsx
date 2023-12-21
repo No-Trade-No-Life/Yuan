@@ -1,5 +1,6 @@
 import { IconCode, IconTick } from '@douyinfe/semi-icons';
-import { Button, Card, Divider, Progress, Space, Tag, Typography } from '@douyinfe/semi-ui';
+import { Card, Divider, Progress, Space, Tag, Typography } from '@douyinfe/semi-ui';
+import { Button } from '../../Interactive';
 import { IAgentConf } from '@yuants/agent';
 import { formatTime } from '@yuants/data-model';
 import { useRef, useState } from 'react';
@@ -21,11 +22,8 @@ const combination = (list: [string, number[]][], acc: Record<string, number>[]):
   return combination(list.slice(1), newAcc);
 };
 
-// TODO: hackathon code, refine later
 export default ({
   replaceMessage,
-  appendMessage,
-  send,
   messages,
   payload,
 }: IMessageCardProps<{
@@ -34,8 +32,9 @@ export default ({
 }>) => {
   const { t } = useTranslation();
 
-  const [isLoading, setLoading] = useState(false);
   const [jobs, setJobs] = useState(window.navigator.hardwareConcurrency || 1);
+
+  const [started, setStarted] = useState(false);
 
   const [progress, setProgress] = useState({ current: 0, startTime: 0, endTime: 0 });
 
@@ -57,10 +56,8 @@ export default ({
         //
         <Button
           icon={<IconTick />}
-          loading={isLoading}
           onClick={async () => {
-            setLoading(true);
-
+            setStarted(true);
             try {
               await executeCommand('workspace.import_examples');
               const bundled_code = await bundleCodeFromInMemoryCode(payload.code);
@@ -150,13 +147,9 @@ export default ({
                 },
               ]);
             } catch (e) {
-              // Toast.error(`Compile Error: ${e}`);
-              // replaceMessage([{ type: 'UserText', payload: { text: `${e}` } }]);
-              // send();
-              // gtag('event', 'copilot_agent_batch_backtest_error', { message: `${e}` });
+              console.info(formatTime(Date.now()), `${e}`);
+              setStarted(false);
             }
-
-            setLoading(false);
           }}
         >
           {t('Copilot:CopilotParamList:code_complete')}
@@ -164,7 +157,7 @@ export default ({
       ]}
     >
       <Space vertical align="start" style={{ width: '100%' }}>
-        <Typography.Title heading={3}>最优化参数</Typography.Title>
+        <Typography.Title heading={3}>{t('Copilot.CopilotParamList.params')}</Typography.Title>
         {Object.entries(payload.agent_params).map(([key, candidates]) => (
           <Typography.Text>
             {key}:{' '}
@@ -186,8 +179,8 @@ export default ({
           />
         </div>
 
-        {isLoading && [
-          <Typography.Title heading={6}>参数最优化进度</Typography.Title>,
+        {started && [
+          <Typography.Title heading={6}>{t('Copilot.CopilotParamList.progress')}</Typography.Title>,
           <Progress
             // percent={total.current ? Math.round((progress.current / total.current) * 100) : 0}
             percent={total.current ? Math.round((progress.current / total.current) * 100) : 0}

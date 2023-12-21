@@ -19,6 +19,8 @@
   },
   "CopilotParamList": {
     "code_complete": "Optimize the params",
+    "params": "Optimize Candidate Parameters",
+    "progress": "Optimize Progress",
     "title": "Copilot: Parameter List"
   },
   "CopilotStrategySummary": {

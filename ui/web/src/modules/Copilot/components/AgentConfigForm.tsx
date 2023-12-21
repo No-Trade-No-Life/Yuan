@@ -1,5 +1,6 @@
 import { IconTick, IconWrench } from '@douyinfe/semi-icons';
-import { Button, Card, Space, Toast, Typography } from '@douyinfe/semi-ui';
+import { Card, Space, Toast, Typography } from '@douyinfe/semi-ui';
+import { Button } from '../../Interactive';
 import { IAgentConf } from '@yuants/agent';
 import Ajv from 'ajv';
 import { JSONSchema7 } from 'json-schema';
@@ -23,7 +24,6 @@ export default ({
 }>) => {
   const { t } = useTranslation('Copilot');
   const [formData, setFormData] = useState(undefined);
-  const [isLoading, setLoading] = useState(false);
   return (
     <Card
       style={{ width: '100%', flexShrink: 0 }}
@@ -37,10 +37,8 @@ export default ({
         <Button
           icon={<IconTick />}
           disabled={!formData}
-          loading={isLoading}
           onClick={async () => {
             //
-            setLoading(true);
             try {
               const agentConf: IAgentConf = {
                 bundled_code: payload.bundled_code,
@@ -92,7 +90,6 @@ export default ({
               Toast.error(`${t('common:failed')}: ${e}`);
               gtag('event', 'agent_run_error', { message: `${e}` });
             }
-            setLoading(false);
           }}
         >
           {t('Copilot:AgentConfigForm:run')}
