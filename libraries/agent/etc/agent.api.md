@@ -11,13 +11,11 @@ import { DataLoadingTaskUnit } from '@yuants/kernel';
 import { HistoryOrderUnit } from '@yuants/kernel';
 import { IAccountInfo } from '@yuants/protocol';
 import { IOrder } from '@yuants/protocol';
-import { IPosition } from '@yuants/protocol';
 import { IProduct } from '@yuants/protocol';
 import { JSONSchema7 } from 'json-schema';
 import { Kernel } from '@yuants/kernel';
 import { OrderMatchingUnit } from '@yuants/kernel';
 import { PeriodDataUnit } from '@yuants/kernel';
-import { PositionVariant } from '@yuants/protocol';
 import { ProductDataUnit } from '@yuants/kernel';
 import { ProductLoadingUnit } from '@yuants/kernel';
 import { QuoteDataUnit } from '@yuants/kernel';
@@ -157,32 +155,7 @@ export const useOHLC: (datasource_id: string, product_id: string, period: number
 };
 
 // @public
-export const useParamBoolean: (key: string, defaultValue?: boolean) => boolean;
-
-// @public
-export const useParamNumber: (key: string, defaultValue?: number) => number;
-
-// @public
-export const useParamOHLC: (key: string) => {
-    time: Series;
-    open: Series;
-    high: Series;
-    low: Series;
-    close: Series;
-    volume: Series;
-    datasource_id: string;
-    product_id: string;
-    period_in_sec: number;
-};
-
-// @public
-export const useParamProduct: (key: string) => IProduct;
-
-// @public
 export const useParamSchema: <T>(key: string, schema: JSONSchema7) => T;
-
-// @public
-export const useParamString: (key: string, defaultValue?: string) => string;
 
 // @public
 export const useProduct: (datasource_id: string, product_id: string) => IProduct;
@@ -197,16 +170,6 @@ export const useRef: <T>(initial_value: T) => {
 
 // @public
 export const useSeries: (name: string, parent: Series | undefined, tags?: Record<string, any>) => Series;
-
-// @public
-export const useSinglePosition: (product_id: string, variant: PositionVariant, account_id?: string) => {
-    targetVolume: number;
-    takeProfitPrice: number;
-    stopLossPrice: number;
-    setTargetVolume: (v: number) => void;
-    setTakeProfitPrice: (v: number) => void;
-    setStopLossPrice: (v: number) => void;
-} & IPosition;
 
 // @public
 export const useState: <T>(initState: T) => [T, (v: T) => void];
