@@ -2,6 +2,39 @@
   "name": "@yuants/agent",
   "entries": [
     {
+      "version": "0.8.0",
+      "tag": "@yuants/agent_v0.8.0",
+      "date": "Thu, 21 Dec 2023 11:26:42 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "remove useParamString,Number,Boolean,Product,OHLC, useSinglePosition and add encodePath and decodePath utils"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "upgrade "
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.2.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.5.16`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.10.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.7.13",
       "tag": "@yuants/agent_v0.7.13",
       "date": "Tue, 19 Dec 2023 08:32:33 GMT",

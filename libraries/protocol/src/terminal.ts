@@ -1,4 +1,4 @@
-import { UUID, decodePath, encodePath, formatTime } from '@yuants/data-model';
+import { UUID, decodePath, encodePath, formatTime, mergeAccountInfoPositions } from '@yuants/data-model';
 import { rateLimitMap } from '@yuants/utils';
 import Ajv, { ValidateFunction } from 'ajv';
 import { isNode } from 'browser-or-node';
@@ -45,7 +45,6 @@ import {
 } from './services/data-record';
 import { PromRegistry } from './services/metrics';
 import { IQueryHistoryOrdersRequest, IQueryPeriodsRequest, IQueryProductsRequest } from './services/pull';
-import { mergeAccountInfoPositions } from './utils/account-info';
 
 const TerminalReceiveMassageTotal = PromRegistry.create('counter', 'terminal_receive_message_total');
 const TerminalTransmittedMessageTotal = PromRegistry.create('counter', 'terminal_transmitted_message_total');

@@ -42,7 +42,9 @@ export interface IAccountInfo {
     money: IAccountMoney;
     orders: IOrder[];
     positions: IPosition[];
-    updated_at: number;
+    // @deprecated
+    timestamp_in_us: number;
+    updated_at?: number;
 }
 
 // @public
@@ -71,21 +73,39 @@ export interface IDataRecord<T = unknown> {
 // @public
 export interface IOrder {
     account_id: string;
+    // @deprecated
+    client_order_id: string;
     comment?: string;
+    // @deprecated
+    direction: OrderDirection;
+    // @deprecated
+    exchange_order_id?: string;
     filled_at?: number;
     inferred_base_currency_price?: number;
-    order_direction: string;
+    order_direction?: string;
     order_id?: string;
-    order_type: string;
-    position_id: string;
+    order_status?: string;
+    order_type?: string;
+    // @deprecated
+    originator?: string;
+    position_id?: string;
     price?: number;
     product_id: string;
     profit_correction?: number;
     real_profit?: number;
-    status?: string;
+    // @deprecated
+    status?: OrderStatus;
+    // @deprecated
+    stop_loss_price?: number;
     submit_at?: number;
+    // @deprecated
+    take_profit_price?: number;
+    // @deprecated
+    timestamp_in_us?: number;
     traded_price?: number;
     traded_volume?: number;
+    // @deprecated
+    type: OrderType;
     volume: number;
 }
 
@@ -93,14 +113,18 @@ export interface IOrder {
 export interface IPeriod {
     close: number;
     datasource_id: string;
-    duration: string;
+    duration?: string;
     high: number;
     low: number;
     open: number;
     open_interest?: number;
+    // @deprecated
+    period_in_sec: number;
     product_id: string;
     spread?: number;
-    start_at: number;
+    start_at?: number;
+    // @deprecated
+    timestamp_in_us: number;
     volume: number;
 }
 
@@ -108,12 +132,14 @@ export interface IPeriod {
 export interface IPosition {
     closable_price: number;
     comment?: string;
+    direction?: string;
     floating_profit: number;
     free_volume: number;
     position_id: string;
     position_price: number;
     product_id: string;
-    variant: string;
+    // @deprecated
+    variant: PositionVariant;
     volume: number;
 }
 
@@ -123,6 +149,8 @@ export interface IProduct {
     allow_short?: boolean;
     base_currency: string;
     datasource_id: string;
+    // @deprecated
+    is_underlying_base_currency?: boolean;
     margin_rate?: number;
     max_position?: number;
     max_volume?: number;
@@ -133,13 +161,60 @@ export interface IProduct {
     spread?: number;
     value_based_cost?: number;
     value_scale?: number;
+    // @deprecated
+    value_speed?: number;
     value_unit?: string;
     volume_based_cost?: number;
     volume_step?: number;
 }
 
-// @public (undocumented)
+// @public
+export interface ITick {
+    ask?: number;
+    bid?: number;
+    datasource_id: string;
+    open_interest?: number;
+    price: number;
+    product_id: string;
+    spread?: number;
+    // @deprecated
+    timestamp_in_us: number;
+    updated_at?: number;
+    volume: number;
+}
+
+// @public
 export const mergeAccountInfoPositions: (info: IAccountInfo) => Observable<IAccountInfo>;
+
+// @public @deprecated
+export enum OrderDirection {
+    CLOSE_LONG = 1,
+    CLOSE_SHORT = 3,
+    OPEN_LONG = 0,
+    OPEN_SHORT = 2
+}
+
+// @public @deprecated
+export enum OrderStatus {
+    ACCEPTED = 0,
+    CANCELLED = 2,
+    TRADED = 1
+}
+
+// @public @deprecated
+export enum OrderType {
+    FOK = 3,
+    IOC = 4,
+    LIMIT = 1,
+    MARKET = 0,
+    STOP = 2
+}
+
+// @public @deprecated
+export enum PositionVariant {
+    LONG = 0,
+    SHORT = 1
+}
 
 // @public (undocumented)
 export const UUID: () => string;
