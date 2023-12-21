@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/agent",
+      "comment": "remove useParamString,Number,Boolean,Product,OHLC, useSinglePosition and add encodePath and decodePath utils",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/agent"
+}
