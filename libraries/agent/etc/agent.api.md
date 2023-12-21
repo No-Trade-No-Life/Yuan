@@ -9,7 +9,7 @@ import { AccountPerformanceHubUnit } from '@yuants/kernel';
 import { BasicUnit } from '@yuants/kernel';
 import { DataLoadingTaskUnit } from '@yuants/kernel';
 import { HistoryOrderUnit } from '@yuants/kernel';
-import { IAccountInfo } from '@yuants/protocol';
+import { IAccountInfo } from '@yuants/data-model';
 import { IOrder } from '@yuants/protocol';
 import { IProduct } from '@yuants/protocol';
 import { JSONSchema7 } from 'json-schema';

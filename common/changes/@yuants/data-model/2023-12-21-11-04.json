@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-model",
+      "comment": "merge model interfaces with protocol",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-model"
+}
