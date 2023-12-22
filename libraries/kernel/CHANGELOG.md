@@ -1,6 +1,13 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Thu, 21 Dec 2023 11:26:42 GMT and should not be manually modified.
+This log was last generated on Fri, 22 Dec 2023 13:57:16 GMT and should not be manually modified.
+
+## 0.6.0
+Fri, 22 Dec 2023 13:57:16 GMT
+
+### Minor changes
+
+- add getters like currentIndex, previousValue
 
 ## 0.5.16
 Thu, 21 Dec 2023 11:26:42 GMT

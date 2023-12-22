@@ -2,6 +2,23 @@
   "name": "@yuants/kernel",
   "entries": [
     {
+      "version": "0.6.0",
+      "tag": "@yuants/kernel_v0.6.0",
+      "date": "Fri, 22 Dec 2023 13:57:16 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add getters like currentIndex, previousValue"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.16",
       "tag": "@yuants/kernel_v0.5.16",
       "date": "Thu, 21 Dec 2023 11:26:42 GMT",
