@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/agent",
+      "comment": "enforce if is_real=true, end_time set to Date.now",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/agent"
+}
