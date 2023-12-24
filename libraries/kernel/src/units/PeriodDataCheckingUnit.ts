@@ -118,9 +118,10 @@ export class PeriodDataCheckingUnit extends BasicUnit {
 
             if (errorTotal === 0) {
               // No Error, step lastChecked forward.
-              // ISSUE: -2 because periods may be overlapped
-              if (expected.length >= 2) {
-                const nextTimestampInUs = expected[expected.length - 2].timestamp_in_us;
+              // ISSUE: -CHECK_COUNT because periods may be overlapped
+              const CHECK_COUNT = 10;
+              if (expected.length >= CHECK_COUNT) {
+                const nextTimestampInUs = expected[expected.length - CHECK_COUNT].timestamp_in_us;
                 const nextIdx = actual.findIndex((x) => x.timestamp_in_us === nextTimestampInUs);
                 // NOTE: nextIdx !== -1, because checking is passed, so the period must be found.
                 lastCheckedTimestamp = nextTimestampInUs / 1000;
