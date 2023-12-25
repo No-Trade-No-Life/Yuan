@@ -1,6 +1,13 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Mon, 25 Dec 2023 09:55:13 GMT and should not be manually modified.
+This log was last generated on Mon, 25 Dec 2023 17:35:07 GMT and should not be manually modified.
+
+## 0.7.0
+Mon, 25 Dec 2023 17:35:07 GMT
+
+### Minor changes
+
+- Kernel Terminate Unit, non-block onIdle, liquidation by account_id
 
 ## 0.6.2
 Mon, 25 Dec 2023 09:55:13 GMT

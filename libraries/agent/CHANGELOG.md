@@ -1,6 +1,13 @@
 # Change Log - @yuants/agent
 
-This log was last generated on Mon, 25 Dec 2023 09:55:13 GMT and should not be manually modified.
+This log was last generated on Mon, 25 Dec 2023 17:35:07 GMT and should not be manually modified.
+
+## 0.9.0
+Mon, 25 Dec 2023 17:35:07 GMT
+
+### Minor changes
+
+- add useTick hook
 
 ## 0.8.3
 Mon, 25 Dec 2023 09:55:13 GMT
