@@ -17,7 +17,10 @@ import {
   QuoteDataUnit,
   QuoteMetricsUnit,
   RealtimePeriodLoadingUnit,
+  RealtimeTickLoadingUnit,
   SeriesDataUnit,
+  TerminateUnit,
+  TickDataUnit,
 } from '@yuants/kernel';
 import { IAccountInfo, Terminal } from '@yuants/protocol';
 import { JSONSchema7 } from 'json-schema';
@@ -123,6 +126,7 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
     use_general_product: agentConf.use_general_product,
   });
   const quoteDataUnit = new QuoteDataUnit(kernel);
+  const tickDataUnit = new TickDataUnit(kernel);
   const periodDataUnit = new PeriodDataUnit(kernel, quoteDataUnit);
   const seriesDataUnit = new SeriesDataUnit(kernel);
   const dataLoadingTaskUnit = new DataLoadingTaskUnit(kernel);
@@ -144,6 +148,12 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
       productDataUnit,
       periodDataUnit,
     );
+    const realtimeTickLoadingUnit = new RealtimeTickLoadingUnit(
+      kernel,
+      terminal,
+      quoteDataUnit,
+      tickDataUnit,
+    );
   }
   if (agentConf.is_real) {
     new BasicUnit(kernel).onInit = () => {
@@ -155,14 +165,16 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
   }
 
   const historyOrderUnit = new HistoryOrderUnit(kernel, quoteDataUnit, productDataUnit);
+  const accountInfoUnit = new AccountInfoUnit(kernel, productDataUnit, quoteDataUnit, historyOrderUnit);
   const orderMatchingUnit = new OrderMatchingUnit(
     kernel,
     productDataUnit,
     periodDataUnit,
+    tickDataUnit,
+    accountInfoUnit,
     historyOrderUnit,
     quoteDataUnit,
   );
-  const accountInfoUnit = new AccountInfoUnit(kernel, productDataUnit, quoteDataUnit, historyOrderUnit);
 
   const accountPerformanceUnit = new AccountPerformanceHubUnit(kernel, accountInfoUnit);
   if (agentConf.is_real) {
@@ -197,6 +209,10 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
   });
 
   await agentUnit.execute();
+
+  if (!agentConf.is_real) {
+    new TerminateUnit(kernel);
+  }
 
   return {
     kernel,

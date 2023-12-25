@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/kernel",
+      "comment": "Kernel Terminate Unit, non-block onIdle, liquidation by account_id",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/kernel"
+}

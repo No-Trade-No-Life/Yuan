@@ -12,6 +12,7 @@ import {
   ProductDataUnit,
   ProductLoadingUnit,
   QuoteDataUnit,
+  TerminateUnit,
 } from '../units';
 
 /**
@@ -112,5 +113,6 @@ export const AccountReplayScene = (
   accountInfoUnit.useAccount(account_id, currency, leverage);
 
   const accountPerformanceUnit = new AccountPerformanceHubUnit(kernel, accountInfoUnit);
+  new TerminateUnit(kernel);
   return { kernel, accountInfoUnit, accountPerformanceUnit };
 };

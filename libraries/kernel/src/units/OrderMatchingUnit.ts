@@ -1,11 +1,13 @@
-import { IOrder, IPeriod, OrderDirection, OrderStatus, OrderType } from '@yuants/protocol';
+import { IOrder, IPeriod, ITick, OrderDirection, OrderStatus, OrderType } from '@yuants/protocol';
 import { Subject, Subscription } from 'rxjs';
 import { Kernel } from '../kernel';
+import { AccountInfoUnit } from './AccountInfoUnit';
 import { BasicUnit } from './BasicUnit';
 import { HistoryOrderUnit } from './HistoryOrderUnit';
 import { PeriodDataUnit } from './PeriodDataUnit';
 import { ProductDataUnit } from './ProductDataUnit';
 import { QuoteDataUnit } from './QuoteDataUnit';
+import { TickDataUnit } from './TickDataUnit';
 
 interface IMatchingRange {
   first: number;
@@ -22,6 +24,8 @@ export class OrderMatchingUnit extends BasicUnit {
     public kernel: Kernel,
     public productDataUnit: ProductDataUnit,
     public periodDataUnit: PeriodDataUnit,
+    public tickDataUnit: TickDataUnit,
+    public accountInfoUnit: AccountInfoUnit,
     public historyOrderUnit: HistoryOrderUnit,
     public quoteDataUnit: QuoteDataUnit,
   ) {
@@ -42,6 +46,7 @@ export class OrderMatchingUnit extends BasicUnit {
     this.subscriptions.push(
       this.periodDataUnit.periodUpdated$.subscribe((period) => this.updateRangeByPeriod(period)),
     );
+    this.subscriptions.push(this.tickDataUnit.tickUpdated$.subscribe((tick) => this.updateRangeByTick(tick)));
   }
 
   onDispose(): void | Promise<void> {
@@ -74,34 +79,55 @@ export class OrderMatchingUnit extends BasicUnit {
         period.close,
         period.low < prevPeriod.low ? period.low : Infinity,
       );
-      this.mapProductIdToRange.set(product_id, {
-        ask: {
-          first: first + spread,
-          high: high + spread,
-          low: low + spread,
-        },
-        bid: {
-          first,
-          high,
-          low,
-        },
-      });
+      for (const accountId of this.accountInfoUnit.mapAccountIdToAccountInfo.keys()) {
+        this.mapProductIdToRange.set(`${accountId}/${product_id}`, {
+          ask: {
+            first: first + spread,
+            high: high + spread,
+            low: low + spread,
+          },
+          bid: {
+            first,
+            high,
+            low,
+          },
+        });
+      }
     } else {
       // New Period
-      this.mapProductIdToRange.set(product_id, {
-        ask: {
-          first: period.open + spread,
-          high: period.high + spread,
-          low: period.low + spread,
-        },
-        bid: {
-          first: period.open,
-          high: period.high,
-          low: period.low,
-        },
-      });
+      for (const accountId of this.accountInfoUnit.mapAccountIdToAccountInfo.keys()) {
+        this.mapProductIdToRange.set(`${accountId}/${product_id}`, {
+          ask: {
+            first: period.open + spread,
+            high: period.high + spread,
+            low: period.low + spread,
+          },
+          bid: {
+            first: period.open,
+            high: period.high,
+            low: period.low,
+          },
+        });
+      }
     }
     this.prevPeriodMap[key] = period;
+  }
+
+  private updateRangeByTick(tick: ITick): void {
+    const ask = tick.ask || tick.price;
+    const bid = tick.bid || tick.price;
+    this.mapProductIdToRange.set(`${tick.datasource_id}/${tick.product_id}`, {
+      ask: {
+        first: ask,
+        high: ask,
+        low: ask,
+      },
+      bid: {
+        first: bid,
+        high: bid,
+        low: bid,
+      },
+    });
   }
   /**
    * 待成交订单
@@ -135,7 +161,8 @@ export class OrderMatchingUnit extends BasicUnit {
   }
 
   private checkTradedPriceForRange = (order: IOrder): number => {
-    const range = this.mapProductIdToRange.get(order.product_id)!;
+    const range = this.mapProductIdToRange.get(`${order.account_id}/${order.product_id}`);
+    if (!range) return NaN;
     if (order.type === OrderType.MARKET) {
       if (order.direction === OrderDirection.OPEN_LONG || order.direction === OrderDirection.CLOSE_SHORT) {
         // 开多/平空
@@ -209,14 +236,16 @@ export class OrderMatchingUnit extends BasicUnit {
             [OrderType.FOK]: 'FOK',
           }[theOrder.type]
         }'`,
-        `撮合行情=${JSON.stringify(this.mapProductIdToRange.get(theOrder.product_id))}`,
+        `撮合行情=${JSON.stringify(
+          this.mapProductIdToRange.get(`${theOrder.account_id}/${theOrder.product_id}`),
+        )}`,
       );
       this.mapOrderIdToOrder.delete(order.client_order_id);
       this.historyOrderUnit.updateOrder(theOrder);
     }
     // 撮合完成后，将所有的 range 重置为当前的 quote
-    for (const [product_id, range] of this.mapProductIdToRange.entries()) {
-      const quote = this.quoteDataUnit.mapProductIdToQuote[product_id];
+    for (const [key, range] of this.mapProductIdToRange.entries()) {
+      const quote = this.quoteDataUnit.mapProductIdToQuote[key];
       const ask = quote?.ask ?? 1;
       const bid = quote?.bid ?? 1;
       range.ask.first = range.ask.high = range.ask.low = ask;

@@ -12,6 +12,7 @@ import { HistoryOrderUnit } from '@yuants/kernel';
 import { IAccountInfo } from '@yuants/data-model';
 import { IOrder } from '@yuants/protocol';
 import { IProduct } from '@yuants/protocol';
+import { ITick } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
 import { Kernel } from '@yuants/kernel';
 import { OrderMatchingUnit } from '@yuants/kernel';
@@ -22,6 +23,7 @@ import { QuoteDataUnit } from '@yuants/kernel';
 import { Series } from '@yuants/kernel';
 import { SeriesDataUnit } from '@yuants/kernel';
 import { Terminal } from '@yuants/protocol';
+import { TickDataUnit } from '@yuants/kernel';
 
 // @public (undocumented)
 export const agentConfSchema: JSONSchema7;
@@ -83,6 +85,8 @@ export class AgentUnit extends BasicUnit {
     // (undocumented)
     productLoadingUnit?: ProductLoadingUnit;
     // (undocumented)
+    quoteDataUnit: QuoteDataUnit;
+    // (undocumented)
     record_table: Record<string, Record<string, any>[]>;
     // (undocumented)
     restore(state: any): void;
@@ -90,6 +94,8 @@ export class AgentUnit extends BasicUnit {
     script: string;
     // (undocumented)
     seriesDataUnit: SeriesDataUnit;
+    // (undocumented)
+    tickDataUnit: TickDataUnit;
     // (undocumented)
     useRef: <T>(initialValue: T) => {
         current: T;
@@ -173,6 +179,9 @@ export const useSeries: (name: string, parent: Series | undefined, tags?: Record
 
 // @public
 export const useState: <T>(initState: T) => [T, (v: T) => void];
+
+// @public
+export const useTick: (account_id: string, datasource_id: string, product_id: string) => ITick | undefined;
 
 // (No @packageDocumentation comment for this package)
 

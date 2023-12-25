@@ -68,12 +68,6 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
     period_in_sec: number;
   }[] = [];
 
-  async onIdle() {
-    if (this.mapEventIdToPeriod.size === 0) {
-      await firstValueFrom(timer(1000));
-      this.kernel.alloc(Date.now()); // 直接分配一个时间戳，避免 kernel 销毁
-    }
-  }
   onEvent(): void | Promise<void> {
     const periods = this.mapEventIdToPeriod.get(this.kernel.currentEventId);
     if (periods) {
