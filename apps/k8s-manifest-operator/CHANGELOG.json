@@ -2,6 +2,23 @@
   "name": "@yuants/app-k8s-manifest-operator",
   "entries": [
     {
+      "version": "0.0.6",
+      "tag": "@yuants/app-k8s-manifest-operator_v0.0.6",
+      "date": "Mon, 25 Dec 2023 12:01:45 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "apply changes to child resource"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.5",
       "tag": "@yuants/app-k8s-manifest-operator_v0.0.5",
       "date": "Thu, 21 Dec 2023 11:26:42 GMT",
