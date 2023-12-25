@@ -19,12 +19,13 @@ import {
   timer,
   toArray,
 } from 'rxjs';
+import { formatTime } from '@yuants/data-model';
 import { CRD, FINALIZER_NAME, GROUP, IDeployResource, KIND, PLURAL, VERSION } from './model';
 import { makeNamespacedName, useResources } from './utils';
 
 const kubeConfig = new k8s.KubeConfig();
-// kubeConfig.loadFromFile('/home/c1/.kube/aliyun-dev-config.yaml');
-kubeConfig.loadFromCluster();
+kubeConfig.loadFromFile('/home/c1/.kube/aliyun-dev-config.yaml');
+// kubeConfig.loadFromCluster();
 
 const crdApi = kubeConfig.makeApiClient(k8s.ApiextensionsV1Api);
 const crApi = kubeConfig.makeApiClient(k8s.CustomObjectsApi);
@@ -34,14 +35,14 @@ const coreApi = kubeConfig.makeApiClient(k8s.CoreV1Api);
 export const genericApi = k8s.KubernetesObjectApi.makeApiClient(kubeConfig);
 
 export const init = async () => {
-  console.info(new Date(), `Controller`, `setup CRD`);
+  console.info(formatTime(Date.now()), `Controller`, `setup CRD`);
   const desired = CRD;
   await lastValueFrom(
     from(crdApi.readCustomResourceDefinition(CRD.metadata!.name!)).pipe(
       catchError((err) => {
         if (err instanceof k8s.HttpError) {
           if (err.response.statusCode === 404) {
-            console.info(new Date(), `Controller`, desired.metadata?.name!, `Creating`);
+            console.info(formatTime(Date.now()), `Controller`, desired.metadata?.name!, `Creating`);
             return from(crdApi.createCustomResourceDefinition(CRD)).pipe(
               //
               retry({ count: 3, delay: 1000 }),
@@ -78,7 +79,7 @@ export const init = async () => {
         );
       }),
       catchError((err) => {
-        console.error(new Date(), `Controller`, desired.metadata?.name!, `Error`, err);
+        console.error(formatTime(Date.now()), `Controller`, desired.metadata?.name!, `Error`, err);
         return EMPTY;
       }),
       concatWith(of(void 0)),
@@ -90,12 +91,12 @@ const mapKeyToExistsResource: Record<string, IDeployResource | undefined> = {};
 
 const reconcile = async (obj: IDeployResource, childChanged = false) => {
   const namespacedName = makeNamespacedName(obj);
-  console.info(new Date(), `Controller`, namespacedName.toString(), `Reconciling`);
+  console.info(formatTime(Date.now()), `Controller`, namespacedName.toString(), `Reconciling`);
 
   const exists = structuredClone(obj);
 
   if (exists.metadata.deletionTimestamp !== undefined) {
-    console.info(new Date(), `Controller`, namespacedName.toString(), 'Deleting');
+    console.info(formatTime(Date.now()), `Controller`, namespacedName.toString(), 'Deleting');
     await deleteCR(exists);
     return;
   }
@@ -113,7 +114,7 @@ const reconcile = async (obj: IDeployResource, childChanged = false) => {
     exists.status !== undefined &&
     exists.status.managedResources === exists.status.readyResources
   ) {
-    console.info(new Date(), `Controller`, namespacedName.toString(), `Unchanged, skip`);
+    console.info(formatTime(Date.now()), `Controller`, namespacedName.toString(), `Unchanged, skip`);
     return;
   }
 
@@ -122,7 +123,7 @@ const reconcile = async (obj: IDeployResource, childChanged = false) => {
       //
       tap((resources) => {
         console.info(
-          new Date(),
+          formatTime(Date.now()),
           `Controller`,
           namespacedName.toString(),
           `Managing ${resources.length} resources`,
@@ -148,7 +149,7 @@ const reconcile = async (obj: IDeployResource, childChanged = false) => {
                 if (err instanceof k8s.HttpError) {
                   if (err.response.statusCode === 404) {
                     console.info(
-                      new Date(),
+                      formatTime(Date.now()),
                       `Controller`,
                       namespacedName.toString(),
                       `Creating ${resource.kind}`,
@@ -158,7 +159,7 @@ const reconcile = async (obj: IDeployResource, childChanged = false) => {
                       retry({ count: 3, delay: 1000 }),
                       catchError((err) => {
                         console.error(
-                          new Date(),
+                          formatTime(Date.now()),
                           `Controller`,
                           namespacedName.toString(),
                           `Error ${resource.kind}`,
@@ -172,10 +173,24 @@ const reconcile = async (obj: IDeployResource, childChanged = false) => {
                 }
                 throw err;
               }),
-              // NOTE: we don't handle update, to handle update, we need to compare the desired state and the current state here
+              // NOTE: we can patch the resource directly is because we do not watch resources the manifest owns,
+              //       otherwise, must perform a compare and patch only when the resource is changed
+              mergeMap((v) => {
+                console.info(
+                  formatTime(Date.now()),
+                  `Controller`,
+                  namespacedName.toString(),
+                  `Updated ${resource.kind}`,
+                );
+                return genericApi.patch(resource, undefined, undefined, undefined, undefined, {
+                  headers: {
+                    'content-type': 'application/merge-patch+json',
+                  },
+                });
+              }),
               catchError((err) => {
                 console.error(
-                  new Date(),
+                  formatTime(Date.now()),
                   `Controller`,
                   namespacedName.toString(),
                   `Error ${resource.kind}`,
@@ -225,7 +240,7 @@ const reconcile = async (obj: IDeployResource, childChanged = false) => {
       }),
     ).pipe(
       catchError((err) => {
-        console.error(new Date(), `Controller`, namespacedName.toString(), `Error`, err);
+        console.error(formatTime(Date.now()), `Controller`, namespacedName.toString(), `Error`, err);
         return EMPTY;
       }),
     ),
@@ -234,7 +249,7 @@ const reconcile = async (obj: IDeployResource, childChanged = false) => {
 
 const deleteCR = async (obj: IDeployResource) => {
   const namespacedName = makeNamespacedName(obj);
-  console.info(new Date(), `Controller`, namespacedName.toString(), 'Deleting');
+  console.info(formatTime(Date.now()), `Controller`, namespacedName.toString(), 'Deleting');
 
   // do finalize, FYI: https://kubernetes.io/zh-cn/docs/concepts/overview/working-with-objects/finalizers/
   // currently, we don't need to do anything here, but in the future,
@@ -253,7 +268,7 @@ const reconcileParent = async (obj: k8s.KubernetesObject, event: string) => {
   if (ref !== undefined && obj.kind !== undefined) {
     const namespacedName = makeNamespacedName(obj);
     console.info(
-      new Date(),
+      formatTime(Date.now()),
       `Controller`,
       namespacedName.toString(),
       `ManagedResourceReconciling`,
@@ -273,7 +288,7 @@ const reconcileParent = async (obj: k8s.KubernetesObject, event: string) => {
         }
       }
       console.error(
-        new Date(),
+        formatTime(Date.now()),
         `Controller`,
         namespacedName.toString(),
         `ManagedResourceReconcilingError`,
@@ -292,21 +307,21 @@ const yuanManifestInformer = k8s.makeInformer<IDeployResource>(
 );
 
 yuanManifestInformer.on(k8s.ADD, (obj: IDeployResource) => {
-  console.info(new Date(), `Controller`, `YuanComponentAdded`);
+  console.info(formatTime(Date.now()), `Controller`, `YuanComponentAdded`);
   reconcile(obj);
 });
 
 yuanManifestInformer.on(k8s.UPDATE, (obj: IDeployResource) => {
-  console.info(new Date(), `Controller`, `YuanComponentUpdated`);
+  console.info(formatTime(Date.now()), `Controller`, `YuanComponentUpdated`);
   reconcile(obj);
 });
 
 yuanManifestInformer.on(k8s.DELETE, (obj: IDeployResource) => {
-  console.info(new Date(), `Controller`, `YuanComponentDeleted`);
+  console.info(formatTime(Date.now()), `Controller`, `YuanComponentDeleted`);
 });
 
 yuanManifestInformer.on(k8s.ERROR, (err) => {
-  console.error(new Date(), `Controller`, `YuanComponentInformerError`, err);
+  console.error(formatTime(Date.now()), `Controller`, `YuanComponentInformerError`, err);
   timer(5000).subscribe(() => {
     yuanManifestInformer.start();
   });
