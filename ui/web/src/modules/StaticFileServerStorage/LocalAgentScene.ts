@@ -11,6 +11,8 @@ import {
   ProductDataUnit,
   QuoteDataUnit,
   SeriesDataUnit,
+  TerminateUnit,
+  TickDataUnit,
 } from '@yuants/kernel';
 import { StaticFileServerPeriodLoadingUnit } from './StaticFileServerPeriodLoadingUnit';
 
@@ -32,6 +34,7 @@ export const LocalAgentScene = async (agentConf: IAgentConf) => {
   }
   const productDataUnit = new ProductDataUnit(kernel);
   const quoteDataUnit = new QuoteDataUnit(kernel);
+  const tickDataUnit = new TickDataUnit(kernel);
   const periodDataUnit = new PeriodDataUnit(kernel, quoteDataUnit);
   const seriesDataUnit = new SeriesDataUnit(kernel);
   const dataLoadingTaskUnit = new DataLoadingTaskUnit(kernel);
@@ -42,14 +45,16 @@ export const LocalAgentScene = async (agentConf: IAgentConf) => {
   };
   const periodLoadingUnit = new StaticFileServerPeriodLoadingUnit(kernel, productDataUnit, periodDataUnit);
   const historyOrderUnit = new HistoryOrderUnit(kernel, quoteDataUnit, productDataUnit);
+  const accountInfoUnit = new AccountInfoUnit(kernel, productDataUnit, quoteDataUnit, historyOrderUnit);
   const orderMatchingUnit = new OrderMatchingUnit(
     kernel,
     productDataUnit,
     periodDataUnit,
+    tickDataUnit,
+    accountInfoUnit,
     historyOrderUnit,
     quoteDataUnit,
   );
-  const accountInfoUnit = new AccountInfoUnit(kernel, productDataUnit, quoteDataUnit, historyOrderUnit);
   const accountPerformanceUnit = new AccountPerformanceHubUnit(kernel, accountInfoUnit);
 
   const agentUnit = new AgentUnit(kernel, agentCode, agentConf.agent_params || {}, {
@@ -58,6 +63,10 @@ export const LocalAgentScene = async (agentConf: IAgentConf) => {
   });
 
   await agentUnit.execute();
+
+  if (!agentConf.is_real) {
+    new TerminateUnit(kernel);
+  }
 
   return {
     kernel,

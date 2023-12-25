@@ -15,5 +15,8 @@ export * from './ProductDataUnit';
 export * from './ProductLoadingUnit';
 export * from './QuoteDataUnit';
 export * from './RealtimePeriodLoadingUnit';
+export * from './RealtimeTickLoadingUnit';
 export * from './SeriesDataUnit';
+export * from './TerminateUnit';
+export * from './TickDataUnit';
 export * from './metrics';

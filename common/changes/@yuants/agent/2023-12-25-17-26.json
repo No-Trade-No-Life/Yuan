@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/agent",
+      "comment": "add useTick hook",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/agent"
+}

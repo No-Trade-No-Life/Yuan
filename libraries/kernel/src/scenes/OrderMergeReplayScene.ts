@@ -8,6 +8,7 @@ import {
   PeriodDataUnit,
   ProductDataUnit,
   QuoteDataUnit,
+  TerminateUnit,
 } from '../units';
 
 /**
@@ -69,5 +70,6 @@ export const OrderMergeReplayScene = (
     init_account_info,
   );
   const accountPerformanceUnit = new AccountPerformanceUnit(kernel, accountInfoUnit);
+  new TerminateUnit(kernel);
   return { kernel, accountInfoUnit, accountPerformanceUnit, productDataUnit, quoteDataUnit, periodDataUnit };
 };

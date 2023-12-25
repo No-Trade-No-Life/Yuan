@@ -8,7 +8,9 @@ import {
   PeriodDataUnit,
   ProductDataUnit,
   ProductLoadingUnit,
+  QuoteDataUnit,
   SeriesDataUnit,
+  TickDataUnit,
 } from '@yuants/kernel';
 import { OrderDirection, OrderType, PositionVariant } from '@yuants/protocol';
 import { roundToStep } from '@yuants/utils';
@@ -27,6 +29,7 @@ import {
   useRef,
   useSeries,
   useState,
+  useTick,
 } from './hooks';
 
 /**
@@ -35,6 +38,8 @@ import {
  */
 export class AgentUnit extends BasicUnit {
   static currentAgent: AgentUnit | null = null;
+  quoteDataUnit: QuoteDataUnit;
+  tickDataUnit: TickDataUnit;
   orderMatchingUnit: OrderMatchingUnit;
   productDataUnit: ProductDataUnit;
   productLoadingUnit?: ProductLoadingUnit;
@@ -57,6 +62,8 @@ export class AgentUnit extends BasicUnit {
     },
   ) {
     super(kernel);
+    this.quoteDataUnit = kernel.units.find((unit): unit is QuoteDataUnit => unit instanceof QuoteDataUnit)!;
+    this.tickDataUnit = kernel.units.find((unit): unit is TickDataUnit => unit instanceof TickDataUnit)!;
     this.accountInfoUnit = kernel.units.find(
       (unit): unit is AccountInfoUnit => unit instanceof AccountInfoUnit,
     )!;
@@ -152,6 +159,7 @@ function makeScriptRunner(script: string): () => any {
     useParamSchema,
     useProduct,
     useOHLC,
+    useTick,
     useRecordTable,
     useExchange,
     useSeries,

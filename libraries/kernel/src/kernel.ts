@@ -1,5 +1,6 @@
 import { PriorityQueue } from '@datastructures-js/priority-queue';
 import { formatTime, UUID } from '@yuants/data-model';
+import { firstValueFrom, Subject } from 'rxjs';
 
 /**
  * 内核功能单元
@@ -54,6 +55,8 @@ export class Kernel {
     (a, b) => this.mapIdToTimestamp.get(a)! - this.mapIdToTimestamp.get(b)!,
   );
 
+  private _alloc$ = new Subject<void>();
+
   private mapIdToTimestamp = new Map<number, number>();
   /** 当前处理的事件编号 */
   currentEventId: number = -1;
@@ -69,6 +72,7 @@ export class Kernel {
     const id = this.eventCnt++;
     this.mapIdToTimestamp.set(id, timestamp);
     this.queue.enqueue(id);
+    this._alloc$.next();
     return id;
   }
   /**
@@ -116,6 +120,11 @@ export class Kernel {
         const id = this.queue.dequeue();
         const timestamp = this.mapIdToTimestamp.get(id)!;
         this.mapIdToTimestamp.delete(id);
+        if (timestamp === Infinity) {
+          // Terminate kernel
+          this.terminate();
+          break;
+        }
         if (this.currentTimestamp > timestamp) {
           // 时间倒流发生，丢弃事件
           // Kernel 不应当假设一定会被上报，由上层功能单元负责读取数据并上报
@@ -143,14 +152,10 @@ export class Kernel {
       // Request Idle
       this.status = 'idle';
       for (const unit of this.units) {
-        const ret = unit.onIdle();
-        if (ret instanceof Promise) {
-          await ret;
-        }
+        unit.onIdle();
       }
-      if (this.queue.size() === 0) {
-        break;
-      }
+      // Wait until new event allocated
+      await firstValueFrom(this._alloc$);
     }
     this.status = 'terminating';
     // Dispose

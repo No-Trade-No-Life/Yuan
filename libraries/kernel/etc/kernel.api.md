@@ -9,8 +9,10 @@ import { IOrder } from '@yuants/protocol';
 import { IPeriod } from '@yuants/protocol';
 import { IPosition } from '@yuants/protocol';
 import { IProduct } from '@yuants/protocol';
+import { ITick } from '@yuants/data-model';
 import { Observable } from 'rxjs';
 import { PositionVariant } from '@yuants/protocol';
+import { Subject } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
 
 // @public (undocumented)
@@ -463,7 +465,9 @@ export class OrderLoadingUnit extends BasicUnit {
 
 // @public
 export class OrderMatchingUnit extends BasicUnit {
-    constructor(kernel: Kernel, productDataUnit: ProductDataUnit, periodDataUnit: PeriodDataUnit, historyOrderUnit: HistoryOrderUnit, quoteDataUnit: QuoteDataUnit);
+    constructor(kernel: Kernel, productDataUnit: ProductDataUnit, periodDataUnit: PeriodDataUnit, tickDataUnit: TickDataUnit, accountInfoUnit: AccountInfoUnit, historyOrderUnit: HistoryOrderUnit, quoteDataUnit: QuoteDataUnit);
+    // (undocumented)
+    accountInfoUnit: AccountInfoUnit;
     // (undocumented)
     cancelOrder(...orderIds: string[]): void;
     // (undocumented)
@@ -501,6 +505,8 @@ export class OrderMatchingUnit extends BasicUnit {
     restore(state: any): void;
     // (undocumented)
     submitOrder(...orders: IOrder[]): void;
+    // (undocumented)
+    tickDataUnit: TickDataUnit;
 }
 
 // @public
@@ -687,8 +693,6 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
     // (undocumented)
     onEvent(): void | Promise<void>;
     // (undocumented)
-    onIdle(): Promise<void>;
-    // (undocumented)
     onInit(): Promise<void>;
     // (undocumented)
     periodDataUnit: PeriodDataUnit;
@@ -702,6 +706,27 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
     productDataUnit: ProductDataUnit;
     // (undocumented)
     terminal: Terminal;
+}
+
+// @public
+export class RealtimeTickLoadingUnit extends BasicUnit {
+    constructor(kernel: Kernel, terminal: Terminal, quoteDataUnit: QuoteDataUnit, tickDataUnit: TickDataUnit);
+    // (undocumented)
+    addTickTask(datasource_id: string, product_id: string, account_id?: string): void;
+    // (undocumented)
+    kernel: Kernel;
+    // (undocumented)
+    onDispose(): void | Promise<void>;
+    // (undocumented)
+    onEvent(): void | Promise<void>;
+    // (undocumented)
+    onInit(): Promise<void>;
+    // (undocumented)
+    quoteDataUnit: QuoteDataUnit;
+    // (undocumented)
+    terminal: Terminal;
+    // (undocumented)
+    tickDataUnit: TickDataUnit;
 }
 
 // @public
@@ -735,9 +760,31 @@ export class SeriesDataUnit extends BasicUnit {
     series: Series[];
 }
 
+// @public
+export class TerminateUnit extends BasicUnit {
+    // (undocumented)
+    onInit(): void;
+}
+
+// @public
+export class TickDataUnit extends BasicUnit {
+    // (undocumented)
+    dump(): {
+        tickMap: Record<string, Record<string, ITick>>;
+    };
+    // (undocumented)
+    getTick(datasource_id: string, product_id: string): ITick | undefined;
+    // (undocumented)
+    restore(state: any): void;
+    // (undocumented)
+    setTick(tick: ITick): void;
+    // (undocumented)
+    tickUpdated$: Subject<ITick>;
+}
+
 // Warnings were encountered during analysis:
 //
-// src/units/OrderMatchingUnit.ts:235:11 - (ae-forgotten-export) The symbol "IMatchingRange" needs to be exported by the entry point index.d.ts
+// src/units/OrderMatchingUnit.ts:264:11 - (ae-forgotten-export) The symbol "IMatchingRange" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
