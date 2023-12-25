@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-k8s-manifest-operator",
+      "comment": "fix kubeconfig",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-k8s-manifest-operator"
+}
