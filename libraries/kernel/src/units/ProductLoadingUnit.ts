@@ -53,7 +53,7 @@ export class ProductLoadingUnit extends BasicUnit {
             map((x) => x.origin),
             mergeMap((specificProduct) => {
               this.kernel.log?.(formatTime(Date.now()), `具体品种`, JSON.stringify(specificProduct));
-              if (this.options?.use_general_product) {
+              if (specificProduct.datasource_id !== 'Y' && this.options?.use_general_product) {
                 return this.terminal
                   .queryDataRecords<IGeneralSpecificRelation>({ type: 'general_specific_relation' })
                   .pipe(
