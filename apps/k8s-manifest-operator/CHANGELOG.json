@@ -2,6 +2,23 @@
   "name": "@yuants/app-k8s-manifest-operator",
   "entries": [
     {
+      "version": "0.0.7",
+      "tag": "@yuants/app-k8s-manifest-operator_v0.0.7",
+      "date": "Mon, 25 Dec 2023 12:26:09 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix kubeconfig"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.6",
       "tag": "@yuants/app-k8s-manifest-operator_v0.0.6",
       "date": "Mon, 25 Dec 2023 12:01:45 GMT",
