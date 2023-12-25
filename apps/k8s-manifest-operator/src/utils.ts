@@ -23,7 +23,10 @@ export function makeNamespacedName(namespaceOrObj: k8s.KubernetesObject): Namesp
 const downloadTgz = async (packageName: string, ver?: string) => {
   const { meta, version } = await resolveVersion(packageName, ver);
   const tarball_url = meta.versions[version].dist.tarball;
-  console.info(new Date(), `downloading extension "${packageName}" (${version}) from ${tarball_url}`);
+  console.info(
+    formatTime(Date.now()),
+    `downloading extension "${packageName}" (${version}) from ${tarball_url}`,
+  );
   const tgz = await fetch(tarball_url);
   return tgz.body;
 };
@@ -98,7 +101,7 @@ export const useDeployProvider = (packageName: string, version: string) => {
 };
 
 export const useResources = (cr: IDeployResource) => {
-  console.info(new Date(), `useResources`, cr.metadata.name);
+  console.info(formatTime(Date.now()), `useResources`, cr.metadata.name);
   const { package: packageName, version } = cr.spec;
   return useDeployProvider(packageName, version!).pipe(
     //
@@ -121,7 +124,7 @@ export const useResources = (cr: IDeployResource) => {
       };
 
       const k8s_resources = await provider.make_k8s_resource_objects(manifest, envCtx);
-      console.info(new Date(), `ResolvedResources`, Object.keys(k8s_resources));
+      console.info(formatTime(Date.now()), `ResolvedResources`, Object.keys(k8s_resources));
       return Object.values(k8s_resources).map((obj: any) => {
         obj.metadata!.ownerReferences = [
           {
