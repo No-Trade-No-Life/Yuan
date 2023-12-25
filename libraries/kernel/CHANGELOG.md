@@ -1,6 +1,13 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Sun, 24 Dec 2023 18:00:51 GMT and should not be manually modified.
+This log was last generated on Mon, 25 Dec 2023 09:55:13 GMT and should not be manually modified.
+
+## 0.6.2
+Mon, 25 Dec 2023 09:55:13 GMT
+
+### Patches
+
+- skip general product sourcing if product id is Y
 
 ## 0.6.1
 Sun, 24 Dec 2023 18:00:51 GMT
