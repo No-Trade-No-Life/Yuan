@@ -24,8 +24,8 @@ import { CRD, FINALIZER_NAME, GROUP, IDeployResource, KIND, PLURAL, VERSION } fr
 import { makeNamespacedName, useResources } from './utils';
 
 const kubeConfig = new k8s.KubeConfig();
-kubeConfig.loadFromFile('/home/c1/.kube/aliyun-dev-config.yaml');
-// kubeConfig.loadFromCluster();
+// kubeConfig.loadFromFile('/home/c1/.kube/aliyun-dev-config.yaml');
+kubeConfig.loadFromCluster();
 
 const crdApi = kubeConfig.makeApiClient(k8s.ApiextensionsV1Api);
 const crApi = kubeConfig.makeApiClient(k8s.CustomObjectsApi);
