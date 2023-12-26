@@ -2,6 +2,26 @@
   "name": "@yuants/app-agent",
   "entries": [
     {
+      "version": "0.4.24",
+      "tag": "@yuants/app-agent_v0.4.24",
+      "date": "Tue, 26 Dec 2023 22:55:36 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/agent\" to `0.9.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.7.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.23",
       "tag": "@yuants/app-agent_v0.4.23",
       "date": "Mon, 25 Dec 2023 17:35:07 GMT",
