@@ -1,3 +1,4 @@
+import { encodePath } from '@yuants/data-model';
 import { IOrder, IPeriod, ITick, OrderDirection, OrderStatus, OrderType } from '@yuants/protocol';
 import { Subject, Subscription } from 'rxjs';
 import { Kernel } from '../kernel';
@@ -13,6 +14,7 @@ interface IMatchingRange {
   first: number;
   high: number;
   low: number;
+  last: number;
 }
 
 /**
@@ -80,32 +82,36 @@ export class OrderMatchingUnit extends BasicUnit {
         period.low < prevPeriod.low ? period.low : Infinity,
       );
       for (const accountId of this.accountInfoUnit.mapAccountIdToAccountInfo.keys()) {
-        this.mapProductIdToRange.set(`${accountId}/${product_id}`, {
+        this.mapProductIdToRange.set(encodePath(accountId, product_id), {
           ask: {
             first: first + spread,
             high: high + spread,
             low: low + spread,
+            last: first + spread,
           },
           bid: {
             first,
             high,
             low,
+            last: first,
           },
         });
       }
     } else {
       // New Period
       for (const accountId of this.accountInfoUnit.mapAccountIdToAccountInfo.keys()) {
-        this.mapProductIdToRange.set(`${accountId}/${product_id}`, {
+        this.mapProductIdToRange.set(encodePath(accountId, product_id), {
           ask: {
             first: period.open + spread,
             high: period.high + spread,
             low: period.low + spread,
+            last: period.close + spread,
           },
           bid: {
             first: period.open,
             high: period.high,
             low: period.low,
+            last: period.close,
           },
         });
       }
@@ -116,16 +122,18 @@ export class OrderMatchingUnit extends BasicUnit {
   private updateRangeByTick(tick: ITick): void {
     const ask = tick.ask || tick.price;
     const bid = tick.bid || tick.price;
-    this.mapProductIdToRange.set(`${tick.datasource_id}/${tick.product_id}`, {
+    this.mapProductIdToRange.set(encodePath(tick.datasource_id, tick.product_id), {
       ask: {
         first: ask,
         high: ask,
         low: ask,
+        last: ask,
       },
       bid: {
         first: bid,
         high: bid,
         low: bid,
+        last: bid,
       },
     });
   }
@@ -161,7 +169,7 @@ export class OrderMatchingUnit extends BasicUnit {
   }
 
   private checkTradedPriceForRange = (order: IOrder): number => {
-    const range = this.mapProductIdToRange.get(`${order.account_id}/${order.product_id}`);
+    const range = this.mapProductIdToRange.get(encodePath(order.account_id, order.product_id));
     if (!range) return NaN;
     if (order.type === OrderType.MARKET) {
       if (order.direction === OrderDirection.OPEN_LONG || order.direction === OrderDirection.CLOSE_SHORT) {
@@ -237,19 +245,16 @@ export class OrderMatchingUnit extends BasicUnit {
           }[theOrder.type]
         }'`,
         `撮合行情=${JSON.stringify(
-          this.mapProductIdToRange.get(`${theOrder.account_id}/${theOrder.product_id}`),
+          this.mapProductIdToRange.get(encodePath(theOrder.account_id, theOrder.product_id)),
         )}`,
       );
       this.mapOrderIdToOrder.delete(order.client_order_id);
       this.historyOrderUnit.updateOrder(theOrder);
     }
-    // 撮合完成后，将所有的 range 重置为当前的 quote
+    // 撮合完成后，将所有的 range 置为 last
     for (const [key, range] of this.mapProductIdToRange.entries()) {
-      const quote = this.quoteDataUnit.mapProductIdToQuote[key];
-      const ask = quote?.ask ?? 1;
-      const bid = quote?.bid ?? 1;
-      range.ask.first = range.ask.high = range.ask.low = ask;
-      range.bid.first = range.bid.high = range.bid.low = bid;
+      range.ask.first = range.ask.high = range.ask.low = range.ask.last;
+      range.bid.first = range.bid.high = range.bid.low = range.bid.last;
     }
     if (isSomeOrderTraded) {
       // 撮合成功后，申请一次重计算更新上游单元状态
