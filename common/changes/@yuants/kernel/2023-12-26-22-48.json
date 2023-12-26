@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/kernel",
+      "comment": "OrderMatching use last to update liquidation range",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/kernel"
+}
