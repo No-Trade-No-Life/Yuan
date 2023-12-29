@@ -2,6 +2,34 @@
   "name": "@yuants/app-trade-copier",
   "entries": [
     {
+      "version": "0.3.39",
+      "tag": "@yuants/app-trade-copier_v0.3.39",
+      "date": "Fri, 29 Dec 2023 16:44:24 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "cancel delay 1s when no order to be send & volume round issue"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.2.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.7.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.10.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.38",
       "tag": "@yuants/app-trade-copier_v0.3.38",
       "date": "Tue, 26 Dec 2023 22:55:36 GMT",

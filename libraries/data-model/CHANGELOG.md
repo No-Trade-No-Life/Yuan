@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-model
 
-This log was last generated on Thu, 21 Dec 2023 11:26:42 GMT and should not be manually modified.
+This log was last generated on Fri, 29 Dec 2023 16:44:24 GMT and should not be manually modified.
+
+## 0.2.1
+Fri, 29 Dec 2023 16:44:24 GMT
+
+### Patches
+
+- ascend to the milliseconds for formatTime
 
 ## 0.2.0
 Thu, 21 Dec 2023 11:26:42 GMT
