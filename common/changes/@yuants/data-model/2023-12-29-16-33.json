@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-model",
+      "comment": "ascend to the milliseconds for formatTime",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/data-model"
+}

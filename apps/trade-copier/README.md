@@ -50,7 +50,7 @@ StartAction -->|Immediately| AccountInfoAggregateAction;
 AccountInfoAggregateAction -.->|wait for target and source accounts| CalcPositionDiffAction;
 AccountInfoAggregateAction -.->|timeout in 30s and retry| AccountInfoAggregateAction;
 CalcPositionDiffAction -->|position diff list| CyberTradeOrderDispatchAction;
-CyberTradeOrderDispatchAction -.->|if no order, delay 1s| CompleteAction;
+CyberTradeOrderDispatchAction -->|if no order, immediately| CompleteAction;
 CyberTradeOrderDispatchAction -->|if algorithm configured| SerialOrderPlaceAction;
 CyberTradeOrderDispatchAction -->|if algorithm undefined| ConcurrentOrderPlaceAction;
 SerialOrderPlaceAction -.->|Orders all settled| CompleteAction;

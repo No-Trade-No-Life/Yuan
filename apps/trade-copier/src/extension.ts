@@ -136,7 +136,7 @@ export default (context: IExtensionContext) => {
                       runbook_url: 'https://tradelife.feishu.cn/wiki/wikcnwLKfcKGaIaAZhasEXM7ipc',
                       summary: 'Trade Copier Metrics 请求失败',
                     },
-                    expr: `rate(terminal_metrics_fetch_errors_total{terminal_id="${terminal_id}"}[5m]) != 0`,
+                    expr: `rate(terminal_metrics_fetch_errors_total{terminal_id="${terminal_id}"}[1m]) != 0`,
                     for: '5m',
                     labels: {
                       severity: 'critical',

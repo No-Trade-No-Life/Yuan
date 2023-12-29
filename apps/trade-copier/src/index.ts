@@ -44,7 +44,6 @@ import {
   tap,
   throwError,
   timeout,
-  timer,
   toArray,
 } from 'rxjs';
 
@@ -582,13 +581,20 @@ async function setup() {
           mergeMap((positionDiff): Observable<{ orders: IOrder[]; strategy: string }> => {
             const volume = Math.abs(positionDiff.error_volume);
             const config = mapKeyToTradeConfig[key];
+
+            // ISSUE: to prevent position oscillation, we should not place order when the volume is too small,
+            //        the threshold could be any number in (0.5, 1), we take a magic number 0.618.
+            if (volume < 0.618 * (group.products[positionDiff.product_id]?.volume_step ?? 1)) {
+              console.info(formatTime(Date.now()), `VolumeTooSmall`, key);
+              return of({ orders: [], strategy: 'none' });
+            }
+
             // if the config is not set or the volume is too small, no need to use Trade Algorithm
             if (config === undefined || volume < config.max_volume_per_order) {
               console.info(formatTime(Date.now()), `TradeConfigNotSetOrVolumeTooSmall`, key);
               const rounded_volume = roundToStep(
                 volume,
                 group.products[positionDiff.product_id]?.volume_step ?? 1,
-                Math.floor,
               );
               if (rounded_volume === 0) {
                 return of({ orders: [], strategy: 'none' });
@@ -600,7 +606,6 @@ async function setup() {
                     account_id: group.target_account_id,
                     type: OrderType.MARKET,
                     product_id: positionDiff.product_id,
-                    // ISSUE: 必须使用 Math.floor，避免震荡下单 ("千分之五手问题")
                     volume: rounded_volume,
                     direction:
                       positionDiff.variant === PositionVariant.LONG
@@ -634,14 +639,12 @@ async function setup() {
                 account_id: group.target_account_id,
                 type: OrderType.MARKET,
                 product_id: positionDiff.product_id,
-                // ISSUE: 必须使用 Math.floor，避免震荡下单 ("千分之五手问题")
                 volume:
                   i < order_count - 1
                     ? config.max_volume_per_order
                     : roundToStep(
                         volume - config.max_volume_per_order * (order_count - 1),
                         group.products[positionDiff.product_id]?.volume_step ?? 1,
-                        Math.floor,
                       ),
                 direction:
                   positionDiff.variant === PositionVariant.LONG
@@ -671,9 +674,8 @@ async function setup() {
       }),
     ).subscribe(({ orders, strategy }) => {
       if (orders.length === 0) {
-        timer(1000).subscribe(() => {
-          mapKeyToCompleteAction[key].next();
-        });
+        // ISSUE: FOR HIGH FREQUENCY TRADING, WAIT 1s UNTIL NEXT LOOP MAY CAUSE LAG
+        mapKeyToCompleteAction[key].next();
         return;
       }
       if (strategy === 'serial') {
