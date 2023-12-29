@@ -64,7 +64,7 @@ registerPage('Copilot', () => {
         description: t('Copilot:prompt_example3:description'),
         onClick: () => {
           gtag('event', 'copilot_prompt_example3');
-          setUserInput('Copilot:prompt_example3:prompt');
+          setUserInput(t('Copilot:prompt_example3:prompt'));
         },
       },
     ],
