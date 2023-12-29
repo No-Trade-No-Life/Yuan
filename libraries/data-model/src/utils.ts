@@ -157,9 +157,9 @@ export const getMargin = (
 export const formatTime = (time: Date | number | string, timeZone: string | undefined = undefined) => {
   try {
     if (timeZone) {
-      return formatInTimeZone(time, timeZone, 'yyyy-MM-dd HH:mm:ssXXX');
+      return formatInTimeZone(time, timeZone, 'yyyy-MM-dd HH:mm:ss.SSSXXX');
     }
-    return format(new Date(time), 'yyyy-MM-dd HH:mm:ssXXX');
+    return format(new Date(time), 'yyyy-MM-dd HH:mm:ss.SSSXXX');
   } catch (e) {
     return 'Invalid Date';
   }
