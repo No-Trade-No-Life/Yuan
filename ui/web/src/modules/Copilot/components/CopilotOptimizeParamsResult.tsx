@@ -57,6 +57,7 @@ export default ({
         <Button
           icon={<IconTick />}
           onClick={async () => {
+            gtag('event', 'copilot_agent_start_batch_backtest');
             setStarted(true);
             try {
               await executeCommand('workspace.import_examples');

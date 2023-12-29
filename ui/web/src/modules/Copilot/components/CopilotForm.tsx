@@ -30,6 +30,7 @@ export default ({
           icon={<IconTick />}
           disabled={!formData}
           onClick={() => {
+            gtag('event', 'copilot_copilot_form_submit');
             replaceMessage([{ type: 'UserFormInput', payload: { id: payload.id, answer: formData } }]);
             send();
           }}
@@ -39,6 +40,7 @@ export default ({
         <Button
           icon={<IconFastForward />}
           onClick={() => {
+            gtag('event', 'copilot_copilot_form_skip');
             replaceMessage([{ type: 'UserFormInput', payload: { id: payload.id, answer: undefined } }]);
             send();
           }}

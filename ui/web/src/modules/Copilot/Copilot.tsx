@@ -14,7 +14,7 @@ import { ErrorBoundary } from '../Pages/ErrorBoundary';
 import { authState$ } from '../SupaBase';
 import { ensureAuthenticated } from '../User';
 import { IChatMessage, IMessageCardProps } from './model';
-
+import CopilotButton from './components/CopilotButton';
 const mapMessageTypeToComponent: Record<string, React.ComponentType<IMessageCardProps<any>>> = {};
 
 export function registerCopilotMessageBlock<P extends {}>(
@@ -32,25 +32,40 @@ registerPage('Copilot', () => {
   const authState = useObservableState(authState$);
   const { t } = useTranslation('Copilot');
 
-  const examples = useMemo(
-    (): Array<{ icon?: React.ReactNode; title?: string; content: string }> => [
+  const hints = useMemo(
+    (): Array<{ onClick?: () => void; content: string; description: string }> => [
       //
       {
-        content: t('Copilot:prompt_example_1'),
+        content: t('Copilot:prompt_example1:content'),
+        description: t('Copilot:prompt_example1:description'),
+        onClick: () => {
+          gtag('event', 'copilot_prompt_example1');
+          setUserInput(t('Copilot:prompt_example1:prompt'));
+        },
       },
       {
-        content: t('Copilot:prompt_example_2'),
+        content: t('Copilot:prompt_example2:content'),
+        description: t('Copilot:prompt_example2:description'),
+        onClick: () => {
+          gtag('event', 'copilot_prompt_example2');
+          setUserInput('');
+          messages$.next(
+            messages$.value.concat([
+              {
+                type: 'CopilotDefaultModels',
+                payload: {},
+              },
+            ]),
+          );
+        },
       },
       {
-        content: t('Copilot:prompt_example_3'),
-      },
-      {
-        content: t('Copilot:prompt_example_4'),
-      },
-      {
-        icon: <IconYoutube />,
-        title: t('Copilot:prompt_example_5_title'),
-        content: t('Copilot:prompt_example_5'),
+        content: t('Copilot:prompt_example3:content'),
+        description: t('Copilot:prompt_example3:description'),
+        onClick: () => {
+          gtag('event', 'copilot_prompt_example3');
+          setUserInput('Copilot:prompt_example3:prompt');
+        },
       },
     ],
     [t],
@@ -185,24 +200,39 @@ registerPage('Copilot', () => {
                 {t('Copilot:send')}
               </Button>
             </Space>
-            <Typography.Text style={{ marginTop: '2em' }}>{t('Copilot:try_asking')}</Typography.Text>
-            <Space style={{ flexWrap: 'wrap' }}>
-              {examples.map((hint) => (
-                <Typography.Text
-                  size="small"
-                  style={{ cursor: 'pointer' }}
-                  link={{}}
-                  onClick={() => {
-                    setUserInput(hint.content);
+            <Typography.Text style={{ marginTop: '1em' }}>{t('Copilot:try_asking')}</Typography.Text>
+            <div
+              className={'hintContainer'}
+              style={{
+                display: 'flex',
+                justifyContent: 'center',
+                flexWrap: 'wrap',
+                gap: '1em',
+                margin: '1em 4em 0 4em',
+              }}
+            >
+              {hints.map((item) => (
+                <CopilotButton
+                  style={{
+                    width: '220px',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    display: '-webkit-box',
+                    WebkitBoxOrient: 'vertical',
                   }}
-                  icon={hint.icon}
+                  onClick={item.onClick}
                 >
-                  {hint.title || hint.content}
-                </Typography.Text>
+                  <Typography.Text type="primary" style={{ fontSize: '1.2em' }}>
+                    {item.content}
+                  </Typography.Text>
+                  <div style={{ marginTop: '8px' }}>
+                    <Typography.Text type="secondary">{item.description}</Typography.Text>
+                  </div>
+                </CopilotButton>
               ))}
-            </Space>
+            </div>
 
-            <Typography.Text style={{ marginTop: '2em' }}>{t('Copilot:extra_action')}</Typography.Text>
+            <Typography.Text style={{ marginTop: '1em' }}>{t('Copilot:extra_action')}</Typography.Text>
             <Space style={{ flexWrap: 'wrap' }}>
               {!!window['showDirectoryPicker'] && (
                 <Typography.Text
@@ -268,6 +298,9 @@ registerPage('Copilot', () => {
           const replaceMessages = (msgList: IChatMessage<any, any>[]) => {
             messages$.next(messages$.value.slice(0, idx + 1).concat(msgList));
           };
+          const editMessage = (payload: any) => {
+            msg.payload = payload;
+          };
           return (
             <ErrorBoundary
               fallback={(props) => {
@@ -280,6 +313,7 @@ registerPage('Copilot', () => {
                 replaceMessage: replaceMessages,
                 send,
                 appendMessage,
+                editMessage,
               })}
             </ErrorBoundary>
           );

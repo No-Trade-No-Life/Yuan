@@ -44,9 +44,13 @@ registerPage('Login', () => {
 
   useEffect(() => {
     if (authState) {
+      gtag('event', 'login_success');
       executeCommand('Page.close', { pageId });
     }
   }, [authState]);
+  useEffect(() => {
+    gtag('event', 'login_page_open');
+  }, []);
 
   return (
     <Space
@@ -118,9 +122,11 @@ registerPage('Login', () => {
               type: 'email',
             });
             if (error) {
+              gtag('event', 'login_error');
               Toast.error(`${t('login_failed')}: ${error.message}`);
             } else {
               Toast.success(t('login_succeed'));
+              gtag('event', 'login_success');
               executeCommand('Page.close', { pageId });
             }
           } catch (e) {}

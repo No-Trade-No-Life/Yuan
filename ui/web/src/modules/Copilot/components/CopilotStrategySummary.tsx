@@ -26,6 +26,7 @@ export default ({
         <Button
           icon={<IconTick />}
           onClick={() => {
+            gtag('event', 'copilot_video_summary_submit');
             replaceMessage([]);
             send();
           }}

@@ -8,4 +8,5 @@ export interface IMessageCardProps<P = {}> {
   replaceMessage: (message: IChatMessage<any, any>[]) => void;
   send: () => void;
   appendMessage: (message: IChatMessage<any, any>[]) => void;
+  editMessage: (message: P) => void;
 }

@@ -42,18 +42,33 @@
   "SystemBatchBacktestResult": {
     "title": "批量回测结果"
   },
+  "CopilotDefaultModels": {
+    "example1": {
+      "title": "双均线策略",
+      "description": "双均线策略是一种简单的趋势跟踪策略，它使用两条不同周期的均线来判断趋势，然后使用两条均线的交叉来判断交易的开平仓点。",
+      "code": "/@models/double-ma.ts"
+    },
+    "example2": {
+      "title": "R-Breaker策略",
+      "description": "R-Breaker策略的核心思想是利用价格波动的规律来捕捉交易机会。它通过设定一系列的价格点，包括支撑位、阻力位和反转点，来指导交易决策",
+      "code": "/@models/R-Breaker.ts"
+    },
+    "example3": {
+      "title": "网格交易策略",
+      "description": "网格交易是一种利用市场的横盘和趋势行情进行交易的策略。简单来说，网格交易可以通过价格的波动来实现盈利。",
+      "code": "/@models/grid.ts"
+    },
+    "found": "我找到了这些模型，可以选择一个，或者直接输入代码开始",
+    "submit": "自定义输入",
+    "code_remark": "// 你可以在这里输入或者粘贴你的代码"
+  },
+
   "clear": "清空",
   "connect_host": "连接主机...",
   "documentation": "官方文档",
   "extra_action": "或者您需要",
   "input_placeholder": "按 Ctrl + Enter 发送",
   "open_workspace": "打开工作区...",
-  "prompt_example_1": "给我来个双均线策略",
-  "prompt_example_2": "写一个布林线交易模型",
-  "prompt_example_3": "当价格高于布林线上轨时，做多",
-  "prompt_example_4": "搞个 RSI + BOLL 的策略",
-  "prompt_example_5": "帮我将这个视频转成量化策略，https://www.youtube.com/watch?v=PFYA-WSwWh8",
-  "prompt_example_5_title": "视频转策略",
   "render_error": "",
   "render_error_hint": "",
   "send": "发送",
@@ -61,5 +76,20 @@
   "stop": "中止",
   "system_error": "系统错误",
   "thinking": "Copilot: 思考中",
-  "try_asking": "尝试输入"
+  "try_asking": "您可以试试：",
+  "prompt_example1": {
+    "content": "从0到1写策略",
+    "description": "有一个思路？Copilot会带着你从0到1完成策略。",
+    "prompt": "开仓：\n当。。。开仓\n 平仓：\n当。。。平仓\n 止损：\n没有\n 止盈：\n没有"
+  },
+  "prompt_example2": {
+    "content": "经典策略",
+    "description": "直接试试！你将从一个已有策略出发，完成量化旅途。",
+    "prompt": ""
+  },
+  "prompt_example3": {
+    "content": "策略转换大师",
+    "description": "他山之石，可以攻玉，Copilot支持将Youtube视频转成策略～",
+    "prompt": "帮我将这个视频转成量化策略，https://www.youtube.com/watch?v=PFYA-WSwWh8"
+  }
 }

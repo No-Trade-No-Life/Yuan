@@ -12,7 +12,6 @@ import { IMessageCardProps } from '../model';
 export default ({
   payload,
   messages,
-  send,
 }: IMessageCardProps<{
   description: string;
   best_mode_id: number;

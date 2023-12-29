@@ -23,9 +23,9 @@ const HeroContent = () => {
         className={styles.iframe}
         width="560"
         height="315"
-        src="https://www.youtube.com/embed/RR74o1uojVo?si=jaiqj7VDpxFyTai&autoplay=1&mute=1&loop=1"
+        src="https://www.youtube.com/embed/RR74o1uojVo?si=jaiqj7VDpxFyTai&autoplay=1&mute=1&loop=1&playlist=RR74o1uojVo"
         title="YouTube video player"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; loop"
       ></iframe>
     </div>
   );
