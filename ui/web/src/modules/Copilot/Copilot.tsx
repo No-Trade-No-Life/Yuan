@@ -299,13 +299,8 @@ registerPage('Copilot', () => {
             messages$.next(messages$.value.slice(0, idx + 1).concat(msgList));
           };
           const editMessage = (payload: any) => {
-            msg.payload = payload;
-            messages$.next(
-              messages$.value
-                .slice(0, idx)
-                .concat([msg])
-                .concat(messages$.value.slice(idx + 1, messages$.value.length)),
-            );
+            messages$.value[idx].payload = payload;
+            messages$.next(messages$.value);
           };
           return (
             <ErrorBoundary
