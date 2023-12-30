@@ -5,6 +5,7 @@ import { IMessageCardProps } from '../model';
 import { useMemo } from 'react';
 import ModelCard from './CopilotButton';
 import { fs } from '../../FileSystem/api';
+import { executeCommand } from '../../CommandCenter';
 export default ({ replaceMessage }: IMessageCardProps<{}>) => {
   const { t } = useTranslation('Copilot');
 
@@ -32,6 +33,9 @@ export default ({ replaceMessage }: IMessageCardProps<{}>) => {
 
   const clickModel = async (code: string, remark: string) => {
     gtag('event', 'copilot_rcmd_model_click');
+    if (!(await fs.exists(code))) {
+      await executeCommand('workspace.import_examples');
+    }
     const realCode = await fs.readFile(code);
     replaceMessage([
       {
