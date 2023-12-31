@@ -38,11 +38,11 @@ export default ({
           icon={<IconTick />}
           onClick={async () => {
             try {
+              editMessage(payload);
               await executeCommand('workspace.import_examples');
               const bundled_code = await bundleCodeFromInMemoryCode(realCode.current);
               const scene = await LocalAgentScene({ bundled_code });
               const schema = scene.agentUnit.paramsSchema;
-
               replaceMessage([{ type: 'AgentConfigForm', payload: { bundled_code, schema } }]);
               gtag('event', 'copilot_agent_code_complete');
             } catch (e) {
@@ -58,6 +58,7 @@ export default ({
         <Button
           icon={<IconClose />}
           onClick={async () => {
+            editMessage(payload);
             replaceMessage([]);
           }}
         >
@@ -89,7 +90,6 @@ export default ({
               editor.getModel()?.onDidChangeContent(() => {
                 realCode.current = editor.getValue();
                 payload.code = editor.getValue();
-                editMessage(payload);
               });
             }}
           />

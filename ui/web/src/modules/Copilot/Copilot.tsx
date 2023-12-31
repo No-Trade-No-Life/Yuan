@@ -300,7 +300,7 @@ registerPage('Copilot', () => {
           };
           const editMessage = (payload: any) => {
             messages$.value[idx].payload = payload;
-            messages$.next(messages$.value);
+            messages$.next(JSON.parse(JSON.stringify(messages$.value)));
           };
           return (
             <ErrorBoundary
