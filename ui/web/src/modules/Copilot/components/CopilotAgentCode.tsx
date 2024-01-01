@@ -11,15 +11,19 @@ import { MonacoEditor } from '../../Editor/Monaco';
 import { fs } from '../../FileSystem/api';
 import { LocalAgentScene } from '../../StaticFileServerStorage/LocalAgentScene';
 import { IMessageCardProps } from '../model';
+import { useRef } from 'react';
 export default ({
   replaceMessage,
   send,
   payload,
+  editMessage,
 }: IMessageCardProps<{
   code: string;
   remark: string;
+  readonly?: boolean;
 }>) => {
   const { t } = useTranslation();
+  const realCode = useRef(payload.code);
   return (
     <Card
       title={
@@ -34,11 +38,11 @@ export default ({
           icon={<IconTick />}
           onClick={async () => {
             try {
+              editMessage(payload);
               await executeCommand('workspace.import_examples');
-              const bundled_code = await bundleCodeFromInMemoryCode(payload.code);
+              const bundled_code = await bundleCodeFromInMemoryCode(realCode.current);
               const scene = await LocalAgentScene({ bundled_code });
               const schema = scene.agentUnit.paramsSchema;
-
               replaceMessage([{ type: 'AgentConfigForm', payload: { bundled_code, schema } }]);
               gtag('event', 'copilot_agent_code_complete');
             } catch (e) {
@@ -54,6 +58,7 @@ export default ({
         <Button
           icon={<IconClose />}
           onClick={async () => {
+            editMessage(payload);
             replaceMessage([]);
           }}
         >
@@ -65,7 +70,7 @@ export default ({
           onClick={async () => {
             const filename = `/AIGC/${format(new Date(), 'yyyy-MM-dd-HH-mm-ss')}.ts`;
             await fs.ensureDir('/AIGC');
-            await fs.writeFile(filename, payload.code);
+            await fs.writeFile(filename, realCode.current);
             Toast.success(`${t('common:saved')}: ${filename}`);
             gtag('event', 'copilot_agent_code_saved');
           }}
@@ -81,7 +86,11 @@ export default ({
             value={payload.code}
             language="typescript"
             onConstruct={(editor) => {
-              editor.updateOptions({ readOnly: true });
+              editor.updateOptions({ readOnly: payload.readonly ?? true });
+              editor.getModel()?.onDidChangeContent(() => {
+                realCode.current = editor.getValue();
+                payload.code = editor.getValue();
+              });
             }}
           />
         </div>

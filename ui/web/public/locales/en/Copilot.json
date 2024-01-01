@@ -42,18 +42,33 @@
   "SystemBatchBacktestResult": {
     "title": "Batch Backtest Result"
   },
+  "CopilotDefaultModels": {
+    "example1": {
+      "title": "Double Moving Average",
+      "description": "DMA Strategy is a simple trend following strategy. It uses two moving averages of different periods to determine the trend.",
+      "code": "/@models/double-ma.ts"
+    },
+    "example2": {
+      "title": "R break strategy",
+      "description": "The core idea of the R-Breaker strategy is to capitalize on the patterns of price fluctuations to capture trading opportunities. ",
+      "code": "/@models/R-Breaker.ts"
+    },
+
+    "example3": {
+      "title": "Grid Trading",
+      "description": "Grid trading is a type of trading strategy that profits from the sideways as well as trending market conditions. ",
+      "code": "/@models/grid.ts"
+    },
+    "found": "Hi, I found these models from Yuan for you, you can chose one, or you can just input code",
+    "submit": "Custom Input",
+    "code_remark": "// You can input or copy code here"
+  },
   "clear": "Clear",
   "connect_host": "Connect Host...",
   "documentation": "Documentation",
   "extra_action": "Or you might need",
   "input_placeholder": "Ctrl + Enter to send",
   "open_workspace": "Open Workspace...",
-  "prompt_example_1": "Show me a double moving average strategy",
-  "prompt_example_2": "Write a BOLL trading model",
-  "prompt_example_3": "When price > Boll upper, open the long position",
-  "prompt_example_4": "Make a RSI + BOLL strategy",
-  "prompt_example_5": "Please help me to convert this video to strategy, https://www.youtube.com/watch?v=PFYA-WSwWh8",
-  "prompt_example_5_title": "Convert video to strategy",
   "render_error": "",
   "render_error_hint": "",
   "send": "Send",
@@ -61,5 +76,20 @@
   "stop": "Stop",
   "system_error": "System Error",
   "thinking": "Copilot: Thinking",
-  "try_asking": "Try asking"
+  "try_asking": "You can try:",
+  "prompt_example1": {
+    "content": "Writing Strategy",
+    "description": "Got an idea? Copilot will guide you from 0 to 1 in completing the strategy.",
+    "prompt": "Opening Position:\nWhen... open a position\n Closing Position:\nWhen... close a position\n Stop Loss:\nNone\n Take Profit:\nNone"
+  },
+  "prompt_example2": {
+    "content": "Classic Strategy",
+    "description": "Give it a try directly! You will start with an existing strategy to complete your quantitative journey.",
+    "prompt": ""
+  },
+  "prompt_example3": {
+    "content": "Strategy Conversion",
+    "description": "The stones of other mountains can be used to polish jade, Copilot supports converting YouTube videos into strategies～",
+    "prompt": "Help me convert this video into a quantitative strategy, https://www.youtube.com/watch?v=PFYA-WSwWh8"
+  }
 }

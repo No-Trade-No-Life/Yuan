@@ -43,13 +43,17 @@ export default ({
         //
         <Button
           icon={<IconTick />}
-          onClick={() => executeCommand('Agent.DeployToCloud', { agentConf: payload.agent_conf })}
+          onClick={() => {
+            gtag('event', 'copilot_deploy_click');
+            return executeCommand('Agent.DeployToCloud', { agentConf: payload.agent_conf });
+          }}
         >
           {t('Copilot:SystemBacktestResult:deploy')}
         </Button>,
         <Button
           icon={<SmartOptimization />}
           onClick={async () => {
+            gtag('event', 'copilot_help_analyze_click');
             replaceMessage([
               {
                 type: 'Backtest',
@@ -66,6 +70,7 @@ export default ({
         <Button
           icon={<IconBeaker />}
           onClick={async () => {
+            gtag('event', 'copilot_help_optimize_params_click');
             replaceMessage([
               {
                 type: 'OptimizeParams',
@@ -83,6 +88,7 @@ export default ({
           <Button
             icon={<SmartOptimization />}
             onClick={async () => {
+              gtag('event', 'copilot_find_best_model_click');
               replaceMessage([
                 {
                   type: 'ModelCompare',
