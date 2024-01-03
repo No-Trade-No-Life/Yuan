@@ -6,12 +6,12 @@ interface CopilotButtonProps {
   onClick?: () => void;
 }
 
-const CopilotButton: React.FC<CopilotButtonProps> = ({ children, style = {}, onClick }) => {
+export default ({ children, style = {}, onClick }: CopilotButtonProps) => {
   const [isHovered, setIsHovered] = useState(false);
 
   const defaultStyle: CSSProperties = {
     border: '1px solid rgba(0,0,0,.1)',
-    backgroundColor: isHovered ? '#ececf1' : 'var(--semi-color-bg-0)',
+    backgroundColor: 'var(--semi-color-bg-1)', // ISSUE: consider darkmode
     borderRadius: '0.75rem',
     borderColor: 'rgba(0,0,0,.1)',
     margin: 0,
@@ -35,5 +35,3 @@ const CopilotButton: React.FC<CopilotButtonProps> = ({ children, style = {}, onC
     </div>
   );
 };
-
-export default CopilotButton;
