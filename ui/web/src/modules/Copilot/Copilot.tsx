@@ -90,7 +90,10 @@ registerPage('Copilot', () => {
 
   const sendCurrentMessages = () => {
     defer(async () => {
-      const messagesToSend = messages.filter((v) => v.type !== 'SystemError');
+      if (!messages$.value) {
+        return;
+      }
+      const messagesToSend = messages$.value.filter((v) => v.type !== 'SystemError');
       await ensureAuthenticated();
       const res = await fetch(API_ENDPOINT, {
         mode: 'cors',
