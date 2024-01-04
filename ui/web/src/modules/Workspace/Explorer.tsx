@@ -19,7 +19,7 @@ import { useObservableState } from 'observable-hooks';
 import path, { dirname } from 'path-browserify';
 import { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { filter, from, lastValueFrom, map, mergeMap, toArray } from 'rxjs';
+import { filter, firstValueFrom, from, lastValueFrom, map, mergeMap, toArray } from 'rxjs';
 import { unzip } from 'unzipit';
 import { agentConf$, reloadSchemaAction$ } from '../Agent/AgentConfForm';
 import { writeManifestsFromBatchTasks } from '../Agent/utils';
@@ -298,9 +298,14 @@ registerPage('Explorer', () => {
                           disabled={!data.isLeaf || !currentHostConfig}
                           onClick={async () => {
                             if (!terminal) return;
+                            const terminalInfos = await firstValueFrom(terminal.terminalInfos$);
+                            const candidates = terminalInfos.filter(
+                              (terminalInfo) => terminalInfo.serviceInfo?.['AirDrop'],
+                            );
                             const target_terminal_id = await showForm<string>({
                               type: 'string',
                               title: t('airdrop_target'),
+                              enum: candidates.map((terminalInfo) => terminalInfo.terminal_id),
                             });
                             if (!target_terminal_id) return;
                             sendFileByAirdrop(terminal, target_terminal_id, data.key);
