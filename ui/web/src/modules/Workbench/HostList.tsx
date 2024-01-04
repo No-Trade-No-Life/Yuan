@@ -39,18 +39,13 @@ import { IHostConfigItem, currentHostConfig$, hostConfigList$ } from './model';
 
 const configSchema = (): JSONSchema7 => ({
   type: 'object',
-  required: ['terminal_id', 'host_url'],
+  required: ['host_url'],
   properties: {
     name: {
       type: 'string',
       title: t('HostList:host_label'),
       description: t('HostList:host_label_note'),
       default: t('HostList:host_label_default'),
-    },
-    terminal_id: {
-      type: 'string',
-      title: t('HostList:terminal_id'),
-      description: t('HostList:terminal_id_note'),
     },
     host_url: { type: 'string', title: t('HostList:host_url'), description: t('HostList:host_url_note') },
   },
@@ -90,6 +85,7 @@ registerPage('HostList', () => {
   const auth = useObservableState(authState$);
   const HOST_CONFIG = '/hosts.json';
   const config = useObservableState(currentHostConfig$);
+  const terminal = useObservableState(terminal$);
 
   const network = useObservableState(network$, ['0.0', '0.0'] as [string, string]);
 
@@ -173,7 +169,7 @@ registerPage('HostList', () => {
               },
               {
                 key: t('terminal_id'),
-                value: <Typography.Text copyable>{config.terminal_id}</Typography.Text>,
+                value: <Typography.Text copyable>{terminal?.terminalInfo.terminal_id}</Typography.Text>,
               },
               {
                 key: t('upload_rate'),
@@ -221,7 +217,6 @@ registerPage('HostList', () => {
                         currentHostConfig$.next({
                           name: `SharedHost-${configs.length}`,
                           host_url: `wss://api.ntnl.io/hosts?host_id=${host.id}&host_token=${host.host_token}`,
-                          terminal_id: `Owner`,
                         });
                       }}
                     >
@@ -261,7 +256,6 @@ registerPage('HostList', () => {
                       </Typography.Text>
                     ),
                   },
-                  { key: t('terminal_id'), value: config.terminal_id },
                 ]}
               ></Descriptions>
               <ButtonGroup>

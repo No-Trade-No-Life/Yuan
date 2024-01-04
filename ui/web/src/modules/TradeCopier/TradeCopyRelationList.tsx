@@ -7,7 +7,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EMPTY, combineLatest, filter, first, mergeMap, tap, toArray } from 'rxjs';
 import { InlineAccountId } from '../AccountInfo';
-import { registerCommand } from '../CommandCenter';
+import { executeCommand, registerCommand } from '../CommandCenter';
 import Form from '../Form';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
@@ -143,6 +143,9 @@ registerPage('TradeCopyRelationList', () => {
           }}
         >
           刷新
+        </Button>
+        <Button icon={<IconRefresh />} onClick={() => executeCommand('TradeCopier.Restart')}>
+          重启跟单阵列
         </Button>
       </Space>
       <Table

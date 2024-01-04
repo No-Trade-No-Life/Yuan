@@ -1,6 +1,6 @@
 import { IconInfoCircle } from '@douyinfe/semi-icons';
 import { Collapse, Descriptions, Empty, Space, Table, Tooltip, Typography } from '@douyinfe/semi-ui';
-import { encodePath, formatTime } from '@yuants/data-model';
+import { encodePath, formatTime, mergeAccountInfoPositions } from '@yuants/data-model';
 import { IPosition, OrderDirection, OrderType, PositionVariant } from '@yuants/protocol';
 import { format } from 'date-fns';
 import { useObservable, useObservableState } from 'observable-hooks';
@@ -12,8 +12,8 @@ import {
   groupBy,
   map,
   mergeMap,
+  pairwise,
   reduce,
-  skip,
   tap,
   toArray,
 } from 'rxjs';
@@ -31,22 +31,41 @@ registerPage('AccountInfoPanel', () => {
     useObservable(() =>
       defer(() => Notification.requestPermission()).pipe(
         filter((x) => x === 'granted'),
-        mergeMap(() => useAccountInfo(accountId)),
-        map((x) => ({
-          origin: x,
-          hash: `${x.account_id} ${x.positions.map((x) => `${x.product_id} ${x.volume}`)}`,
-        })),
-        distinctUntilChanged((x, y) => x.hash === y.hash),
-        skip(1),
-        tap((x) => {
-          if (Notification.permission === 'granted') {
-            new Notification('头寸变化', {
-              body: `账户: ${x.origin.account_id}\n${formatTime(Date.now())}`,
-              renotify: true,
-              tag: encodePath('AccountInfoPositionChange', x.origin.account_id),
-            });
-          }
-        }),
+        mergeMap(() =>
+          useAccountInfo(accountId).pipe(
+            //
+            mergeMap((accountInfo) => mergeAccountInfoPositions(accountInfo)),
+            mergeMap((accountInfo) => accountInfo.positions),
+            groupBy((position) => position.product_id),
+            mergeMap((groupByProductId) =>
+              groupByProductId.pipe(
+                groupBy((position) => position.variant),
+                mergeMap((groupByVariant) =>
+                  groupByVariant.pipe(
+                    //
+                    map((position) => position.volume),
+                    pairwise(),
+                    filter(([x, y]) => x !== y),
+                    distinctUntilChanged(),
+                    tap(([oldVolume, newVolume]) => {
+                      if (Notification.permission === 'granted') {
+                        const productId = groupByProductId.key;
+                        const variant = groupByVariant.key;
+                        new Notification('Position Changed', {
+                          body: `Account: ${accountId}\n${productId}(${
+                            variant === PositionVariant.LONG ? 'LONG' : 'SHORT'
+                          }): ${oldVolume}->${newVolume}\n${formatTime(Date.now())}`,
+                          renotify: true,
+                          tag: encodePath('AccountInfoPositionChange', accountId, productId, variant),
+                        });
+                      }
+                    }),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
       ),
     ),
   );

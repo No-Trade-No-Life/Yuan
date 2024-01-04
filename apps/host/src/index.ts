@@ -58,13 +58,20 @@ server.on('upgrade', (request, socket, head) => {
     return;
   }
   wss.handleUpgrade(request, socket, head, (ws) => {
-    console.info(formatTime(Date.now()), 'New Connection', { terminal_id });
-    mapTerminalIdToSocket[terminal_id]?.close(); // 关闭旧连接
-    mapTerminalIdToSocket[terminal_id] = ws; // 注册终端
-    // 配置消息转发
-    (fromEvent(ws, 'message') as Observable<WebSocket.MessageEvent>).subscribe((origin) =>
-      mapTerminalIdToSocket[JSON.parse(origin.data.toString()).target_terminal_id]?.send(origin.data),
-    );
+    console.info(formatTime(Date.now()), 'terminal connected', terminal_id);
+    mapTerminalIdToSocket[terminal_id]?.close(); // Close Old Terminal
+    mapTerminalIdToSocket[terminal_id] = ws; // Register New Terminal
+    // Forward Terminal Messages
+    (fromEvent(ws, 'message') as Observable<WebSocket.MessageEvent>).subscribe((origin) => {
+      const msg = JSON.parse(origin.data.toString());
+      mapTerminalIdToSocket[msg.target_terminal_id]?.send(origin.data);
+    });
+    // Clean up on Terminal Disconnect
+    fromEvent(ws, 'close').subscribe(() => {
+      console.info(formatTime(Date.now()), 'terminal disconnected', terminal_id);
+      terminalInfos.delete(terminal_id);
+      delete mapTerminalIdToSocket[terminal_id];
+    });
   });
 });
 
@@ -86,9 +93,6 @@ const listTerminalsMessage$ = interval(1000).pipe(
 terminal.provideService('ListTerminals', {}, () => listTerminalsMessage$.pipe(first()));
 
 terminal.provideService('UpdateTerminalInfo', {}, (msg) => {
-  // if (msg.source_terminal_id !== msg.req.terminal_id) {
-  //   return of({ res: { code: 403, message: 'Permission Denied' } });
-  // }
   terminalInfos.set(msg.req.terminal_id, msg.req);
   return of({ res: { code: 0, message: 'OK' } });
 });

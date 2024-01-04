@@ -17,7 +17,6 @@ export interface IHostConfigItem {
   //
   name: string;
   host_url: string;
-  terminal_id: string;
 }
 
 export const hostConfigList$ = createPersistBehaviorSubject<IHostConfigItem[]>('host-config-list', []);
@@ -69,7 +68,6 @@ initAction$
       const config: IHostConfigItem = {
         host_url: action.payload.URL,
         name: action.payload.name,
-        terminal_id: `GUI/${UUID()}`,
       };
 
       hostConfigList$.next([...(hostConfigList$.value || []), config]);
