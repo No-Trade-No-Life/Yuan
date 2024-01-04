@@ -15,6 +15,7 @@ import { authState$ } from '../SupaBase';
 import { ensureAuthenticated } from '../User';
 import { IChatMessage, IMessageCardProps } from './model';
 import CopilotButton from './components/CopilotButton';
+import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehaviorSubject';
 const mapMessageTypeToComponent: Record<string, React.ComponentType<IMessageCardProps<any>>> = {};
 
 export function registerCopilotMessageBlock<P extends {}>(
@@ -26,11 +27,14 @@ export function registerCopilotMessageBlock<P extends {}>(
 
 const API_ENDPOINT = `https://api.ntnl.io/copilot`;
 
+const messages$ = createPersistBehaviorSubject<IChatMessage<any, any>[]>('copilotMessages', []);
+
 registerPage('Copilot', () => {
   const [userInput, setUserInput] = useState('');
   const [isLoading, setLoading] = useState(false);
   const authState = useObservableState(authState$);
   const { t } = useTranslation('Copilot');
+  const messages = useObservableState(messages$) ?? [];
 
   const hints = useMemo(
     (): Array<{ onClick?: () => void; content: string; description: string }> => [
@@ -50,7 +54,7 @@ registerPage('Copilot', () => {
           gtag('event', 'copilot_prompt_example2');
           setUserInput('');
           messages$.next(
-            messages$.value.concat([
+            messages.concat([
               {
                 type: 'CopilotDefaultModels',
                 payload: {},
@@ -68,18 +72,8 @@ registerPage('Copilot', () => {
         },
       },
     ],
-    [t],
+    [messages, t],
   );
-
-  const messages$ = useMemo(
-    () =>
-      new BehaviorSubject<IChatMessage<any, any>[]>(
-        [],
-        // exampleMessages,
-      ),
-    [],
-  );
-  const messages = useObservableState(messages$);
 
   useEffect(() => {
     const sub = messages$.subscribe((messages) => {
@@ -96,7 +90,7 @@ registerPage('Copilot', () => {
 
   const sendCurrentMessages = () => {
     defer(async () => {
-      const messagesToSend = messages$.value.filter((v) => v.type !== 'SystemError');
+      const messagesToSend = messages.filter((v) => v.type !== 'SystemError');
       await ensureAuthenticated();
       const res = await fetch(API_ENDPOINT, {
         mode: 'cors',
@@ -113,7 +107,7 @@ registerPage('Copilot', () => {
 
       const json = await res.json();
       const newMessages: IChatMessage<any, any>[] = json.data.messages;
-      messages$.next(messages$.value.concat(newMessages));
+      messages$.next(messages.concat(newMessages));
     })
       .pipe(
         tap({
@@ -128,7 +122,7 @@ registerPage('Copilot', () => {
         timeout({ first: 240_000 }),
         catchError((err) => {
           console.error(err);
-          messages$.next(messages$.value.concat([{ type: 'SystemError', payload: { error: `${err}` } }]));
+          messages$.next(messages.concat([{ type: 'SystemError', payload: { error: `${err}` } }]));
           return EMPTY;
         }),
       )
@@ -145,9 +139,7 @@ registerPage('Copilot', () => {
     gtag('event', 'copilot_push_message_200');
     const theUserInput = userInput;
     messages$.next(
-      messages$.value.concat([
-        { type: 'UserText', payload: { text: theUserInput, language: i18n.language } },
-      ]),
+      messages.concat([{ type: 'UserText', payload: { text: theUserInput, language: i18n.language } }]),
     );
     setUserInput('');
     sendCurrentMessages();
@@ -292,15 +284,15 @@ registerPage('Copilot', () => {
           const send = sendCurrentMessages;
 
           const appendMessage = (msgList: IChatMessage<any, any>[]) => {
-            // messages$.next(messages$.value.slice(0, idx + 1).concat(msgList));
-            messages$.next(messages$.value.concat(msgList));
+            // messages$.next(messages.slice(0, idx + 1).concat(msgList));
+            messages$.next(messages.concat(msgList));
           };
           const replaceMessages = (msgList: IChatMessage<any, any>[]) => {
-            messages$.next(messages$.value.slice(0, idx + 1).concat(msgList));
+            messages$.next(messages.slice(0, idx + 1).concat(msgList));
           };
           const editMessage = (payload: any) => {
-            messages$.value[idx].payload = payload;
-            messages$.next(JSON.parse(JSON.stringify(messages$.value)));
+            messages[idx].payload = payload;
+            messages$.next(JSON.parse(JSON.stringify(messages)));
           };
           return (
             <ErrorBoundary
