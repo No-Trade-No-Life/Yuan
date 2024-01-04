@@ -7,7 +7,7 @@ import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehavio
 const initialJson = (): FlexLayout.IJsonModel => ({
   global: {
     // FIXED: multiple-window will cause terminals conflict, so disable it
-    // tabEnableFloat: true
+    tabEnableFloat: true,
   },
   borders: [
     {
