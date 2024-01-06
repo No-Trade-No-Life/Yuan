@@ -50,7 +50,7 @@ const HighlightChars = (props: { str: string; indices: Set<number> }) => {
 };
 
 export const CommandCenter = React.memo(() => {
-  const { t, i18n } = useTranslation(['CommandCenter', 'command']);
+  const { t, i18n } = useTranslation(['CommandCenter', 'commands']);
   const isCommandCenterOpen = useObservableState(isCommandCenterOpen$);
   const commandList = useObservableState(commandList$.pipe(debounceTime(50)), []);
 

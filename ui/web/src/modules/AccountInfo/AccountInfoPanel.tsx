@@ -2,7 +2,6 @@ import { IconInfoCircle } from '@douyinfe/semi-icons';
 import { Collapse, Descriptions, Empty, Space, Table, Tooltip, Typography } from '@douyinfe/semi-ui';
 import { encodePath, formatTime, mergeAccountInfoPositions } from '@yuants/data-model';
 import { IPosition, OrderDirection, OrderType, PositionVariant } from '@yuants/protocol';
-import { format } from 'date-fns';
 import { useObservable, useObservableState } from 'observable-hooks';
 import {
   defer,
@@ -167,7 +166,7 @@ registerPage('AccountInfoPanel', () => {
     <Space vertical align="start" style={{ padding: '1em' }}>
       <h3 style={{ color: 'var(--semi-color-text-0)', fontWeight: 500 }}>{accountInfo.account_id}</h3>
       <Typography.Text>
-        最后更新时间: {format(accountInfo.timestamp_in_us / 1000, 'yyyy.MM.dd HH:mm:ss')}
+        最后更新时间: {formatTime(accountInfo.updated_at || accountInfo.timestamp_in_us / 1000)}
       </Typography.Text>
       <Descriptions
         align="center"
@@ -366,7 +365,7 @@ registerPage('AccountInfoPanel', () => {
               { title: '委托单号', render: (_, order) => order.exchange_order_id },
               {
                 title: '更新时间',
-                render: (_, order) => format(order.timestamp_in_us! / 1000, 'yyyy.MM.dd HH:mm:ss'),
+                render: (_, order) => formatTime(order.submit_at || order.timestamp_in_us! / 1000),
               },
               { title: '委托品种', render: (_, order) => order.product_id },
               {
