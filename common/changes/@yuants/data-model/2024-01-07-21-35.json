@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-model",
+      "comment": "add currency and value_scale_unit field to IProduct",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-model"
+}

@@ -148,9 +148,9 @@ export const getMargin = (
   (product.value_scale ?? 1);
 
 /**
- * all the time is formatted as `yyyy-MM-dd HH:mm:ssXXX`.
+ * all the time is formatted as `yyyy-MM-dd HH:mm:ss.SSSXXX`.
  *
- * e.g. "2023-05-07 12:34:56+08:00"
+ * e.g. "2023-05-07 12:34:56.789+08:00"
  *
  * @public
  */
