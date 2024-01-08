@@ -1,7 +1,3 @@
----
-sidebar_position: 1
----
-
 # Elementary Math in Trading
 
 :::info[Prerequisite Knowledge]
@@ -311,8 +307,8 @@ $$
 Finally, we can get the final universal formula:
 
 $$
-\text{PnL} = \text{Volume} \times \text{Value Scale} \times P(\text{Value Scale Unit}, B, t_1) \\
-             \times (P(B, C, t_2) - P(B, C, t_1)) \times P(C, A, t_2)
+\text{PnL} = \text{Volume} \times \text{Value Scale} \times (P(B, C, t_2) - P(B, C, t_1)) \\
+                      \times P(C, A, t_2) \times P(\text{Value Scale Unit}, B, t_1)
 $$
 
 Where B is the product you want to buy, and C is the currency you want to use to buy B, and A is the margin currency you have. And Volume is the volume of contract you want to trade, positive if buy, negative if sell. Value scale unit can be B or C, depends on the contract spec.
