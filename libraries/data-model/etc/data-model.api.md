@@ -147,6 +147,7 @@ export interface IPosition {
 export interface IProduct {
     allow_long?: boolean;
     allow_short?: boolean;
+    // @deprecated
     base_currency: string;
     datasource_id: string;
     // @deprecated
@@ -157,12 +158,16 @@ export interface IProduct {
     name?: string;
     price_step?: number;
     product_id: string;
+    quote_currency?: string;
+    // @deprecated
     quoted_currency?: string;
     spread?: number;
     value_based_cost?: number;
     value_scale?: number;
+    value_scale_unit?: string;
     // @deprecated
     value_speed?: number;
+    // @deprecated
     value_unit?: string;
     volume_based_cost?: number;
     volume_step?: number;

@@ -11,6 +11,14 @@ export interface IProduct {
   product_id: string;
   /** Human-readable product name */
   name?: string;
+  /**
+   * The quote currency to price the product.
+   *
+   * e.g. "USD", "CNY", "GBP", "USDT", "BTC", ...etc.
+   *
+   * required after removing `base_currency` and `quoted_currency`
+   */
+  quote_currency?: string;
 
   /**
    * Base Currency
@@ -21,6 +29,8 @@ export interface IProduct {
    *
    * e.g. The base currency of GBPJPY is GBP; the base currency of USDCAD is USD.
    * e.g. GBPJPY 的 base_currency 为 GBP; USDCAD 的 base_currency 为 USD.
+   *
+   * @deprecated use quote_currency instead
    */
   base_currency: string;
 
@@ -36,6 +46,8 @@ export interface IProduct {
    *
    * For non-forex products, the quoted currency should be empty.
    * 对于非外汇品种，quoted_currency 应当为空。
+   *
+   * @deprecated use quote_currency instead
    */
   quoted_currency?: string;
   /**
@@ -96,15 +108,22 @@ export interface IProduct {
    * - `BASE`: 1 lot represents {@link IProduct.value_scale} units of base currency. (forex, bonds spot, etc.)
    *
    * - If this value is `BASE` an additional division by the "closing price" of this product is required in the standard profit formula.
+   *
+   * @deprecated use value_scale_unit instead
    */
   value_unit?: string;
 
   /**
+   * Unit of value scale.
+   *
+   * - Leave empty to use the product itself.
+   * - If the value is equal to currency, it means that the 1 volume is based on the currency.
+   */
+  value_scale_unit?: string;
+
+  /**
    * Margin rate
    * 保证金率
-   *
-   * Margin calculation reference [How to calculate margin](https://tradelife.feishu.cn/wiki/wikcnEVBM0RQ7pmbNZUxMV8viRg)
-   * 保证金计算参考 [如何计算保证金](https://tradelife.feishu.cn/wiki/wikcnEVBM0RQ7pmbNZUxMV8viRg)
    */
   margin_rate?: number;
 
@@ -496,10 +515,6 @@ export interface IOrder {
    *
    * If this value is empty, it is semantically equivalent to 0.
    * 如果此值为空，语义等同于 0
-   *
-   * See [How to Calculate Profit and Loss](https://tradelife.feishu.cn/wiki/wikcnRNzWSF7jtkH8nGruaMhhlh) for reference.
-   * 参考 [如何计算盈亏](https://tradelife.feishu.cn/wiki/wikcnRNzWSF7jtkH8nGruaMhhlh)
-   *
    */
   profit_correction?: number;
 
@@ -512,9 +527,6 @@ export interface IOrder {
    *
    * If this value is empty, it is semantically equivalent to "profit_correction == 0", i.e., "standard profit and loss == actual profit and loss".
    * 如果此值为空，语义等同于 "盈亏修正 == 0" 即 "标准盈亏 == 实际盈亏"
-   *
-   * See [How to Calculate Profit and Loss](https://tradelife.feishu.cn/wiki/wikcnRNzWSF7jtkH8nGruaMhhlh) for reference.
-   * 参考 [如何计算盈亏](https://tradelife.feishu.cn/wiki/wikcnRNzWSF7jtkH8nGruaMhhlh)
    */
   real_profit?: number;
 
@@ -524,9 +536,6 @@ export interface IOrder {
    *
    * If this value is empty, it is semantically equivalent to 1 (i.e., the base currency is the same as the margin currency).
    * 如果此值为空，语义等同于 1 (即基准货币 == 保证金货币)
-   *
-   * See [How to Calculate Profit and Loss](https://tradelife.feishu.cn/wiki/wikcnRNzWSF7jtkH8nGruaMhhlh) for reference.
-   * 参考 [如何计算盈亏](https://tradelife.feishu.cn/wiki/wikcnRNzWSF7jtkH8nGruaMhhlh)
    */
   inferred_base_currency_price?: number;
   /**
@@ -771,7 +780,6 @@ export interface IAccountInfo {
  * Data Record
  * 数据记录
  *
- * Reference: https://tradelife.feishu.cn/wiki/wikcnkEVzH74fV34NvF5g2xEigb
  * @public
  */
 export interface IDataRecord<T = unknown> {
