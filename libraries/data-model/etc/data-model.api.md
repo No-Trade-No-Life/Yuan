@@ -149,7 +149,6 @@ export interface IProduct {
     allow_short?: boolean;
     // @deprecated
     base_currency: string;
-    currency?: string;
     datasource_id: string;
     // @deprecated
     is_underlying_base_currency?: boolean;
@@ -159,6 +158,7 @@ export interface IProduct {
     name?: string;
     price_step?: number;
     product_id: string;
+    quote_currency?: string;
     // @deprecated
     quoted_currency?: string;
     spread?: number;

@@ -3,22 +3,11 @@ import { IDataRecord, PromRegistry, Terminal } from '@yuants/protocol';
 import { MongoClient } from 'mongodb';
 import { bufferTime, concatWith, delayWhen, from, groupBy, map, mergeMap, of, tap, toArray } from 'rxjs';
 
-const HV_URL = process.env.HV_URL!;
+const HOST_URL = process.env.HOST_URL || process.env.HV_URL!;
 const TERMINAL_ID = process.env.TERMINAL_ID || `MongoDB`;
-const terminal = new Terminal(HV_URL, {
+const terminal = new Terminal(HOST_URL, {
   terminal_id: TERMINAL_ID,
   name: 'MongoDB Storage',
-  services: [
-    {
-      storage: {},
-    },
-  ],
-  discriminator: {
-    type: 'object',
-    properties: {
-      method: { enum: ['QueryDataRecords', 'UpdateDataRecords', 'RemoveDataRecords'] },
-    },
-  },
 });
 
 const mongo = new MongoClient(process.env.MONGO_URI!);

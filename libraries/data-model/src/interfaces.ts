@@ -18,7 +18,7 @@ export interface IProduct {
    *
    * required after removing `base_currency` and `quoted_currency`
    */
-  currency?: string;
+  quote_currency?: string;
 
   /**
    * Base Currency
@@ -30,7 +30,7 @@ export interface IProduct {
    * e.g. The base currency of GBPJPY is GBP; the base currency of USDCAD is USD.
    * e.g. GBPJPY 的 base_currency 为 GBP; USDCAD 的 base_currency 为 USD.
    *
-   * @deprecated use currency instead
+   * @deprecated use quote_currency instead
    */
   base_currency: string;
 
@@ -47,7 +47,7 @@ export interface IProduct {
    * For non-forex products, the quoted currency should be empty.
    * 对于非外汇品种，quoted_currency 应当为空。
    *
-   * @deprecated use currency instead
+   * @deprecated use quote_currency instead
    */
   quoted_currency?: string;
   /**

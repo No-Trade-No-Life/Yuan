@@ -17,9 +17,11 @@ import {
   toArray,
 } from 'rxjs';
 import { registerPage, usePageParams } from '../Pages';
+import { terminal$ } from '../Terminals';
 import { useAccountInfo } from './model';
 
 registerPage('AccountInfoPanel', () => {
+  const terminal = useObservableState(terminal$);
   const { account_id: accountId } = usePageParams();
 
   const accountInfo$ = useObservable(() => useAccountInfo(accountId));
@@ -162,12 +164,20 @@ registerPage('AccountInfoPanel', () => {
       });
   }
 
+  const updatedAt = accountInfo.updated_at || accountInfo.timestamp_in_us / 1000;
+  const renderedAt = Date.now();
+
+  const targetTerminalId = Object.entries(terminal?.terminalInfo.subscriptions ?? {}).find(([key, value]) =>
+    value.includes(encodePath('AccountInfo', accountId)),
+  )?.[0];
+
   return (
     <Space vertical align="start" style={{ padding: '1em' }}>
       <h3 style={{ color: 'var(--semi-color-text-0)', fontWeight: 500 }}>{accountInfo.account_id}</h3>
       <Typography.Text>
-        最后更新时间: {formatTime(accountInfo.updated_at || accountInfo.timestamp_in_us / 1000)}
+        最后更新时间: {formatTime(updatedAt)} (Ping {renderedAt - updatedAt}ms)
       </Typography.Text>
+      <Typography.Text copyable={{ content: targetTerminalId }}>终端ID: {targetTerminalId}</Typography.Text>
       <Descriptions
         align="center"
         size="small"
