@@ -2,6 +2,31 @@
   "name": "@yuants/app-market-data-collector",
   "entries": [
     {
+      "version": "0.0.50",
+      "tag": "@yuants/app-market-data-collector_v0.0.50",
+      "date": "Wed, 07 Feb 2024 08:31:35 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "isolate psr config error"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.3.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.10.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.49",
       "tag": "@yuants/app-market-data-collector_v0.0.49",
       "date": "Fri, 29 Dec 2023 16:44:24 GMT",

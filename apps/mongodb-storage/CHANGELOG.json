@@ -2,6 +2,31 @@
   "name": "@yuants/app-mongodb-storage",
   "entries": [
     {
+      "version": "0.1.21",
+      "tag": "@yuants/app-mongodb-storage_v0.1.21",
+      "date": "Wed, 07 Feb 2024 08:31:35 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove services and discriminator fields"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.3.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.10.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.20",
       "tag": "@yuants/app-mongodb-storage_v0.1.20",
       "date": "Fri, 29 Dec 2023 16:44:24 GMT",

@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-mongodb-storage
 
-This log was last generated on Fri, 29 Dec 2023 16:44:24 GMT and should not be manually modified.
+This log was last generated on Wed, 07 Feb 2024 08:31:35 GMT and should not be manually modified.
+
+## 0.1.21
+Wed, 07 Feb 2024 08:31:35 GMT
+
+### Patches
+
+- remove services and discriminator fields
 
 ## 0.1.20
 Fri, 29 Dec 2023 16:44:24 GMT

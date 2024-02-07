@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-model
 
-This log was last generated on Fri, 29 Dec 2023 16:44:24 GMT and should not be manually modified.
+This log was last generated on Wed, 07 Feb 2024 08:31:35 GMT and should not be manually modified.
+
+## 0.3.0
+Wed, 07 Feb 2024 08:31:35 GMT
+
+### Minor changes
+
+- add currency and value_scale_unit field to IProduct
 
 ## 0.2.1
 Fri, 29 Dec 2023 16:44:24 GMT
