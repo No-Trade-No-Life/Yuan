@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-market-data-collector
 
-This log was last generated on Fri, 29 Dec 2023 16:44:24 GMT and should not be manually modified.
+This log was last generated on Wed, 07 Feb 2024 08:31:35 GMT and should not be manually modified.
+
+## 0.0.50
+Wed, 07 Feb 2024 08:31:35 GMT
+
+### Patches
+
+- isolate psr config error
 
 ## 0.0.49
 Fri, 29 Dec 2023 16:44:24 GMT

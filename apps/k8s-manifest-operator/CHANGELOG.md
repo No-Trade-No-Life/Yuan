@@ -1,6 +1,11 @@
 # Change Log - @yuants/app-k8s-manifest-operator
 
-This log was last generated on Fri, 29 Dec 2023 16:44:24 GMT and should not be manually modified.
+This log was last generated on Wed, 07 Feb 2024 08:31:35 GMT and should not be manually modified.
+
+## 0.0.9
+Wed, 07 Feb 2024 08:31:35 GMT
+
+_Version update only_
 
 ## 0.0.8
 Fri, 29 Dec 2023 16:44:24 GMT
