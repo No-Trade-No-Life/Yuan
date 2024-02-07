@@ -139,16 +139,20 @@ defer(() =>
 
 const fromCronJob = (options: Omit<CronJob.CronJobParameters, 'onTick' | 'start'>) =>
   new Observable((subscriber) => {
-    const job = new CronJob.CronJob({
-      ...options,
-      onTick: () => {
-        subscriber.next();
-      },
-      start: true,
-    });
-    return () => {
-      job.stop();
-    };
+    try {
+      const job = new CronJob.CronJob({
+        ...options,
+        onTick: () => {
+          subscriber.next();
+        },
+        start: true,
+      });
+      return () => {
+        job.stop();
+      };
+    } catch (e) {
+      subscriber.error(e);
+    }
   });
 
 const validate = ajv.compile(schema);
@@ -192,10 +196,16 @@ const runTask = (psr: IPullSourceRelation) =>
     const subs: Subscription[] = [];
 
     subs.push(
-      fromCronJob({ cronTime: psr.cron_pattern, timeZone: psr.cron_timezone }).subscribe(() => {
-        if (status === 'success') {
-          taskScheduled$.next();
-        }
+      fromCronJob({ cronTime: psr.cron_pattern, timeZone: psr.cron_timezone }).subscribe({
+        next: () => {
+          if (status === 'success') {
+            taskScheduled$.next();
+          }
+        },
+        error: (e) => {
+          status = 'error';
+          console.error(formatTime(Date.now()), `TaskConfigError`, JSON.stringify(psr), `${e}`);
+        },
       }),
     );
 
