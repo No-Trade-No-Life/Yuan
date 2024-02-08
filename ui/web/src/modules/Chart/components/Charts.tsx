@@ -346,7 +346,7 @@ export const CandlestickSeries = React.memo(
       () =>
         props.data.map((period) => ({
           time: (period.timestamp_in_us / 1e6) as UTCTimestamp,
-          value: period.volume,
+          value: period.volume || 0,
           color: period.close > period.open ? upColor : downColor,
         })),
       [props.data],
