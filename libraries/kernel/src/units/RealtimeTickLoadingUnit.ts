@@ -30,10 +30,10 @@ export class RealtimeTickLoadingUnit extends BasicUnit {
 
   onEvent(): void | Promise<void> {
     const tick = this.mapEventIdToTick.get(this.kernel.currentEventId);
-    if (tick) {
+    if (tick && tick.ask && tick.bid) {
       this.quoteDataUnit.mapProductIdToQuote[tick.product_id] = {
-        ask: tick.ask || tick.price,
-        bid: tick.bid || tick.price,
+        ask: tick.ask,
+        bid: tick.bid,
       };
 
       this.tickDataUnit.setTick(tick);

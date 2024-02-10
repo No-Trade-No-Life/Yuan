@@ -120,8 +120,9 @@ export class OrderMatchingUnit extends BasicUnit {
   }
 
   private updateRangeByTick(tick: ITick): void {
-    const ask = tick.ask || tick.price;
-    const bid = tick.bid || tick.price;
+    const ask = tick.ask;
+    const bid = tick.bid;
+    if (!ask || !bid) return;
     this.mapProductIdToRange.set(encodePath(tick.datasource_id, tick.product_id), {
       ask: {
         first: ask,

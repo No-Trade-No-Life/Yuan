@@ -849,8 +849,8 @@ export interface IDataRecord<T = unknown> {
   origin: T;
 }
 /**
- * Tick: Market transaction data at a certain moment
- * Tick: 某个时刻的市场成交行情数据
+ * Tick: Market data at a certain moment
+ * Tick: 某个时刻的市场数据
  * @public
  */
 
@@ -866,26 +866,20 @@ export interface ITick {
    */
   product_id: string;
   /**
-   * Timestamp (in microseconds)
-   * 时间戳
-   * @deprecated use updated_at instead
-   */
-  timestamp_in_us: number;
-  /**
    * Timestamp (in ms)
    * 时间戳
    */
-  updated_at?: number;
+  updated_at: number;
   /**
    * Price
    * 成交价
    */
-  price: number;
+  price?: number;
   /**
    * Volume
    * 成交量
    */
-  volume: number;
+  volume?: number;
   /**
    * Open interest
    * 持仓量
@@ -903,4 +897,24 @@ export interface ITick {
   ask?: number;
   /** 买一价 */
   bid?: number;
+  /**
+   * Next timestamp for settlement
+   */
+  settlement_scheduled_at?: number;
+  /**
+   * Current Interest Rate if you hold long position
+   *
+   * You will get the interest (rate * volume) when the next settlement.
+   *
+   * The rate is based on the volume (not the position value) of the position.
+   */
+  interest_rate_for_long?: number;
+  /**
+   * Current Interest Rate if you hold short position
+   *
+   * You will get the interest (rate * volume) when the next settlement.
+   *
+   * The rate is based on the volume (not the position value) of the position.
+   */
+  interest_rate_for_short?: number;
 }
