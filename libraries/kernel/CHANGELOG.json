@@ -2,6 +2,31 @@
   "name": "@yuants/kernel",
   "entries": [
     {
+      "version": "0.7.4",
+      "tag": "@yuants/kernel_v0.7.4",
+      "date": "Sat, 10 Feb 2024 21:26:26 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor for data-model"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.4.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.10.3`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.7.3",
       "tag": "@yuants/kernel_v0.7.3",
       "date": "Wed, 07 Feb 2024 08:31:35 GMT",

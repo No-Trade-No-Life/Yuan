@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-model
 
-This log was last generated on Wed, 07 Feb 2024 08:31:35 GMT and should not be manually modified.
+This log was last generated on Sat, 10 Feb 2024 21:26:26 GMT and should not be manually modified.
+
+## 0.4.0
+Sat, 10 Feb 2024 21:26:26 GMT
+
+### Minor changes
+
+- add fields of ITick about interest rate
 
 ## 0.3.0
 Wed, 07 Feb 2024 08:31:35 GMT
