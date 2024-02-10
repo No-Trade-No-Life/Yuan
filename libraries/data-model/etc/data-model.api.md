@@ -178,14 +178,15 @@ export interface ITick {
     ask?: number;
     bid?: number;
     datasource_id: string;
+    interest_rate_for_long?: number;
+    interest_rate_for_short?: number;
     open_interest?: number;
-    price: number;
+    price?: number;
     product_id: string;
+    settlement_scheduled_at?: number;
     spread?: number;
-    // @deprecated
-    timestamp_in_us: number;
-    updated_at?: number;
-    volume: number;
+    updated_at: number;
+    volume?: number;
 }
 
 // @public

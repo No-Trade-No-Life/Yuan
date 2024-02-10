@@ -92,8 +92,8 @@ const fromConfig = (config: IFundConfig): Observable<IFundInfo> => {
     mergeMap((item) =>
       useTick(item.datasource_id, item.product_id).pipe(
         map((tick) => ({
-          [`${item.base_currency}${item.quoted_currency}`]: tick.price,
-          [`${item.quoted_currency}${item.base_currency}`]: 1 / tick.price,
+          [`${item.base_currency}${item.quoted_currency}`]: tick.price!,
+          [`${item.quoted_currency}${item.base_currency}`]: 1 / tick.price!,
         })),
       ),
     ),
