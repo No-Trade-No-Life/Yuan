@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-mongodb-storage",
+      "comment": "support load balance",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-mongodb-storage"
+}

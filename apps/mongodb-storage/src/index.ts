@@ -1,10 +1,10 @@
-import { formatTime } from '@yuants/data-model';
+import { UUID, formatTime } from '@yuants/data-model';
 import { IDataRecord, PromRegistry, Terminal } from '@yuants/protocol';
 import { MongoClient } from 'mongodb';
 import { bufferTime, concatWith, delayWhen, from, groupBy, map, mergeMap, of, tap, toArray } from 'rxjs';
 
 const HOST_URL = process.env.HOST_URL || process.env.HV_URL!;
-const TERMINAL_ID = process.env.TERMINAL_ID || `MongoDB`;
+const TERMINAL_ID = process.env.TERMINAL_ID || `MongoDB/${UUID()}`;
 const terminal = new Terminal(HOST_URL, {
   terminal_id: TERMINAL_ID,
   name: 'MongoDB Storage',
