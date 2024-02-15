@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-mongodb-storage
 
-This log was last generated on Sat, 10 Feb 2024 21:26:26 GMT and should not be manually modified.
+This log was last generated on Thu, 15 Feb 2024 04:01:02 GMT and should not be manually modified.
+
+## 0.2.0
+Thu, 15 Feb 2024 04:01:02 GMT
+
+### Minor changes
+
+- support load balance
 
 ## 0.1.22
 Sat, 10 Feb 2024 21:26:26 GMT
