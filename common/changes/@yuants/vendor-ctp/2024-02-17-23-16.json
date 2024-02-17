@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-ctp",
+      "comment": "remove fields of IProduct",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-ctp"
+}

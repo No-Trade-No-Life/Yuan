@@ -19,12 +19,6 @@ export const encodePath: (...params: any[]) => string;
 export const formatTime: (time: Date | number | string, timeZone?: string | undefined) => string;
 
 // @public (undocumented)
-export const getClosePriceByDesiredProfit: (product: IProduct, openPrice: number, volume: number, desiredProfit: number, variant: string, currency: string, quotes: (product_id: string) => {
-    ask: number;
-    bid: number;
-} | undefined) => number;
-
-// @public (undocumented)
 export const getMargin: (product: IProduct, openPrice: number, volume: number, variant: string, currency: string, quote: (product_id: string) => {
     ask: number;
     bid: number;
@@ -147,11 +141,8 @@ export interface IPosition {
 export interface IProduct {
     allow_long?: boolean;
     allow_short?: boolean;
-    // @deprecated
-    base_currency: string;
+    base_currency?: string;
     datasource_id: string;
-    // @deprecated
-    is_underlying_base_currency?: boolean;
     margin_rate?: number;
     max_position?: number;
     max_volume?: number;
@@ -159,16 +150,10 @@ export interface IProduct {
     price_step?: number;
     product_id: string;
     quote_currency?: string;
-    // @deprecated
-    quoted_currency?: string;
     spread?: number;
     value_based_cost?: number;
     value_scale?: number;
     value_scale_unit?: string;
-    // @deprecated
-    value_speed?: number;
-    // @deprecated
-    value_unit?: string;
     volume_based_cost?: number;
     volume_step?: number;
 }

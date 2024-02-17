@@ -82,47 +82,12 @@ export const getProfit = (
   volume *
   (closePrice - openPrice) *
   (product.value_scale ?? 1) *
-  (product.value_unit === 'BASE' ? 1 / closePrice : 1) *
-  (product.base_currency !== currency
+  (product.value_scale_unit ? 1 / openPrice : 1) *
+  (product.quote_currency !== currency
     ? (variant === 'LONG'
-        ? quotes(`${product.base_currency}${currency}`)?.bid
-        : quotes(`${product.base_currency}${currency}`)?.ask) ?? 1
+        ? quotes(`${product.quote_currency}${currency}`)?.bid
+        : quotes(`${product.quote_currency}${currency}`)?.ask) ?? 1
     : 1);
-/**
- * @see https://tradelife.feishu.cn/wiki/wikcnRNzWSF7jtkH8nGruaMhhlh
- *
- * @public
- */
-export const getClosePriceByDesiredProfit = (
-  product: IProduct,
-  openPrice: number,
-  volume: number,
-  desiredProfit: number,
-  variant: string,
-  currency: string,
-  quotes: (product_id: string) => { ask: number; bid: number } | undefined,
-) => {
-  const variant_coefficient = variant === 'LONG' ? 1 : -1;
-  const cross_product_exchange_rate =
-    product.base_currency !== currency
-      ? (variant === 'LONG'
-          ? quotes(`${product.base_currency}${currency}`)?.bid
-          : quotes(`${product.base_currency}${currency}`)?.ask) ?? 1
-      : 1;
-
-  const beta = desiredProfit / (variant_coefficient * volume * (product.value_scale ?? 1));
-
-  if (product.value_unit === 'NORM') {
-    return openPrice + beta / cross_product_exchange_rate;
-  }
-  if (product.quoted_currency === currency) {
-    return openPrice + beta;
-  }
-  if (beta >= cross_product_exchange_rate) {
-    return NaN;
-  }
-  return openPrice / (1 - beta / cross_product_exchange_rate);
-};
 
 /**
  * @see https://tradelife.feishu.cn/wiki/wikcnEVBM0RQ7pmbNZUxMV8viRg
@@ -138,14 +103,14 @@ export const getMargin = (
   quote: (product_id: string) => { ask: number; bid: number } | undefined,
 ) =>
   volume *
-  (product.value_unit === 'BASE' ? 1 : openPrice) *
+  (product.value_scale ?? 1) *
+  (product.value_scale_unit ? 1 : openPrice) *
   (product.margin_rate ?? 1) *
-  (product.base_currency !== currency
+  (product.quote_currency !== currency
     ? (variant === 'LONG'
-        ? quote(`${product.base_currency}${currency}`)?.bid
-        : quote(`${product.base_currency}${currency}`)?.ask) ?? 1
-    : 1) *
-  (product.value_scale ?? 1);
+        ? quote(`${product.quote_currency}${currency}`)?.bid
+        : quote(`${product.quote_currency}${currency}`)?.ask) ?? 1
+    : 1);
 
 /**
  * all the time is formatted as `yyyy-MM-dd HH:mm:ss.SSSXXX`.

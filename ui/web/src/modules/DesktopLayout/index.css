@@ -1,5 +1,6 @@
 #root .flexlayout__tabset-selected {
   background-image: none;
+  background-color: var(--color-2);
 }
 
 body[theme-mode='dark'] {

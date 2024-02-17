@@ -198,12 +198,6 @@ export class DataLoadingTaskUnit extends BasicUnit {
 export const diffPosition: (source: IPosition[], target: IPosition[]) => IPositionDiff[];
 
 // @public
-export const getClosePriceByDesiredProfit: (product: IProduct, openPrice: number, volume: number, desiredProfit: number, variant: PositionVariant, currency: string, quotes: (product_id: string) => {
-    ask: number;
-    bid: number;
-} | undefined) => number;
-
-// @public
 export const getMargin: (product: IProduct, openPrice: number, volume: number, variant: PositionVariant, currency: string, quote: (product_id: string) => {
     ask: number;
     bid: number;

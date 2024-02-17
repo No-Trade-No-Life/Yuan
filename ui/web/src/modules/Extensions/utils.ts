@@ -6,14 +6,15 @@ import { FsBackend$, fs } from '../FileSystem/api';
 // @ts-ignore
 import untar from 'js-untar';
 
+const PACKAGE_DOWNLOAD_DIR = '/.Y/downloads/packages';
 export const downloadTgz = async (packageName: string, ver?: string) => {
   const { meta, version } = await resolveVersion(packageName);
   console.info(formatTime(Date.now()), `downloading extension "${packageName}" (${version})...`);
   const tarball_url = meta.versions[version].dist.tarball;
   const tgz = await fetch(tarball_url).then((x) => x.blob());
-  await fs.ensureDir('/.Y/extensions');
+  await fs.ensureDir(PACKAGE_DOWNLOAD_DIR);
   await fs.writeFile(
-    join('/.Y/extensions', `${packageName.replace('@', '').replace('/', '-')}-${version}.tgz`),
+    join(PACKAGE_DOWNLOAD_DIR, `${packageName.replace('@', '').replace('/', '-')}-${version}.tgz`),
     tgz,
   );
 };
@@ -22,7 +23,7 @@ export const installExtension = async (packageName: string, ver?: string) => {
   console.debug(formatTime(Date.now()), `install extension "${packageName}"...`);
   const version = ver || (await resolveVersion(packageName)).version;
   const tgzFilename = join(
-    '/.Y/extensions',
+    PACKAGE_DOWNLOAD_DIR,
     `${packageName.replace('@', '').replace('/', '-')}-${version}.tgz`,
   );
   if (!(await fs.exists(tgzFilename))) {
@@ -67,7 +68,7 @@ const importModule = (code: string) => {
   return module;
 };
 
-interface IActiveExtensionInstance {
+export interface IActiveExtensionInstance {
   packageJson: {
     name: string;
     description?: string;

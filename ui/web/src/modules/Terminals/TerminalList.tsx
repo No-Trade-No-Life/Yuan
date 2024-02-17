@@ -1,4 +1,4 @@
-import { List } from '@douyinfe/semi-ui';
+import { List, Space, Typography } from '@douyinfe/semi-ui';
 import { useObservableState } from 'observable-hooks';
 import { of, shareReplay, switchMap } from 'rxjs';
 import { registerPage } from '../Pages';
@@ -14,10 +14,15 @@ registerPage('TerminalList', () => {
   const terminals = useObservableState(terminalList$, []);
 
   return (
-    <List>
-      {terminals.map((term) => (
-        <TerminalListItem key={term.terminal_id} terminalInfo={term} />
-      ))}
-    </List>
+    <Space vertical align="start">
+      <Space>
+        <Typography.Text>终端数量: {terminals.length}</Typography.Text>
+      </Space>
+      <List>
+        {terminals.map((term) => (
+          <TerminalListItem key={term.terminal_id} terminalInfo={term} />
+        ))}
+      </List>
+    </Space>
   );
 });
