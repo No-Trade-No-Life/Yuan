@@ -2,6 +2,34 @@
   "name": "@yuants/vendor-ctp",
   "entries": [
     {
+      "version": "0.0.36",
+      "tag": "@yuants/vendor-ctp_v0.0.36",
+      "date": "Sat, 17 Feb 2024 23:28:07 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "update product"
+          },
+          {
+            "comment": "remove fields of IProduct"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.5.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.11.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.35",
       "tag": "@yuants/vendor-ctp_v0.0.35",
       "date": "Sat, 10 Feb 2024 21:26:26 GMT",
