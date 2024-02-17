@@ -106,10 +106,6 @@ export class ProductLoadingUnit extends BasicUnit {
             defaultIfEmpty<IProduct, IProduct>({
               datasource_id: task.datasource_id,
               product_id: task.product_id,
-              base_currency: 'YYY',
-              value_speed: 1,
-              volume_step: 1e-8,
-              price_step: 1e-8,
             }),
             tap((product) => {
               this.kernel.log?.(

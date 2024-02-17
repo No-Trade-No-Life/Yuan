@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/kernel",
+      "comment": "update formula of PnL and margin",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/kernel"
+}

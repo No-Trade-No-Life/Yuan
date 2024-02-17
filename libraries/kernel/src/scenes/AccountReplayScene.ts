@@ -54,15 +54,15 @@ export const AccountReplayScene = (
   // Adhoc Unit: 根据品种加载交叉盘品种
   new BasicUnit(kernel).onInit = async () => {
     for (const product of Object.values(productDataUnit.mapProductIdToProduct)) {
-      if (product.base_currency !== currency && product.quoted_currency !== currency) {
+      if (product.quote_currency && currency && product.quote_currency !== currency) {
         const [productA] = await lastValueFrom(
           terminal
             .queryDataRecords<IProduct>({
               type: 'product',
               tags: {
                 datasource_id: datasource_id ?? account_id,
-                base_currency: product.base_currency,
-                quoted_currency: currency,
+                base_currency: currency,
+                quote_currency: product.quote_currency,
               },
             })
             .pipe(
@@ -79,8 +79,8 @@ export const AccountReplayScene = (
               type: 'product',
               tags: {
                 datasource_id: datasource_id ?? account_id,
-                base_currency: currency,
-                quoted_currency: product.base_currency,
+                base_currency: product.quote_currency,
+                quote_currency: currency,
               },
             })
             .pipe(

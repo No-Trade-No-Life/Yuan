@@ -164,10 +164,9 @@ export const queryProducts = (conn: IConnection<IBridgeMessage<any, any>>): Obse
         datasource_id: DATASOURCE_ID,
         product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
         name: msg.InstrumentName,
-        base_currency: 'CNY',
+        quote_currency: 'CNY',
         price_step: msg.PriceTick,
-        volume_step: 1,
-        value_speed: msg.VolumeMultiple,
+        value_scale: msg.VolumeMultiple,
       }),
     ),
     toArray(),
@@ -192,8 +191,8 @@ export const queryAccountInfo = (
     //
     mapToValue,
     map((msg): IPosition => {
-      const value_speed = mapProductId2Product[`${msg.ExchangeID}-${msg.InstrumentID}`].value_speed ?? 1;
-      const position_price = msg.OpenCost / msg.Position / value_speed;
+      const value_scale = mapProductId2Product[`${msg.ExchangeID}-${msg.InstrumentID}`].value_scale ?? 1;
+      const position_price = msg.OpenCost / msg.Position / value_scale;
       return {
         position_id: `mixed`,
         product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
@@ -210,7 +209,7 @@ export const queryAccountInfo = (
         floating_profit:
           (msg.SettlementPrice - position_price) *
           msg.Position *
-          value_speed *
+          value_scale *
           (msg.PosiDirection === TThostFtdcPosiDirectionType.THOST_FTDC_PD_Long ? 1 : -1),
         position_price,
       };

@@ -78,6 +78,7 @@ export default function SelectWidget<
       style={{
         width: '100%',
         minWidth: 240,
+        height: 32,
       }}
       value={selectedIndexes}
       {...extraProps}

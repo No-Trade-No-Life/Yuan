@@ -8,7 +8,6 @@ import { useTranslation } from 'react-i18next';
 import { EMPTY, combineLatest, filter, first, mergeMap, tap, toArray } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
 import Form, { showForm } from '../Form';
-import { SearchButton } from '../Market/SearchButton';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 
@@ -31,6 +30,8 @@ registerPage('ProductList', () => {
               tags: {
                 datasource_id: searchFormData.datasource_id || undefined,
                 product_id: searchFormData.product_id || undefined,
+                quote_currency: searchFormData.quote_currency || undefined,
+                base_currency: searchFormData.base_currency || undefined,
               },
               options: {
                 limit: 200,
@@ -84,7 +85,6 @@ registerPage('ProductList', () => {
         >
           刷新
         </Button>
-        <SearchButton />
       </Space>
       <Table
         dataSource={products}
@@ -94,15 +94,11 @@ registerPage('ProductList', () => {
           { title: '数据源 ID', render: (_, record) => record.origin.datasource_id },
           { title: '品种 ID', render: (_, record) => record.origin.product_id },
           { title: '品种名称', render: (_, record) => record.origin.name },
+          { title: '计价货币', render: (_, record) => record.origin.quote_currency },
           { title: '基准货币', render: (_, record) => record.origin.base_currency },
-          { title: '标价货币', render: (_, record) => record.origin.quoted_currency },
           {
-            title: '是否基于基准货币',
-            render: (_, record) => (record.origin.is_underlying_base_currency ? '是' : '否'),
-          },
-          {
-            title: '价值速率',
-            render: (_, record) => record.origin.value_speed,
+            title: '价值尺度',
+            render: (_, record) => `${record.origin.value_scale} ${record.origin.value_scale_unit || ''}`,
           },
           {
             title: '成交量粒度',
@@ -202,18 +198,9 @@ registerPage('ProductList', () => {
                 description:
                   '基准货币是汇率报价中作为基础的货币，即报价表达形式为每一个单位的货币可兑换多少另一种货币。',
               },
-              quoted_currency: {
-                title: '标价货币',
+              quote_currency: {
+                title: '计价货币',
                 type: 'string',
-                description:
-                  '汇率的表达方式为一单位的基准货币可兑换多少单位的标价货币\n对于非外汇品种，quoted_currency 应当为空。',
-              },
-
-              is_underlying_base_currency: {
-                title: '是否标的基准货币',
-                type: 'boolean',
-                description:
-                  '标的物是基准货币吗？\n如果此值为 true，需要在标准收益公式中额外除以本品种的"平仓时的价格"。',
               },
               price_step: {
                 title: '报价粒度',
@@ -225,10 +212,14 @@ registerPage('ProductList', () => {
                 type: 'number',
                 description: '委托量、成交量、持仓量都必须为此值的整数倍，不得有浮点误差',
               },
-              value_speed: {
-                title: '价值速率',
+              value_scale: {
+                title: '价值尺度',
                 type: 'number',
                 description: '交易 1 手对应的标的资产数量',
+              },
+              value_scale_unit: {
+                title: '价值尺度单位',
+                type: 'string',
               },
               margin_rate: {
                 title: '保证金率',
@@ -311,17 +302,15 @@ registerPage('ProductList', () => {
                 title: '品种ID',
                 type: 'string',
               },
+              quote_currency: {
+                title: '计价货币',
+                type: 'string',
+              },
               base_currency: {
                 title: '基准货币',
                 type: 'string',
                 description:
                   '基准货币是汇率报价中作为基础的货币，即报价表达形式为每一个单位的货币可兑换多少另一种货币。',
-              },
-              quoted_currency: {
-                title: '标价货币',
-                type: 'string',
-                description:
-                  '汇率的表达方式为一单位的基准货币可兑换多少单位的标价货币\n对于非外汇品种，quoted_currency 应当为空。',
               },
             },
           }}

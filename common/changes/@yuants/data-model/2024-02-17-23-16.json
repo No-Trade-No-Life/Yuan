@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-model",
+      "comment": "remove some fields from IProduct",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-model"
+}

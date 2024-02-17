@@ -1,4 +1,3 @@
-import { IconLink, IconUnlink } from '@douyinfe/semi-icons';
 import { Button, Descriptions, List, Space, TagGroup, Toast, Typography } from '@douyinfe/semi-ui';
 import { formatTime } from '@yuants/data-model';
 import { ITerminalInfo } from '@yuants/protocol';
@@ -9,28 +8,12 @@ import { terminal$ } from '../Terminals';
 
 export const TerminalListItem = React.memo((props: { terminalInfo: ITerminalInfo }) => {
   const term = props.terminalInfo;
-  const isOnline = term.updated_at! + 60_000 > Date.now();
   return (
     <List.Item>
       <Space vertical align="start">
         <Typography.Title heading={6} copyable>
           {term.terminal_id}
         </Typography.Title>
-        {isOnline ? (
-          <Typography.Text type="success">
-            <Space>
-              <IconLink />
-              在线
-            </Space>
-          </Typography.Text>
-        ) : (
-          <Typography.Text type="tertiary">
-            <Space>
-              <IconUnlink />
-              离线
-            </Space>
-          </Typography.Text>
-        )}
         <Descriptions
           data={[
             //
@@ -43,15 +26,47 @@ export const TerminalListItem = React.memo((props: { terminalInfo: ITerminalInfo
                 intervalToDuration({ start: term.start_timestamp_in_ms!, end: Date.now() }),
               ),
             },
+            {
+              key: '提供服务',
+              value: (
+                <TagGroup
+                  maxTagCount={3}
+                  showPopover
+                  tagList={Object.values(term.serviceInfo || {}).map((info) => ({
+                    children: info.method,
+                  }))}
+                ></TagGroup>
+              ),
+            },
+            {
+              key: '提供频道',
+              value: (
+                <TagGroup
+                  maxTagCount={3}
+                  showPopover
+                  tagList={term.channelIdSchemas?.map((info) => ({
+                    children: JSON.stringify(info),
+                  }))}
+                ></TagGroup>
+              ),
+            },
+            {
+              key: '订阅频道',
+              value: (
+                <TagGroup
+                  maxTagCount={3}
+                  showPopover
+                  tagList={Object.entries(term.subscriptions || {})
+                    .flatMap(([provider_terminal_id, channel_id_list]) =>
+                      channel_id_list.map((channelId) => `${provider_terminal_id}:${channelId}`),
+                    )
+                    .map((x) => ({ children: x }))}
+                ></TagGroup>
+              ),
+            },
           ]}
         ></Descriptions>
-        <TagGroup
-          maxTagCount={3}
-          showPopover
-          tagList={Object.values(term.serviceInfo || {}).map((info) => ({
-            children: info.method,
-          }))}
-        ></TagGroup>
+
         <Button
           disabled={!term.serviceInfo?.['Terminate']}
           onClick={() => {

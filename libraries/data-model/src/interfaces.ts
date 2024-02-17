@@ -7,7 +7,11 @@
 export interface IProduct {
   /** Data source ID */
   datasource_id: string;
-  /** Product ID */
+  /**
+   * Product ID
+   *
+   * It's RECOMMENDED that make the product ID the original form from the data source. Don't transform it to somehow standard form.
+   */
   product_id: string;
   /** Human-readable product name */
   name?: string;
@@ -15,63 +19,22 @@ export interface IProduct {
    * The quote currency to price the product.
    *
    * e.g. "USD", "CNY", "GBP", "USDT", "BTC", ...etc.
-   *
-   * required after removing `base_currency` and `quoted_currency`
    */
   quote_currency?: string;
 
   /**
    * Base Currency
-   * 基准货币 (Base Currency)
+   *
+   * Only available in foreign exchange products.
+   *
+   * If defined, the price of this product (P(this, quote_currency)) can be treated as P(base_currency, quote_currency)
    *
    * The base currency is the currency used as the basis for exchange rate quotes, expressed as the number of units of the currency that can be exchanged for one unit of the quoted currency.
-   * 基准货币是汇率报价中作为基础的货币，即报价表达形式为每一个单位的货币可兑换多少另一种货币。
    *
    * e.g. The base currency of GBPJPY is GBP; the base currency of USDCAD is USD.
-   * e.g. GBPJPY 的 base_currency 为 GBP; USDCAD 的 base_currency 为 USD.
    *
-   * @deprecated use quote_currency instead
    */
-  base_currency: string;
-
-  /**
-   * Quoted Currency
-   * 标价货币 (Quoted Currency)
-   *
-   * The quoted currency is the currency being used as the reference for the exchange rate quote, expressed as the number of units of the quoted currency that can be exchanged for one unit of the base currency.
-   * 汇率的表达方式为一单位的基准货币可兑换多少单位的标价货币
-   *
-   * e.g. The quoted currency of GBPJPY is JPY; the quoted currency of USDCAD is CAD.
-   * e.g. GBPJPY 的 quoted_currency 为 JPY; USDCAD 的 quoted_currency 为 CAD.
-   *
-   * For non-forex products, the quoted currency should be empty.
-   * 对于非外汇品种，quoted_currency 应当为空。
-   *
-   * @deprecated use quote_currency instead
-   */
-  quoted_currency?: string;
-  /**
-   * Is the underlying asset the base currency?
-   * 标的物是基准货币吗？
-   *
-   * One lot corresponds to the quantity of the underlying asset specified by value_speed, which can be the base currency or other commodities.
-   * 1 手对应 value_speed 数量的标的物，此标的物可以是基准货币或其他商品。
-   *
-   * - For commodities, including spot and futures, this value is usually false, because one lot corresponds to a multiple of value_speed of the commodity quantity.
-   * - 对于商品，包括现货和期货，此值通常为 false，因为 1 手对应着 value_speed 倍数的商品数量。
-   *
-   * - For forex, this value is usually true, because one lot corresponds to a multiple of value_speed of the equivalent of the base currency in any currency.
-   * - 对于外汇，此值通常为 true，因为 1 手对应着 value_speed 倍数的基础货币等值的任一货币。
-   *
-   * If the value is empty, it is semantically equivalent to false.
-   * 如果值为空，语义上等同于 false.
-   *
-   * If this value is true, an additional division by the "closing price" of this product is required in the standard yield formula.
-   * 如果此值为 true，需要在标准收益公式中额外除以本品种的"平仓时的价格"。
-   *
-   * @deprecated use value_unit instead
-   */
-  is_underlying_base_currency?: boolean;
+  base_currency?: string;
 
   /**
    * price step, default is 1
@@ -89,29 +52,6 @@ export interface IProduct {
    * The quantity of the underlying asset specified by one lot.
    */
   value_scale?: number;
-  /**
-   * Value speed, default is 1
-   * 价值速率，默认为 1
-   *
-   * The quantity of the underlying asset specified by one lot.
-   * 1 手对应的标的物的数量
-   *
-   * ~~For every 1 lot increase in price, the settlement asset income obtained~~
-   * ~~每做多 1 手，价格每上升 1，获得的结算资产收益~~
-   * @deprecated use value_scale instead
-   */
-  value_speed?: number;
-  /**
-   * Value unit, default is "NORM"
-   *
-   * - `NORM`: 1 lot represents {@link IProduct.value_scale} units of product itself. (stocks, commodity futures, bonds futures, etc.)
-   * - `BASE`: 1 lot represents {@link IProduct.value_scale} units of base currency. (forex, bonds spot, etc.)
-   *
-   * - If this value is `BASE` an additional division by the "closing price" of this product is required in the standard profit formula.
-   *
-   * @deprecated use value_scale_unit instead
-   */
-  value_unit?: string;
 
   /**
    * Unit of value scale.

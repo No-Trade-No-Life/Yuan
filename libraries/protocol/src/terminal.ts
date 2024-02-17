@@ -1182,8 +1182,8 @@ const mapProductToDataRecord = (product: IProduct): IDataRecord<IProduct> => ({
   tags: {
     datasource_id: product.datasource_id,
     product_id: product.product_id,
-    base_currency: product.base_currency,
-    ...(product.quoted_currency ? { quoted_currency: product.quoted_currency } : {}),
+    quote_currency: product.quote_currency || '',
+    base_currency: product.base_currency || '',
   },
   origin: product,
 });
