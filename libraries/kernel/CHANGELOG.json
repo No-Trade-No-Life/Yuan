@@ -2,6 +2,23 @@
   "name": "@yuants/kernel",
   "entries": [
     {
+      "version": "0.10.0",
+      "tag": "@yuants/kernel_v0.10.0",
+      "date": "Sun, 18 Feb 2024 06:04:51 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "multi-datasource"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.9.0",
       "tag": "@yuants/kernel_v0.9.0",
       "date": "Sun, 18 Feb 2024 02:52:08 GMT",

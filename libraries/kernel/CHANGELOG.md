@@ -1,6 +1,13 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Sun, 18 Feb 2024 02:52:08 GMT and should not be manually modified.
+This log was last generated on Sun, 18 Feb 2024 06:04:51 GMT and should not be manually modified.
+
+## 0.10.0
+Sun, 18 Feb 2024 06:04:51 GMT
+
+### Minor changes
+
+- multi-datasource
 
 ## 0.9.0
 Sun, 18 Feb 2024 02:52:08 GMT
