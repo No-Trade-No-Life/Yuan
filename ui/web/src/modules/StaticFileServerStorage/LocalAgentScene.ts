@@ -1,5 +1,6 @@
 import { AgentUnit, IAgentConf } from '@yuants/agent';
 import {
+  AccountDatasourceRelationUnit,
   AccountInfoUnit,
   AccountPerformanceHubUnit,
   BasicUnit,
@@ -34,6 +35,7 @@ export const LocalAgentScene = async (agentConf: IAgentConf) => {
   }
   const productDataUnit = new ProductDataUnit(kernel);
   const quoteDataUnit = new QuoteDataUnit(kernel);
+  new AccountDatasourceRelationUnit(kernel);
   const tickDataUnit = new TickDataUnit(kernel);
   const periodDataUnit = new PeriodDataUnit(kernel, quoteDataUnit);
   const seriesDataUnit = new SeriesDataUnit(kernel);
