@@ -96,6 +96,7 @@ export default () => {
   const datasource_id = useParamString('DataSource', 'Y');
   const product_id = useParamString('Product');
   const period = useParamString('Period', 'PT1H');
+  const currency = useParamString('Currency', 'USD');
   // 获取品种信息和价格数据
   const product = useProduct(datasource_id, product_id);
   const { close } = useOHLC(datasource_id, product_id, period);
@@ -155,7 +156,7 @@ export default () => {
   const initial_balance = useParamNumber('Initial Balance', 100_000);
   const threshold = useParamNumber('Threshold', 1);
   // 获取账户信息
-  const accountInfo = useAccountInfo();
+  const accountInfo = useAccountInfo({ currency });
   // 使用单一头寸管理器
   const [actualVolume, setVolume] = useSimplePositionManager(accountInfo.account_id, product_id);
   // 重新平衡头寸
@@ -166,7 +167,9 @@ export default () => {
     const totalValueToHold = totalValue * 0.5;
     // 推断要持有的头寸量
     const valuePerVolume =
-      price * (product.value_speed ?? 1) * (product.is_underlying_base_currency ? -1 / price : 1);
+      (product.value_scale ?? 1) *
+      (product.value_scale_unit ? 1 : price) *
+      (product.quote_currency === accountInfo.money.currency ? 1 : -1 / price);
     const expectedVolume = totalValueToHold / valuePerVolume;
     // 计算误差率
     const volume_step = product.volume_step ?? 1;

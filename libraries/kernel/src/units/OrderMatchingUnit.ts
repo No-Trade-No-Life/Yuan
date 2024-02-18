@@ -1,5 +1,6 @@
 import { encodePath } from '@yuants/data-model';
 import { IOrder, IPeriod, ITick, OrderDirection, OrderStatus, OrderType } from '@yuants/protocol';
+import { roundToStep } from '@yuants/utils';
 import { Subject, Subscription } from 'rxjs';
 import { Kernel } from '../kernel';
 import { AccountInfoUnit } from './AccountInfoUnit';
@@ -214,11 +215,15 @@ export class OrderMatchingUnit extends BasicUnit {
         continue;
       }
       isSomeOrderTraded = true;
+      const theProduct = this.productDataUnit.mapProductIdToProduct[order.product_id];
+      const volume_step = theProduct.volume_step ?? 1;
+      const volume = roundToStep(order.volume, volume_step);
       const theOrder = {
         ...order,
         timestamp_in_us: this.kernel.currentTimestamp * 1000,
         traded_price: tradedPrice,
-        traded_volume: order.volume,
+        volume,
+        traded_volume: volume,
         status: OrderStatus.TRADED,
       };
       // 成交

@@ -59,7 +59,6 @@ export class StaticFileServerPeriodLoadingUnit extends BasicUnit {
             price_step: +(raw.price_step || 1),
             volume_step: +(raw.volume_step || 1),
             value_scale: +(raw.value_scale || 1),
-            value_speed: +(raw.value_speed || 1),
             margin_rate: +(raw.margin_rate || 1),
             spread: +(raw.spread || 0),
             allow_long: raw.allow_long === 'true',
@@ -75,7 +74,6 @@ export class StaticFileServerPeriodLoadingUnit extends BasicUnit {
         ] || {
           datasource_id: task.datasource_id,
           product_id: task.product_id,
-          base_currency: 'YYY',
         };
       }
     }
