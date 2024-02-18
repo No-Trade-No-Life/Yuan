@@ -1,4 +1,5 @@
 import {
+  AccountDatasourceRelationUnit,
   AccountInfoUnit,
   AccountPerformanceHubUnit,
   AccountPerformanceMetricsUnit,
@@ -116,6 +117,7 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
   const productDataUnit = new ProductDataUnit(kernel);
   const productLoadingUnit = new ProductLoadingUnit(kernel, terminal, productDataUnit);
   const quoteDataUnit = new QuoteDataUnit(kernel);
+  new AccountDatasourceRelationUnit(kernel);
   const tickDataUnit = new TickDataUnit(kernel);
   const periodDataUnit = new PeriodDataUnit(kernel, quoteDataUnit);
   const seriesDataUnit = new SeriesDataUnit(kernel);
