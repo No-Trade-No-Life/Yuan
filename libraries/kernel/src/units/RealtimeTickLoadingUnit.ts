@@ -5,6 +5,7 @@ import { Kernel } from '../kernel';
 import { BasicUnit } from './BasicUnit';
 import { QuoteDataUnit } from './QuoteDataUnit';
 import { TickDataUnit } from './TickDataUnit';
+import { AccountDatasourceRelationUnit } from './AccountDatasouceRelationUnit';
 
 /**
  * Realtime Tick
@@ -23,6 +24,9 @@ export class RealtimeTickLoadingUnit extends BasicUnit {
   private mapEventIdToTick = new Map<number, ITick>();
 
   addTickTask(datasource_id: string, product_id: string, account_id: string = '') {
+    this.kernel
+      .findUnit(AccountDatasourceRelationUnit)
+      ?.updateRelation({ datasource_id, product_id, account_id });
     this._tickTasks.add(encodePath(datasource_id, product_id, account_id));
   }
 
@@ -31,10 +35,7 @@ export class RealtimeTickLoadingUnit extends BasicUnit {
   onEvent(): void | Promise<void> {
     const tick = this.mapEventIdToTick.get(this.kernel.currentEventId);
     if (tick && tick.ask && tick.bid) {
-      this.quoteDataUnit.mapProductIdToQuote[tick.product_id] = {
-        ask: tick.ask,
-        bid: tick.bid,
-      };
+      this.quoteDataUnit.updateQuote(tick.datasource_id, tick.product_id, tick.ask, tick.bid);
 
       this.tickDataUnit.setTick(tick);
 

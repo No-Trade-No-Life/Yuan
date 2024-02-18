@@ -89,7 +89,7 @@ export class AccountInfoUnit extends BasicUnit {
           (this.mapAccountIdToBalance[accountId] || 0) + order.profit_correction;
       }
 
-      const theProduct = this.productDataUnit.mapProductIdToProduct[order.product_id]!;
+      const theProduct = this.productDataUnit.getProduct(order.account_id, order.product_id)!;
 
       // 假设所有的 order 都有 position_id
       const variant =
@@ -141,7 +141,7 @@ export class AccountInfoUnit extends BasicUnit {
               tradedVolume,
               thePosition.variant,
               theAccountInfo.money.currency,
-              (product_id) => this.quoteDataUnit.mapProductIdToQuote[product_id],
+              (product_id) => this.quoteDataUnit.getQuote(accountId, product_id),
             );
         }
       }
@@ -152,9 +152,9 @@ export class AccountInfoUnit extends BasicUnit {
       .filter((pos) => pos.volume > 0) // 过滤掉空的头寸
       .map((position): IPosition => {
         const product_id = position.product_id;
-        const quote = this.quoteDataUnit.mapProductIdToQuote[product_id];
-        const product = this.productDataUnit.mapProductIdToProduct[product_id]!;
-        if (quote) {
+        const quote = this.quoteDataUnit.getQuote(accountId, product_id);
+        const product = this.productDataUnit.getProduct(accountId, product_id);
+        if (product && quote) {
           const closable_price = position.variant === PositionVariant.LONG ? quote.bid : quote.ask;
           const floating_profit = getProfit(
             product,
@@ -163,7 +163,7 @@ export class AccountInfoUnit extends BasicUnit {
             position.volume,
             position.variant,
             theAccountInfo.money.currency,
-            (product_id) => this.quoteDataUnit.mapProductIdToQuote[product_id],
+            (product_id) => this.quoteDataUnit.getQuote(accountId, product_id),
           );
           const nextPosition = {
             ...position,
@@ -177,7 +177,7 @@ export class AccountInfoUnit extends BasicUnit {
       });
     // 维护账户保证金
     const used = positions.reduce((acc, cur) => {
-      const product = this.productDataUnit.mapProductIdToProduct[cur.product_id];
+      const product = this.productDataUnit.getProduct(accountId, cur.product_id);
       if (!product) {
         return acc;
       }
@@ -189,7 +189,7 @@ export class AccountInfoUnit extends BasicUnit {
           cur.volume,
           cur.variant,
           theAccountInfo.money.currency,
-          (product_id) => this.quoteDataUnit.mapProductIdToQuote[product_id],
+          (product_id) => this.quoteDataUnit.getQuote(accountId, product_id),
         ) /
           (theAccountInfo.money.leverage ?? 1)
       );

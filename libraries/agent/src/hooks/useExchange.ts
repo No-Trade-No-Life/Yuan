@@ -6,7 +6,7 @@ import { useAgent } from '.';
  * @public
  */
 export const useExchange = (): {
-  getQuote: (product_id: string) => { ask: number; bid: number };
+  getQuote: (datasource_id: string, product_id: string) => { ask: number; bid: number };
   getOrderById: (orderId: string) => IOrder | undefined;
   listOrders: () => IOrder[];
   submitOrder: (...orders: IOrder[]) => void;
@@ -14,8 +14,8 @@ export const useExchange = (): {
 } => {
   const agent = useAgent();
   return {
-    getQuote: (product_id: string) =>
-      agent.orderMatchingUnit.quoteDataUnit.mapProductIdToQuote[product_id] || { ask: NaN, bid: NaN },
+    getQuote: (datasource_id: string, product_id: string) =>
+      agent.orderMatchingUnit.quoteDataUnit.getQuote(datasource_id, product_id) || { ask: NaN, bid: NaN },
     getOrderById: (orderId: string) => agent.orderMatchingUnit.getOrderById(orderId),
 
     listOrders: () => {

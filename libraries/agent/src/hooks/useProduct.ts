@@ -16,7 +16,7 @@ export const useProduct = (datasource_id: string, product_id: string): IProduct 
     });
   }, []);
   return (
-    agent.productDataUnit.mapProductIdToProduct[product_id] || {
+    agent.productDataUnit.getProduct(datasource_id, product_id) || {
       datasource_id,
       product_id,
     }

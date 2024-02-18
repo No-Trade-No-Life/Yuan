@@ -28,7 +28,7 @@ export const OrderMergeReplayScene = (
   const productDataUnit = new ProductDataUnit(kernel);
   {
     for (const product of products) {
-      productDataUnit.mapProductIdToProduct[product.product_id] = product;
+      productDataUnit.updateProduct(product);
     }
   }
   const periodDataUnit = new PeriodDataUnit(kernel, quoteDataUnit);

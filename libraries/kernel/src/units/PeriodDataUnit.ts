@@ -33,10 +33,12 @@ export class PeriodDataUnit extends BasicUnit {
     // Update Period
     list[updateIdx] = period;
     // Copy to QuoteDataUnit
-    this.quoteDataUnit.mapProductIdToQuote[period.product_id] = {
-      bid: period.close,
-      ask: period.close + (period.spread || 0),
-    };
+    this.quoteDataUnit.updateQuote(
+      period.datasource_id,
+      period.product_id,
+      period.close + (period.spread || 0),
+      period.close,
+    );
     this._periodUpdated$.next(period);
   }
 

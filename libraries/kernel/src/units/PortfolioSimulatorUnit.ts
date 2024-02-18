@@ -172,11 +172,13 @@ export class PortfolioSimulatorUnit extends BasicUnit {
     const positionDiffs = diffPosition(sourcePositions, targetPositions);
     // 根据仓位差异下单
     for (const positionDiff of positionDiffs) {
+      const account_id = this.targetAccountInfoUnit.accountInfo.account_id;
+      const product_id = positionDiff.product_id;
       // 逻辑有问题
       const order: IOrder = {
         client_order_id: UUID(),
-        account_id: this.targetAccountInfoUnit.accountInfo.account_id,
-        product_id: positionDiff.product_id,
+        account_id: account_id,
+        product_id: product_id,
         position_id:
           positionDiff.variant === PositionVariant.LONG
             ? `${positionDiff.product_id}-LONG`
@@ -192,7 +194,7 @@ export class PortfolioSimulatorUnit extends BasicUnit {
             : OrderDirection.CLOSE_SHORT,
         volume: roundToStep(
           Math.abs(positionDiff.error_volume),
-          this.productDataUnit.mapProductIdToProduct[positionDiff.product_id].volume_step ?? 1,
+          this.productDataUnit.getProduct(account_id, product_id)?.volume_step ?? 1,
         ),
       };
       if (order.volume > 0) {

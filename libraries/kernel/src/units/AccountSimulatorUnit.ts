@@ -63,7 +63,7 @@ export class AccountSimulatorUnit extends BasicUnit {
         balance += order.profit_correction;
       }
 
-      const theProduct = this.productDataUnit.mapProductIdToProduct[order.product_id]!;
+      const theProduct = this.productDataUnit.getProduct(order.account_id, order.product_id)!;
 
       // 假设所有的 order 都有 position_id
       const variant =
@@ -76,7 +76,7 @@ export class AccountSimulatorUnit extends BasicUnit {
           thePosition.free_volume = thePosition.volume = order.volume;
         } else {
           // 开仓的时候，如果有头寸，就要更新头寸
-          const nextVolume = roundToStep(thePosition.volume + order.volume, theProduct.volume_step ?? 1);
+          const nextVolume = roundToStep(thePosition.volume + order.volume, theProduct?.volume_step ?? 1);
           const nextPositionPrice =
             (thePosition.position_price * thePosition.volume + order.traded_price! * order.volume) /
             nextVolume;
@@ -96,9 +96,9 @@ export class AccountSimulatorUnit extends BasicUnit {
           // 平仓的时候，如果有头寸，就要更新头寸
           const tradedVolume = roundToStep(
             Math.min(order.volume, thePosition.volume),
-            theProduct.volume_step ?? 1,
+            theProduct?.volume_step ?? 1,
           );
-          const nextVolume = roundToStep(thePosition.volume - tradedVolume, theProduct.volume_step ?? 1);
+          const nextVolume = roundToStep(thePosition.volume - tradedVolume, theProduct?.volume_step ?? 1);
           // 如果头寸已经平仓完了，就删除头寸
           if (nextVolume === 0) {
             delete this.mapPositionIdToPosition[order.position_id!];
@@ -113,7 +113,7 @@ export class AccountSimulatorUnit extends BasicUnit {
             tradedVolume,
             thePosition.variant,
             this.accountInfo.money.currency,
-            (product_id) => this.quoteDataUnit.mapProductIdToQuote[product_id],
+            (product_id) => this.quoteDataUnit.getQuote(this.accountInfo.account_id, product_id),
           );
         }
       }
@@ -125,9 +125,9 @@ export class AccountSimulatorUnit extends BasicUnit {
       .filter((pos) => pos.volume > 0) // 过滤掉空的头寸
       .map((position): IPosition => {
         const product_id = position.product_id;
-        const quote = this.quoteDataUnit.mapProductIdToQuote[product_id];
-        const product = this.productDataUnit.mapProductIdToProduct[product_id]!;
-        if (quote) {
+        const quote = this.quoteDataUnit.getQuote(this.accountInfo.account_id, product_id);
+        const product = this.productDataUnit.getProduct(this.accountInfo.account_id, product_id);
+        if (product && quote) {
           const closable_price = position.variant === PositionVariant.LONG ? quote.bid : quote.ask;
           const floating_profit = getProfit(
             product,
@@ -136,7 +136,7 @@ export class AccountSimulatorUnit extends BasicUnit {
             position.volume,
             position.variant,
             this.accountInfo.money.currency,
-            (product_id) => this.quoteDataUnit.mapProductIdToQuote[product_id],
+            (product_id) => this.quoteDataUnit.getQuote(this.accountInfo.account_id, product_id),
           );
           const nextPosition = {
             ...position,
@@ -150,7 +150,7 @@ export class AccountSimulatorUnit extends BasicUnit {
       });
     // 维护账户保证金
     const used = positions.reduce((acc, cur) => {
-      const product = this.productDataUnit.mapProductIdToProduct[cur.product_id];
+      const product = this.productDataUnit.getProduct(this.accountInfo.account_id, cur.product_id);
       if (!product) {
         return acc;
       }
@@ -162,7 +162,7 @@ export class AccountSimulatorUnit extends BasicUnit {
           cur.volume,
           cur.variant,
           this.accountInfo.money.currency,
-          (product_id) => this.quoteDataUnit.mapProductIdToQuote[product_id],
+          (product_id) => this.quoteDataUnit.getQuote(this.accountInfo.account_id, product_id),
         ) /
           (this.accountInfo.money.leverage ?? 1)
       );

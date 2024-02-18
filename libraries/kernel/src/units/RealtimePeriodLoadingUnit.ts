@@ -133,7 +133,7 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
     // 配置行情查询任务
     for (const task of this.periodTasks) {
       const { datasource_id, product_id, period_in_sec } = task;
-      const theProduct = this.productDataUnit.mapProductIdToProduct[product_id];
+      const theProduct = this.productDataUnit.getProduct(datasource_id, product_id);
 
       const channelId = encodePath('Period', datasource_id, product_id, period_in_sec);
       // ISSUE: Period[].length >= 2 to ensure overlay
@@ -150,7 +150,7 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
           const eventId = this.kernel.alloc(Date.now());
           this.mapEventIdToPeriod.set(
             eventId,
-            periods.map((period) => ({ ...period, spread: period.spread || theProduct.spread || 0 })),
+            periods.map((period) => ({ ...period, spread: period.spread || theProduct?.spread || 0 })),
           );
         }),
       );

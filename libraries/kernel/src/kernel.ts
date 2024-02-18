@@ -211,4 +211,12 @@ export class Kernel {
       unit.restore(state.units[idx]);
     });
   };
+
+  findUnit<T extends IKernelUnit>(Unit: new (...args: any[]) => T): T | undefined {
+    return this.units.find((v): v is T => v instanceof Unit);
+  }
+
+  findUnits<T extends IKernelUnit>(Unit: new (...args: any[]) => T) {
+    return this.units.filter((v): v is T => v instanceof Unit);
+  }
 }

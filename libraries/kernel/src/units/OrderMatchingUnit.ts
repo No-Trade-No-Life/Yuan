@@ -215,8 +215,8 @@ export class OrderMatchingUnit extends BasicUnit {
         continue;
       }
       isSomeOrderTraded = true;
-      const theProduct = this.productDataUnit.mapProductIdToProduct[order.product_id];
-      const volume_step = theProduct.volume_step ?? 1;
+      const theProduct = this.productDataUnit.getProduct(order.account_id, order.product_id);
+      const volume_step = theProduct?.volume_step ?? 1;
       const volume = roundToStep(order.volume, volume_step);
       const theOrder = {
         ...order,

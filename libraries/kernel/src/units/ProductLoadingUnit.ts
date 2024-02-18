@@ -44,7 +44,7 @@ export class ProductLoadingUnit extends BasicUnit {
             }),
             tap((product) => {
               this.kernel.log?.(formatTime(Date.now()), 'product loaded', JSON.stringify(product));
-              this.productDataUnit.mapProductIdToProduct[product.product_id] = product;
+              this.productDataUnit.updateProduct(product);
             }),
           ),
       );

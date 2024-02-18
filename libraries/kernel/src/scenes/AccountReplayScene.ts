@@ -53,7 +53,7 @@ export const AccountReplayScene = (
   const productLoadingUnit = new ProductLoadingUnit(kernel, terminal, productDataUnit);
   // Adhoc Unit: 根据品种加载交叉盘品种
   new BasicUnit(kernel).onInit = async () => {
-    for (const product of Object.values(productDataUnit.mapProductIdToProduct)) {
+    for (const product of productDataUnit.listProducts()) {
       if (product.quote_currency && currency && product.quote_currency !== currency) {
         const [productA] = await lastValueFrom(
           terminal
@@ -71,7 +71,7 @@ export const AccountReplayScene = (
             ),
         );
         if (productA) {
-          productDataUnit.mapProductIdToProduct[productA.product_id] = productA;
+          productDataUnit.updateProduct(productA);
         }
         const [productB] = await lastValueFrom(
           terminal
@@ -89,14 +89,14 @@ export const AccountReplayScene = (
             ),
         );
         if (productB) {
-          productDataUnit.mapProductIdToProduct[productB.product_id] = productB;
+          productDataUnit.updateProduct(productB);
         }
       }
     }
   };
   // Adhoc Unit: 根据品种加载行情数据
   new BasicUnit(kernel).onInit = () => {
-    for (const product of Object.values(productDataUnit.mapProductIdToProduct)) {
+    for (const product of productDataUnit.listProducts()) {
       periodLoadingUnit.periodTasks.push({
         datasource_id: datasource_id ?? account_id,
         product_id: product.product_id,
