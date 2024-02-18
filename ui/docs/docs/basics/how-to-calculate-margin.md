@@ -8,11 +8,27 @@ sidebar_position: 5
 
 The standard margin model is:
 
-Used Margin = sum of all positions' used margin / account's leverage.
+$$
+\text{Standard Margin} = \frac{\sum_{\text{Position}} {\text{Volume} \times \text{Value Scale}} \times P(\text{Value Scale Unit}, C, t_1) \times P(C, A, t_1) \times \text{Margin Rate} }{\text{Account Leverage}}
+$$
 
-- Each position's used margin = Position Volume \* Product Value Speed \* Factor of Asset \* Base Currency Exchange Rate \* Product Margin Rate
-- Factor of Asset = 1 if FX or Bond Spot, otherwise Open Price of Position.
-- Base Currency Exchange Rate = the exchange rate of **product's base currency** vs **account's margin currency** at the time of position opening.
+When:
+
+- $A$ is the account's margin currency; $B$ is the product itself; $C$ is the product's quote currency;
+- For any assets $x$, $y$ and time $t$, $P(x, y, t)$ is the price of two assets $x$ vs $y$ at time $t$, and $t_1$ is the time of position entering; $t_2$ is the time of position exiting;
+- $P(B, C, t)$ is the price of the product at time $t$; You can see it directly everywhere in the market;
+- Volume is the number of contract, non-negative;
+- Open Price $P(B, C, t_1)$ is the price of the product at the time of position entering;
+- Value scale is a constant multiple item for the product, usually 1 in spots, and is called "contract size" in futures or options contracts.
+- Margin rate is a constant multiple item for the product, equivalent 1 in spots, and less than 1 in leverage trading.
+- $P(C, A, t)$ is the exchange rate of the quote currency vs the margin currency at time $t$;
+  - if the quote currency is the same as the margin currency, then $P(C, A, t) = 1$, you can ignore this item;
+- Value scale unit is the unit of value scale, usually refers to the product itself ($B$), or the product's quote currency ($C$);
+  - if it refers to the product itself, then $P(\text{Value Scale Unit}, C, t_1) = P(B, C, t_1) = \text{Open Price}$;
+  - if it refers to the product's quote currency, then $P(\text{Value Scale Unit}, C, t_1) = P(C, C, t_1) = 1$;
+  - for example, if the product specified that 1 contract = 100 shares of stock, then the value scale unit is the stock itself, and the value scale is 100;
+  - for another example, if the product specified that 1 contract = stocks worth 1000 USD, then the value scale unit is the quote currency, and the value scale is 1000;
+- Actually when the quote currency and margin currency are different, it is not possible to directly obtain the precise exchange rate $P(C, A, t_1)$. However, the exchange usually directly shows the precise standard margin in the history orders. So we can deduce the exchange rate $P(C, A, t_1)$ from the standard margin.
 
 Once a position is opened, the used margin will not change with the price.
 
@@ -20,7 +36,9 @@ Once a position is opened, the used margin will not change with the price.
 
 The available margin will fluctuate with the fluctuation of the equity, and the necessary condition for opening a position is that the available margin is not less than the margin required to open the position.
 
-**Margin-equity ratio** = 100% \* used margin / equity
+$$
+\text{Margin-equity Ratio} =  \frac{\text{Used Margin}}{Equity} \times 100\%
+$$
 
 Margin-equity ratio is used to measure the overall risk of an account.
 
@@ -30,7 +48,9 @@ Margin-equity ratio is used to measure the overall risk of an account.
 
 When the margin-equity ratio is too low, it means that the account funds are not fully utilized.
 
-Actual leverage ratio = Margin-equity ratio \* account leverage ratio
+$$
+\text{Actual Leverage} = \text{Margin-equity ratio} \times \text{Account Leverage}
+$$
 
 Sometimes we are more inclined to use the actual leverage ratio to express the utilization rate of funds.
 When the actual leverage ratio is less than 100%, it means that no matter how the price fluctuates, as long as it is non-negative , the account will not be liquidated to zero. However, if the volatility of the variety price is very small, using too little leverage will waste the funds in the account. Therefore, the setting of the actual leverage ratio should be related to the volatility of the trading variety price. However, in the stock market, unless financing and securities lending, since the account leverage ratio is 1, the actual leverage ratio cannot exceed 100%.

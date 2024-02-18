@@ -68,10 +68,6 @@
     "description": "提前拉取历史数据的区间起点；留空表示拉取无穷早的数据；时区按照本地时区填写",
     "title": "历史数据开始时间"
   },
-  "root_use_general_product": {
-    "description": "使用标准品种信息作为品种信息",
-    "title": "使用标准品种信息"
-  },
   "run": "运行",
   "run_failed": "运行模型实例失败，请检查代码或配置是否有问题",
   "run_succeed": "运行完毕",

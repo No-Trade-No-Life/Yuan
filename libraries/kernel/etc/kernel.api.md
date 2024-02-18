@@ -617,9 +617,7 @@ export class ProductDataUnit extends BasicUnit {
 
 // @public
 export class ProductLoadingUnit extends BasicUnit {
-    constructor(kernel: Kernel, terminal: Terminal, productDataUnit: ProductDataUnit, options?: {
-        use_general_product?: boolean | undefined;
-    } | undefined);
+    constructor(kernel: Kernel, terminal: Terminal, productDataUnit: ProductDataUnit, options?: {} | undefined);
     // (undocumented)
     dump(): {
         productTasks: {
@@ -632,9 +630,7 @@ export class ProductLoadingUnit extends BasicUnit {
     // (undocumented)
     onInit(): Promise<void>;
     // (undocumented)
-    options?: {
-        use_general_product?: boolean | undefined;
-    } | undefined;
+    options?: {} | undefined;
     // (undocumented)
     productDataUnit: ProductDataUnit;
     // (undocumented)
@@ -778,7 +774,7 @@ export class TickDataUnit extends BasicUnit {
 
 // Warnings were encountered during analysis:
 //
-// src/units/OrderMatchingUnit.ts:270:11 - (ae-forgotten-export) The symbol "IMatchingRange" needs to be exported by the entry point index.d.ts
+// src/units/OrderMatchingUnit.ts:275:11 - (ae-forgotten-export) The symbol "IMatchingRange" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

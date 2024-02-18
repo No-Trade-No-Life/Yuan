@@ -112,7 +112,6 @@ export interface IAgentConf {
     is_real?: boolean;
     kernel_id?: string;
     start_time?: string;
-    use_general_product?: boolean;
 }
 
 // @public

@@ -68,10 +68,6 @@
     "description": "Pull the starting point of the interval of historical data in advance; leave it blank to pull infinitely early data; fill in the time zone according to the local time zone",
     "title": "Start Time of History"
   },
-  "root_use_general_product": {
-    "description": "Treat general product as product",
-    "title": "Use General Product"
-  },
   "run": "Run",
   "run_failed": "Failed to run the model instance, please check if there is a problem with the code or configuration",
   "run_succeed": "Run completed",

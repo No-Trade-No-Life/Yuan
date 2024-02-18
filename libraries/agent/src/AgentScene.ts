@@ -47,8 +47,6 @@ export interface IAgentConf {
 
   /** Kernel ID */
   kernel_id?: string;
-  /** 使用标准品种信息 */
-  use_general_product?: boolean;
   /** 是否禁用打印日志 */
   disable_log?: boolean;
 }
@@ -91,12 +89,6 @@ export const agentConfSchema: JSONSchema7 = {
       type: 'string',
       default: 'Model',
     },
-    use_general_product: {
-      type: 'boolean',
-      title: '使用标准品种信息',
-      description: '使用标准品种信息作为品种信息，但仍沿用具体品种的行情数据',
-      default: false,
-    },
     disable_log: {
       type: 'boolean',
       title: '禁用打印日志',
@@ -122,9 +114,7 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
     kernel.log = undefined;
   }
   const productDataUnit = new ProductDataUnit(kernel);
-  const productLoadingUnit = new ProductLoadingUnit(kernel, terminal, productDataUnit, {
-    use_general_product: agentConf.use_general_product,
-  });
+  const productLoadingUnit = new ProductLoadingUnit(kernel, terminal, productDataUnit);
   const quoteDataUnit = new QuoteDataUnit(kernel);
   const tickDataUnit = new TickDataUnit(kernel);
   const periodDataUnit = new PeriodDataUnit(kernel, quoteDataUnit);
