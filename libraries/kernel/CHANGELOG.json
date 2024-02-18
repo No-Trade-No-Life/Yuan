@@ -2,6 +2,23 @@
   "name": "@yuants/kernel",
   "entries": [
     {
+      "version": "0.10.1",
+      "tag": "@yuants/kernel_v0.10.1",
+      "date": "Sun, 18 Feb 2024 08:29:52 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix position price formula"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.10.0",
       "tag": "@yuants/kernel_v0.10.0",
       "date": "Sun, 18 Feb 2024 06:04:51 GMT",
