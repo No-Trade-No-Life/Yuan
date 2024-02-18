@@ -1,6 +1,17 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Sat, 17 Feb 2024 23:28:07 GMT and should not be manually modified.
+This log was last generated on Sun, 18 Feb 2024 02:52:08 GMT and should not be manually modified.
+
+## 0.9.0
+Sun, 18 Feb 2024 02:52:08 GMT
+
+### Minor changes
+
+- remove use_general_product
+
+### Patches
+
+- enforce order matching round by volume_step
 
 ## 0.8.0
 Sat, 17 Feb 2024 23:28:07 GMT
