@@ -77,9 +77,11 @@ export class AccountSimulatorUnit extends BasicUnit {
         } else {
           // 开仓的时候，如果有头寸，就要更新头寸
           const nextVolume = roundToStep(thePosition.volume + order.volume, theProduct?.volume_step ?? 1);
-          const nextPositionPrice =
-            (thePosition.position_price * thePosition.volume + order.traded_price! * order.volume) /
-            nextVolume;
+          const nextPositionPrice = theProduct.value_scale_unit
+            ? nextVolume /
+              (thePosition.volume / thePosition.position_price + order.volume / order.traded_price!)
+            : (thePosition.position_price * thePosition.volume + order.traded_price! * order.volume) /
+              nextVolume;
           const position: IPosition = {
             ...thePosition,
             volume: nextVolume,
