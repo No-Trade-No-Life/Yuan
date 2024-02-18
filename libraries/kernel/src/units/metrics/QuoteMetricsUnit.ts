@@ -17,15 +17,17 @@ export class QuoteMetricsUnit extends BasicUnit {
   }
 
   onEvent(): void | Promise<void> {
-    for (const [product_id, quote] of Object.entries(this.quoteDataUnit.mapProductIdToQuote)) {
+    for (const quote of this.quoteDataUnit.listQuotes()) {
       MetricQuoteDataUnitQuotes.set(quote.ask, {
         kernel_id: this.kernel.id,
-        product_id: product_id,
+        datasource_id: quote.datasource_id,
+        product_id: quote.product_id,
         side: 'ask',
       });
       MetricQuoteDataUnitQuotes.set(quote.bid, {
         kernel_id: this.kernel.id,
-        product_id: product_id,
+        datasource_id: quote.datasource_id,
+        product_id: quote.product_id,
         side: 'bid',
       });
     }

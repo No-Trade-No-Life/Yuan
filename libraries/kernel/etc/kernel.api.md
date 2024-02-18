@@ -16,6 +16,20 @@ import { Subject } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
 
 // @public (undocumented)
+export class AccountDatasourceRelationUnit extends BasicUnit {
+    // (undocumented)
+    dump(): any;
+    // Warning: (ae-forgotten-export) The symbol "IAccountDatasourceRelation" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    list(): IAccountDatasourceRelation[];
+    // (undocumented)
+    restore(state: any): void;
+    // (undocumented)
+    updateRelation(relation: IAccountDatasourceRelation): void;
+}
+
+// @public (undocumented)
 export class AccountInfoUnit extends BasicUnit {
     constructor(kernel: Kernel, productDataUnit: ProductDataUnit, quoteDataUnit: QuoteDataUnit, historyOrderUnit: HistoryOrderUnit);
     // (undocumented)
@@ -411,6 +425,10 @@ export class Kernel {
         units: any[];
     };
     // (undocumented)
+    findUnit<T extends IKernelUnit>(Unit: new (...args: any[]) => T): T | undefined;
+    // (undocumented)
+    findUnits<T extends IKernelUnit>(Unit: new (...args: any[]) => T): T[];
+    // (undocumented)
     id: string;
     log: ((...params: any[]) => void) | undefined;
     // (undocumented)
@@ -607,12 +625,18 @@ export class PortfolioSimulatorUnit extends BasicUnit {
 export class ProductDataUnit extends BasicUnit {
     // (undocumented)
     dump(): {
-        mapProductIdToProduct: Record<string, IProduct>;
+        mapProductIdToProduct: Record<string, Record<string, IProduct>>;
     };
     // (undocumented)
-    mapProductIdToProduct: Record<string, IProduct>;
+    getProduct(datasource_id: string, product_id: string): IProduct | undefined;
+    // (undocumented)
+    listProducts(): IProduct[];
+    // (undocumented)
+    onInit(): void | Promise<void>;
     // (undocumented)
     restore(state: any): void;
+    // (undocumented)
+    updateProduct(product: IProduct): void;
 }
 
 // @public
@@ -648,18 +672,21 @@ export class ProductLoadingUnit extends BasicUnit {
 export class QuoteDataUnit extends BasicUnit {
     // (undocumented)
     dump(): {
-        mapProductIdToQuote: Record<string, {
-            ask: number;
-            bid: number;
-        }>;
+        mapProductIdToQuote: Record<string, Record<string, IQuote>>;
+        mapDatasourceIdMapProductIdToAccountIds: Record<string, Record<string, Set<string>>>;
     };
+    // Warning: (ae-forgotten-export) The symbol "IQuote" needs to be exported by the entry point index.d.ts
+    //
     // (undocumented)
-    mapProductIdToQuote: Record<string, {
-        ask: number;
-        bid: number;
-    }>;
+    getQuote(datasource_id: string, product_id: string): IQuote | undefined;
+    // (undocumented)
+    listQuotes(): IQuote[];
+    // (undocumented)
+    onInit(): void | Promise<void>;
     // (undocumented)
     restore(state: any): void;
+    // (undocumented)
+    updateQuote(datasource_id: string, product_id: string, ask: number, bid: number): void;
 }
 
 // @public (undocumented)

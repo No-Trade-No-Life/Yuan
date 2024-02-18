@@ -68,19 +68,19 @@ export class StaticFileServerPeriodLoadingUnit extends BasicUnit {
         .map((v: IProduct) => [v.product_id, v]),
     );
     for (const task of this.periodTasks) {
-      if (!this.productDataUnit.mapProductIdToProduct[task.product_id]) {
-        this.productDataUnit.mapProductIdToProduct[task.product_id] = mapProductIdToProduct[
-          task.product_id
-        ] || {
-          datasource_id: task.datasource_id,
-          product_id: task.product_id,
-        };
+      if (!this.productDataUnit.getProduct(task.datasource_id, task.product_id)) {
+        this.productDataUnit.updateProduct(
+          mapProductIdToProduct[task.product_id] || {
+            datasource_id: task.datasource_id,
+            product_id: task.product_id,
+          },
+        );
       }
     }
     for (const task of this.periodTasks) {
       const dirPath = `OHLC/${task.product_id}/${mapPeriodToDuration[task.period_in_sec]}`;
       const files = storageIndex.filter((path) => path.startsWith(dirPath));
-      const theProduct = this.productDataUnit.mapProductIdToProduct[task.product_id];
+      const theProduct = this.productDataUnit.getProduct(task.datasource_id, task.product_id);
       if (files.length === 0) {
         this.kernel.log?.(
           `${formatTime(Date.now())} 未找到 "${task.product_id}" / "${task.period_in_sec}" 的历史数据`,
@@ -125,7 +125,7 @@ export class StaticFileServerPeriodLoadingUnit extends BasicUnit {
           map((periods) => {
             periods.sort((a, b) => a.timestamp_in_us - b.timestamp_in_us);
             periods.forEach((period, idx) => {
-              const spread = period.spread || theProduct.spread || 0;
+              const spread = period.spread || theProduct?.spread || 0;
               // Push Period Data
               // ISSUE: Push the K-line at the opening time into the queue, which generates a simulated event,
               //        which can confirm the closing of the previous K-line early

@@ -130,7 +130,7 @@ export const useEffect: (fn: () => void | (() => void), deps?: any[]) => void;
 
 // @public
 export const useExchange: () => {
-    getQuote: (product_id: string) => {
+    getQuote: (datasource_id: string, product_id: string) => {
         ask: number;
         bid: number;
     };

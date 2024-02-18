@@ -37,7 +37,7 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
           task.period_in_sec
         }" [${formatTime(task.start_time_in_us / 1000)}, ${formatTime(task.end_time_in_us / 1000)})`,
       );
-      const theProduct = this.productDataUnit.mapProductIdToProduct[product_id];
+      const theProduct = this.productDataUnit.getProduct(datasource_id, product_id);
       await lastValueFrom(
         this.terminal.queryPeriods(task).pipe(
           tap((x) => {
@@ -53,7 +53,7 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
           map((periods) => {
             periods.sort((a, b) => a.timestamp_in_us - b.timestamp_in_us);
             periods.forEach((period, idx) => {
-              const spread = period.spread || theProduct.spread || 0;
+              const spread = period.spread || theProduct?.spread || 0;
               // 推入 Period 数据
               // ISSUE: 将开盘时的K线也推入队列，产生一个模拟的事件，可以提早确认上一根K线的收盘
               const openEventId = this.kernel.alloc(period.timestamp_in_us / 1000);
