@@ -1,6 +1,13 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Sun, 18 Feb 2024 08:29:52 GMT and should not be manually modified.
+This log was last generated on Mon, 19 Feb 2024 09:27:17 GMT and should not be manually modified.
+
+## 0.10.2
+Mon, 19 Feb 2024 09:27:17 GMT
+
+### Patches
+
+- fix position price formula 
 
 ## 0.10.1
 Sun, 18 Feb 2024 08:29:52 GMT
