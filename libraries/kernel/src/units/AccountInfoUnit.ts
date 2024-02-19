@@ -105,7 +105,7 @@ export class AccountInfoUnit extends BasicUnit {
           const nextVolume = roundToStep(thePosition.volume + order.volume, theProduct.volume_step ?? 1);
           const nextPositionPrice = theProduct.value_scale_unit
             ? nextVolume /
-              (thePosition.volume / thePosition.position_price + order.traded_volume! / order.volume)
+              (thePosition.volume / thePosition.position_price + order.volume / order.traded_price!)
             : (thePosition.position_price * thePosition.volume + order.traded_price! * order.volume) /
               nextVolume;
           const position: IPosition = {
