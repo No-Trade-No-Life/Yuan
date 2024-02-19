@@ -344,6 +344,10 @@ registerPage('AccountInfoPanel', () => {
             dataSource={accountInfo.positions}
             pagination={false}
             columns={[
+              {
+                title: 'ID',
+                render: (_, pos) => pos.position_id,
+              },
               { title: '持仓品种', render: (_, pos) => pos.product_id },
               {
                 title: '持仓方向',
