@@ -30,6 +30,7 @@
     "@yuants/app-general-realtime-data-source",
     "@yuants/app-trade-copier",
     "@yuants/vendor-deepcoin",
+    "@yuants/vendor-ccxt",
     "@yuants/vendor-ctp"
   ],
   /**

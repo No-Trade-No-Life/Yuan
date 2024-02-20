@@ -537,7 +537,11 @@
     },
     {
       "packageName": "@yuants/vendor-deepcoin",
-      "projectFolder": "apps/vendor-deepcoin",
+      "projectFolder": "apps/vendor-deepcoin"
+    },
+    {
+      "packageName": "@yuants/vendor-ccxt",
+      "projectFolder": "apps/vendor-ccxt",
       "shouldPublish": true
     },
     {

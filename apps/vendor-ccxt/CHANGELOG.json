@@ -1,0 +1,128 @@
+{
+  "name": "@yuants/vendor-ccxt",
+  "entries": [
+    {
+      "version": "0.0.7",
+      "tag": "@yuants/vendor-ccxt_v0.0.7",
+      "date": "Tue, 16 Jan 2024 02:58:35 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add manifest key"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.6",
+      "tag": "@yuants/vendor-ccxt_v0.0.6",
+      "date": "Mon, 08 Jan 2024 13:52:27 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "renovate: update dependencies"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.5",
+      "tag": "@yuants/vendor-ccxt_v0.0.5",
+      "date": "Fri, 22 Dec 2023 16:41:16 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix submit order issue"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.4",
+      "tag": "@yuants/vendor-ccxt_v0.0.4",
+      "date": "Thu, 21 Dec 2023 20:44:17 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix period channel and accountInfo channel"
+          },
+          {
+            "comment": "renovate: update dependencies"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          },
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.3",
+      "tag": "@yuants/vendor-ccxt_v0.0.3",
+      "date": "Mon, 11 Dec 2023 20:01:27 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refine implementation"
+          },
+          {
+            "comment": "upgrade dependencies: '@yuants/protocol' to 0.9.3"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.2",
+      "tag": "@yuants/vendor-ccxt_v0.0.2",
+      "date": "Sun, 10 Dec 2023 16:19:55 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "upgrade dependencies"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/vendor-ccxt_v0.0.1",
+      "date": "Sat, 09 Dec 2023 21:48:38 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "upgrade protocol"
+          }
+        ]
+      }
+    }
+  ]
+}
