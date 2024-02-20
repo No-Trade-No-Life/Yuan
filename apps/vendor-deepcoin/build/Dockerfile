@@ -15,7 +15,7 @@ USER node
 
 WORKDIR /app
 
-COPY --chown=node:node ./out/app-vendor-deepcoin-out /app
+COPY --chown=node:node ./out/vendor-deepcoin-out /app
 
 RUN node create-links.js create
 
