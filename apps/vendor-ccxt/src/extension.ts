@@ -24,7 +24,7 @@ export default (context: IExtensionContext) => {
     make_docker_compose_file: async (ctx, envCtx) => {
       return {
         [`ccxt-${ctx.env!.EXCHANGE_ID}-${ctx.env!.ACCOUNT_ID}`.replace(/\s/g, '')]: {
-          image: `registry.ap-southeast-1.aliyuncs.com/ntnl-y/vendor-ccxt:${ctx.version ?? envCtx.version}`,
+          image: `ghcr.io/no-trade-no-life/vendor-ccxt:${ctx.version ?? envCtx.version}`,
           restart: 'always',
 
           environment: makeDockerEnvs(ctx.env),
@@ -67,9 +67,7 @@ export default (context: IExtensionContext) => {
                 containers: [
                   {
                     env: makeK8sEnvs(ctx.env),
-                    image: `registry.ap-southeast-1.aliyuncs.com/ntnl-y/vendor-ccxt:${
-                      ctx.version ?? envCtx.version
-                    }`,
+                    image: `ghcr.io/no-trade-no-life/vendor-ccxt:${ctx.version ?? envCtx.version}`,
                     imagePullPolicy: 'IfNotPresent',
                     name: 'ccxt',
                     resources: {
@@ -85,11 +83,6 @@ export default (context: IExtensionContext) => {
                   },
                 ],
                 hostname: 'ccxt',
-                imagePullSecrets: [
-                  {
-                    name: 'pull-secret',
-                  },
-                ],
               },
             },
           },
