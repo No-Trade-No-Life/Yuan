@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-deepcoin",
+      "comment": "init",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-deepcoin"
+}

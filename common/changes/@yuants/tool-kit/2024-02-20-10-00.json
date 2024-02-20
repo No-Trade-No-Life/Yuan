@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/tool-kit",
+      "comment": "add protection if theres no rush.json",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/tool-kit"
+}
