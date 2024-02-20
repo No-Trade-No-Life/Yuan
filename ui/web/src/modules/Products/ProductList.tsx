@@ -1,13 +1,15 @@
 import { IconCopyAdd, IconDelete, IconEdit, IconRefresh, IconSearch } from '@douyinfe/semi-icons';
-import { Button, Modal, Space, Table, Toast } from '@douyinfe/semi-ui';
+import { Button, Modal, Space, Toast } from '@douyinfe/semi-ui';
 import { StockMarket } from '@icon-park/react';
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { IProduct } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EMPTY, combineLatest, filter, first, mergeMap, tap, toArray } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
 import Form, { showForm } from '../Form';
+import { DataView } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 
@@ -53,6 +55,71 @@ registerPage('ProductList', () => {
 
   const products = useObservableState(products$);
 
+  const columns = useMemo(() => {
+    const columnHelper = createColumnHelper<IProduct>();
+
+    return [
+      columnHelper.accessor('datasource_id', {
+        header: () => '数据源ID',
+      }),
+      columnHelper.accessor('product_id', {
+        header: () => '品种ID',
+      }),
+      columnHelper.accessor('name', { header: () => '品种名称' }),
+      columnHelper.accessor('quote_currency', { header: () => '计价货币' }),
+      columnHelper.accessor('base_currency', { header: () => '基准货币' }),
+      columnHelper.accessor((x) => `${x.value_scale || ''} ${x.value_scale_unit || ''}`, {
+        id: 'value_scale',
+        header: () => '价值尺度',
+      }),
+      columnHelper.accessor('volume_step', { header: () => '成交量粒度' }),
+      columnHelper.accessor('price_step', { header: () => '报价粒度' }),
+      columnHelper.accessor('margin_rate', { header: () => '保证金率' }),
+      columnHelper.accessor('spread', { header: () => '点差' }),
+      columnHelper.accessor((x) => 0, {
+        id: 'actions',
+        header: () => '操作',
+        cell: (x) => {
+          const item = x.row.original;
+          return (
+            <Space>
+              <Button
+                icon={<StockMarket />}
+                onClick={async () => {
+                  const period_in_sec = await showForm<string>({ type: 'string', title: 'period_in_sec' });
+                  if (period_in_sec) {
+                    executeCommand('Market', {
+                      datasource_id: item.datasource_id,
+                      product_id: item.product_id,
+                      period_in_sec: +period_in_sec,
+                    });
+                  }
+                }}
+              ></Button>
+              <Button
+                icon={<IconEdit />}
+                onClick={() => {
+                  setFormData(item);
+
+                  setModalVisible(true);
+                }}
+              ></Button>
+              <Button icon={<IconDelete />} disabled type="danger"></Button>
+            </Space>
+          );
+        },
+      }),
+    ];
+  }, []);
+
+  const data = useMemo(() => products?.map((x) => x.origin) ?? [], [products]);
+
+  const table = useReactTable({
+    columns,
+    data,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
   const [isModalVisible, setModalVisible] = useState(false);
   const [formData, setFormData] = useState({} as IProduct);
 
@@ -86,71 +153,8 @@ registerPage('ProductList', () => {
           刷新
         </Button>
       </Space>
-      <Table
-        dataSource={products}
-        style={{ width: '100%' }}
-        columns={[
-          //
-          { title: '数据源 ID', render: (_, record) => record.origin.datasource_id },
-          { title: '品种 ID', render: (_, record) => record.origin.product_id },
-          { title: '品种名称', render: (_, record) => record.origin.name },
-          { title: '计价货币', render: (_, record) => record.origin.quote_currency },
-          { title: '基准货币', render: (_, record) => record.origin.base_currency },
-          {
-            title: '价值尺度',
-            render: (_, record) => `${record.origin.value_scale} ${record.origin.value_scale_unit || ''}`,
-          },
-          {
-            title: '成交量粒度',
-            render: (_, record) => record.origin.volume_step,
-          },
-          {
-            title: '报价粒度',
-            render: (_, record) => record.origin.price_step,
-          },
-          {
-            title: '保证金率',
-            render: (_, record) => record.origin.margin_rate,
-          },
-          {
-            title: '点差',
-            render: (_, record) => record.origin.spread,
-          },
-          {
-            title: '允许做空',
-            render: (_, record) => (record.origin.allow_short ? '是' : '否'),
-          },
-          {
-            title: '操作',
-            render: (_, record) => (
-              <Space>
-                <Button
-                  icon={<StockMarket />}
-                  onClick={async () => {
-                    const period_in_sec = await showForm<string>({ type: 'string', title: 'period_in_sec' });
-                    if (period_in_sec) {
-                      executeCommand('Market', {
-                        datasource_id: record.origin.datasource_id,
-                        product_id: record.origin.product_id,
-                        period_in_sec: +period_in_sec,
-                      });
-                    }
-                  }}
-                ></Button>
-                <Button
-                  icon={<IconEdit />}
-                  onClick={() => {
-                    setFormData(record.origin);
+      <DataView table={table} />
 
-                    setModalVisible(true);
-                  }}
-                ></Button>
-                <Button icon={<IconDelete />} disabled type="danger"></Button>
-              </Space>
-            ),
-          },
-        ]}
-      ></Table>
       <Modal
         visible={isModalVisible}
         onCancel={() => {
