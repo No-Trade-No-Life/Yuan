@@ -541,6 +541,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/vendor-ccxt",
+      "projectFolder": "apps/vendor-ccxt",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/ui-web",
       "projectFolder": "ui/web"
     }
