@@ -508,51 +508,6 @@ importers:
       '@yuants/tool-kit': link:../../tools/toolkit
       typescript: 4.7.4
 
-  ../../apps/vendor-deepcoin:
-    specifiers:
-      '@microsoft/api-extractor': ~7.30.0
-      '@rushstack/heft': ~0.47.5
-      '@rushstack/heft-jest-plugin': ~0.3.30
-      '@rushstack/heft-node-rig': ~1.10.7
-      '@types/heft-jest': 1.0.3
-      '@types/json-schema': ~7.0.11
-      '@types/node': '18'
-      '@types/ws': ~8.5.10
-      '@yuants/data-model': workspace:*
-      '@yuants/extension': workspace:*
-      '@yuants/kernel': workspace:*
-      '@yuants/protocol': workspace:*
-      '@yuants/tool-kit': workspace:*
-      '@yuants/utils': workspace:*
-      ajv: ~8.12.0
-      ajv-formats: ~2.1.1
-      json-schema: ~0.4.0
-      rxjs: ~7.5.6
-      typescript: ~4.7.4
-      ws: ~8.16.0
-    dependencies:
-      '@types/json-schema': 7.0.15
-      '@yuants/data-model': link:../../libraries/data-model
-      '@yuants/kernel': link:../../libraries/kernel
-      '@yuants/protocol': link:../../libraries/protocol
-      '@yuants/utils': link:../../libraries/utils
-      ajv: 8.12.0
-      ajv-formats: 2.1.1
-      rxjs: 7.5.7
-      ws: 8.16.0
-    devDependencies:
-      '@microsoft/api-extractor': 7.30.1
-      '@rushstack/heft': 0.47.11
-      '@rushstack/heft-jest-plugin': 0.3.45_@rushstack+heft@0.47.11
-      '@rushstack/heft-node-rig': 1.10.13_@rushstack+heft@0.47.11
-      '@types/heft-jest': 1.0.3
-      '@types/node': 18.17.12
-      '@types/ws': 8.5.10
-      '@yuants/extension': link:../../libraries/extension
-      '@yuants/tool-kit': link:../../tools/toolkit
-      json-schema: 0.4.0
-      typescript: 4.7.4
-
   ../../libraries/agent:
     specifiers:
       '@microsoft/api-extractor': ~7.30.0
@@ -1605,6 +1560,7 @@ packages:
   /@babel/helper-validator-identifier/7.22.20:
     resolution: {integrity: sha512-Y4OZ+ytlatR8AI+8KZfKuL5urKp7qey08ha31L8b3BwewJAoJamTzyvxPR/5D+KkdJCGPq/+8TukHBlY10FX9A==}
     engines: {node: '>=6.9.0'}
+    dev: false
 
   /@babel/helper-validator-identifier/7.22.5:
     resolution: {integrity: sha512-aJXu+6lErq8ltp+JhkJUfk1MTGyuA4v7f3pA+BJ5HLfNC6nAQ0Cpi9uOquUj8Hehg0aUiHzWQbOVJGao6ztBAQ==}
@@ -1642,7 +1598,7 @@ packages:
     resolution: {integrity: sha512-C/BaXcnnvBCmHTpz/VGZ8jgtE2aYlW4hxDhseJAWZb7gqGM/qtCK6iZUb0TyKFf7BOUsBH7Q7fkRsDRhg1XklQ==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      '@babel/helper-validator-identifier': 7.22.20
+      '@babel/helper-validator-identifier': 7.22.5
       chalk: 2.4.2
       js-tokens: 4.0.0
 
@@ -6235,6 +6191,7 @@ packages:
 
   /@types/json-schema/7.0.15:
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
+    dev: true
 
   /@types/jsonfile/6.1.1:
     resolution: {integrity: sha512-GSgiRCVeapDN+3pqA35IkQwasaCh/0YFH5dEF6S88iDvEn901DjOeH3/QPY+XYP1DFzDZPvIvfeEgk+7br5png==}
@@ -6504,12 +6461,6 @@ packages:
       '@types/node': 18.17.12
       '@types/webidl-conversions': 7.0.0
     dev: false
-
-  /@types/ws/8.5.10:
-    resolution: {integrity: sha512-vmQSUcfalpIq0R9q7uTo2lXs6eGIpt9wtnLdMv9LVpIjCA/+ufZRozlVoVelIYixx1ugCBKDhn89vnsEGOCx9A==}
-    dependencies:
-      '@types/node': 18.17.12
-    dev: true
 
   /@types/ws/8.5.5:
     resolution: {integrity: sha512-lwhs8hktwxSjf9UaZ9tG5M03PGogvFaH8gUgLNbN9HKIg0dvv6q+gkSuJ8HN4/VbyxkuLzCjlN7GquQ0gUJfIg==}
@@ -19129,19 +19080,6 @@ packages:
 
   /ws/8.14.2:
     resolution: {integrity: sha512-wEBG1ftX4jcglPxgFCMJmZ2PLtSbJ2Peg6TmpJFTbe9GZYOQCDPdMYu/Tm0/bGZkw8paZnJY45J4K2PZrLYq8g==}
-    engines: {node: '>=10.0.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: '>=5.0.2'
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
-    dev: false
-
-  /ws/8.16.0:
-    resolution: {integrity: sha512-HS0c//TP7Ina87TfiPUz1rQzMhHrl/SG2guqRcTOIUYD2q8uhUdNHZYJUaQ8aTGPzCh+c6oawMKW35nFl1dxyQ==}
     engines: {node: '>=10.0.0'}
     peerDependencies:
       bufferutil: ^4.0.1

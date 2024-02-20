@@ -8,15 +8,9 @@ export const buildDependencyHash = async () => {
   const packageJson = await fs.readJson(path.resolve(process.cwd(), 'package.json'));
   const packageName = packageJson.name;
 
-  let rushConfiguration: rushLib.RushConfiguration;
-  try {
-    rushConfiguration = rushLib.RushConfiguration.loadFromDefaultLocation({
-      startingFolder: process.cwd(),
-    });
-  } catch (e) {
-    console.error(new Date(), `rush.json not found`);
-    process.exit(1);
-  }
+  const rushConfiguration = rushLib.RushConfiguration.loadFromDefaultLocation({
+    startingFolder: process.cwd(),
+  });
 
   const thisProject = rushConfiguration.projectsByName.get(packageName);
   if (!thisProject) {

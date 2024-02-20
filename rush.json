@@ -536,11 +536,6 @@
       "shouldPublish": true
     },
     {
-      "packageName": "@yuants/vendor-deepcoin",
-      "projectFolder": "apps/vendor-deepcoin",
-      "shouldPublish": true
-    },
-    {
       "packageName": "@yuants/ui-web",
       "projectFolder": "ui/web"
     }

@@ -29,7 +29,6 @@
     "@yuants/app-general-data-source",
     "@yuants/app-general-realtime-data-source",
     "@yuants/app-trade-copier",
-    "@yuants/vendor-deepcoin",
     "@yuants/vendor-ctp"
   ],
   /**
