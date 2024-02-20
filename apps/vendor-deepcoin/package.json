@@ -1,0 +1,44 @@
+{
+  "name": "@yuants/vendor-deepcoin",
+  "version": "0.0.0",
+  "homepage": "https://github.com/No-Trade-No-Life/Yuan/tree/main/apps/vendor-deepcoin",
+  "main": "lib/index.js",
+  "module": "dist/index.js",
+  "files": [
+    "dist",
+    "lib",
+    "temp"
+  ],
+  "scripts": {
+    "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
+  },
+  "dependencies": {
+    "@types/json-schema": "~7.0.11",
+    "@yuants/data-model": "workspace:*",
+    "@yuants/kernel": "workspace:*",
+    "@yuants/protocol": "workspace:*",
+    "@yuants/utils": "workspace:*",
+    "ajv": "~8.12.0",
+    "ajv-formats": "~2.1.1",
+    "rxjs": "~7.5.6",
+    "ws": "~8.16.0"
+  },
+  "devDependencies": {
+    "@microsoft/api-extractor": "~7.30.0",
+    "@rushstack/heft": "~0.47.5",
+    "@rushstack/heft-jest-plugin": "~0.3.30",
+    "@rushstack/heft-node-rig": "~1.10.7",
+    "@types/heft-jest": "1.0.3",
+    "@types/json-schema": "~7.0.11",
+    "@types/node": "18",
+    "@yuants/extension": "workspace:*",
+    "@yuants/tool-kit": "workspace:*",
+    "json-schema": "~0.4.0",
+    "typescript": "~4.7.4",
+    "@types/ws": "~8.5.10"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  }
+}
