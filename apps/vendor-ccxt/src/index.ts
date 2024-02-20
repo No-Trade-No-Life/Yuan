@@ -4,6 +4,7 @@ import {
   IPeriod,
   IPosition,
   IProduct,
+  ITick,
   OrderDirection,
   OrderType,
   PositionVariant,
@@ -12,13 +13,16 @@ import {
 import { Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
-import ccxt, { Exchange } from 'ccxt';
+import ccxt, { Exchange, Market } from 'ccxt';
 import {
   EMPTY,
   bufferCount,
+  catchError,
+  combineLatestWith,
   defer,
   delayWhen,
   expand,
+  filter,
   forkJoin,
   from,
   lastValueFrom,
@@ -68,7 +72,7 @@ import {
         mergeMap((positions) => positions),
         map((position): IPosition => {
           return {
-            position_id: position.id,
+            position_id: position.id!,
             product_id: mapSymbolToProductId[position.symbol],
             variant: position.side === 'long' ? PositionVariant.LONG : PositionVariant.SHORT,
             volume: position.contracts || 0,
@@ -130,6 +134,7 @@ import {
 
   const products$ = defer(() => ex.loadMarkets()).pipe(
     mergeMap((markets) => Object.values(markets)),
+    filter((market): market is Exclude<typeof market, undefined> => !!market),
     tap((market) => {
       console.info('Product-Symbol', market.id, market.symbol);
       mapProductIdToSymbol[market.id] = market.symbol;
@@ -262,12 +267,13 @@ import {
                     datasource_id: EXCHANGE_ID,
                     product_id,
                     period_in_sec,
-                    timestamp_in_us: t * 1000,
-                    open: o,
-                    high: h,
-                    low: l,
-                    close: c,
-                    volume: vol,
+                    start_at: t,
+                    timestamp_in_us: t! * 1000,
+                    open: o!,
+                    high: h!,
+                    low: l!,
+                    close: c!,
+                    volume: vol!,
                   }),
                 ),
                 toArray(),
@@ -289,6 +295,58 @@ import {
     },
   );
 
+  const memoize = <T extends (...args: any[]) => any>(fn: T): T => {
+    const cache = new Map<string, ReturnType<T>>();
+    return ((...args: any[]) => {
+      const key = JSON.stringify(args);
+      if (cache.has(key)) {
+        return cache.get(key);
+      }
+      const result = fn(...args);
+      cache.set(key, result);
+      return result;
+    }) as T;
+  };
+
+  const useFundingRate = memoize((symbol: string) => {
+    return from(ex.fetchFundingRate(symbol)).pipe(
+      repeat({ delay: 10_000 }),
+      retry({ delay: 5000 }),
+      shareReplay(1),
+    );
+  });
+
+  terminal.provideTicks(EXCHANGE_ID, (product_id) => {
+    console.info(formatTime(Date.now()), 'tick_stream', product_id);
+    const symbol = mapProductIdToSymbol[product_id];
+    if (!symbol) {
+      console.info(formatTime(Date.now()), 'tick_stream', product_id, 'no such symbol');
+      return EMPTY;
+    }
+    return defer(() => ex.fetchTicker(symbol)).pipe(
+      combineLatestWith(useFundingRate(symbol)),
+      map(([ticker, fundingRateObj]): ITick => {
+        return {
+          datasource_id: EXCHANGE_ID,
+          product_id,
+          updated_at: ticker.timestamp!,
+          ask: ticker.ask,
+          bid: ticker.bid,
+          volume: ticker.baseVolume,
+          interest_rate_for_long: -fundingRateObj.fundingRate! * ticker.ask!,
+          interest_rate_for_short: fundingRateObj.fundingRate! * ticker.bid!,
+          settlement_scheduled_at: fundingRateObj.fundingTimestamp,
+        };
+      }),
+      catchError((e) => {
+        console.error(formatTime(Date.now()), 'tick_stream', product_id, e);
+        throw e;
+      }),
+      retry(1000),
+      repeat(500),
+    );
+  });
+
   terminal.providePeriods(EXCHANGE_ID, (product_id, period_in_sec) => {
     console.info(formatTime(Date.now()), 'period_stream', product_id, period_in_sec);
     return defer(() => {
@@ -306,13 +364,13 @@ import {
           datasource_id: EXCHANGE_ID,
           product_id,
           period_in_sec,
-          timestamp_in_us: t * 1000,
+          timestamp_in_us: t! * 1000,
           start_at: t,
-          open: o,
-          high: h,
-          low: l,
-          close: c,
-          volume: vol,
+          open: o!,
+          high: h!,
+          low: l!,
+          close: c!,
+          volume: vol!,
         }),
       ),
       toArray(),

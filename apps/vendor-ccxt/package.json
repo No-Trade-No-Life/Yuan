@@ -2,9 +2,7 @@
   "name": "@yuants/vendor-ccxt",
   "version": "0.0.7",
   "files": [
-    "dist",
-    "lib",
-    "temp"
+    "dist/extension.bundle.js"
   ],
   "scripts": {
     "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
@@ -12,7 +10,7 @@
   "dependencies": {
     "@yuants/protocol": "workspace:*",
     "rxjs": "~7.5.6",
-    "ccxt": "~4.0.107",
+    "ccxt": "~4.2.48",
     "@yuants/data-model": "workspace:*"
   },
   "devDependencies": {
@@ -29,5 +27,12 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
     "access": "public"
+  },
+  "io_ntnl": {
+    "deploy_files": [
+      "dist",
+      "lib",
+      "temp"
+    ]
   }
 }
