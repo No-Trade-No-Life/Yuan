@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-ccxt",
   "entries": [
     {
+      "version": "0.0.12",
+      "tag": "@yuants/vendor-ccxt_v0.0.12",
+      "date": "Thu, 22 Feb 2024 21:13:45 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix mark price"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.11",
       "tag": "@yuants/vendor-ccxt_v0.0.11",
       "date": "Thu, 22 Feb 2024 20:18:09 GMT",
