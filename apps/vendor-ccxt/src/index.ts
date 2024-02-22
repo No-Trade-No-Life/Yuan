@@ -200,24 +200,6 @@ import {
     )
     .subscribe();
 
-  // const mapPeriodInSecToCCXTTimeframe: Record<number, string> = {
-  //   1: '1s',
-  //   60: '1m',
-  //   180: '3m',
-  //   300: '5m',
-  //   900: '15m',
-  //   1800: '30m',
-  //   3600: '1h',
-  //   7200: '2h',
-  //   14400: '4h',
-  //   21600: '6h',
-  //   43200: '12h',
-  //   86400: '1d',
-  //   259200: '3d',
-  //   604800: '1w',
-  //   2592000: '1M'
-  // };
-
   const mapPeriodInSecToCCXTTimeframe = (period_in_sec: number): string => {
     if (period_in_sec % 2592000 === 0) {
       return `${period_in_sec / 2592000}M`;
