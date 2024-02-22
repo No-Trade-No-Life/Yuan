@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-ccxt
 
-This log was last generated on Thu, 22 Feb 2024 19:04:13 GMT and should not be manually modified.
+This log was last generated on Thu, 22 Feb 2024 19:30:53 GMT and should not be manually modified.
+
+## 0.0.10
+Thu, 22 Feb 2024 19:30:53 GMT
+
+### Patches
+
+- fix dockerfile
 
 ## 0.0.9
 Thu, 22 Feb 2024 19:04:13 GMT
