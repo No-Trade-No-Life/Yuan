@@ -275,6 +275,7 @@ import {
           updated_at: ticker.timestamp!,
           ask: ticker.ask,
           bid: ticker.bid,
+          price: ticker.last || ticker.close,
           volume: ticker.baseVolume,
           interest_rate_for_long: -fundingRateObj.fundingRate! * markPrice,
           interest_rate_for_short: fundingRateObj.fundingRate! * markPrice,
