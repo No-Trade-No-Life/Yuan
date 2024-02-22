@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-ccxt",
   "entries": [
     {
+      "version": "0.0.11",
+      "tag": "@yuants/vendor-ccxt_v0.0.11",
+      "date": "Thu, 22 Feb 2024 20:18:09 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix account_id && add public only flag"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.10",
       "tag": "@yuants/vendor-ccxt_v0.0.10",
       "date": "Thu, 22 Feb 2024 19:30:53 GMT",
