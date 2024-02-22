@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-ccxt",
+      "comment": "fix account_id && add public only flag",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-ccxt"
+}
