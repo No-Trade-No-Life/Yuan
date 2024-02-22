@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-ccxt",
   "entries": [
     {
+      "version": "0.0.10",
+      "tag": "@yuants/vendor-ccxt_v0.0.10",
+      "date": "Thu, 22 Feb 2024 19:30:53 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix dockerfile"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.9",
       "tag": "@yuants/vendor-ccxt_v0.0.9",
       "date": "Thu, 22 Feb 2024 19:04:13 GMT",
