@@ -13,17 +13,17 @@ import {
 import { Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
-import ccxt, { Exchange, Market } from 'ccxt';
+import ccxt, { Exchange } from 'ccxt';
 import {
   EMPTY,
   bufferCount,
   catchError,
+  combineLatest,
   combineLatestWith,
   defer,
   delayWhen,
   expand,
   filter,
-  forkJoin,
   from,
   lastValueFrom,
   map,
@@ -33,6 +33,7 @@ import {
   retry,
   shareReplay,
   tap,
+  timeout,
   toArray,
 } from 'rxjs';
 
@@ -53,12 +54,21 @@ import {
   // @ts-ignore
   const ex: Exchange = new ccxt[EXCHANGE_ID](CCXT_PARAMS);
 
-  const accounts = await lastValueFrom(from(ex.loadAccounts()));
-  console.info(formatTime(Date.now()), 'loadAccounts', JSON.stringify(accounts));
-  const accountId = accounts[0]?.id ?? ACCOUNT_ID;
-  console.info(formatTime(Date.now()), 'resolve account', accountId);
+  if (EXCHANGE_ID === 'binance') {
+    ex.options['warnOnFetchOpenOrdersWithoutSymbol'] = false;
+    ex.options['defaultType'] = 'future';
+  }
 
-  const terminal_id = process.env.TERMINAL_ID || `CCXT-${EXCHANGE_ID}-${accountId}-${CURRENCY}`;
+  let account_id: string = ACCOUNT_ID;
+
+  if (!account_id && ex.has['loadAccounts']) {
+    const accounts = await lastValueFrom(from(ex.loadAccounts()));
+    console.info(formatTime(Date.now()), 'loadAccounts', JSON.stringify(accounts));
+    account_id = `CCXT/${EXCHANGE_ID}/${accounts[0]?.id}`;
+    console.info(formatTime(Date.now()), 'resolve account', account_id);
+  }
+
+  const terminal_id = process.env.TERMINAL_ID || `CCXT-${EXCHANGE_ID}-${account_id}-${CURRENCY}`;
 
   const terminal = new Terminal(process.env.HOST_URL!, {
     terminal_id,
@@ -67,54 +77,79 @@ import {
 
   const accountInfo$ = defer(() => of(0)).pipe(
     mergeMap(() => {
-      const balance$ = from(ex.fetchBalance());
-      const positions$ = from(ex.fetchPositions()).pipe(
-        mergeMap((positions) => positions),
-        map((position): IPosition => {
-          return {
-            position_id: position.id!,
-            product_id: mapSymbolToProductId[position.symbol],
-            variant: position.side === 'long' ? PositionVariant.LONG : PositionVariant.SHORT,
-            volume: position.contracts || 0,
-            free_volume: position.contracts || 0,
-            position_price: position.entryPrice || 0,
-            closable_price: position.markPrice || 0,
-            floating_profit: position.unrealizedPnl || 0,
-          };
-        }),
-        toArray(),
+      const balance$ = (
+        ex.has['watchBalance']
+          ? defer(() => ex.watchBalance())
+          : defer(() => ex.fetchBalance()).pipe(repeat({ delay: 1000 }))
+      ).pipe(
+        //
+        shareReplay(1),
+      );
+      const positions$ = (
+        ex.has['watchPositions']
+          ? defer(() => ex.watchPositions())
+          : defer(() => ex.fetchPositions()).pipe(
+              //
+              repeat({ delay: 1000 }),
+            )
+      ).pipe(
+        mergeMap((positions) =>
+          from(positions).pipe(
+            map((position): IPosition => {
+              return {
+                position_id: position.id!,
+                product_id: mapSymbolToProductId[position.symbol],
+                variant: position.side === 'long' ? PositionVariant.LONG : PositionVariant.SHORT,
+                volume: position.contracts || 0,
+                free_volume: position.contracts || 0,
+                position_price: position.entryPrice || 0,
+                closable_price: position.markPrice || 0,
+                floating_profit: position.unrealizedPnl || 0,
+              };
+            }),
+            toArray(),
+          ),
+        ),
+        shareReplay(1),
       );
       const orders$ = from(ex.fetchOpenOrders()).pipe(
-        mergeMap((orders) => orders),
-        map((order): IOrder => {
-          return {
-            exchange_order_id: order.id,
-            client_order_id: order.id,
-            account_id: accountId,
-            product_id: mapSymbolToProductId[order.symbol],
-            type: order.type === 'limit' ? OrderType.LIMIT : OrderType.MARKET,
-            direction: order.side === 'sell' ? OrderDirection.OPEN_SHORT : OrderDirection.OPEN_LONG,
-            volume: order.amount,
-            timestamp_in_us: order.timestamp * 1000,
-            price: order.price,
-            traded_volume: order.amount - order.remaining,
-          };
-        }),
-        toArray(),
+        repeat({ delay: 1000 }),
+        mergeMap((orders) =>
+          from(orders).pipe(
+            map((order): IOrder => {
+              return {
+                exchange_order_id: order.id,
+                client_order_id: order.id,
+                account_id: account_id,
+                product_id: mapSymbolToProductId[order.symbol],
+                type: order.type === 'limit' ? OrderType.LIMIT : OrderType.MARKET,
+                direction: order.side === 'sell' ? OrderDirection.OPEN_SHORT : OrderDirection.OPEN_LONG,
+                volume: order.amount,
+                timestamp_in_us: order.timestamp * 1000,
+                price: order.price,
+                traded_volume: order.amount - order.remaining,
+              };
+            }),
+            toArray(),
+          ),
+        ),
+        shareReplay(1),
       );
-      return forkJoin([balance$, positions$, orders$]).pipe(
+      return combineLatest([balance$, positions$, orders$]).pipe(
         //
         map(([balance, positions, orders]): IAccountInfo => {
+          const profit = positions.reduce((acc, cur) => cur.floating_profit + acc, 0);
+          const equity = +(balance[CURRENCY]?.total ?? 0);
           return {
             timestamp_in_us: Date.now() * 1000,
-            account_id: accountId,
+            account_id: account_id,
             money: {
               currency: CURRENCY,
-              balance: +(balance[CURRENCY]?.total ?? 0),
+              balance: equity - profit,
               free: +(balance[CURRENCY]?.free ?? 0),
               used: +(balance[CURRENCY]?.used ?? 0),
-              equity: +(balance[CURRENCY]?.total ?? 0),
-              profit: 0,
+              equity: equity,
+              profit,
             },
             positions,
             orders,
@@ -122,7 +157,8 @@ import {
         }),
       );
     }),
-    repeat({ delay: 1000 }),
+    timeout(30_000),
+    tap({ error: (e) => console.error(formatTime(Date.now()), 'accountInfo$', e) }),
     retry({ delay: 1000 }),
     shareReplay(1),
   );
@@ -323,7 +359,14 @@ import {
       console.info(formatTime(Date.now()), 'tick_stream', product_id, 'no such symbol');
       return EMPTY;
     }
-    return defer(() => ex.fetchTicker(symbol)).pipe(
+    return (
+      ex.has['watchTicker']
+        ? defer(() => ex.watchTicker(symbol))
+        : defer(() => ex.fetchTicker(symbol)).pipe(
+            //
+            repeat({ delay: 500 }),
+          )
+    ).pipe(
       combineLatestWith(useFundingRate(symbol)),
       map(([ticker, fundingRateObj]): ITick => {
         return {
@@ -343,38 +386,46 @@ import {
         throw e;
       }),
       retry(1000),
-      repeat(500),
     );
   });
 
   terminal.providePeriods(EXCHANGE_ID, (product_id, period_in_sec) => {
     console.info(formatTime(Date.now()), 'period_stream', product_id, period_in_sec);
-    return defer(() => {
-      const timeframe = mapPeriodInSecToCCXTTimeframe(period_in_sec);
-      const symbol = mapProductIdToSymbol[product_id];
-      const since = Date.now() - 3 * period_in_sec * 1000;
-      if (!symbol) {
-        return of([]);
-      }
-      return ex.fetchOHLCV(symbol, timeframe, since);
-    }).pipe(
-      mergeMap((x) => x),
-      map(
-        ([t, o, h, l, c, vol]): IPeriod => ({
-          datasource_id: EXCHANGE_ID,
-          product_id,
-          period_in_sec,
-          timestamp_in_us: t! * 1000,
-          start_at: t,
-          open: o!,
-          high: h!,
-          low: l!,
-          close: c!,
-          volume: vol!,
-        }),
+    const timeframe = mapPeriodInSecToCCXTTimeframe(period_in_sec);
+    const symbol = mapProductIdToSymbol[product_id];
+    if (!symbol) {
+      return of([]);
+    }
+    return (
+      ex.has['watchOHLCV']
+        ? defer(() => ex.watchOHLCV(symbol, timeframe))
+        : defer(() => {
+            const since = Date.now() - 3 * period_in_sec * 1000;
+            return ex.fetchOHLCV(symbol, timeframe, since);
+          }).pipe(
+            //
+            repeat({ delay: 1000 }),
+          )
+    ).pipe(
+      mergeMap((x) =>
+        from(x).pipe(
+          map(
+            ([t, o, h, l, c, vol]): IPeriod => ({
+              datasource_id: EXCHANGE_ID,
+              product_id,
+              period_in_sec,
+              timestamp_in_us: t! * 1000,
+              start_at: t,
+              open: o!,
+              high: h!,
+              low: l!,
+              close: c!,
+              volume: vol!,
+            }),
+          ),
+          toArray(),
+        ),
       ),
-      toArray(),
-      repeat({ delay: 1000 }),
       retry({ delay: 1000 }),
     );
   });
@@ -385,7 +436,7 @@ import {
       required: ['account_id'],
       properties: {
         account_id: {
-          const: accountId,
+          const: account_id,
         },
       },
     },
@@ -427,7 +478,7 @@ import {
       required: ['account_id'],
       properties: {
         account_id: {
-          const: accountId,
+          const: account_id,
         },
       },
     },
@@ -447,7 +498,7 @@ import {
       required: ['account_id'],
       properties: {
         account_id: {
-          const: accountId,
+          const: account_id,
         },
       },
     },
