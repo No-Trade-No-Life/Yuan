@@ -64,7 +64,7 @@ import {
   if (!account_id && ex.has['loadAccounts']) {
     const accounts = await lastValueFrom(from(ex.loadAccounts()));
     console.info(formatTime(Date.now()), 'loadAccounts', JSON.stringify(accounts));
-    account_id = accounts[0]?.id ?? ACCOUNT_ID;
+    account_id = `CCXT/${EXCHANGE_ID}/${accounts[0]?.id}`;
     console.info(formatTime(Date.now()), 'resolve account', account_id);
   }
 
