@@ -9,6 +9,7 @@ export default (context: IExtensionContext) => {
           required: ['HOST_URL'],
           properties: {
             //
+            PUBLIC_ONLY: { type: 'boolean' },
             HOST_URL: { type: 'string' },
             TERMINAL_ID: { type: 'string' },
             EXCHANGE_ID: { type: 'string' },
@@ -33,7 +34,6 @@ export default (context: IExtensionContext) => {
     },
     make_k8s_resource_objects: async (ctx, envCtx) => {
       const EXCHANGE_ID = ctx.env!.EXCHANGE_ID;
-      const ACCOUNT_ID = ctx.env!.ACCOUNT_ID;
       return {
         deployment: {
           apiVersion: 'apps/v1',
@@ -41,10 +41,10 @@ export default (context: IExtensionContext) => {
           metadata: {
             labels: {
               'y.ntnl.io/version': ctx.version ?? envCtx.version,
-              'y.ntnl.io/account_id': `${ACCOUNT_ID}`,
+              'y.ntnl.io/manifest_key': ctx.key,
               'y.ntnl.io/component': 'ccxt',
             },
-            name: `ccxt-${EXCHANGE_ID}-${ACCOUNT_ID}-${ctx.key}`.replace(/\s/g, '').toLocaleLowerCase(),
+            name: `ccxt-${EXCHANGE_ID}-${ctx.key}`.replace(/\s/g, '').toLocaleLowerCase(),
             namespace: 'yuan',
           },
           spec: {
@@ -52,14 +52,14 @@ export default (context: IExtensionContext) => {
             selector: {
               matchLabels: {
                 'y.ntnl.io/component': 'ccxt',
-                'y.ntnl.io/account_id': `${ACCOUNT_ID}`,
+                'y.ntnl.io/manifest_key': ctx.key,
               },
             },
             template: {
               metadata: {
                 labels: {
                   'y.ntnl.io/version': ctx.version ?? envCtx.version,
-                  'y.ntnl.io/account_id': `${ACCOUNT_ID}`,
+                  'y.ntnl.io/manifest_key': ctx.key,
                   'y.ntnl.io/component': 'ccxt',
                 },
               },
