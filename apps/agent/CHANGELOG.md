@@ -1,6 +1,11 @@
 # Change Log - @yuants/app-agent
 
-This log was last generated on Mon, 19 Feb 2024 09:27:17 GMT and should not be manually modified.
+This log was last generated on Thu, 22 Feb 2024 18:28:20 GMT and should not be manually modified.
+
+## 0.4.34
+Thu, 22 Feb 2024 18:28:20 GMT
+
+_Version update only_
 
 ## 0.4.33
 Mon, 19 Feb 2024 09:27:17 GMT

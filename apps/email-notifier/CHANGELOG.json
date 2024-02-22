@@ -2,6 +2,32 @@
   "name": "@yuants/app-email-notifier",
   "entries": [
     {
+      "version": "0.0.41",
+      "tag": "@yuants/app-email-notifier_v0.0.41",
+      "date": "Thu, 22 Feb 2024 18:28:20 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.5.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.11.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.1.4`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.40",
       "tag": "@yuants/app-email-notifier_v0.0.40",
       "date": "Sat, 17 Feb 2024 23:28:07 GMT",

@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-email-notifier",
-  "version": "0.0.40",
+  "version": "0.0.41",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [

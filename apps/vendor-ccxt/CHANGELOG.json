@@ -2,6 +2,38 @@
   "name": "@yuants/vendor-ccxt",
   "entries": [
     {
+      "version": "0.0.8",
+      "tag": "@yuants/vendor-ccxt_v0.0.8",
+      "date": "Thu, 22 Feb 2024 18:28:20 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "init for opensource"
+          },
+          {
+            "comment": "add subscribe tick"
+          },
+          {
+            "comment": "use watchX interface when available and other refinement"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.11.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.5.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.1.4`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.7",
       "tag": "@yuants/vendor-ccxt_v0.0.7",
       "date": "Tue, 16 Jan 2024 02:58:35 GMT",

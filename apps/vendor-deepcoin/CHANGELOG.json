@@ -1,0 +1,40 @@
+{
+  "name": "@yuants/vendor-deepcoin",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/vendor-deepcoin_v0.0.1",
+      "date": "Thu, 22 Feb 2024 18:28:20 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "init"
+          },
+          {
+            "comment": "skip"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.5.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.10.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.11.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.0.6`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.1.4`"
+          }
+        ]
+      }
+    }
+  ]
+}
