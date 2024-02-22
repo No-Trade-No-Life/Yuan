@@ -262,15 +262,23 @@ import {
     ).pipe(
       combineLatestWith(useFundingRate(symbol)),
       map(([ticker, fundingRateObj]): ITick => {
+        // console.info(
+        //   formatTime(Date.now()),
+        //   'tick_stream',
+        //   JSON.stringify(ticker),
+        //   JSON.stringify(fundingRateObj),
+        // );
+        const markPrice = (fundingRateObj.markPrice || ticker.last || ticker.close)!;
         return {
           datasource_id: EXCHANGE_ID,
           product_id,
           updated_at: ticker.timestamp!,
           ask: ticker.ask,
           bid: ticker.bid,
+          price: ticker.last || ticker.close,
           volume: ticker.baseVolume,
-          interest_rate_for_long: -fundingRateObj.fundingRate! * ticker.ask!,
-          interest_rate_for_short: fundingRateObj.fundingRate! * ticker.bid!,
+          interest_rate_for_long: -fundingRateObj.fundingRate! * markPrice,
+          interest_rate_for_short: fundingRateObj.fundingRate! * markPrice,
           settlement_scheduled_at: fundingRateObj.fundingTimestamp,
         };
       }),
