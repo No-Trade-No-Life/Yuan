@@ -20,7 +20,7 @@ COPY --chown=node:node ./out/vendor-ccxt-out /app
 
 RUN node create-links.js create
 
-WORKDIR /app/vendors/ccxt
+WORKDIR /app/apps/vendor-ccxt
 
 # USER nobody
 CMD ["node", "./lib/index.js"]
