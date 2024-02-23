@@ -311,7 +311,12 @@ interface IGeneralSpecificRelation {
             //
             map((v: Record<string, FundingRate>) => v[symbol]),
           )
-    ).pipe(repeat({ delay: 10_000 }), retry({ delay: 5000 }), shareReplay(1));
+    ).pipe(
+      //
+      repeat({ delay: 10_000 }),
+      retry({ delay: 5000 }),
+      shareReplay(1),
+    );
   });
 
   terminal.provideTicks(EXCHANGE_ID, (product_id) => {
