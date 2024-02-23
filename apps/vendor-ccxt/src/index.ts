@@ -24,6 +24,7 @@ import {
   delayWhen,
   expand,
   filter,
+  firstValueFrom,
   from,
   lastValueFrom,
   map,
@@ -54,6 +55,25 @@ import {
   console.info(formatTime(Date.now()), 'init', EXCHANGE_ID, CCXT_PARAMS);
   // @ts-ignore
   const ex: Exchange = new ccxt[EXCHANGE_ID](CCXT_PARAMS);
+
+  console.info(
+    formatTime(Date.now()),
+    `FeatureCheck`,
+    EXCHANGE_ID,
+    JSON.stringify({
+      fetchAccounts: !!ex.has['fetchAccounts'],
+      fetchOHLCV: !!ex.has['fetchOHLCV'],
+      watchOHLCV: !!ex.has['watchOHLCV'],
+      fetchTicker: !!ex.has['fetchTicker'],
+      watchTicker: !!ex.has['watchTicker'],
+      fetchBalance: !!ex.has['fetchBalance'],
+      watchBalance: !!ex.has['watchBalance'],
+      fetchPositions: !!ex.has['fetchPositions'],
+      watchPositions: !!ex.has['watchPositions'],
+      fetchOpenOrders: !!ex.has['fetchOpenOrders'],
+      fetchFundingRate: !!ex.has['fetchFundingRate'],
+    }),
+  );
 
   if (EXCHANGE_ID === 'binance') {
     ex.options['warnOnFetchOpenOrdersWithoutSymbol'] = false;
@@ -110,6 +130,8 @@ import {
       mergeMap((products) => terminal.updateProducts(products)),
     )
     .subscribe();
+
+  await firstValueFrom(products$);
 
   const mapPeriodInSecToCCXTTimeframe = (period_in_sec: number): string => {
     if (period_in_sec % 2592000 === 0) {
@@ -238,7 +260,7 @@ import {
   };
 
   const useFundingRate = memoize((symbol: string) => {
-    return from(ex.fetchFundingRate(symbol)).pipe(
+    return defer(() => ex.fetchFundingRate(symbol)).pipe(
       repeat({ delay: 10_000 }),
       retry({ delay: 5000 }),
       shareReplay(1),
