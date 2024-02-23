@@ -1,15 +1,16 @@
 import { IconDelete, IconRefresh, IconUndo } from '@douyinfe/semi-icons';
-import { Space, Table } from '@douyinfe/semi-ui';
+import { Space } from '@douyinfe/semi-ui';
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { formatTime } from '@yuants/data-model';
 import { IDeploySpec } from '@yuants/extension';
 import { t } from 'i18next';
 import { useObservableState } from 'observable-hooks';
-import { BehaviorSubject, Subject, defer, repeat, shareReplay } from 'rxjs';
+import { useEffect, useMemo } from 'react';
+import { BehaviorSubject } from 'rxjs';
 import { executeCommand, registerCommand } from '../CommandCenter';
-import { Button } from '../Interactive';
+import { Button, DataView } from '../Interactive';
 import { registerPage } from '../Pages';
 import { supabase } from '../SupaBase';
-import { useEffect } from 'react';
 
 export interface ISupabaseManifestRecord {
   id: string;
@@ -48,73 +49,76 @@ registerPage('ManifestList', () => {
     executeCommand('Manifest.Load');
   }, []);
 
+  const columns = useMemo(() => {
+    const columnHelper = createColumnHelper<ISupabaseManifestRecord>();
+    return [
+      columnHelper.accessor('id', {
+        header: () => 'ID',
+      }),
+      columnHelper.accessor('manifest.package', {
+        header: () => 'Package',
+      }),
+      columnHelper.accessor('manifest.version', {
+        header: () => 'Version',
+      }),
+      columnHelper.accessor('updated_at', {
+        header: () => 'Updated At',
+        cell: (x) => formatTime(x.getValue()),
+      }),
+      columnHelper.accessor('created_at', {
+        header: () => 'Created At',
+        cell: (x) => formatTime(x.getValue()),
+      }),
+      columnHelper.accessor('expired_at', {
+        header: () => 'Expired At',
+        cell: (x) => {
+          const t = x.getValue();
+          return t ? formatTime(t) : '-';
+        },
+      }),
+      columnHelper.accessor('manifest', {
+        header: () => 'Manifest',
+        cell: (x) => <div style={{ width: 300 }}>{JSON.stringify(x.getValue())}</div>,
+      }),
+      columnHelper.display({
+        id: 'actions',
+        header: () => 'Actions',
+        cell: (x) => {
+          const v = x.row.original;
+          return (
+            <Space>
+              {/* <Button icon={<IconEdit />} onClick={() => executeCommand('Manifest.Edit', { id: v.id })}>
+            {t('common:edit')}
+          </Button> */}
+              {v.expired_at && (
+                <Button icon={<IconUndo />} onClick={() => executeCommand('Manifest.Recover', { id: v.id })}>
+                  {t('common:recover')}
+                </Button>
+              )}
+              {!v.expired_at && (
+                <Button
+                  type="danger"
+                  icon={<IconDelete />}
+                  onClick={() => executeCommand('Manifest.Delete', { id: v.id })}
+                >
+                  {t('common:delete')}
+                </Button>
+              )}
+            </Space>
+          );
+        },
+      }),
+    ];
+  }, []);
+
+  const table = useReactTable({ columns, data, getCoreRowModel: getCoreRowModel() });
+
   return (
     <Space vertical align="start">
       <Space>
         <Button icon={<IconRefresh />} onClick={() => executeCommand('Manifest.Load')}></Button>
       </Space>
-      <Table
-        dataSource={data}
-        columns={[
-          //
-          {
-            title: 'ID',
-            render: (_, v) => v.id,
-          },
-          {
-            title: 'Package',
-            render: (_, v) => v.manifest.package,
-          },
-          {
-            title: 'Version',
-            render: (_, v) => v.manifest.version,
-          },
-          {
-            title: 'Updated At',
-            render: (_, v) => formatTime(v.updated_at),
-          },
-          {
-            title: 'Created At',
-            render: (_, v) => formatTime(v.created_at),
-          },
-          {
-            title: 'Expired At',
-            render: (_, v) => (v.expired_at ? formatTime(v.expired_at) : '-'),
-          },
-          {
-            title: 'Manifest',
-            width: 300,
-            render: (_, v) => JSON.stringify(v.manifest),
-          },
-          {
-            title: 'Actions',
-            render: (_, v) => (
-              <Space>
-                {/* <Button icon={<IconEdit />} onClick={() => executeCommand('Manifest.Edit', { id: v.id })}>
-                  {t('common:edit')}
-                </Button> */}
-                {v.expired_at && (
-                  <Button
-                    icon={<IconUndo />}
-                    onClick={() => executeCommand('Manifest.Recover', { id: v.id })}
-                  >
-                    {t('common:recover')}
-                  </Button>
-                )}
-                {!v.expired_at && (
-                  <Button
-                    type="danger"
-                    icon={<IconDelete />}
-                    onClick={() => executeCommand('Manifest.Delete', { id: v.id })}
-                  >
-                    {t('common:delete')}
-                  </Button>
-                )}
-              </Space>
-            ),
-          },
-        ]}
-      ></Table>
+      <DataView table={table} />
     </Space>
   );
 });

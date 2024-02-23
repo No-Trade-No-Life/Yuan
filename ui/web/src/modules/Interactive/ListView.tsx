@@ -4,7 +4,7 @@ import { Table, flexRender } from '@tanstack/react-table';
 export function ListView<T>(props: { table: Table<T> }) {
   const { table } = props;
   return (
-    <Space vertical align="start">
+    <Space vertical align="start" style={{ width: '100%' }}>
       <div>{table.getRowModel().rows.length} Items</div>
       <List>
         {table.getRowModel().rows.map((row) => (
