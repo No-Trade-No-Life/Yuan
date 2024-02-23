@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-ccxt
 
-This log was last generated on Thu, 22 Feb 2024 21:13:45 GMT and should not be manually modified.
+This log was last generated on Fri, 23 Feb 2024 09:55:57 GMT and should not be manually modified.
+
+## 0.0.13
+Fri, 23 Feb 2024 09:55:57 GMT
+
+### Patches
+
+- fix(vendor-ccxt): await symbol loading & fix funding rate
 
 ## 0.0.12
 Thu, 22 Feb 2024 21:13:45 GMT
