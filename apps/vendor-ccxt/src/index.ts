@@ -1,5 +1,6 @@
 import {
   IAccountInfo,
+  IDataRecord,
   IOrder,
   IPeriod,
   IPosition,
@@ -14,6 +15,7 @@ import { Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import ccxt, { Exchange } from 'ccxt';
+import { FundingRate } from 'ccxt/js/src/base/types';
 import {
   EMPTY,
   bufferCount,
@@ -38,6 +40,17 @@ import {
   toArray,
 } from 'rxjs';
 
+interface IGeneralSpecificRelation {
+  // general_datasource_id 一定是 Y 常量，因此不需要特别存储
+  // general_datasource_id: string;
+  /** 标准品种ID */
+  general_product_id: string; // XAUUSD
+  /** 具体数据源 ID */
+  specific_datasource_id: string; // TradingView
+  /** 具体品种 ID */
+  specific_product_id: string; // FX:XAUUSD
+}
+
 (async () => {
   const PUBLIC_ONLY = process.env.PUBLIC_ONLY === 'true';
   const EXCHANGE_ID = process.env.EXCHANGE_ID!;
@@ -50,7 +63,6 @@ import {
     secret: process.env.SECRET,
     password: process.env.PASSWORD,
     httpProxy: process.env.HTTP_PROXY,
-    // options: { defaultType: 'swap' }
   };
   console.info(formatTime(Date.now()), 'init', EXCHANGE_ID, CCXT_PARAMS);
   // @ts-ignore
@@ -72,6 +84,7 @@ import {
       watchPositions: !!ex.has['watchPositions'],
       fetchOpenOrders: !!ex.has['fetchOpenOrders'],
       fetchFundingRate: !!ex.has['fetchFundingRate'],
+      fetchFundingRates: !!ex.has['fetchFundingRates'],
     }),
   );
 
@@ -81,7 +94,7 @@ import {
   }
 
   let account_id: string = ACCOUNT_ID;
-  if (!account_id && ex.has['fetchAccounts']) {
+  if (!account_id && ex.has['fetchAccounts'] && !PUBLIC_ONLY) {
     const accounts = await lastValueFrom(from(ex.loadAccounts()));
     console.info(formatTime(Date.now()), 'loadAccounts', JSON.stringify(accounts));
     account_id = `CCXT/${EXCHANGE_ID}/${accounts[0]?.id}`;
@@ -128,6 +141,37 @@ import {
     .pipe(
       //
       mergeMap((products) => terminal.updateProducts(products)),
+    )
+    .subscribe();
+
+  // auto update general_specific_relation
+  products$
+    .pipe(
+      mergeMap((products) =>
+        from(products).pipe(
+          //
+          map(
+            (product): IGeneralSpecificRelation => ({
+              general_product_id: mapProductIdToSymbol[product.product_id],
+              specific_datasource_id: EXCHANGE_ID,
+              specific_product_id: product.product_id,
+            }),
+          ),
+          map(
+            (gsr): IDataRecord<IGeneralSpecificRelation> => ({
+              id: `${gsr.general_product_id}\n${gsr.specific_datasource_id}\n${gsr.specific_product_id}`,
+              type: 'general_specific_relation',
+              created_at: Date.now(),
+              frozen_at: null,
+              updated_at: Date.now(),
+              tags: {},
+              origin: gsr,
+            }),
+          ),
+          toArray(),
+          mergeMap((gsrList) => terminal.updateDataRecords(gsrList)),
+        ),
+      ),
     )
     .subscribe();
 
@@ -260,7 +304,15 @@ import {
   };
 
   const useFundingRate = memoize((symbol: string) => {
-    return defer(() => ex.fetchFundingRate(symbol)).pipe(
+    return (
+      ex.has['fetchFundingRate']
+        ? defer(() => ex.fetchFundingRate(symbol))
+        : defer(() => ex.fetchFundingRates([symbol])).pipe(
+            //
+            map((v: Record<string, FundingRate>) => v[symbol]),
+          )
+    ).pipe(
+      //
       repeat({ delay: 10_000 }),
       retry({ delay: 5000 }),
       shareReplay(1),
@@ -291,6 +343,14 @@ import {
         //   JSON.stringify(fundingRateObj),
         // );
         const markPrice = (fundingRateObj.markPrice || ticker.last || ticker.close)!;
+        // ISSUE: fundingTimestamp of bitmex might be a meaningless string
+        let settlement_scheduled_at: number | undefined;
+        if (!isNaN(Number(fundingRateObj.fundingTimestamp))) {
+          settlement_scheduled_at = +fundingRateObj.fundingTimestamp!;
+        }
+        if (!isNaN(new Date(fundingRateObj.fundingDatetime!).getTime())) {
+          settlement_scheduled_at = new Date(fundingRateObj.fundingDatetime!).getTime();
+        }
         return {
           datasource_id: EXCHANGE_ID,
           product_id,
@@ -301,7 +361,7 @@ import {
           volume: ticker.baseVolume,
           interest_rate_for_long: -fundingRateObj.fundingRate! * markPrice,
           interest_rate_for_short: fundingRateObj.fundingRate! * markPrice,
-          settlement_scheduled_at: fundingRateObj.fundingTimestamp,
+          settlement_scheduled_at,
         };
       }),
       catchError((e) => {
