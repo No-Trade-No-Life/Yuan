@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-ccxt
 
-This log was last generated on Fri, 23 Feb 2024 09:55:57 GMT and should not be manually modified.
+This log was last generated on Fri, 23 Feb 2024 15:17:31 GMT and should not be manually modified.
+
+## 0.0.14
+Fri, 23 Feb 2024 15:17:31 GMT
+
+### Patches
+
+- feat(vendor-ccxt): auto update gsr & minor fixes
 
 ## 0.0.13
 Fri, 23 Feb 2024 09:55:57 GMT

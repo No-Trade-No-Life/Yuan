@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-ccxt",
   "entries": [
     {
+      "version": "0.0.14",
+      "tag": "@yuants/vendor-ccxt_v0.0.14",
+      "date": "Fri, 23 Feb 2024 15:17:31 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "feat(vendor-ccxt): auto update gsr & minor fixes"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.13",
       "tag": "@yuants/vendor-ccxt_v0.0.13",
       "date": "Fri, 23 Feb 2024 09:55:57 GMT",
