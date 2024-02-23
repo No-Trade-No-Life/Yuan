@@ -14,8 +14,10 @@ import { Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import ccxt, { Exchange } from 'ccxt';
+import { FundingRate } from 'ccxt/js/src/base/types';
 import {
   EMPTY,
+  Observable,
   bufferCount,
   catchError,
   combineLatest,
@@ -24,6 +26,7 @@ import {
   delayWhen,
   expand,
   filter,
+  firstValueFrom,
   from,
   lastValueFrom,
   map,
@@ -37,49 +40,45 @@ import {
   toArray,
 } from 'rxjs';
 
-(async () => {
-  const PUBLIC_ONLY = process.env.PUBLIC_ONLY === 'true';
-  const EXCHANGE_ID = process.env.EXCHANGE_ID!;
-  const ACCOUNT_ID = process.env.ACCOUNT_ID!;
-  const CURRENCY = process.env.CURRENCY || 'USDT';
-  const EARLIEST_TIMESTAMP = +(process.env.EARLIEST_TIMESTAMP || 1262304000000);
+const PUBLIC_ONLY = process.env.PUBLIC_ONLY === 'true';
+const EXCHANGE_ID = process.env.EXCHANGE_ID!;
+const ACCOUNT_ID = process.env.ACCOUNT_ID!;
+const CURRENCY = process.env.CURRENCY || 'USDT';
+const EARLIEST_TIMESTAMP = +(process.env.EARLIEST_TIMESTAMP || 1262304000000);
 
-  const CCXT_PARAMS = {
-    apiKey: process.env.API_KEY,
-    secret: process.env.SECRET,
-    password: process.env.PASSWORD,
-    httpProxy: process.env.HTTP_PROXY,
-    // options: { defaultType: 'swap' }
-  };
-  console.info(formatTime(Date.now()), 'init', EXCHANGE_ID, CCXT_PARAMS);
-  // @ts-ignore
-  const ex: Exchange = new ccxt[EXCHANGE_ID](CCXT_PARAMS);
-
-  if (EXCHANGE_ID === 'binance') {
-    ex.options['warnOnFetchOpenOrdersWithoutSymbol'] = false;
-    ex.options['defaultType'] = 'future';
+const mapPeriodInSecToCCXTTimeframe = (period_in_sec: number): string => {
+  if (period_in_sec % 2592000 === 0) {
+    return `${period_in_sec / 2592000}M`;
   }
-
-  let account_id: string = ACCOUNT_ID;
-  if (!account_id && ex.has['fetchAccounts']) {
-    const accounts = await lastValueFrom(from(ex.loadAccounts()));
-    console.info(formatTime(Date.now()), 'loadAccounts', JSON.stringify(accounts));
-    account_id = `CCXT/${EXCHANGE_ID}/${accounts[0]?.id}`;
-    console.info(formatTime(Date.now()), 'resolve account', account_id);
+  if (period_in_sec % 604800 === 0) {
+    return `${period_in_sec / 604800}w`;
   }
+  if (period_in_sec % 86400 === 0) {
+    return `${period_in_sec / 86400}d`;
+  }
+  if (period_in_sec % 3600 === 0) {
+    return `${period_in_sec / 3600}h`;
+  }
+  if (period_in_sec % 60 === 0) {
+    return `${period_in_sec / 60}m`;
+  }
+  return `${period_in_sec}s`;
+};
 
-  const terminal_id =
-    process.env.TERMINAL_ID || `CCXT-${EXCHANGE_ID}-${PUBLIC_ONLY ? 'PUBLIC' : account_id}-${CURRENCY}`;
+/**
+ * @internal
+ */
+export const mapProductIdToSymbol: Record<string, string> = {};
+/**
+ * @internal
+ */
+export const mapSymbolToProductId: Record<string, string> = {};
 
-  const terminal = new Terminal(process.env.HOST_URL!, {
-    terminal_id,
-    name: `CCXT`,
-  });
-
-  const mapProductIdToSymbol: Record<string, string> = {};
-  const mapSymbolToProductId: Record<string, string> = {};
-
-  const products$ = defer(() => ex.loadMarkets()).pipe(
+/**
+ * @internal
+ */
+export const makeProducts$ = (ex: Exchange) => {
+  return defer(() => ex.loadMarkets()).pipe(
     mergeMap((markets) => Object.values(markets)),
     filter((market): market is Exclude<typeof market, undefined> => !!market),
     tap((market) => {
@@ -100,9 +99,185 @@ import {
     ),
     toArray(),
     repeat({ delay: 86400_000 }),
+    tap({
+      error: (e) => console.error(formatTime(Date.now()), 'products$', e),
+    }),
     retry({ delay: 10_000 }),
     shareReplay(1),
   );
+};
+
+const memoize = <T extends (...args: any[]) => any>(fn: T): T => {
+  const cache = new Map<string, ReturnType<T>>();
+  return ((...args: any[]) => {
+    const key = JSON.stringify(args);
+    if (cache.has(key)) {
+      return cache.get(key);
+    }
+    const result = fn(...args);
+    cache.set(key, result);
+    return result;
+  }) as T;
+};
+
+/**
+ * @internal
+ */
+export const makeUseFundingRate = (ex: Exchange) =>
+  memoize((symbol: string) => {
+    return defer(() => ex.fetchFundingRate(symbol)).pipe(
+      repeat({ delay: 10_000 }),
+      retry({ delay: 5000 }),
+      shareReplay(1),
+    );
+  });
+
+/**
+ * @internal
+ */
+export const subscribeTick =
+  (ex: Exchange, useFundingRate: (symbol: string) => Observable<FundingRate>) => (product_id: string) => {
+    console.info(formatTime(Date.now()), 'tick_stream', product_id);
+    const symbol = mapProductIdToSymbol[product_id];
+    if (!symbol) {
+      console.info(formatTime(Date.now()), 'tick_stream', product_id, 'no such symbol');
+      return EMPTY;
+    }
+    return (
+      ex.has['watchTicker']
+        ? defer(() => ex.watchTicker(symbol))
+        : defer(() => ex.fetchTicker(symbol)).pipe(
+            //
+            repeat({ delay: 500 }),
+          )
+    ).pipe(
+      combineLatestWith(useFundingRate(symbol)),
+      map(([ticker, fundingRateObj]): ITick => {
+        // console.info(
+        //   formatTime(Date.now()),
+        //   'tick_stream',
+        //   JSON.stringify(ticker),
+        //   JSON.stringify(fundingRateObj),
+        // );
+        const markPrice = (fundingRateObj.markPrice || ticker.last || ticker.close)!;
+        return {
+          datasource_id: EXCHANGE_ID,
+          product_id,
+          updated_at: ticker.timestamp!,
+          ask: ticker.ask,
+          bid: ticker.bid,
+          price: ticker.last || ticker.close,
+          volume: ticker.baseVolume,
+          interest_rate_for_long: -fundingRateObj.fundingRate! * markPrice,
+          interest_rate_for_short: fundingRateObj.fundingRate! * markPrice,
+          settlement_scheduled_at: fundingRateObj.fundingTimestamp,
+        };
+      }),
+      catchError((e) => {
+        console.error(formatTime(Date.now()), 'tick_stream', product_id, e);
+        throw e;
+      }),
+      retry(1000),
+    );
+  };
+
+/**
+ * @internal
+ */
+export const subscribePeriods = (ex: Exchange) => (product_id: string, period_in_sec: number) => {
+  console.info(formatTime(Date.now()), 'period_stream', product_id, period_in_sec);
+  const timeframe = mapPeriodInSecToCCXTTimeframe(period_in_sec);
+  const symbol = mapProductIdToSymbol[product_id];
+  if (!symbol) {
+    return of([]);
+  }
+  return (
+    ex.has['watchOHLCV']
+      ? defer(() => ex.watchOHLCV(symbol, timeframe))
+      : defer(() => {
+          const since = Date.now() - 3 * period_in_sec * 1000;
+          return ex.fetchOHLCV(symbol, timeframe, since);
+        }).pipe(
+          //
+          repeat({ delay: 1000 }),
+        )
+  ).pipe(
+    mergeMap((x) =>
+      from(x).pipe(
+        map(
+          ([t, o, h, l, c, vol]): IPeriod => ({
+            datasource_id: EXCHANGE_ID,
+            product_id,
+            period_in_sec,
+            timestamp_in_us: t! * 1000,
+            start_at: t,
+            open: o!,
+            high: h!,
+            low: l!,
+            close: c!,
+            volume: vol!,
+          }),
+        ),
+        toArray(),
+      ),
+    ),
+    retry({ delay: 1000 }),
+  );
+};
+
+(async () => {
+  const CCXT_PARAMS = {
+    apiKey: process.env.API_KEY,
+    secret: process.env.SECRET,
+    password: process.env.PASSWORD,
+    httpProxy: process.env.HTTP_PROXY,
+    // options: { defaultType: 'swap' }
+  };
+  console.info(formatTime(Date.now()), 'init', EXCHANGE_ID, CCXT_PARAMS);
+  // @ts-ignore
+  const ex: Exchange = new ccxt[EXCHANGE_ID](CCXT_PARAMS);
+
+  if (EXCHANGE_ID === 'binance') {
+    ex.options['warnOnFetchOpenOrdersWithoutSymbol'] = false;
+    ex.options['defaultType'] = 'future';
+  }
+
+  console.info(
+    formatTime(Date.now()),
+    `FeatureCheck`,
+    EXCHANGE_ID,
+    JSON.stringify({
+      fetchAccounts: !!ex.has['fetchAccounts'],
+      fetchOHLCV: !!ex.has['fetchOHLCV'],
+      watchOHLCV: !!ex.has['watchOHLCV'],
+      fetchTicker: !!ex.has['fetchTicker'],
+      watchTicker: !!ex.has['watchTicker'],
+      fetchBalance: !!ex.has['fetchBalance'],
+      watchBalance: !!ex.has['watchBalance'],
+      fetchPositions: !!ex.has['fetchPositions'],
+      watchPositions: !!ex.has['watchPositions'],
+      fetchOpenOrders: !!ex.has['fetchOpenOrders'],
+      fetchFundingRate: !!ex.has['fetchFundingRate'],
+    }),
+  );
+
+  let account_id: string = ACCOUNT_ID;
+  if (!account_id && ex.has['fetchAccounts']) {
+    const accounts = await lastValueFrom(from(ex.loadAccounts()));
+    console.info(formatTime(Date.now()), 'loadAccounts', JSON.stringify(accounts));
+    account_id = `CCXT/${EXCHANGE_ID}/${accounts[0]?.id}`;
+    console.info(formatTime(Date.now()), 'resolve account', account_id);
+  }
+
+  const terminal_id =
+    process.env.TERMINAL_ID || `CCXT-${EXCHANGE_ID}-${PUBLIC_ONLY ? 'PUBLIC' : account_id}-${CURRENCY}`;
+
+  const terminal = new Terminal(process.env.HOST_URL!, {
+    terminal_id,
+    name: `CCXT`,
+  });
+
+  const products$ = makeProducts$(ex);
 
   products$
     .pipe(
@@ -111,24 +286,7 @@ import {
     )
     .subscribe();
 
-  const mapPeriodInSecToCCXTTimeframe = (period_in_sec: number): string => {
-    if (period_in_sec % 2592000 === 0) {
-      return `${period_in_sec / 2592000}M`;
-    }
-    if (period_in_sec % 604800 === 0) {
-      return `${period_in_sec / 604800}w`;
-    }
-    if (period_in_sec % 86400 === 0) {
-      return `${period_in_sec / 86400}d`;
-    }
-    if (period_in_sec % 3600 === 0) {
-      return `${period_in_sec / 3600}h`;
-    }
-    if (period_in_sec % 60 === 0) {
-      return `${period_in_sec / 60}m`;
-    }
-    return `${period_in_sec}s`;
-  };
+  await firstValueFrom(products$);
 
   terminal.provideService(
     'CopyDataRecords',
@@ -224,112 +382,11 @@ import {
     },
   );
 
-  const memoize = <T extends (...args: any[]) => any>(fn: T): T => {
-    const cache = new Map<string, ReturnType<T>>();
-    return ((...args: any[]) => {
-      const key = JSON.stringify(args);
-      if (cache.has(key)) {
-        return cache.get(key);
-      }
-      const result = fn(...args);
-      cache.set(key, result);
-      return result;
-    }) as T;
-  };
+  const useFundingRate = makeUseFundingRate(ex);
 
-  const useFundingRate = memoize((symbol: string) => {
-    return from(ex.fetchFundingRate(symbol)).pipe(
-      repeat({ delay: 10_000 }),
-      retry({ delay: 5000 }),
-      shareReplay(1),
-    );
-  });
+  terminal.provideTicks(EXCHANGE_ID, subscribeTick(ex, useFundingRate));
 
-  terminal.provideTicks(EXCHANGE_ID, (product_id) => {
-    console.info(formatTime(Date.now()), 'tick_stream', product_id);
-    const symbol = mapProductIdToSymbol[product_id];
-    if (!symbol) {
-      console.info(formatTime(Date.now()), 'tick_stream', product_id, 'no such symbol');
-      return EMPTY;
-    }
-    return (
-      ex.has['watchTicker']
-        ? defer(() => ex.watchTicker(symbol))
-        : defer(() => ex.fetchTicker(symbol)).pipe(
-            //
-            repeat({ delay: 500 }),
-          )
-    ).pipe(
-      combineLatestWith(useFundingRate(symbol)),
-      map(([ticker, fundingRateObj]): ITick => {
-        // console.info(
-        //   formatTime(Date.now()),
-        //   'tick_stream',
-        //   JSON.stringify(ticker),
-        //   JSON.stringify(fundingRateObj),
-        // );
-        const markPrice = (fundingRateObj.markPrice || ticker.last || ticker.close)!;
-        return {
-          datasource_id: EXCHANGE_ID,
-          product_id,
-          updated_at: ticker.timestamp!,
-          ask: ticker.ask,
-          bid: ticker.bid,
-          price: ticker.last || ticker.close,
-          volume: ticker.baseVolume,
-          interest_rate_for_long: -fundingRateObj.fundingRate! * markPrice,
-          interest_rate_for_short: fundingRateObj.fundingRate! * markPrice,
-          settlement_scheduled_at: fundingRateObj.fundingTimestamp,
-        };
-      }),
-      catchError((e) => {
-        console.error(formatTime(Date.now()), 'tick_stream', product_id, e);
-        throw e;
-      }),
-      retry(1000),
-    );
-  });
-
-  terminal.providePeriods(EXCHANGE_ID, (product_id, period_in_sec) => {
-    console.info(formatTime(Date.now()), 'period_stream', product_id, period_in_sec);
-    const timeframe = mapPeriodInSecToCCXTTimeframe(period_in_sec);
-    const symbol = mapProductIdToSymbol[product_id];
-    if (!symbol) {
-      return of([]);
-    }
-    return (
-      ex.has['watchOHLCV']
-        ? defer(() => ex.watchOHLCV(symbol, timeframe))
-        : defer(() => {
-            const since = Date.now() - 3 * period_in_sec * 1000;
-            return ex.fetchOHLCV(symbol, timeframe, since);
-          }).pipe(
-            //
-            repeat({ delay: 1000 }),
-          )
-    ).pipe(
-      mergeMap((x) =>
-        from(x).pipe(
-          map(
-            ([t, o, h, l, c, vol]): IPeriod => ({
-              datasource_id: EXCHANGE_ID,
-              product_id,
-              period_in_sec,
-              timestamp_in_us: t! * 1000,
-              start_at: t,
-              open: o!,
-              high: h!,
-              low: l!,
-              close: c!,
-              volume: vol!,
-            }),
-          ),
-          toArray(),
-        ),
-      ),
-      retry({ delay: 1000 }),
-    );
-  });
+  terminal.providePeriods(EXCHANGE_ID, subscribePeriods(ex));
 
   if (!PUBLIC_ONLY) {
     const accountInfo$ = defer(() => of(0)).pipe(

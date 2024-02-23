@@ -4,6 +4,43 @@
 
 ```ts
 
+import { Exchange } from 'ccxt';
+import { FundingRate } from 'ccxt/js/src/base/types';
+import { IPeriod } from '@yuants/data-model';
+import { IProduct } from '@yuants/data-model';
+import { ITick } from '@yuants/data-model';
+import { Observable } from 'rxjs';
+
+// Warning: (ae-internal-missing-underscore) The name "makeProducts$" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export const makeProducts$: (ex: Exchange) => Observable<IProduct[]>;
+
+// Warning: (ae-internal-missing-underscore) The name "makeUseFundingRate" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export const makeUseFundingRate: (ex: Exchange) => (symbol: string) => Observable<FundingRate>;
+
+// Warning: (ae-internal-missing-underscore) The name "mapProductIdToSymbol" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export const mapProductIdToSymbol: Record<string, string>;
+
+// Warning: (ae-internal-missing-underscore) The name "mapSymbolToProductId" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export const mapSymbolToProductId: Record<string, string>;
+
+// Warning: (ae-internal-missing-underscore) The name "subscribePeriods" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export const subscribePeriods: (ex: Exchange) => (product_id: string, period_in_sec: number) => Observable<IPeriod[]>;
+
+// Warning: (ae-internal-missing-underscore) The name "subscribeTick" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export const subscribeTick: (ex: Exchange, useFundingRate: (symbol: string) => Observable<FundingRate>) => (product_id: string) => Observable<ITick>;
+
 // (No @packageDocumentation comment for this package)
 
 ```

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-ccxt",
+      "comment": "fix symbol loading & funding rate",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-ccxt"
+}
