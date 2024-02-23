@@ -1,11 +1,29 @@
-import { Space } from '@douyinfe/semi-ui';
-import { Table, flexRender } from '@tanstack/react-table';
+import { IconCaretdown, IconCaretup } from '@douyinfe/semi-icons';
+import { Pagination, Space } from '@douyinfe/semi-ui';
+import {
+  Table,
+  flexRender,
+  getFilteredRowModel,
+  getPaginationRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
 
 export function TableView<T>(props: { table: Table<T> }) {
-  const { table } = props;
+  const { table: t } = props;
+
+  const table = useReactTable({
+    ...t.options,
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    autoResetPageIndex: false,
+    autoResetExpanded: false,
+  });
+
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
-      <div>{table.getRowModel().rows.length} Items</div>
+      <div>{table.options.data.length} Items</div>
       <table className="semi-table">
         <thead
           className="semi-table-thead"
@@ -14,10 +32,20 @@ export function TableView<T>(props: { table: Table<T> }) {
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id} className="semi-table-row">
               {headerGroup.headers.map((header) => (
-                <th key={header.id} className="semi-table-row-head">
-                  {header.isPlaceholder
-                    ? null
-                    : flexRender(header.column.columnDef.header, header.getContext())}
+                <th
+                  key={header.id}
+                  className="semi-table-row-head"
+                  onClick={header.column.getToggleSortingHandler()}
+                >
+                  <Space>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(header.column.columnDef.header, header.getContext())}
+                    {{
+                      asc: <IconCaretup />,
+                      desc: <IconCaretdown />,
+                    }[header.column.getIsSorted() as string] ?? null}
+                  </Space>
                 </th>
               ))}
             </tr>
@@ -48,6 +76,22 @@ export function TableView<T>(props: { table: Table<T> }) {
           ))}
         </tfoot>
       </table>
+      <Pagination
+        total={table.options.data.length}
+        showTotal
+        showQuickJumper
+        showSizeChanger
+        pageSizeOpts={[10, 20, 50, 200]}
+        pageSize={table.getState().pagination.pageSize}
+        onPageSizeChange={(x) => {
+          table.setPageSize(x);
+        }}
+        // Semi UI's page is started from 1. Tanstack Table index is started from 0
+        currentPage={table.getState().pagination.pageIndex + 1}
+        onPageChange={(x) => {
+          table.setPageIndex(x - 1);
+        }}
+      />
     </Space>
   );
 }
