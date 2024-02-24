@@ -430,33 +430,31 @@ interface IGeneralSpecificRelation {
           //
           shareReplay(1),
         );
-        const positions$ = (
-          ex.has['watchPositions']
-            ? defer(() => ex.watchPositions()).pipe(repeat())
-            : defer(() => ex.fetchPositions()).pipe(
-                //
-                repeat({ delay: 1000 }),
-              )
-        ).pipe(
-          mergeMap((positions) =>
-            from(positions).pipe(
-              map((position): IPosition => {
-                return {
-                  position_id: position.id!,
-                  product_id: mapSymbolToProductId[position.symbol],
-                  variant: position.side === 'long' ? PositionVariant.LONG : PositionVariant.SHORT,
-                  volume: position.contracts || 0,
-                  free_volume: position.contracts || 0,
-                  position_price: position.entryPrice || 0,
-                  closable_price: position.markPrice || 0,
-                  floating_profit: position.unrealizedPnl || 0,
-                };
-              }),
-              toArray(),
+        const positions$ = defer(() => ex.fetchPositions(undefined))
+          .pipe(
+            //
+            repeat({ delay: 1000 }),
+          )
+          .pipe(
+            mergeMap((positions) =>
+              from(positions).pipe(
+                map((position): IPosition => {
+                  return {
+                    position_id: position.id!,
+                    product_id: mapSymbolToProductId[position.symbol],
+                    variant: position.side === 'long' ? PositionVariant.LONG : PositionVariant.SHORT,
+                    volume: position.contracts || 0,
+                    free_volume: position.contracts || 0,
+                    position_price: position.entryPrice || 0,
+                    closable_price: position.markPrice || 0,
+                    floating_profit: position.unrealizedPnl || 0,
+                  };
+                }),
+                toArray(),
+              ),
             ),
-          ),
-          shareReplay(1),
-        );
+            shareReplay(1),
+          );
         const orders$ = from(ex.fetchOpenOrders()).pipe(
           repeat({ delay: 1000 }),
           mergeMap((orders) =>

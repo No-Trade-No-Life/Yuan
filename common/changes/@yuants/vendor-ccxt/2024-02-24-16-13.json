@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-ccxt",
+      "comment": "fix position",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-ccxt"
+}
