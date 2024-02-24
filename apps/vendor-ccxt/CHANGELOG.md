@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-ccxt
 
-This log was last generated on Sat, 24 Feb 2024 14:03:44 GMT and should not be manually modified.
+This log was last generated on Sat, 24 Feb 2024 15:18:36 GMT and should not be manually modified.
+
+## 0.0.16
+Sat, 24 Feb 2024 15:18:36 GMT
+
+### Patches
+
+- enable ccxt pro
 
 ## 0.0.15
 Sat, 24 Feb 2024 14:03:44 GMT
