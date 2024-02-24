@@ -67,7 +67,7 @@ interface IGeneralSpecificRelation {
   };
   console.info(formatTime(Date.now()), 'init', EXCHANGE_ID, CCXT_PARAMS);
   // @ts-ignore
-  const ex: Exchange = new ccxt[EXCHANGE_ID](CCXT_PARAMS);
+  const ex: Exchange = new ccxt.pro[EXCHANGE_ID](CCXT_PARAMS);
 
   let accountInfoLock = false;
 
@@ -334,7 +334,7 @@ interface IGeneralSpecificRelation {
     }
     return (
       ex.has['watchTicker']
-        ? defer(() => ex.watchTicker(symbol))
+        ? defer(() => ex.watchTicker(symbol)).pipe(repeat())
         : defer(() => ex.fetchTicker(symbol)).pipe(
             //
             repeat({ delay: 1000 }),
@@ -387,7 +387,7 @@ interface IGeneralSpecificRelation {
     }
     return (
       ex.has['watchOHLCV']
-        ? defer(() => ex.watchOHLCV(symbol, timeframe))
+        ? defer(() => ex.watchOHLCV(symbol, timeframe)).pipe(repeat())
         : defer(() => {
             const since = Date.now() - 3 * period_in_sec * 1000;
             return ex.fetchOHLCV(symbol, timeframe, since);
@@ -424,7 +424,7 @@ interface IGeneralSpecificRelation {
       mergeMap(() => {
         const balance$ = (
           ex.has['watchBalance']
-            ? defer(() => ex.watchBalance())
+            ? defer(() => ex.watchBalance()).pipe(repeat())
             : defer(() => ex.fetchBalance()).pipe(repeat({ delay: 1000 }))
         ).pipe(
           //
@@ -432,7 +432,7 @@ interface IGeneralSpecificRelation {
         );
         const positions$ = (
           ex.has['watchPositions']
-            ? defer(() => ex.watchPositions())
+            ? defer(() => ex.watchPositions()).pipe(repeat())
             : defer(() => ex.fetchPositions()).pipe(
                 //
                 repeat({ delay: 1000 }),
