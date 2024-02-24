@@ -68,6 +68,8 @@ interface IGeneralSpecificRelation {
   // @ts-ignore
   const ex: Exchange = new ccxt[EXCHANGE_ID](CCXT_PARAMS);
 
+  let accountInfoLock = false;
+
   console.info(
     formatTime(Date.now()),
     `FeatureCheck`,
@@ -331,7 +333,7 @@ interface IGeneralSpecificRelation {
         ? defer(() => ex.watchTicker(symbol))
         : defer(() => ex.fetchTicker(symbol)).pipe(
             //
-            repeat({ delay: 500 }),
+            repeat({ delay: 1000 }),
           )
     ).pipe(
       combineLatestWith(useFundingRate(symbol)),
@@ -497,12 +499,24 @@ interface IGeneralSpecificRelation {
         );
       }),
       timeout(30_000),
-      tap({ error: (e) => console.error(formatTime(Date.now()), 'accountInfo$', e) }),
+      tap({
+        error: (e) => console.error(formatTime(Date.now()), 'accountInfo$', e),
+        next: () => {
+          if (accountInfoLock) {
+            console.info(formatTime(Date.now()), 'accountInfo$ is locked');
+          }
+        },
+      }),
       retry({ delay: 1000 }),
       shareReplay(1),
     );
 
-    terminal.provideAccountInfo(accountInfo$);
+    terminal.provideAccountInfo(
+      accountInfo$.pipe(
+        // stuck on submit order to prevent duplicated order
+        filter(() => !accountInfoLock),
+      ),
+    );
 
     terminal.provideService(
       'SubmitOrder',
@@ -543,6 +557,17 @@ interface IGeneralSpecificRelation {
         ).pipe(
           map(() => {
             return { res: { code: 0, message: 'OK' } };
+          }),
+          tap({
+            subscribe: () => {
+              if (accountInfoLock) {
+                throw new Error('accountInfo is locked');
+              }
+              accountInfoLock = true;
+            },
+            finalize: () => {
+              accountInfoLock = false;
+            },
           }),
         );
       },
