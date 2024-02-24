@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-ccxt
 
-This log was last generated on Fri, 23 Feb 2024 15:17:31 GMT and should not be manually modified.
+This log was last generated on Sat, 24 Feb 2024 14:03:44 GMT and should not be manually modified.
+
+## 0.0.15
+Sat, 24 Feb 2024 14:03:44 GMT
+
+### Patches
+
+- fix order lock bug
 
 ## 0.0.14
 Fri, 23 Feb 2024 15:17:31 GMT

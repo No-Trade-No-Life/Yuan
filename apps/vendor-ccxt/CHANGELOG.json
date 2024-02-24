@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-ccxt",
   "entries": [
     {
+      "version": "0.0.15",
+      "tag": "@yuants/vendor-ccxt_v0.0.15",
+      "date": "Sat, 24 Feb 2024 14:03:44 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix order lock bug"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.14",
       "tag": "@yuants/vendor-ccxt_v0.0.14",
       "date": "Fri, 23 Feb 2024 15:17:31 GMT",
