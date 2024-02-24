@@ -10,6 +10,7 @@ import {
   OrderType,
   PositionVariant,
   formatTime,
+  UUID,
 } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
@@ -104,7 +105,10 @@ interface IGeneralSpecificRelation {
   }
 
   const terminal_id =
-    process.env.TERMINAL_ID || `CCXT-${EXCHANGE_ID}-${PUBLIC_ONLY ? 'PUBLIC' : account_id}-${CURRENCY}`;
+    process.env.TERMINAL_ID ||
+    `CCXT-${EXCHANGE_ID}-${PUBLIC_ONLY ? 'PUBLIC' : account_id}-${CURRENCY}${
+      PUBLIC_ONLY ? `-${UUID()}` : ''
+    }`;
 
   const terminal = new Terminal(process.env.HOST_URL!, {
     terminal_id,
