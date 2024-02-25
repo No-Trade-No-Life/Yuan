@@ -385,38 +385,36 @@ interface IGeneralSpecificRelation {
     if (!symbol) {
       return of([]);
     }
-    return (
-      ex.has['watchOHLCV']
-        ? defer(() => ex.watchOHLCV(symbol, timeframe)).pipe(repeat())
-        : defer(() => {
-            const since = Date.now() - 3 * period_in_sec * 1000;
-            return ex.fetchOHLCV(symbol, timeframe, since);
-          }).pipe(
-            //
-            repeat({ delay: 1000 }),
-          )
-    ).pipe(
-      mergeMap((x) =>
-        from(x).pipe(
-          map(
-            ([t, o, h, l, c, vol]): IPeriod => ({
-              datasource_id: EXCHANGE_ID,
-              product_id,
-              period_in_sec,
-              timestamp_in_us: t! * 1000,
-              start_at: t,
-              open: o!,
-              high: h!,
-              low: l!,
-              close: c!,
-              volume: vol!,
-            }),
+    return defer(() => {
+      const since = Date.now() - 3 * period_in_sec * 1000;
+      return ex.fetchOHLCV(symbol, timeframe, since);
+    })
+      .pipe(
+        //
+        repeat({ delay: 1000 }),
+      )
+      .pipe(
+        mergeMap((x) =>
+          from(x).pipe(
+            map(
+              ([t, o, h, l, c, vol]): IPeriod => ({
+                datasource_id: EXCHANGE_ID,
+                product_id,
+                period_in_sec,
+                timestamp_in_us: t! * 1000,
+                start_at: t,
+                open: o!,
+                high: h!,
+                low: l!,
+                close: c!,
+                volume: vol!,
+              }),
+            ),
+            toArray(),
           ),
-          toArray(),
         ),
-      ),
-      retry({ delay: 1000 }),
-    );
+        retry({ delay: 1000 }),
+      );
   });
 
   if (!PUBLIC_ONLY) {
