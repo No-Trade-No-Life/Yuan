@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-ccxt",
   "entries": [
     {
+      "version": "0.0.18",
+      "tag": "@yuants/vendor-ccxt_v0.0.18",
+      "date": "Sun, 25 Feb 2024 15:40:57 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fetch ohlcv to correct error"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.17",
       "tag": "@yuants/vendor-ccxt_v0.0.17",
       "date": "Sat, 24 Feb 2024 16:28:48 GMT",
