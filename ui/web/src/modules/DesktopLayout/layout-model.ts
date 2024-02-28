@@ -36,7 +36,7 @@ const initialJson = (): FlexLayout.IJsonModel => ({
           id: 'ExtensionPanel',
           component: 'ExtensionPanel',
           enableRename: false,
-          enableDrag: false,
+          // enableDrag: false,
           enableClose: false,
         },
       ],
