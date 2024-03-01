@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-ccxt
 
-This log was last generated on Sun, 25 Feb 2024 15:40:57 GMT and should not be manually modified.
+This log was last generated on Fri, 01 Mar 2024 10:55:39 GMT and should not be manually modified.
+
+## 0.0.19
+Fri, 01 Mar 2024 10:55:39 GMT
+
+### Patches
+
+- add funding account & fix submit order osc error
 
 ## 0.0.18
 Sun, 25 Feb 2024 15:40:57 GMT
