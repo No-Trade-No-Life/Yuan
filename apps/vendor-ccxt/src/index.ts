@@ -53,10 +53,6 @@ interface IGeneralSpecificRelation {
   specific_product_id: string; // FX:XAUUSD
 }
 
-interface IExchangeFeatures {
-  has_funding_account: boolean;
-}
-
 (async () => {
   const PUBLIC_ONLY = process.env.PUBLIC_ONLY === 'true';
   const EXCHANGE_ID = process.env.EXCHANGE_ID!;
