@@ -27,6 +27,7 @@ import {
   delayWhen,
   expand,
   filter,
+  first,
   firstValueFrom,
   from,
   lastValueFrom,
@@ -418,6 +419,40 @@ interface IGeneralSpecificRelation {
   });
 
   if (!PUBLIC_ONLY) {
+    // NOTE: some exchange has the concept of funding account
+    if (['okx'].includes(EXCHANGE_ID)) {
+      const fundingAccountInfo$ = defer(() => ex.fetchBalance({ type: 'funding' })).pipe(
+        map((balance): IAccountInfo => {
+          const okx_balance = balance[CURRENCY];
+          return {
+            timestamp_in_us: Date.now() * 1000,
+            updated_at: Date.now(),
+            account_id: `${account_id}/funding`,
+            money: {
+              currency: CURRENCY,
+              balance: okx_balance.total!,
+              free: okx_balance.free!,
+              used: okx_balance.used!,
+              equity: okx_balance.total!,
+              profit: 0,
+            },
+            positions: [],
+            orders: [],
+          };
+        }),
+        repeat({ delay: 1000 }),
+        tap({
+          error: (e) => {
+            console.error(formatTime(Date.now()), 'fundingAccountInfo$', e);
+          },
+        }),
+        retry({ delay: 1000 }),
+        shareReplay(1),
+      );
+
+      terminal.provideAccountInfo(fundingAccountInfo$);
+    }
+
     const accountInfo$ = defer(() => of(0)).pipe(
       mergeMap(() => {
         const balance$ = (
@@ -510,6 +545,12 @@ interface IGeneralSpecificRelation {
       retry({ delay: 1000 }),
       shareReplay(1),
     );
+    const getAccountNetVolume = (accountInfo: IAccountInfo, product_id: string) => {
+      const netVolume = accountInfo.positions
+        .filter((v) => v.product_id === product_id)
+        .reduce((acc, cur) => acc + cur.volume * (cur.variant === PositionVariant.LONG ? 1 : -1), 0);
+      return netVolume;
+    };
 
     terminal.provideAccountInfo(
       accountInfo$.pipe(
@@ -549,12 +590,29 @@ interface IGeneralSpecificRelation {
           'submit to ccxt',
           JSON.stringify({ symbol, ccxtType, ccxtSide, volume, price, posSide }),
         );
-        return from(
-          ex.createOrder(symbol, ccxtType, ccxtSide, volume, price, {
-            // ISSUE: okx hedge LONG/SHORT mode need to set 'posSide' to 'long' or 'short'.
-            posSide: posSide,
-          }),
-        ).pipe(
+        // ISSUE: wait until the account info position update
+        return defer(() => accountInfo$).pipe(
+          //
+          first(),
+          mergeMap((last_account_info) =>
+            from(
+              ex.createOrder(symbol, ccxtType, ccxtSide, volume, price, {
+                // ISSUE: okx hedge LONG/SHORT mode need to set 'posSide' to 'long' or 'short'.
+                posSide: posSide,
+              }),
+            ).pipe(
+              delayWhen((v) =>
+                accountInfo$.pipe(
+                  //
+                  first(
+                    (accountInfo) =>
+                      getAccountNetVolume(last_account_info, product_id) !==
+                      getAccountNetVolume(accountInfo, product_id),
+                  ),
+                ),
+              ),
+            ),
+          ),
           map(() => {
             return { res: { code: 0, message: 'OK' } };
           }),
