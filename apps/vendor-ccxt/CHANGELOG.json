@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-ccxt",
   "entries": [
     {
+      "version": "0.0.19",
+      "tag": "@yuants/vendor-ccxt_v0.0.19",
+      "date": "Fri, 01 Mar 2024 10:55:39 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add funding account & fix submit order osc error"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.18",
       "tag": "@yuants/vendor-ccxt_v0.0.18",
       "date": "Sun, 25 Feb 2024 15:40:57 GMT",
