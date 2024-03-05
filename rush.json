@@ -531,6 +531,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/app-account-composer",
+      "projectFolder": "apps/account-composer",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/vendor-ctp",
       "projectFolder": "apps/vendor-ctp",
       "shouldPublish": true

@@ -17,6 +17,7 @@
    * and then specify those projects in the "additionalProjectsToInclude" list.
    */
   "deploymentProjectNames": [
+    "@yuants/app-account-composer",
     "@yuants/app-agent",
     "@yuants/app-alert-receiver",
     "@yuants/app-email-notifier",
