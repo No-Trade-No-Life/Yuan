@@ -1,0 +1,20 @@
+{
+  "name": "@yuants/app-account-composer",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/app-account-composer_v0.0.1",
+      "date": "Tue, 05 Mar 2024 17:35:13 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "new"
+          },
+          {
+            "comment": "timeout and throttle"
+          }
+        ]
+      }
+    }
+  ]
+}
