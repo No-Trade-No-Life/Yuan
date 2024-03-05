@@ -2,7 +2,20 @@ import { IAccountInfo, formatTime } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
-import { combineLatest, defer, filter, groupBy, map, mergeMap, retry, shareReplay, tap, toArray } from 'rxjs';
+import {
+  combineLatest,
+  defer,
+  filter,
+  groupBy,
+  map,
+  mergeMap,
+  retry,
+  shareReplay,
+  tap,
+  throttleTime,
+  timeout,
+  toArray,
+} from 'rxjs';
 import { IAccountCompositionRelation, acrSchema } from './model';
 
 const TERMINAL_ID = process.env.TERMINAL_ID || `AccountComposer`;
@@ -30,34 +43,36 @@ defer(() => terminal.queryDataRecords<IAccountCompositionRelation>({ type: 'acco
       group.pipe(
         toArray(),
         tap((x) => {
-          const accountInfo$ = combineLatest(
-            x.map((y) =>
-              terminal.useAccountInfo(y.source_account_id).pipe(
-                //
-                map(
-                  (x): IAccountInfo => ({
-                    ...x,
-                    money: {
-                      //
-                      ...x.money,
-                      equity: x.money.equity * y.multiple,
-                      balance: x.money.balance * y.multiple,
-                      profit: x.money.profit * y.multiple,
-                      used: x.money.used * y.multiple,
-                      free: x.money.free * y.multiple,
-                    },
-                    positions: x.positions.map((p) => ({
-                      ...p,
-                      volume: p.volume * y.multiple,
-                      free_volume: p.free_volume * y.multiple,
-                      floating_profit: p.floating_profit * y.multiple,
-                    })),
-                  }),
+          const accountInfo$ = defer(() =>
+            combineLatest(
+              x.map((y) =>
+                terminal.useAccountInfo(y.source_account_id).pipe(
+                  map(
+                    (x): IAccountInfo => ({
+                      ...x,
+                      money: {
+                        ...x.money,
+                        equity: x.money.equity * y.multiple,
+                        balance: x.money.balance * y.multiple,
+                        profit: x.money.profit * y.multiple,
+                        used: x.money.used * y.multiple,
+                        free: x.money.free * y.multiple,
+                      },
+                      positions: x.positions.map((p) => ({
+                        ...p,
+                        volume: p.volume * y.multiple,
+                        free_volume: p.free_volume * y.multiple,
+                        floating_profit: p.floating_profit * y.multiple,
+                      })),
+                    }),
+                  ),
+                  timeout(30_000),
                 ),
               ),
             ),
           ).pipe(
-            //
+            retry(),
+            throttleTime(1000),
             map((accountInfos): IAccountInfo => {
               return {
                 account_id: group.key,

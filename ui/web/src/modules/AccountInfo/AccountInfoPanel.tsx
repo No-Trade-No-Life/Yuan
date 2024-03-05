@@ -172,7 +172,7 @@ registerPage('AccountInfoPanel', () => {
   )?.[0];
 
   return (
-    <Space vertical align="start" style={{ padding: '1em' }}>
+    <Space vertical align="start" style={{ padding: '1em', width: '100%' }}>
       <h3 style={{ color: 'var(--semi-color-text-0)', fontWeight: 500 }}>{accountInfo.account_id}</h3>
       <Typography.Text>
         最后更新时间: {formatTime(updatedAt)} (Ping {renderedAt - updatedAt}ms)
@@ -182,6 +182,7 @@ registerPage('AccountInfoPanel', () => {
         align="center"
         size="small"
         row
+        style={{ width: '100%' }}
         data={[
           {
             key: '净值',
