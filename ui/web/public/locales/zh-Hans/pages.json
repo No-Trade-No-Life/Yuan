@@ -15,6 +15,7 @@
   "ExtensionPanel": "应用拓展",
   "FileEditor": "{{ filename }}",
   "FinancialStatementsPanel": "基金结算",
+  "FundStatements": "基金结算 {{ filename }}",
   "GeneralSpecificRelationList": "标准品种关系列表",
   "HostList": "主机配置",
   "Login": "登录",

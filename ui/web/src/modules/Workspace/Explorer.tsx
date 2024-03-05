@@ -92,6 +92,13 @@ const rules: IAssociationRule[] = [
     },
   },
   {
+    id: 'FundStatements',
+    match: ({ path, isFile }) => isFile && !!path.match(/\.statements\.json$/),
+    action: ({ path }) => {
+      executeCommand('FundStatements', { filename: path });
+    },
+  },
+  {
     id: 'FileEditor',
     match: ({ isFile }) => isFile,
     action: ({ path }) => {
