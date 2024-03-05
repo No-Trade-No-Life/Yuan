@@ -1,6 +1,7 @@
 {
   "AI": "AI Chat",
   "About": "About",
+  "AccountCompositionRelationList": "Account Compositions",
   "AccountFrameChart": "Account Frame Chart",
   "AccountInfoPanel": "Account Info: {{ account_id }}",
   "AccountList": "Accounts",
