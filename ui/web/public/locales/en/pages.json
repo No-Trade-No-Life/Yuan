@@ -15,6 +15,7 @@
   "ExtensionPanel": "Extensions",
   "FileEditor": "{{ filename }}",
   "FinancialStatementsPanel": "Fund Statements",
+  "FundStatements": "Fund Statements {{ filename }}",
   "GeneralSpecificRelationList": "General Product Reletions",
   "HostList": "Hosts",
   "Login": "Log in",
