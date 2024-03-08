@@ -32,6 +32,7 @@
     "@yuants/app-trade-copier",
     "@yuants/vendor-deepcoin",
     "@yuants/vendor-ccxt",
+    "@yuants/vendor-huobi",
     "@yuants/vendor-ctp"
   ],
   /**
