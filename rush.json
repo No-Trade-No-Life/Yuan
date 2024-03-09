@@ -551,6 +551,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/vendor-huobi",
+      "projectFolder": "apps/vendor-huobi",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/ui-web",
       "projectFolder": "ui/web"
     }
