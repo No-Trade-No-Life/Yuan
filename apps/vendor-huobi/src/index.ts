@@ -9,10 +9,14 @@ import {
   formatTime,
 } from '@yuants/data-model';
 import { IConnection, Terminal, createConnectionWs } from '@yuants/protocol';
+import '@yuants/protocol/lib/services';
+import '@yuants/protocol/lib/services/order';
+import { roundToStep } from '@yuants/utils';
 
 import {
   EMPTY,
   Subject,
+  catchError,
   combineLatest,
   combineLatestWith,
   defer,
@@ -32,6 +36,7 @@ import {
   shareReplay,
   tap,
   throttleTime,
+  timeout,
   toArray,
 } from 'rxjs';
 
@@ -45,8 +50,6 @@ interface IHuobiParams {
 }
 
 const createConnectionGzipWS = <T = any>(URL: string): IConnection<T> => {
-  const gunzip = zlib.createGunzip();
-
   const conn = createConnectionWs(URL);
   const input$ = conn.input$.pipe(
     map((msg) => zlib.gunzipSync(msg)),
@@ -113,7 +116,13 @@ class HuobiClient {
       body: body || undefined,
     });
 
-    return res.json();
+    const retStr = await res.text();
+    try {
+      return JSON.parse(retStr);
+    } catch (e) {
+      console.error(formatTime(Date.now()), 'huobiRequestFailed', path, JSON.stringify(params), retStr);
+      throw e;
+    }
   }
 
   // swap_ws = new WebSocket(new URL(`wss://${this.swap_api_root}/linear-swap-ws`));
@@ -204,6 +213,9 @@ class HuobiClient {
 }
 
 (async () => {
+  if (process.env.DEBUG_MODE === 'true') {
+    return;
+  }
   const client = new HuobiClient({
     auth: {
       access_key: process.env.ACCESS_KEY!,
@@ -225,18 +237,18 @@ class HuobiClient {
     name: 'Huobi',
   });
 
-  const products$ = defer(() => client.getPerpetualContractSymbols()).pipe(
+  const perpetualContractProducts$ = defer(() => client.getPerpetualContractSymbols()).pipe(
     mergeMap((res) => res.data),
     filter((symbol) => symbol.contract_status === 1),
     map(
       (symbol): IProduct => ({
-        datasource_id: 'huobi',
+        datasource_id: 'huobi-swap',
         product_id: symbol.contract_code,
         base_currency: symbol.symbol,
         quote_currency: 'USDT',
-        value_scale: 1,
+        value_scale: symbol.contract_size,
         price_step: symbol.price_tick,
-        volume_step: symbol.contract_size,
+        volume_step: 1,
       }),
     ),
     toArray(),
@@ -245,7 +257,28 @@ class HuobiClient {
     shareReplay(1),
   );
 
-  products$.pipe(mergeMap((products) => terminal.updateProducts(products))).subscribe();
+  const spotProducts$ = defer(() => client.getSpotSymbols()).pipe(
+    mergeMap((res) => res.data),
+    filter((symbol) => symbol.state === 'online'),
+    map(
+      (symbol): IProduct => ({
+        datasource_id: 'huobi-spot',
+        product_id: symbol.sc,
+        base_currency: symbol.bc,
+        quote_currency: symbol.qc,
+        value_scale: 1,
+        price_step: 1 / 10 ** symbol.tpp,
+        volume_step: 1 / 10 ** symbol.tap,
+      }),
+    ),
+    toArray(),
+    repeat({ delay: 86400_000 }),
+    retry({ delay: 10_000 }),
+    shareReplay(1),
+  );
+
+  spotProducts$.pipe(mergeMap((products) => terminal.updateProducts(products))).subscribe();
+  perpetualContractProducts$.pipe(mergeMap((products) => terminal.updateProducts(products))).subscribe();
 
   // account info
   const perpetualContractAccountInfo$ = of(0).pipe(
@@ -418,6 +451,9 @@ class HuobiClient {
   );
 
   const subscriptions: Set<string> = new Set();
+  client.spot_ws.connection$.subscribe(() => {
+    subscriptions.clear();
+  });
   // subscribe the symbols of positions we held
   unifiedRawAccountBalance$
     .pipe(
@@ -475,10 +511,17 @@ class HuobiClient {
                   balance: 0,
                 }),
                 combineLatestWith(
-                  client.spot_ws.input$.pipe(
+                  defer(() => client.spot_ws.input$).pipe(
                     //
                     first((v: any) => v.ch?.includes('ticker') && v.ch?.includes(group$.key) && v.tick),
                     map((v): number => v.tick.bid),
+                    timeout(5000),
+                    tap({
+                      error: (e) => {
+                        subscriptions.clear();
+                      },
+                    }),
+                    retry({ delay: 5000 }),
                   ),
                 ),
                 map(([v, price]): IPosition => {
@@ -524,40 +567,178 @@ class HuobiClient {
     }),
   );
 
-  superMarginAccountInfo$.subscribe((v) => {
-    console.info(v);
-  });
   terminal.provideAccountInfo(superMarginAccountInfo$);
-
-  perpetualContractAccountInfo$.subscribe((v) => {
-    console.info(v);
-  });
   terminal.provideAccountInfo(perpetualContractAccountInfo$);
+
+  // Submit order
+  terminal.provideService(
+    'SubmitOrder',
+    {
+      required: ['account_id'],
+      properties: {
+        account_id: {
+          enum: [`${account_id}/super-margin`, `${account_id}/swap`],
+        },
+      },
+    },
+    (msg) => {
+      const { account_id: req_account_id } = msg.req;
+      console.info(formatTime(Date.now()), `SubmitOrder for ${account_id}`, JSON.stringify(msg));
+
+      if (req_account_id === `${account_id}/swap`) {
+        return defer(() =>
+          client.request('POST', '/linear-swap-api/v1/swap_cross_position_info', undefined),
+        ).pipe(
+          mergeMap((res) => res.data),
+          map((v: any) => [v.contract_code, v.lever_rate]),
+          toArray(),
+          map((v) => Object.fromEntries(v)),
+          mergeMap((mapContractCodeToRate) => {
+            const lever_rate = mapContractCodeToRate[msg.req.product_id] ?? 20;
+            const params = {
+              contract_code: msg.req.product_id,
+              contract_type: 'swap',
+              price: msg.req.price,
+              volume: msg.req.volume,
+              offset: [OrderDirection.OPEN_LONG, OrderDirection.OPEN_SHORT].includes(msg.req.direction)
+                ? 'open'
+                : 'close',
+              direction: [OrderDirection.OPEN_LONG, OrderDirection.CLOSE_SHORT].includes(msg.req.direction)
+                ? 'buy'
+                : 'sell',
+              // dynamically adjust the leverage
+              lever_rate,
+              order_price_type: msg.req.type === OrderType.MARKET ? 'market' : 'limit',
+            };
+            return client.request('POST', '/linear-swap-api/v1/swap_cross_order', params);
+          }),
+          map(() => ({ res: { code: 0, message: 'OK' } })),
+          catchError((e) => {
+            console.error(formatTime(Date.now()), 'SubmitOrder', e);
+            return of({ res: { code: 500, message: `${e}` } });
+          }),
+        );
+      }
+      // for super-margin orders, we need to denote the amount of usdt to borrow, therefore we need to:
+      // 1. get the loanable amount
+      // 2. get the current balance
+      // 3. get the current price
+      // 4. combine the information to submit the order
+      return defer(() =>
+        client.request('GET', '/v1/cross-margin/loan-info', undefined, client.spot_api_root),
+      ).pipe(
+        //
+        mergeMap((res) => res.data),
+        first((v: any) => v.currency === 'usdt'),
+        map((v) => +v['loanable-amt']),
+        combineLatestWith(
+          unifiedRawAccountBalance$.pipe(
+            first(),
+            mergeMap((res) =>
+              from(res.list).pipe(
+                // we only need the amount of usdt that can be used to trade
+                filter((v: any) => v.currency === 'usdt' && v.type === 'trade'),
+                reduce((acc, cur) => acc + +cur.balance, 0),
+              ),
+            ),
+          ),
+        ),
+        combineLatestWith(spotProducts$.pipe(first())),
+        mergeMap(async ([[loanable, balance], products]) => {
+          const priceRes = await client.request(
+            'GET',
+            `/market/detail/merged`,
+            { symbol: msg.req.product_id },
+            client.spot_api_root,
+          );
+          const theProduct = products.find((v) => v.product_id === msg.req.product_id);
+          const price: number = priceRes.tick.close;
+          const borrow_amount = [OrderDirection.OPEN_LONG, OrderDirection.CLOSE_SHORT].includes(
+            msg.req.direction,
+          )
+            ? Math.max(Math.min(loanable, msg.req.volume * price - balance), 0)
+            : undefined;
+          const params = {
+            symbol: msg.req.product_id,
+            'account-id': superMarginAccountUid,
+            // amount: msg.req.type === OrderType.MARKET ? 0 : '' + msg.req.volume,
+            // 'market-amount': msg.req.type === OrderType.MARKET ? '' + msg.req.volume : undefined,
+            amount: [OrderDirection.OPEN_LONG, OrderDirection.CLOSE_SHORT].includes(msg.req.direction)
+              ? roundToStep(msg.req.volume * price, theProduct?.volume_step!)
+              : msg.req.volume,
+            'borrow-amount': borrow_amount,
+            type: `${
+              [OrderDirection.OPEN_LONG, OrderDirection.CLOSE_SHORT].includes(msg.req.direction)
+                ? 'buy'
+                : 'sell'
+            }-${OrderType.LIMIT === msg.req.type ? 'limit' : 'market'}`,
+            'trade-purpose': [OrderDirection.OPEN_LONG, OrderDirection.CLOSE_SHORT].includes(
+              msg.req.direction,
+            )
+              ? '1' // auto borrow
+              : '2', // auto repay
+            price: msg.req.type === OrderType.MARKET ? undefined : '' + msg.req.price,
+            source: 'super-margin-api',
+          };
+          return client.request('POST', '/v1/order/auto/place', params, client.spot_api_root).then((v) => {
+            console.info(formatTime(Date.now()), 'SubmitOrder', JSON.stringify(v), JSON.stringify(params));
+            return v;
+          });
+        }),
+        map((v) => {
+          if (v.success === false) {
+            return { res: { code: v.code as number, message: v.message as string } };
+          }
+          return { res: { code: 0, message: 'OK' } };
+        }),
+        catchError((e) => {
+          console.error(formatTime(Date.now()), 'SubmitOrder', e);
+          return of({ res: { code: 500, message: `${e}` } });
+        }),
+      );
+    },
+  );
 })();
 
-// for testing
-// (async () => {
-//   const client = new HuobiClient({
-//     auth: {
-//       access_key: process.env.ACCESS_KEY!,
-//       secret_key: process.env.SECRET_KEY!,
-//     },
-//   });
+// for testing - to be removed after the api implementation is done
+(async () => {
+  if (process.env.DEBUG_MODE !== 'true') {
+    return;
+  }
+  const client = new HuobiClient({
+    auth: {
+      access_key: process.env.ACCESS_KEY!,
+      secret_key: process.env.SECRET_KEY!,
+    },
+  });
 
-//   const huobiAccount = await client.getAccount();
-//   console.info(formatTime(Date.now()), 'huobiAccount', JSON.stringify(huobiAccount));
+  const huobiAccount = await client.getAccount();
+  console.info(formatTime(Date.now()), 'huobiAccount', JSON.stringify(huobiAccount));
 
-//   const uid = huobiAccount.data[0].id;
+  const uid = huobiAccount.data[0].id;
 
-//   // console.info(JSON.stringify(await client.request('GET', `/v2/user/uid`, undefined, client.spot_api_root)));
-//   console.info(
-//     JSON.stringify(
-//       await client.request(
-//         'GET',
-//         `/v1/account/accounts/${60841683}/balance`,
-//         undefined,
-//         client.spot_api_root,
-//       ),
-//     ),
-//   );
-// })();
+  console.info(
+    JSON.stringify(
+      await client.request('GET', '/v1/cross-margin/loan-info', undefined, client.spot_api_root),
+    ),
+  );
+
+  const priceRes = await client.request(
+    'GET',
+    `/market/detail/merged`,
+    { symbol: 'dogeusdt' },
+    client.spot_api_root,
+  );
+  console.info(priceRes);
+
+  console.info(
+    JSON.stringify(
+      await client.request(
+        'GET',
+        `/v1/account/accounts/${60841683}/balance`,
+        undefined,
+        client.spot_api_root,
+      ),
+    ),
+  );
+})();
