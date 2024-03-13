@@ -11,7 +11,8 @@
     "@yuants/protocol": "workspace:*",
     "rxjs": "~7.5.6",
     "crypto-js": "^4.2.0",
-    "@yuants/data-model": "workspace:*"
+    "@yuants/data-model": "workspace:*",
+    "@yuants/utils": "workspace:*"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "~7.30.0",
