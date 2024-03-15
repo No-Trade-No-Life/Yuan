@@ -1,13 +1,12 @@
 import { IconBolt, IconCopyAdd, IconDelete, IconEdit, IconRefresh, IconSearch } from '@douyinfe/semi-icons';
-import { Modal, Popconfirm, Button as SemiButton, Space, Toast } from '@douyinfe/semi-ui';
+import { Space, Toast } from '@douyinfe/semi-ui';
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { UUID, formatTime } from '@yuants/data-model';
 import { IDataRecord } from '@yuants/protocol';
-import { useObservable, useObservableState } from 'observable-hooks';
-import { useMemo, useState } from 'react';
-import { EMPTY, combineLatest, filter, first, lastValueFrom, mergeMap, of, tap, toArray } from 'rxjs';
+import { useEffect, useMemo, useState } from 'react';
+import { concatWith, firstValueFrom, lastValueFrom, of, tap, toArray } from 'rxjs';
 import { InlineAccountId } from '../AccountInfo';
-import Form, { showForm } from '../Form';
+import { showForm } from '../Form';
 import { Button, DataView } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
@@ -33,34 +32,35 @@ const mapOriginToDataRecord = (x: ITransferOrder): IDataRecord<ITransferOrder> =
 };
 
 registerPage('TransferOrderList', () => {
-  const [refreshId, setRefreshId] = useState(0);
-  const [isSearchModalVisible, setSearchModalVisible] = useState(false);
-
-  const [_searchFormData, _setSearchFormData] = useState({});
   const [searchFormData, setSearchFormData] = useState({} as any);
 
-  const records$ = useObservable(
-    (input$) =>
-      combineLatest([terminal$, input$]).pipe(
-        //
-        mergeMap(([terminal, [searchFormData]]) =>
-          (
-            terminal?.queryDataRecords<ITransferOrder>({
-              type: TYPE,
-              options: {
-                sort: [],
-              },
-            }) ?? EMPTY
-          ).pipe(
-            //
-            toArray(),
-          ),
-        ),
-      ),
-    [searchFormData, refreshId],
-  );
+  const [records, setRecords] = useState<IDataRecord<ITransferOrder>[]>([]);
 
-  const records = useObservableState(records$);
+  const reloadData = async () => {
+    const terminal = await firstValueFrom(terminal$);
+    if (!terminal) return;
+    const data = await lastValueFrom(
+      terminal
+        .queryDataRecords<ITransferOrder>({
+          type: TYPE,
+          options: {
+            sort: [
+              //
+              ['updated_at', -1],
+            ],
+          },
+        })
+        .pipe(
+          //
+          toArray(),
+        ),
+    );
+    setRecords(data);
+  };
+
+  useEffect(() => {
+    reloadData();
+  }, [searchFormData]);
 
   const columns = useMemo(() => {
     const columnHelper = createColumnHelper<IDataRecord<ITransferOrder>>();
@@ -94,14 +94,36 @@ registerPage('TransferOrderList', () => {
         header: () => '货币',
       }),
       columnHelper.accessor('origin.debit_methods', {
-        header: () => '借方支持的转账方式',
+        header: () => '候选方式',
+        cell: (ctx) => (
+          <ol>
+            {ctx.getValue()?.map((e) => (
+              <li>{e}</li>
+            ))}
+          </ol>
+        ),
       }),
       columnHelper.accessor('origin.credit_method', {
-        header: () => '贷方选择的转账方式',
+        header: () => '当选方式',
       }),
       columnHelper.accessor('origin.transaction_id', {
         header: () => '转账凭证号',
       }),
+      columnHelper.accessor('origin.transferred_at', {
+        header: () => '转账时间',
+        cell: (ctx) => formatTime(ctx.getValue() ?? ''),
+      }),
+      columnHelper.accessor('origin.transferred_amount', {
+        header: () => '转账金额',
+      }),
+      columnHelper.accessor('origin.received_at', {
+        header: () => '到账时间',
+        cell: (ctx) => formatTime(ctx.getValue() ?? ''),
+      }),
+      columnHelper.accessor('origin.received_amount', {
+        header: () => '到账金额',
+      }),
+
       columnHelper.display({
         id: 'actions',
         header: () => '操作',
@@ -112,16 +134,11 @@ registerPage('TransferOrderList', () => {
               <Button
                 icon={<IconBolt />}
                 onClick={async () => {
+                  const terminal = await firstValueFrom(terminal$);
+                  if (!terminal) return;
                   await lastValueFrom(
-                    terminal$.pipe(
-                      filter((x): x is Exclude<typeof x, null> => !!x),
-                      first(),
-                      mergeMap((terminal) => terminal.requestService('Transfer', record.origin)),
+                    terminal.requestService('Transfer', record.origin).pipe(
                       tap({
-                        complete: () => {
-                          Toast.success(`通知转账成功`);
-                          setRefreshId((x) => x + 1);
-                        },
                         error: (err) => {
                           Toast.error(`通知转账失败: ${err}`);
                           console.error(err);
@@ -129,6 +146,8 @@ registerPage('TransferOrderList', () => {
                       }),
                     ),
                   );
+                  await reloadData();
+                  Toast.success(`通知转账成功`);
                 }}
               >
                 通知
@@ -136,52 +155,40 @@ registerPage('TransferOrderList', () => {
               <Button
                 icon={<IconEdit />}
                 onClick={async () => {
+                  const terminal = await firstValueFrom(terminal$);
+                  if (!terminal) return;
                   const formData = await showForm<ITransferOrder>(schema, record.origin);
                   await beforeUpdateTrigger(formData);
                   const nextRecord = mapOriginToDataRecord(formData);
-                  await lastValueFrom(
-                    terminal$.pipe(
-                      filter((x): x is Exclude<typeof x, null> => !!x),
-                      first(),
-                      mergeMap((terminal) => terminal.updateDataRecords([nextRecord])),
-                      tap({
-                        complete: () => {
-                          Toast.success(`成功更新数据记录 ${nextRecord.id}`);
-                          setRefreshId((x) => x + 1);
-                        },
-                      }),
-                    ),
-                  );
+                  await lastValueFrom(terminal.updateDataRecords([nextRecord]).pipe(concatWith(of(0))));
+                  await reloadData();
+                  Toast.success(`成功更新数据记录 ${nextRecord.id}`);
                 }}
               ></Button>
-              <Popconfirm
-                style={{ width: 300 }}
-                title="确定是否删除？"
-                content="此操作将不可逆"
-                onConfirm={() => {
-                  terminal$
-                    .pipe(
-                      //
-                      filter((x): x is Exclude<typeof x, null> => !!x),
-                      first(),
-                      mergeMap((terminal) =>
-                        terminal.removeDataRecords({
-                          type: TYPE,
-                          id: record.id,
-                        }),
-                      ),
-                      tap({
-                        complete: () => {
-                          Toast.success(`成功删除数据记录 ${record.id}`);
-                          setRefreshId((x) => x + 1);
-                        },
-                      }),
-                    )
-                    .subscribe();
+              <Button
+                icon={<IconDelete />}
+                type="danger"
+                onClick={async () => {
+                  const confirm = await showForm<boolean>({
+                    type: 'boolean',
+                    title: '确定是否删除？',
+                    description: '此操作将不可逆',
+                  });
+                  if (!confirm) return;
+                  const terminal = await firstValueFrom(terminal$);
+                  if (!terminal) return;
+                  await lastValueFrom(
+                    terminal
+                      .removeDataRecords({
+                        type: TYPE,
+                        id: record.id,
+                      })
+                      .pipe(concatWith(of(0))),
+                  );
+                  Toast.success(`成功删除数据记录 ${record.id}`);
+                  await reloadData();
                 }}
-              >
-                <SemiButton icon={<IconDelete />} type="danger"></SemiButton>
-              </Popconfirm>
+              ></Button>
             </Space>
           );
         },
@@ -201,7 +208,8 @@ registerPage('TransferOrderList', () => {
         <Button
           icon={<IconSearch />}
           onClick={async () => {
-            setSearchModalVisible(true);
+            const formData = await showForm(schema, searchFormData);
+            setSearchFormData(formData);
           }}
         >
           搜索
@@ -209,21 +217,14 @@ registerPage('TransferOrderList', () => {
         <Button
           icon={<IconCopyAdd />}
           onClick={async () => {
+            const terminal = await firstValueFrom(terminal$);
+            if (!terminal) return;
             const formData = await showForm<ITransferOrder>(schema, newRecord());
+            await beforeUpdateTrigger(formData);
             const nextRecord = mapOriginToDataRecord(formData);
-            await lastValueFrom(
-              terminal$.pipe(
-                filter((x): x is Exclude<typeof x, null> => !!x),
-                first(),
-                mergeMap((terminal) => terminal.updateDataRecords([nextRecord])),
-                tap({
-                  complete: () => {
-                    Toast.success(`成功更新数据记录 ${nextRecord.id}`);
-                    setRefreshId((x) => x + 1);
-                  },
-                }),
-              ),
-            );
+            await lastValueFrom(terminal.updateDataRecords([nextRecord]).pipe(concatWith(of(0))));
+            await reloadData();
+            Toast.success(`成功更新数据记录 ${nextRecord.id}`);
           }}
         >
           添加
@@ -231,7 +232,7 @@ registerPage('TransferOrderList', () => {
         <Button
           icon={<IconRefresh />}
           onClick={async () => {
-            setRefreshId((x) => x + 1);
+            await reloadData();
             Toast.success('已刷新');
           }}
         >
@@ -239,26 +240,6 @@ registerPage('TransferOrderList', () => {
         </Button>
       </Space>
       <DataView table={table} />
-
-      <Modal
-        visible={isSearchModalVisible}
-        onCancel={() => {
-          setSearchModalVisible(false);
-        }}
-        onOk={() => {
-          setSearchFormData(_searchFormData);
-        }}
-      >
-        <Form
-          formData={_searchFormData}
-          onChange={(data) => {
-            _setSearchFormData(data.formData);
-          }}
-          schema={schema}
-        >
-          <div></div>
-        </Form>
-      </Modal>
     </Space>
   );
 });
