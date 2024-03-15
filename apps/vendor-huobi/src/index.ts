@@ -6,6 +6,8 @@ import {
   OrderDirection,
   OrderType,
   PositionVariant,
+  decodePath,
+  encodePath,
   formatTime,
 } from '@yuants/data-model';
 import { IConnection, Terminal, createConnectionWs } from '@yuants/protocol';
@@ -15,15 +17,19 @@ import { roundToStep } from '@yuants/utils';
 
 import {
   EMPTY,
+  Observable,
   Subject,
   catchError,
   combineLatest,
   combineLatestWith,
+  concatWith,
   defer,
+  delayWhen,
   distinct,
   expand,
   filter,
   first,
+  firstValueFrom,
   from,
   groupBy,
   map,
@@ -67,6 +73,43 @@ const createConnectionGzipWS = <T = any>(URL: string): IConnection<T> => {
   };
 };
 
+/**
+ * ITransferOrder represents the transfer order, will be updated by both side during the transfer process
+ * ITransferOrder 表示转账订单，将在转账过程中双方更新
+ */
+interface ITransferOrder {
+  order_id: string;
+  created_at: number;
+  updated_at: number;
+  debit_account_id: string;
+  credit_account_id: string;
+  currency: string;
+  /** 预期转账金额 */
+  expected_amount: number;
+  /** 订单状态 = "COMPLETE" | "ERROR" | "AWAIT_DEBIT" \ "AWAIT_CREDIT" */
+  status: string;
+  /** 超时时间戳 */
+  timeout_at: number;
+
+  /** 借方可接受的转账方式 (Routing Path) */
+  debit_methods?: string[];
+
+  /** 贷方选择的转账方式 (Routing Path) */
+  credit_method?: string;
+
+  /** 贷方发起转账的时间戳 */
+  transferred_at?: number;
+  /** 贷方已经发送的金额 */
+  transferred_amount?: number;
+  /** 转账凭证号 */
+  transaction_id?: string;
+
+  /** 借方查收到帐的时间戳 */
+  received_at?: number;
+  /** 借方已经收到的金额 */
+  received_amount?: number;
+}
+
 class HuobiClient {
   swap_api_root = 'api.hbdm.com';
   spot_api_root = 'api.huobi.pro';
@@ -86,6 +129,7 @@ class HuobiClient {
       .subscribe();
   }
 
+  // FIXME: cancel the default value of api_root
   async request(method: string, path: string, params?: any, api_root = this.swap_api_root) {
     const requestParams = `AccessKeyId=${
       this.params.auth.access_key
@@ -109,7 +153,7 @@ class HuobiClient {
 
     const url = new URL(`https://${api_root}${path}?${requestParams}&Signature=${encodeURIComponent(str)}`);
     // url.searchParams.sort();
-    console.info(method, url.href, body);
+    // console.info(method, url.href, body);
     const res = await fetch(url.href, {
       method,
       headers: { 'Content-Type': 'application/json' },
@@ -228,6 +272,7 @@ class HuobiClient {
 
   const huobiAccounts = await client.getAccount();
   const superMarginAccountUid = huobiAccounts.data.find((v) => v.type === 'super-margin')?.id!;
+  const spotAccountUid = huobiAccounts.data.find((v) => v.type === 'spot')?.id!;
   console.info(formatTime(Date.now()), 'huobiAccount', JSON.stringify(huobiAccounts));
 
   const account_id = `huobi/${huobiUid}`;
@@ -696,6 +741,361 @@ class HuobiClient {
           return of({ res: { code: 500, message: `${e}` } });
         }),
       );
+    },
+  );
+
+  const blockchainAddress = defer(() =>
+    client.request('GET', `/v2/account/deposit/address`, { currency: 'usdt' }, client.spot_api_root),
+  ).pipe(
+    //
+    retry({ delay: 5000 }),
+    mergeMap((v) =>
+      from(v.data).pipe(
+        //
+        map((v: any) => encodePath(`blockchain`, v.chain, v.address)),
+        toArray(),
+      ),
+    ),
+    shareReplay(1),
+  );
+
+  const debit_methods = [
+    encodePath(`huobi`, `account_internal`, `${account_id}/super-margin`),
+    encodePath(`huobi`, `account_internal`, `${account_id}/swap`),
+    ...(await firstValueFrom(blockchainAddress)),
+  ];
+
+  const updateTransferOrder = (transferOrder: ITransferOrder): Observable<void> => {
+    return terminal
+      .updateDataRecords([
+        {
+          id: transferOrder.order_id,
+          type: 'transfer_order',
+          created_at: transferOrder.created_at,
+          updated_at: transferOrder.updated_at,
+          frozen_at: null,
+          tags: {
+            debit_account_id: transferOrder.debit_account_id,
+            credit_account_id: transferOrder.credit_account_id,
+            status: transferOrder.status,
+          },
+          origin: transferOrder,
+        },
+      ])
+      .pipe(concatWith(of(void 0)));
+  };
+
+  // Transfer
+  terminal.provideService(
+    'Transfer',
+    {
+      oneOf: [
+        {
+          type: 'object',
+          properties: {
+            debit_account_id: {
+              enum: [`${account_id}/super-margin`, `${account_id}/swap`],
+            },
+            currency: {
+              const: 'USDT',
+            },
+            status: {
+              const: 'AWAIT_DEBIT',
+            },
+          },
+        },
+        {
+          type: 'object',
+          properties: {
+            credit_account_id: {
+              enum: [`${account_id}/super-margin`, `${account_id}/swap`],
+            },
+            currency: {
+              const: 'USDT',
+            },
+            status: {
+              const: 'AWAIT_CREDIT',
+            },
+          },
+        },
+      ],
+    },
+    (msg) => {
+      console.info(formatTime(Date.now()), `Transfer for ${account_id}`, JSON.stringify(msg));
+      const req = msg.req as ITransferOrder;
+      const { credit_account_id, debit_account_id, status } = req;
+      if (req.timeout_at < Date.now()) {
+        return defer(() => updateTransferOrder({ ...req, status: 'ERROR', updated_at: Date.now() })).pipe(
+          map(() => ({ res: { code: 500, message: 'TRANSFER_TIMEOUT' } })),
+        );
+      }
+      if (status === 'AWAIT_DEBIT') {
+        // if we are the debit side
+        if (!req.debit_methods?.length) {
+          console.info(formatTime(Date.now()), 'Transfer', 'DEBIT', 'adding debit methods');
+          const nextReq = { ...req, debit_methods, status: 'AWAIT_CREDIT', updated_at: Date.now() };
+          return updateTransferOrder(nextReq).pipe(
+            mergeMap(() =>
+              defer(() => terminal.requestService('Transfer', nextReq)).pipe(
+                retry({ delay: 5000, count: 3 }),
+              ),
+            ),
+            map(() => ({ res: { code: 0, message: 'OK' } })),
+          );
+        }
+        // the transfer is ongoing
+        if (req.credit_method) {
+          const parts = decodePath(req.credit_method);
+          if (parts[0] === 'huobi') {
+            if (parts[1] === 'account_internal') {
+              return defer(() =>
+                client.request(
+                  'GET',
+                  `/v2/account/ledger`,
+                  // the money will pass through the spot account anyway
+                  { accountId: spotAccountUid, currency: 'usdt' },
+                  client.spot_api_root,
+                ),
+              ).pipe(
+                //
+                mergeMap((v) => {
+                  console.info(
+                    formatTime(Date.now()),
+                    'Transfer',
+                    'DEBIT',
+                    'checking credit account',
+                    JSON.stringify(v),
+                  );
+                  return from(v.data).pipe(
+                    //
+                    first(
+                      (v: any) =>
+                        v.transactTime >= req.transferred_at! && -v.transactAmt === req.transferred_amount,
+                    ),
+                  );
+                }),
+                retry({ delay: 5000 }),
+                mergeMap(() => {
+                  return updateTransferOrder({
+                    ...req,
+                    status: 'COMPLETE',
+                    received_at: Date.now(),
+                    received_amount: req.transferred_amount,
+                    updated_at: Date.now(),
+                  }).pipe(
+                    //
+                    map(() => ({ res: { code: 0, message: 'OK' } })),
+                  );
+                }),
+              );
+            }
+          }
+          return of({ res: { code: 500, message: 'UNIMPLEMENTED' } });
+        }
+        return of({ res: { code: 0, message: 'OK' } });
+      }
+
+      if (req.status === 'AWAIT_CREDIT') {
+        if (req.debit_methods) {
+          console.info(
+            formatTime(Date.now()),
+            'Transfer',
+            'CREDIT',
+            'choosing credit method and performing transfer',
+          );
+          for (const method of req.debit_methods) {
+            if (debit_methods.includes(method)) {
+              // method matched
+              const parts = decodePath(method);
+              if (parts[0] === 'huobi') {
+                if (parts[1] === 'account_internal') {
+                  const target_account_id = parts[2];
+                  if (target_account_id === credit_account_id) {
+                    // we cannot transfer to ourselves
+                    continue;
+                  }
+                  // if we are playing the role of super-margin account
+                  if (
+                    credit_account_id === `${account_id}/super-margin` &&
+                    target_account_id === `${account_id}/swap`
+                  ) {
+                    console.info(formatTime(Date.now()), 'Transfer', 'CREDIT', 'from super-margin to swap');
+                    // 1. transfer the amount of usdt to the spot account
+                    const updated_at = Date.now();
+                    return defer(() =>
+                      client.request(
+                        'POST',
+                        `/v1/cross-margin/transfer-out`,
+                        { currency: 'usdt', amount: '' + req.expected_amount },
+                        client.spot_api_root,
+                      ),
+                    ).pipe(
+                      mergeMap((v) => {
+                        if (v.status !== 'ok') {
+                          console.info(
+                            formatTime(Date.now()),
+                            'Transfer',
+                            'CREDIT',
+                            'super-margin to spot failed',
+                            JSON.stringify(v),
+                          );
+                          return updateTransferOrder({
+                            ...req,
+                            status: 'ERROR',
+                            updated_at,
+                          }).pipe(
+                            //
+                            map(() => ({ res: { code: 500, message: 'TRANSFER_FAILED' } })),
+                          );
+                        }
+                        return defer(() =>
+                          client.request(
+                            'POST',
+                            `/v2/account/transfer`,
+                            {
+                              from: 'spot',
+                              to: 'linear-swap',
+                              currency: 'usdt',
+                              amount: req.expected_amount,
+                              'margin-account': 'USDT',
+                            },
+                            client.spot_api_root,
+                          ),
+                        ).pipe(
+                          //
+                          mergeMap((v) => {
+                            if (!v.success) {
+                              console.info(
+                                formatTime(Date.now()),
+                                'Transfer',
+                                'CREDIT',
+                                'spot to linear-swap failed',
+                                JSON.stringify(v),
+                              );
+                              return updateTransferOrder({
+                                ...req,
+                                status: 'ERROR',
+                                updated_at,
+                              }).pipe(
+                                //
+                                map(() => ({ res: { code: 500, message: 'TRANSFER_FAILED' } })),
+                              );
+                            }
+                            return of(v.data).pipe(
+                              map((v) => ({
+                                ...req,
+                                status: 'AWAIT_DEBIT',
+                                credit_method: method,
+                                transferred_at: updated_at,
+                                transferred_amount: req.expected_amount,
+                                updated_at,
+                              })),
+                              delayWhen((v) => updateTransferOrder(v)),
+                              delayWhen((v) => terminal.requestService('Transfer', v)),
+                              map(() => ({ res: { code: 0, message: 'OK' } })),
+                            );
+                          }),
+                        );
+                      }),
+                    );
+                  }
+                  if (
+                    credit_account_id === `${account_id}/swap` &&
+                    target_account_id === `${account_id}/super-margin`
+                  ) {
+                    const updated_at = Date.now();
+                    return defer(() =>
+                      client.request(
+                        'POST',
+                        `/v2/account/transfer`,
+                        {
+                          from: 'linear-swap',
+                          to: 'spot',
+                          currency: 'usdt',
+                          amount: req.expected_amount,
+                          'margin-account': 'USDT',
+                        },
+                        client.spot_api_root,
+                      ),
+                    ).pipe(
+                      mergeMap((v) => {
+                        if (!v.success) {
+                          console.info(
+                            formatTime(Date.now()),
+                            'Transfer',
+                            'CREDIT',
+                            'linear-swap to spot failed',
+                            JSON.stringify(v),
+                          );
+                          return updateTransferOrder({
+                            ...req,
+                            status: 'ERROR',
+                            updated_at,
+                          }).pipe(
+                            //
+                            map(() => ({ res: { code: 500, message: 'TRANSFER_FAILED' } })),
+                          );
+                        }
+                        return defer(() =>
+                          client.request(
+                            'POST',
+                            `/v1/cross-margin/transfer-in`,
+                            {
+                              currency: 'usdt',
+                              amount: '' + req.expected_amount,
+                            },
+                            client.spot_api_root,
+                          ),
+                        ).pipe(
+                          //
+                          mergeMap((v) => {
+                            if (v.status !== 'ok') {
+                              console.info(
+                                formatTime(Date.now()),
+                                'Transfer',
+                                'CREDIT',
+                                'spot to super-margin failed',
+                                JSON.stringify(v),
+                              );
+                              return updateTransferOrder({
+                                ...req,
+                                status: 'ERROR',
+                                updated_at,
+                              }).pipe(
+                                //
+                                map(() => ({ res: { code: 500, message: 'TRANSFER_FAILED' } })),
+                              );
+                            }
+                            return of(v.data).pipe(
+                              map((v) => ({
+                                ...req,
+                                status: 'AWAIT_DEBIT',
+                                credit_method: method,
+                                transferred_at: updated_at,
+                                transferred_amount: req.expected_amount,
+                                updated_at,
+                              })),
+                              delayWhen((v) => updateTransferOrder(v)),
+                              delayWhen((v) => terminal.requestService('Transfer', v)),
+                              map(() => ({ res: { code: 0, message: 'OK' } })),
+                            );
+                          }),
+                        );
+                      }),
+                    );
+                  }
+                }
+              }
+            }
+          }
+          return updateTransferOrder({ ...req, status: 'ERROR' }).pipe(
+            map(() => ({ res: { code: 400, message: 'NO_USABLE_CREDIT_METHOD' } })),
+          );
+        }
+        return of({ res: { code: 400, message: 'NO_USABLE_CREDIT_METHOD' } });
+      }
+
+      return of({ res: { code: 400, message: 'INVALID_STATUS' } });
     },
   );
 })();
