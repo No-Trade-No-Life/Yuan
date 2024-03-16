@@ -129,8 +129,7 @@ class HuobiClient {
       .subscribe();
   }
 
-  // FIXME: cancel the default value of api_root
-  async request(method: string, path: string, params?: any, api_root = this.swap_api_root) {
+  async request(method: string, path: string, api_root: string, params?: any) {
     const requestParams = `AccessKeyId=${
       this.params.auth.access_key
     }&SignatureMethod=HmacSHA256&SignatureVersion=2&Timestamp=${encodeURIComponent(
@@ -180,7 +179,8 @@ class HuobiClient {
       subtype: string;
     }[];
   }> {
-    return this.request('GET', '/v1/account/accounts', undefined, this.spot_api_root);
+    // https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec40743-7773-11ed-9966-0242ac110003
+    return this.request('GET', '/v1/account/accounts', this.spot_api_root);
   }
 
   getPerpetualContractSymbols(params?: {
@@ -208,7 +208,8 @@ class HuobiClient {
     }[];
     ts: string;
   }> {
-    return this.request('GET', '/linear-swap-api/v1/swap_contract_info', params, this.swap_api_root);
+    // https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb72f34-77b5-11ed-9966-0242ac110003
+    return this.request('GET', '/linear-swap-api/v1/swap_contract_info', this.swap_api_root, params);
   }
 
   getSpotSymbols(): Promise<{
@@ -252,7 +253,189 @@ class HuobiClient {
     err_code: string;
     err_msg: string;
   }> {
-    return this.request('GET', '/v2/settings/common/symbols', undefined, this.spot_api_root);
+    // https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec47f16-7773-11ed-9966-0242ac110003
+    return this.request('GET', '/v2/settings/common/symbols', this.spot_api_root);
+  }
+
+  getUid(): Promise<{ data: number; code: number }> {
+    // https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec491c9-7773-11ed-9966-0242ac110003
+    return this.request('GET', '/v2/user/uid', this.spot_api_root);
+  }
+
+  getUnifiedAccountInfo(): Promise<{
+    status: string;
+    code: number;
+    msg: string;
+    data: {
+      margin_asset: string;
+      margin_balance: number;
+      cross_margin_static: number;
+      cross_profit_unreal: number;
+      withdraw_available: number;
+    }[];
+  }> {
+    // https://www.htx.com/zh-cn/opend/newApiPages/?id=10000073-77b7-11ed-9966-0242ac110003
+    return this.request('GET', '/linear-swap-api/v3/unified_account_info', this.swap_api_root);
+  }
+
+  getSwapCrossPositionInfo(params?: {
+    contract_code?: string;
+    pair?: string;
+    contract_type: string;
+  }): Promise<{
+    status: string;
+    ts: number;
+    data: {
+      contract_code: string;
+      contract_type: string;
+      direction: string;
+      margin_mode: string;
+      volume: number;
+      available: number;
+      cost_hold: number;
+      last_price: number;
+      profit_unreal: number;
+      lever_rate: number;
+    }[];
+  }> {
+    // https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb74963-77b5-11ed-9966-0242ac110003
+    return this.request('POST', '/linear-swap-api/v1/swap_cross_position_info', this.swap_api_root, params);
+  }
+
+  getSwapOpenOrders(): Promise<{
+    status: string;
+    data: {
+      orders: {
+        order_id_str: string;
+        contract_code: string;
+        order_price_type: string;
+        direction: string;
+        offset: string;
+        volume: number;
+        created_at: number;
+        price: number;
+        trade_volume: number;
+      }[];
+    };
+  }> {
+    // https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb784d4-77b5-11ed-9966-0242ac110003
+    return this.request('POST', '/linear-swap-api/v1/swap_cross_openorders', this.swap_api_root);
+  }
+
+  getSpotAccountBalance(account_uid: number): Promise<{
+    status: string;
+    data: {
+      list: {
+        currency: string;
+        balance: string;
+        type: string;
+      }[];
+    };
+  }> {
+    // https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec40922-7773-11ed-9966-0242ac110003
+    return this.request('GET', `/v1/account/accounts/${account_uid}/balance`, this.spot_api_root);
+  }
+
+  getCrossMarginLoanInfo(): Promise<{
+    status: string;
+    code: number;
+    data: {
+      currency: string;
+      'loanable-amt': string;
+    }[];
+  }> {
+    // https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec41863-7773-11ed-9966-0242ac110003
+    return this.request('GET', '/v1/cross-margin/loan-info', this.spot_api_root);
+  }
+
+  getSpotTick(params: { symbol: string }): Promise<{
+    status: string;
+    tick: {
+      close: number;
+    };
+  }> {
+    // https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec3fc25-7773-11ed-9966-0242ac110003
+    return this.request('GET', `/market/detail/merged`, this.spot_api_root, params);
+  }
+
+  placeSpotOrder(params: {
+    symbol: string;
+    'account-id': string;
+    amount: string;
+    market_amount?: string;
+    'borrow-amount'?: string;
+    type: string;
+    'trade-purpose': string;
+    price?: string;
+    source: string;
+  }): Promise<{ success: boolean; code: number; message: string }> {
+    // https://www.htx.com/zh-cn/opend/newApiPages/?id=10000065-77b7-11ed-9966-0242ac110003
+    return this.request('POST', `/v1/order/auto/place`, this.spot_api_root, params);
+  }
+
+  placeSwapOrder(params: {
+    contract_code: string;
+    contract_type: string;
+    price?: number;
+    volume: number;
+    offset: string;
+    direction: string;
+    lever_rate: number;
+    order_price_type: string;
+  }): Promise<{ status: string; ts: number; data: { order_id: number; order_id_str: string } }> {
+    // https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb77159-77b5-11ed-9966-0242ac110003
+    return this.request('POST', '/linear-swap-api/v1/swap_cross_order', this.swap_api_root, params);
+  }
+
+  getSpotAccountDepositAddresses(params: { currency: string }): Promise<{
+    code: number;
+    message: string;
+    data: {
+      currency: string;
+      chain: string;
+      address: string;
+    }[];
+  }> {
+    // https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec45fb7-7773-11ed-9966-0242ac110003
+    return this.request('GET', `/v2/account/deposit/address`, this.spot_api_root, params);
+  }
+
+  getAccountLedger(params: { accountId: string; currency: string }): Promise<{
+    status: string;
+    data: {
+      transactTime: number;
+      transactAmt: number;
+    }[];
+  }> {
+    // https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec4610b-7773-11ed-9966-0242ac110003
+    return this.request('GET', `/v2/account/ledger`, this.spot_api_root, params);
+  }
+
+  superMarginAccountTransferOut(params: {
+    currency: string;
+    amount: string;
+  }): Promise<{ status: string; data: number }> {
+    // https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec41ff0-7773-11ed-9966-0242ac110003
+    return this.request('POST', `/v1/cross-margin/transfer-out`, this.spot_api_root, params);
+  }
+
+  superMarginAccountTransferIn(params: {
+    currency: string;
+    amount: string;
+  }): Promise<{ status: string; data: number }> {
+    // https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec41f0e-7773-11ed-9966-0242ac110003
+    return this.request('POST', `/v1/cross-margin/transfer-in`, this.spot_api_root, params);
+  }
+
+  spotAccountTransfer(params: {
+    from: string;
+    to: string;
+    currency: string;
+    amount: number;
+    'margin-account': string;
+  }): Promise<{ success: boolean; data: number; code: number; message: string }> {
+    // https://www.htx.com/zh-cn/opend/newApiPages/?id=10000095-77b7-11ed-9966-0242ac110003
+    return this.request('POST', `/v2/account/transfer`, this.spot_api_root, params);
   }
 }
 
@@ -267,8 +450,7 @@ class HuobiClient {
     },
   });
 
-  const huobiUid: number = (await client.request('GET', '/v2/user/uid', undefined, client.spot_api_root))
-    .data;
+  const huobiUid: number = (await client.getUid()).data;
 
   const huobiAccounts = await client.getAccount();
   const superMarginAccountUid = huobiAccounts.data.find((v) => v.type === 'super-margin')?.id!;
@@ -328,13 +510,10 @@ class HuobiClient {
   // account info
   const perpetualContractAccountInfo$ = of(0).pipe(
     mergeMap(() => {
-      const balance$ = defer(() =>
-        // https://www.htx.com/zh-cn/opend/newApiPages/?id=10000073-77b7-11ed-9966-0242ac110003
-        client.request('GET', '/linear-swap-api/v3/unified_account_info', undefined, client.swap_api_root),
-      ).pipe(
+      const balance$ = defer(() => client.getUnifiedAccountInfo()).pipe(
         //
         mergeMap((res) => res.data),
-        filter((v: any) => v.margin_asset === 'USDT'),
+        filter((v) => v.margin_asset === 'USDT'),
         repeat({ delay: 1000 }),
         tap({
           error: (e) => {
@@ -345,19 +524,11 @@ class HuobiClient {
         shareReplay(1),
       );
 
-      const positions$ = defer(() =>
-        // https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb74963-77b5-11ed-9966-0242ac110003
-        client.request(
-          'POST',
-          '/linear-swap-api/v1/swap_cross_position_info',
-          undefined,
-          client.swap_api_root,
-        ),
-      ).pipe(
+      const positions$ = defer(() => client.getSwapCrossPositionInfo()).pipe(
         //
         mergeMap((res) =>
           from(res.data).pipe(
-            map((v: any): IPosition => {
+            map((v): IPosition => {
               return {
                 position_id: `${v.contract_code}/${v.contract_type}/${v.direction}/${v.margin_mode}`,
                 product_id: v.contract_code,
@@ -383,16 +554,8 @@ class HuobiClient {
       );
 
       const orders$ = of({ orders: [], page_index: 1, page_size: 50 }).pipe(
-        expand((v: any) =>
-          defer(() =>
-            // https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb784d4-77b5-11ed-9966-0242ac110003
-            client.request(
-              'POST',
-              '/linear-swap-api/v1/swap_cross_openorders',
-              undefined,
-              client.swap_api_root,
-            ),
-          ).pipe(
+        expand((v) =>
+          defer(() => client.getSwapOpenOrders()).pipe(
             //
             retry({ delay: 5000 }),
             map((v) => v.data),
@@ -407,7 +570,7 @@ class HuobiClient {
 
         mergeMap((res) =>
           from(res.orders).pipe(
-            map((v: any): IOrder => {
+            map((v): IOrder => {
               return {
                 exchange_order_id: v.order_id_str,
                 client_order_id: v.order_id_str,
@@ -454,7 +617,7 @@ class HuobiClient {
 
       return combineLatest([balance$, positions$, orders$]).pipe(
         throttleTime(1000),
-        map(([balance, positions, orders]: [any, any, any]): IAccountInfo => {
+        map(([balance, positions, orders]): IAccountInfo => {
           return {
             timestamp_in_us: Date.now() * 1000,
             updated_at: Date.now(),
@@ -475,14 +638,7 @@ class HuobiClient {
     }),
   );
 
-  const unifiedRawAccountBalance$ = defer(() =>
-    client.request(
-      'GET',
-      `/v1/account/accounts/${superMarginAccountUid}/balance`,
-      undefined,
-      client.spot_api_root,
-    ),
-  ).pipe(
+  const unifiedRawAccountBalance$ = defer(() => client.getSpotAccountBalance(superMarginAccountUid)).pipe(
     //
     map((res) => res.data),
     repeat({ delay: 1000 }),
@@ -505,8 +661,8 @@ class HuobiClient {
       //
       mergeMap((res) =>
         from(res.list).pipe(
-          filter((v: any) => v.currency !== 'usdt'),
-          map((v: any) => v.currency),
+          filter((v) => v.currency !== 'usdt'),
+          map((v) => v.currency),
           distinct(),
           toArray(),
           map((v) => new Set(v)),
@@ -538,7 +694,7 @@ class HuobiClient {
         //
         mergeMap((res) =>
           from(res.list).pipe(
-            filter((v: any) => v.currency === 'usdt'),
+            filter((v) => v.currency === 'usdt'),
             reduce((acc, cur) => acc + +cur.balance, 0),
           ),
         ),
@@ -547,8 +703,8 @@ class HuobiClient {
         //
         mergeMap((res) =>
           from(res.list).pipe(
-            filter((v: any) => v.currency !== 'usdt'),
-            groupBy((res: any) => res.currency),
+            filter((v) => v.currency !== 'usdt'),
+            groupBy((res) => res.currency),
             mergeMap((group$) =>
               group$.pipe(
                 reduce((acc, cur) => ({ currency: acc.currency, balance: acc.balance + +cur.balance }), {
@@ -558,7 +714,7 @@ class HuobiClient {
                 combineLatestWith(
                   defer(() => client.spot_ws.input$).pipe(
                     //
-                    first((v: any) => v.ch?.includes('ticker') && v.ch?.includes(group$.key) && v.tick),
+                    first((v) => v.ch?.includes('ticker') && v.ch?.includes(group$.key) && v.tick),
                     map((v): number => v.tick.bid),
                     timeout(5000),
                     tap({
@@ -590,7 +746,7 @@ class HuobiClient {
       return combineLatest([balance$, position$]).pipe(
         //
         throttleTime(1000),
-        map(([balance, positions]: [any, IPosition[]]): IAccountInfo => {
+        map(([balance, positions]): IAccountInfo => {
           const equity = positions.reduce((acc, cur) => acc + cur.closable_price * cur.volume, 0) + balance;
           return {
             timestamp_in_us: Date.now() * 1000,
@@ -631,11 +787,9 @@ class HuobiClient {
       console.info(formatTime(Date.now()), `SubmitOrder for ${account_id}`, JSON.stringify(msg));
 
       if (req_account_id === `${account_id}/swap`) {
-        return defer(() =>
-          client.request('POST', '/linear-swap-api/v1/swap_cross_position_info', undefined),
-        ).pipe(
+        return defer(() => client.getSwapCrossPositionInfo()).pipe(
           mergeMap((res) => res.data),
-          map((v: any) => [v.contract_code, v.lever_rate]),
+          map((v) => [v.contract_code, v.lever_rate]),
           toArray(),
           map((v) => Object.fromEntries(v)),
           mergeMap((mapContractCodeToRate) => {
@@ -655,9 +809,17 @@ class HuobiClient {
               lever_rate,
               order_price_type: msg.req.type === OrderType.MARKET ? 'market' : 'limit',
             };
-            return client.request('POST', '/linear-swap-api/v1/swap_cross_order', params);
+            return client.placeSwapOrder(params).then((v) => {
+              console.info(formatTime(Date.now()), 'SubmitOrder', JSON.stringify(v), JSON.stringify(params));
+              return v;
+            });
           }),
-          map(() => ({ res: { code: 0, message: 'OK' } })),
+          map((v) => {
+            if (v.status !== 'ok') {
+              return { res: { code: 500, message: v.status } };
+            }
+            return { res: { code: 0, message: 'OK' } };
+          }),
           catchError((e) => {
             console.error(formatTime(Date.now()), 'SubmitOrder', e);
             return of({ res: { code: 500, message: `${e}` } });
@@ -669,12 +831,10 @@ class HuobiClient {
       // 2. get the current balance
       // 3. get the current price
       // 4. combine the information to submit the order
-      return defer(() =>
-        client.request('GET', '/v1/cross-margin/loan-info', undefined, client.spot_api_root),
-      ).pipe(
+      return defer(() => client.getCrossMarginLoanInfo()).pipe(
         //
         mergeMap((res) => res.data),
-        first((v: any) => v.currency === 'usdt'),
+        first((v) => v.currency === 'usdt'),
         map((v) => +v['loanable-amt']),
         combineLatestWith(
           unifiedRawAccountBalance$.pipe(
@@ -682,7 +842,7 @@ class HuobiClient {
             mergeMap((res) =>
               from(res.list).pipe(
                 // we only need the amount of usdt that can be used to trade
-                filter((v: any) => v.currency === 'usdt' && v.type === 'trade'),
+                filter((v) => v.currency === 'usdt' && v.type === 'trade'),
                 reduce((acc, cur) => acc + +cur.balance, 0),
               ),
             ),
@@ -690,12 +850,7 @@ class HuobiClient {
         ),
         combineLatestWith(spotProducts$.pipe(first())),
         mergeMap(async ([[loanable, balance], products]) => {
-          const priceRes = await client.request(
-            'GET',
-            `/market/detail/merged`,
-            { symbol: msg.req.product_id },
-            client.spot_api_root,
-          );
+          const priceRes = await client.getSpotTick({ symbol: msg.req.product_id });
           const theProduct = products.find((v) => v.product_id === msg.req.product_id);
           const price: number = priceRes.tick.close;
           const borrow_amount = [OrderDirection.OPEN_LONG, OrderDirection.CLOSE_SHORT].includes(
@@ -705,13 +860,15 @@ class HuobiClient {
             : undefined;
           const params = {
             symbol: msg.req.product_id,
-            'account-id': superMarginAccountUid,
+            'account-id': '' + superMarginAccountUid,
             // amount: msg.req.type === OrderType.MARKET ? 0 : '' + msg.req.volume,
             // 'market-amount': msg.req.type === OrderType.MARKET ? '' + msg.req.volume : undefined,
-            amount: [OrderDirection.OPEN_LONG, OrderDirection.CLOSE_SHORT].includes(msg.req.direction)
-              ? roundToStep(msg.req.volume * price, theProduct?.volume_step!)
-              : msg.req.volume,
-            'borrow-amount': borrow_amount,
+            amount:
+              '' +
+              ([OrderDirection.OPEN_LONG, OrderDirection.CLOSE_SHORT].includes(msg.req.direction)
+                ? roundToStep(msg.req.volume * price, theProduct?.volume_step!)
+                : msg.req.volume),
+            'borrow-amount': '' + borrow_amount,
             type: `${
               [OrderDirection.OPEN_LONG, OrderDirection.CLOSE_SHORT].includes(msg.req.direction)
                 ? 'buy'
@@ -725,14 +882,14 @@ class HuobiClient {
             price: msg.req.type === OrderType.MARKET ? undefined : '' + msg.req.price,
             source: 'super-margin-api',
           };
-          return client.request('POST', '/v1/order/auto/place', params, client.spot_api_root).then((v) => {
+          return client.placeSpotOrder(params).then((v) => {
             console.info(formatTime(Date.now()), 'SubmitOrder', JSON.stringify(v), JSON.stringify(params));
             return v;
           });
         }),
         map((v) => {
           if (v.success === false) {
-            return { res: { code: v.code as number, message: v.message as string } };
+            return { res: { code: v.code, message: v.message } };
           }
           return { res: { code: 0, message: 'OK' } };
         }),
@@ -744,15 +901,13 @@ class HuobiClient {
     },
   );
 
-  const blockchainAddress = defer(() =>
-    client.request('GET', `/v2/account/deposit/address`, { currency: 'usdt' }, client.spot_api_root),
-  ).pipe(
+  const blockchainAddress$ = defer(() => client.getSpotAccountDepositAddresses({ currency: 'usdt' })).pipe(
     //
     retry({ delay: 5000 }),
     mergeMap((v) =>
       from(v.data).pipe(
         //
-        map((v: any) => encodePath(`blockchain`, v.chain, v.address)),
+        map((v) => encodePath(`blockchain`, v.chain, v.address)),
         toArray(),
       ),
     ),
@@ -762,7 +917,7 @@ class HuobiClient {
   const debit_methods = [
     encodePath(`huobi`, `account_internal`, `${account_id}/super-margin`),
     encodePath(`huobi`, `account_internal`, `${account_id}/swap`),
-    ...(await firstValueFrom(blockchainAddress)),
+    ...(await firstValueFrom(blockchainAddress$)),
   ];
 
   const updateTransferOrder = (transferOrder: ITransferOrder): Observable<void> => {
@@ -792,6 +947,7 @@ class HuobiClient {
       oneOf: [
         {
           type: 'object',
+          required: ['debit_account_id', 'credit_account_id', 'currency'],
           properties: {
             debit_account_id: {
               enum: [`${account_id}/super-margin`, `${account_id}/swap`],
@@ -806,6 +962,7 @@ class HuobiClient {
         },
         {
           type: 'object',
+          required: ['debit_account_id', 'credit_account_id', 'currency'],
           properties: {
             credit_account_id: {
               enum: [`${account_id}/super-margin`, `${account_id}/swap`],
@@ -849,13 +1006,8 @@ class HuobiClient {
           if (parts[0] === 'huobi') {
             if (parts[1] === 'account_internal') {
               return defer(() =>
-                client.request(
-                  'GET',
-                  `/v2/account/ledger`,
-                  // the money will pass through the spot account anyway
-                  { accountId: spotAccountUid, currency: 'usdt' },
-                  client.spot_api_root,
-                ),
+                // the money will pass through the spot account anyway
+                client.getAccountLedger({ accountId: '' + spotAccountUid, currency: 'usdt' }),
               ).pipe(
                 //
                 mergeMap((v) => {
@@ -869,7 +1021,7 @@ class HuobiClient {
                   return from(v.data).pipe(
                     //
                     first(
-                      (v: any) =>
+                      (v) =>
                         v.transactTime >= req.transferred_at! && -v.transactAmt === req.transferred_amount,
                     ),
                   );
@@ -923,12 +1075,10 @@ class HuobiClient {
                     // 1. transfer the amount of usdt to the spot account
                     const updated_at = Date.now();
                     return defer(() =>
-                      client.request(
-                        'POST',
-                        `/v1/cross-margin/transfer-out`,
-                        { currency: 'usdt', amount: '' + req.expected_amount },
-                        client.spot_api_root,
-                      ),
+                      client.superMarginAccountTransferOut({
+                        currency: 'usdt',
+                        amount: '' + req.expected_amount,
+                      }),
                     ).pipe(
                       mergeMap((v) => {
                         if (v.status !== 'ok') {
@@ -949,18 +1099,13 @@ class HuobiClient {
                           );
                         }
                         return defer(() =>
-                          client.request(
-                            'POST',
-                            `/v2/account/transfer`,
-                            {
-                              from: 'spot',
-                              to: 'linear-swap',
-                              currency: 'usdt',
-                              amount: req.expected_amount,
-                              'margin-account': 'USDT',
-                            },
-                            client.spot_api_root,
-                          ),
+                          client.spotAccountTransfer({
+                            from: 'spot',
+                            to: 'linear-swap',
+                            currency: 'usdt',
+                            amount: req.expected_amount,
+                            'margin-account': 'USDT',
+                          }),
                         ).pipe(
                           //
                           mergeMap((v) => {
@@ -1004,19 +1149,15 @@ class HuobiClient {
                     target_account_id === `${account_id}/super-margin`
                   ) {
                     const updated_at = Date.now();
+
                     return defer(() =>
-                      client.request(
-                        'POST',
-                        `/v2/account/transfer`,
-                        {
-                          from: 'linear-swap',
-                          to: 'spot',
-                          currency: 'usdt',
-                          amount: req.expected_amount,
-                          'margin-account': 'USDT',
-                        },
-                        client.spot_api_root,
-                      ),
+                      client.spotAccountTransfer({
+                        from: 'linear-swap',
+                        to: 'spot',
+                        currency: 'usdt',
+                        amount: req.expected_amount,
+                        'margin-account': 'USDT',
+                      }),
                     ).pipe(
                       mergeMap((v) => {
                         if (!v.success) {
@@ -1037,15 +1178,10 @@ class HuobiClient {
                           );
                         }
                         return defer(() =>
-                          client.request(
-                            'POST',
-                            `/v1/cross-margin/transfer-in`,
-                            {
-                              currency: 'usdt',
-                              amount: '' + req.expected_amount,
-                            },
-                            client.spot_api_root,
-                          ),
+                          client.superMarginAccountTransferIn({
+                            currency: 'usdt',
+                            amount: '' + req.expected_amount,
+                          }),
                         ).pipe(
                           //
                           mergeMap((v) => {
@@ -1118,27 +1254,17 @@ class HuobiClient {
   const uid = huobiAccount.data[0].id;
 
   console.info(
-    JSON.stringify(
-      await client.request('GET', '/v1/cross-margin/loan-info', undefined, client.spot_api_root),
-    ),
+    JSON.stringify(await client.request('GET', '/v1/cross-margin/loan-info', client.spot_api_root)),
   );
 
-  const priceRes = await client.request(
-    'GET',
-    `/market/detail/merged`,
-    { symbol: 'dogeusdt' },
-    client.spot_api_root,
-  );
+  const priceRes = await client.request('GET', `/market/detail/merged`, client.spot_api_root, {
+    symbol: 'dogeusdt',
+  });
   console.info(priceRes);
 
   console.info(
     JSON.stringify(
-      await client.request(
-        'GET',
-        `/v1/account/accounts/${60841683}/balance`,
-        undefined,
-        client.spot_api_root,
-      ),
+      await client.request('GET', `/v1/account/accounts/${60841683}/balance`, client.spot_api_root),
     ),
   );
 })();
