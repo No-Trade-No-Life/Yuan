@@ -981,11 +981,13 @@ class HuobiClient {
       console.info(formatTime(Date.now()), `Transfer for ${account_id}`, JSON.stringify(msg));
       const req = msg.req as ITransferOrder;
       const { credit_account_id, debit_account_id, status } = req;
+
       if (req.timeout_at < Date.now()) {
         return defer(() => updateTransferOrder({ ...req, status: 'ERROR', updated_at: Date.now() })).pipe(
           map(() => ({ res: { code: 500, message: 'TRANSFER_TIMEOUT' } })),
         );
       }
+
       if (status === 'AWAIT_DEBIT') {
         // if we are the debit side
         if (!req.debit_methods?.length) {
@@ -1000,45 +1002,42 @@ class HuobiClient {
             map(() => ({ res: { code: 0, message: 'OK' } })),
           );
         }
+
         // the transfer is ongoing
         if (req.credit_method) {
           const parts = decodePath(req.credit_method);
           if (parts[0] === 'huobi') {
             if (parts[1] === 'account_internal') {
-              return defer(() =>
-                // the money will pass through the spot account anyway
-                client.getAccountLedger({ accountId: '' + spotAccountUid, currency: 'usdt' }),
-              ).pipe(
-                //
-                mergeMap((v) => {
-                  console.info(
-                    formatTime(Date.now()),
-                    'Transfer',
-                    'DEBIT',
-                    'checking credit account',
-                    JSON.stringify(v),
-                  );
-                  return from(v.data).pipe(
-                    //
-                    first(
-                      (v) =>
-                        v.transactTime >= req.transferred_at! && -v.transactAmt === req.transferred_amount,
-                    ),
-                  );
-                }),
-                retry({ delay: 5000 }),
-                mergeMap(() => {
-                  return updateTransferOrder({
+              return defer(async () => {
+                const ledger = await client.getAccountLedger({
+                  accountId: '' + spotAccountUid,
+                  currency: 'usdt',
+                });
+                console.info(
+                  formatTime(Date.now()),
+                  'Transfer',
+                  'DEBIT',
+                  'checking credit account',
+                  JSON.stringify(ledger),
+                );
+                const v = ledger.data.find(
+                  (v) => v.transactTime >= req.transferred_at! && -v.transactAmt === req.transferred_amount,
+                );
+                if (v !== undefined) {
+                  return {
                     ...req,
                     status: 'COMPLETE',
                     received_at: Date.now(),
                     received_amount: req.transferred_amount,
                     updated_at: Date.now(),
-                  }).pipe(
-                    //
-                    map(() => ({ res: { code: 0, message: 'OK' } })),
-                  );
-                }),
+                  };
+                }
+                throw new Error('NOT_RECEIVED');
+              }).pipe(
+                //
+                retry({ delay: 5000 }),
+                delayWhen((v) => updateTransferOrder(v)),
+                map(() => ({ res: { code: 0, message: 'OK' } })),
               );
             }
           }
@@ -1047,7 +1046,7 @@ class HuobiClient {
         return of({ res: { code: 0, message: 'OK' } });
       }
 
-      if (req.status === 'AWAIT_CREDIT') {
+      if (status === 'AWAIT_CREDIT') {
         if (req.debit_methods) {
           console.info(
             formatTime(Date.now()),
@@ -1074,73 +1073,59 @@ class HuobiClient {
                     console.info(formatTime(Date.now()), 'Transfer', 'CREDIT', 'from super-margin to swap');
                     // 1. transfer the amount of usdt to the spot account
                     const updated_at = Date.now();
-                    return defer(() =>
-                      client.superMarginAccountTransferOut({
+
+                    return defer(async () => {
+                      const transferOutResult = await client.superMarginAccountTransferOut({
                         currency: 'usdt',
                         amount: '' + req.expected_amount,
-                      }),
-                    ).pipe(
-                      mergeMap((v) => {
-                        if (v.status !== 'ok') {
-                          console.info(
-                            formatTime(Date.now()),
-                            'Transfer',
-                            'CREDIT',
-                            'super-margin to spot failed',
-                            JSON.stringify(v),
-                          );
-                          return updateTransferOrder({
-                            ...req,
-                            status: 'ERROR',
-                            updated_at,
-                          }).pipe(
-                            //
-                            map(() => ({ res: { code: 500, message: 'TRANSFER_FAILED' } })),
-                          );
-                        }
-                        return defer(() =>
-                          client.spotAccountTransfer({
-                            from: 'spot',
-                            to: 'linear-swap',
-                            currency: 'usdt',
-                            amount: req.expected_amount,
-                            'margin-account': 'USDT',
-                          }),
-                        ).pipe(
-                          //
-                          mergeMap((v) => {
-                            if (!v.success) {
-                              console.info(
-                                formatTime(Date.now()),
-                                'Transfer',
-                                'CREDIT',
-                                'spot to linear-swap failed',
-                                JSON.stringify(v),
-                              );
-                              return updateTransferOrder({
-                                ...req,
-                                status: 'ERROR',
-                                updated_at,
-                              }).pipe(
-                                //
-                                map(() => ({ res: { code: 500, message: 'TRANSFER_FAILED' } })),
-                              );
-                            }
-                            return of(v.data).pipe(
-                              map((v) => ({
-                                ...req,
-                                status: 'AWAIT_DEBIT',
-                                credit_method: method,
-                                transferred_at: updated_at,
-                                transferred_amount: req.expected_amount,
-                                updated_at,
-                              })),
-                              delayWhen((v) => updateTransferOrder(v)),
-                              delayWhen((v) => terminal.requestService('Transfer', v)),
-                              map(() => ({ res: { code: 0, message: 'OK' } })),
-                            );
-                          }),
+                      });
+                      if (transferOutResult.status !== 'ok') {
+                        console.info(
+                          formatTime(Date.now()),
+                          'Transfer',
+                          'CREDIT',
+                          'super-margin to spot failed',
+                          JSON.stringify(transferOutResult),
                         );
+                        throw new Error('TRANSFER_FAILED');
+                      }
+                      const transferInResult = await client.spotAccountTransfer({
+                        from: 'spot',
+                        to: 'linear-swap',
+                        currency: 'usdt',
+                        amount: req.expected_amount,
+                        'margin-account': 'USDT',
+                      });
+                      if (!transferInResult.success) {
+                        console.info(
+                          formatTime(Date.now()),
+                          'Transfer',
+                          'CREDIT',
+                          'spot to linear-swap failed',
+                          JSON.stringify(transferInResult),
+                        );
+                        throw new Error('TRANSFER_FAILED');
+                      }
+                      return {
+                        ...req,
+                        status: 'AWAIT_DEBIT',
+                        credit_method: method,
+                        transferred_at: updated_at,
+                        transferred_amount: req.expected_amount,
+                        updated_at,
+                      };
+                    }).pipe(
+                      delayWhen((v) => updateTransferOrder(v)),
+                      delayWhen((v) => terminal.requestService('Transfer', v)),
+                      map(() => ({ res: { code: 0, message: 'OK' } })),
+                      catchError((e) => {
+                        console.error(formatTime(Date.now()), 'Transfer', 'CREDIT', e);
+
+                        return updateTransferOrder({
+                          ...req,
+                          status: 'ERROR',
+                          updated_at,
+                        }).pipe(map(() => ({ res: { code: 500, message: 'TRANSFER_FAILED' } })));
                       }),
                     );
                   }
@@ -1149,74 +1134,58 @@ class HuobiClient {
                     target_account_id === `${account_id}/super-margin`
                   ) {
                     const updated_at = Date.now();
-
-                    return defer(() =>
-                      client.spotAccountTransfer({
+                    return defer(async () => {
+                      const transferOutResult = await client.spotAccountTransfer({
                         from: 'linear-swap',
                         to: 'spot',
                         currency: 'usdt',
                         amount: req.expected_amount,
                         'margin-account': 'USDT',
-                      }),
-                    ).pipe(
-                      mergeMap((v) => {
-                        if (!v.success) {
-                          console.info(
-                            formatTime(Date.now()),
-                            'Transfer',
-                            'CREDIT',
-                            'linear-swap to spot failed',
-                            JSON.stringify(v),
-                          );
-                          return updateTransferOrder({
-                            ...req,
-                            status: 'ERROR',
-                            updated_at,
-                          }).pipe(
-                            //
-                            map(() => ({ res: { code: 500, message: 'TRANSFER_FAILED' } })),
-                          );
-                        }
-                        return defer(() =>
-                          client.superMarginAccountTransferIn({
-                            currency: 'usdt',
-                            amount: '' + req.expected_amount,
-                          }),
-                        ).pipe(
-                          //
-                          mergeMap((v) => {
-                            if (v.status !== 'ok') {
-                              console.info(
-                                formatTime(Date.now()),
-                                'Transfer',
-                                'CREDIT',
-                                'spot to super-margin failed',
-                                JSON.stringify(v),
-                              );
-                              return updateTransferOrder({
-                                ...req,
-                                status: 'ERROR',
-                                updated_at,
-                              }).pipe(
-                                //
-                                map(() => ({ res: { code: 500, message: 'TRANSFER_FAILED' } })),
-                              );
-                            }
-                            return of(v.data).pipe(
-                              map((v) => ({
-                                ...req,
-                                status: 'AWAIT_DEBIT',
-                                credit_method: method,
-                                transferred_at: updated_at,
-                                transferred_amount: req.expected_amount,
-                                updated_at,
-                              })),
-                              delayWhen((v) => updateTransferOrder(v)),
-                              delayWhen((v) => terminal.requestService('Transfer', v)),
-                              map(() => ({ res: { code: 0, message: 'OK' } })),
-                            );
-                          }),
+                      });
+                      if (!transferOutResult.success) {
+                        console.info(
+                          formatTime(Date.now()),
+                          'Transfer',
+                          'CREDIT',
+                          'linear-swap to spot failed',
+                          JSON.stringify(transferOutResult),
                         );
+                        throw new Error('TRANSFER_FAILED');
+                      }
+                      const transferInResult = await client.superMarginAccountTransferIn({
+                        currency: 'usdt',
+                        amount: '' + req.expected_amount,
+                      });
+                      if (transferInResult.status !== 'ok') {
+                        console.info(
+                          formatTime(Date.now()),
+                          'Transfer',
+                          'CREDIT',
+                          'spot to super-margin failed',
+                          JSON.stringify(transferInResult),
+                        );
+                        throw new Error('TRANSFER_FAILED');
+                      }
+                      return {
+                        ...req,
+                        status: 'AWAIT_DEBIT',
+                        credit_method: method,
+                        transferred_at: updated_at,
+                        transferred_amount: req.expected_amount,
+                        updated_at,
+                      };
+                    }).pipe(
+                      delayWhen((v) => updateTransferOrder(v)),
+                      delayWhen((v) => terminal.requestService('Transfer', v)),
+                      map(() => ({ res: { code: 0, message: 'OK' } })),
+                      catchError((e) => {
+                        console.error(formatTime(Date.now()), 'Transfer', 'CREDIT', e);
+
+                        return updateTransferOrder({
+                          ...req,
+                          status: 'ERROR',
+                          updated_at,
+                        }).pipe(map(() => ({ res: { code: 500, message: 'TRANSFER_FAILED' } })));
                       }),
                     );
                   }
