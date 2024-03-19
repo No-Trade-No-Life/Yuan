@@ -12,7 +12,7 @@ import { terminal$ } from '../Terminals';
 interface IDataRecordViewDef<T> {
   TYPE: string;
   columns: (ctx: { reloadData: () => Promise<void> }) => ColumnDef<IDataRecord<T>, any>[];
-  extraRecordActions?: (ctx: { reloadData: () => Promise<void>; record: IDataRecord<T> }) => React.ReactNode;
+  extraRecordActions?: React.ComponentType<{ reloadData: () => Promise<void>; record: IDataRecord<T> }>;
   newRecord: () => Partial<T>;
   mapOriginToDataRecord: (x: T) => IDataRecord<T>;
   beforeUpdateTrigger?: (x: T) => void | Promise<void>;

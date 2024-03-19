@@ -41,74 +41,78 @@ function beforeUpdateTrigger(x: ITransferOrder) {
   x.updated_at = Date.now();
 }
 
+function defineColumns() {
+  return () => {
+    const columnHelper = createColumnHelper<IDataRecord<ITransferOrder>>();
+    return [
+      columnHelper.accessor('origin.order_id', {
+        header: () => '订单ID',
+      }),
+      columnHelper.accessor('origin.created_at', {
+        header: () => '创建时间',
+        cell: (ctx) => formatTime(ctx.getValue() ?? ''),
+      }),
+      columnHelper.accessor('origin.updated_at', {
+        header: () => '更新时间',
+        cell: (ctx) => formatTime(ctx.getValue() ?? ''),
+      }),
+      columnHelper.accessor('origin.credit_account_id', {
+        header: () => '贷方账户',
+        cell: (ctx) => <InlineAccountId account_id={ctx.getValue()} />,
+      }),
+      columnHelper.accessor('origin.debit_account_id', {
+        header: () => '借方账户',
+        cell: (ctx) => <InlineAccountId account_id={ctx.getValue()} />,
+      }),
+      columnHelper.accessor('origin.status', {
+        header: () => '状态',
+      }),
+      columnHelper.accessor('origin.expected_amount', {
+        header: () => '金额',
+      }),
+      columnHelper.accessor('origin.currency', {
+        header: () => '货币',
+      }),
+      columnHelper.accessor('origin.debit_methods', {
+        header: () => '候选方式',
+        cell: (ctx) => (
+          <ol>
+            {ctx.getValue()?.map((e) => (
+              <li>{e}</li>
+            ))}
+          </ol>
+        ),
+      }),
+      columnHelper.accessor('origin.credit_method', {
+        header: () => '当选方式',
+      }),
+      columnHelper.accessor('origin.transaction_id', {
+        header: () => '转账凭证号',
+      }),
+      columnHelper.accessor('origin.transferred_at', {
+        header: () => '转账时间',
+        cell: (ctx) => formatTime(ctx.getValue() ?? ''),
+      }),
+      columnHelper.accessor('origin.transferred_amount', {
+        header: () => '转账金额',
+      }),
+      columnHelper.accessor('origin.received_at', {
+        header: () => '到账时间',
+        cell: (ctx) => formatTime(ctx.getValue() ?? ''),
+      }),
+      columnHelper.accessor('origin.received_amount', {
+        header: () => '到账金额',
+      }),
+    ];
+  };
+}
+
 registerPage('TransferOrderList', () => {
   return (
     <DataRecordView
       TYPE={TYPE}
       schema={schema}
-      columns={() => {
-        const columnHelper = createColumnHelper<IDataRecord<ITransferOrder>>();
-        return [
-          columnHelper.accessor('origin.order_id', {
-            header: () => '订单ID',
-          }),
-          columnHelper.accessor('origin.created_at', {
-            header: () => '创建时间',
-            cell: (ctx) => formatTime(ctx.getValue() ?? ''),
-          }),
-          columnHelper.accessor('origin.updated_at', {
-            header: () => '更新时间',
-            cell: (ctx) => formatTime(ctx.getValue() ?? ''),
-          }),
-          columnHelper.accessor('origin.credit_account_id', {
-            header: () => '贷方账户',
-            cell: (ctx) => <InlineAccountId account_id={ctx.getValue()} />,
-          }),
-          columnHelper.accessor('origin.debit_account_id', {
-            header: () => '借方账户',
-            cell: (ctx) => <InlineAccountId account_id={ctx.getValue()} />,
-          }),
-          columnHelper.accessor('origin.status', {
-            header: () => '状态',
-          }),
-          columnHelper.accessor('origin.expected_amount', {
-            header: () => '金额',
-          }),
-          columnHelper.accessor('origin.currency', {
-            header: () => '货币',
-          }),
-          columnHelper.accessor('origin.debit_methods', {
-            header: () => '候选方式',
-            cell: (ctx) => (
-              <ol>
-                {ctx.getValue()?.map((e) => (
-                  <li>{e}</li>
-                ))}
-              </ol>
-            ),
-          }),
-          columnHelper.accessor('origin.credit_method', {
-            header: () => '当选方式',
-          }),
-          columnHelper.accessor('origin.transaction_id', {
-            header: () => '转账凭证号',
-          }),
-          columnHelper.accessor('origin.transferred_at', {
-            header: () => '转账时间',
-            cell: (ctx) => formatTime(ctx.getValue() ?? ''),
-          }),
-          columnHelper.accessor('origin.transferred_amount', {
-            header: () => '转账金额',
-          }),
-          columnHelper.accessor('origin.received_at', {
-            header: () => '到账时间',
-            cell: (ctx) => formatTime(ctx.getValue() ?? ''),
-          }),
-          columnHelper.accessor('origin.received_amount', {
-            header: () => '到账金额',
-          }),
-        ];
-      }}
+      columns={defineColumns()}
       extraRecordActions={({ reloadData, record }) => (
         <Button
           icon={<IconBolt />}
