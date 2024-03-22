@@ -6,6 +6,7 @@ import { JSONSchema7 } from 'json-schema';
 import {
   EMPTY,
   Observable,
+  ReplaySubject,
   Subject,
   Subscription,
   bufferCount,
@@ -150,9 +151,67 @@ export class Terminal {
 
     this.terminalInfo.start_timestamp_in_ms ??= Date.now();
     this.terminalInfo.status ??= 'INIT';
-    this.terminalInfo.services ??= [];
 
-    this.setupReportTerminalInfo();
+    this._setupTerminalInfoStuff();
+  }
+  private _setupTerminalInfoStuff() {
+    // Periodically update the whole terminal list
+    this._subscriptions.push(
+      defer(() => this.request('ListTerminals', '@host', {}))
+        .pipe(
+          filter((msg) => !!msg.res),
+          map((msg) => msg.res?.data ?? []),
+          mergeMap((x) => x),
+          // ISSUE: filter out terminals that have not been updated for a long time
+          // filter((x) => Date.now() - x.updated_at! < 60_000),
+          toArray(),
+          retry({ delay: 1000 }),
+          // ISSUE: Storage workload
+          repeat({ delay: 10000 }),
+        )
+        .subscribe((list) => {
+          this._terminalInfos$.next(list);
+        }),
+    );
+
+    // Receive TerminalInfo from the channel
+    this._subscriptions.push(
+      this.consumeChannel<ITerminalInfo>('TerminalInfo')
+        .pipe(
+          mergeMap((x) =>
+            this.terminalInfos$.pipe(
+              first(),
+              map((list) => {
+                const idx = list.findIndex((y) => y.terminal_id === x.terminal_id);
+                if (idx === -1) {
+                  return [...list, x];
+                }
+                list[idx] = x;
+                return list;
+              }),
+              tap((list) => {
+                this._terminalInfos$.next(list);
+              }),
+            ),
+          ),
+        )
+        .subscribe(),
+    );
+
+    // Periodically report the value of terminalInfo
+    this._subscriptions.push(
+      defer(() => {
+        this.terminalInfo.updated_at = Date.now();
+        return this.request('UpdateTerminalInfo', '@host', this.terminalInfo);
+      })
+        .pipe(
+          //
+          timeout(5000),
+          retry({ delay: 1000 }),
+          repeat({ delay: 5000 }),
+        )
+        .subscribe(),
+    );
   }
 
   private _subscriptions: Subscription[] = [];
@@ -291,23 +350,6 @@ export class Terminal {
       }
     });
     this._subscriptions.push(sub1, sub2);
-  };
-
-  private setupReportTerminalInfo = () => {
-    // Periodically report the value of terminalInfo
-    this._subscriptions.push(
-      defer(() => {
-        this.terminalInfo.updated_at = Date.now();
-        return this.request('UpdateTerminalInfo', '@host', this.terminalInfo);
-      })
-        .pipe(
-          //
-          timeout(5000),
-          retry({ delay: 1000 }),
-          repeat({ delay: 5000 }),
-        )
-        .subscribe(),
-    );
   };
 
   private _subscribeChannel = (provider_terminal_id: string, channel_id: string) => {
@@ -648,21 +690,11 @@ export class Terminal {
       shareReplay({ bufferSize: 1, refCount: true }),
     ));
 
+  private _terminalInfos$ = new ReplaySubject<ITerminalInfo[]>(1);
   /**
    * Terminal List of the same host
    */
-  terminalInfos$: Observable<ITerminalInfo[]> = defer(() => this.request('ListTerminals', '@host', {})).pipe(
-    filter((msg) => !!msg.res),
-    map((msg) => msg.res?.data ?? []),
-    mergeMap((x) => x),
-    // ISSUE: filter out terminals that have not been updated for a long time
-    filter((x) => Date.now() - x.updated_at! < 60_000),
-    toArray(),
-    retry({ delay: 1000 }),
-    // ISSUE: Storage workload
-    repeat({ delay: 10000 }),
-    shareReplay(1),
-  );
+  terminalInfos$: Observable<ITerminalInfo[]> = this._terminalInfos$.asObservable();
 
   // ISSUE: Ajv is very slow and cause a lot CPU utilization, so we must cache the compiled validator
   private _mapTerminalIdAndMethodToValidator: Record<string, Record<string, ValidateFunction>> = {};

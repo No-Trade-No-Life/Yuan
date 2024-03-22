@@ -68,11 +68,6 @@ const term = new Terminal(HV_URL, {
   terminal_id: TERMINAL_ID,
   name: 'General Data Source',
   status: 'OK',
-  services: [
-    {
-      datasource_id: 'Y',
-    },
-  ],
 });
 
 const syncData = (
