@@ -1,0 +1,37 @@
+{
+  "name": "@yuants/vendor-huobi",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/vendor-huobi_v0.0.1",
+      "date": "Fri, 22 Mar 2024 10:10:02 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "init"
+          },
+          {
+            "comment": "add account info"
+          },
+          {
+            "comment": "add submit order for super-margin and swap"
+          },
+          {
+            "comment": "add huobi transfer api"
+          },
+          {
+            "comment": "refactor make all requests typed"
+          },
+          {
+            "comment": "refactor transfer"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.12.0`"
+          }
+        ]
+      }
+    }
+  ]
+}
