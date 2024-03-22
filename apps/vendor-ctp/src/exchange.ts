@@ -567,7 +567,6 @@ const TERMINAL_ID = process.env.TERMINAL_ID || `CTP/${account_id}`;
 const terminal = new Terminal(process.env.HV_URL!, {
   terminal_id: TERMINAL_ID,
   name: 'CTP',
-  services: [{ account_id }, { datasource_id: DATASOURCE_ID }],
 });
 
 const zmqConn = createZMQConnection(process.env.ZMQ_PUSH_URL!, process.env.ZMQ_PULL_URL!);

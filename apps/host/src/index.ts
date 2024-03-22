@@ -1,7 +1,18 @@
 import { formatTime } from '@yuants/data-model';
 import { ITerminalInfo, Terminal } from '@yuants/protocol';
 import { createServer } from 'http';
-import { Observable, bindCallback, first, fromEvent, interval, map, merge, of, shareReplay } from 'rxjs';
+import {
+  Observable,
+  Subject,
+  bindCallback,
+  first,
+  fromEvent,
+  interval,
+  map,
+  merge,
+  of,
+  shareReplay,
+} from 'rxjs';
 import WebSocket from 'ws';
 
 const mapTerminalIdToSocket: Record<string, WebSocket.WebSocket> = {};
@@ -90,9 +101,14 @@ const listTerminalsMessage$ = interval(1000).pipe(
   shareReplay(1),
 );
 
+const terminalInfo$ = new Subject<ITerminalInfo>();
+
+terminal.provideChannel<ITerminalInfo>({ const: 'TerminalInfo' }, () => terminalInfo$);
+
 terminal.provideService('ListTerminals', {}, () => listTerminalsMessage$.pipe(first()));
 
 terminal.provideService('UpdateTerminalInfo', {}, (msg) => {
   terminalInfos.set(msg.req.terminal_id, msg.req);
+  terminalInfo$.next(msg.req);
   return of({ res: { code: 0, message: 'OK' } });
 });
