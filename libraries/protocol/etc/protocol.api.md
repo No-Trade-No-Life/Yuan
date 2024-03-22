@@ -65,22 +65,10 @@ export interface IService {
 // @public
 export interface ITerminalInfo {
     channelIdSchemas?: JSONSchema7[];
-    // @deprecated
-    discriminator?: JSONSchema7;
-    env?: string;
     name?: string;
-    owner?: string;
-    // @deprecated
-    ping?: number;
     serviceInfo?: Record<string, {
         method: string;
         schema: JSONSchema7;
-    }>;
-    // @deprecated
-    services?: Array<{
-        account_id?: string;
-        datasource_id?: string;
-        storage?: {};
     }>;
     start_timestamp_in_ms?: number;
     status?: string;

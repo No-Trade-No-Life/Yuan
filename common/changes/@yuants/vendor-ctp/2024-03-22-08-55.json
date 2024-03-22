@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-ctp",
+      "comment": "remove useless config",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-ctp"
+}
