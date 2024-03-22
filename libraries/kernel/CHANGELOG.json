@@ -2,6 +2,23 @@
   "name": "@yuants/kernel",
   "entries": [
     {
+      "version": "0.10.4",
+      "tag": "@yuants/kernel_v0.10.4",
+      "date": "Fri, 22 Mar 2024 10:10:02 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.12.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.10.3",
       "tag": "@yuants/kernel_v0.10.3",
       "date": "Thu, 22 Feb 2024 18:28:20 GMT",

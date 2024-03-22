@@ -2,6 +2,26 @@
   "name": "@yuants/app-trade-copier",
   "entries": [
     {
+      "version": "0.3.48",
+      "tag": "@yuants/app-trade-copier_v0.3.48",
+      "date": "Fri, 22 Mar 2024 10:10:02 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.10.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.12.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.47",
       "tag": "@yuants/app-trade-copier_v0.3.47",
       "date": "Thu, 22 Feb 2024 18:28:20 GMT",

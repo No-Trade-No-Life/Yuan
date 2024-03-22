@@ -1,6 +1,11 @@
 # Change Log - @yuants/vendor-ccxt
 
-This log was last generated on Fri, 01 Mar 2024 10:55:39 GMT and should not be manually modified.
+This log was last generated on Fri, 22 Mar 2024 10:10:02 GMT and should not be manually modified.
+
+## 0.0.20
+Fri, 22 Mar 2024 10:10:02 GMT
+
+_Version update only_
 
 ## 0.0.19
 Fri, 01 Mar 2024 10:55:39 GMT
