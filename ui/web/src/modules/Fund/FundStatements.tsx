@@ -2,6 +2,8 @@ import { IconCode, IconEdit, IconRefresh, IconUser } from '@douyinfe/semi-icons'
 import { Collapse, Descriptions, Space, Toast } from '@douyinfe/semi-ui';
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { formatTime } from '@yuants/data-model';
+import { format } from 'date-fns';
+import EChartsReact from 'echarts-for-react';
 import { parse } from 'jsonc-parser';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useMemo, useReducer } from 'react';
@@ -289,6 +291,23 @@ registerPage('FundStatements', () => {
     },
   });
 
+  const equityHistory = useMemo(() => {
+    const ret: Array<{ created_at: number; open: number; high: number; low: number; close: number }> = [];
+    history.forEach((v) => {
+      const last = ret[ret.length - 1];
+      const created_at = new Date(v.updated_at).setHours(0, 0, 0, 0);
+      const value = v.unitPrice;
+      if (last && last.created_at === created_at) {
+        last.high = Math.max(last.high, value);
+        last.low = Math.min(last.low, value);
+        last.close = value;
+      } else {
+        ret.push({ created_at, open: value, high: value, low: value, close: value });
+      }
+    });
+    return ret;
+  }, [history]);
+
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
       <Space>
@@ -367,6 +386,31 @@ registerPage('FundStatements', () => {
           { key: '投资人', value: Object.keys(state.investors).length },
         ]}
         row
+      />
+      <EChartsReact
+        style={{ width: '100%', height: '100%', minHeight: 400 }}
+        option={{
+          title: {
+            text: '净值曲线',
+          },
+          tooltip: {
+            trigger: 'axis',
+          },
+          xAxis: {
+            data: equityHistory.map((v) => format(v.created_at, 'yyyy-MM-dd')),
+          },
+          yAxis: {
+            min: 'dataMin',
+            max: 'dataMax',
+          },
+          series: [
+            {
+              type: 'candlestick',
+              // O-C-L-H
+              data: equityHistory.map((v) => [v.open, v.close, v.low, v.high]),
+            },
+          ],
+        }}
       />
       <Collapse defaultActiveKey={'investors'} style={{ width: '100%' }}>
         <Collapse.Panel itemKey="investors" header={'投资人列表'}>
