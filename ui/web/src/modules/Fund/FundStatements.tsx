@@ -400,8 +400,7 @@ registerPage('FundStatements', () => {
             data: equityHistory.map((v) => format(v.created_at, 'yyyy-MM-dd')),
           },
           yAxis: {
-            min: 'dataMin',
-            max: 'dataMax',
+            scale: true,
           },
           series: [
             {
