@@ -50,11 +50,11 @@ Here's why:
 - I want to work everywhere from any device. I don't want to install prerequisites (Python or any others) before starting my work. Most devices have installed browsers. So I want to use a browser to work.
 - The market is similar around the world. I want to trade in any global market without changing any strategy code. Write once, and run everywhere.
 - Real-world trading is important. The trading system should be highly available. I want to create and maintain them easily.
+- My money is dispersed across many accounts. I want to manage them in one place.
 
 For more general usages:
 
 - Maybe you feel troubled about coding. You can ask an AI assistant for help. Just tell AI your idea and run. AI can complete the code.
-- Maybe you need to manage your money dispersed across many accounts.
 
 In summary, I hope Yuan can be an operating system, which helps you control your money.
 
@@ -101,7 +101,7 @@ Yuan is a hybrid-cloud software that allows you to deploy your trading system in
 
 **Extension-first Ecosystem**
 
-In Yuan, extensions are treated as first-class citizens. Many core features are built and distributed as extensions. You can use extensions to add new features, connect with more markets, and enhance your experience. You can download extensions from the community or create your own extension to share with others.
+In Yuan, extensions are treated as first-class citizens. Many core features are built and distributed as extensions. You can use extensions to add new features, connect with more markets, and enhance your experience. You can download extensions from the community or create your own extensions to share with others.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -127,7 +127,7 @@ In Yuan, extensions are treated as first-class citizens. Many core features are 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Getting started 🚀
+## Getting started (for developers) 🚀
 
 Prerequisites: `nodejs >= 18.17.0`, [docker](https://www.docker.com/) for image build, and [rush](https://rushjs.io/) for mono repo management.
 
@@ -139,6 +139,12 @@ Then you can install dependencies and build projects
 
 ```bash
 rush update && rush build
+```
+
+If you have no docker installed, you can skip the docker build by setting the environment variable `CI_RUN` to `true`.
+
+```bash
+CI_RUN=true rush build
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -155,6 +161,7 @@ All the libraries should be independent of the platform by default. They can be 
 - [@yuants/kernel](libraries/kernel) The kernel of Time-Machine. Time-Machine can travel from history to the future. This package also contains some useful units and scenes.
 - [@yuants/agent](libraries/agent) Agent is a trading bot. The agent contains the core of the trading strategy.
 - [@yuants/extension](libraries/extension) This defined the extension interface. You can use extensions to enhance your experience.
+- [@yuants/prometheus-client](libraries/prometheus-client) Prometheus client for the browser / node. Better performance than `promjs`.
 
 #### Apps
 
@@ -169,6 +176,10 @@ All the apps should provide an image and publish it as a npm package. You can de
 - [@yuants/app-feishu-notifier](apps/feishu-notifier) This will deploy a terminal as a notifier service. It sends notifications to your Feishu by a Feishu bot.
 - [@yuants/app-trade-copier](apps/trade-copier) This will deploy a terminal as a trade copier service. It watches the source accounts and ensures the target accounts follow the source accounts.
 - [@yuants/app-metrics-collector](apps/metrics-collector) This will deploy a terminal as a metrics-collecting service. The metrics collector collects metrics from terminals continuously. It works with Prometheus.
+- [@yuants/app-account-composer](apps/account-composer) This will deploy a terminal as an account-composing service. It composes multiple account info into one account info. So you can view your money dispersed across many accounts.
+- [@yuants/app-general-datasource](apps/general-data-source) This will deploy a terminal as a general data source service. It composes multiple specific data sources into one general data source. Useful for creating an index price series.
+- [@yuants/app-general-realtime-data-source](apps/general-realtime-data-source) This will deploy a terminal as a general real-time data source service. It's the real-time version of the general data source. Useful for creating an index price ticks.
+- [@yuants/app-k8s-manifest-operator](apps/k8s-manifest-operator) This will deploy a terminal as a Kubernetes manifest operator. It watches the manifest CRD of the Kubernetes cluster and ensures the Kubernetes cluster follows the manifest CRD. You can add manifest CRD to the k8s cluster and then the operator will deploy the resources defined in the manifest CRD.
 
 #### Web UI
 
@@ -178,6 +189,12 @@ All the users use the same GUI distribution. It's independent of hosts and scene
 User has their own workspace locally. The workspace is secret.
 You can install extensions to enhance your workspace.
 Any device with a modern browser can access the GUI and its features. But currently, the layout on the desktop is the most friendly. We will enhance the experience of mobile in the future.
+
+#### Documents
+
+[@yuants/docs](ui/docs) is the document of Yuan.
+
+It's built by [Docusaurus](https://docusaurus.io/). You can find the latest documents [here](https://www.ntnl.io/).
 
 #### Toolkit
 
@@ -192,6 +209,8 @@ Every vendor is a gateway to connect the external service directly. Your private
 - [@yuants/vendor-ctp](apps/vendor-ctp) This connects to the "Comprehensive Transaction Platform" (CTP). The CTP platform was developed by the Shanghai Futures Exchange (SHFE). CTP provides China's future exchanges. To comply with regulations, you might have to request permission from your broker company.
 
 - [@yuants/vendor-ccxt](apps/vendor-ccxt) This connects to the "CryptoCurrency eXchange Trading Library" (CCXT). CCXT is a JavaScript / Python / PHP cryptocurrency trading library that supports many cryptocurrency exchanges and trading markets. You can use it to trade cryptocurrencies.
+
+- [@yuants/vendor-huobi](apps/vendor-huobi) This connects to the Huobi Exchange. Huobi is a famous crypto exchange.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
