@@ -1,4 +1,4 @@
-import { IProduct, ITick, UUID, decodePath, encodePath } from '@yuants/data-model';
+import { IProduct, ITick, UUID, decodePath, encodePath, formatTime } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
@@ -7,6 +7,7 @@ import {
   catchError,
   combineLatest,
   defer,
+  delayWhen,
   filter,
   firstValueFrom,
   from,
@@ -90,6 +91,14 @@ const marginProducts$ = marginInstruments$.pipe(
   ),
   shareReplay(1),
 );
+
+usdtSwapProducts$.pipe(delayWhen((products) => terminal.updateProducts(products))).subscribe((products) => {
+  console.info(formatTime(Date.now()), 'SWAP Products updated', products.length);
+});
+
+marginProducts$.pipe(delayWhen((products) => terminal.updateProducts(products))).subscribe((products) => {
+  console.info(formatTime(Date.now()), 'MARGIN Products updated', products.length);
+});
 
 const swapMarketTickers$ = defer(() => client.getMarketTickers({ instType: 'SWAP' })).pipe(
   mergeMap((x) =>
