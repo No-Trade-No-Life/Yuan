@@ -551,6 +551,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/vendor-okx",
+      "projectFolder": "apps/vendor-okx",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/vendor-huobi",
       "projectFolder": "apps/vendor-huobi",
       "shouldPublish": true
