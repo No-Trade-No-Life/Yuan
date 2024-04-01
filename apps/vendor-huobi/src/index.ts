@@ -437,6 +437,13 @@ class HuobiClient {
     // https://www.htx.com/zh-cn/opend/newApiPages/?id=10000095-77b7-11ed-9966-0242ac110003
     return this.request('POST', `/v2/account/transfer`, this.spot_api_root, params);
   }
+
+  borrow(params: { currency: string; amount: string }): Promise<{
+    status: string;
+    data: number;
+  }> {
+    return this.request('POST', `/v1/cross-margin/orders`, this.spot_api_root, params);
+  }
 }
 
 (async () => {
@@ -1071,10 +1078,47 @@ class HuobiClient {
                     target_account_id === `${account_id}/swap`
                   ) {
                     console.info(formatTime(Date.now()), 'Transfer', 'CREDIT', 'from super-margin to swap');
-                    // 1. transfer the amount of usdt to the spot account
+
                     const updated_at = Date.now();
 
                     return defer(async () => {
+                      // 0. if we don't have enough usdt, we need to borrow
+                      const toTransfer = req.expected_amount;
+                      const usdtBalance = await firstValueFrom(
+                        unifiedRawAccountBalance$.pipe(
+                          //
+                          mergeMap((v) =>
+                            from(v.list).pipe(
+                              //
+                              filter((v) => v.currency === 'usdt' && v.type === 'trade'),
+                              reduce((acc, cur) => acc + +cur.balance, 0),
+                            ),
+                          ),
+                        ),
+                      );
+
+                      if (usdtBalance <= toTransfer) {
+                        // ISSUE: the minimum amount for usdt to borrow is 10
+                        const toBorrow = Math.max(Math.ceil(toTransfer - usdtBalance), 10);
+                        const borrowResult = await client.borrow({
+                          currency: 'usdt',
+                          amount: '' + toBorrow,
+                        });
+
+                        if (borrowResult.status !== 'ok') {
+                          console.info(
+                            formatTime(Date.now()),
+                            'Transfer',
+                            'CREDIT',
+                            `toBorrow: ${toBorrow}`,
+                            'borrow failed, not enough usdt to transfer',
+                            JSON.stringify(borrowResult),
+                          );
+                          throw new Error('TRANSFER_FAILED');
+                        }
+                      }
+
+                      // 1. transfer the amount of usdt to the spot account
                       const transferOutResult = await client.superMarginAccountTransferOut({
                         currency: 'usdt',
                         amount: '' + req.expected_amount,
@@ -1089,6 +1133,7 @@ class HuobiClient {
                         );
                         throw new Error('TRANSFER_FAILED');
                       }
+                      // 2. transfer the amount of usdt to the spot account
                       const transferInResult = await client.spotAccountTransfer({
                         from: 'spot',
                         to: 'linear-swap',

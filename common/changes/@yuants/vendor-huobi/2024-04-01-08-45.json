@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-huobi",
+      "comment": "borrow first if balance of super-margin not enough",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-huobi"
+}
