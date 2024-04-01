@@ -217,6 +217,7 @@ terminal.provideTicks('OKX', (product_id) => {
               datasource_id: 'OKX',
               product_id,
               updated_at: Date.now(),
+              price: +ticker.last,
               volume: +ticker.lastSz,
               // 在下一个整点扣除利息 See 如何计算利息 https://www.okx.com/zh-hans/help/how-to-calculate-borrowing-interest
               settlement_scheduled_at: new Date().setMinutes(0, 0, 0) + 3600_000,
