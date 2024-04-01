@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-feishu-notifier
 
-This log was last generated on Fri, 22 Mar 2024 10:10:02 GMT and should not be manually modified.
+This log was last generated on Mon, 01 Apr 2024 16:37:22 GMT and should not be manually modified.
+
+## 0.1.0
+Mon, 01 Apr 2024 16:37:22 GMT
+
+### Minor changes
+
+- add phone urgent
 
 ## 0.0.42
 Fri, 22 Mar 2024 10:10:02 GMT
