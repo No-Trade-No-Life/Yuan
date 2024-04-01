@@ -7,11 +7,10 @@ export default (context: IExtensionContext) => {
       properties: {
         env: {
           type: 'object',
-          required: ['HOST_URL', 'ENV', 'APP_ID', 'APP_SECRET', 'EMERGENCY_RECEIVER_ID'],
+          required: ['HOST_URL', 'APP_ID', 'APP_SECRET', 'EMERGENCY_RECEIVER_ID'],
           properties: {
             TERMINAL_ID: { type: 'string' },
             HOST_URL: { type: 'string' },
-            ENV: { type: 'string' },
             APP_ID: { type: 'string' },
             APP_SECRET: { type: 'string' },
             EMERGENCY_RECEIVER_ID: {
