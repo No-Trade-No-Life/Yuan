@@ -1,0 +1,23 @@
+{
+  "name": "@yuants/vendor-okx",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/vendor-okx_v0.0.1",
+      "date": "Mon, 01 Apr 2024 09:11:29 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "new "
+          },
+          {
+            "comment": "update products"
+          },
+          {
+            "comment": "fix price in tick"
+          }
+        ]
+      }
+    }
+  ]
+}

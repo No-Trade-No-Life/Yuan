@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Sat, 23 Mar 2024 10:30:55 GMT and should not be manually modified.
+This log was last generated on Mon, 01 Apr 2024 09:11:29 GMT and should not be manually modified.
+
+## 0.0.3
+Mon, 01 Apr 2024 09:11:29 GMT
+
+### Patches
+
+- borrow first if balance of super-margin not enough
 
 ## 0.0.2
 Sat, 23 Mar 2024 10:30:55 GMT
