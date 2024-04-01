@@ -7,10 +7,10 @@ export default (context: IExtensionContext) => {
       properties: {
         env: {
           type: 'object',
-          required: ['HV_URL', 'ENV', 'APP_ID', 'APP_SECRET', 'EMERGENCY_RECEIVER_ID'],
+          required: ['HOST_URL', 'ENV', 'APP_ID', 'APP_SECRET', 'EMERGENCY_RECEIVER_ID'],
           properties: {
             TERMINAL_ID: { type: 'string' },
-            HV_URL: { type: 'string' },
+            HOST_URL: { type: 'string' },
             ENV: { type: 'string' },
             APP_ID: { type: 'string' },
             APP_SECRET: { type: 'string' },
@@ -18,7 +18,7 @@ export default (context: IExtensionContext) => {
               type: 'string',
               title: 'Emergency receiver_id',
               description:
-                'send alert when hv not sending Ping message for a while, use colon to separate when multiple receivers',
+                'send alert when host not sending Ping message for a while, use colon to separate when multiple receivers',
             },
           },
         },

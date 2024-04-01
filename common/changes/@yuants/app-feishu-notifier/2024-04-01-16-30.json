@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-feishu-notifier",
+      "comment": "add phone urgent",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-feishu-notifier"
+}
