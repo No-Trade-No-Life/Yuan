@@ -260,4 +260,60 @@ export class OkxClient {
     }>;
     msg: string;
   }> => this.request('GET', '/api/v5/public/funding-rate', params);
+
+  /**
+   * 获取永续合约历史资金费率
+   *
+   * 获取最近3个月的历史资金费率
+   *
+   * 限速：10次/2s
+   * 限速规则：IP +instrumentID
+   *
+   * https://www.okx.com/docs-v5/zh/#public-data-rest-api-get-funding-rate-history
+   */
+  getFundingRateHistory = (params: {
+    instId: string;
+    before?: string;
+    after?: string;
+    limit?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    data: Array<{
+      fundingRate: string;
+      fundingTime: string;
+      instId: string;
+      instType: string;
+      method: string;
+      realizedRate: string;
+    }>;
+  }> => this.request('GET', '/api/v5/public/funding-rate-history', params);
+
+  /**
+   * GET / 获取市场借贷历史（公共）
+   *
+   * 公共接口无须鉴权
+   *
+   * 返回2021年12月14日后的记录
+   *
+   * 限速：6次/s
+   * 限速规则：IP
+   *
+   * https://www.okx.com/docs-v5/zh/#financial-product-savings-get-public-borrow-history-public
+   */
+  getLendingRateHistory = (params: {
+    ccy?: string;
+    after?: string;
+    before?: string;
+    limit?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    data: Array<{
+      ccy: string;
+      amt: string;
+      rate: string;
+      ts: string;
+    }>;
+  }> => this.request('GET', '/api/v5/finance/savings/lending-rate-history', params);
 }
