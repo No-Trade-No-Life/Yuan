@@ -1,7 +1,7 @@
 import { IconBolt } from '@douyinfe/semi-icons';
 import { Toast } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { UUID, formatTime } from '@yuants/data-model';
+import { ITransferOrder, UUID, formatTime } from '@yuants/data-model';
 import { IDataRecord } from '@yuants/protocol';
 import { firstValueFrom, lastValueFrom, tap } from 'rxjs';
 import { InlineAccountId } from '../AccountInfo';
@@ -9,7 +9,7 @@ import { DataRecordView } from '../DataRecord';
 import { Button } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
-import { ITransferOrder, schema } from './model';
+import { schema } from './model';
 
 const TYPE = 'transfer_order';
 
@@ -102,6 +102,9 @@ function defineColumns() {
       }),
       columnHelper.accessor('origin.received_amount', {
         header: () => '到账金额',
+      }),
+      columnHelper.accessor('origin.error_message', {
+        header: () => '错误信息',
       }),
     ];
   };

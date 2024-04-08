@@ -858,3 +858,122 @@ export interface ITick {
    */
   interest_rate_for_short?: number;
 }
+
+/**
+ * ITransferOrder represents the transfer order, will be updated by both side during the transfer process
+ *
+ * ITransferOrder 表示转账订单，将在转账过程中双方更新
+ *
+ * @public
+ */
+export interface ITransferOrder {
+  /**
+   * Order ID
+   *
+   * 订单 ID
+   */
+  order_id: string;
+  /**
+   * Created Timestamp
+   *
+   * 创建时间戳
+   */
+  created_at: number;
+  /**
+   * Updated Timestamp
+   *
+   * 最后更新时间戳
+   */
+  updated_at: number;
+  /**
+   * Credit Account ID
+   *
+   * 贷方账户 ID (付款方)
+   */
+  credit_account_id: string;
+  /**
+   * Debit Account ID
+   *
+   * 借方账户 ID (收款方)
+   */
+  debit_account_id: string;
+  /**
+   * Currency
+   *
+   * 转账货币
+   */
+  currency: string;
+  /**
+   * Expected Amount
+   *
+   * 预期转账金额
+   */
+  expected_amount: number;
+  /**
+   * Order Status
+   *
+   * - `"COMPLETE"` - Transfer completed
+   * - `"ERROR"` - Transfer failed, need to check the error message, need human intervention
+   * - `"AWAIT_DEBIT"` - Waiting for the debit side to handle / confirm
+   * - `"AWAIT_CREDIT"` - Waiting for the credit side to handle / confirm
+   */
+  status: string;
+  /**
+   * Error Message for Human-reading
+   *
+   * 人类可读的错误信息
+   */
+  error_message?: string;
+  /**
+   * Timeout Timestamp
+   *
+   * 超时时间戳
+   */
+  timeout_at: number;
+
+  /**
+   * The acceptable ways for Debit Account to receive the transfer (Routing Path)
+   *
+   * 借方可接受的转账方式 (Routing Path)
+   */
+  debit_methods?: string[];
+
+  /**
+   * The confirmed way for credit account to send the transfer (Routing Path)
+   *
+   * 贷方选择的转账方式 (Routing Path)
+   */
+  credit_method?: string;
+
+  /**
+   * Transfer Initiated Timestamp
+   *
+   * 贷方发起转账的时间戳
+   */
+  transferred_at?: number;
+  /**
+   * Transfer Initiated Amount
+   *
+   * 贷方已经发送的金额
+   */
+  transferred_amount?: number;
+  /**
+   * Transaction ID for confirmation
+   *
+   * 转账凭证号
+   */
+  transaction_id?: string;
+
+  /**
+   * Received Timestamp for Debit Account
+   *
+   * 借方查收到帐的时间戳
+   */
+  received_at?: number;
+  /**
+   * Received Amount for Debit Account
+   *
+   * 借方已经收到的金额
+   */
+  received_amount?: number;
+}
