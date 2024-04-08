@@ -175,6 +175,27 @@ export interface ITick {
 }
 
 // @public
+export interface ITransferOrder {
+    created_at: number;
+    credit_account_id: string;
+    credit_method?: string;
+    currency: string;
+    debit_account_id: string;
+    debit_methods?: string[];
+    error_message?: string;
+    expected_amount: number;
+    order_id: string;
+    received_amount?: number;
+    received_at?: number;
+    status: string;
+    timeout_at: number;
+    transaction_id?: string;
+    transferred_amount?: number;
+    transferred_at?: number;
+    updated_at: number;
+}
+
+// @public
 export const mergeAccountInfoPositions: (info: IAccountInfo) => Observable<IAccountInfo>;
 
 // @public @deprecated

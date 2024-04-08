@@ -3,6 +3,7 @@ import {
   IOrder,
   IPosition,
   IProduct,
+  ITransferOrder,
   OrderDirection,
   OrderType,
   PositionVariant,
@@ -13,6 +14,7 @@ import {
 import { IConnection, Terminal, createConnectionWs } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
+import '@yuants/protocol/lib/services/transfer';
 import { roundToStep } from '@yuants/utils';
 
 import {
@@ -73,43 +75,6 @@ const createConnectionGzipWS = <T = any>(URL: string): IConnection<T> => {
   };
 };
 
-/**
- * ITransferOrder represents the transfer order, will be updated by both side during the transfer process
- * ITransferOrder 表示转账订单，将在转账过程中双方更新
- */
-interface ITransferOrder {
-  order_id: string;
-  created_at: number;
-  updated_at: number;
-  debit_account_id: string;
-  credit_account_id: string;
-  currency: string;
-  /** 预期转账金额 */
-  expected_amount: number;
-  /** 订单状态 = "COMPLETE" | "ERROR" | "AWAIT_DEBIT" \ "AWAIT_CREDIT" */
-  status: string;
-  /** 超时时间戳 */
-  timeout_at: number;
-
-  /** 借方可接受的转账方式 (Routing Path) */
-  debit_methods?: string[];
-
-  /** 贷方选择的转账方式 (Routing Path) */
-  credit_method?: string;
-
-  /** 贷方发起转账的时间戳 */
-  transferred_at?: number;
-  /** 贷方已经发送的金额 */
-  transferred_amount?: number;
-  /** 转账凭证号 */
-  transaction_id?: string;
-
-  /** 借方查收到帐的时间戳 */
-  received_at?: number;
-  /** 借方已经收到的金额 */
-  received_amount?: number;
-}
-
 class HuobiClient {
   swap_api_root = 'api.hbdm.com';
   spot_api_root = 'api.huobi.pro';
@@ -152,7 +117,7 @@ class HuobiClient {
 
     const url = new URL(`https://${api_root}${path}?${requestParams}&Signature=${encodeURIComponent(str)}`);
     // url.searchParams.sort();
-    // console.info(method, url.href, body);
+    console.info(formatTime(Date.now()), method, url.href, body);
     const res = await fetch(url.href, {
       method,
       headers: { 'Content-Type': 'application/json' },
@@ -160,6 +125,7 @@ class HuobiClient {
     });
 
     const retStr = await res.text();
+    // console.info(formatTime(Date.now()), 'response', url.href, retStr);
     try {
       return JSON.parse(retStr);
     } catch (e) {
@@ -986,13 +952,18 @@ class HuobiClient {
     },
     (msg) => {
       console.info(formatTime(Date.now()), `Transfer for ${account_id}`, JSON.stringify(msg));
-      const req = msg.req as ITransferOrder;
+      const req = msg.req;
       const { credit_account_id, debit_account_id, status } = req;
 
       if (req.timeout_at < Date.now()) {
-        return defer(() => updateTransferOrder({ ...req, status: 'ERROR', updated_at: Date.now() })).pipe(
-          map(() => ({ res: { code: 500, message: 'TRANSFER_TIMEOUT' } })),
-        );
+        return defer(() =>
+          updateTransferOrder({
+            ...req,
+            status: 'ERROR',
+            error_message: `Transaction Timeout: ${formatTime(req.timeout_at)}`,
+            updated_at: Date.now(),
+          }),
+        ).pipe(map(() => ({ res: { code: 500, message: 'TRANSFER_TIMEOUT' } })));
       }
 
       if (status === 'AWAIT_DEBIT') {
@@ -1169,6 +1140,7 @@ class HuobiClient {
                         return updateTransferOrder({
                           ...req,
                           status: 'ERROR',
+                          error_message: `MARGIN-TO-SWAP: ${e}`,
                           updated_at,
                         }).pipe(map(() => ({ res: { code: 500, message: 'TRANSFER_FAILED' } })));
                       }),
@@ -1229,6 +1201,7 @@ class HuobiClient {
                         return updateTransferOrder({
                           ...req,
                           status: 'ERROR',
+                          error_message: `SWAP-TO-MARGIN SIDE: ${e}`,
                           updated_at,
                         }).pipe(map(() => ({ res: { code: 500, message: 'TRANSFER_FAILED' } })));
                       }),
@@ -1238,9 +1211,11 @@ class HuobiClient {
               }
             }
           }
-          return updateTransferOrder({ ...req, status: 'ERROR' }).pipe(
-            map(() => ({ res: { code: 400, message: 'NO_USABLE_CREDIT_METHOD' } })),
-          );
+          return updateTransferOrder({
+            ...req,
+            status: 'ERROR',
+            error_message: 'Method Not Available',
+          }).pipe(map(() => ({ res: { code: 400, message: 'NO_USABLE_CREDIT_METHOD' } })));
         }
         return of({ res: { code: 400, message: 'NO_USABLE_CREDIT_METHOD' } });
       }
