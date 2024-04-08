@@ -151,15 +151,15 @@ const fundingRate$ = memoizeMap((product_id: string) =>
 );
 
 const interestRateLoanQuota$ = defer(() => client.getInterestRateLoanQuota()).pipe(
-  repeat({ delay: 5000 }),
-  retry({ delay: 5000 }),
+  repeat({ delay: 60_000 }),
+  retry({ delay: 60_000 }),
   shareReplay(1),
 );
 
 const interestRateByCurrency$ = memoizeMap((currency: string) =>
   interestRateLoanQuota$.pipe(
     mergeMap((x) =>
-      from(x.data).pipe(
+      from(x.data || []).pipe(
         mergeMap((x) => x.basic),
         filter((x) => x.ccy === currency),
         map((x) => +x.rate),
