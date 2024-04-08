@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-general-realtime-data-source",
-  "version": "0.0.27",
+  "version": "0.0.28",
   "main": "lib/index.js",
   "files": [
     "dist",

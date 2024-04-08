@@ -2,6 +2,26 @@
   "name": "@yuants/app-feishu-notifier",
   "entries": [
     {
+      "version": "0.1.1",
+      "tag": "@yuants/app-feishu-notifier_v0.1.1",
+      "date": "Mon, 08 Apr 2024 11:05:31 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.6.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.13.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.0",
       "tag": "@yuants/app-feishu-notifier_v0.1.0",
       "date": "Mon, 01 Apr 2024 16:37:22 GMT",
