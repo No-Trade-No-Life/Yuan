@@ -1,4 +1,14 @@
-import { IProduct, ITick, UUID, decodePath, encodePath, formatTime } from '@yuants/data-model';
+import {
+  IAccountInfo,
+  IPosition,
+  IProduct,
+  ITick,
+  PositionVariant,
+  UUID,
+  decodePath,
+  encodePath,
+  formatTime,
+} from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
@@ -231,3 +241,155 @@ terminal.provideTicks('OKX', (product_id) => {
   }
   return EMPTY;
 });
+
+const accountPosition$ = defer(() => client.getAccountPositions({})).pipe(
+  repeat({ delay: 5000 }),
+  retry({ delay: 5000 }),
+  shareReplay(1),
+);
+
+const accountConfig$ = defer(() => client.getAccountConfig()).pipe(
+  repeat({ delay: 10_000 }),
+  retry({ delay: 10_000 }),
+  shareReplay(1),
+);
+
+const accountUid$ = accountConfig$.pipe(
+  map((x) => x.data[0].uid),
+  filter((x) => !!x),
+  shareReplay(1),
+);
+
+const accountBalance$ = defer(() => client.getAccountBalance({})).pipe(
+  repeat({ delay: 1000 }),
+  retry({ delay: 5000 }),
+  shareReplay(1),
+);
+
+const accountUsdtBalance$ = accountBalance$.pipe(
+  map((x) => x.data[0]?.details.find((x) => x.ccy === 'USDT')),
+  filter((x): x is Exclude<typeof x, undefined> => !!x),
+  shareReplay(1),
+);
+
+const tradingAccountInfo$ = combineLatest([accountUid$, accountBalance$, accountPosition$]).pipe(
+  map(([uid, balanceApi, positions]): IAccountInfo => {
+    const usdtBalance = balanceApi.data[0]?.details.find((x) => x.ccy === 'USDT');
+    const equity = +(usdtBalance?.eq ?? 0);
+    const balance = +(usdtBalance?.cashBal ?? 0);
+    const free = +(usdtBalance?.availEq ?? 0);
+    const used = equity - free;
+    // const used = +usdtBalance.frozenBal;
+    const profit = equity - balance;
+
+    return {
+      account_id: `okx/${uid}/trading`,
+      timestamp_in_us: Date.now() * 1000,
+      updated_at: Date.now(),
+      money: {
+        currency: 'USDT',
+        equity: equity,
+        balance: balance,
+        used,
+        free,
+        profit,
+      },
+      positions: positions.data.map((x): IPosition => {
+        const direction =
+          x.posSide === 'long' ? 'LONG' : x.posSide === 'short' ? 'SHORT' : +x.pos > 0 ? 'LONG' : 'SHORT';
+        const variant = direction === 'LONG' ? PositionVariant.LONG : PositionVariant.SHORT;
+        return {
+          position_id: x.posId,
+          product_id: encodePath(x.instType, x.instId),
+          variant: variant,
+          direction,
+          volume: Math.abs(+x.pos),
+          free_volume: +x.availPos,
+          closable_price: +x.last,
+          position_price: +x.avgPx,
+          floating_profit: +x.upl,
+          // margin: +x.posCcy,
+          // liquidation_price: +x.liqPx,
+          // leverage: +x.lever,
+          // margin_rate: 1 / +x.lever,
+        };
+      }),
+      orders: [],
+    };
+  }),
+  shareReplay(1),
+);
+
+terminal.provideAccountInfo(tradingAccountInfo$);
+
+const assetBalance$ = defer(() => client.getAssetBalances({})).pipe(
+  repeat({ delay: 1000 }),
+  retry({ delay: 5000 }),
+  shareReplay(1),
+);
+
+const fundingAccountInfo$ = combineLatest([accountUid$, assetBalance$]).pipe(
+  map(([uid, assetBalances]): IAccountInfo => {
+    const equity = +(assetBalances.data.find((x) => x.ccy === 'USDT')?.bal ?? '') || 0;
+    const balance = equity;
+    const free = equity;
+    const used = 0;
+    const profit = 0;
+
+    return {
+      account_id: `okx/${uid}/funding/USDT`,
+      timestamp_in_us: Date.now() * 1000,
+      updated_at: Date.now(),
+      money: {
+        currency: 'USDT',
+        equity,
+        balance,
+        used,
+        free,
+        profit,
+      },
+      positions: [],
+      orders: [],
+    };
+  }),
+  shareReplay(1),
+);
+
+terminal.provideAccountInfo(fundingAccountInfo$);
+
+const financeOrders$ = defer(() => client.getFinanceStakingDeFiOrdersActive({})).pipe(
+  repeat({ delay: 5000 }),
+  retry({ delay: 5000 }),
+  shareReplay(1),
+);
+
+const earningAccountInfo$ = combineLatest([accountUid$, financeOrders$]).pipe(
+  map(([uid, offers]): IAccountInfo => {
+    const equity = offers.data
+      .filter((x) => x.ccy === 'USDT')
+      .reduce((acc, x) => acc + +x.investData.reduce((acc, x) => acc + +x.amt, 0), 0);
+    const balance = equity;
+    const free = equity;
+    const used = 0;
+    const profit = 0;
+
+    return {
+      account_id: `okx/${uid}/earning/USDT`,
+      timestamp_in_us: Date.now() * 1000,
+      updated_at: Date.now(),
+      money: {
+        currency: 'USDT',
+        equity,
+        balance,
+        used,
+        free,
+        profit,
+      },
+      positions: [],
+      orders: [],
+    };
+  }),
+  shareReplay(1),
+);
+
+terminal.provideAccountInfo(earningAccountInfo$);
