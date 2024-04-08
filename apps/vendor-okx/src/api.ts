@@ -161,7 +161,7 @@ export class OkxClient {
    */
   getInterestRateLoanQuota = (): Promise<{
     code: string;
-    data: Array<{
+    data?: Array<{
       basic: Array<{
         ccy: string;
         rate: string;
