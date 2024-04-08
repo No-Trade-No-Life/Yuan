@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-model",
+      "comment": "ITransferOrder model",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-model"
+}
