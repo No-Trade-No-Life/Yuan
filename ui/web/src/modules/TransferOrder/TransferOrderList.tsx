@@ -103,6 +103,9 @@ function defineColumns() {
       columnHelper.accessor('origin.received_amount', {
         header: () => '到账金额',
       }),
+      columnHelper.accessor('origin.error_message', {
+        header: () => '错误信息',
+      }),
     ];
   };
 }
