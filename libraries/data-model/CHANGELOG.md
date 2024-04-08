@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-model
 
-This log was last generated on Thu, 22 Feb 2024 18:28:20 GMT and should not be manually modified.
+This log was last generated on Mon, 08 Apr 2024 11:05:31 GMT and should not be manually modified.
+
+## 0.6.0
+Mon, 08 Apr 2024 11:05:31 GMT
+
+### Minor changes
+
+- ITransferOrder model
 
 ## 0.5.1
 Thu, 22 Feb 2024 18:28:20 GMT

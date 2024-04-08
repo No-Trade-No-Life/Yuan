@@ -1,6 +1,11 @@
 # Change Log - @yuants/agent
 
-This log was last generated on Fri, 22 Mar 2024 10:10:02 GMT and should not be manually modified.
+This log was last generated on Mon, 08 Apr 2024 11:05:31 GMT and should not be manually modified.
+
+## 0.12.5
+Mon, 08 Apr 2024 11:05:31 GMT
+
+_Version update only_
 
 ## 0.12.4
 Fri, 22 Mar 2024 10:10:02 GMT
