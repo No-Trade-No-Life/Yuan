@@ -32,11 +32,13 @@ interface IFundStatement {
 }
 
 type IFundState = {
+  created_at: number;
   updated_at: number;
   description: string; // 描述
   totalAssets: number; // 总资产
   totalShare: number; // 总份额
   unitPrice: number; // 份额净值
+  net_deposit: number; // 净入金
   investors: Record<string, InvestorMeta>; // 投资人数据
   mapNameToDetail: Record<string, InvestorDetails>;
 };
@@ -83,10 +85,12 @@ const initInvestor: InvestorDetails = {
 };
 
 const initFundState: IFundState = {
+  created_at: 0,
   updated_at: 0,
   description: '',
   totalAssets: 0, // 总资产
   totalShare: 0, // 总份额
+  net_deposit: 0,
   unitPrice: 1, // 份额净值
   investors: {},
   mapNameToDetail: {},
@@ -96,6 +100,10 @@ const reduceStatement = (state: IFundState, statement: IFundStatement): IFundSta
   const nextState = structuredClone(state);
   nextState.updated_at = new Date(statement.updated_at).getTime();
   nextState.description = statement.comment || '';
+
+  if (!nextState.created_at) {
+    nextState.created_at = nextState.updated_at;
+  }
 
   // 更新总资产
   if (statement.fund_equity) {
@@ -115,6 +123,7 @@ const reduceStatement = (state: IFundState, statement: IFundStatement): IFundSta
     investor.dividendBase += deposit;
     investor.share += deposit / state.unitPrice;
     nextState.totalAssets += deposit;
+    nextState.net_deposit += deposit;
   }
 
   {
@@ -211,14 +220,14 @@ registerPage('FundStatements', () => {
       columnHelper.accessor('meta.share', {
         header: () => '份额',
       }),
-      columnHelper.accessor('meta.dividendBase', {
-        header: () => '分红水位',
+      columnHelper.accessor('meta.deposit', {
+        header: () => '净入金',
       }),
       columnHelper.accessor('detail.accumulatedProfit', {
-        header: () => '累计收益',
+        header: () => '净收益',
       }),
       columnHelper.accessor('detail.accumulatedProfitRate', {
-        header: () => '累计收益率',
+        header: () => '收益率',
         cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
       }),
     ];
@@ -383,6 +392,25 @@ registerPage('FundStatements', () => {
           { key: '总资产', value: state.totalAssets },
           { key: '总份额', value: state.totalShare },
           { key: '单位净值', value: state.unitPrice },
+          { key: '净入金', value: state.net_deposit },
+          { key: '净利润', value: state.totalAssets - state.net_deposit },
+          { key: '存续天数', value: (state.updated_at - state.created_at) / 86400_000 },
+          {
+            key: '日化收益率',
+            value: `${((state.unitPrice - 1) / ((state.updated_at - state.created_at) / 86400_000)) * 100}%`,
+          },
+          {
+            key: '月化收益率',
+            value: `${
+              ((state.unitPrice - 1) / ((state.updated_at - state.created_at) / 86400_000)) * 100 * 30
+            }%`,
+          },
+          {
+            key: '年化收益率',
+            value: `${
+              ((state.unitPrice - 1) / ((state.updated_at - state.created_at) / 86400_000)) * 100 * 365
+            }%`,
+          },
           { key: '投资人', value: Object.keys(state.investors).length },
         ]}
         row
