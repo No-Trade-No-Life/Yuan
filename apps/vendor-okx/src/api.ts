@@ -36,6 +36,7 @@ export class OkxClient {
     const str = CryptoJS.enc.Base64.stringify(CryptoJS.HmacSHA256(signData, secret_key));
 
     const headers = {
+      'Content-Type': 'application/json',
       'OK-ACCESS-KEY': this.config.auth.public_key!,
       'OK-ACCESS-SIGN': str,
       'OK-ACCESS-TIMESTAMP': timestamp,
@@ -366,7 +367,7 @@ export class OkxClient {
    * 限速：6次/s
    * 限速规则：UserID
    *
-   * https://www.okx.com/docs-v5/zh/#funding-account-rest-api-lightning-deposits
+   * https://www.okx.com/docs-v5/zh/#funding-account-rest-api-get-deposit-address
    */
   getAssetDepositAddress = (params: {
     ccy: string;
@@ -383,6 +384,49 @@ export class OkxClient {
     }[];
     msg: string;
   }> => this.request('GET', '/api/v5/asset/deposit-address', params);
+
+  /**
+   * 获取提币记录
+   *
+   * 根据币种，提币状态，时间范围获取提币记录，按照时间倒序排列，默认返回100条数据。
+   * 支持Websocket订阅，参考 提币信息频道。
+   *
+   * 限速：6 次/s
+   * 限速规则：UserID
+   *
+   * https://www.okx.com/docs-v5/zh/#funding-account-rest-api-get-withdrawal-history
+   */
+  getAssetWithdrawalHistory = (params: {
+    ccy?: string;
+    wdId?: string;
+    clientId?: string;
+    txId?: string;
+    type?: string;
+    state?: string;
+    after?: string;
+    before?: string;
+    limit?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    data: {
+      chain: string;
+      fee: string;
+      feeCcy: string;
+      ccy: string;
+      clientId: string;
+      amt: string;
+      txId: string;
+      from: string;
+      areaCodeFrom: string;
+      to: string;
+      areaCodeTo: string;
+      state: string;
+      ts: string;
+      nonTradableAsset: boolean;
+      wdId: string;
+    }[];
+  }> => this.request('GET', '/api/v5/asset/withdrawal-history', params);
 
   /**
    * 获取充值记录

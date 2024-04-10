@@ -3,6 +3,7 @@ import {
   IPosition,
   IProduct,
   ITick,
+  ITransferOrder,
   PositionVariant,
   UUID,
   decodePath,
@@ -12,10 +13,12 @@ import {
 import { Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
+import '@yuants/protocol/lib/services/transfer';
 import {
   EMPTY,
   catchError,
   combineLatest,
+  concatWith,
   defer,
   delayWhen,
   filter,
@@ -393,3 +396,178 @@ const earningAccountInfo$ = combineLatest([accountUid$, financeOrders$]).pipe(
 );
 
 terminal.provideAccountInfo(earningAccountInfo$);
+
+defer(async () => {
+  const [tradingAccountInfo, fundingAccountInfo, earningAccountInfo] = await firstValueFrom(
+    combineLatest([tradingAccountInfo$, fundingAccountInfo$, earningAccountInfo$]),
+  );
+
+  terminal.provideService(
+    'Transfer',
+    {
+      oneOf: [
+        {
+          type: 'object',
+          required: ['debit_account_id', 'credit_account_id'],
+          properties: {
+            debit_account_id: {
+              enum: [
+                tradingAccountInfo.account_id,
+                fundingAccountInfo.account_id,
+                earningAccountInfo.account_id,
+              ],
+            },
+            status: {
+              const: 'AWAIT_DEBIT',
+            },
+          },
+        },
+        {
+          type: 'object',
+          required: ['debit_account_id', 'credit_account_id'],
+          properties: {
+            credit_account_id: {
+              enum: [
+                tradingAccountInfo.account_id,
+                fundingAccountInfo.account_id,
+                earningAccountInfo.account_id,
+              ],
+            },
+            status: {
+              const: 'AWAIT_CREDIT',
+            },
+          },
+        },
+      ],
+    },
+    (msg) =>
+      defer(async () => {
+        const order = msg.req;
+
+        // Step 1: 我方接收付款，未提供收款方式，等待我方提供收款方式
+        if (order.status === 'AWAIT_DEBIT' && !order.debit_methods?.length) {
+          console.info(
+            formatTime(Date.now()),
+            'Transfer',
+            order.order_id,
+            'Step 1: 我方接收付款，未提供收款方式，等待我方提供收款方式',
+          );
+          //
+          const addressList = await client.getAssetDepositAddress({ ccy: order.currency });
+          const routing = addressList.data?.map((x) => encodePath('blockchain', x.chain, x.addr));
+          const nextOrder: ITransferOrder = {
+            ...order,
+            updated_at: Date.now(),
+            debit_methods: routing,
+            status: 'AWAIT_CREDIT',
+          };
+          await updateTransferOrder(nextOrder);
+          await firstValueFrom(terminal.requestService('Transfer', nextOrder));
+        }
+
+        // Step 2: 对方已经提供若干收款方式，等待我方选择并发起转账
+        if (order.status === 'AWAIT_CREDIT' && order.debit_methods?.length) {
+          //
+          console.info(
+            formatTime(Date.now()),
+            'Transfer',
+            order.order_id,
+            'Step 2: 对方已经提供若干收款方式，等待我方选择并发起转账',
+            order.debit_methods!.join(';'),
+          );
+
+          for (const method of order.debit_methods) {
+            const routing = decodePath(method);
+            if (order.currency === 'USDT') {
+              if (routing[0] === 'blockchain') {
+                if (routing[1].match(/USDT/i) && routing[1].match(/TRC20/i)) {
+                  // USDT TRC20
+                  const address = routing[2];
+                  console.info(formatTime(Date.now()), 'Transfer', order.order_id, 'USDT TRC20', address);
+                  const res = await client.postAssetWithdrawal({
+                    amt: `${order.expected_amount}`,
+                    ccy: order.currency,
+                    chain: 'USDT-TRC20',
+                    fee: '1',
+                    dest: '4',
+                    toAddr: address,
+                  });
+                  if (res.code !== '0') {
+                    const nextOrder: ITransferOrder = {
+                      ...order,
+                      status: 'ERROR',
+                      error_message: res.msg,
+                      credit_method: method,
+                    };
+                    await updateTransferOrder(nextOrder);
+                    return { res: { code: +res.code, message: res.msg } };
+                  }
+
+                  // TODO: 查询区块链 Transaction ID
+                  // const wdId = res.data[0]?.wdId;
+                  // const withdrawalHistory = await client.getAssetWithdrawalHistory({ wdId });
+                  // console.debug('history', JSON.stringify(withdrawalHistory));
+
+                  console.info(
+                    formatTime(Date.now()),
+                    'Transfer',
+                    order.order_id,
+                    'USDT TRC20',
+                    JSON.stringify(res),
+                  );
+                  const nextOrder: ITransferOrder = {
+                    ...order,
+                    status: 'AWAIT_DEBIT',
+                    updated_at: Date.now(),
+                    transferred_at: Date.now(),
+                    transferred_amount: order.expected_amount,
+                    // transaction_id: '',
+                  };
+                  await updateTransferOrder(nextOrder);
+                  await firstValueFrom(terminal.requestService('Transfer', nextOrder));
+                  return { res: { code: 0, message: 'OK' } };
+                }
+              }
+            }
+          }
+        }
+
+        // Step 3: 如果对方已经选择收款方式，已转出，等待我方收款
+        if (order.status === 'AWAIT_DEBIT' && order.credit_method) {
+          //
+          console.info(
+            formatTime(Date.now()),
+            'Transfer',
+            order.order_id,
+            'Step 3: 对方已经选择收款方式，已转出，等待我方收款',
+          );
+
+          // TODO: 查询交易所是否已经收到款项
+        }
+
+        return { res: { code: 0, message: 'OK' } };
+      }),
+  );
+}).subscribe();
+
+const updateTransferOrder = async (transferOrder: ITransferOrder): Promise<void> => {
+  return firstValueFrom(
+    terminal
+      .updateDataRecords([
+        {
+          id: transferOrder.order_id,
+          type: 'transfer_order',
+          created_at: transferOrder.created_at,
+          updated_at: transferOrder.updated_at,
+          frozen_at: null,
+          tags: {
+            debit_account_id: transferOrder.debit_account_id,
+            credit_account_id: transferOrder.credit_account_id,
+            status: transferOrder.status,
+          },
+          origin: transferOrder,
+        },
+      ])
+      .pipe(concatWith(of(void 0))),
+  );
+};
