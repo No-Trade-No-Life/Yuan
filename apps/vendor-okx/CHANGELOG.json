@@ -2,6 +2,28 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.2.0",
+      "tag": "@yuants/vendor-okx_v0.2.0",
+      "date": "Thu, 11 Apr 2024 14:45:56 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "adding transfer service"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.14.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.1",
       "tag": "@yuants/vendor-okx_v0.1.1",
       "date": "Mon, 08 Apr 2024 17:57:35 GMT",

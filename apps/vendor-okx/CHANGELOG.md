@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Mon, 08 Apr 2024 17:57:35 GMT and should not be manually modified.
+This log was last generated on Thu, 11 Apr 2024 14:45:56 GMT and should not be manually modified.
+
+## 0.2.0
+Thu, 11 Apr 2024 14:45:56 GMT
+
+### Minor changes
+
+- adding transfer service
 
 ## 0.1.1
 Mon, 08 Apr 2024 17:57:35 GMT
