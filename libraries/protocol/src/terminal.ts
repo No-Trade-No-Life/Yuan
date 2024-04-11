@@ -12,6 +12,7 @@ import {
   bufferCount,
   catchError,
   concatMap,
+  debounceTime,
   defer,
   delayWhen,
   distinct,
@@ -127,19 +128,27 @@ const escapeRegExp = (string: string): string => string.replace(/[.*+?^${}()|[\]
  */
 export class Terminal {
   _conn: IConnection<ITerminalMessage>;
+  terminal_id: string;
   private _serviceHandlers: Record<string, IServiceHandler> = {};
   private _serviceOptions: Record<string, IServiceOptions> = {};
+
+  private _terminalInfoUpdated$ = new Subject<void>();
 
   constructor(
     public host_url: string,
     public terminalInfo: ITerminalInfo,
     connection?: IConnection<ITerminalMessage>,
   ) {
-    this.terminalInfo = { ...terminalInfo, serviceInfo: {}, channelIdSchemas: [] };
-    const url = new URL(host_url);
+    this.terminal_id = this.terminalInfo.terminal_id || UUID();
+    this.terminalInfo = {
+      ...terminalInfo,
+      terminal_id: this.terminal_id,
+      serviceInfo: {},
+      channelIdSchemas: [],
+    };
 
-    const terminal_id = this.terminalInfo.terminal_id;
-    url.searchParams.set('terminal_id', terminal_id); // make sure terminal_id is in the connection parameters
+    const url = new URL(host_url);
+    url.searchParams.set('terminal_id', this.terminal_id); // make sure terminal_id is in the connection parameters
     this.host_url = url.toString();
 
     this._conn = connection || createConnectionJson(this.host_url);
@@ -149,10 +158,11 @@ export class Terminal {
     this._setupChannelValidatorSubscription();
     this._setupTerminalIdAndMethodValidatorSubscription();
 
-    this.terminalInfo.start_timestamp_in_ms ??= Date.now();
+    this.terminalInfo.start_timestamp_in_ms = this.terminalInfo.created_at = Date.now();
     this.terminalInfo.status ??= 'INIT';
 
     this._setupTerminalInfoStuff();
+    this._terminalInfoUpdated$.next();
   }
   private _setupTerminalInfoStuff() {
     // Periodically update the whole terminal list
@@ -198,19 +208,16 @@ export class Terminal {
         .subscribe(),
     );
 
-    // Periodically report the value of terminalInfo
     this._subscriptions.push(
-      defer(() => {
-        this.terminalInfo.updated_at = Date.now();
-        return this.request('UpdateTerminalInfo', '@host', this.terminalInfo);
-      })
+      this._terminalInfoUpdated$
         .pipe(
-          //
-          timeout(5000),
-          retry({ delay: 1000 }),
-          repeat({ delay: 5000 }),
+          tap(() => console.info(formatTime(Date.now()), 'Terminal', 'terminalInfo', 'updating')),
+          debounceTime(10),
+          tap(() => (this.terminalInfo.updated_at = Date.now())),
+          tap(() => console.info(formatTime(Date.now()), 'Terminal', 'terminalInfo', 'pushing')),
+          mergeMap(() => this.request('UpdateTerminalInfo', '@host', this.terminalInfo)),
         )
-        .subscribe(),
+        .subscribe(() => {}),
     );
   }
 
@@ -231,7 +238,7 @@ export class Terminal {
       trace_id,
       method,
       target_terminal_id,
-      source_terminal_id: this.terminalInfo.terminal_id,
+      source_terminal_id: this.terminal_id,
       req,
     };
     return defer((): Observable<any> => {
@@ -260,6 +267,7 @@ export class Terminal {
     (this.terminalInfo.serviceInfo ??= {})[method] = { method, schema: requestSchema };
     this._serviceHandlers[method] = handler;
     this._serviceOptions[method] = options || {};
+    this._terminalInfoUpdated$.next();
   };
 
   requestService = <T extends string>(
@@ -358,6 +366,7 @@ export class Terminal {
     const channels = ((this.terminalInfo.subscriptions ??= {})[provider_terminal_id] ??= []);
     if (channels.includes(channel_id)) return;
     channels.push(channel_id);
+    this._terminalInfoUpdated$.next();
   };
 
   private _unsubscribeChannel = (provider_terminal_id: string, channel_id: string) => {
@@ -369,10 +378,13 @@ export class Terminal {
     const idx = channels.indexOf(channel_id);
     if (idx === -1) return;
     channels.splice(idx, 1);
+    this._terminalInfoUpdated$.next();
     if (channels.length > 0) return;
     delete this.terminalInfo.subscriptions[provider_terminal_id];
+    this._terminalInfoUpdated$.next();
     if (Object.keys(this.terminalInfo.subscriptions).length > 0) return;
     delete this.terminalInfo.subscriptions;
+    this._terminalInfoUpdated$.next();
   };
 
   private setupServer = () => {
@@ -398,7 +410,7 @@ export class Terminal {
                 trace_id: req.trace_id,
                 method: req.method,
                 // ISSUE: Reverse source / target as response, otherwise the host cannot guarantee the forwarding direction
-                source_terminal_id: this.terminalInfo.terminal_id,
+                source_terminal_id: this.terminal_id,
                 target_terminal_id: req.source_terminal_id,
               });
             });
@@ -502,7 +514,7 @@ export class Terminal {
                     trace_id: msg.trace_id,
                     method: msg.method,
                     // ISSUE: Reverse source / target as response, otherwise the host cannot guarantee the forwarding direction
-                    source_terminal_id: this.terminalInfo.terminal_id,
+                    source_terminal_id: this.terminal_id,
                     target_terminal_id: msg.source_terminal_id,
                   }),
                 ),
@@ -550,13 +562,14 @@ export class Terminal {
   provideChannel = <T>(channelIdSchema: JSONSchema7, handler: (channel_id: string) => Observable<T>) => {
     const validate = new Ajv({ strict: false }).compile(channelIdSchema);
     (this.terminalInfo.channelIdSchemas ??= []).push(channelIdSchema);
+    this._terminalInfoUpdated$.next();
 
     // map terminalInfos to Record<channel_id, target_terminal_id[]>
     const mapChannelIdToTargetTerminalIds$ = this.terminalInfos$.pipe(
       mergeMap((x) =>
         from(x).pipe(
           mergeMap((terminalInfo) =>
-            from(terminalInfo.subscriptions?.[this.terminalInfo.terminal_id] ?? []).pipe(
+            from(terminalInfo.subscriptions?.[this.terminal_id] ?? []).pipe(
               filter((channel_id) => validate(channel_id)),
               map((channel_id) => ({ consumer_terminal_id: terminalInfo.terminal_id, channel_id })),
             ),
@@ -597,7 +610,7 @@ export class Terminal {
                   trace_id: UUID(),
                   channel_id,
                   frame: payload,
-                  source_terminal_id: this.terminalInfo.terminal_id,
+                  source_terminal_id: this.terminal_id,
                   target_terminal_id,
                 });
               }

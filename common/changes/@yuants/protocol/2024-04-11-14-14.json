@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "speed up terminalInfo updating",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
