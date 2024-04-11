@@ -65,12 +65,15 @@ export interface IService {
 // @public
 export interface ITerminalInfo {
     channelIdSchemas?: JSONSchema7[];
+    created_at?: number;
     name?: string;
     serviceInfo?: Record<string, {
         method: string;
         schema: JSONSchema7;
     }>;
+    // @deprecated
     start_timestamp_in_ms?: number;
+    // @deprecated
     status?: string;
     subscriptions?: Record<string, string[]>;
     terminal_id: string;
@@ -167,6 +170,8 @@ export class Terminal {
     requestService: <T extends string>(method: T, req: T extends keyof IService ? IService[T]["req"] : unknown) => Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage>;
     // (undocumented)
     submitOrder: (order: IOrder) => Observable<IResponse<void> & IResponse<unknown>>;
+    // (undocumented)
+    terminal_id: string;
     // (undocumented)
     terminalInfo: ITerminalInfo;
     terminalInfos$: Observable<ITerminalInfo[]>;

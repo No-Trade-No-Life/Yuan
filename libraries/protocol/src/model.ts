@@ -36,11 +36,17 @@ export interface ITerminalInfo {
    * Terminal startup timestamp
    * 终端本次启动的时间戳
    *
-   * Used to calculate uptime_in_ms = Date.now() - start_timestamp_in_ms
-   * 用于计算 uptime_in_ms = Date.now() - start_timestamp_in_ms
+   * Used to calculate uptime_in_ms = Date.now() - created_at
+   * 用于计算 uptime_in_ms = Date.now() - created_at
    *
    * When empty, it is equivalent to Date.now()
    * 为空时，等同于 Date.now()
+   */
+  created_at?: number;
+  /**
+   * Migrate to `created_at`
+   *
+   * @deprecated - Use `created_at` instead
    */
   start_timestamp_in_ms?: number;
 
@@ -102,6 +108,8 @@ export interface ITerminalInfo {
    *
    * "OK" is the normal value for everything else.
    * 约定 "OK" 为一切正常的取值，其余的都是不正常。
+   *
+   * @deprecated - Remove this field
    */
   status?: string;
 }
