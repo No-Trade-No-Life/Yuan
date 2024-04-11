@@ -150,7 +150,12 @@ export class HuobiClient {
     ts: string;
   }> => this.request('GET', '/linear-swap-api/v1/swap_contract_info', this.swap_api_root, params);
 
-  getSpotSymbols(): Promise<{
+  /**
+   * 获取所有交易对(V2)
+   *
+   * https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec47f16-7773-11ed-9966-0242ac110003
+   */
+  getSpotSymbols = (): Promise<{
     status: string;
     data: {
       si: string;
@@ -190,10 +195,7 @@ export class HuobiClient {
     full: number;
     err_code: string;
     err_msg: string;
-  }> {
-    // https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec47f16-7773-11ed-9966-0242ac110003
-    return this.request('GET', '/v2/settings/common/symbols', this.spot_api_root);
-  }
+  }> => this.request('GET', '/v2/settings/common/symbols', this.spot_api_root);
 
   getUid(): Promise<{ data: number; code: number }> {
     // https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec491c9-7773-11ed-9966-0242ac110003
