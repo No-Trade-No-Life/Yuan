@@ -900,4 +900,34 @@ export class OkxClient {
       uTime: string;
     }[];
   }> => this.request('GET', '/api/v5/trade/orders-pending', params);
+
+  /**
+   * 撤单
+   *
+   * 撤销之前下的未完成订单。
+   *
+   * 限速：60次/2s
+   *
+   * 限速规则（期权以外）：UserID + Instrument ID
+   *
+   * 限速规则（只限期权）：UserID + Instrument Family
+   *
+   * https://www.okx.com/docs-v5/zh/#order-book-trading-trade-post-cancel-order
+   */
+  postTradeCancelOrder = (params: {
+    instId: string;
+    ordId?: string;
+    clOrdId?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    data: {
+      clOrdId: string;
+      ordId: string;
+      sCode: string;
+      sMsg: string;
+    }[];
+    inTime: string;
+    outTime: string;
+  }> => this.request('POST', '/api/v5/trade/cancel-order', params);
 }

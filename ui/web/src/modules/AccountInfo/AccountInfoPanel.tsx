@@ -1,4 +1,4 @@
-import { IconInfoCircle } from '@douyinfe/semi-icons';
+import { IconClose, IconInfoCircle } from '@douyinfe/semi-icons';
 import { Collapse, Descriptions, Empty, Space, Table, Tooltip, Typography } from '@douyinfe/semi-ui';
 import { encodePath, formatTime, mergeAccountInfoPositions } from '@yuants/data-model';
 import { IPosition, OrderDirection, OrderType, PositionVariant } from '@yuants/protocol';
@@ -7,6 +7,7 @@ import {
   defer,
   distinctUntilChanged,
   filter,
+  firstValueFrom,
   from,
   groupBy,
   map,
@@ -16,6 +17,7 @@ import {
   tap,
   toArray,
 } from 'rxjs';
+import { Button } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
 import { terminal$ } from '../Terminals';
 import { useAccountInfo } from './model';
@@ -417,6 +419,20 @@ registerPage('AccountInfoPanel', () => {
               {
                 title: '注释',
                 render: (_, order) => order.comment,
+              },
+              {
+                title: '操作',
+                render: (_, order) => (
+                  <Space>
+                    <Button
+                      icon={<IconClose />}
+                      onClick={async () => {
+                        if (!terminal) return;
+                        await firstValueFrom(terminal.cancelOrder(order));
+                      }}
+                    ></Button>
+                  </Space>
+                ),
               },
             ]}
           />
