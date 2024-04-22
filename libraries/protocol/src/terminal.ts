@@ -162,7 +162,6 @@ export class Terminal {
     this.terminalInfo.status ??= 'INIT';
 
     this._setupTerminalInfoStuff();
-    this._terminalInfoUpdated$.next();
   }
   private _setupTerminalInfoStuff() {
     // Periodically update the whole terminal list
@@ -219,6 +218,14 @@ export class Terminal {
         )
         .subscribe(() => {}),
     );
+
+    // while reconnection
+    this._conn.connection$.subscribe(() => {
+      this._terminalInfoUpdated$.next();
+    });
+
+    // First Emit
+    this._terminalInfoUpdated$.next();
   }
 
   private _subscriptions: Subscription[] = [];
