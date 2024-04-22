@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "fix terminalInfo report while reconnection",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
