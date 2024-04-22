@@ -1,9 +1,12 @@
 import {
   IAccountInfo,
+  IOrder,
   IPosition,
   IProduct,
   ITick,
   ITransferOrder,
+  OrderDirection,
+  OrderType,
   PositionVariant,
   UUID,
   decodePath,
@@ -275,8 +278,19 @@ const accountUsdtBalance$ = accountBalance$.pipe(
   shareReplay(1),
 );
 
-const tradingAccountInfo$ = combineLatest([accountUid$, accountBalance$, accountPosition$]).pipe(
-  map(([uid, balanceApi, positions]): IAccountInfo => {
+const pendingOrders$ = defer(() => client.getTradeOrdersPending({})).pipe(
+  repeat({ delay: 1000 }),
+  retry({ delay: 5000 }),
+  shareReplay(1),
+);
+
+const tradingAccountInfo$ = combineLatest([
+  accountUid$,
+  accountBalance$,
+  accountPosition$,
+  pendingOrders$,
+]).pipe(
+  map(([uid, balanceApi, positions, orders]): IAccountInfo => {
     const usdtBalance = balanceApi.data[0]?.details.find((x) => x.ccy === 'USDT');
     const equity = +(usdtBalance?.eq ?? 0);
     const balance = +(usdtBalance?.cashBal ?? 0);
@@ -285,8 +299,9 @@ const tradingAccountInfo$ = combineLatest([accountUid$, accountBalance$, account
     // const used = +usdtBalance.frozenBal;
     const profit = equity - balance;
 
+    const account_id = `okx/${uid}/trading`;
     return {
-      account_id: `okx/${uid}/trading`,
+      account_id: account_id,
       timestamp_in_us: Date.now() * 1000,
       updated_at: Date.now(),
       money: {
@@ -317,7 +332,47 @@ const tradingAccountInfo$ = combineLatest([accountUid$, accountBalance$, account
           // margin_rate: 1 / +x.lever,
         };
       }),
-      orders: [],
+      orders: orders.data.map((x): IOrder => {
+        const order_type = x.ordType === 'market' ? 'MARKET' : x.ordType === 'limit' ? 'LIMIT' : 'UNKNOWN';
+        const direction =
+          x.side === 'buy'
+            ? x.posSide === 'long'
+              ? OrderDirection.OPEN_LONG
+              : OrderDirection.CLOSE_SHORT
+            : x.posSide === 'short'
+            ? OrderDirection.OPEN_SHORT
+            : OrderDirection.CLOSE_LONG;
+        const order_direction =
+          x.side === 'buy'
+            ? x.posSide === 'long'
+              ? 'OPEN_LONG'
+              : 'CLOSE_SHORT'
+            : x.posSide === 'short'
+            ? 'OPEN_SHORT'
+            : 'CLOSE_LONG';
+        return {
+          order_id: x.ordId,
+          client_order_id: x.clOrdId,
+          exchange_order_id: x.ordId,
+          account_id,
+          product_id: encodePath(x.instType, x.instId),
+          type:
+            order_type === 'MARKET'
+              ? OrderType.MARKET
+              : order_type === 'LIMIT'
+              ? OrderType.LIMIT
+              : OrderType.MARKET,
+          submit_at: +x.cTime,
+          filled_at: +x.fillTime,
+          order_type,
+          direction,
+          order_direction,
+          volume: +x.sz,
+          traded_volume: +x.accFillSz,
+          price: +x.px,
+          traded_price: +x.avgPx,
+        };
+      }),
     };
   }),
   shareReplay(1),
@@ -571,3 +626,81 @@ const updateTransferOrder = async (transferOrder: ITransferOrder): Promise<void>
       .pipe(concatWith(of(void 0))),
   );
 };
+
+defer(async () => {
+  const tradingAccountInfo = await firstValueFrom(tradingAccountInfo$);
+  terminal.provideService(
+    'SubmitOrder',
+    {
+      required: ['account_id'],
+      properties: {
+        account_id: { const: tradingAccountInfo.account_id },
+      },
+    },
+    (msg) =>
+      defer(async () => {
+        console.info('SubmitOrder', JSON.stringify(msg));
+        const [instType, instId] = decodePath(msg.req.product_id);
+        const mapOrderDirectionToSide = (direction?: string) => {
+          switch (direction) {
+            case 'OPEN_LONG':
+            case 'CLOSE_SHORT':
+              return 'buy';
+            case 'OPEN_SHORT':
+            case 'CLOSE_LONG':
+              return 'sell';
+          }
+          throw new Error(`Unknown direction: ${direction}`);
+        };
+        const mapOrderDirectionToPosSide = (direction?: string) => {
+          switch (direction) {
+            case 'OPEN_LONG':
+            case 'CLOSE_LONG':
+              return 'long';
+            case 'CLOSE_SHORT':
+            case 'OPEN_SHORT':
+              return 'short';
+          }
+          throw new Error(`Unknown direction: ${direction}`);
+        };
+        const mapOrderTypeToOrdType = (order_type?: string) => {
+          switch (order_type) {
+            case 'LIMIT':
+              return 'limit';
+            case 'MARKET':
+              return 'market';
+          }
+          throw new Error(`Unknown order type: ${order_type}`);
+        };
+
+        const order = msg.req;
+        const res = await client.postTradeOrder({
+          instId,
+          tdMode: 'cross',
+          side: mapOrderDirectionToSide(order.order_direction),
+          ordType: mapOrderTypeToOrdType(order.order_type),
+          sz: (instType === 'SWAP' ? order.volume : 0).toString(),
+          px: order.order_type === 'LIMIT' ? order.price!.toString() : undefined,
+          posSide: mapOrderDirectionToPosSide(order.order_direction),
+        });
+        return { res: { code: 0, message: 'OK' } };
+      }),
+  );
+
+  terminal.provideService(
+    'CancelOrder',
+    {
+      required: ['account_id'],
+      properties: {
+        account_id: { const: tradingAccountInfo.account_id },
+      },
+    },
+    (msg) =>
+      defer(async () => {
+        const order = msg.req;
+        const [instType, instId] = decodePath(order.product_id);
+        await client.postTradeCancelOrder({ instId, ordId: order.order_id, clOrdId: order.client_order_id });
+        return { res: { code: 0, message: 'OK' } };
+      }),
+  );
+}).subscribe();

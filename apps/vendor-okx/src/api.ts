@@ -765,4 +765,169 @@ export class OkxClient {
       earningCcy?: string[];
     }[];
   }> => this.request('GET', '/api/v5/finance/staking-defi/orders-active', params);
+
+  /**
+   * 下单
+   *
+   * 只有当您的账户有足够的资金才能下单。
+   *
+   * 限速：60次/2s
+   *
+   * 跟单交易带单产品的限速：4次/2s
+   *
+   * 限速规则（期权以外）：UserID + Instrument ID
+   *
+   * 限速规则（只限期权）：UserID + Instrument Family
+   *
+   * https://www.okx.com/docs-v5/zh/#order-book-trading-trade-post-place-order
+   */
+  postTradeOrder = (params: {
+    instId: string;
+    tdMode: string;
+    ccy?: string;
+    clOrdId?: string;
+    tag?: string;
+    side: string;
+    posSide?: string;
+    ordType: string;
+    sz: string;
+    px?: string;
+    pxUsd?: string;
+    pxVol?: string;
+    reduceOnly?: string;
+    tgtCcy?: string;
+    banAmend?: string;
+    quickMgnType?: string;
+    stpId?: string;
+    stpMode?: string;
+    attachAlgoOrds?: Array<{
+      attachAlgoClOrdId?: string;
+      tpTriggerPx?: string;
+      tpOrdPx?: string;
+      tpOrdKind?: string;
+      slTriggerPx?: string;
+      slOrdPx?: string;
+      tpTriggerPxType?: string;
+      slTriggerPxType?: string;
+      sz?: string;
+      amendPxOnTriggerType?: string;
+    }>;
+  }): Promise<{
+    code: string;
+    msg: string;
+    data: {
+      clOrdId: string;
+      ordId: string;
+      tag: string;
+      sCode: string;
+      sMsg: string;
+    }[];
+    inTime: string;
+    outTime: string;
+  }> => this.request('POST', '/api/v5/trade/order', params);
+
+  /**
+   * 获取未成交订单列表
+   *
+   * 获取当前账户下所有未成交订单信息
+   *
+   * 限速：60次/2s
+   * 限速规则：UserID
+   *
+   * https://www.okx.com/docs-v5/zh/#order-book-trading-trade-get-order-list
+   */
+  getTradeOrdersPending = (params: {
+    instType?: string;
+    uly?: string;
+    instFamily?: string;
+    instId?: string;
+    ordType?: string;
+    state?: string;
+    after?: string;
+    before?: string;
+    limit?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    data: {
+      accFillSz: string;
+      avgPx: string;
+      cTime: string;
+      category: string;
+      ccy: string;
+      clOrdId: string;
+      fee: string;
+      feeCcy: string;
+      fillPx: string;
+      fillSz: string;
+      fillTime: string;
+      instId: string;
+      instType: string;
+      lever: string;
+      ordId: string;
+      ordType: string;
+      pnl: string;
+      posSide: string;
+      px: string;
+      pxUsd: string;
+      pxVol: string;
+      pxType: string;
+      rebate: string;
+      rebateCcy: string;
+      side: string;
+      attachAlgoClOrdId: string;
+      slOrdPx: string;
+      slTriggerPx: string;
+      slTriggerPxType: string;
+      attachAlgoOrds: any[];
+      source: string;
+      state: string;
+      stpId: string;
+      stpMode: string;
+      sz: string;
+      tag: string;
+      tdMode: string;
+      tgtCcy: string;
+      tpOrdPx: string;
+      tpTriggerPx: string;
+      tpTriggerPxType: string;
+      tradeId: string;
+      reduceOnly: string;
+      quickMgnType: string;
+      algoClOrdId: string;
+      algoId: string;
+      isTpLimit: string;
+      uTime: string;
+    }[];
+  }> => this.request('GET', '/api/v5/trade/orders-pending', params);
+
+  /**
+   * 撤单
+   *
+   * 撤销之前下的未完成订单。
+   *
+   * 限速：60次/2s
+   *
+   * 限速规则（期权以外）：UserID + Instrument ID
+   *
+   * 限速规则（只限期权）：UserID + Instrument Family
+   *
+   * https://www.okx.com/docs-v5/zh/#order-book-trading-trade-post-cancel-order
+   */
+  postTradeCancelOrder = (params: {
+    instId: string;
+    ordId?: string;
+    clOrdId?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    data: {
+      clOrdId: string;
+      ordId: string;
+      sCode: string;
+      sMsg: string;
+    }[];
+    inTime: string;
+    outTime: string;
+  }> => this.request('POST', '/api/v5/trade/cancel-order', params);
 }

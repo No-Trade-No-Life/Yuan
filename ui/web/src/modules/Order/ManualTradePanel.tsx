@@ -47,23 +47,18 @@ registerPage('ManualTradePanel', () => {
               title: '品种',
               examples: products.map((product) => product.product_id),
             },
-            type: {
+            order_type: {
               type: 'number',
               title: '订单类型',
-              default: OrderType.MARKET,
-              enum: [OrderType.MARKET, OrderType.LIMIT, OrderType.STOP],
+              default: 'MARKET',
+              enum: ['MARKET', 'LIMIT', 'STOP'],
               enumNames: ['市价单', '限价单', '止损单'],
             },
-            direction: {
+            order_direction: {
               type: 'number',
               title: '订单方向',
-              default: OrderDirection.OPEN_LONG,
-              enum: [
-                OrderDirection.OPEN_LONG,
-                OrderDirection.OPEN_SHORT,
-                OrderDirection.CLOSE_LONG,
-                OrderDirection.CLOSE_SHORT,
-              ],
+              default: 'OPEN_LONG',
+              enum: ['OPEN_LONG', 'OPEN_SHORT', 'CLOSE_LONG', 'CLOSE_SHORT'],
               enumNames: ['开多', '开空', '平多', '平空'],
             },
             volume: {
@@ -73,7 +68,7 @@ registerPage('ManualTradePanel', () => {
           },
           if: {
             properties: {
-              type: { enum: [OrderType.LIMIT, OrderType.STOP] },
+              order_type: { enum: ['LIMIT', 'STOP'] },
             },
           },
           then: {

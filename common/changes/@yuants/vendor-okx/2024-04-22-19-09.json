@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-okx",
+      "comment": "add apis and order submit & cancel",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/vendor-okx"
+}
