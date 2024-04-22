@@ -1,5 +1,6 @@
 import {
   IAccountInfo,
+  IOrder,
   IPosition,
   IProduct,
   ITick,
@@ -571,3 +572,64 @@ const updateTransferOrder = async (transferOrder: ITransferOrder): Promise<void>
       .pipe(concatWith(of(void 0))),
   );
 };
+
+defer(async () => {
+  const tradingAccountInfo = await firstValueFrom(tradingAccountInfo$);
+  terminal.provideService(
+    'SubmitOrder',
+    {
+      required: ['account_id'],
+      properties: {
+        account_id: { const: tradingAccountInfo.account_id },
+      },
+    },
+    (msg) =>
+      defer(async () => {
+        console.info('SubmitOrder', JSON.stringify(msg));
+        const [instType, instId] = decodePath(msg.req.product_id);
+        const mapOrderDirectionToSide = (direction?: string) => {
+          switch (direction) {
+            case 'OPEN_LONG':
+            case 'CLOSE_SHORT':
+              return 'buy';
+            case 'OPEN_SHORT':
+            case 'CLOSE_LONG':
+              return 'sell';
+          }
+          throw new Error(`Unknown direction: ${direction}`);
+        };
+        const mapOrderDirectionToPosSide = (direction?: string) => {
+          switch (direction) {
+            case 'OPEN_LONG':
+            case 'CLOSE_LONG':
+              return 'long';
+            case 'CLOSE_SHORT':
+            case 'OPEN_SHORT':
+              return 'short';
+          }
+          throw new Error(`Unknown direction: ${direction}`);
+        };
+        const mapOrderTypeToOrdType = (order_type?: string) => {
+          switch (order_type) {
+            case 'LIMIT':
+              return 'limit';
+            case 'MARKET':
+              return 'market';
+          }
+          throw new Error(`Unknown order type: ${order_type}`);
+        };
+
+        const order = msg.req;
+        const res = await client.postTradeOrder({
+          instId,
+          tdMode: 'cross',
+          side: mapOrderDirectionToSide(order.order_direction),
+          ordType: mapOrderTypeToOrdType(order.order_type),
+          sz: (instType === 'SWAP' ? order.volume : 0).toString(),
+          px: order.order_type === 'LIMIT' ? order.price!.toString() : undefined,
+          posSide: mapOrderDirectionToPosSide(order.order_direction),
+        });
+        return { res: { code: 0, message: 'OK' } };
+      }),
+  );
+}).subscribe();
