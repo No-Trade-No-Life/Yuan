@@ -689,6 +689,7 @@ import { HuobiClient } from './api';
                       client.getDepositWithdrawHistory({
                         currency: 'usdt',
                         type: 'deposit',
+                        direct: 'next',
                       }),
                     ).pipe(
                       //
