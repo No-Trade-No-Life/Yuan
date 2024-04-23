@@ -20,16 +20,22 @@ import {
   combineLatest,
   concatWith,
   defer,
+  delay,
   delayWhen,
   filter,
+  first,
   firstValueFrom,
   from,
+  interval,
   map,
   mergeMap,
   of,
+  raceWith,
   repeat,
   retry,
   shareReplay,
+  tap,
+  timeout,
   toArray,
 } from 'rxjs';
 import { OkxClient } from './api';
@@ -492,6 +498,8 @@ defer(async () => {
           const nextOrder: ITransferOrder = {
             ...order,
             updated_at: Date.now(),
+            // default timeout 30 minutes
+            timeout_at: order.timeout_at !== undefined ? order.timeout_at : Date.now() + 30 * 60_000,
             debit_methods: routing,
             status: 'AWAIT_CREDIT',
           };
@@ -518,6 +526,36 @@ defer(async () => {
                   // USDT TRC20
                   const address = routing[2];
                   console.info(formatTime(Date.now()), 'Transfer', order.order_id, 'USDT TRC20', address);
+
+                  if (order.credit_account_id === tradingAccountInfo.account_id) {
+                    //
+                    console.info(
+                      formatTime(Date.now()),
+                      'Transfer',
+                      order.order_id,
+                      'from trading account to funding account',
+                      address,
+                    );
+                    const transferResult = await client.postAssetTransfer({
+                      type: '0',
+                      ccy: 'USDT',
+                      amt: `${order.expected_amount}`,
+                      from: '18',
+                      to: '6',
+                    });
+
+                    if (transferResult.code !== '0') {
+                      const nextOrder: ITransferOrder = {
+                        ...order,
+                        updated_at: Date.now(),
+                        status: 'ERROR',
+                        error_message: transferResult.msg,
+                      };
+                      await updateTransferOrder(nextOrder);
+                      return { res: { code: +transferResult.code, message: transferResult.msg } };
+                    }
+                  }
+
                   const res = await client.postAssetWithdrawal({
                     amt: `${order.expected_amount}`,
                     ccy: order.currency,
@@ -537,11 +575,6 @@ defer(async () => {
                     return { res: { code: +res.code, message: res.msg } };
                   }
 
-                  // TODO: 查询区块链 Transaction ID
-                  // const wdId = res.data[0]?.wdId;
-                  // const withdrawalHistory = await client.getAssetWithdrawalHistory({ wdId });
-                  // console.debug('history', JSON.stringify(withdrawalHistory));
-
                   console.info(
                     formatTime(Date.now()),
                     'Transfer',
@@ -549,13 +582,63 @@ defer(async () => {
                     'USDT TRC20',
                     JSON.stringify(res),
                   );
+
+                  if (res.data[0]?.wdId === '') {
+                    const nextOrder: ITransferOrder = {
+                      ...order,
+                      status: 'ERROR',
+                      error_message: `No wdId in response`,
+                      credit_method: method,
+                    };
+                    await updateTransferOrder(nextOrder);
+                    return { res: { code: 500, message: `${nextOrder.error_message}` } };
+                  }
+
+                  // TODO: 查询区块链 Transaction ID
+                  const txId = await firstValueFrom(
+                    defer(async () => {
+                      const wdId = res.data[0]?.wdId;
+                      const withdrawalHistory = await client.getAssetWithdrawalHistory({ wdId });
+                      return withdrawalHistory.data[0];
+                    }).pipe(
+                      //
+                      tap((v) => {
+                        console.info(
+                          formatTime(Date.now()),
+                          'Transfer',
+                          order.order_id,
+                          'USDT TRC20',
+                          JSON.stringify(v),
+                        );
+                      }),
+                      repeat({ delay: 5000 }),
+                      retry({ delay: 5000 }),
+                      first((v) => v.txId !== ''),
+                      timeout({ each: 120000, meta: `Withdrawal ${res.data[0]?.wdId} Timeout` }),
+                      map((v) => v.txId),
+                      catchError((err) => of('')),
+                      shareReplay(1),
+                    ),
+                  );
+
+                  if (txId === '') {
+                    const nextOrder: ITransferOrder = {
+                      ...order,
+                      status: 'ERROR',
+                      error_message: `No txId found`,
+                      credit_method: method,
+                    };
+                    await updateTransferOrder(nextOrder);
+                    return { res: { code: 500, message: `${nextOrder.error_message}` } };
+                  }
                   const nextOrder: ITransferOrder = {
                     ...order,
                     status: 'AWAIT_DEBIT',
+                    credit_method: method,
                     updated_at: Date.now(),
                     transferred_at: Date.now(),
                     transferred_amount: order.expected_amount,
-                    // transaction_id: '',
+                    transaction_id: txId,
                   };
                   await updateTransferOrder(nextOrder);
                   await firstValueFrom(terminal.requestService('Transfer', nextOrder));
@@ -576,7 +659,61 @@ defer(async () => {
             'Step 3: 对方已经选择收款方式，已转出，等待我方收款',
           );
 
-          // TODO: 查询交易所是否已经收到款项
+          const routing = decodePath(order.credit_method);
+          if (order.currency === 'USDT') {
+            if (routing[0] === 'blockchain') {
+              if (routing[1].match(/USDT/i) && routing[1].match(/TRC20/i)) {
+                // NOTE: do we need to query our TRC20 address?
+                try {
+                  const checkResult = await firstValueFrom(
+                    defer(() =>
+                      client.getAssetDepositHistory({
+                        ccy: 'USDT',
+                        txId: order.transaction_id,
+                        type: '4',
+                      }),
+                    ).pipe(
+                      mergeMap((v) => {
+                        if (v.code !== '0') {
+                          throw new Error(v.msg);
+                        }
+                        return v.data;
+                      }),
+                      repeat({ delay: 5000 }),
+                      retry({ delay: 5000 }),
+                      // NOTE: 2: success
+                      // FYI: https://www.okx.com/docs-v5/zh/#funding-account-rest-api-get-deposit-history
+                      first((v) => v.state === '2'),
+                      timeout({
+                        each: (order.timeout_at || Date.now() + 600_000) - Date.now(),
+                        meta: `Deposit ${order.transaction_id} Timeout`,
+                      }),
+                    ),
+                  );
+
+                  const nextOrder = {
+                    ...order,
+                    status: 'COMPLETE',
+                    received_at: Date.now(),
+                    received_amount: +checkResult.amt,
+                    updated_at: Date.now(),
+                  };
+                  await updateTransferOrder(nextOrder);
+                  return { res: { code: 0, message: 'OK' } };
+                } catch (err) {
+                  console.info(`${err}`);
+                  const nextOrder: ITransferOrder = {
+                    ...order,
+                    updated_at: Date.now(),
+                    status: 'ERROR',
+                    error_message: 'Deposit Checking Timeout',
+                  };
+                  await updateTransferOrder(nextOrder);
+                  return { res: { code: 504, message: `${nextOrder.error_message}` } };
+                }
+              }
+            }
+          }
         }
 
         return { res: { code: 0, message: 'OK' } };
