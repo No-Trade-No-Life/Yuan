@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-model
 
-This log was last generated on Mon, 08 Apr 2024 11:05:31 GMT and should not be manually modified.
+This log was last generated on Tue, 23 Apr 2024 16:29:03 GMT and should not be manually modified.
+
+## 0.7.0
+Tue, 23 Apr 2024 16:29:03 GMT
+
+### Minor changes
+
+- Remove deprecated fields
 
 ## 0.6.0
 Mon, 08 Apr 2024 11:05:31 GMT

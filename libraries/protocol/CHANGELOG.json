@@ -2,6 +2,33 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.15.0",
+      "tag": "@yuants/protocol_v0.15.0",
+      "date": "Tue, 23 Apr 2024 16:29:03 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix terminalInfo report while reconnection"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Remove deprecated fields"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.7.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.14.0",
       "tag": "@yuants/protocol_v0.14.0",
       "date": "Thu, 11 Apr 2024 14:45:56 GMT",
