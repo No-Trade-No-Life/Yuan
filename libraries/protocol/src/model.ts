@@ -8,10 +8,6 @@ export {
   IPosition,
   IProduct,
   ITick,
-  OrderDirection,
-  OrderStatus,
-  OrderType,
-  PositionVariant,
 } from '@yuants/data-model';
 
 /**

@@ -6,10 +6,6 @@ import {
   IOrder,
   IPosition,
   IProduct,
-  OrderDirection,
-  OrderStatus,
-  OrderType,
-  PositionVariant,
   Terminal,
 } from '@yuants/protocol';
 import '@yuants/protocol/lib/services/order';
@@ -196,12 +192,12 @@ export const queryAccountInfo = (
       return {
         position_id: `mixed`,
         product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
-        variant: (
+        direction: (
           {
-            [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Long]: PositionVariant.LONG,
-            [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Short]: PositionVariant.SHORT,
+            [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Long]: 'LONG',
+            [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Short]: 'SHORT',
             // FIXME(cz): [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Net]: ???
-          } as Record<TThostFtdcPosiDirectionType, PositionVariant>
+          } as Record<TThostFtdcPosiDirectionType, string>
         )[msg.PosiDirection],
         volume: msg.Position,
         free_volume: msg.Position,
@@ -271,36 +267,33 @@ export const queryAccountInfo = (
     mapToValue,
     map(
       (msg): IOrder => ({
-        client_order_id: '',
-        exchange_order_id: `${msg.ExchangeID}-${msg.OrderSysID}`,
+        order_id: `${msg.ExchangeID}-${msg.OrderSysID}`,
         product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
         account_id: msg.UserID,
-        type:
-          msg.OrderPriceType === TThostFtdcOrderPriceTypeType.THOST_FTDC_OPT_LimitPrice
-            ? OrderType.LIMIT
-            : OrderType.MARKET,
-        direction:
+        order_type:
+          msg.OrderPriceType === TThostFtdcOrderPriceTypeType.THOST_FTDC_OPT_LimitPrice ? 'LIMIT' : 'MARKET',
+        order_direction:
           TThostFtdcOffsetFlagType.THOST_FTDC_OF_Open === (msg.CombOffsetFlag[0] as TThostFtdcOffsetFlagType)
             ? msg.Direction === TThostFtdcDirectionType.THOST_FTDC_D_Buy
-              ? OrderDirection.OPEN_LONG
-              : OrderDirection.OPEN_SHORT
+              ? 'OPEN_LONG'
+              : 'OPEN_SHORT'
             : msg.Direction === TThostFtdcDirectionType.THOST_FTDC_D_Buy
-            ? OrderDirection.CLOSE_LONG
-            : OrderDirection.CLOSE_SHORT,
+            ? 'CLOSE_LONG'
+            : 'CLOSE_SHORT',
         volume: msg.VolumeTotalOriginal,
-        timestamp_in_us: parseCTPTime(msg.InsertDate, msg.InsertTime).getTime() * 1e3,
+        submit_at: parseCTPTime(msg.InsertDate, msg.InsertTime).getTime() * 1e3,
         price: msg.LimitPrice === 0 ? undefined : msg.LimitPrice,
         traded_volume: msg.VolumeTraded,
         // traded_price:
-        status:
+        order_status:
           msg.OrderStatus === TThostFtdcOrderStatusType.THOST_FTDC_OST_Canceled
-            ? OrderStatus.CANCELLED
+            ? 'CANCELLED'
             : msg.OrderStatus === TThostFtdcOrderStatusType.THOST_FTDC_OST_AllTraded
-            ? OrderStatus.TRADED
-            : OrderStatus.ACCEPTED,
+            ? 'TRADED'
+            : 'ACCEPTED',
       }),
     ),
-    filter((order) => order.status === OrderStatus.ACCEPTED),
+    filter((order) => order.order_status === 'ACCEPTED'),
     toArray(),
   );
 
@@ -341,25 +334,24 @@ export const queryHistoryOrders = (
     mapToValue,
     map(
       (msg): IOrder => ({
-        client_order_id: '',
-        exchange_order_id: `${msg.ExchangeID}-${msg.OrderSysID}`,
+        order_id: `${msg.ExchangeID}-${msg.OrderSysID}`,
         product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
         account_id: msg.UserID,
-        type: OrderType.LIMIT,
-        direction:
+        order_type: 'LIMIT',
+        order_direction:
           msg.Direction === TThostFtdcDirectionType.THOST_FTDC_D_Buy
             ? TThostFtdcOffsetFlagType.THOST_FTDC_OF_Open === msg.OffsetFlag
-              ? OrderDirection.OPEN_LONG
-              : OrderDirection.CLOSE_LONG
+              ? 'OPEN_LONG'
+              : 'CLOSE_LONG'
             : TThostFtdcOffsetFlagType.THOST_FTDC_OF_Open === msg.OffsetFlag
-            ? OrderDirection.OPEN_SHORT
-            : OrderDirection.CLOSE_SHORT,
+            ? 'OPEN_SHORT'
+            : 'CLOSE_SHORT',
         volume: msg.Volume,
-        timestamp_in_us: parseCTPTime(msg.TradeDate, msg.TradeTime).getTime() * 1e3,
+        submit_at: parseCTPTime(msg.TradeDate, msg.TradeTime).getTime() * 1e3,
         price: msg.Price,
         traded_volume: msg.Volume,
         // traded_price:
-        status: OrderStatus.TRADED,
+        order_status: 'TRADED',
       }),
     ),
     toArray(),
@@ -418,33 +410,35 @@ export const submitOrder = (
           OrderPriceType: TThostFtdcOrderPriceTypeType.THOST_FTDC_OPT_LimitPrice,
           // 触发条件
           ContingentCondition:
-            order.type === OrderType.STOP
+            order.order_type === 'STOP'
               ? TThostFtdcContingentConditionType.THOST_FTDC_CC_BidPriceGreaterEqualStopPrice
               : TThostFtdcContingentConditionType.THOST_FTDC_CC_Immediately,
           // 时间条件
           TimeCondition:
-            order.type === OrderType.IOC || order.type === OrderType.FOK
+            order.order_type === 'IOC' || order.order_type === 'FOK'
               ? TThostFtdcTimeConditionType.THOST_FTDC_TC_IOC
               : TThostFtdcTimeConditionType.THOST_FTDC_TC_GFD,
           // 成交量条件
           VolumeCondition:
-            order.type === OrderType.FOK
+            order.order_type === 'FOK'
               ? TThostFtdcVolumeConditionType.THOST_FTDC_VC_CV
               : TThostFtdcVolumeConditionType.THOST_FTDC_VC_AV,
           // 投机套保标识
           CombHedgeFlag: TThostFtdcHedgeFlagType.THOST_FTDC_HF_Speculation,
           // 开平标识
-          CombOffsetFlag: [OrderDirection.OPEN_LONG, OrderDirection.OPEN_SHORT].includes(order.direction)
-            ? TThostFtdcOffsetFlagType.THOST_FTDC_OF_Open
-            : TThostFtdcOffsetFlagType.THOST_FTDC_OF_Close,
+          CombOffsetFlag:
+            order.order_direction === 'OPEN_LONG' || order.order_direction === 'OPEN_SHORT'
+              ? TThostFtdcOffsetFlagType.THOST_FTDC_OF_Open
+              : TThostFtdcOffsetFlagType.THOST_FTDC_OF_Close,
           // ISSUE: 买入包括开多平空; 卖出包括开空平多
-          Direction: [OrderDirection.CLOSE_SHORT, OrderDirection.OPEN_LONG].includes(order.direction)
-            ? TThostFtdcDirectionType.THOST_FTDC_D_Buy
-            : TThostFtdcDirectionType.THOST_FTDC_D_Sell,
+          Direction:
+            order.order_direction === 'CLOSE_SHORT' || order.order_direction === 'OPEN_LONG'
+              ? TThostFtdcDirectionType.THOST_FTDC_D_Buy
+              : TThostFtdcDirectionType.THOST_FTDC_D_Sell,
           LimitPrice:
-            order.type === OrderType.MARKET
+            order.order_type === 'MARKET'
               ? // ISSUE: CTP 不支持市价单，但市价等效于挂在涨跌停价位
-                [OrderDirection.CLOSE_SHORT, OrderDirection.OPEN_LONG].includes(order.direction)
+                order.order_direction === 'CLOSE_SHORT' || order.order_direction === 'OPEN_LONG'
                 ? quote.UpperLimitPrice
                 : quote.LowerLimitPrice
               : order.price ?? 0 /* 如果执意下限价单却没给价格 */,
@@ -491,11 +485,11 @@ export const cancelOrder = (
   sessionId: number,
   order: IOrder,
 ) => {
-  if (!order.exchange_order_id) {
+  if (!order.order_id) {
     return of(0).pipe(
       //
       map(() => ({
-        res: { code: 400, message: 'Exchange OrderID Needed' },
+        res: { code: 400, message: 'OrderID Needed' },
       })),
     );
   }
@@ -521,7 +515,7 @@ export const cancelOrder = (
     }),
   );
 
-  const [ctpExchangeId, ctpOrderSysId] = order.exchange_order_id.split('-');
+  const [ctpExchangeId, ctpOrderSysId] = order.order_id.split('-');
   // 这里如果有报错则会是 CTP 柜台的报错
   const error$ = requestZMQ<ICThostFtdcInputOrderActionField, ICThostFtdcInputOrderActionField>(conn, {
     method: 'ReqOrderAction',

@@ -38,7 +38,7 @@ export const mergeAccountInfoPositions = (info: IAccountInfo): Observable<IAccou
     groupBy((position) => position.product_id),
     mergeMap((groupWithSameProductId) =>
       groupWithSameProductId.pipe(
-        groupBy((position) => position.variant),
+        groupBy((position) => position.direction),
         mergeMap((groupWithSameVariant) =>
           groupWithSameVariant.pipe(
             reduce(

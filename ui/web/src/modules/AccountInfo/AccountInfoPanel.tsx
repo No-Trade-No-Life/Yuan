@@ -1,7 +1,7 @@
 import { IconClose, IconInfoCircle } from '@douyinfe/semi-icons';
 import { Collapse, Descriptions, Empty, Space, Table, Tooltip, Typography } from '@douyinfe/semi-ui';
 import { encodePath, formatTime, mergeAccountInfoPositions } from '@yuants/data-model';
-import { IPosition, OrderDirection, OrderType, PositionVariant } from '@yuants/protocol';
+import { IPosition } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import {
   defer,
@@ -42,7 +42,7 @@ registerPage('AccountInfoPanel', () => {
             groupBy((position) => position.product_id),
             mergeMap((groupByProductId) =>
               groupByProductId.pipe(
-                groupBy((position) => position.variant),
+                groupBy((position) => position.direction),
                 mergeMap((groupByVariant) =>
                   groupByVariant.pipe(
                     //
@@ -53,13 +53,13 @@ registerPage('AccountInfoPanel', () => {
                     tap(([oldVolume, newVolume]) => {
                       if (Notification.permission === 'granted') {
                         const productId = groupByProductId.key;
-                        const variant = groupByVariant.key;
+                        const direction = groupByVariant.key;
                         new Notification('Position Changed', {
                           body: `Account: ${accountId}\n${productId}(${
-                            variant === PositionVariant.LONG ? 'LONG' : 'SHORT'
+                            direction === 'LONG' ? 'LONG' : 'SHORT'
                           }): ${oldVolume}->${newVolume}\n${formatTime(Date.now())}`,
                           renotify: true,
-                          tag: encodePath('AccountInfoPositionChange', accountId, productId, variant),
+                          tag: encodePath('AccountInfoPositionChange', accountId, productId, direction),
                         });
                       }
                     }),
@@ -91,7 +91,7 @@ registerPage('AccountInfoPanel', () => {
         groupBy((position) => position.product_id),
         mergeMap((group) =>
           group.pipe(
-            groupBy((position) => position.variant),
+            groupBy((position) => position.direction),
             mergeMap((subGroup) =>
               subGroup.pipe(
                 reduce(
@@ -113,20 +113,20 @@ registerPage('AccountInfoPanel', () => {
             ),
             toArray(),
             map((positions) => {
-              const long = positions.find((p) => p.variant === PositionVariant.LONG) ?? {
+              const long = positions.find((p) => p.direction === 'LONG') ?? {
                 position_id: '@long',
                 product_id: group.key,
-                variant: PositionVariant.LONG,
+                variant: 'LONG',
                 volume: 0,
                 free_volume: 0,
                 closable_price: 0,
                 position_price: 0,
                 floating_profit: 0,
               };
-              const short = positions.find((p) => p.variant === PositionVariant.SHORT) ?? {
+              const short = positions.find((p) => p.direction === 'SHORT') ?? {
                 position_id: '@short',
                 product_id: group.key,
-                variant: PositionVariant.LONG,
+                variant: 'LONG',
                 volume: 0,
                 free_volume: 0,
                 closable_price: 0,
@@ -137,12 +137,8 @@ registerPage('AccountInfoPanel', () => {
               const net: IPosition = {
                 position_id: '@net',
                 product_id: group.key,
-                variant:
-                  long.volume === short.volume
-                    ? (-1 as PositionVariant)
-                    : long.volume - short.volume > 0
-                    ? PositionVariant.LONG
-                    : PositionVariant.SHORT,
+                direction:
+                  long.volume === short.volume ? 'LOCKED' : long.volume - short.volume > 0 ? 'LONG' : 'SHORT',
                 volume: Math.abs(long.volume - short.volume),
                 free_volume: Math.abs(long.free_volume - short.free_volume),
                 position_price:
@@ -248,9 +244,7 @@ registerPage('AccountInfoPanel', () => {
               {
                 title: '方向',
                 render: (_, pos) =>
-                  (({ [PositionVariant.LONG]: '多', [PositionVariant.SHORT]: '空', [-1]: '对锁' } as any)[
-                    pos.net.variant
-                  ]),
+                  (({ ['LONG']: '多', ['SHORT']: '空', [-1]: '对锁' } as any)[pos.net.direction!]),
               },
               {
                 title: '持仓量',
@@ -354,8 +348,7 @@ registerPage('AccountInfoPanel', () => {
               { title: '持仓品种', render: (_, pos) => pos.product_id },
               {
                 title: '持仓方向',
-                render: (_, pos) =>
-                  (({ [PositionVariant.LONG]: '做多', [PositionVariant.SHORT]: '做空' } as any)[pos.variant]),
+                render: (_, pos) => (({ ['LONG']: '做多', ['SHORT']: '做空' } as any)[pos.direction!]),
               },
               { title: '持仓量', render: (_, pos) => +pos.volume.toFixed(8) },
               {
@@ -379,36 +372,19 @@ registerPage('AccountInfoPanel', () => {
             dataSource={accountInfo.orders}
             pagination={false}
             columns={[
-              { title: '委托单号', render: (_, order) => order.exchange_order_id },
+              { title: '委托单号', render: (_, order) => order.order_id },
               {
                 title: '更新时间',
-                render: (_, order) => formatTime(order.submit_at || order.timestamp_in_us! / 1000),
+                render: (_, order) => formatTime(order.submit_at!),
               },
               { title: '委托品种', render: (_, order) => order.product_id },
               {
                 title: '委托类型',
-                render: (_, order) =>
-                  ((
-                    {
-                      [OrderType.LIMIT]: '限价单',
-                      [OrderType.STOP]: '止损单',
-                      [OrderType.IOC]: '即成余撤单',
-                      [OrderType.FOK]: '全成或撤单',
-                      [OrderType.MARKET]: '市价单',
-                    } as any
-                  )[order.type]),
+                render: (_, order) => order.order_type,
               },
               {
                 title: '委托方向',
-                render: (_, order) =>
-                  ((
-                    {
-                      [OrderDirection.OPEN_LONG]: '开多',
-                      [OrderDirection.OPEN_SHORT]: '开空',
-                      [OrderDirection.CLOSE_LONG]: '平多',
-                      [OrderDirection.CLOSE_SHORT]: '平空',
-                    } as any
-                  )[order.direction]),
+                render: (_, order) => order.order_direction,
               },
               { title: '委托量', render: (_, order) => +order.volume.toFixed(8) },
               { title: '已成交量', render: (_, order) => +(order.traded_volume ?? 0).toFixed(8) },

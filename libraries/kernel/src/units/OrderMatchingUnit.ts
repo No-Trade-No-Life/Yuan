@@ -1,5 +1,5 @@
 import { encodePath } from '@yuants/data-model';
-import { IOrder, IPeriod, ITick, OrderDirection, OrderStatus, OrderType } from '@yuants/protocol';
+import { IOrder, IPeriod, ITick } from '@yuants/protocol';
 import { roundToStep } from '@yuants/utils';
 import { Subject, Subscription } from 'rxjs';
 import { Kernel } from '../kernel';
@@ -150,7 +150,7 @@ export class OrderMatchingUnit extends BasicUnit {
 
   submitOrder(...orders: IOrder[]) {
     for (const order of orders) {
-      this.mapOrderIdToOrder.set(order.client_order_id, order);
+      this.mapOrderIdToOrder.set(order.order_id!, order);
     }
     this._orderSubmitted$.next(orders);
   }
@@ -173,8 +173,8 @@ export class OrderMatchingUnit extends BasicUnit {
   private checkTradedPriceForRange = (order: IOrder): number => {
     const range = this.mapProductIdToRange.get(encodePath(order.account_id, order.product_id));
     if (!range) return NaN;
-    if (order.type === OrderType.MARKET) {
-      if (order.direction === OrderDirection.OPEN_LONG || order.direction === OrderDirection.CLOSE_SHORT) {
+    if (order.order_type === 'MARKET') {
+      if (order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_SHORT') {
         // 开多/平空
         return range.ask.first;
       } else {
@@ -182,8 +182,8 @@ export class OrderMatchingUnit extends BasicUnit {
         return range.bid.first;
       }
     }
-    if (order.type === OrderType.LIMIT) {
-      if (order.direction === OrderDirection.OPEN_LONG || order.direction === OrderDirection.CLOSE_SHORT) {
+    if (order.order_type === 'LIMIT') {
+      if (order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_SHORT') {
         // 开多/平空
         if (order.price! > range.ask.first) return range.ask.first;
         if (order.price! > range.ask.low) return order.price!;
@@ -193,8 +193,8 @@ export class OrderMatchingUnit extends BasicUnit {
         if (order.price! < range.bid.high) return order.price!;
       }
     }
-    if (order.type === OrderType.STOP) {
-      if (order.direction === OrderDirection.OPEN_LONG || order.direction === OrderDirection.CLOSE_SHORT) {
+    if (order.order_type === 'STOP') {
+      if (order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_SHORT') {
         // 开多/平空
         if (order.price! < range.ask.first) return range.ask.first;
         if (order.price! < range.ask.high) return order.price!;
@@ -224,37 +224,23 @@ export class OrderMatchingUnit extends BasicUnit {
         traded_price: tradedPrice,
         volume,
         traded_volume: volume,
-        status: OrderStatus.TRADED,
       };
       // 成交
       this.kernel.log?.(
         '撮合成交',
         theOrder.product_id,
-        {
-          [OrderDirection.OPEN_LONG]: '开多',
-          [OrderDirection.OPEN_SHORT]: '开空',
-          [OrderDirection.CLOSE_LONG]: '平多',
-          [OrderDirection.CLOSE_SHORT]: '平空',
-        }[theOrder.direction],
+        theOrder.order_direction,
         `成交价=${theOrder.traded_price}`,
         `成交量=${theOrder.traded_volume}`,
-        `订单ID='${theOrder.client_order_id}'`,
+        `订单ID='${theOrder.order_id}'`,
         `头寸ID='${theOrder.position_id}'`,
         `账户ID='${theOrder.account_id}'`,
-        `订单类型='${
-          {
-            [OrderType.MARKET]: '市价',
-            [OrderType.LIMIT]: '限价',
-            [OrderType.STOP]: '触发',
-            [OrderType.IOC]: 'IOC',
-            [OrderType.FOK]: 'FOK',
-          }[theOrder.type]
-        }'`,
+        `订单类型='${theOrder.order_type}'`,
         `撮合行情=${JSON.stringify(
           this.mapProductIdToRange.get(encodePath(theOrder.account_id, theOrder.product_id)),
         )}`,
       );
-      this.mapOrderIdToOrder.delete(order.client_order_id);
+      this.mapOrderIdToOrder.delete(order.order_id!);
       this.historyOrderUnit.updateOrder(theOrder);
     }
     // 撮合完成后，将所有的 range 置为 last

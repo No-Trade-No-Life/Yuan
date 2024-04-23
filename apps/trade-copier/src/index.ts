@@ -1,16 +1,6 @@
 import { UUID, formatTime } from '@yuants/data-model';
 import { IPositionDiff, diffPosition, mergePositions } from '@yuants/kernel';
-import {
-  IAccountInfo,
-  IOrder,
-  IPosition,
-  IProduct,
-  OrderDirection,
-  OrderType,
-  PositionVariant,
-  PromRegistry,
-  Terminal,
-} from '@yuants/protocol';
+import { IAccountInfo, IOrder, IPosition, IProduct, PromRegistry, Terminal } from '@yuants/protocol';
 import { roundToStep } from '@yuants/utils';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
@@ -380,12 +370,12 @@ async function setup() {
         MetricErrorVolumeRatio.reset({
           account_id: group.target_account_id,
           product_id,
-          variant: PositionVariant.LONG,
+          variant: 'LONG',
         });
         MetricErrorVolumeRatio.reset({
           account_id: group.target_account_id,
           product_id,
-          variant: PositionVariant.SHORT,
+          variant: 'SHORT',
         });
       }
     });
@@ -501,11 +491,7 @@ async function setup() {
               }),
               map(
                 (position) =>
-                  (position.variant === PositionVariant.LONG
-                    ? 1
-                    : position.variant === PositionVariant.SHORT
-                    ? -1
-                    : 0) *
+                  (position.direction === 'LONG' ? 1 : position.direction === 'SHORT' ? -1 : 0) *
                   position.volume *
                   (task.multiple || 0), // Invalid position will fallback to zero.
               ),
@@ -518,7 +504,7 @@ async function setup() {
           map(
             (netVolume): IPosition => ({
               product_id: group.target_product_id,
-              variant: netVolume > 0 ? PositionVariant.LONG : PositionVariant.SHORT,
+              direction: netVolume > 0 ? 'LONG' : 'SHORT',
               volume: Math.abs(netVolume),
               free_volume: Math.abs(netVolume),
               position_price: 0,
@@ -547,7 +533,7 @@ async function setup() {
               MetricErrorVolumeRatio.set(error_ratio, {
                 account_id: group.target_account_id,
                 product_id: positionDiff.product_id,
-                variant: positionDiff.variant,
+                direction: positionDiff.direction,
               });
             }
           }),
@@ -602,19 +588,19 @@ async function setup() {
               return of({
                 orders: [
                   {
-                    client_order_id: UUID(),
+                    order_id: UUID(),
                     account_id: group.target_account_id,
-                    type: OrderType.MARKET,
+                    order_type: 'MARKET',
                     product_id: positionDiff.product_id,
                     volume: rounded_volume,
-                    direction:
-                      positionDiff.variant === PositionVariant.LONG
+                    order_direction:
+                      positionDiff.direction === 'LONG'
                         ? positionDiff.error_volume > 0
-                          ? OrderDirection.OPEN_LONG
-                          : OrderDirection.CLOSE_LONG
+                          ? 'OPEN_LONG'
+                          : 'CLOSE_LONG'
                         : positionDiff.error_volume > 0
-                        ? OrderDirection.OPEN_SHORT
-                        : OrderDirection.CLOSE_SHORT,
+                        ? 'OPEN_SHORT'
+                        : 'CLOSE_SHORT',
                   },
                 ],
                 strategy: 'concurrent',
@@ -635,9 +621,9 @@ async function setup() {
               condition: (i) => i < order_count,
               iterate: (i) => i + 1,
               resultSelector: (i: number): IOrder => ({
-                client_order_id: UUID(),
+                order_id: UUID(),
                 account_id: group.target_account_id,
-                type: OrderType.MARKET,
+                order_type: 'MARKET',
                 product_id: positionDiff.product_id,
                 volume:
                   i < order_count - 1
@@ -646,14 +632,14 @@ async function setup() {
                         volume - config.max_volume_per_order * (order_count - 1),
                         group.products[positionDiff.product_id]?.volume_step ?? 1,
                       ),
-                direction:
-                  positionDiff.variant === PositionVariant.LONG
+                order_direction:
+                  positionDiff.direction === 'LONG'
                     ? positionDiff.error_volume > 0
-                      ? OrderDirection.OPEN_LONG
-                      : OrderDirection.CLOSE_LONG
+                      ? 'OPEN_LONG'
+                      : 'CLOSE_LONG'
                     : positionDiff.error_volume > 0
-                    ? OrderDirection.OPEN_SHORT
-                    : OrderDirection.CLOSE_SHORT,
+                    ? 'OPEN_SHORT'
+                    : 'CLOSE_SHORT',
               }),
             }).pipe(
               //

@@ -197,113 +197,6 @@ export interface IPeriod {
 }
 
 /**
- * 订单类型
- * Order Type
- * @public
- * @deprecated use string instead
- */
-
-export enum OrderType {
-  /**
-   * Market Order: Executed at the current market price
-   * 市价单: 以市场价格成交
-   *
-   * The most common and simple order type, no need to specify an order price
-   * 最普遍而简单的订单类型，不需要指定委托价
-   */
-  MARKET = 0,
-  /**
-   * Limit Order: Limits the price at which the order can be executed
-   * 限价单: 限制成交的价格
-   *
-   * - BUY LIMIT: The execution price will not be higher than the order price
-   * - SELL LIMIT: The execution price will not be lower than the order price
-   *
-   * - BUY LIMIT: 成交价不会高于委托价
-   * - SELL LIMIT: 成交价不会低于委托价
-   */
-  LIMIT = 1,
-  /**
-   * Stop Order: Triggers a market order when the market price reaches the order price
-   * 触发单: 市场价达到委托价时触发市价单
-   *
-   * - BUY STOP: Place an order when the market price is higher than the order price
-   * - SELL STOP: Place an order when the market price is lower than the order price
-   *
-   * - BUY STOP: 市场价高于委托价时下单
-   * - SELL STOP: 市场价低于委托价时下单
-   */
-  STOP = 2,
-  /**
-   * Fill or Kill: Requires immediate and complete
-   * 即成或撤单: Fill or Kill
-   *
-   * It is required to be executed immediately and completely when placing an order, otherwise it will be cancelled
-   * 下单时要求立即全部成交，否则撤单
-   */
-  FOK = 3,
-  /**
-   * Immediate or Cancel: Requires immediate execution, allows partial execution, and cancels the rest
-   * 即成余撤单: Immediate or Cancel
-   *
-   * It is required to be executed immediately when placing an order, allows partial execution, and cancels the rest
-   * 下单时要求立即成交，允许部分成交，未成交的直接撤单
-   */
-  IOC = 4,
-}
-
-/**
- * 订单方向
- * @public
- * @deprecated use string instead
- */
-
-export enum OrderDirection {
-  /**
-   * Open long position
-   * 开多
-   */
-  OPEN_LONG = 0,
-  /**
-   * Close long position
-   * 平多
-   */
-  CLOSE_LONG = 1,
-  /**
-   * Open short position
-   * 开空
-   */
-  OPEN_SHORT = 2,
-  /**
-   * Close short position
-   * 平空
-   */
-  CLOSE_SHORT = 3,
-}
-/**
- * 订单状态
- * @public
- * @deprecated use string instead
- */
-
-export enum OrderStatus {
-  /**
-   * Order accepted by the exchange
-   * 交易所已接受委托
-   */
-  ACCEPTED = 0,
-  /**
-   * Order partially filled
-   * 已成交
-   */
-  TRADED = 1,
-  /**
-   * Order cancelled
-   * 已撤单
-   */
-  CANCELLED = 2,
-}
-/**
  * Order: Changes the {@link IPosition} of the {@link IAccountInfo} in the account through a trading command.
  * 订单: 通过交易命令改变账户内 {@link IAccountInfo} 头寸 {@link IPosition}
  * @public
@@ -313,24 +206,6 @@ export interface IOrder {
    * Order ID
    */
   order_id?: string;
-  /**
-   * Client order ID.
-   * 客户端订单ID
-   * @deprecated use order_id instead.
-   */
-  client_order_id: string;
-  /**
-   * Exchange order ID (if any).
-   * 交易所订单ID (如果有)
-   * @deprecated use order_id instead.
-   */
-  exchange_order_id?: string;
-  /**
-   * Order source specified by the order placer.
-   * 下单器指定的订单来源
-   * @deprecated to remove
-   */
-  originator?: string;
   /**
    * Account ID.
    * 账户 ID
@@ -357,12 +232,6 @@ export interface IOrder {
    */
   position_id?: string;
   /**
-   * Order type.
-   * 订单类型
-   * @deprecated use order_type instead
-   */
-  type: OrderType;
-  /**
    * Order matching type.
    *
    * - `LIMIT`: Limits the price at which the order can be executed (default)
@@ -372,12 +241,6 @@ export interface IOrder {
    * - `IOC`: Requires immediate execution, allows partial execution, and cancels the rest
    */
   order_type?: string;
-  /**
-   * Order direction.
-   * 订单方向
-   * @deprecated use order_direction instead
-   */
-  direction: OrderDirection;
   /**
    * Order direction.
    *
@@ -392,13 +255,6 @@ export interface IOrder {
    * 委托量
    */
   volume: number;
-  /**
-   * Order timestamp / trade timestamp.
-   * 下单时间戳 / 成交时间戳
-   * @deprecated use submit_at, filled_at instead
-   */
-  timestamp_in_us?: number;
-
   /**
    * Submit order timestamp.
    */
@@ -422,12 +278,6 @@ export interface IOrder {
    * 成交价
    */
   traded_price?: number;
-  /**
-   * Order status.
-   * 订单状态
-   * @deprecated use order_status instead
-   */
-  status?: OrderStatus;
   /**
    * Order status.
    *
@@ -493,24 +343,6 @@ export interface IOrder {
 }
 
 /**
- * Position variant.
- * @public
- * @deprecated use Position.direction instead
- */
-
-export enum PositionVariant {
-  /**
-   * Long position.
-   * 做多
-   */
-  LONG = 0,
-  /**
-   * Short position.
-   * 做空
-   */
-  SHORT = 1,
-}
-/**
  * Position: Atomic position information.
  * 原子性的持仓头寸信息
  *
@@ -532,21 +364,11 @@ export interface IPosition {
   product_id: string;
   /**
    * Position direction (LONG | SHORT)
+   *
+   * - `"LONG"`: Long position
+   * - `"SHORT"`: Short position
    */
   direction?: string;
-  /**
-   * Position variant.
-   * 仓位类型
-   *
-   * can be used to calculate net position according to position type
-   * 可以根据仓位类型计算净头寸
-   *
-   * - `LONG`: Long position
-   * - `SHORT`: Short position
-   *
-   * @deprecated use direction instead
-   */
-  variant: PositionVariant;
   /**
    * Position volume (non-negative).
    * 持仓量 (非负)

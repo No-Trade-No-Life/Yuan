@@ -38,7 +38,7 @@ export class OrderLoadingUnit extends BasicUnit {
             //
             map((dataRecord) => dataRecord.origin),
             tap((order) => {
-              const id = this.kernel.alloc(order.timestamp_in_us! / 1000);
+              const id = this.kernel.alloc(order.submit_at!);
               this.mapEventIdToOrder.set(id, order);
               this.relatedProductIds.add(order.product_id);
             }),

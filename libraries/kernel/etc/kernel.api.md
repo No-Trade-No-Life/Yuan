@@ -11,7 +11,6 @@ import { IPosition } from '@yuants/protocol';
 import { IProduct } from '@yuants/protocol';
 import { ITick } from '@yuants/data-model';
 import { Observable } from 'rxjs';
-import { PositionVariant } from '@yuants/protocol';
 import { Subject } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
 
@@ -42,7 +41,7 @@ export class AccountInfoUnit extends BasicUnit {
         orderIdx: number;
     };
     // (undocumented)
-    getPosition: (account_id: string, position_id: string, product_id: string, variant: PositionVariant) => IPosition;
+    getPosition: (account_id: string, position_id: string, product_id: string, direction: string) => IPosition;
     // (undocumented)
     historyOrderUnit: HistoryOrderUnit;
     // (undocumented)
@@ -133,7 +132,7 @@ export class AccountSimulatorUnit extends BasicUnit {
     // (undocumented)
     accountInfo: IAccountInfo;
     // (undocumented)
-    getPosition(position_id: string, product_id: string, variant: PositionVariant): IPosition;
+    getPosition(position_id: string, product_id: string, direction: string): IPosition;
     // (undocumented)
     historyOrderUnit: HistoryOrderUnit;
     // (undocumented)
@@ -212,13 +211,13 @@ export class DataLoadingTaskUnit extends BasicUnit {
 export const diffPosition: (source: IPosition[], target: IPosition[]) => IPositionDiff[];
 
 // @public
-export const getMargin: (product: IProduct, openPrice: number, volume: number, variant: PositionVariant, currency: string, quote: (product_id: string) => {
+export const getMargin: (product: IProduct, openPrice: number, volume: number, direction: string, currency: string, quote: (product_id: string) => {
     ask: number;
     bid: number;
 } | undefined) => number;
 
 // @public
-export const getProfit: (product: IProduct, openPrice: number, closePrice: number, volume: number, variant: PositionVariant, currency: string, quotes: (product_id: string) => {
+export const getProfit: (product: IProduct, openPrice: number, closePrice: number, volume: number, direction: string, currency: string, quotes: (product_id: string) => {
     ask: number;
     bid: number;
 } | undefined) => number;
@@ -396,9 +395,9 @@ export interface IPortfolioStatistics {
 
 // @public (undocumented)
 export interface IPositionDiff {
+    direction: string;
     error_volume: number;
     product_id: string;
-    variant: PositionVariant;
     volume_in_source: number;
     volume_in_target: number;
 }
@@ -801,7 +800,7 @@ export class TickDataUnit extends BasicUnit {
 
 // Warnings were encountered during analysis:
 //
-// src/units/OrderMatchingUnit.ts:275:11 - (ae-forgotten-export) The symbol "IMatchingRange" needs to be exported by the entry point index.d.ts
+// src/units/OrderMatchingUnit.ts:261:11 - (ae-forgotten-export) The symbol "IMatchingRange" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

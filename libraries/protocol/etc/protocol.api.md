@@ -14,10 +14,6 @@ import { IProduct } from '@yuants/data-model';
 import { ITick } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
 import { Observable } from 'rxjs';
-import { OrderDirection } from '@yuants/data-model';
-import { OrderStatus } from '@yuants/data-model';
-import { OrderType } from '@yuants/data-model';
-import { PositionVariant } from '@yuants/data-model';
 import { Registry } from '@yuants/prometheus-client';
 import { Subject } from 'rxjs';
 
@@ -101,14 +97,6 @@ export interface ITerminalMessage {
 }
 
 export { ITick }
-
-export { OrderDirection }
-
-export { OrderStatus }
-
-export { OrderType }
-
-export { PositionVariant }
 
 // @public
 export const PromRegistry: Registry;
