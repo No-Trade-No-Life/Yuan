@@ -640,7 +640,9 @@ defer(async () => {
     (msg) =>
       defer(async () => {
         console.info('SubmitOrder', JSON.stringify(msg));
-        const [instType, instId] = decodePath(msg.req.product_id);
+        const order = msg.req;
+        const [instType, instId] = decodePath(order.product_id);
+
         const mapOrderDirectionToSide = (direction?: string) => {
           switch (direction) {
             case 'OPEN_LONG':
@@ -673,16 +675,30 @@ defer(async () => {
           throw new Error(`Unknown order type: ${order_type}`);
         };
 
-        const order = msg.req;
-        const res = await client.postTradeOrder({
+        const params = {
           instId,
           tdMode: 'cross',
           side: mapOrderDirectionToSide(order.order_direction),
+          posSide: instType === 'MARGIN' ? 'net' : mapOrderDirectionToPosSide(order.order_direction),
           ordType: mapOrderTypeToOrdType(order.order_type),
-          sz: (instType === 'SWAP' ? order.volume : 0).toString(),
+          sz: (instType === 'SWAP'
+            ? order.volume
+            : instType === 'MARGIN'
+            ? order.order_type === 'LIMIT'
+              ? order.volume
+              : order.order_type === 'MARKET'
+              ? 0
+              : 0
+            : 0
+          ).toString(),
           px: order.order_type === 'LIMIT' ? order.price!.toString() : undefined,
-          posSide: mapOrderDirectionToPosSide(order.order_direction),
-        });
+          ccy: instType === 'MARGIN' ? 'USDT' : undefined,
+        };
+        console.info(formatTime(Date.now()), 'SubmitOrder', 'params', JSON.stringify(params));
+        const res = await client.postTradeOrder(params);
+        if (res.code !== '0') {
+          return { res: { code: +res.code, message: res.msg } };
+        }
         return { res: { code: 0, message: 'OK' } };
       }),
   );
@@ -699,7 +715,14 @@ defer(async () => {
       defer(async () => {
         const order = msg.req;
         const [instType, instId] = decodePath(order.product_id);
-        await client.postTradeCancelOrder({ instId, ordId: order.order_id, clOrdId: order.client_order_id });
+        const res = await client.postTradeCancelOrder({
+          instId,
+          ordId: order.order_id,
+          clOrdId: order.client_order_id,
+        });
+        if (res.code !== '0') {
+          return { res: { code: +res.code, message: res.msg } };
+        }
         return { res: { code: 0, message: 'OK' } };
       }),
   );
