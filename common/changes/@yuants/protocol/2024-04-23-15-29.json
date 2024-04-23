@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "Remove deprecated fields",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

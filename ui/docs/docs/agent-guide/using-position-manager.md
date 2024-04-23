@@ -84,7 +84,7 @@ The following code is an example of opening a long position. So does close the L
 useEffect(() => {
   if (openLongVolume <= 0) return;
   const order = {
-    client_order_id: UUID(),
+    order_id: UUID(),
     account_id,
     product_id,
     position_id: longPositionId,
@@ -94,7 +94,7 @@ useEffect(() => {
   };
   exchange.submitOrder(order);
   return () => {
-    exchange.cancelOrder(order.client_order_id);
+    exchange.cancelOrder(order.order_id);
   };
 }, [openLongVolume]);
 // ...

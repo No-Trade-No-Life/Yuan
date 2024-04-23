@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-trade-copier",
+      "comment": "Remove deprecated fields",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-trade-copier"
+}

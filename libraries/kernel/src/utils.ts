@@ -1,4 +1,4 @@
-import { IAccountInfo, IPosition, IProduct, PositionVariant } from '@yuants/protocol';
+import { IAccountInfo, IPosition, IProduct } from '@yuants/protocol';
 
 /**
  * 计算盈亏
@@ -7,7 +7,7 @@ import { IAccountInfo, IPosition, IProduct, PositionVariant } from '@yuants/prot
  * @param openPrice - 开仓价
  * @param closePrice - 平仓价
  * @param volume - 成交量
- * @param variant - 仓位类型
+ * @param direction - 仓位方向
  * @param currency - 账户货币
  * @param quotes - 市场报价
  * @returns - 盈亏
@@ -17,17 +17,17 @@ export const getProfit = (
   openPrice: number,
   closePrice: number,
   volume: number,
-  variant: PositionVariant,
+  direction: string,
   currency: string,
   quotes: (product_id: string) => { ask: number; bid: number } | undefined,
 ) =>
-  (variant === PositionVariant.LONG ? 1 : -1) *
+  (direction === 'LONG' ? 1 : -1) *
   volume *
   (closePrice - openPrice) *
   (product.value_scale ?? 1) *
   (product.value_scale_unit ? 1 / openPrice : 1) *
   (product.quote_currency !== currency
-    ? (variant === PositionVariant.LONG
+    ? (direction === 'LONG'
         ? quotes(`${product.quote_currency}${currency}`)?.bid
         : quotes(`${product.quote_currency}${currency}`)?.ask) ?? 1
     : 1);
@@ -38,7 +38,7 @@ export const getProfit = (
  * @param product - 品种信息
  * @param openPrice - 开仓价
  * @param volume - 成交量
- * @param variant - 仓位类型
+ * @param direction - 仓位方向
  * @param currency - 账户货币
  * @param quote - 市场报价
  * @returns - 保证金
@@ -47,7 +47,7 @@ export const getMargin = (
   product: IProduct,
   openPrice: number,
   volume: number,
-  variant: PositionVariant,
+  direction: string,
   currency: string,
   quote: (product_id: string) => { ask: number; bid: number } | undefined,
 ) =>
@@ -56,7 +56,7 @@ export const getMargin = (
   (product.value_scale_unit ? 1 : openPrice) *
   (product.margin_rate ?? 1) *
   (product.quote_currency !== currency
-    ? (variant === PositionVariant.LONG
+    ? (direction === 'LONG'
         ? quote(`${product.quote_currency}${currency}`)?.bid
         : quote(`${product.quote_currency}${currency}`)?.ask) ?? 1
     : 1);
@@ -100,11 +100,11 @@ export const createEmptyAccountInfo = (
  */
 export const mergePositions = (positions: IPosition[]): IPosition[] => {
   const mapProductIdToPosition = positions.reduce((acc, cur) => {
-    const { product_id, variant } = cur;
-    if (!acc[`${product_id}-${variant}`]) {
-      acc[`${product_id}-${variant}`] = { ...cur };
+    const { product_id, direction } = cur;
+    if (!acc[`${product_id}-${direction}`]) {
+      acc[`${product_id}-${direction}`] = { ...cur };
     } else {
-      let thePosition = acc[`${product_id}-${variant}`];
+      let thePosition = acc[`${product_id}-${direction}`];
       thePosition = {
         ...thePosition,
         volume: thePosition.volume + cur.volume,
@@ -117,7 +117,7 @@ export const mergePositions = (positions: IPosition[]): IPosition[] => {
           (thePosition.closable_price * thePosition.volume + cur.closable_price * cur.volume) /
           (thePosition.volume + cur.volume),
       };
-      acc[`${product_id}-${variant}`] = thePosition;
+      acc[`${product_id}-${direction}`] = thePosition;
     }
     return acc;
   }, {} as Record<string, IPosition>);
@@ -131,7 +131,7 @@ export interface IPositionDiff {
   /** Product ID */
   product_id: string;
   /** position variant LONG/SHORT */
-  variant: PositionVariant;
+  direction: string;
   /** source volume */
   volume_in_source: number;
   /** Target volume */
@@ -152,54 +152,54 @@ export const diffPosition = (source: IPosition[], target: IPosition[]): IPositio
   const sourceMapped = source
     .map((position) => ({
       product_id: position.product_id,
-      variant: position.variant,
+      direction: position.direction!,
       volume_in_source: position.volume,
     }))
     .reduce((acc, cur) => {
-      const { product_id, variant } = cur;
-      if (!acc[`${product_id}-${variant}`]) {
-        acc[`${product_id}-${variant}`] = { ...cur };
+      const { product_id, direction } = cur;
+      if (!acc[`${product_id}-${direction}`]) {
+        acc[`${product_id}-${direction}`] = { ...cur };
       } else {
-        let thePosition = acc[`${product_id}-${variant}`];
+        let thePosition = acc[`${product_id}-${direction}`];
         thePosition = {
           ...thePosition,
           volume_in_source: thePosition.volume_in_source + cur.volume_in_source,
         };
-        acc[`${product_id}-${variant}`] = thePosition;
+        acc[`${product_id}-${direction}`] = thePosition;
       }
       return acc;
-    }, {} as Record<string, Pick<IPositionDiff, 'product_id' | 'variant' | 'volume_in_source'>>);
+    }, {} as Record<string, Pick<IPositionDiff, 'product_id' | 'direction' | 'volume_in_source'>>);
 
   const targetMapped = target
     .map((position) => ({
       product_id: position.product_id,
-      variant: position.variant,
+      direction: position.direction!,
       volume_in_target: position.volume,
     }))
     .reduce((acc, cur) => {
-      const { product_id, variant } = cur;
-      if (!acc[`${product_id}-${variant}`]) {
-        acc[`${product_id}-${variant}`] = { ...cur };
+      const { product_id, direction } = cur;
+      if (!acc[`${product_id}-${direction}`]) {
+        acc[`${product_id}-${direction}`] = { ...cur };
       } else {
-        let thePosition = acc[`${product_id}-${variant}`];
+        let thePosition = acc[`${product_id}-${direction}`];
         thePosition = {
           ...thePosition,
           volume_in_target: thePosition.volume_in_target + cur.volume_in_target,
         };
-        acc[`${product_id}-${variant}`] = thePosition;
+        acc[`${product_id}-${direction}`] = thePosition;
       }
       return acc;
-    }, {} as Record<string, Pick<IPositionDiff, 'product_id' | 'variant' | 'volume_in_target'>>);
+    }, {} as Record<string, Pick<IPositionDiff, 'product_id' | 'direction' | 'volume_in_target'>>);
 
   const diff = [
     // source 中存在的部分
     ...Object.values(sourceMapped).map((position) => {
-      const { product_id, variant } = position;
-      const targetPosition = targetMapped[`${product_id}-${variant}`];
+      const { product_id, direction } = position;
+      const targetPosition = targetMapped[`${product_id}-${direction}`];
       const error_volume = position.volume_in_source - (targetPosition?.volume_in_target ?? 0);
       return {
         product_id,
-        variant,
+        direction,
         volume_in_source: position.volume_in_source,
         volume_in_target: targetPosition?.volume_in_target ?? 0,
         error_volume,
@@ -207,12 +207,12 @@ export const diffPosition = (source: IPosition[], target: IPosition[]): IPositio
     }),
     // source 中不存在的部分
     ...Object.values(targetMapped)
-      .filter((position) => !sourceMapped[`${position.product_id}-${position.variant}`])
+      .filter((position) => !sourceMapped[`${position.product_id}-${position.direction}`])
       .map((position) => {
-        const { product_id, variant } = position;
+        const { product_id, direction } = position;
         return {
           product_id,
-          variant,
+          direction,
           volume_in_source: 0,
           volume_in_target: position.volume_in_target,
           error_volume: -position.volume_in_target,

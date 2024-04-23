@@ -4,9 +4,6 @@ import {
   IPosition,
   IProduct,
   ITransferOrder,
-  OrderDirection,
-  OrderType,
-  PositionVariant,
   decodePath,
   encodePath,
   formatTime,
@@ -505,7 +502,7 @@ class HuobiClient {
               return {
                 position_id: `${v.contract_code}/${v.contract_type}/${v.direction}/${v.margin_mode}`,
                 product_id: v.contract_code,
-                variant: v.direction === 'buy' ? PositionVariant.LONG : PositionVariant.SHORT,
+                direction: v.direction === 'buy' ? 'LONG' : 'SHORT',
                 volume: v.volume,
                 free_volume: v.available,
                 position_price: v.cost_hold,
@@ -545,31 +542,30 @@ class HuobiClient {
           from(res.orders).pipe(
             map((v): IOrder => {
               return {
-                exchange_order_id: v.order_id_str,
-                client_order_id: v.order_id_str,
+                order_id: v.order_id_str,
                 account_id,
                 product_id: v.contract_code,
-                type: ['lightning'].includes(v.order_price_type)
-                  ? OrderType.MARKET
+                order_type: ['lightning'].includes(v.order_price_type)
+                  ? 'MARKET'
                   : ['limit', 'opponent', 'post_only', 'optimal_5', 'optimal_10', 'optimal_20'].includes(
                       v.order_price_type,
                     )
-                  ? OrderType.LIMIT
+                  ? 'LIMIT'
                   : ['fok'].includes(v.order_price_type)
-                  ? OrderType.FOK
+                  ? 'FOK'
                   : v.order_price_type.includes('ioc')
-                  ? OrderType.IOC
-                  : OrderType.STOP, // unreachable code
-                direction:
+                  ? 'IOC'
+                  : 'STOP', // unreachable code
+                order_direction:
                   v.direction === 'open'
                     ? v.offset === 'buy'
-                      ? OrderDirection.OPEN_LONG
-                      : OrderDirection.OPEN_SHORT
+                      ? 'OPEN_LONG'
+                      : 'OPEN_SHORT'
                     : v.offset === 'buy'
-                    ? OrderDirection.CLOSE_SHORT
-                    : OrderDirection.CLOSE_LONG,
+                    ? 'CLOSE_SHORT'
+                    : 'CLOSE_LONG',
                 volume: v.volume,
-                timestamp_in_us: v.created_at * 1000,
+                submit_at: v.created_at,
                 price: v.price,
                 traded_volume: v.trade_volume,
               };
@@ -702,7 +698,7 @@ class HuobiClient {
                   return {
                     position_id: `${v.currency}/usdt/spot`,
                     product_id: `${v.currency}usdt`,
-                    variant: PositionVariant.LONG,
+                    direction: 'LONG',
                     volume: v.balance,
                     free_volume: v.balance,
                     position_price: price,
@@ -772,15 +768,17 @@ class HuobiClient {
               contract_type: 'swap',
               price: msg.req.price,
               volume: msg.req.volume,
-              offset: [OrderDirection.OPEN_LONG, OrderDirection.OPEN_SHORT].includes(msg.req.direction)
-                ? 'open'
-                : 'close',
-              direction: [OrderDirection.OPEN_LONG, OrderDirection.CLOSE_SHORT].includes(msg.req.direction)
-                ? 'buy'
-                : 'sell',
+              offset:
+                msg.req.order_direction === 'OPEN_LONG' || msg.req.order_direction === 'OPEN_SHORT'
+                  ? 'open'
+                  : 'close',
+              direction:
+                msg.req.order_direction === 'OPEN_LONG' || msg.req.order_direction === 'CLOSE_SHORT'
+                  ? 'buy'
+                  : 'sell',
               // dynamically adjust the leverage
               lever_rate,
-              order_price_type: msg.req.type === OrderType.MARKET ? 'market' : 'limit',
+              order_price_type: msg.req.order_type === 'MARKET' ? 'market' : 'limit',
             };
             return client.placeSwapOrder(params).then((v) => {
               console.info(formatTime(Date.now()), 'SubmitOrder', JSON.stringify(v), JSON.stringify(params));
@@ -826,11 +824,10 @@ class HuobiClient {
           const priceRes = await client.getSpotTick({ symbol: msg.req.product_id });
           const theProduct = products.find((v) => v.product_id === msg.req.product_id);
           const price: number = priceRes.tick.close;
-          const borrow_amount = [OrderDirection.OPEN_LONG, OrderDirection.CLOSE_SHORT].includes(
-            msg.req.direction,
-          )
-            ? Math.max(Math.min(loanable, msg.req.volume * price - balance), 0)
-            : undefined;
+          const borrow_amount =
+            msg.req.order_direction === 'OPEN_LONG' || msg.req.order_direction === 'CLOSE_SHORT'
+              ? Math.max(Math.min(loanable, msg.req.volume * price - balance), 0)
+              : undefined;
           const params = {
             symbol: msg.req.product_id,
             'account-id': '' + superMarginAccountUid,
@@ -838,21 +835,20 @@ class HuobiClient {
             // 'market-amount': msg.req.type === OrderType.MARKET ? '' + msg.req.volume : undefined,
             amount:
               '' +
-              ([OrderDirection.OPEN_LONG, OrderDirection.CLOSE_SHORT].includes(msg.req.direction)
+              (msg.req.order_direction === 'OPEN_LONG' || msg.req.order_direction === 'CLOSE_SHORT'
                 ? roundToStep(msg.req.volume * price, theProduct?.volume_step!)
                 : msg.req.volume),
             'borrow-amount': '' + borrow_amount,
             type: `${
-              [OrderDirection.OPEN_LONG, OrderDirection.CLOSE_SHORT].includes(msg.req.direction)
+              msg.req.order_direction === 'OPEN_LONG' || msg.req.order_direction === 'CLOSE_SHORT'
                 ? 'buy'
                 : 'sell'
-            }-${OrderType.LIMIT === msg.req.type ? 'limit' : 'market'}`,
-            'trade-purpose': [OrderDirection.OPEN_LONG, OrderDirection.CLOSE_SHORT].includes(
-              msg.req.direction,
-            )
-              ? '1' // auto borrow
-              : '2', // auto repay
-            price: msg.req.type === OrderType.MARKET ? undefined : '' + msg.req.price,
+            }-${'LIMIT' === msg.req.order_type ? 'limit' : 'market'}`,
+            'trade-purpose':
+              msg.req.order_direction === 'OPEN_LONG' || msg.req.order_direction === 'CLOSE_SHORT'
+                ? '1' // auto borrow
+                : '2', // auto repay
+            price: msg.req.order_type === 'MARKET' ? undefined : '' + msg.req.price,
             source: 'super-margin-api',
           };
           return client.placeSpotOrder(params).then((v) => {

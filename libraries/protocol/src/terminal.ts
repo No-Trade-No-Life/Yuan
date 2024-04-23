@@ -1090,22 +1090,22 @@ export class Terminal {
             AccountInfoPositionVolume.reset({
               account_id: lastAccountInfo.account_id,
               product_id: position.product_id,
-              variant: position.variant.toString(),
+              direction: position.direction || '',
             });
             AccountInfoPositionPrice.reset({
               account_id: lastAccountInfo.account_id,
               product_id: position.product_id,
-              variant: position.variant.toString(),
+              direction: position.direction || '',
             });
             AccountInfoPositionClosablePrice.reset({
               account_id: lastAccountInfo.account_id,
               product_id: position.product_id,
-              variant: position.variant.toString(),
+              direction: position.direction || '',
             });
             AccountInfoPositionFloatingProfit.reset({
               account_id: lastAccountInfo.account_id,
               product_id: position.product_id,
-              variant: position.variant.toString(),
+              direction: position.direction || '',
             });
           }
 
@@ -1113,22 +1113,22 @@ export class Terminal {
             AccountInfoPositionVolume.set(position.volume || 0, {
               account_id: accountInfo.account_id,
               product_id: position.product_id,
-              variant: position.variant.toString(),
+              direction: position.direction || '',
             });
             AccountInfoPositionPrice.set(position.position_price || 0, {
               account_id: accountInfo.account_id,
               product_id: position.product_id,
-              variant: position.variant.toString(),
+              direction: position.direction || '',
             });
             AccountInfoPositionClosablePrice.set(position.closable_price || 0, {
               account_id: accountInfo.account_id,
               product_id: position.product_id,
-              variant: position.variant.toString(),
+              direction: position.direction || '',
             });
             AccountInfoPositionFloatingProfit.set(position.floating_profit || 0, {
               account_id: accountInfo.account_id,
               product_id: position.product_id,
-              variant: position.variant.toString(),
+              direction: position.direction || '',
             });
           }
         });
@@ -1183,17 +1183,17 @@ export class Terminal {
  * Can be safely cached
  */
 const mapOrderToDataRecord = (order: IOrder): IDataRecord<IOrder> => ({
-  id: `${order.account_id}/${order.exchange_order_id}`,
+  id: `${order.account_id}/${order.order_id}`,
   type: `order`,
-  created_at: order.timestamp_in_us! / 1000,
+  created_at: order.submit_at!,
   updated_at: Date.now(),
-  frozen_at: order.timestamp_in_us! / 1000,
+  frozen_at: order.filled_at!,
   tags: {
+    order_id: order.order_id || '',
     account_id: order.account_id,
     product_id: order.product_id,
-    exchange_order_id: order.exchange_order_id!,
-    type: order.type.toString(),
-    direction: order.direction.toString(),
+    order_type: order.order_type || '',
+    order_direction: order.order_direction || '',
   },
   origin: order,
 });

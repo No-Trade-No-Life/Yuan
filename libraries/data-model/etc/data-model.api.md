@@ -67,39 +67,25 @@ export interface IDataRecord<T = unknown> {
 // @public
 export interface IOrder {
     account_id: string;
-    // @deprecated
-    client_order_id: string;
     comment?: string;
-    // @deprecated
-    direction: OrderDirection;
-    // @deprecated
-    exchange_order_id?: string;
     filled_at?: number;
     inferred_base_currency_price?: number;
     order_direction?: string;
     order_id?: string;
     order_status?: string;
     order_type?: string;
-    // @deprecated
-    originator?: string;
     position_id?: string;
     price?: number;
     product_id: string;
     profit_correction?: number;
     real_profit?: number;
     // @deprecated
-    status?: OrderStatus;
-    // @deprecated
     stop_loss_price?: number;
     submit_at?: number;
     // @deprecated
     take_profit_price?: number;
-    // @deprecated
-    timestamp_in_us?: number;
     traded_price?: number;
     traded_volume?: number;
-    // @deprecated
-    type: OrderType;
     volume: number;
 }
 
@@ -132,8 +118,6 @@ export interface IPosition {
     position_id: string;
     position_price: number;
     product_id: string;
-    // @deprecated
-    variant: PositionVariant;
     volume: number;
 }
 
@@ -197,36 +181,6 @@ export interface ITransferOrder {
 
 // @public
 export const mergeAccountInfoPositions: (info: IAccountInfo) => Observable<IAccountInfo>;
-
-// @public @deprecated
-export enum OrderDirection {
-    CLOSE_LONG = 1,
-    CLOSE_SHORT = 3,
-    OPEN_LONG = 0,
-    OPEN_SHORT = 2
-}
-
-// @public @deprecated
-export enum OrderStatus {
-    ACCEPTED = 0,
-    CANCELLED = 2,
-    TRADED = 1
-}
-
-// @public @deprecated
-export enum OrderType {
-    FOK = 3,
-    IOC = 4,
-    LIMIT = 1,
-    MARKET = 0,
-    STOP = 2
-}
-
-// @public @deprecated
-export enum PositionVariant {
-    LONG = 0,
-    SHORT = 1
-}
 
 // @public (undocumented)
 export const UUID: () => string;

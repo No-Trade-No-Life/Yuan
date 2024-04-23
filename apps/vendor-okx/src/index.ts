@@ -5,9 +5,6 @@ import {
   IProduct,
   ITick,
   ITransferOrder,
-  OrderDirection,
-  OrderType,
-  PositionVariant,
   UUID,
   decodePath,
   encodePath,
@@ -315,11 +312,9 @@ const tradingAccountInfo$ = combineLatest([
       positions: positions.data.map((x): IPosition => {
         const direction =
           x.posSide === 'long' ? 'LONG' : x.posSide === 'short' ? 'SHORT' : +x.pos > 0 ? 'LONG' : 'SHORT';
-        const variant = direction === 'LONG' ? PositionVariant.LONG : PositionVariant.SHORT;
         return {
           position_id: x.posId,
           product_id: encodePath(x.instType, x.instId),
-          variant: variant,
           direction,
           volume: Math.abs(+x.pos),
           free_volume: +x.availPos,
@@ -334,14 +329,7 @@ const tradingAccountInfo$ = combineLatest([
       }),
       orders: orders.data.map((x): IOrder => {
         const order_type = x.ordType === 'market' ? 'MARKET' : x.ordType === 'limit' ? 'LIMIT' : 'UNKNOWN';
-        const direction =
-          x.side === 'buy'
-            ? x.posSide === 'long'
-              ? OrderDirection.OPEN_LONG
-              : OrderDirection.CLOSE_SHORT
-            : x.posSide === 'short'
-            ? OrderDirection.OPEN_SHORT
-            : OrderDirection.CLOSE_LONG;
+
         const order_direction =
           x.side === 'buy'
             ? x.posSide === 'long'
@@ -352,20 +340,11 @@ const tradingAccountInfo$ = combineLatest([
             : 'CLOSE_LONG';
         return {
           order_id: x.ordId,
-          client_order_id: x.clOrdId,
-          exchange_order_id: x.ordId,
           account_id,
           product_id: encodePath(x.instType, x.instId),
-          type:
-            order_type === 'MARKET'
-              ? OrderType.MARKET
-              : order_type === 'LIMIT'
-              ? OrderType.LIMIT
-              : OrderType.MARKET,
           submit_at: +x.cTime,
           filled_at: +x.fillTime,
           order_type,
-          direction,
           order_direction,
           volume: +x.sz,
           traded_volume: +x.accFillSz,
@@ -718,7 +697,6 @@ defer(async () => {
         const res = await client.postTradeCancelOrder({
           instId,
           ordId: order.order_id,
-          clOrdId: order.client_order_id,
         });
         if (res.code !== '0') {
           return { res: { code: +res.code, message: res.msg } };

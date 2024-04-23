@@ -1,6 +1,6 @@
 import { IconExport } from '@douyinfe/semi-icons';
 import { Button, Space, Table, Tag } from '@douyinfe/semi-ui';
-import { OrderDirection, OrderType } from '@yuants/protocol';
+import { formatTime } from '@yuants/data-model';
 import { stringify } from 'csv-stringify/browser/esm/sync';
 import download from 'downloadjs';
 import { useObservableState } from 'observable-hooks';
@@ -17,11 +17,11 @@ registerPage('OrderListPanel', () => {
       stringify(orders, {
         header: true,
         columns: [
-          'exchange_order_id',
+          'order_id',
           'product_id',
-          'timestamp_in_us',
-          'direction',
-          'type',
+          'submit_at',
+          'order_direction',
+          'order_type',
           'traded_price',
           'traded_volume',
           'price',
@@ -47,48 +47,23 @@ registerPage('OrderListPanel', () => {
         pagination={{ pageSize: 10 }}
         columns={[
           { title: t('account_id'), render: (_, order) => order.account_id },
-          { title: t('order_id'), render: (_, order) => order.client_order_id },
+          { title: t('order_id'), render: (_, order) => order.order_id },
           { title: t('position_id'), render: (_, order) => order.position_id },
           { title: t('product_id'), render: (_, order) => order.product_id },
           {
             title: t('timestamp'),
-            render: (_, order) => new Date((order.timestamp_in_us ?? 0) / 1000).toLocaleString(),
+            render: (_, order) => formatTime(order.submit_at!),
           },
           {
             title: t('direction'),
             render: (_, order) => {
-              return (
-                <Tag>
-                  {
-                    {
-                      //
-                      [OrderDirection.OPEN_LONG]: t('common:order_direction_open_long'),
-                      [OrderDirection.CLOSE_LONG]: t('common:order_direction_close_long'),
-                      [OrderDirection.OPEN_SHORT]: t('common:order_direction_open_short'),
-                      [OrderDirection.CLOSE_SHORT]: t('common:order_direction_close_short'),
-                    }[order.direction]
-                  }
-                </Tag>
-              );
+              return <Tag>{order.order_direction}</Tag>;
             },
           },
           {
             title: t('order_type'),
             render: (_, order) => {
-              return (
-                <Tag>
-                  {
-                    {
-                      //
-                      [OrderType.MARKET]: t('market'),
-                      [OrderType.LIMIT]: t('limit'),
-                      [OrderType.STOP]: t('stop'),
-                      [OrderType.FOK]: 'FOK',
-                      [OrderType.IOC]: 'IOC',
-                    }[order.type]
-                  }
-                </Tag>
-              );
+              return <Tag>{order.order_type}</Tag>;
             },
           },
           { title: t('traded_price'), dataIndex: 'traded_price' },

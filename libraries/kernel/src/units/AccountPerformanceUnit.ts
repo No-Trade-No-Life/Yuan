@@ -1,4 +1,4 @@
-import { IAccountInfo, PositionVariant } from '@yuants/protocol';
+import { IAccountInfo } from '@yuants/protocol';
 import { Kernel } from '../kernel';
 import { AccountSimulatorUnit } from './AccountSimulatorUnit';
 import { BasicUnit } from './BasicUnit';
@@ -130,7 +130,7 @@ interface IAccountPositionPerformance {
   account_id: string;
   position_id: string;
   product_id: string;
-  variant: PositionVariant;
+  direction: string;
 
   profit: number;
   volume: number;
@@ -376,7 +376,7 @@ export class AccountPerformanceUnit extends BasicUnit {
             account_id: acc.account_id,
             position_id: pos.position_id,
             product_id: pos.product_id,
-            variant: pos.variant,
+            direction: pos.direction!,
             profit: pos.floating_profit,
             volume: pos.volume,
             max_profit: pos.floating_profit,
@@ -397,7 +397,7 @@ export class AccountPerformanceUnit extends BasicUnit {
             account_id: acc.account_id,
             position_id: pos.position_id,
             product_id: pos.product_id,
-            variant: pos.variant,
+            direction: pos.direction!,
             profit,
             volume,
             max_profit,

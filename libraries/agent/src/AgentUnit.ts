@@ -12,7 +12,6 @@ import {
   SeriesDataUnit,
   TickDataUnit,
 } from '@yuants/kernel';
-import { OrderDirection, OrderType, PositionVariant } from '@yuants/protocol';
 import { roundToStep } from '@yuants/utils';
 import { JSONSchema7 } from 'json-schema';
 import {
@@ -148,9 +147,6 @@ function makeScriptRunner(script: string): () => any {
         .map((key) => [key, undefined]),
     ),
     // Supply some global variables
-    PositionVariant,
-    OrderDirection,
-    OrderType,
     useRef,
     useEffect,
     useMemo,

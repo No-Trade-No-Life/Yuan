@@ -1,5 +1,5 @@
 import { Button, Space, Toast } from '@douyinfe/semi-ui';
-import { IOrder, OrderDirection, OrderType } from '@yuants/protocol';
+import { IOrder } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import { filter, first, mergeMap, of } from 'rxjs';
@@ -13,7 +13,7 @@ registerPage('ManualTradePanel', () => {
   const [cancelFormData, setCancelFormData] = useState(
     undefined as
       | {
-          exchange_order_id: string;
+          order_id: string;
           account_id: string;
         }
       | undefined,
@@ -109,7 +109,7 @@ registerPage('ManualTradePanel', () => {
           type: 'object',
           properties: {
             account_id: { type: 'string', title: '账户ID', enum: accountIds },
-            exchange_order_id: { type: 'string', title: '订单ID' },
+            order_id: { type: 'string', title: '订单ID' },
           },
         }}
         formData={cancelFormData}

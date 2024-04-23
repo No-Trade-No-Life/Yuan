@@ -6,11 +6,8 @@ import {
   IPosition,
   IProduct,
   ITick,
-  OrderDirection,
-  OrderType,
-  PositionVariant,
-  formatTime,
   UUID,
+  formatTime,
 } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
@@ -475,7 +472,7 @@ interface IGeneralSpecificRelation {
                   return {
                     position_id: position.id!,
                     product_id: mapSymbolToProductId[position.symbol],
-                    variant: position.side === 'long' ? PositionVariant.LONG : PositionVariant.SHORT,
+                    direction: position.side === 'long' ? 'LONG' : 'SHORT',
                     volume: position.contracts || 0,
                     free_volume: position.contracts || 0,
                     position_price: position.entryPrice || 0,
@@ -494,14 +491,13 @@ interface IGeneralSpecificRelation {
             from(orders).pipe(
               map((order): IOrder => {
                 return {
-                  exchange_order_id: order.id,
-                  client_order_id: order.id,
+                  order_id: order.id,
                   account_id: account_id,
                   product_id: mapSymbolToProductId[order.symbol],
-                  type: order.type === 'limit' ? OrderType.LIMIT : OrderType.MARKET,
-                  direction: order.side === 'sell' ? OrderDirection.OPEN_SHORT : OrderDirection.OPEN_LONG,
+                  order_type: order.type === 'limit' ? 'LIMIT' : 'MARKET',
+                  order_direction: order.side === 'sell' ? 'OPEN_SHORT' : 'OPEN_LONG',
                   volume: order.amount,
-                  timestamp_in_us: order.timestamp * 1000,
+                  submit_at: order.timestamp,
                   price: order.price,
                   traded_volume: order.amount - order.remaining,
                 };
@@ -548,7 +544,7 @@ interface IGeneralSpecificRelation {
     const getAccountNetVolume = (accountInfo: IAccountInfo, product_id: string) => {
       const netVolume = accountInfo.positions
         .filter((v) => v.product_id === product_id)
-        .reduce((acc, cur) => acc + cur.volume * (cur.variant === PositionVariant.LONG ? 1 : -1), 0);
+        .reduce((acc, cur) => acc + cur.volume * (cur.direction === 'LONG' ? 1 : -1), 0);
       return netVolume;
     };
 
@@ -571,20 +567,18 @@ interface IGeneralSpecificRelation {
       },
       (msg) => {
         console.info(formatTime(Date.now()), `SubmitOrder`, JSON.stringify(msg.req));
-        const { product_id, type, direction } = msg.req;
+        const { product_id, order_type, order_direction } = msg.req;
         const symbol = mapProductIdToSymbol[product_id];
         if (!symbol) {
           return of({ res: { code: 400, message: 'No such symbol' } });
         }
-        const ccxtType = type === OrderType.MARKET ? 'market' : 'limit';
+        const ccxtType = order_type === 'MARKET' ? 'market' : 'limit';
         const ccxtSide =
-          direction === OrderDirection.OPEN_LONG || direction === OrderDirection.CLOSE_SHORT ? 'buy' : 'sell';
+          order_direction === 'OPEN_LONG' || order_direction === 'CLOSE_SHORT' ? 'buy' : 'sell';
         const volume = msg.req.volume;
         const price = msg.req.price;
         const posSide =
-          direction === OrderDirection.OPEN_LONG || direction === OrderDirection.CLOSE_LONG
-            ? 'long'
-            : 'short';
+          order_direction === 'OPEN_LONG' || order_direction === 'CLOSE_LONG' ? 'long' : 'short';
         console.info(
           formatTime(Date.now()),
           'submit to ccxt',
@@ -643,7 +637,7 @@ interface IGeneralSpecificRelation {
       },
       (msg) => {
         console.info(formatTime(Date.now()), `CancelOrder`, JSON.stringify(msg.req));
-        return from(ex.cancelOrder(msg.req.client_order_id)).pipe(
+        return from(ex.cancelOrder(msg.req.order_id!)).pipe(
           map(() => {
             return { res: { code: 0, message: 'OK' } };
           }),
@@ -663,16 +657,16 @@ interface IGeneralSpecificRelation {
       },
       (msg) => {
         console.info(formatTime(Date.now()), `ModifyOrder`, JSON.stringify(msg.req));
-        const { client_order_id, product_id, type, direction } = msg.req;
+        const { product_id, order_type, order_direction } = msg.req;
         const symbol = mapProductIdToSymbol[product_id];
         if (!symbol) {
           return of({ res: { code: 400, message: 'No such symbol' } });
         }
-        const ccxtType = type === OrderType.MARKET ? 'market' : 'limit';
+        const ccxtType = order_type === 'MARKET' ? 'market' : 'limit';
         const ccxtSide =
-          direction === OrderDirection.OPEN_LONG || direction === OrderDirection.CLOSE_SHORT ? 'buy' : 'sell';
+          order_direction === 'OPEN_LONG' || order_direction === 'CLOSE_SHORT' ? 'buy' : 'sell';
         return from(
-          ex.editOrder(client_order_id, symbol, ccxtType, ccxtSide, msg.req.volume, msg.req.price),
+          ex.editOrder(msg.req.order_id!, symbol, ccxtType, ccxtSide, msg.req.volume, msg.req.price),
         ).pipe(
           map(() => {
             return { res: { code: 0, message: 'OK' } };

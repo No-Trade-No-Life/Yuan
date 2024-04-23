@@ -1,5 +1,5 @@
 import { formatTime, UUID } from '@yuants/data-model';
-import { IAccountInfo, IOrder, OrderDirection, OrderType, PositionVariant } from '@yuants/protocol';
+import { IAccountInfo, IOrder } from '@yuants/protocol';
 import { roundToStep } from '@yuants/utils';
 import { Kernel } from '../kernel';
 import { diffPosition, mergePositions } from '../utils';
@@ -176,22 +176,22 @@ export class PortfolioSimulatorUnit extends BasicUnit {
       const product_id = positionDiff.product_id;
       // 逻辑有问题
       const order: IOrder = {
-        client_order_id: UUID(),
+        order_id: UUID(),
         account_id: account_id,
         product_id: product_id,
         position_id:
-          positionDiff.variant === PositionVariant.LONG
+          positionDiff.direction === 'LONG'
             ? `${positionDiff.product_id}-LONG`
             : `${positionDiff.product_id}-SHORT`,
-        type: OrderType.MARKET,
-        direction:
-          positionDiff.variant === PositionVariant.LONG
+        order_type: 'MARKET',
+        order_direction:
+          positionDiff.direction === 'LONG'
             ? positionDiff.error_volume > 0
-              ? OrderDirection.OPEN_LONG
-              : OrderDirection.CLOSE_LONG
+              ? 'OPEN_LONG'
+              : 'CLOSE_LONG'
             : positionDiff.error_volume > 0
-            ? OrderDirection.OPEN_SHORT
-            : OrderDirection.CLOSE_SHORT,
+            ? 'OPEN_SHORT'
+            : 'CLOSE_SHORT',
         volume: roundToStep(
           Math.abs(positionDiff.error_volume),
           this.productDataUnit.getProduct(account_id, product_id)?.volume_step ?? 1,

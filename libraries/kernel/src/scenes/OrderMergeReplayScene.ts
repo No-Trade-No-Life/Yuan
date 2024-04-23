@@ -50,7 +50,7 @@ export const OrderMergeReplayScene = (
   {
     const mapEventIdToOrder = new Map<number, IOrder>();
     for (const order of orders) {
-      const id = kernel.alloc(order.timestamp_in_us! / 1000);
+      const id = kernel.alloc(order.submit_at!);
       mapEventIdToOrder.set(id, order);
     }
     new BasicUnit(kernel).onEvent = () => {

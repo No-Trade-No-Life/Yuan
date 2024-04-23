@@ -1,4 +1,4 @@
-import { IAccountInfo, IPosition, OrderDirection, PositionVariant } from '@yuants/protocol';
+import { IAccountInfo, IPosition } from '@yuants/protocol';
 import { roundToStep } from '@yuants/utils';
 import { Subscription } from 'rxjs';
 import { Kernel } from '../kernel';
@@ -39,11 +39,11 @@ export class AccountSimulatorUnit extends BasicUnit {
 
   private orderIdx = 0;
 
-  getPosition(position_id: string, product_id: string, variant: PositionVariant): IPosition {
+  getPosition(position_id: string, product_id: string, direction: string): IPosition {
     return (this.mapPositionIdToPosition[position_id] ??= {
       position_id,
       product_id,
-      variant,
+      direction,
       position_price: NaN,
       volume: 0,
       closable_price: NaN,
@@ -66,10 +66,9 @@ export class AccountSimulatorUnit extends BasicUnit {
       const theProduct = this.productDataUnit.getProduct(order.account_id, order.product_id)!;
 
       // 假设所有的 order 都有 position_id
-      const variant =
-        order.direction === OrderDirection.OPEN_LONG ? PositionVariant.LONG : PositionVariant.SHORT;
+      const variant = order.order_direction === 'OPEN_LONG' ? 'LONG' : 'SHORT';
       const thePosition = this.getPosition(order.position_id!, order.product_id, variant);
-      if (order.direction === OrderDirection.OPEN_LONG || order.direction === OrderDirection.OPEN_SHORT) {
+      if (order.order_direction === 'OPEN_LONG' || order.order_direction === 'OPEN_SHORT') {
         // 开仓
         if (thePosition.volume === 0) {
           thePosition.position_price = order.traded_price!;
@@ -113,7 +112,7 @@ export class AccountSimulatorUnit extends BasicUnit {
             thePosition.position_price,
             order.traded_price!,
             tradedVolume,
-            thePosition.variant,
+            thePosition.direction!,
             this.accountInfo.money.currency,
             (product_id) => this.quoteDataUnit.getQuote(this.accountInfo.account_id, product_id),
           );
@@ -130,13 +129,13 @@ export class AccountSimulatorUnit extends BasicUnit {
         const quote = this.quoteDataUnit.getQuote(this.accountInfo.account_id, product_id);
         const product = this.productDataUnit.getProduct(this.accountInfo.account_id, product_id);
         if (product && quote) {
-          const closable_price = position.variant === PositionVariant.LONG ? quote.bid : quote.ask;
+          const closable_price = position.direction === 'LONG' ? quote.bid : quote.ask;
           const floating_profit = getProfit(
             product,
             position.position_price,
             closable_price,
             position.volume,
-            position.variant,
+            position.direction!,
             this.accountInfo.money.currency,
             (product_id) => this.quoteDataUnit.getQuote(this.accountInfo.account_id, product_id),
           );
@@ -162,7 +161,7 @@ export class AccountSimulatorUnit extends BasicUnit {
           product,
           cur.position_price,
           cur.volume,
-          cur.variant,
+          cur.direction!,
           this.accountInfo.money.currency,
           (product_id) => this.quoteDataUnit.getQuote(this.accountInfo.account_id, product_id),
         ) /
