@@ -1,6 +1,18 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Thu, 11 Apr 2024 14:45:56 GMT and should not be manually modified.
+This log was last generated on Tue, 23 Apr 2024 16:29:03 GMT and should not be manually modified.
+
+## 0.3.0
+Tue, 23 Apr 2024 16:29:03 GMT
+
+### Minor changes
+
+- add apis and order submit & cancel
+- Remove deprecated fields
+
+### Patches
+
+- fix bugs
 
 ## 0.2.0
 Thu, 11 Apr 2024 14:45:56 GMT
