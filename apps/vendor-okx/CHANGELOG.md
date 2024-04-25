@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Tue, 23 Apr 2024 16:29:03 GMT and should not be manually modified.
+This log was last generated on Thu, 25 Apr 2024 06:35:41 GMT and should not be manually modified.
+
+## 0.3.1
+Thu, 25 Apr 2024 06:35:41 GMT
+
+### Patches
+
+- add transfer for blockchain
 
 ## 0.3.0
 Tue, 23 Apr 2024 16:29:03 GMT

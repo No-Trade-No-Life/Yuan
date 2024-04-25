@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-huobi",
   "entries": [
     {
+      "version": "0.1.1",
+      "tag": "@yuants/vendor-huobi_v0.1.1",
+      "date": "Thu, 25 Apr 2024 06:35:41 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add transfer for blockchain"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.0",
       "tag": "@yuants/vendor-huobi_v0.1.0",
       "date": "Tue, 23 Apr 2024 16:29:03 GMT",
