@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Thu, 25 Apr 2024 08:37:22 GMT and should not be manually modified.
+This log was last generated on Thu, 25 Apr 2024 17:47:37 GMT and should not be manually modified.
+
+## 0.1.3
+Thu, 25 Apr 2024 17:47:37 GMT
+
+### Patches
+
+- huobi swap add fee for transfer
 
 ## 0.1.2
 Thu, 25 Apr 2024 08:37:22 GMT

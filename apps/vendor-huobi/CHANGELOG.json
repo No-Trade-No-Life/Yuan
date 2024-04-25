@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-huobi",
   "entries": [
     {
+      "version": "0.1.3",
+      "tag": "@yuants/vendor-huobi_v0.1.3",
+      "date": "Thu, 25 Apr 2024 17:47:37 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "huobi swap add fee for transfer"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.2",
       "tag": "@yuants/vendor-huobi_v0.1.2",
       "date": "Thu, 25 Apr 2024 08:37:22 GMT",
