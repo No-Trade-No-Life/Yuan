@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-huobi",
+      "comment": "huobi swap add fee for transfer",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-huobi"
+}

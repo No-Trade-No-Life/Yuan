@@ -1021,7 +1021,7 @@ import { HuobiClient } from './api';
                       from: 'linear-swap',
                       to: 'spot',
                       currency: 'usdt',
-                      amount: req.expected_amount,
+                      amount: req.expected_amount + 1 /* 1 as fee */,
                       'margin-account': 'USDT',
                     });
                     if (!transferOutResult.success) {
