@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.3.2",
+      "tag": "@yuants/vendor-okx_v0.3.2",
+      "date": "Thu, 25 Apr 2024 08:37:22 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add 1 u as fee when transfer"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.1",
       "tag": "@yuants/vendor-okx_v0.3.1",
       "date": "Thu, 25 Apr 2024 06:35:41 GMT",

@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Thu, 25 Apr 2024 06:35:41 GMT and should not be manually modified.
+This log was last generated on Thu, 25 Apr 2024 08:37:22 GMT and should not be manually modified.
+
+## 0.3.2
+Thu, 25 Apr 2024 08:37:22 GMT
+
+### Patches
+
+- add 1 u as fee when transfer
 
 ## 0.3.1
 Thu, 25 Apr 2024 06:35:41 GMT
