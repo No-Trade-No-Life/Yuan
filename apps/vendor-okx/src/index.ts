@@ -539,7 +539,7 @@ defer(async () => {
                     const transferResult = await client.postAssetTransfer({
                       type: '0',
                       ccy: 'USDT',
-                      amt: `${order.expected_amount}`,
+                      amt: `${order.expected_amount + /* 1 as fee */ 1}`,
                       from: '18',
                       to: '6',
                     });

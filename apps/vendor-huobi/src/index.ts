@@ -996,7 +996,7 @@ import { HuobiClient } from './api';
                   if (credit_account_id === `${account_id}/super-margin`) {
                     const transferOutResult = await client.postSuperMarginAccountTransferOut({
                       currency: 'usdt',
-                      amount: '' + req.expected_amount,
+                      amount: '' + req.expected_amount + 1 /* 1 as fee */,
                     });
                     if (transferOutResult.status !== 'ok') {
                       console.info(
