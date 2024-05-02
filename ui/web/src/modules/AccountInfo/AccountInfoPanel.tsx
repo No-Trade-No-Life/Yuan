@@ -210,28 +210,28 @@ registerPage('AccountInfoPanel', () => {
             key: '保证金使用率',
             value: `${((accountInfo.money.used / accountInfo.money.equity) * 100).toFixed(2)}%`,
           },
-          {
-            key: '账户系统杠杆率',
-            value: `${accountInfo.money.leverage ?? 1}x`,
-          },
-          {
-            key: '实际杠杆率',
-            value: `${(
-              (accountInfo.money.used / accountInfo.money.equity) *
-              (accountInfo.money.leverage ?? 1)
-            ).toFixed(2)}x`,
-          },
-          {
-            key: (
-              <Space>
-                保证金率{' '}
-                <Tooltip content={'保证金率 < 100% 可能会被强制平仓'}>
-                  <IconInfoCircle />
-                </Tooltip>
-              </Space>
-            ),
-            value: `${((accountInfo.money.equity / accountInfo.money.used) * 100).toFixed(2)}%`,
-          },
+          // {
+          //   key: '账户系统杠杆率',
+          //   value: `${accountInfo.money.leverage ?? 1}x`,
+          // },
+          // {
+          //   key: '实际杠杆率',
+          //   value: `${(
+          //     (accountInfo.money.used / accountInfo.money.equity) *
+          //     (accountInfo.money.leverage ?? 1)
+          //   ).toFixed(2)}x`,
+          // },
+          // {
+          //   key: (
+          //     <Space>
+          //       保证金率{' '}
+          //       <Tooltip content={'保证金率 < 100% 可能会被强制平仓'}>
+          //         <IconInfoCircle />
+          //       </Tooltip>
+          //     </Space>
+          //   ),
+          //   value: `${((accountInfo.money.equity / accountInfo.money.used) * 100).toFixed(2)}%`,
+          // },
         ]}
       />
       <Collapse defaultActiveKey={'持仓汇总'} style={{ width: '100%' }}>
@@ -244,7 +244,7 @@ registerPage('AccountInfoPanel', () => {
               {
                 title: '方向',
                 render: (_, pos) =>
-                  (({ ['LONG']: '多', ['SHORT']: '空', [-1]: '对锁' } as any)[pos.net.direction!]),
+                  (({ ['LONG']: '多', ['SHORT']: '空' } as any)[pos.net.direction!] || pos.net.direction),
               },
               {
                 title: '持仓量',
