@@ -301,22 +301,91 @@ registerPage('FundStatements', () => {
   });
 
   const equityHistory = useMemo(() => {
-    const ret: Array<{ created_at: number; open: number; high: number; low: number; close: number }> = [];
+    const ret: Array<{
+      created_at: number;
+      open: number;
+      high: number;
+      low: number;
+      close: number;
+      difference: number;
+      difference_annually: number;
+    }> = [];
     history.forEach((v) => {
       const last = ret[ret.length - 1];
       const created_at = new Date(v.updated_at).setHours(0, 0, 0, 0);
       const value = v.unitPrice;
       if (last && last.created_at === created_at) {
+        // Same Period
         last.high = Math.max(last.high, value);
         last.low = Math.min(last.low, value);
+        last.difference += value - last.close;
+        last.difference_annually = last.difference * 36500;
         last.close = value;
       } else {
-        ret.push({ created_at, open: value, high: value, low: value, close: value });
+        const difference = last ? value - last.close : 0;
+        // New Period
+        ret.push({
+          created_at,
+          open: value,
+          high: value,
+          low: value,
+          close: value,
+          difference: difference,
+          difference_annually: difference * 36500,
+        });
       }
     });
     return ret;
   }, [history]);
 
+  const dateHeatmapOptions = useMemo(() => {
+    const maxValue = equityHistory.reduce((acc, cur) => Math.max(acc, Math.abs(cur.difference_annually)), 0);
+    return {
+      title: {
+        text: '每日年化收益率',
+      },
+      tooltip: {
+        position: 'top',
+        formatter: `{c0}`,
+        // formatter: function (p: { data: [number, number] }) {
+        //   return format(p.data[0], 'yyyy-MM-dd') + ': ' + p.data[1];
+        // },
+      },
+      visualMap: {
+        min: -maxValue,
+        max: maxValue,
+        inRange: {
+          color: ['rgba(0, 150, 136, 0.8)', 'white', 'rgba(255,82,82,0.8)'],
+        },
+        // calculable: true,
+        orient: 'horizontal',
+        left: 'center',
+        top: 'top',
+      },
+      calendar: [
+        {
+          range:
+            equityHistory.length > 0
+              ? [
+                  format(equityHistory[0].created_at, 'yyyy-MM-dd'),
+                  format(equityHistory[equityHistory.length - 1].created_at, 'yyyy-MM-dd'),
+                ]
+              : format(Date.now(), 'yyyy'),
+        },
+      ],
+      series: [
+        {
+          type: 'heatmap',
+          coordinateSystem: 'calendar',
+          calendarIndex: 0,
+          data: equityHistory.map((state) => [
+            format(state.created_at, 'yyyy-MM-dd'),
+            state.difference_annually,
+          ]),
+        },
+      ],
+    };
+  }, [equityHistory]);
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
       <Space>
@@ -439,6 +508,30 @@ registerPage('FundStatements', () => {
           ],
         }}
       />
+      <EChartsReact
+        style={{ width: '100%', height: '100%', minHeight: 400 }}
+        option={{
+          title: {
+            text: '每日盈利',
+          },
+          tooltip: {
+            trigger: 'axis',
+          },
+          xAxis: {
+            data: equityHistory.map((v) => format(v.created_at, 'yyyy-MM-dd')),
+          },
+          yAxis: {
+            scale: true,
+          },
+          series: [
+            {
+              type: 'line',
+              data: equityHistory.map((state) => state.difference),
+            },
+          ],
+        }}
+      />
+      <EChartsReact style={{ width: '100%', height: '100%', minHeight: 600 }} option={dateHeatmapOptions} />
       <Collapse defaultActiveKey={'investors'} style={{ width: '100%' }}>
         <Collapse.Panel itemKey="investors" header={'投资人列表'}>
           <DataView table={tableOfInvestors} />
