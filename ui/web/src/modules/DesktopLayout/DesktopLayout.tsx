@@ -99,6 +99,8 @@ export const DesktopLayout = () => {
                     tOptions={{ interpolation: { escapeValue: false } }}
                   ></Trans>
                 );
+              } else {
+                renderValues.content = type;
               }
             }}
             onTabSetPlaceHolder={() => {
