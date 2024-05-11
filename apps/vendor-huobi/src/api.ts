@@ -282,6 +282,112 @@ export class HuobiClient {
     return this.request('GET', `/market/detail/merged`, this.spot_api_root, params);
   }
 
+  /**
+   * 【通用】批量获取合约资金费率
+   *
+   * 接口权限: 读取
+   *
+   * 限频: 其他非行情类的公开接口，比如获取指数信息，限价信息，交割结算、平台持仓信息等，所有用户都是每个IP3秒最多240次请求（所有该IP的非行情类的公开接口请求共享3秒240次的额度）
+   *
+   * 接口描述: 该接口支持全仓模式和逐仓模式
+   *
+   * https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb71b45-77b5-11ed-9966-0242ac110003
+   */
+  getSwapBatchFundingRate = (params: {
+    contract_code?: string;
+  }): Promise<{
+    status: string;
+    ts: number;
+    data: {
+      estimated_rate: null;
+      funding_rate: string;
+      contract_code: string;
+      symbol: string;
+      fee_asset: string;
+      funding_time: string;
+      next_funding_time: null;
+      trade_partition: string;
+    }[];
+  }> => {
+    // https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb7a7b5-77b5-11ed-9966-0242ac110003
+    return this.request('GET', `/linear-swap-api/v1/swap_batch_funding_rate`, this.swap_api_root, params);
+  };
+
+  /**
+   * 【通用】获取市场最近成交记录
+   *
+   * 接口权限: 读取
+   *
+   * 限频: 行情类的公开接口，比如：获取K线数据、获取聚合行情、市场行情、获取行情深度数据、获取溢价指数K线、获取实时预测资金费率k线，获取基差数据、获取市场最近成交记录：
+   *
+   * （1） restful接口：同一个IP, 所有业务（交割合约、币本位永续合约和U本位合约）总共1秒最多800个请求
+   *
+   * 接口描述: 该接口支持全仓模式和逐仓模式
+   *
+   * 请求参数contract_code支持交割合约代码，格式为BTC-USDT-210625；同时支持合约标识，格式为 BTC-USDT（永续）、BTC-USDT-CW（当周）、BTC-USDT-NW（次周）、BTC-USDT-CQ（当季）、BTC-USDT-NQ（次季）。
+   *
+   * business_type 在查询交割合约数据时为必填参数。且参数值要传：futures 或 all 。
+   *
+   * https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb73c34-77b5-11ed-9966-0242ac110003
+   */
+  getSwapMarketTrade = (params: {
+    contract_code?: string;
+    business_type?: string;
+  }): Promise<{
+    ch: string;
+    status: string;
+    tick: {
+      data: {
+        amount: string;
+        quantity: string;
+        trade_turnover: string;
+        ts: number;
+        id: number;
+        price: string;
+        direction: string;
+        contract_code: string;
+        business_type: string;
+        trade_partition: string;
+      }[];
+      id: number;
+      ts: number;
+    };
+    ts: number;
+  }> => this.request('GET', `/linear-swap-ex/market/trade`, this.swap_api_root, params);
+
+  /**
+   * 【通用】获取市场最优挂单
+   *
+   * 接口权限: 读取
+   *
+   * 限频: 行情类的公开接口，比如：获取K线数据、获取聚合行情、市场行情、获取行情深度数据、获取溢价指数K线、获取实时预测资金费率k线，获取基差数据、获取市场最近成交记录：
+   *
+   * （1） restful接口：同一个IP, 所有业务（交割合约、币本位永续合约和U本位合约）总共1秒最多800个请求
+   *
+   * 接口描述: 该接口支持全仓模式和逐仓模式
+   *
+   * 请求参数contract_code支持交割合约代码，格式为BTC-USDT-210625；同时支持合约标识，格式为 BTC-USDT（永续）、BTC-USDT-CW（当周）、BTC-USDT-NW（次周）、BTC-USDT-CQ（当季）、BTC-USDT-NQ（次季）。
+   *
+   * business_type 在查询交割合约数据时为必填参数。且参数值要传：futures 或 all 。
+   *
+   * https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb735e0-77b5-11ed-9966-0242ac110003
+   */
+  getSwapMarketBbo = (params: {
+    contract_code?: string;
+  }): Promise<{
+    status: string;
+    ticks: {
+      trade_partition: string;
+      business_type: string;
+      contract_code: string;
+      ask: number[] | null;
+      bid: number[] | null;
+      mrid: number;
+      ts: number;
+    }[];
+    ts: number;
+  }> => this.request('GET', `/linear-swap-ex/market/bbo`, this.swap_api_root, params);
+
   postSpotOrder(params: {
     symbol: string;
     'account-id': string;
