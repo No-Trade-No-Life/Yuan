@@ -1,4 +1,4 @@
-import { IconCode, IconEdit, IconRefresh, IconUser } from '@douyinfe/semi-icons';
+import { IconCode, IconCoinMoneyStroked, IconEdit, IconRefresh, IconUser } from '@douyinfe/semi-icons';
 import { Collapse, Descriptions, Space, Toast } from '@douyinfe/semi-ui';
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { formatTime } from '@yuants/data-model';
@@ -29,71 +29,85 @@ interface IFundStatement {
     /** 净入金 */
     deposit: number;
   };
+  investor?: {
+    name: string;
+    /** 更改税率 */
+    tax_rate?: number;
+  };
 }
 
 type IFundState = {
   created_at: number;
   updated_at: number;
   description: string; // 描述
-  totalAssets: number; // 总资产
-  totalShare: number; // 总份额
-  unitPrice: number; // 份额净值
-  net_deposit: number; // 净入金
+  /** 总资产 */
+  total_assets: number;
+  summary_derived: {
+    /** 总入金 */
+    total_deposit: number;
+    /** 总份额 */
+    total_share: number;
+    /** 总税费 */
+    total_tax: number;
+    /** 单位净值 */
+    unit_price: number;
+    /** 存续时间 */
+    total_time: number;
+  };
   investors: Record<string, InvestorMeta>; // 投资人数据
-  mapNameToDetail: Record<string, InvestorDetails>;
+  investor_derived: Record<string, InvestorInfoDerived>;
 };
 
 type InvestorMeta = {
-  // input
-  name: string; // 投资人姓名
-  share: number; // 投资人份额
-  dividendBase: number; // 投资人分红基数
-  deposit: number; // 投资人净入金
-  dividendRate: number; // 计提分红比率
+  /** 姓名 */
+  name: string;
+  /** 份额 */
+  share: number;
+  /** 起征点 */
+  tax_threshold: number;
+  /** 净入金 */
+  deposit: number;
+  /** 税率 */
+  tax_rate: number;
 };
 
-// 投资人数据详情
-type InvestorDetails = {
-  // by compute
-  shareRate: number; // 投资人份额百分比
-  assets: number; // 投资人账面资产
-  profit: number; // 投资人账面盈利
-  profitRate: number; // 投资人账面盈利率
-  expectedDividend: number; // 投资人预期计提分红
-  expectedDividendShare: number; // 投资人预期分红扣减份额
-  expectedPostDividendShare: number; // 投资人预期分红后份额
-  expectedPostDividendAssets: number; // 投资人预期分红后资产
-  expectedProfit: number; // 投资人预期收益
-  expectedProfitRate: number; // 投资人预期收益率
-  accumulatedProfit: number; // 投资人累积收益
-  accumulatedProfitRate: number; // 投资人累积收益率
-};
+/**
+ * 投资人信息的计算衍生数据
+ */
+type InvestorInfoDerived = {
+  /** 税前资产 */
+  pre_tax_assets: number;
+  /** 应税额 */
+  taxable: number;
+  /** 税费 */
+  tax: number;
+  /** 税后资产 */
+  after_tax_assets: number;
+  /** 税后收益 */
+  after_tax_profit: number;
+  /** 税后收益率 */
+  after_tax_profit_rate: number;
+  /** 税后份额 */
+  after_tax_share: number;
 
-const initInvestor: InvestorDetails = {
-  shareRate: 0,
-  assets: 0,
-  profit: 0,
-  profitRate: 0,
-  expectedDividend: 0,
-  expectedDividendShare: 0,
-  expectedPostDividendShare: 0,
-  expectedPostDividendAssets: 0,
-  expectedProfit: 0,
-  expectedProfitRate: 0,
-  accumulatedProfit: 0,
-  accumulatedProfitRate: 0,
+  /** 份额占比 */
+  share_ratio: number;
 };
 
 const initFundState: IFundState = {
   created_at: 0,
   updated_at: 0,
   description: '',
-  totalAssets: 0, // 总资产
-  totalShare: 0, // 总份额
-  net_deposit: 0,
-  unitPrice: 1, // 份额净值
+  total_assets: 0, // 总资产
+  summary_derived: {
+    total_deposit: 0,
+    total_share: 0,
+    total_tax: 0,
+    unit_price: 1,
+    total_time: 0,
+  },
   investors: {},
-  mapNameToDetail: {},
+  investor_derived: {},
 };
 
 const reduceStatement = (state: IFundState, statement: IFundStatement): IFundState => {
@@ -107,62 +121,84 @@ const reduceStatement = (state: IFundState, statement: IFundStatement): IFundSta
 
   // 更新总资产
   if (statement.fund_equity) {
-    nextState.totalAssets = statement.fund_equity.equity;
+    nextState.total_assets = statement.fund_equity.equity;
   }
   // 投资人订单
   if (statement.order) {
     const deposit = statement.order.deposit;
     const investor = (nextState.investors[statement.order.name] ??= {
       name: statement.order.name,
-      dividendBase: 0,
       deposit: 0,
       share: 0,
-      dividendRate: 0,
+      tax_threshold: 0,
+      tax_rate: 0,
     });
     investor.deposit += deposit;
-    investor.dividendBase += deposit;
-    investor.share += deposit / state.unitPrice;
-    nextState.totalAssets += deposit;
-    nextState.net_deposit += deposit;
+    investor.tax_threshold += deposit;
+    investor.share += deposit / state.summary_derived.unit_price;
+    nextState.total_assets += deposit;
+  }
+  // 更新投资人信息
+  if (statement.investor) {
+    // 更新税率
+    if (statement.investor.tax_rate) {
+      nextState.investors[statement.investor.name].tax_rate = statement.investor.tax_rate;
+    }
+  }
+  // 结税
+  if (statement.type === 'taxation') {
+    for (const investor of Object.values(nextState.investors)) {
+      investor.share = state.investor_derived[investor.name].after_tax_share;
+      nextState.total_assets -= state.investor_derived[investor.name].tax;
+      investor.tax_threshold = state.investor_derived[investor.name].after_tax_assets;
+    }
   }
 
+  // 计算衍生数据
   {
-    const totalShare = Object.values(nextState.investors).reduce((acc, cur) => acc + cur.share, 0); // 总份额
-    const unitPrice = totalShare === 0 ? 1 : nextState.totalAssets / totalShare; // 份额净值
-    nextState.totalShare = totalShare;
-    nextState.unitPrice = unitPrice;
+    nextState.summary_derived.total_share = Object.values(nextState.investors).reduce(
+      (acc, cur) => acc + cur.share,
+      0,
+    );
+    nextState.summary_derived.unit_price =
+      nextState.summary_derived.total_share === 0
+        ? 1
+        : nextState.total_assets / nextState.summary_derived.total_share;
+
+    nextState.summary_derived.total_time = nextState.updated_at - nextState.created_at;
+
+    // 投资人衍生数据
     Object.values(nextState.investors).forEach((v) => {
-      const dividendRate = v.dividendRate; // 投资人计提分红比例
-      const share = v.share; // 投资人份额
-      const dividendBase = v.dividendBase; // 投资人分红基数
-      const shareRate = totalShare !== 0 ? share / totalShare : 0; // 投资人份额百分比
-      const assets = share * unitPrice; // 投资人账面资产
-      const profit = assets - dividendBase; // 投资人账面盈利
-      const profitRate = dividendBase !== 0 ? profit / dividendBase : 0; // 投资人账面盈利率
-      const expectedDividend = profit > 0 ? profit * dividendRate : 0; // 投资人预期计提分红
-      const expectedDividendShare = profit > 0 ? expectedDividend / unitPrice : 0; // 投资人预期分红扣减份额
-      const expectedPostDividendShare = share - expectedDividendShare; // 投资人预期分红后份额
-      const expectedPostDividendAssets = expectedPostDividendShare * unitPrice; // 投资人预期分红后资产
-      const expectedProfit = expectedPostDividendAssets - dividendBase; // 投资人预期收益
-      const expectedProfitRate = dividendBase !== 0 ? expectedProfit / dividendBase : 0; // 投资人预期收益率
-      const deposit = v.deposit; // 投资人净入金
-      const accumulatedProfit = expectedPostDividendAssets - deposit; // 投资人累积收益
-      const accumulatedProfitRate = deposit !== 0 ? accumulatedProfit / deposit : 0; // 投资人累积收益率
-      nextState.mapNameToDetail[v.name] = {
-        shareRate,
-        assets,
-        profit,
-        profitRate,
-        expectedDividend,
-        expectedDividendShare,
-        expectedPostDividendShare,
-        expectedPostDividendAssets,
-        expectedProfit,
-        expectedProfitRate,
-        accumulatedProfit,
-        accumulatedProfitRate,
+      const share_ratio =
+        nextState.summary_derived.total_share !== 0 ? v.share / nextState.summary_derived.total_share : 0;
+      const pre_tax_assets = v.share * nextState.summary_derived.unit_price;
+      const taxable = pre_tax_assets - v.tax_threshold;
+      const tax = Math.max(0, taxable * v.tax_rate);
+      const after_tax_assets = pre_tax_assets - tax;
+      const after_tax_profit = after_tax_assets - v.deposit;
+      const after_tax_profit_rate = after_tax_profit / Math.max(0, v.deposit);
+      const after_tax_share = after_tax_assets / nextState.summary_derived.unit_price;
+      nextState.investor_derived[v.name] = {
+        share_ratio,
+        taxable,
+        tax,
+        pre_tax_assets,
+        after_tax_assets,
+        after_tax_profit,
+        after_tax_profit_rate,
+        after_tax_share,
       };
     });
+
+    // 总体衍生数据
+    nextState.summary_derived.total_deposit = Object.values(nextState.investors).reduce(
+      (acc, cur) => acc + cur.deposit,
+      0,
+    );
+    nextState.summary_derived.total_tax = Object.values(nextState.investor_derived).reduce(
+      (acc, cur) => acc + cur.tax,
+      0,
+    );
   }
 
   return nextState;
@@ -190,45 +226,74 @@ registerPage('FundStatements', () => {
     [],
   );
 
+  const currentStatements = useMemo(
+    () => statements.filter((x) => new Date(x.updated_at).getTime() < Date.now()),
+    [statements],
+  );
+
   const history = useMemo(() => {
     const history: IFundState[] = [];
-    statements.forEach((statement) => {
+    currentStatements.forEach((statement) => {
       history.push(reduceStatement(history[history.length - 1] || initFundState, statement));
     });
     return history;
-  }, [statements]);
+  }, [currentStatements]);
 
   const state = history[history.length - 1] || initFundState;
 
   const investors = useMemo(
-    () => Object.values(state.investors).map((meta) => ({ meta, detail: state.mapNameToDetail[meta.name] })),
+    () => Object.values(state.investors).map((meta) => ({ meta, detail: state.investor_derived[meta.name] })),
     [state],
   );
 
   const columnsOfInvestor = useMemo(() => {
     const columnHelper = createColumnHelper<{
       meta: InvestorMeta;
-      detail: InvestorDetails;
+      detail: InvestorInfoDerived;
     }>();
     return [
       columnHelper.accessor('meta.name', {
         header: () => '投资人',
       }),
-      columnHelper.accessor('detail.assets', {
+      columnHelper.accessor('detail.after_tax_assets', {
         header: () => '净资产',
-      }),
-      columnHelper.accessor('meta.share', {
-        header: () => '份额',
       }),
       columnHelper.accessor('meta.deposit', {
         header: () => '净入金',
       }),
-      columnHelper.accessor('detail.accumulatedProfit', {
-        header: () => '净收益',
+      columnHelper.accessor('detail.after_tax_profit', {
+        header: () => '收益',
       }),
-      columnHelper.accessor('detail.accumulatedProfitRate', {
+      columnHelper.accessor('detail.after_tax_profit_rate', {
         header: () => '收益率',
         cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
+      }),
+      columnHelper.accessor('meta.share', {
+        header: () => '份额',
+      }),
+      columnHelper.accessor('detail.share_ratio', {
+        header: () => '份额占比',
+        cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
+      }),
+
+      columnHelper.accessor('detail.pre_tax_assets', {
+        header: () => '税前资产',
+      }),
+      columnHelper.accessor('meta.tax_threshold', {
+        header: () => '起征点',
+      }),
+      columnHelper.accessor('detail.taxable', {
+        header: () => '应税额',
+      }),
+      columnHelper.accessor('meta.tax_rate', {
+        header: () => '税率',
+        cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
+      }),
+      columnHelper.accessor('detail.tax', {
+        header: () => '税费',
+      }),
+      columnHelper.accessor('detail.after_tax_share', {
+        header: () => '税后份额',
       }),
     ];
   }, []);
@@ -264,7 +329,7 @@ registerPage('FundStatements', () => {
 
   const tableOfStatement = useReactTable({
     columns: columnsOfStatement,
-    data: statements,
+    data: currentStatements,
     getCoreRowModel: getCoreRowModel(),
     initialState: {
       sorting: [{ id: 'updated_at', desc: true }],
@@ -279,13 +344,13 @@ registerPage('FundStatements', () => {
         cell: (ctx) => formatTime(ctx.getValue()),
       }),
 
-      columnHelper.accessor('totalAssets', {
-        header: () => '基金总资产',
+      columnHelper.accessor('total_assets', {
+        header: () => '总资产',
       }),
-      columnHelper.accessor('totalShare', {
-        header: () => '基金总份额',
+      columnHelper.accessor('summary_derived.total_share', {
+        header: () => '总份额',
       }),
-      columnHelper.accessor('unitPrice', {
+      columnHelper.accessor('summary_derived.unit_price', {
         header: () => '单位净值',
       }),
     ];
@@ -313,7 +378,7 @@ registerPage('FundStatements', () => {
     history.forEach((v) => {
       const last = ret[ret.length - 1];
       const created_at = new Date(v.updated_at).setHours(0, 0, 0, 0);
-      const value = v.unitPrice;
+      const value = v.summary_derived.unit_price;
       if (last && last.created_at === created_at) {
         // Same Period
         last.high = Math.max(last.high, value);
@@ -420,7 +485,16 @@ registerPage('FundStatements', () => {
                 },
               },
             ]);
-            await fs.writeFile(filename, JSON.stringify(nextStatements, null, 2));
+            await fs.writeFile(
+              filename,
+              JSON.stringify(
+                nextStatements.sort(
+                  (a, b) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime(),
+                ),
+                null,
+                2,
+              ),
+            );
             refresh();
             Toast.success('成功');
           }}
@@ -447,40 +521,81 @@ registerPage('FundStatements', () => {
                 },
               },
             ]);
-            await fs.writeFile(filename, JSON.stringify(nextStatements, null, 2));
+            await fs.writeFile(
+              filename,
+              JSON.stringify(
+                nextStatements.sort(
+                  (a, b) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime(),
+                ),
+                null,
+                2,
+              ),
+            );
             refresh();
             Toast.success('成功');
           }}
         >
           申购/赎回
         </Button>
+        <Button
+          icon={<IconCoinMoneyStroked />}
+          onClick={async () => {
+            const nextStatements = statements.concat([
+              {
+                type: 'taxation',
+                updated_at: formatTime(Date.now()),
+                comment: 'Taxation',
+              },
+            ]);
+            await fs.writeFile(
+              filename,
+              JSON.stringify(
+                nextStatements.sort(
+                  (a, b) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime(),
+                ),
+                null,
+                2,
+              ),
+            );
+            refresh();
+            Toast.success('成功');
+          }}
+        >
+          征税
+        </Button>
       </Space>
       <Descriptions
         data={[
           { key: '更新时间', value: formatTime(state.updated_at) },
-          { key: '总资产', value: state.totalAssets },
-          { key: '总份额', value: state.totalShare },
-          { key: '单位净值', value: state.unitPrice },
-          { key: '净入金', value: state.net_deposit },
-          { key: '净利润', value: state.totalAssets - state.net_deposit },
-          { key: '存续天数', value: (state.updated_at - state.created_at) / 86400_000 },
+          { key: '总资产', value: state.total_assets },
+          { key: '总份额', value: state.summary_derived.total_share },
+          { key: '单位净值', value: state.summary_derived.unit_price },
+          { key: '净入金', value: state.summary_derived.total_deposit },
+          { key: '净利润', value: state.total_assets - state.summary_derived.total_deposit },
+          { key: '存续天数', value: state.summary_derived.total_time / 86400_000 },
+          { key: '可征税费', value: state.summary_derived.total_tax },
           {
             key: '日化收益率',
-            value: `${((state.unitPrice - 1) / ((state.updated_at - state.created_at) / 86400_000)) * 100}%`,
+            value: `${
+              ((state.summary_derived.unit_price - 1) / (state.summary_derived.total_time / 86400_000)) * 100
+            }%`,
           },
           {
             key: '月化收益率',
             value: `${
-              ((state.unitPrice - 1) / ((state.updated_at - state.created_at) / 86400_000)) * 100 * 30
+              ((state.summary_derived.unit_price - 1) / (state.summary_derived.total_time / 86400_000)) *
+              100 *
+              30
             }%`,
           },
           {
             key: '年化收益率',
             value: `${
-              ((state.unitPrice - 1) / ((state.updated_at - state.created_at) / 86400_000)) * 100 * 365
+              ((state.summary_derived.unit_price - 1) / (state.summary_derived.total_time / 86400_000)) *
+              100 *
+              365
             }%`,
           },
-          { key: '投资人', value: Object.keys(state.investors).length },
         ]}
         row
       />
