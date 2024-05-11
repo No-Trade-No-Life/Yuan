@@ -3,6 +3,7 @@ import {
   IOrder,
   IPosition,
   IProduct,
+  ITick,
   ITransferOrder,
   decodePath,
   encodePath,
@@ -111,6 +112,90 @@ import { HuobiClient } from './api';
 
   spotProducts$.pipe(mergeMap((products) => terminal.updateProducts(products))).subscribe();
   perpetualContractProducts$.pipe(mergeMap((products) => terminal.updateProducts(products))).subscribe();
+
+  const mapSwapContractCodeToBboTick$ = defer(() => client.getSwapMarketBbo({})).pipe(
+    mergeMap((res) =>
+      from(res.ticks).pipe(
+        map((tick) => [tick.contract_code, tick] as const),
+        toArray(),
+        map((ticks) => Object.fromEntries(ticks)),
+      ),
+    ),
+
+    repeat({ delay: 1000 }),
+    retry({ delay: 1000 }),
+    shareReplay(1),
+  );
+
+  const mapSwapContractCodeToTradeTick$ = defer(() => client.getSwapMarketTrade({})).pipe(
+    mergeMap((res) =>
+      from(res.tick.data).pipe(
+        map((tick) => [tick.contract_code, tick] as const),
+        toArray(),
+        map((ticks) => Object.fromEntries(ticks)),
+      ),
+    ),
+
+    repeat({ delay: 1000 }),
+    retry({ delay: 1000 }),
+    shareReplay(1),
+  );
+
+  const mapSwapContractCodeToFundingRateTick$ = defer(() => client.getSwapBatchFundingRate({})).pipe(
+    mergeMap((res) =>
+      from(res.data).pipe(
+        map((tick) => [tick.contract_code, tick] as const),
+        toArray(),
+        map((ticks) => Object.fromEntries(ticks)),
+      ),
+    ),
+
+    repeat({ delay: 1000 }),
+    retry({ delay: 1000 }),
+    shareReplay(1),
+  );
+
+  terminal.provideTicks('huobi-swap', (product_id) => {
+    return defer(async () => {
+      const products = await firstValueFrom(perpetualContractProducts$);
+      const theProduct = products.find((x) => x.product_id === product_id);
+      if (!theProduct) throw `No Found ProductID ${product_id}`;
+
+      return [
+        of(theProduct),
+        mapSwapContractCodeToBboTick$,
+        mapSwapContractCodeToTradeTick$,
+        mapSwapContractCodeToFundingRateTick$,
+      ] as const;
+    }).pipe(
+      catchError(() => EMPTY),
+      mergeMap((x) =>
+        combineLatest(x).pipe(
+          map(
+            ([theProduct, bboTick, tradeTick, fundingRateTick]): ITick => ({
+              datasource_id: 'huobi-swap',
+              product_id,
+              updated_at: Date.now(),
+              settlement_scheduled_at: +fundingRateTick[product_id].funding_time,
+              price: +tradeTick[product_id].price,
+              ask: bboTick[product_id].ask?.[0] ?? undefined,
+              bid: bboTick[product_id].bid?.[0] ?? undefined,
+              volume: +tradeTick[product_id].amount,
+              interest_rate_for_long: -(
+                +fundingRateTick[product_id].funding_rate *
+                (theProduct.value_scale || 1) *
+                +tradeTick[product_id].price
+              ), // TODO: 结算价
+              interest_rate_for_short:
+                +fundingRateTick[product_id].funding_rate *
+                (theProduct.value_scale || 1) *
+                +tradeTick[product_id].price, // TODO: 结算价
+            }),
+          ),
+        ),
+      ),
+    );
+  });
 
   // account info
   const perpetualContractAccountInfo$ = of(0).pipe(
