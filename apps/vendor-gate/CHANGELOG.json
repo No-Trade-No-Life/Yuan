@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/vendor-gate",
+  "entries": [
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/vendor-gate_v0.1.0",
+      "date": "Sun, 12 May 2024 22:24:37 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "new API - future api"
+          }
+        ]
+      }
+    }
+  ]
+}
