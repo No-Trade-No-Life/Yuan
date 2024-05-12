@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-huobi",
+      "comment": "update readme",
+      "type": "none"
+    }
+  ],
+  "packageName": "@yuants/vendor-huobi"
+}

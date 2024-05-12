@@ -561,6 +561,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/vendor-gate",
+      "projectFolder": "apps/vendor-gate",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/ui-web",
       "projectFolder": "ui/web"
     }
