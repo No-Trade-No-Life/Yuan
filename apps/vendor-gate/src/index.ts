@@ -1,4 +1,4 @@
-import { IAccountInfo, IOrder, IPosition } from '@yuants/data-model';
+import { IAccountInfo, IOrder, IPosition, IProduct } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
@@ -21,6 +21,34 @@ import { GateClient } from './api';
 
   const terminal = new Terminal(process.env.HOST_URL!, {
     terminal_id: process.env.TERMINAL_ID || `@yuants/vendor-gate/${uid}`,
+  });
+
+  const usdtFutureProducts$ = defer(() => client.getFuturesContracts('usdt', {})).pipe(
+    mergeMap((contracts) =>
+      from(contracts).pipe(
+        map((contract): IProduct => {
+          const [base, quote] = contract.name.split('_');
+          return {
+            datasource_id: 'gate/future',
+            product_id: contract.name,
+            base_currency: base,
+            quote_currency: quote,
+            value_scale: +contract.quanto_multiplier,
+            price_step: +contract.order_price_round,
+            volume_step: 1,
+          };
+        }),
+        toArray(),
+      ),
+    ),
+
+    repeat({ delay: 3600_000 }),
+    retry({ delay: 60_000 }),
+    shareReplay(1),
+  );
+
+  usdtFutureProducts$.subscribe((products) => {
+    terminal.updateProducts(products).subscribe();
   });
 
   const accountFuturePosition$ = defer(() => client.getFuturePositions('usdt')).pipe(
@@ -51,6 +79,7 @@ import { GateClient } from './api';
     ),
     repeat({ delay: 1000 }),
     retry({ delay: 1000 }),
+    shareReplay(1),
   );
 
   const accountFutureOpenOrders$ = defer(() => client.getFuturesOrders('usdt', { status: 'open' })).pipe(
@@ -81,11 +110,13 @@ import { GateClient } from './api';
     ),
     repeat({ delay: 1000 }),
     retry({ delay: 1000 }),
+    shareReplay(1),
   );
 
   const futureAccount$ = defer(() => client.getFuturesAccounts('usdt')).pipe(
     repeat({ delay: 1000 }),
     retry({ delay: 1000 }),
+    shareReplay(1),
   );
 
   const futureUsdtAccountInfo$ = combineLatest([
@@ -123,7 +154,10 @@ import { GateClient } from './api';
 
   terminal.provideService(
     'SubmitOrder',
-    { properties: { account_id: { const: futureUsdtAccountId } } },
+    {
+      required: ['account_id'],
+      properties: { account_id: { const: futureUsdtAccountId } },
+    },
     (msg) =>
       defer(async () => {
         const order = msg.req;
@@ -142,9 +176,13 @@ import { GateClient } from './api';
         return { res: { code: 0, message: 'OK' } };
       }),
   );
+
   terminal.provideService(
     'CancelOrder',
-    { properties: { account_id: { const: futureUsdtAccountId } } },
+    {
+      required: ['account_id'],
+      properties: { account_id: { const: futureUsdtAccountId } },
+    },
     (msg) =>
       defer(async () => {
         const order = msg.req;
