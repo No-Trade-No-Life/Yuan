@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-gate",
   "entries": [
     {
+      "version": "0.1.1",
+      "tag": "@yuants/vendor-gate_v0.1.1",
+      "date": "Mon, 13 May 2024 19:19:21 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix extension & auto update products"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.0",
       "tag": "@yuants/vendor-gate_v0.1.0",
       "date": "Sun, 12 May 2024 22:24:37 GMT",
