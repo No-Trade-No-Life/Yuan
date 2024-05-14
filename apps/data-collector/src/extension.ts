@@ -18,7 +18,7 @@ export default (context: IExtensionContext) => {
     }),
     make_docker_compose_file: async (ctx, envCtx) => {
       return {
-        [`market-data-collector`]: {
+        [`data-collector`]: {
           image: `ghcr.io/no-trade-no-life/app-data-collector:${ctx.version ?? envCtx.version}`,
           environment: makeDockerEnvs(ctx.env),
         },
