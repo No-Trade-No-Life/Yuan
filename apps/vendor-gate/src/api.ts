@@ -336,16 +336,3 @@ export class GateClient {
     }[]
   > => this.request('GET', `/api/v4/futures/${settle}/funding_rate`, params);
 }
-
-(async () => {
-  if (process.env.NODE_ENV === 'development') {
-    const client = new GateClient({
-      auth: {
-        access_key: process.env.ACCESS_KEY!,
-        secret_key: process.env.SECRET_KEY!,
-      },
-    });
-
-    console.info(JSON.stringify(await client.getAccountDetail()));
-  }
-})();

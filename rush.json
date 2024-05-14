@@ -510,6 +510,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/app-data-collector",
+      "projectFolder": "apps/data-collector",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/app-general-data-source",
       "projectFolder": "apps/general-data-source",
       "shouldPublish": true

@@ -518,4 +518,41 @@ export class HuobiClient {
     // https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec44f99-7773-11ed-9966-0242ac110003
     return this.request(`GET`, `/v1/query/deposit-withdraw`, this.spot_api_root, params);
   }
+
+  /**
+   * 获取合约的历史资金费率
+   *
+   * 接口权限: 读取
+   *
+   * https://www.htx.com/zh-cn/opend/newApiPages/?id=5d51f1f9-77b6-11ed-9966-0242ac110003
+   */
+  getSwapHistoricalFundingRate(params: {
+    contract_code: string;
+    page_index?: number;
+    page_size?: number;
+  }): Promise<{
+    status: string;
+    ts: number;
+    data: {
+      data: {
+        symbol: string;
+        contract_code: string;
+        fee_asset: string;
+        funding_time: string;
+        funding_rate: string;
+        realized_rate: string;
+        avg_premium_index: string;
+      }[];
+      total_page: number;
+      current_page: number;
+      total_size: number;
+    };
+  }> {
+    return this.request(
+      'GET',
+      `/linear-swap-api/v1/swap_historical_funding_rate`,
+      this.swap_api_root,
+      params,
+    );
+  }
 }
