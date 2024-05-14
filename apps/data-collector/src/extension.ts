@@ -3,14 +3,14 @@ export default (context: IExtensionContext) => {
   context.registerDeployProvider({
     make_json_schema: () => ({
       type: 'object',
-      title: 'Market Data Collector',
+      title: 'Data Collector',
       properties: {
         env: {
           type: 'object',
-          required: ['HV_URL', 'STORAGE_TERMINAL_ID'],
+          required: ['HOST_URL', 'STORAGE_TERMINAL_ID'],
           properties: {
             TERMINAL_ID: { type: 'string' },
-            HV_URL: { type: 'string' },
+            HOST_URL: { type: 'string' },
             STORAGE_TERMINAL_ID: { type: 'string' },
           },
         },
@@ -19,7 +19,7 @@ export default (context: IExtensionContext) => {
     make_docker_compose_file: async (ctx, envCtx) => {
       return {
         [`market-data-collector`]: {
-          image: `ghcr.io/no-trade-no-life/app-market-data-collector:${ctx.version ?? envCtx.version}`,
+          image: `ghcr.io/no-trade-no-life/app-data-collector:${ctx.version ?? envCtx.version}`,
           environment: makeDockerEnvs(ctx.env),
         },
       };
@@ -32,34 +32,32 @@ export default (context: IExtensionContext) => {
           metadata: {
             labels: {
               'y.ntnl.io/version': ctx.version ?? envCtx.version,
-              'y.ntnl.io/component': 'market-data-collector',
+              'y.ntnl.io/component': 'data-collector',
             },
-            name: `market-data-collector`,
+            name: `data-collector`,
             namespace: 'yuan',
           },
           spec: {
             replicas: 1,
             selector: {
               matchLabels: {
-                'y.ntnl.io/component': 'market-data-collector',
+                'y.ntnl.io/component': 'data-collector',
               },
             },
             template: {
               metadata: {
                 labels: {
                   'y.ntnl.io/version': ctx.version ?? envCtx.version,
-                  'y.ntnl.io/component': 'market-data-collector',
+                  'y.ntnl.io/component': 'data-collector',
                 },
               },
               spec: {
                 containers: [
                   {
                     env: makeK8sEnvs(ctx.env),
-                    image: `ghcr.io/no-trade-no-life/app-market-data-collector:${
-                      ctx.version ?? envCtx.version
-                    }`,
+                    image: `ghcr.io/no-trade-no-life/app-data-collector:${ctx.version ?? envCtx.version}`,
                     imagePullPolicy: 'IfNotPresent',
-                    name: 'market-data-collector',
+                    name: 'data-collector',
                     resources: {
                       limits: {
                         cpu: ctx.cpu?.max ?? '400m',
@@ -72,7 +70,7 @@ export default (context: IExtensionContext) => {
                     },
                   },
                 ],
-                hostname: 'market-data-collector',
+                hostname: 'data-collector',
                 imagePullSecrets: [
                   {
                     name: 'pull-secret',
@@ -87,27 +85,26 @@ export default (context: IExtensionContext) => {
           kind: 'PrometheusRule',
           metadata: {
             labels: {
-              'y.ntnl.io/component': 'market-data-collector',
+              'y.ntnl.io/component': 'data-collector',
               'y.ntnl.io/version': ctx.version ?? envCtx.version,
             },
-            name: 'market-data-collector-prometheus-rules',
+            name: 'data-collector-prometheus-rules',
             namespace: 'yuan',
           },
           spec: {
             groups: [
               {
-                name: 'market-data-collector.rules',
+                name: 'data-collector.rules',
                 rules: [
                   {
-                    alert: 'MarketDataCollectorCronjobError',
+                    alert: 'DataCollectorCronjobError',
                     annotations: {
-                      description:
-                        'Cronjob {{$labels.datasource_id}}-{{$labels.product_id}}-{{$labels.period_in_sec}} Failed',
-                      runbook_url: 'https://tradelife.feishu.cn/wiki/wikcnHcDrpMQi2Og6ALlpvrxHBS',
-                      summary: 'Market data Collector Cronjob Failed',
+                      description: 'Cronjob {{$labels.series_id}} Failed',
+                      runbook_url: 'TBD, contact c1@ntnl.io for help',
+                      summary: 'data Collector Cronjob Failed',
                     },
                     for: '5m',
-                    expr: 'sum(market_data_collector_cronjob_status{status="error"}) by (datasource_id, product_id, period_in_sec) > 0',
+                    expr: 'sum(data_collector_cronjob_status{status="error"}) by (series_id) > 0',
                     labels: {
                       severity: 'error',
                     },

@@ -30,15 +30,15 @@ import {
 interface ICopyDataRelation {
   /** Type of the Data record to collect */
   type: string;
-  /** Tags to perform the query and copy */
-  tags: Record<string, string>;
+  /** series id is a path to identify a data series */
+  series_id: string;
   /** Pattern of CronJob */
   cron_pattern: string;
   /** Timezone for CronJob evaluation */
   cron_timezone: string;
   /** disable this relation (false equivalent to not set before) */
   disabled?: boolean;
-  /** default to 0, means start from the latest period, above 0 means pull start from earlier periods */
+  /** default to 0, means start from the latest data record, above 0 means pull start from earlier data records */
   replay_count?: number;
 }
 
@@ -64,6 +64,10 @@ const schema: JSONSchema7 = {
       type: 'object',
       title: 'Tags',
     },
+    series_id: {
+      type: 'string',
+      title: 'Series ID',
+    },
     cron_pattern: {
       type: 'string',
       title: 'Pattern of CronJob: when to pull data',
@@ -84,11 +88,11 @@ const schema: JSONSchema7 = {
 };
 const ajv = new Ajv();
 
-const HV_URL = process.env.HV_URL!;
+const HOST_URL = process.env.HOST_URL!;
 const STORAGE_TERMINAL_ID = process.env.STORAGE_TERMINAL_ID!;
 const TERMINAL_ID = process.env.TERMINAL_ID || 'DataCollector';
 
-const term = new Terminal(HV_URL, {
+const term = new Terminal(HOST_URL, {
   terminal_id: TERMINAL_ID,
   name: 'Data Collector',
   status: 'OK',
@@ -212,7 +216,7 @@ const runTask = (cdr: ICopyDataRelation) =>
     const reportStatus = () => {
       for (const s of ['running', 'error', 'success']) {
         MetricCronjobStatus.set(status === s ? 1 : 0, {
-          ...cdr.tags,
+          series_id: cdr.series_id,
           status: s,
         });
       }
@@ -244,7 +248,9 @@ const runTask = (cdr: ICopyDataRelation) =>
         defer(() =>
           term.queryDataRecords({
             type: cdr.type,
-            tags: cdr.tags,
+            tags: {
+              series_id: cdr.series_id,
+            },
             options: {
               skip: cdr.replay_count || 0,
               sort: [['frozen_at', -1]],
@@ -292,7 +298,9 @@ const runTask = (cdr: ICopyDataRelation) =>
             term
               .copyDataRecords({
                 type: cdr.type,
-                tags: cdr.tags,
+                tags: {
+                  series_id: cdr.series_id,
+                },
                 time_range: [lastTime, Date.now()],
                 receiver_terminal_id: STORAGE_TERMINAL_ID,
               })
@@ -339,7 +347,7 @@ const runTask = (cdr: ICopyDataRelation) =>
       taskFinalize$.subscribe(() => {
         MetricDataCollectorLatencyMsBucket.observe(completed_at - started_at, {
           status: status,
-          ...cdr.tags,
+          series_id: cdr.series_id,
         });
       }),
     );

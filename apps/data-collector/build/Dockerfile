@@ -16,11 +16,11 @@ WORKDIR /app
 
 ENV NODE_ENV=production
 
-COPY --chown=node:node ./out/app-market-data-collector-out /app
+COPY --chown=node:node ./out/app-data-collector-out /app
 
 RUN node create-links.js create
 
-WORKDIR /app/apps/market-data-collector
+WORKDIR /app/apps/data-collector
 
 # USER nobody
 CMD ["node", "./lib/index.js"]
