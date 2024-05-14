@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/app-data-collector",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/app-data-collector_v0.0.1",
+      "date": "Tue, 14 May 2024 15:49:06 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add data collector as a fork of market data collector"
+          }
+        ]
+      }
+    }
+  ]
+}
