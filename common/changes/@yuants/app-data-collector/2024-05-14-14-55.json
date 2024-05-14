@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-data-collector",
+      "comment": "add data collector as a fork of market data collector",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-data-collector"
+}
