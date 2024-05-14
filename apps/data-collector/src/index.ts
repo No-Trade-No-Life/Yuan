@@ -95,7 +95,6 @@ const TERMINAL_ID = process.env.TERMINAL_ID || 'DataCollector';
 const term = new Terminal(HOST_URL, {
   terminal_id: TERMINAL_ID,
   name: 'Data Collector',
-  status: 'OK',
 });
 
 const listWatch = <T, K>(
