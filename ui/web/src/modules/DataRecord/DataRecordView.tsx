@@ -34,6 +34,11 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
       terminal
         .queryDataRecords<T>({
           type: props.TYPE,
+          tags: Object.fromEntries(
+            Object.entries(searchFormData)
+              .map(([k, v]) => [k, `${v}`])
+              .filter(([, v]) => v !== ''),
+          ),
           options: {
             sort: [
               //
