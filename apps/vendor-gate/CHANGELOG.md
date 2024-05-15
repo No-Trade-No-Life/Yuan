@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-gate
 
-This log was last generated on Tue, 14 May 2024 15:49:06 GMT and should not be manually modified.
+This log was last generated on Wed, 15 May 2024 13:58:39 GMT and should not be manually modified.
+
+## 0.1.3
+Wed, 15 May 2024 13:58:39 GMT
+
+### Patches
+
+- add copy funding rate
 
 ## 0.1.2
 Tue, 14 May 2024 15:49:06 GMT
