@@ -26,6 +26,7 @@ import {
   first,
   firstValueFrom,
   from,
+  interval,
   lastValueFrom,
   map,
   mergeMap,
@@ -864,8 +865,11 @@ defer(async () => {
         },
       },
     },
-    (msg) =>
-      defer(async () => {
+    (msg, output$) => {
+      const sub = interval(5000).subscribe(() => {
+        output$.next({});
+      });
+      return defer(async () => {
         if (msg.req.tags?.series_id === undefined) {
           return { res: { code: 400, message: 'series_id is required' } };
         }
@@ -876,7 +880,7 @@ defer(async () => {
         while (true) {
           const res = await client.getFundingRateHistory({
             instId: product_id,
-            before: `${current_end}`,
+            after: `${current_end}`,
           });
           if (res.code !== '0') {
             return { res: { code: +res.code, message: res.msg } };
@@ -915,10 +919,23 @@ defer(async () => {
               }),
             ),
             toArray(),
-            mergeMap((v) => terminal.updateDataRecords(v)),
+            mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
           ),
         );
         return { res: { code: 0, message: 'OK' } };
-      }),
+      }).pipe(
+        //
+        tap({
+          finalize: () => {
+            console.info(
+              formatTime(Date.now()),
+              `CopyDataRecords`,
+              `series_id=${msg.req.tags?.series_id} finalized`,
+            );
+            sub.unsubscribe();
+          },
+        }),
+      );
+    },
   );
 }).subscribe();

@@ -18,6 +18,7 @@ import { roundToStep } from '@yuants/utils';
 
 import {
   EMPTY,
+  bufferCount,
   catchError,
   combineLatest,
   combineLatestWith,
@@ -30,6 +31,7 @@ import {
   firstValueFrom,
   from,
   groupBy,
+  interval,
   lastValueFrom,
   map,
   mergeMap,
@@ -1236,7 +1238,7 @@ import { HuobiClient } from './api';
     {
       required: ['type', 'tags'],
       properties: {
-        type: { const: 'copy_data_relation' },
+        type: { const: 'funding_rate' },
         tags: {
           type: 'object',
           required: ['series_id'],
@@ -1246,8 +1248,12 @@ import { HuobiClient } from './api';
         },
       },
     },
-    (msg) =>
-      defer(async () => {
+    (msg, output$) => {
+      const sub = interval(1000).subscribe(() => {
+        output$.next({});
+      });
+      return defer(async () => {
+        console.info(formatTime(Date.now()), `CopyDataRecords for ${account_id}`, JSON.stringify(msg));
         if (msg.req.tags?.series_id === undefined) {
           return { res: { code: 400, message: 'series_id is required' } };
         }
@@ -1259,6 +1265,7 @@ import { HuobiClient } from './api';
         while (true) {
           const res = await client.getSwapHistoricalFundingRate({
             contract_code: product_id,
+            page_index: current_page++,
           });
           if (res.status !== 'ok') {
             return { res: { code: 500, message: 'not OK' } };
@@ -1272,10 +1279,10 @@ import { HuobiClient } from './api';
             }
           }
           total_page = res.data.total_page;
-          if (current_page >= total_page || +res.data.data[res.data.data.length - 1].funding_time >= start) {
+          if (current_page >= total_page || +res.data.data[res.data.data.length - 1].funding_time <= start) {
             break;
           }
-          await firstValueFrom(timer(1000));
+          // await firstValueFrom(timer(1000));
         }
         funding_rate_history.sort((a, b) => +a.funding_time - +b.funding_time);
 
@@ -1300,11 +1307,18 @@ import { HuobiClient } from './api';
                 },
               }),
             ),
-            toArray(),
-            mergeMap((v) => terminal.updateDataRecords(v)),
+            bufferCount(2000),
+            mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
           ),
         );
         return { res: { code: 0, message: 'OK' } };
-      }),
+      }).pipe(
+        tap({
+          finalize: () => {
+            sub.unsubscribe();
+          },
+        }),
+      );
+    },
   );
 })();
