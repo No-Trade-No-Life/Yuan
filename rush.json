@@ -556,6 +556,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/vendor-binance",
+      "projectFolder": "apps/vendor-binance",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/vendor-okx",
       "projectFolder": "apps/vendor-okx",
       "shouldPublish": true
