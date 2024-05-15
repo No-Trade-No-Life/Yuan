@@ -262,7 +262,7 @@ import { GateClient } from './api';
           from(funding_rate_history).pipe(
             map(
               (v): IDataRecord<IFundingRate> => ({
-                id: encodePath('okx', product_id, v.t * 1000),
+                id: encodePath('gate', product_id, v.t * 1000),
                 type: 'funding_rate',
                 created_at: v.t * 1000,
                 updated_at: v.t * 1000,
