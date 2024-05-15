@@ -1,9 +1,35 @@
-import { IAccountInfo, IOrder, IPosition, IProduct } from '@yuants/data-model';
+import {
+  IAccountInfo,
+  IDataRecord,
+  IOrder,
+  IPosition,
+  IProduct,
+  decodePath,
+  encodePath,
+  formatTime,
+} from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
-import { combineLatest, defer, from, map, mergeMap, repeat, retry, shareReplay, toArray } from 'rxjs';
+import {
+  combineLatest,
+  concatWith,
+  defer,
+  firstValueFrom,
+  from,
+  interval,
+  lastValueFrom,
+  map,
+  mergeMap,
+  of,
+  repeat,
+  retry,
+  shareReplay,
+  tap,
+  timer,
+  toArray,
+} from 'rxjs';
 import { GateClient } from './api';
 
 (async () => {
@@ -189,5 +215,90 @@ import { GateClient } from './api';
         await client.deleteFutureOrders('usdt', order.order_id!);
         return { res: { code: 0, message: 'OK' } };
       }),
+  );
+
+  interface IFundingRate {
+    series_id: string;
+    datasource_id: string;
+    product_id: string;
+    funding_at: number;
+    funding_rate: number;
+  }
+
+  terminal.provideService(
+    'CopyDataRecords',
+    {
+      required: ['type', 'tags'],
+      properties: {
+        type: { const: 'funding_rate' },
+        tags: {
+          type: 'object',
+          required: ['series_id'],
+          properties: {
+            series_id: { type: 'string', pattern: '^gate/.+' },
+          },
+        },
+      },
+    },
+    (msg, output$) => {
+      const sub = interval(5000).subscribe(() => {
+        output$.next({});
+      });
+      return defer(async () => {
+        if (msg.req.tags?.series_id === undefined) {
+          return { res: { code: 400, message: 'series_id is required' } };
+        }
+        const [start, end] = msg.req.time_range || [0, Date.now()];
+        const [datasource_id, product_id] = decodePath(msg.req.tags.series_id);
+        // best effort to get all funding rate history required
+        const limit = Math.min(1000, Math.round((end - start) / 3600_000));
+        const funding_rate_history = await client.getFutureFundingRate('usdt', {
+          contract: product_id,
+          limit,
+        });
+        funding_rate_history.sort((a, b) => a.t - b.t);
+        // there will be at most 1000 records, so we don't need to chunk it by bufferCount
+        await lastValueFrom(
+          from(funding_rate_history).pipe(
+            map(
+              (v): IDataRecord<IFundingRate> => ({
+                id: encodePath('gate', product_id, v.t * 1000),
+                type: 'funding_rate',
+                created_at: v.t * 1000,
+                updated_at: v.t * 1000,
+                frozen_at: v.t * 1000,
+                tags: {
+                  series_id: msg.req.tags!.series_id,
+                  datasource_id,
+                  product_id,
+                },
+                origin: {
+                  series_id: msg.req.tags!.series_id,
+                  product_id,
+                  datasource_id,
+                  funding_rate: +v.r,
+                  funding_at: v.t * 1000,
+                },
+              }),
+            ),
+            toArray(),
+            mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
+          ),
+        );
+        return { res: { code: 0, message: 'OK' } };
+      }).pipe(
+        //
+        tap({
+          finalize: () => {
+            console.info(
+              formatTime(Date.now()),
+              `CopyDataRecords`,
+              `series_id=${msg.req.tags?.series_id} finalized`,
+            );
+            sub.unsubscribe();
+          },
+        }),
+      );
+    },
   );
 })();
