@@ -845,6 +845,7 @@ defer(async () => {
 
   interface IFundingRate {
     series_id: string;
+    datasource_id: string;
     product_id: string;
     funding_at: number;
     funding_rate: number;
@@ -874,7 +875,7 @@ defer(async () => {
           return { res: { code: 400, message: 'series_id is required' } };
         }
         const [start, end] = msg.req.time_range || [0, Date.now()];
-        const [, product_id] = decodePath(msg.req.tags.series_id);
+        const [datasource_id, product_id] = decodePath(msg.req.tags.series_id);
         const funding_rate_history = [];
         let current_end = end;
         while (true) {
@@ -908,11 +909,13 @@ defer(async () => {
                 frozen_at: +v.fundingTime,
                 tags: {
                   series_id: msg.req.tags!.series_id,
-                  product_id: product_id,
+                  datasource_id,
+                  product_id,
                 },
                 origin: {
                   series_id: msg.req.tags!.series_id,
                   product_id,
+                  datasource_id,
                   funding_rate: +v.fundingRate,
                   funding_at: +v.fundingTime,
                 },

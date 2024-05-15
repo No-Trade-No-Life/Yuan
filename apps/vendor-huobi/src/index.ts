@@ -1228,6 +1228,7 @@ import { HuobiClient } from './api';
 
   interface IFundingRate {
     series_id: string;
+    datasource_id: string;
     product_id: string;
     funding_at: number;
     funding_rate: number;
@@ -1258,7 +1259,7 @@ import { HuobiClient } from './api';
           return { res: { code: 400, message: 'series_id is required' } };
         }
         const [start, end] = msg.req.time_range || [0, Date.now()];
-        const [, product_id] = decodePath(msg.req.tags.series_id);
+        const [datasource_id, product_id] = decodePath(msg.req.tags.series_id);
         const funding_rate_history = [];
         let current_page = 0;
         let total_page = 1;
@@ -1297,10 +1298,12 @@ import { HuobiClient } from './api';
                 frozen_at: +v.funding_time,
                 tags: {
                   series_id: msg.req.tags!.series_id,
-                  product_id: product_id,
+                  datasource_id,
+                  product_id,
                 },
                 origin: {
                   series_id: msg.req.tags!.series_id,
+                  datasource_id,
                   product_id,
                   funding_rate: +v.funding_rate,
                   funding_at: +v.funding_time,
