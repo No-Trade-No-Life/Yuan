@@ -257,7 +257,7 @@ import { GateClient } from './api';
           limit,
         });
         funding_rate_history.sort((a, b) => a.t - b.t);
-        // there will be at most 300 records, so we don't need to chunk it by bufferCount
+        // there will be at most 1000 records, so we don't need to chunk it by bufferCount
         await lastValueFrom(
           from(funding_rate_history).pipe(
             map(
