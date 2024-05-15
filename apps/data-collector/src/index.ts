@@ -58,11 +58,11 @@ const MetricCronjobStatus = PromRegistry.create(
 const schema: JSONSchema7 = {
   type: 'object',
   title: 'Data Collector Copy Data Relation',
-  required: ['typ', 'tag', 'cron_pattern', 'cron_timezone'],
+  required: ['type', 'series_id', 'cron_pattern', 'cron_timezone'],
   properties: {
-    tags: {
-      type: 'object',
-      title: 'Tags',
+    type: {
+      type: 'string',
+      title: 'Type of Data Record',
     },
     series_id: {
       type: 'string',

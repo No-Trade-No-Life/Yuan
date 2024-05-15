@@ -1,5 +1,6 @@
 import {
   IAccountInfo,
+  IDataRecord,
   IOrder,
   IPosition,
   IProduct,
@@ -17,6 +18,7 @@ import { roundToStep } from '@yuants/utils';
 
 import {
   EMPTY,
+  bufferCount,
   catchError,
   combineLatest,
   combineLatestWith,
@@ -29,6 +31,8 @@ import {
   firstValueFrom,
   from,
   groupBy,
+  interval,
+  lastValueFrom,
   map,
   mergeMap,
   of,
@@ -46,9 +50,6 @@ import {
 import { HuobiClient } from './api';
 
 (async () => {
-  if (process.env.DEBUG_MODE === 'true') {
-    return;
-  }
   const client = new HuobiClient({
     auth: {
       access_key: process.env.ACCESS_KEY!,
@@ -1224,37 +1225,103 @@ import { HuobiClient } from './api';
         return { res: { code: 400, message: 'INVALID_STATUS' } };
       }),
   );
-})();
 
-// for testing - to be removed after the api implementation is done
-(async () => {
-  if (process.env.DEBUG_MODE !== 'true') {
-    return;
+  interface IFundingRate {
+    series_id: string;
+    datasource_id: string;
+    product_id: string;
+    funding_at: number;
+    funding_rate: number;
   }
-  const client = new HuobiClient({
-    auth: {
-      access_key: process.env.ACCESS_KEY!,
-      secret_key: process.env.SECRET_KEY!,
+
+  terminal.provideService(
+    'CopyDataRecords',
+    {
+      required: ['type', 'tags'],
+      properties: {
+        type: { const: 'funding_rate' },
+        tags: {
+          type: 'object',
+          required: ['series_id'],
+          properties: {
+            series_id: { type: 'string', pattern: '^huobi/.+' },
+          },
+        },
+      },
     },
-  });
+    (msg, output$) => {
+      const sub = interval(1000).subscribe(() => {
+        output$.next({});
+      });
+      return defer(async () => {
+        console.info(formatTime(Date.now()), `CopyDataRecords for ${account_id}`, JSON.stringify(msg));
+        if (msg.req.tags?.series_id === undefined) {
+          return { res: { code: 400, message: 'series_id is required' } };
+        }
+        const [start, end] = msg.req.time_range || [0, Date.now()];
+        const [datasource_id, product_id] = decodePath(msg.req.tags.series_id);
+        const funding_rate_history = [];
+        let current_page = 0;
+        let total_page = 1;
+        while (true) {
+          const res = await client.getSwapHistoricalFundingRate({
+            contract_code: product_id,
+            page_index: current_page++,
+          });
+          if (res.status !== 'ok') {
+            return { res: { code: 500, message: 'not OK' } };
+          }
+          if (res.data.data.length === 0) {
+            break;
+          }
+          for (const v of res.data.data) {
+            if (+v.funding_time <= end) {
+              funding_rate_history.push(v);
+            }
+          }
+          total_page = res.data.total_page;
+          if (current_page >= total_page || +res.data.data[res.data.data.length - 1].funding_time <= start) {
+            break;
+          }
+          // await firstValueFrom(timer(1000));
+        }
+        funding_rate_history.sort((a, b) => +a.funding_time - +b.funding_time);
 
-  const huobiAccount = await client.getAccount();
-  console.info(formatTime(Date.now()), 'huobiAccount', JSON.stringify(huobiAccount));
-
-  const uid = huobiAccount.data[0].id;
-
-  console.info(
-    JSON.stringify(await client.request('GET', '/v1/cross-margin/loan-info', client.spot_api_root)),
-  );
-
-  const priceRes = await client.request('GET', `/market/detail/merged`, client.spot_api_root, {
-    symbol: 'dogeusdt',
-  });
-  console.info(priceRes);
-
-  console.info(
-    JSON.stringify(
-      await client.request('GET', `/v1/account/accounts/${60841683}/balance`, client.spot_api_root),
-    ),
+        await lastValueFrom(
+          from(funding_rate_history).pipe(
+            map(
+              (v): IDataRecord<IFundingRate> => ({
+                id: encodePath('huobi', product_id, v.funding_time),
+                type: 'funding_rate',
+                created_at: +v.funding_time,
+                updated_at: +v.funding_time,
+                frozen_at: +v.funding_time,
+                tags: {
+                  series_id: msg.req.tags!.series_id,
+                  datasource_id,
+                  product_id,
+                },
+                origin: {
+                  series_id: msg.req.tags!.series_id,
+                  datasource_id,
+                  product_id,
+                  funding_rate: +v.funding_rate,
+                  funding_at: +v.funding_time,
+                },
+              }),
+            ),
+            bufferCount(2000),
+            mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
+          ),
+        );
+        return { res: { code: 0, message: 'OK' } };
+      }).pipe(
+        tap({
+          finalize: () => {
+            sub.unsubscribe();
+          },
+        }),
+      );
+    },
   );
 })();
