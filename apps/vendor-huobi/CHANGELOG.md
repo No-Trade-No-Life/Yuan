@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Tue, 14 May 2024 15:49:06 GMT and should not be manually modified.
+This log was last generated on Wed, 15 May 2024 13:02:58 GMT and should not be manually modified.
+
+## 0.2.2
+Wed, 15 May 2024 13:02:58 GMT
+
+### Patches
+
+- add copy funding rate
 
 ## 0.2.1
 Tue, 14 May 2024 15:49:06 GMT
