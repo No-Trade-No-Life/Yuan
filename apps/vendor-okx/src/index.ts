@@ -1,5 +1,6 @@
 import {
   IAccountInfo,
+  IDataRecord,
   IOrder,
   IPosition,
   IProduct,
@@ -20,22 +21,21 @@ import {
   combineLatest,
   concatWith,
   defer,
-  delay,
   delayWhen,
   filter,
   first,
   firstValueFrom,
   from,
-  interval,
+  lastValueFrom,
   map,
   mergeMap,
   of,
-  raceWith,
   repeat,
   retry,
   shareReplay,
   tap,
   timeout,
+  timer,
   toArray,
 } from 'rxjs';
 import { OkxClient } from './api';
@@ -838,6 +838,86 @@ defer(async () => {
         if (res.code !== '0') {
           return { res: { code: +res.code, message: res.msg } };
         }
+        return { res: { code: 0, message: 'OK' } };
+      }),
+  );
+
+  interface IFundingRate {
+    series_id: string;
+    product_id: string;
+    funding_at: number;
+    funding_rate: number;
+  }
+
+  terminal.provideService(
+    'CopyDataRecords',
+    {
+      required: ['type', 'tags'],
+      properties: {
+        type: { const: 'funding_rate' },
+        tags: {
+          type: 'object',
+          required: ['series_id'],
+          properties: {
+            series_id: { type: 'string', pattern: '^okx/.+' },
+          },
+        },
+      },
+    },
+    (msg) =>
+      defer(async () => {
+        if (msg.req.tags?.series_id === undefined) {
+          return { res: { code: 400, message: 'series_id is required' } };
+        }
+        const [start, end] = msg.req.time_range || [0, Date.now()];
+        const [, product_id] = decodePath(msg.req.tags.series_id);
+        const funding_rate_history = [];
+        let current_end = end;
+        while (true) {
+          const res = await client.getFundingRateHistory({
+            instId: product_id,
+            before: `${current_end}`,
+          });
+          if (res.code !== '0') {
+            return { res: { code: +res.code, message: res.msg } };
+          }
+          if (res.data.length === 0) {
+            break;
+          }
+          funding_rate_history.push(...res.data);
+          current_end = +res.data[res.data.length - 1].fundingTime;
+          if (current_end <= start) {
+            break;
+          }
+          await firstValueFrom(timer(1000));
+        }
+        funding_rate_history.sort((a, b) => +a.fundingTime - +b.fundingTime);
+        // there will be at most 300 records, so we don't need to chunk it by bufferCount
+        await lastValueFrom(
+          from(funding_rate_history).pipe(
+            map(
+              (v): IDataRecord<IFundingRate> => ({
+                id: encodePath('okx', product_id, v.fundingTime),
+                type: 'funding_rate',
+                created_at: +v.fundingTime,
+                updated_at: +v.fundingTime,
+                frozen_at: +v.fundingTime,
+                tags: {
+                  series_id: msg.req.tags!.series_id,
+                  product_id: product_id,
+                },
+                origin: {
+                  series_id: msg.req.tags!.series_id,
+                  product_id,
+                  funding_rate: +v.fundingRate,
+                  funding_at: +v.fundingTime,
+                },
+              }),
+            ),
+            toArray(),
+            mergeMap((v) => terminal.updateDataRecords(v)),
+          ),
+        );
         return { res: { code: 0, message: 'OK' } };
       }),
   );

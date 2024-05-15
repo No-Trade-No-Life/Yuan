@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-okx",
+      "comment": "add copy funding rate",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-okx"
+}
