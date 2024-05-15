@@ -1269,6 +1269,7 @@ import { HuobiClient } from './api';
             page_index: current_page++,
           });
           if (res.status !== 'ok') {
+            console.error(formatTime(Date.now()), `CopyDataRecords for ${account_id}`, JSON.stringify(res));
             return { res: { code: 500, message: 'not OK' } };
           }
           if (res.data.data.length === 0) {
@@ -1283,7 +1284,7 @@ import { HuobiClient } from './api';
           if (current_page >= total_page || +res.data.data[res.data.data.length - 1].funding_time <= start) {
             break;
           }
-          // await firstValueFrom(timer(1000));
+          await firstValueFrom(timer(100));
         }
         funding_rate_history.sort((a, b) => +a.funding_time - +b.funding_time);
 
@@ -1323,5 +1324,6 @@ import { HuobiClient } from './api';
         }),
       );
     },
+    { concurrent: 10 },
   );
 })();
