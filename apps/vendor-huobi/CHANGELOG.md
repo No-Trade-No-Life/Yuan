@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Wed, 15 May 2024 13:02:58 GMT and should not be manually modified.
+This log was last generated on Thu, 16 May 2024 11:05:17 GMT and should not be manually modified.
+
+## 0.2.3
+Thu, 16 May 2024 11:05:17 GMT
+
+### Patches
+
+- add concurrent limit
 
 ## 0.2.2
 Wed, 15 May 2024 13:02:58 GMT
