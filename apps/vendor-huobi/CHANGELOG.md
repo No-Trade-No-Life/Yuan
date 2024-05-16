@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Thu, 16 May 2024 11:05:17 GMT and should not be manually modified.
+This log was last generated on Thu, 16 May 2024 18:00:51 GMT and should not be manually modified.
+
+## 0.2.4
+Thu, 16 May 2024 18:00:51 GMT
+
+### Patches
+
+- update model & valuation
 
 ## 0.2.3
 Thu, 16 May 2024 11:05:17 GMT

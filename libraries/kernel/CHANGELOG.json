@@ -2,6 +2,31 @@
   "name": "@yuants/kernel",
   "entries": [
     {
+      "version": "0.11.1",
+      "tag": "@yuants/kernel_v0.11.1",
+      "date": "Thu, 16 May 2024 18:00:51 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "use updated_at and position's valuation"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.8.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.15.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.11.0",
       "tag": "@yuants/kernel_v0.11.0",
       "date": "Tue, 23 Apr 2024 16:29:03 GMT",
