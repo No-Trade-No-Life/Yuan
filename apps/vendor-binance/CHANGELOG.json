@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/vendor-binance",
+  "entries": [
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/vendor-binance_v0.1.0",
+      "date": "Thu, 16 May 2024 11:05:17 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "new vendor"
+          }
+        ]
+      }
+    }
+  ]
+}
