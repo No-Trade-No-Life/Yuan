@@ -222,10 +222,10 @@ import { HuobiClient } from './api';
 
       const positions$ = defer(() => client.getSwapCrossPositionInfo()).pipe(
         //
-        mergeMap((res) =>
+        combineLatestWith(mapProductIdToPerpetualProduct$.pipe(first())),
+        mergeMap(([res, mapProductIdToPerpetualProduct]) =>
           from(res.data).pipe(
-            combineLatestWith(mapProductIdToPerpetualProduct$.pipe(first())),
-            map(([v, mapProductIdToPerpetualProduct]): IPosition => {
+            map((v): IPosition => {
               const product_id = v.contract_code;
               const theProduct = mapProductIdToPerpetualProduct.get(product_id);
               const valuation = v.volume * v.last_price * (theProduct?.value_scale || 1);

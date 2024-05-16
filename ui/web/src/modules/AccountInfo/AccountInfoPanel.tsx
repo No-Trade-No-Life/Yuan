@@ -165,6 +165,8 @@ registerPage('AccountInfoPanel', () => {
         positionSummary = _x;
       });
   }
+  const valuation = accountInfo.positions.reduce((acc, cur) => acc + (cur.valuation || 0), 0);
+  const actual_leverage = valuation / accountInfo.money.equity;
 
   const updatedAt = accountInfo.updated_at!;
   const renderedAt = Date.now();
@@ -214,6 +216,14 @@ registerPage('AccountInfoPanel', () => {
             key: '保证金使用率',
             value: `${((accountInfo.money.used / accountInfo.money.equity) * 100).toFixed(2)}%`,
           },
+          {
+            key: '头寸总估值',
+            value: valuation.toFixed(2) + ' ' + accountInfo.money.currency,
+          },
+          {
+            key: '实际杠杆',
+            value: actual_leverage.toFixed(2) + 'x',
+          },
           // {
           //   key: '账户系统杠杆率',
           //   value: `${accountInfo.money.leverage ?? 1}x`,
@@ -249,6 +259,16 @@ registerPage('AccountInfoPanel', () => {
                 title: '方向',
                 render: (_, pos) =>
                   (({ ['LONG']: '多', ['SHORT']: '空' } as any)[pos.net.direction!] || pos.net.direction),
+              },
+              {
+                title: '估值',
+                render: (_, pos) => (
+                  <Space vertical align="start">
+                    <div>净 {+pos.net.valuation?.toFixed(8)}</div>
+                    <div>多 {+pos.long.valuation?.toFixed(8)}</div>
+                    <div>空 {+pos.short.valuation?.toFixed(8)}</div>
+                  </Space>
+                ),
               },
               {
                 title: '持仓量',
@@ -363,6 +383,10 @@ registerPage('AccountInfoPanel', () => {
               {
                 title: '盈亏',
                 render: (_, pos) => +pos.floating_profit?.toFixed(8),
+              },
+              {
+                title: '估值',
+                render: (_, pos) => +pos.valuation?.toFixed(8),
               },
               {
                 title: '注释',
