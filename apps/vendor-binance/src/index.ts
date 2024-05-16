@@ -174,5 +174,6 @@ defer(async () => {
         }),
       );
     },
+    { concurrent: 10 },
   );
 }).subscribe();
