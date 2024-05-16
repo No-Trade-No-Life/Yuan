@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-okx",
+      "comment": "fix okx margin products",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-okx"
+}

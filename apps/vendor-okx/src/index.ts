@@ -112,6 +112,10 @@ const marginProducts$ = marginInstruments$.pipe(
   shareReplay(1),
 );
 
+const mapProductIdToMarginProduct$ = marginProducts$.pipe(
+  map((x) => new Map(x.map((x) => [x.product_id, x])), shareReplay(1)),
+);
+
 usdtSwapProducts$.pipe(delayWhen((products) => terminal.updateProducts(products))).subscribe((products) => {
   console.info(formatTime(Date.now()), 'SWAP Products updated', products.length);
 });
@@ -299,81 +303,95 @@ const tradingAccountInfo$ = combineLatest([
   accountPosition$,
   pendingOrders$,
   mapProductIdToUsdtSwapProduct$,
+  mapProductIdToMarginProduct$,
 ]).pipe(
-  map(([uid, balanceApi, positions, orders, mapProductIdToUsdtSwapProduct]): IAccountInfo => {
-    const usdtBalance = balanceApi.data[0]?.details.find((x) => x.ccy === 'USDT');
-    const equity = +(usdtBalance?.eq ?? 0);
-    const balance = +(usdtBalance?.cashBal ?? 0);
-    const free = +(usdtBalance?.availEq ?? 0);
-    const used = equity - free;
-    // const used = +usdtBalance.frozenBal;
-    const profit = equity - balance;
+  map(
+    ([
+      uid,
+      balanceApi,
+      positions,
+      orders,
+      mapProductIdToUsdtSwapProduct,
+      mapProductIdToMarginProduct,
+    ]): IAccountInfo => {
+      const usdtBalance = balanceApi.data[0]?.details.find((x) => x.ccy === 'USDT');
+      const equity = +(usdtBalance?.eq ?? 0);
+      const balance = +(usdtBalance?.cashBal ?? 0);
+      const free = +(usdtBalance?.availEq ?? 0);
+      const used = equity - free;
+      // const used = +usdtBalance.frozenBal;
+      const profit = equity - balance;
 
-    const account_id = `okx/${uid}/trading`;
-    return {
-      account_id: account_id,
-      timestamp_in_us: Date.now() * 1000,
-      updated_at: Date.now(),
-      money: {
-        currency: 'USDT',
-        equity: equity,
-        balance: balance,
-        used,
-        free,
-        profit,
-      },
-      positions: positions.data.map((x): IPosition => {
-        const direction =
-          x.posSide === 'long' ? 'LONG' : x.posSide === 'short' ? 'SHORT' : +x.pos > 0 ? 'LONG' : 'SHORT';
-        const volume = Math.abs(+x.pos);
-        const product_id = encodePath(x.instType, x.instId);
-        const theProduct = mapProductIdToUsdtSwapProduct.get(product_id);
-        const closable_price = +x.last;
-        const valuation =
-          x.instType === 'SWAP' ? (theProduct?.value_scale ?? 1) * volume * closable_price : 0;
-        return {
-          position_id: x.posId,
-          product_id,
-          direction,
-          volume: volume,
-          free_volume: +x.availPos,
-          closable_price,
-          position_price: +x.avgPx,
-          floating_profit: +x.upl,
-          valuation,
-          // margin: +x.posCcy,
-          // liquidation_price: +x.liqPx,
-          // leverage: +x.lever,
-          // margin_rate: 1 / +x.lever,
-        };
-      }),
-      orders: orders.data.map((x): IOrder => {
-        const order_type = x.ordType === 'market' ? 'MARKET' : x.ordType === 'limit' ? 'LIMIT' : 'UNKNOWN';
+      const account_id = `okx/${uid}/trading`;
+      return {
+        account_id: account_id,
+        timestamp_in_us: Date.now() * 1000,
+        updated_at: Date.now(),
+        money: {
+          currency: 'USDT',
+          equity: equity,
+          balance: balance,
+          used,
+          free,
+          profit,
+        },
+        positions: positions.data.map((x): IPosition => {
+          const direction =
+            x.posSide === 'long' ? 'LONG' : x.posSide === 'short' ? 'SHORT' : +x.pos > 0 ? 'LONG' : 'SHORT';
+          const volume = Math.abs(+x.pos);
+          const product_id = encodePath(x.instType, x.instId);
+          const closable_price = +x.last;
+          const valuation =
+            x.instType === 'SWAP'
+              ? (mapProductIdToUsdtSwapProduct.get(product_id)?.value_scale ?? 1) * volume * closable_price
+              : x.instType === 'MARGIN'
+              ? (mapProductIdToMarginProduct.get(product_id)?.value_scale ?? 1) * volume * closable_price
+              : 0;
 
-        const order_direction =
-          x.side === 'buy'
-            ? x.posSide === 'long'
-              ? 'OPEN_LONG'
-              : 'CLOSE_SHORT'
-            : x.posSide === 'short'
-            ? 'OPEN_SHORT'
-            : 'CLOSE_LONG';
-        return {
-          order_id: x.ordId,
-          account_id,
-          product_id: encodePath(x.instType, x.instId),
-          submit_at: +x.cTime,
-          filled_at: +x.fillTime,
-          order_type,
-          order_direction,
-          volume: +x.sz,
-          traded_volume: +x.accFillSz,
-          price: +x.px,
-          traded_price: +x.avgPx,
-        };
-      }),
-    };
-  }),
+          return {
+            position_id: x.posId,
+            product_id,
+            direction,
+            volume: volume,
+            free_volume: +x.availPos,
+            closable_price,
+            position_price: +x.avgPx,
+            floating_profit: +x.upl,
+            valuation,
+            // margin: +x.posCcy,
+            // liquidation_price: +x.liqPx,
+            // leverage: +x.lever,
+            // margin_rate: 1 / +x.lever,
+          };
+        }),
+        orders: orders.data.map((x): IOrder => {
+          const order_type = x.ordType === 'market' ? 'MARKET' : x.ordType === 'limit' ? 'LIMIT' : 'UNKNOWN';
+
+          const order_direction =
+            x.side === 'buy'
+              ? x.posSide === 'long'
+                ? 'OPEN_LONG'
+                : 'CLOSE_SHORT'
+              : x.posSide === 'short'
+              ? 'OPEN_SHORT'
+              : 'CLOSE_LONG';
+          return {
+            order_id: x.ordId,
+            account_id,
+            product_id: encodePath(x.instType, x.instId),
+            submit_at: +x.cTime,
+            filled_at: +x.fillTime,
+            order_type,
+            order_direction,
+            volume: +x.sz,
+            traded_volume: +x.accFillSz,
+            price: +x.px,
+            traded_price: +x.avgPx,
+          };
+        }),
+      };
+    },
+  ),
   shareReplay(1),
 );
 
