@@ -2,6 +2,23 @@
   "name": "@yuants/data-model",
   "entries": [
     {
+      "version": "0.8.0",
+      "tag": "@yuants/data-model_v0.8.0",
+      "date": "Thu, 16 May 2024 18:00:51 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "position's valuation"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.7.0",
       "tag": "@yuants/data-model_v0.7.0",
       "date": "Tue, 23 Apr 2024 16:29:03 GMT",

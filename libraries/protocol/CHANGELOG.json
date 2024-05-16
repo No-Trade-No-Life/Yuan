@@ -2,6 +2,23 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.15.1",
+      "tag": "@yuants/protocol_v0.15.1",
+      "date": "Thu, 16 May 2024 18:00:51 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.8.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.15.0",
       "tag": "@yuants/protocol_v0.15.0",
       "date": "Tue, 23 Apr 2024 16:29:03 GMT",
