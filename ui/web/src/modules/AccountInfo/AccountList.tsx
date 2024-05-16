@@ -97,8 +97,8 @@ registerPage('AccountList', () => {
               {formatTime(updated_at)}
               {timeLag > 60_000 && (
                 <Typography.Text type="warning">
-                  信息更新于 {formatTime(accountInfo.timestamp_in_us / 1000)}，已经{' '}
-                  {(timeLag / 1000).toFixed(0)} 秒未更新，可能已经失去响应
+                  信息更新于 {formatTime(accountInfo.updated_at!)}，已经 {(timeLag / 1000).toFixed(0)}{' '}
+                  秒未更新，可能已经失去响应
                 </Typography.Text>
               )}
             </Space>

@@ -368,11 +368,11 @@ async function generateEquityImage(accountInfos: IAccountInfo[]): Promise<string
   const maxY = accountInfos.reduce((acc, cur) => Math.max(acc, cur.money.equity), -Infinity);
   const minY = accountInfos.reduce((acc, cur) => Math.min(acc, cur.money.equity), Infinity);
   const maxX = accountInfos
-    .filter((x) => x.timestamp_in_us > 0)
-    .reduce((acc, cur) => Math.max(acc, cur.timestamp_in_us), -Infinity);
+    .filter((x) => x.updated_at! > 0)
+    .reduce((acc, cur) => Math.max(acc, cur.updated_at!), -Infinity);
   const minX = accountInfos
-    .filter((x) => x.timestamp_in_us > 0)
-    .reduce((acc, cur) => Math.min(acc, cur.timestamp_in_us), Infinity);
+    .filter((x) => x.updated_at! > 0)
+    .reduce((acc, cur) => Math.min(acc, cur.updated_at!), Infinity);
 
   const mapX = (v: number) => Math.round((1 - (maxX - v) / (maxX - minX)) * 200);
   const mapY = (v: number) => Math.round(((maxY - v) / (maxY - minY)) * 100);
@@ -393,7 +393,7 @@ async function generateEquityImage(accountInfos: IAccountInfo[]): Promise<string
   ctx.beginPath();
   ctx.moveTo(0, mapY(0));
   for (const info of accountInfos) {
-    ctx.lineTo(mapX(info.timestamp_in_us), mapY(info.money.equity));
+    ctx.lineTo(mapX(info.updated_at!), mapY(info.money.equity));
   }
   ctx.stroke();
 

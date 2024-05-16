@@ -478,6 +478,7 @@ interface IGeneralSpecificRelation {
                     position_price: position.entryPrice || 0,
                     closable_price: position.markPrice || 0,
                     floating_profit: position.unrealizedPnl || 0,
+                    valuation: 0, // TODO: calculate valuation
                   };
                 }),
                 toArray(),
@@ -514,6 +515,7 @@ interface IGeneralSpecificRelation {
             const equity = +(balance[CURRENCY]?.total ?? 0);
             return {
               timestamp_in_us: Date.now() * 1000,
+              updated_at: Date.now(),
               account_id: account_id,
               money: {
                 currency: CURRENCY,

@@ -77,6 +77,7 @@ export const createEmptyAccountInfo = (
   initial_balance: number = 0,
 ): IAccountInfo => ({
   timestamp_in_us: 0,
+  updated_at: 0,
   account_id,
   money: {
     currency,

@@ -208,6 +208,7 @@ export const queryAccountInfo = (
           value_scale *
           (msg.PosiDirection === TThostFtdcPosiDirectionType.THOST_FTDC_PD_Long ? 1 : -1),
         position_price,
+        valuation: 0, // TODO: 估值
       };
     }),
     filter((v) => v.volume !== 0),
@@ -306,6 +307,7 @@ export const queryAccountInfo = (
         positions,
         orders,
         timestamp_in_us: Date.now() * 1e3,
+        updated_at: Date.now(),
       }),
     ),
   );

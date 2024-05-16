@@ -128,27 +128,30 @@ const fromConfig = (config: IFundConfig): Observable<IFundInfo> => {
     mergeMap(([components, rates]) =>
       from(components).pipe(
         reduce((acc, cur) => acc + cur.value * (rates[`${cur.currency}${config.currency}`] ?? 1), 0),
-        map((total) => ({
-          config,
-          accountInfo: {
-            timestamp_in_us: Date.now() * 1e3,
-            account_id: config.account_id,
-            money: {
-              equity: total,
-              currency: config.currency,
-              balance: total,
-              used: 0,
-              free: total,
-              profit: 0,
+        map(
+          (total): IFundInfo => ({
+            config,
+            accountInfo: {
+              timestamp_in_us: Date.now() * 1e3,
+              updated_at: Date.now(),
+              account_id: config.account_id,
+              money: {
+                equity: total,
+                currency: config.currency,
+                balance: total,
+                used: 0,
+                free: total,
+                profit: 0,
+              },
+              positions: [],
+              orders: [],
             },
-            positions: [],
-            orders: [],
-          },
-          fund_price: +(total / config.share).toFixed(6),
-          rates,
-          share: config.share,
-          components,
-        })),
+            fund_price: +(total / config.share).toFixed(6),
+            rates,
+            share: config.share,
+            components,
+          }),
+        ),
       ),
     ),
   );
@@ -220,7 +223,7 @@ const getReport = (info: IFundInfo, investor_id: string): string => {
     '我们会全力维护您的权益，争取取得更好的业绩！',
     '',
     'NTNL 基金运维小组',
-    `${format(info.accountInfo.timestamp_in_us / 1000, 'yyyy年MM月dd日 HH:mm:ss')}`,
+    `${format(info.accountInfo.updated_at!, 'yyyy年MM月dd日 HH:mm:ss')}`,
   ].join('\n');
 };
 

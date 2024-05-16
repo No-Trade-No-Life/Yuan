@@ -13,7 +13,6 @@ export const createEmptyAccountInfo = (
   leverage: number = 1,
   initial_balance: number = 0,
 ): IAccountInfo => ({
-  timestamp_in_us: 0,
   updated_at: 0,
   account_id,
   money: {
@@ -53,6 +52,7 @@ export const mergeAccountInfoPositions = (info: IAccountInfo): Observable<IAccou
                 closable_price:
                   (acc.closable_price * acc.volume + cur.closable_price * cur.volume) /
                   (acc.volume + cur.volume),
+                valuation: acc.valuation + cur.valuation,
               }),
             ),
           ),

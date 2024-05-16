@@ -37,7 +37,7 @@ export interface IAccountInfo {
     orders: IOrder[];
     positions: IPosition[];
     // @deprecated
-    timestamp_in_us: number;
+    timestamp_in_us?: number;
     updated_at?: number;
 }
 
@@ -118,6 +118,7 @@ export interface IPosition {
     position_id: string;
     position_price: number;
     product_id: string;
+    valuation: number;
     volume: number;
 }
 
