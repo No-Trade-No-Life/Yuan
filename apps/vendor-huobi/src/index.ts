@@ -198,6 +198,11 @@ import { HuobiClient } from './api';
     );
   });
 
+  const mapProductIdToPerpetualProduct$ = perpetualContractProducts$.pipe(
+    map((x) => new Map(x.map((v) => [v.product_id, v]))),
+    shareReplay(1),
+  );
+
   // account info
   const perpetualContractAccountInfo$ = of(0).pipe(
     mergeMap(() => {
@@ -219,16 +224,21 @@ import { HuobiClient } from './api';
         //
         mergeMap((res) =>
           from(res.data).pipe(
-            map((v): IPosition => {
+            combineLatestWith(mapProductIdToPerpetualProduct$.pipe(first())),
+            map(([v, mapProductIdToPerpetualProduct]): IPosition => {
+              const product_id = v.contract_code;
+              const theProduct = mapProductIdToPerpetualProduct.get(product_id);
+              const valuation = v.volume * v.last_price * (theProduct?.value_scale || 1);
               return {
                 position_id: `${v.contract_code}/${v.contract_type}/${v.direction}/${v.margin_mode}`,
-                product_id: v.contract_code,
+                product_id,
                 direction: v.direction === 'buy' ? 'LONG' : 'SHORT',
                 volume: v.volume,
                 free_volume: v.available,
                 position_price: v.cost_hold,
                 closable_price: v.last_price,
                 floating_profit: v.profit_unreal,
+                valuation,
               };
             }),
             toArray(),
@@ -425,6 +435,7 @@ import { HuobiClient } from './api';
                     position_price: price,
                     closable_price: price,
                     floating_profit: 0,
+                    valuation: v.balance * price,
                   };
                 }),
               ),

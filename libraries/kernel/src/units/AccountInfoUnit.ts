@@ -66,6 +66,7 @@ export class AccountInfoUnit extends BasicUnit {
       closable_price: NaN,
       floating_profit: 0,
       free_volume: 0,
+      valuation: 0,
     });
   };
 
@@ -200,10 +201,10 @@ export class AccountInfoUnit extends BasicUnit {
     const profit = positions.reduce((acc, cur) => acc + cur.floating_profit, 0);
     const equity = balance + profit;
     const free = equity - used;
-    const timestamp_in_us = this.kernel.currentTimestamp * 1000;
     this.mapAccountIdToAccountInfo.set(accountId, {
       ...theAccountInfo,
-      timestamp_in_us,
+      updated_at: this.kernel.currentTimestamp,
+      timestamp_in_us: this.kernel.currentTimestamp * 1000,
       money: {
         ...theAccountInfo.money,
         equity,

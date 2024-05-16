@@ -169,6 +169,7 @@ All the apps should provide an image and publish it as a npm package. You can de
 
 - [@yuants/app-host](apps/host) Host is a very lightweight message broker. Terminals can connect to the host and send messages to each other. Notice that all terminals in a host should trust each other. In practice, all the terminals in a host belong to the same owner. There's no need to verify every message. You can deploy multiple hosts to isolate the risk.
 - [@yuants/app-market-data-collector](apps/market-data-collector) This will deploy a terminal as a data-collecting service. The terminal collects market data from the market terminals continuously.
+- [@yuants/app-data-collector](apps/data-collector) This will deploy a terminal as a data-collecting service. The terminal collects series data from the data series provider terminals continuously. It's a general version of the market data collector. You can use it to collect any data series.
 - [@yuants/app-agent](apps/agent) This will deploy a terminal as the daemon service of the agent. You can run the agent in **real mode**. It can automatically correct the history data error. It can also automatically restart the agent when it crashes.
 - [@yuants/app-alert-receiver](apps/alert-receiver) This will deploy a terminal as an alert-receiving service. It receives alerts from the alert terminals and sends them to the notifier terminals.
 - [@yuants/app-mongodb-storage](apps/mongodb-storage) This will deploy a terminal as a storage service. It stores data in MongoDB.
@@ -210,9 +211,13 @@ Every vendor is a gateway to connect the external service directly. Your private
 
 - [@yuants/vendor-ccxt](apps/vendor-ccxt) This connects to the "CryptoCurrency eXchange Trading Library" (CCXT). CCXT is a JavaScript / Python / PHP cryptocurrency trading library that supports many cryptocurrency exchanges and trading markets. You can use it to trade cryptocurrencies.
 
+- [@yuants/vendor-binance](apps/vendor-binance) This connects to the Binance Exchange. Binance is a famous crypto exchange.
+
 - [@yuants/vendor-okx](apps/vendor-okx) This connects to the OKX Exchange. OKX is a famous crypto exchange.
 
 - [@yuants/vendor-huobi](apps/vendor-huobi) This connects to the Huobi Exchange. Huobi is a famous crypto exchange.
+
+- [@yuants/vendor-gate](apps/vendor-gate) This connects to the Gate.io Exchange. Gate.io is a famous crypto exchange.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/kernel",
+      "comment": "use updated_at and position's valuation",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/kernel"
+}

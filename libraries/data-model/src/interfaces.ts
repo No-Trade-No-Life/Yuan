@@ -414,6 +414,14 @@ export interface IPosition {
    */
   comment?: string;
 
+  /**
+   * The valuation of the position. (unit: account currency)
+   * 头寸的估值 (单位: 账户货币)
+   *
+   * 无法估值的情况可以暂时填写为 0
+   */
+  valuation: number;
+
   // Position is one of the reasons for occupying margin,
   // but the calculation mechanism of margin is relatively complex, and the algorithms of various exchanges are different.
   // Therefore, Yuan does not calculate the margin based on the final margin given by the exchange.
@@ -535,7 +543,7 @@ export interface IAccountInfo {
    *
    * @deprecated use updated_at instead
    */
-  timestamp_in_us: number;
+  timestamp_in_us?: number;
 }
 
 /**

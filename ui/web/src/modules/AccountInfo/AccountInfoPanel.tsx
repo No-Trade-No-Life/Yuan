@@ -58,6 +58,7 @@ registerPage('AccountInfoPanel', () => {
                           body: `Account: ${accountId}\n${productId}(${
                             direction === 'LONG' ? 'LONG' : 'SHORT'
                           }): ${oldVolume}->${newVolume}\n${formatTime(Date.now())}`,
+                          // @ts-ignore
                           renotify: true,
                           tag: encodePath('AccountInfoPositionChange', accountId, productId, direction),
                         });
@@ -122,6 +123,7 @@ registerPage('AccountInfoPanel', () => {
                 closable_price: 0,
                 position_price: 0,
                 floating_profit: 0,
+                valuation: 0,
               };
               const short = positions.find((p) => p.direction === 'SHORT') ?? {
                 position_id: '@short',
@@ -132,6 +134,7 @@ registerPage('AccountInfoPanel', () => {
                 closable_price: 0,
                 position_price: 0,
                 floating_profit: 0,
+                valuation: 0,
               };
 
               const net: IPosition = {
@@ -148,6 +151,7 @@ registerPage('AccountInfoPanel', () => {
                   (long.closable_price * long.volume - short.closable_price * short.volume) /
                   (long.volume - short.volume),
                 floating_profit: long.floating_profit + short.floating_profit,
+                valuation: long.valuation + short.valuation,
               };
 
               const res: IPositionSummaryItem = { product_id: group.key, long, short, net };
@@ -162,7 +166,7 @@ registerPage('AccountInfoPanel', () => {
       });
   }
 
-  const updatedAt = accountInfo.updated_at || accountInfo.timestamp_in_us / 1000;
+  const updatedAt = accountInfo.updated_at!;
   const renderedAt = Date.now();
 
   const targetTerminalId = Object.entries(terminal?.terminalInfo.subscriptions ?? {}).find(([key, value]) =>

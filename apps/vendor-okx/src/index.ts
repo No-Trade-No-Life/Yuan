@@ -288,13 +288,19 @@ const pendingOrders$ = defer(() => client.getTradeOrdersPending({})).pipe(
   shareReplay(1),
 );
 
+const mapProductIdToUsdtSwapProduct$ = usdtSwapProducts$.pipe(
+  map((x) => new Map(x.map((x) => [x.product_id, x]))),
+  shareReplay(1),
+);
+
 const tradingAccountInfo$ = combineLatest([
   accountUid$,
   accountBalance$,
   accountPosition$,
   pendingOrders$,
+  mapProductIdToUsdtSwapProduct$,
 ]).pipe(
-  map(([uid, balanceApi, positions, orders]): IAccountInfo => {
+  map(([uid, balanceApi, positions, orders, mapProductIdToUsdtSwapProduct]): IAccountInfo => {
     const usdtBalance = balanceApi.data[0]?.details.find((x) => x.ccy === 'USDT');
     const equity = +(usdtBalance?.eq ?? 0);
     const balance = +(usdtBalance?.cashBal ?? 0);
@@ -319,15 +325,22 @@ const tradingAccountInfo$ = combineLatest([
       positions: positions.data.map((x): IPosition => {
         const direction =
           x.posSide === 'long' ? 'LONG' : x.posSide === 'short' ? 'SHORT' : +x.pos > 0 ? 'LONG' : 'SHORT';
+        const volume = Math.abs(+x.pos);
+        const product_id = encodePath(x.instType, x.instId);
+        const theProduct = mapProductIdToUsdtSwapProduct.get(product_id);
+        const closable_price = +x.last;
+        const valuation =
+          x.instType === 'SWAP' ? (theProduct?.value_scale ?? 1) * volume * closable_price : 0;
         return {
           position_id: x.posId,
-          product_id: encodePath(x.instType, x.instId),
+          product_id,
           direction,
-          volume: Math.abs(+x.pos),
+          volume: volume,
           free_volume: +x.availPos,
-          closable_price: +x.last,
+          closable_price,
           position_price: +x.avgPx,
           floating_profit: +x.upl,
+          valuation,
           // margin: +x.posCcy,
           // liquidation_price: +x.liqPx,
           // leverage: +x.lever,

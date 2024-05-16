@@ -14,9 +14,10 @@ import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
 import {
   combineLatest,
+  combineLatestWith,
   concatWith,
   defer,
-  firstValueFrom,
+  first,
   from,
   interval,
   lastValueFrom,
@@ -27,7 +28,6 @@ import {
   retry,
   shareReplay,
   tap,
-  timer,
   toArray,
 } from 'rxjs';
 import { GateClient } from './api';
@@ -77,14 +77,25 @@ import { GateClient } from './api';
     terminal.updateProducts(products).subscribe();
   });
 
+  const mapProductIdToUsdtFutureProduct$ = usdtFutureProducts$.pipe(
+    map((x) => new Map(x.map((x) => [x.product_id, x]))),
+    shareReplay(1),
+  );
+
   const accountFuturePosition$ = defer(() => client.getFuturePositions('usdt')).pipe(
     //
     mergeMap((res) =>
       from(res).pipe(
-        map((position): IPosition => {
+        combineLatestWith(mapProductIdToUsdtFutureProduct$.pipe(first())),
+        map(([position, mapProductIdToUsdtFutureProduct]): IPosition => {
+          const product_id = position.contract;
+          const theProduct = mapProductIdToUsdtFutureProduct.get(product_id);
+          const volume = Math.abs(position.size);
+          const closable_price = +position.mark_price;
+          const valuation = volume * closable_price * (theProduct?.value_scale ?? 1);
           return {
             position_id: `${position.contract}-${position.leverage}-${position.mode}`,
-            product_id: position.contract,
+            product_id,
             direction:
               position.mode === 'dual_long'
                 ? 'LONG'
@@ -93,11 +104,12 @@ import { GateClient } from './api';
                 : position.size > 0
                 ? 'LONG'
                 : 'SHORT',
-            volume: Math.abs(position.size),
+            volume: volume,
             free_volume: Math.abs(position.size),
             position_price: +position.entry_price,
-            closable_price: +position.mark_price,
+            closable_price,
             floating_profit: +position.unrealised_pnl,
+            valuation,
           };
         }),
         toArray(),

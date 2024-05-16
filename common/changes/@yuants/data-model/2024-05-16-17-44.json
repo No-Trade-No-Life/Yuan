@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-model",
+      "comment": "position's valuation",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-model"
+}

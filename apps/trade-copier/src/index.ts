@@ -290,7 +290,7 @@ allAccountIds$
       terminal.useAccountInfo(account_id).pipe(
         pairwise(),
         tap(([info1, info2]) => {
-          const lag = (info2.timestamp_in_us - info1.timestamp_in_us) / 1e3;
+          const lag = info2.updated_at! - info1.updated_at!;
           MetricTimeLag.observe(lag, { account_id, terminal_id: TERMINAL_ID });
         }),
       ),
@@ -408,12 +408,12 @@ async function setup() {
         combineLatest([
           terminal.useAccountInfo(group.target_account_id).pipe(
             //
-            filter((info) => info.timestamp_in_us / 1000 > t),
+            filter((info) => info.updated_at! > t),
           ),
           ...group.tasks.map((task) =>
             terminal.useAccountInfo(task.source_account_id).pipe(
               //
-              filter((info) => info.timestamp_in_us / 1000 > t),
+              filter((info) => info.updated_at! > t),
               map((info) => ({
                 info,
                 task,
@@ -511,6 +511,7 @@ async function setup() {
               floating_profit: 0,
               closable_price: 0,
               position_id: '',
+              valuation: 0,
             }),
           ),
           toArray(),

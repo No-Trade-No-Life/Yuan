@@ -14,7 +14,7 @@ export class AccountFrameUnit extends BasicUnit {
   onEvent(): void | Promise<void> {
     for (const [accountId, accountInfo] of this.accountInfoUnit.mapAccountIdToAccountInfo.entries()) {
       const metric = {
-        timestamp_in_us: accountInfo.timestamp_in_us,
+        timestamp_in_us: accountInfo.updated_at! * 1000,
         balance: accountInfo.money.balance,
         equity: accountInfo.money.equity,
         margin: accountInfo.money.used,
