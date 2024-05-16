@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.3.6",
+      "tag": "@yuants/vendor-okx_v0.3.6",
+      "date": "Thu, 16 May 2024 19:19:48 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix okx margin products"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.5",
       "tag": "@yuants/vendor-okx_v0.3.5",
       "date": "Thu, 16 May 2024 18:00:51 GMT",

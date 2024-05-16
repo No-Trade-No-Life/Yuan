@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Thu, 16 May 2024 18:00:51 GMT and should not be manually modified.
+This log was last generated on Thu, 16 May 2024 19:19:48 GMT and should not be manually modified.
+
+## 0.3.6
+Thu, 16 May 2024 19:19:48 GMT
+
+### Patches
+
+- fix okx margin products
 
 ## 0.3.5
 Thu, 16 May 2024 18:00:51 GMT
