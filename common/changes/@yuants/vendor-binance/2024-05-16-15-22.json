@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-binance",
+      "comment": "add concurrency limit",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-binance"
+}
