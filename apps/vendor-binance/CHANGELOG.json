@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-binance",
   "entries": [
     {
+      "version": "0.1.1",
+      "tag": "@yuants/vendor-binance_v0.1.1",
+      "date": "Thu, 16 May 2024 15:39:22 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add concurrency limit"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.0",
       "tag": "@yuants/vendor-binance_v0.1.0",
       "date": "Thu, 16 May 2024 11:05:17 GMT",
