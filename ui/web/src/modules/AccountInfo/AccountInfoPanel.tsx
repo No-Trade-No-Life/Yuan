@@ -166,7 +166,7 @@ registerPage('AccountInfoPanel', () => {
       });
   }
   const valuation = accountInfo.positions.reduce((acc, cur) => acc + (cur.valuation || 0), 0);
-  const actual_leverage = valuation / accountInfo.money.equity;
+  const actual_leverage = accountInfo.money.equity > 0 ? valuation / accountInfo.money.equity : NaN;
 
   const updatedAt = accountInfo.updated_at!;
   const renderedAt = Date.now();
