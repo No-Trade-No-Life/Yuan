@@ -160,6 +160,7 @@ registerPage('AccountInfoPanel', () => {
           ),
         ),
         toArray(),
+        map((x) => x.sort((a, b) => b.net.valuation - a.net.valuation)),
       )
       .subscribe((_x) => {
         positionSummary = _x;
