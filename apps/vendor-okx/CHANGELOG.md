@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Thu, 16 May 2024 19:19:48 GMT and should not be manually modified.
+This log was last generated on Sun, 19 May 2024 00:24:31 GMT and should not be manually modified.
+
+## 0.3.7
+Sun, 19 May 2024 00:24:31 GMT
+
+### Patches
+
+- fix funding rate
 
 ## 0.3.6
 Thu, 16 May 2024 19:19:48 GMT

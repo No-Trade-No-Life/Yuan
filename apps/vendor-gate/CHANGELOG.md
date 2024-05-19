@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-gate
 
-This log was last generated on Thu, 16 May 2024 18:00:51 GMT and should not be manually modified.
+This log was last generated on Sun, 19 May 2024 00:24:31 GMT and should not be manually modified.
+
+## 0.1.5
+Sun, 19 May 2024 00:24:31 GMT
+
+### Patches
+
+- fix funding rate
 
 ## 0.1.4
 Thu, 16 May 2024 18:00:51 GMT
