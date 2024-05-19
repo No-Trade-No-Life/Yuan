@@ -45,6 +45,8 @@ interface IFundingRate {
   series_id: string;
   datasource_id: string;
   product_id: string;
+  base_currency: string;
+  quote_currency: string;
   funding_at: number;
   funding_rate: number;
 }
@@ -58,11 +60,15 @@ const wrapFundingRateRecord = (v: IFundingRate): IDataRecord<IFundingRate> => ({
     series_id: encodePath(v.datasource_id, v.product_id),
     datasource_id: v.datasource_id,
     product_id: v.product_id,
+    base_currency: v.base_currency,
+    quote_currency: v.quote_currency,
   },
   origin: {
     series_id: encodePath(v.datasource_id, v.product_id),
-    product_id: v.product_id,
     datasource_id: v.datasource_id,
+    product_id: v.product_id,
+    base_currency: v.base_currency,
+    quote_currency: v.quote_currency,
     funding_rate: v.funding_rate,
     funding_at: v.funding_at,
   },
@@ -86,6 +92,11 @@ const futureProducts$ = futureExchangeInfo$.pipe(
       toArray(),
     ),
   ),
+  shareReplay(1),
+);
+
+const mapProductIdToFutureProduct$ = futureProducts$.pipe(
+  map((products) => new Map(products.map((v) => [v.product_id, v]))),
   shareReplay(1),
 );
 
@@ -124,18 +135,30 @@ defer(async () => {
         }
         const [start, end] = msg.req.time_range || [0, Date.now()];
         const [datasource_id, product_id] = decodePath(msg.req.tags.series_id);
+        const mapProductIdToFutureProduct = await firstValueFrom(mapProductIdToFutureProduct$);
+        const theProduct = mapProductIdToFutureProduct.get(product_id);
+        if (!theProduct) {
+          return { res: { code: 404, message: 'product not found' } };
+        }
+        const { base_currency, quote_currency } = theProduct;
+        if (!base_currency || !quote_currency) {
+          return { res: { code: 400, message: 'base_currency and quote_currency is required' } };
+        }
         const funding_rate_history: IFundingRate[] = [];
-        let current_end = end;
+        let current_start = start;
         while (true) {
           const res = await client.getFutureFundingRate({
             symbol: product_id,
-            endTime: current_end,
+            startTime: current_start,
+            endTime: end,
             limit: 1000,
           });
           res.forEach((v) => {
             funding_rate_history.push({
               datasource_id,
               product_id,
+              base_currency,
+              quote_currency,
               series_id: msg.req.tags!.series_id,
               funding_at: v.fundingTime,
               funding_rate: +v.fundingRate,
@@ -144,10 +167,7 @@ defer(async () => {
           if (res.length < 1000) {
             break;
           }
-          current_end = +res[0].fundingTime;
-          if (current_end <= start) {
-            break;
-          }
+          current_start = +res[res.length - 1].fundingTime;
           await firstValueFrom(timer(1000));
         }
         funding_rate_history.sort((a, b) => +a.funding_at - +b.funding_at);
