@@ -878,9 +878,34 @@ defer(async () => {
     series_id: string;
     datasource_id: string;
     product_id: string;
+    base_currency: string;
+    quote_currency: string;
     funding_at: number;
     funding_rate: number;
   }
+  const wrapFundingRateRecord = (v: IFundingRate): IDataRecord<IFundingRate> => ({
+    id: encodePath(v.datasource_id, v.product_id, v.funding_at),
+    type: 'funding_rate',
+    created_at: v.funding_at,
+    updated_at: v.funding_at,
+    frozen_at: v.funding_at,
+    tags: {
+      series_id: encodePath(v.datasource_id, v.product_id),
+      datasource_id: v.datasource_id,
+      product_id: v.product_id,
+      base_currency: v.base_currency,
+      quote_currency: v.quote_currency,
+    },
+    origin: {
+      series_id: encodePath(v.datasource_id, v.product_id),
+      datasource_id: v.datasource_id,
+      product_id: v.product_id,
+      base_currency: v.base_currency,
+      quote_currency: v.quote_currency,
+      funding_rate: v.funding_rate,
+      funding_at: v.funding_at,
+    },
+  });
 
   terminal.provideService(
     'CopyDataRecords',
@@ -907,7 +932,16 @@ defer(async () => {
         }
         const [start, end] = msg.req.time_range || [0, Date.now()];
         const [datasource_id, product_id] = decodePath(msg.req.tags.series_id);
-        const funding_rate_history = [];
+        const mapProductIdToUsdtSwapProduct = await firstValueFrom(mapProductIdToUsdtSwapProduct$);
+        const theProduct = mapProductIdToUsdtSwapProduct.get(product_id);
+        if (!theProduct) {
+          return { res: { code: 404, message: `product_id ${product_id} not found` } };
+        }
+        const { base_currency, quote_currency } = theProduct;
+        if (!base_currency || !quote_currency) {
+          return { res: { code: 400, message: `base_currency or quote_currency is required` } };
+        }
+        const funding_rate_history: IFundingRate[] = [];
         let current_end = end;
         while (true) {
           const res = await client.getFundingRateHistory({
@@ -920,38 +954,28 @@ defer(async () => {
           if (res.data.length === 0) {
             break;
           }
-          funding_rate_history.push(...res.data);
+          for (const v of res.data) {
+            funding_rate_history.push({
+              series_id: msg.req.tags.series_id,
+              product_id,
+              datasource_id,
+              base_currency,
+              quote_currency,
+              funding_rate: +v.fundingRate,
+              funding_at: +v.fundingTime,
+            });
+          }
           current_end = +res.data[res.data.length - 1].fundingTime;
           if (current_end <= start) {
             break;
           }
           await firstValueFrom(timer(1000));
         }
-        funding_rate_history.sort((a, b) => +a.fundingTime - +b.fundingTime);
+        funding_rate_history.sort((a, b) => +a.funding_at - +b.funding_at);
         // there will be at most 300 records, so we don't need to chunk it by bufferCount
         await lastValueFrom(
           from(funding_rate_history).pipe(
-            map(
-              (v): IDataRecord<IFundingRate> => ({
-                id: encodePath('okx', product_id, v.fundingTime),
-                type: 'funding_rate',
-                created_at: +v.fundingTime,
-                updated_at: +v.fundingTime,
-                frozen_at: +v.fundingTime,
-                tags: {
-                  series_id: msg.req.tags!.series_id,
-                  datasource_id,
-                  product_id,
-                },
-                origin: {
-                  series_id: msg.req.tags!.series_id,
-                  product_id,
-                  datasource_id,
-                  funding_rate: +v.fundingRate,
-                  funding_at: +v.fundingTime,
-                },
-              }),
-            ),
+            map(wrapFundingRateRecord),
             toArray(),
             mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
           ),

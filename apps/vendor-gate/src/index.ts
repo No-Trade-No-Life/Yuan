@@ -18,6 +18,7 @@ import {
   concatWith,
   defer,
   first,
+  firstValueFrom,
   from,
   interval,
   lastValueFrom,
@@ -233,9 +234,35 @@ import { GateClient } from './api';
     series_id: string;
     datasource_id: string;
     product_id: string;
+    base_currency: string;
+    quote_currency: string;
     funding_at: number;
     funding_rate: number;
   }
+
+  const wrapFundingRateRecord = (v: IFundingRate): IDataRecord<IFundingRate> => ({
+    id: encodePath(v.datasource_id, v.product_id, v.funding_at),
+    type: 'funding_rate',
+    created_at: v.funding_at,
+    updated_at: v.funding_at,
+    frozen_at: v.funding_at,
+    tags: {
+      series_id: encodePath(v.datasource_id, v.product_id),
+      datasource_id: v.datasource_id,
+      product_id: v.product_id,
+      base_currency: v.base_currency,
+      quote_currency: v.quote_currency,
+    },
+    origin: {
+      series_id: encodePath(v.datasource_id, v.product_id),
+      datasource_id: v.datasource_id,
+      product_id: v.product_id,
+      base_currency: v.base_currency,
+      quote_currency: v.quote_currency,
+      funding_rate: v.funding_rate,
+      funding_at: v.funding_at,
+    },
+  });
 
   terminal.provideService(
     'CopyDataRecords',
@@ -262,37 +289,38 @@ import { GateClient } from './api';
         }
         const [start, end] = msg.req.time_range || [0, Date.now()];
         const [datasource_id, product_id] = decodePath(msg.req.tags.series_id);
+        const mapProductIdToUsdtFutureProduct = await firstValueFrom(mapProductIdToUsdtFutureProduct$);
+        const theProduct = mapProductIdToUsdtFutureProduct.get(product_id);
+        if (!theProduct) {
+          return { res: { code: 404, message: 'product not found' } };
+        }
+        const { base_currency, quote_currency } = theProduct;
+        if (!base_currency || !quote_currency) {
+          return { res: { code: 400, message: 'base_currency and quote_currency is required' } };
+        }
         // best effort to get all funding rate history required
         const limit = Math.min(1000, Math.round((end - start) / 3600_000));
         const funding_rate_history = await client.getFutureFundingRate('usdt', {
           contract: product_id,
           limit,
         });
+
         funding_rate_history.sort((a, b) => a.t - b.t);
         // there will be at most 1000 records, so we don't need to chunk it by bufferCount
         await lastValueFrom(
           from(funding_rate_history).pipe(
             map(
-              (v): IDataRecord<IFundingRate> => ({
-                id: encodePath('gate', product_id, v.t * 1000),
-                type: 'funding_rate',
-                created_at: v.t * 1000,
-                updated_at: v.t * 1000,
-                frozen_at: v.t * 1000,
-                tags: {
-                  series_id: msg.req.tags!.series_id,
-                  datasource_id,
-                  product_id,
-                },
-                origin: {
-                  series_id: msg.req.tags!.series_id,
-                  product_id,
-                  datasource_id,
-                  funding_rate: +v.r,
-                  funding_at: v.t * 1000,
-                },
+              (v): IFundingRate => ({
+                series_id: msg.req.tags!.series_id,
+                product_id,
+                datasource_id,
+                base_currency,
+                quote_currency,
+                funding_rate: +v.r,
+                funding_at: v.t * 1000,
               }),
             ),
+            map(wrapFundingRateRecord),
             toArray(),
             mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
           ),

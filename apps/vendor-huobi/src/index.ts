@@ -1241,9 +1241,35 @@ import { HuobiClient } from './api';
     series_id: string;
     datasource_id: string;
     product_id: string;
+    base_currency: string;
+    quote_currency: string;
     funding_at: number;
     funding_rate: number;
   }
+
+  const wrapFundingRateRecord = (v: IFundingRate): IDataRecord<IFundingRate> => ({
+    id: encodePath(v.datasource_id, v.product_id, v.funding_at),
+    type: 'funding_rate',
+    created_at: v.funding_at,
+    updated_at: v.funding_at,
+    frozen_at: v.funding_at,
+    tags: {
+      series_id: encodePath(v.datasource_id, v.product_id),
+      datasource_id: v.datasource_id,
+      product_id: v.product_id,
+      base_currency: v.base_currency,
+      quote_currency: v.quote_currency,
+    },
+    origin: {
+      series_id: encodePath(v.datasource_id, v.product_id),
+      datasource_id: v.datasource_id,
+      product_id: v.product_id,
+      base_currency: v.base_currency,
+      quote_currency: v.quote_currency,
+      funding_rate: v.funding_rate,
+      funding_at: v.funding_at,
+    },
+  });
 
   terminal.provideService(
     'CopyDataRecords',
@@ -1271,7 +1297,16 @@ import { HuobiClient } from './api';
         }
         const [start, end] = msg.req.time_range || [0, Date.now()];
         const [datasource_id, product_id] = decodePath(msg.req.tags.series_id);
-        const funding_rate_history = [];
+        const mapProductIdToPerpetualProduct = await firstValueFrom(mapProductIdToPerpetualProduct$);
+        const theProduct = mapProductIdToPerpetualProduct.get(product_id);
+        if (!theProduct) {
+          return { res: { code: 404, message: 'product_id not found' } };
+        }
+        const { base_currency, quote_currency } = theProduct;
+        if (!base_currency || !quote_currency) {
+          return { res: { code: 404, message: 'base_currency or quote_currency not found' } };
+        }
+        const funding_rate_history: IFundingRate[] = [];
         let current_page = 0;
         let total_page = 1;
         while (true) {
@@ -1288,7 +1323,15 @@ import { HuobiClient } from './api';
           }
           for (const v of res.data.data) {
             if (+v.funding_time <= end) {
-              funding_rate_history.push(v);
+              funding_rate_history.push({
+                series_id: msg.req.tags.series_id,
+                datasource_id,
+                product_id,
+                base_currency,
+                quote_currency,
+                funding_rate: +v.funding_rate,
+                funding_at: +v.funding_time,
+              });
             }
           }
           total_page = res.data.total_page;
@@ -1297,31 +1340,11 @@ import { HuobiClient } from './api';
           }
           await firstValueFrom(timer(100));
         }
-        funding_rate_history.sort((a, b) => +a.funding_time - +b.funding_time);
+        funding_rate_history.sort((a, b) => +a.funding_at - +b.funding_at);
 
         await lastValueFrom(
           from(funding_rate_history).pipe(
-            map(
-              (v): IDataRecord<IFundingRate> => ({
-                id: encodePath('huobi', product_id, v.funding_time),
-                type: 'funding_rate',
-                created_at: +v.funding_time,
-                updated_at: +v.funding_time,
-                frozen_at: +v.funding_time,
-                tags: {
-                  series_id: msg.req.tags!.series_id,
-                  datasource_id,
-                  product_id,
-                },
-                origin: {
-                  series_id: msg.req.tags!.series_id,
-                  datasource_id,
-                  product_id,
-                  funding_rate: +v.funding_rate,
-                  funding_at: +v.funding_time,
-                },
-              }),
-            ),
+            map(wrapFundingRateRecord),
             bufferCount(2000),
             mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
           ),
