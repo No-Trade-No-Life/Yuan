@@ -350,6 +350,7 @@ const tradingAccountInfo$ = combineLatest([
 
           return {
             position_id: x.posId,
+            datasource_id: 'OKX',
             product_id,
             direction,
             volume: volume,

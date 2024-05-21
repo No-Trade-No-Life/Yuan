@@ -224,6 +224,7 @@ import { HuobiClient } from './api';
               const valuation = v.volume * v.last_price * (theProduct?.value_scale || 1);
               return {
                 position_id: `${v.contract_code}/${v.contract_type}/${v.direction}/${v.margin_mode}`,
+                datasource_id: 'huobi-swap',
                 product_id,
                 direction: v.direction === 'buy' ? 'LONG' : 'SHORT',
                 volume: v.volume,

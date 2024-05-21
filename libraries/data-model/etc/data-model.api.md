@@ -112,6 +112,7 @@ export interface IPeriod {
 export interface IPosition {
     closable_price: number;
     comment?: string;
+    datasource_id?: string;
     direction?: string;
     floating_profit: number;
     free_volume: number;
