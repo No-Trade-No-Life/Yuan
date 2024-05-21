@@ -358,6 +358,11 @@ export interface IPosition {
    */
   position_id: string;
   /**
+   * DataSource ID
+   * 数据源 ID
+   */
+  datasource_id?: string;
+  /**
    * Product ID.
    * 品种 ID
    */

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-model",
+      "comment": "Position's datasource_id",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-model"
+}
