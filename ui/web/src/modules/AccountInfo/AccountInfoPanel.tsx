@@ -107,6 +107,7 @@ registerPage('AccountInfoPanel', () => {
                     closable_price:
                       (acc.closable_price * acc.volume + cur.closable_price * cur.volume) /
                       (acc.volume + cur.volume),
+                    valuation: acc.valuation + cur.valuation,
                     comment: '',
                   }),
                 ),
