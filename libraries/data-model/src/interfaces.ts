@@ -674,17 +674,13 @@ export interface ITick {
   /**
    * Current Interest Rate if you hold long position
    *
-   * You will get the interest (rate * volume) when the next settlement.
-   *
-   * The rate is based on the volume (not the position value) of the position.
+   * You will get the interest (rate * valuation) when the next settlement.
    */
   interest_rate_for_long?: number;
   /**
    * Current Interest Rate if you hold short position
    *
-   * You will get the interest (rate * volume) when the next settlement.
-   *
-   * The rate is based on the volume (not the position value) of the position.
+   * You will get the interest (rate * valuation) when the next settlement.
    */
   interest_rate_for_short?: number;
 }

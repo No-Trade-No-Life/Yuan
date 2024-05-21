@@ -182,15 +182,8 @@ import { HuobiClient } from './api';
               ask: bboTick[product_id].ask?.[0] ?? undefined,
               bid: bboTick[product_id].bid?.[0] ?? undefined,
               volume: +tradeTick[product_id].amount,
-              interest_rate_for_long: -(
-                +fundingRateTick[product_id].funding_rate *
-                (theProduct.value_scale || 1) *
-                +tradeTick[product_id].price
-              ), // TODO: 结算价
-              interest_rate_for_short:
-                +fundingRateTick[product_id].funding_rate *
-                (theProduct.value_scale || 1) *
-                +tradeTick[product_id].price, // TODO: 结算价
+              interest_rate_for_long: -+fundingRateTick[product_id].funding_rate,
+              interest_rate_for_short: +fundingRateTick[product_id].funding_rate,
             }),
           ),
         ),
