@@ -72,6 +72,7 @@ const AccountInfoPositionFloatingProfit = PromRegistry.create(
   'gauge',
   'account_info_position_floating_profit',
 );
+const AccountInfoPositionValuation = PromRegistry.create('gauge', 'account_info_position_valuation');
 
 const RequestDurationBucket = PromRegistry.create(
   'histogram',
@@ -1126,6 +1127,11 @@ export class Terminal {
               direction: position.direction || '',
             });
             AccountInfoPositionFloatingProfit.set(position.floating_profit || 0, {
+              account_id: accountInfo.account_id,
+              product_id: position.product_id,
+              direction: position.direction || '',
+            });
+            AccountInfoPositionValuation.set(position.valuation || 0, {
               account_id: accountInfo.account_id,
               product_id: position.product_id,
               direction: position.direction || '',

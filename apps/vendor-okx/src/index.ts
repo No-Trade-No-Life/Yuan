@@ -209,8 +209,8 @@ terminal.provideTicks('OKX', (product_id) => {
               ask: +ticker.askPx,
               bid: +ticker.bidPx,
               volume: +ticker.lastSz,
-              interest_rate_for_long: -+fundingRate.fundingRate * theProduct.value_scale! * +ticker.last, // TODO: 结算价
-              interest_rate_for_short: +fundingRate.fundingRate * theProduct.value_scale! * +ticker.last, // TODO: 结算价
+              interest_rate_for_long: -+fundingRate.fundingRate,
+              interest_rate_for_short: +fundingRate.fundingRate,
             }),
           ),
         ),
@@ -245,8 +245,8 @@ terminal.provideTicks('OKX', (product_id) => {
               volume: +ticker.lastSz,
               // 在下一个整点扣除利息 See 如何计算利息 https://www.okx.com/zh-hans/help/how-to-calculate-borrowing-interest
               settlement_scheduled_at: new Date().setMinutes(0, 0, 0) + 3600_000,
-              interest_rate_for_long: (-interestRateForQuote / 24) * +ticker.last, // TODO: 结算价
-              interest_rate_for_short: (-interestRateForBase / 24) * +ticker.last, // TODO: 结算价
+              interest_rate_for_long: -interestRateForQuote / 24,
+              interest_rate_for_short: -interestRateForBase / 24,
             }),
           ),
         ),

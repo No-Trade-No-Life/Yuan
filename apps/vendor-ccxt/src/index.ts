@@ -363,8 +363,8 @@ interface IGeneralSpecificRelation {
           bid: ticker.bid,
           price: ticker.last || ticker.close,
           volume: ticker.baseVolume,
-          interest_rate_for_long: -fundingRateObj.fundingRate! * markPrice,
-          interest_rate_for_short: fundingRateObj.fundingRate! * markPrice,
+          interest_rate_for_long: -fundingRateObj.fundingRate!,
+          interest_rate_for_short: fundingRateObj.fundingRate!,
           settlement_scheduled_at,
         };
       }),

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "Metric of position valuation",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
