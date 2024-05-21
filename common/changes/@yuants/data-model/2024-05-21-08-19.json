@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-model",
+      "comment": "IPosition interest to settle for preview",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-model"
+}

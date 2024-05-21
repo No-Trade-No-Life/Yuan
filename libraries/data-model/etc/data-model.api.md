@@ -115,9 +115,11 @@ export interface IPosition {
     direction?: string;
     floating_profit: number;
     free_volume: number;
+    interest_to_settle?: number;
     position_id: string;
     position_price: number;
     product_id: string;
+    settlement_scheduled_at?: number;
     valuation: number;
     volume: number;
 }

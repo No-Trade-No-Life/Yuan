@@ -421,6 +421,16 @@ export interface IPosition {
    * 无法估值的情况可以暂时填写为 0
    */
   valuation: number;
+  /**
+   * Next timestamp for settlement
+   * 下次结算时间戳
+   */
+  settlement_scheduled_at?: number;
+  /**
+   * The interest to gain when next settlement.
+   * 下次结算时获得的利息
+   */
+  interest_to_settle?: number;
 
   // Position is one of the reasons for occupying margin,
   // but the calculation mechanism of margin is relatively complex, and the algorithms of various exchanges are different.
