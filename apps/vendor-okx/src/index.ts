@@ -752,6 +752,314 @@ defer(async () => {
   );
 }).subscribe();
 
+defer(async () => {
+  const account_config = await firstValueFrom(accountConfig$);
+  const { mainUid, uid } = account_config.data[0];
+
+  const isMainAccount = mainUid === uid;
+
+  terminal.provideService(
+    'TransferApply',
+    {
+      type: 'object',
+      required: [
+        'routing_path',
+        'current_tx_account_id',
+        'current_rx_account_id',
+        'current_tx_address',
+        'current_rx_address',
+        'current_network_id',
+        'current_tx_state',
+      ],
+      properties: {
+        routing_path: {
+          type: 'string',
+        },
+        current_tx_account_id: {
+          type: 'string',
+          pattern: '^okx/.+',
+        },
+        current_network_id: {
+          enum: ['TRC20', `OKX/${mainUid}/SubAccount`],
+        },
+      },
+    },
+    (msg) =>
+      defer(async () => {
+        console.info(formatTime(Date.now()), 'TransferApply', `Enter`, JSON.stringify(msg));
+        const transferOrder = msg.req as ITransferOrder;
+        const {
+          current_network_id,
+          current_tx_state,
+          current_tx_context,
+          current_tx_account_id,
+          current_rx_address,
+          current_rx_account_id,
+        } = transferOrder;
+
+        // 判断网络
+        if (current_network_id === 'TRC20') {
+          if (current_tx_state === 'INIT') {
+            // 转账
+            console.info(formatTime(Date.now()), 'TransferApply', `USDT-TRC20`, `Start`);
+            const transferResult = await client.postAssetWithdrawal({
+              amt: `${transferOrder.expected_amount - 1}`,
+              ccy: transferOrder.currency,
+              chain: 'USDT-TRC20',
+              fee: '1',
+              dest: '4', // 链上提币
+              toAddr: transferOrder.current_rx_address!,
+            });
+            if (transferResult.code !== '0') {
+              console.error(
+                formatTime(Date.now()),
+                'TransferApply',
+                `TRC20`,
+                `Failed`,
+                JSON.stringify(transferResult),
+              );
+              return {
+                res: {
+                  code: +transferResult.code,
+                  message: transferResult.msg,
+                  data: {
+                    state: 'ERROR',
+                  },
+                },
+              };
+            }
+
+            const wdId = transferResult.data[0]?.wdId;
+            return {
+              res: {
+                code: 0,
+                message: 'No txId found',
+                data: {
+                  state: 'AWAIT_TX_ID',
+                  context: wdId,
+                },
+              },
+            };
+          }
+
+          if (current_tx_state === 'AWAIT_TX_ID') {
+            const wdId = current_tx_context;
+            const withdrawalHistory = await client.getAssetWithdrawalHistory({ wdId });
+            const txId = withdrawalHistory.data[0].txId;
+
+            console.info(
+              formatTime(Date.now()),
+              'Transfer',
+              transferOrder.order_id,
+              'USDT-TRC20',
+              JSON.stringify(txId),
+            );
+            if (txId === '') {
+              return {
+                res: {
+                  code: 0,
+                  message: 'No txId found',
+                  data: {
+                    state: 'AWAIT_TX_ID',
+                    context: current_tx_context,
+                  },
+                },
+              };
+            }
+            return {
+              res: {
+                code: 0,
+                message: 'OK',
+                data: {
+                  state: 'COMPLETE',
+                  transaction_id: txId,
+                },
+              },
+            };
+          }
+        } else if (current_network_id === `OKX/${mainUid}/SubAccount`) {
+          // 转账
+          console.info(formatTime(Date.now()), 'TransferApply', `OKX/${mainUid}/SubAccount`);
+
+          const [, , txAccountType] = decodePath(current_tx_account_id!);
+          const [, , rxAccountType] = decodePath(current_rx_account_id!);
+
+          const transferResult = await client.postAssetTransfer({
+            type: isMainAccount ? '1' : current_rx_address === account_config.data[0]?.mainUid ? '2' : '4',
+            ccy: transferOrder.currency,
+            amt: `${transferOrder.expected_amount}`,
+            from: txAccountType === 'trading' ? '18' : '6',
+            to: rxAccountType === 'trading' ? '18' : '6',
+            subAcct: isMainAccount
+              ? current_rx_address
+              : current_rx_address === account_config.data[0]?.mainUid
+              ? undefined
+              : current_rx_address,
+          });
+
+          if (transferResult.code !== '0') {
+            console.error(
+              formatTime(Date.now()),
+              'TransferApply',
+              `OKX/${mainUid}/SubAccount`,
+              `Failed`,
+              JSON.stringify(transferResult),
+            );
+            return { res: { code: 400, message: 'Transfer failed', data: { state: 'ERROR' } } };
+          }
+          return {
+            res: {
+              code: 0,
+              message: 'OK',
+              data: { state: 'COMPLETE', transaction_id: transferResult.data[0].transId },
+            },
+          };
+        }
+        return {
+          res: {
+            code: 400,
+            message: 'Unknown network',
+            data: {
+              state: 'ERROR',
+            },
+          },
+        };
+      }),
+  );
+}).subscribe();
+
+defer(async () => {
+  const account_config = await firstValueFrom(accountConfig$);
+  const { mainUid } = account_config.data[0];
+
+  terminal.provideService(
+    `TransferEval`,
+    {
+      type: 'object',
+      required: [
+        'routing_path',
+        'current_tx_account_id',
+        'current_rx_account_id',
+        'current_tx_address',
+        'current_rx_address',
+        'current_network_id',
+        'current_tx_state',
+      ],
+      properties: {
+        routing_path: {
+          type: 'string',
+        },
+        current_rx_account_id: {
+          type: 'string',
+          pattern: '^okx/.+',
+        },
+        current_network_id: {
+          enum: ['TRC20', `OKX/${mainUid}/SubAccount`],
+        },
+      },
+    },
+    (msg) =>
+      defer(async () => {
+        console.info(formatTime(Date.now()), 'TransferApply', `Enter`, JSON.stringify(msg));
+        const transferOrder = msg.req as ITransferOrder;
+        const { current_network_id } = transferOrder;
+
+        // 判断网络
+        if (current_network_id === 'TRC20') {
+          const checkResult = await client.getAssetDepositHistory({
+            ccy: 'USDT',
+            txId: transferOrder.transaction_id,
+            type: '4',
+          });
+
+          if (checkResult.code !== '0') {
+            console.error(
+              formatTime(Date.now()),
+              'TransferEval',
+              `USDT-TRC20`,
+              `EvalFailed`,
+              JSON.stringify(checkResult),
+            );
+            return {
+              res: {
+                code: +checkResult.code,
+                message: checkResult.msg,
+              },
+            };
+          }
+
+          console.info(
+            formatTime(Date.now()),
+            'TransferEval',
+            `USDT-TRC20`,
+            `EvalResult`,
+            JSON.stringify(checkResult),
+          );
+          if (checkResult.data[0].state !== '2') {
+            return {
+              res: {
+                code: 0,
+                message: 'OK',
+              },
+            };
+          }
+          return {
+            res: {
+              code: 0,
+              message: 'OK',
+              data: { received_amount: +checkResult.data[0].amt },
+            },
+          };
+        } else if (current_network_id === `OKX/${mainUid}/SubAccount`) {
+          const checkResult = await client.getAssetTransferState({ transId: transferOrder.transaction_id });
+          if (checkResult.code !== '0') {
+            console.error(
+              formatTime(Date.now()),
+              'TransferEval',
+              `OKX/${mainUid}/SubAccount`,
+              `EvalFailed`,
+              JSON.stringify(checkResult),
+            );
+            return {
+              res: {
+                code: +checkResult.code,
+                message: checkResult.msg,
+              },
+            };
+          }
+          console.info(
+            formatTime(Date.now()),
+            'TransferEval',
+            `OKX/${mainUid}/SubAccount`,
+            `EvalResult`,
+            JSON.stringify(checkResult),
+          );
+          if (checkResult.data[0].state !== 'success') {
+            return {
+              res: {
+                code: 0,
+                message: 'OK',
+              },
+            };
+          }
+          return {
+            res: {
+              code: 0,
+              message: 'OK',
+              data: { received_amount: +checkResult.data[0].amt },
+            },
+          };
+        }
+        return {
+          res: {
+            code: 400,
+            message: 'Unknown network',
+          },
+        };
+      }),
+  );
+}).subscribe();
+
 const updateTransferOrder = async (transferOrder: ITransferOrder): Promise<void> => {
   return firstValueFrom(
     terminal
@@ -765,7 +1073,7 @@ const updateTransferOrder = async (transferOrder: ITransferOrder): Promise<void>
           tags: {
             debit_account_id: transferOrder.debit_account_id,
             credit_account_id: transferOrder.credit_account_id,
-            status: transferOrder.status,
+            status: `${transferOrder.status}`,
           },
           origin: transferOrder,
         },

@@ -628,7 +628,7 @@ import { HuobiClient } from './api';
             tags: {
               debit_account_id: transferOrder.debit_account_id,
               credit_account_id: transferOrder.credit_account_id,
-              status: transferOrder.status,
+              status: `${transferOrder.status}`,
             },
             origin: transferOrder,
           },

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "add new transfer network models",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

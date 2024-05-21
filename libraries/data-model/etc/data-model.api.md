@@ -168,6 +168,13 @@ export interface ITransferOrder {
     credit_account_id: string;
     credit_method?: string;
     currency: string;
+    current_network_id?: string;
+    current_rx_account_id?: string;
+    current_rx_address?: string;
+    current_tx_account_id?: string;
+    current_tx_address?: string;
+    current_tx_context?: string;
+    current_tx_state?: string;
     debit_account_id: string;
     debit_methods?: string[];
     error_message?: string;
@@ -175,7 +182,8 @@ export interface ITransferOrder {
     order_id: string;
     received_amount?: number;
     received_at?: number;
-    status: string;
+    routing_path?: string;
+    status?: string;
     timeout_at: number;
     transaction_id?: string;
     transferred_amount?: number;
