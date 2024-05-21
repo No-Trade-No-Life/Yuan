@@ -433,17 +433,15 @@ const fundingAccountInfo$ = combineLatest([accountUid$, assetBalance$]).pipe(
 
 terminal.provideAccountInfo(fundingAccountInfo$);
 
-const financeOrders$ = defer(() => client.getFinanceStakingDeFiOrdersActive({})).pipe(
+const savingBalance$ = defer(() => client.getFinanceSavingsBalance({})).pipe(
   repeat({ delay: 5000 }),
   retry({ delay: 5000 }),
   shareReplay(1),
 );
 
-const earningAccountInfo$ = combineLatest([accountUid$, financeOrders$]).pipe(
+const earningAccountInfo$ = combineLatest([accountUid$, savingBalance$]).pipe(
   map(([uid, offers]): IAccountInfo => {
-    const equity = offers.data
-      .filter((x) => x.ccy === 'USDT')
-      .reduce((acc, x) => acc + +x.investData.reduce((acc, x) => acc + +x.amt, 0), 0);
+    const equity = offers.data.filter((x) => x.ccy === 'USDT').reduce((acc, x) => acc + +x.amt, 0);
     const balance = equity;
     const free = equity;
     const used = 0;

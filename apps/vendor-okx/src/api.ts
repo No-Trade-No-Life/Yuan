@@ -291,6 +291,30 @@ export class OkxClient {
   }> => this.request('GET', '/api/v5/public/funding-rate-history', params);
 
   /**
+   * 获取余币宝余额
+   *
+   * 限速：6次/s
+   * 限速规则：UserID
+   *
+   * https://www.okx.com/docs-v5/zh/#financial-product-savings-get-saving-balance
+   */
+  getFinanceSavingsBalance = (params: {
+    ccy?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    data: {
+      earnings: string;
+      redemptAmt: string;
+      rate: string;
+      ccy: string;
+      amt: string;
+      loanAmt: string;
+      pendingAmt: string;
+    }[];
+  }> => this.request('GET', '/api/v5/finance/savings/balance', params);
+
+  /**
    * GET / 获取市场借贷历史（公共）
    *
    * 公共接口无须鉴权
