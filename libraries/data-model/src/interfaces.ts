@@ -758,7 +758,7 @@ export interface ITransferOrder {
    * - `"AWAIT_DEBIT"` - Waiting for the debit side to handle / confirm
    * - `"AWAIT_CREDIT"` - Waiting for the credit side to handle / confirm
    */
-  status: string;
+  status?: string;
   /**
    * Error Message for Human-reading
    *
@@ -817,4 +817,47 @@ export interface ITransferOrder {
    * 借方已经收到的金额
    */
   received_amount?: number;
+
+  /**
+   * 转账路径 (是 (AccountId | Address | NetworkId)[] 的 encodePath 编码)
+   * 不使用外键，而是內联保存，作为历史记录
+   */
+  routing_path?: string;
+  /** 当前正在发起转账的账户ID */
+  current_tx_account_id?: string;
+  /** 当前正在查收转账的账户ID */
+  current_rx_account_id?: string;
+  /** 当前正在发起转账的地址 */
+  current_tx_address?: string;
+  /** 当前正在查收转账的地址 */
+  current_rx_address?: string;
+  /** 当前网络 ID */
+  current_network_id?: string;
+  /** 当前转账方的状态 (INIT -\> ...? -\> COMPLETE), ERROR */
+  current_tx_state?: string;
+  /** 当前状态下用于流转状态的上下文信息 */
+  current_tx_context?: string;
+}
+
+/**
+ * @public
+ */
+export interface IAccountAddressInfo {
+  account_id: string;
+  network_id: string;
+  address: string;
+  currency: string;
+}
+
+/**
+ * @public
+ */
+export interface ITransferNetworkInfo {
+  network_id: string;
+  /** 手续费 */
+  commission: number;
+  /** 手续费货币 */
+  currency: string;
+  /** 网络超时时间 */
+  timeout?: number;
 }

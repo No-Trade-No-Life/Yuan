@@ -24,7 +24,7 @@ const mapOriginToDataRecord = (x: ITransferOrder): IDataRecord<ITransferOrder> =
     tags: {
       credit_account_id: x.credit_account_id,
       debit_account_id: x.debit_account_id,
-      status: x.status,
+      status: `${x.status}`,
     },
     origin: x,
   };

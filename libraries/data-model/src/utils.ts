@@ -2,7 +2,14 @@ import { format } from 'date-fns';
 import { formatInTimeZone } from 'date-fns-tz';
 import { from, groupBy, map, mergeMap, Observable, reduce, toArray } from 'rxjs';
 import { v4 } from 'uuid';
-import { IAccountInfo, IPosition, IProduct } from './interfaces';
+import {
+  IAccountAddressInfo,
+  IAccountInfo,
+  IDataRecord,
+  IPosition,
+  IProduct,
+  ITransferNetworkInfo,
+} from './interfaces';
 
 /**
  * @public
@@ -153,3 +160,46 @@ export const encodePath = (...params: any[]): string =>
  */
 export const decodePath = (path: string): string[] =>
   path.split(/(?<!\\)\//g).map((x) => x.replace(/\\\//g, '/'));
+
+/**
+ * wrap account address info to data record.
+ *
+ * @public
+ */
+export const wrapAccountAddressInfo = (v: IAccountAddressInfo): IDataRecord<IAccountAddressInfo> => {
+  const now = Date.now();
+  return {
+    id: encodePath(v.account_id, v.network_id, v.network_id, v.currency),
+    type: 'account_address_info',
+    created_at: now,
+    updated_at: now,
+    frozen_at: null,
+    tags: {
+      currency: v.currency,
+      account_id: v.account_id,
+      network_id: v.network_id,
+    },
+    origin: v,
+  };
+};
+
+/**
+ * wrap transfer network info to data record.
+ *
+ * @public
+ */
+export const wrapTransferNetworkInfo = (v: ITransferNetworkInfo): IDataRecord<ITransferNetworkInfo> => {
+  const now = Date.now();
+  return {
+    id: encodePath(v.network_id, v.currency),
+    type: 'transfer_network_info',
+    created_at: now,
+    updated_at: now,
+    frozen_at: null,
+    tags: {
+      currency: v.currency,
+      network_id: v.network_id,
+    },
+    origin: v,
+  };
+};

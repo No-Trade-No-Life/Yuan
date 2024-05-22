@@ -954,4 +954,114 @@ export class OkxClient {
     inTime: string;
     outTime: string;
   }> => this.request('POST', '/api/v5/trade/cancel-order', params);
+
+  /**
+   * 查看子账户列表
+   *
+   * 仅适用于母账户。
+   *
+   * 限速：2次/2s
+   *
+   * 限速规则：UserID
+   */
+  getSubAccountList = (params?: {
+    enable?: string;
+    subAct?: string;
+    after?: string;
+    before?: string;
+    limit?: string;
+  }): Promise<{
+    data: {
+      type: string;
+      enable: string;
+      subAcct: string;
+      uid: string;
+      label: string;
+      mobile: string;
+      gAuth: boolean;
+      frozenFunc: string[];
+      canTransOut: boolean;
+      ts: string;
+    }[];
+    code: string;
+    msg: string;
+  }> => this.request('GET', '/api/v5/users/subaccount/list', params);
+
+  /**
+   * 设置子账户主动转出权限
+   *
+   * 设置子账户转出权限（仅适用于母账户），默认可转出至母账户。
+   *
+   * 限速：1次/s
+   *
+   * 限速规则：UserID
+   */
+  postSetSubAccountTransferOut = (params: {
+    subAcct: string;
+    canTransOut: boolean;
+  }): Promise<{
+    subAcct: string;
+    canTransOut: boolean;
+  }> => this.request('POST', '/api/v5/users/subaccount/set-transfer-out', params);
+
+  /**
+   * 获取资金划转状态
+   *
+   * 获取最近2个星期内的资金划转状态数据
+   *
+   * 限速：10 次/s
+   *
+   * 限速规则：UserID
+   */
+  getAssetTransferState = (params: {
+    transId?: string;
+    clientId?: string;
+    type?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    data: {
+      transId: string;
+      clientId: string;
+      ccy: string;
+      amt: string;
+      type: string;
+      from: string;
+      to: string;
+      subAcct: string;
+      // success | pending | failed
+      state: string;
+    }[];
+  }> => this.request('GET', '/api/v5/asset/transfer-state', params);
+
+  /**
+   * 获取币种列表
+   *
+   * 获取当前用户KYC实体支持的币种列表。
+   *
+   * 限速：6 次/s
+   *
+   * 限速规则：UserID
+   */
+  getAssetCurrencies = (params?: {
+    ccy?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    data: {
+      ccy: string;
+      name: string;
+      chain: string;
+      canWd: boolean;
+      canInternal: boolean;
+      minWd: string;
+      maxWd: string;
+      wdTickSz: string;
+      wdQuota: string;
+      usedWdQuota: string;
+      minFee: string;
+      maxFee: string;
+    }[];
+  }> => this.request('GET', '/api/v5/asset/currencies', params);
 }
+
