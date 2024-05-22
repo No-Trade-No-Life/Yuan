@@ -755,7 +755,10 @@ export interface ITransferOrder {
    *
    * - `"COMPLETE"` - Transfer completed
    * - `"ERROR"` - Transfer failed, need to check the error message, need human intervention
+   * - `"ONGOING"` - Transfer is pending, need to wait
+   * @deprecated replaced by transfer network refactor
    * - `"AWAIT_DEBIT"` - Waiting for the debit side to handle / confirm
+   * @deprecated replaced by transfer network refactor
    * - `"AWAIT_CREDIT"` - Waiting for the credit side to handle / confirm
    */
   status?: string;
@@ -769,6 +772,7 @@ export interface ITransferOrder {
    * Timeout Timestamp
    *
    * 超时时间戳
+   * @deprecated use the timeout value provided by the specific network instead
    */
   timeout_at: number;
 
@@ -776,6 +780,7 @@ export interface ITransferOrder {
    * The acceptable ways for Debit Account to receive the transfer (Routing Path)
    *
    * 借方可接受的转账方式 (Routing Path)
+   * @deprecated replaced by transfer network refactor
    */
   debit_methods?: string[];
 
@@ -783,6 +788,7 @@ export interface ITransferOrder {
    * The confirmed way for credit account to send the transfer (Routing Path)
    *
    * 贷方选择的转账方式 (Routing Path)
+   * @deprecated replaced by transfer network refactor
    */
   credit_method?: string;
 
@@ -790,18 +796,21 @@ export interface ITransferOrder {
    * Transfer Initiated Timestamp
    *
    * 贷方发起转账的时间戳
+   * @deprecated replaced by transfer network refactor
    */
   transferred_at?: number;
   /**
    * Transfer Initiated Amount
    *
    * 贷方已经发送的金额
+   * @deprecated replaced by transfer network refactor
    */
   transferred_amount?: number;
   /**
    * Transaction ID for confirmation
    *
    * 转账凭证号
+   * @deprecated replaced by transfer network refactor
    */
   transaction_id?: string;
 
@@ -809,12 +818,14 @@ export interface ITransferOrder {
    * Received Timestamp for Debit Account
    *
    * 借方查收到帐的时间戳
+   * @deprecated replaced by transfer network refactor
    */
   received_at?: number;
   /**
    * Received Amount for Debit Account
    *
    * 借方已经收到的金额
+   * @deprecated replaced by transfer network refactor
    */
   received_amount?: number;
 

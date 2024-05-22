@@ -187,6 +187,7 @@ export interface ITransferNetworkInfo {
 export interface ITransferOrder {
     created_at: number;
     credit_account_id: string;
+    // @deprecated
     credit_method?: string;
     currency: string;
     current_network_id?: string;
@@ -197,17 +198,25 @@ export interface ITransferOrder {
     current_tx_context?: string;
     current_tx_state?: string;
     debit_account_id: string;
+    // @deprecated
     debit_methods?: string[];
     error_message?: string;
     expected_amount: number;
     order_id: string;
+    // @deprecated
     received_amount?: number;
+    // @deprecated
     received_at?: number;
     routing_path?: string;
+    // @deprecated
     status?: string;
+    // @deprecated
     timeout_at: number;
+    // @deprecated
     transaction_id?: string;
+    // @deprecated
     transferred_amount?: number;
+    // @deprecated
     transferred_at?: number;
     updated_at: number;
 }

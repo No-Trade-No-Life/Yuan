@@ -913,7 +913,7 @@ defer(async () => {
         } = transferOrder;
 
         // 判断网络
-        if (current_network_id === 'TRC20') {
+        if (current_network_id === 'blockchain/USDT-TRC20') {
           if (current_tx_state === 'INIT') {
             // 转账
             console.info(formatTime(Date.now()), 'TransferApply', `USDT-TRC20`, `Start`);
@@ -929,7 +929,7 @@ defer(async () => {
               console.error(
                 formatTime(Date.now()),
                 'TransferApply',
-                `TRC20`,
+                `USDT-TRC20`,
                 `Failed`,
                 JSON.stringify(transferResult),
               );
@@ -1057,7 +1057,7 @@ defer(async () => {
           enum: [`okx/${uid}/trading`, `okx/${uid}/funding`],
         },
         current_network_id: {
-          enum: ['TRC20', `OKX/${mainUid}/SubAccount`],
+          enum: ['USDT-TRC20', `OKX/${mainUid}/SubAccount`],
         },
       },
     },
@@ -1068,7 +1068,7 @@ defer(async () => {
         const { current_network_id } = transferOrder;
 
         // 判断网络
-        if (current_network_id === 'TRC20') {
+        if (current_network_id === 'blockchain/USDT-TRC20') {
           const checkResult = await client.getAssetDepositHistory({
             ccy: 'USDT',
             txId: transferOrder.transaction_id,

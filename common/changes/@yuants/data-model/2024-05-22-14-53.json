@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-model",
+      "comment": "add model for transfer controller",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/data-model"
+}
