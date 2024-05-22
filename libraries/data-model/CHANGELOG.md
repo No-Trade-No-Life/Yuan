@@ -1,6 +1,15 @@
 # Change Log - @yuants/data-model
 
-This log was last generated on Thu, 16 May 2024 18:00:51 GMT and should not be manually modified.
+This log was last generated on Wed, 22 May 2024 04:53:53 GMT and should not be manually modified.
+
+## 0.9.0
+Wed, 22 May 2024 04:53:53 GMT
+
+### Minor changes
+
+- interest_rate based on valuation
+- IPosition interest to settle for preview
+- Position's datasource_id
 
 ## 0.8.0
 Thu, 16 May 2024 18:00:51 GMT

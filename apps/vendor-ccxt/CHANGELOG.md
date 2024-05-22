@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-ccxt
 
-This log was last generated on Thu, 16 May 2024 18:00:51 GMT and should not be manually modified.
+This log was last generated on Wed, 22 May 2024 04:53:53 GMT and should not be manually modified.
+
+## 0.2.0
+Wed, 22 May 2024 04:53:53 GMT
+
+### Minor changes
+
+- interest_rate based on valuation
 
 ## 0.1.1
 Thu, 16 May 2024 18:00:51 GMT
