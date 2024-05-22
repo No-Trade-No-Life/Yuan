@@ -2,6 +2,39 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.4.0",
+      "tag": "@yuants/vendor-okx_v0.4.0",
+      "date": "Wed, 22 May 2024 04:53:53 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "interest_rate based on valuation"
+          },
+          {
+            "comment": "add datasource_id"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "fix earning account "
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.16.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.9.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.7",
       "tag": "@yuants/vendor-okx_v0.3.7",
       "date": "Sun, 19 May 2024 00:24:31 GMT",

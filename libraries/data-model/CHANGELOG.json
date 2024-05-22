@@ -2,6 +2,29 @@
   "name": "@yuants/data-model",
   "entries": [
     {
+      "version": "0.9.0",
+      "tag": "@yuants/data-model_v0.9.0",
+      "date": "Wed, 22 May 2024 04:53:53 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "interest_rate based on valuation"
+          },
+          {
+            "comment": "IPosition interest to settle for preview"
+          },
+          {
+            "comment": "Position's datasource_id"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.8.0",
       "tag": "@yuants/data-model_v0.8.0",
       "date": "Thu, 16 May 2024 18:00:51 GMT",

@@ -1,6 +1,14 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Sun, 19 May 2024 00:24:31 GMT and should not be manually modified.
+This log was last generated on Wed, 22 May 2024 04:53:53 GMT and should not be manually modified.
+
+## 0.3.0
+Wed, 22 May 2024 04:53:53 GMT
+
+### Minor changes
+
+- interest_rate based on valuation
+- add datasource_id
 
 ## 0.2.6
 Sun, 19 May 2024 00:24:31 GMT
