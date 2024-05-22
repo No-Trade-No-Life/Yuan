@@ -1033,4 +1033,35 @@ export class OkxClient {
       state: string;
     }[];
   }> => this.request('GET', '/api/v5/asset/transfer-state', params);
+
+  /**
+   * 获取币种列表
+   *
+   * 获取当前用户KYC实体支持的币种列表。
+   *
+   * 限速：6 次/s
+   *
+   * 限速规则：UserID
+   */
+  getAssetCurrencies = (params?: {
+    ccy?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    data: {
+      ccy: string;
+      name: string;
+      chain: string;
+      canWd: boolean;
+      canInternal: boolean;
+      minWd: string;
+      maxWd: string;
+      wdTickSz: string;
+      wdQuota: string;
+      usedWdQuota: string;
+      minFee: string;
+      maxFee: string;
+    }[];
+  }> => this.request('GET', '/api/v5/asset/currencies', params);
 }
+

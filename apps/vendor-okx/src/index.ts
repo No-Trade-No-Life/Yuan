@@ -268,6 +268,12 @@ const accountConfig$ = defer(() => client.getAccountConfig()).pipe(
   shareReplay(1),
 );
 
+const subAccountUids$ = defer(() => client.getSubAccountList()).pipe(
+  repeat({ delay: 10_000 }),
+  retry({ delay: 10_000 }),
+  shareReplay(1),
+);
+
 const accountUid$ = accountConfig$.pipe(
   map((x) => x.data[0].uid),
   filter((x) => !!x),
@@ -752,31 +758,177 @@ defer(async () => {
   );
 }).subscribe();
 
+interface IAccountAddressInfo {
+  account_id: string;
+  network_id: string;
+  address: string;
+  currency: string;
+}
+
+interface ITransferNetworkInfo {
+  network_id: string;
+  /** 手续费 */
+  commission: number;
+  /** 手续费货币 */
+  currency: string;
+  /** 网络超时时间 */
+  timeout?: number;
+}
+
+const mapAccountAddressInfo = (v: IAccountAddressInfo): IDataRecord<IAccountAddressInfo> => {
+  const now = Date.now();
+  return {
+    id: encodePath(v.account_id, v.network_id, v.network_id, v.currency),
+    type: 'account_address_info',
+    created_at: now,
+    updated_at: now,
+    frozen_at: null,
+    tags: {
+      currency: v.currency,
+      account_id: v.account_id,
+      network_id: v.network_id,
+    },
+    origin: v,
+  };
+};
+
+const mapTransferNetworkInfo = (v: ITransferNetworkInfo): IDataRecord<ITransferNetworkInfo> => {
+  const now = Date.now();
+  return {
+    id: encodePath(v.network_id, v.currency),
+    type: 'transfer_network_info',
+    created_at: now,
+    updated_at: now,
+    frozen_at: null,
+    tags: {
+      currency: v.currency,
+      network_id: v.network_id,
+    },
+    origin: v,
+  };
+};
+
+// provide on-chain network info
+defer(async () => {
+  const depositAddressRes = await client.getAssetDepositAddress({ ccy: 'USDT' });
+  const currenciesRes = await client.getAssetCurrencies({ ccy: 'USDT' });
+
+  const mapChainToChainInfo: Record<
+    string,
+    {
+      chain: string;
+      minFee: string;
+    }
+  > = Object.fromEntries(
+    currenciesRes.data.map((v) => [
+      v.chain,
+      {
+        chain: v.chain,
+        minFee: v.minFee,
+      },
+    ]),
+  );
+  // network info
+  await firstValueFrom(
+    from(depositAddressRes.data).pipe(
+      //
+      map((v): IAccountAddressInfo => {
+        const { chain, addr, ccy: currency } = v;
+        return {
+          account_id: `okx/${chain}/funding`,
+          network_id: `blockchain/${chain}`,
+          address: addr,
+          currency,
+        };
+      }),
+      map(mapAccountAddressInfo),
+      toArray(),
+      mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
+    ),
+  );
+  await firstValueFrom(
+    from(depositAddressRes.data).pipe(
+      //
+      map((v) => {
+        return {
+          network_id: `blockchain/${v.chain}`,
+          commission: +mapChainToChainInfo[v.chain].minFee,
+          currency: 'USDT',
+          timeout: 1800_000,
+        };
+      }),
+      map(mapTransferNetworkInfo),
+      toArray(),
+      mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
+    ),
+  );
+});
+
+// provide subAccount network info
 defer(async () => {
   const account_config = await firstValueFrom(accountConfig$);
   const { mainUid, uid } = account_config.data[0];
+  if (mainUid !== uid) {
+    // we are the main account
+    return EMPTY;
+  }
 
+  const subAccountListRes = await client.getSubAccountList();
+  await firstValueFrom(
+    from(subAccountListRes.data).pipe(
+      //
+      map(
+        (v): IAccountAddressInfo => ({
+          account_id: `okx/${v.uid}/funding`,
+          network_id: `OKX/${mainUid}/SubAccount`,
+          address: v.subAcct,
+          currency: 'USDT',
+        }),
+      ),
+      concatWith(
+        of({
+          account_id: `okx/${mainUid}/funding`,
+          network_id: `OKX/${mainUid}/SubAccount`,
+          address: `#main`,
+          currency: 'USDT',
+        } as IAccountAddressInfo),
+      ),
+      map(mapAccountAddressInfo),
+      toArray(),
+      mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
+    ),
+  );
+
+  await firstValueFrom(
+    of(0).pipe(
+      //
+      map(
+        (v): ITransferNetworkInfo => ({
+          network_id: `OKX/${mainUid}/SubAccount`,
+          commission: 0,
+          currency: 'USDT',
+          timeout: 300_000,
+        }),
+      ),
+      map(mapTransferNetworkInfo),
+      toArray(),
+      mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
+    ),
+  );
+}).subscribe();
+
+defer(async () => {
+  const account_config = await firstValueFrom(accountConfig$);
+  const { mainUid, uid } = account_config.data[0];
   const isMainAccount = mainUid === uid;
 
   terminal.provideService(
     'TransferApply',
     {
       type: 'object',
-      required: [
-        'routing_path',
-        'current_tx_account_id',
-        'current_rx_account_id',
-        'current_tx_address',
-        'current_rx_address',
-        'current_network_id',
-        'current_tx_state',
-      ],
+      required: ['routing_path', 'current_tx_account_id', 'current_network_id'],
       properties: {
-        routing_path: {
-          type: 'string',
-        },
         current_tx_account_id: {
-          type: 'string',
           pattern: '^okx/.+',
         },
         current_network_id: {
@@ -885,14 +1037,14 @@ defer(async () => {
           const [, , rxAccountType] = decodePath(current_rx_account_id!);
 
           const transferResult = await client.postAssetTransfer({
-            type: isMainAccount ? '1' : current_rx_address === account_config.data[0]?.mainUid ? '2' : '4',
+            type: isMainAccount ? '1' : current_rx_address === '#main' ? '2' : '4',
             ccy: transferOrder.currency,
             amt: `${transferOrder.expected_amount}`,
             from: txAccountType === 'trading' ? '18' : '6',
             to: rxAccountType === 'trading' ? '18' : '6',
             subAcct: isMainAccount
               ? current_rx_address
-              : current_rx_address === account_config.data[0]?.mainUid
+              : current_rx_address === '#main'
               ? undefined
               : current_rx_address,
           });
@@ -936,21 +1088,9 @@ defer(async () => {
     `TransferEval`,
     {
       type: 'object',
-      required: [
-        'routing_path',
-        'current_tx_account_id',
-        'current_rx_account_id',
-        'current_tx_address',
-        'current_rx_address',
-        'current_network_id',
-        'current_tx_state',
-      ],
+      required: ['routing_path', 'current_rx_account_id', 'current_network_id'],
       properties: {
-        routing_path: {
-          type: 'string',
-        },
         current_rx_account_id: {
-          type: 'string',
           pattern: '^okx/.+',
         },
         current_network_id: {
