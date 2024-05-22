@@ -838,3 +838,26 @@ export interface ITransferOrder {
   /** 当前状态下用于流转状态的上下文信息 */
   current_tx_context?: string;
 }
+
+/**
+ * @public
+ */
+export interface IAccountAddressInfo {
+  account_id: string;
+  network_id: string;
+  address: string;
+  currency: string;
+}
+
+/**
+ * @public
+ */
+export interface ITransferNetworkInfo {
+  network_id: string;
+  /** 手续费 */
+  commission: number;
+  /** 手续费货币 */
+  currency: string;
+  /** 网络超时时间 */
+  timeout?: number;
+}

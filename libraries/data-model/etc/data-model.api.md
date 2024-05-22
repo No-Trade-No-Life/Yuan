@@ -30,6 +30,18 @@ export const getProfit: (product: IProduct, openPrice: number, closePrice: numbe
     bid: number;
 } | undefined) => number;
 
+// @public (undocumented)
+export interface IAccountAddressInfo {
+    // (undocumented)
+    account_id: string;
+    // (undocumented)
+    address: string;
+    // (undocumented)
+    currency: string;
+    // (undocumented)
+    network_id: string;
+}
+
 // @public
 export interface IAccountInfo {
     account_id: string;
@@ -162,6 +174,15 @@ export interface ITick {
     volume?: number;
 }
 
+// @public (undocumented)
+export interface ITransferNetworkInfo {
+    commission: number;
+    currency: string;
+    // (undocumented)
+    network_id: string;
+    timeout?: number;
+}
+
 // @public
 export interface ITransferOrder {
     created_at: number;
@@ -196,5 +217,11 @@ export const mergeAccountInfoPositions: (info: IAccountInfo) => Observable<IAcco
 
 // @public (undocumented)
 export const UUID: () => string;
+
+// @public
+export const wrapAccountAddressInfo: (v: IAccountAddressInfo) => IDataRecord<IAccountAddressInfo>;
+
+// @public
+export const wrapTransferNetworkInfo: (v: ITransferNetworkInfo) => IDataRecord<ITransferNetworkInfo>;
 
 ```

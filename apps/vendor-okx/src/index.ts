@@ -1,15 +1,19 @@
 import {
+  IAccountAddressInfo,
   IAccountInfo,
   IDataRecord,
   IOrder,
   IPosition,
   IProduct,
   ITick,
+  ITransferNetworkInfo,
   ITransferOrder,
   UUID,
   decodePath,
   encodePath,
   formatTime,
+  wrapAccountAddressInfo,
+  wrapTransferNetworkInfo,
 } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
@@ -758,56 +762,6 @@ defer(async () => {
   );
 }).subscribe();
 
-interface IAccountAddressInfo {
-  account_id: string;
-  network_id: string;
-  address: string;
-  currency: string;
-}
-
-interface ITransferNetworkInfo {
-  network_id: string;
-  /** 手续费 */
-  commission: number;
-  /** 手续费货币 */
-  currency: string;
-  /** 网络超时时间 */
-  timeout?: number;
-}
-
-const mapAccountAddressInfo = (v: IAccountAddressInfo): IDataRecord<IAccountAddressInfo> => {
-  const now = Date.now();
-  return {
-    id: encodePath(v.account_id, v.network_id, v.network_id, v.currency),
-    type: 'account_address_info',
-    created_at: now,
-    updated_at: now,
-    frozen_at: null,
-    tags: {
-      currency: v.currency,
-      account_id: v.account_id,
-      network_id: v.network_id,
-    },
-    origin: v,
-  };
-};
-
-const mapTransferNetworkInfo = (v: ITransferNetworkInfo): IDataRecord<ITransferNetworkInfo> => {
-  const now = Date.now();
-  return {
-    id: encodePath(v.network_id, v.currency),
-    type: 'transfer_network_info',
-    created_at: now,
-    updated_at: now,
-    frozen_at: null,
-    tags: {
-      currency: v.currency,
-      network_id: v.network_id,
-    },
-    origin: v,
-  };
-};
-
 // provide on-chain network info
 defer(async () => {
   const depositAddressRes = await client.getAssetDepositAddress({ ccy: 'USDT' });
@@ -841,7 +795,7 @@ defer(async () => {
           currency,
         };
       }),
-      map(mapAccountAddressInfo),
+      map(wrapAccountAddressInfo),
       toArray(),
       mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
     ),
@@ -857,7 +811,7 @@ defer(async () => {
           timeout: 1800_000,
         };
       }),
-      map(mapTransferNetworkInfo),
+      map(wrapTransferNetworkInfo),
       toArray(),
       mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
     ),
@@ -893,7 +847,7 @@ defer(async () => {
           currency: 'USDT',
         } as IAccountAddressInfo),
       ),
-      map(mapAccountAddressInfo),
+      map(wrapAccountAddressInfo),
       toArray(),
       mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
     ),
@@ -910,7 +864,7 @@ defer(async () => {
           timeout: 300_000,
         }),
       ),
-      map(mapTransferNetworkInfo),
+      map(wrapTransferNetworkInfo),
       toArray(),
       mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
     ),
@@ -929,7 +883,7 @@ defer(async () => {
       required: ['routing_path', 'current_tx_account_id', 'current_network_id'],
       properties: {
         current_tx_account_id: {
-          pattern: '^okx/.+',
+          enum: [`okx/${uid}/trading`, `okx/${uid}/funding`],
         },
         current_network_id: {
           enum: ['TRC20', `OKX/${mainUid}/SubAccount`],
@@ -1082,7 +1036,7 @@ defer(async () => {
 
 defer(async () => {
   const account_config = await firstValueFrom(accountConfig$);
-  const { mainUid } = account_config.data[0];
+  const { mainUid, uid } = account_config.data[0];
 
   terminal.provideService(
     `TransferEval`,
@@ -1091,7 +1045,7 @@ defer(async () => {
       required: ['routing_path', 'current_rx_account_id', 'current_network_id'],
       properties: {
         current_rx_account_id: {
-          pattern: '^okx/.+',
+          enum: [`okx/${uid}/trading`, `okx/${uid}/funding`],
         },
         current_network_id: {
           enum: ['TRC20', `OKX/${mainUid}/SubAccount`],
