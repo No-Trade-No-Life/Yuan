@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-model
 
-This log was last generated on Wed, 22 May 2024 04:53:53 GMT and should not be manually modified.
+This log was last generated on Thu, 23 May 2024 13:52:31 GMT and should not be manually modified.
+
+## 0.10.0
+Thu, 23 May 2024 13:52:31 GMT
+
+### Minor changes
+
+- add new transfer network models
 
 ## 0.9.0
 Wed, 22 May 2024 04:53:53 GMT

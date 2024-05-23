@@ -2,6 +2,28 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.16.1",
+      "tag": "@yuants/protocol_v0.16.1",
+      "date": "Thu, 23 May 2024 13:52:31 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add new transfer network models"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.10.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.16.0",
       "tag": "@yuants/protocol_v0.16.0",
       "date": "Wed, 22 May 2024 04:53:53 GMT",
