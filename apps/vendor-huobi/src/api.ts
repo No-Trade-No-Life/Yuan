@@ -356,6 +356,34 @@ export class HuobiClient {
   }> => this.request('GET', `/linear-swap-ex/market/trade`, this.swap_api_root, params);
 
   /**
+   * 获得当前合约的总持仓量
+   *
+   * https://huobiapi.github.io/docs/usdt_swap/v1/cn/#3218e7531a
+   */
+  getSwapOpenInterest = (params: {
+    contract_code?: string;
+    pair?: string;
+    contract_type?: string;
+    business_type?: string;
+  }): Promise<{
+    status: string;
+    data: {
+      volume: number;
+      amount: number;
+      symbol: string;
+      value: number;
+      contract_code: string;
+      trade_amount: number;
+      trade_volume: number;
+      trade_turnover: number;
+      business_type: string;
+      pair: string;
+      contract_type: string;
+    }[];
+    ts: number;
+  }> => this.request('GET', '/linear-swap-api/v1/swap_open_interest', this.swap_api_root, params);
+
+  /**
    * 【通用】获取市场最优挂单
    *
    * 接口权限: 读取
