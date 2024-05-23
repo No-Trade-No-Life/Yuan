@@ -161,6 +161,20 @@ import { HuobiClient } from './api';
     shareReplay(1),
   );
 
+  const mapSwapContractCodeToOpenInterest$ = defer(() => client.getSwapOpenInterest({})).pipe(
+    mergeMap((res) =>
+      from(res.data).pipe(
+        map((tick) => [tick.contract_code, tick] as const),
+        toArray(),
+        map((ticks) => Object.fromEntries(ticks)),
+      ),
+    ),
+
+    repeat({ delay: 1000 }),
+    retry({ delay: 1000 }),
+    shareReplay(1),
+  );
+
   terminal.provideTicks('huobi-swap', (product_id) => {
     return defer(async () => {
       const products = await firstValueFrom(perpetualContractProducts$);
@@ -172,13 +186,14 @@ import { HuobiClient } from './api';
         mapSwapContractCodeToBboTick$,
         mapSwapContractCodeToTradeTick$,
         mapSwapContractCodeToFundingRateTick$,
+        mapSwapContractCodeToOpenInterest$,
       ] as const;
     }).pipe(
       catchError(() => EMPTY),
       mergeMap((x) =>
         combineLatest(x).pipe(
-          map(
-            ([theProduct, bboTick, tradeTick, fundingRateTick]): ITick => ({
+          map(([theProduct, bboTick, tradeTick, fundingRateTick, openInterest]): ITick => {
+            return {
               datasource_id: 'huobi-swap',
               product_id,
               updated_at: Date.now(),
@@ -189,8 +204,9 @@ import { HuobiClient } from './api';
               volume: +tradeTick[product_id].amount,
               interest_rate_for_long: -+fundingRateTick[product_id].funding_rate,
               interest_rate_for_short: +fundingRateTick[product_id].funding_rate,
-            }),
-          ),
+              open_interest: +openInterest[product_id]?.volume,
+            };
+          }),
         ),
       ),
     );
