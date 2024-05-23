@@ -1,4 +1,5 @@
 import {
+  IAccountAddressInfo,
   IAccountInfo,
   IDataRecord,
   IOrder,
@@ -9,6 +10,7 @@ import {
   decodePath,
   encodePath,
   formatTime,
+  wrapAccountAddressInfo,
 } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
@@ -65,6 +67,9 @@ import { HuobiClient } from './api';
   console.info(formatTime(Date.now()), 'huobiAccount', JSON.stringify(huobiAccounts));
 
   const account_id = `huobi/${huobiUid}`;
+  const SPOT_ACCOUNT_ID = `${account_id}/spot/usdt`;
+  const SUPER_MARGIN_ACCOUNT_ID = `${account_id}/super-margin`;
+  const SWAP_ACCOUNT_ID = `${account_id}/swap`;
 
   const terminal = new Terminal(process.env.HOST_URL!, {
     terminal_id: process.env.TERMINAL_ID || `Huobi-client-${account_id}`,
@@ -268,7 +273,7 @@ import { HuobiClient } from './api';
             map((v): IOrder => {
               return {
                 order_id: v.order_id_str,
-                account_id,
+                account_id: SWAP_ACCOUNT_ID,
                 product_id: v.contract_code,
                 order_type: ['lightning'].includes(v.order_price_type)
                   ? 'MARKET'
@@ -315,7 +320,7 @@ import { HuobiClient } from './api';
           return {
             timestamp_in_us: Date.now() * 1000,
             updated_at: Date.now(),
-            account_id: `${account_id}/swap`,
+            account_id: SWAP_ACCOUNT_ID,
             money: {
               currency: 'USDT',
               balance: balance.cross_margin_static,
@@ -332,7 +337,9 @@ import { HuobiClient } from './api';
     }),
   );
 
-  const unifiedRawAccountBalance$ = defer(() => client.getSpotAccountBalance(superMarginAccountUid)).pipe(
+  const superMarginUnifiedRawAccountBalance$ = defer(() =>
+    client.getSpotAccountBalance(superMarginAccountUid),
+  ).pipe(
     //
     map((res) => res.data),
     repeat({ delay: 1000 }),
@@ -350,7 +357,7 @@ import { HuobiClient } from './api';
     subscriptions.clear();
   });
   // subscribe the symbols of positions we held
-  unifiedRawAccountBalance$
+  superMarginUnifiedRawAccountBalance$
     .pipe(
       //
       mergeMap((res) =>
@@ -384,7 +391,7 @@ import { HuobiClient } from './api';
   const superMarginAccountInfo$ = of(0).pipe(
     //
     mergeMap(() => {
-      const balance$ = unifiedRawAccountBalance$.pipe(
+      const balance$ = superMarginUnifiedRawAccountBalance$.pipe(
         //
         mergeMap((res) =>
           from(res.list).pipe(
@@ -393,7 +400,7 @@ import { HuobiClient } from './api';
           ),
         ),
       );
-      const position$ = unifiedRawAccountBalance$.pipe(
+      const position$ = superMarginUnifiedRawAccountBalance$.pipe(
         //
         mergeMap((res) =>
           from(res.list).pipe(
@@ -446,7 +453,7 @@ import { HuobiClient } from './api';
           return {
             timestamp_in_us: Date.now() * 1000,
             updated_at: Date.now(),
-            account_id: `${account_id}/super-margin`,
+            account_id: SUPER_MARGIN_ACCOUNT_ID,
             money: {
               currency: 'USDT',
               balance: equity,
@@ -463,6 +470,36 @@ import { HuobiClient } from './api';
     }),
   );
 
+  const spotRawBalance$ = defer(() => client.getSpotAccountBalance(spotAccountUid)).pipe(
+    repeat({ delay: 1000 }),
+    retry({ delay: 5000 }),
+    shareReplay(1),
+  );
+
+  const spotAccountInfo$ = spotRawBalance$.pipe(
+    map((spotBalance): IAccountInfo => {
+      const balance = +(spotBalance.data.list.find((v) => v.currency === 'usdt')?.balance ?? 0);
+      const equity = balance;
+      const free = equity;
+      return {
+        updated_at: Date.now(),
+        account_id: SPOT_ACCOUNT_ID,
+        money: {
+          currency: 'USDT',
+          balance,
+          equity,
+          profit: 0,
+          free,
+          used: 0,
+        },
+        positions: [],
+        orders: [],
+      };
+    }),
+    shareReplay(1),
+  );
+
+  terminal.provideAccountInfo(spotAccountInfo$);
   terminal.provideAccountInfo(superMarginAccountInfo$);
   terminal.provideAccountInfo(perpetualContractAccountInfo$);
 
@@ -473,7 +510,7 @@ import { HuobiClient } from './api';
       required: ['account_id'],
       properties: {
         account_id: {
-          enum: [`${account_id}/super-margin`, `${account_id}/swap`],
+          enum: [SUPER_MARGIN_ACCOUNT_ID, SWAP_ACCOUNT_ID],
         },
       },
     },
@@ -481,7 +518,7 @@ import { HuobiClient } from './api';
       const { account_id: req_account_id } = msg.req;
       console.info(formatTime(Date.now()), `SubmitOrder for ${account_id}`, JSON.stringify(msg));
 
-      if (req_account_id === `${account_id}/swap`) {
+      if (req_account_id === SWAP_ACCOUNT_ID) {
         return defer(() => client.getSwapCrossPositionInfo()).pipe(
           mergeMap((res) => res.data),
           map((v) => [v.contract_code, v.lever_rate]),
@@ -534,7 +571,7 @@ import { HuobiClient } from './api';
         first((v) => v.currency === 'usdt'),
         map((v) => +v['loanable-amt']),
         combineLatestWith(
-          unifiedRawAccountBalance$.pipe(
+          superMarginUnifiedRawAccountBalance$.pipe(
             first(),
             mergeMap((res) =>
               from(res.list).pipe(
@@ -610,8 +647,8 @@ import { HuobiClient } from './api';
   );
 
   const debit_methods = [
-    encodePath(`huobi`, `account_internal`, `${account_id}/super-margin`),
-    encodePath(`huobi`, `account_internal`, `${account_id}/swap`),
+    encodePath(`huobi`, `account_internal`, SUPER_MARGIN_ACCOUNT_ID),
+    encodePath(`huobi`, `account_internal`, SWAP_ACCOUNT_ID),
     ...(await firstValueFrom(blockchainAddress$)),
   ];
 
@@ -647,7 +684,7 @@ import { HuobiClient } from './api';
           required: ['debit_account_id', 'credit_account_id', 'currency'],
           properties: {
             debit_account_id: {
-              enum: [`${account_id}/super-margin`, `${account_id}/swap`],
+              enum: [SUPER_MARGIN_ACCOUNT_ID, SWAP_ACCOUNT_ID],
             },
             currency: {
               const: 'USDT',
@@ -662,7 +699,7 @@ import { HuobiClient } from './api';
           required: ['debit_account_id', 'credit_account_id', 'currency'],
           properties: {
             credit_account_id: {
-              enum: [`${account_id}/super-margin`, `${account_id}/swap`],
+              enum: [SUPER_MARGIN_ACCOUNT_ID, SWAP_ACCOUNT_ID],
             },
             currency: {
               const: 'USDT',
@@ -803,7 +840,7 @@ import { HuobiClient } from './api';
                   await firstValueFrom(timer(10000));
 
                   // transfer received money to trading account
-                  if (debit_account_id === `${account_id}/swap`) {
+                  if (debit_account_id === SWAP_ACCOUNT_ID) {
                     const transferResult = await client.postSpotAccountTransfer({
                       from: 'spot',
                       to: 'linear-swap',
@@ -830,7 +867,7 @@ import { HuobiClient } from './api';
                       return { res: { code: 500, message: 'TRANSFER_FAILED' } };
                     }
                   }
-                  if (debit_account_id === `${account_id}/super-margin`) {
+                  if (debit_account_id === SUPER_MARGIN_ACCOUNT_ID) {
                     const transferInResult = await client.postSuperMarginAccountTransferIn({
                       currency: 'usdt',
                       amount: '' + req.expected_amount,
@@ -900,8 +937,8 @@ import { HuobiClient } from './api';
                   }
                   // if we are playing the role of super-margin account
                   if (
-                    credit_account_id === `${account_id}/super-margin` &&
-                    target_account_id === `${account_id}/swap`
+                    credit_account_id === SUPER_MARGIN_ACCOUNT_ID &&
+                    target_account_id === SWAP_ACCOUNT_ID
                   ) {
                     console.info(formatTime(Date.now()), 'Transfer', 'CREDIT', 'from super-margin to swap');
 
@@ -910,7 +947,7 @@ import { HuobiClient } from './api';
                     // 0. if we don't have enough usdt, we need to borrow
                     const toTransfer = req.expected_amount;
                     const usdtBalance = await firstValueFrom(
-                      unifiedRawAccountBalance$.pipe(
+                      superMarginUnifiedRawAccountBalance$.pipe(
                         //
                         mergeMap((v) =>
                           from(v.list).pipe(
@@ -972,7 +1009,7 @@ import { HuobiClient } from './api';
                       await updateTransferOrder(nextOrder);
                       return { res: { code: 500, message: 'TRANSFER_FAILED' } };
                     }
-                    // 2. transfer the amount of usdt to the spot account
+                    // 2. transfer the amount of usdt to the swap account
                     const transferInResult = await client.postSpotAccountTransfer({
                       from: 'spot',
                       to: 'linear-swap',
@@ -1010,8 +1047,8 @@ import { HuobiClient } from './api';
                     return { res: { code: 0, message: 'OK' } };
                   }
                   if (
-                    credit_account_id === `${account_id}/swap` &&
-                    target_account_id === `${account_id}/super-margin`
+                    credit_account_id === SWAP_ACCOUNT_ID &&
+                    target_account_id === SUPER_MARGIN_ACCOUNT_ID
                   ) {
                     const updated_at = Date.now();
                     // return defer(async () => {
@@ -1084,7 +1121,7 @@ import { HuobiClient } from './api';
                   console.info(formatTime(Date.now()), 'Transfer', req.order_id, 'USDT TRC20', address);
 
                   // 1. transfer the amount of usdt to the spot account
-                  if (credit_account_id === `${account_id}/super-margin`) {
+                  if (credit_account_id === SUPER_MARGIN_ACCOUNT_ID) {
                     const transferOutResult = await client.postSuperMarginAccountTransferOut({
                       currency: 'usdt',
                       amount: '' + req.expected_amount + 1 /* 1 as fee */,
@@ -1107,7 +1144,7 @@ import { HuobiClient } from './api';
                       return { res: { code: 500, message: 'TRANSFER_FAILED' } };
                     }
                   }
-                  if (credit_account_id === `${account_id}/swap`) {
+                  if (credit_account_id === SWAP_ACCOUNT_ID) {
                     const transferOutResult = await client.postSpotAccountTransfer({
                       from: 'linear-swap',
                       to: 'spot',
@@ -1354,4 +1391,216 @@ import { HuobiClient } from './api';
     },
     { concurrent: 10 },
   );
+
+  terminal.provideService(
+    'TransferApply',
+    {
+      type: 'object',
+      required: ['current_tx_account_id'],
+      properties: {
+        current_tx_account_id: {
+          enum: [SPOT_ACCOUNT_ID, SUPER_MARGIN_ACCOUNT_ID, SWAP_ACCOUNT_ID],
+        },
+      },
+    },
+    (msg) =>
+      defer(async () => {
+        //
+        const order = msg.req;
+        const { current_tx_state, current_tx_account_id, current_network_id } = order;
+        if (current_network_id === 'TRC20') {
+          if (current_tx_account_id !== SPOT_ACCOUNT_ID) {
+            return { res: { code: 400, message: `Only SPOT Account Can Withdraw ${current_tx_account_id}` } };
+          }
+          if (current_tx_state === 'INIT') {
+            const res = await client.postWithdraw({
+              address: order.current_rx_address!,
+              amount: '' + order.expected_amount,
+              currency: 'usdt',
+              fee: '1',
+              chain: 'trc20usdt',
+            });
+            if (res.status != 'ok') {
+              return { res: { code: 500, message: 'TRANSFER_FAILED' } };
+            }
+            return { res: { code: 0, message: 'OK', data: { state: 'PENDING', context: `${res.data}` } } };
+          }
+          if (current_tx_state === 'PENDING') {
+            if (!order.current_tx_context) {
+              return { res: { code: 400, message: 'MISSING_CONTEXT' } };
+            }
+            const wdId = +order.current_tx_context;
+            const res = await client.getDepositWithdrawHistory({
+              currency: 'usdt',
+              type: 'withdraw',
+              from: `${wdId}`,
+            });
+            const txId = res.data.find((v) => v.id === wdId)?.['tx-hash'];
+            if (!txId) {
+              return { res: { code: 0, message: 'NOT_RECEIVED' } };
+            }
+            return {
+              res: {
+                code: 0,
+                message: 'OK',
+                data: {
+                  state: 'COMPLETE',
+                  transaction_id: txId,
+                },
+              },
+            };
+          }
+          return { res: { code: 400, message: `UNKNOWN STATE ${current_tx_state}` } };
+        }
+
+        if (current_network_id === `Huobi/${huobiUid}/SPOT-SUPER_MARGIN`) {
+          if (current_tx_state === 'INIT') {
+            //
+            if (current_tx_account_id === SPOT_ACCOUNT_ID) {
+              // from SPOT to SUPER_MARGIN
+              const transferInResult = await client.postSuperMarginAccountTransferIn({
+                currency: 'usdt',
+                amount: '' + order.expected_amount,
+              });
+              if (transferInResult.status !== 'ok') {
+                return { res: { code: 500, message: 'TRANSFER_FAILED' } };
+              }
+              return { res: { code: 0, message: 'OK', data: { state: 'COMPLETE' } } };
+            }
+            if (current_tx_account_id === SUPER_MARGIN_ACCOUNT_ID) {
+              // from SUPER_MARGIN to SPOT
+              const transferOutResult = await client.postSuperMarginAccountTransferOut({
+                currency: 'usdt',
+                amount: '' + order.expected_amount,
+              });
+              if (transferOutResult.status !== 'ok') {
+                return { res: { code: 500, message: 'TRANSFER_FAILED' } };
+              }
+              return { res: { code: 0, message: 'OK', data: { state: 'COMPLETE' } } };
+            }
+          }
+          return { res: { code: 400, message: `UNKNOWN STATE ${current_tx_state}` } };
+        }
+
+        if (current_network_id === `Huobi/${huobiUid}/SPOT-SWAP`) {
+          if (current_tx_state === 'INIT') {
+            if (current_tx_account_id === SPOT_ACCOUNT_ID) {
+              // from SPOT to SWAP
+              const transferResult = await client.postSpotAccountTransfer({
+                from: 'spot',
+                to: 'linear-swap',
+                currency: 'usdt',
+                amount: order.expected_amount,
+                'margin-account': 'USDT',
+              });
+              if (!transferResult.success) {
+                return { res: { code: 500, message: 'TRANSFER_FAILED' } };
+              }
+              return { res: { code: 0, message: 'OK', data: { state: 'COMPLETE' } } };
+            }
+            if (current_tx_account_id === SWAP_ACCOUNT_ID) {
+              // from SWAP to SPOT
+              const transferResult = await client.postSpotAccountTransfer({
+                from: 'linear-swap',
+                to: 'spot',
+                currency: 'usdt',
+                amount: order.expected_amount,
+                'margin-account': 'USDT',
+              });
+              if (!transferResult.success) {
+                return { res: { code: 500, message: 'TRANSFER_FAILED' } };
+              }
+              return { res: { code: 0, message: 'OK', data: { state: 'COMPLETE' } } };
+            }
+          }
+        }
+
+        return { res: { code: 400, message: `UNKNOWN NETWORK ${current_network_id}` } };
+      }),
+  );
+
+  terminal.provideService(
+    'TransferEval',
+    {
+      type: 'object',
+      required: ['current_rx_account_id'],
+      properties: {
+        current_rx_account_id: {
+          enum: [SPOT_ACCOUNT_ID, SUPER_MARGIN_ACCOUNT_ID, SWAP_ACCOUNT_ID],
+        },
+      },
+    },
+    (msg) =>
+      defer(async () => {
+        const order = msg.req;
+        const { current_rx_account_id, current_network_id } = order;
+        if (current_network_id === 'TRC20') {
+          if (current_rx_account_id !== SPOT_ACCOUNT_ID) {
+            return { res: { code: 400, message: `Only SPOT Account Can Receive ${current_rx_account_id}` } };
+          }
+          const res = await client.getDepositWithdrawHistory({
+            currency: 'usdt',
+            type: 'deposit',
+            direct: 'next',
+          });
+
+          const theItem = res.data.find((v) => v['tx-hash'] === order.transaction_id && v.state === 'safe');
+          if (!theItem) {
+            return { res: { code: 0, message: 'NOT_RECEIVED' } };
+          }
+          return { res: { code: 0, message: 'OK', data: { received_amount: +theItem.amount } } };
+        }
+
+        if (current_network_id === `Huobi/${huobiUid}/SPOT-SUPER_MARGIN`) {
+          return { res: { code: 0, message: 'OK', data: { received_amount: order.expected_amount } } };
+        }
+
+        if (current_network_id === `Huobi/${huobiUid}/SPOT-SWAP`) {
+          return { res: { code: 0, message: 'OK', data: { received_amount: order.expected_amount } } };
+        }
+
+        return { res: { code: 400, message: 'UNKNOWN ROUTING' } };
+      }),
+  );
+
+  // Update Spot TRC20 Addresses
+  {
+    const res = await client.getSpotAccountDepositAddresses({ currency: 'usdt' });
+    const addresses = res.data.filter((v) => v.chain === 'trc20usdt').map((v) => v.address);
+    const info = [
+      ...addresses.map(
+        (address): IAccountAddressInfo => ({
+          account_id: SPOT_ACCOUNT_ID,
+          currency: 'USDT',
+          address: address,
+          network_id: 'TRC20',
+        }),
+      ),
+      {
+        account_id: SPOT_ACCOUNT_ID,
+        currency: 'USDT',
+        address: 'SPOT',
+        network_id: `Huobi/${huobiUid}/SPOT-SUPER_MARGIN`,
+      },
+      {
+        account_id: SUPER_MARGIN_ACCOUNT_ID,
+        currency: 'USDT',
+        address: 'SUPER_MARGIN',
+        network_id: `Huobi/${huobiUid}/SPOT-SUPER_MARGIN`,
+      },
+      {
+        account_id: SPOT_ACCOUNT_ID,
+        currency: 'USDT',
+        address: 'SPOT',
+        network_id: `Huobi/${huobiUid}/SPOT-SWAP`,
+      },
+      {
+        account_id: SWAP_ACCOUNT_ID,
+        currency: 'USDT',
+        address: 'SWAP',
+        network_id: `Huobi/${huobiUid}/SPOT-SWAP`,
+      },
+    ].map(wrapAccountAddressInfo);
+    terminal.updateDataRecords(info).subscribe();
+  }
 })();
