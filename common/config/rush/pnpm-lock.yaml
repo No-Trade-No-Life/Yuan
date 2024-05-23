@@ -562,6 +562,7 @@ importers:
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
       ajv: ~8.12.0
+      dijkstrajs: ~1.0.3
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
@@ -569,6 +570,7 @@ importers:
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/utils': link:../../libraries/utils
       ajv: 8.12.0
+      dijkstrajs: 1.0.3
       rxjs: 7.5.7
     devDependencies:
       '@microsoft/api-extractor': 7.30.1
@@ -9658,6 +9660,10 @@ packages:
   /diff/5.1.0:
     resolution: {integrity: sha512-D+mk+qE8VC/PAUrlAU34N+VfXev0ghe5ywmpqrawphmVZc1bEfn56uo9qpyGp1p4xpzOHkSW4ztBd6L7Xx4ACw==}
     engines: {node: '>=0.3.1'}
+    dev: false
+
+  /dijkstrajs/1.0.3:
+    resolution: {integrity: sha512-qiSlmBq9+BCdCA/L46dw8Uy93mloxsPSbwnm5yrKn2vMPiy8KyAskTF6zuV/j5BMsmOGZDPs7KjU+mjb670kfA==}
     dev: false
 
   /dir-glob/3.0.1:
