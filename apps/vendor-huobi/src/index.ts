@@ -1404,119 +1404,122 @@ import { HuobiClient } from './api';
       },
     },
     (msg) =>
-      defer(async () => {
+      defer(
+        async (): Promise<{ state: string; context?: string; message?: string; transaction_id?: string }> => {
+          //
+          const order = msg.req;
+          const { current_tx_state, current_tx_account_id, current_network_id } = order;
+          if (current_network_id === 'TRC20') {
+            if (current_tx_account_id !== SPOT_ACCOUNT_ID) {
+              return {
+                state: 'ERROR',
+                message: `Only SPOT Account Can Withdraw ${current_tx_account_id}`,
+              };
+            }
+            if (current_tx_state === 'INIT') {
+              const res = await client.postWithdraw({
+                address: order.current_rx_address!,
+                amount: '' + order.expected_amount,
+                currency: 'usdt',
+                fee: '1',
+                chain: 'trc20usdt',
+              });
+              if (res.status != 'ok') {
+                return { state: 'INIT' };
+              }
+              return { state: 'PENDING', context: `${res.data}` };
+            }
+            if (current_tx_state === 'PENDING') {
+              if (!order.current_tx_context) {
+                return { state: 'ERROR', message: 'MISSING CONTEXT' };
+              }
+              const wdId = +order.current_tx_context;
+              const res = await client.getDepositWithdrawHistory({
+                currency: 'usdt',
+                type: 'withdraw',
+                from: `${wdId}`,
+              });
+              const txId = res.data.find((v) => v.id === wdId)?.['tx-hash'];
+              if (!txId) {
+                return { state: 'PENDING', context: `${wdId}` };
+              }
+              return {
+                state: 'COMPLETE',
+                transaction_id: txId,
+              };
+            }
+          }
+
+          if (current_network_id === `Huobi/${huobiUid}/SPOT-SUPER_MARGIN`) {
+            if (current_tx_state === 'INIT') {
+              //
+              if (current_tx_account_id === SPOT_ACCOUNT_ID) {
+                // from SPOT to SUPER_MARGIN
+                const transferInResult = await client.postSuperMarginAccountTransferIn({
+                  currency: 'usdt',
+                  amount: '' + order.expected_amount,
+                });
+                if (transferInResult.status !== 'ok') {
+                  return { state: 'INIT' };
+                }
+                return { state: 'COMPLETE' };
+              }
+              if (current_tx_account_id === SUPER_MARGIN_ACCOUNT_ID) {
+                // from SUPER_MARGIN to SPOT
+                const transferOutResult = await client.postSuperMarginAccountTransferOut({
+                  currency: 'usdt',
+                  amount: '' + order.expected_amount,
+                });
+                if (transferOutResult.status !== 'ok') {
+                  return { state: 'INIT' };
+                }
+                return { state: 'COMPLETE' };
+              }
+            }
+          }
+
+          if (current_network_id === `Huobi/${huobiUid}/SPOT-SWAP`) {
+            if (current_tx_state === 'INIT') {
+              if (current_tx_account_id === SPOT_ACCOUNT_ID) {
+                // from SPOT to SWAP
+                const transferResult = await client.postSpotAccountTransfer({
+                  from: 'spot',
+                  to: 'linear-swap',
+                  currency: 'usdt',
+                  amount: order.expected_amount,
+                  'margin-account': 'USDT',
+                });
+                if (!transferResult.success) {
+                  return { state: 'INIT' };
+                }
+                return { state: 'COMPLETE' };
+              }
+              if (current_tx_account_id === SWAP_ACCOUNT_ID) {
+                // from SWAP to SPOT
+                const transferResult = await client.postSpotAccountTransfer({
+                  from: 'linear-swap',
+                  to: 'spot',
+                  currency: 'usdt',
+                  amount: order.expected_amount,
+                  'margin-account': 'USDT',
+                });
+                if (!transferResult.success) {
+                  return { state: 'INIT', context: 'TRANSFER_FAILED' };
+                }
+                return { state: 'COMPLETE' };
+              }
+            }
+          }
+
+          return { state: 'ERROR', message: `UNKNOWN CODE ROUTING` };
+        },
+      ).pipe(
         //
-        const order = msg.req;
-        const { current_tx_state, current_tx_account_id, current_network_id } = order;
-        if (current_network_id === 'TRC20') {
-          if (current_tx_account_id !== SPOT_ACCOUNT_ID) {
-            return { res: { code: 400, message: `Only SPOT Account Can Withdraw ${current_tx_account_id}` } };
-          }
-          if (current_tx_state === 'INIT') {
-            const res = await client.postWithdraw({
-              address: order.current_rx_address!,
-              amount: '' + order.expected_amount,
-              currency: 'usdt',
-              fee: '1',
-              chain: 'trc20usdt',
-            });
-            if (res.status != 'ok') {
-              return { res: { code: 500, message: 'TRANSFER_FAILED' } };
-            }
-            return { res: { code: 0, message: 'OK', data: { state: 'PENDING', context: `${res.data}` } } };
-          }
-          if (current_tx_state === 'PENDING') {
-            if (!order.current_tx_context) {
-              return { res: { code: 400, message: 'MISSING_CONTEXT' } };
-            }
-            const wdId = +order.current_tx_context;
-            const res = await client.getDepositWithdrawHistory({
-              currency: 'usdt',
-              type: 'withdraw',
-              from: `${wdId}`,
-            });
-            const txId = res.data.find((v) => v.id === wdId)?.['tx-hash'];
-            if (!txId) {
-              return { res: { code: 0, message: 'NOT_RECEIVED' } };
-            }
-            return {
-              res: {
-                code: 0,
-                message: 'OK',
-                data: {
-                  state: 'COMPLETE',
-                  transaction_id: txId,
-                },
-              },
-            };
-          }
-          return { res: { code: 400, message: `UNKNOWN STATE ${current_tx_state}` } };
-        }
-
-        if (current_network_id === `Huobi/${huobiUid}/SPOT-SUPER_MARGIN`) {
-          if (current_tx_state === 'INIT') {
-            //
-            if (current_tx_account_id === SPOT_ACCOUNT_ID) {
-              // from SPOT to SUPER_MARGIN
-              const transferInResult = await client.postSuperMarginAccountTransferIn({
-                currency: 'usdt',
-                amount: '' + order.expected_amount,
-              });
-              if (transferInResult.status !== 'ok') {
-                return { res: { code: 500, message: 'TRANSFER_FAILED' } };
-              }
-              return { res: { code: 0, message: 'OK', data: { state: 'COMPLETE' } } };
-            }
-            if (current_tx_account_id === SUPER_MARGIN_ACCOUNT_ID) {
-              // from SUPER_MARGIN to SPOT
-              const transferOutResult = await client.postSuperMarginAccountTransferOut({
-                currency: 'usdt',
-                amount: '' + order.expected_amount,
-              });
-              if (transferOutResult.status !== 'ok') {
-                return { res: { code: 500, message: 'TRANSFER_FAILED' } };
-              }
-              return { res: { code: 0, message: 'OK', data: { state: 'COMPLETE' } } };
-            }
-          }
-          return { res: { code: 400, message: `UNKNOWN STATE ${current_tx_state}` } };
-        }
-
-        if (current_network_id === `Huobi/${huobiUid}/SPOT-SWAP`) {
-          if (current_tx_state === 'INIT') {
-            if (current_tx_account_id === SPOT_ACCOUNT_ID) {
-              // from SPOT to SWAP
-              const transferResult = await client.postSpotAccountTransfer({
-                from: 'spot',
-                to: 'linear-swap',
-                currency: 'usdt',
-                amount: order.expected_amount,
-                'margin-account': 'USDT',
-              });
-              if (!transferResult.success) {
-                return { res: { code: 500, message: 'TRANSFER_FAILED' } };
-              }
-              return { res: { code: 0, message: 'OK', data: { state: 'COMPLETE' } } };
-            }
-            if (current_tx_account_id === SWAP_ACCOUNT_ID) {
-              // from SWAP to SPOT
-              const transferResult = await client.postSpotAccountTransfer({
-                from: 'linear-swap',
-                to: 'spot',
-                currency: 'usdt',
-                amount: order.expected_amount,
-                'margin-account': 'USDT',
-              });
-              if (!transferResult.success) {
-                return { res: { code: 500, message: 'TRANSFER_FAILED' } };
-              }
-              return { res: { code: 0, message: 'OK', data: { state: 'COMPLETE' } } };
-            }
-          }
-        }
-
-        return { res: { code: 400, message: `UNKNOWN NETWORK ${current_network_id}` } };
-      }),
+        map((x) => ({
+          res:
+            x.state === 'ERROR' ? { code: 1, message: x.message || '' } : { code: 0, message: 'OK', data: x },
+        })),
+      ),
   );
 
   terminal.provideService(
