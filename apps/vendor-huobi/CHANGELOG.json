@@ -2,6 +2,42 @@
   "name": "@yuants/vendor-huobi",
   "entries": [
     {
+      "version": "0.4.0",
+      "tag": "@yuants/vendor-huobi_v0.4.0",
+      "date": "Thu, 23 May 2024 13:52:31 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "apply for transfer network"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "spot account and new transfer network"
+          },
+          {
+            "comment": "swap tick's open interest"
+          },
+          {
+            "comment": "addAccountTransferAddress API"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.16.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.10.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.0",
       "tag": "@yuants/vendor-huobi_v0.3.0",
       "date": "Wed, 22 May 2024 04:53:53 GMT",

@@ -1,6 +1,19 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Wed, 22 May 2024 04:53:53 GMT and should not be manually modified.
+This log was last generated on Thu, 23 May 2024 13:52:31 GMT and should not be manually modified.
+
+## 0.4.0
+Thu, 23 May 2024 13:52:31 GMT
+
+### Minor changes
+
+- spot account and new transfer network
+- swap tick's open interest
+- addAccountTransferAddress API
+
+### Patches
+
+- apply for transfer network
 
 ## 0.3.0
 Wed, 22 May 2024 04:53:53 GMT
