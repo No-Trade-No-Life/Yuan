@@ -187,6 +187,14 @@ const interestRateByCurrency$ = memoizeMap((currency: string) =>
   ),
 );
 
+const swapOpenInterest$ = defer(() => client.getOpenInterest({ instType: 'SWAP' })).pipe(
+  map((x) => new Map(x.data.map((x) => [x.instId, +x.oi] as const))),
+
+  repeat({ delay: 10_000 }),
+  retry({ delay: 10_000 }),
+  shareReplay(1),
+);
+
 terminal.provideTicks('OKX', (product_id) => {
   const [instType, instId] = decodePath(product_id);
   if (instType === 'SWAP') {
@@ -198,13 +206,13 @@ terminal.provideTicks('OKX', (product_id) => {
         map((x) => x[instId]),
         shareReplay(1),
       );
-      return [of(theProduct), theTicker$, fundingRate$(product_id)] as const;
+      return [of(theProduct), theTicker$, fundingRate$(product_id), swapOpenInterest$] as const;
     }).pipe(
       catchError(() => EMPTY),
       mergeMap((x) =>
         combineLatest(x).pipe(
-          map(
-            ([theProduct, ticker, fundingRate]): ITick => ({
+          map(([theProduct, ticker, fundingRate, swapOpenInterest]): ITick => {
+            return {
               datasource_id: 'OKX',
               product_id,
               updated_at: Date.now(),
@@ -215,8 +223,9 @@ terminal.provideTicks('OKX', (product_id) => {
               volume: +ticker.lastSz,
               interest_rate_for_long: -+fundingRate.fundingRate,
               interest_rate_for_short: +fundingRate.fundingRate,
-            }),
-          ),
+              open_interest: swapOpenInterest.get(instId),
+            };
+          }),
         ),
       ),
     );
