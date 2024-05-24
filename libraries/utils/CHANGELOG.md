@@ -1,6 +1,13 @@
 # Change Log - @yuants/utils
 
-This log was last generated on Thu, 22 Feb 2024 18:28:20 GMT and should not be manually modified.
+This log was last generated on Fri, 24 May 2024 18:00:17 GMT and should not be manually modified.
+
+## 0.0.7
+Fri, 24 May 2024 18:00:17 GMT
+
+### Patches
+
+- add list watch
 
 ## 0.0.6
 Thu, 22 Feb 2024 18:28:20 GMT
