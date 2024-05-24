@@ -536,6 +536,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/app-transfer-controller",
+      "projectFolder": "apps/transfer-controller",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/app-account-composer",
       "projectFolder": "apps/account-composer",
       "shouldPublish": true
