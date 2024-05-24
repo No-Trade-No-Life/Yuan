@@ -756,12 +756,10 @@ export interface ITransferOrder {
    * - `"COMPLETE"` - Transfer completed
    * - `"ERROR"` - Transfer failed, need to check the error message, need human intervention
    * - `"ONGOING"` - Transfer is pending, need to wait
-   * @deprecated replaced by transfer network refactor
    * - `"AWAIT_DEBIT"` - Waiting for the debit side to handle / confirm
-   * @deprecated replaced by transfer network refactor
    * - `"AWAIT_CREDIT"` - Waiting for the credit side to handle / confirm
    */
-  status?: string;
+  status: string;
   /**
    * Error Message for Human-reading
    *
@@ -833,7 +831,24 @@ export interface ITransferOrder {
    * 转账路径 (是 (AccountId | Address | NetworkId)[] 的 encodePath 编码)
    * 不使用外键，而是內联保存，作为历史记录
    */
-  routing_path?: string;
+  routing_path?: {
+    /** 发起转账的账户ID */
+    tx_account_id?: string;
+    /** 查收转账的账户ID */
+    rx_account_id?: string;
+    /** 发起转账的地址 */
+    tx_address?: string;
+    /** 查收转账的地址 */
+    rx_address?: string;
+    /** 网络 ID */
+    network_id?: string;
+  }[];
+
+  /**
+   * 当前正在处理的转账路径索引
+   */
+  current_routing_index?: number;
+
   /** 当前正在发起转账的账户ID */
   current_tx_account_id?: string;
   /** 当前正在查收转账的账户ID */
@@ -844,10 +859,19 @@ export interface ITransferOrder {
   current_rx_address?: string;
   /** 当前网络 ID */
   current_network_id?: string;
-  /** 当前转账方的状态 (INIT -\> ...? -\> COMPLETE), ERROR */
+  /** 当前转账的状态 (INIT -\> ...? -\> COMPLETE), ERROR */
   current_tx_state?: string;
-  /** 当前状态下用于流转状态的上下文信息 */
+  /** 当前转账的 transaction id */
+  current_transaction_id?: string;
+  /** 当前转账状态下用于流转状态的上下文信息 */
   current_tx_context?: string;
+  /** 当前查账的状态 (INIT -\> ...? -\> COMPLETE), ERROR */
+  current_rx_state?: string;
+  /** 当前查账状态下用于流转状态的上下文信息 */
+  current_rx_context?: string;
+
+  /** 当前转账数目 */
+  current_amount?: number;
 }
 
 /**

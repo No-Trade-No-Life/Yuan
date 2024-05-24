@@ -3,11 +3,11 @@ import {
   IDataRecord,
   ITransferNetworkInfo,
   ITransferOrder,
-  decodePath,
   encodePath,
   formatTime,
 } from '@yuants/data-model';
 
+import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/transfer';
 
 import { Terminal } from '@yuants/protocol';
@@ -17,7 +17,9 @@ import {
   OperatorFunction,
   Subject,
   Subscription,
+  catchError,
   concatWith,
+  defaultIfEmpty,
   defer,
   delayWhen,
   distinctUntilChanged,
@@ -30,15 +32,30 @@ import {
   repeat,
   retry,
   shareReplay,
+  tap,
+  timer,
   toArray,
 } from 'rxjs';
 // @ts-ignore
 import dijkstra from 'dijkstrajs';
 
+interface ITransferPair {
+  /** 发起转账的账户ID */
+  tx_account_id?: string;
+  /** 查收转账的账户ID */
+  rx_account_id?: string;
+  /** 发起转账的地址 */
+  tx_address?: string;
+  /** 查收转账的地址 */
+  rx_address?: string;
+  /** 网络 ID */
+  network_id?: string;
+}
+
 interface ITransferRoutingCache {
   credit_account_id: string;
   debit_account_id: string;
-  routing_path: string;
+  routing_path: ITransferPair[];
 }
 
 const HOST_URL = process.env.HOST_URL!;
@@ -78,7 +95,7 @@ defer(() =>
   .pipe(
     //
     map((v) => v.origin),
-    filter((order) => order.status !== 'ERROR' && order.status !== 'COMPLETED'),
+    filter((order) => !['ERROR', 'COMPLETE', 'AWAIT_DEBIT', 'AWAIT_CREDIT'].includes(order.status!)),
     toArray(),
     retry({ delay: 5_000 }),
     repeat({ delay: 30_000 }),
@@ -91,7 +108,35 @@ defer(() =>
   )
   .subscribe();
 
-const makeRoutingPath = async (order: ITransferOrder): Promise<string> => {
+const makeRoutingPath = async (order: ITransferOrder): Promise<ITransferPair[] | undefined> => {
+  const serializeAccountIdNode = (account_id: string) =>
+    JSON.stringify({
+      namespace: 'account_id',
+      key: account_id,
+    });
+
+  const serializeNetworkIdNode = (network_id: string) =>
+    JSON.stringify({
+      namespace: 'network',
+      key: network_id,
+    });
+
+  const serializeAddressNode = (network_id: string, address: string) =>
+    JSON.stringify({
+      namespace: encodePath('address', network_id),
+      key: address,
+    });
+
+  const slidingWithStep = <T>(array: T[], size: number, step: number): T[][] => {
+    const result: T[][] = [];
+    for (let i = 0; i <= array.length - size; i += step) {
+      result.push(array.slice(i, i + size));
+    }
+    return result;
+  };
+
+  const extractKey = (serialized: string) => JSON.parse(serialized).key;
+
   const { credit_account_id, debit_account_id } = order;
   const addressInfoList = await firstValueFrom(
     defer(() =>
@@ -132,9 +177,13 @@ const makeRoutingPath = async (order: ITransferOrder): Promise<string> => {
   );
 
   sameAccountInfos.forEach(([account_id, infos]) => {
-    adjacencyList[account_id] = Object.fromEntries(infos.map((info) => [info.address, 0]));
+    adjacencyList[serializeAccountIdNode(account_id)] = Object.fromEntries(
+      infos.map((info) => [serializeAddressNode(info.network_id, info.address), 0]),
+    );
     for (const info of infos) {
-      (adjacencyList[info.address] ??= {})[account_id] = 0;
+      (adjacencyList[serializeAddressNode(info.network_id, info.address)] ??= {})[
+        serializeAccountIdNode(account_id)
+      ] = 0;
     }
   });
 
@@ -146,16 +195,43 @@ const makeRoutingPath = async (order: ITransferOrder): Promise<string> => {
   );
 
   sameNetworkInfos.forEach(([network_id, infos]) => {
-    adjacencyList[network_id] = Object.fromEntries(
-      infos.map((info) => [info.address, mapNetworkIdToNetworkInfo[network_id].commission / 2]),
+    adjacencyList[serializeNetworkIdNode(network_id)] = Object.fromEntries(
+      infos.map((info) => [
+        serializeAddressNode(network_id, info.address),
+        mapNetworkIdToNetworkInfo[
+          JSON.stringify({
+            namespace: 'network',
+            key: network_id,
+          })
+        ]?.commission ?? 0 / 2,
+      ]),
     );
     for (const info of infos) {
-      (adjacencyList[info.address] ??= {})[network_id] = 0;
+      (adjacencyList[serializeAddressNode(network_id, info.address)] ??= {})[
+        serializeNetworkIdNode(network_id)
+      ] = 0;
     }
   });
 
-  const result: string[] = dijkstra(adjacencyList, credit_account_id, debit_account_id);
-  return encodePath(result);
+  try {
+    const path: string[] = dijkstra.find_path(
+      adjacencyList,
+      serializeAccountIdNode(credit_account_id),
+      serializeAccountIdNode(debit_account_id),
+    );
+    const result = path.map(extractKey);
+    return slidingWithStep(result, 5, 4).map(
+      ([tx_account_id, tx_address, network_id, rx_address, rx_account_id]): ITransferPair => ({
+        tx_account_id,
+        tx_address,
+        network_id,
+        rx_address,
+        rx_account_id,
+      }),
+    );
+  } catch (e) {
+    return undefined;
+  }
 };
 
 const wrapTransferRoutingCache = (origin: ITransferRoutingCache): IDataRecord<ITransferRoutingCache> => ({
@@ -191,39 +267,59 @@ const updateTransferOrder = (order: ITransferOrder): Observable<void> =>
     .pipe(concatWith(of(void 0)));
 
 const iterateTransferOrder = (order: ITransferOrder): ITransferOrder => {
-  const { routing_path, current_tx_account_id, current_rx_account_id } = order;
+  const { routing_path, current_routing_index } = order;
   // iterate 5-tuple
-  const route = decodePath(routing_path!);
 
-  if (current_rx_account_id === route[route.length - 1]) {
+  // init case
+  if (current_routing_index === undefined) {
     return {
       ...order,
-      status: 'COMPLETED',
+      current_routing_index: 0,
+      current_tx_state: 'INIT',
+      current_rx_state: 'INIT',
+      current_tx_account_id: routing_path![0].tx_account_id,
+      current_tx_address: routing_path![0].tx_address,
+      current_network_id: routing_path![0].network_id,
+      current_rx_address: routing_path![0].rx_address,
+      current_rx_account_id: routing_path![0].rx_account_id,
+    };
+  }
+  // current_tx_state must be COMPLETE
+  if (current_routing_index === routing_path!.length - 1) {
+    return {
+      ...order,
+      status: 'COMPLETE',
     };
   }
 
-  const current_tx_index =
-    current_tx_account_id !== undefined ? route.indexOf(current_tx_account_id) : undefined;
+  if (current_routing_index < 0 || current_routing_index >= routing_path!.length - 1) {
+    return {
+      ...order,
+      error_message: `Invalid Current Tx Account ID: ${current_routing_index}`,
+      status: 'ERROR',
+    };
+  }
 
-  const [next_tx_account_id, next_tx_address, next_network_id, next_rx_address, next_rx_account_id] =
-    current_tx_index !== undefined ? route.slice(current_tx_index, current_tx_index + 5) : route.slice(0, 5);
+  const next_routing_index = current_routing_index + 1;
 
   return {
     ...order,
-    current_tx_account_id: next_tx_account_id,
-    current_tx_address: next_tx_address,
-    current_network_id: next_network_id,
-    current_rx_address: next_rx_address,
-    current_rx_account_id: next_rx_account_id,
+    current_routing_index: next_routing_index,
+    current_tx_state: 'INIT',
+    current_rx_state: 'INIT',
+    current_tx_account_id: routing_path![next_routing_index].tx_account_id,
+    current_tx_address: routing_path![next_routing_index].tx_address,
+    current_network_id: routing_path![next_routing_index].network_id,
+    current_rx_address: routing_path![next_routing_index].rx_address,
+    current_rx_account_id: routing_path![next_routing_index].rx_account_id,
   };
 };
 
 const processTransfer = (order: ITransferOrder): Observable<void> => {
   return new Observable((subscriber) => {
     const subs: Subscription[] = [];
-
     const routing_path$ = defer(async () => {
-      const routing_path =
+      let routing_path =
         order.routing_path ||
         (await firstValueFrom(
           terminal
@@ -237,27 +333,52 @@ const processTransfer = (order: ITransferOrder): Observable<void> => {
             .pipe(
               //
               map((v) => v.origin.routing_path),
+              defaultIfEmpty(undefined),
             ),
         ));
       if (!routing_path) {
-        const path = await makeRoutingPath(order);
-        await firstValueFrom(
-          terminal.updateDataRecords([
-            wrapTransferRoutingCache({
-              credit_account_id: order.credit_account_id,
-              debit_account_id: order.debit_account_id,
-              routing_path: path,
-            }),
-          ]),
-        );
+        routing_path = await makeRoutingPath(order);
+        if (routing_path !== undefined) {
+          await firstValueFrom(
+            terminal
+              .updateDataRecords([
+                wrapTransferRoutingCache({
+                  credit_account_id: order.credit_account_id,
+                  debit_account_id: order.debit_account_id,
+                  routing_path,
+                }),
+              ])
+              .pipe(concatWith(of(void 0))),
+          );
+        }
       }
+      console.info(
+        formatTime(Date.now()),
+        `RoutingPath`,
+        order.order_id,
+        order.credit_account_id,
+        order.debit_account_id,
+        routing_path,
+      );
       return routing_path;
     }).pipe(
       //
+      tap((v) => {
+        if (!order.routing_path) {
+          console.info(
+            formatTime(Date.now()),
+            'NewRoutingPath',
+            order.order_id,
+            order.credit_account_id,
+            order.debit_account_id,
+            v,
+          );
+        }
+      }),
       shareReplay(1),
     );
 
-    let onGoingOrder = { ...order };
+    let onGoingOrder: ITransferOrder = { ...order };
 
     const transferStart$ = new Subject<void>();
     const transferIteratePair$ = new Subject<void>();
@@ -272,41 +393,51 @@ const processTransfer = (order: ITransferOrder): Observable<void> => {
         .pipe(
           //
           delayWhen((path) => {
-            const nextOrder = { ...onGoingOrder, routing_path: path };
+            const nextOrder = {
+              ...onGoingOrder,
+              routing_path: path,
+              status: path !== undefined ? 'ONGOING' : 'ERROR',
+              error_message: path === undefined ? 'Cannot find a routing path' : undefined,
+            };
             onGoingOrder = nextOrder;
             return updateTransferOrder(onGoingOrder);
           }),
         )
-        .subscribe(() => {
-          transferStart$.next();
+        .subscribe((path) => {
+          if (path !== undefined) {
+            transferStart$.next();
+          } else {
+            transferError$.next();
+          }
         }),
     );
 
     subs.push(
       transferStart$.subscribe(() => {
-        console.info(
-          formatTime(Date.now()),
-          'TransferStart',
-          onGoingOrder.order_id,
-          onGoingOrder.routing_path,
-        );
+        console.info(formatTime(Date.now()), 'TransferStart', onGoingOrder.order_id);
       }),
     );
 
     subs.push(
       transferStart$.subscribe(() => {
-        transferIteratePair$.next();
+        if (
+          // initial case
+          onGoingOrder.current_tx_state === undefined ||
+          // restore state case, e.g. restart the service in the middle
+          (onGoingOrder.current_tx_state === 'COMPLETE' && onGoingOrder.current_rx_state === 'COMPLETE')
+        ) {
+          transferIteratePair$.next();
+        } else if (onGoingOrder.current_tx_state !== 'COMPLETE') {
+          transferApply$.next();
+        } else {
+          transferEval$.next();
+        }
       }),
     );
 
     subs.push(
       transferIteratePair$.subscribe(() => {
-        console.info(
-          formatTime(Date.now()),
-          'TransferIteratePair',
-          onGoingOrder.order_id,
-          onGoingOrder.routing_path,
-        );
+        console.info(formatTime(Date.now()), 'TransferIteratePair', onGoingOrder.order_id);
       }),
     );
 
@@ -322,10 +453,15 @@ const processTransfer = (order: ITransferOrder): Observable<void> => {
           }),
         )
         .subscribe(() => {
-          if (onGoingOrder.status === 'COMPLETED') {
+          if (onGoingOrder.status === 'COMPLETE') {
             transferComplete$.next();
+          } else if (onGoingOrder.status === 'ERROR') {
+            transferError$.next();
+          } else if (onGoingOrder.current_tx_state === 'COMPLETE') {
+            transferEval$.next();
+          } else {
+            transferApply$.next();
           }
-          transferApply$.next();
         }),
     );
 
@@ -335,7 +471,6 @@ const processTransfer = (order: ITransferOrder): Observable<void> => {
           formatTime(Date.now()),
           'TransferApply',
           onGoingOrder.order_id,
-          onGoingOrder.routing_path,
           `current step: ${onGoingOrder.current_tx_account_id}->${onGoingOrder.current_rx_account_id}`,
         );
       }),
@@ -348,11 +483,15 @@ const processTransfer = (order: ITransferOrder): Observable<void> => {
           //
           mergeMap(() =>
             terminal.requestService('TransferApply', onGoingOrder).pipe(
+              tap((v) => {
+                console.info(formatTime(Date.now()), 'TransferEvalResponse', v);
+              }),
               delayWhen((v) => {
                 const nextOrder: ITransferOrder = {
                   ...onGoingOrder,
                   error_message: v.res?.code !== 0 ? v.res?.message || '' : undefined,
                   status: v.res?.data?.state === 'ERROR' ? 'ERROR' : 'ONGOING',
+                  current_transaction_id: v.res?.data?.transaction_id,
                   current_tx_state: v.res?.data?.state,
                   current_tx_context: v.res?.data?.context,
                 };
@@ -368,17 +507,29 @@ const processTransfer = (order: ITransferOrder): Observable<void> => {
                 }
                 return 'RETRY';
               }),
+              catchError((e) => {
+                console.error(formatTime(Date.now()), 'TransferApplyError', e);
+                const nextOrder: ITransferOrder = {
+                  ...onGoingOrder,
+                  error_message: `${e}`,
+                  status: 'ERROR',
+                };
+                onGoingOrder = nextOrder;
+                return updateTransferOrder(onGoingOrder).pipe(map(() => 'ERROR'));
+              }),
             ),
           ),
         )
         .subscribe((state: string) => {
           if (state === 'COMPLETE') {
             transferEval$.next();
-          }
-          if (state === 'ERROR') {
+          } else if (state === 'ERROR') {
             transferError$.next();
+          } else {
+            timer(1000).subscribe(() => {
+              transferApply$.next();
+            });
           }
-          transferApply$.next();
         }),
     );
 
@@ -388,7 +539,6 @@ const processTransfer = (order: ITransferOrder): Observable<void> => {
           formatTime(Date.now()),
           'TransferEval',
           onGoingOrder.order_id,
-          onGoingOrder.routing_path,
           `current step: ${onGoingOrder.current_tx_account_id}->${onGoingOrder.current_rx_account_id}`,
         );
       }),
@@ -402,46 +552,68 @@ const processTransfer = (order: ITransferOrder): Observable<void> => {
           mergeMap(() =>
             terminal.requestService('TransferEval', onGoingOrder).pipe(
               //
+              tap((v) => {
+                console.info(formatTime(Date.now()), 'TransferEvalResponse', v);
+              }),
+              delayWhen((v) => {
+                const nextOrder: ITransferOrder = {
+                  ...onGoingOrder,
+                  error_message: v.res?.code !== 0 ? v.res?.message || '' : undefined,
+                  status: v.res?.data?.state === 'ERROR' ? 'ERROR' : 'ONGOING',
+                  current_rx_state: v.res?.data?.state,
+                  current_rx_context: v.res?.data?.context,
+                  current_amount: v.res?.data?.received_amount,
+                };
+                onGoingOrder = nextOrder;
+                return updateTransferOrder(onGoingOrder);
+              }),
               map((v) => {
-                if (v.res?.code !== 0) {
-                  return undefined;
+                if (v.res?.data?.state === 'COMPLETE') {
+                  return 'COMPLETE';
                 }
-                return v.res.data?.received_amount;
+                if (v.res?.data?.state === 'ERROR') {
+                  return 'ERROR';
+                }
+                return 'RETRY';
+              }),
+              catchError((e) => {
+                console.error(formatTime(Date.now()), 'TransferEvalError', e);
+                const nextOrder: ITransferOrder = {
+                  ...onGoingOrder,
+                  error_message: `${e}`,
+                  status: 'ERROR',
+                };
+                onGoingOrder = nextOrder;
+                return updateTransferOrder(onGoingOrder).pipe(map(() => 'ERROR'));
               }),
             ),
           ),
         )
-        .subscribe((amount?: number) => {
-          if (amount !== undefined) {
+        .subscribe((state: string) => {
+          if (state === 'COMPLETE') {
             transferIteratePair$.next();
+          } else if (state === 'ERROR') {
+            transferError$.next();
+          } else {
+            timer(1000).subscribe(() => {
+              transferEval$.next();
+            });
           }
-          transferEval$.next();
         }),
     );
 
     subs.push(
       transferError$.subscribe(() => {
-        console.error(
-          formatTime(Date.now()),
-          'TransferError',
-          onGoingOrder.order_id,
-          onGoingOrder.routing_path,
-        );
+        console.error(formatTime(Date.now()), 'TransferError', onGoingOrder.order_id);
       }),
     );
 
     subs.push(
       transferComplete$.subscribe(() => {
-        console.info(
-          formatTime(Date.now()),
-          'TransferComplete',
-          onGoingOrder.order_id,
-          onGoingOrder.routing_path,
-        );
+        console.info(formatTime(Date.now()), 'TransferComplete', onGoingOrder.order_id);
       }),
     );
 
-    subscriber.complete();
     return () => {
       for (const sub of subs) {
         sub.unsubscribe();

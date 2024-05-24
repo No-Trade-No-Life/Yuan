@@ -20,7 +20,7 @@ declare module '.' {
     // 核验转账 (对账)
     TransferEval: {
       req: ITransferOrder;
-      res: IResponse<{ received_amount: number } | void>;
+      res: IResponse<{ state: string; context?: string; received_amount?: number } | void>;
       frame: void;
     };
   }

@@ -190,9 +190,14 @@ export interface ITransferOrder {
     // @deprecated
     credit_method?: string;
     currency: string;
+    current_amount?: number;
     current_network_id?: string;
+    current_routing_index?: number;
     current_rx_account_id?: string;
     current_rx_address?: string;
+    current_rx_context?: string;
+    current_rx_state?: string;
+    current_transaction_id?: string;
     current_tx_account_id?: string;
     current_tx_address?: string;
     current_tx_context?: string;
@@ -207,9 +212,14 @@ export interface ITransferOrder {
     received_amount?: number;
     // @deprecated
     received_at?: number;
-    routing_path?: string;
-    // @deprecated
-    status?: string;
+    routing_path?: {
+        tx_account_id?: string;
+        rx_account_id?: string;
+        tx_address?: string;
+        rx_address?: string;
+        network_id?: string;
+    }[];
+    status: string;
     // @deprecated
     timeout_at: number;
     // @deprecated
