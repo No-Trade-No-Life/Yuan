@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Thu, 23 May 2024 13:52:31 GMT and should not be manually modified.
+This log was last generated on Fri, 24 May 2024 02:49:10 GMT and should not be manually modified.
+
+## 0.5.0
+Fri, 24 May 2024 02:49:10 GMT
+
+### Minor changes
+
+- swap open interest
 
 ## 0.4.1
 Thu, 23 May 2024 13:52:31 GMT
