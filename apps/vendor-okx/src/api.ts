@@ -117,6 +117,33 @@ export class OkxClient {
   }> => this.request('GET', '/api/v5/asset/asset-valuation', params);
 
   /**
+   * 获取持仓总量
+   *
+   * 查询单个交易产品的市场的持仓总量
+   *
+   * 限速：20次/2s
+   * 限速规则：IP + instrumentID
+   *
+   * https://www.okx.com/docs-v5/zh/#public-data-rest-api-get-open-interest
+   */
+  getOpenInterest = (params: {
+    instType: string;
+    uly?: string;
+    instFamily?: string;
+    instId?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    data: {
+      instType: string;
+      instId: string;
+      oi: string;
+      oiCcy: string;
+      ts: string;
+    }[];
+  }> => this.request('GET', '/api/v5/public/open-interest', params);
+
+  /**
    * 查看账户配置
    * 查看当前账户的配置信息。
    *
@@ -241,7 +268,7 @@ export class OkxClient {
    * https://www.okx.com/docs-v5/zh/#public-data-rest-api-get-funding-rate
    */
   getFundingRate = (params: {
-    instId?: string;
+    instId: string;
   }): Promise<{
     code: string;
     data: Array<{
@@ -1064,4 +1091,3 @@ export class OkxClient {
     }[];
   }> => this.request('GET', '/api/v5/asset/currencies', params);
 }
-
