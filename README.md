@@ -181,6 +181,7 @@ All the apps should provide an image and publish it as a npm package. You can de
 - [@yuants/app-general-datasource](apps/general-data-source) This will deploy a terminal as a general data source service. It composes multiple specific data sources into one general data source. Useful for creating an index price series.
 - [@yuants/app-general-realtime-data-source](apps/general-realtime-data-source) This will deploy a terminal as a general real-time data source service. It's the real-time version of the general data source. Useful for creating an index price ticks.
 - [@yuants/app-k8s-manifest-operator](apps/k8s-manifest-operator) This will deploy a terminal as a Kubernetes manifest operator. It watches the manifest CRD of the Kubernetes cluster and ensures the Kubernetes cluster follows the manifest CRD. You can add manifest CRD to the k8s cluster and then the operator will deploy the resources defined in the manifest CRD.
+- [@yuants/app-transfer-controller](app/transfer-controller) A transfer controller is a service that transfers money between accounts. It watches the transfer request and ensures the transfer is completed.
 
 #### Web UI
 

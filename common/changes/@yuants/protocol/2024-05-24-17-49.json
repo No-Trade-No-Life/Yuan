@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "update transfer service definition",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

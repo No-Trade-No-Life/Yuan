@@ -1423,7 +1423,7 @@ import { addAccountTransferAddress } from './utils/AccountTransferAddress';
           INIT: async (order) => {
             const res = await client.postWithdraw({
               address: order.current_rx_address!,
-              amount: '' + order.expected_amount,
+              amount: '' + (order.expected_amount - 1),
               currency: 'usdt',
               fee: '1',
               chain: 'trc20usdt',
@@ -1460,9 +1460,13 @@ import { addAccountTransferAddress } from './utils/AccountTransferAddress';
             direct: 'next',
           });
 
-          const theItem = res.data.find((v) => v['tx-hash'] === order.transaction_id && v.state === 'safe');
-          if (!theItem) return;
-          return { received_amount: +theItem.amount };
+          const theItem = res.data.find(
+            (v) => v['tx-hash'] === order.current_transaction_id && v.state === 'safe',
+          );
+          if (!theItem) {
+            return { state: 'PENDING' };
+          }
+          return { received_amount: +theItem.amount, state: 'COMPLETE' };
         },
       });
     }
@@ -1478,7 +1482,7 @@ import { addAccountTransferAddress } from './utils/AccountTransferAddress';
       INIT: async (order) => {
         const transferInResult = await client.postSuperMarginAccountTransferIn({
           currency: 'usdt',
-          amount: '' + order.expected_amount,
+          amount: '' + (order.current_amount || order.expected_amount),
         });
         if (transferInResult.status !== 'ok') {
           return { state: 'INIT' };
@@ -1487,7 +1491,7 @@ import { addAccountTransferAddress } from './utils/AccountTransferAddress';
       },
     },
     onEval: async (order) => {
-      return { received_amount: order.expected_amount };
+      return { received_amount: order.current_amount || order.expected_amount, state: 'COMPLETE' };
     },
   });
 
@@ -1501,7 +1505,7 @@ import { addAccountTransferAddress } from './utils/AccountTransferAddress';
       INIT: async (order) => {
         const transferOutResult = await client.postSuperMarginAccountTransferOut({
           currency: 'usdt',
-          amount: '' + order.expected_amount,
+          amount: '' + (order.current_amount || order.expected_amount),
         });
         if (transferOutResult.status !== 'ok') {
           return { state: 'INIT' };
@@ -1510,7 +1514,7 @@ import { addAccountTransferAddress } from './utils/AccountTransferAddress';
       },
     },
     onEval: async (order) => {
-      return { received_amount: order.expected_amount };
+      return { received_amount: order.current_amount || order.expected_amount, state: 'COMPLETE' };
     },
   });
 
@@ -1526,7 +1530,7 @@ import { addAccountTransferAddress } from './utils/AccountTransferAddress';
           from: 'spot',
           to: 'linear-swap',
           currency: 'usdt',
-          amount: order.expected_amount,
+          amount: order.current_amount || order.expected_amount,
           'margin-account': 'USDT',
         });
         if (!transferResult.success) {
@@ -1536,7 +1540,7 @@ import { addAccountTransferAddress } from './utils/AccountTransferAddress';
       },
     },
     onEval: async (order) => {
-      return { received_amount: order.expected_amount };
+      return { received_amount: order.current_amount || order.expected_amount, state: 'COMPLETE' };
     },
   });
 
@@ -1552,7 +1556,7 @@ import { addAccountTransferAddress } from './utils/AccountTransferAddress';
           from: 'linear-swap',
           to: 'spot',
           currency: 'usdt',
-          amount: order.expected_amount,
+          amount: order.current_amount || order.expected_amount,
           'margin-account': 'USDT',
         });
         if (!transferResult.success) {
@@ -1562,7 +1566,7 @@ import { addAccountTransferAddress } from './utils/AccountTransferAddress';
       },
     },
     onEval: async (order) => {
-      return { received_amount: order.expected_amount };
+      return { received_amount: order.current_amount || order.expected_amount, state: 'COMPLETE' };
     },
   });
 })();

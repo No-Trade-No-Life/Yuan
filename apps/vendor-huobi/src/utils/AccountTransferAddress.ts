@@ -14,7 +14,9 @@ type IAccountTransferAddressContext = IAccountAddressInfo & {
     }>
   >;
   onEval: (order: ITransferOrder) => Promise<{
-    received_amount: number;
+    state: string;
+    context?: string;
+    received_amount?: number;
   } | void>;
 };
 
@@ -91,7 +93,7 @@ update$
                       (ctx) =>
                         ctx.account_id === order.current_rx_account_id &&
                         ctx.network_id === order.current_network_id &&
-                        ctx.address === order.current_tx_address &&
+                        ctx.address === order.current_rx_address &&
                         ctx.currency === order.currency,
                     );
                     if (!ctx) {
