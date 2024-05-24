@@ -1,1 +1,2 @@
+import './TransferNetworkChart';
 import './TransferOrderList';
