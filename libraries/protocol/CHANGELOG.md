@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Thu, 23 May 2024 13:52:31 GMT and should not be manually modified.
+This log was last generated on Fri, 24 May 2024 18:00:17 GMT and should not be manually modified.
+
+## 0.16.2
+Fri, 24 May 2024 18:00:17 GMT
+
+### Patches
+
+- update transfer service definition
 
 ## 0.16.1
 Thu, 23 May 2024 13:52:31 GMT

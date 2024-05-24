@@ -2,6 +2,32 @@
   "name": "@yuants/app-mongodb-storage",
   "entries": [
     {
+      "version": "0.2.10",
+      "tag": "@yuants/app-mongodb-storage_v0.2.10",
+      "date": "Fri, 24 May 2024 18:00:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.10.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.16.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.0.7`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.5`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.9",
       "tag": "@yuants/app-mongodb-storage_v0.2.9",
       "date": "Thu, 23 May 2024 13:52:31 GMT",

@@ -2,6 +2,37 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.5.1",
+      "tag": "@yuants/vendor-okx_v0.5.1",
+      "date": "Fri, 24 May 2024 18:00:17 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix typos"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.16.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.10.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.0.7`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.5`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.0",
       "tag": "@yuants/vendor-okx_v0.5.0",
       "date": "Fri, 24 May 2024 02:49:10 GMT",

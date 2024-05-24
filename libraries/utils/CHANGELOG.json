@@ -2,6 +2,23 @@
   "name": "@yuants/utils",
   "entries": [
     {
+      "version": "0.0.7",
+      "tag": "@yuants/utils_v0.0.7",
+      "date": "Fri, 24 May 2024 18:00:17 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add list watch"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.6",
       "tag": "@yuants/utils_v0.0.6",
       "date": "Thu, 22 Feb 2024 18:28:20 GMT",

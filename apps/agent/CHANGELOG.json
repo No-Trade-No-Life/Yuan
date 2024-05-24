@@ -2,6 +2,35 @@
   "name": "@yuants/app-agent",
   "entries": [
     {
+      "version": "0.4.42",
+      "tag": "@yuants/app-agent_v0.4.42",
+      "date": "Fri, 24 May 2024 18:00:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/agent\" to `0.13.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.10.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.11.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.16.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.5`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.41",
       "tag": "@yuants/app-agent_v0.4.41",
       "date": "Thu, 23 May 2024 13:52:31 GMT",
