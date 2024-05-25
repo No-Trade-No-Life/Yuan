@@ -583,4 +583,45 @@ export class HuobiClient {
       params,
     );
   }
+
+  /**
+   * 资产划转（母子用户之间）
+   *
+   * 接口权限: 交易
+   *
+   * 限频: 2次/2s
+   */
+  postSubUserTransfer(params: {
+    'sub-uid': number;
+    currency: string;
+    amount: number;
+    'client-order-id'?: string;
+    type: string;
+  }): Promise<{
+    data: number;
+    status: string;
+  }> {
+    return this.request('POST', '/v1/subuser/transfer', this.spot_api_root, params);
+  }
+
+  /**
+   * 获取子用户列表
+   *
+   * 接口权限: 读取
+   *
+   */
+  getSubUserList(params?: { fromId?: number }): Promise<{
+    code: number;
+    message?: string;
+    data: {
+      uid: number;
+      userState: string;
+      subUserName: string;
+      note: string;
+    }[];
+    nextId?: number;
+    ok: boolean;
+  }> {
+    return this.request('GET', `/v2/sub-user/user-list`, this.spot_api_root, params);
+  }
 }

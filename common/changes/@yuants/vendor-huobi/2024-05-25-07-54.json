@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-huobi",
+      "comment": "add main-subAccount transfer handlers",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-huobi"
+}
