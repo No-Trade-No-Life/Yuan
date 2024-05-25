@@ -14,7 +14,7 @@ export function ListView<T>(props: { table: Table<T> }) {
                 headerGroup.headers.map((header, idx) => {
                   return (
                     <Descriptions.Item
-                      key={headerGroup.id}
+                      key={headerGroup.id + '/' + idx}
                       itemKey={
                         header.isPlaceholder
                           ? null
