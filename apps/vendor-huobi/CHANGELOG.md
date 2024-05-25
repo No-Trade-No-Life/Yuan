@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Fri, 24 May 2024 18:00:17 GMT and should not be manually modified.
+This log was last generated on Sat, 25 May 2024 09:55:51 GMT and should not be manually modified.
+
+## 0.4.2
+Sat, 25 May 2024 09:55:51 GMT
+
+### Patches
+
+- add main-subAccount transfer handlers
 
 ## 0.4.1
 Fri, 24 May 2024 18:00:17 GMT
