@@ -64,14 +64,47 @@ function defineColumns() {
         header: () => '借方账户',
         cell: (ctx) => <InlineAccountId account_id={ctx.getValue()} />,
       }),
-      columnHelper.accessor('origin.status', {
-        header: () => '状态',
-      }),
       columnHelper.accessor('origin.expected_amount', {
-        header: () => '金额',
+        header: () => '初始金额',
       }),
       columnHelper.accessor('origin.currency', {
         header: () => '货币',
+      }),
+      columnHelper.accessor('origin.status', {
+        header: () => '状态',
+      }),
+      columnHelper.accessor('origin.routing_path', {
+        header: () => '转账路径',
+        cell: (ctx) => {
+          const value = ctx.getValue();
+          if (typeof value === 'string') return value;
+          if (Array.isArray(value)) {
+            return (
+              <ol>
+                {value.map((e) => (
+                  <li>
+                    <InlineAccountId account_id={e.tx_account_id || ''} />
+                    {` (${e.tx_address}) -> ${e.network_id} -> (${e.rx_address}) `}
+                    <InlineAccountId account_id={e.rx_account_id || ''} />
+                  </li>
+                ))}
+              </ol>
+            );
+          }
+        },
+      }),
+      columnHelper.accessor('origin.current_routing_index', {
+        header: () => '当前处理索引',
+        cell: (ctx) => (ctx.getValue() || -1) + 1,
+      }),
+      columnHelper.accessor('origin.current_tx_state', {
+        header: () => '当前转账方状态',
+      }),
+      columnHelper.accessor('origin.current_rx_state', {
+        header: () => '当前收账方状态',
+      }),
+      columnHelper.accessor('origin.current_amount', {
+        header: () => '当前金额',
       }),
       columnHelper.accessor('origin.debit_methods', {
         header: () => '候选方式',
