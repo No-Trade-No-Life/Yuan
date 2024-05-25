@@ -3,6 +3,9 @@
   background-color: var(--color-2);
 }
 
+body {
+  color-scheme: auto;
+}
 body[theme-mode='dark'] {
   color-scheme: dark;
 }

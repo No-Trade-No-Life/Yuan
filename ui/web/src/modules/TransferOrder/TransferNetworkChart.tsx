@@ -50,10 +50,10 @@ registerPage('TransferNetworkChart', () => {
           position: 'right',
         },
         force: {
-          // initLayout: 'circular'
-          // gravity: 0
-          repulsion: 60,
-          edgeLength: 2,
+          initLayout: 'circular',
+          //   gravity: 1,
+          repulsion: 1000,
+          edgeLength: 10,
         },
         roam: true,
         edges: items.flatMap((x) =>
