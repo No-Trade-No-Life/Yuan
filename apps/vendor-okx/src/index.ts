@@ -801,7 +801,7 @@ defer(async () => {
       map((v): IAccountAddressInfo => {
         const { addr, ccy: currency } = v;
         return {
-          account_id: `okx/${uid}/funding`,
+          account_id: `okx/${uid}/funding/USDT`,
           network_id: 'TRC20',
           address: addr,
           currency,
@@ -845,7 +845,7 @@ defer(async () => {
       //
       map(
         (v): IAccountAddressInfo => ({
-          account_id: `okx/${v.uid}/funding`,
+          account_id: `okx/${v.uid}/funding/USDT`,
           network_id: `OKX/${mainUid}/SubAccount`,
           address: v.subAcct,
           currency: 'USDT',
@@ -853,7 +853,7 @@ defer(async () => {
       ),
       concatWith(
         of({
-          account_id: `okx/${mainUid}/funding`,
+          account_id: `okx/${mainUid}/funding/USDT`,
           network_id: `OKX/${mainUid}/SubAccount`,
           address: `#main`,
           currency: 'USDT',
@@ -898,7 +898,7 @@ defer(async () => {
           currency: 'USDT',
         }),
         wrapAccountAddressInfo({
-          account_id: `okx/${uid}/funding`,
+          account_id: `okx/${uid}/funding/USDT`,
           network_id: `OKX/${uid}/Funding-Trading`,
           address: 'funding',
           currency: 'USDT',
@@ -920,7 +920,7 @@ defer(async () => {
       required: ['routing_path', 'current_tx_account_id', 'current_network_id'],
       properties: {
         current_tx_account_id: {
-          enum: [`okx/${uid}/trading`, `okx/${uid}/funding`],
+          enum: [`okx/${uid}/trading`, `okx/${uid}/funding/USDT`],
         },
         current_network_id: {
           enum: ['TRC20', `OKX/${mainUid}/SubAccount`, `OKX/${uid}/Funding-Trading`],
@@ -1111,7 +1111,7 @@ defer(async () => {
       required: ['routing_path', 'current_rx_account_id', 'current_network_id'],
       properties: {
         current_rx_account_id: {
-          enum: [`okx/${uid}/trading`, `okx/${uid}/funding`],
+          enum: [`okx/${uid}/trading`, `okx/${uid}/funding/USDT`],
         },
         current_network_id: {
           enum: ['TRC20', `OKX/${mainUid}/SubAccount`, `OKX/${uid}/Funding-Trading`],

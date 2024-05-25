@@ -70,6 +70,10 @@ import { addAccountTransferAddress } from './utils/AccountTransferAddress';
   const SUPER_MARGIN_ACCOUNT_ID = `${account_id}/super-margin`;
   const SWAP_ACCOUNT_ID = `${account_id}/swap`;
 
+  const subUsersRes = await client.getSubUserList();
+  const subAccounts = subUsersRes.data;
+  const isMainAccount = subUsersRes.ok;
+
   const terminal = new Terminal(process.env.HOST_URL!, {
     terminal_id: process.env.TERMINAL_ID || `Huobi-client-${account_id}`,
     name: 'Huobi',
@@ -1569,4 +1573,57 @@ import { addAccountTransferAddress } from './utils/AccountTransferAddress';
       return { received_amount: order.current_amount || order.expected_amount, state: 'COMPLETE' };
     },
   });
+
+  if (isMainAccount) {
+    for (const subAccount of subAccounts) {
+      addAccountTransferAddress({
+        terminal,
+        account_id: SPOT_ACCOUNT_ID,
+        currency: 'USDT',
+        network_id: `Huobi/${huobiUid}/SubAccount/${subAccount.uid}`,
+        address: '#main',
+        onApply: {
+          INIT: async (order) => {
+            const transferResult = await client.postSubUserTransfer({
+              'sub-uid': +order.current_rx_address!,
+              currency: 'usdt',
+              amount: order.current_amount || order.expected_amount,
+              type: 'master-transfer-out',
+            });
+            if (transferResult.status !== 'ok') {
+              return { state: 'INIT' };
+            }
+            return { state: 'COMPLETE' };
+          },
+        },
+        onEval: async (order) => {
+          return { received_amount: order.current_amount || order.expected_amount, state: 'COMPLETE' };
+        },
+      });
+      addAccountTransferAddress({
+        terminal,
+        account_id: SPOT_ACCOUNT_ID,
+        currency: 'USDT',
+        network_id: `Huobi/${huobiUid}/SubAccount/${subAccount.uid}`,
+        address: `${subAccount.uid}`,
+        onApply: {
+          INIT: async (order) => {
+            const transferResult = await client.postSubUserTransfer({
+              'sub-uid': +order.current_rx_address!,
+              currency: 'usdt',
+              amount: order.current_amount || order.expected_amount,
+              type: 'master-transfer-in',
+            });
+            if (transferResult.status !== 'ok') {
+              return { state: 'INIT' };
+            }
+            return { state: 'COMPLETE' };
+          },
+        },
+        onEval: async (order) => {
+          return { received_amount: order.current_amount || order.expected_amount, state: 'COMPLETE' };
+        },
+      });
+    }
+  }
 })();
