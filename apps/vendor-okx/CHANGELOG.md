@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Sat, 25 May 2024 09:55:51 GMT and should not be manually modified.
+This log was last generated on Sun, 26 May 2024 04:53:55 GMT and should not be manually modified.
+
+## 0.5.3
+Sun, 26 May 2024 04:53:55 GMT
+
+### Patches
+
+- sub account cannot withdraw from chain
 
 ## 0.5.2
 Sat, 25 May 2024 09:55:51 GMT

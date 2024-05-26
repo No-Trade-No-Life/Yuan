@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.5.3",
+      "tag": "@yuants/vendor-okx_v0.5.3",
+      "date": "Sun, 26 May 2024 04:53:55 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "sub account cannot withdraw from chain"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.2",
       "tag": "@yuants/vendor-okx_v0.5.2",
       "date": "Sat, 25 May 2024 09:55:51 GMT",
