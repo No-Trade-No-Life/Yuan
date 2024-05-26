@@ -76,6 +76,7 @@ update$
                       return { res: { code: 400, message: 'Unknown Routing', data: { state: 'ERROR' } } };
                     }
                     const handler = ctx.onApply[order.current_tx_state || 'INIT'];
+                    console.info(formatTime(Date.now()), 'TransferApply', JSON.stringify(order));
                     if (!handler) {
                       return { res: { code: 400, message: 'Unknown State', data: { state: 'ERROR' } } };
                     }
@@ -107,6 +108,7 @@ update$
                     if (!ctx) {
                       return { res: { code: 400, message: 'Unknown Routing' } };
                     }
+                    console.info(formatTime(Date.now()), 'TransferEval', JSON.stringify(order));
                     const res = await ctx.onEval(order);
                     return { res: { code: 0, message: 'OK', data: res } };
                   }),
