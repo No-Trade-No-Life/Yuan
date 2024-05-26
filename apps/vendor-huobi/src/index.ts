@@ -1411,8 +1411,8 @@ import { addAccountTransferAddress } from './utils/AccountTransferAddress';
     { concurrent: 10 },
   );
 
-  // Update Spot TRC20 Addresses
-  {
+  // Update Spot TRC20 Addresses (Only Main Account)
+  if (isMainAccount) {
     const res = await client.getSpotAccountDepositAddresses({ currency: 'usdt' });
     const addresses = res.data.filter((v) => v.chain === 'trc20usdt').map((v) => v.address);
 
