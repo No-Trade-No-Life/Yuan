@@ -1,5 +1,4 @@
 import {
-  IAccountAddressInfo,
   IAccountInfo,
   IDataRecord,
   IOrder,
@@ -10,7 +9,6 @@ import {
   decodePath,
   encodePath,
   formatTime,
-  wrapAccountAddressInfo,
 } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
@@ -59,6 +57,7 @@ import { addAccountTransferAddress } from './utils/AccountTransferAddress';
   });
 
   const huobiUid: number = (await client.getUid()).data;
+  console.info(formatTime(Date.now()), 'UID', huobiUid);
 
   const huobiAccounts = await client.getAccount();
   const superMarginAccountUid = huobiAccounts.data.find((v) => v.type === 'super-margin')?.id!;
@@ -73,6 +72,7 @@ import { addAccountTransferAddress } from './utils/AccountTransferAddress';
   const subUsersRes = await client.getSubUserList();
   const subAccounts = subUsersRes.data;
   const isMainAccount = subUsersRes.ok;
+  console.info(formatTime(Date.now()), 'subAccounts', JSON.stringify(subAccounts));
 
   const terminal = new Terminal(process.env.HOST_URL!, {
     terminal_id: process.env.TERMINAL_ID || `Huobi-client-${account_id}`,
@@ -1576,11 +1576,14 @@ import { addAccountTransferAddress } from './utils/AccountTransferAddress';
 
   if (isMainAccount) {
     for (const subAccount of subAccounts) {
+      const SPOT_SUB_ACCOUNT_ID = `huobi/${subAccount.uid}/spot/usdt`;
+
+      const SUB_ACCOUNT_NETWORK_ID = `Huobi/${huobiUid}/SubAccount/${subAccount.uid}`;
       addAccountTransferAddress({
         terminal,
         account_id: SPOT_ACCOUNT_ID,
         currency: 'USDT',
-        network_id: `Huobi/${huobiUid}/SubAccount/${subAccount.uid}`,
+        network_id: SUB_ACCOUNT_NETWORK_ID,
         address: '#main',
         onApply: {
           INIT: async (order) => {
@@ -1602,14 +1605,14 @@ import { addAccountTransferAddress } from './utils/AccountTransferAddress';
       });
       addAccountTransferAddress({
         terminal,
-        account_id: SPOT_ACCOUNT_ID,
+        account_id: SPOT_SUB_ACCOUNT_ID,
         currency: 'USDT',
-        network_id: `Huobi/${huobiUid}/SubAccount/${subAccount.uid}`,
+        network_id: SUB_ACCOUNT_NETWORK_ID,
         address: `${subAccount.uid}`,
         onApply: {
           INIT: async (order) => {
             const transferResult = await client.postSubUserTransfer({
-              'sub-uid': +order.current_rx_address!,
+              'sub-uid': +order.current_tx_address!,
               currency: 'usdt',
               amount: order.current_amount || order.expected_amount,
               type: 'master-transfer-in',

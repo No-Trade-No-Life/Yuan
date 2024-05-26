@@ -1,4 +1,4 @@
-import { IAccountAddressInfo, ITransferOrder, wrapAccountAddressInfo } from '@yuants/data-model';
+import { IAccountAddressInfo, ITransferOrder, formatTime, wrapAccountAddressInfo } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
 import { Subject, debounceTime, defer, from, groupBy, mergeMap, tap, toArray } from 'rxjs';
 
@@ -27,6 +27,14 @@ const update$ = new Subject<void>();
 export const addAccountTransferAddress = (ctx: IAccountTransferAddressContext) => {
   contextList.push(ctx);
   update$.next();
+  console.info(
+    formatTime(Date.now()),
+    'addAccountTransferAddress',
+    ctx.network_id,
+    ctx.account_id,
+    ctx.address,
+    ctx.currency,
+  );
 };
 
 update$

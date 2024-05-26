@@ -590,6 +590,8 @@ export class HuobiClient {
    * 接口权限: 交易
    *
    * 限频: 2次/2s
+   *
+   * https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec45d8e-7773-11ed-9966-0242ac110003
    */
   postSubUserTransfer(params: {
     'sub-uid': number;
