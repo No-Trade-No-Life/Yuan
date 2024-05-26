@@ -274,6 +274,7 @@ const iterateTransferOrder = (order: ITransferOrder): ITransferOrder => {
   if (current_routing_index === undefined) {
     return {
       ...order,
+      current_amount: order.expected_amount,
       current_routing_index: 0,
       current_tx_state: 'INIT',
       current_rx_state: 'INIT',
