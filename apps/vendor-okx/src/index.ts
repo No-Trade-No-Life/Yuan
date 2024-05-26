@@ -773,10 +773,12 @@ defer(async () => {
 
 // provide on-chain network info
 defer(async () => {
+  const account_config = await firstValueFrom(accountConfig$);
+  const { mainUid, uid } = account_config.data[0];
+  const isMainAccount = mainUid === uid;
+  if (!isMainAccount) return;
   const depositAddressRes = await client.getAssetDepositAddress({ ccy: 'USDT' });
   const currenciesRes = await client.getAssetCurrencies({ ccy: 'USDT' });
-  const account_config = await firstValueFrom(accountConfig$);
-  const { uid } = account_config.data[0];
 
   const mapChainToChainInfo: Record<
     string,
