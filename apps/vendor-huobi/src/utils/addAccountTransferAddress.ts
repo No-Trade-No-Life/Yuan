@@ -30,10 +30,10 @@ export const addAccountTransferAddress = (ctx: IAccountTransferAddressContext) =
   console.info(
     formatTime(Date.now()),
     'addAccountTransferAddress',
-    ctx.network_id,
     ctx.account_id,
-    ctx.address,
     ctx.currency,
+    ctx.network_id,
+    ctx.address,
   );
 };
 
@@ -55,12 +55,23 @@ update$
                 'TransferApply',
                 {
                   type: 'object',
-                  required: ['current_tx_account_id'],
-                  properties: {
-                    current_tx_account_id: {
-                      enum: accountIdList,
+                  required: ['current_tx_account_id', 'currency', 'network_id', 'current_tx_address'],
+                  oneOf: contextList.map((x) => ({
+                    properties: {
+                      current_tx_account_id: {
+                        const: x.account_id,
+                      },
+                      currency: {
+                        const: x.currency,
+                      },
+                      network_id: {
+                        const: x.network_id,
+                      },
+                      current_tx_address: {
+                        const: x.address,
+                      },
                     },
-                  },
+                  })),
                 },
                 (msg) =>
                   defer(async () => {
@@ -88,12 +99,23 @@ update$
                 'TransferEval',
                 {
                   type: 'object',
-                  required: ['current_rx_account_id'],
-                  properties: {
-                    current_rx_account_id: {
-                      enum: accountIdList,
+                  required: ['current_rx_account_id', 'currency', 'network_id', 'current_rx_address'],
+                  oneOf: contextList.map((x) => ({
+                    properties: {
+                      current_rx_account_id: {
+                        const: x.account_id,
+                      },
+                      currency: {
+                        const: x.currency,
+                      },
+                      network_id: {
+                        const: x.network_id,
+                      },
+                      current_rx_address: {
+                        const: x.address,
+                      },
                     },
-                  },
+                  })),
                 },
                 (msg) =>
                   defer(async () => {

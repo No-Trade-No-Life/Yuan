@@ -1,6 +1,7 @@
 import { Checkbox, Input, InputNumber } from '@douyinfe/semi-ui';
 import { FormContextType, RJSFSchema, StrictRJSFSchema, WidgetProps } from '@rjsf/utils';
 import { useTranslation } from 'react-i18next';
+import { AccountIdWidget } from './AccountIdWidget';
 import { OHLCSelectWidget } from './OHLCSelectWidget';
 
 export function TextWidget<T = any, S extends StrictRJSFSchema = RJSFSchema, F extends FormContextType = any>(
@@ -9,6 +10,9 @@ export function TextWidget<T = any, S extends StrictRJSFSchema = RJSFSchema, F e
   const { t } = useTranslation();
   if (props.schema.format === 'OHLC-key') {
     return <OHLCSelectWidget {...props} />;
+  }
+  if (props.schema.format === 'account_id') {
+    return <AccountIdWidget {...props} />;
   }
 
   // For CopilotForm
