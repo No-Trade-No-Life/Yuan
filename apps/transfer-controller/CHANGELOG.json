@@ -2,6 +2,23 @@
   "name": "@yuants/app-transfer-controller",
   "entries": [
     {
+      "version": "0.0.4",
+      "tag": "@yuants/app-transfer-controller_v0.0.4",
+      "date": "Wed, 29 May 2024 16:57:50 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "retry when service throw error"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.3",
       "tag": "@yuants/app-transfer-controller_v0.0.3",
       "date": "Wed, 29 May 2024 16:20:55 GMT",

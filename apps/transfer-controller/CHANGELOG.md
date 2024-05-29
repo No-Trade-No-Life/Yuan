@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-transfer-controller
 
-This log was last generated on Wed, 29 May 2024 16:20:55 GMT and should not be manually modified.
+This log was last generated on Wed, 29 May 2024 16:57:50 GMT and should not be manually modified.
+
+## 0.0.4
+Wed, 29 May 2024 16:57:50 GMT
+
+### Patches
+
+- retry when service throw error
 
 ## 0.0.3
 Wed, 29 May 2024 16:20:55 GMT
