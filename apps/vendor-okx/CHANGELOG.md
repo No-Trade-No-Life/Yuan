@@ -1,6 +1,14 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Wed, 29 May 2024 12:38:40 GMT and should not be manually modified.
+This log was last generated on Wed, 29 May 2024 14:38:18 GMT and should not be manually modified.
+
+## 0.5.5
+Wed, 29 May 2024 14:38:18 GMT
+
+### Patches
+
+- fix transfer schema
+- fix main-sub account transfer
 
 ## 0.5.4
 Wed, 29 May 2024 12:38:40 GMT
