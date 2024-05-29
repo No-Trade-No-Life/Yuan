@@ -46,7 +46,7 @@ import {
   toArray,
 } from 'rxjs';
 import { HuobiClient } from './api';
-import { addAccountTransferAddress } from './utils/AccountTransferAddress';
+import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
 
 (async () => {
   const client = new HuobiClient({

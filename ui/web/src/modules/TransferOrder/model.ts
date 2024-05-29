@@ -15,13 +15,15 @@ export const schema: JSONSchema7 = {
       type: 'number',
       format: 'timestamp',
     },
-    debit_account_id: {
-      type: 'string',
-      format: 'account-id',
-    },
     credit_account_id: {
       type: 'string',
-      format: 'account-id',
+      title: '贷方账户',
+      format: 'account_id',
+    },
+    debit_account_id: {
+      type: 'string',
+      title: '借方账户',
+      format: 'account_id',
     },
     currency: {
       type: 'string',
@@ -31,8 +33,11 @@ export const schema: JSONSchema7 = {
     },
     status: {
       type: 'string',
-      enum: ['AWAIT_DEBIT', 'AWAIT_CREDIT', 'COMPLETE', 'ERROR'],
-      default: 'AWAIT_DEBIT',
+      enum: ['INIT', 'AWAIT_DEBIT', 'AWAIT_CREDIT', 'COMPLETE', 'ERROR'],
+      default: 'INIT',
+    },
+    current_tx_state: {
+      type: 'string',
     },
     timeout_at: {
       type: 'number',
