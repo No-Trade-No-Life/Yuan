@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-okx",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "files": [
     "dist/extension.bundle.js"
   ],
