@@ -771,6 +771,7 @@ defer(async () => {
 
 defer(async () => {
   const account_config = await firstValueFrom(accountConfig$);
+  console.info(formatTime(Date.now()), 'AccountConfig', JSON.stringify(account_config));
   const { mainUid, uid } = account_config.data[0];
   const isMainAccount = mainUid === uid;
 
@@ -787,7 +788,7 @@ defer(async () => {
         account_id: FUNDING_ACCOUNT_ID,
         network_id: 'TRC20',
         currency: 'USDT',
-        address: address, // TODO: add address
+        address: address,
         onApply: {
           INIT: async (order) => {
             if (
@@ -915,60 +916,60 @@ defer(async () => {
 
   // SubAccount
   {
-    const SUB_ACCOUNT_NETWORK_ID = `OKX/${mainUid}/SubAccount`;
-    const MAIN_ACCOUNT_ADDRESS = '#main';
+    const getSubAccountNetworkId = (subUid: string) => `OKX/${mainUid}/SubAccount/${subUid}`;
     if (isMainAccount) {
-      addAccountTransferAddress({
-        terminal,
-        account_id: FUNDING_ACCOUNT_ID,
-        network_id: SUB_ACCOUNT_NETWORK_ID,
-        currency: 'USDT',
-        address: MAIN_ACCOUNT_ADDRESS,
-        onApply: {
-          INIT: async (order) => {
-            const transferResult = await client.postAssetTransfer({
-              type: '1',
-              ccy: 'USDT',
-              amt: `${order.current_amount}`,
-              from: '6',
-              to: '6',
-              subAcct: order.current_rx_address,
-            });
-            if (transferResult.code !== '0') {
-              return { state: 'INIT', message: transferResult.msg };
-            }
-            const transaction_id = transferResult.data[0].transId;
-            return { state: 'COMPLETE', transaction_id };
+      const subAcctsRes = await client.getSubAccountList();
+      for (const item of subAcctsRes.data || []) {
+        addAccountTransferAddress({
+          terminal,
+          account_id: FUNDING_ACCOUNT_ID,
+          network_id: getSubAccountNetworkId(item.uid),
+          currency: 'USDT',
+          address: 'main',
+          onApply: {
+            INIT: async (order) => {
+              const transferResult = await client.postAssetTransfer({
+                type: '1',
+                ccy: 'USDT',
+                amt: `${order.current_amount}`,
+                from: '6',
+                to: '6',
+                subAcct: item.subAcct,
+              });
+              if (transferResult.code !== '0') {
+                return { state: 'INIT', message: transferResult.msg };
+              }
+              const transaction_id = transferResult.data[0].transId;
+              return { state: 'COMPLETE', transaction_id };
+            },
           },
-        },
-        onEval: async (order) => {
-          const checkResult = await client.getAssetTransferState({ transId: order.current_transaction_id });
-          const received_amount = checkResult?.data?.[0]?.amt;
-          if (!received_amount) {
-            return { state: 'INIT', message: checkResult.msg };
-          }
-          return { state: 'COMPLETE', received_amount: +received_amount };
-        },
-      });
+          onEval: async (order) => {
+            const checkResult = await client.getAssetTransferState({ transId: order.current_transaction_id });
+            const received_amount = checkResult?.data?.[0]?.amt;
+            if (!received_amount) {
+              return { state: 'INIT', message: checkResult.msg };
+            }
+            return { state: 'COMPLETE', received_amount: +received_amount };
+          },
+        });
+      }
     }
     // SubAccount API
     else {
       addAccountTransferAddress({
         terminal,
         account_id: FUNDING_ACCOUNT_ID,
-        network_id: SUB_ACCOUNT_NETWORK_ID,
+        network_id: getSubAccountNetworkId(uid),
         currency: 'USDT',
-        address: '', // TODO: add address
+        address: 'sub',
         onApply: {
           INIT: async (order) => {
             const transferResult = await client.postAssetTransfer({
-              type: order.current_rx_address === MAIN_ACCOUNT_ADDRESS ? '3' : '4',
+              type: '3',
               ccy: 'USDT',
               amt: `${order.current_amount}`,
               from: '6',
               to: '6',
-              subAcct:
-                order.current_rx_address === MAIN_ACCOUNT_ADDRESS ? undefined : order.current_rx_address,
             });
             if (transferResult.code !== '0') {
               return { state: 'INIT', message: transferResult.msg };

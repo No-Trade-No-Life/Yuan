@@ -1039,6 +1039,8 @@ export class OkxClient {
    * 限速：10 次/s
    *
    * 限速规则：UserID
+   *
+   * https://www.okx.com/docs-v5/zh/#funding-account-rest-api-get-funds-transfer-state
    */
   getAssetTransferState = (params: {
     transId?: string;
