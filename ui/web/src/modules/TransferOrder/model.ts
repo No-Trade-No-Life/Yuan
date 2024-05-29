@@ -33,10 +33,31 @@ export const schema: JSONSchema7 = {
     },
     status: {
       type: 'string',
-      enum: ['INIT', 'AWAIT_DEBIT', 'AWAIT_CREDIT', 'COMPLETE', 'ERROR'],
+      enum: ['INIT', 'ONGOING', 'AWAIT_DEBIT', 'AWAIT_CREDIT', 'COMPLETE', 'ERROR'],
       default: 'INIT',
     },
+    current_amount: {
+      type: 'number',
+    },
+    current_tx_account_id: {
+      type: 'string',
+    },
+    current_tx_address: {
+      type: 'string',
+    },
     current_tx_state: {
+      type: 'string',
+    },
+    current_network_id: {
+      type: 'string',
+    },
+    current_rx_account_id: {
+      type: 'string',
+    },
+    current_rx_address: {
+      type: 'string',
+    },
+    current_rx_state: {
       type: 'string',
     },
     timeout_at: {

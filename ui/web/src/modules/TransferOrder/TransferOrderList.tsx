@@ -94,11 +94,20 @@ function defineColumns() {
         },
       }),
       columnHelper.accessor('origin.current_routing_index', {
-        header: () => '当前处理索引',
-        cell: (ctx) => (ctx.getValue() || -1) + 1,
+        header: () => '当前处理进度',
+        cell: (ctx) => `${(ctx.getValue() || -1) + 1} / ${ctx.row.original.origin.routing_path?.length ?? 0}`,
+      }),
+      columnHelper.accessor('origin.current_tx_account_id', {
+        header: () => '当前转账账户',
       }),
       columnHelper.accessor('origin.current_tx_state', {
         header: () => '当前转账方状态',
+      }),
+      columnHelper.accessor('origin.current_network_id', {
+        header: () => '当前转账网络',
+      }),
+      columnHelper.accessor('origin.current_rx_account_id', {
+        header: () => '当前收账账户',
       }),
       columnHelper.accessor('origin.current_rx_state', {
         header: () => '当前收账方状态',
