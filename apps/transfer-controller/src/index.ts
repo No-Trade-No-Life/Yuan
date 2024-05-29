@@ -510,14 +510,9 @@ const processTransfer = (order: ITransferOrder): Observable<void> => {
               }),
               catchError((e) => {
                 console.error(formatTime(Date.now()), 'TransferApplyError', e);
-                const nextOrder: ITransferOrder = {
-                  ...onGoingOrder,
-                  error_message: `${e}`,
-                  status: 'ERROR',
-                };
-                onGoingOrder = nextOrder;
-                return updateTransferOrder(onGoingOrder).pipe(map(() => 'ERROR'));
+                return 'RETRY';
               }),
+              retry({ delay: 1000 }),
             ),
           ),
         )
@@ -579,13 +574,7 @@ const processTransfer = (order: ITransferOrder): Observable<void> => {
               }),
               catchError((e) => {
                 console.error(formatTime(Date.now()), 'TransferEvalError', e);
-                const nextOrder: ITransferOrder = {
-                  ...onGoingOrder,
-                  error_message: `${e}`,
-                  status: 'ERROR',
-                };
-                onGoingOrder = nextOrder;
-                return updateTransferOrder(onGoingOrder).pipe(map(() => 'ERROR'));
+                return 'RETRY';
               }),
             ),
           ),

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-transfer-controller",
+      "comment": "retry when service throw error",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-transfer-controller"
+}
