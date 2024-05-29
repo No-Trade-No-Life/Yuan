@@ -781,7 +781,7 @@ defer(async () => {
   // BLOCK_CHAIN: only available for main account
   if (isMainAccount) {
     const depositAddressRes = await client.getAssetDepositAddress({ ccy: 'USDT' });
-    const address = depositAddressRes.data.find((v) => v.chain === 'USDT-TRC20')?.addr;
+    const address = depositAddressRes.data.find((v) => v.chain === 'USDT-TRC20' && v.to === '6')?.addr;
     if (address) {
       addAccountTransferAddress({
         terminal,
@@ -944,12 +944,15 @@ defer(async () => {
             },
           },
           onEval: async (order) => {
-            const checkResult = await client.getAssetTransferState({ transId: order.current_transaction_id });
-            const received_amount = checkResult?.data?.[0]?.amt;
-            if (!received_amount) {
-              return { state: 'INIT', message: checkResult.msg };
-            }
-            return { state: 'COMPLETE', received_amount: +received_amount };
+            // ISSUE: OKX API Issue: transId is incorrect or transId does not match with ‘ type’
+            // const checkResult = await client.getAssetTransferState({ transId: order.current_transaction_id });
+            // const received_amount = checkResult?.data?.[0]?.amt;
+            // if (!received_amount) {
+            //   return { state: 'INIT', message: checkResult.msg };
+            // }
+            // return { state: 'COMPLETE', received_amount: +received_amount };
+
+            return { state: 'COMPLETE', received_amount: order.current_amount };
           },
         });
       }
@@ -979,12 +982,14 @@ defer(async () => {
           },
         },
         onEval: async (order) => {
-          const checkResult = await client.getAssetTransferState({ transId: order.current_transaction_id });
-          const received_amount = checkResult?.data?.[0]?.amt;
-          if (!received_amount) {
-            return { state: 'INIT', message: checkResult.msg };
-          }
-          return { state: 'COMPLETE', received_amount: +received_amount };
+          // ISSUE: OKX API Issue: transId is incorrect or transId does not match with ‘ type’
+          // const checkResult = await client.getAssetTransferState({ transId: order.current_transaction_id });
+          // const received_amount = checkResult?.data?.[0]?.amt;
+          // if (!received_amount) {
+          //   return { state: 'INIT', message: checkResult.msg };
+          // }
+          // return { state: 'COMPLETE', received_amount: +received_amount };
+          return { state: 'COMPLETE', received_amount: order.current_amount };
         },
       });
     }
