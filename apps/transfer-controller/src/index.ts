@@ -563,7 +563,7 @@ const processTransfer = (order: ITransferOrder): Observable<void> => {
                   status: v.res?.data?.state === 'ERROR' ? 'ERROR' : 'ONGOING',
                   current_rx_state: v.res?.data?.state,
                   current_rx_context: v.res?.data?.context,
-                  current_amount: v.res?.data?.received_amount,
+                  current_amount: v.res?.data?.received_amount ?? onGoingOrder.current_amount, // Ensure the amount available (not empty), change it only if new received_amount coming
                 };
                 onGoingOrder = nextOrder;
                 return updateTransferOrder(onGoingOrder);
