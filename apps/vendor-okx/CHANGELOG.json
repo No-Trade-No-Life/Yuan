@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.5.5",
+      "tag": "@yuants/vendor-okx_v0.5.5",
+      "date": "Wed, 29 May 2024 13:38:30 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix transfer schema"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.4",
       "tag": "@yuants/vendor-okx_v0.5.4",
       "date": "Wed, 29 May 2024 12:38:40 GMT",
