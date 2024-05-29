@@ -55,7 +55,7 @@ update$
                 'TransferApply',
                 {
                   type: 'object',
-                  required: ['current_tx_account_id', 'currency', 'network_id', 'current_tx_address'],
+                  required: ['current_tx_account_id', 'currency', 'current_network_id', 'current_tx_address'],
                   oneOf: contextList.map((x) => ({
                     properties: {
                       current_tx_account_id: {
@@ -64,7 +64,7 @@ update$
                       currency: {
                         const: x.currency,
                       },
-                      network_id: {
+                      current_network_id: {
                         const: x.network_id,
                       },
                       current_tx_address: {
@@ -99,7 +99,7 @@ update$
                 'TransferEval',
                 {
                   type: 'object',
-                  required: ['current_rx_account_id', 'currency', 'network_id', 'current_rx_address'],
+                  required: ['current_rx_account_id', 'currency', 'current_network_id', 'current_rx_address'],
                   oneOf: contextList.map((x) => ({
                     properties: {
                       current_rx_account_id: {
@@ -108,7 +108,7 @@ update$
                       currency: {
                         const: x.currency,
                       },
-                      network_id: {
+                      current_network_id: {
                         const: x.network_id,
                       },
                       current_rx_address: {
