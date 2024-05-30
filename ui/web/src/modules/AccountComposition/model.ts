@@ -19,9 +19,11 @@ export const acrSchema: JSONSchema7 = {
   properties: {
     source_account_id: {
       type: 'string',
+      format: 'account_id',
     },
     target_account_id: {
       type: 'string',
+      format: 'account_id',
     },
     multiple: {
       type: 'number',

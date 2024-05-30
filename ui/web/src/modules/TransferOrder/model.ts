@@ -41,6 +41,7 @@ export const schema: JSONSchema7 = {
     },
     current_tx_account_id: {
       type: 'string',
+      format: 'account_id',
     },
     current_tx_address: {
       type: 'string',
@@ -53,6 +54,7 @@ export const schema: JSONSchema7 = {
     },
     current_rx_account_id: {
       type: 'string',
+      format: 'account_id',
     },
     current_rx_address: {
       type: 'string',
