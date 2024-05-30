@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Thu, 30 May 2024 09:26:59 GMT and should not be manually modified.
+This log was last generated on Thu, 30 May 2024 18:17:06 GMT and should not be manually modified.
+
+## 0.6.1
+Thu, 30 May 2024 18:17:06 GMT
+
+### Patches
+
+- fix TRC20 multi address
 
 ## 0.6.0
 Thu, 30 May 2024 09:26:59 GMT
