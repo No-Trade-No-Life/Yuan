@@ -22,6 +22,7 @@ const schemaOnEdit = {
     account_id: {
       title: '账户 ID',
       type: 'string',
+      format: 'account_id',
     },
     product_id: {
       title: '品种 ID',

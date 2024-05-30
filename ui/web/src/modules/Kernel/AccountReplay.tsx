@@ -3,7 +3,7 @@ import { AccountReplayScene, HistoryOrderUnit } from '@yuants/kernel';
 import { useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import { AccountFrameUnit } from '../AccountInfo/AccountFrameUnit';
-import { accountFrameSeries$, accountIds$, accountPerformance$ } from '../AccountInfo/model';
+import { accountFrameSeries$, accountPerformance$ } from '../AccountInfo/model';
 import { Form } from '../Form';
 import { orders$ } from '../Order/model';
 import { registerPage } from '../Pages';
@@ -24,7 +24,6 @@ const PERIOD_IN_SEC_TO_LABEL: Record<number, string> = {
 
 registerPage('AccountReplay', () => {
   const terminal = useObservableState(terminal$);
-  const accountList = useObservableState(accountIds$, []);
 
   const [formData, setFormData] = useState({
     account_id: '',
@@ -70,7 +69,7 @@ registerPage('AccountReplay', () => {
           schema={{
             type: 'object',
             properties: {
-              account_id: { type: 'string', title: '回放账户', examples: accountList },
+              account_id: { type: 'string', title: '回放账户', format: 'account_id' },
               currency: { type: 'string', title: '回放币种' },
               leverage: { type: 'number', title: '杠杆倍数', default: 1 },
               pull_source: {

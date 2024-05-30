@@ -54,28 +54,30 @@ export function AccountIdWidget<
   }
 
   return (
-    <AutoComplete<Option>
-      style={{ width: '100%', minWidth: 240 }}
-      prefix={<IconSearch />}
-      value={props.value}
-      data={candidates}
-      showClear
-      onChange={(x: any) => {
-        props.onChange(x);
-      }}
-      renderItem={(option: Option) => {
-        return (
-          <div>
+    <>
+      <AutoComplete<Option>
+        style={{ width: '100%', minWidth: 240 }}
+        prefix={<IconSearch />}
+        value={props.value}
+        data={candidates}
+        showClear
+        onChange={(x: any) => {
+          props.onChange(x);
+        }}
+        renderItem={(option: Option) => {
+          return (
             <div>
-              <HighlightChars str={option.label} indices={option.entry.positions} />
+              <div>
+                <HighlightChars str={option.label} indices={option.entry.positions} />
+              </div>
+              <pre>{option.value}</pre>
             </div>
-            <pre>{option.value}</pre>
-          </div>
-        );
-      }}
-      emptyContent={null}
-      suffix={<InlineAccountId account_id={props.value} />}
-      placeholder="选择账户"
-    ></AutoComplete>
+          );
+        }}
+        emptyContent={null}
+        placeholder="选择账户"
+      ></AutoComplete>
+      <InlineAccountId account_id={props.value} />
+    </>
   );
 }

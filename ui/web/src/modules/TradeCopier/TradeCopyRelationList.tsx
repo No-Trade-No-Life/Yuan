@@ -48,6 +48,7 @@ const schemaOnEdit = {
     source_account_id: {
       title: '源账户 ID',
       type: 'string',
+      format: 'account_id',
     },
     source_product_id: {
       title: '源品种 ID',
@@ -56,6 +57,7 @@ const schemaOnEdit = {
     target_account_id: {
       title: '目标账户 ID',
       type: 'string',
+      format: 'account_id',
     },
     target_product_id: {
       title: '目标品种 ID',

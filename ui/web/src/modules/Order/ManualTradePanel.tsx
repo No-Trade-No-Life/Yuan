@@ -3,7 +3,6 @@ import { IOrder } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import { filter, first, mergeMap, of } from 'rxjs';
-import { accountIds$ } from '../AccountInfo/model';
 import { Form } from '../Form';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
@@ -18,7 +17,6 @@ registerPage('ManualTradePanel', () => {
         }
       | undefined,
   );
-  const accountIds = useObservableState(accountIds$, []);
 
   const products$ = useObservable(
     mergeMap(([account_id]) =>
@@ -41,7 +39,7 @@ registerPage('ManualTradePanel', () => {
         schema={{
           type: 'object',
           properties: {
-            account_id: { type: 'string', title: '账户', enum: accountIds },
+            account_id: { type: 'string', title: '账户', format: 'account_id' },
             product_id: {
               type: 'string',
               title: '品种',
@@ -108,7 +106,7 @@ registerPage('ManualTradePanel', () => {
         schema={{
           type: 'object',
           properties: {
-            account_id: { type: 'string', title: '账户ID', enum: accountIds },
+            account_id: { type: 'string', title: '账户ID', format: 'account_id' },
             order_id: { type: 'string', title: '订单ID' },
           },
         }}
