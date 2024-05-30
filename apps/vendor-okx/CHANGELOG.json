@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.6.1",
+      "tag": "@yuants/vendor-okx_v0.6.1",
+      "date": "Thu, 30 May 2024 18:17:06 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix TRC20 multi address"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.6.0",
       "tag": "@yuants/vendor-okx_v0.6.0",
       "date": "Thu, 30 May 2024 09:26:59 GMT",
