@@ -342,6 +342,33 @@ export class OkxClient {
   }> => this.request('GET', '/api/v5/finance/savings/balance', params);
 
   /**
+   * 余币宝申购/赎回
+   *
+   * 仅资金账户中的资产支持余币宝申购。
+   *
+   * 限速：6次/s
+   *
+   * 限速规则：UserID
+   *
+   * https://www.okx.com/docs-v5/zh/#financial-product-savings-post-savings-purchase-redemption
+   */
+  postFinanceSavingsPurchaseRedempt = (params: {
+    ccy: string;
+    amt: string;
+    side: string;
+    rate: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    data: {
+      ccy: string;
+      amt: string;
+      side: string;
+      rate: string;
+    }[];
+  }> => this.request('POST', '/api/v5/finance/savings/purchase-redempt', params);
+
+  /**
    * GET / 获取市场借贷历史（公共）
    *
    * 公共接口无须鉴权

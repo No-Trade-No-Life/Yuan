@@ -777,10 +777,12 @@ defer(async () => {
 
   const TRADING_ACCOUNT_ID = `okx/${uid}/trading`;
   const FUNDING_ACCOUNT_ID = `okx/${uid}/funding/USDT`;
+  const EARNING_ACCOUNT_ID = `okx/${uid}/earning/USDT`;
 
   // BLOCK_CHAIN: only available for main account
   if (isMainAccount) {
     const depositAddressRes = await client.getAssetDepositAddress({ ccy: 'USDT' });
+    console.info(formatTime(Date.now()), 'DepositAddress', JSON.stringify(depositAddressRes.data));
     const address = depositAddressRes.data.find((v) => v.chain === 'USDT-TRC20' && v.to === '6')?.addr;
     if (address) {
       addAccountTransferAddress({
@@ -906,6 +908,58 @@ defer(async () => {
           }
           const transaction_id = transferResult.data[0].transId;
           return { state: 'COMPLETE', transaction_id };
+        },
+      },
+      onEval: async (transferOrder) => {
+        return { state: 'COMPLETE', received_amount: transferOrder.current_amount };
+      },
+    });
+  }
+  // Funding-Earning
+  {
+    const FUNDING_EARNING_NETWORK_ID = `OKX/${uid}/Funding-Earning`;
+    addAccountTransferAddress({
+      terminal,
+      account_id: FUNDING_ACCOUNT_ID,
+      network_id: FUNDING_EARNING_NETWORK_ID,
+      currency: 'USDT',
+      address: 'funding',
+      onApply: {
+        INIT: async (order) => {
+          const transferResult = await client.postFinanceSavingsPurchaseRedempt({
+            ccy: 'USDT',
+            amt: `${order.current_amount}`,
+            side: 'purchase',
+            rate: '0.01',
+          });
+          if (transferResult.code !== '0') {
+            return { state: 'INIT', message: transferResult.msg };
+          }
+          return { state: 'COMPLETE', transaction_id: 'ok' };
+        },
+      },
+      onEval: async (transferOrder) => {
+        return { state: 'COMPLETE', received_amount: transferOrder.current_amount };
+      },
+    });
+    addAccountTransferAddress({
+      terminal,
+      account_id: EARNING_ACCOUNT_ID,
+      network_id: FUNDING_EARNING_NETWORK_ID,
+      currency: 'USDT',
+      address: 'earning',
+      onApply: {
+        INIT: async (order) => {
+          const transferResult = await client.postFinanceSavingsPurchaseRedempt({
+            ccy: 'USDT',
+            amt: `${order.current_amount}`,
+            side: 'redempt',
+            rate: '0.01',
+          });
+          if (transferResult.code !== '0') {
+            return { state: 'INIT', message: transferResult.msg };
+          }
+          return { state: 'COMPLETE', transaction_id: 'ok' };
         },
       },
       onEval: async (transferOrder) => {
