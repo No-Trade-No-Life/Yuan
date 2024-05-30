@@ -783,14 +783,14 @@ defer(async () => {
   if (isMainAccount) {
     const depositAddressRes = await client.getAssetDepositAddress({ ccy: 'USDT' });
     console.info(formatTime(Date.now()), 'DepositAddress', JSON.stringify(depositAddressRes.data));
-    const address = depositAddressRes.data.find((v) => v.chain === 'USDT-TRC20' && v.to === '6')?.addr;
-    if (address) {
+    const addresses = depositAddressRes.data.filter((v) => v.chain === 'USDT-TRC20' && v.to === '6');
+    for (const address of addresses) {
       addAccountTransferAddress({
         terminal,
         account_id: FUNDING_ACCOUNT_ID,
         network_id: 'TRC20',
         currency: 'USDT',
-        address: address,
+        address: address.addr,
         onApply: {
           INIT: async (order) => {
             if (
@@ -843,7 +843,8 @@ defer(async () => {
           return { state: 'COMPLETE', received_amount };
         },
       });
-
+    }
+    if (addresses.length !== 0) {
       await firstValueFrom(
         terminal
           .updateDataRecords([
