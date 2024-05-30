@@ -485,7 +485,7 @@ const processTransfer = (order: ITransferOrder): Observable<void> => {
           mergeMap(() =>
             terminal.requestService('TransferApply', onGoingOrder).pipe(
               tap((v) => {
-                console.info(formatTime(Date.now()), 'TransferEvalResponse', v);
+                console.info(formatTime(Date.now()), 'TransferApplyResponse', v);
               }),
               delayWhen((v) => {
                 const nextOrder: ITransferOrder = {
@@ -510,9 +510,8 @@ const processTransfer = (order: ITransferOrder): Observable<void> => {
               }),
               catchError((e) => {
                 console.error(formatTime(Date.now()), 'TransferApplyError', e);
-                return 'RETRY';
+                return of('RETRY');
               }),
-              retry({ delay: 1000 }),
             ),
           ),
         )
