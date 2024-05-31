@@ -1,4 +1,4 @@
-import { IconClose } from '@douyinfe/semi-icons';
+import { IconClose, IconTaskMoneyStroked } from '@douyinfe/semi-icons';
 import { Collapse, Descriptions, Empty, Space, Table, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { ITick, encodePath, formatTime, mergeAccountInfoPositions } from '@yuants/data-model';
@@ -26,6 +26,7 @@ import {
   timer,
   toArray,
 } from 'rxjs';
+import { executeCommand } from '../CommandCenter';
 import { Button, DataView } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
 import { terminal$, useTick } from '../Terminals';
@@ -288,6 +289,17 @@ registerPage('AccountInfoPanel', () => {
         最后更新时间: {formatTime(updatedAt)} (Ping {renderedAt - updatedAt}ms)
       </Typography.Text>
       <Typography.Text copyable={{ content: targetTerminalId }}>终端ID: {targetTerminalId}</Typography.Text>
+      <Space>
+        <Button
+          icon={<IconTaskMoneyStroked />}
+          onClick={async () => {
+            //
+            await executeCommand('Transfer', { credit_account_id: accountId });
+          }}
+        >
+          转账
+        </Button>
+      </Space>
       <Descriptions
         align="center"
         size="small"

@@ -18,13 +18,11 @@ export const TerminalListItem = React.memo((props: { terminalInfo: ITerminalInfo
           data={[
             //
             { key: '终端名字', value: term.name },
-            { key: '最近启动时间', value: formatTime(term.start_timestamp_in_ms!) },
+            { key: '最近启动时间', value: formatTime(term.created_at!) },
             { key: '最近更新时间', value: formatTime(term.updated_at!) },
             {
               key: '启动时长',
-              value: formatDuration(
-                intervalToDuration({ start: term.start_timestamp_in_ms!, end: Date.now() }),
-              ),
+              value: formatDuration(intervalToDuration({ start: term.created_at!, end: Date.now() })),
             },
             {
               key: '提供服务',

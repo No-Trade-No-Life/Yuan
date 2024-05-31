@@ -34,12 +34,12 @@ registerPage('TerminalList', () => {
         header: () => '最近更新时间',
         cell: (info) => formatTime(info.getValue() || NaN),
       }),
-      columnHelper.accessor('start_timestamp_in_ms', {
+      columnHelper.accessor('created_at', {
         header: () => '启动时间',
         cell: (info) => formatTime(info.getValue() || NaN),
       }),
       columnHelper.accessor(
-        (x) => formatDuration(intervalToDuration({ start: x.start_timestamp_in_ms!, end: Date.now() })),
+        (x) => formatDuration(intervalToDuration({ start: x.created_at!, end: Date.now() })),
         {
           id: 'start_time',
           header: () => '启动时长',
