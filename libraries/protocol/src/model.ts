@@ -39,12 +39,6 @@ export interface ITerminalInfo {
    * 为空时，等同于 Date.now()
    */
   created_at?: number;
-  /**
-   * Migrate to `created_at`
-   *
-   * @deprecated - Use `created_at` instead
-   */
-  start_timestamp_in_ms?: number;
 
   /**
    * Terminal Information Update Timestamp

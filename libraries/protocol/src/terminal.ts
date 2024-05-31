@@ -31,6 +31,7 @@ import {
   retry,
   share,
   shareReplay,
+  switchMap,
   takeWhile,
   tap,
   timeout,
@@ -159,7 +160,7 @@ export class Terminal {
     this._setupChannelValidatorSubscription();
     this._setupTerminalIdAndMethodValidatorSubscription();
 
-    this.terminalInfo.start_timestamp_in_ms = this.terminalInfo.created_at = Date.now();
+    this.terminalInfo.created_at = Date.now();
     this.terminalInfo.status ??= 'INIT';
 
     this._setupTerminalInfoStuff();
@@ -215,7 +216,12 @@ export class Terminal {
           debounceTime(10),
           tap(() => (this.terminalInfo.updated_at = Date.now())),
           tap(() => console.info(formatTime(Date.now()), 'Terminal', 'terminalInfo', 'pushing')),
-          mergeMap(() => this.request('UpdateTerminalInfo', '@host', this.terminalInfo)),
+          // request maybe failed, so we should retry until success or cancelled by new pushing action
+          switchMap(() =>
+            defer(() => this.request('UpdateTerminalInfo', '@host', this.terminalInfo)).pipe(
+              retry({ delay: 1000 }),
+            ),
+          ),
         )
         .subscribe(() => {}),
     );
@@ -273,6 +279,7 @@ export class Terminal {
   ) => {
     //
     (this.terminalInfo.serviceInfo ??= {})[method] = { method, schema: requestSchema };
+    // @ts-ignore
     this._serviceHandlers[method] = handler;
     this._serviceOptions[method] = options || {};
     this._terminalInfoUpdated$.next();
