@@ -68,8 +68,6 @@ export interface ITerminalInfo {
         schema: JSONSchema7;
     }>;
     // @deprecated
-    start_timestamp_in_ms?: number;
-    // @deprecated
     status?: string;
     subscriptions?: Record<string, string[]>;
     terminal_id: string;

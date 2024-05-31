@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "ISSUE: pipe broken if UpdateTerminalInfo failed",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

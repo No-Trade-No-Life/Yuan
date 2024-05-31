@@ -1,15 +1,15 @@
-import { IconBolt } from '@douyinfe/semi-icons';
-import { Toast } from '@douyinfe/semi-ui';
+import { Space, Steps, Toast, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
 import { ITransferOrder, UUID, formatTime } from '@yuants/data-model';
 import { IDataRecord } from '@yuants/protocol';
-import { firstValueFrom, lastValueFrom, tap } from 'rxjs';
-import { InlineAccountId } from '../AccountInfo';
+import { InlineAccountId, useAccountInfo } from '../AccountInfo';
 import { DataRecordView } from '../DataRecord';
-import { Button } from '../Interactive';
 import { registerPage } from '../Pages';
-import { terminal$ } from '../Terminals';
 import { schema } from './model';
+import { registerCommand } from '../CommandCenter';
+import { showForm } from '../Form';
+import { concatWith, first, firstValueFrom, of } from 'rxjs';
+import { terminal$ } from '../Terminals';
 
 const TYPE = 'transfer_order';
 
@@ -78,27 +78,45 @@ function defineColumns() {
         cell: (ctx) => {
           const value = ctx.getValue();
           if (typeof value === 'string') return value;
+          const item = ctx.row.original.origin;
+          const index =
+            item.status === 'COMPLETE' ? item.routing_path?.length ?? 0 : item.current_routing_index ?? 0;
+
           if (Array.isArray(value)) {
             return (
-              <ol>
-                {value.map((e) => (
-                  <li>
-                    <InlineAccountId account_id={e.tx_account_id || ''} />
-                    {` (${e.tx_address}) -> ${e.network_id} -> (${e.rx_address}) `}
-                    <InlineAccountId account_id={e.rx_account_id || ''} />
-                  </li>
+              <Steps direction="vertical" type="basic">
+                {value.map((e, idx) => (
+                  <Steps.Step
+                    title={e.network_id}
+                    status={
+                      idx < index
+                        ? 'finish'
+                        : idx > index
+                        ? 'wait'
+                        : item.status === 'ERROR'
+                        ? 'error'
+                        : 'process'
+                    }
+                    description={
+                      <Space vertical align="start">
+                        <Typography.Paragraph>
+                          从 <InlineAccountId account_id={e.tx_account_id || ''} /> ({e.tx_address})
+                        </Typography.Paragraph>
+                        <Typography.Paragraph>
+                          到 <InlineAccountId account_id={e.rx_account_id || ''} /> ({e.rx_address})
+                        </Typography.Paragraph>
+                      </Space>
+                    }
+                  />
                 ))}
-              </ol>
+              </Steps>
             );
           }
         },
       }),
-      columnHelper.accessor('origin.current_routing_index', {
-        header: () => '当前处理进度',
-        cell: (ctx) => `${(ctx.getValue() || -1) + 1} / ${ctx.row.original.origin.routing_path?.length ?? 0}`,
-      }),
       columnHelper.accessor('origin.current_tx_account_id', {
         header: () => '当前转账账户',
+        cell: (ctx) => <InlineAccountId account_id={ctx.getValue() || ''} />,
       }),
       columnHelper.accessor('origin.current_tx_state', {
         header: () => '当前转账方状态',
@@ -108,6 +126,7 @@ function defineColumns() {
       }),
       columnHelper.accessor('origin.current_rx_account_id', {
         header: () => '当前收账账户',
+        cell: (ctx) => <InlineAccountId account_id={ctx.getValue() || ''} />,
       }),
       columnHelper.accessor('origin.current_rx_state', {
         header: () => '当前收账方状态',
@@ -115,35 +134,8 @@ function defineColumns() {
       columnHelper.accessor('origin.current_amount', {
         header: () => '当前金额',
       }),
-      columnHelper.accessor('origin.debit_methods', {
-        header: () => '候选方式',
-        cell: (ctx) => (
-          <ol>
-            {ctx.getValue()?.map((e) => (
-              <li>{e}</li>
-            ))}
-          </ol>
-        ),
-      }),
-      columnHelper.accessor('origin.credit_method', {
-        header: () => '当选方式',
-      }),
-      columnHelper.accessor('origin.transaction_id', {
-        header: () => '转账凭证号',
-      }),
-      columnHelper.accessor('origin.transferred_at', {
-        header: () => '转账时间',
-        cell: (ctx) => formatTime(ctx.getValue() ?? ''),
-      }),
-      columnHelper.accessor('origin.transferred_amount', {
-        header: () => '转账金额',
-      }),
-      columnHelper.accessor('origin.received_at', {
-        header: () => '到账时间',
-        cell: (ctx) => formatTime(ctx.getValue() ?? ''),
-      }),
-      columnHelper.accessor('origin.received_amount', {
-        header: () => '到账金额',
+      columnHelper.accessor('origin.current_transaction_id', {
+        header: () => '当前转账凭证号',
       }),
       columnHelper.accessor('origin.error_message', {
         header: () => '错误信息',
@@ -158,32 +150,67 @@ registerPage('TransferOrderList', () => {
       TYPE={TYPE}
       schema={schema}
       columns={defineColumns()}
-      extraRecordActions={({ reloadData, record }) => (
-        <Button
-          icon={<IconBolt />}
-          onClick={async () => {
-            const terminal = await firstValueFrom(terminal$);
-            if (!terminal) return;
-            await lastValueFrom(
-              terminal.requestService('Transfer', record.origin).pipe(
-                tap({
-                  error: (err) => {
-                    Toast.error(`通知转账失败: ${err}`);
-                    console.error(err);
-                  },
-                }),
-              ),
-            );
-            await reloadData();
-            Toast.success(`通知转账成功`);
-          }}
-        >
-          通知
-        </Button>
-      )}
       newRecord={newRecord}
       beforeUpdateTrigger={beforeUpdateTrigger}
       mapOriginToDataRecord={mapOriginToDataRecord}
     />
+  );
+});
+
+registerCommand('Transfer', async (params: {}) => {
+  const terminal = await firstValueFrom(terminal$);
+  if (!terminal) {
+    Toast.error('未连接到主机');
+    return;
+  }
+  const res = await showForm<{ credit_account_id: string; debit_account_id: string; amount: number }>(
+    {
+      type: 'object',
+      required: ['credit_account_id', 'debit_account_id', 'amount'],
+      properties: {
+        credit_account_id: {
+          title: '贷方账户',
+          type: 'string',
+          format: 'account_id',
+        },
+        debit_account_id: {
+          title: '借方账户',
+          type: 'string',
+          format: 'account_id',
+        },
+        amount: {
+          title: '金额',
+          type: 'number',
+        },
+      },
+    },
+    params,
+  );
+
+  const accountInfoCredit = await firstValueFrom(useAccountInfo(res.credit_account_id).pipe(first()));
+  const accountInfoDebit = await firstValueFrom(useAccountInfo(res.debit_account_id).pipe(first()));
+
+  const currency = accountInfoCredit.money.currency;
+  if (currency !== accountInfoDebit.money.currency) {
+    Toast.error(`贷方账户 (${currency}) 与借方账户 (${accountInfoDebit.money.currency}）不一致`);
+    return;
+  }
+
+  await firstValueFrom(
+    terminal
+      .updateDataRecords([
+        mapOriginToDataRecord({
+          order_id: UUID(),
+          created_at: Date.now(),
+          updated_at: Date.now(),
+          credit_account_id: res.credit_account_id,
+          debit_account_id: res.debit_account_id,
+          status: 'INIT',
+          currency,
+          expected_amount: res.amount,
+          timeout_at: Date.now() + 86400_000,
+        }),
+      ])
+      .pipe(concatWith(of(0))),
   );
 });

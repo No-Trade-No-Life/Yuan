@@ -6,12 +6,12 @@ import {
   encodePath,
   formatTime,
 } from '@yuants/data-model';
-
+import { Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/transfer';
-
-import { Terminal } from '@yuants/protocol';
 import { batchGroupBy, switchMapWithComplete } from '@yuants/utils';
+// @ts-ignore
+import dijkstra from 'dijkstrajs';
 import {
   Observable,
   OperatorFunction,
@@ -36,8 +36,6 @@ import {
   timer,
   toArray,
 } from 'rxjs';
-// @ts-ignore
-import dijkstra from 'dijkstrajs';
 
 interface ITransferPair {
   /** 发起转账的账户ID */
@@ -58,11 +56,8 @@ interface ITransferRoutingCache {
   routing_path: ITransferPair[];
 }
 
-const HOST_URL = process.env.HOST_URL!;
-const TERMINAL_ID = process.env.TERMINAL_ID || 'TransferController';
-
-const terminal = new Terminal(HOST_URL, {
-  terminal_id: TERMINAL_ID,
+const terminal = new Terminal(process.env.HOST_URL!, {
+  terminal_id: process.env.TERMINAL_ID || 'TransferController',
   name: 'Transfer Controller',
 });
 
@@ -274,6 +269,7 @@ const iterateTransferOrder = (order: ITransferOrder): ITransferOrder => {
   if (current_routing_index === undefined) {
     return {
       ...order,
+      updated_at: Date.now(),
       current_amount: order.expected_amount,
       current_routing_index: 0,
       current_tx_state: 'INIT',
@@ -289,6 +285,7 @@ const iterateTransferOrder = (order: ITransferOrder): ITransferOrder => {
   if (current_routing_index === routing_path!.length - 1) {
     return {
       ...order,
+      updated_at: Date.now(),
       status: 'COMPLETE',
     };
   }
@@ -296,6 +293,7 @@ const iterateTransferOrder = (order: ITransferOrder): ITransferOrder => {
   if (current_routing_index < 0 || current_routing_index >= routing_path!.length - 1) {
     return {
       ...order,
+      updated_at: Date.now(),
       error_message: `Invalid Current Tx Account ID: ${current_routing_index}`,
       status: 'ERROR',
     };
@@ -305,6 +303,7 @@ const iterateTransferOrder = (order: ITransferOrder): ITransferOrder => {
 
   return {
     ...order,
+    updated_at: Date.now(),
     current_routing_index: next_routing_index,
     current_tx_state: 'INIT',
     current_rx_state: 'INIT',
@@ -394,8 +393,9 @@ const processTransfer = (order: ITransferOrder): Observable<void> => {
         .pipe(
           //
           delayWhen((path) => {
-            const nextOrder = {
+            const nextOrder: ITransferOrder = {
               ...onGoingOrder,
+              updated_at: Date.now(),
               routing_path: path,
               status: path !== undefined ? 'ONGOING' : 'ERROR',
               error_message: path === undefined ? 'Cannot find a routing path' : undefined,
@@ -490,6 +490,7 @@ const processTransfer = (order: ITransferOrder): Observable<void> => {
               delayWhen((v) => {
                 const nextOrder: ITransferOrder = {
                   ...onGoingOrder,
+                  updated_at: Date.now(),
                   error_message: v.res?.code !== 0 ? v.res?.message || '' : undefined,
                   status: v.res?.data?.state === 'ERROR' ? 'ERROR' : 'ONGOING',
                   current_transaction_id: v.res?.data?.transaction_id,
@@ -553,6 +554,7 @@ const processTransfer = (order: ITransferOrder): Observable<void> => {
               delayWhen((v) => {
                 const nextOrder: ITransferOrder = {
                   ...onGoingOrder,
+                  updated_at: Date.now(),
                   error_message: v.res?.code !== 0 ? v.res?.message || '' : undefined,
                   status: v.res?.data?.state === 'ERROR' ? 'ERROR' : 'ONGOING',
                   current_rx_state: v.res?.data?.state,
@@ -573,7 +575,7 @@ const processTransfer = (order: ITransferOrder): Observable<void> => {
               }),
               catchError((e) => {
                 console.error(formatTime(Date.now()), 'TransferEvalError', e);
-                return 'RETRY';
+                return of('RETRY');
               }),
             ),
           ),
