@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-transfer-controller",
+      "comment": "remove AWAIT_DEBIT and AWAIT_CREDIT",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-transfer-controller"
+}

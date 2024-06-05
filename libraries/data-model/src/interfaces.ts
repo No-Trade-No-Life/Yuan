@@ -756,8 +756,6 @@ export interface ITransferOrder {
    * - `"COMPLETE"` - Transfer completed
    * - `"ERROR"` - Transfer failed, need to check the error message, need human intervention
    * - `"ONGOING"` - Transfer is pending, need to wait
-   * - `"AWAIT_DEBIT"` - Waiting for the debit side to handle / confirm
-   * - `"AWAIT_CREDIT"` - Waiting for the credit side to handle / confirm
    */
   status: string;
   /**
