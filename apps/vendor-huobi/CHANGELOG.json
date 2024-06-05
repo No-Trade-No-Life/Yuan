@@ -2,6 +2,31 @@
   "name": "@yuants/vendor-huobi",
   "entries": [
     {
+      "version": "0.4.7",
+      "tag": "@yuants/vendor-huobi_v0.4.7",
+      "date": "Wed, 05 Jun 2024 09:35:22 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove legacy transfer"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.16.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.10.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.6",
       "tag": "@yuants/vendor-huobi_v0.4.6",
       "date": "Wed, 29 May 2024 14:38:18 GMT",

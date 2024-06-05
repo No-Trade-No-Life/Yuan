@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Wed, 29 May 2024 14:38:18 GMT and should not be manually modified.
+This log was last generated on Wed, 05 Jun 2024 09:35:22 GMT and should not be manually modified.
+
+## 0.4.7
+Wed, 05 Jun 2024 09:35:22 GMT
+
+### Patches
+
+- remove legacy transfer
 
 ## 0.4.6
 Wed, 29 May 2024 14:38:18 GMT

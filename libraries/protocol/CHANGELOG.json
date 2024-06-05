@@ -2,6 +2,28 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.16.3",
+      "tag": "@yuants/protocol_v0.16.3",
+      "date": "Wed, 05 Jun 2024 09:35:22 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "ISSUE: pipe broken if UpdateTerminalInfo failed"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.10.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.16.2",
       "tag": "@yuants/protocol_v0.16.2",
       "date": "Fri, 24 May 2024 18:00:17 GMT",
