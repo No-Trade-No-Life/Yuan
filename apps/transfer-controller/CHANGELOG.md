@@ -1,6 +1,15 @@
 # Change Log - @yuants/app-transfer-controller
 
-This log was last generated on Thu, 30 May 2024 18:17:06 GMT and should not be manually modified.
+This log was last generated on Wed, 05 Jun 2024 09:35:22 GMT and should not be manually modified.
+
+## 0.0.6
+Wed, 05 Jun 2024 09:35:22 GMT
+
+### Patches
+
+- update updated_at if order changed
+- add failed order alert
+- remove AWAIT_DEBIT and AWAIT_CREDIT
 
 ## 0.0.5
 Thu, 30 May 2024 18:17:06 GMT

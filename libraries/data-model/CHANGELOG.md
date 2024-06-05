@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-model
 
-This log was last generated on Fri, 24 May 2024 18:00:17 GMT and should not be manually modified.
+This log was last generated on Wed, 05 Jun 2024 09:35:22 GMT and should not be manually modified.
+
+## 0.10.2
+Wed, 05 Jun 2024 09:35:22 GMT
+
+### Patches
+
+- remove AWAIT_DEBIT and AWAIT_CREDIT
 
 ## 0.10.1
 Fri, 24 May 2024 18:00:17 GMT

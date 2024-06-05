@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Fri, 24 May 2024 18:00:17 GMT and should not be manually modified.
+This log was last generated on Wed, 05 Jun 2024 09:35:22 GMT and should not be manually modified.
+
+## 0.16.3
+Wed, 05 Jun 2024 09:35:22 GMT
+
+### Patches
+
+- ISSUE: pipe broken if UpdateTerminalInfo failed
 
 ## 0.16.2
 Fri, 24 May 2024 18:00:17 GMT

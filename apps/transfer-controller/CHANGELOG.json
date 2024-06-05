@@ -2,6 +2,37 @@
   "name": "@yuants/app-transfer-controller",
   "entries": [
     {
+      "version": "0.0.6",
+      "tag": "@yuants/app-transfer-controller_v0.0.6",
+      "date": "Wed, 05 Jun 2024 09:35:22 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "update updated_at if order changed"
+          },
+          {
+            "comment": "add failed order alert"
+          },
+          {
+            "comment": "remove AWAIT_DEBIT and AWAIT_CREDIT"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.10.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.16.3`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.5",
       "tag": "@yuants/app-transfer-controller_v0.0.5",
       "date": "Thu, 30 May 2024 18:17:06 GMT",

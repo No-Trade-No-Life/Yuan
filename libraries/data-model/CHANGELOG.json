@@ -2,6 +2,23 @@
   "name": "@yuants/data-model",
   "entries": [
     {
+      "version": "0.10.2",
+      "tag": "@yuants/data-model_v0.10.2",
+      "date": "Wed, 05 Jun 2024 09:35:22 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove AWAIT_DEBIT and AWAIT_CREDIT"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.10.1",
       "tag": "@yuants/data-model_v0.10.1",
       "date": "Fri, 24 May 2024 18:00:17 GMT",
