@@ -92,7 +92,7 @@ defer(() =>
   .pipe(
     //
     map((v) => v.origin),
-    filter((order) => !['ERROR', 'COMPLETE', 'AWAIT_DEBIT', 'AWAIT_CREDIT'].includes(order.status!)),
+    filter((order) => !['ERROR', 'COMPLETE'].includes(order.status!)),
     toArray(),
     retry({ delay: 5_000 }),
     repeat({ delay: 30_000 }),

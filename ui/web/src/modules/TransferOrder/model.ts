@@ -33,7 +33,7 @@ export const schema: JSONSchema7 = {
     },
     status: {
       type: 'string',
-      enum: ['INIT', 'ONGOING', 'AWAIT_DEBIT', 'AWAIT_CREDIT', 'COMPLETE', 'ERROR'],
+      enum: ['INIT', 'ONGOING', 'COMPLETE', 'ERROR'],
       default: 'INIT',
     },
     current_amount: {
