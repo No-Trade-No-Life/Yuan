@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-transfer-controller",
+      "comment": "add failed order alert",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-transfer-controller"
+}
