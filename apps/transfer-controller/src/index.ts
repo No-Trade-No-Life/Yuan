@@ -6,7 +6,7 @@ import {
   encodePath,
   formatTime,
 } from '@yuants/data-model';
-import { Terminal } from '@yuants/protocol';
+import { PromRegistry, Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/transfer';
 import { batchGroupBy, switchMapWithComplete } from '@yuants/utils';
@@ -25,6 +25,8 @@ import {
   distinctUntilChanged,
   filter,
   firstValueFrom,
+  from,
+  groupBy,
   map,
   mergeMap,
   of,
@@ -612,3 +614,45 @@ const processTransfer = (order: ITransferOrder): Observable<void> => {
     };
   });
 };
+
+const MetricFailedTransferOrders = PromRegistry.create(
+  'gauge',
+  'failed_transfer_orders',
+  'Failed Transfer Orders',
+);
+
+// check if there's any failed transfer order
+defer(() =>
+  terminal.queryDataRecords<ITransferOrder>({
+    type: 'transfer_order',
+    tags: {
+      status: 'ERROR',
+    },
+  }),
+)
+  .pipe(
+    toArray(),
+    repeat({ delay: 10_000 }),
+    retry({ delay: 5000 }),
+    tap(() => {
+      MetricFailedTransferOrders.resetAll();
+    }),
+    mergeMap((records) =>
+      from(records).pipe(
+        groupBy((record) => `${record.origin.debit_account_id}-${record.origin.credit_account_id}`),
+        mergeMap((group) =>
+          group.pipe(
+            //
+            toArray(),
+            tap((v) => {
+              MetricFailedTransferOrders.set(v.length, {
+                debit_account_id: v[0].origin.debit_account_id,
+                credit_account_id: v[0].origin.credit_account_id,
+              });
+            }),
+          ),
+        ),
+      ),
+    ),
+  )
+  .subscribe();
