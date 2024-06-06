@@ -1,0 +1,22 @@
+{
+  "name": "@yuants/app-risk-manager",
+  "entries": [
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/app-risk-manager_v0.1.0",
+      "date": "Thu, 06 Jun 2024 16:25:01 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "new"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "fix docs"
+          }
+        ]
+      }
+    }
+  ]
+}
