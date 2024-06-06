@@ -541,6 +541,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/app-risk-manager",
+      "projectFolder": "apps/risk-manager",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/app-account-composer",
       "projectFolder": "apps/account-composer",
       "shouldPublish": true
