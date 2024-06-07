@@ -9,20 +9,13 @@ import {
 import { PromRegistry, Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/transfer';
-import { batchGroupBy, switchMapWithComplete } from '@yuants/utils';
 // @ts-ignore
 import dijkstra from 'dijkstrajs';
 import {
   Observable,
-  OperatorFunction,
-  Subject,
-  Subscription,
-  catchError,
   concatWith,
   defaultIfEmpty,
   defer,
-  delayWhen,
-  distinctUntilChanged,
   filter,
   firstValueFrom,
   from,
@@ -30,12 +23,10 @@ import {
   map,
   mergeMap,
   of,
-  pipe,
   repeat,
   retry,
   shareReplay,
   tap,
-  timer,
   toArray,
 } from 'rxjs';
 
@@ -63,27 +54,6 @@ const terminal = new Terminal(process.env.HOST_URL!, {
   name: 'Transfer Controller',
 });
 
-/**
- * listWatch is to listen to a specific type of data records and consume them
- *
- * @param hashKey - hashKey function to group items
- * @param consumer - for each group, consume the items
- */
-const listWatch = <T, K>(
-  hashKey: (item: T) => string,
-  consumer: (item: T) => Observable<K>,
-): OperatorFunction<T[], K> =>
-  pipe(
-    batchGroupBy(hashKey),
-    mergeMap((group) =>
-      group.pipe(
-        // Take first but not complete until group complete
-        distinctUntilChanged(() => true),
-        switchMapWithComplete(consumer),
-      ),
-    ),
-  );
-
 defer(() =>
   terminal.queryDataRecords<ITransferOrder>({
     type: 'transfer_order',
@@ -94,14 +64,14 @@ defer(() =>
     map((v) => v.origin),
     filter((order) => !['ERROR', 'COMPLETE'].includes(order.status!)),
     toArray(),
-    retry({ delay: 5_000 }),
-    repeat({ delay: 30_000 }),
-  )
-  .pipe(
-    listWatch(
-      (order) => `${order.order_id}`,
-      (order) => processTransfer(order),
+    retry({ delay: 1_000 }),
+    mergeMap((v) =>
+      from(v).pipe(
+        //
+        mergeMap((order) => dispatchTransfer(order)),
+      ),
     ),
+    repeat({ delay: 1_000 }),
   )
   .subscribe();
 
@@ -244,24 +214,27 @@ const wrapTransferRoutingCache = (origin: ITransferRoutingCache): IDataRecord<IT
   origin,
 });
 
-const updateTransferOrder = (order: ITransferOrder): Observable<void> =>
-  terminal
-    .updateDataRecords([
-      {
-        id: order.order_id,
-        type: 'transfer_order',
-        created_at: order.created_at,
-        updated_at: order.updated_at,
-        frozen_at: null,
-        tags: {
-          debit_account_id: order.debit_account_id,
-          credit_account_id: order.credit_account_id,
-          status: `${order.status}`,
+const updateTransferOrder = (order: ITransferOrder): Promise<void> => {
+  return firstValueFrom(
+    terminal
+      .updateDataRecords([
+        {
+          id: order.order_id,
+          type: 'transfer_order',
+          created_at: order.created_at,
+          updated_at: order.updated_at,
+          frozen_at: null,
+          tags: {
+            debit_account_id: order.debit_account_id,
+            credit_account_id: order.credit_account_id,
+            status: `${order.status}`,
+          },
+          origin: order,
         },
-        origin: order,
-      },
-    ])
-    .pipe(concatWith(of(void 0)));
+      ])
+      .pipe(concatWith(of(void 0))),
+  );
+};
 
 const iterateTransferOrder = (order: ITransferOrder): ITransferOrder => {
   const { routing_path, current_routing_index } = order;
@@ -281,6 +254,7 @@ const iterateTransferOrder = (order: ITransferOrder): ITransferOrder => {
       current_network_id: routing_path![0].network_id,
       current_rx_address: routing_path![0].rx_address,
       current_rx_account_id: routing_path![0].rx_account_id,
+      current_step_start_at: Date.now(),
     };
   }
   // current_tx_state must be COMPLETE
@@ -314,33 +288,44 @@ const iterateTransferOrder = (order: ITransferOrder): ITransferOrder => {
     current_network_id: routing_path![next_routing_index].network_id,
     current_rx_address: routing_path![next_routing_index].rx_address,
     current_rx_account_id: routing_path![next_routing_index].rx_account_id,
+    current_step_start_at: Date.now(),
   };
 };
 
-const processTransfer = (order: ITransferOrder): Observable<void> => {
-  return new Observable((subscriber) => {
-    const subs: Subscription[] = [];
-    const routing_path$ = defer(async () => {
-      let routing_path =
-        order.routing_path ||
-        (await firstValueFrom(
-          terminal
-            .queryDataRecords<ITransferRoutingCache>({
-              type: 'transfer_routing_cache',
-              tags: {
-                credit_account_id: order.credit_account_id,
-                debit_account_id: order.debit_account_id,
-              },
-            })
-            .pipe(
-              //
-              map((v) => v.origin.routing_path),
-              defaultIfEmpty(undefined),
-            ),
-        ));
-      if (!routing_path) {
-        routing_path = await makeRoutingPath(order);
+const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
+  return defer(async () => {
+    console.info(formatTime(Date.now()), 'TransferDispatch', order.order_id, JSON.stringify(order));
+    // if routing path is not defined, retrieve or calculate one
+    if (order.routing_path === undefined) {
+      const cache = await firstValueFrom(
+        terminal
+          .queryDataRecords<ITransferRoutingCache>({
+            type: 'transfer_routing_cache',
+            tags: {
+              credit_account_id: order.credit_account_id,
+              debit_account_id: order.debit_account_id,
+            },
+          })
+          .pipe(
+            //
+            map((v) => v.origin.routing_path),
+            defaultIfEmpty(undefined),
+          ),
+      );
+
+      let path = cache;
+
+      if (cache === undefined) {
+        const routing_path = await makeRoutingPath(order);
         if (routing_path !== undefined) {
+          console.info(
+            formatTime(Date.now()),
+            `NewRoutingPath`,
+            order.order_id,
+            order.credit_account_id,
+            order.debit_account_id,
+            path,
+          );
           await firstValueFrom(
             terminal
               .updateDataRecords([
@@ -352,266 +337,183 @@ const processTransfer = (order: ITransferOrder): Observable<void> => {
               ])
               .pipe(concatWith(of(void 0))),
           );
+          path = routing_path;
         }
       }
+
       console.info(
         formatTime(Date.now()),
         `RoutingPath`,
         order.order_id,
         order.credit_account_id,
         order.debit_account_id,
-        routing_path,
+        path,
       );
-      return routing_path;
-    }).pipe(
-      //
-      tap((v) => {
-        if (!order.routing_path) {
-          console.info(
-            formatTime(Date.now()),
-            'NewRoutingPath',
-            order.order_id,
-            order.credit_account_id,
-            order.debit_account_id,
-            v,
-          );
-        }
-      }),
-      shareReplay(1),
-    );
 
-    let onGoingOrder: ITransferOrder = { ...order };
+      const nextOrder: ITransferOrder = {
+        ...order,
+        updated_at: Date.now(),
+        routing_path: path,
+        status: path !== undefined ? 'ONGOING' : 'ERROR',
+        error_message: path === undefined ? 'Cannot find a routing path' : undefined,
+      };
+      return updateTransferOrder(nextOrder);
+    }
 
-    const transferStart$ = new Subject<void>();
-    const transferIteratePair$ = new Subject<void>();
-    const transferApply$ = new Subject<void>();
-    const transferEval$ = new Subject<void>();
-    const transferComplete$ = new Subject<void>();
-    const transferError$ = new Subject<void>();
+    // routing path is defined, check if current transfer is timed out
+    if (order.current_network_id !== undefined) {
+      const networkInfo = await firstValueFrom(
+        terminal
+          .queryDataRecords<ITransferNetworkInfo>({
+            type: 'transfer_network_info',
+            tags: {
+              network_id: order.current_network_id,
+            },
+          })
+          .pipe(
+            //
+            map((v) => v.origin),
+            defaultIfEmpty(undefined),
+          ),
+      );
+      const timeout = networkInfo?.timeout ?? 300_000;
+      if (order.current_step_start_at !== undefined && Date.now() - order.current_step_start_at > timeout) {
+        console.error(
+          formatTime(Date.now()),
+          'TransferTimeout',
+          order.order_id,
+          `current step: ${order.current_tx_account_id}->${order.current_rx_account_id}`,
+        );
+        return updateTransferOrder({
+          ...order,
+          updated_at: Date.now(),
+          status: 'ERROR',
+          error_message: 'Timeout',
+        });
+      }
+    }
 
-    // the first step, to get or calculate the routing path
-    subs.push(
-      routing_path$
-        .pipe(
-          //
-          delayWhen((path) => {
-            const nextOrder: ITransferOrder = {
-              ...onGoingOrder,
-              updated_at: Date.now(),
-              routing_path: path,
-              status: path !== undefined ? 'ONGOING' : 'ERROR',
-              error_message: path === undefined ? 'Cannot find a routing path' : undefined,
-            };
-            onGoingOrder = nextOrder;
-            return updateTransferOrder(onGoingOrder);
+    // iterate the transfer order
+    if (
+      // initial case
+      order.current_tx_state === undefined ||
+      // restore state case, e.g. restart the service in the middle
+      (order.current_tx_state === 'COMPLETE' && order.current_rx_state === 'COMPLETE')
+    ) {
+      const nextOrder = iterateTransferOrder(order);
+      console.info(
+        formatTime(Date.now()),
+        'TransferIteratePair',
+        order.order_id,
+        `current step: ${nextOrder.current_tx_account_id}->${nextOrder.current_rx_account_id}`,
+      );
+      return updateTransferOrder(nextOrder);
+    }
+
+    // apply
+    if (order.current_tx_state !== 'COMPLETE') {
+      console.info(
+        formatTime(Date.now()),
+        'TransferApply',
+        order.order_id,
+        `current step: ${order.current_tx_account_id}->${order.current_rx_account_id}`,
+      );
+      const applyResult = await firstValueFrom(
+        terminal.requestService('TransferApply', order).pipe(
+          tap((v) => {
+            console.info(formatTime(Date.now()), 'TransferApplyResponse', v);
           }),
-        )
-        .subscribe((path) => {
-          if (path !== undefined) {
-            transferStart$.next();
-          } else {
-            transferError$.next();
-          }
-        }),
-    );
+        ),
+      );
+      const nextOrder: ITransferOrder = {
+        ...order,
+        updated_at: Date.now(),
+        error_message: applyResult.res?.code !== 0 ? applyResult.res?.message || '' : undefined,
+        status: applyResult.res?.data?.state === 'ERROR' ? 'ERROR' : 'ONGOING',
+        current_transaction_id: applyResult.res?.data?.transaction_id,
+        current_tx_state: applyResult.res?.data?.state,
+        current_tx_context: applyResult.res?.data?.context,
+      };
 
-    subs.push(
-      transferStart$.subscribe(() => {
-        console.info(formatTime(Date.now()), 'TransferStart', onGoingOrder.order_id);
-      }),
-    );
-
-    subs.push(
-      transferStart$.subscribe(() => {
-        if (
-          // initial case
-          onGoingOrder.current_tx_state === undefined ||
-          // restore state case, e.g. restart the service in the middle
-          (onGoingOrder.current_tx_state === 'COMPLETE' && onGoingOrder.current_rx_state === 'COMPLETE')
-        ) {
-          transferIteratePair$.next();
-        } else if (onGoingOrder.current_tx_state !== 'COMPLETE') {
-          transferApply$.next();
-        } else {
-          transferEval$.next();
-        }
-      }),
-    );
-
-    subs.push(
-      transferIteratePair$.subscribe(() => {
-        console.info(formatTime(Date.now()), 'TransferIteratePair', onGoingOrder.order_id);
-      }),
-    );
-
-    // Iterate the routing path, find the next pair of tx and rx, or mark as completed
-    subs.push(
-      transferIteratePair$
-        .pipe(
-          //
-          delayWhen(() => {
-            const nextOrder = iterateTransferOrder(onGoingOrder);
-            onGoingOrder = nextOrder;
-            return updateTransferOrder(onGoingOrder);
-          }),
-        )
-        .subscribe(() => {
-          if (onGoingOrder.status === 'COMPLETE') {
-            transferComplete$.next();
-          } else if (onGoingOrder.status === 'ERROR') {
-            transferError$.next();
-          } else if (onGoingOrder.current_tx_state === 'COMPLETE') {
-            transferEval$.next();
-          } else {
-            transferApply$.next();
-          }
-        }),
-    );
-
-    subs.push(
-      transferApply$.subscribe(() => {
+      if (
+        order.error_message === nextOrder.error_message &&
+        order.status === nextOrder.status &&
+        order.current_tx_state === nextOrder.current_tx_state &&
+        order.current_tx_context === nextOrder.current_tx_context &&
+        order.current_transaction_id === nextOrder.current_transaction_id
+      ) {
         console.info(
           formatTime(Date.now()),
           'TransferApply',
-          onGoingOrder.order_id,
-          `current step: ${onGoingOrder.current_tx_account_id}->${onGoingOrder.current_rx_account_id}`,
+          order.order_id,
+          'No change in the order',
+          `current step: ${order.current_tx_account_id}->${order.current_rx_account_id}`,
         );
-      }),
-    );
+        return;
+      }
+      console.info(
+        formatTime(Date.now()),
+        'TransferUpdate',
+        order.order_id,
+        JSON.stringify(order),
+        `current step: ${order.current_tx_account_id}->${order.current_rx_account_id}`,
+      );
+      return updateTransferOrder(nextOrder);
+    }
 
-    // Apply the Transfer step, retry if needed, transit to Eval if success
-    subs.push(
-      transferApply$
-        .pipe(
-          //
-          mergeMap(() =>
-            terminal.requestService('TransferApply', onGoingOrder).pipe(
-              tap((v) => {
-                console.info(formatTime(Date.now()), 'TransferApplyResponse', v);
-              }),
-              delayWhen((v) => {
-                const nextOrder: ITransferOrder = {
-                  ...onGoingOrder,
-                  updated_at: Date.now(),
-                  error_message: v.res?.code !== 0 ? v.res?.message || '' : undefined,
-                  status: v.res?.data?.state === 'ERROR' ? 'ERROR' : 'ONGOING',
-                  current_transaction_id: v.res?.data?.transaction_id,
-                  current_tx_state: v.res?.data?.state,
-                  current_tx_context: v.res?.data?.context,
-                };
-                onGoingOrder = nextOrder;
-                return updateTransferOrder(onGoingOrder);
-              }),
-              map((v) => {
-                if (v.res?.data?.state === 'COMPLETE') {
-                  return 'COMPLETE';
-                }
-                if (v.res?.data?.state === 'ERROR') {
-                  return 'ERROR';
-                }
-                return 'RETRY';
-              }),
-              catchError((e) => {
-                console.error(formatTime(Date.now()), 'TransferApplyError', e);
-                return of('RETRY');
-              }),
-            ),
-          ),
-        )
-        .subscribe((state: string) => {
-          if (state === 'COMPLETE') {
-            transferEval$.next();
-          } else if (state === 'ERROR') {
-            transferError$.next();
-          } else {
-            timer(1000).subscribe(() => {
-              transferApply$.next();
-            });
-          }
-        }),
-    );
+    // eval
+    if (order.current_rx_state !== 'COMPLETE') {
+      console.info(
+        formatTime(Date.now()),
+        'TransferEval',
+        order.order_id,
+        `current step: ${order.current_tx_account_id}->${order.current_rx_account_id}`,
+      );
 
-    subs.push(
-      transferEval$.subscribe(() => {
+      const evalResult = await firstValueFrom(
+        terminal.requestService('TransferEval', order).pipe(
+          tap((v) => {
+            console.info(formatTime(Date.now()), 'TransferEvalResponse', v);
+          }),
+        ),
+      );
+
+      const nextOrder: ITransferOrder = {
+        ...order,
+        updated_at: Date.now(),
+        error_message: evalResult.res?.code !== 0 ? evalResult.res?.message || '' : undefined,
+        status: evalResult.res?.data?.state === 'ERROR' ? 'ERROR' : 'ONGOING',
+        current_rx_state: evalResult.res?.data?.state,
+        current_rx_context: evalResult.res?.data?.context,
+        current_amount: evalResult.res?.data?.received_amount ?? order.current_amount, // Ensure the amount available (not empty), change it only if new received_amount coming
+      };
+
+      if (
+        order.error_message === nextOrder.error_message &&
+        order.status === nextOrder.status &&
+        order.current_rx_state === nextOrder.current_rx_state &&
+        order.current_rx_context === nextOrder.current_rx_context &&
+        order.current_amount === nextOrder.current_amount
+      ) {
         console.info(
           formatTime(Date.now()),
           'TransferEval',
-          onGoingOrder.order_id,
-          `current step: ${onGoingOrder.current_tx_account_id}->${onGoingOrder.current_rx_account_id}`,
+          order.order_id,
+          'No change in the order',
+          `current step: ${order.current_tx_account_id}->${order.current_rx_account_id}`,
         );
-      }),
-    );
-
-    // Eval the Transfer step, retry if needed, transit to next iteration if success
-    subs.push(
-      transferEval$
-        .pipe(
-          //
-          mergeMap(() =>
-            terminal.requestService('TransferEval', onGoingOrder).pipe(
-              //
-              tap((v) => {
-                console.info(formatTime(Date.now()), 'TransferEvalResponse', v);
-              }),
-              delayWhen((v) => {
-                const nextOrder: ITransferOrder = {
-                  ...onGoingOrder,
-                  updated_at: Date.now(),
-                  error_message: v.res?.code !== 0 ? v.res?.message || '' : undefined,
-                  status: v.res?.data?.state === 'ERROR' ? 'ERROR' : 'ONGOING',
-                  current_rx_state: v.res?.data?.state,
-                  current_rx_context: v.res?.data?.context,
-                  current_amount: v.res?.data?.received_amount ?? onGoingOrder.current_amount, // Ensure the amount available (not empty), change it only if new received_amount coming
-                };
-                onGoingOrder = nextOrder;
-                return updateTransferOrder(onGoingOrder);
-              }),
-              map((v) => {
-                if (v.res?.data?.state === 'COMPLETE') {
-                  return 'COMPLETE';
-                }
-                if (v.res?.data?.state === 'ERROR') {
-                  return 'ERROR';
-                }
-                return 'RETRY';
-              }),
-              catchError((e) => {
-                console.error(formatTime(Date.now()), 'TransferEvalError', e);
-                return of('RETRY');
-              }),
-            ),
-          ),
-        )
-        .subscribe((state: string) => {
-          if (state === 'COMPLETE') {
-            transferIteratePair$.next();
-          } else if (state === 'ERROR') {
-            transferError$.next();
-          } else {
-            timer(1000).subscribe(() => {
-              transferEval$.next();
-            });
-          }
-        }),
-    );
-
-    subs.push(
-      transferError$.subscribe(() => {
-        console.error(formatTime(Date.now()), 'TransferError', onGoingOrder.order_id);
-      }),
-    );
-
-    subs.push(
-      transferComplete$.subscribe(() => {
-        console.info(formatTime(Date.now()), 'TransferComplete', onGoingOrder.order_id);
-      }),
-    );
-
-    return () => {
-      for (const sub of subs) {
-        sub.unsubscribe();
+        return;
       }
-    };
+
+      console.info(
+        formatTime(Date.now()),
+        'TransferUpdate',
+        order.order_id,
+        JSON.stringify(order),
+        `current step: ${order.current_tx_account_id}->${order.current_rx_account_id}`,
+      );
+      return updateTransferOrder(nextOrder);
+    }
   });
 };
 

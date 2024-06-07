@@ -867,6 +867,8 @@ export interface ITransferOrder {
   current_rx_state?: string;
   /** 当前查账状态下用于流转状态的上下文信息 */
   current_rx_context?: string;
+  /** 当前转账开始时间 */
+  current_step_start_at?: number;
 
   /** 当前转账数目 */
   current_amount?: number;
