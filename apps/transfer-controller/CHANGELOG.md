@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-transfer-controller
 
-This log was last generated on Wed, 05 Jun 2024 09:35:22 GMT and should not be manually modified.
+This log was last generated on Fri, 07 Jun 2024 19:05:13 GMT and should not be manually modified.
+
+## 0.0.7
+Fri, 07 Jun 2024 19:05:13 GMT
+
+### Patches
+
+- refactor: remove state machine
 
 ## 0.0.6
 Wed, 05 Jun 2024 09:35:22 GMT
