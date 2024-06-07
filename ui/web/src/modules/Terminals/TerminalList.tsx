@@ -39,7 +39,7 @@ registerPage('TerminalList', () => {
         cell: (info) => formatTime(info.getValue() || NaN),
       }),
       columnHelper.accessor(
-        (x) => formatDuration(intervalToDuration({ start: x.created_at!, end: Date.now() })),
+        (x) => formatDuration(intervalToDuration({ start: x.created_at || Date.now(), end: Date.now() })),
         {
           id: 'start_time',
           header: () => '启动时长',
