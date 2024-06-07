@@ -197,6 +197,7 @@ export interface ITransferOrder {
     current_rx_address?: string;
     current_rx_context?: string;
     current_rx_state?: string;
+    current_step_started_at?: number;
     current_transaction_id?: string;
     current_tx_account_id?: string;
     current_tx_address?: string;
