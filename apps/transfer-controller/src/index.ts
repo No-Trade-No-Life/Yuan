@@ -13,6 +13,7 @@ import '@yuants/protocol/lib/services/transfer';
 import dijkstra from 'dijkstrajs';
 import {
   Observable,
+  catchError,
   concatWith,
   defaultIfEmpty,
   defer,
@@ -68,7 +69,14 @@ defer(() =>
     mergeMap((v) =>
       from(v).pipe(
         //
-        mergeMap((order) => dispatchTransfer(order)),
+        mergeMap((order) =>
+          dispatchTransfer(order).pipe(
+            catchError((e) => {
+              console.error(formatTime(Date.now()), 'TransferDispatchError', order.order_id, e);
+              return of(void 0);
+            }),
+          ),
+        ),
       ),
     ),
     repeat({ delay: 1_000 }),
@@ -254,7 +262,7 @@ const iterateTransferOrder = (order: ITransferOrder): ITransferOrder => {
       current_network_id: routing_path![0].network_id,
       current_rx_address: routing_path![0].rx_address,
       current_rx_account_id: routing_path![0].rx_account_id,
-      current_step_start_at: Date.now(),
+      current_step_started_at: Date.now(),
     };
   }
   // current_tx_state must be COMPLETE
@@ -288,7 +296,7 @@ const iterateTransferOrder = (order: ITransferOrder): ITransferOrder => {
     current_network_id: routing_path![next_routing_index].network_id,
     current_rx_address: routing_path![next_routing_index].rx_address,
     current_rx_account_id: routing_path![next_routing_index].rx_account_id,
-    current_step_start_at: Date.now(),
+    current_step_started_at: Date.now(),
   };
 };
 
@@ -377,7 +385,10 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
           ),
       );
       const timeout = networkInfo?.timeout ?? 300_000;
-      if (order.current_step_start_at !== undefined && Date.now() - order.current_step_start_at > timeout) {
+      if (
+        order.current_step_started_at !== undefined &&
+        Date.now() - order.current_step_started_at > timeout
+      ) {
         console.error(
           formatTime(Date.now()),
           'TransferTimeout',
@@ -388,7 +399,7 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
           ...order,
           updated_at: Date.now(),
           status: 'ERROR',
-          error_message: 'Timeout',
+          error_message: `Timeout: ${timeout}ms exceeded for ${order.current_tx_account_id}->${order.current_rx_account_id}`,
         });
       }
     }
@@ -428,7 +439,7 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
       const nextOrder: ITransferOrder = {
         ...order,
         updated_at: Date.now(),
-        error_message: applyResult.res?.code !== 0 ? applyResult.res?.message || '' : undefined,
+        error_message: applyResult.res?.message,
         status: applyResult.res?.data?.state === 'ERROR' ? 'ERROR' : 'ONGOING',
         current_transaction_id: applyResult.res?.data?.transaction_id,
         current_tx_state: applyResult.res?.data?.state,
@@ -481,7 +492,7 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
       const nextOrder: ITransferOrder = {
         ...order,
         updated_at: Date.now(),
-        error_message: evalResult.res?.code !== 0 ? evalResult.res?.message || '' : undefined,
+        error_message: evalResult.res?.message,
         status: evalResult.res?.data?.state === 'ERROR' ? 'ERROR' : 'ONGOING',
         current_rx_state: evalResult.res?.data?.state,
         current_rx_context: evalResult.res?.data?.context,
