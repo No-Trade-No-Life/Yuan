@@ -1,11 +1,9 @@
 import {
   IAccountInfo,
-  IDataRecord,
   IOrder,
   IPosition,
   IProduct,
   ITick,
-  ITransferOrder,
   UUID,
   decodePath,
   encodePath,
@@ -39,6 +37,7 @@ import {
   toArray,
 } from 'rxjs';
 import { OkxClient } from './api';
+import { IFundingRate, wrapFundingRateRecord } from './models/FundingRate';
 import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
 
 const terminal = new Terminal(process.env.HOST_URL!, {
@@ -765,28 +764,6 @@ defer(async () => {
   }
 }).subscribe();
 
-const updateTransferOrder = async (transferOrder: ITransferOrder): Promise<void> => {
-  return firstValueFrom(
-    terminal
-      .updateDataRecords([
-        {
-          id: transferOrder.order_id,
-          type: 'transfer_order',
-          created_at: transferOrder.created_at,
-          updated_at: transferOrder.updated_at,
-          frozen_at: null,
-          tags: {
-            debit_account_id: transferOrder.debit_account_id,
-            credit_account_id: transferOrder.credit_account_id,
-            status: `${transferOrder.status}`,
-          },
-          origin: transferOrder,
-        },
-      ])
-      .pipe(concatWith(of(void 0))),
-  );
-};
-
 defer(async () => {
   const tradingAccountInfo = await firstValueFrom(tradingAccountInfo$);
   terminal.provideService(
@@ -886,39 +863,6 @@ defer(async () => {
       }),
   );
 
-  interface IFundingRate {
-    series_id: string;
-    datasource_id: string;
-    product_id: string;
-    base_currency: string;
-    quote_currency: string;
-    funding_at: number;
-    funding_rate: number;
-  }
-  const wrapFundingRateRecord = (v: IFundingRate): IDataRecord<IFundingRate> => ({
-    id: encodePath(v.datasource_id, v.product_id, v.funding_at),
-    type: 'funding_rate',
-    created_at: v.funding_at,
-    updated_at: v.funding_at,
-    frozen_at: v.funding_at,
-    tags: {
-      series_id: encodePath(v.datasource_id, v.product_id),
-      datasource_id: v.datasource_id,
-      product_id: v.product_id,
-      base_currency: v.base_currency,
-      quote_currency: v.quote_currency,
-    },
-    origin: {
-      series_id: encodePath(v.datasource_id, v.product_id),
-      datasource_id: v.datasource_id,
-      product_id: v.product_id,
-      base_currency: v.base_currency,
-      quote_currency: v.quote_currency,
-      funding_rate: v.funding_rate,
-      funding_at: v.funding_at,
-    },
-  });
-
   terminal.provideService(
     'CopyDataRecords',
     {
@@ -929,7 +873,7 @@ defer(async () => {
           type: 'object',
           required: ['series_id'],
           properties: {
-            series_id: { type: 'string', pattern: '^okx/.+' },
+            series_id: { type: 'string', pattern: '^okx/' },
           },
         },
       },
@@ -950,6 +894,7 @@ defer(async () => {
           return { res: { code: 404, message: `product_id ${product_id} not found` } };
         }
         const { base_currency, quote_currency } = theProduct;
+        const [instType, instId] = decodePath(product_id);
         if (!base_currency || !quote_currency) {
           return { res: { code: 400, message: `base_currency or quote_currency is required` } };
         }
@@ -957,7 +902,7 @@ defer(async () => {
         let current_end = end;
         while (true) {
           const res = await client.getFundingRateHistory({
-            instId: product_id,
+            instId: instId,
             after: `${current_end}`,
           });
           if (res.code !== '0') {
