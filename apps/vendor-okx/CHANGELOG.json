@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.6.4",
+      "tag": "@yuants/vendor-okx_v0.6.4",
+      "date": "Sat, 08 Jun 2024 12:41:24 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix funding_rate query"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.6.3",
       "tag": "@yuants/vendor-okx_v0.6.3",
       "date": "Fri, 07 Jun 2024 19:05:13 GMT",
