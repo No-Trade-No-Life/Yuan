@@ -1,3 +1,4 @@
+import { JSONSchema7 } from 'json-schema';
 import { IDataRecord } from '../model';
 
 /**
@@ -12,6 +13,8 @@ export interface IQueryDataRecordsRequest {
   time_range?: [number, number];
   updated_since?: number;
   tags?: Record<string, string>;
+  json_schema?: JSONSchema7;
+  include_expired?: boolean;
   options?: Partial<{
     skip: number;
     limit: number;
