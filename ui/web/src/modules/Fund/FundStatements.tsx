@@ -42,6 +42,8 @@ type IFundState = {
   description: string; // 描述
   /** 总资产 */
   total_assets: number;
+  /** 已征税费 */
+  total_taxed: number;
   summary_derived: {
     /** 总入金 */
     total_deposit: number;
@@ -101,6 +103,7 @@ const initFundState: IFundState = {
   updated_at: 0,
   description: '',
   total_assets: 0, // 总资产
+  total_taxed: 0,
   summary_derived: {
     total_deposit: 0,
     total_share: 0,
@@ -154,6 +157,7 @@ const reduceStatement = (state: IFundState, statement: IFundStatement): IFundSta
       investor.share = state.investor_derived[investor.name].after_tax_share;
       nextState.total_assets -= state.investor_derived[investor.name].tax;
       investor.tax_threshold = state.investor_derived[investor.name].after_tax_assets;
+      nextState.total_taxed += state.investor_derived[investor.name].tax;
     }
   }
 
@@ -202,7 +206,8 @@ const reduceStatement = (state: IFundState, statement: IFundStatement): IFundSta
       (acc, cur) => acc + cur.tax,
       0,
     );
-    nextState.summary_derived.total_profit = nextState.total_assets - nextState.summary_derived.total_deposit;
+    nextState.summary_derived.total_profit =
+      nextState.total_assets - nextState.summary_derived.total_deposit + nextState.total_taxed;
   }
 
   return nextState;
@@ -584,6 +589,7 @@ registerPage('FundStatements', () => {
           { key: '净利润', value: state.summary_derived.total_profit },
           { key: '存续天数', value: state.summary_derived.total_time / 86400_000 },
           { key: '可征税费', value: state.summary_derived.total_tax },
+          { key: '已征税费', value: state.total_taxed },
           {
             key: '日化收益率',
             value: `${
