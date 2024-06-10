@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-mongodb-storage
 
-This log was last generated on Fri, 07 Jun 2024 19:05:13 GMT and should not be manually modified.
+This log was last generated on Mon, 10 Jun 2024 08:50:50 GMT and should not be manually modified.
+
+## 0.3.0
+Mon, 10 Jun 2024 08:50:50 GMT
+
+### Minor changes
+
+- add include_expired and json schema filter
 
 ## 0.2.12
 Fri, 07 Jun 2024 19:05:13 GMT
