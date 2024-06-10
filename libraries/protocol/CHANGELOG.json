@@ -2,6 +2,23 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.17.0",
+      "tag": "@yuants/protocol_v0.17.0",
+      "date": "Mon, 10 Jun 2024 08:50:50 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "DataStorageRequest adds include_expired and json schema filter"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.16.4",
       "tag": "@yuants/protocol_v0.16.4",
       "date": "Fri, 07 Jun 2024 19:05:13 GMT",
