@@ -164,6 +164,10 @@ terminal.provideService('QueryDataRecords', {}, (msg) => {
         Object.fromEntries(Object.entries(msg.req.tags || {}).map(([key, value]) => [`tags.${key}`, value])),
         // 按更新时间查询
         ...(msg.req.updated_since ? [{ updated_at: { $gt: msg.req.updated_since } }] : []),
+        // 是否包含过期数据
+        ...(msg.req.include_expired
+          ? []
+          : [{ $or: [{ expired_at: null }, { expired_at: { $gt: Date.now() } }] }]),
         // 按时间段查询
         ...(msg.req.time_range
           ? [
@@ -185,6 +189,8 @@ terminal.provideService('QueryDataRecords', {}, (msg) => {
               },
             ]
           : []),
+        // 按照 JSON Schema 查询
+        ...(msg.req.json_schema ? [{ $jsonSchema: msg.req.json_schema }] : []),
       ],
     },
     {
