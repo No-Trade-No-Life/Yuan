@@ -67,7 +67,7 @@ export default (context: IExtensionContext) => {
                     name: 'huobi',
                     resources: {
                       limits: {
-                        cpu: ctx.cpu?.max ?? '250m',
+                        cpu: ctx.cpu?.max ?? '500m',
                         memory: ctx.memory?.max ?? '256Mi',
                       },
                       requests: {
