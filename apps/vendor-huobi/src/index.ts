@@ -55,6 +55,17 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
     },
   });
 
+  const swapAccountTypeRes = await client.getSwapUnifiedAccountType();
+  if (swapAccountTypeRes.data.account_type !== 2) {
+    console.info(
+      formatTime(Date.now()),
+      'SwitchingAccountType',
+      `previous: ${swapAccountTypeRes.data.account_type}, switching to 2 (unified account)`,
+    );
+    const switchRes = await client.postSwapSwitchAccountType({ account_type: 2 });
+    console.info(formatTime(Date.now()), 'SwitchingAccountType', `current: ${switchRes.data.account_type}`);
+  }
+
   const huobiUid: number = (await client.getUid()).data;
   console.info(formatTime(Date.now()), 'UID', huobiUid);
 
