@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.6.6",
+      "tag": "@yuants/vendor-okx_v0.6.6",
+      "date": "Thu, 13 Jun 2024 12:34:32 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "adjust default resource require"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.6.5",
       "tag": "@yuants/vendor-okx_v0.6.5",
       "date": "Mon, 10 Jun 2024 08:50:50 GMT",

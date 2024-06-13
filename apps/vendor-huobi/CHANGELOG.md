@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Mon, 10 Jun 2024 08:50:50 GMT and should not be manually modified.
+This log was last generated on Thu, 13 Jun 2024 12:34:32 GMT and should not be manually modified.
+
+## 0.4.10
+Thu, 13 Jun 2024 12:34:32 GMT
+
+### Patches
+
+- adjust default resource require
 
 ## 0.4.9
 Mon, 10 Jun 2024 08:50:50 GMT
