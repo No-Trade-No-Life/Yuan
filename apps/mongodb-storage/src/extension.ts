@@ -92,7 +92,7 @@ export default (context: IExtensionContext) => {
                         memory: ctx.memory?.max ?? '256Mi',
                       },
                       requests: {
-                        cpu: ctx.cpu?.min ?? '50m',
+                        cpu: ctx.cpu?.min ?? '100m',
                         memory: ctx.memory?.min ?? '128Mi',
                       },
                     },
@@ -137,6 +137,35 @@ export default (context: IExtensionContext) => {
                     },
                   },
                 ],
+              },
+            ],
+          },
+        },
+        hpa: {
+          apiVersion: 'autoscaling/v2',
+          kind: 'HorizontalPodAutoscaler',
+          metadata: {
+            name: 'mongodb-storage',
+          },
+          spec: {
+            scaleTargetRef: {
+              apiVersion: 'apps/v1',
+              kind: 'Deployment',
+              name: 'mongodb-storage',
+              namespace: 'yuan',
+            },
+            minReplicas: 1,
+            maxReplicas: 3,
+            metrics: [
+              {
+                type: 'Resource',
+                resource: {
+                  name: 'cpu',
+                  target: {
+                    type: 'Utilization',
+                    averageUtilization: 50,
+                  },
+                },
               },
             ],
           },

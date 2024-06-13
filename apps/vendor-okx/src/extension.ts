@@ -68,12 +68,12 @@ export default (context: IExtensionContext) => {
                     name: 'okx',
                     resources: {
                       limits: {
-                        cpu: ctx.cpu?.max ?? '1',
-                        memory: ctx.memory?.max ?? '512Mi',
+                        cpu: ctx.cpu?.max ?? '500m',
+                        memory: ctx.memory?.max ?? '256Mi',
                       },
                       requests: {
-                        cpu: ctx.cpu?.min ?? '200m',
-                        memory: ctx.memory?.min ?? '256Mi',
+                        cpu: ctx.cpu?.min ?? '100m',
+                        memory: ctx.memory?.min ?? '128Mi',
                       },
                     },
                   },
