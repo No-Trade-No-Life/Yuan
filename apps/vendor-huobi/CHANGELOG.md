@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Thu, 13 Jun 2024 12:34:32 GMT and should not be manually modified.
+This log was last generated on Thu, 13 Jun 2024 13:44:12 GMT and should not be manually modified.
+
+## 0.4.11
+Thu, 13 Jun 2024 13:44:12 GMT
+
+### Patches
+
+- add switch account type api
 
 ## 0.4.10
 Thu, 13 Jun 2024 12:34:32 GMT
