@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-mongodb-storage
 
-This log was last generated on Thu, 13 Jun 2024 12:34:32 GMT and should not be manually modified.
+This log was last generated on Thu, 13 Jun 2024 14:52:38 GMT and should not be manually modified.
+
+## 0.3.2
+Thu, 13 Jun 2024 14:52:38 GMT
+
+### Patches
+
+- fix hpa spec
 
 ## 0.3.1
 Thu, 13 Jun 2024 12:34:32 GMT

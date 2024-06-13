@@ -2,6 +2,23 @@
   "name": "@yuants/app-mongodb-storage",
   "entries": [
     {
+      "version": "0.3.2",
+      "tag": "@yuants/app-mongodb-storage_v0.3.2",
+      "date": "Thu, 13 Jun 2024 14:52:38 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix hpa spec"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.1",
       "tag": "@yuants/app-mongodb-storage_v0.3.1",
       "date": "Thu, 13 Jun 2024 12:34:32 GMT",
