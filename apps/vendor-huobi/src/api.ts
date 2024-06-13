@@ -611,6 +611,7 @@ export class HuobiClient {
    *
    * 接口权限: 读取
    *
+   * https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec48f09-7773-11ed-9966-0242ac110003
    */
   getSubUserList(params?: { fromId?: number }): Promise<{
     code: number;
@@ -625,5 +626,54 @@ export class HuobiClient {
     ok: boolean;
   }> {
     return this.request('GET', `/v2/sub-user/user-list`, this.spot_api_root, params);
+  }
+
+  /**
+   * 账户类型查询
+   *
+   * 是否验签: 是
+   *
+   * 接口权限: 读取
+   *
+   * 限频: 每个UID 3秒最多 144 次请求(交易接口3秒最多 72 次请求，查询接口3秒最多 72 次请求) (该UID的所有币种和不同到期日的合约的所有私有接口共享该限制) 。
+   *
+   * 接口描述: 此接口用于客户查询的账号类型，当前U本位合约有统一账户和非统一账户（全仓逐仓账户）类型。统一账户类型资产放在USDT一个账户上，全仓逐仓账户类型资产放在不同的币对。
+   * 统一账户类型为最新升级的，当前不支持API下单。若需要用用API下单请切换账户类型为非统一账户。
+   *
+   * https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb71825-77b5-11ed-9966-0242ac110003
+   */
+  getSwapUnifiedAccountType(): Promise<{
+    code: number;
+    msg: string;
+    ts: number;
+    data: {
+      account_type: number;
+    };
+  }> {
+    return this.request('GET', '/linear-swap-api/v3/swap_unified_account_type', this.swap_api_root);
+  }
+
+  /**
+   * 账户类型更改接口
+   *
+   * 是否验签: 是
+   *
+   * 接口权限: 交易
+   *
+   * 限频: 每个UID 3秒最多 144 次请求(交易接口3秒最多 72 次请求，查询接口3秒最多 72 次请求) (该UID的所有币种和不同到期日的合约的所有私有接口共享该限制) 。
+   *
+   * 接口描述: 调用该接口前需要保证U本位合约无持仓和挂单，当由非统一账户（全仓逐仓账户）变为统一账户还需将资产从逐仓账户划转到全仓账户。
+   *
+   * https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb7196b-77b5-11ed-9966-0242ac110003
+   */
+  postSwapSwitchAccountType(params: { account_type: number }): Promise<{
+    code: number;
+    msg: string;
+    ts: number;
+    data: {
+      account_type: number;
+    };
+  }> {
+    return this.request('POST', '/linear-swap-api/v3/swap_switch_account_type', this.swap_api_root, params);
   }
 }
