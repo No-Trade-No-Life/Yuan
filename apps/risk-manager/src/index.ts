@@ -7,6 +7,7 @@ import {
   defer,
   delayWhen,
   filter,
+  first,
   from,
   map,
   mergeMap,
@@ -131,25 +132,33 @@ defer(() => configs$)
 
 defer(() => configs$)
   .pipe(
-    map((configs): { credit: string; debit: string; amount: number; currency: string } | undefined => {
+    mergeMap(function* (
+      configs,
+    ): Generator<
+      { credit: string; debit: string; amount: number; currency: string } | undefined,
+      void,
+      void
+    > {
       console.table(Object.fromEntries(Object.entries(dataMap).sort((a, b) => a[0].localeCompare(b[0]))));
       const list = Object.entries(dataMap).sort((a, b) => b[1].equity - a[1].equity);
       if (list.length < configs.length) {
         console.info(formatTime(Date.now()), 'loading data', list.length, configs.length);
         return;
       }
+      const demandList = [...list].sort((a, b) => b[1].passive_demand - a[1].passive_demand);
+      const supplyList = [...list].sort((a, b) => b[1].passive_supply - a[1].passive_supply);
       // Active Demand
 
       for (const [demand_account_id, demandData] of list) {
         if (demandData.active_demand > 0) {
-          for (const [supply_account_id, supplyData] of list) {
+          for (const [supply_account_id, supplyData] of supplyList) {
             if (demand_account_id === supply_account_id) continue;
             if (supplyData.currency !== demandData.currency) continue;
             if (supplyData.group_id !== demandData.group_id) continue;
             // Active Demand match Active Supply
             if (supplyData.active_supply > 0) {
               // Assert that passive_supply > active_supply
-              return {
+              yield {
                 credit: supply_account_id,
                 debit: demand_account_id,
                 currency: supplyData.currency,
@@ -157,12 +166,12 @@ defer(() => configs$)
               };
             }
           }
-          for (const [supply_account_id, supplyData] of list) {
+          for (const [supply_account_id, supplyData] of supplyList) {
             if (demand_account_id === supply_account_id) continue;
             if (supplyData.currency !== demandData.currency) continue;
             if (supplyData.group_id !== demandData.group_id) continue;
             if (supplyData.passive_supply > 0) {
-              return {
+              yield {
                 credit: supply_account_id,
                 debit: demand_account_id,
                 currency: supplyData.currency,
@@ -176,12 +185,12 @@ defer(() => configs$)
       // Active Supply
       for (const [supply_account_id, supplyData] of list) {
         if (supplyData.active_supply > 0) {
-          for (const [demand_account_id, demandData] of list) {
+          for (const [demand_account_id, demandData] of demandList) {
             if (demand_account_id === supply_account_id) continue;
             if (supplyData.currency !== demandData.currency) continue;
             if (supplyData.group_id !== demandData.group_id) continue;
             if (supplyData.active_demand > 0) {
-              return {
+              yield {
                 credit: supply_account_id,
                 debit: demand_account_id,
                 currency: supplyData.currency,
@@ -189,12 +198,12 @@ defer(() => configs$)
               };
             }
           }
-          for (const [demand_account_id, demandData] of list) {
+          for (const [demand_account_id, demandData] of demandList) {
             if (demand_account_id === supply_account_id) continue;
             if (supplyData.currency !== demandData.currency) continue;
             if (supplyData.group_id !== demandData.group_id) continue;
             if (demandData.passive_demand > 0) {
-              return {
+              yield {
                 credit: supply_account_id,
                 debit: demand_account_id,
                 currency: supplyData.currency,
@@ -205,9 +214,9 @@ defer(() => configs$)
         }
       }
     }),
-    map((x) => (x && x.amount > 0 ? x : undefined)),
-    tap((x) => console.info(formatTime(Date.now()), 'transfer', JSON.stringify(x))),
     filter((x): x is Exclude<typeof x, undefined> => !!x),
+    first((x) => x.amount > 0),
+    tap((x) => console.info(formatTime(Date.now()), 'transfer', JSON.stringify(x))),
     map(
       (x): ITransferOrder => ({
         order_id: UUID(),
