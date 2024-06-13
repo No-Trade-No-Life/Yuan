@@ -62,7 +62,8 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
       'SwitchingAccountType',
       `previous: ${swapAccountTypeRes.data.account_type}, switching to 2 (unified account)`,
     );
-    await client.postSwapSwitchAccountType({ account_type: 2 });
+    const switchRes = await client.postSwapSwitchAccountType({ account_type: 2 });
+    console.info(formatTime(Date.now()), 'SwitchingAccountType', `current: ${switchRes.data.account_type}`);
   }
 
   const huobiUid: number = (await client.getUid()).data;
