@@ -145,7 +145,7 @@ export default (context: IExtensionContext) => {
           apiVersion: 'autoscaling/v2',
           kind: 'HorizontalPodAutoscaler',
           metadata: {
-            name: 'php-apache',
+            name: 'mongodb-storage',
           },
           spec: {
             scaleTargetRef: {
