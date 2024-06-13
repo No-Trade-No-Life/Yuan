@@ -146,13 +146,13 @@ export default (context: IExtensionContext) => {
           kind: 'HorizontalPodAutoscaler',
           metadata: {
             name: 'mongodb-storage',
+            namespace: 'yuan',
           },
           spec: {
             scaleTargetRef: {
               apiVersion: 'apps/v1',
               kind: 'Deployment',
               name: 'mongodb-storage',
-              namespace: 'yuan',
             },
             minReplicas: 1,
             maxReplicas: 3,
