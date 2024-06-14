@@ -189,6 +189,7 @@ export default (context: IExtensionContext) => {
                       summary: 'Metrics Collector No Response',
                     },
                     expr: 'up{service="metrics-collector"} < 1',
+                    for: '5m',
                     labels: {
                       severity: 'critical',
                     },
