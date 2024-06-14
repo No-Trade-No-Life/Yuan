@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-metrics-collector",
+      "comment": "add 5min stablize time window for alerting to pervent false alert",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-metrics-collector"
+}
