@@ -254,6 +254,7 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': ~7.0.11
       '@types/node': '18'
+      '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -276,6 +277,7 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': 7.0.12
       '@types/node': 18.17.12
+      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/extension': link:../../libraries/extension
       '@yuants/tool-kit': link:../../tools/toolkit
       typescript: 4.7.4

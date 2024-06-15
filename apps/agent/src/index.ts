@@ -1,7 +1,7 @@
 import { IAgentConf, agentConfSchema } from '@yuants/agent';
-import { UUID, formatTime } from '@yuants/data-model';
+import { IAccountInfo, UUID, formatTime } from '@yuants/data-model';
 import { IPositionDiff, diffPosition } from '@yuants/kernel';
-import { IAccountInfo, PromRegistry, Terminal } from '@yuants/protocol';
+import { PromRegistry, Terminal } from '@yuants/protocol';
 import Ajv from 'ajv';
 import fs from 'fs-extra';
 import path from 'path';
@@ -19,7 +19,6 @@ import {
   mergeMap,
   repeat,
   tap,
-  timer,
 } from 'rxjs';
 import { Worker } from 'worker_threads';
 

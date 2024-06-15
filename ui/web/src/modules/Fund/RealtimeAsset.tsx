@@ -1,6 +1,6 @@
 import { Button, Card, Descriptions, Empty, Space, Table, Toast, Typography } from '@douyinfe/semi-ui';
-import { formatTime } from '@yuants/data-model';
-import { IAccountInfo, Terminal } from '@yuants/protocol';
+import { IAccountInfo, formatTime } from '@yuants/data-model';
+import { Terminal } from '@yuants/protocol';
 import { format } from 'date-fns';
 import { parse } from 'jsonc-parser';
 import { useObservable, useObservableState } from 'observable-hooks';

@@ -1,4 +1,5 @@
-import { IProduct, Terminal } from '@yuants/protocol';
+import { IProduct } from '@yuants/data-model';
+import { Terminal } from '@yuants/protocol';
 import { lastValueFrom, map, toArray } from 'rxjs';
 import { Kernel } from '../kernel';
 import {

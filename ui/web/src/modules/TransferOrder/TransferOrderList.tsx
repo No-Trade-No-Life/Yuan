@@ -1,15 +1,14 @@
 import { Space, Steps, Toast, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { ITransferOrder, UUID, formatTime } from '@yuants/data-model';
-import { IDataRecord } from '@yuants/protocol';
-import { InlineAccountId, useAccountInfo } from '../AccountInfo';
-import { DataRecordView } from '../DataRecord';
-import { registerPage } from '../Pages';
-import { schema } from './model';
-import { registerCommand } from '../CommandCenter';
-import { showForm } from '../Form';
+import { IDataRecord, ITransferOrder, UUID, formatTime } from '@yuants/data-model';
 import { concatWith, first, firstValueFrom, of } from 'rxjs';
+import { InlineAccountId, useAccountInfo } from '../AccountInfo';
+import { registerCommand } from '../CommandCenter';
+import { DataRecordView } from '../DataRecord';
+import { showForm } from '../Form';
+import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
+import { schema } from './model';
 
 const TYPE = 'transfer_order';
 

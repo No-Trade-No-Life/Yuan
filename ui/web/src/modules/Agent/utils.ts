@@ -1,9 +1,8 @@
 import * as rollup from '@rollup/browser';
 import { AgentScene, IAgentConf } from '@yuants/agent';
-import { UUID } from '@yuants/data-model';
+import { IAccountInfo, UUID } from '@yuants/data-model';
 import { IDeploySpec } from '@yuants/extension';
 import { BasicUnit, IAccountPerformance } from '@yuants/kernel';
-import { IAccountInfo } from '@yuants/protocol';
 import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
 import * as path from 'path-browserify';

@@ -1,5 +1,5 @@
-import { formatTime } from '@yuants/data-model';
-import { IOrder, Terminal } from '@yuants/protocol';
+import { formatTime, IOrder } from '@yuants/data-model';
+import { Terminal } from '@yuants/protocol';
 import { lastValueFrom, map, tap, toArray } from 'rxjs';
 import { Kernel } from '../kernel';
 import { BasicUnit } from './BasicUnit';

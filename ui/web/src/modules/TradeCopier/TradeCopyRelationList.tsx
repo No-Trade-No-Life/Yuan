@@ -1,7 +1,6 @@
 import { IconCopyAdd, IconDelete, IconEdit, IconRefresh, IconSearch } from '@douyinfe/semi-icons';
 import { Button, Modal, Popconfirm, Space, Switch, Table, Toast } from '@douyinfe/semi-ui';
-import { UUID } from '@yuants/data-model';
-import { IDataRecord } from '@yuants/protocol';
+import { IDataRecord, UUID } from '@yuants/data-model';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';

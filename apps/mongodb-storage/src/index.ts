@@ -1,5 +1,5 @@
-import { UUID, formatTime } from '@yuants/data-model';
-import { IDataRecord, PromRegistry, Terminal } from '@yuants/protocol';
+import { IDataRecord, UUID, formatTime } from '@yuants/data-model';
+import { PromRegistry, Terminal } from '@yuants/protocol';
 import { MongoClient } from 'mongodb';
 import { bufferTime, concatWith, delayWhen, from, groupBy, map, mergeMap, of, tap, toArray } from 'rxjs';
 

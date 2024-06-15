@@ -1,5 +1,5 @@
+import { IDataRecord } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
-import { IDataRecord } from '../model';
 
 /**
  * Request to query data records

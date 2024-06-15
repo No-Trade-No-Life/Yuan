@@ -1,4 +1,14 @@
-import { UUID, decodePath, encodePath, formatTime, mergeAccountInfoPositions } from '@yuants/data-model';
+import {
+  IAccountInfo,
+  IDataRecord,
+  IOrder,
+  IPeriod,
+  IProduct,
+  ITick,
+  UUID,
+  encodePath,
+  formatTime,
+} from '@yuants/data-model';
 import { rateLimitMap } from '@yuants/utils';
 import Ajv, { ValidateFunction } from 'ajv';
 import { isNode } from 'browser-or-node';
@@ -9,16 +19,13 @@ import {
   ReplaySubject,
   Subject,
   Subscription,
-  bufferCount,
   catchError,
-  concatMap,
   debounceTime,
   defer,
-  delayWhen,
-  distinct,
   distinctUntilChanged,
   filter,
   first,
+  firstValueFrom,
   from,
   groupBy,
   interval,
@@ -26,7 +33,6 @@ import {
   mergeAll,
   mergeMap,
   of,
-  pairwise,
   repeat,
   retry,
   share,
@@ -39,7 +45,7 @@ import {
   toArray,
 } from 'rxjs';
 import { IConnection, createConnectionJson } from './create-connection';
-import { IAccountInfo, IDataRecord, IOrder, IPeriod, IProduct, ITerminalInfo, ITick } from './model';
+import { ITerminalInfo } from './model';
 import { IService, ITerminalMessage } from './services';
 import {
   ICopyDataRecordsRequest,
@@ -48,6 +54,16 @@ import {
 } from './services/data-record';
 import { PromRegistry } from './services/metrics';
 import { IQueryHistoryOrdersRequest, IQueryPeriodsRequest, IQueryProductsRequest } from './services/pull';
+import {
+  provideAccountInfo,
+  providePeriods,
+  provideTicks,
+  readDataRecords,
+  wrapOrder,
+  wrapPeriod,
+  wrapProduct,
+  writeDataRecords,
+} from './utils';
 
 const TerminalReceiveMassageTotal = PromRegistry.create('counter', 'terminal_receive_message_total');
 const TerminalTransmittedMessageTotal = PromRegistry.create('counter', 'terminal_transmitted_message_total');
@@ -60,20 +76,6 @@ const TerminalTransmittedChannelMessageTotal = PromRegistry.create(
   'counter',
   'terminal_transmitted_channel_message_total',
 );
-
-const AccountInfoEquity = PromRegistry.create('gauge', 'account_info_equity');
-const AccountInfoBalance = PromRegistry.create('gauge', 'account_info_balance');
-const AccountInfoProfit = PromRegistry.create('gauge', 'account_info_profit');
-const AccountInfoUsed = PromRegistry.create('gauge', 'account_info_used');
-const AccountInfoFree = PromRegistry.create('gauge', 'account_info_free');
-const AccountInfoPositionVolume = PromRegistry.create('gauge', 'account_info_position_volume');
-const AccountInfoPositionPrice = PromRegistry.create('gauge', 'account_info_position_price');
-const AccountInfoPositionClosablePrice = PromRegistry.create('gauge', 'account_info_position_closable_price');
-const AccountInfoPositionFloatingProfit = PromRegistry.create(
-  'gauge',
-  'account_info_position_floating_profit',
-);
-const AccountInfoPositionValuation = PromRegistry.create('gauge', 'account_info_position_valuation');
 
 const RequestDurationBucket = PromRegistry.create(
   'histogram',
@@ -118,18 +120,18 @@ interface IServiceOptions {
 }
 
 /**
- * Replace all special characters with escape characters
- * @see https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions
- */
-const escapeRegExp = (string: string): string => string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); // $& means the whole matched string
-
-/**
  * Terminal
  *
  * @public
  */
 export class Terminal {
+  /**
+   * Connection
+   */
   _conn: IConnection<ITerminalMessage>;
+  /**
+   * Terminal ID
+   */
   terminal_id: string;
   private _serviceHandlers: Record<string, IServiceHandler> = {};
   private _serviceOptions: Record<string, IServiceOptions> = {};
@@ -237,11 +239,25 @@ export class Terminal {
 
   private _subscriptions: Subscription[] = [];
 
+  private _dispose$ = new Subject<void>();
+
+  /**
+   * Observable that emits when the terminal is disposed
+   */
+  dispose$: Observable<void> = this._dispose$.asObservable();
+
+  /**
+   * Dispose the terminal
+   */
   dispose() {
     this._conn.output$.complete();
     this._subscriptions.forEach((sub) => sub.unsubscribe());
+    this._dispose$.next();
   }
 
+  /**
+   * Make a request to specified terminal's service
+   */
   request<T extends string>(
     method: T,
     target_terminal_id: string,
@@ -271,6 +287,9 @@ export class Terminal {
     });
   }
 
+  /**
+   * Provide a service
+   */
   provideService = <T extends string>(
     method: T,
     requestSchema: JSONSchema7,
@@ -285,12 +304,12 @@ export class Terminal {
     this._terminalInfoUpdated$.next();
   };
 
-  requestService = <T extends string>(
-    method: T,
-    req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req'],
-  ): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage> => {
-    return defer(() => {
-      return this.terminalInfos$.pipe(first()).pipe(
+  /**
+   * Resolve candidate target_terminal_ids for a request
+   */
+  resolveTargetTerminalIds = async (method: string, req: ITerminalMessage['req']): Promise<string[]> =>
+    firstValueFrom(
+      this.terminalInfos$.pipe(first()).pipe(
         mergeMap((terminalInfos) =>
           from(terminalInfos).pipe(
             //
@@ -301,16 +320,24 @@ export class Terminal {
         ),
         map((terminalInfo) => terminalInfo.terminal_id),
         toArray(),
-        map((arr) => {
-          if (arr.length === 0) {
-            throw Error(`No terminal available for request: method=${method} req=${JSON.stringify(req)}`);
-          }
-          const target = arr[~~(Math.random() * arr.length)]; // Simple Random Load Balancer
-          return target;
-        }),
-      );
-    }).pipe(
-      //
+      ),
+    );
+
+  /**
+   * Make a request to a service
+   */
+  requestService = <T extends string>(
+    method: T,
+    req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req'],
+  ): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage> => {
+    return defer(() => this.resolveTargetTerminalIds(method, req)).pipe(
+      map((arr) => {
+        if (arr.length === 0) {
+          throw Error(`No terminal available for request: method=${method} req=${JSON.stringify(req)}`);
+        }
+        const target = arr[~~(Math.random() * arr.length)]; // Simple Random Load Balancer
+        return target;
+      }),
       mergeMap((target_terminal_id) => this.request(method, target_terminal_id, req)),
     );
   };
@@ -574,6 +601,11 @@ export class Terminal {
     }
   };
 
+  /**
+   * Provide a channel
+   * @param channelIdSchema - JSON Schema for channel_id
+   * @param handler - handler for the channel, return an Observable to provide data stream
+   */
   provideChannel = <T>(channelIdSchema: JSONSchema7, handler: (channel_id: string) => Observable<T>) => {
     const validate = new Ajv({ strict: false }).compile(channelIdSchema);
     (this.terminalInfo.channelIdSchemas ??= []).push(channelIdSchema);
@@ -666,6 +698,10 @@ export class Terminal {
     );
   }
 
+  /**
+   * Consume a channel
+   * @param channel_id - channel_id
+   */
   consumeChannel = <T>(channel_id: string): Observable<T> =>
     // Cache by channel_id
     (this._mapChannelIdToSubject[channel_id] ??= new Observable<T>((subscriber) => {
@@ -759,56 +795,9 @@ export class Terminal {
   }
 
   /**
-   * Account ID List of the same host
-   */
-  accountIds$: Observable<string[]> = this.terminalInfos$.pipe(
-    mergeMap((terminals) =>
-      from(terminals).pipe(
-        mergeMap((terminalInfo) =>
-          from(terminalInfo.channelIdSchemas || []).pipe(
-            mergeMap((channelIdSchema) => {
-              if (typeof channelIdSchema.const === 'string') {
-                const [type, accountId] = decodePath(channelIdSchema.const);
-                if (type === 'AccountInfo' && accountId) {
-                  return of(accountId);
-                }
-              }
-              return EMPTY;
-            }),
-          ),
-        ),
-        distinct(),
-        toArray(),
-        map((arr) => arr.sort()),
-      ),
-    ),
-    shareReplay(1),
-  );
-
-  /**
-   * Data source ID List of the same host
-   */
-  datasourceIds$: Observable<string[]> = this.terminalInfos$.pipe(
-    mergeMap((terminals) =>
-      from(terminals).pipe(
-        map((terminalInfo) => {
-          const a = terminalInfo.serviceInfo?.['QueryProducts']?.schema?.properties?.['datasource_id'];
-          if (typeof a === 'object' && typeof a.const === 'string') {
-            return a.const;
-          }
-          return undefined;
-        }),
-        filter((v): v is Exclude<typeof v, undefined> => !!v),
-        distinct(),
-        toArray(),
-        map((arr) => arr.sort()),
-      ),
-    ),
-    shareReplay(1),
-  );
-
-  /**
    * use products
+   *
+   * @deprecated - use the util 'readDataRecords' instead
    */
   useProducts = (() => {
     const hub: Record<string, Observable<IProduct[]>> = {};
@@ -844,24 +833,36 @@ export class Terminal {
   useTick = (datasource_id: string, product_id: string) =>
     this.consumeChannel<ITick>(encodePath('Tick', datasource_id, product_id));
 
+  /**
+   * @deprecated - use the method 'requestService' instead
+   */
   submitOrder = (order: IOrder) =>
     this.requestService('SubmitOrder', order).pipe(
       map((msg) => msg.res),
       filter((v): v is Exclude<typeof v, undefined> => v !== undefined),
     );
 
+  /**
+   * @deprecated - use the method 'requestService' instead
+   */
   modifyOrder = (order: IOrder) =>
     this.requestService('ModifyOrder', order).pipe(
       map((msg) => msg.res),
       filter((v): v is Exclude<typeof v, undefined> => v !== undefined),
     );
 
+  /**
+   * @deprecated - use the method 'requestService' instead
+   */
   cancelOrder = (order: IOrder) =>
     this.requestService('CancelOrder', order).pipe(
       map((msg) => msg.res),
       filter((v): v is Exclude<typeof v, undefined> => v !== undefined),
     );
 
+  /**
+   * @deprecated - use the method 'requestService' instead
+   */
   copyDataRecords = (req: ICopyDataRecordsRequest) =>
     this.requestService('CopyDataRecords', req).pipe(
       mergeMap((msg) => {
@@ -876,33 +877,20 @@ export class Terminal {
       }),
     );
 
-  queryDataRecords = <T>(req: IQueryDataRecordsRequest) =>
-    this.requestService('QueryDataRecords', req).pipe(
-      mergeMap((msg) => {
-        if (msg.frame) {
-          return msg.frame as IDataRecord<T>[];
-        }
-        if (msg.res) {
-          if (msg.res.code !== 0) {
-            throw Error(`ServerError: ${msg.res.code}: ${msg.res.message}`);
-          }
-        }
-        return EMPTY;
-      }),
-    );
+  /**
+   * @deprecated - use the util 'readDataRecords' instead
+   */
+  queryDataRecords = <T>(req: IQueryDataRecordsRequest): Observable<IDataRecord<T>> =>
+    readDataRecords(this, req as any).pipe(mergeMap((x) => x)) as any;
 
-  updateDataRecords = (records: IDataRecord<any>[]) =>
-    this.requestService('UpdateDataRecords', records).pipe(
-      mergeMap((msg) => {
-        if (msg.res) {
-          if (msg.res.code !== 0) {
-            throw Error(`ServerError: ${msg.res.code}: ${msg.res.message}`);
-          }
-        }
-        return EMPTY;
-      }),
-    );
+  /**
+   * @deprecated - use the util 'writeDataRecords' instead
+   */
+  updateDataRecords = (records: IDataRecord<any>[]) => writeDataRecords(this, records);
 
+  /**
+   * @deprecated - use the util 'writeDataRecords' instead
+   */
   removeDataRecords = (req: IRemoveDataRecordsRequest) =>
     this.requestService('RemoveDataRecords', req).pipe(
       mergeMap((msg) => {
@@ -915,340 +903,102 @@ export class Terminal {
       }),
     );
 
-  queryHistoryOrders = (req: IQueryHistoryOrdersRequest) => {
-    return of(0).pipe(
+  /**
+   * @deprecated - use the util 'readDataRecords' instead
+   */
+  queryHistoryOrders = (req: IQueryHistoryOrdersRequest) =>
+    this.queryDataRecords<IOrder>({
+      type: 'order',
+      time_range: [(req.start_time_in_us ?? 0) / 1000, Date.now()],
+      tags: { account_id: req.account_id },
+    }).pipe(
       //
-      delayWhen(() => {
-        if (req.pull_source) {
-          return this.requestService('QueryHistoryOrders', req).pipe(
-            map((msg) => msg.res),
-            filter((v): v is Exclude<typeof v, undefined> => v !== undefined),
-            map((res) => {
-              if (res.code !== 0) {
-                throw new Error(res.message ?? 'UnknownError');
-              }
-              return res;
-            }),
-          );
-        }
-        return of(0);
-      }),
-      mergeMap(() =>
-        this.queryDataRecords<IOrder>({
-          type: 'order',
-          time_range: [(req.start_time_in_us ?? 0) / 1000, Date.now()],
-          tags: { account_id: req.account_id },
-        }).pipe(
-          //
-          map((dataRecord) => dataRecord.origin),
-          toArray(),
-        ),
-      ),
+      map((dataRecord) => dataRecord.origin),
+      toArray(),
     );
-  };
 
-  queryPeriods = (req: IQueryPeriodsRequest) => {
-    return of(0).pipe(
-      //
-      delayWhen(() => {
-        if (req.pull_source) {
-          return this.requestService('QueryPeriods', req).pipe(
-            map((msg) => msg.res),
-            filter((v): v is Exclude<typeof v, undefined> => v !== undefined),
-            map((res) => {
-              if (res.code !== 0) {
-                throw new Error(res.message ?? 'UnknownError');
-              }
-              return res;
-            }),
-          );
+  /**
+   * @deprecated - use the util 'readDataRecords' instead
+   */
+  queryPeriods = (req: IQueryPeriodsRequest) =>
+    this.queryDataRecords<IPeriod>({
+      type: 'period',
+      time_range: [(req.start_time_in_us ?? 0) / 1000, (req.end_time_in_us ?? Date.now() * 1000) / 1000],
+      tags: {
+        datasource_id: req.datasource_id,
+        product_id: req.product_id,
+        period_in_sec: '' + req.period_in_sec,
+      },
+    }).pipe(
+      // ISSUE: unknown reason, sometimes the data will be out of range, but frozen_at is null.
+      filter((dataRecord) => {
+        if (
+          dataRecord.origin.timestamp_in_us + dataRecord.origin.period_in_sec * 1e6 <
+          req.start_time_in_us
+        ) {
+          console.warn(formatTime(Date.now()), 'QueryPeriods', 'Dirty Data', JSON.stringify(dataRecord));
+          return false;
         }
-        return of(0);
+        return true;
       }),
-      mergeMap(() =>
-        this.queryDataRecords<IPeriod>({
-          type: 'period',
-          time_range: [(req.start_time_in_us ?? 0) / 1000, (req.end_time_in_us ?? Date.now() * 1000) / 1000],
-          tags: {
-            datasource_id: req.datasource_id,
-            product_id: req.product_id,
-            period_in_sec: '' + req.period_in_sec,
-          },
-        }).pipe(
-          // ISSUE: unknown reason, sometimes the data will be out of range, but frozen_at is null.
-          filter((dataRecord) => {
-            if (
-              dataRecord.origin.timestamp_in_us + dataRecord.origin.period_in_sec * 1e6 <
-              req.start_time_in_us
-            ) {
-              console.warn(formatTime(Date.now()), 'QueryPeriods', 'Dirty Data', JSON.stringify(dataRecord));
-              return false;
-            }
-            return true;
-          }),
-          map((dataRecord) => dataRecord.origin),
-          toArray(),
-        ),
-      ),
+      map((dataRecord) => dataRecord.origin),
+      toArray(),
     );
-  };
 
-  queryProducts = (req: IQueryProductsRequest) => {
-    return of(0).pipe(
-      //
-      delayWhen(() => {
-        if (req.pull_source) {
-          return this.requestService('QueryProducts', req).pipe(
-            map((msg) => msg.res),
-            filter((v): v is Exclude<typeof v, undefined> => v !== undefined),
-            map((res) => {
-              if (res.code !== 0) {
-                throw new Error(res.message ?? 'UnknownError');
-              }
-              return res;
-            }),
-          );
-        }
-        return of(0);
-      }),
-      mergeMap(() =>
-        this.queryDataRecords<IProduct>({
-          type: 'product',
-          tags: {
-            datasource_id: req.datasource_id!,
-          },
-        }).pipe(
-          map((dataRecord) => dataRecord.origin),
-          toArray(),
-        ),
-      ),
+  /**
+   * @deprecated - use the util 'readDataRecords' instead
+   */
+  queryProducts = (req: IQueryProductsRequest) =>
+    readDataRecords(this, { type: 'product', tags: { datasource_id: req.datasource_id! } }).pipe(
+      mergeMap((x) => from(x).pipe(map((dataRecord) => dataRecord.origin))),
+      toArray(),
     );
-  };
 
   /**
    * Provide a Tick data stream, push to all subscriber terminals
+   * @deprecated - use the util 'provideTicks' instead
    */
   provideTicks = (datasource_id: string, useTicks: (product_id: string) => Observable<ITick>) => {
-    this.provideChannel<ITick>(
-      { pattern: `^Tick/${escapeRegExp(encodePath(datasource_id))}/.+$` },
-      (channel_id) => {
-        const [, datasourceId, product_id] = decodePath(channel_id);
-        if (datasourceId !== datasource_id || !product_id) return EMPTY;
-        return useTicks(product_id);
-      },
-    );
+    provideTicks(this, datasource_id, useTicks);
   };
 
   /**
    * Provide a Period data stream, push to all subscriber terminals
+   * @deprecated - use the util 'providePeriods' instead
    */
   providePeriods = (
     datasource_id: string,
     usePeriods: (product_id: string, period_in_sec: number) => Observable<IPeriod[]>,
   ) => {
-    this.provideChannel<IPeriod[]>(
-      { pattern: `^Period/${escapeRegExp(encodePath(datasource_id))}/.+/.+$` },
-      (channel_id) => {
-        const [, datasourceId, product_id, period_in_sec] = decodePath(channel_id);
-        if (datasourceId !== datasource_id || !product_id || !period_in_sec) return EMPTY;
-        return usePeriods(product_id, +period_in_sec);
-      },
-    );
+    providePeriods(this, datasource_id, usePeriods);
   };
 
   /**
    * Provide a AccountInfo data stream, push to all subscriber terminals
+   * @deprecated - use the util 'provideAccountInfo' instead
    */
   provideAccountInfo = (accountInfo$: Observable<IAccountInfo>) => {
-    // setup services
-    const sub = accountInfo$.pipe(first()).subscribe((info) => {
-      const channel_id = encodePath(`AccountInfo`, info.account_id);
-      this.provideChannel({ const: channel_id }, () => accountInfo$);
-
-      // Metrics
-      const sub2 = accountInfo$
-        .pipe(
-          //
-          mergeMap(mergeAccountInfoPositions),
-          pairwise(),
-        )
-        .subscribe(([lastAccountInfo, accountInfo]) => {
-          AccountInfoBalance.set(accountInfo.money.balance, {
-            account_id: accountInfo.account_id,
-            currency: accountInfo.money.currency,
-          });
-          AccountInfoEquity.set(accountInfo.money.equity, {
-            account_id: accountInfo.account_id,
-            currency: accountInfo.money.currency,
-          });
-          AccountInfoProfit.set(accountInfo.money.profit, {
-            account_id: accountInfo.account_id,
-            currency: accountInfo.money.currency,
-          });
-          AccountInfoUsed.set(accountInfo.money.used, {
-            account_id: accountInfo.account_id,
-            currency: accountInfo.money.currency,
-          });
-          AccountInfoFree.set(accountInfo.money.free, {
-            account_id: accountInfo.account_id,
-            currency: accountInfo.money.currency,
-          });
-
-          for (const position of lastAccountInfo.positions) {
-            AccountInfoPositionVolume.reset({
-              account_id: lastAccountInfo.account_id,
-              product_id: position.product_id,
-              direction: position.direction || '',
-            });
-            AccountInfoPositionPrice.reset({
-              account_id: lastAccountInfo.account_id,
-              product_id: position.product_id,
-              direction: position.direction || '',
-            });
-            AccountInfoPositionClosablePrice.reset({
-              account_id: lastAccountInfo.account_id,
-              product_id: position.product_id,
-              direction: position.direction || '',
-            });
-            AccountInfoPositionFloatingProfit.reset({
-              account_id: lastAccountInfo.account_id,
-              product_id: position.product_id,
-              direction: position.direction || '',
-            });
-          }
-
-          for (const position of accountInfo.positions) {
-            AccountInfoPositionVolume.set(position.volume || 0, {
-              account_id: accountInfo.account_id,
-              product_id: position.product_id,
-              direction: position.direction || '',
-            });
-            AccountInfoPositionPrice.set(position.position_price || 0, {
-              account_id: accountInfo.account_id,
-              product_id: position.product_id,
-              direction: position.direction || '',
-            });
-            AccountInfoPositionClosablePrice.set(position.closable_price || 0, {
-              account_id: accountInfo.account_id,
-              product_id: position.product_id,
-              direction: position.direction || '',
-            });
-            AccountInfoPositionFloatingProfit.set(position.floating_profit || 0, {
-              account_id: accountInfo.account_id,
-              product_id: position.product_id,
-              direction: position.direction || '',
-            });
-            AccountInfoPositionValuation.set(position.valuation || 0, {
-              account_id: accountInfo.account_id,
-              product_id: position.product_id,
-              direction: position.direction || '',
-            });
-          }
-        });
-      this._subscriptions.push(sub2);
-    });
-    this._subscriptions.push(sub);
+    provideAccountInfo(this, accountInfo$);
   };
 
   /**
    * Push history orders to all subscriber terminals
+   *
+   * @deprecated - use the util 'writeDataRecords' instead
    */
-  updateHistoryOrders = (orders: IOrder[]) => {
-    return from(orders).pipe(
-      //
-      map(mapOrderToDataRecord),
-      bufferCount(2000),
-      concatMap((records) => this.updateDataRecords(records)),
-      toArray(),
-    );
-  };
+  updateHistoryOrders = (orders: IOrder[]) => writeDataRecords(this, orders.map(wrapOrder));
 
   /**
    * Push history Periods to all subscriber terminals
+   *
+   * @deprecated - use the util 'writeDataRecords' instead
    */
-  updatePeriods = (periods: IPeriod[]) => {
-    return from(periods).pipe(
-      //
-      map(mapPeriodToDataRecord),
-      bufferCount(2000),
-      concatMap((records) => this.updateDataRecords(records)),
-      toArray(),
-    );
-  };
+  updatePeriods = (periods: IPeriod[]) => writeDataRecords(this, periods.map(wrapPeriod));
 
   /**
    * Push Products to all subscriber terminals
+   *
+   * @deprecated - use the util 'writeDataRecords' instead
    */
-  updateProducts = (products: IProduct[]) => {
-    return from(products).pipe(
-      //
-      map(mapProductToDataRecord),
-      bufferCount(2000),
-      concatMap((records) => this.updateDataRecords(records)),
-      toArray(),
-    );
-  };
+  updateProducts = (products: IProduct[]) => writeDataRecords(this, products.map(wrapProduct));
 }
-
-/**
- * Map order to data record
- * Consider the order as an instantaneous product
- * Can be safely cached
- */
-const mapOrderToDataRecord = (order: IOrder): IDataRecord<IOrder> => ({
-  id: `${order.account_id}/${order.order_id}`,
-  type: `order`,
-  created_at: order.submit_at!,
-  updated_at: Date.now(),
-  frozen_at: order.filled_at!,
-  tags: {
-    order_id: order.order_id || '',
-    account_id: order.account_id,
-    product_id: order.product_id,
-    order_type: order.order_type || '',
-    order_direction: order.order_direction || '',
-  },
-  origin: order,
-});
-
-/**
- * Map Period to data record
- * Use the start time of the Period as the creation time of the data record, use the end time of the Period as the update time, and use the end time of the K-line as the freeze time
- * Can be safely cached
- */
-const mapPeriodToDataRecord = (period: IPeriod): IDataRecord<IPeriod> => {
-  const period_end_time = period.timestamp_in_us / 1000 + period.period_in_sec * 1000;
-  return {
-    id: `${period.datasource_id}/${period.product_id}/${period.period_in_sec}/${period.timestamp_in_us}`,
-    type: `period`,
-    created_at: period.timestamp_in_us / 1000,
-    updated_at: Date.now(),
-    frozen_at: period_end_time < Date.now() ? period_end_time : null,
-    tags: {
-      datasource_id: period.datasource_id,
-      product_id: period.product_id,
-      period_in_sec: '' + period.period_in_sec,
-    },
-    origin: period,
-  };
-};
-
-/**
- * Map product to data record
- * The product may be updated
- * Cannot be safely cached
- */
-const mapProductToDataRecord = (product: IProduct): IDataRecord<IProduct> => ({
-  id: `${product.datasource_id}-${product.product_id}`,
-  type: `product`,
-  created_at: null,
-  updated_at: Date.now(),
-  frozen_at: null,
-  tags: {
-    datasource_id: product.datasource_id,
-    product_id: product.product_id,
-    quote_currency: product.quote_currency || '',
-    base_currency: product.base_currency || '',
-  },
-  origin: product,
-});

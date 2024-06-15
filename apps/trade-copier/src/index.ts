@@ -1,6 +1,6 @@
-import { UUID, formatTime } from '@yuants/data-model';
+import { IAccountInfo, IOrder, IPosition, IProduct, UUID, formatTime } from '@yuants/data-model';
 import { IPositionDiff, diffPosition, mergePositions } from '@yuants/kernel';
-import { IAccountInfo, IOrder, IPosition, IProduct, PromRegistry, Terminal } from '@yuants/protocol';
+import { PromRegistry, Terminal } from '@yuants/protocol';
 import { roundToStep } from '@yuants/utils';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';

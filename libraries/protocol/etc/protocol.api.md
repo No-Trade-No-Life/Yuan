@@ -5,11 +5,9 @@
 ```ts
 
 import { IAccountInfo } from '@yuants/data-model';
-import { IAccountMoney } from '@yuants/data-model';
 import { IDataRecord } from '@yuants/data-model';
 import { IOrder } from '@yuants/data-model';
 import { IPeriod } from '@yuants/data-model';
-import { IPosition } from '@yuants/data-model';
 import { IProduct } from '@yuants/data-model';
 import { ITick } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
@@ -23,9 +21,8 @@ export function createConnectionJson<T = any>(URL: string): IConnection<T>;
 // @public
 export function createConnectionWs<T = any>(URL: string): IConnection<T>;
 
-export { IAccountInfo }
-
-export { IAccountMoney }
+// @public
+export const escapeRegExp: (string: string) => string;
 
 // @public
 export interface IConnection<T> {
@@ -34,15 +31,15 @@ export interface IConnection<T> {
     output$: Subject<T>;
 }
 
-export { IDataRecord }
-
-export { IOrder }
-
-export { IPeriod }
-
-export { IPosition }
-
-export { IProduct }
+// @public (undocumented)
+export interface IDataRecordTypes {
+    // (undocumented)
+    order: IOrder;
+    // (undocumented)
+    period: IPeriod;
+    // (undocumented)
+    product: IProduct;
+}
 
 // @public
 export interface IResponse<T = void> {
@@ -94,82 +91,104 @@ export interface ITerminalMessage {
     trace_id: string;
 }
 
-export { ITick }
-
 // @public
 export const PromRegistry: Registry;
 
 // @public
+export const provideAccountInfo: (terminal: Terminal, accountInfo$: Observable<IAccountInfo>) => void;
+
+// @public
+export const providePeriods: (terminal: Terminal, datasource_id: string, usePeriods: (product_id: string, period_in_sec: number) => Observable<IPeriod[]>) => void;
+
+// @public
+export const provideTicks: (terminal: Terminal, datasource_id: string, useTicks: (product_id: string) => Observable<ITick>) => void;
+
+// Warning: (ae-forgotten-export) The symbol "IQueryDataRecordsRequest" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export const readDataRecords: <T extends keyof IDataRecordTypes>(terminal: Terminal, request: IQueryDataRecordsRequest & {
+    type: T;
+}) => Observable<IDataRecord<IDataRecordTypes[T]>[]>;
+
+// @public
 export class Terminal {
     constructor(host_url: string, terminalInfo: ITerminalInfo, connection?: IConnection<ITerminalMessage>);
-    accountIds$: Observable<string[]>;
-    // (undocumented)
+    // @deprecated (undocumented)
     cancelOrder: (order: IOrder) => Observable<IResponse<void> & IResponse<unknown>>;
-    // (undocumented)
     _conn: IConnection<ITerminalMessage>;
-    // (undocumented)
     consumeChannel: <T>(channel_id: string) => Observable<T>;
     // Warning: (ae-forgotten-export) The symbol "ICopyDataRecordsRequest" needs to be exported by the entry point index.d.ts
     //
-    // (undocumented)
+    // @deprecated (undocumented)
     copyDataRecords: (req: ICopyDataRecordsRequest) => Observable<undefined>;
-    datasourceIds$: Observable<string[]>;
-    // (undocumented)
+    dispose$: Observable<void>;
     dispose(): void;
     // (undocumented)
     host_url: string;
-    // (undocumented)
+    // @deprecated (undocumented)
     modifyOrder: (order: IOrder) => Observable<IResponse<void> & IResponse<unknown>>;
+    // @deprecated
     provideAccountInfo: (accountInfo$: Observable<IAccountInfo>) => void;
-    // (undocumented)
     provideChannel: <T>(channelIdSchema: JSONSchema7, handler: (channel_id: string) => Observable<T>) => void;
+    // @deprecated
     providePeriods: (datasource_id: string, usePeriods: (product_id: string, period_in_sec: number) => Observable<IPeriod[]>) => void;
     // Warning: (ae-forgotten-export) The symbol "IServiceHandler" needs to be exported by the entry point index.d.ts
     // Warning: (ae-forgotten-export) The symbol "IServiceOptions" needs to be exported by the entry point index.d.ts
-    //
-    // (undocumented)
     provideService: <T extends string>(method: T, requestSchema: JSONSchema7, handler: IServiceHandler<T>, options?: IServiceOptions) => void;
+    // @deprecated
     provideTicks: (datasource_id: string, useTicks: (product_id: string) => Observable<ITick>) => void;
-    // Warning: (ae-forgotten-export) The symbol "IQueryDataRecordsRequest" needs to be exported by the entry point index.d.ts
-    //
-    // (undocumented)
+    // @deprecated (undocumented)
     queryDataRecords: <T>(req: IQueryDataRecordsRequest) => Observable<IDataRecord<T>>;
     // Warning: (ae-forgotten-export) The symbol "IQueryHistoryOrdersRequest" needs to be exported by the entry point index.d.ts
     //
-    // (undocumented)
+    // @deprecated (undocumented)
     queryHistoryOrders: (req: IQueryHistoryOrdersRequest) => Observable<IOrder[]>;
     // Warning: (ae-forgotten-export) The symbol "IQueryPeriodsRequest" needs to be exported by the entry point index.d.ts
     //
-    // (undocumented)
+    // @deprecated (undocumented)
     queryPeriods: (req: IQueryPeriodsRequest) => Observable<IPeriod[]>;
     // Warning: (ae-forgotten-export) The symbol "IQueryProductsRequest" needs to be exported by the entry point index.d.ts
     //
-    // (undocumented)
+    // @deprecated (undocumented)
     queryProducts: (req: IQueryProductsRequest) => Observable<IProduct[]>;
     // Warning: (ae-forgotten-export) The symbol "IRemoveDataRecordsRequest" needs to be exported by the entry point index.d.ts
     //
-    // (undocumented)
+    // @deprecated (undocumented)
     removeDataRecords: (req: IRemoveDataRecordsRequest) => Observable<never>;
-    // (undocumented)
     request<T extends string>(method: T, target_terminal_id: string, req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req']): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage>;
-    // (undocumented)
     requestService: <T extends string>(method: T, req: T extends keyof IService ? IService[T]["req"] : unknown) => Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage>;
-    // (undocumented)
+    resolveTargetTerminalIds: (method: string, req: ITerminalMessage['req']) => Promise<string[]>;
+    // @deprecated (undocumented)
     submitOrder: (order: IOrder) => Observable<IResponse<void> & IResponse<unknown>>;
-    // (undocumented)
     terminal_id: string;
     // (undocumented)
     terminalInfo: ITerminalInfo;
     terminalInfos$: Observable<ITerminalInfo[]>;
-    // (undocumented)
-    updateDataRecords: (records: IDataRecord<any>[]) => Observable<never>;
-    updateHistoryOrders: (orders: IOrder[]) => Observable<never[]>;
-    updatePeriods: (periods: IPeriod[]) => Observable<never[]>;
-    updateProducts: (products: IProduct[]) => Observable<never[]>;
+    // @deprecated (undocumented)
+    updateDataRecords: (records: IDataRecord<any>[]) => Observable<void>;
+    // @deprecated
+    updateHistoryOrders: (orders: IOrder[]) => Observable<void>;
+    // @deprecated
+    updatePeriods: (periods: IPeriod[]) => Observable<void>;
+    // @deprecated
+    updateProducts: (products: IProduct[]) => Observable<void>;
     useAccountInfo: (account_id: string) => Observable<IAccountInfo>;
     usePeriod: (datasource_id: string, product_id: string, period_in_sec: number) => Observable<IPeriod[]>;
+    // @deprecated
     useProducts: (datasource_id: string) => Observable<IProduct[]>;
     useTick: (datasource_id: string, product_id: string) => Observable<ITick>;
 }
+
+// @public
+export const wrapOrder: (order: IOrder) => IDataRecord<IOrder>;
+
+// @public
+export const wrapPeriod: (period: IPeriod) => IDataRecord<IPeriod>;
+
+// @public
+export const wrapProduct: (product: IProduct) => IDataRecord<IProduct>;
+
+// @public (undocumented)
+export const writeDataRecords: <T extends keyof IDataRecordTypes>(terminal: Terminal, data: IDataRecord<IDataRecordTypes[T]>[]) => Observable<void>;
 
 ```

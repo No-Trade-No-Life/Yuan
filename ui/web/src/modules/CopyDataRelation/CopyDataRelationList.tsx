@@ -1,6 +1,6 @@
 import { Switch } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { IDataRecord } from '@yuants/protocol';
+import { IDataRecord } from '@yuants/data-model';
 import { DataRecordView } from '../DataRecord';
 import { registerPage } from '../Pages';
 import { ICopyDataRelation, schema } from './model';

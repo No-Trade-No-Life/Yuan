@@ -1,4 +1,4 @@
-import { IProduct } from '@yuants/protocol';
+import { IProduct } from '@yuants/data-model';
 import { AccountDatasourceRelationUnit } from './AccountDatasouceRelationUnit';
 import { BasicUnit } from './BasicUnit';
 

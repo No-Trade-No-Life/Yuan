@@ -1,4 +1,4 @@
-import { IOrder } from '../model';
+import { IOrder } from '@yuants/data-model';
 
 declare module '.' {
   /**

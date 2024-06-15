@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "add more utils, deprecate many terminal methods",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

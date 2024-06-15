@@ -1,7 +1,7 @@
 import { IconCopyAdd, IconDelete, IconEdit, IconRefresh, IconSearch } from '@douyinfe/semi-icons';
 import { Button, Modal, Popconfirm, Space, Toast } from '@douyinfe/semi-ui';
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { IDataRecord } from '@yuants/protocol';
+import { IDataRecord } from '@yuants/data-model';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useMemo, useState } from 'react';
 import { EMPTY, combineLatest, filter, first, mergeMap, tap, toArray } from 'rxjs';

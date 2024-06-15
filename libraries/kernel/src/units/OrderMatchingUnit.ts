@@ -1,5 +1,4 @@
-import { encodePath } from '@yuants/data-model';
-import { IOrder, IPeriod, ITick } from '@yuants/protocol';
+import { IOrder, IPeriod, ITick, encodePath } from '@yuants/data-model';
 import { roundToStep } from '@yuants/utils';
 import { Subject, Subscription } from 'rxjs';
 import { Kernel } from '../kernel';
