@@ -1,4 +1,4 @@
-import { IOrder } from '@yuants/protocol';
+import { IOrder } from '@yuants/data-model';
 import { useAgent } from '.';
 
 /**

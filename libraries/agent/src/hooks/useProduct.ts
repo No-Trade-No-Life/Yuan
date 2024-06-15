@@ -1,4 +1,4 @@
-import { IProduct } from '@yuants/protocol';
+import { IProduct } from '@yuants/data-model';
 import { useAgent, useEffect } from './basic-set';
 
 /**

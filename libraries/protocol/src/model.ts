@@ -1,14 +1,4 @@
 import { JSONSchema7 } from 'json-schema';
-export {
-  IAccountInfo,
-  IAccountMoney,
-  IDataRecord,
-  IOrder,
-  IPeriod,
-  IPosition,
-  IProduct,
-  ITick,
-} from '@yuants/data-model';
 
 /**
  * 终端基本信息

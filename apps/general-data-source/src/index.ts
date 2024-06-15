@@ -1,10 +1,10 @@
-import { IPeriod, PromRegistry, Terminal } from '@yuants/protocol';
+import { IPeriod } from '@yuants/data-model';
+import { PromRegistry, Terminal } from '@yuants/protocol';
 import Ajv from 'ajv';
 import { JSONSchema7 } from 'json-schema';
 import {
   EMPTY,
   Observable,
-  Subject,
   catchError,
   defer,
   delayWhen,

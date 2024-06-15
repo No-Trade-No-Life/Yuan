@@ -1,5 +1,5 @@
-import { formatTime } from '@yuants/data-model';
-import { IPeriod, PromRegistry, Terminal } from '@yuants/protocol';
+import { IPeriod, formatTime } from '@yuants/data-model';
+import { PromRegistry, Terminal } from '@yuants/protocol';
 import { batchGroupBy, switchMapWithComplete } from '@yuants/utils';
 import Ajv from 'ajv';
 import CronJob from 'cron';

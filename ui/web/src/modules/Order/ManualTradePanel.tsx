@@ -1,5 +1,5 @@
 import { Button, Space, Toast } from '@douyinfe/semi-ui';
-import { IOrder } from '@yuants/protocol';
+import { IOrder } from '@yuants/data-model';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import { filter, first, mergeMap, of } from 'rxjs';

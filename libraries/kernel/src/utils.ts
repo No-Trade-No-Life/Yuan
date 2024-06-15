@@ -1,4 +1,4 @@
-import { IAccountInfo, IPosition, IProduct } from '@yuants/protocol';
+import { IAccountInfo, IPosition, IProduct } from '@yuants/data-model';
 
 /**
  * 计算盈亏

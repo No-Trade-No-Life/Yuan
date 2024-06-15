@@ -1,6 +1,5 @@
-import { formatTime } from '@yuants/data-model';
+import { IPeriod, IProduct, formatTime } from '@yuants/data-model';
 import { BasicUnit, Kernel, PeriodDataUnit, ProductDataUnit } from '@yuants/kernel';
-import { IPeriod, IProduct } from '@yuants/protocol';
 import { parse as csvParse } from 'csv-parse/browser/esm/sync';
 import { parse } from 'date-fns';
 import { filter, from, lastValueFrom, map, mergeMap, toArray } from 'rxjs';

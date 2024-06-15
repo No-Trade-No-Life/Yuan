@@ -1,5 +1,5 @@
-import { encodePath, formatTime } from '@yuants/data-model';
-import { IPeriod, Terminal } from '@yuants/protocol';
+import { IPeriod, encodePath, formatTime } from '@yuants/data-model';
+import { Terminal } from '@yuants/protocol';
 import Ajv from 'ajv';
 import { JSONSchema7 } from 'json-schema';
 import {

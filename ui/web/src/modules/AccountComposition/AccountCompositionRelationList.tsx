@@ -1,11 +1,11 @@
 import { IconCopyAdd, IconDelete, IconEdit, IconRefresh, IconSearch } from '@douyinfe/semi-icons';
 import { Button, Modal, Popconfirm, Space, Toast } from '@douyinfe/semi-ui';
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { UUID } from '@yuants/data-model';
-import { IDataRecord } from '@yuants/protocol';
+import { IDataRecord, UUID } from '@yuants/data-model';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useMemo, useState } from 'react';
 import { EMPTY, combineLatest, filter, first, mergeMap, tap, toArray } from 'rxjs';
+import { InlineAccountId } from '../AccountInfo';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import Form from '../Form';
 import { DataView } from '../Interactive';
@@ -13,7 +13,6 @@ import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 import { terminate } from '../Terminals/TerminalListItem';
 import { IAccountCompositionRelation, acrSchema } from './model';
-import { InlineAccountId } from '../AccountInfo';
 
 const TYPE = 'account_composition_relation';
 

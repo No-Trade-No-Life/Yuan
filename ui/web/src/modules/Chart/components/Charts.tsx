@@ -1,4 +1,4 @@
-import { IOrder, IPeriod } from '@yuants/protocol';
+import { IOrder, IPeriod } from '@yuants/data-model';
 import { format } from 'date-fns';
 import {
   ChartOptions,

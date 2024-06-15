@@ -1,5 +1,4 @@
-import { UUID } from '@yuants/data-model';
-import { IAccountInfo, IOrder } from '@yuants/protocol';
+import { IAccountInfo, IOrder, UUID } from '@yuants/data-model';
 import { roundToStep } from '@yuants/utils';
 import { Kernel } from '../kernel';
 import { diffPosition, mergePositions } from '../utils';

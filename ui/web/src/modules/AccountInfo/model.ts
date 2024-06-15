@@ -1,12 +1,50 @@
+import { decodePath } from '@yuants/data-model';
 import { IAccountPerformance } from '@yuants/kernel';
-import { BehaviorSubject, EMPTY, defer, of, shareReplay, switchMap } from 'rxjs';
+import {
+  BehaviorSubject,
+  EMPTY,
+  defer,
+  distinct,
+  from,
+  map,
+  mergeMap,
+  of,
+  shareReplay,
+  switchMap,
+  toArray,
+} from 'rxjs';
 import { terminal$ } from '../Terminals';
 
 export const useAccountInfo = (account_id: string) =>
   terminal$.pipe(switchMap((terminal) => terminal?.useAccountInfo(account_id) ?? EMPTY));
 
 export const accountIds$ = defer(() => terminal$).pipe(
-  switchMap((terminal) => terminal?.accountIds$ ?? of([])),
+  switchMap(
+    (terminal) =>
+      terminal?.terminalInfos$.pipe(
+        mergeMap((terminals) =>
+          from(terminals).pipe(
+            mergeMap((terminalInfo) =>
+              from(terminalInfo.channelIdSchemas || []).pipe(
+                mergeMap((channelIdSchema) => {
+                  if (typeof channelIdSchema.const === 'string') {
+                    const [type, accountId] = decodePath(channelIdSchema.const);
+                    if (type === 'AccountInfo' && accountId) {
+                      return of(accountId);
+                    }
+                  }
+                  return EMPTY;
+                }),
+              ),
+            ),
+            distinct(),
+            toArray(),
+            map((arr) => arr.sort()),
+          ),
+        ),
+        shareReplay(1),
+      ) ?? of([]),
+  ),
   shareReplay(1),
 );
 

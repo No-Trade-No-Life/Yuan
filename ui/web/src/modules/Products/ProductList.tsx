@@ -2,7 +2,7 @@ import { IconCopyAdd, IconDelete, IconEdit, IconRefresh, IconSearch } from '@dou
 import { Button, Modal, Space, Toast } from '@douyinfe/semi-ui';
 import { StockMarket } from '@icon-park/react';
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { IProduct } from '@yuants/protocol';
+import { IProduct } from '@yuants/data-model';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';

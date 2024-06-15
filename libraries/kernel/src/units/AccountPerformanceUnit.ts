@@ -1,4 +1,4 @@
-import { IAccountInfo } from '@yuants/protocol';
+import { IAccountInfo } from '@yuants/data-model';
 import { Kernel } from '../kernel';
 import { AccountSimulatorUnit } from './AccountSimulatorUnit';
 import { BasicUnit } from './BasicUnit';

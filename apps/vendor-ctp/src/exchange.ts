@@ -1,13 +1,5 @@
-import { formatTime } from '@yuants/data-model';
-import {
-  IAccountInfo,
-  IAccountMoney,
-  IConnection,
-  IOrder,
-  IPosition,
-  IProduct,
-  Terminal,
-} from '@yuants/protocol';
+import { IAccountInfo, IAccountMoney, IOrder, IPosition, IProduct, formatTime } from '@yuants/data-model';
+import { IConnection, Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services/order';
 import { ChildProcess, spawn } from 'child_process';
 import { parse } from 'date-fns';

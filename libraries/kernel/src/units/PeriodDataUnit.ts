@@ -1,4 +1,4 @@
-import { IPeriod } from '@yuants/protocol';
+import { IPeriod } from '@yuants/data-model';
 import { Observable, Subject } from 'rxjs';
 import { Kernel } from '../kernel';
 import { BasicUnit } from './BasicUnit';

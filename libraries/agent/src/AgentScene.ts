@@ -1,3 +1,4 @@
+import { IAccountInfo } from '@yuants/data-model';
 import {
   AccountDatasourceRelationUnit,
   AccountInfoUnit,
@@ -23,7 +24,7 @@ import {
   TerminateUnit,
   TickDataUnit,
 } from '@yuants/kernel';
-import { IAccountInfo, Terminal } from '@yuants/protocol';
+import { Terminal } from '@yuants/protocol';
 import { JSONSchema7 } from 'json-schema';
 import { Subject } from 'rxjs';
 import { AgentUnit } from './AgentUnit';

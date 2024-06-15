@@ -4,11 +4,11 @@
 
 ```ts
 
-import { IAccountInfo } from '@yuants/protocol';
-import { IOrder } from '@yuants/protocol';
-import { IPeriod } from '@yuants/protocol';
-import { IPosition } from '@yuants/protocol';
-import { IProduct } from '@yuants/protocol';
+import { IAccountInfo } from '@yuants/data-model';
+import { IOrder } from '@yuants/data-model';
+import { IPeriod } from '@yuants/data-model';
+import { IPosition } from '@yuants/data-model';
+import { IProduct } from '@yuants/data-model';
 import { ITick } from '@yuants/data-model';
 import { Observable } from 'rxjs';
 import { Subject } from 'rxjs';
@@ -800,7 +800,7 @@ export class TickDataUnit extends BasicUnit {
 
 // Warnings were encountered during analysis:
 //
-// src/units/OrderMatchingUnit.ts:261:11 - (ae-forgotten-export) The symbol "IMatchingRange" needs to be exported by the entry point index.d.ts
+// src/units/OrderMatchingUnit.ts:260:11 - (ae-forgotten-export) The symbol "IMatchingRange" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

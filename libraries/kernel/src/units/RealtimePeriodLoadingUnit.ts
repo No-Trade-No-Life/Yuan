@@ -1,19 +1,6 @@
-import { encodePath, formatTime } from '@yuants/data-model';
-import { IPeriod, Terminal } from '@yuants/protocol';
-import {
-  Subscription,
-  defer,
-  delayWhen,
-  filter,
-  firstValueFrom,
-  from,
-  map,
-  mergeMap,
-  retry,
-  tap,
-  timer,
-  toArray,
-} from 'rxjs';
+import { encodePath, formatTime, IPeriod } from '@yuants/data-model';
+import { Terminal } from '@yuants/protocol';
+import { defer, delayWhen, filter, from, map, mergeMap, retry, Subscription, tap, toArray } from 'rxjs';
 import { Kernel } from '../kernel';
 import { BasicUnit } from './BasicUnit';
 import { PeriodDataUnit } from './PeriodDataUnit';
