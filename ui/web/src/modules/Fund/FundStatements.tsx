@@ -1,5 +1,5 @@
 import { IconCode, IconCoinMoneyStroked, IconEdit, IconRefresh, IconUser } from '@douyinfe/semi-icons';
-import { Collapse, Descriptions, Space, Toast } from '@douyinfe/semi-ui';
+import { Collapse, Descriptions, Space, Toast, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { formatTime } from '@yuants/data-model';
 import { format } from 'date-fns';
@@ -8,7 +8,7 @@ import { parse } from 'jsonc-parser';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useMemo, useReducer } from 'react';
 import { firstValueFrom, from, map, pipe, switchMap } from 'rxjs';
-import { accountIds$, useAccountInfo } from '../AccountInfo/model';
+import { useAccountInfo } from '../AccountInfo/model';
 import { executeCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import { showForm } from '../Form';
@@ -385,11 +385,17 @@ registerPage('FundStatements', () => {
       difference_annually: number;
       profit_close: number;
       assets_close: number;
+      max_value: number;
+      drawdown: number;
+      max_drawdown: number;
     }> = [];
     history.forEach((v) => {
       const last = ret[ret.length - 1];
       const created_at = new Date(v.updated_at).setHours(0, 0, 0, 0);
       const value = v.summary_derived.unit_price;
+      const max_value = Math.max(last ? last.max_value : 0, value);
+      const drawdown = max_value - value;
+      const max_drawdown = Math.max(last ? last.max_drawdown : 0, drawdown);
       if (last && last.created_at === created_at) {
         // Same Period
         last.high = Math.max(last.high, value);
@@ -399,6 +405,9 @@ registerPage('FundStatements', () => {
         last.close = value;
         last.profit_close = v.summary_derived.total_profit;
         last.assets_close = v.total_assets;
+        last.max_value = max_value;
+        last.drawdown = drawdown;
+        last.max_drawdown = max_drawdown;
       } else {
         const difference = last ? value - last.close : 0;
         // New Period
@@ -412,6 +421,9 @@ registerPage('FundStatements', () => {
           difference_annually: difference * 36500,
           profit_close: v.summary_derived.total_profit,
           assets_close: v.total_assets,
+          max_value,
+          drawdown,
+          max_drawdown,
         });
       }
     });
@@ -484,11 +496,10 @@ registerPage('FundStatements', () => {
         <Button
           icon={<IconEdit />}
           onClick={async () => {
-            const accountIds = await firstValueFrom(accountIds$);
             const theAccountId = await showForm<string>({
               type: 'string',
               title: '选取账户作为基金净值',
-              enum: accountIds,
+              format: 'account_id',
             });
             const theAccountInfo = await firstValueFrom(useAccountInfo(theAccountId));
             const nextStatements = statements.concat([
@@ -519,23 +530,58 @@ registerPage('FundStatements', () => {
         <Button
           icon={<IconUser />}
           onClick={async () => {
-            const info = await showForm<{ name: string; deposit: number }>({
+            const info = await showForm<{
+              name: string;
+              deposit: number;
+              account_id: string;
+              timing: string;
+            }>({
               type: 'object',
               properties: {
                 name: { type: 'string', title: '投资人', examples: Object.keys(state.investors) },
                 deposit: { type: 'number', title: '申购额', description: '负数代表赎回额' },
-              },
-            });
-            const nextStatements = statements.concat([
-              {
-                type: 'order',
-                updated_at: formatTime(Date.now()),
-                order: {
-                  name: info.name,
-                  deposit: info.deposit,
+                account_id: { type: 'string', title: '选取账户作为基金净值', format: 'account_id' },
+                timing: {
+                  type: 'string',
+                  title: '申购赎回时机',
+                  description:
+                    '事前 (PRE) 表示申购赎回发生在入账之前; 事后 (POST) 表示申购赎回发生在入账之后;',
+                  enum: ['PRE', 'POST'],
+                  default: 'PRE',
                 },
               },
-            ]);
+            });
+
+            const nextStatements = [...statements];
+            if (info.account_id) {
+              const equity = (await firstValueFrom(useAccountInfo(info.account_id))).money.equity;
+              if (info.timing === 'POST') {
+                nextStatements.push({
+                  type: 'equity',
+                  updated_at: formatTime(Date.now()),
+                  fund_equity: {
+                    equity: equity - info.deposit,
+                  },
+                });
+              }
+              if (info.timing === 'PRE') {
+                nextStatements.push({
+                  type: 'equity',
+                  updated_at: formatTime(Date.now()),
+                  fund_equity: {
+                    equity: equity,
+                  },
+                });
+              }
+            }
+            nextStatements.push({
+              type: 'order',
+              updated_at: formatTime(Date.now()),
+              order: {
+                name: info.name,
+                deposit: info.deposit,
+              },
+            });
             await fs.writeFile(
               filename,
               JSON.stringify(
@@ -579,17 +625,24 @@ registerPage('FundStatements', () => {
           征税
         </Button>
       </Space>
+      <Typography.Text>更新时间: {formatTime(state.updated_at)}</Typography.Text>
+      <Typography.Title heading={4}>资金指标</Typography.Title>
       <Descriptions
         data={[
-          { key: '更新时间', value: formatTime(state.updated_at) },
           { key: '总资产', value: state.total_assets },
           { key: '总份额', value: state.summary_derived.total_share },
-          { key: '单位净值', value: state.summary_derived.unit_price },
           { key: '净入金', value: state.summary_derived.total_deposit },
           { key: '净利润', value: state.summary_derived.total_profit },
-          { key: '存续天数', value: state.summary_derived.total_time / 86400_000 },
           { key: '可征税费', value: state.summary_derived.total_tax },
           { key: '已征税费', value: state.total_taxed },
+        ]}
+        row
+      />
+      <Typography.Title heading={4}>性能指标</Typography.Title>
+      <Descriptions
+        data={[
+          { key: '单位净值', value: state.summary_derived.unit_price },
+          { key: '存续天数', value: state.summary_derived.total_time / 86400_000 },
           {
             key: '日化收益率',
             value: `${
@@ -611,6 +664,31 @@ registerPage('FundStatements', () => {
               100 *
               365
             }%`,
+          },
+        ]}
+        row
+      />
+      <Descriptions
+        data={[
+          {
+            key: '最大净值',
+            value: `${equityHistory[equityHistory.length - 1]?.max_value ?? 0}`,
+          },
+          {
+            key: '当前回撤',
+            value: `${equityHistory[equityHistory.length - 1]?.drawdown ?? 0}`,
+          },
+          {
+            key: '最大回撤',
+            value: `${equityHistory[equityHistory.length - 1]?.max_drawdown ?? 0}`,
+          },
+          {
+            key: '年化收益率 / 最大回撤',
+            value: `${
+              (((state.summary_derived.unit_price - 1) / (state.summary_derived.total_time / 86400_000)) *
+                365) /
+              (equityHistory[equityHistory.length - 1]?.max_drawdown ?? 0)
+            }`,
           },
         ]}
         row

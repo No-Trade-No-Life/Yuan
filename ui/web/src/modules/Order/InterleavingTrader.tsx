@@ -1,12 +1,11 @@
-import { Badge, Button, Descriptions, Space } from '@douyinfe/semi-ui';
+import { Badge, Button, Descriptions, Space, Typography } from '@douyinfe/semi-ui';
 import { useObservableState } from 'observable-hooks';
 import { useMemo, useState } from 'react';
+import { lastValueFrom } from 'rxjs';
 import { InlineAccountId, useAccountInfo } from '../AccountInfo';
 import Form from '../Form';
 import { registerPage } from '../Pages';
 import { terminal$, useTick } from '../Terminals';
-import { IOrder } from '@yuants/data-model';
-import { firstValueFrom } from 'rxjs';
 
 interface IInterleavingConfigItem {
   account_id: string;
@@ -61,11 +60,13 @@ const schema = {
 interface IState {
   currentRound: number;
   currentIdx: number;
+  message: string;
 }
 
 const initState: IState = {
   currentRound: 0,
   currentIdx: -1,
+  message: '',
 };
 
 registerPage('InterleavingTrader', () => {
@@ -86,25 +87,35 @@ registerPage('InterleavingTrader', () => {
       {config?.items?.map((item, idx) => (
         <InterleavingAccountStatus item={item} config={config} state={state} index={idx} />
       ))}
+      <Typography.Paragraph type="danger">{state.message}</Typography.Paragraph>
       <Space>
         {state.currentRound} / {state.currentIdx}
         <Button
           onClick={async () => {
             if (!terminal || !config) return;
-            setState((x) => ({ ...x, currentRound: 0, currentIdx: -1 }));
+            setState((x) => ({ ...x, currentRound: 0, currentIdx: -1, message: '' }));
             for (let i = 0; i < config.count; i++) {
               setState((x) => ({ ...x, currentRound: x.currentRound + 1, currentIdx: -1 }));
               for (const item of config.items) {
                 setState((x) => ({ ...x, currentIdx: x.currentIdx + 1 }));
-                await firstValueFrom(
-                  terminal.submitOrder({
-                    account_id: item.account_id,
-                    product_id: item.product_id,
-                    volume: item.volume,
-                    order_type: item.order_type,
-                    order_direction: item.order_direction,
-                  }),
-                );
+                try {
+                  const res = await lastValueFrom(
+                    terminal.requestService('SubmitOrder', {
+                      account_id: item.account_id,
+                      product_id: item.product_id,
+                      volume: item.volume,
+                      order_type: item.order_type,
+                      order_direction: item.order_direction,
+                    }),
+                  );
+                  if (res.res && res.res.code !== 0) {
+                    setState((x) => ({ ...x, message: res.res!.message }));
+                    return;
+                  }
+                } catch (e) {
+                  setState((x) => ({ ...x, message: `${e}` }));
+                  return;
+                }
               }
             }
             setState((x) => ({ ...x, currentRound: 0, currentIdx: -1 }));
@@ -138,7 +149,7 @@ const InterleavingAccountStatus = (props: {
     (item.order_direction === 'OPEN_LONG' || item.order_direction === 'CLOSE_SHORT' ? 1 : -1) * item.volume;
 
   const next_target_volume = volume + delta_volume;
-  const final_target_volume = volume + config.count * delta_volume;
+  const final_target_volume = volume + (config.count - Math.max(0, state.currentIdx)) * delta_volume;
 
   //   const order: IOrder = {
   //     account_id: accountInfo?.account_id ?? '',
