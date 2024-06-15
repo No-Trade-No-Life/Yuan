@@ -8,7 +8,7 @@ import { parse } from 'jsonc-parser';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useMemo, useReducer } from 'react';
 import { firstValueFrom, from, map, pipe, switchMap } from 'rxjs';
-import { accountIds$, useAccountInfo } from '../AccountInfo/model';
+import { useAccountInfo } from '../AccountInfo/model';
 import { executeCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import { showForm } from '../Form';
@@ -484,11 +484,10 @@ registerPage('FundStatements', () => {
         <Button
           icon={<IconEdit />}
           onClick={async () => {
-            const accountIds = await firstValueFrom(accountIds$);
             const theAccountId = await showForm<string>({
               type: 'string',
               title: '选取账户作为基金净值',
-              enum: accountIds,
+              format: 'account_id',
             });
             const theAccountInfo = await firstValueFrom(useAccountInfo(theAccountId));
             const nextStatements = statements.concat([
@@ -519,23 +518,58 @@ registerPage('FundStatements', () => {
         <Button
           icon={<IconUser />}
           onClick={async () => {
-            const info = await showForm<{ name: string; deposit: number }>({
+            const info = await showForm<{
+              name: string;
+              deposit: number;
+              account_id: string;
+              timing: string;
+            }>({
               type: 'object',
               properties: {
                 name: { type: 'string', title: '投资人', examples: Object.keys(state.investors) },
                 deposit: { type: 'number', title: '申购额', description: '负数代表赎回额' },
-              },
-            });
-            const nextStatements = statements.concat([
-              {
-                type: 'order',
-                updated_at: formatTime(Date.now()),
-                order: {
-                  name: info.name,
-                  deposit: info.deposit,
+                account_id: { type: 'string', title: '选取账户作为基金净值', format: 'account_id' },
+                timing: {
+                  type: 'string',
+                  title: '申购赎回时机',
+                  description:
+                    '事前 (PRE) 表示申购赎回发生在入账之前; 事后 (POST) 表示申购赎回发生在入账之后;',
+                  enum: ['PRE', 'POST'],
+                  default: 'PRE',
                 },
               },
-            ]);
+            });
+
+            const nextStatements = [...statements];
+            if (info.account_id) {
+              const equity = (await firstValueFrom(useAccountInfo(info.account_id))).money.equity;
+              if (info.timing === 'POST') {
+                nextStatements.push({
+                  type: 'equity',
+                  updated_at: formatTime(Date.now()),
+                  fund_equity: {
+                    equity: equity - info.deposit,
+                  },
+                });
+              }
+              if (info.timing === 'PRE') {
+                nextStatements.push({
+                  type: 'equity',
+                  updated_at: formatTime(Date.now()),
+                  fund_equity: {
+                    equity: equity,
+                  },
+                });
+              }
+            }
+            nextStatements.push({
+              type: 'order',
+              updated_at: formatTime(Date.now()),
+              order: {
+                name: info.name,
+                deposit: info.deposit,
+              },
+            });
             await fs.writeFile(
               filename,
               JSON.stringify(
