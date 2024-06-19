@@ -576,7 +576,7 @@ registerPage('FundStatements', () => {
             }
             nextStatements.push({
               type: 'order',
-              updated_at: formatTime(Date.now()),
+              updated_at: formatTime(Date.now() + 1),
               order: {
                 name: info.name,
                 deposit: info.deposit,
