@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-general-realtime-data-source
 
-This log was last generated on Mon, 10 Jun 2024 08:50:50 GMT and should not be manually modified.
+This log was last generated on Thu, 20 Jun 2024 09:43:34 GMT and should not be manually modified.
+
+## 0.0.38
+Thu, 20 Jun 2024 09:43:34 GMT
+
+### Patches
+
+- refactor
 
 ## 0.0.37
 Mon, 10 Jun 2024 08:50:50 GMT

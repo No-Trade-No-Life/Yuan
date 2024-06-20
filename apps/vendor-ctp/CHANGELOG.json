@@ -2,6 +2,28 @@
   "name": "@yuants/vendor-ctp",
   "entries": [
     {
+      "version": "0.1.8",
+      "tag": "@yuants/vendor-ctp_v0.1.8",
+      "date": "Thu, 20 Jun 2024 09:43:34 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.18.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.7",
       "tag": "@yuants/vendor-ctp_v0.1.7",
       "date": "Mon, 10 Jun 2024 08:50:50 GMT",
