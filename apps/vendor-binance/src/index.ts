@@ -1,9 +1,10 @@
-import { IDataRecord, IProduct, UUID, decodePath, encodePath, formatTime } from '@yuants/data-model';
-import { Terminal } from '@yuants/protocol';
+import { IProduct, ITick, UUID, decodePath, encodePath, formatTime } from '@yuants/data-model';
+import { Terminal, provideTicks } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
 import {
+  combineLatest,
   concatWith,
   defer,
   firstValueFrom,
@@ -21,6 +22,7 @@ import {
   toArray,
 } from 'rxjs';
 import { ApiClient } from './api';
+import { IFundingRate, wrapFundingRateRecord } from './models/FundingRate';
 
 const terminal = new Terminal(process.env.HOST_URL!, {
   terminal_id: process.env.TERMINAL_ID || `binance/${UUID()}`,
@@ -41,38 +43,6 @@ const futureExchangeInfo$ = defer(() => client.getFutureExchangeInfo()).pipe(
   retry({ delay: 60_000 }),
   shareReplay(1),
 );
-interface IFundingRate {
-  series_id: string;
-  datasource_id: string;
-  product_id: string;
-  base_currency: string;
-  quote_currency: string;
-  funding_at: number;
-  funding_rate: number;
-}
-const wrapFundingRateRecord = (v: IFundingRate): IDataRecord<IFundingRate> => ({
-  id: encodePath(v.datasource_id, v.product_id, v.funding_at),
-  type: 'funding_rate',
-  created_at: v.funding_at,
-  updated_at: v.funding_at,
-  frozen_at: v.funding_at,
-  tags: {
-    series_id: encodePath(v.datasource_id, v.product_id),
-    datasource_id: v.datasource_id,
-    product_id: v.product_id,
-    base_currency: v.base_currency,
-    quote_currency: v.quote_currency,
-  },
-  origin: {
-    series_id: encodePath(v.datasource_id, v.product_id),
-    datasource_id: v.datasource_id,
-    product_id: v.product_id,
-    base_currency: v.base_currency,
-    quote_currency: v.quote_currency,
-    funding_rate: v.funding_rate,
-    funding_at: v.funding_at,
-  },
-});
 
 const futureProducts$ = futureExchangeInfo$.pipe(
   mergeMap((x) =>
@@ -108,6 +78,39 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
   const cache: Record<string, any> = {};
   return ((...params: any[]) => (cache[encodePath(params)] ??= fn(...params))) as T;
 };
+
+const mapSymbolToFuturePremiumIndex$ = defer(() => client.getFuturePremiumIndex({})).pipe(
+  repeat({ delay: 1_000 }),
+  retry({ delay: 30_000 }),
+  mergeMap((x) =>
+    from(x).pipe(
+      map((v) => [v.symbol, v] as const),
+      toArray(),
+      map((v) => new Map(v)),
+    ),
+  ),
+  shareReplay(1),
+);
+
+provideTicks(terminal, 'binance/future', (product_id) => {
+  return combineLatest([mapSymbolToFuturePremiumIndex$]).pipe(
+    map(([mapSymbolToFuturePremiumIndex]): ITick => {
+      const premiumIndex = mapSymbolToFuturePremiumIndex.get(product_id);
+      if (!premiumIndex) {
+        throw new Error(`Premium Index Not Found: ${product_id}`);
+      }
+      return {
+        datasource_id: 'binance/future',
+        product_id,
+        updated_at: Date.now(),
+        price: +premiumIndex.markPrice,
+        interest_rate_for_long: -+premiumIndex.lastFundingRate,
+        interest_rate_for_short: +premiumIndex.lastFundingRate,
+        settlement_scheduled_at: premiumIndex.nextFundingTime,
+      };
+    }),
+  );
+});
 
 defer(async () => {
   terminal.provideService(
