@@ -115,7 +115,6 @@ export class Terminal {
     constructor(host_url: string, terminalInfo: ITerminalInfo, connection?: IConnection<ITerminalMessage>);
     // @deprecated (undocumented)
     cancelOrder: (order: IOrder) => Observable<IResponse<void> & IResponse<unknown>>;
-    _conn: IConnection<ITerminalMessage>;
     consumeChannel: <T>(channel_id: string) => Observable<T>;
     // Warning: (ae-forgotten-export) The symbol "ICopyDataRecordsRequest" needs to be exported by the entry point index.d.ts
     //
@@ -125,8 +124,10 @@ export class Terminal {
     dispose(): void;
     // (undocumented)
     host_url: string;
+    input$: Observable<ITerminalMessage>;
     // @deprecated (undocumented)
     modifyOrder: (order: IOrder) => Observable<IResponse<void> & IResponse<unknown>>;
+    output$: Observable<ITerminalMessage>;
     // @deprecated
     provideAccountInfo: (accountInfo$: Observable<IAccountInfo>) => void;
     provideChannel: <T>(channelIdSchema: JSONSchema7, handler: (channel_id: string) => Observable<T>) => void;

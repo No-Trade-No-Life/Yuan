@@ -64,11 +64,11 @@ export const network$ = terminal$.pipe(
   switchMap((terminal) =>
     terminal
       ? combineLatest([
-          terminal._conn.output$.pipe(
+          terminal.output$.pipe(
             bufferTime(2000),
             map((buffer) => ((JSON.stringify(buffer).length / 2e3) * 8).toFixed(1)),
           ),
-          terminal._conn.input$.pipe(
+          terminal.input$.pipe(
             bufferTime(2000),
             map((buffer) => ((JSON.stringify(buffer).length / 2e3) * 8).toFixed(1)),
           ),

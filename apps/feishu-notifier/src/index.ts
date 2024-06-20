@@ -21,7 +21,7 @@ const client = new FeishuClient({
 });
 
 // Alert when HOST lost connection
-terminal._conn.input$
+terminal.input$
   .pipe(
     //
     timeout(60000),
