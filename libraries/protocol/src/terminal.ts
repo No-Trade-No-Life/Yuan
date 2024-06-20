@@ -128,7 +128,7 @@ export class Terminal {
   /**
    * Connection
    */
-  _conn: IConnection<ITerminalMessage>;
+  private _conn: IConnection<ITerminalMessage>;
   /**
    * Terminal ID
    */
@@ -156,9 +156,10 @@ export class Terminal {
     this.host_url = url.toString();
 
     this._conn = connection || createConnectionJson(this.host_url);
-    this.setupDebugLog();
-    this.setupServer();
-    this.setupPredefinedServerHandlers();
+    this._setupTunnel();
+    this._setupDebugLog();
+    this._setupServer();
+    this._setupPredefinedServerHandlers();
     this._setupChannelValidatorSubscription();
     this._setupTerminalIdAndMethodValidatorSubscription();
 
@@ -167,6 +168,25 @@ export class Terminal {
 
     this._setupTerminalInfoStuff();
   }
+
+  private _setupTunnel() {
+    this._subscriptions.push(
+      this._conn.input$.subscribe((msg) => {
+        this._input$.next(msg);
+      }),
+    );
+    this._subscriptions.push(
+      this._output$.subscribe((msg) => {
+        // Local Loop Back Tunnel
+        if (msg.target_terminal_id === this.terminal_id) {
+          this._input$.next(msg);
+          return;
+        }
+        this._conn.output$.next(msg);
+      }),
+    );
+  }
+
   private _setupTerminalInfoStuff() {
     // Periodically update the whole terminal list
     this._subscriptions.push(
@@ -239,8 +259,18 @@ export class Terminal {
 
   private _subscriptions: Subscription[] = [];
 
+  private _input$ = new Subject<ITerminalMessage>();
+  private _output$ = new Subject<ITerminalMessage>();
   private _dispose$ = new Subject<void>();
 
+  /**
+   * Observable that emits when a message is received
+   */
+  input$: Observable<ITerminalMessage> = this._input$.asObservable();
+  /**
+   * Observable that emits when a message is sent
+   */
+  output$: Observable<ITerminalMessage> = this._output$.asObservable();
   /**
    * Observable that emits when the terminal is disposed
    */
@@ -250,7 +280,7 @@ export class Terminal {
    * Dispose the terminal
    */
   dispose() {
-    this._conn.output$.complete();
+    this._output$.complete();
     this._subscriptions.forEach((sub) => sub.unsubscribe());
     this._dispose$.next();
   }
@@ -272,8 +302,8 @@ export class Terminal {
       req,
     };
     return defer((): Observable<any> => {
-      this._conn.output$.next(msg);
-      return this._conn.input$.pipe(
+      this._output$.next(msg);
+      return this._input$.pipe(
         filter((m) => m.trace_id === msg.trace_id),
         // complete immediately when res is received
         takeWhile((msg1) => msg1.res === undefined, true),
@@ -342,8 +372,8 @@ export class Terminal {
     );
   };
 
-  private setupDebugLog = () => {
-    const sub1 = this._conn.input$.subscribe((msg) => {
+  private _setupDebugLog = () => {
+    const sub1 = this._input$.subscribe((msg) => {
       if (msg.method) {
         TerminalReceiveMassageTotal.inc({
           target_terminal_id: msg.target_terminal_id,
@@ -371,7 +401,7 @@ export class Terminal {
         );
       }
     });
-    const sub2 = this._conn.output$.subscribe((msg) => {
+    const sub2 = this._output$.subscribe((msg) => {
       if (msg.method) {
         TerminalTransmittedMessageTotal.inc({
           target_terminal_id: msg.target_terminal_id,
@@ -429,8 +459,8 @@ export class Terminal {
     this._terminalInfoUpdated$.next();
   };
 
-  private setupServer = () => {
-    const sub = this._conn.input$
+  private _setupServer = () => {
+    const sub = this._input$
       .pipe(
         filter((msg) => msg.method !== undefined && msg.frame === undefined && msg.res === undefined),
         groupBy((msg) => msg.method!),
@@ -448,7 +478,7 @@ export class Terminal {
           // ISSUE: Keepalive for every queued request before they are handled,
           preHandleAction$.subscribe(({ req }) => {
             const sub = interval(5000).subscribe(() => {
-              this._conn.output$.next({
+              this._output$.next({
                 trace_id: req.trace_id,
                 method: req.method,
                 // ISSUE: Reverse source / target as response, otherwise the host cannot guarantee the forwarding direction
@@ -571,12 +601,12 @@ export class Terminal {
         }),
       )
       .subscribe((msg) => {
-        this._conn.output$.next(msg);
+        this._output$.next(msg);
       });
     this._subscriptions.push(sub);
   };
 
-  private setupPredefinedServerHandlers = () => {
+  private _setupPredefinedServerHandlers = () => {
     this.provideService('Ping', {}, () => of({ res: { code: 0, message: 'Pong' } }));
 
     this.provideService('Metrics', {}, () =>
@@ -653,7 +683,7 @@ export class Terminal {
               }
               // multicast to all consumers
               for (const target_terminal_id of target_terminal_ids) {
-                this._conn.output$.next({
+                this._output$.next({
                   trace_id: UUID(),
                   channel_id,
                   frame: payload,
@@ -736,7 +766,7 @@ export class Terminal {
         }
       });
       this._subscriptions.push(sub);
-      const sub1 = this._conn.input$
+      const sub1 = this._input$
         .pipe(
           filter((msg) => msg.channel_id === channel_id && msg.source_terminal_id === provider_terminal_id),
           map((msg) => msg.frame as T),

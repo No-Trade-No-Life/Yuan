@@ -28,7 +28,5 @@ export const terminal$: Observable<Terminal | null> = currentHostConfig$.pipe(
 
 terminal$.forEach((terminal) => {
   // for DEBUG
-  terminal?._conn.connection$.forEach((conn) => Object.assign(globalThis, { _conn: conn }));
-
   Object.assign(globalThis, { terminal });
 });
