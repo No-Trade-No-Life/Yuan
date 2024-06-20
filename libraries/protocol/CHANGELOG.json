@@ -2,6 +2,29 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.18.0",
+      "tag": "@yuants/protocol_v0.18.0",
+      "date": "Thu, 20 Jun 2024 09:43:34 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add more utils, deprecate many terminal methods"
+          },
+          {
+            "comment": "remove _conn, add input$, output$"
+          },
+          {
+            "comment": "Local Loop Back Tunnel"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.17.0",
       "tag": "@yuants/protocol_v0.17.0",
       "date": "Mon, 10 Jun 2024 08:50:50 GMT",

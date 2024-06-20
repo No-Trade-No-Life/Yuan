@@ -2,6 +2,28 @@
   "name": "@yuants/app-mongodb-storage",
   "entries": [
     {
+      "version": "0.3.3",
+      "tag": "@yuants/app-mongodb-storage_v0.3.3",
+      "date": "Thu, 20 Jun 2024 09:43:34 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.18.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.2",
       "tag": "@yuants/app-mongodb-storage_v0.3.2",
       "date": "Thu, 13 Jun 2024 14:52:38 GMT",

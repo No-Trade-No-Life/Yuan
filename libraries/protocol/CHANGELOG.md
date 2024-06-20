@@ -1,6 +1,15 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Mon, 10 Jun 2024 08:50:50 GMT and should not be manually modified.
+This log was last generated on Thu, 20 Jun 2024 09:43:34 GMT and should not be manually modified.
+
+## 0.18.0
+Thu, 20 Jun 2024 09:43:34 GMT
+
+### Minor changes
+
+- add more utils, deprecate many terminal methods
+- remove _conn, add input$, output$
+- Local Loop Back Tunnel
 
 ## 0.17.0
 Mon, 10 Jun 2024 08:50:50 GMT

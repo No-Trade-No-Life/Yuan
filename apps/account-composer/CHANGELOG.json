@@ -2,6 +2,23 @@
   "name": "@yuants/app-account-composer",
   "entries": [
     {
+      "version": "0.0.13",
+      "tag": "@yuants/app-account-composer_v0.0.13",
+      "date": "Thu, 20 Jun 2024 09:43:34 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.18.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.12",
       "tag": "@yuants/app-account-composer_v0.0.12",
       "date": "Mon, 10 Jun 2024 08:50:49 GMT",

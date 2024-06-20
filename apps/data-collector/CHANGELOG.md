@@ -1,6 +1,11 @@
 # Change Log - @yuants/app-data-collector
 
-This log was last generated on Mon, 10 Jun 2024 08:50:50 GMT and should not be manually modified.
+This log was last generated on Thu, 20 Jun 2024 09:43:34 GMT and should not be manually modified.
+
+## 0.0.10
+Thu, 20 Jun 2024 09:43:34 GMT
+
+_Version update only_
 
 ## 0.0.9
 Mon, 10 Jun 2024 08:50:50 GMT
