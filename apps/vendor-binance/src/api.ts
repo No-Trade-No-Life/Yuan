@@ -132,4 +132,28 @@ export class ApiClient {
       markPrice: string;
     }[]
   > => this.request('GET', 'https://fapi.binance.com/fapi/v1/fundingRate', params);
+
+  /**
+   * 最新标记价格和资金费率
+   *
+   * 采集各大交易所数据加权平均
+   *
+   * 权重: 带symbol为1；不带symbol为10
+   *
+   * https://binance-docs.github.io/apidocs/futures/cn/#69f9b0b2f3
+   */
+  getFuturePremiumIndex = (params: {
+    symbol?: string;
+  }): Promise<
+    {
+      symbol: string;
+      markPrice: string;
+      indexPrice: string;
+      estimatedSettlePrice: string;
+      lastFundingRate: string;
+      interestRate: string;
+      nextFundingTime: number;
+      time: number;
+    }[]
+  > => this.request('GET', 'https://fapi.binance.com/fapi/v1/premiumIndex', params);
 }
