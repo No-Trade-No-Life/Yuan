@@ -177,6 +177,11 @@ export class Terminal {
     );
     this._subscriptions.push(
       this._output$.subscribe((msg) => {
+        // Local Loop Back Tunnel
+        if (msg.target_terminal_id === this.terminal_id) {
+          this._input$.next(msg);
+          return;
+        }
         this._conn.output$.next(msg);
       }),
     );
