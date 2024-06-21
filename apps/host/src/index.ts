@@ -70,7 +70,11 @@ server.on('upgrade', (request, socket, head) => {
   }
   wss.handleUpgrade(request, socket, head, (ws) => {
     console.info(formatTime(Date.now()), 'terminal connected', terminal_id);
-    mapTerminalIdToSocket[terminal_id]?.close(); // Close Old Terminal
+    const oldTerminal = mapTerminalIdToSocket[terminal_id];
+    if (oldTerminal) {
+      console.info(formatTime(Date.now()), 'terminal replaced', terminal_id);
+      oldTerminal.close();
+    }
     mapTerminalIdToSocket[terminal_id] = ws; // Register New Terminal
     // Forward Terminal Messages
     (fromEvent(ws, 'message') as Observable<WebSocket.MessageEvent>).subscribe((origin) => {

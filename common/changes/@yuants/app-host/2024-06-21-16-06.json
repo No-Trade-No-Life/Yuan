@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-host",
+      "comment": "add log of terminal replaced",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-host"
+}
