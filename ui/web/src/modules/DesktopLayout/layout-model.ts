@@ -1,8 +1,12 @@
+import { Toast } from '@douyinfe/semi-ui';
 import * as FlexLayout from 'flexlayout-react';
 import hotkeys from 'hotkeys-js';
+import { resolve } from 'path-browserify';
 import { BehaviorSubject, bufferCount, combineLatest, first, map, Subject } from 'rxjs';
 import { registerCommand } from '../CommandCenter';
+import { fs } from '../FileSystem/api';
 import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehaviorSubject';
+import { showForm } from '../Form';
 
 const initialJson = (): FlexLayout.IJsonModel => ({
   global: {
@@ -181,4 +185,25 @@ registerCommand('Page.close', ({ pageId }) => {
 
 registerCommand('Page.changeTitle', ({ pageId, title }) => {
   layoutModel$.value.doAction(FlexLayout.Actions.renameTab(pageId, title));
+});
+
+registerCommand('Layout.Save', async () => {
+  try {
+    const filename = await showForm<string>({ type: 'string', format: 'filename' });
+    await fs.writeFile(resolve('/', filename), JSON.stringify(layoutModelJson$.value, null, 2));
+    Toast.success('Layout saved');
+  } catch (e) {
+    Toast.error(`Failed to save layout: ${e}`);
+  }
+});
+
+registerCommand('Layout.Load', async () => {
+  try {
+    const filename = await showForm<string>({ type: 'string', format: 'filename' });
+    const content = await fs.readFile(resolve('/', filename));
+    layoutModelJson$.next(JSON.parse(content));
+    Toast.success('Layout loaded');
+  } catch (e) {
+    Toast.error(`Failed to load layout: ${e}`);
+  }
 });
