@@ -2,6 +2,28 @@
   "name": "@yuants/app-host",
   "entries": [
     {
+      "version": "0.2.12",
+      "tag": "@yuants/app-host_v0.2.12",
+      "date": "Fri, 21 Jun 2024 16:20:19 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add log of terminal replaced"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.18.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.11",
       "tag": "@yuants/app-host_v0.2.11",
       "date": "Thu, 20 Jun 2024 09:43:34 GMT",
