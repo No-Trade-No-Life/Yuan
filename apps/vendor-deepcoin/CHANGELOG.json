@@ -2,6 +2,26 @@
   "name": "@yuants/vendor-deepcoin",
   "entries": [
     {
+      "version": "0.0.14",
+      "tag": "@yuants/vendor-deepcoin_v0.0.14",
+      "date": "Fri, 21 Jun 2024 16:20:19 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.11.9`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.18.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.13",
       "tag": "@yuants/vendor-deepcoin_v0.0.13",
       "date": "Thu, 20 Jun 2024 09:43:34 GMT",
