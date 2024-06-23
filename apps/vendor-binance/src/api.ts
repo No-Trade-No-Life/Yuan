@@ -1,6 +1,9 @@
 import { formatTime } from '@yuants/data-model';
+import { PromRegistry } from '@yuants/protocol';
 // @ts-ignore
 import CryptoJS from 'crypto-js';
+
+const MetricBinanceApiUsedWeight = PromRegistry.create('gauge', 'binance_api_used_weight');
 
 /**
  * Binance 币安 API
@@ -29,6 +32,12 @@ export class ApiClient {
     if (!this.config.auth) {
       console.info(formatTime(Date.now()), method, url.href);
       const res = await fetch(url.href, { method });
+      console.info(formatTime(Date.now()), 'response', method, url.href, res.status);
+      const usedWeight1M = res.headers.get('x-mbx-used-weight-1m');
+      if (usedWeight1M) {
+        // console.info('usedWeight1M', method, url.href, usedWeight1M);
+        MetricBinanceApiUsedWeight.set(+usedWeight1M, {});
+      }
       return res.json();
     }
     const secret_key = this.config.auth.secret_key;
@@ -48,6 +57,12 @@ export class ApiClient {
       headers,
       body: body || undefined,
     });
+    const usedWeight1M = res.headers.get('x-mbx-used-weight-1m');
+    console.info(formatTime(Date.now()), 'response', method, url.href, res.status);
+    if (usedWeight1M) {
+      // console.info('usedWeight1M', method, url.href, res.status, usedWeight1M);
+      MetricBinanceApiUsedWeight.set(+usedWeight1M, {});
+    }
     return res.json();
   }
 
@@ -156,4 +171,21 @@ export class ApiClient {
       time: number;
     }[]
   > => this.request('GET', 'https://fapi.binance.com/fapi/v1/premiumIndex', params);
+
+  /**
+   * 获取未平仓合约数
+   *
+   * 权重: 1
+   *
+   * 更新速率: 3s
+   *
+   * https://binance-docs.github.io/apidocs/futures/cn/#f6cc22e496
+   */
+  getFutureOpenInterest = (params: {
+    symbol: string;
+  }): Promise<{
+    openInterest: string;
+    symbol: string;
+    time: number;
+  }> => this.request('GET', 'https://fapi.binance.com/fapi/v1/openInterest', params);
 }

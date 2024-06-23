@@ -93,8 +93,16 @@ const mapSymbolToFuturePremiumIndex$ = defer(() => client.getFuturePremiumIndex(
 );
 
 provideTicks(terminal, 'binance/future', (product_id) => {
-  return combineLatest([mapSymbolToFuturePremiumIndex$]).pipe(
-    map(([mapSymbolToFuturePremiumIndex]): ITick => {
+  return combineLatest([
+    mapSymbolToFuturePremiumIndex$,
+    defer(() => client.getFutureOpenInterest({ symbol: product_id })).pipe(
+      map((v) => +v.openInterest || 0),
+      retry({ delay: 30_000 }),
+      repeat({ delay: 30_000 }),
+      shareReplay(1),
+    ),
+  ]).pipe(
+    map(([mapSymbolToFuturePremiumIndex, openInterestVolume]): ITick => {
       const premiumIndex = mapSymbolToFuturePremiumIndex.get(product_id);
       if (!premiumIndex) {
         throw new Error(`Premium Index Not Found: ${product_id}`);
@@ -107,6 +115,7 @@ provideTicks(terminal, 'binance/future', (product_id) => {
         interest_rate_for_long: -+premiumIndex.lastFundingRate,
         interest_rate_for_short: +premiumIndex.lastFundingRate,
         settlement_scheduled_at: premiumIndex.nextFundingTime,
+        open_interest: openInterestVolume,
       };
     }),
   );
