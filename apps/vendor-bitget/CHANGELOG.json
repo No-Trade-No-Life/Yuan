@@ -1,0 +1,20 @@
+{
+  "name": "@yuants/vendor-bitget",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/vendor-bitget_v0.0.1",
+      "date": "Tue, 25 Jun 2024 10:05:47 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add request with rate limit"
+          },
+          {
+            "comment": "fix error handling in flow control"
+          }
+        ]
+      }
+    }
+  ]
+}
