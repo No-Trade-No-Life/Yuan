@@ -1,6 +1,7 @@
-import { formatTime } from '@yuants/data-model';
+import { UUID, formatTime } from '@yuants/data-model';
 // @ts-ignore
 import CryptoJS from 'crypto-js';
+import { Subject, filter, firstValueFrom, interval, mergeMap, shareReplay, timeout, timer } from 'rxjs';
 
 /**
  * API: https://www.bitget.com/zh-CN/api-doc/common/intro
@@ -51,6 +52,61 @@ export class BitgetClient {
       body: body || undefined,
     });
     return res.json();
+  }
+
+  mapPathToRequestChannel: Record<
+    string,
+    {
+      requestQueue: Array<{
+        trace_id: string;
+        method: string;
+        path: string;
+        params?: any;
+      }>;
+      responseChannel: Subject<{ trace_id: string; response: any }>;
+    }
+  > = {};
+
+  setupChannel(path: string, period: number, limit: number) {
+    this.mapPathToRequestChannel[path] = {
+      requestQueue: [],
+      responseChannel: new Subject(),
+    };
+
+    const { requestQueue, responseChannel } = this.mapPathToRequestChannel[path];
+    timer(0, period)
+      .pipe(
+        filter(() => requestQueue.length > 0),
+        mergeMap(() => requestQueue.splice(0, limit)),
+        mergeMap(async (request) => {
+          const res = await this.request(request.method, request.path, request.params);
+          return { trace_id: request.trace_id, response: res };
+        }),
+      )
+      .subscribe(responseChannel);
+  }
+
+  async requestWithFlowControl(
+    method: string,
+    path: string,
+    flowControl: { period: number; limit: number } = { period: 10, limit: Infinity },
+    params?: any,
+  ) {
+    const { period, limit } = flowControl;
+    if (!this.mapPathToRequestChannel[path]) {
+      this.setupChannel(path, period, limit);
+    }
+    const uuid = UUID();
+
+    const { requestQueue, responseChannel } = this.mapPathToRequestChannel[path];
+    const res$ = responseChannel.pipe(
+      //
+      filter((response) => response.trace_id === uuid),
+      timeout(30_000),
+      shareReplay(1),
+    );
+    requestQueue.push({ trace_id: uuid, method, path, params });
+    return (await firstValueFrom(res$)).response;
   }
 
   /**
@@ -393,6 +449,15 @@ export class BitgetClient {
     };
   }> => this.request('GET', '/api/v2/mix/market/open-interest', params);
 
+  /**
+   * 获取历史资金费率
+   *
+   * 限速规则: 20次/1s (IP)
+   *
+   * 获取合约的历史资金费率
+   *
+   * https://www.bitget.com/zh-CN/api-doc/contract/market/Get-History-Funding-Rate
+   */
   getNextFundingTime = (params: {
     symbol: string;
     productType: string;
@@ -404,8 +469,14 @@ export class BitgetClient {
       symbol: string;
       nextFundingTime: string;
       ratePeriod: string;
-    };
-  }> => this.request('GET', '/api/v2/mix/market/funding-time', params);
+    }[];
+  }> =>
+    this.requestWithFlowControl(
+      'GET',
+      '/api/v2/mix/market/funding-time',
+      { period: 1000, limit: 20 },
+      params,
+    );
 }
 
 // (async () => {

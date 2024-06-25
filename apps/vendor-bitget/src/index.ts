@@ -17,13 +17,17 @@ import {
   combineLatest,
   defer,
   delayWhen,
+  expand,
   filter,
   map,
   mergeMap,
+  of,
   repeat,
   retry,
   shareReplay,
+  skip,
   tap,
+  timer,
 } from 'rxjs';
 import { BitgetClient } from './api';
 
@@ -45,24 +49,27 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
 };
 
 const fundingTime$ = memoizeMap((product_id: string) =>
-  defer(async () => {
-    const [instType, instId] = decodePath(product_id);
-    const res = await client.getNextFundingTime({
-      symbol: instId,
-      productType: instType,
-    });
-    if (res.msg !== 'success') {
-      throw new Error(res.msg);
-    }
-    return res.data;
-  }).pipe(
-    tap({
-      error: (e) => {
-        console.error(formatTime(Date.now()), 'FundingTime', e);
-      },
-    }),
-    retry({ delay: 5000 }),
-    repeat({ delay: 5000 }),
+  of({ expire: 0 }).pipe(
+    //
+    expand((v) =>
+      timer(v.expire).pipe(
+        //
+        mergeMap(async () => {
+          const [instType, instId] = decodePath(product_id);
+          const res = await client.getNextFundingTime({
+            symbol: instId,
+            productType: instType,
+          });
+          if (res.msg !== 'success') {
+            throw new Error(res.msg);
+          }
+          console.info(formatTime(Date.now()), 'FundingTime', product_id, res.data[0].nextFundingTime);
+          return { ...res.data[0], expire: +res.data[0].nextFundingTime - Date.now() };
+        }),
+        retry({ delay: 5000 }),
+      ),
+    ),
+    skip(1),
     shareReplay(1),
   ),
 );
@@ -74,7 +81,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
 
   const terminal = new Terminal(process.env.HOST_URL!, {
     terminal_id: process.env.TERMINAL_ID || `bitget/${uid}/${UUID()}`,
-    name: 'OKX',
+    name: 'Bitget',
   });
 
   // product
@@ -96,10 +103,8 @@ const fundingTime$ = memoizeMap((product_id: string) =>
           datasource_id: DATASOURCE_ID,
           quote_currency: product.quoteCoin,
           base_currency: product.baseCoin,
-          price_step: Math.pow(10, -product.pricePlace),
+          price_step: Number(`1e-${product.pricePlace}`),
           volume_step: +product.sizeMultiplier,
-          max_position: +product.maxPositionNum,
-          max_volume: +product.maxProductOrderNum,
         }),
       );
       const coinFutures = coinFuturesProductRes.data.map(
@@ -108,10 +113,8 @@ const fundingTime$ = memoizeMap((product_id: string) =>
           datasource_id: DATASOURCE_ID,
           quote_currency: product.quoteCoin,
           base_currency: product.baseCoin,
-          price_step: Math.pow(10, -product.pricePlace),
+          price_step: Number(`1e-${product.pricePlace}`),
           volume_step: +product.sizeMultiplier,
-          max_position: +product.maxPositionNum,
-          max_volume: +product.maxProductOrderNum,
         }),
       );
 
