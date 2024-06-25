@@ -36,6 +36,7 @@
     "@yuants/vendor-deepcoin",
     "@yuants/vendor-ccxt",
     "@yuants/vendor-binance",
+    "@yuants/vendor-bitget",
     "@yuants/vendor-okx",
     "@yuants/vendor-huobi",
     "@yuants/vendor-gate",

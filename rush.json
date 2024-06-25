@@ -571,6 +571,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/vendor-bitget",
+      "projectFolder": "apps/vendor-bitget",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/vendor-okx",
       "projectFolder": "apps/vendor-okx",
       "shouldPublish": true
