@@ -1,20 +1,7 @@
 import { UUID, formatTime } from '@yuants/data-model';
-import { trace } from 'console';
 // @ts-ignore
 import CryptoJS from 'crypto-js';
-import {
-  Subject,
-  catchError,
-  filter,
-  firstValueFrom,
-  interval,
-  mergeMap,
-  of,
-  shareReplay,
-  throwError,
-  timeout,
-  timer,
-} from 'rxjs';
+import { Subject, filter, firstValueFrom, mergeMap, of, shareReplay, throwError, timeout, timer } from 'rxjs';
 
 /**
  * API: https://www.bitget.com/zh-CN/api-doc/common/intro
