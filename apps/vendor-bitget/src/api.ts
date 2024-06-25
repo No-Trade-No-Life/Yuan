@@ -1,7 +1,7 @@
 import { UUID, formatTime } from '@yuants/data-model';
 // @ts-ignore
 import CryptoJS from 'crypto-js';
-import { Subject, filter, firstValueFrom, interval, mergeMap, shareReplay, timeout, timer } from 'rxjs';
+import { Subject, filter, firstValueFrom, mergeMap, of, shareReplay, throwError, timeout, timer } from 'rxjs';
 
 /**
  * API: https://www.bitget.com/zh-CN/api-doc/common/intro
@@ -63,7 +63,7 @@ export class BitgetClient {
         path: string;
         params?: any;
       }>;
-      responseChannel: Subject<{ trace_id: string; response: any }>;
+      responseChannel: Subject<{ trace_id: string; response?: any; error?: Error }>;
     }
   > = {};
 
@@ -79,8 +79,12 @@ export class BitgetClient {
         filter(() => requestQueue.length > 0),
         mergeMap(() => requestQueue.splice(0, limit)),
         mergeMap(async (request) => {
-          const res = await this.request(request.method, request.path, request.params);
-          return { trace_id: request.trace_id, response: res };
+          try {
+            const res = await this.request(request.method, request.path, request.params);
+            return { trace_id: request.trace_id, response: res };
+          } catch (error) {
+            return { trace_id: request.trace_id, error };
+          }
         }),
       )
       .subscribe(responseChannel);
@@ -102,6 +106,7 @@ export class BitgetClient {
     const res$ = responseChannel.pipe(
       //
       filter((response) => response.trace_id === uuid),
+      mergeMap((response) => (response.error ? throwError(() => response.error) : of(response))),
       timeout(30_000),
       shareReplay(1),
     );
