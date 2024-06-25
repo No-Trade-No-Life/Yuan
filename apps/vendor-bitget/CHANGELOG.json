@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/vendor-bitget",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/vendor-bitget_v0.0.1",
+      "date": "Tue, 25 Jun 2024 09:05:15 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add request with rate limit"
+          }
+        ]
+      }
+    }
+  ]
+}
