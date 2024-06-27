@@ -84,6 +84,8 @@ const fundingTime$ = memoizeMap((product_id: string) =>
     name: 'Bitget',
   });
 
+  const futureAccountId = `bitget/${uid}/futures`;
+
   // product
   {
     const futureProducts$ = defer(async () => {
@@ -267,5 +269,95 @@ const fundingTime$ = memoizeMap((product_id: string) =>
       shareReplay(1),
     );
     provideAccountInfo(terminal, swapAccountInfo$);
+  }
+
+  // trade api
+  {
+    terminal.provideService(
+      'SubmitOrder',
+      {
+        required: ['account_id'],
+        properties: {
+          account_id: { const: futureAccountId },
+        },
+      },
+      (msg) =>
+        defer(async () => {
+          console.info(formatTime(Date.now()), 'SubmitOrder', msg);
+          const order = msg.req;
+          const [instType, instId] = decodePath(order.product_id);
+
+          const mapOrderDirectionToSide = (direction?: string) => {
+            switch (direction) {
+              case 'OPEN_LONG':
+              case 'CLOSE_LONG':
+                return 'buy';
+              case 'OPEN_SHORT':
+              case 'CLOSE_SHORT':
+                return 'sell';
+            }
+            throw new Error(`Unknown direction: ${direction}`);
+          };
+
+          const mapOrderDirectionToTradeSide = (direction?: string) => {
+            switch (direction) {
+              case 'OPEN_LONG':
+              case 'OPEN_SHORT':
+                return 'open';
+              case 'CLOSE_LONG':
+              case 'CLOSE_SHORT':
+                return 'close';
+            }
+            throw new Error(`Unknown direction: ${direction}`);
+          };
+
+          const params = {
+            symbol: instId,
+            productType: instType,
+            marginMode: 'crossed',
+            marginCoin: 'USDT',
+            size: '' + order.volume,
+            price: order.price !== undefined ? '' + order.price : undefined,
+            side: mapOrderDirectionToSide(order.order_direction),
+            tradeSide: mapOrderDirectionToTradeSide(order.order_direction),
+            orderType: order.order_type === 'LIMIT' ? 'limit' : 'market',
+          };
+
+          console.info(formatTime(Date.now()), 'SubmitOrder', 'params', JSON.stringify(params));
+
+          const res = await client.postFuturePlaceOrder(params);
+          if (res.msg !== 'success') {
+            return { res: { code: +res.code, message: '' + res.msg } };
+          }
+          return { res: { code: 0, message: 'OK' } };
+        }),
+    );
+
+    terminal.provideService(
+      'CancelOrder',
+      {
+        required: ['account_id'],
+        properties: {
+          account_id: { const: futureAccountId },
+        },
+      },
+      (msg) =>
+        defer(async () => {
+          console.info(formatTime(Date.now()), 'CancelOrder', msg);
+          const order = msg.req;
+          const [instType, instId] = decodePath(order.product_id);
+
+          const res = await client.postFutureCancelOrder({
+            symbol: instId,
+            productType: instType,
+            orderId: order.order_id,
+          });
+
+          if (res.msg !== 'success') {
+            return { res: { code: +res.code, message: '' + res.msg } };
+          }
+          return { res: { code: 0, message: 'OK' } };
+        }),
+    );
   }
 })();

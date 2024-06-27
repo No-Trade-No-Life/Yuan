@@ -482,6 +482,178 @@ export class BitgetClient {
       { period: 1000, limit: 20 },
       params,
     );
+
+  /**
+   * 下单
+   *
+   * 普通用户:限速10次/秒，根据uid限频
+   *
+   * 跟单交易员:限速1次/秒，根据uid限频
+   *
+   * https://www.bitget.com/zh-CN/api-doc/contract/trade/Place-Order
+   */
+  postFuturePlaceOrder = (params: {
+    symbol: string;
+    productType: string;
+    marginMode: string;
+    marginCoin: string;
+    size: string;
+    price?: string;
+    side: string;
+    tradeSide?: string;
+    orderType: string;
+    force?: string;
+    clientOid?: string;
+    reduceOnly?: string;
+    presetStopSurplusPrice?: string;
+    presetStopLossPrice?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    requestTime: number;
+    data: {
+      orderId: string;
+      clientOid: string;
+    };
+  }> => this.request('POST', '/api/v2/mix/order/place-order', params);
+
+  /**
+   * 撤单
+   *
+   * 限速规则: 10次/1s
+   *
+   * https://www.bitget.com/zh-CN/api-doc/contract/trade/Cancel-Order
+   */
+  postFutureCancelOrder = (params: {
+    symbol: string;
+    productType: string;
+    marginCoin?: string;
+    orderId?: string;
+    clientOid?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    requestTime: number;
+    data: {
+      orderId: string;
+      clientOid: string;
+    };
+  }> => this.request('POST', '/api/v2/mix/order/cancel-order', params);
+
+  /**
+   * 划转
+   *
+   * 限速规则 10次/1s (UID)
+   *
+   * 资产划转
+   *
+   * https://www.bitget.com/zh-CN/api-doc/spot/account/Wallet-Transfer
+   */
+  postTransfer = (params: {
+    fromType: string;
+    toType: string;
+    amount: string;
+    coin: string;
+    symbol?: string;
+    clientOid?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    requestTime: number;
+    data: {
+      transferId: string;
+      clientOid: string;
+    };
+  }> => this.request('POST', '/api/v2/spot/wallet/transfer', params);
+
+  /**
+   * 子母账户划转
+   *
+   * 限速规则 20次/1s (UID)
+   *
+   * 子母账户资产划转，该接口支持的划转类型包括
+   *
+   * 母账户转子账户（仅母账户APIKey有权限）
+   * 子账户转母账户（仅母账户APIKey有权限）
+   * 子账户转子账户（仅母账户APIKey有权限，并要求发起与接收方子账户归属于同一母账户）
+   * 子账户内部划转（仅母账户APIKey有权限，并要求发起与接收方子账户为同一子账户）
+   * 请求参数中的转入及转出账户UID须为母子/兄弟关系，且所有转账操作均只有母账户才有操作权限
+   *
+   * https://www.bitget.com/zh-CN/api-doc/spot/account/Sub-Transfer
+   */
+  postSubAccountTransfer = (params: {
+    fromType: string;
+    toType: string;
+    amount: string;
+    coin: string;
+    symbol?: string;
+    clientOid?: string;
+    fromUserId: string;
+    toUserId: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    requestTime: number;
+    data: {
+      transferId: string;
+      clientOid: string;
+    };
+  }> => this.request('POST', '/api/v2/spot/wallet/subaccount-transfer', params);
+
+  /**
+   * 提币
+   *
+   * 限速规则 5次/1s (UID)
+   *
+   * 提币接口 包括链上提币和内部提币。(需要在网页端添加地址到地址簿中)
+   *
+   * https://www.bitget.com/zh-CN/api-doc/spot/account/Wallet-Withdrawal
+   */
+  postWithdraw = (params: {
+    coin: string;
+    transferType: string;
+    address: string;
+    chain: string;
+    innerToType: string;
+    areaCode: string;
+    tag: string;
+    size: string;
+    remark: string;
+    clientOid: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    requestTime: number;
+    data: {
+      orderId: string;
+      clientOid: string;
+    };
+  }> => this.request('POST', '/api/v2/spot/wallet/withdrawal', params);
+
+  /**
+   * 获取充币地址
+   *
+   * 限速规则 10 次/1s (UID)
+   *
+   * 获取当前账号充币地址
+   *
+   * https://www.bitget.com/zh-CN/api-doc/spot/account/Get-Deposit-Address
+   */
+  getDepositAddress = (params: {
+    coin: string;
+    chain?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    requestTime: number;
+    data: {
+      address: string;
+      chain: string;
+      coin: string;
+      tag: string;
+      url: string;
+    };
+  }> => this.request('GET', '/api/v2/spot/wallet/deposit-address', params);
 }
 
 // (async () => {
