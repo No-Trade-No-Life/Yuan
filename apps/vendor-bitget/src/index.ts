@@ -90,7 +90,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
     name: 'Bitget',
   });
 
-  const USDT_FUTURE_ACCOUNT_ID = `bitget/${uid}/future/USDT`;
+  const USDT_FUTURE_ACCOUNT_ID = `bitget/${uid}/futures/USDT`;
   const SPOT_ACCOUNT_ID = `bitget/${uid}/spot/USDT`;
 
   // product
@@ -262,7 +262,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
             position_price: +position.openPriceAvg,
             closable_price: +position.markPrice,
             floating_profit: +position.unrealizedPL,
-            valuation: 0,
+            valuation: +position.total * +position.markPrice,
           }),
         ),
         orders: [],
@@ -280,6 +280,45 @@ const fundingTime$ = memoizeMap((product_id: string) =>
       shareReplay(1),
     );
     provideAccountInfo(terminal, swapAccountInfo$);
+  }
+
+  // spot account info
+  {
+    const spotAccountInfo$ = defer(async (): Promise<IAccountInfo> => {
+      const res = await client.getSpotAssets();
+      if (res.msg !== 'success') {
+        throw new Error(res.msg);
+      }
+      const balance = +(res.data.find((v) => v.coin === 'USDT')?.available ?? 0);
+      const equity = balance;
+      const free = equity;
+      return {
+        updated_at: Date.now(),
+        account_id: SPOT_ACCOUNT_ID,
+        money: {
+          currency: 'USDT',
+          equity,
+          profit: 0,
+          free,
+          used: 0,
+          balance,
+        },
+        positions: [],
+        orders: [],
+      };
+    }).pipe(
+      //
+      tap({
+        error: (e) => {
+          console.error(formatTime(Date.now()), 'SpotAccountInfo', e);
+        },
+      }),
+      retry({ delay: 5000 }),
+      repeat({ delay: 1000 }),
+      shareReplay(1),
+    );
+
+    provideAccountInfo(terminal, spotAccountInfo$);
   }
 
   // trade api
@@ -495,9 +534,9 @@ const fundingTime$ = memoizeMap((product_id: string) =>
             const transferResult = await client.postWithdraw({
               coin: 'USDT',
               transferType: 'on_chain',
-              address: address.address,
+              address: order.current_rx_address!,
               chain: 'TRC20',
-              size: `${order.current_amount - 1}`,
+              size: `${order.current_amount}`,
             });
             if (transferResult.msg !== 'success') {
               return { state: 'ERROR', message: transferResult.msg };

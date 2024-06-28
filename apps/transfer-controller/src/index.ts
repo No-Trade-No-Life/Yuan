@@ -439,7 +439,7 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
       const nextOrder: ITransferOrder = {
         ...order,
         updated_at: Date.now(),
-        error_message: applyResult.res?.message,
+        error_message: applyResult.res?.data?.message,
         status: applyResult.res?.data?.state === 'ERROR' ? 'ERROR' : 'ONGOING',
         current_transaction_id: applyResult.res?.data?.transaction_id,
         current_tx_state: applyResult.res?.data?.state,

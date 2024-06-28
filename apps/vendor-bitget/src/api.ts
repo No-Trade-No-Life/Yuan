@@ -762,4 +762,30 @@ export class BitgetClient {
       { period: 1000, limit: 20 },
       params,
     );
+
+  /**
+   * 获取账户现货资产
+   *
+   * 限速规则 10次/1s (UID)
+   *
+   * 获取账户币种资产
+   *
+   * https://www.bitget.com/zh-CN/api-doc/spot/account/Get-Account-Assets
+   */
+  getSpotAssets = (params?: {
+    coin?: string;
+    assetType?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    requestTime: number;
+    data: {
+      coin: string;
+      available: string;
+      frozen: string;
+      locked: string;
+      limitAvailable: string;
+      uTime: string;
+    }[];
+  }> => this.request('GET', '/api/v2/spot/account/assets', params);
 }
