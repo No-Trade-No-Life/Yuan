@@ -614,12 +614,12 @@ export class BitgetClient {
     transferType: string;
     address: string;
     chain: string;
-    innerToType: string;
-    areaCode: string;
-    tag: string;
+    innerToType?: string;
+    areaCode?: string;
+    tag?: string;
     size: string;
-    remark: string;
-    clientOid: string;
+    remark?: string;
+    clientOid?: string;
   }): Promise<{
     code: string;
     msg: string;
@@ -654,23 +654,138 @@ export class BitgetClient {
       url: string;
     };
   }> => this.request('GET', '/api/v2/spot/wallet/deposit-address', params);
+
+  /**
+   * 获取提币记录
+   *
+   * 限速规则 10次/1s (UID)
+   *
+   * 获取提币记录
+   *
+   * https://www.bitget.com/zh-CN/api-doc/spot/account/Get-Withdraw-Record
+   */
+  getWithdrawalRecords = (params: {
+    coin?: string;
+    clientOid?: string;
+    orderId?: string;
+    startTime: string;
+    endTime: string;
+    idLessThan?: string;
+    limit?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    requestTime: number;
+    data: {
+      orderId: string;
+      tradeId: string;
+      coin: string;
+      clientOid: string;
+      type: string;
+      dest: string;
+      size: string;
+      status: string;
+      fromAddress: string;
+      toAddress: string;
+      fee: string;
+      chain: string;
+      confirm: string;
+      tag: string;
+      cTime: string;
+      uTime: string;
+    }[];
+  }> => this.request('GET', '/api/v2/spot/wallet/withdrawal-records', params);
+
+  /**
+   * 获取充币记录
+   *
+   * 限速规则 10次/1s (UID)
+   *
+   * 获取充币记录(不包含法币充值)
+   *
+   * https://www.bitget.com/zh-CN/api-doc/spot/account/Get-Deposit-Record
+   */
+  getDepositRecords = (params: {
+    coin?: string;
+    orderId?: string;
+    startTime: string;
+    endTime: string;
+    idLessThan?: string;
+    limit?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    requestTime: number;
+    data: {
+      orderId: string;
+      tradeId: string;
+      coin: string;
+      type: string;
+      dest: string;
+      size: string;
+      status: string;
+      fromAddress: string;
+      toAddress: string;
+      chain: string;
+      cTime: string;
+      uTime: string;
+    }[];
+  }> => this.request('GET', '/api/v2/spot/wallet/deposit-records', params);
+
+  /**
+   * 获取历史资金费率
+   *
+   * 限速规则: 20次/1s (IP)
+   *
+   * 获取合约的历史资金费率
+   *
+   * https://www.bitget.com/zh-CN/api-doc/contract/market/Get-History-Funding-Rate
+   */
+  getHistoricalFundingRate = (params: {
+    symbol: string;
+    productType: string;
+    pageSize?: string;
+    pageNo?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    requestTime: number;
+    data: {
+      symbol: string;
+      fundingRate: string;
+      fundingTime: string;
+    }[];
+  }> =>
+    this.requestWithFlowControl(
+      'GET',
+      '/api/v2/mix/market/history-fund-rate',
+      { period: 1000, limit: 20 },
+      params,
+    );
+
+  /**
+   * 获取账户现货资产
+   *
+   * 限速规则 10次/1s (UID)
+   *
+   * 获取账户币种资产
+   *
+   * https://www.bitget.com/zh-CN/api-doc/spot/account/Get-Account-Assets
+   */
+  getSpotAssets = (params?: {
+    coin?: string;
+    assetType?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    requestTime: number;
+    data: {
+      coin: string;
+      available: string;
+      frozen: string;
+      locked: string;
+      limitAvailable: string;
+      uTime: string;
+    }[];
+  }> => this.request('GET', '/api/v2/spot/account/assets', params);
 }
-
-// (async () => {
-//   const client = new BitgetClient({
-//     auth: {
-//       access_key: process.env.ACCESS_KEY!,
-//       secret_key: process.env.SECRET_KEY!,
-//       passphrase: process.env.PASSPHRASE!,
-//     },
-//   });
-
-//   // console.log(await client.getAccountInfo());
-//   // console.log(await client.getAllPositions({ productType: 'USDT-FUTURES', marginCoin: 'USDT' }));
-//   console.log(await client.getFutureAccounts({ productType: 'COIN-FUTURES' }));
-//   // console.log(await client.getMarketContracts({ productType: 'USDT-FUTURES' }));
-//   // console.log(
-//   //   JSON.stringify(await client.getOpenInterest({ productType: 'USDT-FUTURES', symbol: 'BTCUSDT' })),
-//   // );
-//   // console.log(await client.getMarketContracts({ productType: 'USDT-FUTURES' }));
-// })();

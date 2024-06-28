@@ -7,6 +7,7 @@ import {
   decodePath,
   encodePath,
   formatTime,
+  wrapTransferNetworkInfo,
 } from '@yuants/data-model';
 import { Terminal, provideAccountInfo, provideTicks, wrapProduct, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
@@ -19,6 +20,8 @@ import {
   delayWhen,
   expand,
   filter,
+  firstValueFrom,
+  interval,
   map,
   mergeMap,
   of,
@@ -30,6 +33,8 @@ import {
   timer,
 } from 'rxjs';
 import { BitgetClient } from './api';
+import { IFundingRate, wrapFundingRateRecord } from './models/FundingRate';
+import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
 
 const DATASOURCE_ID = 'Bitget';
 
@@ -78,68 +83,74 @@ const fundingTime$ = memoizeMap((product_id: string) =>
   const accountInfoRes = await client.getAccountInfo();
   const uid = accountInfoRes.data.userId;
   const parentId = '' + accountInfoRes.data.parentId;
+  const isMainAccount = uid === parentId;
 
   const terminal = new Terminal(process.env.HOST_URL!, {
     terminal_id: process.env.TERMINAL_ID || `bitget/${uid}/${UUID()}`,
     name: 'Bitget',
   });
 
-  const futureAccountId = `bitget/${uid}/futures`;
+  const USDT_FUTURE_ACCOUNT_ID = `bitget/${uid}/futures/USDT`;
+  const SPOT_ACCOUNT_ID = `bitget/${uid}/spot/USDT`;
 
   // product
-  {
-    const futureProducts$ = defer(async () => {
-      // usdt-m swap
-      const usdtFuturesProductRes = await client.getMarketContracts({ productType: 'USDT-FUTURES' });
-      if (usdtFuturesProductRes.msg !== 'success') {
-        throw new Error(usdtFuturesProductRes.msg);
-      }
-      // mixed-coin swap, (including coin-m and coin-f)
-      const coinFuturesProductRes = await client.getMarketContracts({ productType: 'COIN-FUTURES' });
-      if (coinFuturesProductRes.msg !== 'success') {
-        throw new Error(coinFuturesProductRes.msg);
-      }
-      const usdtFutures = usdtFuturesProductRes.data.map(
-        (product): IProduct => ({
-          product_id: encodePath(`USDT-FUTURES`, product.symbol),
-          datasource_id: DATASOURCE_ID,
-          quote_currency: product.quoteCoin,
-          base_currency: product.baseCoin,
-          price_step: Number(`1e-${product.pricePlace}`),
-          volume_step: +product.sizeMultiplier,
-        }),
-      );
-      const coinFutures = coinFuturesProductRes.data.map(
-        (product): IProduct => ({
-          product_id: encodePath(`COIN-FUTURES`, product.symbol),
-          datasource_id: DATASOURCE_ID,
-          quote_currency: product.quoteCoin,
-          base_currency: product.baseCoin,
-          price_step: Number(`1e-${product.pricePlace}`),
-          volume_step: +product.sizeMultiplier,
-        }),
-      );
-
-      return [...usdtFutures, ...coinFutures];
-    }).pipe(
-      tap({
-        error: (e) => {
-          console.error(formatTime(Date.now()), 'FuturesProducts', e);
-        },
+  const futureProducts$ = defer(async () => {
+    // usdt-m swap
+    const usdtFuturesProductRes = await client.getMarketContracts({ productType: 'USDT-FUTURES' });
+    if (usdtFuturesProductRes.msg !== 'success') {
+      throw new Error(usdtFuturesProductRes.msg);
+    }
+    // mixed-coin swap, (including coin-m and coin-f)
+    const coinFuturesProductRes = await client.getMarketContracts({ productType: 'COIN-FUTURES' });
+    if (coinFuturesProductRes.msg !== 'success') {
+      throw new Error(coinFuturesProductRes.msg);
+    }
+    const usdtFutures = usdtFuturesProductRes.data.map(
+      (product): IProduct => ({
+        product_id: encodePath(`USDT-FUTURES`, product.symbol),
+        datasource_id: DATASOURCE_ID,
+        quote_currency: product.quoteCoin,
+        base_currency: product.baseCoin,
+        price_step: Number(`1e-${product.pricePlace}`),
+        volume_step: +product.sizeMultiplier,
       }),
-      retry({ delay: 5000 }),
-      repeat({ delay: 86400_000 }),
-      shareReplay(1),
+    );
+    const coinFutures = coinFuturesProductRes.data.map(
+      (product): IProduct => ({
+        product_id: encodePath(`COIN-FUTURES`, product.symbol),
+        datasource_id: DATASOURCE_ID,
+        quote_currency: product.quoteCoin,
+        base_currency: product.baseCoin,
+        price_step: Number(`1e-${product.pricePlace}`),
+        volume_step: +product.sizeMultiplier,
+      }),
     );
 
-    futureProducts$
-      .pipe(delayWhen((products) => writeDataRecords(terminal, products.map(wrapProduct))))
-      .subscribe((products) => {
-        console.info(formatTime(Date.now()), 'FUTUREProductsUpdated', products.length);
-      });
+    return [...usdtFutures, ...coinFutures];
+  }).pipe(
+    tap({
+      error: (e) => {
+        console.error(formatTime(Date.now()), 'FuturesProducts', e);
+      },
+    }),
+    retry({ delay: 5000 }),
+    repeat({ delay: 86400_000 }),
+    shareReplay(1),
+  );
 
-    // TODO: margin products
-  }
+  futureProducts$
+    .pipe(delayWhen((products) => writeDataRecords(terminal, products.map(wrapProduct))))
+    .subscribe((products) => {
+      console.info(formatTime(Date.now()), 'FUTUREProductsUpdated', products.length);
+    });
+
+  const mapProductIdToFuturesProduct$ = futureProducts$.pipe(
+    //
+    map((products) => new Map(products.map((v) => [v.product_id, v]))),
+    shareReplay(1),
+  );
+
+  // TODO: margin products
 
   // ticks
   {
@@ -231,7 +242,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
       }
 
       return {
-        account_id: `bitget/${uid}/futures`,
+        account_id: USDT_FUTURE_ACCOUNT_ID,
         money: {
           currency: 'USDT',
           equity: +balanceRes.data[0].accountEquity,
@@ -251,7 +262,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
             position_price: +position.openPriceAvg,
             closable_price: +position.markPrice,
             floating_profit: +position.unrealizedPL,
-            valuation: 0,
+            valuation: +position.total * +position.markPrice,
           }),
         ),
         orders: [],
@@ -271,6 +282,45 @@ const fundingTime$ = memoizeMap((product_id: string) =>
     provideAccountInfo(terminal, swapAccountInfo$);
   }
 
+  // spot account info
+  {
+    const spotAccountInfo$ = defer(async (): Promise<IAccountInfo> => {
+      const res = await client.getSpotAssets();
+      if (res.msg !== 'success') {
+        throw new Error(res.msg);
+      }
+      const balance = +(res.data.find((v) => v.coin === 'USDT')?.available ?? 0);
+      const equity = balance;
+      const free = equity;
+      return {
+        updated_at: Date.now(),
+        account_id: SPOT_ACCOUNT_ID,
+        money: {
+          currency: 'USDT',
+          equity,
+          profit: 0,
+          free,
+          used: 0,
+          balance,
+        },
+        positions: [],
+        orders: [],
+      };
+    }).pipe(
+      //
+      tap({
+        error: (e) => {
+          console.error(formatTime(Date.now()), 'SpotAccountInfo', e);
+        },
+      }),
+      retry({ delay: 5000 }),
+      repeat({ delay: 1000 }),
+      shareReplay(1),
+    );
+
+    provideAccountInfo(terminal, spotAccountInfo$);
+  }
+
   // trade api
   {
     terminal.provideService(
@@ -278,7 +328,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
       {
         required: ['account_id'],
         properties: {
-          account_id: { const: futureAccountId },
+          account_id: { const: USDT_FUTURE_ACCOUNT_ID },
         },
       },
       (msg) =>
@@ -338,7 +388,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
       {
         required: ['account_id'],
         properties: {
-          account_id: { const: futureAccountId },
+          account_id: { const: USDT_FUTURE_ACCOUNT_ID },
         },
       },
       (msg) =>
@@ -359,5 +409,226 @@ const fundingTime$ = memoizeMap((product_id: string) =>
           return { res: { code: 0, message: 'OK' } };
         }),
     );
+  }
+
+  // historical funding rate
+  {
+    terminal.provideService(
+      'CopyDataRecords',
+      {
+        required: ['type', 'tags'],
+        properties: {
+          type: { const: 'funding_rate' },
+          tags: {
+            type: 'object',
+            required: ['series_id'],
+            properties: {
+              series_id: { type: 'string', pattern: '^bitget/' },
+            },
+          },
+        },
+      },
+      (msg, output$) => {
+        const sub = interval(5000).subscribe(() => {
+          output$.next({});
+        });
+        return defer(async () => {
+          console.info(formatTime(Date.now()), 'CopyDataRecords', msg);
+          if (msg.req.tags?.series_id === undefined) {
+            return { res: { code: 400, message: 'series_id is required' } };
+          }
+          const [start, end] = msg.req.time_range || [0, Date.now()];
+          const [datasource_id, product_id] = decodePath(msg.req.tags.series_id);
+          const mapProductsToFutureProducts = await firstValueFrom(mapProductIdToFuturesProduct$);
+          const theProduct = mapProductsToFutureProducts.get(product_id);
+          if (theProduct === undefined) {
+            return { res: { code: 404, message: `product ${product_id} not found` } };
+          }
+          const { base_currency, quote_currency } = theProduct;
+          if (!base_currency || !quote_currency) {
+            return { res: { code: 400, message: `base_currency or quote_currency is required` } };
+          }
+          const [instType, instId] = decodePath(product_id);
+          const funding_rate_history: IFundingRate[] = [];
+          let current_page = 0;
+          while (true) {
+            const res = await client.getHistoricalFundingRate({
+              symbol: instId,
+              productType: instType,
+              pageSize: '100',
+              pageNo: '' + current_page,
+            });
+            if (res.msg !== 'success') {
+              console.error(
+                formatTime(Date.now()),
+                'HistoricalFundingRate',
+                `series_id: ${msg.req.tags.series_id}`,
+                res,
+              );
+              return { res: { code: 500, message: res.msg } };
+            }
+            if (res.data.length === 0) {
+              break;
+            }
+            for (const v of res.data) {
+              if (+v.fundingTime <= end) {
+                funding_rate_history.push({
+                  series_id: msg.req.tags.series_id,
+                  datasource_id,
+                  product_id,
+                  base_currency,
+                  quote_currency,
+                  funding_at: +v.fundingTime,
+                  funding_rate: +v.fundingRate,
+                });
+              }
+            }
+            if (+res.data[res.data.length - 1].fundingTime <= start) {
+              break;
+            }
+            current_page++;
+          }
+          funding_rate_history.sort((a, b) => a.funding_at - b.funding_at);
+
+          await firstValueFrom(writeDataRecords(terminal, funding_rate_history.map(wrapFundingRateRecord)));
+          return { res: { code: 0, message: 'OK' } };
+        }).pipe(
+          tap({
+            finalize: () => {
+              sub.unsubscribe();
+            },
+          }),
+        );
+      },
+    );
+  }
+
+  // transfer
+  {
+    // BLOCK_CHAIN;
+    if (isMainAccount) {
+      const depositAddressRes = await client.getDepositAddress({ coin: 'USDT', chain: 'TRC20' });
+      console.info(formatTime(Date.now()), 'DepositAddress', depositAddressRes.data);
+      const address = depositAddressRes.data;
+      await firstValueFrom(
+        writeDataRecords(terminal, [
+          wrapTransferNetworkInfo({
+            network_id: 'TRC20',
+            commission: 1,
+            currency: 'USDT',
+            timeout: 1800_000,
+          }),
+        ]),
+      );
+      addAccountTransferAddress({
+        terminal,
+        account_id: SPOT_ACCOUNT_ID,
+        network_id: 'TRC20',
+        currency: 'USDT',
+        address: address.address,
+        onApply: {
+          INIT: async (order) => {
+            if (!order.current_amount || order.current_amount < 10) {
+              return { state: 'ERROR', message: 'Amount too small' };
+            }
+            const transferResult = await client.postWithdraw({
+              coin: 'USDT',
+              transferType: 'on_chain',
+              address: order.current_rx_address!,
+              chain: 'TRC20',
+              size: `${order.current_amount}`,
+            });
+            if (transferResult.msg !== 'success') {
+              return { state: 'ERROR', message: transferResult.msg };
+            }
+            const wdId = transferResult.data.orderId;
+            return { state: 'PENDING', message: wdId };
+          },
+          PENDING: async (order) => {
+            const wdId = order.current_tx_context;
+            const withdrawalRecordsResult = await client.getWithdrawalRecords({
+              orderId: wdId,
+              startTime: `${Date.now() - 90 * 86400_000}`,
+              endTime: '' + Date.now(),
+            });
+            const txId = withdrawalRecordsResult.data[0].tradeId;
+            if (txId === wdId) {
+              return { state: 'PENDING', context: wdId };
+            }
+            return { state: 'COMPLETE', transaction_id: txId };
+          },
+        },
+        onEval: async (order) => {
+          const checkResult = await client.getDepositRecords({
+            coin: 'USDT',
+            startTime: `${Date.now() - 90 * 86400_000}`,
+            endTime: '' + Date.now(),
+            limit: '100',
+          });
+          if (checkResult.msg !== 'success') {
+            return { state: 'PENDING' };
+          }
+          const deposit = checkResult.data.find((v) => v.tradeId === order.current_transaction_id);
+          if (deposit === undefined) {
+            return { state: 'PENDING' };
+          }
+          return { state: 'COMPLETE', received_amount: +deposit.size };
+        },
+      });
+    }
+
+    // account internal transfer
+    const ACCOUNT_INTERNAL_NETWORK_ID = `Bitget/${uid}/ACCOUNT_INTERNAL_NETWORK_ID`;
+    addAccountTransferAddress({
+      terminal,
+      account_id: SPOT_ACCOUNT_ID,
+      network_id: ACCOUNT_INTERNAL_NETWORK_ID,
+      currency: 'USDT',
+      address: 'SPOT',
+      onApply: {
+        INIT: async (order) => {
+          const transferResult = await client.postTransfer({
+            fromType: 'spot',
+            toType: 'usdt_futures',
+            amount: `${order.current_amount}`,
+            coin: 'USDT',
+          });
+          if (transferResult.msg !== 'success') {
+            return { state: 'INIT', message: transferResult.msg };
+          }
+          return { state: 'COMPLETE' };
+        },
+      },
+      onEval: async (order) => {
+        return { state: 'COMPLETE', received_amount: order.current_amount };
+      },
+    });
+    addAccountTransferAddress({
+      terminal,
+      account_id: USDT_FUTURE_ACCOUNT_ID,
+      network_id: ACCOUNT_INTERNAL_NETWORK_ID,
+      currency: 'USDT',
+      address: 'USDT_FUTURE',
+      onApply: {
+        INIT: async (order) => {
+          const transferResult = await client.postTransfer({
+            fromType: 'usdt_futures',
+            toType: 'spot',
+            amount: `${order.current_amount}`,
+            coin: 'USDT',
+          });
+          if (transferResult.msg !== 'success') {
+            return { state: 'INIT', message: transferResult.msg };
+          }
+          return { state: 'COMPLETE' };
+        },
+      },
+      onEval: async (order) => {
+        return { state: 'COMPLETE', received_amount: order.current_amount };
+      },
+    });
+
+    // TODO: account internal margin transfer
+    // TODO: sub-account transfer
   }
 })();

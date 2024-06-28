@@ -14,7 +14,7 @@ declare module '.' {
     // 发起转账
     TransferApply: {
       req: ITransferOrder;
-      res: IResponse<{ state: string; context?: string; transaction_id?: string }>;
+      res: IResponse<{ state: string; context?: string; transaction_id?: string; message?: string }>;
       frame: void;
     };
     // 核验转账 (对账)
