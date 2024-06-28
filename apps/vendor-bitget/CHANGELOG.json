@@ -2,6 +2,31 @@
   "name": "@yuants/vendor-bitget",
   "entries": [
     {
+      "version": "0.0.2",
+      "tag": "@yuants/vendor-bitget_v0.0.2",
+      "date": "Fri, 28 Jun 2024 12:37:38 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add submit order"
+          },
+          {
+            "comment": "add transfer api & history funding rate"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.18.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.1",
       "tag": "@yuants/vendor-bitget_v0.0.1",
       "date": "Tue, 25 Jun 2024 10:05:47 GMT",
