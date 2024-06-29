@@ -213,13 +213,15 @@ Every vendor is a gateway to connect the external service directly. Your private
 
 - [@yuants/vendor-ccxt](apps/vendor-ccxt) This connects to the "CryptoCurrency eXchange Trading Library" (CCXT). CCXT is a JavaScript / Python / PHP cryptocurrency trading library that supports many cryptocurrency exchanges and trading markets. You can use it to trade cryptocurrencies.
 
-- [@yuants/vendor-binance](apps/vendor-binance) This connects to the Binance Exchange. Binance is a famous crypto exchange.
+- [@yuants/vendor-binance](apps/vendor-binance) This connects to _Binance_, which is a famous crypto exchange.
 
-- [@yuants/vendor-okx](apps/vendor-okx) This connects to the OKX Exchange. OKX is a famous crypto exchange.
+- [@yuants/vendor-okx](apps/vendor-okx) This connects to _OKX_, which is a famous crypto exchange.
 
-- [@yuants/vendor-huobi](apps/vendor-huobi) This connects to the Huobi Exchange. Huobi is a famous crypto exchange.
+- [@yuants/vendor-huobi](apps/vendor-huobi) This connects to _Huobi_, which is a famous crypto exchange.
 
-- [@yuants/vendor-gate](apps/vendor-gate) This connects to the Gate.io Exchange. Gate.io is a famous crypto exchange.
+- [@yuants/vendor-gate](apps/vendor-gate) This connects to _Gate_, which is a famous crypto exchange.
+
+- [@yuants/vendor-bitget](apps/vendor-bitget) This connects to _BitGet_, which is a famous crypto exchange.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
