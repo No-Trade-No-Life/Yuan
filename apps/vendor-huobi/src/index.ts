@@ -390,7 +390,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
     .pipe(
       //
       mergeMap((res) =>
-        from(res.list).pipe(
+        from(res?.list || []).pipe(
           filter((v) => v.currency !== 'usdt'),
           map((v) => v.currency),
           distinct(),
@@ -423,7 +423,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
       const balance$ = superMarginUnifiedRawAccountBalance$.pipe(
         //
         mergeMap((res) =>
-          from(res.list).pipe(
+          from(res?.list || []).pipe(
             filter((v) => v.currency === 'usdt'),
             reduce((acc, cur) => acc + +cur.balance, 0),
           ),
@@ -432,7 +432,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
       const position$ = superMarginUnifiedRawAccountBalance$.pipe(
         //
         mergeMap((res) =>
-          from(res.list).pipe(
+          from(res?.list || []).pipe(
             filter((v) => v.currency !== 'usdt'),
             groupBy((res) => res.currency),
             mergeMap((group$) =>
