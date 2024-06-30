@@ -1,5 +1,5 @@
-import { IAccountInfo, formatTime } from '@yuants/data-model';
-import { Terminal } from '@yuants/protocol';
+import { IAccountInfo, IAccountMoney, formatTime } from '@yuants/data-model';
+import { Terminal, provideAccountInfo, readDataRecords } from '@yuants/protocol';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import {
@@ -16,7 +16,7 @@ import {
   timeout,
   toArray,
 } from 'rxjs';
-import { IAccountCompositionRelation, acrSchema } from './model';
+import { acrSchema } from './model';
 
 const TERMINAL_ID = process.env.TERMINAL_ID || `AccountComposer`;
 const terminal = new Terminal(process.env.HOST_URL!, { terminal_id: TERMINAL_ID, name: 'Account Composer' });
@@ -26,9 +26,10 @@ addFormats(ajv);
 
 const validate = ajv.compile(acrSchema);
 
-defer(() => terminal.queryDataRecords<IAccountCompositionRelation>({ type: 'account_composition_relation' }))
+defer(() => readDataRecords(terminal, { type: 'account_composition_relation' }))
   .pipe(
     //
+    mergeMap((x) => x),
     map((msg) => msg.origin),
     filter((x) => validate(x)),
     toArray(),
@@ -58,6 +59,15 @@ defer(() => terminal.queryDataRecords<IAccountCompositionRelation>({ type: 'acco
                         used: x.money.used * y.multiple,
                         free: x.money.free * y.multiple,
                       },
+                      currencies:
+                        x.currencies?.map((c) => ({
+                          ...c,
+                          equity: c.equity * y.multiple,
+                          balance: c.balance * y.multiple,
+                          profit: c.profit * y.multiple,
+                          used: c.used * y.multiple,
+                          free: c.free * y.multiple,
+                        })) ?? [],
                       positions: x.positions.map((p) => ({
                         ...p,
                         volume: p.volume * y.multiple,
@@ -74,9 +84,19 @@ defer(() => terminal.queryDataRecords<IAccountCompositionRelation>({ type: 'acco
             retry(),
             throttleTime(1000),
             map((accountInfos): IAccountInfo => {
+              const mapCurrencyToCurrentInfo: Record<string, IAccountMoney> = {};
+              accountInfos.forEach((x) => {
+                x.currencies?.forEach((c) => {
+                  const y = (mapCurrencyToCurrentInfo[c.currency] ??= { ...c });
+                  y.equity += c.equity;
+                  y.balance += c.balance;
+                  y.profit += c.profit;
+                  y.used += c.used;
+                  y.free += c.free;
+                });
+              });
               return {
                 account_id: group.key,
-                timestamp_in_us: Date.now() * 1000,
                 updated_at: Date.now(),
                 money: {
                   currency: accountInfos[0].money.currency,
@@ -86,13 +106,13 @@ defer(() => terminal.queryDataRecords<IAccountCompositionRelation>({ type: 'acco
                   used: accountInfos.reduce((acc, x) => acc + x.money.used, 0),
                   free: accountInfos.reduce((acc, x) => acc + x.money.free, 0),
                 },
+                currencies: Object.values(mapCurrencyToCurrentInfo),
                 positions: accountInfos.flatMap((x) => x.positions),
                 orders: accountInfos.flatMap((x) => x.orders),
               };
             }),
           );
-
-          terminal.provideAccountInfo(accountInfo$);
+          provideAccountInfo(terminal, accountInfo$);
         }),
       ),
     ),

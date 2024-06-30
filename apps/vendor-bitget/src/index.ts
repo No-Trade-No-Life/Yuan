@@ -1,5 +1,6 @@
 import {
   IAccountInfo,
+  IAccountMoney,
   IPosition,
   IProduct,
   ITick,
@@ -241,16 +242,18 @@ const fundingTime$ = memoizeMap((product_id: string) =>
         throw new Error(positionsRes.msg);
       }
 
+      const money: IAccountMoney = {
+        currency: 'USDT',
+        equity: +balanceRes.data[0].accountEquity,
+        profit: +balanceRes.data[0].unrealizedPL,
+        free: +balanceRes.data[0].crossedMaxAvailable,
+        used: +balanceRes.data[0].accountEquity - +balanceRes.data[0].crossedMaxAvailable,
+        balance: +balanceRes.data[0].accountEquity - +balanceRes.data[0].unrealizedPL,
+      };
       return {
         account_id: USDT_FUTURE_ACCOUNT_ID,
-        money: {
-          currency: 'USDT',
-          equity: +balanceRes.data[0].accountEquity,
-          profit: +balanceRes.data[0].unrealizedPL,
-          free: +balanceRes.data[0].crossedMaxAvailable,
-          used: +balanceRes.data[0].accountEquity - +balanceRes.data[0].crossedMaxAvailable,
-          balance: +balanceRes.data[0].accountEquity - +balanceRes.data[0].unrealizedPL,
-        },
+        money: money,
+        currencies: [money],
         positions: positionsRes.data.map(
           (position): IPosition => ({
             position_id: `${position.symbol}-${position.holdSide}`,
@@ -292,17 +295,19 @@ const fundingTime$ = memoizeMap((product_id: string) =>
       const balance = +(res.data.find((v) => v.coin === 'USDT')?.available ?? 0);
       const equity = balance;
       const free = equity;
+      const money: IAccountMoney = {
+        currency: 'USDT',
+        equity,
+        profit: 0,
+        free,
+        used: 0,
+        balance,
+      };
       return {
         updated_at: Date.now(),
         account_id: SPOT_ACCOUNT_ID,
-        money: {
-          currency: 'USDT',
-          equity,
-          profit: 0,
-          free,
-          used: 0,
-          balance,
-        },
+        money: money,
+        currencies: [money],
         positions: [],
         orders: [],
       };

@@ -1,5 +1,6 @@
 import {
   IAccountInfo,
+  IAccountMoney,
   IDataRecord,
   IOrder,
   IPeriod,
@@ -421,18 +422,19 @@ interface IGeneralSpecificRelation {
       const fundingAccountInfo$ = defer(() => ex.fetchBalance({ type: 'funding' })).pipe(
         map((balance): IAccountInfo => {
           const okx_balance = balance[CURRENCY];
+          const money: IAccountMoney = {
+            currency: CURRENCY,
+            balance: okx_balance.total!,
+            free: okx_balance.free!,
+            used: okx_balance.used!,
+            equity: okx_balance.total!,
+            profit: 0,
+          };
           return {
-            timestamp_in_us: Date.now() * 1000,
             updated_at: Date.now(),
             account_id: `${account_id}/funding`,
-            money: {
-              currency: CURRENCY,
-              balance: okx_balance.total!,
-              free: okx_balance.free!,
-              used: okx_balance.used!,
-              equity: okx_balance.total!,
-              profit: 0,
-            },
+            money: money,
+            currencies: [money],
             positions: [],
             orders: [],
           };
@@ -513,18 +515,19 @@ interface IGeneralSpecificRelation {
           map(([balance, positions, orders]): IAccountInfo => {
             const profit = positions.reduce((acc, cur) => cur.floating_profit + acc, 0);
             const equity = +(balance[CURRENCY]?.total ?? 0);
+            const money: IAccountMoney = {
+              currency: CURRENCY,
+              balance: equity - profit,
+              free: +(balance[CURRENCY]?.free ?? 0),
+              used: +(balance[CURRENCY]?.used ?? 0),
+              equity: equity,
+              profit,
+            };
             return {
-              timestamp_in_us: Date.now() * 1000,
               updated_at: Date.now(),
               account_id: account_id,
-              money: {
-                currency: CURRENCY,
-                balance: equity - profit,
-                free: +(balance[CURRENCY]?.free ?? 0),
-                used: +(balance[CURRENCY]?.used ?? 0),
-                equity: equity,
-                profit,
-              },
+              money: money,
+              currencies: [money],
               positions,
               orders,
             };

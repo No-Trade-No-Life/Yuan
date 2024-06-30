@@ -296,9 +296,9 @@ export const queryAccountInfo = (
       ([money, positions, orders]): IAccountInfo => ({
         account_id,
         money,
+        currencies: [money],
         positions,
         orders,
-        timestamp_in_us: Date.now() * 1e3,
         updated_at: Date.now(),
       }),
     ),

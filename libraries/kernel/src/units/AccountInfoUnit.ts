@@ -1,8 +1,8 @@
-import { IAccountInfo, IPosition } from '@yuants/data-model';
+import { IAccountInfo, IAccountMoney, IPosition, createEmptyAccountInfo } from '@yuants/data-model';
 import { roundToStep } from '@yuants/utils';
 import { Subscription } from 'rxjs';
 import { Kernel } from '../kernel';
-import { createEmptyAccountInfo, getMargin, getProfit } from '../utils';
+import { getMargin, getProfit } from '../utils';
 import { BasicUnit } from './BasicUnit';
 import { HistoryOrderUnit } from './HistoryOrderUnit';
 import { ProductDataUnit } from './ProductDataUnit';
@@ -201,18 +201,19 @@ export class AccountInfoUnit extends BasicUnit {
     const profit = positions.reduce((acc, cur) => acc + cur.floating_profit, 0);
     const equity = balance + profit;
     const free = equity - used;
+    const money: IAccountMoney = {
+      ...theAccountInfo.money,
+      equity,
+      balance,
+      profit,
+      used,
+      free,
+    };
     this.mapAccountIdToAccountInfo.set(accountId, {
       ...theAccountInfo,
       updated_at: this.kernel.currentTimestamp,
-      timestamp_in_us: this.kernel.currentTimestamp * 1000,
-      money: {
-        ...theAccountInfo.money,
-        equity,
-        balance,
-        profit,
-        used,
-        free,
-      },
+      money: money,
+      currencies: [money],
       positions,
     });
   }

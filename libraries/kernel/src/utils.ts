@@ -62,37 +62,6 @@ export const getMargin = (
     : 1);
 
 /**
- * 构造一个空的账户流信息
- * @param account_id - 账户ID
- * @param currency - 账户保证金货币
- * @param leverage - 账户系统杠杆率
- * @param initial_balance - 初始余额
- *
- * @public
- */
-export const createEmptyAccountInfo = (
-  account_id: string,
-  currency: string,
-  leverage: number = 1,
-  initial_balance: number = 0,
-): IAccountInfo => ({
-  timestamp_in_us: 0,
-  updated_at: 0,
-  account_id,
-  money: {
-    currency,
-    leverage,
-    equity: initial_balance,
-    balance: initial_balance,
-    profit: 0,
-    used: 0,
-    free: 0,
-  },
-  positions: [],
-  orders: [],
-});
-
-/**
  * Merge Positions by product_id/variant
  * @param positions - List of Positions
  * @returns - Merged Positions
