@@ -9,6 +9,7 @@ import './index.css';
 // Global Libraries
 import * as Kernel from '@yuants/kernel';
 import * as rx from 'rxjs';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 Object.assign(globalThis, { rx, Kernel });
 
 // Import All Modules (Vite-only feature)
@@ -20,9 +21,13 @@ const App = () => {
   return <DesktopLayout />;
 };
 
+const queryClient = new QueryClient();
+
 // React Render!
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <App />
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
   </React.StrictMode>,
 );

@@ -56,7 +56,8 @@
     "yaml": "~2.2.1",
     "react-markdown": "~9.0.1",
     "rehype-raw": "~7.0.0",
-    "@tanstack/react-table": "~8.12.0"
+    "@tanstack/react-table": "~8.12.0",
+    "@tanstack/react-query": "~5.49.2"
   },
   "devDependencies": {
     "@originjs/vite-plugin-commonjs": "~1.0.3",

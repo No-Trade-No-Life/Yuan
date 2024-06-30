@@ -1,7 +1,14 @@
 import { IconClose, IconTaskMoneyStroked } from '@douyinfe/semi-icons';
 import { Collapse, Descriptions, Empty, Space, Table, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { IPosition, ITick, encodePath, formatTime, mergeAccountInfoPositions } from '@yuants/data-model';
+import {
+  IAccountMoney,
+  IPosition,
+  ITick,
+  encodePath,
+  formatTime,
+  mergeAccountInfoPositions,
+} from '@yuants/data-model';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useMemo } from 'react';
 import {
@@ -277,6 +284,40 @@ registerPage('AccountInfoPanel', () => {
     getCoreRowModel: getCoreRowModel(),
   });
 
+  const columnsOfCurrencies = useMemo(() => {
+    const helper = createColumnHelper<IAccountMoney>();
+    return [
+      helper.accessor('currency', { header: () => '货币' }),
+      helper.accessor('equity', { header: () => '净值' }),
+      helper.accessor('balance', { header: () => '余额' }),
+      helper.accessor('profit', { header: () => '浮动盈亏' }),
+      helper.accessor('used', { header: () => '已用保证金' }),
+      helper.accessor('free', { header: () => '可用保证金' }),
+      helper.display({
+        id: 'profit_rate',
+        header: () => '浮动收益率',
+        cell: (ctx) => {
+          const money = ctx.row.original;
+          return `${((money.profit / money.balance) * 100).toFixed(2)}%`;
+        },
+      }),
+      helper.display({
+        id: 'margin_rate',
+        header: () => '保证金使用率',
+        cell: (ctx) => {
+          const money = ctx.row.original;
+          return `${((money.used / money.equity) * 100).toFixed(2)}%`;
+        },
+      }),
+    ];
+  }, []);
+
+  const tableOfCurrencies = useReactTable({
+    data: accountInfo?.currencies ?? [],
+    columns: columnsOfCurrencies,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
   if (!accountInfo) {
     return <Empty title={'加载中'}></Empty>;
   }
@@ -299,6 +340,7 @@ registerPage('AccountInfoPanel', () => {
           转账
         </Button>
       </Space>
+
       <Descriptions
         align="center"
         size="small"
@@ -347,7 +389,10 @@ registerPage('AccountInfoPanel', () => {
           },
         ]}
       />
-      <Collapse defaultActiveKey={'持仓汇总'} style={{ width: '100%' }}>
+      <Collapse defaultActiveKey={'通货汇总'} style={{ width: '100%' }}>
+        <Collapse.Panel header={`通货汇总 (${accountInfo.currencies.length})`} itemKey="通货汇总">
+          <DataView table={tableOfCurrencies} />
+        </Collapse.Panel>
         <Collapse.Panel header={`持仓汇总 (${positionSummary.length})`} itemKey="持仓汇总">
           <DataView table={tableOfPositionSummary} />
         </Collapse.Panel>

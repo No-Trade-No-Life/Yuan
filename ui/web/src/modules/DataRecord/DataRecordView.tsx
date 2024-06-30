@@ -1,6 +1,15 @@
 import { IconCopyAdd, IconDelete, IconEdit, IconRefresh, IconSearch } from '@douyinfe/semi-icons';
-import { Space, Toast } from '@douyinfe/semi-ui';
-import { ColumnDef, createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { Space, Spin, Toast } from '@douyinfe/semi-ui';
+import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
+import {
+  AccessorKeyColumnDef,
+  ColumnDef,
+  SortingState,
+  createColumnHelper,
+  getCoreRowModel,
+  getSortedRowModel,
+  useReactTable,
+} from '@tanstack/react-table';
 import { IDataRecord } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -13,45 +22,75 @@ interface IDataRecordViewDef<T> {
   TYPE: string;
   columns: (ctx: { reloadData: () => Promise<void> }) => ColumnDef<IDataRecord<T>, any>[];
   extraRecordActions?: React.ComponentType<{ reloadData: () => Promise<void>; record: IDataRecord<T> }>;
+  extraHeaderActions?: React.ComponentType<{}>;
   newRecord: () => Partial<T>;
   mapOriginToDataRecord: (x: T) => IDataRecord<T>;
   beforeUpdateTrigger?: (x: T) => void | Promise<void>;
   schema: JSONSchema7;
 }
 
+const PAGE_SIZE = 40;
 /**
  * General Data Record View
  */
 export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
   const [searchFormData, setSearchFormData] = useState({} as any);
+  const [refreshCnt, setRefreshCnt] = useState(0);
+  const [sorting, setSorting] = React.useState<SortingState>([]);
 
-  const [records, setRecords] = useState<IDataRecord<T>[]>([]);
+  const { data, fetchNextPage, isFetching } = useInfiniteQuery<IDataRecord<T>[]>({
+    queryKey: [refreshCnt, sorting],
+    queryFn: async (ctx) => {
+      const pageParam = ctx.pageParam as number;
+      const terminal = await firstValueFrom(terminal$);
+      if (!terminal) return [];
+
+      const sort: [string, number][] = [];
+      for (const x of sorting) {
+        const column = table.getColumn(x.id);
+        if (column) {
+          const access_key = (column.columnDef as AccessorKeyColumnDef<IDataRecord<T>[], unknown>)
+            .accessorKey;
+          if (typeof access_key === 'string') {
+            sort.push([access_key, x.desc ? -1 : 1]);
+          }
+        }
+      }
+      sort.push(['updated_at', -1]);
+
+      const queryParams = {
+        type: props.TYPE,
+        tags: Object.fromEntries(
+          Object.entries(searchFormData)
+            .map(([k, v]) => [k, `${v}`])
+            .filter(([, v]) => v !== ''),
+        ),
+        options: {
+          skip: pageParam * PAGE_SIZE,
+          limit: PAGE_SIZE,
+          sort: sort,
+        },
+      };
+      console.info('queryDataRecords', searchFormData, sorting, queryParams);
+      const data = await lastValueFrom(
+        terminal.queryDataRecords<T>(queryParams).pipe(
+          //
+          toArray(),
+        ),
+      );
+
+      return data;
+    },
+    initialPageParam: 0,
+    getNextPageParam: (_lastGroup, groups) => groups.length,
+    refetchOnWindowFocus: false,
+    placeholderData: keepPreviousData,
+  });
 
   const reloadData = async () => {
     const terminal = await firstValueFrom(terminal$);
     if (!terminal) return;
-    const data = await lastValueFrom(
-      terminal
-        .queryDataRecords<T>({
-          type: props.TYPE,
-          tags: Object.fromEntries(
-            Object.entries(searchFormData)
-              .map(([k, v]) => [k, `${v}`])
-              .filter(([, v]) => v !== ''),
-          ),
-          options: {
-            sort: [
-              //
-              ['updated_at', -1],
-            ],
-          },
-        })
-        .pipe(
-          //
-          toArray(),
-        ),
-    );
-    setRecords(data);
+    setRefreshCnt((x) => x + 1);
   };
 
   useEffect(() => {
@@ -117,11 +156,25 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
     return cols;
   }, []);
 
+  const records = useMemo(() => data?.pages?.flatMap((page) => page) ?? [], [data]);
+
   const table = useReactTable({
     columns: columns,
-    data: records || [],
+    data: records,
+    state: {
+      sorting,
+    },
     getCoreRowModel: getCoreRowModel(),
+    getSortedRowModel: getSortedRowModel(),
+    manualSorting: true,
   });
+  //since this table option is derived from table row model state, we're using the table.setOptions utility
+  table.setOptions((prev) => ({
+    ...prev,
+    onSortingChange: (updater) => {
+      setSorting(updater);
+    },
+  }));
 
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
@@ -151,6 +204,15 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
           添加
         </Button>
         <Button
+          icon={<IconCopyAdd />}
+          onClick={async () => {
+            // setRefreshCnt((x) => x + 1);
+            fetchNextPage();
+          }}
+        >
+          加载更多
+        </Button>
+        <Button
           icon={<IconRefresh />}
           onClick={async () => {
             await reloadData();
@@ -159,6 +221,8 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
         >
           刷新
         </Button>
+        {props.extraHeaderActions && React.createElement(props.extraHeaderActions, {})}
+        {isFetching && <Spin />}
       </Space>
       <DataView table={table} />
     </Space>
