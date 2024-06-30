@@ -2,6 +2,23 @@
   "name": "@yuants/data-model",
   "entries": [
     {
+      "version": "0.11.0",
+      "tag": "@yuants/data-model_v0.11.0",
+      "date": "Sun, 30 Jun 2024 11:56:32 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "support multi currencies"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.10.3",
       "tag": "@yuants/data-model_v0.10.3",
       "date": "Fri, 07 Jun 2024 19:05:13 GMT",

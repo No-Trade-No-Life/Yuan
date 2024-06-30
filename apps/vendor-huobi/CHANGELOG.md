@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Sat, 29 Jun 2024 19:21:30 GMT and should not be manually modified.
+This log was last generated on Sun, 30 Jun 2024 11:56:32 GMT and should not be manually modified.
+
+## 0.5.0
+Sun, 30 Jun 2024 11:56:32 GMT
+
+### Minor changes
+
+- support multi currencies
 
 ## 0.4.15
 Sat, 29 Jun 2024 19:21:30 GMT

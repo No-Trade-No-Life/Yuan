@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Fri, 28 Jun 2024 12:37:38 GMT and should not be manually modified.
+This log was last generated on Sun, 30 Jun 2024 11:56:32 GMT and should not be manually modified.
+
+## 0.19.0
+Sun, 30 Jun 2024 11:56:32 GMT
+
+### Minor changes
+
+- support multi currencies
 
 ## 0.18.2
 Fri, 28 Jun 2024 12:37:38 GMT

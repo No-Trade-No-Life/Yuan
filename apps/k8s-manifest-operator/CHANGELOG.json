@@ -2,6 +2,23 @@
   "name": "@yuants/app-k8s-manifest-operator",
   "entries": [
     {
+      "version": "0.0.21",
+      "tag": "@yuants/app-k8s-manifest-operator_v0.0.21",
+      "date": "Sun, 30 Jun 2024 11:56:32 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.11.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.20",
       "tag": "@yuants/app-k8s-manifest-operator_v0.0.20",
       "date": "Fri, 07 Jun 2024 19:05:13 GMT",

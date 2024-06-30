@@ -2,6 +2,31 @@
   "name": "@yuants/kernel",
   "entries": [
     {
+      "version": "0.12.0",
+      "tag": "@yuants/kernel_v0.12.0",
+      "date": "Sun, 30 Jun 2024 11:56:32 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "support multi currencies"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.11.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.19.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.11.10",
       "tag": "@yuants/kernel_v0.11.10",
       "date": "Fri, 28 Jun 2024 12:37:38 GMT",
