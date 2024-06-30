@@ -519,10 +519,15 @@ export interface IAccountMoney {
   leverage?: number;
 }
 
-/** 账户信息 @public */
+/**
+ * 账户信息
+ *
+ * @public
+ */
 export interface IAccountInfo {
   /**
-   * Account ID.
+   * Account ID
+   *
    * 账户ID
    */
   account_id: string;
@@ -532,33 +537,33 @@ export interface IAccountInfo {
    */
   money: IAccountMoney;
   /**
-   * Position information.
+   * Currency information
+   *
+   * 货币信息
+   */
+  currencies: IAccountMoney[];
+  /**
+   * Position information
+   *
    * 持仓信息
    */
   positions: IPosition[];
   /**
-   * Unfilled orders.
+   * Unfilled orders
+   *
    * 未成交的挂单
    */
   orders: IOrder[];
   /**
-   * Timestamp when the account information was generated.
+   * Timestamp when the account information was generated
+   *
    * 账户信息产生的时间戳
    *
    * (Used to handle conflicts: always accept the latest information)
+   *
    * (用于处理冲突: 应当总是接受最新的信息)
    */
-  updated_at?: number;
-  /**
-   * Timestamp when the account information was generated.
-   * 账户信息产生的时间戳
-   *
-   * (Used to handle conflicts: always accept the latest information)
-   * (用于处理冲突: 应当总是接受最新的信息)
-   *
-   * @deprecated use updated_at instead
-   */
-  timestamp_in_us?: number;
+  updated_at: number;
 }
 
 /**

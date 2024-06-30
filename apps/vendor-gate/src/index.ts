@@ -1,5 +1,6 @@
 import {
   IAccountInfo,
+  IAccountMoney,
   IDataRecord,
   IOrder,
   IPosition,
@@ -170,18 +171,19 @@ import { GateClient } from './api';
       const equity = balance + profit;
       const used = equity - free;
 
+      const money: IAccountMoney = {
+        currency: 'USDT',
+        balance,
+        profit,
+        free,
+        used,
+        equity,
+      };
       return {
         updated_at: Date.now(),
-        timestamp_in_us: Date.now() * 1000,
         account_id: futureUsdtAccountId,
-        money: {
-          currency: 'USDT',
-          balance,
-          profit,
-          free,
-          used,
-          equity,
-        },
+        money: money,
+        currencies: [money],
         positions,
         orders,
       };

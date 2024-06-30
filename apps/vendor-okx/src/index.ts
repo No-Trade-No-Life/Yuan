@@ -1,5 +1,6 @@
 import {
   IAccountInfo,
+  IAccountMoney,
   IOrder,
   IPosition,
   IProduct,
@@ -337,18 +338,19 @@ const tradingAccountInfo$ = combineLatest([
       const profit = equity - balance;
 
       const account_id = `okx/${uid}/trading`;
+      const money: IAccountMoney = {
+        currency: 'USDT',
+        equity: equity,
+        balance: balance,
+        used,
+        free,
+        profit,
+      };
       return {
         account_id: account_id,
-        timestamp_in_us: Date.now() * 1000,
         updated_at: Date.now(),
-        money: {
-          currency: 'USDT',
-          equity: equity,
-          balance: balance,
-          used,
-          free,
-          profit,
-        },
+        money: money,
+        currencies: [money],
         positions: positions.data.map((x): IPosition => {
           const direction =
             x.posSide === 'long' ? 'LONG' : x.posSide === 'short' ? 'SHORT' : +x.pos > 0 ? 'LONG' : 'SHORT';
@@ -426,18 +428,19 @@ const fundingAccountInfo$ = combineLatest([accountUid$, assetBalance$]).pipe(
     const used = 0;
     const profit = 0;
 
+    const money: IAccountMoney = {
+      currency: 'USDT',
+      equity,
+      balance,
+      used,
+      free,
+      profit,
+    };
     return {
       account_id: `okx/${uid}/funding/USDT`,
-      timestamp_in_us: Date.now() * 1000,
       updated_at: Date.now(),
-      money: {
-        currency: 'USDT',
-        equity,
-        balance,
-        used,
-        free,
-        profit,
-      },
+      money: money,
+      currencies: [money],
       positions: [],
       orders: [],
     };
@@ -461,18 +464,19 @@ const earningAccountInfo$ = combineLatest([accountUid$, savingBalance$]).pipe(
     const used = 0;
     const profit = 0;
 
+    const money: IAccountMoney = {
+      currency: 'USDT',
+      equity,
+      balance,
+      used,
+      free,
+      profit,
+    };
     return {
       account_id: `okx/${uid}/earning/USDT`,
-      timestamp_in_us: Date.now() * 1000,
       updated_at: Date.now(),
-      money: {
-        currency: 'USDT',
-        equity,
-        balance,
-        used,
-        free,
-        profit,
-      },
+      money: money,
+      currencies: [money],
       positions: [],
       orders: [],
     };

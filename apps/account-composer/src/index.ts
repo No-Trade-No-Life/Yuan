@@ -58,6 +58,15 @@ defer(() => terminal.queryDataRecords<IAccountCompositionRelation>({ type: 'acco
                         used: x.money.used * y.multiple,
                         free: x.money.free * y.multiple,
                       },
+                      currencies:
+                        x.currencies?.map((c) => ({
+                          ...c,
+                          equity: c.equity * y.multiple,
+                          balance: c.balance * y.multiple,
+                          profit: c.profit * y.multiple,
+                          used: c.used * y.multiple,
+                          free: c.free * y.multiple,
+                        })) ?? [],
                       positions: x.positions.map((p) => ({
                         ...p,
                         volume: p.volume * y.multiple,
@@ -76,7 +85,6 @@ defer(() => terminal.queryDataRecords<IAccountCompositionRelation>({ type: 'acco
             map((accountInfos): IAccountInfo => {
               return {
                 account_id: group.key,
-                timestamp_in_us: Date.now() * 1000,
                 updated_at: Date.now(),
                 money: {
                   currency: accountInfos[0].money.currency,
@@ -86,6 +94,7 @@ defer(() => terminal.queryDataRecords<IAccountCompositionRelation>({ type: 'acco
                   used: accountInfos.reduce((acc, x) => acc + x.money.used, 0),
                   free: accountInfos.reduce((acc, x) => acc + x.money.free, 0),
                 },
+                currencies: accountInfos.flatMap((x) => x.currencies || []),
                 positions: accountInfos.flatMap((x) => x.positions),
                 orders: accountInfos.flatMap((x) => x.orders),
               };

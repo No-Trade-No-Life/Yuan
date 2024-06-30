@@ -1,5 +1,6 @@
 import {
   IAccountInfo,
+  IAccountMoney,
   IDataRecord,
   IOrder,
   IPosition,
@@ -346,18 +347,19 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
       return combineLatest([balance$, positions$, orders$]).pipe(
         throttleTime(1000),
         map(([balance, positions, orders]): IAccountInfo => {
+          const money: IAccountMoney = {
+            currency: 'USDT',
+            balance: balance.cross_margin_static,
+            equity: balance.margin_balance,
+            profit: balance.cross_profit_unreal,
+            free: balance.withdraw_available,
+            used: balance.margin_balance - balance.withdraw_available,
+          };
           return {
-            timestamp_in_us: Date.now() * 1000,
             updated_at: Date.now(),
             account_id: SWAP_ACCOUNT_ID,
-            money: {
-              currency: 'USDT',
-              balance: balance.cross_margin_static,
-              equity: balance.margin_balance,
-              profit: balance.cross_profit_unreal,
-              free: balance.withdraw_available,
-              used: balance.margin_balance - balance.withdraw_available,
-            },
+            money: money,
+            currencies: [money],
             positions,
             orders,
           };
@@ -479,18 +481,19 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
         throttleTime(1000),
         map(([balance, positions]): IAccountInfo => {
           const equity = positions.reduce((acc, cur) => acc + cur.closable_price * cur.volume, 0) + balance;
+          const money: IAccountMoney = {
+            currency: 'USDT',
+            balance: equity,
+            equity: equity,
+            profit: 0,
+            free: equity,
+            used: 0,
+          };
           return {
-            timestamp_in_us: Date.now() * 1000,
             updated_at: Date.now(),
             account_id: SUPER_MARGIN_ACCOUNT_ID,
-            money: {
-              currency: 'USDT',
-              balance: equity,
-              equity: equity,
-              profit: 0,
-              free: equity,
-              used: 0,
-            },
+            money: money,
+            currencies: [money],
             positions,
             orders: [],
           };
@@ -510,17 +513,19 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
       const balance = +(spotBalance.data.list.find((v) => v.currency === 'usdt')?.balance ?? 0);
       const equity = balance;
       const free = equity;
+      const money: IAccountMoney = {
+        currency: 'USDT',
+        balance,
+        equity,
+        profit: 0,
+        free,
+        used: 0,
+      };
       return {
         updated_at: Date.now(),
         account_id: SPOT_ACCOUNT_ID,
-        money: {
-          currency: 'USDT',
-          balance,
-          equity,
-          profit: 0,
-          free,
-          used: 0,
-        },
+        money: money,
+        currencies: [money],
         positions: [],
         orders: [],
       };
