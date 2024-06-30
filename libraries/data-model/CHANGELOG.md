@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-model
 
-This log was last generated on Fri, 07 Jun 2024 19:05:13 GMT and should not be manually modified.
+This log was last generated on Sun, 30 Jun 2024 11:56:32 GMT and should not be manually modified.
+
+## 0.11.0
+Sun, 30 Jun 2024 11:56:32 GMT
+
+### Minor changes
+
+- support multi currencies
 
 ## 0.10.3
 Fri, 07 Jun 2024 19:05:13 GMT
