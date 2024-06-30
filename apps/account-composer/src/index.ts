@@ -1,4 +1,4 @@
-import { IAccountInfo, formatTime } from '@yuants/data-model';
+import { IAccountInfo, IAccountMoney, formatTime } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
@@ -83,6 +83,17 @@ defer(() => terminal.queryDataRecords<IAccountCompositionRelation>({ type: 'acco
             retry(),
             throttleTime(1000),
             map((accountInfos): IAccountInfo => {
+              const mapCurrencyToCurrentInfo: Record<string, IAccountMoney> = {};
+              accountInfos.forEach((x) => {
+                x.currencies?.forEach((c) => {
+                  const y = (mapCurrencyToCurrentInfo[c.currency] ??= { ...c });
+                  y.equity += c.equity;
+                  y.balance += c.balance;
+                  y.profit += c.profit;
+                  y.used += c.used;
+                  y.free += c.free;
+                });
+              });
               return {
                 account_id: group.key,
                 updated_at: Date.now(),
@@ -94,7 +105,7 @@ defer(() => terminal.queryDataRecords<IAccountCompositionRelation>({ type: 'acco
                   used: accountInfos.reduce((acc, x) => acc + x.money.used, 0),
                   free: accountInfos.reduce((acc, x) => acc + x.money.free, 0),
                 },
-                currencies: accountInfos.flatMap((x) => x.currencies || []),
+                currencies: Object.values(mapCurrencyToCurrentInfo),
                 positions: accountInfos.flatMap((x) => x.positions),
                 orders: accountInfos.flatMap((x) => x.orders),
               };
