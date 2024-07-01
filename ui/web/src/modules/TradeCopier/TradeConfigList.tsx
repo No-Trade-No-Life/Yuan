@@ -1,12 +1,18 @@
-import { IconCopyAdd, IconDelete, IconEdit, IconRefresh, IconSearch } from '@douyinfe/semi-icons';
-import { Button, Modal, Popconfirm, Space, Table, Toast } from '@douyinfe/semi-ui';
+import { IconRefresh } from '@douyinfe/semi-icons';
+import { Button } from '@douyinfe/semi-ui';
+import { createColumnHelper } from '@tanstack/react-table';
 import { IDataRecord, UUID } from '@yuants/data-model';
-import { useObservable, useObservableState } from 'observable-hooks';
-import { useState } from 'react';
-import { EMPTY, combineLatest, filter, first, mergeMap, tap, toArray } from 'rxjs';
-import Form from '../Form';
+import { JSONSchema7 } from 'json-schema';
+import { InlineAccountId } from '../AccountInfo';
+import { executeCommand } from '../CommandCenter';
+import { DataRecordView } from '../DataRecord';
 import { registerPage } from '../Pages';
-import { terminal$ } from '../Terminals';
+
+declare module '@yuants/protocol/lib/utils/DataRecord' {
+  export interface IDataRecordTypes {
+    trade_copier_trade_config: ITradeCopierTradeConfig;
+  }
+}
 
 interface ITradeCopierTradeConfig {
   id?: string;
@@ -15,7 +21,7 @@ interface ITradeCopierTradeConfig {
   max_volume_per_order: number;
 }
 
-const schemaOnEdit = {
+const schemaOnEdit: JSONSchema7 = {
   type: 'object',
   properties: {
     account_id: {
@@ -52,169 +58,36 @@ const mapTradeCopierTradeConfigToDataRecord = (
 };
 
 registerPage('TradeConfigList', () => {
-  const [refreshId, setRefreshId] = useState(0);
-  const [isSearchModalVisible, setSearchModalVisible] = useState(false);
-
-  const [_searchFormData, _setSearchFormData] = useState({});
-  const [searchFormData, setSearchFormData] = useState({} as any);
-
-  const records$ = useObservable(
-    (input$) =>
-      combineLatest([terminal$, input$]).pipe(
-        //
-        mergeMap(([terminal, [searchFormData]]) =>
-          (
-            terminal?.queryDataRecords<ITradeCopierTradeConfig>({
-              type: TYPE,
-            }) ?? EMPTY
-          ).pipe(
-            //
-            toArray(),
-          ),
-        ),
-      ),
-    [searchFormData, refreshId],
-  );
-
-  const records = useObservableState(records$);
-
-  const [isModalVisible, setModalVisible] = useState(false);
-  const [formData, setFormData] = useState({} as ITradeCopierTradeConfig);
-
   return (
-    <Space vertical align="start" style={{ width: '100%' }}>
-      <Space>
-        <Button
-          icon={<IconSearch />}
-          onClick={() => {
-            setSearchModalVisible(true);
-          }}
-        >
-          搜索
-        </Button>
-        <Button
-          icon={<IconCopyAdd />}
-          onClick={() => {
-            setFormData({} as ITradeCopierTradeConfig);
-            setModalVisible(true);
-          }}
-        >
-          添加
-        </Button>
-        <Button
-          icon={<IconRefresh />}
-          onClick={() => {
-            setRefreshId((x) => x + 1);
-            Toast.success('已刷新');
-          }}
-        >
-          刷新
-        </Button>
-      </Space>
-      <Table
-        dataSource={records}
-        style={{ width: '100%' }}
-        columns={[
-          //
-          { title: '账户 ID', render: (_, record) => record.origin.account_id },
-          { title: '品种 ID', render: (_, record) => record.origin.product_id },
-          { title: '每单最大手数', render: (_, record) => record.origin.max_volume_per_order },
-          {
-            title: '操作',
-            render: (_, record) => (
-              <Space>
-                <Button
-                  icon={<IconEdit />}
-                  onClick={() => {
-                    setFormData(record.origin);
-
-                    setModalVisible(true);
-                  }}
-                ></Button>
-                <Popconfirm
-                  style={{ width: 300 }}
-                  title="确定是否删除？"
-                  content="此操作将不可逆"
-                  onConfirm={() => {
-                    terminal$
-                      .pipe(
-                        //
-                        filter((x): x is Exclude<typeof x, null> => !!x),
-                        first(),
-                        mergeMap((terminal) =>
-                          terminal.removeDataRecords({
-                            type: TYPE,
-                            id: record.id,
-                          }),
-                        ),
-                        tap({
-                          complete: () => {
-                            Toast.success(`成功删除数据记录 ${record.id}`);
-                            setRefreshId((x) => x + 1);
-                          },
-                        }),
-                      )
-                      .subscribe();
-                  }}
-                >
-                  <Button icon={<IconDelete />} type="danger"></Button>
-                </Popconfirm>
-              </Space>
-            ),
-          },
-        ]}
-      ></Table>
-      <Modal
-        visible={isModalVisible}
-        onCancel={() => {
-          setModalVisible(false);
-        }}
-        onOk={() => {
-          const record = mapTradeCopierTradeConfigToDataRecord(formData);
-          terminal$
-            .pipe(
-              filter((x): x is Exclude<typeof x, null> => !!x),
-              first(),
-              mergeMap((terminal) => terminal.updateDataRecords([record])),
-              tap({
-                complete: () => {
-                  Toast.success(`成功更新数据记录 ${record.id}`);
-                  setRefreshId((x) => x + 1);
-                },
-              }),
-            )
-            .subscribe();
-        }}
-      >
-        <Form
-          formData={formData}
-          onChange={(data) => {
-            setFormData(data.formData);
-          }}
-          schema={schemaOnEdit}
-        >
-          <div></div>
-        </Form>
-      </Modal>
-      <Modal
-        visible={isSearchModalVisible}
-        onCancel={() => {
-          setSearchModalVisible(false);
-        }}
-        onOk={() => {
-          setSearchFormData(_searchFormData);
-        }}
-      >
-        <Form
-          formData={_searchFormData}
-          onChange={(data) => {
-            _setSearchFormData(data.formData);
-          }}
-          schema={schemaOnEdit}
-        >
-          <div></div>
-        </Form>
-      </Modal>
-    </Space>
+    <DataRecordView
+      TYPE="trade_copier_trade_config"
+      columns={(ctx) => {
+        const columnHelper = createColumnHelper<IDataRecord<ITradeCopierTradeConfig>>();
+        return [
+          columnHelper.accessor('origin.account_id', {
+            header: () => '账户 ID',
+            cell: (ctx) => <InlineAccountId account_id={ctx.getValue()} />,
+          }),
+          columnHelper.accessor('origin.product_id', {
+            header: () => '品种 ID',
+          }),
+          columnHelper.accessor('origin.max_volume_per_order', {
+            header: () => '每单最大手数',
+          }),
+        ];
+      }}
+      newRecord={() => {
+        return {};
+      }}
+      extraHeaderActions={() => {
+        return (
+          <Button icon={<IconRefresh />} onClick={() => executeCommand('TradeCopier.Restart')}>
+            重启跟单阵列
+          </Button>
+        );
+      }}
+      mapOriginToDataRecord={mapTradeCopierTradeConfigToDataRecord}
+      schema={schemaOnEdit}
+    />
   );
 });

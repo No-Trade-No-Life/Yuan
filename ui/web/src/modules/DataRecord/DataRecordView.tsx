@@ -39,7 +39,8 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
   const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const { data, fetchNextPage, isFetching } = useInfiniteQuery<IDataRecord<T>[]>({
-    queryKey: [refreshCnt, sorting],
+    // ISSUE: queryKey should be unique among all query situations under the same query client context
+    queryKey: [props.TYPE, refreshCnt, sorting],
     queryFn: async (ctx) => {
       const pageParam = ctx.pageParam as number;
       const terminal = await firstValueFrom(terminal$);
