@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/vendor-coinex",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/vendor-coinex_v0.0.1",
+      "date": "Mon, 01 Jul 2024 07:27:50 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "init"
+          }
+        ]
+      }
+    }
+  ]
+}
