@@ -40,6 +40,7 @@ import {
 import { OkxClient } from './api';
 import { IFundingRate, wrapFundingRateRecord } from './models/FundingRate';
 import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
+import { roundToStep } from '@yuants/utils';
 
 const terminal = new Terminal(process.env.HOST_URL!, {
   terminal_id: process.env.TERMINAL_ID || `okx/${UUID()}`,
@@ -780,7 +781,7 @@ defer(async () => {
     },
     (msg) =>
       defer(async () => {
-        console.info('SubmitOrder', JSON.stringify(msg));
+        console.info(formatTime(Date.now()), 'SubmitOrder', JSON.stringify(msg));
         const order = msg.req;
         const [instType, instId] = decodePath(order.product_id);
 
@@ -816,22 +817,62 @@ defer(async () => {
           throw new Error(`Unknown order type: ${order_type}`);
         };
 
+        // 交易数量，表示要购买或者出售的数量。
+        // 当币币/币币杠杆以限价买入和卖出时，指交易货币数量。
+        // 当币币杠杆以市价买入时，指计价货币的数量。
+        // 当币币杠杆以市价卖出时，指交易货币的数量。
+        // 对于币币市价单，单位由 tgtCcy 决定
+        // 当交割、永续、期权买入和卖出时，指合约张数。
+        const mapOrderVolumeToSz = async (order: IOrder) => {
+          if (instType === 'SWAP') {
+            return order.volume;
+          }
+          if (instType === 'MARGIN') {
+            if (order.order_type === 'LIMIT') {
+              return order.volume;
+            }
+            if (order.order_type === 'MARKET') {
+              if (order.order_direction === 'OPEN_SHORT' || order.order_direction === 'CLOSE_LONG') {
+                return order.volume;
+              }
+              //
+              const price = await firstValueFrom(
+                spotMarketTickers$.pipe(
+                  map((x) =>
+                    mapOrderDirectionToPosSide(order.order_direction) === 'long'
+                      ? +x[instId].askPx
+                      : +x[instId].bidPx,
+                  ),
+                ),
+              );
+              if (!price) {
+                throw new Error(`invalid tick: ${price}`);
+              }
+              console.info(formatTime(Date.now()), 'SubmitOrder', 'price', price);
+              const theProduct = await firstValueFrom(
+                mapProductIdToMarginProduct$.pipe(map((x) => x.get(order.product_id))),
+              );
+              if (!theProduct) {
+                throw new Error(`Unknown product: ${order.position_id}`);
+              }
+              return roundToStep(order.volume * price, theProduct.volume_step!);
+            }
+            return 0;
+          }
+          throw new Error(`Unknown instType: ${instType}`);
+        };
+
         const params = {
           instId,
           tdMode: 'cross',
           side: mapOrderDirectionToSide(order.order_direction),
           posSide: instType === 'MARGIN' ? 'net' : mapOrderDirectionToPosSide(order.order_direction),
           ordType: mapOrderTypeToOrdType(order.order_type),
-          sz: (instType === 'SWAP'
-            ? order.volume
-            : instType === 'MARGIN'
-            ? order.order_type === 'LIMIT'
-              ? order.volume
-              : order.order_type === 'MARKET'
-              ? 0
-              : 0
-            : 0
-          ).toString(),
+          sz: (await mapOrderVolumeToSz(order)).toString(),
+          reduceOnly:
+            instType === 'MARGIN' && ['CLOSE_LONG', 'CLOSE_SHORT'].includes(order.order_direction ?? '')
+              ? 'true'
+              : undefined,
           px: order.order_type === 'LIMIT' ? order.price!.toString() : undefined,
           ccy: instType === 'MARGIN' ? 'USDT' : undefined,
         };
