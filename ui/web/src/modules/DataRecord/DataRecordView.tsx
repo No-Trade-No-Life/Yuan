@@ -240,6 +240,7 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
             const data = records.map((x) => x.origin);
             await fs.writeFile(filename, JSON.stringify(data, null, 2));
             Toast.success(`已导出: ${filename}, ${data.length} 条`);
+            await reloadData();
           }}
         >
           导出
@@ -264,6 +265,7 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
             const records = data.filter((x) => validator(x)).map((x) => props.mapOriginToDataRecord(x));
             await firstValueFrom(writeDataRecords(terminal, records as IDataRecord<any>[]));
             Toast.success(`已导入: ${filename}, ${records.length} / ${data.length} 条`);
+            await reloadData();
           }}
         >
           导入
