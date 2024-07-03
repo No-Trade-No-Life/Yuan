@@ -2,8 +2,9 @@ import { Switch } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
 import { IDataRecord } from '@yuants/data-model';
 import { InlineAccountId } from '../AccountInfo';
-import { registerCommand } from '../CommandCenter';
+import { executeCommand, registerCommand } from '../CommandCenter';
 import { DataRecordView } from '../DataRecord';
+import { Button } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminate } from '../Terminals/TerminalListItem';
 import { IAccountRiskInfo, acrSchema, wrapAccountRiskInfo } from './models/AccountRiskInfo';
@@ -56,6 +57,9 @@ registerPage('AccountRiskInfoList', () => {
       newRecord={newRecord}
       beforeUpdateTrigger={beforeUpdateTrigger}
       mapOriginToDataRecord={wrapAccountRiskInfo}
+      extraHeaderActions={() => {
+        return <Button onClick={() => executeCommand('RiskManager.Restart')}>重启风控器</Button>;
+      }}
     />
   );
 });

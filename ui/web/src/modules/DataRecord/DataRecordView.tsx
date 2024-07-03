@@ -1,4 +1,12 @@
-import { IconCopyAdd, IconDelete, IconEdit, IconRefresh, IconSearch } from '@douyinfe/semi-icons';
+import {
+  IconCopyAdd,
+  IconDelete,
+  IconEdit,
+  IconExport,
+  IconImport,
+  IconRefresh,
+  IconSearch,
+} from '@douyinfe/semi-icons';
 import { Space, Spin, Toast } from '@douyinfe/semi-ui';
 import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
 import {
@@ -11,9 +19,12 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { IDataRecord } from '@yuants/data-model';
+import { readDataRecords, writeDataRecords } from '@yuants/protocol';
+import Ajv from 'ajv';
 import { JSONSchema7 } from 'json-schema';
 import React, { useEffect, useMemo, useState } from 'react';
 import { concatWith, firstValueFrom, lastValueFrom, of, toArray } from 'rxjs';
+import { fs } from '../FileSystem/api';
 import { showForm } from '../Form';
 import { Button, DataView } from '../Interactive';
 import { terminal$ } from '../Terminals';
@@ -29,7 +40,7 @@ interface IDataRecordViewDef<T> {
   schema: JSONSchema7;
 }
 
-const PAGE_SIZE = 40;
+const PAGE_SIZE = 100;
 /**
  * General Data Record View
  */
@@ -60,7 +71,7 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
       sort.push(['updated_at', -1]);
 
       const queryParams = {
-        type: props.TYPE,
+        type: props.TYPE as any,
         tags: Object.fromEntries(
           Object.entries(searchFormData)
             .map(([k, v]) => [k, `${v}`])
@@ -73,12 +84,7 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
         },
       };
       console.info('queryDataRecords', searchFormData, sorting, queryParams);
-      const data = await lastValueFrom(
-        terminal.queryDataRecords<T>(queryParams).pipe(
-          //
-          toArray(),
-        ),
-      );
+      const data = await lastValueFrom(readDataRecords(terminal, queryParams));
 
       return data;
     },
@@ -119,8 +125,8 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
                   if (!terminal) return;
                   const formData = await showForm<T>(props.schema, record.origin);
                   await props.beforeUpdateTrigger?.(formData);
-                  const nextRecord = props.mapOriginToDataRecord(formData);
-                  await lastValueFrom(terminal.updateDataRecords([nextRecord]).pipe(concatWith(of(0))));
+                  const nextRecord: IDataRecord<any> = props.mapOriginToDataRecord(formData);
+                  await lastValueFrom(writeDataRecords(terminal, [nextRecord]));
                   await reloadData();
                   Toast.success(`成功更新数据记录 ${nextRecord.id}`);
                 }}
@@ -196,8 +202,8 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
             if (!terminal) return;
             const formData = await showForm<T>(props.schema, props.newRecord());
             await props.beforeUpdateTrigger?.(formData);
-            const nextRecord = props.mapOriginToDataRecord(formData);
-            await lastValueFrom(terminal.updateDataRecords([nextRecord]).pipe(concatWith(of(0))));
+            const nextRecord: IDataRecord<any> = props.mapOriginToDataRecord(formData);
+            await lastValueFrom(writeDataRecords(terminal, [nextRecord]));
             await reloadData();
             Toast.success(`成功更新数据记录 ${nextRecord.id}`);
           }}
@@ -221,6 +227,46 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
           }}
         >
           刷新
+        </Button>
+        <Button
+          icon={<IconExport />}
+          onClick={async () => {
+            const filename = await showForm<string>({
+              title: 'Filename to export',
+              type: 'string',
+              format: 'filename',
+              pattern: '^/.+\\.json',
+            });
+            const data = records.map((x) => x.origin);
+            await fs.writeFile(filename, JSON.stringify(data, null, 2));
+            Toast.success(`已导出: ${filename}, ${data.length} 条`);
+          }}
+        >
+          导出
+        </Button>
+        <Button
+          icon={<IconImport />}
+          onClick={async () => {
+            const terminal = await firstValueFrom(terminal$);
+            if (!terminal) return;
+            const filename = await showForm<string>({
+              title: 'Filename to import',
+              type: 'string',
+              format: 'filename',
+              pattern: '^/.+\\.json',
+            });
+            const data = JSON.parse(await fs.readFile(filename));
+            if (!Array.isArray(data)) {
+              return;
+            }
+            const ajv = new Ajv({ strictSchema: false });
+            const validator = ajv.compile(props.schema);
+            const records = data.filter((x) => validator(x)).map((x) => props.mapOriginToDataRecord(x));
+            await firstValueFrom(writeDataRecords(terminal, records as IDataRecord<any>[]));
+            Toast.success(`已导入: ${filename}, ${records.length} / ${data.length} 条`);
+          }}
+        >
+          导入
         </Button>
         {props.extraHeaderActions && React.createElement(props.extraHeaderActions, {})}
         {isFetching && <Spin />}
