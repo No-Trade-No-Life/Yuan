@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Sun, 30 Jun 2024 11:56:32 GMT and should not be manually modified.
+This log was last generated on Wed, 03 Jul 2024 10:05:02 GMT and should not be manually modified.
+
+## 0.19.1
+Wed, 03 Jul 2024 10:05:02 GMT
+
+### Patches
+
+- catch provideChannel handler error 
 
 ## 0.19.0
 Sun, 30 Jun 2024 11:56:32 GMT

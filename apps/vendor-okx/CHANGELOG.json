@@ -2,6 +2,28 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.7.1",
+      "tag": "@yuants/vendor-okx_v0.7.1",
+      "date": "Wed, 03 Jul 2024 10:05:02 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "make margin trading sz correct"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.19.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.7.0",
       "tag": "@yuants/vendor-okx_v0.7.0",
       "date": "Sun, 30 Jun 2024 11:56:32 GMT",
