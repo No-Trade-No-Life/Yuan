@@ -788,4 +788,63 @@ export class BitgetClient {
       uTime: string;
     }[];
   }> => this.request('GET', '/api/v2/spot/account/assets', params);
+
+  /**
+   * 获取所有子账户现货资产
+   *
+   * 限速规则 10次/1s (UID)
+   *
+   * 获取所有子账户现货资产。仅限非代理商(非ND Broker)用户调用。
+   *
+   * https://www.bitget.com/zh-CN/api-doc/spot/account/Get-Subaccount-Assets
+   */
+  getSubAccountSpotAssets = (): Promise<{
+    code: string;
+    msg: string;
+    requestTime: number;
+    data: {
+      userId: string;
+      assetsList: {
+        coin: string;
+        available: string;
+        limitAvailable: string;
+        frozen: string;
+        locked: string;
+        uTime: string;
+      }[];
+    };
+  }> => this.request('GET', '/api/v2/spot/account/subaccount-assets');
+
+  /**
+   * 查询子账户列表
+   *
+   * 限速规则 1次/1s (UID)
+   *
+   * 查询子账户列表
+   *
+   * https://www.bitget.com/zh-CN/api-doc/common/vsubaccount/Get-Virtual-Subaccount-List
+   */
+  getVirtualSubAccountList = (params?: {
+    status?: string;
+    limit?: string;
+    idLessThan?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    requestTime: number;
+    data: {
+      subAccountList: {
+        subAccountUid: string;
+        subAccountName: string;
+        label: string;
+        status: string;
+        permList: string;
+        accountType: string;
+        bindingTime: string;
+        cTime: string;
+        uTime: string;
+      }[];
+      endId: string;
+    };
+  }> => this.request('GET', '/api/v2/user/virtual-subaccount-list', params);
 }

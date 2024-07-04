@@ -634,6 +634,66 @@ const fundingTime$ = memoizeMap((product_id: string) =>
     });
 
     // TODO: account internal margin transfer
-    // TODO: sub-account transfer
+
+    // sub-account transfer
+    const getSubAccountNetworkId = (subUid: string) => `OKX/${parentId}/SubAccount/${subUid}`;
+    if (isMainAccount) {
+      const subAccountInfoRes = await client.getVirtualSubAccountList();
+      for (const item of subAccountInfoRes.data.subAccountList || []) {
+        addAccountTransferAddress({
+          terminal,
+          account_id: SPOT_ACCOUNT_ID,
+          network_id: getSubAccountNetworkId(item.subAccountUid),
+          currency: 'USDT',
+          address: 'parent',
+          onApply: {
+            INIT: async (order) => {
+              const transferResult = await client.postSubAccountTransfer({
+                fromType: 'spot',
+                toType: 'spot',
+                amount: `${order.current_amount}`,
+                coin: 'USDT',
+                fromUserId: parentId,
+                toUserId: item.subAccountUid,
+              });
+              if (transferResult.msg !== 'success') {
+                return { state: 'INIT', message: transferResult.msg };
+              }
+              return { state: 'COMPLETE', transaction_id: transferResult.data.transferId };
+            },
+          },
+          onEval: async (order) => {
+            return { state: 'COMPLETE', received_amount: order.current_amount };
+          },
+        });
+
+        addAccountTransferAddress({
+          terminal,
+          account_id: `bitget/${item.subAccountUid}/spot/USDT`,
+          network_id: getSubAccountNetworkId(item.subAccountUid),
+          currency: 'USDT',
+          address: 'sub',
+          onApply: {
+            INIT: async (order) => {
+              const transferResult = await client.postSubAccountTransfer({
+                fromType: 'spot',
+                toType: 'spot',
+                amount: `${order.current_amount}`,
+                coin: 'USDT',
+                fromUserId: item.subAccountUid,
+                toUserId: parentId,
+              });
+              if (transferResult.msg !== 'success') {
+                return { state: 'INIT', message: transferResult.msg };
+              }
+              return { state: 'COMPLETE', transaction_id: transferResult.data.transferId };
+            },
+          },
+          onEval: async (order) => {
+            return { state: 'COMPLETE', received_amount: order.current_amount };
+          },
+        });
+      }
+    }
   }
 })();
