@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-bitget
 
-This log was last generated on Wed, 03 Jul 2024 10:05:02 GMT and should not be manually modified.
+This log was last generated on Thu, 04 Jul 2024 16:59:28 GMT and should not be manually modified.
+
+## 0.1.2
+Thu, 04 Jul 2024 16:59:28 GMT
+
+### Patches
+
+- add subaccount transfer
 
 ## 0.1.1
 Wed, 03 Jul 2024 10:05:02 GMT
