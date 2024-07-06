@@ -5,6 +5,7 @@ import { lastValueFrom } from 'rxjs';
 import { InlineAccountId, useAccountInfo } from '../AccountInfo';
 import Form from '../Form';
 import { registerPage } from '../Pages';
+import { InlineProductId } from '../Products/InlineProductId';
 import { terminal$, useTick } from '../Terminals';
 
 interface IInterleavingConfigItem {
@@ -179,7 +180,10 @@ const InterleavingAccountStatus = (props: {
             ),
         },
         { key: '账户', value: <InlineAccountId account_id={item.account_id} /> },
-        { key: '品种', value: item.product_id },
+        {
+          key: '品种',
+          value: <InlineProductId product_id={item.product_id} datasource_id={item.datasource_id} />,
+        },
         { key: '当前仓位', value: volume },
         { key: '下次仓位', value: next_target_volume },
         { key: '最终仓位', value: final_target_volume },
