@@ -1,8 +1,9 @@
 import { IconClose, IconTaskMoneyStroked } from '@douyinfe/semi-icons';
-import { Collapse, Descriptions, Empty, Space, Table, Typography } from '@douyinfe/semi-ui';
+import { Collapse, Descriptions, Empty, Space, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import {
   IAccountMoney,
+  IOrder,
   IPosition,
   ITick,
   encodePath,
@@ -155,6 +156,15 @@ registerPage('AccountInfoPanel', () => {
                     return combineLatest([
                       of(position),
                       useTickMemoized(position.datasource_id, position.product_id).pipe(
+                        tap((tick) => {
+                          position.interest_to_settle =
+                            position.direction === 'LONG'
+                              ? position.valuation * (tick.interest_rate_for_long ?? 0)
+                              : position.direction === 'SHORT'
+                              ? position.valuation * (tick.interest_rate_for_short ?? 0)
+                              : 0;
+                          position.settlement_scheduled_at = tick.settlement_scheduled_at;
+                        }),
                         raceWith(
                           timer(5000).pipe(
                             map(
@@ -168,18 +178,7 @@ registerPage('AccountInfoPanel', () => {
                         ),
                         first(),
                       ),
-                    ]).pipe(
-                      map(([position, tick]) => ({
-                        ...position,
-                        settlement_scheduled_at: tick.settlement_scheduled_at,
-                        interest_to_settle:
-                          position.direction === 'LONG'
-                            ? position.valuation * (tick.interest_rate_for_long ?? 0)
-                            : position.direction === 'SHORT'
-                            ? position.valuation * (tick.interest_rate_for_short ?? 0)
-                            : 0,
-                      })),
-                    );
+                    ]).pipe(map(([position, tick]) => position));
                   }),
                   reduce(
                     (acc: IPosition, cur: IPosition): IPosition => ({
@@ -284,6 +283,80 @@ registerPage('AccountInfoPanel', () => {
     getCoreRowModel: getCoreRowModel(),
   });
 
+  const columnsOfPositions = useMemo(() => {
+    const helper = createColumnHelper<IPosition>();
+    return [
+      helper.accessor('position_id', { header: () => '持仓ID' }),
+      helper.accessor('datasource_id', { header: () => '数据源ID' }),
+      helper.accessor('product_id', { header: () => '品种' }),
+      helper.accessor('direction', { header: () => '方向' }),
+      helper.accessor('volume', { header: () => '持仓量' }),
+      helper.accessor('position_price', { header: () => '持仓价' }),
+      helper.accessor('closable_price', { header: () => '现价' }),
+      helper.accessor('floating_profit', { header: () => '盈亏' }),
+      helper.accessor('valuation', { header: () => '估值' }),
+      helper.accessor((position): number => (position.interest_to_settle || 0) / position.valuation, {
+        id: 'interest_rate',
+        header: () => '利率',
+        cell: (ctx) => `${ctx.getValue() * 100}%`,
+      }),
+      helper.accessor('interest_to_settle', { header: () => '预计利息' }),
+      helper.accessor('settlement_scheduled_at', {
+        header: () => '计息时间',
+        cell: (ctx) => formatTime(ctx.getValue()!),
+      }),
+      helper.accessor('comment', { header: () => '注释' }),
+    ];
+  }, []);
+
+  const tableOfPositions = useReactTable({
+    data: accountInfo?.positions ?? [],
+    columns: columnsOfPositions,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
+  const columnsOfOrders = useMemo(() => {
+    const helper = createColumnHelper<IOrder>();
+    return [
+      helper.accessor('order_id', { header: () => '委托单号' }),
+      helper.accessor('submit_at', {
+        header: () => '提交时间',
+        cell: (ctx) => formatTime(ctx.getValue() || 0),
+      }),
+      helper.accessor('product_id', { header: () => '委托品种' }),
+      helper.accessor('order_type', { header: () => '委托类型' }),
+      helper.accessor('order_direction', { header: () => '委托方向' }),
+      helper.accessor('volume', { header: () => '委托量' }),
+      helper.accessor('traded_volume', { header: () => '已成交量' }),
+      helper.accessor('price', { header: () => '委托价' }),
+      helper.accessor('comment', { header: () => '注释' }),
+      helper.display({
+        id: 'actions',
+        header: () => '操作',
+        cell: (ctx) => {
+          const order = ctx.row.original;
+          return (
+            <Space>
+              <Button
+                icon={<IconClose />}
+                onClick={async () => {
+                  if (!terminal) return;
+                  await firstValueFrom(terminal.cancelOrder(order));
+                }}
+              ></Button>
+            </Space>
+          );
+        },
+      }),
+    ];
+  }, []);
+
+  const tableOfOrders = useReactTable({
+    data: accountInfo?.orders ?? [],
+    columns: columnsOfOrders,
+    getCoreRowModel: getCoreRowModel(),
+  });
+
   const columnsOfCurrencies = useMemo(() => {
     const helper = createColumnHelper<IAccountMoney>();
     return [
@@ -323,7 +396,7 @@ registerPage('AccountInfoPanel', () => {
   }
 
   return (
-    <Space vertical align="start" style={{ padding: '1em', width: '100%' }}>
+    <Space vertical align="start" style={{ padding: '1em', width: '100%', boxSizing: 'border-box' }}>
       <h3 style={{ color: 'var(--semi-color-text-0)', fontWeight: 500 }}>{accountInfo.account_id}</h3>
       <Typography.Text>
         最后更新时间: {formatTime(updatedAt)} (Ping {renderedAt - updatedAt}ms)
@@ -397,85 +470,10 @@ registerPage('AccountInfoPanel', () => {
           <DataView table={tableOfPositionSummary} />
         </Collapse.Panel>
         <Collapse.Panel header={`持仓细节 (${accountInfo.positions.length})`} itemKey="持仓细节">
-          <Table
-            dataSource={accountInfo.positions}
-            pagination={false}
-            columns={[
-              {
-                title: 'ID',
-                render: (_, pos) => pos.position_id,
-              },
-              { title: '持仓品种', render: (_, pos) => pos.product_id },
-              {
-                title: '持仓方向',
-                render: (_, pos) => (({ ['LONG']: '做多', ['SHORT']: '做空' } as any)[pos.direction!]),
-              },
-              { title: '持仓量', render: (_, pos) => +pos.volume.toFixed(8) },
-              {
-                title: '持仓价',
-                render: (_, pos) => +pos.position_price.toFixed(8),
-              },
-              { title: '现价', render: (_, pos) => +pos.closable_price?.toFixed(8) },
-              {
-                title: '盈亏',
-                render: (_, pos) => +pos.floating_profit?.toFixed(8),
-              },
-              {
-                title: '估值',
-                render: (_, pos) => +pos.valuation?.toFixed(8),
-              },
-              {
-                title: '注释',
-                render: (_, pos) => pos.comment,
-              },
-            ]}
-          />
+          <DataView table={tableOfPositions} />
         </Collapse.Panel>
         <Collapse.Panel header={`订单 (${accountInfo.orders.length})`} itemKey="订单">
-          <Table
-            dataSource={accountInfo.orders}
-            pagination={false}
-            columns={[
-              { title: '委托单号', render: (_, order) => order.order_id },
-              {
-                title: '更新时间',
-                render: (_, order) => formatTime(order.submit_at!),
-              },
-              { title: '委托品种', render: (_, order) => order.product_id },
-              {
-                title: '委托类型',
-                render: (_, order) => order.order_type,
-              },
-              {
-                title: '委托方向',
-                render: (_, order) => order.order_direction,
-              },
-              { title: '委托量', render: (_, order) => +order.volume.toFixed(8) },
-              { title: '已成交量', render: (_, order) => +(order.traded_volume ?? 0).toFixed(8) },
-              {
-                title: '委托价',
-                render: (_, order) => +(order.price?.toFixed(8) ?? 0) ?? '',
-              },
-              {
-                title: '注释',
-                render: (_, order) => order.comment,
-              },
-              {
-                title: '操作',
-                render: (_, order) => (
-                  <Space>
-                    <Button
-                      icon={<IconClose />}
-                      onClick={async () => {
-                        if (!terminal) return;
-                        await firstValueFrom(terminal.cancelOrder(order));
-                      }}
-                    ></Button>
-                  </Space>
-                ),
-              },
-            ]}
-          />
+          <DataView table={tableOfOrders} />
         </Collapse.Panel>
       </Collapse>
     </Space>
