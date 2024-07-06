@@ -36,6 +36,7 @@ import {
 import { executeCommand } from '../CommandCenter';
 import { Button, DataView } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
+import { InlineProductId } from '../Products/InlineProductId';
 import { terminal$, useTick } from '../Terminals';
 import { useAccountInfo } from './model';
 
@@ -287,8 +288,18 @@ registerPage('AccountInfoPanel', () => {
     const helper = createColumnHelper<IPosition>();
     return [
       helper.accessor('position_id', { header: () => '持仓ID' }),
-      helper.accessor('datasource_id', { header: () => '数据源ID' }),
-      helper.accessor('product_id', { header: () => '品种' }),
+      helper.accessor('product_id', {
+        header: () => '品种',
+        cell: (ctx) =>
+          ctx.row.original.datasource_id ? (
+            <InlineProductId
+              datasource_id={ctx.row.original.datasource_id}
+              product_id={ctx.row.original.product_id}
+            />
+          ) : (
+            ctx.getValue()
+          ),
+      }),
       helper.accessor('direction', { header: () => '方向' }),
       helper.accessor('volume', { header: () => '持仓量' }),
       helper.accessor('position_price', { header: () => '持仓价' }),
