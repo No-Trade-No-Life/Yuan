@@ -25,7 +25,7 @@ const ProductCard = (props: { datasource_id: string; product_id: string }) => {
 
   if (!product) {
     return (
-      <Card title={encodePath(product.datasource_id, product.product_id)} loading={true}>
+      <Card title={encodePath(props.datasource_id, props.product_id)} loading={true}>
         <Card.Meta></Card.Meta>
       </Card>
     );
