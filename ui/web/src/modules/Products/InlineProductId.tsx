@@ -17,7 +17,7 @@ const ProductCard = (props: { datasource_id: string; product_id: string }) => {
               tags: { datasource_id: props.datasource_id, product_id: props.product_id },
             }),
           ),
-          map((x) => x[0].origin),
+          map((x) => x[0]?.origin),
         ),
       [props.datasource_id, props.product_id],
     ),
@@ -25,7 +25,7 @@ const ProductCard = (props: { datasource_id: string; product_id: string }) => {
 
   if (!product) {
     return (
-      <Card title={props.product_id} loading={true}>
+      <Card title={encodePath(product.datasource_id, product.product_id)} loading={true}>
         <Card.Meta></Card.Meta>
       </Card>
     );
@@ -39,10 +39,14 @@ const ProductCard = (props: { datasource_id: string; product_id: string }) => {
           { key: '品种', value: product.product_id },
           { key: '基础货币', value: product.base_currency },
           { key: '计价货币', value: product.quote_currency },
-          { key: '价值尺度', value: product.value_scale },
-          { key: '价值尺度单位', value: product.value_scale_unit },
-          { key: '成交量单位', value: product.volume_step },
-          { key: '报价单位', value: product.price_step },
+          {
+            key: '价值尺度',
+            value: `${product.value_scale ?? 1} ${
+              product.value_scale_unit ?? product.base_currency ?? product.product_id
+            }`,
+          },
+          { key: '成交量单位', value: product.volume_step ?? 1 },
+          { key: '报价单位', value: product.price_step ?? 1 },
         ]}
       ></Descriptions>
     </Card>
