@@ -11,7 +11,7 @@ import {
   formatTime,
   wrapTransferNetworkInfo,
 } from '@yuants/data-model';
-import { Terminal } from '@yuants/protocol';
+import { Terminal, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
@@ -911,78 +911,150 @@ defer(async () => {
   terminal.provideService(
     'CopyDataRecords',
     {
-      required: ['type', 'tags'],
-      properties: {
-        type: { const: 'funding_rate' },
-        tags: {
-          type: 'object',
-          required: ['series_id'],
+      anyOf: [
+        {
+          required: ['type', 'tags'],
           properties: {
-            series_id: { type: 'string', pattern: '^okx/' },
+            type: { const: 'funding_rate' },
+            tags: {
+              type: 'object',
+              required: ['series_id'],
+              properties: {
+                series_id: { type: 'string', pattern: '^okx/' },
+              },
+            },
           },
         },
-      },
+        {
+          required: ['type', 'tags'],
+          properties: {
+            type: { const: 'period' },
+            tags: {
+              type: 'object',
+              required: ['datasource_id'],
+              properties: {
+                datasource_id: {
+                  const: 'okx',
+                },
+              },
+            },
+          },
+        },
+      ],
     },
     (msg, output$) => {
       const sub = interval(5000).subscribe(() => {
         output$.next({});
       });
       return defer(async () => {
-        if (msg.req.tags?.series_id === undefined) {
-          return { res: { code: 400, message: 'series_id is required' } };
-        }
-        const [start, end] = msg.req.time_range || [0, Date.now()];
-        const [datasource_id, product_id] = decodePath(msg.req.tags.series_id);
-        const mapProductIdToUsdtSwapProduct = await firstValueFrom(mapProductIdToUsdtSwapProduct$);
-        const theProduct = mapProductIdToUsdtSwapProduct.get(product_id);
-        if (!theProduct) {
-          return { res: { code: 404, message: `product_id ${product_id} not found` } };
-        }
-        const { base_currency, quote_currency } = theProduct;
-        const [instType, instId] = decodePath(product_id);
-        if (!base_currency || !quote_currency) {
-          return { res: { code: 400, message: `base_currency or quote_currency is required` } };
-        }
-        const funding_rate_history: IFundingRate[] = [];
-        let current_end = end;
-        while (true) {
-          const res = await client.getFundingRateHistory({
-            instId: instId,
-            after: `${current_end}`,
-          });
-          if (res.code !== '0') {
-            return { res: { code: +res.code, message: res.msg } };
+        if (msg.req.type === 'funding_rate') {
+          if (msg.req.tags?.series_id === undefined) {
+            return { res: { code: 400, message: 'series_id is required' } };
           }
-          if (res.data.length === 0) {
-            break;
+          const [start, end] = msg.req.time_range || [0, Date.now()];
+          const [datasource_id, product_id] = decodePath(msg.req.tags.series_id);
+          const mapProductIdToUsdtSwapProduct = await firstValueFrom(mapProductIdToUsdtSwapProduct$);
+          const theProduct = mapProductIdToUsdtSwapProduct.get(product_id);
+          if (!theProduct) {
+            return { res: { code: 404, message: `product_id ${product_id} not found` } };
           }
-          for (const v of res.data) {
-            funding_rate_history.push({
-              series_id: msg.req.tags.series_id,
-              product_id,
-              datasource_id,
-              base_currency,
-              quote_currency,
-              funding_rate: +v.fundingRate,
-              funding_at: +v.fundingTime,
+          const { base_currency, quote_currency } = theProduct;
+          const [instType, instId] = decodePath(product_id);
+          if (!base_currency || !quote_currency) {
+            return { res: { code: 400, message: `base_currency or quote_currency is required` } };
+          }
+          const funding_rate_history: IFundingRate[] = [];
+          let current_end = end;
+          while (true) {
+            client.getFundingRateHistory;
+            const res = await client.getFundingRateHistory({
+              instId: instId,
+              after: `${current_end}`,
             });
+            if (res.code !== '0') {
+              return { res: { code: +res.code, message: res.msg } };
+            }
+            if (res.data.length === 0) {
+              break;
+            }
+            for (const v of res.data) {
+              funding_rate_history.push({
+                series_id: msg.req.tags.series_id,
+                product_id,
+                datasource_id,
+                base_currency,
+                quote_currency,
+                funding_rate: +v.fundingRate,
+                funding_at: +v.fundingTime,
+              });
+            }
+            current_end = +res.data[res.data.length - 1].fundingTime;
+            if (current_end <= start) {
+              break;
+            }
+            await firstValueFrom(timer(1000));
           }
-          current_end = +res.data[res.data.length - 1].fundingTime;
-          if (current_end <= start) {
-            break;
-          }
-          await firstValueFrom(timer(1000));
+          funding_rate_history.sort((a, b) => +a.funding_at - +b.funding_at);
+          // there will be at most 300 records, so we don't need to chunk it by bufferCount
+          await lastValueFrom(
+            from(funding_rate_history).pipe(
+              map(wrapFundingRateRecord),
+              toArray(),
+              mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
+            ),
+          );
+          return { res: { code: 0, message: 'OK' } };
         }
-        funding_rate_history.sort((a, b) => +a.funding_at - +b.funding_at);
-        // there will be at most 300 records, so we don't need to chunk it by bufferCount
-        await lastValueFrom(
-          from(funding_rate_history).pipe(
-            map(wrapFundingRateRecord),
-            toArray(),
-            mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
-          ),
-        );
-        return { res: { code: 0, message: 'OK' } };
+
+        if (msg.req.type === 'period') {
+          const { period_in_sec, product_id = '' } = msg.req.tags || {};
+          if (!product_id) {
+            return { res: { code: 400, message: 'product_id is required' } };
+          }
+          if (!period_in_sec) {
+            return { res: { code: 400, message: 'period_in_sec is required' } };
+          }
+          const [instType, instId] = decodePath(product_id);
+          // 时间粒度，默认值1m
+          // 如 [1m/3m/5m/15m/30m/1H/2H/4H]
+          // 香港时间开盘价k线：[6H/12H/1D/1W/1M]
+          // UTC时间开盘价k线：[6Hutc/12Hutc/1Dutc/1Wutc/1Mutc]
+          const bar = {
+            60: '1m',
+            180: '3m',
+            300: '5m',
+            900: '15m',
+            1800: '30m',
+            3600: '1H',
+            7200: '2H',
+            14400: '4H',
+            21600: '6H',
+            43200: '12H',
+            86400: '1D',
+            604800: '1W',
+            2592000: '1M',
+          }[period_in_sec];
+          if (!bar) {
+            return { res: { code: 400, message: 'unsupported period_in_sec' } };
+          }
+          const [startTime, endTime] = msg.req.time_range || [0, Date.now()];
+          const before = `${Math.max(0, startTime - 1)}`;
+          const after = `${Math.min(endTime, startTime + 100 * (+period_in_sec * 1000))}`;
+
+          const res = await client.getHistoryMarkPriceCandles({ instId, bar, before, after, limit: '100' });
+          if (res.data.length === 0) {
+            // startTime too early
+          }
+          if (res.data.length < 100) {
+            // data is complete
+            await lastValueFrom(writeDataRecords(terminal, []));
+          }
+          if (res.data.length === 100) {
+            // need load more
+          }
+        }
+
+        return { res: { code: 400, message: 'unreached code routine' } };
       }).pipe(
         //
         tap({
