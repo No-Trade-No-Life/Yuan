@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.7.2",
+      "tag": "@yuants/vendor-okx_v0.7.2",
+      "date": "Mon, 08 Jul 2024 19:01:21 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add copy data record for period"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.7.1",
       "tag": "@yuants/vendor-okx_v0.7.1",
       "date": "Wed, 03 Jul 2024 10:05:02 GMT",
