@@ -335,4 +335,137 @@ export class GateClient {
       r: string;
     }[]
   > => this.request('GET', `/api/v4/futures/${settle}/funding_rate`, params);
+
+  /**
+   * 提现
+   *
+   * POST /withdrawals
+   *
+   * https://www.gate.io/docs/developers/apiv4/zh_CN/#%E6%8F%90%E7%8E%B0
+   */
+  postWithdrawals = (params: {
+    withdraw_order_id?: string;
+    amount: string;
+    currency: string;
+    address?: string;
+    memo?: string;
+    chain: string;
+  }): Promise<{
+    id: string;
+    txid: string;
+    withdraw_order_id: string;
+    timestamp: number;
+    amount: string;
+    currency: string;
+    address: string;
+    memo: string;
+    status: string;
+    chain: string;
+  }> => this.request('POST', '/api/v4/withdrawals', params);
+
+  /**
+   * 获取币种充值地址
+   *
+   * https://www.gate.io/docs/developers/apiv4/zh_CN/#%E8%8E%B7%E5%8F%96%E5%B8%81%E7%A7%8D%E5%85%85%E5%80%BC%E5%9C%B0%E5%9D%80
+   */
+  getDepositAddress = (params: {
+    currency: string;
+  }): Promise<{
+    currency: string;
+    address: string;
+    multichain_addresses: {
+      chain: string;
+      address: string;
+      payment_id: string;
+      payment_name: string;
+      obtain_failed: boolean;
+    }[];
+  }> => this.request('GET', '/api/v4/wallet/deposit_address', params);
+
+  /**
+   * 创建新的子账户
+   *
+   * https://www.gate.io/docs/developers/apiv4/zh_CN/#%E5%88%9B%E5%BB%BA%E6%96%B0%E7%9A%84%E5%AD%90%E8%B4%A6%E6%88%B7
+   */
+  getSubAccountList = (params?: {
+    type?: string;
+  }): Promise<
+    {
+      remark: string;
+      login_name: string;
+      password: string;
+      email: string;
+      state: number;
+      type: number;
+      user_id: number;
+      create_time: number;
+    }[]
+  > => this.request('GET', '/api/v4/sub_accounts', params);
+
+  /**
+   * 获取充值记录
+   *
+   * 记录查询时间范围不允许超过 30 天
+   *
+   * https://www.gate.io/docs/developers/apiv4/zh_CN/#%E8%8E%B7%E5%8F%96%E5%85%85%E5%80%BC%E8%AE%B0%E5%BD%95
+   */
+  getDepositHistory = (params?: {
+    currency?: string;
+    from?: number;
+    to?: number;
+    limit?: number;
+    offset?: number;
+  }): Promise<
+    {
+      id: string;
+      txid: string;
+      withdraw_order_id: string;
+      timestamp: number;
+      amount: string;
+      currency: string;
+      address: string;
+      memo: string;
+      status: string;
+      chain: string;
+    }[]
+  > => this.request('GET', '/api/v4/wallet/deposits', params);
+
+  /**
+   * 获取提现记录
+   *
+   * 记录查询时间范围不允许超过 30 天
+   *
+   * https://www.gate.io/docs/developers/apiv4/zh_CN/#%E8%8E%B7%E5%8F%96%E5%B8%81%E7%A7%8D%E5%85%85%E5%80%BC%E5%9C%B0%E5%9D%80
+   */
+  getWithdrawalHistory = (params?: {
+    currency?: string;
+    from?: number;
+    to?: number;
+    limit?: number;
+    offset?: number;
+  }): Promise<
+    {
+      id: string;
+      txid: string;
+      withdraw_order_id: string;
+      timestamp: number;
+      amount: string;
+      currency: string;
+      address: string;
+      memo: string;
+      status: string;
+      chain: string;
+    }[]
+  > => this.request('GET', '/api/v4/wallet/withdrawals', params);
 }
+
+// (async () => {
+//   const client = new GateClient({
+//     auth: {
+//       access_key: process.env.ACCESS_KEY!,
+//       secret_key: process.env.SECRET_KEY!,
+//     },
+//   });
+
+//   console.log(await client.postWithdrawals({ currency: 'USDT', amount: '1', chain: 'TRX' }));
+// })();

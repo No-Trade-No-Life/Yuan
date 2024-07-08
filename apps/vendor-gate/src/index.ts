@@ -33,6 +33,7 @@ import {
   toArray,
 } from 'rxjs';
 import { GateClient } from './api';
+import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
 
 (async () => {
   const client = new GateClient({
@@ -343,4 +344,57 @@ import { GateClient } from './api';
       );
     },
   );
+
+  const subAccountsResult = await client.getSubAccountList({ type: '0' });
+  // TODO: test what happens if we were sub accounts
+  const isMainAccount = true;
+  if (isMainAccount) {
+    const depositAddressRes = await client.getDepositAddress({ currency: 'USDT' });
+    console.info(formatTime(Date.now()), 'DepositAddress', JSON.stringify(depositAddressRes));
+    const addresses = depositAddressRes.multichain_addresses.filter((v) => v.chain === 'TRX');
+    for (const address of addresses) {
+      addAccountTransferAddress({
+        terminal,
+        account_id: futureUsdtAccountId,
+        network_id: 'TRC20',
+        currency: 'USDT',
+        address: address.address,
+        onApply: {
+          // TODO: test this one
+          INIT: async (transferOrder) => {
+            const transferResult = await client.postWithdrawals({
+              amount: '' + transferOrder.current_amount!,
+              currency: 'USDT',
+              address: transferOrder.current_rx_address!,
+              chain: 'TRX',
+            });
+            const { txid, withdraw_order_id } = transferResult;
+            if (txid && txid.length > 0) {
+              return { state: 'COMPLETE', transaction_id: txid };
+            }
+            return { state: 'PENDING', context: withdraw_order_id };
+          },
+          PENDING: async (transferOrder) => {
+            const wdId = transferOrder.current_tx_context;
+            const withdrawalRecordsResult = await client.getWithdrawalHistory();
+            const withdrawalRecord = withdrawalRecordsResult.find((v) => v.withdraw_order_id === wdId);
+            if (withdrawalRecord && withdrawalRecord.txid && withdrawalRecord.txid.length > 0) {
+              return { state: 'COMPLETE', transaction_id: withdrawalRecord.txid };
+            }
+            return { state: 'PENDING', context: wdId };
+          },
+        },
+        onEval: async (transferOrder) => {
+          const checkResult = await client.getDepositHistory({
+            currency: 'USDT',
+          });
+          const depositRecord = checkResult.find((v) => v.txid === transferOrder.current_transaction_id);
+          if (depositRecord && depositRecord.status === 'DONE') {
+            return { state: 'COMPLETE', received_amount: +depositRecord.amount };
+          }
+          return { state: 'PENDING' };
+        },
+      });
+    }
+  }
 })();
