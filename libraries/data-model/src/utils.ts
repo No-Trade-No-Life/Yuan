@@ -5,6 +5,7 @@ import { v4 } from 'uuid';
 import {
   IAccountAddressInfo,
   IAccountInfo,
+  IAccountMoney,
   IDataRecord,
   IPosition,
   IProduct,
@@ -19,10 +20,8 @@ export const createEmptyAccountInfo = (
   currency: string,
   leverage: number = 1,
   initial_balance: number = 0,
-): IAccountInfo => ({
-  updated_at: 0,
-  account_id,
-  money: {
+): IAccountInfo => {
+  const money: IAccountMoney = {
     currency,
     leverage,
     equity: initial_balance,
@@ -30,10 +29,16 @@ export const createEmptyAccountInfo = (
     profit: 0,
     used: 0,
     free: 0,
-  },
-  positions: [],
-  orders: [],
-});
+  };
+  return {
+    updated_at: 0,
+    account_id,
+    money: money,
+    currencies: [money],
+    positions: [],
+    orders: [],
+  };
+};
 
 /**
  * Merge Positions by their product_id and direction

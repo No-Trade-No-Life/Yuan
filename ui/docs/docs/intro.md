@@ -4,6 +4,30 @@ sidebar_position: 1
 
 # Introduction
 
+## Motivation
+
+In the early stages of our quantitative trading endeavors, after extensively searching and researching various existing quantitative trading frameworks and products, we found that none could fully meet the development and research needs of our unique trading strategies. Thus, undeterred by the challenges, we embarked on creating our own product, Yuan, driven by our specific requirements.
+
+Our fundamental demands are:
+
+1. **Strong Privacy Security**
+
+   Quantitative model codes are the core assets of users and should not be at risk of theft. Many products on the market require uploading strategy codes to servers, where they can be fully assessed and potentially stolen. If a user's strategy can be grasped by potential competitors, the user will be at a disadvantage. Therefore, some products allow private deployment. We designed a local workspace for users that ensures privacy against various attacks and allows us to prove our integrity.
+
+2. **Full Market Compatibility**
+
+   Users invest and trade in different markets. We aim for the same strategy code to be applicable across various market types, both for historical backtesting and live trading, without any additional costs. We also hope the platform can support a wide range of markets. However, existing products often only support a subset of markets due to regional regulations and business constraints, forcing users to use different platforms for different markets. Through architectural design, we have decoupled the core, deploying business plugins to the market, which not only reduces coupling and improves software quality but also overcomes compliance barriers, setting the stage for global expansion.
+
+3. **Cross-Platform Compatibility**
+
+   We want our product to run without restrictions on any device, whether on desktop or mobile platforms. After all, the market does not cater to where users are. Users should be able to engage with the market at any time, in any setting.
+
+4. **Low Cost with High Scalability**
+
+   The industry's initial licensing fees, often in the thousands, are daunting, not to mention the high additional and maintenance costs. We believe these costs are partly due to bundling to offset development expenses, partly due to inefficient operations, and partly due to profiteering. As a product aimed at individual investors rather than enterprises, we must consider the financial capabilities of ordinary investors. For investors, the most important aspect of tools is affordability and durability. Whether it's a personal computer or a server cluster, our product can operate effectively.
+
+Yuan is an investment operating system designed to empower you to master your finances.
+
 ### Why use Yuan
 
 **Powerful Web GUI**

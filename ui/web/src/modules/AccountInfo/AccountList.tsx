@@ -89,7 +89,7 @@ registerPage('AccountList', () => {
 
           if (!accountInfo) return <Spin />;
 
-          const updated_at = accountInfo.updated_at || (accountInfo.timestamp_in_us ?? NaN) / 1000;
+          const updated_at = accountInfo.updated_at || 0;
           const timeLag = Date.now() - updated_at;
 
           return (
@@ -97,7 +97,7 @@ registerPage('AccountList', () => {
               {formatTime(updated_at)}
               {timeLag > 60_000 && (
                 <Typography.Text type="warning">
-                  信息更新于 {formatTime(accountInfo.updated_at!)}，已经 {(timeLag / 1000).toFixed(0)}{' '}
+                  信息更新于 {formatTime(updated_at)}，已经 {(timeLag / 1000).toFixed(0)}{' '}
                   秒未更新，可能已经失去响应
                 </Typography.Text>
               )}

@@ -672,7 +672,12 @@ export class Terminal {
       for (const channel_id of Object.keys(theMap)) {
         if (!mapChannelIdToSubject[channel_id]) {
           // NOTE: the payload should be immediately sent to the consumer.
-          mapChannelIdToSubject[channel_id] = handler(channel_id);
+          mapChannelIdToSubject[channel_id] = defer(() => handler(channel_id)).pipe(
+            catchError((err) => {
+              console.error(formatTime(Date.now()), 'Terminal', 'provideChannel', 'error', channel_id, err);
+              return EMPTY;
+            }),
+          );
           const subscriptionToHandler = mapChannelIdToSubject[channel_id].subscribe((payload) => {
             mapChannelIdToTargetTerminalIds$.pipe(first()).subscribe((theMap) => {
               const target_terminal_ids = theMap[channel_id];

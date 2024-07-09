@@ -318,6 +318,28 @@ export class OkxClient {
   }> => this.request('GET', '/api/v5/public/funding-rate-history', params);
 
   /**
+   * 获取标记价格历史K线数据
+   *
+   * 获取最近几年的标记价格K线数据
+   *
+   * 限速：10次/2s
+   * 限速规则：IP
+   *
+   * https://www.okx.com/docs-v5/zh/#public-data-rest-api-get-mark-price-candlesticks-history
+   */
+  getHistoryMarkPriceCandles = (params: {
+    instId: string;
+    bar?: string;
+    after?: string;
+    before?: string;
+    limit?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    data: Array<[ts: string, o: string, h: string, l: string, c: string, confirm: string]>;
+  }> => this.request('GET', '/api/v5/market/history-mark-price-candles', params);
+
+  /**
    * 获取余币宝余额
    *
    * 限速：6次/s

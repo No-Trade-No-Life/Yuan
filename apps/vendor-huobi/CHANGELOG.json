@@ -2,6 +2,65 @@
   "name": "@yuants/vendor-huobi",
   "entries": [
     {
+      "version": "0.5.1",
+      "tag": "@yuants/vendor-huobi_v0.5.1",
+      "date": "Wed, 03 Jul 2024 10:05:02 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.19.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.5.0",
+      "tag": "@yuants/vendor-huobi_v0.5.0",
+      "date": "Sun, 30 Jun 2024 11:56:32 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "support multi currencies"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.19.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.11.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.4.15",
+      "tag": "@yuants/vendor-huobi_v0.4.15",
+      "date": "Sat, 29 Jun 2024 19:21:30 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix initial account error"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.14",
       "tag": "@yuants/vendor-huobi_v0.4.14",
       "date": "Fri, 28 Jun 2024 12:37:38 GMT",

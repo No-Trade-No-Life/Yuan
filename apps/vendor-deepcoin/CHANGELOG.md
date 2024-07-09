@@ -1,6 +1,16 @@
 # Change Log - @yuants/vendor-deepcoin
 
-This log was last generated on Fri, 28 Jun 2024 12:37:38 GMT and should not be manually modified.
+This log was last generated on Wed, 03 Jul 2024 10:05:02 GMT and should not be manually modified.
+
+## 0.0.17
+Wed, 03 Jul 2024 10:05:02 GMT
+
+_Version update only_
+
+## 0.0.16
+Sun, 30 Jun 2024 11:56:32 GMT
+
+_Version update only_
 
 ## 0.0.15
 Fri, 28 Jun 2024 12:37:38 GMT

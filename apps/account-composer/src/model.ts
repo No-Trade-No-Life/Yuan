@@ -1,5 +1,11 @@
 import { JSONSchema7 } from 'json-schema';
 
+declare module '@yuants/protocol/lib/utils/DataRecord' {
+  export interface IDataRecordTypes {
+    account_composition_relation: IAccountCompositionRelation;
+  }
+}
+
 /**
  * Account Composition Relation
  *

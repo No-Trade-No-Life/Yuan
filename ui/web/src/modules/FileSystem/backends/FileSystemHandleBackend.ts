@@ -33,6 +33,9 @@ export class FileSystemHandleBackend implements IFileSystemBackend {
       return this.root;
     }
     const dir = dirname(path);
+    if (dir === path) {
+      return this.root;
+    }
     const base = basename(path);
     const dirHandle = await this.resolveHandle(dir);
     if (!(dirHandle instanceof FileSystemDirectoryHandle)) {

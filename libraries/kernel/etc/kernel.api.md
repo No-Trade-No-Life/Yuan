@@ -168,9 +168,6 @@ export class BasicUnit implements IKernelUnit {
     restore(state: any): void;
 }
 
-// @public
-export const createEmptyAccountInfo: (account_id: string, currency: string, leverage?: number, initial_balance?: number) => IAccountInfo;
-
 // @public (undocumented)
 export class DataLoadingTaskUnit extends BasicUnit {
     constructor(kernel: Kernel);

@@ -1,6 +1,27 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Fri, 28 Jun 2024 12:37:38 GMT and should not be manually modified.
+This log was last generated on Mon, 08 Jul 2024 19:01:21 GMT and should not be manually modified.
+
+## 0.7.2
+Mon, 08 Jul 2024 19:01:21 GMT
+
+### Patches
+
+- add copy data record for period
+
+## 0.7.1
+Wed, 03 Jul 2024 10:05:02 GMT
+
+### Patches
+
+- make margin trading sz correct
+
+## 0.7.0
+Sun, 30 Jun 2024 11:56:32 GMT
+
+### Minor changes
+
+- support multi currencies
 
 ## 0.6.9
 Fri, 28 Jun 2024 12:37:38 GMT

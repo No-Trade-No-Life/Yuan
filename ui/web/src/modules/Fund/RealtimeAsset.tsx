@@ -1,5 +1,5 @@
 import { Button, Card, Descriptions, Empty, Space, Table, Toast, Typography } from '@douyinfe/semi-ui';
-import { IAccountInfo, formatTime } from '@yuants/data-model';
+import { IAccountInfo, IAccountMoney, formatTime } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
 import { format } from 'date-fns';
 import { parse } from 'jsonc-parser';
@@ -128,30 +128,32 @@ const fromConfig = (config: IFundConfig): Observable<IFundInfo> => {
     mergeMap(([components, rates]) =>
       from(components).pipe(
         reduce((acc, cur) => acc + cur.value * (rates[`${cur.currency}${config.currency}`] ?? 1), 0),
-        map(
-          (total): IFundInfo => ({
+        map((total): IFundInfo => {
+          const money: IAccountMoney = {
+            equity: total,
+            currency: config.currency,
+            balance: total,
+            used: 0,
+            free: total,
+            profit: 0,
+          };
+          const accountInfo: IAccountInfo = {
+            updated_at: Date.now(),
+            account_id: config.account_id,
+            money: money,
+            currencies: [money],
+            positions: [],
+            orders: [],
+          };
+          return {
             config,
-            accountInfo: {
-              timestamp_in_us: Date.now() * 1e3,
-              updated_at: Date.now(),
-              account_id: config.account_id,
-              money: {
-                equity: total,
-                currency: config.currency,
-                balance: total,
-                used: 0,
-                free: total,
-                profit: 0,
-              },
-              positions: [],
-              orders: [],
-            },
+            accountInfo: accountInfo,
             fund_price: +(total / config.share).toFixed(6),
             rates,
             share: config.share,
             components,
-          }),
-        ),
+          };
+        }),
       ),
     ),
   );

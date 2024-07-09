@@ -1,17 +1,20 @@
-import { IconCopyAdd, IconDelete, IconEdit, IconRefresh, IconSearch } from '@douyinfe/semi-icons';
-import { Button, Popconfirm, Space, Switch, Table, Toast } from '@douyinfe/semi-ui';
-import { StockMarket } from '@icon-park/react';
+import { Switch, Toast } from '@douyinfe/semi-ui';
+import { createColumnHelper } from '@tanstack/react-table';
 import { IDataRecord } from '@yuants/data-model';
+import { writeDataRecords } from '@yuants/protocol';
 import { JSONSchema7 } from 'json-schema';
-import { useObservable, useObservableState } from 'observable-hooks';
-import { useState } from 'react';
-import { EMPTY, combineLatest, filter, first, mergeMap, tap, toArray } from 'rxjs';
+import { filter, first, mergeMap, tap } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
-import { showForm } from '../Form';
+import { DataRecordView } from '../DataRecord';
+import { Button } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 
-// TODO: Import
+declare module '@yuants/protocol/lib/utils/DataRecord' {
+  export interface IDataRecordTypes {
+    pull_source_relation: IPullSourceRelation;
+  }
+}
 interface IPullSourceRelation {
   datasource_id: string;
   product_id: string;
@@ -75,187 +78,77 @@ const schema: JSONSchema7 = {
   },
 };
 registerPage('PullSourceRelationList', () => {
-  const [refreshId, setRefreshId] = useState(0);
-
-  const [searchFormData, setSearchFormData] = useState({} as IPullSourceRelation);
-
-  const records$ = useObservable(
-    (input$) =>
-      combineLatest([terminal$, input$]).pipe(
-        //
-        mergeMap(([terminal, [searchFormData]]) =>
-          (
-            terminal?.queryDataRecords<IPullSourceRelation>({
-              type: 'pull_source_relation',
-              tags: {},
-              options: {
-                sort: [
-                  ['origin.datasource_id', 1],
-                  ['origin.product_id', 1],
-                  ['origin.period_in_sec', 1],
-                ],
-              },
-            }) ?? EMPTY
-          ).pipe(
-            filter(
-              (record) =>
-                !searchFormData.datasource_id || record.origin.datasource_id === searchFormData.datasource_id,
-            ),
-            filter(
-              (record) =>
-                !searchFormData.product_id || record.origin.product_id === searchFormData.product_id,
-            ),
-            filter(
-              (record) =>
-                !searchFormData.period_in_sec || record.origin.period_in_sec === searchFormData.period_in_sec,
-            ),
-            //
-            toArray(),
-          ),
-        ),
-      ),
-    [searchFormData, refreshId],
-  );
-
-  const records = useObservableState(records$);
-  const updateData = (formData: IPullSourceRelation) => {
-    const record = mapPullSourceRelationToDataRecord(formData);
-    terminal$
-      .pipe(
-        filter((x): x is Exclude<typeof x, null> => !!x),
-        first(),
-        mergeMap((terminal) => terminal.updateDataRecords([record])),
-        tap({
-          complete: () => {
-            Toast.success(`成功更新数据记录 ${record.id}`);
-            setRefreshId((x) => x + 1);
-          },
-        }),
-      )
-      .subscribe();
-  };
-
   return (
-    <Space vertical align="start" style={{ width: '100%' }}>
-      <Space>
-        <Button
-          icon={<IconSearch />}
-          onClick={async () => {
-            const data = await showForm<IPullSourceRelation>(schema, searchFormData);
-            setSearchFormData(data);
-          }}
-        >
-          搜索
-        </Button>
-        <Button
-          icon={<IconCopyAdd />}
-          onClick={async () => {
-            const data = await showForm<IPullSourceRelation>(schema, {});
-            updateData(data);
-          }}
-        >
-          添加
-        </Button>
-        <Button
-          icon={<IconRefresh />}
-          onClick={() => {
-            setRefreshId((x) => x + 1);
-            Toast.success('已刷新');
-          }}
-        >
-          刷新
-        </Button>
-      </Space>
-      <Table
-        dataSource={records}
-        style={{ width: '100%' }}
-        columns={[
-          //
-          { title: '数据源 ID', render: (_, record) => record.origin.datasource_id },
-          { title: '品种 ID', render: (_, record) => record.origin.product_id },
-          { title: '周期 (s)', render: (_, record) => record.origin.period_in_sec },
-          { title: 'Cron 模式', render: (_, record) => record.origin.cron_pattern },
-          { title: 'Cron 时区', render: (_, record) => record.origin.cron_timezone },
-          { title: '回溯数量', render: (_, record) => record.origin.replay_count ?? 0 },
-          {
-            title: '禁用',
-            render: (_, record) => (
+    <DataRecordView
+      TYPE="pull_source_relation"
+      columns={(ctx) => {
+        const columnHelper = createColumnHelper<IDataRecord<IPullSourceRelation>>();
+        return [
+          columnHelper.accessor('origin.datasource_id', {
+            header: () => '数据源 ID',
+          }),
+          columnHelper.accessor('origin.product_id', {
+            header: () => '品种 ID',
+          }),
+          columnHelper.accessor('origin.period_in_sec', {
+            header: () => '周期 (s)',
+          }),
+          columnHelper.accessor('origin.cron_pattern', {
+            header: () => 'Cron 模式',
+          }),
+          columnHelper.accessor('origin.cron_timezone', {
+            header: () => 'Cron 时区',
+          }),
+          columnHelper.accessor('origin.replay_count', {
+            header: () => '回溯数量',
+          }),
+          columnHelper.accessor('origin.disabled', {
+            header: () => '禁用',
+            cell: (ctx1) => (
               <Switch
+                checked={!!ctx1.getValue()}
                 onChange={(v) => {
+                  const record = ctx1.row.original;
                   const next = mapPullSourceRelationToDataRecord({ ...record.origin, disabled: v });
                   terminal$
                     .pipe(
                       filter((x): x is Exclude<typeof x, null> => !!x),
                       first(),
-                      mergeMap((terminal) => terminal.updateDataRecords([next])),
+                      mergeMap((terminal) => writeDataRecords(terminal, [next])),
                       tap({
                         complete: () => {
                           Toast.success(`成功更新数据记录 ${record.id}`);
-                          setRefreshId((x) => x + 1);
+                          ctx.reloadData();
                         },
                       }),
                     )
                     .subscribe();
                 }}
-                checked={!!record.origin.disabled}
-              />
+              ></Switch>
             ),
-          },
-          {
-            title: '操作',
-            render: (_, record) => (
-              <Space>
-                <Button
-                  icon={<StockMarket />}
-                  onClick={() => {
-                    executeCommand('Market', {
-                      datasource_id: record.origin.datasource_id,
-                      product_id: record.origin.product_id,
-                      period_in_sec: record.origin.period_in_sec,
-                    });
-                  }}
-                ></Button>
-                <Button
-                  icon={<IconEdit />}
-                  onClick={async () => {
-                    const data = await showForm<IPullSourceRelation>(schema, record.origin);
-                    updateData(data);
-                  }}
-                ></Button>
-
-                <Popconfirm
-                  style={{ width: 300 }}
-                  title="确定是否删除？"
-                  content="此操作将不可逆"
-                  onConfirm={() => {
-                    terminal$
-                      .pipe(
-                        //
-                        filter((x): x is Exclude<typeof x, null> => !!x),
-                        first(),
-                        mergeMap((terminal) =>
-                          terminal.removeDataRecords({
-                            type: 'pull_source_relation',
-                            id: record.id,
-                          }),
-                        ),
-                        tap({
-                          complete: () => {
-                            Toast.success(`成功删除数据记录 ${record.id}`);
-                            setRefreshId((x) => x + 1);
-                          },
-                        }),
-                      )
-                      .subscribe();
-                  }}
-                >
-                  <Button icon={<IconDelete />} type="danger"></Button>
-                </Popconfirm>
-              </Space>
-            ),
-          },
-        ]}
-      ></Table>
-    </Space>
+          }),
+        ];
+      }}
+      newRecord={() => {
+        return {};
+      }}
+      mapOriginToDataRecord={mapPullSourceRelationToDataRecord}
+      extraRecordActions={(ctx) => {
+        return (
+          <Button
+            onClick={() =>
+              executeCommand('Market', {
+                datasource_id: ctx.record.origin.datasource_id,
+                product_id: ctx.record.origin.product_id,
+                period_in_sec: ctx.record.origin.period_in_sec,
+              })
+            }
+          >
+            行情
+          </Button>
+        );
+      }}
+      schema={schema}
+    />
   );
 });

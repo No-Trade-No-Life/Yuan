@@ -57,6 +57,29 @@ export const provideAccountInfo = (terminal: Terminal, accountInfo$: Observable<
           currency: accountInfo.money.currency,
         });
 
+        for (const currency of lastAccountInfo.currencies || []) {
+          AccountInfoBalance.set(currency.balance, {
+            account_id: lastAccountInfo.account_id,
+            currency: currency.currency,
+          });
+          AccountInfoEquity.set(currency.equity, {
+            account_id: lastAccountInfo.account_id,
+            currency: currency.currency,
+          });
+          AccountInfoProfit.set(currency.profit, {
+            account_id: lastAccountInfo.account_id,
+            currency: currency.currency,
+          });
+          AccountInfoUsed.set(currency.used, {
+            account_id: lastAccountInfo.account_id,
+            currency: currency.currency,
+          });
+          AccountInfoFree.set(currency.free, {
+            account_id: lastAccountInfo.account_id,
+            currency: currency.currency,
+          });
+        }
+
         for (const position of lastAccountInfo.positions) {
           AccountInfoPositionVolume.reset({
             account_id: lastAccountInfo.account_id,

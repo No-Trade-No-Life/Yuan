@@ -45,12 +45,11 @@ export interface IAccountAddressInfo {
 // @public
 export interface IAccountInfo {
     account_id: string;
+    currencies: IAccountMoney[];
     money: IAccountMoney;
     orders: IOrder[];
     positions: IPosition[];
-    // @deprecated
-    timestamp_in_us?: number;
-    updated_at?: number;
+    updated_at: number;
 }
 
 // @public

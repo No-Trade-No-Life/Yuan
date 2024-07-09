@@ -1,10 +1,16 @@
-import { Badge, Button, Descriptions, Space, Typography } from '@douyinfe/semi-ui';
+import { IconFile, IconSave } from '@douyinfe/semi-icons';
+import { Badge, Descriptions, Space, Toast, Typography } from '@douyinfe/semi-ui';
+import Ajv from 'ajv';
+import { parse } from 'jsonc-parser';
 import { useObservableState } from 'observable-hooks';
 import { useMemo, useState } from 'react';
 import { lastValueFrom } from 'rxjs';
 import { InlineAccountId, useAccountInfo } from '../AccountInfo';
-import Form from '../Form';
+import { fs } from '../FileSystem/api';
+import Form, { showForm } from '../Form';
+import { Button } from '../Interactive';
 import { registerPage } from '../Pages';
+import { InlineProductId } from '../Products/InlineProductId';
 import { terminal$, useTick } from '../Terminals';
 
 interface IInterleavingConfigItem {
@@ -14,6 +20,7 @@ interface IInterleavingConfigItem {
   order_type: string;
   order_direction: string;
   volume: number;
+  disabled?: boolean;
 }
 
 interface IInterleavingConfig {
@@ -51,6 +58,9 @@ const schema = {
           volume: {
             type: 'number',
           },
+          disabled: {
+            type: 'boolean',
+          },
         },
       },
     },
@@ -73,8 +83,45 @@ registerPage('InterleavingTrader', () => {
   const [config, setConfig] = useState<IInterleavingConfig>();
   const [state, setState] = useState<IState>(initState);
   const terminal = useObservableState(terminal$);
+
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
+      <Space>
+        <Button
+          icon={<IconSave />}
+          onClick={async () => {
+            try {
+              const filename = await showForm<string>({ title: 'Filename to save', type: 'string' });
+              await fs.writeFile(filename, JSON.stringify(config, null, 2));
+              Toast.success('Success to save');
+            } catch (e) {
+              Toast.success(`Failed to save: ${e}`);
+            }
+          }}
+        >
+          Save Config
+        </Button>
+        <Button
+          icon={<IconFile />}
+          onClick={async () => {
+            try {
+              const filename = await showForm<string>({ title: 'Filename to load', type: 'string' });
+              const content = await fs.readFile(filename);
+              const config = parse(content);
+              const validator = new Ajv({ strictSchema: false });
+              if (!validator.validate(schema, config)) {
+                throw validator.errorsText();
+              }
+              setConfig(config);
+              Toast.success('Success to load');
+            } catch (e) {
+              Toast.success(`Failed to load: ${e}`);
+            }
+          }}
+        >
+          Load Config
+        </Button>
+      </Space>
       <Form
         formData={config}
         onChange={(e) => {
@@ -98,6 +145,7 @@ registerPage('InterleavingTrader', () => {
               setState((x) => ({ ...x, currentRound: x.currentRound + 1, currentIdx: -1 }));
               for (const item of config.items) {
                 setState((x) => ({ ...x, currentIdx: x.currentIdx + 1 }));
+                if (item.disabled) continue;
                 try {
                   const res = await lastValueFrom(
                     terminal.requestService('SubmitOrder', {
@@ -179,7 +227,10 @@ const InterleavingAccountStatus = (props: {
             ),
         },
         { key: '账户', value: <InlineAccountId account_id={item.account_id} /> },
-        { key: '品种', value: item.product_id },
+        {
+          key: '品种',
+          value: <InlineProductId product_id={item.product_id} datasource_id={item.datasource_id} />,
+        },
         { key: '当前仓位', value: volume },
         { key: '下次仓位', value: next_target_volume },
         { key: '最终仓位', value: final_target_volume },

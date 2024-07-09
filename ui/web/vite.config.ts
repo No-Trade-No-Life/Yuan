@@ -27,5 +27,12 @@ export default defineConfig({
   build: {
     target: ['esnext'], // 👈 build.target
     chunkSizeWarningLimit: 1e6, // 暂时按住 warning，节约 build 时间
+    rollupOptions: {
+      onwarn(warning, warn) {
+        if (warning.code === 'MODULE_LEVEL_DIRECTIVE') return;
+        // if (warning.code === 'CIRCULAR_DEPENDENCY') return;
+        warn(warning);
+      },
+    },
   },
 });

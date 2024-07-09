@@ -1,8 +1,9 @@
-import { Modal } from '@douyinfe/semi-ui';
+import { Modal, Toast } from '@douyinfe/semi-ui';
 import { ModalReactProps } from '@douyinfe/semi-ui/lib/es/modal';
 import { FormProps, ThemeProps, withTheme } from '@rjsf/core';
 import { FormContextType, RJSFSchema, StrictRJSFSchema } from '@rjsf/utils';
 import validator from '@rjsf/validator-ajv8';
+import Ajv from 'ajv';
 import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
 import React, { ComponentType, createElement } from 'react';
@@ -91,7 +92,13 @@ export const showForm = <T>(schema: JSONSchema7, initialData?: any): Promise<T> 
           reject(new Error('User Cancelled'));
         },
         onOk: () => {
-          resolve(data);
+          const ajv = new Ajv({ strictSchema: false });
+          if (ajv.validate(schema, data)) {
+            resolve(data);
+            return;
+          }
+          Toast.error(ajv.errorsText());
+          reject(new Error('Validation Failed'));
         },
         okText: t('common:submit'),
         cancelText: t('common:cancel'),
