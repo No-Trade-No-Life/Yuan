@@ -2,6 +2,26 @@
   "name": "@yuants/app-risk-manager",
   "entries": [
     {
+      "version": "0.2.0",
+      "tag": "@yuants/app-risk-manager_v0.2.0",
+      "date": "Tue, 09 Jul 2024 21:07:09 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "add interface injection"
+          },
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "support leverage based controlling"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.8",
       "tag": "@yuants/app-risk-manager_v0.1.8",
       "date": "Wed, 03 Jul 2024 10:05:02 GMT",
