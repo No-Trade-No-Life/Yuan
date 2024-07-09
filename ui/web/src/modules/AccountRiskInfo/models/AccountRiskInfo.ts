@@ -1,6 +1,12 @@
 import { IDataRecord, encodePath } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
 
+declare module '@yuants/protocol/lib/utils/DataRecord' {
+  export interface IDataRecordTypes {
+    account_risk_info: IAccountRiskInfo;
+  }
+}
+
 export interface IAccountRiskInfo {
   /**
    * The account ID
