@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-gate
 
-This log was last generated on Wed, 03 Jul 2024 10:05:02 GMT and should not be manually modified.
+This log was last generated on Tue, 09 Jul 2024 18:54:11 GMT and should not be manually modified.
+
+## 0.2.2
+Tue, 09 Jul 2024 18:54:11 GMT
+
+### Patches
+
+- add trx transfer
 
 ## 0.2.1
 Wed, 03 Jul 2024 10:05:02 GMT
