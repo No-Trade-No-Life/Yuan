@@ -6,7 +6,6 @@ interface IGateParams {
 }
 
 export class GateClient {
-  api_root = 'api.gateio.ws/api/v4';
   constructor(public params: IGateParams) {}
 
   async request(method: string, path: string, params?: any) {
@@ -50,7 +49,15 @@ export class GateClient {
     try {
       return JSON.parse(retStr);
     } catch (e) {
-      console.error(formatTime(Date.now()), 'RequestFailed', path, JSON.stringify(params), retStr);
+      console.error(
+        formatTime(Date.now()),
+        'RequestFailed',
+        path,
+        JSON.stringify(params),
+        retStr,
+        res.headers,
+        res.status,
+      );
       throw e;
     }
   }
@@ -335,4 +342,189 @@ export class GateClient {
       r: string;
     }[]
   > => this.request('GET', `/api/v4/futures/${settle}/funding_rate`, params);
+
+  /**
+   * 提现
+   *
+   * POST /withdrawals
+   *
+   * https://www.gate.io/docs/developers/apiv4/zh_CN/#%E6%8F%90%E7%8E%B0
+   */
+  postWithdrawals = (params: {
+    withdraw_order_id?: string;
+    amount: string;
+    currency: string;
+    address?: string;
+    memo?: string;
+    chain: string;
+  }): Promise<{
+    id: string;
+    txid: string;
+    withdraw_order_id: string;
+    timestamp: number;
+    amount: string;
+    currency: string;
+    address: string;
+    memo: string;
+    status: string;
+    chain: string;
+  }> => this.request('POST', '/api/v4/withdrawals', params);
+
+  /**
+   * 获取币种充值地址
+   *
+   * https://www.gate.io/docs/developers/apiv4/zh_CN/#%E8%8E%B7%E5%8F%96%E5%B8%81%E7%A7%8D%E5%85%85%E5%80%BC%E5%9C%B0%E5%9D%80
+   */
+  getDepositAddress = (params: {
+    currency: string;
+  }): Promise<{
+    currency: string;
+    address: string;
+    multichain_addresses: {
+      chain: string;
+      address: string;
+      payment_id: string;
+      payment_name: string;
+      obtain_failed: boolean;
+    }[];
+  }> => this.request('GET', '/api/v4/wallet/deposit_address', params);
+
+  /**
+   * 创建新的子账户
+   *
+   * https://www.gate.io/docs/developers/apiv4/zh_CN/#%E5%88%9B%E5%BB%BA%E6%96%B0%E7%9A%84%E5%AD%90%E8%B4%A6%E6%88%B7
+   */
+  getSubAccountList = (params?: {
+    type?: string;
+  }): Promise<
+    {
+      remark: string;
+      login_name: string;
+      password: string;
+      email: string;
+      state: number;
+      type: number;
+      user_id: number;
+      create_time: number;
+    }[]
+  > => this.request('GET', '/api/v4/sub_accounts', params);
+
+  /**
+   * 获取充值记录
+   *
+   * 记录查询时间范围不允许超过 30 天
+   *
+   * https://www.gate.io/docs/developers/apiv4/zh_CN/#%E8%8E%B7%E5%8F%96%E5%85%85%E5%80%BC%E8%AE%B0%E5%BD%95
+   */
+  getDepositHistory = (params?: {
+    currency?: string;
+    from?: number;
+    to?: number;
+    limit?: number;
+    offset?: number;
+  }): Promise<
+    {
+      id: string;
+      txid: string;
+      withdraw_order_id: string;
+      timestamp: number;
+      amount: string;
+      currency: string;
+      address: string;
+      memo: string;
+      status: string;
+      chain: string;
+    }[]
+  > => this.request('GET', '/api/v4/wallet/deposits', params);
+
+  /**
+   * 获取提现记录
+   *
+   * 记录查询时间范围不允许超过 30 天
+   *
+   * https://www.gate.io/docs/developers/apiv4/zh_CN/#%E8%8E%B7%E5%8F%96%E5%B8%81%E7%A7%8D%E5%85%85%E5%80%BC%E5%9C%B0%E5%9D%80
+   */
+  getWithdrawalHistory = (params?: {
+    currency?: string;
+    from?: number;
+    to?: number;
+    limit?: number;
+    offset?: number;
+  }): Promise<
+    {
+      id: string;
+      txid: string;
+      withdraw_order_id: string;
+      timestamp: number;
+      amount: string;
+      currency: string;
+      address: string;
+      memo: string;
+      status: string;
+      chain: string;
+    }[]
+  > => this.request('GET', '/api/v4/wallet/withdrawals', params);
+
+  /**
+   * 获取现货交易账户列表
+   *
+   * https://www.gate.io/docs/developers/apiv4/zh_CN/#%E8%8E%B7%E5%8F%96%E7%8E%B0%E8%B4%A7%E4%BA%A4%E6%98%93%E8%B4%A6%E6%88%B7%E5%88%97%E8%A1%A8
+   */
+  getSpotAccounts = (params?: {
+    currency?: string;
+  }): Promise<
+    {
+      currency: string;
+      available: string;
+      locked: string;
+      update_id: string;
+    }[]
+  > => this.request('GET', '/api/v4/spot/accounts', params);
+
+  /**
+   * 交易账户互转
+   *
+   * POST /wallet/transfers
+   *
+   * 交易账户互转
+   *
+   * 个人交易账户之间的余额互转，目前支持以下互转操作：
+   *
+   * 现货账户 - 杠杆账户
+   * 现货账户 - 永续合约账户
+   * 现货账户 - 交割合约账户
+   * 现货账户 - 全仓杠杆账户
+   * 现货账户 - 期权账户
+   *
+   * https://www.gate.io/docs/developers/apiv4/zh_CN/#%E4%BA%A4%E6%98%93%E8%B4%A6%E6%88%B7%E4%BA%92%E8%BD%AC
+   */
+  postWalletTransfer = (params: {
+    currency: string;
+    from: string;
+    to: string;
+    amount: string;
+    currency_pair?: string;
+    settle?: string;
+  }): Promise<{
+    tx_id: string;
+  }> => this.request('POST', '/api/v4/wallet/transfers', params);
 }
+
+(async () => {
+  const client = new GateClient({
+    auth: {
+      access_key: process.env.ACCESS_KEY!,
+      secret_key: process.env.SECRET_KEY!,
+    },
+  });
+
+  console.log(
+    await client.postWalletTransfer({
+      currency: 'USDT',
+      from: 'spot',
+      to: 'futures',
+      amount: '1',
+      settle: 'usdt',
+    }),
+  );
+})();
