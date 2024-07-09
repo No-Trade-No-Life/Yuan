@@ -3,7 +3,7 @@
     "message": "没有技术绑架。从您的个人电脑开始。渐进式地按需切换至云。保持丝滑、统一的用户体验。"
   },
   "home.heroTitle": {
-    "message": "Yuan - 适合每个人的投资操作系统"
+    "message": "Yuan - 面向个人的投资操作系统"
   },
   "home.heroSubTitle": {
     "message": "通过我们的人工智能驱动平台增强您的量化策略，您可以使用自然语言来创建和优化您的个人量化模型，就像为量化交易员打造的ChatGPT一样。"
@@ -61,7 +61,7 @@
     "message": "阅读文档"
   },
   "home.slogan": {
-    "message": "适合每个人的投资操作系统"
+    "message": "面向个人的投资操作系统"
   },
   "home.welcomeTitle": {
     "message": "{value} 欢迎你"

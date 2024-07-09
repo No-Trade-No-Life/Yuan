@@ -1,5 +1,11 @@
 import { IDataRecord, ITransferOrder } from '@yuants/data-model';
 
+declare module '@yuants/protocol/lib/utils/DataRecord' {
+  export interface IDataRecordTypes {
+    transfer_order: ITransferOrder;
+  }
+}
+
 export function wrapTransferOrder(order: ITransferOrder): IDataRecord<ITransferOrder> {
   return {
     id: order.order_id,
