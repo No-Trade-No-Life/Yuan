@@ -6,7 +6,6 @@ interface IGateParams {
 }
 
 export class GateClient {
-  api_root = 'api.gateio.ws/api/v4';
   constructor(public params: IGateParams) {}
 
   async request(method: string, path: string, params?: any) {
@@ -457,15 +456,31 @@ export class GateClient {
       chain: string;
     }[]
   > => this.request('GET', '/api/v4/wallet/withdrawals', params);
+
+  /**
+   * 获取现货交易账户列表
+   *
+   * https://www.gate.io/docs/developers/apiv4/zh_CN/#%E8%8E%B7%E5%8F%96%E7%8E%B0%E8%B4%A7%E4%BA%A4%E6%98%93%E8%B4%A6%E6%88%B7%E5%88%97%E8%A1%A8
+   */
+  getSpotAccounts = (params?: {
+    currency?: string;
+  }): Promise<
+    {
+      currency: string;
+      available: string;
+      locked: string;
+      update_id: string;
+    }[]
+  > => this.request('GET', '/api/v4/spot/accounts', params);
 }
 
-// (async () => {
-//   const client = new GateClient({
-//     auth: {
-//       access_key: process.env.ACCESS_KEY!,
-//       secret_key: process.env.SECRET_KEY!,
-//     },
-//   });
+(async () => {
+  const client = new GateClient({
+    auth: {
+      access_key: process.env.ACCESS_KEY!,
+      secret_key: process.env.SECRET_KEY!,
+    },
+  });
 
-//   console.log(await client.postWithdrawals({ currency: 'USDT', amount: '1', chain: 'TRX' }));
-// })();
+  console.log(await client.getSpotAccounts({ currency: 'USDT' }));
+})();

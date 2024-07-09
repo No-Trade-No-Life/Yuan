@@ -87,6 +87,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
 
   const accountFuturePosition$ = defer(() => client.getFuturePositions('usdt')).pipe(
     //
+    map((res) => (res instanceof Array ? res : [])),
     mergeMap((res) =>
       from(res).pipe(
         combineLatestWith(mapProductIdToUsdtFutureProduct$.pipe(first())),
@@ -125,6 +126,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
 
   const accountFutureOpenOrders$ = defer(() => client.getFuturesOrders('usdt', { status: 'open' })).pipe(
     //
+    map((res) => (res instanceof Array ? res : [])),
     mergeMap((res) =>
       from(res).pipe(
         map((order): IOrder => {
@@ -155,6 +157,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
   );
 
   const futureAccount$ = defer(() => client.getFuturesAccounts('usdt')).pipe(
+    map((res) => (res.available ? res : { available: '0', total: '0', unrealised_pnl: '0' })),
     repeat({ delay: 1000 }),
     retry({ delay: 1000 }),
     shareReplay(1),
@@ -193,6 +196,10 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
   );
 
   terminal.provideAccountInfo(futureUsdtAccountInfo$);
+
+  // const spotAccountInfo$ = defer(async (): Promise<IAccountInfo> => {
+  //   const balanceRes = client.
+  // })
 
   terminal.provideService(
     'SubmitOrder',
