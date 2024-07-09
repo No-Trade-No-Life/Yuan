@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-gate",
   "entries": [
     {
+      "version": "0.2.2",
+      "tag": "@yuants/vendor-gate_v0.2.2",
+      "date": "Tue, 09 Jul 2024 18:54:11 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add trx transfer"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.1",
       "tag": "@yuants/vendor-gate_v0.2.1",
       "date": "Wed, 03 Jul 2024 10:05:02 GMT",
