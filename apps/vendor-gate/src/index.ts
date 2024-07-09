@@ -8,6 +8,7 @@ import {
   IOrder,
   IPosition,
   IProduct,
+  UUID,
 } from '@yuants/data-model';
 import { provideAccountInfo, Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
@@ -30,6 +31,7 @@ import {
   retry,
   shareReplay,
   tap,
+  throttleTime,
   toArray,
 } from 'rxjs';
 import { GateClient } from './api';
@@ -50,7 +52,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
   const SPOT_USDT_ACCOUNT_ID = `gate/${uid}/spot/USDT`;
 
   const terminal = new Terminal(process.env.HOST_URL!, {
-    terminal_id: process.env.TERMINAL_ID || `@yuants/vendor-gate/${uid}`,
+    terminal_id: process.env.TERMINAL_ID || `@yuants/vendor-gate/${uid}/${UUID()}`,
   });
 
   const usdtFutureProducts$ = defer(() => client.getFuturesContracts('usdt', {})).pipe(
@@ -208,6 +210,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
         orders,
       };
     }),
+    throttleTime(1000),
     shareReplay(1),
   );
 
@@ -414,8 +417,9 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
           from: 'spot',
           to: 'futures',
           amount: `${order.current_amount}`,
+          settle: 'usdt',
         });
-        if (transferResult.tx_id !== undefined && transferResult.tx_id.length > 0) {
+        if (transferResult.tx_id !== undefined) {
           return { state: 'COMPLETE', transaction_id: transferResult.tx_id };
         }
         return { state: 'INIT', message: `${transferResult}` };
@@ -438,8 +442,9 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
           from: 'futures',
           to: 'spot',
           amount: `${order.current_amount}`,
+          settle: 'usdt',
         });
-        if (transferResult.tx_id !== undefined && transferResult.tx_id.length > 0) {
+        if (transferResult.tx_id !== undefined) {
           return { state: 'COMPLETE', transaction_id: transferResult.tx_id };
         }
         return { state: 'INIT', message: `${transferResult}` };

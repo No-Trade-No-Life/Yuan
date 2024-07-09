@@ -49,7 +49,15 @@ export class GateClient {
     try {
       return JSON.parse(retStr);
     } catch (e) {
-      console.error(formatTime(Date.now()), 'RequestFailed', path, JSON.stringify(params), retStr);
+      console.error(
+        formatTime(Date.now()),
+        'RequestFailed',
+        path,
+        JSON.stringify(params),
+        retStr,
+        res.headers,
+        res.status,
+      );
       throw e;
     }
   }
@@ -499,7 +507,7 @@ export class GateClient {
     settle?: string;
   }): Promise<{
     tx_id: string;
-  }> => this.request('POST', '/api/v4/wallet/transfer', params);
+  }> => this.request('POST', '/api/v4/wallet/transfers', params);
 }
 
 (async () => {
@@ -510,5 +518,13 @@ export class GateClient {
     },
   });
 
-  console.log(await client.getSpotAccounts({ currency: 'USDT' }));
+  console.log(
+    await client.postWalletTransfer({
+      currency: 'USDT',
+      from: 'spot',
+      to: 'futures',
+      amount: '1',
+      settle: 'usdt',
+    }),
+  );
 })();
