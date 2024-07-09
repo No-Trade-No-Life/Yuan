@@ -4,7 +4,9 @@ import { IDataRecord } from '@yuants/data-model';
 import { writeDataRecords } from '@yuants/protocol';
 import { JSONSchema7 } from 'json-schema';
 import { filter, first, mergeMap, tap } from 'rxjs';
+import { executeCommand } from '../CommandCenter';
 import { DataRecordView } from '../DataRecord';
+import { Button } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 
@@ -131,6 +133,21 @@ registerPage('PullSourceRelationList', () => {
         return {};
       }}
       mapOriginToDataRecord={mapPullSourceRelationToDataRecord}
+      extraRecordActions={(ctx) => {
+        return (
+          <Button
+            onClick={() =>
+              executeCommand('Market', {
+                datasource_id: ctx.record.origin.datasource_id,
+                product_id: ctx.record.origin.product_id,
+                period_in_sec: ctx.record.origin.period_in_sec,
+              })
+            }
+          >
+            行情
+          </Button>
+        );
+      }}
       schema={schema}
     />
   );

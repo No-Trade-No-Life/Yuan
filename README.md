@@ -31,7 +31,7 @@
   </p>
 </div>
 
-## About The Project
+## Snapshots
 
 ![image](https://github.com/No-Trade-No-Life/Yuan/assets/12707521/426f51d3-6ed3-4ad5-9583-ca8e63518965)
 
@@ -39,24 +39,29 @@
 
 ![image](https://github.com/No-Trade-No-Life/Yuan/assets/12707521/6bac83f1-434d-400f-b6a1-a0874a812d5a)
 
-I'm a software engineer. And I want to make money through quantitative and automatic trading.
+## Motivation
 
-There are many great tools and platforms available. However, I didn't find one that suited my needs, so I created Yuan.
+In the early stages of our quantitative trading endeavors, after extensively searching and researching various existing quantitative trading frameworks and products, we found that none could fully meet the development and research needs of our unique trading strategies. Thus, undeterred by the challenges, we embarked on creating our own product, Yuan, driven by our specific requirements.
 
-Here's why:
+Our fundamental demands are:
 
-- My trading strategy is secret. I am afraid someone illegally obtained the results. I want to test and run it on trusted devices.
-- The historical data is highly reused and never updated anymore. I want to download the data once and use it forever. So the data should be free.
-- I want to work everywhere from any device. I don't want to install prerequisites (Python or any others) before starting my work. Most devices have installed browsers. So I want to use a browser to work.
-- The market is similar around the world. I want to trade in any global market without changing any strategy code. Write once, and run everywhere.
-- Real-world trading is important. The trading system should be highly available. I want to create and maintain them easily.
-- My money is dispersed across many accounts. I want to manage them in one place.
+1. **Strong Privacy Security**
 
-For more general usages:
+   Quantitative model codes are the core assets of users and should not be at risk of theft. Many products on the market require uploading strategy codes to servers, where they can be fully assessed and potentially stolen. If a user's strategy can be grasped by potential competitors, the user will be at a disadvantage. Therefore, some products allow private deployment. We designed a local workspace for users that ensures privacy against various attacks and allows us to prove our integrity.
 
-- Maybe you feel troubled about coding. You can ask an AI assistant for help. Just tell AI your idea and run. AI can complete the code.
+2. **Full Market Compatibility**
 
-In summary, I hope Yuan can be an operating system, which helps you control your money.
+   Users invest and trade in different markets. We aim for the same strategy code to be applicable across various market types, both for historical backtesting and live trading, without any additional costs. We also hope the platform can support a wide range of markets. However, existing products often only support a subset of markets due to regional regulations and business constraints, forcing users to use different platforms for different markets. Through architectural design, we have decoupled the core, deploying business plugins to the market, which not only reduces coupling and improves software quality but also overcomes compliance barriers, setting the stage for global expansion.
+
+3. **Cross-Platform Compatibility**
+
+   We want our product to run without restrictions on any device, whether on desktop or mobile platforms. After all, the market does not cater to where users are. Users should be able to engage with the market at any time, in any setting.
+
+4. **Low Cost with High Scalability**
+
+   The industry's initial licensing fees, often in the thousands, are daunting, not to mention the high additional and maintenance costs. We believe these costs are partly due to bundling to offset development expenses, partly due to inefficient operations, and partly due to profiteering. As a product aimed at individual investors rather than enterprises, we must consider the financial capabilities of ordinary investors. For investors, the most important aspect of tools is affordability and durability. Whether it's a personal computer or a server cluster, our product can operate effectively.
+
+Yuan is an investment operating system designed to empower you to master your finances.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -222,6 +227,8 @@ Every vendor is a gateway to connect the external service directly. Your private
 - [@yuants/vendor-gate](apps/vendor-gate) This connects to _Gate_, which is a famous crypto exchange.
 
 - [@yuants/vendor-bitget](apps/vendor-bitget) This connects to _BitGet_, which is a famous crypto exchange.
+
+- [@yuants/vendor-coinex](apps/vendor-coinex) This connects to _CoinEX_, which is a famous crypto exchange.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
