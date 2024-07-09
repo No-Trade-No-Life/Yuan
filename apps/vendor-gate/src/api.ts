@@ -472,6 +472,34 @@ export class GateClient {
       update_id: string;
     }[]
   > => this.request('GET', '/api/v4/spot/accounts', params);
+
+  /**
+   * 交易账户互转
+   *
+   * POST /wallet/transfers
+   *
+   * 交易账户互转
+   *
+   * 个人交易账户之间的余额互转，目前支持以下互转操作：
+   *
+   * 现货账户 - 杠杆账户
+   * 现货账户 - 永续合约账户
+   * 现货账户 - 交割合约账户
+   * 现货账户 - 全仓杠杆账户
+   * 现货账户 - 期权账户
+   *
+   * https://www.gate.io/docs/developers/apiv4/zh_CN/#%E4%BA%A4%E6%98%93%E8%B4%A6%E6%88%B7%E4%BA%92%E8%BD%AC
+   */
+  postWalletTransfer = (params: {
+    currency: string;
+    from: string;
+    to: string;
+    amount: string;
+    currency_pair?: string;
+    settle?: string;
+  }): Promise<{
+    tx_id: string;
+  }> => this.request('POST', '/api/v4/wallet/transfer', params);
 }
 
 (async () => {

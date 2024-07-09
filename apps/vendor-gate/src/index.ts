@@ -1,15 +1,15 @@
 import {
+  decodePath,
+  encodePath,
+  formatTime,
   IAccountInfo,
   IAccountMoney,
   IDataRecord,
   IOrder,
   IPosition,
   IProduct,
-  decodePath,
-  encodePath,
-  formatTime,
 } from '@yuants/data-model';
-import { Terminal } from '@yuants/protocol';
+import { provideAccountInfo, Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
@@ -46,7 +46,8 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
   const gate_account = await client.getAccountDetail();
   const uid = gate_account.user_id;
 
-  const futureUsdtAccountId = `gate/${uid}/future/usdt`;
+  const FUTURE_USDT_ACCOUNT_ID = `gate/${uid}/future/USDT`;
+  const SPOT_USDT_ACCOUNT_ID = `gate/${uid}/spot/USDT`;
 
   const terminal = new Terminal(process.env.HOST_URL!, {
     terminal_id: process.env.TERMINAL_ID || `@yuants/vendor-gate/${uid}`,
@@ -120,6 +121,11 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
       ),
     ),
     repeat({ delay: 1000 }),
+    tap({
+      error: (err) => {
+        console.error(formatTime(Date.now()), 'futuresAccountInfoPosition$', err);
+      },
+    }),
     retry({ delay: 1000 }),
     shareReplay(1),
   );
@@ -132,7 +138,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
         map((order): IOrder => {
           return {
             order_id: order.id,
-            account_id: futureUsdtAccountId,
+            account_id: FUTURE_USDT_ACCOUNT_ID,
             submit_at: order.create_time * 1000,
             product_id: order.contract,
             order_type: 'LIMIT',
@@ -152,6 +158,11 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
       ),
     ),
     repeat({ delay: 1000 }),
+    tap({
+      error: (err) => {
+        console.error(formatTime(Date.now()), 'futuresAccountInfoOpenOrders$', err);
+      },
+    }),
     retry({ delay: 1000 }),
     shareReplay(1),
   );
@@ -159,6 +170,11 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
   const futureAccount$ = defer(() => client.getFuturesAccounts('usdt')).pipe(
     map((res) => (res.available ? res : { available: '0', total: '0', unrealised_pnl: '0' })),
     repeat({ delay: 1000 }),
+    tap({
+      error: (err) => {
+        console.error(formatTime(Date.now()), 'futuresAccountInfoAccount$', err);
+      },
+    }),
     retry({ delay: 1000 }),
     shareReplay(1),
   );
@@ -185,7 +201,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
       };
       return {
         updated_at: Date.now(),
-        account_id: futureUsdtAccountId,
+        account_id: FUTURE_USDT_ACCOUNT_ID,
         money: money,
         currencies: [money],
         positions,
@@ -196,16 +212,48 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
   );
 
   terminal.provideAccountInfo(futureUsdtAccountInfo$);
-
-  // const spotAccountInfo$ = defer(async (): Promise<IAccountInfo> => {
-  //   const balanceRes = client.
-  // })
+  const spotAccountInfo$ = defer(async (): Promise<IAccountInfo> => {
+    const res = await client.getSpotAccounts();
+    if (!(res instanceof Array)) {
+      throw new Error(`${res}`);
+    }
+    const balance = +(res.find((v) => v.currency === 'USDT')?.available ?? '0');
+    const equity = balance;
+    const free = equity;
+    const money: IAccountMoney = {
+      currency: 'USDT',
+      equity,
+      profit: 0,
+      balance,
+      free,
+      used: 0,
+    };
+    return {
+      updated_at: Date.now(),
+      account_id: SPOT_USDT_ACCOUNT_ID,
+      money,
+      currencies: [money],
+      positions: [],
+      orders: [],
+    };
+  }).pipe(
+    //
+    tap({
+      error: (err) => {
+        console.error(formatTime(Date.now()), 'spotAccountInfo$', err);
+      },
+    }),
+    retry({ delay: 5000 }),
+    repeat({ delay: 1000 }),
+    shareReplay(1),
+  );
+  provideAccountInfo(terminal, spotAccountInfo$);
 
   terminal.provideService(
     'SubmitOrder',
     {
       required: ['account_id'],
-      properties: { account_id: { const: futureUsdtAccountId } },
+      properties: { account_id: { const: FUTURE_USDT_ACCOUNT_ID } },
     },
     (msg) =>
       defer(async () => {
@@ -230,7 +278,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
     'CancelOrder',
     {
       required: ['account_id'],
-      properties: { account_id: { const: futureUsdtAccountId } },
+      properties: { account_id: { const: FUTURE_USDT_ACCOUNT_ID } },
     },
     (msg) =>
       defer(async () => {
@@ -352,6 +400,56 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
     },
   );
 
+  const ACCOUNT_INTERNAL_NETWORK_ID = `Bitget/${uid}/ACCOUNT_INTERNAL`;
+  addAccountTransferAddress({
+    terminal,
+    account_id: SPOT_USDT_ACCOUNT_ID,
+    network_id: ACCOUNT_INTERNAL_NETWORK_ID,
+    currency: 'USDT',
+    address: 'SPOT',
+    onApply: {
+      INIT: async (order) => {
+        const transferResult = await client.postWalletTransfer({
+          currency: 'USDT',
+          from: 'spot',
+          to: 'futures',
+          amount: `${order.current_amount}`,
+        });
+        if (transferResult.tx_id !== undefined && transferResult.tx_id.length > 0) {
+          return { state: 'COMPLETE', transaction_id: transferResult.tx_id };
+        }
+        return { state: 'INIT', message: `${transferResult}` };
+      },
+    },
+    onEval: async (transferOrder) => {
+      return { state: 'COMPLETE', received_amount: transferOrder.current_amount };
+    },
+  });
+  addAccountTransferAddress({
+    terminal,
+    account_id: FUTURE_USDT_ACCOUNT_ID,
+    network_id: ACCOUNT_INTERNAL_NETWORK_ID,
+    currency: 'USDT',
+    address: 'USDT_FUTURE',
+    onApply: {
+      INIT: async (order) => {
+        const transferResult = await client.postWalletTransfer({
+          currency: 'USDT',
+          from: 'futures',
+          to: 'spot',
+          amount: `${order.current_amount}`,
+        });
+        if (transferResult.tx_id !== undefined && transferResult.tx_id.length > 0) {
+          return { state: 'COMPLETE', transaction_id: transferResult.tx_id };
+        }
+        return { state: 'INIT', message: `${transferResult}` };
+      },
+    },
+    onEval: async (transferOrder) => {
+      return { state: 'COMPLETE', received_amount: transferOrder.current_amount };
+    },
+  });
+
   const subAccountsResult = await client.getSubAccountList({ type: '0' });
   // TODO: test what happens if we were sub accounts
   const isMainAccount = true;
@@ -362,7 +460,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
     for (const address of addresses) {
       addAccountTransferAddress({
         terminal,
-        account_id: futureUsdtAccountId,
+        account_id: SPOT_USDT_ACCOUNT_ID,
         network_id: 'TRC20',
         currency: 'USDT',
         address: address.address,
