@@ -13,6 +13,9 @@ export const batchGroupBy: <T>(keyFunc: (obj: T) => string) => (source$: Observa
 }>;
 
 // @public
+export const observableToAsyncIterable: <T>(source: Observable<T>) => AsyncIterable<T>;
+
+// @public
 export const rateLimitMap: <A, B, C>(fn: (obj: A) => Observable<B>, reject: (obj: A) => Observable<C>, rateLimitConfig?: {
     count: number;
     period: number;
