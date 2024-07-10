@@ -26,7 +26,7 @@ const solanaAllTokenBalance$ = defer(() => getSolanaBalance())
       const equity = balance.holdings.reduce((acc, item) => acc + item.usd_value, 0);
       const profit = balance.holdings.reduce((acc, item) => acc + item.unrealized_profit, 0);
       const free = +(
-        balance.holdings.find((item) => (item.address = 'So11111111111111111111111111111111111111111'))
+        balance.holdings.find((item) => item.address === 'So11111111111111111111111111111111111111111')
           ?.usd_value || 0
       );
 
