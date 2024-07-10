@@ -87,7 +87,14 @@ defer(() => readDataRecords(terminal, { type: 'account_composition_relation' }))
               const mapCurrencyToCurrentInfo: Record<string, IAccountMoney> = {};
               accountInfos.forEach((x) => {
                 x.currencies?.forEach((c) => {
-                  const y = (mapCurrencyToCurrentInfo[c.currency] ??= { ...c });
+                  const y = (mapCurrencyToCurrentInfo[c.currency] ??= {
+                    currency: c.currency,
+                    equity: 0,
+                    balance: 0,
+                    profit: 0,
+                    used: 0,
+                    free: 0,
+                  });
                   y.equity += c.equity;
                   y.balance += c.balance;
                   y.profit += c.profit;

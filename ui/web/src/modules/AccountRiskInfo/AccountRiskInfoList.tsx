@@ -7,9 +7,7 @@ import { DataRecordView } from '../DataRecord';
 import { Button } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminate } from '../Terminals/TerminalListItem';
-import { IAccountRiskInfo, acrSchema, wrapAccountRiskInfo } from './models/AccountRiskInfo';
-
-const TYPE = 'account_risk_info';
+import { IAccountRiskInfo, schema, wrapAccountRiskInfo } from './models/AccountRiskInfo';
 
 function newRecord(): Partial<IAccountRiskInfo> {
   return {};
@@ -21,12 +19,15 @@ function defineColumns() {
   return () => {
     const columnHelper = createColumnHelper<IDataRecord<IAccountRiskInfo>>();
     return [
-      columnHelper.accessor('origin.account_id', {
-        header: () => '账户',
-        cell: (ctx) => <InlineAccountId account_id={ctx.getValue()} />,
+      columnHelper.accessor('origin.currency', {
+        header: () => '货币',
       }),
       columnHelper.accessor('origin.group_id', {
         header: () => '风险组',
+      }),
+      columnHelper.accessor('origin.account_id', {
+        header: () => '账户',
+        cell: (ctx) => <InlineAccountId account_id={ctx.getValue()} />,
       }),
       columnHelper.accessor('origin.active_demand_threshold', {
         header: () => '主动需求阈值',
@@ -40,6 +41,18 @@ function defineColumns() {
       columnHelper.accessor('origin.active_supply_threshold', {
         header: () => '主动供给阈值',
       }),
+      columnHelper.accessor('origin.active_demand_leverage', {
+        header: () => '主动需求杠杆阈值',
+      }),
+      columnHelper.accessor('origin.passive_demand_leverage', {
+        header: () => '被动需求杠杆阈值',
+      }),
+      columnHelper.accessor('origin.passive_supply_leverage', {
+        header: () => '被动供给杠杆阈值',
+      }),
+      columnHelper.accessor('origin.active_supply_leverage', {
+        header: () => '主动供给杠杆阈值',
+      }),
       columnHelper.accessor('origin.disabled', {
         header: () => '启用',
         cell: (ctx) => <Switch checked={!ctx.getValue()} />,
@@ -51,8 +64,8 @@ function defineColumns() {
 registerPage('AccountRiskInfoList', () => {
   return (
     <DataRecordView
-      TYPE={TYPE}
-      schema={acrSchema}
+      TYPE={'account_risk_info'}
+      schema={schema}
       columns={defineColumns()}
       newRecord={newRecord}
       beforeUpdateTrigger={beforeUpdateTrigger}
