@@ -46,15 +46,17 @@ export const queryProducts = (terminal: Terminal, req: IQueryProductsRequest) =>
 export const useProducts = (() => {
   const hub: Record<string, Observable<IProduct[]>> = {};
   return (terminal: Terminal, datasource_id: string) =>
-    (hub[datasource_id] ??= defer(() =>
-      queryProducts(terminal, {
-        datasource_id,
-      }),
-    ).pipe(
-      //
-      timeout(60000),
-      retry({ delay: 1000 }),
-      repeat({ delay: 86400_000 }),
-      shareReplay(1),
-    ));
+    observableToAsyncIterable(
+      (hub[datasource_id] ??= defer(() =>
+        queryProducts(terminal, {
+          datasource_id,
+        }),
+      ).pipe(
+        //
+        timeout(60000),
+        retry({ delay: 1000 }),
+        repeat({ delay: 86400_000 }),
+        shareReplay(1),
+      )),
+    );
 })();

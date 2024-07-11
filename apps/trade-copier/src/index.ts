@@ -342,7 +342,7 @@ async function setup() {
             subGroup.pipe(
               //
               toArray(),
-              combineLatestWith(useProducts(terminal, group.key).pipe(first())),
+              combineLatestWith(from(useProducts(terminal, group.key)).pipe(first())),
               map(([tasks, products]) => ({
                 target_account_id: group.key,
                 target_product_id: subGroup.key,

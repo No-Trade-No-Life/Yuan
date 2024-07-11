@@ -178,7 +178,7 @@ export const useAccountInfo: (terminal: Terminal, account_id: string) => AsyncIt
 export const usePeriod: (terminal: Terminal, datasource_id: string, product_id: string, period_in_sec: number) => AsyncIterable<IPeriod[]>;
 
 // @public (undocumented)
-export const useProducts: (terminal: Terminal, datasource_id: string) => Observable<IProduct[]>;
+export const useProducts: (terminal: Terminal, datasource_id: string) => AsyncIterable<IProduct[]>;
 
 // @public
 export const useTick: (terminal: Terminal, datasource_id: string, product_id: string) => AsyncIterable<ITick>;
