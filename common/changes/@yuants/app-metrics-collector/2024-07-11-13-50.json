@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-metrics-collector",
+      "comment": "refactor because of protocol",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-metrics-collector"
+}

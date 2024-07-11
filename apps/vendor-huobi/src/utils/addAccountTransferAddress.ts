@@ -1,6 +1,7 @@
 import { IAccountAddressInfo, ITransferOrder, formatTime, wrapAccountAddressInfo } from '@yuants/data-model';
-import { Terminal } from '@yuants/protocol';
+import { Terminal, writeDataRecords } from '@yuants/protocol';
 import { Subject, debounceTime, defer, from, groupBy, mergeMap, tap, toArray } from 'rxjs';
+import './AccountAddressInfo';
 
 type IAccountTransferAddressContext = IAccountAddressInfo & {
   terminal: Terminal;
@@ -136,11 +137,12 @@ update$
                   }),
               );
 
-              terminal
-                .updateDataRecords(
+              from(
+                writeDataRecords(
+                  terminal,
                   contextList.map(({ terminal, onApply, onEval, ...info }) => wrapAccountAddressInfo(info)),
-                )
-                .subscribe();
+                ),
+              ).subscribe();
             }),
           ),
         ),

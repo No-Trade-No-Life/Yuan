@@ -372,20 +372,20 @@ registerPage('RealtimeAsset', () => {
 });
 
 function sendReportToInvestor(terminal: Terminal, fundInfo: IFundInfo, investor: IInvestor) {
-  return terminal
-    .request('Notify', fundInfo.config.notify_terminal_id, {
+  return defer(() =>
+    terminal.request('Notify', fundInfo.config.notify_terminal_id, {
       receiver_id: investor.email,
       message: getReport(fundInfo, investor.investor_id),
-    })
-    .pipe(
-      tap((msg) => {
-        if (msg.res?.code === 0) {
-          Toast.success(`成功发送报告至 ${investor.name} ${investor.email}`);
-          console.info(formatTime(Date.now()), `成功发送报告至 ${investor.name} ${investor.email}`);
-        } else {
-          Toast.error(`发送报告失败 ${investor.name} ${investor.email}`);
-          console.info(formatTime(Date.now()), `发送报告失败 ${investor.name} ${investor.email}`);
-        }
-      }),
-    );
+    }),
+  ).pipe(
+    tap((msg) => {
+      if (msg.res?.code === 0) {
+        Toast.success(`成功发送报告至 ${investor.name} ${investor.email}`);
+        console.info(formatTime(Date.now()), `成功发送报告至 ${investor.name} ${investor.email}`);
+      } else {
+        Toast.error(`发送报告失败 ${investor.name} ${investor.email}`);
+        console.info(formatTime(Date.now()), `发送报告失败 ${investor.name} ${investor.email}`);
+      }
+    }),
+  );
 }

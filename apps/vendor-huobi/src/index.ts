@@ -10,7 +10,7 @@ import {
   encodePath,
   formatTime,
 } from '@yuants/data-model';
-import { Terminal } from '@yuants/protocol';
+import { Terminal, provideAccountInfo, provideTicks, wrapProduct, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
@@ -21,7 +21,6 @@ import {
   catchError,
   combineLatest,
   combineLatestWith,
-  concatWith,
   defer,
   distinct,
   expand,
@@ -130,8 +129,12 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
     shareReplay(1),
   );
 
-  spotProducts$.pipe(mergeMap((products) => terminal.updateProducts(products))).subscribe();
-  perpetualContractProducts$.pipe(mergeMap((products) => terminal.updateProducts(products))).subscribe();
+  spotProducts$
+    .pipe(mergeMap((products) => writeDataRecords(terminal, products.map(wrapProduct))))
+    .subscribe();
+  perpetualContractProducts$
+    .pipe(mergeMap((products) => writeDataRecords(terminal, products.map(wrapProduct))))
+    .subscribe();
 
   const mapSwapContractCodeToBboTick$ = defer(() => client.getSwapMarketBbo({})).pipe(
     mergeMap((res) =>
@@ -189,7 +192,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
     shareReplay(1),
   );
 
-  terminal.provideTicks('huobi-swap', (product_id) => {
+  provideTicks(terminal, 'huobi-swap', (product_id) => {
     return defer(async () => {
       const products = await firstValueFrom(perpetualContractProducts$);
       const theProduct = products.find((x) => x.product_id === product_id);
@@ -533,9 +536,9 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
     shareReplay(1),
   );
 
-  terminal.provideAccountInfo(spotAccountInfo$);
-  terminal.provideAccountInfo(superMarginAccountInfo$);
-  terminal.provideAccountInfo(perpetualContractAccountInfo$);
+  provideAccountInfo(terminal, spotAccountInfo$);
+  provideAccountInfo(terminal, superMarginAccountInfo$);
+  provideAccountInfo(terminal, perpetualContractAccountInfo$);
 
   // Submit order
   terminal.provideService(
@@ -773,11 +776,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
         funding_rate_history.sort((a, b) => +a.funding_at - +b.funding_at);
 
         await lastValueFrom(
-          from(funding_rate_history).pipe(
-            map(wrapFundingRateRecord),
-            bufferCount(2000),
-            mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
-          ),
+          from(writeDataRecords(terminal, funding_rate_history.map(wrapFundingRateRecord))),
         );
         return { res: { code: 0, message: 'OK' } };
       }).pipe(

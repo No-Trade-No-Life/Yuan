@@ -25,7 +25,7 @@ import { JSONSchema7 } from 'json-schema';
 import { useObservableState } from 'observable-hooks';
 import { memo, useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { bufferTime, combineLatest, map, of, shareReplay, switchMap } from 'rxjs';
+import { bufferTime, combineLatest, from, map, of, shareReplay, switchMap } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import { showForm } from '../Form';
@@ -64,11 +64,11 @@ export const network$ = terminal$.pipe(
   switchMap((terminal) =>
     terminal
       ? combineLatest([
-          terminal.output$.pipe(
+          from(terminal.output$).pipe(
             bufferTime(2000),
             map((buffer) => ((JSON.stringify(buffer).length / 2e3) * 8).toFixed(1)),
           ),
-          terminal.input$.pipe(
+          from(terminal.input$).pipe(
             bufferTime(2000),
             map((buffer) => ((JSON.stringify(buffer).length / 2e3) * 8).toFixed(1)),
           ),

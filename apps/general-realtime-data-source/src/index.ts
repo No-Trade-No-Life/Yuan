@@ -1,5 +1,5 @@
 import { IPeriod, encodePath, formatTime } from '@yuants/data-model';
-import { Terminal } from '@yuants/protocol';
+import { Terminal, providePeriods, queryDataRecords } from '@yuants/protocol';
 import Ajv from 'ajv';
 import { JSONSchema7 } from 'json-schema';
 import {
@@ -56,14 +56,14 @@ const validate = ajv.compile(schema);
 const HV_URL = process.env.HV_URL!;
 const TERMINAL_ID = process.env.TERMINAL_ID || 'GeneralRealtimeDataSource';
 
-const term = new Terminal(HV_URL, {
+const terminal = new Terminal(HV_URL, {
   terminal_id: TERMINAL_ID,
   name: 'General Data Source',
   status: 'OK',
 });
 
 const mapProductIdToGSRList$ = defer(() =>
-  term.queryDataRecords<IGeneralSpecificRelation>({
+  queryDataRecords<IGeneralSpecificRelation>(terminal, {
     type: 'general_specific_relation',
   }),
 ).pipe(
@@ -102,7 +102,7 @@ const subscribePeriods = (product_id: string, period_in_sec: number) => {
     mergeMap((gsrList) =>
       from(gsrList).pipe(
         map((gsr) =>
-          term.consumeChannel<IPeriod[]>(
+          terminal.consumeChannel<IPeriod[]>(
             encodePath('Period', gsr.specific_datasource_id, gsr.specific_product_id, period_in_sec),
           ),
         ),
@@ -172,4 +172,4 @@ const usePeriod = (() => {
     (hub[`${product_id}-${period_in_sec}`] ??= defer(() => subscribePeriods(product_id, period_in_sec)));
 })();
 
-term.providePeriods('Y', usePeriod);
+providePeriods(terminal, 'Y', usePeriod);

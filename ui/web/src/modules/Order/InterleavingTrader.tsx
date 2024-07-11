@@ -4,7 +4,7 @@ import Ajv from 'ajv';
 import { parse } from 'jsonc-parser';
 import { useObservableState } from 'observable-hooks';
 import { useMemo, useState } from 'react';
-import { lastValueFrom } from 'rxjs';
+import { from, lastValueFrom } from 'rxjs';
 import { InlineAccountId, useAccountInfo } from '../AccountInfo';
 import { fs } from '../FileSystem/api';
 import Form, { showForm } from '../Form';
@@ -148,13 +148,15 @@ registerPage('InterleavingTrader', () => {
                 if (item.disabled) continue;
                 try {
                   const res = await lastValueFrom(
-                    terminal.requestService('SubmitOrder', {
-                      account_id: item.account_id,
-                      product_id: item.product_id,
-                      volume: item.volume,
-                      order_type: item.order_type,
-                      order_direction: item.order_direction,
-                    }),
+                    from(
+                      terminal.requestService('SubmitOrder', {
+                        account_id: item.account_id,
+                        product_id: item.product_id,
+                        volume: item.volume,
+                        order_type: item.order_type,
+                        order_direction: item.order_direction,
+                      }),
+                    ),
                   );
                   if (res.res && res.res.code !== 0) {
                     setState((x) => ({ ...x, message: res.res!.message }));

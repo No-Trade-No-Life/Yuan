@@ -1,6 +1,6 @@
 import { formatTime, IProduct } from '@yuants/data-model';
-import { Terminal } from '@yuants/protocol';
-import { defaultIfEmpty, lastValueFrom, map, tap } from 'rxjs';
+import { queryDataRecords, Terminal } from '@yuants/protocol';
+import { defaultIfEmpty, defer, lastValueFrom, map, tap } from 'rxjs';
 import { Kernel } from '../kernel';
 import { BasicUnit } from './BasicUnit';
 import { ProductDataUnit } from './ProductDataUnit';
@@ -31,22 +31,22 @@ export class ProductLoadingUnit extends BasicUnit {
         `product loading: ${task.datasource_id} / ${task.product_id}`,
       );
       await lastValueFrom(
-        this.terminal
-          .queryDataRecords<IProduct>({
+        defer(() =>
+          queryDataRecords<IProduct>(this.terminal, {
             type: 'product',
             tags: { datasource_id: task.datasource_id, product_id: task.product_id },
-          })
-          .pipe(
-            map((x) => x.origin),
-            defaultIfEmpty<IProduct, IProduct>({
-              datasource_id: task.datasource_id,
-              product_id: task.product_id,
-            }),
-            tap((product) => {
-              this.kernel.log?.(formatTime(Date.now()), 'product loaded', JSON.stringify(product));
-              this.productDataUnit.updateProduct(product);
-            }),
-          ),
+          }),
+        ).pipe(
+          map((x) => x.origin),
+          defaultIfEmpty<IProduct, IProduct>({
+            datasource_id: task.datasource_id,
+            product_id: task.product_id,
+          }),
+          tap((product) => {
+            this.kernel.log?.(formatTime(Date.now()), 'product loaded', JSON.stringify(product));
+            this.productDataUnit.updateProduct(product);
+          }),
+        ),
       );
     }
   }

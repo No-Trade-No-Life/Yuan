@@ -5,7 +5,7 @@ import {
   formatTime,
   wrapAccountAddressInfo,
 } from '@yuants/data-model';
-import { Terminal } from '@yuants/protocol';
+import { Terminal, writeDataRecords } from '@yuants/protocol';
 import { Subject, debounceTime, defer, from, groupBy, mergeMap, tap, toArray } from 'rxjs';
 
 declare module '@yuants/protocol/lib/utils/DataRecord' {
@@ -148,11 +148,12 @@ update$
                   }),
               );
 
-              terminal
-                .updateDataRecords(
+              defer(() =>
+                writeDataRecords(
+                  terminal,
                   contextList.map(({ terminal, onApply, onEval, ...info }) => wrapAccountAddressInfo(info)),
-                )
-                .subscribe();
+                ),
+              ).subscribe();
             }),
           ),
         ),

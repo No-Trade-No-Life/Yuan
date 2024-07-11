@@ -1,6 +1,13 @@
 import { IAccountInfo, IOrder, IPosition, IProduct, UUID, formatTime } from '@yuants/data-model';
 import { IPositionDiff, diffPosition, mergePositions } from '@yuants/kernel';
-import { PromRegistry, Terminal } from '@yuants/protocol';
+import {
+  PromRegistry,
+  Terminal,
+  queryDataRecords,
+  submitOrder,
+  useAccountInfo,
+  useProducts,
+} from '@yuants/protocol';
 import { roundToStep } from '@yuants/utils';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
@@ -135,7 +142,7 @@ addFormats(ajv);
 const tradeConfigValidate = ajv.compile(tradeConfigSchema);
 
 const tradeConfig$ = defer(() =>
-  terminal.queryDataRecords<ITradeCopierTradeConfig>({
+  queryDataRecords<ITradeCopierTradeConfig>(terminal, {
     type: 'trade_copier_trade_config',
   }),
 ).pipe(
@@ -154,7 +161,7 @@ const tradeConfig$ = defer(() =>
 const validate = ajv.compile(configSchema);
 
 const config$ = defer(() =>
-  terminal.queryDataRecords<ITradeCopyRelation>({ type: 'trade_copy_relation' }),
+  queryDataRecords<ITradeCopyRelation>(terminal, { type: 'trade_copy_relation' }),
 ).pipe(
   //
   map((msg) => msg.origin),
@@ -249,7 +256,7 @@ allAccountIds$
       });
     }),
     mergeMap((account_id) =>
-      defer(() => terminal.useAccountInfo(account_id))
+      defer(() => useAccountInfo(terminal, account_id))
         .pipe(
           //
           first(),
@@ -287,7 +294,7 @@ allAccountIds$
   .pipe(
     mergeMap((x) => x),
     mergeMap((account_id) =>
-      terminal.useAccountInfo(account_id).pipe(
+      from(useAccountInfo(terminal, account_id)).pipe(
         pairwise(),
         tap(([info1, info2]) => {
           const lag = info2.updated_at! - info1.updated_at!;
@@ -335,7 +342,7 @@ async function setup() {
             subGroup.pipe(
               //
               toArray(),
-              combineLatestWith(terminal.useProducts(group.key).pipe(first())),
+              combineLatestWith(from(useProducts(terminal, group.key)).pipe(first())),
               map(([tasks, products]) => ({
                 target_account_id: group.key,
                 target_product_id: subGroup.key,
@@ -406,12 +413,12 @@ async function setup() {
       //
       mergeMap((t) =>
         combineLatest([
-          terminal.useAccountInfo(group.target_account_id).pipe(
+          from(useAccountInfo(terminal, group.target_account_id)).pipe(
             //
             filter((info) => info.updated_at! > t),
           ),
           ...group.tasks.map((task) =>
-            terminal.useAccountInfo(task.source_account_id).pipe(
+            from(useAccountInfo(terminal, task.source_account_id)).pipe(
               //
               filter((info) => info.updated_at! > t),
               map((info) => ({
@@ -689,7 +696,7 @@ async function setup() {
         from(orders).pipe(
           filter((order) => order.volume > 0),
           concatMap((order) =>
-            terminal.submitOrder(order).pipe(
+            from(submitOrder(terminal, order)).pipe(
               tap(() => {
                 console.info(formatTime(Date.now()), `SucceedToSubmitOrder`, key, JSON.stringify(order));
               }),
@@ -727,7 +734,7 @@ async function setup() {
         from(orders).pipe(
           filter((order) => order.volume > 0),
           mergeMap((order) =>
-            terminal.submitOrder(order).pipe(
+            from(submitOrder(terminal, order)).pipe(
               tap(() => {
                 console.info(formatTime(Date.now()), `SucceedToSubmitOrder`, key, JSON.stringify(order));
               }),

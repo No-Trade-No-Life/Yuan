@@ -1,10 +1,10 @@
 import { IProduct, UUID, decodePath, encodePath, formatTime } from '@yuants/data-model';
+import { Terminal, wrapProduct, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
+import { defer, delayWhen, firstValueFrom, from, interval, map, repeat, retry, shareReplay, tap } from 'rxjs';
 import { CoinExClient } from './api';
-import { Terminal, wrapProduct, writeDataRecords } from '@yuants/protocol';
-import { defer, delayWhen, firstValueFrom, interval, map, repeat, retry, shareReplay, tap } from 'rxjs';
 import { IFundingRate, wrapFundingRateRecord } from './models/FundingRate';
 
 const DATASOURCE_ID = 'CoinEx';
@@ -59,7 +59,7 @@ const futuresProducts$ = defer(async () => {
 );
 
 futuresProducts$
-  .pipe(delayWhen((products) => writeDataRecords(terminal, products.map(wrapProduct))))
+  .pipe(delayWhen((products) => from(writeDataRecords(terminal, products.map(wrapProduct)))))
   .subscribe((products) => {
     console.info(formatTime(Date.now()), 'FUTUREProductsUpdated', products.length);
   });
@@ -151,7 +151,7 @@ terminal.provideService(
 
       funding_rate_history.sort((a, b) => a.funding_at - b.funding_at);
 
-      await firstValueFrom(writeDataRecords(terminal, funding_rate_history.map(wrapFundingRateRecord)));
+      await firstValueFrom(from(writeDataRecords(terminal, funding_rate_history.map(wrapFundingRateRecord))));
       return { res: { code: 0, message: 'OK' } };
     }).pipe(
       tap({

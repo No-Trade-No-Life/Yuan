@@ -13,7 +13,14 @@ import {
   formatTime,
   wrapTransferNetworkInfo,
 } from '@yuants/data-model';
-import { Terminal, wrapPeriod, writeDataRecords } from '@yuants/protocol';
+import {
+  Terminal,
+  provideAccountInfo,
+  provideTicks,
+  wrapPeriod,
+  wrapProduct,
+  writeDataRecords,
+} from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
@@ -22,7 +29,6 @@ import {
   EMPTY,
   catchError,
   combineLatest,
-  concatWith,
   defer,
   delayWhen,
   filter,
@@ -42,6 +48,7 @@ import {
 } from 'rxjs';
 import { OkxClient } from './api';
 import { IFundingRate, wrapFundingRateRecord } from './models/FundingRate';
+import './models/TransferNetworkInfo';
 import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
 
 const terminal = new Terminal(process.env.HOST_URL!, {
@@ -119,13 +126,17 @@ const mapProductIdToMarginProduct$ = marginProducts$.pipe(
   map((x) => new Map(x.map((x) => [x.product_id, x])), shareReplay(1)),
 );
 
-usdtSwapProducts$.pipe(delayWhen((products) => terminal.updateProducts(products))).subscribe((products) => {
-  console.info(formatTime(Date.now()), 'SWAP Products updated', products.length);
-});
+usdtSwapProducts$
+  .pipe(delayWhen((products) => from(writeDataRecords(terminal, products.map(wrapProduct)))))
+  .subscribe((products) => {
+    console.info(formatTime(Date.now()), 'SWAP Products updated', products.length);
+  });
 
-marginProducts$.pipe(delayWhen((products) => terminal.updateProducts(products))).subscribe((products) => {
-  console.info(formatTime(Date.now()), 'MARGIN Products updated', products.length);
-});
+marginProducts$
+  .pipe(delayWhen((products) => from(writeDataRecords(terminal, products.map(wrapProduct)))))
+  .subscribe((products) => {
+    console.info(formatTime(Date.now()), 'MARGIN Products updated', products.length);
+  });
 
 const swapMarketTickers$ = defer(() => client.getMarketTickers({ instType: 'SWAP' })).pipe(
   mergeMap((x) =>
@@ -194,7 +205,7 @@ const swapOpenInterest$ = defer(() => client.getOpenInterest({ instType: 'SWAP' 
   shareReplay(1),
 );
 
-terminal.provideTicks('OKX', (product_id) => {
+provideTicks(terminal, 'OKX', (product_id) => {
   const [instType, instId] = decodePath(product_id);
   if (instType === 'SWAP') {
     return defer(async () => {
@@ -415,7 +426,7 @@ const tradingAccountInfo$ = combineLatest([
   shareReplay(1),
 );
 
-terminal.provideAccountInfo(tradingAccountInfo$);
+provideAccountInfo(terminal, tradingAccountInfo$);
 
 const assetBalance$ = defer(() => client.getAssetBalances({})).pipe(
   repeat({ delay: 1000 }),
@@ -451,7 +462,7 @@ const fundingAccountInfo$ = combineLatest([accountUid$, assetBalance$]).pipe(
   shareReplay(1),
 );
 
-terminal.provideAccountInfo(fundingAccountInfo$);
+provideAccountInfo(terminal, fundingAccountInfo$);
 
 const savingBalance$ = defer(() => client.getFinanceSavingsBalance({})).pipe(
   repeat({ delay: 5000 }),
@@ -487,7 +498,7 @@ const earningAccountInfo$ = combineLatest([accountUid$, savingBalance$]).pipe(
   shareReplay(1),
 );
 
-terminal.provideAccountInfo(earningAccountInfo$);
+provideAccountInfo(terminal, earningAccountInfo$);
 
 defer(async () => {
   const account_config = await firstValueFrom(accountConfig$);
@@ -566,16 +577,16 @@ defer(async () => {
     }
     if (addresses.length !== 0) {
       await firstValueFrom(
-        terminal
-          .updateDataRecords([
+        from(
+          writeDataRecords(terminal, [
             wrapTransferNetworkInfo({
               network_id: 'TRC20',
               commission: 1,
               currency: 'USDT',
               timeout: 1800_000,
             }),
-          ])
-          .pipe(concatWith(of(void 0))),
+          ]),
+        ),
       );
     }
   }
@@ -999,11 +1010,7 @@ defer(async () => {
           funding_rate_history.sort((a, b) => +a.funding_at - +b.funding_at);
           // there will be at most 300 records, so we don't need to chunk it by bufferCount
           await lastValueFrom(
-            from(funding_rate_history).pipe(
-              map(wrapFundingRateRecord),
-              toArray(),
-              mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
-            ),
+            from(writeDataRecords(terminal, funding_rate_history.map(wrapFundingRateRecord))),
           );
           return { res: { code: 0, message: 'OK' } };
         }
@@ -1080,7 +1087,7 @@ defer(async () => {
           if (res.data.length > 0 && res.data.length < 100) {
             // data is complete
             const dataRecords = res.data.map(mapResDataToIPeriod).map(wrapPeriod);
-            await lastValueFrom(writeDataRecords(terminal, dataRecords));
+            await lastValueFrom(from(writeDataRecords(terminal, dataRecords)));
             return { res: { code: 0, message: 'OK' } };
           }
 
@@ -1138,7 +1145,7 @@ defer(async () => {
             }
             data.push(...res.data.map(mapResDataToIPeriod).map(wrapPeriod));
           }
-          await firstValueFrom(writeDataRecords(terminal, data));
+          await firstValueFrom(from(writeDataRecords(terminal, data)));
           return { res: { code: 0, message: 'OK' } };
         }
 

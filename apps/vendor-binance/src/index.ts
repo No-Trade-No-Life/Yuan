@@ -1,11 +1,10 @@
 import { IProduct, ITick, UUID, decodePath, encodePath, formatTime } from '@yuants/data-model';
-import { Terminal, provideTicks } from '@yuants/protocol';
+import { Terminal, provideTicks, wrapProduct, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
 import {
   combineLatest,
-  concatWith,
   defer,
   firstValueFrom,
   from,
@@ -13,7 +12,6 @@ import {
   lastValueFrom,
   map,
   mergeMap,
-  of,
   repeat,
   retry,
   shareReplay,
@@ -70,9 +68,9 @@ const mapProductIdToFutureProduct$ = futureProducts$.pipe(
   shareReplay(1),
 );
 
-futureProducts$.subscribe((products) => {
-  terminal.updateProducts(products).subscribe();
-});
+futureProducts$
+  .pipe(mergeMap((products) => writeDataRecords(terminal, products.map(wrapProduct))))
+  .subscribe();
 
 const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
   const cache: Record<string, any> = {};
@@ -188,7 +186,7 @@ defer(async () => {
           from(funding_rate_history).pipe(
             map(wrapFundingRateRecord),
             toArray(),
-            mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
+            mergeMap((v) => writeDataRecords(terminal, v)),
           ),
         );
         return { res: { code: 0, message: 'OK' } };

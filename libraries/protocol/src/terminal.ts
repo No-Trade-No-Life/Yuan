@@ -1,21 +1,12 @@
-import {
-  IAccountInfo,
-  IDataRecord,
-  IOrder,
-  IPeriod,
-  IProduct,
-  ITick,
-  UUID,
-  encodePath,
-  formatTime,
-} from '@yuants/data-model';
-import { rateLimitMap } from '@yuants/utils';
+import { UUID, formatTime } from '@yuants/data-model';
+import { observableToAsyncIterable, rateLimitMap } from '@yuants/utils';
 import Ajv, { ValidateFunction } from 'ajv';
 import { isNode } from 'browser-or-node';
 import { JSONSchema7 } from 'json-schema';
 import {
   EMPTY,
   Observable,
+  ObservableInput,
   ReplaySubject,
   Subject,
   Subscription,
@@ -47,23 +38,7 @@ import {
 import { IConnection, createConnectionJson } from './create-connection';
 import { ITerminalInfo } from './model';
 import { IService, ITerminalMessage } from './services';
-import {
-  ICopyDataRecordsRequest,
-  IQueryDataRecordsRequest,
-  IRemoveDataRecordsRequest,
-} from './services/data-record';
 import { PromRegistry } from './services/metrics';
-import { IQueryHistoryOrdersRequest, IQueryPeriodsRequest, IQueryProductsRequest } from './services/pull';
-import {
-  provideAccountInfo,
-  providePeriods,
-  provideTicks,
-  readDataRecords,
-  wrapOrder,
-  wrapPeriod,
-  wrapProduct,
-  writeDataRecords,
-} from './utils';
 
 const TerminalReceiveMassageTotal = PromRegistry.create('counter', 'terminal_receive_message_total');
 const TerminalTransmittedMessageTotal = PromRegistry.create('counter', 'terminal_transmitted_message_total');
@@ -97,7 +72,7 @@ type IServiceHandler<T extends string = string> = T extends keyof IService
         Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> &
           Partial<Pick<IService[T], 'res' | 'frame'>>
       >,
-    ) => Observable<
+    ) => ObservableInput<
       Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> &
         Partial<Pick<IService[T], 'res' | 'frame'>>
     >
@@ -107,7 +82,7 @@ type IServiceHandler<T extends string = string> = T extends keyof IService
       output$: Subject<
         Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>
       >,
-    ) => Observable<
+    ) => ObservableInput<
       Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>
     >;
 
@@ -210,10 +185,10 @@ export class Terminal {
 
     // Receive TerminalInfo from the channel
     this._subscriptions.push(
-      this.consumeChannel<ITerminalInfo>('TerminalInfo')
+      defer(() => this.consumeChannel<ITerminalInfo>('TerminalInfo'))
         .pipe(
           mergeMap((x) =>
-            this.terminalInfos$.pipe(
+            this._terminalInfos$.pipe(
               first(),
               map((list) => {
                 const idx = list.findIndex((y) => y.terminal_id === x.terminal_id);
@@ -267,15 +242,15 @@ export class Terminal {
   /**
    * Observable that emits when a message is received
    */
-  input$: Observable<ITerminalMessage> = this._input$.asObservable();
+  input$: AsyncIterable<ITerminalMessage> = observableToAsyncIterable(this._input$);
   /**
    * Observable that emits when a message is sent
    */
-  output$: Observable<ITerminalMessage> = this._output$.asObservable();
+  output$: AsyncIterable<ITerminalMessage> = observableToAsyncIterable(this._output$);
   /**
    * Observable that emits when the terminal is disposed
    */
-  dispose$: Observable<void> = this._dispose$.asObservable();
+  dispose$: AsyncIterable<void> = observableToAsyncIterable(this._dispose$);
 
   /**
    * Dispose the terminal
@@ -293,7 +268,7 @@ export class Terminal {
     method: T,
     target_terminal_id: string,
     req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req'],
-  ): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage> {
+  ): AsyncIterable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage> {
     const trace_id = UUID();
     const msg = {
       trace_id,
@@ -302,20 +277,22 @@ export class Terminal {
       source_terminal_id: this.terminal_id,
       req,
     };
-    return defer((): Observable<any> => {
-      this._output$.next(msg);
-      return this._input$.pipe(
-        filter((m) => m.trace_id === msg.trace_id),
-        // complete immediately when res is received
-        takeWhile((msg1) => msg1.res === undefined, true),
-        timeout({
-          first: 30000,
-          each: 10000,
-          meta: `request Timeout: method=${msg.method} target=${msg.target_terminal_id}`,
-        }),
-        share(),
-      );
-    });
+    return observableToAsyncIterable(
+      defer((): Observable<any> => {
+        this._output$.next(msg);
+        return this._input$.pipe(
+          filter((m) => m.trace_id === msg.trace_id),
+          // complete immediately when res is received
+          takeWhile((msg1) => msg1.res === undefined, true),
+          timeout({
+            first: 30000,
+            each: 10000,
+            meta: `request Timeout: method=${msg.method} target=${msg.target_terminal_id}`,
+          }),
+          share(),
+        );
+      }),
+    );
   }
 
   /**
@@ -340,7 +317,7 @@ export class Terminal {
    */
   resolveTargetTerminalIds = async (method: string, req: ITerminalMessage['req']): Promise<string[]> =>
     firstValueFrom(
-      this.terminalInfos$.pipe(first()).pipe(
+      this._terminalInfos$.pipe(first()).pipe(
         mergeMap((terminalInfos) =>
           from(terminalInfos).pipe(
             //
@@ -360,16 +337,18 @@ export class Terminal {
   requestService = <T extends string>(
     method: T,
     req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req'],
-  ): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage> => {
-    return defer(() => this.resolveTargetTerminalIds(method, req)).pipe(
-      map((arr) => {
-        if (arr.length === 0) {
-          throw Error(`No terminal available for request: method=${method} req=${JSON.stringify(req)}`);
-        }
-        const target = arr[~~(Math.random() * arr.length)]; // Simple Random Load Balancer
-        return target;
-      }),
-      mergeMap((target_terminal_id) => this.request(method, target_terminal_id, req)),
+  ): AsyncIterable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage> => {
+    return observableToAsyncIterable(
+      defer(() => this.resolveTargetTerminalIds(method, req)).pipe(
+        map((arr) => {
+          if (arr.length === 0) {
+            throw Error(`No terminal available for request: method=${method} req=${JSON.stringify(req)}`);
+          }
+          const target = arr[~~(Math.random() * arr.length)]; // Simple Random Load Balancer
+          return target;
+        }),
+        mergeMap((target_terminal_id) => this.request(method, target_terminal_id, req)),
+      ),
     );
   };
 
@@ -608,26 +587,16 @@ export class Terminal {
   };
 
   private _setupPredefinedServerHandlers = () => {
-    this.provideService('Ping', {}, () => of({ res: { code: 0, message: 'Pong' } }));
+    this.provideService('Ping', {}, () => [{ res: { code: 0, message: 'Pong' } }]);
 
-    this.provideService('Metrics', {}, () =>
-      of({
-        res: { code: 0, message: 'OK', data: { metrics: PromRegistry.metrics() } },
-      }),
-    );
+    this.provideService('Metrics', {}, async () => ({
+      res: { code: 0, message: 'OK', data: { metrics: PromRegistry.metrics() } },
+    }));
+
     if (isNode) {
-      this.provideService('Terminate', {}, () => {
-        return of({ res: { code: 0, message: 'OK' } }).pipe(
-          tap(() => {
-            timer(1000)
-              .pipe(
-                tap(() => {
-                  process.exit(0);
-                }),
-              )
-              .subscribe();
-          }),
-        );
+      this.provideService('Terminate', {}, function* () {
+        yield { res: { code: 0, message: 'OK' } };
+        timer(1000).subscribe(() => process.exit(0));
       });
     }
   };
@@ -637,13 +606,13 @@ export class Terminal {
    * @param channelIdSchema - JSON Schema for channel_id
    * @param handler - handler for the channel, return an Observable to provide data stream
    */
-  provideChannel = <T>(channelIdSchema: JSONSchema7, handler: (channel_id: string) => Observable<T>) => {
+  provideChannel = <T>(channelIdSchema: JSONSchema7, handler: (channel_id: string) => ObservableInput<T>) => {
     const validate = new Ajv({ strict: false }).compile(channelIdSchema);
     (this.terminalInfo.channelIdSchemas ??= []).push(channelIdSchema);
     this._terminalInfoUpdated$.next();
 
     // map terminalInfos to Record<channel_id, target_terminal_id[]>
-    const mapChannelIdToTargetTerminalIds$ = this.terminalInfos$.pipe(
+    const mapChannelIdToTargetTerminalIds$ = this._terminalInfos$.pipe(
       mergeMap((x) =>
         from(x).pipe(
           mergeMap((terminalInfo) =>
@@ -712,7 +681,7 @@ export class Terminal {
 
   private _setupChannelValidatorSubscription() {
     this._subscriptions.push(
-      this.terminalInfos$
+      this._terminalInfos$
         .pipe(
           mergeAll(),
           groupBy((v) => v.terminal_id),
@@ -738,70 +707,72 @@ export class Terminal {
    * Consume a channel
    * @param channel_id - channel_id
    */
-  consumeChannel = <T>(channel_id: string): Observable<T> =>
+  consumeChannel = <T>(channel_id: string): AsyncIterable<T> =>
     // Cache by channel_id
-    (this._mapChannelIdToSubject[channel_id] ??= new Observable<T>((subscriber) => {
-      console.info(formatTime(Date.now()), 'Terminal', 'consumeChannel', 'subscribe', channel_id);
-      // candidate target_terminal_id list
-      const candidates$ = this.terminalInfos$.pipe(
-        mergeMap((x) =>
-          from(x).pipe(
-            filter((terminalInfo) =>
-              this._mapTerminalIdToChannelValidators[terminalInfo.terminal_id]?.some((validator) =>
-                validator(channel_id),
+    observableToAsyncIterable(
+      (this._mapChannelIdToSubject[channel_id] ??= new Observable<T>((subscriber) => {
+        console.info(formatTime(Date.now()), 'Terminal', 'consumeChannel', 'subscribe', channel_id);
+        // candidate target_terminal_id list
+        const candidates$ = this._terminalInfos$.pipe(
+          mergeMap((x) =>
+            from(x).pipe(
+              filter((terminalInfo) =>
+                this._mapTerminalIdToChannelValidators[terminalInfo.terminal_id]?.some((validator) =>
+                  validator(channel_id),
+                ),
               ),
+              map((x) => x.terminal_id),
+              toArray(),
             ),
-            map((x) => x.terminal_id),
-            toArray(),
           ),
-        ),
-        shareReplay(1),
-      );
-      let provider_terminal_id: string | undefined;
-      const sub = candidates$.subscribe((candidates) => {
-        if (provider_terminal_id && !candidates.includes(provider_terminal_id)) {
-          this._unsubscribeChannel(provider_terminal_id, channel_id);
-          provider_terminal_id = undefined;
-        }
-        if (
-          (!provider_terminal_id && candidates.length > 0) ||
-          (provider_terminal_id && candidates.length > 0 && !candidates.includes(provider_terminal_id))
-        ) {
-          provider_terminal_id = candidates[~~(Math.random() * candidates.length)]; // Simple Random Load Balancer
-          this._subscribeChannel(provider_terminal_id, channel_id);
-        }
-      });
-      this._subscriptions.push(sub);
-      const sub1 = this._input$
-        .pipe(
-          filter((msg) => msg.channel_id === channel_id && msg.source_terminal_id === provider_terminal_id),
-          map((msg) => msg.frame as T),
-        )
-        .subscribe((payload) => {
-          subscriber.next(payload);
+          shareReplay(1),
+        );
+        let provider_terminal_id: string | undefined;
+        const sub = candidates$.subscribe((candidates) => {
+          if (provider_terminal_id && !candidates.includes(provider_terminal_id)) {
+            this._unsubscribeChannel(provider_terminal_id, channel_id);
+            provider_terminal_id = undefined;
+          }
+          if (
+            (!provider_terminal_id && candidates.length > 0) ||
+            (provider_terminal_id && candidates.length > 0 && !candidates.includes(provider_terminal_id))
+          ) {
+            provider_terminal_id = candidates[~~(Math.random() * candidates.length)]; // Simple Random Load Balancer
+            this._subscribeChannel(provider_terminal_id, channel_id);
+          }
         });
-      this._subscriptions.push(sub1);
-      return () => {
-        console.info(formatTime(Date.now()), 'Terminal', 'consumeChannel', 'unsubscribe', channel_id);
-        sub1.unsubscribe();
-      };
-    }).pipe(
-      //
-      shareReplay({ bufferSize: 1, refCount: true }),
-    ));
+        this._subscriptions.push(sub);
+        const sub1 = this._input$
+          .pipe(
+            filter((msg) => msg.channel_id === channel_id && msg.source_terminal_id === provider_terminal_id),
+            map((msg) => msg.frame as T),
+          )
+          .subscribe((payload) => {
+            subscriber.next(payload);
+          });
+        this._subscriptions.push(sub1);
+        return () => {
+          console.info(formatTime(Date.now()), 'Terminal', 'consumeChannel', 'unsubscribe', channel_id);
+          sub1.unsubscribe();
+        };
+      }).pipe(
+        //
+        shareReplay({ bufferSize: 1, refCount: true }),
+      )),
+    );
 
   private _terminalInfos$ = new ReplaySubject<ITerminalInfo[]>(1);
   /**
    * Terminal List of the same host
    */
-  terminalInfos$: Observable<ITerminalInfo[]> = this._terminalInfos$.asObservable();
+  terminalInfos$: AsyncIterable<ITerminalInfo[]> = observableToAsyncIterable(this._terminalInfos$);
 
   // ISSUE: Ajv is very slow and cause a lot CPU utilization, so we must cache the compiled validator
   private _mapTerminalIdAndMethodToValidator: Record<string, Record<string, ValidateFunction>> = {};
 
   private _setupTerminalIdAndMethodValidatorSubscription() {
     this._subscriptions.push(
-      this.terminalInfos$
+      this._terminalInfos$
         .pipe(
           //
           mergeAll(),
@@ -829,212 +800,4 @@ export class Terminal {
         .subscribe(),
     );
   }
-
-  /**
-   * use products
-   *
-   * @deprecated - use the util 'readDataRecords' instead
-   */
-  useProducts = (() => {
-    const hub: Record<string, Observable<IProduct[]>> = {};
-    return (datasource_id: string) =>
-      (hub[datasource_id] ??= defer(() =>
-        this.queryProducts({
-          datasource_id,
-        }),
-      ).pipe(
-        //
-        timeout(60000),
-        retry({ delay: 1000 }),
-        repeat({ delay: 86400_000 }),
-        shareReplay(1),
-      ));
-  })();
-
-  /**
-   * use account info data stream
-   */
-  useAccountInfo = (account_id: string) =>
-    this.consumeChannel<IAccountInfo>(encodePath('AccountInfo', account_id));
-
-  /**
-   * use period data stream
-   */
-  usePeriod = (datasource_id: string, product_id: string, period_in_sec: number) =>
-    this.consumeChannel<IPeriod[]>(encodePath('Period', datasource_id, product_id, period_in_sec));
-
-  /**
-   * use tick data stream
-   */
-  useTick = (datasource_id: string, product_id: string) =>
-    this.consumeChannel<ITick>(encodePath('Tick', datasource_id, product_id));
-
-  /**
-   * @deprecated - use the method 'requestService' instead
-   */
-  submitOrder = (order: IOrder) =>
-    this.requestService('SubmitOrder', order).pipe(
-      map((msg) => msg.res),
-      filter((v): v is Exclude<typeof v, undefined> => v !== undefined),
-    );
-
-  /**
-   * @deprecated - use the method 'requestService' instead
-   */
-  modifyOrder = (order: IOrder) =>
-    this.requestService('ModifyOrder', order).pipe(
-      map((msg) => msg.res),
-      filter((v): v is Exclude<typeof v, undefined> => v !== undefined),
-    );
-
-  /**
-   * @deprecated - use the method 'requestService' instead
-   */
-  cancelOrder = (order: IOrder) =>
-    this.requestService('CancelOrder', order).pipe(
-      map((msg) => msg.res),
-      filter((v): v is Exclude<typeof v, undefined> => v !== undefined),
-    );
-
-  /**
-   * @deprecated - use the method 'requestService' instead
-   */
-  copyDataRecords = (req: ICopyDataRecordsRequest) =>
-    this.requestService('CopyDataRecords', req).pipe(
-      mergeMap((msg) => {
-        if (msg.res) {
-          if (msg.res.code !== 0) {
-            throw Error(`ServerError: ${msg.res.code}: ${msg.res.message}`);
-          }
-          // emit an signal to indicate that the copy is complete
-          return of(void 0);
-        }
-        return EMPTY;
-      }),
-    );
-
-  /**
-   * @deprecated - use the util 'readDataRecords' instead
-   */
-  queryDataRecords = <T>(req: IQueryDataRecordsRequest): Observable<IDataRecord<T>> =>
-    readDataRecords(this, req as any).pipe(mergeMap((x) => x)) as any;
-
-  /**
-   * @deprecated - use the util 'writeDataRecords' instead
-   */
-  updateDataRecords = (records: IDataRecord<any>[]) => writeDataRecords(this, records);
-
-  /**
-   * @deprecated - use the util 'writeDataRecords' instead
-   */
-  removeDataRecords = (req: IRemoveDataRecordsRequest) =>
-    this.requestService('RemoveDataRecords', req).pipe(
-      mergeMap((msg) => {
-        if (msg.res) {
-          if (msg.res.code !== 0) {
-            throw Error(`ServerError: ${msg.res.code}: ${msg.res.message}`);
-          }
-        }
-        return EMPTY;
-      }),
-    );
-
-  /**
-   * @deprecated - use the util 'readDataRecords' instead
-   */
-  queryHistoryOrders = (req: IQueryHistoryOrdersRequest) =>
-    this.queryDataRecords<IOrder>({
-      type: 'order',
-      time_range: [(req.start_time_in_us ?? 0) / 1000, Date.now()],
-      tags: { account_id: req.account_id },
-    }).pipe(
-      //
-      map((dataRecord) => dataRecord.origin),
-      toArray(),
-    );
-
-  /**
-   * @deprecated - use the util 'readDataRecords' instead
-   */
-  queryPeriods = (req: IQueryPeriodsRequest) =>
-    this.queryDataRecords<IPeriod>({
-      type: 'period',
-      time_range: [(req.start_time_in_us ?? 0) / 1000, (req.end_time_in_us ?? Date.now() * 1000) / 1000],
-      tags: {
-        datasource_id: req.datasource_id,
-        product_id: req.product_id,
-        period_in_sec: '' + req.period_in_sec,
-      },
-    }).pipe(
-      // ISSUE: unknown reason, sometimes the data will be out of range, but frozen_at is null.
-      filter((dataRecord) => {
-        if (
-          dataRecord.origin.timestamp_in_us + dataRecord.origin.period_in_sec * 1e6 <
-          req.start_time_in_us
-        ) {
-          console.warn(formatTime(Date.now()), 'QueryPeriods', 'Dirty Data', JSON.stringify(dataRecord));
-          return false;
-        }
-        return true;
-      }),
-      map((dataRecord) => dataRecord.origin),
-      toArray(),
-    );
-
-  /**
-   * @deprecated - use the util 'readDataRecords' instead
-   */
-  queryProducts = (req: IQueryProductsRequest) =>
-    readDataRecords(this, { type: 'product', tags: { datasource_id: req.datasource_id! } }).pipe(
-      mergeMap((x) => from(x).pipe(map((dataRecord) => dataRecord.origin))),
-      toArray(),
-    );
-
-  /**
-   * Provide a Tick data stream, push to all subscriber terminals
-   * @deprecated - use the util 'provideTicks' instead
-   */
-  provideTicks = (datasource_id: string, useTicks: (product_id: string) => Observable<ITick>) => {
-    provideTicks(this, datasource_id, useTicks);
-  };
-
-  /**
-   * Provide a Period data stream, push to all subscriber terminals
-   * @deprecated - use the util 'providePeriods' instead
-   */
-  providePeriods = (
-    datasource_id: string,
-    usePeriods: (product_id: string, period_in_sec: number) => Observable<IPeriod[]>,
-  ) => {
-    providePeriods(this, datasource_id, usePeriods);
-  };
-
-  /**
-   * Provide a AccountInfo data stream, push to all subscriber terminals
-   * @deprecated - use the util 'provideAccountInfo' instead
-   */
-  provideAccountInfo = (accountInfo$: Observable<IAccountInfo>) => {
-    provideAccountInfo(this, accountInfo$);
-  };
-
-  /**
-   * Push history orders to all subscriber terminals
-   *
-   * @deprecated - use the util 'writeDataRecords' instead
-   */
-  updateHistoryOrders = (orders: IOrder[]) => writeDataRecords(this, orders.map(wrapOrder));
-
-  /**
-   * Push history Periods to all subscriber terminals
-   *
-   * @deprecated - use the util 'writeDataRecords' instead
-   */
-  updatePeriods = (periods: IPeriod[]) => writeDataRecords(this, periods.map(wrapPeriod));
-
-  /**
-   * Push Products to all subscriber terminals
-   *
-   * @deprecated - use the util 'writeDataRecords' instead
-   */
-  updateProducts = (products: IProduct[]) => writeDataRecords(this, products.map(wrapProduct));
 }

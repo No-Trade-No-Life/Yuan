@@ -10,7 +10,7 @@ import {
   IProduct,
   UUID,
 } from '@yuants/data-model';
-import { provideAccountInfo, Terminal } from '@yuants/protocol';
+import { provideAccountInfo, Terminal, wrapProduct, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
@@ -80,7 +80,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
   );
 
   usdtFutureProducts$.subscribe((products) => {
-    terminal.updateProducts(products).subscribe();
+    from(writeDataRecords(terminal, products.map(wrapProduct))).subscribe();
   });
 
   const mapProductIdToUsdtFutureProduct$ = usdtFutureProducts$.pipe(
@@ -214,7 +214,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
     shareReplay(1),
   );
 
-  terminal.provideAccountInfo(futureUsdtAccountInfo$);
+  provideAccountInfo(terminal, futureUsdtAccountInfo$);
   const spotAccountInfo$ = defer(async (): Promise<IAccountInfo> => {
     const res = await client.getSpotAccounts();
     if (!(res instanceof Array)) {
@@ -383,7 +383,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
             ),
             map(wrapFundingRateRecord),
             toArray(),
-            mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
+            mergeMap((v) => writeDataRecords(terminal, v)),
           ),
         );
         return { res: { code: 0, message: 'OK' } };

@@ -1,6 +1,6 @@
 import { IPeriod, formatTime } from '@yuants/data-model';
-import { Terminal } from '@yuants/protocol';
-import { lastValueFrom, map, retry, tap } from 'rxjs';
+import { Terminal, queryPeriods } from '@yuants/protocol';
+import { defer, lastValueFrom, map, retry, tap } from 'rxjs';
 import { Kernel } from '../kernel';
 import { BasicUnit } from './BasicUnit';
 import { PeriodDataUnit } from './PeriodDataUnit';
@@ -39,7 +39,7 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
       );
       const theProduct = this.productDataUnit.getProduct(datasource_id, product_id);
       await lastValueFrom(
-        this.terminal.queryPeriods(task).pipe(
+        defer(() => queryPeriods(this.terminal, task)).pipe(
           tap((x) => {
             this.kernel.log?.(
               `${formatTime(Date.now())} 加载完毕 "${task.datasource_id}" / "${task.product_id}" / "${

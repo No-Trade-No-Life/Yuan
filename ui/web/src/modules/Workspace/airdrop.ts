@@ -8,7 +8,9 @@ import { terminal$ } from '../Terminals';
 export const sendFileByAirdrop = async (terminal: Terminal, target_terminal_id: string, filename: string) => {
   //
   const content = await fs.readFile(filename);
-  const res = await lastValueFrom(terminal.request('AirDrop', target_terminal_id, { filename, content }));
+  const res = await lastValueFrom(
+    defer(() => terminal.request('AirDrop', target_terminal_id, { filename, content })),
+  );
   if (res.res?.code === 0) {
     Toast.success(`对方接收了 ${filename}`);
   } else {

@@ -1,5 +1,5 @@
 import { ITick, UUID, formatTime } from '@yuants/data-model';
-import { Terminal } from '@yuants/protocol';
+import { Terminal, provideTicks } from '@yuants/protocol';
 import { Subject, filter, fromEvent, interval, map, mergeMap, tap } from 'rxjs';
 import { MessageEvent, WebSocket } from 'ws';
 
@@ -77,7 +77,7 @@ fromEvent(ws, 'close').subscribe(() => {
   process.exit(0);
 });
 
-terminal.provideTicks(datasource_id, (product_id) => {
+provideTicks(terminal, datasource_id, (product_id) => {
   console.info(formatTime(Date.now()), 'Subscribing', product_id);
   ws.send(
     JSON.stringify({

@@ -1,5 +1,5 @@
 import { IPeriod, formatTime } from '@yuants/data-model';
-import { PromRegistry, Terminal } from '@yuants/protocol';
+import { PromRegistry, Terminal, copyDataRecords, queryDataRecords } from '@yuants/protocol';
 import { batchGroupBy, switchMapWithComplete } from '@yuants/utils';
 import Ajv from 'ajv';
 import CronJob from 'cron';
@@ -117,7 +117,7 @@ const listWatch = <T, K>(
   );
 
 defer(() =>
-  term.queryDataRecords<IPullSourceRelation>({
+  queryDataRecords<IPullSourceRelation>(term, {
     type: 'pull_source_relation',
   }),
 )
@@ -254,7 +254,7 @@ const runTask = (psr: IPullSourceRelation) =>
     subs.push(
       taskStart$.subscribe(() => {
         defer(() =>
-          term.queryDataRecords<IPeriod>({
+          queryDataRecords<IPeriod>(term, {
             type: 'period',
             tags: {
               datasource_id: psr.datasource_id,
@@ -305,8 +305,8 @@ const runTask = (psr: IPullSourceRelation) =>
       copyDataAction$
         .pipe(
           mergeMap(() =>
-            term
-              .copyDataRecords({
+            defer(() =>
+              copyDataRecords(term, {
                 type: 'period',
                 tags: {
                   datasource_id: psr.datasource_id,
@@ -315,19 +315,19 @@ const runTask = (psr: IPullSourceRelation) =>
                 },
                 time_range: [lastTime, Date.now()],
                 receiver_terminal_id: STORAGE_TERMINAL_ID,
-              })
-              .pipe(
-                tap(() => {
-                  taskComplete$.next();
-                }),
-                // ISSUE: catch error will replace the whole stream with EMPTY, therefore it must be placed inside mergeMap
-                // so that the outer stream subscription will not be affected
-                catchError((e) => {
-                  err = e;
-                  taskError$.next();
-                  return EMPTY;
-                }),
-              ),
+              }),
+            ).pipe(
+              tap(() => {
+                taskComplete$.next();
+              }),
+              // ISSUE: catch error will replace the whole stream with EMPTY, therefore it must be placed inside mergeMap
+              // so that the outer stream subscription will not be affected
+              catchError((e) => {
+                err = e;
+                taskError$.next();
+                return EMPTY;
+              }),
+            ),
           ),
         )
         .subscribe(),

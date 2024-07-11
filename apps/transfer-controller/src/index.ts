@@ -1,12 +1,17 @@
 import {
   IAccountAddressInfo,
-  IDataRecord,
   ITransferNetworkInfo,
   ITransferOrder,
   encodePath,
   formatTime,
 } from '@yuants/data-model';
-import { PromRegistry, Terminal } from '@yuants/protocol';
+import {
+  PromRegistry,
+  Terminal,
+  queryDataRecords,
+  readDataRecords,
+  writeDataRecords,
+} from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/transfer';
 // @ts-ignore
@@ -14,7 +19,6 @@ import dijkstra from 'dijkstrajs';
 import {
   Observable,
   catchError,
-  concatWith,
   defaultIfEmpty,
   defer,
   filter,
@@ -30,25 +34,8 @@ import {
   tap,
   toArray,
 } from 'rxjs';
-
-interface ITransferPair {
-  /** 发起转账的账户ID */
-  tx_account_id?: string;
-  /** 查收转账的账户ID */
-  rx_account_id?: string;
-  /** 发起转账的地址 */
-  tx_address?: string;
-  /** 查收转账的地址 */
-  rx_address?: string;
-  /** 网络 ID */
-  network_id?: string;
-}
-
-interface ITransferRoutingCache {
-  credit_account_id: string;
-  debit_account_id: string;
-  routing_path: ITransferPair[];
-}
+import { wrapTransferOrder } from './utils/TransferOrder';
+import { ITransferPair, wrapTransferRoutingCache } from './utils/TransferRoutingCache';
 
 const terminal = new Terminal(process.env.HOST_URL!, {
   terminal_id: process.env.TERMINAL_ID || 'TransferController',
@@ -56,7 +43,7 @@ const terminal = new Terminal(process.env.HOST_URL!, {
 });
 
 defer(() =>
-  terminal.queryDataRecords<ITransferOrder>({
+  queryDataRecords<ITransferOrder>(terminal, {
     type: 'transfer_order',
   }),
 )
@@ -115,7 +102,7 @@ const makeRoutingPath = async (order: ITransferOrder): Promise<ITransferPair[] |
   const { credit_account_id, debit_account_id } = order;
   const addressInfoList = await firstValueFrom(
     defer(() =>
-      terminal.queryDataRecords<IAccountAddressInfo>({
+      queryDataRecords<IAccountAddressInfo>(terminal, {
         type: 'account_address_info',
       }),
     ).pipe(
@@ -127,7 +114,7 @@ const makeRoutingPath = async (order: ITransferOrder): Promise<ITransferPair[] |
 
   const transferNetworkInfoList = await firstValueFrom(
     defer(() =>
-      terminal.queryDataRecords<ITransferNetworkInfo>({
+      queryDataRecords<ITransferNetworkInfo>(terminal, {
         type: 'transfer_network_info',
       }),
     ).pipe(
@@ -209,39 +196,8 @@ const makeRoutingPath = async (order: ITransferOrder): Promise<ITransferPair[] |
   }
 };
 
-const wrapTransferRoutingCache = (origin: ITransferRoutingCache): IDataRecord<ITransferRoutingCache> => ({
-  id: `${origin.credit_account_id}-${origin.debit_account_id}`,
-  type: 'transfer_routing_cache',
-  created_at: Date.now(),
-  updated_at: Date.now(),
-  frozen_at: null,
-  tags: {
-    credit_account_id: origin.credit_account_id,
-    debit_account_id: origin.debit_account_id,
-  },
-  origin,
-});
-
 const updateTransferOrder = (order: ITransferOrder): Promise<void> => {
-  return firstValueFrom(
-    terminal
-      .updateDataRecords([
-        {
-          id: order.order_id,
-          type: 'transfer_order',
-          created_at: order.created_at,
-          updated_at: order.updated_at,
-          frozen_at: null,
-          tags: {
-            debit_account_id: order.debit_account_id,
-            credit_account_id: order.credit_account_id,
-            status: `${order.status}`,
-          },
-          origin: order,
-        },
-      ])
-      .pipe(concatWith(of(void 0))),
-  );
+  return firstValueFrom(defer(() => writeDataRecords(terminal, [wrapTransferOrder(order)])));
 };
 
 const iterateTransferOrder = (order: ITransferOrder): ITransferOrder => {
@@ -306,19 +262,20 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
     // if routing path is not defined, retrieve or calculate one
     if (order.routing_path === undefined) {
       const cache = await firstValueFrom(
-        terminal
-          .queryDataRecords<ITransferRoutingCache>({
+        defer(() =>
+          readDataRecords(terminal, {
             type: 'transfer_routing_cache',
             tags: {
               credit_account_id: order.credit_account_id,
               debit_account_id: order.debit_account_id,
             },
-          })
-          .pipe(
-            //
-            map((v) => v.origin.routing_path),
-            defaultIfEmpty(undefined),
-          ),
+          }),
+        ).pipe(
+          //
+          mergeMap((v) => v),
+          map((v) => v.origin.routing_path),
+          defaultIfEmpty(undefined),
+        ),
       );
 
       let path = cache;
@@ -335,15 +292,15 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
             path,
           );
           await firstValueFrom(
-            terminal
-              .updateDataRecords([
+            defer(() =>
+              writeDataRecords(terminal, [
                 wrapTransferRoutingCache({
                   credit_account_id: order.credit_account_id,
                   debit_account_id: order.debit_account_id,
                   routing_path,
                 }),
-              ])
-              .pipe(concatWith(of(void 0))),
+              ]),
+            ),
           );
           path = routing_path;
         }
@@ -371,18 +328,19 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
     // routing path is defined, check if current transfer is timed out
     if (order.current_network_id !== undefined) {
       const networkInfo = await firstValueFrom(
-        terminal
-          .queryDataRecords<ITransferNetworkInfo>({
+        defer(() =>
+          readDataRecords(terminal, {
             type: 'transfer_network_info',
             tags: {
-              network_id: order.current_network_id,
+              network_id: order.current_network_id!,
             },
-          })
-          .pipe(
-            //
-            map((v) => v.origin),
-            defaultIfEmpty(undefined),
-          ),
+          }),
+        ).pipe(
+          //
+          mergeMap((x) => x),
+          map((v) => v.origin),
+          defaultIfEmpty(undefined),
+        ),
       );
       const timeout = networkInfo?.timeout ?? 300_000;
       if (
@@ -430,7 +388,7 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
         `current step: ${order.current_tx_account_id}->${order.current_rx_account_id}`,
       );
       const applyResult = await firstValueFrom(
-        terminal.requestService('TransferApply', order).pipe(
+        defer(() => terminal.requestService('TransferApply', order)).pipe(
           tap((v) => {
             console.info(formatTime(Date.now()), 'TransferApplyResponse', v);
           }),
@@ -482,7 +440,7 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
       );
 
       const evalResult = await firstValueFrom(
-        terminal.requestService('TransferEval', order).pipe(
+        defer(() => terminal.requestService('TransferEval', order)).pipe(
           tap((v) => {
             console.info(formatTime(Date.now()), 'TransferEvalResponse', v);
           }),
@@ -536,7 +494,7 @@ const MetricFailedTransferOrders = PromRegistry.create(
 
 // check if there's any failed transfer order
 defer(() =>
-  terminal.queryDataRecords<ITransferOrder>({
+  readDataRecords(terminal, {
     type: 'transfer_order',
     tags: {
       status: 'ERROR',
@@ -544,7 +502,6 @@ defer(() =>
   }),
 )
   .pipe(
-    toArray(),
     repeat({ delay: 10_000 }),
     retry({ delay: 5000 }),
     tap(() => {

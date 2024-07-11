@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "make Observable internal",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
