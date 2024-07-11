@@ -39,6 +39,7 @@
     "@yuants/vendor-bitget",
     "@yuants/vendor-coinex",
     "@yuants/vendor-okx",
+    "@yuants/vendor-solana",
     "@yuants/vendor-huobi",
     "@yuants/vendor-gate",
     "@yuants/vendor-ctp"
