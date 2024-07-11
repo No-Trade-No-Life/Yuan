@@ -586,6 +586,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/vendor-solana",
+      "projectFolder": "apps/vendor-solana",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/vendor-huobi",
       "projectFolder": "apps/vendor-huobi",
       "shouldPublish": true
