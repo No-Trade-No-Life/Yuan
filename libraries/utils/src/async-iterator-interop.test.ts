@@ -1,4 +1,4 @@
-import { concatWith, firstValueFrom, from, interval, share, take, throwError, timer } from 'rxjs';
+import { concatWith, firstValueFrom, from, interval, share, take, tap, throwError, timer } from 'rxjs';
 import { observableToAsyncIterable } from './async-iterator-interop';
 
 describe('async-iterator-interop', () => {
@@ -48,5 +48,22 @@ describe('async-iterator-interop', () => {
       }
     };
     await expect(iterate()).rejects.toThrow(Error);
+  });
+
+  it('break and release resource', async () => {
+    let count = 0;
+    const source = interval(10).pipe(
+      tap(() => {
+        count++;
+        console.info('still there!');
+      }),
+    );
+    // ISSUE: note that the `return` method will be called when the loop is broken.
+    // so the observable should be unsubscribed.
+    for await (const i of observableToAsyncIterable(source)) {
+      break;
+    }
+    await firstValueFrom(timer(100));
+    expect(count).toEqual(1);
   });
 });

@@ -55,7 +55,7 @@ export const observableToAsyncIterable = <T>(source: Observable<T>): AsyncIterab
 
       const queue = new LinkedQueue<T>();
       const observableAction$ = new Subject<void>();
-      source.subscribe({
+      const sub = source.subscribe({
         error: (e) => {
           err = e;
           done = true;
@@ -88,6 +88,13 @@ export const observableToAsyncIterable = <T>(source: Observable<T>): AsyncIterab
           return {
             done: false,
             value,
+          };
+        },
+        async return() {
+          sub.unsubscribe();
+          return {
+            done: true,
+            value: undefined,
           };
         },
       };
