@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/vendor-solana",
+  "entries": [
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/vendor-solana_v0.1.0",
+      "date": "Thu, 11 Jul 2024 02:20:42 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "solana init"
+          }
+        ]
+      }
+    }
+  ]
+}
