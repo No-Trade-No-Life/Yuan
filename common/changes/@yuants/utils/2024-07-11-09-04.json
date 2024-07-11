@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/utils",
+      "comment": "add return to release internal observable",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/utils"
+}
