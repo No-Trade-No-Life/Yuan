@@ -1,7 +1,7 @@
 import { Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/notify';
-import { catchError, from, map, mergeMap, timeout } from 'rxjs';
+import { catchError, defer, from, map, mergeMap, timeout } from 'rxjs';
 import { FeishuClient } from './api';
 
 const TERMINAL_ID = process.env.TERMINAL_ID || `notifier/feishu/${process.env.APP_ID!}`;
@@ -21,7 +21,7 @@ const client = new FeishuClient({
 });
 
 // Alert when HOST lost connection
-terminal.input$
+defer(() => terminal.input$)
   .pipe(
     //
     timeout(60000),

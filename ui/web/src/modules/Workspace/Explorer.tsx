@@ -305,7 +305,7 @@ registerPage('Explorer', () => {
                           disabled={!data.isLeaf || !currentHostConfig}
                           onClick={async () => {
                             if (!terminal) return;
-                            const terminalInfos = await firstValueFrom(terminal.terminalInfos$);
+                            const terminalInfos = await firstValueFrom(from(terminal.terminalInfos$));
                             const candidates = terminalInfos.filter(
                               (terminalInfo) => terminalInfo.serviceInfo?.['AirDrop'],
                             );

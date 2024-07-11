@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-gate",
+      "comment": "refactor because of protocol",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-gate"
+}

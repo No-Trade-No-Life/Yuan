@@ -1,11 +1,11 @@
 import { ITick, decodePath, encodePath } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
-import { Subscription } from 'rxjs';
+import { Subscription, defer } from 'rxjs';
 import { Kernel } from '../kernel';
+import { AccountDatasourceRelationUnit } from './AccountDatasouceRelationUnit';
 import { BasicUnit } from './BasicUnit';
 import { QuoteDataUnit } from './QuoteDataUnit';
 import { TickDataUnit } from './TickDataUnit';
-import { AccountDatasourceRelationUnit } from './AccountDatasouceRelationUnit';
 
 /**
  * Realtime Tick
@@ -51,16 +51,16 @@ export class RealtimeTickLoadingUnit extends BasicUnit {
       const [datasource_id, product_id, account_id] = decodePath(task);
 
       this.subscriptions.push(
-        this.terminal
-          .consumeChannel<ITick>(encodePath('Tick', datasource_id, product_id))
-          .subscribe((tick) => {
-            const eventId = this.kernel.alloc(Date.now());
-            if (account_id) {
-              this.mapEventIdToTick.set(eventId, { ...tick, datasource_id: account_id });
-            } else {
-              this.mapEventIdToTick.set(eventId, tick);
-            }
-          }),
+        defer(() =>
+          this.terminal.consumeChannel<ITick>(encodePath('Tick', datasource_id, product_id)),
+        ).subscribe((tick) => {
+          const eventId = this.kernel.alloc(Date.now());
+          if (account_id) {
+            this.mapEventIdToTick.set(eventId, { ...tick, datasource_id: account_id });
+          } else {
+            this.mapEventIdToTick.set(eventId, tick);
+          }
+        }),
       );
     }
   }

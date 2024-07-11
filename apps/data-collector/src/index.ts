@@ -1,5 +1,5 @@
 import { formatTime } from '@yuants/data-model';
-import { PromRegistry, Terminal } from '@yuants/protocol';
+import { PromRegistry, Terminal, copyDataRecords, queryDataRecords } from '@yuants/protocol';
 import { batchGroupBy, switchMapWithComplete } from '@yuants/utils';
 import Ajv from 'ajv';
 import CronJob from 'cron';
@@ -113,7 +113,7 @@ const listWatch = <T, K>(
   );
 
 defer(() =>
-  term.queryDataRecords<ICopyDataRelation>({
+  queryDataRecords<ICopyDataRelation>(term, {
     type: 'copy_data_relation',
   }),
 )
@@ -245,7 +245,7 @@ const runTask = (cdr: ICopyDataRelation) =>
     subs.push(
       taskStart$.subscribe(() => {
         defer(() =>
-          term.queryDataRecords({
+          queryDataRecords(term, {
             type: cdr.type,
             tags: {
               series_id: cdr.series_id,
@@ -294,27 +294,27 @@ const runTask = (cdr: ICopyDataRelation) =>
       copyDataAction$
         .pipe(
           mergeMap(() =>
-            term
-              .copyDataRecords({
+            defer(() =>
+              copyDataRecords(term, {
                 type: cdr.type,
                 tags: {
                   series_id: cdr.series_id,
                 },
                 time_range: [lastTime, Date.now()],
                 receiver_terminal_id: STORAGE_TERMINAL_ID,
-              })
-              .pipe(
-                tap(() => {
-                  taskComplete$.next();
-                }),
-                // ISSUE: catch error will replace the whole stream with EMPTY, therefore it must be placed inside mergeMap
-                // so that the outer stream subscription will not be affected
-                catchError((e) => {
-                  err = e;
-                  taskError$.next();
-                  return EMPTY;
-                }),
-              ),
+              }),
+            ).pipe(
+              tap(() => {
+                taskComplete$.next();
+              }),
+              // ISSUE: catch error will replace the whole stream with EMPTY, therefore it must be placed inside mergeMap
+              // so that the outer stream subscription will not be affected
+              catchError((e) => {
+                err = e;
+                taskError$.next();
+                return EMPTY;
+              }),
+            ),
           ),
         )
         .subscribe(),

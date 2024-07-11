@@ -1,5 +1,12 @@
 import { IAccountInfo, IAccountMoney, IOrder, IPosition, IProduct, formatTime } from '@yuants/data-model';
-import { IConnection, Terminal } from '@yuants/protocol';
+import {
+  IConnection,
+  Terminal,
+  provideAccountInfo,
+  wrapOrder,
+  wrapProduct,
+  writeDataRecords,
+} from '@yuants/protocol';
 import '@yuants/protocol/lib/services/order';
 import { ChildProcess, spawn } from 'child_process';
 import { parse } from 'date-fns';
@@ -603,9 +610,11 @@ const products$ = defer(() => loginRes$.pipe(first())).pipe(
   shareReplay(1),
 );
 
-products$.pipe(delayWhen((products) => terminal.updateProducts(products))).subscribe(() => {
-  console.info(formatTime(Date.now()), '更新品种信息成功');
-});
+products$
+  .pipe(delayWhen((products) => from(writeDataRecords(terminal, products.map(wrapProduct)))))
+  .subscribe(() => {
+    console.info(formatTime(Date.now()), '更新品种信息成功');
+  });
 
 const mapProductIdToProduct$ = products$.pipe(
   map((products) => Object.fromEntries(products.map((v) => [v.product_id, v]))),
@@ -622,7 +631,7 @@ const accountInfo$ = defer(() => mapProductIdToProduct$.pipe(first())).pipe(
   shareReplay(1),
 );
 
-terminal.provideAccountInfo(accountInfo$);
+provideAccountInfo(terminal, accountInfo$);
 
 terminal.provideService(
   'QueryProducts',
@@ -653,7 +662,7 @@ terminal.provideService(
       mergeMap(([loginRes, settlementRes]) =>
         queryHistoryOrders(zmqConn, loginRes.BrokerID, settlementRes.InvestorID).pipe(
           //
-          delayWhen((data) => terminal.updateHistoryOrders(data)),
+          delayWhen((data) => from(writeDataRecords(terminal, data.map(wrapOrder)))),
           map((data) => ({ res: { code: 0, message: 'OK', data: data } })),
         ),
       ),

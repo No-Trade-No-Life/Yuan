@@ -1,6 +1,6 @@
 import { IProduct } from '@yuants/data-model';
-import { Terminal } from '@yuants/protocol';
-import { lastValueFrom, map, toArray } from 'rxjs';
+import { Terminal, queryDataRecords } from '@yuants/protocol';
+import { defer, lastValueFrom, map, toArray } from 'rxjs';
 import { Kernel } from '../kernel';
 import {
   AccountInfoUnit,
@@ -55,39 +55,40 @@ export const AccountReplayScene = (
   // Adhoc Unit: 根据品种加载交叉盘品种
   new BasicUnit(kernel).onInit = async () => {
     for (const product of productDataUnit.listProducts()) {
-      if (product.quote_currency && currency && product.quote_currency !== currency) {
+      const quote_currency = product.quote_currency;
+      if (quote_currency && currency && product.quote_currency !== currency) {
         const [productA] = await lastValueFrom(
-          terminal
-            .queryDataRecords<IProduct>({
+          defer(() =>
+            queryDataRecords<IProduct>(terminal, {
               type: 'product',
               tags: {
                 datasource_id: datasource_id ?? account_id,
                 base_currency: currency,
-                quote_currency: product.quote_currency,
+                quote_currency: quote_currency,
               },
-            })
-            .pipe(
-              map((dataRecord) => dataRecord.origin),
-              toArray(),
-            ),
+            }),
+          ).pipe(
+            map((dataRecord) => dataRecord.origin),
+            toArray(),
+          ),
         );
         if (productA) {
           productDataUnit.updateProduct(productA);
         }
         const [productB] = await lastValueFrom(
-          terminal
-            .queryDataRecords<IProduct>({
+          defer(() =>
+            queryDataRecords<IProduct>(terminal, {
               type: 'product',
               tags: {
                 datasource_id: datasource_id ?? account_id,
-                base_currency: product.quote_currency,
+                base_currency: quote_currency,
                 quote_currency: currency,
               },
-            })
-            .pipe(
-              map((dataRecord) => dataRecord.origin),
-              toArray(),
-            ),
+            }),
+          ).pipe(
+            map((dataRecord) => dataRecord.origin),
+            toArray(),
+          ),
         );
         if (productB) {
           productDataUnit.updateProduct(productB);

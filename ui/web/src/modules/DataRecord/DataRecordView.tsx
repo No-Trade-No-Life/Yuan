@@ -19,11 +19,11 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { IDataRecord } from '@yuants/data-model';
-import { readDataRecords, writeDataRecords } from '@yuants/protocol';
+import { readDataRecords, removeDataRecords, writeDataRecords } from '@yuants/protocol';
 import Ajv from 'ajv';
 import { JSONSchema7 } from 'json-schema';
 import React, { useEffect, useMemo, useState } from 'react';
-import { concatWith, firstValueFrom, lastValueFrom, of, toArray } from 'rxjs';
+import { firstValueFrom, from, lastValueFrom } from 'rxjs';
 import { fs } from '../FileSystem/api';
 import { showForm } from '../Form';
 import { Button, DataView } from '../Interactive';
@@ -84,7 +84,7 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
         },
       };
       console.info('queryDataRecords', searchFormData, sorting, queryParams);
-      const data = await lastValueFrom(readDataRecords(terminal, queryParams));
+      const data = await lastValueFrom(from(readDataRecords(terminal, queryParams)));
 
       return data;
     },
@@ -126,7 +126,7 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
                   const formData = await showForm<T>(props.schema, record.origin);
                   await props.beforeUpdateTrigger?.(formData);
                   const nextRecord: IDataRecord<any> = props.mapOriginToDataRecord(formData);
-                  await lastValueFrom(writeDataRecords(terminal, [nextRecord]));
+                  await lastValueFrom(from(writeDataRecords(terminal, [nextRecord])));
                   await reloadData();
                   Toast.success(`成功更新数据记录 ${nextRecord.id}`);
                 }}
@@ -144,12 +144,12 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
                   const terminal = await firstValueFrom(terminal$);
                   if (!terminal) return;
                   await lastValueFrom(
-                    terminal
-                      .removeDataRecords({
+                    from(
+                      removeDataRecords(terminal, {
                         type: props.TYPE,
                         id: record.id,
-                      })
-                      .pipe(concatWith(of(0))),
+                      }),
+                    ),
                   );
                   Toast.success(`成功删除数据记录 ${record.id}`);
                   await reloadData();
@@ -203,7 +203,7 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
             const formData = await showForm<T>(props.schema, props.newRecord());
             await props.beforeUpdateTrigger?.(formData);
             const nextRecord: IDataRecord<any> = props.mapOriginToDataRecord(formData);
-            await lastValueFrom(writeDataRecords(terminal, [nextRecord]));
+            await lastValueFrom(from(writeDataRecords(terminal, [nextRecord])));
             await reloadData();
             Toast.success(`成功更新数据记录 ${nextRecord.id}`);
           }}
@@ -263,7 +263,7 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
             const ajv = new Ajv({ strictSchema: false });
             const validator = ajv.compile(props.schema);
             const records = data.filter((x) => validator(x)).map((x) => props.mapOriginToDataRecord(x));
-            await firstValueFrom(writeDataRecords(terminal, records as IDataRecord<any>[]));
+            await firstValueFrom(from(writeDataRecords(terminal, records as IDataRecord<any>[])));
             Toast.success(`已导入: ${filename}, ${records.length} / ${data.length} 条`);
             await reloadData();
           }}

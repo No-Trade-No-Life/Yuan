@@ -10,20 +10,11 @@ import {
   QuoteDataUnit,
   RealtimePeriodLoadingUnit,
 } from '@yuants/kernel';
+import { copyDataRecords } from '@yuants/protocol';
 import { t } from 'i18next';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useEffect, useMemo, useState } from 'react';
-import {
-  BehaviorSubject,
-  distinctUntilChanged,
-  filter,
-  first,
-  interval,
-  map,
-  mergeMap,
-  tap,
-  throwError,
-} from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged, filter, first, interval, map, mergeMap, tap } from 'rxjs';
 import { CandlestickSeries, Chart, ChartGroup } from '../Chart/components/Charts';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { showForm } from '../Form';
@@ -181,7 +172,7 @@ registerCommand('fetchOHLCV', async (params) => {
       first(),
       tap(() => Toast.info(`开始拉取 ${datasource_id} / ${product_id} / ${period_in_sec} 历史数据...`)),
       mergeMap((terminal) =>
-        terminal.copyDataRecords({
+        copyDataRecords(terminal, {
           type: 'period',
           time_range: [start_time, end_time],
           tags: {

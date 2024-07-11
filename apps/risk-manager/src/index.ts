@@ -1,5 +1,5 @@
 import { ITransferOrder, UUID, formatTime } from '@yuants/data-model';
-import { PromRegistry, Terminal, readDataRecords, writeDataRecords } from '@yuants/protocol';
+import { PromRegistry, Terminal, readDataRecords, useAccountInfo, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/transfer';
 import Ajv from 'ajv';
@@ -9,6 +9,7 @@ import {
   delayWhen,
   filter,
   first,
+  from,
   groupBy,
   map,
   mergeMap,
@@ -46,7 +47,7 @@ const MetricActiveSupply = PromRegistry.create('gauge', 'risk_manager_active_sup
 const MetricPassiveSupply = PromRegistry.create('gauge', 'risk_manager_passive_supply');
 
 function mapRiskInfoToState$(riskInfo: IAccountRiskInfo) {
-  return terminal.useAccountInfo(riskInfo.account_id).pipe(
+  return defer(() => useAccountInfo(terminal, riskInfo.account_id)).pipe(
     //
     map((accountInfo) => {
       const state: IRiskState = {
@@ -155,7 +156,7 @@ defer(() => configs$)
     mergeMap((x) => x),
     tap((x) => {
       // Keep AccountInfo in subscription
-      terminal.useAccountInfo(x.account_id).subscribe();
+      from(useAccountInfo(terminal, x.account_id)).subscribe();
     }),
     groupBy((x) => x.currency),
     mergeMap((groupByCurrency) =>
@@ -276,7 +277,7 @@ defer(() => configs$)
                     timeout_at: Date.now() + 1000 * 600,
                   }),
                 ),
-                delayWhen((order) => writeDataRecords(terminal, [wrapTransferOrder(order)])),
+                delayWhen((order) => from(writeDataRecords(terminal, [wrapTransferOrder(order)]))),
                 tap((x) =>
                   console.info(
                     formatTime(Date.now()),

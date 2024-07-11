@@ -1,5 +1,5 @@
-import { encodePath, formatTime, IPeriod } from '@yuants/data-model';
-import { Terminal } from '@yuants/protocol';
+import { encodePath, formatTime, IDataRecord, IPeriod } from '@yuants/data-model';
+import { queryDataRecords, Terminal, writeDataRecords } from '@yuants/protocol';
 import { defer, delayWhen, filter, from, map, mergeMap, retry, Subscription, tap, toArray } from 'rxjs';
 import { Kernel } from '../kernel';
 import { BasicUnit } from './BasicUnit';
@@ -70,7 +70,7 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
 
   async onInit() {
     // ISSUE: period_stream 依赖订阅关系的存在性，因此要先添加订阅关系
-    defer(() => this.terminal.queryDataRecords<IPullSourceRelation>({ type: 'pull_source_relation' }))
+    defer(() => queryDataRecords<IPullSourceRelation>(this.terminal, { type: 'pull_source_relation' }))
       .pipe(
         map((v) => v.origin),
         toArray(),
@@ -96,15 +96,17 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
           timeout: ~~((task.period_in_sec * 1000) / 3),
           retry_times: 3,
         })),
-        map((v) => ({
-          id: [v.datasource_id, v.product_id, v.period_in_sec].join('\n'),
-          type: 'pull_source_relation',
-          created_at: Date.now(),
-          frozen_at: null,
-          updated_at: Date.now(),
-          tags: {},
-          origin: v,
-        })),
+        map(
+          (v): IDataRecord<IPullSourceRelation> => ({
+            id: [v.datasource_id, v.product_id, v.period_in_sec].join('\n'),
+            type: 'pull_source_relation',
+            created_at: Date.now(),
+            frozen_at: null,
+            updated_at: Date.now(),
+            tags: {},
+            origin: v,
+          }),
+        ),
         tap((task) => {
           console.info(formatTime(Date.now()), '添加 pull source relation', JSON.stringify(task));
         }),
@@ -112,7 +114,7 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
         tap((v) => {
           console.info(formatTime(Date.now()), '更新 pull source relation', JSON.stringify(v));
         }),
-        delayWhen((v) => this.terminal.updateDataRecords(v)),
+        delayWhen((v) => from(writeDataRecords(this.terminal, v))),
         retry({ delay: 1000, count: 5 }),
       )
       .subscribe();
@@ -125,7 +127,7 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
       const channelId = encodePath('Period', datasource_id, product_id, period_in_sec);
       // ISSUE: Period[].length >= 2 to ensure overlay
       this.subscriptions.push(
-        this.terminal.consumeChannel<IPeriod[]>(channelId).subscribe((periods) => {
+        defer(() => this.terminal.consumeChannel<IPeriod[]>(channelId)).subscribe((periods) => {
           if (periods.length < 2) {
             console.warn(
               formatTime(Date.now()),

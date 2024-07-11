@@ -1,11 +1,12 @@
 import { IAccountInfo, IAccountMoney, formatTime } from '@yuants/data-model';
-import { Terminal, provideAccountInfo, readDataRecords } from '@yuants/protocol';
+import { Terminal, provideAccountInfo, readDataRecords, useAccountInfo } from '@yuants/protocol';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import {
   combineLatest,
   defer,
   filter,
+  from,
   groupBy,
   map,
   mergeMap,
@@ -47,7 +48,7 @@ defer(() => readDataRecords(terminal, { type: 'account_composition_relation' }))
           const accountInfo$ = defer(() =>
             combineLatest(
               x.map((y) =>
-                terminal.useAccountInfo(y.source_account_id).pipe(
+                from(useAccountInfo(terminal, y.source_account_id)).pipe(
                   map(
                     (x): IAccountInfo => ({
                       ...x,

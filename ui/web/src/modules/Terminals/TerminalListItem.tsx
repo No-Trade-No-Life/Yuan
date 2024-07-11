@@ -3,7 +3,7 @@ import { formatTime } from '@yuants/data-model';
 import { ITerminalInfo } from '@yuants/protocol';
 import { formatDuration, intervalToDuration } from 'date-fns';
 import React from 'react';
-import { EMPTY, catchError, filter, first, mergeMap, tap } from 'rxjs';
+import { EMPTY, catchError, defer, filter, first, mergeMap, tap } from 'rxjs';
 import { terminal$ } from '../Terminals';
 
 export const TerminalListItem = React.memo((props: { terminalInfo: ITerminalInfo }) => {
@@ -84,7 +84,7 @@ export function terminate(terminal_id: string) {
       filter((x): x is Exclude<typeof x, null> => !!x),
       first(),
       mergeMap((terminal) =>
-        terminal.request('Terminate', terminal_id, {}).pipe(
+        defer(() => terminal.request('Terminate', terminal_id, {})).pipe(
           tap((msg) => {
             if (msg.res) {
               if (msg.res.code === 0) {

@@ -1,6 +1,6 @@
 import { formatTime, IOrder } from '@yuants/data-model';
-import { Terminal } from '@yuants/protocol';
-import { lastValueFrom, map, tap, toArray } from 'rxjs';
+import { readDataRecords, Terminal } from '@yuants/protocol';
+import { defer, lastValueFrom, map, mergeMap, tap, toArray } from 'rxjs';
 import { Kernel } from '../kernel';
 import { BasicUnit } from './BasicUnit';
 import { HistoryOrderUnit } from './HistoryOrderUnit';
@@ -28,22 +28,23 @@ export class OrderLoadingUnit extends BasicUnit {
         )}`,
       );
       const orders = await lastValueFrom(
-        this.terminal
-          .queryDataRecords<IOrder>({
+        defer(() =>
+          readDataRecords(this.terminal, {
             type: 'order',
             time_range: [start_time, end_time],
             tags: { account_id },
-          })
-          .pipe(
-            //
-            map((dataRecord) => dataRecord.origin),
-            tap((order) => {
-              const id = this.kernel.alloc(order.submit_at!);
-              this.mapEventIdToOrder.set(id, order);
-              this.relatedProductIds.add(order.product_id);
-            }),
-            toArray(),
-          ),
+          }),
+        ).pipe(
+          //
+          mergeMap((x) => x),
+          map((dataRecord) => dataRecord.origin),
+          tap((order) => {
+            const id = this.kernel.alloc(order.submit_at!);
+            this.mapEventIdToOrder.set(id, order);
+            this.relatedProductIds.add(order.product_id);
+          }),
+          toArray(),
+        ),
       );
       this.kernel.log?.(
         `${formatTime(Date.now())} 完成加载历史订单 ${account_id} ${formatTime(start_time)} ~ ${formatTime(

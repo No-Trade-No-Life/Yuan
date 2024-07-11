@@ -1,5 +1,6 @@
 import { Button, Space, Toast } from '@douyinfe/semi-ui';
 import { IOrder } from '@yuants/data-model';
+import { cancelOrder, queryProducts, submitOrder } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import { filter, first, mergeMap, of } from 'rxjs';
@@ -24,7 +25,7 @@ registerPage('ManualTradePanel', () => {
         ? terminal$.pipe(
             filter((x): x is Exclude<typeof x, null> => !!x),
             first(),
-            mergeMap((terminal) => terminal.queryProducts({ datasource_id: account_id })),
+            mergeMap((terminal) => queryProducts(terminal, { datasource_id: account_id })),
           )
         : of([]),
     ),
@@ -89,7 +90,7 @@ registerPage('ManualTradePanel', () => {
               .pipe(
                 filter((x): x is Exclude<typeof x, null> => !!x),
                 first(),
-                mergeMap((terminal) => terminal.submitOrder(order)),
+                mergeMap((terminal) => submitOrder(terminal, order)),
               )
               .forEach((res) => {
                 if (res?.code === 0) {
@@ -125,7 +126,7 @@ registerPage('ManualTradePanel', () => {
               .pipe(
                 filter((x): x is Exclude<typeof x, null> => !!x),
                 first(),
-                mergeMap((terminal) => terminal.cancelOrder(cancelFormData as IOrder)),
+                mergeMap((terminal) => cancelOrder(terminal, cancelFormData as IOrder)),
               )
               .forEach((res) => {
                 if (res?.code === 0) {

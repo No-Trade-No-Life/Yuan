@@ -1,5 +1,5 @@
 import { IPeriod } from '@yuants/data-model';
-import { PromRegistry, Terminal } from '@yuants/protocol';
+import { PromRegistry, Terminal, queryDataRecords, wrapPeriod, writeDataRecords } from '@yuants/protocol';
 import Ajv from 'ajv';
 import { JSONSchema7 } from 'json-schema';
 import {
@@ -89,7 +89,7 @@ const syncData = (
     //
     map((gsr) =>
       defer(() =>
-        term.queryDataRecords<IPeriod>({
+        queryDataRecords<IPeriod>(term, {
           type: 'period',
           tags: {
             datasource_id: gsr.specific_datasource_id,
@@ -172,7 +172,7 @@ const syncData = (
 };
 
 const mapProductIdToGSRList$ = defer(() =>
-  term.queryDataRecords<IGeneralSpecificRelation>({
+  queryDataRecords<IGeneralSpecificRelation>(term, {
     type: 'general_specific_relation',
   }),
 ).pipe(
@@ -236,7 +236,7 @@ term.provideService(
       mergeMap((gsrList) =>
         syncData(product_id, +period_in_sec, gsrList, [start_time, end_time]).pipe(
           //
-          delayWhen((periods) => term.updatePeriods(periods)),
+          delayWhen((periods) => from(writeDataRecords(term, periods.map(wrapPeriod)))),
         ),
       ),
       tap((periods) => {

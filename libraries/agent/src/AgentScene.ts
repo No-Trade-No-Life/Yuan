@@ -24,7 +24,7 @@ import {
   TerminateUnit,
   TickDataUnit,
 } from '@yuants/kernel';
-import { Terminal } from '@yuants/protocol';
+import { Terminal, provideAccountInfo } from '@yuants/protocol';
 import { JSONSchema7 } from 'json-schema';
 import { Subject } from 'rxjs';
 import { AgentUnit } from './AgentUnit';
@@ -177,7 +177,7 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
       for (const accountInfo of accountInfoUnit.mapAccountIdToAccountInfo.values()) {
         if (!mapAccountIdToAccountInfo$[accountInfo.account_id]) {
           mapAccountIdToAccountInfo$[accountInfo.account_id] = new Subject();
-          terminal.provideAccountInfo(mapAccountIdToAccountInfo$[accountInfo.account_id]);
+          provideAccountInfo(terminal, mapAccountIdToAccountInfo$[accountInfo.account_id]);
         }
         const accountInfo$ = mapAccountIdToAccountInfo$[accountInfo.account_id];
         accountInfo$.next(accountInfo);

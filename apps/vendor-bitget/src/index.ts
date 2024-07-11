@@ -22,6 +22,7 @@ import {
   expand,
   filter,
   firstValueFrom,
+  from,
   interval,
   map,
   mergeMap,
@@ -55,6 +56,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
 };
 
 const fundingTime$ = memoizeMap((product_id: string) =>
+  // KNOWN ISSUE: the next funding time may be incorrect
   of({ expire: 0 }).pipe(
     //
     expand((v) =>
@@ -140,7 +142,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
   );
 
   futureProducts$
-    .pipe(delayWhen((products) => writeDataRecords(terminal, products.map(wrapProduct))))
+    .pipe(delayWhen((products) => from(writeDataRecords(terminal, products.map(wrapProduct)))))
     .subscribe((products) => {
       console.info(formatTime(Date.now()), 'FUTUREProductsUpdated', products.length);
     });
@@ -495,7 +497,9 @@ const fundingTime$ = memoizeMap((product_id: string) =>
           }
           funding_rate_history.sort((a, b) => a.funding_at - b.funding_at);
 
-          await firstValueFrom(writeDataRecords(terminal, funding_rate_history.map(wrapFundingRateRecord)));
+          await firstValueFrom(
+            from(writeDataRecords(terminal, funding_rate_history.map(wrapFundingRateRecord))),
+          );
           return { res: { code: 0, message: 'OK' } };
         }).pipe(
           tap({
@@ -516,14 +520,16 @@ const fundingTime$ = memoizeMap((product_id: string) =>
       console.info(formatTime(Date.now()), 'DepositAddress', depositAddressRes.data);
       const address = depositAddressRes.data;
       await firstValueFrom(
-        writeDataRecords(terminal, [
-          wrapTransferNetworkInfo({
-            network_id: 'TRC20',
-            commission: 1,
-            currency: 'USDT',
-            timeout: 1800_000,
-          }),
-        ]),
+        defer(() =>
+          writeDataRecords(terminal, [
+            wrapTransferNetworkInfo({
+              network_id: 'TRC20',
+              commission: 1,
+              currency: 'USDT',
+              timeout: 1800_000,
+            }),
+          ]),
+        ),
       );
       addAccountTransferAddress({
         terminal,
