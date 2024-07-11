@@ -9,7 +9,7 @@
     "temp"
   ],
   "scripts": {
-    "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
+    "build": "heft test --clean --detect-open-handles && api-extractor run --local && yuan-toolkit post-build"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org",

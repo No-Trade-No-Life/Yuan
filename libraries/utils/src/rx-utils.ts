@@ -89,35 +89,42 @@ export const rateLimitMap =
     }
     return new Observable((subscriber) => {
       let token = rateLimitConfig.count;
-      interval(rateLimitConfig.period / rateLimitConfig.count, scheduler)
-        .pipe(
-          //
-          filter(() => token < rateLimitConfig.count),
-          tap(() => {
-            token++;
-          }),
-        )
-        .subscribe();
-      const sub = source$.subscribe({
-        next: (obj) => {
-          if (token <= 0) {
-            reject(obj).subscribe({
-              next: (obj) => subscriber.next(obj),
-              error: (err) => subscriber.error(err),
-            });
-          } else {
-            token--;
-            fn(obj).subscribe({
-              next: (obj) => subscriber.next(obj),
-              error: (err) => subscriber.error(err),
-            });
-          }
-        },
-        error: (err) => subscriber.error(err),
-        complete: () => subscriber.complete(),
-      });
+      const subs: Subscription[] = [];
+      subs.push(
+        interval(rateLimitConfig.period / rateLimitConfig.count, scheduler)
+          .pipe(
+            //
+            filter(() => token < rateLimitConfig.count),
+            tap(() => {
+              token++;
+            }),
+          )
+          .subscribe(),
+      );
+      subs.push(
+        source$.subscribe({
+          next: (obj) => {
+            if (token <= 0) {
+              reject(obj).subscribe({
+                next: (obj) => subscriber.next(obj),
+                error: (err) => subscriber.error(err),
+              });
+            } else {
+              token--;
+              fn(obj).subscribe({
+                next: (obj) => subscriber.next(obj),
+                error: (err) => subscriber.error(err),
+              });
+            }
+          },
+          error: (err) => subscriber.error(err),
+          complete: () => subscriber.complete(),
+        }),
+      );
       return () => {
-        sub.unsubscribe();
+        for (const sub of subs) {
+          sub.unsubscribe();
+        }
       };
     });
   };
