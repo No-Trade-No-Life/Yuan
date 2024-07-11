@@ -5,7 +5,8 @@ describe('async-iterator-interop', () => {
   it('sync observable to async iterable', async () => {
     const expected = [1, 2, 3, 4];
     const actual: number[] = [];
-    for await (const i of observableToAsyncIterable(from(expected))) {
+    const iterable = observableToAsyncIterable(from(expected));
+    for await (const i of iterable) {
       actual.push(i);
     }
     expect(actual).toEqual(expected);
