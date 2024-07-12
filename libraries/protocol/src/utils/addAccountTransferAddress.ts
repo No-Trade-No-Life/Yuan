@@ -1,6 +1,7 @@
 import { IDataRecordTypes, ITransferOrder, formatTime, getDataRecordWrapper } from '@yuants/data-model';
-import { Terminal, writeDataRecords } from '@yuants/protocol';
-import { Subject, debounceTime, defer, from, groupBy, mergeMap, tap, toArray } from 'rxjs';
+import { Subject, debounceTime, defer, from, groupBy, mergeMap, retry, tap, toArray } from 'rxjs';
+import { Terminal } from '../terminal';
+import { writeDataRecords } from './DataRecord';
 
 type IAccountAddressInfo = IDataRecordTypes['account_address_info'];
 
@@ -26,6 +27,13 @@ const contextList: IAccountTransferAddressContext[] = [];
 
 const update$ = new Subject<void>();
 
+/**
+ * addAccountTransferAddress
+ *
+ * A helper function to add an account transfer address context.
+ *
+ * @public
+ */
 export const addAccountTransferAddress = (ctx: IAccountTransferAddressContext) => {
   contextList.push(ctx);
   update$.next();
@@ -144,7 +152,9 @@ update$
                     getDataRecordWrapper('account_address_info')!(info),
                   ),
                 ),
-              ).subscribe();
+              )
+                .pipe(retry({ delay: 30_000 }))
+                .subscribe();
             }),
           ),
         ),

@@ -11,10 +11,16 @@ import { IOrder } from '@yuants/data-model';
 import { IPeriod } from '@yuants/data-model';
 import { IProduct } from '@yuants/data-model';
 import { ITick } from '@yuants/data-model';
+import { ITransferOrder } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
 import { NativeSubject } from '@yuants/utils';
 import { ObservableInput } from 'rxjs';
 import { Registry } from '@yuants/prometheus-client';
+
+// Warning: (ae-forgotten-export) The symbol "IAccountTransferAddressContext" needs to be exported by the entry point index.d.ts
+//
+// @public
+export const addAccountTransferAddress: (ctx: IAccountTransferAddressContext) => void;
 
 // @public
 export const cancelOrder: (terminal: Terminal, order: IOrder) => AsyncIterable<IResponse<void> & IResponse<unknown>>;
