@@ -41,7 +41,7 @@ const MetricCronjobStatus = PromRegistry.create(
   'historical market data CronJob status',
 );
 
-const ajv = new Ajv();
+const ajv = new Ajv({ strict: false });
 
 const HV_URL = process.env.HV_URL!;
 const STORAGE_TERMINAL_ID = process.env.STORAGE_TERMINAL_ID!;

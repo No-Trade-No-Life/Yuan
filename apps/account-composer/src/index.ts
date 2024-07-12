@@ -21,7 +21,7 @@ import {
 const TERMINAL_ID = process.env.TERMINAL_ID || `AccountComposer`;
 const terminal = new Terminal(process.env.HOST_URL!, { terminal_id: TERMINAL_ID, name: 'Account Composer' });
 
-const ajv = new Ajv();
+const ajv = new Ajv({ strict: false });
 addFormats(ajv);
 
 const validate = ajv.compile(getDataRecordSchema('account_composition_relation')!);

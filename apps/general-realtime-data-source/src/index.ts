@@ -20,7 +20,7 @@ import {
 
 type IGeneralSpecificRelation = IDataRecordTypes['general_specific_relation'];
 
-const ajv = new Ajv();
+const ajv = new Ajv({ strict: false });
 const validate = ajv.compile(getDataRecordSchema('general_specific_relation')!);
 
 const HV_URL = process.env.HV_URL!;

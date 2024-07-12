@@ -41,7 +41,7 @@ const MetricCronjobStatus = PromRegistry.create(
   'data CronJob status',
 );
 
-const ajv = new Ajv();
+const ajv = new Ajv({ strict: false });
 
 const HOST_URL = process.env.HOST_URL!;
 const STORAGE_TERMINAL_ID = process.env.STORAGE_TERMINAL_ID!;
