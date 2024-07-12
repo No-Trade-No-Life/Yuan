@@ -2,6 +2,31 @@
   "name": "@yuants/utils",
   "entries": [
     {
+      "version": "0.1.0",
+      "tag": "@yuants/utils_v0.1.0",
+      "date": "Fri, 12 Jul 2024 01:50:37 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add interop function from observable to async iterable"
+          },
+          {
+            "comment": "add return to release internal observable"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "add utils 'nativeSubjectToSubject' and 'subjectToNativeSubject'"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.7",
       "tag": "@yuants/utils_v0.0.7",
       "date": "Fri, 24 May 2024 18:00:17 GMT",
