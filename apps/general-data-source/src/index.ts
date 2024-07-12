@@ -27,7 +27,7 @@ const MetricSyncDurationBucket = PromRegistry.create('histogram', 'general_data_
 
 const MetricSyncStatus = PromRegistry.create('gauge', 'general_data_source_sync_status');
 
-const ajv = new Ajv();
+const ajv = new Ajv({ strict: false });
 const validate = ajv.compile(getDataRecordSchema('general_specific_relation')!);
 
 const HV_URL = process.env.HV_URL!;

@@ -143,7 +143,7 @@ function mapRiskInfoToState$(riskInfo: IDataRecordTypes['account_risk_info']) {
   );
 }
 
-const ajv = new Ajv({ strictSchema: false });
+const ajv = new Ajv({ strict: false });
 const validator = ajv.compile(getDataRecordSchema('account_risk_info')!);
 
 const configs$ = defer(() => readDataRecords(terminal, { type: 'account_risk_info' })).pipe(

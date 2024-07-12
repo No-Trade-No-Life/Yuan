@@ -69,7 +69,7 @@ interface ITradeCopierConfig {
   }>;
 }
 
-const ajv = new Ajv();
+const ajv = new Ajv({ strict: false });
 addFormats(ajv);
 
 const tradeConfigValidate = ajv.compile(getDataRecordSchema('trade_copier_trade_config')!);
