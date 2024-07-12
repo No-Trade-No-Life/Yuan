@@ -2,6 +2,37 @@
   "name": "@yuants/vendor-huobi",
   "entries": [
     {
+      "version": "0.5.2",
+      "tag": "@yuants/vendor-huobi_v0.5.2",
+      "date": "Fri, 12 Jul 2024 01:50:37 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor because of protocol"
+          },
+          {
+            "comment": "refactor connection"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.20.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.1.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.6`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.1",
       "tag": "@yuants/vendor-huobi_v0.5.1",
       "date": "Wed, 03 Jul 2024 10:05:02 GMT",

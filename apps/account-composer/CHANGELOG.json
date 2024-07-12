@@ -2,6 +2,34 @@
   "name": "@yuants/app-account-composer",
   "entries": [
     {
+      "version": "0.1.3",
+      "tag": "@yuants/app-account-composer_v0.1.3",
+      "date": "Fri, 12 Jul 2024 01:50:37 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor because of protocol"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.20.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.1.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.6`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.2",
       "tag": "@yuants/app-account-composer_v0.1.2",
       "date": "Wed, 10 Jul 2024 09:17:13 GMT",

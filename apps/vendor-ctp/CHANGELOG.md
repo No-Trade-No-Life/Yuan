@@ -1,6 +1,14 @@
 # Change Log - @yuants/vendor-ctp
 
-This log was last generated on Wed, 03 Jul 2024 10:05:02 GMT and should not be manually modified.
+This log was last generated on Fri, 12 Jul 2024 01:50:37 GMT and should not be manually modified.
+
+## 0.2.2
+Fri, 12 Jul 2024 01:50:37 GMT
+
+### Patches
+
+- refactor because of protocol
+- refactor connection
 
 ## 0.2.1
 Wed, 03 Jul 2024 10:05:02 GMT

@@ -2,6 +2,31 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.20.0",
+      "tag": "@yuants/protocol_v0.20.0",
+      "date": "Fri, 12 Jul 2024 01:50:37 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "make Observable internal"
+          },
+          {
+            "comment": "removed rx's Subject type"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.1.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.19.1",
       "tag": "@yuants/protocol_v0.19.1",
       "date": "Wed, 03 Jul 2024 10:05:02 GMT",

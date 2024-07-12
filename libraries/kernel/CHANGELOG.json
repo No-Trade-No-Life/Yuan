@@ -2,6 +2,31 @@
   "name": "@yuants/kernel",
   "entries": [
     {
+      "version": "0.12.2",
+      "tag": "@yuants/kernel_v0.12.2",
+      "date": "Fri, 12 Jul 2024 01:50:37 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor because of protocol"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.20.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.1.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.12.1",
       "tag": "@yuants/kernel_v0.12.1",
       "date": "Wed, 03 Jul 2024 10:05:02 GMT",

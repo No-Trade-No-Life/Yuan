@@ -1,6 +1,11 @@
 # Change Log - @yuants/extension
 
-This log was last generated on Fri, 24 May 2024 18:00:17 GMT and should not be manually modified.
+This log was last generated on Fri, 12 Jul 2024 01:50:37 GMT and should not be manually modified.
+
+## 0.2.6
+Fri, 12 Jul 2024 01:50:37 GMT
+
+_Version update only_
 
 ## 0.2.5
 Fri, 24 May 2024 18:00:17 GMT
