@@ -1,6 +1,6 @@
 import { Space, Steps, Toast, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { IDataRecord, ITransferOrder, UUID, formatTime } from '@yuants/data-model';
+import { IDataRecord, ITransferOrder, UUID, formatTime, getDataRecordWrapper } from '@yuants/data-model';
 import { writeDataRecords } from '@yuants/protocol';
 import { first, firstValueFrom, from } from 'rxjs';
 import { InlineAccountId, useAccountInfo } from '../AccountInfo';
@@ -9,27 +9,6 @@ import { DataRecordView } from '../DataRecord';
 import { showForm } from '../Form';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
-import { wrapTransferOrder } from './TransferOrder';
-import { schema } from './model';
-
-const TYPE = 'transfer_order';
-
-const mapOriginToDataRecord = (x: ITransferOrder): IDataRecord<ITransferOrder> => {
-  const id = x.order_id;
-  return {
-    id,
-    type: TYPE,
-    created_at: x.created_at,
-    updated_at: x.updated_at,
-    frozen_at: null,
-    tags: {
-      credit_account_id: x.credit_account_id,
-      debit_account_id: x.debit_account_id,
-      status: `${x.status}`,
-    },
-    origin: x,
-  };
-};
 
 function newRecord(): Partial<ITransferOrder> {
   return {
@@ -148,12 +127,10 @@ function defineColumns() {
 registerPage('TransferOrderList', () => {
   return (
     <DataRecordView
-      TYPE={TYPE}
-      schema={schema}
+      TYPE="transfer_order"
       columns={defineColumns()}
       newRecord={newRecord}
       beforeUpdateTrigger={beforeUpdateTrigger}
-      mapOriginToDataRecord={mapOriginToDataRecord}
     />
   );
 });
@@ -200,7 +177,7 @@ registerCommand('Transfer', async (params: {}) => {
   await firstValueFrom(
     from(
       writeDataRecords(terminal, [
-        wrapTransferOrder({
+        getDataRecordWrapper('transfer_order')!({
           order_id: UUID(),
           created_at: Date.now(),
           updated_at: Date.now(),

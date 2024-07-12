@@ -2,6 +2,7 @@ import {
   decodePath,
   encodePath,
   formatTime,
+  getDataRecordWrapper,
   IAccountInfo,
   IAccountMoney,
   IDataRecord,
@@ -10,14 +11,13 @@ import {
   IProduct,
   UUID,
 } from '@yuants/data-model';
-import { provideAccountInfo, Terminal, wrapProduct, writeDataRecords } from '@yuants/protocol';
+import { provideAccountInfo, Terminal, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
 import {
   combineLatest,
   combineLatestWith,
-  concatWith,
   defer,
   first,
   firstValueFrom,
@@ -26,7 +26,6 @@ import {
   lastValueFrom,
   map,
   mergeMap,
-  of,
   repeat,
   retry,
   shareReplay,
@@ -80,7 +79,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
   );
 
   usdtFutureProducts$.subscribe((products) => {
-    from(writeDataRecords(terminal, products.map(wrapProduct))).subscribe();
+    from(writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!))).subscribe();
   });
 
   const mapProductIdToUsdtFutureProduct$ = usdtFutureProducts$.pipe(

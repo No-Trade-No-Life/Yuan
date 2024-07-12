@@ -1,5 +1,13 @@
-import { IProduct, ITick, UUID, decodePath, encodePath, formatTime } from '@yuants/data-model';
-import { Terminal, provideTicks, wrapProduct, writeDataRecords } from '@yuants/protocol';
+import {
+  IProduct,
+  ITick,
+  UUID,
+  decodePath,
+  encodePath,
+  formatTime,
+  getDataRecordWrapper,
+} from '@yuants/data-model';
+import { Terminal, provideTicks, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
@@ -69,7 +77,7 @@ const mapProductIdToFutureProduct$ = futureProducts$.pipe(
 );
 
 futureProducts$
-  .pipe(mergeMap((products) => writeDataRecords(terminal, products.map(wrapProduct))))
+  .pipe(mergeMap((products) => writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!))))
   .subscribe();
 
 const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {

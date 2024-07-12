@@ -1,7 +1,6 @@
-import { IPeriod, encodePath, formatTime } from '@yuants/data-model';
+import { IDataRecordTypes, IPeriod, encodePath, formatTime, getDataRecordSchema } from '@yuants/data-model';
 import { Terminal, providePeriods, queryDataRecords } from '@yuants/protocol';
 import Ajv from 'ajv';
-import { JSONSchema7 } from 'json-schema';
 import {
   EMPTY,
   Observable,
@@ -19,39 +18,10 @@ import {
   toArray,
 } from 'rxjs';
 
-// GSR
-interface IGeneralSpecificRelation {
-  // general_datasource_id 一定是 Y 常量，因此不需要特别存储
-  // general_datasource_id: string;
-  /** 标准品种ID */
-  general_product_id: string; // XAUUSD
-  /** 具体数据源 ID */
-  specific_datasource_id: string; // TradingView
-  /** 具体品种 ID */
-  specific_product_id: string; // FX:XAUUSD
-}
-
-const schema: JSONSchema7 = {
-  type: 'object',
-  title: '标准行情关系',
-  properties: {
-    general_product_id: {
-      type: 'string',
-      title: '标准品种 ID',
-    },
-    specific_datasource_id: {
-      type: 'string',
-      title: '具体数据源 ID',
-    },
-    specific_product_id: {
-      type: 'string',
-      title: '具体品种 ID',
-    },
-  },
-};
+type IGeneralSpecificRelation = IDataRecordTypes['general_specific_relation'];
 
 const ajv = new Ajv();
-const validate = ajv.compile(schema);
+const validate = ajv.compile(getDataRecordSchema('general_specific_relation')!);
 
 const HV_URL = process.env.HV_URL!;
 const TERMINAL_ID = process.env.TERMINAL_ID || 'GeneralRealtimeDataSource';

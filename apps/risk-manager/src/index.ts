@@ -1,4 +1,11 @@
-import { ITransferOrder, UUID, formatTime } from '@yuants/data-model';
+import {
+  IDataRecordTypes,
+  ITransferOrder,
+  UUID,
+  formatTime,
+  getDataRecordSchema,
+  getDataRecordWrapper,
+} from '@yuants/data-model';
 import { PromRegistry, Terminal, readDataRecords, useAccountInfo, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/transfer';
@@ -20,8 +27,6 @@ import {
   tap,
   toArray,
 } from 'rxjs';
-import { IAccountRiskInfo, schema } from './models/AccountRiskInfo';
-import { wrapTransferOrder } from './models/TransferOrder';
 
 const terminal = new Terminal(process.env.HOST_URL!, {
   terminal_id: process.env.TERMINAL_ID || 'RiskManager',
@@ -46,7 +51,7 @@ const MetricPassiveDemand = PromRegistry.create('gauge', 'risk_manager_passive_d
 const MetricActiveSupply = PromRegistry.create('gauge', 'risk_manager_active_supply');
 const MetricPassiveSupply = PromRegistry.create('gauge', 'risk_manager_passive_supply');
 
-function mapRiskInfoToState$(riskInfo: IAccountRiskInfo) {
+function mapRiskInfoToState$(riskInfo: IDataRecordTypes['account_risk_info']) {
   return defer(() => useAccountInfo(terminal, riskInfo.account_id)).pipe(
     //
     map((accountInfo) => {
@@ -139,7 +144,7 @@ function mapRiskInfoToState$(riskInfo: IAccountRiskInfo) {
 }
 
 const ajv = new Ajv({ strictSchema: false });
-const validator = ajv.compile(schema);
+const validator = ajv.compile(getDataRecordSchema('account_risk_info')!);
 
 const configs$ = defer(() => readDataRecords(terminal, { type: 'account_risk_info' })).pipe(
   mergeMap((x) => x),
@@ -277,7 +282,9 @@ defer(() => configs$)
                     timeout_at: Date.now() + 1000 * 600,
                   }),
                 ),
-                delayWhen((order) => from(writeDataRecords(terminal, [wrapTransferOrder(order)]))),
+                delayWhen((order) =>
+                  from(writeDataRecords(terminal, [getDataRecordWrapper('transfer_order')!(order)])),
+                ),
                 tap((x) =>
                   console.info(
                     formatTime(Date.now()),

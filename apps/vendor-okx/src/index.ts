@@ -2,6 +2,7 @@ import {
   IAccountInfo,
   IAccountMoney,
   IDataRecord,
+  IDataRecordTypes,
   IOrder,
   IPeriod,
   IPosition,
@@ -11,16 +12,9 @@ import {
   decodePath,
   encodePath,
   formatTime,
-  wrapTransferNetworkInfo,
+  getDataRecordWrapper,
 } from '@yuants/data-model';
-import {
-  Terminal,
-  provideAccountInfo,
-  provideTicks,
-  wrapPeriod,
-  wrapProduct,
-  writeDataRecords,
-} from '@yuants/protocol';
+import { Terminal, provideAccountInfo, provideTicks, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
@@ -47,8 +41,6 @@ import {
   toArray,
 } from 'rxjs';
 import { OkxClient } from './api';
-import { IFundingRate, wrapFundingRateRecord } from './models/FundingRate';
-import './models/TransferNetworkInfo';
 import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
 
 const terminal = new Terminal(process.env.HOST_URL!, {
@@ -127,13 +119,17 @@ const mapProductIdToMarginProduct$ = marginProducts$.pipe(
 );
 
 usdtSwapProducts$
-  .pipe(delayWhen((products) => from(writeDataRecords(terminal, products.map(wrapProduct)))))
+  .pipe(
+    delayWhen((products) => from(writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!)))),
+  )
   .subscribe((products) => {
     console.info(formatTime(Date.now()), 'SWAP Products updated', products.length);
   });
 
 marginProducts$
-  .pipe(delayWhen((products) => from(writeDataRecords(terminal, products.map(wrapProduct)))))
+  .pipe(
+    delayWhen((products) => from(writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!)))),
+  )
   .subscribe((products) => {
     console.info(formatTime(Date.now()), 'MARGIN Products updated', products.length);
   });
@@ -579,7 +575,7 @@ defer(async () => {
       await firstValueFrom(
         from(
           writeDataRecords(terminal, [
-            wrapTransferNetworkInfo({
+            getDataRecordWrapper('transfer_network_info')!({
               network_id: 'TRC20',
               commission: 1,
               currency: 'USDT',
@@ -976,7 +972,7 @@ defer(async () => {
           if (!base_currency || !quote_currency) {
             return { res: { code: 400, message: `base_currency or quote_currency is required` } };
           }
-          const funding_rate_history: IFundingRate[] = [];
+          const funding_rate_history: IDataRecordTypes['funding_rate'][] = [];
           let current_end = end;
           while (true) {
             client.getFundingRateHistory;
@@ -1010,7 +1006,7 @@ defer(async () => {
           funding_rate_history.sort((a, b) => +a.funding_at - +b.funding_at);
           // there will be at most 300 records, so we don't need to chunk it by bufferCount
           await lastValueFrom(
-            from(writeDataRecords(terminal, funding_rate_history.map(wrapFundingRateRecord))),
+            from(writeDataRecords(terminal, funding_rate_history.map(getDataRecordWrapper('funding_rate')!))),
           );
           return { res: { code: 0, message: 'OK' } };
         }
@@ -1086,7 +1082,7 @@ defer(async () => {
           });
           if (res.data.length > 0 && res.data.length < 100) {
             // data is complete
-            const dataRecords = res.data.map(mapResDataToIPeriod).map(wrapPeriod);
+            const dataRecords = res.data.map(mapResDataToIPeriod).map(getDataRecordWrapper('period')!);
             await lastValueFrom(from(writeDataRecords(terminal, dataRecords)));
             return { res: { code: 0, message: 'OK' } };
           }
@@ -1143,7 +1139,7 @@ defer(async () => {
             if (currentStartTime >= endTime) {
               break;
             }
-            data.push(...res.data.map(mapResDataToIPeriod).map(wrapPeriod));
+            data.push(...res.data.map(mapResDataToIPeriod).map(getDataRecordWrapper('period')!));
           }
           await firstValueFrom(from(writeDataRecords(terminal, data)));
           return { res: { code: 0, message: 'OK' } };

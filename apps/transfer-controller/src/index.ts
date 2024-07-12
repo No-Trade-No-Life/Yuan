@@ -1,9 +1,9 @@
 import {
-  IAccountAddressInfo,
-  ITransferNetworkInfo,
+  IDataRecordTypes,
   ITransferOrder,
   encodePath,
   formatTime,
+  getDataRecordWrapper,
 } from '@yuants/data-model';
 import {
   PromRegistry,
@@ -34,8 +34,11 @@ import {
   tap,
   toArray,
 } from 'rxjs';
-import { wrapTransferOrder } from './utils/TransferOrder';
-import { ITransferPair, wrapTransferRoutingCache } from './utils/TransferRoutingCache';
+
+type ITransferRoutingCache = IDataRecordTypes['transfer_routing_cache'];
+type ITransferPair = ITransferRoutingCache['routing_path'][number];
+type ITransferNetworkInfo = IDataRecordTypes['transfer_network_info'];
+type IAccountAddressInfo = IDataRecordTypes['account_address_info'];
 
 const terminal = new Terminal(process.env.HOST_URL!, {
   terminal_id: process.env.TERMINAL_ID || 'TransferController',
@@ -197,7 +200,9 @@ const makeRoutingPath = async (order: ITransferOrder): Promise<ITransferPair[] |
 };
 
 const updateTransferOrder = (order: ITransferOrder): Promise<void> => {
-  return firstValueFrom(defer(() => writeDataRecords(terminal, [wrapTransferOrder(order)])));
+  return firstValueFrom(
+    defer(() => writeDataRecords(terminal, [getDataRecordWrapper('transfer_order')!(order)])),
+  );
 };
 
 const iterateTransferOrder = (order: ITransferOrder): ITransferOrder => {
@@ -294,7 +299,7 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
           await firstValueFrom(
             defer(() =>
               writeDataRecords(terminal, [
-                wrapTransferRoutingCache({
+                getDataRecordWrapper('transfer_routing_cache')!({
                   credit_account_id: order.credit_account_id,
                   debit_account_id: order.debit_account_id,
                   routing_path,

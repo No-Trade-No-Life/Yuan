@@ -1,4 +1,13 @@
-import { IAccountInfo, IOrder, IPosition, IProduct, UUID, formatTime } from '@yuants/data-model';
+import {
+  IAccountInfo,
+  IDataRecordTypes,
+  IOrder,
+  IPosition,
+  IProduct,
+  UUID,
+  formatTime,
+  getDataRecordSchema,
+} from '@yuants/data-model';
 import { IPositionDiff, diffPosition, mergePositions } from '@yuants/kernel';
 import {
   PromRegistry,
@@ -11,7 +20,6 @@ import {
 import { roundToStep } from '@yuants/utils';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
-import { JSONSchema7 } from 'json-schema';
 import {
   EMPTY,
   Observable,
@@ -39,7 +47,6 @@ import {
   retry,
   shareReplay,
   tap,
-  throwError,
   timeout,
   toArray,
 } from 'rxjs';
@@ -48,17 +55,8 @@ const HV_URL = process.env.HV_URL || 'ws://localhost:8888';
 const TERMINAL_ID = process.env.TERMINAL_ID || `TradeCopier`;
 const terminal = new Terminal(HV_URL, { terminal_id: TERMINAL_ID, name: 'Trade Copier' });
 
-interface ITradeCopyRelation {
-  source_account_id: string;
-  source_product_id: string;
-  target_account_id: string;
-  target_product_id: string;
-  multiple: number;
-  /** 根据正则表达式匹配头寸的备注 (黑名单) */
-  exclusive_comment_pattern?: string;
-  /** disable this relation (equivalent to not set before) */
-  disabled?: boolean;
-}
+type ITradeCopyRelation = IDataRecordTypes['trade_copy_relation'];
+type ITradeCopierTradeConfig = IDataRecordTypes['trade_copier_trade_config'];
 
 interface ITradeCopierConfig {
   multiple?: number;
@@ -71,75 +69,10 @@ interface ITradeCopierConfig {
   }>;
 }
 
-interface ITradeCopierTradeConfig {
-  account_id: string;
-  product_id: string;
-  max_volume_per_order: number;
-}
-
-const configSchema: JSONSchema7 = {
-  type: 'object',
-  properties: {
-    tasks: {
-      type: 'array',
-      items: {
-        type: 'object',
-        required: [
-          'source_account_id',
-          'source_product_id',
-          'target_account_id',
-          'target_product_id',
-          'multiple',
-        ],
-        properties: {
-          source_account_id: {
-            type: 'string',
-          },
-          source_product_id: {
-            type: 'string',
-          },
-          target_account_id: {
-            type: 'string',
-          },
-          target_product_id: {
-            type: 'string',
-          },
-          multiple: {
-            type: 'number',
-          },
-          exclusive_comment_pattern: {
-            type: 'string',
-            format: 'regex',
-          },
-          disabled: {
-            type: 'boolean',
-          },
-        },
-      },
-    },
-  },
-};
-
-const tradeConfigSchema: JSONSchema7 = {
-  type: 'object',
-  required: ['account_id', 'product_id', 'max_volume_per_order'],
-  properties: {
-    account_id: {
-      type: 'string',
-    },
-    product_id: {
-      type: 'string',
-    },
-    max_volume_per_order: {
-      type: 'number',
-    },
-  },
-};
-
 const ajv = new Ajv();
 addFormats(ajv);
 
-const tradeConfigValidate = ajv.compile(tradeConfigSchema);
+const tradeConfigValidate = ajv.compile(getDataRecordSchema('trade_copier_trade_config')!);
 
 const tradeConfig$ = defer(() =>
   queryDataRecords<ITradeCopierTradeConfig>(terminal, {
@@ -158,7 +91,7 @@ const tradeConfig$ = defer(() =>
   shareReplay(1),
 );
 
-const validate = ajv.compile(configSchema);
+const validateOfTradeCopyRelation = ajv.compile(getDataRecordSchema('trade_copy_relation')!);
 
 const config$ = defer(() =>
   queryDataRecords<ITradeCopyRelation>(terminal, { type: 'trade_copy_relation' }),
@@ -166,16 +99,10 @@ const config$ = defer(() =>
   //
   map((msg) => msg.origin),
   filter((msg) => !msg.disabled),
+  filter((x) => validateOfTradeCopyRelation(x)),
   toArray(),
   map((data): ITradeCopierConfig => ({ tasks: data })),
-  mergeMap((data) => {
-    const isValid = validate(data);
-    if (!isValid) {
-      console.error(formatTime(Date.now()), validate.errors);
-      return throwError(() => 'ERROR CONFIG');
-    }
-    return of(data);
-  }),
+
   tap((config) => console.info(formatTime(Date.now()), 'LoadConfig', JSON.stringify(config))),
   tap((config) => {
     for (const task of config.tasks) {
