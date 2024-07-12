@@ -17,7 +17,6 @@ import '@yuants/protocol/lib/services/transfer';
 import { roundToStep } from '@yuants/utils';
 import {
   EMPTY,
-  bufferCount,
   catchError,
   combineLatest,
   combineLatestWith,
@@ -387,7 +386,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
   );
 
   const subscriptions: Set<string> = new Set();
-  client.spot_ws.connection$.subscribe(() => {
+  from(client.spot_ws.connection$).subscribe(() => {
     subscriptions.clear();
   });
   // subscribe the symbols of positions we held

@@ -11,10 +11,9 @@ import { IPeriod } from '@yuants/data-model';
 import { IProduct } from '@yuants/data-model';
 import { ITick } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
-import { Observable } from 'rxjs';
+import { NativeSubject } from '@yuants/utils';
 import { ObservableInput } from 'rxjs';
 import { Registry } from '@yuants/prometheus-client';
-import { Subject } from 'rxjs';
 
 // @public
 export const cancelOrder: (terminal: Terminal, order: IOrder) => AsyncIterable<IResponse<void> & IResponse<unknown>>;
@@ -35,9 +34,9 @@ export const escapeRegExp: (string: string) => string;
 
 // @public
 export interface IConnection<T> {
-    connection$: Observable<unknown>;
-    input$: Observable<T>;
-    output$: Subject<T>;
+    connection$: AsyncIterable<unknown>;
+    input$: AsyncIterable<T>;
+    output$: NativeSubject<T>;
 }
 
 // @public (undocumented)

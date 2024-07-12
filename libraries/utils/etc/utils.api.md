@@ -6,11 +6,18 @@
 
 import { Observable } from 'rxjs';
 import { SchedulerLike } from 'rxjs';
+import { Subject } from 'rxjs';
 
 // @public
 export const batchGroupBy: <T>(keyFunc: (obj: T) => string) => (source$: Observable<T[]>) => Observable<Observable<T> & {
     key: string;
 }>;
+
+// @public
+export type NativeSubject<T> = AsyncIterable<T> & AsyncIterator<T, void, T>;
+
+// @public
+export const nativeSubjectToSubject: <T>(source: NativeSubject<T>) => Subject<T>;
 
 // @public
 export const observableToAsyncIterable: <T>(source: Observable<T>) => AsyncIterable<T>;
@@ -24,6 +31,9 @@ export const rateLimitMap: <A, B, C>(fn: (obj: A) => Observable<B>, reject: (obj
 // @public (undocumented)
 export function roundToStep(value: number, step: number,
 roundFn?: (x: number) => number): number;
+
+// @public
+export const subjectToNativeSubject: <T>(subject$: Subject<T>) => NativeSubject<T>;
 
 // @public
 export const switchMapWithComplete: <T, U>(fn: (obj: T) => Observable<U>) => (source$: Observable<T>) => Observable<U>;

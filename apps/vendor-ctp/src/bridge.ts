@@ -1,4 +1,6 @@
 import { formatTime } from '@yuants/data-model';
+import { IConnection } from '@yuants/protocol';
+import { observableToAsyncIterable, subjectToNativeSubject } from '@yuants/utils';
 import {
   catchError,
   concatMap,
@@ -34,7 +36,10 @@ export interface IBridgeMessage<Req, Rep> {
   };
 }
 
-export const createZMQConnection = (ZMQ_PUSH_URL: string, ZMQ_PULL_URL: string) => {
+export const createZMQConnection = (
+  ZMQ_PUSH_URL: string,
+  ZMQ_PULL_URL: string,
+): IConnection<IBridgeMessage<any, any>> => {
   const input$ = new Subject<IBridgeMessage<any, any>>();
   const output$ = new Subject<IBridgeMessage<any, any>>();
   const connection$ = new Subject<unknown>();
@@ -90,5 +95,9 @@ export const createZMQConnection = (ZMQ_PUSH_URL: string, ZMQ_PULL_URL: string) 
     )
     .subscribe();
 
-  return { input$, output$, connection$ };
+  return {
+    input$: observableToAsyncIterable(input$),
+    output$: subjectToNativeSubject(output$),
+    connection$: observableToAsyncIterable(connection$),
+  };
 };

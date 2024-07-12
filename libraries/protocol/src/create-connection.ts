@@ -1,15 +1,22 @@
 import { formatTime } from '@yuants/data-model';
+import {
+  NativeSubject,
+  nativeSubjectToSubject,
+  observableToAsyncIterable,
+  subjectToNativeSubject,
+} from '@yuants/utils';
 import WebSocket from 'isomorphic-ws';
 import {
+  Observable,
+  Subject,
   bufferTime,
   defer,
+  from,
   fromEvent,
   map,
   mergeMap,
-  Observable,
   repeat,
   share,
-  Subject,
   takeLast,
   takeUntil,
   throwError,
@@ -22,11 +29,11 @@ import {
  */
 export interface IConnection<T> {
   /** Readonly Input Stream */
-  input$: Observable<T>;
+  input$: AsyncIterable<T>;
   /** Writeable Output Stream  */
-  output$: Subject<T>;
+  output$: NativeSubject<T>;
   /** Connection established Action */
-  connection$: Observable<unknown>;
+  connection$: AsyncIterable<unknown>;
 }
 
 /**
@@ -114,9 +121,9 @@ export function createConnectionWs<T = any>(URL: string): IConnection<T> {
   connect(); // init connect
 
   return {
-    input$,
-    output$,
-    connection$,
+    input$: observableToAsyncIterable(input$),
+    output$: subjectToNativeSubject(output$),
+    connection$: observableToAsyncIterable(connection$),
   };
 }
 
@@ -126,16 +133,16 @@ export function createConnectionWs<T = any>(URL: string): IConnection<T> {
  */
 export function createConnectionJson<T = any>(URL: string): IConnection<T> {
   const conn = createConnectionWs(URL);
-  const input$ = conn.input$.pipe(
+  const input$ = from(conn.input$).pipe(
     map((msg) => msg.toString()),
     map((msg) => JSON.parse(msg)),
     share(),
   );
   const output$ = new Subject<any>();
-  output$.pipe(map((msg) => JSON.stringify(msg))).subscribe(conn.output$);
+  output$.pipe(map((msg) => JSON.stringify(msg))).subscribe(nativeSubjectToSubject(conn.output$));
   return {
-    input$,
-    output$,
+    input$: observableToAsyncIterable(input$),
+    output$: subjectToNativeSubject(output$),
     connection$: conn.connection$,
   };
 }
