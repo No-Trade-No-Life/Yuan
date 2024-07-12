@@ -3,9 +3,8 @@ import { IConnection, createConnectionWs } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
-
-import { Subject, filter, map, share, tap } from 'rxjs';
-
+import { nativeSubjectToSubject, observableToAsyncIterable, subjectToNativeSubject } from '@yuants/utils';
+import { Subject, filter, from, map, share, tap } from 'rxjs';
 import zlib from 'zlib';
 
 // @ts-ignore
@@ -16,7 +15,7 @@ interface IHuobiParams {
 
 const createConnectionGzipWS = <T = any>(URL: string): IConnection<T> => {
   const conn = createConnectionWs(URL);
-  const input$ = conn.input$.pipe(
+  const input$ = from(conn.input$).pipe(
     map((msg) => zlib.gunzipSync(msg)),
     map((msg) => msg.toString()),
     map((msg) => JSON.parse(msg)),
@@ -24,10 +23,10 @@ const createConnectionGzipWS = <T = any>(URL: string): IConnection<T> => {
   );
 
   const output$ = new Subject<any>();
-  output$.pipe(map((msg) => JSON.stringify(msg))).subscribe(conn.output$);
+  output$.pipe(map((msg) => JSON.stringify(msg))).subscribe(nativeSubjectToSubject(conn.output$));
   return {
-    input$,
-    output$,
+    input$: observableToAsyncIterable(input$),
+    output$: subjectToNativeSubject(output$),
     connection$: conn.connection$,
   };
 };
@@ -40,7 +39,7 @@ export class HuobiClient {
 
   constructor(public params: IHuobiParams) {
     this.spot_ws = createConnectionGzipWS(`wss://${this.spot_api_root}/ws`);
-    this.spot_ws.input$
+    from(this.spot_ws.input$)
       .pipe(
         //
         filter((v) => v.ping),

@@ -101,7 +101,7 @@ export const requestZMQ = <Req, Rep>(
 ) => {
   console.info(formatTime(Date.now()), req);
   const requestID = requestIDGen();
-  const ret = conn.input$.pipe(
+  const ret = from(conn.input$).pipe(
     //
     filter((msg) => msg.request_id === requestID && msg.res !== undefined),
     takeWhile((msg) => !msg.res!.is_last, true),
@@ -370,7 +370,7 @@ export const submitOrder = (
   const orderRef = '' + orderRefGen();
 
   // 即使通过 OnRtnOrder 回来的回报也有可能包含来自交易所的报错，因此需要额外检查订单状态是否为取消
-  const ret$ = conn.input$.pipe(
+  const ret$ = from(conn.input$).pipe(
     //
     first(
       (msg) =>
@@ -494,7 +494,7 @@ export const cancelOrder = (
       })),
     );
   }
-  const ret$ = conn.input$.pipe(
+  const ret$ = from(conn.input$).pipe(
     //
     first(
       (msg) =>
@@ -578,14 +578,14 @@ const zmqConn = createZMQConnection(process.env.ZMQ_PUSH_URL!, process.env.ZMQ_P
 //     process.exit(1);
 //   });
 
-const loginRes$ = zmqConn.input$.pipe(
+const loginRes$ = from(zmqConn.input$).pipe(
   //
   first((msg) => msg?.res?.event !== undefined && msg.res.event === 'OnRspUserLogin'),
   map((msg) => msg.res!.value as ICThostFtdcRspUserLoginField),
   shareReplay(1),
 );
 
-const settlement$ = zmqConn.input$.pipe(
+const settlement$ = from(zmqConn.input$).pipe(
   //
   first((msg) => msg?.res?.event !== undefined && msg.res.event === 'OnRspSettlementInfoConfirm'),
   map((msg) => msg.res!.value as ICThostFtdcSettlementInfoConfirmField),

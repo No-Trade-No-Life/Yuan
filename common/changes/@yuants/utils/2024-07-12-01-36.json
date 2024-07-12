@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/utils",
+      "comment": "add utils 'nativeSubjectToSubject' and 'subjectToNativeSubject'",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/utils"
+}

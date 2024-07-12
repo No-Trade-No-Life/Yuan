@@ -1,5 +1,10 @@
 import { UUID, formatTime } from '@yuants/data-model';
-import { observableToAsyncIterable, rateLimitMap } from '@yuants/utils';
+import {
+  NativeSubject,
+  observableToAsyncIterable,
+  rateLimitMap,
+  subjectToNativeSubject,
+} from '@yuants/utils';
 import Ajv, { ValidateFunction } from 'ajv';
 import { isNode } from 'browser-or-node';
 import { JSONSchema7 } from 'json-schema';
@@ -68,7 +73,7 @@ const RequestReceivedTotal = PromRegistry.create(
 type IServiceHandler<T extends string = string> = T extends keyof IService
   ? (
       msg: ITerminalMessage & Pick<IService[T], 'req'> & { method: T },
-      output$: Subject<
+      output$: NativeSubject<
         Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> &
           Partial<Pick<IService[T], 'res' | 'frame'>>
       >,
@@ -79,7 +84,7 @@ type IServiceHandler<T extends string = string> = T extends keyof IService
   : // ISSUE: Allow custom methods between terminals
     (
       msg: ITerminalMessage,
-      output$: Subject<
+      output$: NativeSubject<
         Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>
       >,
     ) => ObservableInput<
@@ -146,7 +151,7 @@ export class Terminal {
 
   private _setupTunnel() {
     this._subscriptions.push(
-      this._conn.input$.subscribe((msg) => {
+      from(this._conn.input$).subscribe((msg) => {
         this._input$.next(msg);
       }),
     );
@@ -225,7 +230,7 @@ export class Terminal {
     );
 
     // while reconnection
-    this._conn.connection$.subscribe(() => {
+    from(this._conn.connection$).subscribe(() => {
       this._terminalInfoUpdated$.next();
     });
 
@@ -529,9 +534,10 @@ export class Terminal {
               const output$ = new Subject<
                 Omit<ITerminalMessage, 'trace_id' | 'method' | 'source_terminal_id' | 'target_terminal_id'>
               >();
+              const nativeOutput$ = subjectToNativeSubject(output$);
               const res$: Observable<
                 Omit<ITerminalMessage, 'trace_id' | 'method' | 'source_terminal_id' | 'target_terminal_id'>
-              > = msg.res ? of(msg) : defer(() => handler(msg, output$));
+              > = msg.res ? of(msg) : defer(() => handler(msg, nativeOutput$));
               // ISSUE: output$.pipe(...) must be returned first to ensure that mergeMap has been subscribed before res$ starts write into output$
               setTimeout(() => {
                 res$.subscribe(output$);

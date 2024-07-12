@@ -101,3 +101,58 @@ export const observableToAsyncIterable = <T>(source: Observable<T>): AsyncIterab
     },
   };
 };
+
+/**
+ * NativeSubject is native version of rx's Subject, which can be used in async generator.
+ *
+ * @public
+ */
+export type NativeSubject<T> = AsyncIterable<T> & AsyncIterator<T, void, T>;
+
+/**
+ * convert a rx's Subject to a NativeSubject.
+ *
+ * @param subject$ - the rx's Subject to convert
+ * @returns a NativeSubject
+ *
+ * @public
+ */
+export const subjectToNativeSubject = <T>(subject$: Subject<T>): NativeSubject<T> => ({
+  ...observableToAsyncIterable(subject$),
+  next: (value: T) => {
+    subject$.next(value);
+    return Promise.resolve({ value, done: false });
+  },
+  return: () => {
+    subject$.complete();
+    return Promise.resolve({ value: undefined, done: true });
+  },
+  throw: (e: any) => {
+    subject$.error(e);
+    return Promise.reject(e);
+  },
+});
+
+/**
+ * convert a NativeSubject to a rx's Subject.
+ *
+ * @param source - the NativeSubject to convert
+ * @returns a rx's Subject
+ *
+ * @public
+ */
+export const nativeSubjectToSubject = <T>(source: NativeSubject<T>): Subject<T> => {
+  const subject$ = new Subject<T>();
+  subject$.subscribe({
+    next(v) {
+      source.next(v);
+    },
+    complete() {
+      source.return?.();
+    },
+    error(e) {
+      source.throw?.(e);
+    },
+  });
+  return subject$;
+};
