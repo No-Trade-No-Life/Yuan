@@ -1,11 +1,10 @@
 import {
   decodePath,
-  encodePath,
   formatTime,
   getDataRecordWrapper,
   IAccountInfo,
   IAccountMoney,
-  IDataRecord,
+  IDataRecordTypes,
   IOrder,
   IPosition,
   IProduct,
@@ -289,40 +288,6 @@ import { GateClient } from './api';
       }),
   );
 
-  interface IFundingRate {
-    series_id: string;
-    datasource_id: string;
-    product_id: string;
-    base_currency: string;
-    quote_currency: string;
-    funding_at: number;
-    funding_rate: number;
-  }
-
-  const wrapFundingRateRecord = (v: IFundingRate): IDataRecord<IFundingRate> => ({
-    id: encodePath(v.datasource_id, v.product_id, v.funding_at),
-    type: 'funding_rate',
-    created_at: v.funding_at,
-    updated_at: v.funding_at,
-    frozen_at: v.funding_at,
-    tags: {
-      series_id: encodePath(v.datasource_id, v.product_id),
-      datasource_id: v.datasource_id,
-      product_id: v.product_id,
-      base_currency: v.base_currency,
-      quote_currency: v.quote_currency,
-    },
-    origin: {
-      series_id: encodePath(v.datasource_id, v.product_id),
-      datasource_id: v.datasource_id,
-      product_id: v.product_id,
-      base_currency: v.base_currency,
-      quote_currency: v.quote_currency,
-      funding_rate: v.funding_rate,
-      funding_at: v.funding_at,
-    },
-  });
-
   terminal.provideService(
     'CopyDataRecords',
     {
@@ -368,18 +333,16 @@ import { GateClient } from './api';
         // there will be at most 1000 records, so we don't need to chunk it by bufferCount
         await lastValueFrom(
           from(funding_rate_history).pipe(
-            map(
-              (v): IFundingRate => ({
-                series_id: msg.req.tags!.series_id,
-                product_id,
-                datasource_id,
-                base_currency,
-                quote_currency,
-                funding_rate: +v.r,
-                funding_at: v.t * 1000,
-              }),
-            ),
-            map(wrapFundingRateRecord),
+            map((v): IDataRecordTypes['funding_rate'] => ({
+              series_id: msg.req.tags!.series_id,
+              product_id,
+              datasource_id,
+              base_currency,
+              quote_currency,
+              funding_rate: +v.r,
+              funding_at: v.t * 1000,
+            })),
+            map(getDataRecordWrapper('funding_rate')!),
             toArray(),
             mergeMap((v) => writeDataRecords(terminal, v)),
           ),
