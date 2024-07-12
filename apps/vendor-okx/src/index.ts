@@ -1129,7 +1129,6 @@ defer(async () => {
             currentStartTime = startTime;
           }
 
-          const data: IDataRecord<IPeriod>[] = [];
           while (true) {
             const before = `${Math.max(0, currentStartTime - 1)}`;
             const after = `${Math.min(endTime, currentStartTime + 100 * (+period_in_sec * 1000))}`;
@@ -1144,9 +1143,10 @@ defer(async () => {
             if (currentStartTime >= endTime) {
               break;
             }
-            data.push(...res.data.map(mapResDataToIPeriod).map(getDataRecordWrapper('period')!));
+            const data = res.data.map(mapResDataToIPeriod).map(getDataRecordWrapper('period')!);
+            await firstValueFrom(from(writeDataRecords(terminal, data)));
+            await firstValueFrom(timer(1000));
           }
-          await firstValueFrom(from(writeDataRecords(terminal, data)));
           return { res: { code: 0, message: 'OK' } };
         }
 
