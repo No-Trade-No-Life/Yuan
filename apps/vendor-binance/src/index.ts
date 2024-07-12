@@ -1,4 +1,5 @@
 import {
+  IDataRecordTypes,
   IProduct,
   ITick,
   UUID,
@@ -28,7 +29,6 @@ import {
   toArray,
 } from 'rxjs';
 import { ApiClient } from './api';
-import { IFundingRate, wrapFundingRateRecord } from './models/FundingRate';
 
 const terminal = new Terminal(process.env.HOST_URL!, {
   terminal_id: process.env.TERMINAL_ID || `binance/${UUID()}`,
@@ -162,7 +162,7 @@ defer(async () => {
         if (!base_currency || !quote_currency) {
           return { res: { code: 400, message: 'base_currency and quote_currency is required' } };
         }
-        const funding_rate_history: IFundingRate[] = [];
+        const funding_rate_history: IDataRecordTypes['funding_rate'][] = [];
         let current_start = start;
         while (true) {
           const res = await client.getFutureFundingRate({
@@ -192,7 +192,7 @@ defer(async () => {
         // there will be at most 300 records, so we don't need to chunk it by bufferCount
         await lastValueFrom(
           from(funding_rate_history).pipe(
-            map(wrapFundingRateRecord),
+            map(getDataRecordWrapper('funding_rate')!),
             toArray(),
             mergeMap((v) => writeDataRecords(terminal, v)),
           ),

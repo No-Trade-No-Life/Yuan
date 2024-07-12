@@ -1,13 +1,12 @@
 import {
   IAccountInfo,
   IAccountMoney,
-  IDataRecord,
+  IDataRecordTypes,
   IOrder,
   IPosition,
   IProduct,
   ITick,
   decodePath,
-  encodePath,
   formatTime,
   getDataRecordWrapper,
 } from '@yuants/data-model';
@@ -675,40 +674,6 @@ import { HuobiClient } from './api';
     },
   );
 
-  interface IFundingRate {
-    series_id: string;
-    datasource_id: string;
-    product_id: string;
-    base_currency: string;
-    quote_currency: string;
-    funding_at: number;
-    funding_rate: number;
-  }
-
-  const wrapFundingRateRecord = (v: IFundingRate): IDataRecord<IFundingRate> => ({
-    id: encodePath(v.datasource_id, v.product_id, v.funding_at),
-    type: 'funding_rate',
-    created_at: v.funding_at,
-    updated_at: v.funding_at,
-    frozen_at: v.funding_at,
-    tags: {
-      series_id: encodePath(v.datasource_id, v.product_id),
-      datasource_id: v.datasource_id,
-      product_id: v.product_id,
-      base_currency: v.base_currency,
-      quote_currency: v.quote_currency,
-    },
-    origin: {
-      series_id: encodePath(v.datasource_id, v.product_id),
-      datasource_id: v.datasource_id,
-      product_id: v.product_id,
-      base_currency: v.base_currency,
-      quote_currency: v.quote_currency,
-      funding_rate: v.funding_rate,
-      funding_at: v.funding_at,
-    },
-  });
-
   terminal.provideService(
     'CopyDataRecords',
     {
@@ -744,7 +709,7 @@ import { HuobiClient } from './api';
         if (!base_currency || !quote_currency) {
           return { res: { code: 404, message: 'base_currency or quote_currency not found' } };
         }
-        const funding_rate_history: IFundingRate[] = [];
+        const funding_rate_history: IDataRecordTypes['funding_rate'][] = [];
         let current_page = 0;
         let total_page = 1;
         while (true) {
@@ -781,7 +746,7 @@ import { HuobiClient } from './api';
         funding_rate_history.sort((a, b) => +a.funding_at - +b.funding_at);
 
         await lastValueFrom(
-          from(writeDataRecords(terminal, funding_rate_history.map(wrapFundingRateRecord))),
+          from(writeDataRecords(terminal, funding_rate_history.map(getDataRecordWrapper('funding_rate')!))),
         );
         return { res: { code: 0, message: 'OK' } };
       }).pipe(

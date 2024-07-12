@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-huobi",
+      "comment": "amend refactor",
+      "type": "none"
+    }
+  ],
+  "packageName": "@yuants/vendor-huobi"
+}
