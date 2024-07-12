@@ -2,6 +2,37 @@
   "name": "@yuants/vendor-huobi",
   "entries": [
     {
+      "version": "0.5.3",
+      "tag": "@yuants/vendor-huobi_v0.5.3",
+      "date": "Fri, 12 Jul 2024 09:19:54 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "migrating data-model: interfaces, schema, module augmentation, wrappers"
+          },
+          {
+            "comment": "addAccountTransferAddress"
+          }
+        ],
+        "none": [
+          {
+            "comment": "amend refactor"
+          },
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.12.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.2",
       "tag": "@yuants/vendor-huobi_v0.5.2",
       "date": "Fri, 12 Jul 2024 01:50:37 GMT",

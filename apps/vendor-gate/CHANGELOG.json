@@ -2,6 +2,40 @@
   "name": "@yuants/vendor-gate",
   "entries": [
     {
+      "version": "0.2.4",
+      "tag": "@yuants/vendor-gate_v0.2.4",
+      "date": "Fri, 12 Jul 2024 09:19:54 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "migrating data-model: interfaces, schema, module augmentation, wrappers"
+          },
+          {
+            "comment": "addAccountTransferAddress"
+          },
+          {
+            "comment": "add ticker"
+          }
+        ],
+        "none": [
+          {
+            "comment": "amend refactor"
+          },
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.12.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.3",
       "tag": "@yuants/vendor-gate_v0.2.3",
       "date": "Fri, 12 Jul 2024 01:50:37 GMT",

@@ -2,6 +2,31 @@
   "name": "@yuants/app-general-realtime-data-source",
   "entries": [
     {
+      "version": "0.0.44",
+      "tag": "@yuants/app-general-realtime-data-source_v0.0.44",
+      "date": "Fri, 12 Jul 2024 09:19:54 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "migrating data-model: interfaces, schema, module augmentation, wrappers"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.12.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.43",
       "tag": "@yuants/app-general-realtime-data-source_v0.0.43",
       "date": "Fri, 12 Jul 2024 01:50:37 GMT",

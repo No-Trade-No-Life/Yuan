@@ -1,6 +1,14 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Fri, 12 Jul 2024 01:50:37 GMT and should not be manually modified.
+This log was last generated on Fri, 12 Jul 2024 09:19:54 GMT and should not be manually modified.
+
+## 0.5.3
+Fri, 12 Jul 2024 09:19:54 GMT
+
+### Patches
+
+- migrating data-model: interfaces, schema, module augmentation, wrappers
+- addAccountTransferAddress
 
 ## 0.5.2
 Fri, 12 Jul 2024 01:50:37 GMT

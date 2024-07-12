@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-model
 
-This log was last generated on Sun, 30 Jun 2024 11:56:32 GMT and should not be manually modified.
+This log was last generated on Fri, 12 Jul 2024 09:19:54 GMT and should not be manually modified.
+
+## 0.12.0
+Fri, 12 Jul 2024 09:19:54 GMT
+
+### Minor changes
+
+- migrating data-model: interfaces, schema, module augmentation, wrappers
 
 ## 0.11.0
 Sun, 30 Jun 2024 11:56:32 GMT
