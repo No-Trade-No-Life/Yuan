@@ -2,6 +2,23 @@
   "name": "@yuants/app-trade-copier",
   "entries": [
     {
+      "version": "0.4.15",
+      "tag": "@yuants/app-trade-copier_v0.4.15",
+      "date": "Fri, 12 Jul 2024 14:05:46 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "strict schema error"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.14",
       "tag": "@yuants/app-trade-copier_v0.4.14",
       "date": "Fri, 12 Jul 2024 09:19:54 GMT",

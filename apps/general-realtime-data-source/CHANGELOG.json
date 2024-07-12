@@ -2,6 +2,23 @@
   "name": "@yuants/app-general-realtime-data-source",
   "entries": [
     {
+      "version": "0.0.45",
+      "tag": "@yuants/app-general-realtime-data-source_v0.0.45",
+      "date": "Fri, 12 Jul 2024 14:05:46 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "strict schema error"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.44",
       "tag": "@yuants/app-general-realtime-data-source_v0.0.44",
       "date": "Fri, 12 Jul 2024 09:19:54 GMT",
