@@ -1,6 +1,7 @@
-import { formatTime } from '@yuants/data-model';
+import { formatTime, UUID } from '@yuants/data-model';
 // @ts-ignore
 import CryptoJS from 'crypto-js';
+import { filter, firstValueFrom, mergeMap, of, shareReplay, Subject, throwError, timeout, timer } from 'rxjs';
 interface IGateParams {
   auth: { access_key: string; secret_key: string };
 }
@@ -62,6 +63,66 @@ export class GateClient {
     }
   }
 
+  mapPathToRequestChannel: Record<
+    string,
+    {
+      requestQueue: Array<{
+        trace_id: string;
+        method: string;
+        path: string;
+        params?: any;
+      }>;
+      responseChannel: Subject<{ trace_id: string; response?: any; error?: Error }>;
+    }
+  > = {};
+
+  setupChannel(path: string, period: number, limit: number) {
+    this.mapPathToRequestChannel[path] = {
+      requestQueue: [],
+      responseChannel: new Subject(),
+    };
+
+    const { requestQueue, responseChannel } = this.mapPathToRequestChannel[path];
+    timer(0, period)
+      .pipe(
+        filter(() => requestQueue.length > 0),
+        mergeMap(() => requestQueue.splice(0, limit)),
+        mergeMap(async (request) => {
+          try {
+            const res = await this.request(request.method, request.path, request.params);
+            return { trace_id: request.trace_id, response: res };
+          } catch (error) {
+            return { trace_id: request.trace_id, error };
+          }
+        }),
+      )
+      .subscribe(responseChannel);
+  }
+
+  async requestWithFlowControl(
+    method: string,
+    path: string,
+    flowControl: { period: number; limit: number } = { period: 10, limit: Infinity },
+    params?: any,
+  ) {
+    const { period, limit } = flowControl;
+    if (!this.mapPathToRequestChannel[path]) {
+      this.setupChannel(path, period, limit);
+    }
+    const uuid = UUID();
+
+    const { requestQueue, responseChannel } = this.mapPathToRequestChannel[path];
+    const res$ = responseChannel.pipe(
+      //
+      filter((response) => response.trace_id === uuid),
+      mergeMap((response) => (response.error ? throwError(() => response.error) : of(response))),
+      timeout(30_000),
+      shareReplay(1),
+    );
+    requestQueue.push({ trace_id: uuid, method, path, params });
+    return (await firstValueFrom(res$)).response;
+  }
+
   /**
    * 获取用户账户信息
    *
@@ -120,7 +181,7 @@ export class GateClient {
    */
   getFuturesContracts = (
     settle: string,
-    params: { limit?: number; offset?: number },
+    params?: { limit?: number; offset?: number },
   ): Promise<
     {
       name: string;
@@ -508,23 +569,71 @@ export class GateClient {
   }): Promise<{
     tx_id: string;
   }> => this.request('POST', '/api/v4/wallet/transfers', params);
-}
 
-(async () => {
-  const client = new GateClient({
-    auth: {
-      access_key: process.env.ACCESS_KEY!,
-      secret_key: process.env.SECRET_KEY!,
+  /**
+   * 查询合约市场深度信息
+   *
+   * https://www.gate.io/docs/developers/apiv4/zh_CN/#%E6%9F%A5%E8%AF%A2%E5%90%88%E7%BA%A6%E5%B8%82%E5%9C%BA%E6%B7%B1%E5%BA%A6%E4%BF%A1%E6%81%AF
+   */
+  getFuturesOrderBook = (
+    settle: string,
+    params: {
+      contract: string;
+      interval?: string;
+      limit?: number;
+      with_id?: boolean;
     },
-  });
+  ): Promise<{
+    id: number;
+    current: number;
+    update: number;
+    asks: {
+      p: string;
+      s: string;
+    }[];
+    bids: {
+      p: string;
+      s: string;
+    }[];
+  }> =>
+    this.requestWithFlowControl(
+      'GET',
+      `/api/v4/futures/${settle}/order_book`,
+      { period: 10000, limit: 200 },
+      params,
+    );
 
-  console.log(
-    await client.postWalletTransfer({
-      currency: 'USDT',
-      from: 'spot',
-      to: 'futures',
-      amount: '1',
-      settle: 'usdt',
-    }),
-  );
-})();
+  /**
+   * 获取所有合约交易行情统计
+   *
+   * https://www.gate.io/docs/developers/apiv4/zh_CN/#%E8%8E%B7%E5%8F%96%E6%89%80%E6%9C%89%E5%90%88%E7%BA%A6%E4%BA%A4%E6%98%93%E8%A1%8C%E6%83%85%E7%BB%9F%E8%AE%A1
+   */
+  getFuturesTickers = (
+    settle: string,
+    params?: { contract?: string },
+  ): Promise<
+    {
+      contract: string;
+      last: string;
+      change_percentage: string;
+      total_size: string;
+      low_24h: string;
+      high_24h: string;
+      volume_24h: string;
+      volume_24h_btc: string;
+      volume_24h_usd: string;
+      volume_24h_base: string;
+      volume_24h_quote: string;
+      volume_24h_settle: string;
+      mark_price: string;
+      funding_rate: string;
+      funding_rate_indicative: string;
+      index_price: string;
+      quanto_base_rate: string;
+      basis_rate: string;
+      basis_value: string;
+      lowest_ask: string;
+      highest_bid: string;
+    }[]
+  > => this.request('GET', `/api/v4/futures/${settle}/tickers`, params);
+}
