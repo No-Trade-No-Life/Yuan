@@ -1,6 +1,17 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Fri, 12 Jul 2024 01:50:37 GMT and should not be manually modified.
+This log was last generated on Fri, 12 Jul 2024 09:19:54 GMT and should not be manually modified.
+
+## 0.21.0
+Fri, 12 Jul 2024 09:19:54 GMT
+
+### Minor changes
+
+- addAccountTransferAddress
+
+### Patches
+
+- migrating data-model: interfaces, schema, module augmentation, wrappers
 
 ## 0.20.0
 Fri, 12 Jul 2024 01:50:37 GMT
