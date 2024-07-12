@@ -1,6 +1,7 @@
 import {
   IAccountInfo,
   IAccountMoney,
+  IDataRecordTypes,
   IOrder,
   IPeriod,
   IPosition,
@@ -8,14 +9,13 @@ import {
   ITick,
   UUID,
   formatTime,
+  getDataRecordWrapper,
 } from '@yuants/data-model';
 import {
   Terminal,
   provideAccountInfo,
   providePeriods,
   provideTicks,
-  wrapPeriod,
-  wrapProduct,
   writeDataRecords,
 } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
@@ -46,7 +46,6 @@ import {
   timeout,
   toArray,
 } from 'rxjs';
-import { IGeneralSpecificRelation, wrapGeneralSpecificRelation } from './models/GeneralSpecificRelation';
 
 (async () => {
   const PUBLIC_ONLY = process.env.PUBLIC_ONLY === 'true';
@@ -142,7 +141,7 @@ import { IGeneralSpecificRelation, wrapGeneralSpecificRelation } from './models/
   products$
     .pipe(
       //
-      mergeMap((products) => writeDataRecords(terminal, products.map(wrapProduct))),
+      mergeMap((products) => writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!))),
     )
     .subscribe();
 
@@ -152,14 +151,12 @@ import { IGeneralSpecificRelation, wrapGeneralSpecificRelation } from './models/
       mergeMap((products) =>
         from(products).pipe(
           //
-          map(
-            (product): IGeneralSpecificRelation => ({
-              general_product_id: mapProductIdToSymbol[product.product_id],
-              specific_datasource_id: EXCHANGE_ID,
-              specific_product_id: product.product_id,
-            }),
-          ),
-          map(wrapGeneralSpecificRelation),
+          map((product): IDataRecordTypes['general_specific_relation'] => ({
+            general_product_id: mapProductIdToSymbol[product.product_id],
+            specific_datasource_id: EXCHANGE_ID,
+            specific_product_id: product.product_id,
+          })),
+          map(getDataRecordWrapper('general_specific_relation')!),
           toArray(),
           mergeMap((gsrList) => writeDataRecords(terminal, gsrList)),
         ),
@@ -273,7 +270,9 @@ import { IGeneralSpecificRelation, wrapGeneralSpecificRelation } from './models/
             }),
             mergeMap(({ periods }) => periods),
             bufferCount(2000),
-            delayWhen((periods) => from(writeDataRecords(terminal, periods.map(wrapPeriod)))),
+            delayWhen((periods) =>
+              from(writeDataRecords(terminal, periods.map(getDataRecordWrapper('period')!))),
+            ),
             map(() => ({ res: { code: 0, message: 'OK' } })),
           );
         }

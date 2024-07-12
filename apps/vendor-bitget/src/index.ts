@@ -1,6 +1,7 @@
 import {
   IAccountInfo,
   IAccountMoney,
+  IDataRecordTypes,
   IPosition,
   IProduct,
   ITick,
@@ -8,9 +9,9 @@ import {
   decodePath,
   encodePath,
   formatTime,
-  wrapTransferNetworkInfo,
+  getDataRecordWrapper,
 } from '@yuants/data-model';
-import { Terminal, provideAccountInfo, provideTicks, wrapProduct, writeDataRecords } from '@yuants/protocol';
+import { Terminal, provideAccountInfo, provideTicks, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
@@ -35,7 +36,6 @@ import {
   timer,
 } from 'rxjs';
 import { BitgetClient } from './api';
-import { IFundingRate, wrapFundingRateRecord } from './models/FundingRate';
 import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
 
 const DATASOURCE_ID = 'Bitget';
@@ -142,7 +142,11 @@ const fundingTime$ = memoizeMap((product_id: string) =>
   );
 
   futureProducts$
-    .pipe(delayWhen((products) => from(writeDataRecords(terminal, products.map(wrapProduct)))))
+    .pipe(
+      delayWhen((products) =>
+        from(writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!))),
+      ),
+    )
     .subscribe((products) => {
       console.info(formatTime(Date.now()), 'FUTUREProductsUpdated', products.length);
     });
@@ -456,7 +460,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
             return { res: { code: 400, message: `base_currency or quote_currency is required` } };
           }
           const [instType, instId] = decodePath(product_id);
-          const funding_rate_history: IFundingRate[] = [];
+          const funding_rate_history: IDataRecordTypes['funding_rate'][] = [];
           let current_page = 0;
           while (true) {
             const res = await client.getHistoricalFundingRate({
@@ -498,7 +502,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
           funding_rate_history.sort((a, b) => a.funding_at - b.funding_at);
 
           await firstValueFrom(
-            from(writeDataRecords(terminal, funding_rate_history.map(wrapFundingRateRecord))),
+            from(writeDataRecords(terminal, funding_rate_history.map(getDataRecordWrapper('funding_rate')!))),
           );
           return { res: { code: 0, message: 'OK' } };
         }).pipe(
@@ -522,7 +526,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
       await firstValueFrom(
         defer(() =>
           writeDataRecords(terminal, [
-            wrapTransferNetworkInfo({
+            getDataRecordWrapper('transfer_network_info')!({
               network_id: 'TRC20',
               commission: 1,
               currency: 'USDT',

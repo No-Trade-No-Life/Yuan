@@ -1,31 +1,9 @@
-import { IDataRecord, IProduct } from '@yuants/data-model';
+import { IProduct } from '@yuants/data-model';
 import { observableToAsyncIterable } from '@yuants/utils';
 import { Observable, defer, from, map, mergeMap, repeat, retry, shareReplay, timeout, toArray } from 'rxjs';
 import { IQueryProductsRequest } from '../services/pull';
 import { Terminal } from '../terminal';
 import { readDataRecords } from './DataRecord';
-
-/**
- * Map product to data record
- * The product may be updated
- * Cannot be safely cached
- *
- * @public
- */
-export const wrapProduct = (product: IProduct): IDataRecord<IProduct> => ({
-  id: `${product.datasource_id}-${product.product_id}`,
-  type: `product`,
-  created_at: null,
-  updated_at: Date.now(),
-  frozen_at: null,
-  tags: {
-    datasource_id: product.datasource_id,
-    product_id: product.product_id,
-    quote_currency: product.quote_currency || '',
-    base_currency: product.base_currency || '',
-  },
-  origin: product,
-});
 
 /**
  * @public

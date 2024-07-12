@@ -1,8 +1,7 @@
 import { Switch, Toast } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { IDataRecord } from '@yuants/data-model';
+import { IDataRecord, IDataRecordTypes, getDataRecordWrapper } from '@yuants/data-model';
 import { writeDataRecords } from '@yuants/protocol';
-import { JSONSchema7 } from 'json-schema';
 import { filter, first, mergeMap, tap } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
 import { DataRecordView } from '../DataRecord';
@@ -10,79 +9,12 @@ import { Button } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 
-declare module '@yuants/protocol/lib/utils/DataRecord' {
-  export interface IDataRecordTypes {
-    pull_source_relation: IPullSourceRelation;
-  }
-}
-interface IPullSourceRelation {
-  datasource_id: string;
-  product_id: string;
-  period_in_sec: number;
-  /** CronJob 模式: 定义拉取数据的时机 */
-  cron_pattern: string;
-  /** CronJob 的评估时区 */
-  // 对于许多国际品种，使用 EET 时区配合工作日 Cron 比较好
-  // 对于国内的品种，使用 CST 时区比较好
-  // 例如 "0 * * * 1-5" (EET) 表示 EET 时区的工作日每小时的0分拉取数据。
-  cron_timezone: string;
-  /** disable this relation (equivalent to not set before) */
-  disabled?: boolean;
-  /** default to 0, means start from the latest period, above 0 means pull start from earlier periods */
-  replay_count?: number;
-}
-
-const mapPullSourceRelationToDataRecord = (x: IPullSourceRelation): IDataRecord<IPullSourceRelation> => ({
-  id: `${x.datasource_id}\n${x.product_id}\n${x.period_in_sec}`,
-  type: 'pull_source_relation',
-  created_at: Date.now(),
-  updated_at: Date.now(),
-  frozen_at: null,
-  tags: {},
-  origin: x,
-});
-
-const schema: JSONSchema7 = {
-  type: 'object',
-  title: '历史行情数据同步者配置',
-  required: ['datasource_id', 'product_id', 'period_in_sec', 'cron_pattern', 'cron_timezone'],
-  properties: {
-    datasource_id: {
-      type: 'string',
-      title: '数据源 ID',
-    },
-    product_id: {
-      type: 'string',
-      title: '品种 ID',
-    },
-    period_in_sec: {
-      type: 'number',
-      title: '周期 (秒)',
-    },
-    cron_pattern: {
-      type: 'string',
-      title: 'CronJob 模式: 定义拉取数据的时机',
-    },
-    cron_timezone: {
-      type: 'string',
-      title: 'CronJob 的评估时区',
-    },
-    replay_count: {
-      type: 'number',
-      title: 'Replay Count',
-    },
-    disabled: {
-      type: 'boolean',
-      title: '是否禁用',
-    },
-  },
-};
 registerPage('PullSourceRelationList', () => {
   return (
-    <DataRecordView
+    <DataRecordView<IDataRecordTypes['pull_source_relation']>
       TYPE="pull_source_relation"
       columns={(ctx) => {
-        const columnHelper = createColumnHelper<IDataRecord<IPullSourceRelation>>();
+        const columnHelper = createColumnHelper<IDataRecord<IDataRecordTypes['pull_source_relation']>>();
         return [
           columnHelper.accessor('origin.datasource_id', {
             header: () => '数据源 ID',
@@ -109,7 +41,10 @@ registerPage('PullSourceRelationList', () => {
                 checked={!!ctx1.getValue()}
                 onChange={(v) => {
                   const record = ctx1.row.original;
-                  const next = mapPullSourceRelationToDataRecord({ ...record.origin, disabled: v });
+                  const next = getDataRecordWrapper('pull_source_relation')!({
+                    ...record.origin,
+                    disabled: v,
+                  });
                   terminal$
                     .pipe(
                       filter((x): x is Exclude<typeof x, null> => !!x),
@@ -132,7 +67,6 @@ registerPage('PullSourceRelationList', () => {
       newRecord={() => {
         return {};
       }}
-      mapOriginToDataRecord={mapPullSourceRelationToDataRecord}
       extraRecordActions={(ctx) => {
         return (
           <Button
@@ -148,7 +82,6 @@ registerPage('PullSourceRelationList', () => {
           </Button>
         );
       }}
-      schema={schema}
     />
   );
 });

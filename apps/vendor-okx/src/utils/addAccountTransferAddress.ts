@@ -1,6 +1,8 @@
-import { IAccountAddressInfo, ITransferOrder, formatTime, wrapAccountAddressInfo } from '@yuants/data-model';
+import { IDataRecordTypes, ITransferOrder, formatTime, getDataRecordWrapper } from '@yuants/data-model';
 import { Terminal, writeDataRecords } from '@yuants/protocol';
 import { Subject, debounceTime, defer, from, groupBy, mergeMap, tap, toArray } from 'rxjs';
+
+type IAccountAddressInfo = IDataRecordTypes['account_address_info'];
 
 type IAccountTransferAddressContext = IAccountAddressInfo & {
   terminal: Terminal;
@@ -49,7 +51,6 @@ update$
             tap((contextList) => {
               //
               const terminal = group.key;
-              const accountIdList = [...new Set(contextList.map((ctx) => ctx.account_id))];
 
               terminal.provideService(
                 'TransferApply',
@@ -139,7 +140,9 @@ update$
               from(
                 writeDataRecords(
                   terminal,
-                  contextList.map(({ terminal, onApply, onEval, ...info }) => wrapAccountAddressInfo(info)),
+                  contextList.map(({ terminal, onApply, onEval, ...info }) =>
+                    getDataRecordWrapper('account_address_info')!(info),
+                  ),
                 ),
               ).subscribe();
             }),

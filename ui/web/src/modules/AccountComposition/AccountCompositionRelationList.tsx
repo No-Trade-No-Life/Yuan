@@ -1,43 +1,20 @@
 import { IconRefresh } from '@douyinfe/semi-icons';
 import { Button } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { IDataRecord, UUID } from '@yuants/data-model';
+import { IDataRecord, IDataRecordTypes } from '@yuants/data-model';
 import { InlineAccountId } from '../AccountInfo';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { DataRecordView } from '../DataRecord';
 import { registerPage } from '../Pages';
 import { terminate } from '../Terminals/TerminalListItem';
-import { IAccountCompositionRelation, acrSchema } from './model';
-
-declare module '@yuants/protocol/lib/utils/DataRecord' {
-  export interface IDataRecordTypes {
-    account_composition_relation: IAccountCompositionRelation;
-  }
-}
-
-const TYPE = 'account_composition_relation';
-
-const mapTradeCopyRelationToDataRecord = (
-  x: IAccountCompositionRelation,
-): IDataRecord<IAccountCompositionRelation> => {
-  const id = UUID();
-  return {
-    id,
-    type: TYPE,
-    created_at: Date.now(),
-    updated_at: Date.now(),
-    frozen_at: null,
-    tags: {},
-    origin: x,
-  };
-};
 
 registerPage('AccountCompositionRelationList', () => {
   return (
     <DataRecordView
-      TYPE={TYPE}
+      TYPE={'account_composition_relation'}
       columns={() => {
-        const columnHelper = createColumnHelper<IDataRecord<IAccountCompositionRelation>>();
+        const columnHelper =
+          createColumnHelper<IDataRecord<IDataRecordTypes['account_composition_relation']>>();
         return [
           columnHelper.accessor('origin.target_account_id', {
             header: () => '目标账户',
@@ -55,7 +32,6 @@ registerPage('AccountCompositionRelationList', () => {
       newRecord={() => {
         return {};
       }}
-      mapOriginToDataRecord={mapTradeCopyRelationToDataRecord}
       extraHeaderActions={(props) => {
         return (
           <Button icon={<IconRefresh />} onClick={() => executeCommand('AccountComposer.Restart')}>
@@ -63,7 +39,6 @@ registerPage('AccountCompositionRelationList', () => {
           </Button>
         );
       }}
-      schema={acrSchema}
     />
   );
 });

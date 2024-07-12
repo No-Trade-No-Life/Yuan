@@ -1,12 +1,13 @@
-import { IAccountInfo, IAccountMoney, IOrder, IPosition, IProduct, formatTime } from '@yuants/data-model';
 import {
-  IConnection,
-  Terminal,
-  provideAccountInfo,
-  wrapOrder,
-  wrapProduct,
-  writeDataRecords,
-} from '@yuants/protocol';
+  IAccountInfo,
+  IAccountMoney,
+  IOrder,
+  IPosition,
+  IProduct,
+  formatTime,
+  getDataRecordWrapper,
+} from '@yuants/data-model';
+import { IConnection, Terminal, provideAccountInfo, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services/order';
 import { ChildProcess, spawn } from 'child_process';
 import { parse } from 'date-fns';
@@ -611,7 +612,9 @@ const products$ = defer(() => loginRes$.pipe(first())).pipe(
 );
 
 products$
-  .pipe(delayWhen((products) => from(writeDataRecords(terminal, products.map(wrapProduct)))))
+  .pipe(
+    delayWhen((products) => from(writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!)))),
+  )
   .subscribe(() => {
     console.info(formatTime(Date.now()), '更新品种信息成功');
   });
@@ -662,7 +665,7 @@ terminal.provideService(
       mergeMap(([loginRes, settlementRes]) =>
         queryHistoryOrders(zmqConn, loginRes.BrokerID, settlementRes.InvestorID).pipe(
           //
-          delayWhen((data) => from(writeDataRecords(terminal, data.map(wrapOrder)))),
+          delayWhen((data) => from(writeDataRecords(terminal, data.map(getDataRecordWrapper('order')!)))),
           map((data) => ({ res: { code: 0, message: 'OK', data: data } })),
         ),
       ),

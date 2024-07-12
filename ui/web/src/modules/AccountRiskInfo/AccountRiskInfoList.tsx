@@ -1,19 +1,18 @@
 import { Switch } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { IDataRecord } from '@yuants/data-model';
+import { IDataRecord, IDataRecordTypes } from '@yuants/data-model';
 import { InlineAccountId } from '../AccountInfo';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { DataRecordView } from '../DataRecord';
 import { Button } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminate } from '../Terminals/TerminalListItem';
-import { IAccountRiskInfo, schema, wrapAccountRiskInfo } from './models/AccountRiskInfo';
+
+type IAccountRiskInfo = IDataRecordTypes['account_risk_info'];
 
 function newRecord(): Partial<IAccountRiskInfo> {
   return {};
 }
-
-function beforeUpdateTrigger(x: IAccountRiskInfo) {}
 
 function defineColumns() {
   return () => {
@@ -64,12 +63,9 @@ function defineColumns() {
 registerPage('AccountRiskInfoList', () => {
   return (
     <DataRecordView
-      TYPE={'account_risk_info'}
-      schema={schema}
+      TYPE="account_risk_info"
       columns={defineColumns()}
       newRecord={newRecord}
-      beforeUpdateTrigger={beforeUpdateTrigger}
-      mapOriginToDataRecord={wrapAccountRiskInfo}
       extraHeaderActions={() => {
         return <Button onClick={() => executeCommand('RiskManager.Restart')}>重启风控器</Button>;
       }}

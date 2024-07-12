@@ -6,6 +6,7 @@
 
 import { IAccountInfo } from '@yuants/data-model';
 import { IDataRecord } from '@yuants/data-model';
+import { IDataRecordTypes } from '@yuants/data-model';
 import { IOrder } from '@yuants/data-model';
 import { IPeriod } from '@yuants/data-model';
 import { IProduct } from '@yuants/data-model';
@@ -37,16 +38,6 @@ export interface IConnection<T> {
     connection$: AsyncIterable<unknown>;
     input$: AsyncIterable<T>;
     output$: NativeSubject<T>;
-}
-
-// @public (undocumented)
-export interface IDataRecordTypes {
-    // (undocumented)
-    order: IOrder;
-    // (undocumented)
-    period: IPeriod;
-    // (undocumented)
-    product: IProduct;
 }
 
 // @public
@@ -181,15 +172,6 @@ export const useProducts: (terminal: Terminal, datasource_id: string) => AsyncIt
 
 // @public
 export const useTick: (terminal: Terminal, datasource_id: string, product_id: string) => AsyncIterable<ITick>;
-
-// @public
-export const wrapOrder: (order: IOrder) => IDataRecord<IOrder>;
-
-// @public
-export const wrapPeriod: (period: IPeriod) => IDataRecord<IPeriod>;
-
-// @public
-export const wrapProduct: (product: IProduct) => IDataRecord<IProduct>;
 
 // @public (undocumented)
 export const writeDataRecords: <T extends keyof IDataRecordTypes>(terminal: Terminal, data: IDataRecord<IDataRecordTypes[T]>[]) => AsyncIterable<undefined>;

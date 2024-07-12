@@ -9,8 +9,9 @@ import {
   decodePath,
   encodePath,
   formatTime,
+  getDataRecordWrapper,
 } from '@yuants/data-model';
-import { Terminal, provideAccountInfo, provideTicks, wrapProduct, writeDataRecords } from '@yuants/protocol';
+import { Terminal, provideAccountInfo, provideTicks, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
@@ -129,10 +130,10 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
   );
 
   spotProducts$
-    .pipe(mergeMap((products) => writeDataRecords(terminal, products.map(wrapProduct))))
+    .pipe(mergeMap((products) => writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!))))
     .subscribe();
   perpetualContractProducts$
-    .pipe(mergeMap((products) => writeDataRecords(terminal, products.map(wrapProduct))))
+    .pipe(mergeMap((products) => writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!))))
     .subscribe();
 
   const mapSwapContractCodeToBboTick$ = defer(() => client.getSwapMarketBbo({})).pipe(

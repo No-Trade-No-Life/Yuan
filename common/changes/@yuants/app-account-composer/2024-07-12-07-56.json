@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-account-composer",
+      "comment": "migrating data-model: interfaces, schema, module augmentation, wrappers",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-account-composer"
+}

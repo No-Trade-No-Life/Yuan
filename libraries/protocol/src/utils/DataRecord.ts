@@ -1,4 +1,4 @@
-import { IDataRecord, IOrder, IPeriod, IProduct } from '@yuants/data-model';
+import { IDataRecord, IDataRecordTypes } from '@yuants/data-model';
 import { observableToAsyncIterable } from '@yuants/utils';
 import { EMPTY, bufferCount, concatMap, defer, from, map, mergeMap, of, toArray } from 'rxjs';
 import {
@@ -7,15 +7,6 @@ import {
   IRemoveDataRecordsRequest,
 } from '../services/data-record';
 import { Terminal } from '../terminal';
-
-/**
- * @public
- */
-export interface IDataRecordTypes {
-  product: IProduct;
-  period: IPeriod;
-  order: IOrder;
-}
 
 /**
  * @public

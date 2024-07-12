@@ -1,4 +1,4 @@
-import { IAccountInfo, IAccountMoney, formatTime } from '@yuants/data-model';
+import { IAccountInfo, IAccountMoney, formatTime, getDataRecordSchema } from '@yuants/data-model';
 import { Terminal, provideAccountInfo, readDataRecords, useAccountInfo } from '@yuants/protocol';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
@@ -17,7 +17,6 @@ import {
   timeout,
   toArray,
 } from 'rxjs';
-import { acrSchema } from './model';
 
 const TERMINAL_ID = process.env.TERMINAL_ID || `AccountComposer`;
 const terminal = new Terminal(process.env.HOST_URL!, { terminal_id: TERMINAL_ID, name: 'Account Composer' });
@@ -25,7 +24,7 @@ const terminal = new Terminal(process.env.HOST_URL!, { terminal_id: TERMINAL_ID,
 const ajv = new Ajv();
 addFormats(ajv);
 
-const validate = ajv.compile(acrSchema);
+const validate = ajv.compile(getDataRecordSchema('account_composition_relation')!);
 
 defer(() => readDataRecords(terminal, { type: 'account_composition_relation' }))
   .pipe(
