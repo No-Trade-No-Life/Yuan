@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Fri, 12 Jul 2024 09:19:54 GMT and should not be manually modified.
+This log was last generated on Fri, 12 Jul 2024 14:05:46 GMT and should not be manually modified.
+
+## 0.7.5
+Fri, 12 Jul 2024 14:05:46 GMT
+
+### Patches
+
+- add wait after a batch of pulling
 
 ## 0.7.4
 Fri, 12 Jul 2024 09:19:54 GMT

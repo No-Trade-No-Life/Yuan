@@ -2,6 +2,23 @@
   "name": "@yuants/app-data-collector",
   "entries": [
     {
+      "version": "0.0.17",
+      "tag": "@yuants/app-data-collector_v0.0.17",
+      "date": "Fri, 12 Jul 2024 14:05:46 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "strict schema error"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.16",
       "tag": "@yuants/app-data-collector_v0.0.16",
       "date": "Fri, 12 Jul 2024 09:19:54 GMT",

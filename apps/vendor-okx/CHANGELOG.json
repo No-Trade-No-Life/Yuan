@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.7.5",
+      "tag": "@yuants/vendor-okx_v0.7.5",
+      "date": "Fri, 12 Jul 2024 14:05:46 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add wait after a batch of pulling"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.7.4",
       "tag": "@yuants/vendor-okx_v0.7.4",
       "date": "Fri, 12 Jul 2024 09:19:54 GMT",
