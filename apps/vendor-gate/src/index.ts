@@ -11,7 +11,7 @@ import {
   IProduct,
   UUID,
 } from '@yuants/data-model';
-import { provideAccountInfo, Terminal, writeDataRecords } from '@yuants/protocol';
+import { addAccountTransferAddress, provideAccountInfo, Terminal, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
@@ -34,7 +34,6 @@ import {
   toArray,
 } from 'rxjs';
 import { GateClient } from './api';
-import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
 
 (async () => {
   const client = new GateClient({

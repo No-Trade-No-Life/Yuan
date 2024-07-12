@@ -14,7 +14,13 @@ import {
   formatTime,
   getDataRecordWrapper,
 } from '@yuants/data-model';
-import { Terminal, provideAccountInfo, provideTicks, writeDataRecords } from '@yuants/protocol';
+import {
+  Terminal,
+  addAccountTransferAddress,
+  provideAccountInfo,
+  provideTicks,
+  writeDataRecords,
+} from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
@@ -41,7 +47,6 @@ import {
   toArray,
 } from 'rxjs';
 import { OkxClient } from './api';
-import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
 
 const terminal = new Terminal(process.env.HOST_URL!, {
   terminal_id: process.env.TERMINAL_ID || `okx/${UUID()}`,
