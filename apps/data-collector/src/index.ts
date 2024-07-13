@@ -221,7 +221,7 @@ const runTask = (cdr: ICopyDataRelation) =>
           .pipe(
             //
             map((v) => v.frozen_at),
-            filter((v): v is Exclude<typeof v, null> => !!v),
+            filter((v): v is Exclude<typeof v, null | undefined> => !!v),
             defaultIfEmpty(0),
             first(),
           )

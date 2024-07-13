@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-mongodb-storage",
+      "comment": "support tree paths",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-mongodb-storage"
+}
