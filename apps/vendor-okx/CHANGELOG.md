@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Fri, 12 Jul 2024 14:05:46 GMT and should not be manually modified.
+This log was last generated on Sat, 13 Jul 2024 09:14:39 GMT and should not be manually modified.
+
+## 0.7.6
+Sat, 13 Jul 2024 09:14:39 GMT
+
+### Patches
+
+- unify datasource id
 
 ## 0.7.5
 Fri, 12 Jul 2024 14:05:46 GMT
