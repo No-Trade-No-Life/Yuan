@@ -1,7 +1,6 @@
 import {
   IAccountInfo,
   IAccountMoney,
-  IDataRecord,
   IDataRecordTypes,
   IOrder,
   IPeriod,
@@ -53,6 +52,8 @@ const terminal = new Terminal(process.env.HOST_URL!, {
   name: 'OKX',
 });
 
+const DATASOURCE_ID = 'OKX';
+
 const client = new OkxClient({
   auth: process.env.PUBLIC_ONLY
     ? undefined
@@ -75,7 +76,7 @@ const usdtSwapProducts$ = swapInstruments$.pipe(
       filter((x) => x.ctType === 'linear' && x.settleCcy === 'USDT'),
       map(
         (x): IProduct => ({
-          datasource_id: 'OKX',
+          datasource_id: DATASOURCE_ID,
           product_id: encodePath(x.instType, x.instId),
           base_currency: x.ctValCcy,
           quote_currency: x.settleCcy,
@@ -103,7 +104,7 @@ const marginProducts$ = marginInstruments$.pipe(
       //
       map(
         (x): IProduct => ({
-          datasource_id: 'OKX',
+          datasource_id: DATASOURCE_ID,
           product_id: encodePath(x.instType, x.instId),
           base_currency: x.baseCcy,
           quote_currency: x.quoteCcy,
@@ -224,7 +225,7 @@ provideTicks(terminal, 'OKX', (product_id) => {
         combineLatest(x).pipe(
           map(([theProduct, ticker, fundingRate, swapOpenInterest]): ITick => {
             return {
-              datasource_id: 'OKX',
+              datasource_id: DATASOURCE_ID,
               product_id,
               updated_at: Date.now(),
               settlement_scheduled_at: +fundingRate.fundingTime,
@@ -262,7 +263,7 @@ provideTicks(terminal, 'OKX', (product_id) => {
         combineLatest(x).pipe(
           map(
             ([theProduct, ticker, interestRateForBase, interestRateForQuote]): ITick => ({
-              datasource_id: 'OKX',
+              datasource_id: DATASOURCE_ID,
               product_id,
               updated_at: Date.now(),
               price: +ticker.last,
@@ -381,7 +382,7 @@ const tradingAccountInfo$ = combineLatest([
 
           return {
             position_id: x.posId,
-            datasource_id: 'OKX',
+            datasource_id: DATASOURCE_ID,
             product_id,
             direction,
             volume: volume,
@@ -934,7 +935,7 @@ defer(async () => {
               type: 'object',
               required: ['series_id'],
               properties: {
-                series_id: { type: 'string', pattern: '^okx/' },
+                series_id: { type: 'string', pattern: '^OKX/' },
               },
             },
           },
@@ -948,7 +949,7 @@ defer(async () => {
               required: ['datasource_id'],
               properties: {
                 datasource_id: {
-                  const: 'okx',
+                  const: DATASOURCE_ID,
                 },
               },
             },
@@ -1017,12 +1018,15 @@ defer(async () => {
         }
 
         if (msg.req.type === 'period') {
-          const { period_in_sec, product_id = '' } = msg.req.tags || {};
+          const { period_in_sec, product_id = '', datasource_id } = msg.req.tags || {};
           if (!product_id) {
             return { res: { code: 400, message: 'product_id is required' } };
           }
           if (!period_in_sec) {
             return { res: { code: 400, message: 'period_in_sec is required' } };
+          }
+          if (!datasource_id) {
+            return { res: { code: 400, message: 'datasource_id is required' } };
           }
           const [instType, instId] = decodePath(product_id);
           if (!instId) {
@@ -1060,7 +1064,7 @@ defer(async () => {
             x: [ts: string, o: string, h: string, l: string, c: string, confirm: string],
           ): IPeriod => ({
             product_id,
-            datasource_id: 'OKX',
+            datasource_id,
             duration: {
               60: 'PT1M',
               180: 'PT3M',
