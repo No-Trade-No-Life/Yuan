@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-mongodb-storage",
+      "comment": "fix pathMap is empty",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-mongodb-storage"
+}
