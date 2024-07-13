@@ -2,7 +2,19 @@ import { IDataRecord, IDataRecordTypes, UUID, formatTime, getDataRecordWrapper }
 import { PromRegistry, Terminal } from '@yuants/protocol';
 import { MongoClient } from 'mongodb';
 import { basename, dirname } from 'path';
-import { bufferTime, concatWith, delayWhen, from, groupBy, map, mergeMap, of, tap, toArray } from 'rxjs';
+import {
+  bufferTime,
+  concatWith,
+  defer,
+  delayWhen,
+  from,
+  groupBy,
+  map,
+  mergeMap,
+  of,
+  tap,
+  toArray,
+} from 'rxjs';
 
 const HOST_URL = process.env.HOST_URL || process.env.HV_URL!;
 const TERMINAL_ID = process.env.TERMINAL_ID || `MongoDB/${UUID()}`;
@@ -70,7 +82,11 @@ terminal.provideService('UpdateDataRecords', {}, (msg) => {
           }
         }
       }),
-      concatWith(from(Object.values(pathMap)).pipe(map(wrapPath))), // join the path records
+      concatWith(
+        // join the path records
+        // Trick: defer to avoid the pathMap is not ready
+        defer(() => Object.values(pathMap)).pipe(map(wrapPath)),
+      ),
       groupBy((record) => record.type),
       mergeMap((group) => {
         const collection = db.collection(group.key);
