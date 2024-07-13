@@ -1,6 +1,7 @@
-import { IDataRecord, UUID, formatTime } from '@yuants/data-model';
+import { IDataRecord, IDataRecordTypes, UUID, formatTime, getDataRecordWrapper } from '@yuants/data-model';
 import { PromRegistry, Terminal } from '@yuants/protocol';
 import { MongoClient } from 'mongodb';
+import { basename, dirname } from 'path';
 import { bufferTime, concatWith, delayWhen, from, groupBy, map, mergeMap, of, tap, toArray } from 'rxjs';
 
 const HOST_URL = process.env.HOST_URL || process.env.HV_URL!;
@@ -44,10 +45,32 @@ const MetricWriteDurationBucket = PromRegistry.create(
   'storage_write_duration_milliseconds Storage write duration bucket in 1, 10, 100, 1000, 10000, 30000 ms',
   [1, 10, 100, 1000, 10000, 30_000],
 );
+
+const wrapPath = getDataRecordWrapper('path')!;
+
 terminal.provideService('UpdateDataRecords', {}, (msg) => {
   const startTime = Date.now();
+  const pathMap: Record<string, IDataRecordTypes['path']> = {};
   return from(msg.req)
     .pipe(
+      tap((record) => {
+        if (record.paths) {
+          const type = record.type;
+          for (const [key, path] of Object.entries(record.paths)) {
+            let currentPath = path;
+            while (true) {
+              const parent = dirname(currentPath);
+              if (parent === currentPath) break; // root condition
+              const name = basename(currentPath);
+              const theKey = `${type}/${key}/${parent}/${name}`;
+              if (pathMap[theKey]) break; // trick: avoid to check a lot of duplicated common path
+              pathMap[theKey] = { type, key, parent, name };
+              currentPath = parent; // move to parent
+            }
+          }
+        }
+      }),
+      concatWith(from(Object.values(pathMap)).pipe(map(wrapPath))), // join the path records
       groupBy((record) => record.type),
       mergeMap((group) => {
         const collection = db.collection(group.key);

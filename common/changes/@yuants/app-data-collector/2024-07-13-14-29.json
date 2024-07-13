@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-data-collector",
+      "comment": "fix type error",
+      "type": "none"
+    }
+  ],
+  "packageName": "@yuants/app-data-collector"
+}

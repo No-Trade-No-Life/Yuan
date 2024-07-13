@@ -66,11 +66,12 @@ export interface IAccountMoney {
 
 // @public
 export interface IDataRecord<T = unknown> {
-    created_at: number | null;
+    created_at?: number | null;
     expired_at?: number;
-    frozen_at: number | null;
+    frozen_at?: number | null;
     id: string;
     origin: T;
+    paths?: Record<string, string>;
     tags: Record<string, string>;
     type: string;
     updated_at: number;

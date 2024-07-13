@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-model",
+      "comment": "add tree paths",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-model"
+}

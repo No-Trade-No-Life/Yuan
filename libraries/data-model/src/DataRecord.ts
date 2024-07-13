@@ -27,7 +27,7 @@ export interface IDataRecord<T = unknown> {
    * null represents -Infinity, which means infinitely far in the past
    * null 代表 -Infinity, 即过去的无穷远处
    */
-  created_at: number | null;
+  created_at?: number | null;
   /**
    * Timestamp when the record was updated (in ms)
    * 记录更新的时间戳 (in ms)
@@ -46,7 +46,7 @@ export interface IDataRecord<T = unknown> {
    * null represents Infinity, which means infinitely far in the future.
    * null 代表 Infinity, 即未来的无穷远处
    */
-  frozen_at: number | null;
+  frozen_at?: number | null;
 
   /**
    * Timestamp when the record will expire (in ms)
@@ -67,6 +67,10 @@ export interface IDataRecord<T = unknown> {
    * 存储时，值会被 toString
    */
   tags: Record<string, string>;
+  /**
+   * Fields that can be used as quick tree-like search conditions
+   */
+  paths?: Record<string, string>;
   /**
    * The original value of the record, which does not support efficient retrieval.
    */
