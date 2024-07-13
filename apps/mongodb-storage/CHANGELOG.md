@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-mongodb-storage
 
-This log was last generated on Fri, 12 Jul 2024 09:19:54 GMT and should not be manually modified.
+This log was last generated on Sat, 13 Jul 2024 14:49:29 GMT and should not be manually modified.
+
+## 0.4.0
+Sat, 13 Jul 2024 14:49:29 GMT
+
+### Minor changes
+
+- support tree paths
 
 ## 0.3.9
 Fri, 12 Jul 2024 09:19:54 GMT
