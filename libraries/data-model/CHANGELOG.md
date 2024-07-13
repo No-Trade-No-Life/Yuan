@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-model
 
-This log was last generated on Fri, 12 Jul 2024 09:19:54 GMT and should not be manually modified.
+This log was last generated on Sat, 13 Jul 2024 14:49:29 GMT and should not be manually modified.
+
+## 0.13.0
+Sat, 13 Jul 2024 14:49:29 GMT
+
+### Minor changes
+
+- add tree paths
 
 ## 0.12.0
 Fri, 12 Jul 2024 09:19:54 GMT
