@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-mongodb-storage
 
-This log was last generated on Sat, 13 Jul 2024 14:49:29 GMT and should not be manually modified.
+This log was last generated on Sun, 14 Jul 2024 00:02:52 GMT and should not be manually modified.
+
+## 0.4.1
+Sun, 14 Jul 2024 00:02:52 GMT
+
+### Patches
+
+- fix pathMap is empty
 
 ## 0.4.0
 Sat, 13 Jul 2024 14:49:29 GMT
