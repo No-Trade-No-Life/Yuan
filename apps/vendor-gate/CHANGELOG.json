@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-gate",
   "entries": [
     {
+      "version": "0.2.6",
+      "tag": "@yuants/vendor-gate_v0.2.6",
+      "date": "Mon, 15 Jul 2024 06:57:43 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add data source id to position"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.5",
       "tag": "@yuants/vendor-gate_v0.2.5",
       "date": "Sat, 13 Jul 2024 14:49:29 GMT",
