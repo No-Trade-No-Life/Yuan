@@ -112,6 +112,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
           const closable_price = +position.mark_price;
           const valuation = volume * closable_price * (theProduct?.value_scale ?? 1);
           return {
+            datasource_id: 'gate/future',
             position_id: `${position.contract}-${position.leverage}-${position.mode}`,
             product_id,
             direction:

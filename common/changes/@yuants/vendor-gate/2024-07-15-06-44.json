@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-gate",
+      "comment": "add data source id to position",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-gate"
+}
