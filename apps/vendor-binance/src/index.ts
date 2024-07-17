@@ -1,5 +1,8 @@
 import {
+  IAccountInfo,
+  IAccountMoney,
   IDataRecordTypes,
+  IPosition,
   IProduct,
   ITick,
   UUID,
@@ -8,7 +11,7 @@ import {
   formatTime,
   getDataRecordWrapper,
 } from '@yuants/data-model';
-import { Terminal, provideTicks, writeDataRecords } from '@yuants/protocol';
+import { Terminal, provideAccountInfo, provideTicks, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
@@ -127,15 +130,79 @@ provideTicks(terminal, 'binance/future', (product_id) => {
   );
 });
 
-{
-  // accountInfo
-  const unifiedAccountInfo$ = defer(async () => {
-    const accountResult = await client.getUnifiedAccountInfo();
-    if (isError(accountResult)) {
-      throw new Error(accountResult.msg);
-    }
-  });
-}
+(async () => {
+  const spotAccountInfo = await client.getSpotAccountInfo();
+  if (isError(spotAccountInfo)) {
+    throw new Error(spotAccountInfo.msg);
+  }
+  const uid = spotAccountInfo.uid;
+
+  {
+    // accountInfo
+    const unifiedAccountInfo$ = defer(async (): Promise<IAccountInfo> => {
+      const accountResult = await client.getUnifiedAccountBalance();
+      if (isError(accountResult)) {
+        throw new Error(accountResult.msg);
+      }
+      const usdtAssets = accountResult.find((v) => v.asset === 'USDT');
+      if (!usdtAssets) {
+        throw new Error('USDT not found');
+      }
+      const umAccountResult = await client.getUnifiedUmAccount();
+      if (isError(umAccountResult)) {
+        throw new Error(umAccountResult.msg);
+      }
+      const usdtUmAssets = umAccountResult.assets.find((v) => v.asset === 'USDT');
+      if (!usdtUmAssets) {
+        throw new Error('um USDT not found');
+      }
+      const money: IAccountMoney = {
+        currency: 'USDT',
+        leverage: 1,
+        equity: +usdtAssets.totalWalletBalance + +usdtAssets.umUnrealizedPNL,
+        balance: +usdtAssets.totalWalletBalance,
+        profit: +usdtAssets.umUnrealizedPNL,
+        used: +usdtUmAssets.initialMargin,
+        free: +usdtAssets.totalWalletBalance + +usdtAssets.umUnrealizedPNL - +usdtUmAssets.initialMargin,
+      };
+
+      const positions = umAccountResult.positions
+        .filter((v) => +v.positionAmt !== 0)
+        .map((v): IPosition => {
+          return {
+            position_id: `${v.symbol}/${v.positionSide}`,
+            datasource_id: `binance/future`,
+            product_id: v.symbol,
+            direction: v.positionSide,
+            volume: +v.positionAmt,
+            free_volume: +v.positionAmt,
+            position_price: +v.entryPrice,
+            closable_price: +v.entryPrice + +v.unrealizedProfit / +v.positionAmt,
+            floating_profit: +v.unrealizedProfit,
+            valuation: +v.positionAmt * (+v.entryPrice + +v.unrealizedProfit / +v.positionAmt),
+          };
+        });
+
+      return {
+        updated_at: Date.now(),
+        account_id: `binance/${uid}/unified/usdt`,
+        money,
+        currencies: [money],
+        positions,
+        orders: [],
+      };
+    }).pipe(
+      tap({
+        error: (err) => {
+          console.error(formatTime(Date.now()), 'unifiedAccountInfo$', err);
+        },
+      }),
+      retry(5000),
+      repeat(1000),
+    );
+    provideAccountInfo(terminal, unifiedAccountInfo$);
+  }
+})();
 
 defer(async () => {
   terminal.provideService(

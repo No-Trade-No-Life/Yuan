@@ -3,6 +3,9 @@ import { PromRegistry } from '@yuants/protocol';
 // @ts-ignore
 import CryptoJS from 'crypto-js';
 
+import fetch from 'node-fetch';
+import { HttpsProxyAgent } from 'https-proxy-agent';
+
 const MetricBinanceApiUsedWeight = PromRegistry.create('gauge', 'binance_api_used_weight');
 
 interface errorResult {
@@ -12,10 +15,12 @@ interface errorResult {
 
 export const isError = <T>(x: T | errorResult): x is errorResult => (x as errorResult).code !== undefined;
 
+const proxyAgent = new HttpsProxyAgent('http://127.0.0.1:7890');
+
 /**
  * Binance 币安 API
  *
- * https://binance-docs.github.io/apidocs/spot/cn/
+ * https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/CHANGELOG
  */
 export class ApiClient {
   constructor(
@@ -62,6 +67,7 @@ export class ApiClient {
     const res = await fetch(url.href, {
       method,
       headers,
+      agent: proxyAgent,
       body: body || undefined,
     });
     const usedWeight1M = res.headers.get('x-mbx-used-weight-1m');
@@ -230,34 +236,37 @@ export class ApiClient {
    *
    * https://developers.binance.com/docs/zh-CN/derivatives/portfolio-margin/account/Get-UM-Account-Detail
    */
-  getUnifiedUmAccount = (): Promise<{
-    assets: {
-      asset: string;
-      crossWalletBalance: string;
-      crossUnPnl: string;
-      maintMargin: string;
-      initialMargin: string;
-      positionInitialMargin: string;
-      openOrderInitialMargin: string;
-      updateTime: number;
-    }[];
-    positions: {
-      symbol: string;
-      initialMargin: string;
-      maintMargin: string;
-      unrealizedProfit: string;
-      positionInitialMargin: string;
-      openOrderInitialMargin: string;
-      leverage: string;
-      entryPrice: string;
-      maxNotional: string;
-      bidNotional: string;
-      askNotional: string;
-      positionSide: string;
-      positionAmt: string;
-      updateTime: number;
-    }[];
-  }> => this.request('GET', 'https://papi.binance.com/papi/v1/um/account');
+  getUnifiedUmAccount = (): Promise<
+    | {
+        assets: {
+          asset: string;
+          crossWalletBalance: string;
+          crossUnPnl: string;
+          maintMargin: string;
+          initialMargin: string;
+          positionInitialMargin: string;
+          openOrderInitialMargin: string;
+          updateTime: number;
+        }[];
+        positions: {
+          symbol: string;
+          initialMargin: string;
+          maintMargin: string;
+          unrealizedProfit: string;
+          positionInitialMargin: string;
+          openOrderInitialMargin: string;
+          leverage: string;
+          entryPrice: string;
+          maxNotional: string;
+          bidNotional: string;
+          askNotional: string;
+          positionSide: string;
+          positionAmt: string;
+          updateTime: number;
+        }[];
+      }
+    | errorResult
+  > => this.request('GET', 'https://papi.binance.com/papi/v1/um/account');
 
   /**
    * 查看当前全部UM挂单(USER_DATA)
@@ -291,15 +300,83 @@ export class ApiClient {
       goodTillDate: number;
     }[]
   > => this.request('GET', 'https://papi.binance.com/papi/v1/um/openOrders', params);
+
+  /**
+   * 查询账户余额(USER_DATA)
+   *
+   * 查询账户余额
+   *
+   * 权重: 20
+   *
+   * https://developers.binance.com/docs/zh-CN/derivatives/portfolio-margin/account/Account-Balance
+   */
+  getUnifiedAccountBalance = (params?: {
+    assets?: string;
+  }): Promise<
+    | {
+        asset: string;
+        totalWalletBalance: string;
+        crossMarginAsset: string;
+        crossMarginBorrowed: string;
+        crossMarginFree: string;
+        crossMarginInterest: string;
+        crossMarginLocked: string;
+        umWalletBalance: string;
+        umUnrealizedPNL: string;
+        cmWalletBalance: string;
+        cmUnrealizedPNL: string;
+        updateTime: number;
+      }[]
+    | errorResult
+  > => this.request('GET', 'https://papi.binance.com/papi/v1/balance', params);
+
+  /**
+   * 账户信息 (USER_DATA)
+   *
+   * 权重: 20
+   *
+   * https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/rest-api#%E8%B4%A6%E6%88%B7%E4%BF%A1%E6%81%AF-user_data
+   */
+  getSpotAccountInfo = (params?: {
+    omitZeroBalances?: boolean;
+  }): Promise<
+    | {
+        makerCommission: number;
+        takerCommission: number;
+        buyerCommission: number;
+        sellerCommission: number;
+        commissionRates: {
+          maker: string;
+          taker: string;
+          buyer: string;
+          seller: string;
+        };
+        canTrade: boolean;
+        canWithdraw: boolean;
+        canDeposit: boolean;
+        brokered: boolean;
+        requireSelfTradePrevention: boolean;
+        preventSor: boolean;
+        updateTime: number;
+        balances: {
+          asset: string;
+          free: string;
+          locked: string;
+        }[];
+        permissions: string[];
+        uid: number;
+      }
+    | errorResult
+  > => this.request('GET', 'https://api.binance.com/api/v3/account', params);
 }
 
-(async () => {
-  const client = new ApiClient({
-    auth: {
-      public_key: process.env.ACCESS_KEY!,
-      secret_key: process.env.SECRET_KEY!,
-    },
-  });
+// (async () => {
+//   const client = new ApiClient({
+//     auth: {
+//       public_key: process.env.ACCESS_KEY!,
+//       secret_key: process.env.SECRET_KEY!,
+//     },
+//   });
 
-  console.info(JSON.stringify(await client.getUnifiedUmAccount(), undefined, 2));
-})();
+//   console.info(JSON.stringify(await client.getUnifiedAccountBalance(), undefined, 2));
+// })();
