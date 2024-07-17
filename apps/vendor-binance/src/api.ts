@@ -5,6 +5,13 @@ import CryptoJS from 'crypto-js';
 
 const MetricBinanceApiUsedWeight = PromRegistry.create('gauge', 'binance_api_used_weight');
 
+interface errorResult {
+  code: number;
+  msg: string;
+}
+
+export const isError = <T>(x: T | errorResult): x is errorResult => (x as errorResult).code !== undefined;
+
 /**
  * Binance 币安 API
  *
@@ -43,11 +50,11 @@ export class ApiClient {
     const secret_key = this.config.auth.secret_key;
     const body = method === 'GET' ? '' : JSON.stringify(params);
     const signData = url.search.slice(1);
-    const str = CryptoJS.enc.Base64.stringify(CryptoJS.HmacSHA256(signData, secret_key));
+    const str = CryptoJS.enc.Hex.stringify(CryptoJS.HmacSHA256(signData, secret_key));
     url.searchParams.set('signature', str);
 
     const headers = {
-      'Content-Type': 'application/json',
+      'Content-Type': 'application/json;charset=utf-8',
       'X-MBX-APIKEY': this.config.auth.public_key!,
     };
 
@@ -188,4 +195,111 @@ export class ApiClient {
     symbol: string;
     time: number;
   }> => this.request('GET', 'https://fapi.binance.com/fapi/v1/openInterest', params);
+
+  /**
+   * 查询账户信息(USER_DATA)
+   *
+   * 查询账户信息
+   *
+   * 权重: 20
+   *
+   * https://developers.binance.com/docs/zh-CN/derivatives/portfolio-margin/account/Account-Information
+   */
+  getUnifiedAccountInfo = (): Promise<
+    | {
+        uniMMR: string;
+        accountEquity: string;
+        actualEquity: string;
+        accountInitialMargin: string;
+        accountMaintMargin: string;
+        accountStatus: string;
+        virtualMaxWithdrawAmount: string;
+        totalAvailableBalance: string;
+        totalMarginOpenLoss: string;
+        updateTime: number;
+      }
+    | errorResult
+  > => this.request('GET', 'https://papi.binance.com/papi/v1/account');
+
+  /**
+   * 获取UM账户信息
+   *
+   * 现有UM账户资产和仓位信息
+   *
+   * 权重: 5
+   *
+   * https://developers.binance.com/docs/zh-CN/derivatives/portfolio-margin/account/Get-UM-Account-Detail
+   */
+  getUnifiedUmAccount = (): Promise<{
+    assets: {
+      asset: string;
+      crossWalletBalance: string;
+      crossUnPnl: string;
+      maintMargin: string;
+      initialMargin: string;
+      positionInitialMargin: string;
+      openOrderInitialMargin: string;
+      updateTime: number;
+    }[];
+    positions: {
+      symbol: string;
+      initialMargin: string;
+      maintMargin: string;
+      unrealizedProfit: string;
+      positionInitialMargin: string;
+      openOrderInitialMargin: string;
+      leverage: string;
+      entryPrice: string;
+      maxNotional: string;
+      bidNotional: string;
+      askNotional: string;
+      positionSide: string;
+      positionAmt: string;
+      updateTime: number;
+    }[];
+  }> => this.request('GET', 'https://papi.binance.com/papi/v1/um/account');
+
+  /**
+   * 查看当前全部UM挂单(USER_DATA)
+   *
+   * 查看当前全部UM挂单，请小心使用不带symbol参数的调用
+   *
+   * 权重: 带symbol 1 - 不带 40
+   */
+  getUnifiedUmOpenOrders = (params?: {
+    symbol?: string;
+  }): Promise<
+    {
+      avgPrice: string;
+      clientOrderId: string;
+      cumQuote: string;
+      executedQty: string;
+      orderId: number;
+      origQty: string;
+      origType: string;
+      price: string;
+      reduceOnly: boolean;
+      side: string;
+      positionSide: string;
+      status: string;
+      symbol: string;
+      time: number;
+      timeInForce: string;
+      type: string;
+      updateTime: number;
+      selfTradePreventionMode: string;
+      goodTillDate: number;
+    }[]
+  > => this.request('GET', 'https://papi.binance.com/papi/v1/um/openOrders', params);
 }
+
+(async () => {
+  const client = new ApiClient({
+    auth: {
+      public_key: process.env.ACCESS_KEY!,
+      secret_key: process.env.SECRET_KEY!,
+    },
+  });
+
+  console.info(JSON.stringify(await client.getUnifiedUmAccount(), undefined, 2));
+})();

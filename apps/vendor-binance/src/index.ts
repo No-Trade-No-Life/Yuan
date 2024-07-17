@@ -28,7 +28,7 @@ import {
   timer,
   toArray,
 } from 'rxjs';
-import { ApiClient } from './api';
+import { ApiClient, isError } from './api';
 
 const terminal = new Terminal(process.env.HOST_URL!, {
   terminal_id: process.env.TERMINAL_ID || `binance/${UUID()}`,
@@ -126,6 +126,16 @@ provideTicks(terminal, 'binance/future', (product_id) => {
     }),
   );
 });
+
+{
+  // accountInfo
+  const unifiedAccountInfo$ = defer(async () => {
+    const accountResult = await client.getUnifiedAccountInfo();
+    if (isError(accountResult)) {
+      throw new Error(accountResult.msg);
+    }
+  });
+}
 
 defer(async () => {
   terminal.provideService(
