@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/kernel",
+      "comment": "update data model",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/kernel"
+}

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-model",
+      "comment": "update Product paths",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-model"
+}
