@@ -7,7 +7,7 @@ import { BasicUnit } from './BasicUnit';
  * @public
  */
 export class ProductDataUnit extends BasicUnit {
-  private mapProductIdToProduct: Record<string, Record<string, IProduct>> = {};
+  private mapProductIdToProduct: Record<string, IProduct> = {};
   private adrUnit: AccountDatasourceRelationUnit | undefined;
 
   onInit(): void | Promise<void> {
@@ -15,25 +15,21 @@ export class ProductDataUnit extends BasicUnit {
   }
 
   listProducts(): IProduct[] {
-    return Object.values(this.mapProductIdToProduct).flatMap((x) => Object.values(x));
+    return Object.values(this.mapProductIdToProduct);
   }
 
-  getProduct(datasource_id: string, product_id: string): IProduct | undefined {
-    return (
-      this.mapProductIdToProduct[datasource_id]?.[product_id] ?? this.mapProductIdToProduct['']?.[product_id]
-    );
+  getProduct(product_id: string): IProduct | undefined {
+    return this.mapProductIdToProduct[product_id];
   }
 
   updateProduct(product: IProduct) {
     // Set default
-    (this.mapProductIdToProduct[''] ??= {})[product.product_id] = product;
-    // Set datasource_id
-    (this.mapProductIdToProduct[product.datasource_id || ''] ??= {})[product.product_id] = product;
+    this.mapProductIdToProduct[product.product_id] = product;
     // Copy to All Related Accounts
     if (this.adrUnit) {
       for (const relation of this.adrUnit.list()) {
-        if (relation.datasource_id === product.datasource_id && relation.product_id === product.product_id) {
-          (this.mapProductIdToProduct[relation.account_id] ??= {})[product.product_id] = product;
+        if (relation.product_id === product.product_id) {
+          this.mapProductIdToProduct[product.product_id] = product;
         }
       }
     }

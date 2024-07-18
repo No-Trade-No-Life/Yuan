@@ -8,6 +8,8 @@ import {
   IProduct,
   ITick,
   UUID,
+  decodePath,
+  encodePath,
   formatTime,
   getDataRecordWrapper,
 } from '@yuants/data-model';
@@ -123,8 +125,7 @@ import {
     }),
     map(
       (market): IProduct => ({
-        datasource_id: EXCHANGE_ID,
-        product_id: market.id,
+        product_id: encodePath('CCXT', EXCHANGE_ID, market.id),
         base_currency: market.base,
         quote_currency: market.quote,
         value_scale: market.contractSize,
@@ -310,7 +311,9 @@ import {
     );
   });
 
-  provideTicks(terminal, EXCHANGE_ID, (product_id) => {
+  terminal.provideChannel({ pattern: `^Tick/CCXT/${EXCHANGE_ID}/` }, (channel_id) => {
+    const [, ...productParts] = decodePath(channel_id);
+    const product_id = encodePath(...productParts);
     console.info(formatTime(Date.now()), 'tick_stream', product_id);
     const symbol = mapProductIdToSymbol[product_id];
     if (!symbol) {
