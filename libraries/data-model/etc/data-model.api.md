@@ -147,7 +147,8 @@ export interface IProduct {
     allow_long?: boolean;
     allow_short?: boolean;
     base_currency?: string;
-    datasource_id: string;
+    // @deprecated
+    datasource_id?: string;
     margin_rate?: number;
     max_position?: number;
     max_volume?: number;

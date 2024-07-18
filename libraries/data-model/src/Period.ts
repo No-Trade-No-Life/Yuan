@@ -102,7 +102,11 @@ addDataRecordWrapper('period', (period) => {
     tags: {
       datasource_id: period.datasource_id,
       product_id: period.product_id,
+      duration: period.duration || '',
       period_in_sec: '' + period.period_in_sec,
+    },
+    paths: {
+      id: `/${period.datasource_id}/${period.product_id}/${period.duration}`,
     },
     origin: period,
   };
