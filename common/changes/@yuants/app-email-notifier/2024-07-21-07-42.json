@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-email-notifier",
+      "comment": "support IMAP",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-email-notifier"
+}
