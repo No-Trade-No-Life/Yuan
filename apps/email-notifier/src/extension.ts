@@ -7,12 +7,15 @@ export default (context: IExtensionContext) => {
       properties: {
         env: {
           type: 'object',
-          required: ['HV_URL', 'SMTP_USER', 'SMTP_HOST', 'SMTP_PASS'],
+          required: ['HOST_URL', 'EMAIL_USER'],
           properties: {
-            HV_URL: {
+            HOST_URL: {
               type: 'string',
             },
-            SMTP_USER: {
+            EMAIL_USER: {
+              type: 'string',
+            },
+            EMAIL_PASS: {
               type: 'string',
             },
             SMTP_HOST: {
@@ -21,20 +24,26 @@ export default (context: IExtensionContext) => {
             SMTP_PASS: {
               type: 'string',
             },
+            IMAP_HOST: {
+              type: 'string',
+            },
+            IMAP_PASS: {
+              type: 'string',
+            },
           },
         },
       },
     }),
     make_docker_compose_file: async (ctx, envCtx) => {
       return {
-        [`notifier-email-${ctx.env!.SMTP_USER.replace(/[^A-Za-z0-9]/g, '-')}`]: {
+        [`notifier-email-${ctx.env!.EMAIL_USER.replace(/[^A-Za-z0-9]/g, '-')}`]: {
           image: `ghcr.io/no-trade-no-life/app-email-notifier:${ctx.version ?? envCtx.version}`,
           environment: makeDockerEnvs(ctx.env),
         },
       };
     },
     make_k8s_resource_objects: async (ctx, envCtx) => {
-      const name = ctx.env!.SMTP_USER.replace(/[^A-Za-z0-9]/g, '-');
+      const name = ctx.env!.EMAIL_USER.replace(/[^A-Za-z0-9]/g, '-');
       return {
         deployment: {
           apiVersion: 'apps/v1',
