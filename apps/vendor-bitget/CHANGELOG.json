@@ -2,6 +2,26 @@
   "name": "@yuants/vendor-bitget",
   "entries": [
     {
+      "version": "0.1.6",
+      "tag": "@yuants/vendor-bitget_v0.1.6",
+      "date": "Sun, 21 Jul 2024 07:51:05 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.14.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.5",
       "tag": "@yuants/vendor-bitget_v0.1.5",
       "date": "Sat, 13 Jul 2024 14:49:29 GMT",
