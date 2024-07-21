@@ -2,6 +2,31 @@
   "name": "@yuants/app-email-notifier",
   "entries": [
     {
+      "version": "0.1.0",
+      "tag": "@yuants/app-email-notifier_v0.1.0",
+      "date": "Sun, 21 Jul 2024 07:51:05 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "support IMAP"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.14.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.60",
       "tag": "@yuants/app-email-notifier_v0.0.60",
       "date": "Sat, 13 Jul 2024 14:49:29 GMT",

@@ -1,6 +1,11 @@
 # Change Log - @yuants/vendor-gate
 
-This log was last generated on Mon, 15 Jul 2024 06:57:43 GMT and should not be manually modified.
+This log was last generated on Sun, 21 Jul 2024 07:51:05 GMT and should not be manually modified.
+
+## 0.2.7
+Sun, 21 Jul 2024 07:51:05 GMT
+
+_Version update only_
 
 ## 0.2.6
 Mon, 15 Jul 2024 06:57:43 GMT
