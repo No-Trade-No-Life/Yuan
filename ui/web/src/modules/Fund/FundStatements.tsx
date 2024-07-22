@@ -183,7 +183,8 @@ const reduceStatement = (state: IFundState, statement: IFundStatement): IFundSta
       const tax = Math.max(0, taxable * v.tax_rate);
       const after_tax_assets = pre_tax_assets - tax;
       const after_tax_profit = after_tax_assets - v.deposit;
-      const after_tax_profit_rate = after_tax_profit / Math.max(0, v.deposit);
+      // Assert: 税后收益和净入金不可能同时为负数
+      const after_tax_profit_rate = after_tax_profit / (v.deposit >= 0 ? v.deposit : after_tax_assets);
       const after_tax_share = after_tax_assets / nextState.summary_derived.unit_price;
       nextState.investor_derived[v.name] = {
         share_ratio,
