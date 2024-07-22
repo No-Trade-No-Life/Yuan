@@ -68,6 +68,10 @@ if (process.env.IMAP_HOST) {
       }),
   )
     .pipe(
+      tap({
+        subscribe: () => console.info(formatTime(Date.now()), 'IMAP Connecting'),
+        next: () => console.info(formatTime(Date.now()), 'IMAP Connected'),
+      }),
       mergeMap((imap) =>
         from(
           new Promise<Imap.Box>((resolve, reject) => {
@@ -80,9 +84,12 @@ if (process.env.IMAP_HOST) {
             });
           }),
         ).pipe(
-          mergeMap((box) => {
-            console.info(formatTime(Date.now()), 'Box', box.messages.total);
-            return defer(
+          tap({
+            subscribe: () => console.info(formatTime(Date.now()), 'Box Opening'),
+            next: (box) => console.info(formatTime(Date.now()), 'Box Opened', box.messages.total),
+          }),
+          mergeMap((box) =>
+            defer(
               () =>
                 new Observable<Imap.ImapMessage>((observer) => {
                   const f = imap.seq.fetch(`${box.messages.total}:*`, {
@@ -137,10 +144,12 @@ if (process.env.IMAP_HOST) {
               retry({
                 delay: 5_000,
               }),
-            );
-          }),
+            ),
+          ),
         ),
       ),
+      // Retry when connection error
+      retry({ delay: 30_000 }),
     )
     .subscribe();
 }
