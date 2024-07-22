@@ -1,8 +1,7 @@
 import { IDataRecordTypes, formatTime, getDataRecordWrapper } from '@yuants/data-model';
-import { Terminal, readDataRecords, writeDataRecords } from '@yuants/protocol';
+import { Terminal, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/notify';
-import './models/Email';
 import Imap, { ImapMessageAttributes } from 'imap';
 import { simpleParser } from 'mailparser';
 import { createTransport } from 'nodemailer';
@@ -12,7 +11,6 @@ import {
   defer,
   delayWhen,
   from,
-  lastValueFrom,
   map,
   mergeMap,
   repeat,
@@ -20,6 +18,7 @@ import {
   tap,
   toArray,
 } from 'rxjs';
+import './models/Email';
 
 const terminal = new Terminal(process.env.HOST_URL!, {
   terminal_id: process.env.TERMINAL_ID || `Email/${process.env.EMAIL_USER}`,
@@ -82,35 +81,24 @@ if (process.env.IMAP_HOST) {
           }),
         ).pipe(
           mergeMap((box) => {
-            return defer(() =>
-              readDataRecords(terminal, {
-                type: 'email',
-                tags: { address: process.env.EMAIL_USER! },
-                options: {
-                  limit: 1,
-                  sort: [['origin.attrs.uid', -1]],
-                },
-              }),
+            console.info(formatTime(Date.now()), 'Box', box.messages.total);
+            return defer(
+              () =>
+                new Observable<Imap.ImapMessage>((observer) => {
+                  const f = imap.seq.fetch(`${box.messages.total}:*`, {
+                    bodies: '',
+                  });
+                  f.on('message', (msg, uid) => {
+                    observer.next(msg);
+                  });
+                  f.once('error', (err) => {
+                    observer.error(err);
+                  });
+                  f.once('end', () => {
+                    observer.complete();
+                  });
+                }),
             ).pipe(
-              map((records) => records[0]?.tags.uid ?? 1),
-              tap((lastUid) => console.info(formatTime(Date.now()), 'Last UID:', lastUid)),
-              mergeMap(
-                (lastUid) =>
-                  new Observable<Imap.ImapMessage>((observer) => {
-                    const f = imap.seq.fetch(`${lastUid}:*`, {
-                      bodies: '',
-                    });
-                    f.on('message', (msg, uid) => {
-                      observer.next(msg);
-                    });
-                    f.once('error', (err) => {
-                      observer.error(err);
-                    });
-                    f.once('end', () => {
-                      observer.complete();
-                    });
-                  }),
-              ),
               mergeMap((msg) =>
                 combineLatest([
                   new Observable<ImapMessageAttributes>((observer) => {
