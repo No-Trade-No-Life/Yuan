@@ -64,6 +64,9 @@ if (process.env.IMAP_HOST) {
           observer.next(imap);
           observer.complete();
         });
+        imap.once('error', (err: any) => {
+          observer.error(err);
+        });
         imap.connect();
       }),
   )
@@ -71,6 +74,7 @@ if (process.env.IMAP_HOST) {
       tap({
         subscribe: () => console.info(formatTime(Date.now()), 'IMAP Connecting'),
         next: () => console.info(formatTime(Date.now()), 'IMAP Connected'),
+        error: (err) => console.info(formatTime(Date.now()), 'IMAP Connection Error', err),
       }),
       mergeMap((imap) =>
         from(
