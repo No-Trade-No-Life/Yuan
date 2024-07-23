@@ -55,15 +55,15 @@ The benefits of building association among products are:
 - You can use the market of one product to replace the market of another product for research and guidance trading.
 - Multiple products can be compiled into an index to study the overall trend.
 
-## World status of products
+## World status of products (Up to 2023)
 
 Two factors that measure the size of the market: total amount and daily turnover, which respectively measure the size and activity of the market.
 
-1. Forex, the global foreign exchange market, has a daily turnover of about $7.50 trillion, and the total amount is estimated to be at least $120 trillion based on global GDP and Broad Money.
+1. Forex, the global foreign exchange market, has a daily turnover of about \$7.50 trillion, and the total amount is estimated to be at least \$120 trillion based on global GDP and Broad Money.
 2. The total amount (market value) of stocks is 103 trillion US dollars, and the global daily turnover is 700 billion US dollars. The largest US stock market accounts for 60%.
 3. Bonds, the total global amount (debt) 60 trillion US dollars; the largest US bond market, the daily trading volume 600 billion US dollars, the total amount 24.30 trillion US dollars.
 4. Commodities, the trading of commodities in the secondary market is mainly in the form of futures and options, and the scale is relatively small compared to the above markets.
-5. Cryptos, a fledgling market, are volatile, with a total amount (market cap) of about $1 trillion.
+5. Cryptos, a fledgling market, are volatile, with a total amount (market cap) of about \$1 trillion.
 
 - Fund market, the global regulated Public Private Offering Fund publishes 67.80 trillion US dollars, and the nature of the fund determines that its transaction is not very active. Among them, Chinese public funds are about 26 trillion RMB, and Private Offering Funds are about 20 trillion RMB. However, strictly speaking, the fund market is a further derivative product and cannot be compared with other markets at the same level.
 
