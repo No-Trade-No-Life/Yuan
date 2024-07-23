@@ -1,3 +1,5 @@
+[English](./README.md) | [简体中文](./README-zh-Hans.md)
+
 <a name="readme-top"></a>
 
 ![Language TS][language-shield]
