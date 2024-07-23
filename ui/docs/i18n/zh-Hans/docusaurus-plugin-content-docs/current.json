@@ -10,5 +10,29 @@
   "sidebar.docsSidebar.category.Getting Start.link.generated-index.description": {
     "message": "快速学习核心概念",
     "description": "The generated-index page description for category Getting Start in sidebar docsSidebar"
+  },
+  "sidebar.docsSidebar.category.Basic Concepts": {
+    "message": "基础概念",
+    "description": "The label for category Basic Concepts in sidebar docsSidebar"
+  },
+  "sidebar.docsSidebar.category.Basic Concepts.link.generated-index.description": {
+    "message": "快速学习基础概念",
+    "description": "The generated-index page description for category Basic Concepts in sidebar docsSidebar"
+  },
+  "sidebar.docsSidebar.category.Guide - Agent": {
+    "message": "向导 - Agent",
+    "description": "The label for category Guide - Agent in sidebar docsSidebar"
+  },
+  "sidebar.docsSidebar.category.Guide - Agent.link.generated-index.description": {
+    "message": "学习如何使用 Agent 编写策略",
+    "description": "The generated-index page description for category Guide - Agent in sidebar docsSidebar"
+  },
+  "sidebar.docsSidebar.category.Reference": {
+    "message": "参考资料",
+    "description": "The label for category Reference in sidebar docsSidebar"
+  },
+  "sidebar.docsSidebar.category.Reference.link.generated-index.description": {
+    "message": "一些阅读门槛相对较高的延伸参考资料",
+    "description": "The generated-index page description for category Reference in sidebar docsSidebar"
   }
 }
