@@ -2,6 +2,18 @@
   "name": "@yuants/app-shared-host",
   "entries": [
     {
+      "version": "0.3.0",
+      "tag": "@yuants/app-shared-host_v0.3.0",
+      "date": "Sat, 27 Jul 2024 16:11:05 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "migrate to public repo"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.10",
       "tag": "@yuants/app-shared-host_v0.2.10",
       "date": "Thu, 04 Jul 2024 15:39:18 GMT",

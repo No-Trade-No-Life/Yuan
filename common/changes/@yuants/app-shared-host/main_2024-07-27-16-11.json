@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Bump Version",
+      "type": "none",
+      "packageName": "@yuants/app-shared-host"
+    }
+  ],
+  "packageName": "@yuants/app-shared-host",
+  "email": "41898282+github-actions[bot]@users.noreply.github.com"
+}
