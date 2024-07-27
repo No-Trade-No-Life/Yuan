@@ -1,0 +1,43 @@
+{
+  "name": "@yuants/app-shared-host",
+  "version": "0.2.10",
+  "description": "Host",
+  "files": [
+    "dist/extension.bundle.js"
+  ],
+  "scripts": {
+    "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "~2.31.0",
+    "@yuants/data-model": "workspace:*",
+    "@yuants/protocol": "workspace:*",
+    "promjs": "~0.4.2",
+    "rxjs": "~7.5.6",
+    "ws": "~8.8.1"
+  },
+  "devDependencies": {
+    "@microsoft/api-extractor": "~7.30.0",
+    "@rushstack/heft": "~0.47.5",
+    "@rushstack/heft-jest-plugin": "~0.3.30",
+    "@rushstack/heft-node-rig": "~1.10.7",
+    "@types/heft-jest": "1.0.3",
+    "@types/json-schema": "~7.0.11",
+    "@types/node": "18",
+    "@types/ws": "~8.5.3",
+    "@yuants/extension": "workspace:*",
+    "@yuants/tool-kit": "workspace:*",
+    "typescript": "~4.7.4"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  },
+  "io_ntnl": {
+    "deploy_files": [
+      "dist",
+      "lib",
+      "temp"
+    ]
+  }
+}

@@ -23,6 +23,7 @@
     "@yuants/app-email-notifier",
     "@yuants/app-feishu-notifier",
     "@yuants/app-host",
+    "@yuants/app-shared-host",
     "@yuants/app-k8s-manifest-operator",
     "@yuants/app-mongodb-storage",
     "@yuants/app-metrics-collector",
