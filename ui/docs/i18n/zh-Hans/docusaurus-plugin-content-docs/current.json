@@ -27,6 +27,14 @@
     "message": "学习如何使用 Agent 编写策略",
     "description": "The generated-index page description for category Guide - Agent in sidebar docsSidebar"
   },
+  "sidebar.docsSidebar.category.Protocol": {
+    "message": "技术协议",
+    "description": "The label for category Reference in sidebar docsSidebar"
+  },
+  "sidebar.docsSidebar.category.Protocol.link.generated-index.description": {
+    "message": "主机-终端协议",
+    "description": "The generated-index page description for category Reference in sidebar docsSidebar"
+  },
   "sidebar.docsSidebar.category.Reference": {
     "message": "参考资料",
     "description": "The label for category Reference in sidebar docsSidebar"
