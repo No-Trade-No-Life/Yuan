@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-shared-host
 
-This log was last generated on Thu, 04 Jul 2024 15:39:18 GMT and should not be manually modified.
+This log was last generated on Sat, 27 Jul 2024 16:11:05 GMT and should not be manually modified.
+
+## 0.3.0
+Sat, 27 Jul 2024 16:11:05 GMT
+
+### Minor changes
+
+- migrate to public repo
 
 ## 0.2.10
 Thu, 04 Jul 2024 15:39:18 GMT
