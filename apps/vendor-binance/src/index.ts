@@ -262,7 +262,7 @@ terminal.provideChannel<ITick>(
       account_id: SPOT_ACCOUNT_ID,
       network_id: SPOT_UNIFIED_NETWORK_ID,
       currency: 'USDT',
-      address: `spot`,
+      address: `unified`,
       onApply: {
         INIT: async (order) => {
           const transferResult = await client.postAssetTransfer({
@@ -336,8 +336,9 @@ terminal.provideChannel<ITick>(
           },
           PENDING: async (order) => {
             const wdId = order.current_tx_context;
-            const withdrawResult = await client.getWithdrawHistory({ coin: 'USDT', withdrawOrderId: wdId });
-            const txId = withdrawResult?.[0].txId;
+            const withdrawResult = await client.getWithdrawHistory({ coin: 'USDT' });
+            const record = withdrawResult?.find((v) => v.id === wdId);
+            const txId = record?.txId;
             if (!txId) {
               return { state: 'PENDING', context: wdId };
             }

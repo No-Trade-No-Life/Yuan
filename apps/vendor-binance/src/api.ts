@@ -615,14 +615,3 @@ export class ApiClient {
     }[]
   > => this.request('GET', 'https://api.binance.com/sapi/v1/margin/allPairs', params);
 }
-
-(async () => {
-  const client = new ApiClient({
-    auth: {
-      public_key: process.env.ACCESS_KEY!,
-      secret_key: process.env.SECRET_KEY!,
-    },
-  });
-
-  console.info(JSON.stringify(await client.getSpotAccountInfo({ omitZeroBalances: true }), undefined, 2));
-})();
