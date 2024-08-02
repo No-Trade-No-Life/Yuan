@@ -2,7 +2,7 @@
 sidebar_position: 3
 ---
 
-# What is an Account
+# Account
 
 You may have used a "bank account" before. It is essentially a simplified version of an account, involving only changes in balance.
 

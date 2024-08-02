@@ -2,7 +2,7 @@
 sidebar_position: 2
 ---
 
-# What is Product
+# Product
 
 A **product** is a set of information which describes a financial instrument. It is used to identify a financial instrument in the trading system.
 
