@@ -1,6 +1,37 @@
 # Change Log - @yuants/app-transfer-controller
 
-This log was last generated on Wed, 03 Jul 2024 10:05:02 GMT and should not be manually modified.
+This log was last generated on Fri, 02 Aug 2024 15:11:55 GMT and should not be manually modified.
+
+## 0.0.18
+Fri, 02 Aug 2024 15:11:55 GMT
+
+### Patches
+
+- minor fix
+
+## 0.0.17
+Sun, 21 Jul 2024 07:51:05 GMT
+
+_Version update only_
+
+## 0.0.16
+Sat, 13 Jul 2024 14:49:29 GMT
+
+_Version update only_
+
+## 0.0.15
+Fri, 12 Jul 2024 09:19:54 GMT
+
+### Patches
+
+- migrating data-model: interfaces, schema, module augmentation, wrappers
+
+## 0.0.14
+Fri, 12 Jul 2024 01:50:37 GMT
+
+### Patches
+
+- refactor because of protocol
 
 ## 0.0.13
 Wed, 03 Jul 2024 10:05:02 GMT

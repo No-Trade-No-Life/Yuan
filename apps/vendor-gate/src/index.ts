@@ -2,23 +2,31 @@ import {
   decodePath,
   encodePath,
   formatTime,
+  getDataRecordWrapper,
   IAccountInfo,
   IAccountMoney,
-  IDataRecord,
+  IDataRecordTypes,
   IOrder,
   IPosition,
   IProduct,
+  ITick,
   UUID,
 } from '@yuants/data-model';
-import { provideAccountInfo, Terminal } from '@yuants/protocol';
+import {
+  addAccountTransferAddress,
+  provideAccountInfo,
+  provideTicks,
+  Terminal,
+  writeDataRecords,
+} from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
 import {
   combineLatest,
   combineLatestWith,
-  concatWith,
   defer,
+  filter,
   first,
   firstValueFrom,
   from,
@@ -26,7 +34,6 @@ import {
   lastValueFrom,
   map,
   mergeMap,
-  of,
   repeat,
   retry,
   shareReplay,
@@ -35,7 +42,11 @@ import {
   toArray,
 } from 'rxjs';
 import { GateClient } from './api';
-import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
+
+const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
+  const cache: Record<string, any> = {};
+  return ((...params: any[]) => (cache[encodePath(params)] ??= fn(...params))) as T;
+};
 
 (async () => {
   const client = new GateClient({
@@ -80,7 +91,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
   );
 
   usdtFutureProducts$.subscribe((products) => {
-    terminal.updateProducts(products).subscribe();
+    from(writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!))).subscribe();
   });
 
   const mapProductIdToUsdtFutureProduct$ = usdtFutureProducts$.pipe(
@@ -101,6 +112,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
           const closable_price = +position.mark_price;
           const valuation = volume * closable_price * (theProduct?.value_scale ?? 1);
           return {
+            datasource_id: 'gate/future',
             position_id: `${position.contract}-${position.leverage}-${position.mode}`,
             product_id,
             direction:
@@ -214,7 +226,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
     shareReplay(1),
   );
 
-  terminal.provideAccountInfo(futureUsdtAccountInfo$);
+  provideAccountInfo(terminal, futureUsdtAccountInfo$);
   const spotAccountInfo$ = defer(async (): Promise<IAccountInfo> => {
     const res = await client.getSpotAccounts();
     if (!(res instanceof Array)) {
@@ -251,6 +263,76 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
     shareReplay(1),
   );
   provideAccountInfo(terminal, spotAccountInfo$);
+
+  const futuresTickers$ = defer(async () => {
+    const contractRes = await client.getFuturesContracts('usdt');
+    if (!(contractRes instanceof Array)) {
+      throw new Error(`${contractRes}`);
+    }
+    const tickerRes = await client.getFuturesTickers('usdt');
+    if (!(tickerRes instanceof Array)) {
+      throw new Error(`${contractRes}`);
+    }
+    const mapContractNameToContract = new Map(contractRes.map((v) => [v.name, v]));
+    const mapContractNameToTicker = new Map(tickerRes.map((v) => [v.contract, v]));
+    const ret: Record<string, ITick> = {};
+    for (const contractName of mapContractNameToContract.keys()) {
+      const ticker = mapContractNameToTicker.get(contractName);
+      const contract = mapContractNameToContract.get(contractName);
+      if (!ticker || !contract) {
+        continue;
+      }
+      const tick: ITick = {
+        datasource_id: 'gate/future',
+        product_id: contractName,
+        updated_at: Date.now(),
+        price: +ticker.last,
+        ask: +ticker.lowest_ask,
+        bid: +ticker.highest_bid,
+        volume: +ticker.volume_24h,
+        open_interest: +ticker.total_size,
+        settlement_scheduled_at: contract.funding_next_apply * 1000,
+        interest_rate_for_long: -+contract.funding_rate,
+        interest_rate_for_short: +contract.funding_rate,
+      };
+      ret[contractName] = tick;
+    }
+    return ret;
+  }).pipe(
+    //
+    tap({
+      error: (e) => {
+        console.error(formatTime(Date.now()), 'FuturesTickers', e);
+      },
+    }),
+    retry({ delay: 5000 }),
+    repeat({ delay: 5000 }),
+    shareReplay(1),
+  );
+
+  const marketDepth$ = memoizeMap((contract_name: string) =>
+    defer(async () => {
+      const res = await client.getFuturesOrderBook('usdt', { contract: contract_name });
+      // TODO: possible error handling
+      return res;
+    }).pipe(
+      //
+      repeat({ delay: 2500 }),
+      retry({ delay: 5000 }),
+      shareReplay(1),
+    ),
+  );
+
+  provideTicks(terminal, 'gate/future', (product_id: string) => {
+    return defer(() =>
+      futuresTickers$.pipe(
+        //
+        map((v) => v[product_id]),
+        filter((v) => v !== undefined),
+        shareReplay(1),
+      ),
+    );
+  });
 
   terminal.provideService(
     'SubmitOrder',
@@ -290,40 +372,6 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
         return { res: { code: 0, message: 'OK' } };
       }),
   );
-
-  interface IFundingRate {
-    series_id: string;
-    datasource_id: string;
-    product_id: string;
-    base_currency: string;
-    quote_currency: string;
-    funding_at: number;
-    funding_rate: number;
-  }
-
-  const wrapFundingRateRecord = (v: IFundingRate): IDataRecord<IFundingRate> => ({
-    id: encodePath(v.datasource_id, v.product_id, v.funding_at),
-    type: 'funding_rate',
-    created_at: v.funding_at,
-    updated_at: v.funding_at,
-    frozen_at: v.funding_at,
-    tags: {
-      series_id: encodePath(v.datasource_id, v.product_id),
-      datasource_id: v.datasource_id,
-      product_id: v.product_id,
-      base_currency: v.base_currency,
-      quote_currency: v.quote_currency,
-    },
-    origin: {
-      series_id: encodePath(v.datasource_id, v.product_id),
-      datasource_id: v.datasource_id,
-      product_id: v.product_id,
-      base_currency: v.base_currency,
-      quote_currency: v.quote_currency,
-      funding_rate: v.funding_rate,
-      funding_at: v.funding_at,
-    },
-  });
 
   terminal.provideService(
     'CopyDataRecords',
@@ -370,20 +418,18 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
         // there will be at most 1000 records, so we don't need to chunk it by bufferCount
         await lastValueFrom(
           from(funding_rate_history).pipe(
-            map(
-              (v): IFundingRate => ({
-                series_id: msg.req.tags!.series_id,
-                product_id,
-                datasource_id,
-                base_currency,
-                quote_currency,
-                funding_rate: +v.r,
-                funding_at: v.t * 1000,
-              }),
-            ),
-            map(wrapFundingRateRecord),
+            map((v): IDataRecordTypes['funding_rate'] => ({
+              series_id: msg.req.tags!.series_id,
+              product_id,
+              datasource_id,
+              base_currency,
+              quote_currency,
+              funding_rate: +v.r,
+              funding_at: v.t * 1000,
+            })),
+            map(getDataRecordWrapper('funding_rate')!),
             toArray(),
-            mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
+            mergeMap((v) => writeDataRecords(terminal, v)),
           ),
         );
         return { res: { code: 0, message: 'OK' } };

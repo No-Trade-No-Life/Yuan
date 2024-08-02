@@ -1,5 +1,5 @@
 import { IAccountInfo, encodePath, mergeAccountInfoPositions } from '@yuants/data-model';
-import { Observable, first, mergeMap, pairwise } from 'rxjs';
+import { ObservableInput, defer, first, mergeMap, pairwise } from 'rxjs';
 import { PromRegistry } from '../services';
 import { Terminal } from '../terminal';
 
@@ -22,116 +22,125 @@ const AccountInfoPositionValuation = PromRegistry.create('gauge', 'account_info_
  *
  * @public
  */
-export const provideAccountInfo = (terminal: Terminal, accountInfo$: Observable<IAccountInfo>) => {
+export const provideAccountInfo = (terminal: Terminal, accountInfo$: ObservableInput<IAccountInfo>) => {
   // setup services
-  const sub = accountInfo$.pipe(first()).subscribe((info) => {
-    const channel_id = encodePath(`AccountInfo`, info.account_id);
-    terminal.provideChannel({ const: channel_id }, () => accountInfo$);
+  const sub = defer(() => accountInfo$)
+    .pipe(first())
+    .subscribe((info) => {
+      const channel_id = encodePath(`AccountInfo`, info.account_id);
+      terminal.provideChannel({ const: channel_id }, () => accountInfo$);
 
-    // Metrics
-    const sub2 = accountInfo$
-      .pipe(
-        //
-        mergeMap(mergeAccountInfoPositions),
-        pairwise(),
-      )
-      .subscribe(([lastAccountInfo, accountInfo]) => {
-        AccountInfoBalance.set(accountInfo.money.balance, {
-          account_id: accountInfo.account_id,
-          currency: accountInfo.money.currency,
-        });
-        AccountInfoEquity.set(accountInfo.money.equity, {
-          account_id: accountInfo.account_id,
-          currency: accountInfo.money.currency,
-        });
-        AccountInfoProfit.set(accountInfo.money.profit, {
-          account_id: accountInfo.account_id,
-          currency: accountInfo.money.currency,
-        });
-        AccountInfoUsed.set(accountInfo.money.used, {
-          account_id: accountInfo.account_id,
-          currency: accountInfo.money.currency,
-        });
-        AccountInfoFree.set(accountInfo.money.free, {
-          account_id: accountInfo.account_id,
-          currency: accountInfo.money.currency,
-        });
+      // Metrics
+      const sub2 = defer(() => accountInfo$)
+        .pipe(
+          //
+          mergeMap(mergeAccountInfoPositions),
+          pairwise(),
+        )
+        .subscribe(([lastAccountInfo, accountInfo]) => {
+          AccountInfoBalance.set(accountInfo.money.balance, {
+            account_id: accountInfo.account_id,
+            currency: accountInfo.money.currency,
+          });
+          AccountInfoEquity.set(accountInfo.money.equity, {
+            account_id: accountInfo.account_id,
+            currency: accountInfo.money.currency,
+          });
+          AccountInfoProfit.set(accountInfo.money.profit, {
+            account_id: accountInfo.account_id,
+            currency: accountInfo.money.currency,
+          });
+          AccountInfoUsed.set(accountInfo.money.used, {
+            account_id: accountInfo.account_id,
+            currency: accountInfo.money.currency,
+          });
+          AccountInfoFree.set(accountInfo.money.free, {
+            account_id: accountInfo.account_id,
+            currency: accountInfo.money.currency,
+          });
 
-        for (const currency of lastAccountInfo.currencies || []) {
-          AccountInfoBalance.set(currency.balance, {
-            account_id: lastAccountInfo.account_id,
-            currency: currency.currency,
-          });
-          AccountInfoEquity.set(currency.equity, {
-            account_id: lastAccountInfo.account_id,
-            currency: currency.currency,
-          });
-          AccountInfoProfit.set(currency.profit, {
-            account_id: lastAccountInfo.account_id,
-            currency: currency.currency,
-          });
-          AccountInfoUsed.set(currency.used, {
-            account_id: lastAccountInfo.account_id,
-            currency: currency.currency,
-          });
-          AccountInfoFree.set(currency.free, {
-            account_id: lastAccountInfo.account_id,
-            currency: currency.currency,
-          });
-        }
+          for (const currency of lastAccountInfo.currencies || []) {
+            AccountInfoBalance.set(currency.balance, {
+              account_id: lastAccountInfo.account_id,
+              currency: currency.currency,
+            });
+            AccountInfoEquity.set(currency.equity, {
+              account_id: lastAccountInfo.account_id,
+              currency: currency.currency,
+            });
+            AccountInfoProfit.set(currency.profit, {
+              account_id: lastAccountInfo.account_id,
+              currency: currency.currency,
+            });
+            AccountInfoUsed.set(currency.used, {
+              account_id: lastAccountInfo.account_id,
+              currency: currency.currency,
+            });
+            AccountInfoFree.set(currency.free, {
+              account_id: lastAccountInfo.account_id,
+              currency: currency.currency,
+            });
+          }
 
-        for (const position of lastAccountInfo.positions) {
-          AccountInfoPositionVolume.reset({
-            account_id: lastAccountInfo.account_id,
-            product_id: position.product_id,
-            direction: position.direction || '',
-          });
-          AccountInfoPositionPrice.reset({
-            account_id: lastAccountInfo.account_id,
-            product_id: position.product_id,
-            direction: position.direction || '',
-          });
-          AccountInfoPositionClosablePrice.reset({
-            account_id: lastAccountInfo.account_id,
-            product_id: position.product_id,
-            direction: position.direction || '',
-          });
-          AccountInfoPositionFloatingProfit.reset({
-            account_id: lastAccountInfo.account_id,
-            product_id: position.product_id,
-            direction: position.direction || '',
-          });
-        }
+          for (const position of lastAccountInfo.positions) {
+            AccountInfoPositionVolume.reset({
+              account_id: lastAccountInfo.account_id,
+              product_id: position.product_id,
+              direction: position.direction || '',
+            });
+            AccountInfoPositionPrice.reset({
+              account_id: lastAccountInfo.account_id,
+              product_id: position.product_id,
+              direction: position.direction || '',
+            });
+            AccountInfoPositionClosablePrice.reset({
+              account_id: lastAccountInfo.account_id,
+              product_id: position.product_id,
+              direction: position.direction || '',
+            });
+            AccountInfoPositionFloatingProfit.reset({
+              account_id: lastAccountInfo.account_id,
+              product_id: position.product_id,
+              direction: position.direction || '',
+            });
+          }
 
-        for (const position of accountInfo.positions) {
-          AccountInfoPositionVolume.set(position.volume || 0, {
-            account_id: accountInfo.account_id,
-            product_id: position.product_id,
-            direction: position.direction || '',
-          });
-          AccountInfoPositionPrice.set(position.position_price || 0, {
-            account_id: accountInfo.account_id,
-            product_id: position.product_id,
-            direction: position.direction || '',
-          });
-          AccountInfoPositionClosablePrice.set(position.closable_price || 0, {
-            account_id: accountInfo.account_id,
-            product_id: position.product_id,
-            direction: position.direction || '',
-          });
-          AccountInfoPositionFloatingProfit.set(position.floating_profit || 0, {
-            account_id: accountInfo.account_id,
-            product_id: position.product_id,
-            direction: position.direction || '',
-          });
-          AccountInfoPositionValuation.set(position.valuation || 0, {
-            account_id: accountInfo.account_id,
-            product_id: position.product_id,
-            direction: position.direction || '',
-          });
-        }
-      });
-    terminal.dispose$.subscribe(() => sub2.unsubscribe());
-  });
-  terminal.dispose$.subscribe(() => sub.unsubscribe());
+          for (const position of accountInfo.positions) {
+            AccountInfoPositionVolume.set(position.volume || 0, {
+              account_id: accountInfo.account_id,
+              product_id: position.product_id,
+              direction: position.direction || '',
+            });
+            AccountInfoPositionPrice.set(position.position_price || 0, {
+              account_id: accountInfo.account_id,
+              product_id: position.product_id,
+              direction: position.direction || '',
+            });
+            AccountInfoPositionClosablePrice.set(position.closable_price || 0, {
+              account_id: accountInfo.account_id,
+              product_id: position.product_id,
+              direction: position.direction || '',
+            });
+            AccountInfoPositionFloatingProfit.set(position.floating_profit || 0, {
+              account_id: accountInfo.account_id,
+              product_id: position.product_id,
+              direction: position.direction || '',
+            });
+            AccountInfoPositionValuation.set(position.valuation || 0, {
+              account_id: accountInfo.account_id,
+              product_id: position.product_id,
+              direction: position.direction || '',
+            });
+          }
+        });
+      defer(() => terminal.dispose$).subscribe(() => sub2.unsubscribe());
+    });
+  defer(() => terminal.dispose$).subscribe(() => sub.unsubscribe());
 };
+
+/**
+ * use account info data stream
+ * @public
+ */
+export const useAccountInfo = (terminal: Terminal, account_id: string) =>
+  terminal.consumeChannel<IAccountInfo>(encodePath(`AccountInfo`, account_id));

@@ -1,7 +1,7 @@
 import {
   IAccountInfo,
   IAccountMoney,
-  IDataRecord,
+  IDataRecordTypes,
   IOrder,
   IPeriod,
   IPosition,
@@ -11,9 +11,15 @@ import {
   decodePath,
   encodePath,
   formatTime,
-  wrapTransferNetworkInfo,
+  getDataRecordWrapper,
 } from '@yuants/data-model';
-import { Terminal, wrapPeriod, writeDataRecords } from '@yuants/protocol';
+import {
+  Terminal,
+  addAccountTransferAddress,
+  provideAccountInfo,
+  provideTicks,
+  writeDataRecords,
+} from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
@@ -22,7 +28,6 @@ import {
   EMPTY,
   catchError,
   combineLatest,
-  concatWith,
   defer,
   delayWhen,
   filter,
@@ -41,13 +46,13 @@ import {
   toArray,
 } from 'rxjs';
 import { OkxClient } from './api';
-import { IFundingRate, wrapFundingRateRecord } from './models/FundingRate';
-import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
 
 const terminal = new Terminal(process.env.HOST_URL!, {
   terminal_id: process.env.TERMINAL_ID || `okx/${UUID()}`,
   name: 'OKX',
 });
+
+const DATASOURCE_ID = 'OKX';
 
 const client = new OkxClient({
   auth: process.env.PUBLIC_ONLY
@@ -71,7 +76,7 @@ const usdtSwapProducts$ = swapInstruments$.pipe(
       filter((x) => x.ctType === 'linear' && x.settleCcy === 'USDT'),
       map(
         (x): IProduct => ({
-          datasource_id: 'OKX',
+          datasource_id: DATASOURCE_ID,
           product_id: encodePath(x.instType, x.instId),
           base_currency: x.ctValCcy,
           quote_currency: x.settleCcy,
@@ -99,7 +104,7 @@ const marginProducts$ = marginInstruments$.pipe(
       //
       map(
         (x): IProduct => ({
-          datasource_id: 'OKX',
+          datasource_id: DATASOURCE_ID,
           product_id: encodePath(x.instType, x.instId),
           base_currency: x.baseCcy,
           quote_currency: x.quoteCcy,
@@ -119,13 +124,21 @@ const mapProductIdToMarginProduct$ = marginProducts$.pipe(
   map((x) => new Map(x.map((x) => [x.product_id, x])), shareReplay(1)),
 );
 
-usdtSwapProducts$.pipe(delayWhen((products) => terminal.updateProducts(products))).subscribe((products) => {
-  console.info(formatTime(Date.now()), 'SWAP Products updated', products.length);
-});
+usdtSwapProducts$
+  .pipe(
+    delayWhen((products) => from(writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!)))),
+  )
+  .subscribe((products) => {
+    console.info(formatTime(Date.now()), 'SWAP Products updated', products.length);
+  });
 
-marginProducts$.pipe(delayWhen((products) => terminal.updateProducts(products))).subscribe((products) => {
-  console.info(formatTime(Date.now()), 'MARGIN Products updated', products.length);
-});
+marginProducts$
+  .pipe(
+    delayWhen((products) => from(writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!)))),
+  )
+  .subscribe((products) => {
+    console.info(formatTime(Date.now()), 'MARGIN Products updated', products.length);
+  });
 
 const swapMarketTickers$ = defer(() => client.getMarketTickers({ instType: 'SWAP' })).pipe(
   mergeMap((x) =>
@@ -194,7 +207,7 @@ const swapOpenInterest$ = defer(() => client.getOpenInterest({ instType: 'SWAP' 
   shareReplay(1),
 );
 
-terminal.provideTicks('OKX', (product_id) => {
+provideTicks(terminal, 'OKX', (product_id) => {
   const [instType, instId] = decodePath(product_id);
   if (instType === 'SWAP') {
     return defer(async () => {
@@ -212,7 +225,7 @@ terminal.provideTicks('OKX', (product_id) => {
         combineLatest(x).pipe(
           map(([theProduct, ticker, fundingRate, swapOpenInterest]): ITick => {
             return {
-              datasource_id: 'OKX',
+              datasource_id: DATASOURCE_ID,
               product_id,
               updated_at: Date.now(),
               settlement_scheduled_at: +fundingRate.fundingTime,
@@ -250,7 +263,7 @@ terminal.provideTicks('OKX', (product_id) => {
         combineLatest(x).pipe(
           map(
             ([theProduct, ticker, interestRateForBase, interestRateForQuote]): ITick => ({
-              datasource_id: 'OKX',
+              datasource_id: DATASOURCE_ID,
               product_id,
               updated_at: Date.now(),
               price: +ticker.last,
@@ -369,7 +382,7 @@ const tradingAccountInfo$ = combineLatest([
 
           return {
             position_id: x.posId,
-            datasource_id: 'OKX',
+            datasource_id: DATASOURCE_ID,
             product_id,
             direction,
             volume: volume,
@@ -415,7 +428,7 @@ const tradingAccountInfo$ = combineLatest([
   shareReplay(1),
 );
 
-terminal.provideAccountInfo(tradingAccountInfo$);
+provideAccountInfo(terminal, tradingAccountInfo$);
 
 const assetBalance$ = defer(() => client.getAssetBalances({})).pipe(
   repeat({ delay: 1000 }),
@@ -451,7 +464,7 @@ const fundingAccountInfo$ = combineLatest([accountUid$, assetBalance$]).pipe(
   shareReplay(1),
 );
 
-terminal.provideAccountInfo(fundingAccountInfo$);
+provideAccountInfo(terminal, fundingAccountInfo$);
 
 const savingBalance$ = defer(() => client.getFinanceSavingsBalance({})).pipe(
   repeat({ delay: 5000 }),
@@ -487,7 +500,7 @@ const earningAccountInfo$ = combineLatest([accountUid$, savingBalance$]).pipe(
   shareReplay(1),
 );
 
-terminal.provideAccountInfo(earningAccountInfo$);
+provideAccountInfo(terminal, earningAccountInfo$);
 
 defer(async () => {
   const account_config = await firstValueFrom(accountConfig$);
@@ -566,16 +579,16 @@ defer(async () => {
     }
     if (addresses.length !== 0) {
       await firstValueFrom(
-        terminal
-          .updateDataRecords([
-            wrapTransferNetworkInfo({
+        from(
+          writeDataRecords(terminal, [
+            getDataRecordWrapper('transfer_network_info')!({
               network_id: 'TRC20',
               commission: 1,
               currency: 'USDT',
               timeout: 1800_000,
             }),
-          ])
-          .pipe(concatWith(of(void 0))),
+          ]),
+        ),
       );
     }
   }
@@ -922,7 +935,7 @@ defer(async () => {
               type: 'object',
               required: ['series_id'],
               properties: {
-                series_id: { type: 'string', pattern: '^okx/' },
+                series_id: { type: 'string', pattern: '^OKX/' },
               },
             },
           },
@@ -936,7 +949,7 @@ defer(async () => {
               required: ['datasource_id'],
               properties: {
                 datasource_id: {
-                  const: 'okx',
+                  const: DATASOURCE_ID,
                 },
               },
             },
@@ -965,7 +978,7 @@ defer(async () => {
           if (!base_currency || !quote_currency) {
             return { res: { code: 400, message: `base_currency or quote_currency is required` } };
           }
-          const funding_rate_history: IFundingRate[] = [];
+          const funding_rate_history: IDataRecordTypes['funding_rate'][] = [];
           let current_end = end;
           while (true) {
             client.getFundingRateHistory;
@@ -999,22 +1012,21 @@ defer(async () => {
           funding_rate_history.sort((a, b) => +a.funding_at - +b.funding_at);
           // there will be at most 300 records, so we don't need to chunk it by bufferCount
           await lastValueFrom(
-            from(funding_rate_history).pipe(
-              map(wrapFundingRateRecord),
-              toArray(),
-              mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
-            ),
+            from(writeDataRecords(terminal, funding_rate_history.map(getDataRecordWrapper('funding_rate')!))),
           );
           return { res: { code: 0, message: 'OK' } };
         }
 
         if (msg.req.type === 'period') {
-          const { period_in_sec, product_id = '' } = msg.req.tags || {};
+          const { period_in_sec, product_id = '', datasource_id } = msg.req.tags || {};
           if (!product_id) {
             return { res: { code: 400, message: 'product_id is required' } };
           }
           if (!period_in_sec) {
             return { res: { code: 400, message: 'period_in_sec is required' } };
+          }
+          if (!datasource_id) {
+            return { res: { code: 400, message: 'datasource_id is required' } };
           }
           const [instType, instId] = decodePath(product_id);
           if (!instId) {
@@ -1052,7 +1064,7 @@ defer(async () => {
             x: [ts: string, o: string, h: string, l: string, c: string, confirm: string],
           ): IPeriod => ({
             product_id,
-            datasource_id: 'OKX',
+            datasource_id,
             duration: {
               60: 'PT1M',
               180: 'PT3M',
@@ -1079,8 +1091,8 @@ defer(async () => {
           });
           if (res.data.length > 0 && res.data.length < 100) {
             // data is complete
-            const dataRecords = res.data.map(mapResDataToIPeriod).map(wrapPeriod);
-            await lastValueFrom(writeDataRecords(terminal, dataRecords));
+            const dataRecords = res.data.map(mapResDataToIPeriod).map(getDataRecordWrapper('period')!);
+            await lastValueFrom(from(writeDataRecords(terminal, dataRecords)));
             return { res: { code: 0, message: 'OK' } };
           }
 
@@ -1121,7 +1133,6 @@ defer(async () => {
             currentStartTime = startTime;
           }
 
-          const data: IDataRecord<IPeriod>[] = [];
           while (true) {
             const before = `${Math.max(0, currentStartTime - 1)}`;
             const after = `${Math.min(endTime, currentStartTime + 100 * (+period_in_sec * 1000))}`;
@@ -1136,9 +1147,10 @@ defer(async () => {
             if (currentStartTime >= endTime) {
               break;
             }
-            data.push(...res.data.map(mapResDataToIPeriod).map(wrapPeriod));
+            const data = res.data.map(mapResDataToIPeriod).map(getDataRecordWrapper('period')!);
+            await firstValueFrom(from(writeDataRecords(terminal, data)));
+            await firstValueFrom(timer(1000));
           }
-          await firstValueFrom(writeDataRecords(terminal, data));
           return { res: { code: 0, message: 'OK' } };
         }
 

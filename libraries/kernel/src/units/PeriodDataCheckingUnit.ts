@@ -1,5 +1,5 @@
 import { formatTime } from '@yuants/data-model';
-import { PromRegistry, Terminal } from '@yuants/protocol';
+import { PromRegistry, Terminal, queryPeriods } from '@yuants/protocol';
 import { EMPTY, Subscription, defer, mergeMap, repeat, retry, tap } from 'rxjs';
 import { Kernel } from '../kernel';
 import { BasicUnit } from './BasicUnit';
@@ -38,7 +38,7 @@ export class PeriodDataCheckingUnit extends BasicUnit {
       let lastCheckedTimestamp = start_time_in_us / 1000;
       let lastCheckedIndex = 0;
       const sub = defer(() =>
-        this.terminal.queryPeriods({
+        queryPeriods(this.terminal, {
           datasource_id,
           product_id,
           period_in_sec,

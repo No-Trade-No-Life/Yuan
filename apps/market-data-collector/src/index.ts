@@ -1,9 +1,8 @@
-import { IPeriod, formatTime } from '@yuants/data-model';
-import { PromRegistry, Terminal } from '@yuants/protocol';
+import { IDataRecordTypes, IPeriod, formatTime, getDataRecordSchema } from '@yuants/data-model';
+import { PromRegistry, Terminal, copyDataRecords, queryDataRecords } from '@yuants/protocol';
 import { batchGroupBy, switchMapWithComplete } from '@yuants/utils';
 import Ajv from 'ajv';
 import CronJob from 'cron';
-import { JSONSchema7 } from 'json-schema';
 import {
   EMPTY,
   Observable,
@@ -27,19 +26,7 @@ import {
   toArray,
 } from 'rxjs';
 
-interface IPullSourceRelation {
-  datasource_id: string;
-  product_id: string;
-  period_in_sec: number;
-  /** Pattern of CronJob */
-  cron_pattern: string;
-  /** Timezone for CronJob evaluation */
-  cron_timezone: string;
-  /** disable this relation (false equivalent to not set before) */
-  disabled?: boolean;
-  /** default to 0, means start from the latest period, above 0 means pull start from earlier periods */
-  replay_count?: number;
-}
+type IPullSourceRelation = IDataRecordTypes['pull_source_relation'];
 
 const MetricPullSourceBucket = PromRegistry.create(
   'histogram',
@@ -54,42 +41,7 @@ const MetricCronjobStatus = PromRegistry.create(
   'historical market data CronJob status',
 );
 
-const schema: JSONSchema7 = {
-  type: 'object',
-  title: 'Historical Market Data Collector Config',
-  required: ['datasource_id', 'product_id', 'period_in_sec', 'cron_pattern', 'cron_timezone'],
-  properties: {
-    datasource_id: {
-      type: 'string',
-      title: 'Datasource ID',
-    },
-    product_id: {
-      type: 'string',
-      title: 'Product ID',
-    },
-    period_in_sec: {
-      type: 'number',
-      title: 'duration (in seconds)',
-    },
-    cron_pattern: {
-      type: 'string',
-      title: 'Pattern of CronJob: when to pull data',
-    },
-    cron_timezone: {
-      type: 'string',
-      title: 'Timezone of CronJob',
-    },
-    replay_count: {
-      type: 'number',
-      title: 'Replay Count',
-    },
-    disabled: {
-      type: 'boolean',
-      title: 'Disable this relation',
-    },
-  },
-};
-const ajv = new Ajv();
+const ajv = new Ajv({ strict: false });
 
 const HV_URL = process.env.HV_URL!;
 const STORAGE_TERMINAL_ID = process.env.STORAGE_TERMINAL_ID!;
@@ -117,7 +69,7 @@ const listWatch = <T, K>(
   );
 
 defer(() =>
-  term.queryDataRecords<IPullSourceRelation>({
+  queryDataRecords<IPullSourceRelation>(term, {
     type: 'pull_source_relation',
   }),
 )
@@ -155,7 +107,7 @@ const fromCronJob = (options: Omit<CronJob.CronJobParameters, 'onTick' | 'start'
     }
   });
 
-const validate = ajv.compile(schema);
+const validate = ajv.compile(getDataRecordSchema('pull_source_relation')!);
 const runTask = (psr: IPullSourceRelation) =>
   new Observable<void>((subscriber) => {
     if (psr.disabled) return;
@@ -254,7 +206,7 @@ const runTask = (psr: IPullSourceRelation) =>
     subs.push(
       taskStart$.subscribe(() => {
         defer(() =>
-          term.queryDataRecords<IPeriod>({
+          queryDataRecords<IPeriod>(term, {
             type: 'period',
             tags: {
               datasource_id: psr.datasource_id,
@@ -277,7 +229,7 @@ const runTask = (psr: IPullSourceRelation) =>
           .pipe(
             //
             map((v) => v.frozen_at),
-            filter((v): v is Exclude<typeof v, null> => !!v),
+            filter((v): v is Exclude<typeof v, null | undefined> => !!v),
             defaultIfEmpty(0),
             first(),
           )
@@ -305,8 +257,8 @@ const runTask = (psr: IPullSourceRelation) =>
       copyDataAction$
         .pipe(
           mergeMap(() =>
-            term
-              .copyDataRecords({
+            defer(() =>
+              copyDataRecords(term, {
                 type: 'period',
                 tags: {
                   datasource_id: psr.datasource_id,
@@ -315,19 +267,19 @@ const runTask = (psr: IPullSourceRelation) =>
                 },
                 time_range: [lastTime, Date.now()],
                 receiver_terminal_id: STORAGE_TERMINAL_ID,
-              })
-              .pipe(
-                tap(() => {
-                  taskComplete$.next();
-                }),
-                // ISSUE: catch error will replace the whole stream with EMPTY, therefore it must be placed inside mergeMap
-                // so that the outer stream subscription will not be affected
-                catchError((e) => {
-                  err = e;
-                  taskError$.next();
-                  return EMPTY;
-                }),
-              ),
+              }),
+            ).pipe(
+              tap(() => {
+                taskComplete$.next();
+              }),
+              // ISSUE: catch error will replace the whole stream with EMPTY, therefore it must be placed inside mergeMap
+              // so that the outer stream subscription will not be affected
+              catchError((e) => {
+                err = e;
+                taskError$.next();
+                return EMPTY;
+              }),
+            ),
           ),
         )
         .subscribe(),

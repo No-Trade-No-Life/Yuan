@@ -1,11 +1,12 @@
-import { IAccountInfo, IAccountMoney, formatTime } from '@yuants/data-model';
-import { Terminal, provideAccountInfo, readDataRecords } from '@yuants/protocol';
+import { IAccountInfo, IAccountMoney, formatTime, getDataRecordSchema } from '@yuants/data-model';
+import { Terminal, provideAccountInfo, readDataRecords, useAccountInfo } from '@yuants/protocol';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import {
   combineLatest,
   defer,
   filter,
+  from,
   groupBy,
   map,
   mergeMap,
@@ -16,15 +17,14 @@ import {
   timeout,
   toArray,
 } from 'rxjs';
-import { acrSchema } from './model';
 
 const TERMINAL_ID = process.env.TERMINAL_ID || `AccountComposer`;
 const terminal = new Terminal(process.env.HOST_URL!, { terminal_id: TERMINAL_ID, name: 'Account Composer' });
 
-const ajv = new Ajv();
+const ajv = new Ajv({ strict: false });
 addFormats(ajv);
 
-const validate = ajv.compile(acrSchema);
+const validate = ajv.compile(getDataRecordSchema('account_composition_relation')!);
 
 defer(() => readDataRecords(terminal, { type: 'account_composition_relation' }))
   .pipe(
@@ -47,7 +47,7 @@ defer(() => readDataRecords(terminal, { type: 'account_composition_relation' }))
           const accountInfo$ = defer(() =>
             combineLatest(
               x.map((y) =>
-                terminal.useAccountInfo(y.source_account_id).pipe(
+                from(useAccountInfo(terminal, y.source_account_id)).pipe(
                   map(
                     (x): IAccountInfo => ({
                       ...x,
@@ -87,7 +87,14 @@ defer(() => readDataRecords(terminal, { type: 'account_composition_relation' }))
               const mapCurrencyToCurrentInfo: Record<string, IAccountMoney> = {};
               accountInfos.forEach((x) => {
                 x.currencies?.forEach((c) => {
-                  const y = (mapCurrencyToCurrentInfo[c.currency] ??= { ...c });
+                  const y = (mapCurrencyToCurrentInfo[c.currency] ??= {
+                    currency: c.currency,
+                    equity: 0,
+                    balance: 0,
+                    profit: 0,
+                    used: 0,
+                    free: 0,
+                  });
                   y.equity += c.equity;
                   y.balance += c.balance;
                   y.profit += c.profit;

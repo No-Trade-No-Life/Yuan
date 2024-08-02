@@ -2,6 +2,116 @@
   "name": "@yuants/app-general-data-source",
   "entries": [
     {
+      "version": "0.0.52",
+      "tag": "@yuants/app-general-data-source_v0.0.52",
+      "date": "Sun, 21 Jul 2024 07:51:05 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.14.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.51",
+      "tag": "@yuants/app-general-data-source_v0.0.51",
+      "date": "Sat, 13 Jul 2024 14:49:29 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.13.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.50",
+      "tag": "@yuants/app-general-data-source_v0.0.50",
+      "date": "Fri, 12 Jul 2024 14:05:46 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "strict schema error"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.49",
+      "tag": "@yuants/app-general-data-source_v0.0.49",
+      "date": "Fri, 12 Jul 2024 09:19:54 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "migrating data-model: interfaces, schema, module augmentation, wrappers"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.12.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.48",
+      "tag": "@yuants/app-general-data-source_v0.0.48",
+      "date": "Fri, 12 Jul 2024 01:50:37 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor because of protocol"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.20.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.1.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.6`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.47",
       "tag": "@yuants/app-general-data-source_v0.0.47",
       "date": "Wed, 03 Jul 2024 10:05:02 GMT",

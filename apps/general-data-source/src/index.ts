@@ -1,7 +1,6 @@
-import { IPeriod } from '@yuants/data-model';
-import { PromRegistry, Terminal } from '@yuants/protocol';
+import { IDataRecordTypes, IPeriod, getDataRecordSchema, getDataRecordWrapper } from '@yuants/data-model';
+import { PromRegistry, Terminal, queryDataRecords, writeDataRecords } from '@yuants/protocol';
 import Ajv from 'ajv';
-import { JSONSchema7 } from 'json-schema';
 import {
   EMPTY,
   Observable,
@@ -22,43 +21,14 @@ import {
 } from 'rxjs';
 import { mergeSort } from './utils';
 
-// GSR
-interface IGeneralSpecificRelation {
-  // general_datasource_id 一定是 Y 常量，因此不需要特别存储
-  // general_datasource_id: string;
-  /** 标准品种ID */
-  general_product_id: string; // XAUUSD
-  /** 具体数据源 ID */
-  specific_datasource_id: string; // TradingView
-  /** 具体品种 ID */
-  specific_product_id: string; // FX:XAUUSD
-}
+type IGeneralSpecificRelation = IDataRecordTypes['general_specific_relation'];
 
 const MetricSyncDurationBucket = PromRegistry.create('histogram', 'general_data_source_sync_duration_bucket');
 
 const MetricSyncStatus = PromRegistry.create('gauge', 'general_data_source_sync_status');
 
-const schema: JSONSchema7 = {
-  type: 'object',
-  title: '标准行情关系',
-  properties: {
-    general_product_id: {
-      type: 'string',
-      title: '标准品种 ID',
-    },
-    specific_datasource_id: {
-      type: 'string',
-      title: '具体数据源 ID',
-    },
-    specific_product_id: {
-      type: 'string',
-      title: '具体品种 ID',
-    },
-  },
-};
-
-const ajv = new Ajv();
-const validate = ajv.compile(schema);
+const ajv = new Ajv({ strict: false });
+const validate = ajv.compile(getDataRecordSchema('general_specific_relation')!);
 
 const HV_URL = process.env.HV_URL!;
 const QUERY_CONCURRENCY = +process.env.QUERY_CONCURRENCY! || 10;
@@ -89,7 +59,7 @@ const syncData = (
     //
     map((gsr) =>
       defer(() =>
-        term.queryDataRecords<IPeriod>({
+        queryDataRecords<IPeriod>(term, {
           type: 'period',
           tags: {
             datasource_id: gsr.specific_datasource_id,
@@ -172,7 +142,7 @@ const syncData = (
 };
 
 const mapProductIdToGSRList$ = defer(() =>
-  term.queryDataRecords<IGeneralSpecificRelation>({
+  queryDataRecords<IGeneralSpecificRelation>(term, {
     type: 'general_specific_relation',
   }),
 ).pipe(
@@ -236,7 +206,7 @@ term.provideService(
       mergeMap((gsrList) =>
         syncData(product_id, +period_in_sec, gsrList, [start_time, end_time]).pipe(
           //
-          delayWhen((periods) => term.updatePeriods(periods)),
+          delayWhen((periods) => from(writeDataRecords(term, periods.map(getDataRecordWrapper('period')!)))),
         ),
       ),
       tap((periods) => {

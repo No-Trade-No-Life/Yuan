@@ -1,12 +1,15 @@
 import { IconRefresh } from '@douyinfe/semi-icons';
 import { Space, Switch } from '@douyinfe/semi-ui';
-import { IAccountAddressInfo, encodePath } from '@yuants/data-model';
+import { IDataRecordTypes, encodePath } from '@yuants/data-model';
+import { queryDataRecords } from '@yuants/protocol';
 import EChartsReact from 'echarts-for-react';
 import { useMemo, useState } from 'react';
-import { firstValueFrom, map, toArray } from 'rxjs';
+import { firstValueFrom, from, map, toArray } from 'rxjs';
 import { Button } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
+
+type IAccountAddressInfo = IDataRecordTypes['account_address_info'];
 
 registerPage('TransferNetworkChart', () => {
   const [items, setItems] = useState<IAccountAddressInfo[]>([]);
@@ -88,7 +91,7 @@ registerPage('TransferNetworkChart', () => {
             const terminal = await firstValueFrom(terminal$);
             if (!terminal) return;
             const items = await firstValueFrom(
-              terminal.queryDataRecords<IAccountAddressInfo>({ type: 'account_address_info' }).pipe(
+              from(queryDataRecords<IAccountAddressInfo>(terminal, { type: 'account_address_info' })).pipe(
                 map((x) => x.origin),
                 toArray(),
               ),

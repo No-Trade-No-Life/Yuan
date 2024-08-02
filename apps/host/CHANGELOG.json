@@ -2,6 +2,86 @@
   "name": "@yuants/app-host",
   "entries": [
     {
+      "version": "0.2.19",
+      "tag": "@yuants/app-host_v0.2.19",
+      "date": "Sun, 21 Jul 2024 07:51:05 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.14.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.2`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.2.18",
+      "tag": "@yuants/app-host_v0.2.18",
+      "date": "Sat, 13 Jul 2024 14:49:29 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.13.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.2.17",
+      "tag": "@yuants/app-host_v0.2.17",
+      "date": "Fri, 12 Jul 2024 09:19:54 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.12.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.2.16",
+      "tag": "@yuants/app-host_v0.2.16",
+      "date": "Fri, 12 Jul 2024 01:50:37 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.20.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.6`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.15",
       "tag": "@yuants/app-host_v0.2.15",
       "date": "Wed, 03 Jul 2024 10:05:02 GMT",

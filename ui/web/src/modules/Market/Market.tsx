@@ -10,6 +10,7 @@ import {
   QuoteDataUnit,
   RealtimePeriodLoadingUnit,
 } from '@yuants/kernel';
+import { copyDataRecords } from '@yuants/protocol';
 import { t } from 'i18next';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useEffect, useMemo, useState } from 'react';
@@ -17,12 +18,11 @@ import {
   BehaviorSubject,
   distinctUntilChanged,
   filter,
-  first,
+  firstValueFrom,
+  from,
   interval,
   map,
   mergeMap,
-  tap,
-  throwError,
 } from 'rxjs';
 import { CandlestickSeries, Chart, ChartGroup } from '../Chart/components/Charts';
 import { executeCommand, registerCommand } from '../CommandCenter';
@@ -163,40 +163,43 @@ registerPage('Market', () => {
 });
 
 registerCommand('fetchOHLCV', async (params) => {
-  const datasource_id =
-    params.datasource_id || (await showForm<string>({ type: 'string', title: 'datasource_id' }));
-  const product_id = params.product_id || (await showForm<string>({ type: 'string', title: 'product_id' }));
-  const period_in_sec =
-    params.period_in_sec || +(await showForm<string>({ type: 'string', title: 'period_in_sec' }));
-  const start_time =
-    params.start_time ||
-    new Date((await showForm<string>({ type: 'string', title: 'start_time' })) || Date.now()).getTime();
-  const end_time =
-    params.end_time ||
-    new Date((await showForm<string>({ type: 'string', title: 'end_time' })) || Date.now()).getTime();
+  const { datasource_id, product_id, period_in_sec, start_time, end_time } = await showForm<{
+    datasource_id: string;
+    product_id: string;
+    period_in_sec: number;
+    start_time: string;
+    end_time: string;
+  }>(
+    {
+      type: 'object',
+      properties: {
+        datasource_id: { type: 'string' },
+        product_id: { type: 'string' },
+        period_in_sec: { type: 'number' },
+        start_time: { type: 'string', format: 'datetime' },
+        end_time: { type: 'string', format: 'datetime' },
+      },
+    },
+    params,
+  );
+  const _start_time = new Date(start_time).getTime();
+  const _end_time = new Date(end_time).getTime();
 
-  terminal$
-    .pipe(
-      filter((x): x is Exclude<typeof x, null> => !!x),
-      first(),
-      tap(() => Toast.info(`开始拉取 ${datasource_id} / ${product_id} / ${period_in_sec} 历史数据...`)),
-      mergeMap((terminal) =>
-        terminal.copyDataRecords({
-          type: 'period',
-          time_range: [start_time, end_time],
-          tags: {
-            datasource_id,
-            product_id,
-            period_in_sec: '' + period_in_sec,
-          },
-          receiver_terminal_id: 'MongoDB',
-        }),
-      ),
-      tap({
-        complete: () => {
-          Toast.info(t('common:succeed'));
+  const terminal = await firstValueFrom(terminal$.pipe(filter((x): x is Exclude<typeof x, null> => !!x)));
+  Toast.info(`开始拉取 ${datasource_id} / ${product_id} / ${period_in_sec} 历史数据...`);
+  await firstValueFrom(
+    from(
+      copyDataRecords(terminal, {
+        type: 'period',
+        time_range: [_start_time, _end_time],
+        tags: {
+          datasource_id,
+          product_id,
+          period_in_sec: `${period_in_sec}`,
         },
+        receiver_terminal_id: '',
       }),
-    )
-    .subscribe();
+    ),
+  );
+  Toast.info(t('common:succeed'));
 });

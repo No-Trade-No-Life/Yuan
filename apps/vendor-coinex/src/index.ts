@@ -1,11 +1,18 @@
-import { IProduct, UUID, decodePath, encodePath, formatTime } from '@yuants/data-model';
+import {
+  IDataRecordTypes,
+  IProduct,
+  UUID,
+  decodePath,
+  encodePath,
+  formatTime,
+  getDataRecordWrapper,
+} from '@yuants/data-model';
+import { Terminal, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
+import { defer, delayWhen, firstValueFrom, from, interval, map, repeat, retry, shareReplay, tap } from 'rxjs';
 import { CoinExClient } from './api';
-import { Terminal, wrapProduct, writeDataRecords } from '@yuants/protocol';
-import { defer, delayWhen, firstValueFrom, interval, map, repeat, retry, shareReplay, tap } from 'rxjs';
-import { IFundingRate, wrapFundingRateRecord } from './models/FundingRate';
 
 const DATASOURCE_ID = 'CoinEx';
 
@@ -59,7 +66,9 @@ const futuresProducts$ = defer(async () => {
 );
 
 futuresProducts$
-  .pipe(delayWhen((products) => writeDataRecords(terminal, products.map(wrapProduct))))
+  .pipe(
+    delayWhen((products) => from(writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!)))),
+  )
   .subscribe((products) => {
     console.info(formatTime(Date.now()), 'FUTUREProductsUpdated', products.length);
   });
@@ -106,7 +115,7 @@ terminal.provideService(
         return { res: { code: 400, message: `base_currency or quote_currency is required` } };
       }
       const [instType, instId] = decodePath(product_id);
-      const funding_rate_history: IFundingRate[] = [];
+      const funding_rate_history: IDataRecordTypes['funding_rate'][] = [];
       let current_page = 0;
 
       while (true) {
@@ -151,7 +160,9 @@ terminal.provideService(
 
       funding_rate_history.sort((a, b) => a.funding_at - b.funding_at);
 
-      await firstValueFrom(writeDataRecords(terminal, funding_rate_history.map(wrapFundingRateRecord)));
+      await firstValueFrom(
+        from(writeDataRecords(terminal, funding_rate_history.map(getDataRecordWrapper('funding_rate')!))),
+      );
       return { res: { code: 0, message: 'OK' } };
     }).pipe(
       tap({

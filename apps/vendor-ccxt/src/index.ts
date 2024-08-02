@@ -1,7 +1,7 @@
 import {
   IAccountInfo,
   IAccountMoney,
-  IDataRecord,
+  IDataRecordTypes,
   IOrder,
   IPeriod,
   IPosition,
@@ -9,8 +9,15 @@ import {
   ITick,
   UUID,
   formatTime,
+  getDataRecordWrapper,
 } from '@yuants/data-model';
-import { Terminal } from '@yuants/protocol';
+import {
+  Terminal,
+  provideAccountInfo,
+  providePeriods,
+  provideTicks,
+  writeDataRecords,
+} from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import ccxt, { Exchange } from 'ccxt';
@@ -39,17 +46,6 @@ import {
   timeout,
   toArray,
 } from 'rxjs';
-
-interface IGeneralSpecificRelation {
-  // general_datasource_id 一定是 Y 常量，因此不需要特别存储
-  // general_datasource_id: string;
-  /** 标准品种ID */
-  general_product_id: string; // XAUUSD
-  /** 具体数据源 ID */
-  specific_datasource_id: string; // TradingView
-  /** 具体品种 ID */
-  specific_product_id: string; // FX:XAUUSD
-}
 
 (async () => {
   const PUBLIC_ONLY = process.env.PUBLIC_ONLY === 'true';
@@ -145,7 +141,7 @@ interface IGeneralSpecificRelation {
   products$
     .pipe(
       //
-      mergeMap((products) => terminal.updateProducts(products)),
+      mergeMap((products) => writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!))),
     )
     .subscribe();
 
@@ -155,26 +151,14 @@ interface IGeneralSpecificRelation {
       mergeMap((products) =>
         from(products).pipe(
           //
-          map(
-            (product): IGeneralSpecificRelation => ({
-              general_product_id: mapProductIdToSymbol[product.product_id],
-              specific_datasource_id: EXCHANGE_ID,
-              specific_product_id: product.product_id,
-            }),
-          ),
-          map(
-            (gsr): IDataRecord<IGeneralSpecificRelation> => ({
-              id: `${gsr.general_product_id}\n${gsr.specific_datasource_id}\n${gsr.specific_product_id}`,
-              type: 'general_specific_relation',
-              created_at: Date.now(),
-              frozen_at: null,
-              updated_at: Date.now(),
-              tags: {},
-              origin: gsr,
-            }),
-          ),
+          map((product): IDataRecordTypes['general_specific_relation'] => ({
+            general_product_id: mapProductIdToSymbol[product.product_id],
+            specific_datasource_id: EXCHANGE_ID,
+            specific_product_id: product.product_id,
+          })),
+          map(getDataRecordWrapper('general_specific_relation')!),
           toArray(),
-          mergeMap((gsrList) => terminal.updateDataRecords(gsrList)),
+          mergeMap((gsrList) => writeDataRecords(terminal, gsrList)),
         ),
       ),
     )
@@ -286,7 +270,9 @@ interface IGeneralSpecificRelation {
             }),
             mergeMap(({ periods }) => periods),
             bufferCount(2000),
-            delayWhen((periods) => terminal.updatePeriods(periods)),
+            delayWhen((periods) =>
+              from(writeDataRecords(terminal, periods.map(getDataRecordWrapper('period')!))),
+            ),
             map(() => ({ res: { code: 0, message: 'OK' } })),
           );
         }
@@ -324,7 +310,7 @@ interface IGeneralSpecificRelation {
     );
   });
 
-  terminal.provideTicks(EXCHANGE_ID, (product_id) => {
+  provideTicks(terminal, EXCHANGE_ID, (product_id) => {
     console.info(formatTime(Date.now()), 'tick_stream', product_id);
     const symbol = mapProductIdToSymbol[product_id];
     if (!symbol) {
@@ -377,7 +363,7 @@ interface IGeneralSpecificRelation {
     );
   });
 
-  terminal.providePeriods(EXCHANGE_ID, (product_id, period_in_sec) => {
+  providePeriods(terminal, EXCHANGE_ID, (product_id, period_in_sec) => {
     console.info(formatTime(Date.now()), 'period_stream', product_id, period_in_sec);
     const timeframe = mapPeriodInSecToCCXTTimeframe(period_in_sec);
     const symbol = mapProductIdToSymbol[product_id];
@@ -449,7 +435,7 @@ interface IGeneralSpecificRelation {
         shareReplay(1),
       );
 
-      terminal.provideAccountInfo(fundingAccountInfo$);
+      provideAccountInfo(terminal, fundingAccountInfo$);
     }
 
     const accountInfo$ = defer(() => of(0)).pipe(
@@ -553,7 +539,8 @@ interface IGeneralSpecificRelation {
       return netVolume;
     };
 
-    terminal.provideAccountInfo(
+    provideAccountInfo(
+      terminal,
       accountInfo$.pipe(
         // stuck on submit order to prevent duplicated order
         filter(() => !accountInfoLock),

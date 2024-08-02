@@ -1,3 +1,5 @@
+[English](./README.md) | [简体中文](./README-zh-Hans.md)
+
 <a name="readme-top"></a>
 
 ![Language TS][language-shield]
@@ -16,7 +18,7 @@
   <img src="https://y.ntnl.io/yuan.svg" alt="Logo" width="80" height="80" />
   <h3 align="center">Yuan</h3>
   <p align="center">
-    <p>The investment Operating System for everyone</p>
+    <p>Personal Investment Operating System</p>
     <p>AI empowered, global market, serverless, cloud-native, and privacy.</p>
     <a align="center" href="https://y.ntnl.io">Access the Yuan GUI from any device »</a>
     <br />

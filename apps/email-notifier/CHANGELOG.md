@@ -1,6 +1,49 @@
 # Change Log - @yuants/app-email-notifier
 
-This log was last generated on Wed, 03 Jul 2024 10:05:02 GMT and should not be manually modified.
+This log was last generated on Tue, 23 Jul 2024 06:50:41 GMT and should not be manually modified.
+
+## 0.1.3
+Tue, 23 Jul 2024 06:50:41 GMT
+
+### Patches
+
+- amend catch error
+
+## 0.1.2
+Mon, 22 Jul 2024 19:03:31 GMT
+
+### Patches
+
+- retry when connection error
+
+## 0.1.1
+Mon, 22 Jul 2024 18:07:52 GMT
+
+### Patches
+
+- fix new email error
+
+## 0.1.0
+Sun, 21 Jul 2024 07:51:05 GMT
+
+### Minor changes
+
+- support IMAP
+
+## 0.0.60
+Sat, 13 Jul 2024 14:49:29 GMT
+
+_Version update only_
+
+## 0.0.59
+Fri, 12 Jul 2024 09:19:54 GMT
+
+_Version update only_
+
+## 0.0.58
+Fri, 12 Jul 2024 01:50:37 GMT
+
+_Version update only_
 
 ## 0.0.57
 Wed, 03 Jul 2024 10:05:02 GMT

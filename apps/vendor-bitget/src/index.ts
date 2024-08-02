@@ -1,6 +1,7 @@
 import {
   IAccountInfo,
   IAccountMoney,
+  IDataRecordTypes,
   IPosition,
   IProduct,
   ITick,
@@ -8,9 +9,15 @@ import {
   decodePath,
   encodePath,
   formatTime,
-  wrapTransferNetworkInfo,
+  getDataRecordWrapper,
 } from '@yuants/data-model';
-import { Terminal, provideAccountInfo, provideTicks, wrapProduct, writeDataRecords } from '@yuants/protocol';
+import {
+  Terminal,
+  addAccountTransferAddress,
+  provideAccountInfo,
+  provideTicks,
+  writeDataRecords,
+} from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
@@ -22,6 +29,7 @@ import {
   expand,
   filter,
   firstValueFrom,
+  from,
   interval,
   map,
   mergeMap,
@@ -34,8 +42,6 @@ import {
   timer,
 } from 'rxjs';
 import { BitgetClient } from './api';
-import { IFundingRate, wrapFundingRateRecord } from './models/FundingRate';
-import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
 
 const DATASOURCE_ID = 'Bitget';
 
@@ -55,6 +61,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
 };
 
 const fundingTime$ = memoizeMap((product_id: string) =>
+  // KNOWN ISSUE: the next funding time may be incorrect
   of({ expire: 0 }).pipe(
     //
     expand((v) =>
@@ -140,7 +147,11 @@ const fundingTime$ = memoizeMap((product_id: string) =>
   );
 
   futureProducts$
-    .pipe(delayWhen((products) => writeDataRecords(terminal, products.map(wrapProduct))))
+    .pipe(
+      delayWhen((products) =>
+        from(writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!))),
+      ),
+    )
     .subscribe((products) => {
       console.info(formatTime(Date.now()), 'FUTUREProductsUpdated', products.length);
     });
@@ -454,7 +465,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
             return { res: { code: 400, message: `base_currency or quote_currency is required` } };
           }
           const [instType, instId] = decodePath(product_id);
-          const funding_rate_history: IFundingRate[] = [];
+          const funding_rate_history: IDataRecordTypes['funding_rate'][] = [];
           let current_page = 0;
           while (true) {
             const res = await client.getHistoricalFundingRate({
@@ -495,7 +506,9 @@ const fundingTime$ = memoizeMap((product_id: string) =>
           }
           funding_rate_history.sort((a, b) => a.funding_at - b.funding_at);
 
-          await firstValueFrom(writeDataRecords(terminal, funding_rate_history.map(wrapFundingRateRecord)));
+          await firstValueFrom(
+            from(writeDataRecords(terminal, funding_rate_history.map(getDataRecordWrapper('funding_rate')!))),
+          );
           return { res: { code: 0, message: 'OK' } };
         }).pipe(
           tap({
@@ -516,14 +529,16 @@ const fundingTime$ = memoizeMap((product_id: string) =>
       console.info(formatTime(Date.now()), 'DepositAddress', depositAddressRes.data);
       const address = depositAddressRes.data;
       await firstValueFrom(
-        writeDataRecords(terminal, [
-          wrapTransferNetworkInfo({
-            network_id: 'TRC20',
-            commission: 1,
-            currency: 'USDT',
-            timeout: 1800_000,
-          }),
-        ]),
+        defer(() =>
+          writeDataRecords(terminal, [
+            getDataRecordWrapper('transfer_network_info')!({
+              network_id: 'TRC20',
+              commission: 1,
+              currency: 'USDT',
+              timeout: 1800_000,
+            }),
+          ]),
+        ),
       );
       addAccountTransferAddress({
         terminal,

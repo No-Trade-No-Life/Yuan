@@ -1,6 +1,46 @@
 # Change Log - @yuants/vendor-gate
 
-This log was last generated on Wed, 03 Jul 2024 10:05:02 GMT and should not be manually modified.
+This log was last generated on Sun, 21 Jul 2024 07:51:05 GMT and should not be manually modified.
+
+## 0.2.7
+Sun, 21 Jul 2024 07:51:05 GMT
+
+_Version update only_
+
+## 0.2.6
+Mon, 15 Jul 2024 06:57:43 GMT
+
+### Patches
+
+- add data source id to position
+
+## 0.2.5
+Sat, 13 Jul 2024 14:49:29 GMT
+
+_Version update only_
+
+## 0.2.4
+Fri, 12 Jul 2024 09:19:54 GMT
+
+### Patches
+
+- migrating data-model: interfaces, schema, module augmentation, wrappers
+- addAccountTransferAddress
+- add ticker
+
+## 0.2.3
+Fri, 12 Jul 2024 01:50:37 GMT
+
+### Patches
+
+- refactor because of protocol
+
+## 0.2.2
+Tue, 09 Jul 2024 18:54:11 GMT
+
+### Patches
+
+- add trx transfer
 
 ## 0.2.1
 Wed, 03 Jul 2024 10:05:02 GMT

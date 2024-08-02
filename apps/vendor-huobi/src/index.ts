@@ -1,27 +1,31 @@
 import {
   IAccountInfo,
   IAccountMoney,
-  IDataRecord,
+  IDataRecordTypes,
   IOrder,
   IPosition,
   IProduct,
   ITick,
   decodePath,
-  encodePath,
   formatTime,
+  getDataRecordWrapper,
 } from '@yuants/data-model';
-import { Terminal } from '@yuants/protocol';
+import {
+  Terminal,
+  addAccountTransferAddress,
+  provideAccountInfo,
+  provideTicks,
+  writeDataRecords,
+} from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
 import { roundToStep } from '@yuants/utils';
 import {
   EMPTY,
-  bufferCount,
   catchError,
   combineLatest,
   combineLatestWith,
-  concatWith,
   defer,
   distinct,
   expand,
@@ -46,7 +50,6 @@ import {
   toArray,
 } from 'rxjs';
 import { HuobiClient } from './api';
-import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
 
 (async () => {
   const client = new HuobiClient({
@@ -130,8 +133,12 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
     shareReplay(1),
   );
 
-  spotProducts$.pipe(mergeMap((products) => terminal.updateProducts(products))).subscribe();
-  perpetualContractProducts$.pipe(mergeMap((products) => terminal.updateProducts(products))).subscribe();
+  spotProducts$
+    .pipe(mergeMap((products) => writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!))))
+    .subscribe();
+  perpetualContractProducts$
+    .pipe(mergeMap((products) => writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!))))
+    .subscribe();
 
   const mapSwapContractCodeToBboTick$ = defer(() => client.getSwapMarketBbo({})).pipe(
     mergeMap((res) =>
@@ -189,7 +196,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
     shareReplay(1),
   );
 
-  terminal.provideTicks('huobi-swap', (product_id) => {
+  provideTicks(terminal, 'huobi-swap', (product_id) => {
     return defer(async () => {
       const products = await firstValueFrom(perpetualContractProducts$);
       const theProduct = products.find((x) => x.product_id === product_id);
@@ -384,7 +391,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
   );
 
   const subscriptions: Set<string> = new Set();
-  client.spot_ws.connection$.subscribe(() => {
+  from(client.spot_ws.connection$).subscribe(() => {
     subscriptions.clear();
   });
   // subscribe the symbols of positions we held
@@ -533,9 +540,9 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
     shareReplay(1),
   );
 
-  terminal.provideAccountInfo(spotAccountInfo$);
-  terminal.provideAccountInfo(superMarginAccountInfo$);
-  terminal.provideAccountInfo(perpetualContractAccountInfo$);
+  provideAccountInfo(terminal, spotAccountInfo$);
+  provideAccountInfo(terminal, superMarginAccountInfo$);
+  provideAccountInfo(terminal, perpetualContractAccountInfo$);
 
   // Submit order
   terminal.provideService(
@@ -667,40 +674,6 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
     },
   );
 
-  interface IFundingRate {
-    series_id: string;
-    datasource_id: string;
-    product_id: string;
-    base_currency: string;
-    quote_currency: string;
-    funding_at: number;
-    funding_rate: number;
-  }
-
-  const wrapFundingRateRecord = (v: IFundingRate): IDataRecord<IFundingRate> => ({
-    id: encodePath(v.datasource_id, v.product_id, v.funding_at),
-    type: 'funding_rate',
-    created_at: v.funding_at,
-    updated_at: v.funding_at,
-    frozen_at: v.funding_at,
-    tags: {
-      series_id: encodePath(v.datasource_id, v.product_id),
-      datasource_id: v.datasource_id,
-      product_id: v.product_id,
-      base_currency: v.base_currency,
-      quote_currency: v.quote_currency,
-    },
-    origin: {
-      series_id: encodePath(v.datasource_id, v.product_id),
-      datasource_id: v.datasource_id,
-      product_id: v.product_id,
-      base_currency: v.base_currency,
-      quote_currency: v.quote_currency,
-      funding_rate: v.funding_rate,
-      funding_at: v.funding_at,
-    },
-  });
-
   terminal.provideService(
     'CopyDataRecords',
     {
@@ -736,7 +709,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
         if (!base_currency || !quote_currency) {
           return { res: { code: 404, message: 'base_currency or quote_currency not found' } };
         }
-        const funding_rate_history: IFundingRate[] = [];
+        const funding_rate_history: IDataRecordTypes['funding_rate'][] = [];
         let current_page = 0;
         let total_page = 1;
         while (true) {
@@ -773,11 +746,7 @@ import { addAccountTransferAddress } from './utils/addAccountTransferAddress';
         funding_rate_history.sort((a, b) => +a.funding_at - +b.funding_at);
 
         await lastValueFrom(
-          from(funding_rate_history).pipe(
-            map(wrapFundingRateRecord),
-            bufferCount(2000),
-            mergeMap((v) => terminal.updateDataRecords(v).pipe(concatWith(of(void 0)))),
-          ),
+          from(writeDataRecords(terminal, funding_rate_history.map(getDataRecordWrapper('funding_rate')!))),
         );
         return { res: { code: 0, message: 'OK' } };
       }).pipe(

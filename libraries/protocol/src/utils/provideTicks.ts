@@ -1,5 +1,5 @@
 import { ITick, decodePath, encodePath } from '@yuants/data-model';
-import { EMPTY, Observable } from 'rxjs';
+import { EMPTY, ObservableInput } from 'rxjs';
 import { Terminal } from '../terminal';
 import { escapeRegExp } from './escapeRegExp';
 
@@ -11,7 +11,7 @@ import { escapeRegExp } from './escapeRegExp';
 export const provideTicks = (
   terminal: Terminal,
   datasource_id: string,
-  useTicks: (product_id: string) => Observable<ITick>,
+  useTicks: (product_id: string) => ObservableInput<ITick>,
 ) => {
   terminal.provideChannel<ITick>(
     { pattern: `^Tick/${escapeRegExp(encodePath(datasource_id))}/.+$` },
@@ -22,3 +22,10 @@ export const provideTicks = (
     },
   );
 };
+
+/**
+ * use tick data stream
+ * @public
+ */
+export const useTick = (terminal: Terminal, datasource_id: string, product_id: string) =>
+  terminal.consumeChannel<ITick>(encodePath('Tick', datasource_id, product_id));

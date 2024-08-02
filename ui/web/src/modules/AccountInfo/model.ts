@@ -1,5 +1,6 @@
 import { decodePath } from '@yuants/data-model';
 import { IAccountPerformance } from '@yuants/kernel';
+import { useAccountInfo as _useAccountInfo } from '@yuants/protocol';
 import {
   BehaviorSubject,
   EMPTY,
@@ -16,12 +17,12 @@ import {
 import { terminal$ } from '../Terminals';
 
 export const useAccountInfo = (account_id: string) =>
-  terminal$.pipe(switchMap((terminal) => terminal?.useAccountInfo(account_id) ?? EMPTY));
+  terminal$.pipe(switchMap((terminal) => (terminal ? _useAccountInfo(terminal, account_id) : EMPTY)));
 
 export const accountIds$ = defer(() => terminal$).pipe(
   switchMap(
     (terminal) =>
-      terminal?.terminalInfos$.pipe(
+      (terminal ? from(terminal.terminalInfos$) : of([])).pipe(
         mergeMap((terminals) =>
           from(terminals).pipe(
             mergeMap((terminalInfo) =>

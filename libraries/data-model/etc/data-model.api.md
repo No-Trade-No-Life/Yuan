@@ -4,7 +4,14 @@
 
 ```ts
 
+import { JSONSchema7 } from 'json-schema';
 import { Observable } from 'rxjs';
+
+// @public
+export const addDataRecordSchema: <K extends keyof IDataRecordTypes>(type: K, schema: JSONSchema7) => void;
+
+// @public
+export const addDataRecordWrapper: <K extends keyof IDataRecordTypes>(type: K, wrapper: (v: IDataRecordTypes[K]) => IDataRecord<IDataRecordTypes[K]>) => void;
 
 // @public (undocumented)
 export const createEmptyAccountInfo: (account_id: string, currency: string, leverage?: number, initial_balance?: number) => IAccountInfo;
@@ -18,6 +25,12 @@ export const encodePath: (...params: any[]) => string;
 // @public
 export const formatTime: (time: Date | number | string, timeZone?: string | undefined) => string;
 
+// @public
+export const getDataRecordSchema: <K extends keyof IDataRecordTypes>(type: K) => JSONSchema7 | undefined;
+
+// @public
+export const getDataRecordWrapper: <K extends keyof IDataRecordTypes>(type: K) => ((v: IDataRecordTypes[K]) => IDataRecord<IDataRecordTypes[K]>) | undefined;
+
 // @public (undocumented)
 export const getMargin: (product: IProduct, openPrice: number, volume: number, variant: string, currency: string, quote: (product_id: string) => {
     ask: number;
@@ -29,18 +42,6 @@ export const getProfit: (product: IProduct, openPrice: number, closePrice: numbe
     ask: number;
     bid: number;
 } | undefined) => number;
-
-// @public (undocumented)
-export interface IAccountAddressInfo {
-    // (undocumented)
-    account_id: string;
-    // (undocumented)
-    address: string;
-    // (undocumented)
-    currency: string;
-    // (undocumented)
-    network_id: string;
-}
 
 // @public
 export interface IAccountInfo {
@@ -65,14 +66,19 @@ export interface IAccountMoney {
 
 // @public
 export interface IDataRecord<T = unknown> {
-    created_at: number | null;
+    created_at?: number | null;
     expired_at?: number;
-    frozen_at: number | null;
+    frozen_at?: number | null;
     id: string;
     origin: T;
+    paths?: Record<string, string>;
     tags: Record<string, string>;
     type: string;
     updated_at: number;
+}
+
+// @public
+export interface IDataRecordTypes {
 }
 
 // @public
@@ -141,7 +147,8 @@ export interface IProduct {
     allow_long?: boolean;
     allow_short?: boolean;
     base_currency?: string;
-    datasource_id: string;
+    // @deprecated
+    datasource_id?: string;
     margin_rate?: number;
     max_position?: number;
     max_volume?: number;
@@ -171,15 +178,6 @@ export interface ITick {
     spread?: number;
     updated_at: number;
     volume?: number;
-}
-
-// @public (undocumented)
-export interface ITransferNetworkInfo {
-    commission: number;
-    currency: string;
-    // (undocumented)
-    network_id: string;
-    timeout?: number;
 }
 
 // @public
@@ -236,11 +234,5 @@ export const mergeAccountInfoPositions: (info: IAccountInfo) => Observable<IAcco
 
 // @public (undocumented)
 export const UUID: () => string;
-
-// @public
-export const wrapAccountAddressInfo: (v: IAccountAddressInfo) => IDataRecord<IAccountAddressInfo>;
-
-// @public
-export const wrapTransferNetworkInfo: (v: ITransferNetworkInfo) => IDataRecord<ITransferNetworkInfo>;
 
 ```

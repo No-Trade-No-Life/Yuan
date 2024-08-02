@@ -2,6 +2,142 @@
   "name": "@yuants/vendor-gate",
   "entries": [
     {
+      "version": "0.2.7",
+      "tag": "@yuants/vendor-gate_v0.2.7",
+      "date": "Sun, 21 Jul 2024 07:51:05 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.14.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.2.6",
+      "tag": "@yuants/vendor-gate_v0.2.6",
+      "date": "Mon, 15 Jul 2024 06:57:43 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add data source id to position"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.2.5",
+      "tag": "@yuants/vendor-gate_v0.2.5",
+      "date": "Sat, 13 Jul 2024 14:49:29 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.13.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.2.4",
+      "tag": "@yuants/vendor-gate_v0.2.4",
+      "date": "Fri, 12 Jul 2024 09:19:54 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "migrating data-model: interfaces, schema, module augmentation, wrappers"
+          },
+          {
+            "comment": "addAccountTransferAddress"
+          },
+          {
+            "comment": "add ticker"
+          }
+        ],
+        "none": [
+          {
+            "comment": "amend refactor"
+          },
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.12.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.2.3",
+      "tag": "@yuants/vendor-gate_v0.2.3",
+      "date": "Fri, 12 Jul 2024 01:50:37 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor because of protocol"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.20.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.1.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.6`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.2.2",
+      "tag": "@yuants/vendor-gate_v0.2.2",
+      "date": "Tue, 09 Jul 2024 18:54:11 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add trx transfer"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.1",
       "tag": "@yuants/vendor-gate_v0.2.1",
       "date": "Wed, 03 Jul 2024 10:05:02 GMT",

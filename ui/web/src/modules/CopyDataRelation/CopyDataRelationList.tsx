@@ -1,24 +1,10 @@
 import { Switch } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { IDataRecord } from '@yuants/data-model';
+import { IDataRecord, IDataRecordTypes } from '@yuants/data-model';
 import { DataRecordView } from '../DataRecord';
 import { registerPage } from '../Pages';
-import { ICopyDataRelation, schema } from './model';
 
-const TYPE = 'copy_data_relation';
-
-const mapOriginToDataRecord = (x: ICopyDataRelation): IDataRecord<ICopyDataRelation> => {
-  const id = x.series_id;
-  return {
-    id,
-    type: TYPE,
-    created_at: Date.now(),
-    updated_at: Date.now(),
-    frozen_at: null,
-    tags: {},
-    origin: x,
-  };
-};
+type ICopyDataRelation = IDataRecordTypes['copy_data_relation'];
 
 function newRecord(): Partial<ICopyDataRelation> {
   return {
@@ -75,13 +61,5 @@ function defineColumns() {
 }
 
 registerPage('CopyDataRelationList', () => {
-  return (
-    <DataRecordView
-      TYPE={TYPE}
-      schema={schema}
-      columns={defineColumns()}
-      newRecord={newRecord}
-      mapOriginToDataRecord={mapOriginToDataRecord}
-    />
-  );
+  return <DataRecordView TYPE="copy_data_relation" columns={defineColumns()} newRecord={newRecord} />;
 });

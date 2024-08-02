@@ -1,6 +1,45 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Mon, 08 Jul 2024 19:01:21 GMT and should not be manually modified.
+This log was last generated on Sun, 21 Jul 2024 07:51:05 GMT and should not be manually modified.
+
+## 0.7.8
+Sun, 21 Jul 2024 07:51:05 GMT
+
+_Version update only_
+
+## 0.7.7
+Sat, 13 Jul 2024 14:49:29 GMT
+
+_Version update only_
+
+## 0.7.6
+Sat, 13 Jul 2024 09:14:39 GMT
+
+### Patches
+
+- unify datasource id
+
+## 0.7.5
+Fri, 12 Jul 2024 14:05:46 GMT
+
+### Patches
+
+- add wait after a batch of pulling
+
+## 0.7.4
+Fri, 12 Jul 2024 09:19:54 GMT
+
+### Patches
+
+- migrating data-model: interfaces, schema, module augmentation, wrappers
+- addAccountTransferAddress
+
+## 0.7.3
+Fri, 12 Jul 2024 01:50:37 GMT
+
+### Patches
+
+- refactor because of protocol
 
 ## 0.7.2
 Mon, 08 Jul 2024 19:01:21 GMT

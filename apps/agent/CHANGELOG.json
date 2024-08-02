@@ -2,6 +2,110 @@
   "name": "@yuants/app-agent",
   "entries": [
     {
+      "version": "0.4.54",
+      "tag": "@yuants/app-agent_v0.4.54",
+      "date": "Sun, 21 Jul 2024 07:51:05 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/agent\" to `0.13.16`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.14.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.12.5`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.2`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.4.53",
+      "tag": "@yuants/app-agent_v0.4.53",
+      "date": "Sat, 13 Jul 2024 14:49:29 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/agent\" to `0.13.15`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.13.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.12.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.4.52",
+      "tag": "@yuants/app-agent_v0.4.52",
+      "date": "Fri, 12 Jul 2024 09:19:54 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/agent\" to `0.13.14`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.12.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.12.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.4.51",
+      "tag": "@yuants/app-agent_v0.4.51",
+      "date": "Fri, 12 Jul 2024 01:50:37 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/agent\" to `0.13.13`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.12.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.20.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.6`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.50",
       "tag": "@yuants/app-agent_v0.4.50",
       "date": "Wed, 03 Jul 2024 10:05:02 GMT",

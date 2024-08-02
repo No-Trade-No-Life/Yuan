@@ -1,6 +1,18 @@
 # Change Log - @yuants/utils
 
-This log was last generated on Fri, 24 May 2024 18:00:17 GMT and should not be manually modified.
+This log was last generated on Fri, 12 Jul 2024 01:50:37 GMT and should not be manually modified.
+
+## 0.1.0
+Fri, 12 Jul 2024 01:50:37 GMT
+
+### Minor changes
+
+- add utils 'nativeSubjectToSubject' and 'subjectToNativeSubject'
+
+### Patches
+
+- add interop function from observable to async iterable
+- add return to release internal observable
 
 ## 0.0.7
 Fri, 24 May 2024 18:00:17 GMT

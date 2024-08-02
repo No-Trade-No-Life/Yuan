@@ -2,6 +2,136 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.7.8",
+      "tag": "@yuants/vendor-okx_v0.7.8",
+      "date": "Sun, 21 Jul 2024 07:51:05 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.14.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.7.7",
+      "tag": "@yuants/vendor-okx_v0.7.7",
+      "date": "Sat, 13 Jul 2024 14:49:29 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.13.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.7.6",
+      "tag": "@yuants/vendor-okx_v0.7.6",
+      "date": "Sat, 13 Jul 2024 09:14:39 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "unify datasource id"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.7.5",
+      "tag": "@yuants/vendor-okx_v0.7.5",
+      "date": "Fri, 12 Jul 2024 14:05:46 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add wait after a batch of pulling"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.7.4",
+      "tag": "@yuants/vendor-okx_v0.7.4",
+      "date": "Fri, 12 Jul 2024 09:19:54 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "migrating data-model: interfaces, schema, module augmentation, wrappers"
+          },
+          {
+            "comment": "addAccountTransferAddress"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.12.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.7.3",
+      "tag": "@yuants/vendor-okx_v0.7.3",
+      "date": "Fri, 12 Jul 2024 01:50:37 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor because of protocol"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.20.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.1.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.6`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.7.2",
       "tag": "@yuants/vendor-okx_v0.7.2",
       "date": "Mon, 08 Jul 2024 19:01:21 GMT",

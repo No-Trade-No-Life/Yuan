@@ -10,6 +10,7 @@ import {
   formatTime,
   mergeAccountInfoPositions,
 } from '@yuants/data-model';
+import { cancelOrder } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useMemo } from 'react';
 import {
@@ -346,13 +347,14 @@ registerPage('AccountInfoPanel', () => {
         header: () => '操作',
         cell: (ctx) => {
           const order = ctx.row.original;
+
           return (
             <Space>
               <Button
                 icon={<IconClose />}
                 onClick={async () => {
                   if (!terminal) return;
-                  await firstValueFrom(terminal.cancelOrder(order));
+                  await firstValueFrom(from(cancelOrder(terminal, order)));
                 }}
               ></Button>
             </Space>

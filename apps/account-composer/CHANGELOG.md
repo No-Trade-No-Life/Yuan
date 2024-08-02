@@ -1,6 +1,44 @@
 # Change Log - @yuants/app-account-composer
 
-This log was last generated on Wed, 03 Jul 2024 10:05:02 GMT and should not be manually modified.
+This log was last generated on Sun, 21 Jul 2024 07:51:05 GMT and should not be manually modified.
+
+## 0.1.7
+Sun, 21 Jul 2024 07:51:05 GMT
+
+_Version update only_
+
+## 0.1.6
+Sat, 13 Jul 2024 14:49:29 GMT
+
+_Version update only_
+
+## 0.1.5
+Fri, 12 Jul 2024 14:05:46 GMT
+
+### Patches
+
+- strict schema error
+
+## 0.1.4
+Fri, 12 Jul 2024 09:19:54 GMT
+
+### Patches
+
+- migrating data-model: interfaces, schema, module augmentation, wrappers
+
+## 0.1.3
+Fri, 12 Jul 2024 01:50:37 GMT
+
+### Patches
+
+- refactor because of protocol
+
+## 0.1.2
+Wed, 10 Jul 2024 09:17:13 GMT
+
+### Patches
+
+- fix currencies merging error
 
 ## 0.1.1
 Wed, 03 Jul 2024 10:05:02 GMT

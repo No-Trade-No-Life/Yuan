@@ -28,7 +28,7 @@ export class ProductDataUnit extends BasicUnit {
     // Set default
     (this.mapProductIdToProduct[''] ??= {})[product.product_id] = product;
     // Set datasource_id
-    (this.mapProductIdToProduct[product.datasource_id] ??= {})[product.product_id] = product;
+    (this.mapProductIdToProduct[product.datasource_id || ''] ??= {})[product.product_id] = product;
     // Copy to All Related Accounts
     if (this.adrUnit) {
       for (const relation of this.adrUnit.list()) {

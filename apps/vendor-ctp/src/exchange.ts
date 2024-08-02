@@ -1,5 +1,13 @@
-import { IAccountInfo, IAccountMoney, IOrder, IPosition, IProduct, formatTime } from '@yuants/data-model';
-import { IConnection, Terminal } from '@yuants/protocol';
+import {
+  IAccountInfo,
+  IAccountMoney,
+  IOrder,
+  IPosition,
+  IProduct,
+  formatTime,
+  getDataRecordWrapper,
+} from '@yuants/data-model';
+import { IConnection, Terminal, provideAccountInfo, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services/order';
 import { ChildProcess, spawn } from 'child_process';
 import { parse } from 'date-fns';
@@ -94,7 +102,7 @@ export const requestZMQ = <Req, Rep>(
 ) => {
   console.info(formatTime(Date.now()), req);
   const requestID = requestIDGen();
-  const ret = conn.input$.pipe(
+  const ret = from(conn.input$).pipe(
     //
     filter((msg) => msg.request_id === requestID && msg.res !== undefined),
     takeWhile((msg) => !msg.res!.is_last, true),
@@ -363,7 +371,7 @@ export const submitOrder = (
   const orderRef = '' + orderRefGen();
 
   // 即使通过 OnRtnOrder 回来的回报也有可能包含来自交易所的报错，因此需要额外检查订单状态是否为取消
-  const ret$ = conn.input$.pipe(
+  const ret$ = from(conn.input$).pipe(
     //
     first(
       (msg) =>
@@ -487,7 +495,7 @@ export const cancelOrder = (
       })),
     );
   }
-  const ret$ = conn.input$.pipe(
+  const ret$ = from(conn.input$).pipe(
     //
     first(
       (msg) =>
@@ -571,14 +579,14 @@ const zmqConn = createZMQConnection(process.env.ZMQ_PUSH_URL!, process.env.ZMQ_P
 //     process.exit(1);
 //   });
 
-const loginRes$ = zmqConn.input$.pipe(
+const loginRes$ = from(zmqConn.input$).pipe(
   //
   first((msg) => msg?.res?.event !== undefined && msg.res.event === 'OnRspUserLogin'),
   map((msg) => msg.res!.value as ICThostFtdcRspUserLoginField),
   shareReplay(1),
 );
 
-const settlement$ = zmqConn.input$.pipe(
+const settlement$ = from(zmqConn.input$).pipe(
   //
   first((msg) => msg?.res?.event !== undefined && msg.res.event === 'OnRspSettlementInfoConfirm'),
   map((msg) => msg.res!.value as ICThostFtdcSettlementInfoConfirmField),
@@ -603,9 +611,13 @@ const products$ = defer(() => loginRes$.pipe(first())).pipe(
   shareReplay(1),
 );
 
-products$.pipe(delayWhen((products) => terminal.updateProducts(products))).subscribe(() => {
-  console.info(formatTime(Date.now()), '更新品种信息成功');
-});
+products$
+  .pipe(
+    delayWhen((products) => from(writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!)))),
+  )
+  .subscribe(() => {
+    console.info(formatTime(Date.now()), '更新品种信息成功');
+  });
 
 const mapProductIdToProduct$ = products$.pipe(
   map((products) => Object.fromEntries(products.map((v) => [v.product_id, v]))),
@@ -622,7 +634,7 @@ const accountInfo$ = defer(() => mapProductIdToProduct$.pipe(first())).pipe(
   shareReplay(1),
 );
 
-terminal.provideAccountInfo(accountInfo$);
+provideAccountInfo(terminal, accountInfo$);
 
 terminal.provideService(
   'QueryProducts',
@@ -653,7 +665,7 @@ terminal.provideService(
       mergeMap(([loginRes, settlementRes]) =>
         queryHistoryOrders(zmqConn, loginRes.BrokerID, settlementRes.InvestorID).pipe(
           //
-          delayWhen((data) => terminal.updateHistoryOrders(data)),
+          delayWhen((data) => from(writeDataRecords(terminal, data.map(getDataRecordWrapper('order')!)))),
           map((data) => ({ res: { code: 0, message: 'OK', data: data } })),
         ),
       ),

@@ -7,7 +7,7 @@ const HeroContent = () => {
     <div className={styles.heroBanner}>
       <div className={styles.heroContent}>
         <div className={styles.hero}>
-          <Translate id="home.heroTitle">{'Yuan - The Investment OS For Everyone'}</Translate>
+          <Translate id="home.heroTitle">{'Yuan - Personal Investment OS'}</Translate>
         </div>
         <div className={styles.heroSubTitle}>
           <Translate id="home.heroSubTitle">{'The investment OS sfor everyone'}</Translate>

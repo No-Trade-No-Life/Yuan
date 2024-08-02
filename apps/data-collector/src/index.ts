@@ -1,9 +1,8 @@
-import { formatTime } from '@yuants/data-model';
-import { PromRegistry, Terminal } from '@yuants/protocol';
+import { IDataRecordTypes, formatTime, getDataRecordSchema } from '@yuants/data-model';
+import { PromRegistry, Terminal, copyDataRecords, queryDataRecords } from '@yuants/protocol';
 import { batchGroupBy, switchMapWithComplete } from '@yuants/utils';
 import Ajv from 'ajv';
 import CronJob from 'cron';
-import { JSONSchema7 } from 'json-schema';
 import {
   EMPTY,
   Observable,
@@ -27,20 +26,7 @@ import {
   toArray,
 } from 'rxjs';
 
-interface ICopyDataRelation {
-  /** Type of the Data record to collect */
-  type: string;
-  /** series id is a path to identify a data series */
-  series_id: string;
-  /** Pattern of CronJob */
-  cron_pattern: string;
-  /** Timezone for CronJob evaluation */
-  cron_timezone: string;
-  /** disable this relation (false equivalent to not set before) */
-  disabled?: boolean;
-  /** default to 0, means start from the latest data record, above 0 means pull start from earlier data records */
-  replay_count?: number;
-}
+type ICopyDataRelation = IDataRecordTypes['copy_data_relation'];
 
 const MetricDataCollectorLatencyMsBucket = PromRegistry.create(
   'histogram',
@@ -55,38 +41,7 @@ const MetricCronjobStatus = PromRegistry.create(
   'data CronJob status',
 );
 
-const schema: JSONSchema7 = {
-  type: 'object',
-  title: 'Data Collector Copy Data Relation',
-  required: ['type', 'series_id', 'cron_pattern', 'cron_timezone'],
-  properties: {
-    type: {
-      type: 'string',
-      title: 'Type of Data Record',
-    },
-    series_id: {
-      type: 'string',
-      title: 'Series ID',
-    },
-    cron_pattern: {
-      type: 'string',
-      title: 'Pattern of CronJob: when to pull data',
-    },
-    cron_timezone: {
-      type: 'string',
-      title: 'Timezone of CronJob',
-    },
-    replay_count: {
-      type: 'number',
-      title: 'Replay Count',
-    },
-    disabled: {
-      type: 'boolean',
-      title: 'Disable this relation',
-    },
-  },
-};
-const ajv = new Ajv();
+const ajv = new Ajv({ strict: false });
 
 const HOST_URL = process.env.HOST_URL!;
 const STORAGE_TERMINAL_ID = process.env.STORAGE_TERMINAL_ID!;
@@ -113,7 +68,7 @@ const listWatch = <T, K>(
   );
 
 defer(() =>
-  term.queryDataRecords<ICopyDataRelation>({
+  queryDataRecords<ICopyDataRelation>(term, {
     type: 'copy_data_relation',
   }),
 )
@@ -151,7 +106,7 @@ const fromCronJob = (options: Omit<CronJob.CronJobParameters, 'onTick' | 'start'
     }
   });
 
-const validate = ajv.compile(schema);
+const validate = ajv.compile(getDataRecordSchema('copy_data_relation')!);
 const runTask = (cdr: ICopyDataRelation) =>
   new Observable<void>((subscriber) => {
     if (cdr.disabled) return;
@@ -245,7 +200,7 @@ const runTask = (cdr: ICopyDataRelation) =>
     subs.push(
       taskStart$.subscribe(() => {
         defer(() =>
-          term.queryDataRecords({
+          queryDataRecords(term, {
             type: cdr.type,
             tags: {
               series_id: cdr.series_id,
@@ -266,7 +221,7 @@ const runTask = (cdr: ICopyDataRelation) =>
           .pipe(
             //
             map((v) => v.frozen_at),
-            filter((v): v is Exclude<typeof v, null> => !!v),
+            filter((v): v is Exclude<typeof v, null | undefined> => !!v),
             defaultIfEmpty(0),
             first(),
           )
@@ -294,27 +249,27 @@ const runTask = (cdr: ICopyDataRelation) =>
       copyDataAction$
         .pipe(
           mergeMap(() =>
-            term
-              .copyDataRecords({
+            defer(() =>
+              copyDataRecords(term, {
                 type: cdr.type,
                 tags: {
                   series_id: cdr.series_id,
                 },
                 time_range: [lastTime, Date.now()],
                 receiver_terminal_id: STORAGE_TERMINAL_ID,
-              })
-              .pipe(
-                tap(() => {
-                  taskComplete$.next();
-                }),
-                // ISSUE: catch error will replace the whole stream with EMPTY, therefore it must be placed inside mergeMap
-                // so that the outer stream subscription will not be affected
-                catchError((e) => {
-                  err = e;
-                  taskError$.next();
-                  return EMPTY;
-                }),
-              ),
+              }),
+            ).pipe(
+              tap(() => {
+                taskComplete$.next();
+              }),
+              // ISSUE: catch error will replace the whole stream with EMPTY, therefore it must be placed inside mergeMap
+              // so that the outer stream subscription will not be affected
+              catchError((e) => {
+                err = e;
+                taskError$.next();
+                return EMPTY;
+              }),
+            ),
           ),
         )
         .subscribe(),
