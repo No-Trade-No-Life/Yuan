@@ -20,11 +20,19 @@
     "description": "The generated-index page description for category Basic Concepts in sidebar docsSidebar"
   },
   "sidebar.docsSidebar.category.Guide - Agent": {
-    "message": "向导 - Agent",
+    "message": "指南 - Agent",
     "description": "The label for category Guide - Agent in sidebar docsSidebar"
   },
   "sidebar.docsSidebar.category.Guide - Agent.link.generated-index.description": {
     "message": "学习如何使用 Agent 编写策略",
+    "description": "The generated-index page description for category Guide - Agent in sidebar docsSidebar"
+  },
+  "sidebar.docsSidebar.category.Guide - Vendor": {
+    "message": "指南 - 供应商",
+    "description": "The label for category Guide - Agent in sidebar docsSidebar"
+  },
+  "sidebar.docsSidebar.category.Guide - Vendor.link.generated-index.description": {
+    "message": "学习如何编写供应商接入外部系统",
     "description": "The generated-index page description for category Guide - Agent in sidebar docsSidebar"
   },
   "sidebar.docsSidebar.category.Protocol": {
