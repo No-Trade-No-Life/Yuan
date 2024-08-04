@@ -21,7 +21,7 @@ A vendor program can be responsible for multiple products and multiple accounts.
 - [Provide product specifications](./vendor-product)
 - Provide real-time market data
 - Provide historical market data
-- Provide real-time account information
+- [Provide real-time account information](./vendor-account-info.md)
 - Provide historical order information
 - Provide trading interfaces (placing orders, modifying orders, canceling orders)
 - Provide transfer interfaces (sending, receiving)
