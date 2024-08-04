@@ -5,7 +5,7 @@ Vendors are responsible for providing product specification information.
 First, obtain the list of product information from the external system, and then store the product information in the database.
 
 ```ts
-import { Terminal, writeDataRecords } from '@vendor/protocol';
+import { Terminal, writeDataRecords } from '@yuants/protocol';
 import { defer, repeat, retry, shareReplay, delayWhen, map, from } from 'rxjs';
 
 const terminal = new Terminal(process.env.HOST_URL!, {});
