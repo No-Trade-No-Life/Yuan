@@ -3,7 +3,7 @@
 When integrating with an exchange, the vendor needs to convert the account opened on the exchange into the standard [account information](../basics/what-is-account.md) of Yuan.
 
 ```ts
-import { Terminal, writeDataRecords, provideAccountInfo } from '@vendor/protocol';
+import { Terminal, provideAccountInfo } from '@vendor/protocol';
 import { combineLatest, defer, map, shareReplay } from 'rxjs';
 
 const terminal = new Terminal(process.env.HOST_URL!, {});

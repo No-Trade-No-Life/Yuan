@@ -3,7 +3,7 @@
 对接交易所时，供应商需要将在交易所开立的账户，转换成 Yuan 的标准[账户信息](../basics/what-is-account.md)。
 
 ```ts
-import { Terminal, writeDataRecords, provideAccountInfo } from '@vendor/protocol';
+import { Terminal, provideAccountInfo } from '@vendor/protocol';
 import { combineLatest, defer, map, shareReplay } from 'rxjs';
 
 const terminal = new Terminal(process.env.HOST_URL!, {});
