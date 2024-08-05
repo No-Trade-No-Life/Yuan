@@ -1,4 +1,4 @@
-# Provide Account Information
+# Providing Account Information
 
 When integrating with an exchange, the vendor needs to convert the account opened on the exchange into the standard [account information](../basics/what-is-account.md) of Yuan.
 
