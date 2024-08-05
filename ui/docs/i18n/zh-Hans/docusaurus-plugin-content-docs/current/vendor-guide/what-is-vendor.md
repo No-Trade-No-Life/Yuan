@@ -20,9 +20,9 @@ sidebar_position: 1
 
 - [提供产品规格](./vendor-product)
 - [提供实时行情数据](./vendor-realtime-market-data)
-- 提供历史行情数据
+- [提供历史行情数据](./vendor-historical-market-data)
 - [提供实时账户信息](./vendor-account-info)
-- 提供历史订单信息
+- [提供历史订单信息](./vendor-historical-order)
 - 提供交易接口 (下单、改单、撤单)
 - [提供转账接口 (发送、查收)](./vendor-transfer)
 
