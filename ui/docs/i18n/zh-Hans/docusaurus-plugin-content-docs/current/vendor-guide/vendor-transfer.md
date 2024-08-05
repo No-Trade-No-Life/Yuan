@@ -8,44 +8,6 @@
 
 实现转账接口非常简单，只要使用 `addAccountTransferAddress` 方法注册账户对应的转账以及查账函数即可。
 
-其 API 为：
-
-```ts
-export const addAccountTransferAddress = (ctx: {
-  terminal: ITerminal;
-  /**
-   * 账户 ID
-   */
-  account_id: string;
-  /**
-   * 货币
-   */
-  currency: string;
-  /**
-   * 转账网络 ID
-   */
-  network_id: string;
-  /**
-   * 地址
-   */
-  address: string;
-  onApply: Record<
-    string,
-    (order: ITransferOrder) => Promise<{
-      state: string;
-      context?: string;
-      transaction_id?: string;
-      message?: string
-    }
-  >,
-  onEval: (order: ITransferOrder) => Promise<{
-    state: string;
-    context?: string;
-    received_amount?: number
-  }>;
-}) => void;
-```
-
 具体来说，转账路由是由 (`账户 ID`, `转账网络 ID`, `货币`, `地址`) 四元组作为来唯一确定的，即[账户地址信息](../basics/what-is-transfer-order.md#账户地址信息)。
 
 同一个运行中的 vendor 实例可能提供多个转账、查账的方式。假设你要实现一个提供两组的供应商，分别是 (`account_id_1`, `USDT`, `AccountInternal/1/SubAccount/1`, `main`) 和 (`account_id_2`, `USDT`, `TRC20`, `0x1234567890`)，那么你可以这样实现：
@@ -58,10 +20,10 @@ const terminal = new ITerminal(process.env.HOST_URL!, {});
 
 addAccountTransferAddress({
   terminal,
-  account_id: 'account_id_1',
-  currency: 'USDT',
-  network_id: 'AccountInternal/1/SubAccount/1',
-  address: 'main',
+  account_id: 'account_id_1', // 账户 ID
+  currency: 'USDT', // 货币
+  network_id: 'AccountInternal/1/SubAccount/1', // 转账网络 ID，这里我们在描述一个主账户-子账户的转账。
+  address: 'main', // 地址，对于 AccountInternal/1/SubAccount/1 来说，这里可以是 main 或者是主账户 ID，只要与子账户的地址区分开即可
   onApply: {
     INIT: async (order: ITransferOrder) => {
       /// NOTE: makeSubAccountParams 和 Api.transferSubAccount 需要自行实现
@@ -84,8 +46,8 @@ addAccountTransferAddress({
   terminal,
   account_id: 'account_id_2',
   currency: 'USDT',
-  network_id: 'TRC20',
-  address: '0x123456789',
+  network_id: 'TRC20', // 这里描述了一个 TRC20 转账
+  address: '0x123456789', // 此处必须给定账户的 TRC20 地址
   onApply: {
     INIT: async (order: ITransferOrder) => {
       /// NOTE: makeTRC20Params 和 Api.transferTRC20 需要自行实现
