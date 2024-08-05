@@ -19,12 +19,12 @@ sidebar_position: 1
 一个供应商程序可以负责多个产品和多个账户。
 
 - [提供产品规格](./vendor-product)
-- 提供实时行情数据
+- [提供实时行情数据](./vendor-realtime-market-data)
 - 提供历史行情数据
-- [提供实时账户信息](./vendor-account-info.md)
+- [提供实时账户信息](./vendor-account-info)
 - 提供历史订单信息
 - 提供交易接口 (下单、改单、撤单)
-- 提供转账接口 (发送、查收)
+- [提供转账接口 (发送、查收)](./vendor-transfer)
 
 :::info[单一账户原则]
 
