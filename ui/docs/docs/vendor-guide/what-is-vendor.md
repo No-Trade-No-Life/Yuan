@@ -23,7 +23,7 @@ A vendor program can be responsible for multiple products and multiple accounts.
 - [Provide historical market data](./vendor-historical-market-data)
 - [Provide real-time account information](./vendor-account-info)
 - [Provide historical order information](./vendor-historical-order)
-- Provide trading interfaces (placing orders, modifying orders, canceling orders)
+- [Provide trading interfaces (placing orders, modifying orders, canceling orders)](./vendor-trading-interfaces)
 - [Provide transfer interfaces (sending, receiving)](./vendor-transfer)
 
 :::info[Single Account Principle]
