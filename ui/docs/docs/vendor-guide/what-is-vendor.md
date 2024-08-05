@@ -19,12 +19,12 @@ This guide will introduce the basic concepts of vendors and how to write a vendo
 A vendor program can be responsible for multiple products and multiple accounts.
 
 - [Provide product specifications](./vendor-product)
-- Provide real-time market data
+- [Provide real-time market data](./vendor-realtime-market-data)
 - Provide historical market data
-- [Provide real-time account information](./vendor-account-info.md)
+- [Provide real-time account information](./vendor-account-info)
 - Provide historical order information
 - Provide trading interfaces (placing orders, modifying orders, canceling orders)
-- Provide transfer interfaces (sending, receiving)
+- [Provide transfer interfaces (sending, receiving)](./vendor-transfer)
 
 :::info[Single Account Principle]
 
