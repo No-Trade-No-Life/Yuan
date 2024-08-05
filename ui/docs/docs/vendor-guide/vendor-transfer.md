@@ -8,44 +8,6 @@ Vendors are responsible for implementing the transfer interface, which is used f
 
 Implementing the transfer interface is straightforward; simply use the `addAccountTransferAddress` method to register the account's transfer and account checking functions.
 
-The API is as follows:
-
-```ts
-export const addAccountTransferAddress = (ctx: {
-  terminal: ITerminal;
-  /**
-   * Account ID
-   */
-  account_id: string;
-  /**
-   * Currency
-   */
-  currency: string;
-  /**
-   * Transfer network ID
-   */
-  network_id: string;
-  /**
-   * Address
-   */
-  address: string;
-  onApply: Record<
-    string,
-    (order: ITransferOrder) => Promise<{
-      state: string;
-      context?: string;
-      transaction_id?: string;
-      message?: string
-    }
-  >,
-  onEval: (order: ITransferOrder) => Promise<{
-    state: string;
-    context?: string;
-    received_amount?: number
-  }>;
-}) => void;
-```
-
 Specifically, the transfer route is uniquely determined by the quadruple (`account ID`, `transfer network ID`, `currency`, `address`), which is known as [Account Address Information](../basics/what-is-transfer-order.md#account-address-information).
 
 A single running vendor instance may provide multiple ways of transferring and checking accounts. Suppose you want to implement a vendor that provides two sets of transfers, namely (`account_id_1`, `USDT`, `AccountInternal/1/SubAccount/1`, `main`) and (`account_id_2`, `USDT`, `TRC20`, `0x1234567890`). You can implement it as follows:
@@ -58,10 +20,10 @@ const terminal = new ITerminal(process.env.HOST_URL!, {});
 
 addAccountTransferAddress({
   terminal,
-  account_id: 'account_id_1',
-  currency: 'USDT',
-  network_id: 'AccountInternal/1/SubAccount/1',
-  address: 'main',
+  account_id: 'account_id_1', // Account ID
+  currency: 'USDT', // Currency
+  network_id: 'AccountInternal/1/SubAccount/1', // Transfer network ID, here we are describing a main account-subaccount transfer.
+  address: 'main', // Address, for AccountInternal/1/SubAccount/1, this can be 'main' or the main account ID, as long as it is distinct from the subaccount's address
   onApply: {
     INIT: async (order: ITransferOrder) => {
       /// NOTE: makeSubAccountParams and Api.transferSubAccount need to be implemented by yourself
@@ -84,8 +46,8 @@ addAccountTransferAddress({
   terminal,
   account_id: 'account_id_2',
   currency: 'USDT',
-  network_id: 'TRC20',
-  address: '0x123456789',
+  network_id: 'TRC20', // Here we describe a TRC20 transfer
+  address: '0x123456789', // The TRC20 address of the account must be provided here
   onApply: {
     INIT: async (order: ITransferOrder) => {
       /// NOTE: makeTRC20Params and Api.transferTRC20 need to be implemented by yourself
@@ -165,20 +127,20 @@ import { ITerminal } from '@yuants/protocol';
 
 const terminal = new ITerminal(process.env.HOST_URL!, {});
 
-const contextList = [
+const contextList = {
   {
-    account_id: '1',
+    account_id: 'account_id_1',
     currency: 'USDT',
     network_id: 'AccountInternal/1/SubAccount/1',
     address: 'main',
   },
   {
-    account_id: '2',
+    account_id: 'account_id_2',
     currency: 'USDT',
     network_id: 'TRC20',
     address: '0x1234567890',
   },
-];
+};
 
 terminal.provideService(
   'TransferApply',
@@ -204,12 +166,7 @@ terminal.provideService(
   },
   async (req) => {
     const { current_tx_account_id, currency, current_network_id, current_tx_address, current_tx_state } = req;
-    if (
-      current_tx_account_id === '1' &&
-      currency === 'USDT' &&
-      current_network_id === 'AccountInternal/1/SubAccount/1' &&
-      current_tx_address === 'main'
-    ) {
+    if (current_tx_account_id === 'account_id_1' && currency === 'USDT' && current_network_id === 'AccountInternal/1/SubAccount/1' && current_tx_address === 'main') {
       if (current_tx_state === 'INIT') {
         /// NOTE: makeSubAccountParams and Api.transferSubAccount need to be implemented by yourself
         const params = makeSubAccountParams(order);
@@ -220,31 +177,26 @@ terminal.provideService(
         return { state: 'COMPLETE' };
       }
       return { res: { code: 400, message: 'Unknown State', data: { state: 'ERROR' } } };
-    } else if (
-      current_tx_account_id === '2' &&
-      currency === 'USDT' &&
-      current_network_id === 'TRC20' &&
-      current_tx_address === '0x1234567890'
-    ) {
-      if (current_tx_state === 'INIT') {
-        /// NOTE: makeTRC20Params and Api.transferTRC20 need to be implemented by yourself
-        const params = makeTRC20Params(order);
-        const transferResult = await Api.transferTRC20(params);
-        if (!transferResult.success) {
-          return { state: 'INIT', message: transferResult.message };
-        }
-        const withdrawId = transferResult.withdrawId;
-        return { state: 'AWAIT_TX_ID', context: withdrawId };
-      }
-      if (current_tx_state === 'AWAIT_TX_ID') {
-        const withdrawId = order.current_tx_context;
-        const withdrawHistoryResult = await Api.getWithdrawHistory(withdrawId);
-        const transactionId = withdrawHistoryResult?.transactionId;
-        if (!transactionId) {
+    } else if (current_tx_account_id === 'account_id_2' && currency === 'USDT' && current_network_id === 'TRC20' && current_tx_address === '0x1234567890') {
+        if (current_tx_state === 'INIT') {
+          /// NOTE: makeTRC20Params and Api.transferTRC20 need to be implemented by yourself
+          const params = makeTRC20Params(order);
+          const transferResult = await Api.transferTRC20(params);
+          if (!transferResult.success) {
+            return { state: 'INIT', message: transferResult.message };
+          }
+          const withdrawId = transferResult.withdrawId;
           return { state: 'AWAIT_TX_ID', context: withdrawId };
         }
-        return { state: 'COMPLETE', transaction_id: transactionId };
-      }
+        if (current_tx_state === 'AWAIT_TX_ID') {
+          const withdrawId = order.current_tx_context;
+          const withdrawHistoryResult = await Api.getWithdrawHistory(withdrawId);
+          const transactionId = withdrawHistoryResult?.transactionId;
+          if (!transactionId) {
+              return { state: 'AWAIT_TX_ID', context: withdrawId };
+          }
+          return { state: 'COMPLETE', transaction_id: transactionId };
+        }
       return { res: { code: 400, message: 'Unknown State', data: { state: 'ERROR' } } };
     }
     return { state: 'COMPLETE' };
@@ -275,20 +227,10 @@ terminal.provideService(
   },
   async (req) => {
     const { current_rx_account_id, currency, current_network_id, current_rx_address, current_rx_state } = req;
-    if (
-      current_rx_account_id === '1' &&
-      currency === 'USDT' &&
-      current_network_id === 'AccountInternal/1/SubAccount/1' &&
-      current_rx_address === 'main'
-    ) {
+    if (current_rx_account_id === '1' && currency === 'USDT' && current_network_id === 'AccountInternal/1/SubAccount/1' && current_rx_address === 'main') {
       return { state: 'COMPLETE' };
     }
-    if (
-      current_rx_account_id === '2' &&
-      currency === 'USDT' &&
-      current_network_id === 'TRC20' &&
-      current_rx_address === '0x1234567890'
-    ) {
+    if (current_rx_account_id === '2' && currency === 'USDT' && current_network_id === 'TRC20' && current_rx_address === '0x1234567890') {
       /// NOTE: makeCheckTRC20Params and Api.checkTRC20 need to be implemented by yourself
       const params = makeCheckTRC20Params(order);
       const checkResult = await Api.checkTRC20(params);
