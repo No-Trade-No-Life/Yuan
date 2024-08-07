@@ -102,10 +102,10 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
   const accountFuturePosition$ = defer(() => client.getFuturePositions('usdt')).pipe(
     //
     map((res) => (res instanceof Array ? res : [])),
-    mergeMap((res) =>
+    combineLatestWith(mapProductIdToUsdtFutureProduct$.pipe(first())),
+    mergeMap(([res, mapProductIdToUsdtFutureProduct]) =>
       from(res).pipe(
-        combineLatestWith(mapProductIdToUsdtFutureProduct$.pipe(first())),
-        map(([position, mapProductIdToUsdtFutureProduct]): IPosition => {
+        map((position): IPosition => {
           const product_id = position.contract;
           const theProduct = mapProductIdToUsdtFutureProduct.get(product_id);
           const volume = Math.abs(position.size);
