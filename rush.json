@@ -546,6 +546,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/app-prometheus-client",
+      "projectFolder": "apps/prometheus-client",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/app-risk-manager",
       "projectFolder": "apps/risk-manager",
       "shouldPublish": true
