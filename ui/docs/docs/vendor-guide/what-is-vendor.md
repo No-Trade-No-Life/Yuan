@@ -26,28 +26,6 @@ A vendor program can be responsible for multiple products and multiple accounts.
 - [Provide trading interfaces (placing orders, modifying orders, canceling orders)](./vendor-trading-interfaces)
 - [Provide transfer interfaces (sending, receiving)](./vendor-transfer)
 
-:::info[Single Account Principle]
-
-When integrating with accounts, ensure that one container corresponds to one account, using environment variables to set account authorization.
-
-Do not use one container to maintain the authorization of multiple accounts, because:
-
-1. Authorization information is insecure
-
-   If someone has control over the vendor's deployment, they can inevitably access this deployment environment and obtain authorization information for the environment and vendor API through some dump method, which is equivalent to having the account authorization. Therefore, to ensure that account authorization does not leak, users must have control over the vendor's deployment.
-   Controlling the environment means controlling the authorization, so environment variables are the simplest channel for authorization transmission.
-
-2. It reduces availability
-
-   If a program anomaly occurs with an account, such as OOM, it will affect other accounts in the same container, leading to restarts and reinitializations, resulting in significantly reduced availability. Sacrificing availability for the potential benefit of more efficient resource allocation is clearly not worthwhile.
-
-3. It complicates program structure
-
-   If a container needs to manage multiple accounts, it inevitably requires setting up an account pool, with each step needing to retrieve the corresponding state from the account pool, which imposes higher requirements on program design.
-   Typically, a vendor process holds only one API authorization key and should not hold multiple API authorization keys.
-
-:::
-
 ## Types of External System Interfaces
 
 External system interfaces come in various types, but they can generally be categorized into the following:
