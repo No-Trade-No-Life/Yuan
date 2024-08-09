@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "experimental webrtc support",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

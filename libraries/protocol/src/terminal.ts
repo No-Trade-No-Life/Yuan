@@ -19,6 +19,7 @@ import {
   debounceTime,
   defer,
   distinctUntilChanged,
+  exhaustMap,
   filter,
   first,
   firstValueFrom,
@@ -40,10 +41,12 @@ import {
   timer,
   toArray,
 } from 'rxjs';
+import type SimplePeer from 'simple-peer';
 import { IConnection, createConnectionJson } from './create-connection';
 import { ITerminalInfo } from './model';
 import { IService, ITerminalMessage } from './services';
 import { PromRegistry } from './services/metrics';
+import { getSimplePeerClass } from './webrtc';
 
 const TerminalReceiveMassageTotal = PromRegistry.create('counter', 'terminal_receive_message_total');
 const TerminalTransmittedMessageTotal = PromRegistry.create('counter', 'terminal_transmitted_message_total');
@@ -149,12 +152,17 @@ export class Terminal {
     this._setupTerminalInfoStuff();
   }
 
+  private _mapTerminalIdToPeer: Record<string, SimplePeer.Instance | undefined | null> = {};
+
   private _setupTunnel() {
     this._subscriptions.push(
       from(this._conn.input$).subscribe((msg) => {
         this._input$.next(msg);
       }),
     );
+
+    this._setupWebRTCTunnel();
+
     this._subscriptions.push(
       this._output$.subscribe((msg) => {
         // Local Loop Back Tunnel
@@ -163,8 +171,197 @@ export class Terminal {
           setTimeout(() => this._input$.next(msg));
           return;
         }
+        // WebRTC Tunnel
+        const peer = this._mapTerminalIdToPeer[msg.target_terminal_id];
+        if (peer && peer.connected) {
+          console.info(formatTime(Date.now()), 'Terminal', 'WebRTC', 'sent');
+          setTimeout(() => peer.send(JSON.stringify(msg)));
+          return;
+        }
+
         this._conn.output$.next(msg);
       }),
+    );
+  }
+
+  private async _setupWebRTCTunnel() {
+    console.info(formatTime(Date.now()), 'Terminal', 'WebRTC', 'Setup');
+    const TheSimplePeer = await getSimplePeerClass();
+    if (!TheSimplePeer.WEBRTC_SUPPORT) return;
+    console.info(formatTime(Date.now()), 'Terminal', 'WebRTC', 'Support');
+
+    this._subscriptions.push(
+      this._input$
+        .pipe(
+          filter((msg) => msg.method === 'WebRTC.Signal'),
+          groupBy((msg) => msg.source_terminal_id),
+          mergeMap((group) => {
+            const source_terminal_id = group.key;
+            console.info(
+              formatTime(Date.now()),
+              'Terminal',
+              'WebRTC',
+              'Passive',
+              'connecting',
+              source_terminal_id,
+            );
+            const peer = new TheSimplePeer();
+            peer.on('signal', (data) => {
+              console.info(
+                formatTime(Date.now()),
+                'Terminal',
+                'WebRTC',
+                'Passive',
+                'signal answer out',
+                source_terminal_id,
+                data,
+              );
+              this._output$.next({
+                trace_id: UUID(),
+                method: 'WebRTC.Signal.Answer',
+                source_terminal_id: this.terminal_id,
+                target_terminal_id: source_terminal_id,
+                req: data,
+              });
+            });
+            peer.on('data', (data) => {
+              console.info(
+                formatTime(Date.now()),
+                'Terminal',
+                'WebRTC',
+                'Passive',
+                'data',
+                source_terminal_id,
+                data.toString(),
+              );
+              this._input$.next(JSON.parse(data.toString()));
+            });
+            return group.pipe(
+              tap({
+                next: (msg) => {
+                  console.info(
+                    formatTime(Date.now()),
+                    'Terminal',
+                    'WebRTC',
+                    'Passive',
+                    'signal in',
+                    source_terminal_id,
+                    msg.req,
+                  );
+                  peer.signal(msg.req);
+                },
+              }),
+            );
+          }),
+        )
+        .subscribe(),
+    );
+
+    this._subscriptions.push(
+      this._output$
+        .pipe(
+          map((msg) => msg.target_terminal_id),
+          filter((x) => x !== this.terminal_id),
+          groupBy((x) => x),
+          mergeMap((group) =>
+            group.pipe(
+              exhaustMap(
+                (target_terminal_id) =>
+                  new Observable((observer) => {
+                    console.info(
+                      formatTime(Date.now()),
+                      'Terminal',
+                      'WebRTC',
+                      'Active',
+                      'connecting',
+                      target_terminal_id,
+                    );
+                    const peer = new TheSimplePeer({
+                      initiator: true,
+                      channelName: `A/${this.terminal_id}/${target_terminal_id}`,
+                    });
+                    this._subscriptions.push(
+                      this._input$
+                        .pipe(
+                          filter(
+                            (msg) =>
+                              msg.method === 'WebRTC.Signal.Answer' &&
+                              msg.source_terminal_id === target_terminal_id,
+                          ),
+                          tap((msg) => {
+                            console.info(
+                              formatTime(Date.now()),
+                              'Terminal',
+                              'WebRTC',
+                              'Active',
+                              'signal answer in',
+                              target_terminal_id,
+                              msg.req,
+                            );
+                            peer.signal(msg.req);
+                          }),
+                        )
+                        .subscribe(),
+                    );
+                    peer.on('signal', (data) => {
+                      console.info(
+                        formatTime(Date.now()),
+                        'Terminal',
+                        'WebRTC',
+                        'Active',
+                        'signal out',
+                        target_terminal_id,
+                        data,
+                      );
+                      this._output$.next({
+                        trace_id: UUID(),
+                        method: 'WebRTC.Signal',
+                        source_terminal_id: this.terminal_id,
+                        target_terminal_id,
+                        req: data,
+                      });
+                    });
+                    peer.on('connect', () => {
+                      console.info(
+                        formatTime(Date.now()),
+                        'Terminal',
+                        'WebRTC',
+                        'Active',
+                        'connected',
+                        target_terminal_id,
+                      );
+                      this._mapTerminalIdToPeer[target_terminal_id] = peer;
+                    });
+                    peer.on('close', () => {
+                      console.info(
+                        formatTime(Date.now()),
+                        'Terminal',
+                        'WebRTC',
+                        'Active',
+                        'closed',
+                        target_terminal_id,
+                      );
+                      this._mapTerminalIdToPeer[target_terminal_id] = undefined;
+                      observer.complete();
+                    });
+                    peer.on('error', (err) => {
+                      console.error(
+                        formatTime(Date.now()),
+                        'Terminal',
+                        'WebRTC',
+                        'Active',
+                        'error',
+                        target_terminal_id,
+                        err,
+                      );
+                      observer.error(err);
+                    });
+                  }),
+              ),
+            ),
+          ),
+        )
+        .subscribe(),
     );
   }
 

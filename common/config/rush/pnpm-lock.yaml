@@ -1187,12 +1187,14 @@ importers:
   ../../libraries/protocol:
     specifiers:
       '@microsoft/api-extractor': ~7.30.0
+      '@roamhq/wrtc': ~0.8.0
       '@rushstack/heft': ~0.47.5
       '@rushstack/heft-jest-plugin': ~0.3.30
       '@rushstack/heft-node-rig': ~1.10.7
       '@types/heft-jest': 1.0.3
       '@types/json-schema': ~7.0.11
       '@types/node': '18'
+      '@types/simple-peer': ~9.11.8
       '@yuants/data-model': workspace:*
       '@yuants/prometheus-client': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -1201,10 +1203,12 @@ importers:
       browser-or-node: ~2.0.0
       isomorphic-ws: ~5.0.0
       rxjs: ~7.5.6
+      simple-peer: ~9.11.1
       typescript: ~4.7.4
       url: ~0.11.0
       ws: ~8.11.0
     dependencies:
+      '@roamhq/wrtc': 0.8.0
       '@yuants/data-model': link:../data-model
       '@yuants/prometheus-client': link:../prometheus-client
       '@yuants/utils': link:../utils
@@ -1212,6 +1216,7 @@ importers:
       browser-or-node: 2.0.0
       isomorphic-ws: 5.0.0_ws@8.11.0
       rxjs: 7.5.7
+      simple-peer: 9.11.1
       url: 0.11.1
       ws: 8.11.0
     devDependencies:
@@ -1222,6 +1227,7 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': 7.0.12
       '@types/node': 18.17.12
+      '@types/simple-peer': 9.11.8
       '@yuants/tool-kit': link:../../tools/toolkit
       typescript: 4.7.4
 
@@ -5813,6 +5819,52 @@ packages:
       lodash-es: 4.17.21
     dev: false
 
+  /@roamhq/wrtc-darwin-arm64/0.8.0:
+    resolution: {integrity: sha512-OtV2KWO7zOG3L8TF3KCt9aucynVCD/ww2xeXXgg+FLkya3ca0uzehN8EQJ3BL4tkInksbFJ2ssyu9cehfJ3ZuA==}
+    cpu: [arm64]
+    os: [darwin]
+    dev: false
+    optional: true
+
+  /@roamhq/wrtc-darwin-x64/0.8.0:
+    resolution: {integrity: sha512-VY7Vzt/SDDDCpW//h8GW9bOZrOr8gWXPZVD9473ypl4jyBIoO57yyLbHzd1G0vBUkS6szsHlQCz1WwpI30YL+g==}
+    cpu: [x64]
+    os: [darwin]
+    dev: false
+    optional: true
+
+  /@roamhq/wrtc-linux-arm64/0.8.1:
+    resolution: {integrity: sha512-FBJLLazlWkGQUXaokC/rTbrUQbb0CNFYry52fZGstufrGLTWu+g4HcwXdVvxh1tnVtVMvkQGk+mlOL52sCxw0A==}
+    cpu: [arm64]
+    os: [linux]
+    dev: false
+    optional: true
+
+  /@roamhq/wrtc-linux-x64/0.8.1:
+    resolution: {integrity: sha512-I9oWG7b4uvWO1IOR/aF34n+ID6TKVuSs0jd19h5KdhfRtw7FFh9xxuwN9rONPxLVa6fS0q+MCZgAf8Scz89L8Q==}
+    cpu: [x64]
+    os: [linux]
+    dev: false
+    optional: true
+
+  /@roamhq/wrtc-win32-x64/0.8.0:
+    resolution: {integrity: sha512-R2fxl41BLWPiP4eaTHGLzbbVvRjx1mV/OsgINCvawO7Hwz5Zx9I45+Fhrw3hd4n5amIeSG9VIF7Kz8eeTFXTGQ==}
+    cpu: [x64]
+    os: [win32]
+    dev: false
+    optional: true
+
+  /@roamhq/wrtc/0.8.0:
+    resolution: {integrity: sha512-C0V/nqc4/2xzORI5qa4mIeN/8UO3ywN1kInrJ9u6GljFx0D18JMUJEqe8yYHa61RrEeoWN3PKdW++k8TocSx/A==}
+    optionalDependencies:
+      '@roamhq/wrtc-darwin-arm64': 0.8.0
+      '@roamhq/wrtc-darwin-x64': 0.8.0
+      '@roamhq/wrtc-linux-arm64': 0.8.1
+      '@roamhq/wrtc-linux-x64': 0.8.1
+      '@roamhq/wrtc-win32-x64': 0.8.0
+      domexception: 4.0.0
+    dev: false
+
   /@rollup/browser/3.26.3:
     resolution: {integrity: sha512-NIeyD3o50DeC7BGV1COqNk27rK26XPxzYsPCFzqLVhPZtEbQG0nFLCK9I1+bP7VVqcFubrFTjSYt3cg4jfRUVg==}
     dev: false
@@ -7092,6 +7144,12 @@ packages:
       '@types/mime': 3.0.1
       '@types/node': 18.17.12
 
+  /@types/simple-peer/9.11.8:
+    resolution: {integrity: sha512-rvqefdp2rvIA6wiomMgKWd2UZNPe6LM2EV5AuY3CPQJF+8TbdrL5TjYdMf0VAjGczzlkH4l1NjDkihwbj3Xodw==}
+    dependencies:
+      '@types/node': 18.17.12
+    dev: true
+
   /@types/sockjs/0.3.34:
     resolution: {integrity: sha512-R+n7qBFnm/6jinlteC9DBL5dGiDGjWAvjo4viUanpnc/dG1y7uDoacXPIQ/PQEg1fI912SMHIa014ZjRpvDw4g==}
     dependencies:
@@ -8164,6 +8222,13 @@ packages:
 
   /buffer/5.7.1:
     resolution: {integrity: sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ==}
+    dependencies:
+      base64-js: 1.5.1
+      ieee754: 1.2.1
+    dev: false
+
+  /buffer/6.0.3:
+    resolution: {integrity: sha512-FTiCpNxtwiZZHEZbcbTIcZjERVICn9yq/pDFkTl95/AxzD1naBctN7YO68riM/gLSDY7sdrMby8hofADYuuqOA==}
     dependencies:
       base64-js: 1.5.1
       ieee754: 1.2.1
@@ -9948,6 +10013,15 @@ packages:
       webidl-conversions: 5.0.0
     dev: true
 
+  /domexception/4.0.0:
+    resolution: {integrity: sha512-A2is4PLG+eeSfoTMA95/s4pvAoSo2mKtiM5jlHkAVewmiO8ISFTFKZjH7UAM1Atli/OT/7JHOrJRJiMKUZKYBw==}
+    engines: {node: '>=12'}
+    deprecated: Use your platform's native DOMException instead
+    dependencies:
+      webidl-conversions: 7.0.0
+    dev: false
+    optional: true
+
   /domhandler/4.3.1:
     resolution: {integrity: sha512-GrwoxYN+uWlzO8uhUXRl0P+kHE4GtVPfYzVLcUxPL7KNdHKj66vvlhiweIHqYYXWlw+T8iLMp42Lm67ghw4WMQ==}
     engines: {node: '>= 4'}
@@ -10153,6 +10227,10 @@ packages:
   /entities/4.5.0:
     resolution: {integrity: sha512-V0hjH4dGPh9Ao5p0MoRY6BVqtwCjhz6vI5LT8AJ55H+4g9/4vbHx1I54fS0XuclLhDHArPQCiMjDxjaL8fPxhw==}
     engines: {node: '>=0.12'}
+    dev: false
+
+  /err-code/3.0.1:
+    resolution: {integrity: sha512-GiaH0KJUewYok+eeY05IIgjtAe4Yltygk9Wqp1V5yVWLdhf0hYZchRjNIT9bb0mSwRcIusT3cx7PJUf3zEIfUA==}
     dev: false
 
   /error-ex/1.3.2:
@@ -11435,6 +11513,10 @@ packages:
   /gensync/1.0.0-beta.2:
     resolution: {integrity: sha512-3hN7NaskYvMDLQY55gnW3NQ+mesEAepTqlg+VEbj7zzqEMBVNhzcGYYeqFo/TlYz6eQiFcp1HcsCZO+nGgS8zg==}
     engines: {node: '>=6.9.0'}
+
+  /get-browser-rtc/1.1.0:
+    resolution: {integrity: sha512-MghbMJ61EJrRsDe7w1Bvqt3ZsBuqhce5nrn/XAwgwOXhcsz53/ltdxOse1h/8eKXj5slzxdsz56g5rzOFSGwfQ==}
+    dev: false
 
   /get-caller-file/2.0.5:
     resolution: {integrity: sha512-DyFP3BM/3YHTQOCUL/w0OZHR0lpKeGrxotcHWcqNEdnltqFwXVfhEBQ94eIo34AfQpo0rGki4cyIiftY06h2Fg==}
@@ -18107,6 +18189,20 @@ packages:
 
   /signal-exit/3.0.7:
     resolution: {integrity: sha512-wnD2ZE+l+SPC/uoS0vXeE9L1+0wuaMqKlfz9AMUo38JsyLSBWSFcHR1Rri62LZc12vLr1gb3jl7iwQhgwpAbGQ==}
+
+  /simple-peer/9.11.1:
+    resolution: {integrity: sha512-D1SaWpOW8afq1CZGWB8xTfrT3FekjQmPValrqncJMX7QFl8YwhrPTZvMCANLtgBwwdS+7zURyqxDDEmY558tTw==}
+    dependencies:
+      buffer: 6.0.3
+      debug: 4.3.4
+      err-code: 3.0.1
+      get-browser-rtc: 1.1.0
+      queue-microtask: 1.2.3
+      randombytes: 2.1.0
+      readable-stream: 3.6.2
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
 
   /sirv/2.0.3:
     resolution: {integrity: sha512-O9jm9BsID1P+0HOi81VpXPoDxYP374pkOLzACAoyUQ/3OUVndNpsz6wMnY2z+yOxzbllCKZrM+9QrWsv4THnyA==}
