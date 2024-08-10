@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-bitget
 
-This log was last generated on Sun, 21 Jul 2024 07:51:05 GMT and should not be manually modified.
+This log was last generated on Sat, 10 Aug 2024 07:31:14 GMT and should not be manually modified.
+
+## 0.1.7
+Sat, 10 Aug 2024 07:31:14 GMT
+
+### Patches
+
+- fix bitget account money fre
 
 ## 0.1.6
 Sun, 21 Jul 2024 07:51:05 GMT
