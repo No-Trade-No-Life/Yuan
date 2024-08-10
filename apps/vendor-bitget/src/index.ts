@@ -257,9 +257,9 @@ const fundingTime$ = memoizeMap((product_id: string) =>
         currency: 'USDT',
         equity: +balanceRes.data[0].accountEquity,
         profit: +balanceRes.data[0].unrealizedPL,
-        free: +balanceRes.data[0].crossedMaxAvailable,
-        used: +balanceRes.data[0].accountEquity - +balanceRes.data[0].crossedMaxAvailable,
-        balance: +balanceRes.data[0].accountEquity - +balanceRes.data[0].unrealizedPL,
+        free: +balanceRes.data[0].maxTransferOut,
+        used: +balanceRes.data[0].accountEquity - +balanceRes.data[0].maxTransferOut,
+        balance: +balanceRes.data[0].available,
       };
       return {
         account_id: USDT_FUTURE_ACCOUNT_ID,
