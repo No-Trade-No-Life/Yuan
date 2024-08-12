@@ -47,7 +47,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
 
 const terminal = new Terminal(process.env.HOST_URL!, {
   name: 'CoinEx',
-  terminal_id: process.env.TERMINAL_ID || `bitget/${UUID()}`,
+  terminal_id: process.env.TERMINAL_ID || `coinex/${UUID()}`,
 });
 
 const mapSymbolToMarket$ = defer(async () => {
