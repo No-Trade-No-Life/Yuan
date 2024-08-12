@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-coinex",
+      "comment": "add tickers",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-coinex"
+}

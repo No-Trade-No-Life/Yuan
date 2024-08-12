@@ -166,7 +166,7 @@ export class ApiClient {
    *
    * 权重: 带symbol为1；不带symbol为10
    *
-   * https://binance-docs.github.io/apidocs/futures/cn/#69f9b0b2f3
+   * https://developers.binance.com/docs/zh-CN/derivatives/usds-margined-futures/market-data/rest-api/Mark-Price
    */
   getFuturePremiumIndex = (params: {
     symbol?: string;
@@ -184,13 +184,35 @@ export class ApiClient {
   > => this.request('GET', 'https://fapi.binance.com/fapi/v1/premiumIndex', params);
 
   /**
+   * 当前最优挂单
+   *
+   * 返回当前最优的挂单(最高买单，最低卖单)
+   *
+   * 权重: 单交易对2，无交易对5
+   *
+   * https://developers.binance.com/docs/zh-CN/derivatives/usds-margined-futures/market-data/rest-api/Symbol-Order-Book-Ticker
+   */
+  getFutureBookTicker = (params?: {
+    symbol?: string;
+  }): Promise<
+    {
+      symbol: string;
+      bidPrice: string;
+      bidQty: string;
+      askPrice: string;
+      askQty: string;
+      time: number;
+    }[]
+  > => this.request('GET', 'https://fapi.binance.com/fapi/v1/ticker/bookTicker', params);
+
+  /**
    * 获取未平仓合约数
    *
    * 权重: 1
    *
    * 更新速率: 3s
    *
-   * https://binance-docs.github.io/apidocs/futures/cn/#f6cc22e496
+   * https://developers.binance.com/docs/zh-CN/derivatives/usds-margined-futures/market-data/rest-api/Open-Interest
    */
   getFutureOpenInterest = (params: {
     symbol: string;
