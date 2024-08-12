@@ -128,14 +128,18 @@ export class CoinExClient {
   getFuturesFundingRate = async (params?: {
     market?: string;
   }): Promise<{
-    market: string;
-    mark_price: string;
-    latest_funding_rate: string;
-    next_funding_rate: string;
-    max_funding_time: string;
-    min_funding_time: string;
-    latest_funding_time: number;
-    next_funding_time: number;
+    code: number;
+    message: string;
+    data: {
+      market: string;
+      mark_price: string;
+      latest_funding_rate: string;
+      next_funding_rate: string;
+      max_funding_time: string;
+      min_funding_time: string;
+      latest_funding_time: number;
+      next_funding_time: number;
+    }[];
   }> => this.requestWithFlowControl('GET', '/v2/futures/funding-rate', { period: 1000, limit: 400 }, params);
 
   /**
@@ -193,4 +197,31 @@ export class CoinExClient {
       open_interest_volume: string;
     }[];
   }> => this.request('GET', '/v2/futures/market', params);
+
+  /**
+   * 获取市场行情
+   *
+   * https://docs.coinex.com/api/v2/zh/futures/market/http/list-market-ticker
+   */
+  getFuturesTicker = async (params?: {
+    market?: string;
+  }): Promise<{
+    code: number;
+    message: string;
+    data: {
+      market: string;
+      last: string;
+      open: string;
+      close: string;
+      high: string;
+      low: string;
+      volume: string;
+      value: string;
+      volume_sell: string;
+      volume_buy: string;
+      index_price: string;
+      mark_price: string;
+      period: number;
+    }[];
+  }> => this.request('GET', '/v2/futures/ticker', params);
 }

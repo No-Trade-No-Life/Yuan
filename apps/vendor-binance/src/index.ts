@@ -102,6 +102,19 @@ const mapSymbolToFuturePremiumIndex$ = defer(() => client.getFuturePremiumIndex(
   shareReplay(1),
 );
 
+const mapSymbolToFutureBookTicker$ = defer(() => client.getFutureBookTicker({})).pipe(
+  repeat({ delay: 1_000 }),
+  retry({ delay: 30_000 }),
+  mergeMap((x) =>
+    from(x).pipe(
+      map((v) => [v.symbol, v] as const),
+      toArray(),
+      map((v) => new Map(v)),
+    ),
+  ),
+  shareReplay(1),
+);
+
 terminal.provideChannel<ITick>(
   {
     pattern: `^Tick/binance/`,
@@ -112,6 +125,7 @@ terminal.provideChannel<ITick>(
     const [, , symbol] = decodePath(product_id);
     return combineLatest([
       mapSymbolToFuturePremiumIndex$,
+      mapSymbolToFutureBookTicker$,
       defer(() => client.getFutureOpenInterest({ symbol })).pipe(
         map((v) => +v.openInterest || 0),
         retry({ delay: 30_000 }),
@@ -119,16 +133,22 @@ terminal.provideChannel<ITick>(
         shareReplay(1),
       ),
     ]).pipe(
-      map(([mapSymbolToFuturePremiumIndex, openInterestVolume]): ITick => {
+      map(([mapSymbolToFuturePremiumIndex, mapSymbolToFutureBookTicker, openInterestVolume]): ITick => {
         const premiumIndex = mapSymbolToFuturePremiumIndex.get(symbol);
+        const bookTicker = mapSymbolToFutureBookTicker.get(symbol);
         if (!premiumIndex) {
           throw new Error(`Premium Index Not Found: ${symbol}`);
+        }
+        if (!bookTicker) {
+          throw new Error(`Book Ticker Not Found: ${symbol}`);
         }
         return {
           datasource_id: '',
           product_id,
           updated_at: Date.now(),
           price: +premiumIndex.markPrice,
+          ask: +bookTicker.askPrice,
+          bid: +bookTicker.bidPrice,
           interest_rate_for_long: -+premiumIndex.lastFundingRate,
           interest_rate_for_short: +premiumIndex.lastFundingRate,
           settlement_scheduled_at: premiumIndex.nextFundingTime,

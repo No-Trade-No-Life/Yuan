@@ -1,17 +1,32 @@
 import {
   IDataRecordTypes,
   IProduct,
+  ITick,
   UUID,
   decodePath,
   encodePath,
   formatTime,
   getDataRecordWrapper,
 } from '@yuants/data-model';
-import { Terminal, writeDataRecords } from '@yuants/protocol';
+import { provideTicks, Terminal, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
-import { defer, delayWhen, firstValueFrom, from, interval, map, repeat, retry, shareReplay, tap } from 'rxjs';
+import {
+  combineLatest,
+  defer,
+  delayWhen,
+  firstValueFrom,
+  from,
+  interval,
+  map,
+  mergeMap,
+  repeat,
+  retry,
+  shareReplay,
+  tap,
+  toArray,
+} from 'rxjs';
 import { CoinExClient } from './api';
 
 const DATASOURCE_ID = 'CoinEx';
@@ -34,6 +49,25 @@ const terminal = new Terminal(process.env.HOST_URL!, {
   name: 'CoinEx',
   terminal_id: process.env.TERMINAL_ID || `bitget/${UUID()}`,
 });
+
+const mapSymbolToMarket$ = defer(async () => {
+  const res = await client.getFuturesMarket();
+  if (res.code !== 0) {
+    throw new Error(res.message);
+  }
+  return res.data;
+}).pipe(
+  repeat({ delay: 1_000 }),
+  retry({ delay: 30_000 }),
+  mergeMap((x) =>
+    from(x).pipe(
+      map((v) => [v.market, v] as const),
+      toArray(),
+      map((v) => new Map(v)),
+    ),
+  ),
+  shareReplay(1),
+);
 
 const futuresProducts$ = defer(async () => {
   const res = await client.getFuturesMarket();
@@ -78,6 +112,68 @@ const mapProductIdToFuturesProduct$ = futuresProducts$.pipe(
   map((products) => new Map(products.map((v) => [v.product_id, v]))),
   shareReplay(1),
 );
+
+const mapSymbolToFundingRate$ = defer(() => client.getFuturesFundingRate()).pipe(
+  //
+  map((v) => v.data),
+  repeat({ delay: 1_000 }),
+  retry({ delay: 30_000 }),
+  mergeMap((x) =>
+    from(x).pipe(
+      map((v) => [v.market, v] as const),
+      toArray(),
+      map((v) => new Map(v)),
+    ),
+  ),
+  shareReplay(1),
+);
+
+const mapSymbolToTicker$ = defer(() => client.getFuturesTicker()).pipe(
+  //
+  map((v) => v.data),
+  repeat({ delay: 1_000 }),
+  retry({ delay: 30_000 }),
+  mergeMap((x) =>
+    from(x).pipe(
+      map((v) => [v.market, v] as const),
+      toArray(),
+      map((v) => new Map(v)),
+    ),
+  ),
+  shareReplay(1),
+);
+
+provideTicks(terminal, DATASOURCE_ID, (product_id) => {
+  const [instType, instId] = decodePath(product_id);
+  if (instType !== 'SWAP') return [];
+  return combineLatest([mapSymbolToTicker$, mapSymbolToMarket$, mapSymbolToFundingRate$]).pipe(
+    //
+    map(([mapSymbolToTicker, mapSymbolToMarket, mapSymbolToFundingRate]): ITick => {
+      const ticker = mapSymbolToTicker.get(instId);
+      const market = mapSymbolToMarket.get(instId);
+      const fundingRate = mapSymbolToFundingRate.get(instId);
+      if (!ticker) {
+        throw new Error(`ticker ${instId} not found`);
+      }
+      if (!market) {
+        throw new Error(`market ${instId} not found`);
+      }
+      if (!fundingRate) {
+        throw new Error(`fundingRate ${instId} not found`);
+      }
+      return {
+        product_id,
+        datasource_id: DATASOURCE_ID,
+        updated_at: Date.now(),
+        price: +ticker.last,
+        interest_rate_for_long: -+fundingRate.latest_funding_rate,
+        interest_rate_for_short: +fundingRate.latest_funding_rate,
+        settlement_scheduled_at: +fundingRate.next_funding_time,
+        open_interest: +market.open_interest_volume,
+      };
+    }),
+  );
+});
 
 terminal.provideService(
   'CopyDataRecords',
