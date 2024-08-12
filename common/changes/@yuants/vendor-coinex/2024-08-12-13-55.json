@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-coinex",
+      "comment": "fix typo",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-coinex"
+}
