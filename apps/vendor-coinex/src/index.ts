@@ -13,6 +13,7 @@ import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
 import { defer, delayWhen, firstValueFrom, from, interval, map, repeat, retry, shareReplay, tap } from 'rxjs';
 import { CoinExClient } from './api';
+import { join } from 'path/posix';
 
 const DATASOURCE_ID = 'CoinEx';
 
@@ -43,8 +44,7 @@ const futuresProducts$ = defer(async () => {
 
   const futures = res.data.map(
     (item): IProduct => ({
-      datasource_id: DATASOURCE_ID,
-      product_id: encodePath('SWAP', item.market),
+      product_id: join(DATASOURCE_ID, 'SWAP', item.market),
       quote_currency: item.quote_ccy,
       base_currency: item.base_ccy,
       price_step: Number(item.quote_ccy_precision),

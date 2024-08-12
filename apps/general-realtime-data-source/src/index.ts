@@ -1,6 +1,7 @@
 import { IDataRecordTypes, IPeriod, encodePath, formatTime, getDataRecordSchema } from '@yuants/data-model';
 import { Terminal, providePeriods, queryDataRecords } from '@yuants/protocol';
 import Ajv from 'ajv';
+import { join } from 'path/posix';
 import {
   EMPTY,
   Observable,
@@ -72,9 +73,7 @@ const subscribePeriods = (product_id: string, period_in_sec: number) => {
     mergeMap((gsrList) =>
       from(gsrList).pipe(
         map((gsr) =>
-          terminal.consumeChannel<IPeriod[]>(
-            encodePath('Period', gsr.specific_datasource_id, gsr.specific_product_id, period_in_sec),
-          ),
+          terminal.consumeChannel<IPeriod[]>(encodePath('Period', gsr.specific_product_id, period_in_sec)),
         ),
         toArray(),
       ),
@@ -108,8 +107,7 @@ const subscribePeriods = (product_id: string, period_in_sec: number) => {
           }
         }
         results.push({
-          datasource_id: 'Y',
-          product_id: product_id,
+          product_id: join('Y', product_id),
           period_in_sec,
           timestamp_in_us: +periods[0].timestamp_in_us,
           open: periods.map((v) => v.open).reduce((acc, cur) => acc + cur, 0) / periods.length,

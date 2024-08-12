@@ -21,6 +21,7 @@ import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
 import { roundToStep } from '@yuants/utils';
+import { join } from 'path/posix';
 import {
   EMPTY,
   catchError,
@@ -98,8 +99,7 @@ import { HuobiClient } from './api';
     filter((symbol) => symbol.contract_status === 1),
     map(
       (symbol): IProduct => ({
-        datasource_id: 'huobi-swap',
-        product_id: symbol.contract_code,
+        product_id: join('huobi', 'swap', symbol.contract_code),
         base_currency: symbol.symbol,
         quote_currency: 'USDT',
         value_scale: symbol.contract_size,
@@ -118,8 +118,7 @@ import { HuobiClient } from './api';
     filter((symbol) => symbol.state === 'online'),
     map(
       (symbol): IProduct => ({
-        datasource_id: 'huobi-spot',
-        product_id: symbol.sc,
+        product_id: join('huobi', 'spot', symbol.sc),
         base_currency: symbol.bc,
         quote_currency: symbol.qc,
         value_scale: 1,
@@ -196,7 +195,7 @@ import { HuobiClient } from './api';
     shareReplay(1),
   );
 
-  provideTicks(terminal, 'huobi-swap', (product_id) => {
+  provideTicks(terminal, 'huobi/swap', (product_id) => {
     return defer(async () => {
       const products = await firstValueFrom(perpetualContractProducts$);
       const theProduct = products.find((x) => x.product_id === product_id);
@@ -215,7 +214,6 @@ import { HuobiClient } from './api';
         combineLatest(x).pipe(
           map(([theProduct, bboTick, tradeTick, fundingRateTick, openInterest]): ITick => {
             return {
-              datasource_id: 'huobi-swap',
               product_id,
               updated_at: Date.now(),
               settlement_scheduled_at: +fundingRateTick[product_id].funding_time,
@@ -261,12 +259,11 @@ import { HuobiClient } from './api';
         mergeMap(([res, mapProductIdToPerpetualProduct]) =>
           from(res.data).pipe(
             map((v): IPosition => {
-              const product_id = v.contract_code;
+              const product_id = join('huobi/swap', v.contract_code);
               const theProduct = mapProductIdToPerpetualProduct.get(product_id);
               const valuation = v.volume * v.last_price * (theProduct?.value_scale || 1);
               return {
                 position_id: `${v.contract_code}/${v.contract_type}/${v.direction}/${v.margin_mode}`,
-                datasource_id: 'huobi-swap',
                 product_id,
                 direction: v.direction === 'buy' ? 'LONG' : 'SHORT',
                 volume: v.volume,

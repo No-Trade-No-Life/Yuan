@@ -4,6 +4,8 @@ import {
   IOrder,
   IPosition,
   IProduct,
+  decodePath,
+  encodePath,
   formatTime,
   getDataRecordWrapper,
 } from '@yuants/data-model';
@@ -71,7 +73,7 @@ import {
 import { IBridgeMessage, createZMQConnection } from './bridge';
 
 const ACCOUNT_ID = `${process.env.BROKER_ID!}/${process.env.USER_ID!}`;
-const DATASOURCE_ID = ACCOUNT_ID;
+// const DATASOURCE_ID = ACCOUNT_ID;
 
 const parseCTPTime = (date: string, time: string): Date =>
   parse(`${date}-${time}`, 'yyyyMMdd-HH:mm:ss', new Date());
@@ -157,8 +159,7 @@ export const queryProducts = (conn: IConnection<IBridgeMessage<any, any>>): Obse
     mapToValue,
     map(
       (msg): IProduct => ({
-        datasource_id: DATASOURCE_ID,
-        product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
+        product_id: encodePath('CTP', msg.ExchangeID, msg.InstrumentID),
         name: msg.InstrumentName,
         quote_currency: 'CNY',
         price_step: msg.PriceTick,
@@ -187,11 +188,11 @@ export const queryAccountInfo = (
     //
     mapToValue,
     map((msg): IPosition => {
-      const value_scale = mapProductId2Product[`${msg.ExchangeID}-${msg.InstrumentID}`].value_scale ?? 1;
+      const value_scale = mapProductId2Product[encodePath(msg.ExchangeID, msg.InstrumentID)].value_scale ?? 1;
       const position_price = msg.OpenCost / msg.Position / value_scale;
       return {
         position_id: `mixed`,
-        product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
+        product_id: encodePath('CTP', msg.ExchangeID, msg.InstrumentID),
         direction: (
           {
             [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Long]: 'LONG',
@@ -269,7 +270,7 @@ export const queryAccountInfo = (
     map(
       (msg): IOrder => ({
         order_id: `${msg.ExchangeID}-${msg.OrderSysID}`,
-        product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
+        product_id: encodePath('CTP', msg.ExchangeID, msg.InstrumentID),
         account_id: msg.UserID,
         order_type:
           msg.OrderPriceType === TThostFtdcOrderPriceTypeType.THOST_FTDC_OPT_LimitPrice ? 'LIMIT' : 'MARKET',
@@ -337,7 +338,7 @@ export const queryHistoryOrders = (
     map(
       (msg): IOrder => ({
         order_id: `${msg.ExchangeID}-${msg.OrderSysID}`,
-        product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
+        product_id: encodePath('CTP', msg.ExchangeID, msg.InstrumentID),
         account_id: msg.UserID,
         order_type: 'LIMIT',
         order_direction:
@@ -367,7 +368,7 @@ export const submitOrder = (
   sessionId: number,
   order: IOrder,
 ) => {
-  const [ctpExchangeId, instrumentId] = order.product_id.split('-');
+  const [, ctpExchangeId, instrumentId] = decodePath(order.product_id);
   const orderRef = '' + orderRefGen();
 
   // 即使通过 OnRtnOrder 回来的回报也有可能包含来自交易所的报错，因此需要额外检查订单状态是否为取消
@@ -635,21 +636,6 @@ const accountInfo$ = defer(() => mapProductIdToProduct$.pipe(first())).pipe(
 );
 
 provideAccountInfo(terminal, accountInfo$);
-
-terminal.provideService(
-  'QueryProducts',
-  {
-    required: ['datasource_id'],
-    properties: {
-      datasource_id: { const: DATASOURCE_ID },
-    },
-  },
-  () =>
-    products$.pipe(
-      //
-      map((data) => ({ res: { code: 0, message: 'OK', data: data } })),
-    ),
-);
 
 terminal.provideService(
   'QueryHistoryOrders',
