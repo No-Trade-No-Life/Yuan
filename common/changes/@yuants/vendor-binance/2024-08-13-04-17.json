@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-binance",
+      "comment": "revert design",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-binance"
+}
