@@ -144,7 +144,7 @@ provideTicks(terminal, 'binance', (product_id) => {
           throw new Error(`Book Ticker Not Found: ${symbol}`);
         }
         return {
-          datasource_id: '',
+          datasource_id: 'binance',
           product_id,
           updated_at: Date.now(),
           price: +premiumIndex.markPrice,
