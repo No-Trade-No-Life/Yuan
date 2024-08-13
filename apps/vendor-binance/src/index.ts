@@ -11,11 +11,18 @@ import {
   formatTime,
   getDataRecordWrapper,
 } from '@yuants/data-model';
-import { Terminal, addAccountTransferAddress, provideAccountInfo, writeDataRecords } from '@yuants/protocol';
+import {
+  Terminal,
+  addAccountTransferAddress,
+  provideAccountInfo,
+  provideTicks,
+  writeDataRecords,
+} from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
 import {
+  EMPTY,
   combineLatest,
   defer,
   firstValueFrom,
@@ -53,15 +60,14 @@ const futureExchangeInfo$ = defer(() => client.getFutureExchangeInfo()).pipe(
   shareReplay(1),
 );
 
-const encodeProductId = (instType: string, symbol: string) => `binance/${instType}/${symbol}`;
-
 const futureProducts$ = futureExchangeInfo$.pipe(
   mergeMap((x) =>
     from(x.symbols).pipe(
       //
       map((symbol): IProduct => {
         return {
-          product_id: encodeProductId('usdt-future', symbol.symbol),
+          datasource_id: 'binance',
+          product_id: encodePath('usdt-future', symbol.symbol),
           base_currency: symbol.baseAsset,
           quote_currency: symbol.quoteAsset,
           price_step: +`1e-${symbol.pricePrecision}`,
@@ -115,14 +121,9 @@ const mapSymbolToFutureBookTicker$ = defer(() => client.getFutureBookTicker({}))
   shareReplay(1),
 );
 
-terminal.provideChannel<ITick>(
-  {
-    pattern: `^Tick/binance/`,
-  },
-  (channel_id: string) => {
-    const [, ...product_id_parts] = decodePath(channel_id);
-    const product_id = encodePath(...product_id_parts);
-    const [, , symbol] = decodePath(product_id);
+provideTicks(terminal, 'binance', (product_id) => {
+  const [instType, symbol] = decodePath(product_id);
+  if (instType === 'usdt-future') {
     return combineLatest([
       mapSymbolToFuturePremiumIndex$,
       mapSymbolToFutureBookTicker$,
@@ -156,8 +157,9 @@ terminal.provideChannel<ITick>(
         };
       }),
     );
-  },
-);
+  }
+  return EMPTY;
+});
 
 (async () => {
   const spotAccountInfo = await client.getSpotAccountInfo();
@@ -203,7 +205,8 @@ terminal.provideChannel<ITick>(
         .map((v): IPosition => {
           return {
             position_id: `${v.symbol}/${v.positionSide}`,
-            product_id: encodeProductId('usdt-future', v.symbol),
+            datasource_id: 'binance',
+            product_id: encodePath('usdt-future', v.symbol),
             direction: v.positionSide,
             volume: +v.positionAmt,
             free_volume: +v.positionAmt,
@@ -406,7 +409,7 @@ terminal.provideChannel<ITick>(
       async (msg) => {
         console.info(formatTime(Date.now()), 'SubmitOrder', msg.req);
         const order = msg.req;
-        const [, instType, symbol] = decodePath(order.product_id);
+        const [instType, symbol] = decodePath(order.product_id);
         if (instType === 'usdt-future') {
           const mapOrderDirectionToSide = (direction?: string) => {
             switch (direction) {
@@ -488,7 +491,7 @@ defer(async () => {
           return { res: { code: 400, message: 'series_id is required' } };
         }
         const [start, end] = msg.req.time_range || [0, Date.now()];
-        const product_id = msg.req.tags.series_id;
+        const [, product_id] = decodePath(msg.req.tags.series_id);
         const mapProductIdToFutureProduct = await firstValueFrom(mapProductIdToFutureProduct$);
         const theProduct = mapProductIdToFutureProduct.get(product_id);
         if (!theProduct) {
@@ -509,7 +512,7 @@ defer(async () => {
           });
           res.forEach((v) => {
             funding_rate_history.push({
-              datasource_id: '',
+              datasource_id: 'binance',
               product_id,
               base_currency,
               quote_currency,
