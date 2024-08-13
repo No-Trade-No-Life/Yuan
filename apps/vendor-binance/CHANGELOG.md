@@ -1,6 +1,14 @@
 # Change Log - @yuants/vendor-binance
 
-This log was last generated on Fri, 02 Aug 2024 15:11:55 GMT and should not be manually modified.
+This log was last generated on Tue, 13 Aug 2024 04:54:27 GMT and should not be manually modified.
+
+## 0.3.9
+Tue, 13 Aug 2024 04:54:27 GMT
+
+### Patches
+
+- refine tickers
+- revert design
 
 ## 0.3.8
 Fri, 02 Aug 2024 15:11:55 GMT
