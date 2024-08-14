@@ -503,9 +503,10 @@ defer(async () => {
         }
         const funding_rate_history: IDataRecordTypes['funding_rate'][] = [];
         let current_start = start;
+        const [instType, symbol] = decodePath(product_id);
         while (true) {
           const res = await client.getFutureFundingRate({
-            symbol: product_id,
+            symbol: symbol,
             startTime: current_start,
             endTime: end,
             limit: 1000,
