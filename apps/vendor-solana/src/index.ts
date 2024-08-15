@@ -19,6 +19,11 @@ const getSolanaBalance = async (address: string): Promise<IGMGN> => {
   return ret.json();
 };
 
+const sanitizeString = (input: string) => {
+  const regex = /[^a-zA-Z0-9_]/g;
+  return input.replace(regex, '_');
+};
+
 solanaAddress.forEach((address) => {
   const solanaAllTokenBalance$ = defer(() => getSolanaBalance(address))
     .pipe(repeat({ delay: 1000 * 15 }), retry({ delay: 1000 * 10 }), shareReplay(1))
@@ -51,7 +56,7 @@ solanaAddress.forEach((address) => {
             .map((item) => {
               return {
                 position_id: item.address,
-                product_id: encodePath(item.token_address, item.symbol),
+                product_id: encodePath(item.token_address, sanitizeString(item.symbol)),
                 direction: 'LONG',
                 volume: +item.balance,
                 free_volume: +item.balance,
