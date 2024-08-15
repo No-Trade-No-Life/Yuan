@@ -56,6 +56,8 @@ solanaAddress.forEach((address) => {
             .map((item) => {
               return {
                 position_id: item.address,
+                // ISSUE: once a time, the name of the token is `FUCK U:\`, therefore the prometheus saw this: `metrics{label_name="FUCK U:\"}`
+                //   where \" is recognized as a escaped char by the parser of prometheus, and you'll know.
                 product_id: encodePath(item.token_address, sanitizeString(item.symbol)),
                 direction: 'LONG',
                 volume: +item.balance,
