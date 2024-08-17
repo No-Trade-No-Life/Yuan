@@ -76,8 +76,7 @@ const usdtSwapProducts$ = swapInstruments$.pipe(
       filter((x) => x.ctType === 'linear' && x.settleCcy === 'USDT'),
       map(
         (x): IProduct => ({
-          datasource_id: DATASOURCE_ID,
-          product_id: encodePath(x.instType, x.instId),
+          product_id: encodePath(DATASOURCE_ID, x.instType, x.instId),
           base_currency: x.ctValCcy,
           quote_currency: x.settleCcy,
           value_scale: +x.ctVal,
@@ -104,8 +103,7 @@ const marginProducts$ = marginInstruments$.pipe(
       //
       map(
         (x): IProduct => ({
-          datasource_id: DATASOURCE_ID,
-          product_id: encodePath(x.instType, x.instId),
+          product_id: encodePath(DATASOURCE_ID, x.instType, x.instId),
           base_currency: x.baseCcy,
           quote_currency: x.quoteCcy,
           value_scale: 1,

@@ -192,11 +192,11 @@ export default (context: IExtensionContext) => {
                     alert: 'AgentDataSelfCheckError',
                     annotations: {
                       description:
-                        'agent data self check error: {{$labels.kernel_id}}-{{$labels.datasource_id}}-{{$labels.product_id}}-{{$labels.period_in_sec}}',
+                        'agent data self check error: {{$labels.kernel_id}}-{{$labels.product_id}}-{{$labels.period_in_sec}}',
                       runbook_url: 'https://tradelife.feishu.cn/wiki/IsrNwMB9biXfO8kQyUYcBdo1nBb',
                       summary: 'Agent data self check error',
                     },
-                    expr: 'sum (period_data_checking_unit_period_self_check_total{status="error"}) by (kernel_id, datasource_id, product_id, period_in_sec) > 0',
+                    expr: 'sum (period_data_checking_unit_period_self_check_total{status="error"}) by (kernel_id, product_id, period_in_sec) > 0',
                     for: '5m',
                     labels: {
                       severity: 'warning',

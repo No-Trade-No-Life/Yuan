@@ -101,8 +101,7 @@ export default (context: IExtensionContext) => {
                   {
                     alert: 'MarketDataCollectorCronjobError',
                     annotations: {
-                      description:
-                        'Cronjob {{$labels.datasource_id}}-{{$labels.product_id}}-{{$labels.period_in_sec}} Failed',
+                      description: 'Cronjob {{$labels.product_id}}-{{$labels.period_in_sec}} Failed',
                       runbook_url: 'https://tradelife.feishu.cn/wiki/wikcnHcDrpMQi2Og6ALlpvrxHBS',
                       summary: 'Market data Collector Cronjob Failed',
                     },
