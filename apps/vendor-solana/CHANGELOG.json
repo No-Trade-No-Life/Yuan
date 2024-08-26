@@ -2,6 +2,26 @@
   "name": "@yuants/vendor-solana",
   "entries": [
     {
+      "version": "0.1.5",
+      "tag": "@yuants/vendor-solana_v0.1.5",
+      "date": "Mon, 26 Aug 2024 20:48:51 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix(vendor-solana): tolerate prometheus bug by sanitizing meme names"
+          },
+          {
+            "comment": "use solana mainnet json rpc api"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.4",
       "tag": "@yuants/vendor-solana_v0.1.4",
       "date": "Sun, 21 Jul 2024 07:51:05 GMT",
