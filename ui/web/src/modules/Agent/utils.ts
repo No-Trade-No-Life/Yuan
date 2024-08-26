@@ -245,7 +245,7 @@ export const writeManifestsFromBatchTasks = async (entry: string, hv_url: string
   await fs.writeFile(`${entry}.manifests.json`, JSON.stringify(manifests, null, 2));
 };
 
-Object.assign(globalThis, { bundleCode, loadBatchTasks });
+Object.assign(globalThis, { loadBatchTasks });
 
 export type IEnumerableJsonSchema<T> = JSONSchema7;
 

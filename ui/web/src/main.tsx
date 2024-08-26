@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 // Import React
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -9,11 +10,17 @@ import './index.css';
 // Global Libraries
 import * as Kernel from '@yuants/kernel';
 import * as rx from 'rxjs';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 Object.assign(globalThis, { rx, Kernel });
 
 // Import All Modules (Vite-only feature)
-import.meta.glob('./modules/*/index.ts', { eager: true });
+const modules = import.meta.glob('./modules/*/index.ts', { eager: true });
+const Modules = Object.fromEntries(
+  Object.entries(modules).map(([key, value]) => {
+    const item = key.match(/^\.\/modules\/(.+)\/index\.ts$/);
+    return [item?.[1] ?? '', value] as const;
+  }),
+);
+Object.assign(globalThis, { Modules });
 
 // Layout -> App
 import { DesktopLayout } from './modules/DesktopLayout';
