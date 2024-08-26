@@ -1,3 +1,4 @@
+import { Connection, LAMPORTS_PER_SOL, PublicKey, clusterApiUrl } from '@solana/web3.js';
 import { IAccountInfo, IAccountMoney, UUID, formatTime } from '@yuants/data-model';
 import { Terminal, provideAccountInfo } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
@@ -5,7 +6,6 @@ import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
 import { defer, map, repeat, retry, shareReplay } from 'rxjs';
 // import { IGMGN } from './type';
-import { Connection, LAMPORTS_PER_SOL, PublicKey, clusterApiUrl } from '@solana/web3.js';
 
 const connection = new Connection(clusterApiUrl('mainnet-beta'), 'confirmed');
 
