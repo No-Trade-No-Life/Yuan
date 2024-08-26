@@ -1,13 +1,9 @@
-import { Connection, LAMPORTS_PER_SOL, PublicKey, clusterApiUrl } from '@solana/web3.js';
 import { IAccountInfo, IAccountMoney, UUID, formatTime } from '@yuants/data-model';
 import { Terminal, provideAccountInfo } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
 import { defer, map, repeat, retry, shareReplay } from 'rxjs';
-// import { IGMGN } from './type';
-
-const connection = new Connection(clusterApiUrl('mainnet-beta'), 'confirmed');
 
 const solanaAddress = process.env.PUBLIC_KEY?.split(',') || [];
 const terminal = new Terminal(process.env.HOST_URL!, {
@@ -15,81 +11,57 @@ const terminal = new Terminal(process.env.HOST_URL!, {
   name: 'SOLANA',
 });
 
-// const getSolanaBalance = async (address: string): Promise<IGMGN> => {
-//   const ret = await fetch(
-//     `https://gmgn.ai/defi/quotation/v1/wallet/sol/holdings/${address}?orderby=last_active_timestamp&direction=desc&showsmall=true&sellout=false&limit=50`,
-//   );
-//   return ret.json();
-// };
-
-// const sanitizeString = (input: string) => {
-//   const regex = /[^a-zA-Z0-9_]/g;
-//   return input.replace(regex, '_');
-// };
-
-// solanaAddress.forEach((address) => {
-//   const solanaAllTokenBalance$ = defer(() => getSolanaBalance(address))
-//     .pipe(repeat({ delay: 1000 * 15 }), retry({ delay: 1000 * 10 }), shareReplay(1))
-//     .pipe(
-//       map((ret) => ret.data),
-//       map((balance): IAccountInfo => {
-//         const equity = balance.holdings.reduce((acc, item) => acc + item.usd_value, 0);
-//         const profit = balance.holdings.reduce((acc, item) => acc + item.unrealized_profit, 0);
-//         const free = +(
-//           balance.holdings.find((item) => item.address === 'So11111111111111111111111111111111111111111')
-//             ?.usd_value || 0
-//         );
-
-//         const money: IAccountMoney = {
-//           currency: 'USDT',
-//           equity: equity,
-//           balance: equity - profit,
-//           profit: profit,
-//           free: free,
-//           used: equity - free,
-//         };
-
-//         return {
-//           updated_at: Date.now(),
-//           account_id: `SOL/${address}`,
-//           money: money,
-//           currencies: [money],
-//           positions: balance.holdings
-//             .filter((item) => +item.balance >= 1)
-//             .map((item) => {
-//               return {
-//                 position_id: item.address,
-//                 // ISSUE: once a time, the name of the token is `FUCK U:\`, therefore the prometheus saw this: `metrics{label_name="FUCK U:\"}`
-//                 //   where \" is recognized as a escaped char by the parser of prometheus, and you'll know.
-//                 product_id: encodePath(item.token_address, sanitizeString(item.symbol)),
-//                 direction: 'LONG',
-//                 volume: +item.balance,
-//                 free_volume: +item.balance,
-//                 position_price: item.avg_cost,
-//                 closable_price: item.price,
-//                 floating_profit: item.unrealized_profit,
-//                 comment: item.symbol,
-//                 valuation: item.usd_value,
-//               };
-//             }),
-//           orders: [],
-//         };
-//       }),
-//     );
-//   provideAccountInfo(terminal, solanaAllTokenBalance$);
-// });
+const getAccountInfo = async (
+  address: string,
+): Promise<{
+  jsonrpc: string;
+  result: {
+    context: {
+      apiVersion: string;
+      slot: number;
+    };
+    value: {
+      data: string[];
+      executable: boolean;
+      lamports: number;
+      owner: string;
+      rentEpoch: number;
+      space: number;
+    };
+  };
+  id: number;
+}> =>
+  fetch('https://api.mainnet-beta.solana.com', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+      jsonrpc: '2.0',
+      id: 1,
+      method: 'getAccountInfo',
+      params: [
+        address,
+        {
+          encoding: 'base58',
+        },
+      ],
+    }),
+  }).then((res) => res.json());
 
 solanaAddress.forEach((address) => {
   console.info(formatTime(Date.now()), 'INIT', address);
-  const publicKey = new PublicKey(address);
-  const accountInfo$ = defer(() => connection.getBalance(publicKey)).pipe(
-    map((x): IAccountInfo => {
+  const accountInfo$ = defer(() => getAccountInfo(address)).pipe(
+    map((info): IAccountInfo => {
+      console.info(formatTime(Date.now()), 'INFO', info);
+      const x = info.result.value.lamports;
+      const sol = x / 1e9;
       const money: IAccountMoney = {
         currency: 'SOL',
-        equity: x / LAMPORTS_PER_SOL,
-        balance: x / LAMPORTS_PER_SOL,
+        equity: sol,
+        balance: sol,
         profit: 0,
-        free: x / LAMPORTS_PER_SOL,
+        free: sol,
         used: 0,
       };
       return {
@@ -101,8 +73,8 @@ solanaAddress.forEach((address) => {
         orders: [],
       };
     }),
-    repeat({ delay: 1000 }),
-    retry({ delay: 1000 }),
+    repeat({ delay: 1000 * 10 }),
+    retry({ delay: 1000 * 10 }),
     shareReplay(1),
   );
   provideAccountInfo(terminal, accountInfo$);
