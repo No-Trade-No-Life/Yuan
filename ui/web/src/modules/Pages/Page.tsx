@@ -1,11 +1,12 @@
 import { IconClose, IconRefresh } from '@douyinfe/semi-icons';
 import { Button, ButtonGroup, Space, Typography } from '@douyinfe/semi-ui';
 import { Bug } from '@icon-park/react';
+import { useObservableState } from 'observable-hooks';
 import React, { useContext, useEffect } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { executeCommand } from '../CommandCenter';
 import { ErrorBoundary } from './ErrorBoundary';
-import { AvailableComponents } from './model';
+import { AvailableComponents, pageRegistered$ } from './model';
 
 interface IPage {
   id: string;
@@ -17,6 +18,7 @@ interface IPage {
 const PageContext = React.createContext<IPage | null>(null);
 
 export const Page = React.memo((props: { page: IPage }) => {
+  useObservableState(pageRegistered$);
   const { t } = useTranslation('Page');
   const Component = AvailableComponents[props.page.type] || AvailableComponents['NotFound'];
   return (
