@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-solana",
+      "comment": "use solana mainnet json rpc api",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-solana"
+}
