@@ -33,5 +33,5 @@ output.output.forEach((chunk) => {
   const code = chunk.code;
   writeFileSync('./dist/dts/ui-web.d.ts', code);
   const codeForDeclaration = `declare module "@yuants/ui-web" { ${code.replace(/declare/g, '')} }`;
-  writeFileSync('./dist/dts/ui-web.generated', codeForDeclaration);
+  writeFileSync('./public/ui-web.generated', codeForDeclaration);
 });
