@@ -7,7 +7,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "tsc && vite build",
+    "build": "node ./scripts/pre-tsc.js && tsc && node ./scripts/post-tsc.js && vite build",
     "dev": "vite",
     "preview": "vite preview"
   },
@@ -69,6 +69,8 @@
     "@vitejs/plugin-react": "^2.0.0",
     "path-browserify": "^1.0.1",
     "typescript": "^4.6.4",
-    "vite": "^3.0.0"
+    "vite": "^3.0.0",
+    "rollup": "~4.21.1",
+    "rollup-plugin-dts": "~6.1.1"
   }
 }

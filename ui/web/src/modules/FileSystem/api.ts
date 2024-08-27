@@ -25,6 +25,12 @@ FsBackend$.subscribe((backend) => {
   FsFrontend$.next(createFileSystemApi(backend));
 });
 
+FsBackend$.subscribe(() => {
+  fetch('/dist/dts/ui-web.generated')
+    .then((res) => res.text())
+    .then((content) => fs.writeFile('/ui-web.generated.d.ts', content));
+});
+
 const ensureDir = async (path: string): Promise<void> => {
   if (path === '/') {
     return;
