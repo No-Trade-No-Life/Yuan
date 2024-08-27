@@ -26,7 +26,7 @@ FsBackend$.subscribe((backend) => {
 });
 
 FsBackend$.subscribe(() => {
-  fetch('/dist/dts/ui-web.generated')
+  fetch('/ui-web.generated')
     .then((res) => res.text())
     .then((content) => fs.writeFile('/ui-web.generated.d.ts', content));
 });
