@@ -2,6 +2,9 @@
   "compilerOptions": {
     "target": "ESNext",
     "useDefineForClassFields": true,
+    "declaration": true,
+    "declarationDir": "dist/dts",
+    "emitDeclarationOnly": true,
     "lib": ["DOM", "DOM.Iterable", "ESNext", "WebWorker"],
     "allowJs": false,
     "skipLibCheck": true,
@@ -13,7 +16,6 @@
     "moduleResolution": "Node",
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "noEmit": true,
     "jsx": "react-jsx"
   },
   "include": ["src"],
