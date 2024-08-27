@@ -5,6 +5,9 @@ import { dts } from 'rollup-plugin-dts';
 const config = {
   input: './dist/dts/modules.d.ts',
   output: [{ file: './dist/dts/ui-web.d.ts', format: 'es' }],
+  onLog: (level, log, handler) => {
+    console.info(level, log);
+  },
   plugins: [
     dts(),
     {
