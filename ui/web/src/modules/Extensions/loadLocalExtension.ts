@@ -2,9 +2,10 @@ import * as SemiUI from '@douyinfe/semi-ui';
 import * as IconParksIcons from '@icon-park/react';
 import * as dataModel from '@yuants/data-model';
 import { formatTime } from '@yuants/data-model';
+import * as protocol from '@yuants/protocol';
+import * as observableHooks from 'observable-hooks';
 import React from 'react';
 import * as rxjs from 'rxjs';
-import * as observableHooks from 'observable-hooks';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { FsBackend$, fs } from '../FileSystem/api';
 import { bundleCode } from '../Workspace';
@@ -26,6 +27,7 @@ registerCommand('LoadLocalExtensions', async () => {
             const module = new Function('globals', `return ${code}`)({
               '@yuants/ui-web': Modules,
               '@yuants/data-model': dataModel,
+              '@yuants/protocol': protocol,
               react: React,
               rxjs,
               '@douyinfe/semi-ui': SemiUI,
