@@ -1,32 +1,14 @@
+import { get, set } from 'idb-keyval';
 import { dirname } from 'path-browserify';
-import { BehaviorSubject } from 'rxjs';
+import { BehaviorSubject, ReplaySubject, first, firstValueFrom, mergeMap } from 'rxjs';
 import { FileSystemHandleBackend } from './backends/FileSystemHandleBackend';
 import { InMemoryBackend } from './backends/InMemoryBackend';
-import { createPersistBehaviorSubject } from './createPersistBehaviorSubject';
 import { IFileSystemBackend } from './interfaces';
 
-const createFileSystemApi = (backend: IFileSystemBackend) => {
-  const ensureDir = async (path: string): Promise<void> => {
-    if (path === '/') {
-      return;
-    }
-    await ensureDir(dirname(path));
-    if (await backend.exists(path)) {
-      return;
-    }
-    await backend.mkdir(path);
-  };
-  return { ...backend, ensureDir };
-};
-
-export const FsBackend$ = new BehaviorSubject<IFileSystemBackend>(new InMemoryBackend());
-const FsFrontend$ = new BehaviorSubject(createFileSystemApi(FsBackend$.value));
-FsBackend$.subscribe((backend) => {
-  FsFrontend$.next(createFileSystemApi(backend));
-});
+export const FsBackend$ = new ReplaySubject<IFileSystemBackend>(1);
 
 FsBackend$.subscribe(() => {
-  fetch('/ui-web.generated')
+  fetch('/ui-web.generated.d.ts')
     .then((res) => res.text())
     .then((content) => fs.writeFile('/ui-web.generated.d.ts', content));
 });
@@ -36,10 +18,11 @@ const ensureDir = async (path: string): Promise<void> => {
     return;
   }
   await ensureDir(dirname(path));
-  if (await FsBackend$.value.exists(path)) {
+  const backend = await firstValueFrom(FsBackend$);
+  if (await backend.exists(path)) {
     return;
   }
-  await FsBackend$.value.mkdir(path);
+  await backend.mkdir(path);
 };
 const b64toBlob = (b64Data: string, contentType = '', sliceSize = 512) => {
   const byteCharacters = atob(b64Data);
@@ -61,8 +44,24 @@ const b64toBlob = (b64Data: string, contentType = '', sliceSize = 512) => {
   return blob;
 };
 const readAsBlob = async (path: string): Promise<Blob> => {
-  const base64 = await FsBackend$.value.readFileAsBase64(path);
+  const backend = await firstValueFrom(FsBackend$);
+  const base64 = await backend.readFileAsBase64(path);
   return b64toBlob(base64);
+};
+
+const createPersistBehaviorSubject = <T>(key: string, initialValue: T) => {
+  const subject$ = new BehaviorSubject<T | undefined>(undefined);
+  get(key).then((value) => {
+    if (value !== undefined) {
+      subject$.next(value);
+    } else {
+      subject$.next(initialValue);
+    }
+    subject$.subscribe((newVal) => {
+      set(key, newVal);
+    });
+  });
+  return subject$;
 };
 
 export const workspaceRoot$ = createPersistBehaviorSubject(
@@ -72,7 +71,11 @@ export const workspaceRoot$ = createPersistBehaviorSubject(
 
 workspaceRoot$.subscribe((root) => {
   if (root) {
+    console.info('Using FileSystemHandleBackend', root.name);
     FsBackend$.next(new FileSystemHandleBackend(root));
+  } else if (root === null) {
+    console.info('Using InMemoryBackend');
+    FsBackend$.next(new InMemoryBackend());
   }
 });
 
@@ -80,14 +83,62 @@ export const fs: IFileSystemBackend & {
   ensureDir: (path: string) => Promise<void>;
   readAsBlob: (path: string) => Promise<Blob>;
 } = {
-  stat: (...args) => FsBackend$.value.stat(...args),
-  readdir: (...args) => FsBackend$.value.readdir(...args),
-  writeFile: (...args) => FsBackend$.value.writeFile(...args),
-  readFile: (...args) => FsBackend$.value.readFile(...args),
-  readFileAsBase64: (...args) => FsBackend$.value.readFileAsBase64(...args),
-  mkdir: (...args) => FsBackend$.value.mkdir(...args),
-  rm: (...args) => FsBackend$.value.rm(...args),
-  exists: (...args) => FsBackend$.value.exists(...args),
+  stat: (...args) =>
+    firstValueFrom(
+      FsBackend$.pipe(
+        first(),
+        mergeMap((fs) => fs.stat(...args)),
+      ),
+    ),
+  readdir: (...args) =>
+    firstValueFrom(
+      FsBackend$.pipe(
+        first(),
+        mergeMap((fs) => fs.readdir(...args)),
+      ),
+    ),
+  writeFile: (...args) =>
+    firstValueFrom(
+      FsBackend$.pipe(
+        first(),
+        mergeMap((fs) => fs.writeFile(...args)),
+      ),
+    ),
+  readFile: (...args) =>
+    firstValueFrom(
+      FsBackend$.pipe(
+        first(),
+        mergeMap((fs) => fs.readFile(...args)),
+      ),
+    ),
+  readFileAsBase64: (...args) =>
+    firstValueFrom(
+      FsBackend$.pipe(
+        first(),
+        mergeMap((fs) => fs.readFileAsBase64(...args)),
+      ),
+    ),
+  mkdir: (...args) =>
+    firstValueFrom(
+      FsBackend$.pipe(
+        first(),
+        mergeMap((fs) => fs.mkdir(...args)),
+      ),
+    ),
+  rm: (...args) =>
+    firstValueFrom(
+      FsBackend$.pipe(
+        first(),
+        mergeMap((fs) => fs.rm(...args)),
+      ),
+    ),
+  exists: (...args) =>
+    firstValueFrom(
+      FsBackend$.pipe(
+        first(),
+        mergeMap((fs) => fs.exists(...args)),
+      ),
+    ),
 
   ensureDir,
   readAsBlob,

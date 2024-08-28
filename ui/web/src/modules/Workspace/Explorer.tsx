@@ -15,7 +15,7 @@ import { TreeNodeData } from '@douyinfe/semi-ui/lib/es/tree/interface';
 import { formatTime } from '@yuants/data-model';
 import copy from 'copy-to-clipboard';
 import { t } from 'i18next';
-import { useObservableState } from 'observable-hooks';
+import { useObservable, useObservableState } from 'observable-hooks';
 import path, { dirname } from 'path-browserify';
 import { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
@@ -111,8 +111,8 @@ registerPage('Explorer', () => {
   const { t, ready } = useTranslation(['Explorer', 'associations']);
   const terminal = useObservableState(terminal$);
   const currentHostConfig = useObservableState(currentHostConfig$);
-
-  const rootName = workspaceRoot$.value?.name ?? t('TempDirectory');
+  const rootName =
+    useObservableState(useObservable(() => workspaceRoot$.pipe(map((x) => x?.name)))) || t('TempDirectory');
 
   const initialData: TreeNodeData[] = [
     {
