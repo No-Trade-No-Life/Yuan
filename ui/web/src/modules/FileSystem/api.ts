@@ -1,8 +1,8 @@
+import { get, set } from 'idb-keyval';
 import { dirname } from 'path-browserify';
 import { BehaviorSubject } from 'rxjs';
 import { FileSystemHandleBackend } from './backends/FileSystemHandleBackend';
 import { InMemoryBackend } from './backends/InMemoryBackend';
-import { createPersistBehaviorSubject } from './createPersistBehaviorSubject';
 import { IFileSystemBackend } from './interfaces';
 
 const createFileSystemApi = (backend: IFileSystemBackend) => {
@@ -63,6 +63,21 @@ const b64toBlob = (b64Data: string, contentType = '', sliceSize = 512) => {
 const readAsBlob = async (path: string): Promise<Blob> => {
   const base64 = await FsBackend$.value.readFileAsBase64(path);
   return b64toBlob(base64);
+};
+
+const createPersistBehaviorSubject = <T>(key: string, initialValue: T) => {
+  const subject$ = new BehaviorSubject<T | undefined>(undefined);
+  get(key).then((value) => {
+    if (value !== undefined) {
+      subject$.next(value);
+    } else {
+      subject$.next(initialValue);
+    }
+    subject$.subscribe((newVal) => {
+      set(key, newVal);
+    });
+  });
+  return subject$;
 };
 
 export const workspaceRoot$ = createPersistBehaviorSubject(

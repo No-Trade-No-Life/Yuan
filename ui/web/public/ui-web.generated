@@ -146,11 +146,14 @@ interface IFileSystemBackend {
     readAsBlob: (path: string) => Promise<Blob>;
 };
 
+ const createPersistBehaviorSubject: <T>(key: string, initialValue: T) => BehaviorSubject<T | undefined>;
+
  const index_d$h_FsBackend$: typeof FsBackend$;
+ const index_d$h_createPersistBehaviorSubject: typeof createPersistBehaviorSubject;
  const index_d$h_fs: typeof fs;
  const index_d$h_workspaceRoot$: typeof workspaceRoot$;
  namespace index_d$h {
-  export { index_d$h_FsBackend$ as FsBackend$, index_d$h_fs as fs, index_d$h_workspaceRoot$ as workspaceRoot$ };
+  export { index_d$h_FsBackend$ as FsBackend$, index_d$h_createPersistBehaviorSubject as createPersistBehaviorSubject, index_d$h_fs as fs, index_d$h_workspaceRoot$ as workspaceRoot$ };
 }
 
  function generateTemplates<T = any, S extends StrictRJSFSchema = RJSFSchema, F extends FormContextType = any>(): Partial<TemplatesType<T, S, F>>;

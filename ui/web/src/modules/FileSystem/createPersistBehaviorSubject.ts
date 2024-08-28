@@ -1,5 +1,7 @@
 import { get, set } from 'idb-keyval';
+import { dirname } from 'path-browserify';
 import { BehaviorSubject } from 'rxjs';
+import { fs } from './api';
 
 export const createPersistBehaviorSubject = <T>(key: string, initialValue: T) => {
   const subject$ = new BehaviorSubject<T | undefined>(undefined);
@@ -10,6 +12,8 @@ export const createPersistBehaviorSubject = <T>(key: string, initialValue: T) =>
       subject$.next(initialValue);
     }
     subject$.subscribe((newVal) => {
+      const filename = `/.Y/states/${key}.json`;
+      fs.ensureDir(dirname(filename)).then(() => fs.writeFile(filename, JSON.stringify(newVal)));
       set(key, newVal);
     });
   });
