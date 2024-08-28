@@ -1,21 +1,49 @@
 import { get, set } from 'idb-keyval';
 import { dirname } from 'path-browserify';
-import { BehaviorSubject } from 'rxjs';
-import { fs } from './api';
+import {
+  BehaviorSubject,
+  catchError,
+  defaultIfEmpty,
+  delayWhen,
+  filter,
+  from,
+  map,
+  switchMap,
+  tap,
+} from 'rxjs';
+import { FsBackend$, fs } from './api';
 
 export const createPersistBehaviorSubject = <T>(key: string, initialValue: T) => {
+  const filename = `/.Y/states/${key}.json`;
+  const theDirname = dirname(filename);
   const subject$ = new BehaviorSubject<T | undefined>(undefined);
-  get(key).then((value) => {
-    if (value !== undefined) {
-      subject$.next(value);
-    } else {
-      subject$.next(initialValue);
-    }
-    subject$.subscribe((newVal) => {
-      const filename = `/.Y/states/${key}.json`;
-      fs.ensureDir(dirname(filename)).then(() => fs.writeFile(filename, JSON.stringify(newVal)));
-      set(key, newVal);
-    });
-  });
+  // read when fsBackend ready
+  FsBackend$.pipe(
+    switchMap(() =>
+      from(fs.readFile(filename)).pipe(
+        map((x) => JSON.parse(x)),
+        tap({ error: (e) => console.error('createPersistBehaviorSubject', key, 'readFile Error', e) }),
+        catchError(() =>
+          from(get(key)).pipe(
+            //
+            filter((x) => x !== undefined),
+          ),
+        ),
+        defaultIfEmpty(initialValue),
+      ),
+    ),
+    tap((x) => console.info('createPersistBehaviorSubject', key, x)),
+    tap((x) => subject$.next(x)),
+  ).subscribe();
+  // write when value changes
+  subject$
+    .pipe(
+      filter((v) => v !== undefined),
+      delayWhen(() => from(fs.ensureDir(theDirname))),
+      // cc to idb-keyval
+      tap((v) => set(key, v)),
+      switchMap((v) => fs.writeFile(filename, JSON.stringify(v))),
+    )
+    .subscribe();
   return subject$;
 };
