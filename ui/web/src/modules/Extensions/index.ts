@@ -1,3 +1,3 @@
 import './ExtensionPanel';
 import './loadLocalExtension';
-export { resolveVersion } from './utils';
+export { resolveVersion, loadTgzBlob } from './utils';

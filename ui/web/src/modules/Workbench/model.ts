@@ -1,17 +1,20 @@
-import { encodePath, formatTime, UUID } from '@yuants/data-model';
+import { encodePath, formatTime } from '@yuants/data-model';
+import { dirname, resolve } from 'path-browserify';
 import {
   BehaviorSubject,
+  ReplaySubject,
   defer,
   delayWhen,
   distinct,
   filter,
   first,
+  firstValueFrom,
   map,
   mergeMap,
-  ReplaySubject,
   toArray,
 } from 'rxjs';
-import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehaviorSubject';
+import { FsBackend$, createPersistBehaviorSubject, fs, workspaceRoot$ } from '../FileSystem';
+import { InMemoryBackend } from '../FileSystem/backends/InMemoryBackend';
 
 export interface IHostConfigItem {
   //
@@ -74,6 +77,36 @@ initAction$
       currentHostConfig$.next(config);
     }
   });
+
+// initialize workspace from npm package
+defer(async () => {
+  const url = new URL(window.location.href);
+  const from_npm = url.searchParams.get('from_npm');
+  if (from_npm) {
+    const scoped = url.searchParams.get('scoped');
+    const package_name = url.searchParams.get('package_name');
+    const version = url.searchParams.get('version');
+    if (!package_name || !version) {
+      return;
+    }
+
+    const res = await fetch(
+      `https://registry.npmjs.org/${
+        scoped ? `@${scoped}/` : ''
+      }${package_name}/-/${package_name}-${version}.tgz`,
+    );
+    const blob = await res.blob();
+    const files = await Modules.Extensions.loadTgzBlob(blob);
+    workspaceRoot$.next(null); // Using InMemoryBackend
+    await firstValueFrom(FsBackend$.pipe(filter((x) => x instanceof InMemoryBackend))); // ISSUE: wait for InMemoryBackend to be set
+    for (const file of files) {
+      // ISSUE: filename inside tarball has a prefix 'package/'
+      const filename = resolve('/', file.filename.replace(/^package\//, ''));
+      await fs.ensureDir(dirname(filename));
+      await fs.writeFile(filename, file.blob);
+    }
+  }
+}).subscribe();
 
 export const OHLCIdList$ = new BehaviorSubject<string[]>([]);
 
