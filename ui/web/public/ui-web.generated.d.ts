@@ -2,7 +2,7 @@ declare module '@yuants/ui-web' {
   import * as react_jsx_runtime from 'react/jsx-runtime';
   import React, { ComponentType } from 'react';
   import * as rxjs from 'rxjs';
-  import { BehaviorSubject, Subject, Observable } from 'rxjs';
+  import { ReplaySubject, BehaviorSubject, Subject, Observable } from 'rxjs';
   import * as _yuants_data_model from '@yuants/data-model';
   import { IDataRecord, IProduct } from '@yuants/data-model';
   import { ColumnDef, Table } from '@tanstack/react-table';
@@ -127,6 +127,12 @@ declare module '@yuants/ui-web' {
     export {};
   }
 
+  const loadTgzBlob: (tgzBlob: Blob) => Promise<
+    {
+      filename: string;
+      blob: Blob;
+    }[]
+  >;
   function resolveVersion(
     packageName: string,
     ver?: string,
@@ -135,9 +141,10 @@ declare module '@yuants/ui-web' {
     version: string;
   }>;
 
+  const index_d$i_loadTgzBlob: typeof loadTgzBlob;
   const index_d$i_resolveVersion: typeof resolveVersion;
   namespace index_d$i {
-    export { index_d$i_resolveVersion as resolveVersion };
+    export { index_d$i_loadTgzBlob as loadTgzBlob, index_d$i_resolveVersion as resolveVersion };
   }
 
   interface IFileSystemStatResult {
@@ -155,7 +162,7 @@ declare module '@yuants/ui-web' {
     exists(path: string): Promise<boolean>;
   }
 
-  const FsBackend$: BehaviorSubject<IFileSystemBackend>;
+  const FsBackend$: ReplaySubject<IFileSystemBackend>;
   const workspaceRoot$: BehaviorSubject<FileSystemDirectoryHandle | null | undefined>;
   const fs: IFileSystemBackend & {
     ensureDir: (path: string) => Promise<void>;
