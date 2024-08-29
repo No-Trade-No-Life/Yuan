@@ -83,8 +83,8 @@ defer(async () => {
   const url = new URL(window.location.href);
   const from_npm = url.searchParams.get('from_npm');
   if (from_npm) {
-    const scoped = url.searchParams.get('scoped');
-    const package_name = url.searchParams.get('package_name');
+    const scope = url.searchParams.get('scope');
+    const package_name = url.searchParams.get('name');
     const version = url.searchParams.get('version');
     if (!package_name || !version) {
       return;
@@ -92,7 +92,7 @@ defer(async () => {
 
     const res = await fetch(
       `https://registry.npmjs.org/${
-        scoped ? `@${scoped}/` : ''
+        scope ? `@${scope}/` : ''
       }${package_name}/-/${package_name}-${version}.tgz`,
     );
     const blob = await res.blob();
