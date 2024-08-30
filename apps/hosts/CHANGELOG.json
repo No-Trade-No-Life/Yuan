@@ -1,14 +1,14 @@
 {
-  "name": "@yuants/app-prometheus-client",
+  "name": "@yuants/app-hosts",
   "entries": [
     {
-      "version": "0.0.2",
-      "tag": "@yuants/app-prometheus-client_v0.0.2",
+      "version": "0.1.0",
+      "tag": "@yuants/app-hosts_v0.1.0",
       "date": "Fri, 30 Aug 2024 14:29:33 GMT",
       "comments": {
-        "none": [
+        "minor": [
           {
-            "comment": "Bump Version"
+            "comment": "new"
           }
         ],
         "dependency": [
@@ -20,18 +20,6 @@
           },
           {
             "comment": "Updating dependency \"@yuants/extension\" to `0.2.7`"
-          }
-        ]
-      }
-    },
-    {
-      "version": "0.0.1",
-      "tag": "@yuants/app-prometheus-client_v0.0.1",
-      "date": "Fri, 09 Aug 2024 05:21:16 GMT",
-      "comments": {
-        "patch": [
-          {
-            "comment": "init package"
           }
         ]
       }

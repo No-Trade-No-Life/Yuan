@@ -2,6 +2,29 @@
   "name": "@yuants/vendor-binance",
   "entries": [
     {
+      "version": "0.3.12",
+      "tag": "@yuants/vendor-binance_v0.3.12",
+      "date": "Fri, 30 Aug 2024 14:29:33 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.2.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.7`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.11",
       "tag": "@yuants/vendor-binance_v0.3.11",
       "date": "Wed, 14 Aug 2024 01:00:07 GMT",

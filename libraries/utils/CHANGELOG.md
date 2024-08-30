@@ -1,6 +1,14 @@
 # Change Log - @yuants/utils
 
-This log was last generated on Fri, 12 Jul 2024 01:50:37 GMT and should not be manually modified.
+This log was last generated on Fri, 30 Aug 2024 14:29:33 GMT and should not be manually modified.
+
+## 0.2.0
+Fri, 30 Aug 2024 14:29:33 GMT
+
+### Minor changes
+
+- add ED25519 sign algorithm
+- new API
 
 ## 0.1.0
 Fri, 12 Jul 2024 01:50:37 GMT

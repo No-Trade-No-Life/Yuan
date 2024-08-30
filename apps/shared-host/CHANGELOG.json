@@ -2,6 +2,26 @@
   "name": "@yuants/app-shared-host",
   "entries": [
     {
+      "version": "0.3.1",
+      "tag": "@yuants/app-shared-host_v0.3.1",
+      "date": "Fri, 30 Aug 2024 14:29:33 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.7`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.0",
       "tag": "@yuants/app-shared-host_v0.3.0",
       "date": "Sat, 27 Jul 2024 16:11:05 GMT",
