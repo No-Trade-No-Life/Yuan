@@ -15,8 +15,14 @@ export const batchGroupBy: <T>(keyFunc: (obj: T) => string) => (source$: Observa
 
 // @public
 export const createKeyPair: () => {
-    publicKey: string;
-    secretKey: string;
+    public_key: string;
+    private_key: string;
+};
+
+// @public
+export const fromPrivateKey: (privateKey: string) => {
+    public_key: string;
+    private_key: string;
 };
 
 // @public
@@ -39,7 +45,7 @@ export function roundToStep(value: number, step: number,
 roundFn?: (x: number) => number): number;
 
 // @public
-export const signMessage: (message: string, secretKey: string) => string;
+export const signMessage: (message: string, privateKey: string) => string;
 
 // @public
 export const subjectToNativeSubject: <T>(subject$: Subject<T>) => NativeSubject<T>;
