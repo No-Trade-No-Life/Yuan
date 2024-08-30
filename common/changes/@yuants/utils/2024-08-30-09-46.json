@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/utils",
+      "comment": "add ED25519 sign algorithm",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/utils"
+}
