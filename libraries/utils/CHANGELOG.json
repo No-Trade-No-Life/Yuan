@@ -2,6 +2,26 @@
   "name": "@yuants/utils",
   "entries": [
     {
+      "version": "0.2.0",
+      "tag": "@yuants/utils_v0.2.0",
+      "date": "Fri, 30 Aug 2024 14:29:33 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add ED25519 sign algorithm"
+          },
+          {
+            "comment": "new API"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.0",
       "tag": "@yuants/utils_v0.1.0",
       "date": "Fri, 12 Jul 2024 01:50:37 GMT",

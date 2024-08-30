@@ -2,6 +2,29 @@
   "name": "@yuants/app-general-data-source",
   "entries": [
     {
+      "version": "0.0.53",
+      "tag": "@yuants/app-general-data-source_v0.0.53",
+      "date": "Fri, 30 Aug 2024 14:29:33 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.2.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.7`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.52",
       "tag": "@yuants/app-general-data-source_v0.0.52",
       "date": "Sun, 21 Jul 2024 07:51:05 GMT",

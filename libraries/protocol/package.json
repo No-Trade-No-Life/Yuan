@@ -1,6 +1,6 @@
 {
   "name": "@yuants/protocol",
-  "version": "0.21.2",
+  "version": "0.21.3",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [

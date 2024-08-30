@@ -2,6 +2,29 @@
   "name": "@yuants/app-transfer-controller",
   "entries": [
     {
+      "version": "0.0.19",
+      "tag": "@yuants/app-transfer-controller_v0.0.19",
+      "date": "Fri, 30 Aug 2024 14:29:33 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.2.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.7`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.18",
       "tag": "@yuants/app-transfer-controller_v0.0.18",
       "date": "Fri, 02 Aug 2024 15:11:55 GMT",
