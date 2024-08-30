@@ -495,6 +495,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/app-hosts",
+      "projectFolder": "apps/hosts",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/app-shared-host",
       "projectFolder": "apps/shared-host",
       "shouldPublish": true
