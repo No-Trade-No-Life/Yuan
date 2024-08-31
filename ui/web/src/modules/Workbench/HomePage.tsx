@@ -34,6 +34,7 @@ const useElementSize = (element?: Element | null) =>
       [element],
     ),
   );
+
 export const HomePage = React.memo(() => {
   const { t } = useTranslation('HomePage');
 
@@ -50,27 +51,11 @@ export const HomePage = React.memo(() => {
         width: '100%',
         height: '100%',
         boxSizing: 'border-box',
-        backgroundSize: `cover`,
-        backgroundPosition: 'center',
         overflow: 'auto',
       }}
     >
-      {false && (
-        <video
-          autoPlay
-          muted
-          loop
-          id="myVideo"
-          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-        >
-          <source src="/wallpaper.mp4" type="video/mp4" />
-          Your browser does not support HTML5 video.
-        </video>
-      )}
-
       <div
         style={{
-          // zIndex: 1,
           display: 'grid',
           padding: 20,
           width: '100%',
@@ -79,7 +64,6 @@ export const HomePage = React.memo(() => {
           gridTemplateRows: 'repeat(auto-fit, 100px)',
           gap: 20,
           boxSizing: 'border-box',
-          // gridAutoFlow: 'row',
           gridAutoFlow: isRowFlow ? 'row' : 'column',
         }}
       >

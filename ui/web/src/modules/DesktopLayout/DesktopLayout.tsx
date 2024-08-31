@@ -52,7 +52,15 @@ export const DesktopLayout = () => {
   }
 
   return (
-    <Layout style={{ height: '100%', overflow: 'hidden' }}>
+    <Layout
+      style={{
+        height: '100%',
+        overflow: 'hidden',
+        backgroundImage: `url(/wallpaper.gif),url(/wallpaper.jpg),url(/wallpaper.png)`,
+        backgroundSize: `cover`,
+        backgroundPosition: 'center',
+      }}
+    >
       {isShowHome ? <HomePage /> : null}
       <Layout.Content style={{ position: 'relative' }}>
         {model && (
