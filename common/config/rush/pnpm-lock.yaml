@@ -1096,6 +1096,35 @@ importers:
       ts-node: 10.9.2_8b03ecee800523adaf3df18ee3a13756
       typescript: 4.7.4
 
+  ../../distributions/origin:
+    specifiers:
+      '@douyinfe/semi-ui': ~2.16.0
+      '@icon-park/react': ~1.4.2
+      '@types/node': ^16.11.7
+      '@types/react': 18.2.37
+      '@yuants/agent': workspace:*
+      '@yuants/data-model': workspace:*
+      '@yuants/protocol': workspace:*
+      '@yuants/utils': workspace:*
+      observable-hooks: ~4.2.0
+      react: 18.2.0
+      react-dom: 18.2.0
+      rxjs: 7.5.6
+    dependencies:
+      '@douyinfe/semi-ui': 2.16.1_react-dom@18.2.0+react@18.2.0
+      '@icon-park/react': 1.4.2_react-dom@18.2.0+react@18.2.0
+      '@yuants/agent': link:../../libraries/agent
+      '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/utils': link:../../libraries/utils
+      observable-hooks: 4.2.3_885ddd8f46fc5f6714a13a0baaa0c42c
+      rxjs: 7.5.6
+    devDependencies:
+      '@types/node': 16.18.106
+      '@types/react': 18.2.37
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+
   ../../libraries/agent:
     specifiers:
       '@microsoft/api-extractor': ~7.30.0
@@ -4389,7 +4418,7 @@ packages:
     peerDependencies:
       react: '*'
     dependencies:
-      '@types/react': 18.2.37
+      '@types/react': 18.3.5
       prop-types: 15.8.1
       react: 18.2.0
 
@@ -7184,6 +7213,10 @@ packages:
     resolution: {integrity: sha512-+k+57NVS9opgrEn5l9c0gvD1r6C+PtyhVE4BTnMMRwiEA8ZO8uFcs6Yy2sXIy0eC95ZurBtRSvhZiHXBysbl6w==}
     dev: false
 
+  /@types/node/16.18.106:
+    resolution: {integrity: sha512-YTgQUcpdXRc7iiEMutkkXl9WUx5lGUCVYvnfRg9CV+IA4l9epctEhCTbaw4KgzXaKYv8emvFJkEM65+MkNUhsQ==}
+    dev: true
+
   /@types/node/17.0.45:
     resolution: {integrity: sha512-w+tIMs3rq2afQdsPJlODhoUEKzFP1ayaoyl1CcnwtIlsVe7K7bA1NGm4s3PraqTLlXnbIN84zuBlxBWo1u9BLw==}
     dev: false
@@ -7271,6 +7304,12 @@ packages:
     dependencies:
       '@types/prop-types': 15.7.5
       '@types/scheduler': 0.16.3
+      csstype: 3.1.2
+
+  /@types/react/18.3.5:
+    resolution: {integrity: sha512-WeqMfGJLGuLCqHGYRGHxnKrXcTitc6L/nBUWfWPcTarG3t9PsquqUMuVeXZeca+mglY4Vo5GZjCi0A3Or2lnxA==}
+    dependencies:
+      '@types/prop-types': 15.7.5
       csstype: 3.1.2
 
   /@types/request/2.48.12:
@@ -16014,6 +16053,18 @@ packages:
       rxjs: 7.5.7
     dev: false
 
+  /observable-hooks/4.2.3_885ddd8f46fc5f6714a13a0baaa0c42c:
+    resolution: {integrity: sha512-d6fYTIU+9sg1V+CT0GhgoE/ntjIqcy9DGaYGE6ELGVP4ojaWIEsaLvL/05hLOM+AL7aySN4DCTLvj6dDF9T8XA==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+      rxjs: '>=6.0.0'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      rxjs: 7.5.6
+    dev: false
+
   /obuf/1.1.2:
     resolution: {integrity: sha512-PX1wu0AmAdPqOL1mWhqmlOd8kOIZQwGZw6rh7uby9fTc5lhaOWFLX3I6R1hrF9k3zUY40e6igsLGkDXK92LJNg==}
     dev: false
@@ -17213,7 +17264,6 @@ packages:
       loose-envify: 1.4.0
       react: 18.2.0
       scheduler: 0.23.0
-    dev: false
 
   /react-draggable/4.4.5_react-dom@18.2.0+react@18.2.0:
     resolution: {integrity: sha512-OMHzJdyJbYTZo4uQE393fHcqqPYsEtkjfMgvCHr6rejT+Ezn4OZbNyGH50vv+SunC1RMvwOTSWkEODQLzw1M9g==}
@@ -17421,7 +17471,6 @@ packages:
     engines: {node: '>=0.10.0'}
     dependencies:
       loose-envify: 1.4.0
-    dev: false
 
   /read-package-json/2.1.2:
     resolution: {integrity: sha512-D1KmuLQr6ZSJS0tW8hf3WGpRlwszJOXZ3E8Yd/DNRaM5d+1wVRZdHlpGBLAuovjr28LbWvjpWkBHMxpRGGjzNA==}
@@ -18074,6 +18123,12 @@ packages:
       tslib: 1.14.1
     dev: false
 
+  /rxjs/7.5.6:
+    resolution: {integrity: sha512-dnyv2/YsXhnm461G+R/Pe5bWP41Nm6LBXEYWI6eiFP4fiwx6WRI/CD0zbdVAudd9xwLEF2IDcKXLHit0FYjUzw==}
+    dependencies:
+      tslib: 2.6.2
+    dev: false
+
   /rxjs/7.5.7:
     resolution: {integrity: sha512-z9MzKh/UcOqB3i20H6rtrlaE/CgjLOvheWK/9ILrbhROGTweAi1BaFsTT9FbwZi5Trr1qNRs+MXkhmR06awzQA==}
     dependencies:
@@ -18135,7 +18190,6 @@ packages:
     resolution: {integrity: sha512-CtuThmgHNg7zIZWAXi3AsyIzA3n4xx7aNyjwC2VJldO2LMVDhFK+63xGqq6CsJH4rTAt6/M+N4GhZiDYPx9eUw==}
     dependencies:
       loose-envify: 1.4.0
-    dev: false
 
   /schema-utils/2.7.0:
     resolution: {integrity: sha512-0ilKFI6QQF5nxDZLFn2dMjvc4hjg/Wkg7rHd3jK6/A4a1Hl9VFdQWvgB1UMGoU94pad1P/8N7fMcEnLnSiju8A==}

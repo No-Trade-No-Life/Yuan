@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/dist-origin",
+      "comment": "new package",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/dist-origin"
+}

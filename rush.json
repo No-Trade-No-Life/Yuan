@@ -616,6 +616,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/dist-origin",
+      "projectFolder": "distributions/origin",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/ui-web",
       "projectFolder": "ui/web"
     }
