@@ -1,3 +1,4 @@
+import { useObservableState } from 'observable-hooks';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 export const isDarkMode$ = new BehaviorSubject<boolean>(false);
@@ -33,3 +34,5 @@ new Observable<boolean>((subscriber) => {
 }).subscribe((v) => {
   isDarkMode$.next(v);
 });
+
+export const useIsDarkMode = (): boolean => useObservableState(isDarkMode$);

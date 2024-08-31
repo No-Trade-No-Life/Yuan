@@ -1,4 +1,5 @@
 import { Toast } from '@douyinfe/semi-ui';
+import { formatTime } from '@yuants/data-model';
 import * as FlexLayout from 'flexlayout-react';
 import hotkeys from 'hotkeys-js';
 import { resolve } from 'path-browserify';
@@ -13,68 +14,13 @@ const initialJson = (): FlexLayout.IJsonModel => ({
     // FIXED: multiple-window will cause terminals conflict, so disable it
     tabEnableFloat: true,
   },
-  borders: [
-    {
-      type: 'border',
-      location: 'left',
-      size: 320,
-      children: [
-        {
-          type: 'tab',
-          id: 'Explorer',
-          component: 'Explorer',
-          enableDrag: false,
-          enableRename: false,
-          enableClose: false,
-        },
-        {
-          type: 'tab',
-          id: 'AgentConfForm',
-          component: 'AgentConfForm',
-          enableDrag: false,
-          enableRename: false,
-          enableClose: false,
-        },
-        {
-          type: 'tab',
-          id: 'ExtensionPanel',
-          component: 'ExtensionPanel',
-          enableRename: false,
-          // enableDrag: false,
-          enableClose: false,
-        },
-      ],
-    },
-    {
-      type: 'border',
-      location: 'bottom',
-      children: [
-        {
-          type: 'tab',
-          id: 'Program',
-          enableClose: false,
-          enableRename: false,
-          enableDrag: false,
-          component: 'Program',
-        },
-      ],
-    },
-  ],
   layout: {
     type: 'row',
     weight: 100,
     children: [
       {
         type: 'tabset',
-        children: [
-          {
-            type: 'tab',
-            id: '{"pageKey":"Copilot","params":{}}',
-            component: 'Copilot',
-            config: {},
-            enableRename: false,
-          },
-        ],
+        children: [],
         active: true,
       },
     ],
@@ -125,6 +71,7 @@ registerCommand('Page.open', ({ type: pageKey, params = {}, parentId: _parentId 
       .find((node) => node.getType() === 'tabset')
       ?.getId();
   if (!parentId) {
+    console.info(formatTime(Date.now()), 'Page.open: NO PARENT');
     // NO PARENT: BAD REQUEST
     return;
   }
@@ -143,6 +90,7 @@ registerCommand('Page.open', ({ type: pageKey, params = {}, parentId: _parentId 
       true,
     ),
   );
+  Modules.Workbench.isShowHome$.next(false);
 });
 
 registerCommand('Page.select', ({ id: pageId }) => {
