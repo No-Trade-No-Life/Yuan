@@ -1,0 +1,17 @@
+{
+  "global": { "tabEnableFloat": true },
+  "borders": [],
+  "layout": {
+    "type": "row",
+    "id": "#e45e22d1-f96d-495c-ae4c-fa983ad0bfed",
+    "children": [
+      {
+        "type": "tabset",
+        "id": "#c8830c52-6f4b-4566-a454-5fc07be59db9",
+        "selected": -1,
+        "children": [],
+        "active": true
+      }
+    ]
+  }
+}

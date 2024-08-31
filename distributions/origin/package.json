@@ -1,0 +1,22 @@
+{
+  "name": "@yuants/dist-origin",
+  "version": "0.0.0",
+  "description": "Yuan Origin Distribution",
+  "scripts": {
+    "build": "echo skip build"
+  },
+  "dependencies": {
+    "@douyinfe/semi-ui": "~2.16.0",
+    "@icon-park/react": "~1.4.2",
+    "@yuants/agent": "workspace:*",
+    "@yuants/data-model": "workspace:*",
+    "@yuants/protocol": "workspace:*",
+    "@yuants/utils": "workspace:*",
+    "observable-hooks": "~4.2.0",
+    "rxjs": "7.5.6"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.4",
+    "@types/node": "^16.11.7"
+  }
+}
