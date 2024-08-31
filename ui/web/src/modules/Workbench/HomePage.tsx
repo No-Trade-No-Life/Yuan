@@ -2,15 +2,22 @@ import { Avatar, Space, Typography } from '@douyinfe/semi-ui';
 import { useObservable, useObservableState } from 'observable-hooks';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { BehaviorSubject, Observable, pipe, switchMap } from 'rxjs';
+import { Observable, pipe, switchMap } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
+import { createPersistBehaviorSubject } from '../FileSystem';
 import { pageRegistered$ } from '../Pages';
+import hotkeys from 'hotkeys-js';
 
-export const isShowHome$ = new BehaviorSubject(true);
+export const isShowHome$ = createPersistBehaviorSubject('show-home', true);
 
 export const toggleShowHome = () => {
   isShowHome$.next(!isShowHome$.value);
 };
+
+// ALT+D: Toggle SHOW HOME
+hotkeys('alt+d', () => {
+  toggleShowHome();
+});
 
 const useElementSize = (element?: Element | null) =>
   useObservableState(
@@ -34,6 +41,7 @@ const useElementSize = (element?: Element | null) =>
       [element],
     ),
   );
+
 export const HomePage = React.memo(() => {
   const { t } = useTranslation('HomePage');
 
@@ -42,6 +50,13 @@ export const HomePage = React.memo(() => {
   useObservableState(pageRegistered$);
 
   const isRowFlow = size && size.width < 1024;
+
+  const iconSize = 60;
+  const gapSize = size ? (size.width > 1024 ? 20 : Math.floor((size.width - 4 * iconSize) / 5)) : 14;
+  console.info('HomePage', 'size', { iconSize, gapSize, width: size?.width, isRowFlow });
+
+  if (!size) return null;
+
   return (
     <Space
       vertical
@@ -50,36 +65,19 @@ export const HomePage = React.memo(() => {
         width: '100%',
         height: '100%',
         boxSizing: 'border-box',
-        backgroundSize: `cover`,
-        backgroundPosition: 'center',
         overflow: 'auto',
       }}
     >
-      {false && (
-        <video
-          autoPlay
-          muted
-          loop
-          id="myVideo"
-          style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', objectFit: 'cover' }}
-        >
-          <source src="/wallpaper.mp4" type="video/mp4" />
-          Your browser does not support HTML5 video.
-        </video>
-      )}
-
       <div
         style={{
-          // zIndex: 1,
           display: 'grid',
-          padding: 20,
+          padding: gapSize,
           width: '100%',
           height: isRowFlow ? undefined : '100%',
-          gridTemplateColumns: 'repeat(auto-fit, 80px)',
-          gridTemplateRows: 'repeat(auto-fit, 100px)',
-          gap: 20,
+          gridTemplateColumns: `repeat(auto-fit, ${iconSize}px)`,
+          gridTemplateRows: `repeat(auto-fit, ${iconSize + 20}px)`,
+          gap: gapSize,
           boxSizing: 'border-box',
-          // gridAutoFlow: 'row',
           gridAutoFlow: isRowFlow ? 'row' : 'column',
         }}
       >
@@ -91,7 +89,7 @@ export const HomePage = React.memo(() => {
               <div
                 key={pageId}
                 style={{
-                  width: 80,
+                  width: iconSize,
                   overflow: 'hidden',
                   display: 'flex',
                   flexDirection: 'column',
@@ -104,7 +102,7 @@ export const HomePage = React.memo(() => {
               >
                 <Avatar
                   shape="square"
-                  style={{ width: 80, height: 80 }}
+                  style={{ width: iconSize, height: iconSize }}
                   onClick={() => {
                     executeCommand(pageId);
                   }}
@@ -119,7 +117,7 @@ export const HomePage = React.memo(() => {
                       },
                     },
                   }}
-                  style={{ width: 80 }}
+                  style={{ width: iconSize }}
                 >
                   {name}
                 </Typography.Text>

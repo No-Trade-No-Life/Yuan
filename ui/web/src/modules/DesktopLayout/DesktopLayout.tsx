@@ -1,9 +1,12 @@
 import { IconFullScreenStroked, IconHome } from '@douyinfe/semi-icons';
 import { Layout, Space } from '@douyinfe/semi-ui';
 import { Actions, Layout as FlexLayout, TabNode } from 'flexlayout-react';
-import { useObservableState } from 'observable-hooks';
+import { useObservable, useObservableState } from 'observable-hooks';
+import { extname, join } from 'path-browserify';
 import { useEffect, useState } from 'react';
+import { filter, from, map, mergeMap, toArray } from 'rxjs';
 import { CommandCenter } from '../CommandCenter';
+import { FsBackend$, fs } from '../FileSystem';
 import { Button } from '../Interactive';
 import { LanguageSelector } from '../Locale/LanguageSelector';
 import { LocalizePageTitle, Page } from '../Pages';
@@ -47,12 +50,62 @@ export const DesktopLayout = () => {
     }
   }, [isDarkMode]);
 
+  // Load WallPaper from Workspace
+  const wallPaperURLs = useObservableState(
+    useObservable(() =>
+      FsBackend$.pipe(
+        mergeMap(async () => {
+          const wallpaper_dir = '/.Y/wallpapers';
+          const wallpapers = await fs.readdir(wallpaper_dir);
+          return wallpapers.map((x) => join(wallpaper_dir, x));
+        }),
+      ).pipe(
+        //
+        mergeMap((x) =>
+          from(x).pipe(
+            map((filename) => {
+              const ext = extname(filename);
+              // TODO: add more MIME types mapping here
+              const mime = {
+                '.gif': 'image/gif',
+                '.png': 'image/png',
+                '.jpg': 'image/jpeg',
+                '.jpeg': 'image/jpeg',
+              }[ext];
+              if (!mime) return null;
+              return { filename, mime };
+            }),
+            filter((x): x is Exclude<typeof x, null> => !!x),
+            mergeMap(({ filename, mime }) =>
+              // Blob supports big file (about 100MB tested)
+              from(fs.readFileAsBlob(filename)).pipe(
+                map((blob) => URL.createObjectURL(blob)),
+                map((url) => ({ filename, url, mime })),
+              ),
+            ),
+            map((x) => `url('${x.url}')`),
+            toArray(),
+          ),
+        ),
+      ),
+    ),
+    [],
+  );
+
   if (document.location.hash === '#/popout') {
     return null;
   }
 
   return (
-    <Layout style={{ height: '100%', overflow: 'hidden' }}>
+    <Layout
+      style={{
+        height: '100%',
+        overflow: 'hidden',
+        backgroundImage: wallPaperURLs[0],
+        backgroundSize: `cover`,
+        backgroundPosition: 'center',
+      }}
+    >
       {isShowHome ? <HomePage /> : null}
       <Layout.Content style={{ position: 'relative' }}>
         {model && (

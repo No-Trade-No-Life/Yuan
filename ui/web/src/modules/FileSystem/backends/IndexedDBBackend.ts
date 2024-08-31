@@ -1,4 +1,5 @@
 import { IFileSystemBackend, IFileSystemStatResult } from '../interfaces';
+import { bs64toBlob } from '../utils';
 
 // @ts-ignore
 const FileSystem = globalThis.Filer?.FileSystem;
@@ -20,6 +21,10 @@ export class IndexedDBBackend implements IFileSystemBackend {
   }
   async readFile(path: string): Promise<string> {
     return this.fs.readFile(path, 'utf8');
+  }
+
+  async readFileAsBlob(path: string): Promise<Blob> {
+    return bs64toBlob(await this.readFileAsBase64(path));
   }
 
   async readFileAsBase64(path: string): Promise<string> {

@@ -1,5 +1,6 @@
 import { dirname, relative } from 'path-browserify';
 import { IFileSystemBackend, IFileSystemStatResult } from '../interfaces';
+import { bs64toBlob } from '../utils';
 
 export class InMemoryBackend implements IFileSystemBackend {
   files: Record<string, { type: 'file'; contentBase64: string } | { type: 'dir' }> = { '/': { type: 'dir' } };
@@ -30,6 +31,10 @@ export class InMemoryBackend implements IFileSystemBackend {
   }
   async readFile(path: string): Promise<string> {
     return b64_to_utf8(await this.readFileAsBase64(path));
+  }
+
+  async readFileAsBlob(path: string): Promise<Blob> {
+    return bs64toBlob(await this.readFileAsBase64(path));
   }
 
   async readFileAsBase64(path: string): Promise<string> {

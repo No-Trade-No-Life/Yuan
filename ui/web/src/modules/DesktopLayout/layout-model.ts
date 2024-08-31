@@ -51,6 +51,7 @@ layoutModel$.subscribe((layoutModel) => {
 });
 
 registerCommand('Page.open', ({ type: pageKey, params = {}, parentId: _parentId }) => {
+  Modules.Workbench.isShowHome$.next(false);
   const pageId = JSON.stringify({ pageKey, params });
   const model = layoutModel$.value;
 
@@ -90,7 +91,6 @@ registerCommand('Page.open', ({ type: pageKey, params = {}, parentId: _parentId 
       true,
     ),
   );
-  Modules.Workbench.isShowHome$.next(false);
 });
 
 registerCommand('Page.select', ({ id: pageId }) => {

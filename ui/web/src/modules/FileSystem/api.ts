@@ -24,30 +24,6 @@ const ensureDir = async (path: string): Promise<void> => {
   }
   await backend.mkdir(path);
 };
-const b64toBlob = (b64Data: string, contentType = '', sliceSize = 512) => {
-  const byteCharacters = atob(b64Data);
-  const byteArrays = [];
-
-  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-    const slice = byteCharacters.slice(offset, offset + sliceSize);
-
-    const byteNumbers = new Array(slice.length);
-    for (let i = 0; i < slice.length; i++) {
-      byteNumbers[i] = slice.charCodeAt(i);
-    }
-
-    const byteArray = new Uint8Array(byteNumbers);
-    byteArrays.push(byteArray);
-  }
-
-  const blob = new Blob(byteArrays, { type: contentType });
-  return blob;
-};
-const readAsBlob = async (path: string): Promise<Blob> => {
-  const backend = await firstValueFrom(FsBackend$);
-  const base64 = await backend.readFileAsBase64(path);
-  return b64toBlob(base64);
-};
 
 const createPersistBehaviorSubject = <T>(key: string, initialValue: T) => {
   const subject$ = new BehaviorSubject<T | undefined>(undefined);
@@ -81,7 +57,6 @@ workspaceRoot$.subscribe((root) => {
 
 export const fs: IFileSystemBackend & {
   ensureDir: (path: string) => Promise<void>;
-  readAsBlob: (path: string) => Promise<Blob>;
 } = {
   stat: (...args) =>
     firstValueFrom(
@@ -118,6 +93,13 @@ export const fs: IFileSystemBackend & {
         mergeMap((fs) => fs.readFileAsBase64(...args)),
       ),
     ),
+  readFileAsBlob: (...args) =>
+    firstValueFrom(
+      FsBackend$.pipe(
+        first(),
+        mergeMap((fs) => fs.readFileAsBlob(...args)),
+      ),
+    ),
   mkdir: (...args) =>
     firstValueFrom(
       FsBackend$.pipe(
@@ -141,7 +123,6 @@ export const fs: IFileSystemBackend & {
     ),
 
   ensureDir,
-  readAsBlob,
 };
 
 Object.assign(globalThis, { fs, FsBackend$ });

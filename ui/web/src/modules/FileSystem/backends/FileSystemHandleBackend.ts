@@ -95,6 +95,11 @@ export class FileSystemHandleBackend implements IFileSystemBackend {
     return file;
   }
 
+  async readFileAsBlob(path: string): Promise<Blob> {
+    const file = await this.getFile(path);
+    return file;
+  }
+
   async readFileAsBase64(path: string): Promise<string> {
     const file = await this.getFile(path);
     return new Promise<string>((resolve) => {
