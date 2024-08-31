@@ -2,11 +2,12 @@ import { Avatar, Space, Typography } from '@douyinfe/semi-ui';
 import { useObservable, useObservableState } from 'observable-hooks';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { BehaviorSubject, Observable, pipe, switchMap } from 'rxjs';
+import { Observable, pipe, switchMap } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
+import { createPersistBehaviorSubject } from '../FileSystem';
 import { pageRegistered$ } from '../Pages';
 
-export const isShowHome$ = new BehaviorSubject(true);
+export const isShowHome$ = createPersistBehaviorSubject('show-home', true);
 
 export const toggleShowHome = () => {
   isShowHome$.next(!isShowHome$.value);

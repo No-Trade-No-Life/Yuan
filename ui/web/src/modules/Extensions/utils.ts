@@ -158,7 +158,7 @@ export const loadTgzBlob = async (tgzBlob: Blob) => {
 
 export async function installExtensionFromTgz(tgzFilename: string) {
   const t = Date.now();
-  const tgz = await fs.readAsBlob(tgzFilename);
+  const tgz = await fs.readFileAsBlob(tgzFilename);
   const files = await loadTgzBlob(tgz);
   const packageJsonFile = files.find((x) => x.filename === 'package/package.json');
   if (!packageJsonFile) {
