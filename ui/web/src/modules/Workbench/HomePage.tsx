@@ -43,6 +43,11 @@ export const HomePage = React.memo(() => {
   useObservableState(pageRegistered$);
 
   const isRowFlow = size && size.width < 1024;
+
+  const iconSize = 60;
+  const gapSize = size ? (size.width > 1024 ? 20 : Math.floor((size.width - 4 * iconSize) / 5)) : 14;
+  console.info('HomePage', 'size', { iconSize, gapSize, width: size?.width, isRowFlow });
+
   return (
     <Space
       vertical
@@ -57,12 +62,12 @@ export const HomePage = React.memo(() => {
       <div
         style={{
           display: 'grid',
-          padding: 20,
+          padding: gapSize,
           width: '100%',
           height: isRowFlow ? undefined : '100%',
-          gridTemplateColumns: 'repeat(auto-fit, 80px)',
-          gridTemplateRows: 'repeat(auto-fit, 100px)',
-          gap: 20,
+          gridTemplateColumns: `repeat(auto-fit, ${iconSize}px)`,
+          gridTemplateRows: `repeat(auto-fit, ${iconSize + 20}px)`,
+          gap: gapSize,
           boxSizing: 'border-box',
           gridAutoFlow: isRowFlow ? 'row' : 'column',
         }}
@@ -75,7 +80,7 @@ export const HomePage = React.memo(() => {
               <div
                 key={pageId}
                 style={{
-                  width: 80,
+                  width: iconSize,
                   overflow: 'hidden',
                   display: 'flex',
                   flexDirection: 'column',
@@ -88,7 +93,7 @@ export const HomePage = React.memo(() => {
               >
                 <Avatar
                   shape="square"
-                  style={{ width: 80, height: 80 }}
+                  style={{ width: iconSize, height: iconSize }}
                   onClick={() => {
                     executeCommand(pageId);
                   }}
@@ -103,7 +108,7 @@ export const HomePage = React.memo(() => {
                       },
                     },
                   }}
-                  style={{ width: 80 }}
+                  style={{ width: iconSize }}
                 >
                   {name}
                 </Typography.Text>
