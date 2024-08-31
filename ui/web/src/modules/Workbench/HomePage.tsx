@@ -6,12 +6,18 @@ import { Observable, pipe, switchMap } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
 import { createPersistBehaviorSubject } from '../FileSystem';
 import { pageRegistered$ } from '../Pages';
+import hotkeys from 'hotkeys-js';
 
 export const isShowHome$ = createPersistBehaviorSubject('show-home', true);
 
 export const toggleShowHome = () => {
   isShowHome$.next(!isShowHome$.value);
 };
+
+// ALT+D: Toggle SHOW HOME
+hotkeys('alt+d', () => {
+  toggleShowHome();
+});
 
 const useElementSize = (element?: Element | null) =>
   useObservableState(
