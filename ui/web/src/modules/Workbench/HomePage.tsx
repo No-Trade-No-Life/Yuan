@@ -55,6 +55,8 @@ export const HomePage = React.memo(() => {
   const gapSize = size ? (size.width > 1024 ? 20 : Math.floor((size.width - 4 * iconSize) / 5)) : 14;
   console.info('HomePage', 'size', { iconSize, gapSize, width: size?.width, isRowFlow });
 
+  if (!size) return null;
+
   return (
     <Space
       vertical
