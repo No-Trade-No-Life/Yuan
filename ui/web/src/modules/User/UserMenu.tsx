@@ -60,7 +60,7 @@ export const UserMenu = React.memo(() => {
     <Dropdown
       trigger="click"
       clickToHide
-      position="bottomLeft"
+      position="topRight"
       render={
         <Dropdown.Menu style={{ width: 300 }}>
           {!authState && (

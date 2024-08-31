@@ -1,23 +1,23 @@
-import { Layout, Space, Typography } from '@douyinfe/semi-ui';
+import { IconFullScreenStroked, IconHome } from '@douyinfe/semi-icons';
+import { Layout, Space } from '@douyinfe/semi-ui';
 import { Actions, Layout as FlexLayout, TabNode } from 'flexlayout-react';
 import { useObservableState } from 'observable-hooks';
 import { useEffect, useState } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
 import { CommandCenter } from '../CommandCenter';
+import { Button } from '../Interactive';
 import { LanguageSelector } from '../Locale/LanguageSelector';
-import { Page } from '../Pages';
+import { LocalizePageTitle, Page } from '../Pages';
 import { ErrorBoundary } from '../Pages/ErrorBoundary';
 import { NetworkStatusWidget } from '../Terminals/NetworkStatusWidget';
 import { UserMenu } from '../User/UserMenu';
-import { HomePage } from '../Workbench/HomePage';
-import { isDarkMode$ } from '../Workbench/darkmode';
-import { layoutModel$, layoutModelJson$ } from './layout-model';
+import { HomePage, isShowHome$, toggleShowHome, useIsDarkMode } from '../Workbench';
 import { DarkmodeSwitch } from '../Workbench/DarkmodeSwitch';
+import { layoutModel$, layoutModelJson$ } from './layout-model';
 
 // ISSUE: React.memo will cause layout tab label not change while change language
 export const DesktopLayout = () => {
-  const { t, i18n } = useTranslation(['common', 'pages']);
   const model = useObservableState(layoutModel$);
+  const isShowHome = useObservableState(isShowHome$);
 
   const factory = (node: TabNode) => {
     const id = node.getId();
@@ -34,7 +34,7 @@ export const DesktopLayout = () => {
     return <Page page={{ id, type, params, viewport }} />;
   };
 
-  const isDarkMode = useObservableState(isDarkMode$);
+  const isDarkMode = useIsDarkMode();
 
   const [style, setStyle] = useState('');
 
@@ -52,35 +52,8 @@ export const DesktopLayout = () => {
   }
 
   return (
-    <Layout style={{ height: '100%' }}>
-      <Layout.Header style={{ padding: 4 }}>
-        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
-          <Space>
-            <Typography.Title heading={3}>
-              <b style={{ color: 'red' }}>Y</b>uan
-            </Typography.Title>
-          </Space>
-          <Space>
-            <CommandCenter />
-          </Space>
-          <Space>
-            <Space>
-              <ErrorBoundary>
-                <NetworkStatusWidget />
-              </ErrorBoundary>
-              <ErrorBoundary>
-                <LanguageSelector />
-              </ErrorBoundary>
-              <ErrorBoundary>
-                <DarkmodeSwitch />
-              </ErrorBoundary>
-              <ErrorBoundary>
-                <UserMenu />
-              </ErrorBoundary>
-            </Space>
-          </Space>
-        </Space>
-      </Layout.Header>
+    <Layout style={{ height: '100%', overflow: 'hidden' }}>
+      {isShowHome ? <HomePage /> : null}
       <Layout.Content style={{ position: 'relative' }}>
         {model && (
           <FlexLayout
@@ -88,23 +61,13 @@ export const DesktopLayout = () => {
               layoutModelJson$.next(model.toJson());
             }}
             onRenderTab={(node, renderValues) => {
-              const type = node.getComponent();
-              const i18nKey = `pages:${type}`;
-              if (i18n.exists(i18nKey)) {
-                const config = node.getConfig();
-                renderValues.content = (
-                  <Trans
-                    i18nKey={i18nKey}
-                    values={config}
-                    tOptions={{ interpolation: { escapeValue: false } }}
-                  ></Trans>
-                );
-              } else {
-                renderValues.content = type;
-              }
+              renderValues.content = (
+                <LocalizePageTitle type={node.getComponent()!} params={node.getConfig()} />
+              );
             }}
             onTabSetPlaceHolder={() => {
-              return <HomePage />;
+              isShowHome$.next(true);
+              return null;
             }}
             onAuxMouseClick={(node, e) => {
               if (
@@ -124,6 +87,68 @@ export const DesktopLayout = () => {
 
         <style>{style}</style>
       </Layout.Content>
+      <Layout.Header style={{ padding: 4 }}>
+        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+          <Space>
+            <ErrorBoundary>
+              <UserMenu />
+            </ErrorBoundary>
+            <Button
+              icon={<IconHome />}
+              theme="borderless"
+              type={isShowHome ? 'primary' : 'tertiary'}
+              onClick={async () => {
+                toggleShowHome();
+              }}
+            />
+          </Space>
+          <Space>
+            <CommandCenter />
+          </Space>
+          <Space>
+            <Space>
+              <ErrorBoundary>
+                <NetworkStatusWidget />
+              </ErrorBoundary>
+              <ErrorBoundary>
+                <LanguageSelector />
+              </ErrorBoundary>
+              <ErrorBoundary>
+                <DarkmodeSwitch />
+              </ErrorBoundary>
+              <ErrorBoundary>
+                <Button
+                  theme="borderless"
+                  type="tertiary"
+                  icon={<IconFullScreenStroked />}
+                  onClick={async () => {
+                    if (document.fullscreenElement) {
+                      return document.exitFullscreen();
+                    }
+                    function enterFullscreen(element: any) {
+                      if (element.requestFullscreen) {
+                        return element.requestFullscreen();
+                      } else if (element.mozRequestFullScreen) {
+                        // Firefox
+                        return element.mozRequestFullScreen();
+                      } else if (element.webkitRequestFullscreen) {
+                        // Chrome, Safari and Opera
+                        return element.webkitRequestFullscreen();
+                      } else if (element.msRequestFullscreen) {
+                        // IE/Edge
+                        return element.msRequestFullscreen();
+                      }
+                    }
+                    return enterFullscreen(document.body);
+
+                    // return document.body.requestFullscreen();
+                  }}
+                ></Button>
+              </ErrorBoundary>
+            </Space>
+          </Space>
+        </Space>
+      </Layout.Header>
     </Layout>
   );
 };
