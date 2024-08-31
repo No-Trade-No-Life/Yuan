@@ -9,5 +9,5 @@ export const LocalizePageTitle: React.ComponentType<{ type: string; params?: any
       <Trans i18nKey={i18nKey} values={props.params} tOptions={{ interpolation: { escapeValue: false } }} />
     );
   }
-  return props.type;
+  return <>{props.type}</>;
 };
