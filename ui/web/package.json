@@ -7,7 +7,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "node ./scripts/pre-tsc.js && tsc && node ./scripts/post-tsc.js && vite build",
+    "build": "node ./scripts/pre-tsc.js && tsc && node ./scripts/post-tsc.js && vite build 2>&1",
     "dev": "vite",
     "preview": "vite preview"
   },
