@@ -1,12 +1,9 @@
 import { IconFullScreenStroked, IconHome } from '@douyinfe/semi-icons';
 import { Layout, Space } from '@douyinfe/semi-ui';
 import { Actions, Layout as FlexLayout, TabNode } from 'flexlayout-react';
-import { useObservable, useObservableState } from 'observable-hooks';
-import { extname, join } from 'path-browserify';
+import { useObservableState } from 'observable-hooks';
 import { useEffect, useState } from 'react';
-import { filter, from, map, mergeMap, toArray } from 'rxjs';
 import { CommandCenter } from '../CommandCenter';
-import { FsBackend$, fs } from '../FileSystem';
 import { Button } from '../Interactive';
 import { LanguageSelector } from '../Locale/LanguageSelector';
 import { LocalizePageTitle, Page } from '../Pages';
@@ -15,6 +12,7 @@ import { NetworkStatusWidget } from '../Terminals/NetworkStatusWidget';
 import { UserMenu } from '../User/UserMenu';
 import { HomePage, isShowHome$, toggleShowHome, useIsDarkMode } from '../Workbench';
 import { DarkmodeSwitch } from '../Workbench/DarkmodeSwitch';
+import { WallPaper } from './WallPaper';
 import { layoutModel$, layoutModelJson$ } from './layout-model';
 
 // ISSUE: React.memo will cause layout tab label not change while change language
@@ -50,57 +48,6 @@ export const DesktopLayout = () => {
     }
   }, [isDarkMode]);
 
-  // Load WallPaper from Workspace
-  const wallPaperURLs = useObservableState(
-    useObservable(() =>
-      FsBackend$.pipe(
-        mergeMap(async () => {
-          const wallpaper_dir = '/.Y/wallpapers';
-          const wallpapers = await fs.readdir(wallpaper_dir);
-          return wallpapers.map((x) => join(wallpaper_dir, x));
-        }),
-      ).pipe(
-        //
-        mergeMap((x) =>
-          from(x).pipe(
-            map((filename) => {
-              const ext = extname(filename);
-              // TODO: add more MIME types mapping here
-              const mime = {
-                '.gif': 'image/gif',
-                '.png': 'image/png',
-                '.jpg': 'image/jpeg',
-                '.jpeg': 'image/jpeg',
-                '.mp4': 'video/mp4',
-                '.webm': 'video/webm',
-                '.ogv': 'video/ogg',
-                '.mpeg': 'video/mpeg',
-                '.mov': 'video/quicktime',
-                '.avi': 'video/x-msvideo',
-                '.3gp': 'video/3gpp',
-                '.3g2': 'video/3gpp2',
-              }[ext];
-              if (!mime) return null;
-              return { filename, mime };
-            }),
-            filter((x): x is Exclude<typeof x, null> => !!x),
-            mergeMap(({ filename, mime }) =>
-              // Blob supports big file (about 100MB tested)
-              from(fs.readFileAsBlob(filename)).pipe(
-                map((blob) => URL.createObjectURL(blob)),
-                map((url) => ({ filename, url, mime })),
-              ),
-            ),
-            toArray(),
-          ),
-        ),
-      ),
-    ),
-    [],
-  );
-
-  const selectedWallPaper = wallPaperURLs[0];
-
   if (document.location.hash === '#/popout') {
     return null;
   }
@@ -112,41 +59,7 @@ export const DesktopLayout = () => {
         overflow: 'hidden',
       }}
     >
-      <div
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          zIndex: -1,
-        }}
-      >
-        {selectedWallPaper && selectedWallPaper.mime.match(/image/) && (
-          <img
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'center',
-            }}
-            src={selectedWallPaper.url}
-          />
-        )}
-        {selectedWallPaper && selectedWallPaper.mime.match(/video/) && (
-          <video
-            autoPlay
-            loop
-            style={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-              objectPosition: 'center',
-            }}
-            src={selectedWallPaper.url}
-          />
-        )}
-      </div>
+      <WallPaper />
       {isShowHome ? <HomePage /> : null}
       <Layout.Content style={{ position: 'relative' }}>
         {model && (
