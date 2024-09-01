@@ -5,7 +5,6 @@ import {
   IconFolder,
   IconFolderOpen,
   IconForward,
-  IconImport,
   IconLoading,
   IconMore,
   IconSend,
@@ -19,20 +18,20 @@ import { useObservable, useObservableState } from 'observable-hooks';
 import path, { dirname } from 'path-browserify';
 import { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { filter, firstValueFrom, from, lastValueFrom, map, mergeMap, toArray } from 'rxjs';
+import { filter, firstValueFrom, from, lastValueFrom, map, mergeMap, timer, toArray } from 'rxjs';
 import { unzip } from 'unzipit';
 import { agentConf$, reloadSchemaAction$ } from '../Agent/AgentConfForm';
 import { writeManifestsFromBatchTasks } from '../Agent/utils';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { installExtensionFromTgz } from '../Extensions/utils';
-import { FsBackend$, fs, workspaceRoot$ } from '../FileSystem/api';
+import { FsBackend$, fs, historyWorkspaceRoot$, selectWorkspaceRoot, workspaceRoot$ } from '../FileSystem';
 import { showForm } from '../Form';
-import { Button } from '../Interactive';
 import i18n from '../Locale/i18n';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 import { currentHostConfig$ } from '../Workbench/model';
 import { sendFileByAirdrop } from './airdrop';
+import { Button } from '../Interactive';
 
 /**
  * File is associated with Command
@@ -112,7 +111,7 @@ registerPage('Explorer', () => {
   const terminal = useObservableState(terminal$);
   const currentHostConfig = useObservableState(currentHostConfig$);
   const rootName =
-    useObservableState(useObservable(() => workspaceRoot$.pipe(map((x) => x?.name)))) || t('TempDirectory');
+    useObservableState(useObservable(() => FsBackend$.pipe(map((x) => x?.name)))) || t('TempDirectory');
 
   const initialData: TreeNodeData[] = [
     {
@@ -172,18 +171,6 @@ registerPage('Explorer', () => {
 
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
-      <Space>
-        <Button
-          disabled={!window.showDirectoryPicker}
-          icon={<IconFolderOpen />}
-          onClick={() => executeCommand('workspace.open')}
-        >
-          {t('open_new')}
-        </Button>
-        <Button icon={<IconImport />} onClick={() => executeCommand('workspace.import_examples')}>
-          {t('import_examples')}
-        </Button>
-      </Space>
       <Tree
         key={treeKey}
         loadData={(node) => handleLoadNode(node?.key)}
@@ -366,7 +353,25 @@ registerCommand('workspace.open', async () => {
   const confirm = await new Promise<boolean>((resolve) => {
     Modal.confirm({
       title: t('Explorer:request_fs_permission'),
-      content: <Trans t={t} i18nKey={'Explorer:request_fs_permission_note'} />,
+      content: (
+        <Space vertical>
+          <Trans t={t} i18nKey={'Explorer:request_fs_permission_note'} />
+          {historyWorkspaceRoot$.value?.map((root) => (
+            <Button
+              block
+              onClick={async () => {
+                workspaceRoot$.next(root);
+                await firstValueFrom(timer(1000));
+                const url = new URL(document.location.href);
+                url.search = '';
+                document.location.replace(url.toString());
+              }}
+            >
+              {root.name}
+            </Button>
+          ))}
+        </Space>
+      ),
       okText: t('Explorer:agree'),
       cancelText: t('Explorer:disagree'),
       onOk: () => {
@@ -378,21 +383,10 @@ registerCommand('workspace.open', async () => {
     });
   });
   if (!confirm) return;
-
-  const root: FileSystemDirectoryHandle = await showDirectoryPicker({
-    mode: 'readwrite',
-  });
-  await root.requestPermission({ mode: 'readwrite' });
-  workspaceRoot$.next(root);
-  if (
-    await showForm<boolean>({
-      type: 'boolean',
-      title: t('Explorer:request_import'),
-      description: t('Explorer:request_import_note'),
-    })
-  ) {
-    await executeCommand('workspace.import_examples');
-  }
+  await selectWorkspaceRoot();
+  const url = new URL(document.location.href);
+  url.search = '';
+  document.location.replace(url.toString());
 });
 
 registerCommand('workspace.import_examples', async () => {

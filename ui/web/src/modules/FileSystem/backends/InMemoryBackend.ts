@@ -3,7 +3,11 @@ import { IFileSystemBackend, IFileSystemStatResult } from '../interfaces';
 import { bs64toBlob } from '../utils';
 
 export class InMemoryBackend implements IFileSystemBackend {
+  name: string = 'InMemory';
   files: Record<string, { type: 'file'; contentBase64: string } | { type: 'dir' }> = { '/': { type: 'dir' } };
+  constructor(name?: string) {
+    if (name) this.name = name;
+  }
 
   async readdir(path: string): Promise<string[]> {
     const file = this.files[path];

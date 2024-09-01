@@ -1,8 +1,6 @@
 import { get, set } from 'idb-keyval';
 import { dirname } from 'path-browserify';
-import { BehaviorSubject, ReplaySubject, first, firstValueFrom, mergeMap } from 'rxjs';
-import { FileSystemHandleBackend } from './backends/FileSystemHandleBackend';
-import { InMemoryBackend } from './backends/InMemoryBackend';
+import { BehaviorSubject, ReplaySubject, combineLatest, first, firstValueFrom, mergeMap } from 'rxjs';
 import { IFileSystemBackend } from './interfaces';
 
 export const FsBackend$ = new ReplaySubject<IFileSystemBackend>(1);
@@ -44,20 +42,37 @@ export const workspaceRoot$ = createPersistBehaviorSubject(
   'workspace-root',
   null as FileSystemDirectoryHandle | null,
 );
+export const historyWorkspaceRoot$ = createPersistBehaviorSubject(
+  'history-workspace-root',
+  [] as FileSystemDirectoryHandle[],
+);
 
-workspaceRoot$.subscribe((root) => {
-  if (root) {
-    console.info('Using FileSystemHandleBackend', root.name);
-    FsBackend$.next(new FileSystemHandleBackend(root));
-  } else if (root === null) {
-    console.info('Using InMemoryBackend');
-    FsBackend$.next(new InMemoryBackend());
-  }
-});
+combineLatest([workspaceRoot$, historyWorkspaceRoot$.pipe(first((x) => x !== undefined))]).subscribe(
+  async ([root, history]) => {
+    console.info('WorkspaceRoot', root, history);
+    if (root && history) {
+      for (const h of history) {
+        const isSame = await h.isSameEntry(root);
+        if (isSame) return;
+      }
+      historyWorkspaceRoot$.next([...history, root]);
+    }
+  },
+);
+
+export const selectWorkspaceRoot = async () => {
+  const root: FileSystemDirectoryHandle = await showDirectoryPicker({
+    mode: 'readwrite',
+  });
+  await root.requestPermission({ mode: 'readwrite' });
+  workspaceRoot$.next(root);
+  return root;
+};
 
 export const fs: IFileSystemBackend & {
   ensureDir: (path: string) => Promise<void>;
 } = {
+  name: 'ProxyFS',
   stat: (...args) =>
     firstValueFrom(
       FsBackend$.pipe(

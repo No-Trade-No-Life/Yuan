@@ -3,6 +3,7 @@ export interface IFileSystemStatResult {
   isDirectory: () => boolean;
 }
 export interface IFileSystemBackend {
+  name: string;
   readdir(path: string): Promise<string[]>;
   stat(path: string): Promise<IFileSystemStatResult>;
   readFile(path: string): Promise<string>;

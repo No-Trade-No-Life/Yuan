@@ -11,6 +11,7 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
+import { ready$ } from '../BIOS';
 import { FsBackend$, fs } from './api';
 
 export const createPersistBehaviorSubject = <T>(key: string, initialValue: T) => {
@@ -18,23 +19,29 @@ export const createPersistBehaviorSubject = <T>(key: string, initialValue: T) =>
   const theDirname = dirname(filename);
   const subject$ = new BehaviorSubject<T | undefined>(undefined);
   // read when fsBackend ready
-  FsBackend$.pipe(
-    switchMap(() =>
-      from(fs.readFile(filename)).pipe(
-        map((x) => JSON.parse(x)),
-        tap({ error: (e) => console.error('createPersistBehaviorSubject', key, 'readFile Error', e) }),
-        catchError(() =>
-          from(get(key)).pipe(
-            //
-            filter((x) => x !== undefined),
+  ready$
+    .pipe(
+      switchMap(() =>
+        FsBackend$.pipe(
+          switchMap(() =>
+            from(fs.readFile(filename)).pipe(
+              map((x) => JSON.parse(x)),
+              tap({ error: (e) => console.error('createPersistBehaviorSubject', key, 'readFile Error', e) }),
+              catchError(() =>
+                from(get(key)).pipe(
+                  //
+                  filter((x) => x !== undefined),
+                ),
+              ),
+              defaultIfEmpty(initialValue),
+            ),
           ),
+          tap((x) => console.info('createPersistBehaviorSubject', key, x)),
+          tap((x) => subject$.next(x)),
         ),
-        defaultIfEmpty(initialValue),
       ),
-    ),
-    tap((x) => console.info('createPersistBehaviorSubject', key, x)),
-    tap((x) => subject$.next(x)),
-  ).subscribe();
+    )
+    .subscribe();
   // write when value changes
   subject$
     .pipe(

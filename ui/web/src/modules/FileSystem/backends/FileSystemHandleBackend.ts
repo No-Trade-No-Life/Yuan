@@ -3,6 +3,7 @@ import { Subject, filter, firstValueFrom, mergeMap, shareReplay } from 'rxjs';
 import { IFileSystemBackend, IFileSystemStatResult } from '../interfaces';
 
 export class FileSystemHandleBackend implements IFileSystemBackend {
+  name: string;
   private request$ = new Subject<void>();
   private response$ = this.request$.pipe(
     mergeMap(async () => {
@@ -18,7 +19,9 @@ export class FileSystemHandleBackend implements IFileSystemBackend {
     filter((v) => !!v),
     shareReplay(1),
   );
-  constructor(private root: FileSystemDirectoryHandle) {}
+  constructor(private root: FileSystemDirectoryHandle) {
+    this.name = root.name;
+  }
 
   private mapPathToHandle = new Map<string, FileSystemHandle>();
 
