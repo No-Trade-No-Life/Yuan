@@ -26,7 +26,7 @@ export const createPersistBehaviorSubject = <T>(key: string, initialValue: T) =>
           switchMap(() =>
             from(fs.readFile(filename)).pipe(
               map((x) => JSON.parse(x)),
-              tap({ error: (e) => console.error('createPersistBehaviorSubject', key, 'readFile Error', e) }),
+              // tap({ error: (e) => console.error('createPersistBehaviorSubject', key, 'readFile Error', e) }),
               catchError(() =>
                 from(get(key)).pipe(
                   //
@@ -49,7 +49,7 @@ export const createPersistBehaviorSubject = <T>(key: string, initialValue: T) =>
       delayWhen(() => from(fs.ensureDir(theDirname))),
       // cc to idb-keyval
       tap((v) => set(key, v)),
-      switchMap((v) => fs.writeFile(filename, JSON.stringify(v))),
+      switchMap((v) => fs.writeFile(filename, JSON.stringify(v, null, 2))),
     )
     .subscribe();
   return subject$;
