@@ -9,6 +9,7 @@
   "account": "账户",
   "actions": "操作",
   "cancel": "取消",
+  "change_workspace": "切换工作区...",
   "close": "关闭",
   "confirm_delete": "确定是否删除？",
   "confirm_delete_cancel": "取消",

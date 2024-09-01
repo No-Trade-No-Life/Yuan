@@ -1,5 +1,7 @@
 {
-  "global": { "tabEnableFloat": true },
+  "global": {
+    "tabEnableFloat": true
+  },
   "borders": [],
   "layout": {
     "type": "row",

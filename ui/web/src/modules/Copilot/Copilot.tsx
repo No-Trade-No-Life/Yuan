@@ -1,11 +1,12 @@
-import { IconClear, IconFolderOpen, IconLink, IconSend, IconYoutube } from '@douyinfe/semi-icons';
+import { IconClear, IconFolderOpen, IconLink, IconSend } from '@douyinfe/semi-icons';
 import { Button, Card, Empty, Space, TextArea, Typography } from '@douyinfe/semi-ui';
 import { Book, Github } from '@icon-park/react';
 import { useObservableState } from 'observable-hooks';
 import { join } from 'path-browserify';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BehaviorSubject, EMPTY, Subject, catchError, defer, raceWith, tap, timeout } from 'rxjs';
+import { EMPTY, Subject, catchError, defer, raceWith, tap, timeout } from 'rxjs';
+import { createPersistBehaviorSubject } from '../BIOS';
 import { executeCommand } from '../CommandCenter';
 import i18n from '../Locale/i18n';
 import { region$ } from '../Locale/utils';
@@ -13,9 +14,8 @@ import { registerPage } from '../Pages';
 import { ErrorBoundary } from '../Pages/ErrorBoundary';
 import { authState$ } from '../SupaBase';
 import { ensureAuthenticated } from '../User';
-import { IChatMessage, IMessageCardProps } from './model';
 import CopilotButton from './components/CopilotButton';
-import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehaviorSubject';
+import { IChatMessage, IMessageCardProps } from './model';
 const mapMessageTypeToComponent: Record<string, React.ComponentType<IMessageCardProps<any>>> = {};
 
 export function registerCopilotMessageBlock<P extends {}>(

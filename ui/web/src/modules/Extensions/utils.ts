@@ -1,8 +1,8 @@
 import { formatTime } from '@yuants/data-model';
 import { IDeployProvider, IExtensionContext } from '@yuants/extension';
 import { dirname, join } from 'path-browserify';
-import { BehaviorSubject, defer, from, lastValueFrom, mergeMap, retry, switchMap, timeout } from 'rxjs';
-import { FsBackend$, fs } from '../FileSystem/api';
+import { BehaviorSubject, from, lastValueFrom, mergeMap } from 'rxjs';
+import { fs } from '../FileSystem/api';
 // @ts-ignore
 import untar from 'js-untar';
 
@@ -118,28 +118,6 @@ export const loadExtension = async (packageName: string) => {
     throw e;
   }
 };
-
-FsBackend$.pipe(
-  switchMap(() =>
-    defer(() => fs.readdir('/.Y/extensions')).pipe(
-      timeout(200),
-      retry({ delay: 200 }),
-
-      mergeMap((files) => files),
-      mergeMap(async (file) => {
-        try {
-          const dirname = join('/.Y/extensions', file);
-          const stat = await fs.stat(dirname);
-          if (stat.isDirectory()) {
-            const packageJson = JSON.parse(await fs.readFile(join(dirname, 'package.json')));
-            await loadExtension(packageJson.name);
-          }
-        } catch (e) {}
-      }, 1),
-      retry({ delay: 1000 }),
-    ),
-  ),
-).subscribe();
 
 export const loadTgzBlob = async (tgzBlob: Blob) => {
   const tarball = await new Response(

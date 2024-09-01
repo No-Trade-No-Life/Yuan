@@ -51,3 +51,4 @@ declare module 'lightweight-charts/dist/lightweight-charts.esm.development.js' {
 declare function gtag(op: 'event', eventName: string, args?: {});
 
 declare const Modules: typeof import('./modules');
+declare const Libs: any;

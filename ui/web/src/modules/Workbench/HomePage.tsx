@@ -1,12 +1,12 @@
 import { Avatar, Space, Typography } from '@douyinfe/semi-ui';
+import hotkeys from 'hotkeys-js';
 import { useObservable, useObservableState } from 'observable-hooks';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Observable, pipe, switchMap } from 'rxjs';
+import { createPersistBehaviorSubject } from '../BIOS';
 import { executeCommand } from '../CommandCenter';
-import { createPersistBehaviorSubject } from '../FileSystem';
 import { pageRegistered$ } from '../Pages';
-import hotkeys from 'hotkeys-js';
 
 export const isShowHome$ = createPersistBehaviorSubject('show-home', true);
 

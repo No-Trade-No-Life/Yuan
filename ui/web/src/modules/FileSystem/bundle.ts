@@ -2,12 +2,13 @@ import * as rollup from '@rollup/browser';
 import { t } from 'i18next';
 import * as path from 'path-browserify';
 import * as ts from 'typescript';
-import { fs } from '../FileSystem/api';
+import { fs } from './api';
 
 /**
  * Bundle code from entry
  * @param entry entry filename
  * @returns IIFE-formatted code
+ * @public
  */
 export const bundleCode = async (entry: string) => {
   const bundle = await rollup.rollup({
