@@ -4,6 +4,7 @@ import {
   BehaviorSubject,
   catchError,
   defaultIfEmpty,
+  defer,
   delayWhen,
   filter,
   from,
@@ -11,7 +12,6 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { ready$ } from '../BIOS';
 import { FsBackend$, fs } from './api';
 
 export const createPersistBehaviorSubject = <T>(key: string, initialValue: T) => {
@@ -19,7 +19,7 @@ export const createPersistBehaviorSubject = <T>(key: string, initialValue: T) =>
   const theDirname = dirname(filename);
   const subject$ = new BehaviorSubject<T | undefined>(undefined);
   // read when fsBackend ready
-  ready$
+  defer(() => Modules.BIOS.ready$)
     .pipe(
       switchMap(() =>
         FsBackend$.pipe(
