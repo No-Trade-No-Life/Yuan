@@ -4,9 +4,9 @@ import * as FlexLayout from 'flexlayout-react';
 import hotkeys from 'hotkeys-js';
 import { resolve } from 'path-browserify';
 import { BehaviorSubject, bufferCount, combineLatest, first, map, Subject } from 'rxjs';
+import { createPersistBehaviorSubject } from '../BIOS';
 import { registerCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
-import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehaviorSubject';
 import { showForm } from '../Form';
 
 const initialJson = (): FlexLayout.IJsonModel => ({

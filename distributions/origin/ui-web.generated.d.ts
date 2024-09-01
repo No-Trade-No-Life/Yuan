@@ -2,7 +2,7 @@ declare module '@yuants/ui-web' {
   import * as react_jsx_runtime from 'react/jsx-runtime';
   import React, { ComponentType } from 'react';
   import * as rxjs from 'rxjs';
-  import { ReplaySubject, BehaviorSubject, Subject, Observable } from 'rxjs';
+  import { BehaviorSubject, ReplaySubject, Subject, Observable } from 'rxjs';
   import * as _yuants_data_model from '@yuants/data-model';
   import { IDataRecord, IProduct } from '@yuants/data-model';
   import { ColumnDef, Table } from '@tanstack/react-table';
@@ -61,6 +61,8 @@ declare module '@yuants/ui-web' {
    */
   const BIOS: React.MemoExoticComponent<() => react_jsx_runtime.JSX.Element>;
 
+  const createPersistBehaviorSubject: <T>(key: string, initialValue: T) => BehaviorSubject<T | undefined>;
+
   /**
    * A subject that emits a single value when the workspace is ready.
    * @public
@@ -68,9 +70,14 @@ declare module '@yuants/ui-web' {
   const ready$: ReplaySubject<unknown>;
 
   const index_d$s_BIOS: typeof BIOS;
+  const index_d$s_createPersistBehaviorSubject: typeof createPersistBehaviorSubject;
   const index_d$s_ready$: typeof ready$;
   namespace index_d$s {
-    export { index_d$s_BIOS as BIOS, index_d$s_ready$ as ready$ };
+    export {
+      index_d$s_BIOS as BIOS,
+      index_d$s_createPersistBehaviorSubject as createPersistBehaviorSubject,
+      index_d$s_ready$ as ready$,
+    };
   }
 
   namespace index_d$r {
@@ -185,7 +192,7 @@ declare module '@yuants/ui-web' {
   const FsBackend$: ReplaySubject<IFileSystemBackend>;
   const workspaceRoot$: BehaviorSubject<FileSystemDirectoryHandle | null | undefined>;
   const historyWorkspaceRoot$: BehaviorSubject<FileSystemDirectoryHandle[] | undefined>;
-  const selectWorkspaceRoot: () => Promise<FileSystemDirectoryHandle>;
+  const replaceWorkspaceRoot: (root?: FileSystemDirectoryHandle) => Promise<void>;
   const fs: IFileSystemBackend & {
     ensureDir: (path: string) => Promise<void>;
   };
@@ -198,23 +205,19 @@ declare module '@yuants/ui-web' {
    */
   const bundleCode: (entry: string) => Promise<string>;
 
-  const createPersistBehaviorSubject: <T>(key: string, initialValue: T) => BehaviorSubject<T | undefined>;
-
   const index_d$h_FsBackend$: typeof FsBackend$;
   const index_d$h_bundleCode: typeof bundleCode;
-  const index_d$h_createPersistBehaviorSubject: typeof createPersistBehaviorSubject;
   const index_d$h_fs: typeof fs;
   const index_d$h_historyWorkspaceRoot$: typeof historyWorkspaceRoot$;
-  const index_d$h_selectWorkspaceRoot: typeof selectWorkspaceRoot;
+  const index_d$h_replaceWorkspaceRoot: typeof replaceWorkspaceRoot;
   const index_d$h_workspaceRoot$: typeof workspaceRoot$;
   namespace index_d$h {
     export {
       index_d$h_FsBackend$ as FsBackend$,
       index_d$h_bundleCode as bundleCode,
-      index_d$h_createPersistBehaviorSubject as createPersistBehaviorSubject,
       index_d$h_fs as fs,
       index_d$h_historyWorkspaceRoot$ as historyWorkspaceRoot$,
-      index_d$h_selectWorkspaceRoot as selectWorkspaceRoot,
+      index_d$h_replaceWorkspaceRoot as replaceWorkspaceRoot,
       index_d$h_workspaceRoot$ as workspaceRoot$,
     };
   }

@@ -1,6 +1,6 @@
 import { useObservableState } from 'observable-hooks';
 import { Observable } from 'rxjs';
-import { createPersistBehaviorSubject } from '../FileSystem';
+import { createPersistBehaviorSubject } from '../BIOS';
 
 export const isDarkMode$ = createPersistBehaviorSubject('dark-mode', false);
 

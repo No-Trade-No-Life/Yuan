@@ -12,14 +12,15 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { FsBackend$, fs } from './api';
+import { FsBackend$, fs } from '../FileSystem';
+import { ready$ } from '.';
 
 export const createPersistBehaviorSubject = <T>(key: string, initialValue: T) => {
   const filename = `/.Y/states/${key}.json`;
   const theDirname = dirname(filename);
   const subject$ = new BehaviorSubject<T | undefined>(undefined);
   // read when fsBackend ready
-  defer(() => Modules.BIOS.ready$)
+  defer(() => ready$)
     .pipe(
       switchMap(() =>
         FsBackend$.pipe(

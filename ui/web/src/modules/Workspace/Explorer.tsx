@@ -18,20 +18,20 @@ import { useObservable, useObservableState } from 'observable-hooks';
 import path, { dirname } from 'path-browserify';
 import { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { filter, firstValueFrom, from, lastValueFrom, map, mergeMap, timer, toArray } from 'rxjs';
+import { filter, firstValueFrom, from, lastValueFrom, map, mergeMap, toArray } from 'rxjs';
 import { unzip } from 'unzipit';
 import { agentConf$, reloadSchemaAction$ } from '../Agent/AgentConfForm';
 import { writeManifestsFromBatchTasks } from '../Agent/utils';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { installExtensionFromTgz } from '../Extensions/utils';
-import { FsBackend$, fs, historyWorkspaceRoot$, selectWorkspaceRoot, workspaceRoot$ } from '../FileSystem';
+import { FsBackend$, fs, historyWorkspaceRoot$, replaceWorkspaceRoot } from '../FileSystem';
 import { showForm } from '../Form';
+import { Button } from '../Interactive';
 import i18n from '../Locale/i18n';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 import { currentHostConfig$ } from '../Workbench/model';
 import { sendFileByAirdrop } from './airdrop';
-import { Button } from '../Interactive';
 
 /**
  * File is associated with Command
@@ -357,16 +357,7 @@ registerCommand('workspace.open', async () => {
         <Space vertical>
           <Trans t={t} i18nKey={'Explorer:request_fs_permission_note'} />
           {historyWorkspaceRoot$.value?.map((root) => (
-            <Button
-              block
-              onClick={async () => {
-                workspaceRoot$.next(root);
-                await firstValueFrom(timer(1000));
-                const url = new URL(document.location.href);
-                url.search = '';
-                document.location.replace(url.toString());
-              }}
-            >
+            <Button block onClick={async () => replaceWorkspaceRoot(root)}>
               {root.name}
             </Button>
           ))}
@@ -383,10 +374,7 @@ registerCommand('workspace.open', async () => {
     });
   });
   if (!confirm) return;
-  await selectWorkspaceRoot();
-  const url = new URL(document.location.href);
-  url.search = '';
-  document.location.replace(url.toString());
+  await replaceWorkspaceRoot();
 });
 
 registerCommand('workspace.import_examples', async () => {

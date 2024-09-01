@@ -1,6 +1,6 @@
 import { get, set } from 'idb-keyval';
 import { dirname } from 'path-browserify';
-import { BehaviorSubject, ReplaySubject, combineLatest, first, firstValueFrom, mergeMap } from 'rxjs';
+import { BehaviorSubject, ReplaySubject, combineLatest, first, firstValueFrom, mergeMap, timer } from 'rxjs';
 import { IFileSystemBackend } from './interfaces';
 
 export const FsBackend$ = new ReplaySubject<IFileSystemBackend>(1);
@@ -60,13 +60,20 @@ combineLatest([workspaceRoot$, historyWorkspaceRoot$.pipe(first((x) => x !== und
   },
 );
 
-export const selectWorkspaceRoot = async () => {
-  const root: FileSystemDirectoryHandle = await showDirectoryPicker({
-    mode: 'readwrite',
-  });
-  await root.requestPermission({ mode: 'readwrite' });
+export const replaceWorkspaceRoot = async (root?: FileSystemDirectoryHandle) => {
+  if (!root) {
+    root = await showDirectoryPicker({
+      mode: 'readwrite',
+    });
+    await root.requestPermission({ mode: 'readwrite' });
+  }
+
   workspaceRoot$.next(root);
-  return root;
+  await firstValueFrom(timer(1000));
+  // REBOOT AFTER SETTING WORKSPACE ROOT
+  const url = new URL(document.location.href);
+  url.search = '';
+  document.location.replace(url.toString());
 };
 
 export const fs: IFileSystemBackend & {

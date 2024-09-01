@@ -11,7 +11,7 @@ import {
   mergeMap,
   toArray,
 } from 'rxjs';
-import { createPersistBehaviorSubject } from '../FileSystem';
+import { createPersistBehaviorSubject } from '../BIOS';
 
 export interface IHostConfigItem {
   //
