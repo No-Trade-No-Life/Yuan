@@ -17,3 +17,5 @@ export const libs = {
   '@icon-park/react': IconParksIcons,
   'observable-hooks': observableHooks,
 };
+
+Object.assign(globalThis, { Libs: libs });

@@ -24,7 +24,6 @@ import { loadExtension } from '../Extensions/utils';
 import { FsBackend$, bundleCode, fs, workspaceRoot$ } from '../FileSystem';
 import { FileSystemHandleBackend } from '../FileSystem/backends/FileSystemHandleBackend';
 import { InMemoryBackend } from '../FileSystem/backends/InMemoryBackend';
-import { libs } from './lib';
 import { fullLog$, log } from './log';
 
 defer(async () => {
@@ -100,7 +99,7 @@ defer(async () => {
               defer(async () => {
                 const code = await bundleCode(x.main);
                 const requireContext = {
-                  ...libs,
+                  ...Libs,
                   '@yuants/ui-web': Modules,
                 };
 

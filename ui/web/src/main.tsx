@@ -1,3 +1,5 @@
+import './lib';
+//
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import './modules/BIOS';
 // Import React
