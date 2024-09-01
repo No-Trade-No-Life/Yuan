@@ -1,0 +1,23 @@
+{
+  "name": "@yuants/dist-origin",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/dist-origin_v0.0.1",
+      "date": "Sun, 01 Sep 2024 04:26:20 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "new package"
+          },
+          {
+            "comment": "fix package.json"
+          },
+          {
+            "comment": "change darkmode"
+          }
+        ]
+      }
+    }
+  ]
+}
