@@ -71,6 +71,14 @@ export const DesktopLayout = () => {
                 '.png': 'image/png',
                 '.jpg': 'image/jpeg',
                 '.jpeg': 'image/jpeg',
+                '.mp4': 'video/mp4',
+                '.webm': 'video/webm',
+                '.ogv': 'video/ogg',
+                '.mpeg': 'video/mpeg',
+                '.mov': 'video/quicktime',
+                '.avi': 'video/x-msvideo',
+                '.3gp': 'video/3gpp',
+                '.3g2': 'video/3gpp2',
               }[ext];
               if (!mime) return null;
               return { filename, mime };
@@ -83,7 +91,6 @@ export const DesktopLayout = () => {
                 map((url) => ({ filename, url, mime })),
               ),
             ),
-            map((x) => `url('${x.url}')`),
             toArray(),
           ),
         ),
@@ -91,6 +98,8 @@ export const DesktopLayout = () => {
     ),
     [],
   );
+
+  const selectedWallPaper = wallPaperURLs[0];
 
   if (document.location.hash === '#/popout') {
     return null;
@@ -101,11 +110,43 @@ export const DesktopLayout = () => {
       style={{
         height: '100%',
         overflow: 'hidden',
-        backgroundImage: wallPaperURLs[0],
-        backgroundSize: `cover`,
-        backgroundPosition: 'center',
       }}
     >
+      <div
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          zIndex: -1,
+        }}
+      >
+        {selectedWallPaper && selectedWallPaper.mime.match(/image/) && (
+          <img
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center',
+            }}
+            src={selectedWallPaper.url}
+          />
+        )}
+        {selectedWallPaper && selectedWallPaper.mime.match(/video/) && (
+          <video
+            autoPlay
+            loop
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'cover',
+              objectPosition: 'center',
+            }}
+            src={selectedWallPaper.url}
+          />
+        )}
+      </div>
       {isShowHome ? <HomePage /> : null}
       <Layout.Content style={{ position: 'relative' }}>
         {model && (
