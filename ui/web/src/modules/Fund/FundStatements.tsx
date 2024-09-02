@@ -1,230 +1,45 @@
-import { IconCode, IconCoinMoneyStroked, IconEdit, IconRefresh, IconUser } from '@douyinfe/semi-icons';
+import {
+  IconCode,
+  IconCoinMoneyStroked,
+  IconDownload,
+  IconEdit,
+  IconRefresh,
+  IconUpload,
+  IconUser,
+} from '@douyinfe/semi-icons';
 import { Collapse, Descriptions, Space, Toast, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { formatTime } from '@yuants/data-model';
+import { formatTime, getDataRecordWrapper } from '@yuants/data-model';
+import { readDataRecords, writeDataRecords } from '@yuants/protocol';
 import { format } from 'date-fns';
 import EChartsReact from 'echarts-for-react';
 import { parse } from 'jsonc-parser';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useMemo, useReducer } from 'react';
-import { firstValueFrom, from, map, pipe, switchMap } from 'rxjs';
+import { firstValueFrom, from, map, of, pipe, switchMap } from 'rxjs';
+import { InlineAccountId } from '../AccountInfo';
 import { useAccountInfo } from '../AccountInfo/model';
 import { executeCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import { showForm } from '../Form';
 import { Button, DataView } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
-
-interface IFundStatement {
-  type: string;
-  updated_at: string;
-  comment?: string;
-  /** 更新基金总资产的动作 */
-  fund_equity?: {
-    equity: number;
-  };
-  /** 更新投资人信息的动作 */
-  order?: {
-    name: string;
-    /** 净入金 */
-    deposit: number;
-  };
-  investor?: {
-    name: string;
-    /** 更改税率 */
-    tax_rate?: number;
-  };
-}
-
-type IFundState = {
-  created_at: number;
-  updated_at: number;
-  description: string; // 描述
-  /** 总资产 */
-  total_assets: number;
-  /** 已征税费 */
-  total_taxed: number;
-  summary_derived: {
-    /** 总入金 */
-    total_deposit: number;
-    /** 总份额 */
-    total_share: number;
-    /** 总税费 */
-    total_tax: number;
-    /** 单位净值 */
-    unit_price: number;
-    /** 存续时间 */
-    total_time: number;
-    /** 总收益 */
-    total_profit: number;
-  };
-  investors: Record<string, InvestorMeta>; // 投资人数据
-  investor_derived: Record<string, InvestorInfoDerived>;
-};
-
-type InvestorMeta = {
-  /** 姓名 */
-  name: string;
-  /** 份额 */
-  share: number;
-  /** 起征点 */
-  tax_threshold: number;
-  /** 净入金 */
-  deposit: number;
-  /** 税率 */
-  tax_rate: number;
-};
-
-/**
- * 投资人信息的计算衍生数据
- */
-type InvestorInfoDerived = {
-  /** 税前资产 */
-  pre_tax_assets: number;
-  /** 应税额 */
-  taxable: number;
-  /** 税费 */
-  tax: number;
-  /** 税后资产 */
-  after_tax_assets: number;
-  /** 税后收益 */
-  after_tax_profit: number;
-  /** 税后收益率 */
-  after_tax_profit_rate: number;
-  /** 税后份额 */
-  after_tax_share: number;
-
-  /** 份额占比 */
-  share_ratio: number;
-};
-
-const initFundState: IFundState = {
-  created_at: 0,
-  updated_at: 0,
-  description: '',
-  total_assets: 0, // 总资产
-  total_taxed: 0,
-  summary_derived: {
-    total_deposit: 0,
-    total_share: 0,
-    total_tax: 0,
-    unit_price: 1,
-    total_time: 0,
-    total_profit: 0,
-  },
-  investors: {},
-  investor_derived: {},
-};
-
-const reduceStatement = (state: IFundState, statement: IFundStatement): IFundState => {
-  const nextState = structuredClone(state);
-  nextState.updated_at = new Date(statement.updated_at).getTime();
-  nextState.description = statement.comment || '';
-
-  if (!nextState.created_at) {
-    nextState.created_at = nextState.updated_at;
-  }
-
-  // 更新总资产
-  if (statement.fund_equity) {
-    nextState.total_assets = statement.fund_equity.equity;
-  }
-  // 投资人订单
-  if (statement.order) {
-    const deposit = statement.order.deposit;
-    const investor = (nextState.investors[statement.order.name] ??= {
-      name: statement.order.name,
-      deposit: 0,
-      share: 0,
-      tax_threshold: 0,
-      tax_rate: 0,
-    });
-    investor.deposit += deposit;
-    investor.tax_threshold += deposit;
-    investor.share += deposit / state.summary_derived.unit_price;
-    nextState.total_assets += deposit;
-  }
-  // 更新投资人信息
-  if (statement.investor) {
-    // 更新税率
-    if (statement.investor.tax_rate) {
-      nextState.investors[statement.investor.name].tax_rate = statement.investor.tax_rate;
-    }
-  }
-  // 结税
-  if (statement.type === 'taxation') {
-    for (const investor of Object.values(nextState.investors)) {
-      investor.share = state.investor_derived[investor.name].after_tax_share;
-      nextState.total_assets -= state.investor_derived[investor.name].tax;
-      investor.tax_threshold = state.investor_derived[investor.name].after_tax_assets;
-      nextState.total_taxed += state.investor_derived[investor.name].tax;
-    }
-  }
-
-  // 计算衍生数据
-  {
-    nextState.summary_derived.total_share = Object.values(nextState.investors).reduce(
-      (acc, cur) => acc + cur.share,
-      0,
-    );
-    nextState.summary_derived.unit_price =
-      nextState.summary_derived.total_share === 0
-        ? 1
-        : nextState.total_assets / nextState.summary_derived.total_share;
-
-    nextState.summary_derived.total_time = nextState.updated_at - nextState.created_at;
-
-    // 投资人衍生数据
-    Object.values(nextState.investors).forEach((v) => {
-      const share_ratio =
-        nextState.summary_derived.total_share !== 0 ? v.share / nextState.summary_derived.total_share : 0;
-      const pre_tax_assets = v.share * nextState.summary_derived.unit_price;
-      const taxable = pre_tax_assets - v.tax_threshold;
-      const tax = Math.max(0, taxable * v.tax_rate);
-      const after_tax_assets = pre_tax_assets - tax;
-      const after_tax_profit = after_tax_assets - v.deposit;
-      // Assert: 税后收益和净入金不可能同时为负数
-      const after_tax_profit_rate = after_tax_profit / (v.deposit >= 0 ? v.deposit : after_tax_assets);
-      const after_tax_share = after_tax_assets / nextState.summary_derived.unit_price;
-      nextState.investor_derived[v.name] = {
-        share_ratio,
-        taxable,
-        tax,
-        pre_tax_assets,
-        after_tax_assets,
-        after_tax_profit,
-        after_tax_profit_rate,
-        after_tax_share,
-      };
-    });
-
-    // 总体衍生数据
-    nextState.summary_derived.total_deposit = Object.values(nextState.investors).reduce(
-      (acc, cur) => acc + cur.deposit,
-      0,
-    );
-    nextState.summary_derived.total_tax = Object.values(nextState.investor_derived).reduce(
-      (acc, cur) => acc + cur.tax,
-      0,
-    );
-    nextState.summary_derived.total_profit =
-      nextState.total_assets - nextState.summary_derived.total_deposit + nextState.total_taxed;
-  }
-
-  return nextState;
-};
+import { useTerminal } from '../Terminals';
+import { IFundEvent, IFundState, InvestorInfoDerived, InvestorMeta } from './model';
+import { getInitFundState, reduceState } from './utils';
 
 registerPage('FundStatements', () => {
+  const terminal = useTerminal();
   const { filename } = usePageParams();
   const [refreshState, refresh] = useReducer(() => ({}), {});
 
-  const statements = useObservableState(
+  const events = useObservableState(
     useObservable(
       pipe(
         switchMap(() =>
           from(fs.readFile(filename)).pipe(
             //
-            map((x): IFundStatement[] => parse(x)),
+            map((x): IFundEvent[] => parse(x)),
             map((arr) =>
               arr.sort((a, b) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime()),
             ),
@@ -236,20 +51,36 @@ registerPage('FundStatements', () => {
     [],
   );
 
+  const saveStatementsToFile = async (events: IFundEvent[]) => {
+    await fs.writeFile(
+      filename,
+      JSON.stringify(
+        events.sort((a, b) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime()),
+        null,
+        2,
+      ),
+    );
+    refresh();
+  };
+
   const currentStatements = useMemo(
-    () => statements.filter((x) => new Date(x.updated_at).getTime() < Date.now()),
-    [statements],
+    () => events.filter((x) => new Date(x.updated_at).getTime() < Date.now()),
+    [events],
   );
 
   const history = useMemo(() => {
     const history: IFundState[] = [];
     currentStatements.forEach((statement) => {
-      history.push(reduceStatement(history[history.length - 1] || initFundState, statement));
+      history.push(reduceState(history[history.length - 1] || getInitFundState(), statement));
     });
     return history;
   }, [currentStatements]);
 
-  const state = history[history.length - 1] || initFundState;
+  const state = useMemo(() => history[history.length - 1] || getInitFundState(), [history]);
+
+  const fundAccountInfo = useObservableState(
+    useObservable(pipe(switchMap(([id]) => (id ? useAccountInfo(id) : of(undefined)))), [state.account_id]),
+  );
 
   const investors = useMemo(
     () => Object.values(state.investors).map((meta) => ({ meta, detail: state.investor_derived[meta.name] })),
@@ -315,7 +146,7 @@ registerPage('FundStatements', () => {
   });
 
   const columnsOfStatement = useMemo(() => {
-    const columnHelper = createColumnHelper<IFundStatement>();
+    const columnHelper = createColumnHelper<IFundEvent>();
     return [
       columnHelper.accessor('updated_at', {
         header: () => '时间',
@@ -497,13 +328,15 @@ registerPage('FundStatements', () => {
         <Button
           icon={<IconEdit />}
           onClick={async () => {
-            const theAccountId = await showForm<string>({
-              type: 'string',
-              title: '选取账户作为基金净值',
-              format: 'account_id',
-            });
+            const theAccountId =
+              state.account_id ||
+              (await showForm<string>({
+                type: 'string',
+                title: '选取账户作为基金净值',
+                format: 'account_id',
+              }));
             const theAccountInfo = await firstValueFrom(useAccountInfo(theAccountId));
-            const nextStatements = statements.concat([
+            const nextStatements = events.concat([
               {
                 type: 'equity',
                 updated_at: formatTime(Date.now()),
@@ -512,17 +345,7 @@ registerPage('FundStatements', () => {
                 },
               },
             ]);
-            await fs.writeFile(
-              filename,
-              JSON.stringify(
-                nextStatements.sort(
-                  (a, b) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime(),
-                ),
-                null,
-                2,
-              ),
-            );
-            refresh();
+            await saveStatementsToFile(nextStatements);
             Toast.success('成功');
           }}
         >
@@ -553,7 +376,7 @@ registerPage('FundStatements', () => {
               },
             });
 
-            const nextStatements = [...statements];
+            const nextStatements = [...events];
             if (info.account_id) {
               const equity = (await firstValueFrom(useAccountInfo(info.account_id))).money.equity;
               if (info.timing === 'POST') {
@@ -583,17 +406,7 @@ registerPage('FundStatements', () => {
                 deposit: info.deposit,
               },
             });
-            await fs.writeFile(
-              filename,
-              JSON.stringify(
-                nextStatements.sort(
-                  (a, b) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime(),
-                ),
-                null,
-                2,
-              ),
-            );
-            refresh();
+            await saveStatementsToFile(nextStatements);
             Toast.success('成功');
           }}
         >
@@ -602,31 +415,55 @@ registerPage('FundStatements', () => {
         <Button
           icon={<IconCoinMoneyStroked />}
           onClick={async () => {
-            const nextStatements = statements.concat([
-              {
-                type: 'taxation',
-                updated_at: formatTime(Date.now()),
-                comment: 'Taxation',
-              },
-            ]);
-            await fs.writeFile(
-              filename,
-              JSON.stringify(
-                nextStatements.sort(
-                  (a, b) => new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime(),
-                ),
-                null,
-                2,
-              ),
+            await saveStatementsToFile(
+              events.concat([
+                {
+                  type: 'taxation',
+                  updated_at: formatTime(Date.now()),
+                  comment: 'Taxation',
+                },
+              ]),
             );
-            refresh();
             Toast.success('成功');
           }}
         >
           征税
         </Button>
+        <Button
+          icon={<IconUpload />}
+          disabled={!terminal}
+          onClick={async () => {
+            if (!terminal) return;
+            await firstValueFrom(
+              from(writeDataRecords(terminal, [getDataRecordWrapper('fund_state')!(state)])),
+            );
+            Toast.success('成功');
+          }}
+        >
+          上传到主机
+        </Button>
+        <Button
+          icon={<IconDownload />}
+          disabled={!terminal || !state.account_id}
+          onClick={async () => {
+            if (!terminal) return;
+            if (!state.account_id) return;
+
+            const items = await firstValueFrom(
+              from(readDataRecords(terminal, { type: 'fund_state', id: state.account_id })),
+            );
+
+            await saveStatementsToFile(items[0].origin.events);
+            Toast.success('成功');
+          }}
+        >
+          从主机下载
+        </Button>
       </Space>
       <Typography.Text>更新时间: {formatTime(state.updated_at)}</Typography.Text>
+      <Typography.Text>
+        基金账户: <InlineAccountId account_id={state.account_id} />
+      </Typography.Text>
       <Typography.Title heading={4}>资金指标</Typography.Title>
       <Descriptions
         data={[
