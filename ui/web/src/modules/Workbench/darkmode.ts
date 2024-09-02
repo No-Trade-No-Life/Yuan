@@ -1,6 +1,8 @@
-import { BehaviorSubject, Observable } from 'rxjs';
+import { useObservableState } from 'observable-hooks';
+import { Observable } from 'rxjs';
+import { createPersistBehaviorSubject } from '../BIOS';
 
-export const isDarkMode$ = new BehaviorSubject<boolean>(false);
+export const isDarkMode$ = createPersistBehaviorSubject('dark-mode', false);
 
 isDarkMode$.subscribe((isDark) => {
   if (isDark) {
@@ -15,21 +17,25 @@ isDarkMode$.subscribe((isDark) => {
 });
 
 // Follow system dark mode
-new Observable<boolean>((subscriber) => {
-  const mql = window.matchMedia('(prefers-color-scheme: dark)');
-  function matchMode(e: any) {
-    if (e.matches) {
-      subscriber.next(true);
-    } else {
-      subscriber.next(false);
+if (false) {
+  new Observable<boolean>((subscriber) => {
+    const mql = window.matchMedia('(prefers-color-scheme: dark)');
+    function matchMode(e: any) {
+      if (e.matches) {
+        subscriber.next(true);
+      } else {
+        subscriber.next(false);
+      }
     }
-  }
-  matchMode(mql);
+    matchMode(mql);
 
-  mql.addEventListener('change', matchMode);
-  return () => {
-    mql.removeEventListener('change', matchMode);
-  };
-}).subscribe((v) => {
-  isDarkMode$.next(v);
-});
+    mql.addEventListener('change', matchMode);
+    return () => {
+      mql.removeEventListener('change', matchMode);
+    };
+  }).subscribe((v) => {
+    isDarkMode$.next(v);
+  });
+}
+
+export const useIsDarkMode = (): boolean => useObservableState(isDarkMode$) || false;

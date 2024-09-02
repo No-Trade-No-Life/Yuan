@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "downlevelIteration": true,
+    "esModuleInterop": true,
+    "jsx": "react",
+    "lib": ["ESNext", "DOM"],
+    "noEmit": true,
+    "rootDir": ".",
+    "strict": true,
+    "types": ["./global.d.ts", "node"]
+  }
+}

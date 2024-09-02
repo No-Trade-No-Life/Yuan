@@ -2,6 +2,7 @@ export * as AccountComposition from './modules/AccountComposition';
 export * as AccountInfo from './modules/AccountInfo';
 export * as AccountRiskInfo from './modules/AccountRiskInfo';
 export * as Agent from './modules/Agent';
+export * as BIOS from './modules/BIOS';
 export * as Chart from './modules/Chart';
 export * as CommandCenter from './modules/CommandCenter';
 export * as Copilot from './modules/Copilot';

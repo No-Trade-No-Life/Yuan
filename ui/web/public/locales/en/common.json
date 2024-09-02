@@ -9,6 +9,7 @@
   "account": "Account",
   "actions": "Actions",
   "cancel": "Cancel",
+  "change_workspace": "Change Workspace...",
   "close": "Close",
   "confirm_delete": "Confirm Delete",
   "confirm_delete_cancel": "Cancel",

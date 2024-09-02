@@ -1,4 +1,7 @@
+import './lib';
+//
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import './modules/BIOS';
 // Import React
 import React from 'react';
 import ReactDOM from 'react-dom/client';
@@ -23,8 +26,12 @@ const Modules = Object.fromEntries(
 Object.assign(globalThis, { Modules });
 
 // Layout -> App
+import { useObservableState } from 'observable-hooks';
+import { BIOS, ready$ } from './modules/BIOS';
 import { DesktopLayout } from './modules/DesktopLayout';
 const App = () => {
+  const ready = useObservableState(ready$, false);
+  if (!ready) return <BIOS />;
   return <DesktopLayout />;
 };
 

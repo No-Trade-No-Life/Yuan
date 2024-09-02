@@ -90,6 +90,7 @@ export const CommandCenter = React.memo(() => {
   return (
     <Popover
       contentClassName="CommandCenter"
+      position="top"
       visible={isCommandCenterOpen}
       content={({ initialFocusRef }) => (
         <Space vertical align="start" style={{ width: '100%' }}>

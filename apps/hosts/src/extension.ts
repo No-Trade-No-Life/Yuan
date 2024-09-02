@@ -19,13 +19,13 @@ export default (context: IExtensionContext) => {
             backward_proxy: {
               type: 'object',
               properties: {
-                host: { type: 'string' },
+                [COMPONENT_NAME]: { type: 'string' },
               },
             },
             port_forward: {
               type: 'object',
               properties: {
-                host: { type: 'number' },
+                [COMPONENT_NAME]: { type: 'number' },
               },
             },
           },
@@ -33,9 +33,9 @@ export default (context: IExtensionContext) => {
       },
     }),
     make_docker_compose_file: async (ctx, envCtx) => ({
-      host: {
+      [COMPONENT_NAME]: {
         image: `ghcr.io/no-trade-no-life/${COMPONENT_NAME}:${ctx.version ?? envCtx.version}`,
-        ports: [['host', 8888]]
+        ports: [[COMPONENT_NAME, 8888]]
           .filter(([name]) => ctx.network?.port_forward?.[name] !== undefined)
           .map(([name, targetPort]) => `${ctx.network!.port_forward![name]}:${targetPort}`),
         environment: makeDockerEnvs(ctx.env),
@@ -82,7 +82,7 @@ export default (context: IExtensionContext) => {
                   env: makeK8sEnvs(ctx.env),
                   ports: [
                     {
-                      name: 'host',
+                      name: COMPONENT_NAME,
                       containerPort: 8888,
                       protocol: 'TCP',
                     },
@@ -116,7 +116,7 @@ export default (context: IExtensionContext) => {
         },
         spec: {
           type: 'ClusterIP',
-          ports: ['host']
+          ports: [COMPONENT_NAME]
             .map((name) => ({
               port: ctx.network?.port_forward?.[name],
               targetPort: name,
@@ -149,7 +149,7 @@ export default (context: IExtensionContext) => {
         },
         spec: {
           ingressClassName: 'nginx',
-          rules: ['host']
+          rules: [COMPONENT_NAME]
             .filter(
               (v) =>
                 ctx.network?.backward_proxy?.[v] !== undefined &&
