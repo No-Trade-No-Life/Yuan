@@ -111,6 +111,8 @@ export const WallPaper = React.memo(() => {
       {selectedWallPaper && selectedWallPaper.mime.match(/video/) && (
         <video
           autoPlay
+          // ISSUE: video with sound will not autoPlay, so set muted
+          muted
           loop
           // disable auto full-screen play in iOS
           playsInline
