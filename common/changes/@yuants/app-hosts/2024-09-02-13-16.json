@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-hosts",
+      "comment": "add list hosts as an admin method",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-hosts"
+}
