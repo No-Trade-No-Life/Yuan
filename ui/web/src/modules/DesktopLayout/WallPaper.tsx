@@ -1,7 +1,7 @@
 import { useObservable, useObservableState } from 'observable-hooks';
 import { extname, join } from 'path-browserify';
 import React from 'react';
-import { Subject, filter, from, map, merge, mergeMap, toArray } from 'rxjs';
+import { EMPTY, Subject, catchError, defer, filter, from, map, merge, mergeMap, toArray } from 'rxjs';
 import { createPersistBehaviorSubject } from '../BIOS';
 import { registerCommand } from '../CommandCenter';
 import { FsBackend$, fs } from '../FileSystem';
@@ -20,17 +20,22 @@ registerCommand('WallPaper.reload', () => {
   reloadWallPaper$.next();
 });
 
+const WALLPAPER_DIR = '/.Y/wallpapers';
+
 export const WallPaper = React.memo(() => {
   // Load WallPaper from Workspace
   const wallPaperURLs = useObservableState(
     useObservable(() =>
       merge(FsBackend$, reloadWallPaper$)
         .pipe(
-          mergeMap(async () => {
-            const wallpaper_dir = '/.Y/wallpapers';
-            const wallpapers = await fs.readdir(wallpaper_dir);
-            return wallpapers.map((x) => join(wallpaper_dir, x));
-          }),
+          mergeMap(() =>
+            defer(() => fs.readdir(WALLPAPER_DIR)).pipe(
+              mergeMap((x) => x),
+              map((x) => join(WALLPAPER_DIR, x)),
+              catchError(() => EMPTY),
+              toArray(),
+            ),
+          ),
         )
         .pipe(
           //
@@ -63,6 +68,7 @@ export const WallPaper = React.memo(() => {
                 from(fs.readFileAsBlob(filename)).pipe(
                   map((blob) => URL.createObjectURL(blob)),
                   map((url) => ({ filename, url, mime })),
+                  catchError(() => EMPTY),
                 ),
               ),
               toArray(),
@@ -106,6 +112,8 @@ export const WallPaper = React.memo(() => {
         <video
           autoPlay
           loop
+          // disable auto full-screen play in iOS
+          playsInline
           style={{
             width: '100%',
             height: '100%',
