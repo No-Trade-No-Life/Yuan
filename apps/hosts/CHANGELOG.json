@@ -2,6 +2,23 @@
   "name": "@yuants/app-hosts",
   "entries": [
     {
+      "version": "0.1.2",
+      "tag": "@yuants/app-hosts_v0.1.2",
+      "date": "Mon, 02 Sep 2024 18:18:05 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add list hosts as an admin method"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.1",
       "tag": "@yuants/app-hosts_v0.1.1",
       "date": "Fri, 30 Aug 2024 16:26:37 GMT",
