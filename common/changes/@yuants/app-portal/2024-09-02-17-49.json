@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-portal",
+      "comment": "init portal",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-portal"
+}

@@ -25,6 +25,7 @@
     "@yuants/app-host",
     "@yuants/app-hosts",
     "@yuants/app-shared-host",
+    "@yuants/app-portal",
     "@yuants/app-namespaced-mongodb-storage",
     "@yuants/app-k8s-manifest-operator",
     "@yuants/app-mongodb-storage",
