@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-namespaced-mongodb-storage",
+      "comment": "fix host url concat",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-namespaced-mongodb-storage"
+}
