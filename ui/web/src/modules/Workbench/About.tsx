@@ -13,6 +13,10 @@ registerPage('About', () => {
       <Descriptions
         data={[
           {
+            key: 'Location',
+            value: document.location.href,
+          },
+          {
             key: t('build_version'),
             value: (
               <Typography.Text

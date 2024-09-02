@@ -1,6 +1,6 @@
 {
   "name": "@yuants/dist-origin",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Yuan Origin Distribution",
   "scripts": {
     "build": "echo skip build"
@@ -20,5 +20,9 @@
     "react-dom": "18.2.0",
     "@types/react": "18.2.37",
     "@types/node": "^16.11.7"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
   }
 }

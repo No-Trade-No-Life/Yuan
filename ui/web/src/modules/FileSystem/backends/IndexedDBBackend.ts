@@ -5,6 +5,7 @@ import { bs64toBlob } from '../utils';
 const FileSystem = globalThis.Filer?.FileSystem;
 
 export class IndexedDBBackend implements IFileSystemBackend {
+  name: string = 'IndexedDB';
   // @ts-ignore
   fs = FileSystem ? new FileSystem().promises : null;
 

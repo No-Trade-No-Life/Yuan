@@ -32,9 +32,9 @@ import {
 } from 'rxjs';
 import { AccountFrameUnit } from '../AccountInfo/AccountFrameUnit';
 import { accountFrameSeries$, accountPerformance$ } from '../AccountInfo/model';
+import { createPersistBehaviorSubject } from '../BIOS';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
-import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehaviorSubject';
 import Form, { showForm } from '../Form';
 import { Button } from '../Interactive';
 import { currentKernel$ } from '../Kernel/model';

@@ -3,11 +3,13 @@ import { Terminal } from '@yuants/protocol';
 import { dirname } from 'path-browserify';
 import { bufferTime, defer, lastValueFrom, mergeMap } from 'rxjs';
 import { fs } from '../FileSystem/api';
+import { blobToDataURL, dataURLToBlob } from '../FileSystem/utils';
 import { terminal$ } from '../Terminals';
 
 export const sendFileByAirdrop = async (terminal: Terminal, target_terminal_id: string, filename: string) => {
   //
-  const content = await fs.readFile(filename);
+  const blob = await fs.readFileAsBlob(filename);
+  const content = await blobToDataURL(blob);
   const res = await lastValueFrom(
     defer(() => terminal.request('AirDrop', target_terminal_id, { filename, content })),
   );
@@ -38,7 +40,7 @@ terminal$.subscribe((terminal) => {
       const ok = await new Promise((resolve, reject) => {
         Modal.confirm({
           title: `${msg.source_terminal_id} 向您投送 ${filename}...`,
-          content: content.slice(0, 200) + '...',
+          content: content.slice(0, 20) + '...',
           cancelText: '拒绝',
           okText: '接收',
           onOk: () => {
@@ -53,7 +55,8 @@ terminal$.subscribe((terminal) => {
         return { res: { code: 403, message: '对方拒收了' } };
       }
       await fs.ensureDir(dirname(filename));
-      await fs.writeFile(filename, content);
+      const blob = await dataURLToBlob(content);
+      await fs.writeFile(filename, blob);
       return { res: { code: 0, message: 'OK' } };
     }).pipe(
       bufferTime(2000),

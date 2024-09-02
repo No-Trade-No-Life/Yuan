@@ -7,7 +7,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "node ./scripts/pre-tsc.js && tsc && node ./scripts/post-tsc.js && vite build",
+    "build": "node ./scripts/pre-tsc.js && tsc && node ./scripts/post-tsc.js && vite build 2>&1",
     "dev": "vite",
     "preview": "vite preview"
   },
@@ -71,6 +71,8 @@
     "typescript": "^4.6.4",
     "vite": "^3.0.0",
     "rollup": "~4.21.1",
-    "rollup-plugin-dts": "~6.1.1"
+    "rollup-plugin-dts": "~6.1.1",
+    "vite-plugin-pwa": "~0.20.2",
+    "@vite-pwa/assets-generator": "~0.2.4"
   }
 }
