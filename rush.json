@@ -505,6 +505,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/app-namespaced-mongodb-storage",
+      "projectFolder": "apps/namespaced-mongodb-storage",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/app-k8s-manifest-operator",
       "projectFolder": "apps/k8s-manifest-operator",
       "shouldPublish": true

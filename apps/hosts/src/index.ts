@@ -16,7 +16,23 @@ import {
 } from 'rxjs';
 import WebSocket from 'ws';
 
+// Setup Admin Terminal
+const ADMIN_KEY_PAIR = process.env.ADMIN_SECRET_KEY
+  ? fromPrivateKey(process.env.ADMIN_SECRET_KEY!)
+  : createKeyPair();
+
+console.info(
+  formatTime(Date.now()),
+  'Host Server Started',
+  'ADMIN_HOST_URL',
+  `ws://localhost:8888?public_key=${ADMIN_KEY_PAIR.public_key}&signature=${signMessage(
+    '',
+    ADMIN_KEY_PAIR.private_key,
+  )}`,
+);
+
 const mapPublicKeyToTerminalIdToSocket: Record<string, Record<string, WebSocket.WebSocket>> = {};
+const mapPublicKeyToSignature: Record<string, string> = {};
 
 const server = createServer();
 
@@ -76,6 +92,7 @@ server.on('upgrade', (request, socket, head) => {
 
   try {
     validateAuth();
+    mapPublicKeyToSignature[public_key] = signature;
   } catch (e) {
     console.info(formatTime(Date.now()), 'Auth Failed', url, 'reason', e);
     socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
@@ -121,6 +138,24 @@ server.on('upgrade', (request, socket, head) => {
         },
       });
     });
+
+    if (public_key === ADMIN_KEY_PAIR.public_key) {
+      // Admin Terminal
+      terminal.provideService('ListHost', {}, async () => {
+        return {
+          res: {
+            code: 0,
+            message: 'OK',
+            data: Object.entries(mapPublicKeyToSignature).map(([k, v]) => ({
+              public_key: k,
+              signature: v,
+            })),
+          },
+        };
+      });
+
+      // TODO... Add More Admin Services, e.g. Whitelist, Blacklist, etc.
+    }
   }
 
   const mapTerminalIdToSocket = (mapPublicKeyToTerminalIdToSocket[public_key] ??= {});
@@ -148,18 +183,3 @@ server.on('upgrade', (request, socket, head) => {
 });
 
 server.listen(8888);
-
-// Setup Admin Terminal
-const ADMIN_KEY_PAIR = process.env.ADMIN_SECRET_KEY
-  ? fromPrivateKey(process.env.ADMIN_SECRET_KEY!)
-  : createKeyPair();
-
-console.info(
-  formatTime(Date.now()),
-  'Host Server Started',
-  'ADMIN_HOST_URL',
-  `ws://localhost:8888?public_key=${ADMIN_KEY_PAIR.public_key}&signature=${signMessage(
-    '',
-    ADMIN_KEY_PAIR.private_key,
-  )}`,
-);

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-namespaced-mongodb-storage",
+      "comment": "init project",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-namespaced-mongodb-storage"
+}
