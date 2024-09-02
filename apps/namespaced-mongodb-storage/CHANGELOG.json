@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/app-namespaced-mongodb-storage",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/app-namespaced-mongodb-storage_v0.0.1",
+      "date": "Mon, 02 Sep 2024 18:18:05 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "init project"
+          }
+        ]
+      }
+    }
+  ]
+}
