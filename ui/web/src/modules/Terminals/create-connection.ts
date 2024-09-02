@@ -1,5 +1,6 @@
 import { UUID } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
+import { useObservableState } from 'observable-hooks';
 import { Observable, filter, shareReplay, switchMap } from 'rxjs';
 import { currentHostConfig$ } from '../Workbench/model';
 
@@ -30,3 +31,5 @@ terminal$.forEach((terminal) => {
   // for DEBUG
   Object.assign(globalThis, { terminal });
 });
+
+export const useTerminal = () => useObservableState(terminal$);
