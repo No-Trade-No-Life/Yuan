@@ -19,6 +19,7 @@ import {
   Typography,
 } from '@douyinfe/semi-ui';
 import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { createKeyPair, signMessage } from '@yuants/utils';
 import copy from 'copy-to-clipboard';
 import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
@@ -35,6 +36,7 @@ import { registerPage } from '../Pages';
 import { authState$ } from '../SupaBase';
 import { terminal$ } from '../Terminals';
 import { IHostConfigItem, currentHostConfig$, hostConfigList$ } from './model';
+import { createPersistBehaviorSubject } from '../BIOS';
 
 const configSchema = (): JSONSchema7 => ({
   type: 'object',
@@ -59,6 +61,15 @@ export const secretURL = (url: string) => {
     return url;
   }
 };
+
+interface ICryptoHostConfig {
+  label: string;
+  public_key: string;
+  private_key: string;
+  host_url: string;
+}
+
+const cryptoHosts$ = createPersistBehaviorSubject('crypto-hosts', [] as Array<ICryptoHostConfig>);
 
 export const network$ = terminal$.pipe(
   switchMap((terminal) =>
@@ -126,6 +137,51 @@ registerPage('HostList', () => {
                 icon={<IconDelete />}
                 onClick={() => {
                   executeCommand('SharedHost.Delete', { host_id: host.id });
+                }}
+              >
+                {t('common:delete')}
+              </Button>
+            </Space>
+          );
+        },
+      }),
+    ];
+  }, []);
+
+  const columnsOfCryptoHost = useMemo(() => {
+    const columnHelper = createColumnHelper<ICryptoHostConfig>();
+    return [
+      columnHelper.accessor('label', { header: 'Label' }),
+      columnHelper.accessor('public_key', { header: 'Public Key' }),
+      columnHelper.accessor('private_key', { header: 'Private Key' }),
+      columnHelper.accessor('host_url', {
+        header: () => <Trans i18nKey="HostList:host_url" />,
+        cell: (ctx) => <HostUrl host_url={ctx.getValue()} />,
+      }),
+      columnHelper.display({
+        id: 'actions',
+        header: () => <Trans i18nKey="common:actions" />,
+        cell: (ctx) => {
+          const host = ctx.row.original;
+          return (
+            <Space>
+              <Button
+                icon={<IconLink />}
+                onClick={() => {
+                  currentHostConfig$.next({
+                    name: host.label,
+                    host_url: host.host_url,
+                  });
+                }}
+              >
+                {t('connect')}
+              </Button>
+              <Button
+                type="danger"
+                icon={<IconDelete />}
+                onClick={() => {
+                  if (cryptoHosts$.value === undefined) return;
+                  cryptoHosts$.next(cryptoHosts$.value.filter((x) => x !== host));
                 }}
               >
                 {t('common:delete')}
@@ -219,6 +275,14 @@ registerPage('HostList', () => {
     data: sharedHosts,
     getCoreRowModel: getCoreRowModel(),
   });
+
+  const cryptoHosts = useObservableState(cryptoHosts$) || [];
+
+  const tableOfCryptoHost = useReactTable({
+    columns: columnsOfCryptoHost,
+    data: cryptoHosts,
+    getCoreRowModel: getCoreRowModel(),
+  });
   const tableOfDedicatedHosts = useReactTable({
     columns: columnsOfDedicatedHosts,
     data: configs,
@@ -294,6 +358,36 @@ registerPage('HostList', () => {
           <DataView table={tableOfSharedHost} />
         </>
       )}
+      {
+        <>
+          <Typography.Title heading={5}>Crypto Hosts</Typography.Title>
+          <Space>
+            <Button
+              icon={<IconPlus />}
+              onClick={async () => {
+                if (cryptoHosts$.value === undefined) return;
+                const label = (await showForm<string>({ type: 'string', title: 'Label' })) || '';
+                const keyPair = createKeyPair();
+                const url = new URL(`https://hosts.ntnl.io`);
+                url.searchParams.set('public_key', keyPair.public_key);
+                const signature = signMessage('', keyPair.private_key);
+                url.searchParams.set('signature', signature);
+                const host_url = url.toString();
+                const config = {
+                  label: label,
+                  public_key: keyPair.public_key,
+                  private_key: keyPair.private_key,
+                  host_url,
+                };
+                cryptoHosts$.next(cryptoHosts$.value.concat([config]));
+              }}
+            >
+              New
+            </Button>
+          </Space>
+          <DataView table={tableOfCryptoHost} />
+        </>
+      }
       <Typography.Title heading={5}>{t('dedicated_hosts')}</Typography.Title>
       <Space>
         <Button
