@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-hosts
 
-This log was last generated on Fri, 30 Aug 2024 16:26:37 GMT and should not be manually modified.
+This log was last generated on Mon, 02 Sep 2024 18:18:05 GMT and should not be manually modified.
+
+## 0.1.2
+Mon, 02 Sep 2024 18:18:05 GMT
+
+### Patches
+
+- add list hosts as an admin method
 
 ## 0.1.1
 Fri, 30 Aug 2024 16:26:37 GMT
