@@ -15,11 +15,11 @@ USER node
 
 WORKDIR /app
 
-COPY --chown=node:node ./out/app-shared-mongodb-storage-out /app
+COPY --chown=node:node ./out/app-namespaced-mongodb-storage-out /app
 
 RUN node create-links.js create
 
-WORKDIR /app/apps/shared-mongodb-storage
+WORKDIR /app/apps/namespaced-mongodb-storage
 
 # USER nobody
 CMD ["node", "./lib/index.js"]
