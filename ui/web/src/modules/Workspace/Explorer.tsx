@@ -20,17 +20,13 @@ import { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { filter, firstValueFrom, from, lastValueFrom, map, mergeMap, toArray } from 'rxjs';
 import { unzip } from 'unzipit';
-import { agentConf$, reloadSchemaAction$ } from '../Agent/AgentConfForm';
-import { writeManifestsFromBatchTasks } from '../Agent/utils';
 import { executeCommand, registerCommand } from '../CommandCenter';
-import { installExtensionFromTgz } from '../Extensions/utils';
 import { FsBackend$, fs, historyWorkspaceRoot$, replaceWorkspaceRoot } from '../FileSystem';
 import { showForm } from '../Form';
 import { Button } from '../Interactive';
 import i18n from '../Locale/i18n';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
-import { currentHostConfig$ } from '../Workbench/model';
 import { sendFileByAirdrop } from './airdrop';
 
 /**
@@ -39,77 +35,30 @@ import { sendFileByAirdrop } from './airdrop';
 interface IAssociationRule {
   /** i18n_key = `association:${id}`  */
   id: string;
+  priority?: number;
 
   match: (ctx: { path: string; isFile: boolean }) => boolean;
   action: (ctx: { path: string; isFile: boolean }) => void;
 }
 
-const rules: IAssociationRule[] = [
-  {
-    id: 'AgentBatchBackTest',
-    match: ({ path, isFile }) => isFile && !!path.match(/\.batch\.ts$/),
-    action: ({ path }) => {
-      executeCommand('AgentBatchBackTest', { filename: path });
-    },
-  },
-  {
-    id: 'AgentBatchBackTest_generate',
-    match: ({ path, isFile }) => isFile && !!path.match(/\.batch\.ts$/) && !!currentHostConfig$.value,
-    action: async ({ path }) => {
-      await writeManifestsFromBatchTasks(path, currentHostConfig$.value?.host_url!);
-      Toast.success(t('common:succeed'));
-    },
-  },
-  {
-    id: 'DeployConfigForm',
-    match: ({ path, isFile }) => isFile && !!path.match(/\.?manifests\.(json|yaml|yml|ts)$/),
-    action: ({ path }) => {
-      executeCommand('DeployConfigForm', { filename: path });
-    },
-  },
-  {
-    id: 'AgentConfForm',
-    match: ({ path, isFile }) => isFile && !!path.match(/\.ts$/),
-    action: ({ path }) => {
-      agentConf$.next({ ...agentConf$.value, entry: path });
-      reloadSchemaAction$.next();
-      executeCommand('AgentConfForm', { filename: path });
-    },
-  },
-  {
-    id: 'Extension',
-    match: ({ path, isFile }) => isFile && !!path.match(/\.tgz$/),
-    action: ({ path }) => {
-      installExtensionFromTgz(path);
-    },
-  },
-  {
-    id: 'RealtimeAsset',
-    match: ({ path, isFile }) => isFile && !!path.match(/\.fund\.json$/),
-    action: ({ path }) => {
-      executeCommand('RealtimeAsset', { filename: path });
-    },
-  },
-  {
-    id: 'FundStatements',
-    match: ({ path, isFile }) => isFile && !!path.match(/\.statements\.json$/),
-    action: ({ path }) => {
-      executeCommand('FundStatements', { filename: path });
-    },
-  },
-  {
-    id: 'FileEditor',
-    match: ({ isFile }) => isFile,
-    action: ({ path }) => {
-      executeCommand('FileEditor', { filename: path });
-    },
-  },
-];
+export const registerAssociationRule = (rule: IAssociationRule) => {
+  rules.push(rule);
+};
+
+export const executeAssociatedRule = async (filename: string, rule_index = 0) => {
+  const stat = await fs.stat(filename);
+  const context = { path: filename, isFile: stat.isFile() };
+  rules
+    .filter((rule) => rule.match(context))
+    .sort((a, b) => (b.priority || 0) - (a.priority || 0))
+    [rule_index]?.action(context);
+};
+
+const rules: IAssociationRule[] = [];
 
 registerPage('Explorer', () => {
   const { t, ready } = useTranslation(['Explorer', 'associations']);
   const terminal = useObservableState(terminal$);
-  const currentHostConfig = useObservableState(currentHostConfig$);
   const rootName =
     useObservableState(useObservable(() => FsBackend$.pipe(map((x) => x?.name)))) || t('TempDirectory');
 
@@ -187,7 +136,9 @@ registerPage('Explorer', () => {
           const context = { path: data.key, isFile: !!isLeaf };
           const filename = data.key;
 
-          const matchedRules = rules.filter((rule) => rule.match(context));
+          const matchedRules = rules
+            .filter((rule) => rule.match(context))
+            .sort((a, b) => (b.priority || 0) - (a.priority || 0));
 
           return (
             <li
@@ -289,7 +240,7 @@ registerPage('Explorer', () => {
                         </Dropdown.Item>
                         <Dropdown.Item
                           icon={<IconSend />}
-                          disabled={!data.isLeaf || !currentHostConfig}
+                          disabled={!data.isLeaf || !terminal}
                           onClick={async () => {
                             if (!terminal) return;
                             const terminalInfos = await firstValueFrom(from(terminal.terminalInfos$));

@@ -28,6 +28,7 @@ import { shareHosts$ } from '../Host/model';
 import { Button } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
 import { authState$, supabase } from '../SupaBase';
+import { registerAssociationRule } from '../Workspace';
 import { loadManifests } from './utils';
 
 // FYI: https://stackoverflow.com/a/30106551
@@ -40,6 +41,14 @@ const stringToBase64String = (str: string) => {
 };
 
 const ajv = new Ajv();
+
+registerAssociationRule({
+  id: 'DeployConfigForm',
+  match: ({ path, isFile }) => isFile && !!path.match(/\.?manifests\.(json|yaml|yml|ts)$/),
+  action: ({ path }) => {
+    executeCommand('DeployConfigForm', { filename: path });
+  },
+});
 
 registerPage('DeployConfigForm', () => {
   const { filename } = usePageParams() as { filename: string };

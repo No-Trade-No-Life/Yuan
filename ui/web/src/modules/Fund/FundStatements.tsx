@@ -25,8 +25,17 @@ import { showForm } from '../Form';
 import { Button, DataView } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
 import { useTerminal } from '../Terminals';
+import { registerAssociationRule } from '../Workspace';
 import { IFundEvent, IFundState, InvestorInfoDerived, InvestorMeta } from './model';
 import { getInitFundState, reduceState } from './utils';
+
+registerAssociationRule({
+  id: 'FundStatements',
+  match: ({ path, isFile }) => isFile && !!path.match(/\.statements\.json$/),
+  action: ({ path }) => {
+    executeCommand('FundStatements', { filename: path });
+  },
+});
 
 registerPage('FundStatements', () => {
   const terminal = useTerminal();

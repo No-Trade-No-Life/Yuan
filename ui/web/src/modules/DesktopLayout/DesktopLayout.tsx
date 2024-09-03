@@ -4,6 +4,7 @@ import { Actions, Layout as FlexLayout, TabNode } from 'flexlayout-react';
 import { useObservableState } from 'observable-hooks';
 import { useEffect, useState } from 'react';
 import { CommandCenter } from '../CommandCenter';
+import { fs } from '../FileSystem';
 import { Button } from '../Interactive';
 import { LanguageSelector } from '../Locale/LanguageSelector';
 import { LocalizePageTitle, Page } from '../Pages';
@@ -12,8 +13,20 @@ import { NetworkStatusWidget } from '../Terminals/NetworkStatusWidget';
 import { UserMenu } from '../User/UserMenu';
 import { HomePage, isShowHome$, toggleShowHome, useIsDarkMode } from '../Workbench';
 import { DarkmodeSwitch } from '../Workbench/DarkmodeSwitch';
+import { registerAssociationRule } from '../Workspace';
 import { WallPaper } from './WallPaper';
 import { layoutModel$, layoutModelJson$ } from './layout-model';
+
+registerAssociationRule({
+  id: 'Layout',
+  priority: 100,
+  match: (ctx) => !!(ctx.isFile && ctx.path.match(/\.layout\.json$/)),
+  action: async (ctx) => {
+    const json = JSON.parse(await fs.readFile(ctx.path));
+    layoutModelJson$.next(json);
+    isShowHome$.next(false);
+  },
+});
 
 // ISSUE: React.memo will cause layout tab label not change while change language
 export const DesktopLayout = () => {

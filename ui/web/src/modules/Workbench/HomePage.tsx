@@ -1,12 +1,13 @@
 import { Avatar, Space, Typography } from '@douyinfe/semi-ui';
 import hotkeys from 'hotkeys-js';
 import { useObservable, useObservableState } from 'observable-hooks';
+import { join } from 'path-browserify';
 import React from 'react';
-import { useTranslation } from 'react-i18next';
-import { Observable, pipe, switchMap } from 'rxjs';
+import { Observable, defer, mergeMap, pipe, repeat, retry, switchMap } from 'rxjs';
 import { createPersistBehaviorSubject } from '../BIOS';
-import { executeCommand } from '../CommandCenter';
+import { fs } from '../FileSystem';
 import { pageRegistered$ } from '../Pages';
+import { executeAssociatedRule } from '../Workspace';
 
 export const isShowHome$ = createPersistBehaviorSubject('show-home', true);
 
@@ -42,9 +43,8 @@ const useElementSize = (element?: Element | null) =>
     ),
   );
 
+const DESKTOP_DIR = '/.Y/desktop';
 export const HomePage = React.memo(() => {
-  const { t } = useTranslation('HomePage');
-
   const size = useElementSize(document.body);
 
   useObservableState(pageRegistered$);
@@ -54,6 +54,22 @@ export const HomePage = React.memo(() => {
   const iconSize = 60;
   const gapSize = size ? (size.width > 1024 ? 20 : Math.floor((size.width - 4 * iconSize) / 5)) : 14;
   console.info('HomePage', 'size', { iconSize, gapSize, width: size?.width, isRowFlow });
+
+  const files =
+    useObservableState(
+      useObservable(
+        pipe(
+          mergeMap(() =>
+            defer(() => fs.readdir(DESKTOP_DIR)).pipe(
+              //
+              repeat({ delay: 1000 }),
+              retry({ delay: 1000 }),
+            ),
+          ),
+        ),
+        [],
+      ),
+    ) || [];
 
   if (!size) return null;
 
@@ -81,13 +97,13 @@ export const HomePage = React.memo(() => {
           gridAutoFlow: isRowFlow ? 'row' : 'column',
         }}
       >
-        {Object.keys(Modules.Pages.AvailableComponents)
+        {files
           .sort((a, b) => a.localeCompare(b))
-          .map((pageId) => {
-            const name = t(`pages:${pageId}`);
+          .map((filename) => {
+            const filePath = join(DESKTOP_DIR, filename);
             return (
               <div
-                key={pageId}
+                key={filename}
                 style={{
                   width: iconSize,
                   overflow: 'hidden',
@@ -102,24 +118,17 @@ export const HomePage = React.memo(() => {
               >
                 <Avatar
                   shape="square"
+                  src="/yuan.svg"
                   style={{ width: iconSize, height: iconSize }}
-                  onClick={() => {
-                    executeCommand(pageId);
-                  }}
-                >
-                  {name.slice(0, 1)}
-                </Avatar>
+                  onClick={() => executeAssociatedRule(filePath)}
+                />
                 <Typography.Text
                   ellipsis={{
-                    showTooltip: {
-                      opts: {
-                        content: `${name} (${pageId})`,
-                      },
-                    },
+                    showTooltip: true,
                   }}
-                  style={{ width: iconSize }}
+                  style={{ width: iconSize, textAlign: 'center' }}
                 >
-                  {name}
+                  {filename}
                 </Typography.Text>
               </div>
             );

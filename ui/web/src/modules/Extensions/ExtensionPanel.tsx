@@ -10,16 +10,26 @@ import { executeCommand, registerCommand } from '../CommandCenter';
 import { showForm } from '../Form';
 import { Button, DataView } from '../Interactive';
 import { registerPage } from '../Pages';
+import { registerAssociationRule } from '../Workspace';
 import {
   IActiveExtensionInstance,
   activeExtensions$,
   installExtension,
+  installExtensionFromTgz,
   loadExtension,
   resolveVersion,
   uninstallExtension,
 } from './utils';
 
 const isProcessing$ = new BehaviorSubject<Record<string, boolean>>({});
+
+registerAssociationRule({
+  id: 'Extension',
+  match: ({ path, isFile }) => isFile && !!path.match(/\.tgz$/),
+  action: ({ path }) => {
+    installExtensionFromTgz(path);
+  },
+});
 
 registerPage('ExtensionPanel', () => {
   const { t } = useTranslation('ExtensionPanel');
