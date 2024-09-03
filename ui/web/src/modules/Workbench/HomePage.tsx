@@ -1,11 +1,14 @@
 import { Avatar, Space, Typography } from '@douyinfe/semi-ui';
 import hotkeys from 'hotkeys-js';
 import { useObservable, useObservableState } from 'observable-hooks';
-import { join } from 'path-browserify';
+import { dirname, join } from 'path-browserify';
 import React from 'react';
 import { Observable, defer, mergeMap, pipe, repeat, retry, switchMap } from 'rxjs';
 import { createPersistBehaviorSubject } from '../BIOS';
+import { registerCommand } from '../CommandCenter';
+import { layoutModelJson$ } from '../DesktopLayout/layout-model';
 import { fs } from '../FileSystem';
+import { showForm } from '../Form';
 import { pageRegistered$ } from '../Pages';
 import { executeAssociatedRule } from '../Workspace';
 
@@ -44,6 +47,13 @@ const useElementSize = (element?: Element | null) =>
   );
 
 const DESKTOP_DIR = '/.Y/desktop';
+
+registerCommand('SaveLayoutToDesktop', async () => {
+  const filename = await showForm<string>({ type: 'string', title: 'Filename' });
+  const filePath = join(DESKTOP_DIR, filename + '.layout.json');
+  await fs.ensureDir(dirname(filePath));
+  await fs.writeFile(filePath, JSON.stringify(layoutModelJson$.value, null, 2));
+});
 export const HomePage = React.memo(() => {
   const size = useElementSize(document.body);
 
@@ -53,7 +63,7 @@ export const HomePage = React.memo(() => {
 
   const iconSize = 60;
   const gapSize = size ? (size.width > 1024 ? 20 : Math.floor((size.width - 4 * iconSize) / 5)) : 14;
-  console.info('HomePage', 'size', { iconSize, gapSize, width: size?.width, isRowFlow });
+  // console.info('HomePage', 'size', { iconSize, gapSize, width: size?.width, isRowFlow });
 
   const files =
     useObservableState(
