@@ -45,6 +45,7 @@ import { LocalAgentScene } from '../StaticFileServerStorage/LocalAgentScene';
 import { authState$ } from '../SupaBase';
 import { terminal$ } from '../Terminals';
 import { clearLogAction$ } from '../Workbench/Program';
+import { registerAssociationRule } from '../Workspace';
 import { bundleCode } from './utils';
 
 const mapScriptParamsSchemaToAgentConfSchema = (schema: JSONSchema7): JSONSchema7 => ({
@@ -184,6 +185,16 @@ export const runAgent = async () => {
   }
   complete$.next(true);
 };
+
+registerAssociationRule({
+  id: 'AgentConfForm',
+  match: ({ path, isFile }) => isFile && !!path.match(/\.ts$/),
+  action: ({ path }) => {
+    agentConf$.next({ ...agentConf$.value, entry: path });
+    reloadSchemaAction$.next();
+    executeCommand('AgentConfForm', { filename: path });
+  },
+});
 
 registerPage('AgentConfForm', () => {
   const agentConf = useObservableState(agentConf$);

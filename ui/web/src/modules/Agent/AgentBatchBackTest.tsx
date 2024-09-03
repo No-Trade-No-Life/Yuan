@@ -13,6 +13,7 @@ import {
 import { formatTime } from '@yuants/data-model';
 import { formatDuration, intervalToDuration } from 'date-fns';
 import ExcelJS from 'exceljs';
+import { t } from 'i18next';
 import { useObservable, useObservableState } from 'observable-hooks';
 import path from 'path-browserify';
 import { useState } from 'react';
@@ -43,13 +44,32 @@ import { registerPage, usePageParams } from '../Pages';
 import { authState$ } from '../SupaBase';
 import { clearLogAction$ } from '../Workbench/Program';
 import { currentHostConfig$ } from '../Workbench/model';
+import { registerAssociationRule } from '../Workspace';
 import {
   IBatchAgentResultItem,
   loadBatchTasks,
   makeManifestsFromAgentConfList,
   runBatchBackTestWorkItem,
+  writeManifestsFromBatchTasks,
 } from './utils';
 import Worker from './webworker?worker';
+
+registerAssociationRule({
+  id: 'AgentBatchBackTest',
+  match: ({ path, isFile }) => isFile && !!path.match(/\.batch\.ts$/),
+  action: ({ path }) => {
+    executeCommand('AgentBatchBackTest', { filename: path });
+  },
+});
+
+registerAssociationRule({
+  id: 'AgentBatchBackTest_generate',
+  match: ({ path, isFile }) => isFile && !!path.match(/\.batch\.ts$/) && !!currentHostConfig$.value,
+  action: async ({ path }) => {
+    await writeManifestsFromBatchTasks(path, currentHostConfig$.value?.host_url!);
+    Toast.success(t('common:succeed'));
+  },
+});
 
 registerPage('AgentBatchBackTest', () => {
   const { t } = useTranslation('AgentBatchBackTest');

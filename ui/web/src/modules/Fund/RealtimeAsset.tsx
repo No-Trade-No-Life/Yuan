@@ -26,9 +26,11 @@ import {
   toArray,
 } from 'rxjs';
 import { useAccountInfo } from '../AccountInfo';
-import { fs } from '../FileSystem/api';
+import { executeCommand } from '../CommandCenter';
+import { fs } from '../FileSystem';
 import { registerPage, usePageParams, usePageTitle } from '../Pages';
 import { terminal$, useTick } from '../Terminals';
+import { registerAssociationRule } from '../Workspace';
 
 interface IFundComponentConfig {
   //
@@ -389,3 +391,11 @@ function sendReportToInvestor(terminal: Terminal, fundInfo: IFundInfo, investor:
     }),
   );
 }
+
+registerAssociationRule({
+  id: 'RealtimeAsset',
+  match: ({ path, isFile }) => isFile && !!path.match(/\.fund\.json$/),
+  action: ({ path }) => {
+    executeCommand('RealtimeAsset', { filename: path });
+  },
+});
