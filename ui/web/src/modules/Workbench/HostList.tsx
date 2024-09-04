@@ -69,7 +69,7 @@ interface ICryptoHostConfig {
   host_url: string;
 }
 
-const cryptoHosts$ = createPersistBehaviorSubject('crypto-hosts', [] as Array<ICryptoHostConfig>);
+export const cryptoHosts$ = createPersistBehaviorSubject('crypto-hosts', [] as Array<ICryptoHostConfig>);
 
 export const network$ = terminal$.pipe(
   switchMap((terminal) =>
