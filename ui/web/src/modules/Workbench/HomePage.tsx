@@ -3,7 +3,7 @@ import hotkeys from 'hotkeys-js';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { dirname, join } from 'path-browserify';
 import React from 'react';
-import { Observable, defer, mergeMap, pipe, repeat, retry, switchMap } from 'rxjs';
+import { Observable, defer, map, mergeMap, pipe, repeat, retry, switchMap } from 'rxjs';
 import { createPersistBehaviorSubject } from '../BIOS';
 import { registerCommand } from '../CommandCenter';
 import { layoutModelJson$ } from '../DesktopLayout/layout-model';
@@ -54,6 +54,7 @@ registerCommand('SaveLayoutToDesktop', async () => {
   await fs.ensureDir(dirname(filePath));
   await fs.writeFile(filePath, JSON.stringify(layoutModelJson$.value, null, 2));
 });
+
 export const HomePage = React.memo(() => {
   const size = useElementSize(document.body);
 
@@ -70,11 +71,16 @@ export const HomePage = React.memo(() => {
       useObservable(
         pipe(
           mergeMap(() =>
-            defer(() => fs.readdir(DESKTOP_DIR)).pipe(
-              //
-              repeat({ delay: 1000 }),
-              retry({ delay: 1000 }),
-            ),
+            defer(() => fs.readdir(DESKTOP_DIR))
+              .pipe(
+                //
+                repeat({ delay: 1000 }),
+                retry({ delay: 1000 }),
+              )
+              .pipe(
+                //
+                map((x) => x.sort((a, b) => a.localeCompare(b))),
+              ),
           ),
         ),
         [],
@@ -107,44 +113,42 @@ export const HomePage = React.memo(() => {
           gridAutoFlow: isRowFlow ? 'row' : 'column',
         }}
       >
-        {files
-          .sort((a, b) => a.localeCompare(b))
-          .map((filename) => {
-            const filePath = join(DESKTOP_DIR, filename);
-            return (
-              <div
-                key={filename}
-                style={{
-                  width: iconSize,
-                  // overflow: 'hidden',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  height: '100%',
-                  cursor: 'pointer',
-                  transition: 'transform 0.2s ease-in-out',
-                }}
-                onClick={() => executeAssociatedRule(filePath)}
-              >
-                <Avatar shape="square" src="/yuan.svg" style={{ width: iconSize, height: iconSize }} />
-                <Typography.Text
-                  ellipsis={{
-                    showTooltip: {
-                      opts: {
-                        position: 'rightBottomOver',
-                      },
+        {files.map((filename) => {
+          const filePath = join(DESKTOP_DIR, filename);
+          return (
+            <div
+              key={filename}
+              style={{
+                width: iconSize,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                height: '100%',
+                cursor: 'pointer',
+                transition: 'transform 0.2s ease-in-out',
+              }}
+              onClick={() => executeAssociatedRule(filePath)}
+            >
+              <Avatar shape="square" src="/yuan.svg" style={{ width: iconSize, height: iconSize }} />
+              <Typography.Text
+                ellipsis={{
+                  showTooltip: {
+                    opts: {
+                      // expanding in the same direction with icon flow
+                      position: isRowFlow ? 'bottom' : 'rightBottomOver',
                     },
-                    pos: 'middle',
-                    // rows: 2,
-                  }}
-                  style={{ width: iconSize + 20, textAlign: 'center' }}
-                >
-                  {filename}
-                </Typography.Text>
-              </div>
-            );
-          })}
+                  },
+                  pos: 'middle',
+                  // rows: 2,
+                }}
+                style={{ width: iconSize + 20, textAlign: 'center' }}
+              >
+                {filename}
+              </Typography.Text>
+            </div>
+          );
+        })}
       </div>
     </Space>
   );
