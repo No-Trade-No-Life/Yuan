@@ -28,7 +28,7 @@ jobs:
           fetch-depth: 0
 
       - name: Get artifact
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/download-artifact@v3
         with:
           name: web-artifacts
           path: ./ui/web/dist
@@ -52,7 +52,7 @@ jobs:
           fetch-depth: 0
 
       - name: Get artifact
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/download-artifact@v3
         with:
           name: web-artifacts
           path: ./ui/web/dist
@@ -76,7 +76,7 @@ jobs:
           fetch-depth: 0
 
       - name: Get artifact
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/download-artifact@v3
         with:
           name: docs-artifacts
           path: ./ui/docs/build
@@ -101,7 +101,7 @@ jobs:
           fetch-depth: 0
 
       - name: Get artifact
-        uses: actions/download-artifact@v4.1.7
+        uses: actions/download-artifact@v3
         with:
           name: docker-artifacts
         continue-on-error: true
@@ -156,6 +156,6 @@ jobs:
   #         fetch-depth: 0
 
   #     - name: Get artifact
-  #       uses: actions/download-artifact@v4.1.7
+  #       uses: actions/download-artifact@v3
   #       with:
   #         name: npm-artifacts
