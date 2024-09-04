@@ -1,6 +1,11 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Fri, 30 Aug 2024 14:29:33 GMT and should not be manually modified.
+This log was last generated on Wed, 04 Sep 2024 12:44:10 GMT and should not be manually modified.
+
+## 0.12.7
+Wed, 04 Sep 2024 12:44:10 GMT
+
+_Version update only_
 
 ## 0.12.6
 Fri, 30 Aug 2024 14:29:33 GMT

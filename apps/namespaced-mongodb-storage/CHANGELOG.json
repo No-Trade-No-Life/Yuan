@@ -2,6 +2,37 @@
   "name": "@yuants/app-namespaced-mongodb-storage",
   "entries": [
     {
+      "version": "0.0.3",
+      "tag": "@yuants/app-namespaced-mongodb-storage_v0.0.3",
+      "date": "Wed, 04 Sep 2024 12:44:10 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix(namespaced-mongo): image registry update"
+          },
+          {
+            "comment": "extract listWatch to common utils"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.2.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.8`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.2",
       "tag": "@yuants/app-namespaced-mongodb-storage_v0.0.2",
       "date": "Mon, 02 Sep 2024 19:05:27 GMT",
