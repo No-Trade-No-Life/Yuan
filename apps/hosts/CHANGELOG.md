@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-hosts
 
-This log was last generated on Mon, 02 Sep 2024 18:18:05 GMT and should not be manually modified.
+This log was last generated on Wed, 04 Sep 2024 08:27:55 GMT and should not be manually modified.
+
+## 0.1.3
+Wed, 04 Sep 2024 08:27:55 GMT
+
+### Patches
+
+- update private key name
 
 ## 0.1.2
 Mon, 02 Sep 2024 18:18:05 GMT
