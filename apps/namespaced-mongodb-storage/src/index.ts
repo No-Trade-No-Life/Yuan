@@ -1,26 +1,17 @@
 import { formatTime, IDataRecord, UUID } from '@yuants/data-model';
 import { PromRegistry, Terminal } from '@yuants/protocol';
-import {
-  batchGroupBy,
-  createKeyPair,
-  fromPrivateKey,
-  signMessage,
-  switchMapWithComplete,
-} from '@yuants/utils';
+import { fromPrivateKey, listWatch, signMessage } from '@yuants/utils';
 import { MongoClient } from 'mongodb';
 import {
   bufferTime,
   concatWith,
   delayWhen,
-  distinctUntilChanged,
   from,
   groupBy,
   map,
   mergeMap,
   Observable,
   of,
-  OperatorFunction,
-  pipe,
   repeat,
   retry,
   tap,
@@ -75,31 +66,6 @@ const adminHostTerminal = new Terminal(
     name: 'mongo DB Supervisor',
   },
 );
-
-/**
- * list and watch a source of items, and apply consumer to each newly added item,
- * the consumer should return an observable that completes when the item is fully processed,
- *
- * consumer will be cancelled when the item is removed.
- *
- * @param hashKey - hash key function to group items
- * @param consumer - consumer function to process each item
- * @returns
- */
-const listWatch = <T, K>(
-  hashKey: (item: T) => string,
-  consumer: (item: T) => Observable<K>,
-): OperatorFunction<T[], K> =>
-  pipe(
-    batchGroupBy(hashKey),
-    mergeMap((group) =>
-      group.pipe(
-        // Take first but not complete until group complete
-        distinctUntilChanged(() => true),
-        switchMapWithComplete(consumer),
-      ),
-    ),
-  );
 
 const mongo = new MongoClient(process.env.MONGO_URI!);
 const db = mongo.db();
