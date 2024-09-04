@@ -17,8 +17,8 @@ import {
 import WebSocket from 'ws';
 
 // Setup Admin Terminal
-const ADMIN_KEY_PAIR = process.env.ADMIN_SECRET_KEY
-  ? fromPrivateKey(process.env.ADMIN_SECRET_KEY!)
+const ADMIN_KEY_PAIR = process.env.ADMIN_PRIVATE_KEY
+  ? fromPrivateKey(process.env.ADMIN_PRIVATE_KEY!)
   : createKeyPair();
 
 console.info(

@@ -63,9 +63,7 @@ interface IHostScopedDataRecords<T> extends IDataRecord<T> {
 }
 
 // Setup Admin Terminal
-const ADMIN_KEY_PAIR = process.env.ADMIN_SECRET_KEY
-  ? fromPrivateKey(process.env.ADMIN_SECRET_KEY!)
-  : createKeyPair();
+const ADMIN_KEY_PAIR = fromPrivateKey(process.env.ADMIN_PRIVATE_KEY!);
 
 const adminHostTerminal = new Terminal(
   `${process.env.HOST_URL_BASE!}?public_key=${ADMIN_KEY_PAIR.public_key}&signature=${signMessage(
@@ -118,14 +116,10 @@ from(adminHostTerminal.requestService('ListHost', {}))
       (item) => {
         return new Observable<{ terminal: Terminal; hostRecord: IHostRecord }>((subscriber) => {
           const hostURL = `${process.env.HOST_URL_BASE}?public_key=${item.public_key}&signature=${item.signature}`;
+          console.info(formatTime(Date.now()), `SetupTerminalFor: ${hostURL}`);
           const terminal = new Terminal(hostURL, {
             terminal_id: `NamespacedMongoDB/${UUID()}`,
             name: 'Namespaced MongoDB Storage',
-          });
-
-          db.stats().then((v) => {
-            console.info(formatTime(Date.now()), 'Connected', JSON.stringify(v));
-            terminal.terminalInfo.status = 'OK';
           });
 
           subscriber.next({ terminal, hostRecord: item });

@@ -8,9 +8,9 @@ export default (context: IExtensionContext) => {
       properties: {
         env: {
           type: 'object',
-          required: ['ADMIN_SECRET_KEY'],
+          required: ['ADMIN_PRIVATE_KEY'],
           properties: {
-            ADMIN_SECRET_KEY: { type: 'string' },
+            ADMIN_PRIVATE_KEY: { type: 'string' },
           },
         },
         network: {
