@@ -101,7 +101,7 @@ export const HomePage = React.memo(() => {
           width: '100%',
           height: isRowFlow ? undefined : '100%',
           gridTemplateColumns: `repeat(auto-fit, ${iconSize}px)`,
-          gridTemplateRows: `repeat(auto-fit, ${iconSize + 20}px)`,
+          gridTemplateRows: `repeat(auto-fit, ${iconSize + 40}px)`,
           gap: gapSize,
           boxSizing: 'border-box',
           gridAutoFlow: isRowFlow ? 'row' : 'column',
@@ -116,7 +116,7 @@ export const HomePage = React.memo(() => {
                 key={filename}
                 style={{
                   width: iconSize,
-                  overflow: 'hidden',
+                  // overflow: 'hidden',
                   display: 'flex',
                   flexDirection: 'column',
                   alignItems: 'center',
@@ -125,18 +125,20 @@ export const HomePage = React.memo(() => {
                   cursor: 'pointer',
                   transition: 'transform 0.2s ease-in-out',
                 }}
+                onClick={() => executeAssociatedRule(filePath)}
               >
-                <Avatar
-                  shape="square"
-                  src="/yuan.svg"
-                  style={{ width: iconSize, height: iconSize }}
-                  onClick={() => executeAssociatedRule(filePath)}
-                />
+                <Avatar shape="square" src="/yuan.svg" style={{ width: iconSize, height: iconSize }} />
                 <Typography.Text
                   ellipsis={{
-                    showTooltip: true,
+                    showTooltip: {
+                      opts: {
+                        position: 'rightBottomOver',
+                      },
+                    },
+                    pos: 'middle',
+                    // rows: 2,
                   }}
-                  style={{ width: iconSize, textAlign: 'center' }}
+                  style={{ width: iconSize + 20, textAlign: 'center' }}
                 >
                   {filename}
                 </Typography.Text>

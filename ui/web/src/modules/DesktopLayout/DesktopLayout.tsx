@@ -6,7 +6,6 @@ import { useEffect, useState } from 'react';
 import { CommandCenter } from '../CommandCenter';
 import { fs } from '../FileSystem';
 import { Button } from '../Interactive';
-import { LanguageSelector } from '../Locale/LanguageSelector';
 import { LocalizePageTitle, Page } from '../Pages';
 import { ErrorBoundary } from '../Pages/ErrorBoundary';
 import { NetworkStatusWidget } from '../Terminals/NetworkStatusWidget';
@@ -129,9 +128,6 @@ export const DesktopLayout = () => {
             <Space>
               <ErrorBoundary>
                 <NetworkStatusWidget />
-              </ErrorBoundary>
-              <ErrorBoundary>
-                <LanguageSelector />
               </ErrorBoundary>
               <ErrorBoundary>
                 <DarkmodeSwitch />
