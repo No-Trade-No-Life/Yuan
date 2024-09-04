@@ -5,6 +5,7 @@
 ```ts
 
 import { Observable } from 'rxjs';
+import { OperatorFunction } from 'rxjs';
 import { SchedulerLike } from 'rxjs';
 import { Subject } from 'rxjs';
 
@@ -24,6 +25,9 @@ export const fromPrivateKey: (privateKey: string) => {
     public_key: string;
     private_key: string;
 };
+
+// @public
+export const listWatch: <T, K>(hashKey: (item: T) => string, consumer: (item: T) => Observable<K>) => OperatorFunction<T[], K>;
 
 // @public
 export type NativeSubject<T> = AsyncIterable<T> & AsyncIterator<T, void, T>;

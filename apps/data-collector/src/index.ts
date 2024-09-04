@@ -1,6 +1,6 @@
 import { IDataRecordTypes, formatTime, getDataRecordSchema } from '@yuants/data-model';
 import { PromRegistry, Terminal, copyDataRecords, queryDataRecords } from '@yuants/protocol';
-import { batchGroupBy, switchMapWithComplete } from '@yuants/utils';
+import { batchGroupBy, listWatch, switchMapWithComplete } from '@yuants/utils';
 import Ajv from 'ajv';
 import CronJob from 'cron';
 import {
@@ -51,21 +51,6 @@ const term = new Terminal(HOST_URL, {
   terminal_id: TERMINAL_ID,
   name: 'Data Collector',
 });
-
-const listWatch = <T, K>(
-  hashKey: (item: T) => string,
-  consumer: (item: T) => Observable<K>,
-): OperatorFunction<T[], K> =>
-  pipe(
-    batchGroupBy(hashKey),
-    mergeMap((group) =>
-      group.pipe(
-        // Take first but not complete until group complete
-        distinctUntilChanged(() => true),
-        switchMapWithComplete(consumer),
-      ),
-    ),
-  );
 
 defer(() =>
   queryDataRecords<ICopyDataRelation>(term, {

@@ -1,21 +1,7 @@
 import { formatTime, UUID } from '@yuants/data-model';
 import { readDataRecords, Terminal } from '@yuants/protocol';
-import { batchGroupBy, switchMapWithComplete } from '@yuants/utils';
-import {
-  defer,
-  distinctUntilChanged,
-  from,
-  groupBy,
-  map,
-  mergeMap,
-  Observable,
-  OperatorFunction,
-  pipe,
-  repeat,
-  retry,
-  tap,
-  toArray,
-} from 'rxjs';
+import { listWatch } from '@yuants/utils';
+import { defer, from, groupBy, map, mergeMap, Observable, repeat, retry, tap, toArray } from 'rxjs';
 
 const internalTerminal = new Terminal(process.env.HOST_URL!, {
   terminal_id: `Portal/Internal/${UUID()}`,
@@ -35,32 +21,6 @@ interface IPortalRelation {
   method?: string;
   schema: any;
 }
-
-/**
- * list and watch a source of items, and apply consumer to each newly added item,
- * the consumer should return an observable that completes when the item is fully processed,
- *
- * consumer will be cancelled when the item is removed.
- *
- * @param hashKey - hash key function to group items
- * @param consumer - consumer function to process each item
- * @returns
- */
-const listWatch = <T, K>(
-  hashKey: (item: T) => string,
-  consumer: (item: T) => Observable<K>,
-): OperatorFunction<T[], K> => {
-  return pipe(
-    batchGroupBy(hashKey),
-    mergeMap((group) =>
-      group.pipe(
-        // Take first but not complete until group complete
-        distinctUntilChanged(() => true),
-        switchMapWithComplete(consumer),
-      ),
-    ),
-  );
-};
 
 defer(() =>
   readDataRecords(internalTerminal, {
