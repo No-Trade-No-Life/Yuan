@@ -97,11 +97,12 @@ defer(async () => {
           from(json.yuan.extensions).pipe(
             mergeMap((x) =>
               defer(async () => {
-                const code = await bundleCode(x.main);
                 const requireContext = {
                   ...Libs,
                   '@yuants/ui-web': Modules,
                 };
+
+                const code = await bundleCode(x.main, Object.keys(requireContext));
 
                 Object.assign(globalThis, { requireContext });
 

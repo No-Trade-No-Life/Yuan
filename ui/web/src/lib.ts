@@ -4,6 +4,7 @@ import * as dataModel from '@yuants/data-model';
 import * as protocol from '@yuants/protocol';
 import * as yuantsUtils from '@yuants/utils';
 import * as observableHooks from 'observable-hooks';
+import * as yalps from 'yalps';
 import React from 'react';
 import * as rxjs from 'rxjs';
 
@@ -13,6 +14,7 @@ export const libs = {
   '@yuants/utils': yuantsUtils,
   react: React,
   rxjs,
+  yalps,
   '@douyinfe/semi-ui': SemiUI,
   '@icon-park/react': IconParksIcons,
   'observable-hooks': observableHooks,

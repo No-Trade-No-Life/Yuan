@@ -1,8 +1,8 @@
 import * as rollup from '@rollup/browser';
-import { t } from 'i18next';
 import * as path from 'path-browserify';
 import * as ts from 'typescript';
 import { fs } from './api';
+import { resolve } from './resolve';
 
 /**
  * Bundle code from entry
@@ -10,7 +10,7 @@ import { fs } from './api';
  * @returns IIFE-formatted code
  * @public
  */
-export const bundleCode = async (entry: string) => {
+export const bundleCode = async (entry: string, externals: string[]) => {
   const bundle = await rollup.rollup({
     input: [entry],
     onLog: (level, log, handler) => {
@@ -22,44 +22,19 @@ export const bundleCode = async (entry: string) => {
       }
       handler(level, log);
     },
-    external: (id) => id[0] !== '.' && id[0] !== '/',
+    external: externals,
     plugins: [
       {
         name: 'rollup-plugin-yuan',
         async resolveId(source, importer = '/', options) {
-          function* candidate() {
-            if (source[0] === '.') {
-              // relative path
-              yield path.join(importer, '..', source);
-              yield path.join(importer, '..', source + '.js');
-              yield path.join(importer, '..', source + '.ts');
-              yield path.join(importer, '..', source + '.tsx');
-              yield path.join(importer, '..', source, 'index.ts');
-              yield path.join(importer, '..', source, 'index.tsx');
-              yield path.join(importer, '..', source, 'index.js');
-            } else {
-              // absolute path
-              yield path.join('/', source);
-              yield path.join('/', source + '.js');
-              yield path.join('/', source + '.ts');
-              yield path.join('/', source, 'index.ts');
-              yield path.join('/', source, 'index.js');
-            }
-          }
-          for (const filename of candidate()) {
-            try {
-              await fs.readFile(filename);
-              return filename;
-            } catch (e) {
-              //
-            }
-          }
-          throw new Error(
-            t('common:reference_error', { importer, source, interpolation: { escapeValue: false } }),
-          );
+          return resolve(source, {
+            paths: ['/'],
+            extensions: ['.js', '.ts', '.tsx'],
+            basedir: path.dirname(importer),
+          });
         },
         async load(id) {
-          const content = await fs.readFile(id);
+          const content = await fs.readFile(path.resolve('/', id));
           if (id.endsWith('.ts')) {
             const transpiled = ts.transpile(content, {
               target: ts.ScriptTarget.ESNext,

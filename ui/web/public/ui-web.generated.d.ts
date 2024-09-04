@@ -203,13 +203,50 @@ declare module '@yuants/ui-web' {
    * @returns IIFE-formatted code
    * @public
    */
-  const bundleCode: (entry: string) => Promise<string>;
+  const bundleCode: (entry: string, externals: string[]) => Promise<string>;
+
+  interface PackageJson {
+    name?: string;
+    main?: string;
+    module?: string;
+    dir?: string;
+    pkg?: PackageJson;
+  }
+  interface IOptions {
+    isFile?: (file: string) => Promise<boolean>;
+    isDirectory?: (dir: string) => Promise<boolean>;
+    realpathSync?: (x: string) => Promise<string>;
+    readFileSync?: (file: string) => Promise<string>;
+    readPackageSync?: (file: string) => Promise<PackageJson>;
+    preserveSymlinks?: boolean;
+    extensions?: string[];
+    includeCoreModules?: boolean;
+    basedir?: string;
+    filename?: string;
+    paths?:
+      | string[]
+      | ((request: string, start: string, getPaths: () => string[], opts: IOptions) => string[]);
+    packageFilter?: (pkg: PackageJson, pkgfile: string, dir: string) => PackageJson;
+    /**
+     * transform a path within a package
+     *
+     * @param pkg - package data
+     * @param path - the path being resolved
+     * @param relativePath - the path relative from the package.json location
+     * @returns - a relative path that will be joined from the package.json location
+     */
+    pathFilter?: (pkg: PackageJson, path: string, relativePath: string) => string;
+    moduleDirectory?: string[];
+    packageIterator?: (request: string, start: string, thunk: () => string[], opts: IOptions) => string[];
+  }
+  function resolve(x: string, options: IOptions): Promise<string>;
 
   const index_d$h_FsBackend$: typeof FsBackend$;
   const index_d$h_bundleCode: typeof bundleCode;
   const index_d$h_fs: typeof fs;
   const index_d$h_historyWorkspaceRoot$: typeof historyWorkspaceRoot$;
   const index_d$h_replaceWorkspaceRoot: typeof replaceWorkspaceRoot;
+  const index_d$h_resolve: typeof resolve;
   const index_d$h_workspaceRoot$: typeof workspaceRoot$;
   namespace index_d$h {
     export {
@@ -218,6 +255,7 @@ declare module '@yuants/ui-web' {
       index_d$h_fs as fs,
       index_d$h_historyWorkspaceRoot$ as historyWorkspaceRoot$,
       index_d$h_replaceWorkspaceRoot as replaceWorkspaceRoot,
+      index_d$h_resolve as resolve,
       index_d$h_workspaceRoot$ as workspaceRoot$,
     };
   }
@@ -279,6 +317,99 @@ declare module '@yuants/ui-web' {
       index_d$g_generateWidgets as generateWidgets,
       index_d$g_showForm as showForm,
     };
+  }
+
+  interface IFundEvent {
+    type: string;
+    updated_at: string;
+    comment?: string;
+    /** 设置 Fund 账户 ID */
+    account_id?: string;
+    /** 更新基金总资产的动作 */
+    fund_equity?: {
+      equity: number;
+    };
+    /** 更新投资人信息的动作 */
+    order?: {
+      name: string;
+      /** 净入金 */
+      deposit: number;
+    };
+    investor?: {
+      name: string;
+      /** 更改税率 */
+      tax_rate?: number;
+    };
+  }
+  /**
+   * 基金状态
+   *
+   * @public
+   */
+  interface IFundState {
+    account_id: string;
+    created_at: number;
+    updated_at: number;
+    description: string;
+    /** 总资产 */
+    total_assets: number;
+    /** 已征税费 */
+    total_taxed: number;
+    summary_derived: {
+      /** 总入金 */
+      total_deposit: number;
+      /** 总份额 */
+      total_share: number;
+      /** 总税费 */
+      total_tax: number;
+      /** 单位净值 */
+      unit_price: number;
+      /** 存续时间 */
+      total_time: number;
+      /** 总收益 */
+      total_profit: number;
+    };
+    investors: Record<string, InvestorMeta>;
+    investor_derived: Record<string, InvestorInfoDerived>;
+    events: IFundEvent[];
+  }
+  interface InvestorMeta {
+    /** 姓名 */
+    name: string;
+    /** 份额 */
+    share: number;
+    /** 起征点 */
+    tax_threshold: number;
+    /** 净入金 */
+    deposit: number;
+    /** 税率 */
+    tax_rate: number;
+  }
+  /**
+   * 投资人信息的计算衍生数据
+   */
+  interface InvestorInfoDerived {
+    /** 税前资产 */
+    pre_tax_assets: number;
+    /** 应税额 */
+    taxable: number;
+    /** 税费 */
+    tax: number;
+    /** 税后资产 */
+    after_tax_assets: number;
+    /** 税后收益 */
+    after_tax_profit: number;
+    /** 税后收益率 */
+    after_tax_profit_rate: number;
+    /** 税后份额 */
+    after_tax_share: number;
+    /** 份额占比 */
+    share_ratio: number;
+  }
+  module '@yuants/data-model/lib/DataRecord' {
+    interface IDataRecordTypes {
+      fund_state: IFundState;
+    }
   }
 
   namespace index_d$f {
@@ -422,13 +553,19 @@ declare module '@yuants/ui-web' {
   }
 
   const terminal$: Observable<Terminal | null>;
+  const useTerminal: () => Terminal | null | undefined;
 
   const useTick: (datasource_id: string, product_id: string) => rxjs.Observable<_yuants_data_model.ITick>;
 
   const index_d$5_terminal$: typeof terminal$;
+  const index_d$5_useTerminal: typeof useTerminal;
   const index_d$5_useTick: typeof useTick;
   namespace index_d$5 {
-    export { index_d$5_terminal$ as terminal$, index_d$5_useTick as useTick };
+    export {
+      index_d$5_terminal$ as terminal$,
+      index_d$5_useTerminal as useTerminal,
+      index_d$5_useTick as useTick,
+    };
   }
 
   namespace index_d$4 {
@@ -450,6 +587,16 @@ declare module '@yuants/ui-web' {
   const toggleShowHome: () => void;
   const HomePage: React.MemoExoticComponent<() => react_jsx_runtime.JSX.Element | null>;
 
+  const secretURL: (url: string) => string;
+  interface ICryptoHostConfig {
+    label: string;
+    public_key: string;
+    private_key: string;
+    host_url: string;
+  }
+  const cryptoHosts$: rxjs.BehaviorSubject<ICryptoHostConfig[] | undefined>;
+  const network$: rxjs.Observable<string[]>;
+
   const isDarkMode$: rxjs.BehaviorSubject<boolean | undefined>;
   const useIsDarkMode: () => boolean;
 
@@ -465,24 +612,48 @@ declare module '@yuants/ui-web' {
   const usePageClosingConfirm: (disabled?: boolean) => void;
 
   const index_d$1_HomePage: typeof HomePage;
+  const index_d$1_cryptoHosts$: typeof cryptoHosts$;
   const index_d$1_isDarkMode$: typeof isDarkMode$;
   const index_d$1_isShowHome$: typeof isShowHome$;
+  const index_d$1_network$: typeof network$;
+  const index_d$1_secretURL: typeof secretURL;
   const index_d$1_toggleShowHome: typeof toggleShowHome;
   const index_d$1_useIsDarkMode: typeof useIsDarkMode;
   const index_d$1_usePageClosingConfirm: typeof usePageClosingConfirm;
   namespace index_d$1 {
     export {
       index_d$1_HomePage as HomePage,
+      index_d$1_cryptoHosts$ as cryptoHosts$,
       index_d$1_isDarkMode$ as isDarkMode$,
       index_d$1_isShowHome$ as isShowHome$,
+      index_d$1_network$ as network$,
+      index_d$1_secretURL as secretURL,
       index_d$1_toggleShowHome as toggleShowHome,
       index_d$1_useIsDarkMode as useIsDarkMode,
       index_d$1_usePageClosingConfirm as usePageClosingConfirm,
     };
   }
 
+  /**
+   * File is associated with Command
+   */
+  interface IAssociationRule {
+    /** i18n_key = `association:${id}`  */
+    id: string;
+    priority?: number;
+    match: (ctx: { path: string; isFile: boolean }) => boolean;
+    action: (ctx: { path: string; isFile: boolean }) => void;
+  }
+  const registerAssociationRule: (rule: IAssociationRule) => void;
+  const executeAssociatedRule: (filename: string, rule_index?: number) => Promise<void>;
+
+  const index_d_executeAssociatedRule: typeof executeAssociatedRule;
+  const index_d_registerAssociationRule: typeof registerAssociationRule;
   namespace index_d {
-    export {};
+    export {
+      index_d_executeAssociatedRule as executeAssociatedRule,
+      index_d_registerAssociationRule as registerAssociationRule,
+    };
   }
 
   export {
