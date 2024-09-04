@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-hosts",
+      "comment": "update private key name",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-hosts"
+}

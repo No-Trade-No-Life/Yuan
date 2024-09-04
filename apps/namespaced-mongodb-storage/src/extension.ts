@@ -27,9 +27,7 @@ export default (context: IExtensionContext) => {
     make_docker_compose_file: async (ctx, envCtx) => {
       return {
         [COMPONENT_NAME]: {
-          image: `registry.ap-southeast-1.aliyuncs.com/ntnl-y/${COMPONENT_NAME}:${
-            ctx.version ?? envCtx.version
-          }`,
+          image: `ghcr.io/no-trade-no-life/${COMPONENT_NAME}:${ctx.version ?? envCtx.version}`,
           environment: makeDockerEnvs(ctx.env),
         },
       };
@@ -86,9 +84,7 @@ export default (context: IExtensionContext) => {
                 containers: [
                   {
                     env: makeK8sEnvs(ctx.env),
-                    image: `registry.ap-southeast-1.aliyuncs.com/ntnl-y/${COMPONENT_NAME}:${
-                      ctx.version ?? envCtx.version
-                    }`,
+                    image: `ghcr.io/no-trade-no-life/${COMPONENT_NAME}:${ctx.version ?? envCtx.version}`,
                     imagePullPolicy: 'IfNotPresent',
                     name: COMPONENT_NAME,
                     resources: {
