@@ -1,4 +1,16 @@
-import { Observable, SchedulerLike, Subject, Subscription, filter, interval, mergeMap, tap } from 'rxjs';
+import {
+  Observable,
+  OperatorFunction,
+  SchedulerLike,
+  Subject,
+  Subscription,
+  distinctUntilChanged,
+  filter,
+  interval,
+  mergeMap,
+  pipe,
+  tap,
+} from 'rxjs';
 
 /**
  * 同 groupBy 类似，但是会接受一整个数组，如果下一组数据中没有某个 key，会自动 complete 这个 key 的 Observable
@@ -128,3 +140,29 @@ export const rateLimitMap =
       };
     });
   };
+
+/**
+ * list and watch a source of items, and apply consumer to each newly added item,
+ * the consumer should return an observable that completes when the item is fully processed,
+ *
+ * consumer will be cancelled when the item is removed.
+ *
+ * @public
+ * @param hashKey - hash key function to group items
+ * @param consumer - consumer function to process each item
+ * @returns
+ */
+export const listWatch = <T, K>(
+  hashKey: (item: T) => string,
+  consumer: (item: T) => Observable<K>,
+): OperatorFunction<T[], K> =>
+  pipe(
+    batchGroupBy(hashKey),
+    mergeMap((group) =>
+      group.pipe(
+        // Take first but not complete until group complete
+        distinctUntilChanged(() => true),
+        switchMapWithComplete(consumer),
+      ),
+    ),
+  );

@@ -1,24 +1,21 @@
 import { IDataRecordTypes, IPeriod, formatTime, getDataRecordSchema } from '@yuants/data-model';
 import { PromRegistry, Terminal, copyDataRecords, queryDataRecords } from '@yuants/protocol';
-import { batchGroupBy, switchMapWithComplete } from '@yuants/utils';
+import { listWatch } from '@yuants/utils';
 import Ajv from 'ajv';
 import CronJob from 'cron';
 import {
   EMPTY,
   Observable,
-  OperatorFunction,
   Subject,
   Subscription,
   catchError,
   defaultIfEmpty,
   defer,
-  distinctUntilChanged,
   filter,
   first,
   interval,
   map,
   mergeMap,
-  pipe,
   repeat,
   retry,
   tap,
@@ -52,21 +49,6 @@ const term = new Terminal(HV_URL, {
   name: 'Historical Market Data Collector',
   status: 'OK',
 });
-
-const listWatch = <T, K>(
-  hashKey: (item: T) => string,
-  consumer: (item: T) => Observable<K>,
-): OperatorFunction<T[], K> =>
-  pipe(
-    batchGroupBy(hashKey),
-    mergeMap((group) =>
-      group.pipe(
-        // Take first but not complete until group complete
-        distinctUntilChanged(() => true),
-        switchMapWithComplete(consumer),
-      ),
-    ),
-  );
 
 defer(() =>
   queryDataRecords<IPullSourceRelation>(term, {
