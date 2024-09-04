@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-data-collector
 
-This log was last generated on Fri, 30 Aug 2024 14:29:33 GMT and should not be manually modified.
+This log was last generated on Wed, 04 Sep 2024 12:44:10 GMT and should not be manually modified.
+
+## 0.0.21
+Wed, 04 Sep 2024 12:44:10 GMT
+
+### Patches
+
+- extract listWatch to common utils
 
 ## 0.0.20
 Fri, 30 Aug 2024 14:29:33 GMT
