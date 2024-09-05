@@ -64,23 +64,29 @@ defer(() =>
       },
     ),
     tap(({ externalTerminal, services }) => {
-      console.info(
-        formatTime(Date.now()),
-        `SetupServices: ${externalTerminal.host_url}`,
-        `[${services.map((v) => `${v.direction}/${v.type}:${v.method}`).join(', ')}]`,
-      );
+      console.info(formatTime(Date.now()), `SetupServices: ${externalTerminal.host_url}`);
       for (const service of services) {
+        externalTerminal.provideService('Terminate', {}, async (msg) => {
+          return {
+            res: {
+              code: 403,
+              message: `You are not allowed to terminate this terminal`,
+            },
+          };
+        });
         const [fromTerminal, toTerminal] =
           service.direction === 'export'
             ? [internalTerminal, externalTerminal]
             : [externalTerminal, internalTerminal];
 
         if (service.type === 'request' && service.method) {
+          console.info(formatTime(Date.now()), `SetupService: ${service.method}`);
           toTerminal.provideService(service.method, service.schema, (msg) =>
             fromTerminal.requestService(msg.method!, msg.req),
           );
         }
         if (service.type === 'channel') {
+          console.info(formatTime(Date.now()), `SetupChannel: ${service.method}`);
           toTerminal.provideChannel(service.schema, (msg) => fromTerminal.consumeChannel(msg));
         }
       }

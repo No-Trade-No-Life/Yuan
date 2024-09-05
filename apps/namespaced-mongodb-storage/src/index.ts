@@ -96,13 +96,21 @@ from(adminHostTerminal.requestService('ListHost', {}))
       },
     ),
     tap(({ terminal, hostRecord }) => {
+      terminal.provideService('Terminate', {}, async (msg) => {
+        return {
+          res: {
+            code: 403,
+            message: `You are not allowed to terminate this terminal`,
+          },
+        };
+      });
       terminal.provideService(
         'UpdateDataRecords',
         {
           type: 'array',
           items: {
             type: 'object',
-            required: ['type', 'id', 'tags', 'updated_at', 'created_at', 'frozen_at', 'origin'],
+            required: ['type', 'id', 'tags', 'updated_at', 'origin'],
             properties: {
               type: {
                 type: 'string',
