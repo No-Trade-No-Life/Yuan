@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-namespaced-mongodb-storage",
+      "comment": "disable terminate for external terminals",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-namespaced-mongodb-storage"
+}
