@@ -7,3 +7,4 @@ export * from './HomePage';
 export * from './HostList';
 export * from './darkmode';
 export * from './dirtyCheck';
+export * from './model';
