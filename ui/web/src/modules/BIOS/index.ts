@@ -91,7 +91,7 @@ defer(async () => {
           yuan?: {
             extensions?: Array<{ name: string; main: string }>;
           };
-        } = JSON.parse(await fs.readFile('package.json'));
+        } = JSON.parse(await fs.readFile('/package.json'));
         if (!json.yuan?.extensions) return;
         await lastValueFrom(
           from(json.yuan.extensions).pipe(

@@ -611,8 +611,25 @@ declare module '@yuants/ui-web' {
    */
   const usePageClosingConfirm: (disabled?: boolean) => void;
 
+  interface IHostConfigItem {
+    name: string;
+    host_url: string;
+  }
+  const hostConfigList$: BehaviorSubject<IHostConfigItem[] | undefined>;
+  const currentHostConfig$: BehaviorSubject<IHostConfigItem | null | undefined>;
+  const initAction$: ReplaySubject<{
+    type: string;
+    payload: any;
+  }>;
+  const OHLCIdList$: BehaviorSubject<string[]>;
+
   const index_d$1_HomePage: typeof HomePage;
+  type index_d$1_IHostConfigItem = IHostConfigItem;
+  const index_d$1_OHLCIdList$: typeof OHLCIdList$;
   const index_d$1_cryptoHosts$: typeof cryptoHosts$;
+  const index_d$1_currentHostConfig$: typeof currentHostConfig$;
+  const index_d$1_hostConfigList$: typeof hostConfigList$;
+  const index_d$1_initAction$: typeof initAction$;
   const index_d$1_isDarkMode$: typeof isDarkMode$;
   const index_d$1_isShowHome$: typeof isShowHome$;
   const index_d$1_network$: typeof network$;
@@ -623,7 +640,12 @@ declare module '@yuants/ui-web' {
   namespace index_d$1 {
     export {
       index_d$1_HomePage as HomePage,
+      type index_d$1_IHostConfigItem as IHostConfigItem,
+      index_d$1_OHLCIdList$ as OHLCIdList$,
       index_d$1_cryptoHosts$ as cryptoHosts$,
+      index_d$1_currentHostConfig$ as currentHostConfig$,
+      index_d$1_hostConfigList$ as hostConfigList$,
+      index_d$1_initAction$ as initAction$,
       index_d$1_isDarkMode$ as isDarkMode$,
       index_d$1_isShowHome$ as isShowHome$,
       index_d$1_network$ as network$,
