@@ -2,6 +2,23 @@
   "name": "@yuants/app-host",
   "entries": [
     {
+      "version": "0.2.22",
+      "tag": "@yuants/app-host_v0.2.22",
+      "date": "Sat, 07 Sep 2024 18:05:13 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "Phantom Terminal Elimination"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.21",
       "tag": "@yuants/app-host_v0.2.21",
       "date": "Wed, 04 Sep 2024 12:44:10 GMT",
