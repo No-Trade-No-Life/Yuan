@@ -158,7 +158,7 @@ server.on('upgrade', (request, socket, head) => {
           ),
         ),
         repeat({ delay: 10000 }),
-        retry(),
+        retry({ delay: 1000 }),
       )
       .subscribe();
 
