@@ -2,20 +2,62 @@ import { formatTime } from '@yuants/data-model';
 import { ITerminalInfo, Terminal } from '@yuants/protocol';
 import { createServer } from 'http';
 import {
+  EMPTY,
   Observable,
   Subject,
   bindCallback,
+  catchError,
+  defer,
   first,
+  from,
   fromEvent,
   interval,
   map,
   merge,
+  mergeMap,
   of,
+  repeat,
+  retry,
   shareReplay,
+  tap,
+  timeout,
 } from 'rxjs';
 import WebSocket from 'ws';
 
 const mapTerminalIdToSocket: Record<string, WebSocket.WebSocket> = {};
+
+// ISSUE: Phantom Terminal Elimination
+defer(() => Object.entries(mapTerminalIdToSocket))
+  .pipe(
+    mergeMap(([terminal_id, ws]) =>
+      from(
+        new Observable<void>((subscriber) => {
+          const callback = () => {
+            subscriber.complete();
+          };
+          ws.once('pong', callback);
+          ws.ping();
+          return () => {
+            ws.removeListener('pong', callback);
+          };
+        }),
+      ).pipe(
+        timeout(5000),
+        retry(3),
+        tap({
+          error: (err) => {
+            console.info(formatTime(Date.now()), 'Terminal ping failed', terminal_id, err);
+            terminalInfos.delete(terminal_id);
+            delete mapTerminalIdToSocket[terminal_id];
+          },
+        }),
+        catchError(() => EMPTY),
+      ),
+    ),
+    repeat({ delay: 10000 }),
+    retry(),
+  )
+  .subscribe();
 
 const server = createServer();
 
