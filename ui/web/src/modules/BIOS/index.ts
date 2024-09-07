@@ -1,8 +1,5 @@
 // Basic Input Output System (BIOS)
 // First thing to run when the computer is turned on
-// Depends on modules:
-// 1. FileSystem
-// 1. Workspace is set up
 
 import { dirname, join, resolve } from 'path-browserify';
 import {
@@ -20,6 +17,8 @@ import {
   tap,
   toArray,
 } from 'rxjs';
+import versionCompare from 'version-compare';
+import versionSatisfy from 'version-range';
 import { loadExtension } from '../Extensions/utils';
 import { FsBackend$, bundleCode, fs, workspaceRoot$ } from '../FileSystem';
 import { FileSystemHandleBackend } from '../FileSystem/backends/FileSystemHandleBackend';
@@ -43,13 +42,39 @@ defer(async () => {
           log(`SETUP WORKSPACE FROM NPM, SCOPE=${scope}, PACKAGE=${package_name}, VERSION=${version}`);
           log('USING IN-MEMORY WORKSPACE');
           FsBackend$.next(new InMemoryBackend(`${scope ? `@${scope}/` : ''}${package_name}-${version}`));
-          if (!package_name || !version) {
-            return;
+          if (!package_name) {
+            throw new Error('NO PACKAGE NAME');
           }
+
+          log('FETCHING PACKAGE META');
+          const packageMeta: {
+            versions: {
+              [version: string]: any;
+            };
+          } = await fetch(`https://registry.npmjs.org/${scope ? `@${scope}/` : ''}${package_name}`).then(
+            (res) => res.json(),
+          );
+
+          const allVersions = Object.keys(packageMeta.versions).sort(versionCompare).reverse();
+          log('ALL VERSIONS', JSON.stringify(allVersions));
+
+          const availableVersions = allVersions.filter((x) =>
+            version !== null ? versionSatisfy(x, version) : true,
+          );
+          log('MATCHED VERSIONS', JSON.stringify(availableVersions));
+
+          const selectedVersion = availableVersions[0];
+
+          if (!selectedVersion) {
+            throw new Error('NO MATCHED VERSION');
+          }
+
+          log('SELECTED VERSION', selectedVersion);
+          log('FETCHING PACKAGE TARBALL');
           const res = await fetch(
             `https://registry.npmjs.org/${
               scope ? `@${scope}/` : ''
-            }${package_name}/-/${package_name}-${version}.tgz`,
+            }${package_name}/-/${package_name}-${selectedVersion}.tgz`,
           );
           log('FETCHED', res.status);
           const blob = await res.blob();

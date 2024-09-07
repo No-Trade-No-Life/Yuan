@@ -1570,6 +1570,8 @@ importers:
       rxjs: ~7.5.6
       typescript: ^4.6.4
       unzipit: ~1.4.3
+      version-compare: ~3.11.0
+      version-range: ~4.14.0
       vite: ^3.0.0
       vite-plugin-pwa: ~0.20.2
       yalps: ~0.5.6
@@ -1620,6 +1622,8 @@ importers:
       rehype-raw: 7.0.0
       rxjs: 7.5.7
       unzipit: 1.4.3
+      version-compare: 3.11.0
+      version-range: 4.14.0
       yalps: 0.5.6
       yaml: 2.2.2
     devDependencies:
@@ -11859,6 +11863,13 @@ packages:
       zrender: 5.4.4
     dev: false
 
+  /editions/6.21.0:
+    resolution: {integrity: sha512-ofkXJtn7z0urokN62DI3SBo/5xAtF0rR7tn+S/bSYV79Ka8pTajIIl+fFQ1q88DQEImymmo97M4azY3WX/nUdg==}
+    engines: {node: '>=4'}
+    dependencies:
+      version-range: 4.14.0
+    dev: false
+
   /ee-first/1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
     dev: false
@@ -21990,6 +22001,18 @@ packages:
       assert-plus: 1.0.0
       core-util-is: 1.0.2
       extsprintf: 1.3.0
+    dev: false
+
+  /version-compare/3.11.0:
+    resolution: {integrity: sha512-sufLk/bD3oq+iLzWk8FOHfYwVIaC3NLJcvMqnggmakwNskyKyM+u8x1F8NdwjlLVgC8oYSTgB0RK68VCT6wQOg==}
+    engines: {node: '>=4'}
+    dependencies:
+      editions: 6.21.0
+    dev: false
+
+  /version-range/4.14.0:
+    resolution: {integrity: sha512-gjb0ARm9qlcBAonU4zPwkl9ecKkas+tC2CGwFfptTCWWIVTWY1YUbT2zZKsOAF1jR/tNxxyLwwG0cb42XlYcTg==}
+    engines: {node: '>=4'}
     dev: false
 
   /vfile-location/3.2.0:
