@@ -2,6 +2,23 @@
   "name": "@yuants/app-hosts",
   "entries": [
     {
+      "version": "0.1.6",
+      "tag": "@yuants/app-hosts_v0.1.6",
+      "date": "Sat, 07 Sep 2024 20:34:59 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "delete normal closed terminal"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.5",
       "tag": "@yuants/app-hosts_v0.1.5",
       "date": "Sat, 07 Sep 2024 19:24:07 GMT",
