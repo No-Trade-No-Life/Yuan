@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-namespaced-mongodb-storage
 
-This log was last generated on Wed, 04 Sep 2024 12:44:10 GMT and should not be manually modified.
+This log was last generated on Sat, 07 Sep 2024 18:05:13 GMT and should not be manually modified.
+
+## 0.0.4
+Sat, 07 Sep 2024 18:05:13 GMT
+
+### Patches
+
+- disable terminate for external terminals
 
 ## 0.0.3
 Wed, 04 Sep 2024 12:44:10 GMT
