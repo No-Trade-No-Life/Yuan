@@ -2,6 +2,23 @@
   "name": "@yuants/app-host",
   "entries": [
     {
+      "version": "0.2.23",
+      "tag": "@yuants/app-host_v0.2.23",
+      "date": "Sat, 07 Sep 2024 19:24:07 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "RetryError Maximum call stack size exceeded"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.22",
       "tag": "@yuants/app-host_v0.2.22",
       "date": "Sat, 07 Sep 2024 18:05:13 GMT",
