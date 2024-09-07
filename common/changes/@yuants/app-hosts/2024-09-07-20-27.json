@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-hosts",
+      "comment": "delete normal closed terminal",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-hosts"
+}

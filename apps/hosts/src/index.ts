@@ -42,6 +42,7 @@ console.info(
 
 const mapPublicKeyToTerminalIdToSocket: Record<string, Record<string, WebSocket.WebSocket>> = {};
 const mapPublicKeyToSignature: Record<string, string> = {};
+const mapPublicKeyToTerminalInfos: Record<string, Map<string, ITerminalInfo>> = {};
 
 const server = createServer();
 
@@ -109,6 +110,8 @@ server.on('upgrade', (request, socket, head) => {
     return;
   }
 
+  const terminalInfos = (mapPublicKeyToTerminalInfos[public_key] ??= new Map<string, ITerminalInfo>());
+
   if (mapPublicKeyToTerminalIdToSocket[public_key] === undefined) {
     // Lazy Init Host
     const host_url = new URL('ws://localhost:8888');
@@ -119,8 +122,6 @@ server.on('upgrade', (request, socket, head) => {
       terminal_id: '@host',
       name: 'Host Terminal',
     });
-
-    const terminalInfos = new Map<string, ITerminalInfo>();
 
     const listTerminalsMessage$ = interval(1000).pipe(
       map(() => ({ res: { code: 0, message: 'OK', data: [...terminalInfos.values()] } })),
@@ -218,7 +219,7 @@ server.on('upgrade', (request, socket, head) => {
     // Clean up on Terminal Disconnect
     fromEvent(ws, 'close').subscribe(() => {
       console.info(formatTime(Date.now()), public_key, 'terminal disconnected', terminal_id);
-      // terminalInfos.delete(terminal_id);
+      terminalInfos.delete(terminal_id);
       delete mapTerminalIdToSocket[terminal_id];
     });
   });
