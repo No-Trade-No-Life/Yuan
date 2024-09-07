@@ -3,16 +3,25 @@ import { ITerminalInfo, Terminal } from '@yuants/protocol';
 import { createKeyPair, fromPrivateKey, signMessage, verifyMessage } from '@yuants/utils';
 import { createServer } from 'http';
 import {
+  EMPTY,
   Observable,
   Subject,
   bindCallback,
+  catchError,
+  defer,
   first,
+  from,
   fromEvent,
   interval,
   map,
   merge,
+  mergeMap,
   of,
+  repeat,
+  retry,
   shareReplay,
+  tap,
+  timeout,
 } from 'rxjs';
 import WebSocket from 'ws';
 
@@ -119,6 +128,39 @@ server.on('upgrade', (request, socket, head) => {
     );
 
     const terminalInfo$ = new Subject<ITerminalInfo>();
+
+    // ISSUE: Phantom Terminal Elimination
+    defer(() => Object.entries(mapTerminalIdToSocket))
+      .pipe(
+        mergeMap(([terminal_id, ws]) =>
+          from(
+            new Observable<void>((subscriber) => {
+              const callback = () => {
+                subscriber.complete();
+              };
+              ws.once('pong', callback);
+              ws.ping();
+              return () => {
+                ws.removeListener('pong', callback);
+              };
+            }),
+          ).pipe(
+            timeout(5000),
+            retry(3),
+            tap({
+              error: (err) => {
+                console.info(formatTime(Date.now()), 'Terminal ping failed', terminal_id, err);
+                terminalInfos.delete(terminal_id);
+                delete mapTerminalIdToSocket[terminal_id];
+              },
+            }),
+            catchError(() => EMPTY),
+          ),
+        ),
+        repeat({ delay: 10000 }),
+        retry(),
+      )
+      .subscribe();
 
     terminal.provideChannel<ITerminalInfo>({ const: 'TerminalInfo' }, () => terminalInfo$);
 
