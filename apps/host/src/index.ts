@@ -55,7 +55,7 @@ defer(() => Object.entries(mapTerminalIdToSocket))
       ),
     ),
     repeat({ delay: 10000 }),
-    retry(),
+    retry({ delay: 1000 }),
   )
   .subscribe();
 

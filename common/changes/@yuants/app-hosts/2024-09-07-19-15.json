@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-hosts",
+      "comment": "RetryError Maximum call stack size exceeded",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-hosts"
+}
