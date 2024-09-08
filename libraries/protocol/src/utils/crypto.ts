@@ -71,10 +71,9 @@ export const setupHandShakeService = (terminal: Terminal, private_key: string) =
  * Request shared key
  * @param terminal - terminal
  * @param ed25519_public_key - ed25519 public key (base58)
- * @returns AES-GCM shared key (base58)
  * @public
  */
-export const requestSharedKey = async (terminal: Terminal, ed25519_public_key: string): Promise<string> => {
+export const requestSharedKey = async (terminal: Terminal, ed25519_public_key: string) => {
   const myPair = generateX25519KeyPair();
   const res = await lastValueFrom(
     from(
@@ -91,5 +90,22 @@ export const requestSharedKey = async (terminal: Terminal, ed25519_public_key: s
   if (!verifyMessage(`${myPair.public_key}${data.x25519_public_key}`, data.signature, ed25519_public_key)) {
     throw new Error('Invalid signature');
   }
-  return deriveSharedKey(data.x25519_public_key, myPair.private_key);
+  return {
+    /**
+     * Local X25519 public key (base58)
+     */
+    public_key: myPair.public_key,
+    /**
+     * Local X25519 private key (base58)
+     */
+    private_key: myPair.private_key,
+    /**
+     * Remote X25519 public key (base58)
+     */
+    remote_public_key: data.x25519_public_key,
+    /**
+     * AES-GCM shared key (base58)
+     */
+    shared_key: deriveSharedKey(data.x25519_public_key, myPair.private_key),
+  };
 };
