@@ -1,6 +1,11 @@
 # Change Log - @yuants/app-trade-copier
 
-This log was last generated on Wed, 04 Sep 2024 12:44:10 GMT and should not be manually modified.
+This log was last generated on Sun, 08 Sep 2024 10:16:35 GMT and should not be manually modified.
+
+## 0.4.20
+Sun, 08 Sep 2024 10:16:35 GMT
+
+_Version update only_
 
 ## 0.4.19
 Wed, 04 Sep 2024 12:44:10 GMT
