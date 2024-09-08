@@ -1,6 +1,13 @@
 # Change Log - @yuants/utils
 
-This log was last generated on Wed, 04 Sep 2024 12:44:10 GMT and should not be manually modified.
+This log was last generated on Sun, 08 Sep 2024 10:16:35 GMT and should not be manually modified.
+
+## 0.3.0
+Sun, 08 Sep 2024 10:16:35 GMT
+
+### Minor changes
+
+- add X25519, AES-GCM and base58 methods
 
 ## 0.2.1
 Wed, 04 Sep 2024 12:44:10 GMT
