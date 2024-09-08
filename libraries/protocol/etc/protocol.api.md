@@ -142,6 +142,17 @@ export const readDataRecords: <T extends keyof IDataRecordTypes>(terminal: Termi
 export const removeDataRecords: (terminal: Terminal, req: IRemoveDataRecordsRequest) => AsyncIterable<void>;
 
 // @public
+export const requestSharedKey: (terminal: Terminal, ed25519_public_key: string) => Promise<{
+    public_key: string;
+    private_key: string;
+    remote_public_key: string;
+    shared_key: string;
+}>;
+
+// @public
+export const setupHandShakeService: (terminal: Terminal, private_key: string) => Map<string, string>;
+
+// @public
 export const submitOrder: (terminal: Terminal, order: IOrder) => AsyncIterable<IResponse<void> & IResponse<unknown>>;
 
 // @public
