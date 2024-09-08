@@ -1,4 +1,4 @@
-[English](./README.md) | [简体中文](./README-zh-Hans.md)
+[English](./README.md) | [简体中文](./README.zh-Hans.md)
 
 <a name="readme-top"></a>
 
@@ -45,25 +45,24 @@
 
 In the early stages of our quantitative trading endeavors, after extensively searching and researching various existing quantitative trading frameworks and products, we found that none could fully meet the development and research needs of our unique trading strategies. Thus, undeterred by the challenges, we embarked on creating our own product, Yuan, driven by our specific requirements.
 
-Our fundamental demands are:
+Our basic requirements are:
 
 1. **Strong Privacy Security**
 
-   Quantitative model codes are the core assets of users and should not be at risk of theft. Many products on the market require uploading strategy codes to servers, where they can be fully assessed and potentially stolen. If a user's strategy can be grasped by potential competitors, the user will be at a disadvantage. Therefore, some products allow private deployment. We designed a local workspace for users that ensures privacy against various attacks and allows us to prove our integrity.
+   Quantitative model code is the core asset of users and is at risk of being stolen. Many products on the market require uploading strategy code to servers, and these products can fully evaluate and steal the code as long as they have the user's code. If the user's strategy can be grasped by potential competitors, the user will be at a disadvantage. Therefore, there are also some products on the market that allow private deployment. We have designed a local workspace for users to ensure that their privacy is protected from being stolen by anyone, including the Yuan project team. Additionally, we have completed open-source, subject to the supervision of the open-source community, and will not do anything in the code that harms the interests of users.
 
 2. **Full Market Compatibility**
 
-   Users invest and trade in different markets. We aim for the same strategy code to be applicable across various market types, both for historical backtesting and live trading, without any additional costs. We also hope the platform can support a wide range of markets. However, existing products often only support a subset of markets due to regional regulations and business constraints, forcing users to use different platforms for different markets. Through architectural design, we have decoupled the core, deploying business plugins to the market, which not only reduces coupling and improves software quality but also overcomes compliance barriers, setting the stage for global expansion.
+   Users invest and trade in different markets. We hope that the same strategy code can be applied to different market varieties, both for historical backtesting and real-time trading, without any additional cost. We also hope that the platform product can support various types of markets. However, due to regional laws and regulations and some business restrictions, products on the market usually only support a part of the markets, forcing users to use different platforms in different markets. Through architectural design, we decouple specific market modules, not only improving software quality but also overcoming compliance obstacles, paving the way for the globalization of the product.
 
 3. **Cross-Platform Compatibility**
 
-   We want our product to run without restrictions on any device, whether on desktop or mobile platforms. After all, the market does not cater to where users are. Users should be able to engage with the market at any time, in any setting.
+   We hope that our product can run without restrictions on any device on any platform, whether on desktop or mobile. After all, the market does not care about the user's situation. Users can switch to work and interact with the market at any time in any scenario.
 
-4. **Low Cost with High Scalability**
+4. **Low Cost and High Scalability**
 
-   The industry's initial licensing fees, often in the thousands, are daunting, not to mention the high additional and maintenance costs. We believe these costs are partly due to bundling to offset development expenses, partly due to inefficient operations, and partly due to profiteering. As a product aimed at individual investors rather than enterprises, we must consider the financial capabilities of ordinary investors. For investors, the most important aspect of tools is affordability and durability. Whether it's a personal computer or a server cluster, our product can operate effectively.
-
-Yuan is an investment operating system designed to empower you to master your finances.
+   Industry initial licensing fees often reach thousands, not to mention the high additional and maintenance costs. We believe that these costs are partly due to bundling sales to offset development costs, partly due to inefficiency, and partly due to the desire to profit. As a product aimed at individual investors rather than enterprises, we must consider the consumption ability of ordinary investors. For investors, the most important aspect of tools is cheap and durable. Whether on personal computers or server clusters, our product can run effectively.
+   Yuan is an investment operating system designed to empower you to master your finances.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -190,15 +189,56 @@ All the apps should provide an image and publish it as a npm package. You can de
 - [@yuants/app-k8s-manifest-operator](apps/k8s-manifest-operator) This will deploy a terminal as a Kubernetes manifest operator. It watches the manifest CRD of the Kubernetes cluster and ensures the Kubernetes cluster follows the manifest CRD. You can add manifest CRD to the k8s cluster and then the operator will deploy the resources defined in the manifest CRD.
 - [@yuants/app-transfer-controller](apps/transfer-controller) A transfer controller is a service that transfers money between accounts. It watches the transfer request and ensures the transfer is completed.
 - [@yuants/app-risk-manager](apps/risk-manager) This will deploy a terminal as a risk manager. It makes transfer decisions based on the configured risk info.
+- [@yuants/app-hosts](apps/hosts) This is a very lightweight host cluster that can handle message forwarding business for multiple hosts within a single process. There is no need to pre-register the host's token table; it can automatically accept terminals that comply with ED25519 signatures, and terminals do not need to send the signed private key to the host. It is highly suitable for multi-tenant environments and scenarios that require low-cost creation of multiple hosts.
+- [@yuants/app-portal](apps/portal) This will deploy a service that allows sharing existing services (and channels) from a host with other hosts. It acts as an intermediary, capable of forwarding messages from one host to another. It is a very powerful tool that can help you build data sharing scenarios.
+- [@yuants/app-namespaced-mongodb-storage](apps/namespaced-mongodb-storage) This will deploy a terminal as a storage service. It stores data in MongoDB and supports namespaces. This means you can store data for multiple tenants within the same MongoDB instance.
+- [@yuants/app-prometheus-client](apps/prometheus-client) This will deploy a terminal as a Prometheus client. It provides a service for querying data from the Prometheus database, making it suitable for building monitoring dashboards.
 
 #### Web UI
 
-[@yuants/ui-web](ui/web) is the GUI.
-You can do anything with the GUI because we prefer to implement the feature in GUI rather than CLI.
-All the users use the same GUI distribution. It's independent of hosts and scenes.
-User has their own workspace locally. The workspace is secret.
-You can install extensions to enhance your workspace.
-Any device with a modern browser can access the GUI and its features. But currently, the layout on the desktop is the most friendly. We will enhance the experience of mobile in the future.
+[@yuants/ui-web](ui/web), you can directly access https://y.ntnl.io to access the Yuan GUI.
+
+The graphical user interface (GUI) is the most widely used human-computer interaction interface today. It can do everything that command-line interfaces (CLI), natural language interfaces (NUI, LUI), and other interfaces can do.
+
+- **Single-line Deployment**: All users use the same, latest version of the GUI.
+- **Strong Privacy**: The content of the workspace used by the GUI is completely confidential.
+- **Extensibility**: You can install extensions to enhance your workspace.
+- **Multi-device Adaptation**: Any device with a modern browser can access the GUI and its features. We will continuously improve multi-device adaptability.
+- **PWA Support**: The GUI can be installed as a desktop application via PWA. Mobile devices can also use PWA to install to the home screen.
+
+#### Distributions
+
+Yuan is a powerful operating system, but it is also too low-level, primitive, and difficult to use. Only tech-savvy users can handle it, and it is not suitable for direct use by ordinary users.
+
+For different user scenarios, it is best to provide specific distributions that are pre-configured with some features so that users can use them directly.
+
+Below are some distributions we provide as references. You can create your own distributions based on your needs.
+
+- [@yuants/dist-origin](distributions/origin): Native distribution [Click to experience online](https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin)
+
+##### Creating a Distribution
+
+The essence of a distribution is a workspace, and the essence of a workspace is a file directory and its contents. We can package the workspace into a distribution, and then users can download and unzip it to use. We recommend using the npm package management tool to manage distributions, i.e., distributions will be published to the npm repository, and users can install distributions via npm.
+
+In the Web GUI's address parameters, we can specify installing the distribution from npm using the `from_npm` parameter. For example, `https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin`.
+
+**URL Parameters**:
+
+- `from_npm`: Whether to install the distribution from npm. `1` for yes, leave empty for no.
+- `scope`: The scope of the npm package, optional parameter.
+- `name`: The name of the npm package, required parameter.
+- `version`: The version of the npm package, in the format of a [semver](https://semver.org/) compliant version range, optional parameter. Defaults to the latest version.
+
+```
+// Install the latest version of the @yuants/dist-origin distribution
+https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin
+
+// Install a specific version (0.0.2) of the @yuants/dist-origin distribution
+https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin&version=0.0.2
+
+// Install a specific version (>=0.0.2) of the @yuants/dist-origin distribution
+https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin&version=>=0.0.2
+```
 
 #### Documents
 

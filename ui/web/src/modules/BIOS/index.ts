@@ -41,7 +41,6 @@ defer(async () => {
           const version = url.searchParams.get('version');
           log(`SETUP WORKSPACE FROM NPM, SCOPE=${scope}, PACKAGE=${package_name}, VERSION=${version}`);
           log('USING IN-MEMORY WORKSPACE');
-          FsBackend$.next(new InMemoryBackend(`${scope ? `@${scope}/` : ''}${package_name}-${version}`));
           if (!package_name) {
             throw new Error('NO PACKAGE NAME');
           }
@@ -70,6 +69,9 @@ defer(async () => {
           }
 
           log('SELECTED VERSION', selectedVersion);
+          FsBackend$.next(
+            new InMemoryBackend(`${scope ? `@${scope}/` : ''}${package_name}-${selectedVersion}`),
+          );
           log('FETCHING PACKAGE TARBALL');
           const res = await fetch(
             `https://registry.npmjs.org/${
