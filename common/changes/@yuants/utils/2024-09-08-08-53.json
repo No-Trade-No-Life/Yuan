@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/utils",
+      "comment": "add X25519, AES-GCM and base58 methods",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/utils"
+}

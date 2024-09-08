@@ -21,7 +21,28 @@ export const createKeyPair: () => {
 };
 
 // @public
+export const decodeBase58: (data: string) => Uint8Array;
+
+// @public
+export const decrypt: (data: Uint8Array, base58_key: string) => Promise<Uint8Array>;
+
+// @public
+export const deriveSharedKey: (publicKey: string, privateKey: string) => string;
+
+// @public
+export const encodeBase58: (data: Uint8Array) => string;
+
+// @public
+export const encrypt: (data: Uint8Array, base58_key: string) => Promise<Uint8Array>;
+
+// @public
 export const fromPrivateKey: (privateKey: string) => {
+    public_key: string;
+    private_key: string;
+};
+
+// @public
+export const generateX25519KeyPair: () => {
     public_key: string;
     private_key: string;
 };
