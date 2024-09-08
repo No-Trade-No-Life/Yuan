@@ -28,6 +28,7 @@ declare module '../services' {
  * Setup HandShake service
  * @param terminal - terminal
  * @param private_key - ED25519 private key (base58)
+ * @returns map of X25519 public key to shared key
  * @public
  */
 export const setupHandShakeService = (terminal: Terminal, private_key: string) => {
@@ -63,6 +64,7 @@ export const setupHandShakeService = (terminal: Terminal, private_key: string) =
       };
     },
   );
+  return mapX25519PublicKeyToSharedKey;
 };
 
 /**

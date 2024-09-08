@@ -145,7 +145,7 @@ export const removeDataRecords: (terminal: Terminal, req: IRemoveDataRecordsRequ
 export const requestSharedKey: (terminal: Terminal, ed25519_public_key: string) => Promise<string>;
 
 // @public
-export const setupHandShakeService: (terminal: Terminal, private_key: string) => void;
+export const setupHandShakeService: (terminal: Terminal, private_key: string) => Map<string, string>;
 
 // @public
 export const submitOrder: (terminal: Terminal, order: IOrder) => AsyncIterable<IResponse<void> & IResponse<unknown>>;
