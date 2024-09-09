@@ -62,6 +62,7 @@ defer(() =>
           };
         });
       },
+      (a, b) => JSON.stringify(a) === JSON.stringify(b),
     ),
     tap(({ externalTerminal, services }) => {
       console.info(formatTime(Date.now()), `SetupServices: ${externalTerminal.host_url}`);

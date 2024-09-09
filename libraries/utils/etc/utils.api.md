@@ -48,7 +48,10 @@ export const generateX25519KeyPair: () => {
 };
 
 // @public
-export const listWatch: <T, K>(hashKey: (item: T) => string, consumer: (item: T) => Observable<K>) => OperatorFunction<T[], K>;
+export const listWatch: <T, K>(keyFunc: (item: T) => string, consumer: (item: T) => Observable<K>, comparator?: (a: T, b: T) => boolean) => OperatorFunction<T[], K>;
+
+// @public
+export const listWatchEvent: <T>(keyFunc?: (item: T) => string, comparator?: (a: T, b: T) => boolean) => OperatorFunction<T[], [old: T | undefined, new: T | undefined][]>;
 
 // @public
 export type NativeSubject<T> = AsyncIterable<T> & AsyncIterator<T, void, T>;

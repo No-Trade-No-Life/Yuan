@@ -4,10 +4,14 @@ import {
   SchedulerLike,
   Subject,
   Subscription,
+  concat,
   distinctUntilChanged,
   filter,
   interval,
+  map,
   mergeMap,
+  of,
+  pairwise,
   pipe,
   tap,
 } from 'rxjs';
@@ -148,21 +152,65 @@ export const rateLimitMap =
  * consumer will be cancelled when the item is removed.
  *
  * @public
- * @param hashKey - hash key function to group items
+ * @param keyFunc - hash key function to group items
  * @param consumer - consumer function to process each item
+ * @param comparator - comparator function to compare items, return true if they are the same
  * @returns
  */
 export const listWatch = <T, K>(
-  hashKey: (item: T) => string,
+  keyFunc: (item: T) => string,
   consumer: (item: T) => Observable<K>,
+  comparator: (a: T, b: T) => boolean = () => true,
 ): OperatorFunction<T[], K> =>
   pipe(
-    batchGroupBy(hashKey),
+    batchGroupBy(keyFunc),
     mergeMap((group) =>
       group.pipe(
         // Take first but not complete until group complete
-        distinctUntilChanged(() => true),
+        distinctUntilChanged(comparator),
         switchMapWithComplete(consumer),
       ),
     ),
   );
+
+/**
+ * list and watch a source of items, and apply consumer to each newly added item,
+ * the consumer should return an observable that completes when the item is fully processed,
+ *
+ * consumer will be cancelled when the item is removed.
+ *
+ * @public
+ * @param keyFunc - hash key function to group items
+ * @param comparator - comparator function to compare items, return true if they are the same
+ * @returns
+ */
+export const listWatchEvent =
+  <T>(
+    keyFunc: (item: T) => string = (v) => `${v}`,
+    comparator: (a: T, b: T) => boolean = (a, b) => a === b,
+  ): OperatorFunction<T[], [old: T | undefined, new: T | undefined][]> =>
+  (source$) =>
+    concat(of([]), source$).pipe(
+      //
+      map((v) => new Map(v.map((v) => [keyFunc(v), v] as [string, T]))),
+      pairwise(),
+      map(([oldMap, newMap]) => {
+        const events: [old: T | undefined, new: T | undefined][] = [];
+        for (const [key, item] of oldMap) {
+          const newItem = newMap.get(key);
+          if (newItem !== undefined) {
+            if (!comparator(item, newItem)) {
+              events.push([item, newItem]);
+            }
+          } else {
+            events.push([item, undefined]);
+          }
+        }
+        for (const [key, item] of newMap) {
+          if (!oldMap.has(key)) {
+            events.push([undefined, item]);
+          }
+        }
+        return events;
+      }),
+    );
