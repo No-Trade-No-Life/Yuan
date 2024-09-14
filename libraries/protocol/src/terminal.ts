@@ -223,9 +223,6 @@ export class Terminal {
     );
   }
 
-  /**
-   * 假设有两个 Terminal A 和 B
-   */
   private async _setupWebRTCTunnel() {
     console.info(formatTime(Date.now()), 'Terminal', 'WebRTC', 'Setup');
 
