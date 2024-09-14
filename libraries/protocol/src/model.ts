@@ -77,6 +77,11 @@ export interface ITerminalInfo {
   channelIdSchemas?: JSONSchema7[];
 
   /**
+   * A flag to indicate whether the terminal enables WebRTC messaging tunnel
+   */
+  enable_WebRTC?: boolean;
+
+  /**
    * Status text
    * 状态文字
    *
