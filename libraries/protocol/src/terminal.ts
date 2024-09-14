@@ -343,7 +343,7 @@ export class Terminal {
           });
         }
         if (data.channel_id) {
-          TerminalReceiveMassageTotal.inc({
+          TerminalReceiveChannelMassageTotal.inc({
             target_terminal_id: msg.target_terminal_id,
             source_terminal_id: msg.source_terminal_id,
             tunnel: 'WebRTC',
@@ -436,7 +436,6 @@ export class Terminal {
                     }
 
                     const subs: Subscription[] = [];
-                    // timer(Math.random() * 500).subscribe(() => {
                     const peerInfo = this._mapTerminalIdToPeer[target_terminal_id];
                     if (peerInfo !== undefined) {
                       console.info(
@@ -465,14 +464,6 @@ export class Terminal {
                       initiator: true,
                       channelName: `${this.terminal_id}/${target_terminal_id}`,
                     });
-                    // timer(500).subscribe({
-                    //   complete: () => {
-                    //     if (!peer.connected) {
-                    //       peer.destroy();
-                    //       this._mapTerminalIdToPeer[target_terminal_id] = undefined;
-                    //     }
-                    //   },
-                    // });
                     this._mapTerminalIdToPeer[target_terminal_id] = {
                       session_id,
                       peer,
@@ -515,7 +506,7 @@ export class Terminal {
                         });
                       }
                       if (data.channel_id) {
-                        TerminalReceiveMassageTotal.inc({
+                        TerminalReceiveChannelMassageTotal.inc({
                           target_terminal_id: target_terminal_id,
                           source_terminal_id: this.terminal_id,
                           tunnel: 'WebRTC',
@@ -562,7 +553,6 @@ export class Terminal {
                       this._mapTerminalIdToPeer[target_terminal_id] = undefined;
                       observer.complete();
                     });
-                    // });
                     return () => {
                       for (const sub of subs) {
                         sub.unsubscribe();
