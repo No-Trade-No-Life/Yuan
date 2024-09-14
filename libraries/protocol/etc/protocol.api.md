@@ -64,6 +64,7 @@ export interface IService {
 export interface ITerminalInfo {
     channelIdSchemas?: JSONSchema7[];
     created_at?: number;
+    enable_WebRTC?: boolean;
     name?: string;
     serviceInfo?: Record<string, {
         method: string;
