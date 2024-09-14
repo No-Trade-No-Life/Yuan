@@ -32,6 +32,10 @@ const AccountSummaryCard = React.memo((props: { account_id: string }) => {
             key: '实际杠杆',
             value: actual_leverage + 'x',
           },
+          {
+            key: '可用保证金',
+            value: accountInfo.money.free,
+          },
         ]}
       ></Descriptions>
     </Card>
