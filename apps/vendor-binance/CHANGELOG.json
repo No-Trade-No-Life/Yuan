@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-binance",
   "entries": [
     {
+      "version": "0.3.17",
+      "tag": "@yuants/vendor-binance_v0.3.17",
+      "date": "Sun, 15 Sep 2024 14:00:45 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.23.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.16",
       "tag": "@yuants/vendor-binance_v0.3.16",
       "date": "Sun, 15 Sep 2024 05:36:59 GMT",
