@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Mon, 09 Sep 2024 14:05:59 GMT and should not be manually modified.
+This log was last generated on Sun, 15 Sep 2024 05:36:59 GMT and should not be manually modified.
+
+## 0.23.0
+Sun, 15 Sep 2024 05:36:59 GMT
+
+### Minor changes
+
+- experimental webrtc support
 
 ## 0.22.1
 Mon, 09 Sep 2024 14:05:59 GMT
