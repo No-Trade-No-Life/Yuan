@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "fix(WebRTC): catch error in case peer destoryed",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
