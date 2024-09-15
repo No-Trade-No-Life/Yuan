@@ -214,7 +214,15 @@ export class Terminal {
         }
         if (peerInfo && peerInfo.peer.connected) {
           console.info(formatTime(Date.now()), 'Terminal', 'WebRTC', 'sent', JSON.stringify(msg));
-          setTimeout(() => peerInfo.peer.send(JSON.stringify(msg)));
+          setTimeout(() => {
+            try {
+              peerInfo.peer.send(JSON.stringify(msg));
+            } catch (err) {
+              console.error(formatTime(Date.now()), 'Terminal', 'WebRTC', 'send', 'error', err);
+              // fall back to WS
+              this._conn.output$.next(msg);
+            }
+          });
           return;
         }
 
