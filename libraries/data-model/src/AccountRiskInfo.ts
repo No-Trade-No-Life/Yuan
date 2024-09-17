@@ -159,6 +159,9 @@ addDataRecordSchema('account_risk_info', {
     active_supply_leverage: {
       type: 'number',
     },
+    minimum_free: {
+      type: 'number',
+    },
     disabled: {
       type: 'boolean',
     },
