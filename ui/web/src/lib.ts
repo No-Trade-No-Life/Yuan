@@ -3,7 +3,7 @@ import * as IconParksIcons from '@icon-park/react';
 import * as dataModel from '@yuants/data-model';
 import * as protocol from '@yuants/protocol';
 import * as yuantsUtils from '@yuants/utils';
-import * as echartsForReact from 'echarts-for-react';
+import echartsForReact from 'echarts-for-react';
 import * as observableHooks from 'observable-hooks';
 import React from 'react';
 import * as rxjs from 'rxjs';
