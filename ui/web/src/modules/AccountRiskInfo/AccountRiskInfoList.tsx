@@ -52,6 +52,9 @@ function defineColumns() {
       columnHelper.accessor('origin.active_supply_leverage', {
         header: () => '主动供给杠杆阈值',
       }),
+      columnHelper.accessor('origin.minimum_free', {
+        header: () => '最低可用保证金',
+      }),
       columnHelper.accessor('origin.disabled', {
         header: () => '启用',
         cell: (ctx) => <Switch checked={!ctx.getValue()} />,

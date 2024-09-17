@@ -87,6 +87,19 @@ interface IAccountRiskInfo {
    * if undefined, passive demand leverage is disabled
    */
   passive_demand_leverage?: number;
+
+  /**
+   * Minimum free money threshold
+   *
+   * if free margin is less than this value, the account will be actively transferred from the supply-side accounts
+   *
+   * and both the passive_supply and active_supply will deduce this value
+   *
+   * useful for preventing the account from being no free money to open a new position or transfer-out
+   *
+   * if undefined, minimum free is disabled
+   */
+  minimum_free?: number;
   /**
    * whether this info is disabled
    */
