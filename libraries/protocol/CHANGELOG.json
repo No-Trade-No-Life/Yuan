@@ -2,6 +2,23 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.23.3",
+      "tag": "@yuants/protocol_v0.23.3",
+      "date": "Tue, 17 Sep 2024 20:07:02 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "WebRTC chunk"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.23.2",
       "tag": "@yuants/protocol_v0.23.2",
       "date": "Tue, 17 Sep 2024 14:54:15 GMT",
