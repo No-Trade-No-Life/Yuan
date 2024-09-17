@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-model",
+      "comment": "fix schema of account_info_risk",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/data-model"
+}
