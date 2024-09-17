@@ -24,12 +24,15 @@ import {
   first,
   firstValueFrom,
   from,
+  fromEvent,
   groupBy,
   interval,
   map,
   mergeAll,
   mergeMap,
+  mergeWith,
   of,
+  partition,
   repeat,
   retry,
   share,
@@ -213,10 +216,39 @@ export class Terminal {
           });
         }
         if (peerInfo && peerInfo.peer.connected) {
-          console.info(formatTime(Date.now()), 'Terminal', 'WebRTC', 'sent', JSON.stringify(msg));
+          const stringified = JSON.stringify(msg);
+          console.info(formatTime(Date.now()), 'Terminal', 'WebRTC', 'sent', stringified.length);
           setTimeout(() => {
             try {
-              peerInfo.peer.send(JSON.stringify(msg));
+              const trace_id = UUID();
+              const chunkSize = 1024 * 200;
+              if (stringified.length > chunkSize) {
+                for (let i = 0; i < stringified.length; i += chunkSize) {
+                  peerInfo.peer.send(
+                    JSON.stringify({
+                      trace_id,
+                      method: `WebRTC/Chunk`,
+                      source_terminal_id: msg.source_terminal_id,
+                      target_terminal_id: msg.target_terminal_id,
+                      frame: {
+                        seq: i / chunkSize,
+                        body: stringified.slice(i, i + chunkSize),
+                      },
+                    }),
+                  );
+                }
+                peerInfo.peer.send(
+                  JSON.stringify({
+                    trace_id,
+                    method: `WebRTC/Chunk`,
+                    source_terminal_id: msg.source_terminal_id,
+                    target_terminal_id: msg.target_terminal_id,
+                    res: { code: 200, message: 'OK' },
+                  }),
+                );
+              } else {
+                peerInfo.peer.send(stringified);
+              }
             } catch (err) {
               console.error(formatTime(Date.now()), 'Terminal', 'WebRTC', 'send', 'error', err);
               // fall back to WS
@@ -239,6 +271,7 @@ export class Terminal {
     onDestroy: () => void;
   }) {
     const { session_id, direction, remote_terminal_id, onSignal, onDestroy } = config;
+    const subs: Subscription[] = [];
     const peer = getSimplePeerInstance({
       initiator: direction === 'Active',
       channelName:
@@ -262,38 +295,89 @@ export class Terminal {
         remote_terminal_id,
         data,
       );
-      onSignal(data);
+      try {
+        onSignal(data);
+      } catch (err) {
+        console.error(formatTime(Date.now()), 'Error', err);
+        this._mapTerminalIdToPeer[remote_terminal_id] = undefined;
+        for (const sub of subs) {
+          sub.unsubscribe();
+        }
+        onDestroy();
+      }
     });
 
-    peer.on('data', (data) => {
-      console.info(
-        formatTime(Date.now()),
-        'Terminal',
-        'WebRTC',
-        direction,
-        'data',
-        session_id,
-        remote_terminal_id,
-        data.toString(),
-      );
-      if (data.method) {
-        TerminalReceiveMassageTotal.inc({
-          target_terminal_id: this.terminal_id,
-          source_terminal_id: remote_terminal_id,
-          tunnel: 'WebRTC',
-          method: data.method,
-        });
-      }
-      if (data.channel_id) {
-        TerminalReceiveChannelMassageTotal.inc({
-          target_terminal_id: this.terminal_id,
-          source_terminal_id: remote_terminal_id,
-          tunnel: 'WebRTC',
-          channel_id: data.channel_id,
-        });
-      }
-      this._input$.next(JSON.parse(data.toString()));
-    });
+    const data$ = fromEvent(peer, 'data').pipe(
+      //
+      tap((data: any) => {
+        console.info(
+          formatTime(Date.now()),
+          'Terminal',
+          'WebRTC',
+          direction,
+          'data',
+          session_id,
+          remote_terminal_id,
+          data.length,
+        );
+      }),
+      map((v: any) => JSON.parse(v.toString())),
+      share(),
+    );
+
+    const [chunkData$, completeData$] = partition(data$, (v: any) => v.method === 'WebRTC/Chunk');
+
+    const resembledData$ = chunkData$.pipe(
+      //
+      groupBy((v) => v.trace_id),
+      mergeMap((group) =>
+        group.pipe(
+          //
+          takeWhile((data) => data.res === undefined),
+          map((v) => v.frame),
+          toArray(),
+          map((v) =>
+            v
+              .sort((a, b) => a.seq - b.seq)
+              .map((x) => x.body)
+              .join(''),
+          ),
+          map((v) => JSON.parse(v)),
+          timeout({ each: 15_000, meta: `WebRTC/Chunk Timeout: trace_id=${group.key}` }),
+          catchError((err) => {
+            console.error('Error', err);
+            return EMPTY;
+          }),
+        ),
+      ),
+    );
+
+    subs.push(
+      completeData$
+        .pipe(
+          //
+          mergeWith(resembledData$),
+          tap((data) => {
+            if (data.method) {
+              TerminalReceiveMassageTotal.inc({
+                target_terminal_id: this.terminal_id,
+                source_terminal_id: remote_terminal_id,
+                tunnel: 'WebRTC',
+                method: data.method,
+              });
+            }
+            if (data.channel_id) {
+              TerminalReceiveChannelMassageTotal.inc({
+                target_terminal_id: this.terminal_id,
+                source_terminal_id: remote_terminal_id,
+                tunnel: 'WebRTC',
+                channel_id: data.channel_id,
+              });
+            }
+          }),
+        )
+        .subscribe((msg) => this._input$.next(msg)),
+    );
 
     peer.on('connect', () => {
       console.info(
@@ -318,6 +402,9 @@ export class Terminal {
         remote_terminal_id,
       );
       this._mapTerminalIdToPeer[remote_terminal_id] = undefined;
+      for (const sub of subs) {
+        sub.unsubscribe();
+      }
       onDestroy();
     });
 
@@ -333,6 +420,9 @@ export class Terminal {
         err,
       );
       this._mapTerminalIdToPeer[remote_terminal_id] = undefined;
+      for (const sub of subs) {
+        sub.unsubscribe();
+      }
       onDestroy();
     });
 
