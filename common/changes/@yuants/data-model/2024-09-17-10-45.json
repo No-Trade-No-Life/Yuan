@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-model",
+      "comment": "minimum free for account_risk_info",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-model"
+}

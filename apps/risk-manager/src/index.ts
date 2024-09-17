@@ -79,7 +79,13 @@ function mapRiskInfoToState$(riskInfo: IDataRecordTypes['account_risk_info']) {
           riskInfo.active_supply_threshold ? riskInfo.active_supply_threshold : Infinity,
           riskInfo.active_supply_leverage ? state.valuation / riskInfo.active_supply_leverage : Infinity,
         );
-        const value = Math.max(Math.min(state.equity - resolved_threshold, state.free), 0);
+        const value = Math.max(
+          Math.min(
+            state.equity - resolved_threshold,
+            state.free - (riskInfo.minimum_free !== undefined ? riskInfo.minimum_free : 0),
+          ),
+          0,
+        );
         state.active_supply = value;
         MetricActiveSupply.set(value, {
           account_id: riskInfo.account_id,
@@ -95,7 +101,13 @@ function mapRiskInfoToState$(riskInfo: IDataRecordTypes['account_risk_info']) {
             ? state.valuation / riskInfo.passive_supply_leverage
             : Infinity,
         );
-        const value = Math.max(Math.min(state.equity - resolved_threshold, state.free), 0);
+        const value = Math.max(
+          Math.min(
+            state.equity - resolved_threshold,
+            state.free - (riskInfo.minimum_free !== undefined ? riskInfo.minimum_free : 0),
+          ),
+          0,
+        );
         state.passive_supply = value;
         MetricPassiveSupply.set(value, {
           account_id: riskInfo.account_id,
@@ -111,8 +123,13 @@ function mapRiskInfoToState$(riskInfo: IDataRecordTypes['account_risk_info']) {
           riskInfo.active_demand_leverage !== undefined
             ? state.valuation / riskInfo.active_demand_leverage
             : -Infinity,
+          // candidate for minimum free
+          riskInfo.minimum_free !== undefined
+            ? state.equity + Math.max(0, riskInfo.minimum_free - state.free)
+            : -Infinity,
         );
         const value = Math.max(resolved_threshold - state.equity, 0);
+
         state.active_demand = value;
         MetricActiveDemand.set(value, {
           account_id: riskInfo.account_id,
