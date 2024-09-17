@@ -1,6 +1,17 @@
 # Change Log - @yuants/data-model
 
-This log was last generated on Sun, 21 Jul 2024 07:51:05 GMT and should not be manually modified.
+This log was last generated on Tue, 17 Sep 2024 14:54:15 GMT and should not be manually modified.
+
+## 0.15.0
+Tue, 17 Sep 2024 14:54:15 GMT
+
+### Minor changes
+
+- minimum free for account_risk_info
+
+### Patches
+
+- fix schema of account_info_risk
 
 ## 0.14.0
 Sun, 21 Jul 2024 07:51:05 GMT

@@ -2,6 +2,28 @@
   "name": "@yuants/data-model",
   "entries": [
     {
+      "version": "0.15.0",
+      "tag": "@yuants/data-model_v0.15.0",
+      "date": "Tue, 17 Sep 2024 14:54:15 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "minimum free for account_risk_info"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "fix schema of account_info_risk"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.14.0",
       "tag": "@yuants/data-model_v0.14.0",
       "date": "Sun, 21 Jul 2024 07:51:05 GMT",
