@@ -27,24 +27,13 @@ import {
   tap,
   toArray,
 } from 'rxjs';
+import { generateCandidateTransfer } from './utils/generateCandidateTransfer';
+import { resolveRiskState } from './utils/resolveRiskState';
 
 const terminal = new Terminal(process.env.HOST_URL!, {
   terminal_id: process.env.TERMINAL_ID || 'RiskManager',
   name: 'Risk Manager',
 });
-
-interface IRiskState {
-  currency: string;
-  group_id: string;
-  account_id: string;
-  equity: number;
-  free: number;
-  valuation: number;
-  active_supply: number;
-  active_demand: number;
-  passive_supply: number;
-  passive_demand: number;
-}
 
 const MetricActiveDemand = PromRegistry.create('gauge', 'risk_manager_active_demand');
 const MetricPassiveDemand = PromRegistry.create('gauge', 'risk_manager_passive_demand');
@@ -52,110 +41,35 @@ const MetricActiveSupply = PromRegistry.create('gauge', 'risk_manager_active_sup
 const MetricPassiveSupply = PromRegistry.create('gauge', 'risk_manager_passive_supply');
 
 function mapRiskInfoToState$(riskInfo: IDataRecordTypes['account_risk_info']) {
+  const labels = {
+    account_id: riskInfo.account_id,
+    group_id: riskInfo.group_id,
+    currency: riskInfo.currency,
+  };
   return defer(() => useAccountInfo(terminal, riskInfo.account_id)).pipe(
     //
-    map((accountInfo) => {
-      const state: IRiskState = {
-        account_id: riskInfo.account_id,
-        currency: riskInfo.currency,
-        group_id: riskInfo.group_id,
-        equity: NaN,
-        free: NaN,
-        valuation: NaN,
-        active_demand: NaN,
-        passive_demand: NaN,
-        passive_supply: NaN,
-        active_supply: NaN,
-      };
-      const currencyItem = accountInfo.currencies.find((x) => x.currency === riskInfo.currency);
-      state.equity = currencyItem?.equity ?? 0;
-      state.free = currencyItem?.free ?? 0;
-      // TODO: add filter currency for positions
-      state.valuation = accountInfo.positions.reduce((acc, x) => acc + x.valuation, 0);
-
-      // Calculate Active Supply
-      if (riskInfo.active_supply_threshold !== undefined || riskInfo.active_supply_leverage !== undefined) {
-        const resolved_threshold = Math.min(
-          riskInfo.active_supply_threshold ? riskInfo.active_supply_threshold : Infinity,
-          riskInfo.active_supply_leverage ? state.valuation / riskInfo.active_supply_leverage : Infinity,
-        );
-        const value = Math.max(
-          Math.min(
-            state.equity - resolved_threshold,
-            state.free - (riskInfo.minimum_free !== undefined ? riskInfo.minimum_free : 0),
-          ),
-          0,
-        );
-        state.active_supply = value;
-        MetricActiveSupply.set(value, {
-          account_id: riskInfo.account_id,
-          group_id: riskInfo.group_id,
-          currency: riskInfo.currency,
-        });
+    map((x) => resolveRiskState(riskInfo, x)),
+    tap((state) => {
+      if (!Number.isNaN(state.active_supply)) {
+        MetricActiveSupply.set(state.active_supply, labels);
+      } else {
+        MetricActiveSupply.reset(labels);
       }
-      // Calculate Passive Supply
-      if (riskInfo.passive_supply_threshold !== undefined || riskInfo.passive_supply_leverage !== undefined) {
-        const resolved_threshold = Math.min(
-          riskInfo.passive_supply_threshold !== undefined ? riskInfo.passive_supply_threshold : Infinity,
-          riskInfo.passive_supply_leverage !== undefined
-            ? state.valuation / riskInfo.passive_supply_leverage
-            : Infinity,
-        );
-        const value = Math.max(
-          Math.min(
-            state.equity - resolved_threshold,
-            state.free - (riskInfo.minimum_free !== undefined ? riskInfo.minimum_free : 0),
-          ),
-          0,
-        );
-        state.passive_supply = value;
-        MetricPassiveSupply.set(value, {
-          account_id: riskInfo.account_id,
-          group_id: riskInfo.group_id,
-          currency: riskInfo.currency,
-        });
+      if (!Number.isNaN(state.passive_supply)) {
+        MetricPassiveSupply.set(state.passive_supply, labels);
+      } else {
+        MetricPassiveSupply.reset(labels);
       }
-
-      // Calculate Active Demand
-      if (riskInfo.active_demand_threshold !== undefined || riskInfo.active_demand_leverage !== undefined) {
-        const resolved_threshold = Math.max(
-          riskInfo.active_demand_threshold !== undefined ? riskInfo.active_demand_threshold : -Infinity,
-          riskInfo.active_demand_leverage !== undefined
-            ? state.valuation / riskInfo.active_demand_leverage
-            : -Infinity,
-          // candidate for minimum free
-          riskInfo.minimum_free !== undefined
-            ? state.equity + Math.max(0, riskInfo.minimum_free - state.free)
-            : -Infinity,
-        );
-        const value = Math.max(resolved_threshold - state.equity, 0);
-
-        state.active_demand = value;
-        MetricActiveDemand.set(value, {
-          account_id: riskInfo.account_id,
-          group_id: riskInfo.group_id,
-          currency: riskInfo.currency,
-        });
+      if (!Number.isNaN(state.active_demand)) {
+        MetricActiveDemand.set(state.active_demand, labels);
+      } else {
+        MetricActiveDemand.reset(labels);
       }
-
-      // Calculate Passive Demand
-      if (riskInfo.passive_demand_threshold !== undefined || riskInfo.passive_demand_leverage !== undefined) {
-        const resolved_threshold = Math.max(
-          riskInfo.passive_demand_threshold !== undefined ? riskInfo.passive_demand_threshold : -Infinity,
-          riskInfo.passive_demand_leverage !== undefined
-            ? state.valuation / riskInfo.passive_demand_leverage
-            : -Infinity,
-        );
-        const value = Math.max(resolved_threshold - state.equity, 0);
-        state.passive_demand = value;
-        MetricPassiveDemand.set(value, {
-          account_id: riskInfo.account_id,
-          group_id: riskInfo.group_id,
-          currency: riskInfo.currency,
-        });
+      if (!Number.isNaN(state.passive_demand)) {
+        MetricPassiveDemand.set(state.passive_demand, labels);
+      } else {
+        MetricPassiveDemand.reset(labels);
       }
-
-      return state;
     }),
   );
 }
@@ -200,81 +114,7 @@ defer(() => configs$)
                   );
                   console.table(list);
                 }),
-                mergeMap(function* (
-                  list,
-                ): Generator<
-                  { credit: string; debit: string; amount: number; currency: string } | undefined,
-                  void,
-                  void
-                > {
-                  const demandList = [...list].sort((a, b) => b.passive_demand - a.passive_demand);
-                  const supplyList = [...list].sort((a, b) => b.passive_supply - a.passive_supply);
-                  // Active Demand
-                  for (const demandSide of list) {
-                    if (demandSide.active_demand > 0) {
-                      for (const supplySide of supplyList) {
-                        if (demandSide.account_id === supplySide.account_id) continue;
-                        // Active Demand match Active Supply
-                        if (supplySide.active_supply > 0) {
-                          // Assert that passive_supply > active_supply
-                          yield {
-                            credit: supplySide.account_id,
-                            debit: demandSide.account_id,
-                            currency: supplySide.currency,
-                            amount: Math.floor(
-                              Math.min(demandSide.passive_demand, supplySide.passive_supply),
-                            ),
-                          };
-                        }
-                      }
-                      for (const supplySide of supplyList) {
-                        if (demandSide.account_id === supplySide.account_id) continue;
-                        if (supplySide.passive_supply > 0) {
-                          yield {
-                            credit: supplySide.account_id,
-                            debit: demandSide.account_id,
-                            currency: supplySide.currency,
-                            amount: Math.floor(
-                              Math.min(demandSide.passive_demand, supplySide.passive_supply),
-                            ),
-                          };
-                        }
-                      }
-                    }
-                  }
-
-                  // Active Supply
-                  for (const supplySide of list) {
-                    if (supplySide.active_supply > 0) {
-                      for (const demandSide of demandList) {
-                        if (demandSide.account_id === supplySide.account_id) continue;
-                        if (supplySide.active_demand > 0) {
-                          yield {
-                            credit: supplySide.account_id,
-                            debit: demandSide.account_id,
-                            currency: supplySide.currency,
-                            amount: Math.floor(
-                              Math.min(demandSide.passive_demand, supplySide.passive_supply),
-                            ),
-                          };
-                        }
-                      }
-                      for (const demandSide of demandList) {
-                        if (demandSide.account_id === supplySide.account_id) continue;
-                        if (demandSide.passive_demand > 0) {
-                          yield {
-                            credit: supplySide.account_id,
-                            debit: demandSide.account_id,
-                            currency: supplySide.currency,
-                            amount: Math.floor(
-                              Math.min(demandSide.passive_demand, supplySide.passive_supply),
-                            ),
-                          };
-                        }
-                      }
-                    }
-                  }
-                }),
+                mergeMap(generateCandidateTransfer),
                 filter((x): x is Exclude<typeof x, undefined> => !!x),
                 first((x) => x.amount > 0),
                 tap((x) =>
