@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-shared-host",
-  "version": "0.3.6",
+  "version": "0.3.7",
   "description": "Host",
   "files": [
     "dist/extension.bundle.js"
