@@ -158,7 +158,7 @@ export class Terminal {
 
   private _mapTerminalIdToPeer: Record<
     string,
-    { session_id: string; peer: SimplePeer.Instance } | undefined
+    { session_id: string; maxMessageSize: number; peer: SimplePeer.Instance } | undefined
   > = {};
 
   private _setupTunnel() {
@@ -215,15 +215,25 @@ export class Terminal {
             channel_id: msg.channel_id,
           });
         }
-        if (peerInfo && peerInfo.peer.connected) {
+        // NOTE: reserve 32KB for other purpose
+        const reservedSize = 32 * 1024;
+        if (peerInfo && peerInfo.peer.connected && (peerInfo.maxMessageSize ?? 0) > reservedSize) {
           const stringified = JSON.stringify(msg);
-          console.info(formatTime(Date.now()), 'Terminal', 'WebRTC', 'sent', stringified.length);
           setTimeout(() => {
             try {
               const trace_id = UUID();
-              const chunkSize = 1024 * 200;
+              const chunkSize = peerInfo.maxMessageSize - reservedSize;
               if (stringified.length > chunkSize) {
                 for (let i = 0; i < stringified.length; i += chunkSize) {
+                  const body = stringified.slice(i, i + chunkSize);
+                  console.info(
+                    formatTime(Date.now()),
+                    'Terminal',
+                    'WebRTC',
+                    'sent',
+                    `chunkSize: ${chunkSize}`,
+                    body.length,
+                  );
                   peerInfo.peer.send(
                     JSON.stringify({
                       trace_id,
@@ -232,7 +242,7 @@ export class Terminal {
                       target_terminal_id: msg.target_terminal_id,
                       frame: {
                         seq: i / chunkSize,
-                        body: stringified.slice(i, i + chunkSize),
+                        body,
                       },
                     }),
                   );
@@ -281,6 +291,7 @@ export class Terminal {
     });
     this._mapTerminalIdToPeer[remote_terminal_id] = {
       session_id,
+      maxMessageSize: 65536,
       peer,
     };
 
@@ -389,6 +400,10 @@ export class Terminal {
         session_id,
         remote_terminal_id,
       );
+      // @ts-ignore
+      const maxMessageSize = peer._pc.sctp?.maxMessageSize ?? 65536;
+      this._mapTerminalIdToPeer[remote_terminal_id] = { session_id, maxMessageSize, peer };
+      console.info(formatTime(Date.now()), 'Terminal', 'WebRTC', direction, 'maxMessageSize', maxMessageSize);
     });
 
     peer.on('close', () => {
