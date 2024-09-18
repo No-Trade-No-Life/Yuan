@@ -28,6 +28,7 @@ import { fullLog$, log } from './log';
 defer(async () => {
   fullLog$.next('');
   log('BIOS START');
+  log('USER-AGENT', navigator.userAgent);
   return Date.now();
 })
   .pipe(
