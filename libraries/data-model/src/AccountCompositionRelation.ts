@@ -18,6 +18,7 @@ interface IAccountCompositionRelation {
   source_account_id: string;
   target_account_id: string;
   multiple: number;
+  hide_positions?: boolean;
 }
 
 addDataRecordWrapper('account_composition_relation', (x) => {
@@ -47,6 +48,9 @@ addDataRecordSchema('account_composition_relation', {
     },
     multiple: {
       type: 'number',
+    },
+    hide_positions: {
+      type: 'boolean',
     },
   },
 });

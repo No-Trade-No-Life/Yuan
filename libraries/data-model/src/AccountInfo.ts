@@ -102,6 +102,15 @@ export interface IPosition {
    */
   product_id: string;
   /**
+   * Account ID.
+   *
+   * Suitable for multi-account composition scenarios.
+   *
+   * - if undefined, it means the position is belong to the account of the account_info.
+   * - if defined, it means the position is belong to the account of the account_id.
+   */
+  account_id?: string;
+  /**
    * Position direction (LONG | SHORT)
    *
    * - `"LONG"`: Long position

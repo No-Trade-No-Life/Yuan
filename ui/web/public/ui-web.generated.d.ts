@@ -439,8 +439,6 @@ declare module '@yuants/ui-web' {
 
   function ListView<T>(props: { table: Table<T> }): react_jsx_runtime.JSX.Element;
 
-  function TableView<T>(props: { table: Table<T> }): react_jsx_runtime.JSX.Element;
-
   interface IPivotTableProps<T> {
     data: T[];
     columns: ColumnDef<T>[];
@@ -448,6 +446,8 @@ declare module '@yuants/ui-web' {
     initialExpanded?: ExpandedState;
   }
   function PivotTable<T>(props: IPivotTableProps<T>): react_jsx_runtime.JSX.Element;
+
+  function TableView<T>(props: { table: Table<T> }): react_jsx_runtime.JSX.Element;
 
   const index_d$d_Button: typeof Button;
   const index_d$d_DataView: typeof DataView;

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-model",
+      "comment": "add account_id to IPosition and add hide_positions for account_composition_releation",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-model"
+}
