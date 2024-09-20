@@ -40,6 +40,7 @@ import { registerPage, usePageParams } from '../Pages';
 import { InlineProductId } from '../Products/InlineProductId';
 import { terminal$, useTick } from '../Terminals';
 import { useAccountInfo } from './model';
+import { InlineAccountId } from './InlineAccountId';
 
 interface IPositionSummaryItem {
   product_id: string;
@@ -300,6 +301,10 @@ registerPage('AccountInfoPanel', () => {
           ) : (
             ctx.getValue()
           ),
+      }),
+      helper.accessor('account_id', {
+        header: () => '账户',
+        cell: (ctx) => <InlineAccountId account_id={ctx.getValue() || accountId} />,
       }),
       helper.accessor('direction', { header: () => '方向' }),
       helper.accessor('volume', { header: () => '持仓量' }),
