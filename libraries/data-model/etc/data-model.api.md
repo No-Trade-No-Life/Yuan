@@ -127,6 +127,7 @@ export interface IPeriod {
 
 // @public
 export interface IPosition {
+    account_id?: string;
     closable_price: number;
     comment?: string;
     datasource_id?: string;

@@ -68,12 +68,15 @@ defer(() => readDataRecords(terminal, { type: 'account_composition_relation' }))
                           used: c.used * y.multiple,
                           free: c.free * y.multiple,
                         })) ?? [],
-                      positions: x.positions.map((p) => ({
-                        ...p,
-                        volume: p.volume * y.multiple,
-                        free_volume: p.free_volume * y.multiple,
-                        floating_profit: p.floating_profit * y.multiple,
-                      })),
+                      positions: y.hide_positions
+                        ? []
+                        : x.positions.map((p) => ({
+                            ...p,
+                            account_id: p.account_id || x.account_id,
+                            volume: p.volume * y.multiple,
+                            free_volume: p.free_volume * y.multiple,
+                            floating_profit: p.floating_profit * y.multiple,
+                          })),
                     }),
                   ),
                   timeout(30_000),
