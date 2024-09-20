@@ -5,7 +5,7 @@ declare module '@yuants/ui-web' {
   import { BehaviorSubject, ReplaySubject, Subject, Observable } from 'rxjs';
   import * as _yuants_data_model from '@yuants/data-model';
   import { IDataRecord, IProduct } from '@yuants/data-model';
-  import { ColumnDef, Table } from '@tanstack/react-table';
+  import { ColumnDef, Table, GroupingState, ExpandedState } from '@tanstack/react-table';
   import { JSONSchema7 } from 'json-schema';
   import { ThemeProps, FormProps } from '@rjsf/core';
   import {
@@ -441,15 +441,27 @@ declare module '@yuants/ui-web' {
 
   function TableView<T>(props: { table: Table<T> }): react_jsx_runtime.JSX.Element;
 
+  interface IPivotTableProps<T> {
+    data: T[];
+    columns: ColumnDef<T>[];
+    initialGrouping?: GroupingState;
+    initialExpanded?: ExpandedState;
+  }
+  function PivotTable<T>(props: IPivotTableProps<T>): react_jsx_runtime.JSX.Element;
+
   const index_d$d_Button: typeof Button;
   const index_d$d_DataView: typeof DataView;
+  type index_d$d_IPivotTableProps<T> = IPivotTableProps<T>;
   const index_d$d_ListView: typeof ListView;
+  const index_d$d_PivotTable: typeof PivotTable;
   const index_d$d_TableView: typeof TableView;
   namespace index_d$d {
     export {
       index_d$d_Button as Button,
       index_d$d_DataView as DataView,
+      type index_d$d_IPivotTableProps as IPivotTableProps,
       index_d$d_ListView as ListView,
+      index_d$d_PivotTable as PivotTable,
       index_d$d_TableView as TableView,
     };
   }
