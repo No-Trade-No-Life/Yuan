@@ -133,7 +133,7 @@ registerPage('Explorer', () => {
         }}
         renderFullLabel={({ className, onExpand, onClick, data, expandStatus }) => {
           const { label, isLeaf } = data;
-          const context = { path: data.key, isFile: !!isLeaf };
+          const context = { path: data.key || '/', isFile: !!isLeaf };
           const filename = data.key;
 
           const matchedRules = rules
@@ -185,6 +185,7 @@ registerPage('Explorer', () => {
                         <Dropdown.Item
                           icon={<IconCopy />}
                           onClick={() => {
+                            if (!data.key) return;
                             copy(data.key);
                             Toast.success(t('common:copied'));
                           }}
@@ -220,6 +221,7 @@ registerPage('Explorer', () => {
                           type="danger"
                           icon={<IconDelete />}
                           onClick={async () => {
+                            if (!data.key) return;
                             if (
                               !(await showForm({
                                 type: 'boolean',
@@ -242,6 +244,7 @@ registerPage('Explorer', () => {
                           icon={<IconSend />}
                           disabled={!data.isLeaf || !terminal}
                           onClick={async () => {
+                            if (!data.key) return;
                             if (!terminal) return;
                             const terminalInfos = await firstValueFrom(from(terminal.terminalInfos$));
                             const candidates = terminalInfos.filter(

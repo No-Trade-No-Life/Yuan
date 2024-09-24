@@ -110,10 +110,10 @@ registerPage('Login', () => {
       <Form
         style={{ width: '100%' }}
         labelPosition="inset"
-        onSubmitFail={(e) => {
+        onSubmitFail={(e: any) => {
           Toast.error(`${t('login_failed')}: ${e.email}`);
         }}
-        onSubmit={async (v) => {
+        onSubmit={async (v: any) => {
           setLoading(true);
           try {
             const { error } = await supabase.auth.verifyOtp({

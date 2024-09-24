@@ -13,7 +13,7 @@
   },
   "dependencies": {
     "@douyinfe/semi-icons": "~2.16.0",
-    "@douyinfe/semi-ui": "~2.16.0",
+    "@douyinfe/semi-ui": "~2.66.1",
     "@icon-park/react": "~1.4.2",
     "@rjsf/core": "~5.1.0",
     "@rjsf/utils": "~5.1.0",
