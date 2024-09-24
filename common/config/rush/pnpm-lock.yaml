@@ -1520,7 +1520,7 @@ importers:
   ../../ui/web:
     specifiers:
       '@douyinfe/semi-icons': ~2.16.0
-      '@douyinfe/semi-ui': ~2.16.0
+      '@douyinfe/semi-ui': ~2.66.1
       '@icon-park/react': ~1.4.2
       '@originjs/vite-plugin-commonjs': ~1.0.3
       '@rjsf/core': ~5.1.0
@@ -1584,7 +1584,7 @@ importers:
       yaml: ~2.2.1
     dependencies:
       '@douyinfe/semi-icons': 2.16.1_react@18.2.0
-      '@douyinfe/semi-ui': 2.16.1_react-dom@18.2.0+react@18.2.0
+      '@douyinfe/semi-ui': 2.66.1_react-dom@18.2.0+react@18.2.0
       '@icon-park/react': 1.4.2_react-dom@18.2.0+react@18.2.0
       '@rjsf/core': 5.1.0_@rjsf+utils@5.1.0+react@18.2.0
       '@rjsf/utils': 5.1.0_react@18.2.0
@@ -4605,6 +4605,49 @@ packages:
     engines: {node: '>=10.0.0'}
     dev: false
 
+  /@dnd-kit/accessibility/3.1.0_react@18.2.0:
+    resolution: {integrity: sha512-ea7IkhKvlJUv9iSHJOnxinBcoOI3ppGnnL+VDJ75O45Nss6HtZd8IdN8touXPDtASfeI2T2LImb8VOZcL47wjQ==}
+    peerDependencies:
+      react: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
+      tslib: 2.6.2
+    dev: false
+
+  /@dnd-kit/core/6.1.0_react-dom@18.2.0+react@18.2.0:
+    resolution: {integrity: sha512-J3cQBClB4TVxwGo3KEjssGEXNJqGVWx17aRTZ1ob0FliR5IjYgTxl5YJbKTzA6IzrtelotH19v6y7uoIRUZPSg==}
+    peerDependencies:
+      react: '>=16.8.0'
+      react-dom: '>=16.8.0'
+    dependencies:
+      '@dnd-kit/accessibility': 3.1.0_react@18.2.0
+      '@dnd-kit/utilities': 3.2.2_react@18.2.0
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      tslib: 2.6.2
+    dev: false
+
+  /@dnd-kit/sortable/7.0.2_@dnd-kit+core@6.1.0+react@18.2.0:
+    resolution: {integrity: sha512-wDkBHHf9iCi1veM834Gbk1429bd4lHX4RpAwT0y2cHLf246GAvU2sVw/oxWNpPKQNQRQaeGXhAVgrOl1IT+iyA==}
+    peerDependencies:
+      '@dnd-kit/core': ^6.0.7
+      react: '>=16.8.0'
+    dependencies:
+      '@dnd-kit/core': 6.1.0_react-dom@18.2.0+react@18.2.0
+      '@dnd-kit/utilities': 3.2.2_react@18.2.0
+      react: 18.2.0
+      tslib: 2.6.2
+    dev: false
+
+  /@dnd-kit/utilities/3.2.2_react@18.2.0:
+    resolution: {integrity: sha512-+MKAJEOfaBe5SmV6t34p80MMKhjvUz0vRrvVJbPT0WElzaOJ/1xs+D+KDv+tD/NE5ujfrChEcshd4fLn0wpiqg==}
+    peerDependencies:
+      react: '>=16.8.0'
+    dependencies:
+      react: 18.2.0
+      tslib: 2.6.2
+    dev: false
+
   /@docsearch/css/3.5.2:
     resolution: {integrity: sha512-SPiDHaWKQZpwR2siD0KQUwlStvIAnEyK6tAE2h2Wuoq8ue9skzhlyVQ1ddzOxX6khULnAALDiR/isSF3bnuciA==}
     dev: false
@@ -6136,16 +6179,34 @@ packages:
       react-dom: 18.2.0_react@18.2.0
     dev: false
 
+  /@douyinfe/semi-animation-react/2.66.1:
+    resolution: {integrity: sha512-3QNVmOIzLGeQY0jlfrrrdQGmhMjUjF4yizufCpIKvNUzchfOOey62zioA39w16IjV7Mi2gxWr2/QCM+3ak/Orw==}
+    dependencies:
+      '@douyinfe/semi-animation': 2.66.1
+      '@douyinfe/semi-animation-styled': 2.66.1
+      classnames: 2.3.2
+    dev: false
+
   /@douyinfe/semi-animation-styled/2.16.1:
     resolution: {integrity: sha512-49Z3acgVoNofmY0Ze8TNS5JONEX7kSsUZR2vNrP8V2I9NHGpZpeR5FLpvVdJ6E7Y8DokKiUvgygsrpsJM3fdMA==}
     dependencies:
       '@babel/runtime-corejs3': 7.22.11
     dev: false
 
+  /@douyinfe/semi-animation-styled/2.66.1:
+    resolution: {integrity: sha512-HHtAd2bdx5myiz7jKChEjXlLoTT2+Sh0Xi9M7ZCRyzGtE/tZx77s9h5srHoxyx1bbFzAffHe0e387jcdQFpZXQ==}
+    dev: false
+
   /@douyinfe/semi-animation/2.12.0:
     resolution: {integrity: sha512-OAfL9Nk38ZPqfdKm9k4cvVXXzm16ALI4LxGNZ0qfe2RCLLnYGB/hNzTctoTDjYD35dFv0yroh3qsXtZuP2xNdg==}
     dependencies:
       '@babel/runtime-corejs3': 7.22.11
+      bezier-easing: 2.1.0
+    dev: false
+
+  /@douyinfe/semi-animation/2.66.1:
+    resolution: {integrity: sha512-lbl4rKb8aCvf/xL4mntBYEfd7eBTSXgqSKIQWbyFBvdRsb4NpMxue1HoQhyT5QiFWHgaMcI7OjbzlCOgfBAGKg==}
+    dependencies:
       bezier-easing: 2.1.0
     dev: false
 
@@ -6163,12 +6224,41 @@ packages:
       scroll-into-view-if-needed: 2.2.31
     dev: false
 
+  /@douyinfe/semi-foundation/2.66.1:
+    resolution: {integrity: sha512-1XmEFy6qCanJDuQIGFvfRMSs23RTUgQKNuGnZgjdMUg9i48e6CilBRyAJJ145h0hFUxFuUkA6znPjT+x4SHPuA==}
+    dependencies:
+      '@douyinfe/semi-animation': 2.66.1
+      '@mdx-js/mdx': 3.0.1
+      async-validator: 3.5.2
+      classnames: 2.3.2
+      date-fns: 2.30.0
+      date-fns-tz: 1.3.8_date-fns@2.30.0
+      fast-copy: 3.0.2
+      lodash: 4.17.21
+      lottie-web: 5.12.2
+      memoize-one: 5.2.1
+      prismjs: 1.29.0
+      remark-gfm: 4.0.0
+      scroll-into-view-if-needed: 2.2.31
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
   /@douyinfe/semi-icons/2.16.1_react@18.2.0:
     resolution: {integrity: sha512-ZUDfNEsXbKlKHZH7psSLYhO42UNbRwBneJyVW+ipCmIvKpQdK8JXOaMkswGCedWnpV5W/PLJA+q8i37cbg3uoA==}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
     dependencies:
       '@babel/runtime-corejs3': 7.22.11
+      classnames: 2.3.2
+      react: 18.2.0
+    dev: false
+
+  /@douyinfe/semi-icons/2.66.1_react@18.2.0:
+    resolution: {integrity: sha512-zQtBKg8hXA3f7Gp6UFWsudFjpdCYE9rxTzM84HpTyd/rvKd3v9p6MD4rBPNbuFV2dS90eXajgsvroPz3S+ss/A==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
       classnames: 2.3.2
       react: 18.2.0
     dev: false
@@ -6182,10 +6272,22 @@ packages:
       react: 18.2.0
     dev: false
 
+  /@douyinfe/semi-illustrations/2.66.1_react@18.2.0:
+    resolution: {integrity: sha512-Oc2rRZ+t05eptkxtKXY2GkcTlJNkEfgRABuoVjOWbarbntokn+6bJi3HHKg7OuSUpjuz4PNqhGWSDcHnDjFO2A==}
+    peerDependencies:
+      react: ^16.8.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      react: 18.2.0
+    dev: false
+
   /@douyinfe/semi-theme-default/2.16.1:
     resolution: {integrity: sha512-nzb4gw8S44DEfM9iSwarwXWXbgE6dmz3xzvCbHPzwPViRjsT5+nU39T117S/LdiwLAL3gqcxYzcgg5Ej7L2Odw==}
     dependencies:
       glob: 7.2.3
+    dev: false
+
+  /@douyinfe/semi-theme-default/2.61.0:
+    resolution: {integrity: sha512-obn/DOw4vZyKFAlWvZxHTpBLAK9FO9kygTSm2GROgvi+UDB2PPU6l20cuUCsdGUNWJRSqYlTTVZ1tNYIyFZ5Sg==}
     dev: false
 
   /@douyinfe/semi-ui/2.16.1_react-dom@18.2.0+react@18.2.0:
@@ -6216,6 +6318,39 @@ packages:
       resize-observer-polyfill: 1.5.1
       scroll-into-view-if-needed: 2.2.31
       utility-types: 3.10.0
+    dev: false
+
+  /@douyinfe/semi-ui/2.66.1_react-dom@18.2.0+react@18.2.0:
+    resolution: {integrity: sha512-5w5F1Q8pdhxU/XCJFIu9VVQk7kQeHQC83RaUNIpFK6oQ0smDmtJGPOO4x1RVtDzoXgmv6cbEokJd6h4pbe7j5A==}
+    peerDependencies:
+      react: '>=16.0.0'
+      react-dom: '>=16.0.0'
+    dependencies:
+      '@dnd-kit/core': 6.1.0_react-dom@18.2.0+react@18.2.0
+      '@dnd-kit/sortable': 7.0.2_@dnd-kit+core@6.1.0+react@18.2.0
+      '@dnd-kit/utilities': 3.2.2_react@18.2.0
+      '@douyinfe/semi-animation': 2.66.1
+      '@douyinfe/semi-animation-react': 2.66.1
+      '@douyinfe/semi-foundation': 2.66.1
+      '@douyinfe/semi-icons': 2.66.1_react@18.2.0
+      '@douyinfe/semi-illustrations': 2.66.1_react@18.2.0
+      '@douyinfe/semi-theme-default': 2.61.0
+      async-validator: 3.5.2
+      classnames: 2.3.2
+      copy-text-to-clipboard: 2.2.0
+      date-fns: 2.30.0
+      date-fns-tz: 1.3.8_date-fns@2.30.0
+      fast-copy: 3.0.2
+      lodash: 4.17.21
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-dom: 18.2.0_react@18.2.0
+      react-resizable: 3.0.5_react-dom@18.2.0+react@18.2.0
+      react-window: 1.8.9_react-dom@18.2.0+react@18.2.0
+      scroll-into-view-if-needed: 2.2.31
+      utility-types: 3.10.0
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /@esbuild/android-arm/0.15.18:
@@ -6753,6 +6888,36 @@ packages:
     resolution: {integrity: sha512-Icm0TBKBLYqroYbNW3BPnzMGn+7mwpQOK310aZ7+fkCtiU3aqv2cdcX+nd0Ydo3wI5Rx8bX2Z2QmGb/XcAClCw==}
     dependencies:
       '@types/estree': 1.0.1
+      '@types/estree-jsx': 1.0.3
+      '@types/hast': 3.0.3
+      '@types/mdx': 2.0.10
+      collapse-white-space: 2.1.0
+      devlop: 1.1.0
+      estree-util-build-jsx: 3.0.1
+      estree-util-is-identifier-name: 3.0.0
+      estree-util-to-js: 2.0.0
+      estree-walker: 3.0.3
+      hast-util-to-estree: 3.1.0
+      hast-util-to-jsx-runtime: 2.2.0
+      markdown-extensions: 2.0.0
+      periscopic: 3.1.0
+      remark-mdx: 3.0.0
+      remark-parse: 11.0.0
+      remark-rehype: 11.0.0
+      source-map: 0.7.4
+      unified: 11.0.4
+      unist-util-position-from-estree: 2.0.0
+      unist-util-stringify-position: 4.0.0
+      unist-util-visit: 5.0.0
+      vfile: 6.0.1
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+  /@mdx-js/mdx/3.0.1:
+    resolution: {integrity: sha512-eIQ4QTrOWyL3LWEe/bu6Taqzq2HQvHcyTMaOrI95P2/LmJE7AsfPfgJGuFLPVqBUE1BC1rik3VIhU+s9u72arA==}
+    dependencies:
+      '@types/estree': 1.0.5
       '@types/estree-jsx': 1.0.3
       '@types/hast': 3.0.3
       '@types/mdx': 2.0.10
@@ -8358,7 +8523,6 @@ packages:
 
   /@types/estree/1.0.5:
     resolution: {integrity: sha512-/kYRxGDLWzHOB7q+wtSUQlFrtcdUccpfy+X+9iMBpHK8QLLhx2wIPYuS5DYtR9Wa/YlZAbIovy7qVdB1Aq6Lyw==}
-    dev: true
 
   /@types/express-serve-static-core/4.17.36:
     resolution: {integrity: sha512-zbivROJ0ZqLAtMzgzIUC4oNqDG9iF0lSsAqpOD9kbs5xcIM3dTiyuHvBc7R8MtWBp3AAWGaovJa+wzWPjLYW7Q==}
@@ -12971,6 +13135,10 @@ packages:
     resolution: {integrity: sha512-50qi8xA0QkHbjmb8h7XQ6k2fvD7y/yMfiUw9YTarJ7rWrq6o5/3CCXPouYk+XSLASvvxtjyiQLRBFt3qkE3oyA==}
     dev: false
 
+  /fast-copy/3.0.2:
+    resolution: {integrity: sha512-dl0O9Vhju8IrcLndv2eU4ldt1ftXMqqfgN4H1cpmGV7P6jeB9FwpN9a2c8DPGE1Ys88rNUJVYDHq73CGAGOPfQ==}
+    dev: false
+
   /fast-csv/4.3.6:
     resolution: {integrity: sha512-2RNSpuwwsJGP0frGsOmTb9oUF+VkFSM4SyLTDgwf2ciHWTarN0lQTC+F2f/t5J9QjW+c65VFIAAu85GsvMIusw==}
     engines: {node: '>=10.0.0'}
@@ -16314,6 +16482,10 @@ packages:
     dependencies:
       js-tokens: 4.0.0
 
+  /lottie-web/5.12.2:
+    resolution: {integrity: sha512-uvhvYPC8kGPjXT3MyKMrL3JitEAmDMp30lVkuq/590Mw9ok6pWcFCwXJveo0t5uqYw1UREQHofD+jVpdjBv8wg==}
+    dev: false
+
   /lower-case/2.0.2:
     resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
     dependencies:
@@ -19324,6 +19496,18 @@ packages:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-draggable: 4.4.5_react-dom@18.2.0+react@18.2.0
+    dev: false
+
+  /react-resizable/3.0.5_react-dom@18.2.0+react@18.2.0:
+    resolution: {integrity: sha512-vKpeHhI5OZvYn82kXOs1bC8aOXktGU5AmKAgaZS4F5JPburCtbmDPqE7Pzp+1kN4+Wb81LlF33VpGwWwtXem+w==}
+    peerDependencies:
+      react: '>= 16.3'
+    dependencies:
+      prop-types: 15.8.1
+      react: 18.2.0
+      react-draggable: 4.4.5_react-dom@18.2.0+react@18.2.0
+    transitivePeerDependencies:
+      - react-dom
     dev: false
 
   /react-router-config/5.1.1_react-router@5.3.4+react@18.2.0:
