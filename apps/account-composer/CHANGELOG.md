@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-account-composer
 
-This log was last generated on Tue, 17 Sep 2024 20:07:02 GMT and should not be manually modified.
+This log was last generated on Wed, 25 Sep 2024 08:29:52 GMT and should not be manually modified.
+
+## 0.2.0
+Wed, 25 Sep 2024 08:29:52 GMT
+
+### Minor changes
+
+- hide positions and track account_id
 
 ## 0.1.15
 Tue, 17 Sep 2024 20:07:02 GMT

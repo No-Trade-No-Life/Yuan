@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-model
 
-This log was last generated on Tue, 17 Sep 2024 14:54:15 GMT and should not be manually modified.
+This log was last generated on Wed, 25 Sep 2024 08:29:52 GMT and should not be manually modified.
+
+## 0.16.0
+Wed, 25 Sep 2024 08:29:52 GMT
+
+### Minor changes
+
+- add account_id to IPosition and add hide_positions for account_composition_releation
 
 ## 0.15.0
 Tue, 17 Sep 2024 14:54:15 GMT
