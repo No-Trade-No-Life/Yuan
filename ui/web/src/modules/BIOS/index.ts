@@ -11,7 +11,9 @@ import {
   filter,
   firstValueFrom,
   from,
+  fromEvent,
   lastValueFrom,
+  merge,
   mergeMap,
   of,
   tap,
@@ -98,6 +100,13 @@ defer(async () => {
         const root = await firstValueFrom(workspaceRoot$.pipe(filter((v) => v !== undefined)));
         if (root) {
           log('WORKSPACE ROOT EXISTS', root.name);
+          const granted = await root.queryPermission({ mode: 'readwrite' });
+          log('WORKSPACE PERMISSION', granted);
+          if (granted !== 'granted') {
+            log('WORKSPACE NEED PERMISSION: PRESS ANY KEY OR CLICK TO CONTINUE');
+            await firstValueFrom(merge(fromEvent(document, 'keydown'), fromEvent(document, 'mousedown')));
+            await root.requestPermission({ mode: 'readwrite' });
+          }
           FsBackend$.next(new FileSystemHandleBackend(root));
           return 0;
         }

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-hosts",
+      "comment": "fix phantom terminal",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-hosts"
+}
