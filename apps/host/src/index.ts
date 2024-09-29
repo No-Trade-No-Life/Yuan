@@ -48,6 +48,7 @@ defer(() => Object.entries(mapTerminalIdToSocket))
           error: (err) => {
             console.info(formatTime(Date.now()), 'Terminal ping failed', terminal_id, err);
             terminalInfos.delete(terminal_id);
+            mapTerminalIdToSocket[terminal_id]?.terminate();
             delete mapTerminalIdToSocket[terminal_id];
           },
         }),
@@ -127,6 +128,7 @@ server.on('upgrade', (request, socket, head) => {
     fromEvent(ws, 'close').subscribe(() => {
       console.info(formatTime(Date.now()), 'terminal disconnected', terminal_id);
       terminalInfos.delete(terminal_id);
+      mapTerminalIdToSocket[terminal_id]?.terminate();
       delete mapTerminalIdToSocket[terminal_id];
     });
   });
