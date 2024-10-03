@@ -4,7 +4,7 @@ import Ajv from 'ajv';
 import { parse } from 'jsonc-parser';
 import { useObservableState } from 'observable-hooks';
 import { useMemo, useState } from 'react';
-import { from, lastValueFrom } from 'rxjs';
+import { BehaviorSubject, from, lastValueFrom } from 'rxjs';
 import { InlineAccountId, useAccountInfo } from '../AccountInfo';
 import { fs } from '../FileSystem/api';
 import Form, { showForm } from '../Form';
@@ -13,7 +13,7 @@ import { registerPage } from '../Pages';
 import { InlineProductId } from '../Products/InlineProductId';
 import { terminal$, useTick } from '../Terminals';
 
-interface IInterleavingConfigItem {
+export interface IInterleavingConfigItem {
   account_id: string;
   datasource_id: string;
   product_id: string;
@@ -23,7 +23,7 @@ interface IInterleavingConfigItem {
   disabled?: boolean;
 }
 
-interface IInterleavingConfig {
+export interface IInterleavingConfig {
   count: number;
   items: IInterleavingConfigItem[];
 }
@@ -79,8 +79,10 @@ const initState: IState = {
   message: '',
 };
 
+export const InterleavingTraderConfig$ = new BehaviorSubject<IInterleavingConfig | undefined>(void 0);
+
 registerPage('InterleavingTrader', () => {
-  const [config, setConfig] = useState<IInterleavingConfig>();
+  const config = useObservableState(InterleavingTraderConfig$);
   const [state, setState] = useState<IState>(initState);
   const terminal = useObservableState(terminal$);
 
@@ -112,7 +114,7 @@ registerPage('InterleavingTrader', () => {
               if (!validator.validate(schema, config)) {
                 throw validator.errorsText();
               }
-              setConfig(config);
+              InterleavingTraderConfig$.next(config);
               Toast.success('Success to load');
             } catch (e) {
               Toast.success(`Failed to load: ${e}`);
@@ -125,7 +127,7 @@ registerPage('InterleavingTrader', () => {
       <Form
         formData={config}
         onChange={(e) => {
-          setConfig(e.formData);
+          InterleavingTraderConfig$.next(e.formData);
         }}
         schema={schema}
       >
