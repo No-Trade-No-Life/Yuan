@@ -368,7 +368,7 @@ registerPage('HostList', () => {
                 if (cryptoHosts$.value === undefined) return;
                 const label = (await showForm<string>({ type: 'string', title: 'Label' })) || '';
                 const keyPair = createKeyPair();
-                const url = new URL(`https://hosts.ntnl.io`);
+                const url = new URL(`wss://hosts.ntnl.io`);
                 url.searchParams.set('public_key', keyPair.public_key);
                 const signature = signMessage('', keyPair.private_key);
                 url.searchParams.set('signature', signature);
