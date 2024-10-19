@@ -52,8 +52,14 @@ export interface IFundState {
     total_profit: number;
   };
   investors: Record<string, InvestorMeta>; // 投资人数据
+  investor_cashflow: Record<string, InvestorCashFlowItem[]>;
   investor_derived: Record<string, InvestorInfoDerived>;
   events: IFundEvent[];
+}
+
+export interface InvestorCashFlowItem {
+  updated_at: number;
+  deposit: number;
 }
 
 export interface InvestorMeta {
@@ -67,12 +73,18 @@ export interface InvestorMeta {
   deposit: number;
   /** 税率 */
   tax_rate: number;
+  /** 创建时间 */
+  created_at: number;
 }
 
 /**
  * 投资人信息的计算衍生数据
  */
 export interface InvestorInfoDerived {
+  /** 持有时间 */
+  holding_days: number;
+  /** 资产在时间上的积分 */
+  timed_assets: number;
   /** 税前资产 */
   pre_tax_assets: number;
   /** 应税额 */
@@ -85,6 +97,7 @@ export interface InvestorInfoDerived {
   after_tax_profit: number;
   /** 税后收益率 */
   after_tax_profit_rate: number;
+  after_tax_IRR: number;
   /** 税后份额 */
   after_tax_share: number;
 

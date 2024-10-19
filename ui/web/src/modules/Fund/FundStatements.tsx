@@ -114,8 +114,16 @@ registerPage('FundStatements', () => {
       columnHelper.accessor('detail.after_tax_profit', {
         header: () => '收益',
       }),
+      columnHelper.accessor('detail.holding_days', {
+        header: () => '持有天数',
+        cell: (ctx) => `${Math.ceil(ctx.getValue())}`,
+      }),
       columnHelper.accessor('detail.after_tax_profit_rate', {
-        header: () => '收益率',
+        header: () => '简单收益率',
+        cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
+      }),
+      columnHelper.accessor('detail.after_tax_IRR', {
+        header: () => '内部收益率',
         cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
       }),
       columnHelper.accessor('meta.share', {
