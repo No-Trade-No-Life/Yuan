@@ -1,0 +1,2 @@
+import './PortalRelationList';
+import './model';
