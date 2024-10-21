@@ -27,12 +27,19 @@ Object.assign(globalThis, { Modules });
 
 // Layout -> App
 import { useObservableState } from 'observable-hooks';
-import { BIOS, ready$ } from './modules/BIOS';
+import { ready$ } from './modules/BIOS';
 import { DesktopLayout } from './modules/DesktopLayout';
+import { Launch } from './modules/Launch';
+import { DarkModeEffect } from './modules/Workbench';
 const App = () => {
   const ready = useObservableState(ready$, false);
-  if (!ready) return <BIOS />;
-  return <DesktopLayout />;
+  return (
+    <>
+      {!ready && <Launch />}
+      {ready && <DesktopLayout />}
+      <DarkModeEffect />
+    </>
+  );
 };
 
 const queryClient = new QueryClient();
