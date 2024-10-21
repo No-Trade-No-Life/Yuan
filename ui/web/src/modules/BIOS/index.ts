@@ -242,5 +242,4 @@ defer(async () => {
  */
 export const ready$ = new ReplaySubject(1);
 export const error$ = new ReplaySubject(1);
-export * from './BIOS';
 export * from './createPersistBehaviorSubject';

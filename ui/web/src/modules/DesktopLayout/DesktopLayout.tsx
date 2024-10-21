@@ -2,7 +2,6 @@ import { IconHome } from '@douyinfe/semi-icons';
 import { Layout, Space } from '@douyinfe/semi-ui';
 import { Actions, Layout as FlexLayout, TabNode } from 'flexlayout-react';
 import { useObservableState } from 'observable-hooks';
-import { useEffect, useState } from 'react';
 import { createPersistBehaviorSubject } from '../BIOS';
 import { CommandCenter } from '../CommandCenter';
 import { fs } from '../FileSystem';
@@ -11,7 +10,7 @@ import { LocalizePageTitle, Page } from '../Pages';
 import { ErrorBoundary } from '../Pages/ErrorBoundary';
 import { NetworkStatusWidget } from '../Terminals/NetworkStatusWidget';
 import { UserMenu } from '../User/UserMenu';
-import { FullScreenButton, HomePage, isShowHome$, toggleShowHome, useIsDarkMode } from '../Workbench';
+import { FullScreenButton, HomePage, isShowHome$, toggleShowHome } from '../Workbench';
 import { DarkmodeSwitch } from '../Workbench/DarkmodeSwitch';
 import { registerAssociationRule } from '../Workspace';
 import { WallPaper } from './WallPaper';
@@ -50,19 +49,6 @@ export const DesktopLayout = () => {
 
     return <Page page={{ id, type, params, viewport }} />;
   };
-
-  const isDarkMode = useIsDarkMode();
-
-  const [style, setStyle] = useState('');
-
-  useEffect(() => {
-    // ISSUE: use css by raw import will not produce side-effect. we can easily switch between dark and light
-    if (isDarkMode) {
-      import('flexlayout-react/style/dark.css?raw').then((mod) => setStyle(mod.default));
-    } else {
-      import('flexlayout-react/style/light.css?raw').then((mod) => setStyle(mod.default));
-    }
-  }, [isDarkMode]);
 
   if (document.location.hash === '#/popout') {
     return null;
@@ -103,8 +89,6 @@ export const DesktopLayout = () => {
             factory={factory}
           />
         )}
-
-        <style>{style}</style>
       </Layout.Content>
       {isHideNavigator === false && (
         <Layout.Header style={{ padding: 4 }}>
