@@ -3,7 +3,10 @@ import { BehaviorSubject } from 'rxjs';
 
 export const log = (...params: any[]) => {
   console.info(formatTime(Date.now()), 'BIOS', ...params);
-  fullLog$.next(fullLog$.value + `${formatTime(Date.now())} ${params.join(' ')}\n`);
+  const line = `${params.join(' ')}`;
+  logLines.push(line);
+  fullLog$.next(fullLog$.value + `${formatTime(Date.now())} ${line}\n`);
 };
 
+export const logLines: string[] = [];
 export const fullLog$ = new BehaviorSubject('');

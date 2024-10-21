@@ -1569,6 +1569,7 @@ importers:
       react: ^18.2.0
       react-dom: ^18.2.0
       react-i18next: ~13.2.1
+      react-loading: ~2.0.3
       react-markdown: ~9.0.1
       rehype-raw: ~7.0.0
       rollup: ~4.21.1
@@ -1624,6 +1625,7 @@ importers:
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-i18next: 13.2.1_98cade5ad3a97019d15195744e997f78
+      react-loading: 2.0.3_react@18.2.0
       react-markdown: 9.0.1_a7729073fe0d318b643532c3a284e042
       rehype-raw: 7.0.0
       rxjs: 7.5.7
@@ -19457,6 +19459,15 @@ packages:
       '@babel/runtime': 7.22.11
       react-loadable: /@docusaurus/react-loadable/5.5.2_react@18.2.0
       webpack: 5.88.2
+    dev: false
+
+  /react-loading/2.0.3_react@18.2.0:
+    resolution: {integrity: sha512-Vdqy79zq+bpeWJqC+xjltUjuGApyoItPgL0vgVfcJHhqwU7bAMKzysfGW/ADu6i0z0JiOCRJjo+IkFNkRNbA3A==}
+    peerDependencies:
+      prop-types: ^15.6.0
+      react: '>=0.14.0'
+    dependencies:
+      react: 18.2.0
     dev: false
 
   /react-markdown/9.0.1_a7729073fe0d318b643532c3a284e042:

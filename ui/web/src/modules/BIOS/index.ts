@@ -25,6 +25,7 @@ import { loadExtension } from '../Extensions/utils';
 import { FsBackend$, bundleCode, fs, workspaceRoot$ } from '../FileSystem';
 import { FileSystemHandleBackend } from '../FileSystem/backends/FileSystemHandleBackend';
 import { InMemoryBackend } from '../FileSystem/backends/InMemoryBackend';
+import { supabase } from '../SupaBase';
 import { fullLog$, log } from './log';
 
 defer(async () => {
@@ -43,6 +44,22 @@ defer(async () => {
           const package_name = url.searchParams.get('name');
           const version = url.searchParams.get('version');
           log(`SETUP WORKSPACE FROM NPM, SCOPE=${scope}, PACKAGE=${package_name}, VERSION=${version}`);
+          const full_package_name = scope ? `@${scope}/${package_name}` : package_name;
+
+          log('CHECKING PACKAGE', full_package_name);
+          const checkRes = await supabase.functions.invoke('npm-dist-checker', {
+            body: {
+              // @ts-ignore
+              package_name: full_package_name,
+            },
+          });
+          if (checkRes.error) {
+            throw new Error(checkRes.error);
+          }
+          if (checkRes.data.code !== 0) {
+            throw new Error(checkRes.data.message);
+          }
+          log('CHECK RESULT', JSON.stringify(checkRes));
           log('USING IN-MEMORY WORKSPACE');
           if (!package_name) {
             throw new Error('NO PACKAGE NAME');
@@ -212,9 +229,11 @@ defer(async () => {
       error: (err) => log('BIOS ERROR', err),
     }),
   )
-  .subscribe(() => {
-    //
-    ready$.next(true);
+  .subscribe({
+    complete: () => ready$.next(true),
+    error: (err) => {
+      error$.next(err);
+    },
   });
 
 /**
@@ -222,5 +241,6 @@ defer(async () => {
  * @public
  */
 export const ready$ = new ReplaySubject(1);
+export const error$ = new ReplaySubject(1);
 export * from './BIOS';
 export * from './createPersistBehaviorSubject';
