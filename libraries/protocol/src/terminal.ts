@@ -46,12 +46,14 @@ import {
   withLatestFrom,
 } from 'rxjs';
 import type SimplePeer from 'simple-peer';
-import { IConnection, createConnectionJson } from './create-connection';
+import { IConnection, createConnectionWs } from './create-connection';
 import { ITerminalInfo } from './model';
 import { IService, ITerminalMessage } from './services';
 import { PromRegistry } from './services/metrics';
 import { getSimplePeerInstance } from './webrtc';
 
+const TerminalReceivedBytesTotal = PromRegistry.create('counter', 'terminal_received_bytes_total');
+const TerminalTransmittedBytesTotal = PromRegistry.create('counter', 'terminal_transmitted_bytes_total');
 const TerminalReceiveMassageTotal = PromRegistry.create('counter', 'terminal_receive_message_total');
 const TerminalTransmittedMessageTotal = PromRegistry.create('counter', 'terminal_transmitted_message_total');
 
@@ -106,6 +108,18 @@ interface IServiceOptions {
   };
 }
 
+const MetricsProcessMemoryUsage = PromRegistry.create(
+  'gauge',
+  'nodejs_process_memory_usage',
+  'nodejs process memoryUsage',
+);
+
+const MetricsProcessResourceUsage = PromRegistry.create(
+  'gauge',
+  'nodejs_process_resource_usage',
+  'nodejs process resourceUsage',
+);
+
 /**
  * Terminal
  *
@@ -115,7 +129,7 @@ export class Terminal {
   /**
    * Connection
    */
-  private _conn: IConnection<ITerminalMessage>;
+  private _conn: IConnection<string>;
   /**
    * Terminal ID
    */
@@ -125,11 +139,7 @@ export class Terminal {
 
   private _terminalInfoUpdated$ = new Subject<void>();
 
-  constructor(
-    public host_url: string,
-    public terminalInfo: ITerminalInfo,
-    connection?: IConnection<ITerminalMessage>,
-  ) {
+  constructor(public host_url: string, public terminalInfo: ITerminalInfo, connection?: IConnection<string>) {
     this.terminal_id = this.terminalInfo.terminal_id || UUID();
     this.terminalInfo = {
       ...terminalInfo,
@@ -142,7 +152,7 @@ export class Terminal {
     url.searchParams.set('terminal_id', this.terminal_id); // make sure terminal_id is in the connection parameters
     this.host_url = url.toString();
 
-    this._conn = connection || createConnectionJson(this.host_url);
+    this._conn = connection || createConnectionWs(this.host_url);
     this._setupTunnel();
     this._setupDebugLog();
     this._setupServer();
@@ -163,25 +173,36 @@ export class Terminal {
 
   private _setupTunnel() {
     this._subscriptions.push(
-      from(this._conn.input$).subscribe((msg) => {
-        if (msg.method) {
-          TerminalReceiveMassageTotal.inc({
-            target_terminal_id: msg.target_terminal_id,
-            source_terminal_id: msg.source_terminal_id,
-            tunnel: 'WS',
-            method: msg.method,
-          });
-        }
-        if (msg.channel_id) {
-          TerminalReceiveChannelMassageTotal.inc({
-            target_terminal_id: msg.target_terminal_id,
-            source_terminal_id: msg.source_terminal_id,
-            tunnel: 'WS',
-            channel_id: msg.channel_id,
-          });
-        }
-        this._input$.next(msg);
-      }),
+      from(this._conn.input$)
+        .pipe(
+          map((msg) => msg.toString()),
+          tap((msg) => {
+            TerminalReceivedBytesTotal.add(msg.length, {
+              terminal_id: this.terminal_id,
+              tunnel: 'WS',
+            });
+          }),
+          map((msg): ITerminalMessage => JSON.parse(msg)),
+        )
+        .subscribe((msg) => {
+          if (msg.method) {
+            TerminalReceiveMassageTotal.inc({
+              target_terminal_id: msg.target_terminal_id,
+              source_terminal_id: msg.source_terminal_id,
+              tunnel: 'WS',
+              method: msg.method,
+            });
+          }
+          if (msg.channel_id) {
+            TerminalReceiveChannelMassageTotal.inc({
+              target_terminal_id: msg.target_terminal_id,
+              source_terminal_id: msg.source_terminal_id,
+              tunnel: 'WS',
+              channel_id: msg.channel_id,
+            });
+          }
+          this._input$.next(msg);
+        }),
     );
 
     if (this.terminalInfo.enable_WebRTC) {
@@ -262,13 +283,25 @@ export class Terminal {
             } catch (err) {
               console.error(formatTime(Date.now()), 'Terminal', 'WebRTC', 'send', 'error', err);
               // fall back to WS
-              this._conn.output$.next(msg);
+              const content = JSON.stringify(msg);
+              TerminalTransmittedBytesTotal.add(content.length, {
+                terminal_id: this.terminal_id,
+                tunnel: 'WS',
+              });
+
+              this._conn.output$.next(content);
             }
           });
           return;
         }
 
-        this._conn.output$.next(msg);
+        const content = JSON.stringify(msg);
+        TerminalTransmittedBytesTotal.add(content.length, {
+          terminal_id: this.terminal_id,
+          tunnel: 'WS',
+        });
+
+        this._conn.output$.next(content);
       }),
     );
   }
@@ -1014,6 +1047,32 @@ export class Terminal {
     }));
 
     if (isNode) {
+      // Setup Process Metrics
+      this._subscriptions.push(
+        timer(0, 5000)
+          .pipe(
+            tap(() => {
+              const usage = process.resourceUsage();
+              for (const key in usage) {
+                MetricsProcessResourceUsage.set(usage[key as keyof NodeJS.ResourceUsage], {
+                  type: key,
+                  terminal_id: this.terminal_id,
+                });
+              }
+            }),
+            tap(() => {
+              const usage = process.memoryUsage();
+              for (const key in usage) {
+                MetricsProcessMemoryUsage.set(usage[key as keyof NodeJS.MemoryUsage], {
+                  type: key,
+                  terminal_id: this.terminal_id,
+                });
+              }
+            }),
+          )
+          .subscribe(),
+      );
+
       this.provideService('Terminate', {}, function* () {
         yield { res: { code: 0, message: 'OK' } };
         timer(1000).subscribe(() => process.exit(0));
