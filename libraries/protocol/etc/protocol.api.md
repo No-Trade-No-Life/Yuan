@@ -158,7 +158,7 @@ export const submitOrder: (terminal: Terminal, order: IOrder) => AsyncIterable<I
 
 // @public
 export class Terminal {
-    constructor(host_url: string, terminalInfo: ITerminalInfo, connection?: IConnection<ITerminalMessage>);
+    constructor(host_url: string, terminalInfo: ITerminalInfo, connection?: IConnection<string>);
     consumeChannel: <T>(channel_id: string) => AsyncIterable<T>;
     dispose$: AsyncIterable<void>;
     dispose(): void;
