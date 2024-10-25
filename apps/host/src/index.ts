@@ -12,6 +12,7 @@ import {
   from,
   fromEvent,
   interval,
+  last,
   map,
   merge,
   mergeMap,
@@ -25,40 +26,6 @@ import {
 import WebSocket from 'ws';
 
 const mapTerminalIdToSocket: Record<string, WebSocket.WebSocket> = {};
-
-// ISSUE: Phantom Terminal Elimination
-defer(() => Object.entries(mapTerminalIdToSocket))
-  .pipe(
-    mergeMap(([terminal_id, ws]) =>
-      from(
-        new Observable<void>((subscriber) => {
-          const callback = () => {
-            subscriber.complete();
-          };
-          ws.once('pong', callback);
-          ws.ping();
-          return () => {
-            ws.removeListener('pong', callback);
-          };
-        }),
-      ).pipe(
-        timeout(5000),
-        retry(3),
-        tap({
-          error: (err) => {
-            console.info(formatTime(Date.now()), 'Terminal ping failed', terminal_id, err);
-            terminalInfos.delete(terminal_id);
-            mapTerminalIdToSocket[terminal_id]?.terminate();
-            delete mapTerminalIdToSocket[terminal_id];
-          },
-        }),
-        catchError(() => EMPTY),
-      ),
-    ),
-    repeat({ delay: 10000 }),
-    retry({ delay: 1000 }),
-  )
-  .subscribe();
 
 const server = createServer();
 
@@ -160,3 +127,25 @@ terminal.provideService('UpdateTerminalInfo', {}, (msg) => {
   terminalInfo$.next(msg.req);
   return of({ res: { code: 0, message: 'OK' } });
 });
+
+// ISSUE: Phantom Terminal Elimination
+defer(() => terminalInfos.keys())
+  .pipe(
+    mergeMap((target_terminal_id) =>
+      from(terminal.request('Ping', target_terminal_id, {})).pipe(
+        last(),
+        timeout(5000),
+        retry(3),
+        tap({
+          error: (err) => {
+            console.info(formatTime(Date.now()), 'Terminal ping failed', target_terminal_id, err);
+            terminalInfos.delete(target_terminal_id);
+          },
+        }),
+        catchError(() => EMPTY),
+      ),
+    ),
+    repeat({ delay: 10000 }),
+    retry({ delay: 1000 }),
+  )
+  .subscribe();
