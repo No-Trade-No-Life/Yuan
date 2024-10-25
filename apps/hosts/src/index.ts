@@ -13,6 +13,7 @@ import {
   from,
   fromEvent,
   interval,
+  last,
   map,
   merge,
   mergeMap,
@@ -131,29 +132,17 @@ server.on('upgrade', (request, socket, head) => {
     const terminalInfo$ = new Subject<ITerminalInfo>();
 
     // ISSUE: Phantom Terminal Elimination
-    defer(() => Object.entries(mapTerminalIdToSocket))
+    defer(() => terminalInfos.keys())
       .pipe(
-        mergeMap(([terminal_id, ws]) =>
-          from(
-            new Observable<void>((subscriber) => {
-              const callback = () => {
-                subscriber.complete();
-              };
-              ws.once('pong', callback);
-              ws.ping();
-              return () => {
-                ws.removeListener('pong', callback);
-              };
-            }),
-          ).pipe(
+        mergeMap((target_terminal_id) =>
+          from(terminal.request('Ping', target_terminal_id, {})).pipe(
+            last(),
             timeout(5000),
             retry(3),
             tap({
               error: (err) => {
-                console.info(formatTime(Date.now()), 'Terminal ping failed', terminal_id, err);
-                terminalInfos.delete(terminal_id);
-                mapTerminalIdToSocket[terminal_id]?.terminate();
-                delete mapTerminalIdToSocket[terminal_id];
+                console.info(formatTime(Date.now()), 'Terminal ping failed', target_terminal_id, err);
+                terminalInfos.delete(target_terminal_id);
               },
             }),
             catchError(() => EMPTY),
