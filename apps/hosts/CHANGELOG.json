@@ -2,6 +2,23 @@
   "name": "@yuants/app-hosts",
   "entries": [
     {
+      "version": "0.1.16",
+      "tag": "@yuants/app-hosts_v0.1.16",
+      "date": "Fri, 25 Oct 2024 21:53:01 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix phantom terminal"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.15",
       "tag": "@yuants/app-hosts_v0.1.15",
       "date": "Thu, 24 Oct 2024 19:57:43 GMT",
