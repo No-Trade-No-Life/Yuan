@@ -143,6 +143,8 @@ server.on('upgrade', (request, socket, head) => {
               error: (err) => {
                 console.info(formatTime(Date.now()), 'Terminal ping failed', target_terminal_id, err);
                 terminalInfos.delete(target_terminal_id);
+                mapTerminalIdToSocket[target_terminal_id]?.terminate();
+                delete mapTerminalIdToSocket[target_terminal_id];
               },
             }),
             catchError(() => EMPTY),
