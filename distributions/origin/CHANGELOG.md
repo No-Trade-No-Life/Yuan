@@ -1,6 +1,13 @@
 # Change Log - @yuants/dist-origin
 
-This log was last generated on Sat, 26 Oct 2024 15:18:16 GMT and should not be manually modified.
+This log was last generated on Sat, 26 Oct 2024 18:55:40 GMT and should not be manually modified.
+
+## 0.1.1
+Sat, 26 Oct 2024 18:55:40 GMT
+
+### Patches
+
+- fix desktop path 
 
 ## 0.1.0
 Sat, 26 Oct 2024 15:18:16 GMT
