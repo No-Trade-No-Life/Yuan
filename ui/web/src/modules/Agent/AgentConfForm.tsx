@@ -192,7 +192,7 @@ registerAssociationRule({
   action: ({ path }) => {
     agentConf$.next({ ...agentConf$.value, entry: path });
     reloadSchemaAction$.next();
-    executeCommand('AgentConfForm', { filename: path });
+    executeCommand('AgentConfForm', {});
   },
 });
 
