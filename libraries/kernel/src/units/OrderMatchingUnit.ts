@@ -149,6 +149,7 @@ export class OrderMatchingUnit extends BasicUnit {
 
   submitOrder(...orders: IOrder[]) {
     for (const order of orders) {
+      order.submit_at = this.kernel.currentTimestamp;
       this.mapOrderIdToOrder.set(order.order_id!, order);
     }
     this._orderSubmitted$.next(orders);
@@ -217,9 +218,9 @@ export class OrderMatchingUnit extends BasicUnit {
       const theProduct = this.productDataUnit.getProduct(order.account_id, order.product_id);
       const volume_step = theProduct?.volume_step ?? 1;
       const volume = roundToStep(order.volume, volume_step);
-      const theOrder = {
+      const theOrder: IOrder = {
         ...order,
-        timestamp_in_us: this.kernel.currentTimestamp * 1000,
+        filled_at: this.kernel.currentTimestamp,
         traded_price: tradedPrice,
         volume,
         traded_volume: volume,

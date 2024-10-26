@@ -528,7 +528,7 @@ export const OrderSeries = React.memo((props: IOrderSeriesProps) => {
       const text = directionMapper[order.order_direction!];
       // Issue: TradingView Chart will place order annotation in the next bar, so we need to align the order's time to bar's start-time
       const divider = (props.period_in_sec ?? 1) * 1e3;
-      const alignedTimestamp = Math.floor(order.submit_at! / divider) * divider;
+      const alignedTimestamp = Math.floor(order.filled_at! / divider) * divider;
       return {
         time: (alignedTimestamp / 1e3) as UTCTimestamp,
         position: dir > 0 ? 'belowBar' : 'aboveBar',
