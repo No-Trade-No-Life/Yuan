@@ -43,74 +43,7 @@ defer(async () => {
           const scope = url.searchParams.get('scope');
           const package_name = url.searchParams.get('name');
           const version = url.searchParams.get('version');
-          log(`SETUP WORKSPACE FROM NPM, SCOPE=${scope}, PACKAGE=${package_name}, VERSION=${version}`);
-          const full_package_name = scope ? `@${scope}/${package_name}` : package_name;
-
-          log('CHECKING PACKAGE', full_package_name);
-          const checkRes = await supabase.functions.invoke('npm-dist-checker', {
-            body: {
-              // @ts-ignore
-              package_name: full_package_name,
-            },
-          });
-          if (checkRes.error) {
-            throw new Error(checkRes.error);
-          }
-          if (checkRes.data.code !== 0) {
-            throw new Error(checkRes.data.message);
-          }
-          log('CHECK RESULT', JSON.stringify(checkRes));
-          log('USING IN-MEMORY WORKSPACE');
-          if (!package_name) {
-            throw new Error('NO PACKAGE NAME');
-          }
-
-          log('FETCHING PACKAGE META');
-          const packageMeta: {
-            versions: {
-              [version: string]: any;
-            };
-          } = await fetch(`https://registry.npmjs.org/${scope ? `@${scope}/` : ''}${package_name}`).then(
-            (res) => res.json(),
-          );
-
-          const allVersions = Object.keys(packageMeta.versions).sort(versionCompare).reverse();
-          log('ALL VERSIONS', JSON.stringify(allVersions));
-
-          const availableVersions = allVersions.filter((x) =>
-            version !== null ? versionSatisfy(x, version) : true,
-          );
-          log('MATCHED VERSIONS', JSON.stringify(availableVersions));
-
-          const selectedVersion = availableVersions[0];
-
-          if (!selectedVersion) {
-            throw new Error('NO MATCHED VERSION');
-          }
-
-          log('SELECTED VERSION', selectedVersion);
-          FsBackend$.next(
-            new InMemoryBackend(`${scope ? `@${scope}/` : ''}${package_name}-${selectedVersion}`),
-          );
-          log('FETCHING PACKAGE TARBALL');
-          const res = await fetch(
-            `https://registry.npmjs.org/${
-              scope ? `@${scope}/` : ''
-            }${package_name}/-/${package_name}-${selectedVersion}.tgz`,
-          );
-          log('FETCHED', res.status);
-          const blob = await res.blob();
-          log('BLOB SIZE', blob.size, 'BYTES');
-          const files = await Modules.Extensions.loadTgzBlob(blob);
-          log(`EXTRACTING ${files.length} FILES...`);
-          for (const file of files) {
-            log('EXTRACTING FILE', file.filename);
-            // ISSUE: filename inside tarball has a prefix 'package/'
-            const filename = resolve('/', file.filename.replace(/^package\//, ''));
-            await fs.ensureDir(dirname(filename));
-            await fs.writeFile(filename, file.blob);
-          }
-          log('FILES EXTRACTED');
+          await loadInmemoryWorkspaceFromNpm(scope, package_name, version);
           return;
         }
         log('WORKSPACE CHECKING FILE SYSTEM HANDLE');
@@ -125,9 +58,16 @@ defer(async () => {
             await root.requestPermission({ mode: 'readwrite' });
           }
           FsBackend$.next(new FileSystemHandleBackend(root));
-          return 0;
+          return;
         }
-        log('NO WORKSPACE ROOT, USING IN-MEMORY WORKSPACE');
+        log('FALLBACK TO THE LATEST @yuants/dist-origin WORKSPACE');
+        try {
+          await loadInmemoryWorkspaceFromNpm('yuants', 'dist-origin', null);
+          return;
+        } catch (e) {
+          log('WORKSPACE @yuants/dist-origin INITIALIZATION ERROR', e);
+        }
+        log('ENSURE LANDING BY USING EMPTY IN-MEMORY WORKSPACE');
         FsBackend$.next(new InMemoryBackend());
       }).pipe(
         toArray(),
@@ -243,3 +183,74 @@ defer(async () => {
 export const ready$ = new ReplaySubject(1);
 export const error$ = new ReplaySubject(1);
 export * from './createPersistBehaviorSubject';
+
+async function loadInmemoryWorkspaceFromNpm(
+  scope: string | null,
+  package_name: string | null,
+  version: string | null,
+) {
+  log(`SETUP WORKSPACE FROM NPM, SCOPE=${scope}, PACKAGE=${package_name}, VERSION=${version}`);
+  const full_package_name = scope ? `@${scope}/${package_name}` : package_name;
+
+  log('CHECKING PACKAGE', full_package_name);
+  const checkRes = await supabase.functions.invoke('npm-dist-checker', {
+    body: {
+      // @ts-ignore
+      package_name: full_package_name,
+    },
+  });
+  if (checkRes.error) {
+    throw new Error(checkRes.error);
+  }
+  if (checkRes.data.code !== 0) {
+    throw new Error(checkRes.data.message);
+  }
+  log('CHECK RESULT', JSON.stringify(checkRes));
+  log('USING IN-MEMORY WORKSPACE');
+  if (!package_name) {
+    throw new Error('NO PACKAGE NAME');
+  }
+
+  log('FETCHING PACKAGE META');
+  const packageMeta: {
+    versions: {
+      [version: string]: any;
+    };
+  } = await fetch(`https://registry.npmjs.org/${scope ? `@${scope}/` : ''}${package_name}`).then((res) =>
+    res.json(),
+  );
+
+  const allVersions = Object.keys(packageMeta.versions).sort(versionCompare).reverse();
+  log('ALL VERSIONS', JSON.stringify(allVersions));
+
+  const availableVersions = allVersions.filter((x) => (version !== null ? versionSatisfy(x, version) : true));
+  log('MATCHED VERSIONS', JSON.stringify(availableVersions));
+
+  const selectedVersion = availableVersions[0];
+
+  if (!selectedVersion) {
+    throw new Error('NO MATCHED VERSION');
+  }
+
+  log('SELECTED VERSION', selectedVersion);
+  FsBackend$.next(new InMemoryBackend(`${full_package_name}: ${selectedVersion}`));
+  log('FETCHING PACKAGE TARBALL');
+  const res = await fetch(
+    `https://registry.npmjs.org/${
+      scope ? `@${scope}/` : ''
+    }${package_name}/-/${package_name}-${selectedVersion}.tgz`,
+  );
+  log('FETCHED', res.status);
+  const blob = await res.blob();
+  log('BLOB SIZE', blob.size, 'BYTES');
+  const files = await Modules.Extensions.loadTgzBlob(blob);
+  log(`EXTRACTING ${files.length} FILES...`);
+  for (const file of files) {
+    log('EXTRACTING FILE', file.filename);
+    // ISSUE: filename inside tarball has a prefix 'package/'
+    const filename = resolve('/', file.filename.replace(/^package\//, ''));
+    await fs.ensureDir(dirname(filename));
+    await fs.writeFile(filename, file.blob);
+  }
+  log('FILES EXTRACTED');
+}
