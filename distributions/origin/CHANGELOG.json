@@ -2,6 +2,28 @@
   "name": "@yuants/dist-origin",
   "entries": [
     {
+      "version": "0.1.0",
+      "tag": "@yuants/dist-origin_v0.1.0",
+      "date": "Sat, 26 Oct 2024 15:18:16 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "merge origin public workspace"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "update layout"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.10",
       "tag": "@yuants/dist-origin_v0.0.10",
       "date": "Thu, 24 Oct 2024 19:57:43 GMT",
