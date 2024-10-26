@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-hosts
 
-This log was last generated on Fri, 25 Oct 2024 21:53:01 GMT and should not be manually modified.
+This log was last generated on Sat, 26 Oct 2024 08:08:45 GMT and should not be manually modified.
+
+## 0.1.17
+Sat, 26 Oct 2024 08:08:45 GMT
+
+### Patches
+
+- fix missing terminal
 
 ## 0.1.16
 Fri, 25 Oct 2024 21:53:01 GMT

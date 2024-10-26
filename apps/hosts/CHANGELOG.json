@@ -2,6 +2,23 @@
   "name": "@yuants/app-hosts",
   "entries": [
     {
+      "version": "0.1.17",
+      "tag": "@yuants/app-hosts_v0.1.17",
+      "date": "Sat, 26 Oct 2024 08:08:45 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix missing terminal"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.16",
       "tag": "@yuants/app-hosts_v0.1.16",
       "date": "Fri, 25 Oct 2024 21:53:01 GMT",
