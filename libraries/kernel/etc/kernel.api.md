@@ -797,7 +797,7 @@ export class TickDataUnit extends BasicUnit {
 
 // Warnings were encountered during analysis:
 //
-// src/units/OrderMatchingUnit.ts:260:11 - (ae-forgotten-export) The symbol "IMatchingRange" needs to be exported by the entry point index.d.ts
+// src/units/OrderMatchingUnit.ts:261:11 - (ae-forgotten-export) The symbol "IMatchingRange" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 
