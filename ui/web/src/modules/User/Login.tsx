@@ -5,7 +5,7 @@ import { useObservableState } from 'observable-hooks';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Subject, defer, mergeMap, tap, throttleTime } from 'rxjs';
-import { executeCommand, registerCommand } from '../CommandCenter';
+import { executeCommand } from '../CommandCenter';
 import { registerPage, usePageId } from '../Pages';
 import { authState$, supabase } from '../SupaBase';
 
@@ -186,9 +186,4 @@ registerPage('Login', () => {
       </Form>
     </Space>
   );
-});
-
-// Override default behavior
-registerCommand('Login', () => {
-  executeCommand('Page.open', { type: 'Login', parentId: 'border_left' });
 });

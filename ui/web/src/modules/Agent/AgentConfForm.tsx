@@ -257,11 +257,6 @@ registerPage('AgentConfForm', () => {
   );
 });
 
-// Override Default Behavior
-registerCommand('AgentConfForm', () => {
-  executeCommand('Page.select', { id: 'AgentConfForm' });
-});
-
 registerCommand('Agent.Run', async () => {
   clearLogAction$.next();
   await runAgent();
