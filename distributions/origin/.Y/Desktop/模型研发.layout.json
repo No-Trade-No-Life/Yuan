@@ -1,0 +1,69 @@
+{
+  "global": {
+    "tabEnableFloat": true
+  },
+  "borders": [],
+  "layout": {
+    "type": "row",
+    "id": "#e45e22d1-f96d-495c-ae4c-fa983ad0bfed",
+    "children": [
+      {
+        "type": "tabset",
+        "id": "#9c0289a7-ef34-46b8-bcdf-12d46f204a0e",
+        "weight": 21.31764705882353,
+        "children": [
+          {
+            "type": "tab",
+            "id": "{\"pageKey\":\"Explorer\",\"params\":{}}",
+            "component": "Explorer",
+            "config": {},
+            "enableRename": false
+          },
+          {
+            "type": "tab",
+            "id": "{\"pageKey\":\"AgentConfForm\",\"params\":{}}",
+            "component": "AgentConfForm",
+            "config": {},
+            "enableRename": false
+          }
+        ]
+      },
+      {
+        "type": "row",
+        "id": "#ce7c3671-45e4-40f6-adac-40bf9e8c52a9",
+        "weight": 78.68235294117648,
+        "children": [
+          {
+            "type": "tabset",
+            "id": "#c5583907-a807-4810-b88a-3862eaf7e598",
+            "weight": 82.87864534336782,
+            "children": [
+              {
+                "type": "tab",
+                "id": "{\"pageKey\":\"Copilot\",\"params\":{}}",
+                "component": "Copilot",
+                "config": {},
+                "enableRename": false
+              }
+            ],
+            "active": true
+          },
+          {
+            "type": "tabset",
+            "id": "#f0b93559-4201-4b03-99f4-8688cbfe6647",
+            "weight": 17.121354656632175,
+            "children": [
+              {
+                "type": "tab",
+                "id": "{\"pageKey\":\"Program\",\"params\":{}}",
+                "component": "Program",
+                "config": {},
+                "enableRename": false
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+}

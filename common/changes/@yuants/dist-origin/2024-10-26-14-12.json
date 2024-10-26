@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/dist-origin",
+      "comment": "merge origin public workspace",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/dist-origin"
+}
