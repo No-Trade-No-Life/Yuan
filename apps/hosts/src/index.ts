@@ -105,7 +105,7 @@ server.on('upgrade', (request, socket, head) => {
     validateAuth();
     mapPublicKeyToSignature[public_key] = signature;
   } catch (e) {
-    console.info(formatTime(Date.now()), 'Auth Failed', url, 'reason', e);
+    console.info(formatTime(Date.now()), 'Auth Failed', url, 'reason', `${e}`);
     socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
     socket.destroy();
     return;
@@ -143,6 +143,8 @@ server.on('upgrade', (request, socket, head) => {
               error: (err) => {
                 console.info(formatTime(Date.now()), 'Terminal ping failed', target_terminal_id, err);
                 terminalInfos.delete(target_terminal_id);
+                mapTerminalIdToSocket[target_terminal_id]?.terminate();
+                delete mapTerminalIdToSocket[target_terminal_id];
               },
             }),
             catchError(() => EMPTY),
@@ -204,6 +206,7 @@ server.on('upgrade', (request, socket, head) => {
     // Forward Terminal Messages
     (fromEvent(ws, 'message') as Observable<WebSocket.MessageEvent>).subscribe((origin) => {
       const msg = JSON.parse(origin.data.toString());
+      if (!terminalInfos.has(msg.target_terminal_id)) return; // Skip if Terminal Not Found
       mapTerminalIdToSocket[msg.target_terminal_id]?.send(origin.data);
     });
     // Clean up on Terminal Disconnect

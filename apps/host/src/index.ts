@@ -89,6 +89,7 @@ server.on('upgrade', (request, socket, head) => {
     // Forward Terminal Messages
     (fromEvent(ws, 'message') as Observable<WebSocket.MessageEvent>).subscribe((origin) => {
       const msg = JSON.parse(origin.data.toString());
+      if (!terminalInfos.has(msg.target_terminal_id)) return; // Skip if Terminal Not Found
       mapTerminalIdToSocket[msg.target_terminal_id]?.send(origin.data);
     });
     // Clean up on Terminal Disconnect
@@ -140,6 +141,8 @@ defer(() => terminalInfos.keys())
           error: (err) => {
             console.info(formatTime(Date.now()), 'Terminal ping failed', target_terminal_id, err);
             terminalInfos.delete(target_terminal_id);
+            mapTerminalIdToSocket[target_terminal_id]?.terminate();
+            delete mapTerminalIdToSocket[target_terminal_id];
           },
         }),
         catchError(() => EMPTY),
