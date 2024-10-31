@@ -1,6 +1,14 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Thu, 24 Oct 2024 19:57:43 GMT and should not be manually modified.
+This log was last generated on Thu, 31 Oct 2024 21:23:42 GMT and should not be manually modified.
+
+## 0.12.16
+Thu, 31 Oct 2024 21:23:42 GMT
+
+### Patches
+
+- auto set submit_at and filled_at timestamp
+- optimize AccountInfoUnit's speed
 
 ## 0.12.15
 Thu, 24 Oct 2024 19:57:43 GMT

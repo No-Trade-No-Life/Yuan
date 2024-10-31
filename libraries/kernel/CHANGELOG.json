@@ -2,6 +2,26 @@
   "name": "@yuants/kernel",
   "entries": [
     {
+      "version": "0.12.16",
+      "tag": "@yuants/kernel_v0.12.16",
+      "date": "Thu, 31 Oct 2024 21:23:42 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "auto set submit_at and filled_at timestamp"
+          },
+          {
+            "comment": "optimize AccountInfoUnit's speed"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.12.15",
       "tag": "@yuants/kernel_v0.12.15",
       "date": "Thu, 24 Oct 2024 19:57:43 GMT",
