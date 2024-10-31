@@ -91,8 +91,18 @@ export const DesktopLayout = () => {
         )}
       </Layout.Content>
       {isHideNavigator === false && (
-        <Layout.Header style={{ padding: 4 }}>
-          <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+        <Layout.Header
+          style={{
+            padding: 4,
+            backgroundColor: 'var(--semi-color-bg-1)',
+          }}
+        >
+          <Space
+            style={{
+              width: '100%',
+              justifyContent: 'space-between',
+            }}
+          >
             <Space>
               <ErrorBoundary>
                 <UserMenu />
