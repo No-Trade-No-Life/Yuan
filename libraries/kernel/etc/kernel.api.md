@@ -666,6 +666,7 @@ export class ProductLoadingUnit extends BasicUnit {
 
 // @public
 export class QuoteDataUnit extends BasicUnit {
+    dirtyProductIds: Set<string>;
     // (undocumented)
     dump(): {
         mapProductIdToQuote: Record<string, Record<string, IQuote>>;
