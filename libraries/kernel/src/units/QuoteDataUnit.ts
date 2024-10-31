@@ -18,6 +18,11 @@ export class QuoteDataUnit extends BasicUnit {
   private productDataUnit: ProductDataUnit | undefined;
   private mapProductIdToQuote: Record<string, Record<string, IQuote>> = {};
   private mapDatasourceIdMapProductIdToAccountIds: Record<string, Record<string, Set<string>>> = {};
+  private currentEventId: number = -1;
+  /**
+   * 本事件内发生变化的产品ID
+   */
+  dirtyProductIds: Set<string> = new Set();
 
   onInit(): void | Promise<void> {
     this.adrUnit = this.kernel.findUnit(AccountDatasourceRelationUnit);
@@ -38,6 +43,11 @@ export class QuoteDataUnit extends BasicUnit {
   }
 
   private _updateQuote(quote: IQuote) {
+    if (this.currentEventId !== this.kernel.currentEventId) {
+      this.dirtyProductIds.clear();
+      this.currentEventId = this.kernel.currentEventId;
+    }
+
     (this.mapProductIdToQuote[quote.datasource_id] ??= {})[quote.product_id] = quote;
     (this.mapProductIdToQuote[''] ??= {})[quote.product_id] = quote;
     this.mapDatasourceIdMapProductIdToAccountIds[quote.datasource_id]?.[quote.product_id]?.forEach(
@@ -45,6 +55,7 @@ export class QuoteDataUnit extends BasicUnit {
         (this.mapProductIdToQuote[account_id] ??= {})[quote.product_id] = quote;
       },
     );
+    this.dirtyProductIds.add(quote.product_id);
   }
 
   updateQuote(datasource_id: string, product_id: string, ask: number, bid: number) {
