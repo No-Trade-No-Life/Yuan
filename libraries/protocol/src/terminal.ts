@@ -656,6 +656,7 @@ export class Terminal {
           // ISSUE: filter out terminals that have not been updated for a long time
           // filter((x) => Date.now() - x.updated_at! < 60_000),
           toArray(),
+          timeout(5000),
           retry({ delay: 1000 }),
           // ISSUE: Storage workload
           repeat({ delay: 10000 }),
@@ -699,6 +700,10 @@ export class Terminal {
           // request maybe failed, so we should retry until success or cancelled by new pushing action
           switchMap(() =>
             defer(() => this.request('UpdateTerminalInfo', '@host', this.terminalInfo)).pipe(
+              tap((msg) =>
+                console.info(formatTime(Date.now()), 'Terminal', 'terminalInfo', 'pushed', msg.res?.code),
+              ),
+              timeout(5000),
               retry({ delay: 1000 }),
             ),
           ),
@@ -739,6 +744,7 @@ export class Terminal {
    */
   dispose() {
     this._output$.complete();
+    this._conn.output$.return?.(); // close the WS connection
     this._subscriptions.forEach((sub) => sub.unsubscribe());
     this._dispose$.next();
   }

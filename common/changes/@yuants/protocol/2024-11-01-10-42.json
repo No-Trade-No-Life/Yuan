@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "fast timeout when syncing terminal info",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
