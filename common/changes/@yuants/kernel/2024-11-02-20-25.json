@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/kernel",
+      "comment": "fix position variant bug and isolated account position used and profit",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/kernel"
+}

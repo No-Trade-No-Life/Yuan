@@ -39,8 +39,8 @@ export class AccountInfoUnit extends BasicUnit {
   private mapAccountIdToPositionIdToPosition: Record<string, Record<string, IPosition>> = {}; // 复用引用，增强性能
   private mapAccountIdToPositions: Record<string, IPosition[]> = {}; // 复用引用，增强性能
   private mapAccountIdToProductIdToPositions: Record<string, Record<string, IPosition[]>> = {}; // 复用引用，增强性能
-  private mapPositionIdToUsed: Record<string, number | undefined> = {};
-  private mapPositionIdToFloatingProfit: Record<string, number | undefined> = {};
+  private mapAccountIdToPositionIdToUsed: Record<string, Record<string, number | undefined>> = {};
+  private mapAccountIdToPositionIdToFloatingProfit: Record<string, Record<string, number | undefined>> = {};
 
   mapAccountIdToAccountInfo: Map<string, IAccountInfo> = new Map();
 
@@ -55,6 +55,8 @@ export class AccountInfoUnit extends BasicUnit {
     this.mapAccountIdToAccountInfo.set(account_id, newAccountInfo);
     this.mapAccountIdToPositionIdToPosition[account_id] = {};
     this.mapAccountIdToProductIdToPositions[account_id] = {};
+    this.mapAccountIdToPositionIdToFloatingProfit[account_id] = {};
+    this.mapAccountIdToPositionIdToUsed[account_id] = {};
     return newAccountInfo;
   }
 
@@ -98,10 +100,11 @@ export class AccountInfoUnit extends BasicUnit {
     productPositions.splice(idx2, 1);
     const theAccountInfo = this.mapAccountIdToAccountInfo.get(account_id);
     if (!theAccountInfo) return;
-    theAccountInfo.money.used -= this.mapPositionIdToUsed[position_id] || 0;
-    delete this.mapPositionIdToUsed[position_id];
-    theAccountInfo.money.profit -= this.mapPositionIdToFloatingProfit[position_id] || 0;
-    delete this.mapPositionIdToFloatingProfit[position_id];
+    theAccountInfo.money.used -= this.mapAccountIdToPositionIdToUsed[account_id][position_id] || 0;
+    delete this.mapAccountIdToPositionIdToUsed[account_id][position_id];
+    theAccountInfo.money.profit -=
+      this.mapAccountIdToPositionIdToFloatingProfit[account_id][position_id] || 0;
+    delete this.mapAccountIdToPositionIdToFloatingProfit[account_id][position_id];
   }
 
   updateAccountInfo(accountId: string) {
@@ -128,7 +131,8 @@ export class AccountInfoUnit extends BasicUnit {
       const theProduct = this.productDataUnit.getProduct(order.account_id, order.product_id)!;
 
       // 假设所有的 order 都有 position_id
-      const variant = order.order_direction === 'OPEN_LONG' ? 'LONG' : 'SHORT';
+      const variant =
+        order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_LONG' ? 'LONG' : 'SHORT';
       const thePosition = this.getPosition(accountId, order.position_id!, order.product_id, variant);
       if (order.order_direction === 'OPEN_LONG' || order.order_direction === 'OPEN_SHORT') {
         // 开仓
@@ -205,8 +209,9 @@ export class AccountInfoUnit extends BasicUnit {
           position.closable_price = closable_price;
           position.floating_profit = floating_profit;
           theAccountInfo.money.profit +=
-            floating_profit - (this.mapPositionIdToFloatingProfit[position.position_id] || 0);
-          this.mapPositionIdToFloatingProfit[position.position_id] = floating_profit;
+            floating_profit -
+            (this.mapAccountIdToPositionIdToFloatingProfit[accountId][position.position_id] || 0);
+          this.mapAccountIdToPositionIdToFloatingProfit[accountId][position.position_id] = floating_profit;
         }
         // 维护账户保证金
         if (product) {
@@ -219,8 +224,9 @@ export class AccountInfoUnit extends BasicUnit {
               theAccountInfo.money.currency,
               (product_id) => this.quoteDataUnit.getQuote(accountId, product_id),
             ) / (theAccountInfo.money.leverage ?? 1) || 0;
-          theAccountInfo.money.used += used - (this.mapPositionIdToUsed[position.position_id] || 0);
-          this.mapPositionIdToUsed[position.position_id] = used;
+          theAccountInfo.money.used +=
+            used - (this.mapAccountIdToPositionIdToUsed[accountId][position.position_id] || 0);
+          this.mapAccountIdToPositionIdToUsed[accountId][position.position_id] = used;
         }
       }
     }
