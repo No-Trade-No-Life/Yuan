@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Thu, 24 Oct 2024 19:57:43 GMT and should not be manually modified.
+This log was last generated on Sat, 02 Nov 2024 10:25:33 GMT and should not be manually modified.
+
+## 0.24.1
+Sat, 02 Nov 2024 10:25:33 GMT
+
+### Patches
+
+- fast timeout when syncing terminal info
 
 ## 0.24.0
 Thu, 24 Oct 2024 19:57:43 GMT

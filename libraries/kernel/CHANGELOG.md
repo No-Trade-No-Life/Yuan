@@ -1,6 +1,13 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Thu, 31 Oct 2024 21:23:42 GMT and should not be manually modified.
+This log was last generated on Sat, 02 Nov 2024 10:25:33 GMT and should not be manually modified.
+
+## 0.12.17
+Sat, 02 Nov 2024 10:25:33 GMT
+
+### Patches
+
+- fix null error
 
 ## 0.12.16
 Thu, 31 Oct 2024 21:23:42 GMT
