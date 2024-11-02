@@ -32,7 +32,7 @@ export class AccountInfoUnit extends BasicUnit {
     }
   }
 
-  private orderIdx = 0;
+  orderIdx = 0;
 
   private mapAccountIdToBalance: Record<string, number> = {};
 
