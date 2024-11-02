@@ -89,8 +89,9 @@ export class AccountInfoUnit extends BasicUnit {
     const positions = this.mapAccountIdToPositions[account_id];
     const idx = positions.findIndex((position) => position.position_id === position_id);
     if (idx < 0) return;
+    const thePosition = positions[idx];
     positions.splice(idx, 1);
-    const product_id = positions[idx].product_id;
+    const product_id = thePosition.product_id;
     const productPositions = this.mapAccountIdToProductIdToPositions[account_id][product_id];
     const idx2 = productPositions.findIndex((position) => position.position_id === position_id);
     if (idx2 < 0) return;
