@@ -2,6 +2,23 @@
   "name": "@yuants/app-email-notifier",
   "entries": [
     {
+      "version": "0.1.14",
+      "tag": "@yuants/app-email-notifier_v0.1.14",
+      "date": "Sat, 02 Nov 2024 10:25:33 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.24.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.13",
       "tag": "@yuants/app-email-notifier_v0.1.13",
       "date": "Thu, 24 Oct 2024 19:57:43 GMT",
