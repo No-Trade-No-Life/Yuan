@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/kernel",
+      "comment": "support updating orderIdx of AccountInfoUnit",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/kernel"
+}

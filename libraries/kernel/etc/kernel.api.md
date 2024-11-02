@@ -55,6 +55,8 @@ export class AccountInfoUnit extends BasicUnit {
     // (undocumented)
     onInit(): void | Promise<void>;
     // (undocumented)
+    orderIdx: number;
+    // (undocumented)
     productDataUnit: ProductDataUnit;
     // (undocumented)
     quoteDataUnit: QuoteDataUnit;

@@ -13,3 +13,8 @@ body[theme-mode='dark'] {
 body[theme-mode='dark'] .flexlayout__tab {
   background-color: #141414;
 }
+
+/* SEMI TABLE STYLE FIX */
+.semi-table-tbody > .semi-table-row > .semi-table-row-cell {
+  word-break: break-all;
+}
