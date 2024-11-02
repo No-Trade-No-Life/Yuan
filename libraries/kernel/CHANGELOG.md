@@ -1,6 +1,13 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Sat, 02 Nov 2024 10:25:33 GMT and should not be manually modified.
+This log was last generated on Sat, 02 Nov 2024 18:24:00 GMT and should not be manually modified.
+
+## 0.13.0
+Sat, 02 Nov 2024 18:24:00 GMT
+
+### Minor changes
+
+- support updating orderIdx of AccountInfoUnit
 
 ## 0.12.17
 Sat, 02 Nov 2024 10:25:33 GMT

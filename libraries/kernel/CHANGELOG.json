@@ -2,6 +2,23 @@
   "name": "@yuants/kernel",
   "entries": [
     {
+      "version": "0.13.0",
+      "tag": "@yuants/kernel_v0.13.0",
+      "date": "Sat, 02 Nov 2024 18:24:00 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "support updating orderIdx of AccountInfoUnit"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.12.17",
       "tag": "@yuants/kernel_v0.12.17",
       "date": "Sat, 02 Nov 2024 10:25:33 GMT",
