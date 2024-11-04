@@ -40,7 +40,7 @@ export const reduceState = (state: IFundState, event: IFundEvent): IFundState =>
   // 更新投资人信息
   if (event.investor) {
     // 更新税率
-    if (event.investor.tax_rate) {
+    if (typeof event.investor.tax_rate === 'number') {
       nextState.investors[event.investor.name].tax_rate = event.investor.tax_rate;
     }
   }
