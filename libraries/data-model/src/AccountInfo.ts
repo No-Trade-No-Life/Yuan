@@ -180,10 +180,48 @@ export interface IPosition {
    */
   interest_to_settle?: number;
 
-  // Position is one of the reasons for occupying margin,
-  // but the calculation mechanism of margin is relatively complex, and the algorithms of various exchanges are different.
-  // Therefore, Yuan does not calculate the margin based on the final margin given by the exchange.
-  // margin: number;
+  /**
+   * 使用的保证金
+   * Used margin
+   *
+   * NOTE: 保证金是占用资金的一种原因，但保证金的计算机制相对复杂，各个交易所的算法不同。
+   */
+  margin?: number;
+
+  /**
+   * 已实现盈亏
+   *
+   * Realized PnL
+   */
+  realized_pnl?: number;
+
+  /**
+   * 已开仓总量
+   *
+   * Total opened volume
+   */
+  total_opened_volume?: number;
+  /**
+   * 已平仓总量
+   *
+   * Total closed volume
+   */
+  total_closed_volume?: number;
+
+  /**
+   * 创建时间
+   */
+  created_at?: number;
+  /**
+   * 更新时间
+   */
+  updated_at?: number;
+
+  /**
+   * 已实现盈亏的平均价格 = 已实现盈亏 / 已平仓总量
+   * Average price of realized PnL
+   */
+  // realized_position_price?: number;
 }
 
 /**

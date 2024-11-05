@@ -445,6 +445,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/account-info-resolver",
+      "projectFolder": "libraries/account-info-resolver",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/extension",
       "projectFolder": "libraries/extension",
       "shouldPublish": true
