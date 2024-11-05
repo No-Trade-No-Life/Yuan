@@ -121,7 +121,8 @@ export class AccountInfoResolver implements IAccountInfoResolver {
         }
 
         // 假设所有的 order 都有 position_id
-        const variant = order.order_direction === 'OPEN_LONG' ? 'LONG' : 'SHORT';
+        const variant =
+          order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_LONG' ? 'LONG' : 'SHORT';
         const thePosition = this.getPosition(
           theAccountInfo.account_id,
           order.position_id,
@@ -140,6 +141,7 @@ export class AccountInfoResolver implements IAccountInfoResolver {
         if (order.profit_correction) {
           theAccountInfo.money.balance += order.profit_correction;
         }
+thePosition.updated_at = order.filled_at;
 
         // ISSUE: 假设订单一旦成交即全部成交
         if (order.order_direction === 'OPEN_LONG' || order.order_direction === 'OPEN_SHORT') {
@@ -147,6 +149,7 @@ export class AccountInfoResolver implements IAccountInfoResolver {
           if (thePosition.volume === 0) {
             thePosition.position_price = order.traded_price!;
             thePosition.free_volume = thePosition.volume = order.traded_volume;
+            thePosition.total_opened_volume = (thePosition.total_opened_volume || 0) + order.traded_volume;
           } else {
             // 开仓的时候，如果有头寸，就要更新头寸
             const nextVolume = roundToStep(
@@ -161,15 +164,12 @@ export class AccountInfoResolver implements IAccountInfoResolver {
                 nextVolume;
             thePosition.free_volume = thePosition.volume = nextVolume;
             thePosition.position_price = nextPositionPrice;
+            thePosition.total_opened_volume = (thePosition.total_opened_volume || 0) + order.traded_volume;
           }
         } else {
           // 平仓
           const tradedVolume = roundToStep(order.traded_volume, theProduct.volume_step ?? 1);
           const nextVolume = roundToStep(thePosition.volume - tradedVolume, theProduct.volume_step ?? 1);
-          // 如果头寸已经平仓完了，就删除头寸
-          if (nextVolume === 0) {
-            this.removePosition(theAccountInfo.account_id, order.position_id);
-          }
           thePosition.free_volume = thePosition.volume = nextVolume;
           const realized_profit = getProfit(
             theProduct,
@@ -180,8 +180,14 @@ export class AccountInfoResolver implements IAccountInfoResolver {
             theAccountInfo.money.currency,
             (product_id) => this.mapProductIdToQuote.get(product_id),
           );
+          thePosition.realized_pnl = (thePosition.realized_pnl || 0) + realized_profit;
+          thePosition.total_closed_volume = (thePosition.total_closed_volume || 0) + tradedVolume;
           // 更新余额
           theAccountInfo.money.balance += realized_profit;
+          // 如果头寸已经平仓完了，就删除头寸
+          if (nextVolume === 0) {
+            this.removePosition(theAccountInfo.account_id, order.position_id);
+          }
         }
       }
       if (toRemove.length === 0) break;
@@ -207,12 +213,12 @@ export class AccountInfoResolver implements IAccountInfoResolver {
       if (!position.account_id) throw new Error('position.account_id not found');
       const account_id = position.account_id;
       const theAccountInfo = this.mapAccountIdToAccountInfo.get(account_id);
-      if (!theAccountInfo) throw new Error('account not found');
+      if (!theAccountInfo) throw new Error(`Account not found: ${account_id}`);
       const product_id = position.product_id;
       const quote = this.mapProductIdToQuote.get(product_id);
       const product = this.mapProductIdToProduct.get(product_id);
-      if (!product) throw new Error('product not found');
-      if (!quote) throw new Error('quote not found');
+      if (!product) throw new Error(`Product not found: ${product_id}`);
+      if (!quote) throw new Error(`Quote not found: ${product_id}`);
 
       // Position is valid.
       const closable_price = position.direction === 'LONG' ? quote.bid : quote.ask;
@@ -244,6 +250,7 @@ export class AccountInfoResolver implements IAccountInfoResolver {
       position.closable_price = closable_price;
       position.floating_profit = floating_profit;
       position.valuation = valuation;
+      position.margin = used;
       theAccountInfo.money.profit = nextAccountFloatingProfit;
       theAccountInfo.money.used = nextAccountMargin;
       dirtyAccountIds.add(account_id);

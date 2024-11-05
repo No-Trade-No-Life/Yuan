@@ -18,7 +18,7 @@ const product: IProduct = {
 
 describe('AccountInfoResolver', () => {
   it(`order disorder arrival`, () => {
-    const accountInfo: IAccountInfo = createEmptyAccountInfo('account456', 'USD', 100, 100_000_000);
+    const accountInfo = () => createEmptyAccountInfo('account456', 'USD', 100, 100_000_000);
 
     const buy1: IOrder = {
       order_id: 'order123',
@@ -69,16 +69,17 @@ describe('AccountInfoResolver', () => {
     };
 
     const resolver1: IAccountInfoResolver = new AccountInfoResolver();
-    resolver1.updateAccountInfo(accountInfo);
+    resolver1.updateAccountInfo(accountInfo());
     resolver1.updateProduct(product);
     resolver1.updateQuote('BTCUSD', { ask: 50000, bid: 49999 });
 
     resolver1.updateOrder(buy1);
     resolver1.updateOrder(buy2);
     resolver1.updateOrder(sell1);
+    console.info(JSON.stringify(resolver1.mapAccountIdToAccountInfo.get('account456')));
 
     const resolver2: IAccountInfoResolver = new AccountInfoResolver();
-    resolver2.updateAccountInfo(accountInfo);
+    resolver2.updateAccountInfo(accountInfo());
     resolver2.updateProduct(product);
     resolver2.updateQuote('BTCUSD', { ask: 50000, bid: 49999 });
 
@@ -86,7 +87,7 @@ describe('AccountInfoResolver', () => {
     resolver2.updateOrder(sell1);
     resolver2.updateOrder(buy2);
 
-    console.info(JSON.stringify(resolver1.mapAccountIdToAccountInfo.get('account456')));
+    console.info(JSON.stringify(resolver2.mapAccountIdToAccountInfo.get('account456')));
 
     expect(resolver1.mapAccountIdToAccountInfo.get('account456')).toEqual(
       resolver2.mapAccountIdToAccountInfo.get('account456'),
@@ -139,9 +140,12 @@ describe('AccountInfoResolver', () => {
           position_price: 50000,
           closable_price: 50000,
           valuation: 25000,
+          margin: 2500,
           volume: 0.5,
           free_volume: 0.5,
           floating_profit: 0,
+          total_opened_volume: 0.5,
+          updated_at: 1,
           direction: 'LONG',
         },
       ],
