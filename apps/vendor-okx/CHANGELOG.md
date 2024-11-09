@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Sat, 02 Nov 2024 10:25:33 GMT and should not be manually modified.
+This log was last generated on Sat, 09 Nov 2024 23:37:03 GMT and should not be manually modified.
+
+## 0.7.20
+Sat, 09 Nov 2024 23:37:03 GMT
+
+### Patches
+
+- fix free margin calculations of trading account
 
 ## 0.7.19
 Sat, 02 Nov 2024 10:25:33 GMT
