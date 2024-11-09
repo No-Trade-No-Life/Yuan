@@ -348,7 +348,10 @@ const tradingAccountInfo$ = combineLatest([
       const usdtBalance = balanceApi.data[0]?.details.find((x) => x.ccy === 'USDT');
       const equity = +(usdtBalance?.eq ?? 0);
       const balance = +(usdtBalance?.cashBal ?? 0);
-      const free = +(usdtBalance?.availEq ?? 0);
+      const free = Math.min(
+        balance, // free should no more than balance if there is much profits
+        +(usdtBalance?.availEq ?? 0),
+      );
       const used = equity - free;
       // const used = +usdtBalance.frozenBal;
       const profit = equity - balance;
