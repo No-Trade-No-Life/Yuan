@@ -92,6 +92,14 @@ const usdtSwapProducts$ = swapInstruments$.pipe(
   shareReplay(1),
 );
 
+const resOfAssetCurrencies = defer(() => client.getAssetCurrencies()).pipe(
+  repeat({ delay: 3600_000 }),
+  retry({ delay: 10_000 }),
+  shareReplay(1),
+);
+
+resOfAssetCurrencies.subscribe(); // make it hot
+
 const marginInstruments$ = defer(() => client.getInstruments({ instType: 'MARGIN' })).pipe(
   repeat({ delay: 3600_000 }),
   retry({ delay: 10_000 }),
@@ -535,11 +543,17 @@ defer(async () => {
             ) {
               return { state: 'ERROR', message: 'Amount too small' };
             }
+            const res = await firstValueFrom(resOfAssetCurrencies);
+            const theRes = res.data?.find((x) => x.ccy === 'USDT' && x.chain === 'USDT-TRC20');
+            const _fee = theRes?.minFee;
+            if (!_fee) return { state: 'ERROR', message: 'Currency Info not found, cannot get fee' };
+            const fee = +_fee;
+            const amt = Math.floor(order.current_amount - fee);
             const transferResult = await client.postAssetWithdrawal({
-              amt: `${order.current_amount! - 1}`,
+              amt: `${amt}`,
               ccy: 'USDT',
               chain: 'USDT-TRC20',
-              fee: '1',
+              fee: `${fee}`,
               dest: '4', // 链上提币
               toAddr: order.current_rx_address!,
             });
