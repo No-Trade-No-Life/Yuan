@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Sat, 09 Nov 2024 23:37:03 GMT and should not be manually modified.
+This log was last generated on Sun, 10 Nov 2024 04:18:19 GMT and should not be manually modified.
+
+## 0.7.21
+Sun, 10 Nov 2024 04:18:19 GMT
+
+### Patches
+
+- use dynamic withdraw fee
 
 ## 0.7.20
 Sat, 09 Nov 2024 23:37:03 GMT
