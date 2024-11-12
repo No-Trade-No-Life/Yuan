@@ -266,10 +266,8 @@ registerPage('AccountInfoPanel', () => {
   const actual_leverage =
     (accountInfo?.money.equity ?? 0) > 0 ? valuation / (accountInfo?.money.equity ?? 0) : NaN;
 
-  const total_interest_to_settle = positionSummary.reduce(
-    (acc, cur) => acc + (cur.net.interest_to_settle || 0),
-    0,
-  );
+  const total_interest_to_settle =
+    accountInfo?.positions.reduce((acc, cur) => acc + (cur.interest_to_settle || 0), 0) || 0;
 
   const updatedAt = accountInfo?.updated_at!;
   const renderedAt = Date.now();
