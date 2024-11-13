@@ -16,11 +16,11 @@ import {
   map,
   mergeMap,
   of,
+  repeat,
   shareReplay,
   Subject,
   tap,
   timeout,
-  TimeoutError,
   toArray,
 } from 'rxjs';
 
@@ -205,36 +205,34 @@ const term = new Terminal(HV_URL, {
 
 const keepAliveSignal$ = new Subject<void>();
 
-keepAliveSignal$
+defer(() => keepAliveSignal$.pipe(first()))
   .pipe(
     //
     tap(() => {
       console.info(formatTime(Date.now()), 'WatchdogReceived');
     }),
-    timeout(5 * 60_000),
+    timeout(10 * 60_000),
     catchError((e) => {
-      if (e instanceof TimeoutError) {
-        console.error(formatTime(Date.now()), 'WatchdogFailed', '超过 300 秒没有收到 Watchdog');
-        const alert: IAlertGroup = {
-          name: 'WatchdogFailed',
-          // TODO: read from alertmanager
-          env: ENV,
-          severity: AlertSeverity.CRITICAL,
-          summary: 'AlertReceiver 超过 5 分钟未收到 Watchdog 消息',
-          run_book_url: 'https://tradelife.feishu.cn/wiki/wikcn8hGhnA1fPBztoGyh6rRzqe',
-          alerts: [
-            {
-              start_time: Date.now(),
-              end_time: 0,
-              description: 'AlertReceiver 超过 5 分钟未收到 Watchdog 消息',
-              resolved: false,
-            },
-          ],
-        };
-        return sendAlert(alert);
-      }
-      throw e;
+      console.error(formatTime(Date.now()), 'WatchdogFailed', '超过 600 秒没有收到 Watchdog');
+      const alert: IAlertGroup = {
+        name: 'WatchdogFailed',
+        // TODO: read from alertmanager
+        env: ENV,
+        severity: AlertSeverity.CRITICAL,
+        summary: 'AlertReceiver 超过 5 分钟未收到 Watchdog 消息',
+        run_book_url: 'https://tradelife.feishu.cn/wiki/wikcn8hGhnA1fPBztoGyh6rRzqe',
+        alerts: [
+          {
+            start_time: Date.now(),
+            end_time: 0,
+            description: 'AlertReceiver 超过 5 分钟未收到 Watchdog 消息',
+            resolved: false,
+          },
+        ],
+      };
+      return sendAlert(alert);
     }),
+    repeat(),
   )
   .subscribe();
 
@@ -248,8 +246,13 @@ httpServer.post('/alertmanager', (req, res) => {
   console.info(formatTime(Date.now()), 'AlertReceived', JSON.stringify(req.body));
   of(req.body as IAlertManagerMessage)
     .pipe(
-      //
-      filter((msg) => msg.commonLabels['alertname'] !== undefined),
+      // keep alive signal
+      tap((msg) => {
+        if (msg.commonLabels['alertname'] === 'Watchdog') {
+          keepAliveSignal$.next();
+        }
+      }),
+      filter((msg) => msg.commonLabels['alertname'] !== undefined && msg.commonLabels['severity'] !== 'none'),
       mergeMap((msg) => {
         return from(msg.alerts).pipe(
           //
