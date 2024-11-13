@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-namespaced-mongodb-storage",
+      "comment": "chore: alerting rule add wait",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-namespaced-mongodb-storage"
+}
