@@ -9,6 +9,7 @@ import {
   bindNodeCallback,
   catchError,
   defer,
+  delay,
   EMPTY,
   filter,
   first,
@@ -230,7 +231,10 @@ defer(() => keepAliveSignal$.pipe(first()))
           },
         ],
       };
-      return sendAlert(alert);
+      return sendAlert(alert).pipe(
+        // cool down for 30 minutes
+        delay(30 * 60_000),
+      );
     }),
     repeat(),
   )
