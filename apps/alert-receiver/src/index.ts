@@ -9,6 +9,7 @@ import {
   bindNodeCallback,
   catchError,
   defer,
+  delay,
   EMPTY,
   filter,
   first,
@@ -211,9 +212,9 @@ defer(() => keepAliveSignal$.pipe(first()))
     tap(() => {
       console.info(formatTime(Date.now()), 'WatchdogReceived');
     }),
-    timeout(10 * 60_000),
+    timeout(5 * 60_000),
     catchError((e) => {
-      console.error(formatTime(Date.now()), 'WatchdogFailed', '超过 600 秒没有收到 Watchdog');
+      console.error(formatTime(Date.now()), 'WatchdogFailed', '超过 300 秒没有收到 Watchdog');
       const alert: IAlertGroup = {
         name: 'WatchdogFailed',
         // TODO: read from alertmanager
@@ -230,7 +231,10 @@ defer(() => keepAliveSignal$.pipe(first()))
           },
         ],
       };
-      return sendAlert(alert);
+      return sendAlert(alert).pipe(
+        // cool down for 30 minutes
+        delay(30 * 60_000),
+      );
     }),
     repeat(),
   )
