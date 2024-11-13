@@ -132,6 +132,7 @@ export default (context: IExtensionContext) => {
                       summary: 'MongoDB instance down',
                     },
                     expr: 'mongodb_up == 0',
+                    for: '2m',
                     labels: {
                       severity: 'critical',
                     },
