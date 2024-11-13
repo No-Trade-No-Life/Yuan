@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-alert-receiver
 
-This log was last generated on Sat, 02 Nov 2024 10:25:33 GMT and should not be manually modified.
+This log was last generated on Wed, 13 Nov 2024 12:49:50 GMT and should not be manually modified.
+
+## 0.1.68
+Wed, 13 Nov 2024 12:49:50 GMT
+
+### Patches
+
+- fix: watch dog alerts
 
 ## 0.1.67
 Sat, 02 Nov 2024 10:25:33 GMT
