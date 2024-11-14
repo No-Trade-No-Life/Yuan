@@ -457,14 +457,15 @@ declare module '@yuants/ui-web' {
 
   function TableView<T>(props: { table: Table<T> }): react_jsx_runtime.JSX.Element;
 
+  type ToastProps = string | Omit<ToastReactProps, 'type'>;
   /**
    * Yuan Toast Component
    */
   const Toast: {
-    info: (props: ToastReactProps) => string;
-    error: (props: ToastReactProps) => string;
-    success: (props: ToastReactProps) => string;
-    warning: (props: ToastReactProps) => string;
+    info: (props: ToastProps) => string;
+    error: (props: ToastProps) => string;
+    success: (props: ToastProps) => string;
+    warning: (props: ToastProps) => string;
     close: (id: string) => void;
   };
 
@@ -475,6 +476,7 @@ declare module '@yuants/ui-web' {
   const index_d$e_PivotTable: typeof PivotTable;
   const index_d$e_TableView: typeof TableView;
   const index_d$e_Toast: typeof Toast;
+  type index_d$e_ToastProps = ToastProps;
   namespace index_d$e {
     export {
       index_d$e_Button as Button,
@@ -484,6 +486,7 @@ declare module '@yuants/ui-web' {
       index_d$e_PivotTable as PivotTable,
       index_d$e_TableView as TableView,
       index_d$e_Toast as Toast,
+      type index_d$e_ToastProps as ToastProps,
     };
   }
 
