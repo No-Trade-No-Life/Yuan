@@ -59,6 +59,7 @@ export const showForm = <T>(schema: JSONSchema7, initialData?: any): Promise<T> 
       Modal.confirm({
         title: schema.title,
         content: schema.description,
+        getPopupContainer: () => document.getElementById('root') as HTMLElement,
         okText: t('common:yes'),
         cancelText: t('common:no'),
         onOk: () => {
@@ -76,6 +77,7 @@ export const showForm = <T>(schema: JSONSchema7, initialData?: any): Promise<T> 
     let modal: ReturnType<typeof Modal.info> | undefined;
     function getProps(): ModalReactProps {
       return {
+        getPopupContainer: () => document.getElementById('root') as HTMLElement,
         content: React.createElement(
           Form,
           {
