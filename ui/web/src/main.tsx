@@ -11,6 +11,7 @@ import '@icon-park/react/styles/index.css';
 import './index.css';
 
 // Global Libraries
+import { ConfigProvider } from '@douyinfe/semi-ui';
 import * as Kernel from '@yuants/kernel';
 import * as rx from 'rxjs';
 Object.assign(globalThis, { rx, Kernel });
@@ -47,8 +48,10 @@ const queryClient = new QueryClient();
 // React Render!
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <App />
-    </QueryClientProvider>
+    <ConfigProvider getPopupContainer={() => document.getElementById('root') as HTMLElement}>
+      <QueryClientProvider client={queryClient}>
+        <App />
+      </QueryClientProvider>
+    </ConfigProvider>
   </React.StrictMode>,
 );

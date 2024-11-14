@@ -19,6 +19,7 @@ export * as Fund from './modules/Fund';
 export * as GeneralSpecificRelations from './modules/GeneralSpecificRelations';
 export * as Interactive from './modules/Interactive';
 export * as Kernel from './modules/Kernel';
+export * as Launch from './modules/Launch';
 export * as Market from './modules/Market';
 export * as Order from './modules/Order';
 export * as Pages from './modules/Pages';
