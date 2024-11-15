@@ -67,6 +67,24 @@ export default (context: IExtensionContext) => {
               },
             },
             spec: {
+              affinity: {
+                nodeAffinity: {
+                  preferredDuringSchedulingIgnoredDuringExecution: [
+                    {
+                      weight: 50,
+                      preference: {
+                        matchExpressions: [
+                          {
+                            key: 'node-role.kubernetes.io/spot-worker',
+                            operator: 'DoesNotExist',
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              },
+              priorityClassName: 'system-cluster-critical',
               imagePullSecrets: [
                 {
                   name: 'pull-secret', // TODO(wsy): such things should be managed at namespace scope

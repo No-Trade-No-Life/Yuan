@@ -562,7 +562,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
               return { state: 'ERROR', message: transferResult.msg };
             }
             const wdId = transferResult.data.orderId;
-            return { state: 'PENDING', message: wdId };
+            return { state: 'PENDING', context: wdId };
           },
           PENDING: async (order) => {
             const wdId = order.current_tx_context;
@@ -651,7 +651,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
     // TODO: account internal margin transfer
 
     // sub-account transfer
-    const getSubAccountNetworkId = (subUid: string) => `OKX/${parentId}/SubAccount/${subUid}`;
+    const getSubAccountNetworkId = (subUid: string) => `Bitget/${parentId}/SubAccount/${subUid}`;
     if (isMainAccount) {
       const subAccountInfoRes = await client.getVirtualSubAccountList();
       for (const item of subAccountInfoRes.data.subAccountList || []) {

@@ -51,7 +51,16 @@ export class BitgetClient {
       headers,
       body: body || undefined,
     });
-    return res.json();
+    const retStr = await res.text();
+    try {
+      if (process.env.LOG_LEVEL === 'DEBUG') {
+        console.debug(formatTime(Date.now()), 'BitgetResponse', path, JSON.stringify(params), retStr);
+      }
+      return JSON.parse(retStr);
+    } catch (e) {
+      console.error(formatTime(Date.now()), 'BitgetRequestFailed', path, JSON.stringify(params), retStr);
+      throw e;
+    }
   }
 
   mapPathToRequestChannel: Record<

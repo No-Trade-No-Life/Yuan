@@ -48,11 +48,22 @@ export class GateClient {
     const retStr = await res.text();
 
     try {
+      if (process.env.LOG_LEVEL === 'DEBUG') {
+        console.debug(
+          formatTime(Date.now()),
+          'GateResponse',
+          path,
+          JSON.stringify(params),
+          retStr,
+          res.headers,
+          res.status,
+        );
+      }
       return JSON.parse(retStr);
     } catch (e) {
       console.error(
         formatTime(Date.now()),
-        'RequestFailed',
+        'GateRequestFailed',
         path,
         JSON.stringify(params),
         retStr,

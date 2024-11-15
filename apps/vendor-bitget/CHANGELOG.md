@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-bitget
 
-This log was last generated on Sat, 02 Nov 2024 10:25:33 GMT and should not be manually modified.
+This log was last generated on Wed, 13 Nov 2024 09:13:54 GMT and should not be manually modified.
+
+## 0.1.19
+Wed, 13 Nov 2024 09:13:54 GMT
+
+### Patches
+
+- fix withdraw id param
 
 ## 0.1.18
 Sat, 02 Nov 2024 10:25:33 GMT

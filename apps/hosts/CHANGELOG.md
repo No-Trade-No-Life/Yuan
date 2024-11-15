@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-hosts
 
-This log was last generated on Sat, 02 Nov 2024 10:25:33 GMT and should not be manually modified.
+This log was last generated on Wed, 13 Nov 2024 12:49:50 GMT and should not be manually modified.
+
+## 0.1.19
+Wed, 13 Nov 2024 12:49:50 GMT
+
+### Patches
+
+- chore: add deploy priority and affinity
 
 ## 0.1.18
 Sat, 02 Nov 2024 10:25:33 GMT
