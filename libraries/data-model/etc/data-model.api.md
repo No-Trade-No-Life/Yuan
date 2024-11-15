@@ -130,15 +130,21 @@ export interface IPosition {
     account_id?: string;
     closable_price: number;
     comment?: string;
+    created_at?: number;
     datasource_id?: string;
     direction?: string;
     floating_profit: number;
     free_volume: number;
     interest_to_settle?: number;
+    margin?: number;
     position_id: string;
     position_price: number;
     product_id: string;
+    realized_pnl?: number;
     settlement_scheduled_at?: number;
+    total_closed_volume?: number;
+    total_opened_volume?: number;
+    updated_at?: number;
     valuation: number;
     volume: number;
 }

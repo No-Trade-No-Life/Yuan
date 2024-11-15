@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/account-info-resolver",
+      "comment": "init package",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/account-info-resolver"
+}
