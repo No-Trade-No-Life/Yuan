@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Bump Version",
+      "type": "none",
+      "packageName": "@yuants/account-info-resolver"
+    }
+  ],
+  "packageName": "@yuants/account-info-resolver",
+  "email": "41898282+github-actions[bot]@users.noreply.github.com"
+}
