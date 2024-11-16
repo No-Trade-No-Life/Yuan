@@ -1,0 +1,22 @@
+{
+  "name": "@yuants/account-info-resolver",
+  "entries": [
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/account-info-resolver_v0.1.0",
+      "date": "Sat, 16 Nov 2024 06:09:31 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "init package"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.17.0`"
+          }
+        ]
+      }
+    }
+  ]
+}
