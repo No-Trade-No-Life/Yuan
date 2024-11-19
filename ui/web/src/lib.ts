@@ -1,4 +1,5 @@
 import * as SemiUI from '@douyinfe/semi-ui';
+import * as SemiUIIcon from '@douyinfe/semi-icons';
 import * as IconParksIcons from '@icon-park/react';
 import * as dataModel from '@yuants/data-model';
 import * as protocol from '@yuants/protocol';
@@ -17,6 +18,7 @@ export const libs = {
   rxjs,
   yalps,
   '@douyinfe/semi-ui': SemiUI,
+  '@douyinfe/semi-icons': SemiUIIcon,
   '@icon-park/react': IconParksIcons,
   'observable-hooks': observableHooks,
   'echarts-for-react': echartsForReact,
