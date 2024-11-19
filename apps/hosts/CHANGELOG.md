@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-hosts
 
-This log was last generated on Sat, 16 Nov 2024 06:09:31 GMT and should not be manually modified.
+This log was last generated on Tue, 19 Nov 2024 10:43:22 GMT and should not be manually modified.
+
+## 0.1.21
+Tue, 19 Nov 2024 10:43:22 GMT
+
+### Patches
+
+- add hash bucket 
 
 ## 0.1.20
 Sat, 16 Nov 2024 06:09:31 GMT

@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-portal
 
-This log was last generated on Sat, 16 Nov 2024 06:09:31 GMT and should not be manually modified.
+This log was last generated on Tue, 19 Nov 2024 10:43:22 GMT and should not be manually modified.
+
+## 0.0.14
+Tue, 19 Nov 2024 10:43:22 GMT
+
+### Patches
+
+- adjust default replica to 3
 
 ## 0.0.13
 Sat, 16 Nov 2024 06:09:31 GMT
