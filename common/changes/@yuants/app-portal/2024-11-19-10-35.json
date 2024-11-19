@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-portal",
+      "comment": "adjust default replica to 3",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-portal"
+}

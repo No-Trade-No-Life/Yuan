@@ -54,7 +54,7 @@ export default (context: IExtensionContext) => {
           },
         },
         spec: {
-          replicas: 1,
+          replicas: 3,
           selector: {
             matchLabels: {
               'y.ntnl.io/component': COMPONENT_NAME,
@@ -108,7 +108,7 @@ export default (context: IExtensionContext) => {
                   resources: {
                     limits: {
                       cpu: ctx.cpu?.max ?? '1000m',
-                      memory: ctx.memory?.max ?? '1024Mi',
+                      memory: ctx.memory?.max ?? '1Gi',
                     },
                     requests: {
                       cpu: ctx.cpu?.min ?? '100m',
@@ -155,10 +155,9 @@ export default (context: IExtensionContext) => {
           namespace: 'yuan',
           annotations: {
             'cert-manager.io/cluster-issuer': 'letsencrypt-prod', // TODO(wsy): make this a dependent value
-            // 'nginx.ingress.kubernetes.io/auth-signin': `https://${
-            //   ctx.annotations!.sso_url
-            // }/oauth2/start?rd=$scheme://$best_http_host$request_uri`,
-            // 'nginx.ingress.kubernetes.io/auth-url': `https://${ctx.annotations!.sso_url}/oauth2/auth`
+            'nginx.ingress.kubernetes.io/upstream-hash-by': '$arg_public_key', // hash by public_key param
+            'nginx.ingress.kubernetes.io/configuration-snippet':
+              'proxy_set_header X-Hash-Bucket $upstream_addr',
           },
           labels: {
             'y.ntnl.io/version': ctx.version ?? envCtx.version,

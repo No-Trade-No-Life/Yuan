@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-hosts",
+      "comment": "add hash bucket ",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-hosts"
+}
