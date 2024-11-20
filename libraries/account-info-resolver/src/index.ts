@@ -98,6 +98,9 @@ export class AccountInfoResolver implements IAccountInfoResolver {
     theAccountInfo.money.used -= thePosition.margin || 0;
     theAccountInfo.money.profit -= thePosition.floating_profit || 0;
     this.mapProductIdToPositions[product_id].delete(thePosition);
+    if (this.mapProductIdToPositions[product_id].size === 0) {
+      delete this.mapProductIdToPositions[product_id];
+    }
     this._positionExit$.next(thePosition);
   }
 
