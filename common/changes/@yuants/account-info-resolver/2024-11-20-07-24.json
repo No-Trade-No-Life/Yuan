@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/account-info-resolver",
+      "comment": "fix bugs",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/account-info-resolver"
+}

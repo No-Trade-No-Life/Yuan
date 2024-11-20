@@ -33,6 +33,7 @@ export class AccountInfoResolver implements IAccountInfoResolver {
       (this.mapAccountIdToProductIdToPositions[accountInfo.account_id][position.product_id] ??= []).push(
         position,
       );
+      (this.mapProductIdToPositions[position.product_id] ??= new Set()).add(position);
     }
   }
 
@@ -97,6 +98,9 @@ export class AccountInfoResolver implements IAccountInfoResolver {
     theAccountInfo.money.used -= thePosition.margin || 0;
     theAccountInfo.money.profit -= thePosition.floating_profit || 0;
     this.mapProductIdToPositions[product_id].delete(thePosition);
+    if (this.mapProductIdToPositions[product_id].size === 0) {
+      delete this.mapProductIdToPositions[product_id];
+    }
     this._positionExit$.next(thePosition);
   }
 
@@ -141,7 +145,7 @@ export class AccountInfoResolver implements IAccountInfoResolver {
         if (order.profit_correction) {
           theAccountInfo.money.balance += order.profit_correction;
         }
-thePosition.updated_at = order.filled_at;
+        thePosition.updated_at = order.filled_at;
 
         // ISSUE: 假设订单一旦成交即全部成交
         if (order.order_direction === 'OPEN_LONG' || order.order_direction === 'OPEN_SHORT') {
@@ -218,10 +222,9 @@ thePosition.updated_at = order.filled_at;
       const quote = this.mapProductIdToQuote.get(product_id);
       const product = this.mapProductIdToProduct.get(product_id);
       if (!product) throw new Error(`Product not found: ${product_id}`);
-      if (!quote) throw new Error(`Quote not found: ${product_id}`);
 
       // Position is valid.
-      const closable_price = position.direction === 'LONG' ? quote.bid : quote.ask;
+      const closable_price = position.direction === 'LONG' ? quote?.bid || 0 : quote?.ask || 0;
       const floating_profit =
         getProfit(
           product,
