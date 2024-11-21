@@ -42,6 +42,7 @@ import {
   toArray,
 } from 'rxjs';
 import { GateClient } from './api';
+import { join } from 'path/posix';
 
 const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
   const cache: Record<string, any> = {};
@@ -72,8 +73,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
         map((contract): IProduct => {
           const [base, quote] = contract.name.split('_');
           return {
-            datasource_id: 'gate/future',
-            product_id: contract.name,
+            product_id: join('gate/future', contract.name),
             base_currency: base,
             quote_currency: quote,
             value_scale: +contract.quanto_multiplier,

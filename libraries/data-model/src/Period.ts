@@ -13,11 +13,6 @@ declare module './DataRecord' {
  */
 export interface IPeriod {
   /**
-   * Data source ID
-   * 数据源 ID
-   */
-  datasource_id: string;
-  /**
    * Product ID
    * 品种 ID
    */
@@ -94,19 +89,18 @@ export interface IPeriod {
 addDataRecordWrapper('period', (period) => {
   const period_end_time = period.timestamp_in_us / 1000 + period.period_in_sec * 1000;
   return {
-    id: `${period.datasource_id}/${period.product_id}/${period.period_in_sec}/${period.timestamp_in_us}`,
+    id: `${period.product_id}/${period.duration}/${period.start_at}`,
     type: `period`,
     created_at: period.timestamp_in_us / 1000,
     updated_at: Date.now(),
     frozen_at: period_end_time < Date.now() ? period_end_time : null,
     tags: {
-      datasource_id: period.datasource_id,
       product_id: period.product_id,
       duration: period.duration || '',
       period_in_sec: '' + period.period_in_sec,
     },
     paths: {
-      id: `/${period.datasource_id}/${period.product_id}/${period.duration}`,
+      id: `/${period.product_id}/${period.duration}`,
     },
     origin: period,
   };

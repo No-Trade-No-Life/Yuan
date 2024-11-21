@@ -11,13 +11,7 @@ import {
   formatTime,
   getDataRecordWrapper,
 } from '@yuants/data-model';
-import {
-  Terminal,
-  addAccountTransferAddress,
-  provideAccountInfo,
-  provideTicks,
-  writeDataRecords,
-} from '@yuants/protocol';
+import { Terminal, addAccountTransferAddress, provideAccountInfo, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
@@ -43,8 +37,6 @@ import {
 } from 'rxjs';
 import { BitgetClient } from './api';
 
-const DATASOURCE_ID = 'Bitget';
-
 const client = new BitgetClient({
   auth: process.env.PUBLIC_ONLY
     ? undefined
@@ -68,7 +60,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
       timer(v.expire).pipe(
         //
         mergeMap(async () => {
-          const [instType, instId] = decodePath(product_id);
+          const [, instType, instId] = decodePath(product_id);
           const res = await client.getNextFundingTime({
             symbol: instId,
             productType: instType,
@@ -115,8 +107,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
     }
     const usdtFutures = usdtFuturesProductRes.data.map(
       (product): IProduct => ({
-        product_id: encodePath(`USDT-FUTURES`, product.symbol),
-        datasource_id: DATASOURCE_ID,
+        product_id: encodePath('Bitget', `USDT-FUTURES`, product.symbol),
         quote_currency: product.quoteCoin,
         base_currency: product.baseCoin,
         price_step: Number(`1e-${product.pricePlace}`),
@@ -125,8 +116,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
     );
     const coinFutures = coinFuturesProductRes.data.map(
       (product): IProduct => ({
-        product_id: encodePath(`COIN-FUTURES`, product.symbol),
-        datasource_id: DATASOURCE_ID,
+        product_id: encodePath('Bitget', `COIN-FUTURES`, product.symbol),
         quote_currency: product.quoteCoin,
         base_currency: product.baseCoin,
         price_step: Number(`1e-${product.pricePlace}`),
@@ -202,8 +192,10 @@ const fundingTime$ = memoizeMap((product_id: string) =>
       shareReplay(1),
     );
 
-    provideTicks(terminal, DATASOURCE_ID, (product_id: string) => {
-      const [instType] = decodePath(product_id);
+    terminal.provideChannel({ pattern: `^Tick/Bitget/` }, (channel_id) => {
+      const [, ...productParts] = decodePath(channel_id);
+      const product_id = encodePath(...productParts);
+      const [, instType] = decodePath(product_id);
       if (!['USDT-FUTURES', 'COIN-FUTURES'].includes(instType)) {
         // TODO: margin
         return EMPTY;
@@ -222,7 +214,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
           combineLatest(v).pipe(
             map(([ticker, fundingTime]): ITick => {
               return {
-                datasource_id: DATASOURCE_ID,
+                datasource_id: 'Bitget',
                 product_id,
                 updated_at: Date.now(),
                 price: +ticker.lastPr,
@@ -268,8 +260,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
         positions: positionsRes.data.map(
           (position): IPosition => ({
             position_id: `${position.symbol}-${position.holdSide}`,
-            datasource_id: DATASOURCE_ID,
-            product_id: encodePath('USDT-FUTURES', position.symbol),
+            product_id: encodePath('Bitget', 'USDT-FUTURES', position.symbol),
             direction: position.holdSide === 'long' ? 'LONG' : 'SHORT',
             volume: +position.total,
             free_volume: +position.available,
@@ -351,7 +342,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
         defer(async () => {
           console.info(formatTime(Date.now()), 'SubmitOrder', msg);
           const order = msg.req;
-          const [instType, instId] = decodePath(order.product_id);
+          const [, instType, instId] = decodePath(order.product_id);
 
           const mapOrderDirectionToSide = (direction?: string) => {
             switch (direction) {
@@ -411,7 +402,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
         defer(async () => {
           console.info(formatTime(Date.now()), 'CancelOrder', msg);
           const order = msg.req;
-          const [instType, instId] = decodePath(order.product_id);
+          const [, instType, instId] = decodePath(order.product_id);
 
           const res = await client.postFutureCancelOrder({
             symbol: instId,
@@ -454,7 +445,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
             return { res: { code: 400, message: 'series_id is required' } };
           }
           const [start, end] = msg.req.time_range || [0, Date.now()];
-          const [datasource_id, product_id] = decodePath(msg.req.tags.series_id);
+          const product_id = msg.req.tags.series_id;
           const mapProductsToFutureProducts = await firstValueFrom(mapProductIdToFuturesProduct$);
           const theProduct = mapProductsToFutureProducts.get(product_id);
           if (theProduct === undefined) {
@@ -464,7 +455,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
           if (!base_currency || !quote_currency) {
             return { res: { code: 400, message: `base_currency or quote_currency is required` } };
           }
-          const [instType, instId] = decodePath(product_id);
+          const [, instType, instId] = decodePath(product_id);
           const funding_rate_history: IDataRecordTypes['funding_rate'][] = [];
           let current_page = 0;
           while (true) {
@@ -490,7 +481,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
               if (+v.fundingTime <= end) {
                 funding_rate_history.push({
                   series_id: msg.req.tags.series_id,
-                  datasource_id,
+                  datasource_id: '', // TODO: Remove this field
                   product_id,
                   base_currency,
                   quote_currency,

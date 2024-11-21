@@ -6,11 +6,6 @@
 
 export interface ITick {
   /**
-   * Data source ID
-   * 数据源 ID
-   */
-  datasource_id: string;
-  /**
    * Product ID
    * 品种 ID
    */

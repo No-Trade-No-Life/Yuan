@@ -109,7 +109,6 @@ export interface IOrder {
 // @public
 export interface IPeriod {
     close: number;
-    datasource_id: string;
     duration?: string;
     high: number;
     low: number;
@@ -154,8 +153,6 @@ export interface IProduct {
     allow_long?: boolean;
     allow_short?: boolean;
     base_currency?: string;
-    // @deprecated
-    datasource_id?: string;
     margin_rate?: number;
     max_position?: number;
     max_volume?: number;
@@ -175,7 +172,6 @@ export interface IProduct {
 export interface ITick {
     ask?: number;
     bid?: number;
-    datasource_id: string;
     interest_rate_for_long?: number;
     interest_rate_for_short?: number;
     open_interest?: number;
