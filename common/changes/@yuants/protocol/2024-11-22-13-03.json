@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "remove default log",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
