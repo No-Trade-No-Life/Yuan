@@ -107,12 +107,12 @@ export default (context: IExtensionContext) => {
                   ],
                   resources: {
                     limits: {
-                      cpu: ctx.cpu?.max ?? '1000m',
-                      memory: ctx.memory?.max ?? '1Gi',
+                      cpu: ctx.cpu?.max ?? '1200m',
+                      memory: ctx.memory?.max ?? '2Gi',
                     },
                     requests: {
-                      cpu: ctx.cpu?.min ?? '100m',
-                      memory: ctx.memory?.min ?? '128Mi',
+                      cpu: ctx.cpu?.min ?? '1000m',
+                      memory: ctx.memory?.min ?? '1Gi',
                     },
                   },
                 },

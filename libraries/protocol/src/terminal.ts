@@ -354,16 +354,18 @@ export class Terminal {
     const data$ = fromEvent(peer, 'data').pipe(
       //
       tap((data: any) => {
-        console.info(
-          formatTime(Date.now()),
-          'Terminal',
-          'WebRTC',
-          direction,
-          'data',
-          session_id,
-          remote_terminal_id,
-          data.length,
-        );
+        if (process.env.LOG_LEVEL === 'DEBUG') {
+          console.info(
+            formatTime(Date.now()),
+            'Terminal',
+            'WebRTC',
+            direction,
+            'data',
+            session_id,
+            remote_terminal_id,
+            data.length,
+          );
+        }
       }),
       map((v: any) => JSON.parse(v.toString())),
       share(),

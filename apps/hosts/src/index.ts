@@ -93,6 +93,10 @@ server.on('upgrade', (request, socket, head) => {
   const terminal_id = params.get('terminal_id')!;
   const signature = params.get('signature')!;
 
+  const headers = request.headers;
+  const upstreamBucket = headers['x-hash-bucket'];
+  console.info(formatTime(Date.now()), 'HostUpstreamBucket', upstreamBucket);
+
   const validateAuth = (): boolean => {
     if (!public_key) throw new Error('public_key is required');
     if (!terminal_id) throw new Error('terminal_id is required');
