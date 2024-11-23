@@ -1,6 +1,11 @@
 # Change Log - @yuants/app-portal
 
-This log was last generated on Tue, 19 Nov 2024 10:43:22 GMT and should not be manually modified.
+This log was last generated on Sat, 23 Nov 2024 05:37:50 GMT and should not be manually modified.
+
+## 0.0.15
+Sat, 23 Nov 2024 05:37:50 GMT
+
+_Version update only_
 
 ## 0.0.14
 Tue, 19 Nov 2024 10:43:22 GMT
