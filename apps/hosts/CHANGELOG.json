@@ -2,6 +2,28 @@
   "name": "@yuants/app-hosts",
   "entries": [
     {
+      "version": "0.1.22",
+      "tag": "@yuants/app-hosts_v0.1.22",
+      "date": "Sat, 23 Nov 2024 05:37:50 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "change default resource settings"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.24.3`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.21",
       "tag": "@yuants/app-hosts_v0.1.21",
       "date": "Tue, 19 Nov 2024 10:43:22 GMT",
