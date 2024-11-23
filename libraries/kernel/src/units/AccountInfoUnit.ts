@@ -162,10 +162,6 @@ export class AccountInfoUnit extends BasicUnit {
             theProduct.volume_step ?? 1,
           );
           const nextVolume = roundToStep(thePosition.volume - tradedVolume, theProduct.volume_step ?? 1);
-          // 如果头寸已经平仓完了，就删除头寸
-          if (nextVolume === 0) {
-            this.removePosition(accountId, order.position_id!);
-          }
           thePosition.volume = nextVolume;
           thePosition.free_volume = nextVolume;
           // 更新余额
@@ -181,6 +177,10 @@ export class AccountInfoUnit extends BasicUnit {
               (product_id) => this.quoteDataUnit.getQuote(accountId, product_id),
             );
         }
+      }
+      // 如果头寸已经平仓完了或者没有形成有效成交，就删除头寸，防止泄漏
+      if (thePosition.volume === 0) {
+        this.removePosition(accountId, thePosition.position_id);
       }
     }
 
