@@ -1,6 +1,11 @@
 # Change Log - @yuants/app-metrics-collector
 
-This log was last generated on Sat, 23 Nov 2024 05:37:50 GMT and should not be manually modified.
+This log was last generated on Sat, 23 Nov 2024 15:55:38 GMT and should not be manually modified.
+
+## 0.0.75
+Sat, 23 Nov 2024 15:55:38 GMT
+
+_Version update only_
 
 ## 0.0.74
 Sat, 23 Nov 2024 05:37:50 GMT
