@@ -247,14 +247,16 @@ export class Terminal {
               if (stringified.length > chunkSize) {
                 for (let i = 0; i < stringified.length; i += chunkSize) {
                   const body = stringified.slice(i, i + chunkSize);
-                  console.info(
-                    formatTime(Date.now()),
-                    'Terminal',
-                    'WebRTC',
-                    'sent',
-                    `chunkSize: ${chunkSize}`,
-                    body.length,
-                  );
+                  if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
+                    console.info(
+                      formatTime(Date.now()),
+                      'Terminal',
+                      'WebRTC',
+                      'sent',
+                      `chunkSize: ${chunkSize}`,
+                      body.length,
+                    );
+                  }
                   peerInfo.peer.send(
                     JSON.stringify({
                       trace_id,
@@ -310,7 +312,7 @@ export class Terminal {
     session_id: string;
     direction: 'Active' | 'Passive';
     remote_terminal_id: string;
-    onSignal: (data: any) => void;
+    onSignal: (data: any) => Observable<unknown>;
     onDestroy: () => void;
   }) {
     const { session_id, direction, remote_terminal_id, onSignal, onDestroy } = config;
@@ -329,32 +331,36 @@ export class Terminal {
     };
 
     peer.on('signal', (data) => {
-      console.info(
-        formatTime(Date.now()),
-        'Terminal',
-        'WebRTC',
-        direction,
-        'signal',
-        session_id,
-        remote_terminal_id,
-        data,
-      );
-      try {
-        onSignal(data);
-      } catch (err) {
-        console.error(formatTime(Date.now()), 'Error', err);
-        this._mapTerminalIdToPeer[remote_terminal_id] = undefined;
-        for (const sub of subs) {
-          sub.unsubscribe();
-        }
-        onDestroy();
+      if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
+        console.info(
+          formatTime(Date.now()),
+          'Terminal',
+          'WebRTC',
+          direction,
+          'signal',
+          session_id,
+          remote_terminal_id,
+          data,
+        );
       }
+      subs.push(
+        onSignal(data).subscribe({
+          error: (err) => {
+            console.error(formatTime(Date.now()), 'Error', err);
+            this._mapTerminalIdToPeer[remote_terminal_id] = undefined;
+            for (const sub of subs) {
+              sub.unsubscribe();
+            }
+            onDestroy();
+          },
+        }),
+      );
     });
 
     const data$ = fromEvent(peer, 'data').pipe(
       //
       tap((data: any) => {
-        if (process.env.LOG_LEVEL === 'DEBUG') {
+        if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
           console.info(
             formatTime(Date.now()),
             'Terminal',
@@ -426,31 +432,44 @@ export class Terminal {
     );
 
     peer.on('connect', () => {
-      console.info(
-        formatTime(Date.now()),
-        'Terminal',
-        'WebRTC',
-        direction,
-        'connected',
-        session_id,
-        remote_terminal_id,
-      );
+      if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
+        console.info(
+          formatTime(Date.now()),
+          'Terminal',
+          'WebRTC',
+          direction,
+          'connected',
+          session_id,
+          remote_terminal_id,
+        );
+      }
       // @ts-ignore
       const maxMessageSize = peer._pc.sctp?.maxMessageSize ?? 65536;
       this._mapTerminalIdToPeer[remote_terminal_id] = { session_id, maxMessageSize, peer };
-      console.info(formatTime(Date.now()), 'Terminal', 'WebRTC', direction, 'maxMessageSize', maxMessageSize);
+      if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
+        console.info(
+          formatTime(Date.now()),
+          'Terminal',
+          'WebRTC',
+          direction,
+          'maxMessageSize',
+          maxMessageSize,
+        );
+      }
     });
 
     peer.on('close', () => {
-      console.info(
-        formatTime(Date.now()),
-        'Terminal',
-        'WebRTC',
-        direction,
-        'closed',
-        session_id,
-        remote_terminal_id,
-      );
+      if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
+        console.info(
+          formatTime(Date.now()),
+          'Terminal',
+          'WebRTC',
+          direction,
+          'closed',
+          session_id,
+          remote_terminal_id,
+        );
+      }
       this._mapTerminalIdToPeer[remote_terminal_id] = undefined;
       for (const sub of subs) {
         sub.unsubscribe();
@@ -484,16 +503,18 @@ export class Terminal {
 
     this.provideService('WebRTC/Offer', {}, async (msg) => {
       const { session_id, offer } = msg.req as { session_id: string; offer: any };
-      console.info(
-        formatTime(Date.now()),
-        'Terminal',
-        'WebRTC',
-        'Passive',
-        'Offer Received',
-        session_id,
-        msg.source_terminal_id,
-        msg.req,
-      );
+      if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
+        console.info(
+          formatTime(Date.now()),
+          'Terminal',
+          'WebRTC',
+          'Passive',
+          'Offer Received',
+          session_id,
+          msg.source_terminal_id,
+          msg.req,
+        );
+      }
       const peerInfo = this._mapTerminalIdToPeer[msg.source_terminal_id];
 
       if (peerInfo !== undefined && peerInfo.session_id === session_id) {
@@ -507,29 +528,33 @@ export class Terminal {
       if (peerInfo !== undefined && peerInfo.session_id !== session_id) {
         // NOTE: here are the conflict case, to resolve the conflict, we should give up the upper terminal_id' peer
         if (msg.source_terminal_id < msg.target_terminal_id) {
-          console.info(
-            formatTime(Date.now()),
-            'Terminal',
-            'WebRTC',
-            'Passive',
-            'GiveUp',
-            session_id,
-            msg.source_terminal_id,
-            msg.req,
-          );
+          if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
+            console.info(
+              formatTime(Date.now()),
+              'Terminal',
+              'WebRTC',
+              'Passive',
+              'GiveUp',
+              session_id,
+              msg.source_terminal_id,
+              msg.req,
+            );
+          }
           peerInfo.peer.destroy();
           this._mapTerminalIdToPeer[msg.source_terminal_id] = undefined;
         } else {
-          console.info(
-            formatTime(Date.now()),
-            'Terminal',
-            'WebRTC',
-            'Passive',
-            'Conflict',
-            session_id,
-            msg.source_terminal_id,
-            msg.req,
-          );
+          if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
+            console.info(
+              formatTime(Date.now()),
+              'Terminal',
+              'WebRTC',
+              'Passive',
+              'Conflict',
+              session_id,
+              msg.source_terminal_id,
+              msg.req,
+            );
+          }
           return { res: { code: 409, message: 'Conflict' } };
         }
       }
@@ -539,9 +564,7 @@ export class Terminal {
         direction: 'Passive',
         remote_terminal_id: msg.source_terminal_id,
         onSignal: (data) => {
-          from(
-            this.request('WebRTC/Answer', msg.source_terminal_id, { session_id, answer: data }),
-          ).subscribe();
+          return from(this.request('WebRTC/Answer', msg.source_terminal_id, { session_id, answer: data }));
         },
         onDestroy: () => {},
       });
@@ -552,17 +575,18 @@ export class Terminal {
 
     this.provideService('WebRTC/Answer', {}, async (msg) => {
       const { session_id, answer } = msg.req as { session_id: string; answer: any };
-
-      console.info(
-        formatTime(Date.now()),
-        'Terminal',
-        'WebRTC',
-        'Active',
-        'Answer Received',
-        session_id,
-        msg.source_terminal_id,
-        msg.req,
-      );
+      if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
+        console.info(
+          formatTime(Date.now()),
+          'Terminal',
+          'WebRTC',
+          'Active',
+          'Answer Received',
+          session_id,
+          msg.source_terminal_id,
+          msg.req,
+        );
+      }
 
       const peerInfo = this._mapTerminalIdToPeer[msg.source_terminal_id];
 
@@ -589,50 +613,56 @@ export class Terminal {
                     if (
                       !terminal_infos.find((x) => x.terminal_id === target_terminal_id && x.enable_WebRTC)
                     ) {
-                      console.info(
-                        formatTime(Date.now()),
-                        'Terminal',
-                        'WebRTC',
-                        'Active',
-                        'not enabled for',
-                        target_terminal_id,
-                      );
+                      if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
+                        console.info(
+                          formatTime(Date.now()),
+                          'Terminal',
+                          'WebRTC',
+                          'Active',
+                          'not enabled for',
+                          target_terminal_id,
+                        );
+                      }
                       observer.complete();
                       return;
                     }
 
                     const peerInfo = this._mapTerminalIdToPeer[target_terminal_id];
-                    if (peerInfo !== undefined) {
+                    if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
+                      if (peerInfo !== undefined) {
+                        console.info(
+                          formatTime(Date.now()),
+                          'Terminal',
+                          'WebRTC',
+                          'Active',
+                          'already connected',
+                          peerInfo.session_id,
+                          target_terminal_id,
+                        );
+                        // NOTE: we don't complete the observer here to block the next active connection requests
+                        return;
+                      }
+                    }
+                    const session_id = UUID();
+                    if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
                       console.info(
                         formatTime(Date.now()),
                         'Terminal',
                         'WebRTC',
                         'Active',
-                        'already connected',
-                        peerInfo.session_id,
+                        'connecting',
+                        session_id,
                         target_terminal_id,
                       );
-                      // NOTE: we don't complete the observer here to block the next active connection requests
-                      return;
                     }
-                    const session_id = UUID();
-                    console.info(
-                      formatTime(Date.now()),
-                      'Terminal',
-                      'WebRTC',
-                      'Active',
-                      'connecting',
-                      session_id,
-                      target_terminal_id,
-                    );
                     const _ = this._setupPeer({
                       session_id,
                       direction: 'Active',
                       remote_terminal_id: target_terminal_id,
                       onSignal: (data) => {
-                        from(
+                        return from(
                           this.request('WebRTC/Offer', target_terminal_id, { session_id, offer: data }),
-                        ).subscribe();
+                        );
                       },
                       onDestroy: () => {
                         observer.complete();
