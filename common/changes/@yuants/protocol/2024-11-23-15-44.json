@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "fix: webrtc fix",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
