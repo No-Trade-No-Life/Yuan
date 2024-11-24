@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "clear positions metric if removed",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

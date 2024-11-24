@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/prometheus-client",
+      "comment": "add clear methods",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/prometheus-client"
+}

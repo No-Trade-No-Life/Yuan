@@ -83,22 +83,22 @@ export const provideAccountInfo = (terminal: Terminal, accountInfo$: ObservableI
           }
 
           for (const position of lastAccountInfo.positions) {
-            AccountInfoPositionVolume.reset({
+            AccountInfoPositionVolume.clear({
               account_id: lastAccountInfo.account_id,
               product_id: position.product_id,
               direction: position.direction || '',
             });
-            AccountInfoPositionPrice.reset({
+            AccountInfoPositionPrice.clear({
               account_id: lastAccountInfo.account_id,
               product_id: position.product_id,
               direction: position.direction || '',
             });
-            AccountInfoPositionClosablePrice.reset({
+            AccountInfoPositionClosablePrice.clear({
               account_id: lastAccountInfo.account_id,
               product_id: position.product_id,
               direction: position.direction || '',
             });
-            AccountInfoPositionFloatingProfit.reset({
+            AccountInfoPositionFloatingProfit.clear({
               account_id: lastAccountInfo.account_id,
               product_id: position.product_id,
               direction: position.direction || '',
