@@ -42,4 +42,25 @@ export abstract class Collector<T extends MetricValue> {
   }
 
   abstract reset(labels?: Labels): void;
+
+  /**
+   * Clear the metric with the given labels
+   * it will remove the metric from the collector (not reset to initial value)
+   */
+  clear(labels?: Labels): this {
+    const labelKey = this.makeLabelKey(labels);
+    delete this.data[labelKey];
+    return this;
+  }
+
+  /**
+   * Clear all metrics (not reset to initial value)
+   */
+  clearAll(): this {
+    for (const i in this.data) {
+      delete this.data[i];
+    }
+
+    return this;
+  }
 }
