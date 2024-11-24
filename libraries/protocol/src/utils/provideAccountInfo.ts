@@ -103,6 +103,11 @@ export const provideAccountInfo = (terminal: Terminal, accountInfo$: ObservableI
               product_id: position.product_id,
               direction: position.direction || '',
             });
+            AccountInfoPositionValuation.clear({
+              account_id: lastAccountInfo.account_id,
+              product_id: position.product_id,
+              direction: position.direction || '',
+            });
           }
 
           for (const position of accountInfo.positions) {
