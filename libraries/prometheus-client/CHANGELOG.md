@@ -1,6 +1,13 @@
 # Change Log - @yuants/prometheus-client
 
-This log was last generated on Thu, 22 Feb 2024 18:28:20 GMT and should not be manually modified.
+This log was last generated on Sun, 24 Nov 2024 05:13:22 GMT and should not be manually modified.
+
+## 0.1.0
+Sun, 24 Nov 2024 05:13:22 GMT
+
+### Minor changes
+
+- add clear methods
 
 ## 0.0.4
 Thu, 22 Feb 2024 18:28:20 GMT
