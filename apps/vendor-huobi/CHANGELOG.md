@@ -1,6 +1,11 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Sun, 24 Nov 2024 05:13:22 GMT and should not be manually modified.
+This log was last generated on Sun, 24 Nov 2024 06:27:35 GMT and should not be manually modified.
+
+## 0.5.21
+Sun, 24 Nov 2024 06:27:35 GMT
+
+_Version update only_
 
 ## 0.5.20
 Sun, 24 Nov 2024 05:13:22 GMT
