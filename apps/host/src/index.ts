@@ -26,6 +26,7 @@ import {
 import WebSocket from 'ws';
 
 const mapTerminalIdToSocket: Record<string, WebSocket.WebSocket> = {};
+const mapTerminalIdToHasHeader: Record<string, boolean> = {};
 
 const server = createServer();
 
@@ -72,8 +73,9 @@ server.on('upgrade', (request, socket, head) => {
   const params = url.searchParams;
   const host_token = params.get('host_token');
   const terminal_id = params.get('terminal_id');
+  const has_header = params.get('has_header') === 'true';
   if (!((!process.env.HOST_TOKEN || host_token === process.env.HOST_TOKEN) && terminal_id)) {
-    console.info(formatTime(Date.now()), 'Auth Failed', { terminal_id, host_token });
+    console.info(formatTime(Date.now()), 'Auth Failed', url.toString());
     socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
     socket.destroy();
     return;
@@ -86,11 +88,38 @@ server.on('upgrade', (request, socket, head) => {
       oldTerminal.close();
     }
     mapTerminalIdToSocket[terminal_id] = ws; // Register New Terminal
+    mapTerminalIdToHasHeader[terminal_id] = has_header;
     // Forward Terminal Messages
     (fromEvent(ws, 'message') as Observable<WebSocket.MessageEvent>).subscribe((origin) => {
-      const msg = JSON.parse(origin.data.toString());
-      if (!terminalInfos.has(msg.target_terminal_id)) return; // Skip if Terminal Not Found
-      mapTerminalIdToSocket[msg.target_terminal_id]?.send(origin.data);
+      const raw_message = origin.data.toString();
+      if (has_header) {
+        const idx = raw_message.indexOf('\n');
+        const raw_headers = raw_message.slice(0, idx + 1);
+        const headers = JSON.parse(raw_headers);
+        const target_terminal_id = headers.target_terminal_id;
+        if (!target_terminal_id) return; // Skip if target_terminal_id not defined
+        if (!terminalInfos.has(target_terminal_id)) return; // Skip if Terminal Not Found
+        if (mapTerminalIdToHasHeader[target_terminal_id]) {
+          // if target terminal supports header, forward the message as is
+          mapTerminalIdToSocket[target_terminal_id]?.send(raw_message);
+        } else {
+          // if target terminal does not support header, strip the header and forward the message
+          mapTerminalIdToSocket[target_terminal_id]?.send(raw_message.slice(idx + 1));
+        }
+      } else {
+        // message without headers
+        const msg = JSON.parse(raw_message);
+        const target_terminal_id = msg.target_terminal_id;
+        if (!terminalInfos.has(target_terminal_id)) return; // Skip if Terminal Not Found
+        if (mapTerminalIdToHasHeader[target_terminal_id]) {
+          const headers = { target_terminal_id, source_terminal_id: msg.source_terminal_id };
+          // if target terminal supports headers, wrap the message with header and forward
+          mapTerminalIdToSocket[target_terminal_id]?.send(JSON.stringify(headers) + '\n' + raw_message);
+        } else {
+          // if target terminal does not support headers, forward the message as is
+          mapTerminalIdToSocket[target_terminal_id]?.send(origin.data);
+        }
+      }
     });
     // Clean up on Terminal Disconnect
     fromEvent(ws, 'close').subscribe(() => {
@@ -98,13 +127,14 @@ server.on('upgrade', (request, socket, head) => {
       terminalInfos.delete(terminal_id);
       mapTerminalIdToSocket[terminal_id]?.terminate();
       delete mapTerminalIdToSocket[terminal_id];
+      delete mapTerminalIdToHasHeader[terminal_id];
     });
   });
 });
 
 server.listen(8888);
 
-const HOST_URL = `ws://localhost:8888?host_token=${process.env.HOST_TOKEN}`;
+const HOST_URL = `ws://localhost:8888?has_header=true&host_token=${process.env.HOST_TOKEN}`;
 const terminal = new Terminal(HOST_URL, {
   terminal_id: '@host',
   name: 'Host Terminal',
@@ -139,10 +169,11 @@ defer(() => terminalInfos.keys())
         retry(3),
         tap({
           error: (err) => {
-            console.info(formatTime(Date.now()), 'Terminal ping failed', target_terminal_id, err);
+            console.info(formatTime(Date.now()), 'Terminal ping failed', target_terminal_id, `${err}`);
             terminalInfos.delete(target_terminal_id);
             mapTerminalIdToSocket[target_terminal_id]?.terminate();
             delete mapTerminalIdToSocket[target_terminal_id];
+            delete mapTerminalIdToHasHeader[target_terminal_id];
           },
         }),
         catchError(() => EMPTY),
