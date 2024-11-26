@@ -120,6 +120,19 @@ const MetricsProcessResourceUsage = PromRegistry.create(
   'nodejs process resourceUsage',
 );
 
+const wrapMessage = (msg: ITerminalMessage): string => {
+  return `${{
+    source_terminal_id: msg.source_terminal_id,
+    target_terminal_id: msg.target_terminal_id,
+  }}\n${JSON.stringify(msg)}`;
+};
+
+const unwrapMessage = (msg: string): ITerminalMessage => {
+  const headerSplitter = msg.indexOf('\n');
+  const body = JSON.parse(msg.slice(headerSplitter + 1));
+  return body;
+};
+
 /**
  * Terminal
  *
@@ -139,6 +152,11 @@ export class Terminal {
 
   private _terminalInfoUpdated$ = new Subject<void>();
 
+  /**
+   * Terminal Message Header Flag
+   */
+  private has_header: boolean;
+
   constructor(public host_url: string, public terminalInfo: ITerminalInfo, connection?: IConnection<string>) {
     this.terminal_id = this.terminalInfo.terminal_id || UUID();
     this.terminalInfo = {
@@ -151,6 +169,8 @@ export class Terminal {
     const url = new URL(host_url);
     url.searchParams.set('terminal_id', this.terminal_id); // make sure terminal_id is in the connection parameters
     this.host_url = url.toString();
+
+    this.has_header = url.searchParams.has('has_header');
 
     this._conn = connection || createConnectionWs(this.host_url);
     this._setupTunnel();

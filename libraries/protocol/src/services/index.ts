@@ -6,6 +6,15 @@
 export interface IService {}
 
 /**
+ * Message header for terminal communication
+ * @public
+ */
+export interface ITerminalMessageHeader {
+  source_terminal_id: string;
+  target_terminal_id: string;
+}
+
+/**
  * Message format for terminal communication
  * 终端通讯时的消息格式
  * @public

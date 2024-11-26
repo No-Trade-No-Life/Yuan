@@ -135,7 +135,10 @@ export class AccountInfoResolver implements IAccountInfoResolver {
         );
 
         if (order.order_direction === 'CLOSE_LONG' || order.order_direction === 'CLOSE_SHORT') {
-          if (thePosition.volume < order.traded_volume) {
+          if (
+            Math.abs(thePosition.volume - order.traded_volume) > theProduct.volume_step! &&
+            thePosition.volume < order.traded_volume
+          ) {
             continue;
           }
         }
