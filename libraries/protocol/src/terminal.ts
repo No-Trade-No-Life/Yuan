@@ -136,6 +136,10 @@ export class Terminal {
   terminal_id: string;
   private _serviceHandlers: Record<string, IServiceHandler> = {};
   private _serviceOptions: Record<string, IServiceOptions> = {};
+  /**
+   * Terminal Message Header Flag
+   */
+  private has_header: boolean;
 
   private _terminalInfoUpdated$ = new Subject<void>();
 
@@ -151,6 +155,7 @@ export class Terminal {
     const url = new URL(host_url);
     url.searchParams.set('terminal_id', this.terminal_id); // make sure terminal_id is in the connection parameters
     this.host_url = url.toString();
+    this.has_header = url.searchParams.get('has_header') === 'true';
 
     this._conn = connection || createConnectionWs(this.host_url);
     this._setupTunnel();
@@ -171,18 +176,45 @@ export class Terminal {
     { session_id: string; maxMessageSize: number; peer: SimplePeer.Instance } | undefined
   > = {};
 
+  private _parseMsgFromWs = (msg: string): ITerminalMessage => {
+    //
+    TerminalReceivedBytesTotal.add(msg.length, {
+      terminal_id: this.terminal_id,
+      tunnel: 'WS',
+    });
+
+    if (this.has_header) {
+      return JSON.parse(msg.slice(msg.indexOf('\n') + 1));
+    }
+    return JSON.parse(msg);
+  };
+
+  private _sendMsgByWs = (msg: ITerminalMessage): void => {
+    //
+    if (this.has_header) {
+      const headers = {
+        target_terminal_id: msg.target_terminal_id,
+        source_terminal_id: msg.source_terminal_id,
+      };
+      this._conn.output$.next(JSON.stringify(headers) + '\n' + JSON.stringify(msg));
+      return;
+    }
+
+    const content = JSON.stringify(msg);
+    TerminalTransmittedBytesTotal.add(content.length, {
+      terminal_id: this.terminal_id,
+      tunnel: 'WS',
+    });
+
+    this._conn.output$.next(content);
+  };
+
   private _setupTunnel() {
     this._subscriptions.push(
       from(this._conn.input$)
         .pipe(
           map((msg) => msg.toString()),
-          tap((msg) => {
-            TerminalReceivedBytesTotal.add(msg.length, {
-              terminal_id: this.terminal_id,
-              tunnel: 'WS',
-            });
-          }),
-          map((msg): ITerminalMessage => JSON.parse(msg)),
+          map((msg): ITerminalMessage => this._parseMsgFromWs(msg)),
         )
         .subscribe((msg) => {
           if (msg.method) {
@@ -285,25 +317,13 @@ export class Terminal {
             } catch (err) {
               console.error(formatTime(Date.now()), 'Terminal', 'WebRTC', 'send', 'error', err);
               // fall back to WS
-              const content = JSON.stringify(msg);
-              TerminalTransmittedBytesTotal.add(content.length, {
-                terminal_id: this.terminal_id,
-                tunnel: 'WS',
-              });
-
-              this._conn.output$.next(content);
+              this._sendMsgByWs(msg);
             }
           });
           return;
         }
 
-        const content = JSON.stringify(msg);
-        TerminalTransmittedBytesTotal.add(content.length, {
-          terminal_id: this.terminal_id,
-          tunnel: 'WS',
-        });
-
-        this._conn.output$.next(content);
+        this._sendMsgByWs(msg);
       }),
     );
   }
