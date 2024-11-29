@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-portal",
+      "comment": "chore add terminal dispose log",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-portal"
+}

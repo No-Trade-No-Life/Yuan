@@ -58,6 +58,7 @@ defer(() =>
           });
           subscriber.next({ externalTerminal: terminal, services: x.items });
           return () => {
+            console.info(formatTime(Date.now()), `DisposeExternalTerminal: ${x.host_url}`);
             terminal.dispose();
           };
         });
