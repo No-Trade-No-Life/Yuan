@@ -95,29 +95,40 @@ server.on('upgrade', (request, socket, head) => {
       if (has_header) {
         const idx = raw_message.indexOf('\n');
         const raw_headers = raw_message.slice(0, idx + 1);
-        const headers = JSON.parse(raw_headers);
-        const target_terminal_id = headers.target_terminal_id;
-        if (!target_terminal_id) return; // Skip if target_terminal_id not defined
-        if (!terminalInfos.has(target_terminal_id)) return; // Skip if Terminal Not Found
-        if (mapTerminalIdToHasHeader[target_terminal_id]) {
-          // if target terminal supports header, forward the message as is
-          mapTerminalIdToSocket[target_terminal_id]?.send(raw_message);
-        } else {
-          // if target terminal does not support header, strip the header and forward the message
-          mapTerminalIdToSocket[target_terminal_id]?.send(raw_message.slice(idx + 1));
+        let target_terminal_id;
+        try {
+          const headers = JSON.parse(raw_headers);
+          target_terminal_id = headers.target_terminal_id;
+          if (!target_terminal_id) return; // Skip if target_terminal_id not defined
+          if (!terminalInfos.has(target_terminal_id)) return; // Skip if Terminal Not Found
+          if (mapTerminalIdToHasHeader[target_terminal_id]) {
+            // if target terminal supports header, forward the message as is
+            mapTerminalIdToSocket[target_terminal_id]?.send(raw_message);
+          } else {
+            // if target terminal does not support header, strip the header and forward the message
+            mapTerminalIdToSocket[target_terminal_id]?.send(raw_message.slice(idx + 1));
+          }
+        } catch (e) {
+          console.error(formatTime(Date.now()), 'InvalidHeader', raw_headers);
+          return;
         }
       } else {
         // message without headers
-        const msg = JSON.parse(raw_message);
-        const target_terminal_id = msg.target_terminal_id;
-        if (!terminalInfos.has(target_terminal_id)) return; // Skip if Terminal Not Found
-        if (mapTerminalIdToHasHeader[target_terminal_id]) {
-          const headers = { target_terminal_id, source_terminal_id: msg.source_terminal_id };
-          // if target terminal supports headers, wrap the message with header and forward
-          mapTerminalIdToSocket[target_terminal_id]?.send(JSON.stringify(headers) + '\n' + raw_message);
-        } else {
-          // if target terminal does not support headers, forward the message as is
-          mapTerminalIdToSocket[target_terminal_id]?.send(origin.data);
+        try {
+          const msg = JSON.parse(raw_message);
+          const target_terminal_id = msg.target_terminal_id;
+          if (!terminalInfos.has(target_terminal_id)) return; // Skip if Terminal Not Found
+          if (mapTerminalIdToHasHeader[target_terminal_id]) {
+            const headers = { target_terminal_id, source_terminal_id: msg.source_terminal_id };
+            // if target terminal supports headers, wrap the message with header and forward
+            mapTerminalIdToSocket[target_terminal_id]?.send(JSON.stringify(headers) + '\n' + raw_message);
+          } else {
+            // if target terminal does not support headers, forward the message as is
+            mapTerminalIdToSocket[target_terminal_id]?.send(origin.data);
+          }
+        } catch (e) {
+          console.error(formatTime(Date.now()), 'InvalidMessage', raw_message);
+          return;
         }
       }
     });
