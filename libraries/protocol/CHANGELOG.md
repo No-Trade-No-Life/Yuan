@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Wed, 27 Nov 2024 15:48:19 GMT and should not be manually modified.
+This log was last generated on Wed, 04 Dec 2024 09:36:47 GMT and should not be manually modified.
+
+## 0.26.0
+Wed, 04 Dec 2024 09:36:47 GMT
+
+### Minor changes
+
+- allow disposing service and channel
 
 ## 0.25.0
 Wed, 27 Nov 2024 15:48:19 GMT
