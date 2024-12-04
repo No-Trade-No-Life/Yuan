@@ -843,13 +843,21 @@ export class Terminal {
     requestSchema: JSONSchema7,
     handler: IServiceHandler<T>,
     options?: IServiceOptions,
-  ) => {
-    //
-    (this.terminalInfo.serviceInfo ??= {})[method] = { method, schema: requestSchema };
+  ): { dispose: () => void } => {
+    const serviceInfo = { method, schema: requestSchema };
+    (this.terminalInfo.serviceInfo ??= {})[method] = serviceInfo;
     // @ts-ignore
     this._serviceHandlers[method] = handler;
     this._serviceOptions[method] = options || {};
     this._terminalInfoUpdated$.next();
+    const dispose = () => {
+      if (this._serviceHandlers[method] === handler) delete this._serviceHandlers[method];
+      if (this._serviceOptions[method] === options) delete this._serviceOptions[method];
+      if (this.terminalInfo.serviceInfo?.[method] === serviceInfo)
+        delete this.terminalInfo.serviceInfo[method];
+      this._terminalInfoUpdated$.next();
+    };
+    return { dispose };
   };
 
   /**
@@ -1143,7 +1151,10 @@ export class Terminal {
    * @param channelIdSchema - JSON Schema for channel_id
    * @param handler - handler for the channel, return an Observable to provide data stream
    */
-  provideChannel = <T>(channelIdSchema: JSONSchema7, handler: (channel_id: string) => ObservableInput<T>) => {
+  provideChannel = <T>(
+    channelIdSchema: JSONSchema7,
+    handler: (channel_id: string) => ObservableInput<T>,
+  ): { dispose: () => void } => {
     const validate = new Ajv({ strict: false }).compile(channelIdSchema);
     (this.terminalInfo.channelIdSchemas ??= []).push(channelIdSchema);
     this._terminalInfoUpdated$.next();
@@ -1208,7 +1219,20 @@ export class Terminal {
         }
       }
     });
+
+    const dispose = () => {
+      // Remove channelIdSchema
+      this.terminalInfo.channelIdSchemas?.splice(
+        this.terminalInfo.channelIdSchemas.indexOf(channelIdSchema),
+        1,
+      );
+      this._terminalInfoUpdated$.next();
+      sub.unsubscribe();
+      this._subscriptions.splice(this._subscriptions.indexOf(sub), 1); // remove the subscription
+    };
+
     this._subscriptions.push(sub);
+    return { dispose };
   };
 
   private _mapChannelIdToSubject: Record<string, Observable<any>> = {};

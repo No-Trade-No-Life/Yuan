@@ -112,6 +112,11 @@ export const providePeriods: (terminal: Terminal, datasource_id: string, usePeri
 // @public
 export const provideTicks: (terminal: Terminal, datasource_id: string, useTicks: (product_id: string) => ObservableInput<ITick>) => void;
 
+// @public
+export const publishAccountInfo: (terminal: Terminal, account_id: string, accountInfo$: ObservableInput<IAccountInfo>) => {
+    dispose: () => void;
+};
+
 // Warning: (ae-forgotten-export) The symbol "IQueryDataRecordsRequest" needs to be exported by the entry point index.d.ts
 //
 // @public (undocumented)
@@ -166,10 +171,14 @@ export class Terminal {
     host_url: string;
     input$: AsyncIterable<ITerminalMessage>;
     output$: AsyncIterable<ITerminalMessage>;
-    provideChannel: <T>(channelIdSchema: JSONSchema7, handler: (channel_id: string) => ObservableInput<T>) => void;
+    provideChannel: <T>(channelIdSchema: JSONSchema7, handler: (channel_id: string) => ObservableInput<T>) => {
+        dispose: () => void;
+    };
     // Warning: (ae-forgotten-export) The symbol "IServiceHandler" needs to be exported by the entry point index.d.ts
     // Warning: (ae-forgotten-export) The symbol "IServiceOptions" needs to be exported by the entry point index.d.ts
-    provideService: <T extends string>(method: T, requestSchema: JSONSchema7, handler: IServiceHandler<T>, options?: IServiceOptions) => void;
+    provideService: <T extends string>(method: T, requestSchema: JSONSchema7, handler: IServiceHandler<T>, options?: IServiceOptions) => {
+        dispose: () => void;
+    };
     request<T extends string>(method: T, target_terminal_id: string, req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req']): AsyncIterable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage>;
     requestService: <T extends string>(method: T, req: T extends keyof IService ? IService[T]["req"] : unknown) => AsyncIterable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage>;
     resolveTargetTerminalIds: (method: string, req: ITerminalMessage['req']) => Promise<string[]>;

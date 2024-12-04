@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "allow disposing service and channel",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
