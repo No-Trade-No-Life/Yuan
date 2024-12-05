@@ -40,6 +40,15 @@ export class AccountInfoResolver implements IAccountInfoResolver {
   private _positionExit$ = new Subject<IPosition>();
   positionExit$: AsyncIterable<IPosition> = observableToAsyncIterable(this._positionExit$);
 
+  onPositionExit(callback: (position: IPosition) => void): { dispose: () => void } {
+    const sub = this._positionExit$.subscribe(callback);
+    return {
+      dispose: () => {
+        sub.unsubscribe();
+      },
+    };
+  }
+
   private dirtyPositions = new Set<IPosition>();
   private dirtyProductIds: Set<string> = new Set();
   private mapProductIdToProduct = new Map<string, IProduct>();

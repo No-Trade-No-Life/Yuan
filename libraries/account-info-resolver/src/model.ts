@@ -11,4 +11,5 @@ export interface IAccountInfoResolver {
 
   mapAccountIdToAccountInfo: ReadonlyMap<string, IAccountInfo>;
   positionExit$: AsyncIterable<IPosition>;
+  onPositionExit: (callback: (position: IPosition) => void) => { dispose: () => void };
 }
