@@ -1,6 +1,13 @@
 # Change Log - @yuants/account-info-resolver
 
-This log was last generated on Wed, 20 Nov 2024 07:34:19 GMT and should not be manually modified.
+This log was last generated on Thu, 05 Dec 2024 21:29:17 GMT and should not be manually modified.
+
+## 0.2.0
+Thu, 05 Dec 2024 21:29:17 GMT
+
+### Minor changes
+
+- sync onPositionExit callback
 
 ## 0.1.1
 Wed, 20 Nov 2024 07:34:19 GMT
