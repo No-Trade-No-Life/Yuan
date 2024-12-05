@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/account-info-resolver",
+      "comment": "sync onPositionExit callback",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/account-info-resolver"
+}

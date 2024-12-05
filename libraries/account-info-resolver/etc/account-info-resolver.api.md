@@ -16,6 +16,10 @@ export class AccountInfoResolver implements IAccountInfoResolver {
     // (undocumented)
     mapAccountIdToAccountInfo: Map<string, IAccountInfo>;
     // (undocumented)
+    onPositionExit(callback: (position: IPosition) => void): {
+        dispose: () => void;
+    };
+    // (undocumented)
     positionExit$: AsyncIterable<IPosition>;
     // (undocumented)
     updateAccountInfo(accountInfo: IAccountInfo): void;
