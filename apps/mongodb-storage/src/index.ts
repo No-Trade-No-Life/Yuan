@@ -121,9 +121,9 @@ terminal.provideService('UpdateDataRecords', {}, (msg) => {
           mergeMap((records) =>
             from(records).pipe(
               map((record) => ({
-                updateOne: {
+                replaceOne: {
                   filter: { id: record.id },
-                  update: { $set: record as any },
+                  replacement: record as any,
                   upsert: true,
                 },
               })),
