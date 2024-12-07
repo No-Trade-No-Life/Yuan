@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Bump Version",
+      "type": "none",
+      "packageName": "@yuants/host-manager"
+    }
+  ],
+  "packageName": "@yuants/host-manager",
+  "email": "41898282+github-actions[bot]@users.noreply.github.com"
+}
