@@ -190,9 +190,9 @@ from(adminHostTerminal.requestService('ListHost', {}))
                   mergeMap((records) =>
                     from(records).pipe(
                       map((record) => ({
-                        updateOne: {
+                        replaceOne: {
                           filter: { id: record.id, public_key: record.public_key },
-                          update: { $set: record as any },
+                          replacement: record as any,
                           upsert: true,
                         },
                       })),
