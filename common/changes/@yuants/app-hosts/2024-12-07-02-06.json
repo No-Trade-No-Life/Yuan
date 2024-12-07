@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-hosts",
+      "comment": "extract lib @yuants/host-manager",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-hosts"
+}

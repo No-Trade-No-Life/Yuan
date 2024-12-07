@@ -436,6 +436,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/host-manager",
+      "projectFolder": "libraries/host-manager",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/docs",
       "projectFolder": "ui/docs"
     },
