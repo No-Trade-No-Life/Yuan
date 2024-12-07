@@ -1,0 +1,36 @@
+{
+  "name": "@yuants/host-manager",
+  "version": "0.0.0",
+  "main": "lib/index.js",
+  "module": "dist/index.js",
+  "files": [
+    "dist",
+    "lib",
+    "temp"
+  ],
+  "scripts": {
+    "build": "heft test --clean --detect-open-handles && api-extractor run --local && yuan-toolkit post-build"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  },
+  "devDependencies": {
+    "@microsoft/api-extractor": "~7.30.0",
+    "@rushstack/heft": "~0.47.5",
+    "@rushstack/heft-jest-plugin": "~0.3.30",
+    "@rushstack/heft-node-rig": "~1.10.7",
+    "@types/heft-jest": "1.0.3",
+    "@types/node": "18",
+    "@types/ws": "~8.5.3",
+    "@yuants/tool-kit": "workspace:*",
+    "typescript": "~4.7.4"
+  },
+  "dependencies": {
+    "rxjs": "~7.5.6",
+    "ws": "~8.8.1",
+    "@yuants/data-model": "workspace:*",
+    "@yuants/protocol": "workspace:*",
+    "@yuants/utils": "workspace:*"
+  }
+}

@@ -27,6 +27,7 @@
     "@types/ws": "~8.5.3",
     "@yuants/extension": "workspace:*",
     "@yuants/tool-kit": "workspace:*",
+    "@yuants/host-manager": "workspace:*",
     "typescript": "~4.7.4"
   },
   "publishConfig": {
