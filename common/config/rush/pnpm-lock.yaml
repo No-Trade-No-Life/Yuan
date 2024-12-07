@@ -347,6 +347,7 @@ importers:
       ws: ~8.8.1
     dependencies:
       '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/host-manager': link:../../libraries/host-manager
       '@yuants/protocol': link:../../libraries/protocol
       rxjs: 7.5.7
       ws: 8.8.1
@@ -360,7 +361,6 @@ importers:
       '@types/node': 18.17.12
       '@types/ws': 8.5.5
       '@yuants/extension': link:../../libraries/extension
-      '@yuants/host-manager': link:../../libraries/host-manager
       '@yuants/tool-kit': link:../../tools/toolkit
       typescript: 4.7.4
 
@@ -385,6 +385,7 @@ importers:
       ws: ~8.8.1
     dependencies:
       '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/host-manager': link:../../libraries/host-manager
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/utils': link:../../libraries/utils
       rxjs: 7.5.7
@@ -399,7 +400,6 @@ importers:
       '@types/node': 18.17.12
       '@types/ws': 8.5.10
       '@yuants/extension': link:../../libraries/extension
-      '@yuants/host-manager': link:../../libraries/host-manager
       '@yuants/tool-kit': link:../../tools/toolkit
       typescript: 4.7.4
 
