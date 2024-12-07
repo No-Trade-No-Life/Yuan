@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/host-manager",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/host-manager_v0.0.1",
+      "date": "Sat, 07 Dec 2024 02:19:50 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "init package"
+          }
+        ]
+      }
+    }
+  ]
+}

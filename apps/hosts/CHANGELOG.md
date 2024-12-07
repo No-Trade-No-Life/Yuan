@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-hosts
 
-This log was last generated on Wed, 04 Dec 2024 09:36:47 GMT and should not be manually modified.
+This log was last generated on Sat, 07 Dec 2024 02:19:50 GMT and should not be manually modified.
+
+## 0.1.28
+Sat, 07 Dec 2024 02:19:50 GMT
+
+### Patches
+
+- extract lib @yuants/host-manager
 
 ## 0.1.27
 Wed, 04 Dec 2024 09:36:47 GMT
