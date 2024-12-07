@@ -2,6 +2,23 @@
   "name": "@yuants/app-namespaced-mongodb-storage",
   "entries": [
     {
+      "version": "0.0.22",
+      "tag": "@yuants/app-namespaced-mongodb-storage_v0.0.22",
+      "date": "Sat, 07 Dec 2024 14:42:13 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix operation when partial update"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.21",
       "tag": "@yuants/app-namespaced-mongodb-storage_v0.0.21",
       "date": "Wed, 04 Dec 2024 09:36:47 GMT",
