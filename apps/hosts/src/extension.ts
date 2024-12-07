@@ -156,8 +156,8 @@ export default (context: IExtensionContext) => {
           annotations: {
             'cert-manager.io/cluster-issuer': 'letsencrypt-prod', // TODO(wsy): make this a dependent value
             'nginx.ingress.kubernetes.io/upstream-hash-by': '$arg_public_key', // hash by public_key param
-            'nginx.ingress.kubernetes.io/configuration-snippet':
-              'proxy_set_header X-Hash-Bucket $upstream_addr',
+            // 'nginx.ingress.kubernetes.io/configuration-snippet':
+            //   'proxy_set_header X-Hash-Bucket $upstream_addr',
           },
           labels: {
             'y.ntnl.io/version': ctx.version ?? envCtx.version,

@@ -13,6 +13,7 @@
   "dependencies": {
     "@yuants/data-model": "workspace:*",
     "@yuants/protocol": "workspace:*",
+    "@yuants/host-manager": "workspace:*",
     "rxjs": "~7.5.6",
     "ws": "~8.8.1"
   },
@@ -27,7 +28,6 @@
     "@types/ws": "~8.5.3",
     "@yuants/extension": "workspace:*",
     "@yuants/tool-kit": "workspace:*",
-    "@yuants/host-manager": "workspace:*",
     "typescript": "~4.7.4"
   },
   "publishConfig": {
