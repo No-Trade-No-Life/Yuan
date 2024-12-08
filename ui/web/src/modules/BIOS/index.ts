@@ -211,46 +211,54 @@ async function loadInmemoryWorkspaceFromNpm(
     throw new Error('NO PACKAGE NAME');
   }
 
-  log('FETCHING PACKAGE META');
-  const packageMeta: {
-    versions: {
-      [version: string]: any;
-    };
-  } = await fetch(`https://registry.npmjs.org/${scope ? `@${scope}/` : ''}${package_name}`).then((res) =>
-    res.json(),
-  );
+  for (const registry of ['https://registry.npmjs.org', 'https://registry.npmmirror.com']) {
+    log('TRYING NPM REGISTRY', registry);
+    try {
+      log('FETCHING PACKAGE META');
+      const packageMeta: {
+        versions: {
+          [version: string]: any;
+        };
+      } = await fetch(`${registry}/${scope ? `@${scope}/` : ''}${package_name}`).then((res) => res.json());
 
-  const allVersions = Object.keys(packageMeta.versions).sort(versionCompare).reverse();
-  log('ALL VERSIONS', JSON.stringify(allVersions));
+      const allVersions = Object.keys(packageMeta.versions).sort(versionCompare).reverse();
+      log('ALL VERSIONS', JSON.stringify(allVersions));
 
-  const availableVersions = allVersions.filter((x) => (version !== null ? versionSatisfy(x, version) : true));
-  log('MATCHED VERSIONS', JSON.stringify(availableVersions));
+      const availableVersions = allVersions.filter((x) =>
+        version !== null ? versionSatisfy(x, version) : true,
+      );
+      log('MATCHED VERSIONS', JSON.stringify(availableVersions));
 
-  const selectedVersion = availableVersions[0];
+      const selectedVersion = availableVersions[0];
 
-  if (!selectedVersion) {
-    throw new Error('NO MATCHED VERSION');
+      if (!selectedVersion) {
+        throw new Error('NO MATCHED VERSION');
+      }
+
+      log('SELECTED VERSION', selectedVersion);
+      FsBackend$.next(new InMemoryBackend(`${full_package_name}: ${selectedVersion}`));
+      log('FETCHING PACKAGE TARBALL');
+      const res = await fetch(
+        `${registry}/${scope ? `@${scope}/` : ''}${package_name}/-/${package_name}-${selectedVersion}.tgz`,
+      );
+      log('FETCHED', res.status);
+      const blob = await res.blob();
+      log('BLOB SIZE', blob.size, 'BYTES');
+      const files = await Modules.Extensions.loadTgzBlob(blob);
+      log(`EXTRACTING ${files.length} FILES...`);
+      for (const file of files) {
+        log('EXTRACTING FILE', file.filename);
+        // ISSUE: filename inside tarball has a prefix 'package/'
+        const filename = resolve('/', file.filename.replace(/^package\//, ''));
+        await fs.ensureDir(dirname(filename));
+        await fs.writeFile(filename, file.blob);
+      }
+      log('FILES EXTRACTED');
+      return;
+    } catch (err) {
+      log('ERROR', err);
+      continue;
+    }
   }
-
-  log('SELECTED VERSION', selectedVersion);
-  FsBackend$.next(new InMemoryBackend(`${full_package_name}: ${selectedVersion}`));
-  log('FETCHING PACKAGE TARBALL');
-  const res = await fetch(
-    `https://registry.npmjs.org/${
-      scope ? `@${scope}/` : ''
-    }${package_name}/-/${package_name}-${selectedVersion}.tgz`,
-  );
-  log('FETCHED', res.status);
-  const blob = await res.blob();
-  log('BLOB SIZE', blob.size, 'BYTES');
-  const files = await Modules.Extensions.loadTgzBlob(blob);
-  log(`EXTRACTING ${files.length} FILES...`);
-  for (const file of files) {
-    log('EXTRACTING FILE', file.filename);
-    // ISSUE: filename inside tarball has a prefix 'package/'
-    const filename = resolve('/', file.filename.replace(/^package\//, ''));
-    await fs.ensureDir(dirname(filename));
-    await fs.writeFile(filename, file.blob);
-  }
-  log('FILES EXTRACTED');
+  throw new Error('LOAD PACKAGE FAILED');
 }
