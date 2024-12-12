@@ -267,6 +267,7 @@ export class AccountInfoResolver implements IAccountInfoResolver {
       theAccountInfo.money.used = nextAccountMargin;
       dirtyAccountIds.add(account_id);
     }
+    this.dirtyPositions.clear();
 
     for (const accountId of dirtyAccountIds) {
       const theAccountInfo = this.mapAccountIdToAccountInfo.get(accountId);
