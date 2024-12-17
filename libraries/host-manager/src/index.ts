@@ -1,5 +1,5 @@
 import { formatTime, UUID } from '@yuants/data-model';
-import { ITerminalInfo, Terminal } from '@yuants/protocol';
+import { ITerminalInfo, PromRegistry, Terminal } from '@yuants/protocol';
 import { createServer } from 'http';
 import {
   bindCallback,
@@ -60,6 +60,16 @@ export interface IHost {
   host_terminal: Terminal;
   dispose: () => void;
 }
+
+const MetricsHostManagerMessageSize = PromRegistry.create('histogram', 'host_manager_message_size');
+const MetricsHostManagerConnectionEstablishedCounter = PromRegistry.create(
+  'counter',
+  'host_manager_connection_established',
+);
+const MetricsHostManagerConnectionErrorCounter = PromRegistry.create(
+  'counter',
+  'host_manager_connection_error',
+);
 
 /**
  * @public
@@ -226,6 +236,7 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
         host_id = config.mapHostUrlToHostId(url.toString());
       }
     } catch (err) {
+      MetricsHostManagerConnectionErrorCounter.inc();
       console.info(formatTime(Date.now()), 'Auth Failed', url.toString(), `${err}`);
       socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
       socket.destroy();
@@ -237,6 +248,11 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
 
     wss.handleUpgrade(request, socket, head, (ws) => {
       console.info(formatTime(Date.now()), 'Host', host_id, 'terminal connected', terminal_id);
+      MetricsHostManagerConnectionEstablishedCounter.inc({
+        host_id,
+        terminal_id,
+        has_header: has_header ? 'true' : 'false',
+      });
       const oldTerminal = host.mapTerminalIdToSocket[terminal_id];
       if (oldTerminal) {
         console.info(formatTime(Date.now()), 'Host', host_id, 'terminal replaced', terminal_id);
@@ -247,6 +263,11 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
       // Forward Terminal Messages
       (fromEvent(ws, 'message') as Observable<WebSocket.MessageEvent>).subscribe((origin) => {
         const raw_message = origin.data.toString();
+        MetricsHostManagerMessageSize.observe(raw_message.length, {
+          host_id,
+          has_header: has_header ? 'true' : 'false',
+          source_terminal_id: terminal_id,
+        });
         if (has_header) {
           const idx = raw_message.indexOf('\n');
           const raw_headers = raw_message.slice(0, idx + 1);
