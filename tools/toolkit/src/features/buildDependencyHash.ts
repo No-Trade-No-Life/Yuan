@@ -14,7 +14,7 @@ export const buildDependencyHash = async () => {
       startingFolder: process.cwd(),
     });
   } catch (e) {
-    console.error(new Date(), `rush.json not found`);
+    console.error(new Date(), `cannot load rush.json`, e);
     process.exit(1);
   }
 

@@ -14,7 +14,7 @@
     "build": "heft test --clean && api-extractor run --local && node cli.js post-build"
   },
   "dependencies": {
-    "@microsoft/rush-lib": "~5.101.0",
+    "@microsoft/rush-lib": "~5.147.0",
     "@rollup/plugin-commonjs": "~25.0.4",
     "@rollup/plugin-json": "~6.0.0",
     "@rollup/plugin-node-resolve": "~15.2.1",
