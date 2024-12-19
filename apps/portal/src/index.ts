@@ -19,6 +19,7 @@ import {
 
 const internalTerminal = new Terminal(process.env.HOST_URL!, {
   terminal_id: `Portal/Internal/${UUID()}`,
+  enable_WebRTC: process.env.ENABLE_WEBRTC === 'true',
   name: 'Portal-Internal',
 });
 
