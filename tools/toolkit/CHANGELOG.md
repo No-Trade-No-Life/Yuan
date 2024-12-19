@@ -1,6 +1,13 @@
 # Change Log - @yuants/tool-kit
 
-This log was last generated on Thu, 22 Feb 2024 18:28:20 GMT and should not be manually modified.
+This log was last generated on Thu, 19 Dec 2024 15:28:50 GMT and should not be manually modified.
+
+## 0.1.5
+Thu, 19 Dec 2024 15:28:50 GMT
+
+### Patches
+
+- upgrade rush lib
 
 ## 0.1.4
 Thu, 22 Feb 2024 18:28:20 GMT
