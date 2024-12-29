@@ -1,9 +1,9 @@
 import { Button, Space, Toast } from '@douyinfe/semi-ui';
 import { IOrder } from '@yuants/data-model';
-import { cancelOrder, queryProducts, submitOrder } from '@yuants/protocol';
+import { readDataRecords } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
-import { filter, first, mergeMap, of } from 'rxjs';
+import { defer, filter, first, map, mergeAll, mergeMap, of, toArray } from 'rxjs';
 import { Form } from '../Form';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
@@ -25,7 +25,15 @@ registerPage('ManualTradePanel', () => {
         ? terminal$.pipe(
             filter((x): x is Exclude<typeof x, null> => !!x),
             first(),
-            mergeMap((terminal) => queryProducts(terminal, { datasource_id: account_id })),
+            mergeMap((terminal) =>
+              defer(() =>
+                readDataRecords(terminal, { type: 'product', tags: { datasource_id: account_id } }),
+              ).pipe(
+                mergeAll(),
+                map((x) => x.origin),
+                toArray(),
+              ),
+            ),
           )
         : of([]),
     ),
@@ -90,7 +98,7 @@ registerPage('ManualTradePanel', () => {
               .pipe(
                 filter((x): x is Exclude<typeof x, null> => !!x),
                 first(),
-                mergeMap((terminal) => submitOrder(terminal, order)),
+                mergeMap((terminal) => terminal.requestForResponse('SubmitOrder', order)),
               )
               .forEach((res) => {
                 if (res?.code === 0) {
@@ -126,7 +134,7 @@ registerPage('ManualTradePanel', () => {
               .pipe(
                 filter((x): x is Exclude<typeof x, null> => !!x),
                 first(),
-                mergeMap((terminal) => cancelOrder(terminal, cancelFormData as IOrder)),
+                mergeMap((terminal) => terminal.requestForResponse('CancelOrder', cancelFormData as IOrder)),
               )
               .forEach((res) => {
                 if (res?.code === 0) {

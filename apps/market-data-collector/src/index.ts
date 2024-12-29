@@ -1,5 +1,5 @@
 import { IDataRecordTypes, IPeriod, formatTime, getDataRecordSchema } from '@yuants/data-model';
-import { PromRegistry, Terminal, copyDataRecords, queryDataRecords } from '@yuants/protocol';
+import { PromRegistry, Terminal, copyDataRecords, readDataRecords } from '@yuants/protocol';
 import { listWatch } from '@yuants/utils';
 import Ajv from 'ajv';
 import CronJob from 'cron';
@@ -15,6 +15,7 @@ import {
   first,
   interval,
   map,
+  mergeAll,
   mergeMap,
   repeat,
   retry,
@@ -51,12 +52,13 @@ const term = new Terminal(HV_URL, {
 });
 
 defer(() =>
-  queryDataRecords<IPullSourceRelation>(term, {
+  readDataRecords(term, {
     type: 'pull_source_relation',
   }),
 )
   .pipe(
     //
+    mergeAll(),
     map((x) => x.origin),
     toArray(),
     retry({ delay: 5_000 }),
@@ -188,7 +190,7 @@ const runTask = (psr: IPullSourceRelation) =>
     subs.push(
       taskStart$.subscribe(() => {
         defer(() =>
-          queryDataRecords<IPeriod>(term, {
+          readDataRecords(term, {
             type: 'period',
             tags: {
               datasource_id: psr.datasource_id,
@@ -204,7 +206,6 @@ const runTask = (psr: IPullSourceRelation) =>
         )
           .pipe(
             // ISSUE: prevent from data leak
-            toArray(),
             retry({ delay: 5_000 }),
             mergeMap((v) => v),
           )

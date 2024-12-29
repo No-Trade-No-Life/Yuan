@@ -187,19 +187,15 @@ registerCommand('fetchOHLCV', async (params) => {
 
   const terminal = await firstValueFrom(terminal$.pipe(filter((x): x is Exclude<typeof x, null> => !!x)));
   Toast.info(`开始拉取 ${datasource_id} / ${product_id} / ${period_in_sec} 历史数据...`);
-  await firstValueFrom(
-    from(
-      copyDataRecords(terminal, {
-        type: 'period',
-        time_range: [_start_time, _end_time],
-        tags: {
-          datasource_id,
-          product_id,
-          period_in_sec: `${period_in_sec}`,
-        },
-        receiver_terminal_id: '',
-      }),
-    ),
-  );
+  await copyDataRecords(terminal, {
+    type: 'period',
+    time_range: [_start_time, _end_time],
+    tags: {
+      datasource_id,
+      product_id,
+      period_in_sec: `${period_in_sec}`,
+    },
+    receiver_terminal_id: '',
+  });
   Toast.info(t('common:succeed'));
 });

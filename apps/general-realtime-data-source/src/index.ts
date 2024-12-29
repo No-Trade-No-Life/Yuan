@@ -1,5 +1,5 @@
 import { IDataRecordTypes, IPeriod, encodePath, formatTime, getDataRecordSchema } from '@yuants/data-model';
-import { Terminal, providePeriods, queryDataRecords } from '@yuants/protocol';
+import { Terminal, providePeriods, readDataRecords } from '@yuants/protocol';
 import Ajv from 'ajv';
 import {
   EMPTY,
@@ -10,6 +10,7 @@ import {
   from,
   groupBy,
   map,
+  mergeAll,
   mergeMap,
   of,
   repeat,
@@ -33,11 +34,12 @@ const terminal = new Terminal(HV_URL, {
 });
 
 const mapProductIdToGSRList$ = defer(() =>
-  queryDataRecords<IGeneralSpecificRelation>(terminal, {
+  readDataRecords(terminal, {
     type: 'general_specific_relation',
   }),
 ).pipe(
   //
+  mergeAll(),
   map((record) => {
     const config = record.origin;
     if (!validate(config)) {

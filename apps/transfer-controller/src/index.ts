@@ -5,13 +5,7 @@ import {
   formatTime,
   getDataRecordWrapper,
 } from '@yuants/data-model';
-import {
-  PromRegistry,
-  Terminal,
-  queryDataRecords,
-  readDataRecords,
-  writeDataRecords,
-} from '@yuants/protocol';
+import { PromRegistry, Terminal, readDataRecords, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/transfer';
 // @ts-ignore
@@ -26,6 +20,7 @@ import {
   from,
   groupBy,
   map,
+  mergeAll,
   mergeMap,
   of,
   repeat,
@@ -46,12 +41,13 @@ const terminal = new Terminal(process.env.HOST_URL!, {
 });
 
 defer(() =>
-  queryDataRecords<ITransferOrder>(terminal, {
+  readDataRecords(terminal, {
     type: 'transfer_order',
   }),
 )
   .pipe(
     //
+    mergeAll(),
     map((v) => v.origin),
     filter((order) => !['ERROR', 'COMPLETE'].includes(order.status!)),
     toArray(),
@@ -105,11 +101,12 @@ const makeRoutingPath = async (order: ITransferOrder): Promise<ITransferPair[] |
   const { credit_account_id, debit_account_id } = order;
   const addressInfoList = await firstValueFrom(
     defer(() =>
-      queryDataRecords<IAccountAddressInfo>(terminal, {
+      readDataRecords(terminal, {
         type: 'account_address_info',
       }),
     ).pipe(
       //
+      mergeAll(),
       map((v) => v.origin),
       toArray(),
     ),
@@ -117,11 +114,12 @@ const makeRoutingPath = async (order: ITransferOrder): Promise<ITransferPair[] |
 
   const transferNetworkInfoList = await firstValueFrom(
     defer(() =>
-      queryDataRecords<ITransferNetworkInfo>(terminal, {
+      readDataRecords(terminal, {
         type: 'transfer_network_info',
       }),
     ).pipe(
       //
+      mergeAll(),
       map((v) => v.origin),
       toArray(),
       shareReplay(1),

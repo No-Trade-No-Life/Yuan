@@ -1,24 +1,22 @@
 import { IDataRecordTypes, formatTime, getDataRecordSchema } from '@yuants/data-model';
-import { PromRegistry, Terminal, copyDataRecords, queryDataRecords } from '@yuants/protocol';
-import { batchGroupBy, listWatch, switchMapWithComplete } from '@yuants/utils';
+import { PromRegistry, Terminal, copyDataRecords, readDataRecords } from '@yuants/protocol';
+import { listWatch } from '@yuants/utils';
 import Ajv from 'ajv';
 import CronJob from 'cron';
 import {
   EMPTY,
   Observable,
-  OperatorFunction,
   Subject,
   Subscription,
   catchError,
   defaultIfEmpty,
   defer,
-  distinctUntilChanged,
   filter,
   first,
   interval,
   map,
+  mergeAll,
   mergeMap,
-  pipe,
   repeat,
   retry,
   tap,
@@ -53,12 +51,13 @@ const term = new Terminal(HOST_URL, {
 });
 
 defer(() =>
-  queryDataRecords<ICopyDataRelation>(term, {
+  readDataRecords(term, {
     type: 'copy_data_relation',
   }),
 )
   .pipe(
     //
+    mergeAll(),
     map((x) => x.origin),
     toArray(),
     retry({ delay: 5_000 }),
@@ -185,8 +184,8 @@ const runTask = (cdr: ICopyDataRelation) =>
     subs.push(
       taskStart$.subscribe(() => {
         defer(() =>
-          queryDataRecords(term, {
-            type: cdr.type,
+          readDataRecords(term, {
+            type: cdr.type as any,
             tags: {
               series_id: cdr.series_id,
             },
@@ -199,7 +198,6 @@ const runTask = (cdr: ICopyDataRelation) =>
         )
           .pipe(
             // ISSUE: prevent from data leak
-            toArray(),
             retry({ delay: 5_000 }),
             mergeMap((v) => v),
           )

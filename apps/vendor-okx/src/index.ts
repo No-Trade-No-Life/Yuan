@@ -595,18 +595,14 @@ defer(async () => {
       });
     }
     if (addresses.length !== 0) {
-      await firstValueFrom(
-        from(
-          writeDataRecords(terminal, [
-            getDataRecordWrapper('transfer_network_info')!({
-              network_id: 'TRC20',
-              commission: 1,
-              currency: 'USDT',
-              timeout: 1800_000,
-            }),
-          ]),
-        ),
-      );
+      await writeDataRecords(terminal, [
+        getDataRecordWrapper('transfer_network_info')!({
+          network_id: 'TRC20',
+          commission: 1,
+          currency: 'USDT',
+          timeout: 1800_000,
+        }),
+      ]);
     }
   }
 
@@ -1028,9 +1024,7 @@ defer(async () => {
           }
           funding_rate_history.sort((a, b) => +a.funding_at - +b.funding_at);
           // there will be at most 300 records, so we don't need to chunk it by bufferCount
-          await lastValueFrom(
-            from(writeDataRecords(terminal, funding_rate_history.map(getDataRecordWrapper('funding_rate')!))),
-          );
+          await writeDataRecords(terminal, funding_rate_history.map(getDataRecordWrapper('funding_rate')!));
           return { res: { code: 0, message: 'OK' } };
         }
 
@@ -1109,7 +1103,7 @@ defer(async () => {
           if (res.data.length > 0 && res.data.length < 100) {
             // data is complete
             const dataRecords = res.data.map(mapResDataToIPeriod).map(getDataRecordWrapper('period')!);
-            await lastValueFrom(from(writeDataRecords(terminal, dataRecords)));
+            await writeDataRecords(terminal, dataRecords);
             return { res: { code: 0, message: 'OK' } };
           }
 
@@ -1165,7 +1159,7 @@ defer(async () => {
               break;
             }
             const data = res.data.map(mapResDataToIPeriod).map(getDataRecordWrapper('period')!);
-            await firstValueFrom(from(writeDataRecords(terminal, data)));
+            await writeDataRecords(terminal, data);
             await firstValueFrom(timer(1000));
           }
           return { res: { code: 0, message: 'OK' } };

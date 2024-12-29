@@ -881,11 +881,20 @@ export class Terminal {
 
   /**
    * Make a request to a service
+   *
+   * - [x] SINGLE-IN-SINGLE-OUT
+   * - [x] SINGLE-IN-STREAM-OUT
+   * - [ ] STREAM-IN-SINGLE-OUT
+   * - [ ] STREAM-IN-STREAM-OUT
    */
-  requestService = <T extends string>(
+  requestService<T extends keyof IService>(
     method: T,
-    req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req'],
-  ): AsyncIterable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage> => {
+    req: IService[T]['req'],
+  ): AsyncIterable<Partial<IService[T]> & ITerminalMessage>;
+
+  requestService(method: string, req: ITerminalMessage['req']): AsyncIterable<ITerminalMessage>;
+
+  requestService(method: string, req: ITerminalMessage['req']): AsyncIterable<ITerminalMessage> {
     return observableToAsyncIterable(
       defer(() => this.resolveTargetTerminalIds(method, req)).pipe(
         map((arr) => {
@@ -898,7 +907,41 @@ export class Terminal {
         mergeMap((target_terminal_id) => this.request(method, target_terminal_id, req)),
       ),
     );
-  };
+  }
+
+  /**
+   * Make a request to get the response
+   *
+   * Use it only when using SINGLE-IN-SINGLE-OUT pattern.
+   *
+   * It's simpler to call this method when using this pattern.
+   *
+   * - [x] SINGLE-IN-SINGLE-OUT
+   * - [ ] SINGLE-IN-STREAM-OUT
+   * - [ ] STREAM-IN-SINGLE-OUT
+   * - [ ] STREAM-IN-STREAM-OUT
+   */
+  requestForResponse<T extends keyof IService>(
+    method: T,
+    req: IService[T]['req'],
+  ): Promise<Exclude<(Partial<IService[T]> & ITerminalMessage)['res'], undefined>>;
+
+  requestForResponse(
+    method: string,
+    req: ITerminalMessage['req'],
+  ): Promise<Exclude<ITerminalMessage['res'], undefined>>;
+
+  requestForResponse(
+    method: string,
+    req: ITerminalMessage['req'],
+  ): Promise<Exclude<ITerminalMessage['res'], undefined>> {
+    return firstValueFrom(
+      from(this.requestService(method as any, req as any)).pipe(
+        map((msg) => msg.res),
+        filter((v): v is Exclude<typeof v, undefined> => v !== undefined),
+      ),
+    ) as any;
+  }
 
   private _setupDebugLog = () => {
     const sub1 = this._input$.subscribe((msg) => {

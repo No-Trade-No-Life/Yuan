@@ -1,5 +1,5 @@
 import { IDataRecordTypes, IPeriod, getDataRecordSchema, getDataRecordWrapper } from '@yuants/data-model';
-import { PromRegistry, Terminal, queryDataRecords, writeDataRecords } from '@yuants/protocol';
+import { PromRegistry, Terminal, readDataRecords, writeDataRecords } from '@yuants/protocol';
 import Ajv from 'ajv';
 import {
   EMPTY,
@@ -12,6 +12,7 @@ import {
   groupBy,
   interval,
   map,
+  mergeAll,
   mergeMap,
   of,
   repeat,
@@ -59,7 +60,7 @@ const syncData = (
     //
     map((gsr) =>
       defer(() =>
-        queryDataRecords<IPeriod>(term, {
+        readDataRecords(term, {
           type: 'period',
           tags: {
             datasource_id: gsr.specific_datasource_id,
@@ -70,6 +71,7 @@ const syncData = (
         }),
       ).pipe(
         //
+        mergeAll(),
         map((v) => v.origin),
       ),
     ),
@@ -142,11 +144,12 @@ const syncData = (
 };
 
 const mapProductIdToGSRList$ = defer(() =>
-  queryDataRecords<IGeneralSpecificRelation>(term, {
+  readDataRecords(term, {
     type: 'general_specific_relation',
   }),
 ).pipe(
   //
+  mergeAll(),
   map((record) => {
     const config = record.origin;
     if (!validate(config)) {

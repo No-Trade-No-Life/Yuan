@@ -1,6 +1,18 @@
 import { encodePath, formatTime, IDataRecord, IPeriod } from '@yuants/data-model';
-import { queryDataRecords, Terminal, writeDataRecords } from '@yuants/protocol';
-import { defer, delayWhen, filter, from, map, mergeMap, retry, Subscription, tap, toArray } from 'rxjs';
+import { readDataRecords, Terminal, writeDataRecords } from '@yuants/protocol';
+import {
+  defer,
+  delayWhen,
+  filter,
+  from,
+  map,
+  mergeAll,
+  mergeMap,
+  retry,
+  Subscription,
+  tap,
+  toArray,
+} from 'rxjs';
 import { Kernel } from '../kernel';
 import { BasicUnit } from './BasicUnit';
 import { PeriodDataUnit } from './PeriodDataUnit';
@@ -70,8 +82,9 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
 
   async onInit() {
     // ISSUE: period_stream 依赖订阅关系的存在性，因此要先添加订阅关系
-    defer(() => queryDataRecords<IPullSourceRelation>(this.terminal, { type: 'pull_source_relation' }))
+    defer(() => readDataRecords(this.terminal, { type: 'pull_source_relation' }))
       .pipe(
+        mergeAll(),
         map((v) => v.origin),
         toArray(),
         mergeMap((relations) =>

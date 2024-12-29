@@ -256,9 +256,7 @@ terminal.provideService(
 
       funding_rate_history.sort((a, b) => a.funding_at - b.funding_at);
 
-      await firstValueFrom(
-        from(writeDataRecords(terminal, funding_rate_history.map(getDataRecordWrapper('funding_rate')!))),
-      );
+      await writeDataRecords(terminal, funding_rate_history.map(getDataRecordWrapper('funding_rate')!));
       return { res: { code: 0, message: 'OK' } };
     }).pipe(
       tap({
