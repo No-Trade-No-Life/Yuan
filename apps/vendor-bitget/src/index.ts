@@ -506,9 +506,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
           }
           funding_rate_history.sort((a, b) => a.funding_at - b.funding_at);
 
-          await firstValueFrom(
-            from(writeDataRecords(terminal, funding_rate_history.map(getDataRecordWrapper('funding_rate')!))),
-          );
+          await writeDataRecords(terminal, funding_rate_history.map(getDataRecordWrapper('funding_rate')!));
           return { res: { code: 0, message: 'OK' } };
         }).pipe(
           tap({
@@ -528,18 +526,14 @@ const fundingTime$ = memoizeMap((product_id: string) =>
       const depositAddressRes = await client.getDepositAddress({ coin: 'USDT', chain: 'TRC20' });
       console.info(formatTime(Date.now()), 'DepositAddress', depositAddressRes.data);
       const address = depositAddressRes.data;
-      await firstValueFrom(
-        defer(() =>
-          writeDataRecords(terminal, [
-            getDataRecordWrapper('transfer_network_info')!({
-              network_id: 'TRC20',
-              commission: 1,
-              currency: 'USDT',
-              timeout: 1800_000,
-            }),
-          ]),
-        ),
-      );
+      await writeDataRecords(terminal, [
+        getDataRecordWrapper('transfer_network_info')!({
+          network_id: 'TRC20',
+          commission: 1,
+          currency: 'USDT',
+          timeout: 1800_000,
+        }),
+      ]);
       addAccountTransferAddress({
         terminal,
         account_id: SPOT_ACCOUNT_ID,

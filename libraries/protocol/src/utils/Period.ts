@@ -1,17 +1,16 @@
-import { IPeriod, formatTime } from '@yuants/data-model';
-import { observableToAsyncIterable } from '@yuants/utils';
-import { defer, filter, map, toArray } from 'rxjs';
+import { formatTime } from '@yuants/data-model';
+import { defer, filter, firstValueFrom, map, mergeAll, toArray } from 'rxjs';
 import { IQueryPeriodsRequest } from '../services/pull';
 import { Terminal } from '../terminal';
-import { queryDataRecords } from './DataRecord';
+import { readDataRecords } from './DataRecord';
 
 /**
  * @public
  */
 export const queryPeriods = (terminal: Terminal, req: IQueryPeriodsRequest) =>
-  observableToAsyncIterable(
+  firstValueFrom(
     defer(() =>
-      queryDataRecords<IPeriod>(terminal, {
+      readDataRecords(terminal, {
         type: 'period',
         time_range: [(req.start_time_in_us ?? 0) / 1000, (req.end_time_in_us ?? Date.now() * 1000) / 1000],
         tags: {
@@ -21,6 +20,7 @@ export const queryPeriods = (terminal: Terminal, req: IQueryPeriodsRequest) =>
         },
       }),
     ).pipe(
+      mergeAll(),
       // ISSUE: unknown reason, sometimes the data will be out of range, but frozen_at is null.
       filter((dataRecord) => {
         if (

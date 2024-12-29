@@ -1,6 +1,5 @@
-import { IProduct } from '@yuants/data-model';
-import { Terminal, queryDataRecords } from '@yuants/protocol';
-import { defer, lastValueFrom, map, toArray } from 'rxjs';
+import { readDataRecords, Terminal } from '@yuants/protocol';
+import { defer, lastValueFrom, map, mergeAll, toArray } from 'rxjs';
 import { Kernel } from '../kernel';
 import {
   AccountInfoUnit,
@@ -59,7 +58,7 @@ export const AccountReplayScene = (
       if (quote_currency && currency && product.quote_currency !== currency) {
         const [productA] = await lastValueFrom(
           defer(() =>
-            queryDataRecords<IProduct>(terminal, {
+            readDataRecords(terminal, {
               type: 'product',
               tags: {
                 datasource_id: datasource_id ?? account_id,
@@ -68,6 +67,7 @@ export const AccountReplayScene = (
               },
             }),
           ).pipe(
+            mergeAll(),
             map((dataRecord) => dataRecord.origin),
             toArray(),
           ),
@@ -77,7 +77,7 @@ export const AccountReplayScene = (
         }
         const [productB] = await lastValueFrom(
           defer(() =>
-            queryDataRecords<IProduct>(terminal, {
+            readDataRecords(terminal, {
               type: 'product',
               tags: {
                 datasource_id: datasource_id ?? account_id,
@@ -86,6 +86,7 @@ export const AccountReplayScene = (
               },
             }),
           ).pipe(
+            mergeAll(),
             map((dataRecord) => dataRecord.origin),
             toArray(),
           ),

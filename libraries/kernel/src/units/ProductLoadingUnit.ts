@@ -1,6 +1,6 @@
 import { formatTime, IProduct } from '@yuants/data-model';
-import { queryDataRecords, Terminal } from '@yuants/protocol';
-import { defaultIfEmpty, defer, lastValueFrom, map, tap } from 'rxjs';
+import { readDataRecords, Terminal } from '@yuants/protocol';
+import { defaultIfEmpty, defer, lastValueFrom, map, mergeAll, tap } from 'rxjs';
 import { Kernel } from '../kernel';
 import { BasicUnit } from './BasicUnit';
 import { ProductDataUnit } from './ProductDataUnit';
@@ -32,11 +32,12 @@ export class ProductLoadingUnit extends BasicUnit {
       );
       await lastValueFrom(
         defer(() =>
-          queryDataRecords<IProduct>(this.terminal, {
+          readDataRecords(this.terminal, {
             type: 'product',
             tags: { datasource_id: task.datasource_id, product_id: task.product_id },
           }),
         ).pipe(
+          mergeAll(),
           map((x) => x.origin),
           defaultIfEmpty<IProduct, IProduct>({
             datasource_id: task.datasource_id,

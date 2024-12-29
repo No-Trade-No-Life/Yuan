@@ -10,7 +10,6 @@ import {
   formatTime,
   mergeAccountInfoPositions,
 } from '@yuants/data-model';
-import { cancelOrder } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useMemo } from 'react';
 import {
@@ -19,7 +18,6 @@ import {
   distinctUntilChanged,
   filter,
   first,
-  firstValueFrom,
   from,
   groupBy,
   map,
@@ -39,8 +37,8 @@ import { Button, DataView } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
 import { InlineProductId } from '../Products/InlineProductId';
 import { terminal$, useTick } from '../Terminals';
-import { useAccountInfo } from './model';
 import { InlineAccountId } from './InlineAccountId';
+import { useAccountInfo } from './model';
 
 interface IPositionSummaryItem {
   product_id: string;
@@ -357,7 +355,7 @@ registerPage('AccountInfoPanel', () => {
                 icon={<IconClose />}
                 onClick={async () => {
                   if (!terminal) return;
-                  await firstValueFrom(from(cancelOrder(terminal, order)));
+                  await terminal.requestForResponse('CancelOrder', order);
                 }}
               ></Button>
             </Space>

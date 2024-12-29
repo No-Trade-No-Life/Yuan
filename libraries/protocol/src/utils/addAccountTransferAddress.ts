@@ -145,7 +145,7 @@ update$
                   }),
               );
 
-              from(
+              defer(() =>
                 writeDataRecords(
                   terminal,
                   contextList.map(({ terminal, onApply, onEval, ...info }) =>

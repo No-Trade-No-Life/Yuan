@@ -451,9 +451,7 @@ registerPage('FundStatements', () => {
           disabled={!terminal}
           onClick={async () => {
             if (!terminal) return;
-            await firstValueFrom(
-              from(writeDataRecords(terminal, [getDataRecordWrapper('fund_state')!(state)])),
-            );
+            await writeDataRecords(terminal, [getDataRecordWrapper('fund_state')!(state)]);
             Toast.success('成功');
           }}
         >
@@ -466,9 +464,7 @@ registerPage('FundStatements', () => {
             if (!terminal) return;
             if (!state.account_id) return;
 
-            const items = await firstValueFrom(
-              from(readDataRecords(terminal, { type: 'fund_state', id: state.account_id })),
-            );
+            const items = await readDataRecords(terminal, { type: 'fund_state', id: state.account_id });
 
             await saveStatementsToFile(items[0].origin.events);
             Toast.success('成功');

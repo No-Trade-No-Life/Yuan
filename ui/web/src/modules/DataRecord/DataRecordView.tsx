@@ -84,7 +84,7 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
         },
       };
       console.info('queryDataRecords', searchFormData, sorting, queryParams);
-      const data = await lastValueFrom(from(readDataRecords(terminal, queryParams)));
+      const data = await readDataRecords(terminal, queryParams);
 
       return data;
     },
@@ -136,7 +136,7 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
                     return;
                   }
                   const nextRecord: IDataRecord<any> = wrapper(formData);
-                  await lastValueFrom(from(writeDataRecords(terminal, [nextRecord])));
+                  await writeDataRecords(terminal, [nextRecord]);
                   await reloadData();
                   Toast.success(`成功更新数据记录 ${nextRecord.id}`);
                 }}
@@ -153,14 +153,10 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
                   if (!confirm) return;
                   const terminal = await firstValueFrom(terminal$);
                   if (!terminal) return;
-                  await lastValueFrom(
-                    from(
-                      removeDataRecords(terminal, {
-                        type: props.TYPE,
-                        id: record.id,
-                      }),
-                    ),
-                  );
+                  await removeDataRecords(terminal, {
+                    type: props.TYPE,
+                    id: record.id,
+                  });
                   Toast.success(`成功删除数据记录 ${record.id}`);
                   await reloadData();
                 }}
@@ -228,7 +224,7 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
               return;
             }
             const nextRecord: IDataRecord<any> = wrapper(formData);
-            await lastValueFrom(from(writeDataRecords(terminal, [nextRecord])));
+            await writeDataRecords(terminal, [nextRecord]);
             await reloadData();
             Toast.success(`成功更新数据记录 ${nextRecord.id}`);
           }}
@@ -297,8 +293,8 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
               Toast.error(`找不到合适的包装函数，无法更新数据`);
               return;
             }
-            const records = data.filter((x) => validator(x)).map((x) => wrapper(x));
-            await firstValueFrom(from(writeDataRecords(terminal, records as IDataRecord<any>[])));
+            const records = data.filter((x) => validator(x)).map((x: any) => wrapper(x));
+            await writeDataRecords(terminal, records as IDataRecord<any>[]);
             Toast.success(`已导入: ${filename}, ${records.length} / ${data.length} 条`);
             await reloadData();
           }}

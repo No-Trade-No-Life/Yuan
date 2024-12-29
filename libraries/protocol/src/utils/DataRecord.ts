@@ -1,6 +1,6 @@
 import { IDataRecord, IDataRecordTypes } from '@yuants/data-model';
 import { observableToAsyncIterable } from '@yuants/utils';
-import { EMPTY, bufferCount, concatMap, defer, from, map, mergeMap, of, toArray } from 'rxjs';
+import { EMPTY, bufferCount, concatMap, defer, firstValueFrom, from, map, mergeMap, of, toArray } from 'rxjs';
 import {
   ICopyDataRecordsRequest,
   IQueryDataRecordsRequest,
@@ -15,7 +15,7 @@ export const readDataRecords = <T extends keyof IDataRecordTypes>(
   terminal: Terminal,
   request: IQueryDataRecordsRequest & { type: T },
 ) =>
-  observableToAsyncIterable(
+  firstValueFrom(
     defer(() => terminal.requestService('QueryDataRecords', request)).pipe(
       mergeMap((msg) => {
         if (msg.frame) {
@@ -39,7 +39,7 @@ export const writeDataRecords = <T extends keyof IDataRecordTypes>(
   terminal: Terminal,
   data: IDataRecord<IDataRecordTypes[T]>[],
 ) =>
-  observableToAsyncIterable(
+  firstValueFrom(
     from(data).pipe(
       bufferCount(2000),
       concatMap((records: IDataRecord<IDataRecordTypes[T]>[]) =>
@@ -62,7 +62,7 @@ export const writeDataRecords = <T extends keyof IDataRecordTypes>(
  * @public
  */
 export const copyDataRecords = (terminal: Terminal, req: ICopyDataRecordsRequest) =>
-  observableToAsyncIterable(
+  firstValueFrom(
     defer(() => terminal.requestService('CopyDataRecords', req)).pipe(
       mergeMap((msg) => {
         if (msg.res) {
@@ -82,19 +82,8 @@ export const copyDataRecords = (terminal: Terminal, req: ICopyDataRecordsRequest
 /**
  * @public
  */
-export const queryDataRecords = <T>(
-  terminal: Terminal,
-  req: IQueryDataRecordsRequest,
-): AsyncIterable<IDataRecord<T>> =>
-  observableToAsyncIterable(
-    defer(() => readDataRecords(terminal, req as any)).pipe(mergeMap((x) => x)),
-  ) as any;
-
-/**
- * @public
- */
-export const removeDataRecords = (terminal: Terminal, req: IRemoveDataRecordsRequest): AsyncIterable<void> =>
-  observableToAsyncIterable(
+export const removeDataRecords = (terminal: Terminal, req: IRemoveDataRecordsRequest): Promise<void> =>
+  firstValueFrom(
     defer(() => terminal.requestService('RemoveDataRecords', req)).pipe(
       mergeMap((msg) => {
         if (msg.res) {

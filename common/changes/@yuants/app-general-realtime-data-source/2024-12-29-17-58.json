@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-general-realtime-data-source",
+      "comment": "migrate API",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-general-realtime-data-source"
+}

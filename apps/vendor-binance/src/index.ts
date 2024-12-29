@@ -381,18 +381,14 @@ provideTicks(terminal, 'binance', (product_id) => {
         },
       });
 
-      await firstValueFrom(
-        from(
-          writeDataRecords(terminal, [
-            getDataRecordWrapper('transfer_network_info')!({
-              network_id: 'TRC20',
-              commission: 1,
-              currency: 'USDT',
-              timeout: 1800_000,
-            }),
-          ]),
-        ),
-      );
+      await writeDataRecords(terminal, [
+        getDataRecordWrapper('transfer_network_info')!({
+          network_id: 'TRC20',
+          commission: 1,
+          currency: 'USDT',
+          timeout: 1800_000,
+        }),
+      ]);
     }
   }
 

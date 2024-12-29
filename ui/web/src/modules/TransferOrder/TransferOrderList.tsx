@@ -174,21 +174,17 @@ registerCommand('Transfer', async (params: {}) => {
     return;
   }
 
-  await firstValueFrom(
-    from(
-      writeDataRecords(terminal, [
-        getDataRecordWrapper('transfer_order')!({
-          order_id: UUID(),
-          created_at: Date.now(),
-          updated_at: Date.now(),
-          credit_account_id: res.credit_account_id,
-          debit_account_id: res.debit_account_id,
-          status: 'INIT',
-          currency,
-          expected_amount: res.amount,
-          timeout_at: Date.now() + 86400_000,
-        }),
-      ]),
-    ),
-  );
+  await writeDataRecords(terminal, [
+    getDataRecordWrapper('transfer_order')!({
+      order_id: UUID(),
+      created_at: Date.now(),
+      updated_at: Date.now(),
+      credit_account_id: res.credit_account_id,
+      debit_account_id: res.debit_account_id,
+      status: 'INIT',
+      currency,
+      expected_amount: res.amount,
+      timeout_at: Date.now() + 86400_000,
+    }),
+  ]);
 });

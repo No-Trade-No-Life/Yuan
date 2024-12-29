@@ -1,5 +1,4 @@
 export * from './DataRecord';
-export * from './Order';
 export * from './Period';
 export * from './Product';
 export * from './addAccountTransferAddress';

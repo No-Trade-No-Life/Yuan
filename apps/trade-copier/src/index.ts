@@ -9,14 +9,9 @@ import {
   getDataRecordSchema,
 } from '@yuants/data-model';
 import { IPositionDiff, diffPosition, mergePositions } from '@yuants/kernel';
-import {
-  PromRegistry,
-  Terminal,
-  queryDataRecords,
-  submitOrder,
-  useAccountInfo,
-  useProducts,
-} from '@yuants/protocol';
+import { PromRegistry, Terminal, readDataRecords, useAccountInfo, useProducts } from '@yuants/protocol';
+import '@yuants/protocol/lib/services';
+import '@yuants/protocol/lib/services/order';
 import { roundToStep } from '@yuants/utils';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
@@ -39,6 +34,7 @@ import {
   groupBy,
   lastValueFrom,
   map,
+  mergeAll,
   mergeMap,
   of,
   pairwise,
@@ -75,11 +71,12 @@ addFormats(ajv);
 const tradeConfigValidate = ajv.compile(getDataRecordSchema('trade_copier_trade_config')!);
 
 const tradeConfig$ = defer(() =>
-  queryDataRecords<ITradeCopierTradeConfig>(terminal, {
+  readDataRecords(terminal, {
     type: 'trade_copier_trade_config',
   }),
 ).pipe(
   //
+  mergeAll(),
   map((record) => {
     const config = record.origin;
     if (!tradeConfigValidate(config)) {
@@ -91,40 +88,43 @@ const tradeConfig$ = defer(() =>
   shareReplay(1),
 );
 
-const validateOfTradeCopyRelation = ajv.compile(getDataRecordSchema('trade_copy_relation')!);
-
-const config$ = defer(() =>
-  queryDataRecords<ITradeCopyRelation>(terminal, { type: 'trade_copy_relation' }),
-).pipe(
-  //
-  map((msg) => msg.origin),
-  filter((msg) => !msg.disabled),
-  filter((x) => validateOfTradeCopyRelation(x)),
-  toArray(),
-  map((data): ITradeCopierConfig => ({ tasks: data })),
-
-  tap((config) => console.info(formatTime(Date.now()), 'LoadConfig', JSON.stringify(config))),
-  tap((config) => {
-    for (const task of config.tasks) {
-      const labels = {
-        source_account_id: task.source_account_id,
-        target_account_id: task.target_account_id,
-        source_product_id: task.source_product_id,
-        target_product_id: task.target_product_id,
-      };
-      if (task.multiple === 0) {
-        MetricMatrixUp.set(0, labels);
-      } else {
-        MetricMatrixUp.set(1, labels);
-      }
-    }
-  }),
-  catchError((err) => {
-    terminal.terminalInfo.status = 'InvalidConfig';
-    throw err;
-  }),
-  shareReplay(1),
+const validateOfTradeCopyRelation = ajv.compile<ITradeCopyRelation>(
+  getDataRecordSchema('trade_copy_relation')!,
 );
+
+const config$ = defer(() => readDataRecords(terminal, { type: 'trade_copy_relation' }))
+  .pipe(
+    //
+    mergeAll(),
+    map((msg) => msg.origin),
+    filter((msg) => !msg.disabled),
+    filter((x) => validateOfTradeCopyRelation(x)),
+    toArray(),
+    map((data): ITradeCopierConfig => ({ tasks: data })),
+  )
+  .pipe(
+    tap((config) => console.info(formatTime(Date.now()), 'LoadConfig', JSON.stringify(config))),
+    tap((config) => {
+      for (const task of config.tasks) {
+        const labels = {
+          source_account_id: task.source_account_id,
+          target_account_id: task.target_account_id,
+          source_product_id: task.source_product_id,
+          target_product_id: task.target_product_id,
+        };
+        if (task.multiple === 0) {
+          MetricMatrixUp.set(0, labels);
+        } else {
+          MetricMatrixUp.set(1, labels);
+        }
+      }
+    }),
+    catchError((err) => {
+      terminal.terminalInfo.status = 'InvalidConfig';
+      throw err;
+    }),
+    shareReplay(1),
+  );
 
 config$
   .pipe(
@@ -623,7 +623,7 @@ async function setup() {
         from(orders).pipe(
           filter((order) => order.volume > 0),
           concatMap((order) =>
-            from(submitOrder(terminal, order)).pipe(
+            from(terminal.requestForResponse('SubmitOrder', order)).pipe(
               tap(() => {
                 console.info(formatTime(Date.now()), `SucceedToSubmitOrder`, key, JSON.stringify(order));
               }),
@@ -661,7 +661,7 @@ async function setup() {
         from(orders).pipe(
           filter((order) => order.volume > 0),
           mergeMap((order) =>
-            from(submitOrder(terminal, order)).pipe(
+            from(terminal.requestForResponse('SubmitOrder', order)).pipe(
               tap(() => {
                 console.info(formatTime(Date.now()), `SucceedToSubmitOrder`, key, JSON.stringify(order));
               }),
