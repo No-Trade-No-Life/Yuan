@@ -1,5 +1,5 @@
 import { formatTime, UUID } from '@yuants/data-model';
-import { ITerminalInfo, PromRegistry, Terminal } from '@yuants/protocol';
+import { ITerminalInfo, ITerminalMessage, PromRegistry, Terminal } from '@yuants/protocol';
 import { createServer } from 'http';
 import {
   bindCallback,
@@ -308,7 +308,7 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
         } else {
           // message without headers
           try {
-            const msg = JSON.parse(raw_message);
+            const msg: ITerminalMessage = JSON.parse(raw_message);
             const target_terminal_id = msg.target_terminal_id;
             if (!host.terminalInfos.has(target_terminal_id)) return; // Skip if Terminal Not Found
             if (!host.mapTerminalIdToHasHeader[target_terminal_id]) {
@@ -317,7 +317,11 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
               host.mapTerminalIdToSocket[target_terminal_id]?.send(origin.data);
               return;
             }
-            const headers = { target_terminal_id, source_terminal_id: msg.source_terminal_id };
+            const headers = {
+              target_terminal_id: msg.target_terminal_id,
+              target_terminal_ids: msg.target_terminal_id,
+              source_terminal_id: msg.source_terminal_id,
+            };
             // if target terminal supports headers, wrap the message with header and forward
             host.mapTerminalIdToSocket[target_terminal_id]?.send(
               JSON.stringify(headers) + '\n' + raw_message,
