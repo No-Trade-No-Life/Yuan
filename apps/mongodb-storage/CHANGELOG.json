@@ -2,6 +2,23 @@
   "name": "@yuants/app-mongodb-storage",
   "entries": [
     {
+      "version": "0.4.25",
+      "tag": "@yuants/app-mongodb-storage_v0.4.25",
+      "date": "Thu, 02 Jan 2025 14:18:42 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add env option to enable web rtc"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.24",
       "tag": "@yuants/app-mongodb-storage_v0.4.24",
       "date": "Thu, 02 Jan 2025 07:08:15 GMT",

@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-mongodb-storage
 
-This log was last generated on Thu, 02 Jan 2025 07:08:15 GMT and should not be manually modified.
+This log was last generated on Thu, 02 Jan 2025 14:18:42 GMT and should not be manually modified.
+
+## 0.4.25
+Thu, 02 Jan 2025 14:18:42 GMT
+
+### Patches
+
+- add env option to enable web rtc
 
 ## 0.4.24
 Thu, 02 Jan 2025 07:08:15 GMT
