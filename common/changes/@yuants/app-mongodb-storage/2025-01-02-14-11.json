@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-mongodb-storage",
+      "comment": "add env option to enable web rtc",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-mongodb-storage"
+}

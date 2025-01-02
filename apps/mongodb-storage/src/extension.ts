@@ -15,6 +15,9 @@ export default (context: IExtensionContext) => {
             TERMINAL_ID: {
               type: 'string',
             },
+            ENABLE_WEBRTC: {
+              type: 'string',
+            },
             MONGO_URI: {
               type: 'string',
               description: `mongodb://[username:password@]host1[:port1][,...hostN[:portN]][/[defaultauthdb][?options]]，参考 https://www.mongodb.com/docs/manual/reference/connection-string/`,

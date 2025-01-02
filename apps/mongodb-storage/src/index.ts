@@ -20,6 +20,7 @@ const HOST_URL = process.env.HOST_URL || process.env.HV_URL!;
 const TERMINAL_ID = process.env.TERMINAL_ID || `MongoDB/${UUID()}`;
 const terminal = new Terminal(HOST_URL, {
   terminal_id: TERMINAL_ID,
+  enable_WebRTC: process.env.ENABLE_WEBRTC === 'true',
   name: 'MongoDB Storage',
 });
 
