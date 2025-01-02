@@ -2,6 +2,23 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.27.0",
+      "tag": "@yuants/protocol_v0.27.0",
+      "date": "Thu, 02 Jan 2025 07:08:15 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "simpify SINGLE-IN-SINGLE-OUT pattern"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.26.1",
       "tag": "@yuants/protocol_v0.26.1",
       "date": "Thu, 19 Dec 2024 15:28:50 GMT",

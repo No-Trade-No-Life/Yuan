@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-k8s-manifest-operator
 
-This log was last generated on Thu, 19 Dec 2024 15:28:50 GMT and should not be manually modified.
+This log was last generated on Thu, 02 Jan 2025 07:08:15 GMT and should not be manually modified.
+
+## 0.0.34
+Thu, 02 Jan 2025 07:08:15 GMT
+
+### Patches
+
+- upgrade container base image to bookworm for wrtc
 
 ## 0.0.33
 Thu, 19 Dec 2024 15:28:50 GMT

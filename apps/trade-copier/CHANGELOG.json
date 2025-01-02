@@ -2,6 +2,34 @@
   "name": "@yuants/app-trade-copier",
   "entries": [
     {
+      "version": "0.4.39",
+      "tag": "@yuants/app-trade-copier_v0.4.39",
+      "date": "Thu, 02 Jan 2025 07:08:15 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "migrate API"
+          },
+          {
+            "comment": "upgrade container base image to bookworm for wrtc"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.13.9`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.27.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.38",
       "tag": "@yuants/app-trade-copier_v0.4.38",
       "date": "Thu, 19 Dec 2024 15:28:50 GMT",

@@ -2,6 +2,31 @@
   "name": "@yuants/app-transfer-controller",
   "entries": [
     {
+      "version": "0.0.38",
+      "tag": "@yuants/app-transfer-controller_v0.0.38",
+      "date": "Thu, 02 Jan 2025 07:08:15 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "migrate API"
+          },
+          {
+            "comment": "upgrade container base image to bookworm for wrtc"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.27.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.37",
       "tag": "@yuants/app-transfer-controller_v0.0.37",
       "date": "Thu, 19 Dec 2024 15:28:50 GMT",

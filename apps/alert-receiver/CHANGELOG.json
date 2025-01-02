@@ -2,6 +2,28 @@
   "name": "@yuants/app-alert-receiver",
   "entries": [
     {
+      "version": "0.1.78",
+      "tag": "@yuants/app-alert-receiver_v0.1.78",
+      "date": "Thu, 02 Jan 2025 07:08:15 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "upgrade container base image to bookworm for wrtc"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.27.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.77",
       "tag": "@yuants/app-alert-receiver_v0.1.77",
       "date": "Thu, 19 Dec 2024 15:28:50 GMT",

@@ -1,6 +1,14 @@
 # Change Log - @yuants/app-transfer-controller
 
-This log was last generated on Thu, 19 Dec 2024 15:28:50 GMT and should not be manually modified.
+This log was last generated on Thu, 02 Jan 2025 07:08:15 GMT and should not be manually modified.
+
+## 0.0.38
+Thu, 02 Jan 2025 07:08:15 GMT
+
+### Patches
+
+- migrate API
+- upgrade container base image to bookworm for wrtc
 
 ## 0.0.37
 Thu, 19 Dec 2024 15:28:50 GMT
