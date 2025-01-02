@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Thu, 19 Dec 2024 15:28:50 GMT and should not be manually modified.
+This log was last generated on Thu, 02 Jan 2025 07:08:15 GMT and should not be manually modified.
+
+## 0.27.0
+Thu, 02 Jan 2025 07:08:15 GMT
+
+### Minor changes
+
+- simpify SINGLE-IN-SINGLE-OUT pattern
 
 ## 0.26.1
 Thu, 19 Dec 2024 15:28:50 GMT

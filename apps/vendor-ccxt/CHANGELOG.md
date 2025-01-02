@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-ccxt
 
-This log was last generated on Thu, 19 Dec 2024 15:28:50 GMT and should not be manually modified.
+This log was last generated on Thu, 02 Jan 2025 07:08:15 GMT and should not be manually modified.
+
+## 0.3.25
+Thu, 02 Jan 2025 07:08:15 GMT
+
+### Patches
+
+- upgrade container base image to bookworm for wrtc
 
 ## 0.3.24
 Thu, 19 Dec 2024 15:28:50 GMT

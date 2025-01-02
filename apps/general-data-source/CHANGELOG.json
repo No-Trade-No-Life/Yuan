@@ -2,6 +2,31 @@
   "name": "@yuants/app-general-data-source",
   "entries": [
     {
+      "version": "0.0.72",
+      "tag": "@yuants/app-general-data-source_v0.0.72",
+      "date": "Thu, 02 Jan 2025 07:08:15 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "migrate API"
+          },
+          {
+            "comment": "upgrade container base image to bookworm for wrtc"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.27.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.71",
       "tag": "@yuants/app-general-data-source_v0.0.71",
       "date": "Thu, 19 Dec 2024 15:28:50 GMT",

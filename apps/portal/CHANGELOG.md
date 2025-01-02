@@ -1,6 +1,14 @@
 # Change Log - @yuants/app-portal
 
-This log was last generated on Thu, 19 Dec 2024 15:28:50 GMT and should not be manually modified.
+This log was last generated on Thu, 02 Jan 2025 07:08:15 GMT and should not be manually modified.
+
+## 0.1.3
+Thu, 02 Jan 2025 07:08:15 GMT
+
+### Patches
+
+- add enable webrtc switch
+- upgrade container base image to bookworm for wrtc
 
 ## 0.1.2
 Thu, 19 Dec 2024 15:28:50 GMT
