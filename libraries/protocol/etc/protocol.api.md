@@ -89,6 +89,7 @@ export interface ITerminalMessage {
     source_terminal_id: string;
     // (undocumented)
     target_terminal_id: string;
+    target_terminal_ids?: string[];
     // (undocumented)
     trace_id: string;
 }
