@@ -46,7 +46,6 @@ export default ({
                 is_real: false,
                 kernel_id: 'Model',
                 disable_log: true,
-                use_general_product: false,
               };
               const validator = new Ajv({ strictSchema: false });
               const isValid = validator.validate(payload.schema, formData);

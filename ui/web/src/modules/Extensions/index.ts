@@ -1,2 +1,2 @@
 import './ExtensionPanel';
-export { resolveVersion } from './utils';
+export { resolveVersion, loadTgzBlob } from './utils';

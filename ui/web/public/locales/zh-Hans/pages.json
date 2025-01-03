@@ -1,6 +1,7 @@
 {
   "AI": "AI助理",
   "About": "关于",
+  "AccountCompositionRelationList": "账户组合关系列表",
   "AccountFrameChart": "账户走势图",
   "AccountInfoPanel": "账户信息 {{ account_id }}",
   "AccountList": "账户列表",
@@ -15,6 +16,7 @@
   "ExtensionPanel": "应用拓展",
   "FileEditor": "{{ filename }}",
   "FinancialStatementsPanel": "基金结算",
+  "FundStatements": "基金结算 {{ filename }}",
   "GeneralSpecificRelationList": "标准品种关系列表",
   "HostList": "主机配置",
   "Login": "登录",
@@ -32,5 +34,6 @@
   "TerminalList": "终端列表",
   "TradeConfigList": "交易配置列表",
   "TradeCopyRelationList": "跟单关系列表",
+  "TransferOrderList": "转账订单",
   "UserProfile": "用户档案"
 }

@@ -1,6 +1,5 @@
-import { formatTime } from '@yuants/data-model';
+import { IPeriod, IProduct, formatTime } from '@yuants/data-model';
 import { BasicUnit, Kernel, PeriodDataUnit, ProductDataUnit } from '@yuants/kernel';
-import { IPeriod, IProduct } from '@yuants/protocol';
 import { parse as csvParse } from 'csv-parse/browser/esm/sync';
 import { parse } from 'date-fns';
 import { filter, from, lastValueFrom, map, mergeMap, toArray } from 'rxjs';
@@ -58,10 +57,9 @@ export class StaticFileServerPeriodLoadingUnit extends BasicUnit {
             ...raw,
             price_step: +(raw.price_step || 1),
             volume_step: +(raw.volume_step || 1),
-            value_speed: +(raw.value_speed || 1),
+            value_scale: +(raw.value_scale || 1),
             margin_rate: +(raw.margin_rate || 1),
             spread: +(raw.spread || 0),
-            is_underlying_base_currency: raw.is_underlying_base_currency === 'true',
             allow_long: raw.allow_long === 'true',
             allow_short: raw.allow_short === 'true',
           }),
@@ -69,20 +67,19 @@ export class StaticFileServerPeriodLoadingUnit extends BasicUnit {
         .map((v: IProduct) => [v.product_id, v]),
     );
     for (const task of this.periodTasks) {
-      if (!this.productDataUnit.mapProductIdToProduct[task.product_id]) {
-        this.productDataUnit.mapProductIdToProduct[task.product_id] = mapProductIdToProduct[
-          task.product_id
-        ] || {
-          datasource_id: task.datasource_id,
-          product_id: task.product_id,
-          base_currency: 'YYY',
-        };
+      if (!this.productDataUnit.getProduct(task.datasource_id, task.product_id)) {
+        this.productDataUnit.updateProduct(
+          mapProductIdToProduct[task.product_id] || {
+            datasource_id: task.datasource_id,
+            product_id: task.product_id,
+          },
+        );
       }
     }
     for (const task of this.periodTasks) {
       const dirPath = `OHLC/${task.product_id}/${mapPeriodToDuration[task.period_in_sec]}`;
       const files = storageIndex.filter((path) => path.startsWith(dirPath));
-      const theProduct = this.productDataUnit.mapProductIdToProduct[task.product_id];
+      const theProduct = this.productDataUnit.getProduct(task.datasource_id, task.product_id);
       if (files.length === 0) {
         this.kernel.log?.(
           `${formatTime(Date.now())} 未找到 "${task.product_id}" / "${task.period_in_sec}" 的历史数据`,
@@ -127,7 +124,7 @@ export class StaticFileServerPeriodLoadingUnit extends BasicUnit {
           map((periods) => {
             periods.sort((a, b) => a.timestamp_in_us - b.timestamp_in_us);
             periods.forEach((period, idx) => {
-              const spread = period.spread || theProduct.spread || 0;
+              const spread = period.spread || theProduct?.spread || 0;
               // Push Period Data
               // ISSUE: Push the K-line at the opening time into the queue, which generates a simulated event,
               //        which can confirm the closing of the previous K-line early

@@ -436,12 +436,22 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/host-manager",
+      "projectFolder": "libraries/host-manager",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/docs",
       "projectFolder": "ui/docs"
     },
     {
       "packageName": "@yuants/utils",
       "projectFolder": "libraries/utils",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/account-info-resolver",
+      "projectFolder": "libraries/account-info-resolver",
       "shouldPublish": true
     },
     {
@@ -495,6 +505,26 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/app-hosts",
+      "projectFolder": "apps/hosts",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/app-shared-host",
+      "projectFolder": "apps/shared-host",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/app-portal",
+      "projectFolder": "apps/portal",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/app-namespaced-mongodb-storage",
+      "projectFolder": "apps/namespaced-mongodb-storage",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/app-k8s-manifest-operator",
       "projectFolder": "apps/k8s-manifest-operator",
       "shouldPublish": true
@@ -507,6 +537,11 @@
     {
       "packageName": "@yuants/app-market-data-collector",
       "projectFolder": "apps/market-data-collector",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/app-data-collector",
+      "projectFolder": "apps/data-collector",
       "shouldPublish": true
     },
     {
@@ -531,8 +566,78 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/app-transfer-controller",
+      "projectFolder": "apps/transfer-controller",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/app-prometheus-client",
+      "projectFolder": "apps/prometheus-client",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/app-risk-manager",
+      "projectFolder": "apps/risk-manager",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/app-account-composer",
+      "projectFolder": "apps/account-composer",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/vendor-ctp",
       "projectFolder": "apps/vendor-ctp",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/vendor-deepcoin",
+      "projectFolder": "apps/vendor-deepcoin",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/vendor-ccxt",
+      "projectFolder": "apps/vendor-ccxt",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/vendor-binance",
+      "projectFolder": "apps/vendor-binance",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/vendor-bitget",
+      "projectFolder": "apps/vendor-bitget",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/vendor-coinex",
+      "projectFolder": "apps/vendor-coinex",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/vendor-okx",
+      "projectFolder": "apps/vendor-okx",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/vendor-solana",
+      "projectFolder": "apps/vendor-solana",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/vendor-huobi",
+      "projectFolder": "apps/vendor-huobi",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/vendor-gate",
+      "projectFolder": "apps/vendor-gate",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/dist-origin",
+      "projectFolder": "distributions/origin",
       "shouldPublish": true
     },
     {

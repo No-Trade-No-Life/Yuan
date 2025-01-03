@@ -5,7 +5,6 @@ import {
   IconFolder,
   IconFolderOpen,
   IconForward,
-  IconImport,
   IconLoading,
   IconMore,
   IconSend,
@@ -15,23 +14,19 @@ import { TreeNodeData } from '@douyinfe/semi-ui/lib/es/tree/interface';
 import { formatTime } from '@yuants/data-model';
 import copy from 'copy-to-clipboard';
 import { t } from 'i18next';
-import { useObservableState } from 'observable-hooks';
+import { useObservable, useObservableState } from 'observable-hooks';
 import path, { dirname } from 'path-browserify';
 import { useEffect, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
-import { filter, from, lastValueFrom, map, mergeMap, toArray } from 'rxjs';
+import { filter, firstValueFrom, from, lastValueFrom, map, mergeMap, toArray } from 'rxjs';
 import { unzip } from 'unzipit';
-import { agentConf$, reloadSchemaAction$ } from '../Agent/AgentConfForm';
-import { writeManifestsFromBatchTasks } from '../Agent/utils';
 import { executeCommand, registerCommand } from '../CommandCenter';
-import { installExtensionFromTgz } from '../Extensions/utils';
-import { FsBackend$, fs, workspaceRoot$ } from '../FileSystem/api';
+import { FsBackend$, fs, historyWorkspaceRoot$, replaceWorkspaceRoot } from '../FileSystem';
 import { showForm } from '../Form';
 import { Button } from '../Interactive';
 import i18n from '../Locale/i18n';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
-import { currentHostConfig$ } from '../Workbench/model';
 import { sendFileByAirdrop } from './airdrop';
 
 /**
@@ -40,72 +35,32 @@ import { sendFileByAirdrop } from './airdrop';
 interface IAssociationRule {
   /** i18n_key = `association:${id}`  */
   id: string;
+  priority?: number;
 
   match: (ctx: { path: string; isFile: boolean }) => boolean;
   action: (ctx: { path: string; isFile: boolean }) => void;
 }
 
-const rules: IAssociationRule[] = [
-  {
-    id: 'AgentBatchBackTest',
-    match: ({ path, isFile }) => isFile && !!path.match(/\.batch\.ts$/),
-    action: ({ path }) => {
-      executeCommand('AgentBatchBackTest', { filename: path });
-    },
-  },
-  {
-    id: 'AgentBatchBackTest_generate',
-    match: ({ path, isFile }) => isFile && !!path.match(/\.batch\.ts$/) && !!currentHostConfig$.value,
-    action: async ({ path }) => {
-      await writeManifestsFromBatchTasks(path, currentHostConfig$.value?.host_url!);
-      Toast.success(t('common:succeed'));
-    },
-  },
-  {
-    id: 'DeployConfigForm',
-    match: ({ path, isFile }) => isFile && !!path.match(/\.?manifests\.(json|yaml|yml|ts)$/),
-    action: ({ path }) => {
-      executeCommand('DeployConfigForm', { filename: path });
-    },
-  },
-  {
-    id: 'AgentConfForm',
-    match: ({ path, isFile }) => isFile && !!path.match(/\.ts$/),
-    action: ({ path }) => {
-      agentConf$.next({ ...agentConf$.value, entry: path });
-      reloadSchemaAction$.next();
-      executeCommand('AgentConfForm', { filename: path });
-    },
-  },
-  {
-    id: 'Extension',
-    match: ({ path, isFile }) => isFile && !!path.match(/\.tgz$/),
-    action: ({ path }) => {
-      installExtensionFromTgz(path);
-    },
-  },
-  {
-    id: 'RealtimeAsset',
-    match: ({ path, isFile }) => isFile && !!path.match(/\.fund\.json$/),
-    action: ({ path }) => {
-      executeCommand('RealtimeAsset', { filename: path });
-    },
-  },
-  {
-    id: 'FileEditor',
-    match: ({ isFile }) => isFile,
-    action: ({ path }) => {
-      executeCommand('FileEditor', { filename: path });
-    },
-  },
-];
+export const registerAssociationRule = (rule: IAssociationRule) => {
+  rules.push(rule);
+};
+
+export const executeAssociatedRule = async (filename: string, rule_index = 0) => {
+  const stat = await fs.stat(filename);
+  const context = { path: filename, isFile: stat.isFile() };
+  rules
+    .filter((rule) => rule.match(context))
+    .sort((a, b) => (b.priority || 0) - (a.priority || 0))
+    [rule_index]?.action(context);
+};
+
+const rules: IAssociationRule[] = [];
 
 registerPage('Explorer', () => {
   const { t, ready } = useTranslation(['Explorer', 'associations']);
   const terminal = useObservableState(terminal$);
-  const currentHostConfig = useObservableState(currentHostConfig$);
-
-  const rootName = workspaceRoot$.value?.name ?? t('TempDirectory');
+  const rootName =
+    useObservableState(useObservable(() => FsBackend$.pipe(map((x) => x?.name)))) || t('TempDirectory');
 
   const initialData: TreeNodeData[] = [
     {
@@ -165,18 +120,6 @@ registerPage('Explorer', () => {
 
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
-      <Space>
-        <Button
-          disabled={!window.showDirectoryPicker}
-          icon={<IconFolderOpen />}
-          onClick={() => executeCommand('workspace.open')}
-        >
-          {t('open_new')}
-        </Button>
-        <Button icon={<IconImport />} onClick={() => executeCommand('workspace.import_examples')}>
-          {t('import_examples')}
-        </Button>
-      </Space>
       <Tree
         key={treeKey}
         loadData={(node) => handleLoadNode(node?.key)}
@@ -190,10 +133,12 @@ registerPage('Explorer', () => {
         }}
         renderFullLabel={({ className, onExpand, onClick, data, expandStatus }) => {
           const { label, isLeaf } = data;
-          const context = { path: data.key, isFile: !!isLeaf };
+          const context = { path: data.key || '/', isFile: !!isLeaf };
           const filename = data.key;
 
-          const matchedRules = rules.filter((rule) => rule.match(context));
+          const matchedRules = rules
+            .filter((rule) => rule.match(context))
+            .sort((a, b) => (b.priority || 0) - (a.priority || 0));
 
           return (
             <li
@@ -240,6 +185,7 @@ registerPage('Explorer', () => {
                         <Dropdown.Item
                           icon={<IconCopy />}
                           onClick={() => {
+                            if (!data.key) return;
                             copy(data.key);
                             Toast.success(t('common:copied'));
                           }}
@@ -275,6 +221,7 @@ registerPage('Explorer', () => {
                           type="danger"
                           icon={<IconDelete />}
                           onClick={async () => {
+                            if (!data.key) return;
                             if (
                               !(await showForm({
                                 type: 'boolean',
@@ -295,12 +242,18 @@ registerPage('Explorer', () => {
                         </Dropdown.Item>
                         <Dropdown.Item
                           icon={<IconSend />}
-                          disabled={!data.isLeaf || !currentHostConfig}
+                          disabled={!data.isLeaf || !terminal}
                           onClick={async () => {
+                            if (!data.key) return;
                             if (!terminal) return;
+                            const terminalInfos = await firstValueFrom(from(terminal.terminalInfos$));
+                            const candidates = terminalInfos.filter(
+                              (terminalInfo) => terminalInfo.serviceInfo?.['AirDrop'],
+                            );
                             const target_terminal_id = await showForm<string>({
                               type: 'string',
                               title: t('airdrop_target'),
+                              enum: candidates.map((terminalInfo) => terminalInfo.terminal_id),
                             });
                             if (!target_terminal_id) return;
                             sendFileByAirdrop(terminal, target_terminal_id, data.key);
@@ -354,7 +307,16 @@ registerCommand('workspace.open', async () => {
   const confirm = await new Promise<boolean>((resolve) => {
     Modal.confirm({
       title: t('Explorer:request_fs_permission'),
-      content: <Trans t={t} i18nKey={'Explorer:request_fs_permission_note'} />,
+      content: (
+        <Space vertical>
+          <Trans t={t} i18nKey={'Explorer:request_fs_permission_note'} />
+          {historyWorkspaceRoot$.value?.map((root) => (
+            <Button block onClick={async () => replaceWorkspaceRoot(root)}>
+              {root.name}
+            </Button>
+          ))}
+        </Space>
+      ),
       okText: t('Explorer:agree'),
       cancelText: t('Explorer:disagree'),
       onOk: () => {
@@ -366,21 +328,7 @@ registerCommand('workspace.open', async () => {
     });
   });
   if (!confirm) return;
-
-  const root: FileSystemDirectoryHandle = await showDirectoryPicker({
-    mode: 'readwrite',
-  });
-  await root.requestPermission({ mode: 'readwrite' });
-  workspaceRoot$.next(root);
-  if (
-    await showForm<boolean>({
-      type: 'boolean',
-      title: t('Explorer:request_import'),
-      description: t('Explorer:request_import_note'),
-    })
-  ) {
-    await executeCommand('workspace.import_examples');
-  }
+  await replaceWorkspaceRoot();
 });
 
 registerCommand('workspace.import_examples', async () => {

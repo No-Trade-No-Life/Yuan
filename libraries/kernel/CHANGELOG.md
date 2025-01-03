@@ -1,6 +1,299 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Fri, 29 Dec 2023 16:44:24 GMT and should not be manually modified.
+This log was last generated on Thu, 02 Jan 2025 07:08:15 GMT and should not be manually modified.
+
+## 0.13.9
+Thu, 02 Jan 2025 07:08:15 GMT
+
+### Patches
+
+- migrate API
+
+## 0.13.8
+Thu, 19 Dec 2024 15:28:50 GMT
+
+_Version update only_
+
+## 0.13.7
+Wed, 04 Dec 2024 09:36:47 GMT
+
+_Version update only_
+
+## 0.13.6
+Wed, 27 Nov 2024 15:48:19 GMT
+
+_Version update only_
+
+## 0.13.5
+Sun, 24 Nov 2024 06:27:35 GMT
+
+_Version update only_
+
+## 0.13.4
+Sun, 24 Nov 2024 05:13:22 GMT
+
+_Version update only_
+
+## 0.13.3
+Sat, 23 Nov 2024 15:55:38 GMT
+
+_Version update only_
+
+## 0.13.2
+Sat, 23 Nov 2024 05:37:50 GMT
+
+### Patches
+
+- fix position leaking
+
+## 0.13.1
+Sat, 16 Nov 2024 06:09:31 GMT
+
+_Version update only_
+
+## 0.13.0
+Sat, 02 Nov 2024 20:35:35 GMT
+
+### Minor changes
+
+- support updating orderIdx of AccountInfoUnit
+
+### Patches
+
+- fix position variant bug and isolated account position used and profit
+
+## 0.12.17
+Sat, 02 Nov 2024 10:25:33 GMT
+
+### Patches
+
+- fix null error
+
+## 0.12.16
+Thu, 31 Oct 2024 21:23:42 GMT
+
+### Patches
+
+- auto set submit_at and filled_at timestamp
+- optimize AccountInfoUnit's speed
+
+## 0.12.15
+Thu, 24 Oct 2024 19:57:43 GMT
+
+_Version update only_
+
+## 0.12.14
+Wed, 25 Sep 2024 08:29:52 GMT
+
+_Version update only_
+
+## 0.12.13
+Tue, 17 Sep 2024 20:07:02 GMT
+
+_Version update only_
+
+## 0.12.12
+Tue, 17 Sep 2024 14:54:15 GMT
+
+_Version update only_
+
+## 0.12.11
+Sun, 15 Sep 2024 14:00:45 GMT
+
+_Version update only_
+
+## 0.12.10
+Sun, 15 Sep 2024 05:36:59 GMT
+
+_Version update only_
+
+## 0.12.9
+Mon, 09 Sep 2024 14:05:59 GMT
+
+_Version update only_
+
+## 0.12.8
+Sun, 08 Sep 2024 10:16:35 GMT
+
+_Version update only_
+
+## 0.12.7
+Wed, 04 Sep 2024 12:44:10 GMT
+
+_Version update only_
+
+## 0.12.6
+Fri, 30 Aug 2024 14:29:33 GMT
+
+_Version update only_
+
+## 0.12.5
+Sun, 21 Jul 2024 07:51:05 GMT
+
+### Patches
+
+- update data model
+
+## 0.12.4
+Sat, 13 Jul 2024 14:49:29 GMT
+
+_Version update only_
+
+## 0.12.3
+Fri, 12 Jul 2024 09:19:54 GMT
+
+_Version update only_
+
+## 0.12.2
+Fri, 12 Jul 2024 01:50:37 GMT
+
+### Patches
+
+- refactor because of protocol
+
+## 0.12.1
+Wed, 03 Jul 2024 10:05:02 GMT
+
+_Version update only_
+
+## 0.12.0
+Sun, 30 Jun 2024 11:56:32 GMT
+
+### Minor changes
+
+- support multi currencies
+
+## 0.11.10
+Fri, 28 Jun 2024 12:37:38 GMT
+
+_Version update only_
+
+## 0.11.9
+Fri, 21 Jun 2024 16:20:19 GMT
+
+_Version update only_
+
+## 0.11.8
+Thu, 20 Jun 2024 09:43:34 GMT
+
+### Patches
+
+- refactor
+
+## 0.11.7
+Mon, 10 Jun 2024 08:50:50 GMT
+
+_Version update only_
+
+## 0.11.6
+Fri, 07 Jun 2024 19:05:13 GMT
+
+_Version update only_
+
+## 0.11.5
+Wed, 05 Jun 2024 09:35:22 GMT
+
+_Version update only_
+
+## 0.11.4
+Fri, 24 May 2024 18:00:17 GMT
+
+_Version update only_
+
+## 0.11.3
+Thu, 23 May 2024 13:52:31 GMT
+
+_Version update only_
+
+## 0.11.2
+Wed, 22 May 2024 04:53:53 GMT
+
+_Version update only_
+
+## 0.11.1
+Thu, 16 May 2024 18:00:51 GMT
+
+### Patches
+
+- use updated_at and position's valuation
+
+## 0.11.0
+Tue, 23 Apr 2024 16:29:03 GMT
+
+### Minor changes
+
+- Remove deprecated fields
+
+## 0.10.6
+Thu, 11 Apr 2024 14:45:56 GMT
+
+_Version update only_
+
+## 0.10.5
+Mon, 08 Apr 2024 11:05:31 GMT
+
+_Version update only_
+
+## 0.10.4
+Fri, 22 Mar 2024 10:10:02 GMT
+
+_Version update only_
+
+## 0.10.3
+Thu, 22 Feb 2024 18:28:20 GMT
+
+_Version update only_
+
+## 0.10.2
+Mon, 19 Feb 2024 09:27:17 GMT
+
+### Patches
+
+- fix position price formula 
+
+## 0.10.1
+Sun, 18 Feb 2024 08:29:52 GMT
+
+### Patches
+
+- fix position price formula
+
+## 0.10.0
+Sun, 18 Feb 2024 06:04:51 GMT
+
+### Minor changes
+
+- multi-datasource
+
+## 0.9.0
+Sun, 18 Feb 2024 02:52:08 GMT
+
+### Minor changes
+
+- remove use_general_product
+
+### Patches
+
+- enforce order matching round by volume_step
+
+## 0.8.0
+Sat, 17 Feb 2024 23:28:07 GMT
+
+### Minor changes
+
+- update formula of PnL and margin
+
+## 0.7.4
+Sat, 10 Feb 2024 21:26:26 GMT
+
+### Patches
+
+- refactor for data-model
+
+## 0.7.3
+Wed, 07 Feb 2024 08:31:35 GMT
+
+_Version update only_
 
 ## 0.7.2
 Fri, 29 Dec 2023 16:44:24 GMT

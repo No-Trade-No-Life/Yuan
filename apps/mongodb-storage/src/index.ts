@@ -1,24 +1,27 @@
-import { formatTime } from '@yuants/data-model';
-import { IDataRecord, PromRegistry, Terminal } from '@yuants/protocol';
+import { IDataRecord, IDataRecordTypes, UUID, formatTime, getDataRecordWrapper } from '@yuants/data-model';
+import { PromRegistry, Terminal } from '@yuants/protocol';
 import { MongoClient } from 'mongodb';
-import { bufferTime, concatWith, delayWhen, from, groupBy, map, mergeMap, of, tap, toArray } from 'rxjs';
+import { basename, dirname } from 'path';
+import {
+  bufferTime,
+  concatWith,
+  defer,
+  delayWhen,
+  from,
+  groupBy,
+  map,
+  mergeMap,
+  of,
+  tap,
+  toArray,
+} from 'rxjs';
 
-const HV_URL = process.env.HV_URL!;
-const TERMINAL_ID = process.env.TERMINAL_ID || `MongoDB`;
-const terminal = new Terminal(HV_URL, {
+const HOST_URL = process.env.HOST_URL || process.env.HV_URL!;
+const TERMINAL_ID = process.env.TERMINAL_ID || `MongoDB/${UUID()}`;
+const terminal = new Terminal(HOST_URL, {
   terminal_id: TERMINAL_ID,
+  enable_WebRTC: process.env.ENABLE_WEBRTC === 'true',
   name: 'MongoDB Storage',
-  services: [
-    {
-      storage: {},
-    },
-  ],
-  discriminator: {
-    type: 'object',
-    properties: {
-      method: { enum: ['QueryDataRecords', 'UpdateDataRecords', 'RemoveDataRecords'] },
-    },
-  },
 });
 
 const mongo = new MongoClient(process.env.MONGO_URI!);
@@ -55,10 +58,36 @@ const MetricWriteDurationBucket = PromRegistry.create(
   'storage_write_duration_milliseconds Storage write duration bucket in 1, 10, 100, 1000, 10000, 30000 ms',
   [1, 10, 100, 1000, 10000, 30_000],
 );
+
+const wrapPath = getDataRecordWrapper('path')!;
+
 terminal.provideService('UpdateDataRecords', {}, (msg) => {
   const startTime = Date.now();
+  const pathMap: Record<string, IDataRecordTypes['path']> = {};
   return from(msg.req)
     .pipe(
+      tap((record) => {
+        if (record.paths) {
+          const type = record.type;
+          for (const [key, path] of Object.entries(record.paths)) {
+            let currentPath = path;
+            while (true) {
+              const parent = dirname(currentPath);
+              if (parent === currentPath) break; // root condition
+              const name = basename(currentPath);
+              const theKey = `${type}/${key}/${parent}/${name}`;
+              if (pathMap[theKey]) break; // trick: avoid to check a lot of duplicated common path
+              pathMap[theKey] = { type, key, parent, name };
+              currentPath = parent; // move to parent
+            }
+          }
+        }
+      }),
+      concatWith(
+        // join the path records
+        // Trick: defer to avoid the pathMap is not ready
+        defer(() => Object.values(pathMap)).pipe(map(wrapPath)),
+      ),
       groupBy((record) => record.type),
       mergeMap((group) => {
         const collection = db.collection(group.key);
@@ -93,9 +122,9 @@ terminal.provideService('UpdateDataRecords', {}, (msg) => {
           mergeMap((records) =>
             from(records).pipe(
               map((record) => ({
-                updateOne: {
+                replaceOne: {
                   filter: { id: record.id },
-                  update: { $set: record as any },
+                  replacement: record as any,
                   upsert: true,
                 },
               })),
@@ -175,6 +204,10 @@ terminal.provideService('QueryDataRecords', {}, (msg) => {
         Object.fromEntries(Object.entries(msg.req.tags || {}).map(([key, value]) => [`tags.${key}`, value])),
         // 按更新时间查询
         ...(msg.req.updated_since ? [{ updated_at: { $gt: msg.req.updated_since } }] : []),
+        // 是否包含过期数据
+        ...(msg.req.include_expired
+          ? []
+          : [{ $or: [{ expired_at: null }, { expired_at: { $gt: Date.now() } }] }]),
         // 按时间段查询
         ...(msg.req.time_range
           ? [
@@ -196,6 +229,8 @@ terminal.provideService('QueryDataRecords', {}, (msg) => {
               },
             ]
           : []),
+        // 按照 JSON Schema 查询
+        ...(msg.req.json_schema ? [{ $jsonSchema: msg.req.json_schema }] : []),
       ],
     },
     {

@@ -7,6 +7,13 @@ import { supabase } from '../SupaBase';
 
 const refreshAction$ = new Subject<void>();
 
+export interface ISharedHost {
+  host_url: string;
+  id: string;
+  name: string;
+  host_token: string;
+}
+
 export const shareHosts$ = defer(async () => {
   const res = await supabase.from('host').select('*');
   const data: Array<{

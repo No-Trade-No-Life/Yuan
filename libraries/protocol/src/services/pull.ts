@@ -1,4 +1,4 @@
-import { IOrder, IPeriod, IProduct, ITick } from '../model';
+import { IOrder, IPeriod, IProduct, ITick } from '@yuants/data-model';
 /**
  * Request to query Ticks
  * 查询 Ticks 的请求

@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-general-data-source",
-  "version": "0.0.27",
+  "version": "0.0.72",
   "main": "lib/index.js",
   "files": [
     "dist",
@@ -25,6 +25,7 @@
     "@types/heft-jest": "1.0.3",
     "@types/json-schema": "~7.0.11",
     "@types/node": "18",
+    "@yuants/data-model": "workspace:*",
     "@yuants/extension": "workspace:*",
     "@yuants/tool-kit": "workspace:*",
     "typescript": "~4.7.4"

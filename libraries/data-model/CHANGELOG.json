@@ -2,6 +2,357 @@
   "name": "@yuants/data-model",
   "entries": [
     {
+      "version": "0.17.1",
+      "tag": "@yuants/data-model_v0.17.1",
+      "date": "Thu, 19 Dec 2024 15:28:50 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.1.5`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.17.0",
+      "tag": "@yuants/data-model_v0.17.0",
+      "date": "Sat, 16 Nov 2024 06:09:31 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add fields to IPosition"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.16.0",
+      "tag": "@yuants/data-model_v0.16.0",
+      "date": "Wed, 25 Sep 2024 08:29:52 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add account_id to IPosition and add hide_positions for account_composition_releation"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.15.0",
+      "tag": "@yuants/data-model_v0.15.0",
+      "date": "Tue, 17 Sep 2024 14:54:15 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "minimum free for account_risk_info"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "fix schema of account_info_risk"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.14.0",
+      "tag": "@yuants/data-model_v0.14.0",
+      "date": "Sun, 21 Jul 2024 07:51:05 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "update Product paths"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.13.0",
+      "tag": "@yuants/data-model_v0.13.0",
+      "date": "Sat, 13 Jul 2024 14:49:29 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add tree paths"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.12.0",
+      "tag": "@yuants/data-model_v0.12.0",
+      "date": "Fri, 12 Jul 2024 09:19:54 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "migrating data-model: interfaces, schema, module augmentation, wrappers"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.11.0",
+      "tag": "@yuants/data-model_v0.11.0",
+      "date": "Sun, 30 Jun 2024 11:56:32 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "support multi currencies"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.10.3",
+      "tag": "@yuants/data-model_v0.10.3",
+      "date": "Fri, 07 Jun 2024 19:05:13 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add new field denoting current step start time"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.10.2",
+      "tag": "@yuants/data-model_v0.10.2",
+      "date": "Wed, 05 Jun 2024 09:35:22 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove AWAIT_DEBIT and AWAIT_CREDIT"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.10.1",
+      "tag": "@yuants/data-model_v0.10.1",
+      "date": "Fri, 24 May 2024 18:00:17 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add model for transfer controller"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.10.0",
+      "tag": "@yuants/data-model_v0.10.0",
+      "date": "Thu, 23 May 2024 13:52:31 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add new transfer network models"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.9.0",
+      "tag": "@yuants/data-model_v0.9.0",
+      "date": "Wed, 22 May 2024 04:53:53 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "interest_rate based on valuation"
+          },
+          {
+            "comment": "IPosition interest to settle for preview"
+          },
+          {
+            "comment": "Position's datasource_id"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.8.0",
+      "tag": "@yuants/data-model_v0.8.0",
+      "date": "Thu, 16 May 2024 18:00:51 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "position's valuation"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.7.0",
+      "tag": "@yuants/data-model_v0.7.0",
+      "date": "Tue, 23 Apr 2024 16:29:03 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Remove deprecated fields"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.6.0",
+      "tag": "@yuants/data-model_v0.6.0",
+      "date": "Mon, 08 Apr 2024 11:05:31 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "ITransferOrder model"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.5.1",
+      "tag": "@yuants/data-model_v0.5.1",
+      "date": "Thu, 22 Feb 2024 18:28:20 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.1.4`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.5.0",
+      "tag": "@yuants/data-model_v0.5.0",
+      "date": "Sat, 17 Feb 2024 23:28:07 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "remove some fields from IProduct"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.4.0",
+      "tag": "@yuants/data-model_v0.4.0",
+      "date": "Sat, 10 Feb 2024 21:26:26 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add fields of ITick about interest rate"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.3.0",
+      "tag": "@yuants/data-model_v0.3.0",
+      "date": "Wed, 07 Feb 2024 08:31:35 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add currency and value_scale_unit field to IProduct"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.1",
       "tag": "@yuants/data-model_v0.2.1",
       "date": "Fri, 29 Dec 2023 16:44:24 GMT",

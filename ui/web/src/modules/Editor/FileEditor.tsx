@@ -11,7 +11,8 @@ import { rollupLoadEvent$ } from '../Agent/utils';
 import { executeCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import { registerPage, usePageParams, usePageTitle } from '../Pages';
-import { isDarkMode$ } from '../Workbench/darkmode';
+import { useIsDarkMode } from '../Workbench';
+import { registerAssociationRule } from '../Workspace';
 
 Object.assign(globalThis, { monaco });
 
@@ -48,6 +49,14 @@ rollupLoadEvent$.subscribe(({ id, content }) => {
   } catch (e) {
     //
   }
+});
+
+registerAssociationRule({
+  id: 'FileEditor',
+  match: ({ isFile }) => isFile,
+  action: ({ path }) => {
+    executeCommand('FileEditor', { filename: path });
+  },
 });
 
 registerPage('FileEditor', () => {
@@ -102,7 +111,7 @@ registerPage('FileEditor', () => {
   const containerRef = useRef<any>();
   const [editor, setEditor] = useState<monaco.editor.IStandaloneCodeEditor | null>(null);
 
-  const darkmode = useObservableState(isDarkMode$);
+  const darkmode = useIsDarkMode();
 
   useEffect(() => {
     const editor = monaco.editor.create(containerRef.current, {

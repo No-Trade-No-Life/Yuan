@@ -1,9 +1,9 @@
 import { Button, Space, Toast } from '@douyinfe/semi-ui';
-import { IOrder, OrderDirection, OrderType } from '@yuants/protocol';
+import { IOrder } from '@yuants/data-model';
+import { readDataRecords } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
-import { filter, first, mergeMap, of } from 'rxjs';
-import { accountIds$ } from '../AccountInfo/model';
+import { defer, filter, first, map, mergeAll, mergeMap, of, toArray } from 'rxjs';
 import { Form } from '../Form';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
@@ -13,12 +13,11 @@ registerPage('ManualTradePanel', () => {
   const [cancelFormData, setCancelFormData] = useState(
     undefined as
       | {
-          exchange_order_id: string;
+          order_id: string;
           account_id: string;
         }
       | undefined,
   );
-  const accountIds = useObservableState(accountIds$, []);
 
   const products$ = useObservable(
     mergeMap(([account_id]) =>
@@ -26,7 +25,15 @@ registerPage('ManualTradePanel', () => {
         ? terminal$.pipe(
             filter((x): x is Exclude<typeof x, null> => !!x),
             first(),
-            mergeMap((terminal) => terminal.queryProducts({ datasource_id: account_id })),
+            mergeMap((terminal) =>
+              defer(() =>
+                readDataRecords(terminal, { type: 'product', tags: { datasource_id: account_id } }),
+              ).pipe(
+                mergeAll(),
+                map((x) => x.origin),
+                toArray(),
+              ),
+            ),
           )
         : of([]),
     ),
@@ -41,29 +48,24 @@ registerPage('ManualTradePanel', () => {
         schema={{
           type: 'object',
           properties: {
-            account_id: { type: 'string', title: '账户', enum: accountIds },
+            account_id: { type: 'string', title: '账户', format: 'account_id' },
             product_id: {
               type: 'string',
               title: '品种',
               examples: products.map((product) => product.product_id),
             },
-            type: {
+            order_type: {
               type: 'number',
               title: '订单类型',
-              default: OrderType.MARKET,
-              enum: [OrderType.MARKET, OrderType.LIMIT, OrderType.STOP],
+              default: 'MARKET',
+              enum: ['MARKET', 'LIMIT', 'STOP'],
               enumNames: ['市价单', '限价单', '止损单'],
             },
-            direction: {
+            order_direction: {
               type: 'number',
               title: '订单方向',
-              default: OrderDirection.OPEN_LONG,
-              enum: [
-                OrderDirection.OPEN_LONG,
-                OrderDirection.OPEN_SHORT,
-                OrderDirection.CLOSE_LONG,
-                OrderDirection.CLOSE_SHORT,
-              ],
+              default: 'OPEN_LONG',
+              enum: ['OPEN_LONG', 'OPEN_SHORT', 'CLOSE_LONG', 'CLOSE_SHORT'],
               enumNames: ['开多', '开空', '平多', '平空'],
             },
             volume: {
@@ -73,7 +75,7 @@ registerPage('ManualTradePanel', () => {
           },
           if: {
             properties: {
-              type: { enum: [OrderType.LIMIT, OrderType.STOP] },
+              order_type: { enum: ['LIMIT', 'STOP'] },
             },
           },
           then: {
@@ -96,7 +98,7 @@ registerPage('ManualTradePanel', () => {
               .pipe(
                 filter((x): x is Exclude<typeof x, null> => !!x),
                 first(),
-                mergeMap((terminal) => terminal.submitOrder(order)),
+                mergeMap((terminal) => terminal.requestForResponse('SubmitOrder', order)),
               )
               .forEach((res) => {
                 if (res?.code === 0) {
@@ -113,8 +115,8 @@ registerPage('ManualTradePanel', () => {
         schema={{
           type: 'object',
           properties: {
-            account_id: { type: 'string', title: '账户ID', enum: accountIds },
-            exchange_order_id: { type: 'string', title: '订单ID' },
+            account_id: { type: 'string', title: '账户ID', format: 'account_id' },
+            order_id: { type: 'string', title: '订单ID' },
           },
         }}
         formData={cancelFormData}
@@ -132,7 +134,7 @@ registerPage('ManualTradePanel', () => {
               .pipe(
                 filter((x): x is Exclude<typeof x, null> => !!x),
                 first(),
-                mergeMap((terminal) => terminal.cancelOrder(cancelFormData as IOrder)),
+                mergeMap((terminal) => terminal.requestForResponse('CancelOrder', cancelFormData as IOrder)),
               )
               .forEach((res) => {
                 if (res?.code === 0) {

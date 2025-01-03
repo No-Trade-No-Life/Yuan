@@ -5,7 +5,7 @@ import { useObservableState } from 'observable-hooks';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Subject, defer, mergeMap, tap, throttleTime } from 'rxjs';
-import { executeCommand, registerCommand } from '../CommandCenter';
+import { executeCommand } from '../CommandCenter';
 import { registerPage, usePageId } from '../Pages';
 import { authState$, supabase } from '../SupaBase';
 
@@ -110,10 +110,10 @@ registerPage('Login', () => {
       <Form
         style={{ width: '100%' }}
         labelPosition="inset"
-        onSubmitFail={(e) => {
+        onSubmitFail={(e: any) => {
           Toast.error(`${t('login_failed')}: ${e.email}`);
         }}
-        onSubmit={async (v) => {
+        onSubmit={async (v: any) => {
           setLoading(true);
           try {
             const { error } = await supabase.auth.verifyOtp({
@@ -186,9 +186,4 @@ registerPage('Login', () => {
       </Form>
     </Space>
   );
-});
-
-// Override default behavior
-registerCommand('Login', () => {
-  executeCommand('Page.open', { type: 'Login', parentId: 'border_left' });
 });

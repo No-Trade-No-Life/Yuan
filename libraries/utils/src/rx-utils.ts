@@ -1,19 +1,19 @@
 import {
-  BehaviorSubject,
   Observable,
+  OperatorFunction,
   SchedulerLike,
   Subject,
   Subscription,
-  concatMap,
-  delay,
+  concat,
+  distinctUntilChanged,
   filter,
   interval,
+  map,
   mergeMap,
   of,
-  scan,
+  pairwise,
+  pipe,
   tap,
-  timer,
-  withLatestFrom,
 } from 'rxjs';
 
 /**
@@ -105,35 +105,112 @@ export const rateLimitMap =
     }
     return new Observable((subscriber) => {
       let token = rateLimitConfig.count;
-      interval(rateLimitConfig.period / rateLimitConfig.count, scheduler)
-        .pipe(
-          //
-          filter(() => token < rateLimitConfig.count),
-          tap(() => {
-            token++;
-          }),
-        )
-        .subscribe();
-      const sub = source$.subscribe({
-        next: (obj) => {
-          if (token <= 0) {
-            reject(obj).subscribe({
-              next: (obj) => subscriber.next(obj),
-              error: (err) => subscriber.error(err),
-            });
-          } else {
-            token--;
-            fn(obj).subscribe({
-              next: (obj) => subscriber.next(obj),
-              error: (err) => subscriber.error(err),
-            });
-          }
-        },
-        error: (err) => subscriber.error(err),
-        complete: () => subscriber.complete(),
-      });
+      const subs: Subscription[] = [];
+      subs.push(
+        interval(rateLimitConfig.period / rateLimitConfig.count, scheduler)
+          .pipe(
+            //
+            filter(() => token < rateLimitConfig.count),
+            tap(() => {
+              token++;
+            }),
+          )
+          .subscribe(),
+      );
+      subs.push(
+        source$.subscribe({
+          next: (obj) => {
+            if (token <= 0) {
+              reject(obj).subscribe({
+                next: (obj) => subscriber.next(obj),
+                error: (err) => subscriber.error(err),
+              });
+            } else {
+              token--;
+              fn(obj).subscribe({
+                next: (obj) => subscriber.next(obj),
+                error: (err) => subscriber.error(err),
+              });
+            }
+          },
+          error: (err) => subscriber.error(err),
+          complete: () => subscriber.complete(),
+        }),
+      );
       return () => {
-        sub.unsubscribe();
+        for (const sub of subs) {
+          sub.unsubscribe();
+        }
       };
     });
   };
+
+/**
+ * list and watch a source of items, and apply consumer to each newly added item,
+ * the consumer should return an observable that completes when the item is fully processed,
+ *
+ * consumer will be cancelled when the item is removed.
+ *
+ * @public
+ * @param keyFunc - hash key function to group items
+ * @param consumer - consumer function to process each item
+ * @param comparator - comparator function to compare items, return true if they are the same
+ * @returns
+ */
+export const listWatch = <T, K>(
+  keyFunc: (item: T) => string,
+  consumer: (item: T) => Observable<K>,
+  comparator: (a: T, b: T) => boolean = () => true,
+): OperatorFunction<T[], K> =>
+  pipe(
+    batchGroupBy(keyFunc),
+    mergeMap((group) =>
+      group.pipe(
+        // Take first but not complete until group complete
+        distinctUntilChanged(comparator),
+        switchMapWithComplete(consumer),
+      ),
+    ),
+  );
+
+/**
+ * list and watch a source of items, and apply consumer to each newly added item,
+ * the consumer should return an observable that completes when the item is fully processed,
+ *
+ * consumer will be cancelled when the item is removed.
+ *
+ * @public
+ * @param keyFunc - hash key function to group items
+ * @param comparator - comparator function to compare items, return true if they are the same
+ * @returns
+ */
+export const listWatchEvent =
+  <T>(
+    keyFunc: (item: T) => string = (v) => `${v}`,
+    comparator: (a: T, b: T) => boolean = (a, b) => a === b,
+  ): OperatorFunction<T[], [old: T | undefined, new: T | undefined][]> =>
+  (source$) =>
+    concat(of([]), source$).pipe(
+      //
+      map((v) => new Map(v.map((v) => [keyFunc(v), v] as [string, T]))),
+      pairwise(),
+      map(([oldMap, newMap]) => {
+        const events: [old: T | undefined, new: T | undefined][] = [];
+        for (const [key, item] of oldMap) {
+          const newItem = newMap.get(key);
+          if (newItem !== undefined) {
+            if (!comparator(item, newItem)) {
+              events.push([item, newItem]);
+            }
+          } else {
+            events.push([item, undefined]);
+          }
+        }
+        for (const [key, item] of newMap) {
+          if (!oldMap.has(key)) {
+            events.push([undefined, item]);
+          }
+        }
+        return events;
+      }),
+    );

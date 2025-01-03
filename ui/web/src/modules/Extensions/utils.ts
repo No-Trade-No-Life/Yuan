@@ -1,19 +1,20 @@
 import { formatTime } from '@yuants/data-model';
 import { IDeployProvider, IExtensionContext } from '@yuants/extension';
 import { dirname, join } from 'path-browserify';
-import { BehaviorSubject, defer, from, lastValueFrom, mergeMap, retry, switchMap, timeout } from 'rxjs';
-import { FsBackend$, fs } from '../FileSystem/api';
+import { BehaviorSubject, from, lastValueFrom, mergeMap } from 'rxjs';
+import { fs } from '../FileSystem/api';
 // @ts-ignore
 import untar from 'js-untar';
 
+const PACKAGE_DOWNLOAD_DIR = '/.Y/downloads/packages';
 export const downloadTgz = async (packageName: string, ver?: string) => {
   const { meta, version } = await resolveVersion(packageName);
   console.info(formatTime(Date.now()), `downloading extension "${packageName}" (${version})...`);
   const tarball_url = meta.versions[version].dist.tarball;
   const tgz = await fetch(tarball_url).then((x) => x.blob());
-  await fs.ensureDir('/.Y/extensions');
+  await fs.ensureDir(PACKAGE_DOWNLOAD_DIR);
   await fs.writeFile(
-    join('/.Y/extensions', `${packageName.replace('@', '').replace('/', '-')}-${version}.tgz`),
+    join(PACKAGE_DOWNLOAD_DIR, `${packageName.replace('@', '').replace('/', '-')}-${version}.tgz`),
     tgz,
   );
 };
@@ -22,7 +23,7 @@ export const installExtension = async (packageName: string, ver?: string) => {
   console.debug(formatTime(Date.now()), `install extension "${packageName}"...`);
   const version = ver || (await resolveVersion(packageName)).version;
   const tgzFilename = join(
-    '/.Y/extensions',
+    PACKAGE_DOWNLOAD_DIR,
     `${packageName.replace('@', '').replace('/', '-')}-${version}.tgz`,
   );
   if (!(await fs.exists(tgzFilename))) {
@@ -67,7 +68,7 @@ const importModule = (code: string) => {
   return module;
 };
 
-interface IActiveExtensionInstance {
+export interface IActiveExtensionInstance {
   packageJson: {
     name: string;
     description?: string;
@@ -118,33 +119,9 @@ export const loadExtension = async (packageName: string) => {
   }
 };
 
-FsBackend$.pipe(
-  switchMap(() =>
-    defer(() => fs.readdir('/.Y/extensions')).pipe(
-      timeout(200),
-      retry({ delay: 200 }),
-
-      mergeMap((files) => files),
-      mergeMap(async (file) => {
-        try {
-          const dirname = join('/.Y/extensions', file);
-          const stat = await fs.stat(dirname);
-          if (stat.isDirectory()) {
-            const packageJson = JSON.parse(await fs.readFile(join(dirname, 'package.json')));
-            await loadExtension(packageJson.name);
-          }
-        } catch (e) {}
-      }, 1),
-      retry({ delay: 1000 }),
-    ),
-  ),
-).subscribe();
-
-export async function installExtensionFromTgz(tgzFilename: string) {
-  const t = Date.now();
-  const tgz = await fs.readAsBlob(tgzFilename);
+export const loadTgzBlob = async (tgzBlob: Blob) => {
   const tarball = await new Response(
-    tgz.stream().pipeThrough(
+    tgzBlob.stream().pipeThrough(
       // @ts-ignore
       new DecompressionStream('gzip'),
     ),
@@ -153,21 +130,32 @@ export async function installExtensionFromTgz(tgzFilename: string) {
   const files: Array<{ name: string; readAsString: () => string; get blob(): Blob }> = await untar(
     arrayBuffer,
   );
-  const packageJsonFile = files.find((x) => x.name === 'package/package.json');
+
+  return files.map((file) => ({ filename: file.name, blob: file.blob }));
+};
+
+export async function installExtensionFromTgz(tgzFilename: string) {
+  const t = Date.now();
+  const tgz = await fs.readFileAsBlob(tgzFilename);
+  const files = await loadTgzBlob(tgz);
+  const packageJsonFile = files.find((x) => x.filename === 'package/package.json');
   if (!packageJsonFile) {
     return;
   }
-  const packageJson = JSON.parse(packageJsonFile.readAsString());
+  const packageJson = JSON.parse(await packageJsonFile.blob.text());
   const packageName = packageJson.name;
   // Parallel: Very Fast for large amount of files
   await lastValueFrom(
     from(files).pipe(
       mergeMap(async (file) => {
-        console.debug(formatTime(Date.now()), `extension "${packageName}" extracting file "${file.name}"...`);
+        console.debug(
+          formatTime(Date.now()),
+          `extension "${packageName}" extracting file "${file.filename}"...`,
+        );
         const filename = join(
           '/.Y/extensions',
           packageName.replace('@', '').replace('/', '-'),
-          file.name.replace(/^package\//, ''),
+          file.filename.replace(/^package\//, ''),
         );
         await fs.ensureDir(dirname(filename));
         await fs.writeFile(filename, file.blob);

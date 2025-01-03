@@ -1,22 +1,79 @@
 import { IconArrowUp, IconDelete } from '@douyinfe/semi-icons';
-import { List, Space, Tag, Toast, Typography } from '@douyinfe/semi-ui';
-import { Time } from '@icon-park/react';
+import { Space, Toast } from '@douyinfe/semi-ui';
+import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
 import { t } from 'i18next';
-import { useObservableState } from 'observable-hooks';
+import { useObservable, useObservableState } from 'observable-hooks';
+import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BehaviorSubject, from, lastValueFrom, mergeMap } from 'rxjs';
+import { BehaviorSubject, defer, from, lastValueFrom, mergeMap } from 'rxjs';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { showForm } from '../Form';
-import { Button } from '../Interactive';
+import { Button, DataView } from '../Interactive';
 import { registerPage } from '../Pages';
-import { activeExtensions$, installExtension, loadExtension, uninstallExtension } from './utils';
+import { registerAssociationRule } from '../Workspace';
+import {
+  IActiveExtensionInstance,
+  activeExtensions$,
+  installExtension,
+  installExtensionFromTgz,
+  loadExtension,
+  resolveVersion,
+  uninstallExtension,
+} from './utils';
 
 const isProcessing$ = new BehaviorSubject<Record<string, boolean>>({});
+
+registerAssociationRule({
+  id: 'Extension',
+  match: ({ path, isFile }) => isFile && !!path.match(/\.tgz$/),
+  action: ({ path }) => {
+    installExtensionFromTgz(path);
+  },
+});
 
 registerPage('ExtensionPanel', () => {
   const { t } = useTranslation('ExtensionPanel');
   const activeExtensions = useObservableState(activeExtensions$);
-  const isProcessing = useObservableState(isProcessing$);
+
+  const columns = useMemo(() => {
+    const columnHelper = createColumnHelper<IActiveExtensionInstance>();
+    return [
+      columnHelper.accessor('packageJson.name', { header: () => 'Name' }),
+      columnHelper.accessor('packageJson.version', { header: () => 'Version' }),
+      columnHelper.accessor('loadTime', { header: () => 'Load Time', cell: (ctx) => `${ctx.getValue()}ms` }),
+      columnHelper.display({
+        id: 'actions',
+        header: () => 'Actions',
+        cell: (ctx) => {
+          const instance = ctx.row.original;
+          const versionInfo = useObservableState(
+            useObservable(() => defer(() => resolveVersion(instance.packageJson.name)), []),
+          );
+
+          return (
+            <Space>
+              {versionInfo?.version && versionInfo.version !== instance.packageJson.version && (
+                <Button
+                  icon={<IconArrowUp />}
+                  onClick={() => executeCommand('Extension.install', { name: instance.packageJson.name })}
+                >
+                  {t('upgrade')} ({versionInfo.version})
+                </Button>
+              )}
+              <Button
+                icon={<IconDelete />}
+                onClick={() => executeCommand('Extension.uninstall', { name: instance.packageJson.name })}
+              >
+                {t('uninstall')}
+              </Button>
+            </Space>
+          );
+        },
+      }),
+    ];
+  }, []);
+
+  const table = useReactTable({ columns, data: activeExtensions, getCoreRowModel: getCoreRowModel() });
 
   return (
     <Space vertical align="start" style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
@@ -37,40 +94,7 @@ registerPage('ExtensionPanel', () => {
         </Button>
       </Space>
       <div style={{ width: '100%', overflow: 'auto' }}>
-        <Typography.Title heading={5}>
-          {t('installed')} ({activeExtensions.length})
-        </Typography.Title>
-        <List
-          style={{ width: '100%' }}
-          dataSource={activeExtensions}
-          renderItem={(instance) => (
-            <List.Item>
-              <Space vertical align="start">
-                <Typography.Title heading={6}>{instance.packageJson.name}</Typography.Title>
-                <Typography.Paragraph>{instance.packageJson.description}</Typography.Paragraph>
-                <Space>
-                  <Tag>{instance.packageJson.version}</Tag>
-                  <Time theme="outline" /> {instance.loadTime}ms
-                </Space>
-                <Space>
-                  <Button
-                    disabled={isProcessing[instance.packageJson.name]}
-                    icon={<IconArrowUp />}
-                    onClick={() => executeCommand('Extension.install', { name: instance.packageJson.name })}
-                  >
-                    {t('upgrade')}
-                  </Button>
-                  <Button
-                    icon={<IconDelete />}
-                    onClick={() => executeCommand('Extension.uninstall', { name: instance.packageJson.name })}
-                  >
-                    {t('uninstall')}
-                  </Button>
-                </Space>
-              </Space>
-            </List.Item>
-          )}
-        ></List>
+        <DataView table={table} />
       </div>
     </Space>
   );

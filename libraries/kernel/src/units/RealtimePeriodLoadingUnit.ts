@@ -1,17 +1,16 @@
-import { encodePath, formatTime } from '@yuants/data-model';
-import { IPeriod, Terminal } from '@yuants/protocol';
+import { encodePath, formatTime, IDataRecord, IPeriod } from '@yuants/data-model';
+import { readDataRecords, Terminal, writeDataRecords } from '@yuants/protocol';
 import {
-  Subscription,
   defer,
   delayWhen,
   filter,
-  firstValueFrom,
   from,
   map,
+  mergeAll,
   mergeMap,
   retry,
+  Subscription,
   tap,
-  timer,
   toArray,
 } from 'rxjs';
 import { Kernel } from '../kernel';
@@ -83,8 +82,9 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
 
   async onInit() {
     // ISSUE: period_stream 依赖订阅关系的存在性，因此要先添加订阅关系
-    defer(() => this.terminal.queryDataRecords<IPullSourceRelation>({ type: 'pull_source_relation' }))
+    defer(() => readDataRecords(this.terminal, { type: 'pull_source_relation' }))
       .pipe(
+        mergeAll(),
         map((v) => v.origin),
         toArray(),
         mergeMap((relations) =>
@@ -109,15 +109,17 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
           timeout: ~~((task.period_in_sec * 1000) / 3),
           retry_times: 3,
         })),
-        map((v) => ({
-          id: [v.datasource_id, v.product_id, v.period_in_sec].join('\n'),
-          type: 'pull_source_relation',
-          created_at: Date.now(),
-          frozen_at: null,
-          updated_at: Date.now(),
-          tags: {},
-          origin: v,
-        })),
+        map(
+          (v): IDataRecord<IPullSourceRelation> => ({
+            id: [v.datasource_id, v.product_id, v.period_in_sec].join('\n'),
+            type: 'pull_source_relation',
+            created_at: Date.now(),
+            frozen_at: null,
+            updated_at: Date.now(),
+            tags: {},
+            origin: v,
+          }),
+        ),
         tap((task) => {
           console.info(formatTime(Date.now()), '添加 pull source relation', JSON.stringify(task));
         }),
@@ -125,7 +127,7 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
         tap((v) => {
           console.info(formatTime(Date.now()), '更新 pull source relation', JSON.stringify(v));
         }),
-        delayWhen((v) => this.terminal.updateDataRecords(v)),
+        delayWhen((v) => from(writeDataRecords(this.terminal, v))),
         retry({ delay: 1000, count: 5 }),
       )
       .subscribe();
@@ -133,12 +135,12 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
     // 配置行情查询任务
     for (const task of this.periodTasks) {
       const { datasource_id, product_id, period_in_sec } = task;
-      const theProduct = this.productDataUnit.mapProductIdToProduct[product_id];
+      const theProduct = this.productDataUnit.getProduct(datasource_id, product_id);
 
       const channelId = encodePath('Period', datasource_id, product_id, period_in_sec);
       // ISSUE: Period[].length >= 2 to ensure overlay
       this.subscriptions.push(
-        this.terminal.consumeChannel<IPeriod[]>(channelId).subscribe((periods) => {
+        defer(() => this.terminal.consumeChannel<IPeriod[]>(channelId)).subscribe((periods) => {
           if (periods.length < 2) {
             console.warn(
               formatTime(Date.now()),
@@ -150,7 +152,7 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
           const eventId = this.kernel.alloc(Date.now());
           this.mapEventIdToPeriod.set(
             eventId,
-            periods.map((period) => ({ ...period, spread: period.spread || theProduct.spread || 0 })),
+            periods.map((period) => ({ ...period, spread: period.spread || theProduct?.spread || 0 })),
           );
         }),
       );

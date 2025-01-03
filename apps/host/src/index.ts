@@ -1,94 +1,10 @@
-import { formatTime } from '@yuants/data-model';
-import { ITerminalInfo, Terminal } from '@yuants/protocol';
-import { createServer } from 'http';
-import { Observable, bindCallback, first, fromEvent, interval, map, merge, of, shareReplay } from 'rxjs';
-import WebSocket from 'ws';
+import { createNodeJSHostManager } from '@yuants/host-manager';
 
-const mapTerminalIdToSocket: Record<string, WebSocket.WebSocket> = {};
-
-const server = createServer();
-
-const wss = new WebSocket.Server({
-  noServer: true,
-  perMessageDeflate: {
-    zlibDeflateOptions: {
-      // See zlib defaults.
-      chunkSize: 1024,
-      memLevel: 7,
-      level: 3,
-    },
-    zlibInflateOptions: {
-      chunkSize: 10 * 1024,
-    },
-    // Other options settable:
-    clientNoContextTakeover: true, // Defaults to negotiated value.
-    serverNoContextTakeover: true, // Defaults to negotiated value.
-    serverMaxWindowBits: 10, // Defaults to negotiated value.
-    // Below options specified as default values.
-    concurrencyLimit: 10, // Limits zlib concurrency for perf.
-    threshold: 1024, // Size (in bytes) below which messages
-    // should not be compressed if context takeover is disabled.
+createNodeJSHostManager({
+  mapHostUrlToHostId: (host_url) => {
+    const url = new URL(host_url);
+    if (!process.env.HOST_TOKEN) return 'main';
+    if (process.env.HOST_TOKEN !== url.searchParams.get('host_token')) throw new Error('InvalidHostToken');
+    return 'main';
   },
-});
-
-merge(
-  bindCallback(process.once).call(process, 'SIGINT'),
-  bindCallback(process.once).call(process, 'SIGTERM'),
-).subscribe((sig) => {
-  console.info(formatTime(Date.now()), sig, 'terminate signal received, gracefully shutting down');
-  // ISSUE: 关闭所有连接，提早终端感知到并重连
-  for (const ws of wss.clients) {
-    ws.close();
-  }
-  wss.close();
-  server.close();
-  console.info(formatTime(Date.now()), 'GracefullyShutdown', 'Done clean up');
-  process.exit(0);
-});
-
-server.on('upgrade', (request, socket, head) => {
-  const url = new URL(request.url || '', 'http://localhost:8888');
-  const params = url.searchParams;
-  const host_token = params.get('host_token');
-  const terminal_id = params.get('terminal_id');
-  if (!((!process.env.HOST_TOKEN || host_token === process.env.HOST_TOKEN) && terminal_id)) {
-    console.info(formatTime(Date.now()), 'Auth Failed', { terminal_id, host_token });
-    socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
-    socket.destroy();
-    return;
-  }
-  wss.handleUpgrade(request, socket, head, (ws) => {
-    console.info(formatTime(Date.now()), 'New Connection', { terminal_id });
-    mapTerminalIdToSocket[terminal_id]?.close(); // 关闭旧连接
-    mapTerminalIdToSocket[terminal_id] = ws; // 注册终端
-    // 配置消息转发
-    (fromEvent(ws, 'message') as Observable<WebSocket.MessageEvent>).subscribe((origin) =>
-      mapTerminalIdToSocket[JSON.parse(origin.data.toString()).target_terminal_id]?.send(origin.data),
-    );
-  });
-});
-
-server.listen(8888);
-
-const HOST_URL = `ws://localhost:8888?host_token=${process.env.HOST_TOKEN}`;
-const terminal = new Terminal(HOST_URL, {
-  terminal_id: '@host',
-  name: 'Host Terminal',
-});
-
-const terminalInfos = new Map<string, ITerminalInfo>();
-
-const listTerminalsMessage$ = interval(1000).pipe(
-  map(() => ({ res: { code: 0, message: 'OK', data: [...terminalInfos.values()] } })),
-  shareReplay(1),
-);
-
-terminal.provideService('ListTerminals', {}, () => listTerminalsMessage$.pipe(first()));
-
-terminal.provideService('UpdateTerminalInfo', {}, (msg) => {
-  // if (msg.source_terminal_id !== msg.req.terminal_id) {
-  //   return of({ res: { code: 403, message: 'Permission Denied' } });
-  // }
-  terminalInfos.set(msg.req.terminal_id, msg.req);
-  return of({ res: { code: 0, message: 'OK' } });
 });

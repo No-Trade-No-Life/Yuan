@@ -4,7 +4,14 @@
 
 ```ts
 
+import { JSONSchema7 } from 'json-schema';
 import { Observable } from 'rxjs';
+
+// @public
+export const addDataRecordSchema: <K extends keyof IDataRecordTypes>(type: K, schema: JSONSchema7) => void;
+
+// @public
+export const addDataRecordWrapper: <K extends keyof IDataRecordTypes>(type: K, wrapper: (v: IDataRecordTypes[K]) => IDataRecord<IDataRecordTypes[K]>) => void;
 
 // @public (undocumented)
 export const createEmptyAccountInfo: (account_id: string, currency: string, leverage?: number, initial_balance?: number) => IAccountInfo;
@@ -18,11 +25,11 @@ export const encodePath: (...params: any[]) => string;
 // @public
 export const formatTime: (time: Date | number | string, timeZone?: string | undefined) => string;
 
-// @public (undocumented)
-export const getClosePriceByDesiredProfit: (product: IProduct, openPrice: number, volume: number, desiredProfit: number, variant: string, currency: string, quotes: (product_id: string) => {
-    ask: number;
-    bid: number;
-} | undefined) => number;
+// @public
+export const getDataRecordSchema: <K extends keyof IDataRecordTypes>(type: K) => JSONSchema7 | undefined;
+
+// @public
+export const getDataRecordWrapper: <K extends keyof IDataRecordTypes>(type: K) => ((v: IDataRecordTypes[K]) => IDataRecord<IDataRecordTypes[K]>) | undefined;
 
 // @public (undocumented)
 export const getMargin: (product: IProduct, openPrice: number, volume: number, variant: string, currency: string, quote: (product_id: string) => {
@@ -39,12 +46,11 @@ export const getProfit: (product: IProduct, openPrice: number, closePrice: numbe
 // @public
 export interface IAccountInfo {
     account_id: string;
+    currencies: IAccountMoney[];
     money: IAccountMoney;
     orders: IOrder[];
     positions: IPosition[];
-    // @deprecated
-    timestamp_in_us: number;
-    updated_at?: number;
+    updated_at: number;
 }
 
 // @public
@@ -60,52 +66,43 @@ export interface IAccountMoney {
 
 // @public
 export interface IDataRecord<T = unknown> {
-    created_at: number | null;
+    created_at?: number | null;
     expired_at?: number;
-    frozen_at: number | null;
+    frozen_at?: number | null;
     id: string;
     origin: T;
+    paths?: Record<string, string>;
     tags: Record<string, string>;
     type: string;
     updated_at: number;
 }
 
 // @public
+export interface IDataRecordTypes {
+}
+
+// @public
 export interface IOrder {
     account_id: string;
-    // @deprecated
-    client_order_id: string;
     comment?: string;
-    // @deprecated
-    direction: OrderDirection;
-    // @deprecated
-    exchange_order_id?: string;
     filled_at?: number;
     inferred_base_currency_price?: number;
     order_direction?: string;
     order_id?: string;
     order_status?: string;
     order_type?: string;
-    // @deprecated
-    originator?: string;
     position_id?: string;
     price?: number;
     product_id: string;
     profit_correction?: number;
     real_profit?: number;
     // @deprecated
-    status?: OrderStatus;
-    // @deprecated
     stop_loss_price?: number;
     submit_at?: number;
     // @deprecated
     take_profit_price?: number;
-    // @deprecated
-    timestamp_in_us?: number;
     traded_price?: number;
     traded_volume?: number;
-    // @deprecated
-    type: OrderType;
     volume: number;
 }
 
@@ -130,16 +127,25 @@ export interface IPeriod {
 
 // @public
 export interface IPosition {
+    account_id?: string;
     closable_price: number;
     comment?: string;
+    created_at?: number;
+    datasource_id?: string;
     direction?: string;
     floating_profit: number;
     free_volume: number;
+    interest_to_settle?: number;
+    margin?: number;
     position_id: string;
     position_price: number;
     product_id: string;
-    // @deprecated
-    variant: PositionVariant;
+    realized_pnl?: number;
+    settlement_scheduled_at?: number;
+    total_closed_volume?: number;
+    total_opened_volume?: number;
+    updated_at?: number;
+    valuation: number;
     volume: number;
 }
 
@@ -147,23 +153,20 @@ export interface IPosition {
 export interface IProduct {
     allow_long?: boolean;
     allow_short?: boolean;
-    base_currency: string;
-    datasource_id: string;
+    base_currency?: string;
     // @deprecated
-    is_underlying_base_currency?: boolean;
+    datasource_id?: string;
     margin_rate?: number;
     max_position?: number;
     max_volume?: number;
     name?: string;
     price_step?: number;
     product_id: string;
-    quoted_currency?: string;
+    quote_currency?: string;
     spread?: number;
     value_based_cost?: number;
     value_scale?: number;
-    // @deprecated
-    value_speed?: number;
-    value_unit?: string;
+    value_scale_unit?: string;
     volume_based_cost?: number;
     volume_step?: number;
 }
@@ -173,48 +176,68 @@ export interface ITick {
     ask?: number;
     bid?: number;
     datasource_id: string;
+    interest_rate_for_long?: number;
+    interest_rate_for_short?: number;
     open_interest?: number;
-    price: number;
+    price?: number;
     product_id: string;
+    settlement_scheduled_at?: number;
     spread?: number;
+    updated_at: number;
+    volume?: number;
+}
+
+// @public
+export interface ITransferOrder {
+    created_at: number;
+    credit_account_id: string;
     // @deprecated
-    timestamp_in_us: number;
-    updated_at?: number;
-    volume: number;
+    credit_method?: string;
+    currency: string;
+    current_amount?: number;
+    current_network_id?: string;
+    current_routing_index?: number;
+    current_rx_account_id?: string;
+    current_rx_address?: string;
+    current_rx_context?: string;
+    current_rx_state?: string;
+    current_step_started_at?: number;
+    current_transaction_id?: string;
+    current_tx_account_id?: string;
+    current_tx_address?: string;
+    current_tx_context?: string;
+    current_tx_state?: string;
+    debit_account_id: string;
+    // @deprecated
+    debit_methods?: string[];
+    error_message?: string;
+    expected_amount: number;
+    order_id: string;
+    // @deprecated
+    received_amount?: number;
+    // @deprecated
+    received_at?: number;
+    routing_path?: {
+        tx_account_id?: string;
+        rx_account_id?: string;
+        tx_address?: string;
+        rx_address?: string;
+        network_id?: string;
+    }[];
+    status: string;
+    // @deprecated
+    timeout_at: number;
+    // @deprecated
+    transaction_id?: string;
+    // @deprecated
+    transferred_amount?: number;
+    // @deprecated
+    transferred_at?: number;
+    updated_at: number;
 }
 
 // @public
 export const mergeAccountInfoPositions: (info: IAccountInfo) => Observable<IAccountInfo>;
-
-// @public @deprecated
-export enum OrderDirection {
-    CLOSE_LONG = 1,
-    CLOSE_SHORT = 3,
-    OPEN_LONG = 0,
-    OPEN_SHORT = 2
-}
-
-// @public @deprecated
-export enum OrderStatus {
-    ACCEPTED = 0,
-    CANCELLED = 2,
-    TRADED = 1
-}
-
-// @public @deprecated
-export enum OrderType {
-    FOK = 3,
-    IOC = 4,
-    LIMIT = 1,
-    MARKET = 0,
-    STOP = 2
-}
-
-// @public @deprecated
-export enum PositionVariant {
-    LONG = 0,
-    SHORT = 1
-}
 
 // @public (undocumented)
 export const UUID: () => string;

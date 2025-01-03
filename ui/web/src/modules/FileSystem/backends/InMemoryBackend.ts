@@ -1,8 +1,13 @@
 import { dirname, relative } from 'path-browserify';
 import { IFileSystemBackend, IFileSystemStatResult } from '../interfaces';
+import { bs64toBlob } from '../utils';
 
 export class InMemoryBackend implements IFileSystemBackend {
-  files: Record<string, { type: 'file'; contentBase64: string } | { type: 'dir' }> = { '/': { type: 'dir' } };
+  name: string = 'InMemory';
+  files: Record<string, { type: 'file'; blob: Blob } | { type: 'dir' }> = { '/': { type: 'dir' } };
+  constructor(name?: string) {
+    if (name) this.name = name;
+  }
 
   async readdir(path: string): Promise<string[]> {
     const file = this.files[path];
@@ -32,7 +37,7 @@ export class InMemoryBackend implements IFileSystemBackend {
     return b64_to_utf8(await this.readFileAsBase64(path));
   }
 
-  async readFileAsBase64(path: string): Promise<string> {
+  async readFileAsBlob(path: string): Promise<Blob> {
     const file = this.files[path];
     if (!file) {
       throw Error(`ENOENT: no such file or directory: ${path}`);
@@ -40,16 +45,20 @@ export class InMemoryBackend implements IFileSystemBackend {
     if (file.type === 'dir') {
       throw Error(`Cannot readFile from dir ${path}`);
     }
-    return file.contentBase64;
+    return file.blob;
+  }
+
+  async readFileAsBase64(path: string): Promise<string> {
+    return blobToBase64(await this.readFileAsBlob(path));
   }
   async writeFile(path: string, content: FileSystemWriteChunkType): Promise<void> {
     if (content instanceof Blob) {
-      this.files[path] = { type: 'file', contentBase64: await blobToBase64(content) };
+      this.files[path] = { type: 'file', blob: content };
       return;
     }
 
     if (typeof content === 'string') {
-      this.files[path] = { type: 'file', contentBase64: utf8_to_b64(content) };
+      this.files[path] = { type: 'file', blob: bs64toBlob(utf8_to_b64(content)) };
       return;
     }
 

@@ -1,4 +1,4 @@
-import { IOrder, OrderDirection } from '@yuants/protocol';
+import { IOrder } from '@yuants/data-model';
 import { Subject } from 'rxjs';
 import { Kernel } from '../kernel';
 import { BasicUnit } from './BasicUnit';

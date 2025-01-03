@@ -1,4 +1,4 @@
-import { IAccountInfo, PositionVariant } from '@yuants/protocol';
+import { IAccountInfo } from '@yuants/data-model';
 import { Kernel } from '../kernel';
 import { AccountSimulatorUnit } from './AccountSimulatorUnit';
 import { BasicUnit } from './BasicUnit';
@@ -130,7 +130,7 @@ interface IAccountPositionPerformance {
   account_id: string;
   position_id: string;
   product_id: string;
-  variant: PositionVariant;
+  direction: string;
 
   profit: number;
   volume: number;
@@ -230,7 +230,7 @@ export class AccountPerformanceUnit extends BasicUnit {
    * 用于计算账户性能的 Reducer 函数
    */
   static reduceAccountPerformance = (acc: IAccountPerformance, cur: IAccountInfo): IAccountPerformance => {
-    const timestamp = cur.timestamp_in_us / 1000;
+    const timestamp = cur.updated_at!;
     const first_timestamp = Number.isNaN(acc.first_timestamp) ? timestamp : acc.first_timestamp;
     const equity = cur.money.equity;
     const balance = cur.money.balance;
@@ -257,7 +257,7 @@ export class AccountPerformanceUnit extends BasicUnit {
       : Math.max(acc.max_used_margin, cur.money.used);
     const first_order_timestamp =
       Number.isNaN(acc.first_order_timestamp) && cur.money.used !== 0
-        ? cur.timestamp_in_us / 1000
+        ? cur.updated_at!
         : acc.first_order_timestamp;
 
     // 基于日的统计
@@ -376,7 +376,7 @@ export class AccountPerformanceUnit extends BasicUnit {
             account_id: acc.account_id,
             position_id: pos.position_id,
             product_id: pos.product_id,
-            variant: pos.variant,
+            direction: pos.direction!,
             profit: pos.floating_profit,
             volume: pos.volume,
             max_profit: pos.floating_profit,
@@ -397,7 +397,7 @@ export class AccountPerformanceUnit extends BasicUnit {
             account_id: acc.account_id,
             position_id: pos.position_id,
             product_id: pos.product_id,
-            variant: pos.variant,
+            direction: pos.direction!,
             profit,
             volume,
             max_profit,

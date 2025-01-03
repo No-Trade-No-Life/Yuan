@@ -1,7 +1,8 @@
 import { ITick, decodePath, encodePath } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
-import { Subscription } from 'rxjs';
+import { Subscription, defer } from 'rxjs';
 import { Kernel } from '../kernel';
+import { AccountDatasourceRelationUnit } from './AccountDatasouceRelationUnit';
 import { BasicUnit } from './BasicUnit';
 import { QuoteDataUnit } from './QuoteDataUnit';
 import { TickDataUnit } from './TickDataUnit';
@@ -23,6 +24,9 @@ export class RealtimeTickLoadingUnit extends BasicUnit {
   private mapEventIdToTick = new Map<number, ITick>();
 
   addTickTask(datasource_id: string, product_id: string, account_id: string = '') {
+    this.kernel
+      .findUnit(AccountDatasourceRelationUnit)
+      ?.updateRelation({ datasource_id, product_id, account_id });
     this._tickTasks.add(encodePath(datasource_id, product_id, account_id));
   }
 
@@ -30,11 +34,8 @@ export class RealtimeTickLoadingUnit extends BasicUnit {
 
   onEvent(): void | Promise<void> {
     const tick = this.mapEventIdToTick.get(this.kernel.currentEventId);
-    if (tick) {
-      this.quoteDataUnit.mapProductIdToQuote[tick.product_id] = {
-        ask: tick.ask || tick.price,
-        bid: tick.bid || tick.price,
-      };
+    if (tick && tick.ask && tick.bid) {
+      this.quoteDataUnit.updateQuote(tick.datasource_id, tick.product_id, tick.ask, tick.bid);
 
       this.tickDataUnit.setTick(tick);
 
@@ -50,16 +51,16 @@ export class RealtimeTickLoadingUnit extends BasicUnit {
       const [datasource_id, product_id, account_id] = decodePath(task);
 
       this.subscriptions.push(
-        this.terminal
-          .consumeChannel<ITick>(encodePath('Tick', datasource_id, product_id))
-          .subscribe((tick) => {
-            const eventId = this.kernel.alloc(Date.now());
-            if (account_id) {
-              this.mapEventIdToTick.set(eventId, { ...tick, datasource_id: account_id });
-            } else {
-              this.mapEventIdToTick.set(eventId, tick);
-            }
-          }),
+        defer(() =>
+          this.terminal.consumeChannel<ITick>(encodePath('Tick', datasource_id, product_id)),
+        ).subscribe((tick) => {
+          const eventId = this.kernel.alloc(Date.now());
+          if (account_id) {
+            this.mapEventIdToTick.set(eventId, { ...tick, datasource_id: account_id });
+          } else {
+            this.mapEventIdToTick.set(eventId, tick);
+          }
+        }),
       );
     }
   }

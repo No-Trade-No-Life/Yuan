@@ -6,5 +6,7 @@
  * @remarks
  * 定义了一些通用工具
  */
+export * from './async-iterator-interop';
+export * from './crypto';
 export * from './order-utils';
 export * from './rx-utils';

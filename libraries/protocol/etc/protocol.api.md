@@ -5,21 +5,26 @@
 ```ts
 
 import { IAccountInfo } from '@yuants/data-model';
-import { IAccountMoney } from '@yuants/data-model';
 import { IDataRecord } from '@yuants/data-model';
-import { IOrder } from '@yuants/data-model';
+import { IDataRecordTypes } from '@yuants/data-model';
 import { IPeriod } from '@yuants/data-model';
-import { IPosition } from '@yuants/data-model';
 import { IProduct } from '@yuants/data-model';
 import { ITick } from '@yuants/data-model';
+import { ITransferOrder } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
-import { Observable } from 'rxjs';
-import { OrderDirection } from '@yuants/data-model';
-import { OrderStatus } from '@yuants/data-model';
-import { OrderType } from '@yuants/data-model';
-import { PositionVariant } from '@yuants/data-model';
+import { NativeSubject } from '@yuants/utils';
+import { ObservableInput } from 'rxjs';
 import { Registry } from '@yuants/prometheus-client';
-import { Subject } from 'rxjs';
+
+// Warning: (ae-forgotten-export) The symbol "IAccountTransferAddressContext" needs to be exported by the entry point index.d.ts
+//
+// @public
+export const addAccountTransferAddress: (ctx: IAccountTransferAddressContext) => void;
+
+// Warning: (ae-forgotten-export) The symbol "ICopyDataRecordsRequest" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export const copyDataRecords: (terminal: Terminal, req: ICopyDataRecordsRequest) => Promise<undefined>;
 
 // @public
 export function createConnectionJson<T = any>(URL: string): IConnection<T>;
@@ -27,26 +32,15 @@ export function createConnectionJson<T = any>(URL: string): IConnection<T>;
 // @public
 export function createConnectionWs<T = any>(URL: string): IConnection<T>;
 
-export { IAccountInfo }
-
-export { IAccountMoney }
+// @public
+export const escapeRegExp: (string: string) => string;
 
 // @public
 export interface IConnection<T> {
-    connection$: Observable<unknown>;
-    input$: Observable<T>;
-    output$: Subject<T>;
+    connection$: AsyncIterable<unknown>;
+    input$: AsyncIterable<T>;
+    output$: NativeSubject<T>;
 }
-
-export { IDataRecord }
-
-export { IOrder }
-
-export { IPeriod }
-
-export { IPosition }
-
-export { IProduct }
 
 // @public
 export interface IResponse<T = void> {
@@ -65,24 +59,14 @@ export interface IService {
 // @public
 export interface ITerminalInfo {
     channelIdSchemas?: JSONSchema7[];
-    // @deprecated
-    discriminator?: JSONSchema7;
-    env?: string;
+    created_at?: number;
+    enable_WebRTC?: boolean;
     name?: string;
-    owner?: string;
-    // @deprecated
-    ping?: number;
     serviceInfo?: Record<string, {
         method: string;
         schema: JSONSchema7;
     }>;
     // @deprecated
-    services?: Array<{
-        account_id?: string;
-        datasource_id?: string;
-        storage?: {};
-    }>;
-    start_timestamp_in_ms?: number;
     status?: string;
     subscriptions?: Record<string, string[]>;
     terminal_id: string;
@@ -109,88 +93,96 @@ export interface ITerminalMessage {
     trace_id: string;
 }
 
-export { ITick }
-
-export { OrderDirection }
-
-export { OrderStatus }
-
-export { OrderType }
-
-export { PositionVariant }
-
 // @public
 export const PromRegistry: Registry;
 
 // @public
+export const provideAccountInfo: (terminal: Terminal, accountInfo$: ObservableInput<IAccountInfo>) => void;
+
+// @public
+export const providePeriods: (terminal: Terminal, datasource_id: string, usePeriods: (product_id: string, period_in_sec: number) => ObservableInput<IPeriod[]>) => void;
+
+// @public
+export const provideTicks: (terminal: Terminal, datasource_id: string, useTicks: (product_id: string) => ObservableInput<ITick>) => void;
+
+// @public
+export const publishAccountInfo: (terminal: Terminal, account_id: string, accountInfo$: ObservableInput<IAccountInfo>) => {
+    dispose: () => void;
+};
+
+// Warning: (ae-forgotten-export) The symbol "IQueryPeriodsRequest" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export const queryPeriods: (terminal: Terminal, req: IQueryPeriodsRequest) => Promise<IPeriod[]>;
+
+// Warning: (ae-forgotten-export) The symbol "IQueryDataRecordsRequest" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export const readDataRecords: <T extends keyof IDataRecordTypes>(terminal: Terminal, request: IQueryDataRecordsRequest & {
+    type: T;
+}) => Promise<IDataRecord<IDataRecordTypes[T]>[]>;
+
+// Warning: (ae-forgotten-export) The symbol "IRemoveDataRecordsRequest" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export const removeDataRecords: (terminal: Terminal, req: IRemoveDataRecordsRequest) => Promise<void>;
+
+// @public
+export const requestSharedKey: (terminal: Terminal, ed25519_public_key: string) => Promise<{
+    public_key: string;
+    private_key: string;
+    remote_public_key: string;
+    shared_key: string;
+}>;
+
+// @public
+export const setupHandShakeService: (terminal: Terminal, private_key: string) => Map<string, string>;
+
+// @public
 export class Terminal {
-    constructor(host_url: string, terminalInfo: ITerminalInfo, connection?: IConnection<ITerminalMessage>);
-    accountIds$: Observable<string[]>;
-    // (undocumented)
-    cancelOrder: (order: IOrder) => Observable<IResponse<void> & IResponse<unknown>>;
-    // (undocumented)
-    _conn: IConnection<ITerminalMessage>;
-    // (undocumented)
-    consumeChannel: <T>(channel_id: string) => Observable<T>;
-    // Warning: (ae-forgotten-export) The symbol "ICopyDataRecordsRequest" needs to be exported by the entry point index.d.ts
-    //
-    // (undocumented)
-    copyDataRecords: (req: ICopyDataRecordsRequest) => Observable<undefined>;
-    datasourceIds$: Observable<string[]>;
-    // (undocumented)
+    constructor(host_url: string, terminalInfo: ITerminalInfo, connection?: IConnection<string>);
+    consumeChannel: <T>(channel_id: string) => AsyncIterable<T>;
+    dispose$: AsyncIterable<void>;
     dispose(): void;
     // (undocumented)
     host_url: string;
-    // (undocumented)
-    modifyOrder: (order: IOrder) => Observable<IResponse<void> & IResponse<unknown>>;
-    provideAccountInfo: (accountInfo$: Observable<IAccountInfo>) => void;
-    // (undocumented)
-    provideChannel: <T>(channelIdSchema: JSONSchema7, handler: (channel_id: string) => Observable<T>) => void;
-    providePeriods: (datasource_id: string, usePeriods: (product_id: string, period_in_sec: number) => Observable<IPeriod[]>) => void;
+    input$: AsyncIterable<ITerminalMessage>;
+    output$: AsyncIterable<ITerminalMessage>;
+    provideChannel: <T>(channelIdSchema: JSONSchema7, handler: (channel_id: string) => ObservableInput<T>) => {
+        dispose: () => void;
+    };
     // Warning: (ae-forgotten-export) The symbol "IServiceHandler" needs to be exported by the entry point index.d.ts
     // Warning: (ae-forgotten-export) The symbol "IServiceOptions" needs to be exported by the entry point index.d.ts
-    //
+    provideService: <T extends string>(method: T, requestSchema: JSONSchema7, handler: IServiceHandler<T>, options?: IServiceOptions) => {
+        dispose: () => void;
+    };
+    request<T extends string>(method: T, target_terminal_id: string, req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req']): AsyncIterable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage>;
+    requestForResponse<T extends keyof IService>(method: T, req: IService[T]['req']): Promise<Exclude<(Partial<IService[T]> & ITerminalMessage)['res'], undefined>>;
     // (undocumented)
-    provideService: <T extends string>(method: T, requestSchema: JSONSchema7, handler: IServiceHandler<T>, options?: IServiceOptions) => void;
-    provideTicks: (datasource_id: string, useTicks: (product_id: string) => Observable<ITick>) => void;
-    // Warning: (ae-forgotten-export) The symbol "IQueryDataRecordsRequest" needs to be exported by the entry point index.d.ts
-    //
+    requestForResponse(method: string, req: ITerminalMessage['req']): Promise<Exclude<ITerminalMessage['res'], undefined>>;
+    requestService<T extends keyof IService>(method: T, req: IService[T]['req']): AsyncIterable<Partial<IService[T]> & ITerminalMessage>;
     // (undocumented)
-    queryDataRecords: <T>(req: IQueryDataRecordsRequest) => Observable<IDataRecord<T>>;
-    // Warning: (ae-forgotten-export) The symbol "IQueryHistoryOrdersRequest" needs to be exported by the entry point index.d.ts
-    //
-    // (undocumented)
-    queryHistoryOrders: (req: IQueryHistoryOrdersRequest) => Observable<IOrder[]>;
-    // Warning: (ae-forgotten-export) The symbol "IQueryPeriodsRequest" needs to be exported by the entry point index.d.ts
-    //
-    // (undocumented)
-    queryPeriods: (req: IQueryPeriodsRequest) => Observable<IPeriod[]>;
-    // Warning: (ae-forgotten-export) The symbol "IQueryProductsRequest" needs to be exported by the entry point index.d.ts
-    //
-    // (undocumented)
-    queryProducts: (req: IQueryProductsRequest) => Observable<IProduct[]>;
-    // Warning: (ae-forgotten-export) The symbol "IRemoveDataRecordsRequest" needs to be exported by the entry point index.d.ts
-    //
-    // (undocumented)
-    removeDataRecords: (req: IRemoveDataRecordsRequest) => Observable<never>;
-    // (undocumented)
-    request<T extends string>(method: T, target_terminal_id: string, req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req']): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage>;
-    // (undocumented)
-    requestService: <T extends string>(method: T, req: T extends keyof IService ? IService[T]["req"] : unknown) => Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage>;
-    // (undocumented)
-    submitOrder: (order: IOrder) => Observable<IResponse<void> & IResponse<unknown>>;
+    requestService(method: string, req: ITerminalMessage['req']): AsyncIterable<ITerminalMessage>;
+    resolveTargetTerminalIds: (method: string, req: ITerminalMessage['req']) => Promise<string[]>;
+    terminal_id: string;
     // (undocumented)
     terminalInfo: ITerminalInfo;
-    terminalInfos$: Observable<ITerminalInfo[]>;
-    // (undocumented)
-    updateDataRecords: (records: IDataRecord<any>[]) => Observable<never>;
-    updateHistoryOrders: (orders: IOrder[]) => Observable<never[]>;
-    updatePeriods: (periods: IPeriod[]) => Observable<never[]>;
-    updateProducts: (products: IProduct[]) => Observable<never[]>;
-    useAccountInfo: (account_id: string) => Observable<IAccountInfo>;
-    usePeriod: (datasource_id: string, product_id: string, period_in_sec: number) => Observable<IPeriod[]>;
-    useProducts: (datasource_id: string) => Observable<IProduct[]>;
-    useTick: (datasource_id: string, product_id: string) => Observable<ITick>;
+    terminalInfos$: AsyncIterable<ITerminalInfo[]>;
 }
+
+// @public
+export const useAccountInfo: (terminal: Terminal, account_id: string) => AsyncIterable<IAccountInfo>;
+
+// @public
+export const usePeriod: (terminal: Terminal, datasource_id: string, product_id: string, period_in_sec: number) => AsyncIterable<IPeriod[]>;
+
+// @public (undocumented)
+export const useProducts: (terminal: Terminal, datasource_id: string) => AsyncIterable<IProduct[]>;
+
+// @public
+export const useTick: (terminal: Terminal, datasource_id: string, product_id: string) => AsyncIterable<ITick>;
+
+// @public (undocumented)
+export const writeDataRecords: <T extends keyof IDataRecordTypes>(terminal: Terminal, data: IDataRecord<IDataRecordTypes[T]>[]) => Promise<undefined>;
 
 ```

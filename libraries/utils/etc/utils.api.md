@@ -5,12 +5,62 @@
 ```ts
 
 import { Observable } from 'rxjs';
+import { OperatorFunction } from 'rxjs';
 import { SchedulerLike } from 'rxjs';
+import { Subject } from 'rxjs';
 
 // @public
 export const batchGroupBy: <T>(keyFunc: (obj: T) => string) => (source$: Observable<T[]>) => Observable<Observable<T> & {
     key: string;
 }>;
+
+// @public
+export const createKeyPair: () => {
+    public_key: string;
+    private_key: string;
+};
+
+// @public
+export const decodeBase58: (data: string) => Uint8Array;
+
+// @public
+export const decrypt: (data: Uint8Array, base58_key: string) => Promise<Uint8Array>;
+
+// @public
+export const deriveSharedKey: (publicKey: string, privateKey: string) => string;
+
+// @public
+export const encodeBase58: (data: Uint8Array) => string;
+
+// @public
+export const encrypt: (data: Uint8Array, base58_key: string) => Promise<Uint8Array>;
+
+// @public
+export const fromPrivateKey: (privateKey: string) => {
+    public_key: string;
+    private_key: string;
+};
+
+// @public
+export const generateX25519KeyPair: () => {
+    public_key: string;
+    private_key: string;
+};
+
+// @public
+export const listWatch: <T, K>(keyFunc: (item: T) => string, consumer: (item: T) => Observable<K>, comparator?: (a: T, b: T) => boolean) => OperatorFunction<T[], K>;
+
+// @public
+export const listWatchEvent: <T>(keyFunc?: (item: T) => string, comparator?: (a: T, b: T) => boolean) => OperatorFunction<T[], [old: T | undefined, new: T | undefined][]>;
+
+// @public
+export type NativeSubject<T> = AsyncIterable<T> & AsyncIterator<T, void, T>;
+
+// @public
+export const nativeSubjectToSubject: <T>(source: NativeSubject<T>) => Subject<T>;
+
+// @public
+export const observableToAsyncIterable: <T>(source: Observable<T>) => AsyncIterable<T>;
 
 // @public
 export const rateLimitMap: <A, B, C>(fn: (obj: A) => Observable<B>, reject: (obj: A) => Observable<C>, rateLimitConfig?: {
@@ -23,6 +73,15 @@ export function roundToStep(value: number, step: number,
 roundFn?: (x: number) => number): number;
 
 // @public
+export const signMessage: (message: string, privateKey: string) => string;
+
+// @public
+export const subjectToNativeSubject: <T>(subject$: Subject<T>) => NativeSubject<T>;
+
+// @public
 export const switchMapWithComplete: <T, U>(fn: (obj: T) => Observable<U>) => (source$: Observable<T>) => Observable<U>;
+
+// @public
+export const verifyMessage: (message: string, signature: string, publicKey: string) => boolean;
 
 ```

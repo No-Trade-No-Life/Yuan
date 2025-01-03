@@ -8,7 +8,7 @@ import { useAccountInfo } from './model';
 export const AccountInfoItem = React.memo((props: { account_id: string }) => {
   const accountInfo$ = useMemo(() => useAccountInfo(props.account_id), [props.account_id]);
   const accountInfo = useObservableState(accountInfo$);
-  const timeLag = Date.now() - (accountInfo?.timestamp_in_us ?? NaN) / 1000;
+  const timeLag = Date.now() - (accountInfo?.updated_at ?? NaN);
   return (
     <List.Item>
       <Space vertical align="start">
@@ -29,8 +29,8 @@ export const AccountInfoItem = React.memo((props: { account_id: string }) => {
             ></Descriptions>
             {timeLag > 60_000 && (
               <Typography.Text type="warning">
-                信息更新于 {formatTime(accountInfo.timestamp_in_us / 1000)}，已经{' '}
-                {(timeLag / 1000).toFixed(0)} 秒未更新，可能已经失去响应
+                信息更新于 {formatTime(accountInfo.updated_at!)}，已经 {(timeLag / 1000).toFixed(0)}{' '}
+                秒未更新，可能已经失去响应
               </Typography.Text>
             )}
           </>

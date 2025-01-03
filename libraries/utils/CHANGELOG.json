@@ -2,6 +2,153 @@
   "name": "@yuants/utils",
   "entries": [
     {
+      "version": "0.3.2",
+      "tag": "@yuants/utils_v0.3.2",
+      "date": "Thu, 19 Dec 2024 15:28:50 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.1.5`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.3.1",
+      "tag": "@yuants/utils_v0.3.1",
+      "date": "Mon, 09 Sep 2024 14:05:59 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refine listWatch"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.3.0",
+      "tag": "@yuants/utils_v0.3.0",
+      "date": "Sun, 08 Sep 2024 10:16:35 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add X25519, AES-GCM and base58 methods"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.2.1",
+      "tag": "@yuants/utils_v0.2.1",
+      "date": "Wed, 04 Sep 2024 12:44:10 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "extract listWatch to common utils"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.2.0",
+      "tag": "@yuants/utils_v0.2.0",
+      "date": "Fri, 30 Aug 2024 14:29:33 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add ED25519 sign algorithm"
+          },
+          {
+            "comment": "new API"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/utils_v0.1.0",
+      "date": "Fri, 12 Jul 2024 01:50:37 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add interop function from observable to async iterable"
+          },
+          {
+            "comment": "add return to release internal observable"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "add utils 'nativeSubjectToSubject' and 'subjectToNativeSubject'"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.7",
+      "tag": "@yuants/utils_v0.0.7",
+      "date": "Fri, 24 May 2024 18:00:17 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add list watch"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.6",
+      "tag": "@yuants/utils_v0.0.6",
+      "date": "Thu, 22 Feb 2024 18:28:20 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.1.4`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.5",
       "tag": "@yuants/utils_v0.0.5",
       "date": "Sat, 09 Dec 2023 16:37:39 GMT",

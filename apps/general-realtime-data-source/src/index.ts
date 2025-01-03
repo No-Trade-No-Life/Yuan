@@ -1,7 +1,6 @@
-import { encodePath, formatTime } from '@yuants/data-model';
-import { IPeriod, Terminal } from '@yuants/protocol';
+import { IDataRecordTypes, IPeriod, encodePath, formatTime, getDataRecordSchema } from '@yuants/data-model';
+import { Terminal, providePeriods, readDataRecords } from '@yuants/protocol';
 import Ajv from 'ajv';
-import { JSONSchema7 } from 'json-schema';
 import {
   EMPTY,
   Observable,
@@ -11,6 +10,7 @@ import {
   from,
   groupBy,
   map,
+  mergeAll,
   mergeMap,
   of,
   repeat,
@@ -19,60 +19,27 @@ import {
   toArray,
 } from 'rxjs';
 
-// GSR
-interface IGeneralSpecificRelation {
-  // general_datasource_id 一定是 Y 常量，因此不需要特别存储
-  // general_datasource_id: string;
-  /** 标准品种ID */
-  general_product_id: string; // XAUUSD
-  /** 具体数据源 ID */
-  specific_datasource_id: string; // TradingView
-  /** 具体品种 ID */
-  specific_product_id: string; // FX:XAUUSD
-}
+type IGeneralSpecificRelation = IDataRecordTypes['general_specific_relation'];
 
-const schema: JSONSchema7 = {
-  type: 'object',
-  title: '标准行情关系',
-  properties: {
-    general_product_id: {
-      type: 'string',
-      title: '标准品种 ID',
-    },
-    specific_datasource_id: {
-      type: 'string',
-      title: '具体数据源 ID',
-    },
-    specific_product_id: {
-      type: 'string',
-      title: '具体品种 ID',
-    },
-  },
-};
-
-const ajv = new Ajv();
-const validate = ajv.compile(schema);
+const ajv = new Ajv({ strict: false });
+const validate = ajv.compile(getDataRecordSchema('general_specific_relation')!);
 
 const HV_URL = process.env.HV_URL!;
 const TERMINAL_ID = process.env.TERMINAL_ID || 'GeneralRealtimeDataSource';
 
-const term = new Terminal(HV_URL, {
+const terminal = new Terminal(HV_URL, {
   terminal_id: TERMINAL_ID,
   name: 'General Data Source',
   status: 'OK',
-  services: [
-    {
-      datasource_id: 'Y',
-    },
-  ],
 });
 
 const mapProductIdToGSRList$ = defer(() =>
-  term.queryDataRecords<IGeneralSpecificRelation>({
+  readDataRecords(terminal, {
     type: 'general_specific_relation',
   }),
 ).pipe(
   //
+  mergeAll(),
   map((record) => {
     const config = record.origin;
     if (!validate(config)) {
@@ -107,7 +74,7 @@ const subscribePeriods = (product_id: string, period_in_sec: number) => {
     mergeMap((gsrList) =>
       from(gsrList).pipe(
         map((gsr) =>
-          term.consumeChannel<IPeriod[]>(
+          terminal.consumeChannel<IPeriod[]>(
             encodePath('Period', gsr.specific_datasource_id, gsr.specific_product_id, period_in_sec),
           ),
         ),
@@ -177,4 +144,4 @@ const usePeriod = (() => {
     (hub[`${product_id}-${period_in_sec}`] ??= defer(() => subscribePeriods(product_id, period_in_sec)));
 })();
 
-term.providePeriods('Y', usePeriod);
+providePeriods(terminal, 'Y', usePeriod);

@@ -1,20 +1,20 @@
-import { UUID, formatTime } from '@yuants/data-model';
-import { IPositionDiff, diffPosition, mergePositions } from '@yuants/kernel';
 import {
   IAccountInfo,
+  IDataRecordTypes,
   IOrder,
   IPosition,
   IProduct,
-  OrderDirection,
-  OrderType,
-  PositionVariant,
-  PromRegistry,
-  Terminal,
-} from '@yuants/protocol';
+  UUID,
+  formatTime,
+  getDataRecordSchema,
+} from '@yuants/data-model';
+import { IPositionDiff, diffPosition, mergePositions } from '@yuants/kernel';
+import { PromRegistry, Terminal, readDataRecords, useAccountInfo, useProducts } from '@yuants/protocol';
+import '@yuants/protocol/lib/services';
+import '@yuants/protocol/lib/services/order';
 import { roundToStep } from '@yuants/utils';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
-import { JSONSchema7 } from 'json-schema';
 import {
   EMPTY,
   Observable,
@@ -34,6 +34,7 @@ import {
   groupBy,
   lastValueFrom,
   map,
+  mergeAll,
   mergeMap,
   of,
   pairwise,
@@ -42,7 +43,6 @@ import {
   retry,
   shareReplay,
   tap,
-  throwError,
   timeout,
   toArray,
 } from 'rxjs';
@@ -51,17 +51,8 @@ const HV_URL = process.env.HV_URL || 'ws://localhost:8888';
 const TERMINAL_ID = process.env.TERMINAL_ID || `TradeCopier`;
 const terminal = new Terminal(HV_URL, { terminal_id: TERMINAL_ID, name: 'Trade Copier' });
 
-interface ITradeCopyRelation {
-  source_account_id: string;
-  source_product_id: string;
-  target_account_id: string;
-  target_product_id: string;
-  multiple: number;
-  /** 根据正则表达式匹配头寸的备注 (黑名单) */
-  exclusive_comment_pattern?: string;
-  /** disable this relation (equivalent to not set before) */
-  disabled?: boolean;
-}
+type ITradeCopyRelation = IDataRecordTypes['trade_copy_relation'];
+type ITradeCopierTradeConfig = IDataRecordTypes['trade_copier_trade_config'];
 
 interface ITradeCopierConfig {
   multiple?: number;
@@ -74,82 +65,18 @@ interface ITradeCopierConfig {
   }>;
 }
 
-interface ITradeCopierTradeConfig {
-  account_id: string;
-  product_id: string;
-  max_volume_per_order: number;
-}
-
-const configSchema: JSONSchema7 = {
-  type: 'object',
-  properties: {
-    tasks: {
-      type: 'array',
-      items: {
-        type: 'object',
-        required: [
-          'source_account_id',
-          'source_product_id',
-          'target_account_id',
-          'target_product_id',
-          'multiple',
-        ],
-        properties: {
-          source_account_id: {
-            type: 'string',
-          },
-          source_product_id: {
-            type: 'string',
-          },
-          target_account_id: {
-            type: 'string',
-          },
-          target_product_id: {
-            type: 'string',
-          },
-          multiple: {
-            type: 'number',
-          },
-          exclusive_comment_pattern: {
-            type: 'string',
-            format: 'regex',
-          },
-          disabled: {
-            type: 'boolean',
-          },
-        },
-      },
-    },
-  },
-};
-
-const tradeConfigSchema: JSONSchema7 = {
-  type: 'object',
-  required: ['account_id', 'product_id', 'max_volume_per_order'],
-  properties: {
-    account_id: {
-      type: 'string',
-    },
-    product_id: {
-      type: 'string',
-    },
-    max_volume_per_order: {
-      type: 'number',
-    },
-  },
-};
-
-const ajv = new Ajv();
+const ajv = new Ajv({ strict: false });
 addFormats(ajv);
 
-const tradeConfigValidate = ajv.compile(tradeConfigSchema);
+const tradeConfigValidate = ajv.compile(getDataRecordSchema('trade_copier_trade_config')!);
 
 const tradeConfig$ = defer(() =>
-  terminal.queryDataRecords<ITradeCopierTradeConfig>({
+  readDataRecords(terminal, {
     type: 'trade_copier_trade_config',
   }),
 ).pipe(
   //
+  mergeAll(),
   map((record) => {
     const config = record.origin;
     if (!tradeConfigValidate(config)) {
@@ -161,46 +88,43 @@ const tradeConfig$ = defer(() =>
   shareReplay(1),
 );
 
-const validate = ajv.compile(configSchema);
-
-const config$ = defer(() =>
-  terminal.queryDataRecords<ITradeCopyRelation>({ type: 'trade_copy_relation' }),
-).pipe(
-  //
-  map((msg) => msg.origin),
-  filter((msg) => !msg.disabled),
-  toArray(),
-  map((data): ITradeCopierConfig => ({ tasks: data })),
-  mergeMap((data) => {
-    const isValid = validate(data);
-    if (!isValid) {
-      console.error(formatTime(Date.now()), validate.errors);
-      return throwError(() => 'ERROR CONFIG');
-    }
-    return of(data);
-  }),
-  tap((config) => console.info(formatTime(Date.now()), 'LoadConfig', JSON.stringify(config))),
-  tap((config) => {
-    for (const task of config.tasks) {
-      const labels = {
-        source_account_id: task.source_account_id,
-        target_account_id: task.target_account_id,
-        source_product_id: task.source_product_id,
-        target_product_id: task.target_product_id,
-      };
-      if (task.multiple === 0) {
-        MetricMatrixUp.set(0, labels);
-      } else {
-        MetricMatrixUp.set(1, labels);
-      }
-    }
-  }),
-  catchError((err) => {
-    terminal.terminalInfo.status = 'InvalidConfig';
-    throw err;
-  }),
-  shareReplay(1),
+const validateOfTradeCopyRelation = ajv.compile<ITradeCopyRelation>(
+  getDataRecordSchema('trade_copy_relation')!,
 );
+
+const config$ = defer(() => readDataRecords(terminal, { type: 'trade_copy_relation' }))
+  .pipe(
+    //
+    mergeAll(),
+    map((msg) => msg.origin),
+    filter((msg) => !msg.disabled),
+    filter((x) => validateOfTradeCopyRelation(x)),
+    toArray(),
+    map((data): ITradeCopierConfig => ({ tasks: data })),
+  )
+  .pipe(
+    tap((config) => console.info(formatTime(Date.now()), 'LoadConfig', JSON.stringify(config))),
+    tap((config) => {
+      for (const task of config.tasks) {
+        const labels = {
+          source_account_id: task.source_account_id,
+          target_account_id: task.target_account_id,
+          source_product_id: task.source_product_id,
+          target_product_id: task.target_product_id,
+        };
+        if (task.multiple === 0) {
+          MetricMatrixUp.set(0, labels);
+        } else {
+          MetricMatrixUp.set(1, labels);
+        }
+      }
+    }),
+    catchError((err) => {
+      terminal.terminalInfo.status = 'InvalidConfig';
+      throw err;
+    }),
+    shareReplay(1),
+  );
 
 config$
   .pipe(
@@ -259,7 +183,7 @@ allAccountIds$
       });
     }),
     mergeMap((account_id) =>
-      defer(() => terminal.useAccountInfo(account_id))
+      defer(() => useAccountInfo(terminal, account_id))
         .pipe(
           //
           first(),
@@ -297,10 +221,10 @@ allAccountIds$
   .pipe(
     mergeMap((x) => x),
     mergeMap((account_id) =>
-      terminal.useAccountInfo(account_id).pipe(
+      from(useAccountInfo(terminal, account_id)).pipe(
         pairwise(),
         tap(([info1, info2]) => {
-          const lag = (info2.timestamp_in_us - info1.timestamp_in_us) / 1e3;
+          const lag = info2.updated_at! - info1.updated_at!;
           MetricTimeLag.observe(lag, { account_id, terminal_id: TERMINAL_ID });
         }),
       ),
@@ -345,7 +269,7 @@ async function setup() {
             subGroup.pipe(
               //
               toArray(),
-              combineLatestWith(terminal.useProducts(group.key).pipe(first())),
+              combineLatestWith(from(useProducts(terminal, group.key)).pipe(first())),
               map(([tasks, products]) => ({
                 target_account_id: group.key,
                 target_product_id: subGroup.key,
@@ -380,12 +304,12 @@ async function setup() {
         MetricErrorVolumeRatio.reset({
           account_id: group.target_account_id,
           product_id,
-          variant: PositionVariant.LONG,
+          variant: 'LONG',
         });
         MetricErrorVolumeRatio.reset({
           account_id: group.target_account_id,
           product_id,
-          variant: PositionVariant.SHORT,
+          variant: 'SHORT',
         });
       }
     });
@@ -416,14 +340,14 @@ async function setup() {
       //
       mergeMap((t) =>
         combineLatest([
-          terminal.useAccountInfo(group.target_account_id).pipe(
+          from(useAccountInfo(terminal, group.target_account_id)).pipe(
             //
-            filter((info) => info.timestamp_in_us / 1000 > t),
+            filter((info) => info.updated_at! > t),
           ),
           ...group.tasks.map((task) =>
-            terminal.useAccountInfo(task.source_account_id).pipe(
+            from(useAccountInfo(terminal, task.source_account_id)).pipe(
               //
-              filter((info) => info.timestamp_in_us / 1000 > t),
+              filter((info) => info.updated_at! > t),
               map((info) => ({
                 info,
                 task,
@@ -501,11 +425,7 @@ async function setup() {
               }),
               map(
                 (position) =>
-                  (position.variant === PositionVariant.LONG
-                    ? 1
-                    : position.variant === PositionVariant.SHORT
-                    ? -1
-                    : 0) *
+                  (position.direction === 'LONG' ? 1 : position.direction === 'SHORT' ? -1 : 0) *
                   position.volume *
                   (task.multiple || 0), // Invalid position will fallback to zero.
               ),
@@ -518,13 +438,14 @@ async function setup() {
           map(
             (netVolume): IPosition => ({
               product_id: group.target_product_id,
-              variant: netVolume > 0 ? PositionVariant.LONG : PositionVariant.SHORT,
+              direction: netVolume > 0 ? 'LONG' : 'SHORT',
               volume: Math.abs(netVolume),
               free_volume: Math.abs(netVolume),
               position_price: 0,
               floating_profit: 0,
               closable_price: 0,
               position_id: '',
+              valuation: 0,
             }),
           ),
           toArray(),
@@ -547,7 +468,7 @@ async function setup() {
               MetricErrorVolumeRatio.set(error_ratio, {
                 account_id: group.target_account_id,
                 product_id: positionDiff.product_id,
-                variant: positionDiff.variant,
+                direction: positionDiff.direction,
               });
             }
           }),
@@ -602,19 +523,19 @@ async function setup() {
               return of({
                 orders: [
                   {
-                    client_order_id: UUID(),
+                    order_id: UUID(),
                     account_id: group.target_account_id,
-                    type: OrderType.MARKET,
+                    order_type: 'MARKET',
                     product_id: positionDiff.product_id,
                     volume: rounded_volume,
-                    direction:
-                      positionDiff.variant === PositionVariant.LONG
+                    order_direction:
+                      positionDiff.direction === 'LONG'
                         ? positionDiff.error_volume > 0
-                          ? OrderDirection.OPEN_LONG
-                          : OrderDirection.CLOSE_LONG
+                          ? 'OPEN_LONG'
+                          : 'CLOSE_LONG'
                         : positionDiff.error_volume > 0
-                        ? OrderDirection.OPEN_SHORT
-                        : OrderDirection.CLOSE_SHORT,
+                        ? 'OPEN_SHORT'
+                        : 'CLOSE_SHORT',
                   },
                 ],
                 strategy: 'concurrent',
@@ -635,9 +556,9 @@ async function setup() {
               condition: (i) => i < order_count,
               iterate: (i) => i + 1,
               resultSelector: (i: number): IOrder => ({
-                client_order_id: UUID(),
+                order_id: UUID(),
                 account_id: group.target_account_id,
-                type: OrderType.MARKET,
+                order_type: 'MARKET',
                 product_id: positionDiff.product_id,
                 volume:
                   i < order_count - 1
@@ -646,14 +567,14 @@ async function setup() {
                         volume - config.max_volume_per_order * (order_count - 1),
                         group.products[positionDiff.product_id]?.volume_step ?? 1,
                       ),
-                direction:
-                  positionDiff.variant === PositionVariant.LONG
+                order_direction:
+                  positionDiff.direction === 'LONG'
                     ? positionDiff.error_volume > 0
-                      ? OrderDirection.OPEN_LONG
-                      : OrderDirection.CLOSE_LONG
+                      ? 'OPEN_LONG'
+                      : 'CLOSE_LONG'
                     : positionDiff.error_volume > 0
-                    ? OrderDirection.OPEN_SHORT
-                    : OrderDirection.CLOSE_SHORT,
+                    ? 'OPEN_SHORT'
+                    : 'CLOSE_SHORT',
               }),
             }).pipe(
               //
@@ -702,7 +623,7 @@ async function setup() {
         from(orders).pipe(
           filter((order) => order.volume > 0),
           concatMap((order) =>
-            terminal.submitOrder(order).pipe(
+            from(terminal.requestForResponse('SubmitOrder', order)).pipe(
               tap(() => {
                 console.info(formatTime(Date.now()), `SucceedToSubmitOrder`, key, JSON.stringify(order));
               }),
@@ -740,7 +661,7 @@ async function setup() {
         from(orders).pipe(
           filter((order) => order.volume > 0),
           mergeMap((order) =>
-            terminal.submitOrder(order).pipe(
+            from(terminal.requestForResponse('SubmitOrder', order)).pipe(
               tap(() => {
                 console.info(formatTime(Date.now()), `SucceedToSubmitOrder`, key, JSON.stringify(order));
               }),

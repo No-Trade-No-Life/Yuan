@@ -1,18 +1,4 @@
 import { JSONSchema7 } from 'json-schema';
-export {
-  IAccountInfo,
-  IAccountMoney,
-  IDataRecord,
-  IOrder,
-  IPeriod,
-  IPosition,
-  IProduct,
-  ITick,
-  OrderDirection,
-  OrderStatus,
-  OrderType,
-  PositionVariant,
-} from '@yuants/data-model';
 
 /**
  * 终端基本信息
@@ -36,13 +22,13 @@ export interface ITerminalInfo {
    * Terminal startup timestamp
    * 终端本次启动的时间戳
    *
-   * Used to calculate uptime_in_ms = Date.now() - start_timestamp_in_ms
-   * 用于计算 uptime_in_ms = Date.now() - start_timestamp_in_ms
+   * Used to calculate uptime_in_ms = Date.now() - created_at
+   * 用于计算 uptime_in_ms = Date.now() - created_at
    *
    * When empty, it is equivalent to Date.now()
    * 为空时，等同于 Date.now()
    */
-  start_timestamp_in_ms?: number;
+  created_at?: number;
 
   /**
    * Terminal Information Update Timestamp
@@ -68,14 +54,6 @@ export interface ITerminalInfo {
   name?: string;
 
   /**
-   * List of service metadata provided by the terminal
-   * 终端提供的服务元信息列表
-   *
-   * @deprecated - use serviceInfo instead
-   */
-  services?: Array<{ account_id?: string; datasource_id?: string; storage?: {} }>;
-
-  /**
    * Service information provided by the terminal
    * 终端提供的服务信息
    */
@@ -99,19 +77,9 @@ export interface ITerminalInfo {
   channelIdSchemas?: JSONSchema7[];
 
   /**
-   * If client terminal wants to send a request to a server terminal, it needs to know the server terminal id.
-   *
-   * Client should check the terminal candidates before sending a request.
-   *
-   * If a terminal's discriminator matches the request, it is a candidate.
-   *
-   * If multiple terminals are candidates, the client can choose anyone to send the request.
-   *
-   * If the discriminator is undefined, it means that the terminal's id should be explicitly specified when sending a request.
-   *
-   * @deprecated - use serviceInfo instead
+   * A flag to indicate whether the terminal enables WebRTC messaging tunnel
    */
-  discriminator?: JSONSchema7;
+  enable_WebRTC?: boolean;
 
   /**
    * Status text
@@ -125,28 +93,8 @@ export interface ITerminalInfo {
    *
    * "OK" is the normal value for everything else.
    * 约定 "OK" 为一切正常的取值，其余的都是不正常。
+   *
+   * @deprecated - Remove this field
    */
   status?: string;
-  /**
-   * Maintenance ID of the terminal
-   * 终端的维护者 ID
-   */
-  owner?: string;
-  /**
-   * Environment ID of the terminal
-   * 部署环境 ID
-   */
-  env?: string;
-  /**
-   * Measurement of network latency from the host to the terminal
-   * 度量主机到终端的网络延迟
-   *
-   * Maintained by the host
-   * 由主机维护此值
-   *
-   * null means unreachable
-   * 空值表示无法 Ping 通
-   * @deprecated "NO USED"
-   */
-  ping?: number;
 }

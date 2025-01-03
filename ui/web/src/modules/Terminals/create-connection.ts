@@ -1,4 +1,6 @@
+import { UUID } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
+import { useObservableState } from 'observable-hooks';
 import { Observable, filter, shareReplay, switchMap } from 'rxjs';
 import { currentHostConfig$ } from '../Workbench/model';
 
@@ -11,7 +13,7 @@ export const terminal$: Observable<Terminal | null> = currentHostConfig$.pipe(
         return;
       }
       const terminal = new Terminal(config.host_url, {
-        terminal_id: config.terminal_id,
+        terminal_id: `@GUI/${UUID()}`,
         name: 'Workbench GUI',
         status: 'OK',
       });
@@ -27,7 +29,7 @@ export const terminal$: Observable<Terminal | null> = currentHostConfig$.pipe(
 
 terminal$.forEach((terminal) => {
   // for DEBUG
-  terminal?._conn.connection$.forEach((conn) => Object.assign(globalThis, { _conn: conn }));
-
   Object.assign(globalThis, { terminal });
 });
+
+export const useTerminal = () => useObservableState(terminal$);

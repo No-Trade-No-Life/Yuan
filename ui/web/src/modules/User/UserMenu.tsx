@@ -1,5 +1,6 @@
 import {
   IconExit,
+  IconFolderOpen,
   IconGithubLogo,
   IconHelpCircle,
   IconInfoCircle,
@@ -9,7 +10,6 @@ import {
   IconUser,
 } from '@douyinfe/semi-icons';
 import { Avatar, Button, Dropdown, Toast } from '@douyinfe/semi-ui';
-import { SmartOptimization } from '@icon-park/react';
 import { t } from 'i18next';
 import { useObservableState } from 'observable-hooks';
 import React from 'react';
@@ -54,13 +54,13 @@ registerCommand('Logout', async () => {
 
 export const UserMenu = React.memo(() => {
   const authState = useObservableState(authState$);
-  const { t } = useTranslation('UserMenu');
+  const { t } = useTranslation(['UserMenu', 'common']);
 
   return (
     <Dropdown
       trigger="click"
       clickToHide
-      position="bottomLeft"
+      position="topLeft"
       render={
         <Dropdown.Menu style={{ width: 300 }}>
           {!authState && (
@@ -76,17 +76,16 @@ export const UserMenu = React.memo(() => {
               <Dropdown.Divider />
             </>
           )}
-          <Dropdown.Title>{t('Applications')}</Dropdown.Title>
+          <Dropdown.Title>{t('settings')}</Dropdown.Title>
           <Dropdown.Item
-            icon={<SmartOptimization />}
+            disabled={!window.showDirectoryPicker}
+            icon={<IconFolderOpen />}
             onClick={() => {
-              executeCommand('Copilot');
+              executeCommand('workspace.open');
             }}
           >
-            {t('Copilot')}
+            {t('common:change_workspace')}
           </Dropdown.Item>
-          <Dropdown.Divider />
-          <Dropdown.Title>{t('settings')}</Dropdown.Title>
           <Dropdown.Item
             icon={<IconUndo />}
             onClick={() => {

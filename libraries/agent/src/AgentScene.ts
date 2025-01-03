@@ -1,4 +1,6 @@
+import { IAccountInfo } from '@yuants/data-model';
 import {
+  AccountDatasourceRelationUnit,
   AccountInfoUnit,
   AccountPerformanceHubUnit,
   AccountPerformanceMetricsUnit,
@@ -22,7 +24,7 @@ import {
   TerminateUnit,
   TickDataUnit,
 } from '@yuants/kernel';
-import { IAccountInfo, Terminal } from '@yuants/protocol';
+import { Terminal, provideAccountInfo } from '@yuants/protocol';
 import { JSONSchema7 } from 'json-schema';
 import { Subject } from 'rxjs';
 import { AgentUnit } from './AgentUnit';
@@ -47,8 +49,6 @@ export interface IAgentConf {
 
   /** Kernel ID */
   kernel_id?: string;
-  /** 使用标准品种信息 */
-  use_general_product?: boolean;
   /** 是否禁用打印日志 */
   disable_log?: boolean;
 }
@@ -91,12 +91,6 @@ export const agentConfSchema: JSONSchema7 = {
       type: 'string',
       default: 'Model',
     },
-    use_general_product: {
-      type: 'boolean',
-      title: '使用标准品种信息',
-      description: '使用标准品种信息作为品种信息，但仍沿用具体品种的行情数据',
-      default: false,
-    },
     disable_log: {
       type: 'boolean',
       title: '禁用打印日志',
@@ -122,10 +116,9 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
     kernel.log = undefined;
   }
   const productDataUnit = new ProductDataUnit(kernel);
-  const productLoadingUnit = new ProductLoadingUnit(kernel, terminal, productDataUnit, {
-    use_general_product: agentConf.use_general_product,
-  });
+  const productLoadingUnit = new ProductLoadingUnit(kernel, terminal, productDataUnit);
   const quoteDataUnit = new QuoteDataUnit(kernel);
+  new AccountDatasourceRelationUnit(kernel);
   const tickDataUnit = new TickDataUnit(kernel);
   const periodDataUnit = new PeriodDataUnit(kernel, quoteDataUnit);
   const seriesDataUnit = new SeriesDataUnit(kernel);
@@ -184,7 +177,7 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
       for (const accountInfo of accountInfoUnit.mapAccountIdToAccountInfo.values()) {
         if (!mapAccountIdToAccountInfo$[accountInfo.account_id]) {
           mapAccountIdToAccountInfo$[accountInfo.account_id] = new Subject();
-          terminal.provideAccountInfo(mapAccountIdToAccountInfo$[accountInfo.account_id]);
+          provideAccountInfo(terminal, mapAccountIdToAccountInfo$[accountInfo.account_id]);
         }
         const accountInfo$ = mapAccountIdToAccountInfo$[accountInfo.account_id];
         accountInfo$.next(accountInfo);

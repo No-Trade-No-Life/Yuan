@@ -1,28 +1,14 @@
+import { get, set } from 'idb-keyval';
 import { dirname } from 'path-browserify';
-import { BehaviorSubject } from 'rxjs';
-import { FileSystemHandleBackend } from './backends/FileSystemHandleBackend';
-import { InMemoryBackend } from './backends/InMemoryBackend';
-import { createPersistBehaviorSubject } from './createPersistBehaviorSubject';
+import { BehaviorSubject, ReplaySubject, combineLatest, first, firstValueFrom, mergeMap, timer } from 'rxjs';
 import { IFileSystemBackend } from './interfaces';
 
-const createFileSystemApi = (backend: IFileSystemBackend) => {
-  const ensureDir = async (path: string): Promise<void> => {
-    if (path === '/') {
-      return;
-    }
-    await ensureDir(dirname(path));
-    if (await backend.exists(path)) {
-      return;
-    }
-    await backend.mkdir(path);
-  };
-  return { ...backend, ensureDir };
-};
+export const FsBackend$ = new ReplaySubject<IFileSystemBackend>(1);
 
-export const FsBackend$ = new BehaviorSubject<IFileSystemBackend>(new InMemoryBackend());
-const FsFrontend$ = new BehaviorSubject(createFileSystemApi(FsBackend$.value));
-FsBackend$.subscribe((backend) => {
-  FsFrontend$.next(createFileSystemApi(backend));
+FsBackend$.subscribe(() => {
+  fetch('/ui-web.generated.d.ts')
+    .then((res) => res.text())
+    .then((content) => fs.writeFile('/ui-web.generated.d.ts', content));
 });
 
 const ensureDir = async (path: string): Promise<void> => {
@@ -30,61 +16,135 @@ const ensureDir = async (path: string): Promise<void> => {
     return;
   }
   await ensureDir(dirname(path));
-  if (await FsBackend$.value.exists(path)) {
+  const backend = await firstValueFrom(FsBackend$);
+  if (await backend.exists(path)) {
     return;
   }
-  await FsBackend$.value.mkdir(path);
+  await backend.mkdir(path);
 };
-const b64toBlob = (b64Data: string, contentType = '', sliceSize = 512) => {
-  const byteCharacters = atob(b64Data);
-  const byteArrays = [];
 
-  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-    const slice = byteCharacters.slice(offset, offset + sliceSize);
-
-    const byteNumbers = new Array(slice.length);
-    for (let i = 0; i < slice.length; i++) {
-      byteNumbers[i] = slice.charCodeAt(i);
+const createPersistBehaviorSubject = <T>(key: string, initialValue: T) => {
+  const subject$ = new BehaviorSubject<T | undefined>(undefined);
+  get(key).then((value) => {
+    if (value !== undefined) {
+      subject$.next(value);
+    } else {
+      subject$.next(initialValue);
     }
-
-    const byteArray = new Uint8Array(byteNumbers);
-    byteArrays.push(byteArray);
-  }
-
-  const blob = new Blob(byteArrays, { type: contentType });
-  return blob;
-};
-const readAsBlob = async (path: string): Promise<Blob> => {
-  const base64 = await FsBackend$.value.readFileAsBase64(path);
-  return b64toBlob(base64);
+    subject$.subscribe((newVal) => {
+      set(key, newVal);
+    });
+  });
+  return subject$;
 };
 
 export const workspaceRoot$ = createPersistBehaviorSubject(
   'workspace-root',
   null as FileSystemDirectoryHandle | null,
 );
+export const historyWorkspaceRoot$ = createPersistBehaviorSubject(
+  'history-workspace-root',
+  [] as FileSystemDirectoryHandle[],
+);
 
-workspaceRoot$.subscribe((root) => {
-  if (root) {
-    FsBackend$.next(new FileSystemHandleBackend(root));
+combineLatest([workspaceRoot$, historyWorkspaceRoot$.pipe(first((x) => x !== undefined))]).subscribe(
+  async ([root, history]) => {
+    console.info('WorkspaceRoot', root, history);
+    if (root && history) {
+      for (const h of history) {
+        const isSame = await h.isSameEntry(root);
+        if (isSame) return;
+      }
+      historyWorkspaceRoot$.next([...history, root]);
+    }
+  },
+);
+
+export const replaceWorkspaceRoot = async (root?: FileSystemDirectoryHandle) => {
+  if (!root) {
+    root = await showDirectoryPicker({
+      mode: 'readwrite',
+    });
+    await root.requestPermission({ mode: 'readwrite' });
   }
-});
+
+  workspaceRoot$.next(root);
+  await firstValueFrom(timer(1000));
+  // REBOOT AFTER SETTING WORKSPACE ROOT
+  const url = new URL(document.location.href);
+  url.search = '';
+  document.location.replace(url.toString());
+};
 
 export const fs: IFileSystemBackend & {
   ensureDir: (path: string) => Promise<void>;
-  readAsBlob: (path: string) => Promise<Blob>;
 } = {
-  stat: (...args) => FsBackend$.value.stat(...args),
-  readdir: (...args) => FsBackend$.value.readdir(...args),
-  writeFile: (...args) => FsBackend$.value.writeFile(...args),
-  readFile: (...args) => FsBackend$.value.readFile(...args),
-  readFileAsBase64: (...args) => FsBackend$.value.readFileAsBase64(...args),
-  mkdir: (...args) => FsBackend$.value.mkdir(...args),
-  rm: (...args) => FsBackend$.value.rm(...args),
-  exists: (...args) => FsBackend$.value.exists(...args),
+  name: 'ProxyFS',
+  stat: (...args) =>
+    firstValueFrom(
+      FsBackend$.pipe(
+        first(),
+        mergeMap((fs) => fs.stat(...args)),
+      ),
+    ),
+  readdir: (...args) =>
+    firstValueFrom(
+      FsBackend$.pipe(
+        first(),
+        mergeMap((fs) => fs.readdir(...args)),
+      ),
+    ),
+  writeFile: (...args) =>
+    firstValueFrom(
+      FsBackend$.pipe(
+        first(),
+        mergeMap((fs) => fs.writeFile(...args)),
+      ),
+    ),
+  readFile: (...args) =>
+    firstValueFrom(
+      FsBackend$.pipe(
+        first(),
+        mergeMap((fs) => fs.readFile(...args)),
+      ),
+    ),
+  readFileAsBase64: (...args) =>
+    firstValueFrom(
+      FsBackend$.pipe(
+        first(),
+        mergeMap((fs) => fs.readFileAsBase64(...args)),
+      ),
+    ),
+  readFileAsBlob: (...args) =>
+    firstValueFrom(
+      FsBackend$.pipe(
+        first(),
+        mergeMap((fs) => fs.readFileAsBlob(...args)),
+      ),
+    ),
+  mkdir: (...args) =>
+    firstValueFrom(
+      FsBackend$.pipe(
+        first(),
+        mergeMap((fs) => fs.mkdir(...args)),
+      ),
+    ),
+  rm: (...args) =>
+    firstValueFrom(
+      FsBackend$.pipe(
+        first(),
+        mergeMap((fs) => fs.rm(...args)),
+      ),
+    ),
+  exists: (...args) =>
+    firstValueFrom(
+      FsBackend$.pipe(
+        first(),
+        mergeMap((fs) => fs.exists(...args)),
+      ),
+    ),
 
   ensureDir,
-  readAsBlob,
 };
 
 Object.assign(globalThis, { fs, FsBackend$ });

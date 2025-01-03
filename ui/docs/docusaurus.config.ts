@@ -6,7 +6,7 @@ import rehypeKatex from 'rehype-katex';
 
 const config: Config = {
   title: 'Yuan - Quantitative Strategy Platform Based on ChatGPT',
-  tagline: `The investment OS for everyone.`,
+  tagline: `Personal Investment OS`,
   favicon: 'img/yuan.svg',
 
   // Set the production url of your site here

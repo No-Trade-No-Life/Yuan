@@ -4,16 +4,29 @@
 
 ```ts
 
-import { IAccountInfo } from '@yuants/protocol';
-import { IOrder } from '@yuants/protocol';
-import { IPeriod } from '@yuants/protocol';
-import { IPosition } from '@yuants/protocol';
-import { IProduct } from '@yuants/protocol';
+import { IAccountInfo } from '@yuants/data-model';
+import { IOrder } from '@yuants/data-model';
+import { IPeriod } from '@yuants/data-model';
+import { IPosition } from '@yuants/data-model';
+import { IProduct } from '@yuants/data-model';
 import { ITick } from '@yuants/data-model';
 import { Observable } from 'rxjs';
-import { PositionVariant } from '@yuants/protocol';
 import { Subject } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
+
+// @public (undocumented)
+export class AccountDatasourceRelationUnit extends BasicUnit {
+    // (undocumented)
+    dump(): any;
+    // Warning: (ae-forgotten-export) The symbol "IAccountDatasourceRelation" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    list(): IAccountDatasourceRelation[];
+    // (undocumented)
+    restore(state: any): void;
+    // (undocumented)
+    updateRelation(relation: IAccountDatasourceRelation): void;
+}
 
 // @public (undocumented)
 export class AccountInfoUnit extends BasicUnit {
@@ -28,7 +41,7 @@ export class AccountInfoUnit extends BasicUnit {
         orderIdx: number;
     };
     // (undocumented)
-    getPosition: (account_id: string, position_id: string, product_id: string, variant: PositionVariant) => IPosition;
+    getPosition: (account_id: string, position_id: string, product_id: string, direction: string) => IPosition;
     // (undocumented)
     historyOrderUnit: HistoryOrderUnit;
     // (undocumented)
@@ -41,6 +54,8 @@ export class AccountInfoUnit extends BasicUnit {
     onEvent(): void | Promise<void>;
     // (undocumented)
     onInit(): void | Promise<void>;
+    // (undocumented)
+    orderIdx: number;
     // (undocumented)
     productDataUnit: ProductDataUnit;
     // (undocumented)
@@ -119,7 +134,7 @@ export class AccountSimulatorUnit extends BasicUnit {
     // (undocumented)
     accountInfo: IAccountInfo;
     // (undocumented)
-    getPosition(position_id: string, product_id: string, variant: PositionVariant): IPosition;
+    getPosition(position_id: string, product_id: string, direction: string): IPosition;
     // (undocumented)
     historyOrderUnit: HistoryOrderUnit;
     // (undocumented)
@@ -154,9 +169,6 @@ export class BasicUnit implements IKernelUnit {
     // (undocumented)
     restore(state: any): void;
 }
-
-// @public
-export const createEmptyAccountInfo: (account_id: string, currency: string, leverage?: number, initial_balance?: number) => IAccountInfo;
 
 // @public (undocumented)
 export class DataLoadingTaskUnit extends BasicUnit {
@@ -198,19 +210,13 @@ export class DataLoadingTaskUnit extends BasicUnit {
 export const diffPosition: (source: IPosition[], target: IPosition[]) => IPositionDiff[];
 
 // @public
-export const getClosePriceByDesiredProfit: (product: IProduct, openPrice: number, volume: number, desiredProfit: number, variant: PositionVariant, currency: string, quotes: (product_id: string) => {
+export const getMargin: (product: IProduct, openPrice: number, volume: number, direction: string, currency: string, quote: (product_id: string) => {
     ask: number;
     bid: number;
 } | undefined) => number;
 
 // @public
-export const getMargin: (product: IProduct, openPrice: number, volume: number, variant: PositionVariant, currency: string, quote: (product_id: string) => {
-    ask: number;
-    bid: number;
-} | undefined) => number;
-
-// @public
-export const getProfit: (product: IProduct, openPrice: number, closePrice: number, volume: number, variant: PositionVariant, currency: string, quotes: (product_id: string) => {
+export const getProfit: (product: IProduct, openPrice: number, closePrice: number, volume: number, direction: string, currency: string, quotes: (product_id: string) => {
     ask: number;
     bid: number;
 } | undefined) => number;
@@ -388,9 +394,9 @@ export interface IPortfolioStatistics {
 
 // @public (undocumented)
 export interface IPositionDiff {
+    direction: string;
     error_volume: number;
     product_id: string;
-    variant: PositionVariant;
     volume_in_source: number;
     volume_in_target: number;
 }
@@ -416,6 +422,10 @@ export class Kernel {
         };
         units: any[];
     };
+    // (undocumented)
+    findUnit<T extends IKernelUnit>(Unit: new (...args: any[]) => T): T | undefined;
+    // (undocumented)
+    findUnits<T extends IKernelUnit>(Unit: new (...args: any[]) => T): T[];
     // (undocumented)
     id: string;
     log: ((...params: any[]) => void) | undefined;
@@ -613,19 +623,23 @@ export class PortfolioSimulatorUnit extends BasicUnit {
 export class ProductDataUnit extends BasicUnit {
     // (undocumented)
     dump(): {
-        mapProductIdToProduct: Record<string, IProduct>;
+        mapProductIdToProduct: Record<string, Record<string, IProduct>>;
     };
     // (undocumented)
-    mapProductIdToProduct: Record<string, IProduct>;
+    getProduct(datasource_id: string, product_id: string): IProduct | undefined;
+    // (undocumented)
+    listProducts(): IProduct[];
+    // (undocumented)
+    onInit(): void | Promise<void>;
     // (undocumented)
     restore(state: any): void;
+    // (undocumented)
+    updateProduct(product: IProduct): void;
 }
 
 // @public
 export class ProductLoadingUnit extends BasicUnit {
-    constructor(kernel: Kernel, terminal: Terminal, productDataUnit: ProductDataUnit, options?: {
-        use_general_product?: boolean | undefined;
-    } | undefined);
+    constructor(kernel: Kernel, terminal: Terminal, productDataUnit: ProductDataUnit, options?: {} | undefined);
     // (undocumented)
     dump(): {
         productTasks: {
@@ -638,9 +652,7 @@ export class ProductLoadingUnit extends BasicUnit {
     // (undocumented)
     onInit(): Promise<void>;
     // (undocumented)
-    options?: {
-        use_general_product?: boolean | undefined;
-    } | undefined;
+    options?: {} | undefined;
     // (undocumented)
     productDataUnit: ProductDataUnit;
     // (undocumented)
@@ -656,20 +668,24 @@ export class ProductLoadingUnit extends BasicUnit {
 
 // @public
 export class QuoteDataUnit extends BasicUnit {
+    dirtyProductIds: Set<string>;
     // (undocumented)
     dump(): {
-        mapProductIdToQuote: Record<string, {
-            ask: number;
-            bid: number;
-        }>;
+        mapProductIdToQuote: Record<string, Record<string, IQuote>>;
+        mapDatasourceIdMapProductIdToAccountIds: Record<string, Record<string, Set<string>>>;
     };
+    // Warning: (ae-forgotten-export) The symbol "IQuote" needs to be exported by the entry point index.d.ts
+    //
     // (undocumented)
-    mapProductIdToQuote: Record<string, {
-        ask: number;
-        bid: number;
-    }>;
+    getQuote(datasource_id: string, product_id: string): IQuote | undefined;
+    // (undocumented)
+    listQuotes(): IQuote[];
+    // (undocumented)
+    onInit(): void | Promise<void>;
     // (undocumented)
     restore(state: any): void;
+    // (undocumented)
+    updateQuote(datasource_id: string, product_id: string, ask: number, bid: number): void;
 }
 
 // @public (undocumented)
@@ -784,7 +800,7 @@ export class TickDataUnit extends BasicUnit {
 
 // Warnings were encountered during analysis:
 //
-// src/units/OrderMatchingUnit.ts:269:11 - (ae-forgotten-export) The symbol "IMatchingRange" needs to be exported by the entry point index.d.ts
+// src/units/OrderMatchingUnit.ts:261:11 - (ae-forgotten-export) The symbol "IMatchingRange" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

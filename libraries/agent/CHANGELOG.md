@@ -1,6 +1,273 @@
 # Change Log - @yuants/agent
 
-This log was last generated on Fri, 29 Dec 2023 16:44:24 GMT and should not be manually modified.
+This log was last generated on Thu, 02 Jan 2025 07:08:15 GMT and should not be manually modified.
+
+## 0.13.38
+Thu, 02 Jan 2025 07:08:15 GMT
+
+_Version update only_
+
+## 0.13.37
+Thu, 19 Dec 2024 15:28:50 GMT
+
+_Version update only_
+
+## 0.13.36
+Wed, 04 Dec 2024 09:36:47 GMT
+
+_Version update only_
+
+## 0.13.35
+Wed, 27 Nov 2024 15:48:19 GMT
+
+_Version update only_
+
+## 0.13.34
+Sun, 24 Nov 2024 06:27:35 GMT
+
+_Version update only_
+
+## 0.13.33
+Sun, 24 Nov 2024 05:13:22 GMT
+
+_Version update only_
+
+## 0.13.32
+Sat, 23 Nov 2024 15:55:38 GMT
+
+_Version update only_
+
+## 0.13.31
+Sat, 23 Nov 2024 05:37:50 GMT
+
+_Version update only_
+
+## 0.13.30
+Sat, 16 Nov 2024 06:09:31 GMT
+
+_Version update only_
+
+## 0.13.29
+Sat, 02 Nov 2024 20:35:35 GMT
+
+_Version update only_
+
+## 0.13.28
+Sat, 02 Nov 2024 10:25:33 GMT
+
+_Version update only_
+
+## 0.13.27
+Thu, 31 Oct 2024 21:23:41 GMT
+
+_Version update only_
+
+## 0.13.26
+Thu, 24 Oct 2024 19:57:43 GMT
+
+_Version update only_
+
+## 0.13.25
+Wed, 25 Sep 2024 08:29:52 GMT
+
+_Version update only_
+
+## 0.13.24
+Tue, 17 Sep 2024 20:07:02 GMT
+
+_Version update only_
+
+## 0.13.23
+Tue, 17 Sep 2024 14:54:15 GMT
+
+_Version update only_
+
+## 0.13.22
+Sun, 15 Sep 2024 14:00:45 GMT
+
+_Version update only_
+
+## 0.13.21
+Sun, 15 Sep 2024 05:36:59 GMT
+
+_Version update only_
+
+## 0.13.20
+Mon, 09 Sep 2024 14:05:59 GMT
+
+_Version update only_
+
+## 0.13.19
+Sun, 08 Sep 2024 10:16:35 GMT
+
+_Version update only_
+
+## 0.13.18
+Wed, 04 Sep 2024 12:44:10 GMT
+
+_Version update only_
+
+## 0.13.17
+Fri, 30 Aug 2024 14:29:33 GMT
+
+_Version update only_
+
+## 0.13.16
+Sun, 21 Jul 2024 07:51:05 GMT
+
+_Version update only_
+
+## 0.13.15
+Sat, 13 Jul 2024 14:49:29 GMT
+
+_Version update only_
+
+## 0.13.14
+Fri, 12 Jul 2024 09:19:54 GMT
+
+_Version update only_
+
+## 0.13.13
+Fri, 12 Jul 2024 01:50:37 GMT
+
+### Patches
+
+- refactor because of protocol
+
+## 0.13.12
+Wed, 03 Jul 2024 10:05:02 GMT
+
+_Version update only_
+
+## 0.13.11
+Sun, 30 Jun 2024 11:56:31 GMT
+
+_Version update only_
+
+## 0.13.10
+Fri, 28 Jun 2024 12:37:38 GMT
+
+_Version update only_
+
+## 0.13.9
+Fri, 21 Jun 2024 16:20:19 GMT
+
+_Version update only_
+
+## 0.13.8
+Thu, 20 Jun 2024 09:43:34 GMT
+
+### Patches
+
+- refactor
+
+## 0.13.7
+Mon, 10 Jun 2024 08:50:49 GMT
+
+_Version update only_
+
+## 0.13.6
+Fri, 07 Jun 2024 19:05:13 GMT
+
+_Version update only_
+
+## 0.13.5
+Wed, 05 Jun 2024 09:35:22 GMT
+
+_Version update only_
+
+## 0.13.4
+Fri, 24 May 2024 18:00:17 GMT
+
+_Version update only_
+
+## 0.13.3
+Thu, 23 May 2024 13:52:31 GMT
+
+_Version update only_
+
+## 0.13.2
+Wed, 22 May 2024 04:53:53 GMT
+
+_Version update only_
+
+## 0.13.1
+Thu, 16 May 2024 18:00:51 GMT
+
+_Version update only_
+
+## 0.13.0
+Tue, 23 Apr 2024 16:29:03 GMT
+
+### Minor changes
+
+- Remove deprecated fields
+
+## 0.12.6
+Thu, 11 Apr 2024 14:45:56 GMT
+
+_Version update only_
+
+## 0.12.5
+Mon, 08 Apr 2024 11:05:31 GMT
+
+_Version update only_
+
+## 0.12.4
+Fri, 22 Mar 2024 10:10:02 GMT
+
+_Version update only_
+
+## 0.12.3
+Thu, 22 Feb 2024 18:28:20 GMT
+
+_Version update only_
+
+## 0.12.2
+Mon, 19 Feb 2024 09:27:17 GMT
+
+_Version update only_
+
+## 0.12.1
+Sun, 18 Feb 2024 08:29:52 GMT
+
+_Version update only_
+
+## 0.12.0
+Sun, 18 Feb 2024 06:04:51 GMT
+
+### Minor changes
+
+- multi-datasource
+
+## 0.11.0
+Sun, 18 Feb 2024 02:52:08 GMT
+
+### Minor changes
+
+- remove use_general_product
+
+## 0.10.3
+Sat, 17 Feb 2024 23:28:07 GMT
+
+_Version update only_
+
+## 0.10.2
+Sat, 10 Feb 2024 21:26:26 GMT
+
+_Version update only_
+
+## 0.10.1
+Wed, 07 Feb 2024 08:31:35 GMT
+
+_Version update only_
+
+## 0.10.0
+Fri, 12 Jan 2024 03:29:50 GMT
+
+### Minor changes
+
+- useMetric hook
 
 ## 0.9.2
 Fri, 29 Dec 2023 16:44:24 GMT

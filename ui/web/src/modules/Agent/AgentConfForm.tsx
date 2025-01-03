@@ -32,9 +32,9 @@ import {
 } from 'rxjs';
 import { AccountFrameUnit } from '../AccountInfo/AccountFrameUnit';
 import { accountFrameSeries$, accountPerformance$ } from '../AccountInfo/model';
+import { createPersistBehaviorSubject } from '../BIOS';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
-import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehaviorSubject';
 import Form, { showForm } from '../Form';
 import { Button } from '../Interactive';
 import { currentKernel$ } from '../Kernel/model';
@@ -45,6 +45,7 @@ import { LocalAgentScene } from '../StaticFileServerStorage/LocalAgentScene';
 import { authState$ } from '../SupaBase';
 import { terminal$ } from '../Terminals';
 import { clearLogAction$ } from '../Workbench/Program';
+import { registerAssociationRule } from '../Workspace';
 import { bundleCode } from './utils';
 
 const mapScriptParamsSchemaToAgentConfSchema = (schema: JSONSchema7): JSONSchema7 => ({
@@ -185,6 +186,16 @@ export const runAgent = async () => {
   complete$.next(true);
 };
 
+registerAssociationRule({
+  id: 'AgentConfForm',
+  match: ({ path, isFile }) => isFile && !!path.match(/\.ts$/),
+  action: ({ path }) => {
+    agentConf$.next({ ...agentConf$.value, entry: path });
+    reloadSchemaAction$.next();
+    executeCommand('AgentConfForm', {});
+  },
+});
+
 registerPage('AgentConfForm', () => {
   const agentConf = useObservableState(agentConf$);
   const schema = useObservableState(agentConfSchema$) || {};
@@ -244,11 +255,6 @@ registerPage('AgentConfForm', () => {
       </Layout.Content>
     </Layout>
   );
-});
-
-// Override Default Behavior
-registerCommand('AgentConfForm', () => {
-  executeCommand('Page.select', { id: 'AgentConfForm' });
 });
 
 registerCommand('Agent.Run', async () => {

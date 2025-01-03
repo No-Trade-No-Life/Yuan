@@ -1,17 +1,13 @@
-import { formatTime } from '@yuants/data-model';
 import {
   IAccountInfo,
   IAccountMoney,
-  IConnection,
   IOrder,
   IPosition,
   IProduct,
-  OrderDirection,
-  OrderStatus,
-  OrderType,
-  PositionVariant,
-  Terminal,
-} from '@yuants/protocol';
+  formatTime,
+  getDataRecordWrapper,
+} from '@yuants/data-model';
+import { IConnection, Terminal, provideAccountInfo, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services/order';
 import { ChildProcess, spawn } from 'child_process';
 import { parse } from 'date-fns';
@@ -106,7 +102,7 @@ export const requestZMQ = <Req, Rep>(
 ) => {
   console.info(formatTime(Date.now()), req);
   const requestID = requestIDGen();
-  const ret = conn.input$.pipe(
+  const ret = from(conn.input$).pipe(
     //
     filter((msg) => msg.request_id === requestID && msg.res !== undefined),
     takeWhile((msg) => !msg.res!.is_last, true),
@@ -164,10 +160,9 @@ export const queryProducts = (conn: IConnection<IBridgeMessage<any, any>>): Obse
         datasource_id: DATASOURCE_ID,
         product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
         name: msg.InstrumentName,
-        base_currency: 'CNY',
+        quote_currency: 'CNY',
         price_step: msg.PriceTick,
-        volume_step: 1,
-        value_speed: msg.VolumeMultiple,
+        value_scale: msg.VolumeMultiple,
       }),
     ),
     toArray(),
@@ -192,17 +187,17 @@ export const queryAccountInfo = (
     //
     mapToValue,
     map((msg): IPosition => {
-      const value_speed = mapProductId2Product[`${msg.ExchangeID}-${msg.InstrumentID}`].value_speed ?? 1;
-      const position_price = msg.OpenCost / msg.Position / value_speed;
+      const value_scale = mapProductId2Product[`${msg.ExchangeID}-${msg.InstrumentID}`].value_scale ?? 1;
+      const position_price = msg.OpenCost / msg.Position / value_scale;
       return {
         position_id: `mixed`,
         product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
-        variant: (
+        direction: (
           {
-            [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Long]: PositionVariant.LONG,
-            [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Short]: PositionVariant.SHORT,
+            [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Long]: 'LONG',
+            [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Short]: 'SHORT',
             // FIXME(cz): [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Net]: ???
-          } as Record<TThostFtdcPosiDirectionType, PositionVariant>
+          } as Record<TThostFtdcPosiDirectionType, string>
         )[msg.PosiDirection],
         volume: msg.Position,
         free_volume: msg.Position,
@@ -210,9 +205,10 @@ export const queryAccountInfo = (
         floating_profit:
           (msg.SettlementPrice - position_price) *
           msg.Position *
-          value_speed *
+          value_scale *
           (msg.PosiDirection === TThostFtdcPosiDirectionType.THOST_FTDC_PD_Long ? 1 : -1),
         position_price,
+        valuation: 0, // TODO: 估值
       };
     }),
     filter((v) => v.volume !== 0),
@@ -272,36 +268,33 @@ export const queryAccountInfo = (
     mapToValue,
     map(
       (msg): IOrder => ({
-        client_order_id: '',
-        exchange_order_id: `${msg.ExchangeID}-${msg.OrderSysID}`,
+        order_id: `${msg.ExchangeID}-${msg.OrderSysID}`,
         product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
         account_id: msg.UserID,
-        type:
-          msg.OrderPriceType === TThostFtdcOrderPriceTypeType.THOST_FTDC_OPT_LimitPrice
-            ? OrderType.LIMIT
-            : OrderType.MARKET,
-        direction:
+        order_type:
+          msg.OrderPriceType === TThostFtdcOrderPriceTypeType.THOST_FTDC_OPT_LimitPrice ? 'LIMIT' : 'MARKET',
+        order_direction:
           TThostFtdcOffsetFlagType.THOST_FTDC_OF_Open === (msg.CombOffsetFlag[0] as TThostFtdcOffsetFlagType)
             ? msg.Direction === TThostFtdcDirectionType.THOST_FTDC_D_Buy
-              ? OrderDirection.OPEN_LONG
-              : OrderDirection.OPEN_SHORT
+              ? 'OPEN_LONG'
+              : 'OPEN_SHORT'
             : msg.Direction === TThostFtdcDirectionType.THOST_FTDC_D_Buy
-            ? OrderDirection.CLOSE_LONG
-            : OrderDirection.CLOSE_SHORT,
+            ? 'CLOSE_LONG'
+            : 'CLOSE_SHORT',
         volume: msg.VolumeTotalOriginal,
-        timestamp_in_us: parseCTPTime(msg.InsertDate, msg.InsertTime).getTime() * 1e3,
+        submit_at: parseCTPTime(msg.InsertDate, msg.InsertTime).getTime() * 1e3,
         price: msg.LimitPrice === 0 ? undefined : msg.LimitPrice,
         traded_volume: msg.VolumeTraded,
         // traded_price:
-        status:
+        order_status:
           msg.OrderStatus === TThostFtdcOrderStatusType.THOST_FTDC_OST_Canceled
-            ? OrderStatus.CANCELLED
+            ? 'CANCELLED'
             : msg.OrderStatus === TThostFtdcOrderStatusType.THOST_FTDC_OST_AllTraded
-            ? OrderStatus.TRADED
-            : OrderStatus.ACCEPTED,
+            ? 'TRADED'
+            : 'ACCEPTED',
       }),
     ),
-    filter((order) => order.status === OrderStatus.ACCEPTED),
+    filter((order) => order.order_status === 'ACCEPTED'),
     toArray(),
   );
 
@@ -311,9 +304,10 @@ export const queryAccountInfo = (
       ([money, positions, orders]): IAccountInfo => ({
         account_id,
         money,
+        currencies: [money],
         positions,
         orders,
-        timestamp_in_us: Date.now() * 1e3,
+        updated_at: Date.now(),
       }),
     ),
   );
@@ -342,25 +336,24 @@ export const queryHistoryOrders = (
     mapToValue,
     map(
       (msg): IOrder => ({
-        client_order_id: '',
-        exchange_order_id: `${msg.ExchangeID}-${msg.OrderSysID}`,
+        order_id: `${msg.ExchangeID}-${msg.OrderSysID}`,
         product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
         account_id: msg.UserID,
-        type: OrderType.LIMIT,
-        direction:
+        order_type: 'LIMIT',
+        order_direction:
           msg.Direction === TThostFtdcDirectionType.THOST_FTDC_D_Buy
             ? TThostFtdcOffsetFlagType.THOST_FTDC_OF_Open === msg.OffsetFlag
-              ? OrderDirection.OPEN_LONG
-              : OrderDirection.CLOSE_LONG
+              ? 'OPEN_LONG'
+              : 'CLOSE_LONG'
             : TThostFtdcOffsetFlagType.THOST_FTDC_OF_Open === msg.OffsetFlag
-            ? OrderDirection.OPEN_SHORT
-            : OrderDirection.CLOSE_SHORT,
+            ? 'OPEN_SHORT'
+            : 'CLOSE_SHORT',
         volume: msg.Volume,
-        timestamp_in_us: parseCTPTime(msg.TradeDate, msg.TradeTime).getTime() * 1e3,
+        submit_at: parseCTPTime(msg.TradeDate, msg.TradeTime).getTime() * 1e3,
         price: msg.Price,
         traded_volume: msg.Volume,
         // traded_price:
-        status: OrderStatus.TRADED,
+        order_status: 'TRADED',
       }),
     ),
     toArray(),
@@ -378,7 +371,7 @@ export const submitOrder = (
   const orderRef = '' + orderRefGen();
 
   // 即使通过 OnRtnOrder 回来的回报也有可能包含来自交易所的报错，因此需要额外检查订单状态是否为取消
-  const ret$ = conn.input$.pipe(
+  const ret$ = from(conn.input$).pipe(
     //
     first(
       (msg) =>
@@ -419,33 +412,35 @@ export const submitOrder = (
           OrderPriceType: TThostFtdcOrderPriceTypeType.THOST_FTDC_OPT_LimitPrice,
           // 触发条件
           ContingentCondition:
-            order.type === OrderType.STOP
+            order.order_type === 'STOP'
               ? TThostFtdcContingentConditionType.THOST_FTDC_CC_BidPriceGreaterEqualStopPrice
               : TThostFtdcContingentConditionType.THOST_FTDC_CC_Immediately,
           // 时间条件
           TimeCondition:
-            order.type === OrderType.IOC || order.type === OrderType.FOK
+            order.order_type === 'IOC' || order.order_type === 'FOK'
               ? TThostFtdcTimeConditionType.THOST_FTDC_TC_IOC
               : TThostFtdcTimeConditionType.THOST_FTDC_TC_GFD,
           // 成交量条件
           VolumeCondition:
-            order.type === OrderType.FOK
+            order.order_type === 'FOK'
               ? TThostFtdcVolumeConditionType.THOST_FTDC_VC_CV
               : TThostFtdcVolumeConditionType.THOST_FTDC_VC_AV,
           // 投机套保标识
           CombHedgeFlag: TThostFtdcHedgeFlagType.THOST_FTDC_HF_Speculation,
           // 开平标识
-          CombOffsetFlag: [OrderDirection.OPEN_LONG, OrderDirection.OPEN_SHORT].includes(order.direction)
-            ? TThostFtdcOffsetFlagType.THOST_FTDC_OF_Open
-            : TThostFtdcOffsetFlagType.THOST_FTDC_OF_Close,
+          CombOffsetFlag:
+            order.order_direction === 'OPEN_LONG' || order.order_direction === 'OPEN_SHORT'
+              ? TThostFtdcOffsetFlagType.THOST_FTDC_OF_Open
+              : TThostFtdcOffsetFlagType.THOST_FTDC_OF_Close,
           // ISSUE: 买入包括开多平空; 卖出包括开空平多
-          Direction: [OrderDirection.CLOSE_SHORT, OrderDirection.OPEN_LONG].includes(order.direction)
-            ? TThostFtdcDirectionType.THOST_FTDC_D_Buy
-            : TThostFtdcDirectionType.THOST_FTDC_D_Sell,
+          Direction:
+            order.order_direction === 'CLOSE_SHORT' || order.order_direction === 'OPEN_LONG'
+              ? TThostFtdcDirectionType.THOST_FTDC_D_Buy
+              : TThostFtdcDirectionType.THOST_FTDC_D_Sell,
           LimitPrice:
-            order.type === OrderType.MARKET
+            order.order_type === 'MARKET'
               ? // ISSUE: CTP 不支持市价单，但市价等效于挂在涨跌停价位
-                [OrderDirection.CLOSE_SHORT, OrderDirection.OPEN_LONG].includes(order.direction)
+                order.order_direction === 'CLOSE_SHORT' || order.order_direction === 'OPEN_LONG'
                 ? quote.UpperLimitPrice
                 : quote.LowerLimitPrice
               : order.price ?? 0 /* 如果执意下限价单却没给价格 */,
@@ -492,15 +487,15 @@ export const cancelOrder = (
   sessionId: number,
   order: IOrder,
 ) => {
-  if (!order.exchange_order_id) {
+  if (!order.order_id) {
     return of(0).pipe(
       //
       map(() => ({
-        res: { code: 400, message: 'Exchange OrderID Needed' },
+        res: { code: 400, message: 'OrderID Needed' },
       })),
     );
   }
-  const ret$ = conn.input$.pipe(
+  const ret$ = from(conn.input$).pipe(
     //
     first(
       (msg) =>
@@ -522,7 +517,7 @@ export const cancelOrder = (
     }),
   );
 
-  const [ctpExchangeId, ctpOrderSysId] = order.exchange_order_id.split('-');
+  const [ctpExchangeId, ctpOrderSysId] = order.order_id.split('-');
   // 这里如果有报错则会是 CTP 柜台的报错
   const error$ = requestZMQ<ICThostFtdcInputOrderActionField, ICThostFtdcInputOrderActionField>(conn, {
     method: 'ReqOrderAction',
@@ -568,7 +563,6 @@ const TERMINAL_ID = process.env.TERMINAL_ID || `CTP/${account_id}`;
 const terminal = new Terminal(process.env.HV_URL!, {
   terminal_id: TERMINAL_ID,
   name: 'CTP',
-  services: [{ account_id }, { datasource_id: DATASOURCE_ID }],
 });
 
 const zmqConn = createZMQConnection(process.env.ZMQ_PUSH_URL!, process.env.ZMQ_PULL_URL!);
@@ -585,14 +579,14 @@ const zmqConn = createZMQConnection(process.env.ZMQ_PUSH_URL!, process.env.ZMQ_P
 //     process.exit(1);
 //   });
 
-const loginRes$ = zmqConn.input$.pipe(
+const loginRes$ = from(zmqConn.input$).pipe(
   //
   first((msg) => msg?.res?.event !== undefined && msg.res.event === 'OnRspUserLogin'),
   map((msg) => msg.res!.value as ICThostFtdcRspUserLoginField),
   shareReplay(1),
 );
 
-const settlement$ = zmqConn.input$.pipe(
+const settlement$ = from(zmqConn.input$).pipe(
   //
   first((msg) => msg?.res?.event !== undefined && msg.res.event === 'OnRspSettlementInfoConfirm'),
   map((msg) => msg.res!.value as ICThostFtdcSettlementInfoConfirmField),
@@ -617,9 +611,13 @@ const products$ = defer(() => loginRes$.pipe(first())).pipe(
   shareReplay(1),
 );
 
-products$.pipe(delayWhen((products) => terminal.updateProducts(products))).subscribe(() => {
-  console.info(formatTime(Date.now()), '更新品种信息成功');
-});
+products$
+  .pipe(
+    delayWhen((products) => from(writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!)))),
+  )
+  .subscribe(() => {
+    console.info(formatTime(Date.now()), '更新品种信息成功');
+  });
 
 const mapProductIdToProduct$ = products$.pipe(
   map((products) => Object.fromEntries(products.map((v) => [v.product_id, v]))),
@@ -636,7 +634,7 @@ const accountInfo$ = defer(() => mapProductIdToProduct$.pipe(first())).pipe(
   shareReplay(1),
 );
 
-terminal.provideAccountInfo(accountInfo$);
+provideAccountInfo(terminal, accountInfo$);
 
 terminal.provideService(
   'QueryProducts',
@@ -667,7 +665,7 @@ terminal.provideService(
       mergeMap(([loginRes, settlementRes]) =>
         queryHistoryOrders(zmqConn, loginRes.BrokerID, settlementRes.InvestorID).pipe(
           //
-          delayWhen((data) => terminal.updateHistoryOrders(data)),
+          delayWhen((data) => from(writeDataRecords(terminal, data.map(getDataRecordWrapper('order')!)))),
           map((data) => ({ res: { code: 0, message: 'OK', data: data } })),
         ),
       ),

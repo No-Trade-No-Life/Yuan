@@ -1,6 +1,242 @@
 # Change Log - @yuants/app-alert-receiver
 
-This log was last generated on Fri, 29 Dec 2023 16:44:24 GMT and should not be manually modified.
+This log was last generated on Thu, 02 Jan 2025 07:08:15 GMT and should not be manually modified.
+
+## 0.1.78
+Thu, 02 Jan 2025 07:08:15 GMT
+
+### Patches
+
+- upgrade container base image to bookworm for wrtc
+
+## 0.1.77
+Thu, 19 Dec 2024 15:28:50 GMT
+
+_Version update only_
+
+## 0.1.76
+Wed, 04 Dec 2024 09:36:47 GMT
+
+_Version update only_
+
+## 0.1.75
+Wed, 27 Nov 2024 15:48:19 GMT
+
+_Version update only_
+
+## 0.1.74
+Sun, 24 Nov 2024 06:27:35 GMT
+
+_Version update only_
+
+## 0.1.73
+Sun, 24 Nov 2024 05:13:22 GMT
+
+_Version update only_
+
+## 0.1.72
+Sat, 23 Nov 2024 15:55:38 GMT
+
+_Version update only_
+
+## 0.1.71
+Sat, 23 Nov 2024 05:37:50 GMT
+
+_Version update only_
+
+## 0.1.70
+Sat, 16 Nov 2024 06:09:31 GMT
+
+_Version update only_
+
+## 0.1.69
+Wed, 13 Nov 2024 14:07:37 GMT
+
+### Patches
+
+- chore: update default
+
+## 0.1.68
+Wed, 13 Nov 2024 12:49:50 GMT
+
+### Patches
+
+- fix: watch dog alerts
+
+## 0.1.67
+Sat, 02 Nov 2024 10:25:33 GMT
+
+_Version update only_
+
+## 0.1.66
+Thu, 24 Oct 2024 19:57:43 GMT
+
+_Version update only_
+
+## 0.1.65
+Wed, 25 Sep 2024 08:29:52 GMT
+
+_Version update only_
+
+## 0.1.64
+Tue, 17 Sep 2024 20:07:02 GMT
+
+_Version update only_
+
+## 0.1.63
+Tue, 17 Sep 2024 14:54:15 GMT
+
+_Version update only_
+
+## 0.1.62
+Sun, 15 Sep 2024 14:00:45 GMT
+
+_Version update only_
+
+## 0.1.61
+Sun, 15 Sep 2024 05:36:59 GMT
+
+_Version update only_
+
+## 0.1.60
+Mon, 09 Sep 2024 14:05:59 GMT
+
+_Version update only_
+
+## 0.1.59
+Sun, 08 Sep 2024 10:16:35 GMT
+
+_Version update only_
+
+## 0.1.58
+Wed, 04 Sep 2024 12:44:10 GMT
+
+_Version update only_
+
+## 0.1.57
+Fri, 30 Aug 2024 14:29:33 GMT
+
+_Version update only_
+
+## 0.1.56
+Sun, 21 Jul 2024 07:51:05 GMT
+
+_Version update only_
+
+## 0.1.55
+Sat, 13 Jul 2024 14:49:29 GMT
+
+_Version update only_
+
+## 0.1.54
+Fri, 12 Jul 2024 09:19:54 GMT
+
+_Version update only_
+
+## 0.1.53
+Fri, 12 Jul 2024 01:50:37 GMT
+
+_Version update only_
+
+## 0.1.52
+Wed, 03 Jul 2024 10:05:02 GMT
+
+_Version update only_
+
+## 0.1.51
+Sun, 30 Jun 2024 11:56:32 GMT
+
+_Version update only_
+
+## 0.1.50
+Fri, 28 Jun 2024 12:37:38 GMT
+
+_Version update only_
+
+## 0.1.49
+Fri, 21 Jun 2024 16:20:19 GMT
+
+_Version update only_
+
+## 0.1.48
+Thu, 20 Jun 2024 09:43:34 GMT
+
+_Version update only_
+
+## 0.1.47
+Mon, 10 Jun 2024 08:50:50 GMT
+
+_Version update only_
+
+## 0.1.46
+Fri, 07 Jun 2024 19:05:13 GMT
+
+_Version update only_
+
+## 0.1.45
+Wed, 05 Jun 2024 09:35:22 GMT
+
+_Version update only_
+
+## 0.1.44
+Fri, 24 May 2024 18:00:17 GMT
+
+_Version update only_
+
+## 0.1.43
+Thu, 23 May 2024 13:52:31 GMT
+
+_Version update only_
+
+## 0.1.42
+Wed, 22 May 2024 04:53:53 GMT
+
+_Version update only_
+
+## 0.1.41
+Thu, 16 May 2024 18:00:51 GMT
+
+_Version update only_
+
+## 0.1.40
+Tue, 23 Apr 2024 16:29:03 GMT
+
+_Version update only_
+
+## 0.1.39
+Thu, 11 Apr 2024 14:45:56 GMT
+
+_Version update only_
+
+## 0.1.38
+Mon, 08 Apr 2024 11:05:31 GMT
+
+_Version update only_
+
+## 0.1.37
+Fri, 22 Mar 2024 10:10:02 GMT
+
+_Version update only_
+
+## 0.1.36
+Thu, 22 Feb 2024 18:28:20 GMT
+
+_Version update only_
+
+## 0.1.35
+Sat, 17 Feb 2024 23:28:07 GMT
+
+_Version update only_
+
+## 0.1.34
+Sat, 10 Feb 2024 21:26:26 GMT
+
+_Version update only_
+
+## 0.1.33
+Wed, 07 Feb 2024 08:31:35 GMT
+
+_Version update only_
 
 ## 0.1.32
 Fri, 29 Dec 2023 16:44:24 GMT

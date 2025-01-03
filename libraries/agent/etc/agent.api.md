@@ -10,8 +10,8 @@ import { BasicUnit } from '@yuants/kernel';
 import { DataLoadingTaskUnit } from '@yuants/kernel';
 import { HistoryOrderUnit } from '@yuants/kernel';
 import { IAccountInfo } from '@yuants/data-model';
-import { IOrder } from '@yuants/protocol';
-import { IProduct } from '@yuants/protocol';
+import { IOrder } from '@yuants/data-model';
+import { IProduct } from '@yuants/data-model';
 import { ITick } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
 import { Kernel } from '@yuants/kernel';
@@ -112,7 +112,6 @@ export interface IAgentConf {
     is_real?: boolean;
     kernel_id?: string;
     start_time?: string;
-    use_general_product?: boolean;
 }
 
 // @public
@@ -131,7 +130,7 @@ export const useEffect: (fn: () => void | (() => void), deps?: any[]) => void;
 
 // @public
 export const useExchange: () => {
-    getQuote: (product_id: string) => {
+    getQuote: (datasource_id: string, product_id: string) => {
         ask: number;
         bid: number;
     };
@@ -149,6 +148,9 @@ export const useMemo: <T>(fn: () => T, deps: any[]) => T;
 
 // @public
 export const useMemoAsync: <T>(fn: () => Promise<T>, deps?: any[]) => Promise<T>;
+
+// @public (undocumented)
+export const useMetric: (name: string, value: number, labels?: Record<string, string>) => void;
 
 // @public
 export const useOHLC: (datasource_id: string, product_id: string, period: number | string) => {

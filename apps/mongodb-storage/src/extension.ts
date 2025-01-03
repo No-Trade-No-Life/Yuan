@@ -15,6 +15,9 @@ export default (context: IExtensionContext) => {
             TERMINAL_ID: {
               type: 'string',
             },
+            ENABLE_WEBRTC: {
+              type: 'string',
+            },
             MONGO_URI: {
               type: 'string',
               description: `mongodb://[username:password@]host1[:port1][,...hostN[:portN]][/[defaultauthdb][?options]]，参考 https://www.mongodb.com/docs/manual/reference/connection-string/`,
@@ -92,7 +95,7 @@ export default (context: IExtensionContext) => {
                         memory: ctx.memory?.max ?? '256Mi',
                       },
                       requests: {
-                        cpu: ctx.cpu?.min ?? '50m',
+                        cpu: ctx.cpu?.min ?? '100m',
                         memory: ctx.memory?.min ?? '128Mi',
                       },
                     },
@@ -132,11 +135,41 @@ export default (context: IExtensionContext) => {
                       summary: 'MongoDB instance down',
                     },
                     expr: 'mongodb_up == 0',
+                    for: '2m',
                     labels: {
                       severity: 'critical',
                     },
                   },
                 ],
+              },
+            ],
+          },
+        },
+        hpa: {
+          apiVersion: 'autoscaling/v2',
+          kind: 'HorizontalPodAutoscaler',
+          metadata: {
+            name: 'mongodb-storage',
+            namespace: 'yuan',
+          },
+          spec: {
+            scaleTargetRef: {
+              apiVersion: 'apps/v1',
+              kind: 'Deployment',
+              name: 'mongodb-storage',
+            },
+            minReplicas: 1,
+            maxReplicas: 3,
+            metrics: [
+              {
+                type: 'Resource',
+                resource: {
+                  name: 'cpu',
+                  target: {
+                    type: 'Utilization',
+                    averageUtilization: 50,
+                  },
+                },
               },
             ],
           },

@@ -1,2 +1,3 @@
+export * from './LocalizedPageTitle';
 export { Page, usePageId, usePageParams, usePageTitle, usePageType, usePageViewport } from './Page';
-export { registerPage } from './model';
+export { AvailableComponents, pageRegistered$, registerPage } from './model';

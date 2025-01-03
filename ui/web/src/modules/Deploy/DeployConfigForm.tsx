@@ -1,5 +1,5 @@
 import { IconCode, IconRefresh } from '@douyinfe/semi-icons';
-import { Button, Select, Space, Table, Toast } from '@douyinfe/semi-ui';
+import { Select, Space, Table, Toast } from '@douyinfe/semi-ui';
 import { IDeploySpec, IEnvContext, mergeSchema } from '@yuants/extension';
 import Ajv from 'ajv';
 import { t } from 'i18next';
@@ -17,6 +17,7 @@ import {
   map,
   mergeMap,
   reduce,
+  tap,
   toArray,
 } from 'rxjs';
 import YAML from 'yaml';
@@ -24,8 +25,10 @@ import { executeCommand } from '../CommandCenter';
 import { DeployProviders, ImageTags } from '../Extensions/utils';
 import { fs } from '../FileSystem/api';
 import { shareHosts$ } from '../Host/model';
+import { Button } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
 import { authState$, supabase } from '../SupaBase';
+import { registerAssociationRule } from '../Workspace';
 import { loadManifests } from './utils';
 
 // FYI: https://stackoverflow.com/a/30106551
@@ -38,6 +41,14 @@ const stringToBase64String = (str: string) => {
 };
 
 const ajv = new Ajv();
+
+registerAssociationRule({
+  id: 'DeployConfigForm',
+  match: ({ path, isFile }) => isFile && !!path.match(/\.?manifests\.(json|yaml|yml|ts)$/),
+  action: ({ path }) => {
+    executeCommand('DeployConfigForm', { filename: path });
+  },
+});
 
 registerPage('DeployConfigForm', () => {
   const { filename } = usePageParams() as { filename: string };
@@ -76,9 +87,9 @@ registerPage('DeployConfigForm', () => {
     }
   }, [filename, refreshCount]);
 
-  const makeDockerCompose = () => {
-    from(manifests)
-      .pipe(
+  const makeDockerCompose = async () => {
+    await lastValueFrom(
+      from(manifests).pipe(
         //
         map((config) => {
           const packageName = config.package;
@@ -126,30 +137,31 @@ registerPage('DeployConfigForm', () => {
           ].join('\n'),
         ),
         mergeMap((v) => fs.writeFile(`${filename}.docker-compose.yaml`, v)),
-      )
-      .subscribe({
-        error: (e) => {
-          console.error(e);
-          Toast.error(`生成 Docker Compose 配置失败 ${e}`);
-        },
-        complete: () => {
-          Toast.success(`生成 Docker Compose 配置成功`);
-          console.info(`运行命令，启动 Docker`);
-          console.info(
-            `  docker compose -f ${path.join(
-              '$YUAN_WORKSPACE',
-              `${filename}.docker-compose.yaml`,
-            )} up -d --remove-orphans`,
-          );
-        },
-      });
+        tap({
+          error: (e) => {
+            console.error(e);
+            Toast.error(`生成 Docker Compose 配置失败 ${e}`);
+          },
+          complete: () => {
+            Toast.success(`生成 Docker Compose 配置成功`);
+            console.info(`运行命令，启动 Docker`);
+            console.info(
+              `  docker compose -f ${path.join(
+                '$YUAN_WORKSPACE',
+                `${filename}.docker-compose.yaml`,
+              )} up -d --remove-orphans`,
+            );
+          },
+        }),
+      ),
+    );
   };
 
-  const makeK8sResource = () => {
+  const makeK8sResource = async () => {
     const normalizePackageName = (pkgName: string) =>
       pkgName.replace('@', '').replace('/', '-').toLocaleLowerCase();
-    from(manifests)
-      .pipe(
+    await lastValueFrom(
+      from(manifests).pipe(
         //
         map((config) => {
           const packageName = config.package;
@@ -206,18 +218,19 @@ registerPage('DeployConfigForm', () => {
           ].join('\n'),
         ),
         mergeMap((v) => fs.writeFile(`${filename}.k8s.yaml`, v)),
-      )
-      .subscribe({
-        error: (e) => {
-          console.error(e);
-          Toast.error(`生成 K8s 资源失败 ${e}`);
-        },
-        complete: () => {
-          Toast.success(`生成 K8s 资源成功`);
-          console.info(`运行命令，更新资源到 K8s 集群`);
-          console.info(`  kubectl apply -f $YUAN_WORKSPACE${filename}.k8s.yaml`);
-        },
-      });
+        tap({
+          error: (e) => {
+            console.error(e);
+            Toast.error(`生成 K8s 资源失败 ${e}`);
+          },
+          complete: () => {
+            Toast.success(`生成 K8s 资源成功`);
+            console.info(`运行命令，更新资源到 K8s 集群`);
+            console.info(`  kubectl apply -f $YUAN_WORKSPACE${filename}.k8s.yaml`);
+          },
+        }),
+      ),
+    );
   };
 
   const handleDeployToCloud = async () => {
@@ -263,20 +276,25 @@ registerPage('DeployConfigForm', () => {
   return (
     <Space vertical align="start">
       <Space align="start">
-        <Button
-          icon={<IconCode />}
-          onClick={() => {
-            executeCommand('FileEditor', { filename: filename });
-          }}
-        >
+        <Button icon={<IconCode />} onClick={() => executeCommand('FileEditor', { filename: filename })}>
           {t('common:view_source')}
         </Button>
         <Button
-          onClick={() => {
+          onClick={async () => {
             setRefreshCount(refreshCount + 1);
           }}
           icon={<IconRefresh />}
         ></Button>
+        <Button
+          onClick={async () => {
+            for (const packageName of new Set(manifests.map((v) => v.package))) {
+              await executeCommand('Extension.install', { name: packageName });
+            }
+          }}
+        >
+          安装/更新全部包
+        </Button>
+
         <Button onClick={makeDockerCompose}>生成 Docker Compose 配置文件</Button>
         <Button onClick={makeK8sResource}>生成 K8s 资源文件</Button>
         <Select

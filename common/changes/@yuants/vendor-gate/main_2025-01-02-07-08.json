@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Bump Version",
+      "type": "none",
+      "packageName": "@yuants/vendor-gate"
+    }
+  ],
+  "packageName": "@yuants/vendor-gate",
+  "email": "41898282+github-actions[bot]@users.noreply.github.com"
+}

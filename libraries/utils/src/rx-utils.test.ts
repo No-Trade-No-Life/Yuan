@@ -1,6 +1,6 @@
+import { from, interval, mergeMap, of, take, toArray, zipWith } from 'rxjs';
 import { TestScheduler } from 'rxjs/testing';
-import { rateLimitMap } from './rx-utils';
-import { from, interval, mergeMap, of, take, tap, zipWith } from 'rxjs';
+import { listWatchEvent, rateLimitMap } from './rx-utils';
 
 const testScheduler = new TestScheduler((actual, expected) => {
   expect(actual).toStrictEqual(expected);
@@ -47,3 +47,56 @@ describe('rx-utils', () => {
     expect(true).toBe(true);
   });
 });
+describe('list watch', () => {
+  it('new items coming behavior', (done) => {
+    const source$ = from([[0, 1, 2, 3, 4]]);
+    source$
+      .pipe(
+        //
+        listWatchEvent(),
+        toArray(),
+      )
+      .subscribe((events) => {
+        expect(events).toEqual([
+          [
+            [undefined, 0],
+            [undefined, 1],
+            [undefined, 2],
+            [undefined, 3],
+            [undefined, 4],
+          ],
+        ]);
+        done();
+      });
+  });
+  it('item deleted', (done) => {
+    const source$ = from([[0, 1, 2, 3, 4], [0]]);
+    source$
+      .pipe(
+        //
+        listWatchEvent(),
+        toArray(),
+      )
+      .subscribe((events) => {
+        // expect(true).toBe(true);
+        expect(events).toEqual([
+          [
+            [undefined, 0],
+            [undefined, 1],
+            [undefined, 2],
+            [undefined, 3],
+            [undefined, 4],
+          ],
+          [
+            [1, undefined],
+            [2, undefined],
+            [3, undefined],
+            [4, undefined],
+          ],
+        ]);
+        done();
+      });
+  });
+});
+
+describe('group watch', () => {});

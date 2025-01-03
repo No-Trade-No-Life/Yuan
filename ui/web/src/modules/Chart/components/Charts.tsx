@@ -1,4 +1,4 @@
-import { IOrder, IPeriod, OrderDirection } from '@yuants/protocol';
+import { IOrder, IPeriod } from '@yuants/data-model';
 import { format } from 'date-fns';
 import {
   ChartOptions,
@@ -346,7 +346,7 @@ export const CandlestickSeries = React.memo(
       () =>
         props.data.map((period) => ({
           time: (period.timestamp_in_us / 1e6) as UTCTimestamp,
-          value: period.volume,
+          value: period.volume || 0,
           color: period.close > period.open ? upColor : downColor,
         })),
       [props.data],
@@ -509,28 +509,28 @@ interface IOrderSeriesProps {
 
 export const OrderSeries = React.memo((props: IOrderSeriesProps) => {
   const { t } = useTranslation(['OrderSeries', 'common']);
-  const directionMapper = {
+  const directionMapper: Record<string, string> = {
     //
-    [OrderDirection.OPEN_LONG]: t('common:order_direction_open_long'),
-    [OrderDirection.OPEN_SHORT]: t('common:order_direction_open_short'),
-    [OrderDirection.CLOSE_LONG]: t('common:order_direction_close_long'),
-    [OrderDirection.CLOSE_SHORT]: t('common:order_direction_close_short'),
+    ['OPEN_LONG']: t('common:order_direction_open_long'),
+    ['OPEN_SHORT']: t('common:order_direction_open_short'),
+    ['CLOSE_LONG']: t('common:order_direction_close_long'),
+    ['CLOSE_SHORT']: t('common:order_direction_close_short'),
   };
   const ordersMarkers = useMemo((): SeriesMarker<Time>[] => {
     return props.orders.map((order): SeriesMarker<Time> => {
       const dir = {
         //
-        [OrderDirection.OPEN_LONG]: 1,
-        [OrderDirection.OPEN_SHORT]: -1,
-        [OrderDirection.CLOSE_SHORT]: 1,
-        [OrderDirection.CLOSE_LONG]: -1,
-      }[order.direction];
-      const text = directionMapper[order.direction];
+        ['OPEN_LONG']: 1,
+        ['OPEN_SHORT']: -1,
+        ['CLOSE_SHORT']: 1,
+        ['CLOSE_LONG']: -1,
+      }[order.order_direction!]!;
+      const text = directionMapper[order.order_direction!];
       // Issue: TradingView Chart will place order annotation in the next bar, so we need to align the order's time to bar's start-time
-      const divider = (props.period_in_sec ?? 1) * 1e6;
-      const alignedTimestampInUs = Math.floor(order.timestamp_in_us! / divider) * divider;
+      const divider = (props.period_in_sec ?? 1) * 1e3;
+      const alignedTimestamp = Math.floor(order.filled_at! / divider) * divider;
       return {
-        time: (alignedTimestampInUs / 1e6) as UTCTimestamp,
+        time: (alignedTimestamp / 1e3) as UTCTimestamp,
         position: dir > 0 ? 'belowBar' : 'aboveBar',
         color: dir > 0 ? '#2196F3' : '#e91e63',
         shape: dir > 0 ? 'arrowUp' : 'arrowDown',

@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-ctp",
-  "version": "0.0.33",
+  "version": "0.2.25",
   "main": "lib/index.js",
   "files": [
     "dist/extension.bundle.js"

@@ -2,6 +2,854 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.27.0",
+      "tag": "@yuants/protocol_v0.27.0",
+      "date": "Thu, 02 Jan 2025 07:08:15 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "simpify SINGLE-IN-SINGLE-OUT pattern"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.26.1",
+      "tag": "@yuants/protocol_v0.26.1",
+      "date": "Thu, 19 Dec 2024 15:28:50 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.17.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.3.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/prometheus-client\" to `0.1.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.1.5`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.26.0",
+      "tag": "@yuants/protocol_v0.26.0",
+      "date": "Wed, 04 Dec 2024 09:36:47 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "allow disposing service and channel"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.25.0",
+      "tag": "@yuants/protocol_v0.25.0",
+      "date": "Wed, 27 Nov 2024 15:48:19 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "support has_header"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.24.6",
+      "tag": "@yuants/protocol_v0.24.6",
+      "date": "Sun, 24 Nov 2024 06:27:35 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "amend fix"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.24.5",
+      "tag": "@yuants/protocol_v0.24.5",
+      "date": "Sun, 24 Nov 2024 05:13:22 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "clear positions metric if removed"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/prometheus-client\" to `0.1.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.24.4",
+      "tag": "@yuants/protocol_v0.24.4",
+      "date": "Sat, 23 Nov 2024 15:55:38 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix: webrtc fix"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.24.3",
+      "tag": "@yuants/protocol_v0.24.3",
+      "date": "Sat, 23 Nov 2024 05:37:50 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove default log"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.24.2",
+      "tag": "@yuants/protocol_v0.24.2",
+      "date": "Sat, 16 Nov 2024 06:09:31 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.17.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.24.1",
+      "tag": "@yuants/protocol_v0.24.1",
+      "date": "Sat, 02 Nov 2024 10:25:33 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fast timeout when syncing terminal info"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.24.0",
+      "tag": "@yuants/protocol_v0.24.0",
+      "date": "Thu, 24 Oct 2024 19:57:43 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add nodejs process stats"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.23.4",
+      "tag": "@yuants/protocol_v0.23.4",
+      "date": "Wed, 25 Sep 2024 08:29:52 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.16.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.23.3",
+      "tag": "@yuants/protocol_v0.23.3",
+      "date": "Tue, 17 Sep 2024 20:07:02 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "WebRTC chunk"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.23.2",
+      "tag": "@yuants/protocol_v0.23.2",
+      "date": "Tue, 17 Sep 2024 14:54:15 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.15.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.23.1",
+      "tag": "@yuants/protocol_v0.23.1",
+      "date": "Sun, 15 Sep 2024 14:00:45 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix(WebRTC): catch error in case peer destoryed"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.23.0",
+      "tag": "@yuants/protocol_v0.23.0",
+      "date": "Sun, 15 Sep 2024 05:36:59 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "experimental webrtc support"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.22.1",
+      "tag": "@yuants/protocol_v0.22.1",
+      "date": "Mon, 09 Sep 2024 14:05:59 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.3.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.22.0",
+      "tag": "@yuants/protocol_v0.22.0",
+      "date": "Sun, 08 Sep 2024 10:16:35 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add HandShake service utils"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.3.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.21.4",
+      "tag": "@yuants/protocol_v0.21.4",
+      "date": "Wed, 04 Sep 2024 12:44:10 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.2.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.21.3",
+      "tag": "@yuants/protocol_v0.21.3",
+      "date": "Fri, 30 Aug 2024 14:29:33 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.2.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.21.2",
+      "tag": "@yuants/protocol_v0.21.2",
+      "date": "Sun, 21 Jul 2024 07:51:05 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.14.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.21.1",
+      "tag": "@yuants/protocol_v0.21.1",
+      "date": "Sat, 13 Jul 2024 14:49:29 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.13.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.21.0",
+      "tag": "@yuants/protocol_v0.21.0",
+      "date": "Fri, 12 Jul 2024 09:19:54 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "migrating data-model: interfaces, schema, module augmentation, wrappers"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "addAccountTransferAddress"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.12.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.20.0",
+      "tag": "@yuants/protocol_v0.20.0",
+      "date": "Fri, 12 Jul 2024 01:50:37 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "make Observable internal"
+          },
+          {
+            "comment": "removed rx's Subject type"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.1.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.19.1",
+      "tag": "@yuants/protocol_v0.19.1",
+      "date": "Wed, 03 Jul 2024 10:05:02 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "catch provideChannel handler error "
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.19.0",
+      "tag": "@yuants/protocol_v0.19.0",
+      "date": "Sun, 30 Jun 2024 11:56:32 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "support multi currencies"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.11.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.18.2",
+      "tag": "@yuants/protocol_v0.18.2",
+      "date": "Fri, 28 Jun 2024 12:37:38 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add message for transfer apply data"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.18.1",
+      "tag": "@yuants/protocol_v0.18.1",
+      "date": "Fri, 21 Jun 2024 16:20:19 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix Local Loop Back"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.18.0",
+      "tag": "@yuants/protocol_v0.18.0",
+      "date": "Thu, 20 Jun 2024 09:43:34 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add more utils, deprecate many terminal methods"
+          },
+          {
+            "comment": "remove _conn, add input$, output$"
+          },
+          {
+            "comment": "Local Loop Back Tunnel"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.17.0",
+      "tag": "@yuants/protocol_v0.17.0",
+      "date": "Mon, 10 Jun 2024 08:50:50 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "DataStorageRequest adds include_expired and json schema filter"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.16.4",
+      "tag": "@yuants/protocol_v0.16.4",
+      "date": "Fri, 07 Jun 2024 19:05:13 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.10.3`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.16.3",
+      "tag": "@yuants/protocol_v0.16.3",
+      "date": "Wed, 05 Jun 2024 09:35:22 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "ISSUE: pipe broken if UpdateTerminalInfo failed"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.10.2`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.16.2",
+      "tag": "@yuants/protocol_v0.16.2",
+      "date": "Fri, 24 May 2024 18:00:17 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "update transfer service definition"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.10.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.0.7`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.16.1",
+      "tag": "@yuants/protocol_v0.16.1",
+      "date": "Thu, 23 May 2024 13:52:31 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add new transfer network models"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.10.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.16.0",
+      "tag": "@yuants/protocol_v0.16.0",
+      "date": "Wed, 22 May 2024 04:53:53 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Metric of position valuation"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.9.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.15.1",
+      "tag": "@yuants/protocol_v0.15.1",
+      "date": "Thu, 16 May 2024 18:00:51 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.8.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.15.0",
+      "tag": "@yuants/protocol_v0.15.0",
+      "date": "Tue, 23 Apr 2024 16:29:03 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix terminalInfo report while reconnection"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "Remove deprecated fields"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.7.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.14.0",
+      "tag": "@yuants/protocol_v0.14.0",
+      "date": "Thu, 11 Apr 2024 14:45:56 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "speed up terminalInfo updating"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.13.0",
+      "tag": "@yuants/protocol_v0.13.0",
+      "date": "Mon, 08 Apr 2024 11:05:31 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "new Transfer interface"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.6.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.12.0",
+      "tag": "@yuants/protocol_v0.12.0",
+      "date": "Fri, 22 Mar 2024 10:10:02 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "realtime TerminalInfo channel"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.11.1",
+      "tag": "@yuants/protocol_v0.11.1",
+      "date": "Thu, 22 Feb 2024 18:28:20 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.5.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.0.6`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/prometheus-client\" to `0.0.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.1.4`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.11.0",
+      "tag": "@yuants/protocol_v0.11.0",
+      "date": "Sat, 17 Feb 2024 23:28:07 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "update data record wrapper function of Product"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.5.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.10.3",
+      "tag": "@yuants/protocol_v0.10.3",
+      "date": "Sat, 10 Feb 2024 21:26:26 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.4.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.10.2",
+      "tag": "@yuants/protocol_v0.10.2",
+      "date": "Wed, 07 Feb 2024 08:31:35 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.3.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.10.1",
       "tag": "@yuants/protocol_v0.10.1",
       "date": "Fri, 29 Dec 2023 16:44:24 GMT",

@@ -1,11 +1,20 @@
 #root .flexlayout__tabset-selected {
   background-image: none;
+  background-color: var(--color-2);
 }
 
+body {
+  color-scheme: auto;
+}
 body[theme-mode='dark'] {
   color-scheme: dark;
 }
 
 body[theme-mode='dark'] .flexlayout__tab {
   background-color: #141414;
+}
+
+/* SEMI TABLE STYLE FIX */
+.semi-table-tbody > .semi-table-row > .semi-table-row-cell {
+  word-break: break-all;
 }

@@ -1,21 +1,13 @@
-import { BehaviorSubject, Observable } from 'rxjs';
+import { useObservableState } from 'observable-hooks';
+import { combineLatest, map, Observable, shareReplay } from 'rxjs';
+import { createPersistBehaviorSubject } from '../BIOS';
 
-export const isDarkMode$ = new BehaviorSubject<boolean>(false);
+export const DarkModeSetting$ = createPersistBehaviorSubject<'dark' | 'light' | 'auto'>(
+  'dark-mode-setting',
+  'auto',
+);
 
-isDarkMode$.subscribe((isDark) => {
-  if (isDark) {
-    if (!document.body.hasAttribute('theme-mode')) {
-      document.body.setAttribute('theme-mode', 'dark');
-    }
-  } else {
-    if (document.body.hasAttribute('theme-mode')) {
-      document.body.removeAttribute('theme-mode');
-    }
-  }
-});
-
-// Follow system dark mode
-new Observable<boolean>((subscriber) => {
+const systemDarkMode$ = new Observable<boolean>((subscriber) => {
   const mql = window.matchMedia('(prefers-color-scheme: dark)');
   function matchMode(e: any) {
     if (e.matches) {
@@ -30,6 +22,20 @@ new Observable<boolean>((subscriber) => {
   return () => {
     mql.removeEventListener('change', matchMode);
   };
-}).subscribe((v) => {
-  isDarkMode$.next(v);
-});
+}).pipe(
+  //
+  shareReplay(1),
+);
+
+export const isDarkMode$ = combineLatest([DarkModeSetting$, systemDarkMode$]).pipe(
+  map(([setting, system]) => {
+    console.info('DarkModeSetting$', setting, system);
+    if (setting === 'auto') {
+      return system;
+    }
+    return setting === 'dark';
+  }),
+  shareReplay(1),
+);
+
+export const useIsDarkMode = (): boolean => useObservableState(isDarkMode$) || false;

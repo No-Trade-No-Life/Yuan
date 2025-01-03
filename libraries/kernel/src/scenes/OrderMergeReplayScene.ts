@@ -1,4 +1,4 @@
-import { IAccountInfo, IOrder, IPeriod, IProduct } from '@yuants/protocol';
+import { IAccountInfo, IOrder, IPeriod, IProduct } from '@yuants/data-model';
 import { Kernel } from '../kernel';
 import {
   AccountPerformanceUnit,
@@ -28,7 +28,7 @@ export const OrderMergeReplayScene = (
   const productDataUnit = new ProductDataUnit(kernel);
   {
     for (const product of products) {
-      productDataUnit.mapProductIdToProduct[product.product_id] = product;
+      productDataUnit.updateProduct(product);
     }
   }
   const periodDataUnit = new PeriodDataUnit(kernel, quoteDataUnit);
@@ -50,7 +50,7 @@ export const OrderMergeReplayScene = (
   {
     const mapEventIdToOrder = new Map<number, IOrder>();
     for (const order of orders) {
-      const id = kernel.alloc(order.timestamp_in_us! / 1000);
+      const id = kernel.alloc(order.submit_at!);
       mapEventIdToOrder.set(id, order);
     }
     new BasicUnit(kernel).onEvent = () => {

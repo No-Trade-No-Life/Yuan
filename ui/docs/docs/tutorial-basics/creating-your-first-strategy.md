@@ -96,6 +96,7 @@ export default () => {
   const datasource_id = useParamString('DataSource', 'Y');
   const product_id = useParamString('Product');
   const period = useParamString('Period', 'PT1H');
+  const currency = useParamString('Currency', 'USD');
   // Get the product information and price data
   const product = useProduct(datasource_id, product_id);
   const { close } = useOHLC(datasource_id, product_id, period);
@@ -155,7 +156,7 @@ export default () => {
   const initial_balance = useParamNumber('Initial Balance', 100_000);
   const threshold = useParamNumber('Threshold', 1);
   // Get the account information
-  const accountInfo = useAccountInfo();
+  const accountInfo = useAccountInfo({ currency });
   // Use a simple position manager
   const [actualVolume, setVolume] = useSimplePositionManager(accountInfo.account_id, product_id);
   // Re-balance the position
@@ -166,7 +167,9 @@ export default () => {
     const totalValueToHold = totalValue * 0.5;
     // infer the volume to hold
     const valuePerVolume =
-      price * (product.value_speed ?? 1) * (product.is_underlying_base_currency ? -1 / price : 1);
+      (product.value_scale ?? 1) *
+      (product.value_scale_unit ? 1 : price) *
+      (product.quote_currency === accountInfo.money.currency ? 1 : -1 / price);
     const expectedVolume = totalValueToHold / valuePerVolume;
     // calculate the error rate
     const volume_step = product.volume_step ?? 1;

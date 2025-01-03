@@ -1,5 +1,5 @@
-import { IProduct, Terminal } from '@yuants/protocol';
-import { lastValueFrom, map, toArray } from 'rxjs';
+import { readDataRecords, Terminal } from '@yuants/protocol';
+import { defer, lastValueFrom, map, mergeAll, toArray } from 'rxjs';
 import { Kernel } from '../kernel';
 import {
   AccountInfoUnit,
@@ -53,50 +53,53 @@ export const AccountReplayScene = (
   const productLoadingUnit = new ProductLoadingUnit(kernel, terminal, productDataUnit);
   // Adhoc Unit: 根据品种加载交叉盘品种
   new BasicUnit(kernel).onInit = async () => {
-    for (const product of Object.values(productDataUnit.mapProductIdToProduct)) {
-      if (product.base_currency !== currency && product.quoted_currency !== currency) {
+    for (const product of productDataUnit.listProducts()) {
+      const quote_currency = product.quote_currency;
+      if (quote_currency && currency && product.quote_currency !== currency) {
         const [productA] = await lastValueFrom(
-          terminal
-            .queryDataRecords<IProduct>({
-              type: 'product',
-              tags: {
-                datasource_id: datasource_id ?? account_id,
-                base_currency: product.base_currency,
-                quoted_currency: currency,
-              },
-            })
-            .pipe(
-              map((dataRecord) => dataRecord.origin),
-              toArray(),
-            ),
-        );
-        if (productA) {
-          productDataUnit.mapProductIdToProduct[productA.product_id] = productA;
-        }
-        const [productB] = await lastValueFrom(
-          terminal
-            .queryDataRecords<IProduct>({
+          defer(() =>
+            readDataRecords(terminal, {
               type: 'product',
               tags: {
                 datasource_id: datasource_id ?? account_id,
                 base_currency: currency,
-                quoted_currency: product.base_currency,
+                quote_currency: quote_currency,
               },
-            })
-            .pipe(
-              map((dataRecord) => dataRecord.origin),
-              toArray(),
-            ),
+            }),
+          ).pipe(
+            mergeAll(),
+            map((dataRecord) => dataRecord.origin),
+            toArray(),
+          ),
+        );
+        if (productA) {
+          productDataUnit.updateProduct(productA);
+        }
+        const [productB] = await lastValueFrom(
+          defer(() =>
+            readDataRecords(terminal, {
+              type: 'product',
+              tags: {
+                datasource_id: datasource_id ?? account_id,
+                base_currency: quote_currency,
+                quote_currency: currency,
+              },
+            }),
+          ).pipe(
+            mergeAll(),
+            map((dataRecord) => dataRecord.origin),
+            toArray(),
+          ),
         );
         if (productB) {
-          productDataUnit.mapProductIdToProduct[productB.product_id] = productB;
+          productDataUnit.updateProduct(productB);
         }
       }
     }
   };
   // Adhoc Unit: 根据品种加载行情数据
   new BasicUnit(kernel).onInit = () => {
-    for (const product of Object.values(productDataUnit.mapProductIdToProduct)) {
+    for (const product of productDataUnit.listProducts()) {
       periodLoadingUnit.periodTasks.push({
         datasource_id: datasource_id ?? account_id,
         product_id: product.product_id,

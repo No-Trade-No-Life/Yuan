@@ -3,6 +3,7 @@ import { Subject, filter, firstValueFrom, mergeMap, shareReplay } from 'rxjs';
 import { IFileSystemBackend, IFileSystemStatResult } from '../interfaces';
 
 export class FileSystemHandleBackend implements IFileSystemBackend {
+  name: string;
   private request$ = new Subject<void>();
   private response$ = this.request$.pipe(
     mergeMap(async () => {
@@ -18,7 +19,9 @@ export class FileSystemHandleBackend implements IFileSystemBackend {
     filter((v) => !!v),
     shareReplay(1),
   );
-  constructor(private root: FileSystemDirectoryHandle) {}
+  constructor(private root: FileSystemDirectoryHandle) {
+    this.name = root.name;
+  }
 
   private mapPathToHandle = new Map<string, FileSystemHandle>();
 
@@ -33,6 +36,9 @@ export class FileSystemHandleBackend implements IFileSystemBackend {
       return this.root;
     }
     const dir = dirname(path);
+    if (dir === path) {
+      return this.root;
+    }
     const base = basename(path);
     const dirHandle = await this.resolveHandle(dir);
     if (!(dirHandle instanceof FileSystemDirectoryHandle)) {
@@ -89,6 +95,11 @@ export class FileSystemHandleBackend implements IFileSystemBackend {
       throw `EISDIR: illegal operator on a directory, open '${path}'`;
     }
     const file = await handle.getFile();
+    return file;
+  }
+
+  async readFileAsBlob(path: string): Promise<Blob> {
+    const file = await this.getFile(path);
     return file;
   }
 

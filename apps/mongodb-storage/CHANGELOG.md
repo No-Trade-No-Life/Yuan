@@ -1,6 +1,285 @@
 # Change Log - @yuants/app-mongodb-storage
 
-This log was last generated on Fri, 29 Dec 2023 16:44:24 GMT and should not be manually modified.
+This log was last generated on Thu, 02 Jan 2025 14:18:42 GMT and should not be manually modified.
+
+## 0.4.25
+Thu, 02 Jan 2025 14:18:42 GMT
+
+### Patches
+
+- add env option to enable web rtc
+
+## 0.4.24
+Thu, 02 Jan 2025 07:08:15 GMT
+
+### Patches
+
+- upgrade container base image to bookworm for wrtc
+
+## 0.4.23
+Thu, 19 Dec 2024 15:28:50 GMT
+
+_Version update only_
+
+## 0.4.22
+Sat, 07 Dec 2024 14:42:13 GMT
+
+### Patches
+
+- fix operation when partial update
+
+## 0.4.21
+Wed, 04 Dec 2024 09:36:47 GMT
+
+_Version update only_
+
+## 0.4.20
+Wed, 27 Nov 2024 15:48:19 GMT
+
+_Version update only_
+
+## 0.4.19
+Sun, 24 Nov 2024 06:27:35 GMT
+
+_Version update only_
+
+## 0.4.18
+Sun, 24 Nov 2024 05:13:22 GMT
+
+_Version update only_
+
+## 0.4.17
+Sat, 23 Nov 2024 15:55:38 GMT
+
+_Version update only_
+
+## 0.4.16
+Sat, 23 Nov 2024 05:37:50 GMT
+
+_Version update only_
+
+## 0.4.15
+Sat, 16 Nov 2024 06:09:31 GMT
+
+_Version update only_
+
+## 0.4.14
+Wed, 13 Nov 2024 12:49:50 GMT
+
+### Patches
+
+- chore: alerting rule add wait
+
+## 0.4.13
+Sat, 02 Nov 2024 10:25:33 GMT
+
+_Version update only_
+
+## 0.4.12
+Thu, 24 Oct 2024 19:57:43 GMT
+
+_Version update only_
+
+## 0.4.11
+Wed, 25 Sep 2024 08:29:52 GMT
+
+_Version update only_
+
+## 0.4.10
+Tue, 17 Sep 2024 20:07:02 GMT
+
+_Version update only_
+
+## 0.4.9
+Tue, 17 Sep 2024 14:54:15 GMT
+
+_Version update only_
+
+## 0.4.8
+Sun, 15 Sep 2024 14:00:45 GMT
+
+_Version update only_
+
+## 0.4.7
+Sun, 15 Sep 2024 05:36:59 GMT
+
+_Version update only_
+
+## 0.4.6
+Mon, 09 Sep 2024 14:05:59 GMT
+
+_Version update only_
+
+## 0.4.5
+Sun, 08 Sep 2024 10:16:35 GMT
+
+_Version update only_
+
+## 0.4.4
+Wed, 04 Sep 2024 12:44:10 GMT
+
+_Version update only_
+
+## 0.4.3
+Fri, 30 Aug 2024 14:29:33 GMT
+
+_Version update only_
+
+## 0.4.2
+Sun, 21 Jul 2024 07:51:05 GMT
+
+_Version update only_
+
+## 0.4.1
+Sun, 14 Jul 2024 00:02:52 GMT
+
+### Patches
+
+- fix pathMap is empty
+
+## 0.4.0
+Sat, 13 Jul 2024 14:49:29 GMT
+
+### Minor changes
+
+- support tree paths
+
+## 0.3.9
+Fri, 12 Jul 2024 09:19:54 GMT
+
+_Version update only_
+
+## 0.3.8
+Fri, 12 Jul 2024 01:50:37 GMT
+
+_Version update only_
+
+## 0.3.7
+Wed, 03 Jul 2024 10:05:02 GMT
+
+_Version update only_
+
+## 0.3.6
+Sun, 30 Jun 2024 11:56:32 GMT
+
+_Version update only_
+
+## 0.3.5
+Fri, 28 Jun 2024 12:37:38 GMT
+
+_Version update only_
+
+## 0.3.4
+Fri, 21 Jun 2024 16:20:19 GMT
+
+_Version update only_
+
+## 0.3.3
+Thu, 20 Jun 2024 09:43:34 GMT
+
+### Patches
+
+- refactor
+
+## 0.3.2
+Thu, 13 Jun 2024 14:52:38 GMT
+
+### Patches
+
+- fix hpa spec
+
+## 0.3.1
+Thu, 13 Jun 2024 12:34:32 GMT
+
+### Patches
+
+- add hpa
+
+## 0.3.0
+Mon, 10 Jun 2024 08:50:50 GMT
+
+### Minor changes
+
+- add include_expired and json schema filter
+
+## 0.2.12
+Fri, 07 Jun 2024 19:05:13 GMT
+
+_Version update only_
+
+## 0.2.11
+Wed, 05 Jun 2024 09:35:22 GMT
+
+_Version update only_
+
+## 0.2.10
+Fri, 24 May 2024 18:00:17 GMT
+
+_Version update only_
+
+## 0.2.9
+Thu, 23 May 2024 13:52:31 GMT
+
+_Version update only_
+
+## 0.2.8
+Wed, 22 May 2024 04:53:53 GMT
+
+_Version update only_
+
+## 0.2.7
+Thu, 16 May 2024 18:00:51 GMT
+
+_Version update only_
+
+## 0.2.6
+Tue, 23 Apr 2024 16:29:03 GMT
+
+_Version update only_
+
+## 0.2.5
+Thu, 11 Apr 2024 14:45:56 GMT
+
+_Version update only_
+
+## 0.2.4
+Mon, 08 Apr 2024 11:05:31 GMT
+
+_Version update only_
+
+## 0.2.3
+Fri, 22 Mar 2024 10:10:02 GMT
+
+_Version update only_
+
+## 0.2.2
+Thu, 22 Feb 2024 18:28:20 GMT
+
+_Version update only_
+
+## 0.2.1
+Sat, 17 Feb 2024 23:28:07 GMT
+
+_Version update only_
+
+## 0.2.0
+Thu, 15 Feb 2024 04:01:02 GMT
+
+### Minor changes
+
+- support load balance
+
+## 0.1.22
+Sat, 10 Feb 2024 21:26:26 GMT
+
+_Version update only_
+
+## 0.1.21
+Wed, 07 Feb 2024 08:31:35 GMT
+
+### Patches
+
+- remove services and discriminator fields
 
 ## 0.1.20
 Fri, 29 Dec 2023 16:44:24 GMT

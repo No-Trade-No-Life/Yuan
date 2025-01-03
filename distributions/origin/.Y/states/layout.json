@@ -1,0 +1,71 @@
+{
+  "global": {
+    "tabEnableFloat": true
+  },
+  "borders": [
+    {
+      "type": "border",
+      "location": "left",
+      "size": 320,
+      "children": [
+        {
+          "type": "tab",
+          "id": "{\"pageKey\":\"Explorer\",\"params\":{}}",
+          "component": "Explorer",
+          "config": {},
+          "enableDrag": false,
+          "enableRename": false,
+          "enableClose": false
+        },
+        {
+          "type": "tab",
+          "id": "{\"pageKey\":\"AgentConfForm\",\"params\":{}}",
+          "component": "AgentConfForm",
+          "enableDrag": false,
+          "enableRename": false,
+          "enableClose": false
+        },
+        {
+          "type": "tab",
+          "id": "ExtensionPanel",
+          "component": "ExtensionPanel",
+          "enableRename": false,
+          "enableClose": false
+        }
+      ]
+    },
+    {
+      "type": "border",
+      "location": "bottom",
+      "children": [
+        {
+          "type": "tab",
+          "id": "{\"pageKey\":\"Program\",\"params\":{}}",
+          "enableClose": false,
+          "enableRename": false,
+          "enableDrag": false,
+          "component": "Program"
+        }
+      ]
+    }
+  ],
+  "layout": {
+    "type": "row",
+    "weight": 100,
+    "children": [
+      {
+        "type": "tabset",
+        "children": [
+          {
+            "type": "tab",
+            "id": "{\"pageKey\":\"Copilot\",\"params\":{}}",
+            "component": "Copilot",
+            "config": {},
+            "enableRename": false
+          }
+        ],
+        "active": true
+      }
+    ]
+  }
+}

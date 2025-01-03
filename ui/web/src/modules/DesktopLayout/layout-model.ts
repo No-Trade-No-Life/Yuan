@@ -1,76 +1,26 @@
+import { Toast } from '@douyinfe/semi-ui';
+import { formatTime } from '@yuants/data-model';
 import * as FlexLayout from 'flexlayout-react';
 import hotkeys from 'hotkeys-js';
+import { resolve } from 'path-browserify';
 import { BehaviorSubject, bufferCount, combineLatest, first, map, Subject } from 'rxjs';
+import { createPersistBehaviorSubject } from '../BIOS';
 import { registerCommand } from '../CommandCenter';
-import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehaviorSubject';
+import { fs } from '../FileSystem/api';
+import { showForm } from '../Form';
 
 const initialJson = (): FlexLayout.IJsonModel => ({
   global: {
     // FIXED: multiple-window will cause terminals conflict, so disable it
-    // tabEnableFloat: true
+    tabEnableFloat: true,
   },
-  borders: [
-    {
-      type: 'border',
-      location: 'left',
-      size: 320,
-      children: [
-        {
-          type: 'tab',
-          id: 'Explorer',
-          component: 'Explorer',
-          enableDrag: false,
-          enableRename: false,
-          enableClose: false,
-        },
-        {
-          type: 'tab',
-          id: 'AgentConfForm',
-          component: 'AgentConfForm',
-          enableDrag: false,
-          enableRename: false,
-          enableClose: false,
-        },
-        {
-          type: 'tab',
-          id: 'ExtensionPanel',
-          component: 'ExtensionPanel',
-          enableRename: false,
-          enableDrag: false,
-          enableClose: false,
-        },
-      ],
-    },
-    {
-      type: 'border',
-      location: 'bottom',
-      children: [
-        {
-          type: 'tab',
-          id: 'Program',
-          enableClose: false,
-          enableRename: false,
-          enableDrag: false,
-          component: 'Program',
-        },
-      ],
-    },
-  ],
   layout: {
     type: 'row',
     weight: 100,
     children: [
       {
         type: 'tabset',
-        children: [
-          {
-            type: 'tab',
-            id: '{"pageKey":"Copilot","params":{}}',
-            component: 'Copilot',
-            config: {},
-            enableRename: false,
-          },
-        ],
+        children: [],
         active: true,
       },
     ],
@@ -101,6 +51,7 @@ layoutModel$.subscribe((layoutModel) => {
 });
 
 registerCommand('Page.open', ({ type: pageKey, params = {}, parentId: _parentId }) => {
+  Modules.Workbench.isShowHome$.next(false);
   const pageId = JSON.stringify({ pageKey, params });
   const model = layoutModel$.value;
 
@@ -121,6 +72,7 @@ registerCommand('Page.open', ({ type: pageKey, params = {}, parentId: _parentId 
       .find((node) => node.getType() === 'tabset')
       ?.getId();
   if (!parentId) {
+    console.info(formatTime(Date.now()), 'Page.open: NO PARENT');
     // NO PARENT: BAD REQUEST
     return;
   }
@@ -181,4 +133,25 @@ registerCommand('Page.close', ({ pageId }) => {
 
 registerCommand('Page.changeTitle', ({ pageId, title }) => {
   layoutModel$.value.doAction(FlexLayout.Actions.renameTab(pageId, title));
+});
+
+registerCommand('Layout.Save', async () => {
+  try {
+    const filename = await showForm<string>({ type: 'string', format: 'filename' });
+    await fs.writeFile(resolve('/', filename), JSON.stringify(layoutModelJson$.value, null, 2));
+    Toast.success('Layout saved');
+  } catch (e) {
+    Toast.error(`Failed to save layout: ${e}`);
+  }
+});
+
+registerCommand('Layout.Load', async () => {
+  try {
+    const filename = await showForm<string>({ type: 'string', format: 'filename' });
+    const content = await fs.readFile(resolve('/', filename));
+    layoutModelJson$.next(JSON.parse(content));
+    Toast.success('Layout loaded');
+  } catch (e) {
+    Toast.error(`Failed to load layout: ${e}`);
+  }
 });

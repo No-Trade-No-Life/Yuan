@@ -1,6 +1,7 @@
-import { encodePath, formatTime, UUID } from '@yuants/data-model';
+import { encodePath, formatTime } from '@yuants/data-model';
 import {
   BehaviorSubject,
+  ReplaySubject,
   defer,
   delayWhen,
   distinct,
@@ -8,16 +9,14 @@ import {
   first,
   map,
   mergeMap,
-  ReplaySubject,
   toArray,
 } from 'rxjs';
-import { createPersistBehaviorSubject } from '../FileSystem/createPersistBehaviorSubject';
+import { createPersistBehaviorSubject } from '../BIOS';
 
 export interface IHostConfigItem {
   //
   name: string;
   host_url: string;
-  terminal_id: string;
 }
 
 export const hostConfigList$ = createPersistBehaviorSubject<IHostConfigItem[]>('host-config-list', []);
@@ -69,7 +68,6 @@ initAction$
       const config: IHostConfigItem = {
         host_url: action.payload.URL,
         name: action.payload.name,
-        terminal_id: `GUI/${UUID()}`,
       };
 
       hostConfigList$.next([...(hostConfigList$.value || []), config]);

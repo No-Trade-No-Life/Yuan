@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-host",
-  "version": "0.1.17",
+  "version": "0.3.7",
   "description": "Host",
   "files": [
     "dist",
@@ -13,6 +13,7 @@
   "dependencies": {
     "@yuants/data-model": "workspace:*",
     "@yuants/protocol": "workspace:*",
+    "@yuants/host-manager": "workspace:*",
     "rxjs": "~7.5.6",
     "ws": "~8.8.1"
   },

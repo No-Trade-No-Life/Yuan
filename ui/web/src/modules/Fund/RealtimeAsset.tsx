@@ -1,6 +1,6 @@
 import { Button, Card, Descriptions, Empty, Space, Table, Toast, Typography } from '@douyinfe/semi-ui';
-import { formatTime } from '@yuants/data-model';
-import { IAccountInfo, Terminal } from '@yuants/protocol';
+import { IAccountInfo, IAccountMoney, formatTime } from '@yuants/data-model';
+import { Terminal } from '@yuants/protocol';
 import { format } from 'date-fns';
 import { parse } from 'jsonc-parser';
 import { useObservable, useObservableState } from 'observable-hooks';
@@ -26,9 +26,11 @@ import {
   toArray,
 } from 'rxjs';
 import { useAccountInfo } from '../AccountInfo';
-import { fs } from '../FileSystem/api';
+import { executeCommand } from '../CommandCenter';
+import { fs } from '../FileSystem';
 import { registerPage, usePageParams, usePageTitle } from '../Pages';
 import { terminal$, useTick } from '../Terminals';
+import { registerAssociationRule } from '../Workspace';
 
 interface IFundComponentConfig {
   //
@@ -92,8 +94,8 @@ const fromConfig = (config: IFundConfig): Observable<IFundInfo> => {
     mergeMap((item) =>
       useTick(item.datasource_id, item.product_id).pipe(
         map((tick) => ({
-          [`${item.base_currency}${item.quoted_currency}`]: tick.price,
-          [`${item.quoted_currency}${item.base_currency}`]: 1 / tick.price,
+          [`${item.base_currency}${item.quoted_currency}`]: tick.price!,
+          [`${item.quoted_currency}${item.base_currency}`]: 1 / tick.price!,
         })),
       ),
     ),
@@ -128,27 +130,32 @@ const fromConfig = (config: IFundConfig): Observable<IFundInfo> => {
     mergeMap(([components, rates]) =>
       from(components).pipe(
         reduce((acc, cur) => acc + cur.value * (rates[`${cur.currency}${config.currency}`] ?? 1), 0),
-        map((total) => ({
-          config,
-          accountInfo: {
-            timestamp_in_us: Date.now() * 1e3,
+        map((total): IFundInfo => {
+          const money: IAccountMoney = {
+            equity: total,
+            currency: config.currency,
+            balance: total,
+            used: 0,
+            free: total,
+            profit: 0,
+          };
+          const accountInfo: IAccountInfo = {
+            updated_at: Date.now(),
             account_id: config.account_id,
-            money: {
-              equity: total,
-              currency: config.currency,
-              balance: total,
-              used: 0,
-              free: total,
-              profit: 0,
-            },
+            money: money,
+            currencies: [money],
             positions: [],
             orders: [],
-          },
-          fund_price: +(total / config.share).toFixed(6),
-          rates,
-          share: config.share,
-          components,
-        })),
+          };
+          return {
+            config,
+            accountInfo: accountInfo,
+            fund_price: +(total / config.share).toFixed(6),
+            rates,
+            share: config.share,
+            components,
+          };
+        }),
       ),
     ),
   );
@@ -220,7 +227,7 @@ const getReport = (info: IFundInfo, investor_id: string): string => {
     '我们会全力维护您的权益，争取取得更好的业绩！',
     '',
     'NTNL 基金运维小组',
-    `${format(info.accountInfo.timestamp_in_us / 1000, 'yyyy年MM月dd日 HH:mm:ss')}`,
+    `${format(info.accountInfo.updated_at!, 'yyyy年MM月dd日 HH:mm:ss')}`,
   ].join('\n');
 };
 
@@ -367,20 +374,28 @@ registerPage('RealtimeAsset', () => {
 });
 
 function sendReportToInvestor(terminal: Terminal, fundInfo: IFundInfo, investor: IInvestor) {
-  return terminal
-    .request('Notify', fundInfo.config.notify_terminal_id, {
+  return defer(() =>
+    terminal.request('Notify', fundInfo.config.notify_terminal_id, {
       receiver_id: investor.email,
       message: getReport(fundInfo, investor.investor_id),
-    })
-    .pipe(
-      tap((msg) => {
-        if (msg.res?.code === 0) {
-          Toast.success(`成功发送报告至 ${investor.name} ${investor.email}`);
-          console.info(formatTime(Date.now()), `成功发送报告至 ${investor.name} ${investor.email}`);
-        } else {
-          Toast.error(`发送报告失败 ${investor.name} ${investor.email}`);
-          console.info(formatTime(Date.now()), `发送报告失败 ${investor.name} ${investor.email}`);
-        }
-      }),
-    );
+    }),
+  ).pipe(
+    tap((msg) => {
+      if (msg.res?.code === 0) {
+        Toast.success(`成功发送报告至 ${investor.name} ${investor.email}`);
+        console.info(formatTime(Date.now()), `成功发送报告至 ${investor.name} ${investor.email}`);
+      } else {
+        Toast.error(`发送报告失败 ${investor.name} ${investor.email}`);
+        console.info(formatTime(Date.now()), `发送报告失败 ${investor.name} ${investor.email}`);
+      }
+    }),
+  );
 }
+
+registerAssociationRule({
+  id: 'RealtimeAsset',
+  match: ({ path, isFile }) => isFile && !!path.match(/\.fund\.json$/),
+  action: ({ path }) => {
+    executeCommand('RealtimeAsset', { filename: path });
+  },
+});

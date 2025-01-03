@@ -1,3 +1,5 @@
+[English](./README.md) | [简体中文](./README.zh-Hans.md)
+
 <a name="readme-top"></a>
 
 ![Language TS][language-shield]
@@ -16,7 +18,7 @@
   <img src="https://y.ntnl.io/yuan.svg" alt="Logo" width="80" height="80" />
   <h3 align="center">Yuan</h3>
   <p align="center">
-    <p>The investment Operating System for everyone</p>
+    <p>Personal Investment Operating System</p>
     <p>AI empowered, global market, serverless, cloud-native, and privacy.</p>
     <a align="center" href="https://y.ntnl.io">Access the Yuan GUI from any device »</a>
     <br />
@@ -31,7 +33,7 @@
   </p>
 </div>
 
-## About The Project
+## Snapshots
 
 ![image](https://github.com/No-Trade-No-Life/Yuan/assets/12707521/426f51d3-6ed3-4ad5-9583-ca8e63518965)
 
@@ -39,24 +41,28 @@
 
 ![image](https://github.com/No-Trade-No-Life/Yuan/assets/12707521/6bac83f1-434d-400f-b6a1-a0874a812d5a)
 
-I'm a software engineer. And I want to make money through quantitative and automatic trading.
+## Motivation
 
-There are many great tools and platforms available. However, I didn't find one that suited my needs, so I created Yuan.
+In the early stages of our quantitative trading endeavors, after extensively searching and researching various existing quantitative trading frameworks and products, we found that none could fully meet the development and research needs of our unique trading strategies. Thus, undeterred by the challenges, we embarked on creating our own product, Yuan, driven by our specific requirements.
 
-Here's why:
+Our basic requirements are:
 
-- My trading strategy is secret. I am afraid someone illegally obtained the results. I want to test and run it on trusted devices.
-- The historical data is highly reused and never updated anymore. I want to download the data once and use it forever. So the data should be free.
-- I want to work everywhere from any device. I don't want to install prerequisites (Python or any others) before starting my work. Most devices have installed browsers. So I want to use a browser to work.
-- The market is similar around the world. I want to trade in any global market without changing any strategy code. Write once, and run everywhere.
-- Real-world trading is important. The trading system should be highly available. I want to create and maintain them easily.
+1. **Strong Privacy Security**
 
-For more general usages:
+   Quantitative model code is the core asset of users and is at risk of being stolen. Many products on the market require uploading strategy code to servers, and these products can fully evaluate and steal the code as long as they have the user's code. If the user's strategy can be grasped by potential competitors, the user will be at a disadvantage. Therefore, there are also some products on the market that allow private deployment. We have designed a local workspace for users to ensure that their privacy is protected from being stolen by anyone, including the Yuan project team. Additionally, we have completed open-source, subject to the supervision of the open-source community, and will not do anything in the code that harms the interests of users.
 
-- Maybe you feel troubled about coding. You can ask an AI assistant for help. Just tell AI your idea and run. AI can complete the code.
-- Maybe you need to manage your money dispersed across many accounts.
+2. **Full Market Compatibility**
 
-In summary, I hope Yuan can be an operating system, which helps you control your money.
+   Users invest and trade in different markets. We hope that the same strategy code can be applied to different market varieties, both for historical backtesting and real-time trading, without any additional cost. We also hope that the platform product can support various types of markets. However, due to regional laws and regulations and some business restrictions, products on the market usually only support a part of the markets, forcing users to use different platforms in different markets. Through architectural design, we decouple specific market modules, not only improving software quality but also overcoming compliance obstacles, paving the way for the globalization of the product.
+
+3. **Cross-Platform Compatibility**
+
+   We hope that our product can run without restrictions on any device on any platform, whether on desktop or mobile. After all, the market does not care about the user's situation. Users can switch to work and interact with the market at any time in any scenario.
+
+4. **Low Cost and High Scalability**
+
+   Industry initial licensing fees often reach thousands, not to mention the high additional and maintenance costs. We believe that these costs are partly due to bundling sales to offset development costs, partly due to inefficiency, and partly due to the desire to profit. As a product aimed at individual investors rather than enterprises, we must consider the consumption ability of ordinary investors. For investors, the most important aspect of tools is cheap and durable. Whether on personal computers or server clusters, our product can run effectively.
+   Yuan is an investment operating system designed to empower you to master your finances.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -101,7 +107,7 @@ Yuan is a hybrid-cloud software that allows you to deploy your trading system in
 
 **Extension-first Ecosystem**
 
-In Yuan, extensions are treated as first-class citizens. Many core features are built and distributed as extensions. You can use extensions to add new features, connect with more markets, and enhance your experience. You can download extensions from the community or create your own extension to share with others.
+In Yuan, extensions are treated as first-class citizens. Many core features are built and distributed as extensions. You can use extensions to add new features, connect with more markets, and enhance your experience. You can download extensions from the community or create your own extensions to share with others.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -127,7 +133,7 @@ In Yuan, extensions are treated as first-class citizens. Many core features are 
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Getting started 🚀
+## Getting started (for developers) 🚀
 
 Prerequisites: `nodejs >= 18.17.0`, [docker](https://www.docker.com/) for image build, and [rush](https://rushjs.io/) for mono repo management.
 
@@ -139,6 +145,12 @@ Then you can install dependencies and build projects
 
 ```bash
 rush update && rush build
+```
+
+If you have no docker installed, you can skip the docker build by setting the environment variable `CI_RUN` to `true`.
+
+```bash
+CI_RUN=true rush build
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -155,6 +167,7 @@ All the libraries should be independent of the platform by default. They can be 
 - [@yuants/kernel](libraries/kernel) The kernel of Time-Machine. Time-Machine can travel from history to the future. This package also contains some useful units and scenes.
 - [@yuants/agent](libraries/agent) Agent is a trading bot. The agent contains the core of the trading strategy.
 - [@yuants/extension](libraries/extension) This defined the extension interface. You can use extensions to enhance your experience.
+- [@yuants/prometheus-client](libraries/prometheus-client) Prometheus client for the browser / node. Better performance than `promjs`.
 
 #### Apps
 
@@ -162,6 +175,7 @@ All the apps should provide an image and publish it as a npm package. You can de
 
 - [@yuants/app-host](apps/host) Host is a very lightweight message broker. Terminals can connect to the host and send messages to each other. Notice that all terminals in a host should trust each other. In practice, all the terminals in a host belong to the same owner. There's no need to verify every message. You can deploy multiple hosts to isolate the risk.
 - [@yuants/app-market-data-collector](apps/market-data-collector) This will deploy a terminal as a data-collecting service. The terminal collects market data from the market terminals continuously.
+- [@yuants/app-data-collector](apps/data-collector) This will deploy a terminal as a data-collecting service. The terminal collects series data from the data series provider terminals continuously. It's a general version of the market data collector. You can use it to collect any data series.
 - [@yuants/app-agent](apps/agent) This will deploy a terminal as the daemon service of the agent. You can run the agent in **real mode**. It can automatically correct the history data error. It can also automatically restart the agent when it crashes.
 - [@yuants/app-alert-receiver](apps/alert-receiver) This will deploy a terminal as an alert-receiving service. It receives alerts from the alert terminals and sends them to the notifier terminals.
 - [@yuants/app-mongodb-storage](apps/mongodb-storage) This will deploy a terminal as a storage service. It stores data in MongoDB.
@@ -169,15 +183,68 @@ All the apps should provide an image and publish it as a npm package. You can de
 - [@yuants/app-feishu-notifier](apps/feishu-notifier) This will deploy a terminal as a notifier service. It sends notifications to your Feishu by a Feishu bot.
 - [@yuants/app-trade-copier](apps/trade-copier) This will deploy a terminal as a trade copier service. It watches the source accounts and ensures the target accounts follow the source accounts.
 - [@yuants/app-metrics-collector](apps/metrics-collector) This will deploy a terminal as a metrics-collecting service. The metrics collector collects metrics from terminals continuously. It works with Prometheus.
+- [@yuants/app-account-composer](apps/account-composer) This will deploy a terminal as an account-composing service. It composes multiple account info into one account info. So you can view your money dispersed across many accounts.
+- [@yuants/app-general-datasource](apps/general-data-source) This will deploy a terminal as a general data source service. It composes multiple specific data sources into one general data source. Useful for creating an index price series.
+- [@yuants/app-general-realtime-data-source](apps/general-realtime-data-source) This will deploy a terminal as a general real-time data source service. It's the real-time version of the general data source. Useful for creating an index price ticks.
+- [@yuants/app-k8s-manifest-operator](apps/k8s-manifest-operator) This will deploy a terminal as a Kubernetes manifest operator. It watches the manifest CRD of the Kubernetes cluster and ensures the Kubernetes cluster follows the manifest CRD. You can add manifest CRD to the k8s cluster and then the operator will deploy the resources defined in the manifest CRD.
+- [@yuants/app-transfer-controller](apps/transfer-controller) A transfer controller is a service that transfers money between accounts. It watches the transfer request and ensures the transfer is completed.
+- [@yuants/app-risk-manager](apps/risk-manager) This will deploy a terminal as a risk manager. It makes transfer decisions based on the configured risk info.
+- [@yuants/app-hosts](apps/hosts) This is a very lightweight host cluster that can handle message forwarding business for multiple hosts within a single process. There is no need to pre-register the host's token table; it can automatically accept terminals that comply with ED25519 signatures, and terminals do not need to send the signed private key to the host. It is highly suitable for multi-tenant environments and scenarios that require low-cost creation of multiple hosts.
+- [@yuants/app-portal](apps/portal) This will deploy a service that allows sharing existing services (and channels) from a host with other hosts. It acts as an intermediary, capable of forwarding messages from one host to another. It is a very powerful tool that can help you build data sharing scenarios.
+- [@yuants/app-namespaced-mongodb-storage](apps/namespaced-mongodb-storage) This will deploy a terminal as a storage service. It stores data in MongoDB and supports namespaces. This means you can store data for multiple tenants within the same MongoDB instance.
+- [@yuants/app-prometheus-client](apps/prometheus-client) This will deploy a terminal as a Prometheus client. It provides a service for querying data from the Prometheus database, making it suitable for building monitoring dashboards.
 
 #### Web UI
 
-[@yuants/ui-web](ui/web) is the GUI.
-You can do anything with the GUI because we prefer to implement the feature in GUI rather than CLI.
-All the users use the same GUI distribution. It's independent of hosts and scenes.
-User has their own workspace locally. The workspace is secret.
-You can install extensions to enhance your workspace.
-Any device with a modern browser can access the GUI and its features. But currently, the layout on the desktop is the most friendly. We will enhance the experience of mobile in the future.
+[@yuants/ui-web](ui/web), you can directly access https://y.ntnl.io to access the Yuan GUI.
+
+The graphical user interface (GUI) is the most widely used human-computer interaction interface today. It can do everything that command-line interfaces (CLI), natural language interfaces (NUI, LUI), and other interfaces can do.
+
+- **Single-line Deployment**: All users use the same, latest version of the GUI.
+- **Strong Privacy**: The content of the workspace used by the GUI is completely confidential.
+- **Extensibility**: You can install extensions to enhance your workspace.
+- **Multi-device Adaptation**: Any device with a modern browser can access the GUI and its features. We will continuously improve multi-device adaptability.
+- **PWA Support**: The GUI can be installed as a desktop application via PWA. Mobile devices can also use PWA to install to the home screen.
+
+#### Distributions
+
+Yuan is a powerful operating system, but it is also too low-level, primitive, and difficult to use. Only tech-savvy users can handle it, and it is not suitable for direct use by ordinary users.
+
+For different user scenarios, it is best to provide specific distributions that are pre-configured with some features so that users can use them directly.
+
+Below are some distributions we provide as references. You can create your own distributions based on your needs.
+
+- [@yuants/dist-origin](distributions/origin): Native distribution [Click to experience online](https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin)
+
+##### Creating a Distribution
+
+The essence of a distribution is a workspace, and the essence of a workspace is a file directory and its contents. We can package the workspace into a distribution, and then users can download and unzip it to use. We recommend using the npm package management tool to manage distributions, i.e., distributions will be published to the npm repository, and users can install distributions via npm.
+
+In the Web GUI's address parameters, we can specify installing the distribution from npm using the `from_npm` parameter. For example, `https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin`.
+
+**URL Parameters**:
+
+- `from_npm`: Whether to install the distribution from npm. `1` for yes, leave empty for no.
+- `scope`: The scope of the npm package, optional parameter.
+- `name`: The name of the npm package, required parameter.
+- `version`: The version of the npm package, in the format of a [semver](https://semver.org/) compliant version range, optional parameter. Defaults to the latest version.
+
+```
+// Install the latest version of the @yuants/dist-origin distribution
+https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin
+
+// Install a specific version (0.0.2) of the @yuants/dist-origin distribution
+https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin&version=0.0.2
+
+// Install a specific version (>=0.0.2) of the @yuants/dist-origin distribution
+https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin&version=>=0.0.2
+```
+
+#### Documents
+
+[@yuants/docs](ui/docs) is the document of Yuan.
+
+It's built by [Docusaurus](https://docusaurus.io/). You can find the latest documents [here](https://www.ntnl.io/).
 
 #### Toolkit
 
@@ -190,6 +257,20 @@ Vendors include markets, exchanges, and data sources. You can access the global 
 Every vendor is a gateway to connect the external service directly. Your private data including account info and market data will not be stored in Yuan Cloud Service. You can deploy the vendor in your own cloud or local machine.
 
 - [@yuants/vendor-ctp](apps/vendor-ctp) This connects to the "Comprehensive Transaction Platform" (CTP). The CTP platform was developed by the Shanghai Futures Exchange (SHFE). CTP provides China's future exchanges. To comply with regulations, you might have to request permission from your broker company.
+
+- [@yuants/vendor-ccxt](apps/vendor-ccxt) This connects to the "CryptoCurrency eXchange Trading Library" (CCXT). CCXT is a JavaScript / Python / PHP cryptocurrency trading library that supports many cryptocurrency exchanges and trading markets. You can use it to trade cryptocurrencies.
+
+- [@yuants/vendor-binance](apps/vendor-binance) This connects to _Binance_, which is a famous crypto exchange.
+
+- [@yuants/vendor-okx](apps/vendor-okx) This connects to _OKX_, which is a famous crypto exchange.
+
+- [@yuants/vendor-huobi](apps/vendor-huobi) This connects to _Huobi_, which is a famous crypto exchange.
+
+- [@yuants/vendor-gate](apps/vendor-gate) This connects to _Gate_, which is a famous crypto exchange.
+
+- [@yuants/vendor-bitget](apps/vendor-bitget) This connects to _BitGet_, which is a famous crypto exchange.
+
+- [@yuants/vendor-coinex](apps/vendor-coinex) This connects to _CoinEX_, which is a famous crypto exchange.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -208,38 +289,6 @@ Don't forget to give the project a star! Thanks again!
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-## Contributors
-
-Thanks sincerely to the contributors:
-
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<table>
-  <tbody>
-    <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/zccz14"><img src="https://avatars.githubusercontent.com/u/12707521?v=4?s=100" width="100px;" alt="Zheng Chen"/><br /><sub><b>Zheng Chen</b></sub></a><br /><a href="#mentoring-zccz14" title="Mentoring">🧑‍🏫</a> <a href="https://github.com/No-Trade-No-Life/Yuan/commits?author=zccz14" title="Code">💻</a> <a href="#design-zccz14" title="Design">🎨</a> <a href="https://github.com/No-Trade-No-Life/Yuan/pulls?q=is%3Apr+reviewed-by%3Azccz14" title="Reviewed Pull Requests">👀</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://blog.thrimbda.com"><img src="https://avatars.githubusercontent.com/u/15231162?v=4?s=100" width="100px;" alt="Siyuan Wang"/><br /><sub><b>Siyuan Wang</b></sub></a><br /><a href="https://github.com/No-Trade-No-Life/Yuan/commits?author=Thrimbda" title="Code">💻</a> <a href="#infra-Thrimbda" title="Infrastructure (Hosting, Build-Tools, etc)">🚇</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/mage1028"><img src="https://avatars.githubusercontent.com/u/23522436?v=4?s=100" width="100px;" alt="Jinhaolin"/><br /><sub><b>Jinhaolin</b></sub></a><br /><a href="https://github.com/No-Trade-No-Life/Yuan/commits?author=mage1028" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://192217.space"><img src="https://avatars.githubusercontent.com/u/11043091?v=4?s=100" width="100px;" alt="Hobo Chen"/><br /><sub><b>Hobo Chen</b></sub></a><br /><a href="https://github.com/No-Trade-No-Life/Yuan/issues?q=author%3AHoboChen" title="Bug reports">🐛</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="http://linxuyalun.github.io"><img src="https://avatars.githubusercontent.com/u/25969296?v=4?s=100" width="100px;" alt="Yalun Lin Hsu"/><br /><sub><b>Yalun Lin Hsu</b></sub></a><br /><a href="https://github.com/No-Trade-No-Life/Yuan/commits?author=linxuyalun" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/SakurazukaKen"><img src="https://avatars.githubusercontent.com/u/9213509?v=4?s=100" width="100px;" alt="SakurazukaKen"/><br /><sub><b>SakurazukaKen</b></sub></a><br /><a href="https://github.com/No-Trade-No-Life/Yuan/commits?author=SakurazukaKen" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/StayRealMayDay"><img src="https://avatars.githubusercontent.com/u/26059707?v=4?s=100" width="100px;" alt="Haoran Ren"/><br /><sub><b>Haoran Ren</b></sub></a><br /><a href="https://github.com/No-Trade-No-Life/Yuan/commits?author=StayRealMayDay" title="Code">💻</a></td>
-    </tr>
-    <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/pruderior"><img src="https://avatars.githubusercontent.com/u/34360187?v=4?s=100" width="100px;" alt="pruderior"/><br /><sub><b>pruderior</b></sub></a><br /><a href="https://github.com/No-Trade-No-Life/Yuan/commits?author=pruderior" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Hikaru518"><img src="https://avatars.githubusercontent.com/u/7864982?v=4?s=100" width="100px;" alt="playground"/><br /><sub><b>playground</b></sub></a><br /><a href="https://github.com/No-Trade-No-Life/Yuan/commits?author=Hikaru518" title="Code">💻</a></td>
-    </tr>
-  </tbody>
-</table>
-
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
-
-<!-- ALL-CONTRIBUTORS-LIST:END -->
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
 ## Contact
 
 - Join Discord server: [![Discord](https://img.shields.io/discord/1141802173676654675?style=for-the-badge&logo=discord)](https://discord.gg/BRH2447DUV)
@@ -248,9 +297,6 @@ Thanks sincerely to the contributors:
 
 ## Acknowledgments 📖
 
-1. [Yuan-Public-Workspace](https://github.com/No-Trade-No-Life/Yuan-Public-Workspace)
-   You can learn how to write strategy models from this repository. You can import it to your workspace from the GUI. The repository is embedded in AI with a vector database.
-   Contribute with your examples is greatly appreciated!
 1. [Yuan-Public-Data](https://github.com/No-Trade-No-Life/Yuan-Public-Data)
    Our public data is maintained here as a repository. Free to use.
    Welcome to contribute if you have other data!

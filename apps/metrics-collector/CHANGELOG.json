@@ -2,6 +2,859 @@
   "name": "@yuants/app-metrics-collector",
   "entries": [
     {
+      "version": "0.0.81",
+      "tag": "@yuants/app-metrics-collector_v0.0.81",
+      "date": "Thu, 02 Jan 2025 07:08:15 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "upgrade container base image to bookworm for wrtc"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.27.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.80",
+      "tag": "@yuants/app-metrics-collector_v0.0.80",
+      "date": "Thu, 19 Dec 2024 15:28:50 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.17.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.26.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.11`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.1.5`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.79",
+      "tag": "@yuants/app-metrics-collector_v0.0.79",
+      "date": "Wed, 04 Dec 2024 09:36:47 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.26.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.78",
+      "tag": "@yuants/app-metrics-collector_v0.0.78",
+      "date": "Wed, 27 Nov 2024 15:48:19 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.25.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.77",
+      "tag": "@yuants/app-metrics-collector_v0.0.77",
+      "date": "Sun, 24 Nov 2024 06:27:35 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.24.6`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.76",
+      "tag": "@yuants/app-metrics-collector_v0.0.76",
+      "date": "Sun, 24 Nov 2024 05:13:22 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.24.5`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.75",
+      "tag": "@yuants/app-metrics-collector_v0.0.75",
+      "date": "Sat, 23 Nov 2024 15:55:38 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.24.4`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.74",
+      "tag": "@yuants/app-metrics-collector_v0.0.74",
+      "date": "Sat, 23 Nov 2024 05:37:50 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.24.3`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.73",
+      "tag": "@yuants/app-metrics-collector_v0.0.73",
+      "date": "Sat, 16 Nov 2024 06:09:31 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.17.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.24.2`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.72",
+      "tag": "@yuants/app-metrics-collector_v0.0.72",
+      "date": "Sat, 02 Nov 2024 10:25:33 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.24.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.71",
+      "tag": "@yuants/app-metrics-collector_v0.0.71",
+      "date": "Thu, 24 Oct 2024 19:57:43 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.24.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.70",
+      "tag": "@yuants/app-metrics-collector_v0.0.70",
+      "date": "Wed, 25 Sep 2024 08:29:52 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.16.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.23.4`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.69",
+      "tag": "@yuants/app-metrics-collector_v0.0.69",
+      "date": "Tue, 17 Sep 2024 20:07:02 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.23.3`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.68",
+      "tag": "@yuants/app-metrics-collector_v0.0.68",
+      "date": "Tue, 17 Sep 2024 14:54:15 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.15.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.23.2`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.67",
+      "tag": "@yuants/app-metrics-collector_v0.0.67",
+      "date": "Sun, 15 Sep 2024 14:00:45 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.23.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.66",
+      "tag": "@yuants/app-metrics-collector_v0.0.66",
+      "date": "Sun, 15 Sep 2024 05:36:59 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.23.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.65",
+      "tag": "@yuants/app-metrics-collector_v0.0.65",
+      "date": "Mon, 09 Sep 2024 14:05:59 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.22.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.10`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.64",
+      "tag": "@yuants/app-metrics-collector_v0.0.64",
+      "date": "Sun, 08 Sep 2024 10:16:35 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.22.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.9`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.63",
+      "tag": "@yuants/app-metrics-collector_v0.0.63",
+      "date": "Wed, 04 Sep 2024 12:44:10 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.8`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.62",
+      "tag": "@yuants/app-metrics-collector_v0.0.62",
+      "date": "Fri, 30 Aug 2024 14:29:33 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.7`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.61",
+      "tag": "@yuants/app-metrics-collector_v0.0.61",
+      "date": "Sun, 21 Jul 2024 07:51:05 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.14.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.2`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.60",
+      "tag": "@yuants/app-metrics-collector_v0.0.60",
+      "date": "Sat, 13 Jul 2024 14:49:29 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.13.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.59",
+      "tag": "@yuants/app-metrics-collector_v0.0.59",
+      "date": "Fri, 12 Jul 2024 09:19:54 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.12.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.21.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.58",
+      "tag": "@yuants/app-metrics-collector_v0.0.58",
+      "date": "Fri, 12 Jul 2024 01:50:37 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor because of protocol"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.20.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.6`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.57",
+      "tag": "@yuants/app-metrics-collector_v0.0.57",
+      "date": "Wed, 03 Jul 2024 10:05:02 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.19.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.56",
+      "tag": "@yuants/app-metrics-collector_v0.0.56",
+      "date": "Sun, 30 Jun 2024 11:56:32 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.11.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.19.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.55",
+      "tag": "@yuants/app-metrics-collector_v0.0.55",
+      "date": "Fri, 28 Jun 2024 12:37:38 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.18.2`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.54",
+      "tag": "@yuants/app-metrics-collector_v0.0.54",
+      "date": "Fri, 21 Jun 2024 16:20:19 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.18.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.53",
+      "tag": "@yuants/app-metrics-collector_v0.0.53",
+      "date": "Thu, 20 Jun 2024 09:43:34 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add 5min stablize time window for alerting to pervent false alert"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.18.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.52",
+      "tag": "@yuants/app-metrics-collector_v0.0.52",
+      "date": "Mon, 10 Jun 2024 08:50:50 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.17.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.51",
+      "tag": "@yuants/app-metrics-collector_v0.0.51",
+      "date": "Fri, 07 Jun 2024 19:05:13 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.10.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.16.4`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.50",
+      "tag": "@yuants/app-metrics-collector_v0.0.50",
+      "date": "Wed, 05 Jun 2024 09:35:22 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.10.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.16.3`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.49",
+      "tag": "@yuants/app-metrics-collector_v0.0.49",
+      "date": "Fri, 24 May 2024 18:00:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.10.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.16.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.5`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.48",
+      "tag": "@yuants/app-metrics-collector_v0.0.48",
+      "date": "Thu, 23 May 2024 13:52:31 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.10.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.16.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.47",
+      "tag": "@yuants/app-metrics-collector_v0.0.47",
+      "date": "Wed, 22 May 2024 04:53:53 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.9.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.16.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.46",
+      "tag": "@yuants/app-metrics-collector_v0.0.46",
+      "date": "Thu, 16 May 2024 18:00:51 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.8.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.15.1`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.45",
+      "tag": "@yuants/app-metrics-collector_v0.0.45",
+      "date": "Tue, 23 Apr 2024 16:29:03 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.7.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.15.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.44",
+      "tag": "@yuants/app-metrics-collector_v0.0.44",
+      "date": "Thu, 11 Apr 2024 14:45:56 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.14.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.43",
+      "tag": "@yuants/app-metrics-collector_v0.0.43",
+      "date": "Mon, 08 Apr 2024 11:05:31 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.6.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.13.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.42",
+      "tag": "@yuants/app-metrics-collector_v0.0.42",
+      "date": "Fri, 22 Mar 2024 10:10:02 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.12.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.41",
+      "tag": "@yuants/app-metrics-collector_v0.0.41",
+      "date": "Thu, 22 Feb 2024 18:28:20 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.5.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.11.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.1.4`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.40",
+      "tag": "@yuants/app-metrics-collector_v0.0.40",
+      "date": "Sat, 17 Feb 2024 23:28:07 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.5.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.11.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.39",
+      "tag": "@yuants/app-metrics-collector_v0.0.39",
+      "date": "Sat, 10 Feb 2024 21:26:26 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.4.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.10.3`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.0.38",
+      "tag": "@yuants/app-metrics-collector_v0.0.38",
+      "date": "Wed, 07 Feb 2024 08:31:35 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.3.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.10.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.37",
       "tag": "@yuants/app-metrics-collector_v0.0.37",
       "date": "Fri, 29 Dec 2023 16:44:24 GMT",

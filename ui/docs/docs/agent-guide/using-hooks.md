@@ -248,7 +248,7 @@ export default () => {
   useEffect(() => {
     exchange.submitOrder({
       account_id: accountInfo.account_id,
-      client_order_id: UUID(),
+      order_id: UUID(),
       product_id: 'XAUUSD',
       position_id: positionId,
       type: OrderType.MARKET,
@@ -259,7 +259,7 @@ export default () => {
 };
 ```
 
-- You must specify the account_id, position_id and client_order_id, otherwise the order may not be executed.
+- You must specify the account_id, position_id and order_id, otherwise the order may not be executed.
 - You can list, submit, cancel and modify orders.
 
 ## Custom Parameters

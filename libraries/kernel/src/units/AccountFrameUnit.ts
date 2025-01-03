@@ -30,7 +30,7 @@ export class AccountFrameUnit extends BasicUnit {
   data: IAccountFrame[] = [];
   onEvent(): void | Promise<void> {
     const metric = {
-      timestamp_in_us: this.accountInfoUnit.accountInfo.timestamp_in_us,
+      timestamp_in_us: this.accountInfoUnit.accountInfo.updated_at! * 1000,
       balance: this.accountInfoUnit.accountInfo.money.balance,
       equity: this.accountInfoUnit.accountInfo.money.equity,
       margin: this.accountInfoUnit.accountInfo.money.used,

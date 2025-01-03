@@ -1,6 +1,265 @@
 # Change Log - @yuants/app-agent
 
-This log was last generated on Fri, 29 Dec 2023 16:44:24 GMT and should not be manually modified.
+This log was last generated on Thu, 02 Jan 2025 07:08:15 GMT and should not be manually modified.
+
+## 0.4.76
+Thu, 02 Jan 2025 07:08:15 GMT
+
+### Patches
+
+- upgrade container base image to bookworm for wrtc
+
+## 0.4.75
+Thu, 19 Dec 2024 15:28:50 GMT
+
+_Version update only_
+
+## 0.4.74
+Wed, 04 Dec 2024 09:36:47 GMT
+
+_Version update only_
+
+## 0.4.73
+Wed, 27 Nov 2024 15:48:19 GMT
+
+_Version update only_
+
+## 0.4.72
+Sun, 24 Nov 2024 06:27:35 GMT
+
+_Version update only_
+
+## 0.4.71
+Sun, 24 Nov 2024 05:13:22 GMT
+
+_Version update only_
+
+## 0.4.70
+Sat, 23 Nov 2024 15:55:38 GMT
+
+_Version update only_
+
+## 0.4.69
+Sat, 23 Nov 2024 05:37:50 GMT
+
+_Version update only_
+
+## 0.4.68
+Sat, 16 Nov 2024 06:09:31 GMT
+
+_Version update only_
+
+## 0.4.67
+Sat, 02 Nov 2024 20:35:35 GMT
+
+_Version update only_
+
+## 0.4.66
+Sat, 02 Nov 2024 10:25:33 GMT
+
+_Version update only_
+
+## 0.4.65
+Thu, 31 Oct 2024 21:23:41 GMT
+
+_Version update only_
+
+## 0.4.64
+Thu, 24 Oct 2024 19:57:43 GMT
+
+_Version update only_
+
+## 0.4.63
+Wed, 25 Sep 2024 08:29:52 GMT
+
+_Version update only_
+
+## 0.4.62
+Tue, 17 Sep 2024 20:07:02 GMT
+
+_Version update only_
+
+## 0.4.61
+Tue, 17 Sep 2024 14:54:15 GMT
+
+_Version update only_
+
+## 0.4.60
+Sun, 15 Sep 2024 14:00:45 GMT
+
+_Version update only_
+
+## 0.4.59
+Sun, 15 Sep 2024 05:36:59 GMT
+
+_Version update only_
+
+## 0.4.58
+Mon, 09 Sep 2024 14:05:59 GMT
+
+_Version update only_
+
+## 0.4.57
+Sun, 08 Sep 2024 10:16:35 GMT
+
+_Version update only_
+
+## 0.4.56
+Wed, 04 Sep 2024 12:44:10 GMT
+
+_Version update only_
+
+## 0.4.55
+Fri, 30 Aug 2024 14:29:33 GMT
+
+_Version update only_
+
+## 0.4.54
+Sun, 21 Jul 2024 07:51:05 GMT
+
+_Version update only_
+
+## 0.4.53
+Sat, 13 Jul 2024 14:49:29 GMT
+
+_Version update only_
+
+## 0.4.52
+Fri, 12 Jul 2024 09:19:54 GMT
+
+_Version update only_
+
+## 0.4.51
+Fri, 12 Jul 2024 01:50:37 GMT
+
+_Version update only_
+
+## 0.4.50
+Wed, 03 Jul 2024 10:05:02 GMT
+
+_Version update only_
+
+## 0.4.49
+Sun, 30 Jun 2024 11:56:32 GMT
+
+_Version update only_
+
+## 0.4.48
+Fri, 28 Jun 2024 12:37:38 GMT
+
+_Version update only_
+
+## 0.4.47
+Fri, 21 Jun 2024 16:20:19 GMT
+
+_Version update only_
+
+## 0.4.46
+Thu, 20 Jun 2024 09:43:34 GMT
+
+### Patches
+
+- refactor
+
+## 0.4.45
+Mon, 10 Jun 2024 08:50:50 GMT
+
+_Version update only_
+
+## 0.4.44
+Fri, 07 Jun 2024 19:05:13 GMT
+
+_Version update only_
+
+## 0.4.43
+Wed, 05 Jun 2024 09:35:22 GMT
+
+_Version update only_
+
+## 0.4.42
+Fri, 24 May 2024 18:00:17 GMT
+
+_Version update only_
+
+## 0.4.41
+Thu, 23 May 2024 13:52:31 GMT
+
+_Version update only_
+
+## 0.4.40
+Wed, 22 May 2024 04:53:53 GMT
+
+_Version update only_
+
+## 0.4.39
+Thu, 16 May 2024 18:00:51 GMT
+
+_Version update only_
+
+## 0.4.38
+Tue, 23 Apr 2024 16:29:03 GMT
+
+_Version update only_
+
+## 0.4.37
+Thu, 11 Apr 2024 14:45:56 GMT
+
+_Version update only_
+
+## 0.4.36
+Mon, 08 Apr 2024 11:05:31 GMT
+
+_Version update only_
+
+## 0.4.35
+Fri, 22 Mar 2024 10:10:02 GMT
+
+_Version update only_
+
+## 0.4.34
+Thu, 22 Feb 2024 18:28:20 GMT
+
+_Version update only_
+
+## 0.4.33
+Mon, 19 Feb 2024 09:27:17 GMT
+
+_Version update only_
+
+## 0.4.32
+Sun, 18 Feb 2024 08:29:52 GMT
+
+_Version update only_
+
+## 0.4.31
+Sun, 18 Feb 2024 06:04:51 GMT
+
+_Version update only_
+
+## 0.4.30
+Sun, 18 Feb 2024 02:52:08 GMT
+
+_Version update only_
+
+## 0.4.29
+Sat, 17 Feb 2024 23:28:07 GMT
+
+_Version update only_
+
+## 0.4.28
+Sat, 10 Feb 2024 21:26:26 GMT
+
+_Version update only_
+
+## 0.4.27
+Wed, 07 Feb 2024 08:31:35 GMT
+
+_Version update only_
+
+## 0.4.26
+Fri, 12 Jan 2024 03:29:50 GMT
+
+_Version update only_
 
 ## 0.4.25
 Fri, 29 Dec 2023 16:44:24 GMT

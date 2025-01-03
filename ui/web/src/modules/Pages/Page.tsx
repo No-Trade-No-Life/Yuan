@@ -1,11 +1,11 @@
-import { IconClose, IconRefresh } from '@douyinfe/semi-icons';
-import { Button, ButtonGroup, Space, Typography } from '@douyinfe/semi-ui';
-import { Bug } from '@icon-park/react';
+import { Space, Typography } from '@douyinfe/semi-ui';
+import { formatTime } from '@yuants/data-model';
+import { useObservableState } from 'observable-hooks';
 import React, { useContext, useEffect } from 'react';
-import { Trans, useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next';
 import { executeCommand } from '../CommandCenter';
 import { ErrorBoundary } from './ErrorBoundary';
-import { AvailableComponents } from './model';
+import { AvailableComponents, pageRegistered$ } from './model';
 
 interface IPage {
   id: string;
@@ -17,15 +17,17 @@ interface IPage {
 const PageContext = React.createContext<IPage | null>(null);
 
 export const Page = React.memo((props: { page: IPage }) => {
+  useObservableState(pageRegistered$);
   const { t } = useTranslation('Page');
   const Component = AvailableComponents[props.page.type] || AvailableComponents['NotFound'];
   return (
     <ErrorBoundary
       fallback={({ error, reset }) => {
+        console.error(formatTime(Date.now()), error);
         return (
           <Space vertical>
             <Typography.Title heading={3}>{t('Page:render_error', { message: `${error}` })}</Typography.Title>
-            <Trans t={t} i18nKey={'Page:render_error_hint'} />
+            {/* <Trans t={t} i18nKey={'Page:render_error_hint'} />
             <Typography.Text style={{ whiteSpace: 'pre' }} copyable>
               {error.stack}
             </Typography.Text>
@@ -56,7 +58,7 @@ export const Page = React.memo((props: { page: IPage }) => {
               >
                 {t('common:report_bug')}
               </Button>
-            </ButtonGroup>
+            </ButtonGroup> */}
           </Space>
         );
       }}
