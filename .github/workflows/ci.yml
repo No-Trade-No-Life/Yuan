@@ -38,7 +38,7 @@ jobs:
           node-version: 18.17.0
 
       - name: Cache Rush
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             common/temp/install-run
@@ -46,7 +46,7 @@ jobs:
           key: ${{ runner.os }}-${{ hashFiles('rush.json') }}
 
       - name: Cache Rush Build Cache
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             common/temp/build-cache
@@ -55,7 +55,7 @@ jobs:
             ${{ runner.os }}-rush-build-cache-
 
       - name: Cache pnpm
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             common/temp/pnpm-store

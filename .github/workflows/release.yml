@@ -117,7 +117,7 @@ jobs:
           files: './common/temp/docker-bake.json'
 
       - name: Cache Docker layers
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         id: cache
         if: ${{ steps.check_files.outputs.files_exists == 'true' }}
         with:
