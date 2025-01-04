@@ -21,8 +21,20 @@ export const createKeyPair = (): { public_key: string; private_key: string } => 
  * @public
  */
 export const fromPrivateKey = (privateKey: string): { public_key: string; private_key: string } => {
-  const pair = sign.keyPair.fromSecretKey(bs58.decode(privateKey));
-  return { public_key: bs58.encode(pair.publicKey), private_key: privateKey };
+  const buffer = bs58.decode(privateKey);
+  if (buffer.length !== 64) {
+    throw new Error('Invalid private key: wrong size');
+  }
+  const seed = buffer.slice(0, 32);
+  const pair = sign.keyPair.fromSeed(seed);
+  const public_key = bs58.encode(pair.publicKey);
+  const the_public_key = bs58.encode(buffer.slice(32, 64));
+  if (public_key !== the_public_key) {
+    throw new Error(
+      `Invalid private key: public key mismatch: expected ${public_key}, got ${the_public_key}`,
+    );
+  }
+  return { public_key, private_key: privateKey };
 };
 
 /**
