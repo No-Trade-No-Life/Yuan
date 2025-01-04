@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/utils",
+      "comment": "fromPrivateKey validation",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/utils"
+}
