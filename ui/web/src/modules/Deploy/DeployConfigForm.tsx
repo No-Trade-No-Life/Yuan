@@ -286,11 +286,13 @@ registerPage('DeployConfigForm', () => {
           icon={<IconRefresh />}
         ></Button>
         <Button
-          onClick={async () => {
-            for (const packageName of new Set(manifests.map((v) => v.package))) {
-              await executeCommand('Extension.install', { name: packageName });
-            }
-          }}
+          onClick={() =>
+            Promise.allSettled(
+              [...new Set(manifests.map((v) => v.package))].map((packageName) =>
+                executeCommand('Extension.install', { name: packageName, immediateSubmit: true }),
+              ),
+            )
+          }
         >
           安装/更新全部包
         </Button>

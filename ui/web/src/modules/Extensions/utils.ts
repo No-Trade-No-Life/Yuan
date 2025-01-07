@@ -6,28 +6,54 @@ import { fs } from '../FileSystem/api';
 // @ts-ignore
 import untar from 'js-untar';
 
+export interface INpmPackagePullParams {
+  name: string;
+  registry: string;
+  version?: string;
+  npm_token?: string;
+}
+
+// ISSUE: use cors-proxy to avoid CORS issue
+const mapUrlToCorsProxy = (url: string): string => {
+  const urlObj = new URL('https://makcbuwrvhmfggzvhtux.supabase.co/functions/v1/cors-proxy');
+  urlObj.searchParams.set('url', url);
+  return urlObj.toString();
+};
+
 const PACKAGE_DOWNLOAD_DIR = '/.Y/downloads/packages';
-export const downloadTgz = async (packageName: string, ver?: string) => {
-  const { meta, version } = await resolveVersion(packageName);
-  console.info(formatTime(Date.now()), `downloading extension "${packageName}" (${version})...`);
+export const downloadTgz = async (context: INpmPackagePullParams) => {
+  const { meta, version } = await resolveVersion(context.name, context.version, context);
+  console.info(formatTime(Date.now()), `downloading extension "${context.name}" (${version})...`);
   const tarball_url = meta.versions[version].dist.tarball;
-  const tgz = await fetch(tarball_url).then((x) => x.blob());
+  const tgz = await fetch(
+    mapUrlToCorsProxy(tarball_url),
+    context.npm_token
+      ? {
+          headers: {
+            Authorization: `Bearer ${context.npm_token}`,
+          },
+        }
+      : undefined,
+  ).then((x) => x.blob());
   await fs.ensureDir(PACKAGE_DOWNLOAD_DIR);
   await fs.writeFile(
-    join(PACKAGE_DOWNLOAD_DIR, `${packageName.replace('@', '').replace('/', '-')}-${version}.tgz`),
+    join(PACKAGE_DOWNLOAD_DIR, `${context.name.replace('@', '').replace('/', '-')}-${version}.tgz`),
     tgz,
   );
 };
 
-export const installExtension = async (packageName: string, ver?: string) => {
+export const installExtension = async (packageParams: INpmPackagePullParams) => {
+  const packageName = packageParams.name;
   console.debug(formatTime(Date.now()), `install extension "${packageName}"...`);
-  const version = ver || (await resolveVersion(packageName)).version;
+  const version =
+    packageParams.version ||
+    (await resolveVersion(packageName, packageParams.version, packageParams)).version;
   const tgzFilename = join(
     PACKAGE_DOWNLOAD_DIR,
     `${packageName.replace('@', '').replace('/', '-')}-${version}.tgz`,
   );
   if (!(await fs.exists(tgzFilename))) {
-    await downloadTgz(packageName);
+    await downloadTgz(packageParams);
   }
   await installExtensionFromTgz(tgzFilename);
   console.debug(formatTime(Date.now()), `install extension "${packageName}" successfully`);
@@ -92,6 +118,8 @@ export const loadExtension = async (packageName: string) => {
       ImageTags[packageName] = packageJson.version;
     } else if (await fs.exists(imageTagFilename)) {
       ImageTags[packageName] = await fs.readFile(imageTagFilename);
+    } else {
+      ImageTags[packageName] = packageJson.version;
     }
     const extensionBundleFilename = join(packageDir, 'dist/extension.bundle.js');
     if (await fs.exists(extensionBundleFilename)) {
@@ -171,8 +199,18 @@ function getPackageDir(packageName: string) {
   return join('/.Y/extensions', packageName.replace('@', '').replace('/', '-'));
 }
 
-export async function resolveVersion(packageName: string, ver?: string) {
-  const meta = await fetch(`https://registry.npmjs.org/${packageName}`).then((x) => x.json());
+export async function resolveVersion(packageName: string, ver?: string, context?: INpmPackagePullParams) {
+  const registry = context?.registry || 'https://registry.npmjs.org';
+  const meta = await fetch(
+    mapUrlToCorsProxy(`${registry}/${packageName}`),
+    context?.npm_token
+      ? {
+          headers: {
+            Authorization: `Bearer ${context.npm_token}`,
+          },
+        }
+      : undefined,
+  ).then((x) => x.json());
   const version: string = ver || meta['dist-tags'].latest;
   return { meta, version };
 }

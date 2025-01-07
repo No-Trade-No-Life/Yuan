@@ -46,9 +46,25 @@ export default Form;
  * @param initialData - Initial data to be filled in the form
  * @returns Promise of user input data
  */
-export const showForm = <T>(schema: JSONSchema7, initialData?: any): Promise<T> => {
+export const showForm = <T>(
+  schema: JSONSchema7,
+  initialData?: any,
+  options?: {
+    /**
+     * Whether to submit the form immediately if the initial data is valid.
+     * if set to true, the form will be submitted immediately without showing the form.
+     * if initial data is invalid, the form will be shown as usual.
+     */
+    immediateSubmit?: boolean;
+  },
+): Promise<T> => {
   // Open a confirm modal for boolean type
   if (schema.type === 'boolean') {
+    if (options?.immediateSubmit) {
+      if (typeof initialData === 'boolean') {
+        return Promise.resolve<any>(initialData);
+      }
+    }
     return new Promise<any>((resolve, reject) => {
       // boolean form is usually used for confirmation
       // but for different situations, we need to use different okText and cancelText
@@ -73,6 +89,14 @@ export const showForm = <T>(schema: JSONSchema7, initialData?: any): Promise<T> 
   }
 
   return new Promise<T>((resolve, reject) => {
+    if (options?.immediateSubmit) {
+      const ajv = new Ajv({ strictSchema: false });
+      if (ajv.validate(schema, initialData)) {
+        resolve(initialData);
+        return;
+      }
+      Toast.error(ajv.errorsText());
+    }
     let data = initialData;
     let modal: ReturnType<typeof Modal.info> | undefined;
     function getProps(): ModalReactProps {
