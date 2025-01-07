@@ -29,7 +29,12 @@ export const ExtensionItem = (props: { instance: IActiveExtensionInstance }) => 
           {versionInfo?.version && versionInfo.version !== instance.packageJson.version && (
             <Button
               icon={<IconArrowUp />}
-              onClick={() => executeCommand('Extension.install', { name: instance.packageJson.name })}
+              onClick={() =>
+                executeCommand('Extension.install', {
+                  name: instance.packageJson.name,
+                  immediateSubmit: true,
+                })
+              }
             >
               {t('upgrade')} ({versionInfo.version})
             </Button>

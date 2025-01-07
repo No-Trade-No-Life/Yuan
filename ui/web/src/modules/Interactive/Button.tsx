@@ -10,7 +10,7 @@ import React, { useState } from 'react';
  * - We need to know whether the backend click event is processing or not.
  */
 export const Button = React.memo(
-  (props: Omit<ButtonProps, 'onClick' | 'loading'> & { onClick: () => Promise<void> }) => {
+  (props: Omit<ButtonProps, 'onClick' | 'loading'> & { onClick: () => Promise<any> }) => {
     const [isLoading, setLoading] = useState(false);
     return (
       <SemiButton
