@@ -1,4 +1,4 @@
-import { getDataRecordWrapper, IPeriod, IProduct, UUID } from '@yuants/data-model';
+import { formatTime, getDataRecordWrapper, IPeriod, IProduct, UUID } from '@yuants/data-model';
 import { providePeriods, Terminal, writeDataRecords } from '@yuants/protocol';
 import {
   catchError,
@@ -8,8 +8,8 @@ import {
   EMPTY,
   filter,
   first,
+  firstValueFrom,
   from,
-  interval,
   map,
   mergeMap,
   Observable,
@@ -89,7 +89,7 @@ const queryChart = (product_id: string, period_in_sec: number, periods_length: n
               product_id,
               period_in_sec,
               timestamp_in_us: record.datetime / 1e3,
-              start_at: record.datetime,
+              start_at: record.datetime / 1e6,
               open: record.open,
               high: record.high,
               low: record.low,
@@ -301,32 +301,38 @@ terminal.provideService(
       },
     },
   },
-  (data, output$) =>
-    //
-    {
-      if (data.req.tags?.product_id === undefined || data.req.tags?.period_in_sec === undefined) {
-        return of({ res: { code: 400, message: 'product_id or period_in_sec is required' } });
-      }
-      const sub = interval(5000).subscribe(() => {
-        output$.next({});
-      });
-      return queryChart(
-        data.req.tags.product_id!,
-        +data.req.tags.period_in_sec!,
-        calcNumPeriods(data.req.time_range?.[0] ?? 0, +data.req.tags.period_in_sec!),
-      ).pipe(
-        //
-        map((periods) => periods.filter((v) => v.start_at! >= (data.req?.time_range?.[0] ?? 0))),
-        delayWhen((periods) =>
-          from(writeDataRecords(terminal, periods.map(getDataRecordWrapper('period')!))),
-        ),
-        tap({
-          finalize: () => {
-            sub.unsubscribe();
-          },
-        }),
-        map(() => ({ res: { code: 0, message: 'OK' } })),
-      );
-    },
+  async (data) => {
+    console.info(formatTime(Date.now()), 'CopyDataRecords', 'start', JSON.stringify(data.req));
+    if (data.req.tags?.product_id === undefined || data.req.tags?.period_in_sec === undefined) {
+      return { res: { code: 400, message: 'product_id or period_in_sec is required' } };
+    }
+
+    const product_id = data.req.tags.product_id!;
+    const period_in_sec = +data.req.tags.period_in_sec!;
+    const klines = calcNumPeriods(data.req.time_range?.[0] ?? 0, +data.req.tags.period_in_sec!);
+    console.info(
+      formatTime(Date.now()),
+      'CopyDataRecords',
+      'product_id',
+      product_id,
+      'period_in_sec',
+      period_in_sec,
+      'klines',
+      klines,
+    );
+    let periods = await firstValueFrom(queryChart(product_id, period_in_sec, klines));
+
+    console.info(formatTime(Date.now()), 'Periods', JSON.stringify(periods[0]), periods.length);
+
+    periods = periods.filter((v) => v.start_at! >= (data.req?.time_range?.[0] ?? 0));
+
+    console.info(formatTime(Date.now()), 'Periods', JSON.stringify(periods[0]), periods.length);
+
+    await writeDataRecords(terminal, periods.map(getDataRecordWrapper('period')!));
+
+    console.info(formatTime(Date.now()), 'CopyDataRecords', 'end', JSON.stringify(data.req));
+
+    return { res: { code: 0, message: 'OK' } };
+  },
   { concurrent: CONCURRENCY },
 );
