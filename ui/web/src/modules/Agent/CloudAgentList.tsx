@@ -13,7 +13,6 @@ import i18n from '../Locale/i18n';
 import { registerPage } from '../Pages';
 import { supabase } from '../SupaBase';
 import { ensureAuthenticated } from '../User';
-import { secretURL } from '../Workbench/HostList';
 import { agentConf$ } from './AgentConfForm';
 import { bundleCode } from './utils';
 
@@ -63,7 +62,7 @@ registerPage('CloudAgentList', () => {
           {
             title: 'Host URL',
             render: (_, v) => (
-              <Typography.Text copyable={{ content: v.host_url }}>{secretURL(v.host_url)}</Typography.Text>
+              <Typography.Text copyable={{ content: v.host_url }}>{v.host_url}</Typography.Text>
             ),
           },
           {
