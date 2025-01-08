@@ -555,6 +555,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/app-openai",
+      "projectFolder": "apps/app-openai",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/app-metrics-collector",
       "projectFolder": "apps/metrics-collector",
 
