@@ -7,7 +7,7 @@ export default (context: IExtensionContext) => {
       properties: {
         env: {
           type: 'object',
-          required: ['HOST_URL', 'OPENAI_API_KEY'],
+          required: ['HOST_URL', 'OPENAI_API_KEY', 'MODELS'],
           properties: {
             HOST_URL: {
               type: 'string',
@@ -16,6 +16,11 @@ export default (context: IExtensionContext) => {
             OPENAI_API_KEY: {
               type: 'string',
               title: 'OpenAI API Key',
+            },
+            MODELS: {
+              type: 'string',
+              title: '可用模型',
+              description: '逗号分隔',
             },
           },
         },
