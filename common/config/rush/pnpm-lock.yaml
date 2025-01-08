@@ -1205,6 +1205,39 @@ importers:
       '@yuants/tool-kit': link:../../tools/toolkit
       typescript: 4.7.4
 
+  ../../apps/vendor-trading-view:
+    specifiers:
+      '@mathieuc/tradingview': ~3.4.2
+      '@microsoft/api-extractor': ~7.30.0
+      '@rushstack/heft': ~0.47.5
+      '@rushstack/heft-jest-plugin': ~0.3.30
+      '@rushstack/heft-node-rig': ~1.10.7
+      '@types/heft-jest': 1.0.3
+      '@types/json-schema': ~7.0.11
+      '@types/node': '18'
+      '@yuants/data-model': workspace:*
+      '@yuants/extension': workspace:*
+      '@yuants/protocol': workspace:*
+      '@yuants/tool-kit': workspace:*
+      rxjs: ~7.5.6
+      typescript: ~4.7.4
+    dependencies:
+      '@mathieuc/tradingview': 3.4.6
+      '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/protocol': link:../../libraries/protocol
+      rxjs: 7.5.7
+    devDependencies:
+      '@microsoft/api-extractor': 7.30.1
+      '@rushstack/heft': 0.47.11
+      '@rushstack/heft-jest-plugin': 0.3.45_@rushstack+heft@0.47.11
+      '@rushstack/heft-node-rig': 1.10.13_@rushstack+heft@0.47.11
+      '@types/heft-jest': 1.0.3
+      '@types/json-schema': 7.0.15
+      '@types/node': 18.17.12
+      '@yuants/extension': link:../../libraries/extension
+      '@yuants/tool-kit': link:../../tools/toolkit
+      typescript: 4.7.4
+
   ../../distributions/origin:
     specifiers:
       '@douyinfe/semi-ui': ~2.16.0
@@ -6998,6 +7031,19 @@ packages:
 
   /@leichtgewicht/ip-codec/2.0.4:
     resolution: {integrity: sha512-Hcv+nVC0kZnQ3tD9GVu5xSMR4VVYOteQIr/hwFPVEvPdlXqgGEuRjiheChHgdM+JyqdgNcmzZOX/tnl0JOiI7A==}
+    dev: false
+
+  /@mathieuc/tradingview/3.4.6:
+    resolution: {integrity: sha512-BIuMd3ZDCmmjJ+eSTHeRT3MTFmpttwLP/kmrXm1A3X8x3GnuojUr4Hxf2pnPmHLwwO3LerOrZ9m5q0cGu+YXIQ==}
+    engines: {node: '>=14.0.0'}
+    dependencies:
+      axios: 1.6.2
+      jszip: 3.8.0
+      ws: 7.5.9
+    transitivePeerDependencies:
+      - bufferutil
+      - debug
+      - utf-8-validate
     dev: false
 
   /@mdx-js/mdx/1.6.22:
