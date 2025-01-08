@@ -596,6 +596,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/vendor-trading-view",
+      "projectFolder": "apps/vendor-trading-view",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/vendor-deepcoin",
       "projectFolder": "apps/vendor-deepcoin",
       "shouldPublish": true
