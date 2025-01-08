@@ -24,19 +24,17 @@ import copy from 'copy-to-clipboard';
 import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
 import { useObservableState } from 'observable-hooks';
-import { memo, useMemo } from 'react';
+import { useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { bufferTime, combineLatest, from, map, of, shareReplay, switchMap } from 'rxjs';
+import { createPersistBehaviorSubject } from '../BIOS';
 import { executeCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import { showForm } from '../Form';
-import { ISharedHost, shareHosts$ } from '../Host/model';
 import { DataView } from '../Interactive';
 import { registerPage } from '../Pages';
-import { authState$ } from '../SupaBase';
 import { terminal$ } from '../Terminals';
 import { IHostConfigItem, currentHostConfig$, hostConfigList$ } from './model';
-import { createPersistBehaviorSubject } from '../BIOS';
 
 const configSchema = (): JSONSchema7 => ({
   type: 'object',
@@ -51,16 +49,6 @@ const configSchema = (): JSONSchema7 => ({
     host_url: { type: 'string', title: t('HostList:host_url'), description: t('HostList:host_url_note') },
   },
 });
-
-export const secretURL = (url: string) => {
-  try {
-    const theUrl = new URL(url);
-    theUrl.searchParams.set('host_token', '******');
-    return theUrl.toString();
-  } catch (e) {
-    return url;
-  }
-};
 
 interface ICryptoHostConfig {
   label: string;
@@ -89,64 +77,14 @@ export const network$ = terminal$.pipe(
   shareReplay(1),
 );
 
-const HostUrl = memo((props: { host_url: string }) => {
-  return (
-    <Typography.Text copyable={{ content: props.host_url }}>{secretURL(props.host_url)}</Typography.Text>
-  );
-});
-
 registerPage('HostList', () => {
   const configs = useObservableState(hostConfigList$, []) || [];
   const { t } = useTranslation('HostList');
-  const auth = useObservableState(authState$);
   const HOST_CONFIG = '/hosts.json';
   const config = useObservableState(currentHostConfig$);
   const terminal = useObservableState(terminal$);
 
   const network = useObservableState(network$, ['0.0', '0.0'] as [string, string]);
-
-  const sharedHosts = useObservableState(shareHosts$, []);
-
-  const columnsOfSharedHost = useMemo(() => {
-    const columnHelper = createColumnHelper<ISharedHost>();
-    return [
-      columnHelper.accessor('host_url', {
-        header: () => <Trans i18nKey="HostList:host_url" />,
-        cell: (ctx) => <HostUrl host_url={ctx.getValue()} />,
-      }),
-      columnHelper.display({
-        id: 'actions',
-        header: () => <Trans i18nKey="common:actions" />,
-        cell: (ctx) => {
-          const host = ctx.row.original;
-          return (
-            <Space>
-              <Button
-                icon={<IconLink />}
-                onClick={() => {
-                  currentHostConfig$.next({
-                    name: `SharedHost-${configs.length}`,
-                    host_url: `wss://api.ntnl.io/hosts?host_id=${host.id}&host_token=${host.host_token}`,
-                  });
-                }}
-              >
-                {t('connect')}
-              </Button>
-              <Button
-                type="danger"
-                icon={<IconDelete />}
-                onClick={() => {
-                  executeCommand('SharedHost.Delete', { host_id: host.id });
-                }}
-              >
-                {t('common:delete')}
-              </Button>
-            </Space>
-          );
-        },
-      }),
-    ];
-  }, []);
 
   const columnsOfCryptoHost = useMemo(() => {
     const columnHelper = createColumnHelper<ICryptoHostConfig>();
@@ -156,7 +94,9 @@ registerPage('HostList', () => {
       columnHelper.accessor('private_key', { header: 'Private Key' }),
       columnHelper.accessor('host_url', {
         header: () => <Trans i18nKey="HostList:host_url" />,
-        cell: (ctx) => <HostUrl host_url={ctx.getValue()} />,
+        cell: (ctx) => (
+          <Typography.Text copyable={{ content: ctx.getValue() }}>{ctx.getValue()}</Typography.Text>
+        ),
       }),
       columnHelper.display({
         id: 'actions',
@@ -201,7 +141,7 @@ registerPage('HostList', () => {
         header: () => <Trans i18nKey="HostList:host_url" />,
         cell: (ctx) => {
           const config = ctx.row.original;
-          return <HostUrl host_url={config.host_url} />;
+          return <Typography.Text copyable={{ content: config.host_url }}>{config.host_url}</Typography.Text>;
         },
       }),
       columnHelper.display({
@@ -270,12 +210,6 @@ registerPage('HostList', () => {
     ];
   }, []);
 
-  const tableOfSharedHost = useReactTable({
-    columns: columnsOfSharedHost,
-    data: sharedHosts,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
   const cryptoHosts = useObservableState(cryptoHosts$) || [];
 
   const tableOfCryptoHost = useReactTable({
@@ -315,9 +249,7 @@ registerPage('HostList', () => {
               {
                 key: t('host_url'),
                 value: (
-                  <Typography.Text copyable={{ content: config.host_url }}>
-                    {secretURL(config.host_url)}
-                  </Typography.Text>
+                  <Typography.Text copyable={{ content: config.host_url }}>{config.host_url}</Typography.Text>
                 ),
               },
               {
@@ -341,23 +273,6 @@ registerPage('HostList', () => {
         </Card>
       )}
 
-      {auth && (
-        <>
-          <Typography.Title heading={5}>{t('shared_hosts')}</Typography.Title>
-          <Space>
-            <Button
-              icon={<IconPlus />}
-              disabled={!auth}
-              onClick={async () => {
-                executeCommand('SharedHost.New');
-              }}
-            >
-              {t('new_shared_host')}
-            </Button>
-          </Space>
-          <DataView table={tableOfSharedHost} />
-        </>
-      )}
       {
         <>
           <Typography.Title heading={5}>Crypto Hosts</Typography.Title>
