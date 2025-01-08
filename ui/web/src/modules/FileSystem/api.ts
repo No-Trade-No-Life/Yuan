@@ -8,7 +8,11 @@ export const FsBackend$ = new ReplaySubject<IFileSystemBackend>(1);
 FsBackend$.subscribe(() => {
   fetch('/ui-web.generated.d.ts')
     .then((res) => res.text())
-    .then((content) => fs.writeFile('/ui-web.generated.d.ts', content));
+    .then(async (content) => {
+      // ISSUE: 写入到 node_modules/@yuants/ui-web/index.d.ts
+      await fs.ensureDir('/node_modules/@yuants/ui-web');
+      await fs.writeFile('/node_modules/@yuants/ui-web/index.d.ts', content);
+    });
 });
 
 const ensureDir = async (path: string): Promise<void> => {
