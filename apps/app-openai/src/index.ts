@@ -75,7 +75,6 @@ terminal.provideService(
       const lines = chunk.split('\n').filter((line) => line.trim() !== '');
 
       for (const line of lines) {
-        console.info(formatTime(Date.now()), 'Received:', line);
         const message = line.replace(/^data: /, '');
         if (message === '[DONE]') {
           break;
