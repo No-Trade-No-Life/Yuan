@@ -47,7 +47,8 @@
     "@yuants/vendor-solana",
     "@yuants/vendor-huobi",
     "@yuants/vendor-gate",
-    "@yuants/vendor-ctp"
+    "@yuants/vendor-ctp",
+    "@yuants/vendor-tq"
   ],
   /**
    * When deploying a local Rush project, the package.json "devDependencies" are normally excluded.

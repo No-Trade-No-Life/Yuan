@@ -1,0 +1,98 @@
+# Change Log - @yuants/vendor-tq
+
+This log was last generated on Thu, 04 Jul 2024 15:39:19 GMT and should not be manually modified.
+
+## 0.0.13
+Thu, 04 Jul 2024 15:39:19 GMT
+
+### Patches
+
+- apply for data-model refactor
+- renovate: update dependencies
+
+## 0.0.12
+Tue, 11 Jun 2024 10:24:38 GMT
+
+### Patches
+
+- skip data before time range
+
+## 0.0.11
+Mon, 10 Jun 2024 18:56:48 GMT
+
+### Patches
+
+- renovate: update dependencies
+
+## 0.0.10
+Sat, 27 Apr 2024 11:03:24 GMT
+
+### Patches
+
+- renovate: update dependencies
+
+## 0.0.9
+Thu, 07 Mar 2024 08:39:58 GMT
+
+### Patches
+
+- renovate: update dependencies
+
+## 0.0.8
+Mon, 19 Feb 2024 16:20:49 GMT
+
+### Patches
+
+- renovate: update dependencies
+- renovate: update dependencies
+
+## 0.0.7
+Sun, 04 Feb 2024 15:45:57 GMT
+
+### Patches
+
+- Load Balance
+
+## 0.0.6
+Mon, 08 Jan 2024 13:52:27 GMT
+
+### Patches
+
+- renovate: update dependencies
+
+## 0.0.5
+Thu, 21 Dec 2023 20:44:17 GMT
+
+### Patches
+
+- renovate: update dependencies
+
+## 0.0.4
+Thu, 21 Dec 2023 07:48:36 GMT
+
+### Patches
+
+- chore: revert tq endpoint
+
+## 0.0.3
+Mon, 11 Dec 2023 20:01:27 GMT
+
+### Patches
+
+- remove period_stream
+- upgrade dependencies: '@yuants/protocol' to 0.9.3
+
+## 0.0.2
+Sun, 10 Dec 2023 16:19:55 GMT
+
+### Patches
+
+- upgrade dependencies
+
+## 0.0.1
+Sat, 09 Dec 2023 21:48:38 GMT
+
+### Patches
+
+- upgrade protocol
+
