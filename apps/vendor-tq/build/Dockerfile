@@ -17,7 +17,7 @@ USER node
 
 WORKDIR /app
 
-COPY --chown=node:node ./out/app-vendor-tq-out /app
+COPY --chown=node:node ./out/vendor-tq-out /app
 
 RUN node create-links.js create
 
