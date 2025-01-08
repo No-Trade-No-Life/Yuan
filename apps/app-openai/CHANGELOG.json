@@ -1,0 +1,25 @@
+{
+  "name": "@yuants/app-openai",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/app-openai_v0.0.1",
+      "date": "Wed, 08 Jan 2025 19:37:36 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "new package"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.27.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.12`"
+          }
+        ]
+      }
+    }
+  ]
+}

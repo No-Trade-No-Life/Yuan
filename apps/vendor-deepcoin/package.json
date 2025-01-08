@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-deepcoin",
-  "version": "0.0.43",
+  "version": "0.0.44",
   "homepage": "https://github.com/No-Trade-No-Life/Yuan/tree/main/apps/vendor-deepcoin",
   "main": "lib/index.js",
   "module": "dist/index.js",
