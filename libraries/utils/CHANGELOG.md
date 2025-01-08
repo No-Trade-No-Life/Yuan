@@ -1,6 +1,13 @@
 # Change Log - @yuants/utils
 
-This log was last generated on Thu, 19 Dec 2024 15:28:50 GMT and should not be manually modified.
+This log was last generated on Wed, 08 Jan 2025 19:37:36 GMT and should not be manually modified.
+
+## 0.3.3
+Wed, 08 Jan 2025 19:37:36 GMT
+
+### Patches
+
+- fromPrivateKey validation
 
 ## 0.3.2
 Thu, 19 Dec 2024 15:28:50 GMT

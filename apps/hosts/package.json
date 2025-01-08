@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-hosts",
-  "version": "0.1.32",
+  "version": "0.1.33",
   "description": "Hosts",
   "files": [
     "dist",

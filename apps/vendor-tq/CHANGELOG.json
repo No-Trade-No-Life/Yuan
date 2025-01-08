@@ -2,6 +2,29 @@
   "name": "@yuants/vendor-tq",
   "entries": [
     {
+      "version": "0.0.14",
+      "tag": "@yuants/vendor-tq_v0.0.14",
+      "date": "Wed, 08 Jan 2025 19:37:36 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "public"
+          },
+          {
+            "comment": "fix bug"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.27.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.12`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.13",
       "tag": "@yuants/vendor-tq_v0.0.13",
       "date": "Thu, 04 Jul 2024 15:39:19 GMT",
