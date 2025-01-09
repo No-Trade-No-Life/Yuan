@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-tq",
   "entries": [
     {
+      "version": "0.0.15",
+      "tag": "@yuants/vendor-tq_v0.0.15",
+      "date": "Thu, 09 Jan 2025 12:21:05 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix manifest"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.14",
       "tag": "@yuants/vendor-tq_v0.0.14",
       "date": "Wed, 08 Jan 2025 19:37:36 GMT",
