@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-tq
 
-This log was last generated on Wed, 08 Jan 2025 19:37:36 GMT and should not be manually modified.
+This log was last generated on Thu, 09 Jan 2025 12:21:05 GMT and should not be manually modified.
+
+## 0.0.15
+Thu, 09 Jan 2025 12:21:05 GMT
+
+### Patches
+
+- fix manifest
 
 ## 0.0.14
 Wed, 08 Jan 2025 19:37:36 GMT
