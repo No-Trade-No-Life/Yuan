@@ -1,6 +1,6 @@
 import { IExtensionContext, makeDockerEnvs, makeK8sEnvs } from '@yuants/extension';
 export default (context: IExtensionContext) => {
-  const COMPONENT_NAME = 'app-vendor-tq';
+  const COMPONENT_NAME = 'vendor-tq';
 
   context.registerDeployProvider({
     make_json_schema: () => ({
