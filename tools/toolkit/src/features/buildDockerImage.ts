@@ -24,7 +24,7 @@ export const buildDockerImage = async () => {
   const rushJsonFolder = rushConfiguration.rushJsonFolder;
   const commonTempFolder = rushConfiguration.commonTempFolder;
 
-  const trimmedPackageName = packageName.replace('@yuants/', '');
+  const trimmedPackageName = packageName.replace(/@([a-z0-9-~][a-z0-9-._~]*)\//, '');
   const outBakeFile = path.resolve(commonTempFolder, `docker-bake-${trimmedPackageName}.json`);
 
   const outTagFile = path.resolve(thisProject.projectFolder, `temp/image-tag`);
@@ -124,7 +124,7 @@ export const buildDockerImage = async () => {
             `build ${registry}/${namespace}/${trimmedPackageName}:${version} anyway`,
           );
         }
-        console.info(new Date(), `collecting artifacts for ${packageName}`);
+        console.info(new Date(), `collecting artifacts for ${packageName} at ${absArtifactDir}`);
         execSync(
           `node ${path.resolve(
             rushJsonFolder,
