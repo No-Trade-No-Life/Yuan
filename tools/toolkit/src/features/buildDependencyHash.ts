@@ -27,7 +27,7 @@ export const buildDependencyHash = async () => {
   const rushJsonFolder = rushConfiguration.rushJsonFolder;
   const commonTempFolder = rushConfiguration.commonTempFolder;
 
-  const trimmedPackageName = packageName.replace('@yuants/', '');
+  const trimmedPackageName = packageName.replace(/@\w+\//, '');
 
   const outTagFile = path.resolve(thisProject.projectFolder, `temp/image-tag`);
   const absArtifactDir = path.resolve(commonTempFolder, `out/${trimmedPackageName}-out`);
