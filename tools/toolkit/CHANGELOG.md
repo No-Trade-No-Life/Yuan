@@ -1,6 +1,13 @@
 # Change Log - @yuants/tool-kit
 
-This log was last generated on Mon, 13 Jan 2025 15:36:19 GMT and should not be manually modified.
+This log was last generated on Mon, 13 Jan 2025 17:14:27 GMT and should not be manually modified.
+
+## 0.1.8
+Mon, 13 Jan 2025 17:14:27 GMT
+
+### Patches
+
+- fix npm scop regex for docker build
 
 ## 0.1.7
 Mon, 13 Jan 2025 15:36:19 GMT
