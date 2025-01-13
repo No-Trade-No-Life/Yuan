@@ -27,7 +27,7 @@ export const buildDependencyHash = async () => {
   const rushJsonFolder = rushConfiguration.rushJsonFolder;
   const commonTempFolder = rushConfiguration.commonTempFolder;
 
-  const trimmedPackageName = packageName.replace(/@\w+\//, '');
+  const trimmedPackageName = packageName.replace(/@([a-z0-9-~][a-z0-9-._~]*)\//, '');
 
   const outTagFile = path.resolve(thisProject.projectFolder, `temp/image-tag`);
   const absArtifactDir = path.resolve(commonTempFolder, `out/${trimmedPackageName}-out`);
