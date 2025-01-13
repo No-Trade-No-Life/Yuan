@@ -1,6 +1,13 @@
 # Change Log - @yuants/tool-kit
 
-This log was last generated on Mon, 13 Jan 2025 14:31:04 GMT and should not be manually modified.
+This log was last generated on Mon, 13 Jan 2025 15:36:19 GMT and should not be manually modified.
+
+## 0.1.7
+Mon, 13 Jan 2025 15:36:19 GMT
+
+### Patches
+
+- fix(tool-kit): match npm scope
 
 ## 0.1.6
 Mon, 13 Jan 2025 14:31:04 GMT
