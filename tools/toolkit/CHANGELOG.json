@@ -2,6 +2,23 @@
   "name": "@yuants/tool-kit",
   "entries": [
     {
+      "version": "0.1.7",
+      "tag": "@yuants/tool-kit_v0.1.7",
+      "date": "Mon, 13 Jan 2025 15:36:19 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix(tool-kit): match npm scope"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.6",
       "tag": "@yuants/tool-kit_v0.1.6",
       "date": "Mon, 13 Jan 2025 14:31:04 GMT",
