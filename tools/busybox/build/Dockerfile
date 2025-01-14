@@ -11,6 +11,8 @@ ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
 RUN chmod a+x /tini
 ENTRYPOINT ["/tini", "--"]
 
+RUN apt update && apt install -y vim curl dnsutils
+
 USER node
 
 WORKDIR /app
