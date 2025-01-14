@@ -111,14 +111,12 @@ registerPage('ManifestList', () => {
     ];
   }, []);
 
-  const table = useReactTable({ columns, data, getCoreRowModel: getCoreRowModel() });
-
   return (
     <Space vertical align="start">
       <Space>
         <Button icon={<IconRefresh />} onClick={() => executeCommand('Manifest.Load')}></Button>
       </Space>
-      <DataView table={table} />
+      <DataView columns={columns} data={data} />
     </Space>
   );
 });

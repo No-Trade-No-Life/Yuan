@@ -1,5 +1,5 @@
 import { Typography } from '@douyinfe/semi-ui';
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { createColumnHelper } from '@tanstack/react-table';
 import { formatTime } from '@yuants/data-model';
 import { ITerminalInfo } from '@yuants/protocol';
 import { formatDuration, intervalToDuration } from 'date-fns';
@@ -86,7 +86,5 @@ registerPage('TerminalList', () => {
     return columns;
   }, []);
 
-  const table = useReactTable({ columns, data: terminals, getCoreRowModel: getCoreRowModel() });
-
-  return <DataView table={table} />;
+  return <DataView columns={columns} data={terminals} />;
 });
