@@ -1,12 +1,15 @@
 import * as rushLib from '@microsoft/rush-lib';
 import Axios from 'axios';
-import { execSync } from 'child_process';
+import { execSync, spawn } from 'child_process';
 import * as fs from 'fs-extra';
 import * as path from 'path';
 import { filter, from, map, mergeMap, tap } from 'rxjs';
 
 export const buildDockerImage = async () => {
-  if (!(await fs.exists(path.resolve(process.cwd(), 'build/Dockerfile')))) return;
+  if (!(await fs.exists(path.resolve(process.cwd(), 'build/Dockerfile')))) {
+    console.info(new Date(), 'no Dockerfile found, skip building docker image');
+    return;
+  }
 
   const packageJson = await fs.readJson(path.resolve(process.cwd(), 'package.json'));
   const packageName = packageJson.name;
@@ -37,6 +40,8 @@ export const buildDockerImage = async () => {
     }
   };
 
+  console.info(new Date(), `building docker image for ${packageName} at ${absArtifactDir}`);
+
   ensureDirSync(absArtifactDir);
   ensureDirSync(path.dirname(outTagFile));
 
@@ -47,11 +52,13 @@ export const buildDockerImage = async () => {
       .toString()
       .trim();
 
+  console.info(new Date(), `image tag: ${imageTag}`);
+
   fs.writeFileSync(outTagFile, imageTag);
 
   const registry = process.env.REGISTRY ?? 'ghcr.io';
   const namespace = process.env.REGISTRY_NAMESPACE ?? 'no-trade-no-life';
-  const version = process.env.VERSION ? packageJson.version : imageTag;
+  const version = process.env.VERSION ?? packageJson.version;
   const auth: { username: string; password: string } | undefined =
     process.env.REGISTRY_USERNAME && process.env.REGISTRY_PASSWORD
       ? {
@@ -60,6 +67,9 @@ export const buildDockerImage = async () => {
         }
       : undefined;
 
+  console.info(new Date(), `registry: ${registry}, username: ${auth?.username}, namespace: ${namespace}`);
+
+  console.info(new Date(), `checking image ${registry}/${namespace}/${trimmedPackageName}:${version}`);
   /// check if image exists
   // https://docs.docker.com/registry/spec/auth/token/
   from(
@@ -131,6 +141,8 @@ export const buildDockerImage = async () => {
           )} deploy --project ${packageName} --target ${absArtifactDir} --overwrite`,
         );
 
+        console.info(new Date(), `preparing docker-bake.json for ${packageName} at ${outBakeFile}`);
+
         /// Prepare docker-bake.json
         const packageJson = require(path.resolve(thisProject.projectFolder, 'package.json'));
 
@@ -175,6 +187,7 @@ export const buildDockerImage = async () => {
         // for CI run, we compose a single docker-bake file, and let the CI do the work
         // else we build docker image
         if ((process.env.CI_RUN ?? 'false') === 'true') {
+          console.info(new Date(), `CI_RUN=true, skip building docker image, compose docker-bake.json only`);
           const uniOutBakeFile = path.resolve(rushJsonFolder, `common/temp/docker-bake.json`);
           if (fs.existsSync(uniOutBakeFile)) {
             const content = JSON.parse(fs.readFileSync(uniOutBakeFile).toString());
@@ -188,8 +201,18 @@ export const buildDockerImage = async () => {
             fs.writeFileSync(uniOutBakeFile, JSON.stringify({ target, group }, undefined, 2));
           }
         } else {
+          console.info(new Date(), `building docker image for ${packageName} at ${absArtifactDir}`);
           fs.writeFileSync(outBakeFile, JSON.stringify({ target, group }, undefined, 2));
-          execSync(`docker buildx bake -f ${outBakeFile}`, { stdio: 'ignore' });
+          // const output = execSync(`docker buildx bake -f ${outBakeFile}`, { stdio: 'pipe' });
+          const child = spawn('docker', ['buildx', 'bake', '-f', outBakeFile], {
+            stdio: 'pipe',
+          })
+            .on('close', (code) => {
+              console.info(new Date(), `docker buildx bake exited with code ${code}`);
+            })
+            .stderr.on('data', (data) => {
+              process.stdout.write(data);
+            });
         }
       },
     });

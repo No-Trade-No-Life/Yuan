@@ -1592,6 +1592,41 @@ importers:
       '@yuants/tool-kit': link:../../tools/toolkit
       typescript: 4.7.4
 
+  ../../tools/busybox:
+    specifiers:
+      '@microsoft/api-extractor': ~7.30.0
+      '@rushstack/heft': ~0.47.5
+      '@rushstack/heft-jest-plugin': ~0.3.30
+      '@rushstack/heft-node-rig': ~1.10.7
+      '@types/heft-jest': 1.0.3
+      '@types/node': '18'
+      '@yuants/data-model': workspace:*
+      '@yuants/extension': workspace:*
+      '@yuants/protocol': workspace:*
+      '@yuants/tool-kit': workspace:*
+      '@yuants/utils': workspace:*
+      crypto-js: ^4.2.0
+      rxjs: ~7.5.6
+      ts-node: ~10.9.2
+      typescript: ~4.7.4
+    dependencies:
+      '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/utils': link:../../libraries/utils
+      crypto-js: 4.2.0
+      rxjs: 7.5.7
+    devDependencies:
+      '@microsoft/api-extractor': 7.30.1
+      '@rushstack/heft': 0.47.11
+      '@rushstack/heft-jest-plugin': 0.3.45_154bfccaf757d04bbe52f933b349182c
+      '@rushstack/heft-node-rig': 1.10.13_154bfccaf757d04bbe52f933b349182c
+      '@types/heft-jest': 1.0.3
+      '@types/node': 18.17.12
+      '@yuants/extension': link:../../libraries/extension
+      '@yuants/tool-kit': link:../toolkit
+      ts-node: 10.9.2_8b03ecee800523adaf3df18ee3a13756
+      typescript: 4.7.4
+
   ../../tools/toolkit:
     specifiers:
       '@microsoft/api-extractor': ~7.30.0
@@ -7015,7 +7050,7 @@ packages:
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
     dependencies:
       '@jridgewell/resolve-uri': 3.1.1
-      '@jridgewell/sourcemap-codec': 1.4.15
+      '@jridgewell/sourcemap-codec': 1.5.0
     dev: true
 
   /@jsep-plugin/assignment/1.3.0_jsep@1.4.0:

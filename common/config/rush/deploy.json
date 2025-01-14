@@ -50,7 +50,8 @@
     "@yuants/vendor-gate",
     "@yuants/vendor-trading-view",
     "@yuants/vendor-ctp",
-    "@yuants/vendor-tq"
+    "@yuants/vendor-tq",
+    "@yuants/tool-busybox"
   ],
   /**
    * When deploying a local Rush project, the package.json "devDependencies" are normally excluded.
