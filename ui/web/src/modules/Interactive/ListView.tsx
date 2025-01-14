@@ -1,11 +1,15 @@
 import { Descriptions, List, Space } from '@douyinfe/semi-ui';
 import { Table, flexRender } from '@tanstack/react-table';
+import React from 'react';
 
-export function ListView<T>(props: { table: Table<T> }) {
+export function ListView<T>(props: { table: Table<T>; topSlot?: React.ReactNode }) {
   const { table } = props;
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
-      <div>{table.getRowModel().rows.length} Items</div>
+      <Space>
+        {props.topSlot}
+        <div>{table.getRowModel().rows.length} Items</div>
+      </Space>
       <List>
         {table.getRowModel().rows.map((row) => (
           <List.Item key={row.id}>
