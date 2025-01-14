@@ -9,7 +9,7 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 
-export function TableView<T>(props: { table: Table<T> }) {
+export function TableView<T>(props: { table: Table<T>; topSlot?: React.ReactNode }) {
   const { table: t } = props;
 
   const table = useReactTable({
@@ -23,7 +23,11 @@ export function TableView<T>(props: { table: Table<T> }) {
 
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
-      <div>{table.options.data.length} Items</div>
+      <Space>
+        {props.topSlot}
+        <div>{table.options.data.length} Items</div>
+      </Space>
+
       <table className="semi-table">
         <thead
           className="semi-table-thead"

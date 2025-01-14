@@ -1,3 +1,4 @@
+import { Radio, RadioGroup } from '@douyinfe/semi-ui';
 import {
   ColumnDef,
   getCoreRowModel,
@@ -19,6 +20,8 @@ export function DataView<T>(props: {
   onSortingChange?: OnChangeFn<SortingState>;
   manualSorting?: boolean;
   tableRef?: React.MutableRefObject<Table<T> | undefined>;
+  layoutMode?: 'table' | 'list' | 'auto';
+  topSlot?: React.ReactNode;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -43,6 +46,12 @@ export function DataView<T>(props: {
     }
   }, [table]);
 
+  const [layoutMode, setLayoutMode] = useState<'table' | 'list' | 'auto'>(props.layoutMode || 'auto');
+
+  const [actualLayoutMode, setActualLayoutMode] = useState<'table' | 'list'>(
+    props.layoutMode === 'auto' ? 'table' : props.layoutMode || 'table',
+  );
+
   // Responsible Layout
   const [width, setWidth] = useState<number | null>(null);
   useEffect(() => {
@@ -59,9 +68,41 @@ export function DataView<T>(props: {
       };
     }
   }, []);
+
+  // if auto layout mode, use width to determine layout
+
+  useEffect(() => {
+    if (layoutMode === 'auto') {
+      if (width !== null) {
+        setActualLayoutMode(width > 1080 ? 'table' : 'list');
+      }
+      return;
+    }
+    setActualLayoutMode(layoutMode);
+  }, [width, layoutMode]);
+
+  const topSlot = (
+    <>
+      {props.topSlot}
+      <RadioGroup
+        type="button"
+        defaultValue={layoutMode}
+        value={layoutMode}
+        onChange={(e) => {
+          setLayoutMode(e.target.value);
+        }}
+      >
+        <Radio value={'auto'}>自适应视图</Radio>
+        <Radio value={'table'}>表格视图</Radio>
+        <Radio value={'list'}>列表视图</Radio>
+      </RadioGroup>
+    </>
+  );
+
   return (
     <div ref={containerRef} style={{ width: '100%' }}>
-      {width === null ? null : width > 1080 ? <TableView table={table} /> : <ListView table={table} />}
+      {actualLayoutMode === 'table' && <TableView table={table} topSlot={topSlot} />}
+      {actualLayoutMode === 'list' && <ListView table={table} topSlot={topSlot} />}
     </div>
   );
 }

@@ -174,129 +174,131 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
 
   const records = useMemo(() => data?.pages?.flatMap((page) => page) ?? [], [data]);
 
+  const topSlot = (
+    <>
+      <Button
+        icon={<IconSearch />}
+        onClick={async () => {
+          const schema = props.schema || getDataRecordSchema(props.TYPE as any);
+          if (!schema) {
+            Toast.error(`找不到合适的数据规格，无法查询数据`);
+            return;
+          }
+          const formData = await showForm(schema, searchFormData);
+          setSearchFormData(formData);
+        }}
+      >
+        搜索
+      </Button>
+      <Button
+        icon={<IconCopyAdd />}
+        onClick={async () => {
+          const terminal = await firstValueFrom(terminal$);
+          if (!terminal) return;
+          const schema = props.schema || getDataRecordSchema(props.TYPE as any);
+          if (!schema) {
+            Toast.error(`找不到合适的数据规格，无法查询数据`);
+            return;
+          }
+          const formData = await showForm<T>(schema, props.newRecord());
+          await props.beforeUpdateTrigger?.(formData);
+          const wrapper = props.mapOriginToDataRecord || getDataRecordWrapper(props.TYPE as any);
+          if (!wrapper) {
+            Toast.error(`找不到合适的包装函数，无法更新数据`);
+            return;
+          }
+          const nextRecord: IDataRecord<any> = wrapper(formData);
+          await writeDataRecords(terminal, [nextRecord]);
+          await reloadData();
+          Toast.success(`成功更新数据记录 ${nextRecord.id}`);
+        }}
+      >
+        添加
+      </Button>
+      <Button
+        icon={<IconCopyAdd />}
+        onClick={async () => {
+          // setRefreshCnt((x) => x + 1);
+          fetchNextPage();
+        }}
+      >
+        加载更多
+      </Button>
+      <Button
+        icon={<IconRefresh />}
+        onClick={async () => {
+          await reloadData();
+          Toast.success('已刷新');
+        }}
+      >
+        刷新
+      </Button>
+      <Button
+        icon={<IconExport />}
+        onClick={async () => {
+          const filename = await showForm<string>({
+            title: 'Filename to export',
+            type: 'string',
+            format: 'filename',
+            pattern: '^/.+\\.json',
+          });
+          const data = records.map((x) => x.origin);
+          await fs.writeFile(filename, JSON.stringify(data, null, 2));
+          Toast.success(`已导出: ${filename}, ${data.length} 条`);
+          await reloadData();
+        }}
+      >
+        导出
+      </Button>
+      <Button
+        icon={<IconImport />}
+        onClick={async () => {
+          const terminal = await firstValueFrom(terminal$);
+          if (!terminal) return;
+          const filename = await showForm<string>({
+            title: 'Filename to import',
+            type: 'string',
+            format: 'filename',
+            pattern: '^/.+\\.json',
+          });
+          const data = JSON.parse(await fs.readFile(filename));
+          if (!Array.isArray(data)) {
+            return;
+          }
+          const ajv = new Ajv({ strictSchema: false });
+          const schema = props.schema || getDataRecordSchema(props.TYPE as any);
+          if (!schema) {
+            Toast.error(`找不到合适的数据规格，无法查询数据`);
+            return;
+          }
+          const validator = ajv.compile(schema);
+          const wrapper = props.mapOriginToDataRecord || getDataRecordWrapper(props.TYPE as any);
+          if (!wrapper) {
+            Toast.error(`找不到合适的包装函数，无法更新数据`);
+            return;
+          }
+          const records = data.filter((x) => validator(x)).map((x: any) => wrapper(x));
+          await writeDataRecords(terminal, records as IDataRecord<any>[]);
+          Toast.success(`已导入: ${filename}, ${records.length} / ${data.length} 条`);
+          await reloadData();
+        }}
+      >
+        导入
+      </Button>
+      {props.extraHeaderActions && React.createElement(props.extraHeaderActions, {})}
+      {isFetching && <Spin />}
+    </>
+  );
+
   return (
-    <Space vertical align="start" style={{ width: '100%' }}>
-      <Space>
-        <Button
-          icon={<IconSearch />}
-          onClick={async () => {
-            const schema = props.schema || getDataRecordSchema(props.TYPE as any);
-            if (!schema) {
-              Toast.error(`找不到合适的数据规格，无法查询数据`);
-              return;
-            }
-            const formData = await showForm(schema, searchFormData);
-            setSearchFormData(formData);
-          }}
-        >
-          搜索
-        </Button>
-        <Button
-          icon={<IconCopyAdd />}
-          onClick={async () => {
-            const terminal = await firstValueFrom(terminal$);
-            if (!terminal) return;
-            const schema = props.schema || getDataRecordSchema(props.TYPE as any);
-            if (!schema) {
-              Toast.error(`找不到合适的数据规格，无法查询数据`);
-              return;
-            }
-            const formData = await showForm<T>(schema, props.newRecord());
-            await props.beforeUpdateTrigger?.(formData);
-            const wrapper = props.mapOriginToDataRecord || getDataRecordWrapper(props.TYPE as any);
-            if (!wrapper) {
-              Toast.error(`找不到合适的包装函数，无法更新数据`);
-              return;
-            }
-            const nextRecord: IDataRecord<any> = wrapper(formData);
-            await writeDataRecords(terminal, [nextRecord]);
-            await reloadData();
-            Toast.success(`成功更新数据记录 ${nextRecord.id}`);
-          }}
-        >
-          添加
-        </Button>
-        <Button
-          icon={<IconCopyAdd />}
-          onClick={async () => {
-            // setRefreshCnt((x) => x + 1);
-            fetchNextPage();
-          }}
-        >
-          加载更多
-        </Button>
-        <Button
-          icon={<IconRefresh />}
-          onClick={async () => {
-            await reloadData();
-            Toast.success('已刷新');
-          }}
-        >
-          刷新
-        </Button>
-        <Button
-          icon={<IconExport />}
-          onClick={async () => {
-            const filename = await showForm<string>({
-              title: 'Filename to export',
-              type: 'string',
-              format: 'filename',
-              pattern: '^/.+\\.json',
-            });
-            const data = records.map((x) => x.origin);
-            await fs.writeFile(filename, JSON.stringify(data, null, 2));
-            Toast.success(`已导出: ${filename}, ${data.length} 条`);
-            await reloadData();
-          }}
-        >
-          导出
-        </Button>
-        <Button
-          icon={<IconImport />}
-          onClick={async () => {
-            const terminal = await firstValueFrom(terminal$);
-            if (!terminal) return;
-            const filename = await showForm<string>({
-              title: 'Filename to import',
-              type: 'string',
-              format: 'filename',
-              pattern: '^/.+\\.json',
-            });
-            const data = JSON.parse(await fs.readFile(filename));
-            if (!Array.isArray(data)) {
-              return;
-            }
-            const ajv = new Ajv({ strictSchema: false });
-            const schema = props.schema || getDataRecordSchema(props.TYPE as any);
-            if (!schema) {
-              Toast.error(`找不到合适的数据规格，无法查询数据`);
-              return;
-            }
-            const validator = ajv.compile(schema);
-            const wrapper = props.mapOriginToDataRecord || getDataRecordWrapper(props.TYPE as any);
-            if (!wrapper) {
-              Toast.error(`找不到合适的包装函数，无法更新数据`);
-              return;
-            }
-            const records = data.filter((x) => validator(x)).map((x: any) => wrapper(x));
-            await writeDataRecords(terminal, records as IDataRecord<any>[]);
-            Toast.success(`已导入: ${filename}, ${records.length} / ${data.length} 条`);
-            await reloadData();
-          }}
-        >
-          导入
-        </Button>
-        {props.extraHeaderActions && React.createElement(props.extraHeaderActions, {})}
-        {isFetching && <Spin />}
-      </Space>
-      <DataView
-        tableRef={tableRef}
-        columns={columns}
-        data={records}
-        sorting={sorting}
-        onSortingChange={setSorting}
-        manualSorting
-      />
-    </Space>
+    <DataView
+      tableRef={tableRef}
+      columns={columns}
+      data={records}
+      sorting={sorting}
+      onSortingChange={setSorting}
+      manualSorting
+      topSlot={topSlot}
+    />
   );
 }
