@@ -2,6 +2,23 @@
   "name": "@yuants/tool-busybox",
   "entries": [
     {
+      "version": "0.0.2",
+      "tag": "@yuants/tool-busybox_v0.0.2",
+      "date": "Tue, 14 Jan 2025 13:12:30 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add extension"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.1",
       "tag": "@yuants/tool-busybox_v0.0.1",
       "date": "Tue, 14 Jan 2025 12:10:21 GMT",
