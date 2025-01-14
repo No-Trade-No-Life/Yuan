@@ -1,6 +1,14 @@
 # Change Log - @yuants/tool-kit
 
-This log was last generated on Mon, 13 Jan 2025 17:14:27 GMT and should not be manually modified.
+This log was last generated on Tue, 14 Jan 2025 12:10:21 GMT and should not be manually modified.
+
+## 0.1.9
+Tue, 14 Jan 2025 12:10:21 GMT
+
+### Patches
+
+- chore(tool-kit): use given version anyway
+- version
 
 ## 0.1.8
 Mon, 13 Jan 2025 17:14:27 GMT

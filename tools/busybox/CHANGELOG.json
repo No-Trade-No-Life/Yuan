@@ -1,0 +1,34 @@
+{
+  "name": "@yuants/tool-busybox",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/tool-busybox_v0.0.1",
+      "date": "Tue, 14 Jan 2025 12:10:21 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add busybox for debugging"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.27.5`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.17.5`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.3.7`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.16`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.1.9`"
+          }
+        ]
+      }
+    }
+  ]
+}
