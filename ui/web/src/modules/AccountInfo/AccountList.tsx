@@ -1,5 +1,5 @@
 import { Space, Spin, Typography } from '@douyinfe/semi-ui';
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { createColumnHelper } from '@tanstack/react-table';
 import { formatTime } from '@yuants/data-model';
 import { useObservableState } from 'observable-hooks';
 import { useMemo } from 'react';
@@ -118,7 +118,5 @@ registerPage('AccountList', () => {
 
   const data = accountIds;
 
-  const table = useReactTable({ data, columns, getCoreRowModel: getCoreRowModel() });
-
-  return <DataView table={table} />;
+  return <DataView data={data} columns={columns} />;
 });

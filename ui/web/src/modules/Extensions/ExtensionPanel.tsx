@@ -71,8 +71,6 @@ registerPage('ExtensionPanel', () => {
     ];
   }, []);
 
-  const table = useReactTable({ columns, data: activeExtensions, getCoreRowModel: getCoreRowModel() });
-
   return (
     <Space vertical align="start" style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
       <Space>
@@ -95,7 +93,7 @@ registerPage('ExtensionPanel', () => {
         </Button>
       </Space>
       <div style={{ width: '100%', overflow: 'auto' }}>
-        <DataView table={table} />
+        <DataView columns={columns} data={activeExtensions} />
       </div>
     </Space>
   );

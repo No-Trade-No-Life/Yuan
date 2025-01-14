@@ -1,6 +1,6 @@
 import { IconClose, IconTaskMoneyStroked } from '@douyinfe/semi-icons';
 import { Collapse, Descriptions, Empty, Space, Typography } from '@douyinfe/semi-ui';
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { createColumnHelper } from '@tanstack/react-table';
 import {
   IAccountMoney,
   IOrder,
@@ -276,12 +276,6 @@ registerPage('AccountInfoPanel', () => {
 
   const columns = useMemo(() => createColumnsOfPositionSummaryItem(), []);
 
-  const tableOfPositionSummary = useReactTable({
-    data: positionSummary,
-    columns,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
   const columnsOfPositions = useMemo(() => {
     const helper = createColumnHelper<IPosition>();
     return [
@@ -322,12 +316,6 @@ registerPage('AccountInfoPanel', () => {
     ];
   }, []);
 
-  const tableOfPositions = useReactTable({
-    data: accountInfo?.positions ?? [],
-    columns: columnsOfPositions,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
   const columnsOfOrders = useMemo(() => {
     const helper = createColumnHelper<IOrder>();
     return [
@@ -365,12 +353,6 @@ registerPage('AccountInfoPanel', () => {
     ];
   }, []);
 
-  const tableOfOrders = useReactTable({
-    data: accountInfo?.orders ?? [],
-    columns: columnsOfOrders,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
   const columnsOfCurrencies = useMemo(() => {
     const helper = createColumnHelper<IAccountMoney>();
     return [
@@ -398,12 +380,6 @@ registerPage('AccountInfoPanel', () => {
       }),
     ];
   }, []);
-
-  const tableOfCurrencies = useReactTable({
-    data: accountInfo?.currencies ?? [],
-    columns: columnsOfCurrencies,
-    getCoreRowModel: getCoreRowModel(),
-  });
 
   if (!accountInfo) {
     return <Empty title={'加载中'}></Empty>;
@@ -478,16 +454,16 @@ registerPage('AccountInfoPanel', () => {
       />
       <Collapse defaultActiveKey={'通货汇总'} style={{ width: '100%' }}>
         <Collapse.Panel header={`通货汇总 (${accountInfo.currencies.length})`} itemKey="通货汇总">
-          <DataView table={tableOfCurrencies} />
+          <DataView data={accountInfo?.currencies ?? []} columns={columnsOfCurrencies} />
         </Collapse.Panel>
         <Collapse.Panel header={`持仓汇总 (${positionSummary.length})`} itemKey="持仓汇总">
-          <DataView table={tableOfPositionSummary} />
+          <DataView data={positionSummary} columns={columns} />
         </Collapse.Panel>
         <Collapse.Panel header={`持仓细节 (${accountInfo.positions.length})`} itemKey="持仓细节">
-          <DataView table={tableOfPositions} />
+          <DataView data={accountInfo?.positions ?? []} columns={columnsOfPositions} />
         </Collapse.Panel>
         <Collapse.Panel header={`订单 (${accountInfo.orders.length})`} itemKey="订单">
-          <DataView table={tableOfOrders} />
+          <DataView data={accountInfo?.orders ?? []} columns={columnsOfOrders} />
         </Collapse.Panel>
       </Collapse>
     </Space>

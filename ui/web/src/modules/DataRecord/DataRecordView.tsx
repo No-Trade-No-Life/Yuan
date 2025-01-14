@@ -13,17 +13,15 @@ import {
   AccessorKeyColumnDef,
   ColumnDef,
   SortingState,
+  Table,
   createColumnHelper,
-  getCoreRowModel,
-  getSortedRowModel,
-  useReactTable,
 } from '@tanstack/react-table';
 import { IDataRecord, getDataRecordSchema, getDataRecordWrapper } from '@yuants/data-model';
 import { readDataRecords, removeDataRecords, writeDataRecords } from '@yuants/protocol';
 import Ajv from 'ajv';
 import { JSONSchema7 } from 'json-schema';
 import React, { useEffect, useMemo, useState } from 'react';
-import { firstValueFrom, from, lastValueFrom } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { fs } from '../FileSystem/api';
 import { showForm } from '../Form';
 import { Button, DataView } from '../Interactive';
@@ -48,6 +46,7 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
   const [searchFormData, setSearchFormData] = useState({} as any);
   const [refreshCnt, setRefreshCnt] = useState(0);
   const [sorting, setSorting] = React.useState<SortingState>([]);
+  const tableRef = React.useRef<Table<IDataRecord<T>>>();
 
   const { data, fetchNextPage, isFetching } = useInfiniteQuery<IDataRecord<T>[]>({
     // ISSUE: queryKey should be unique among all query situations under the same query client context
@@ -57,14 +56,18 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
       const terminal = await firstValueFrom(terminal$);
       if (!terminal) return [];
 
+      const table = tableRef.current;
+
       const sort: [string, number][] = [];
-      for (const x of sorting) {
-        const column = table.getColumn(x.id);
-        if (column) {
-          const access_key = (column.columnDef as AccessorKeyColumnDef<IDataRecord<T>[], unknown>)
-            .accessorKey;
-          if (typeof access_key === 'string') {
-            sort.push([access_key, x.desc ? -1 : 1]);
+      if (table) {
+        for (const x of sorting) {
+          const column = table.getColumn(x.id);
+          if (column) {
+            const access_key = (column.columnDef as AccessorKeyColumnDef<IDataRecord<T>[], unknown>)
+              .accessorKey;
+            if (typeof access_key === 'string') {
+              sort.push([access_key, x.desc ? -1 : 1]);
+            }
           }
         }
       }
@@ -170,24 +173,6 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
   }, []);
 
   const records = useMemo(() => data?.pages?.flatMap((page) => page) ?? [], [data]);
-
-  const table = useReactTable({
-    columns: columns,
-    data: records,
-    state: {
-      sorting,
-    },
-    getCoreRowModel: getCoreRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    manualSorting: true,
-  });
-  //since this table option is derived from table row model state, we're using the table.setOptions utility
-  table.setOptions((prev) => ({
-    ...prev,
-    onSortingChange: (updater) => {
-      setSorting(updater);
-    },
-  }));
 
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
@@ -304,7 +289,14 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
         {props.extraHeaderActions && React.createElement(props.extraHeaderActions, {})}
         {isFetching && <Spin />}
       </Space>
-      <DataView table={table} />
+      <DataView
+        tableRef={tableRef}
+        columns={columns}
+        data={records}
+        sorting={sorting}
+        onSortingChange={setSorting}
+        manualSorting
+      />
     </Space>
   );
 }

@@ -18,7 +18,7 @@ import {
   Toast,
   Typography,
 } from '@douyinfe/semi-ui';
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { createColumnHelper } from '@tanstack/react-table';
 import { createKeyPair, signMessage } from '@yuants/utils';
 import copy from 'copy-to-clipboard';
 import { t } from 'i18next';
@@ -212,17 +212,6 @@ registerPage('HostList', () => {
 
   const cryptoHosts = useObservableState(cryptoHosts$) || [];
 
-  const tableOfCryptoHost = useReactTable({
-    columns: columnsOfCryptoHost,
-    data: cryptoHosts,
-    getCoreRowModel: getCoreRowModel(),
-  });
-  const tableOfDedicatedHosts = useReactTable({
-    columns: columnsOfDedicatedHosts,
-    data: configs,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
       <Space>
@@ -300,7 +289,7 @@ registerPage('HostList', () => {
               New
             </Button>
           </Space>
-          <DataView table={tableOfCryptoHost} />
+          <DataView columns={columnsOfCryptoHost} data={cryptoHosts} />
         </>
       }
       <Typography.Title heading={5}>{t('dedicated_hosts')}</Typography.Title>
@@ -342,7 +331,7 @@ registerPage('HostList', () => {
           {t('common:view_source')}
         </Button>
       </Space>
-      <DataView table={tableOfDedicatedHosts} />
+      <DataView columns={columnsOfDedicatedHosts} data={configs} />
     </Space>
   );
 });

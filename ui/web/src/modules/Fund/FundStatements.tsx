@@ -156,12 +156,6 @@ registerPage('FundStatements', () => {
     ];
   }, []);
 
-  const tableOfInvestors = useReactTable({
-    columns: columnsOfInvestor,
-    data: investors,
-    getCoreRowModel: getCoreRowModel(),
-  });
-
   const columnsOfStatement = useMemo(() => {
     const columnHelper = createColumnHelper<IFundEvent>();
     return [
@@ -185,15 +179,6 @@ registerPage('FundStatements', () => {
     ];
   }, []);
 
-  const tableOfStatement = useReactTable({
-    columns: columnsOfStatement,
-    data: currentStatements,
-    getCoreRowModel: getCoreRowModel(),
-    initialState: {
-      sorting: [{ id: 'updated_at', desc: true }],
-    },
-  });
-
   const columnsOfState = useMemo(() => {
     const columnHelper = createColumnHelper<IFundState>();
     return [
@@ -213,15 +198,6 @@ registerPage('FundStatements', () => {
       }),
     ];
   }, []);
-
-  const tableOfState = useReactTable({
-    columns: columnsOfState,
-    data: history,
-    getCoreRowModel: getCoreRowModel(),
-    initialState: {
-      sorting: [{ id: 'updated_at', desc: true }],
-    },
-  });
 
   const equityHistory = useMemo(() => {
     const ret: Array<{
@@ -624,13 +600,21 @@ registerPage('FundStatements', () => {
       <EChartsReact style={{ width: '100%', height: '100%', minHeight: 400 }} option={dateHeatmapOptions} />
       <Collapse defaultActiveKey={'investors'} style={{ width: '100%' }}>
         <Collapse.Panel itemKey="investors" header={'投资人列表'}>
-          <DataView table={tableOfInvestors} />
+          <DataView columns={columnsOfInvestor} data={investors} />
         </Collapse.Panel>
         <Collapse.Panel itemKey="state" header={'基金历史'}>
-          <DataView table={tableOfState} />
+          <DataView
+            columns={columnsOfState}
+            data={history}
+            initialSorting={[{ id: 'updated_at', desc: true }]}
+          />
         </Collapse.Panel>
         <Collapse.Panel itemKey="actions" header={'操作历史'}>
-          <DataView table={tableOfStatement} />
+          <DataView
+            columns={columnsOfStatement}
+            data={currentStatements}
+            initialSorting={[{ id: 'updated_at', desc: true }]}
+          />
         </Collapse.Panel>
       </Collapse>
     </Space>
