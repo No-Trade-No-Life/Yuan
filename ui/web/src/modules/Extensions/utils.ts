@@ -1,5 +1,6 @@
 import { formatTime } from '@yuants/data-model';
 import { IDeployProvider, IExtensionContext } from '@yuants/extension';
+import ini from 'ini';
 import { dirname, join } from 'path-browserify';
 import { BehaviorSubject, from, lastValueFrom, mergeMap } from 'rxjs';
 import { fs } from '../FileSystem/api';
@@ -8,7 +9,7 @@ import untar from 'js-untar';
 
 export interface INpmPackagePullParams {
   name: string;
-  registry: string;
+  registry?: string;
   version?: string;
   npm_token?: string;
 }
@@ -22,7 +23,7 @@ const mapUrlToCorsProxy = (url: string): string => {
 
 const PACKAGE_DOWNLOAD_DIR = '/.Y/downloads/packages';
 export const downloadTgz = async (context: INpmPackagePullParams) => {
-  const { meta, version } = await resolveVersion(context.name, context.version, context);
+  const { meta, version } = await resolveVersion(context);
   console.info(formatTime(Date.now()), `downloading extension "${context.name}" (${version})...`);
   const tarball_url = meta.versions[version].dist.tarball;
   const tgz = await fetch(
@@ -45,9 +46,7 @@ export const downloadTgz = async (context: INpmPackagePullParams) => {
 export const installExtension = async (packageParams: INpmPackagePullParams) => {
   const packageName = packageParams.name;
   console.debug(formatTime(Date.now()), `install extension "${packageName}"...`);
-  const version =
-    packageParams.version ||
-    (await resolveVersion(packageName, packageParams.version, packageParams)).version;
+  const version = packageParams.version || (await resolveVersion(packageParams)).version;
   const tgzFilename = join(
     PACKAGE_DOWNLOAD_DIR,
     `${packageName.replace('@', '').replace('/', '-')}-${version}.tgz`,
@@ -199,10 +198,28 @@ function getPackageDir(packageName: string) {
   return join('/.Y/extensions', packageName.replace('@', '').replace('/', '-'));
 }
 
-export async function resolveVersion(packageName: string, ver?: string, context?: INpmPackagePullParams) {
-  const registry = context?.registry || 'https://registry.npmjs.org';
+const applyContextFromNpmRc = async (context: INpmPackagePullParams) => {
+  try {
+    // try resolve registry & npm_token from .npmrc
+    const npmRC = await fs.readFile('/.npmrc');
+    const npmRCContent = npmRC.toString();
+    const npmConfig = ini.parse(npmRCContent);
+    const scope = context.name.match(/^@([^/]+)/)?.[1];
+    const registry =
+      (scope && npmConfig[`@${scope}:registry`]) || npmConfig.registry || 'https://registry.npmjs.org';
+    const registryHostname = new URL(registry).hostname;
+    const npm_token =
+      npmConfig[`//${registryHostname}/:_authToken`] || npmConfig[`//${registryHostname}/:always-auth`];
+    context.registry = registry;
+    context.npm_token = npm_token;
+  } catch (e) {}
+};
+
+export async function resolveVersion(context: INpmPackagePullParams) {
+  await applyContextFromNpmRc(context);
+
   const meta = await fetch(
-    mapUrlToCorsProxy(`${registry}/${packageName}`),
+    mapUrlToCorsProxy(`${context.registry}/${context.name}`),
     context?.npm_token
       ? {
           headers: {
@@ -211,6 +228,6 @@ export async function resolveVersion(packageName: string, ver?: string, context?
         }
       : undefined,
   ).then((x) => x.json());
-  const version: string = ver || meta['dist-tags'].latest;
+  const version: string = context.version || meta['dist-tags'].latest;
   return { meta, version };
 }

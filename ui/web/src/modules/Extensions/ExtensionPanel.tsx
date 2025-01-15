@@ -40,7 +40,7 @@ registerPage('ExtensionPanel', () => {
         cell: (ctx) => {
           const instance = ctx.row.original;
           const versionInfo = useObservableState(
-            useObservable(() => defer(() => resolveVersion(instance.packageJson.name)), []),
+            useObservable(() => defer(() => resolveVersion({ name: instance.packageJson.name })), []),
           );
 
           return (

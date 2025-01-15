@@ -104,7 +104,7 @@ registerCommand(
   async (ctx: { agentConf: IAgentConf; host_url?: string; kernel_id?: string }) => {
     if (!ctx.agentConf) return;
     await ensureAuthenticated();
-    const { version } = await resolveVersion('@yuants/app-agent');
+    const { version } = await resolveVersion({ name: '@yuants/app-agent' });
     const bundled_code = ctx.agentConf.entry
       ? await bundleCode(ctx.agentConf.entry || '')
       : ctx.agentConf.bundled_code;

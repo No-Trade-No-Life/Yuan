@@ -13,7 +13,7 @@ export const ExtensionItem = (props: { instance: IActiveExtensionInstance }) => 
   const { instance } = props;
 
   const versionInfo = useObservableState(
-    useObservable(() => defer(() => resolveVersion(instance.packageJson.name)), []),
+    useObservable(() => defer(() => resolveVersion({ name: instance.packageJson.name })), []),
   );
 
   return (
