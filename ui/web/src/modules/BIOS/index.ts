@@ -51,11 +51,13 @@ defer(async () => {
           const owner = url.searchParams.get('owner');
           const repo = url.searchParams.get('repo');
           const ref = url.searchParams.get('ref');
-          const auth_token = url.searchParams.get('auth_token');
+          const sub_path = url.searchParams.get('sub_path');
+          // ISSUE: auth_token in URL is not safe
+          const auth_token = prompt('GitHub Auth Token if needed');
           if (!owner) throw new Error('NO OWNER');
           if (!repo) throw new Error('NO REPO');
           if (!ref) throw new Error('NO REF');
-          await loadInmemoryWorkspaceFromGitHub({ owner, repo, ref, auth_token });
+          await loadInmemoryWorkspaceFromGitHub({ owner, repo, ref, sub_path, auth_token });
           return;
         }
         log('WORKSPACE CHECKING FILE SYSTEM HANDLE');
@@ -286,6 +288,7 @@ async function loadInmemoryWorkspaceFromGitHub(ctx: {
   owner: string;
   repo: string;
   ref: string;
+  sub_path: string | null;
   auth_token: string | null;
 }) {
   FsBackend$.next(new InMemoryBackend(`${ctx.owner}/${ctx.repo}@${ctx.ref}`));
@@ -309,7 +312,12 @@ async function loadInmemoryWorkspaceFromGitHub(ctx: {
   log(`EXTRACTING ${files.length} FILES...`);
   for (const file of files) {
     if (!file.isFile) continue;
-    const filename = resolve('/', file.filename.replace(/^[^/]+\//, ''));
+    let filename = resolve('/', file.filename.replace(/^[^/]+\//, ''));
+    if (ctx.sub_path && !filename.startsWith(ctx.sub_path)) continue;
+    if (ctx.sub_path) {
+      filename = filename.slice(ctx.sub_path.length);
+    }
+
     log('EXTRACTING FILE', filename);
     await fs.ensureDir(dirname(filename));
     await fs.writeFile(filename, file.blob);
