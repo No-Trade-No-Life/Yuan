@@ -11,8 +11,8 @@ import { rollupLoadEvent$ } from '../Agent/utils';
 import { executeCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import { registerPage, usePageParams, usePageTitle } from '../Pages';
+import { registerAssociationRule } from '../System';
 import { useIsDarkMode } from '../Workbench';
-import { registerAssociationRule } from '../Workspace';
 
 Object.assign(globalThis, { monaco });
 

@@ -10,7 +10,7 @@ import { layoutModelJson$ } from '../DesktopLayout/layout-model';
 import { fs } from '../FileSystem';
 import { showForm } from '../Form';
 import { pageRegistered$ } from '../Pages';
-import { executeAssociatedRule } from '../Workspace';
+import { executeAssociatedRule } from '../System';
 
 export const isShowHome$ = createPersistBehaviorSubject('show-home', true);
 

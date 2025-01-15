@@ -15,6 +15,7 @@ import { supabase } from '../SupaBase';
 import { ensureAuthenticated } from '../User';
 import { agentConf$ } from './AgentConfForm';
 import { bundleCode } from './utils';
+import { DataView } from '../Interactive';
 
 const refreshAction$ = new Subject<void>();
 
@@ -51,56 +52,49 @@ registerPage('CloudAgentList', () => {
           }}
         ></Button>
       </Space>
-      <Table
-        dataSource={data}
+      <DataView
+        data={data || []}
         columns={[
-          //
+          { header: 'Kernel ID', accessorKey: 'kernel_id' },
           {
-            title: 'Kernel ID',
-            render: (_, v) => v.kernel_id,
-          },
-          {
-            title: 'Host URL',
-            render: (_, v) => (
-              <Typography.Text copyable={{ content: v.host_url }}>{v.host_url}</Typography.Text>
+            header: 'Host URL',
+            accessorKey: 'host_url',
+            cell: (ctx) => (
+              <Typography.Text copyable={{ content: ctx.getValue() }}>{ctx.getValue()}</Typography.Text>
             ),
           },
+          { header: 'Version', accessorKey: 'version' },
+          { header: 'Created At', accessorKey: 'created_at', cell: (ctx) => formatTime(ctx.getValue()!) },
           {
-            title: 'Version',
-            render: (_, v) => v.version,
-          },
-          {
-            title: 'Created At',
-            render: (_, v) => formatTime(new Date(v.created_at).getTime()),
-          },
-          {
-            title: 'Actions',
-            render: (_, v) => (
-              <Space>
-                <Button
-                  icon={<IconEyeOpened />}
-                  onClick={() => {
-                    agentConf$.next(v.one_json);
-                  }}
-                >
-                  {t('common:open')}
-                </Button>
-                <Button
-                  type="danger"
-                  icon={<IconDelete />}
-                  onClick={async () => {
-                    await supabase.from('agent').delete().eq('id', v.id);
-                    refreshAction$.next();
-                    Toast.success(t('common:succeed'));
-                  }}
-                >
-                  {t('common:delete')}
-                </Button>
-              </Space>
-            ),
+            header: 'Actions',
+            cell: (ctx) => {
+              return (
+                <Space>
+                  <Button
+                    icon={<IconEyeOpened />}
+                    onClick={() => {
+                      agentConf$.next(ctx.row.original.one_json);
+                    }}
+                  >
+                    {t('common:open')}
+                  </Button>
+                  <Button
+                    type="danger"
+                    icon={<IconDelete />}
+                    onClick={async () => {
+                      await supabase.from('agent').delete().eq('id', ctx.row.original.id);
+                      refreshAction$.next();
+                      Toast.success(t('common:succeed'));
+                    }}
+                  >
+                    {t('common:delete')}
+                  </Button>
+                </Space>
+              );
+            },
           },
         ]}
-      ></Table>
+      />
     </Space>
   );
 });

@@ -1,7 +1,8 @@
 import { IconTestScoreStroked } from '@douyinfe/semi-icons';
-import { Card, Space, Table, Typography } from '@douyinfe/semi-ui';
+import { Card, Space, Typography } from '@douyinfe/semi-ui';
 import { useTranslation } from 'react-i18next';
 import { IBatchAgentResultItem } from '../../Agent/utils';
+import { DataView } from '../../Interactive';
 import { IMessageCardProps } from '../model';
 
 // TODO: hackathon code, refine later
@@ -27,80 +28,75 @@ export default ({
         <Typography.Text>
           我们针对 Copilot 的参数备选项进行了全量的批量回测，并按照收益率倒序排列
         </Typography.Text>
-        <Table
-          dataSource={payload.results}
-          rowKey={(e) => e?.accountInfo.account_id ?? ''}
-          // }}
-          scroll={{ y: 300 }}
+        <DataView
+          data={payload.results}
           columns={[
             {
-              title: '净值曲线缩略图',
-              width: 200,
-              render: (_, x) => (
-                <img style={{ margin: -16, height: 80, width: '100%' }} src={x.equityImageSrc}></img>
+              header: '净值曲线缩略图',
+              accessorKey: 'equityImageSrc',
+              cell: (ctx) => (
+                <img style={{ margin: -16, height: 80, width: '100%' }} src={ctx.getValue()}></img>
               ),
             },
             {
-              title: '账户',
-              render: (_, x) => x.accountInfo.account_id,
+              header: '账户',
+              accessorKey: 'accountInfo.account_id',
             },
             {
-              title: '回溯历史',
-              dataIndex: 'duration_of_trades_in_day',
-              // ISSUE: NaN 转 JSON 会变成 null，再转回来调用 toFixed 会报错，所以这里需要先转成数字
-              render: (_, x) => (+x.performance.total_days).toFixed(1) + '天',
+              header: '回溯历史',
+              accessorKey: 'performance.total_days',
+              cell: (ctx) => `${(+ctx.getValue()).toFixed(1)}天`,
             },
             {
-              title: '周收益率',
-              dataIndex: 'weekly_return_ratio',
-              render: (_, x) => `${(+x.performance.weekly_return_ratio * 100).toFixed(2)}%`,
+              header: '周收益率',
+              accessorKey: 'performance.weekly_return_ratio',
+              cell: (ctx) => `${(+ctx.getValue() * 100).toFixed(2)}%`,
             },
             {
-              title: '最大维持保证金',
-              dataIndex: 'max_margin',
-              render: (_, x) => (+x.performance.max_maintenance_margin).toFixed(2),
-            },
-
-            {
-              title: '收益回撤比',
-              dataIndex: 'net_profit_max_drawdown_profit_ratio',
-              render: (_, x) => (+x.performance.profit_drawdown_ratio).toFixed(5),
+              header: '最大维持保证金',
+              accessorKey: 'performance.max_maintenance_margin',
+              cell: (ctx) => (+ctx.getValue()).toFixed(2),
             },
             {
-              title: '资本回报期',
-              dataIndex: 'pp',
-              render: (_, x) => `${(+x.performance.payback_period_in_days).toFixed(1)}天`,
+              header: '收益回撤比',
+              accessorKey: 'performance.profit_drawdown_ratio',
+              cell: (ctx) => (+ctx.getValue()).toFixed(5),
             },
             {
-              title: '周夏普比率',
-              dataIndex: 'weekly_sharpe_ratio',
-              render: (_, x) =>
-                (+x.performance.weekly_sharpe_ratio).toLocaleString(undefined, {
+              header: '资本回报期',
+              accessorKey: 'performance.payback_period_in_days',
+              cell: (ctx) => `${(+ctx.getValue()).toFixed(1)}天`,
+            },
+            {
+              header: '周夏普比率',
+              accessorKey: 'performance.weekly_sharpe_ratio',
+              cell: (ctx) =>
+                (+ctx.getValue()).toLocaleString(undefined, {
                   style: 'percent',
                   minimumFractionDigits: 2,
                 }),
             },
             {
-              title: '资金占用率',
-              dataIndex: 'capital_occupancy_rate',
-              render: (_, x) =>
-                (+x.performance.capital_occupancy_rate).toLocaleString(undefined, {
+              header: '资金占用率',
+              accessorKey: 'performance.capital_occupancy_rate',
+              cell: (ctx) =>
+                (+ctx.getValue()).toLocaleString(undefined, {
                   style: 'percent',
                   minimumFractionDigits: 2,
                 }),
             },
             {
-              title: '净值',
-              dataIndex: 'equity',
-              render: (_, x) => (+x.performance.equity).toFixed(2),
+              header: '净值',
+              accessorKey: 'performance.equity',
+              cell: (ctx) => (+ctx.getValue()).toFixed(2),
             },
             {
-              title: '持仓次数',
-              dataIndex: 'total_positions',
-              render: (_, x) => +x.performance.total_positions,
+              header: '持仓次数',
+              accessorKey: 'performance.total_positions',
+              cell: (ctx) => +ctx.getValue(),
             },
           ]}
-        ></Table>
+        />
       </Space>
     </Card>
   );

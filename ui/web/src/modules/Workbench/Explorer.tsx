@@ -26,35 +26,9 @@ import { showForm } from '../Form';
 import { Button } from '../Interactive';
 import i18n from '../Locale/i18n';
 import { registerPage } from '../Pages';
+import { associationRules } from '../System';
 import { terminal$ } from '../Terminals';
 import { sendFileByAirdrop } from './airdrop';
-
-/**
- * File is associated with Command
- */
-interface IAssociationRule {
-  /** i18n_key = `association:${id}`  */
-  id: string;
-  priority?: number;
-
-  match: (ctx: { path: string; isFile: boolean }) => boolean;
-  action: (ctx: { path: string; isFile: boolean }) => void;
-}
-
-export const registerAssociationRule = (rule: IAssociationRule) => {
-  rules.push(rule);
-};
-
-export const executeAssociatedRule = async (filename: string, rule_index = 0) => {
-  const stat = await fs.stat(filename);
-  const context = { path: filename, isFile: stat.isFile() };
-  rules
-    .filter((rule) => rule.match(context))
-    .sort((a, b) => (b.priority || 0) - (a.priority || 0))
-    [rule_index]?.action(context);
-};
-
-const rules: IAssociationRule[] = [];
 
 registerPage('Explorer', () => {
   const { t, ready } = useTranslation(['Explorer', 'associations']);
@@ -136,7 +110,7 @@ registerPage('Explorer', () => {
           const context = { path: data.key || '/', isFile: !!isLeaf };
           const filename = data.key;
 
-          const matchedRules = rules
+          const matchedRules = associationRules
             .filter((rule) => rule.match(context))
             .sort((a, b) => (b.priority || 0) - (a.priority || 0));
 

@@ -8,7 +8,7 @@ import {
   IconUser,
 } from '@douyinfe/semi-icons';
 import { Collapse, Descriptions, Space, Toast, Typography } from '@douyinfe/semi-ui';
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { createColumnHelper } from '@tanstack/react-table';
 import { formatTime, getDataRecordWrapper } from '@yuants/data-model';
 import { readDataRecords, writeDataRecords } from '@yuants/protocol';
 import { format } from 'date-fns';
@@ -24,8 +24,8 @@ import { fs } from '../FileSystem/api';
 import { showForm } from '../Form';
 import { Button, DataView } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
+import { registerAssociationRule } from '../System';
 import { useTerminal } from '../Terminals';
-import { registerAssociationRule } from '../Workspace';
 import { IFundEvent, IFundState, InvestorInfoDerived, InvestorMeta } from './model';
 import { getInitFundState, reduceState } from './utils';
 

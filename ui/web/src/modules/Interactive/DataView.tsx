@@ -12,7 +12,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ListView } from './ListView';
 import { TableView } from './TableView';
 
-export function DataView<T>(props: {
+export function DataView<T, K>(props: {
   data: T[];
   columns: ColumnDef<T, any>[];
   initialSorting?: SortingState;

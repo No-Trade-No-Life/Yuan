@@ -1,11 +1,19 @@
 declare module '@yuants/ui-web' {
+  /// <reference types="react" />
   import * as react_jsx_runtime from 'react/jsx-runtime';
-  import React, { ComponentType } from 'react';
+  import React$1, { ComponentType } from 'react';
   import * as rxjs from 'rxjs';
   import { BehaviorSubject, ReplaySubject, Subject, Observable } from 'rxjs';
   import * as _yuants_data_model from '@yuants/data-model';
   import { IDataRecord, IProduct } from '@yuants/data-model';
-  import { ColumnDef, Table, GroupingState, ExpandedState } from '@tanstack/react-table';
+  import {
+    ColumnDef,
+    SortingState,
+    OnChangeFn,
+    Table,
+    GroupingState,
+    ExpandedState,
+  } from '@tanstack/react-table';
   import { JSONSchema7 } from 'json-schema';
   import { ThemeProps, FormProps } from '@rjsf/core';
   import {
@@ -31,7 +39,7 @@ declare module '@yuants/ui-web' {
     candidates: string[];
   }) => react_jsx_runtime.JSX.Element;
 
-  const InlineAccountId: React.MemoExoticComponent<
+  const InlineAccountId: React$1.MemoExoticComponent<
     (props: { account_id: string }) => react_jsx_runtime.JSX.Element
   >;
 
@@ -82,7 +90,7 @@ declare module '@yuants/ui-web' {
 
   const registerCommand: (id: string, handler: (params: any) => void) => void;
   const executeCommand: (id: string, params?: {}) => Promise<void>;
-  const CommandCenter: React.MemoExoticComponent<() => react_jsx_runtime.JSX.Element>;
+  const CommandCenter: React$1.MemoExoticComponent<() => react_jsx_runtime.JSX.Element>;
 
   const index_d$r_CommandCenter: typeof CommandCenter;
   const index_d$r_executeCommand: typeof executeCommand;
@@ -113,11 +121,11 @@ declare module '@yuants/ui-web' {
   interface IDataRecordViewDef<T> {
     TYPE: string;
     columns: (ctx: { reloadData: () => Promise<void> }) => ColumnDef<IDataRecord<T>, any>[];
-    extraRecordActions?: React.ComponentType<{
+    extraRecordActions?: React$1.ComponentType<{
       reloadData: () => Promise<void>;
       record: IDataRecord<T>;
     }>;
-    extraHeaderActions?: React.ComponentType<{}>;
+    extraHeaderActions?: React$1.ComponentType<{}>;
     newRecord: () => Partial<T>;
     mapOriginToDataRecord?: (x: T) => IDataRecord<T>;
     beforeUpdateTrigger?: (x: T) => void | Promise<void>;
@@ -290,7 +298,7 @@ declare module '@yuants/ui-web' {
   >(): ComponentType<FormProps<T, S, F>>;
   const Form: (
     props: Omit<FormProps<any, any, any>, 'validator'>,
-  ) => React.ReactElement<FormProps<any, RJSFSchema, any>, string | React.JSXElementConstructor<any>>;
+  ) => React$1.ReactElement<FormProps<any, RJSFSchema, any>, string | React$1.JSXElementConstructor<any>>;
 
   /**
    * Request user to input data according to the schema.
@@ -453,7 +461,7 @@ declare module '@yuants/ui-web' {
    * - Button displays loading if and only if click event processing
    * - We need to know whether the backend click event is processing or not.
    */
-  const Button: React.MemoExoticComponent<
+  const Button: React$1.MemoExoticComponent<
     (
       props: Omit<ButtonProps, 'onClick' | 'loading'> & {
         onClick: () => Promise<any>;
@@ -461,9 +469,22 @@ declare module '@yuants/ui-web' {
     ) => react_jsx_runtime.JSX.Element
   >;
 
-  function DataView<T>(props: { table: Table<T> }): react_jsx_runtime.JSX.Element;
+  function DataView<T, K>(props: {
+    data: T[];
+    columns: ColumnDef<T, any>[];
+    initialSorting?: SortingState;
+    sorting?: SortingState;
+    onSortingChange?: OnChangeFn<SortingState>;
+    manualSorting?: boolean;
+    tableRef?: React.MutableRefObject<Table<T> | undefined>;
+    layoutMode?: 'table' | 'list' | 'auto';
+    topSlot?: React.ReactNode;
+  }): react_jsx_runtime.JSX.Element;
 
-  function ListView<T>(props: { table: Table<T> }): react_jsx_runtime.JSX.Element;
+  function ListView<T>(props: {
+    table: Table<T>;
+    topSlot?: React$1.ReactNode;
+  }): react_jsx_runtime.JSX.Element;
 
   interface IPivotTableProps<T> {
     data: T[];
@@ -473,7 +494,7 @@ declare module '@yuants/ui-web' {
   }
   function PivotTable<T>(props: IPivotTableProps<T>): react_jsx_runtime.JSX.Element;
 
-  function TableView<T>(props: { table: Table<T> }): react_jsx_runtime.JSX.Element;
+  function TableView<T>(props: { table: Table<T>; topSlot?: React.ReactNode }): react_jsx_runtime.JSX.Element;
 
   type ToastProps = string | Omit<ToastReactProps, 'type'>;
   /**
@@ -515,7 +536,7 @@ declare module '@yuants/ui-web' {
   /**
    * @public
    */
-  const Launch: React.MemoExoticComponent<() => react_jsx_runtime.JSX.Element>;
+  const Launch: React$1.MemoExoticComponent<() => react_jsx_runtime.JSX.Element>;
 
   const index_d$c_Launch: typeof Launch;
   namespace index_d$c {
@@ -552,7 +573,7 @@ declare module '@yuants/ui-web' {
     };
   }
 
-  const LocalizePageTitle: React.ComponentType<{
+  const LocalizePageTitle: React$1.ComponentType<{
     type: string;
     params?: any;
   }>;
@@ -568,7 +589,7 @@ declare module '@yuants/ui-web' {
       y: number;
     };
   }
-  const Page: React.MemoExoticComponent<(props: { page: IPage }) => react_jsx_runtime.JSX.Element>;
+  const Page: React$1.MemoExoticComponent<(props: { page: IPage }) => react_jsx_runtime.JSX.Element>;
   const usePageParams: () => any;
   const usePageTitle: (title: string) => void;
   const usePageType: () => string;
@@ -582,9 +603,9 @@ declare module '@yuants/ui-web' {
     | undefined;
   const usePageId: () => string;
 
-  const AvailableComponents: Record<string, React.ComponentType>;
+  const AvailableComponents: Record<string, React$1.ComponentType>;
   const pageRegistered$: Subject<string>;
-  const registerPage: (type: string, component: React.ComponentType) => void;
+  const registerPage: (type: string, component: React$1.ComponentType) => void;
 
   const index_d$9_AvailableComponents: typeof AvailableComponents;
   const index_d$9_LocalizePageTitle: typeof LocalizePageTitle;
@@ -638,40 +659,67 @@ declare module '@yuants/ui-web' {
     export { index_d$6_authState$ as authState$, index_d$6_supabase as supabase };
   }
 
+  /**
+   * File is associated with Command
+   */
+  interface IAssociationRule {
+    /** i18n_key = `association:${id}`  */
+    id: string;
+    priority?: number;
+    match: (ctx: { path: string; isFile: boolean }) => boolean;
+    action: (ctx: { path: string; isFile: boolean }) => void;
+  }
+  const registerAssociationRule: (rule: IAssociationRule) => void;
+  const executeAssociatedRule: (filename: string, rule_index?: number) => Promise<void>;
+  const associationRules: IAssociationRule[];
+
+  type index_d$5_IAssociationRule = IAssociationRule;
+  const index_d$5_associationRules: typeof associationRules;
+  const index_d$5_executeAssociatedRule: typeof executeAssociatedRule;
+  const index_d$5_registerAssociationRule: typeof registerAssociationRule;
+  namespace index_d$5 {
+    export {
+      type index_d$5_IAssociationRule as IAssociationRule,
+      index_d$5_associationRules as associationRules,
+      index_d$5_executeAssociatedRule as executeAssociatedRule,
+      index_d$5_registerAssociationRule as registerAssociationRule,
+    };
+  }
+
   const terminal$: Observable<Terminal | null>;
   const useTerminal: () => Terminal | null | undefined;
 
   const useTick: (datasource_id: string, product_id: string) => rxjs.Observable<_yuants_data_model.ITick>;
 
-  const index_d$5_terminal$: typeof terminal$;
-  const index_d$5_useTerminal: typeof useTerminal;
-  const index_d$5_useTick: typeof useTick;
-  namespace index_d$5 {
-    export {
-      index_d$5_terminal$ as terminal$,
-      index_d$5_useTerminal as useTerminal,
-      index_d$5_useTick as useTick,
-    };
-  }
-
+  const index_d$4_terminal$: typeof terminal$;
+  const index_d$4_useTerminal: typeof useTerminal;
+  const index_d$4_useTick: typeof useTick;
   namespace index_d$4 {
-    export {};
+    export {
+      index_d$4_terminal$ as terminal$,
+      index_d$4_useTerminal as useTerminal,
+      index_d$4_useTick as useTick,
+    };
   }
 
   namespace index_d$3 {
     export {};
   }
 
+  namespace index_d$2 {
+    export {};
+  }
+
   const ensureAuthenticated: () => Promise<void>;
 
-  const index_d$2_ensureAuthenticated: typeof ensureAuthenticated;
-  namespace index_d$2 {
-    export { index_d$2_ensureAuthenticated as ensureAuthenticated };
+  const index_d$1_ensureAuthenticated: typeof ensureAuthenticated;
+  namespace index_d$1 {
+    export { index_d$1_ensureAuthenticated as ensureAuthenticated };
   }
 
   const isShowHome$: rxjs.BehaviorSubject<boolean | undefined>;
   const toggleShowHome: () => void;
-  const HomePage: React.MemoExoticComponent<() => react_jsx_runtime.JSX.Element | null>;
+  const HomePage: React$1.MemoExoticComponent<() => react_jsx_runtime.JSX.Element | null>;
 
   const DarkModeSetting$: rxjs.BehaviorSubject<'auto' | 'light' | 'dark' | undefined>;
   const isDarkMode$: Observable<boolean>;
@@ -679,7 +727,7 @@ declare module '@yuants/ui-web' {
 
   const DarkModeEffect: () => react_jsx_runtime.JSX.Element;
 
-  const DarkmodeSwitch: React.MemoExoticComponent<() => react_jsx_runtime.JSX.Element>;
+  const DarkmodeSwitch: React$1.MemoExoticComponent<() => react_jsx_runtime.JSX.Element>;
 
   /**
    * Hook to use the page closing confirm
@@ -694,7 +742,6 @@ declare module '@yuants/ui-web' {
 
   const FullScreenButton: () => react_jsx_runtime.JSX.Element;
 
-  const secretURL: (url: string) => string;
   interface ICryptoHostConfig {
     label: string;
     public_key: string;
@@ -716,66 +763,42 @@ declare module '@yuants/ui-web' {
   }>;
   const OHLCIdList$: BehaviorSubject<string[]>;
 
-  const index_d$1_DarkModeEffect: typeof DarkModeEffect;
-  const index_d$1_DarkModeSetting$: typeof DarkModeSetting$;
-  const index_d$1_DarkmodeSwitch: typeof DarkmodeSwitch;
-  const index_d$1_FullScreenButton: typeof FullScreenButton;
-  const index_d$1_HomePage: typeof HomePage;
-  type index_d$1_IHostConfigItem = IHostConfigItem;
-  const index_d$1_OHLCIdList$: typeof OHLCIdList$;
-  const index_d$1_cryptoHosts$: typeof cryptoHosts$;
-  const index_d$1_currentHostConfig$: typeof currentHostConfig$;
-  const index_d$1_hostConfigList$: typeof hostConfigList$;
-  const index_d$1_initAction$: typeof initAction$;
-  const index_d$1_isDarkMode$: typeof isDarkMode$;
-  const index_d$1_isShowHome$: typeof isShowHome$;
-  const index_d$1_network$: typeof network$;
-  const index_d$1_secretURL: typeof secretURL;
-  const index_d$1_toggleShowHome: typeof toggleShowHome;
-  const index_d$1_useIsDarkMode: typeof useIsDarkMode;
-  const index_d$1_usePageClosingConfirm: typeof usePageClosingConfirm;
-  namespace index_d$1 {
-    export {
-      index_d$1_DarkModeEffect as DarkModeEffect,
-      index_d$1_DarkModeSetting$ as DarkModeSetting$,
-      index_d$1_DarkmodeSwitch as DarkmodeSwitch,
-      index_d$1_FullScreenButton as FullScreenButton,
-      index_d$1_HomePage as HomePage,
-      type index_d$1_IHostConfigItem as IHostConfigItem,
-      index_d$1_OHLCIdList$ as OHLCIdList$,
-      index_d$1_cryptoHosts$ as cryptoHosts$,
-      index_d$1_currentHostConfig$ as currentHostConfig$,
-      index_d$1_hostConfigList$ as hostConfigList$,
-      index_d$1_initAction$ as initAction$,
-      index_d$1_isDarkMode$ as isDarkMode$,
-      index_d$1_isShowHome$ as isShowHome$,
-      index_d$1_network$ as network$,
-      index_d$1_secretURL as secretURL,
-      index_d$1_toggleShowHome as toggleShowHome,
-      index_d$1_useIsDarkMode as useIsDarkMode,
-      index_d$1_usePageClosingConfirm as usePageClosingConfirm,
-    };
-  }
-
-  /**
-   * File is associated with Command
-   */
-  interface IAssociationRule {
-    /** i18n_key = `association:${id}`  */
-    id: string;
-    priority?: number;
-    match: (ctx: { path: string; isFile: boolean }) => boolean;
-    action: (ctx: { path: string; isFile: boolean }) => void;
-  }
-  const registerAssociationRule: (rule: IAssociationRule) => void;
-  const executeAssociatedRule: (filename: string, rule_index?: number) => Promise<void>;
-
-  const index_d_executeAssociatedRule: typeof executeAssociatedRule;
-  const index_d_registerAssociationRule: typeof registerAssociationRule;
+  const index_d_DarkModeEffect: typeof DarkModeEffect;
+  const index_d_DarkModeSetting$: typeof DarkModeSetting$;
+  const index_d_DarkmodeSwitch: typeof DarkmodeSwitch;
+  const index_d_FullScreenButton: typeof FullScreenButton;
+  const index_d_HomePage: typeof HomePage;
+  type index_d_IHostConfigItem = IHostConfigItem;
+  const index_d_OHLCIdList$: typeof OHLCIdList$;
+  const index_d_cryptoHosts$: typeof cryptoHosts$;
+  const index_d_currentHostConfig$: typeof currentHostConfig$;
+  const index_d_hostConfigList$: typeof hostConfigList$;
+  const index_d_initAction$: typeof initAction$;
+  const index_d_isDarkMode$: typeof isDarkMode$;
+  const index_d_isShowHome$: typeof isShowHome$;
+  const index_d_network$: typeof network$;
+  const index_d_toggleShowHome: typeof toggleShowHome;
+  const index_d_useIsDarkMode: typeof useIsDarkMode;
+  const index_d_usePageClosingConfirm: typeof usePageClosingConfirm;
   namespace index_d {
     export {
-      index_d_executeAssociatedRule as executeAssociatedRule,
-      index_d_registerAssociationRule as registerAssociationRule,
+      index_d_DarkModeEffect as DarkModeEffect,
+      index_d_DarkModeSetting$ as DarkModeSetting$,
+      index_d_DarkmodeSwitch as DarkmodeSwitch,
+      index_d_FullScreenButton as FullScreenButton,
+      index_d_HomePage as HomePage,
+      type index_d_IHostConfigItem as IHostConfigItem,
+      index_d_OHLCIdList$ as OHLCIdList$,
+      index_d_cryptoHosts$ as cryptoHosts$,
+      index_d_currentHostConfig$ as currentHostConfig$,
+      index_d_hostConfigList$ as hostConfigList$,
+      index_d_initAction$ as initAction$,
+      index_d_isDarkMode$ as isDarkMode$,
+      index_d_isShowHome$ as isShowHome$,
+      index_d_network$ as network$,
+      index_d_toggleShowHome as toggleShowHome,
+      index_d_useIsDarkMode as useIsDarkMode,
+      index_d_usePageClosingConfirm as usePageClosingConfirm,
     };
   }
 
@@ -808,11 +831,11 @@ declare module '@yuants/ui-web' {
     index_d$8 as Products,
     index_d$7 as PullSourceRelations,
     index_d$6 as SupaBase,
-    index_d$5 as Terminals,
-    index_d$4 as TradeCopier,
-    index_d$3 as TransferOrder,
-    index_d$2 as User,
-    index_d$1 as Workbench,
-    index_d as Workspace,
+    index_d$5 as System,
+    index_d$4 as Terminals,
+    index_d$3 as TradeCopier,
+    index_d$2 as TransferOrder,
+    index_d$1 as User,
+    index_d as Workbench,
   };
 }
