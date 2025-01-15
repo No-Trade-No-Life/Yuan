@@ -146,6 +146,19 @@ export const loadExtension = async (packageName: string) => {
   }
 };
 
+export const loadTarBlob = async (tarBlob: Blob) => {
+  const arrayBuffer = await tarBlob.arrayBuffer();
+  const files: Array<{ name: string; readAsString: () => string; get blob(): Blob; type: string }> =
+    await untar(arrayBuffer);
+
+  return files.map((file) => ({
+    filename: file.name,
+    blob: file.blob,
+    isDirectory: file.type === '5',
+    isFile: file.type === '0',
+  }));
+};
+
 export const loadTgzBlob = async (tgzBlob: Blob) => {
   const tarball = await new Response(
     tgzBlob.stream().pipeThrough(
@@ -153,12 +166,7 @@ export const loadTgzBlob = async (tgzBlob: Blob) => {
       new DecompressionStream('gzip'),
     ),
   ).blob();
-  const arrayBuffer = await tarball.arrayBuffer();
-  const files: Array<{ name: string; readAsString: () => string; get blob(): Blob }> = await untar(
-    arrayBuffer,
-  );
-
-  return files.map((file) => ({ filename: file.name, blob: file.blob }));
+  return loadTarBlob(tarball);
 };
 
 export async function installExtensionFromTgz(tgzFilename: string) {

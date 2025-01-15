@@ -21,7 +21,7 @@ import {
 } from 'rxjs';
 import versionCompare from 'version-compare';
 import versionSatisfy from 'version-range';
-import { loadExtension } from '../Extensions/utils';
+import { loadExtension, loadTgzBlob } from '../Extensions/utils';
 import { FsBackend$, bundleCode, fs, workspaceRoot$ } from '../FileSystem';
 import { FileSystemHandleBackend } from '../FileSystem/backends/FileSystemHandleBackend';
 import { InMemoryBackend } from '../FileSystem/backends/InMemoryBackend';
@@ -44,6 +44,18 @@ defer(async () => {
           const package_name = url.searchParams.get('name');
           const version = url.searchParams.get('version');
           await loadInmemoryWorkspaceFromNpm(scope, package_name, version);
+          return;
+        }
+        const from_github = url.searchParams.get('from_github');
+        if (from_github) {
+          const owner = url.searchParams.get('owner');
+          const repo = url.searchParams.get('repo');
+          const ref = url.searchParams.get('ref');
+          const auth_token = url.searchParams.get('auth_token');
+          if (!owner) throw new Error('NO OWNER');
+          if (!repo) throw new Error('NO REPO');
+          if (!ref) throw new Error('NO REF');
+          await loadInmemoryWorkspaceFromGitHub({ owner, repo, ref, auth_token });
           return;
         }
         log('WORKSPACE CHECKING FILE SYSTEM HANDLE');
@@ -261,4 +273,45 @@ async function loadInmemoryWorkspaceFromNpm(
     }
   }
   throw new Error('LOAD PACKAGE FAILED');
+}
+
+// ISSUE: use cors-proxy to avoid CORS issue
+const mapUrlToCorsProxy = (url: string): string => {
+  const urlObj = new URL('https://makcbuwrvhmfggzvhtux.supabase.co/functions/v1/cors-proxy');
+  urlObj.searchParams.set('url', url);
+  return urlObj.toString();
+};
+
+async function loadInmemoryWorkspaceFromGitHub(ctx: {
+  owner: string;
+  repo: string;
+  ref: string;
+  auth_token: string | null;
+}) {
+  FsBackend$.next(new InMemoryBackend(`${ctx.owner}/${ctx.repo}@${ctx.ref}`));
+
+  const res = await fetch(
+    mapUrlToCorsProxy(`https://api.github.com/repos/${ctx.owner}/${ctx.repo}/tarball/${ctx.ref}`),
+    ctx.auth_token
+      ? {
+          headers: {
+            // Accept: 'application/vnd.github+json',
+            // 'X-GitHub-Api-Version': '2022-11-28',
+            Authorization: `Bearer ${ctx.auth_token}`,
+          },
+        }
+      : undefined,
+  );
+
+  const blob = await res.blob();
+  log('BLOB SIZE', blob.size, 'BYTES');
+  const files = await loadTgzBlob(blob);
+  log(`EXTRACTING ${files.length} FILES...`);
+  for (const file of files) {
+    if (!file.isFile) continue;
+    const filename = resolve('/', file.filename.replace(/^[^/]+\//, ''));
+    log('EXTRACTING FILE', filename);
+    await fs.ensureDir(dirname(filename));
+    await fs.writeFile(filename, file.blob);
+  }
 }
