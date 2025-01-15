@@ -228,6 +228,7 @@ export async function resolveVersion(context: INpmPackagePullParams) {
         }
       : undefined,
   ).then((x) => x.json());
+  if (meta.error) throw new Error(meta.error);
   const version: string = context.version || meta['dist-tags'].latest;
   return { meta, version };
 }

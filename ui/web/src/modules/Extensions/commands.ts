@@ -11,7 +11,7 @@ registerCommand('Extension.install', async (params: { name?: string; immediateSu
   const data = await showForm<INpmPackagePullParams>(
     {
       type: 'object',
-      required: ['name', 'registry'],
+      required: ['name'],
       properties: {
         name: {
           type: 'string',
