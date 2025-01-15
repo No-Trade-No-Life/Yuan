@@ -8,11 +8,11 @@ import { fs } from '../FileSystem';
 import { Button } from '../Interactive';
 import { LocalizePageTitle, Page } from '../Pages';
 import { ErrorBoundary } from '../Pages/ErrorBoundary';
+import { registerAssociationRule } from '../System';
 import { NetworkStatusWidget } from '../Terminals/NetworkStatusWidget';
 import { UserMenu } from '../User/UserMenu';
 import { FullScreenButton, HomePage, isShowHome$, toggleShowHome } from '../Workbench';
 import { DarkmodeSwitch } from '../Workbench/DarkmodeSwitch';
-import { registerAssociationRule } from '../Workspace';
 import { WallPaper } from './WallPaper';
 import { layoutModel$, layoutModelJson$ } from './layout-model';
 

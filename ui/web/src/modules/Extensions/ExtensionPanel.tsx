@@ -1,6 +1,6 @@
 import { IconArrowUp, IconDelete } from '@douyinfe/semi-icons';
 import { Space } from '@douyinfe/semi-ui';
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
+import { createColumnHelper } from '@tanstack/react-table';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +8,7 @@ import { defer, from, lastValueFrom, mergeMap } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
 import { Button, DataView } from '../Interactive';
 import { registerPage } from '../Pages';
-import { registerAssociationRule } from '../Workspace';
+import { registerAssociationRule } from '../System';
 import {
   IActiveExtensionInstance,
   activeExtensions$,
@@ -72,29 +72,30 @@ registerPage('ExtensionPanel', () => {
   }, []);
 
   return (
-    <Space vertical align="start" style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
-      <Space>
-        <Button onClick={() => executeCommand('Extension.install')}>{t('install_new_button')}</Button>
-        <Button
-          onClick={() =>
-            lastValueFrom(
-              from(activeExtensions).pipe(
-                mergeMap((extension) =>
-                  executeCommand('Extension.install', {
-                    name: extension.packageJson.name,
-                    immediateSubmit: true,
-                  }),
+    <DataView
+      columns={columns}
+      data={activeExtensions}
+      topSlot={
+        <>
+          <Button onClick={() => executeCommand('Extension.install')}>{t('install_new_button')}</Button>
+          <Button
+            onClick={() =>
+              lastValueFrom(
+                from(activeExtensions).pipe(
+                  mergeMap((extension) =>
+                    executeCommand('Extension.install', {
+                      name: extension.packageJson.name,
+                      immediateSubmit: true,
+                    }),
+                  ),
                 ),
-              ),
-            )
-          }
-        >
-          {t('install_all')}
-        </Button>
-      </Space>
-      <div style={{ width: '100%', overflow: 'auto' }}>
-        <DataView columns={columns} data={activeExtensions} />
-      </div>
-    </Space>
+              )
+            }
+          >
+            {t('install_all')}
+          </Button>
+        </>
+      }
+    />
   );
 });

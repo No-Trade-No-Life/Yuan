@@ -1,4 +1,5 @@
 import './About';
+import './Explorer';
 import './HomePage';
 import './NotFound';
 import './Program';

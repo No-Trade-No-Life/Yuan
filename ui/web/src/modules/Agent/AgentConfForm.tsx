@@ -43,9 +43,9 @@ import { registerPage } from '../Pages';
 import { recordTable$ } from '../Shell/model';
 import { LocalAgentScene } from '../StaticFileServerStorage/LocalAgentScene';
 import { authState$ } from '../SupaBase';
+import { registerAssociationRule } from '../System';
 import { terminal$ } from '../Terminals';
 import { clearLogAction$ } from '../Workbench/Program';
-import { registerAssociationRule } from '../Workspace';
 import { bundleCode } from './utils';
 
 const mapScriptParamsSchemaToAgentConfSchema = (schema: JSONSchema7): JSONSchema7 => ({

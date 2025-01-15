@@ -23,7 +23,7 @@ export function TableView<T>(props: { table: Table<T>; topSlot?: React.ReactNode
 
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
-      <Space>
+      <Space wrap>
         {props.topSlot}
         <div>{table.options.data.length} Items</div>
       </Space>

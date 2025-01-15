@@ -1,5 +1,5 @@
 import { IconCode, IconRefresh } from '@douyinfe/semi-icons';
-import { Select, Space, Table, Toast } from '@douyinfe/semi-ui';
+import { Select, Toast } from '@douyinfe/semi-ui';
 import { IDeploySpec, IEnvContext, mergeSchema } from '@yuants/extension';
 import Ajv from 'ajv';
 import { t } from 'i18next';
@@ -25,10 +25,10 @@ import { executeCommand } from '../CommandCenter';
 import { DeployProviders, ImageTags } from '../Extensions/utils';
 import { fs } from '../FileSystem/api';
 import { shareHosts$ } from '../Host/model';
-import { Button } from '../Interactive';
+import { Button, DataView } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
 import { authState$, supabase } from '../SupaBase';
-import { registerAssociationRule } from '../Workspace';
+import { registerAssociationRule } from '../System';
 import { loadManifests } from './utils';
 
 // FYI: https://stackoverflow.com/a/30106551
@@ -274,68 +274,62 @@ registerPage('DeployConfigForm', () => {
   };
 
   return (
-    <Space vertical align="start">
-      <Space align="start">
-        <Button icon={<IconCode />} onClick={() => executeCommand('FileEditor', { filename: filename })}>
-          {t('common:view_source')}
-        </Button>
-        <Button
-          onClick={async () => {
-            setRefreshCount(refreshCount + 1);
-          }}
-          icon={<IconRefresh />}
-        ></Button>
-        <Button
-          onClick={() =>
-            Promise.allSettled(
-              [...new Set(manifests.map((v) => v.package))].map((packageName) =>
-                executeCommand('Extension.install', { name: packageName, immediateSubmit: true }),
-              ),
-            )
-          }
-        >
-          安装/更新全部包
-        </Button>
+    <DataView
+      data={manifests}
+      layoutMode="list"
+      columns={[
+        //
+        { header: 'Key', accessorKey: 'key' },
+        { header: '包名', accessorKey: 'package' },
+        {
+          header: '版本',
+          accessorKey: 'version',
+          cell: (ctx) => ctx.getValue() ?? ImageTags[ctx.row.original.package],
+        },
+        { header: '环境变量', accessorKey: 'env', cell: (ctx) => JSON.stringify(ctx.getValue()) },
+        { header: '注解', accessorKey: 'annotations', cell: (ctx) => JSON.stringify(ctx.getValue()) },
+      ]}
+      topSlot={
+        <>
+          <Button icon={<IconCode />} onClick={() => executeCommand('FileEditor', { filename: filename })}>
+            {t('common:view_source')}
+          </Button>
+          <Button
+            onClick={async () => {
+              setRefreshCount(refreshCount + 1);
+            }}
+            icon={<IconRefresh />}
+          ></Button>
+          <Button
+            onClick={() =>
+              Promise.allSettled(
+                [...new Set(manifests.map((v) => v.package))].map((packageName) =>
+                  executeCommand('Extension.install', { name: packageName, immediateSubmit: true }),
+                ),
+              )
+            }
+          >
+            安装/更新全部包
+          </Button>
 
-        <Button onClick={makeDockerCompose}>生成 Docker Compose 配置文件</Button>
-        <Button onClick={makeK8sResource}>生成 K8s 资源文件</Button>
-        <Select
-          placeholder={'选择主机'}
-          optionList={[
-            ...hosts.map((v) => ({ label: !!v.name ? v.name : v.id, value: v.id })),
-            { label: '非共享', value: '' },
-          ]}
-          value={hostId}
-          onChange={(v) => {
-            setHostId(v as string);
-          }}
-        ></Select>
-        <Button disabled={!authState} onClick={handleDeployToCloud}>
-          部署到 Yuan Cloud
-        </Button>
-      </Space>
-      <Table
-        dataSource={manifests}
-        columns={[
-          { title: 'Key', render: (_, v) => v.key },
-          {
-            title: '包名',
-            render: (_, v) => v.package,
-          },
-          {
-            title: '版本',
-            render: (_, v) => v.version ?? ImageTags[v.package],
-          },
-          {
-            title: '环境变量',
-            render: (_, v) => JSON.stringify(v.env ?? {}),
-          },
-          {
-            title: '注解',
-            render: (_, v) => JSON.stringify(v.annotations ?? {}),
-          },
-        ]}
-      ></Table>
-    </Space>
+          <Button onClick={makeDockerCompose}>生成 Docker Compose 配置文件</Button>
+          <Button onClick={makeK8sResource}>生成 K8s 资源文件</Button>
+          <Select
+            placeholder={'选择主机'}
+            optionList={[
+              ...hosts.map((v) => ({ label: !!v.name ? v.name : v.id, value: v.id })),
+              { label: '非共享', value: '' },
+            ]}
+            value={hostId}
+            onChange={(v) => {
+              setHostId(v as string);
+            }}
+          ></Select>
+          <Button disabled={!authState} onClick={handleDeployToCloud}>
+            部署到 Yuan Cloud
+          </Button>
+        </>
+      }
+    />
   );
 });

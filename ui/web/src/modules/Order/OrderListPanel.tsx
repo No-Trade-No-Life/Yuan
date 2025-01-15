@@ -1,10 +1,11 @@
 import { IconExport } from '@douyinfe/semi-icons';
-import { Button, Space, Table, Tag } from '@douyinfe/semi-ui';
+import { Button, Space } from '@douyinfe/semi-ui';
 import { formatTime } from '@yuants/data-model';
 import { stringify } from 'csv-stringify/browser/esm/sync';
 import download from 'downloadjs';
 import { useObservableState } from 'observable-hooks';
 import { useTranslation } from 'react-i18next';
+import { DataView } from '../Interactive';
 import { registerPage } from '../Pages';
 import { orders$ } from './model';
 
@@ -42,39 +43,36 @@ registerPage('OrderListPanel', () => {
           {t('export_as_csv')}
         </Button>
       </Space>
-      <Table
-        dataSource={orders}
-        pagination={{ pageSize: 10 }}
+      <DataView
+        data={orders}
         columns={[
-          { title: t('account_id'), render: (_, order) => order.account_id },
-          { title: t('order_id'), render: (_, order) => order.order_id },
-          { title: t('position_id'), render: (_, order) => order.position_id },
-          { title: t('product_id'), render: (_, order) => order.product_id },
+          //
+          { header: t('account_id'), accessorKey: 'account_id' },
+          { header: t('order_id'), accessorKey: 'order_id' },
+          { header: t('position_id'), accessorKey: 'position_id' },
+          { header: t('product_id'), accessorKey: 'product_id' },
           {
-            title: t('timestamp'),
-            render: (_, order) => formatTime(order.submit_at!),
+            header: t('timestamp'),
+            accessorKey: 'submit_at',
+            cell: (ctx) => formatTime(ctx.getValue()!),
           },
           {
-            title: t('direction'),
-            render: (_, order) => {
-              return <Tag>{order.order_direction}</Tag>;
-            },
+            header: t('direction'),
+            accessorKey: 'order_direction',
           },
           {
-            title: t('order_type'),
-            render: (_, order) => {
-              return <Tag>{order.order_type}</Tag>;
-            },
+            header: t('order_type'),
+            accessorKey: 'order_type',
           },
-          { title: t('traded_price'), dataIndex: 'traded_price' },
-          { title: t('traded_volume'), dataIndex: 'traded_volume' },
-          { title: t('price'), dataIndex: 'price' },
-          { title: t('volume'), dataIndex: 'volume' },
-          { title: t('inferred_base_currency_price'), dataIndex: 'inferred_base_currency_price' },
-          { title: t('profit_correction'), dataIndex: 'profit_correction' },
-          { title: t('comment'), dataIndex: 'comment' },
+          { header: t('traded_price'), accessorKey: 'traded_price' },
+          { header: t('traded_volume'), accessorKey: 'traded_volume' },
+          { header: t('price'), accessorKey: 'price' },
+          { header: t('volume'), accessorKey: 'volume' },
+          { header: t('inferred_base_currency_price'), accessorKey: 'inferred_base_currency_price' },
+          { header: t('profit_correction'), accessorKey: 'profit_correction' },
+          { header: t('comment'), accessorKey: 'comment' },
         ]}
-      ></Table>
+      />
     </div>
   );
 });
