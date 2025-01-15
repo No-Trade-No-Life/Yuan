@@ -51,7 +51,8 @@ defer(async () => {
           const owner = url.searchParams.get('owner');
           const repo = url.searchParams.get('repo');
           const ref = url.searchParams.get('ref');
-          const auth_token = url.searchParams.get('auth_token');
+          // ISSUE: auth_token in URL is not safe
+          const auth_token = prompt('GitHub Auth Token if needed');
           if (!owner) throw new Error('NO OWNER');
           if (!repo) throw new Error('NO REPO');
           if (!ref) throw new Error('NO REF');
