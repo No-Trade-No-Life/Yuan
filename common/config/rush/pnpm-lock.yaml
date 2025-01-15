@@ -1723,6 +1723,7 @@ importers:
       '@tanstack/react-query': ~5.49.2
       '@tanstack/react-table': ~8.12.0
       '@types/downloadjs': ~1.4.3
+      '@types/ini': ~4.1.1
       '@types/json-schema': ~7.0.11
       '@types/path-browserify': ^1.0.0
       '@types/react': ^18.2.29
@@ -1752,6 +1753,7 @@ importers:
       i18next-browser-languagedetector: ~7.1.0
       i18next-http-backend: ~2.2.2
       idb-keyval: ^6.2.0
+      ini: ~5.0.0
       js-untar: ~2.0.0
       jsonc-parser: ~3.2.0
       lightweight-charts: ~3.8.0
@@ -1809,6 +1811,7 @@ importers:
       i18next-browser-languagedetector: 7.1.0
       i18next-http-backend: 2.2.2
       idb-keyval: 6.2.1
+      ini: 5.0.0
       js-untar: 2.0.0
       jsonc-parser: 3.2.0
       lightweight-charts: 3.8.0
@@ -1829,6 +1832,7 @@ importers:
     devDependencies:
       '@originjs/vite-plugin-commonjs': 1.0.3
       '@types/downloadjs': 1.4.3
+      '@types/ini': 4.1.1
       '@types/json-schema': 7.0.12
       '@types/path-browserify': 1.0.0
       '@types/react': 18.2.37
@@ -8906,6 +8910,10 @@ packages:
       '@types/node': 18.17.12
     dev: true
 
+  /@types/ini/4.1.1:
+    resolution: {integrity: sha512-MIyNUZipBTbyUNnhvuXJTY7B6qNI78meck9Jbv3wk0OgNwRyOOVEKDutAkOs1snB/tx0FafyR6/SN4Ps0hZPeg==}
+    dev: true
+
   /@types/istanbul-lib-coverage/2.0.4:
     resolution: {integrity: sha512-z/QT1XN4K4KYuslS23k62yDIDLwLFkzxOuMplDtObz0+y7VqJCaO2o+SPwHCvLFZh7xazvvoor2tA/hPz9ee7g==}
 
@@ -15031,6 +15039,11 @@ packages:
   /ini/2.0.0:
     resolution: {integrity: sha512-7PnF4oN3CvZF23ADhA5wRaYEQpJ8qygSkbtTXWBeXWXmEVRXK+1ITciHWwHhsjv1TmW0MgacIv6hEi5pX5NQdA==}
     engines: {node: '>=10'}
+    dev: false
+
+  /ini/5.0.0:
+    resolution: {integrity: sha512-+N0ngpO3e7cRUWOJAS7qw0IZIVc6XPrW4MlFBdD066F2L4k1L6ker3hLqSq7iXxU5tgS4WGkIUElWn5vogAEnw==}
+    engines: {node: ^18.17.0 || >=20.5.0}
     dev: false
 
   /inline-style-parser/0.1.1:

@@ -4,15 +4,14 @@ import { showForm } from '../Form';
 import { Toast } from '../Interactive';
 import { INpmPackagePullParams, installExtension, loadExtension, uninstallExtension } from './utils';
 
-registerCommand('Extension.install', async (params) => {
-  const initialData: INpmPackagePullParams = {
+registerCommand('Extension.install', async (params: { name?: string; immediateSubmit?: boolean }) => {
+  const initialData: Partial<INpmPackagePullParams> = {
     name: params.name,
-    registry: params.registry || 'https://registry.npmjs.org',
   };
   const data = await showForm<INpmPackagePullParams>(
     {
       type: 'object',
-      required: ['name', 'registry'],
+      required: ['name'],
       properties: {
         name: {
           type: 'string',
