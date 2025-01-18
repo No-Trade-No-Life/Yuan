@@ -1,10 +1,5 @@
 import { UUID, formatTime } from '@yuants/data-model';
-import {
-  NativeSubject,
-  observableToAsyncIterable,
-  rateLimitMap,
-  subjectToNativeSubject,
-} from '@yuants/utils';
+import { NativeSubject, observableToAsyncIterable, subjectToNativeSubject } from '@yuants/utils';
 import Ajv, { ValidateFunction } from 'ajv';
 import { isNode } from 'browser-or-node';
 import { JSONSchema7 } from 'json-schema';
@@ -22,11 +17,9 @@ import {
   exhaustMap,
   filter,
   first,
-  firstValueFrom,
   from,
   fromEvent,
   groupBy,
-  interval,
   map,
   mergeAll,
   mergeMap,
@@ -46,8 +39,16 @@ import {
   withLatestFrom,
 } from 'rxjs';
 import type SimplePeer from 'simple-peer';
+import { TerminalClient } from './client';
 import { IConnection, createConnectionWs } from './create-connection';
-import { ITerminalInfo } from './model';
+import {
+  IServiceHandler,
+  IServiceInfo,
+  IServiceInfoServerSide,
+  IServiceOptions,
+  ITerminalInfo,
+} from './model';
+import { TerminalServer } from './server';
 import { IService, ITerminalMessage } from './services';
 import { PromRegistry } from './services/metrics';
 import { getSimplePeerInstance } from './webrtc';
@@ -65,48 +66,6 @@ const TerminalTransmittedChannelMessageTotal = PromRegistry.create(
   'counter',
   'terminal_transmitted_channel_message_total',
 );
-
-const RequestDurationBucket = PromRegistry.create(
-  'histogram',
-  'terminal_request_duration_milliseconds',
-  'terminal_request_duration_milliseconds Request Duration bucket in 1, 10, 100, 1000, 10000 ms',
-  [1, 10, 100, 1000, 10000],
-);
-
-const RequestReceivedTotal = PromRegistry.create(
-  'counter',
-  'terminal_request_received_total',
-  'terminal_request_received_total Terminal request received',
-);
-
-type IServiceHandler<T extends string = string> = T extends keyof IService
-  ? (
-      msg: ITerminalMessage & Pick<IService[T], 'req'> & { method: T },
-      output$: NativeSubject<
-        Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> &
-          Partial<Pick<IService[T], 'res' | 'frame'>>
-      >,
-    ) => ObservableInput<
-      Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> &
-        Partial<Pick<IService[T], 'res' | 'frame'>>
-    >
-  : // ISSUE: Allow custom methods between terminals
-    (
-      msg: ITerminalMessage,
-      output$: NativeSubject<
-        Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>
-      >,
-    ) => ObservableInput<
-      Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>
-    >;
-
-interface IServiceOptions {
-  concurrent?: number;
-  rateLimitConfig?: {
-    count: number;
-    period: number;
-  };
-}
 
 const MetricsProcessMemoryUsage = PromRegistry.create(
   'gauge',
@@ -130,12 +89,12 @@ export class Terminal {
    * Connection
    */
   private _conn: IConnection<string>;
+
   /**
    * Terminal ID
    */
   terminal_id: string;
-  private _serviceHandlers: Record<string, IServiceHandler> = {};
-  private _serviceOptions: Record<string, IServiceOptions> = {};
+
   /**
    * Terminal Message Header Flag
    */
@@ -160,13 +119,10 @@ export class Terminal {
     this._conn = connection || createConnectionWs(this.host_url);
     this._setupTunnel();
     this._setupDebugLog();
-    this._setupServer();
     this._setupPredefinedServerHandlers();
     this._setupChannelValidatorSubscription();
-    this._setupTerminalIdAndMethodValidatorSubscription();
 
     this.terminalInfo.created_at = Date.now();
-    this.terminalInfo.status ??= 'INIT';
 
     this._setupTerminalInfoStuff();
   }
@@ -783,9 +739,9 @@ export class Terminal {
    */
   input$: AsyncIterable<ITerminalMessage> = observableToAsyncIterable(this._input$);
   /**
-   * Observable that emits when a message is sent
+   * Subject that emits when a message is sent
    */
-  output$: AsyncIterable<ITerminalMessage> = observableToAsyncIterable(this._output$);
+  output$: NativeSubject<ITerminalMessage> = subjectToNativeSubject(this._output$);
   /**
    * Observable that emits when the terminal is disposed
    */
@@ -809,30 +765,7 @@ export class Terminal {
     target_terminal_id: string,
     req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req'],
   ): AsyncIterable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage> {
-    const trace_id = UUID();
-    const msg = {
-      trace_id,
-      method,
-      target_terminal_id,
-      source_terminal_id: this.terminal_id,
-      req,
-    };
-    return observableToAsyncIterable(
-      defer((): Observable<any> => {
-        this._output$.next(msg);
-        return this._input$.pipe(
-          filter((m) => m.trace_id === msg.trace_id),
-          // complete immediately when res is received
-          takeWhile((msg1) => msg1.res === undefined, true),
-          timeout({
-            first: 30000,
-            each: 10000,
-            meta: `request Timeout: method=${msg.method} target=${msg.target_terminal_id}`,
-          }),
-          share(),
-        );
-      }),
-    );
+    return this.client.request(method, target_terminal_id, req);
   }
 
   /**
@@ -844,18 +777,28 @@ export class Terminal {
     handler: IServiceHandler<T>,
     options?: IServiceOptions,
   ): { dispose: () => void } => {
-    const serviceInfo = { method, schema: requestSchema };
-    (this.terminalInfo.serviceInfo ??= {})[method] = serviceInfo;
-    // @ts-ignore
-    this._serviceHandlers[method] = handler;
-    this._serviceOptions[method] = options || {};
+    const service_id = UUID();
+    const serviceInfo: IServiceInfo = { service_id, method, schema: requestSchema };
+
+    // update terminalInfo
+    (this.terminalInfo.serviceInfo ??= {})[service_id] = serviceInfo;
+    (this.terminalInfo.serviceInfo ??= {})[method] = serviceInfo; // ISSUE: backward compatibility, remove it in the future
     this._terminalInfoUpdated$.next();
+
+    const service: IServiceInfoServerSide = {
+      serviceInfo,
+      handler: handler as any,
+      options: options || {},
+      validator: new Ajv({ strictSchema: false }).compile(requestSchema),
+    };
+    // update service object
+    this.server.addService(service);
     const dispose = () => {
-      if (this._serviceHandlers[method] === handler) delete this._serviceHandlers[method];
-      if (this._serviceOptions[method] === options) delete this._serviceOptions[method];
       if (this.terminalInfo.serviceInfo?.[method] === serviceInfo)
         delete this.terminalInfo.serviceInfo[method];
+      delete this.terminalInfo.serviceInfo?.[service_id];
       this._terminalInfoUpdated$.next();
+      this.server.removeService(service_id);
     };
     return { dispose };
   };
@@ -863,21 +806,9 @@ export class Terminal {
   /**
    * Resolve candidate target_terminal_ids for a request
    */
-  resolveTargetTerminalIds = async (method: string, req: ITerminalMessage['req']): Promise<string[]> =>
-    firstValueFrom(
-      this._terminalInfos$.pipe(first()).pipe(
-        mergeMap((terminalInfos) =>
-          from(terminalInfos).pipe(
-            //
-            filter((terminalInfo) =>
-              this._mapTerminalIdAndMethodToValidator[terminalInfo.terminal_id]?.[method]?.(req),
-            ),
-          ),
-        ),
-        map((terminalInfo) => terminalInfo.terminal_id),
-        toArray(),
-      ),
-    );
+  resolveTargetTerminalIds = (method: string, req: ITerminalMessage['req']): Promise<string[]> => {
+    return this.client.resolveTargetTerminalIds(method, req);
+  };
 
   /**
    * Make a request to a service
@@ -895,18 +826,7 @@ export class Terminal {
   requestService(method: string, req: ITerminalMessage['req']): AsyncIterable<ITerminalMessage>;
 
   requestService(method: string, req: ITerminalMessage['req']): AsyncIterable<ITerminalMessage> {
-    return observableToAsyncIterable(
-      defer(() => this.resolveTargetTerminalIds(method, req)).pipe(
-        map((arr) => {
-          if (arr.length === 0) {
-            throw Error(`No terminal available for request: method=${method} req=${JSON.stringify(req)}`);
-          }
-          const target = arr[~~(Math.random() * arr.length)]; // Simple Random Load Balancer
-          return target;
-        }),
-        mergeMap((target_terminal_id) => this.request(method, target_terminal_id, req)),
-      ),
-    );
+    return this.client.requestService(method, req);
   }
 
   /**
@@ -935,12 +855,7 @@ export class Terminal {
     method: string,
     req: ITerminalMessage['req'],
   ): Promise<Exclude<ITerminalMessage['res'], undefined>> {
-    return firstValueFrom(
-      from(this.requestService(method as any, req as any)).pipe(
-        map((msg) => msg.res),
-        filter((v): v is Exclude<typeof v, undefined> => v !== undefined),
-      ),
-    ) as any;
+    return this.client.requestForResponse(method, req);
   }
 
   private _setupDebugLog = () => {
@@ -998,154 +913,6 @@ export class Terminal {
     if (Object.keys(this.terminalInfo.subscriptions).length > 0) return;
     delete this.terminalInfo.subscriptions;
     this._terminalInfoUpdated$.next();
-  };
-
-  private _setupServer = () => {
-    const sub = this._input$
-      .pipe(
-        filter((msg) => msg.method !== undefined && msg.frame === undefined && msg.res === undefined),
-        groupBy((msg) => msg.method!),
-        mergeMap((group) => {
-          const handler = this._serviceHandlers[group.key];
-          const concurrency = this._serviceOptions[group.key]?.concurrent ?? Infinity;
-
-          if (!handler) {
-            return EMPTY;
-          }
-
-          const preHandleAction$ = new Subject<{ req: ITerminalMessage }>();
-          const postHandleAction$ = new Subject<{ req: ITerminalMessage; res: ITerminalMessage }>();
-
-          // ISSUE: Keepalive for every queued request before they are handled,
-          preHandleAction$.subscribe(({ req }) => {
-            const sub = interval(5000).subscribe(() => {
-              this._output$.next({
-                trace_id: req.trace_id,
-                method: req.method,
-                // ISSUE: Reverse source / target as response, otherwise the host cannot guarantee the forwarding direction
-                source_terminal_id: this.terminal_id,
-                target_terminal_id: req.source_terminal_id,
-              });
-            });
-
-            postHandleAction$
-              .pipe(
-                //
-                first(({ req: req1 }) => req1 === req),
-              )
-              .subscribe(() => {
-                sub.unsubscribe();
-              });
-          });
-
-          // Metrics
-          preHandleAction$.subscribe(({ req }) => {
-            const tsStart = Date.now();
-            if (req.method) {
-              RequestReceivedTotal.inc({
-                method: req.method,
-                source_terminal_id: req.source_terminal_id,
-                target_terminal_id: req.target_terminal_id,
-              });
-            }
-
-            postHandleAction$.pipe(first(({ req: req1 }) => req1 === req)).subscribe(({ req, res }) => {
-              if (req.method) {
-                RequestDurationBucket.observe(Date.now() - tsStart, {
-                  method: req.method,
-                  source_terminal_id: req.source_terminal_id,
-                  target_terminal_id: req.target_terminal_id,
-                  code: res.res?.code ?? 520,
-                });
-              }
-            });
-          });
-
-          return group.pipe(
-            tap((msg) => {
-              preHandleAction$.next({ req: msg });
-            }),
-            groupBy((msg) => msg.source_terminal_id),
-            // Token Bucket Algorithm
-            mergeMap((subGroup) =>
-              subGroup.pipe(
-                rateLimitMap(
-                  (msg) => {
-                    return of(msg);
-                  },
-                  (msg) => {
-                    return of({
-                      res: { code: 429, message: `Too Many Requests` },
-                      trace_id: msg.trace_id,
-                      method: msg.method,
-                      source_terminal_id: msg.source_terminal_id,
-                      target_terminal_id: msg.target_terminal_id,
-                    });
-                  },
-                  this._serviceOptions[subGroup.key]?.rateLimitConfig,
-                ),
-              ),
-            ),
-            mergeMap((msg) => {
-              const output$ = new Subject<
-                Omit<ITerminalMessage, 'trace_id' | 'method' | 'source_terminal_id' | 'target_terminal_id'>
-              >();
-              const nativeOutput$ = subjectToNativeSubject(output$);
-              const res$: Observable<
-                Omit<ITerminalMessage, 'trace_id' | 'method' | 'source_terminal_id' | 'target_terminal_id'>
-              > = msg.res ? of(msg) : defer(() => handler(msg, nativeOutput$));
-              // ISSUE: output$.pipe(...) must be returned first to ensure that mergeMap has been subscribed before res$ starts write into output$
-              setTimeout(() => {
-                res$.subscribe(output$);
-              }, 0);
-              return output$.pipe(
-                catchError((err) => {
-                  console.error(formatTime(Date.now()), `ServerError`, msg, err);
-                  // TODO: add Metric Error here
-                  return of({
-                    res: { code: 500, message: `InternalError: ${err}` },
-                  });
-                }),
-                timeout({
-                  first: 30000,
-                  each: 10000,
-                  meta: `handler Timeout: method=${msg.method} target=${msg.source_terminal_id}`,
-                }),
-                catchError((err) => {
-                  return of({
-                    res: { code: 504, message: `Gateway Timeout: ${err}` },
-                  });
-                }),
-                takeWhile((res) => res.res === undefined, true),
-                map(
-                  (
-                    res: Omit<
-                      ITerminalMessage,
-                      'trace_id' | 'method' | 'source_terminal_id' | 'target_terminal_id'
-                    >,
-                  ) => ({
-                    ...res,
-                    trace_id: msg.trace_id,
-                    method: msg.method,
-                    // ISSUE: Reverse source / target as response, otherwise the host cannot guarantee the forwarding direction
-                    source_terminal_id: this.terminal_id,
-                    target_terminal_id: msg.source_terminal_id,
-                  }),
-                ),
-                tap((res: ITerminalMessage) => {
-                  if (res.res !== undefined) {
-                    postHandleAction$.next({ req: msg, res });
-                  }
-                }),
-              );
-            }, concurrency),
-          );
-        }),
-      )
-      .subscribe((msg) => {
-        this._output$.next(msg);
-      });
-    this._subscriptions.push(sub);
   };
 
   private _setupPredefinedServerHandlers = () => {
@@ -1371,37 +1138,6 @@ export class Terminal {
    */
   terminalInfos$: AsyncIterable<ITerminalInfo[]> = observableToAsyncIterable(this._terminalInfos$);
 
-  // ISSUE: Ajv is very slow and cause a lot CPU utilization, so we must cache the compiled validator
-  private _mapTerminalIdAndMethodToValidator: Record<string, Record<string, ValidateFunction>> = {};
-
-  private _setupTerminalIdAndMethodValidatorSubscription() {
-    this._subscriptions.push(
-      this._terminalInfos$
-        .pipe(
-          //
-          mergeAll(),
-          groupBy((v) => v.terminal_id),
-          mergeMap((groupByTerminalId) =>
-            groupByTerminalId.pipe(
-              mergeMap((terminalInfo) => Object.entries(terminalInfo.serviceInfo || {})),
-              groupBy(([method]) => method),
-              mergeMap((groupByMethod) =>
-                groupByMethod.pipe(
-                  distinctUntilChanged(
-                    ([, { schema: schema1 }], [, { schema: schema2 }]) =>
-                      JSON.stringify(schema1) === JSON.stringify(schema2),
-                  ),
-                  tap(([, { schema }]) => {
-                    (this._mapTerminalIdAndMethodToValidator[groupByTerminalId.key] ??= {})[
-                      groupByMethod.key
-                    ] = new Ajv({ strict: false }).compile(schema);
-                  }),
-                ),
-              ),
-            ),
-          ),
-        )
-        .subscribe(),
-    );
-  }
+  server: TerminalServer = new TerminalServer(this);
+  client: TerminalClient = new TerminalClient(this);
 }
