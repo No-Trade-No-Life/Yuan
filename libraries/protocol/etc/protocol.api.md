@@ -38,18 +38,6 @@ export const escapeRegExp: (string: string) => string;
 
 // @public
 export interface IChannelTypes {
-    // (undocumented)
-    AccountInfo: {
-        value: IAccountInfo;
-    };
-    // (undocumented)
-    Periods: {
-        value: IPeriod[];
-    };
-    // (undocumented)
-    Tick: {
-        value: ITick;
-    };
 }
 
 // @public
