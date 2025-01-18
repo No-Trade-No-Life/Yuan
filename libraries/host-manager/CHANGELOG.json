@@ -2,6 +2,33 @@
   "name": "@yuants/host-manager",
   "entries": [
     {
+      "version": "0.2.0",
+      "tag": "@yuants/host-manager_v0.2.0",
+      "date": "Sat, 18 Jan 2025 11:58:42 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "disable Terminate"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "add channel 'TerminalInfoChangeEvent'"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.28.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.7",
       "tag": "@yuants/host-manager_v0.1.7",
       "date": "Tue, 14 Jan 2025 12:10:21 GMT",

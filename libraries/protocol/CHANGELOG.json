@@ -2,6 +2,37 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.28.0",
+      "tag": "@yuants/protocol_v0.28.0",
+      "date": "Sat, 18 Jan 2025 11:58:42 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "support service_id to allow multiple methods"
+          },
+          {
+            "comment": "support new publishChannel and subscribeChannel methods"
+          },
+          {
+            "comment": "support disable Terminate and Metrics options"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "use new channel in provideXXX helpers"
+          },
+          {
+            "comment": "refactor"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.27.5",
       "tag": "@yuants/protocol_v0.27.5",
       "date": "Tue, 14 Jan 2025 12:10:21 GMT",
