@@ -47,8 +47,8 @@ export interface IChannelTypes {
   Tick: {
     value: ITick;
   };
-  Period: {
-    value: IPeriod;
+  Periods: {
+    value: IPeriod[];
   };
 }
 

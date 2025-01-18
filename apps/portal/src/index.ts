@@ -103,10 +103,14 @@ combineLatest([portalRelationsGroupByExternalHost$, portalTerminals$])
       (x) => {
         return new Observable<{ externalTerminal: Terminal; services: IPortalRelation[] }>((subscriber) => {
           console.info(formatTime(Date.now()), `SetupExternalTerminal: ${x.host_url}`);
-          const terminal = new Terminal(x.host_url, {
-            terminal_id: `Portal/External/${UUID()}`,
-            name: 'Portal-External',
-          });
+          const terminal = new Terminal(
+            x.host_url,
+            {
+              terminal_id: `Portal/External/${UUID()}`,
+              name: 'Portal-External',
+            },
+            { disableTerminate: true, disableMetrics: true },
+          );
           subscriber.next({ externalTerminal: terminal, services: x.items });
           return () => {
             console.info(formatTime(Date.now()), `DisposeExternalTerminal: ${x.host_url}`);
@@ -119,14 +123,6 @@ combineLatest([portalRelationsGroupByExternalHost$, portalTerminals$])
     tap(({ externalTerminal, services }) => {
       console.info(formatTime(Date.now()), `SetupServices: ${externalTerminal.host_url}`);
       for (const service of services) {
-        externalTerminal.provideService('Terminate', {}, async (msg) => {
-          return {
-            res: {
-              code: 403,
-              message: `You are not allowed to terminate this terminal`,
-            },
-          };
-        });
         const [fromTerminal, toTerminal] =
           service.direction === 'export'
             ? [internalTerminal, externalTerminal]
