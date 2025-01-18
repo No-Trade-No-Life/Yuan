@@ -1,4 +1,39 @@
+import { NativeSubject } from '@yuants/utils';
+import { ValidateFunction } from 'ajv';
 import { JSONSchema7 } from 'json-schema';
+import { ObservableInput } from 'rxjs';
+import { IService, ITerminalMessage } from './services';
+
+/**
+ * ServiceInfo
+ * 服务信息
+ *
+ * @public
+ */
+export interface IServiceInfo {
+  /**
+   * Service ID
+   *
+   * Once set, it cannot be changed.
+   *
+   * UUID() is recommended
+   *
+   * for backward compatibility reason, we cannot enforce this field to be required.
+   * oneday we will use this field to identify the service.
+   * if not provided, we will use the `method` as the service_id.
+   */
+  service_id?: string;
+  /**
+   * Service name
+   * 服务的名称
+   */
+  method: string;
+  /**
+   * The message must conform to this schema for the server to process it (JSON Schema)
+   * 消息符合此模式时，服务端才会处理
+   */
+  schema: JSONSchema7;
+}
 
 /**
  * 终端基本信息
@@ -57,21 +92,7 @@ export interface ITerminalInfo {
    * Service information provided by the terminal
    * 终端提供的服务信息
    */
-  serviceInfo?: Record<
-    string,
-    {
-      /**
-       * Service name
-       * 服务的名称
-       */
-      method: string;
-      /**
-       * The message must conform to this schema for the server to process it (JSON Schema)
-       * 消息符合此模式时，服务端才会处理
-       */
-      schema: JSONSchema7;
-    }
-  >;
+  serviceInfo?: Record<string, IServiceInfo>;
 
   /** Provider Channel ID Schema */
   channelIdSchemas?: JSONSchema7[];
@@ -97,4 +118,98 @@ export interface ITerminalInfo {
    * @deprecated - Remove this field
    */
   status?: string;
+}
+
+/**
+ * Service Options
+ * 服务选项
+ *
+ * @public
+ */
+export interface IServiceOptions {
+  /**
+   * Maximum number of concurrent requests to handle
+   * 处理的最大并发请求数
+   *
+   * by default not limited, all requests will be handled concurrently
+   * 默认不限制 并发处理所有请求
+   */
+  concurrent?: number;
+  /**
+   * Maximum number of pending requests
+   * 最大排队请求数
+   *
+   * by default not limited
+   * 默认不限制
+   *
+   * if exceeded, the request will be rejected with 503 status code
+   * 如果超出限制，请求将被拒绝，返回 503 状态码
+   */
+  max_pending_requests?: number;
+  /**
+   * Rate limit configuration
+   * 速率限制配置
+   *
+   * by default not limited
+   * 默认不限制
+   *
+   * if exceeded, the request will be rejected with 429 status code
+   * 如果超出限制，请求将被拒绝，返回 429 状态码
+   *
+   * use token bucket algorithm
+   * 使用令牌桶算法
+   */
+  rateLimitConfig?: {
+    /**
+     * Maximum number of requests allowed in a period
+     * 在一个周期内允许的最大请求数
+     */
+    count: number;
+    period: number;
+  };
+}
+
+/**
+ * @internal
+ */
+export type IServiceHandler<T extends string = string> = T extends keyof IService
+  ? (
+      msg: ITerminalMessage & Pick<IService[T], 'req'> & { method: T },
+      output$: NativeSubject<
+        Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> &
+          Partial<Pick<IService[T], 'res' | 'frame'>>
+      >,
+    ) => ObservableInput<
+      Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> &
+        Partial<Pick<IService[T], 'res' | 'frame'>>
+    >
+  : // ISSUE: Allow custom methods between terminals
+    (
+      msg: ITerminalMessage,
+      output$: NativeSubject<
+        Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>
+      >,
+    ) => ObservableInput<
+      Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>
+    >;
+
+/**
+ * @internal
+ */
+export interface IServiceInfoServerSide {
+  serviceInfo: IServiceInfo;
+  handler: IServiceHandler;
+  options: IServiceOptions;
+  // cache the compiled validator
+  validator: ValidateFunction;
+}
+
+/**
+ * @internal
+ */
+export interface IServiceCandidateClientSide {
+  service_id: string;
+  serviceInfo: IServiceInfo;
+  terminal_id: string;
+  validator: ValidateFunction;
 }

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "support service_id to allow multiple methods",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

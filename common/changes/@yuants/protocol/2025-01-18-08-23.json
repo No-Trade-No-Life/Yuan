@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "support new publishChannel and subscribeChannel methods",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

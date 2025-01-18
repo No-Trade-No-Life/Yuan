@@ -15,6 +15,7 @@ import { JSONSchema7 } from 'json-schema';
 import { NativeSubject } from '@yuants/utils';
 import { ObservableInput } from 'rxjs';
 import { Registry } from '@yuants/prometheus-client';
+import { ValidateFunction } from 'ajv';
 
 // Warning: (ae-forgotten-export) The symbol "IAccountTransferAddressContext" needs to be exported by the entry point index.d.ts
 //
@@ -34,6 +35,22 @@ export function createConnectionWs<T = any>(URL: string): IConnection<T>;
 
 // @public
 export const escapeRegExp: (string: string) => string;
+
+// @public
+export interface IChannelTypes {
+    // (undocumented)
+    AccountInfo: {
+        value: IAccountInfo;
+    };
+    // (undocumented)
+    Period: {
+        value: IPeriod;
+    };
+    // (undocumented)
+    Tick: {
+        value: ITick;
+    };
+}
 
 // @public
 export interface IConnection<T> {
@@ -56,16 +73,65 @@ export interface IResponse<T = void> {
 export interface IService {
 }
 
+// Warning: (ae-internal-missing-underscore) The name "IServiceCandidateClientSide" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export interface IServiceCandidateClientSide {
+    // (undocumented)
+    service_id: string;
+    // (undocumented)
+    serviceInfo: IServiceInfo;
+    // (undocumented)
+    terminal_id: string;
+    // (undocumented)
+    validator: ValidateFunction;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "IServiceHandler" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export type IServiceHandler<T extends string = string> = T extends keyof IService ? (msg: ITerminalMessage & Pick<IService[T], 'req'> & {
+    method: T;
+}, output$: NativeSubject<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> & Partial<Pick<IService[T], 'res' | 'frame'>>>) => ObservableInput<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> & Partial<Pick<IService[T], 'res' | 'frame'>>> : (msg: ITerminalMessage, output$: NativeSubject<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>>) => ObservableInput<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>>;
+
+// @public
+export interface IServiceInfo {
+    method: string;
+    schema: JSONSchema7;
+    service_id?: string;
+}
+
+// Warning: (ae-internal-missing-underscore) The name "IServiceInfoServerSide" should be prefixed with an underscore because the declaration is marked as @internal
+//
+// @internal (undocumented)
+export interface IServiceInfoServerSide {
+    // (undocumented)
+    handler: IServiceHandler;
+    // (undocumented)
+    options: IServiceOptions;
+    // (undocumented)
+    serviceInfo: IServiceInfo;
+    // (undocumented)
+    validator: ValidateFunction;
+}
+
+// @public
+export interface IServiceOptions {
+    concurrent?: number;
+    max_pending_requests?: number;
+    rateLimitConfig?: {
+        count: number;
+        period: number;
+    };
+}
+
 // @public
 export interface ITerminalInfo {
     channelIdSchemas?: JSONSchema7[];
     created_at?: number;
     enable_WebRTC?: boolean;
     name?: string;
-    serviceInfo?: Record<string, {
-        method: string;
-        schema: JSONSchema7;
-    }>;
+    serviceInfo?: Record<string, IServiceInfo>;
     // @deprecated
     status?: string;
     subscriptions?: Record<string, string[]>;
@@ -110,6 +176,11 @@ export const publishAccountInfo: (terminal: Terminal, account_id: string, accoun
     dispose: () => void;
 };
 
+// @public
+export const publishChannel: <T extends keyof IChannelTypes>(terminal: Terminal, type: T, channelSchema: JSONSchema7, handler: (channel_id: string) => ObservableInput<IChannelTypes[T]["value"]>) => {
+    dispose: () => void;
+};
+
 // Warning: (ae-forgotten-export) The symbol "IQueryPeriodsRequest" needs to be exported by the entry point index.d.ts
 //
 // @public (undocumented)
@@ -139,20 +210,26 @@ export const requestSharedKey: (terminal: Terminal, ed25519_public_key: string) 
 export const setupHandShakeService: (terminal: Terminal, private_key: string) => Map<string, string>;
 
 // @public
+export const subscribeChannel: <T extends keyof IChannelTypes>(terminal: Terminal, type: T, channel_id: string) => AsyncIterable<IChannelTypes[T]["value"]>;
+
+// @public
 export class Terminal {
     constructor(host_url: string, terminalInfo: ITerminalInfo, connection?: IConnection<string>);
+    // Warning: (ae-forgotten-export) The symbol "TerminalClient" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    client: TerminalClient;
     consumeChannel: <T>(channel_id: string) => AsyncIterable<T>;
     dispose$: AsyncIterable<void>;
     dispose(): void;
     // (undocumented)
     host_url: string;
     input$: AsyncIterable<ITerminalMessage>;
-    output$: AsyncIterable<ITerminalMessage>;
+    output$: NativeSubject<ITerminalMessage>;
     provideChannel: <T>(channelIdSchema: JSONSchema7, handler: (channel_id: string) => ObservableInput<T>) => {
         dispose: () => void;
     };
-    // Warning: (ae-forgotten-export) The symbol "IServiceHandler" needs to be exported by the entry point index.d.ts
-    // Warning: (ae-forgotten-export) The symbol "IServiceOptions" needs to be exported by the entry point index.d.ts
+    // Warning: (ae-incompatible-release-tags) The symbol "provideService" is marked as @public, but its signature references "IServiceHandler" which is marked as @internal
     provideService: <T extends string>(method: T, requestSchema: JSONSchema7, handler: IServiceHandler<T>, options?: IServiceOptions) => {
         dispose: () => void;
     };
@@ -164,6 +241,10 @@ export class Terminal {
     // (undocumented)
     requestService(method: string, req: ITerminalMessage['req']): AsyncIterable<ITerminalMessage>;
     resolveTargetTerminalIds: (method: string, req: ITerminalMessage['req']) => Promise<string[]>;
+    // Warning: (ae-forgotten-export) The symbol "TerminalServer" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    server: TerminalServer;
     terminal_id: string;
     // (undocumented)
     terminalInfo: ITerminalInfo;
