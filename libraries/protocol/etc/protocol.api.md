@@ -37,6 +37,22 @@ export function createConnectionWs<T = any>(URL: string): IConnection<T>;
 export const escapeRegExp: (string: string) => string;
 
 // @public
+export interface IChannelTypes {
+    // (undocumented)
+    AccountInfo: {
+        value: IAccountInfo;
+    };
+    // (undocumented)
+    Period: {
+        value: IPeriod;
+    };
+    // (undocumented)
+    Tick: {
+        value: ITick;
+    };
+}
+
+// @public
 export interface IConnection<T> {
     connection$: AsyncIterable<unknown>;
     input$: AsyncIterable<T>;
@@ -160,6 +176,11 @@ export const publishAccountInfo: (terminal: Terminal, account_id: string, accoun
     dispose: () => void;
 };
 
+// @public
+export const publishChannel: <T extends keyof IChannelTypes>(terminal: Terminal, type: T, channelSchema: JSONSchema7, handler: (channel_id: string) => ObservableInput<IChannelTypes[T]["value"]>) => {
+    dispose: () => void;
+};
+
 // Warning: (ae-forgotten-export) The symbol "IQueryPeriodsRequest" needs to be exported by the entry point index.d.ts
 //
 // @public (undocumented)
@@ -187,6 +208,9 @@ export const requestSharedKey: (terminal: Terminal, ed25519_public_key: string) 
 
 // @public
 export const setupHandShakeService: (terminal: Terminal, private_key: string) => Map<string, string>;
+
+// @public
+export const subscribeChannel: <T extends keyof IChannelTypes>(terminal: Terminal, type: T, channel_id: string) => AsyncIterable<IChannelTypes[T]["value"]>;
 
 // @public
 export class Terminal {
