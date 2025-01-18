@@ -1,5 +1,6 @@
 import { ITick, decodePath, encodePath } from '@yuants/data-model';
 import { EMPTY, ObservableInput } from 'rxjs';
+import { publishChannel } from '../channel';
 import { Terminal } from '../terminal';
 import { escapeRegExp } from './escapeRegExp';
 
@@ -17,6 +18,16 @@ export const provideTicks = (
     { pattern: `^Tick/${escapeRegExp(encodePath(datasource_id))}/.+$` },
     (channel_id) => {
       const [, datasourceId, product_id] = decodePath(channel_id);
+      if (datasourceId !== datasource_id || !product_id) return EMPTY;
+      return useTicks(product_id);
+    },
+  );
+  publishChannel(
+    terminal,
+    'Tick',
+    { pattern: `^${escapeRegExp(encodePath(datasource_id))}/` },
+    (channel_id) => {
+      const [datasourceId, product_id] = decodePath(channel_id);
       if (datasourceId !== datasource_id || !product_id) return EMPTY;
       return useTicks(product_id);
     },

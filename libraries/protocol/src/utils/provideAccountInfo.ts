@@ -1,5 +1,6 @@
 import { IAccountInfo, encodePath, mergeAccountInfoPositions } from '@yuants/data-model';
-import { ObservableInput, defer, first, mergeMap, pairwise } from 'rxjs';
+import { ObservableInput, defer, first, mergeMap, pairwise, takeUntil } from 'rxjs';
+import { publishChannel } from '../channel';
 import { PromRegistry } from '../services';
 import { Terminal } from '../terminal';
 
@@ -43,7 +44,8 @@ export const publishAccountInfo = (
   accountInfo$: ObservableInput<IAccountInfo>,
 ) => {
   const channel_id = encodePath(`AccountInfo`, account_id);
-  const channel = terminal.provideChannel({ const: channel_id }, () => accountInfo$);
+  const channel1 = terminal.provideChannel({ const: channel_id }, () => accountInfo$);
+  const channel2 = publishChannel(terminal, 'AccountInfo', { const: account_id }, () => accountInfo$);
 
   // Metrics
   const sub = defer(() => accountInfo$)
@@ -51,6 +53,7 @@ export const publishAccountInfo = (
       //
       mergeMap(mergeAccountInfoPositions),
       pairwise(),
+      takeUntil(terminal.dispose$),
     )
     .subscribe(([lastAccountInfo, accountInfo]) => {
       AccountInfoBalance.set(accountInfo.money.balance, {
@@ -176,8 +179,13 @@ export const publishAccountInfo = (
         });
       }
     });
-  defer(() => terminal.dispose$).subscribe(() => sub.unsubscribe());
-  return channel;
+  return {
+    dispose: () => {
+      sub.unsubscribe();
+      channel1.dispose();
+      channel2.dispose();
+    },
+  };
 };
 
 /**

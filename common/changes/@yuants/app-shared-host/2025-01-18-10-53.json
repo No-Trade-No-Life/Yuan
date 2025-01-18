@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-shared-host",
+      "comment": "remove Terminate and Metrics",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-shared-host"
+}

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "use new channel in provideXXX helpers",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

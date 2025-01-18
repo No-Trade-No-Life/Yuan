@@ -43,8 +43,8 @@ export interface IChannelTypes {
         value: IAccountInfo;
     };
     // (undocumented)
-    Period: {
-        value: IPeriod;
+    Periods: {
+        value: IPeriod[];
     };
     // (undocumented)
     Tick: {
@@ -214,7 +214,11 @@ export const subscribeChannel: <T extends keyof IChannelTypes>(terminal: Termina
 
 // @public
 export class Terminal {
-    constructor(host_url: string, terminalInfo: ITerminalInfo, connection?: IConnection<string>);
+    constructor(host_url: string, terminalInfo: ITerminalInfo, options?: {
+        disableTerminate?: boolean;
+        disableMetrics?: boolean;
+        connection?: IConnection<string>;
+    });
     // Warning: (ae-forgotten-export) The symbol "TerminalClient" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -225,6 +229,12 @@ export class Terminal {
     // (undocumented)
     host_url: string;
     input$: AsyncIterable<ITerminalMessage>;
+    // (undocumented)
+    options: {
+        disableTerminate?: boolean;
+        disableMetrics?: boolean;
+        connection?: IConnection<string>;
+    };
     output$: NativeSubject<ITerminalMessage>;
     provideChannel: <T>(channelIdSchema: JSONSchema7, handler: (channel_id: string) => ObservableInput<T>) => {
         dispose: () => void;

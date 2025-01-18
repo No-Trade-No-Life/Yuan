@@ -12,7 +12,6 @@ import {
   interval,
   map,
   merge,
-  of,
   repeat,
   retry,
   shareReplay,
@@ -26,10 +25,17 @@ const mapHostIdToTerminalInfos: Record<string, Map<string, ITerminalInfo>> = {};
 
 const createHostTerminal = (host_id: string, host_token: string) => {
   const HOST_URL = `ws://localhost:8888?host_id=${host_id}&host_token=${host_token}`;
-  const terminal = new Terminal(HOST_URL, {
-    terminal_id: '@host',
-    name: 'Host Terminal',
-  });
+  const terminal = new Terminal(
+    HOST_URL,
+    {
+      terminal_id: '@host',
+      name: 'Host Terminal',
+    },
+    {
+      disableTerminate: true,
+      disableMetrics: true,
+    },
+  );
 
   const terminalInfos = (mapHostIdToTerminalInfos[host_id] ??= new Map<string, ITerminalInfo>());
 
@@ -37,15 +43,6 @@ const createHostTerminal = (host_id: string, host_token: string) => {
     map(() => ({ res: { code: 0, message: 'OK', data: [...terminalInfos.values()] } })),
     shareReplay(1),
   );
-
-  terminal.provideService('Terminate', {}, (msg) => {
-    return of({
-      res: {
-        code: 403,
-        message: `You are not allowed to terminate this terminal`,
-      },
-    });
-  });
 
   const terminalInfo$ = new Subject<ITerminalInfo>();
 

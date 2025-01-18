@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "support disable Terminate and Metrics options",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

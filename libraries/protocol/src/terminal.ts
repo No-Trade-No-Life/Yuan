@@ -102,7 +102,15 @@ export class Terminal {
 
   private _terminalInfoUpdated$ = new Subject<void>();
 
-  constructor(public host_url: string, public terminalInfo: ITerminalInfo, connection?: IConnection<string>) {
+  constructor(
+    public host_url: string,
+    public terminalInfo: ITerminalInfo,
+    public options: {
+      disableTerminate?: boolean;
+      disableMetrics?: boolean;
+      connection?: IConnection<string>;
+    } = {},
+  ) {
     this.terminal_id = this.terminalInfo.terminal_id || UUID();
     this.terminalInfo = {
       ...terminalInfo,
@@ -116,7 +124,7 @@ export class Terminal {
     this.host_url = url.toString();
     this.has_header = url.searchParams.get('has_header') === 'true';
 
-    this._conn = connection || createConnectionWs(this.host_url);
+    this._conn = this.options.connection || createConnectionWs(this.host_url);
     this._setupTunnel();
     this._setupDebugLog();
     this._setupPredefinedServerHandlers();
@@ -918,9 +926,11 @@ export class Terminal {
   private _setupPredefinedServerHandlers = () => {
     this.provideService('Ping', {}, () => [{ res: { code: 0, message: 'Pong' } }]);
 
-    this.provideService('Metrics', {}, async () => ({
-      res: { code: 0, message: 'OK', data: { metrics: PromRegistry.metrics() } },
-    }));
+    if (!this.options.disableMetrics) {
+      this.provideService('Metrics', {}, async () => ({
+        res: { code: 0, message: 'OK', data: { metrics: PromRegistry.metrics() } },
+      }));
+    }
 
     if (isNode) {
       // Setup Process Metrics
@@ -949,10 +959,12 @@ export class Terminal {
           .subscribe(),
       );
 
-      this.provideService('Terminate', {}, function* () {
-        yield { res: { code: 0, message: 'OK' } };
-        timer(1000).subscribe(() => process.exit(0));
-      });
+      if (!this.options.disableTerminate) {
+        this.provideService('Terminate', {}, function* () {
+          yield { res: { code: 0, message: 'OK' } };
+          timer(1000).subscribe(() => process.exit(0));
+        });
+      }
     }
   };
 

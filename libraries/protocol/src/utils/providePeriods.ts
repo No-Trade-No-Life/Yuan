@@ -1,5 +1,6 @@
 import { IPeriod, decodePath, encodePath } from '@yuants/data-model';
 import { EMPTY, ObservableInput } from 'rxjs';
+import { publishChannel } from '../channel';
 import { Terminal } from '../terminal';
 import { escapeRegExp } from './escapeRegExp';
 
@@ -17,6 +18,16 @@ export const providePeriods = (
     { pattern: `^Period/${escapeRegExp(encodePath(datasource_id))}/.+/.+$` },
     (channel_id) => {
       const [, datasourceId, product_id, period_in_sec] = decodePath(channel_id);
+      if (datasourceId !== datasource_id || !product_id || !period_in_sec) return EMPTY;
+      return usePeriods(product_id, +period_in_sec);
+    },
+  );
+  publishChannel(
+    terminal,
+    'Periods',
+    { pattern: `^${escapeRegExp(encodePath(datasource_id))}/` },
+    (channel_id) => {
+      const [datasourceId, product_id, period_in_sec] = decodePath(channel_id);
       if (datasourceId !== datasource_id || !product_id || !period_in_sec) return EMPTY;
       return usePeriods(product_id, +period_in_sec);
     },
