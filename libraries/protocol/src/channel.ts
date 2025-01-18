@@ -14,6 +14,7 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
+import { ITerminalInfo } from './model';
 import { Terminal } from './terminal';
 
 declare module './services' {
@@ -40,16 +41,26 @@ declare module './services' {
  * 频道类型
  * @public
  */
-export interface IChannelTypes {
-  AccountInfo: {
-    value: IAccountInfo;
-  };
-  Tick: {
-    value: ITick;
-  };
-  Periods: {
-    value: IPeriod[];
-  };
+export interface IChannelTypes {}
+
+declare module '.' {
+  interface IChannelTypes {
+    AccountInfo: {
+      value: IAccountInfo;
+    };
+    Tick: {
+      value: ITick;
+    };
+    Periods: {
+      value: IPeriod[];
+    };
+    TerminalInfo: {
+      value: ITerminalInfo;
+    };
+    TerminalInfoChangeEvent: {
+      value: { new?: ITerminalInfo; old?: ITerminalInfo };
+    };
+  }
 }
 
 /**

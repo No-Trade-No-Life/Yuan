@@ -1,5 +1,5 @@
 import { formatTime, UUID } from '@yuants/data-model';
-import { ITerminalInfo, PromRegistry, Terminal } from '@yuants/protocol';
+import { ITerminalInfo, PromRegistry, publishChannel, Terminal } from '@yuants/protocol';
 import { createServer } from 'http';
 import {
   bindCallback,
@@ -119,14 +119,19 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
     );
 
     const terminalInfo$ = new Subject<ITerminalInfo>();
+    const terminalInfoChangeEvent$ = new Subject<{ new?: ITerminalInfo; old?: ITerminalInfo }>();
 
     terminal.provideChannel<ITerminalInfo>({ const: 'TerminalInfo' }, () => terminalInfo$);
+    publishChannel(terminal, 'TerminalInfo', { const: '' }, () => terminalInfo$);
+    publishChannel(terminal, 'TerminalInfoChangeEvent', { const: '' }, () => terminalInfoChangeEvent$);
 
     terminal.provideService('ListTerminals', {}, () => listTerminalsMessage$.pipe(first()));
 
     terminal.provideService('UpdateTerminalInfo', {}, async (msg) => {
+      const oldTerminalInfo = terminalInfos.get(msg.req.terminal_id);
       terminalInfos.set(msg.req.terminal_id, msg.req);
       terminalInfo$.next(msg.req);
+      terminalInfoChangeEvent$.next({ new: msg.req, old: oldTerminalInfo });
       return { res: { code: 0, message: 'OK' } };
     });
 
@@ -141,7 +146,9 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
             tap({
               error: (err) => {
                 console.info(formatTime(Date.now()), 'Terminal ping failed', target_terminal_id, `${err}`);
+                const oldTerminalInfo = terminalInfos.get(target_terminal_id);
                 terminalInfos.delete(target_terminal_id);
+                terminalInfoChangeEvent$.next({ old: oldTerminalInfo });
                 mapTerminalIdToSocket[target_terminal_id]?.terminate();
                 delete mapTerminalIdToSocket[target_terminal_id];
                 delete mapTerminalIdToHasHeader[target_terminal_id];
