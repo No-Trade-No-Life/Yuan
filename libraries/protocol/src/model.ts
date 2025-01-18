@@ -142,8 +142,8 @@ export interface IServiceOptions {
    * by default not limited
    * 默认不限制
    *
-   * if exceeded, the request will be rejected with 429 status code
-   * 如果超出限制，请求将被拒绝，返回 429 状态码
+   * if exceeded, the request will be rejected with 503 status code
+   * 如果超出限制，请求将被拒绝，返回 503 状态码
    */
   max_pending_requests?: number;
   /**

@@ -82,7 +82,7 @@ export class TerminalServer {
       processing: new Set(),
 
       concurrency: service.options.concurrent || Infinity,
-      capacity: service.options.max_pending_requests || service.options.rateLimitConfig?.count || Infinity,
+      capacity: service.options.max_pending_requests || Infinity,
 
       total_routed: 0,
       total_processed: 0,
@@ -205,7 +205,7 @@ export class TerminalServer {
       serviceContext.total_routed++;
 
       if (serviceContext.pending.length >= serviceContext.capacity) {
-        output$.next({ res: { code: 429, message: 'Too Many Requests: Service Overloaded' } });
+        output$.next({ res: { code: 503, message: 'Service Unavailable' } });
         this._requestFinalizing$.next(requestContext);
         return;
       }
