@@ -102,10 +102,14 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
     };
 
     const HOST_URL = `ws://localhost:8888?has_header=true&host_id=${host_id}&internal_host_key=${internal_host_key}`;
-    const terminal = new Terminal(HOST_URL, {
-      terminal_id: '@host',
-      name: 'Host Terminal',
-    });
+    const terminal = new Terminal(
+      HOST_URL,
+      {
+        terminal_id: '@host',
+        name: 'Host Terminal',
+      },
+      { disableTerminate: true },
+    );
 
     const terminalInfos = new Map<string, ITerminalInfo>();
 
@@ -124,15 +128,6 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
       terminalInfos.set(msg.req.terminal_id, msg.req);
       terminalInfo$.next(msg.req);
       return { res: { code: 0, message: 'OK' } };
-    });
-
-    terminal.provideService('Terminate', {}, async (msg) => {
-      return {
-        res: {
-          code: 403,
-          message: `You are not allowed to terminate this terminal`,
-        },
-      };
     });
 
     // ISSUE: Phantom Terminal Elimination
