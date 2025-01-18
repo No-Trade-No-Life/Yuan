@@ -2,6 +2,23 @@
   "name": "@yuants/app-data-collector",
   "entries": [
     {
+      "version": "0.0.45",
+      "tag": "@yuants/app-data-collector_v0.0.45",
+      "date": "Sat, 18 Jan 2025 11:58:42 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.28.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.44",
       "tag": "@yuants/app-data-collector_v0.0.44",
       "date": "Tue, 14 Jan 2025 12:10:20 GMT",

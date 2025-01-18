@@ -1,6 +1,20 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Tue, 14 Jan 2025 12:10:21 GMT and should not be manually modified.
+This log was last generated on Sat, 18 Jan 2025 11:58:42 GMT and should not be manually modified.
+
+## 0.28.0
+Sat, 18 Jan 2025 11:58:42 GMT
+
+### Minor changes
+
+- support service_id to allow multiple methods
+- support new publishChannel and subscribeChannel methods
+- support disable Terminate and Metrics options
+
+### Patches
+
+- use new channel in provideXXX helpers
+- refactor
 
 ## 0.27.5
 Tue, 14 Jan 2025 12:10:21 GMT

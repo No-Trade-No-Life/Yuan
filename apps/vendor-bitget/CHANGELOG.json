@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-bitget",
   "entries": [
     {
+      "version": "0.1.34",
+      "tag": "@yuants/vendor-bitget_v0.1.34",
+      "date": "Sat, 18 Jan 2025 11:58:42 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.28.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.33",
       "tag": "@yuants/vendor-bitget_v0.1.33",
       "date": "Tue, 14 Jan 2025 12:10:21 GMT",
