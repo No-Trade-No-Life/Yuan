@@ -18,7 +18,7 @@ export class ProductLoadingUnit extends BasicUnit {
   ) {
     super(kernel);
   }
-  productTasks: { datasource_id: string; product_id: string }[] = [];
+  productTasks: { product_id: string }[] = [];
 
   async onInit() {
     this.kernel.log?.(
@@ -26,21 +26,17 @@ export class ProductLoadingUnit extends BasicUnit {
       `start product loading: all ${this.productTasks.length} product(s)`,
     );
     for (const task of this.productTasks) {
-      this.kernel.log?.(
-        formatTime(Date.now()),
-        `product loading: ${task.datasource_id} / ${task.product_id}`,
-      );
+      this.kernel.log?.(formatTime(Date.now()), `product loading: ${task.product_id}`);
       await lastValueFrom(
         defer(() =>
           readDataRecords(this.terminal, {
             type: 'product',
-            tags: { datasource_id: task.datasource_id, product_id: task.product_id },
+            tags: { product_id: task.product_id },
           }),
         ).pipe(
           mergeAll(),
           map((x) => x.origin),
           defaultIfEmpty<IProduct, IProduct>({
-            datasource_id: task.datasource_id,
             product_id: task.product_id,
           }),
           tap((product) => {

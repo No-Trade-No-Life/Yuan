@@ -14,14 +14,6 @@ declare module './DataRecord' {
  */
 export interface IProduct {
   /**
-   * Data source ID
-   *
-   * allow empty
-   *
-   * @deprecated - Use `product_id` instead
-   */
-  datasource_id?: string;
-  /**
    * Product ID
    *
    * It's RECOMMENDED that make the product ID the original form from the data source. Don't transform it to somehow standard form.
@@ -124,39 +116,21 @@ export interface IProduct {
   spread?: number;
 }
 
-addDataRecordWrapper('product', (product) => {
-  // Legacy version
-  if (product.datasource_id) {
-    return {
-      id: `${product.datasource_id || ''}-${product.product_id}`,
-      type: 'product',
-      updated_at: Date.now(),
-      tags: {
-        datasource_id: product.datasource_id || '',
-        product_id: product.product_id,
-        quote_currency: product.quote_currency || '',
-        base_currency: product.base_currency || '',
-      },
-      origin: product,
-    };
-  }
-  // New version
-  return {
-    id: product.product_id,
-    type: 'product',
-    updated_at: Date.now(),
-    tags: {
-      datasource_id: '',
-      product_id: product.product_id,
-      quote_currency: product.quote_currency || '',
-      base_currency: product.base_currency || '',
-    },
-    paths: {
-      id: `/${product.product_id}`,
-    },
-    origin: product,
-  };
-});
+addDataRecordWrapper('product', (product) => ({
+  id: product.product_id,
+  type: 'product',
+  updated_at: Date.now(),
+  tags: {
+    datasource_id: '',
+    product_id: product.product_id,
+    quote_currency: product.quote_currency || '',
+    base_currency: product.base_currency || '',
+  },
+  paths: {
+    id: `/${product.product_id}`,
+  },
+  origin: product,
+}));
 
 addDataRecordSchema('product', {
   type: 'object',
