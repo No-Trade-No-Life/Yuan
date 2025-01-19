@@ -1,0 +1,22 @@
+{
+  "name": "@yuants/data-series",
+  "entries": [
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/data-series_v0.1.0",
+      "date": "Sun, 19 Jan 2025 20:56:17 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "new helper package "
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.28.1`"
+          }
+        ]
+      }
+    }
+  ]
+}
