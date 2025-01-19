@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "fix addAccountTransferAddress",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
