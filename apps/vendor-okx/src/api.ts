@@ -1144,3 +1144,13 @@ export class OkxClient {
     }[];
   }> => this.request('GET', '/api/v5/asset/currencies', params);
 }
+
+export const client = new OkxClient({
+  auth: process.env.PUBLIC_ONLY
+    ? undefined
+    : {
+        public_key: process.env.ACCESS_KEY!,
+        secret_key: process.env.SECRET_KEY!,
+        passphrase: process.env.PASSPHRASE!,
+      },
+});

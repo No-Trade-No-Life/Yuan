@@ -7,14 +7,12 @@ import {
   IPosition,
   IProduct,
   ITick,
-  UUID,
   decodePath,
   encodePath,
   formatTime,
   getDataRecordWrapper,
 } from '@yuants/data-model';
 import {
-  Terminal,
   addAccountTransferAddress,
   provideAccountInfo,
   provideTicks,
@@ -34,7 +32,6 @@ import {
   firstValueFrom,
   from,
   interval,
-  lastValueFrom,
   map,
   mergeMap,
   of,
@@ -45,24 +42,10 @@ import {
   timer,
   toArray,
 } from 'rxjs';
-import { OkxClient } from './api';
-
-const terminal = new Terminal(process.env.HOST_URL!, {
-  terminal_id: process.env.TERMINAL_ID || `okx/${UUID()}`,
-  name: 'OKX',
-});
+import { client } from './api';
+import { terminal } from './terminal';
 
 const DATASOURCE_ID = 'OKX';
-
-const client = new OkxClient({
-  auth: process.env.PUBLIC_ONLY
-    ? undefined
-    : {
-        public_key: process.env.ACCESS_KEY!,
-        secret_key: process.env.SECRET_KEY!,
-        passphrase: process.env.PASSPHRASE!,
-      },
-});
 
 const swapInstruments$ = defer(() => client.getInstruments({ instType: 'SWAP' })).pipe(
   repeat({ delay: 3600_000 }),
@@ -331,7 +314,7 @@ const pendingOrders$ = defer(() => client.getTradeOrdersPending({})).pipe(
   shareReplay(1),
 );
 
-const mapProductIdToUsdtSwapProduct$ = usdtSwapProducts$.pipe(
+export const mapProductIdToUsdtSwapProduct$ = usdtSwapProducts$.pipe(
   map((x) => new Map(x.map((x) => [x.product_id, x]))),
   shareReplay(1),
 );
