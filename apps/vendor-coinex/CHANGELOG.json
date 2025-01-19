@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-coinex",
   "entries": [
     {
+      "version": "0.0.34",
+      "tag": "@yuants/vendor-coinex_v0.0.34",
+      "date": "Sun, 19 Jan 2025 20:56:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.28.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.33",
       "tag": "@yuants/vendor-coinex_v0.0.33",
       "date": "Sat, 18 Jan 2025 11:58:42 GMT",

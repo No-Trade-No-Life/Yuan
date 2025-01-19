@@ -2,6 +2,23 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.28.1",
+      "tag": "@yuants/protocol_v0.28.1",
+      "date": "Sun, 19 Jan 2025 20:56:17 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix addAccountTransferAddress"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.28.0",
       "tag": "@yuants/protocol_v0.28.0",
       "date": "Sat, 18 Jan 2025 11:58:42 GMT",

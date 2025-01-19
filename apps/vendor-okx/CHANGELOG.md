@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Sat, 18 Jan 2025 11:58:42 GMT and should not be manually modified.
+This log was last generated on Sun, 19 Jan 2025 20:56:17 GMT and should not be manually modified.
+
+## 0.8.0
+Sun, 19 Jan 2025 20:56:17 GMT
+
+### Minor changes
+
+- refactor for funding_rate
 
 ## 0.7.36
 Sat, 18 Jan 2025 11:58:42 GMT
