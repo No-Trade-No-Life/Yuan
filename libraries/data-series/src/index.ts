@@ -115,7 +115,7 @@ export const provideDataSeries = <T extends keyof IDataRecordTypes>(
       if (dataRecordsDeferred.length > 0) {
         await writeDataRecords(terminal, dataRecordsDeferred);
       }
-      return { res: { code: 0, message: 'OK' } };
+      yield { res: { code: 0, message: 'OK' } };
     },
     ctx.serviceOptions,
   );

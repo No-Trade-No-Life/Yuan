@@ -1,7 +1,5 @@
-import { IDataRecordTypes, ITransferOrder, formatTime, getDataRecordWrapper } from '@yuants/data-model';
-import { Subject, debounceTime, defer, from, groupBy, mergeMap, retry, tap, toArray } from 'rxjs';
+import { IDataRecordTypes, ITransferOrder, formatTime } from '@yuants/data-model';
 import { Terminal } from '../terminal';
-import { writeDataRecords } from './DataRecord';
 
 type IAccountAddressInfo = IDataRecordTypes['account_address_info'];
 
@@ -23,10 +21,6 @@ type IAccountTransferAddressContext = IAccountAddressInfo & {
   } | void>;
 };
 
-const contextList: IAccountTransferAddressContext[] = [];
-
-const update$ = new Subject<void>();
-
 /**
  * addAccountTransferAddress
  *
@@ -35,8 +29,6 @@ const update$ = new Subject<void>();
  * @public
  */
 export const addAccountTransferAddress = (ctx: IAccountTransferAddressContext) => {
-  contextList.push(ctx);
-  update$.next();
   console.info(
     formatTime(Date.now()),
     'addAccountTransferAddress',
@@ -45,120 +37,63 @@ export const addAccountTransferAddress = (ctx: IAccountTransferAddressContext) =
     ctx.network_id,
     ctx.address,
   );
+
+  ctx.terminal.provideService(
+    'TransferApply',
+    {
+      type: 'object',
+      required: ['current_tx_account_id', 'currency', 'current_network_id', 'current_tx_address'],
+      properties: {
+        current_tx_account_id: {
+          const: ctx.account_id,
+        },
+        currency: {
+          const: ctx.currency,
+        },
+        current_network_id: {
+          const: ctx.network_id,
+        },
+        current_tx_address: {
+          const: ctx.address,
+        },
+      },
+    },
+    async (msg) => {
+      const order = msg.req;
+      const handler = ctx.onApply[order.current_tx_state || 'INIT'];
+      console.info(formatTime(Date.now()), 'TransferApply', JSON.stringify(order));
+      if (!handler) {
+        return { res: { code: 400, message: 'Unknown State', data: { state: 'ERROR' } } };
+      }
+      const res = await handler(order);
+      return { res: { code: 0, message: 'OK', data: res } };
+    },
+  );
+  ctx.terminal.provideService(
+    'TransferEval',
+    {
+      type: 'object',
+      required: ['current_rx_account_id', 'currency', 'current_network_id', 'current_rx_address'],
+      properties: {
+        current_rx_account_id: {
+          const: ctx.account_id,
+        },
+        currency: {
+          const: ctx.currency,
+        },
+        current_network_id: {
+          const: ctx.network_id,
+        },
+        current_rx_address: {
+          const: ctx.address,
+        },
+      },
+    },
+    async (msg) => {
+      const order = msg.req;
+      console.info(formatTime(Date.now()), 'TransferEval', JSON.stringify(order));
+      const res = await ctx.onEval(order);
+      return { res: { code: 0, message: 'OK', data: res } };
+    },
+  );
 };
-
-update$
-  .pipe(
-    debounceTime(1000),
-    mergeMap(() =>
-      from(contextList).pipe(
-        groupBy((ctx) => ctx.terminal),
-        mergeMap((group) =>
-          group.pipe(
-            toArray(),
-            tap((contextList) => {
-              //
-              const terminal = group.key;
-
-              terminal.provideService(
-                'TransferApply',
-                {
-                  type: 'object',
-                  required: ['current_tx_account_id', 'currency', 'current_network_id', 'current_tx_address'],
-                  oneOf: contextList.map((x) => ({
-                    properties: {
-                      current_tx_account_id: {
-                        const: x.account_id,
-                      },
-                      currency: {
-                        const: x.currency,
-                      },
-                      current_network_id: {
-                        const: x.network_id,
-                      },
-                      current_tx_address: {
-                        const: x.address,
-                      },
-                    },
-                  })),
-                },
-                (msg) =>
-                  defer(async () => {
-                    const order = msg.req;
-                    const ctx = contextList.find(
-                      (ctx) =>
-                        ctx.account_id === order.current_tx_account_id &&
-                        ctx.network_id === order.current_network_id &&
-                        ctx.address === order.current_tx_address &&
-                        ctx.currency === order.currency,
-                    );
-                    if (!ctx) {
-                      return { res: { code: 400, message: 'Unknown Routing', data: { state: 'ERROR' } } };
-                    }
-                    const handler = ctx.onApply[order.current_tx_state || 'INIT'];
-                    console.info(formatTime(Date.now()), 'TransferApply', JSON.stringify(order));
-                    if (!handler) {
-                      return { res: { code: 400, message: 'Unknown State', data: { state: 'ERROR' } } };
-                    }
-                    const res = await handler(order);
-                    return { res: { code: 0, message: 'OK', data: res } };
-                  }),
-              );
-              terminal.provideService(
-                'TransferEval',
-                {
-                  type: 'object',
-                  required: ['current_rx_account_id', 'currency', 'current_network_id', 'current_rx_address'],
-                  oneOf: contextList.map((x) => ({
-                    properties: {
-                      current_rx_account_id: {
-                        const: x.account_id,
-                      },
-                      currency: {
-                        const: x.currency,
-                      },
-                      current_network_id: {
-                        const: x.network_id,
-                      },
-                      current_rx_address: {
-                        const: x.address,
-                      },
-                    },
-                  })),
-                },
-                (msg) =>
-                  defer(async () => {
-                    const order = msg.req;
-                    const ctx = contextList.find(
-                      (ctx) =>
-                        ctx.account_id === order.current_rx_account_id &&
-                        ctx.network_id === order.current_network_id &&
-                        ctx.address === order.current_rx_address &&
-                        ctx.currency === order.currency,
-                    );
-                    if (!ctx) {
-                      return { res: { code: 400, message: 'Unknown Routing' } };
-                    }
-                    console.info(formatTime(Date.now()), 'TransferEval', JSON.stringify(order));
-                    const res = await ctx.onEval(order);
-                    return { res: { code: 0, message: 'OK', data: res } };
-                  }),
-              );
-
-              defer(() =>
-                writeDataRecords(
-                  terminal,
-                  contextList.map(({ terminal, onApply, onEval, ...info }) =>
-                    getDataRecordWrapper('account_address_info')!(info),
-                  ),
-                ),
-              )
-                .pipe(retry({ delay: 30_000 }))
-                .subscribe();
-            }),
-          ),
-        ),
-      ),
-    ),
-  )
-  .subscribe();
