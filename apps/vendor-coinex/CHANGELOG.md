@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-coinex
 
-This log was last generated on Sun, 19 Jan 2025 20:56:17 GMT and should not be manually modified.
+This log was last generated on Mon, 20 Jan 2025 02:29:59 GMT and should not be manually modified.
+
+## 0.1.0
+Mon, 20 Jan 2025 02:29:59 GMT
+
+### Minor changes
+
+- support new API of funding rate collecting
 
 ## 0.0.34
 Sun, 19 Jan 2025 20:56:17 GMT
