@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/app-series-collector",
+  "entries": [
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/app-series-collector_v0.1.0",
+      "date": "Mon, 20 Jan 2025 01:12:20 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "new package"
+          }
+        ]
+      }
+    }
+  ]
+}
