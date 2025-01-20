@@ -10,6 +10,7 @@ import {
   formatTime,
   getDataRecordWrapper,
 } from '@yuants/data-model';
+import { provideDataSeries } from '@yuants/data-series';
 import {
   Terminal,
   addAccountTransferAddress,
@@ -35,7 +36,6 @@ import {
   from,
   groupBy,
   interval,
-  lastValueFrom,
   map,
   mergeMap,
   of,
@@ -673,6 +673,53 @@ import { HuobiClient } from './api';
       );
     },
   );
+
+  provideDataSeries(terminal, {
+    type: 'funding_rate',
+    series_id_prefix_parts: ['huobi-swap'],
+    reversed: true,
+    serviceOptions: { concurrent: 10 },
+    queryFn: async function* ({ series_id, started_at }) {
+      const [datasource_id, product_id] = decodePath(series_id);
+      const mapProductIdToPerpetualProduct = await firstValueFrom(mapProductIdToPerpetualProduct$);
+      const theProduct = mapProductIdToPerpetualProduct.get(product_id);
+      if (!theProduct) {
+        throw `product_id ${product_id} not found`;
+      }
+      const { base_currency, quote_currency } = theProduct;
+      if (!base_currency || !quote_currency) {
+        throw `the product has no base_currency or quote_currency fields`;
+      }
+
+      let current_page = 0;
+      let total_page = 1;
+      while (true) {
+        // 向前翻页，时间降序
+        const res = await client.getSwapHistoricalFundingRate({
+          contract_code: product_id,
+          page_index: current_page,
+        });
+        if (res.status !== 'ok') {
+          throw `API failed: ${res.status}`;
+        }
+        if (res.data.data.length === 0) break;
+        yield res.data.data.map((v) => ({
+          series_id,
+          datasource_id,
+          product_id,
+          base_currency: product_id,
+          quote_currency: 'USDT',
+          funding_rate: +v.funding_rate,
+          funding_at: +v.funding_time,
+        }));
+        total_page = res.data.total_page;
+        current_page++;
+        if (current_page >= total_page) break;
+        if (+res.data.data[res.data.data.length - 1].funding_time <= started_at) break;
+        await firstValueFrom(timer(1000));
+      }
+    },
+  });
 
   terminal.provideService(
     'CopyDataRecords',

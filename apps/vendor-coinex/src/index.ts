@@ -1,13 +1,14 @@
 import {
-  IDataRecordTypes,
-  IProduct,
-  ITick,
-  UUID,
   decodePath,
   encodePath,
   formatTime,
   getDataRecordWrapper,
+  IDataRecordTypes,
+  IProduct,
+  ITick,
+  UUID,
 } from '@yuants/data-model';
+import { provideDataSeries } from '@yuants/data-series';
 import { provideTicks, Terminal, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
@@ -25,6 +26,7 @@ import {
   retry,
   shareReplay,
   tap,
+  timer,
   toArray,
 } from 'rxjs';
 import { CoinExClient } from './api';
@@ -173,6 +175,55 @@ provideTicks(terminal, DATASOURCE_ID, (product_id) => {
       };
     }),
   );
+});
+
+provideDataSeries(terminal, {
+  type: 'funding_rate',
+  series_id_prefix_parts: ['coinex'],
+  reversed: true,
+  serviceOptions: { concurrent: 1 },
+  queryFn: async function* ({ series_id, started_at, ended_at }) {
+    const [datasource_id, product_id] = decodePath(series_id);
+    const mapProductsToFutureProducts = await firstValueFrom(mapProductIdToFuturesProduct$);
+    const theProduct = mapProductsToFutureProducts.get(product_id);
+    if (theProduct === undefined) {
+      throw `product ${product_id} not found`;
+    }
+    const { base_currency, quote_currency } = theProduct;
+    if (!base_currency || !quote_currency) {
+      throw `base_currency or quote_currency is required`;
+    }
+    const [instType, instId] = decodePath(product_id);
+    let current_page = 0;
+
+    while (true) {
+      const res = await client.getFuturesFundingRateHistory({
+        market: instId,
+        start_time: started_at,
+        end_time: ended_at,
+        page: current_page,
+        limit: 100,
+      });
+      if (res.code !== 0) {
+        throw `API failed: ${res.code} ${res.message}`;
+      }
+      if (res.data.length === 0) break;
+
+      yield res.data.map((v) => ({
+        series_id,
+        datasource_id,
+        product_id,
+        base_currency,
+        quote_currency,
+        funding_at: +v.funding_time,
+        funding_rate: +v.actual_funding_rate,
+      }));
+      if (!res.pagination.has_next) break;
+      if (+res.data[res.data.length - 1].funding_time <= started_at) break;
+      current_page++;
+      await firstValueFrom(timer(1000));
+    }
+  },
 });
 
 terminal.provideService(

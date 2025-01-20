@@ -901,6 +901,7 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/node': '18'
       '@yuants/data-model': workspace:*
+      '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -911,6 +912,7 @@ importers:
       typescript: ~4.7.4
     dependencies:
       '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/utils': link:../../libraries/utils
       crypto-js: 4.2.0
@@ -936,6 +938,7 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/node': '18'
       '@yuants/data-model': workspace:*
+      '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -946,6 +949,7 @@ importers:
       typescript: ~4.7.4
     dependencies:
       '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/utils': link:../../libraries/utils
       crypto-js: 4.2.0
@@ -1002,6 +1006,7 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/node': '18'
       '@yuants/data-model': workspace:*
+      '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -1012,6 +1017,7 @@ importers:
       typescript: ~4.7.4
     dependencies:
       '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/utils': link:../../libraries/utils
       crypto-js: 4.2.0
@@ -1121,6 +1127,7 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/node': '18'
       '@yuants/data-model': workspace:*
+      '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -1130,6 +1137,7 @@ importers:
       typescript: ~4.7.4
     dependencies:
       '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/utils': link:../../libraries/utils
       crypto-js: 4.2.0
@@ -1154,6 +1162,7 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/node': '18'
       '@yuants/data-model': workspace:*
+      '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -1163,6 +1172,7 @@ importers:
       typescript: ~4.7.4
     dependencies:
       '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/utils': link:../../libraries/utils
       crypto-js: 4.2.0
