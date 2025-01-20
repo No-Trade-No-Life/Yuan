@@ -11,6 +11,7 @@ import {
   formatTime,
   getDataRecordWrapper,
 } from '@yuants/data-model';
+import { provideDataSeries } from '@yuants/data-series';
 import {
   Terminal,
   addAccountTransferAddress,
@@ -426,6 +427,52 @@ const fundingTime$ = memoizeMap((product_id: string) =>
         }),
     );
   }
+
+  provideDataSeries(terminal, {
+    type: 'funding_rate',
+    series_id_prefix_parts: ['Bitget'],
+    reversed: true,
+    serviceOptions: { concurrent: 1 },
+    queryFn: async function* ({ series_id, started_at }) {
+      const [datasource_id, product_id] = decodePath(series_id);
+      const mapProductsToFutureProducts = await firstValueFrom(mapProductIdToFuturesProduct$);
+      const theProduct = mapProductsToFutureProducts.get(product_id);
+      if (theProduct === undefined) {
+        throw new Error(`product ${product_id} not found`);
+      }
+      const { base_currency, quote_currency } = theProduct;
+      if (!base_currency || !quote_currency) {
+        throw new Error(`base_currency or quote_currency is required`);
+      }
+      const [instType, instId] = decodePath(product_id);
+      let current_page = 0;
+      while (true) {
+        // 向前翻页，时间降序
+        const res = await client.getHistoricalFundingRate({
+          symbol: instId,
+          productType: instType,
+          pageSize: '100',
+          pageNo: '' + current_page,
+        });
+        if (res.msg !== 'success') {
+          throw `API failed: ${res.code} ${res.msg}`;
+        }
+        if (res.data.length === 0) break;
+        yield res.data.map((v) => ({
+          series_id,
+          datasource_id,
+          product_id,
+          base_currency,
+          quote_currency,
+          funding_at: +v.fundingTime,
+          funding_rate: +v.fundingRate,
+        }));
+        if (+res.data[res.data.length - 1].fundingTime <= started_at) break;
+        current_page++;
+        await firstValueFrom(timer(1000));
+      }
+    },
+  });
 
   // historical funding rate
   {
