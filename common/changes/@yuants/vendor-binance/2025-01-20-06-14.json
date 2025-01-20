@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-binance",
+      "comment": "use cache for future open interest queries",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-binance"
+}
