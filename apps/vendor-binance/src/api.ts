@@ -637,3 +637,11 @@ export class ApiClient {
     }[]
   > => this.request('GET', 'https://api.binance.com/sapi/v1/margin/allPairs', params);
 }
+export const client = new ApiClient({
+  auth: process.env.PUBLIC_ONLY
+    ? undefined
+    : {
+        public_key: process.env.ACCESS_KEY!,
+        secret_key: process.env.SECRET_KEY!,
+      },
+});
