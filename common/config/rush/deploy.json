@@ -34,6 +34,7 @@
     "@yuants/app-market-data-collector",
     "@yuants/app-prometheus-client",
     "@yuants/app-data-collector",
+    "@yuants/app-series-collector",
     "@yuants/app-general-data-source",
     "@yuants/app-general-realtime-data-source",
     "@yuants/app-trade-copier",
