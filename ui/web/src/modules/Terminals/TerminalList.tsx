@@ -38,13 +38,11 @@ registerPage('TerminalList', () => {
         header: () => '启动时间',
         cell: (info) => formatTime(info.getValue() || NaN),
       }),
-      columnHelper.accessor(
-        (x) => formatDuration(intervalToDuration({ start: x.created_at || Date.now(), end: Date.now() })),
-        {
-          id: 'start_time',
-          header: () => '启动时长',
-        },
-      ),
+      columnHelper.accessor((x) => Date.now() - (x.created_at || Date.now()), {
+        id: 'start_time',
+        header: () => '启动时长',
+        cell: (ctx) => formatDuration(intervalToDuration({ start: 0, end: ctx.getValue() })),
+      }),
       columnHelper.accessor((x) => Object.values(x.serviceInfo || {}).length, {
         id: 'serviceLength',
         header: () => '提供服务数',

@@ -30,6 +30,7 @@
   "RealtimeAsset": "Realtime Assets",
   "RecordTablePanel": "Sample analysis",
   "SampleScatter": "Sample Scatter of {{ id }}",
+  "SeriesCollectingTaskList": "Series Collecting Tasks",
   "TechnicalChart": "Technical Chart",
   "TerminalList": "Terminals",
   "TradeConfigList": "Trade Configs",

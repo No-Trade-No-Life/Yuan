@@ -9,6 +9,9 @@ import { IServiceOptions } from '@yuants/protocol';
 import { Terminal } from '@yuants/protocol';
 
 // @public
+export type NativeIterable<T> = AsyncIterable<T> | PromiseLike<T> | ArrayLike<T> | Iterable<T>;
+
+// @public
 export const provideDataSeries: <T extends keyof IDataRecordTypes>(terminal: Terminal, ctx: {
     type: T;
     series_id_prefix_parts: string[];
@@ -22,10 +25,6 @@ export const provideDataSeries: <T extends keyof IDataRecordTypes>(terminal: Ter
 }) => {
     dispose: () => void;
 };
-
-// Warnings were encountered during analysis:
-//
-// src/index.ts:52:5 - (ae-forgotten-export) The symbol "NativeIterable" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

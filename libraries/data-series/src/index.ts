@@ -1,7 +1,33 @@
-import { encodePath, getDataRecordWrapper, IDataRecord, IDataRecordTypes } from '@yuants/data-model';
+import {
+  addDataRecordSchema,
+  addDataRecordWrapper,
+  encodePath,
+  getDataRecordWrapper,
+  IDataRecord,
+  IDataRecordTypes,
+} from '@yuants/data-model';
 import { escapeRegExp, IService, IServiceOptions, Terminal, writeDataRecords } from '@yuants/protocol';
 import { observableToAsyncIterable } from '@yuants/utils';
 import { defer } from 'rxjs';
+
+declare module '@yuants/data-model/lib/DataRecord' {
+  interface IDataRecordTypes {
+    series_collecting_task: {
+      /** Type of the Data record to collect */
+      type: string;
+      /** series id is a path to identify a data series */
+      series_id: string;
+      /** Pattern of CronJob */
+      cron_pattern: string;
+      /** Timezone for CronJob evaluation */
+      cron_timezone: string;
+      /** disable this relation (false equivalent to not set before) */
+      disabled?: boolean;
+      /** default to 0, means start from the latest data record, above 0 means pull start from earlier data records */
+      replay_count?: number;
+    };
+  }
+}
 
 declare module '@yuants/protocol' {
   interface IService {
@@ -18,8 +44,53 @@ declare module '@yuants/protocol' {
   }
 }
 
-type NativeIterable<T> = Promise<T> | AsyncIterable<T> | Iterable<T>;
+addDataRecordWrapper('series_collecting_task', (x) => {
+  return {
+    id: encodePath(x.type, x.series_id),
+    type: 'series_collecting_task',
+    created_at: Date.now(),
+    updated_at: Date.now(),
+    frozen_at: null,
+    tags: {},
+    origin: x,
+  };
+});
 
+addDataRecordSchema('series_collecting_task', {
+  type: 'object',
+  required: ['type', 'series_id', 'cron_pattern', 'cron_timezone'],
+  properties: {
+    type: {
+      type: 'string',
+      title: 'Type of Data Record',
+    },
+    series_id: {
+      type: 'string',
+      title: 'Series ID',
+    },
+    cron_pattern: {
+      type: 'string',
+      title: 'Pattern of CronJob: when to pull data',
+    },
+    cron_timezone: {
+      type: 'string',
+      title: 'Timezone of CronJob',
+    },
+    replay_count: {
+      type: 'number',
+      title: 'Replay Count',
+    },
+    disabled: {
+      type: 'boolean',
+      title: 'Disable this relation',
+    },
+  },
+});
+/**
+ * 原生的可迭代对象
+ * @public
+ */
+export type NativeIterable<T> = AsyncIterable<T> | PromiseLike<T> | ArrayLike<T> | Iterable<T>;
 /**
  * 为数据序列提供数据
  * @public
@@ -48,6 +119,7 @@ export const provideDataSeries = <T extends keyof IDataRecordTypes>(
      * - 可以分批返回数据页
      * - 数据页的内部不需要排序
      * - 必须在短时间内返回一批数据，否则会被认为超时，如果没有数据，可以返回空数组
+     * - 如果数据不在范围内，调度器会自动停止查询，不需要在 queryFn 中处理
      */
     queryFn: (ctx: {
       series_id: string;
@@ -94,22 +166,25 @@ export const provideDataSeries = <T extends keyof IDataRecordTypes>(
             dataRecordsDeferred.push(x);
           });
         }
-        const minCreatedAt = dataRecords.reduce(
-          (acc, x) => Math.min(acc, x.created_at || -Infinity),
-          Infinity,
-        );
-        const maxCreatedAt = dataRecords.reduce(
-          (acc, x) => Math.max(acc, x.created_at || -Infinity),
-          -Infinity,
-        );
-        status.fetched_at = ctx.reversed ? minCreatedAt : maxCreatedAt;
+        status.fetched_at = ctx.reversed
+          ? dataRecords.reduce((acc, x) => Math.min(acc, x.created_at || -Infinity), status.fetched_at)
+          : dataRecords.reduce((acc, x) => Math.max(acc, x.created_at || -Infinity), status.fetched_at);
         status.fetched += data.length;
         yield { frame: status };
         if (!ctx.reversed) {
           await writeDataRecords(terminal, dataRecords);
-          status.saved_at = maxCreatedAt;
+          status.saved_at = dataRecords.reduce(
+            (acc, x) => Math.max(acc, x.created_at || -Infinity),
+            status.saved_at,
+          );
           status.saved += data.length;
           yield { frame: status };
+        }
+        // automatically stop if the data is not in the range
+        if (ctx.reversed) {
+          if (status.fetched_at <= started_at) break;
+        } else {
+          if (status.fetched_at >= ended_at) break;
         }
       }
       if (dataRecordsDeferred.length > 0) {
