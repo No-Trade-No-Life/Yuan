@@ -1,7 +1,9 @@
-import { Radio, RadioGroup } from '@douyinfe/semi-ui';
+import { Pagination, Radio, RadioGroup } from '@douyinfe/semi-ui';
 import {
   ColumnDef,
   getCoreRowModel,
+  getFilteredRowModel,
+  getPaginationRowModel,
   getSortedRowModel,
   OnChangeFn,
   SortingState,
@@ -35,6 +37,10 @@ export function DataView<T, K>(props: {
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getFilteredRowModel: getFilteredRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    autoResetPageIndex: false,
+    autoResetExpanded: false,
     manualSorting: props.manualSorting,
   };
 
@@ -109,6 +115,23 @@ export function DataView<T, K>(props: {
         <Radio value={'table'}>表格视图</Radio>
         <Radio value={'list'}>列表视图</Radio>
       </RadioGroup>
+      <div>共 {table.options.data.length} 条数据</div>
+      <Pagination
+        total={table.options.data.length}
+        showTotal
+        showQuickJumper
+        showSizeChanger
+        pageSizeOpts={[10, 20, 50, 200]}
+        pageSize={table.getState().pagination.pageSize}
+        onPageSizeChange={(x) => {
+          table.setPageSize(x);
+        }}
+        // Semi UI's page is started from 1. Tanstack Table index is started from 0
+        currentPage={table.getState().pagination.pageIndex + 1}
+        onPageChange={(x) => {
+          table.setPageIndex(x - 1);
+        }}
+      />
     </>
   );
 
