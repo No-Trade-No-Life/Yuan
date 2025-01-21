@@ -2,6 +2,28 @@
   "name": "@yuants/vendor-trading-view",
   "entries": [
     {
+      "version": "0.1.9",
+      "tag": "@yuants/vendor-trading-view_v0.1.9",
+      "date": "Tue, 21 Jan 2025 15:28:39 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactored with provideDataSeries"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.1.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.8",
       "tag": "@yuants/vendor-trading-view_v0.1.8",
       "date": "Sun, 19 Jan 2025 20:56:17 GMT",

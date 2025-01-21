@@ -2,6 +2,28 @@
   "name": "@yuants/vendor-tq",
   "entries": [
     {
+      "version": "0.0.22",
+      "tag": "@yuants/vendor-tq_v0.0.22",
+      "date": "Tue, 21 Jan 2025 15:28:39 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactored with provideDataSeries"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.1.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.21",
       "tag": "@yuants/vendor-tq_v0.0.21",
       "date": "Sun, 19 Jan 2025 20:56:17 GMT",

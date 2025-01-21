@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Mon, 20 Jan 2025 02:29:59 GMT and should not be manually modified.
+This log was last generated on Tue, 21 Jan 2025 15:28:39 GMT and should not be manually modified.
+
+## 0.6.1
+Tue, 21 Jan 2025 15:28:39 GMT
+
+### Patches
+
+- remove CopyDataRecords
 
 ## 0.6.0
 Mon, 20 Jan 2025 02:29:59 GMT

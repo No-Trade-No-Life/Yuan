@@ -2,6 +2,28 @@
   "name": "@yuants/app-general-data-source",
   "entries": [
     {
+      "version": "0.0.80",
+      "tag": "@yuants/app-general-data-source_v0.0.80",
+      "date": "Tue, 21 Jan 2025 15:28:38 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactored with provideDataSeries"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.1.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.79",
       "tag": "@yuants/app-general-data-source_v0.0.79",
       "date": "Sun, 19 Jan 2025 20:56:17 GMT",
