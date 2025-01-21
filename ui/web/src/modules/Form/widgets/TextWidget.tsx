@@ -16,7 +16,11 @@ export function TextWidget<T = any, S extends StrictRJSFSchema = RJSFSchema, F e
   }
 
   // For CopilotForm
-  if (props.schema.type === 'string' && Array.isArray(props.schema.examples)) {
+  if (
+    props.schema.type === 'string' &&
+    Array.isArray(props.schema.examples) &&
+    props.schema.examples.length <= 4
+  ) {
     return (
       <>
         {props.schema.examples.map((item) => (
