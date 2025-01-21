@@ -1,7 +1,6 @@
 import {
   IAccountInfo,
   IAccountMoney,
-  IDataRecordTypes,
   IOrder,
   IPosition,
   IProduct,
@@ -35,7 +34,6 @@ import {
   firstValueFrom,
   from,
   groupBy,
-  interval,
   map,
   mergeMap,
   of,
@@ -720,90 +718,6 @@ import { HuobiClient } from './api';
       }
     },
   });
-
-  terminal.provideService(
-    'CopyDataRecords',
-    {
-      required: ['type', 'tags'],
-      properties: {
-        type: { const: 'funding_rate' },
-        tags: {
-          type: 'object',
-          required: ['series_id'],
-          properties: {
-            series_id: { type: 'string', pattern: '^huobi/.+' },
-          },
-        },
-      },
-    },
-    (msg, output$) => {
-      const sub = interval(1000).subscribe(() => {
-        output$.next({});
-      });
-      return defer(async () => {
-        console.info(formatTime(Date.now()), `CopyDataRecords for ${account_id}`, JSON.stringify(msg));
-        if (msg.req.tags?.series_id === undefined) {
-          return { res: { code: 400, message: 'series_id is required' } };
-        }
-        const [start, end] = msg.req.time_range || [0, Date.now()];
-        const [datasource_id, product_id] = decodePath(msg.req.tags.series_id);
-        const mapProductIdToPerpetualProduct = await firstValueFrom(mapProductIdToPerpetualProduct$);
-        const theProduct = mapProductIdToPerpetualProduct.get(product_id);
-        if (!theProduct) {
-          return { res: { code: 404, message: 'product_id not found' } };
-        }
-        const { base_currency, quote_currency } = theProduct;
-        if (!base_currency || !quote_currency) {
-          return { res: { code: 404, message: 'base_currency or quote_currency not found' } };
-        }
-        const funding_rate_history: IDataRecordTypes['funding_rate'][] = [];
-        let current_page = 0;
-        let total_page = 1;
-        while (true) {
-          const res = await client.getSwapHistoricalFundingRate({
-            contract_code: product_id,
-            page_index: current_page++,
-          });
-          if (res.status !== 'ok') {
-            console.error(formatTime(Date.now()), `CopyDataRecords for ${account_id}`, JSON.stringify(res));
-            return { res: { code: 500, message: 'not OK' } };
-          }
-          if (res.data.data.length === 0) {
-            break;
-          }
-          for (const v of res.data.data) {
-            if (+v.funding_time <= end) {
-              funding_rate_history.push({
-                series_id: msg.req.tags.series_id,
-                datasource_id,
-                product_id,
-                base_currency,
-                quote_currency,
-                funding_rate: +v.funding_rate,
-                funding_at: +v.funding_time,
-              });
-            }
-          }
-          total_page = res.data.total_page;
-          if (current_page >= total_page || +res.data.data[res.data.data.length - 1].funding_time <= start) {
-            break;
-          }
-          await firstValueFrom(timer(100));
-        }
-        funding_rate_history.sort((a, b) => +a.funding_at - +b.funding_at);
-
-        await writeDataRecords(terminal, funding_rate_history.map(getDataRecordWrapper('funding_rate')!));
-        return { res: { code: 0, message: 'OK' } };
-      }).pipe(
-        tap({
-          finalize: () => {
-            sub.unsubscribe();
-          },
-        }),
-      );
-    },
-    { concurrent: 10 },
-  );
 
   // Update Spot TRC20 Addresses (Only Main Account)
   if (isMainAccount) {

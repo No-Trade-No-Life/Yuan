@@ -1,4 +1,5 @@
-import { formatTime, getDataRecordWrapper, IPeriod, IProduct, UUID } from '@yuants/data-model';
+import { decodePath, formatTime, getDataRecordWrapper, IPeriod, IProduct, UUID } from '@yuants/data-model';
+import { provideDataSeries } from '@yuants/data-series';
 import { providePeriods, Terminal, writeDataRecords } from '@yuants/protocol';
 import {
   catchError,
@@ -285,54 +286,21 @@ const calcNumPeriods = (start_time: number, period_in_sec: number) => {
   return num_periods;
 };
 
-terminal.provideService(
-  'CopyDataRecords',
-  {
-    required: ['tags'],
-    properties: {
-      tags: {
-        type: 'object',
-        required: ['datasource_id'],
-        properties: {
-          datasource_id: {
-            const: DATASOURCE_ID,
-          },
-        },
-      },
-    },
-  },
-  async (data) => {
-    console.info(formatTime(Date.now()), 'CopyDataRecords', 'start', JSON.stringify(data.req));
-    if (data.req.tags?.product_id === undefined || data.req.tags?.period_in_sec === undefined) {
-      return { res: { code: 400, message: 'product_id or period_in_sec is required' } };
-    }
-
-    const product_id = data.req.tags.product_id!;
-    const period_in_sec = +data.req.tags.period_in_sec!;
-    const klines = calcNumPeriods(data.req.time_range?.[0] ?? 0, +data.req.tags.period_in_sec!);
-    console.info(
-      formatTime(Date.now()),
-      'CopyDataRecords',
-      'product_id',
-      product_id,
-      'period_in_sec',
-      period_in_sec,
-      'klines',
-      klines,
-    );
+provideDataSeries(terminal, {
+  type: 'period',
+  series_id_prefix_parts: [DATASOURCE_ID],
+  reversed: false,
+  serviceOptions: { concurrent: CONCURRENCY },
+  queryFn: async ({ series_id, started_at }) => {
+    const [datasource_id, product_id, _period_in_sec] = decodePath(series_id);
+    const period_in_sec = +_period_in_sec;
+    const klines = calcNumPeriods(started_at, period_in_sec);
+    console.info(formatTime(Date.now()), 'Periods', JSON.stringify({ product_id, period_in_sec, klines }));
     let periods = await firstValueFrom(queryChart(product_id, period_in_sec, klines));
-
     console.info(formatTime(Date.now()), 'Periods', JSON.stringify(periods[0]), periods.length);
-
-    periods = periods.filter((v) => v.start_at! >= (data.req?.time_range?.[0] ?? 0));
-
+    // 避免过量写入
+    periods = periods.filter((v) => v.start_at! >= started_at);
     console.info(formatTime(Date.now()), 'Periods', JSON.stringify(periods[0]), periods.length);
-
-    await writeDataRecords(terminal, periods.map(getDataRecordWrapper('period')!));
-
-    console.info(formatTime(Date.now()), 'CopyDataRecords', 'end', JSON.stringify(data.req));
-
-    return { res: { code: 0, message: 'OK' } };
+    return periods;
   },
-  { concurrent: CONCURRENCY },
-);
+});

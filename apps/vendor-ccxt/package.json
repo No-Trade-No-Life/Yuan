@@ -9,9 +9,10 @@
   },
   "dependencies": {
     "@yuants/protocol": "workspace:*",
+    "@yuants/data-model": "workspace:*",
+    "@yuants/data-series": "workspace:*",
     "rxjs": "~7.5.6",
-    "ccxt": "~4.2.48",
-    "@yuants/data-model": "workspace:*"
+    "ccxt": "~4.2.48"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "~7.30.0",

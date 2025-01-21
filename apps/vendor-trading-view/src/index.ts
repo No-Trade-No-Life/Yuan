@@ -1,16 +1,14 @@
-import { IPeriod, UUID, formatTime, getDataRecordWrapper } from '@yuants/data-model';
-import { Terminal, writeDataRecords } from '@yuants/protocol';
+import { IPeriod, UUID, decodePath } from '@yuants/data-model';
+import { provideDataSeries } from '@yuants/data-series';
+import { Terminal } from '@yuants/protocol';
+import { Observable, firstValueFrom } from 'rxjs';
 //@ts-ignore
 import TradingView from '@mathieuc/tradingview';
-import { Observable, delayWhen, from, map, of, tap, timeout } from 'rxjs';
 
 const terminal = new Terminal(process.env.HOST_URL!, {
-  terminal_id: process.env.TERMINAL_ID || `NeoTradingView/${UUID()}`,
-  name: 'NEO Trading View',
-  status: 'OK',
+  terminal_id: process.env.TERMINAL_ID || `TradingView/${UUID()}`,
+  name: '@yuants/vendor-trading-view',
 });
-const datasource_id = 'TradingView';
-const CONCURRENCY = +(process.env.CONCURRENCY || 10);
 
 const PERIODS: Record<string, string> = {
   60: '1',
@@ -31,98 +29,50 @@ const PERIODS: Record<string, string> = {
   [12 * 30 * 86400]: '12M',
 };
 
-const LOG_LEVEL = process.env.LOG_LEVEL || 'INFO';
-
-terminal.provideService(
-  'CopyDataRecords',
-  {
-    required: ['tags'],
-    properties: {
-      tags: {
-        type: 'object',
-        required: ['datasource_id'],
-        properties: {
-          datasource_id: {
-            const: datasource_id,
-          },
-        },
-      },
-    },
-  },
-  (msg) => {
-    if (msg.req.tags?.product_id === undefined || msg.req.tags?.period_in_sec === undefined) {
-      return of({ res: { code: 400, message: 'product_id or period_in_sec is required' } });
-    }
-
-    const { product_id, period_in_sec } = msg.req.tags;
-    const [start, end] = msg.req.time_range || [0, Date.now()];
-
-    const range = ~~((end - start) / 1000 / +period_in_sec);
-    console.info(
-      formatTime(Date.now()),
-      `CopyDataRecords ${product_id}-${period_in_sec} Started`,
-      `parsed parameters: ${JSON.stringify({
-        timeframe: PERIODS[period_in_sec],
-        range,
-        to: end,
-      })}`,
-    );
+provideDataSeries(terminal, {
+  type: 'period',
+  series_id_prefix_parts: ['TradingView'],
+  reversed: false,
+  serviceOptions: { concurrent: +(process.env.CONCURRENCY || 10) },
+  queryFn: async ({ series_id, started_at, ended_at }) => {
+    const [datasource_id, product_id, _period_in_sec] = decodePath(series_id);
+    const period_in_sec = +_period_in_sec;
+    const range = ~~((ended_at - started_at) / 1000 / +period_in_sec);
     if (range <= 0) {
-      return of({ res: { code: 400, message: 'time_range is invalid' } });
+      throw `range=${range} is invalid`;
     }
 
-    const client = new TradingView.Client();
-    const chart = new client.Session.Chart();
-    chart.setMarket(product_id, {
-      timeframe: PERIODS[period_in_sec],
-      range,
-      to: end,
-    });
-
-    return new Observable<IPeriod[]>((subscriber) => {
-      chart.onUpdate(() => {
-        const rawPeriods: any[] = chart.periods;
-        if (rawPeriods.length !== 0) {
-          console.info(
-            formatTime(Date.now()),
-            `QueryChart ${product_id}-${period_in_sec} success, ${rawPeriods.length} records`,
-          );
-          const periods = rawPeriods.map(
-            (v): IPeriod => ({
-              datasource_id,
-              product_id,
-              period_in_sec: +period_in_sec,
-              timestamp_in_us: v.time * 1000_000,
-              start_at: v.time * 1000,
-              open: v.open,
-              high: v.max,
-              low: v.min,
-              close: v.close,
-              volume: v.volume,
-            }),
-          );
-          subscriber.next(periods);
-          subscriber.complete();
-        }
-      });
-    }).pipe(
-      //
-      delayWhen((periods) => from(writeDataRecords(terminal, periods.map(getDataRecordWrapper('period')!)))),
-      tap(() => {
-        console.info(formatTime(Date.now()), `UpdatePeriods ${product_id}-${period_in_sec} success`);
+    return firstValueFrom(
+      new Observable<IPeriod[]>((subscriber) => {
+        const client = new TradingView.Client();
+        const chart = new client.Session.Chart();
+        chart.setMarket(product_id, {
+          timeframe: PERIODS[period_in_sec],
+          range,
+          to: ended_at,
+        });
+        chart.onUpdate(() => {
+          const rawPeriods: any[] = chart.periods;
+          if (rawPeriods.length !== 0) {
+            const periods = rawPeriods.map(
+              (v): IPeriod => ({
+                datasource_id,
+                product_id,
+                period_in_sec: +period_in_sec,
+                timestamp_in_us: v.time * 1000_000,
+                start_at: v.time * 1000,
+                open: v.open,
+                high: v.max,
+                low: v.min,
+                close: v.close,
+                volume: v.volume,
+              }),
+            );
+            subscriber.next(periods);
+            subscriber.complete();
+          }
+        });
       }),
-      timeout({ each: 10_000, meta: `CopyDataRecords ${product_id}-${period_in_sec} timeout` }),
-      tap({
-        finalize: () => {
-          client.end();
-        },
-      }),
-      map(() => ({
-        res: { code: 0, message: 'OK' },
-      })),
     );
   },
-  {
-    concurrent: CONCURRENCY,
-  },
-);
+});

@@ -294,6 +294,7 @@ importers:
       '@types/json-schema': ~7.0.11
       '@types/node': '18'
       '@yuants/data-model': workspace:*
+      '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -303,6 +304,8 @@ importers:
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
+      '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/utils': link:../../libraries/utils
       ajv: 8.12.0
@@ -316,7 +319,6 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': 7.0.12
       '@types/node': 18.17.12
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/extension': link:../../libraries/extension
       '@yuants/tool-kit': link:../../tools/toolkit
       typescript: 4.7.4
@@ -975,6 +977,7 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/node': '18'
       '@yuants/data-model': workspace:*
+      '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -983,6 +986,7 @@ importers:
       typescript: ~4.7.4
     dependencies:
       '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
       ccxt: 4.2.48
       rxjs: 7.5.7
@@ -1269,6 +1273,7 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/node': '18'
       '@yuants/data-model': workspace:*
+      '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -1276,6 +1281,7 @@ importers:
       typescript: ~4.7.4
     dependencies:
       '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
       rxjs: 7.5.7
     devDependencies:
@@ -1300,6 +1306,7 @@ importers:
       '@types/json-schema': ~7.0.11
       '@types/node': '18'
       '@yuants/data-model': workspace:*
+      '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -1308,6 +1315,7 @@ importers:
     dependencies:
       '@mathieuc/tradingview': 3.4.6
       '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
       rxjs: 7.5.7
     devDependencies:

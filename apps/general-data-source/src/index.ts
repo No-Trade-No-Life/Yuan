@@ -1,20 +1,18 @@
-import { IDataRecordTypes, IPeriod, getDataRecordSchema, getDataRecordWrapper } from '@yuants/data-model';
-import { PromRegistry, Terminal, readDataRecords, writeDataRecords } from '@yuants/protocol';
+import { IDataRecordTypes, IPeriod, decodePath, getDataRecordSchema } from '@yuants/data-model';
+import { provideDataSeries } from '@yuants/data-series';
+import { PromRegistry, Terminal, readDataRecords } from '@yuants/protocol';
 import Ajv from 'ajv';
 import {
   EMPTY,
   Observable,
   catchError,
   defer,
-  delayWhen,
-  first,
+  firstValueFrom,
   from,
   groupBy,
-  interval,
   map,
   mergeAll,
   mergeMap,
-  of,
   repeat,
   shareReplay,
   tap,
@@ -170,66 +168,32 @@ const mapProductIdToGSRList$ = defer(() =>
   shareReplay(1),
 );
 
-term.provideService(
-  'CopyDataRecords',
-  {
-    required: ['type', 'tags'],
-    properties: {
-      type: { const: 'period' },
-      tags: {
-        required: ['datasource_id'],
-        properties: {
-          datasource_id: { const: 'Y' },
-        },
-      },
-    },
-  },
-  (msg, output$) => {
-    if (msg.req.tags?.product_id === undefined || msg.req.tags?.period_in_sec === undefined) {
-      return of({ res: { code: 400, message: 'product_id or period_in_sec is required' } });
+provideDataSeries(term, {
+  type: 'period',
+  series_id_prefix_parts: ['Y'],
+  reversed: false,
+  serviceOptions: { concurrent: QUERY_CONCURRENCY },
+  queryFn: async function ({ series_id, started_at, ended_at }) {
+    const [datasource_id, product_id, _period_in_sec] = decodePath(series_id);
+    const period_in_sec = +_period_in_sec;
+    if (!datasource_id) {
+      throw 'datasource_id is required';
     }
-    const { product_id, period_in_sec } = msg.req.tags;
-    const [start_time, end_time] = msg.req.time_range || [0, Date.now()];
-    console.info(new Date(), `CopyDataRecords`, JSON.stringify(msg.req));
+    if (!product_id) {
+      throw 'product_id is required';
+    }
+    if (!period_in_sec) {
+      throw 'period_in_sec is required';
+    }
 
-    // keep alive
-    const keepalive = interval(5_000).subscribe(() => {
-      output$.next({});
-    });
-
-    return mapProductIdToGSRList$.pipe(
-      first(),
-      map((mapProductIdToGSRList) => {
-        const gsrList = mapProductIdToGSRList[product_id];
-        if (!gsrList) {
-          throw new Error(`product_id: ${product_id} 不存在`);
-        }
-        return gsrList;
-      }),
-      mergeMap((gsrList) =>
-        syncData(product_id, +period_in_sec, gsrList, [start_time, end_time]).pipe(
-          //
-          delayWhen((periods) => from(writeDataRecords(term, periods.map(getDataRecordWrapper('period')!)))),
-        ),
-      ),
-      tap((periods) => {
-        console.debug(new Date(), `CopyDataRecords`, `返回了 ${periods.length} 条数据`);
-      }),
-      tap({
-        finalize: () => {
-          keepalive.unsubscribe();
-        },
-      }),
-      map(() => ({
-        res: {
-          code: 0,
-          message: 'OK',
-        },
-      })),
-      catchError((err) => {
-        return of({ res: { code: 404, message: err.message } });
-      }),
+    const mapProductIdToGSRList = await firstValueFrom(mapProductIdToGSRList$);
+    const gsrList = mapProductIdToGSRList[product_id];
+    if (!gsrList) {
+      throw `product_id: ${product_id} 不存在`;
+    }
+    const periods = await firstValueFrom(
+      syncData(product_id, +period_in_sec, gsrList, [started_at, ended_at]),
     );
+    return periods;
   },
-  { concurrent: QUERY_CONCURRENCY },
-);
+});

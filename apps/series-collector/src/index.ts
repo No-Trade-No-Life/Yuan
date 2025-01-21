@@ -74,7 +74,7 @@ const taskContexts = new Set<ITaskContext>();
 
 defer(() =>
   readDataRecords(terminal, {
-    type: 'copy_data_relation',
+    type: 'series_collecting_task',
   }),
 )
   .pipe(
