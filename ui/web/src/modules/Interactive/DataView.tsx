@@ -9,13 +9,14 @@ import {
   TableOptions,
   useReactTable,
 } from '@tanstack/react-table';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ListView } from './ListView';
 import { TableView } from './TableView';
 
 export function DataView<T, K>(props: {
   data: T[];
   columns: ColumnDef<T, any>[];
+  columnsDependencyList?: any[];
   initialSorting?: SortingState;
   sorting?: SortingState;
   onSortingChange?: OnChangeFn<SortingState>;
@@ -26,9 +27,12 @@ export function DataView<T, K>(props: {
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
+  // ISSUE: if columns is not memoized, there's a bug to refresh columns
+  const columns = useMemo(() => props.columns, props.columnsDependencyList ?? []);
+
   const tableOptions: TableOptions<T> = {
     data: props.data,
-    columns: props.columns,
+    columns: columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     manualSorting: props.manualSorting,
