@@ -2,6 +2,31 @@
   "name": "@yuants/app-series-collector",
   "entries": [
     {
+      "version": "0.1.1",
+      "tag": "@yuants/app-series-collector_v0.1.1",
+      "date": "Tue, 21 Jan 2025 15:28:38 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "change datasource type"
+          },
+          {
+            "comment": "change datasource to series_collecting_task"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.1.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.0",
       "tag": "@yuants/app-series-collector_v0.1.0",
       "date": "Mon, 20 Jan 2025 01:12:20 GMT",

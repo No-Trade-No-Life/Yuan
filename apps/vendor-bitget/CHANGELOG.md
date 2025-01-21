@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-bitget
 
-This log was last generated on Mon, 20 Jan 2025 02:29:59 GMT and should not be manually modified.
+This log was last generated on Tue, 21 Jan 2025 15:28:38 GMT and should not be manually modified.
+
+## 0.2.1
+Tue, 21 Jan 2025 15:28:38 GMT
+
+### Patches
+
+- remove CopyDataRecords
 
 ## 0.2.0
 Mon, 20 Jan 2025 02:29:59 GMT

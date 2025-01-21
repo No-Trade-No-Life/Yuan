@@ -2,6 +2,28 @@
   "name": "@yuants/vendor-ccxt",
   "entries": [
     {
+      "version": "0.3.33",
+      "tag": "@yuants/vendor-ccxt_v0.3.33",
+      "date": "Tue, 21 Jan 2025 15:28:38 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add dependency"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.1.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.32",
       "tag": "@yuants/vendor-ccxt_v0.3.32",
       "date": "Sun, 19 Jan 2025 20:56:17 GMT",
