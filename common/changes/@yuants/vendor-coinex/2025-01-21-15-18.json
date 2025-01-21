@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-coinex",
+      "comment": "remove CopyDataRecords",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-coinex"
+}
