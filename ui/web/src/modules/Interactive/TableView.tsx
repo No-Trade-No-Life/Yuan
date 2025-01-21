@@ -1,5 +1,5 @@
 import { IconCaretdown, IconCaretup } from '@douyinfe/semi-icons';
-import { Pagination, Space } from '@douyinfe/semi-ui';
+import { Space } from '@douyinfe/semi-ui';
 import {
   Table,
   flexRender,
@@ -10,24 +10,11 @@ import {
 } from '@tanstack/react-table';
 
 export function TableView<T>(props: { table: Table<T>; topSlot?: React.ReactNode }) {
-  const { table: t } = props;
-
-  const table = useReactTable({
-    ...t.options,
-    getFilteredRowModel: getFilteredRowModel(),
-    getPaginationRowModel: getPaginationRowModel(),
-    getSortedRowModel: getSortedRowModel(),
-    autoResetPageIndex: false,
-    autoResetExpanded: false,
-  });
+  const { table } = props;
 
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
-      <Space wrap>
-        {props.topSlot}
-        <div>{table.options.data.length} Items</div>
-      </Space>
-
+      <Space wrap>{props.topSlot}</Space>
       <table className="semi-table">
         <thead
           className="semi-table-thead"
@@ -80,22 +67,6 @@ export function TableView<T>(props: { table: Table<T>; topSlot?: React.ReactNode
           ))}
         </tfoot>
       </table>
-      <Pagination
-        total={table.options.data.length}
-        showTotal
-        showQuickJumper
-        showSizeChanger
-        pageSizeOpts={[10, 20, 50, 200]}
-        pageSize={table.getState().pagination.pageSize}
-        onPageSizeChange={(x) => {
-          table.setPageSize(x);
-        }}
-        // Semi UI's page is started from 1. Tanstack Table index is started from 0
-        currentPage={table.getState().pagination.pageIndex + 1}
-        onPageChange={(x) => {
-          table.setPageIndex(x - 1);
-        }}
-      />
     </Space>
   );
 }
