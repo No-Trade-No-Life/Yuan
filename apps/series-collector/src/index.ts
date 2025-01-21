@@ -24,7 +24,7 @@ import {
   toArray,
 } from 'rxjs';
 
-type ICopyDataRelation = IDataRecordTypes['copy_data_relation'];
+type ISeriesCollectingTask = IDataRecordTypes['series_collecting_task'];
 
 const MetricDataCollectorLatencyMsBucket = PromRegistry.create('histogram', 'series_collector_latency_ms');
 const MetricCronjobStatus = PromRegistry.create('gauge', 'series_collector_cronjob_status');
@@ -117,11 +117,11 @@ terminal.provideService('SeriesCollector/PeekTaskContext', {}, () => [
 ]);
 
 const validate = ajv.compile(getDataRecordSchema('copy_data_relation')!);
-const runTask = (cdr: ICopyDataRelation) =>
+const runTask = (task: ISeriesCollectingTask) =>
   new Observable<void>((subscriber) => {
-    if (cdr.disabled) return;
-    const title = JSON.stringify(cdr);
-    if (!validate(cdr)) {
+    if (task.disabled) return;
+    const title = JSON.stringify(task);
+    if (!validate(task)) {
       console.error(formatTime(Date.now()), `InvalidConfig`, `${ajv.errorsText(validate.errors)}`, title);
       return;
     }
@@ -129,8 +129,8 @@ const runTask = (cdr: ICopyDataRelation) =>
     console.info(formatTime(Date.now()), `StartSyncing`, title);
 
     const taskContext: ITaskContext = {
-      type: cdr.type,
-      series_id: cdr.series_id,
+      type: task.type,
+      series_id: task.series_id,
       status: 'success',
       last_frozon_at: 0,
 
@@ -150,7 +150,7 @@ const runTask = (cdr: ICopyDataRelation) =>
 
     const dispose$ = new Subject<void>();
 
-    fromCronJob({ cronTime: cdr.cron_pattern, timeZone: cdr.cron_timezone })
+    fromCronJob({ cronTime: task.cron_pattern, timeZone: task.cron_timezone })
       .pipe(takeUntil(dispose$))
       .subscribe({
         next: () => {
@@ -160,7 +160,7 @@ const runTask = (cdr: ICopyDataRelation) =>
         },
         error: (e) => {
           taskContext.status = 'error';
-          console.error(formatTime(Date.now()), `TaskConfigError`, JSON.stringify(cdr), `${e}`);
+          console.error(formatTime(Date.now()), `TaskConfigError`, JSON.stringify(task), `${e}`);
         },
       });
 
@@ -172,7 +172,7 @@ const runTask = (cdr: ICopyDataRelation) =>
     const reportStatus = () => {
       for (const s of ['running', 'error', 'success']) {
         MetricCronjobStatus.set(taskContext.status === s ? 1 : 0, {
-          series_id: cdr.series_id,
+          series_id: task.series_id,
           status: s,
         });
       }
@@ -198,12 +198,12 @@ const runTask = (cdr: ICopyDataRelation) =>
     taskStart$.pipe(takeUntil(dispose$)).subscribe(() => {
       defer(() =>
         readDataRecords(terminal, {
-          type: cdr.type as any,
+          type: task.type as any,
           tags: {
-            series_id: cdr.series_id,
+            series_id: task.series_id,
           },
           options: {
-            skip: cdr.replay_count || 0,
+            skip: task.replay_count || 0,
             sort: [['frozen_at', -1]],
             limit: 1,
           },
@@ -248,8 +248,8 @@ const runTask = (cdr: ICopyDataRelation) =>
         mergeMap(() =>
           defer(async () => {
             for await (const msg of terminal.client.requestService('CollectDataSeries', {
-              type: cdr.type,
-              series_id: cdr.series_id,
+              type: task.type,
+              series_id: task.series_id,
               started_at: taskContext.last_frozon_at,
               ended_at: Date.now(),
             })) {
@@ -297,7 +297,7 @@ const runTask = (cdr: ICopyDataRelation) =>
     taskFinalize$.pipe(takeUntil(dispose$)).subscribe(() => {
       MetricDataCollectorLatencyMsBucket.observe(taskContext.completed_at - taskContext.started_at, {
         status: taskContext.status,
-        series_id: cdr.series_id,
+        series_id: task.series_id,
       });
     });
 

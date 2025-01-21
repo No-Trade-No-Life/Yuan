@@ -30,6 +30,7 @@
   "RealtimeAsset": "基金实时资产",
   "RecordTablePanel": "样本分析",
   "SampleScatter": "散点图 {{ id }}",
+  "SeriesCollectingTaskList": "序列采集任务列表",
   "TechnicalChart": "走势图",
   "TerminalList": "终端列表",
   "TradeConfigList": "交易配置列表",

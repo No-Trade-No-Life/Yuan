@@ -3,10 +3,11 @@ import { createColumnHelper } from '@tanstack/react-table';
 import { IDataRecord, IDataRecordTypes } from '@yuants/data-model';
 import { DataRecordView } from '../DataRecord';
 import { registerPage } from '../Pages';
+import '@yuants/data-series';
 
-type ICopyDataRelation = IDataRecordTypes['copy_data_relation'];
+type Item = IDataRecordTypes['series_collecting_task'];
 
-function newRecord(): Partial<ICopyDataRelation> {
+function newRecord(): Partial<Item> {
   return {
     cron_pattern: '1 * * * *',
     cron_timezone: 'UTC',
@@ -15,7 +16,7 @@ function newRecord(): Partial<ICopyDataRelation> {
 
 function defineColumns() {
   return () => {
-    const columnHelper = createColumnHelper<IDataRecord<ICopyDataRelation>>();
+    const columnHelper = createColumnHelper<IDataRecord<Item>>();
     return [
       columnHelper.accessor('origin.type', {
         header: () => '类型',
@@ -60,6 +61,6 @@ function defineColumns() {
   };
 }
 
-registerPage('CopyDataRelationList', () => {
-  return <DataRecordView TYPE="copy_data_relation" columns={defineColumns()} newRecord={newRecord} />;
+registerPage('SeriesCollectingTaskList', () => {
+  return <DataRecordView TYPE="series_collecting_task" columns={defineColumns()} newRecord={newRecord} />;
 });
