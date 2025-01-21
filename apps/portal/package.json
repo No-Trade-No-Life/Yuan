@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-portal",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "main": "lib/index.js",
   "files": [
     "dist",
