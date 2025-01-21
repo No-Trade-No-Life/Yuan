@@ -158,7 +158,7 @@ declare module '@yuants/ui-web' {
 
   interface INpmPackagePullParams {
     name: string;
-    registry: string;
+    registry?: string;
     version?: string;
     npm_token?: string;
   }
@@ -166,13 +166,11 @@ declare module '@yuants/ui-web' {
     {
       filename: string;
       blob: Blob;
+      isDirectory: boolean;
+      isFile: boolean;
     }[]
   >;
-  function resolveVersion(
-    packageName: string,
-    ver?: string,
-    context?: INpmPackagePullParams,
-  ): Promise<{
+  function resolveVersion(context: INpmPackagePullParams): Promise<{
     meta: any;
     version: string;
   }>;

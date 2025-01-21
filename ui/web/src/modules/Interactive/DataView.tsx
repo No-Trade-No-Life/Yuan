@@ -6,6 +6,7 @@ import {
   OnChangeFn,
   SortingState,
   Table,
+  TableOptions,
   useReactTable,
 } from '@tanstack/react-table';
 import { useEffect, useRef, useState } from 'react';
@@ -25,20 +26,28 @@ export function DataView<T, K>(props: {
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  const table = useReactTable({
+  const tableOptions: TableOptions<T> = {
     data: props.data,
     columns: props.columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    state: {
-      sorting: props.sorting,
-    },
-    onSortingChange: props.onSortingChange,
-    initialState: {
-      sorting: props.initialSorting,
-    },
     manualSorting: props.manualSorting,
-  });
+  };
+
+  // ISSUE: if tableOptions.onSortingChange is set to undefined, there's a bug
+  if (props.onSortingChange) {
+    tableOptions.onSortingChange = props.onSortingChange;
+  }
+
+  if (props.sorting) {
+    (tableOptions.state ??= {}).sorting = props.sorting;
+  }
+
+  if (props.initialSorting) {
+    (tableOptions.initialState ??= {}).sorting = props.initialSorting;
+  }
+
+  const table = useReactTable(tableOptions);
 
   useEffect(() => {
     if (props.tableRef) {
