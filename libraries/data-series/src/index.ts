@@ -160,7 +160,12 @@ export const provideDataSeries = <T extends keyof IDataRecordTypes>(
           yield { frame: status };
           continue;
         }
-        const dataRecords = data.map(getDataRecordWrapper(ctx.type)!);
+        const dataRecords = data.map((x) => {
+          const record = getDataRecordWrapper(ctx.type)!(x);
+          // enforce series_id
+          record.tags.series_id = series_id;
+          return record;
+        });
         if (ctx.reversed) {
           dataRecords.forEach((x) => {
             dataRecordsDeferred.push(x);
