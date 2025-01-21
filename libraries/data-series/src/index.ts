@@ -10,25 +10,38 @@ import { escapeRegExp, IService, IServiceOptions, Terminal, writeDataRecords } f
 import { observableToAsyncIterable } from '@yuants/utils';
 import { defer } from 'rxjs';
 
-declare module '@yuants/data-model' {
+declare module '@yuants/data-model/lib/DataRecord' {
   interface IDataRecordTypes {
-    series_collecting_task: ISeriesCollectingTask;
+    series_collecting_task: {
+      /** Type of the Data record to collect */
+      type: string;
+      /** series id is a path to identify a data series */
+      series_id: string;
+      /** Pattern of CronJob */
+      cron_pattern: string;
+      /** Timezone for CronJob evaluation */
+      cron_timezone: string;
+      /** disable this relation (false equivalent to not set before) */
+      disabled?: boolean;
+      /** default to 0, means start from the latest data record, above 0 means pull start from earlier data records */
+      replay_count?: number;
+    };
   }
 }
 
-interface ISeriesCollectingTask {
-  /** Type of the Data record to collect */
-  type: string;
-  /** series id is a path to identify a data series */
-  series_id: string;
-  /** Pattern of CronJob */
-  cron_pattern: string;
-  /** Timezone for CronJob evaluation */
-  cron_timezone: string;
-  /** disable this relation (false equivalent to not set before) */
-  disabled?: boolean;
-  /** default to 0, means start from the latest data record, above 0 means pull start from earlier data records */
-  replay_count?: number;
+declare module '@yuants/protocol' {
+  interface IService {
+    CollectDataSeries: {
+      req: {
+        type: string;
+        series_id: string;
+        started_at: number;
+        ended_at: number;
+      };
+      frame: { fetched: number; saved: number; fetched_at: number; saved_at: number };
+      res: { code: number; message: string };
+    };
+  }
 }
 
 addDataRecordWrapper('series_collecting_task', (x) => {
@@ -73,24 +86,11 @@ addDataRecordSchema('series_collecting_task', {
     },
   },
 });
-
-declare module '@yuants/protocol' {
-  interface IService {
-    CollectDataSeries: {
-      req: {
-        type: string;
-        series_id: string;
-        started_at: number;
-        ended_at: number;
-      };
-      frame: { fetched: number; saved: number; fetched_at: number; saved_at: number };
-      res: { code: number; message: string };
-    };
-  }
-}
-
-type NativeIterable<T> = Promise<T> | AsyncIterable<T> | Iterable<T>;
-
+/**
+ * 原生的可迭代对象
+ * @public
+ */
+export type NativeIterable<T> = AsyncIterable<T> | PromiseLike<T> | ArrayLike<T> | Iterable<T>;
 /**
  * 为数据序列提供数据
  * @public
