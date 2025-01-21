@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-model",
+      "comment": "remove some fields in funding_rate",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/data-model"
+}
