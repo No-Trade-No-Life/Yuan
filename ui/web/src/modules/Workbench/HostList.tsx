@@ -12,6 +12,7 @@ import {
   Button,
   ButtonGroup,
   Card,
+  Collapse,
   Descriptions,
   Popconfirm,
   Space,
@@ -258,80 +259,94 @@ registerPage('HostList', () => {
                 value: <Typography.Text>{+network[1] > 0 ? t('online') : t('offline')}</Typography.Text>,
               },
             ]}
-          ></Descriptions>
+          />
         </Card>
       )}
 
-      {
-        <>
-          <Typography.Title heading={5}>Crypto Hosts</Typography.Title>
-          <Space>
-            <Button
-              icon={<IconPlus />}
-              onClick={async () => {
-                if (cryptoHosts$.value === undefined) return;
-                const label = (await showForm<string>({ type: 'string', title: 'Label' })) || '';
-                const keyPair = createKeyPair();
-                const url = new URL(`wss://hosts.ntnl.io`);
-                url.searchParams.set('public_key', keyPair.public_key);
-                const signature = signMessage('', keyPair.private_key);
-                url.searchParams.set('signature', signature);
-                const host_url = url.toString();
-                const config = {
-                  label: label,
-                  public_key: keyPair.public_key,
-                  private_key: keyPair.private_key,
-                  host_url,
-                };
-                cryptoHosts$.next(cryptoHosts$.value.concat([config]));
-              }}
-            >
-              New
-            </Button>
-          </Space>
-          <DataView columns={columnsOfCryptoHost} data={cryptoHosts} />
-        </>
-      }
-      <Typography.Title heading={5}>{t('dedicated_hosts')}</Typography.Title>
-      <Space>
-        <Button
-          icon={<IconPlus />}
-          onClick={async () => {
-            const item = await showForm<IHostConfigItem>({ title: t('add_host'), ...configSchema() }, {});
-            hostConfigList$.next([...(hostConfigList$.value ?? []), item]);
-          }}
-        >
-          {t('add_dedicated_host')}
-        </Button>
-        <Button
-          icon={<IconExport />}
-          onClick={async () => {
-            const configs = JSON.parse(await fs.readFile(HOST_CONFIG));
-            hostConfigList$.next(configs);
-            Toast.success(`${t('common:import_succeed')}: ${HOST_CONFIG}`);
-          }}
-        >
-          {t('common:import')}
-        </Button>
-        <Button
-          icon={<IconExport />}
-          onClick={async () => {
-            await fs.writeFile(HOST_CONFIG, JSON.stringify(configs, null, 2));
-            Toast.success(`${t('common:export_succeed')}: ${HOST_CONFIG}`);
-          }}
-        >
-          {t('common:export')}
-        </Button>
-        <Button
-          icon={<IconCode />}
-          onClick={() => {
-            executeCommand('FileEditor', { filename: HOST_CONFIG });
-          }}
-        >
-          {t('common:view_source')}
-        </Button>
-      </Space>
-      <DataView columns={columnsOfDedicatedHosts} data={configs} />
+      <Collapse style={{ width: '100%' }}>
+        <Collapse.Panel header={t('shared_hosts')} itemKey="shared_hosts">
+          <DataView
+            topSlot={
+              <>
+                <Button
+                  icon={<IconPlus />}
+                  onClick={async () => {
+                    if (cryptoHosts$.value === undefined) return;
+                    const label = (await showForm<string>({ type: 'string', title: 'Label' })) || '';
+                    const keyPair = createKeyPair();
+                    const url = new URL(`wss://hosts.ntnl.io`);
+                    url.searchParams.set('public_key', keyPair.public_key);
+                    const signature = signMessage('', keyPair.private_key);
+                    url.searchParams.set('signature', signature);
+                    const host_url = url.toString();
+                    const config = {
+                      label: label,
+                      public_key: keyPair.public_key,
+                      private_key: keyPair.private_key,
+                      host_url,
+                    };
+                    cryptoHosts$.next(cryptoHosts$.value.concat([config]));
+                  }}
+                >
+                  New
+                </Button>
+              </>
+            }
+            columns={columnsOfCryptoHost}
+            data={cryptoHosts}
+          />
+        </Collapse.Panel>
+
+        <Collapse.Panel header={t('dedicated_hosts')} itemKey="dedicated_hosts">
+          <DataView
+            topSlot={
+              <>
+                <Button
+                  icon={<IconPlus />}
+                  onClick={async () => {
+                    const item = await showForm<IHostConfigItem>(
+                      { title: t('add_host'), ...configSchema() },
+                      {},
+                    );
+                    hostConfigList$.next([...(hostConfigList$.value ?? []), item]);
+                  }}
+                >
+                  {t('add_dedicated_host')}
+                </Button>
+                <Button
+                  icon={<IconExport />}
+                  onClick={async () => {
+                    const configs = JSON.parse(await fs.readFile(HOST_CONFIG));
+                    hostConfigList$.next(configs);
+                    Toast.success(`${t('common:import_succeed')}: ${HOST_CONFIG}`);
+                  }}
+                >
+                  {t('common:import')}
+                </Button>
+                <Button
+                  icon={<IconExport />}
+                  onClick={async () => {
+                    await fs.writeFile(HOST_CONFIG, JSON.stringify(configs, null, 2));
+                    Toast.success(`${t('common:export_succeed')}: ${HOST_CONFIG}`);
+                  }}
+                >
+                  {t('common:export')}
+                </Button>
+                <Button
+                  icon={<IconCode />}
+                  onClick={() => {
+                    executeCommand('FileEditor', { filename: HOST_CONFIG });
+                  }}
+                >
+                  {t('common:view_source')}
+                </Button>
+              </>
+            }
+            columns={columnsOfDedicatedHosts}
+            data={configs}
+          />
+        </Collapse.Panel>
+      </Collapse>
     </Space>
   );
 });
