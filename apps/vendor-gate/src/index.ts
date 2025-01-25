@@ -5,7 +5,6 @@ import {
   getDataRecordWrapper,
   IAccountInfo,
   IAccountMoney,
-  IDataRecordTypes,
   IOrder,
   IPosition,
   IProduct,
@@ -31,8 +30,6 @@ import {
   first,
   firstValueFrom,
   from,
-  interval,
-  lastValueFrom,
   map,
   mergeMap,
   repeat,
@@ -341,23 +338,22 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
       required: ['account_id'],
       properties: { account_id: { const: FUTURE_USDT_ACCOUNT_ID } },
     },
-    (msg) =>
-      defer(async () => {
-        const order = msg.req;
-        const res = await client.postFutureOrders('usdt', {
-          contract: order.product_id,
-          size:
-            order.volume *
-            (order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_SHORT' ? 1 : -1),
-          price: order.order_type === 'MARKET' ? '0' : `${order.price}`,
-          tif: order.order_type === 'MARKET' ? 'ioc' : 'gtc',
-          reduce_only: order.order_direction === 'CLOSE_LONG' || order.order_direction === 'CLOSE_SHORT',
-        });
-        if (res.label && res.detail) {
-          return { res: { code: 400, message: `${res.label}: ${res.detail}` } };
-        }
-        return { res: { code: 0, message: 'OK' } };
-      }),
+    async (msg) => {
+      const order = msg.req;
+      const res = await client.postFutureOrders('usdt', {
+        contract: order.product_id,
+        size:
+          order.volume *
+          (order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_SHORT' ? 1 : -1),
+        price: order.order_type === 'MARKET' ? '0' : `${order.price}`,
+        tif: order.order_type === 'MARKET' ? 'ioc' : 'gtc',
+        reduce_only: order.order_direction === 'CLOSE_LONG' || order.order_direction === 'CLOSE_SHORT',
+      });
+      if (res.label) {
+        return { res: { code: 400, message: `${res.label}: ${res.message} ${res.detail}` } };
+      }
+      return { res: { code: 0, message: 'OK' } };
+    },
   );
 
   terminal.provideService(
@@ -366,12 +362,11 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
       required: ['account_id'],
       properties: { account_id: { const: FUTURE_USDT_ACCOUNT_ID } },
     },
-    (msg) =>
-      defer(async () => {
-        const order = msg.req;
-        await client.deleteFutureOrders('usdt', order.order_id!);
-        return { res: { code: 0, message: 'OK' } };
-      }),
+    async (msg) => {
+      const order = msg.req;
+      await client.deleteFutureOrders('usdt', order.order_id!);
+      return { res: { code: 0, message: 'OK' } };
+    },
   );
 
   provideDataSeries(terminal, {
