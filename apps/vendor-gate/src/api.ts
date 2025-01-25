@@ -362,6 +362,7 @@ export class GateClient {
     },
   ): Promise<{
     label?: string;
+    message?: string;
     detail?: string;
     id: number;
     user: number;
