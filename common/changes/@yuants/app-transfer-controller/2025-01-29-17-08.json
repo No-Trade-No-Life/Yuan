@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-transfer-controller",
+      "comment": "only select the orders that are not in ERROR or COMPLETE state",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-transfer-controller"
+}
