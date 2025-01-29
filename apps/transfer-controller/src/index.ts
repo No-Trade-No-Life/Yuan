@@ -43,13 +43,26 @@ const terminal = new Terminal(process.env.HOST_URL!, {
 defer(() =>
   readDataRecords(terminal, {
     type: 'transfer_order',
+    // ISSUE: only select the orders that are not in ERROR or COMPLETE state
+    json_schema: {
+      properties: {
+        tags: {
+          properties: {
+            status: {
+              not: {
+                enum: ['ERROR', 'COMPLETE'],
+              },
+            },
+          },
+        },
+      },
+    },
   }),
 )
   .pipe(
     //
     mergeAll(),
     map((v) => v.origin),
-    filter((order) => !['ERROR', 'COMPLETE'].includes(order.status!)),
     toArray(),
     retry({ delay: 1_000 }),
     mergeMap((v) =>
