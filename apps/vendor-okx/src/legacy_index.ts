@@ -331,31 +331,41 @@ const tradingAccountInfo$ = combineLatest([
       mapProductIdToUsdtSwapProduct,
       mapProductIdToMarginProduct,
     ]): IAccountInfo => {
-      const usdtBalance = balanceApi.data[0]?.details.find((x) => x.ccy === 'USDT');
-      const equity = +(usdtBalance?.eq ?? 0);
-      const balance = +(usdtBalance?.cashBal ?? 0);
-      const free = Math.min(
-        balance, // free should no more than balance if there is much profits
-        +(usdtBalance?.availEq ?? 0),
-      );
-      const used = equity - free;
-      // const used = +usdtBalance.frozenBal;
-      const profit = equity - balance;
+      const currencies = balanceApi.data[0]?.details.map((usdtBalance) => {
+        const equity = +(usdtBalance.eq ?? 0);
+        const balance = +(usdtBalance.cashBal ?? 0);
+        const free = Math.min(
+          balance, // free should no more than balance if there is much profits
+          +(usdtBalance.availEq ?? 0),
+        );
+        const used = equity - free;
+        // const used = +usdtBalance.frozenBal;
+        const profit = equity - balance;
 
+        const money: IAccountMoney = {
+          currency: usdtBalance.ccy,
+          equity: equity,
+          balance: balance,
+          used,
+          free,
+          profit,
+        };
+        return money;
+      });
       const account_id = `okx/${uid}/trading`;
-      const money: IAccountMoney = {
+      const money = currencies.find((x) => x.currency === 'USDT') ?? {
         currency: 'USDT',
-        equity: equity,
-        balance: balance,
-        used,
-        free,
-        profit,
+        equity: 0,
+        balance: 0,
+        used: 0,
+        free: 0,
+        profit: 0,
       };
       return {
         account_id: account_id,
         updated_at: Date.now(),
         money: money,
-        currencies: [money],
+        currencies: currencies,
         positions: positions.data.map((x): IPosition => {
           const direction =
             x.posSide === 'long' ? 'LONG' : x.posSide === 'short' ? 'SHORT' : +x.pos > 0 ? 'LONG' : 'SHORT';
@@ -427,25 +437,37 @@ const assetBalance$ = defer(() => client.getAssetBalances({})).pipe(
 
 const fundingAccountInfo$ = combineLatest([accountUid$, assetBalance$]).pipe(
   map(([uid, assetBalances]): IAccountInfo => {
-    const equity = +(assetBalances.data.find((x) => x.ccy === 'USDT')?.bal ?? '') || 0;
-    const balance = equity;
-    const free = equity;
-    const used = 0;
-    const profit = 0;
+    const currencies = assetBalances.data.map((x): IAccountMoney => {
+      const equity = +(x.bal ?? '') || 0;
+      const balance = equity;
+      const free = equity;
+      const used = 0;
+      const profit = 0;
 
-    const money: IAccountMoney = {
+      const money: IAccountMoney = {
+        currency: x.ccy,
+        equity,
+        balance,
+        used,
+        free,
+        profit,
+      };
+      return money;
+    });
+
+    const money: IAccountMoney = currencies.find((x) => x.currency === 'USDT') ?? {
       currency: 'USDT',
-      equity,
-      balance,
-      used,
-      free,
-      profit,
+      equity: 0,
+      balance: 0,
+      used: 0,
+      free: 0,
+      profit: 0,
     };
     return {
       account_id: `okx/${uid}/funding/USDT`,
       updated_at: Date.now(),
       money: money,
-      currencies: [money],
+      currencies: currencies,
       positions: [],
       orders: [],
     };
