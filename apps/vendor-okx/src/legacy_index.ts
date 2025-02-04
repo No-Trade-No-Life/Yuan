@@ -358,9 +358,9 @@ const tradingAccountInfo$ = combineLatest([
           );
           // how to calculate about spot
           // https://www.okx.com/zh-hans/help/i-introduction-of-spot
-          const closable_price = +detail.spotUpl / +detail.spotBal + +detail.openAvgPx;
-          const delta_equity = volume * closable_price;
-          const delta_profit = +detail.totalPnl;
+          const closable_price = +detail.spotUpl / +detail.spotBal + +detail.openAvgPx || 0;
+          const delta_equity = volume * closable_price || 0;
+          const delta_profit = +detail.totalPnl || 0;
           const delta_balance = delta_equity - delta_profit;
           const delta_used = delta_equity; // all used
           const delta_free = 0;
