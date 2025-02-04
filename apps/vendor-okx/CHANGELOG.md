@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Tue, 21 Jan 2025 19:55:44 GMT and should not be manually modified.
+This log was last generated on Tue, 04 Feb 2025 14:10:43 GMT and should not be manually modified.
+
+## 0.9.0
+Tue, 04 Feb 2025 14:10:43 GMT
+
+### Minor changes
+
+- support show spot position in trrading account
 
 ## 0.8.3
 Tue, 21 Jan 2025 19:55:44 GMT
