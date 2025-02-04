@@ -365,9 +365,11 @@ const tradingAccountInfo$ = combineLatest([
           const delta_used = delta_equity; // all used
           const delta_free = 0;
 
+          const product_id = encodePath('SPOT', `${detail.ccy}-USDT`);
           positions.push({
-            position_id: encodePath(DATASOURCE_ID, detail.ccy),
-            product_id: encodePath(DATASOURCE_ID, detail.ccy),
+            position_id: product_id,
+            datasource_id: DATASOURCE_ID,
+            product_id: product_id,
             direction: 'LONG',
             volume: volume,
             free_volume: free_volume,
@@ -832,110 +834,119 @@ defer(async () => {
         account_id: { const: tradingAccountInfo.account_id },
       },
     },
-    (msg) =>
-      defer(async () => {
-        console.info(formatTime(Date.now()), 'SubmitOrder', JSON.stringify(msg));
-        const order = msg.req;
-        const [instType, instId] = decodePath(order.product_id);
+    async (msg) => {
+      console.info(formatTime(Date.now()), 'SubmitOrder', JSON.stringify(msg));
+      const order = msg.req;
+      const [instType, instId] = decodePath(order.product_id);
 
-        const mapOrderDirectionToSide = (direction?: string) => {
-          switch (direction) {
-            case 'OPEN_LONG':
-            case 'CLOSE_SHORT':
-              return 'buy';
-            case 'OPEN_SHORT':
-            case 'CLOSE_LONG':
-              return 'sell';
-          }
-          throw new Error(`Unknown direction: ${direction}`);
-        };
-        const mapOrderDirectionToPosSide = (direction?: string) => {
-          switch (direction) {
-            case 'OPEN_LONG':
-            case 'CLOSE_LONG':
-              return 'long';
-            case 'CLOSE_SHORT':
-            case 'OPEN_SHORT':
-              return 'short';
-          }
-          throw new Error(`Unknown direction: ${direction}`);
-        };
-        const mapOrderTypeToOrdType = (order_type?: string) => {
-          switch (order_type) {
-            case 'LIMIT':
-              return 'limit';
-            case 'MARKET':
-              return 'market';
-          }
-          throw new Error(`Unknown order type: ${order_type}`);
-        };
+      const mapOrderDirectionToSide = (direction?: string) => {
+        switch (direction) {
+          case 'OPEN_LONG':
+          case 'CLOSE_SHORT':
+            return 'buy';
+          case 'OPEN_SHORT':
+          case 'CLOSE_LONG':
+            return 'sell';
+        }
+        throw new Error(`Unknown direction: ${direction}`);
+      };
+      const mapOrderDirectionToPosSide = (direction?: string) => {
+        switch (direction) {
+          case 'OPEN_LONG':
+          case 'CLOSE_LONG':
+            return 'long';
+          case 'CLOSE_SHORT':
+          case 'OPEN_SHORT':
+            return 'short';
+        }
+        throw new Error(`Unknown direction: ${direction}`);
+      };
+      const mapOrderTypeToOrdType = (order_type?: string) => {
+        switch (order_type) {
+          case 'LIMIT':
+            return 'limit';
+          case 'MARKET':
+            return 'market';
+        }
+        throw new Error(`Unknown order type: ${order_type}`);
+      };
 
-        // 交易数量，表示要购买或者出售的数量。
-        // 当币币/币币杠杆以限价买入和卖出时，指交易货币数量。
-        // 当币币杠杆以市价买入时，指计价货币的数量。
-        // 当币币杠杆以市价卖出时，指交易货币的数量。
-        // 对于币币市价单，单位由 tgtCcy 决定
-        // 当交割、永续、期权买入和卖出时，指合约张数。
-        const mapOrderVolumeToSz = async (order: IOrder) => {
-          if (instType === 'SWAP') {
+      // 交易数量，表示要购买或者出售的数量。
+      // 当币币/币币杠杆以限价买入和卖出时，指交易货币数量。
+      // 当币币杠杆以市价买入时，指计价货币的数量。
+      // 当币币杠杆以市价卖出时，指交易货币的数量。
+      // 对于币币市价单，单位由 tgtCcy 决定
+      // 当交割、永续、期权买入和卖出时，指合约张数。
+      const mapOrderVolumeToSz = async (order: IOrder) => {
+        if (instType === 'SWAP') {
+          return order.volume;
+        }
+        if (instType === 'MARGIN') {
+          if (order.order_type === 'LIMIT') {
             return order.volume;
           }
-          if (instType === 'MARGIN') {
-            if (order.order_type === 'LIMIT') {
+          if (order.order_type === 'MARKET') {
+            if (order.order_direction === 'OPEN_SHORT' || order.order_direction === 'CLOSE_LONG') {
               return order.volume;
             }
-            if (order.order_type === 'MARKET') {
-              if (order.order_direction === 'OPEN_SHORT' || order.order_direction === 'CLOSE_LONG') {
-                return order.volume;
-              }
-              //
-              const price = await firstValueFrom(
-                spotMarketTickers$.pipe(
-                  map((x) =>
-                    mapOrderDirectionToPosSide(order.order_direction) === 'long'
-                      ? +x[instId].askPx
-                      : +x[instId].bidPx,
-                  ),
+            //
+            const price = await firstValueFrom(
+              spotMarketTickers$.pipe(
+                map((x) =>
+                  mapOrderDirectionToPosSide(order.order_direction) === 'long'
+                    ? +x[instId].askPx
+                    : +x[instId].bidPx,
                 ),
-              );
-              if (!price) {
-                throw new Error(`invalid tick: ${price}`);
-              }
-              console.info(formatTime(Date.now()), 'SubmitOrder', 'price', price);
-              const theProduct = await firstValueFrom(
-                mapProductIdToMarginProduct$.pipe(map((x) => x.get(order.product_id))),
-              );
-              if (!theProduct) {
-                throw new Error(`Unknown product: ${order.position_id}`);
-              }
-              return roundToStep(order.volume * price, theProduct.volume_step!);
+              ),
+            );
+            if (!price) {
+              throw new Error(`invalid tick: ${price}`);
             }
-            return 0;
+            console.info(formatTime(Date.now()), 'SubmitOrder', 'price', price);
+            const theProduct = await firstValueFrom(
+              mapProductIdToMarginProduct$.pipe(map((x) => x.get(order.product_id))),
+            );
+            if (!theProduct) {
+              throw new Error(`Unknown product: ${order.position_id}`);
+            }
+            return roundToStep(order.volume * price, theProduct.volume_step!);
           }
-          throw new Error(`Unknown instType: ${instType}`);
-        };
 
-        const params = {
-          instId,
-          tdMode: 'cross',
-          side: mapOrderDirectionToSide(order.order_direction),
-          posSide: instType === 'MARGIN' ? 'net' : mapOrderDirectionToPosSide(order.order_direction),
-          ordType: mapOrderTypeToOrdType(order.order_type),
-          sz: (await mapOrderVolumeToSz(order)).toString(),
-          reduceOnly:
-            instType === 'MARGIN' && ['CLOSE_LONG', 'CLOSE_SHORT'].includes(order.order_direction ?? '')
-              ? 'true'
-              : undefined,
-          px: order.order_type === 'LIMIT' ? order.price!.toString() : undefined,
-          ccy: instType === 'MARGIN' ? 'USDT' : undefined,
-        };
-        console.info(formatTime(Date.now()), 'SubmitOrder', 'params', JSON.stringify(params));
-        const res = await client.postTradeOrder(params);
-        if (res.code !== '0') {
-          return { res: { code: +res.code, message: res.msg } };
+          return 0;
         }
-        return { res: { code: 0, message: 'OK' } };
-      }),
+
+        if (instType === 'SPOT') {
+          return order.volume;
+        }
+
+        throw new Error(`Unknown instType: ${instType}`);
+      };
+
+      const params = {
+        instId,
+        tdMode: instType === 'SPOT' ? 'cash' : 'cross',
+        side: mapOrderDirectionToSide(order.order_direction),
+        posSide:
+          instType === 'MARGIN' || instType === 'SPOT'
+            ? 'net'
+            : mapOrderDirectionToPosSide(order.order_direction),
+        ordType: mapOrderTypeToOrdType(order.order_type),
+        sz: (await mapOrderVolumeToSz(order)).toString(),
+        tgtCcy: instType === 'SPOT' && order.order_type === 'MARKET' ? 'base_ccy' : undefined,
+        reduceOnly:
+          instType === 'MARGIN' && ['CLOSE_LONG', 'CLOSE_SHORT'].includes(order.order_direction ?? '')
+            ? 'true'
+            : undefined,
+        px: order.order_type === 'LIMIT' ? order.price!.toString() : undefined,
+        ccy: instType === 'MARGIN' ? 'USDT' : undefined,
+      };
+      console.info(formatTime(Date.now()), 'SubmitOrder', 'params', JSON.stringify(params));
+      const res = await client.postTradeOrder(params);
+      if (res.code !== '0') {
+        return { res: { code: +res.code, message: res.msg } };
+      }
+      return { res: { code: 0, message: 'OK' } };
+    },
   );
 
   terminal.provideService(
