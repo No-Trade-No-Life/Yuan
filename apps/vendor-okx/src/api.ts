@@ -682,6 +682,11 @@ export class OkxClient {
         uTime: string;
         upl: string;
         uplLiab: string;
+        openAvgPx: string;
+        spotUpl: string;
+        accAvgPx: string;
+        totalPnl: string;
+        spotBal: string;
       }[];
       imr: string;
       isoEq: string;
