@@ -1,6 +1,14 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Tue, 21 Jan 2025 19:55:44 GMT and should not be manually modified.
+This log was last generated on Tue, 04 Feb 2025 16:50:29 GMT and should not be manually modified.
+
+## 0.6.4
+Tue, 04 Feb 2025 16:50:29 GMT
+
+### Patches
+
+- add APIv2 reference currencies endpoint and integrate fee retrieval in withdrawal process
+- correct withdrawal amount calculation by subtracting fee
 
 ## 0.6.3
 Tue, 21 Jan 2025 19:55:44 GMT
