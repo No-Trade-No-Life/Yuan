@@ -326,66 +326,96 @@ const tradingAccountInfo$ = combineLatest([
     ([
       uid,
       balanceApi,
-      positions,
+      positionsApi,
       orders,
       mapProductIdToUsdtSwapProduct,
       mapProductIdToMarginProduct,
     ]): IAccountInfo => {
-      const usdtBalance = balanceApi.data[0]?.details.find((x) => x.ccy === 'USDT');
-      const equity = +(usdtBalance?.eq ?? 0);
-      const balance = +(usdtBalance?.cashBal ?? 0);
-      const free = Math.min(
-        balance, // free should no more than balance if there is much profits
-        +(usdtBalance?.availEq ?? 0),
-      );
-      const used = equity - free;
-      // const used = +usdtBalance.frozenBal;
-      const profit = equity - balance;
-
       const account_id = `okx/${uid}/trading`;
-      const money: IAccountMoney = {
-        currency: 'USDT',
-        equity: equity,
-        balance: balance,
-        used,
-        free,
-        profit,
-      };
+      const money: IAccountMoney = { currency: 'USDT', equity: 0, balance: 0, used: 0, free: 0, profit: 0 };
+      const positions: IPosition[] = [];
+
+      balanceApi.data[0]?.details.forEach((detail) => {
+        if (detail.ccy === 'USDT') {
+          const balance = +(detail.cashBal ?? 0);
+          const free = Math.min(
+            balance, // free should no more than balance if there is much profits
+            +(detail.availEq ?? 0),
+          );
+          const equity = +(detail.eq ?? 0);
+          const used = equity - free;
+          const profit = equity - balance;
+          money.equity += equity;
+          money.balance += balance;
+          money.used += used;
+          money.free += free;
+          money.profit += profit;
+        } else {
+          const volume = +(detail.cashBal ?? 0);
+          const free_volume = Math.min(
+            volume, // free should no more than balance if there is much profits
+            +(detail.availEq ?? 0),
+          );
+          // how to calculate about spot
+          // https://www.okx.com/zh-hans/help/i-introduction-of-spot
+          const closable_price = +detail.spotUpl / +detail.spotBal + +detail.openAvgPx;
+          const delta_equity = volume * closable_price;
+          const delta_profit = +detail.totalPnl;
+          const delta_balance = delta_equity - delta_profit;
+          const delta_used = delta_equity; // all used
+          const delta_free = 0;
+
+          positions.push({
+            position_id: encodePath(DATASOURCE_ID, detail.ccy),
+            product_id: encodePath(DATASOURCE_ID, detail.ccy),
+            direction: 'LONG',
+            volume: volume,
+            free_volume: free_volume,
+            position_price: +detail.accAvgPx,
+            floating_profit: +detail.totalPnl,
+            closable_price: closable_price,
+            valuation: delta_equity,
+          });
+
+          money.equity += delta_equity;
+          money.profit += delta_profit;
+          money.balance += delta_balance;
+          money.used += delta_used;
+          money.free += delta_free;
+        }
+      });
+      positionsApi.data.forEach((x) => {
+        const direction =
+          x.posSide === 'long' ? 'LONG' : x.posSide === 'short' ? 'SHORT' : +x.pos > 0 ? 'LONG' : 'SHORT';
+        const volume = Math.abs(+x.pos);
+        const product_id = encodePath(x.instType, x.instId);
+        const closable_price = +x.last;
+        const valuation =
+          x.instType === 'SWAP'
+            ? (mapProductIdToUsdtSwapProduct.get(product_id)?.value_scale ?? 1) * volume * closable_price
+            : x.instType === 'MARGIN'
+            ? (mapProductIdToMarginProduct.get(product_id)?.value_scale ?? 1) * volume * closable_price
+            : 0;
+
+        positions.push({
+          position_id: x.posId,
+          datasource_id: DATASOURCE_ID,
+          product_id,
+          direction,
+          volume: volume,
+          free_volume: +x.availPos,
+          closable_price,
+          position_price: +x.avgPx,
+          floating_profit: +x.upl,
+          valuation,
+        });
+      });
       return {
         account_id: account_id,
         updated_at: Date.now(),
         money: money,
         currencies: [money],
-        positions: positions.data.map((x): IPosition => {
-          const direction =
-            x.posSide === 'long' ? 'LONG' : x.posSide === 'short' ? 'SHORT' : +x.pos > 0 ? 'LONG' : 'SHORT';
-          const volume = Math.abs(+x.pos);
-          const product_id = encodePath(x.instType, x.instId);
-          const closable_price = +x.last;
-          const valuation =
-            x.instType === 'SWAP'
-              ? (mapProductIdToUsdtSwapProduct.get(product_id)?.value_scale ?? 1) * volume * closable_price
-              : x.instType === 'MARGIN'
-              ? (mapProductIdToMarginProduct.get(product_id)?.value_scale ?? 1) * volume * closable_price
-              : 0;
-
-          return {
-            position_id: x.posId,
-            datasource_id: DATASOURCE_ID,
-            product_id,
-            direction,
-            volume: volume,
-            free_volume: +x.availPos,
-            closable_price,
-            position_price: +x.avgPx,
-            floating_profit: +x.upl,
-            valuation,
-            // margin: +x.posCcy,
-            // liquidation_price: +x.liqPx,
-            // leverage: +x.lever,
-            // margin_rate: 1 / +x.lever,
-          };
-        }),
+        positions: positions,
         orders: orders.data.map((x): IOrder => {
           const order_type = x.ordType === 'market' ? 'MARKET' : x.ordType === 'limit' ? 'LIMIT' : 'UNKNOWN';
 
@@ -427,6 +457,23 @@ const assetBalance$ = defer(() => client.getAssetBalances({})).pipe(
 
 const fundingAccountInfo$ = combineLatest([accountUid$, assetBalance$]).pipe(
   map(([uid, assetBalances]): IAccountInfo => {
+    const positions: IPosition[] = [];
+
+    assetBalances.data.forEach((x) => {
+      if (x.ccy === 'USDT') return;
+      positions.push({
+        position_id: encodePath(DATASOURCE_ID, x.ccy),
+        product_id: encodePath(DATASOURCE_ID, x.ccy),
+        direction: 'LONG',
+        volume: +x.bal,
+        free_volume: +x.bal,
+        position_price: 0,
+        floating_profit: 0,
+        closable_price: 0,
+        valuation: 0,
+      });
+    });
+
     const equity = +(assetBalances.data.find((x) => x.ccy === 'USDT')?.bal ?? '') || 0;
     const balance = equity;
     const free = equity;
@@ -446,7 +493,7 @@ const fundingAccountInfo$ = combineLatest([accountUid$, assetBalance$]).pipe(
       updated_at: Date.now(),
       money: money,
       currencies: [money],
-      positions: [],
+      positions: positions,
       orders: [],
     };
   }),
