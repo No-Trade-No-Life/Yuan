@@ -675,4 +675,47 @@ export class HuobiClient {
   }> {
     return this.request('POST', '/linear-swap-api/v3/swap_switch_account_type', this.swap_api_root, params);
   }
+
+  /**
+   * APIv2币链参考信息
+   *
+   * https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec478f0-7773-11ed-9966-0242ac110003
+   */
+  getV2ReferenceCurrencies = (params: {
+    currency?: string;
+    authorizedUser?: string;
+  }): Promise<{
+    code: number;
+    data: {
+      currency: string;
+      assetType: number;
+      chains: {
+        chain: string;
+        displayName: string;
+        fullName: string;
+        baseChain?: string;
+        baseChainProtocol?: string;
+        isDynamic?: boolean;
+        numOfConfirmations: number;
+        numOfFastConfirmations: number;
+        depositStatus: string;
+        minDepositAmt: string;
+        withdrawStatus: string;
+        minWithdrawAmt: string;
+        withdrawPrecision: number;
+        maxWithdrawAmt: string;
+        withdrawQuotaPerDay: string;
+        withdrawQuotaPerYear: null;
+        withdrawQuotaTotal: null;
+        withdrawFeeType: string;
+        transactFeeWithdraw?: string;
+        addrWithTag: boolean;
+        addrDepositTag: boolean;
+        minTransactFeeWithdraw?: string;
+        transactFeeRateWithdraw?: string;
+        maxTransactFeeWithdraw?: string;
+      }[];
+      instStatus: string;
+    }[];
+  }> => this.request('GET', '/v2/reference/currencies', this.spot_api_root, params);
 }

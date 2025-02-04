@@ -733,15 +733,22 @@ import { HuobiClient } from './api';
         network_id: 'TRC20',
         onApply: {
           INIT: async (order) => {
+            const res0 = await client.getV2ReferenceCurrencies({ currency: 'usdt' });
+            const fee = res0.data
+              .find((v) => v.currency === 'usdt')
+              ?.chains.find((v) => v.chain === 'trc20usdt')?.transactFeeWithdraw;
+            if (!fee) {
+              return { state: 'ERROR', message: 'MISSING FEE' };
+            }
             const res = await client.postWithdraw({
               address: order.current_rx_address!,
               amount: '' + (order.expected_amount - 1),
               currency: 'usdt',
-              fee: '1',
+              fee: fee,
               chain: 'trc20usdt',
             });
             if (res.status != 'ok') {
-              return { state: 'INIT' };
+              return { state: 'INIT', message: `${res.status}` };
             }
             return { state: 'PENDING', context: `${res.data}` };
           },
