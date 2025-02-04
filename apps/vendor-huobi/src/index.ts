@@ -742,7 +742,7 @@ import { HuobiClient } from './api';
             }
             const res = await client.postWithdraw({
               address: order.current_rx_address!,
-              amount: '' + (order.expected_amount - 1),
+              amount: '' + (order.expected_amount - +fee),
               currency: 'usdt',
               fee: fee,
               chain: 'trc20usdt',
