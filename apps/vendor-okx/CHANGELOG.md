@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Tue, 04 Feb 2025 14:46:30 GMT and should not be manually modified.
+This log was last generated on Tue, 04 Feb 2025 15:15:15 GMT and should not be manually modified.
+
+## 0.9.1
+Tue, 04 Feb 2025 15:15:15 GMT
+
+### Patches
+
+- handle potential division by zero in spot trading calculations
 
 ## 0.9.0
 Tue, 04 Feb 2025 14:46:30 GMT
