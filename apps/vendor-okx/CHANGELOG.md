@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Wed, 05 Feb 2025 16:57:29 GMT and should not be manually modified.
+This log was last generated on Wed, 05 Feb 2025 17:30:56 GMT and should not be manually modified.
+
+## 0.9.3
+Wed, 05 Feb 2025 17:30:56 GMT
+
+### Patches
+
+- fix(okx): funding account calculations
 
 ## 0.9.2
 Wed, 05 Feb 2025 16:57:29 GMT
