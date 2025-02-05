@@ -470,40 +470,37 @@ const assetBalance$ = defer(() => client.getAssetBalances({})).pipe(
 
 const fundingAccountInfo$ = combineLatest([accountUid$, assetBalance$, marketIndexTickerUSDT$]).pipe(
   map(([uid, assetBalances, marketIndexTickerUSDT]): IAccountInfo => {
+    const money: IAccountMoney = { currency: 'USDT', equity: 0, balance: 0, used: 0, free: 0, profit: 0 };
     const positions: IPosition[] = [];
 
     assetBalances.data.forEach((x) => {
-      if (x.ccy === 'USDT') return;
-      const price = marketIndexTickerUSDT.get(x.ccy + '-USDT') || 0;
-      const productId = encodePath(DATASOURCE_ID, `${x.ccy}-USDT`);
-      positions.push({
-        datasource_id: DATASOURCE_ID,
-        position_id: productId,
-        product_id: productId,
-        direction: 'LONG',
-        volume: +x.bal,
-        free_volume: +x.bal,
-        position_price: 0,
-        floating_profit: price * +x.bal,
-        closable_price: price,
-        valuation: price * +x.bal,
-      });
+      if (x.ccy === 'USDT') {
+        money.equity += +x.bal;
+        money.balance += +x.bal;
+        money.free += +x.bal;
+      } else {
+        const price = marketIndexTickerUSDT.get(x.ccy + '-USDT') || 0;
+        const productId = encodePath('SPOT', `${x.ccy}-USDT`);
+        const valuation = price * +x.bal || 0;
+        positions.push({
+          datasource_id: DATASOURCE_ID,
+          position_id: productId,
+          product_id: productId,
+          direction: 'LONG',
+          volume: +x.bal,
+          free_volume: +x.bal,
+          position_price: price,
+          floating_profit: 0,
+          closable_price: price,
+          valuation: valuation,
+        });
+
+        money.equity += valuation;
+        money.balance += valuation;
+        money.used += valuation;
+      }
     });
 
-    const equity = +(assetBalances.data.find((x) => x.ccy === 'USDT')?.bal ?? '') || 0;
-    const balance = equity;
-    const free = equity;
-    const used = 0;
-    const profit = 0;
-
-    const money: IAccountMoney = {
-      currency: 'USDT',
-      equity,
-      balance,
-      used,
-      free,
-      profit,
-    };
     return {
       account_id: `okx/${uid}/funding/USDT`,
       updated_at: Date.now(),
