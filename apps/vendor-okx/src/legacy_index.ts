@@ -457,12 +457,24 @@ const assetBalance$ = defer(() => client.getAssetBalances({})).pipe(
   shareReplay(1),
 );
 
-const fundingAccountInfo$ = combineLatest([accountUid$, assetBalance$]).pipe(
-  map(([uid, assetBalances]): IAccountInfo => {
+const marketIndexTickerUSDT$ = defer(() => client.getMarketIndexTicker({ quoteCcy: 'USDT' })).pipe(
+  map((x) => {
+    const mapInstIdToPrice = new Map<string, number>();
+    x.data.forEach((inst) => mapInstIdToPrice.set(inst.instId, Number(inst.idxPx)));
+    return mapInstIdToPrice;
+  }),
+  repeat({ delay: 1000 }),
+  retry({ delay: 5000 }),
+  shareReplay(1),
+);
+
+const fundingAccountInfo$ = combineLatest([accountUid$, assetBalance$, marketIndexTickerUSDT$]).pipe(
+  map(([uid, assetBalances, marketIndexTickerUSDT]): IAccountInfo => {
     const positions: IPosition[] = [];
 
     assetBalances.data.forEach((x) => {
       if (x.ccy === 'USDT') return;
+      const price = marketIndexTickerUSDT.get(x.ccy + '-USDT') || 0;
       positions.push({
         position_id: encodePath(DATASOURCE_ID, x.ccy),
         product_id: encodePath(DATASOURCE_ID, x.ccy),
@@ -470,9 +482,9 @@ const fundingAccountInfo$ = combineLatest([accountUid$, assetBalance$]).pipe(
         volume: +x.bal,
         free_volume: +x.bal,
         position_price: 0,
-        floating_profit: 0,
-        closable_price: 0,
-        valuation: 0,
+        floating_profit: price * +x.bal,
+        closable_price: price,
+        valuation: price * +x.bal,
       });
     });
 

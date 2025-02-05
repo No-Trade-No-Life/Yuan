@@ -1148,6 +1148,33 @@ export class OkxClient {
       maxFee: string;
     }[];
   }> => this.request('GET', '/api/v5/asset/currencies', params);
+
+  /**
+   * 获取指数行情数据
+   *
+   *
+   * 限速：20 次/2s
+   *
+   *
+   * https://www.okx.com/docs-v5/zh/#public-data-rest-api-get-index-tickers
+   */
+  getMarketIndexTicker = (params?: {
+    quoteCcy?: string;
+    instId?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    data: {
+      instId: string;
+      idxPx: string;
+      high24h: string;
+      sodUtc0: string;
+      open24h: string;
+      low24h: string;
+      sodUtc8: string;
+      ts: string;
+    }[];
+  }> => this.request('GET', '/api/v5/market/index-tickers', params);
 }
 
 export const client = new OkxClient({
