@@ -42,6 +42,17 @@ import { terminal } from './terminal';
 
 const DATASOURCE_ID = 'OKX';
 
+const marketIndexTickerUSDT$ = defer(() => client.getMarketIndexTicker({ quoteCcy: 'USDT' })).pipe(
+  map((x) => {
+    const mapInstIdToPrice = new Map<string, number>();
+    x.data.forEach((inst) => mapInstIdToPrice.set(inst.instId, Number(inst.idxPx)));
+    return mapInstIdToPrice;
+  }),
+  repeat({ delay: 1000 }),
+  retry({ delay: 5000 }),
+  shareReplay(1),
+);
+
 const swapInstruments$ = defer(() => client.getInstruments({ instType: 'SWAP' })).pipe(
   repeat({ delay: 3600_000 }),
   retry({ delay: 10_000 }),
@@ -321,6 +332,7 @@ const tradingAccountInfo$ = combineLatest([
   pendingOrders$,
   mapProductIdToUsdtSwapProduct$,
   mapProductIdToMarginProduct$,
+  marketIndexTickerUSDT$,
 ]).pipe(
   map(
     ([
@@ -330,6 +342,7 @@ const tradingAccountInfo$ = combineLatest([
       orders,
       mapProductIdToUsdtSwapProduct,
       mapProductIdToMarginProduct,
+      marketIndexTickerUSDT,
     ]): IAccountInfo => {
       const account_id = `okx/${uid}/trading`;
       const money: IAccountMoney = { currency: 'USDT', equity: 0, balance: 0, used: 0, free: 0, profit: 0 };
@@ -356,9 +369,7 @@ const tradingAccountInfo$ = combineLatest([
             volume, // free should no more than balance if there is much profits
             +(detail.availEq ?? 0),
           );
-          // how to calculate about spot
-          // https://www.okx.com/zh-hans/help/i-introduction-of-spot
-          const closable_price = +detail.spotUpl / +detail.spotBal + +detail.openAvgPx || 0;
+          const closable_price = marketIndexTickerUSDT.get(detail.ccy + '-USDT') || 0;
           const delta_equity = volume * closable_price || 0;
           const delta_profit = +detail.totalPnl || 0;
           const delta_balance = delta_equity - delta_profit;
@@ -374,7 +385,7 @@ const tradingAccountInfo$ = combineLatest([
             volume: volume,
             free_volume: free_volume,
             position_price: +detail.accAvgPx,
-            floating_profit: +detail.totalPnl,
+            floating_profit: delta_profit,
             closable_price: closable_price,
             valuation: delta_equity,
           });
@@ -457,22 +468,25 @@ const assetBalance$ = defer(() => client.getAssetBalances({})).pipe(
   shareReplay(1),
 );
 
-const fundingAccountInfo$ = combineLatest([accountUid$, assetBalance$]).pipe(
-  map(([uid, assetBalances]): IAccountInfo => {
+const fundingAccountInfo$ = combineLatest([accountUid$, assetBalance$, marketIndexTickerUSDT$]).pipe(
+  map(([uid, assetBalances, marketIndexTickerUSDT]): IAccountInfo => {
     const positions: IPosition[] = [];
 
     assetBalances.data.forEach((x) => {
       if (x.ccy === 'USDT') return;
+      const price = marketIndexTickerUSDT.get(x.ccy + '-USDT') || 0;
+      const productId = encodePath(DATASOURCE_ID, `${x.ccy}-USDT`);
       positions.push({
-        position_id: encodePath(DATASOURCE_ID, x.ccy),
-        product_id: encodePath(DATASOURCE_ID, x.ccy),
+        datasource_id: DATASOURCE_ID,
+        position_id: productId,
+        product_id: productId,
         direction: 'LONG',
         volume: +x.bal,
         free_volume: +x.bal,
         position_price: 0,
-        floating_profit: 0,
-        closable_price: 0,
-        valuation: 0,
+        floating_profit: price * +x.bal,
+        closable_price: price,
+        valuation: price * +x.bal,
       });
     });
 
