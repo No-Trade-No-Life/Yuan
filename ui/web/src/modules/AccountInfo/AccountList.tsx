@@ -1,11 +1,11 @@
 import { Button, Typography } from '@douyinfe/semi-ui';
 import { formatTime } from '@yuants/data-model';
 import { useObservable, useObservableState } from 'observable-hooks';
-import { combineLatest, concatWith, from, map, mergeMap, of, switchMap, toArray } from 'rxjs';
+import { combineLatest, concatWith, from, map, mergeMap, of, switchMap, throttleTime, toArray } from 'rxjs';
+import { executeCommand } from '../CommandCenter';
 import { DataView } from '../Interactive';
 import { registerPage } from '../Pages';
 import { accountIds$, useAccountInfo } from './model';
-import { executeCommand } from '../CommandCenter';
 
 registerPage('AccountList', () => {
   const accountInfos = useObservableState(
@@ -25,6 +25,7 @@ registerPage('AccountList', () => {
               mergeMap((x$) => combineLatest(x$)),
             ),
           ),
+          throttleTime(1000),
         ),
       [],
     ),
