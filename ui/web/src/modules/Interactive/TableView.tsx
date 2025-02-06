@@ -22,16 +22,18 @@ export function TableView<T>(props: { table: Table<T>; topSlot?: React.ReactNode
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}
-                      <Button
-                        icon={
-                          {
-                            asc: <IconCaretup />,
-                            desc: <IconCaretdown />,
-                            false: <IconSort />,
-                          }[header.column.getIsSorted() as string] ?? null
-                        }
-                        onClick={header.column.getToggleSortingHandler()}
-                      />
+                      {header.column.getCanSort() ? (
+                        <Button
+                          icon={
+                            {
+                              asc: <IconCaretup />,
+                              desc: <IconCaretdown />,
+                              false: <IconSort />,
+                            }[header.column.getIsSorted() as string] ?? null
+                          }
+                          onClick={header.column.getToggleSortingHandler()}
+                        />
+                      ) : null}
                     </Space>
 
                     {header.column.getCanFilter() ? (

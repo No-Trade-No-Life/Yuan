@@ -1,4 +1,4 @@
-import { Select } from '@douyinfe/semi-ui';
+import { Button, Select, Space } from '@douyinfe/semi-ui';
 import {
   ariaDescribedByIds,
   enumOptionsIndexForValue,
@@ -63,38 +63,46 @@ export default function SelectWidget<
     name: id,
   };
   return (
-    <Select
-      filter
-      autoFocus={autofocus}
-      disabled={disabled || (readonlyAsDisabled && readonly)}
-      virtualize={(enumOptions?.length ?? 0) > 100 ? { itemSize: 42 } : undefined}
-      // getPopupContainer={getPopupContainer}
-      id={id}
-      multiple={multiple}
-      onBlur={!readonly ? handleBlur : undefined}
-      onChange={!readonly ? handleChange : undefined}
-      onFocus={!readonly ? handleFocus : undefined}
-      placeholder={placeholder}
-      style={{
-        width: '100%',
-        minWidth: 240,
-        height: 32,
-      }}
-      value={selectedIndexes}
-      {...extraProps}
-      // filterOption={filterOption}
-      aria-describedby={ariaDescribedByIds<T>(id)}
-    >
-      {Array.isArray(enumOptions) &&
-        enumOptions.map(({ value: optionValue, label: optionLabel }, index) => (
-          <Select.Option
-            disabled={Array.isArray(enumDisabled) && enumDisabled.indexOf(optionValue) !== -1}
-            key={String(index)}
-            value={String(index)}
-          >
-            {optionLabel}
-          </Select.Option>
-        ))}
-    </Select>
+    <Space>
+      <Select
+        filter
+        autoFocus={autofocus}
+        disabled={disabled || (readonlyAsDisabled && readonly)}
+        virtualize={(enumOptions?.length ?? 0) > 100 ? { itemSize: 42 } : undefined}
+        // getPopupContainer={getPopupContainer}
+        id={id}
+        multiple={multiple}
+        showClear
+        onBlur={!readonly ? handleBlur : undefined}
+        onChange={!readonly ? handleChange : undefined}
+        onFocus={!readonly ? handleFocus : undefined}
+        placeholder={placeholder}
+        style={{
+          width: '100%',
+          minWidth: 240,
+          height: 32,
+        }}
+        value={selectedIndexes}
+        {...extraProps}
+        // filterOption={filterOption}
+        aria-describedby={ariaDescribedByIds<T>(id)}
+      >
+        {Array.isArray(enumOptions) &&
+          enumOptions.map(({ value: optionValue, label: optionLabel }, index) => (
+            <Select.Option
+              disabled={Array.isArray(enumDisabled) && enumDisabled.indexOf(optionValue) !== -1}
+              key={String(index)}
+              value={String(index)}
+            >
+              {optionLabel}
+            </Select.Option>
+          ))}
+      </Select>
+      {Array.isArray(enumOptions) && (
+        <Button onClick={() => handleChange(Array.from({ length: enumOptions.length }, (_, i) => i))}>
+          全选
+        </Button>
+      )}
+    </Space>
   );
 }
