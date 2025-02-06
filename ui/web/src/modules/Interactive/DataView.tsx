@@ -1,4 +1,5 @@
-import { Pagination, Radio, RadioGroup } from '@douyinfe/semi-ui';
+import { IconEyeOpened, IconSort } from '@douyinfe/semi-icons';
+import { Pagination, Radio, RadioGroup, Space } from '@douyinfe/semi-ui';
 import {
   ColumnDef,
   getCoreRowModel,
@@ -12,6 +13,8 @@ import {
   useReactTable,
 } from '@tanstack/react-table';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { showForm } from '../Form';
+import { Button } from './Button';
 import { ListView } from './ListView';
 import { TableView } from './TableView';
 
@@ -103,6 +106,59 @@ export function DataView<T, K>(props: {
   const topSlot = (
     <>
       {props.topSlot}
+      <Button
+        onClick={async () => {
+          const sorting: SortingState = await showForm(
+            {
+              title: '数据排序',
+              type: 'array',
+              items: {
+                type: 'object',
+                properties: {
+                  id: { title: '列', type: 'string', enum: table.getAllLeafColumns().map((x) => x.id) },
+                  desc: { title: '是否降序', type: 'boolean' },
+                },
+              },
+            },
+            table.getState().sorting,
+          );
+          table.setSorting(sorting);
+        }}
+        icon={<IconSort />}
+      >
+        排序
+      </Button>
+      <Button
+        onClick={async () => {
+          const visibleColumns = table
+            .getAllLeafColumns()
+            .map((x) => x.id)
+            .filter((x) => table.getState().columnVisibility[x] ?? true);
+          const value: string[] = await showForm(
+            {
+              title: '可见字段',
+              type: 'array',
+              uniqueItems: true,
+              items: {
+                type: 'string',
+                enum: table.getAllLeafColumns().map((x) => x.id),
+              },
+            },
+            visibleColumns,
+          );
+          const nextVisibility = Object.fromEntries(
+            table
+              .getAllLeafColumns()
+              .map((x) => x.id)
+              .filter((x) => !value.includes(x))
+              .map((x) => [x, false]),
+          );
+          table.setColumnVisibility(nextVisibility);
+        }}
+        icon={<IconEyeOpened />}
+      >
+        可见字段
+      </Button>
       <RadioGroup
         type="button"
         defaultValue={layoutMode}
@@ -115,9 +171,12 @@ export function DataView<T, K>(props: {
         <Radio value={'table'}>表格视图</Radio>
         <Radio value={'list'}>列表视图</Radio>
       </RadioGroup>
-      <div>共 {table.options.data.length} 条数据</div>
+      <Space>
+        <div>共 {table.options.data.length} 条数据</div>
+        <div>过滤后: {table.getFilteredRowModel().rows.length} 条</div>
+      </Space>
       <Pagination
-        total={table.options.data.length}
+        total={table.getPrePaginationRowModel().rows.length}
         showTotal
         showQuickJumper
         showSizeChanger

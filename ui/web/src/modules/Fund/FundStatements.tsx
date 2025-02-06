@@ -520,85 +520,90 @@ registerPage('FundStatements', () => {
         ]}
         row
       />
-      <EChartsReact
-        style={{ width: '100%', height: '100%', minHeight: 400 }}
-        option={{
-          title: {
-            text: '净值曲线',
-          },
-          tooltip: {
-            trigger: 'axis',
-          },
-          xAxis: {
-            data: equityHistory.map((v) => format(v.created_at, 'yyyy-MM-dd')),
-          },
-          yAxis: {
-            scale: true,
-          },
-          series: [
-            {
-              type: 'candlestick',
-              // O-C-L-H
-              data: equityHistory.map((v) => [v.open, v.close, v.low, v.high]),
-            },
-          ],
-        }}
-      />
-      <EChartsReact
-        style={{ width: '100%', height: '100%', minHeight: 400 }}
-        option={{
-          title: {
-            text: '每日走势',
-          },
-          tooltip: {
-            trigger: 'axis',
-          },
-          xAxis: {
-            data: equityHistory.map((v) => format(v.created_at, 'yyyy-MM-dd')),
-          },
-          yAxis: [
-            {
-              name: '单位净值增量',
-              scale: true,
-              alignTicks: true,
-            },
-            {
-              name: '净利润增量',
-              scale: true,
-              alignTicks: true,
-            },
-            {
-              name: '净利润',
-              scale: true,
-              offset: 80,
-              alignTicks: true,
-            },
-          ],
-          series: [
-            {
-              name: '单位净值增量',
-              type: 'line',
-              data: equityHistory.map((state) => state.difference),
-            },
-            {
-              name: '净利润增量',
-              type: 'bar',
-              yAxisIndex: 1,
-              data: equityHistory.map(
-                (state, idx, arr) => state.profit_close - (arr[idx - 1]?.profit_close ?? 0),
-              ),
-            },
-            {
-              name: '净利润',
-              type: 'line',
-              yAxisIndex: 2,
-              data: equityHistory.map((state) => state.profit_close),
-            },
-          ],
-        }}
-      />
-      <EChartsReact style={{ width: '100%', height: '100%', minHeight: 400 }} option={dateHeatmapOptions} />
       <Collapse defaultActiveKey={'investors'} style={{ width: '100%' }}>
+        <Collapse.Panel itemKey="charts" header={'图表'}>
+          <EChartsReact
+            style={{ width: '100%', height: '100%', minHeight: 400 }}
+            option={{
+              title: {
+                text: '净值曲线',
+              },
+              tooltip: {
+                trigger: 'axis',
+              },
+              xAxis: {
+                data: equityHistory.map((v) => format(v.created_at, 'yyyy-MM-dd')),
+              },
+              yAxis: {
+                scale: true,
+              },
+              series: [
+                {
+                  type: 'candlestick',
+                  // O-C-L-H
+                  data: equityHistory.map((v) => [v.open, v.close, v.low, v.high]),
+                },
+              ],
+            }}
+          />
+          <EChartsReact
+            style={{ width: '100%', height: '100%', minHeight: 400 }}
+            option={{
+              title: {
+                text: '每日走势',
+              },
+              tooltip: {
+                trigger: 'axis',
+              },
+              xAxis: {
+                data: equityHistory.map((v) => format(v.created_at, 'yyyy-MM-dd')),
+              },
+              yAxis: [
+                {
+                  name: '单位净值增量',
+                  scale: true,
+                  alignTicks: true,
+                },
+                {
+                  name: '净利润增量',
+                  scale: true,
+                  alignTicks: true,
+                },
+                {
+                  name: '净利润',
+                  scale: true,
+                  offset: 80,
+                  alignTicks: true,
+                },
+              ],
+              series: [
+                {
+                  name: '单位净值增量',
+                  type: 'line',
+                  data: equityHistory.map((state) => state.difference),
+                },
+                {
+                  name: '净利润增量',
+                  type: 'bar',
+                  yAxisIndex: 1,
+                  data: equityHistory.map(
+                    (state, idx, arr) => state.profit_close - (arr[idx - 1]?.profit_close ?? 0),
+                  ),
+                },
+                {
+                  name: '净利润',
+                  type: 'line',
+                  yAxisIndex: 2,
+                  data: equityHistory.map((state) => state.profit_close),
+                },
+              ],
+            }}
+          />
+          <EChartsReact
+            style={{ width: '100%', height: '100%', minHeight: 400 }}
+            option={dateHeatmapOptions}
+          />
+        </Collapse.Panel>
         <Collapse.Panel itemKey="investors" header={'投资人列表'}>
           <DataView columns={columnsOfInvestor} data={investors} />
         </Collapse.Panel>

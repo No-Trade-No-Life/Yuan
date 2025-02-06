@@ -1,13 +1,6 @@
-import { IconCaretdown, IconCaretup } from '@douyinfe/semi-icons';
-import { Space } from '@douyinfe/semi-ui';
-import {
-  Table,
-  flexRender,
-  getFilteredRowModel,
-  getPaginationRowModel,
-  getSortedRowModel,
-  useReactTable,
-} from '@tanstack/react-table';
+import { IconCaretdown, IconCaretup, IconSort } from '@douyinfe/semi-icons';
+import { Button, Input, Space } from '@douyinfe/semi-ui';
+import { Table, flexRender } from '@tanstack/react-table';
 
 export function TableView<T>(props: { table: Table<T>; topSlot?: React.ReactNode }) {
   const { table } = props;
@@ -23,19 +16,33 @@ export function TableView<T>(props: { table: Table<T>; topSlot?: React.ReactNode
           {table.getHeaderGroups().map((headerGroup) => (
             <tr key={headerGroup.id} className="semi-table-row">
               {headerGroup.headers.map((header) => (
-                <th
-                  key={header.id}
-                  className="semi-table-row-head"
-                  onClick={header.column.getToggleSortingHandler()}
-                >
-                  <Space>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(header.column.columnDef.header, header.getContext())}
-                    {{
-                      asc: <IconCaretup />,
-                      desc: <IconCaretdown />,
-                    }[header.column.getIsSorted() as string] ?? null}
+                <th key={header.id} className="semi-table-row-head">
+                  <Space vertical>
+                    <Space>
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(header.column.columnDef.header, header.getContext())}
+                      <Button
+                        icon={
+                          {
+                            asc: <IconCaretup />,
+                            desc: <IconCaretdown />,
+                            false: <IconSort />,
+                          }[header.column.getIsSorted() as string] ?? null
+                        }
+                        onClick={header.column.getToggleSortingHandler()}
+                      />
+                    </Space>
+
+                    {header.column.getCanFilter() ? (
+                      <Input
+                        value={header.column.getFilterValue() as string}
+                        placeholder={'搜索...'}
+                        onChange={(v) => {
+                          header.column.setFilterValue(v);
+                        }}
+                      />
+                    ) : null}
                   </Space>
                 </th>
               ))}
