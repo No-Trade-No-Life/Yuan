@@ -9,20 +9,24 @@ import { IServiceOptions } from '@yuants/protocol';
 import { Terminal } from '@yuants/protocol';
 
 // @public
-export type NativeIterable<T> = AsyncIterable<T> | PromiseLike<T> | ArrayLike<T> | Iterable<T>;
-
-// @public
-export const provideDataSeries: <T extends keyof IDataRecordTypes>(terminal: Terminal, ctx: {
-    type: T;
-    series_id_prefix_parts: string[];
-    reversed: boolean;
+export interface IDataSeriesProvideContext<T extends keyof IDataRecordTypes> {
     queryFn: (ctx: {
         series_id: string;
         started_at: number;
         ended_at: number;
     }) => NativeIterable<IDataRecordTypes[T][]>;
-    serviceOptions?: IServiceOptions | undefined;
-}) => {
+    reversed: boolean;
+    series_id_prefix_parts: string[];
+    // (undocumented)
+    serviceOptions?: IServiceOptions;
+    type: T;
+}
+
+// @public
+export type NativeIterable<T> = AsyncIterable<T> | PromiseLike<T> | ArrayLike<T> | Iterable<T>;
+
+// @public
+export const provideDataSeries: <T extends keyof IDataRecordTypes>(terminal: Terminal, ctx: IDataSeriesProvideContext<T>) => {
     dispose: () => void;
 };
 
