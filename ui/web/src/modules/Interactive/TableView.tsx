@@ -1,5 +1,15 @@
-import { IconCaretdown, IconCaretup, IconSort } from '@douyinfe/semi-icons';
-import { Button, Input, Space } from '@douyinfe/semi-ui';
+import {
+  IconArrowLeft,
+  IconArrowRight,
+  IconCaretdown,
+  IconCaretup,
+  IconEyeOpened,
+  IconMenu,
+  IconSort,
+  IconTreeTriangleDown,
+  IconTreeTriangleRight,
+} from '@douyinfe/semi-icons';
+import { Button, Dropdown, DropdownItem, DropdownMenu, Input, Space } from '@douyinfe/semi-ui';
 import { Table, flexRender } from '@tanstack/react-table';
 
 export function TableView<T>(props: { table: Table<T>; topSlot?: React.ReactNode }) {
@@ -22,8 +32,10 @@ export function TableView<T>(props: { table: Table<T>; topSlot?: React.ReactNode
                       {header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())}
+
                       {header.column.getCanSort() ? (
                         <Button
+                          theme="borderless"
                           icon={
                             {
                               asc: <IconCaretup />,
@@ -34,6 +46,29 @@ export function TableView<T>(props: { table: Table<T>; topSlot?: React.ReactNode
                           onClick={header.column.getToggleSortingHandler()}
                         />
                       ) : null}
+
+                      <Dropdown
+                        content={
+                          <DropdownMenu>
+                            <DropdownItem
+                              icon={<IconEyeOpened />}
+                              onClick={header.column.getToggleVisibilityHandler()}
+                            >
+                              隐藏字段
+                            </DropdownItem>
+                            {header.column.getCanGroup() && (
+                              <DropdownItem
+                                icon={header.column.getIsGrouped() ? <IconArrowRight /> : <IconArrowLeft />}
+                                onClick={header.column.getToggleGroupingHandler()}
+                              >
+                                {header.column.getIsGrouped() ? '取消分组' : '分组'}
+                              </DropdownItem>
+                            )}
+                          </DropdownMenu>
+                        }
+                      >
+                        <IconMenu />
+                      </Dropdown>
                     </Space>
 
                     {header.column.getCanFilter() ? (
@@ -54,11 +89,29 @@ export function TableView<T>(props: { table: Table<T>; topSlot?: React.ReactNode
         <tbody className="semi-table-tbody">
           {table.getRowModel().rows.map((row) => (
             <tr key={row.id} className="semi-table-row">
-              {row.getVisibleCells().map((cell) => (
-                <td key={cell.id} className="semi-table-row-cell">
-                  {flexRender(cell.column.columnDef.cell, cell.getContext())}
-                </td>
-              ))}
+              {row.getVisibleCells().map((cell) => {
+                return (
+                  <td key={cell.id} className="semi-table-row-cell">
+                    {cell.getIsGrouped() ? (
+                      <Space>
+                        <Button
+                          theme="borderless"
+                          icon={row.getIsExpanded() ? <IconTreeTriangleDown /> : <IconTreeTriangleRight />}
+                          onClick={row.getToggleExpandedHandler()}
+                        />
+                        {flexRender(cell.column.columnDef.cell, cell.getContext())} ({row.subRows.length})
+                      </Space>
+                    ) : cell.getIsAggregated() ? (
+                      flexRender(
+                        cell.column.columnDef.aggregatedCell ?? cell.column.columnDef.cell,
+                        cell.getContext(),
+                      )
+                    ) : cell.getIsPlaceholder() ? null : (
+                      flexRender(cell.column.columnDef.cell, cell.getContext())
+                    )}
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>

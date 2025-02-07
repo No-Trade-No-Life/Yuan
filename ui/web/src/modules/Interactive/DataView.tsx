@@ -1,11 +1,14 @@
-import { IconEyeOpened, IconSort } from '@douyinfe/semi-icons';
+import { IconEyeOpened, IconList, IconSort } from '@douyinfe/semi-icons';
 import { Pagination, Radio, RadioGroup, Space } from '@douyinfe/semi-ui';
 import {
   ColumnDef,
   getCoreRowModel,
+  getExpandedRowModel,
   getFilteredRowModel,
+  getGroupedRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  GroupingState,
   OnChangeFn,
   SortingState,
   Table,
@@ -22,13 +25,16 @@ export function DataView<T, K>(props: {
   data: T[];
   columns: ColumnDef<T, any>[];
   columnsDependencyList?: any[];
+  tableRef?: React.MutableRefObject<Table<T> | undefined>;
+  layoutMode?: 'table' | 'list' | 'auto';
+  topSlot?: React.ReactNode;
+
   initialSorting?: SortingState;
   sorting?: SortingState;
   onSortingChange?: OnChangeFn<SortingState>;
   manualSorting?: boolean;
-  tableRef?: React.MutableRefObject<Table<T> | undefined>;
-  layoutMode?: 'table' | 'list' | 'auto';
-  topSlot?: React.ReactNode;
+
+  initialGroupping?: GroupingState;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -40,6 +46,8 @@ export function DataView<T, K>(props: {
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
+    getGroupedRowModel: getGroupedRowModel(),
+    getExpandedRowModel: getExpandedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     autoResetPageIndex: false,
@@ -58,6 +66,10 @@ export function DataView<T, K>(props: {
 
   if (props.initialSorting) {
     (tableOptions.initialState ??= {}).sorting = props.initialSorting;
+  }
+
+  if (props.initialGroupping) {
+    (tableOptions.initialState ??= {}).grouping = props.initialGroupping;
   }
 
   const table = useReactTable(tableOptions);
@@ -159,6 +171,26 @@ export function DataView<T, K>(props: {
       >
         可见字段
       </Button>
+      <Button
+        onClick={async () => {
+          const value: string[] = await showForm(
+            {
+              title: '字段分组',
+              type: 'array',
+              uniqueItems: true,
+              items: {
+                type: 'string',
+                enum: table.getAllLeafColumns().map((x) => x.id),
+              },
+            },
+            table.getState().grouping,
+          );
+          table.setGrouping(value);
+        }}
+        icon={<IconList />}
+      >
+        分组
+      </Button>
       <RadioGroup
         type="button"
         defaultValue={layoutMode}
@@ -174,6 +206,7 @@ export function DataView<T, K>(props: {
       <Space>
         <div>共 {table.options.data.length} 条数据</div>
         <div>过滤后: {table.getFilteredRowModel().rows.length} 条</div>
+        <div>分页前: {table.getPrePaginationRowModel().rows.length} 行</div>
       </Space>
       <Pagination
         total={table.getPrePaginationRowModel().rows.length}

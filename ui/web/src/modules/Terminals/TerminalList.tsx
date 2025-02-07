@@ -1,15 +1,16 @@
-import { Typography } from '@douyinfe/semi-ui';
+import { Space, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
 import { formatTime } from '@yuants/data-model';
 import { ITerminalInfo } from '@yuants/protocol';
-import { formatDuration, intervalToDuration } from 'date-fns';
 import { useObservableState } from 'observable-hooks';
 import { useMemo } from 'react';
 import { of, shareReplay, switchMap } from 'rxjs';
+import { executeCommand } from '../CommandCenter';
 import { Button, DataView } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminate } from './TerminalListItem';
 import { terminal$ } from './create-connection';
+import { formatDuration } from './utils';
 
 export const terminalList$ = terminal$.pipe(
   switchMap((terminal) => terminal?.terminalInfos$ ?? of([])),
@@ -41,7 +42,7 @@ registerPage('TerminalList', () => {
       columnHelper.accessor((x) => Date.now() - (x.created_at || Date.now()), {
         id: 'start_time',
         header: () => '启动时长',
-        cell: (ctx) => formatDuration(intervalToDuration({ start: 0, end: ctx.getValue() })),
+        cell: (ctx) => formatDuration(ctx.getValue()),
       }),
       columnHelper.accessor((x) => Object.values(x.serviceInfo || {}).length, {
         id: 'serviceLength',
@@ -66,17 +67,22 @@ registerPage('TerminalList', () => {
         id: 'actions',
         header: () => '操作',
         cell: (x) => {
-          const term = x.row.original;
+          const terminal = x.row.original;
 
           return (
-            <Button
-              disabled={!term.serviceInfo?.['Terminate']}
-              onClick={async () => {
-                terminate(term.terminal_id);
-              }}
-            >
-              终止
-            </Button>
+            <Space>
+              <Button onClick={() => executeCommand('TerminalDetail', { terminal_id: terminal.terminal_id })}>
+                详情
+              </Button>
+              <Button
+                disabled={!terminal.serviceInfo?.['Terminate']}
+                onClick={async () => {
+                  terminate(terminal.terminal_id);
+                }}
+              >
+                终止
+              </Button>
+            </Space>
           );
         },
       }),
@@ -84,5 +90,5 @@ registerPage('TerminalList', () => {
     return columns;
   }, []);
 
-  return <DataView columns={columns} data={terminals} />;
+  return <DataView columns={columns} data={terminals} initialGroupping={['name']} />;
 });

@@ -36,7 +36,7 @@ import { executeCommand } from '../CommandCenter';
 import { Button, DataView } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
 import { InlineProductId } from '../Products/InlineProductId';
-import { terminal$, useTick } from '../Terminals';
+import { InlineTerminalId, terminal$, useTick } from '../Terminals';
 import { InlineAccountId } from './InlineAccountId';
 import { useAccountInfo } from './model';
 
@@ -391,7 +391,7 @@ registerPage('AccountInfoPanel', () => {
       <Typography.Text>
         最后更新时间: {formatTime(updatedAt)} (Ping {renderedAt - updatedAt}ms)
       </Typography.Text>
-      <Typography.Text copyable={{ content: targetTerminalId }}>终端ID: {targetTerminalId}</Typography.Text>
+      <InlineTerminalId terminal_id={targetTerminalId || ''} />
       <Space>
         <Button
           icon={<IconTaskMoneyStroked />}
