@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-series",
+      "comment": "export context type",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-series"
+}

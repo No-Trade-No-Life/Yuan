@@ -91,43 +91,50 @@ addDataRecordSchema('series_collecting_task', {
  * @public
  */
 export type NativeIterable<T> = AsyncIterable<T> | PromiseLike<T> | ArrayLike<T> | Iterable<T>;
+
+/**
+ * 提供数据序列所需的上下文
+ * @public
+ */
+export interface IDataSeriesProvideContext<T extends keyof IDataRecordTypes> {
+  /**
+   * 数据序列的类型
+   */
+  type: T;
+  /**
+   * 数据序列的 ID 的前置部分
+   */
+  series_id_prefix_parts: string[];
+  /**
+   * 数据页之间的顺序是否为 从最新到最旧
+   *
+   * - 如果 true，需要加载完全部数据页后再写入数据
+   * - 如果 false，即每次写入数据页后就立即写入数据
+   */
+  reversed: boolean;
+  /**
+   * 查询数据的函数
+   *
+   * - 可以分批返回数据页
+   * - 数据页的内部不需要排序
+   * - 必须在短时间内返回一批数据，否则会被认为超时，如果没有数据，可以返回空数组
+   * - 如果数据不在范围内，调度器会自动停止查询，不需要在 queryFn 中处理
+   */
+  queryFn: (ctx: {
+    series_id: string;
+    started_at: number;
+    ended_at: number;
+  }) => NativeIterable<IDataRecordTypes[T][]>;
+  serviceOptions?: IServiceOptions;
+}
+
 /**
  * 为数据序列提供数据
  * @public
  */
 export const provideDataSeries = <T extends keyof IDataRecordTypes>(
   terminal: Terminal,
-  ctx: {
-    /**
-     * 数据序列的类型
-     */
-    type: T;
-    /**
-     * 数据序列的 ID 的前置部分
-     */
-    series_id_prefix_parts: string[];
-    /**
-     * 数据页之间的顺序是否为 从最新到最旧
-     *
-     * - 如果 true，需要加载完全部数据页后再写入数据
-     * - 如果 false，即每次写入数据页后就立即写入数据
-     */
-    reversed: boolean;
-    /**
-     * 查询数据的函数
-     *
-     * - 可以分批返回数据页
-     * - 数据页的内部不需要排序
-     * - 必须在短时间内返回一批数据，否则会被认为超时，如果没有数据，可以返回空数组
-     * - 如果数据不在范围内，调度器会自动停止查询，不需要在 queryFn 中处理
-     */
-    queryFn: (ctx: {
-      series_id: string;
-      started_at: number;
-      ended_at: number;
-    }) => NativeIterable<IDataRecordTypes[T][]>;
-    serviceOptions?: IServiceOptions;
-  },
+  ctx: IDataSeriesProvideContext<T>,
 ) => {
   return terminal.provideService(
     'CollectDataSeries',
