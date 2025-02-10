@@ -648,4 +648,46 @@ export class GateClient {
       highest_bid: string;
     }[]
   > => this.request('GET', `/api/v4/futures/${settle}/tickers`, params);
+
+  /**
+   * 获取统一账户最多可转出
+   *
+   * https://www.gate.io/docs/developers/apiv4/zh_CN/#%E6%9F%A5%E8%AF%A2%E7%BB%9F%E4%B8%80%E8%B4%A6%E6%88%B7%E6%9C%80%E5%A4%9A%E5%8F%AF%E8%BD%AC%E5%87%BA
+   */
+  getUnifiedTransferable = (params: {
+    currency: string;
+  }): Promise<{
+    currency: string;
+    amount: string;
+  }> => this.request('GET', `/api/v4/unified/transferable`, params);
+
+  /**
+   * 获取交易对 ticker 信息
+   *
+   * https://www.gate.io/docs/developers/apiv4/zh_CN/#%E6%9F%A5%E8%AF%A2%E5%8D%95%E4%B8%AA%E4%BA%A4%E6%98%93%E5%AF%B9%E8%AF%A6%E6%83%85
+   */
+  getSpotTickers = (params: {
+    currency_pair?: string;
+    timezone?: string;
+  }): Promise<
+    Array<{
+      currency_pair: string;
+      last: string;
+      lowest_ask: string;
+      lowest_size: string;
+      highest_bid: string;
+      highest_size: string;
+      change_percentage: string;
+      change_utc0: string;
+      change_utc8: string;
+      base_volume: string;
+      quote_volume: string;
+      high_24h: string;
+      low_24h: string;
+      etf_net_value: string;
+      etf_pre_net_value: string;
+      etf_pre_timestamp: string;
+      etf_leverage: string;
+    }>
+  > => this.request('GET', `/api/v4/spot/tickers`, params);
 }
