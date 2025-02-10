@@ -59,6 +59,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
 
   const FUTURE_USDT_ACCOUNT_ID = `gate/${uid}/future/USDT`;
   const SPOT_USDT_ACCOUNT_ID = `gate/${uid}/spot/USDT`;
+  const UNIFIED_USDT_ACCOUNT_ID = `gate/${uid}/unified/USDT`;
 
   const terminal = new Terminal(process.env.HOST_URL!, {
     terminal_id: process.env.TERMINAL_ID || `@yuants/vendor-gate/${uid}/${UUID()}`,
@@ -225,6 +226,81 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
   );
 
   provideAccountInfo(terminal, futureUsdtAccountInfo$);
+
+  const getUnifiedAccountsUSDT$ = defer(() => client.getUnifiedAccounts({})).pipe(
+    repeat({ delay: 1000 }),
+    retry({ delay: 5000 }),
+    shareReplay(1),
+  );
+
+  const getSpotTickers$ = defer(() => client.getSpotTickers({})).pipe(
+    repeat({ delay: 1000 }),
+    retry({ delay: 5000 }),
+    shareReplay(1),
+  );
+
+  const unifiedUsdtAccountInfo$ = combineLatest([
+    accountFuturePosition$,
+    accountFutureOpenOrders$,
+    futureAccount$,
+    getUnifiedAccountsUSDT$,
+    getSpotTickers$,
+  ]).pipe(
+    map(([positions, orders, account, unifiedAccount, spotTickers]): IAccountInfo => {
+      const free = Number(unifiedAccount.balances?.['USDT']?.available || 0);
+      const profit = +account.unrealised_pnl;
+      const equity = Number(unifiedAccount.unified_account_total_equity || 0);
+      const balance = equity - profit;
+      const used = equity - free;
+
+      const money: IAccountMoney = {
+        currency: 'USDT',
+        balance,
+        profit,
+        free,
+        used,
+        equity,
+      };
+      const spotPosition: IPosition[] = Object.keys(unifiedAccount.balances)
+        ?.map((instId) => {
+          if (instId === 'USDT') return;
+          let currency_pair = instId + '_USDT';
+          if (instId === 'SOL2') {
+            currency_pair = 'SOL_USDT';
+          }
+          const closable_price = Number(
+            spotTickers.find((ticker) => ticker.currency_pair === currency_pair)?.last || 0,
+          );
+          const volume = Number(unifiedAccount.balances?.[instId]?.available || 0);
+          return {
+            datasource_id: 'gate/spot',
+            position_id: instId,
+            product_id: instId,
+            direction: 'LONG',
+            volume,
+            free_volume: volume,
+            closable_price,
+            position_price: closable_price,
+            floating_profit: 0,
+            valuation: closable_price * volume,
+          };
+        })
+        .filter((x): x is Exclude<typeof x, undefined> => !!x);
+      return {
+        updated_at: Date.now(),
+        account_id: UNIFIED_USDT_ACCOUNT_ID,
+        money: money,
+        currencies: [money],
+        positions: [...positions, ...spotPosition],
+        orders,
+      };
+    }),
+    throttleTime(1000),
+    shareReplay(1),
+  );
+
+  provideAccountInfo(terminal, unifiedUsdtAccountInfo$);
+
   const spotAccountInfo$ = defer(async (): Promise<IAccountInfo> => {
     const res = await client.getSpotAccounts();
     if (!(res instanceof Array)) {
