@@ -62,6 +62,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
 
   const terminal = new Terminal(process.env.HOST_URL!, {
     terminal_id: process.env.TERMINAL_ID || `@yuants/vendor-gate/${uid}/${UUID()}`,
+    name: '@yuants/vendor-gate',
   });
 
   const usdtFutureProducts$ = defer(() => client.getFuturesContracts('usdt', {})).pipe(

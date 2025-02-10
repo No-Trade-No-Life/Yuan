@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-gate",
+      "comment": "add terminal name",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-gate"
+}
