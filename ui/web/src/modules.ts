@@ -9,6 +9,7 @@ export * as Copilot from './modules/Copilot';
 export * as CopyDataRelation from './modules/CopyDataRelation';
 export * as Data from './modules/Data';
 export * as DataRecord from './modules/DataRecord';
+export * as DataSeries from './modules/DataSeries';
 export * as Deploy from './modules/Deploy';
 export * as DesktopLayout from './modules/DesktopLayout';
 export * as Editor from './modules/Editor';
