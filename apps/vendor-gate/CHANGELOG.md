@@ -1,6 +1,14 @@
 # Change Log - @yuants/vendor-gate
 
-This log was last generated on Sat, 25 Jan 2025 14:31:49 GMT and should not be manually modified.
+This log was last generated on Mon, 10 Feb 2025 20:28:40 GMT and should not be manually modified.
+
+## 0.3.5
+Mon, 10 Feb 2025 20:28:40 GMT
+
+### Patches
+
+- add sticker
+- add terminal name
 
 ## 0.3.4
 Sat, 25 Jan 2025 14:31:49 GMT

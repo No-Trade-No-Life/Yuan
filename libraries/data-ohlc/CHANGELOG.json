@@ -1,0 +1,22 @@
+{
+  "name": "@yuants/data-ohlc",
+  "entries": [
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/data-ohlc_v0.1.0",
+      "date": "Mon, 10 Feb 2025 20:28:40 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "new package"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.2.0`"
+          }
+        ]
+      }
+    }
+  ]
+}

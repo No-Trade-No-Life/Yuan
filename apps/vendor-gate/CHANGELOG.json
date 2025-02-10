@@ -2,6 +2,31 @@
   "name": "@yuants/vendor-gate",
   "entries": [
     {
+      "version": "0.3.5",
+      "tag": "@yuants/vendor-gate_v0.3.5",
+      "date": "Mon, 10 Feb 2025 20:28:40 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add sticker"
+          },
+          {
+            "comment": "add terminal name"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.2.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.4",
       "tag": "@yuants/vendor-gate_v0.3.4",
       "date": "Sat, 25 Jan 2025 14:31:49 GMT",
