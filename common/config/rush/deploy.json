@@ -30,6 +30,7 @@
     "@yuants/app-namespaced-mongodb-storage",
     "@yuants/app-k8s-manifest-operator",
     "@yuants/app-mongodb-storage",
+    "@yuants/app-postgres-storage",
     "@yuants/app-metrics-collector",
     "@yuants/app-market-data-collector",
     "@yuants/app-prometheus-client",
