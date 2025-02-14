@@ -19,10 +19,6 @@ export default (context: IExtensionContext) => {
             ENABLE_WEBRTC: {
               type: 'string',
             },
-            // POSTGRES_URI: {
-            //   type: 'string',
-            //   description: `postgres://[username:password@]host1[:port1][,...hostN[:portN]][/[defaultauthdb][?options]]`,
-            // },
           },
         },
       },

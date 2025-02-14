@@ -17,8 +17,6 @@ import {
 import { TelegramClient } from 'telegram';
 import { UpdateConnectionState } from 'telegram/network';
 
-const mapAccountIdToClientInstance = new Map<string, TelegramClient>();
-
 const terminal = new Terminal(process.env.HOST_URL!, {
   terminal_id: `telegram`,
   name: 'Telegram',
@@ -57,7 +55,7 @@ telegramAccounts$
       (v) => v.id,
       (account) =>
         defer(async () => {
-          console.info(`account ${account.id} client is creating`, formatTime(Date.now()));
+          console.info(formatTime(Date.now()), `account ${account.id} client is creating`);
           const client = new TelegramClient(
             account.string_session,
             +process.env.APP_ID!,
@@ -65,13 +63,12 @@ telegramAccounts$
             {},
           );
           await client.connect();
-          mapAccountIdToClientInstance.set(account.id, client);
           client.addEventHandler((event) => {
             const myId = encodePath('PeerUser', account.id);
             if (event instanceof UpdateConnectionState) return;
             if (event.className === 'UpdateUserStatus') return;
             const raw_data = JSON.stringify(event);
-            console.info(new Date(), raw_data);
+            console.info(formatTime(Date.now()), raw_data);
 
             // 私聊
             if (event.className === 'UpdateShortMessage') {
@@ -133,7 +130,8 @@ telegramAccounts$
           });
           return new Observable<void>(() => {
             return () => {
-              client?.disconnect();
+              console.info(formatTime(Date.now()), `account ${account.id} client is disconnecting`);
+              client.disconnect();
             };
           });
         }).pipe(mergeAll()),
