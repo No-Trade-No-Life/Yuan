@@ -490,6 +490,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/sql",
+      "projectFolder": "libraries/sql",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/app-alert-receiver",
       "projectFolder": "apps/alert-receiver",
       "shouldPublish": true
