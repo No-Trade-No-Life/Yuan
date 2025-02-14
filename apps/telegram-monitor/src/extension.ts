@@ -8,7 +8,7 @@ export default (context: IExtensionContext) => {
       properties: {
         env: {
           type: 'object',
-          required: ['HOST_URL', 'POSTGRES_URI'],
+          required: ['HOST_URL'],
           properties: {
             HOST_URL: {
               type: 'string',
@@ -64,7 +64,6 @@ export default (context: IExtensionContext) => {
               },
 
               spec: {
-                priorityClassName: 'system-node-critical',
                 containers: [
                   {
                     env: makeK8sEnvs(ctx.env),
@@ -91,35 +90,6 @@ export default (context: IExtensionContext) => {
                 ],
               },
             },
-          },
-        },
-        hpa: {
-          apiVersion: 'autoscaling/v2',
-          kind: 'HorizontalPodAutoscaler',
-          metadata: {
-            name: COMPONENT_NAME,
-            namespace: 'yuan',
-          },
-          spec: {
-            scaleTargetRef: {
-              apiVersion: 'apps/v1',
-              kind: 'Deployment',
-              name: COMPONENT_NAME,
-            },
-            minReplicas: 1,
-            maxReplicas: 3,
-            metrics: [
-              {
-                type: 'Resource',
-                resource: {
-                  name: 'cpu',
-                  target: {
-                    type: 'Utilization',
-                    averageUtilization: 50,
-                  },
-                },
-              },
-            ],
           },
         },
       };
