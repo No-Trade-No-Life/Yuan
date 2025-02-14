@@ -555,6 +555,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/app-telegram-monitor",
+      "projectFolder": "apps/telegram-monitor",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/app-market-data-collector",
       "projectFolder": "apps/market-data-collector",
       "shouldPublish": true
