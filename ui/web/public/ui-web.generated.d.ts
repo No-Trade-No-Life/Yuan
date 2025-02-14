@@ -8,9 +8,9 @@ declare module '@yuants/ui-web' {
   import { IDataRecord, IProduct } from '@yuants/data-model';
   import {
     ColumnDef,
+    Table,
     SortingState,
     OnChangeFn,
-    Table,
     GroupingState,
     ExpandedState,
   } from '@tanstack/react-table';
@@ -29,7 +29,7 @@ declare module '@yuants/ui-web' {
   import { User } from '@supabase/supabase-js';
   import { Terminal } from '@yuants/protocol';
 
-  namespace index_d$x {
+  namespace index_d$y {
     export {};
   }
 
@@ -45,22 +45,22 @@ declare module '@yuants/ui-web' {
 
   const useAccountInfo: (account_id: string) => rxjs.Observable<_yuants_data_model.IAccountInfo>;
 
-  const index_d$w_AccountSelector: typeof AccountSelector;
-  const index_d$w_InlineAccountId: typeof InlineAccountId;
-  const index_d$w_useAccountInfo: typeof useAccountInfo;
-  namespace index_d$w {
+  const index_d$x_AccountSelector: typeof AccountSelector;
+  const index_d$x_InlineAccountId: typeof InlineAccountId;
+  const index_d$x_useAccountInfo: typeof useAccountInfo;
+  namespace index_d$x {
     export {
-      index_d$w_AccountSelector as AccountSelector,
-      index_d$w_InlineAccountId as InlineAccountId,
-      index_d$w_useAccountInfo as useAccountInfo,
+      index_d$x_AccountSelector as AccountSelector,
+      index_d$x_InlineAccountId as InlineAccountId,
+      index_d$x_useAccountInfo as useAccountInfo,
     };
   }
 
-  namespace index_d$v {
+  namespace index_d$w {
     export {};
   }
 
-  namespace index_d$u {
+  namespace index_d$v {
     export {};
   }
 
@@ -73,18 +73,18 @@ declare module '@yuants/ui-web' {
   const ready$: ReplaySubject<unknown>;
   const error$: ReplaySubject<unknown>;
 
-  const index_d$t_createPersistBehaviorSubject: typeof createPersistBehaviorSubject;
-  const index_d$t_error$: typeof error$;
-  const index_d$t_ready$: typeof ready$;
-  namespace index_d$t {
+  const index_d$u_createPersistBehaviorSubject: typeof createPersistBehaviorSubject;
+  const index_d$u_error$: typeof error$;
+  const index_d$u_ready$: typeof ready$;
+  namespace index_d$u {
     export {
-      index_d$t_createPersistBehaviorSubject as createPersistBehaviorSubject,
-      index_d$t_error$ as error$,
-      index_d$t_ready$ as ready$,
+      index_d$u_createPersistBehaviorSubject as createPersistBehaviorSubject,
+      index_d$u_error$ as error$,
+      index_d$u_ready$ as ready$,
     };
   }
 
-  namespace index_d$s {
+  namespace index_d$t {
     export {};
   }
 
@@ -92,30 +92,30 @@ declare module '@yuants/ui-web' {
   const executeCommand: (id: string, params?: {}) => Promise<void>;
   const CommandCenter: React$1.MemoExoticComponent<() => react_jsx_runtime.JSX.Element>;
 
-  const index_d$r_CommandCenter: typeof CommandCenter;
-  const index_d$r_executeCommand: typeof executeCommand;
-  const index_d$r_registerCommand: typeof registerCommand;
-  namespace index_d$r {
+  const index_d$s_CommandCenter: typeof CommandCenter;
+  const index_d$s_executeCommand: typeof executeCommand;
+  const index_d$s_registerCommand: typeof registerCommand;
+  namespace index_d$s {
     export {
-      index_d$r_CommandCenter as CommandCenter,
-      index_d$r_executeCommand as executeCommand,
-      index_d$r_registerCommand as registerCommand,
+      index_d$s_CommandCenter as CommandCenter,
+      index_d$s_executeCommand as executeCommand,
+      index_d$s_registerCommand as registerCommand,
     };
+  }
+
+  namespace index_d$r {
+    export {};
   }
 
   namespace index_d$q {
     export {};
   }
 
-  namespace index_d$p {
-    export {};
-  }
-
   const useValue: <T>(id: string, initialValue: T) => [T, (v: T) => void];
 
-  const index_d$o_useValue: typeof useValue;
-  namespace index_d$o {
-    export { index_d$o_useValue as useValue };
+  const index_d$p_useValue: typeof useValue;
+  namespace index_d$p {
+    export { index_d$p_useValue as useValue };
   }
 
   interface IDataRecordViewDef<T> {
@@ -136,9 +136,13 @@ declare module '@yuants/ui-web' {
    */
   function DataRecordView<T>(props: IDataRecordViewDef<T>): react_jsx_runtime.JSX.Element;
 
-  const index_d$n_DataRecordView: typeof DataRecordView;
+  const index_d$o_DataRecordView: typeof DataRecordView;
+  namespace index_d$o {
+    export { index_d$o_DataRecordView as DataRecordView };
+  }
+
   namespace index_d$n {
-    export { index_d$n_DataRecordView as DataRecordView };
+    export {};
   }
 
   namespace index_d$m {
@@ -470,13 +474,15 @@ declare module '@yuants/ui-web' {
   function DataView<T, K>(props: {
     data: T[];
     columns: ColumnDef<T, any>[];
+    columnsDependencyList?: any[];
+    tableRef?: React.MutableRefObject<Table<T> | undefined>;
+    layoutMode?: 'table' | 'list' | 'auto';
+    topSlot?: React.ReactNode;
     initialSorting?: SortingState;
     sorting?: SortingState;
     onSortingChange?: OnChangeFn<SortingState>;
     manualSorting?: boolean;
-    tableRef?: React.MutableRefObject<Table<T> | undefined>;
-    layoutMode?: 'table' | 'list' | 'auto';
-    topSlot?: React.ReactNode;
+    initialGroupping?: GroupingState;
   }): react_jsx_runtime.JSX.Element;
 
   function ListView<T>(props: {
@@ -684,16 +690,20 @@ declare module '@yuants/ui-web' {
     };
   }
 
+  const InlineTerminalId: (props: { terminal_id: string }) => react_jsx_runtime.JSX.Element;
+
   const terminal$: Observable<Terminal | null>;
   const useTerminal: () => Terminal | null | undefined;
 
   const useTick: (datasource_id: string, product_id: string) => rxjs.Observable<_yuants_data_model.ITick>;
 
+  const index_d$4_InlineTerminalId: typeof InlineTerminalId;
   const index_d$4_terminal$: typeof terminal$;
   const index_d$4_useTerminal: typeof useTerminal;
   const index_d$4_useTick: typeof useTick;
   namespace index_d$4 {
     export {
+      index_d$4_InlineTerminalId as InlineTerminalId,
       index_d$4_terminal$ as terminal$,
       index_d$4_useTerminal as useTerminal,
       index_d$4_useTick as useTick,
@@ -801,17 +811,18 @@ declare module '@yuants/ui-web' {
   }
 
   export {
-    index_d$x as AccountComposition,
-    index_d$w as AccountInfo,
-    index_d$v as AccountRiskInfo,
-    index_d$u as Agent,
-    index_d$t as BIOS,
-    index_d$s as Chart,
-    index_d$r as CommandCenter,
-    index_d$q as Copilot,
-    index_d$p as CopyDataRelation,
-    index_d$o as Data,
-    index_d$n as DataRecord,
+    index_d$y as AccountComposition,
+    index_d$x as AccountInfo,
+    index_d$w as AccountRiskInfo,
+    index_d$v as Agent,
+    index_d$u as BIOS,
+    index_d$t as Chart,
+    index_d$s as CommandCenter,
+    index_d$r as Copilot,
+    index_d$q as CopyDataRelation,
+    index_d$p as Data,
+    index_d$o as DataRecord,
+    index_d$n as DataSeries,
     index_d$m as Deploy,
     index_d$l as DesktopLayout,
     index_d$k as Editor,

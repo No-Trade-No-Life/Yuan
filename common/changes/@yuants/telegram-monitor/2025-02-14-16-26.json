@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/telegram-monitor",
+      "comment": "support telegram message monitor",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/telegram-monitor"
+}

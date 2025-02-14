@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/telegram-monitor",
+  "entries": [
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/telegram-monitor_v0.1.0",
+      "date": "Thu, 13 Feb 2025 14:37:59 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "new package"
+          }
+        ]
+      }
+    }
+  ]
+}
