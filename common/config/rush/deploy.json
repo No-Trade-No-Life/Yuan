@@ -54,7 +54,7 @@
     "@yuants/vendor-ctp",
     "@yuants/vendor-tq",
     "@yuants/tool-busybox",
-    "@yuants/telegram-monitor"
+    "@yuants/app-telegram-monitor"
 
   ],
   /**

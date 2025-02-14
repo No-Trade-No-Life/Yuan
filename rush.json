@@ -550,7 +550,7 @@
       "shouldPublish": true
     },
     {
-      "packageName": "@yuants/telegram-monitor",
+      "packageName": "@yuants/app-telegram-monitor",
       "projectFolder": "apps/telegram-monitor",
       "shouldPublish": true
     },

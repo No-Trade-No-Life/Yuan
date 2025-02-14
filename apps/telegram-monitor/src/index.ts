@@ -37,7 +37,7 @@ const encodeId = (tgId: any) => {
   throw new Error(`Unknown peer type: ${tgId.className}`);
 };
 
-export const telegramAccounts$ = defer(() =>
+const telegramAccounts$ = defer(() =>
   terminal.requestForResponse('SQL', {
     query: `select * from telegram_monitor_accounts`,
   }),
@@ -58,15 +58,16 @@ telegramAccounts$
       (account) =>
         defer(async () => {
           console.info(`account ${account.id} client is creating`, formatTime(Date.now()));
-          const newClient = new TelegramClient(
+          const client = new TelegramClient(
             account.string_session,
             +process.env.APP_ID!,
             process.env.APP_HASH!,
             {},
           );
-          await newClient.connect();
-          mapAccountIdToClientInstance.set(account.id, newClient);
-          newClient.addEventHandler((event) => {
+          await client.connect();
+          mapAccountIdToClientInstance.set(account.id, client);
+          client.addEventHandler((event) => {
+            const myId = encodePath('PeerUser', account.id);
             if (event instanceof UpdateConnectionState) return;
             if (event.className === 'UpdateUserStatus') return;
             const raw_data = JSON.stringify(event);
@@ -78,8 +79,8 @@ telegramAccounts$
               message$.next({
                 message_id: `${event.id}`,
                 created_at: formatTime(event.date * 1000),
-                chat_id: event.out ? oppositeUserId : account.id,
-                sender_id: event.out ? account.id : oppositeUserId,
+                chat_id: event.out ? oppositeUserId : myId,
+                sender_id: event.out ? myId : oppositeUserId,
                 message: event.message,
                 raw_data,
               });
@@ -132,7 +133,6 @@ telegramAccounts$
           });
           return new Observable<void>(() => {
             return () => {
-              const client = mapAccountIdToClientInstance.get(account.id);
               client?.disconnect();
             };
           });
