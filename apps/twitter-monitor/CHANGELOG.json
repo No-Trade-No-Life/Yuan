@@ -2,6 +2,31 @@
   "name": "@yuants/app-twitter-monitor",
   "entries": [
     {
+      "version": "0.0.3",
+      "tag": "@yuants/app-twitter-monitor_v0.0.3",
+      "date": "Sat, 15 Feb 2025 10:40:12 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "adapt migration api change"
+          },
+          {
+            "comment": "change twitter monitor user table"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.1.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.2",
       "tag": "@yuants/app-twitter-monitor_v0.0.2",
       "date": "Sat, 15 Feb 2025 09:54:35 GMT",
