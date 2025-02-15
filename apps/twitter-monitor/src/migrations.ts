@@ -28,8 +28,8 @@ AddMigration({
   dependencies: [],
   statement: `
           CREATE TABLE IF NOT EXISTS twitter_monitor_users (
-              id TEXT PRIMARY KEY,
-              user_id TEXT NOT NULL,
+              id serial4 NOT NULL PRIMARY KEY,
+              user_id TEXT NOT NULL UNIQUE,
               created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
               updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
               frozen_at TIMESTAMPTZ
