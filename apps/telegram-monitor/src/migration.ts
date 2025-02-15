@@ -27,7 +27,7 @@ CREATE TABLE IF NOT EXISTS public.telegram_messages (
 SetupMigration(terminal, [
   {
     id: '15b955fc-96bd-4c3f-8dd9-589456ae3bcc',
-    name: 'create-table-telegram_',
+    name: 'create-table-telegram_monitor_accounts',
     dependencies: [],
     statement: `
 	CREATE TABLE IF NOT EXISTS public.telegram_monitor_accounts (
