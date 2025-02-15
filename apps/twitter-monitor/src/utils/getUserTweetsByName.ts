@@ -1,5 +1,6 @@
 import { ApifyClient } from 'apify-client';
 import { ITwitter } from '../types/ITwitter';
+import { useAsyncThrottler } from './useAsyncThrotter';
 
 const GET_TWITTER_METHOD_ID = `61RPP7dywgiy0JPD0`;
 const token = process.env.APIFY_TOKEN;
@@ -9,7 +10,7 @@ const client = new ApifyClient({
 });
 
 //通过推特的用户名字 获取推特的信息
-export const getUserTweetsByName = async (name: string): Promise<ITwitter[]> => {
+export const getUserTweetsByName = useAsyncThrottler(async (name: string): Promise<ITwitter[]> => {
   const input = {
     author: name,
     customMapFunction: (object: any) => {
@@ -30,4 +31,4 @@ export const getUserTweetsByName = async (name: string): Promise<ITwitter[]> => 
   // Fetch and print Actor results from the run's dataset (if any)
   const { items } = await client.dataset(run.defaultDatasetId).listItems();
   return items as any;
-};
+}, 30);
