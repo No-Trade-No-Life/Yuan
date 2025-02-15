@@ -54,8 +54,8 @@
     "@yuants/vendor-ctp",
     "@yuants/vendor-tq",
     "@yuants/tool-busybox",
-    "@yuants/app-telegram-monitor"
-
+    "@yuants/app-telegram-monitor",
+    "@yuants/app-twitter-monitor"
   ],
   /**
    * When deploying a local Rush project, the package.json "devDependencies" are normally excluded.

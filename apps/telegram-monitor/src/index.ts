@@ -16,6 +16,7 @@ import {
 import { TelegramClient } from 'telegram';
 import { UpdateConnectionState } from 'telegram/network';
 import { terminal } from './terminal';
+import './migration';
 
 const encodeId = (tgId: any) => {
   if (tgId.className === 'PeerUser') {
@@ -42,7 +43,7 @@ const telegramAccounts$ = defer(() =>
 );
 const message$ = new Subject<ITelegramMessage>();
 
-terminal.provideChannel<ITelegramMessage>({ const: encodePath('Telegram/Monitor') }, () => message$);
+terminal.provideChannel<ITelegramMessage>({ const: encodePath('TelegramMonitorMessages') }, () => message$);
 
 telegramAccounts$
   .pipe(
