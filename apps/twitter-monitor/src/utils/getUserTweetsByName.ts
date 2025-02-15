@@ -2,15 +2,14 @@ import { ApifyClient } from 'apify-client';
 import { ITwitter } from '../types/ITwitter';
 
 const GET_TWITTER_METHOD_ID = `61RPP7dywgiy0JPD0`;
+const token = process.env.APIFY_TOKEN;
+//if use apify
+const client = new ApifyClient({
+  token,
+});
 
 //通过推特的用户名字 获取推特的信息
 export const getUserTweetsByName = async (name: string): Promise<ITwitter[]> => {
-  const token = process.env.APIFY_TOKEN;
-
-  //if use apify
-  const client = new ApifyClient({
-    token,
-  });
   const input = {
     author: name,
     customMapFunction: (object: any) => {

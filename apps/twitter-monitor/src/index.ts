@@ -19,15 +19,14 @@ import { ITwitterEvent } from './types/ITwitterEvent';
 import { formatTime } from '@yuants/data-model';
 import { terminal } from './terminal';
 import './migrations';
-
-const users = process.env.TWITTER_MONITOR_USERS!.split(',');
+import { listWatch } from '@yuants/utils';
 
 const twitterMonitorUsers$ = defer(() =>
   terminal.requestForResponse('SQL', {
     query: `select * from twitter_monitor_users`,
   }),
 ).pipe(
-  map((v) => v.data as { id: string; string_session: string; phone_number: string }[]),
+  map((v) => v.data as { user_id: string }[]),
   retry({ delay: 5000 }),
   repeat({ delay: 5000 }),
   shareReplay(1),
@@ -37,12 +36,12 @@ const twitterMessage$ = new Subject<ITwitterEvent>();
 
 terminal.provideChannel({ const: 'TwitterMonitorMessages' }, () => twitterMessage$);
 
-const main = () => {
-  from(users)
-    .pipe(
-      // Process each user concurrently
-      concatMap((user) =>
-        defer(() => getUserTweetsByName(user)).pipe(
+twitterMonitorUsers$
+  .pipe(
+    listWatch(
+      (v) => v.user_id,
+      (user) =>
+        defer(() => getUserTweetsByName(user.user_id)).pipe(
           // Handle each tweet
           concatMap((tweets) =>
             from(tweets).pipe(
@@ -76,16 +75,10 @@ const main = () => {
           ),
           // Limit the number of repeats if needed (remove take if indefinite)
         ),
-      ),
-    )
-    .subscribe({
-      next: (event) => console.log(event),
-      error: (err) => console.error('Error:', err),
-      complete: () => console.log('Completed all users'),
-    });
-};
-
-main();
+      (a, b) => a.user_id === b.user_id,
+    ),
+  )
+  .subscribe();
 
 twitterMessage$.subscribe((event) => console.log('output: ', event));
 
