@@ -23,3 +23,20 @@ SetupMigration(terminal, [
     `,
   },
 ]);
+
+SetupMigration(terminal, [
+  {
+    id: '0a2023d4-c817-4af1-a2b8-00686cb2bdfe',
+    name: 'create-table-twitter_monitor_users',
+    dependencies: [],
+    statement: `
+          CREATE TABLE IF NOT EXISTS twitter_monitor_users (
+              id TEXT PRIMARY KEY,
+              user_id TEXT NOT NULL,
+              created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+              updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+              frozen_at TIMESTAMPTZ
+          );
+      `,
+  },
+]);
