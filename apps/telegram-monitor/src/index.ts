@@ -35,7 +35,7 @@ const telegramAccounts$ = defer(() =>
     query: `select * from telegram_monitor_accounts`,
   }),
 ).pipe(
-  map((v) => v.data as { id: string; string_session: string; phone_number: string }[]),
+  map((v) => v.data as { account_id: string; string_session: string; phone_number: string }[]),
   retry({ delay: 5000 }),
   repeat({ delay: 5000 }),
   shareReplay(1),
@@ -47,10 +47,10 @@ terminal.provideChannel<ITelegramMessage>({ const: encodePath('Telegram/Monitor'
 telegramAccounts$
   .pipe(
     listWatch(
-      (v) => v.id,
+      (v) => v.account_id,
       (account) =>
         defer(async () => {
-          console.info(formatTime(Date.now()), `account ${account.id} client is creating`);
+          console.info(formatTime(Date.now()), `account ${account.account_id} client is creating`);
           const client = new TelegramClient(
             account.string_session,
             +process.env.APP_ID!,
@@ -59,7 +59,7 @@ telegramAccounts$
           );
           await client.connect();
           client.addEventHandler((event) => {
-            const myId = encodePath('PeerUser', account.id);
+            const myId = encodePath('PeerUser', account.account_id);
             if (event instanceof UpdateConnectionState) return;
             if (event.className === 'UpdateUserStatus') return;
             const raw_data = JSON.stringify(event);
@@ -125,7 +125,7 @@ telegramAccounts$
           });
           return new Observable<void>(() => {
             return () => {
-              console.info(formatTime(Date.now()), `account ${account.id} client is disconnecting`);
+              console.info(formatTime(Date.now()), `account ${account.account_id} client is disconnecting`);
               client.disconnect();
             };
           });
