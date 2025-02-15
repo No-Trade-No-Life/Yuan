@@ -35,7 +35,7 @@ SetupMigration(terminal, [
               user_id TEXT NOT NULL,
               created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
               updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-              frozen_at TIMESTAMPTZ,
+              frozen_at TIMESTAMPTZ
           );
       `,
   },
