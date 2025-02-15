@@ -29,6 +29,7 @@ export interface ITwitter {
   media: any[];
   isConversationControlled: boolean;
   possiblySensitive?: boolean;
+  noResults?: boolean;
 }
 
 export interface Author {

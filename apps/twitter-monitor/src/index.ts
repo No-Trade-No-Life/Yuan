@@ -48,7 +48,9 @@ twitterMonitorUsers$
           concatMap((tweets) =>
             from(tweets).pipe(
               // Process each tweet
+              filter((tweet) => !tweet?.noResults),
               tap((tweet) => {
+                console.log(formatTime(Date.now()), 'tap tweet', user.user_id, tweet);
                 const event: ITwitterEvent = {
                   id: tweet.id,
                   content: tweet.text,
