@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-twitter-monitor
 
-This log was last generated on Sat, 15 Feb 2025 10:40:12 GMT and should not be manually modified.
+This log was last generated on Sat, 15 Feb 2025 15:00:36 GMT and should not be manually modified.
+
+## 0.0.4
+Sat, 15 Feb 2025 15:00:36 GMT
+
+### Patches
+
+- support async throtter
 
 ## 0.0.3
 Sat, 15 Feb 2025 10:40:12 GMT
