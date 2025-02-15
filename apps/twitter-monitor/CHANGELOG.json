@@ -2,6 +2,23 @@
   "name": "@yuants/app-twitter-monitor",
   "entries": [
     {
+      "version": "0.0.4",
+      "tag": "@yuants/app-twitter-monitor_v0.0.4",
+      "date": "Sat, 15 Feb 2025 15:00:36 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "support async throtter"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.3",
       "tag": "@yuants/app-twitter-monitor_v0.0.3",
       "date": "Sat, 15 Feb 2025 10:40:12 GMT",
