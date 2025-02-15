@@ -8,7 +8,7 @@ export default (context: IExtensionContext) => {
       properties: {
         env: {
           type: 'object',
-          required: ['HOST_URL'],
+          required: ['HOST_URL', 'APIFY_TOKEN'],
           properties: {
             HOST_URL: {
               type: 'string',
@@ -17,6 +17,9 @@ export default (context: IExtensionContext) => {
               type: 'string',
             },
             ENABLE_WEBRTC: {
+              type: 'string',
+            },
+            APIFY_TOKEN: {
               type: 'string',
             },
           },

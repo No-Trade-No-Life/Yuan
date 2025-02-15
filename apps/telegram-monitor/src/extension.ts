@@ -8,7 +8,7 @@ export default (context: IExtensionContext) => {
       properties: {
         env: {
           type: 'object',
-          required: ['HOST_URL'],
+          required: ['HOST_URL', 'APP_ID', 'APP_HASH'],
           properties: {
             HOST_URL: {
               type: 'string',
@@ -17,6 +17,12 @@ export default (context: IExtensionContext) => {
               type: 'string',
             },
             ENABLE_WEBRTC: {
+              type: 'string',
+            },
+            APP_ID: {
+              type: 'string',
+            },
+            APP_HASH: {
               type: 'string',
             },
           },
