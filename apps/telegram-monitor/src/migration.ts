@@ -23,3 +23,22 @@ CREATE TABLE IF NOT EXISTS public.telegram_messages (
 `,
   },
 ]);
+
+SetupMigration(terminal, [
+  {
+    id: '15b955fc-96bd-4c3f-8dd9-589456ae3bcc',
+    name: 'create-table-telegram_monitor_accounts',
+    dependencies: [],
+    statement: `
+	CREATE TABLE IF NOT EXISTS public.telegram_monitor_accounts (
+		id serial4 NOT NULL,
+		phone_number text NOT NULL,
+		string_session text NOT NULL,
+		account_id text NOT NULL,
+		created_at timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+		updated_at timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
+		frozen_at timestamptz NULL
+	);
+	`,
+  },
+]);
