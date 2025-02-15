@@ -16,11 +16,11 @@ USER node
 
 WORKDIR /app
 
-COPY --chown=node:node ./out/app-telegram-monitor-out /app
+COPY --chown=node:node ./out/app-twitter-monitor-out /app
 
 RUN node create-links.js create
 
-WORKDIR /app/apps/telegram-monitor
+WORKDIR /app/apps/twitter-monitor
 
 # USER nobody
 CMD ["node", "./lib/index.js"]
