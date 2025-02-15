@@ -46,15 +46,29 @@ BEGIN
 END $$;
 `;
 
+const allMigrations: ISQLMigration[] = [];
+
 /**
+ * Add a migration to the list of migrations to run.
+ *
  * @public
- * @param migrations - The list of migrations to run.
+ * @param migration - The migration to add
  */
-export const SetupMigration = async (terminal: Terminal, migrations: ISQLMigration[]) => {
+export const AddMigration = (migration: ISQLMigration) => {
+  allMigrations.push(migration);
+};
+
+/**
+ * Execute all migrations in the list.
+ *
+ * @public
+ * @param terminal - The terminal to use for running the migrations
+ */
+export const ExecuteMigrations = async (terminal: Terminal) => {
   console.info(formatTime(Date.now()), `SetupMigrationStart`);
 
   await lastValueFrom(
-    from(migrations).pipe(
+    from(allMigrations).pipe(
       //
       concatMap((migration) =>
         defer(async () => {

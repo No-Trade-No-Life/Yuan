@@ -1,12 +1,11 @@
-import { SetupMigration } from '@yuants/sql';
+import { AddMigration, ExecuteMigrations } from '@yuants/sql';
 import { terminal } from './terminal';
 
-SetupMigration(terminal, [
-  {
-    id: '73ce7f3e-f359-4968-b57a-8ecf8deb71c7',
-    name: 'create-table-twitter_messages',
-    dependencies: [],
-    statement: `
+AddMigration({
+  id: '73ce7f3e-f359-4968-b57a-8ecf8deb71c7',
+  name: 'create-table-twitter_messages',
+  dependencies: [],
+  statement: `
         CREATE TABLE IF NOT EXISTS twitter_messages (
             id TEXT PRIMARY KEY,
             content TEXT NOT NULL,
@@ -21,15 +20,13 @@ SetupMigration(terminal, [
             raw_data JSONB
         );
     `,
-  },
-]);
+});
 
-SetupMigration(terminal, [
-  {
-    id: '0a2023d4-c817-4af1-a2b8-00686cb2bdfe',
-    name: 'create-table-twitter_monitor_users',
-    dependencies: [],
-    statement: `
+AddMigration({
+  id: '0a2023d4-c817-4af1-a2b8-00686cb2bdfe',
+  name: 'create-table-twitter_monitor_users',
+  dependencies: [],
+  statement: `
           CREATE TABLE IF NOT EXISTS twitter_monitor_users (
               id TEXT PRIMARY KEY,
               user_id TEXT NOT NULL,
@@ -38,5 +35,6 @@ SetupMigration(terminal, [
               frozen_at TIMESTAMPTZ
           );
       `,
-  },
-]);
+});
+
+ExecuteMigrations(terminal);
