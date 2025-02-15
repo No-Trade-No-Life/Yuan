@@ -37,4 +37,15 @@ AddMigration({
       `,
 });
 
+AddMigration({
+  id: 'd29f2aed-f9f3-44f0-bec3-bca7beb7782d',
+  name: 'update-table-twitter_monitor_users-primary-key',
+  dependencies: [],
+  statement: `
+        ALTER TABLE twitter_monitor_users DROP CONSTRAINT IF EXISTS twitter_monitor_users_pkey;
+        ALTER TABLE twitter_monitor_users DROP COLUMN id;
+        ALTER TABLE twitter_monitor_users ADD CONSTRAINT twitter_monitor_users_pk PRIMARY KEY (user_id);
+        `,
+});
+
 ExecuteMigrations(terminal);
