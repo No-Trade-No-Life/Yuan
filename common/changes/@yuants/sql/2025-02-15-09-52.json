@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/sql",
+      "comment": "refactor change migration api step by step",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/sql"
+}

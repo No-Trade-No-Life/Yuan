@@ -6,6 +6,12 @@
 
 import { Terminal } from '@yuants/protocol';
 
+// @public
+export const AddMigration: (migration: ISQLMigration) => void;
+
+// @public
+export const ExecuteMigrations: (terminal: Terminal) => Promise<void>;
+
 // @public (undocumented)
 export interface ISQLMigration {
     dependencies: string[];
@@ -13,9 +19,6 @@ export interface ISQLMigration {
     name: string;
     statement: string;
 }
-
-// @public (undocumented)
-export const SetupMigration: (terminal: Terminal, migrations: ISQLMigration[]) => Promise<void>;
 
 // (No @packageDocumentation comment for this package)
 

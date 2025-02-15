@@ -1,12 +1,11 @@
-import { SetupMigration } from '@yuants/sql';
+import { AddMigration, ExecuteMigrations } from '@yuants/sql';
 import { terminal } from './terminal';
 
-SetupMigration(terminal, [
-  {
-    id: 'eb62f3a4-11fd-4386-a86d-1841c3beee13',
-    name: 'create-table-telegram_messages',
-    dependencies: [],
-    statement: `
+AddMigration({
+  id: 'eb62f3a4-11fd-4386-a86d-1841c3beee13',
+  name: 'create-table-telegram_messages',
+  dependencies: [],
+  statement: `
 CREATE TABLE IF NOT EXISTS public.telegram_messages (
 	id serial4 NOT NULL,
 	message text NOT NULL,
@@ -21,15 +20,13 @@ CREATE TABLE IF NOT EXISTS public.telegram_messages (
 	CONSTRAINT telegram_messages_pkey PRIMARY KEY (id)
 );
 `,
-  },
-]);
+});
 
-SetupMigration(terminal, [
-  {
-    id: '15b955fc-96bd-4c3f-8dd9-589456ae3bcc',
-    name: 'create-table-telegram_monitor_accounts',
-    dependencies: [],
-    statement: `
+AddMigration({
+  id: '15b955fc-96bd-4c3f-8dd9-589456ae3bcc',
+  name: 'create-table-telegram_monitor_accounts',
+  dependencies: [],
+  statement: `
 	CREATE TABLE IF NOT EXISTS public.telegram_monitor_accounts (
 		id serial4 NOT NULL,
 		phone_number text NOT NULL,
@@ -40,5 +37,6 @@ SetupMigration(terminal, [
 		frozen_at timestamptz NULL
 	);
 	`,
-  },
-]);
+});
+
+ExecuteMigrations(terminal);
