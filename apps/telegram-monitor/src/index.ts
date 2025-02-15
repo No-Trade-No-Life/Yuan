@@ -15,8 +15,9 @@ import {
 } from 'rxjs';
 import { TelegramClient } from 'telegram';
 import { UpdateConnectionState } from 'telegram/network';
-import { terminal } from './terminal';
+import { StringSession } from 'telegram/sessions';
 import './migration';
+import { terminal } from './terminal';
 
 const encodeId = (tgId: any) => {
   if (tgId.className === 'PeerUser') {
@@ -36,7 +37,7 @@ const telegramAccounts$ = defer(() =>
     query: `select * from telegram_monitor_accounts`,
   }),
 ).pipe(
-  map((v) => v.data as { account_id: string; string_session: string; phone_number: string }[]),
+  map((v) => (v.data || []) as { account_id: string; string_session: string; phone_number: string }[]),
   retry({ delay: 5000 }),
   repeat({ delay: 5000 }),
   shareReplay(1),
@@ -53,7 +54,7 @@ telegramAccounts$
         defer(async () => {
           console.info(formatTime(Date.now()), `account ${account.account_id} client is creating`);
           const client = new TelegramClient(
-            account.string_session,
+            new StringSession(account.string_session),
             +process.env.APP_ID!,
             process.env.APP_HASH!,
             {},

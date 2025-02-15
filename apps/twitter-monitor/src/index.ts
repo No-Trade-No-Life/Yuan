@@ -1,32 +1,30 @@
+import { formatTime } from '@yuants/data-model';
+import { listWatch } from '@yuants/utils';
 import {
-  from,
+  bufferTime,
   concatMap,
-  delay,
-  tap,
-  repeatWhen,
   defer,
+  filter,
+  from,
   map,
-  retry,
+  mergeMap,
   repeat,
+  retry,
   shareReplay,
   Subject,
-  bufferTime,
-  filter,
-  mergeMap,
+  tap,
 } from 'rxjs';
-import { getUserTweetsByName } from './utils/getUserTweetsByName';
-import { ITwitterEvent } from './types/ITwitterEvent';
-import { formatTime } from '@yuants/data-model';
-import { terminal } from './terminal';
 import './migrations';
-import { listWatch } from '@yuants/utils';
+import { terminal } from './terminal';
+import { ITwitterEvent } from './types/ITwitterEvent';
+import { getUserTweetsByName } from './utils/getUserTweetsByName';
 
 const twitterMonitorUsers$ = defer(() =>
   terminal.requestForResponse('SQL', {
     query: `select * from twitter_monitor_users`,
   }),
 ).pipe(
-  map((v) => v.data as { user_id: string }[]),
+  map((v) => (v.data || []) as { user_id: string }[]),
   retry({ delay: 5000 }),
   repeat({ delay: 5000 }),
   shareReplay(1),
@@ -42,6 +40,10 @@ twitterMonitorUsers$
       (v) => v.user_id,
       (user) =>
         defer(() => getUserTweetsByName(user.user_id)).pipe(
+          tap({
+            subscribe: () => console.log(formatTime(Date.now()), `Start fetching for user`, user.user_id),
+            complete: () => console.log(formatTime(Date.now()), `Completed fetching for user`, user.user_id),
+          }),
           // Handle each tweet
           concatMap((tweets) =>
             from(tweets).pipe(
@@ -60,20 +62,9 @@ twitterMonitorUsers$
                 };
                 twitterMessage$.next(event);
               }),
-              // After processing all tweets of a user
-              tap(() => console.log(`Completed fetching for user: ${user}`)),
             ),
           ),
-          // Delay seconds before re-triggering
-          delay(3000),
-          // Repeat the process indefinitely
-          repeatWhen((completed) =>
-            completed.pipe(
-              tap(() => console.log(`Restarting fetch for user: ${user}`)),
-              delay(5000),
-            ),
-          ),
-          // Limit the number of repeats if needed (remove take if indefinite)
+          repeat({ delay: 3000 }),
         ),
       (a, b) => a.user_id === b.user_id,
     ),
