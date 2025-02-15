@@ -1,5 +1,4 @@
 import { encodePath, formatTime } from '@yuants/data-model';
-import { Terminal } from '@yuants/protocol';
 import { listWatch } from '@yuants/utils';
 import {
   bufferTime,
@@ -16,11 +15,7 @@ import {
 } from 'rxjs';
 import { TelegramClient } from 'telegram';
 import { UpdateConnectionState } from 'telegram/network';
-
-const terminal = new Terminal(process.env.HOST_URL!, {
-  terminal_id: `telegram`,
-  name: 'Telegram',
-});
+import { terminal } from './terminal';
 
 const encodeId = (tgId: any) => {
   if (tgId.className === 'PeerUser') {

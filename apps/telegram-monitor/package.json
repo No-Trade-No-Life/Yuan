@@ -15,6 +15,7 @@
     "@yuants/data-model": "workspace:*",
     "@yuants/protocol": "workspace:*",
     "@yuants/utils": "workspace:*",
+    "@yuants/sql": "workspace:*",
     "@types/json-schema": "~7.0.11",
     "rxjs": "7.5.7",
     "telegram": "~2.26.22"
