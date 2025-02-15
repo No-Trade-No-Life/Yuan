@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/sql",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/sql_v0.0.1",
+      "date": "Sat, 15 Feb 2025 05:48:11 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "init package"
+          }
+        ]
+      }
+    }
+  ]
+}
