@@ -1,0 +1,23 @@
+{
+  "name": "@yuants/app-twitter-monitor",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/app-twitter-monitor_v0.0.1",
+      "date": "Sat, 15 Feb 2025 09:01:24 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "support twitter message monitor"
+          },
+          {
+            "comment": "fix docker file"
+          },
+          {
+            "comment": "support  twitter monitor users store in database "
+          }
+        ]
+      }
+    }
+  ]
+}
