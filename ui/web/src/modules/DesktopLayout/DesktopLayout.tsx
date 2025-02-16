@@ -2,6 +2,7 @@ import { IconHome } from '@douyinfe/semi-icons';
 import { Layout, Space } from '@douyinfe/semi-ui';
 import { Actions, Layout as FlexLayout, TabNode } from 'flexlayout-react';
 import { useObservableState } from 'observable-hooks';
+import { useMemo } from 'react';
 import { createPersistBehaviorSubject } from '../BIOS';
 import { CommandCenter } from '../CommandCenter';
 import { fs } from '../FileSystem';
@@ -33,6 +34,7 @@ registerAssociationRule({
 export const DesktopLayout = () => {
   const model = useObservableState(layoutModel$);
   const isShowHome = useObservableState(isShowHome$);
+  const isDev = useMemo(() => new URL(document.location.href).searchParams.get('mode') === 'development', []);
   const isHideNavigator = useObservableState(isHideNavigator$);
 
   const factory = (node: TabNode) => {
@@ -90,7 +92,7 @@ export const DesktopLayout = () => {
           />
         )}
       </Layout.Content>
-      {isHideNavigator === false && (
+      {(isDev || !isHideNavigator) && (
         <Layout.Header
           style={{
             padding: 4,
