@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-twitter-monitor",
+      "comment": "create hypertable for time series data",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-twitter-monitor"
+}
