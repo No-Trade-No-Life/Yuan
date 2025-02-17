@@ -48,4 +48,28 @@ AddMigration({
         `,
 });
 
+AddMigration({
+  id: '0d6d3c0c-0c6d-4f9f-9c7b-8e0e9b0b8c5d',
+  name: 'create-hypertable-for-twitter_messages',
+  dependencies: ['73ce7f3e-f359-4968-b57a-8ecf8deb71c7'],
+  statement: `
+CREATE EXTENSION IF NOT EXISTS timescaledb;
+ALTER TABLE twitter_messages DROP CONSTRAINT IF EXISTS twitter_messages_pkey;
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1
+        FROM pg_constraint
+        WHERE conrelid = 'twitter_messages'::regclass
+        AND conname = 'twitter_messages_key'
+    ) THEN
+        ALTER TABLE twitter_messages
+        ADD CONSTRAINT twitter_messages_key
+        UNIQUE (id, created_at);
+    END IF;
+END $$;
+SELECT create_hypertable('twitter_messages', by_range('created_at'), migrate_data => TRUE, if_not_exists => TRUE);
+`,
+});
+
 ExecuteMigrations(terminal);
