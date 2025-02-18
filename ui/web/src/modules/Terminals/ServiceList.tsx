@@ -1,10 +1,12 @@
+import { Space } from '@douyinfe/semi-ui';
+import { IServiceInfo } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
-import { DataView } from '../Interactive';
+import { useMemo } from 'react';
+import { firstValueFrom, from, lastValueFrom, switchMap, tap } from 'rxjs';
+import { showForm } from '../Form';
+import { Button, DataView } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminal$ } from './create-connection';
-import { switchMap } from 'rxjs';
-import { useMemo } from 'react';
-import { IServiceInfo } from '@yuants/protocol';
 import { InlineTerminalId } from './InlineTerminalId';
 
 registerPage('ServiceList', () => {
@@ -51,6 +53,30 @@ registerPage('ServiceList', () => {
         {
           header: '参数',
           accessorFn: (x) => JSON.stringify(x.serviceInfo.schema),
+        },
+        {
+          header: '操作',
+          cell: (ctx) => (
+            <Space>
+              <Button
+                onClick={async () => {
+                  const service = ctx.row.original;
+                  const terminal = await firstValueFrom(terminal$);
+                  if (!terminal) return;
+                  const schema = service.serviceInfo.schema;
+                  const value = await showForm(schema, {});
+
+                  await lastValueFrom(
+                    from(terminal.request(service.serviceInfo.method, service.terminal_id, value)).pipe(
+                      tap((x) => console.log('message', x)),
+                    ),
+                  );
+                }}
+              >
+                调用
+              </Button>
+            </Space>
+          ),
         },
       ]}
     />
