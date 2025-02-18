@@ -4,21 +4,22 @@ import { ReplaySubject, Subject, bufferTime, filter } from 'rxjs';
 import { MonacoEditor } from '../Editor/Monaco';
 import { registerPage } from '../Pages';
 
-const error = console.error.bind(console);
-console.error = (...params: any[]) => {
-  log$.next(`[Error] ${params.join(' ')}`);
-  error(...params);
-};
-const warn = console.warn.bind(console);
-console.warn = (...params: any[]) => {
-  log$.next(`[Warn] ${params.join(' ')}`);
-  warn(...params);
-};
-const info = console.info.bind(console);
-console.info = (...params: any[]) => {
-  log$.next(params.join(' '));
-  info(...params);
-};
+// ISSUE: 这会使得所有日志的导出位置都是在 Program 页面，而不是在对应的模块中
+// const error = console.error.bind(console);
+// console.error = (...params: any[]) => {
+//   log$.next(`[Error] ${params.join(' ')}`);
+//   error(...params);
+// };
+// const warn = console.warn.bind(console);
+// console.warn = (...params: any[]) => {
+//   log$.next(`[Warn] ${params.join(' ')}`);
+//   warn(...params);
+// };
+// const info = console.info.bind(console);
+// console.info = (...params: any[]) => {
+//   log$.next(params.join(' '));
+//   info(...params);
+// };
 // don't override console.debug, console.log
 
 const log$ = new ReplaySubject<string>(1000);
