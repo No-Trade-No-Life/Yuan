@@ -37,13 +37,10 @@ CREATE TABLE IF NOT EXISTS migrations (
 `;
 
 const makeMigrationSQL = (migration: ISQLMigration) => `
-DO $$
-BEGIN
-  IF NOT EXISTS (SELECT id FROM migrations WHERE id::text = '${migration.id}') THEN
-    INSERT INTO migrations (id, name) VALUES ('${migration.id}', '${migration.name}');
-    ${migration.statement}
-  END IF;
-END $$;
+IF NOT EXISTS (SELECT id FROM migrations WHERE id::text = '${migration.id}') THEN
+  INSERT INTO migrations (id, name) VALUES ('${migration.id}', '${migration.name}');
+  ${migration.statement}
+END IF;
 `;
 
 const allMigrations: ISQLMigration[] = [];
