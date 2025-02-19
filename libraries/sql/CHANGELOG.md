@@ -1,6 +1,13 @@
 # Change Log - @yuants/sql
 
-This log was last generated on Sat, 15 Feb 2025 10:40:12 GMT and should not be manually modified.
+This log was last generated on Wed, 19 Feb 2025 16:53:18 GMT and should not be manually modified.
+
+## 0.1.1
+Wed, 19 Feb 2025 16:53:18 GMT
+
+### Patches
+
+- remove begin block to prevent syntax error
 
 ## 0.1.0
 Sat, 15 Feb 2025 10:40:12 GMT
