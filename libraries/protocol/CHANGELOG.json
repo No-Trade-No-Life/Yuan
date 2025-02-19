@@ -2,6 +2,23 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.29.0",
+      "tag": "@yuants/protocol_v0.29.0",
+      "date": "Wed, 19 Feb 2025 18:08:11 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "enhance logging and candidate generation in TerminalClient and TerminalServer"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.28.2",
       "tag": "@yuants/protocol_v0.28.2",
       "date": "Tue, 21 Jan 2025 19:55:44 GMT",

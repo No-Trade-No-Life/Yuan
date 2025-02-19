@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Tue, 21 Jan 2025 19:55:44 GMT and should not be manually modified.
+This log was last generated on Wed, 19 Feb 2025 18:08:11 GMT and should not be manually modified.
+
+## 0.29.0
+Wed, 19 Feb 2025 18:08:11 GMT
+
+### Minor changes
+
+- enhance logging and candidate generation in TerminalClient and TerminalServer
 
 ## 0.28.2
 Tue, 21 Jan 2025 19:55:44 GMT
