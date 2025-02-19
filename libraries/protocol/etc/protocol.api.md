@@ -247,6 +247,8 @@ export class Terminal {
     // (undocumented)
     terminalInfo: ITerminalInfo;
     terminalInfos$: AsyncIterable<ITerminalInfo[]>;
+    // (undocumented)
+    terminalInfos: ITerminalInfo[];
 }
 
 // @public
