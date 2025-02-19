@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-hyperliquid",
+      "comment": "add docker file",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-hyperliquid"
+}
