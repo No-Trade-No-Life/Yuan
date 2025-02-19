@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/vendor-hyperliquid",
+  "entries": [
+    {
+      "version": "0.0.1",
+      "tag": "@yuants/vendor-hyperliquid_v0.0.1",
+      "date": "Wed, 19 Feb 2025 13:36:13 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "init hyperliquid"
+          }
+        ]
+      }
+    }
+  ]
+}

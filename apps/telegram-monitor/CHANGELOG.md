@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-telegram-monitor
 
-This log was last generated on Sat, 15 Feb 2025 10:40:12 GMT and should not be manually modified.
+This log was last generated on Wed, 19 Feb 2025 13:36:13 GMT and should not be manually modified.
+
+## 0.0.5
+Wed, 19 Feb 2025 13:36:13 GMT
+
+### Patches
+
+- create hypertable for time series data
 
 ## 0.0.4
 Sat, 15 Feb 2025 10:40:12 GMT

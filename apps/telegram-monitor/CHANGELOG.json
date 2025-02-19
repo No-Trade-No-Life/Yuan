@@ -2,6 +2,23 @@
   "name": "@yuants/app-telegram-monitor",
   "entries": [
     {
+      "version": "0.0.5",
+      "tag": "@yuants/app-telegram-monitor_v0.0.5",
+      "date": "Wed, 19 Feb 2025 13:36:13 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "create hypertable for time series data"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.4",
       "tag": "@yuants/app-telegram-monitor_v0.0.4",
       "date": "Sat, 15 Feb 2025 10:40:12 GMT",
