@@ -666,6 +666,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/vendor-hyperliquid",
+      "projectFolder": "apps/vendor-hyperliquid",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/vendor-okx",
       "projectFolder": "apps/vendor-okx",
       "shouldPublish": true

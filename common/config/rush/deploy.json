@@ -46,6 +46,7 @@
     "@yuants/vendor-binance",
     "@yuants/vendor-bitget",
     "@yuants/vendor-coinex",
+    "@yuants/vendor-hyperliquid",
     "@yuants/vendor-okx",
     "@yuants/vendor-solana",
     "@yuants/vendor-huobi",
