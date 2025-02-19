@@ -1,5 +1,6 @@
 import { IExtensionContext, makeDockerEnvs, makeK8sEnvs } from '@yuants/extension';
 export default (context: IExtensionContext) => {
+  const COMPONENT_NAME = 'vendor-hyperliquid';
   context.registerDeployProvider({
     make_json_schema: () => ({
       type: 'object',
@@ -19,8 +20,8 @@ export default (context: IExtensionContext) => {
     }),
     make_docker_compose_file: async (ctx, envCtx) => {
       return {
-        [`hyperliquid-${ctx.env!.ACCESS_KEY}`.replace(/\s/g, '')]: {
-          image: `ghcr.io/no-trade-no-life/vendor-hyperliquid:${ctx.version ?? envCtx.version}`,
+        [`${COMPONENT_NAME}-${ctx.key}`.replace(/\s/g, '')]: {
+          image: `ghcr.io/no-trade-no-life/${COMPONENT_NAME}:${ctx.version ?? envCtx.version}`,
           restart: 'always',
 
           environment: makeDockerEnvs(ctx.env),
@@ -28,7 +29,6 @@ export default (context: IExtensionContext) => {
       };
     },
     make_k8s_resource_objects: async (ctx, envCtx) => {
-      const COMPONENT_NAME = 'hyperliquid';
       return {
         deployment: {
           apiVersion: 'apps/v1',
@@ -39,7 +39,7 @@ export default (context: IExtensionContext) => {
               'y.ntnl.io/manifest_key': ctx.key,
               'y.ntnl.io/component': COMPONENT_NAME,
             },
-            name: `hyperliquid-${ctx.key}`.replace(/\s/g, '').toLocaleLowerCase(),
+            name: `${COMPONENT_NAME}-${ctx.key}`.replace(/\s/g, '').toLocaleLowerCase(),
             namespace: 'yuan',
           },
           spec: {
@@ -62,7 +62,7 @@ export default (context: IExtensionContext) => {
                 containers: [
                   {
                     env: makeK8sEnvs(ctx.env),
-                    image: `ghcr.io/no-trade-no-life/vendor-hyperliquid:${ctx.version ?? envCtx.version}`,
+                    image: `ghcr.io/no-trade-no-life/${COMPONENT_NAME}:${ctx.version ?? envCtx.version}`,
                     imagePullPolicy: 'IfNotPresent',
                     name: COMPONENT_NAME,
                     resources: {
