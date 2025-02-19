@@ -678,6 +678,8 @@ export class Terminal {
           repeat({ delay: 10000 }),
         )
         .subscribe((list) => {
+          console.info(formatTime(Date.now()), 'Terminal', 'ListTerminalInfo', list.length);
+          this.terminalInfos = list;
           this._terminalInfos$.next(list);
         }),
     );
@@ -698,6 +700,14 @@ export class Terminal {
                 return list;
               }),
               tap((list) => {
+                console.info(
+                  formatTime(Date.now()),
+                  'Terminal',
+                  'TerminalInfoUpdate',
+                  x.terminal_id,
+                  list.length,
+                );
+                this.terminalInfos = list;
                 this._terminalInfos$.next(list);
               }),
             ),
@@ -717,7 +727,14 @@ export class Terminal {
           switchMap(() =>
             defer(() => this.request('UpdateTerminalInfo', '@host', this.terminalInfo)).pipe(
               tap((msg) =>
-                console.info(formatTime(Date.now()), 'Terminal', 'terminalInfo', 'pushed', msg.res?.code),
+                console.info(
+                  formatTime(Date.now()),
+                  'Terminal',
+                  'terminalInfo',
+                  'pushed',
+                  msg.res?.code,
+                  msg.trace_id,
+                ),
               ),
               timeout(5000),
               retry({ delay: 1000 }),
@@ -1144,6 +1161,7 @@ export class Terminal {
       )),
     );
 
+  terminalInfos: ITerminalInfo[] = [];
   private _terminalInfos$ = new ReplaySubject<ITerminalInfo[]>(1);
   /**
    * Terminal List of the same host

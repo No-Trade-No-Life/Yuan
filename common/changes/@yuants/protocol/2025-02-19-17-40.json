@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "enhance logging and candidate generation in TerminalClient and TerminalServer",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

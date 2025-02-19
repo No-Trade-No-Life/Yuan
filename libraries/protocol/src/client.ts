@@ -1,7 +1,8 @@
-import { UUID } from '@yuants/data-model';
+import { formatTime, UUID } from '@yuants/data-model';
 import { nativeSubjectToSubject, observableToAsyncIterable } from '@yuants/utils';
 import Ajv from 'ajv';
 import {
+  combineLatest,
   defer,
   filter,
   firstValueFrom,
@@ -9,6 +10,7 @@ import {
   map,
   mergeMap,
   Observable,
+  ReplaySubject,
   share,
   takeUntil,
   takeWhile,
@@ -30,7 +32,7 @@ export class TerminalClient {
    * Resolve candidate target_terminal_ids for a request
    */
   resolveTargetTerminalIds = async (method: string, req: ITerminalMessage['req']): Promise<string[]> => {
-    await firstValueFrom(from(this.terminal.terminalInfos$));
+    await firstValueFrom(this._generateCandidates$);
     const candidates = this._mapMethodToServiceIdToCandidateClientSide.get(method);
     if (!candidates) return [];
     const result: string[] = [];
@@ -41,6 +43,8 @@ export class TerminalClient {
     }
     return result;
   };
+
+  private _generateCandidates$ = new ReplaySubject<void>(1);
 
   /**
    * Service Index (optimized for method resolution)
@@ -55,27 +59,44 @@ export class TerminalClient {
     from(this.terminal.terminalInfos$)
       .pipe(
         tap((terminalInfos) => {
+          console.info(formatTime(Date.now()), 'Client', 'GenerateCandidates', 'Start');
+          const t1 = Date.now();
+          let init_cnt = 0;
           const nextMap: typeof this._mapMethodToServiceIdToCandidateClientSide = new Map();
           for (const terminalInfo of terminalInfos) {
             for (const serviceInfo of Object.values(terminalInfo.serviceInfo || {})) {
               if (!nextMap.get(serviceInfo.method)) {
                 nextMap.set(serviceInfo.method, new Map());
               }
+              const serviceId = serviceInfo.service_id || serviceInfo.method;
               // if previous candidate exists, keep it
               // or create a new one
-              const candidate = this._mapMethodToServiceIdToCandidateClientSide
+              let candidate = this._mapMethodToServiceIdToCandidateClientSide
                 .get(serviceInfo.method)
-                ?.get(serviceInfo.service_id || serviceInfo.method) ?? {
-                service_id: serviceInfo.service_id || serviceInfo.method,
-                serviceInfo,
-                terminal_id: terminalInfo.terminal_id,
-                // ISSUE: Ajv is very slow and cause a lot CPU utilization, so we must cache the compiled validator
-                validator: new Ajv({ strict: false }).compile(serviceInfo.schema),
-              };
-              nextMap.get(serviceInfo.method)!.set(serviceInfo.service_id || serviceInfo.method, candidate);
+                ?.get(serviceId);
+              if (!candidate) {
+                init_cnt++;
+                candidate = {
+                  service_id: serviceId,
+                  serviceInfo,
+                  terminal_id: terminalInfo.terminal_id,
+                  // ISSUE: Ajv is very slow and cause a lot CPU utilization, so we must cache the compiled validator
+                  validator: new Ajv({ strict: false }).compile(serviceInfo.schema),
+                };
+              }
+              nextMap.get(serviceInfo.method)!.set(serviceId, candidate);
             }
           }
           this._mapMethodToServiceIdToCandidateClientSide = nextMap;
+          console.info(
+            formatTime(Date.now()),
+            'Client',
+            'GenerateCandidates',
+            'Done',
+            `New Schemas: ${init_cnt}`,
+            `Duration: ${Date.now() - t1} ms`,
+          );
+          this._generateCandidates$.next();
         }),
       )
       .pipe(takeUntil(this.terminal.dispose$))
@@ -130,6 +151,14 @@ export class TerminalClient {
     };
     return observableToAsyncIterable(
       defer((): Observable<any> => {
+        console.info(
+          formatTime(Date.now()),
+          'Client',
+          'RequestInitiated',
+          trace_id,
+          method,
+          target_terminal_id,
+        );
         this._terminalOutput$.next(msg);
         return from(this.terminal.input$).pipe(
           filter((m) => m.trace_id === msg.trace_id),
@@ -139,6 +168,18 @@ export class TerminalClient {
             first: 30000,
             each: 10000,
             meta: `request Timeout: method=${msg.method} target=${msg.target_terminal_id}`,
+          }),
+          tap({
+            finalize: () => {
+              console.info(
+                formatTime(Date.now()),
+                'Client',
+                'RequestFinalized',
+                trace_id,
+                method,
+                target_terminal_id,
+              );
+            },
           }),
           share(),
         );

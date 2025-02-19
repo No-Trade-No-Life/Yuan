@@ -114,6 +114,8 @@ export class TerminalServer {
         if (!msg.req) return;
         if (msg.frame || msg.res) return;
 
+        console.info(formatTime(Date.now()), 'Server', `RequestReceived`, msg.trace_id, msg.method);
+
         const output$ = new Subject<IServiceOutput>();
 
         output$.subscribe((x) => {
@@ -283,6 +285,7 @@ export class TerminalServer {
     this._requestFinalizing$.pipe(takeUntil(this.terminal.dispose$)).subscribe((requestContext) => {
       requestContext.finalized_at = Date.now();
       requestContext.output$.complete();
+      console.info(formatTime(Date.now()), 'Server', 'RequestFinalized', requestContext.message.trace_id);
 
       const duration = requestContext.finalized_at - requestContext.initilized_at;
       if (isNaN(duration)) return;
