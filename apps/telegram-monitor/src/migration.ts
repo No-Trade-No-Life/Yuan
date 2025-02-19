@@ -73,7 +73,7 @@ BEGIN
         UNIQUE (message_id, created_at);
     END IF;
 END $$;
-SELECT create_hypertable('telegram_messages', by_range('created_at'), migrate_data => TRUE, if_not_exists => TRUE);
+PERFORM create_hypertable('telegram_messages', by_range('created_at'), migrate_data => TRUE, if_not_exists => TRUE);
 `,
 });
 

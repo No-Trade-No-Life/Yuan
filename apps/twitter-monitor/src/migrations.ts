@@ -68,7 +68,7 @@ BEGIN
         UNIQUE (id, created_at);
     END IF;
 END $$;
-SELECT create_hypertable('twitter_messages', by_range('created_at'), migrate_data => TRUE, if_not_exists => TRUE);
+PERFORM create_hypertable('twitter_messages', by_range('created_at'), migrate_data => TRUE, if_not_exists => TRUE);
 `,
 });
 
