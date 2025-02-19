@@ -2,6 +2,26 @@
   "name": "@yuants/vendor-tq",
   "entries": [
     {
+      "version": "0.0.26",
+      "tag": "@yuants/vendor-tq_v0.0.26",
+      "date": "Wed, 19 Feb 2025 18:08:11 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.29.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.2.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.25",
       "tag": "@yuants/vendor-tq_v0.0.25",
       "date": "Mon, 10 Feb 2025 20:28:40 GMT",
