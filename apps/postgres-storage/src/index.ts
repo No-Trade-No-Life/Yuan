@@ -1,5 +1,6 @@
 import { formatTime, UUID } from '@yuants/data-model';
-import { IResponse, Terminal } from '@yuants/protocol';
+import { Terminal } from '@yuants/protocol';
+import type {} from '@yuants/sql';
 import postgres from 'postgres';
 
 const HOST_URL = process.env.HOST_URL!;
@@ -11,18 +12,6 @@ const terminal = new Terminal(HOST_URL, {
 });
 
 const sql = postgres(process.env.POSTGRES_URI!);
-
-declare module '@yuants/protocol' {
-  interface IService {
-    SQL: {
-      req: {
-        query: string;
-      };
-      res: IResponse<any[]>;
-      frame: {};
-    };
-  }
-}
 
 terminal.provideService('SQL', {}, async (msg) => {
   console.info(formatTime(Date.now()), 'SQL REQUEST', msg.trace_id, msg.req.query.replace(/\s+/g, ' '));

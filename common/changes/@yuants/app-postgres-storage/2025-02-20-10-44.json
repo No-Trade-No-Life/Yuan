@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-postgres-storage",
+      "comment": "import sql",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-postgres-storage"
+}
