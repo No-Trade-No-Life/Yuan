@@ -1,6 +1,18 @@
 import { formatTime } from '@yuants/data-model';
-import { Terminal } from '@yuants/protocol';
+import { IResponse, Terminal } from '@yuants/protocol';
 import { concatMap, defer, from, lastValueFrom, retry, tap } from 'rxjs';
+
+declare module '@yuants/protocol' {
+  interface IService {
+    SQL: {
+      req: {
+        query: string;
+      };
+      res: IResponse<any[]>;
+      frame: {};
+    };
+  }
+}
 
 /**
  * @public

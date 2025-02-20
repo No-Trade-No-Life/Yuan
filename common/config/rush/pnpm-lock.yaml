@@ -678,6 +678,7 @@ importers:
       '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
       json-schema: ~0.4.0
@@ -688,6 +689,7 @@ importers:
       '@types/json-schema': 7.0.15
       '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
       postgres: 3.4.5
       rxjs: 7.5.7
