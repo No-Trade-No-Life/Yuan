@@ -2070,6 +2070,7 @@ importers:
       '@yuants/extension': workspace:*
       '@yuants/kernel': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
       '@yuants/utils': workspace:*
       ajv: ~8.11.0
       copy-to-clipboard: ~3.3.3
@@ -2129,6 +2130,7 @@ importers:
       '@yuants/extension': link:../../libraries/extension
       '@yuants/kernel': link:../../libraries/kernel
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
       ajv: 8.11.2
       copy-to-clipboard: 3.3.3

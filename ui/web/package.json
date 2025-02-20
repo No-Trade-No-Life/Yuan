@@ -19,6 +19,7 @@
     "@yuants/protocol": "workspace:*",
     "@yuants/utils": "workspace:*",
     "@yuants/data-series": "workspace:*",
+    "@yuants/sql": "workspace:*",
     "@douyinfe/semi-icons": "~2.16.0",
     "@douyinfe/semi-ui": "~2.66.1",
     "@icon-park/react": "~1.4.2",
