@@ -34,7 +34,7 @@ registerPage('SQLConsole', () => {
               const t = Date.now();
               const res = await terminal.requestForResponse('SQL', { query });
               if (res.code === 0 && res.data) {
-                setData(res.data);
+                setData(res.data as any[]);
               } else {
                 throw res.message;
               }
