@@ -63,7 +63,8 @@
     "version-range": "~4.14.0",
     "version-compare": "~3.11.0",
     "react-loading": "~2.0.3",
-    "ini": "~5.0.0"
+    "ini": "~5.0.0",
+    "@yuants/sql": "workspace:*"
   },
   "devDependencies": {
     "@originjs/vite-plugin-commonjs": "~1.0.3",
