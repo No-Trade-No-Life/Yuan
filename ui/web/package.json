@@ -19,6 +19,7 @@
     "@yuants/protocol": "workspace:*",
     "@yuants/utils": "workspace:*",
     "@yuants/data-series": "workspace:*",
+    "@yuants/sql": "workspace:*",
     "@douyinfe/semi-icons": "~2.16.0",
     "@douyinfe/semi-ui": "~2.66.1",
     "@icon-park/react": "~1.4.2",
@@ -63,8 +64,7 @@
     "version-range": "~4.14.0",
     "version-compare": "~3.11.0",
     "react-loading": "~2.0.3",
-    "ini": "~5.0.0",
-    "@yuants/sql": "workspace:*"
+    "ini": "~5.0.0"
   },
   "devDependencies": {
     "@originjs/vite-plugin-commonjs": "~1.0.3",
