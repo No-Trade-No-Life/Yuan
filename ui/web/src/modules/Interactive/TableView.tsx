@@ -17,7 +17,9 @@ export function TableView<T>(props: { table: Table<T>; topSlot?: React.ReactNode
 
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
-      <Space wrap>{props.topSlot}</Space>
+      <Space wrap style={{ width: '100%' }}>
+        {props.topSlot}
+      </Space>
       <Space style={{ width: '100%', overflowX: 'auto' }}>
         <table className="semi-table" style={{ whiteSpace: 'nowrap' }}>
           <thead

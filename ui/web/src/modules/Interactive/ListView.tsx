@@ -6,7 +6,9 @@ export function ListView<T>(props: { table: Table<T>; topSlot?: React.ReactNode 
   const { table } = props;
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
-      <Space wrap>{props.topSlot}</Space>
+      <Space wrap style={{ width: '100%' }}>
+        {props.topSlot}
+      </Space>
       <List>
         {table.getRowModel().rows.map((row) => (
           <List.Item key={row.id}>
