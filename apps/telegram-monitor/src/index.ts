@@ -1,4 +1,5 @@
 import { encodePath, formatTime } from '@yuants/data-model';
+import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
 import { listWatch } from '@yuants/utils';
 import {
   bufferTime,
@@ -150,18 +151,9 @@ message$
     bufferTime(1000),
     filter((messages) => messages.length > 0),
     mergeMap((messages) =>
-      defer(() =>
-        terminal.requestForResponse('SQL', {
-          query: `
-      insert into telegram_messages (message_id, created_at, chat_id, sender_id, message, raw_data) 
-      values ${messages
-        .map(
-          (temp1) =>
-            `('${temp1.message_id}', '${temp1.created_at}', '${temp1.chat_id}', '${temp1.sender_id}', '${temp1.message}', '${temp1.raw_data}')`,
-        )
-        .join(',')}`,
-        }),
-      ).pipe(retry({ delay: 5000 })),
+      defer(() => requestSQL(terminal, buildInsertManyIntoTableSQL(messages, 'telegram_messages'))).pipe(
+        retry({ delay: 5000 }),
+      ),
     ),
   )
   .subscribe();

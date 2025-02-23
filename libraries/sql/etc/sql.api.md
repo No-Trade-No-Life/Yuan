@@ -10,6 +10,15 @@ import { Terminal } from '@yuants/protocol';
 export const AddMigration: (migration: ISQLMigration) => void;
 
 // @public
+export const buildInsertManyIntoTableSQL: <T extends {}>(data: T[], tableName: string, options?: {
+    columns?: (keyof T)[] | undefined;
+} | undefined) => string;
+
+// @public
+const escape_2: (val: any, options?: {}) => string;
+export { escape_2 as escape }
+
+// @public
 export const ExecuteMigrations: (terminal: Terminal) => Promise<void>;
 
 // @public (undocumented)
@@ -19,6 +28,9 @@ export interface ISQLMigration {
     name: string;
     statement: string;
 }
+
+// @public
+export const requestSQL: <T = unknown>(terminal: Terminal, query: string) => Promise<T>;
 
 // (No @packageDocumentation comment for this package)
 

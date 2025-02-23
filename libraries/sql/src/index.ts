@@ -153,3 +153,57 @@ export const ExecuteMigrations = async (terminal: Terminal) => {
 
   console.info(formatTime(Date.now()), `SetupMigrationEnd`);
 };
+
+/**
+ * 执行 SQL 语句
+ *
+ * @public
+ */
+export const requestSQL = async <T = unknown>(terminal: Terminal, query: string): Promise<T> => {
+  const result = await terminal.requestForResponse('SQL', {
+    query,
+  });
+
+  if (result.code !== 0) {
+    throw new Error(`Failed to run SQL query: ${query}, message: ${result.message}`);
+  }
+
+  return result.data as any as T;
+};
+
+/**
+ * 进行值的转义，防止 SQL 注入
+ *
+ * @public
+ */
+export const escape = (val: any, options: {} = {}): string => {
+  if (val === undefined || val === null) return 'NULL';
+  if (typeof val === 'number') return `${val}`;
+  if (typeof val === 'string') return `'${val.replace(/'/g, "''")}'`;
+  if (typeof val === 'boolean') return val ? 'TRUE' : 'FALSE';
+  // fallback to JSON
+  return escape(JSON.stringify(val));
+};
+
+const isValidColumnName = (name: string): boolean => {
+  return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name);
+};
+
+/**
+ * 构造 Insert Many 模式的 SQL 查询语句 (INSERT INTO ... VALUES ...)
+ *
+ * @public
+ */
+export const buildInsertManyIntoTableSQL = <T extends {}>(
+  data: T[],
+  tableName: string,
+  options?: {
+    columns?: Array<keyof T>;
+  },
+): string => {
+  if (data.length === 0) throw 'Data is empty';
+  const columns = (options?.columns ?? Object.keys(data[0]).filter(isValidColumnName)) as string[];
+  return `INSERT INTO ${tableName} (${columns.join(',')}) VALUES ${data
+    .map((x) => `(${columns.map((c) => escape(x[c as keyof T])).join(',')})`)
+    .join(',')}`;
+};
