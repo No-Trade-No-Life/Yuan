@@ -26,6 +26,7 @@ export * as Order from './modules/Order';
 export * as Pages from './modules/Pages';
 export * as Products from './modules/Products';
 export * as PullSourceRelations from './modules/PullSourceRelations';
+export * as SQL from './modules/SQL';
 export * as SupaBase from './modules/SupaBase';
 export * as System from './modules/System';
 export * as Terminals from './modules/Terminals';
