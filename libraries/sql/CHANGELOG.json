@@ -2,6 +2,28 @@
   "name": "@yuants/sql",
   "entries": [
     {
+      "version": "0.2.0",
+      "tag": "@yuants/sql_v0.2.0",
+      "date": "Sun, 23 Feb 2025 16:02:37 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add API type"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "add some utils"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.3",
       "tag": "@yuants/sql_v0.1.3",
       "date": "Wed, 19 Feb 2025 18:08:11 GMT",
