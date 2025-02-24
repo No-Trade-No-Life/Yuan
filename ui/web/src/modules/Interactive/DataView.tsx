@@ -229,8 +229,11 @@ export function DataView<T, K>(props: {
 
   return (
     <div ref={containerRef} style={{ width: '100%' }}>
-      {actualLayoutMode === 'table' && <TableView table={table} topSlot={topSlot} />}
-      {actualLayoutMode === 'list' && <ListView table={table} topSlot={topSlot} />}
+      <Space wrap style={{ width: '100%' }}>
+        {topSlot}
+      </Space>
+      {actualLayoutMode === 'table' && <TableView table={table} />}
+      {actualLayoutMode === 'list' && <ListView table={table} />}
     </div>
   );
 }
