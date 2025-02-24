@@ -228,12 +228,17 @@ export function DataView<T, K>(props: {
   );
 
   return (
-    <div ref={containerRef} style={{ width: '100%' }}>
+    <div
+      ref={containerRef}
+      style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%', overflow: 'hidden' }}
+    >
       <Space wrap style={{ width: '100%' }}>
         {topSlot}
       </Space>
-      {actualLayoutMode === 'table' && <TableView table={table} />}
-      {actualLayoutMode === 'list' && <ListView table={table} />}
+      <div style={{ width: '100%', flexGrow: 1, overflow: 'auto' }}>
+        {actualLayoutMode === 'table' && <TableView table={table} />}
+        {actualLayoutMode === 'list' && <ListView table={table} />}
+      </div>
     </div>
   );
 }

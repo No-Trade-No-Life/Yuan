@@ -1,4 +1,5 @@
-import { Space } from '@douyinfe/semi-ui';
+import { IconPlay } from '@douyinfe/semi-icons';
+import { Space, Typography } from '@douyinfe/semi-ui';
 import { ColumnDef } from '@tanstack/react-table';
 import { UUID } from '@yuants/data-model';
 import '@yuants/sql';
@@ -7,7 +8,7 @@ import { useMemo, useRef, useState } from 'react';
 import { firstValueFrom } from 'rxjs';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { MonacoEditor } from '../Editor/Monaco';
-import { Button, DataView, Toast } from '../Interactive';
+import { Button, DataView } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
 import { terminal$ } from '../Terminals';
 
@@ -17,41 +18,14 @@ registerPage('SQLConsole', () => {
   const { id } = usePageParams() as { id: string };
   const editorRef = useRef<editor.IStandaloneCodeEditor | null>(null);
   const [data, setData] = useState([] as any[]);
+  const [message, setMessage] = useState('');
   const columns = useMemo(() => {
     const a = data[0] || {};
     return Object.entries(a).map(([key, value]): ColumnDef<any, any> => ({ header: key, accessorKey: key }));
   }, [data]);
   return (
-    <Space vertical align="start" style={{ width: '100%', height: '100%' }}>
-      <Space>
-        <Button
-          onClick={async () => {
-            try {
-              const terminal = await firstValueFrom(terminal$);
-              if (!terminal) throw 'Terminal not found';
-              const query = editorRef.current?.getValue();
-              if (!query) throw 'Empty query';
-              const t = Date.now();
-              const res = await terminal.requestForResponse('SQL', { query });
-              if (res.code === 0 && res.data) {
-                setData(res.data as any[]);
-              } else {
-                throw res.message;
-              }
-              editorRef.current?.setValue(
-                editorRef.current.getValue() + '\n' + `/* DONE in ${Date.now() - t} ms */`,
-              );
-            } catch (e) {
-              editorRef.current?.setValue(
-                editorRef.current.getValue() + '\n' + '/* ERROR: ' + `${e}` + ' */',
-              );
-            }
-          }}
-        >
-          执行
-        </Button>
-      </Space>
-      <div style={{ width: '100%', height: '40%' }}>
+    <Space align="start" style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
+      <div style={{ width: '40%', height: '100%' }}>
         <MonacoEditor
           language="sql"
           value=""
@@ -60,8 +34,40 @@ registerPage('SQLConsole', () => {
           }}
         />
       </div>
-      <div style={{ width: '100%' }}>
-        <DataView data={data} columns={columns} columnsDependencyList={[data]} />
+      <div style={{ height: '100%', flexGrow: 1, overflow: 'auto' }}>
+        <DataView
+          data={data}
+          columns={columns}
+          columnsDependencyList={[data]}
+          topSlot={
+            <>
+              <Button
+                icon={<IconPlay />}
+                onClick={async () => {
+                  try {
+                    const terminal = await firstValueFrom(terminal$);
+                    if (!terminal) throw 'Terminal not found';
+                    const query = editorRef.current?.getValue();
+                    if (!query) throw 'Empty query';
+                    const t = Date.now();
+                    const res = await terminal.requestForResponse('SQL', { query });
+                    if (res.code === 0 && res.data) {
+                      setData(res.data as any[]);
+                    } else {
+                      throw res.message;
+                    }
+                    setMessage(`DONE in ${Date.now() - t} ms`);
+                  } catch (e) {
+                    setMessage(`ERROR: ${e}`);
+                  }
+                }}
+              >
+                执行
+              </Button>
+              <Typography.Text>{message}</Typography.Text>
+            </>
+          }
+        />
       </div>
     </Space>
   );
