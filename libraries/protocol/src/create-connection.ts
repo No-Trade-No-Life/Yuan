@@ -1,22 +1,16 @@
 import { formatTime } from '@yuants/data-model';
-import {
-  NativeSubject,
-  nativeSubjectToSubject,
-  observableToAsyncIterable,
-  subjectToNativeSubject,
-} from '@yuants/utils';
+import { NativeSubject, observableToAsyncIterable, subjectToNativeSubject } from '@yuants/utils';
 import WebSocket from 'isomorphic-ws';
 import {
   Observable,
+  ReplaySubject,
   Subject,
   bufferTime,
   defer,
-  from,
   fromEvent,
   map,
   mergeMap,
   repeat,
-  share,
   takeLast,
   takeUntil,
   throwError,
@@ -34,6 +28,8 @@ export interface IConnection<T> {
   output$: NativeSubject<T>;
   /** Connection established Action */
   connection$: AsyncIterable<unknown>;
+
+  isConnected$: AsyncIterable<boolean>;
 }
 
 /**
@@ -47,7 +43,8 @@ export function createConnectionWs<T = any>(URL: string): IConnection<T> {
 
   const input$ = new Subject<any>();
   const output$ = new Subject<any>();
-  const connection$ = new Subject<any>();
+  const connection$ = new ReplaySubject<any>(1);
+  const isConnected$ = new ReplaySubject<boolean>();
 
   // ISSUE: Messages are lost when not connected and need to be buffered and resent
   // - When not connected for a long time, messages accumulate, causing high memory usage.
@@ -69,17 +66,21 @@ export function createConnectionWs<T = any>(URL: string): IConnection<T> {
     .subscribe(output$);
 
   const connect = () => {
+    isConnected$.next(false);
     const ws = (serviceWsRef.current = new WebSocket(URL));
     ws.addEventListener('open', () => {
       console.debug(formatTime(Date.now()), 'connection established', URL);
       connection$.next(ws);
+      isConnected$.next(true);
     });
     ws.addEventListener('error', (e: any) => {
       console.error(formatTime(Date.now()), 'WebSocketConnectionError', e.error);
+      isConnected$.next(false);
       ws.close();
     });
     ws.addEventListener('close', () => {
       console.debug(formatTime(Date.now()), 'connection closed', URL);
+      isConnected$.next(false);
       // Allow external control of reconnection through output.complete or output.error
       if (!output$.isStopped) {
         setTimeout(connect, 1000); // reconnect after 1 sec
@@ -124,25 +125,6 @@ export function createConnectionWs<T = any>(URL: string): IConnection<T> {
     input$: observableToAsyncIterable(input$),
     output$: subjectToNativeSubject(output$),
     connection$: observableToAsyncIterable(connection$),
-  };
-}
-
-/**
- * Create a connection channel for transmitting JSON
- * @public
- */
-export function createConnectionJson<T = any>(URL: string): IConnection<T> {
-  const conn = createConnectionWs(URL);
-  const input$ = from(conn.input$).pipe(
-    map((msg) => msg.toString()),
-    map((msg) => JSON.parse(msg)),
-    share(),
-  );
-  const output$ = new Subject<any>();
-  output$.pipe(map((msg) => JSON.stringify(msg))).subscribe(nativeSubjectToSubject(conn.output$));
-  return {
-    input$: observableToAsyncIterable(input$),
-    output$: subjectToNativeSubject(output$),
-    connection$: conn.connection$,
+    isConnected$: observableToAsyncIterable(isConnected$),
   };
 }

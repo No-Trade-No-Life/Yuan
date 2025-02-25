@@ -151,14 +151,16 @@ export class TerminalClient {
     };
     return observableToAsyncIterable(
       defer((): Observable<any> => {
-        console.info(
-          formatTime(Date.now()),
-          'Client',
-          'RequestInitiated',
-          trace_id,
-          method,
-          target_terminal_id,
-        );
+        if (this.terminal.options.verbose) {
+          console.info(
+            formatTime(Date.now()),
+            'Client',
+            'RequestInitiated',
+            trace_id,
+            method,
+            target_terminal_id,
+          );
+        }
         this._terminalOutput$.next(msg);
         return from(this.terminal.input$).pipe(
           filter((m) => m.trace_id === msg.trace_id),
@@ -171,14 +173,16 @@ export class TerminalClient {
           }),
           tap({
             finalize: () => {
-              console.info(
-                formatTime(Date.now()),
-                'Client',
-                'RequestFinalized',
-                trace_id,
-                method,
-                target_terminal_id,
-              );
+              if (this.terminal.options.verbose) {
+                console.info(
+                  formatTime(Date.now()),
+                  'Client',
+                  'RequestFinalized',
+                  trace_id,
+                  method,
+                  target_terminal_id,
+                );
+              }
             },
           }),
           share(),

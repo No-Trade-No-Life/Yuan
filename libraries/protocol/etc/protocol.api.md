@@ -28,9 +28,6 @@ export const addAccountTransferAddress: (ctx: IAccountTransferAddressContext) =>
 export const copyDataRecords: (terminal: Terminal, req: ICopyDataRecordsRequest) => Promise<undefined>;
 
 // @public
-export function createConnectionJson<T = any>(URL: string): IConnection<T>;
-
-// @public
 export function createConnectionWs<T = any>(URL: string): IConnection<T>;
 
 // @public
@@ -44,6 +41,8 @@ export interface IChannelTypes {
 export interface IConnection<T> {
     connection$: AsyncIterable<unknown>;
     input$: AsyncIterable<T>;
+    // (undocumented)
+    isConnected$: AsyncIterable<boolean>;
     output$: NativeSubject<T>;
 }
 
@@ -203,6 +202,7 @@ export const subscribeChannel: <T extends keyof IChannelTypes>(terminal: Termina
 // @public
 export class Terminal {
     constructor(host_url: string, terminalInfo: ITerminalInfo, options?: {
+        verbose?: boolean;
         disableTerminate?: boolean;
         disableMetrics?: boolean;
         connection?: IConnection<string>;
@@ -217,8 +217,10 @@ export class Terminal {
     // (undocumented)
     host_url: string;
     input$: AsyncIterable<ITerminalMessage>;
+    isConnected$: AsyncIterable<boolean>;
     // (undocumented)
     options: {
+        verbose?: boolean;
         disableTerminate?: boolean;
         disableMetrics?: boolean;
         connection?: IConnection<string>;
