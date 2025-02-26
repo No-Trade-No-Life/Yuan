@@ -25,9 +25,9 @@ const createConnectionGzipWS = <T = any>(URL: string): IConnection<T> => {
   const output$ = new Subject<any>();
   output$.pipe(map((msg) => JSON.stringify(msg))).subscribe(nativeSubjectToSubject(conn.output$));
   return {
+    ...conn,
     input$: observableToAsyncIterable(input$),
     output$: subjectToNativeSubject(output$),
-    connection$: conn.connection$,
   };
 };
 
