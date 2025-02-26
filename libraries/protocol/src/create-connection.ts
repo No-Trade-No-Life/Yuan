@@ -50,8 +50,8 @@ export function createConnectionWs<T = any>(URL: string): IConnection<T> {
 
   const input$ = new Subject<any>();
   const output$ = new Subject<any>();
-  const connection$ = new ReplaySubject<any>(1);
-  const isConnected$ = new ReplaySubject<boolean>();
+  const connection$ = new Subject<any>();
+  const isConnected$ = new ReplaySubject<boolean>(1);
 
   // ISSUE: Messages are lost when not connected and need to be buffered and resent
   // - When not connected for a long time, messages accumulate, causing high memory usage.
@@ -70,11 +70,15 @@ export function createConnectionWs<T = any>(URL: string): IConnection<T> {
       mergeMap((x) => x),
       repeat(),
     )
-    .subscribe(output$);
+    .subscribe({
+      next: (x) => {
+        output$.next(x);
+      },
+    });
 
   const connect = () => {
-    isConnected$.next(false);
     const ws = (serviceWsRef.current = new WebSocket(URL));
+    isConnected$.next(false);
     ws.addEventListener('open', () => {
       console.debug(formatTime(Date.now()), 'connection established', URL);
       connection$.next(ws);
@@ -120,8 +124,8 @@ export function createConnectionWs<T = any>(URL: string): IConnection<T> {
       console.debug(formatTime(Date.now()), 'connection closing because output complete', URL);
       serviceWsRef.current?.close();
     },
-    error: () => {
-      console.debug(formatTime(Date.now()), 'connection closing because output error', URL);
+    error: (err) => {
+      console.debug(formatTime(Date.now()), 'connection closing because output error', URL, `${err}`);
       serviceWsRef.current?.close();
     },
   });
