@@ -31,6 +31,7 @@ import {
   share,
   shareReplay,
   switchMap,
+  takeUntil,
   takeWhile,
   tap,
   timeout,
@@ -52,6 +53,7 @@ import { TerminalServer } from './server';
 import { IService, ITerminalMessage } from './services';
 import { PromRegistry } from './services/metrics';
 import { getSimplePeerInstance } from './webrtc';
+import { WebSocket } from 'isomorphic-ws';
 
 const TerminalReceivedBytesTotal = PromRegistry.create('counter', 'terminal_received_bytes_total');
 const TerminalTransmittedBytesTotal = PromRegistry.create('counter', 'terminal_transmitted_bytes_total');
@@ -102,10 +104,16 @@ export class Terminal {
 
   private _terminalInfoUpdated$ = new Subject<void>();
 
+  /**
+   * if the terminal is connected to host
+   */
+  isConnected$: AsyncIterable<boolean>;
+
   constructor(
     public host_url: string,
     public terminalInfo: ITerminalInfo,
     public options: {
+      verbose?: boolean;
       disableTerminate?: boolean;
       disableMetrics?: boolean;
       connection?: IConnection<string>;
@@ -119,12 +127,17 @@ export class Terminal {
       channelIdSchemas: [],
     };
 
+    if (isNode) {
+      this.options.verbose ??= true;
+    }
+
     const url = new URL(host_url);
     url.searchParams.set('terminal_id', this.terminal_id); // make sure terminal_id is in the connection parameters
     this.host_url = url.toString();
     this.has_header = url.searchParams.get('has_header') === 'true';
 
     this._conn = this.options.connection || createConnectionWs(this.host_url);
+    this.isConnected$ = this._conn.isConnected$;
     this._setupTunnel();
     this._setupDebugLog();
     this._setupPredefinedServerHandlers();

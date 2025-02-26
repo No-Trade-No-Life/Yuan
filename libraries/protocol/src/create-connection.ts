@@ -8,6 +8,7 @@ import {
 import WebSocket from 'isomorphic-ws';
 import {
   Observable,
+  ReplaySubject,
   Subject,
   bufferTime,
   defer,
@@ -34,6 +35,8 @@ export interface IConnection<T> {
   output$: NativeSubject<T>;
   /** Connection established Action */
   connection$: AsyncIterable<unknown>;
+
+  isConnected$: AsyncIterable<boolean>;
 }
 
 /**
@@ -47,7 +50,8 @@ export function createConnectionWs<T = any>(URL: string): IConnection<T> {
 
   const input$ = new Subject<any>();
   const output$ = new Subject<any>();
-  const connection$ = new Subject<any>();
+  const connection$ = new ReplaySubject<any>(1);
+  const isConnected$ = new ReplaySubject<boolean>();
 
   // ISSUE: Messages are lost when not connected and need to be buffered and resent
   // - When not connected for a long time, messages accumulate, causing high memory usage.
@@ -69,17 +73,21 @@ export function createConnectionWs<T = any>(URL: string): IConnection<T> {
     .subscribe(output$);
 
   const connect = () => {
+    isConnected$.next(false);
     const ws = (serviceWsRef.current = new WebSocket(URL));
     ws.addEventListener('open', () => {
       console.debug(formatTime(Date.now()), 'connection established', URL);
       connection$.next(ws);
+      isConnected$.next(true);
     });
     ws.addEventListener('error', (e: any) => {
       console.error(formatTime(Date.now()), 'WebSocketConnectionError', e.error);
+      isConnected$.next(false);
       ws.close();
     });
     ws.addEventListener('close', () => {
       console.debug(formatTime(Date.now()), 'connection closed', URL);
+      isConnected$.next(false);
       // Allow external control of reconnection through output.complete or output.error
       if (!output$.isStopped) {
         setTimeout(connect, 1000); // reconnect after 1 sec
@@ -124,6 +132,7 @@ export function createConnectionWs<T = any>(URL: string): IConnection<T> {
     input$: observableToAsyncIterable(input$),
     output$: subjectToNativeSubject(output$),
     connection$: observableToAsyncIterable(connection$),
+    isConnected$: observableToAsyncIterable(isConnected$),
   };
 }
 
@@ -144,5 +153,6 @@ export function createConnectionJson<T = any>(URL: string): IConnection<T> {
     input$: observableToAsyncIterable(input$),
     output$: subjectToNativeSubject(output$),
     connection$: conn.connection$,
+    isConnected$: conn.isConnected$,
   };
 }

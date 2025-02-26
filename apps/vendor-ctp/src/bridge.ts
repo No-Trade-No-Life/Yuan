@@ -12,6 +12,7 @@ import {
   map,
   mergeMap,
   of,
+  ReplaySubject,
   shareReplay,
   Subject,
   tap,
@@ -42,7 +43,8 @@ export const createZMQConnection = (
 ): IConnection<IBridgeMessage<any, any>> => {
   const input$ = new Subject<IBridgeMessage<any, any>>();
   const output$ = new Subject<IBridgeMessage<any, any>>();
-  const connection$ = new Subject<unknown>();
+  const connection$ = new ReplaySubject<unknown>();
+  const isConnected$ = new ReplaySubject<boolean>(1);
 
   const pullSock = new zmq.Pull({ context });
   pullSock.connect(ZMQ_PULL_URL);
@@ -57,6 +59,7 @@ export const createZMQConnection = (
   pushSock.events.on('accept', (e) => {
     console.debug(formatTime(Date.now()), 'onAccept', e.address);
     connection$.next(e);
+    isConnected$.next(true);
   });
 
   from(pullSock)
@@ -99,5 +102,6 @@ export const createZMQConnection = (
     input$: observableToAsyncIterable(input$),
     output$: subjectToNativeSubject(output$),
     connection$: observableToAsyncIterable(connection$),
+    isConnected$: observableToAsyncIterable(isConnected$),
   };
 };
