@@ -28,6 +28,9 @@ export const addAccountTransferAddress: (ctx: IAccountTransferAddressContext) =>
 export const copyDataRecords: (terminal: Terminal, req: ICopyDataRecordsRequest) => Promise<undefined>;
 
 // @public
+export function createConnectionJson<T = any>(URL: string): IConnection<T>;
+
+// @public
 export function createConnectionWs<T = any>(URL: string): IConnection<T>;
 
 // @public
