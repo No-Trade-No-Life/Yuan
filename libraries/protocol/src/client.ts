@@ -165,24 +165,26 @@ export class TerminalClient {
         return from(this.terminal.input$).pipe(
           filter((m) => m.trace_id === msg.trace_id),
           // complete immediately when res is received
-          takeWhile((msg1) => msg1.res === undefined, true),
+          takeWhile((msg1) => !msg1.done && msg1.res === undefined, true),
           timeout({
             first: 30000,
             each: 10000,
             meta: `request Timeout: method=${msg.method} target=${msg.target_terminal_id}`,
           }),
+
           tap({
-            finalize: () => {
+            unsubscribe: () => {
               if (this.terminal.options.verbose) {
-                console.info(
-                  formatTime(Date.now()),
-                  'Client',
-                  'RequestFinalized',
-                  trace_id,
-                  method,
-                  target_terminal_id,
-                );
+                console.info(formatTime(Date.now()), 'Client', 'RequestAborted', JSON.stringify(msg));
               }
+              // abort the request
+              this._terminalOutput$.next({
+                trace_id,
+                method,
+                target_terminal_id,
+                source_terminal_id: this.terminal.terminal_id,
+                done: true,
+              });
             },
           }),
           share(),

@@ -20,6 +20,10 @@ export interface ITerminalMessage {
   req?: unknown;
   res?: IResponse<unknown>;
   frame?: unknown;
+  /**
+   * if true, both client and server should close the session defined by `trace_id`
+   */
+  done?: boolean;
 }
 /**
  * Response body for operations with side effects

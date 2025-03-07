@@ -175,10 +175,13 @@ export interface IServiceOptions {
 export type IServiceHandler<T extends string = string> = T extends keyof IService
   ? (
       msg: ITerminalMessage & Pick<IService[T], 'req'> & { method: T },
-      output$: NativeSubject<
-        Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> &
-          Partial<Pick<IService[T], 'res' | 'frame'>>
-      >,
+      ctx: {
+        output$: NativeSubject<
+          Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> &
+            Partial<Pick<IService[T], 'res' | 'frame'>>
+        >;
+        isAborted$: AsyncIterable<boolean>;
+      },
     ) => ObservableInput<
       Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> &
         Partial<Pick<IService[T], 'res' | 'frame'>>
@@ -186,9 +189,12 @@ export type IServiceHandler<T extends string = string> = T extends keyof IServic
   : // ISSUE: Allow custom methods between terminals
     (
       msg: ITerminalMessage,
-      output$: NativeSubject<
-        Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>
-      >,
+      ctx: {
+        output$: NativeSubject<
+          Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>
+        >;
+        isAborted$: AsyncIterable<boolean>;
+      },
     ) => ObservableInput<
       Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>
     >;

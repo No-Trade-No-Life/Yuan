@@ -82,7 +82,13 @@ export interface IServiceCandidateClientSide {
 // @internal (undocumented)
 export type IServiceHandler<T extends string = string> = T extends keyof IService ? (msg: ITerminalMessage & Pick<IService[T], 'req'> & {
     method: T;
-}, output$: NativeSubject<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> & Partial<Pick<IService[T], 'res' | 'frame'>>>) => ObservableInput<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> & Partial<Pick<IService[T], 'res' | 'frame'>>> : (msg: ITerminalMessage, output$: NativeSubject<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>>) => ObservableInput<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>>;
+}, ctx: {
+    output$: NativeSubject<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> & Partial<Pick<IService[T], 'res' | 'frame'>>>;
+    isAborted$: AsyncIterable<boolean>;
+}) => ObservableInput<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> & Partial<Pick<IService[T], 'res' | 'frame'>>> : (msg: ITerminalMessage, ctx: {
+    output$: NativeSubject<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>>;
+    isAborted$: AsyncIterable<boolean>;
+}) => ObservableInput<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>>;
 
 // @public
 export interface IServiceInfo {
@@ -133,6 +139,7 @@ export interface ITerminalInfo {
 export interface ITerminalMessage {
     // (undocumented)
     channel_id?: string;
+    done?: boolean;
     // (undocumented)
     frame?: unknown;
     // (undocumented)

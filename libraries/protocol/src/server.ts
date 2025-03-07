@@ -1,6 +1,18 @@
 import { formatTime } from '@yuants/data-model';
-import { nativeSubjectToSubject, subjectToNativeSubject } from '@yuants/utils';
-import { catchError, defer, from, interval, of, Subject, takeUntil, tap, timeout } from 'rxjs';
+import { nativeSubjectToSubject, observableToAsyncIterable, subjectToNativeSubject } from '@yuants/utils';
+import {
+  BehaviorSubject,
+  catchError,
+  defer,
+  filter,
+  from,
+  interval,
+  of,
+  Subject,
+  takeUntil,
+  tap,
+  timeout,
+} from 'rxjs';
 import { IServiceInfoServerSide } from './model';
 import { ITerminalMessage, PromRegistry } from './services';
 import { Terminal } from './terminal';
@@ -14,9 +26,14 @@ import { Terminal } from './terminal';
 // All Initialized requests must be finalizing
 
 interface IRequestContext {
+  trace_id: string;
   message: ITerminalMessage;
   output$: Subject<IServiceOutput>;
   serviceContext?: IServiceContext;
+
+  stage: 'initialized' | 'routed' | 'pending' | 'processing' | 'processed' | 'finalizing';
+
+  isAborted$: BehaviorSubject<boolean>;
 
   // timestamp
   initilized_at: number;
@@ -104,6 +121,8 @@ export class TerminalServer {
   private _requestProcessed$ = new Subject<IRequestContext>();
   private _requestFinalizing$ = new Subject<IRequestContext>();
 
+  private _mapTraceIdToRequestContext = new Map<string, IRequestContext>();
+
   private _setupServer() {
     // Msg -> Initialize Request
     from(this.terminal.input$)
@@ -119,26 +138,35 @@ export class TerminalServer {
         const output$ = new Subject<IServiceOutput>();
 
         output$.subscribe((x) => {
-          // Auto fill the trace_id and method
-          this._terminalOutput$.next({
+          const terminalMessage: ITerminalMessage = {
             ...x,
             trace_id: msg.trace_id,
             method: msg.method,
             // ISSUE: Reverse source / target as response, otherwise the host cannot guarantee the forwarding direction
             source_terminal_id: this.terminal.terminal_id,
             target_terminal_id: msg.source_terminal_id,
-          });
+          };
+          if (x.res) {
+            terminalMessage.done = true;
+          }
+          // Auto fill the trace_id and method
+          this._terminalOutput$.next(terminalMessage);
         });
 
         const requestContext: IRequestContext = {
+          stage: 'initialized',
+          trace_id: msg.trace_id,
           message: msg,
           output$,
+          isAborted$: new BehaviorSubject(false),
           initilized_at: NaN,
           routed_at: NaN,
           processing_at: NaN,
           processed_at: NaN,
           finalized_at: NaN,
         };
+
+        this._mapTraceIdToRequestContext.set(msg.trace_id, requestContext);
 
         output$.subscribe((x) => {
           if (x.res) {
@@ -149,9 +177,33 @@ export class TerminalServer {
         this._requestInitialized$.next(requestContext);
       });
 
+    // Abort Request
+    from(this.terminal.input$)
+      .pipe(takeUntil(this.terminal.dispose$))
+      .subscribe((msg) => {
+        if (!msg.done) return;
+        const requestContext = this._mapTraceIdToRequestContext.get(msg.trace_id);
+        if (!requestContext) return;
+
+        // Immediately remove if the request is pending, for saving the queue capacity
+        if (requestContext.stage === 'pending') {
+          const serviceContext = requestContext.serviceContext;
+
+          if (serviceContext) {
+            const idx = serviceContext.pending.indexOf(requestContext);
+            if (idx >= 0) {
+              serviceContext.pending.splice(idx, 1);
+            }
+          }
+        }
+
+        requestContext.isAborted$.next(true);
+      });
+
     // Service Routing: Request Initialized -> Request Routed / Request Finalized
     this._requestInitialized$.pipe(takeUntil(this.terminal.dispose$)).subscribe((requestContext) => {
       requestContext.initilized_at = Date.now();
+      requestContext.stage = 'initialized';
       RequestReceivedTotal.inc({
         method: requestContext.message.method!,
         source_terminal_id: requestContext.message.source_terminal_id,
@@ -201,6 +253,7 @@ export class TerminalServer {
     // Add Pending: Request Routed -> Request Pending / Request Finalizing
     this._requestRouted$.pipe(takeUntil(this.terminal.dispose$)).subscribe((requestContext) => {
       requestContext.routed_at = Date.now();
+      requestContext.stage = 'routed';
       const { serviceContext, output$ } = requestContext;
       if (!serviceContext) throw new Error('ServiceContext Not Found');
 
@@ -218,6 +271,7 @@ export class TerminalServer {
     // Waiting Room: Pending -> Processing
     this._requestPending$.pipe(takeUntil(this.terminal.dispose$)).subscribe((requestContext) => {
       const { serviceContext } = requestContext;
+      requestContext.stage = 'pending';
       if (!serviceContext) throw new Error('ServiceContext Not Found');
 
       // if the processing is full, add to pending queue
@@ -233,21 +287,28 @@ export class TerminalServer {
     // Processing: Request Processing -> Request Processed
     this._requestProcessing$.pipe(takeUntil(this.terminal.dispose$)).subscribe((requestContext) => {
       requestContext.processing_at = Date.now();
+      requestContext.stage = 'processing';
       const { message, serviceContext, output$ } = requestContext;
       if (!serviceContext) throw new Error('ServiceContext Not Found');
       serviceContext.processing.add(requestContext);
 
       // ISSUE: from -> defer, make sure the error of handler will be caught
-      defer(() => serviceContext.service.handler(message, subjectToNativeSubject(output$)))
+      defer(() =>
+        serviceContext.service.handler(message, {
+          output$: subjectToNativeSubject(output$),
+          isAborted$: observableToAsyncIterable(requestContext.isAborted$),
+        }),
+      )
         .pipe(
-          timeout({
-            first: 30_000,
-            each: 10_000,
-            meta: `Handler Timeout: method=${message.method} target=${message.source_terminal_id}`,
-          }),
+          takeUntil(requestContext.isAborted$.pipe(filter((x) => x))), // Abort if true
           catchError((err) => {
             console.info(formatTime(Date.now()), `ServerError`, JSON.stringify(message), err);
             return of({ res: { code: 500, message: `Internal Server Error: ${err}` } });
+          }),
+          timeout({ first: 30_000, each: 10_000 }),
+          catchError((err) => {
+            console.info(formatTime(Date.now()), `ServerError`, JSON.stringify(message), err);
+            return of({ res: { code: 504, message: `Service Handler Timeout: ${err}` } });
           }),
           tap({
             next: (msg) => {
@@ -265,6 +326,7 @@ export class TerminalServer {
     // Processed: Request Processed -> Finalizing, release the processing, schedule the next pending
     this._requestProcessed$.pipe(takeUntil(this.terminal.dispose$)).subscribe((requestContext) => {
       requestContext.processed_at = Date.now();
+      requestContext.stage = 'processed';
       const { serviceContext } = requestContext;
       if (!serviceContext) throw new Error('ServiceContext Not Found');
 
@@ -284,8 +346,11 @@ export class TerminalServer {
     // Finalizing
     this._requestFinalizing$.pipe(takeUntil(this.terminal.dispose$)).subscribe((requestContext) => {
       requestContext.finalized_at = Date.now();
+      requestContext.stage = 'finalizing';
       requestContext.output$.complete();
       console.info(formatTime(Date.now()), 'Server', 'RequestFinalized', requestContext.message.trace_id);
+
+      this._mapTraceIdToRequestContext.delete(requestContext.trace_id);
 
       const duration = requestContext.finalized_at - requestContext.initilized_at;
       if (isNaN(duration)) return;
