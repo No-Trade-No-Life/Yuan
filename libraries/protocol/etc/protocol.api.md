@@ -13,6 +13,7 @@ import { ITick } from '@yuants/data-model';
 import { ITransferOrder } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
 import { NativeSubject } from '@yuants/utils';
+import { Observable } from 'rxjs';
 import { ObservableInput } from 'rxjs';
 import { Registry } from '@yuants/prometheus-client';
 import { ValidateFunction } from 'ajv';
@@ -173,11 +174,6 @@ export const publishAccountInfo: (terminal: Terminal, account_id: string, accoun
     dispose: () => void;
 };
 
-// @public
-export const publishChannel: <T extends keyof IChannelTypes>(terminal: Terminal, type: T, channelSchema: JSONSchema7, handler: (channel_id: string) => ObservableInput<IChannelTypes[T]["value"]>) => {
-    dispose: () => void;
-};
-
 // Warning: (ae-forgotten-export) The symbol "IQueryPeriodsRequest" needs to be exported by the entry point index.d.ts
 //
 // @public (undocumented)
@@ -207,9 +203,6 @@ export const requestSharedKey: (terminal: Terminal, ed25519_public_key: string) 
 export const setupHandShakeService: (terminal: Terminal, private_key: string) => Map<string, string>;
 
 // @public
-export const subscribeChannel: <T extends keyof IChannelTypes>(terminal: Terminal, type: T, channel_id: string) => AsyncIterable<IChannelTypes[T]["value"]>;
-
-// @public
 export class Terminal {
     constructor(host_url: string, terminalInfo: ITerminalInfo, options?: {
         verbose?: boolean;
@@ -217,6 +210,8 @@ export class Terminal {
         disableMetrics?: boolean;
         connection?: IConnection<string>;
     });
+    // (undocumented)
+    channel: TerminalChannel;
     // Warning: (ae-forgotten-export) The symbol "TerminalClient" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -243,13 +238,13 @@ export class Terminal {
     provideService: <T extends string>(method: T, requestSchema: JSONSchema7, handler: IServiceHandler<T>, options?: IServiceOptions) => {
         dispose: () => void;
     };
-    request<T extends string>(method: T, target_terminal_id: string, req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req']): AsyncIterable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage>;
+    request<T extends string>(method: T, target_terminal_id: string, req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req']): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage>;
     requestForResponse<T extends keyof IService>(method: T, req: IService[T]['req']): Promise<Exclude<(Partial<IService[T]> & ITerminalMessage)['res'], undefined>>;
     // (undocumented)
     requestForResponse(method: string, req: ITerminalMessage['req']): Promise<Exclude<ITerminalMessage['res'], undefined>>;
-    requestService<T extends keyof IService>(method: T, req: IService[T]['req']): AsyncIterable<Partial<IService[T]> & ITerminalMessage>;
+    requestService<T extends keyof IService>(method: T, req: IService[T]['req']): Observable<Partial<IService[T]> & ITerminalMessage>;
     // (undocumented)
-    requestService(method: string, req: ITerminalMessage['req']): AsyncIterable<ITerminalMessage>;
+    requestService(method: string, req: ITerminalMessage['req']): Observable<ITerminalMessage>;
     resolveTargetTerminalIds: (method: string, req: ITerminalMessage['req']) => Promise<string[]>;
     // Warning: (ae-forgotten-export) The symbol "TerminalServer" needs to be exported by the entry point index.d.ts
     //
@@ -261,6 +256,17 @@ export class Terminal {
     terminalInfos$: AsyncIterable<ITerminalInfo[]>;
     // (undocumented)
     terminalInfos: ITerminalInfo[];
+}
+
+// @public
+export class TerminalChannel {
+    constructor(terminal: Terminal);
+    publishChannel<T extends keyof IChannelTypes>(type: T, channelSchema: JSONSchema7, handler: (channel_id: string) => ObservableInput<IChannelTypes[T]['value']>): {
+        dispose: () => void;
+    };
+    subscribeChannel<T extends keyof IChannelTypes>(type: T, channel_id: string): Observable<IChannelTypes[T]['value']>;
+    // (undocumented)
+    terminal: Terminal;
 }
 
 // @public

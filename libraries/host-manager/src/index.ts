@@ -1,5 +1,5 @@
 import { formatTime, UUID } from '@yuants/data-model';
-import { ITerminalInfo, PromRegistry, publishChannel, Terminal } from '@yuants/protocol';
+import { ITerminalInfo, PromRegistry, Terminal } from '@yuants/protocol';
 import { createServer } from 'http';
 import {
   bindCallback,
@@ -122,8 +122,8 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
     const terminalInfoChangeEvent$ = new Subject<{ new?: ITerminalInfo; old?: ITerminalInfo }>();
 
     terminal.provideChannel<ITerminalInfo>({ const: 'TerminalInfo' }, () => terminalInfo$);
-    publishChannel(terminal, 'TerminalInfo', { const: '' }, () => terminalInfo$);
-    publishChannel(terminal, 'TerminalInfoChangeEvent', { const: '' }, () => terminalInfoChangeEvent$);
+    terminal.channel.publishChannel('TerminalInfo', { const: '' }, () => terminalInfo$);
+    terminal.channel.publishChannel('TerminalInfoChangeEvent', { const: '' }, () => terminalInfoChangeEvent$);
 
     terminal.provideService('ListTerminals', {}, () => listTerminalsMessage$.pipe(first()));
 

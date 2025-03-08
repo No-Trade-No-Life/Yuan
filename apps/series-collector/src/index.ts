@@ -20,6 +20,7 @@ import {
   repeat,
   retry,
   takeUntil,
+  tap,
   timer,
   toArray,
 } from 'rxjs';
@@ -246,13 +247,15 @@ const runTask = (task: ISeriesCollectingTask) =>
       .pipe(takeUntil(dispose$))
       .pipe(
         mergeMap(() =>
-          defer(async () => {
-            for await (const msg of terminal.client.requestService('CollectDataSeries', {
+          defer(() =>
+            terminal.client.requestService('CollectDataSeries', {
               type: task.type,
               series_id: task.series_id,
               started_at: taskContext.last_frozon_at,
               ended_at: Date.now(),
-            })) {
+            }),
+          ).pipe(
+            tap((msg) => {
               if (msg.frame) {
                 taskContext.api_status = msg.frame;
               }
@@ -262,8 +265,7 @@ const runTask = (task: ISeriesCollectingTask) =>
                 }
                 taskComplete$.next();
               }
-            }
-          }).pipe(
+            }),
             // ISSUE: catch error will replace the whole stream with EMPTY, therefore it must be placed inside mergeMap
             // so that the outer stream subscription will not be affected
             catchError((e) => {

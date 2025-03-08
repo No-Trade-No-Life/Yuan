@@ -133,7 +133,9 @@ export class TerminalServer {
         if (!msg.req) return;
         if (msg.frame || msg.res) return;
 
-        console.info(formatTime(Date.now()), 'Server', `RequestReceived`, msg.trace_id, msg.method);
+        if (this.terminal.options.verbose) {
+          console.info(formatTime(Date.now()), 'Server', `RequestReceived`, msg.trace_id, msg.method);
+        }
 
         const output$ = new Subject<IServiceOutput>();
 
@@ -351,7 +353,9 @@ export class TerminalServer {
       requestContext.finalized_at = Date.now();
       requestContext.stage = 'finalizing';
       requestContext.output$.complete();
-      console.info(formatTime(Date.now()), 'Server', 'RequestFinalized', requestContext.message.trace_id);
+      if (this.terminal.options.verbose) {
+        console.info(formatTime(Date.now()), 'Server', 'RequestFinalized', requestContext.message.trace_id);
+      }
 
       this._mapTraceIdToRequestContext.delete(requestContext.trace_id);
 

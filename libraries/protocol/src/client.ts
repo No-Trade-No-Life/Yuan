@@ -6,6 +6,7 @@ import {
   filter,
   firstValueFrom,
   from,
+  identity,
   map,
   mergeMap,
   Observable,
@@ -114,31 +115,20 @@ export class TerminalClient {
   requestService<T extends keyof IService>(
     method: T,
     req: IService[T]['req'],
-    ctx?: { abort$?: AsyncIterable<void> },
-  ): AsyncIterable<Partial<IService[T]> & ITerminalMessage>;
+  ): Observable<Partial<IService[T]> & ITerminalMessage>;
 
-  requestService(
-    method: string,
-    req: ITerminalMessage['req'],
-    ctx?: { abort$?: AsyncIterable<void> },
-  ): AsyncIterable<ITerminalMessage>;
+  requestService(method: string, req: ITerminalMessage['req']): Observable<ITerminalMessage>;
 
-  requestService(
-    method: string,
-    req: ITerminalMessage['req'],
-    ctx?: { abort$?: AsyncIterable<void> },
-  ): AsyncIterable<ITerminalMessage> {
-    return observableToAsyncIterable(
-      defer(() => this.resolveTargetTerminalIds(method, req)).pipe(
-        map((arr) => {
-          if (arr.length === 0) {
-            throw Error(`No terminal available for request: method=${method} req=${JSON.stringify(req)}`);
-          }
-          const target = arr[~~(Math.random() * arr.length)]; // Simple Random Load Balancer
-          return target;
-        }),
-        mergeMap((target_terminal_id) => this.request(method, target_terminal_id, req, ctx)),
-      ),
+  requestService(method: string, req: ITerminalMessage['req']): Observable<ITerminalMessage> {
+    return defer(() => this.resolveTargetTerminalIds(method, req)).pipe(
+      map((arr) => {
+        if (arr.length === 0) {
+          throw Error(`No terminal available for request: method=${method} req=${JSON.stringify(req)}`);
+        }
+        const target = arr[~~(Math.random() * arr.length)]; // Simple Random Load Balancer
+        return target;
+      }),
+      mergeMap((target_terminal_id) => this.request(method, target_terminal_id, req)),
     );
   }
 
@@ -149,10 +139,8 @@ export class TerminalClient {
     method: T,
     target_terminal_id: string,
     req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req'],
-    ctx?: { abort$?: AsyncIterable<void> },
-  ): AsyncIterable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage> {
+  ): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage> {
     const trace_id = UUID();
-    const finalize$ = new Subject<void>();
     const msg = {
       trace_id,
       method,
@@ -160,57 +148,44 @@ export class TerminalClient {
       source_terminal_id: this.terminal.terminal_id,
       req,
     };
-    if (ctx?.abort$) {
-      from(ctx.abort$)
-        .pipe(takeUntil(finalize$))
-        .pipe(takeUntil(this.terminal.dispose$))
-        .subscribe(() => {
-          finalize$.next();
-          if (this.terminal.options.verbose) {
-            console.info(formatTime(Date.now()), 'Client', 'RequestAborted', JSON.stringify(msg));
-          }
-          this._terminalOutput$.next({
-            trace_id,
-            method,
-            target_terminal_id,
-            source_terminal_id: this.terminal.terminal_id,
-            done: true,
-          });
-        });
-    }
-    return observableToAsyncIterable(
-      defer((): Observable<any> => {
-        if (this.terminal.options.verbose) {
-          console.info(
-            formatTime(Date.now()),
-            'Client',
-            'RequestInitiated',
-            trace_id,
-            method,
-            target_terminal_id,
-          );
-        }
-        this._terminalOutput$.next(msg);
-        return from(this.terminal.input$).pipe(
-          filter((m) => m.trace_id === msg.trace_id),
-          // complete immediately when res is received
-          takeWhile((msg1) => !msg1.done && msg1.res === undefined, true),
-          timeout({
-            first: 30000,
-            each: 10000,
-            meta: `request Timeout: method=${msg.method} target=${msg.target_terminal_id}`,
-          }),
-          tap({
-            finalize: () => {
-              finalize$.next();
-            },
-          }),
-          takeUntil(finalize$),
-          takeUntil(this.terminal.dispose$),
-          share(),
+    return defer((): Observable<any> => {
+      if (this.terminal.options.verbose) {
+        console.info(
+          formatTime(Date.now()),
+          'Client',
+          'RequestInitiated',
+          trace_id,
+          method,
+          target_terminal_id,
         );
-      }),
-    );
+      }
+      this._terminalOutput$.next(msg);
+      return from(this.terminal.input$).pipe(
+        filter((m) => m.trace_id === msg.trace_id),
+        // complete immediately when res is received
+        takeWhile((msg1) => !msg1.done && msg1.res === undefined, true),
+        timeout({
+          first: 30000,
+          each: 10000,
+          meta: `request Timeout: method=${msg.method} target=${msg.target_terminal_id}`,
+        }),
+        takeUntil(this.terminal.dispose$),
+        tap({
+          unsubscribe: () => {
+            if (this.terminal.options.verbose) {
+              console.info(formatTime(Date.now()), 'Client', 'RequestAborted', msg.trace_id);
+            }
+            this._terminalOutput$.next({
+              trace_id,
+              method,
+              target_terminal_id,
+              source_terminal_id: this.terminal.terminal_id,
+              done: true,
+            });
+          },
+        }),
+      );
+    });
   }
 
   /**
@@ -243,9 +218,10 @@ export class TerminalClient {
     ctx?: { abort$?: AsyncIterable<void> },
   ): Promise<Exclude<ITerminalMessage['res'], undefined>> {
     return firstValueFrom(
-      from(this.requestService(method as any, req as any, ctx)).pipe(
+      from(this.requestService(method as any, req as any)).pipe(
         map((msg) => msg.res),
         filter((v): v is Exclude<typeof v, undefined> => v !== undefined),
+        ctx?.abort$ ? takeUntil(ctx?.abort$) : identity,
       ),
     ) as any;
   }
