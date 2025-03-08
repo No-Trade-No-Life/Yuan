@@ -2,6 +2,31 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.30.0",
+      "tag": "@yuants/protocol_v0.30.0",
+      "date": "Sat, 08 Mar 2025 21:00:28 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add API terminal.isConnected$ to track connection status"
+          },
+          {
+            "comment": "request abort controller"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "try fix terminal error"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.29.0",
       "tag": "@yuants/protocol_v0.29.0",
       "date": "Wed, 19 Feb 2025 18:08:11 GMT",
