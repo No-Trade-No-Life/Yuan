@@ -13,6 +13,7 @@ import { ITick } from '@yuants/data-model';
 import { ITransferOrder } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
 import { NativeSubject } from '@yuants/utils';
+import { Observable } from 'rxjs';
 import { ObservableInput } from 'rxjs';
 import { Registry } from '@yuants/prometheus-client';
 import { ValidateFunction } from 'ajv';
@@ -35,10 +36,6 @@ export function createConnectionWs<T = any>(URL: string): IConnection<T>;
 
 // @public
 export const escapeRegExp: (string: string) => string;
-
-// @public
-export interface IChannelTypes {
-}
 
 // @public
 export interface IConnection<T> {
@@ -82,7 +79,13 @@ export interface IServiceCandidateClientSide {
 // @internal (undocumented)
 export type IServiceHandler<T extends string = string> = T extends keyof IService ? (msg: ITerminalMessage & Pick<IService[T], 'req'> & {
     method: T;
-}, output$: NativeSubject<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> & Partial<Pick<IService[T], 'res' | 'frame'>>>) => ObservableInput<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> & Partial<Pick<IService[T], 'res' | 'frame'>>> : (msg: ITerminalMessage, output$: NativeSubject<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>>) => ObservableInput<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>>;
+}, ctx: {
+    output$: NativeSubject<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> & Partial<Pick<IService[T], 'res' | 'frame'>>>;
+    isAborted$: AsyncIterable<boolean>;
+}) => ObservableInput<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> & Partial<Pick<IService[T], 'res' | 'frame'>>> : (msg: ITerminalMessage, ctx: {
+    output$: NativeSubject<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>>;
+    isAborted$: AsyncIterable<boolean>;
+}) => ObservableInput<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>>;
 
 // @public
 export interface IServiceInfo {
@@ -133,6 +136,7 @@ export interface ITerminalInfo {
 export interface ITerminalMessage {
     // (undocumented)
     channel_id?: string;
+    done?: boolean;
     // (undocumented)
     frame?: unknown;
     // (undocumented)
@@ -166,11 +170,6 @@ export const publishAccountInfo: (terminal: Terminal, account_id: string, accoun
     dispose: () => void;
 };
 
-// @public
-export const publishChannel: <T extends keyof IChannelTypes>(terminal: Terminal, type: T, channelSchema: JSONSchema7, handler: (channel_id: string) => ObservableInput<IChannelTypes[T]["value"]>) => {
-    dispose: () => void;
-};
-
 // Warning: (ae-forgotten-export) The symbol "IQueryPeriodsRequest" needs to be exported by the entry point index.d.ts
 //
 // @public (undocumented)
@@ -200,9 +199,6 @@ export const requestSharedKey: (terminal: Terminal, ed25519_public_key: string) 
 export const setupHandShakeService: (terminal: Terminal, private_key: string) => Map<string, string>;
 
 // @public
-export const subscribeChannel: <T extends keyof IChannelTypes>(terminal: Terminal, type: T, channel_id: string) => AsyncIterable<IChannelTypes[T]["value"]>;
-
-// @public
 export class Terminal {
     constructor(host_url: string, terminalInfo: ITerminalInfo, options?: {
         verbose?: boolean;
@@ -210,6 +206,8 @@ export class Terminal {
         disableMetrics?: boolean;
         connection?: IConnection<string>;
     });
+    // (undocumented)
+    channel: TerminalChannel;
     // Warning: (ae-forgotten-export) The symbol "TerminalClient" needs to be exported by the entry point index.d.ts
     //
     // (undocumented)
@@ -236,13 +234,13 @@ export class Terminal {
     provideService: <T extends string>(method: T, requestSchema: JSONSchema7, handler: IServiceHandler<T>, options?: IServiceOptions) => {
         dispose: () => void;
     };
-    request<T extends string>(method: T, target_terminal_id: string, req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req']): AsyncIterable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage>;
+    request<T extends string>(method: T, target_terminal_id: string, req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req']): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage>;
     requestForResponse<T extends keyof IService>(method: T, req: IService[T]['req']): Promise<Exclude<(Partial<IService[T]> & ITerminalMessage)['res'], undefined>>;
     // (undocumented)
     requestForResponse(method: string, req: ITerminalMessage['req']): Promise<Exclude<ITerminalMessage['res'], undefined>>;
-    requestService<T extends keyof IService>(method: T, req: IService[T]['req']): AsyncIterable<Partial<IService[T]> & ITerminalMessage>;
+    requestService<T extends keyof IService>(method: T, req: IService[T]['req']): Observable<Partial<IService[T]> & ITerminalMessage>;
     // (undocumented)
-    requestService(method: string, req: ITerminalMessage['req']): AsyncIterable<ITerminalMessage>;
+    requestService(method: string, req: ITerminalMessage['req']): Observable<ITerminalMessage>;
     resolveTargetTerminalIds: (method: string, req: ITerminalMessage['req']) => Promise<string[]>;
     // Warning: (ae-forgotten-export) The symbol "TerminalServer" needs to be exported by the entry point index.d.ts
     //
@@ -254,6 +252,17 @@ export class Terminal {
     terminalInfos$: AsyncIterable<ITerminalInfo[]>;
     // (undocumented)
     terminalInfos: ITerminalInfo[];
+}
+
+// @public
+export class TerminalChannel {
+    constructor(terminal: Terminal);
+    publishChannel<T>(type: string, channelSchema: JSONSchema7, handler: (channel_id: string) => ObservableInput<T>): {
+        dispose: () => void;
+    };
+    subscribeChannel<T>(type: string, channel_id: string): Observable<T>;
+    // (undocumented)
+    terminal: Terminal;
 }
 
 // @public

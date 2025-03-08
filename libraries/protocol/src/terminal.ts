@@ -31,7 +31,6 @@ import {
   share,
   shareReplay,
   switchMap,
-  takeUntil,
   takeWhile,
   tap,
   timeout,
@@ -40,6 +39,7 @@ import {
   withLatestFrom,
 } from 'rxjs';
 import type SimplePeer from 'simple-peer';
+import { TerminalChannel } from './channel';
 import { TerminalClient } from './client';
 import { IConnection, createConnectionWs } from './create-connection';
 import {
@@ -53,7 +53,6 @@ import { TerminalServer } from './server';
 import { IService, ITerminalMessage } from './services';
 import { PromRegistry } from './services/metrics';
 import { getSimplePeerInstance } from './webrtc';
-import { WebSocket } from 'isomorphic-ws';
 
 const TerminalReceivedBytesTotal = PromRegistry.create('counter', 'terminal_received_bytes_total');
 const TerminalTransmittedBytesTotal = PromRegistry.create('counter', 'terminal_transmitted_bytes_total');
@@ -802,7 +801,7 @@ export class Terminal {
     method: T,
     target_terminal_id: string,
     req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req'],
-  ): AsyncIterable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage> {
+  ): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage> {
     return this.client.request(method, target_terminal_id, req);
   }
 
@@ -859,11 +858,11 @@ export class Terminal {
   requestService<T extends keyof IService>(
     method: T,
     req: IService[T]['req'],
-  ): AsyncIterable<Partial<IService[T]> & ITerminalMessage>;
+  ): Observable<Partial<IService[T]> & ITerminalMessage>;
 
-  requestService(method: string, req: ITerminalMessage['req']): AsyncIterable<ITerminalMessage>;
+  requestService(method: string, req: ITerminalMessage['req']): Observable<ITerminalMessage>;
 
-  requestService(method: string, req: ITerminalMessage['req']): AsyncIterable<ITerminalMessage> {
+  requestService(method: string, req: ITerminalMessage['req']): Observable<ITerminalMessage> {
     return this.client.requestService(method, req);
   }
 
@@ -1183,4 +1182,5 @@ export class Terminal {
 
   server: TerminalServer = new TerminalServer(this);
   client: TerminalClient = new TerminalClient(this);
+  channel: TerminalChannel = new TerminalChannel(this);
 }

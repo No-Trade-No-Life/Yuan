@@ -1,6 +1,5 @@
 import { IAccountInfo, encodePath, mergeAccountInfoPositions } from '@yuants/data-model';
 import { ObservableInput, defer, first, mergeMap, pairwise, takeUntil } from 'rxjs';
-import { publishChannel } from '../channel';
 import { PromRegistry } from '../services';
 import { Terminal } from '../terminal';
 
@@ -45,7 +44,7 @@ export const publishAccountInfo = (
 ) => {
   const channel_id = encodePath(`AccountInfo`, account_id);
   const channel1 = terminal.provideChannel({ const: channel_id }, () => accountInfo$);
-  const channel2 = publishChannel(terminal, 'AccountInfo', { const: account_id }, () => accountInfo$);
+  const channel2 = terminal.channel.publishChannel('AccountInfo', { const: account_id }, () => accountInfo$);
 
   // Metrics
   const sub = defer(() => accountInfo$)

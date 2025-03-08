@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-series-collector",
+      "comment": "update protocol",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-series-collector"
+}

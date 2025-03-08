@@ -1,5 +1,4 @@
-import { formatTime, IAccountInfo, IPeriod, ITick } from '@yuants/data-model';
-import { observableToAsyncIterable } from '@yuants/utils';
+import { encodePath, formatTime } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
 import {
   defer,
@@ -14,145 +13,174 @@ import {
   takeUntil,
   tap,
 } from 'rxjs';
-import { ITerminalInfo } from './model';
 import { Terminal } from './terminal';
 
-declare module './services' {
-  /**
-   * - SubscribeChannel has been loaded
-   * - 订阅频道接口已载入
-   */
-  interface IService {
-    SubscribeChannel: {
-      req: {
-        type: string;
-        channel_id: string;
-      };
-      frame: {
-        value: any;
-      };
-      res: IResponse<void>;
-    };
-  }
-}
-
 /**
- * Channel Types
- * 频道类型
- * @public
- */
-export interface IChannelTypes {}
-
-declare module '.' {
-  interface IChannelTypes {
-    AccountInfo: {
-      value: IAccountInfo;
-    };
-    Tick: {
-      value: ITick;
-    };
-    Periods: {
-      value: IPeriod[];
-    };
-    TerminalInfo: {
-      value: ITerminalInfo;
-    };
-    TerminalInfoChangeEvent: {
-      value: { new?: ITerminalInfo; old?: ITerminalInfo };
-    };
-  }
-}
-
-/**
- * Publish channel
- * 发布频道
+ * Channel Manager
  *
  * @public
  */
-export const publishChannel = <T extends keyof IChannelTypes>(
-  terminal: Terminal,
-  type: T,
-  channelSchema: JSONSchema7,
-  handler: (channel_id: string) => ObservableInput<IChannelTypes[T]['value']>,
-) => {
-  const mapChannelIdToSubject$: Record<
-    string,
-    Observable<{ frame: { value: IChannelTypes[T]['value'] } }>
-  > = {};
-  return terminal.provideService(
-    'SubscribeChannel',
-    {
-      type: 'object',
-      required: ['type', 'channel_id'],
-      properties: {
-        type: { const: type },
-        channel_id: channelSchema,
+export class TerminalChannel {
+  constructor(public terminal: Terminal) {}
+
+  /**
+   * cached published observable, multiple subscriptions share the same observable
+   *
+   * shared observable is to be cold when all subscriptions are closed
+   */
+  private _mapTypeAndChannelIdToPublishedObservable$ = new Map<string, Observable<any>>();
+
+  private _mapTypeAndChannelIdToSubscribedObservable$ = new Map<string, Observable<any>>();
+
+  /**
+   * Publish channel
+   * 发布频道
+   *
+   * @public
+   */
+  publishChannel<T>(
+    type: string,
+    channelSchema: JSONSchema7,
+    handler: (channel_id: string) => ObservableInput<T>,
+  ) {
+    return this.terminal.provideService(
+      // ISSUE: 将频道类型作为服务名为了优化方法索引速度，因为频道类型是常量，主机内会有很多不同类型的频道
+      encodePath('SubscribeChannel', type),
+      {
+        type: 'object',
+        required: ['channel_id'],
+        properties: {
+          channel_id: channelSchema,
+        },
       },
-    },
-    (msg) => {
-      const channel_id = msg.req.channel_id;
-      return (mapChannelIdToSubject$[channel_id] ??= defer(() => handler(channel_id)).pipe(
-        //
-        map((value) => ({ frame: { value } })),
-        tap({
-          subscribe: () => {
-            console.info(formatTime(Date.now()), 'Channel', `channel_id=${channel_id} is initialized`);
-          },
-          finalize: () => {
-            console.info(formatTime(Date.now()), 'Channel', `channel_id=${channel_id} is closed`);
-          },
-        }),
-        share({ resetOnRefCountZero: true }),
-      )).pipe(
-        tap({
-          subscribe: () => {
-            console.info(
-              formatTime(Date.now()),
-              'Channel',
-              `channel_id=${channel_id} is subscribed by ${msg.source_terminal_id}`,
-            );
-          },
-          finalize: () => {
-            console.info(
-              formatTime(Date.now()),
-              'Channel',
-              `channel_id=${channel_id} is unsubscribed by ${msg.source_terminal_id}`,
-            );
-          },
-        }),
-        takeUntil(
-          from(terminal.terminalInfos$).pipe(
-            map((x) => x.every((t) => t.terminal_id !== msg.source_terminal_id)),
-            first((x) => x),
+      (msg) => {
+        const channel_id = (
+          msg.req as {
+            channel_id: string;
+          }
+        ).channel_id;
+
+        const typeAndChannelId = encodePath(type, channel_id);
+        if (!this._mapTypeAndChannelIdToPublishedObservable$.get(typeAndChannelId)) {
+          this._mapTypeAndChannelIdToPublishedObservable$.set(
+            typeAndChannelId,
+            defer(() => handler(channel_id)).pipe(
+              //
+              map((value) => ({ frame: { value } })),
+              tap({
+                subscribe: () => {
+                  if (this.terminal.options.verbose) {
+                    console.info(
+                      formatTime(Date.now()),
+                      'ChannelPublisher',
+                      `type=${type} channel_id=${channel_id} is initialized`,
+                    );
+                  }
+                },
+                finalize: () => {
+                  if (this.terminal.options.verbose) {
+                    console.info(
+                      formatTime(Date.now()),
+                      'ChannelPublisher',
+                      `type=${type} channel_id=${channel_id} is closed`,
+                    );
+                  }
+                },
+              }),
+              // shared observable is to be cold when all subscriptions are closed
+              share({ resetOnRefCountZero: true }),
+            ),
+          );
+        }
+        return this._mapTypeAndChannelIdToPublishedObservable$.get(typeAndChannelId)!.pipe(
+          tap({
+            subscribe: () => {
+              if (this.terminal.options.verbose) {
+                console.info(
+                  formatTime(Date.now()),
+                  'ChannelPublisher',
+                  `type=${type} channel_id=${channel_id} is subscribed by ${msg.source_terminal_id}`,
+                );
+              }
+            },
+            finalize: () => {
+              if (this.terminal.options.verbose) {
+                console.info(
+                  formatTime(Date.now()),
+                  'ChannelPublisher',
+                  `type=${type} channel_id=${channel_id} is unsubscribed by ${msg.source_terminal_id}`,
+                );
+              }
+            },
+          }),
+          // 直到发起订阅的终端不在主机中，自动关闭频道
+          takeUntil(
+            from(this.terminal.terminalInfos$).pipe(
+              map((x) => x.every((t) => t.terminal_id !== msg.source_terminal_id)),
+              first((x) => x),
+              tap(() => {
+                if (this.terminal.options.verbose) {
+                  console.info(
+                    formatTime(Date.now()),
+                    'ChannelPublisher',
+                    `type=${type} channel_id=${channel_id} is auto closed because ${msg.source_terminal_id} is disposed`,
+                  );
+                }
+              }),
+            ),
           ),
+        );
+      },
+    );
+  }
+
+  /**
+   * Subscribe channel
+   *
+   * - **Auto Re-Subscription**: when the connection is broken, it will automatically re-subscribe
+   * - **Subscription reuse**: multiple subscriptions share the same observable
+   * - **Auto un-subscription**: When all subscriptions are closed, the channel will be automatically closed
+   */
+  subscribeChannel<T>(type: string, channel_id: string): Observable<T> {
+    const typeAndChannelId = encodePath(type, channel_id);
+    if (!this._mapTypeAndChannelIdToSubscribedObservable$.get(typeAndChannelId)) {
+      this._mapTypeAndChannelIdToSubscribedObservable$.set(
+        typeAndChannelId,
+        defer(() =>
+          this.terminal.client.requestService(encodePath('SubscribeChannel', type), { channel_id }),
+        ).pipe(
+          map((msg) => (msg.frame as { value: any })?.value as T | undefined),
+          filter((x): x is T => !!x),
+          // Auto re-subscribe when the connection is broken
+          retry({ delay: 1000 }),
+          tap({
+            subscribe: () => {
+              if (this.terminal.options.verbose) {
+                console.info(
+                  formatTime(Date.now()),
+                  'ChannelSubscriber',
+                  `type=${type} channel_id=${channel_id} is open to subscribed`,
+                );
+              }
+            },
+            finalize: () => {
+              if (this.terminal.options.verbose) {
+                console.info(
+                  formatTime(Date.now()),
+                  'ChannelSubscriber',
+                  `type=${type} channel_id=${channel_id} is closed`,
+                );
+              }
+            },
+          }),
+          // Auto close when the terminal is disposed
+          takeUntil(this.terminal.dispose$),
+          // shared observable is to be cold when all subscriptions are closed
+          share({ resetOnRefCountZero: true }),
         ),
       );
-    },
-  );
-};
+    }
 
-/**
- * Subscribe channel
- * 订阅频道
- *
- * @public
- */
-export const subscribeChannel = <T extends keyof IChannelTypes>(
-  terminal: Terminal,
-  type: T,
-  channel_id: string,
-): AsyncIterable<IChannelTypes[T]['value']> => {
-  return observableToAsyncIterable(
-    defer(() => terminal.requestService('SubscribeChannel', { type, channel_id })).pipe(
-      //
-      map((msg) => msg.frame?.value as IChannelTypes[T]['value'] | undefined),
-      filter((x): x is IChannelTypes[T]['value'] => !!x),
-      tap({
-        finalize: () => {
-          console.info(formatTime(Date.now()), `Channel ${channel_id} is closed`);
-        },
-      }),
-      retry({ delay: 1000 }),
-    ),
-  );
-};
+    return this._mapTypeAndChannelIdToSubscribedObservable$.get(typeAndChannelId)!;
+  }
+}
