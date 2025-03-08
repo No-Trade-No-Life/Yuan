@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-namespaced-mongodb-storage",
-  "version": "0.0.33",
+  "version": "0.0.34",
   "files": [
     "dist/extension.bundle.js"
   ],

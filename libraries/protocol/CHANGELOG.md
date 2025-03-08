@@ -1,6 +1,18 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Wed, 19 Feb 2025 18:08:11 GMT and should not be manually modified.
+This log was last generated on Sat, 08 Mar 2025 21:00:28 GMT and should not be manually modified.
+
+## 0.30.0
+Sat, 08 Mar 2025 21:00:28 GMT
+
+### Minor changes
+
+- add API terminal.isConnected$ to track connection status
+- request abort controller
+
+### Patches
+
+- try fix terminal error
 
 ## 0.29.0
 Wed, 19 Feb 2025 18:08:11 GMT
