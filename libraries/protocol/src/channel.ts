@@ -1,4 +1,4 @@
-import { formatTime, IAccountInfo, IPeriod, ITick } from '@yuants/data-model';
+import { encodePath, formatTime, IAccountInfo, IPeriod, ITick } from '@yuants/data-model';
 import { observableToAsyncIterable } from '@yuants/utils';
 import { JSONSchema7 } from 'json-schema';
 import {
@@ -16,25 +16,6 @@ import {
 } from 'rxjs';
 import { ITerminalInfo } from './model';
 import { Terminal } from './terminal';
-
-declare module './services' {
-  /**
-   * - SubscribeChannel has been loaded
-   * - 订阅频道接口已载入
-   */
-  interface IService {
-    SubscribeChannel: {
-      req: {
-        type: string;
-        channel_id: string;
-      };
-      frame: {
-        value: any;
-      };
-      res: IResponse<void>;
-    };
-  }
-}
 
 /**
  * Channel Types
@@ -80,17 +61,21 @@ export const publishChannel = <T extends keyof IChannelTypes>(
     Observable<{ frame: { value: IChannelTypes[T]['value'] } }>
   > = {};
   return terminal.provideService(
-    'SubscribeChannel',
+    // ISSUE: 将频道类型作为服务名为了优化方法索引速度，因为频道类型是常量，主机内会有很多不同类型的频道
+    encodePath('SubscribeChannel', type),
     {
       type: 'object',
-      required: ['type', 'channel_id'],
+      required: ['channel_id'],
       properties: {
-        type: { const: type },
         channel_id: channelSchema,
       },
     },
     (msg) => {
-      const channel_id = msg.req.channel_id;
+      const channel_id = (
+        msg.req as {
+          channel_id: string;
+        }
+      ).channel_id;
       return (mapChannelIdToSubject$[channel_id] ??= defer(() => handler(channel_id)).pipe(
         //
         map((value) => ({ frame: { value } })),
@@ -120,6 +105,7 @@ export const publishChannel = <T extends keyof IChannelTypes>(
             );
           },
         }),
+        // 直到发起订阅的终端不在主机中，自动关闭频道
         takeUntil(
           from(terminal.terminalInfos$).pipe(
             map((x) => x.every((t) => t.terminal_id !== msg.source_terminal_id)),
@@ -143,9 +129,9 @@ export const subscribeChannel = <T extends keyof IChannelTypes>(
   channel_id: string,
 ): AsyncIterable<IChannelTypes[T]['value']> => {
   return observableToAsyncIterable(
-    defer(() => terminal.requestService('SubscribeChannel', { type, channel_id })).pipe(
+    defer(() => terminal.requestService(encodePath('SubscribeChannel', type), { channel_id })).pipe(
       //
-      map((msg) => msg.frame?.value as IChannelTypes[T]['value'] | undefined),
+      map((msg) => (msg.frame as { value: any })?.value as IChannelTypes[T]['value'] | undefined),
       filter((x): x is IChannelTypes[T]['value'] => !!x),
       tap({
         finalize: () => {

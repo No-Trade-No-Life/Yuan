@@ -184,6 +184,9 @@ export class TerminalServer {
         if (!msg.done) return;
         const requestContext = this._mapTraceIdToRequestContext.get(msg.trace_id);
         if (!requestContext) return;
+        if (this.terminal.options.verbose) {
+          console.info(formatTime(Date.now()), 'Server', `RequestAborted`, msg.trace_id);
+        }
 
         // Immediately remove if the request is pending, for saving the queue capacity
         if (requestContext.stage === 'pending') {
