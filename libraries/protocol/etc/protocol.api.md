@@ -38,10 +38,6 @@ export function createConnectionWs<T = any>(URL: string): IConnection<T>;
 export const escapeRegExp: (string: string) => string;
 
 // @public
-export interface IChannelTypes {
-}
-
-// @public
 export interface IConnection<T> {
     connection$: AsyncIterable<unknown>;
     input$: AsyncIterable<T>;
@@ -261,10 +257,10 @@ export class Terminal {
 // @public
 export class TerminalChannel {
     constructor(terminal: Terminal);
-    publishChannel<T extends keyof IChannelTypes>(type: T, channelSchema: JSONSchema7, handler: (channel_id: string) => ObservableInput<IChannelTypes[T]['value']>): {
+    publishChannel<T>(type: string, channelSchema: JSONSchema7, handler: (channel_id: string) => ObservableInput<T>): {
         dispose: () => void;
     };
-    subscribeChannel<T extends keyof IChannelTypes>(type: T, channel_id: string): Observable<IChannelTypes[T]['value']>;
+    subscribeChannel<T>(type: string, channel_id: string): Observable<T>;
     // (undocumented)
     terminal: Terminal;
 }
