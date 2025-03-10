@@ -192,4 +192,4 @@ export const publishAccountInfo = (
  * @public
  */
 export const useAccountInfo = (terminal: Terminal, account_id: string) =>
-  terminal.consumeChannel<IAccountInfo>(encodePath(`AccountInfo`, account_id));
+  terminal.channel.subscribeChannel<IAccountInfo>('AccountInfo', account_id);

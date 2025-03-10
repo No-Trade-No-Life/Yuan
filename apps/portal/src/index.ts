@@ -134,10 +134,6 @@ combineLatest([portalRelationsGroupByExternalHost$, portalTerminals$])
             fromTerminal.requestService(msg.method!, msg.req),
           );
         }
-        if (service.type === 'channel') {
-          console.info(formatTime(Date.now()), `SetupChannel: ${service.method}`);
-          toTerminal.provideChannel(service.schema, (msg) => fromTerminal.consumeChannel(msg));
-        }
       }
     }),
   )

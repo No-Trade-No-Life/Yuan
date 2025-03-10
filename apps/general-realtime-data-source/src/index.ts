@@ -74,8 +74,9 @@ const subscribePeriods = (product_id: string, period_in_sec: number) => {
     mergeMap((gsrList) =>
       from(gsrList).pipe(
         map((gsr) =>
-          terminal.consumeChannel<IPeriod[]>(
-            encodePath('Period', gsr.specific_datasource_id, gsr.specific_product_id, period_in_sec),
+          terminal.channel.subscribeChannel<IPeriod[]>(
+            'Period',
+            encodePath(gsr.specific_datasource_id, gsr.specific_product_id, period_in_sec),
           ),
         ),
         toArray(),

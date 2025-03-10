@@ -37,4 +37,4 @@ export const provideTicks = (
  * @public
  */
 export const useTick = (terminal: Terminal, datasource_id: string, product_id: string) =>
-  terminal.consumeChannel<ITick>(encodePath('Tick', datasource_id, product_id));
+  terminal.channel.subscribeChannel<ITick>('Tick', encodePath(datasource_id, product_id));
