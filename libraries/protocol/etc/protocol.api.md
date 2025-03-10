@@ -71,7 +71,7 @@ export interface IServiceCandidateClientSide {
     // (undocumented)
     terminal_id: string;
     // (undocumented)
-    validator: ValidateFunction;
+    validator?: ValidateFunction;
 }
 
 // Warning: (ae-internal-missing-underscore) The name "IServiceHandler" should be prefixed with an underscore because the declaration is marked as @internal
@@ -266,16 +266,16 @@ export class TerminalChannel {
 }
 
 // @public
-export const useAccountInfo: (terminal: Terminal, account_id: string) => AsyncIterable<IAccountInfo>;
+export const useAccountInfo: (terminal: Terminal, account_id: string) => Observable<IAccountInfo>;
 
 // @public
-export const usePeriod: (terminal: Terminal, datasource_id: string, product_id: string, period_in_sec: number) => AsyncIterable<IPeriod[]>;
+export const usePeriod: (terminal: Terminal, datasource_id: string, product_id: string, period_in_sec: number) => Observable<IPeriod[]>;
 
 // @public (undocumented)
 export const useProducts: (terminal: Terminal, datasource_id: string) => AsyncIterable<IProduct[]>;
 
 // @public
-export const useTick: (terminal: Terminal, datasource_id: string, product_id: string) => AsyncIterable<ITick>;
+export const useTick: (terminal: Terminal, datasource_id: string, product_id: string) => Observable<ITick>;
 
 // @public (undocumented)
 export const writeDataRecords: <T extends keyof IDataRecordTypes>(terminal: Terminal, data: IDataRecord<IDataRecordTypes[T]>[]) => Promise<undefined>;

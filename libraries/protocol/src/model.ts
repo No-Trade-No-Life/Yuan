@@ -217,5 +217,5 @@ export interface IServiceCandidateClientSide {
   service_id: string;
   serviceInfo: IServiceInfo;
   terminal_id: string;
-  validator: ValidateFunction;
+  validator?: ValidateFunction;
 }
