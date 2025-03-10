@@ -1,6 +1,15 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Sat, 08 Mar 2025 21:00:28 GMT and should not be manually modified.
+This log was last generated on Mon, 10 Mar 2025 20:30:47 GMT and should not be manually modified.
+
+## 0.30.1
+Mon, 10 Mar 2025 20:30:47 GMT
+
+### Patches
+
+- subscribe api
+- lazy compile candidate schemas
+- remove fallback service_id to method
 
 ## 0.30.0
 Sat, 08 Mar 2025 21:00:28 GMT
