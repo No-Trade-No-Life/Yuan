@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-postgres-storage",
+      "comment": "api aborting",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-postgres-storage"
+}

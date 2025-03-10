@@ -1,6 +1,6 @@
 import { formatTime, UUID } from '@yuants/data-model';
 import { IResponse, Terminal } from '@yuants/protocol';
-import { defer } from 'rxjs';
+import { first, from } from 'rxjs';
 
 const terminal = new Terminal(process.env.HOST_URL!, {
   terminal_id: process.env.TERMINAL_ID || `app-openai/${UUID()}`,
@@ -35,6 +35,17 @@ declare module '@yuants/protocol' {
     };
   }
 }
+
+const getAbortSignalFromNativeObservable = (observable: AsyncIterable<boolean>) => {
+  const abortController = new AbortController();
+  from(observable)
+    .pipe(first((x) => x))
+    .subscribe(() => {
+      abortController.abort();
+    });
+  return abortController.signal;
+};
+
 terminal.provideService(
   'ChatWithAI',
   {
@@ -46,7 +57,7 @@ terminal.provideService(
       },
     },
   },
-  async function* (msg) {
+  async function* (msg, { isAborted$ }) {
     const res = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -58,6 +69,7 @@ terminal.provideService(
         messages: msg.req.messages,
         stream: true,
       }),
+      signal: getAbortSignalFromNativeObservable(isAborted$),
     });
     if (res.status !== 200) {
       return { res: { code: res.status, message: res.statusText } };
