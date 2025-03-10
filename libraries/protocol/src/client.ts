@@ -73,7 +73,7 @@ export class TerminalClient {
               if (!nextMap.get(serviceInfo.method)) {
                 nextMap.set(serviceInfo.method, new Map());
               }
-              const serviceId = serviceInfo.service_id || serviceInfo.method;
+              const serviceId = serviceInfo.service_id;
               // if previous candidate exists, keep it
               // or create a new one
               let candidate = this._mapMethodToServiceIdToCandidateClientSide

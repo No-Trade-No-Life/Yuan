@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "remove fallback service_id to method",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

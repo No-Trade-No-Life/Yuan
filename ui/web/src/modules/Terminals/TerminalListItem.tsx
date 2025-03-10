@@ -66,7 +66,7 @@ export const TerminalListItem = React.memo((props: { terminalInfo: ITerminalInfo
         ></Descriptions>
 
         <Button
-          disabled={!term.serviceInfo?.['Terminate']}
+          disabled={!Object.values(term.serviceInfo || {}).some((x) => x.method === 'Terminate')}
           onClick={() => {
             terminate(term.terminal_id);
           }}
