@@ -2,6 +2,29 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.30.1",
+      "tag": "@yuants/protocol_v0.30.1",
+      "date": "Mon, 10 Mar 2025 20:30:47 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "subscribe api"
+          },
+          {
+            "comment": "lazy compile candidate schemas"
+          },
+          {
+            "comment": "remove fallback service_id to method"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.30.0",
       "tag": "@yuants/protocol_v0.30.0",
       "date": "Sat, 08 Mar 2025 21:00:28 GMT",
