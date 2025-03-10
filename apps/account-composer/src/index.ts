@@ -128,7 +128,9 @@ defer(() => readDataRecords(terminal, { type: 'account_composition_relation' }))
                 orders: accountInfos.flatMap((x) => x.orders),
               };
             }),
+            share(),
           );
+          accountInfo$.subscribe(); // Keep hot observable
           publishAccountInfo(terminal, group.key, accountInfo$);
         }),
       ),
