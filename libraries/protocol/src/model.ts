@@ -22,7 +22,7 @@ export interface IServiceInfo {
    * oneday we will use this field to identify the service.
    * if not provided, we will use the `method` as the service_id.
    */
-  service_id?: string;
+  service_id: string;
   /**
    * Service name
    * 服务的名称
@@ -217,5 +217,5 @@ export interface IServiceCandidateClientSide {
   service_id: string;
   serviceInfo: IServiceInfo;
   terminal_id: string;
-  validator: ValidateFunction;
+  validator?: ValidateFunction;
 }

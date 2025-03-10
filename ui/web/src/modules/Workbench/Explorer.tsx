@@ -221,8 +221,10 @@ registerPage('Explorer', () => {
                             if (!data.key) return;
                             if (!terminal) return;
                             const terminalInfos = await firstValueFrom(from(terminal.terminalInfos$));
-                            const candidates = terminalInfos.filter(
-                              (terminalInfo) => terminalInfo.serviceInfo?.['AirDrop'],
+                            const candidates = terminalInfos.filter((terminalInfo) =>
+                              Object.values(terminalInfo.serviceInfo || {}).some(
+                                (x) => x.method === 'AirDrop',
+                              ),
                             );
                             const target_terminal_id = await showForm<string>({
                               type: 'string',

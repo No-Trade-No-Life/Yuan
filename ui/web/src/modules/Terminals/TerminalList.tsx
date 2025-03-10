@@ -75,7 +75,7 @@ registerPage('TerminalList', () => {
                 详情
               </Button>
               <Button
-                disabled={!terminal.serviceInfo?.['Terminate']}
+                disabled={!Object.values(terminal.serviceInfo || {}).some((x) => x.method === 'Terminate')}
                 onClick={async () => {
                   terminate(terminal.terminal_id);
                 }}

@@ -52,7 +52,7 @@ export class RealtimeTickLoadingUnit extends BasicUnit {
 
       this.subscriptions.push(
         defer(() =>
-          this.terminal.consumeChannel<ITick>(encodePath('Tick', datasource_id, product_id)),
+          this.terminal.channel.subscribeChannel<ITick>('Tick', encodePath(datasource_id, product_id)),
         ).subscribe((tick) => {
           const eventId = this.kernel.alloc(Date.now());
           if (account_id) {

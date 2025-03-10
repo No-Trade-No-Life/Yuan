@@ -41,4 +41,8 @@ export const usePeriod = (
   datasource_id: string,
   product_id: string,
   period_in_sec: number,
-) => terminal.consumeChannel<IPeriod[]>(encodePath('Period', datasource_id, product_id, period_in_sec));
+) =>
+  terminal.channel.subscribeChannel<IPeriod[]>(
+    'Periods',
+    encodePath(datasource_id, product_id, period_in_sec),
+  );

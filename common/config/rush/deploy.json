@@ -24,7 +24,6 @@
     "@yuants/app-feishu-notifier",
     "@yuants/app-host",
     "@yuants/app-hosts",
-    "@yuants/app-shared-host",
     "@yuants/app-portal",
     "@yuants/app-openai",
     "@yuants/app-namespaced-mongodb-storage",

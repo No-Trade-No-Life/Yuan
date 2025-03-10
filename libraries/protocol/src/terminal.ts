@@ -819,7 +819,6 @@ export class Terminal {
 
     // update terminalInfo
     (this.terminalInfo.serviceInfo ??= {})[service_id] = serviceInfo;
-    (this.terminalInfo.serviceInfo ??= {})[method] = serviceInfo; // ISSUE: backward compatibility, remove it in the future
     this._terminalInfoUpdated$.next();
 
     const service: IServiceInfoServerSide = {
@@ -831,8 +830,6 @@ export class Terminal {
     // update service object
     this.server.addService(service);
     const dispose = () => {
-      if (this.terminalInfo.serviceInfo?.[method] === serviceInfo)
-        delete this.terminalInfo.serviceInfo[method];
       delete this.terminalInfo.serviceInfo?.[service_id];
       this._terminalInfoUpdated$.next();
       this.server.removeService(service_id);

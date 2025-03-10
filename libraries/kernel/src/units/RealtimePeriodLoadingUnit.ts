@@ -137,24 +137,26 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
       const { datasource_id, product_id, period_in_sec } = task;
       const theProduct = this.productDataUnit.getProduct(datasource_id, product_id);
 
-      const channelId = encodePath('Period', datasource_id, product_id, period_in_sec);
+      const channelId = encodePath(datasource_id, product_id, period_in_sec);
       // ISSUE: Period[].length >= 2 to ensure overlay
       this.subscriptions.push(
-        defer(() => this.terminal.consumeChannel<IPeriod[]>(channelId)).subscribe((periods) => {
-          if (periods.length < 2) {
-            console.warn(
-              formatTime(Date.now()),
-              `Period feeds too less. channel="${channelId}"`,
-              JSON.stringify(periods),
+        defer(() => this.terminal.channel.subscribeChannel<IPeriod[]>('Periods', channelId)).subscribe(
+          (periods) => {
+            if (periods.length < 2) {
+              console.warn(
+                formatTime(Date.now()),
+                `Period feeds too less. channel="${channelId}"`,
+                JSON.stringify(periods),
+              );
+              return;
+            }
+            const eventId = this.kernel.alloc(Date.now());
+            this.mapEventIdToPeriod.set(
+              eventId,
+              periods.map((period) => ({ ...period, spread: period.spread || theProduct?.spread || 0 })),
             );
-            return;
-          }
-          const eventId = this.kernel.alloc(Date.now());
-          this.mapEventIdToPeriod.set(
-            eventId,
-            periods.map((period) => ({ ...period, spread: period.spread || theProduct?.spread || 0 })),
-          );
-        }),
+          },
+        ),
       );
     }
   }

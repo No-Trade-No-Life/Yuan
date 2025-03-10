@@ -1,6 +1,6 @@
 {
   "close_this_only": "仅关闭此标签",
   "page_not_found": "组件不存在",
-  "page_not_found_note": "组件 {{ component }} 不存在\n<p> 1. 刷新页面以确保 Yuan 是最新版本 </p>\n<p> 2. 如果组件由插件提供，请检查插件的版本和状态 </p>\n<p> 3. 如果均不是，也许你需要关闭此组件... </p>",
+  "page_not_found_note": "组件 {{ component }} 不存在\n<p> 1. 刷新页面以确保平台已经是最新版本 </p>\n<p> 2. 如果组件由插件提供，请检查插件的版本和状态 </p>\n<p> 3. 如果均不是，也许你需要关闭此组件... </p>",
   "reset_layout": "重置布局"
 }

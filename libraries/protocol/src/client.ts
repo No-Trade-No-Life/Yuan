@@ -38,6 +38,10 @@ export class TerminalClient {
     if (!candidates) return [];
     const result: string[] = [];
     for (const candidate of candidates.values()) {
+      // ISSUE: Ajv is very slow and cause a lot CPU utilization, so we must cache the compiled validator
+      candidate.validator ??= new Ajv({ strict: false, strictSchema: false }).compile(
+        candidate.serviceInfo.schema,
+      );
       if (candidate.validator(req)) {
         result.push(candidate.terminal_id);
       }
@@ -69,7 +73,7 @@ export class TerminalClient {
               if (!nextMap.get(serviceInfo.method)) {
                 nextMap.set(serviceInfo.method, new Map());
               }
-              const serviceId = serviceInfo.service_id || serviceInfo.method;
+              const serviceId = serviceInfo.service_id;
               // if previous candidate exists, keep it
               // or create a new one
               let candidate = this._mapMethodToServiceIdToCandidateClientSide
@@ -81,8 +85,7 @@ export class TerminalClient {
                   service_id: serviceId,
                   serviceInfo,
                   terminal_id: terminalInfo.terminal_id,
-                  // ISSUE: Ajv is very slow and cause a lot CPU utilization, so we must cache the compiled validator
-                  validator: new Ajv({ strict: false }).compile(serviceInfo.schema),
+                  validator: undefined, // Lazy init later
                 };
               }
               nextMap.get(serviceInfo.method)!.set(serviceId, candidate);

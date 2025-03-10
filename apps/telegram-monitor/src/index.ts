@@ -46,6 +46,7 @@ const telegramAccounts$ = defer(() =>
 const message$ = new Subject<ITelegramMessage>();
 
 terminal.provideChannel<ITelegramMessage>({ const: encodePath('TelegramMonitorMessages') }, () => message$);
+terminal.channel.publishChannel<ITelegramMessage>('TelegramMonitorMessages', { const: '' }, () => message$);
 
 telegramAccounts$
   .pipe(
