@@ -1,16 +1,17 @@
 import { IAccountInfo, IAccountMoney, formatTime, getDataRecordSchema } from '@yuants/data-model';
-import { Terminal, provideAccountInfo, readDataRecords, useAccountInfo } from '@yuants/protocol';
+import { Terminal, publishAccountInfo, readDataRecords } from '@yuants/protocol';
 import Ajv from 'ajv';
 import addFormats from 'ajv-formats';
 import {
+  Observable,
   combineLatest,
   defer,
   filter,
-  from,
   groupBy,
   map,
   mergeMap,
   retry,
+  share,
   shareReplay,
   tap,
   throttleTime,
@@ -25,6 +26,8 @@ const ajv = new Ajv({ strict: false });
 addFormats(ajv);
 
 const validate = ajv.compile(getDataRecordSchema('account_composition_relation')!);
+
+const mapAccountIdToAccountInfo$: Record<string, Observable<IAccountInfo>> = {};
 
 defer(() => readDataRecords(terminal, { type: 'account_composition_relation' }))
   .pipe(
@@ -47,38 +50,42 @@ defer(() => readDataRecords(terminal, { type: 'account_composition_relation' }))
           const accountInfo$ = defer(() =>
             combineLatest(
               x.map((y) =>
-                from(useAccountInfo(terminal, y.source_account_id)).pipe(
-                  map(
-                    (x): IAccountInfo => ({
+                // Keep hot observable
+                (mapAccountIdToAccountInfo$[y.source_account_id] ??= terminal.channel
+                  .subscribeChannel<IAccountInfo>('AccountInfo', y.source_account_id)
+                  .pipe(share())).pipe(
+                  map((x): IAccountInfo => {
+                    const multiple = y.multiple ?? 1;
+                    return {
                       ...x,
                       money: {
                         ...x.money,
-                        equity: x.money.equity * y.multiple,
-                        balance: x.money.balance * y.multiple,
-                        profit: x.money.profit * y.multiple,
-                        used: x.money.used * y.multiple,
-                        free: x.money.free * y.multiple,
+                        equity: x.money.equity * multiple,
+                        balance: x.money.balance * multiple,
+                        profit: x.money.profit * multiple,
+                        used: x.money.used * multiple,
+                        free: x.money.free * multiple,
                       },
                       currencies:
                         x.currencies?.map((c) => ({
                           ...c,
-                          equity: c.equity * y.multiple,
-                          balance: c.balance * y.multiple,
-                          profit: c.profit * y.multiple,
-                          used: c.used * y.multiple,
-                          free: c.free * y.multiple,
+                          equity: c.equity * multiple,
+                          balance: c.balance * multiple,
+                          profit: c.profit * multiple,
+                          used: c.used * multiple,
+                          free: c.free * multiple,
                         })) ?? [],
                       positions: y.hide_positions
                         ? []
                         : x.positions.map((p) => ({
                             ...p,
                             account_id: p.account_id || x.account_id,
-                            volume: p.volume * y.multiple,
-                            free_volume: p.free_volume * y.multiple,
-                            floating_profit: p.floating_profit * y.multiple,
+                            volume: p.volume * multiple,
+                            free_volume: p.free_volume * multiple,
+                            floating_profit: p.floating_profit * multiple,
                           })),
-                    }),
-                  ),
+                    };
+                  }),
                   timeout(30_000),
                 ),
               ),
@@ -122,7 +129,7 @@ defer(() => readDataRecords(terminal, { type: 'account_composition_relation' }))
               };
             }),
           );
-          provideAccountInfo(terminal, accountInfo$);
+          publishAccountInfo(terminal, group.key, accountInfo$);
         }),
       ),
     ),
