@@ -91,7 +91,7 @@ export type IServiceHandler<T extends string = string> = T extends keyof IServic
 export interface IServiceInfo {
     method: string;
     schema: JSONSchema7;
-    service_id?: string;
+    service_id: string;
 }
 
 // Warning: (ae-internal-missing-underscore) The name "IServiceInfoServerSide" should be prefixed with an underscore because the declaration is marked as @internal
