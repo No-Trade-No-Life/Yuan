@@ -2,6 +2,23 @@
   "name": "@yuants/data-series",
   "entries": [
     {
+      "version": "0.2.4",
+      "tag": "@yuants/data-series_v0.2.4",
+      "date": "Tue, 11 Mar 2025 14:14:23 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.31.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.3",
       "tag": "@yuants/data-series_v0.2.3",
       "date": "Mon, 10 Mar 2025 20:30:46 GMT",

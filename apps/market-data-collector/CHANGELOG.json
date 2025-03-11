@@ -2,6 +2,23 @@
   "name": "@yuants/app-market-data-collector",
   "entries": [
     {
+      "version": "0.0.106",
+      "tag": "@yuants/app-market-data-collector_v0.0.106",
+      "date": "Tue, 11 Mar 2025 14:14:23 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.31.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.105",
       "tag": "@yuants/app-market-data-collector_v0.0.105",
       "date": "Mon, 10 Mar 2025 20:30:46 GMT",

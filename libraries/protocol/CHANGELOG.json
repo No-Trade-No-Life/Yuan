@@ -2,6 +2,31 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.31.0",
+      "tag": "@yuants/protocol_v0.31.0",
+      "date": "Tue, 11 Mar 2025 14:14:23 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "remove legacy channel methods"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "speed up for client has a lot of request concurrently"
+          },
+          {
+            "comment": "fix timeout"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.30.1",
       "tag": "@yuants/protocol_v0.30.1",
       "date": "Mon, 10 Mar 2025 20:30:47 GMT",
