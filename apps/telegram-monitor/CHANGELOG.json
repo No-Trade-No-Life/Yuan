@@ -2,6 +2,31 @@
   "name": "@yuants/app-telegram-monitor",
   "entries": [
     {
+      "version": "0.0.12",
+      "tag": "@yuants/app-telegram-monitor_v0.0.12",
+      "date": "Tue, 11 Mar 2025 15:25:28 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove provideChannel"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.31.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.2.3`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.11",
       "tag": "@yuants/app-telegram-monitor_v0.0.11",
       "date": "Mon, 10 Mar 2025 20:30:46 GMT",

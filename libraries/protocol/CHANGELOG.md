@@ -1,6 +1,19 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Mon, 10 Mar 2025 20:30:47 GMT and should not be manually modified.
+This log was last generated on Tue, 11 Mar 2025 15:25:28 GMT and should not be manually modified.
+
+## 0.31.0
+Tue, 11 Mar 2025 15:25:28 GMT
+
+### Minor changes
+
+- remove legacy channel methods
+
+### Patches
+
+- speed up for client has a lot of request concurrently
+- fix timeout
+- channel keepalive, repeat, retry; server and client timeout 60s; remove some unused code
 
 ## 0.30.1
 Mon, 10 Mar 2025 20:30:47 GMT
