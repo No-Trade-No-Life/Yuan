@@ -48,21 +48,21 @@ registerPage('TerminalList', () => {
         id: 'serviceLength',
         header: () => '提供服务数',
       }),
-      columnHelper.accessor((x) => x.channelIdSchemas?.length, {
-        id: 'channelIdSchemaLength',
-        header: () => '提供频道数',
-      }),
-      columnHelper.accessor((x) => Object.keys(x.subscriptions || {}).length, {
-        id: 'subscribeTerminalLength',
-        header: () => `订阅终端数`,
-      }),
-      columnHelper.accessor(
-        (x) => Object.values(x.subscriptions || {}).reduce((acc, cur) => acc + cur.length, 0),
-        {
-          id: 'subscribeChannelLength',
-          header: () => '订阅频道数',
-        },
-      ),
+      // columnHelper.accessor((x) => x.channelIdSchemas?.length, {
+      //   id: 'channelIdSchemaLength',
+      //   header: () => '提供频道数',
+      // }),
+      // columnHelper.accessor((x) => Object.keys(x.subscriptions || {}).length, {
+      //   id: 'subscribeTerminalLength',
+      //   header: () => `订阅终端数`,
+      // }),
+      // columnHelper.accessor(
+      //   (x) => Object.values(x.subscriptions || {}).reduce((acc, cur) => acc + cur.length, 0),
+      //   {
+      //     id: 'subscribeChannelLength',
+      //     header: () => '订阅频道数',
+      //   },
+      // ),
       columnHelper.accessor((x) => 0, {
         id: 'actions',
         header: () => '操作',

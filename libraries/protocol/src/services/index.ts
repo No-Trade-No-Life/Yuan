@@ -16,7 +16,7 @@ export interface ITerminalMessage {
   trace_id: string;
 
   method?: string;
-  channel_id?: string;
+
   req?: unknown;
   res?: IResponse<unknown>;
   frame?: unknown;

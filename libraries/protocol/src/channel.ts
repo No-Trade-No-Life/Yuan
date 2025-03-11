@@ -5,9 +5,12 @@ import {
   filter,
   first,
   from,
+  interval,
   map,
+  mergeWith,
   Observable,
   ObservableInput,
+  repeat,
   retry,
   share,
   takeUntil,
@@ -70,6 +73,7 @@ export class TerminalChannel {
             defer(() => handler(channel_id)).pipe(
               //
               map((value) => ({ frame: { value } })),
+              mergeWith(interval(30_000).pipe(map(() => ({})))), // ISSUE: Heartbeat KeepAlive, Ensure the connection is not closed
               tap({
                 subscribe: () => {
                   if (this.terminal.options.verbose) {
@@ -160,7 +164,8 @@ export class TerminalChannel {
           map((msg) => (msg.frame as { value: any })?.value as T | undefined),
           filter((x): x is T => !!x),
           // Auto re-subscribe when the connection is broken
-          retry({ delay: 1000 }),
+          repeat({ delay: 1000 }), // ISSUE: Server maybe response 504 if timeout
+          retry({ delay: 1000 }), // ISSUE: Client maybe response 504 if timeout
           tap({
             subscribe: () => {
               if (this.terminal.options.verbose) {

@@ -36,32 +36,32 @@ export const TerminalListItem = React.memo((props: { terminalInfo: ITerminalInfo
                 ></TagGroup>
               ),
             },
-            {
-              key: '提供频道',
-              value: (
-                <TagGroup
-                  maxTagCount={3}
-                  showPopover
-                  tagList={term.channelIdSchemas?.map((info) => ({
-                    children: JSON.stringify(info),
-                  }))}
-                ></TagGroup>
-              ),
-            },
-            {
-              key: '订阅频道',
-              value: (
-                <TagGroup
-                  maxTagCount={3}
-                  showPopover
-                  tagList={Object.entries(term.subscriptions || {})
-                    .flatMap(([provider_terminal_id, channel_id_list]) =>
-                      channel_id_list.map((channelId) => `${provider_terminal_id}:${channelId}`),
-                    )
-                    .map((x) => ({ children: x }))}
-                ></TagGroup>
-              ),
-            },
+            // {
+            //   key: '提供频道',
+            //   value: (
+            //     <TagGroup
+            //       maxTagCount={3}
+            //       showPopover
+            //       tagList={term.channelIdSchemas?.map((info) => ({
+            //         children: JSON.stringify(info),
+            //       }))}
+            //     ></TagGroup>
+            //   ),
+            // },
+            // {
+            //   key: '订阅频道',
+            //   value: (
+            //     <TagGroup
+            //       maxTagCount={3}
+            //       showPopover
+            //       tagList={Object.entries(term.subscriptions || {})
+            //         .flatMap(([provider_terminal_id, channel_id_list]) =>
+            //           channel_id_list.map((channelId) => `${provider_terminal_id}:${channelId}`),
+            //         )
+            //         .map((x) => ({ children: x }))}
+            //     ></TagGroup>
+            //   ),
+            // },
           ]}
         ></Descriptions>
 

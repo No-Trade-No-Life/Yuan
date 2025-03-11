@@ -71,15 +71,6 @@ export interface ITerminalInfo {
   updated_at?: number;
 
   /**
-   * Terminal's subscriptions
-   *
-   * terminal itself is a consumer.
-   *
-   * map provider_terminal_id to channel_id[]
-   */
-  subscriptions?: Record<string, string[]>;
-
-  /**
    * Terminal service name
    * 终端服务名称
    *
@@ -93,9 +84,6 @@ export interface ITerminalInfo {
    * 终端提供的服务信息
    */
   serviceInfo?: Record<string, IServiceInfo>;
-
-  /** Provider Channel ID Schema */
-  channelIdSchemas?: JSONSchema7[];
 
   /**
    * A flag to indicate whether the terminal enables WebRTC messaging tunnel
