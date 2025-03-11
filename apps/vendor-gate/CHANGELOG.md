@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-gate
 
-This log was last generated on Mon, 10 Mar 2025 20:30:47 GMT and should not be manually modified.
+This log was last generated on Tue, 11 Mar 2025 00:39:14 GMT and should not be manually modified.
+
+## 0.3.9
+Tue, 11 Mar 2025 00:39:14 GMT
+
+### Patches
+
+- fix account that is not unified account 
 
 ## 0.3.8
 Mon, 10 Mar 2025 20:30:47 GMT
