@@ -270,9 +270,9 @@ registerPage('AccountInfoPanel', () => {
   const updatedAt = accountInfo?.updated_at!;
   const renderedAt = Date.now();
 
-  const targetTerminalId = Object.entries(terminal?.terminalInfo.subscriptions ?? {}).find(([key, value]) =>
-    value.includes(encodePath('AccountInfo', accountId)),
-  )?.[0];
+  // const targetTerminalId = Object.entries(terminal?.terminalInfo.subscriptions ?? {}).find(([key, value]) =>
+  //   value.includes(encodePath('AccountInfo', accountId)),
+  // )?.[0];
 
   const columns = useMemo(() => createColumnsOfPositionSummaryItem(), []);
 
@@ -391,7 +391,7 @@ registerPage('AccountInfoPanel', () => {
       <Typography.Text>
         最后更新时间: {formatTime(updatedAt)} (Ping {renderedAt - updatedAt}ms)
       </Typography.Text>
-      <InlineTerminalId terminal_id={targetTerminalId || ''} />
+      {/* <InlineTerminalId terminal_id={targetTerminalId || ''} /> */}
       <Space>
         <Button
           icon={<IconTaskMoneyStroked />}

@@ -70,14 +70,14 @@ registerPage('TerminalDetail', () => {
             },
             { key: '提供服务数', value: providedServices.length },
             { key: '提供频道数', value: providedChannels.length },
-            { key: '订阅终端数', value: Object.keys(thisTerminalInfo.subscriptions || {}).length },
-            {
-              key: '订阅频道数',
-              value: Object.values(thisTerminalInfo.subscriptions || {}).reduce(
-                (acc, cur) => acc + cur.length,
-                0,
-              ),
-            },
+            // { key: '订阅终端数', value: Object.keys(thisTerminalInfo.subscriptions || {}).length },
+            // {
+            //   key: '订阅频道数',
+            //   value: Object.values(thisTerminalInfo.subscriptions || {}).reduce(
+            //     (acc, cur) => acc + cur.length,
+            //     0,
+            //   ),
+            // },
           ]}
         />
       )}

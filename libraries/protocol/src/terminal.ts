@@ -54,15 +54,6 @@ const TerminalTransmittedBytesTotal = PromRegistry.create('counter', 'terminal_t
 const TerminalReceiveMassageTotal = PromRegistry.create('counter', 'terminal_receive_message_total');
 const TerminalTransmittedMessageTotal = PromRegistry.create('counter', 'terminal_transmitted_message_total');
 
-const TerminalReceiveChannelMassageTotal = PromRegistry.create(
-  'counter',
-  'terminal_received_channel_message_total',
-);
-const TerminalTransmittedChannelMessageTotal = PromRegistry.create(
-  'counter',
-  'terminal_transmitted_channel_message_total',
-);
-
 const MetricsProcessMemoryUsage = PromRegistry.create(
   'gauge',
   'nodejs_process_memory_usage',
@@ -118,7 +109,6 @@ export class Terminal {
       ...terminalInfo,
       terminal_id: this.terminal_id,
       serviceInfo: {},
-      channelIdSchemas: [],
     };
 
     if (isNode) {
@@ -195,14 +185,6 @@ export class Terminal {
               method: msg.method,
             });
           }
-          if (msg.channel_id) {
-            TerminalReceiveChannelMassageTotal.inc({
-              target_terminal_id: msg.target_terminal_id,
-              source_terminal_id: msg.source_terminal_id,
-              tunnel: 'WS',
-              channel_id: msg.channel_id,
-            });
-          }
           this._input$.next(msg);
         }),
     );
@@ -230,14 +212,7 @@ export class Terminal {
             method: msg.method,
           });
         }
-        if (msg.channel_id) {
-          TerminalTransmittedChannelMessageTotal.inc({
-            target_terminal_id: msg.target_terminal_id,
-            source_terminal_id: msg.source_terminal_id,
-            tunnel: peerInfo !== undefined && peerInfo.peer.connected ? 'WebRTC' : 'WS',
-            channel_id: msg.channel_id,
-          });
-        }
+
         // NOTE: reserve 32KB for other purpose
         const reservedSize = 32 * 1024;
         if (peerInfo && peerInfo.peer.connected && (peerInfo.maxMessageSize ?? 0) > reservedSize) {
@@ -406,14 +381,6 @@ export class Terminal {
                 source_terminal_id: remote_terminal_id,
                 tunnel: 'WebRTC',
                 method: data.method,
-              });
-            }
-            if (data.channel_id) {
-              TerminalReceiveChannelMassageTotal.inc({
-                target_terminal_id: this.terminal_id,
-                source_terminal_id: remote_terminal_id,
-                tunnel: 'WebRTC',
-                channel_id: data.channel_id,
               });
             }
           }),

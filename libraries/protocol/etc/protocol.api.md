@@ -120,22 +120,18 @@ export interface IServiceOptions {
 
 // @public
 export interface ITerminalInfo {
-    channelIdSchemas?: JSONSchema7[];
     created_at?: number;
     enable_WebRTC?: boolean;
     name?: string;
     serviceInfo?: Record<string, IServiceInfo>;
     // @deprecated
     status?: string;
-    subscriptions?: Record<string, string[]>;
     terminal_id: string;
     updated_at?: number;
 }
 
 // @public
 export interface ITerminalMessage {
-    // (undocumented)
-    channel_id?: string;
     done?: boolean;
     // (undocumented)
     frame?: unknown;

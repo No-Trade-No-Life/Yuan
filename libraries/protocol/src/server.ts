@@ -310,7 +310,7 @@ export class TerminalServer {
             console.info(formatTime(Date.now()), `ServerError`, JSON.stringify(message), err);
             return of({ res: { code: 500, message: `Internal Server Error: ${err}` } });
           }),
-          timeout({ first: 30_000, each: 10_000 }),
+          timeout(60_000),
           catchError((err) => {
             console.info(formatTime(Date.now()), `ServerError`, JSON.stringify(message), err);
             return of({ res: { code: 504, message: `Service Handler Timeout: ${err}` } });
