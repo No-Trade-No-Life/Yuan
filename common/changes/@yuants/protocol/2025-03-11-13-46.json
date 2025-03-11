@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "fix timeout",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
