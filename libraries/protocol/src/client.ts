@@ -14,6 +14,7 @@ import {
   Subject,
   takeUntil,
   tap,
+  timeout,
 } from 'rxjs';
 import { IServiceCandidateClientSide } from './model';
 import { IService, ITerminalMessage } from './services';
@@ -183,6 +184,10 @@ export class TerminalClient {
       }
       this._terminalOutput$.next(msg);
       return response$.pipe(
+        timeout({
+          each: 60_000, // maybe configurable in the future
+          meta: `Client Read Timeout: trace_id="${trace_id}" method=${msg.method} target=${msg.target_terminal_id}`,
+        }),
         takeUntil(this.terminal.dispose$),
         tap({
           unsubscribe: () => {

@@ -36,11 +36,14 @@ export class TerminalChannel {
    * Publish channel
    * 发布频道
    *
+   * @param type - channel type
+   * @param channelSchema - channel schema, default is `{ const: '' }`
+   * @param handler - handler to provide observable
    * @public
    */
   publishChannel<T>(
     type: string,
-    channelSchema: JSONSchema7,
+    channelSchema: JSONSchema7 = { const: '' },
     handler: (channel_id: string) => ObservableInput<T>,
   ) {
     return this.terminal.provideService(
@@ -138,10 +141,15 @@ export class TerminalChannel {
    * Subscribe channel
    *
    * - **Auto Re-Subscription**: when the connection is broken, it will automatically re-subscribe
-   * - **Subscription reuse**: multiple subscriptions share the same observable
+   * - **Multicast**: multiple subscriptions with same type and channel_id will share the same observable
    * - **Auto un-subscription**: When all subscriptions are closed, the channel will be automatically closed
+   *
+   * @param type - channel type
+   * @param channel_id - channel id, default is empty string
+   *
+   * @public
    */
-  subscribeChannel<T>(type: string, channel_id: string): Observable<T> {
+  subscribeChannel<T>(type: string, channel_id: string = ''): Observable<T> {
     const typeAndChannelId = encodePath(type, channel_id);
     if (!this._mapTypeAndChannelIdToSubscribedObservable$.get(typeAndChannelId)) {
       this._mapTypeAndChannelIdToSubscribedObservable$.set(

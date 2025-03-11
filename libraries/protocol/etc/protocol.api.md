@@ -253,10 +253,10 @@ export class Terminal {
 // @public
 export class TerminalChannel {
     constructor(terminal: Terminal);
-    publishChannel<T>(type: string, channelSchema: JSONSchema7, handler: (channel_id: string) => ObservableInput<T>): {
+    publishChannel<T>(type: string, channelSchema: JSONSchema7 | undefined, handler: (channel_id: string) => ObservableInput<T>): {
         dispose: () => void;
     };
-    subscribeChannel<T>(type: string, channel_id: string): Observable<T>;
+    subscribeChannel<T>(type: string, channel_id?: string): Observable<T>;
     // (undocumented)
     terminal: Terminal;
 }
