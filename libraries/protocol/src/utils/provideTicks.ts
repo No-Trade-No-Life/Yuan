@@ -13,14 +13,6 @@ export const provideTicks = (
   datasource_id: string,
   useTicks: (product_id: string) => ObservableInput<ITick>,
 ) => {
-  terminal.provideChannel<ITick>(
-    { pattern: `^Tick/${escapeRegExp(encodePath(datasource_id))}/.+$` },
-    (channel_id) => {
-      const [, datasourceId, product_id] = decodePath(channel_id);
-      if (datasourceId !== datasource_id || !product_id) return EMPTY;
-      return useTicks(product_id);
-    },
-  );
   terminal.channel.publishChannel(
     'Tick',
     { pattern: `^${escapeRegExp(encodePath(datasource_id))}/` },

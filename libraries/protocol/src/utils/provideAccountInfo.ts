@@ -42,8 +42,6 @@ export const publishAccountInfo = (
   account_id: string,
   accountInfo$: ObservableInput<IAccountInfo>,
 ) => {
-  const channel_id = encodePath(`AccountInfo`, account_id);
-  const channel1 = terminal.provideChannel({ const: channel_id }, () => accountInfo$);
   const channel2 = terminal.channel.publishChannel('AccountInfo', { const: account_id }, () => accountInfo$);
 
   // Metrics
@@ -181,7 +179,6 @@ export const publishAccountInfo = (
   return {
     dispose: () => {
       sub.unsubscribe();
-      channel1.dispose();
       channel2.dispose();
     },
   };

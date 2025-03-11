@@ -32,7 +32,6 @@ const twitterMonitorUsers$ = defer(() =>
 
 const twitterMessage$ = new Subject<ITwitterEvent>();
 
-terminal.provideChannel({ const: 'TwitterMonitorMessages' }, () => twitterMessage$);
 terminal.channel.publishChannel('TwitterMonitorMessages', { const: '' }, () => twitterMessage$);
 
 twitterMonitorUsers$

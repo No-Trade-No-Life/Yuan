@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-twitter-monitor",
+      "comment": "remove provideChannel",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-twitter-monitor"
+}
