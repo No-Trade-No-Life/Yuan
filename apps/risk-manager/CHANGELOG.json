@@ -2,6 +2,23 @@
   "name": "@yuants/app-risk-manager",
   "entries": [
     {
+      "version": "0.3.26",
+      "tag": "@yuants/app-risk-manager_v0.3.26",
+      "date": "Tue, 11 Mar 2025 12:55:34 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.31.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.25",
       "tag": "@yuants/app-risk-manager_v0.3.25",
       "date": "Mon, 10 Mar 2025 20:30:46 GMT",
