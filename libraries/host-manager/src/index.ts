@@ -121,7 +121,6 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
     const terminalInfo$ = new Subject<ITerminalInfo>();
     const terminalInfoChangeEvent$ = new Subject<{ new?: ITerminalInfo; old?: ITerminalInfo }>();
 
-    terminal.provideChannel<ITerminalInfo>({ const: 'TerminalInfo' }, () => terminalInfo$);
     terminal.channel.publishChannel('TerminalInfo', { const: '' }, () => terminalInfo$);
     terminal.channel.publishChannel('TerminalInfoChangeEvent', { const: '' }, () => terminalInfoChangeEvent$);
 

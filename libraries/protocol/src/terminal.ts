@@ -1,19 +1,17 @@
 import { UUID, formatTime } from '@yuants/data-model';
 import { NativeSubject, observableToAsyncIterable, subjectToNativeSubject } from '@yuants/utils';
-import Ajv, { ValidateFunction } from 'ajv';
+import Ajv from 'ajv';
 import { isNode } from 'browser-or-node';
 import { JSONSchema7 } from 'json-schema';
 import {
   EMPTY,
   Observable,
-  ObservableInput,
   ReplaySubject,
   Subject,
   Subscription,
   catchError,
   debounceTime,
   defer,
-  distinctUntilChanged,
   exhaustMap,
   filter,
   first,
@@ -21,15 +19,12 @@ import {
   fromEvent,
   groupBy,
   map,
-  mergeAll,
   mergeMap,
   mergeWith,
-  of,
   partition,
   repeat,
   retry,
   share,
-  shareReplay,
   switchMap,
   takeWhile,
   tap,
@@ -140,7 +135,6 @@ export class Terminal {
     this._setupTunnel();
     this._setupDebugLog();
     this._setupPredefinedServerHandlers();
-    this._setupChannelValidatorSubscription();
 
     this.terminalInfo.created_at = Date.now();
 
@@ -698,7 +692,7 @@ export class Terminal {
 
     // Receive TerminalInfo from the channel
     this._subscriptions.push(
-      defer(() => this.consumeChannel<ITerminalInfo>('TerminalInfo'))
+      defer(() => this.channel.subscribeChannel<ITerminalInfo>('TerminalInfo', ''))
         .pipe(
           mergeMap((x) =>
             this._terminalInfos$.pipe(
@@ -825,7 +819,7 @@ export class Terminal {
       serviceInfo,
       handler: handler as any,
       options: options || {},
-      validator: new Ajv({ strictSchema: false }).compile(requestSchema),
+      validator: new Ajv({ strict: false, strictSchema: false }).compile(requestSchema),
     };
     // update service object
     this.server.addService(service);
@@ -922,33 +916,6 @@ export class Terminal {
     this._subscriptions.push(sub1, sub2);
   };
 
-  private _subscribeChannel = (provider_terminal_id: string, channel_id: string) => {
-    console.info(formatTime(Date.now()), 'Terminal', 'subscribe', channel_id, 'to', provider_terminal_id);
-    // Assume that it's low frequency to subscribe a channel
-    const channels = ((this.terminalInfo.subscriptions ??= {})[provider_terminal_id] ??= []);
-    if (channels.includes(channel_id)) return;
-    channels.push(channel_id);
-    this._terminalInfoUpdated$.next();
-  };
-
-  private _unsubscribeChannel = (provider_terminal_id: string, channel_id: string) => {
-    console.info(formatTime(Date.now()), 'Terminal', 'unsubscribe', channel_id, 'to', provider_terminal_id);
-    // Assume that it's low frequency to unsubscribe a channel
-    if (!this.terminalInfo.subscriptions) return;
-    const channels = this.terminalInfo.subscriptions[provider_terminal_id];
-    if (!channels) return;
-    const idx = channels.indexOf(channel_id);
-    if (idx === -1) return;
-    channels.splice(idx, 1);
-    this._terminalInfoUpdated$.next();
-    if (channels.length > 0) return;
-    delete this.terminalInfo.subscriptions[provider_terminal_id];
-    this._terminalInfoUpdated$.next();
-    if (Object.keys(this.terminalInfo.subscriptions).length > 0) return;
-    delete this.terminalInfo.subscriptions;
-    this._terminalInfoUpdated$.next();
-  };
-
   private _setupPredefinedServerHandlers = () => {
     this.provideService('Ping', {}, () => [{ res: { code: 0, message: 'Pong' } }]);
 
@@ -993,182 +960,6 @@ export class Terminal {
       }
     }
   };
-
-  /**
-   * Provide a channel
-   * @param channelIdSchema - JSON Schema for channel_id
-   * @param handler - handler for the channel, return an Observable to provide data stream
-   */
-  provideChannel = <T>(
-    channelIdSchema: JSONSchema7,
-    handler: (channel_id: string) => ObservableInput<T>,
-  ): { dispose: () => void } => {
-    const validate = new Ajv({ strict: false }).compile(channelIdSchema);
-    (this.terminalInfo.channelIdSchemas ??= []).push(channelIdSchema);
-    this._terminalInfoUpdated$.next();
-
-    // map terminalInfos to Record<channel_id, target_terminal_id[]>
-    const mapChannelIdToTargetTerminalIds$ = this._terminalInfos$.pipe(
-      mergeMap((x) =>
-        from(x).pipe(
-          mergeMap((terminalInfo) =>
-            from(terminalInfo.subscriptions?.[this.terminal_id] ?? []).pipe(
-              filter((channel_id) => validate(channel_id)),
-              map((channel_id) => ({ consumer_terminal_id: terminalInfo.terminal_id, channel_id })),
-            ),
-          ),
-          groupBy((x) => x.channel_id),
-          mergeMap((group) =>
-            group.pipe(
-              map((x) => x.consumer_terminal_id),
-              toArray(),
-              map((arr) => [group.key, arr] as [string, string[]]),
-            ),
-          ),
-          toArray(),
-          map((entries) => Object.fromEntries(entries)),
-        ),
-      ),
-      shareReplay(1),
-    );
-
-    const mapChannelIdToSubject: Record<string, Observable<T>> = {};
-    const sub = mapChannelIdToTargetTerminalIds$.subscribe((theMap) => {
-      for (const channel_id of Object.keys(theMap)) {
-        if (!mapChannelIdToSubject[channel_id]) {
-          // NOTE: the payload should be immediately sent to the consumer.
-          mapChannelIdToSubject[channel_id] = defer(() => handler(channel_id)).pipe(
-            catchError((err) => {
-              console.error(formatTime(Date.now()), 'Terminal', 'provideChannel', 'error', channel_id, err);
-              return EMPTY;
-            }),
-          );
-          const subscriptionToHandler = mapChannelIdToSubject[channel_id].subscribe((payload) => {
-            mapChannelIdToTargetTerminalIds$.pipe(first()).subscribe((theMap) => {
-              const target_terminal_ids = theMap[channel_id];
-              if (!target_terminal_ids) {
-                // unsubscribe if no consumer
-                subscriptionToHandler.unsubscribe();
-                delete mapChannelIdToSubject[channel_id];
-                return;
-              }
-              // multicast to all consumers
-              for (const target_terminal_id of target_terminal_ids) {
-                this._output$.next({
-                  trace_id: UUID(),
-                  channel_id,
-                  frame: payload,
-                  source_terminal_id: this.terminal_id,
-                  target_terminal_id,
-                });
-              }
-            });
-          });
-        }
-      }
-    });
-
-    const dispose = () => {
-      // Remove channelIdSchema
-      this.terminalInfo.channelIdSchemas?.splice(
-        this.terminalInfo.channelIdSchemas.indexOf(channelIdSchema),
-        1,
-      );
-      this._terminalInfoUpdated$.next();
-      sub.unsubscribe();
-      this._subscriptions.splice(this._subscriptions.indexOf(sub), 1); // remove the subscription
-    };
-
-    this._subscriptions.push(sub);
-    return { dispose };
-  };
-
-  private _mapChannelIdToSubject: Record<string, Observable<any>> = {};
-
-  // ISSUE: Ajv is very slow and cause a lot CPU utilization, so we must cache the compiled validator
-  private _mapTerminalIdToChannelValidators: Record<string, ValidateFunction[]> = {};
-
-  private _setupChannelValidatorSubscription() {
-    this._subscriptions.push(
-      this._terminalInfos$
-        .pipe(
-          mergeAll(),
-          groupBy((v) => v.terminal_id),
-          mergeMap((groupByTerminalId) =>
-            groupByTerminalId.pipe(
-              mergeMap((terminalInfo) => of(terminalInfo.channelIdSchemas || [])),
-              distinctUntilChanged(
-                (schemas1, schemas2) => JSON.stringify(schemas1) === JSON.stringify(schemas2),
-              ),
-              tap((schemas) => {
-                this._mapTerminalIdToChannelValidators[groupByTerminalId.key] = schemas.map((schema) =>
-                  new Ajv({ strict: false }).compile(schema),
-                );
-              }),
-            ),
-          ),
-        )
-        .subscribe(),
-    );
-  }
-
-  /**
-   * Consume a channel
-   * @param channel_id - channel_id
-   */
-  consumeChannel = <T>(channel_id: string): AsyncIterable<T> =>
-    // Cache by channel_id
-    observableToAsyncIterable(
-      (this._mapChannelIdToSubject[channel_id] ??= new Observable<T>((subscriber) => {
-        console.info(formatTime(Date.now()), 'Terminal', 'consumeChannel', 'subscribe', channel_id);
-        // candidate target_terminal_id list
-        const candidates$ = this._terminalInfos$.pipe(
-          mergeMap((x) =>
-            from(x).pipe(
-              filter((terminalInfo) =>
-                this._mapTerminalIdToChannelValidators[terminalInfo.terminal_id]?.some((validator) =>
-                  validator(channel_id),
-                ),
-              ),
-              map((x) => x.terminal_id),
-              toArray(),
-            ),
-          ),
-          shareReplay(1),
-        );
-        let provider_terminal_id: string | undefined;
-        const sub = candidates$.subscribe((candidates) => {
-          if (provider_terminal_id && !candidates.includes(provider_terminal_id)) {
-            this._unsubscribeChannel(provider_terminal_id, channel_id);
-            provider_terminal_id = undefined;
-          }
-          if (
-            (!provider_terminal_id && candidates.length > 0) ||
-            (provider_terminal_id && candidates.length > 0 && !candidates.includes(provider_terminal_id))
-          ) {
-            provider_terminal_id = candidates[~~(Math.random() * candidates.length)]; // Simple Random Load Balancer
-            this._subscribeChannel(provider_terminal_id, channel_id);
-          }
-        });
-        this._subscriptions.push(sub);
-        const sub1 = this._input$
-          .pipe(
-            filter((msg) => msg.channel_id === channel_id && msg.source_terminal_id === provider_terminal_id),
-            map((msg) => msg.frame as T),
-          )
-          .subscribe((payload) => {
-            subscriber.next(payload);
-          });
-        this._subscriptions.push(sub1);
-        return () => {
-          console.info(formatTime(Date.now()), 'Terminal', 'consumeChannel', 'unsubscribe', channel_id);
-          sub1.unsubscribe();
-        };
-      }).pipe(
-        //
-        shareReplay({ bufferSize: 1, refCount: true }),
-      )),
-    );
 
   terminalInfos: ITerminalInfo[] = [];
   private _terminalInfos$ = new ReplaySubject<ITerminalInfo[]>(1);

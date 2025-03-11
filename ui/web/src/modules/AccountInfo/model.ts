@@ -1,4 +1,3 @@
-import { decodePath } from '@yuants/data-model';
 import { IAccountPerformance } from '@yuants/kernel';
 import { useAccountInfo as _useAccountInfo } from '@yuants/protocol';
 import {
@@ -26,14 +25,16 @@ export const accountIds$ = defer(() => terminal$).pipe(
         mergeMap((terminals) =>
           from(terminals).pipe(
             mergeMap((terminalInfo) =>
-              from(terminalInfo.channelIdSchemas || []).pipe(
-                mergeMap((channelIdSchema) => {
-                  if (typeof channelIdSchema.const === 'string') {
-                    const [type, accountId] = decodePath(channelIdSchema.const);
-                    if (type === 'AccountInfo' && accountId) {
-                      return of(accountId);
+              from(Object.values(terminalInfo.serviceInfo || {})).pipe(
+                mergeMap((serviceInfo) => {
+                  if (serviceInfo.method === 'SubscribeChannel/AccountInfo') {
+                    if (typeof serviceInfo.schema.properties?.channel_id === 'object') {
+                      if (typeof serviceInfo.schema.properties?.channel_id.const === 'string') {
+                        return of(serviceInfo.schema.properties?.channel_id.const);
+                      }
                     }
                   }
+
                   return EMPTY;
                 }),
               ),

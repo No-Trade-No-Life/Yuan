@@ -212,7 +212,6 @@ export class Terminal {
     //
     // (undocumented)
     client: TerminalClient;
-    consumeChannel: <T>(channel_id: string) => AsyncIterable<T>;
     dispose$: AsyncIterable<void>;
     dispose(): void;
     // (undocumented)
@@ -227,9 +226,6 @@ export class Terminal {
         connection?: IConnection<string>;
     };
     output$: NativeSubject<ITerminalMessage>;
-    provideChannel: <T>(channelIdSchema: JSONSchema7, handler: (channel_id: string) => ObservableInput<T>) => {
-        dispose: () => void;
-    };
     // Warning: (ae-incompatible-release-tags) The symbol "provideService" is marked as @public, but its signature references "IServiceHandler" which is marked as @internal
     provideService: <T extends string>(method: T, requestSchema: JSONSchema7, handler: IServiceHandler<T>, options?: IServiceOptions) => {
         dispose: () => void;
