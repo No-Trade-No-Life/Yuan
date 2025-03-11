@@ -248,9 +248,9 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
     getSpotTickers$,
   ]).pipe(
     map(([positions, orders, account, unifiedAccount, spotTickers]): IAccountInfo => {
-      const free = Number(unifiedAccount.balances?.['USDT']?.available || 0);
+      const free = Number(unifiedAccount?.balances?.['USDT']?.available || 0);
       const profit = +account.unrealised_pnl;
-      const equity = Number(unifiedAccount.unified_account_total_equity || 0);
+      const equity = Number(unifiedAccount?.unified_account_total_equity || 0);
       const balance = equity - profit;
       const used = equity - free;
 
@@ -262,7 +262,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
         used,
         equity,
       };
-      const spotPosition: IPosition[] = Object.keys(unifiedAccount.balances)
+      const spotPosition: IPosition[] = Object.keys(unifiedAccount?.balances ?? {})
         ?.map((instId) => {
           if (instId === 'USDT') return;
           let currency_pair = instId + '_USDT';
@@ -272,7 +272,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
           const closable_price = Number(
             spotTickers.find((ticker) => ticker.currency_pair === currency_pair)?.last || 0,
           );
-          const volume = Number(unifiedAccount.balances?.[instId]?.available || 0);
+          const volume = Number(unifiedAccount?.balances?.[instId]?.available || 0);
           return {
             datasource_id: 'gate/spot',
             position_id: instId,
