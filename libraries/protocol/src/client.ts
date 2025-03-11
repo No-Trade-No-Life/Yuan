@@ -1,5 +1,5 @@
 import { formatTime, UUID } from '@yuants/data-model';
-import { nativeSubjectToSubject, observableToAsyncIterable } from '@yuants/utils';
+import { nativeSubjectToSubject } from '@yuants/utils';
 import Ajv from 'ajv';
 import {
   defer,
@@ -11,12 +11,9 @@ import {
   mergeMap,
   Observable,
   ReplaySubject,
-  share,
   Subject,
   takeUntil,
-  takeWhile,
   tap,
-  timeout,
 } from 'rxjs';
 import { IServiceCandidateClientSide } from './model';
 import { IService, ITerminalMessage } from './services';
@@ -25,6 +22,23 @@ import { Terminal } from './terminal';
 export class TerminalClient {
   constructor(public readonly terminal: Terminal) {
     this._setupTerminalIdAndMethodValidatorSubscription();
+
+    from(this.terminal.input$)
+      .pipe(
+        //
+        tap((msg) => {
+          const subject$ = this._mapTraceIdToTerminalMessage$.get(msg.trace_id);
+          if (subject$) {
+            subject$.next(msg);
+            if (msg.done || msg.res !== undefined) {
+              subject$.complete();
+              this._mapTraceIdToTerminalMessage$.delete(msg.trace_id);
+            }
+          }
+        }),
+        takeUntil(this.terminal.dispose$),
+      )
+      .subscribe();
   }
 
   private _terminalOutput$ = nativeSubjectToSubject(this.terminal.output$);
@@ -135,6 +149,8 @@ export class TerminalClient {
     );
   }
 
+  private _mapTraceIdToTerminalMessage$ = new Map<string, Subject<ITerminalMessage>>();
+
   /**
    * Make a request to specified terminal's service
    */
@@ -151,6 +167,9 @@ export class TerminalClient {
       source_terminal_id: this.terminal.terminal_id,
       req,
     };
+    const response$ = new Subject<ITerminalMessage>();
+    // Open a new stream for this request
+    this._mapTraceIdToTerminalMessage$.set(trace_id, response$);
     return defer((): Observable<any> => {
       if (this.terminal.options.verbose) {
         console.info(
@@ -163,15 +182,7 @@ export class TerminalClient {
         );
       }
       this._terminalOutput$.next(msg);
-      return from(this.terminal.input$).pipe(
-        filter((m) => m.trace_id === msg.trace_id),
-        // complete immediately when res is received
-        takeWhile((msg1) => !msg1.done && msg1.res === undefined, true),
-        timeout({
-          first: 30000,
-          each: 10000,
-          meta: `request Timeout: method=${msg.method} target=${msg.target_terminal_id}`,
-        }),
+      return response$.pipe(
         takeUntil(this.terminal.dispose$),
         tap({
           unsubscribe: () => {
@@ -185,6 +196,10 @@ export class TerminalClient {
               source_terminal_id: this.terminal.terminal_id,
               done: true,
             });
+          },
+          finalize: () => {
+            response$.complete();
+            this._mapTraceIdToTerminalMessage$.delete(trace_id);
           },
         }),
       );
