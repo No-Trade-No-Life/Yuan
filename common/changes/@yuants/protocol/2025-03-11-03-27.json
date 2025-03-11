@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "speed up for client has a lot of request concurrently",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
