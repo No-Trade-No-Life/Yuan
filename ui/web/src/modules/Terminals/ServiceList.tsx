@@ -1,8 +1,9 @@
-import { Space } from '@douyinfe/semi-ui';
+import { Modal, Space } from '@douyinfe/semi-ui';
+import { formatTime } from '@yuants/data-model';
 import { IServiceInfo } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
-import { useMemo } from 'react';
-import { firstValueFrom, from, lastValueFrom, switchMap, tap } from 'rxjs';
+import React, { useMemo } from 'react';
+import { firstValueFrom, from, scan, switchMap } from 'rxjs';
 import { showForm } from '../Form';
 import { Button, DataView } from '../Interactive';
 import { registerPage } from '../Pages';
@@ -66,11 +67,58 @@ registerPage('ServiceList', () => {
                   const schema = service.serviceInfo.schema;
                   const value = await showForm(schema, {});
 
-                  await lastValueFrom(
-                    from(terminal.request(service.serviceInfo.method, service.terminal_id, value)).pipe(
-                      tap((x) => console.log('message', x)),
+                  const a$ = from(
+                    terminal.request(service.serviceInfo.method, service.terminal_id, value),
+                  ).pipe(
+                    scan(
+                      (acc, x) => [
+                        ...acc,
+                        {
+                          updated_at: Date.now(),
+                          data: JSON.stringify(x),
+                        },
+                      ],
+                      [] as Array<{ updated_at: number; data: string }>,
                     ),
                   );
+
+                  await new Promise((resolve) => {
+                    Modal.info({
+                      title: `请求查看工具`,
+                      style: { width: '80vw' },
+                      content: React.createElement(() => {
+                        const msg = useObservableState(a$, []);
+
+                        return (
+                          <Space
+                            vertical
+                            align="start"
+                            style={{ width: '100%', height: '100%', fontFamily: 'monospace' }}
+                          >
+                            <div>
+                              <div>Method: {service.serviceInfo.method}</div>
+                              <div>Service: {service.serviceInfo.service_id}</div>
+                              <div>Terminal: {service.terminal_id}</div>
+                              <div>Request Body: {JSON.stringify(value)}</div>
+                            </div>
+                            <DataView
+                              data={msg}
+                              layoutMode="table"
+                              initialSorting={[{ id: 'updated_at', desc: true }]}
+                              columns={[
+                                { accessorKey: 'updated_at', cell: (x) => formatTime(x.getValue()) },
+                                { accessorKey: 'data' },
+                              ]}
+                            />
+                          </Space>
+                        );
+                      }, {}),
+                      okText: '中断请求',
+                      onOk: resolve,
+                      onCancel: resolve,
+                      cancelButtonProps: { style: { display: 'none' } },
+                    });
+                  });
                 }}
               >
                 调用

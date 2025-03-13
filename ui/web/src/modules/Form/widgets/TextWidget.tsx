@@ -1,5 +1,6 @@
 import { Checkbox, Input, InputNumber } from '@douyinfe/semi-ui';
 import { FormContextType, RJSFSchema, StrictRJSFSchema, WidgetProps } from '@rjsf/utils';
+import { useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AccountIdWidget } from './AccountIdWidget';
 import { OHLCSelectWidget } from './OHLCSelectWidget';
@@ -8,6 +9,13 @@ export function TextWidget<T = any, S extends StrictRJSFSchema = RJSFSchema, F e
   props: WidgetProps<T, S, F>,
 ) {
   const { t } = useTranslation();
+
+  useEffect(() => {
+    if (props.schema.const !== undefined) {
+      props.onChange(props.schema.const);
+    }
+  }, [props.schema.const]);
+
   if (props.schema.format === 'OHLC-key') {
     return <OHLCSelectWidget {...props} />;
   }
@@ -66,6 +74,7 @@ export function TextWidget<T = any, S extends StrictRJSFSchema = RJSFSchema, F e
           list={props.schema.examples ? props.id + '__examples' : undefined}
           value={props.value}
           required={props.required}
+          disabled={props.disabled || props.schema.const !== undefined}
           onChange={(v) => props.onChange(v)}
         />
       ) : (
@@ -75,6 +84,7 @@ export function TextWidget<T = any, S extends StrictRJSFSchema = RJSFSchema, F e
           style={{ minWidth: 120 }}
           list={props.schema.examples ? props.id + '__examples' : undefined}
           value={props.value}
+          disabled={props.disabled || props.schema.const !== undefined}
           required={props.required}
           onChange={(v) => props.onChange(v)}
         />

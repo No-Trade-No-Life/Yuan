@@ -3,14 +3,11 @@ import { FormContextType, RJSFSchema, StrictRJSFSchema, TemplatesType } from '@r
 import ArrayFieldItemTemplate from './ArrayFieldItemTemplate';
 import ArrayFieldTemplate from './ArrayFieldTemplate';
 import BaseInputTemplate from './BaseInputTemplate';
-import DescriptionField from './DescriptionField';
-import ErrorList from './ErrorList';
-import { AddButton, MoveDownButton, MoveUpButton, RemoveButton } from './IconButton';
-import FieldErrorTemplate from './FieldErrorTemplate';
 import { FieldTemplate } from './FieldTemplate';
+import { AddButton, MoveDownButton, MoveUpButton, RemoveButton } from './IconButton';
 import ObjectFieldTemplate from './ObjectFieldTemplate';
 import SubmitButton from './SubmitButton';
-import TitleField from './TitleField';
+import UnsupportedFieldTemplate from './UnsupportedFieldTemplate';
 import WrapIfAdditionalTemplate from './WrapIfAdditionalTemplate';
 
 export function generateTemplates<
@@ -35,6 +32,7 @@ export function generateTemplates<
     FieldTemplate,
     ObjectFieldTemplate,
     // TitleFieldTemplate: TitleField,
+    UnsupportedFieldTemplate,
     WrapIfAdditionalTemplate,
   };
 }

@@ -26,6 +26,7 @@ import {
   retry,
   share,
   switchMap,
+  takeUntil,
   takeWhile,
   tap,
   timeout,
@@ -47,6 +48,7 @@ import {
 import { TerminalServer } from './server';
 import { IService, ITerminalMessage } from './services';
 import { PromRegistry } from './services/metrics';
+import { inferNodePackageTags } from './tags/inferVersionTags';
 import { getSimplePeerInstance } from './webrtc';
 
 const TerminalReceivedBytesTotal = PromRegistry.create('counter', 'terminal_received_bytes_total');
@@ -105,11 +107,32 @@ export class Terminal {
     } = {},
   ) {
     this.terminal_id = this.terminalInfo.terminal_id || UUID();
+    const tags: Record<string, string> = {};
     this.terminalInfo = {
       ...terminalInfo,
       terminal_id: this.terminal_id,
       serviceInfo: {},
+      tags,
     };
+
+    Object.assign(tags, inferNodePackageTags());
+    Object.assign(tags, terminalInfo.tags);
+
+    // Infer Public IP
+    defer(() =>
+      fetch('https://ifconfig.me/ip')
+        .then((res) => res.text())
+        .then((public_ip) => {
+          Object.assign(tags, { public_ip });
+          this._terminalInfoUpdated$.next();
+        }),
+    )
+      .pipe(
+        //
+        retry({ delay: 30_000 }),
+        takeUntil(this.dispose$),
+      )
+      .subscribe();
 
     if (isNode) {
       this.options.verbose ??= true;
@@ -659,7 +682,7 @@ export class Terminal {
 
     // Receive TerminalInfo from the channel
     this._subscriptions.push(
-      defer(() => this.channel.subscribeChannel<ITerminalInfo>('TerminalInfo', ''))
+      defer(() => this.channel.subscribeChannel<ITerminalInfo>('TerminalInfo'))
         .pipe(
           mergeMap((x) =>
             this._terminalInfos$.pipe(
@@ -769,12 +792,12 @@ export class Terminal {
   /**
    * Provide a service
    */
-  provideService = <T extends string>(
+  provideService<T extends string>(
     method: T,
     requestSchema: JSONSchema7,
     handler: IServiceHandler<T>,
     options?: IServiceOptions,
-  ): { dispose: () => void } => {
+  ): { dispose: () => void } {
     const service_id = UUID();
     const serviceInfo: IServiceInfo = { service_id, method, schema: requestSchema };
 
@@ -796,7 +819,7 @@ export class Terminal {
       this.server.removeService(service_id);
     };
     return { dispose };
-  };
+  }
 
   /**
    * Resolve candidate target_terminal_ids for a request

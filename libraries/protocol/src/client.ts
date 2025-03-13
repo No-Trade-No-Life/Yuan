@@ -79,7 +79,9 @@ export class TerminalClient {
     from(this.terminal.terminalInfos$)
       .pipe(
         tap((terminalInfos) => {
-          console.info(formatTime(Date.now()), 'Client', 'GenerateCandidates', 'Start');
+          if (this.terminal.options.verbose) {
+            console.info(formatTime(Date.now()), 'Client', 'GenerateCandidates', 'Start');
+          }
           const t1 = Date.now();
           let init_cnt = 0;
           const nextMap: typeof this._mapMethodToServiceIdToCandidateClientSide = new Map();
@@ -107,14 +109,16 @@ export class TerminalClient {
             }
           }
           this._mapMethodToServiceIdToCandidateClientSide = nextMap;
-          console.info(
-            formatTime(Date.now()),
-            'Client',
-            'GenerateCandidates',
-            'Done',
-            `New Schemas: ${init_cnt}`,
-            `Duration: ${Date.now() - t1} ms`,
-          );
+          if (this.terminal.options.verbose) {
+            console.info(
+              formatTime(Date.now()),
+              'Client',
+              'GenerateCandidates',
+              'Done',
+              `New Schemas: ${init_cnt}`,
+              `Duration: ${Date.now() - t1} ms`,
+            );
+          }
           this._generateCandidates$.next();
         }),
       )

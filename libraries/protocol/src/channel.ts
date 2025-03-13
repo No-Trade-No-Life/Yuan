@@ -46,7 +46,7 @@ export class TerminalChannel {
    */
   publishChannel<T>(
     type: string,
-    channelSchema: JSONSchema7 = { const: '' },
+    channelSchema: JSONSchema7 | undefined,
     handler: (channel_id: string) => ObservableInput<T>,
   ) {
     return this.terminal.provideService(
@@ -56,7 +56,13 @@ export class TerminalChannel {
         type: 'object',
         required: ['channel_id'],
         properties: {
-          channel_id: channelSchema,
+          channel_id: {
+            allOf: [
+              //
+              { type: 'string' },
+              channelSchema || { const: '' },
+            ],
+          },
         },
       },
       (msg) => {
