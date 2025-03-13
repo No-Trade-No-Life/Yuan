@@ -676,6 +676,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/vendor-solscan",
+      "projectFolder": "apps/vendor-solscan",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/vendor-huobi",
       "projectFolder": "apps/vendor-huobi",
       "shouldPublish": true
