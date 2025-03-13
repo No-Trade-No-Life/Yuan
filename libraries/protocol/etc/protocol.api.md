@@ -126,6 +126,8 @@ export interface ITerminalInfo {
     serviceInfo?: Record<string, IServiceInfo>;
     // @deprecated
     status?: string;
+    // (undocumented)
+    tags?: Record<string, string>;
     terminal_id: string;
     updated_at?: number;
 }
@@ -223,7 +225,7 @@ export class Terminal {
     };
     output$: NativeSubject<ITerminalMessage>;
     // Warning: (ae-incompatible-release-tags) The symbol "provideService" is marked as @public, but its signature references "IServiceHandler" which is marked as @internal
-    provideService: <T extends string>(method: T, requestSchema: JSONSchema7, handler: IServiceHandler<T>, options?: IServiceOptions) => {
+    provideService<T extends string>(method: T, requestSchema: JSONSchema7, handler: IServiceHandler<T>, options?: IServiceOptions): {
         dispose: () => void;
     };
     request<T extends string>(method: T, target_terminal_id: string, req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req']): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage>;

@@ -106,6 +106,8 @@ export interface ITerminalInfo {
    * @deprecated - Remove this field
    */
   status?: string;
+
+  tags?: Record<string, string>;
 }
 
 /**
