@@ -1383,6 +1383,41 @@ importers:
       ts-node: 10.9.2_8b03ecee800523adaf3df18ee3a13756
       typescript: 4.7.4
 
+  ../../apps/vendor-solscan:
+    specifiers:
+      '@microsoft/api-extractor': ~7.30.0
+      '@rushstack/heft': ~0.47.5
+      '@rushstack/heft-jest-plugin': ~0.3.30
+      '@rushstack/heft-node-rig': ~1.10.7
+      '@types/heft-jest': 1.0.3
+      '@types/node': '18'
+      '@yuants/data-model': workspace:*
+      '@yuants/extension': workspace:*
+      '@yuants/protocol': workspace:*
+      '@yuants/tool-kit': workspace:*
+      '@yuants/utils': workspace:*
+      crypto-js: ^4.2.0
+      rxjs: ~7.5.6
+      ts-node: ~10.9.2
+      typescript: ~4.7.4
+    dependencies:
+      '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/utils': link:../../libraries/utils
+      crypto-js: 4.2.0
+      rxjs: 7.5.7
+    devDependencies:
+      '@microsoft/api-extractor': 7.30.1
+      '@rushstack/heft': 0.47.11
+      '@rushstack/heft-jest-plugin': 0.3.45_154bfccaf757d04bbe52f933b349182c
+      '@rushstack/heft-node-rig': 1.10.13_154bfccaf757d04bbe52f933b349182c
+      '@types/heft-jest': 1.0.3
+      '@types/node': 18.17.12
+      '@yuants/extension': link:../../libraries/extension
+      '@yuants/tool-kit': link:../../tools/toolkit
+      ts-node: 10.9.2_8b03ecee800523adaf3df18ee3a13756
+      typescript: 4.7.4
+
   ../../apps/vendor-tq:
     specifiers:
       '@microsoft/api-extractor': ~7.30.0
@@ -7319,7 +7354,7 @@ packages:
       '@jest/schemas': 29.6.3
       '@types/istanbul-lib-coverage': 2.0.4
       '@types/istanbul-reports': 3.0.1
-      '@types/node': 20.9.4
+      '@types/node': 22.7.5
       '@types/yargs': 17.0.24
       chalk: 4.1.2
 
@@ -9386,7 +9421,6 @@ packages:
     resolution: {integrity: sha512-jML7s2NAzMWc//QSJ1a3prpk78cOPchGvXJsC3C6R6PSMoooztvRVQEz89gmBTBY1SPMaqo5teB4uNHPdetShQ==}
     dependencies:
       undici-types: 6.19.8
-    dev: false
 
   /@types/nodemailer/6.4.9:
     resolution: {integrity: sha512-XYG8Gv+sHjaOtUpiuytahMy2mM3rectgroNbs6R3djZEKmPNiIJwe9KqOJBGzKKnNZNKvnuvmugBgpq3w/S0ig==}
@@ -16659,7 +16693,7 @@ packages:
     engines: {node: ^14.15.0 || ^16.10.0 || >=18.0.0}
     dependencies:
       '@jest/types': 29.6.3
-      '@types/node': 20.9.4
+      '@types/node': 22.7.5
       chalk: 4.1.2
       ci-info: 3.8.0
       graceful-fs: 4.2.11
@@ -21143,7 +21177,7 @@ packages:
   /rxjs/7.5.7:
     resolution: {integrity: sha512-z9MzKh/UcOqB3i20H6rtrlaE/CgjLOvheWK/9ILrbhROGTweAi1BaFsTT9FbwZi5Trr1qNRs+MXkhmR06awzQA==}
     dependencies:
-      tslib: 2.6.2
+      tslib: 2.7.0
     dev: false
 
   /rxjs/7.8.1:
@@ -22682,7 +22716,6 @@ packages:
 
   /undici-types/6.19.8:
     resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
-    dev: false
 
   /unherit/1.1.3:
     resolution: {integrity: sha512-Ft16BJcnapDKp0+J/rqFC3Rrk6Y/Ng4nzsC028k2jdDII/rdZ7Wd3pPT/6+vIIxRagwRc9K0IUX0Ra4fKvw+WQ==}
