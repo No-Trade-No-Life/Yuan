@@ -48,6 +48,7 @@
     "@yuants/vendor-hyperliquid",
     "@yuants/vendor-okx",
     "@yuants/vendor-solana",
+    "@yuants/vendor-solscan",
     "@yuants/vendor-huobi",
     "@yuants/vendor-gate",
     "@yuants/vendor-trading-view",
