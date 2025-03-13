@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/vendor-solscan",
+  "entries": [
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/vendor-solscan_v0.1.0",
+      "date": "Thu, 13 Mar 2025 22:32:56 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "new package"
+          }
+        ]
+      }
+    }
+  ]
+}
