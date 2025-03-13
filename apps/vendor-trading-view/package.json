@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-trading-view",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "files": [
     "dist/extension.bundle.js"
   ],
