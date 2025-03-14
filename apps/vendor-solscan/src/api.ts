@@ -88,7 +88,16 @@ export class ProApiV2Client {
     page?: number;
     page_size?: number;
     hide_zero?: boolean;
-  }) => this._request('/account/token-accounts', params);
+  }): Promise<{
+    success: boolean;
+    data: {
+      token_account: string;
+      token_address: string;
+      amount: number;
+      token_decimals: number;
+      owner: string;
+    }[];
+  }> => this._request('/account/token-accounts', params);
 
   /**
    * Get the list of transactions of an account
