@@ -65,7 +65,7 @@ registerPage('ServiceList', () => {
                   const terminal = await firstValueFrom(terminal$);
                   if (!terminal) return;
                   const schema = service.serviceInfo.schema;
-                  const value = await showForm(schema, {});
+                  const value = await showForm(schema, {}, { immediateSubmit: true });
 
                   const a$ = from(
                     terminal.request(service.serviceInfo.method, service.terminal_id, value),
