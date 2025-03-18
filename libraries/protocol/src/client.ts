@@ -252,4 +252,23 @@ export class TerminalClient {
       ),
     ) as any;
   }
+
+  /**
+   * Make a request to get the response data
+   *
+   * if data is undefined, it will throw the response message
+   */
+  async requestForResponseData<T extends keyof IService>(
+    method: T,
+    req: IService[T]['req'],
+    ctx?: { abort$?: AsyncIterable<void> },
+  ): Promise<
+    Exclude<Exclude<(Partial<IService[T]> & ITerminalMessage)['res'], undefined>['data'], undefined>
+  > {
+    const res = await this.requestForResponse(method, req, ctx);
+    if (res.data !== undefined) {
+      return res.data as any;
+    }
+    throw res;
+  }
 }
