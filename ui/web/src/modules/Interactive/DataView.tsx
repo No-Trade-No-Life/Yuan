@@ -1,5 +1,5 @@
 import { IconExpand, IconEyeOpened, IconList, IconMinimize, IconSort } from '@douyinfe/semi-icons';
-import { Pagination, Radio, RadioGroup, Space } from '@douyinfe/semi-ui';
+import { Input, Pagination, Radio, RadioGroup, Space } from '@douyinfe/semi-ui';
 import {
   ColumnDef,
   getCoreRowModel,
@@ -17,6 +17,7 @@ import {
 } from '@tanstack/react-table';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { showForm } from '../Form';
+import { ErrorBoundary } from '../Pages';
 import { Button } from './Button';
 import { ListView } from './ListView';
 import { TableView } from './TableView';
@@ -37,6 +38,7 @@ export function DataView<T, K>(props: {
   initialGroupping?: GroupingState;
 
   initialTopSlotVisible?: boolean;
+  CustomView?: React.ComponentType<{ table: Table<T> }>;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -56,6 +58,7 @@ export function DataView<T, K>(props: {
     autoResetPageIndex: false,
     autoResetExpanded: false,
     manualSorting: props.manualSorting,
+    enableGlobalFilter: true,
   };
 
   // ISSUE: if tableOptions.onSortingChange is set to undefined, there's a bug
@@ -85,8 +88,8 @@ export function DataView<T, K>(props: {
 
   const [layoutMode, setLayoutMode] = useState<'table' | 'list' | 'auto'>(props.layoutMode || 'auto');
 
-  const [actualLayoutMode, setActualLayoutMode] = useState<'table' | 'list'>(
-    props.layoutMode === 'auto' ? 'table' : props.layoutMode || 'table',
+  const [actualLayoutMode, setActualLayoutMode] = useState<'custom' | 'table' | 'list'>(
+    props.CustomView ? 'custom' : props.layoutMode === 'auto' ? 'table' : props.layoutMode || 'table',
   );
 
   // Responsible Layout
@@ -121,6 +124,14 @@ export function DataView<T, K>(props: {
   const topSlot = (
     <>
       {props.topSlot}
+      <Input
+        style={{ width: 200 }}
+        placeholder="搜索..."
+        value={table.getState().globalFilter}
+        onChange={(e) => {
+          table.setGlobalFilter(e);
+        }}
+      />
       <Button
         onClick={async () => {
           const sorting: SortingState = await showForm(
@@ -205,6 +216,7 @@ export function DataView<T, K>(props: {
         <Radio value={'auto'}>自适应视图</Radio>
         <Radio value={'table'}>表格视图</Radio>
         <Radio value={'list'}>列表视图</Radio>
+        {props.CustomView && <Radio value={'custom'}>自定义视图</Radio>}
       </RadioGroup>
       <Space>
         <div>共 {table.options.data.length} 条数据</div>
@@ -256,8 +268,11 @@ export function DataView<T, K>(props: {
         />
       </Space>
       <div style={{ width: '100%', flexGrow: 1, overflow: 'auto' }}>
-        {actualLayoutMode === 'table' && <TableView table={table} />}
-        {actualLayoutMode === 'list' && <ListView table={table} />}
+        <ErrorBoundary>
+          {actualLayoutMode === 'custom' && props.CustomView && <props.CustomView table={table} />}
+          {actualLayoutMode === 'table' && <TableView table={table} />}
+          {actualLayoutMode === 'list' && <ListView table={table} />}
+        </ErrorBoundary>
       </div>
     </div>
   );
