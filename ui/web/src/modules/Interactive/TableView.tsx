@@ -20,12 +20,17 @@ export function TableView<T>(props: { table: Table<T> }) {
       <table className="semi-table" style={{ whiteSpace: 'nowrap' }}>
         <thead
           className="semi-table-thead"
-          style={{ position: 'sticky', zIndex: 1, top: 0, background: 'var(--semi-color-bg-1)' }}
+          style={{
+            position: 'sticky',
+            zIndex: 1,
+            top: 0,
+            // background: 'var(--semi-color-bg-1)',
+          }}
         >
           {table.getHeaderGroups().map((headerGroup) => (
-            <tr key={headerGroup.id} className="semi-table-row">
+            <tr key={headerGroup.id} className="semi-table-row" style={{ backgroundColor: 'transparent' }}>
               {headerGroup.headers.map((header) => (
-                <th key={header.id} className="semi-table-row-head">
+                <th key={header.id} className="semi-table-row-head" style={{ backgroundColor: 'inherit' }}>
                   <Space vertical>
                     <Space>
                       {header.isPlaceholder
@@ -87,7 +92,7 @@ export function TableView<T>(props: { table: Table<T> }) {
         </thead>
         <tbody className="semi-table-tbody">
           {table.getRowModel().rows.map((row) => (
-            <tr key={row.id} className="semi-table-row">
+            <tr key={row.id} className="semi-table-row" style={{ backgroundColor: 'inherit' }}>
               {row.getVisibleCells().map((cell) => {
                 return (
                   <td key={cell.id} className="semi-table-row-cell">

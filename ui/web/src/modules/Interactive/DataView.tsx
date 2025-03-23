@@ -1,4 +1,4 @@
-import { IconEyeOpened, IconList, IconSort } from '@douyinfe/semi-icons';
+import { IconExpand, IconEyeOpened, IconList, IconMinimize, IconSort } from '@douyinfe/semi-icons';
 import { Pagination, Radio, RadioGroup, Space } from '@douyinfe/semi-ui';
 import {
   ColumnDef,
@@ -35,11 +35,14 @@ export function DataView<T, K>(props: {
   manualSorting?: boolean;
 
   initialGroupping?: GroupingState;
+
+  initialTopSlotVisible?: boolean;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   // ISSUE: if columns is not memoized, there's a bug to refresh columns
   const columns = useMemo(() => props.columns, props.columnsDependencyList ?? []);
+  const [isTopSlotVisible, setIsTopSlotVisible] = useState(props.initialTopSlotVisible ?? true);
 
   const tableOptions: TableOptions<T> = {
     data: props.data,
@@ -230,10 +233,27 @@ export function DataView<T, K>(props: {
   return (
     <div
       ref={containerRef}
-      style={{ display: 'flex', flexDirection: 'column', width: '100%', height: '100%', overflow: 'hidden' }}
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        width: '100%',
+        height: '100%',
+        overflow: 'hidden',
+        position: 'relative',
+      }}
     >
-      <Space wrap style={{ width: '100%' }}>
-        {topSlot}
+      {isTopSlotVisible && (
+        <Space wrap style={{ width: '100%' }}>
+          {topSlot}
+        </Space>
+      )}
+      <Space wrap style={{ position: 'absolute', top: 0, right: 0, zIndex: 2000 }}>
+        <Button
+          icon={isTopSlotVisible ? <IconMinimize /> : <IconExpand />}
+          onClick={async () => {
+            setIsTopSlotVisible(!isTopSlotVisible);
+          }}
+        />
       </Space>
       <div style={{ width: '100%', flexGrow: 1, overflow: 'auto' }}>
         {actualLayoutMode === 'table' && <TableView table={table} />}
