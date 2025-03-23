@@ -29,7 +29,7 @@ declare module '@yuants/ui-web' {
   import { User } from '@supabase/supabase-js';
   import { Terminal } from '@yuants/protocol';
 
-  namespace index_d$y {
+  namespace index_d$z {
     export {};
   }
 
@@ -45,22 +45,22 @@ declare module '@yuants/ui-web' {
 
   const useAccountInfo: (account_id: string) => rxjs.Observable<_yuants_data_model.IAccountInfo>;
 
-  const index_d$x_AccountSelector: typeof AccountSelector;
-  const index_d$x_InlineAccountId: typeof InlineAccountId;
-  const index_d$x_useAccountInfo: typeof useAccountInfo;
-  namespace index_d$x {
+  const index_d$y_AccountSelector: typeof AccountSelector;
+  const index_d$y_InlineAccountId: typeof InlineAccountId;
+  const index_d$y_useAccountInfo: typeof useAccountInfo;
+  namespace index_d$y {
     export {
-      index_d$x_AccountSelector as AccountSelector,
-      index_d$x_InlineAccountId as InlineAccountId,
-      index_d$x_useAccountInfo as useAccountInfo,
+      index_d$y_AccountSelector as AccountSelector,
+      index_d$y_InlineAccountId as InlineAccountId,
+      index_d$y_useAccountInfo as useAccountInfo,
     };
   }
 
-  namespace index_d$w {
+  namespace index_d$x {
     export {};
   }
 
-  namespace index_d$v {
+  namespace index_d$w {
     export {};
   }
 
@@ -73,18 +73,18 @@ declare module '@yuants/ui-web' {
   const ready$: ReplaySubject<unknown>;
   const error$: ReplaySubject<unknown>;
 
-  const index_d$u_createPersistBehaviorSubject: typeof createPersistBehaviorSubject;
-  const index_d$u_error$: typeof error$;
-  const index_d$u_ready$: typeof ready$;
-  namespace index_d$u {
+  const index_d$v_createPersistBehaviorSubject: typeof createPersistBehaviorSubject;
+  const index_d$v_error$: typeof error$;
+  const index_d$v_ready$: typeof ready$;
+  namespace index_d$v {
     export {
-      index_d$u_createPersistBehaviorSubject as createPersistBehaviorSubject,
-      index_d$u_error$ as error$,
-      index_d$u_ready$ as ready$,
+      index_d$v_createPersistBehaviorSubject as createPersistBehaviorSubject,
+      index_d$v_error$ as error$,
+      index_d$v_ready$ as ready$,
     };
   }
 
-  namespace index_d$t {
+  namespace index_d$u {
     export {};
   }
 
@@ -92,30 +92,30 @@ declare module '@yuants/ui-web' {
   const executeCommand: (id: string, params?: {}) => Promise<void>;
   const CommandCenter: React$1.MemoExoticComponent<() => react_jsx_runtime.JSX.Element>;
 
-  const index_d$s_CommandCenter: typeof CommandCenter;
-  const index_d$s_executeCommand: typeof executeCommand;
-  const index_d$s_registerCommand: typeof registerCommand;
-  namespace index_d$s {
+  const index_d$t_CommandCenter: typeof CommandCenter;
+  const index_d$t_executeCommand: typeof executeCommand;
+  const index_d$t_registerCommand: typeof registerCommand;
+  namespace index_d$t {
     export {
-      index_d$s_CommandCenter as CommandCenter,
-      index_d$s_executeCommand as executeCommand,
-      index_d$s_registerCommand as registerCommand,
+      index_d$t_CommandCenter as CommandCenter,
+      index_d$t_executeCommand as executeCommand,
+      index_d$t_registerCommand as registerCommand,
     };
+  }
+
+  namespace index_d$s {
+    export {};
   }
 
   namespace index_d$r {
     export {};
   }
 
-  namespace index_d$q {
-    export {};
-  }
-
   const useValue: <T>(id: string, initialValue: T) => [T, (v: T) => void];
 
-  const index_d$p_useValue: typeof useValue;
-  namespace index_d$p {
-    export { index_d$p_useValue as useValue };
+  const index_d$q_useValue: typeof useValue;
+  namespace index_d$q {
+    export { index_d$q_useValue as useValue };
   }
 
   interface IDataRecordViewDef<T> {
@@ -136,27 +136,27 @@ declare module '@yuants/ui-web' {
    */
   function DataRecordView<T>(props: IDataRecordViewDef<T>): react_jsx_runtime.JSX.Element;
 
-  const index_d$o_DataRecordView: typeof DataRecordView;
+  const index_d$p_DataRecordView: typeof DataRecordView;
+  namespace index_d$p {
+    export { index_d$p_DataRecordView as DataRecordView };
+  }
+
   namespace index_d$o {
-    export { index_d$o_DataRecordView as DataRecordView };
+    export {};
   }
 
   namespace index_d$n {
     export {};
   }
 
-  namespace index_d$m {
-    export {};
-  }
-
   const DesktopLayout: () => react_jsx_runtime.JSX.Element | null;
 
-  const index_d$l_DesktopLayout: typeof DesktopLayout;
-  namespace index_d$l {
-    export { index_d$l_DesktopLayout as DesktopLayout };
+  const index_d$m_DesktopLayout: typeof DesktopLayout;
+  namespace index_d$m {
+    export { index_d$m_DesktopLayout as DesktopLayout };
   }
 
-  namespace index_d$k {
+  namespace index_d$l {
     export {};
   }
 
@@ -179,10 +179,10 @@ declare module '@yuants/ui-web' {
     version: string;
   }>;
 
-  const index_d$j_loadTgzBlob: typeof loadTgzBlob;
-  const index_d$j_resolveVersion: typeof resolveVersion;
-  namespace index_d$j {
-    export { index_d$j_loadTgzBlob as loadTgzBlob, index_d$j_resolveVersion as resolveVersion };
+  const index_d$k_loadTgzBlob: typeof loadTgzBlob;
+  const index_d$k_resolveVersion: typeof resolveVersion;
+  namespace index_d$k {
+    export { index_d$k_loadTgzBlob as loadTgzBlob, index_d$k_resolveVersion as resolveVersion };
   }
 
   interface IFileSystemStatResult {
@@ -254,22 +254,22 @@ declare module '@yuants/ui-web' {
   }
   function resolve(x: string, options: IOptions): Promise<string>;
 
-  const index_d$i_FsBackend$: typeof FsBackend$;
-  const index_d$i_bundleCode: typeof bundleCode;
-  const index_d$i_fs: typeof fs;
-  const index_d$i_historyWorkspaceRoot$: typeof historyWorkspaceRoot$;
-  const index_d$i_replaceWorkspaceRoot: typeof replaceWorkspaceRoot;
-  const index_d$i_resolve: typeof resolve;
-  const index_d$i_workspaceRoot$: typeof workspaceRoot$;
-  namespace index_d$i {
+  const index_d$j_FsBackend$: typeof FsBackend$;
+  const index_d$j_bundleCode: typeof bundleCode;
+  const index_d$j_fs: typeof fs;
+  const index_d$j_historyWorkspaceRoot$: typeof historyWorkspaceRoot$;
+  const index_d$j_replaceWorkspaceRoot: typeof replaceWorkspaceRoot;
+  const index_d$j_resolve: typeof resolve;
+  const index_d$j_workspaceRoot$: typeof workspaceRoot$;
+  namespace index_d$j {
     export {
-      index_d$i_FsBackend$ as FsBackend$,
-      index_d$i_bundleCode as bundleCode,
-      index_d$i_fs as fs,
-      index_d$i_historyWorkspaceRoot$ as historyWorkspaceRoot$,
-      index_d$i_replaceWorkspaceRoot as replaceWorkspaceRoot,
-      index_d$i_resolve as resolve,
-      index_d$i_workspaceRoot$ as workspaceRoot$,
+      index_d$j_FsBackend$ as FsBackend$,
+      index_d$j_bundleCode as bundleCode,
+      index_d$j_fs as fs,
+      index_d$j_historyWorkspaceRoot$ as historyWorkspaceRoot$,
+      index_d$j_replaceWorkspaceRoot as replaceWorkspaceRoot,
+      index_d$j_resolve as resolve,
+      index_d$j_workspaceRoot$ as workspaceRoot$,
     };
   }
 
@@ -321,25 +321,25 @@ declare module '@yuants/ui-web' {
     },
   ) => Promise<T>;
 
-  const index_d$h_Form: typeof Form;
-  const index_d$h_Theme: typeof Theme;
-  const index_d$h_generateForm: typeof generateForm;
-  const index_d$h_generateTemplates: typeof generateTemplates;
-  const index_d$h_generateTheme: typeof generateTheme;
-  const index_d$h_generateWidgets: typeof generateWidgets;
-  const index_d$h_showForm: typeof showForm;
-  namespace index_d$h {
+  const index_d$i_Form: typeof Form;
+  const index_d$i_Theme: typeof Theme;
+  const index_d$i_generateForm: typeof generateForm;
+  const index_d$i_generateTemplates: typeof generateTemplates;
+  const index_d$i_generateTheme: typeof generateTheme;
+  const index_d$i_generateWidgets: typeof generateWidgets;
+  const index_d$i_showForm: typeof showForm;
+  namespace index_d$i {
     export {
-      index_d$h_Form as Form,
+      index_d$i_Form as Form,
       _default$1 as Templates,
-      index_d$h_Theme as Theme,
+      index_d$i_Theme as Theme,
       _default as Widgets,
       Form as default,
-      index_d$h_generateForm as generateForm,
-      index_d$h_generateTemplates as generateTemplates,
-      index_d$h_generateTheme as generateTheme,
-      index_d$h_generateWidgets as generateWidgets,
-      index_d$h_showForm as showForm,
+      index_d$i_generateForm as generateForm,
+      index_d$i_generateTemplates as generateTemplates,
+      index_d$i_generateTheme as generateTheme,
+      index_d$i_generateWidgets as generateWidgets,
+      index_d$i_showForm as showForm,
     };
   }
 
@@ -448,11 +448,11 @@ declare module '@yuants/ui-web' {
     }
   }
 
-  namespace index_d$g {
+  namespace index_d$h {
     export {};
   }
 
-  namespace index_d$f {
+  namespace index_d$g {
     export {};
   }
 
@@ -483,12 +483,13 @@ declare module '@yuants/ui-web' {
     onSortingChange?: OnChangeFn<SortingState>;
     manualSorting?: boolean;
     initialGroupping?: GroupingState;
+    initialTopSlotVisible?: boolean;
+    CustomView?: React.ComponentType<{
+      table: Table<T>;
+    }>;
   }): react_jsx_runtime.JSX.Element;
 
-  function ListView<T>(props: {
-    table: Table<T>;
-    topSlot?: React$1.ReactNode;
-  }): react_jsx_runtime.JSX.Element;
+  function ListView<T>(props: { table: Table<T> }): react_jsx_runtime.JSX.Element;
 
   interface IPivotTableProps<T> {
     data: T[];
@@ -498,7 +499,7 @@ declare module '@yuants/ui-web' {
   }
   function PivotTable<T>(props: IPivotTableProps<T>): react_jsx_runtime.JSX.Element;
 
-  function TableView<T>(props: { table: Table<T>; topSlot?: React.ReactNode }): react_jsx_runtime.JSX.Element;
+  function TableView<T>(props: { table: Table<T> }): react_jsx_runtime.JSX.Element;
 
   type ToastProps = string | Omit<ToastReactProps, 'type'>;
   /**
@@ -512,28 +513,28 @@ declare module '@yuants/ui-web' {
     close: (id: string) => void;
   };
 
-  const index_d$e_Button: typeof Button;
-  const index_d$e_DataView: typeof DataView;
-  type index_d$e_IPivotTableProps<T> = IPivotTableProps<T>;
-  const index_d$e_ListView: typeof ListView;
-  const index_d$e_PivotTable: typeof PivotTable;
-  const index_d$e_TableView: typeof TableView;
-  const index_d$e_Toast: typeof Toast;
-  type index_d$e_ToastProps = ToastProps;
-  namespace index_d$e {
+  const index_d$f_Button: typeof Button;
+  const index_d$f_DataView: typeof DataView;
+  type index_d$f_IPivotTableProps<T> = IPivotTableProps<T>;
+  const index_d$f_ListView: typeof ListView;
+  const index_d$f_PivotTable: typeof PivotTable;
+  const index_d$f_TableView: typeof TableView;
+  const index_d$f_Toast: typeof Toast;
+  type index_d$f_ToastProps = ToastProps;
+  namespace index_d$f {
     export {
-      index_d$e_Button as Button,
-      index_d$e_DataView as DataView,
-      type index_d$e_IPivotTableProps as IPivotTableProps,
-      index_d$e_ListView as ListView,
-      index_d$e_PivotTable as PivotTable,
-      index_d$e_TableView as TableView,
-      index_d$e_Toast as Toast,
-      type index_d$e_ToastProps as ToastProps,
+      index_d$f_Button as Button,
+      index_d$f_DataView as DataView,
+      type index_d$f_IPivotTableProps as IPivotTableProps,
+      index_d$f_ListView as ListView,
+      index_d$f_PivotTable as PivotTable,
+      index_d$f_TableView as TableView,
+      index_d$f_Toast as Toast,
+      type index_d$f_ToastProps as ToastProps,
     };
   }
 
-  namespace index_d$d {
+  namespace index_d$e {
     export {};
   }
 
@@ -542,12 +543,12 @@ declare module '@yuants/ui-web' {
    */
   const Launch: React$1.MemoExoticComponent<() => react_jsx_runtime.JSX.Element>;
 
-  const index_d$c_Launch: typeof Launch;
-  namespace index_d$c {
-    export { index_d$c_Launch as Launch };
+  const index_d$d_Launch: typeof Launch;
+  namespace index_d$d {
+    export { index_d$d_Launch as Launch };
   }
 
-  namespace index_d$b {
+  namespace index_d$c {
     export {};
   }
 
@@ -566,21 +567,50 @@ declare module '@yuants/ui-web' {
   }
   const InterleavingTraderConfig$: BehaviorSubject<IInterleavingConfig | undefined>;
 
-  type index_d$a_IInterleavingConfig = IInterleavingConfig;
-  type index_d$a_IInterleavingConfigItem = IInterleavingConfigItem;
-  const index_d$a_InterleavingTraderConfig$: typeof InterleavingTraderConfig$;
-  namespace index_d$a {
+  type index_d$b_IInterleavingConfig = IInterleavingConfig;
+  type index_d$b_IInterleavingConfigItem = IInterleavingConfigItem;
+  const index_d$b_InterleavingTraderConfig$: typeof InterleavingTraderConfig$;
+  namespace index_d$b {
     export {
-      type index_d$a_IInterleavingConfig as IInterleavingConfig,
-      type index_d$a_IInterleavingConfigItem as IInterleavingConfigItem,
-      index_d$a_InterleavingTraderConfig$ as InterleavingTraderConfig$,
+      type index_d$b_IInterleavingConfig as IInterleavingConfig,
+      type index_d$b_IInterleavingConfigItem as IInterleavingConfigItem,
+      index_d$b_InterleavingTraderConfig$ as InterleavingTraderConfig$,
     };
+  }
+
+  class ErrorBoundary extends React$1.Component<{
+    fallback?: React$1.ComponentType<{
+      error: any;
+      reset: () => void;
+    }>;
+    children: React$1.ReactNode;
+  }> {
+    state: {
+      hasError: boolean;
+      error: null;
+    };
+    static getDerivedStateFromError(error: any): {
+      hasError: boolean;
+      error: any;
+    };
+    render():
+      | string
+      | number
+      | boolean
+      | react_jsx_runtime.JSX.Element
+      | Iterable<React$1.ReactNode>
+      | null
+      | undefined;
   }
 
   const LocalizePageTitle: React$1.ComponentType<{
     type: string;
     params?: any;
   }>;
+
+  const AvailableComponents: Record<string, React$1.ComponentType>;
+  const pageRegistered$: Subject<string>;
+  const registerPage: (type: string, component: React$1.ComponentType) => void;
 
   interface IPage {
     id: string;
@@ -607,40 +637,43 @@ declare module '@yuants/ui-web' {
     | undefined;
   const usePageId: () => string;
 
-  const AvailableComponents: Record<string, React$1.ComponentType>;
-  const pageRegistered$: Subject<string>;
-  const registerPage: (type: string, component: React$1.ComponentType) => void;
-
-  const index_d$9_AvailableComponents: typeof AvailableComponents;
-  const index_d$9_LocalizePageTitle: typeof LocalizePageTitle;
-  const index_d$9_Page: typeof Page;
-  const index_d$9_pageRegistered$: typeof pageRegistered$;
-  const index_d$9_registerPage: typeof registerPage;
-  const index_d$9_usePageId: typeof usePageId;
-  const index_d$9_usePageParams: typeof usePageParams;
-  const index_d$9_usePageTitle: typeof usePageTitle;
-  const index_d$9_usePageType: typeof usePageType;
-  const index_d$9_usePageViewport: typeof usePageViewport;
-  namespace index_d$9 {
+  const index_d$a_AvailableComponents: typeof AvailableComponents;
+  type index_d$a_ErrorBoundary = ErrorBoundary;
+  const index_d$a_ErrorBoundary: typeof ErrorBoundary;
+  const index_d$a_LocalizePageTitle: typeof LocalizePageTitle;
+  const index_d$a_Page: typeof Page;
+  const index_d$a_pageRegistered$: typeof pageRegistered$;
+  const index_d$a_registerPage: typeof registerPage;
+  const index_d$a_usePageId: typeof usePageId;
+  const index_d$a_usePageParams: typeof usePageParams;
+  const index_d$a_usePageTitle: typeof usePageTitle;
+  const index_d$a_usePageType: typeof usePageType;
+  const index_d$a_usePageViewport: typeof usePageViewport;
+  namespace index_d$a {
     export {
-      index_d$9_AvailableComponents as AvailableComponents,
-      index_d$9_LocalizePageTitle as LocalizePageTitle,
-      index_d$9_Page as Page,
-      index_d$9_pageRegistered$ as pageRegistered$,
-      index_d$9_registerPage as registerPage,
-      index_d$9_usePageId as usePageId,
-      index_d$9_usePageParams as usePageParams,
-      index_d$9_usePageTitle as usePageTitle,
-      index_d$9_usePageType as usePageType,
-      index_d$9_usePageViewport as usePageViewport,
+      index_d$a_AvailableComponents as AvailableComponents,
+      index_d$a_ErrorBoundary as ErrorBoundary,
+      index_d$a_LocalizePageTitle as LocalizePageTitle,
+      index_d$a_Page as Page,
+      index_d$a_pageRegistered$ as pageRegistered$,
+      index_d$a_registerPage as registerPage,
+      index_d$a_usePageId as usePageId,
+      index_d$a_usePageParams as usePageParams,
+      index_d$a_usePageTitle as usePageTitle,
+      index_d$a_usePageType as usePageType,
+      index_d$a_usePageViewport as usePageViewport,
     };
   }
 
   const useProducts: (datasource_id: string) => Observable<IProduct[]>;
 
-  const index_d$8_useProducts: typeof useProducts;
+  const index_d$9_useProducts: typeof useProducts;
+  namespace index_d$9 {
+    export { index_d$9_useProducts as useProducts };
+  }
+
   namespace index_d$8 {
-    export { index_d$8_useProducts as useProducts };
+    export {};
   }
 
   namespace index_d$7 {
@@ -695,15 +728,19 @@ declare module '@yuants/ui-web' {
   const terminal$: Observable<Terminal | null>;
   const useTerminal: () => Terminal | null | undefined;
 
+  const isTerminalConnnected$: rxjs.Observable<boolean>;
+
   const useTick: (datasource_id: string, product_id: string) => rxjs.Observable<_yuants_data_model.ITick>;
 
   const index_d$4_InlineTerminalId: typeof InlineTerminalId;
+  const index_d$4_isTerminalConnnected$: typeof isTerminalConnnected$;
   const index_d$4_terminal$: typeof terminal$;
   const index_d$4_useTerminal: typeof useTerminal;
   const index_d$4_useTick: typeof useTick;
   namespace index_d$4 {
     export {
       index_d$4_InlineTerminalId as InlineTerminalId,
+      index_d$4_isTerminalConnnected$ as isTerminalConnnected$,
       index_d$4_terminal$ as terminal$,
       index_d$4_useTerminal as useTerminal,
       index_d$4_useTick as useTick,
@@ -811,34 +848,35 @@ declare module '@yuants/ui-web' {
   }
 
   export {
-    index_d$y as AccountComposition,
-    index_d$x as AccountInfo,
-    index_d$w as AccountRiskInfo,
-    index_d$v as Agent,
-    index_d$u as BIOS,
-    index_d$t as Chart,
-    index_d$s as CommandCenter,
-    index_d$r as Copilot,
-    index_d$q as CopyDataRelation,
-    index_d$p as Data,
-    index_d$o as DataRecord,
-    index_d$n as DataSeries,
-    index_d$m as Deploy,
-    index_d$l as DesktopLayout,
-    index_d$k as Editor,
-    index_d$j as Extensions,
-    index_d$i as FileSystem,
-    index_d$h as Form,
-    index_d$g as Fund,
-    index_d$f as GeneralSpecificRelations,
-    index_d$e as Interactive,
-    index_d$d as Kernel,
-    index_d$c as Launch,
-    index_d$b as Market,
-    index_d$a as Order,
-    index_d$9 as Pages,
-    index_d$8 as Products,
-    index_d$7 as PullSourceRelations,
+    index_d$z as AccountComposition,
+    index_d$y as AccountInfo,
+    index_d$x as AccountRiskInfo,
+    index_d$w as Agent,
+    index_d$v as BIOS,
+    index_d$u as Chart,
+    index_d$t as CommandCenter,
+    index_d$s as Copilot,
+    index_d$r as CopyDataRelation,
+    index_d$q as Data,
+    index_d$p as DataRecord,
+    index_d$o as DataSeries,
+    index_d$n as Deploy,
+    index_d$m as DesktopLayout,
+    index_d$l as Editor,
+    index_d$k as Extensions,
+    index_d$j as FileSystem,
+    index_d$i as Form,
+    index_d$h as Fund,
+    index_d$g as GeneralSpecificRelations,
+    index_d$f as Interactive,
+    index_d$e as Kernel,
+    index_d$d as Launch,
+    index_d$c as Market,
+    index_d$b as Order,
+    index_d$a as Pages,
+    index_d$9 as Products,
+    index_d$8 as PullSourceRelations,
+    index_d$7 as SQL,
     index_d$6 as SupaBase,
     index_d$5 as System,
     index_d$4 as Terminals,
