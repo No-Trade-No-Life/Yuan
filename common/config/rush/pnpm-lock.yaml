@@ -2077,6 +2077,7 @@ importers:
       echarts: ~5.4.3
       echarts-for-react: ~3.0.2
       echarts-gl: ~2.0.9
+      ethers: ~6.13.5
       exceljs: ~4.3.0
       flexlayout-react: ~0.7.4
       fzf: ~0.5.2
@@ -2137,6 +2138,7 @@ importers:
       echarts: 5.4.3
       echarts-for-react: 3.0.2_echarts@5.4.3+react@18.2.0
       echarts-gl: 2.0.9_echarts@5.4.3
+      ethers: 6.13.5
       exceljs: 4.3.0
       flexlayout-react: 0.7.9_react-dom@18.2.0+react@18.2.0
       fzf: 0.5.2
