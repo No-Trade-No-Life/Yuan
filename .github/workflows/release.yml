@@ -140,11 +140,17 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build And Push Image
-        uses: docker/bake-action@v1.1.3
+        uses: docker/bake-action@v6
         if: ${{ steps.check_files.outputs.files_exists == 'true' }}
         with:
           push: true
+          # ISSUE: to remove restriction from git context https://github.com/docker/bake-action?tab=readme-ov-file#git-context
+          source: .
           files: ./common/temp/docker-bake.json
+          # FYI: https://github.com/docker/bake-action/issues/196#issuecomment-2258979316
+          set: |
+            *.cache-from=type=gha
+            *.cache-to=type=gha,mode=max
 
   # npm-publish:
   #   runs-on: ubuntu-latest

@@ -21,11 +21,12 @@ on:
 
 jobs:
   build:
+    if: contains(github.event.pull_request.labels.*.name, 'skip-ci') == false
     runs-on: ubuntu-latest
     outputs:
       bake_file_existence: ${{ steps.bake_file_existence.outputs.files_exists }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 2
       - name: Git config user
@@ -33,7 +34,7 @@ jobs:
         with:
           name: NTNL Infra # Service Account's Name
           email: infra@ntnl.io # Service Account's Email Address
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
           node-version: 18.17.0
 
@@ -82,6 +83,9 @@ jobs:
           CI_RUN: 'true'
           NODE_OPTIONS: '--max-old-space-size=8192'
         run: node common/scripts/install-run-rush.js build --verbose
+
+      - name: prune rush build cache
+        run: node common/scripts/prune-cache.js --ci-run '^[a-zA-Z0-9-+]+' common/temp/build-cache
 
       - name: Check docker bake file existence
         id: bake_file_existence

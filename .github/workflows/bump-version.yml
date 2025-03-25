@@ -36,3 +36,6 @@ jobs:
           commit-message: 'chore: bump version'
           base: main
           title: 'chore: bump version'
+          token: ${{ secrets.BUMP_VERSION_KEY }}
+          labels: |
+            skip-ci
