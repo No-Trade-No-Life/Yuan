@@ -9,6 +9,7 @@ import * as observableHooks from 'observable-hooks';
 import React from 'react';
 import * as rxjs from 'rxjs';
 import * as yalps from 'yalps';
+import * as ethers from 'ethers';
 
 export const libs = {
   '@yuants/data-model': dataModel,
@@ -22,6 +23,7 @@ export const libs = {
   '@icon-park/react': IconParksIcons,
   'observable-hooks': observableHooks,
   'echarts-for-react': echartsForReact,
+  ethers: ethers,
 };
 
 Object.assign(globalThis, { Libs: libs });
