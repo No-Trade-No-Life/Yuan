@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-metrics-collector",
-  "version": "0.0.94",
+  "version": "0.0.95",
   "main": "lib/index.js",
   "files": [
     "dist",

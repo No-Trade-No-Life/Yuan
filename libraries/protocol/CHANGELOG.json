@@ -2,6 +2,23 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.33.0",
+      "tag": "@yuants/protocol_v0.33.0",
+      "date": "Thu, 27 Mar 2025 08:28:07 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add new utils 'requestResponseData'"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.32.0",
       "tag": "@yuants/protocol_v0.32.0",
       "date": "Thu, 13 Mar 2025 01:35:22 GMT",

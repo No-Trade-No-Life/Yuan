@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Thu, 13 Mar 2025 01:35:22 GMT and should not be manually modified.
+This log was last generated on Thu, 27 Mar 2025 08:28:07 GMT and should not be manually modified.
+
+## 0.33.0
+Thu, 27 Mar 2025 08:28:07 GMT
+
+### Minor changes
+
+- add new utils 'requestResponseData'
 
 ## 0.32.0
 Thu, 13 Mar 2025 01:35:22 GMT

@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-gate",
-  "version": "0.3.11",
+  "version": "0.3.12",
   "files": [
     "dist/extension.bundle.js"
   ],
