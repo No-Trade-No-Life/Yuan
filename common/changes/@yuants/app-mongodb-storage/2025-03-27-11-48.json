@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-mongodb-storage",
+      "comment": "fix pod affinity",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-mongodb-storage"
+}
