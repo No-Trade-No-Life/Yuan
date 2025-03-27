@@ -68,14 +68,18 @@ export default (context: IExtensionContext) => {
                     preferredDuringSchedulingIgnoredDuringExecution: [
                       {
                         weight: 1,
-                        preference: {
-                          matchExpressions: [
-                            {
-                              key: 'app',
-                              operator: 'In',
-                              values: ['mongodb-svc'],
-                            },
-                          ],
+                        podAffinityTerm: {
+                          labelSelector: {
+                            matchExpressions: [
+                              {
+                                key: 'app',
+                                operator: 'In',
+                                values: ['mongodb-svc'],
+                              },
+                            ],
+                          },
+                          topologyKey: 'kubernetes.io/hostname',
+                          namespaces: ['mongodb'],
                         },
                       },
                     ],
