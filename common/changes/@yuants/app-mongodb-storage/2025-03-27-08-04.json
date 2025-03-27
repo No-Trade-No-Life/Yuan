@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-mongodb-storage",
+      "comment": "adjust affinity and torlerations",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-mongodb-storage"
+}
