@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-mongodb-storage
 
-This log was last generated on Thu, 27 Mar 2025 11:15:05 GMT and should not be manually modified.
+This log was last generated on Thu, 27 Mar 2025 17:10:11 GMT and should not be manually modified.
+
+## 0.4.41
+Thu, 27 Mar 2025 17:10:11 GMT
+
+### Patches
+
+- fix pod affinity
 
 ## 0.4.40
 Thu, 27 Mar 2025 11:15:05 GMT
