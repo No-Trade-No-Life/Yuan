@@ -65,7 +65,7 @@ export default (context: IExtensionContext) => {
                 affinity: {
                   // 最好和 MongoDB 部署在一起
                   podAffinity: {
-                    requiredDuringSchedulingIgnoredDuringExecution: [
+                    preferredDuringSchedulingIgnoredDuringExecution: [
                       {
                         labelSelector: {
                           matchExpressions: [
@@ -82,6 +82,13 @@ export default (context: IExtensionContext) => {
                     ],
                   },
                 },
+                tolerations: [
+                  {
+                    key: 'dedicated',
+                    operator: 'Exists',
+                    effect: 'NoSchedule',
+                  },
+                ],
                 priorityClassName: 'system-node-critical',
                 containers: [
                   {
