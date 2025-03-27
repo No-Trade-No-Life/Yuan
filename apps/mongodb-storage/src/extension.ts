@@ -67,7 +67,8 @@ export default (context: IExtensionContext) => {
                   podAffinity: {
                     preferredDuringSchedulingIgnoredDuringExecution: [
                       {
-                        labelSelector: {
+                        weight: 1,
+                        preference: {
                           matchExpressions: [
                             {
                               key: 'app',
@@ -76,8 +77,6 @@ export default (context: IExtensionContext) => {
                             },
                           ],
                         },
-                        topologyKey: 'kubernetes.io/hostname',
-                        namespaces: ['mongodb'],
                       },
                     ],
                   },
