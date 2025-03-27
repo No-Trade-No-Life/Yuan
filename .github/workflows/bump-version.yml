@@ -37,5 +37,6 @@ jobs:
           base: main
           title: 'chore: bump version'
           token: ${{ secrets.BUMP_VERSION_KEY }}
+          author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           labels: |
             skip-ci
