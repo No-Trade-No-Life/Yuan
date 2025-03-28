@@ -1,5 +1,5 @@
 import { formatTime, UUID } from '@yuants/data-model';
-import { ITerminalInfo, PromRegistry, Terminal } from '@yuants/protocol';
+import { ITerminalInfo, ITerminalMessage, PromRegistry, Terminal } from '@yuants/protocol';
 import { createServer } from 'http';
 import {
   bindCallback,
@@ -275,16 +275,33 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
           let target_terminal_id;
           try {
             const headers = JSON.parse(raw_headers);
+            if (headers.target_terminal_ids) {
+              // Multicast
+              for (const target_terminal_id of headers.target_terminal_ids) {
+                if (!target_terminal_id) continue; // Skip if target_terminal_id not defined
+                if (!host.terminalInfos.has(target_terminal_id)) continue; // Skip if Terminal Not Found
+                if (!host.mapTerminalIdToHasHeader[target_terminal_id]) {
+                  // ISSUE: Designed for backward compatiable. Remove this branch if all terminals support has_header messages
+                  // if target terminal does not support header, strip the header and forward the message
+                  host.mapTerminalIdToSocket[target_terminal_id]?.send(raw_message.slice(idx + 1));
+                  continue;
+                }
+                // forward the message as is
+                host.mapTerminalIdToSocket[target_terminal_id]?.send(raw_message);
+              }
+              return;
+            }
             target_terminal_id = headers.target_terminal_id;
             if (!target_terminal_id) return; // Skip if target_terminal_id not defined
             if (!host.terminalInfos.has(target_terminal_id)) return; // Skip if Terminal Not Found
-            if (host.mapTerminalIdToHasHeader[target_terminal_id]) {
-              // if target terminal supports header, forward the message as is
-              host.mapTerminalIdToSocket[target_terminal_id]?.send(raw_message);
-            } else {
+            if (!host.mapTerminalIdToHasHeader[target_terminal_id]) {
+              // ISSUE: Designed for backward compatiable. Remove this branch if all terminals support has_header messages
               // if target terminal does not support header, strip the header and forward the message
               host.mapTerminalIdToSocket[target_terminal_id]?.send(raw_message.slice(idx + 1));
+              return;
             }
+            // if target terminal supports header, forward the message as is
+            host.mapTerminalIdToSocket[target_terminal_id]?.send(raw_message);
           } catch (e) {
             console.error(formatTime(Date.now()), 'InvalidHeader', raw_headers);
             return;
@@ -292,19 +309,24 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
         } else {
           // message without headers
           try {
-            const msg = JSON.parse(raw_message);
+            const msg: ITerminalMessage = JSON.parse(raw_message);
             const target_terminal_id = msg.target_terminal_id;
             if (!host.terminalInfos.has(target_terminal_id)) return; // Skip if Terminal Not Found
-            if (host.mapTerminalIdToHasHeader[target_terminal_id]) {
-              const headers = { target_terminal_id, source_terminal_id: msg.source_terminal_id };
-              // if target terminal supports headers, wrap the message with header and forward
-              host.mapTerminalIdToSocket[target_terminal_id]?.send(
-                JSON.stringify(headers) + '\n' + raw_message,
-              );
-            } else {
+            if (!host.mapTerminalIdToHasHeader[target_terminal_id]) {
+              // ISSUE: Designed for backward compatiable. Remove this branch if all terminals support has_header messages
               // if target terminal does not support headers, forward the message as is
               host.mapTerminalIdToSocket[target_terminal_id]?.send(origin.data);
+              return;
             }
+            const headers = {
+              target_terminal_id: msg.target_terminal_id,
+              target_terminal_ids: msg.target_terminal_id,
+              source_terminal_id: msg.source_terminal_id,
+            };
+            // if target terminal supports headers, wrap the message with header and forward
+            host.mapTerminalIdToSocket[target_terminal_id]?.send(
+              JSON.stringify(headers) + '\n' + raw_message,
+            );
           } catch (e) {
             console.error(formatTime(Date.now()), 'InvalidMessage', raw_message);
             return;

@@ -13,6 +13,14 @@ export interface IService {}
 export interface ITerminalMessage {
   source_terminal_id: string;
   target_terminal_id: string;
+  /**
+   * The terminal IDs that the message will be forwarded to (optional)
+   * 消息将被转发到的终端 ID 列表 (可选)
+   *
+   * If set, the target_terminal_id will be ignored
+   * 如果设置了该字段，则 target_terminal_id 将被忽略
+   */
+  target_terminal_ids?: string[];
   trace_id: string;
 
   method?: string;
