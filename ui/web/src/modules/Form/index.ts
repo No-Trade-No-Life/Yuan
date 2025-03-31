@@ -102,6 +102,8 @@ export const showForm = <T>(
     function getProps(): ModalReactProps {
       return {
         getPopupContainer: () => document.getElementById('root') as HTMLElement,
+        icon: null,
+        bodyStyle: { maxHeight: '80vh', overflow: 'auto' },
         content: React.createElement(
           Form,
           {
