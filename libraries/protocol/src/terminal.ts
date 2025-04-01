@@ -1,5 +1,4 @@
 import { UUID, formatTime } from '@yuants/data-model';
-import { NativeSubject, observableToAsyncIterable, subjectToNativeSubject } from '@yuants/utils';
 import Ajv from 'ajv';
 import { isNode } from 'browser-or-node';
 import { JSONSchema7 } from 'json-schema';
@@ -758,15 +757,15 @@ export class Terminal {
   /**
    * Observable that emits when a message is received
    */
-  input$: AsyncIterable<ITerminalMessage> = observableToAsyncIterable(this._input$);
+  input$ = this._input$;
   /**
    * Subject that emits when a message is sent
    */
-  output$: NativeSubject<ITerminalMessage> = subjectToNativeSubject(this._output$);
+  output$ = this._output$;
   /**
    * Observable that emits when the terminal is disposed
    */
-  dispose$: AsyncIterable<void> = observableToAsyncIterable(this._dispose$);
+  dispose$ = this._dispose$;
 
   /**
    * Dispose the terminal
@@ -956,7 +955,7 @@ export class Terminal {
   /**
    * Terminal List of the same host
    */
-  terminalInfos$: AsyncIterable<ITerminalInfo[]> = observableToAsyncIterable(this._terminalInfos$);
+  terminalInfos$ = this._terminalInfos$.asObservable();
 
   server: TerminalServer = new TerminalServer(this);
   client: TerminalClient = new TerminalClient(this);

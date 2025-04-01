@@ -1,5 +1,4 @@
 import { formatTime } from '@yuants/data-model';
-import { nativeSubjectToSubject, observableToAsyncIterable, subjectToNativeSubject } from '@yuants/utils';
 import {
   BehaviorSubject,
   catchError,
@@ -76,7 +75,6 @@ export class TerminalServer {
     this._setupServer();
     this._setupHeartbeat();
   }
-  private _terminalOutput$ = nativeSubjectToSubject(this.terminal.output$);
 
   public mapServiceIdToService = new Map<string, IServiceInfoServerSide>();
 
@@ -152,7 +150,7 @@ export class TerminalServer {
             terminalMessage.done = true;
           }
           // Auto fill the trace_id and method
-          this._terminalOutput$.next(terminalMessage);
+          this.terminal.output$.next(terminalMessage);
         });
 
         const requestContext: IRequestContext = {
@@ -300,8 +298,7 @@ export class TerminalServer {
       // ISSUE: from -> defer, make sure the error of handler will be caught
       defer(() =>
         serviceContext.service.handler(message, {
-          output$: subjectToNativeSubject(output$),
-          isAborted$: observableToAsyncIterable(requestContext.isAborted$),
+          isAborted$: requestContext.isAborted$,
         }),
       )
         .pipe(

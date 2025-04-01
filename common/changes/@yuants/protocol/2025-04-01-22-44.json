@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "fix memory leak issue",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

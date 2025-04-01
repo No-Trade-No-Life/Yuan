@@ -1,5 +1,4 @@
 import { formatTime, UUID } from '@yuants/data-model';
-import { nativeSubjectToSubject } from '@yuants/utils';
 import Ajv from 'ajv';
 import {
   defer,
@@ -41,8 +40,6 @@ export class TerminalClient {
       )
       .subscribe();
   }
-
-  private _terminalOutput$ = nativeSubjectToSubject(this.terminal.output$);
 
   /**
    * Resolve candidate target_terminal_ids for a request
@@ -186,7 +183,7 @@ export class TerminalClient {
           target_terminal_id,
         );
       }
-      this._terminalOutput$.next(msg);
+      this.terminal.output$.next(msg);
       return response$.pipe(
         timeout({
           each: 60_000, // maybe configurable in the future
@@ -198,7 +195,7 @@ export class TerminalClient {
             if (this.terminal.options.verbose) {
               console.info(formatTime(Date.now()), 'Client', 'RequestAborted', msg.trace_id);
             }
-            this._terminalOutput$.next({
+            this.terminal.output$.next({
               trace_id,
               method,
               target_terminal_id,
