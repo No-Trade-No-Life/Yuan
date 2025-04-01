@@ -1,7 +1,6 @@
-import { NativeSubject } from '@yuants/utils';
 import { ValidateFunction } from 'ajv';
 import { JSONSchema7 } from 'json-schema';
-import { ObservableInput } from 'rxjs';
+import { Observable, ObservableInput } from 'rxjs';
 import { IService, ITerminalMessage } from './services';
 
 /**
@@ -166,11 +165,7 @@ export type IServiceHandler<T extends string = string> = T extends keyof IServic
   ? (
       msg: ITerminalMessage & Pick<IService[T], 'req'> & { method: T },
       ctx: {
-        output$: NativeSubject<
-          Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> &
-            Partial<Pick<IService[T], 'res' | 'frame'>>
-        >;
-        isAborted$: AsyncIterable<boolean>;
+        isAborted$: Observable<boolean>;
       },
     ) => ObservableInput<
       Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> &
@@ -180,10 +175,7 @@ export type IServiceHandler<T extends string = string> = T extends keyof IServic
     (
       msg: ITerminalMessage,
       ctx: {
-        output$: NativeSubject<
-          Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>
-        >;
-        isAborted$: AsyncIterable<boolean>;
+        isAborted$: Observable<boolean>;
       },
     ) => ObservableInput<
       Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>

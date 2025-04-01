@@ -1,6 +1,6 @@
 import { formatTime, UUID } from '@yuants/data-model';
 import { IResponse, Terminal } from '@yuants/protocol';
-import { first, from } from 'rxjs';
+import { first, from, ObservableInput } from 'rxjs';
 
 const terminal = new Terminal(process.env.HOST_URL!, {
   terminal_id: process.env.TERMINAL_ID || `app-openai/${UUID()}`,
@@ -36,7 +36,7 @@ declare module '@yuants/protocol' {
   }
 }
 
-const getAbortSignalFromNativeObservable = (observable: AsyncIterable<boolean>) => {
+const getAbortSignalFromNativeObservable = (observable: ObservableInput<boolean>) => {
   const abortController = new AbortController();
   from(observable)
     .pipe(first((x) => x))

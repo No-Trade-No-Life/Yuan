@@ -16,6 +16,7 @@ import { NativeSubject } from '@yuants/utils';
 import { Observable } from 'rxjs';
 import { ObservableInput } from 'rxjs';
 import { Registry } from '@yuants/prometheus-client';
+import { Subject } from 'rxjs';
 import { ValidateFunction } from 'ajv';
 
 // Warning: (ae-forgotten-export) The symbol "IAccountTransferAddressContext" needs to be exported by the entry point index.d.ts
@@ -80,11 +81,9 @@ export interface IServiceCandidateClientSide {
 export type IServiceHandler<T extends string = string> = T extends keyof IService ? (msg: ITerminalMessage & Pick<IService[T], 'req'> & {
     method: T;
 }, ctx: {
-    output$: NativeSubject<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> & Partial<Pick<IService[T], 'res' | 'frame'>>>;
-    isAborted$: AsyncIterable<boolean>;
+    isAborted$: Observable<boolean>;
 }) => ObservableInput<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> & Partial<Pick<IService[T], 'res' | 'frame'>>> : (msg: ITerminalMessage, ctx: {
-    output$: NativeSubject<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>>;
-    isAborted$: AsyncIterable<boolean>;
+    isAborted$: Observable<boolean>;
 }) => ObservableInput<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>>;
 
 // @public
@@ -210,11 +209,11 @@ export class Terminal {
     //
     // (undocumented)
     client: TerminalClient;
-    dispose$: AsyncIterable<void>;
+    dispose$: Subject<void>;
     dispose(): void;
     // (undocumented)
     host_url: string;
-    input$: AsyncIterable<ITerminalMessage>;
+    input$: Subject<ITerminalMessage>;
     isConnected$: AsyncIterable<boolean>;
     // (undocumented)
     options: {
@@ -223,7 +222,7 @@ export class Terminal {
         disableMetrics?: boolean;
         connection?: IConnection<string>;
     };
-    output$: NativeSubject<ITerminalMessage>;
+    output$: Subject<ITerminalMessage>;
     // Warning: (ae-incompatible-release-tags) The symbol "provideService" is marked as @public, but its signature references "IServiceHandler" which is marked as @internal
     provideService<T extends string>(method: T, requestSchema: JSONSchema7, handler: IServiceHandler<T>, options?: IServiceOptions): {
         dispose: () => void;
@@ -243,7 +242,7 @@ export class Terminal {
     terminal_id: string;
     // (undocumented)
     terminalInfo: ITerminalInfo;
-    terminalInfos$: AsyncIterable<ITerminalInfo[]>;
+    terminalInfos$: Observable<ITerminalInfo[]>;
     // (undocumented)
     terminalInfos: ITerminalInfo[];
 }
