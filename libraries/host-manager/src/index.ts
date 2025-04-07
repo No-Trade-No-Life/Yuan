@@ -321,6 +321,11 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
           has_header: has_header ? 'true' : 'false',
           source_terminal_id: terminal_id,
         });
+        MetricsHostManagerConnectionEstablishedCounter.clear({
+          host_id,
+          terminal_id,
+          has_header: has_header ? 'true' : 'false',
+        });
         delete host.mapTerminalIdToSocket[terminal_id];
         delete host.mapTerminalIdToHasHeader[terminal_id];
       });
