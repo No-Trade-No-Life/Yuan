@@ -15,7 +15,7 @@ const terminal = new Terminal(HOST_URL, {
 const sql = postgres(process.env.POSTGRES_URI!);
 
 terminal.provideService('SQL', {}, async (msg, { isAborted$ }) => {
-  console.info(formatTime(Date.now()), 'SQL REQUEST', msg.trace_id, msg.req.query.replace(/\s+/g, ' '));
+  console.info(formatTime(Date.now()), 'SQL REQUEST', msg.trace_id);
   const query = sql.unsafe(msg.req.query);
   from(isAborted$)
     .pipe(first((x) => x))

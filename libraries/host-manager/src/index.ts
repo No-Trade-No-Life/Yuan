@@ -316,6 +316,11 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
         console.info(formatTime(Date.now()), 'Host', host_id, 'terminal disconnected', terminal_id);
         host.terminalInfos.delete(terminal_id);
         host.mapTerminalIdToSocket[terminal_id]?.terminate();
+        MetricsHostManagerMessageSize.clear({
+          host_id,
+          has_header: has_header ? 'true' : 'false',
+          source_terminal_id: terminal_id,
+        });
         delete host.mapTerminalIdToSocket[terminal_id];
         delete host.mapTerminalIdToHasHeader[terminal_id];
       });
