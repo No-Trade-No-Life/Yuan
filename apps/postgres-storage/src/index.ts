@@ -1,7 +1,8 @@
 import { formatTime, UUID } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
 import type {} from '@yuants/sql';
-import postgres from 'postgres';
+import { Pool } from 'pg';
+import { parse } from 'pg-connection-string';
 import { first, from } from 'rxjs';
 
 const HOST_URL = process.env.HOST_URL!;
@@ -12,19 +13,47 @@ const terminal = new Terminal(HOST_URL, {
   name: 'Postgres Storage',
 });
 
-const sql = postgres(process.env.POSTGRES_URI!);
+const config = parse(process.env.POSTGRES_URI!);
+//@ts-ignore
+config.ssl = {
+  rejectUnauthorized: false,
+};
 
-terminal.provideService('SQL', {}, async (msg, { isAborted$ }) => {
-  console.info(formatTime(Date.now()), 'SQL REQUEST', msg.trace_id);
-  const query = sql.unsafe(msg.req.query);
-  from(isAborted$)
-    .pipe(first((x) => x))
-    .subscribe(() => {
-      console.info(formatTime(Date.now()), 'SQL ABORTED', msg.trace_id);
-      query.cancel();
-      throw new Error('Aborted');
-    });
-  const results = await query;
-  console.info(formatTime(Date.now()), 'SQL RESPONSE', msg.trace_id, results.length);
-  return { res: { code: 0, message: 'OK', data: results } };
+// @ts-ignore
+const pool = new Pool({
+  max: 20,
+  idleTimeoutMillis: 30000,
+  connectionTimeoutMillis: 2000,
+  ...config,
 });
+
+terminal.provideService(
+  'SQL',
+  {
+    required: ['query'],
+    properties: {
+      query: {
+        type: 'string',
+        description: 'SQL query to execute',
+      },
+    },
+  },
+  async (msg, { isAborted$ }) => {
+    console.info(formatTime(Date.now()), 'SQL REQUEST', msg.trace_id);
+    const sql = await pool.connect();
+    // @ts-ignore
+    const query = sql.query(msg.req.query);
+    from(isAborted$)
+      .pipe(first((x) => x))
+      .subscribe(() => {
+        console.info(formatTime(Date.now()), 'SQL ABORTED', msg.trace_id);
+        sql.release();
+        throw new Error('Aborted');
+      });
+    const results = await query;
+    const rows = Array.isArray(results) ? results.map((result) => result.rows) : results.rows;
+    // @ts-ignore
+    console.info(formatTime(Date.now()), 'SQL RESPONSE', msg.trace_id, rows.length);
+    return { res: { code: 0, message: 'OK', data: rows } };
+  },
+);
