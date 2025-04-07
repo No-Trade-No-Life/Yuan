@@ -2,6 +2,26 @@
   "name": "@yuants/host-manager",
   "entries": [
     {
+      "version": "0.2.10",
+      "tag": "@yuants/host-manager_v0.2.10",
+      "date": "Mon, 07 Apr 2025 16:39:44 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "clear label for metrics"
+          },
+          {
+            "comment": "fix label"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.9",
       "tag": "@yuants/host-manager_v0.2.9",
       "date": "Tue, 01 Apr 2025 22:55:16 GMT",
