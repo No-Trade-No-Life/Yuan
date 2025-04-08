@@ -69,7 +69,7 @@ export const DesktopLayout = () => {
     >
       <WallPaper />
       {isShowHome === true ? <HomePage /> : null}
-      <Layout.Content style={{ position: 'relative' }}>
+      <Layout.Content style={{ position: 'relative', width: '100%', height: '100%' }}>
         {(isDev || !isFullScreen) && model && (
           <FlexLayout
             onModelChange={(model) => {
