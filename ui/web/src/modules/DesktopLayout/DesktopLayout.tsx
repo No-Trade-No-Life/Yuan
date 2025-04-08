@@ -18,6 +18,7 @@ import { WallPaper } from './WallPaper';
 import { layoutModel$, layoutModelJson$ } from './layout-model';
 
 export const isHideNavigator$ = createPersistBehaviorSubject('hide-navigator', false);
+const isFullScreen$ = createPersistBehaviorSubject('full-screen', false);
 
 registerAssociationRule({
   id: 'Layout',
@@ -36,6 +37,9 @@ export const DesktopLayout = () => {
   const isShowHome = useObservableState(isShowHome$);
   const isDev = useMemo(() => new URL(document.location.href).searchParams.get('mode') === 'development', []);
   const isHideNavigator = useObservableState(isHideNavigator$);
+
+  const activeNode = model.getActiveTabset()?.getSelectedNode();
+  const isFullScreen = useObservableState(isFullScreen$);
 
   const factory = (node: TabNode) => {
     const id = node.getId();
@@ -66,7 +70,7 @@ export const DesktopLayout = () => {
       <WallPaper />
       {isShowHome === true ? <HomePage /> : null}
       <Layout.Content style={{ position: 'relative' }}>
-        {model && (
+        {(isDev || !isFullScreen) && model && (
           <FlexLayout
             onModelChange={(model) => {
               layoutModelJson$.next(model.toJson());
@@ -91,6 +95,11 @@ export const DesktopLayout = () => {
             factory={factory}
           />
         )}
+        {!isDev &&
+          isFullScreen &&
+          activeNode &&
+          activeNode.getType() === 'tab' &&
+          factory(activeNode as TabNode)}
       </Layout.Content>
       {(isDev || !isHideNavigator) && (
         <Layout.Header
