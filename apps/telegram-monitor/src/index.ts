@@ -151,9 +151,13 @@ message$
     bufferTime(1000),
     filter((messages) => messages.length > 0),
     mergeMap((messages) =>
-      defer(() => requestSQL(terminal, buildInsertManyIntoTableSQL(messages, 'telegram_messages'))).pipe(
-        retry({ delay: 5000 }),
-      ),
+      defer(() =>
+        requestSQL(
+          terminal,
+          // ISSUE: for two user join the same channel, the message will be duplicated
+          `${buildInsertManyIntoTableSQL(messages, 'telegram_messages')} ON CONFLICT DO NOTHING`,
+        ),
+      ).pipe(retry({ delay: 5000 })),
     ),
   )
   .subscribe();
