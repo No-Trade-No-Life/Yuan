@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-telegram-monitor
 
-This log was last generated on Tue, 01 Apr 2025 22:55:16 GMT and should not be manually modified.
+This log was last generated on Wed, 09 Apr 2025 15:32:27 GMT and should not be manually modified.
+
+## 0.0.16
+Wed, 09 Apr 2025 15:32:27 GMT
+
+### Patches
+
+- handle duplicated error when insert for telegram
 
 ## 0.0.15
 Tue, 01 Apr 2025 22:55:16 GMT
