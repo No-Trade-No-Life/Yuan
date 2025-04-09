@@ -42,20 +42,25 @@ terminal.provideService(
   async (msg, { isAborted$ }) => {
     console.info(formatTime(Date.now()), 'SQL REQUEST', msg.trace_id);
     const sql = await pool.connect();
-    // @ts-ignore
-    const query = sql.query(msg.req.query);
-    from(isAborted$)
-      .pipe(first((x) => x))
-      .subscribe(() => {
-        console.info(formatTime(Date.now()), 'SQL ABORTED', msg.trace_id);
-        sql.release();
-        throw new Error('Aborted');
-      });
-    const results = await query;
-    sql.release();
-    const rows = Array.isArray(results) ? results.map((result) => result.rows) : results.rows;
-    // @ts-ignore
-    console.info(formatTime(Date.now()), 'SQL RESPONSE', msg.trace_id, rows.length);
-    return { res: { code: 0, message: 'OK', data: rows } };
+    try {
+      const query = sql.query(msg.req.query);
+      from(isAborted$)
+        .pipe(first((x) => x))
+        .subscribe(() => {
+          console.info(formatTime(Date.now()), 'SQL ABORTED', msg.trace_id);
+          sql.release();
+          throw new Error('Aborted');
+        });
+      const results = await query;
+      sql.release();
+      const rows = Array.isArray(results) ? results.map((result) => result.rows) : results.rows;
+      // @ts-ignore
+      console.info(formatTime(Date.now()), 'SQL RESPONSE', msg.trace_id, rows.length);
+      return { res: { code: 0, message: 'OK', data: rows } };
+    } catch (e) {
+      console.error(formatTime(Date.now()), 'SQL ERROR', msg.trace_id, e);
+      sql.release();
+      throw e;
+    }
   },
 );

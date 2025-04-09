@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-postgres-storage",
+      "comment": "release client to pool when errored",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-postgres-storage"
+}
