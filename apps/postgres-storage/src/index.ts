@@ -24,6 +24,7 @@ const pool = new Pool({
   max: 20,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
+  keepAlive: true,
   ...config,
 });
 
@@ -51,6 +52,7 @@ terminal.provideService(
         throw new Error('Aborted');
       });
     const results = await query;
+    sql.release();
     const rows = Array.isArray(results) ? results.map((result) => result.rows) : results.rows;
     // @ts-ignore
     console.info(formatTime(Date.now()), 'SQL RESPONSE', msg.trace_id, rows.length);
