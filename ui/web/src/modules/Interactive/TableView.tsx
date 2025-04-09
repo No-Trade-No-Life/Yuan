@@ -51,28 +51,32 @@ export function TableView<T>(props: { table: Table<T> }) {
                         />
                       ) : null}
 
-                      <Dropdown
-                        content={
-                          <DropdownMenu>
-                            <DropdownItem
-                              icon={<IconEyeOpened />}
-                              onClick={header.column.getToggleVisibilityHandler()}
-                            >
-                              隐藏字段
-                            </DropdownItem>
-                            {header.column.getCanGroup() && (
-                              <DropdownItem
-                                icon={header.column.getIsGrouped() ? <IconArrowRight /> : <IconArrowLeft />}
-                                onClick={header.column.getToggleGroupingHandler()}
-                              >
-                                {header.column.getIsGrouped() ? '取消分组' : '分组'}
-                              </DropdownItem>
-                            )}
-                          </DropdownMenu>
-                        }
-                      >
-                        <IconMenu />
-                      </Dropdown>
+                      {(header.column.getCanHide() || header.column.getCanGroup()) && (
+                        <Dropdown
+                          content={
+                            <DropdownMenu>
+                              {header.column.getCanHide() && (
+                                <DropdownItem
+                                  icon={<IconEyeOpened />}
+                                  onClick={header.column.getToggleVisibilityHandler()}
+                                >
+                                  隐藏字段
+                                </DropdownItem>
+                              )}
+                              {header.column.getCanGroup() && (
+                                <DropdownItem
+                                  icon={header.column.getIsGrouped() ? <IconArrowRight /> : <IconArrowLeft />}
+                                  onClick={header.column.getToggleGroupingHandler()}
+                                >
+                                  {header.column.getIsGrouped() ? '取消分组' : '分组'}
+                                </DropdownItem>
+                              )}
+                            </DropdownMenu>
+                          }
+                        >
+                          <IconMenu />
+                        </Dropdown>
+                      )}
                     </Space>
 
                     {header.column.getCanFilter() ? (

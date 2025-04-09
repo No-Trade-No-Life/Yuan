@@ -38,13 +38,18 @@ export function DataView<T, K>(props: {
   initialGroupping?: GroupingState;
 
   initialTopSlotVisible?: boolean;
+  topSlotVisible?: boolean;
+
+  initialPageSize?: number;
   CustomView?: React.ComponentType<{ table: Table<T> }>;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   // ISSUE: if columns is not memoized, there's a bug to refresh columns
   const columns = useMemo(() => props.columns, props.columnsDependencyList ?? []);
-  const [isTopSlotVisible, setIsTopSlotVisible] = useState(props.initialTopSlotVisible ?? true);
+  const [isTopSlotVisible, setIsTopSlotVisible] = useState(
+    props.topSlotVisible ?? props.initialTopSlotVisible ?? true,
+  );
 
   const tableOptions: TableOptions<T> = {
     data: props.data,
@@ -76,6 +81,10 @@ export function DataView<T, K>(props: {
 
   if (props.initialGroupping) {
     (tableOptions.initialState ??= {}).grouping = props.initialGroupping;
+  }
+
+  if (props.initialPageSize) {
+    ((tableOptions.initialState ??= {}).pagination ??= {}).pageSize = props.initialPageSize;
   }
 
   const table = useReactTable(tableOptions);
@@ -259,7 +268,16 @@ export function DataView<T, K>(props: {
           {topSlot}
         </Space>
       )}
-      <Space wrap style={{ position: 'absolute', top: 0, right: 0, zIndex: 2000 }}>
+      <Space
+        wrap
+        style={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          zIndex: 2000,
+          display: props.topSlotVisible !== undefined ? 'none' : undefined,
+        }}
+      >
         <Button
           icon={isTopSlotVisible ? <IconMinimize /> : <IconExpand />}
           onClick={async () => {
