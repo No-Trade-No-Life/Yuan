@@ -20,11 +20,11 @@ registerPage('ServiceList', () => {
         ),
       [],
     ),
-    [],
   );
 
   const providedServices = useMemo(() => {
     const ret: { terminal_id: string; serviceInfo: IServiceInfo }[] = [];
+    if (!terminalInfos) return undefined;
     for (const terminalInfo of terminalInfos)
       for (const serviceInfo of Object.values(terminalInfo?.serviceInfo || {})) {
         if (!serviceInfo.service_id) continue;
