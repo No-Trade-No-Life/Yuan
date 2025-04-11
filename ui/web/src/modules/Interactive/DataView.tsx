@@ -1,5 +1,5 @@
 import { IconExpand, IconEyeOpened, IconList, IconMinimize, IconSort } from '@douyinfe/semi-icons';
-import { Input, Pagination, Radio, RadioGroup, Space } from '@douyinfe/semi-ui';
+import { Input, Pagination, Radio, RadioGroup, Space, Spin } from '@douyinfe/semi-ui';
 import {
   ColumnDef,
   getCoreRowModel,
@@ -23,7 +23,7 @@ import { ListView } from './ListView';
 import { TableView } from './TableView';
 
 export function DataView<T, K>(props: {
-  data: T[];
+  data?: T[];
   columns: ColumnDef<T, any>[];
   columnsDependencyList?: any[];
   tableRef?: React.MutableRefObject<Table<T> | undefined>;
@@ -39,6 +39,7 @@ export function DataView<T, K>(props: {
 
   initialTopSlotVisible?: boolean;
   topSlotVisible?: boolean;
+  isLoading?: boolean;
 
   initialPageSize?: number;
   CustomView?: React.ComponentType<{ table: Table<T> }>;
@@ -51,8 +52,10 @@ export function DataView<T, K>(props: {
     props.topSlotVisible ?? props.initialTopSlotVisible ?? true,
   );
 
+  const isLoading = props.isLoading || props.data === undefined;
+
   const tableOptions: TableOptions<T> = {
-    data: props.data,
+    data: props.data || [],
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -275,11 +278,11 @@ export function DataView<T, K>(props: {
           top: 0,
           right: 0,
           zIndex: 2000,
-          display: props.topSlotVisible !== undefined ? 'none' : undefined,
         }}
       >
         <Button
           icon={isTopSlotVisible ? <IconMinimize /> : <IconExpand />}
+          style={{ display: props.topSlotVisible !== undefined ? 'none' : undefined }}
           onClick={async () => {
             setIsTopSlotVisible(!isTopSlotVisible);
           }}
@@ -287,9 +290,11 @@ export function DataView<T, K>(props: {
       </Space>
       <div style={{ width: '100%', flexGrow: 1, overflow: 'auto' }}>
         <ErrorBoundary>
-          {actualLayoutMode === 'custom' && props.CustomView && <props.CustomView table={table} />}
-          {actualLayoutMode === 'table' && <TableView table={table} />}
-          {actualLayoutMode === 'list' && <ListView table={table} />}
+          <Spin spinning={isLoading}>
+            {actualLayoutMode === 'custom' && props.CustomView && <props.CustomView table={table} />}
+            {actualLayoutMode === 'table' && <TableView table={table} />}
+            {actualLayoutMode === 'list' && <ListView table={table} />}
+          </Spin>
         </ErrorBoundary>
       </div>
     </div>
