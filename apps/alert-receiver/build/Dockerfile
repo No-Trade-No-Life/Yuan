@@ -23,4 +23,4 @@ RUN node create-links.js create
 
 WORKDIR /app/apps/alert-receiver
 
-CMD ["node", "./lib/index.js"]
+CMD ["node", "--heapsnapshot-signal=SIGUSR2", "./lib/index.js"]

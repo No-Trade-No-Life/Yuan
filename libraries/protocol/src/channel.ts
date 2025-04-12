@@ -124,6 +124,7 @@ export class TerminalChannel {
                   `type=${type} channel_id=${channel_id} is unsubscribed by ${msg.source_terminal_id}`,
                 );
               }
+              this._mapTypeAndChannelIdToPublishedObservable$.delete(typeAndChannelId);
             },
           }),
           // 直到发起订阅的终端不在主机中，自动关闭频道
@@ -190,6 +191,7 @@ export class TerminalChannel {
                   `type=${type} channel_id=${channel_id} is closed`,
                 );
               }
+              this._mapTypeAndChannelIdToSubscribedObservable$.delete(typeAndChannelId);
             },
           }),
           // Auto close when the terminal is disposed

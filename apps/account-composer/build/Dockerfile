@@ -23,4 +23,4 @@ RUN node create-links.js create
 WORKDIR /app/apps/account-composer
 
 # USER nobody
-CMD ["node", "./lib/index.js"]
+CMD ["node", "--heapsnapshot-signal=SIGUSR2", "./lib/index.js"]
