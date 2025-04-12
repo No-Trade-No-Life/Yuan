@@ -23,4 +23,4 @@ RUN node create-links.js create
 
 WORKDIR /app/apps/vendor-tq
 
-CMD ["node", "./lib/index.js"]
+CMD ["node", "--heapsnapshot-signal=SIGUSR2", "./lib/index.js"]

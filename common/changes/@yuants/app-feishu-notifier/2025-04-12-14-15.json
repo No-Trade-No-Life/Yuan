@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-feishu-notifier",
+      "comment": "add Dockerfile node option",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-feishu-notifier"
+}
