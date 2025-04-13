@@ -4,7 +4,7 @@ import { decodeBase58, encodeBase58 } from '@yuants/utils';
 import * as FlexLayout from 'flexlayout-react';
 import hotkeys from 'hotkeys-js';
 import { resolve } from 'path-browserify';
-import { bufferCount, filter, first, firstValueFrom, map, shareReplay, Subject } from 'rxjs';
+import { filter, first, firstValueFrom, map, merge, Observable, shareReplay } from 'rxjs';
 import { createPersistBehaviorSubject } from '../BIOS';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
@@ -28,10 +28,12 @@ const initialJson = (): FlexLayout.IJsonModel => ({
   },
 });
 
-// the Single Truth
+/**
+ * the Single Truth of Layout Model
+ *
+ * All Model operations should be done through this
+ */
 export const layoutModelJson$ = createPersistBehaviorSubject('layout', initialJson());
-
-const layoutUpdate$ = new Subject<void>();
 
 const loadPageFromURL = () => {
   const url = new URL(document.location.href);
@@ -48,18 +50,11 @@ const loadPageFromURL = () => {
   return { type: page, params: params() };
 };
 
-const initialPage = loadPageFromURL();
-
-const layoutModelJsonLoaded$ = layoutModelJson$.pipe(
-  first((json) => json !== undefined),
-  shareReplay(1),
-);
-
 // Sync layout model to ActivePage$
 export const activePage$ = layoutModelJson$.pipe(
   map((json) => {
     if (!json) return;
-    console.info('#', formatTime(Date.now()), 'layoutModelJson$', JSON.stringify(json));
+    // console.info('#', formatTime(Date.now()), 'layoutModelJson$', JSON.stringify(json));
     const model = FlexLayout.Model.fromJson(json);
     const activeNode = model?.getActiveTabset()?.getSelectedNode();
     if (activeNode?.getType() === 'tab') {
@@ -76,7 +71,7 @@ export const activePage$ = layoutModelJson$.pipe(
 // sync ActivePage$ to URL
 activePage$.subscribe((x) => {
   if (!x) return;
-  console.info('#', formatTime(Date.now()), 'activePage$', JSON.stringify(x));
+  // console.info('#', formatTime(Date.now()), 'activePage$', JSON.stringify(x));
   const currentURL = new URL(document.location.href);
   currentURL.searchParams.set('page', x.page);
   currentURL.searchParams.set(
@@ -86,27 +81,33 @@ activePage$.subscribe((x) => {
   window.history.pushState({}, '', currentURL.href);
 });
 
-layoutModelJsonLoaded$.subscribe((v) => {
-  console.info('#', formatTime(Date.now()), 'layoutModelJson$', v);
+merge(
+  // 当初次加载持久化的 layoutModelJson$ 时触发
+  layoutModelJson$.pipe(first((json) => json !== undefined)),
+  // 后退历史时触发
+  new Observable((subscriber) => {
+    const f = () => {
+      subscriber.next();
+    };
+    window.addEventListener('popstate', f);
+    return () => {
+      window.removeEventListener('popstate', f);
+    };
+  }),
+).subscribe(() => {
+  const initialPage = loadPageFromURL();
   if (initialPage) {
     executeCommand('Page.open', initialPage);
   }
 });
 
-layoutModelJson$
-  .pipe(
-    bufferCount(2),
-    first(([a, b]) => a === undefined && b !== undefined),
-    map(([, b]) => b),
-  )
-  .subscribe((json) => {
-    layoutUpdate$.next();
-  });
-
 export const layoutModel$ = layoutModelJson$.pipe(
   map((json) => (json ? FlexLayout.Model.fromJson(json) : null)),
   shareReplay(1),
 );
+
+const requiredLayoutModel$ = layoutModel$.pipe(filter((x): x is Exclude<typeof x, null | undefined> => !!x));
+
 layoutModel$.subscribe((layoutModel) => {
   Object.assign(globalThis, { layoutModel, Actions: FlexLayout.Actions });
 });
@@ -114,7 +115,7 @@ layoutModel$.subscribe((layoutModel) => {
 registerCommand('Page.open', async ({ type: pageKey, params = {}, parentId: _parentId }) => {
   Modules.Workbench.isShowHome$.next(false);
   const pageId = JSON.stringify({ pageKey, params });
-  const model = await firstValueFrom(layoutModel$.pipe(filter((x) => !!x)));
+  const model = await firstValueFrom(requiredLayoutModel$);
 
   const theNode = model.getNodeById(pageId);
   if (theNode) {
@@ -157,7 +158,7 @@ registerCommand('Page.open', async ({ type: pageKey, params = {}, parentId: _par
 });
 
 registerCommand('Page.select', async ({ id: pageId }) => {
-  const model = await firstValueFrom(layoutModel$.pipe(filter((x) => !!x)));
+  const model = await firstValueFrom(requiredLayoutModel$);
   const node = model.getNodeById(pageId);
   if (node) {
     if (!node.isVisible()) {
@@ -168,7 +169,7 @@ registerCommand('Page.select', async ({ id: pageId }) => {
 });
 
 const closeCurrentTab = async () => {
-  const model = await firstValueFrom(layoutModel$.pipe(filter((x) => !!x)));
+  const model = await firstValueFrom(requiredLayoutModel$);
   const tabset = model.getActiveTabset();
   const nodeId = tabset?.getSelectedNode()?.getId();
   if (nodeId) {
@@ -185,7 +186,6 @@ hotkeys('alt+w', function (event, handler) {
 
 registerCommand('ResetLayout', () => {
   layoutModelJson$.next(initialJson());
-  layoutUpdate$.next();
 });
 
 registerCommand('ClosePage', () => {
@@ -193,13 +193,13 @@ registerCommand('ClosePage', () => {
 });
 
 registerCommand('Page.close', async ({ pageId }) => {
-  const model = await firstValueFrom(layoutModel$.pipe(filter((x) => !!x)));
+  const model = await firstValueFrom(requiredLayoutModel$);
   model.doAction(FlexLayout.Actions.deleteTab(pageId));
   layoutModelJson$.next(model.toJson());
 });
 
 registerCommand('Page.changeTitle', async ({ pageId, title }) => {
-  const model = await firstValueFrom(layoutModel$.pipe(filter((x) => !!x)));
+  const model = await firstValueFrom(requiredLayoutModel$);
   model.doAction(FlexLayout.Actions.renameTab(pageId, title));
   layoutModelJson$.next(model.toJson());
 });
