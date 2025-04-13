@@ -1,11 +1,12 @@
 import { Toast } from '@douyinfe/semi-ui';
 import { formatTime } from '@yuants/data-model';
+import { decodeBase58, encodeBase58 } from '@yuants/utils';
 import * as FlexLayout from 'flexlayout-react';
 import hotkeys from 'hotkeys-js';
 import { resolve } from 'path-browserify';
-import { BehaviorSubject, bufferCount, combineLatest, first, map, Subject } from 'rxjs';
+import { filter, first, firstValueFrom, map, merge, Observable, shareReplay } from 'rxjs';
 import { createPersistBehaviorSubject } from '../BIOS';
-import { registerCommand } from '../CommandCenter';
+import { executeCommand, registerCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import { showForm } from '../Form';
 
@@ -27,38 +28,100 @@ const initialJson = (): FlexLayout.IJsonModel => ({
   },
 });
 
+/**
+ * the Single Truth of Layout Model
+ *
+ * All Model operations should be done through this
+ */
 export const layoutModelJson$ = createPersistBehaviorSubject('layout', initialJson());
 
-const layoutUpdate$ = new Subject<void>();
+const loadPageFromURL = () => {
+  const url = new URL(document.location.href);
+  const page = url.searchParams.get('page');
+  const page_params = url.searchParams.get('page_params');
+  if (!page) return;
+  const params = () => {
+    try {
+      return JSON.parse(new TextDecoder().decode(decodeBase58(page_params!)));
+    } catch {
+      return {};
+    }
+  };
+  return { type: page, params: params() };
+};
 
-combineLatest([layoutModelJson$, layoutUpdate$]).subscribe(([json]) => {
-  layoutModel$.next(FlexLayout.Model.fromJson(json!));
+// Sync layout model to ActivePage$
+export const activePage$ = layoutModelJson$.pipe(
+  map((json) => {
+    if (!json) return;
+    // console.info('#', formatTime(Date.now()), 'layoutModelJson$', JSON.stringify(json));
+    const model = FlexLayout.Model.fromJson(json);
+    const activeNode = model?.getActiveTabset()?.getSelectedNode();
+    if (activeNode?.getType() === 'tab') {
+      const activeTabNode = activeNode as FlexLayout.TabNode;
+      return {
+        page: activeTabNode.getComponent()!,
+        pageParams: activeTabNode.getConfig(),
+      };
+    }
+  }),
+  shareReplay(1),
+);
+
+// sync ActivePage$ to URL
+activePage$.subscribe((x) => {
+  if (!x) return;
+  // console.info('#', formatTime(Date.now()), 'activePage$', JSON.stringify(x));
+  const currentURL = new URL(document.location.href);
+  currentURL.searchParams.set('page', x.page);
+  currentURL.searchParams.set(
+    'page_params',
+    encodeBase58(new TextEncoder().encode(JSON.stringify(x.pageParams))),
+  );
+  window.history.pushState({}, '', currentURL.href);
 });
 
-layoutModelJson$
-  .pipe(
-    bufferCount(2),
-    first(([a, b]) => a === undefined && b !== undefined),
-    map(([, b]) => b),
-  )
-  .subscribe((json) => {
-    layoutUpdate$.next();
-  });
+merge(
+  // 当初次加载持久化的 layoutModelJson$ 时触发
+  layoutModelJson$.pipe(first((json) => json !== undefined)),
+  // 后退历史时触发
+  new Observable((subscriber) => {
+    const f = () => {
+      subscriber.next();
+    };
+    window.addEventListener('popstate', f);
+    return () => {
+      window.removeEventListener('popstate', f);
+    };
+  }),
+).subscribe(() => {
+  const initialPage = loadPageFromURL();
+  if (initialPage) {
+    executeCommand('Page.open', initialPage);
+  }
+});
 
-export const layoutModel$ = new BehaviorSubject(FlexLayout.Model.fromJson(initialJson()));
+export const layoutModel$ = layoutModelJson$.pipe(
+  map((json) => (json ? FlexLayout.Model.fromJson(json) : null)),
+  shareReplay(1),
+);
+
+const requiredLayoutModel$ = layoutModel$.pipe(filter((x): x is Exclude<typeof x, null | undefined> => !!x));
+
 layoutModel$.subscribe((layoutModel) => {
   Object.assign(globalThis, { layoutModel, Actions: FlexLayout.Actions });
 });
 
-registerCommand('Page.open', ({ type: pageKey, params = {}, parentId: _parentId }) => {
+registerCommand('Page.open', async ({ type: pageKey, params = {}, parentId: _parentId }) => {
   Modules.Workbench.isShowHome$.next(false);
   const pageId = JSON.stringify({ pageKey, params });
-  const model = layoutModel$.value;
+  const model = await firstValueFrom(requiredLayoutModel$);
 
   const theNode = model.getNodeById(pageId);
   if (theNode) {
     if (!theNode.isVisible()) {
       model.doAction(FlexLayout.Actions.selectTab(theNode.getId()));
+      layoutModelJson$.next(model.toJson());
     }
     return;
   }
@@ -91,24 +154,27 @@ registerCommand('Page.open', ({ type: pageKey, params = {}, parentId: _parentId 
       true,
     ),
   );
+  layoutModelJson$.next(model.toJson());
 });
 
-registerCommand('Page.select', ({ id: pageId }) => {
-  const model = layoutModel$.value;
+registerCommand('Page.select', async ({ id: pageId }) => {
+  const model = await firstValueFrom(requiredLayoutModel$);
   const node = model.getNodeById(pageId);
   if (node) {
     if (!node.isVisible()) {
       model.doAction(FlexLayout.Actions.selectTab(pageId));
+      layoutModelJson$.next(model.toJson());
     }
   }
 });
 
-const closeCurrentTab = () => {
-  const model = layoutModel$.value;
+const closeCurrentTab = async () => {
+  const model = await firstValueFrom(requiredLayoutModel$);
   const tabset = model.getActiveTabset();
   const nodeId = tabset?.getSelectedNode()?.getId();
   if (nodeId) {
     model.doAction(FlexLayout.Actions.deleteTab(nodeId));
+    layoutModelJson$.next(model.toJson());
   }
 };
 
@@ -120,19 +186,22 @@ hotkeys('alt+w', function (event, handler) {
 
 registerCommand('ResetLayout', () => {
   layoutModelJson$.next(initialJson());
-  layoutUpdate$.next();
 });
 
 registerCommand('ClosePage', () => {
   closeCurrentTab();
 });
 
-registerCommand('Page.close', ({ pageId }) => {
-  layoutModel$.value.doAction(FlexLayout.Actions.deleteTab(pageId));
+registerCommand('Page.close', async ({ pageId }) => {
+  const model = await firstValueFrom(requiredLayoutModel$);
+  model.doAction(FlexLayout.Actions.deleteTab(pageId));
+  layoutModelJson$.next(model.toJson());
 });
 
-registerCommand('Page.changeTitle', ({ pageId, title }) => {
-  layoutModel$.value.doAction(FlexLayout.Actions.renameTab(pageId, title));
+registerCommand('Page.changeTitle', async ({ pageId, title }) => {
+  const model = await firstValueFrom(requiredLayoutModel$);
+  model.doAction(FlexLayout.Actions.renameTab(pageId, title));
+  layoutModelJson$.next(model.toJson());
 });
 
 registerCommand('Layout.Save', async () => {
