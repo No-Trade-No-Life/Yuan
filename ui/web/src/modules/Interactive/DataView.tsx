@@ -277,7 +277,7 @@ export function DataView<T, K>(props: {
           position: 'absolute',
           top: 0,
           right: 0,
-          zIndex: 2000,
+          zIndex: 1,
         }}
       >
         <Button
@@ -288,7 +288,7 @@ export function DataView<T, K>(props: {
           }}
         />
       </Space>
-      <div style={{ width: '100%', flexGrow: 1, overflow: 'auto' }}>
+      <div style={{ width: '100%', flexGrow: 1, overflow: 'auto', zIndex: 0 }}>
         <ErrorBoundary>
           <Spin spinning={isLoading}>
             {actualLayoutMode === 'custom' && props.CustomView && <props.CustomView table={table} />}

@@ -1,13 +1,14 @@
 import { IconHome } from '@douyinfe/semi-icons';
 import { Layout, Space } from '@douyinfe/semi-ui';
+import { decodeBase58, encodeBase58 } from '@yuants/utils';
 import { Actions, Layout as FlexLayout, TabNode } from 'flexlayout-react';
 import { useObservableState } from 'observable-hooks';
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import { createPersistBehaviorSubject } from '../BIOS';
-import { CommandCenter } from '../CommandCenter';
+import { CommandCenter, executeCommand } from '../CommandCenter';
 import { fs } from '../FileSystem';
 import { Button } from '../Interactive';
-import { LocalizePageTitle, Page } from '../Pages';
+import { activePage$, LocalizePageTitle, Page } from '../Pages';
 import { ErrorBoundary } from '../Pages/ErrorBoundary';
 import { registerAssociationRule } from '../System';
 import { NetworkStatusWidget } from '../Terminals/NetworkStatusWidget';
@@ -18,6 +19,31 @@ import { WallPaper } from './WallPaper';
 import { layoutModel$, layoutModelJson$ } from './layout-model';
 
 export const isHideNavigator$ = createPersistBehaviorSubject('hide-navigator', false);
+
+// Sync layout model to ActivePage$
+layoutModel$.subscribe((model) => {
+  const activeNode = model.getActiveTabset()?.getSelectedNode();
+  if (activeNode?.getType() === 'tab') {
+    const activeTabNode = activeNode as TabNode;
+    activePage$.next({
+      page: activeTabNode.getComponent()!,
+      pageParams: activeTabNode.getConfig(),
+    });
+  }
+});
+
+// sync ActivePage$ to URL
+activePage$.subscribe((x) => {
+  if (!x) return;
+  const currentURL = new URL(document.location.href);
+  currentURL.searchParams.set('page', x.page);
+  currentURL.searchParams.set(
+    'page_params',
+    encodeBase58(new TextEncoder().encode(JSON.stringify(x.pageParams))),
+  );
+  window.history.pushState({}, '', currentURL.href);
+});
+
 const isFullScreen$ = createPersistBehaviorSubject('full-screen', false);
 
 registerAssociationRule({
@@ -55,6 +81,22 @@ export const DesktopLayout = () => {
 
     return <Page page={{ id, type, params, viewport }} />;
   };
+
+  // Recovery layout model from URL
+  useEffect(() => {
+    const url = new URL(document.location.href);
+    const page = url.searchParams.get('page');
+    const page_params = url.searchParams.get('page_params');
+    if (!page) return;
+    const params = () => {
+      try {
+        return JSON.parse(new TextDecoder().decode(decodeBase58(page_params!)));
+      } catch {
+        return {};
+      }
+    };
+    executeCommand('Page.open', { type: page, params: params() });
+  }, []);
 
   if (document.location.hash === '#/popout') {
     return null;
