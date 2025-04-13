@@ -7,7 +7,7 @@ import { resolve } from 'path-browserify';
 import { filter, first, firstValueFrom, map, merge, Observable, shareReplay } from 'rxjs';
 import { createPersistBehaviorSubject } from '../BIOS';
 import { executeCommand, registerCommand } from '../CommandCenter';
-import { fs } from '../FileSystem/api';
+import { fs, FsBackend$ } from '../FileSystem/api';
 import { showForm } from '../Form';
 
 const initialJson = (): FlexLayout.IJsonModel => ({
@@ -34,6 +34,10 @@ const initialJson = (): FlexLayout.IJsonModel => ({
  * All Model operations should be done through this
  */
 export const layoutModelJson$ = createPersistBehaviorSubject('layout', initialJson());
+
+// layoutModelJson$.subscribe((v) => {
+//   console.info(formatTime(Date.now()), '##layoutModelJson$', JSON.stringify(v));
+// });
 
 const loadPageFromURL = () => {
   const url = new URL(document.location.href);
@@ -81,25 +85,31 @@ activePage$.subscribe((x) => {
   window.history.pushState({}, '', currentURL.href);
 });
 
-merge(
-  // 当初次加载持久化的 layoutModelJson$ 时触发
-  layoutModelJson$.pipe(first((json) => json !== undefined)),
-  // 后退历史时触发
-  new Observable((subscriber) => {
-    const f = () => {
-      subscriber.next();
-    };
-    window.addEventListener('popstate', f);
-    return () => {
-      window.removeEventListener('popstate', f);
-    };
-  }),
-).subscribe(() => {
-  const initialPage = loadPageFromURL();
+const initialPage = loadPageFromURL();
+// 当初次加载持久化的 layoutModelJson$ 时触发
+layoutModelJson$.pipe(first((json) => json !== undefined)).subscribe(() => {
   if (initialPage) {
+    // console.info(formatTime(Date.now()), '##loadPageFromURL', initialPage);
     executeCommand('Page.open', initialPage);
   }
 });
+
+// 后退历史时触发
+// new Observable((subscriber) => {
+//   const f = () => {
+//     subscriber.next();
+//   };
+//   window.addEventListener('popstate', f);
+//   return () => {
+//     window.removeEventListener('popstate', f);
+//   };
+// }).subscribe(() => {
+//   const initialPage = loadPageFromURL();
+//   if (initialPage) {
+//     console.info(formatTime(Date.now()), '##loadPageFromURL', initialPage);
+//     executeCommand('Page.open', initialPage);
+//   }
+// });
 
 export const layoutModel$ = layoutModelJson$.pipe(
   map((json) => (json ? FlexLayout.Model.fromJson(json) : null)),
