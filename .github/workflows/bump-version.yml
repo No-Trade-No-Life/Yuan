@@ -7,18 +7,16 @@ jobs:
   bump-version:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
+      - uses: actions/checkout@v4
 
       - name: setup git
         run: |
           git config user.name github-actions[bot]
           git config user.email 41898282+github-actions[bot]@users.noreply.github.com
 
-      - uses: actions/setup-node@v3
+      - uses: actions/setup-node@v4
         with:
-          node-version: 18.17.0
+          node-version: 18.20.5
 
       - name: rush publish
         run: node common/scripts/install-run-rush.js publish -a
@@ -29,6 +27,12 @@ jobs:
       - name: rush change
         run: node common/scripts/install-run-rush.js change --bulk --message "Bump Version" --bump-type none
 
+      - uses: actions/create-github-app-token@v1
+        id: generate-token
+        with:
+          app-id: ${{ secrets.APP_ID }}
+          private-key: ${{ secrets.APP_PRIVATE_KEY }}
+
       - name: Create Pull Request
         id: cpr
         uses: peter-evans/create-pull-request@v5
@@ -36,7 +40,7 @@ jobs:
           commit-message: 'chore: bump version'
           base: main
           title: 'chore: bump version'
-          token: ${{ secrets.BUMP_VERSION_KEY }}
+          token: ${{ steps.generate-token.outputs.token }}
           author: github-actions[bot] <41898282+github-actions[bot]@users.noreply.github.com>
           labels: |
             skip-ci
