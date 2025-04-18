@@ -2,6 +2,31 @@
   "name": "@yuants/app-host",
   "entries": [
     {
+      "version": "0.3.24",
+      "tag": "@yuants/app-host_v0.3.24",
+      "date": "Fri, 18 Apr 2025 18:31:55 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add Dockerfile node option"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.33.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/host-manager\" to `0.2.11`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.23",
       "tag": "@yuants/app-host_v0.3.23",
       "date": "Mon, 07 Apr 2025 16:39:44 GMT",

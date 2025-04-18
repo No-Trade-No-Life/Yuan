@@ -2,6 +2,31 @@
   "name": "@yuants/app-general-data-source",
   "entries": [
     {
+      "version": "0.0.91",
+      "tag": "@yuants/app-general-data-source_v0.0.91",
+      "date": "Fri, 18 Apr 2025 18:31:55 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add Dockerfile node option"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.33.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.2.8`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.90",
       "tag": "@yuants/app-general-data-source_v0.0.90",
       "date": "Tue, 01 Apr 2025 22:55:16 GMT",

@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-trade-copier
 
-This log was last generated on Tue, 01 Apr 2025 22:55:16 GMT and should not be manually modified.
+This log was last generated on Fri, 18 Apr 2025 18:31:55 GMT and should not be manually modified.
+
+## 0.4.55
+Fri, 18 Apr 2025 18:31:55 GMT
+
+### Patches
+
+- add Dockerfile node option
 
 ## 0.4.54
 Tue, 01 Apr 2025 22:55:16 GMT

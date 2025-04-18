@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-postgres-storage
 
-This log was last generated on Wed, 09 Apr 2025 15:32:27 GMT and should not be manually modified.
+This log was last generated on Fri, 18 Apr 2025 18:31:55 GMT and should not be manually modified.
+
+## 0.1.15
+Fri, 18 Apr 2025 18:31:55 GMT
+
+### Patches
+
+- add Dockerfile node option
 
 ## 0.1.14
 Wed, 09 Apr 2025 15:32:27 GMT
