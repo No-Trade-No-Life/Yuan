@@ -2,6 +2,34 @@
   "name": "@yuants/app-agent",
   "entries": [
     {
+      "version": "0.4.92",
+      "tag": "@yuants/app-agent_v0.4.92",
+      "date": "Fri, 18 Apr 2025 18:31:55 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add Dockerfile node option"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/agent\" to `0.13.54`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.13.25`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.33.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.91",
       "tag": "@yuants/app-agent_v0.4.91",
       "date": "Tue, 01 Apr 2025 22:55:16 GMT",

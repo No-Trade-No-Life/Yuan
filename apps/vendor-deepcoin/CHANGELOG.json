@@ -2,6 +2,31 @@
   "name": "@yuants/vendor-deepcoin",
   "entries": [
     {
+      "version": "0.0.59",
+      "tag": "@yuants/vendor-deepcoin_v0.0.59",
+      "date": "Fri, 18 Apr 2025 18:31:55 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add Dockerfile node option"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.13.25`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.33.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.58",
       "tag": "@yuants/vendor-deepcoin_v0.0.58",
       "date": "Tue, 01 Apr 2025 22:55:16 GMT",

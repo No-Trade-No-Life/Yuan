@@ -2,6 +2,23 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.33.2",
+      "tag": "@yuants/protocol_v0.33.2",
+      "date": "Fri, 18 Apr 2025 18:31:55 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add Dockerfile node option"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.33.1",
       "tag": "@yuants/protocol_v0.33.1",
       "date": "Tue, 01 Apr 2025 22:55:16 GMT",

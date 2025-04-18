@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-k8s-manifest-operator
 
-This log was last generated on Tue, 21 Jan 2025 19:55:44 GMT and should not be manually modified.
+This log was last generated on Fri, 18 Apr 2025 18:31:55 GMT and should not be manually modified.
+
+## 0.0.41
+Fri, 18 Apr 2025 18:31:55 GMT
+
+### Patches
+
+- add Dockerfile node option
 
 ## 0.0.40
 Tue, 21 Jan 2025 19:55:44 GMT

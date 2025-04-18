@@ -2,6 +2,31 @@
   "name": "@yuants/vendor-coinex",
   "entries": [
     {
+      "version": "0.1.12",
+      "tag": "@yuants/vendor-coinex_v0.1.12",
+      "date": "Fri, 18 Apr 2025 18:31:55 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add Dockerfile node option"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.33.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.2.8`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.11",
       "tag": "@yuants/vendor-coinex_v0.1.11",
       "date": "Tue, 01 Apr 2025 22:55:16 GMT",
