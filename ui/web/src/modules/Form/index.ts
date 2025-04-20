@@ -1,7 +1,7 @@
 import { Modal, Toast } from '@douyinfe/semi-ui';
 import { ModalReactProps } from '@douyinfe/semi-ui/lib/es/modal';
 import { FormProps, ThemeProps, withTheme } from '@rjsf/core';
-import { FormContextType, RJSFSchema, StrictRJSFSchema } from '@rjsf/utils';
+import { FormContextType, RJSFSchema, StrictRJSFSchema, UiSchema } from '@rjsf/utils';
 import validator from '@rjsf/validator-ajv8';
 import Ajv from 'ajv';
 import { t } from 'i18next';
@@ -56,6 +56,7 @@ export const showForm = <T>(
      * if initial data is invalid, the form will be shown as usual.
      */
     immediateSubmit?: boolean;
+    uiSchema?: UiSchema<T, any, any>;
   },
 ): Promise<T> => {
   // Open a confirm modal for boolean type
@@ -113,6 +114,7 @@ export const showForm = <T>(
               data = e.formData;
               modal?.update(getProps());
             },
+            uiSchema: options?.uiSchema,
           },
           React.createElement('div'),
         ),
