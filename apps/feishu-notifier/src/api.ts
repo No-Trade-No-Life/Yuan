@@ -25,7 +25,7 @@ export class FeishuClient {
                 app_secret: this.ctx.auth.APP_SECRET,
               }),
               headers: { 'Content-Type': 'application/json', charset: 'utf-8' },
-            }).then((resp) => resp.json()),
+            }).then((resp) => resp.json()) as any,
         ),
         tap((resp) => {
           if (resp.code !== 0) {
@@ -70,7 +70,7 @@ export class FeishuClient {
       ],
     };
     // https://open.feishu.cn/document/server-docs/im-v1/message/create
-    const resp: { code: number; msg: string; data: { message_id: string } } = await fetch(
+    const resp: { code: number; msg: string; data: { message_id: string } } = (await fetch(
       'https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=user_id',
       {
         method: 'POST',
@@ -85,12 +85,12 @@ export class FeishuClient {
           charset: 'utf-8',
         },
       },
-    ).then((x) => x.json());
+    ).then((x) => x.json())) as any;
     if (resp.code !== 0) throw resp;
 
     // 应用内加急
     if (type === 'app') {
-      const resp1: { code: number; msg: string; data: { message_id: string } } = await fetch(
+      const resp1: { code: number; msg: string; data: { message_id: string } } = (await fetch(
         `https://open.feishu.cn/open-apis/im/v1/messages/${resp.data.message_id}/urgent_app?user_id_type=user_id`,
         {
           method: 'PATCH',
@@ -101,11 +101,11 @@ export class FeishuClient {
             charset: 'utf-8',
           },
         },
-      ).then((x) => x.json());
+      ).then((x) => x.json())) as any;
     }
     // 电话加急
     if (type === 'phone') {
-      const resp1: { code: number; msg: string; data: { message_id: string } } = await fetch(
+      const resp1: { code: number; msg: string; data: { message_id: string } } = (await fetch(
         `https://open.feishu.cn/open-apis/im/v1/messages/${resp.data.message_id}/urgent_phone?user_id_type=user_id`,
         {
           method: 'PATCH',
@@ -116,7 +116,7 @@ export class FeishuClient {
             charset: 'utf-8',
           },
         },
-      ).then((x) => x.json());
+      ).then((x) => x.json())) as any;
     }
   };
 }

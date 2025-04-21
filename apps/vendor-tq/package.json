@@ -19,7 +19,7 @@
     "@rushstack/heft-jest-plugin": "~0.3.30",
     "@rushstack/heft-node-rig": "~1.10.7",
     "@types/heft-jest": "1.0.3",
-    "@types/node": "18",
+    "@types/node": "22",
     "@yuants/extension": "workspace:*",
     "@yuants/tool-kit": "workspace:*",
     "typescript": "~4.7.4"

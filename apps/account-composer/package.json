@@ -27,7 +27,7 @@
     "@rushstack/heft-node-rig": "~1.10.7",
     "@types/heft-jest": "1.0.3",
     "@types/json-schema": "~7.0.11",
-    "@types/node": "18",
+    "@types/node": "22",
     "@yuants/extension": "workspace:*",
     "@yuants/tool-kit": "workspace:*",
     "json-schema": "~0.4.0",

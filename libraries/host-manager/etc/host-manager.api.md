@@ -6,7 +6,7 @@
 
 import { ITerminalInfo } from '@yuants/protocol';
 import { Terminal } from '@yuants/protocol';
-import WebSocket from 'ws';
+import { default as WebSocket_2 } from 'ws';
 
 // @public (undocumented)
 export const createNodeJSHostManager: (config: IHostManagerConfig) => IHostManger;
@@ -22,7 +22,7 @@ export interface IHost {
     // (undocumented)
     mapTerminalIdToHasHeader: Record<string, boolean>;
     // (undocumented)
-    mapTerminalIdToSocket: Record<string, WebSocket.WebSocket>;
+    mapTerminalIdToSocket: Record<string, WebSocket_2.WebSocket>;
     // (undocumented)
     terminalInfos: Map<string, ITerminalInfo>;
 }
