@@ -104,7 +104,7 @@ export const showForm = <T>(
       return {
         getPopupContainer: () => document.getElementById('root') as HTMLElement,
         icon: null,
-        bodyStyle: { maxHeight: '80vh', overflow: 'auto' },
+        bodyStyle: { maxHeight: ~~((window.innerHeight - 80 * 2 - 24 * 4 - 32) * 0.8), overflow: 'auto' },
         content: React.createElement(
           Form,
           {
