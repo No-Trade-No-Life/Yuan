@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-general-data-source",
-  "version": "0.0.91",
+  "version": "0.0.92",
   "main": "lib/index.js",
   "files": [
     "dist",

@@ -2,6 +2,28 @@
   "name": "@yuants/data-model",
   "entries": [
     {
+      "version": "0.17.7",
+      "tag": "@yuants/data-model_v0.17.7",
+      "date": "Mon, 21 Apr 2025 17:48:12 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "upgrade node version to 22"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.1.10`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.17.6",
       "tag": "@yuants/data-model_v0.17.6",
       "date": "Tue, 21 Jan 2025 19:55:44 GMT",

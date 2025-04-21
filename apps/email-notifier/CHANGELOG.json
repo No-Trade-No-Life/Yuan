@@ -2,6 +2,37 @@
   "name": "@yuants/app-email-notifier",
   "entries": [
     {
+      "version": "0.1.40",
+      "tag": "@yuants/app-email-notifier_v0.1.40",
+      "date": "Mon, 21 Apr 2025 17:48:12 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "upgrade node version to 22"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.17.7`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.33.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.17`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.1.10`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.39",
       "tag": "@yuants/app-email-notifier_v0.1.39",
       "date": "Fri, 18 Apr 2025 18:31:55 GMT",

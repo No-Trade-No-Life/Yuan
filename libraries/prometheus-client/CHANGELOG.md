@@ -1,6 +1,13 @@
 # Change Log - @yuants/prometheus-client
 
-This log was last generated on Tue, 14 Jan 2025 12:10:21 GMT and should not be manually modified.
+This log was last generated on Mon, 21 Apr 2025 17:48:12 GMT and should not be manually modified.
+
+## 0.1.6
+Mon, 21 Apr 2025 17:48:12 GMT
+
+### Patches
+
+- upgrade node version to 22
 
 ## 0.1.5
 Tue, 14 Jan 2025 12:10:21 GMT
