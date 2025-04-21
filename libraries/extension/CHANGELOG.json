@@ -2,6 +2,31 @@
   "name": "@yuants/extension",
   "entries": [
     {
+      "version": "0.2.17",
+      "tag": "@yuants/extension_v0.2.17",
+      "date": "Mon, 21 Apr 2025 17:48:12 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "upgrade node version to 22"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.3.8`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.1.10`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.16",
       "tag": "@yuants/extension_v0.2.16",
       "date": "Tue, 14 Jan 2025 12:10:21 GMT",

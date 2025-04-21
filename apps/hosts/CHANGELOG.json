@@ -2,6 +2,43 @@
   "name": "@yuants/app-hosts",
   "entries": [
     {
+      "version": "0.1.50",
+      "tag": "@yuants/app-hosts_v0.1.50",
+      "date": "Mon, 21 Apr 2025 17:48:12 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "upgrade node version to 22"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.17.7`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.33.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.3.8`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/host-manager\" to `0.2.12`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.17`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.1.10`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.49",
       "tag": "@yuants/app-hosts_v0.1.49",
       "date": "Fri, 18 Apr 2025 18:31:55 GMT",
