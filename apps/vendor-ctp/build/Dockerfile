@@ -36,7 +36,7 @@ RUN rm -rf build && \
     # cmake -DUSE_DEMO_LIBS=ON .. && \
     make
 
-FROM node:18.17.0-bullseye
+FROM node:22.14.0-bullseye
 
 RUN apt-get update && apt-get install -y \
     libspdlog-dev \

@@ -26,7 +26,7 @@
     "@types/cron": "~2.0.1",
     "@types/heft-jest": "1.0.3",
     "@types/json-schema": "~7.0.11",
-    "@types/node": "18",
+    "@types/node": "22",
     "@yuants/extension": "workspace:*",
     "@yuants/tool-kit": "workspace:*",
     "typescript": "~4.7.4"

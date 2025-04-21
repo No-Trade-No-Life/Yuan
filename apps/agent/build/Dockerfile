@@ -1,7 +1,7 @@
 # syntax = docker/dockerfile:1.4
 
 # ISSUE: debian adopt GLIBC 2.34 since bookworm, which is required by wrtc-linux-x86
-FROM node:18.20.5-bookworm-slim
+FROM node:22.14.0-bookworm-slim
 
 LABEL maintainer="Siyuan Wang <c.one@thrimbda.com>"
 LABEL org.opencontainers.image.source="https://github.com/No-Trade-No-Life/Yuan"

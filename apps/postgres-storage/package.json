@@ -30,7 +30,7 @@
     "@rushstack/heft-node-rig": "~1.10.7",
     "@types/heft-jest": "1.0.3",
     "@types/json-schema": "~7.0.11",
-    "@types/node": "18",
+    "@types/node": "22",
     "json-schema": "~0.4.0",
     "typescript": "~4.7.4",
     "@types/pg": "~8.11.11"
