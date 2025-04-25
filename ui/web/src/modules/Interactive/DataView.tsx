@@ -126,7 +126,7 @@ export function DataView<T, K>(props: {
   useEffect(() => {
     if (layoutMode === 'auto') {
       if (width !== null) {
-        setActualLayoutMode(width > 1080 ? 'table' : 'list');
+        setActualLayoutMode(width >= 768 ? 'table' : 'list');
       }
       return;
     }
