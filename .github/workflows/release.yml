@@ -112,7 +112,7 @@ jobs:
         continue-on-error: true
 
       - run: |
-          tar --use-compress-program=pigz -zxvf docker-deploy.tar.gz
+          tar --use-compress-program=pigz -xvf docker-deploy.tar.gz
         continue-on-error: true
 
       - name: Check docker bake file existence
