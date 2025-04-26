@@ -96,7 +96,7 @@ jobs:
       - name: package docker deploy artifacts
         if: ${{ steps.bake_file_existence.outputs.files_exists == 'true' }}
         run: |
-          tar -zcvf ./common/temp/docker-deploy.tar.gz \
+          tar --use-compress-program=pigz -zcvf ./common/temp/docker-deploy.tar.gz \
             ./common/temp/docker-bake.json \
             ./common/temp/out
 

@@ -47,7 +47,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -71,7 +71,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -101,7 +101,7 @@ jobs:
         with:
           tool-cache: true
 
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
@@ -112,7 +112,7 @@ jobs:
         continue-on-error: true
 
       - run: |
-          tar -zxvf docker-deploy.tar.gz
+          tar --use-compress-program=pigz -zxvf docker-deploy.tar.gz
         continue-on-error: true
 
       - name: Check docker bake file existence
