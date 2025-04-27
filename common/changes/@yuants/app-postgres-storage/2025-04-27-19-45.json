@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-postgres-storage",
+      "comment": "add metrics for postgres-storage",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-postgres-storage"
+}
