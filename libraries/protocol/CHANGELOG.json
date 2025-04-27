@@ -2,6 +2,23 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.33.4",
+      "tag": "@yuants/protocol_v0.33.4",
+      "date": "Sun, 27 Apr 2025 15:56:48 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "abort server handle when timeout"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.33.3",
       "tag": "@yuants/protocol_v0.33.3",
       "date": "Mon, 21 Apr 2025 17:48:12 GMT",

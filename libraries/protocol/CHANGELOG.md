@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Mon, 21 Apr 2025 17:48:12 GMT and should not be manually modified.
+This log was last generated on Sun, 27 Apr 2025 15:56:48 GMT and should not be manually modified.
+
+## 0.33.4
+Sun, 27 Apr 2025 15:56:48 GMT
+
+### Patches
+
+- abort server handle when timeout
 
 ## 0.33.3
 Mon, 21 Apr 2025 17:48:12 GMT
