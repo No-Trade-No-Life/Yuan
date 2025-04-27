@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/metrics",
+  "entries": [
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/metrics_v0.1.0",
+      "date": "Sun, 27 Apr 2025 19:08:42 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "init pkg"
+          }
+        ]
+      }
+    }
+  ]
+}
