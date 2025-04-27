@@ -15,6 +15,8 @@ const terminal = new Terminal(HOST_URL, {
 });
 
 const sql = postgres(process.env.POSTGRES_URI!, {
+  // ISSUE: automatically close the connection after 20 seconds of inactivity or 30 minutes of lifetime
+  //   otherwise, the connection will not be closed and will cause the client memory to leak
   idle_timeout: 20,
   max_lifetime: 60 * 30,
 });
@@ -56,6 +58,7 @@ terminal.provideService(
         first((x) => x),
         tap(() => {
           console.info(formatTime(Date.now()), 'SQL ABORTED', msg.trace_id);
+          // ISSUE: cancel will break the sql query, which will cause the query to fail and be caught in the catch block
           query.cancel();
         }),
       )
