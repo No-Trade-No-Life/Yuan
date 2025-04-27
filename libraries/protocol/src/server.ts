@@ -310,6 +310,7 @@ export class TerminalServer {
           timeout(60_000),
           catchError((err) => {
             console.info(formatTime(Date.now()), `ServerError`, JSON.stringify(message), err);
+            requestContext.isAborted$.next(true);
             return of({ res: { code: 504, message: `Service Handler Timeout: ${err}` } });
           }),
           tap({

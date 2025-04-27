@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "abort server handle when timeout",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
