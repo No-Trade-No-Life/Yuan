@@ -14,6 +14,7 @@ import {
   Table,
   TableOptions,
   useReactTable,
+  VisibilityState,
 } from '@tanstack/react-table';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { showForm } from '../Form';
@@ -36,6 +37,7 @@ export function DataView<T, K>(props: {
   manualSorting?: boolean;
 
   initialGroupping?: GroupingState;
+  initialColumnVisibility?: VisibilityState;
 
   initialTopSlotVisible?: boolean;
   topSlotVisible?: boolean;
@@ -90,6 +92,9 @@ export function DataView<T, K>(props: {
     ((tableOptions.initialState ??= {}).pagination ??= {}).pageSize = props.initialPageSize;
   }
 
+  if (props.initialColumnVisibility) {
+    (tableOptions.initialState ?? {}).columnVisibility = props.initialColumnVisibility;
+  }
   const table = useReactTable(tableOptions);
 
   useEffect(() => {
