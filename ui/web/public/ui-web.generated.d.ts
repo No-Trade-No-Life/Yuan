@@ -1,33 +1,35 @@
 declare module '@yuants/ui-web' {
   /// <reference types="react" />
-  import * as react_jsx_runtime from 'react/jsx-runtime';
-  import React$1, { ComponentType } from 'react';
-  import * as rxjs from 'rxjs';
-  import { BehaviorSubject, ReplaySubject, Subject, Observable } from 'rxjs';
-  import * as _yuants_data_model from '@yuants/data-model';
-  import { IDataRecord, IProduct } from '@yuants/data-model';
-  import {
-    ColumnDef,
-    Table,
-    SortingState,
-    OnChangeFn,
-    GroupingState,
-    ExpandedState,
-  } from '@tanstack/react-table';
-  import { JSONSchema7 } from 'json-schema';
-  import { ThemeProps, FormProps } from '@rjsf/core';
-  import {
-    StrictRJSFSchema,
-    RJSFSchema,
-    FormContextType,
-    TemplatesType,
-    RegistryWidgetsType,
-  } from '@rjsf/utils';
   import { ButtonProps } from '@douyinfe/semi-ui/lib/es/button';
   import { ToastReactProps } from '@douyinfe/semi-ui/lib/es/toast';
+  import { FormProps, ThemeProps } from '@rjsf/core';
+  import {
+    FormContextType,
+    RegistryWidgetsType,
+    RJSFSchema,
+    StrictRJSFSchema,
+    TemplatesType,
+    UiSchema,
+  } from '@rjsf/utils';
   import * as _supabase_supabase_js from '@supabase/supabase-js';
   import { User } from '@supabase/supabase-js';
+  import {
+    ColumnDef,
+    ExpandedState,
+    GroupingState,
+    OnChangeFn,
+    SortingState,
+    Table,
+    VisibilityState,
+  } from '@tanstack/react-table';
+  import * as _yuants_data_model from '@yuants/data-model';
+  import { IDataRecord, IProduct } from '@yuants/data-model';
   import { Terminal } from '@yuants/protocol';
+  import { JSONSchema7 } from 'json-schema';
+  import React$1, { ComponentType } from 'react';
+  import * as react_jsx_runtime from 'react/jsx-runtime';
+  import * as rxjs from 'rxjs';
+  import { BehaviorSubject, Observable, ReplaySubject, Subject } from 'rxjs';
 
   namespace index_d$z {
     export {};
@@ -151,9 +153,18 @@ declare module '@yuants/ui-web' {
 
   const DesktopLayout: () => react_jsx_runtime.JSX.Element | null;
 
+  const activePage$: Observable<
+    | {
+        page: string;
+        pageParams: any;
+      }
+    | undefined
+  >;
+
   const index_d$m_DesktopLayout: typeof DesktopLayout;
+  const index_d$m_activePage$: typeof activePage$;
   namespace index_d$m {
-    export { index_d$m_DesktopLayout as DesktopLayout };
+    export { index_d$m_DesktopLayout as DesktopLayout, index_d$m_activePage$ as activePage$ };
   }
 
   namespace index_d$l {
@@ -311,14 +322,17 @@ declare module '@yuants/ui-web' {
   const showForm: <T>(
     schema: JSONSchema7,
     initialData?: any,
-    options?: {
-      /**
-       * Whether to submit the form immediately if the initial data is valid.
-       * if set to true, the form will be submitted immediately without showing the form.
-       * if initial data is invalid, the form will be shown as usual.
-       */
-      immediateSubmit?: boolean;
-    },
+    options?:
+      | {
+          /**
+           * Whether to submit the form immediately if the initial data is valid.
+           * if set to true, the form will be submitted immediately without showing the form.
+           * if initial data is invalid, the form will be shown as usual.
+           */
+          immediateSubmit?: boolean | undefined;
+          uiSchema?: UiSchema<T, any, any> | undefined;
+        }
+      | undefined,
   ) => Promise<T>;
 
   const index_d$i_Form: typeof Form;
@@ -472,7 +486,7 @@ declare module '@yuants/ui-web' {
   >;
 
   function DataView<T, K>(props: {
-    data: T[];
+    data?: T[];
     columns: ColumnDef<T, any>[];
     columnsDependencyList?: any[];
     tableRef?: React.MutableRefObject<Table<T> | undefined>;
@@ -483,7 +497,11 @@ declare module '@yuants/ui-web' {
     onSortingChange?: OnChangeFn<SortingState>;
     manualSorting?: boolean;
     initialGroupping?: GroupingState;
+    initialColumnVisibility?: VisibilityState;
     initialTopSlotVisible?: boolean;
+    topSlotVisible?: boolean;
+    isLoading?: boolean;
+    initialPageSize?: number;
     CustomView?: React.ComponentType<{
       table: Table<T>;
     }>;

@@ -1,5 +1,5 @@
-import { IconExpand, IconEyeOpened, IconList, IconMinimize, IconSort } from '@douyinfe/semi-icons';
-import { Input, Pagination, Radio, RadioGroup, Space, Spin } from '@douyinfe/semi-ui';
+import { IconExpand, IconEyeOpened, IconList, IconMinimize, IconPause, IconSort } from '@douyinfe/semi-icons';
+import { Input, Pagination, Radio, RadioGroup, Space, Spin, Tag } from '@douyinfe/semi-ui';
 import {
   ColumnDef,
   getCoreRowModel,
@@ -17,6 +17,7 @@ import {
   VisibilityState,
 } from '@tanstack/react-table';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { fromEvent } from 'rxjs';
 import { showForm } from '../Form';
 import { ErrorBoundary } from '../Pages';
 import { Button } from './Button';
@@ -53,11 +54,46 @@ export function DataView<T, K>(props: {
   const [isTopSlotVisible, setIsTopSlotVisible] = useState(
     props.topSlotVisible ?? props.initialTopSlotVisible ?? true,
   );
+  const [isDataPaused, setDataPaused] = useState(false);
+
+  const [data, setData] = useState<T[]>([]);
+
+  const dataContainerRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    if (!isDataPaused) {
+      setData(props.data || []);
+    }
+  }, [props.data, isDataPaused]);
+
+  useEffect(() => {
+    if (dataContainerRef.current) {
+      const sub = fromEvent(dataContainerRef.current, 'mouseenter').subscribe(() => {
+        setDataPaused(true);
+      });
+
+      return () => {
+        sub.unsubscribe();
+      };
+    }
+  }, []);
+
+  useEffect(() => {
+    if (dataContainerRef.current) {
+      const sub = fromEvent(dataContainerRef.current, 'mouseleave').subscribe(() => {
+        setDataPaused(false);
+      });
+
+      return () => {
+        sub.unsubscribe();
+      };
+    }
+  }, []);
 
   const isLoading = props.isLoading || props.data === undefined;
 
   const tableOptions: TableOptions<T> = {
-    data: props.data || [],
+    data: data,
     columns: columns,
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
@@ -285,6 +321,9 @@ export function DataView<T, K>(props: {
           zIndex: 1,
         }}
       >
+        <Tag visible={isDataPaused} prefixIcon={<IconPause />} type="solid">
+          数据已暂停
+        </Tag>
         <Button
           icon={isTopSlotVisible ? <IconMinimize /> : <IconExpand />}
           style={{ display: props.topSlotVisible !== undefined ? 'none' : undefined }}
@@ -293,7 +332,7 @@ export function DataView<T, K>(props: {
           }}
         />
       </Space>
-      <div style={{ width: '100%', flexGrow: 1, overflow: 'auto', zIndex: 0 }}>
+      <div ref={dataContainerRef} style={{ width: '100%', flexGrow: 1, overflow: 'auto', zIndex: 0 }}>
         <ErrorBoundary>
           <Spin spinning={isLoading}>
             {actualLayoutMode === 'custom' && props.CustomView && <props.CustomView table={table} />}
