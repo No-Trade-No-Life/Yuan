@@ -323,7 +323,7 @@ export function DataView<T, K>(props: {
           zIndex: 1,
         }}
       >
-        <Tag visible={isDataPaused} prefixIcon={<IconPause />} type="solid">
+        <Tag visible={props.enableAutoPause && isDataPaused} prefixIcon={<IconPause />} type="solid">
           数据已暂停
         </Tag>
         <Button
