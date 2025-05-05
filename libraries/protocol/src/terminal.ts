@@ -177,6 +177,7 @@ export class Terminal {
       const headers = {
         target_terminal_id: msg.target_terminal_id,
         source_terminal_id: msg.source_terminal_id,
+        target_terminal_ids: msg.target_terminal_ids,
       };
       this._conn.output$.next(JSON.stringify(headers) + '\n' + JSON.stringify(msg));
       return;
