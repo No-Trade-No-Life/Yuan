@@ -46,6 +46,8 @@ export function DataView<T, K>(props: {
 
   initialPageSize?: number;
   CustomView?: React.ComponentType<{ table: Table<T> }>;
+
+  enableAutoPause?: boolean;
 }) {
   const containerRef = useRef<HTMLDivElement | null>(null);
 
@@ -61,10 +63,10 @@ export function DataView<T, K>(props: {
   const dataContainerRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    if (!isDataPaused) {
+    if (!props.enableAutoPause || !isDataPaused) {
       setData(props.data || []);
     }
-  }, [props.data, isDataPaused]);
+  }, [props.data, props.enableAutoPause, isDataPaused]);
 
   useEffect(() => {
     if (dataContainerRef.current) {
