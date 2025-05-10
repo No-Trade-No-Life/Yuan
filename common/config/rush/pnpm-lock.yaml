@@ -1796,6 +1796,9 @@ importers:
   ../../libraries/metrics:
     specifiers:
       '@microsoft/api-extractor': ~7.30.0
+      '@opentelemetry/api': ~1.9.0
+      '@opentelemetry/exporter-prometheus': ~0.200.0
+      '@opentelemetry/sdk-metrics': ~2.0.0
       '@rushstack/heft': ~0.47.5
       '@rushstack/heft-jest-plugin': ~0.3.30
       '@rushstack/heft-node-rig': ~1.10.7
@@ -1808,6 +1811,9 @@ importers:
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/exporter-prometheus': 0.200.0_@opentelemetry+api@1.9.0
+      '@opentelemetry/sdk-metrics': 2.0.0_@opentelemetry+api@1.9.0
       '@yuants/data-model': link:../data-model
       '@yuants/protocol': link:../protocol
       '@yuants/utils': link:../utils
@@ -1845,6 +1851,9 @@ importers:
   ../../libraries/protocol:
     specifiers:
       '@microsoft/api-extractor': ~7.30.0
+      '@opentelemetry/api': ~1.9.0
+      '@opentelemetry/exporter-prometheus': ~0.200.0
+      '@opentelemetry/sdk-metrics': ~2.0.0
       '@roamhq/wrtc': ~0.8.0
       '@rushstack/heft': ~0.47.5
       '@rushstack/heft-jest-plugin': ~0.3.30
@@ -1866,6 +1875,9 @@ importers:
       url: ~0.11.0
       ws: ~8.11.0
     dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/exporter-prometheus': 0.200.0_@opentelemetry+api@1.9.0
+      '@opentelemetry/sdk-metrics': 2.0.0_@opentelemetry+api@1.9.0
       '@roamhq/wrtc': 0.8.0
       '@yuants/data-model': link:../data-model
       '@yuants/prometheus-client': link:../prometheus-client
@@ -7775,6 +7787,60 @@ packages:
     dependencies:
       '@nodelib/fs.scandir': 2.1.5
       fastq: 1.15.0
+
+  /@opentelemetry/api/1.9.0:
+    resolution: {integrity: sha512-3giAOQvZiH5F9bMlMiv8+GSPMeqg0dbaeo58/0SlA9sxSqZhnUtxzX9/2FzyhS9sWQf5S0GJE0AKBrFqjpeYcg==}
+    engines: {node: '>=8.0.0'}
+    dev: false
+
+  /@opentelemetry/core/2.0.0_@opentelemetry+api@1.9.0:
+    resolution: {integrity: sha512-SLX36allrcnVaPYG3R78F/UZZsBsvbc7lMCLx37LyH5MJ1KAAZ2E3mW9OAD3zGz0G8q/BtoS5VUrjzDydhD6LQ==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.0.0 <1.10.0'
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/semantic-conventions': 1.33.0
+    dev: false
+
+  /@opentelemetry/exporter-prometheus/0.200.0_@opentelemetry+api@1.9.0:
+    resolution: {integrity: sha512-ZYdlU9r0USuuYppiDyU2VFRA0kFl855ylnb3N/2aOlXrbA4PMCznen7gmPbetGQu7pz8Jbaf4fwvrDnVdQQXSw==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': ^1.3.0
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.0_@opentelemetry+api@1.9.0
+      '@opentelemetry/resources': 2.0.0_@opentelemetry+api@1.9.0
+      '@opentelemetry/sdk-metrics': 2.0.0_@opentelemetry+api@1.9.0
+    dev: false
+
+  /@opentelemetry/resources/2.0.0_@opentelemetry+api@1.9.0:
+    resolution: {integrity: sha512-rnZr6dML2z4IARI4zPGQV4arDikF/9OXZQzrC01dLmn0CZxU5U5OLd/m1T7YkGRj5UitjeoCtg/zorlgMQcdTg==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.3.0 <1.10.0'
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.0_@opentelemetry+api@1.9.0
+      '@opentelemetry/semantic-conventions': 1.33.0
+    dev: false
+
+  /@opentelemetry/sdk-metrics/2.0.0_@opentelemetry+api@1.9.0:
+    resolution: {integrity: sha512-Bvy8QDjO05umd0+j+gDeWcTaVa1/R2lDj/eOvjzpm8VQj1K1vVZJuyjThpV5/lSHyYW2JaHF2IQ7Z8twJFAhjA==}
+    engines: {node: ^18.19.0 || >=20.6.0}
+    peerDependencies:
+      '@opentelemetry/api': '>=1.9.0 <1.10.0'
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/core': 2.0.0_@opentelemetry+api@1.9.0
+      '@opentelemetry/resources': 2.0.0_@opentelemetry+api@1.9.0
+    dev: false
+
+  /@opentelemetry/semantic-conventions/1.33.0:
+    resolution: {integrity: sha512-TIpZvE8fiEILFfTlfPnltpBaD3d9/+uQHVCyC3vfdh6WfCXKhNFzoP5RyDDIndfvZC5GrA4pyEDNyjPloJud+w==}
+    engines: {node: '>=14'}
+    dev: false
 
   /@originjs/vite-plugin-commonjs/1.0.3:
     resolution: {integrity: sha512-KuEXeGPptM2lyxdIEJ4R11+5ztipHoE7hy8ClZt3PYaOVQ/pyngd2alaSrPnwyFeOW1UagRBaQ752aA1dTMdOQ==}

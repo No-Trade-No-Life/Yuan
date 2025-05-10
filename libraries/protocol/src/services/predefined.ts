@@ -30,4 +30,4 @@ declare module '.' {
   }
 }
 
-export * from './metrics';
+export { MetricsExporter, MetricsMeterProvider, PromRegistry } from './metrics';

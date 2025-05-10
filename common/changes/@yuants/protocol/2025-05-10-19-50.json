@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "apply for new metrics",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

@@ -46,26 +46,22 @@ import {
 } from './model';
 import { TerminalServer } from './server';
 import { IService, ITerminalMessage } from './services';
-import { PromRegistry } from './services/metrics';
+import { MetricsExporter, PromRegistry, TerminalMeter } from './services/metrics';
 import { inferNodePackageTags } from './tags/inferVersionTags';
 import { getSimplePeerInstance } from './webrtc';
 
-const TerminalReceivedBytesTotal = PromRegistry.create('counter', 'terminal_received_bytes_total');
-const TerminalTransmittedBytesTotal = PromRegistry.create('counter', 'terminal_transmitted_bytes_total');
-const TerminalReceiveMassageTotal = PromRegistry.create('counter', 'terminal_receive_message_total');
-const TerminalTransmittedMessageTotal = PromRegistry.create('counter', 'terminal_transmitted_message_total');
+const TerminalReceivedBytesTotal = TerminalMeter.createCounter('terminal_received_bytes_total');
+const TerminalTransmittedBytesTotal = TerminalMeter.createCounter('terminal_transmitted_bytes_total');
+const TerminalReceiveMassageTotal = TerminalMeter.createCounter('terminal_receive_message_total');
+const TerminalTransmittedMessageTotal = TerminalMeter.createCounter('terminal_transmitted_message_total');
 
-const MetricsProcessMemoryUsage = PromRegistry.create(
-  'gauge',
-  'nodejs_process_memory_usage',
-  'nodejs process memoryUsage',
-);
+const MetricsProcessMemoryUsage = TerminalMeter.createGauge('nodejs_process_memory_usage', {
+  description: 'nodejs process memoryUsage',
+});
 
-const MetricsProcessResourceUsage = PromRegistry.create(
-  'gauge',
-  'nodejs_process_resource_usage',
-  'nodejs process resourceUsage',
-);
+const MetricsProcessResourceUsage = TerminalMeter.createGauge('nodejs_process_resource_usage', {
+  description: 'nodejs process resourceUsage',
+});
 
 /**
  * Terminal
@@ -200,7 +196,7 @@ export class Terminal {
         )
         .subscribe((msg) => {
           if (msg.method) {
-            TerminalReceiveMassageTotal.inc({
+            TerminalReceiveMassageTotal.add(1, {
               target_terminal_id: msg.target_terminal_id,
               source_terminal_id: msg.source_terminal_id,
               tunnel: 'WS',
@@ -227,7 +223,7 @@ export class Terminal {
         // WebRTC Tunnel
         const peerInfo = this._mapTerminalIdToPeer[msg.target_terminal_id];
         if (msg.method) {
-          TerminalTransmittedMessageTotal.inc({
+          TerminalTransmittedMessageTotal.add(1, {
             target_terminal_id: msg.target_terminal_id,
             source_terminal_id: msg.source_terminal_id,
             tunnel: peerInfo !== undefined && peerInfo.peer.connected ? 'WebRTC' : 'WS',
@@ -398,7 +394,7 @@ export class Terminal {
           mergeWith(resembledData$),
           tap((data) => {
             if (data.method) {
-              TerminalReceiveMassageTotal.inc({
+              TerminalReceiveMassageTotal.add(1, {
                 target_terminal_id: this.terminal_id,
                 source_terminal_id: remote_terminal_id,
                 tunnel: 'WebRTC',
@@ -909,9 +905,16 @@ export class Terminal {
     this.provideService('Ping', {}, () => [{ res: { code: 0, message: 'Pong' } }]);
 
     if (!this.options.disableMetrics) {
-      this.provideService('Metrics', {}, async () => ({
-        res: { code: 0, message: 'OK', data: { metrics: PromRegistry.metrics() } },
-      }));
+      this.provideService('Metrics', {}, async () => {
+        const metrics = await MetricsExporter.export();
+        return {
+          res: {
+            code: 0,
+            message: 'OK',
+            data: { metrics: `${PromRegistry.metrics()}\n${metrics}` },
+          },
+        };
+      });
     }
 
     if (isNode) {
@@ -922,7 +925,7 @@ export class Terminal {
             tap(() => {
               const usage = process.resourceUsage();
               for (const key in usage) {
-                MetricsProcessResourceUsage.set(usage[key as keyof NodeJS.ResourceUsage], {
+                MetricsProcessResourceUsage.record(usage[key as keyof NodeJS.ResourceUsage], {
                   type: key,
                   terminal_id: this.terminal_id,
                 });
@@ -931,7 +934,7 @@ export class Terminal {
             tap(() => {
               const usage = process.memoryUsage();
               for (const key in usage) {
-                MetricsProcessMemoryUsage.set(usage[key as keyof NodeJS.MemoryUsage], {
+                MetricsProcessMemoryUsage.record(usage[key as keyof NodeJS.MemoryUsage], {
                   type: key,
                   terminal_id: this.terminal_id,
                 });
