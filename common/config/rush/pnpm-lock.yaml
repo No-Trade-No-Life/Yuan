@@ -1796,9 +1796,6 @@ importers:
   ../../libraries/metrics:
     specifiers:
       '@microsoft/api-extractor': ~7.30.0
-      '@opentelemetry/api': ~1.9.0
-      '@opentelemetry/exporter-prometheus': ~0.200.0
-      '@opentelemetry/sdk-metrics': ~2.0.0
       '@rushstack/heft': ~0.47.5
       '@rushstack/heft-jest-plugin': ~0.3.30
       '@rushstack/heft-node-rig': ~1.10.7
@@ -1811,9 +1808,6 @@ importers:
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
-      '@opentelemetry/api': 1.9.0
-      '@opentelemetry/exporter-prometheus': 0.200.0_@opentelemetry+api@1.9.0
-      '@opentelemetry/sdk-metrics': 2.0.0_@opentelemetry+api@1.9.0
       '@yuants/data-model': link:../data-model
       '@yuants/protocol': link:../protocol
       '@yuants/utils': link:../utils
