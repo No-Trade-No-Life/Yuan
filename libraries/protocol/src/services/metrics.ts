@@ -7,7 +7,10 @@ import {
 } from '@opentelemetry/sdk-metrics';
 import { Registry } from '@yuants/prometheus-client';
 
-class YuanMetricsReader extends MetricReader {
+/**
+ * @public
+ */
+export class YuanMetricsReader extends MetricReader {
   private serializer: PrometheusSerializer;
   constructor(
     public config: {
