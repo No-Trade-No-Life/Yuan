@@ -12,6 +12,8 @@ import { IProduct } from '@yuants/data-model';
 import { ITick } from '@yuants/data-model';
 import { ITransferOrder } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
+import { MeterProvider } from '@opentelemetry/sdk-metrics';
+import { MetricReader } from '@opentelemetry/sdk-metrics';
 import { NativeSubject } from '@yuants/utils';
 import { Observable } from 'rxjs';
 import { ObservableInput } from 'rxjs';
@@ -150,7 +152,15 @@ export interface ITerminalMessage {
     trace_id: string;
 }
 
-// @public
+// Warning: (ae-forgotten-export) The symbol "YuanMetricsReader" needs to be exported by the entry point index.d.ts
+//
+// @public (undocumented)
+export const MetricsExporter: YuanMetricsReader;
+
+// @public (undocumented)
+export const MetricsMeterProvider: MeterProvider;
+
+// @public @deprecated
 export const PromRegistry: Registry;
 
 // @public

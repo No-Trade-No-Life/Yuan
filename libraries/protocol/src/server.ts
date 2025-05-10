@@ -1,3 +1,4 @@
+import { ValueType } from '@opentelemetry/api';
 import { formatTime } from '@yuants/data-model';
 import {
   BehaviorSubject,
@@ -13,7 +14,8 @@ import {
   timeout,
 } from 'rxjs';
 import { IServiceInfoServerSide } from './model';
-import { ITerminalMessage, PromRegistry } from './services';
+import { ITerminalMessage } from './services';
+import { TerminalMeter } from './services/metrics';
 import { Terminal } from './terminal';
 
 // 1. Initialize: create a RequestContext
@@ -207,7 +209,7 @@ export class TerminalServer {
     this._requestInitialized$.pipe(takeUntil(this.terminal.dispose$)).subscribe((requestContext) => {
       requestContext.initilized_at = Date.now();
       requestContext.stage = 'initialized';
-      RequestReceivedTotal.inc({
+      RequestReceivedTotal.add(1, {
         method: requestContext.message.method!,
         source_terminal_id: requestContext.message.source_terminal_id,
         target_terminal_id: this.terminal.terminal_id,
@@ -360,7 +362,7 @@ export class TerminalServer {
 
       const duration = requestContext.finalized_at - requestContext.initilized_at;
       if (isNaN(duration)) return;
-      RequestDurationBucket.observe(duration, {
+      RequestDurationBucket.record(duration, {
         method: requestContext.message.method!,
         source_terminal_id: requestContext.message.source_terminal_id,
         target_terminal_id: this.terminal.terminal_id,
@@ -382,15 +384,14 @@ export class TerminalServer {
   }
 }
 
-const RequestDurationBucket = PromRegistry.create(
-  'histogram',
-  'terminal_request_duration_milliseconds',
-  'terminal_request_duration_milliseconds Request Duration bucket in 1, 10, 100, 1000, 10000 ms',
-  [1, 10, 100, 1000, 10000],
-);
+const RequestDurationBucket = TerminalMeter.createHistogram('terminal_request_duration_milliseconds', {
+  description: 'terminal_request_duration_milliseconds Request Duration bucket in 1, 10, 100, 1000, 10000 ms',
+  valueType: ValueType.INT,
+  advice: {
+    explicitBucketBoundaries: [1, 10, 100, 1000, 10000],
+  },
+});
 
-const RequestReceivedTotal = PromRegistry.create(
-  'counter',
-  'terminal_request_received_total',
-  'terminal_request_received_total Terminal request received',
-);
+const RequestReceivedTotal = TerminalMeter.createCounter('terminal_request_received_total', {
+  description: 'terminal_request_received_total Request Received',
+});
