@@ -76,7 +76,11 @@ export const replaceWorkspaceRoot = async (root?: FileSystemDirectoryHandle) => 
   await firstValueFrom(timer(1000));
   // REBOOT AFTER SETTING WORKSPACE ROOT
   const url = new URL(document.location.href);
+  const mode = url.searchParams.get('mode'); // keep mode param after reload
   url.search = '';
+  if (mode) {
+    url.searchParams.set('mode', mode);
+  }
   document.location.replace(url.toString());
 };
 
