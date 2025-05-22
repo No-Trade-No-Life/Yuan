@@ -22,9 +22,10 @@ import {
 import versionCompare from 'version-compare';
 import versionSatisfy from 'version-range';
 import { loadExtension, loadTgzBlob } from '../Extensions/utils';
-import { FsBackend$, bundleCode, fs, workspaceRoot$ } from '../FileSystem';
+import { FsBackend$, bundleCode, fs } from '../FileSystem';
 import { FileSystemHandleBackend } from '../FileSystem/backends/FileSystemHandleBackend';
 import { InMemoryBackend } from '../FileSystem/backends/InMemoryBackend';
+import { currentWorkspace$ } from '../FileSystem/workspaces';
 import { supabase } from '../SupaBase';
 import { fullLog$, log } from './log';
 
@@ -61,7 +62,8 @@ defer(async () => {
           return;
         }
         log('WORKSPACE CHECKING FILE SYSTEM HANDLE');
-        const root = await firstValueFrom(workspaceRoot$.pipe(filter((v) => v !== undefined)));
+        const workspace = await firstValueFrom(currentWorkspace$.pipe(filter((v) => v !== undefined)));
+        const root = workspace?.directoryHandle;
         if (root) {
           log('WORKSPACE ROOT EXISTS', root.name);
           const granted = await root.queryPermission({ mode: 'readwrite' });

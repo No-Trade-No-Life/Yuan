@@ -1,4 +1,5 @@
 import {
+  IconArrowUpRight,
   IconCopy,
   IconDelete,
   IconFile,
@@ -21,7 +22,8 @@ import { Trans, useTranslation } from 'react-i18next';
 import { filter, firstValueFrom, from, lastValueFrom, map, mergeMap, toArray } from 'rxjs';
 import { unzip } from 'unzipit';
 import { executeCommand, registerCommand } from '../CommandCenter';
-import { FsBackend$, fs, historyWorkspaceRoot$, replaceWorkspaceRoot } from '../FileSystem';
+import { FsBackend$, fs } from '../FileSystem';
+import { createLocalWorkspace, openWorkspace, removeWorkspace, workspaces$ } from '../FileSystem/workspaces';
 import { showForm } from '../Form';
 import { Button } from '../Interactive';
 import i18n from '../Locale/i18n';
@@ -286,10 +288,25 @@ registerCommand('workspace.open', async () => {
       content: (
         <Space vertical>
           <Trans t={t} i18nKey={'Explorer:request_fs_permission_note'} />
-          {historyWorkspaceRoot$.value?.map((root) => (
-            <Button block onClick={async () => replaceWorkspaceRoot(root)}>
-              {root.name}
-            </Button>
+
+          {[...(workspaces$.value || new Map()).values()].map((root) => (
+            <Space style={{ width: '100%' }} key={root.id}>
+              <Button
+                block
+                onClick={async () => {
+                  openWorkspace(root.id);
+                }}
+              >
+                {root.name}
+              </Button>
+              <Button
+                icon={<IconArrowUpRight />}
+                onClick={async () => {
+                  openWorkspace(root.id, '_blank');
+                }}
+              />
+              <Button type="danger" icon={<IconDelete />} onClick={() => removeWorkspace(root.id)} />
+            </Space>
           ))}
         </Space>
       ),
@@ -304,7 +321,8 @@ registerCommand('workspace.open', async () => {
     });
   });
   if (!confirm) return;
-  await replaceWorkspaceRoot();
+  const workspace = await createLocalWorkspace();
+  openWorkspace(workspace.id, '_self');
 });
 
 registerCommand('workspace.import_examples', async () => {

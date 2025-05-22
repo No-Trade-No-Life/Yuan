@@ -1,6 +1,5 @@
-import { get, set } from 'idb-keyval';
 import { dirname } from 'path-browserify';
-import { BehaviorSubject, ReplaySubject, combineLatest, first, firstValueFrom, mergeMap, timer } from 'rxjs';
+import { ReplaySubject, first, firstValueFrom, mergeMap } from 'rxjs';
 import { IFileSystemBackend } from './interfaces';
 
 export const FsBackend$ = new ReplaySubject<IFileSystemBackend>(1);
@@ -25,63 +24,6 @@ const ensureDir = async (path: string): Promise<void> => {
     return;
   }
   await backend.mkdir(path);
-};
-
-const createPersistBehaviorSubject = <T>(key: string, initialValue: T) => {
-  const subject$ = new BehaviorSubject<T | undefined>(undefined);
-  get(key).then((value) => {
-    if (value !== undefined) {
-      subject$.next(value);
-    } else {
-      subject$.next(initialValue);
-    }
-    subject$.subscribe((newVal) => {
-      set(key, newVal);
-    });
-  });
-  return subject$;
-};
-
-export const workspaceRoot$ = createPersistBehaviorSubject(
-  'workspace-root',
-  null as FileSystemDirectoryHandle | null,
-);
-export const historyWorkspaceRoot$ = createPersistBehaviorSubject(
-  'history-workspace-root',
-  [] as FileSystemDirectoryHandle[],
-);
-
-combineLatest([workspaceRoot$, historyWorkspaceRoot$.pipe(first((x) => x !== undefined))]).subscribe(
-  async ([root, history]) => {
-    console.info('WorkspaceRoot', root, history);
-    if (root && history) {
-      for (const h of history) {
-        const isSame = await h.isSameEntry(root);
-        if (isSame) return;
-      }
-      historyWorkspaceRoot$.next([...history, root]);
-    }
-  },
-);
-
-export const replaceWorkspaceRoot = async (root?: FileSystemDirectoryHandle) => {
-  if (!root) {
-    root = await showDirectoryPicker({
-      mode: 'readwrite',
-    });
-    await root.requestPermission({ mode: 'readwrite' });
-  }
-
-  workspaceRoot$.next(root);
-  await firstValueFrom(timer(1000));
-  // REBOOT AFTER SETTING WORKSPACE ROOT
-  const url = new URL(document.location.href);
-  const mode = url.searchParams.get('mode'); // keep mode param after reload
-  url.search = '';
-  if (mode) {
-    url.searchParams.set('mode', mode);
-  }
-  document.location.replace(url.toString());
 };
 
 export const fs: IFileSystemBackend & {
