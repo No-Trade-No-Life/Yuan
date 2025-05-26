@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/sql",
+      "comment": "add options to buildInsertManyIntoTableSQL",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/sql"
+}

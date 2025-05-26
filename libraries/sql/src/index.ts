@@ -198,12 +198,27 @@ export const buildInsertManyIntoTableSQL = <T extends {}>(
   data: T[],
   tableName: string,
   options?: {
+    /**
+     * 需要插入的列名
+     *
+     * 留空则使用数据的第一行的所有列进行推断
+     */
     columns?: Array<keyof T>;
+    /**
+     * 具有相同 key 的数据仅取最后一个
+     */
+    keyFn?: (data: T) => string;
+    /**
+     * 是否忽略插入冲突 (默认 false)
+     */
+    ignoreConflict?: boolean;
   },
 ): string => {
   if (data.length === 0) throw 'Data is empty';
   const columns = (options?.columns ?? Object.keys(data[0]).filter(isValidColumnName)) as string[];
-  return `INSERT INTO ${tableName} (${columns.join(',')}) VALUES ${data
+  const keyFn = options?.keyFn;
+  const toInsert = keyFn ? [...new Map(data.map((x) => [keyFn(x), x])).values()] : data;
+  return `INSERT INTO ${tableName} (${columns.join(',')}) VALUES ${toInsert
     .map((x) => `(${columns.map((c) => escape(x[c as keyof T])).join(',')})`)
-    .join(',')}`;
+    .join(',')} ${options?.ignoreConflict ? 'ON CONFLICT DO NOTHING' : ''}`;
 };
