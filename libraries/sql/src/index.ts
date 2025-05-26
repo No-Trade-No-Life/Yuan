@@ -209,8 +209,7 @@ export const buildInsertManyIntoTableSQL = <T extends {}>(
      */
     keyFn?: (data: T) => string;
     /**
-     * 是否忽略插入冲突
-     * @default false
+     * 是否忽略插入冲突 (默认 false)
      */
     ignoreConflict?: boolean;
   },
