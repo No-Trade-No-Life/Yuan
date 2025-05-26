@@ -2,6 +2,28 @@
   "name": "@yuants/sql",
   "entries": [
     {
+      "version": "0.3.0",
+      "tag": "@yuants/sql_v0.3.0",
+      "date": "Mon, 26 May 2025 07:50:33 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add options to buildInsertManyIntoTableSQL"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.34.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.9",
       "tag": "@yuants/sql_v0.2.9",
       "date": "Sun, 27 Apr 2025 15:56:48 GMT",
