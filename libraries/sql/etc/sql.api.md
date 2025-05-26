@@ -12,6 +12,8 @@ export const AddMigration: (migration: ISQLMigration) => void;
 // @public
 export const buildInsertManyIntoTableSQL: <T extends {}>(data: T[], tableName: string, options?: {
     columns?: (keyof T)[] | undefined;
+    keyFn?: ((data: T) => string) | undefined;
+    ignoreConflict?: boolean | undefined;
 } | undefined) => string;
 
 // @public
