@@ -2,6 +2,26 @@
   "name": "@yuants/app-series-collector",
   "entries": [
     {
+      "version": "0.1.15",
+      "tag": "@yuants/app-series-collector_v0.1.15",
+      "date": "Mon, 26 May 2025 07:50:33 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.34.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.2.11`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.14",
       "tag": "@yuants/app-series-collector_v0.1.14",
       "date": "Sun, 27 Apr 2025 15:56:48 GMT",

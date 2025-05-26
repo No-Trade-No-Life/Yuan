@@ -2,6 +2,23 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.34.0",
+      "tag": "@yuants/protocol_v0.34.0",
+      "date": "Mon, 26 May 2025 07:50:33 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "apply for new metrics"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.33.4",
       "tag": "@yuants/protocol_v0.33.4",
       "date": "Sun, 27 Apr 2025 15:56:48 GMT",

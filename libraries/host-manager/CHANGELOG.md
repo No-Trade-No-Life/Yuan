@@ -1,6 +1,13 @@
 # Change Log - @yuants/host-manager
 
-This log was last generated on Sun, 27 Apr 2025 15:56:48 GMT and should not be manually modified.
+This log was last generated on Mon, 26 May 2025 07:50:33 GMT and should not be manually modified.
+
+## 0.2.14
+Mon, 26 May 2025 07:50:33 GMT
+
+### Patches
+
+- apply for new metrics
 
 ## 0.2.13
 Sun, 27 Apr 2025 15:56:48 GMT

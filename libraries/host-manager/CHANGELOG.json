@@ -2,6 +2,28 @@
   "name": "@yuants/host-manager",
   "entries": [
     {
+      "version": "0.2.14",
+      "tag": "@yuants/host-manager_v0.2.14",
+      "date": "Mon, 26 May 2025 07:50:33 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "apply for new metrics"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.34.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.13",
       "tag": "@yuants/host-manager_v0.2.13",
       "date": "Sun, 27 Apr 2025 15:56:48 GMT",
