@@ -6,7 +6,7 @@ import * as protocol from '@yuants/protocol';
 import * as yuantsUtils from '@yuants/utils';
 import echartsForReact from 'echarts-for-react';
 import * as ethers from 'ethers';
-import * as i18next from 'i18next';
+import i18next from 'i18next';
 import * as observableHooks from 'observable-hooks';
 import React from 'react';
 import * as reacti18next from 'react-i18next';
