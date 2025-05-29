@@ -1,0 +1,18 @@
+{
+  "search": "搜索...",
+  "sort": "排序",
+  "dataSort": "数据排序",
+  "column": "列",
+  "isDescending": "是否降序",
+  "visibleFields": "可见字段",
+  "group": "分组",
+  "fieldGroup": "字段分组",
+  "adaptiveView": "自适应视图",
+  "tableView": "表格视图",
+  "listView": "列表视图",
+  "customView": "自定义视图",
+  "total": "共 {{count}} 条数据",
+  "filtered": "过滤后: {{count}} 条",
+  "prePageNation": "分页前: {{count}} 行",
+  "dataPaused": "数据已暂停"
+}
