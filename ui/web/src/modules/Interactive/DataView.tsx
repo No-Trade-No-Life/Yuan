@@ -17,6 +17,7 @@ import {
   VisibilityState,
 } from '@tanstack/react-table';
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { fromEvent } from 'rxjs';
 import { showForm } from '../Form';
 import { ErrorBoundary } from '../Pages';
@@ -49,6 +50,7 @@ export function DataView<T, K>(props: {
 
   enableAutoPause?: boolean;
 }) {
+  const { t } = useTranslation('DataView');
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   // ISSUE: if columns is not memoized, there's a bug to refresh columns
@@ -181,7 +183,7 @@ export function DataView<T, K>(props: {
       {props.topSlot}
       <Input
         style={{ width: 200 }}
-        placeholder="搜索..."
+        placeholder={t('search')}
         value={table.getState().globalFilter}
         onChange={(e) => {
           table.setGlobalFilter(e);
@@ -191,13 +193,17 @@ export function DataView<T, K>(props: {
         onClick={async () => {
           const sorting: SortingState = await showForm(
             {
-              title: '数据排序',
+              title: t('dataSort'),
               type: 'array',
               items: {
                 type: 'object',
                 properties: {
-                  id: { title: '列', type: 'string', enum: table.getAllLeafColumns().map((x) => x.id) },
-                  desc: { title: '是否降序', type: 'boolean' },
+                  id: {
+                    title: t('column'),
+                    type: 'string',
+                    enum: table.getAllLeafColumns().map((x) => x.id),
+                  },
+                  desc: { title: t('isDescending'), type: 'boolean' },
                 },
               },
             },
@@ -207,7 +213,7 @@ export function DataView<T, K>(props: {
         }}
         icon={<IconSort />}
       >
-        排序
+        {t('sort')}
       </Button>
       <Button
         onClick={async () => {
@@ -217,7 +223,7 @@ export function DataView<T, K>(props: {
             .filter((x) => table.getState().columnVisibility[x] ?? true);
           const value: string[] = await showForm(
             {
-              title: '可见字段',
+              title: t('visibleFields'),
               type: 'array',
               uniqueItems: true,
               items: {
@@ -238,13 +244,13 @@ export function DataView<T, K>(props: {
         }}
         icon={<IconEyeOpened />}
       >
-        可见字段
+        {t('visibleFields')}
       </Button>
       <Button
         onClick={async () => {
           const value: string[] = await showForm(
             {
-              title: '字段分组',
+              title: t('fieldGroup'),
               type: 'array',
               uniqueItems: true,
               items: {
@@ -258,7 +264,7 @@ export function DataView<T, K>(props: {
         }}
         icon={<IconList />}
       >
-        分组
+        {t('group')}
       </Button>
       <RadioGroup
         type="button"
@@ -268,15 +274,15 @@ export function DataView<T, K>(props: {
           setLayoutMode(e.target.value);
         }}
       >
-        <Radio value={'auto'}>自适应视图</Radio>
-        <Radio value={'table'}>表格视图</Radio>
-        <Radio value={'list'}>列表视图</Radio>
-        {props.CustomView && <Radio value={'custom'}>自定义视图</Radio>}
+        <Radio value={'auto'}>{t('adaptiveView')}</Radio>
+        <Radio value={'table'}>{t('tableView')}</Radio>
+        <Radio value={'list'}>{t('listView')}</Radio>
+        {props.CustomView && <Radio value={'custom'}>{t('customView')}</Radio>}
       </RadioGroup>
       <Space>
-        <div>共 {table.options.data.length} 条数据</div>
-        <div>过滤后: {table.getFilteredRowModel().rows.length} 条</div>
-        <div>分页前: {table.getPrePaginationRowModel().rows.length} 行</div>
+        <div>{t('total', { count: table.options.data.length })}</div>
+        <div>{t('filtered', { count: table.getFilteredRowModel().rows.length })}</div>
+        <div>{t('prePageNation', { count: table.getPrePaginationRowModel().rows.length })}</div>
       </Space>
       <Pagination
         total={table.getPrePaginationRowModel().rows.length}
@@ -324,7 +330,7 @@ export function DataView<T, K>(props: {
         }}
       >
         <Tag visible={props.enableAutoPause && isDataPaused} prefixIcon={<IconPause />} type="solid">
-          数据已暂停
+          {t('dataPaused')}
         </Tag>
         <Button
           icon={isTopSlotVisible ? <IconMinimize /> : <IconExpand />}

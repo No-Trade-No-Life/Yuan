@@ -1,0 +1,18 @@
+{
+  "search": "Search...",
+  "sort": "Sort",
+  "dataSort": "Data Sorting",
+  "column": "Column",
+  "isDescending": "Descending",
+  "visibleFields": "Visible Fields",
+  "group": "Group",
+  "fieldGroup": "Field Grouping",
+  "adaptiveView": "Adaptive View",
+  "tableView": "Table View",
+  "listView": "List View",
+  "customView": "Custom View",
+  "total": "Total: {{count}} records",
+  "filtered": "Filtered: {{count}} records",
+  "prePageNation": "Before pagination: {{count}} rows",
+  "dataPaused": "Data Paused"
+}

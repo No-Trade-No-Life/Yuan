@@ -9,6 +9,7 @@ import {
   StrictRJSFSchema,
   WidgetProps,
 } from '@rjsf/utils';
+import { useTranslation } from 'react-i18next';
 
 /** The `SelectWidget` is a widget for rendering dropdowns.
  *  It is typically used with string properties constrained with enum options.
@@ -34,6 +35,7 @@ export default function SelectWidget<
   readonly,
   value,
 }: WidgetProps<T, S, F>) {
+  const { t } = useTranslation('SelectWidget');
   const { readonlyAsDisabled = true } = formContext as GenericObjectType;
 
   const { enumOptions, enumDisabled, emptyValue } = options;
@@ -100,7 +102,7 @@ export default function SelectWidget<
       </Select>
       {Array.isArray(enumOptions) && (
         <Button onClick={() => handleChange(Array.from({ length: enumOptions.length }, (_, i) => i))}>
-          全选
+          {t('selectAll')}
         </Button>
       )}
     </Space>
