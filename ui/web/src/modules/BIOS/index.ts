@@ -29,6 +29,9 @@ import { currentWorkspace$ } from '../FileSystem/workspaces';
 import { supabase } from '../SupaBase';
 import { fullLog$, log } from './log';
 
+const url = new URL(window?.location.href ?? 'https://y.ntnl.io');
+const isDev = url.searchParams.get('mode') === 'development';
+
 defer(async () => {
   fullLog$.next('');
   log('BIOS START');
@@ -99,7 +102,7 @@ defer(async () => {
       defer(async () => {
         const json: {
           yuan?: {
-            extensions?: Array<{ name: string; main: string }>;
+            extensions?: Array<{ name: string; main: string; bundle?: string }>;
           };
         } = JSON.parse(await fs.readFile('/package.json'));
         if (!json.yuan?.extensions) return;
@@ -112,7 +115,21 @@ defer(async () => {
                   '@yuants/ui-web': Modules,
                 };
 
-                const code = await bundleCode(x.main, Object.keys(requireContext));
+                let code: string | undefined;
+                // Check if the extension has a bundle file
+                if (x.bundle) {
+                  code = await fs.readFile(x.bundle).catch(() => undefined);
+                }
+
+                if (isDev || !code) {
+                  // Build from SourceCode
+                  code = await bundleCode(x.main, Object.keys(requireContext));
+                  // Save the bundle code
+                  if (x.bundle) {
+                    await fs.ensureDir(dirname(x.bundle));
+                    await fs.writeFile(x.bundle, code);
+                  }
+                }
 
                 Object.assign(globalThis, { requireContext });
 
@@ -200,6 +217,8 @@ export const ready$ = new ReplaySubject(1);
 export const error$ = new ReplaySubject(1);
 export * from './createPersistBehaviorSubject';
 
+const shouldCheckNpmDist = false;
+
 async function loadInmemoryWorkspaceFromNpm(
   scope: string | null,
   package_name: string | null,
@@ -208,20 +227,22 @@ async function loadInmemoryWorkspaceFromNpm(
   log(`SETUP WORKSPACE FROM NPM, SCOPE=${scope}, PACKAGE=${package_name}, VERSION=${version}`);
   const full_package_name = scope ? `@${scope}/${package_name}` : package_name;
 
-  log('CHECKING PACKAGE', full_package_name);
-  const checkRes = await supabase.functions.invoke('npm-dist-checker', {
-    body: {
-      // @ts-ignore
-      package_name: full_package_name,
-    },
-  });
-  if (checkRes.error) {
-    throw new Error(checkRes.error);
+  if (shouldCheckNpmDist) {
+    log('CHECKING PACKAGE', full_package_name);
+    const checkRes = await supabase.functions.invoke('npm-dist-checker', {
+      body: {
+        // @ts-ignore
+        package_name: full_package_name,
+      },
+    });
+    if (checkRes.error) {
+      throw new Error(checkRes.error);
+    }
+    if (checkRes.data.code !== 0) {
+      throw new Error(checkRes.data.message);
+    }
+    log('CHECK RESULT', JSON.stringify(checkRes));
   }
-  if (checkRes.data.code !== 0) {
-    throw new Error(checkRes.data.message);
-  }
-  log('CHECK RESULT', JSON.stringify(checkRes));
   log('USING IN-MEMORY WORKSPACE');
   if (!package_name) {
     throw new Error('NO PACKAGE NAME');
