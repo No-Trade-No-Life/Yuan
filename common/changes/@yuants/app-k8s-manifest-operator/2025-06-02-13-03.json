@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-k8s-manifest-operator",
+      "comment": "",
+      "type": "none"
+    }
+  ],
+  "packageName": "@yuants/app-k8s-manifest-operator"
+}

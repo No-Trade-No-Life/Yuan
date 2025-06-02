@@ -20,7 +20,7 @@
   "devDependencies": {
     "@microsoft/api-extractor": "~7.30.0",
     "@rushstack/heft": "~0.47.5",
-    "@rushstack/heft-jest-plugin": "~0.3.30",
+    "@rushstack/heft-jest-plugin": "~0.16.8",
     "@rushstack/heft-node-rig": "~1.10.7",
     "@types/heft-jest": "1.0.3",
     "@types/json-schema": "~7.0.11",
