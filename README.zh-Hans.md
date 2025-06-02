@@ -120,6 +120,7 @@ Yuan 是一个混合云软件，允许您同时在家庭或公共云中部署您
 [![kubernetes](https://img.shields.io/badge/kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=FFFFFF)](https://github.com/kubernetes/kubernetes)
 [![docker](https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=FFFFFF)](https://www.docker.com/)
 [![prometheus](https://img.shields.io/badge/prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=FFFFFF)](https://prometheus.io/)
+[![PostgreSQL](https://img.shields.io/badge/postgresql-4169E1?style=for-the-badge&logo=postgresql&logoColor=FFFFFF)](https://github.com/mongodb/mongo)
 [![mongodb](https://img.shields.io/badge/mongodb-47A248?style=for-the-badge&logo=mongodb&logoColor=FFFFFF)](https://github.com/mongodb/mongo)
 [![zeromq](https://img.shields.io/badge/zeromq-DF0000?style=for-the-badge&logo=zeromq&logoColor=FFFFFF)](https://zeromq.org/)
 [![openai](https://img.shields.io/badge/openai-412991?style=for-the-badge&logo=openai&logoColor=FFFFFF)](https://openai.com/)
@@ -136,7 +137,7 @@ Yuan 是一个混合云软件，允许您同时在家庭或公共云中部署您
 
 ## 开始使用（开发者）🚀
 
-前提条件：`nodejs >= 18.17.0`，[docker](https://www.docker.com/) 用于镜像构建，[rush](https://rushjs.io/) 用于 mono repo 管理。
+前提条件：`nodejs >= 22.14.0`，[docker](https://www.docker.com/) 用于镜像构建，[rush](https://rushjs.io/) 用于 mono repo 管理。
 
 ```bash
 npm install -g @microsoft/rush
@@ -158,42 +159,85 @@ CI_RUN=true rush build
 
 ### 代码导读
 
+#### RPC 框架
+
+Yuan 通过一套 RPC 框架来实现分布式系统中终端之间的通信。原生支持浏览器和 NodeJS 环境。它使用星形拓扑结构，所有终端都连接到一个中心节点主机（Host）。终端可以通过 Host 发送消息给其他终端。Host 负责转发消息。同时，终端会利用 WebRTC 来建立点对点连接，以实现更高效的通信，降低 Host 的负载，Host 会充当信令服务来帮助终端建立点对点连接。
+
+- [@yuants/protocol](libraries/protocol) 网络协议、服务定义和基础设施。
+- [@yuants/app-host](apps/host) Host 是一个非常轻量级的消息代理。终端可以连接到 Host 并相互发送消息。请注意，Host 中的所有终端应相互信任。实际上，Host 中的所有终端都属于同一所有者。无需验证每条消息。您可以部署多个 Host 以隔离风险。
+- [@yuants/app-hosts](apps/hosts) 这是一个非常轻量级的主机集群，它可以在一个进程中处理多个主机的消息转发业务。无需提前注册主机的令牌表，它可以自动接受符合 ED25519 签名的终端，终端不需要向主机发送签名的私钥。非常适合于多租户环境和需要低成本创建多个主机的场景。
+- [@yuants/host-manager](libraries/host-manager) 这是 Host 的底层抽象，它允许以编程方式管理若干互相隔离的 Host。它提供了一个简单的 API 来创建、删除和管理 Host。您可以使用它来创建多租户环境或隔离不同的业务。
+- [@yuants/app-portal](apps/portal) 这将部署一个允许将主机中已有的服务（和频道）分享给其他主机的服务。它是一个中间人，它可以将消息从一个主机转发到另一个主机。它是一个非常强大的工具，可以帮助您构建数据分享场景。
+
+#### 存储
+
+Yuan 使用 PostgreSQL 作为通用场景数据库；使用 Prometheus 存储遥测指标；使用 Redis 存储缓存数据。
+
+##### 数据库
+
+由于 SQL 的复杂性，各种 SQL 数据库具有很大的差异性，较为复杂的 SQL 语句通常是不兼容的，我们默认只考虑在 PostgreSQL 上能够成功运行，甚至我们会要求 PostgreSQL 安装指定的插件 (例如 TimeScale DB)。
+
+以前，我们使用 MongoDB 作为默认数据库，但由于其性能问题，我们决定切换到 PostgreSQL。PostgreSQL 是一个强大的关系数据库，具有更好的性能和可扩展性。我们未来会逐步迁移所有数据到 PostgreSQL，并最终废弃 MongoDB。
+
+- [@yuants/postgres-storage](apps/postgres-storage) 这是一个 PostgreSQL 存储服务。它将 PostgreSQL 数据库实例接入主机服务，同时隐藏连接 PostgreSQL 所需的登录凭证。
+- [@yuants/sql](libraries/sql) 客户端侧的 SQL 库，提供向主机中的 PostgreSQL 读写数据的快捷能力。
+- [@yuants/app-mongodb-storage](apps/mongodb-storage) 这将部署一个终端作为存储服务。它将数据存储在 MongoDB 中。
+
+##### 遥测
+
+未来我们会切换到 OpenTelemetry 作为遥测指标的标准，但我们仍然会使用 Prometheus 作为遥测指标的存储。
+
+- [@yuants/app-metrics-collector](apps/metrics-collector) 这将部署一个终端作为指标收集服务。指标收集器持续从终端收集指标。它与 Prometheus 配合工作。
+- [@yuants/prometheus-client](libraries/prometheus-client) 浏览器 / node 的 Prometheus 客户端。性能优于 `promjs`。
+- [@yuants/app-prometheus-client](apps/prometheus-client) 这将部署一个终端作为 Prometheus 客户端。它提供了从 Prometheus 数据库查询数据的服务。适合于构建监控面板。
+
+#### 服务提供商
+
+服务提供商是指与 Yuan 交互的外部系统的连接器。这些系统独立于 Yuan，并且会独立产生新的数据。
+
+服务提供商负责向外部系统代理请求和响应。它们可以是交易所、数据源或其他任何形式的外部服务。服务提供商会将数据存储在本地存储中，并通过 RPC 框架与其他终端进行通信。
+
+服务提供商包括交易所、数据源，或者其他任何形式的数据和外部服务。因此，Yuan 的能力会随着服务提供商能力的增加而增强。
+
+您可以通过各种服务提供商访问全球市场。每个服务提供商都是直接连接外部服务的网关。您的私人数据，包括账户信息和市场数据，不会存储在 Yuan 云服务中。您可以在自己的云或本地机器上部署供应商。这些数据仅会存储在您主机内的存储中。
+
+- [@yuants/vendor-ctp](apps/vendor-ctp) 这连接到“综合交易平台”（CTP）。CTP 平台由上海期货交易所（SHFE）开发。CTP 提供中国的期货交易所。为了遵守法规，您可能需要从您的经纪公司请求许可。
+- [@yuants/vendor-ccxt](apps/vendor-ccxt) 这连接到“加密货币交易所交易库”（CCXT）。CCXT 是一个支持许多加密货币交易所和交易市场的 JavaScript / Python / PHP 加密货币交易库。您可以使用它进行加密货币交易。
+- [@yuants/vendor-binance](apps/vendor-binance) 这连接到 _Binance_，这是一个著名的加密货币交易所。
+- [@yuants/vendor-okx](apps/vendor-okx) 这连接到 _OKX_，这是一个著名的加密货币交易所。
+- [@yuants/vendor-huobi](apps/vendor-huobi) 这连接到 _Huobi_，这是一个著名的加密货币交易所。
+- [@yuants/vendor-gate](apps/vendor-gate) 这连接到 _Gate_，这是一个著名的加密货币交易所。
+- [@yuants/vendor-bitget](apps/vendor-bitget) 这连接到 _BitGet_，这是一个著名的加密货币交易所。
+- [@yuants/vendor-coinex](apps/vendor-coinex) 这连接到 _CoinEX_，这是一个著名的加密货币交易所。
+- [@yuants/vendor-hyperliquid](apps/vendor-hyperliquid) 这连接到 _Hyperliquid_，这是一个著名的链上加密货币交易所。
+- [@yuants/app-email-notifier](apps/email-notifier) 支持 SMTP / IMAP 协议的电子邮件通知服务。它允许您通过电子邮件发送通知，并将邮件内容自动存入存储。
+- [@yuants/vendor-trading-view](apps/vendor-trading-view) 这连接到 _TradingView_，这是一个著名的金融图表和交易平台。它允许您使用 TradingView 的图表和指标。
+- [@yuants/vendor-tq](apps/vendor-tq) 这连接到 _TQ_，这是一个著名的金融数据提供商。它允许您使用 TQ 的数据。
+- [@yuants/app-feishu-notifier](apps/feishu-notifier) 连接到飞书，接入飞书机器人体系。它允许您通过飞书发送通知等。
+- [@yuants/app-openai](apps/openai) 这将部署一个终端作为 OpenAI 服务。它允许您使用 OpenAI 的 API 来生成文本、图像等。
+- [@yuants/app-telegram-monitor](apps/telegram-monitor) 这将部署一个终端作为 Telegram 监控服务。它允许您监控 Telegram 消息，并将其发送到其他终端。
+- [@yuants/app-alert-receiver](apps/alert-receiver) 这将部署一个终端作为警报接收服务。它从警报终端接收警报并发送给通知终端。
+
 #### 库
 
-所有库默认应独立于平台。它们可以在浏览器、node.js 或其他平台上使用。并提供 ESM 和 CommonJS 模块。
-
 - [@yuants/data-model](libraries/data-model) 数据模型及相关工具。
-- [@yuants/protocol](libraries/protocol) 网络协议、服务定义和基础设施。
 - [@yuants/utils](libraries/utils) 社区中未找到的一些通用工具。
 - [@yuants/kernel](libraries/kernel) Time-Machine 的核心。Time-Machine 可以从历史到未来旅行。此包还包含一些有用的单元和场景。
 - [@yuants/agent](libraries/agent) Agent 是一个交易机器人。Agent 包含交易策略的核心。
 - [@yuants/extension](libraries/extension) 这定义了扩展接口。您可以使用扩展来增强您的体验。
-- [@yuants/prometheus-client](libraries/prometheus-client) 浏览器 / node 的 Prometheus 客户端。性能优于 `promjs`。
 
 #### 应用
 
-所有应用应提供一个镜像并作为 npm 包发布。您可以通过 docker 和 Kubernetes 部署应用。您可以在 [应用列表](https://github.com/orgs/No-Trade-No-Life/packages?tab=packages&q=app-) 找到并获取镜像。所有应用都实现了扩展接口。因此，您可以将它们视为扩展。
-
-- [@yuants/app-host](apps/host) Host 是一个非常轻量级的消息代理。终端可以连接到 Host 并相互发送消息。请注意，Host 中的所有终端应相互信任。实际上，Host 中的所有终端都属于同一所有者。无需验证每条消息。您可以部署多个 Host 以隔离风险。
 - [@yuants/app-market-data-collector](apps/market-data-collector) 这将部署一个终端作为数据收集服务。终端持续从市场终端收集市场数据。
 - [@yuants/app-data-collector](apps/data-collector) 这将部署一个终端作为数据收集服务。终端持续从数据系列提供者终端收集系列数据。这是市场数据收集器的一般版本。您可以使用它来收集任何数据系列。
 - [@yuants/app-agent](apps/agent) 这将部署一个终端作为 Agent 的守护服务。您可以在 **真实模式** 下运行 Agent。它可以自动纠正历史数据错误。它还可以在 Agent 崩溃时自动重启。
-- [@yuants/app-alert-receiver](apps/alert-receiver) 这将部署一个终端作为警报接收服务。它从警报终端接收警报并发送给通知终端。
-- [@yuants/app-mongodb-storage](apps/mongodb-storage) 这将部署一个终端作为存储服务。它将数据存储在 MongoDB 中。
-- [@yuants/app-email-notifier](apps/email-notifier) 这将部署一个终端作为通知服务。它将通知发送到您的电子邮件。
-- [@yuants/app-feishu-notifier](apps/feishu-notifier) 这将部署一个终端作为通知服务。它通过 Feishu 机器人将通知发送到您的 Feishu。
 - [@yuants/app-trade-copier](apps/trade-copier) 这将部署一个终端作为交易复制服务。它监视源账户并确保目标账户跟随源账户。
-- [@yuants/app-metrics-collector](apps/metrics-collector) 这将部署一个终端作为指标收集服务。指标收集器持续从终端收集指标。它与 Prometheus 配合工作。
 - [@yuants/app-account-composer](apps/account-composer) 这将部署一个终端作为账户组合服务。它将多个账户信息组合成一个账户信息。因此，您可以查看分散在多个账户中的资金。
 - [@yuants/app-general-datasource](apps/general-data-source) 这将部署一个终端作为一般数据源服务。它将多个特定数据源组合成一个一般数据源。对于创建指数价格系列很有用。
 - [@yuants/app-general-realtime-data-source](apps/general-realtime-data-source) 这将部署一个终端作为一般实时数据源服务。它是一般数据源的实时版本。对于创建指数价格 ticks 很有用。
 - [@yuants/app-k8s-manifest-operator](apps/k8s-manifest-operator) 这将部署一个终端作为 Kubernetes 清单操作员。它监视 Kubernetes 集群的清单 CRD 并确保 Kubernetes 集群遵循清单 CRD。您可以将清单 CRD 添加到 k8s 集群，然后操作员将部署清单 CRD 中定义的资源。
 - [@yuants/app-transfer-controller](apps/transfer-controller) 转账控制器是一个在账户之间转账的服务。它监视转账请求并确保转账完成。
 - [@yuants/app-risk-manager](apps/risk-manager) 这将部署一个终端作为风险管理器。它根据配置的风险信息做出转账决策。
-- [@yuants/app-hosts](apps/hosts) 这是一个非常轻量级的主机集群，它可以在一个进程中处理多个主机的消息转发业务。无需提前注册主机的令牌表，它可以自动接受符合 ED25519 签名的终端，终端不需要向主机发送签名的私钥。非常适合于多租户环境和需要低成本创建多个主机的场景。
-- [@yuants/app-portal](apps/portal) 这将部署一个允许将主机中已有的服务（和频道）分享给其他主机的服务。它是一个中间人，它可以将消息从一个主机转发到另一个主机。它是一个非常强大的工具，可以帮助您构建数据分享场景。
-- [@yuants/app-namespaced-mongodb-storage](apps/namespaced-mongodb-storage) 这将部署一个终端作为存储服务。它将数据存储在 MongoDB 中。它支持命名空间。这意味着您可以在同一个 MongoDB 实例中存储多个租户的数据。
-- [@yuants/app-prometheus-client](apps/prometheus-client) 这将部署一个终端作为 Prometheus 客户端。它提供了从 Prometheus 数据库查询数据的服务。适合于构建监控面板。
 
 #### Web UI
 
@@ -250,28 +294,6 @@ https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin&version=>=0.0.2
 #### 工具包
 
 [@yuants/tool-kit](tools/toolkit) 是您所需要的一切。当您需要构建扩展时，这提供了 CLI。它帮助您构建 docker 镜像，创建捆绑包等等。以确保您的扩展已准备好使用。
-
-#### 供应商
-
-供应商包括市场、交易所和数据源。您可以通过各种供应商访问全球市场。由于某些法律原因，它们可能不对所有人开放。但如果您从提供者那里获得许可，您可以使用它们。
-
-每个供应商都是直接连接外部服务的网关。您的私人数据，包括账户信息和市场数据，不会存储在 Yuan 云服务中。您可以在自己的云或本地机器上部署供应商。
-
-- [@yuants/vendor-ctp](apps/vendor-ctp) 这连接到“综合交易平台”（CTP）。CTP 平台由上海期货交易所（SHFE）开发。CTP 提供中国的期货交易所。为了遵守法规，您可能需要从您的经纪公司请求许可。
-
-- [@yuants/vendor-ccxt](apps/vendor-ccxt) 这连接到“加密货币交易所交易库”（CCXT）。CCXT 是一个支持许多加密货币交易所和交易市场的 JavaScript / Python / PHP 加密货币交易库。您可以使用它进行加密货币交易。
-
-- [@yuants/vendor-binance](apps/vendor-binance) 这连接到 _Binance_，这是一个著名的加密货币交易所。
-
-- [@yuants/vendor-okx](apps/vendor-okx) 这连接到 _OKX_，这是一个著名的加密货币交易所。
-
-- [@yuants/vendor-huobi](apps/vendor-huobi) 这连接到 _Huobi_，这是一个著名的加密货币交易所。
-
-- [@yuants/vendor-gate](apps/vendor-gate) 这连接到 _Gate_，这是一个著名的加密货币交易所。
-
-- [@yuants/vendor-bitget](apps/vendor-bitget) 这连接到 _BitGet_，这是一个著名的加密货币交易所。
-
-- [@yuants/vendor-coinex](apps/vendor-coinex) 这连接到 _CoinEX_，这是一个著名的加密货币交易所。
 
 <p align="right">(<a href="#readme-top">返回顶部</a>)</p>
 

@@ -119,6 +119,7 @@ In Yuan, extensions are treated as first-class citizens. Many core features are 
 [![kubernetes](https://img.shields.io/badge/kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=FFFFFF)](https://github.com/kubernetes/kubernetes)
 [![docker](https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=FFFFFF)](https://www.docker.com/)
 [![prometheus](https://img.shields.io/badge/prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=FFFFFF)](https://prometheus.io/)
+[![postgresql](https://img.shields.io/badge/postgresql-4169E1?style=for-the-badge&logo=postgresql&logoColor=FFFFFF)](https://github.com/mongodb/mongo)
 [![mongodb](https://img.shields.io/badge/mongodb-47A248?style=for-the-badge&logo=mongodb&logoColor=FFFFFF)](https://github.com/mongodb/mongo)
 [![zeromq](https://img.shields.io/badge/zeromq-DF0000?style=for-the-badge&logo=zeromq&logoColor=FFFFFF)](https://zeromq.org/)
 [![openai](https://img.shields.io/badge/openai-412991?style=for-the-badge&logo=openai&logoColor=FFFFFF)](https://openai.com/)
@@ -135,7 +136,7 @@ In Yuan, extensions are treated as first-class citizens. Many core features are 
 
 ## Getting started (for developers) 🚀
 
-Prerequisites: `nodejs >= 18.17.0`, [docker](https://www.docker.com/) for image build, and [rush](https://rushjs.io/) for mono repo management.
+Prerequisites: `nodejs >= 22.14.0`, [docker](https://www.docker.com/) for image build, and [rush](https://rushjs.io/) for mono repo management.
 
 ```bash
 npm install -g @microsoft/rush
@@ -157,42 +158,85 @@ CI_RUN=true rush build
 
 ### Packages
 
+#### RPC Framework
+
+Yuan implements communication between terminals in a distributed system through an RPC framework. It natively supports both browser and NodeJS environments. It uses a star topology where all terminals connect to a central Host node. Terminals can send messages to other terminals via the Host, which is responsible for message forwarding. Meanwhile, terminals utilize WebRTC to establish peer-to-peer connections for more efficient communication, reducing the Host's load. The Host acts as a signaling service to facilitate P2P connection establishment.
+
+- [@yuants/protocol](libraries/protocol) Network protocols, service definitions, and infrastructure.
+- [@yuants/app-host](apps/host) Host is a lightweight message broker. Terminals can connect to the Host and send messages to each other. Note that all terminals in a Host should trust each other. In practice, all terminals within a Host belong to the same owner. There's no need to verify each message. You can deploy multiple Hosts to isolate risks.
+- [@yuants/app-hosts](apps/hosts) A lightweight host cluster that can handle message forwarding for multiple hosts within a single process. No pre-registration of host token tables is required - it automatically accepts terminals with valid ED25519 signatures without needing to send private keys. Ideal for multi-tenant environments and scenarios requiring low-cost creation of multiple hosts.
+- [@yuants/host-manager](libraries/host-manager) The underlying abstraction for Hosts, enabling programmatic management of multiple isolated Hosts. Provides simple APIs for creation, deletion, and management. Useful for creating multi-tenant environments or isolating different business units.
+- [@yuants/app-portal](apps/portal) Deploys a service that shares existing services (and channels) from one Host to others. Acts as an intermediary to forward messages between Hosts. A powerful tool for building data sharing scenarios.
+
+#### Storage
+
+Yuan uses PostgreSQL for general-purpose scenarios, Prometheus for telemetry metrics, and Redis for cached data.
+
+##### Databases
+
+Due to SQL complexity and significant variations between SQL databases, complex SQL statements are often incompatible. We default to only ensuring compatibility with PostgreSQL, sometimes requiring specific extensions (e.g., TimeScale DB).
+
+Previously using MongoDB as the default database, we transitioned to PostgreSQL due to performance issues. PostgreSQL offers better performance and scalability as a robust relational database. We plan to gradually migrate all data to PostgreSQL and eventually deprecate MongoDB.
+
+- [@yuants/postgres-storage](apps/postgres-storage) A PostgreSQL storage service that connects PostgreSQL instances to Host services while hiding connection credentials.
+- [@yuants/sql](libraries/sql) Client-side SQL library providing convenient read/write capabilities for PostgreSQL data in Hosts.
+- [@yuants/app-mongodb-storage](apps/mongodb-storage) Deploys a terminal as a storage service using MongoDB.
+
+##### Telemetry
+
+We plan to adopt OpenTelemetry as the telemetry standard while continuing to use Prometheus for metric storage.
+
+- [@yuants/app-metrics-collector](apps/metrics-collector) Deploys a terminal as a metrics collection service, continuously gathering metrics from terminals. Works with Prometheus.
+- [@yuants/prometheus-client](libraries/prometheus-client) Prometheus client for browser/Node, outperforming `promjs`.
+- [@yuants/app-prometheus-client](apps/prometheus-client) Deploys a terminal as a Prometheus client service for querying Prometheus data, ideal for building monitoring dashboards.
+
+#### Service Providers
+
+Service providers act as connectors to external systems that interact with Yuan. These systems operate independently and generate new data autonomously.
+
+Providers proxy requests/responses to external systems, which may include exchanges, data sources, or other external services. They store data locally and communicate with other terminals via the RPC framework.
+
+Providers encompass exchanges, data sources, or any external data/services. Yuan's capabilities expand as more providers are added.
+
+Access global markets through various providers. Each provider serves as a direct gateway to external services. Private data (account info, market data) isn't stored in Yuan cloud services - you can deploy providers on your own cloud or local machines. Data remains exclusively in your Host's storage.
+
+- [@yuants/vendor-ctp](apps/vendor-ctp) Connects to the "Comprehensive Transaction Platform" (CTP) developed by Shanghai Futures Exchange (SHFE) for Chinese futures trading. Regulatory compliance may require broker permissions.
+- [@yuants/vendor-ccxt](apps/vendor-ccxt) Connects to the "Cryptocurrency Exchange Trading Library" (CCXT), supporting numerous crypto exchanges via JavaScript/Python/PHP.
+- [@yuants/vendor-binance](apps/vendor-binance) Connects to _Binance_, a leading cryptocurrency exchange.
+- [@yuants/vendor-okx](apps/vendor-okx) Connects to _OKX_, a prominent cryptocurrency exchange.
+- [@yuants/vendor-huobi](apps/vendor-huobi) Connects to _Huobi_, a well-known cryptocurrency exchange.
+- [@yuants/vendor-gate](apps/vendor-gate) Connects to _Gate_, a notable cryptocurrency exchange.
+- [@yuants/vendor-bitget](apps/vendor-bitget) Connects to _BitGet_, a significant cryptocurrency exchange.
+- [@yuants/vendor-coinex](apps/vendor-coinex) Connects to _CoinEX_, a recognized cryptocurrency exchange.
+- [@yuants/vendor-hyperliquid](apps/vendor-hyperliquid) Connects to _Hyperliquid_, a prominent on-chain cryptocurrency exchange.
+- [@yuants/vendor-trading-view](apps/vendor-trading-view) Connects to _TradingView_, a renowned financial charting and trading platform. Enables usage of TradingView charts and indicators.
+- [@yuants/vendor-tq](apps/vendor-tq) Connects to _TQ_, a prominent financial data provider. Allows access to TQ data services.
+- [@yuants/app-email-notifier](apps/email-notifier) Email notification service supporting SMTP/IMAP protocols, storing messages in storage automatically.
+- [@yuants/app-feishu-notifier](apps/feishu-notifier) Integrates with Feishu (Lark) bot system for notifications.
+- [@yuants/app-openai](apps/openai) Deploys a terminal as an OpenAI service for text/image generation via OpenAI APIs.
+- [@yuants/app-telegram-monitor](apps/telegram-monitor) Deploys a Telegram monitoring service to relay messages to other terminals.
+- [@yuants/app-alert-receiver](apps/alert-receiver) Deploys an alert reception service that forwards alerts to notification terminals.
+
 #### Libraries
 
-All the libraries should be independent of the platform by default. They can be used in the browser, node.js, or other platforms. And provide both ESM and CommonJS modules.
+- [@yuants/data-model](libraries/data-model) Data models and related utilities.
+- [@yuants/utils](libraries/utils) General utilities not found in community packages.
+- [@yuants/kernel](libraries/kernel) Core of Time-Machine for historical/future time travel. Includes useful units and scenarios.
+- [@yuants/agent](libraries/agent) Trading bot framework containing strategy core.
+- [@yuants/extension](libraries/extension) Defines extension interfaces for enhanced functionality.
 
-- [@yuants/data-model](libraries/data-model) Data Model and related utils.
-- [@yuants/protocol](libraries/protocol) Network protocol, service definition and infrastructure.
-- [@yuants/utils](libraries/utils) Some general utils that are not found in the community.
-- [@yuants/kernel](libraries/kernel) The kernel of Time-Machine. Time-Machine can travel from history to the future. This package also contains some useful units and scenes.
-- [@yuants/agent](libraries/agent) Agent is a trading bot. The agent contains the core of the trading strategy.
-- [@yuants/extension](libraries/extension) This defined the extension interface. You can use extensions to enhance your experience.
-- [@yuants/prometheus-client](libraries/prometheus-client) Prometheus client for the browser / node. Better performance than `promjs`.
+#### Applications
 
-#### Apps
-
-All the apps should provide an image and publish it as a npm package. You can deploy the app by docker and Kubernetes. You can find the [App List](https://github.com/orgs/No-Trade-No-Life/packages?tab=packages&q=app-) and get the image. All the apps implemented the extension interface. So you can treat them as extensions.
-
-- [@yuants/app-host](apps/host) Host is a very lightweight message broker. Terminals can connect to the host and send messages to each other. Notice that all terminals in a host should trust each other. In practice, all the terminals in a host belong to the same owner. There's no need to verify every message. You can deploy multiple hosts to isolate the risk.
-- [@yuants/app-market-data-collector](apps/market-data-collector) This will deploy a terminal as a data-collecting service. The terminal collects market data from the market terminals continuously.
-- [@yuants/app-data-collector](apps/data-collector) This will deploy a terminal as a data-collecting service. The terminal collects series data from the data series provider terminals continuously. It's a general version of the market data collector. You can use it to collect any data series.
-- [@yuants/app-agent](apps/agent) This will deploy a terminal as the daemon service of the agent. You can run the agent in **real mode**. It can automatically correct the history data error. It can also automatically restart the agent when it crashes.
-- [@yuants/app-alert-receiver](apps/alert-receiver) This will deploy a terminal as an alert-receiving service. It receives alerts from the alert terminals and sends them to the notifier terminals.
-- [@yuants/app-mongodb-storage](apps/mongodb-storage) This will deploy a terminal as a storage service. It stores data in MongoDB.
-- [@yuants/app-email-notifier](apps/email-notifier) This will deploy a terminal as a notifier service. It sends notifications to your email.
-- [@yuants/app-feishu-notifier](apps/feishu-notifier) This will deploy a terminal as a notifier service. It sends notifications to your Feishu by a Feishu bot.
-- [@yuants/app-trade-copier](apps/trade-copier) This will deploy a terminal as a trade copier service. It watches the source accounts and ensures the target accounts follow the source accounts.
-- [@yuants/app-metrics-collector](apps/metrics-collector) This will deploy a terminal as a metrics-collecting service. The metrics collector collects metrics from terminals continuously. It works with Prometheus.
-- [@yuants/app-account-composer](apps/account-composer) This will deploy a terminal as an account-composing service. It composes multiple account info into one account info. So you can view your money dispersed across many accounts.
-- [@yuants/app-general-datasource](apps/general-data-source) This will deploy a terminal as a general data source service. It composes multiple specific data sources into one general data source. Useful for creating an index price series.
-- [@yuants/app-general-realtime-data-source](apps/general-realtime-data-source) This will deploy a terminal as a general real-time data source service. It's the real-time version of the general data source. Useful for creating an index price ticks.
-- [@yuants/app-k8s-manifest-operator](apps/k8s-manifest-operator) This will deploy a terminal as a Kubernetes manifest operator. It watches the manifest CRD of the Kubernetes cluster and ensures the Kubernetes cluster follows the manifest CRD. You can add manifest CRD to the k8s cluster and then the operator will deploy the resources defined in the manifest CRD.
-- [@yuants/app-transfer-controller](apps/transfer-controller) A transfer controller is a service that transfers money between accounts. It watches the transfer request and ensures the transfer is completed.
-- [@yuants/app-risk-manager](apps/risk-manager) This will deploy a terminal as a risk manager. It makes transfer decisions based on the configured risk info.
-- [@yuants/app-hosts](apps/hosts) This is a very lightweight host cluster that can handle message forwarding business for multiple hosts within a single process. There is no need to pre-register the host's token table; it can automatically accept terminals that comply with ED25519 signatures, and terminals do not need to send the signed private key to the host. It is highly suitable for multi-tenant environments and scenarios that require low-cost creation of multiple hosts.
-- [@yuants/app-portal](apps/portal) This will deploy a service that allows sharing existing services (and channels) from a host with other hosts. It acts as an intermediary, capable of forwarding messages from one host to another. It is a very powerful tool that can help you build data sharing scenarios.
-- [@yuants/app-namespaced-mongodb-storage](apps/namespaced-mongodb-storage) This will deploy a terminal as a storage service. It stores data in MongoDB and supports namespaces. This means you can store data for multiple tenants within the same MongoDB instance.
-- [@yuants/app-prometheus-client](apps/prometheus-client) This will deploy a terminal as a Prometheus client. It provides a service for querying data from the Prometheus database, making it suitable for building monitoring dashboards.
+- [@yuants/app-market-data-collector](apps/market-data-collector) Deploys a market data collection service that continuously gathers data from market terminals.
+- [@yuants/app-data-collector](apps/data-collector) General-purpose data collection service for any data series (market data collector's generalized version).
+- [@yuants/app-agent](apps/agent) Deploys an Agent daemon service for running Agents in **live mode**, with automatic error correction and crash recovery.
+- [@yuants/app-trade-copier](apps/trade-copier) Deploys a trade copying service that mirrors source account activity to target accounts.
+- [@yuants/app-account-composer](apps/account-composer) Deploys an account aggregation service combining multiple account balances into a unified view.
+- [@yuants/app-general-datasource](apps/general-data-source) Deploys a generalized data source service combining multiple specific sources (useful for creating price indices).
+- [@yuants/app-general-realtime-data-source](apps/general-realtime-data-source) Real-time version of general data source for creating index price ticks.
+- [@yuants/app-k8s-manifest-operator](apps/k8s-manifest-operator) Deploys a Kubernetes manifest operator that ensures cluster state matches CRD definitions.
+- [@yuants/app-transfer-controller](apps/transfer-controller) Transfer service that monitors and executes inter-account transfers.
+- [@yuants/app-risk-manager](apps/risk-manager) Deploys a risk management service that makes transfer decisions based on configured risk parameters.
 
 #### Web UI
 
@@ -249,28 +293,6 @@ It's built by [Docusaurus](https://docusaurus.io/). You can find the latest docu
 #### Toolkit
 
 [@yuants/tool-kit](tools/toolkit) is all you need. This provides a CLI when you need to build an extension. It helps you to build a docker image, create a bundle and more. To ensure your extension is ready to use.
-
-#### Vendors
-
-Vendors include markets, exchanges, and data sources. You can access the global market through various vendors. For some legal reason, they are probably not open to everyone. But you can use them if you gain permission from the provider.
-
-Every vendor is a gateway to connect the external service directly. Your private data including account info and market data will not be stored in Yuan Cloud Service. You can deploy the vendor in your own cloud or local machine.
-
-- [@yuants/vendor-ctp](apps/vendor-ctp) This connects to the "Comprehensive Transaction Platform" (CTP). The CTP platform was developed by the Shanghai Futures Exchange (SHFE). CTP provides China's future exchanges. To comply with regulations, you might have to request permission from your broker company.
-
-- [@yuants/vendor-ccxt](apps/vendor-ccxt) This connects to the "CryptoCurrency eXchange Trading Library" (CCXT). CCXT is a JavaScript / Python / PHP cryptocurrency trading library that supports many cryptocurrency exchanges and trading markets. You can use it to trade cryptocurrencies.
-
-- [@yuants/vendor-binance](apps/vendor-binance) This connects to _Binance_, which is a famous crypto exchange.
-
-- [@yuants/vendor-okx](apps/vendor-okx) This connects to _OKX_, which is a famous crypto exchange.
-
-- [@yuants/vendor-huobi](apps/vendor-huobi) This connects to _Huobi_, which is a famous crypto exchange.
-
-- [@yuants/vendor-gate](apps/vendor-gate) This connects to _Gate_, which is a famous crypto exchange.
-
-- [@yuants/vendor-bitget](apps/vendor-bitget) This connects to _BitGet_, which is a famous crypto exchange.
-
-- [@yuants/vendor-coinex](apps/vendor-coinex) This connects to _CoinEX_, which is a famous crypto exchange.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
