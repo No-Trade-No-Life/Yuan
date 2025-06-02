@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-ohlc",
+      "comment": "",
+      "type": "none"
+    }
+  ],
+  "packageName": "@yuants/data-ohlc"
+}

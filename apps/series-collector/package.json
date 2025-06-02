@@ -24,7 +24,7 @@
     "@yuants/tool-kit": "workspace:*",
     "@microsoft/api-extractor": "~7.30.0",
     "@rushstack/heft": "~0.47.5",
-    "@rushstack/heft-jest-plugin": "~0.3.30",
+    "@rushstack/heft-jest-plugin": "~0.16.8",
     "@rushstack/heft-node-rig": "~1.10.7",
     "@types/cron": "~2.0.1",
     "@types/heft-jest": "1.0.3",
