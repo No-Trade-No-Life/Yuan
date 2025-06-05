@@ -2,6 +2,28 @@
   "name": "@yuants/sql",
   "entries": [
     {
+      "version": "0.4.0",
+      "tag": "@yuants/sql_v0.4.0",
+      "date": "Thu, 05 Jun 2025 19:57:39 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add buffer writer"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "fix"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.0",
       "tag": "@yuants/sql_v0.3.0",
       "date": "Mon, 26 May 2025 07:50:33 GMT",
