@@ -1,6 +1,17 @@
 # Change Log - @yuants/sql
 
-This log was last generated on Mon, 26 May 2025 07:50:33 GMT and should not be manually modified.
+This log was last generated on Thu, 05 Jun 2025 19:57:39 GMT and should not be manually modified.
+
+## 0.4.0
+Thu, 05 Jun 2025 19:57:39 GMT
+
+### Minor changes
+
+- add buffer writer
+
+### Patches
+
+- fix
 
 ## 0.3.0
 Mon, 26 May 2025 07:50:33 GMT
