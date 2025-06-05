@@ -115,7 +115,6 @@ const queryChart = (product_id: string, period_in_sec: number, periods_length: n
 // 订阅 K 线需要维护 chart_id https://doc.shinnytech.com/diff/latest/funcset/mdhis.html
 // TODO: 所有订阅使用同一个 WS 连接
 const subscribePeriods = (product_id: string, period_in_sec: number): Observable<IPeriod[]> => {
-  // return (realtimePeriods[[product_id, period_in_sec].join('\n')] ??= )
   const id = UUID();
   return defer(() => of(createConnectionTq())).pipe(
     //
