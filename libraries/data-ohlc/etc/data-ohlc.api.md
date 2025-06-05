@@ -4,6 +4,21 @@
 
 ```ts
 
+// @public
+export interface IOHLC {
+    close: string;
+    closed_at: string;
+    datasource_id: string;
+    duration: string;
+    high: string;
+    low: string;
+    open: string;
+    open_interest: string;
+    opened_at: string;
+    product_id: string;
+    volume: string;
+}
+
 // (No @packageDocumentation comment for this package)
 
 ```
