@@ -1,6 +1,7 @@
 import { formatTime } from '@yuants/data-model';
 import { IResponse, Terminal } from '@yuants/protocol';
-import { concatMap, defer, from, lastValueFrom, retry, tap } from 'rxjs';
+import { concatMap, defer, from, lastValueFrom, Observable, retry, tap } from 'rxjs';
+import { createBufferWriter } from './bufferWriter';
 
 declare module '@yuants/protocol' {
   interface IService {
@@ -222,3 +223,56 @@ export const buildInsertManyIntoTableSQL = <T extends {}>(
     .map((x) => `(${columns.map((c) => escape(x[c as keyof T])).join(',')})`)
     .join(',')} ${options?.ignoreConflict ? 'ON CONFLICT DO NOTHING' : ''}`;
 };
+
+/**
+ * 创建一个 SQL 缓冲写入器
+ *
+ * @public
+ */
+export const createSQLWriter = <T extends {}>(
+  terminal: Terminal,
+  ctx: {
+    /**
+     * 数据流
+     *
+     * 数据流中的每一项都将被写入到数据库中的一行中
+     */
+    data$: Observable<T>;
+    /**
+     * 目标表名
+     */
+    tableName: string;
+    /**
+     * 写入间隔 (ms)
+     */
+    writeInterval: number;
+    /**
+     * 需要插入的列名
+     *
+     * 留空则使用数据的第一行的所有列进行推断
+     */
+    columns?: Array<keyof T>;
+    /**
+     * 具有相同 key 的数据仅取最后一个
+     */
+    keyFn?: (data: T) => string;
+    /**
+     * 是否忽略插入冲突 (默认 false)
+     */
+    ignoreConflict?: boolean;
+  },
+) =>
+  createBufferWriter<T>({
+    writeInterval: ctx.writeInterval,
+    bulkWrite: (data) =>
+      requestSQL(
+        terminal,
+        buildInsertManyIntoTableSQL(data, 'data_records', {
+          columns: ctx.columns,
+          keyFn: ctx.keyFn,
+          ignoreConflict: ctx.ignoreConflict,
+        }),
+      ),
+    data$: ctx.data$,
+    dispose$: terminal.dispose$,
+  });

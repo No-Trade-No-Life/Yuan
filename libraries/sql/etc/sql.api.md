@@ -4,6 +4,7 @@
 
 ```ts
 
+import { Observable } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
 
 // @public
@@ -15,6 +16,18 @@ export const buildInsertManyIntoTableSQL: <T extends {}>(data: T[], tableName: s
     keyFn?: ((data: T) => string) | undefined;
     ignoreConflict?: boolean | undefined;
 } | undefined) => string;
+
+// Warning: (ae-forgotten-export) The symbol "IBufferWriter" needs to be exported by the entry point index.d.ts
+//
+// @public
+export const createSQLWriter: <T extends {}>(terminal: Terminal, ctx: {
+    data$: Observable<T>;
+    tableName: string;
+    writeInterval: number;
+    columns?: (keyof T)[] | undefined;
+    keyFn?: ((data: T) => string) | undefined;
+    ignoreConflict?: boolean | undefined;
+}) => IBufferWriter<T>;
 
 // @public
 const escape_2: (val: any, options?: {}) => string;
