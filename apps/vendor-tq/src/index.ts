@@ -1,9 +1,10 @@
-import { decodePath, formatTime, getDataRecordWrapper, IPeriod, IProduct, UUID } from '@yuants/data-model';
+import { decodePath, formatTime, IPeriod, UUID } from '@yuants/data-model';
+import { IProduct } from '@yuants/data-product';
 import { provideDataSeries } from '@yuants/data-series';
-import { providePeriods, Terminal, writeDataRecords } from '@yuants/protocol';
+import { providePeriods, Terminal } from '@yuants/protocol';
+import { createSQLWriter } from '@yuants/sql';
 import {
   catchError,
-  combineLatest,
   defer,
   delayWhen,
   EMPTY,
@@ -19,6 +20,7 @@ import {
   retry,
   shareReplay,
   skip,
+  Subject,
   tap,
   timeout,
   toArray,
@@ -28,14 +30,7 @@ import { createConnectionTq } from './common/ws';
 
 const DATASOURCE_ID = process.env.DATASOURCE_ID || 'TQ';
 const TERMINAL_ID = process.env.TERMINAL_ID || `TQ/${UUID()}`;
-const LOG_LEVEL = process.env.LOG_LEVEL || 'INFO';
 const CONCURRENCY = +(process.env.CONCURRENCY || 200);
-
-globalThis.console = {
-  ...console,
-  debug: ['DEBUG'].includes(LOG_LEVEL) ? console.debug : () => {},
-  log: ['DEBUG'].includes(LOG_LEVEL) ? console.log : () => {},
-};
 
 // const realtimePeriods: Record<string, Observable<IPeriod>> = {};
 const queryChart = (product_id: string, period_in_sec: number, periods_length: number) => {
@@ -120,7 +115,6 @@ const queryChart = (product_id: string, period_in_sec: number, periods_length: n
 // 订阅 K 线需要维护 chart_id https://doc.shinnytech.com/diff/latest/funcset/mdhis.html
 // TODO: 所有订阅使用同一个 WS 连接
 const subscribePeriods = (product_id: string, period_in_sec: number): Observable<IPeriod[]> => {
-  // return (realtimePeriods[[product_id, period_in_sec].join('\n')] ??= )
   const id = UUID();
   return defer(() => of(createConnectionTq())).pipe(
     //
@@ -215,7 +209,16 @@ const terminal = new Terminal(process.env.HOST_URL!, {
   name: '天勤量化 WS-API',
 });
 
-const products$ = defer(() =>
+const product$ = new Subject<IProduct>();
+
+createSQLWriter(terminal, {
+  data$: product$,
+  tableName: 'product',
+  writeInterval: 1_000,
+  ignoreConflict: true,
+});
+
+defer(() =>
   // ISSUE: >200MB
   fetch('https://openmd.shinnytech.com/t/md/symbols/latest.json').then((x) => x.json()),
 )
@@ -228,13 +231,23 @@ const products$ = defer(() =>
         product_id: item.instrument_id,
         name: item.ins_name,
         quote_currency: 'CNY',
+        base_currency: '',
+        value_scale_unit: '',
+        value_based_cost: 0,
+        volume_based_cost: 0,
+        max_volume: 0,
         price_step: +item.price_tick,
         volume_step: 1,
         value_scale: item.volume_multiple,
         allow_long: true,
         allow_short: true,
+        margin_rate: 0,
+        max_position: 0,
       }),
     ),
+    tap((product) => {
+      product$.next(product);
+    }),
     toArray(),
   )
   .pipe(
@@ -242,43 +255,20 @@ const products$ = defer(() =>
     timeout(120_000),
     retry(),
     repeat({ delay: 86400_000 }),
-    shareReplay(1),
-  );
+  )
+  .subscribe();
 
-combineLatest([
-  defer(() => of(createConnectionTq())).pipe(
+defer(() => of(createConnectionTq()))
+  .pipe(
     delayWhen((conn) => from(conn.connection$)),
     tap((conn) => {
       console.info(new Date(), 'Ctrl', '连接 TQ 服务器成功');
       conn.output$.complete();
     }),
-  ),
-  products$.pipe(
-    delayWhen((products) => from(writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!)))),
-    tap((products) => console.info(new Date(), 'Ctrl', `获取品种列表成功 ${products.length} 项`)),
-  ),
-]).subscribe(() => {
-  terminal.terminalInfo.status = 'OK';
-});
+  )
+  .subscribe();
 
 providePeriods(terminal, DATASOURCE_ID, usePeriods);
-
-terminal.provideService(
-  'QueryProducts',
-  {
-    required: ['datasource_id'],
-    properties: {
-      datasource_id: {
-        const: DATASOURCE_ID,
-      },
-    },
-  },
-  () =>
-    products$.pipe(
-      //
-      map((products) => ({ res: { code: 0, message: 'OK', data: products } })),
-    ),
-);
 
 const calcNumPeriods = (start_time: number, period_in_sec: number) => {
   const now = Date.now();
@@ -293,6 +283,11 @@ provideDataSeries(terminal, {
   serviceOptions: { concurrent: CONCURRENCY },
   queryFn: async ({ series_id, started_at }) => {
     const [datasource_id, product_id, _period_in_sec] = decodePath(series_id);
+    console.info(
+      formatTime(Date.now()),
+      'QueryPeriods',
+      JSON.stringify({ datasource_id, product_id, _period_in_sec, started_at }),
+    );
     const period_in_sec = +_period_in_sec;
     const klines = calcNumPeriods(started_at, period_in_sec);
     console.info(formatTime(Date.now()), 'Periods', JSON.stringify({ product_id, period_in_sec, klines }));

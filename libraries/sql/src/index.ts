@@ -261,13 +261,13 @@ export const createSQLWriter = <T extends {}>(
      */
     ignoreConflict?: boolean;
   },
-) =>
-  createBufferWriter<T>({
+) => {
+  const writer = createBufferWriter<T>({
     writeInterval: ctx.writeInterval,
     bulkWrite: (data) =>
       requestSQL(
         terminal,
-        buildInsertManyIntoTableSQL(data, 'data_records', {
+        buildInsertManyIntoTableSQL(data, ctx.tableName, {
           columns: ctx.columns,
           keyFn: ctx.keyFn,
           ignoreConflict: ctx.ignoreConflict,
@@ -276,3 +276,8 @@ export const createSQLWriter = <T extends {}>(
     data$: ctx.data$,
     dispose$: terminal.dispose$,
   });
+
+  terminal.provideService('BufferWriterStatus', {}, () => [
+    { res: { code: 0, message: 'OK', data: writer.state } },
+  ]);
+};

@@ -8,6 +8,7 @@ export interface IBufferWriter<T> {
     writing: number;
     complete: number;
     error: number;
+    error_message: string;
     last_written: T | null;
   };
 }
@@ -44,6 +45,7 @@ export const createBufferWriter = <T>(ctx: {
     writing: 0,
     complete: 0,
     error: 0,
+    error_message: '',
     last_written: null,
   };
   const buffer: T[] = [];
@@ -73,11 +75,13 @@ export const createBufferWriter = <T>(ctx: {
               state.written += length;
               state.writing = 0;
               state.last_written = toWrite[length - 1];
+              state.error_message = '';
               state.complete++;
               buffer.splice(0, length);
             },
-            error: () => {
+            error: (err) => {
               state.error++;
+              state.error_message = `${err}`;
             },
           }),
           catchError(() => EMPTY),
