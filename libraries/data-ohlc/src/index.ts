@@ -1,4 +1,9 @@
 import { AddMigration } from '@yuants/sql';
+/**
+ * OHLC: Open-High-Low-Close
+ *
+ * @public
+ */
 export interface IOHLC {
   /**
    * Data source ID

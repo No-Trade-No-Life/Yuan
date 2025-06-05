@@ -4,7 +4,7 @@
 
 ```ts
 
-// @public (undocumented)
+// @public
 export interface IOHLC {
     close: string;
     closed_at: string;
