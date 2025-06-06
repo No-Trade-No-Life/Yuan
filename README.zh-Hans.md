@@ -253,23 +253,36 @@ Yuan 使用 PostgreSQL 作为通用场景数据库；使用 Prometheus 存储遥
 - [@yuants/app-telegram-monitor](apps/telegram-monitor) 这将部署一个终端作为 Telegram 监控服务。它允许您监控 Telegram 消息，并将其发送到其他终端。
 - [@yuants/app-alert-receiver](apps/alert-receiver) 这将部署一个终端作为警报接收服务。它从警报终端接收警报并发送给通知终端。
 
-#### 库
+#### 智能体 (Agent)
+
+智能体是一个交易机器人 / 策略程序。它可以自动执行交易策略，并根据市场数据和账户信息做出决策。智能体可以在历史数据上进行回测，也可以在实时数据上进行实盘交易。您可以自定义智能体的行为和策略。
+
+- [@yuants/kernel](libraries/kernel) 提供一个时序模拟环境。可以搭配模块达成不同的目的。
+- [@yuants/agent](libraries/agent) 基于 Kernel 的交易机器人。Agent 包含交易策略的核心。
+- [@yuants/app-agent](apps/agent) 这将部署一个独立终端作为 Agent 的守护服务。您可以在 **真实模式** 下运行 Agent。它可以自动纠正历史数据错误。它还可以在 Agent 崩溃时自动重启。
+
+#### 交易执行环节
+
+在交易执行环节，我们用一个交易执行器将智能体的模拟仓位转换为实际的交易指令。交易执行器会将交易指令发送到交易所或其他交易平台。
+
+- [@yuants/app-trade-copier](apps/trade-copier) 这将部署一个终端作为交易复制服务。它监视源账户并确保目标账户跟随源账户。
+
+如果有多个账户，可以通过转账控制器来实现账户之间的转账。
+
+- [@yuants/app-transfer-controller](apps/transfer-controller) 转账控制器是一个在账户之间转账的服务。它监视转账请求并确保转账完成。
+
+甚至构建物流网络，在不同的账户之间按照策略自动平衡资金。
+
+- [@yuants/app-risk-manager](apps/risk-manager) 这将部署一个终端作为风险管理器。它根据配置的风险信息做出转账决策。
+
+#### 杂项
 
 - [@yuants/utils](libraries/utils) 社区中未找到的一些通用工具。
-- [@yuants/kernel](libraries/kernel) Time-Machine 的核心。Time-Machine 可以从历史到未来旅行。此包还包含一些有用的单元和场景。
-- [@yuants/agent](libraries/agent) Agent 是一个交易机器人。Agent 包含交易策略的核心。
 - [@yuants/extension](libraries/extension) 这定义了扩展接口。您可以使用扩展来增强您的体验。
-
-#### 应用
-
-- [@yuants/app-agent](apps/agent) 这将部署一个终端作为 Agent 的守护服务。您可以在 **真实模式** 下运行 Agent。它可以自动纠正历史数据错误。它还可以在 Agent 崩溃时自动重启。
-- [@yuants/app-trade-copier](apps/trade-copier) 这将部署一个终端作为交易复制服务。它监视源账户并确保目标账户跟随源账户。
 - [@yuants/app-account-composer](apps/account-composer) 这将部署一个终端作为账户组合服务。它将多个账户信息组合成一个账户信息。因此，您可以查看分散在多个账户中的资金。
 - [@yuants/app-general-datasource](apps/general-data-source) 这将部署一个终端作为一般数据源服务。它将多个特定数据源组合成一个一般数据源。对于创建指数价格系列很有用。
 - [@yuants/app-general-realtime-data-source](apps/general-realtime-data-source) 这将部署一个终端作为一般实时数据源服务。它是一般数据源的实时版本。对于创建指数价格 ticks 很有用。
 - [@yuants/app-k8s-manifest-operator](apps/k8s-manifest-operator) 这将部署一个终端作为 Kubernetes 清单操作员。它监视 Kubernetes 集群的清单 CRD 并确保 Kubernetes 集群遵循清单 CRD。您可以将清单 CRD 添加到 k8s 集群，然后操作员将部署清单 CRD 中定义的资源。
-- [@yuants/app-transfer-controller](apps/transfer-controller) 转账控制器是一个在账户之间转账的服务。它监视转账请求并确保转账完成。
-- [@yuants/app-risk-manager](apps/risk-manager) 这将部署一个终端作为风险管理器。它根据配置的风险信息做出转账决策。
 
 #### Web UI
 
