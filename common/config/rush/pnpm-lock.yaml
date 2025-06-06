@@ -789,6 +789,7 @@ importers:
       '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
       ajv: ~8.12.0
@@ -799,6 +800,7 @@ importers:
       '@yuants/data-model': link:../../libraries/data-model
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
       ajv: 8.12.0
       cron: 2.3.1

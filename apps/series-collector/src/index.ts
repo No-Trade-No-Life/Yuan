@@ -1,8 +1,9 @@
-import { IDataRecordTypes, formatTime, getDataRecordSchema } from '@yuants/data-model';
+import { encodePath, formatTime } from '@yuants/data-model';
 import '@yuants/data-series';
-import { IService, PromRegistry, Terminal, readDataRecords } from '@yuants/protocol';
+import { ISeriesCollectingTask } from '@yuants/data-series';
+import { IService, PromRegistry, Terminal } from '@yuants/protocol';
+import { escape, requestSQL } from '@yuants/sql';
 import { listWatch } from '@yuants/utils';
-import Ajv from 'ajv';
 import CronJob from 'cron';
 import {
   EMPTY,
@@ -22,15 +23,10 @@ import {
   takeUntil,
   tap,
   timer,
-  toArray,
 } from 'rxjs';
-
-type ISeriesCollectingTask = IDataRecordTypes['series_collecting_task'];
 
 const MetricDataCollectorLatencyMsBucket = PromRegistry.create('histogram', 'series_collector_latency_ms');
 const MetricCronjobStatus = PromRegistry.create('gauge', 'series_collector_cronjob_status');
-
-const ajv = new Ajv({ strict: false });
 
 const terminal = new Terminal(process.env.HOST_URL!, {
   terminal_id: process.env.TERMINAL_ID || 'SeriesCollector',
@@ -38,7 +34,7 @@ const terminal = new Terminal(process.env.HOST_URL!, {
 });
 
 interface ITaskContext {
-  type: string;
+  table_name: string;
   series_id: string;
   /**
    * State of the task
@@ -49,9 +45,9 @@ interface ITaskContext {
   status: 'running' | 'error' | 'success';
 
   /**
-   * Data record last frozen_at time
+   * Data record last created_at time
    */
-  last_frozon_at: number;
+  last_created_at: number;
 
   /**
    * Current backOff time (in ms)
@@ -74,23 +70,24 @@ interface ITaskContext {
 const taskContexts = new Set<ITaskContext>();
 
 defer(() =>
-  readDataRecords(terminal, {
-    type: 'series_collecting_task',
-  }),
+  requestSQL<ISeriesCollectingTask[]>(
+    terminal,
+    `
+    select * from series_collecting_task
+    where disabled = false
+  `,
+  ),
 )
   .pipe(
-    //
-    mergeAll(),
-    map((x) => x.origin),
-    toArray(),
     retry({ delay: 5_000 }),
     // ISSUE: to enlighten Storage Workload
     repeat({ delay: 30_000 }),
   )
   .pipe(
     listWatch(
-      (config) => JSON.stringify(config),
+      (config) => encodePath(config.table_name, config.series_id),
       (task) => runTask(task),
+      (a, b) => JSON.stringify(a) === JSON.stringify(b),
     ),
   )
   .subscribe();
@@ -117,23 +114,18 @@ terminal.provideService('SeriesCollector/PeekTaskContext', {}, () => [
   { res: { code: 0, message: 'OK', data: [...taskContexts] } },
 ]);
 
-const validate = ajv.compile(getDataRecordSchema('copy_data_relation')!);
 const runTask = (task: ISeriesCollectingTask) =>
   new Observable<void>((subscriber) => {
     if (task.disabled) return;
     const title = JSON.stringify(task);
-    if (!validate(task)) {
-      console.error(formatTime(Date.now()), `InvalidConfig`, `${ajv.errorsText(validate.errors)}`, title);
-      return;
-    }
 
     console.info(formatTime(Date.now()), `StartSyncing`, title);
 
     const taskContext: ITaskContext = {
-      type: task.type,
+      table_name: task.table_name,
       series_id: task.series_id,
       status: 'success',
-      last_frozon_at: 0,
+      last_created_at: 0,
 
       current_back_off_time: 0,
       started_at: 0,
@@ -198,32 +190,31 @@ const runTask = (task: ISeriesCollectingTask) =>
     // Fetch Last Updated Data record
     taskStart$.pipe(takeUntil(dispose$)).subscribe(() => {
       defer(() =>
-        readDataRecords(terminal, {
-          type: task.type as any,
-          tags: {
-            series_id: task.series_id,
-          },
-          options: {
-            skip: task.replay_count || 0,
-            sort: [['frozen_at', -1]],
-            limit: 1,
-          },
-        }),
+        requestSQL<{ created_at: string }[]>(
+          terminal,
+          `
+              select created_at from ${task.table_name}
+              where series_id = ${escape(task.series_id)}
+              order by created_at desc
+              offset ${task.replay_count || 0}
+              limit 1
+          `,
+        ),
       )
         .pipe(
           // ISSUE: prevent from data leak
           retry({ delay: 5_000 }),
-          mergeMap((v) => v),
+          mergeAll(),
         )
         .pipe(
           //
-          map((v) => v.frozen_at),
+          map((v) => new Date(v.created_at).getTime()),
           filter((v): v is Exclude<typeof v, null | undefined> => !!v),
           defaultIfEmpty(0),
           first(),
         )
         .subscribe((t) => {
-          taskContext.last_frozon_at = t;
+          taskContext.last_created_at = t;
           collectSeriesAction$.next();
         });
     });
@@ -234,7 +225,7 @@ const runTask = (task: ISeriesCollectingTask) =>
       console.info(
         formatTime(Date.now()),
         `StartsToCopyData`,
-        `from=${formatTime(taskContext.last_frozon_at)}`,
+        `from=${formatTime(taskContext.last_created_at)}`,
         title,
       );
     });
@@ -248,10 +239,10 @@ const runTask = (task: ISeriesCollectingTask) =>
       .pipe(
         mergeMap(() =>
           defer(() =>
-            terminal.client.requestService('CollectDataSeries', {
-              type: task.type,
+            terminal.client.requestService('CollectSeries', {
+              table_name: task.table_name,
               series_id: task.series_id,
-              started_at: taskContext.last_frozon_at,
+              started_at: taskContext.last_created_at,
               ended_at: Date.now(),
             }),
           ).pipe(
