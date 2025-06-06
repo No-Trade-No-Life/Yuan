@@ -3,7 +3,6 @@ import {
   IAccountMoney,
   IOrder,
   IPosition,
-  IProduct,
   ITick,
   decodePath,
   encodePath,
@@ -25,7 +24,6 @@ import {
   catchError,
   combineLatest,
   defer,
-  delayWhen,
   filter,
   firstValueFrom,
   from,
@@ -38,9 +36,13 @@ import {
   toArray,
 } from 'rxjs';
 import { client } from './api';
+import {
+  mapProductIdToMarginProduct$,
+  mapProductIdToUsdtSwapProduct$,
+  marginProducts$,
+  usdtSwapProducts$,
+} from './product';
 import { terminal } from './terminal';
-
-const DATASOURCE_ID = 'OKX';
 
 const marketIndexTickerUSDT$ = defer(() => client.getMarketIndexTicker({ quoteCcy: 'USDT' })).pipe(
   map((x) => {
@@ -53,34 +55,6 @@ const marketIndexTickerUSDT$ = defer(() => client.getMarketIndexTicker({ quoteCc
   shareReplay(1),
 );
 
-const swapInstruments$ = defer(() => client.getInstruments({ instType: 'SWAP' })).pipe(
-  repeat({ delay: 3600_000 }),
-  retry({ delay: 10_000 }),
-  shareReplay(1),
-);
-
-const usdtSwapProducts$ = swapInstruments$.pipe(
-  mergeMap((x) =>
-    from(x.data).pipe(
-      filter((x) => x.ctType === 'linear' && x.settleCcy === 'USDT'),
-      map(
-        (x): IProduct => ({
-          datasource_id: DATASOURCE_ID,
-          product_id: encodePath(x.instType, x.instId),
-          base_currency: x.ctValCcy,
-          quote_currency: x.settleCcy,
-          value_scale: +x.ctVal,
-          volume_step: +x.lotSz,
-          price_step: +x.tickSz,
-          margin_rate: 1 / +x.lever,
-        }),
-      ),
-      toArray(),
-    ),
-  ),
-  shareReplay(1),
-);
-
 const resOfAssetCurrencies = defer(() => client.getAssetCurrencies()).pipe(
   repeat({ delay: 3600_000 }),
   retry({ delay: 10_000 }),
@@ -88,54 +62,6 @@ const resOfAssetCurrencies = defer(() => client.getAssetCurrencies()).pipe(
 );
 
 resOfAssetCurrencies.subscribe(); // make it hot
-
-const marginInstruments$ = defer(() => client.getInstruments({ instType: 'MARGIN' })).pipe(
-  repeat({ delay: 3600_000 }),
-  retry({ delay: 10_000 }),
-  shareReplay(1),
-);
-
-const marginProducts$ = marginInstruments$.pipe(
-  mergeMap((x) =>
-    from(x.data).pipe(
-      //
-      map(
-        (x): IProduct => ({
-          datasource_id: DATASOURCE_ID,
-          product_id: encodePath(x.instType, x.instId),
-          base_currency: x.baseCcy,
-          quote_currency: x.quoteCcy,
-          value_scale: 1,
-          volume_step: +x.lotSz,
-          price_step: +x.tickSz,
-          margin_rate: 1 / +x.lever,
-        }),
-      ),
-      toArray(),
-    ),
-  ),
-  shareReplay(1),
-);
-
-const mapProductIdToMarginProduct$ = marginProducts$.pipe(
-  map((x) => new Map(x.map((x) => [x.product_id, x])), shareReplay(1)),
-);
-
-usdtSwapProducts$
-  .pipe(
-    delayWhen((products) => from(writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!)))),
-  )
-  .subscribe((products) => {
-    console.info(formatTime(Date.now()), 'SWAP Products updated', products.length);
-  });
-
-marginProducts$
-  .pipe(
-    delayWhen((products) => from(writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!)))),
-  )
-  .subscribe((products) => {
-    console.info(formatTime(Date.now()), 'MARGIN Products updated', products.length);
-  });
 
 const swapMarketTickers$ = defer(() => client.getMarketTickers({ instType: 'SWAP' })).pipe(
   mergeMap((x) =>
@@ -222,7 +148,7 @@ provideTicks(terminal, 'OKX', (product_id) => {
         combineLatest(x).pipe(
           map(([theProduct, ticker, fundingRate, swapOpenInterest]): ITick => {
             return {
-              datasource_id: DATASOURCE_ID,
+              datasource_id: 'OKX',
               product_id,
               updated_at: Date.now(),
               settlement_scheduled_at: +fundingRate.fundingTime,
@@ -260,7 +186,7 @@ provideTicks(terminal, 'OKX', (product_id) => {
         combineLatest(x).pipe(
           map(
             ([theProduct, ticker, interestRateForBase, interestRateForQuote]): ITick => ({
-              datasource_id: DATASOURCE_ID,
+              datasource_id: 'OKX',
               product_id,
               updated_at: Date.now(),
               price: +ticker.last,
@@ -320,11 +246,6 @@ const pendingOrders$ = defer(() => client.getTradeOrdersPending({})).pipe(
   shareReplay(1),
 );
 
-export const mapProductIdToUsdtSwapProduct$ = usdtSwapProducts$.pipe(
-  map((x) => new Map(x.map((x) => [x.product_id, x]))),
-  shareReplay(1),
-);
-
 const tradingAccountInfo$ = combineLatest([
   accountUid$,
   accountBalance$,
@@ -379,7 +300,7 @@ const tradingAccountInfo$ = combineLatest([
           const product_id = encodePath('SPOT', `${detail.ccy}-USDT`);
           positions.push({
             position_id: product_id,
-            datasource_id: DATASOURCE_ID,
+            datasource_id: 'OKX',
             product_id: product_id,
             direction: 'LONG',
             volume: volume,
@@ -412,7 +333,7 @@ const tradingAccountInfo$ = combineLatest([
 
         positions.push({
           position_id: x.posId,
-          datasource_id: DATASOURCE_ID,
+          datasource_id: 'OKX',
           product_id,
           direction,
           volume: volume,
@@ -483,7 +404,7 @@ const fundingAccountInfo$ = combineLatest([accountUid$, assetBalance$, marketInd
         const productId = encodePath('SPOT', `${x.ccy}-USDT`);
         const valuation = price * +x.bal || 0;
         positions.push({
-          datasource_id: DATASOURCE_ID,
+          datasource_id: 'OKX',
           position_id: productId,
           product_id: productId,
           direction: 'LONG',

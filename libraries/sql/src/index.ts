@@ -273,6 +273,11 @@ export const createSQLWriter = <T extends {}>(
      * 是否忽略插入冲突 (默认 false)
      */
     ignoreConflict?: boolean;
+
+    /**
+     * 冲突时需要检查的键
+     */
+    conflictKeys?: Array<keyof T>;
   },
 ) => {
   const writer = createBufferWriter<T>({
@@ -284,6 +289,7 @@ export const createSQLWriter = <T extends {}>(
           columns: ctx.columns,
           keyFn: ctx.keyFn,
           ignoreConflict: ctx.ignoreConflict,
+          conflictKeys: ctx.conflictKeys,
         }),
       ),
     data$: ctx.data$,

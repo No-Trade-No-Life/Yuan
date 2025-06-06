@@ -26,6 +26,7 @@ export const createSQLWriter: <T extends {}>(terminal: Terminal, ctx: {
     columns?: (keyof T)[] | undefined;
     keyFn?: ((data: T) => string) | undefined;
     ignoreConflict?: boolean | undefined;
+    conflictKeys?: (keyof T)[] | undefined;
 }) => void;
 
 // @public

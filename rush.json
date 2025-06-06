@@ -446,6 +446,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/data-interest-rate",
+      "projectFolder": "libraries/data-interest-rate",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/data-product",
       "projectFolder": "libraries/data-product",
       "shouldPublish": true
