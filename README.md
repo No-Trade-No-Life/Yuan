@@ -254,25 +254,36 @@ Access global markets through various providers. Each provider serves as a direc
 - [@yuants/app-telegram-monitor](apps/telegram-monitor) Deploys a Telegram monitoring service to relay messages to other terminals.
 - [@yuants/app-alert-receiver](apps/alert-receiver) Deploys an alert reception service that forwards alerts to notification terminals.
 
-#### Libraries
+#### Agent
+
+An Agent is a trading bot/strategy program that can automatically execute trading strategies and make decisions based on market data and account information. Agents can backtest on historical data or perform live trading with real-time data. You can customize an Agent's behavior and strategies.
+
+- [@yuants/kernel](libraries/kernel) Provides a time-series simulation environment that can be combined with modules for different purposes.
+- [@yuants/agent](libraries/agent) A Kernel-based trading bot containing the core trading strategy logic.
+- [@yuants/app-agent](apps/agent) Deploys a standalone terminal as an Agent daemon service. You can run Agents in **live mode**, which automatically corrects historical data errors and restarts Agents after crashes.
+
+#### Trade Execution
+
+In the trade execution phase, we use an execution engine to convert an Agent's simulated positions into actual trading orders. The execution engine sends these orders to exchanges or other trading platforms.
+
+- [@yuants/app-trade-copier](apps/trade-copier) Deploys a terminal as a trade copying service that monitors source accounts and ensures target accounts mirror them.
+
+For multiple accounts, a transfer controller handles inter-account fund movements:
+
+- [@yuants/app-transfer-controller](apps/transfer-controller) A service that monitors transfer requests and ensures completion of inter-account transfers.
+
+You can even build a logistics network to automatically balance funds between accounts according to strategies:
+
+- [@yuants/app-risk-manager](apps/risk-manager) Deploys a terminal as a risk management service that makes transfer decisions based on configured risk parameters.
+
+#### Utilities
 
 - [@yuants/utils](libraries/utils) General utilities not found in community packages.
-- [@yuants/kernel](libraries/kernel) Core of Time-Machine for historical/future time travel. Includes useful units and scenarios.
-- [@yuants/agent](libraries/agent) Trading bot framework containing strategy core.
 - [@yuants/extension](libraries/extension) Defines extension interfaces for enhanced functionality.
-
-#### Applications
-
-- [@yuants/app-market-data-collector](apps/market-data-collector) Deploys a market data collection service that continuously gathers data from market terminals.
-- [@yuants/app-data-collector](apps/data-collector) General-purpose data collection service for any data series (market data collector's generalized version).
-- [@yuants/app-agent](apps/agent) Deploys an Agent daemon service for running Agents in **live mode**, with automatic error correction and crash recovery.
-- [@yuants/app-trade-copier](apps/trade-copier) Deploys a trade copying service that mirrors source account activity to target accounts.
-- [@yuants/app-account-composer](apps/account-composer) Deploys an account aggregation service combining multiple account balances into a unified view.
-- [@yuants/app-general-datasource](apps/general-data-source) Deploys a generalized data source service combining multiple specific sources (useful for creating price indices).
-- [@yuants/app-general-realtime-data-source](apps/general-realtime-data-source) Real-time version of general data source for creating index price ticks.
+- [@yuants/app-account-composer](apps/account-composer) Deploys an account aggregation service that combines multiple account balances into a unified view.
+- [@yuants/app-general-datasource](apps/general-data-source) Deploys a generalized data source service that combines multiple specific sources (useful for creating price indices).
+- [@yuants/app-general-realtime-data-source](apps/general-realtime-data-source) The real-time version of the general data source, useful for creating index price ticks.
 - [@yuants/app-k8s-manifest-operator](apps/k8s-manifest-operator) Deploys a Kubernetes manifest operator that ensures cluster state matches CRD definitions.
-- [@yuants/app-transfer-controller](apps/transfer-controller) Transfer service that monitors and executes inter-account transfers.
-- [@yuants/app-risk-manager](apps/risk-manager) Deploys a risk management service that makes transfer decisions based on configured risk parameters.
 
 #### Web UI
 
