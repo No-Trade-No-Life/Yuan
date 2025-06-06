@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-interest-rate",
+      "comment": "new",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-interest-rate"
+}

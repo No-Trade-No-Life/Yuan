@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-okx",
+      "comment": "use SQL",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/vendor-okx"
+}

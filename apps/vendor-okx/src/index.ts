@@ -1,3 +1,3 @@
-import './collect_periods';
-import './funding_rate';
+import './interest_rate';
 import './legacy_index';
+import './ohlc';
