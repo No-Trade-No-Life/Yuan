@@ -6,7 +6,16 @@
 
 import { IDataRecordTypes } from '@yuants/data-model';
 import { IServiceOptions } from '@yuants/protocol';
+import { ObservableInput } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
+
+// @public
+export const createSeriesProvider: <T extends {
+    series_id: string;
+    created_at: string;
+}>(terminal: Terminal, ctx: ISeriesProviderContext<T>) => {
+    dispose: () => void;
+};
 
 // @public
 export interface IDataSeriesProvideContext<T extends keyof IDataRecordTypes> {
@@ -20,6 +29,38 @@ export interface IDataSeriesProvideContext<T extends keyof IDataRecordTypes> {
     // (undocumented)
     serviceOptions?: IServiceOptions;
     type: T;
+}
+
+// @public
+export interface ISeriesCollectingTask {
+    cron_pattern: string;
+    cron_timezone: string;
+    disabled: boolean;
+    replay_count: number;
+    series_id: string;
+    table_name: string;
+}
+
+// @public
+export interface ISeriesDataItem {
+    // (undocumented)
+    created_at: string;
+    // (undocumented)
+    series_id: string;
+}
+
+// @public
+export interface ISeriesProviderContext<T extends ISeriesDataItem> {
+    queryFn: (ctx: {
+        series_id: string;
+        started_at: number;
+        ended_at: number;
+    }) => ObservableInput<T[]>;
+    reversed: boolean;
+    series_id_prefix_parts: string[];
+    // (undocumented)
+    serviceOptions?: IServiceOptions;
+    tableName: string;
 }
 
 // @public

@@ -15,6 +15,7 @@ export const buildInsertManyIntoTableSQL: <T extends {}>(data: T[], tableName: s
     columns?: (keyof T)[] | undefined;
     keyFn?: ((data: T) => string) | undefined;
     ignoreConflict?: boolean | undefined;
+    conflictKeys?: (keyof T)[] | undefined;
 } | undefined) => string;
 
 // @public

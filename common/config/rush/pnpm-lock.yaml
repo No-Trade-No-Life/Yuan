@@ -1427,6 +1427,7 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/node': '22'
       '@yuants/data-model': workspace:*
+      '@yuants/data-ohlc': workspace:*
       '@yuants/data-product': workspace:*
       '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
@@ -1437,6 +1438,7 @@ importers:
       typescript: ~4.7.4
     dependencies:
       '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/data-ohlc': link:../../libraries/data-ohlc
       '@yuants/data-product': link:../../libraries/data-product
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
@@ -1696,6 +1698,7 @@ importers:
       '@types/uuid': ~8.3.4
       '@yuants/data-model': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
       date-fns: ~2.30.0
@@ -1706,6 +1709,7 @@ importers:
     dependencies:
       '@yuants/data-model': link:../data-model
       '@yuants/protocol': link:../protocol
+      '@yuants/sql': link:../sql
       '@yuants/utils': link:../utils
       date-fns: 2.30.0
       date-fns-tz: 2.0.0_date-fns@2.30.0

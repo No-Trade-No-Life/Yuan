@@ -1,6 +1,7 @@
 import { decodePath, formatTime, IPeriod, UUID } from '@yuants/data-model';
+import { IOHLC } from '@yuants/data-ohlc';
 import { IProduct } from '@yuants/data-product';
-import { provideDataSeries } from '@yuants/data-series';
+import { createSeriesProvider } from '@yuants/data-series';
 import { providePeriods, Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
 import {
@@ -9,10 +10,10 @@ import {
   delayWhen,
   EMPTY,
   filter,
-  first,
   firstValueFrom,
   from,
   map,
+  mergeAll,
   mergeMap,
   Observable,
   of,
@@ -21,6 +22,7 @@ import {
   shareReplay,
   skip,
   Subject,
+  takeWhile,
   tap,
   timeout,
   toArray,
@@ -28,8 +30,12 @@ import {
 import { ITQResponse } from './common/tq-datatype';
 import { createConnectionTq } from './common/ws';
 
+const terminal = new Terminal(process.env.HOST_URL!, {
+  terminal_id: process.env.TERMINAL_ID || `TQ/${UUID()}`,
+  name: 'TQ-SDK WS-API',
+});
+
 const DATASOURCE_ID = process.env.DATASOURCE_ID || 'TQ';
-const TERMINAL_ID = process.env.TERMINAL_ID || `TQ/${UUID()}`;
 const CONCURRENCY = +(process.env.CONCURRENCY || 200);
 
 // const realtimePeriods: Record<string, Observable<IPeriod>> = {};
@@ -61,38 +67,41 @@ const queryChart = (product_id: string, period_in_sec: number, periods_length: n
       return conn.input$
         .pipe(
           //
-          filter((msg) => msg.aid === 'rtn_data'),
-          map((msg: ITQResponse) => msg.data?.[0]?.klines?.[product_id]?.[period_in_ns]?.data ?? {}),
+          filter((msg): msg is ITQResponse => msg.aid === 'rtn_data'),
+          // 如果 mdhis_more_data 为 true，则继续等待下一条数据
+          takeWhile((msg) => {
+            if (
+              msg.data.find((x) => x.klines) &&
+              msg.data.find((x) => x.charts?.[id])?.mdhis_more_data !== true
+            ) {
+              return false;
+            }
+            return true;
+          }, true),
+          mergeMap((x) => x.data),
+          map((msg) => msg?.klines?.[product_id]?.[period_in_ns]?.data),
+          filter((x): x is Exclude<typeof x, undefined | null> => !!x),
           map((records) => Object.values(records)),
-          first((records) => records.length > 0),
-          tap((records) => {
-            console.info(new Date(), 'QueryChart', '拉回结果', id, records.length);
-            sub.unsubscribe();
-            // cancel chart
-            conn.output$.next({
-              aid: 'set_chart',
-              chart_id: id,
-              ins_list: '',
-              duration: period_in_ns,
-              view_width: 1,
-            });
-            conn.output$.complete();
+        )
+        .pipe(
+          tap({
+            next: (records) => {
+              console.info(new Date(), 'QueryChart', '拉回结果', id, records.length);
+            },
+            finalize: () => {
+              sub.unsubscribe();
+              // cancel chart
+              conn.output$.next({
+                aid: 'set_chart',
+                chart_id: id,
+                ins_list: '',
+                duration: period_in_ns,
+                view_width: 1,
+              });
+              conn.output$.complete();
+            },
           }),
-          mergeMap((v) => v),
-          map(
-            (record): IPeriod => ({
-              datasource_id: DATASOURCE_ID,
-              product_id,
-              period_in_sec,
-              timestamp_in_us: record.datetime / 1e3,
-              start_at: record.datetime / 1e6,
-              open: record.open,
-              high: record.high,
-              low: record.low,
-              close: record.close,
-              volume: record.volume,
-            }),
-          ),
+          mergeAll(),
           toArray(),
         )
         .pipe(
@@ -170,6 +179,7 @@ const subscribePeriods = (product_id: string, period_in_sec: number): Observable
                   low: record.low,
                   close: record.close,
                   volume: record.volume,
+                  open_interest: record.close_oi,
                 }),
               ),
               toArray(),
@@ -203,11 +213,6 @@ const usePeriods = (() => {
       shareReplay(1),
     ));
 })();
-
-const terminal = new Terminal(process.env.HOST_URL!, {
-  terminal_id: TERMINAL_ID,
-  name: '天勤量化 WS-API',
-});
 
 const product$ = new Subject<IProduct>();
 
@@ -276,26 +281,43 @@ const calcNumPeriods = (start_time: number, period_in_sec: number) => {
   return num_periods;
 };
 
-provideDataSeries(terminal, {
-  type: 'period',
+createSeriesProvider<IOHLC>(terminal, {
+  tableName: 'ohlc',
   series_id_prefix_parts: [DATASOURCE_ID],
   reversed: false,
   serviceOptions: { concurrent: CONCURRENCY },
   queryFn: async ({ series_id, started_at }) => {
-    const [datasource_id, product_id, _period_in_sec] = decodePath(series_id);
-    console.info(
-      formatTime(Date.now()),
-      'QueryPeriods',
-      JSON.stringify({ datasource_id, product_id, _period_in_sec, started_at }),
-    );
-    const period_in_sec = +_period_in_sec;
-    const klines = calcNumPeriods(started_at, period_in_sec);
-    console.info(formatTime(Date.now()), 'Periods', JSON.stringify({ product_id, period_in_sec, klines }));
-    let periods = await firstValueFrom(queryChart(product_id, period_in_sec, klines));
-    console.info(formatTime(Date.now()), 'Periods', JSON.stringify(periods[0]), periods.length);
-    // 避免过量写入
-    periods = periods.filter((v) => v.start_at! >= started_at);
-    console.info(formatTime(Date.now()), 'Periods', JSON.stringify(periods[0]), periods.length);
-    return periods;
+    const [datasource_id, product_id, duration] = decodePath(series_id);
+    const period_in_sec = {
+      PT1M: 60,
+      PT5M: 300,
+      PT15M: 900,
+      PT30M: 1800,
+      PT1H: 3600,
+      PT2H: 7200,
+      PT4H: 14400,
+      P1D: 86400,
+      P1W: 604800,
+      P1M: 2592000,
+      P1Y: 31536000,
+    }[duration];
+    if (!period_in_sec) throw new Error(`Unsupported duration: ${duration}`);
+    const count = calcNumPeriods(started_at, period_in_sec);
+    const data = await firstValueFrom(queryChart(product_id, period_in_sec, count));
+
+    return data.map((x) => ({
+      series_id,
+      created_at: formatTime(x.datetime / 1e6),
+      datasource_id: datasource_id,
+      product_id: product_id,
+      duration: duration,
+      closed_at: formatTime(x.datetime / 1e6 + period_in_sec * 1000),
+      open: `${x.open}`,
+      high: `${x.high}`,
+      low: `${x.low}`,
+      close: `${x.close}`,
+      volume: `${x.volume}`,
+      open_interest: `${x.close_oi}`,
+    }));
   },
 });
