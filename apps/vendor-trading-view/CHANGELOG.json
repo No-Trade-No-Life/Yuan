@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-trading-view",
   "entries": [
     {
+      "version": "0.1.25",
+      "tag": "@yuants/vendor-trading-view_v0.1.25",
+      "date": "Fri, 06 Jun 2025 19:41:06 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "migration"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.24",
       "tag": "@yuants/vendor-trading-view_v0.1.24",
       "date": "Fri, 06 Jun 2025 16:45:27 GMT",
