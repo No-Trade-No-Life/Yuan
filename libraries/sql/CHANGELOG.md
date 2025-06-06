@@ -1,6 +1,13 @@
 # Change Log - @yuants/sql
 
-This log was last generated on Thu, 05 Jun 2025 19:57:39 GMT and should not be manually modified.
+This log was last generated on Fri, 06 Jun 2025 16:45:27 GMT and should not be manually modified.
+
+## 0.5.0
+Fri, 06 Jun 2025 16:45:27 GMT
+
+### Minor changes
+
+- add onconflict update
 
 ## 0.4.0
 Thu, 05 Jun 2025 19:57:39 GMT
