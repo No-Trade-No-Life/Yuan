@@ -1468,17 +1468,21 @@ importers:
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
       '@yuants/data-model': workspace:*
+      '@yuants/data-ohlc': workspace:*
       '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
       '@mathieuc/tradingview': 3.4.6
       '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/data-ohlc': link:../../libraries/data-ohlc
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/sql': link:../../libraries/sql
       rxjs: 7.5.7
     devDependencies:
       '@microsoft/api-extractor': 7.30.1

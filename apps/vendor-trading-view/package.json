@@ -11,6 +11,8 @@
     "@yuants/protocol": "workspace:*",
     "@yuants/data-model": "workspace:*",
     "@yuants/data-series": "workspace:*",
+    "@yuants/sql": "workspace:*",
+    "@yuants/data-ohlc": "workspace:*",
     "rxjs": "~7.5.6",
     "@mathieuc/tradingview": "~3.4.2"
   },
