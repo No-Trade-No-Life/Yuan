@@ -120,7 +120,8 @@ Yuan 是一个混合云软件，允许您同时在家庭或公共云中部署您
 [![kubernetes](https://img.shields.io/badge/kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=FFFFFF)](https://github.com/kubernetes/kubernetes)
 [![docker](https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=FFFFFF)](https://www.docker.com/)
 [![prometheus](https://img.shields.io/badge/prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=FFFFFF)](https://prometheus.io/)
-[![PostgreSQL](https://img.shields.io/badge/postgresql-4169E1?style=for-the-badge&logo=postgresql&logoColor=FFFFFF)](https://github.com/mongodb/mongo)
+[![PostgreSQL](https://img.shields.io/badge/postgresql-4169E1?style=for-the-badge&logo=postgresql&logoColor=FFFFFF)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/redis-FF4438?style=for-the-badge&logo=redis&logoColor=FFFFFF)](https://redis.io/)
 [![mongodb](https://img.shields.io/badge/mongodb-47A248?style=for-the-badge&logo=mongodb&logoColor=FFFFFF)](https://github.com/mongodb/mongo)
 [![zeromq](https://img.shields.io/badge/zeromq-DF0000?style=for-the-badge&logo=zeromq&logoColor=FFFFFF)](https://zeromq.org/)
 [![openai](https://img.shields.io/badge/openai-412991?style=for-the-badge&logo=openai&logoColor=FFFFFF)](https://openai.com/)
@@ -191,6 +192,40 @@ Yuan 使用 PostgreSQL 作为通用场景数据库；使用 Prometheus 存储遥
 - [@yuants/prometheus-client](libraries/prometheus-client) 浏览器 / node 的 Prometheus 客户端。性能优于 `promjs`。
 - [@yuants/app-prometheus-client](apps/prometheus-client) 这将部署一个终端作为 Prometheus 客户端。它提供了从 Prometheus 数据库查询数据的服务。适合于构建监控面板。
 
+#### 数据建模
+
+为了统一全球市场，我们需要一个通用的数据模型来表示市场数据。这个数据模型可以帮助我们在不同的市场之间进行数据转换和映射。
+
+数据建模中包含了 TS 类型、SQL 表的定义。
+
+- [@yuants/data-product](libraries/data-product) 市场中可交易的产品。
+- [@yuants/data-ohlc](libraries/data-ohlc) OHLC(V) 数据。OHLC 是 Open、High、Low、Close 的缩写，是一种常用的市场数据格式，也称为 K 线。
+
+老旧的数据模型存放于 [@yuants/data-model](libraries/data-model)，我们计划将其拆分成很多不同的包，从而减少一些非核心模型变动冲击。
+
+另外，不需要在包之间共享的私有数据建模，我们会放在对应领域的包中。
+
+我们发现，数据有两种非常有用的性质：层级属性和时间序列性。
+
+例如层级性，产品的层级性来源于不同的市场、不同门类的品种。账户信息的层级来源于不同的券商、母子账户关系、基金组件关系等。我们可以通过层级属性，存储并管理好非常大量的数据，并且层级性非常方便理解，每次只需要在一个子目录中完成工作。
+
+例如时间序列性，数据通常是按照时间产生的，按照时间周期连续聚合的。例如 OHLC 数据，我们可以利用时间序列的特性，进行不同时间切片上的数据管理。例如，按照周期，从数据提供商处抓取数据，存储到数据库中。时间序列数据的存储和查询非常高效。
+
+#### 数据采集
+
+对于相对静态的数据，我们可以通过数据提供商的 API 获取数据，并存储到数据库中。
+
+对于有时间序列属性的数据，我们需要定期从数据提供商处抓取数据，并存储到数据库中。
+
+我们定义了时序序列应当满足的约束：[@yuants/data-series](libraries/data-series) 这是一个通用的时间序列数据模型。它定义了时间序列数据的基本属性和方法。数据服务提供商可以使用它来创建自己的时间序列数据模型，并快速完成数据采集任务。
+
+我们引入一个时序数据的采集调度器：[@yuants/series-collector](apps/series-collector) 这是一个通用的时间序列数据收集器，它可以使用 CronJob 定期任务，从不同的数据提供商处抓取数据，并存储到数据库中。您只需要在数据库 `series_collecting_task` 表中添加一条记录，收集器就会定期抓取数据并存储到数据库中。
+
+我们以前构建了一些用途更特化的应用来收集数据，但现在它们已经废弃，我们将它们整合到 `series-collector` 中。您可以使用 `series-collector` 来收集任何时间序列数据。
+
+- [@yuants/app-market-data-collector](apps/market-data-collector) 这将部署一个终端作为数据收集服务。终端持续从市场终端收集市场数据。
+- [@yuants/app-data-collector](apps/data-collector) 这将部署一个终端作为数据收集服务。终端持续从数据系列提供者终端收集系列数据。这是市场数据收集器的一般版本。您可以使用它来收集任何数据系列。
+
 #### 服务提供商
 
 服务提供商是指与 Yuan 交互的外部系统的连接器。这些系统独立于 Yuan，并且会独立产生新的数据。
@@ -220,7 +255,6 @@ Yuan 使用 PostgreSQL 作为通用场景数据库；使用 Prometheus 存储遥
 
 #### 库
 
-- [@yuants/data-model](libraries/data-model) 数据模型及相关工具。
 - [@yuants/utils](libraries/utils) 社区中未找到的一些通用工具。
 - [@yuants/kernel](libraries/kernel) Time-Machine 的核心。Time-Machine 可以从历史到未来旅行。此包还包含一些有用的单元和场景。
 - [@yuants/agent](libraries/agent) Agent 是一个交易机器人。Agent 包含交易策略的核心。
@@ -228,8 +262,6 @@ Yuan 使用 PostgreSQL 作为通用场景数据库；使用 Prometheus 存储遥
 
 #### 应用
 
-- [@yuants/app-market-data-collector](apps/market-data-collector) 这将部署一个终端作为数据收集服务。终端持续从市场终端收集市场数据。
-- [@yuants/app-data-collector](apps/data-collector) 这将部署一个终端作为数据收集服务。终端持续从数据系列提供者终端收集系列数据。这是市场数据收集器的一般版本。您可以使用它来收集任何数据系列。
 - [@yuants/app-agent](apps/agent) 这将部署一个终端作为 Agent 的守护服务。您可以在 **真实模式** 下运行 Agent。它可以自动纠正历史数据错误。它还可以在 Agent 崩溃时自动重启。
 - [@yuants/app-trade-copier](apps/trade-copier) 这将部署一个终端作为交易复制服务。它监视源账户并确保目标账户跟随源账户。
 - [@yuants/app-account-composer](apps/account-composer) 这将部署一个终端作为账户组合服务。它将多个账户信息组合成一个账户信息。因此，您可以查看分散在多个账户中的资金。
