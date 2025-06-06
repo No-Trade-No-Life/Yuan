@@ -2,6 +2,23 @@
   "name": "@yuants/app-telegram-monitor",
   "entries": [
     {
+      "version": "0.0.22",
+      "tag": "@yuants/app-telegram-monitor_v0.0.22",
+      "date": "Fri, 06 Jun 2025 16:45:27 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.5.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.21",
       "tag": "@yuants/app-telegram-monitor_v0.0.21",
       "date": "Thu, 05 Jun 2025 19:57:39 GMT",
