@@ -6,6 +6,14 @@ import { AddMigration } from '@yuants/sql';
  */
 export interface IOHLC {
   /**
+   * Series ID (Encoded as `encodePath(datasource_id, product_id, duration)`)
+   */
+  series_id: string;
+  /**
+   * OHLC Opened TimestampTz (inclusive)
+   */
+  created_at: string;
+  /**
    * Data source ID
    * 数据源 ID
    */
@@ -34,10 +42,6 @@ export interface IOHLC {
    * - `P1Y`: 1 year
    */
   duration: string;
-  /**
-   * OHLC Opened TimestampTz (inclusive)
-   */
-  opened_at: string;
   /**
    * OHLC Closed TimestampTZ (exclusive)
    */
@@ -80,10 +84,11 @@ AddMigration({
   dependencies: [],
   statement: `
     CREATE TABLE IF NOT EXISTS ohlc (
+      series_id TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
       datasource_id TEXT NOT NULL,
       product_id TEXT NOT NULL,
       duration TEXT NOT NULL,
-      opened_at TIMESTAMPTZ NOT NULL,
       closed_at TIMESTAMPTZ NOT NULL,
       open TEXT NOT NULL,
       high TEXT NOT NULL,
@@ -92,9 +97,10 @@ AddMigration({
       volume TEXT,
       open_interest TEXT,
       updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-      PRIMARY KEY (datasource_id, product_id, duration, opened_at)
+      PRIMARY KEY (series_id, created_at)
     );
 
-    CREATE INDEX IF NOT EXISTS idx_ohlc_datasource_product_duration_opened_at ON ohlc (datasource_id, product_id, duration, opened_at desc);
+    CREATE INDEX IF NOT EXISTS idx_ohlc_series_id_created_at ON ohlc (series_id, created_at desc);
+    create or replace trigger auto_update_updated_at before update on ohlc for each row execute function update_updated_at_column();
   `,
 });

@@ -213,6 +213,11 @@ export const buildInsertManyIntoTableSQL = <T extends {}>(
      * 是否忽略插入冲突 (默认 false)
      */
     ignoreConflict?: boolean;
+
+    /**
+     * 冲突时需要检查的键
+     */
+    conflictKeys?: Array<keyof T>;
   },
 ): string => {
   if (data.length === 0) throw 'Data is empty';
@@ -221,7 +226,15 @@ export const buildInsertManyIntoTableSQL = <T extends {}>(
   const toInsert = keyFn ? [...new Map(data.map((x) => [keyFn(x), x])).values()] : data;
   return `INSERT INTO ${tableName} (${columns.join(',')}) VALUES ${toInsert
     .map((x) => `(${columns.map((c) => escape(x[c as keyof T])).join(',')})`)
-    .join(',')} ${options?.ignoreConflict ? 'ON CONFLICT DO NOTHING' : ''}`;
+    .join(',')} ${
+    options?.ignoreConflict
+      ? 'ON CONFLICT DO NOTHING'
+      : options?.conflictKeys
+      ? `ON CONFLICT (${options.conflictKeys.join(',')}) DO UPDATE SET ${columns.map(
+          (c) => `${c} = EXCLUDED.${c}`,
+        )}`
+      : ''
+  }`;
 };
 
 /**

@@ -12,6 +12,7 @@
     "@yuants/protocol": "workspace:*",
     "@yuants/data-series": "workspace:*",
     "@yuants/data-product": "workspace:*",
+    "@yuants/data-ohlc": "workspace:*",
     "@yuants/sql": "workspace:*",
     "rxjs": "~7.5.6"
   },
