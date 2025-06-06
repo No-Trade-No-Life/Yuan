@@ -119,7 +119,8 @@ In Yuan, extensions are treated as first-class citizens. Many core features are 
 [![kubernetes](https://img.shields.io/badge/kubernetes-326CE5?style=for-the-badge&logo=kubernetes&logoColor=FFFFFF)](https://github.com/kubernetes/kubernetes)
 [![docker](https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=FFFFFF)](https://www.docker.com/)
 [![prometheus](https://img.shields.io/badge/prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=FFFFFF)](https://prometheus.io/)
-[![postgresql](https://img.shields.io/badge/postgresql-4169E1?style=for-the-badge&logo=postgresql&logoColor=FFFFFF)](https://github.com/mongodb/mongo)
+[![PostgreSQL](https://img.shields.io/badge/postgresql-4169E1?style=for-the-badge&logo=postgresql&logoColor=FFFFFF)](https://www.postgresql.org/)
+[![Redis](https://img.shields.io/badge/redis-FF4438?style=for-the-badge&logo=redis&logoColor=FFFFFF)](https://redis.io/)
 [![mongodb](https://img.shields.io/badge/mongodb-47A248?style=for-the-badge&logo=mongodb&logoColor=FFFFFF)](https://github.com/mongodb/mongo)
 [![zeromq](https://img.shields.io/badge/zeromq-DF0000?style=for-the-badge&logo=zeromq&logoColor=FFFFFF)](https://zeromq.org/)
 [![openai](https://img.shields.io/badge/openai-412991?style=for-the-badge&logo=openai&logoColor=FFFFFF)](https://openai.com/)
@@ -190,6 +191,42 @@ We plan to adopt OpenTelemetry as the telemetry standard while continuing to use
 - [@yuants/prometheus-client](libraries/prometheus-client) Prometheus client for browser/Node, outperforming `promjs`.
 - [@yuants/app-prometheus-client](apps/prometheus-client) Deploys a terminal as a Prometheus client service for querying Prometheus data, ideal for building monitoring dashboards.
 
+#### Data Modeling
+
+To unify global markets, we need a universal data model to represent market data. This data model facilitates data conversion and mapping across different markets.
+
+The data modeling includes TypeScript types and SQL table definitions.
+
+- [@yuants/data-product](libraries/data-product) Tradable products in markets.
+- [@yuants/data-ohlc](libraries/data-ohlc) OHLC(V) data (Open, High, Low, Close with optional Volume) - a common market data format also known as candlestick charts.
+
+Legacy data models are maintained in [@yuants/data-model](libraries/data-model). We plan to split them into multiple specialized packages to reduce impact from non-core model changes.
+
+Additionally, private data models that don't need to be shared between packages will be kept within their respective domain-specific packages.
+
+We have identified two particularly useful properties of data: hierarchical structure and time-series nature.
+
+**Hierarchical Structure**  
+For example, product hierarchies stem from different markets and various asset categories. Account information hierarchies originate from different brokers, parent-child account relationships, fund component structures, etc. Hierarchical properties enable us to store and manage vast amounts of data efficiently. The hierarchical nature also provides intuitive understanding - we only need to work within a specific subdirectory at any time.
+
+**Time-Series Nature**  
+Data is typically generated chronologically and continuously aggregated by time periods. Taking OHLC data as an example, we can leverage time-series characteristics for data management across different time slices. For instance, we can periodically fetch data from providers and store it in databases. Time-series data offers highly efficient storage and query performance.
+
+#### Data Collection
+
+For relatively static data, we can retrieve it through data providers' APIs and store it in databases.
+
+For time-series data, we need to periodically fetch data from providers and store it in databases.
+
+We've defined constraints that time-series data should satisfy: [@yuants/data-series](libraries/data-series) - A generic time-series data model that defines fundamental properties and methods. Data service providers can use this to create their own time-series models and quickly implement data collection tasks.
+
+We've introduced a time-series data collection scheduler: [@yuants/series-collector](apps/series-collector) - A universal time-series data collector that uses CronJob scheduled tasks to fetch data from various providers and store it in databases. Simply add a record to the `series_collecting_task` table in the database, and the collector will automatically fetch and store the data periodically.
+
+Previously, we built several more specialized applications for data collection, but these are now deprecated as we've consolidated them into `series-collector`. You can use `series-collector` to collect any time-series data.
+
+- [@yuants/app-market-data-collector](apps/market-data-collector) Deploys a terminal as a market data collection service that continuously gathers market data from market terminals.
+- [@yuants/app-data-collector](apps/data-collector) Deploys a terminal as a general data collection service that continuously collects series data from data providers. This is the generalized version of the market data collector, capable of collecting any data series.
+
 #### Service Providers
 
 Service providers act as connectors to external systems that interact with Yuan. These systems operate independently and generate new data autonomously.
@@ -219,7 +256,6 @@ Access global markets through various providers. Each provider serves as a direc
 
 #### Libraries
 
-- [@yuants/data-model](libraries/data-model) Data models and related utilities.
 - [@yuants/utils](libraries/utils) General utilities not found in community packages.
 - [@yuants/kernel](libraries/kernel) Core of Time-Machine for historical/future time travel. Includes useful units and scenarios.
 - [@yuants/agent](libraries/agent) Trading bot framework containing strategy core.
