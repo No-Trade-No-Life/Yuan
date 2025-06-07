@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-binance",
-  "version": "0.4.18",
+  "version": "0.4.17",
   "files": [
     "dist/extension.bundle.js"
   ],
@@ -13,6 +13,10 @@
     "@yuants/data-model": "workspace:*",
     "@yuants/utils": "workspace:*",
     "@yuants/data-series": "workspace:*",
+    "@yuants/sql": "workspace:*",
+    "@yuants/data-product": "workspace:*",
+    "@yuants/data-ohlc": "workspace:*",
+    "@yuants/data-interest-rate": "workspace:*",
     "rxjs": "~7.5.6",
     "crypto-js": "^4.2.0"
   },

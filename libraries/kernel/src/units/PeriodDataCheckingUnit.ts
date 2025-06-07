@@ -2,6 +2,7 @@ import { formatTime } from '@yuants/data-model';
 import { PromRegistry, Terminal, queryPeriods } from '@yuants/protocol';
 import { EMPTY, Subscription, defer, mergeMap, repeat, retry, tap } from 'rxjs';
 import { Kernel } from '../kernel';
+import { mapDurationToPeriodInSec } from '../utils/mapDurationToPeriodInSec';
 import { BasicUnit } from './BasicUnit';
 import { PeriodDataUnit } from './PeriodDataUnit';
 
@@ -23,7 +24,7 @@ export class PeriodDataCheckingUnit extends BasicUnit {
   periodTasks: {
     datasource_id: string;
     product_id: string;
-    period_in_sec: number;
+    duration: string;
     start_time_in_us: number;
   }[] = [];
 
@@ -33,7 +34,8 @@ export class PeriodDataCheckingUnit extends BasicUnit {
 
   onInit() {
     for (const task of this.periodTasks) {
-      const { datasource_id, product_id, period_in_sec, start_time_in_us } = task;
+      const { datasource_id, product_id, duration, start_time_in_us } = task;
+      const period_in_sec = mapDurationToPeriodInSec(duration);
       const interval = period_in_sec * 1000;
       let lastCheckedTimestamp = start_time_in_us / 1000;
       let lastCheckedIndex = 0;

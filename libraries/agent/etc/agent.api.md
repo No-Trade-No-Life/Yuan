@@ -153,7 +153,7 @@ export const useMemoAsync: <T>(fn: () => Promise<T>, deps?: any[]) => Promise<T>
 export const useMetric: (name: string, value: number, labels?: Record<string, string>) => void;
 
 // @public
-export const useOHLC: (datasource_id: string, product_id: string, period: number | string) => {
+export const useOHLC: (datasource_id: string, product_id: string, duration: string) => {
     time: Series;
     open: Series;
     high: Series;

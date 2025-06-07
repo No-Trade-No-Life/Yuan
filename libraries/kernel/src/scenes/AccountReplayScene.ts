@@ -27,7 +27,7 @@ export const AccountReplayScene = (
   leverage: number,
   start_timestamp: number,
   end_timestamp: number,
-  period_in_sec: number,
+  duration: string,
   datasource_id?: string,
 ) => {
   const kernel = new Kernel();
@@ -103,7 +103,7 @@ export const AccountReplayScene = (
       periodLoadingUnit.periodTasks.push({
         datasource_id: datasource_id ?? account_id,
         product_id: product.product_id,
-        period_in_sec,
+        duration,
         start_time_in_us: start_timestamp * 1000,
         end_time_in_us: end_timestamp * 1000,
       });

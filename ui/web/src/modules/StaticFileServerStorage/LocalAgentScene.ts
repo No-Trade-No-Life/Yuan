@@ -42,7 +42,8 @@ export const LocalAgentScene = async (agentConf: IAgentConf) => {
   const dataLoadingTaskUnit = new DataLoadingTaskUnit(kernel);
   new BasicUnit(kernel).onInit = () => {
     for (const periodTask of dataLoadingTaskUnit.periodTasks) {
-      periodLoadingUnit.periodTasks.push({ ...periodTask });
+      // FIXME: `period_in_sec` property is deprecated
+      periodLoadingUnit.periodTasks.push({ ...periodTask, period_in_sec: 0 });
     }
   };
   const periodLoadingUnit = new StaticFileServerPeriodLoadingUnit(kernel, productDataUnit, periodDataUnit);

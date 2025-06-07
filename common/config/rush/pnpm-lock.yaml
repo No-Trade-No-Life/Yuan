@@ -982,10 +982,14 @@ importers:
       '@rushstack/heft-node-rig': ~1.10.7
       '@types/heft-jest': 1.0.3
       '@types/node': '22'
+      '@yuants/data-interest-rate': workspace:*
       '@yuants/data-model': workspace:*
+      '@yuants/data-ohlc': workspace:*
+      '@yuants/data-product': workspace:*
       '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
       crypto-js: ^4.2.0
@@ -993,9 +997,13 @@ importers:
       ts-node: ~10.9.2
       typescript: ~4.7.4
     dependencies:
+      '@yuants/data-interest-rate': link:../../libraries/data-interest-rate
       '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/data-ohlc': link:../../libraries/data-ohlc
+      '@yuants/data-product': link:../../libraries/data-product
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
       crypto-js: 4.2.0
       rxjs: 7.5.7
@@ -1850,7 +1858,10 @@ importers:
       '@types/node': '22'
       '@types/path-browserify': ~1.0.0
       '@yuants/data-model': workspace:*
+      '@yuants/data-ohlc': workspace:*
+      '@yuants/data-product': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
       date-fns: ~2.30.0
@@ -1862,7 +1873,10 @@ importers:
     dependencies:
       '@datastructures-js/priority-queue': 6.3.0
       '@yuants/data-model': link:../data-model
+      '@yuants/data-ohlc': link:../data-ohlc
+      '@yuants/data-product': link:../data-product
       '@yuants/protocol': link:../protocol
+      '@yuants/sql': link:../sql
       '@yuants/utils': link:../utils
       date-fns: 2.30.0
       json-schema: 0.4.0

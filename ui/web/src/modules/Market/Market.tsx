@@ -30,25 +30,45 @@ import { showForm } from '../Form';
 import { registerPage, usePageParams } from '../Pages';
 import { terminal$ } from '../Terminals';
 
+export const mapDurationToPeriodInSec = (duration: string) => {
+  const match = duration.match(
+    /^P(?:((?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)D)?)(?:T((?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?))?|((\d+)W))$/,
+  );
+  const [durDate, year, month, day, durTime, hour, minute, second, durWeek, week] = match?.slice(1) ?? [];
+  if (durDate || durTime || durWeek) {
+    return (
+      (+year || 0) * 365 * 24 * 60 * 60 +
+      (+month || 0) * 30 * 24 * 60 * 60 +
+      (+day || 0) * 24 * 60 * 60 +
+      (+hour || 0) * 60 * 60 +
+      (+minute || 0) * 60 +
+      (+second || 0) +
+      (+week || 0) * 7 * 24 * 60 * 60
+    );
+  }
+  return NaN;
+};
+
 registerPage('Market', () => {
   const params = usePageParams();
   const initialConfig = params as {
     datasource_id: string;
     product_id: string;
-    period_in_sec: number;
+    duration: string;
   };
   const datasource_id$ = new BehaviorSubject(initialConfig.datasource_id);
   const product_id$ = new BehaviorSubject(initialConfig.product_id);
-  const period_in_sec$ = new BehaviorSubject(initialConfig.period_in_sec);
+  const duration$ = new BehaviorSubject(initialConfig.duration);
 
   const datasource_id = useObservableState(datasource_id$);
   const product_id = useObservableState(product_id$);
-  const period_in_sec = useObservableState(period_in_sec$);
+  const duration = useObservableState(duration$);
+  const period_in_sec = useMemo(() => mapDurationToPeriodInSec(duration), [duration]);
   const terminal = useObservableState(terminal$);
   const TAKE_PERIODS = 10000; // 2x TradingView
 
   const scene = useMemo(() => {
-    if (terminal && datasource_id && product_id && period_in_sec) {
+    if (terminal && datasource_id && product_id && duration) {
       const kernel = new Kernel();
       const productDataUnit = new ProductDataUnit(kernel);
       const productLoadingUnit = new ProductLoadingUnit(kernel, terminal, productDataUnit, {});
@@ -67,7 +87,7 @@ registerPage('Market', () => {
       periodLoadingUnit.periodTasks.push({
         datasource_id,
         product_id,
-        period_in_sec,
+        duration,
         start_time_in_us: (Date.now() - TAKE_PERIODS * period_in_sec * 1000) * 1000,
         end_time_in_us: Date.now() * 1000,
       });
@@ -80,13 +100,13 @@ registerPage('Market', () => {
       realtimePeriodLoadingUnit.periodTasks.push({
         datasource_id,
         product_id,
-        period_in_sec,
+        duration,
       });
 
       return { kernel, periodDataUnit };
     }
     return null;
-  }, [terminal, datasource_id, product_id, period_in_sec]);
+  }, [terminal, datasource_id, product_id, duration]);
 
   useEffect(() => {
     if (scene) {
@@ -122,18 +142,7 @@ registerPage('Market', () => {
         <Space>
           <div>数据源 {datasource_id}</div>
           <div>品种 {product_id}</div>
-          <div>
-            周期{' '}
-            {{
-              60: '1分钟',
-              300: '5分钟',
-              900: '15分钟',
-              1800: '30分',
-              3600: '1小时',
-              14400: '4小时',
-              86400: '日线',
-            }[period_in_sec] ?? `自定义周期: ${period_in_sec}秒`}
-          </div>
+          <div>周期 {duration}</div>
           <Button
             icon={<IconRefresh />}
             onClick={() => {
