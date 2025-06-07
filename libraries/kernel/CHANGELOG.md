@@ -1,6 +1,13 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Mon, 26 May 2025 07:50:33 GMT and should not be manually modified.
+This log was last generated on Sat, 07 Jun 2025 09:42:14 GMT and should not be manually modified.
+
+## 0.13.29
+Sat, 07 Jun 2025 09:42:14 GMT
+
+### Patches
+
+- use SQL
 
 ## 0.13.28
 Mon, 26 May 2025 07:50:33 GMT
