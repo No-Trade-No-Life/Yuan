@@ -26,20 +26,17 @@ const mapDurationToPeriodInSec = (duration: string) => {
  * @returns
  * @public
  */
-export const useOHLC = (datasource_id: string, product_id: string, period: number | string) => {
+export const useOHLC = (datasource_id: string, product_id: string, duration: string) => {
   const agent = useAgent();
-  const periodInSec = useMemo(
-    () => (typeof period === 'string' ? mapDurationToPeriodInSec(period) : period),
-    [period],
-  );
-  const key = [datasource_id, product_id, periodInSec].join(); // TODO: Memoize Key
+  const period_in_sec = useMemo(() => mapDurationToPeriodInSec(duration), [duration]);
+  const key = [datasource_id, product_id, period_in_sec].join(); // TODO: Memoize Key
 
   const time = useSeries(`T(${key})`, undefined, {
     type: 'period',
     subType: 'timestamp_in_us',
     datasource_id,
     product_id,
-    period_in_sec: periodInSec,
+    duration,
   });
   const open = useSeries(`O(${key})`, time);
   const high = useSeries(`H(${key})`, time);
@@ -55,7 +52,7 @@ export const useOHLC = (datasource_id: string, product_id: string, period: numbe
     agent.dataLoadingTaskUnit?.periodTasks.push({
       datasource_id,
       product_id,
-      period_in_sec: periodInSec,
+      duration,
       start_time_in_us: agent.options.start_time * 1000,
       end_time_in_us: agent.options.end_time * 1000,
     });

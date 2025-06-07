@@ -122,7 +122,7 @@ export class AccountPerformanceUnit extends BasicUnit {
 }
 
 // @public
-export const AccountReplayScene: (terminal: Terminal, account_id: string, currency: string, leverage: number, start_timestamp: number, end_timestamp: number, period_in_sec: number, datasource_id?: string) => {
+export const AccountReplayScene: (terminal: Terminal, account_id: string, currency: string, leverage: number, start_timestamp: number, end_timestamp: number, duration: string, datasource_id?: string) => {
     kernel: Kernel;
     accountInfoUnit: AccountInfoUnit;
     accountPerformanceUnit: AccountPerformanceHubUnit;
@@ -178,7 +178,7 @@ export class DataLoadingTaskUnit extends BasicUnit {
         periodTasks: {
             datasource_id: string;
             product_id: string;
-            period_in_sec: number;
+            duration: string;
             start_time_in_us: number;
             end_time_in_us: number;
         }[];
@@ -193,7 +193,7 @@ export class DataLoadingTaskUnit extends BasicUnit {
     periodTasks: {
         datasource_id: string;
         product_id: string;
-        period_in_sec: number;
+        duration: string;
         start_time_in_us: number;
         end_time_in_us: number;
     }[];
@@ -249,7 +249,7 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
         periodTasks: {
             datasource_id: string;
             product_id: string;
-            period_in_sec: number;
+            duration: string;
             start_time_in_us: number;
             end_time_in_us: number;
         }[];
@@ -269,7 +269,7 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
     periodTasks: {
         datasource_id: string;
         product_id: string;
-        period_in_sec: number;
+        duration: string;
         start_time_in_us: number;
         end_time_in_us: number;
     }[];
@@ -546,7 +546,7 @@ export class PeriodDataCheckingUnit extends BasicUnit {
     periodTasks: {
         datasource_id: string;
         product_id: string;
-        period_in_sec: number;
+        duration: string;
         start_time_in_us: number;
     }[];
     // (undocumented)
@@ -716,7 +716,7 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
     periodTasks: {
         datasource_id: string;
         product_id: string;
-        period_in_sec: number;
+        duration: string;
     }[];
     // (undocumented)
     productDataUnit: ProductDataUnit;

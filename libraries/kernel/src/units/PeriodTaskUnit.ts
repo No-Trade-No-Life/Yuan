@@ -11,7 +11,7 @@ export class DataLoadingTaskUnit extends BasicUnit {
   periodTasks: {
     datasource_id: string;
     product_id: string;
-    period_in_sec: number;
+    duration: string;
     start_time_in_us: number;
     end_time_in_us: number;
   }[] = [];

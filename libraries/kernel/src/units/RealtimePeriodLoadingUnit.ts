@@ -14,6 +14,7 @@ import {
   toArray,
 } from 'rxjs';
 import { Kernel } from '../kernel';
+import { mapDurationToPeriodInSec } from '../utils/mapDurationToPeriodInSec';
 import { BasicUnit } from './BasicUnit';
 import { PeriodDataUnit } from './PeriodDataUnit';
 import { ProductDataUnit } from './ProductDataUnit';
@@ -64,7 +65,7 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
   periodTasks: {
     datasource_id: string;
     product_id: string;
-    period_in_sec: number;
+    duration: string;
   }[] = [];
 
   onEvent(): void | Promise<void> {
@@ -95,20 +96,23 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
                   (v) =>
                     v.datasource_id === task.datasource_id &&
                     v.product_id === task.product_id &&
-                    v.period_in_sec === task.period_in_sec,
+                    v.period_in_sec === mapDurationToPeriodInSec(task.duration),
                 ) === undefined,
             ),
           ),
         ),
-        map((task) => ({
-          datasource_id: task.datasource_id,
-          product_id: task.product_id,
-          period_in_sec: task.period_in_sec,
-          cron_pattern: mapPeriodInSecToCronPattern[task.period_in_sec],
-          cron_timezone: 'GMT',
-          timeout: ~~((task.period_in_sec * 1000) / 3),
-          retry_times: 3,
-        })),
+        map((task) => {
+          const period_in_sec = mapDurationToPeriodInSec(task.duration);
+          return {
+            datasource_id: task.datasource_id,
+            product_id: task.product_id,
+            period_in_sec: period_in_sec,
+            cron_pattern: mapPeriodInSecToCronPattern[period_in_sec],
+            cron_timezone: 'GMT',
+            timeout: ~~((period_in_sec * 1000) / 3),
+            retry_times: 3,
+          };
+        }),
         map(
           (v): IDataRecord<IPullSourceRelation> => ({
             id: [v.datasource_id, v.product_id, v.period_in_sec].join('\n'),
@@ -134,10 +138,10 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
 
     // 配置行情查询任务
     for (const task of this.periodTasks) {
-      const { datasource_id, product_id, period_in_sec } = task;
+      const { datasource_id, product_id, duration } = task;
       const theProduct = this.productDataUnit.getProduct(datasource_id, product_id);
 
-      const channelId = encodePath(datasource_id, product_id, period_in_sec);
+      const channelId = encodePath(datasource_id, product_id, duration);
       // ISSUE: Period[].length >= 2 to ensure overlay
       this.subscriptions.push(
         defer(() => this.terminal.channel.subscribeChannel<IPeriod[]>('Periods', channelId)).subscribe(

@@ -30,7 +30,7 @@ registerPage('AccountReplay', () => {
     currency: '',
     leverage: 1,
     pull_source: false,
-    period_in_sec: 0,
+    duration: '',
     resume_on_source_margin_below: undefined as number | undefined,
     datasource_id: undefined as string | undefined,
     start_time: undefined as string | undefined,
@@ -124,7 +124,7 @@ registerPage('AccountReplay', () => {
                 formData.leverage,
                 formData.start_time ? new Date(formData.start_time!).getTime() : 0,
                 formData.end_time ? new Date(formData.end_time!).getTime() : Date.now(),
-                formData.period_in_sec,
+                formData.duration,
                 formData.datasource_id,
               );
 
