@@ -1,10 +1,11 @@
-import { IDataRecordTypes, formatTime, getDataRecordWrapper } from '@yuants/data-model';
+import { IDataRecordTypes, UUID, formatTime, getDataRecordWrapper } from '@yuants/data-model';
 import { Terminal, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/notify';
 import Imap, { ImapMessageAttributes } from 'imap';
 import { simpleParser } from 'mailparser';
 import { createTransport } from 'nodemailer';
+import Mail from 'nodemailer/lib/mailer';
 import {
   Observable,
   combineLatest,
@@ -47,6 +48,36 @@ if (process.env.SMTP_HOST) {
     console.info(formatTime(Date.now()), 'SendEmail', msg.trace_id, info.messageId, info.response);
     return { res: { code: 0, message: 'OK' } };
   });
+
+  terminal.provideService(
+    'Email/Send',
+    {
+      required: ['from'],
+      properties: {
+        from: {
+          type: 'string',
+          const: process.env.EMAIL_USER,
+        },
+        to: {
+          type: 'string',
+        },
+        subject: {
+          type: 'string',
+        },
+        text: {
+          type: 'string',
+        },
+        html: {
+          type: 'string',
+        },
+      },
+    },
+    async (msg) => {
+      const options = msg.req as Mail.Options;
+      const info = await transporter.sendMail(options);
+      return { res: { code: 0, message: 'OK', data: info } };
+    },
+  );
 }
 
 if (process.env.IMAP_HOST) {
