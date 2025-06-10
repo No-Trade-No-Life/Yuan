@@ -62,7 +62,7 @@ createSeriesProvider(terminal, {
     const timeframe = DURATION_TO_TRADINGVIEW_PERIOD[duration];
     if (!timeframe) throw new Error(`Unsupported timeframe: ${duration}`);
 
-    const range = ~~((ended_at - started_at) / 1000 / period_in_sec);
+    const range = Math.ceil((ended_at - started_at) / 1000 / period_in_sec);
     if (range <= 0) {
       throw `range=${range} is invalid`;
     }

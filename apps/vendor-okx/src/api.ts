@@ -340,6 +340,41 @@ export class OkxClient {
   }> => this.request('GET', '/api/v5/market/history-mark-price-candles', params);
 
   /**
+   * GET / 获取交易产品历史K线数据
+   *
+   * 获取最近几年的历史k线数据(1s k线支持查询最近3个月的数据)
+   *
+   * 限速：20次/2s
+   *
+   * 限速规则：IP
+   *
+   * 期权不支持 1s K线， 其他业务线 (币币, 杠杆, 交割和永续)支持
+   */
+  getHistoryCandles = (params: {
+    instId: string;
+    bar?: string;
+    after?: string;
+    before?: string;
+    limit?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    data: Array<
+      [
+        ts: string,
+        o: string,
+        h: string,
+        l: string,
+        c: string,
+        vol: string,
+        volCcy: string,
+        volCcyQuote: string,
+        confirm: string,
+      ]
+    >;
+  }> => this.request('GET', '/api/v5/market/history-candles', params);
+
+  /**
    * 获取余币宝余额
    *
    * 限速：6次/s
