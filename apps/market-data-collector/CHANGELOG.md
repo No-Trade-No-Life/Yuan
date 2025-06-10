@@ -1,6 +1,11 @@
 # Change Log - @yuants/app-market-data-collector
 
-This log was last generated on Mon, 26 May 2025 07:50:33 GMT and should not be manually modified.
+This log was last generated on Tue, 10 Jun 2025 20:44:01 GMT and should not be manually modified.
+
+## 0.0.114
+Tue, 10 Jun 2025 20:44:01 GMT
+
+_Version update only_
 
 ## 0.0.113
 Mon, 26 May 2025 07:50:33 GMT

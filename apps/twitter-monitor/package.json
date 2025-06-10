@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-twitter-monitor",
-  "version": "0.0.22",
+  "version": "0.0.23",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [
