@@ -1,66 +1,164 @@
-import { Switch } from '@douyinfe/semi-ui';
-import { createColumnHelper } from '@tanstack/react-table';
-import { IDataRecord, IDataRecordTypes } from '@yuants/data-model';
-import { DataRecordView } from '../DataRecord';
+import { ISeriesCollectingTask } from '@yuants/data-series';
+import { requestSQL } from '@yuants/sql';
+import { useObservable, useObservableState } from 'observable-hooks';
+import { BehaviorSubject, first, firstValueFrom, of, Subject, switchMap, timeout } from 'rxjs';
+import { Button, DataView, Toast } from '../Interactive';
 import { registerPage } from '../Pages';
-import '@yuants/data-series';
+import { terminal$ } from '../Terminals';
+import { encodePath, formatTime } from '@yuants/data-model';
 
-type Item = IDataRecordTypes['series_collecting_task'];
+const refresh$ = new BehaviorSubject<void>(void 0);
 
-function newRecord(): Partial<Item> {
-  return {
-    cron_pattern: '1 * * * *',
-    cron_timezone: 'UTC',
-  };
-}
+const data$ = terminal$.pipe(
+  switchMap((terminal) =>
+    !terminal
+      ? of(undefined)
+      : refresh$.pipe(
+          switchMap(async () => {
+            const data = await requestSQL<ISeriesCollectingTask[]>(
+              terminal,
+              `select * from series_collecting_task`,
+            );
+            const status = (await terminal.client.requestForResponseData(
+              // @ts-ignore
+              'SeriesCollector/PeekTaskContext',
+              {},
+            )) as {
+              table_name: string;
+              series_id: string;
 
-function defineColumns() {
-  return () => {
-    const columnHelper = createColumnHelper<IDataRecord<Item>>();
-    return [
-      columnHelper.accessor('origin.type', {
-        header: () => '类型',
-      }),
-      columnHelper.accessor('origin.series_id', {
-        header: () => 'Series ID',
-      }),
-      columnHelper.accessor('origin.cron_pattern', {
-        header: () => 'CronJob模式',
-      }),
-      columnHelper.accessor('origin.cron_timezone', {
-        header: () => 'CronJob时区',
-      }),
-      columnHelper.accessor('origin.disabled', {
-        header: () => '是否禁用',
-        cell: (ctx) => (
-          <Switch
-            // onChange={(v) => {
-            //   const next = mapOriginToDataRecord({ ...ctx.row.original.origin, disabled: v });
-            //   terminal$
-            //     .pipe(
-            //       filter((x): x is Exclude<typeof x, null> => !!x),
-            //       first(),
-            //       mergeMap((terminal) => terminal.updateDataRecords([next])),
-            //       tap({
-            //         complete: () => {
-            //           Toast.success(`成功更新数据记录 ${ctx.row.original.id}`);
-            //         },
-            //       }),
-            //     )
-            //     .subscribe();
-            // }}
-            disabled
-            checked={!!ctx.getValue()}
-          />
+              completed_at: number;
+              current_back_off_time: number;
+              last_created_at: number;
+              started_at: number;
+              status: string;
+              api_status?: {
+                fetched: number;
+                fetched_at: number;
+                saved: number;
+                saved_at: number;
+              };
+            }[];
+
+            const mapKeyToStatus = new Map(status.map((x) => [encodePath(x.table_name, x.series_id), x]));
+
+            // left join
+            return data.map((task) => {
+              const key = encodePath(task.table_name, task.series_id);
+              const taskStatus = mapKeyToStatus.get(key);
+              return {
+                ...task,
+                ...taskStatus,
+              };
+            });
+          }),
         ),
-      }),
-      columnHelper.accessor('origin.replay_count', {
-        header: () => '回放个数',
-      }),
-    ];
-  };
-}
+  ),
+);
 
 registerPage('SeriesCollectingTaskList', () => {
-  return <DataRecordView TYPE="series_collecting_task" columns={defineColumns()} newRecord={newRecord} />;
+  const data = useObservableState(data$);
+
+  return (
+    <DataView
+      data={data}
+      topSlot={
+        <Button
+          onClick={async () => {
+            refresh$.next();
+            await firstValueFrom(
+              data$.pipe(
+                first((x) => x !== data),
+                timeout(5000),
+              ),
+            );
+            Toast.success('数据已刷新');
+          }}
+        >
+          刷新
+        </Button>
+      }
+      columns={[
+        {
+          header: '数据表',
+          accessorKey: 'table_name',
+        },
+        {
+          header: '序列',
+          accessorKey: 'series_id',
+        },
+        {
+          header: 'Cron 模式',
+          accessorKey: 'cron_pattern',
+        },
+        {
+          header: 'Cron 时区',
+          accessorKey: 'cron_timezone',
+        },
+        {
+          header: '回溯数量',
+          accessorKey: 'replay_count',
+        },
+        {
+          header: '禁用',
+          accessorKey: 'disabled',
+        },
+        {
+          header: '状态',
+          accessorKey: 'status',
+        },
+        {
+          header: '错误信息',
+          accessorKey: 'error_message',
+        },
+        {
+          header: '当前重试时间 (ms)',
+          accessorKey: 'current_back_off_time',
+        },
+        {
+          header: '本次拉取开始时间',
+          accessorKey: 'started_at',
+          cell: (ctx) => formatTime(ctx.getValue()),
+        },
+        {
+          header: '上次完成时间',
+          accessorKey: 'completed_at',
+          cell: (ctx) => formatTime(ctx.getValue()),
+        },
+        {
+          header: '本次拉取起点',
+          accessorKey: 'last_created_at',
+          cell: (ctx) => formatTime(ctx.getValue()),
+        },
+        {
+          header: '本次已拉取',
+          accessorKey: 'api_status.fetched',
+        },
+        {
+          header: '本次已保存',
+          accessorKey: 'api_status.saved',
+        },
+        {
+          header: '本次拉取至',
+          accessorKey: 'api_status.fetched_at',
+          cell: (ctx) => formatTime(ctx.getValue()),
+        },
+        {
+          header: '本次保存至',
+          accessorKey: 'api_status.saved_at',
+          cell: (ctx) => formatTime(ctx.getValue()),
+        },
+        {
+          header: '创建时间',
+          accessorKey: 'created_at',
+          cell: (ctx) => formatTime(ctx.getValue()),
+        },
+        {
+          header: '更新时间',
+          accessorKey: 'updated_at',
+          cell: (ctx) => formatTime(ctx.getValue()),
+        },
+      ]}
+    />
+  );
 });

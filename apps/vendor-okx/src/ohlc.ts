@@ -73,29 +73,11 @@ createSeriesProvider<IOHLC>(terminal, {
       throw `unsupported duration: ${duration}`;
     }
 
-    const mapResDataToIPeriod = (
-      x: [ts: string, o: string, h: string, l: string, c: string, confirm: string],
-    ): IOHLC => ({
-      series_id,
-      datasource_id,
-      product_id,
-      duration,
-      created_at: formatTime(+x[0]),
-      closed_at: formatTime(+x[0] + period_in_sec * 1000),
-      open: x[1],
-      high: x[2],
-      low: x[3],
-      close: x[4],
-      // TODO: volume
-      volume: '0',
-      open_interest: '0',
-    });
-
     let currentStartTime = ended_at;
 
     while (true) {
       // 向前翻页，时间降序，不含 after 时间点
-      const res = await client.getHistoryMarkPriceCandles({
+      const res = await client.getHistoryCandles({
         instId,
         bar,
         after: `${currentStartTime}`,
@@ -106,7 +88,22 @@ createSeriesProvider<IOHLC>(terminal, {
       }
       if (res.data.length === 0) break;
       currentStartTime = +res.data[res.data.length - 1][0];
-      const data = res.data.map(mapResDataToIPeriod);
+      const data = res.data.map(
+        (x): IOHLC => ({
+          series_id,
+          datasource_id,
+          product_id,
+          duration,
+          created_at: formatTime(+x[0]),
+          closed_at: formatTime(+x[0] + period_in_sec * 1000),
+          open: x[1],
+          high: x[2],
+          low: x[3],
+          close: x[4],
+          volume: x[5],
+          open_interest: '0',
+        }),
+      );
       yield data;
       await firstValueFrom(timer(1000));
     }
