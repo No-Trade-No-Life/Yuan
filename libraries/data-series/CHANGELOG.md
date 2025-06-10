@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-series
 
-This log was last generated on Fri, 06 Jun 2025 21:25:53 GMT and should not be manually modified.
+This log was last generated on Tue, 10 Jun 2025 13:35:46 GMT and should not be manually modified.
+
+## 0.3.2
+Tue, 10 Jun 2025 13:35:46 GMT
+
+### Patches
+
+- add reverse task property
 
 ## 0.3.1
 Fri, 06 Jun 2025 21:25:53 GMT
