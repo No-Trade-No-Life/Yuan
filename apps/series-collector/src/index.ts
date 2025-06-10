@@ -273,6 +273,7 @@ const runTask = (task: ISeriesCollectingTask) =>
       taskContext.status = 'success';
       taskContext.completed_at = Date.now();
       taskContext.current_back_off_time = 0; // reset
+      taskContext.error_message = ''; // reset error message
       console.info(formatTime(Date.now()), `TaskComplete`, title);
       taskFinalize$.next();
     });
