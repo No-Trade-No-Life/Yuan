@@ -36,7 +36,7 @@ const terminal = new Terminal(process.env.HOST_URL!, {
 });
 
 const DATASOURCE_ID = process.env.DATASOURCE_ID || 'TQ';
-const CONCURRENCY = +(process.env.CONCURRENCY || 200);
+const CONCURRENCY = +(process.env.CONCURRENCY || 5);
 
 // const realtimePeriods: Record<string, Observable<IPeriod>> = {};
 const queryChart = (product_id: string, period_in_sec: number, periods_length: number) => {
@@ -98,6 +98,7 @@ const queryChart = (product_id: string, period_in_sec: number, periods_length: n
                 duration: period_in_ns,
                 view_width: 1,
               });
+              console.info(new Date(), 'QueryChart', 'COMPLETE', id);
               conn.output$.complete();
             },
           }),

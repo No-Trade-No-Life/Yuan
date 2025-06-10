@@ -3,7 +3,6 @@ import { IConnection, createConnectionWs } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
-import { nativeSubjectToSubject, observableToAsyncIterable, subjectToNativeSubject } from '@yuants/utils';
 import { Subject, filter, from, map, share, tap } from 'rxjs';
 import zlib from 'zlib';
 
@@ -23,11 +22,11 @@ const createConnectionGzipWS = <T = any>(URL: string): IConnection<T> => {
   );
 
   const output$ = new Subject<any>();
-  output$.pipe(map((msg) => JSON.stringify(msg))).subscribe(nativeSubjectToSubject(conn.output$));
+  output$.pipe(map((msg) => JSON.stringify(msg))).subscribe(conn.output$);
   return {
     ...conn,
-    input$: observableToAsyncIterable(input$),
-    output$: subjectToNativeSubject(output$),
+    input$: input$,
+    output$: output$,
   };
 };
 

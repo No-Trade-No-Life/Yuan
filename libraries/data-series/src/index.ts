@@ -356,7 +356,7 @@ export const createSeriesProvider = <T extends { series_id: string; created_at: 
         fetched: 0,
         saved: 0,
         fetched_at: ctx.reversed ? ended_at : started_at,
-        saved_at: started_at,
+        saved_at: ctx.reversed ? ended_at : started_at,
       };
       for await (const data of observableToAsyncIterable(
         defer(() => ctx.queryFn({ series_id, started_at, ended_at })),

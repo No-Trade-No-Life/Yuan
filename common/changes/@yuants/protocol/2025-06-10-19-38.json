@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "fix types of connection and remove native subject",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
