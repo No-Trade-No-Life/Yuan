@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-series",
+      "comment": "add reverse task property",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/data-series"
+}
