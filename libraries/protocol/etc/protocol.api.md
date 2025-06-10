@@ -14,7 +14,6 @@ import { ITransferOrder } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
 import { MeterProvider } from '@opentelemetry/sdk-metrics';
 import { MetricReader } from '@opentelemetry/sdk-metrics';
-import { NativeSubject } from '@yuants/utils';
 import { Observable } from 'rxjs';
 import { ObservableInput } from 'rxjs';
 import { Registry } from '@yuants/prometheus-client';
@@ -42,11 +41,11 @@ export const escapeRegExp: (string: string) => string;
 
 // @public
 export interface IConnection<T> {
-    connection$: AsyncIterable<unknown>;
-    input$: AsyncIterable<T>;
+    connection$: Observable<unknown>;
+    input$: Observable<T>;
     // (undocumented)
-    isConnected$: AsyncIterable<boolean>;
-    output$: NativeSubject<T>;
+    isConnected$: Observable<boolean>;
+    output$: Subject<T>;
 }
 
 // @public
@@ -224,7 +223,7 @@ export class Terminal {
     // (undocumented)
     host_url: string;
     input$: Subject<ITerminalMessage>;
-    isConnected$: AsyncIterable<boolean>;
+    isConnected$: Observable<boolean>;
     // (undocumented)
     options: {
         verbose?: boolean;

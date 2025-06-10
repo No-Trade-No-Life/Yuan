@@ -1,6 +1,5 @@
 import { formatTime } from '@yuants/data-model';
 import { IConnection } from '@yuants/protocol';
-import { observableToAsyncIterable, subjectToNativeSubject } from '@yuants/utils';
 import {
   catchError,
   concatMap,
@@ -19,7 +18,6 @@ import {
   timeout,
 } from 'rxjs';
 import * as zmq from 'zeromq';
-
 const context = new zmq.Context({ maxSockets: 1024 * 1024 });
 
 export interface IBridgeMessage<Req, Rep> {
@@ -99,9 +97,9 @@ export const createZMQConnection = (
     .subscribe();
 
   return {
-    input$: observableToAsyncIterable(input$),
-    output$: subjectToNativeSubject(output$),
-    connection$: observableToAsyncIterable(connection$),
-    isConnected$: observableToAsyncIterable(isConnected$),
+    input$: input$,
+    output$: output$,
+    connection$: connection$,
+    isConnected$: isConnected$,
   };
 };

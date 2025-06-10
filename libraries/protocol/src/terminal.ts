@@ -89,7 +89,7 @@ export class Terminal {
   /**
    * if the terminal is connected to host
    */
-  isConnected$: AsyncIterable<boolean>;
+  isConnected$: Observable<boolean>;
 
   constructor(
     public host_url: string,
@@ -768,7 +768,7 @@ export class Terminal {
    */
   dispose() {
     this._output$.complete();
-    this._conn.output$.return?.(); // close the WS connection
+    this._conn.output$.complete(); // close the WS connection
     this._subscriptions.forEach((sub) => sub.unsubscribe());
     this._dispose$.next();
   }
