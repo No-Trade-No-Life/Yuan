@@ -358,18 +358,12 @@ export const createSeriesProvider = <T extends { series_id: string; created_at: 
         fetched_at: ctx.reversed ? ended_at : started_at,
         saved_at: started_at,
       };
-      const dataDeferred: T[] = [];
       for await (const data of observableToAsyncIterable(
         defer(() => ctx.queryFn({ series_id, started_at, ended_at })),
       )) {
         if (data.length == 0) {
           yield { frame: status };
           continue;
-        }
-        if (ctx.reversed) {
-          data.forEach((x) => {
-            dataDeferred.push(x);
-          });
         }
         status.fetched_at = ctx.reversed
           ? data.reduce(
@@ -382,36 +376,33 @@ export const createSeriesProvider = <T extends { series_id: string; created_at: 
             );
         status.fetched += data.length;
         yield { frame: status };
-        if (!ctx.reversed) {
-          await requestSQL(
-            terminal,
-            buildInsertManyIntoTableSQL(data, ctx.tableName, {
-              keyFn: (x) => encodePath(x.series_id, x.created_at),
-              conflictKeys: ['series_id', 'created_at'],
-            }),
+        // 无论 reversed 与否，都需要先将数据写入数据库，保证数据逐渐积累，避免内存溢出
+        await requestSQL(
+          terminal,
+          buildInsertManyIntoTableSQL(data, ctx.tableName, {
+            keyFn: (x) => encodePath(x.series_id, x.created_at),
+            conflictKeys: ['series_id', 'created_at'],
+          }),
+        );
+        status.saved += data.length;
+        if (ctx.reversed) {
+          status.saved_at = data.reduce(
+            (acc, x) => Math.min(acc, new Date(x.created_at).getTime() || Infinity),
+            status.saved_at,
           );
+        } else {
           status.saved_at = data.reduce(
             (acc, x) => Math.max(acc, new Date(x.created_at).getTime() || -Infinity),
             status.saved_at,
           );
-          status.saved += data.length;
-          yield { frame: status };
         }
+        yield { frame: status };
         // automatically stop if the data is not in the range
         if (ctx.reversed) {
           if (status.fetched_at <= started_at) break;
         } else {
           if (status.fetched_at >= ended_at) break;
         }
-      }
-      if (dataDeferred.length > 0) {
-        await requestSQL(
-          terminal,
-          buildInsertManyIntoTableSQL(dataDeferred, ctx.tableName, {
-            keyFn: (x) => encodePath(x.series_id, x.created_at),
-            conflictKeys: ['series_id', 'created_at'],
-          }),
-        );
       }
       yield { res: { code: 0, message: 'OK' } };
     },
