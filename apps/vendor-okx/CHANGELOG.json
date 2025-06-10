@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.10.2",
+      "tag": "@yuants/vendor-okx_v0.10.2",
+      "date": "Tue, 10 Jun 2025 18:05:11 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix swap ohlc"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.10.1",
       "tag": "@yuants/vendor-okx_v0.10.1",
       "date": "Tue, 10 Jun 2025 13:35:46 GMT",
