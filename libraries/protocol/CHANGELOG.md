@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Mon, 26 May 2025 07:50:33 GMT and should not be manually modified.
+This log was last generated on Tue, 10 Jun 2025 20:44:01 GMT and should not be manually modified.
+
+## 0.34.1
+Tue, 10 Jun 2025 20:44:01 GMT
+
+### Patches
+
+- fix types of connection and remove native subject
 
 ## 0.34.0
 Mon, 26 May 2025 07:50:33 GMT

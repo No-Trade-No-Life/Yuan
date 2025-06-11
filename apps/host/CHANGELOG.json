@@ -2,6 +2,26 @@
   "name": "@yuants/app-host",
   "entries": [
     {
+      "version": "0.3.28",
+      "tag": "@yuants/app-host_v0.3.28",
+      "date": "Tue, 10 Jun 2025 20:44:01 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.34.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/host-manager\" to `0.2.15`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.27",
       "tag": "@yuants/app-host_v0.3.27",
       "date": "Mon, 26 May 2025 07:50:33 GMT",

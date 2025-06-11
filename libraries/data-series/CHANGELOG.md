@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-series
 
-This log was last generated on Tue, 10 Jun 2025 13:35:46 GMT and should not be manually modified.
+This log was last generated on Tue, 10 Jun 2025 20:44:01 GMT and should not be manually modified.
+
+## 0.3.3
+Tue, 10 Jun 2025 20:44:01 GMT
+
+### Patches
+
+- fix saved_at
 
 ## 0.3.2
 Tue, 10 Jun 2025 13:35:46 GMT
