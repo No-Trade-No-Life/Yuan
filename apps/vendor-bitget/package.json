@@ -11,7 +11,9 @@
   "dependencies": {
     "@yuants/protocol": "workspace:*",
     "@yuants/data-model": "workspace:*",
+    "@yuants/sql": "workspace:*",
     "@yuants/utils": "workspace:*",
+    "@yuants/data-product": "workspace:*",
     "@yuants/data-series": "workspace:*",
     "@yuants/data-interest-rate": "workspace:*",
     "rxjs": "~7.5.6",

@@ -10,7 +10,6 @@ export default (context: IExtensionContext) => {
           required: ['HOST_URL'],
           properties: {
             //
-            PUBLIC_ONLY: { type: 'boolean' },
             HOST_URL: { type: 'string' },
             TERMINAL_ID: { type: 'string' },
             PRIVATE_KEY: { type: 'string' },

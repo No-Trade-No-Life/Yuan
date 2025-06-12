@@ -104,3 +104,29 @@ AddMigration({
     create or replace trigger auto_update_updated_at before update on ohlc for each row execute function update_updated_at_column();
   `,
 });
+
+/**
+ * Convert RFC3339 duration string to period in milliseconds
+ *
+ * 将 RFC3339 Duration 字符串转换为毫秒数
+ *
+ * @public
+ */
+export const convertDurationToMilliseconds = (duration: string) => {
+  const match = duration.match(
+    /^P(?:((?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)D)?)(?:T((?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?))?|((\d+)W))$/,
+  );
+  const [durDate, year, month, day, durTime, hour, minute, second, durWeek, week] = match?.slice(1) ?? [];
+  if (durDate || durTime || durWeek) {
+    return (
+      (+year || 0) * 365 * 24 * 60 * 60_000 +
+      (+month || 0) * 30 * 24 * 60 * 60_000 +
+      (+day || 0) * 24 * 60 * 60_000 +
+      (+hour || 0) * 60 * 60_000 +
+      (+minute || 0) * 60_000 +
+      (+second || 0) * 1000 +
+      (+week || 0) * 7 * 24 * 60 * 60_000
+    );
+  }
+  return NaN;
+};

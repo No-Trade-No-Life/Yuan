@@ -718,3 +718,10 @@ export class HuobiClient {
     }[];
   }> => this.request('GET', '/v2/reference/currencies', this.spot_api_root, params);
 }
+
+export const client = new HuobiClient({
+  auth: {
+    access_key: process.env.ACCESS_KEY!,
+    secret_key: process.env.SECRET_KEY!,
+  },
+});

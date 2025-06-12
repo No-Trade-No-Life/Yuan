@@ -7,14 +7,19 @@ import { Subject, filter, firstValueFrom, mergeMap, of, shareReplay, throwError,
  * API: https://www.bitget.com/zh-CN/api-doc/common/intro
  */
 export class CoinExClient {
+  noAuth = true;
   constructor(
     public config: {
-      auth?: {
+      auth: {
         access_key: string;
         secret_key: string;
       };
     },
-  ) {}
+  ) {
+    if (config.auth.access_key && config.auth.secret_key) {
+      this.noAuth = false;
+    }
+  }
 
   async request(method: string, path: string, params?: any) {
     const url = new URL('https://api.coinex.com');
@@ -25,7 +30,7 @@ export class CoinExClient {
         url.searchParams.set(k, '' + v);
       }
     }
-    if (!this.config.auth) {
+    if (this.noAuth) {
       console.info(formatTime(Date.now()), method, url.href);
       const res = await fetch(url.href, { method });
       return res.json();
@@ -225,3 +230,10 @@ export class CoinExClient {
     }[];
   }> => this.request('GET', '/v2/futures/ticker', params);
 }
+
+export const client = new CoinExClient({
+  auth: {
+    access_key: process.env.ACCESS_KEY!,
+    secret_key: process.env.SECRET_KEY!,
+  },
+});

@@ -1,19 +1,14 @@
-import { IInterestRate } from '@yuants/data-interest-rate';
 import {
   IAccountInfo,
   IAccountMoney,
   IPosition,
-  IProduct,
   ITick,
-  UUID,
   decodePath,
   encodePath,
   formatTime,
   getDataRecordWrapper,
 } from '@yuants/data-model';
-import { createSeriesProvider } from '@yuants/data-series';
 import {
-  Terminal,
   addAccountTransferAddress,
   provideAccountInfo,
   provideTicks,
@@ -26,11 +21,8 @@ import {
   EMPTY,
   combineLatest,
   defer,
-  delayWhen,
   expand,
   filter,
-  firstValueFrom,
-  from,
   map,
   mergeMap,
   of,
@@ -41,19 +33,10 @@ import {
   tap,
   timer,
 } from 'rxjs';
-import { BitgetClient } from './api';
-
-const DATASOURCE_ID = 'Bitget';
-
-const client = new BitgetClient({
-  auth: process.env.PUBLIC_ONLY
-    ? undefined
-    : {
-        access_key: process.env.ACCESS_KEY!,
-        secret_key: process.env.SECRET_KEY!,
-        passphrase: process.env.PASSPHRASE!,
-      },
-});
+import { client } from './api';
+import './interest-rate';
+import './product';
+import { terminal } from './terminal';
 
 const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
   const cache: Record<string, any> = {};
@@ -93,76 +76,8 @@ const fundingTime$ = memoizeMap((product_id: string) =>
   const parentId = '' + accountInfoRes.data.parentId;
   const isMainAccount = uid === parentId;
 
-  const terminal = new Terminal(process.env.HOST_URL!, {
-    terminal_id: process.env.TERMINAL_ID || `bitget/${uid}/${UUID()}`,
-    name: 'Bitget',
-  });
-
   const USDT_FUTURE_ACCOUNT_ID = `bitget/${uid}/futures/USDT`;
   const SPOT_ACCOUNT_ID = `bitget/${uid}/spot/USDT`;
-
-  // product
-  const futureProducts$ = defer(async () => {
-    // usdt-m swap
-    const usdtFuturesProductRes = await client.getMarketContracts({ productType: 'USDT-FUTURES' });
-    if (usdtFuturesProductRes.msg !== 'success') {
-      throw new Error(usdtFuturesProductRes.msg);
-    }
-    // mixed-coin swap, (including coin-m and coin-f)
-    const coinFuturesProductRes = await client.getMarketContracts({ productType: 'COIN-FUTURES' });
-    if (coinFuturesProductRes.msg !== 'success') {
-      throw new Error(coinFuturesProductRes.msg);
-    }
-    const usdtFutures = usdtFuturesProductRes.data.map(
-      (product): IProduct => ({
-        product_id: encodePath(`USDT-FUTURES`, product.symbol),
-        datasource_id: DATASOURCE_ID,
-        quote_currency: product.quoteCoin,
-        base_currency: product.baseCoin,
-        price_step: Number(`1e-${product.pricePlace}`),
-        volume_step: +product.sizeMultiplier,
-      }),
-    );
-    const coinFutures = coinFuturesProductRes.data.map(
-      (product): IProduct => ({
-        product_id: encodePath(`COIN-FUTURES`, product.symbol),
-        datasource_id: DATASOURCE_ID,
-        quote_currency: product.quoteCoin,
-        base_currency: product.baseCoin,
-        price_step: Number(`1e-${product.pricePlace}`),
-        volume_step: +product.sizeMultiplier,
-      }),
-    );
-
-    return [...usdtFutures, ...coinFutures];
-  }).pipe(
-    tap({
-      error: (e) => {
-        console.error(formatTime(Date.now()), 'FuturesProducts', e);
-      },
-    }),
-    retry({ delay: 5000 }),
-    repeat({ delay: 86400_000 }),
-    shareReplay(1),
-  );
-
-  futureProducts$
-    .pipe(
-      delayWhen((products) =>
-        from(writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!))),
-      ),
-    )
-    .subscribe((products) => {
-      console.info(formatTime(Date.now()), 'FUTUREProductsUpdated', products.length);
-    });
-
-  const mapProductIdToFuturesProduct$ = futureProducts$.pipe(
-    //
-    map((products) => new Map(products.map((v) => [v.product_id, v]))),
-    shareReplay(1),
-  );
-
-  // TODO: margin products
 
   // ticks
   {
@@ -202,7 +117,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
       shareReplay(1),
     );
 
-    provideTicks(terminal, DATASOURCE_ID, (product_id: string) => {
+    provideTicks(terminal, 'BITGET', (product_id: string) => {
       const [instType] = decodePath(product_id);
       if (!['USDT-FUTURES', 'COIN-FUTURES'].includes(instType)) {
         // TODO: margin
@@ -222,7 +137,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
           combineLatest(v).pipe(
             map(([ticker, fundingTime]): ITick => {
               return {
-                datasource_id: DATASOURCE_ID,
+                datasource_id: 'BITGET',
                 product_id,
                 updated_at: Date.now(),
                 price: +ticker.lastPr,
@@ -268,7 +183,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
         positions: positionsRes.data.map(
           (position): IPosition => ({
             position_id: `${position.symbol}-${position.holdSide}`,
-            datasource_id: DATASOURCE_ID,
+            datasource_id: 'BITGET',
             product_id: encodePath('USDT-FUTURES', position.symbol),
             direction: position.holdSide === 'long' ? 'LONG' : 'SHORT',
             volume: +position.total,
@@ -426,45 +341,6 @@ const fundingTime$ = memoizeMap((product_id: string) =>
         }),
     );
   }
-
-  createSeriesProvider<IInterestRate>(terminal, {
-    tableName: 'interest_rate',
-    series_id_prefix_parts: ['Bitget'],
-    reversed: true,
-    serviceOptions: { concurrent: 1 },
-    queryFn: async function* ({ series_id, started_at }) {
-      const [datasource_id, product_id] = decodePath(series_id);
-      const [instType, instId] = decodePath(product_id);
-      let current_page = 0;
-      while (true) {
-        // 向前翻页，时间降序
-        const res = await client.getHistoricalFundingRate({
-          symbol: instId,
-          productType: instType,
-          pageSize: '100',
-          pageNo: '' + current_page,
-        });
-        if (res.msg !== 'success') {
-          throw `API failed: ${res.code} ${res.msg}`;
-        }
-        if (res.data.length === 0) break;
-        yield res.data.map(
-          (v): IInterestRate => ({
-            series_id,
-            datasource_id,
-            product_id,
-            created_at: formatTime(+v.fundingTime),
-            long_rate: `${-v.fundingRate}`,
-            short_rate: `${v.fundingRate}`,
-            settlement_price: '',
-          }),
-        );
-        if (+res.data[res.data.length - 1].fundingTime <= started_at) break;
-        current_page++;
-        await firstValueFrom(timer(1000));
-      }
-    },
-  });
 
   // transfer
   {

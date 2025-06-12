@@ -1,23 +1,5 @@
-import { IInterestRate } from '@yuants/data-interest-rate';
-import {
-  IAccountInfo,
-  IAccountMoney,
-  IOrder,
-  IPosition,
-  IProduct,
-  ITick,
-  decodePath,
-  formatTime,
-  getDataRecordWrapper,
-} from '@yuants/data-model';
-import { createSeriesProvider } from '@yuants/data-series';
-import {
-  Terminal,
-  addAccountTransferAddress,
-  provideAccountInfo,
-  provideTicks,
-  writeDataRecords,
-} from '@yuants/protocol';
+import { IAccountInfo, IAccountMoney, IOrder, IPosition, ITick, formatTime } from '@yuants/data-model';
+import { addAccountTransferAddress, provideAccountInfo, provideTicks } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
@@ -45,19 +27,14 @@ import {
   tap,
   throttleTime,
   timeout,
-  timer,
   toArray,
 } from 'rxjs';
-import { HuobiClient } from './api';
+import { client } from './api';
+import './interest_rate';
+import { perpetualContractProducts$, spotProducts$ } from './product';
+import { terminal } from './terminal';
 
 (async () => {
-  const client = new HuobiClient({
-    auth: {
-      access_key: process.env.ACCESS_KEY!,
-      secret_key: process.env.SECRET_KEY!,
-    },
-  });
-
   const swapAccountTypeRes = await client.getSwapUnifiedAccountType();
   if (swapAccountTypeRes.data.account_type !== 2) {
     console.info(
@@ -86,58 +63,6 @@ import { HuobiClient } from './api';
   const subAccounts = subUsersRes.data;
   const isMainAccount = subUsersRes.ok;
   console.info(formatTime(Date.now()), 'subAccounts', JSON.stringify(subAccounts));
-
-  const terminal = new Terminal(process.env.HOST_URL!, {
-    terminal_id: process.env.TERMINAL_ID || `Huobi-client-${account_id}`,
-    name: 'Huobi',
-  });
-
-  const perpetualContractProducts$ = defer(() => client.getPerpetualContractSymbols()).pipe(
-    mergeMap((res) => res.data),
-    filter((symbol) => symbol.contract_status === 1),
-    map(
-      (symbol): IProduct => ({
-        datasource_id: 'huobi-swap',
-        product_id: symbol.contract_code,
-        base_currency: symbol.symbol,
-        quote_currency: 'USDT',
-        value_scale: symbol.contract_size,
-        price_step: symbol.price_tick,
-        volume_step: 1,
-      }),
-    ),
-    toArray(),
-    repeat({ delay: 86400_000 }),
-    retry({ delay: 10_000 }),
-    shareReplay(1),
-  );
-
-  const spotProducts$ = defer(() => client.getSpotSymbols()).pipe(
-    mergeMap((res) => res.data),
-    filter((symbol) => symbol.state === 'online'),
-    map(
-      (symbol): IProduct => ({
-        datasource_id: 'huobi-spot',
-        product_id: symbol.sc,
-        base_currency: symbol.bc,
-        quote_currency: symbol.qc,
-        value_scale: 1,
-        price_step: 1 / 10 ** symbol.tpp,
-        volume_step: 1 / 10 ** symbol.tap,
-      }),
-    ),
-    toArray(),
-    repeat({ delay: 86400_000 }),
-    retry({ delay: 10_000 }),
-    shareReplay(1),
-  );
-
-  spotProducts$
-    .pipe(mergeMap((products) => writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!))))
-    .subscribe();
-  perpetualContractProducts$
-    .pipe(mergeMap((products) => writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!))))
-    .subscribe();
 
   const mapSwapContractCodeToBboTick$ = defer(() => client.getSwapMarketBbo({})).pipe(
     mergeMap((res) =>
@@ -672,46 +597,6 @@ import { HuobiClient } from './api';
       );
     },
   );
-
-  createSeriesProvider<IInterestRate>(terminal, {
-    tableName: 'interest_rate',
-    series_id_prefix_parts: ['huobi-swap'],
-    reversed: true,
-    serviceOptions: { concurrent: 10 },
-    queryFn: async function* ({ series_id, started_at }) {
-      const [datasource_id, product_id] = decodePath(series_id);
-
-      let current_page = 0;
-      let total_page = 1;
-      while (true) {
-        // 向前翻页，时间降序
-        const res = await client.getSwapHistoricalFundingRate({
-          contract_code: product_id,
-          page_index: current_page,
-        });
-        if (res.status !== 'ok') {
-          throw `API failed: ${res.status}`;
-        }
-        if (res.data.data.length === 0) break;
-        yield res.data.data.map(
-          (v): IInterestRate => ({
-            series_id,
-            datasource_id,
-            product_id,
-            created_at: formatTime(+v.funding_time),
-            long_rate: `-${v.funding_rate}`,
-            short_rate: `${v.funding_rate}`,
-            settlement_price: '',
-          }),
-        );
-        total_page = res.data.total_page;
-        current_page++;
-        if (current_page >= total_page) break;
-        if (+res.data.data[res.data.data.length - 1].funding_time <= started_at) break;
-        await firstValueFrom(timer(1000));
-      }
-    },
-  });
 
   // Update Spot TRC20 Addresses (Only Main Account)
   if (isMainAccount) {

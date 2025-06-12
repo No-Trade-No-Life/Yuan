@@ -912,9 +912,11 @@ importers:
       '@types/node': '22'
       '@yuants/data-interest-rate': workspace:*
       '@yuants/data-model': workspace:*
+      '@yuants/data-product': workspace:*
       '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
       crypto-js: ^4.2.0
@@ -924,8 +926,10 @@ importers:
     dependencies:
       '@yuants/data-interest-rate': link:../../libraries/data-interest-rate
       '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/data-product': link:../../libraries/data-product
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
       crypto-js: 4.2.0
       rxjs: 7.5.7
@@ -950,17 +954,23 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/node': '22'
       '@yuants/data-model': workspace:*
+      '@yuants/data-ohlc': workspace:*
+      '@yuants/data-product': workspace:*
       '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       ccxt: ~4.2.48
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
       '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/data-ohlc': link:../../libraries/data-ohlc
+      '@yuants/data-product': link:../../libraries/data-product
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/sql': link:../../libraries/sql
       ccxt: 4.2.48
       rxjs: 7.5.7
     devDependencies:
@@ -984,9 +994,11 @@ importers:
       '@types/node': '22'
       '@yuants/data-interest-rate': workspace:*
       '@yuants/data-model': workspace:*
+      '@yuants/data-product': workspace:*
       '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
       crypto-js: ^4.2.0
@@ -996,8 +1008,10 @@ importers:
     dependencies:
       '@yuants/data-interest-rate': link:../../libraries/data-interest-rate
       '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/data-product': link:../../libraries/data-product
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
       crypto-js: 4.2.0
       rxjs: 7.5.7
@@ -1023,8 +1037,10 @@ importers:
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
       '@yuants/data-model': workspace:*
+      '@yuants/data-product': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
       binary-parser-encoder: ~1.5.3
@@ -1034,7 +1050,9 @@ importers:
       zeromq: 6.4.2
     dependencies:
       '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/data-product': link:../../libraries/data-product
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
       binary-parser-encoder: 1.5.3
       date-fns: 2.29.3
@@ -1107,9 +1125,11 @@ importers:
       '@types/node': '22'
       '@yuants/data-interest-rate': workspace:*
       '@yuants/data-model': workspace:*
+      '@yuants/data-product': workspace:*
       '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
       crypto-js: ^4.2.0
@@ -1118,8 +1138,10 @@ importers:
     dependencies:
       '@yuants/data-interest-rate': link:../../libraries/data-interest-rate
       '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/data-product': link:../../libraries/data-product
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
       crypto-js: 4.2.0
       rxjs: 7.5.7
@@ -1144,9 +1166,11 @@ importers:
       '@types/node': '22'
       '@yuants/data-interest-rate': workspace:*
       '@yuants/data-model': workspace:*
+      '@yuants/data-product': workspace:*
       '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
       crypto-js: ^4.2.0
@@ -1155,8 +1179,10 @@ importers:
     dependencies:
       '@yuants/data-interest-rate': link:../../libraries/data-interest-rate
       '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/data-product': link:../../libraries/data-product
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
       crypto-js: 4.2.0
       rxjs: 7.5.7
@@ -1179,10 +1205,13 @@ importers:
       '@rushstack/heft-node-rig': ~1.10.7
       '@types/heft-jest': 1.0.3
       '@types/node': '22'
+      '@yuants/data-interest-rate': workspace:*
       '@yuants/data-model': workspace:*
+      '@yuants/data-product': workspace:*
       '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
       crypto-js: ^4.2.0
@@ -1192,9 +1221,12 @@ importers:
       ts-node: ~10.9.2
       typescript: ~4.7.4
     dependencies:
+      '@yuants/data-interest-rate': link:../../libraries/data-interest-rate
       '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/data-product': link:../../libraries/data-product
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
       crypto-js: 4.2.0
       ethers: 6.13.5

@@ -3,12 +3,13 @@ import {
   IAccountMoney,
   IOrder,
   IPosition,
-  IProduct,
   formatTime,
   getDataRecordWrapper,
 } from '@yuants/data-model';
+import { IProduct } from '@yuants/data-product';
 import { IConnection, Terminal, provideAccountInfo, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services/order';
+import { createSQLWriter } from '@yuants/sql';
 import { ChildProcess, spawn } from 'child_process';
 import { parse } from 'date-fns';
 import { join } from 'path';
@@ -24,6 +25,7 @@ import {
   forkJoin,
   from,
   map,
+  mergeAll,
   mergeMap,
   of,
   raceWith,
@@ -163,6 +165,16 @@ export const queryProducts = (conn: IConnection<IBridgeMessage<any, any>>): Obse
         quote_currency: 'CNY',
         price_step: msg.PriceTick,
         value_scale: msg.VolumeMultiple,
+        volume_step: 1,
+        base_currency: '',
+        value_scale_unit: '',
+        margin_rate: msg.LongMarginRatio,
+        value_based_cost: 0,
+        volume_based_cost: 0,
+        max_position: 0,
+        max_volume: 0,
+        allow_long: true,
+        allow_short: true,
       }),
     ),
     toArray(),
@@ -611,13 +623,12 @@ const products$ = defer(() => loginRes$.pipe(first())).pipe(
   shareReplay(1),
 );
 
-products$
-  .pipe(
-    delayWhen((products) => from(writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!)))),
-  )
-  .subscribe(() => {
-    console.info(formatTime(Date.now()), '更新品种信息成功');
-  });
+createSQLWriter<IProduct>(terminal, {
+  data$: products$.pipe(mergeAll()),
+  tableName: 'product',
+  writeInterval: 1000,
+  conflictKeys: ['datasource_id', 'product_id'],
+});
 
 const mapProductIdToProduct$ = products$.pipe(
   map((products) => Object.fromEntries(products.map((v) => [v.product_id, v]))),

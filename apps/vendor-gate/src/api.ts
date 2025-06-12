@@ -7,7 +7,12 @@ interface IGateParams {
 }
 
 export class GateClient {
-  constructor(public params: IGateParams) {}
+  noAuth = true;
+  constructor(public params: IGateParams) {
+    if (params.auth.access_key && params.auth.secret_key) {
+      this.noAuth = false;
+    }
+  }
 
   async request(method: string, path: string, params?: any) {
     const url = new URL('https://api.gateio.ws');
@@ -17,7 +22,7 @@ export class GateClient {
         url.searchParams.set(key, params[key]);
       }
     }
-    if (!this.params.auth) {
+    if (this.noAuth) {
       console.info(formatTime(Date.now()), method, url.href);
       const res = await fetch(url.href, { method });
       return res.json();
@@ -691,3 +696,10 @@ export class GateClient {
     }>
   > => this.request('GET', `/api/v4/spot/tickers`, params);
 }
+
+export const client = new GateClient({
+  auth: {
+    access_key: process.env.ACCESS_KEY!,
+    secret_key: process.env.SECRET_KEY!,
+  },
+});
