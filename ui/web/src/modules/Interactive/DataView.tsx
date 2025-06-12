@@ -2,6 +2,7 @@ import { IconExpand, IconEyeOpened, IconList, IconMinimize, IconPause, IconSort 
 import { Input, Pagination, Radio, RadioGroup, Space, Spin, Tag } from '@douyinfe/semi-ui';
 import {
   ColumnDef,
+  ColumnFiltersState,
   getCoreRowModel,
   getExpandedRowModel,
   getFilteredRowModel,
@@ -40,6 +41,10 @@ export function DataView<T, K>(props: {
 
   initialGroupping?: GroupingState;
   initialColumnVisibility?: VisibilityState;
+
+  initialColumnFilterState?: ColumnFiltersState;
+  columnFilters?: ColumnFiltersState;
+  onColumnFiltersChange?: OnChangeFn<ColumnFiltersState>;
 
   initialTopSlotVisible?: boolean;
   topSlotVisible?: boolean;
@@ -135,6 +140,19 @@ export function DataView<T, K>(props: {
   if (props.initialColumnVisibility) {
     (tableOptions.initialState ?? {}).columnVisibility = props.initialColumnVisibility;
   }
+
+  if (props.columnFilters) {
+    (tableOptions.state ??= {}).columnFilters = props.columnFilters;
+  }
+
+  if (props.initialColumnFilterState) {
+    (tableOptions.initialState ?? {}).columnFilters = props.initialColumnFilterState;
+  }
+
+  if (props.onColumnFiltersChange) {
+    tableOptions.onColumnFiltersChange = props.onColumnFiltersChange;
+  }
+
   const table = useReactTable(tableOptions);
 
   useEffect(() => {
