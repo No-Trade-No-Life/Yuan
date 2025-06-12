@@ -1,7 +1,7 @@
+import { IInterestRate } from '@yuants/data-interest-rate';
 import {
   IAccountInfo,
   IAccountMoney,
-  IDataRecordTypes,
   IPosition,
   IProduct,
   ITick,
@@ -11,7 +11,7 @@ import {
   formatTime,
   getDataRecordWrapper,
 } from '@yuants/data-model';
-import { provideDataSeries } from '@yuants/data-series';
+import { createSeriesProvider } from '@yuants/data-series';
 import {
   Terminal,
   addAccountTransferAddress,
@@ -31,7 +31,6 @@ import {
   filter,
   firstValueFrom,
   from,
-  interval,
   map,
   mergeMap,
   of,
@@ -428,22 +427,13 @@ const fundingTime$ = memoizeMap((product_id: string) =>
     );
   }
 
-  provideDataSeries(terminal, {
-    type: 'funding_rate',
+  createSeriesProvider<IInterestRate>(terminal, {
+    tableName: 'interest_rate',
     series_id_prefix_parts: ['Bitget'],
     reversed: true,
     serviceOptions: { concurrent: 1 },
     queryFn: async function* ({ series_id, started_at }) {
       const [datasource_id, product_id] = decodePath(series_id);
-      const mapProductsToFutureProducts = await firstValueFrom(mapProductIdToFuturesProduct$);
-      const theProduct = mapProductsToFutureProducts.get(product_id);
-      if (theProduct === undefined) {
-        throw new Error(`product ${product_id} not found`);
-      }
-      const { base_currency, quote_currency } = theProduct;
-      if (!base_currency || !quote_currency) {
-        throw new Error(`base_currency or quote_currency is required`);
-      }
       const [instType, instId] = decodePath(product_id);
       let current_page = 0;
       while (true) {
@@ -458,15 +448,17 @@ const fundingTime$ = memoizeMap((product_id: string) =>
           throw `API failed: ${res.code} ${res.msg}`;
         }
         if (res.data.length === 0) break;
-        yield res.data.map((v) => ({
-          series_id,
-          datasource_id,
-          product_id,
-          base_currency,
-          quote_currency,
-          funding_at: +v.fundingTime,
-          funding_rate: +v.fundingRate,
-        }));
+        yield res.data.map(
+          (v): IInterestRate => ({
+            series_id,
+            datasource_id,
+            product_id,
+            created_at: formatTime(+v.fundingTime),
+            long_rate: `${-v.fundingRate}`,
+            short_rate: `${v.fundingRate}`,
+            settlement_price: '',
+          }),
+        );
         if (+res.data[res.data.length - 1].fundingTime <= started_at) break;
         current_page++;
         await firstValueFrom(timer(1000));

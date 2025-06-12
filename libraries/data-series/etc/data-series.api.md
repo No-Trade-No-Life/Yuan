@@ -4,32 +4,14 @@
 
 ```ts
 
-import { IDataRecordTypes } from '@yuants/data-model';
 import { IServiceOptions } from '@yuants/protocol';
 import { ObservableInput } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
 
 // @public
-export const createSeriesProvider: <T extends {
-    series_id: string;
-    created_at: string;
-}>(terminal: Terminal, ctx: ISeriesProviderContext<T>) => {
+export const createSeriesProvider: <T extends ISeriesDataItem>(terminal: Terminal, ctx: ISeriesProviderContext<T>) => {
     dispose: () => void;
 };
-
-// @public
-export interface IDataSeriesProvideContext<T extends keyof IDataRecordTypes> {
-    queryFn: (ctx: {
-        series_id: string;
-        started_at: number;
-        ended_at: number;
-    }) => NativeIterable<IDataRecordTypes[T][]>;
-    reversed: boolean;
-    series_id_prefix_parts: string[];
-    // (undocumented)
-    serviceOptions?: IServiceOptions;
-    type: T;
-}
 
 // @public
 export interface ISeriesCollectingTask {
@@ -62,14 +44,6 @@ export interface ISeriesProviderContext<T extends ISeriesDataItem> {
     serviceOptions?: IServiceOptions;
     tableName: string;
 }
-
-// @public
-export type NativeIterable<T> = AsyncIterable<T> | PromiseLike<T> | ArrayLike<T> | Iterable<T>;
-
-// @public
-export const provideDataSeries: <T extends keyof IDataRecordTypes>(terminal: Terminal, ctx: IDataSeriesProvideContext<T>) => {
-    dispose: () => void;
-};
 
 // (No @packageDocumentation comment for this package)
 

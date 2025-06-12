@@ -1,3 +1,4 @@
+import { IInterestRate } from '@yuants/data-interest-rate';
 import {
   IAccountInfo,
   IAccountMoney,
@@ -9,7 +10,7 @@ import {
   formatTime,
   getDataRecordWrapper,
 } from '@yuants/data-model';
-import { provideDataSeries } from '@yuants/data-series';
+import { createSeriesProvider } from '@yuants/data-series';
 import {
   Terminal,
   addAccountTransferAddress,
@@ -672,22 +673,13 @@ import { HuobiClient } from './api';
     },
   );
 
-  provideDataSeries(terminal, {
-    type: 'funding_rate',
+  createSeriesProvider<IInterestRate>(terminal, {
+    tableName: 'interest_rate',
     series_id_prefix_parts: ['huobi-swap'],
     reversed: true,
     serviceOptions: { concurrent: 10 },
     queryFn: async function* ({ series_id, started_at }) {
       const [datasource_id, product_id] = decodePath(series_id);
-      const mapProductIdToPerpetualProduct = await firstValueFrom(mapProductIdToPerpetualProduct$);
-      const theProduct = mapProductIdToPerpetualProduct.get(product_id);
-      if (!theProduct) {
-        throw `product_id ${product_id} not found`;
-      }
-      const { base_currency, quote_currency } = theProduct;
-      if (!base_currency || !quote_currency) {
-        throw `the product has no base_currency or quote_currency fields`;
-      }
 
       let current_page = 0;
       let total_page = 1;
@@ -701,15 +693,17 @@ import { HuobiClient } from './api';
           throw `API failed: ${res.status}`;
         }
         if (res.data.data.length === 0) break;
-        yield res.data.data.map((v) => ({
-          series_id,
-          datasource_id,
-          product_id,
-          base_currency: product_id,
-          quote_currency: 'USDT',
-          funding_rate: +v.funding_rate,
-          funding_at: +v.funding_time,
-        }));
+        yield res.data.data.map(
+          (v): IInterestRate => ({
+            series_id,
+            datasource_id,
+            product_id,
+            created_at: formatTime(+v.funding_time),
+            long_rate: `-${v.funding_rate}`,
+            short_rate: `${v.funding_rate}`,
+            settlement_price: '',
+          }),
+        );
         total_page = res.data.total_page;
         current_page++;
         if (current_page >= total_page) break;

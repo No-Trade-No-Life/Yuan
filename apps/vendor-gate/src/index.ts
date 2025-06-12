@@ -1,3 +1,4 @@
+import { IInterestRate } from '@yuants/data-interest-rate';
 import {
   decodePath,
   encodePath,
@@ -11,7 +12,7 @@ import {
   ITick,
   UUID,
 } from '@yuants/data-model';
-import { provideDataSeries } from '@yuants/data-series';
+import { createSeriesProvider } from '@yuants/data-series';
 import {
   addAccountTransferAddress,
   provideAccountInfo,
@@ -28,7 +29,6 @@ import {
   defer,
   filter,
   first,
-  firstValueFrom,
   from,
   map,
   mergeMap,
@@ -446,36 +446,29 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
     },
   );
 
-  provideDataSeries(terminal, {
-    type: 'funding_rate',
+  createSeriesProvider<IInterestRate>(terminal, {
+    tableName: 'interest_rate',
     series_id_prefix_parts: ['gate/future'],
     reversed: false,
     queryFn: async function ({ series_id }) {
       const [datasource_id, product_id] = decodePath(series_id);
-      const mapProductIdToUsdtFutureProduct = await firstValueFrom(mapProductIdToUsdtFutureProduct$);
-      const theProduct = mapProductIdToUsdtFutureProduct.get(product_id);
-      if (!theProduct) {
-        throw `product_id ${product_id} not found`;
-      }
-      const { base_currency, quote_currency } = theProduct;
-      if (!base_currency || !quote_currency) {
-        throw `the product has no base_currency or quote_currency fields`;
-      }
       // 接口行为备注：无法翻页
       const funding_rate_history = await client.getFutureFundingRate('usdt', {
         contract: product_id,
         limit: 1000,
       });
 
-      return funding_rate_history.map((v) => ({
-        series_id,
-        product_id,
-        datasource_id,
-        base_currency,
-        quote_currency,
-        funding_rate: +v.r,
-        funding_at: v.t * 1000,
-      }));
+      return funding_rate_history.map(
+        (v): IInterestRate => ({
+          series_id,
+          product_id,
+          datasource_id,
+          created_at: formatTime(v.t * 1000),
+          long_rate: `${-v.r}`,
+          short_rate: `${v.r}`,
+          settlement_price: '',
+        }),
+      );
     },
   });
 

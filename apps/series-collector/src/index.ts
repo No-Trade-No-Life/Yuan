@@ -62,7 +62,7 @@ interface ITaskContext {
   /** 上次完成时间 */
   completed_at: number;
 
-  api_status?: IService['CollectDataSeries']['frame'];
+  api_status?: IService['CollectSeries']['frame'];
 
   error_message?: string;
 }

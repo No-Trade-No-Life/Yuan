@@ -199,6 +199,7 @@ The data modeling includes TypeScript types and SQL table definitions.
 
 - [@yuants/data-product](libraries/data-product) Tradable products in markets.
 - [@yuants/data-ohlc](libraries/data-ohlc) OHLC(V) data (Open, High, Low, Close with optional Volume) - a common market data format also known as candlestick charts.
+- [@yuants/data-interest-rate](libraries/data-interest-rate) Interest rate data. Interest refers to the charges incurred when traders hold positions through settlement points. It's commonly used in forex trading and CFD (Contract for Difference) trading, and also applies to funding rates in perpetual contracts.
 
 Legacy data models are maintained in [@yuants/data-model](libraries/data-model). We plan to split them into multiple specialized packages to reduce impact from non-core model changes.
 
@@ -276,7 +277,6 @@ You can even build a logistics network to automatically balance funds between ac
 - [@yuants/utils](libraries/utils) General utilities not found in community packages.
 - [@yuants/extension](libraries/extension) Defines extension interfaces for enhanced functionality.
 - [@yuants/app-account-composer](apps/account-composer) Deploys an account aggregation service that combines multiple account balances into a unified view.
-- [@yuants/app-general-datasource](apps/general-data-source) Deploys a generalized data source service that combines multiple specific sources (useful for creating price indices).
 - [@yuants/app-general-realtime-data-source](apps/general-realtime-data-source) The real-time version of the general data source, useful for creating index price ticks.
 - [@yuants/app-k8s-manifest-operator](apps/k8s-manifest-operator) Deploys a Kubernetes manifest operator that ensures cluster state matches CRD definitions.
 
