@@ -222,11 +222,6 @@ We've defined constraints that time-series data should satisfy: [@yuants/data-se
 
 We've introduced a time-series data collection scheduler: [@yuants/series-collector](apps/series-collector) - A universal time-series data collector that uses CronJob scheduled tasks to fetch data from various providers and store it in databases. Simply add a record to the `series_collecting_task` table in the database, and the collector will automatically fetch and store the data periodically.
 
-Previously, we built several more specialized applications for data collection, but these are now deprecated as we've consolidated them into `series-collector`. You can use `series-collector` to collect any time-series data.
-
-- [@yuants/app-market-data-collector](apps/market-data-collector) Deploys a terminal as a market data collection service that continuously gathers market data from market terminals.
-- [@yuants/app-data-collector](apps/data-collector) Deploys a terminal as a general data collection service that continuously collects series data from data providers. This is the generalized version of the market data collector, capable of collecting any data series.
-
 #### Service Providers
 
 Service providers act as connectors to external systems that interact with Yuan. These systems operate independently and generate new data autonomously.

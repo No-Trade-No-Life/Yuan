@@ -575,16 +575,6 @@
       "shouldPublish": true
     },
     {
-      "packageName": "@yuants/app-market-data-collector",
-      "projectFolder": "apps/market-data-collector",
-      "shouldPublish": true
-    },
-    {
-      "packageName": "@yuants/app-data-collector",
-      "projectFolder": "apps/data-collector",
-      "shouldPublish": true
-    },
-    {
       "packageName": "@yuants/app-series-collector",
       "projectFolder": "apps/series-collector",
       "shouldPublish": true
