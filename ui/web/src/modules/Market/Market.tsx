@@ -1,6 +1,7 @@
 import { IconDownload, IconRefresh } from '@douyinfe/semi-icons';
-import { Button, Layout, Space, Toast, Typography } from '@douyinfe/semi-ui';
-import { formatTime } from '@yuants/data-model';
+import { ButtonGroup, Layout, Space, Toast, Typography } from '@douyinfe/semi-ui';
+import { encodePath, formatTime } from '@yuants/data-model';
+import { convertDurationToMilliseconds } from '@yuants/data-ohlc';
 import {
   HistoryPeriodLoadingUnit,
   Kernel,
@@ -10,61 +11,72 @@ import {
   QuoteDataUnit,
   RealtimePeriodLoadingUnit,
 } from '@yuants/kernel';
-import { copyDataRecords } from '@yuants/protocol';
 import { t } from 'i18next';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useEffect, useMemo, useState } from 'react';
 import {
   BehaviorSubject,
+  defer,
   distinctUntilChanged,
   filter,
   firstValueFrom,
-  from,
   interval,
+  lastValueFrom,
   map,
   mergeMap,
+  pipe,
+  switchMap,
+  tap,
 } from 'rxjs';
 import { CandlestickSeries, Chart, ChartGroup } from '../Chart/components/Charts';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { showForm } from '../Form';
+import { Button } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
 import { terminal$ } from '../Terminals';
-
-export const mapDurationToPeriodInSec = (duration: string) => {
-  const match = duration.match(
-    /^P(?:((?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)D)?)(?:T((?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?))?|((\d+)W))$/,
-  );
-  const [durDate, year, month, day, durTime, hour, minute, second, durWeek, week] = match?.slice(1) ?? [];
-  if (durDate || durTime || durWeek) {
-    return (
-      (+year || 0) * 365 * 24 * 60 * 60 +
-      (+month || 0) * 30 * 24 * 60 * 60 +
-      (+day || 0) * 24 * 60 * 60 +
-      (+hour || 0) * 60 * 60 +
-      (+minute || 0) * 60 +
-      (+second || 0) +
-      (+week || 0) * 7 * 24 * 60 * 60
-    );
-  }
-  return NaN;
-};
+import { requestSQL, escape } from '@yuants/sql';
 
 registerPage('Market', () => {
   const params = usePageParams();
   const initialConfig = params as {
     datasource_id: string;
     product_id: string;
-    duration: string;
+    duration?: string;
   };
   const datasource_id$ = new BehaviorSubject(initialConfig.datasource_id);
   const product_id$ = new BehaviorSubject(initialConfig.product_id);
-  const duration$ = new BehaviorSubject(initialConfig.duration);
 
   const datasource_id = useObservableState(datasource_id$);
   const product_id = useObservableState(product_id$);
-  const duration = useObservableState(duration$);
-  const period_in_sec = useMemo(() => mapDurationToPeriodInSec(duration), [duration]);
   const terminal = useObservableState(terminal$);
+
+  const durationOptions = useObservableState(
+    useObservable(
+      pipe(
+        switchMap(([datasource_id, product_id, terminal]) =>
+          defer(async () => {
+            if (!terminal) return undefined;
+            const sql = `select replace(series_id, ${escape(
+              encodePath(datasource_id, product_id, ''),
+            )}, '') as duration from series_collecting_task where table_name = 'ohlc' and series_id like ${escape(
+              // LIKE % pattern 中的 \ 需要转义
+              encodePath(datasource_id, product_id, '%').replaceAll('\\', '\\\\'),
+            )}`;
+            // console.info('ProductList Duration SQL:', sql);
+            const data = await requestSQL<{ duration: string }[]>(terminal, sql);
+            // console.info('ProductList Duration Data:', data);
+            return data.map((x) => x.duration);
+          }),
+        ),
+      ),
+      [datasource_id, product_id, terminal],
+    ),
+  );
+
+  const [duration, setDuration] = useState(initialConfig.duration);
+
+  // const duration = useObservableState(duration$);
+  const period_in_sec = useMemo(() => convertDurationToMilliseconds(duration || '') / 1000, [duration]);
   const TAKE_PERIODS = 10000; // 2x TradingView
 
   const scene = useMemo(() => {
@@ -143,17 +155,28 @@ registerPage('Market', () => {
           <div>数据源 {datasource_id}</div>
           <div>品种 {product_id}</div>
           <div>周期 {duration}</div>
+          <ButtonGroup>
+            {durationOptions?.map((duration) => {
+              return (
+                <Button
+                  onClick={async () => {
+                    setDuration(duration);
+                  }}
+                >
+                  {duration}
+                </Button>
+              );
+            })}
+          </ButtonGroup>
           <Button
             icon={<IconRefresh />}
-            onClick={() => {
+            onClick={async () => {
               setCnt((x) => x + 1);
             }}
           ></Button>
           <Button
             icon={<IconDownload />}
-            onClick={() => {
-              executeCommand('fetchOHLCV', { datasource_id, product_id, period_in_sec });
-            }}
+            onClick={() => executeCommand('fetchOHLCV', { datasource_id, product_id, duration })}
           >
             拉取历史
           </Button>
@@ -172,10 +195,10 @@ registerPage('Market', () => {
 });
 
 registerCommand('fetchOHLCV', async (params) => {
-  const { datasource_id, product_id, period_in_sec, start_time, end_time } = await showForm<{
+  const { datasource_id, product_id, duration, start_time, end_time } = await showForm<{
     datasource_id: string;
     product_id: string;
-    period_in_sec: number;
+    duration: string;
     start_time: string;
     end_time: string;
   }>(
@@ -184,7 +207,7 @@ registerCommand('fetchOHLCV', async (params) => {
       properties: {
         datasource_id: { type: 'string' },
         product_id: { type: 'string' },
-        period_in_sec: { type: 'number' },
+        duration: { type: 'string' },
         start_time: { type: 'string', format: 'datetime' },
         end_time: { type: 'string', format: 'datetime' },
       },
@@ -192,19 +215,36 @@ registerCommand('fetchOHLCV', async (params) => {
     params,
   );
   const _start_time = new Date(start_time).getTime();
-  const _end_time = new Date(end_time).getTime();
+  const _end_time = new Date(end_time || Date.now()).getTime();
 
   const terminal = await firstValueFrom(terminal$.pipe(filter((x): x is Exclude<typeof x, null> => !!x)));
-  Toast.info(`开始拉取 ${datasource_id} / ${product_id} / ${period_in_sec} 历史数据...`);
-  await copyDataRecords(terminal, {
-    type: 'period',
-    time_range: [_start_time, _end_time],
-    tags: {
-      datasource_id,
-      product_id,
-      period_in_sec: `${period_in_sec}`,
-    },
-    receiver_terminal_id: '',
-  });
-  Toast.info(t('common:succeed'));
+  Toast.info(`开始拉取 ${datasource_id} / ${product_id} / ${duration} 历史数据...`);
+  await lastValueFrom(
+    terminal.client
+      .requestService('CollectSeries', {
+        table_name: 'ohlc',
+        series_id: encodePath(datasource_id, product_id, duration),
+        started_at: _start_time,
+        ended_at: _end_time,
+      })
+      .pipe(
+        tap({
+          next: (x) => {
+            if (x.frame) {
+              Toast.info(
+                `拉取到 ${x.frame.fetched} 条数据 (${formatTime(x.frame.fetched_at)})，已存储到 ${
+                  x.frame.saved
+                } 条数据 (${formatTime(x.frame.saved_at)})`,
+              );
+            }
+          },
+          complete: () => {
+            Toast.success(t('common:succeed'));
+          },
+          error: (err) => {
+            Toast.error(t('common:failed') + `: ${err}`);
+          },
+        }),
+      ),
+  );
 });

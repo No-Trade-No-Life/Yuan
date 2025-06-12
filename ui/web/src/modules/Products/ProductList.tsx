@@ -1,60 +1,82 @@
 import { StockMarket } from '@icon-park/react';
-import { createColumnHelper } from '@tanstack/react-table';
-import { IDataRecord, IProduct } from '@yuants/data-model';
+import { ColumnFiltersState } from '@tanstack/react-table';
+import { IProduct } from '@yuants/data-model';
+import { escape, requestSQL } from '@yuants/sql';
+import { useObservableState } from 'observable-hooks';
+import { BehaviorSubject, combineLatest, debounceTime, defer, of, switchMap } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
-import { DataRecordView } from '../DataRecord';
-import { showForm } from '../Form';
-import { Button } from '../Interactive';
+import { Button, DataView } from '../Interactive';
 import { registerPage } from '../Pages';
+import { terminal$ } from '../Terminals';
+
+const refresh$ = new BehaviorSubject<void>(undefined);
+const filterState$ = new BehaviorSubject<ColumnFiltersState>([]);
+
+const data$ = defer(() =>
+  terminal$.pipe(
+    switchMap((terminal) =>
+      terminal
+        ? combineLatest([filterState$, refresh$]).pipe(
+            debounceTime(100),
+            switchMap(([filterState]) => {
+              const sql = `select * from product ${
+                filterState.length > 0
+                  ? `where ${filterState.map((x) => `${x.id} LIKE ${escape(`%${x.value}%`)}`).join(' AND ')}`
+                  : ''
+              } limit 200`;
+              // console.info('ProductList SQL:', sql);
+              return requestSQL<IProduct[]>(terminal, sql);
+            }),
+          )
+        : of(undefined),
+    ),
+  ),
+);
 
 registerPage('ProductList', () => {
+  const data = useObservableState(data$);
+  const filterState = useObservableState(filterState$);
   return (
-    <DataRecordView
-      TYPE="product"
-      columns={() => {
-        const columnHelper = createColumnHelper<IDataRecord<IProduct>>();
-
-        return [
-          columnHelper.accessor('origin.datasource_id', {
-            header: () => '数据源ID',
-          }),
-          columnHelper.accessor('origin.product_id', {
-            header: () => '品种ID',
-          }),
-          columnHelper.accessor('origin.name', { header: () => '品种名称' }),
-          columnHelper.accessor('origin.quote_currency', { header: () => '计价货币' }),
-          columnHelper.accessor('origin.base_currency', { header: () => '基准货币' }),
-          columnHelper.accessor((x) => `${x.origin.value_scale || ''} ${x.origin.value_scale_unit || ''}`, {
-            id: 'value_scale',
-            header: () => '价值尺度',
-          }),
-          columnHelper.accessor('origin.volume_step', { header: () => '成交量粒度' }),
-          columnHelper.accessor('origin.price_step', { header: () => '报价粒度' }),
-          columnHelper.accessor('origin.margin_rate', { header: () => '保证金率' }),
-          columnHelper.accessor('origin.spread', { header: () => '点差' }),
-        ];
+    <DataView
+      data={data}
+      columnFilters={filterState}
+      onColumnFiltersChange={(updater) => {
+        filterState$.next(updater instanceof Function ? updater(filterState$.value) : updater);
       }}
-      newRecord={() => {
-        return {};
-      }}
-      extraRecordActions={(props) => {
-        const item = props.record.origin;
-        return (
-          <Button
-            icon={<StockMarket />}
-            onClick={async () => {
-              const period_in_sec = await showForm<string>({ type: 'string', title: 'period_in_sec' });
-              if (period_in_sec) {
-                executeCommand('Market', {
-                  datasource_id: item.datasource_id,
-                  product_id: item.product_id,
-                  period_in_sec: +period_in_sec,
-                });
-              }
-            }}
-          ></Button>
-        );
-      }}
+      columns={[
+        { header: '数据源ID', accessorKey: 'datasource_id' },
+        {
+          header: '品种ID',
+          accessorKey: 'product_id',
+        },
+        { header: '品种名称', accessorKey: 'name' },
+        { header: '计价货币', accessorKey: 'quote_currency' },
+        { header: '基准货币', accessorKey: 'base_currency' },
+        {
+          header: '价值尺度',
+          accessorKey: 'value_scale_unit',
+          enableColumnFilter: false,
+        },
+        { header: '成交量粒度', accessorKey: 'volume_step', enableColumnFilter: false },
+        { header: '报价粒度', accessorKey: 'price_step', enableColumnFilter: false },
+        {
+          header: '操作',
+          cell: (ctx) => {
+            const item = ctx.row.original;
+            return (
+              <Button
+                icon={<StockMarket />}
+                onClick={() =>
+                  executeCommand('Market', {
+                    datasource_id: item.datasource_id,
+                    product_id: item.product_id,
+                  })
+                }
+              ></Button>
+            );
+          },
+        },
+      ]}
     />
   );
 });

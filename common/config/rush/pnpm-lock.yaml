@@ -2122,6 +2122,8 @@ importers:
       '@vitejs/plugin-react': ^2.0.0
       '@yuants/agent': workspace:*
       '@yuants/data-model': workspace:*
+      '@yuants/data-ohlc': workspace:*
+      '@yuants/data-product': workspace:*
       '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/kernel': workspace:*
@@ -2183,6 +2185,8 @@ importers:
       '@tanstack/react-table': 8.12.0_react-dom@18.2.0+react@18.2.0
       '@yuants/agent': link:../../libraries/agent
       '@yuants/data-model': link:../../libraries/data-model
+      '@yuants/data-ohlc': link:../../libraries/data-ohlc
+      '@yuants/data-product': link:../../libraries/data-product
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/extension': link:../../libraries/extension
       '@yuants/kernel': link:../../libraries/kernel
