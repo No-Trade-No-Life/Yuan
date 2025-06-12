@@ -221,11 +221,6 @@ Yuan 使用 PostgreSQL 作为通用场景数据库；使用 Prometheus 存储遥
 
 我们引入一个时序数据的采集调度器：[@yuants/series-collector](apps/series-collector) 这是一个通用的时间序列数据收集器，它可以使用 CronJob 定期任务，从不同的数据提供商处抓取数据，并存储到数据库中。您只需要在数据库 `series_collecting_task` 表中添加一条记录，收集器就会定期抓取数据并存储到数据库中。
 
-我们以前构建了一些用途更特化的应用来收集数据，但现在它们已经废弃，我们将它们整合到 `series-collector` 中。您可以使用 `series-collector` 来收集任何时间序列数据。
-
-- [@yuants/app-market-data-collector](apps/market-data-collector) 这将部署一个终端作为数据收集服务。终端持续从市场终端收集市场数据。
-- [@yuants/app-data-collector](apps/data-collector) 这将部署一个终端作为数据收集服务。终端持续从数据系列提供者终端收集系列数据。这是市场数据收集器的一般版本。您可以使用它来收集任何数据系列。
-
 #### 服务提供商
 
 服务提供商是指与 Yuan 交互的外部系统的连接器。这些系统独立于 Yuan，并且会独立产生新的数据。
