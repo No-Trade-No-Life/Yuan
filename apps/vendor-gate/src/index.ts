@@ -1,25 +1,13 @@
-import { IInterestRate } from '@yuants/data-interest-rate';
 import {
-  decodePath,
   encodePath,
   formatTime,
-  getDataRecordWrapper,
   IAccountInfo,
   IAccountMoney,
   IOrder,
   IPosition,
-  IProduct,
   ITick,
-  UUID,
 } from '@yuants/data-model';
-import { createSeriesProvider } from '@yuants/data-series';
-import {
-  addAccountTransferAddress,
-  provideAccountInfo,
-  provideTicks,
-  Terminal,
-  writeDataRecords,
-} from '@yuants/protocol';
+import { addAccountTransferAddress, provideAccountInfo, provideTicks } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
@@ -39,7 +27,10 @@ import {
   throttleTime,
   toArray,
 } from 'rxjs';
-import { GateClient } from './api';
+import { client } from './api';
+import './interest_rate';
+import { mapProductIdToUsdtFutureProduct$ } from './product';
+import { terminal } from './terminal';
 
 const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
   const cache: Record<string, any> = {};
@@ -47,57 +38,12 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
 };
 
 (async () => {
-  const client = new GateClient({
-    auth: {
-      access_key: process.env.ACCESS_KEY!,
-      secret_key: process.env.SECRET_KEY!,
-    },
-  });
-
   const gate_account = await client.getAccountDetail();
   const uid = gate_account.user_id;
 
   const FUTURE_USDT_ACCOUNT_ID = `gate/${uid}/future/USDT`;
   const SPOT_USDT_ACCOUNT_ID = `gate/${uid}/spot/USDT`;
   const UNIFIED_USDT_ACCOUNT_ID = `gate/${uid}/unified/USDT`;
-
-  const terminal = new Terminal(process.env.HOST_URL!, {
-    terminal_id: process.env.TERMINAL_ID || `@yuants/vendor-gate/${uid}/${UUID()}`,
-    name: '@yuants/vendor-gate',
-  });
-
-  const usdtFutureProducts$ = defer(() => client.getFuturesContracts('usdt', {})).pipe(
-    mergeMap((contracts) =>
-      from(contracts).pipe(
-        map((contract): IProduct => {
-          const [base, quote] = contract.name.split('_');
-          return {
-            datasource_id: 'gate/future',
-            product_id: contract.name,
-            base_currency: base,
-            quote_currency: quote,
-            value_scale: +contract.quanto_multiplier,
-            price_step: +contract.order_price_round,
-            volume_step: 1,
-          };
-        }),
-        toArray(),
-      ),
-    ),
-
-    repeat({ delay: 3600_000 }),
-    retry({ delay: 60_000 }),
-    shareReplay(1),
-  );
-
-  usdtFutureProducts$.subscribe((products) => {
-    from(writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!))).subscribe();
-  });
-
-  const mapProductIdToUsdtFutureProduct$ = usdtFutureProducts$.pipe(
-    map((x) => new Map(x.map((x) => [x.product_id, x]))),
-    shareReplay(1),
-  );
 
   const accountFuturePosition$ = defer(() => client.getFuturePositions('usdt')).pipe(
     //
@@ -445,32 +391,6 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
       return { res: { code: 0, message: 'OK' } };
     },
   );
-
-  createSeriesProvider<IInterestRate>(terminal, {
-    tableName: 'interest_rate',
-    series_id_prefix_parts: ['gate/future'],
-    reversed: false,
-    queryFn: async function ({ series_id }) {
-      const [datasource_id, product_id] = decodePath(series_id);
-      // 接口行为备注：无法翻页
-      const funding_rate_history = await client.getFutureFundingRate('usdt', {
-        contract: product_id,
-        limit: 1000,
-      });
-
-      return funding_rate_history.map(
-        (v): IInterestRate => ({
-          series_id,
-          product_id,
-          datasource_id,
-          created_at: formatTime(v.t * 1000),
-          long_rate: `${-v.r}`,
-          short_rate: `${v.r}`,
-          settlement_price: '',
-        }),
-      );
-    },
-  });
 
   const ACCOUNT_INTERNAL_NETWORK_ID = `Bitget/${uid}/ACCOUNT_INTERNAL`;
   addAccountTransferAddress({

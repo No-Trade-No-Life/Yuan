@@ -2,7 +2,6 @@ import {
   IAccountInfo,
   IAccountMoney,
   IPosition,
-  IProduct,
   ITick,
   decodePath,
   encodePath,
@@ -34,42 +33,6 @@ import {
 } from 'rxjs';
 import { client, isError } from './api';
 import { terminal } from './terminal';
-
-const futureExchangeInfo$ = defer(() => client.getFutureExchangeInfo()).pipe(
-  repeat({ delay: 3600_000 }),
-  retry({ delay: 60_000 }),
-  shareReplay(1),
-);
-
-const futureProducts$ = futureExchangeInfo$.pipe(
-  mergeMap((x) =>
-    from(x.symbols).pipe(
-      //
-      map((symbol): IProduct => {
-        return {
-          datasource_id: 'binance',
-          product_id: encodePath('usdt-future', symbol.symbol),
-          base_currency: symbol.baseAsset,
-          quote_currency: symbol.quoteAsset,
-          price_step: +`1e-${symbol.pricePrecision}`,
-          value_scale: 1,
-          volume_step: +`1e-${symbol.quantityPrecision}`,
-        };
-      }),
-      toArray(),
-    ),
-  ),
-  shareReplay(1),
-);
-
-export const mapProductIdToFutureProduct$ = futureProducts$.pipe(
-  map((products) => new Map(products.map((v) => [v.product_id, v]))),
-  shareReplay(1),
-);
-
-futureProducts$
-  .pipe(mergeMap((products) => writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!))))
-  .subscribe();
 
 const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
   const cache: Record<string, any> = {};

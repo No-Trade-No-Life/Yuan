@@ -1,29 +1,12 @@
-import {
-  IAccountInfo,
-  IAccountMoney,
-  IPosition,
-  IProduct,
-  UUID,
-  encodePath,
-  formatTime,
-  getDataRecordWrapper,
-} from '@yuants/data-model';
-import { Terminal, provideAccountInfo, writeDataRecords } from '@yuants/protocol';
+import { IAccountInfo, IAccountMoney, IPosition, encodePath, formatTime } from '@yuants/data-model';
+import { provideAccountInfo } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/protocol/lib/services/transfer';
-import { defer, delayWhen, from, map, merge, repeat, retry, shareReplay, tap } from 'rxjs';
-import { HyperliquidClient } from './api';
-
-const DATASOURCE_ID = 'Hyperliquid';
-
-const client = new HyperliquidClient({
-  auth: process.env.PUBLIC_ONLY
-    ? undefined
-    : {
-        private_key: process.env.PRIVATE_KEY!,
-      },
-});
+import { defer, repeat, retry, shareReplay, tap } from 'rxjs';
+import { client } from './api';
+import './product';
+import { terminal } from './terminal';
 
 const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
   const cache: Record<string, any> = {};
@@ -31,74 +14,6 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
 };
 
 (async () => {
-  const terminal = new Terminal(process.env.HOST_URL!, {
-    terminal_id: process.env.TERMINAL_ID || `hyperliquid/${client.public_key}/${UUID()}`,
-    name: 'Hyperliquid',
-  });
-
-  const tokenProduct$ = defer(async () => {
-    const res = await client.getSpotMetaData();
-    return res.tokens.map(
-      (token): IProduct => ({
-        product_id: encodePath('SPOT', `${token.name}-USDC`),
-        datasource_id: DATASOURCE_ID,
-        quote_currency: 'USDC',
-        base_currency: token.name,
-        price_step: 1e-2,
-        volume_step: Number(`1e-${token.szDecimals}`),
-      }),
-    );
-  }).pipe(
-    tap({
-      error: (e) => {
-        console.error(formatTime(Date.now()), 'SpotProducts', e);
-      },
-    }),
-    retry({ delay: 5000 }),
-    repeat({ delay: 86400_000 }),
-    shareReplay(1),
-  );
-
-  const perpetualProduct$ = defer(async () => {
-    const res = await client.getPerpetualsMetaData();
-    return res.universe.map(
-      (product): IProduct => ({
-        product_id: encodePath('PERPETUAL', `${product.name}-USDC`),
-        datasource_id: DATASOURCE_ID,
-        quote_currency: 'USD',
-        base_currency: product.name,
-        price_step: 1e-2,
-        volume_step: Number(`1e-${product.szDecimals}`),
-      }),
-    );
-  }).pipe(
-    tap({
-      error: (e) => {
-        console.error(formatTime(Date.now()), 'PerpetualProducts', e);
-      },
-    }),
-    retry({ delay: 5000 }),
-    repeat({ delay: 86400_000 }),
-    shareReplay(1),
-  );
-
-  merge(tokenProduct$, perpetualProduct$)
-    .pipe(
-      //
-      delayWhen((products) =>
-        from(writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!))),
-      ),
-    )
-    .subscribe((products) => {
-      console.info(formatTime(Date.now()), 'FUTUREProductsUpdated', products.length);
-    });
-
-  const mapProductIdToFuturesProduct$ = merge(tokenProduct$, perpetualProduct$).pipe(
-    //
-    map((products) => new Map(products.map((v) => [v.product_id, v]))),
-    shareReplay(1),
-  );
-
   // swap account info
   {
     const swapAccountInfo$ = defer(async (): Promise<IAccountInfo> => {
@@ -126,7 +41,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
         positions: accountRes.assetPositions.map(
           (position): IPosition => ({
             position_id: `${position.position.coin}-USD`,
-            datasource_id: DATASOURCE_ID,
+            datasource_id: 'HYPERLIQUID',
             product_id: encodePath('PERPETUAL', `${position.position.coin}-USD`),
             direction: +position.position.szi > 0 ? 'LONG' : 'SHORT',
             volume: Math.abs(+position.position.szi),

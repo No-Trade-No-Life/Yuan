@@ -1,36 +1,23 @@
 import {
   IAccountInfo,
   IAccountMoney,
-  IDataRecordTypes,
   IOrder,
   IPeriod,
   IPosition,
-  IProduct,
   ITick,
-  UUID,
   formatTime,
-  getDataRecordWrapper,
 } from '@yuants/data-model';
-import {
-  Terminal,
-  provideAccountInfo,
-  providePeriods,
-  provideTicks,
-  writeDataRecords,
-} from '@yuants/protocol';
+import { provideAccountInfo, providePeriods, provideTicks } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
-import ccxt, { Exchange } from 'ccxt';
 import { FundingRate } from 'ccxt/js/src/base/types';
 import {
   EMPTY,
-  bufferCount,
   catchError,
   combineLatest,
   combineLatestWith,
   defer,
   delayWhen,
-  expand,
   filter,
   first,
   firstValueFrom,
@@ -46,45 +33,16 @@ import {
   timeout,
   toArray,
 } from 'rxjs';
+import { EXCHANGE_ID, ex } from './api';
+import { mapProductIdToSymbol, mapSymbolToProductId, products$ } from './product';
+import { terminal } from './terminal';
 
 (async () => {
   const PUBLIC_ONLY = process.env.PUBLIC_ONLY === 'true';
-  const EXCHANGE_ID = process.env.EXCHANGE_ID!;
   const ACCOUNT_ID = process.env.ACCOUNT_ID!;
   const CURRENCY = process.env.CURRENCY || 'USDT';
-  const EARLIEST_TIMESTAMP = +(process.env.EARLIEST_TIMESTAMP || 1262304000000);
-
-  const CCXT_PARAMS = {
-    apiKey: process.env.API_KEY,
-    secret: process.env.SECRET,
-    password: process.env.PASSWORD,
-    httpProxy: process.env.HTTP_PROXY,
-  };
-  console.info(formatTime(Date.now()), 'init', EXCHANGE_ID, CCXT_PARAMS);
-  // @ts-ignore
-  const ex: Exchange = new ccxt.pro[EXCHANGE_ID](CCXT_PARAMS);
 
   let accountInfoLock = false;
-
-  console.info(
-    formatTime(Date.now()),
-    `FeatureCheck`,
-    EXCHANGE_ID,
-    JSON.stringify({
-      fetchAccounts: !!ex.has['fetchAccounts'],
-      fetchOHLCV: !!ex.has['fetchOHLCV'],
-      watchOHLCV: !!ex.has['watchOHLCV'],
-      fetchTicker: !!ex.has['fetchTicker'],
-      watchTicker: !!ex.has['watchTicker'],
-      fetchBalance: !!ex.has['fetchBalance'],
-      watchBalance: !!ex.has['watchBalance'],
-      fetchPositions: !!ex.has['fetchPositions'],
-      watchPositions: !!ex.has['watchPositions'],
-      fetchOpenOrders: !!ex.has['fetchOpenOrders'],
-      fetchFundingRate: !!ex.has['fetchFundingRate'],
-      fetchFundingRates: !!ex.has['fetchFundingRates'],
-    }),
-  );
 
   if (EXCHANGE_ID === 'binance') {
     ex.options['warnOnFetchOpenOrdersWithoutSymbol'] = false;
@@ -98,71 +56,6 @@ import {
     account_id = `CCXT/${EXCHANGE_ID}/${accounts[0]?.id}`;
     console.info(formatTime(Date.now()), 'resolve account', account_id);
   }
-
-  const terminal_id =
-    process.env.TERMINAL_ID ||
-    `CCXT-${EXCHANGE_ID}-${PUBLIC_ONLY ? 'PUBLIC' : account_id}-${CURRENCY}${
-      PUBLIC_ONLY ? `-${UUID()}` : ''
-    }`;
-
-  const terminal = new Terminal(process.env.HOST_URL!, {
-    terminal_id,
-    name: `CCXT`,
-  });
-
-  const mapProductIdToSymbol: Record<string, string> = {};
-  const mapSymbolToProductId: Record<string, string> = {};
-
-  const products$ = defer(() => ex.loadMarkets()).pipe(
-    mergeMap((markets) => Object.values(markets)),
-    filter((market): market is Exclude<typeof market, undefined> => !!market),
-    tap((market) => {
-      console.info('Product-Symbol', market.id, market.symbol);
-      mapProductIdToSymbol[market.id] = market.symbol;
-      mapSymbolToProductId[market.symbol] = market.id;
-    }),
-    map(
-      (market): IProduct => ({
-        datasource_id: EXCHANGE_ID,
-        product_id: market.id,
-        base_currency: market.base,
-        quote_currency: market.quote,
-        value_scale: market.contractSize,
-        volume_step: market.precision.amount || 1,
-        price_step: market.precision.price || 1,
-      }),
-    ),
-    toArray(),
-    repeat({ delay: 86400_000 }),
-    retry({ delay: 10_000 }),
-    shareReplay(1),
-  );
-
-  products$
-    .pipe(
-      //
-      mergeMap((products) => writeDataRecords(terminal, products.map(getDataRecordWrapper('product')!))),
-    )
-    .subscribe();
-
-  // auto update general_specific_relation
-  products$
-    .pipe(
-      mergeMap((products) =>
-        from(products).pipe(
-          //
-          map((product): IDataRecordTypes['general_specific_relation'] => ({
-            general_product_id: mapProductIdToSymbol[product.product_id],
-            specific_datasource_id: EXCHANGE_ID,
-            specific_product_id: product.product_id,
-          })),
-          map(getDataRecordWrapper('general_specific_relation')!),
-          toArray(),
-          mergeMap((gsrList) => writeDataRecords(terminal, gsrList)),
-        ),
-      ),
-    )
-    .subscribe();
 
   await firstValueFrom(products$);
 
@@ -184,102 +77,6 @@ import {
     }
     return `${period_in_sec}s`;
   };
-
-  terminal.provideService(
-    'CopyDataRecords',
-    {
-      required: ['tags'],
-      properties: {
-        tags: {
-          type: 'object',
-          required: ['datasource_id'],
-          properties: {
-            datasource_id: {
-              const: EXCHANGE_ID,
-            },
-          },
-        },
-      },
-    },
-    (msg) => {
-      console.info(formatTime(Date.now()), `CopyDataRecords`, JSON.stringify(msg.req));
-      if (msg.req.type === 'period') {
-        const product_id = msg.req.tags?.product_id!;
-        const period_in_sec = +msg.req.tags?.period_in_sec!;
-        const timeframe = mapPeriodInSecToCCXTTimeframe(period_in_sec);
-
-        const [start_timestamp, end_timestamp] = msg.req.time_range || [
-          Date.now() - period_in_sec * 1000 * 100,
-          Date.now(),
-        ];
-        const timeInterval = period_in_sec * 1000 * 100;
-        const start = Math.max(EARLIEST_TIMESTAMP, start_timestamp);
-
-        if (product_id && period_in_sec && timeframe) {
-          console.info(formatTime(Date.now()), `FetchOHLCVStarted`);
-          return of({
-            periods: [],
-            // ISSUE: OKX 的接口语义为两侧开区间，因此需要 -1 以包含 start_time_in_us
-            current_start_timestamp: start - 1,
-            current_end_timestamp: start + timeInterval - 1,
-          }).pipe(
-            //
-            tap(() => {
-              console.info(formatTime(Date.now()), `RecursivelyFetchOHLCVStarted`);
-            }),
-            expand(({ current_start_timestamp, current_end_timestamp }) => {
-              console.info(
-                formatTime(Date.now()),
-                `FetchOHLCVStarted`,
-                `current_start_timestamp: ${current_start_timestamp}`,
-                `current_end_timestamp: ${current_end_timestamp}`,
-              );
-              if (current_start_timestamp > end_timestamp) return EMPTY;
-              return from(
-                ex.fetchOHLCV(mapProductIdToSymbol[product_id], timeframe, current_start_timestamp, 100, {
-                  until: current_end_timestamp,
-                }),
-              ).pipe(
-                //
-                retry({ delay: 10_000 }),
-                tap((v) => {
-                  console.info(formatTime(Date.now()), `FetchOHLCVFinished`, `total: ${v.length}`);
-                }),
-                mergeMap((x) => x),
-                map(
-                  ([t, o, h, l, c, vol]): IPeriod => ({
-                    datasource_id: EXCHANGE_ID,
-                    product_id,
-                    period_in_sec,
-                    start_at: t,
-                    timestamp_in_us: t! * 1000,
-                    open: o!,
-                    high: h!,
-                    low: l!,
-                    close: c!,
-                    volume: vol!,
-                  }),
-                ),
-                toArray(),
-                map((periods) => ({
-                  periods,
-                  current_start_timestamp: current_start_timestamp + timeInterval,
-                  current_end_timestamp: current_end_timestamp + timeInterval,
-                })),
-              );
-            }),
-            mergeMap(({ periods }) => periods),
-            bufferCount(2000),
-            delayWhen((periods) =>
-              from(writeDataRecords(terminal, periods.map(getDataRecordWrapper('period')!))),
-            ),
-            map(() => ({ res: { code: 0, message: 'OK' } })),
-          );
-        }
-      }
-      return of({ res: { code: 400, message: 'Bad Request' } });
-    },
-  );
 
   const memoize = <T extends (...args: any[]) => any>(fn: T): T => {
     const cache = new Map<string, ReturnType<T>>();

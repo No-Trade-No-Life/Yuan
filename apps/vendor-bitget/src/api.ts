@@ -7,15 +7,20 @@ import { Subject, filter, firstValueFrom, mergeMap, of, shareReplay, throwError,
  * API: https://www.bitget.com/zh-CN/api-doc/common/intro
  */
 export class BitgetClient {
+  noAuth = true;
   constructor(
     public config: {
-      auth?: {
+      auth: {
         access_key: string;
         secret_key: string;
         passphrase: string;
       };
     },
-  ) {}
+  ) {
+    if (this.config.auth.access_key && this.config.auth.secret_key && this.config.auth.passphrase) {
+      this.noAuth = false;
+    }
+  }
 
   async request(method: string, path: string, params?: any) {
     const url = new URL('https://api.bitget.com');
@@ -26,7 +31,7 @@ export class BitgetClient {
         url.searchParams.set(k, '' + v);
       }
     }
-    if (!this.config.auth) {
+    if (this.noAuth) {
       console.info(formatTime(Date.now()), method, url.href);
       const res = await fetch(url.href, { method });
       return res.json();
@@ -857,3 +862,11 @@ export class BitgetClient {
     };
   }> => this.request('GET', '/api/v2/user/virtual-subaccount-list', params);
 }
+
+export const client = new BitgetClient({
+  auth: {
+    access_key: process.env.ACCESS_KEY!,
+    secret_key: process.env.SECRET_KEY!,
+    passphrase: process.env.PASSPHRASE!,
+  },
+});

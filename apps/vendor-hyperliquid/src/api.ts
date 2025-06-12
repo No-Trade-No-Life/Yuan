@@ -7,14 +7,18 @@ import { Subject, filter, firstValueFrom, mergeMap, of, shareReplay, throwError,
  * API: https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/notation
  */
 export class HyperliquidClient {
+  noAuth = true;
   private wallet: ethers.Wallet | undefined;
   public public_key: string | undefined;
   constructor(config: {
-    auth?: {
+    auth: {
       private_key: string;
     };
   }) {
-    this.wallet = config.auth ? new ethers.Wallet(config.auth.private_key) : undefined;
+    if (config.auth.private_key) {
+      this.noAuth = false;
+    }
+    this.wallet = !this.noAuth ? new ethers.Wallet(config.auth.private_key) : undefined;
     this.public_key = this.wallet?.address;
   }
 
@@ -232,3 +236,9 @@ export class HyperliquidClient {
     }[];
   }> => this.request('POST', 'info', { ...params, type: 'tokenBalances' });
 }
+
+export const client = new HyperliquidClient({
+  auth: {
+    private_key: process.env.PRIVATE_KEY!,
+  },
+});
