@@ -200,6 +200,7 @@ Yuan 使用 PostgreSQL 作为通用场景数据库；使用 Prometheus 存储遥
 
 - [@yuants/data-product](libraries/data-product) 市场中可交易的产品。
 - [@yuants/data-ohlc](libraries/data-ohlc) OHLC(V) 数据。OHLC 是 Open、High、Low、Close 的缩写，是一种常用的市场数据格式，也称为 K 线。
+- [@yuants/data-interest-rate](libraries/data-interest-rate) 利率数据。利率是指交易者持有头寸经过结算点时产生的利息。它通常用于外汇交易和差价合约 (CFD) 交易，同时也适用于永续合约的资金费率。
 
 老旧的数据模型存放于 [@yuants/data-model](libraries/data-model)，我们计划将其拆分成很多不同的包，从而减少一些非核心模型变动冲击。
 
@@ -275,7 +276,6 @@ Yuan 使用 PostgreSQL 作为通用场景数据库；使用 Prometheus 存储遥
 - [@yuants/utils](libraries/utils) 社区中未找到的一些通用工具。
 - [@yuants/extension](libraries/extension) 这定义了扩展接口。您可以使用扩展来增强您的体验。
 - [@yuants/app-account-composer](apps/account-composer) 这将部署一个终端作为账户组合服务。它将多个账户信息组合成一个账户信息。因此，您可以查看分散在多个账户中的资金。
-- [@yuants/app-general-datasource](apps/general-data-source) 这将部署一个终端作为一般数据源服务。它将多个特定数据源组合成一个一般数据源。对于创建指数价格系列很有用。
 - [@yuants/app-general-realtime-data-source](apps/general-realtime-data-source) 这将部署一个终端作为一般实时数据源服务。它是一般数据源的实时版本。对于创建指数价格 ticks 很有用。
 - [@yuants/app-k8s-manifest-operator](apps/k8s-manifest-operator) 这将部署一个终端作为 Kubernetes 清单操作员。它监视 Kubernetes 集群的清单 CRD 并确保 Kubernetes 集群遵循清单 CRD。您可以将清单 CRD 添加到 k8s 集群，然后操作员将部署清单 CRD 中定义的资源。
 

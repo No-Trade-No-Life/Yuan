@@ -580,11 +580,6 @@
       "shouldPublish": true
     },
     {
-      "packageName": "@yuants/app-general-data-source",
-      "projectFolder": "apps/general-data-source",
-      "shouldPublish": true
-    },
-    {
       "packageName": "@yuants/app-general-realtime-data-source",
       "projectFolder": "apps/general-realtime-data-source",
       "shouldPublish": true

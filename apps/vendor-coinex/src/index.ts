@@ -1,14 +1,14 @@
+import { IInterestRate } from '@yuants/data-interest-rate';
 import {
   decodePath,
   encodePath,
   formatTime,
   getDataRecordWrapper,
-  IDataRecordTypes,
   IProduct,
   ITick,
   UUID,
 } from '@yuants/data-model';
-import { provideDataSeries } from '@yuants/data-series';
+import { createSeriesProvider } from '@yuants/data-series';
 import { provideTicks, Terminal, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
@@ -19,7 +19,6 @@ import {
   delayWhen,
   firstValueFrom,
   from,
-  interval,
   map,
   mergeMap,
   repeat,
@@ -177,22 +176,13 @@ provideTicks(terminal, DATASOURCE_ID, (product_id) => {
   );
 });
 
-provideDataSeries(terminal, {
-  type: 'funding_rate',
+createSeriesProvider<IInterestRate>(terminal, {
+  tableName: 'interest_rate',
   series_id_prefix_parts: ['coinex'],
   reversed: true,
   serviceOptions: { concurrent: 1 },
   queryFn: async function* ({ series_id, started_at, ended_at }) {
     const [datasource_id, product_id] = decodePath(series_id);
-    const mapProductsToFutureProducts = await firstValueFrom(mapProductIdToFuturesProduct$);
-    const theProduct = mapProductsToFutureProducts.get(product_id);
-    if (theProduct === undefined) {
-      throw `product ${product_id} not found`;
-    }
-    const { base_currency, quote_currency } = theProduct;
-    if (!base_currency || !quote_currency) {
-      throw `base_currency or quote_currency is required`;
-    }
     const [instType, instId] = decodePath(product_id);
     let current_page = 0;
 
@@ -209,15 +199,17 @@ provideDataSeries(terminal, {
       }
       if (res.data.length === 0) break;
 
-      yield res.data.map((v) => ({
-        series_id,
-        datasource_id,
-        product_id,
-        base_currency,
-        quote_currency,
-        funding_at: +v.funding_time,
-        funding_rate: +v.actual_funding_rate,
-      }));
+      yield res.data.map(
+        (v): IInterestRate => ({
+          series_id,
+          datasource_id,
+          product_id,
+          created_at: formatTime(+v.funding_time),
+          long_rate: `-${v.actual_funding_rate}`,
+          short_rate: `${v.actual_funding_rate}`,
+          settlement_price: '',
+        }),
+      );
       if (!res.pagination.has_next) break;
       if (+res.data[res.data.length - 1].funding_time <= started_at) break;
       current_page++;
