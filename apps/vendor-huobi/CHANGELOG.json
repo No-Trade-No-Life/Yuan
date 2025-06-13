@@ -2,6 +2,34 @@
   "name": "@yuants/vendor-huobi",
   "entries": [
     {
+      "version": "0.6.21",
+      "tag": "@yuants/vendor-huobi_v0.6.21",
+      "date": "Fri, 13 Jun 2025 14:44:00 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor"
+          },
+          {
+            "comment": "write to SQL"
+          },
+          {
+            "comment": "huobi refine"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.3.4`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.6.20",
       "tag": "@yuants/vendor-huobi_v0.6.20",
       "date": "Tue, 10 Jun 2025 20:44:01 GMT",
