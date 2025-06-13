@@ -31,7 +31,9 @@ const createConnectionGzipWS = <T = any>(URL: string): IConnection<T> => {
 };
 
 export class HuobiClient {
+  // https://www.htx.com/zh-cn/opend/newApiPages/?id=510
   swap_api_root = 'api.hbdm.com';
+  // https://www.htx.com/zh-cn/opend/newApiPages/?id=404
   spot_api_root = 'api.huobi.pro';
 
   spot_ws: IConnection<any>;
@@ -224,7 +226,14 @@ export class HuobiClient {
     return this.request('POST', '/linear-swap-api/v1/swap_cross_position_info', this.swap_api_root, params);
   }
 
-  getSwapOpenOrders(): Promise<{
+  getSwapOpenOrders(params?: {
+    contract_code?: string;
+    pair?: string;
+    page_index?: number;
+    page_size?: number;
+    sort_by?: string;
+    trade_type?: string;
+  }): Promise<{
     status: string;
     data: {
       orders: {
@@ -241,7 +250,7 @@ export class HuobiClient {
     };
   }> {
     // https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb784d4-77b5-11ed-9966-0242ac110003
-    return this.request('POST', '/linear-swap-api/v1/swap_cross_openorders', this.swap_api_root);
+    return this.request('POST', '/linear-swap-api/v1/swap_cross_openorders', this.swap_api_root, params);
   }
 
   getSpotAccountBalance(account_uid: number): Promise<{
