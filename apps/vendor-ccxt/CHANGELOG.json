@@ -2,6 +2,31 @@
   "name": "@yuants/vendor-ccxt",
   "entries": [
     {
+      "version": "0.3.52",
+      "tag": "@yuants/vendor-ccxt_v0.3.52",
+      "date": "Fri, 13 Jun 2025 14:44:00 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor to SQL"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.3.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-ohlc\" to `0.3.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.51",
       "tag": "@yuants/vendor-ccxt_v0.3.51",
       "date": "Tue, 10 Jun 2025 20:44:01 GMT",

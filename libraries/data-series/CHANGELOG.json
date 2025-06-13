@@ -2,6 +2,23 @@
   "name": "@yuants/data-series",
   "entries": [
     {
+      "version": "0.3.4",
+      "tag": "@yuants/data-series_v0.3.4",
+      "date": "Fri, 13 Jun 2025 14:44:00 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.3",
       "tag": "@yuants/data-series_v0.3.3",
       "date": "Tue, 10 Jun 2025 20:44:01 GMT",
