@@ -216,7 +216,12 @@ import { terminal } from './terminal';
 
       const orders$ = of({ orders: [], page_index: 1, page_size: 50 }).pipe(
         expand((v) =>
-          defer(() => client.getSwapOpenOrders()).pipe(
+          defer(() =>
+            client.getSwapOpenOrders({
+              page_index: v.page_index,
+              page_size: v.page_size,
+            }),
+          ).pipe(
             //
             retry({ delay: 5000 }),
             map((v) => v.data),
