@@ -1,13 +1,9 @@
-import {
-  IDataRecordTypes,
-  ITransferOrder,
-  encodePath,
-  formatTime,
-  getDataRecordWrapper,
-} from '@yuants/data-model';
-import { PromRegistry, Terminal, readDataRecords, writeDataRecords } from '@yuants/protocol';
+import { IDataRecordTypes, encodePath, formatTime } from '@yuants/data-model';
+import { MetricsMeterProvider } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
-import '@yuants/protocol/lib/services/transfer';
+import '@yuants/transfer/lib/services';
+import { ITransferOrder } from '@yuants/transfer';
+import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
 // @ts-ignore
 import dijkstra from 'dijkstrajs';
 import {
@@ -15,12 +11,10 @@ import {
   catchError,
   defaultIfEmpty,
   defer,
-  filter,
   firstValueFrom,
   from,
   groupBy,
   map,
-  mergeAll,
   mergeMap,
   of,
   repeat,
@@ -29,41 +23,23 @@ import {
   tap,
   toArray,
 } from 'rxjs';
+import { terminal } from './terminal';
 
 type ITransferRoutingCache = IDataRecordTypes['transfer_routing_cache'];
 type ITransferPair = ITransferRoutingCache['routing_path'][number];
 type ITransferNetworkInfo = IDataRecordTypes['transfer_network_info'];
 type IAccountAddressInfo = IDataRecordTypes['account_address_info'];
 
-const terminal = new Terminal(process.env.HOST_URL!, {
-  terminal_id: process.env.TERMINAL_ID || 'TransferController',
-  name: 'Transfer Controller',
-});
+const meter = MetricsMeterProvider.getMeter('transfer-controller');
 
 defer(() =>
-  readDataRecords(terminal, {
-    type: 'transfer_order',
-    // ISSUE: only select the orders that are not in ERROR or COMPLETE state
-    json_schema: {
-      properties: {
-        tags: {
-          properties: {
-            status: {
-              not: {
-                enum: ['ERROR', 'COMPLETE'],
-              },
-            },
-          },
-        },
-      },
-    },
-  }),
+  requestSQL<ITransferOrder[]>(
+    terminal,
+    `SELECT * FROM transfer_order WHERE status NOT IN ('ERROR', 'COMPLETE')`,
+  ),
 )
   .pipe(
     //
-    mergeAll(),
-    map((v) => v.origin),
-    toArray(),
     retry({ delay: 1_000 }),
     mergeMap((v) =>
       from(v).pipe(
@@ -113,28 +89,12 @@ const makeRoutingPath = async (order: ITransferOrder): Promise<ITransferPair[] |
 
   const { credit_account_id, debit_account_id } = order;
   const addressInfoList = await firstValueFrom(
-    defer(() =>
-      readDataRecords(terminal, {
-        type: 'account_address_info',
-      }),
-    ).pipe(
-      //
-      mergeAll(),
-      map((v) => v.origin),
-      toArray(),
-    ),
+    defer(() => requestSQL<IAccountAddressInfo[]>(terminal, `SELECT * FROM account_address_info`)),
   );
 
   const transferNetworkInfoList = await firstValueFrom(
-    defer(() =>
-      readDataRecords(terminal, {
-        type: 'transfer_network_info',
-      }),
-    ).pipe(
+    defer(() => requestSQL<ITransferNetworkInfo[]>(terminal, `SELECT * FROM transfer_network_info`)).pipe(
       //
-      mergeAll(),
-      map((v) => v.origin),
-      toArray(),
       shareReplay(1),
     ),
   );
@@ -212,9 +172,7 @@ const makeRoutingPath = async (order: ITransferOrder): Promise<ITransferPair[] |
 };
 
 const updateTransferOrder = (order: ITransferOrder): Promise<void> => {
-  return firstValueFrom(
-    defer(() => writeDataRecords(terminal, [getDataRecordWrapper('transfer_order')!(order)])),
-  );
+  return requestSQL(terminal, buildInsertManyIntoTableSQL([order], 'transfer_order'));
 };
 
 const iterateTransferOrder = (order: ITransferOrder): ITransferOrder => {
@@ -280,17 +238,16 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
     if (order.routing_path === undefined) {
       const cache = await firstValueFrom(
         defer(() =>
-          readDataRecords(terminal, {
-            type: 'transfer_routing_cache',
-            tags: {
-              credit_account_id: order.credit_account_id,
-              debit_account_id: order.debit_account_id,
-            },
-          }),
+          requestSQL<ITransferRoutingCache[]>(
+            terminal,
+            escape(
+              `SELECT * FROM transfer_routing_cache WHERE credit_account_id = ${order.credit_account_id} AND debit_account_id = ${order.debit_account_id}`,
+            ),
+          ),
         ).pipe(
           //
           mergeMap((v) => v),
-          map((v) => v.origin.routing_path),
+          map((v) => v.routing_path),
           defaultIfEmpty(undefined),
         ),
       );
@@ -310,13 +267,19 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
           );
           await firstValueFrom(
             defer(() =>
-              writeDataRecords(terminal, [
-                getDataRecordWrapper('transfer_routing_cache')!({
-                  credit_account_id: order.credit_account_id,
-                  debit_account_id: order.debit_account_id,
-                  routing_path,
-                }),
-              ]),
+              requestSQL(
+                terminal,
+                buildInsertManyIntoTableSQL(
+                  [
+                    {
+                      credit_account_id: order.credit_account_id,
+                      debit_account_id: order.debit_account_id,
+                      routing_path,
+                    },
+                  ],
+                  'transfer_routing_cache',
+                ),
+              ),
             ),
           );
           path = routing_path;
@@ -346,16 +309,13 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
     if (order.current_network_id !== undefined) {
       const networkInfo = await firstValueFrom(
         defer(() =>
-          readDataRecords(terminal, {
-            type: 'transfer_network_info',
-            tags: {
-              network_id: order.current_network_id!,
-            },
-          }),
+          requestSQL<ITransferNetworkInfo[]>(
+            terminal,
+            escape(`SELECT * FROM transfer_network_info WHERE network_id = ${order.current_network_id}`),
+          ),
         ).pipe(
           //
           mergeMap((x) => x),
-          map((v) => v.origin),
           defaultIfEmpty(undefined),
         ),
       );
@@ -503,38 +463,26 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
   });
 };
 
-const MetricFailedTransferOrders = PromRegistry.create(
-  'gauge',
-  'failed_transfer_orders',
-  'Failed Transfer Orders',
-);
+const MetricFailedTransferOrders = meter.createGauge('failed_transfer_orders', {
+  description: 'Failed Transfer Orders',
+});
 
 // check if there's any failed transfer order
-defer(() =>
-  readDataRecords(terminal, {
-    type: 'transfer_order',
-    tags: {
-      status: 'ERROR',
-    },
-  }),
-)
+defer(() => requestSQL<ITransferOrder[]>(terminal, `SELECT * FROM transfer_order WHERE status = 'ERROR'`))
   .pipe(
     repeat({ delay: 10_000 }),
     retry({ delay: 5000 }),
-    tap(() => {
-      MetricFailedTransferOrders.resetAll();
-    }),
     mergeMap((records) =>
       from(records).pipe(
-        groupBy((record) => `${record.origin.debit_account_id}-${record.origin.credit_account_id}`),
+        groupBy((record) => `${record.debit_account_id}-${record.credit_account_id}`),
         mergeMap((group) =>
           group.pipe(
             //
             toArray(),
             tap((v) => {
-              MetricFailedTransferOrders.set(v.length, {
-                debit_account_id: v[0].origin.debit_account_id,
-                credit_account_id: v[0].origin.credit_account_id,
+              MetricFailedTransferOrders.record(v.length, {
+                debit_account_id: v[0].debit_account_id,
+                credit_account_id: v[0].credit_account_id,
               });
             }),
           ),

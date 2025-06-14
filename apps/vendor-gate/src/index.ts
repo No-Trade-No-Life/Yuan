@@ -7,10 +7,11 @@ import {
   IPosition,
   ITick,
 } from '@yuants/data-model';
-import { addAccountTransferAddress, provideAccountInfo, provideTicks } from '@yuants/protocol';
+import { provideAccountInfo, provideTicks } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
-import '@yuants/protocol/lib/services/transfer';
+import '@yuants/transfer';
+import { addAccountTransferAddress } from '@yuants/transfer';
 import {
   combineLatest,
   combineLatestWith,

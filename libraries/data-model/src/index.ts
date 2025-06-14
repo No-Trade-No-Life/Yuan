@@ -6,7 +6,6 @@
  * @remarks
  * Defines the basic data model and utils based on the data.
  */
-export * from './AccountAddressInfo';
 export * from './AccountCompositionRelation';
 export * from './AccountInfo';
 export * from './AccountRiskInfo';
@@ -22,7 +21,4 @@ export * from './PullSourceRelation';
 export * from './Tick';
 export * from './TradeCopierTradeConfig';
 export * from './TradeCopyRelation';
-export * from './TransferNetworkInfo';
-export * from './TransferOrder';
-export * from './TransferRoutingCache';
 export * from './utils';

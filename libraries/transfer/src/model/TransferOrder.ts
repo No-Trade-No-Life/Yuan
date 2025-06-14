@@ -1,6 +1,6 @@
-import { addDataRecordSchema, addDataRecordWrapper } from './DataRecord';
+import { addDataRecordSchema, addDataRecordWrapper } from '@yuants/data-model';
 
-declare module './DataRecord' {
+declare module '@yuants/data-model/lib/DataRecord' {
   export interface IDataRecordTypes {
     transfer_order: ITransferOrder;
   }

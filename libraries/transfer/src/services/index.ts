@@ -1,6 +1,8 @@
-import { ITransferOrder } from '@yuants/data-model';
+import { ITransferOrder } from '../model';
 
-declare module '.' {
+export {};
+
+declare module '@yuants/protocol/lib/services' {
   /**
    * - Transfer interface have been loaded
    * - 转账接口已载入

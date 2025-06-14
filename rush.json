@@ -500,6 +500,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/transfer",
+      "projectFolder": "libraries/transfer",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/prometheus-client",
       "projectFolder": "libraries/prometheus-client",
       "shouldPublish": true

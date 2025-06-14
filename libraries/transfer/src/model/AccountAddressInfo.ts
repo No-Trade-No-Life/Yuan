@@ -1,13 +1,15 @@
-import { addDataRecordWrapper } from './DataRecord';
-import { encodePath } from './utils';
+import { addDataRecordWrapper, encodePath } from '@yuants/data-model';
 
-declare module './DataRecord' {
+declare module '@yuants/data-model/lib/DataRecord' {
   export interface IDataRecordTypes {
     account_address_info: IAccountAddressInfo;
   }
 }
 
-interface IAccountAddressInfo {
+/**
+ * @public
+ */
+export interface IAccountAddressInfo {
   account_id: string;
   network_id: string;
   address: string;

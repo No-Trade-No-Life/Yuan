@@ -10,7 +10,6 @@ import { IDataRecordTypes } from '@yuants/data-model';
 import { IPeriod } from '@yuants/data-model';
 import { IProduct } from '@yuants/data-model';
 import { ITick } from '@yuants/data-model';
-import { ITransferOrder } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
 import { MeterProvider } from '@opentelemetry/sdk-metrics';
 import { MetricReader } from '@opentelemetry/sdk-metrics';
@@ -19,11 +18,6 @@ import { ObservableInput } from 'rxjs';
 import { Registry } from '@yuants/prometheus-client';
 import { Subject } from 'rxjs';
 import { ValidateFunction } from 'ajv';
-
-// Warning: (ae-forgotten-export) The symbol "IAccountTransferAddressContext" needs to be exported by the entry point index.d.ts
-//
-// @public
-export const addAccountTransferAddress: (ctx: IAccountTransferAddressContext) => void;
 
 // Warning: (ae-forgotten-export) The symbol "ICopyDataRecordsRequest" needs to be exported by the entry point index.d.ts
 //

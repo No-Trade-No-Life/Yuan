@@ -1,6 +1,6 @@
 import { Space, Steps, Toast, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { IDataRecord, ITransferOrder, UUID, formatTime, getDataRecordWrapper } from '@yuants/data-model';
+import { IDataRecord, UUID, formatTime, getDataRecordWrapper } from '@yuants/data-model';
 import { writeDataRecords } from '@yuants/protocol';
 import { first, firstValueFrom, from } from 'rxjs';
 import { InlineAccountId, useAccountInfo } from '../AccountInfo';
@@ -9,6 +9,7 @@ import { DataRecordView } from '../DataRecord';
 import { showForm } from '../Form';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
+import { ITransferOrder } from '@yuants/transfer';
 
 function newRecord(): Partial<ITransferOrder> {
   return {

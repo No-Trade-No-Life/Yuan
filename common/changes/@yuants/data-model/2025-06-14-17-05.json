@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-model",
+      "comment": "use transfer lib",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/data-model"
+}
