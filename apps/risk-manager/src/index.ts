@@ -1,6 +1,5 @@
 import {
   IDataRecordTypes,
-  ITransferOrder,
   UUID,
   formatTime,
   getDataRecordSchema,
@@ -29,6 +28,7 @@ import {
 } from 'rxjs';
 import { generateCandidateTransfer } from './utils/generateCandidateTransfer';
 import { resolveRiskState } from './utils/resolveRiskState';
+import { ITransferOrder } from '@yuants/transfer';
 
 const terminal = new Terminal(process.env.HOST_URL!, {
   terminal_id: process.env.TERMINAL_ID || 'RiskManager',

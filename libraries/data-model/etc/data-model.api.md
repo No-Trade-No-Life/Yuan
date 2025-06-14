@@ -7,10 +7,10 @@
 import { JSONSchema7 } from 'json-schema';
 import { Observable } from 'rxjs';
 
-// @public
+// @public @deprecated
 export const addDataRecordSchema: <K extends keyof IDataRecordTypes>(type: K, schema: JSONSchema7) => void;
 
-// @public
+// @public @deprecated
 export const addDataRecordWrapper: <K extends keyof IDataRecordTypes>(type: K, wrapper: (v: IDataRecordTypes[K]) => IDataRecord<IDataRecordTypes[K]>) => void;
 
 // @public (undocumented)
@@ -25,10 +25,10 @@ export const encodePath: (...params: any[]) => string;
 // @public
 export const formatTime: (time: Date | number | string, timeZone?: string | undefined) => string;
 
-// @public
+// @public @deprecated
 export const getDataRecordSchema: <K extends keyof IDataRecordTypes>(type: K) => JSONSchema7 | undefined;
 
-// @public
+// @public @deprecated
 export const getDataRecordWrapper: <K extends keyof IDataRecordTypes>(type: K) => ((v: IDataRecordTypes[K]) => IDataRecord<IDataRecordTypes[K]>) | undefined;
 
 // @public (undocumented)
@@ -185,55 +185,6 @@ export interface ITick {
     spread?: number;
     updated_at: number;
     volume?: number;
-}
-
-// @public
-export interface ITransferOrder {
-    created_at: number;
-    credit_account_id: string;
-    // @deprecated
-    credit_method?: string;
-    currency: string;
-    current_amount?: number;
-    current_network_id?: string;
-    current_routing_index?: number;
-    current_rx_account_id?: string;
-    current_rx_address?: string;
-    current_rx_context?: string;
-    current_rx_state?: string;
-    current_step_started_at?: number;
-    current_transaction_id?: string;
-    current_tx_account_id?: string;
-    current_tx_address?: string;
-    current_tx_context?: string;
-    current_tx_state?: string;
-    debit_account_id: string;
-    // @deprecated
-    debit_methods?: string[];
-    error_message?: string;
-    expected_amount: number;
-    order_id: string;
-    // @deprecated
-    received_amount?: number;
-    // @deprecated
-    received_at?: number;
-    routing_path?: {
-        tx_account_id?: string;
-        rx_account_id?: string;
-        tx_address?: string;
-        rx_address?: string;
-        network_id?: string;
-    }[];
-    status: string;
-    // @deprecated
-    timeout_at: number;
-    // @deprecated
-    transaction_id?: string;
-    // @deprecated
-    transferred_amount?: number;
-    // @deprecated
-    transferred_at?: number;
-    updated_at: number;
 }
 
 // @public
