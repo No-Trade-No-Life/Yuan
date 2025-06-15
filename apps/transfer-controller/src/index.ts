@@ -1,9 +1,9 @@
 import { IDataRecordTypes, encodePath, formatTime } from '@yuants/data-model';
 import { MetricsMeterProvider } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
-import '@yuants/transfer/lib/services';
-import { ITransferOrder } from '@yuants/transfer';
 import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
+import { ITransferOrder } from '@yuants/transfer';
+import '@yuants/transfer/lib/services';
 // @ts-ignore
 import dijkstra from 'dijkstrajs';
 import {
@@ -23,6 +23,7 @@ import {
   tap,
   toArray,
 } from 'rxjs';
+import './migration';
 import { terminal } from './terminal';
 
 type ITransferRoutingCache = IDataRecordTypes['transfer_routing_cache'];

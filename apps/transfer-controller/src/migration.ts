@@ -33,8 +33,7 @@ CREATE TABLE IF NOT EXISTS transfer_order (
   current_amount numeric
 );
 
-CREATE INDEX IF NOT EXISTS ON transfer_order (status);
-`,
+CREATE INDEX IF NOT EXISTS idx_transfer_order_status ON transfer_order (status);`,
 });
 
 AddMigration({
@@ -47,7 +46,7 @@ CREATE TABLE IF NOT EXISTS transfer_network_info (
   commission numeric NOT NULL,
   currency text NOT NULL,
   timeout bigint
-)
+);
 `,
 });
 
@@ -60,7 +59,7 @@ CREATE TABLE IF NOT EXISTS transfer_routing_cache (
   credit_account_id text NOT NULL,
   debit_account_id text NOT NULL,
   routing_path jsonb NOT NULL
-)
+);
 `,
 });
 
@@ -74,7 +73,7 @@ CREATE TABLE IF NOT EXISTS account_address_info (
   network_id text NOT NULL,
   address text NOT NULL,
   currency text NOT NULL
-)
+);
 `,
 });
 
