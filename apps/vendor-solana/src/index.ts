@@ -2,7 +2,7 @@ import { IAccountInfo, IAccountMoney, UUID, formatTime } from '@yuants/data-mode
 import { Terminal, provideAccountInfo } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
-import '@yuants/protocol/lib/services/transfer';
+import '@yuants/transfer/lib/services';
 import { defer, map, repeat, retry, shareReplay } from 'rxjs';
 
 const solanaAddress = process.env.PUBLIC_KEY?.split(',') || [];
