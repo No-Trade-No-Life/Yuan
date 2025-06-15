@@ -124,14 +124,13 @@ defer(() => configs$)
                 map(
                   (x): ITransferOrder => ({
                     order_id: UUID(),
-                    created_at: Date.now(),
-                    updated_at: Date.now(),
+                    created_at: formatTime(Date.now()),
+                    updated_at: formatTime(Date.now()),
                     credit_account_id: x.credit,
                     debit_account_id: x.debit,
                     expected_amount: x.amount,
                     currency: x.currency,
                     status: 'INIT',
-                    timeout_at: Date.now() + 1000 * 600,
                   }),
                 ),
                 delayWhen((order) =>

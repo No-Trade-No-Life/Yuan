@@ -10,16 +10,17 @@ import { showForm } from '../Form';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 import { ITransferOrder } from '@yuants/transfer';
+import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
 
 function newRecord(): Partial<ITransferOrder> {
   return {
     order_id: UUID(),
-    created_at: Date.now(),
+    created_at: formatTime(Date.now()),
   };
 }
 
 function beforeUpdateTrigger(x: ITransferOrder) {
-  x.updated_at = Date.now();
+  x.updated_at = formatTime(Date.now());
 }
 
 function defineColumns() {
@@ -175,17 +176,23 @@ registerCommand('Transfer', async (params: {}) => {
     return;
   }
 
-  await writeDataRecords(terminal, [
-    getDataRecordWrapper('transfer_order')!({
-      order_id: UUID(),
-      created_at: Date.now(),
-      updated_at: Date.now(),
-      credit_account_id: res.credit_account_id,
-      debit_account_id: res.debit_account_id,
-      status: 'INIT',
-      currency,
-      expected_amount: res.amount,
-      timeout_at: Date.now() + 86400_000,
-    }),
-  ]);
+  await requestSQL(
+    terminal,
+    buildInsertManyIntoTableSQL(
+      [
+        {
+          order_id: UUID(),
+          created_at: formatTime(Date.now()),
+          updated_at: formatTime(Date.now()),
+          credit_account_id: res.credit_account_id,
+          debit_account_id: res.debit_account_id,
+          status: 'INIT',
+          currency,
+          expected_amount: res.amount,
+          timeout_at: Date.now() + 86400_000,
+        },
+      ],
+      'transfer_order',
+    ),
+  );
 });

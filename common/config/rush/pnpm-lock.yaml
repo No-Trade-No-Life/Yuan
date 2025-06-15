@@ -1012,6 +1012,7 @@ importers:
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
+      '@yuants/transfer': workspace:*
       '@yuants/utils': workspace:*
       crypto-js: ^4.2.0
       rxjs: ~7.5.6
@@ -1024,6 +1025,7 @@ importers:
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/sql': link:../../libraries/sql
+      '@yuants/transfer': link:../../libraries/transfer
       '@yuants/utils': link:../../libraries/utils
       crypto-js: 4.2.0
       rxjs: 7.5.7
@@ -1229,6 +1231,7 @@ importers:
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
+      '@yuants/transfer': workspace:*
       '@yuants/utils': workspace:*
       crypto-js: ^4.2.0
       ethers: ~6.13.5
@@ -1243,6 +1246,7 @@ importers:
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/sql': link:../../libraries/sql
+      '@yuants/transfer': link:../../libraries/transfer
       '@yuants/utils': link:../../libraries/utils
       crypto-js: 4.2.0
       ethers: 6.13.5
@@ -1319,6 +1323,7 @@ importers:
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
+      '@yuants/transfer': workspace:*
       '@yuants/utils': workspace:*
       crypto-js: ^4.2.0
       rxjs: ~7.5.6
@@ -1327,6 +1332,7 @@ importers:
     dependencies:
       '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/transfer': link:../../libraries/transfer
       '@yuants/utils': link:../../libraries/utils
       crypto-js: 4.2.0
       rxjs: 7.5.7
