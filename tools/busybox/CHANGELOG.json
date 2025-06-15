@@ -2,6 +2,26 @@
   "name": "@yuants/tool-busybox",
   "entries": [
     {
+      "version": "0.0.18",
+      "tag": "@yuants/tool-busybox_v0.0.18",
+      "date": "Sun, 15 Jun 2025 06:01:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.34.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.17.8`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.17",
       "tag": "@yuants/tool-busybox_v0.0.17",
       "date": "Tue, 10 Jun 2025 20:44:01 GMT",

@@ -2,6 +2,34 @@
   "name": "@yuants/app-risk-manager",
   "entries": [
     {
+      "version": "0.3.35",
+      "tag": "@yuants/app-risk-manager_v0.3.35",
+      "date": "Sun, 15 Jun 2025 06:01:16 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "use transfer lib"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.17.8`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/transfer\" to `0.0.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.34.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.34",
       "tag": "@yuants/app-risk-manager_v0.3.34",
       "date": "Tue, 10 Jun 2025 20:44:01 GMT",

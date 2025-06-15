@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-model
 
-This log was last generated on Mon, 21 Apr 2025 17:48:12 GMT and should not be manually modified.
+This log was last generated on Sun, 15 Jun 2025 06:01:16 GMT and should not be manually modified.
+
+## 0.17.8
+Sun, 15 Jun 2025 06:01:16 GMT
+
+### Patches
+
+- use transfer lib
 
 ## 0.17.7
 Mon, 21 Apr 2025 17:48:12 GMT

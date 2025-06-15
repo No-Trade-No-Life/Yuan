@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Fri, 13 Jun 2025 14:44:00 GMT and should not be manually modified.
+This log was last generated on Sun, 15 Jun 2025 06:01:17 GMT and should not be manually modified.
+
+## 0.6.22
+Sun, 15 Jun 2025 06:01:17 GMT
+
+### Patches
+
+- use transfer lib
 
 ## 0.6.21
 Fri, 13 Jun 2025 14:44:00 GMT
