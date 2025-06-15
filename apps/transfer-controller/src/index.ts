@@ -167,13 +167,25 @@ const makeRoutingPath = async (order: ITransferOrder): Promise<ITransferPair[] |
       }),
     );
   } catch (e) {
-    console.error(formatTime(Date.now()), 'FindRoutingPathError', e);
+    console.error(
+      formatTime(Date.now()),
+      'FindRoutingPathError',
+      e,
+      adjacencyList,
+      serializeAccountIdNode(credit_account_id),
+      serializeAccountIdNode(debit_account_id),
+    );
     return undefined;
   }
 };
 
 const updateTransferOrder = (order: ITransferOrder): Promise<void> => {
-  return requestSQL(terminal, buildInsertManyIntoTableSQL([order], 'transfer_order'));
+  return requestSQL(
+    terminal,
+    buildInsertManyIntoTableSQL([order], 'transfer_order', {
+      conflictKeys: ['order_id'],
+    }),
+  );
 };
 
 const iterateTransferOrder = (order: ITransferOrder): ITransferOrder => {
@@ -181,10 +193,10 @@ const iterateTransferOrder = (order: ITransferOrder): ITransferOrder => {
   // iterate 5-tuple
 
   // init case
-  if (current_routing_index === undefined) {
+  if (current_routing_index === null || current_routing_index === undefined) {
     return {
       ...order,
-      updated_at: Date.now(),
+      updated_at: formatTime(Date.now()),
       current_amount: order.expected_amount,
       current_routing_index: 0,
       current_tx_state: 'INIT',
@@ -194,14 +206,15 @@ const iterateTransferOrder = (order: ITransferOrder): ITransferOrder => {
       current_network_id: routing_path![0].network_id,
       current_rx_address: routing_path![0].rx_address,
       current_rx_account_id: routing_path![0].rx_account_id,
-      current_step_started_at: Date.now(),
+      current_step_started_at: formatTime(Date.now()),
     };
   }
   // current_tx_state must be COMPLETE
+  // COMPLETE case
   if (current_routing_index === routing_path!.length - 1) {
     return {
       ...order,
-      updated_at: Date.now(),
+      updated_at: formatTime(Date.now()),
       status: 'COMPLETE',
     };
   }
@@ -209,7 +222,7 @@ const iterateTransferOrder = (order: ITransferOrder): ITransferOrder => {
   if (current_routing_index < 0 || current_routing_index >= routing_path!.length - 1) {
     return {
       ...order,
-      updated_at: Date.now(),
+      updated_at: formatTime(Date.now()),
       error_message: `Invalid Current Tx Account ID: ${current_routing_index}`,
       status: 'ERROR',
     };
@@ -219,7 +232,7 @@ const iterateTransferOrder = (order: ITransferOrder): ITransferOrder => {
 
   return {
     ...order,
-    updated_at: Date.now(),
+    updated_at: formatTime(Date.now()),
     current_routing_index: next_routing_index,
     current_tx_state: 'INIT',
     current_rx_state: 'INIT',
@@ -228,7 +241,7 @@ const iterateTransferOrder = (order: ITransferOrder): ITransferOrder => {
     current_network_id: routing_path![next_routing_index].network_id,
     current_rx_address: routing_path![next_routing_index].rx_address,
     current_rx_account_id: routing_path![next_routing_index].rx_account_id,
-    current_step_started_at: Date.now(),
+    current_step_started_at: formatTime(Date.now()),
   };
 };
 
@@ -236,14 +249,14 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
   return defer(async () => {
     console.info(formatTime(Date.now()), 'TransferDispatch', order.order_id, JSON.stringify(order));
     // if routing path is not defined, retrieve or calculate one
-    if (order.routing_path === undefined) {
+    if (order.routing_path === null || order.routing_path === undefined) {
       const cache = await firstValueFrom(
         defer(() =>
           requestSQL<ITransferRoutingCache[]>(
             terminal,
-            escape(
-              `SELECT * FROM transfer_routing_cache WHERE credit_account_id = ${order.credit_account_id} AND debit_account_id = ${order.debit_account_id}`,
-            ),
+            `SELECT * FROM transfer_routing_cache WHERE credit_account_id = ${escape(
+              order.credit_account_id,
+            )} AND debit_account_id = ${escape(order.debit_account_id)}`,
           ),
         ).pipe(
           //
@@ -255,9 +268,9 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
 
       let path = cache;
 
-      if (cache === undefined) {
+      if (cache === null || cache === undefined) {
         const routing_path = await makeRoutingPath(order);
-        if (routing_path !== undefined) {
+        if (routing_path !== null && routing_path !== undefined) {
           console.info(
             formatTime(Date.now()),
             `NewRoutingPath`,
@@ -279,6 +292,9 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
                     },
                   ],
                   'transfer_routing_cache',
+                  {
+                    ignoreConflict: true,
+                  },
                 ),
               ),
             ),
@@ -298,21 +314,21 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
 
       const nextOrder: ITransferOrder = {
         ...order,
-        updated_at: Date.now(),
+        updated_at: formatTime(Date.now()),
         routing_path: path,
-        status: path !== undefined ? 'ONGOING' : 'ERROR',
-        error_message: path === undefined ? 'Cannot find a routing path' : undefined,
+        status: path !== null && path !== undefined ? 'ONGOING' : 'ERROR',
+        error_message: path === null || path === undefined ? 'Cannot find a routing path' : undefined,
       };
       return updateTransferOrder(nextOrder);
     }
 
     // routing path is defined, check if current transfer is timed out
-    if (order.current_network_id !== undefined) {
+    if (order.current_network_id !== null && order.current_network_id !== undefined) {
       const networkInfo = await firstValueFrom(
         defer(() =>
           requestSQL<ITransferNetworkInfo[]>(
             terminal,
-            escape(`SELECT * FROM transfer_network_info WHERE network_id = ${order.current_network_id}`),
+            `SELECT * FROM transfer_network_info WHERE network_id = ${escape(order.current_network_id)};`,
           ),
         ).pipe(
           //
@@ -322,8 +338,9 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
       );
       const timeout = networkInfo?.timeout ?? 300_000;
       if (
+        order.current_step_started_at !== null &&
         order.current_step_started_at !== undefined &&
-        Date.now() - order.current_step_started_at > timeout
+        Date.now() - new Date(order.current_step_started_at).getTime() > timeout
       ) {
         console.error(
           formatTime(Date.now()),
@@ -333,7 +350,7 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
         );
         return updateTransferOrder({
           ...order,
-          updated_at: Date.now(),
+          updated_at: formatTime(Date.now()),
           status: 'ERROR',
           error_message: `Timeout: ${timeout}ms exceeded for ${order.current_tx_account_id}->${order.current_rx_account_id}`,
         });
@@ -343,7 +360,8 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
     // iterate the transfer order
     if (
       // initial case
-      (order.current_tx_state === undefined && order.current_rx_state === undefined) ||
+      ((order.current_tx_state === null || order.current_tx_state === undefined) &&
+        (order.current_rx_state === null || order.current_rx_state === undefined)) ||
       // restore state case, e.g. restart the service in the middle
       (order.current_tx_state === 'COMPLETE' && order.current_rx_state === 'COMPLETE')
     ) {
@@ -374,7 +392,7 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
       );
       const nextOrder: ITransferOrder = {
         ...order,
-        updated_at: Date.now(),
+        updated_at: formatTime(Date.now()),
         error_message: applyResult.res?.data?.message,
         status: applyResult.res?.data?.state === 'ERROR' ? 'ERROR' : 'ONGOING',
         current_transaction_id: applyResult.res?.data?.transaction_id,
@@ -427,7 +445,7 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
 
       const nextOrder: ITransferOrder = {
         ...order,
-        updated_at: Date.now(),
+        updated_at: formatTime(Date.now()),
         error_message: evalResult.res?.message,
         status: evalResult.res?.data?.state === 'ERROR' ? 'ERROR' : 'ONGOING',
         current_rx_state: evalResult.res?.data?.state,

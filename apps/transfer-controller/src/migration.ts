@@ -18,7 +18,7 @@ CREATE TABLE IF NOT EXISTS transfer_order (
   error_message text,
   timeout_at timestamptz,
   routing_path jsonb,
-  current_routing_index integer not null,
+  current_routing_index integer,
   current_tx_account_id text,
   current_rx_account_id text,
   current_tx_address text,

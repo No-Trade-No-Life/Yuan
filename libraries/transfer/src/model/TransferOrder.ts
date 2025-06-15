@@ -25,13 +25,13 @@ export interface ITransferOrder {
    *
    * 创建时间戳
    */
-  created_at: number;
+  created_at: string;
   /**
    * Updated Timestamp
    *
    * 最后更新时间戳
    */
-  updated_at: number;
+  updated_at: string;
   /**
    * Credit Account ID
    *
@@ -76,7 +76,7 @@ export interface ITransferOrder {
    * 超时时间戳
    * @deprecated use the timeout value provided by the specific network instead
    */
-  timeout_at: number;
+  timeout_at?: string;
 
   /**
    * The acceptable ways for Debit Account to receive the transfer (Routing Path)
@@ -174,7 +174,7 @@ export interface ITransferOrder {
   /** 当前查账状态下用于流转状态的上下文信息 */
   current_rx_context?: string;
   /** 当前转账开始时间 */
-  current_step_started_at?: number;
+  current_step_started_at?: string;
 
   /** 当前转账数目 */
   current_amount?: number;
@@ -184,8 +184,8 @@ addDataRecordWrapper('transfer_order', (order) => {
   return {
     id: order.order_id,
     type: 'transfer_order',
-    created_at: order.created_at,
-    updated_at: order.updated_at,
+    created_at: new Date(order.created_at).getTime(),
+    updated_at: new Date(order.updated_at).getTime(),
     frozen_at: null,
     tags: {
       credit_account_id: order.credit_account_id,

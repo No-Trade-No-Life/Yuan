@@ -35,7 +35,7 @@ export interface ITransferNetworkInfo {
 
 // @public
 export interface ITransferOrder {
-    created_at: number;
+    created_at: string;
     credit_account_id: string;
     // @deprecated
     credit_method?: string;
@@ -47,7 +47,7 @@ export interface ITransferOrder {
     current_rx_address?: string;
     current_rx_context?: string;
     current_rx_state?: string;
-    current_step_started_at?: number;
+    current_step_started_at?: string;
     current_transaction_id?: string;
     current_tx_account_id?: string;
     current_tx_address?: string;
@@ -72,14 +72,14 @@ export interface ITransferOrder {
     }[];
     status: string;
     // @deprecated
-    timeout_at: number;
+    timeout_at?: string;
     // @deprecated
     transaction_id?: string;
     // @deprecated
     transferred_amount?: number;
     // @deprecated
     transferred_at?: number;
-    updated_at: number;
+    updated_at: string;
 }
 
 // @public (undocumented)
