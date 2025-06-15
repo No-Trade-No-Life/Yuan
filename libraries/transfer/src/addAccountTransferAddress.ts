@@ -1,5 +1,6 @@
-import { IDataRecordTypes, ITransferOrder, formatTime } from '@yuants/data-model';
-import { Terminal } from '../terminal';
+import { IDataRecordTypes, formatTime } from '@yuants/data-model';
+import { ITransferOrder } from './model/TransferOrder';
+import { Terminal } from '@yuants/protocol';
 
 type IAccountAddressInfo = IDataRecordTypes['account_address_info'];
 

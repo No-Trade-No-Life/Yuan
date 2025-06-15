@@ -15,6 +15,7 @@
     "@yuants/agent": "workspace:*",
     "@yuants/data-model": "workspace:*",
     "@yuants/extension": "workspace:*",
+    "@yuants/transfer": "workspace:*",
     "@yuants/kernel": "workspace:*",
     "@yuants/protocol": "workspace:*",
     "@yuants/utils": "workspace:*",

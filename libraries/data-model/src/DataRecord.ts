@@ -90,6 +90,7 @@ const DataRecordWrappers = new Map<string, (v: any) => IDataRecord<any>>();
  * register data record wrapper
  * @param type - data record type
  * @param wrapper - data record wrapper
+ * @deprecated - we are transiting to use postgresql instead of mongoDB
  *
  * @public
  */
@@ -104,6 +105,7 @@ export const addDataRecordWrapper = <K extends keyof IDataRecordTypes>(
  * get data record wrapper
  *
  * @param type - data record type
+ * @deprecated - we are transiting to use postgresql instead of mongoDB
  *
  * @public
  */
@@ -119,6 +121,7 @@ const DataRecordSchemas = new Map<string, JSONSchema7>();
  * register data record schema
  * @param type - data record type
  * @param schema - data record schema
+ * @deprecated - we are transiting to use postgresql instead of mongoDB
  *
  * @public
  */
@@ -130,6 +133,7 @@ export const addDataRecordSchema = <K extends keyof IDataRecordTypes>(type: K, s
  * get data record schema
  *
  * @param type - data record type
+ * @deprecated - we are transiting to use postgresql instead of mongoDB
  *
  * @public
  */

@@ -1,13 +1,15 @@
-import { addDataRecordWrapper } from './DataRecord';
-import { encodePath } from './utils';
+import { addDataRecordWrapper, encodePath } from '@yuants/data-model';
 
-declare module './DataRecord' {
+declare module '@yuants/data-model/lib/DataRecord' {
   export interface IDataRecordTypes {
     transfer_network_info: ITransferNetworkInfo;
   }
 }
 
-interface ITransferNetworkInfo {
+/**
+ * @public
+ */
+export interface ITransferNetworkInfo {
   network_id: string;
   /** 手续费 */
   commission: number;

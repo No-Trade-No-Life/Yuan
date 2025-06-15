@@ -1,6 +1,6 @@
-import { addDataRecordWrapper } from './DataRecord';
+import { addDataRecordWrapper } from '@yuants/data-model';
 
-declare module './DataRecord' {
+declare module '@yuants/data-model/lib/DataRecord' {
   export interface IDataRecordTypes {
     transfer_routing_cache: ITransferRoutingCache;
   }
@@ -9,7 +9,7 @@ declare module './DataRecord' {
 /**
  * @public
  */
-interface ITransferPair {
+export interface ITransferPair {
   /** 发起转账的账户ID */
   tx_account_id?: string;
   /** 查收转账的账户ID */
@@ -25,7 +25,7 @@ interface ITransferPair {
 /**
  * @public
  */
-interface ITransferRoutingCache {
+export interface ITransferRoutingCache {
   credit_account_id: string;
   debit_account_id: string;
   routing_path: ITransferPair[];

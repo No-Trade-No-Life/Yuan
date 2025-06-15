@@ -8,15 +8,11 @@ import {
   formatTime,
   getDataRecordWrapper,
 } from '@yuants/data-model';
-import {
-  addAccountTransferAddress,
-  provideAccountInfo,
-  provideTicks,
-  writeDataRecords,
-} from '@yuants/protocol';
+import { provideAccountInfo, provideTicks, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
-import '@yuants/protocol/lib/services/transfer';
+import '@yuants/transfer';
+import { addAccountTransferAddress } from '@yuants/transfer';
 import {
   EMPTY,
   combineLatest,
