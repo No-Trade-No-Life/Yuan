@@ -2,7 +2,7 @@ import { IAccountInfo, IAccountMoney, IOrder, IPosition, ITick, formatTime } fro
 import { provideAccountInfo, provideTicks } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
-import '@yuants/transfer';
+import '@yuants/transfer/lib/services';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import { roundToStep } from '@yuants/utils';
 import {
