@@ -11,7 +11,7 @@ import {
 import { provideAccountInfo, provideTicks, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
-import '@yuants/transfer';
+import '@yuants/transfer/lib/services';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import {
   EMPTY,

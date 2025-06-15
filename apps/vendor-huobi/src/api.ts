@@ -1,8 +1,5 @@
 import { formatTime } from '@yuants/data-model';
 import { IConnection, createConnectionWs } from '@yuants/protocol';
-import '@yuants/protocol/lib/services';
-import '@yuants/protocol/lib/services/order';
-import '@yuants/transfer/lib/service';
 import { Subject, filter, from, map, share, tap } from 'rxjs';
 import zlib from 'zlib';
 

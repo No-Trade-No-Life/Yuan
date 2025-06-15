@@ -10,7 +10,7 @@ import {
 import { provideAccountInfo, provideTicks } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
-import '@yuants/transfer';
+import '@yuants/transfer/lib/services';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import {
   combineLatest,
