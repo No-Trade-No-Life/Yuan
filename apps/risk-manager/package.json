@@ -13,6 +13,7 @@
   "dependencies": {
     "@yuants/data-model": "workspace:*",
     "@yuants/transfer": "workspace:*",
+    "@yuants/sql": "workspace:*",
     "@yuants/protocol": "workspace:*",
     "ajv": "~8.12.0",
     "rxjs": "~7.5.6",

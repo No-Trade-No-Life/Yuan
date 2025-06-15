@@ -635,6 +635,7 @@ importers:
       '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/transfer': workspace:*
       '@yuants/utils': workspace:*
@@ -644,6 +645,7 @@ importers:
     dependencies:
       '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/sql': link:../../libraries/sql
       '@yuants/transfer': link:../../libraries/transfer
       '@yuants/utils': link:../../libraries/utils
       ajv: 8.12.0
