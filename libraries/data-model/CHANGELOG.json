@@ -2,6 +2,23 @@
   "name": "@yuants/data-model",
   "entries": [
     {
+      "version": "0.17.8",
+      "tag": "@yuants/data-model_v0.17.8",
+      "date": "Sun, 15 Jun 2025 06:01:16 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "use transfer lib"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.17.7",
       "tag": "@yuants/data-model_v0.17.7",
       "date": "Mon, 21 Apr 2025 17:48:12 GMT",

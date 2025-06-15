@@ -1,6 +1,11 @@
 # Change Log - @yuants/app-host
 
-This log was last generated on Tue, 10 Jun 2025 20:44:01 GMT and should not be manually modified.
+This log was last generated on Sun, 15 Jun 2025 06:01:16 GMT and should not be manually modified.
+
+## 0.3.29
+Sun, 15 Jun 2025 06:01:16 GMT
+
+_Version update only_
 
 ## 0.3.28
 Tue, 10 Jun 2025 20:44:01 GMT

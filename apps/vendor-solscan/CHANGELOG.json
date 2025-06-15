@@ -2,6 +2,26 @@
   "name": "@yuants/vendor-solscan",
   "entries": [
     {
+      "version": "0.1.8",
+      "tag": "@yuants/vendor-solscan_v0.1.8",
+      "date": "Sun, 15 Jun 2025 06:01:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.34.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.17.8`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.7",
       "tag": "@yuants/vendor-solscan_v0.1.7",
       "date": "Tue, 10 Jun 2025 20:44:01 GMT",
