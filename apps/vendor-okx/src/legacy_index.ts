@@ -12,7 +12,7 @@ import {
 import { provideAccountInfo, provideTicks, writeDataRecords } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
-import '@yuants/protocol/lib/services/transfer';
+import '@yuants/transfer/lib/services';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import { roundToStep } from '@yuants/utils';
 import {

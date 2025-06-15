@@ -2,7 +2,7 @@ import { IAccountInfo, IAccountMoney, IPosition, encodePath, formatTime } from '
 import { provideAccountInfo } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
-import '@yuants/protocol/lib/services/transfer';
+import '@yuants/transfer/lib/services';
 import { defer, repeat, retry, shareReplay, tap } from 'rxjs';
 import { client } from './api';
 import './product';

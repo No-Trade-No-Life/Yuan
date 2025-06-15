@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-risk-manager",
+      "comment": "fix transfer",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-risk-manager"
+}

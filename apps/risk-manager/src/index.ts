@@ -1,7 +1,7 @@
 import { IDataRecordTypes, UUID, formatTime, getDataRecordSchema } from '@yuants/data-model';
 import { PromRegistry, Terminal, readDataRecords, useAccountInfo } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
-import '@yuants/protocol/lib/services/transfer';
+import '@yuants/transfer/lib/services';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
 import { ITransferOrder } from '@yuants/transfer';
 import Ajv from 'ajv';
