@@ -1,9 +1,9 @@
 import { IDataRecordTypes, UUID, formatTime, getDataRecordSchema } from '@yuants/data-model';
 import { PromRegistry, Terminal, readDataRecords, useAccountInfo } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
-import '@yuants/transfer/lib/services';
-import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
+import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
 import { ITransferOrder } from '@yuants/transfer';
+import '@yuants/transfer/lib/services';
 import Ajv from 'ajv';
 import {
   combineLatest,
@@ -150,7 +150,10 @@ defer(() => configs$)
                 ),
                 delayWhen((transfer_order) =>
                   defer(() =>
-                    readDataRecords(terminal, { type: 'transfer_order', id: transfer_order.order_id }),
+                    requestSQL<ITransferOrder[]>(
+                      terminal,
+                      `SELECT * FROM transfer_order WHERE order_id = ${escape(transfer_order.order_id)}`,
+                    ),
                   ).pipe(
                     //
                     mergeMap((records) => {
@@ -158,7 +161,7 @@ defer(() => configs$)
                         throw new Error(`Transfer Order ${transfer_order.order_id} not found`);
                       }
                       const record = records[0];
-                      if (!['ERROR', 'COMPLETE'].includes(record.origin.status)) {
+                      if (!['ERROR', 'COMPLETE'].includes(record.status)) {
                         throw new Error(`Transfer Order ${transfer_order.order_id} failed`);
                       }
                       return of(void 0);
