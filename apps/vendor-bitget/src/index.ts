@@ -6,13 +6,12 @@ import {
   decodePath,
   encodePath,
   formatTime,
-  getDataRecordWrapper,
 } from '@yuants/data-model';
-import { provideAccountInfo, provideTicks, writeDataRecords } from '@yuants/protocol';
+import { provideAccountInfo, provideTicks } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
-import '@yuants/transfer/lib/services';
 import { addAccountTransferAddress } from '@yuants/transfer';
+import '@yuants/transfer/lib/services';
 import {
   EMPTY,
   combineLatest,
@@ -345,14 +344,7 @@ const fundingTime$ = memoizeMap((product_id: string) =>
       const depositAddressRes = await client.getDepositAddress({ coin: 'USDT', chain: 'TRC20' });
       console.info(formatTime(Date.now()), 'DepositAddress', depositAddressRes.data);
       const address = depositAddressRes.data;
-      await writeDataRecords(terminal, [
-        getDataRecordWrapper('transfer_network_info')!({
-          network_id: 'TRC20',
-          commission: 1,
-          currency: 'USDT',
-          timeout: 1800_000,
-        }),
-      ]);
+
       addAccountTransferAddress({
         terminal,
         account_id: SPOT_ACCOUNT_ID,

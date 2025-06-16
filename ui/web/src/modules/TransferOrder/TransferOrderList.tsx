@@ -1,16 +1,15 @@
 import { Space, Steps, Toast, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { IDataRecord, UUID, formatTime, getDataRecordWrapper } from '@yuants/data-model';
-import { writeDataRecords } from '@yuants/protocol';
-import { first, firstValueFrom, from } from 'rxjs';
+import { IDataRecord, UUID, formatTime } from '@yuants/data-model';
+import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
+import { ITransferOrder } from '@yuants/transfer';
+import { first, firstValueFrom } from 'rxjs';
 import { InlineAccountId, useAccountInfo } from '../AccountInfo';
 import { registerCommand } from '../CommandCenter';
 import { DataRecordView } from '../DataRecord';
 import { showForm } from '../Form';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
-import { ITransferOrder } from '@yuants/transfer';
-import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
 
 function newRecord(): Partial<ITransferOrder> {
   return {
