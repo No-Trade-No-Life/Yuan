@@ -1,6 +1,7 @@
 import { Card, Descriptions, Popover, Typography } from '@douyinfe/semi-ui';
 import { encodePath } from '@yuants/data-model';
-import { readDataRecords } from '@yuants/protocol';
+import { IProduct } from '@yuants/data-product';
+import { escape, requestSQL } from '@yuants/sql';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { filter, map, switchMap } from 'rxjs';
 import { terminal$ } from '../Terminals';
@@ -12,12 +13,14 @@ const ProductCard = (props: { datasource_id: string; product_id: string }) => {
         terminal$.pipe(
           filter((x): x is Exclude<typeof x, undefined | null> => !!x),
           switchMap((terminal) =>
-            readDataRecords(terminal, {
-              type: 'product',
-              tags: { datasource_id: props.datasource_id, product_id: props.product_id },
-            }),
+            requestSQL<IProduct[]>(
+              terminal,
+              `select * from product where datasource_id = ${escape(
+                props.datasource_id,
+              )} and product_id = ${escape(props.product_id)}`,
+            ),
           ),
-          map((x) => x[0]?.origin),
+          map((x) => x[0]),
         ),
       [props.datasource_id, props.product_id],
     ),

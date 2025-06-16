@@ -2,6 +2,7 @@ import { IconDownload, IconRefresh } from '@douyinfe/semi-icons';
 import { ButtonGroup, Layout, Space, Toast, Typography } from '@douyinfe/semi-ui';
 import { encodePath, formatTime } from '@yuants/data-model';
 import { convertDurationToMilliseconds } from '@yuants/data-ohlc';
+import '@yuants/data-series';
 import {
   HistoryPeriodLoadingUnit,
   Kernel,
@@ -11,6 +12,7 @@ import {
   QuoteDataUnit,
   RealtimePeriodLoadingUnit,
 } from '@yuants/kernel';
+import { escape, requestSQL } from '@yuants/sql';
 import { t } from 'i18next';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useEffect, useMemo, useState } from 'react';
@@ -34,7 +36,6 @@ import { showForm } from '../Form';
 import { Button } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
 import { terminal$ } from '../Terminals';
-import { requestSQL, escape } from '@yuants/sql';
 
 registerPage('Market', () => {
   const params = usePageParams();
@@ -231,10 +232,11 @@ registerCommand('fetchOHLCV', async (params) => {
         tap({
           next: (x) => {
             if (x.frame) {
+              const { fetched, fetched_at, saved, saved_at } = x.frame as any;
               Toast.info(
-                `拉取到 ${x.frame.fetched} 条数据 (${formatTime(x.frame.fetched_at)})，已存储到 ${
-                  x.frame.saved
-                } 条数据 (${formatTime(x.frame.saved_at)})`,
+                `拉取到 ${fetched} 条数据 (${formatTime(fetched_at)})，已存储到 ${saved} 条数据 (${formatTime(
+                  saved_at,
+                )})`,
               );
             }
           },

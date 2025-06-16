@@ -1,11 +1,11 @@
 import { IconRefresh } from '@douyinfe/semi-icons';
 import { Space, Switch } from '@douyinfe/semi-ui';
 import { encodePath } from '@yuants/data-model';
-import { readDataRecords } from '@yuants/protocol';
+import { requestSQL } from '@yuants/sql';
 import { IAccountAddressInfo } from '@yuants/transfer';
 import EChartsReact from 'echarts-for-react';
 import { useMemo, useState } from 'react';
-import { firstValueFrom, from, map, mergeAll, toArray } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { Button } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
@@ -89,12 +89,9 @@ registerPage('TransferNetworkChart', () => {
           onClick={async () => {
             const terminal = await firstValueFrom(terminal$);
             if (!terminal) return;
-            const items = await firstValueFrom(
-              from(readDataRecords(terminal, { type: 'account_address_info' })).pipe(
-                mergeAll(),
-                map((x) => x.origin),
-                toArray(),
-              ),
+            const items = await requestSQL<IAccountAddressInfo[]>(
+              terminal,
+              `select * from account_address_info`,
             );
             setItems(items);
           }}

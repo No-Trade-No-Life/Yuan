@@ -1,9 +1,10 @@
 import { Button, Space, Toast } from '@douyinfe/semi-ui';
 import { IOrder } from '@yuants/data-model';
-import { readDataRecords } from '@yuants/protocol';
+import { IProduct } from '@yuants/data-product';
+import { escape, requestSQL } from '@yuants/sql';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
-import { defer, filter, first, map, mergeAll, mergeMap, of, toArray } from 'rxjs';
+import { defer, filter, first, mergeMap, of } from 'rxjs';
 import { Form } from '../Form';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
@@ -27,11 +28,10 @@ registerPage('ManualTradePanel', () => {
             first(),
             mergeMap((terminal) =>
               defer(() =>
-                readDataRecords(terminal, { type: 'product', tags: { datasource_id: account_id } }),
-              ).pipe(
-                mergeAll(),
-                map((x) => x.origin),
-                toArray(),
+                requestSQL<IProduct[]>(
+                  terminal,
+                  `select * from product where datasource_id = ${escape(account_id)}`,
+                ),
               ),
             ),
           )
