@@ -3,6 +3,7 @@ import * as SemiUI from '@douyinfe/semi-ui';
 import * as IconParksIcons from '@icon-park/react';
 import * as dataModel from '@yuants/data-model';
 import * as protocol from '@yuants/protocol';
+import * as yuantsSql from '@yuants/sql';
 import * as yuantsUtils from '@yuants/utils';
 import echartsForReact from 'echarts-for-react';
 import * as ethers from 'ethers';
@@ -17,6 +18,7 @@ export const libs = {
   '@yuants/data-model': dataModel,
   '@yuants/protocol': protocol,
   '@yuants/utils': yuantsUtils,
+  '@yuants/sql': yuantsSql,
   react: React,
   rxjs,
   yalps,
