@@ -12,7 +12,7 @@ const usdtFutureProducts$ = defer(() => client.getFuturesContracts('usdt', {})).
       map((contract): IProduct => {
         const [base, quote] = contract.name.split('_');
         return {
-          datasource_id: 'gate/future',
+          datasource_id: 'GATE-FUTURE',
           product_id: contract.name,
           base_currency: base,
           quote_currency: quote,

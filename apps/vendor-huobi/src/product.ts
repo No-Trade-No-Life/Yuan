@@ -11,7 +11,7 @@ export const perpetualContractProducts$ = defer(() => client.getPerpetualContrac
   filter((symbol) => symbol.contract_status === 1),
   map(
     (symbol): IProduct => ({
-      datasource_id: 'huobi-swap',
+      datasource_id: 'HUOBI-SWAP',
       product_id: symbol.contract_code,
       base_currency: symbol.symbol,
       quote_currency: 'USDT',
@@ -41,7 +41,7 @@ export const spotProducts$ = defer(() => client.getSpotSymbols()).pipe(
   filter((symbol) => symbol.state === 'online'),
   map(
     (symbol): IProduct => ({
-      datasource_id: 'huobi-spot',
+      datasource_id: 'HUOBI-SPOT',
       product_id: symbol.sc,
       base_currency: symbol.bc,
       quote_currency: symbol.qc,

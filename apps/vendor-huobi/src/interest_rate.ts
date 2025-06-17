@@ -7,7 +7,7 @@ import { terminal } from './terminal';
 
 createSeriesProvider<IInterestRate>(terminal, {
   tableName: 'interest_rate',
-  series_id_prefix_parts: ['huobi-swap'],
+  series_id_prefix_parts: ['HUOBI-SWAP'],
   reversed: true,
   serviceOptions: { concurrent: 10 },
   queryFn: async function* ({ series_id, started_at }) {

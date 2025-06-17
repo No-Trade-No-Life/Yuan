@@ -6,7 +6,7 @@ import { terminal } from './terminal';
 
 createSeriesProvider<IInterestRate>(terminal, {
   tableName: 'interest_rate',
-  series_id_prefix_parts: ['gate/future'],
+  series_id_prefix_parts: ['GATE-FUTURE'],
   reversed: false,
   queryFn: async function ({ series_id }) {
     const [datasource_id, product_id] = decodePath(series_id);

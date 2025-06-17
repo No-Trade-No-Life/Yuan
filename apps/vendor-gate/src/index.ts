@@ -59,7 +59,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
           const closable_price = +position.mark_price;
           const valuation = volume * closable_price * (theProduct?.value_scale ?? 1);
           return {
-            datasource_id: 'gate/future',
+            datasource_id: 'GATE-FUTURE',
             position_id: `${position.contract}-${position.leverage}-${position.mode}`,
             product_id,
             direction:
@@ -305,7 +305,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
         continue;
       }
       const tick: ITick = {
-        datasource_id: 'gate/future',
+        datasource_id: 'GATE-FUTURE',
         product_id: contractName,
         updated_at: Date.now(),
         price: +ticker.last,
@@ -345,7 +345,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
     ),
   );
 
-  provideTicks(terminal, 'gate/future', (product_id: string) => {
+  provideTicks(terminal, 'GATE-FUTURE', (product_id: string) => {
     return defer(() =>
       futuresTickers$.pipe(
         //
