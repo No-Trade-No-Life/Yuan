@@ -151,7 +151,7 @@ provideTicks(terminal, 'binance', (product_id) => {
         .map((v): IPosition => {
           return {
             position_id: `${v.symbol}/${v.positionSide}`,
-            datasource_id: 'binance',
+            datasource_id: 'BINANCE',
             product_id: encodePath('usdt-future', v.symbol),
             direction: v.positionSide,
             volume: +v.positionAmt,

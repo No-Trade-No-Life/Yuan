@@ -19,7 +19,7 @@ const futureProducts$ = futureExchangeInfo$.pipe(
       //
       map((symbol): IProduct => {
         return {
-          datasource_id: 'binance',
+          datasource_id: 'BINANCE',
           product_id: encodePath('usdt-future', symbol.symbol),
           base_currency: symbol.baseAsset,
           quote_currency: symbol.quoteAsset,

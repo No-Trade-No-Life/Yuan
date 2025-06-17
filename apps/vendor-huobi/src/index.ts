@@ -121,7 +121,7 @@ import { terminal } from './terminal';
     shareReplay(1),
   );
 
-  provideTicks(terminal, 'huobi-swap', (product_id) => {
+  provideTicks(terminal, 'HUOBI-SWAP', (product_id) => {
     return defer(async () => {
       const products = await firstValueFrom(perpetualContractProducts$);
       const theProduct = products.find((x) => x.product_id === product_id);
@@ -140,7 +140,7 @@ import { terminal } from './terminal';
         combineLatest(x).pipe(
           map(([theProduct, bboTick, tradeTick, fundingRateTick, openInterest]): ITick => {
             return {
-              datasource_id: 'huobi-swap',
+              datasource_id: 'HUOBI-SWAP',
               product_id,
               updated_at: Date.now(),
               settlement_scheduled_at: +fundingRateTick[product_id].funding_time,
@@ -191,7 +191,7 @@ import { terminal } from './terminal';
               const valuation = v.volume * v.last_price * (theProduct?.value_scale || 1);
               return {
                 position_id: `${v.contract_code}/${v.contract_type}/${v.direction}/${v.margin_mode}`,
-                datasource_id: 'huobi-swap',
+                datasource_id: 'HUOBI-SWAP',
                 product_id,
                 direction: v.direction === 'buy' ? 'LONG' : 'SHORT',
                 volume: v.volume,
