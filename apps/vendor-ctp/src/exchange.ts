@@ -1,13 +1,6 @@
-import {
-  IAccountInfo,
-  IAccountMoney,
-  IOrder,
-  IPosition,
-  formatTime,
-  getDataRecordWrapper,
-} from '@yuants/data-model';
+import { IAccountInfo, IAccountMoney, IOrder, IPosition, formatTime } from '@yuants/data-model';
 import { IProduct } from '@yuants/data-product';
-import { IConnection, Terminal, provideAccountInfo, writeDataRecords } from '@yuants/protocol';
+import { IConnection, Terminal, provideAccountInfo } from '@yuants/protocol';
 import '@yuants/protocol/lib/services/order';
 import { createSQLWriter } from '@yuants/sql';
 import { ChildProcess, spawn } from 'child_process';
@@ -19,7 +12,6 @@ import {
   catchError,
   combineLatest,
   defer,
-  delayWhen,
   filter,
   first,
   forkJoin,
@@ -676,7 +668,6 @@ terminal.provideService(
       mergeMap(([loginRes, settlementRes]) =>
         queryHistoryOrders(zmqConn, loginRes.BrokerID, settlementRes.InvestorID).pipe(
           //
-          delayWhen((data) => from(writeDataRecords(terminal, data.map(getDataRecordWrapper('order')!)))),
           map((data) => ({ res: { code: 0, message: 'OK', data: data } })),
         ),
       ),

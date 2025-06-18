@@ -1,5 +1,6 @@
-import { readDataRecords, Terminal } from '@yuants/protocol';
-import { defer, lastValueFrom, map, mergeAll, toArray } from 'rxjs';
+import { IProduct } from '@yuants/data-product';
+import { Terminal } from '@yuants/protocol';
+import { escape, requestSQL } from '@yuants/sql';
 import { Kernel } from '../kernel';
 import {
   AccountInfoUnit,
@@ -56,40 +57,20 @@ export const AccountReplayScene = (
     for (const product of productDataUnit.listProducts()) {
       const quote_currency = product.quote_currency;
       if (quote_currency && currency && product.quote_currency !== currency) {
-        const [productA] = await lastValueFrom(
-          defer(() =>
-            readDataRecords(terminal, {
-              type: 'product',
-              tags: {
-                datasource_id: datasource_id ?? account_id,
-                base_currency: currency,
-                quote_currency: quote_currency,
-              },
-            }),
-          ).pipe(
-            mergeAll(),
-            map((dataRecord) => dataRecord.origin),
-            toArray(),
-          ),
+        const [productA] = await requestSQL<IProduct[]>(
+          terminal,
+          `select * from product where datasource_id = ${escape(
+            datasource_id ?? account_id,
+          )} and base_currency = ${escape(currency)} and quote_currency = ${escape(quote_currency)}`,
         );
         if (productA) {
           productDataUnit.updateProduct(productA);
         }
-        const [productB] = await lastValueFrom(
-          defer(() =>
-            readDataRecords(terminal, {
-              type: 'product',
-              tags: {
-                datasource_id: datasource_id ?? account_id,
-                base_currency: quote_currency,
-                quote_currency: currency,
-              },
-            }),
-          ).pipe(
-            mergeAll(),
-            map((dataRecord) => dataRecord.origin),
-            toArray(),
-          ),
+        const [productB] = await requestSQL<IProduct[]>(
+          terminal,
+          `select * from product where datasource_id = ${escape(
+            datasource_id ?? account_id,
+          )} and base_currency = ${escape(quote_currency)} and quote_currency = ${escape(currency)}`,
         );
         if (productB) {
           productDataUnit.updateProduct(productB);
