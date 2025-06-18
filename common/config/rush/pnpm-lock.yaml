@@ -1807,6 +1807,7 @@ importers:
       '@yuants/data-model': workspace:*
       '@yuants/data-ohlc': workspace:*
       '@yuants/data-product': workspace:*
+      '@yuants/data-series': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -1822,6 +1823,7 @@ importers:
       '@yuants/data-model': link:../data-model
       '@yuants/data-ohlc': link:../data-ohlc
       '@yuants/data-product': link:../data-product
+      '@yuants/data-series': link:../data-series
       '@yuants/protocol': link:../protocol
       '@yuants/sql': link:../sql
       '@yuants/utils': link:../utils
