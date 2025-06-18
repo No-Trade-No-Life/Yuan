@@ -1,18 +1,8 @@
-import { encodePath, formatTime, IDataRecord, IPeriod } from '@yuants/data-model';
-import { readDataRecords, Terminal, writeDataRecords } from '@yuants/protocol';
-import {
-  defer,
-  delayWhen,
-  filter,
-  from,
-  map,
-  mergeAll,
-  mergeMap,
-  retry,
-  Subscription,
-  tap,
-  toArray,
-} from 'rxjs';
+import { encodePath, formatTime, IPeriod } from '@yuants/data-model';
+import { ISeriesCollectingTask } from '@yuants/data-series';
+import { Terminal } from '@yuants/protocol';
+import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
+import { defer, Subscription } from 'rxjs';
 import { Kernel } from '../kernel';
 import { mapDurationToPeriodInSec } from '../utils/mapDurationToPeriodInSec';
 import { BasicUnit } from './BasicUnit';
@@ -82,59 +72,23 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
   private subscriptions: Subscription[] = [];
 
   async onInit() {
-    // ISSUE: period_stream 依赖订阅关系的存在性，因此要先添加订阅关系
-    defer(() => readDataRecords(this.terminal, { type: 'pull_source_relation' }))
-      .pipe(
-        mergeAll(),
-        map((v) => v.origin),
-        toArray(),
-        mergeMap((relations) =>
-          from(this.periodTasks).pipe(
-            filter(
-              (task) =>
-                relations.find(
-                  (v) =>
-                    v.datasource_id === task.datasource_id &&
-                    v.product_id === task.product_id &&
-                    v.period_in_sec === mapDurationToPeriodInSec(task.duration),
-                ) === undefined,
-            ),
-          ),
-        ),
-        map((task) => {
-          const period_in_sec = mapDurationToPeriodInSec(task.duration);
-          return {
-            datasource_id: task.datasource_id,
-            product_id: task.product_id,
-            period_in_sec: period_in_sec,
-            cron_pattern: mapPeriodInSecToCronPattern[period_in_sec],
-            cron_timezone: 'GMT',
-            timeout: ~~((period_in_sec * 1000) / 3),
-            retry_times: 3,
-          };
-        }),
-        map(
-          (v): IDataRecord<IPullSourceRelation> => ({
-            id: [v.datasource_id, v.product_id, v.period_in_sec].join('\n'),
-            type: 'pull_source_relation',
-            created_at: Date.now(),
-            frozen_at: null,
-            updated_at: Date.now(),
-            tags: {},
-            origin: v,
-          }),
-        ),
-        tap((task) => {
-          console.info(formatTime(Date.now()), '添加 pull source relation', JSON.stringify(task));
-        }),
-        toArray(),
-        tap((v) => {
-          console.info(formatTime(Date.now()), '更新 pull source relation', JSON.stringify(v));
-        }),
-        delayWhen((v) => from(writeDataRecords(this.terminal, v))),
-        retry({ delay: 1000, count: 5 }),
-      )
-      .subscribe();
+    const tasks = this.periodTasks.map((task): ISeriesCollectingTask => {
+      const period_in_sec = mapDurationToPeriodInSec(task.duration);
+
+      return {
+        table_name: 'ohlc',
+        series_id: encodePath(task.datasource_id, task.product_id, task.duration),
+        cron_pattern: mapPeriodInSecToCronPattern[period_in_sec],
+        cron_timezone: 'GMT',
+        disabled: false,
+        replay_count: 0,
+      };
+    });
+
+    await requestSQL(
+      this.terminal,
+      buildInsertManyIntoTableSQL(tasks, 'series_collecting_task', { ignoreConflict: true }),
+    );
 
     // 配置行情查询任务
     for (const task of this.periodTasks) {
