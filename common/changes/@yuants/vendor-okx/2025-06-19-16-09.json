@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-okx",
+      "comment": "fix error in API",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-okx"
+}

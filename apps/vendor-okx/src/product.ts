@@ -17,6 +17,8 @@ export const usdtSwapProducts$ = swapInstruments$.pipe(
   mergeMap((x) =>
     from(x.data).pipe(
       filter((x) => x.ctType === 'linear' && x.settleCcy === 'USDT'),
+      // ISSUE: 可能有 level = '' 的错误情况 (SPK-USDT and RESOLV-USDT at 2025-06-19 08 UTC)
+      filter((x) => +x.lever > 0),
       map(
         (x): IProduct => ({
           datasource_id: 'OKX',
@@ -53,7 +55,8 @@ const marginInstruments$ = defer(() => client.getInstruments({ instType: 'MARGIN
 export const marginProducts$ = marginInstruments$.pipe(
   mergeMap((x) =>
     from(x.data).pipe(
-      //
+      // ISSUE: 可能有 level = '' 的错误情况 (SPK-USDT and RESOLV-USDT at 2025-06-19 08 UTC)
+      filter((x) => +x.lever > 0),
       map(
         (x): IProduct => ({
           datasource_id: 'OKX',
