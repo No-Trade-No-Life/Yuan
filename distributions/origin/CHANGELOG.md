@@ -1,6 +1,11 @@
 # Change Log - @yuants/dist-origin
 
-This log was last generated on Sun, 15 Jun 2025 06:01:16 GMT and should not be manually modified.
+This log was last generated on Thu, 19 Jun 2025 16:34:18 GMT and should not be manually modified.
+
+## 0.1.37
+Thu, 19 Jun 2025 16:34:18 GMT
+
+_Version update only_
 
 ## 0.1.36
 Sun, 15 Jun 2025 06:01:16 GMT

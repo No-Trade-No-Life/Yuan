@@ -2,6 +2,26 @@
   "name": "@yuants/kernel",
   "entries": [
     {
+      "version": "0.13.33",
+      "tag": "@yuants/kernel_v0.13.33",
+      "date": "Thu, 19 Jun 2025 16:34:18 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix"
+          },
+          {
+            "comment": "migrate to SQL"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.13.32",
       "tag": "@yuants/kernel_v0.13.32",
       "date": "Sun, 15 Jun 2025 06:01:16 GMT",

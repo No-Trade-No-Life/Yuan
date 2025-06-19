@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-ctp
 
-This log was last generated on Sun, 15 Jun 2025 06:01:17 GMT and should not be manually modified.
+This log was last generated on Thu, 19 Jun 2025 16:34:18 GMT and should not be manually modified.
+
+## 0.2.48
+Thu, 19 Jun 2025 16:34:18 GMT
+
+### Patches
+
+- remove Mongo
 
 ## 0.2.47
 Sun, 15 Jun 2025 06:01:17 GMT
