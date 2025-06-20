@@ -1,8 +1,9 @@
-import { defer, mergeMap, from, map, toArray, repeat, retry, shareReplay, Subject, tap } from 'rxjs';
-import { client } from './api';
-import { terminal } from './terminal';
+import { encodePath } from '@yuants/data-model';
 import { IProduct } from '@yuants/data-product';
 import { createSQLWriter } from '@yuants/sql';
+import { defer, from, map, mergeMap, repeat, retry, shareReplay, Subject, tap, toArray } from 'rxjs';
+import { client } from './api';
+import { terminal } from './terminal';
 
 const product$ = new Subject<IProduct>();
 
@@ -50,6 +51,7 @@ export const mapProductIdToUsdtFutureProduct$ = usdtFutureProducts$.pipe(
 createSQLWriter(terminal, {
   data$: product$,
   tableName: 'product',
+  keyFn: (x) => encodePath(x.datasource_id, x.product_id),
   conflictKeys: ['datasource_id', 'product_id'],
   writeInterval: 1000,
 });
