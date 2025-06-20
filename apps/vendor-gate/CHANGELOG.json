@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-gate",
   "entries": [
     {
+      "version": "0.3.27",
+      "tag": "@yuants/vendor-gate_v0.3.27",
+      "date": "Fri, 20 Jun 2025 03:33:46 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.26",
       "tag": "@yuants/vendor-gate_v0.3.26",
       "date": "Tue, 17 Jun 2025 14:54:15 GMT",
