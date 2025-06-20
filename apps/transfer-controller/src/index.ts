@@ -1,5 +1,5 @@
 import { IDataRecordTypes, encodePath, formatTime } from '@yuants/data-model';
-import { MetricsMeterProvider } from '@yuants/protocol';
+import { PromRegistry } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
 import { ITransferOrder } from '@yuants/transfer';
@@ -30,8 +30,6 @@ type ITransferRoutingCache = IDataRecordTypes['transfer_routing_cache'];
 type ITransferPair = ITransferRoutingCache['routing_path'][number];
 type ITransferNetworkInfo = IDataRecordTypes['transfer_network_info'];
 type IAccountAddressInfo = IDataRecordTypes['account_address_info'];
-
-const meter = MetricsMeterProvider.getMeter('transfer-controller');
 
 defer(() =>
   requestSQL<ITransferOrder[]>(
@@ -482,15 +480,22 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
   });
 };
 
-const MetricFailedTransferOrders = meter.createGauge('failed_transfer_orders', {
-  description: 'Failed Transfer Orders',
-});
+const MetricFailedTransferOrders = PromRegistry.create(
+  'gauge',
+  'failed_transfer_orders',
+  'Failed Transfer Orders',
+);
 
 // check if there's any failed transfer order
 defer(() => requestSQL<ITransferOrder[]>(terminal, `SELECT * FROM transfer_order WHERE status = 'ERROR'`))
   .pipe(
     repeat({ delay: 10_000 }),
     retry({ delay: 5000 }),
+    tap(() => {
+      // ISSUE: reset the metric before fetching new records,
+      // otherwise the metric will not be updated correctly
+      MetricFailedTransferOrders.resetAll();
+    }),
     mergeMap((records) =>
       from(records).pipe(
         groupBy((record) => `${record.debit_account_id}-${record.credit_account_id}`),
@@ -499,7 +504,7 @@ defer(() => requestSQL<ITransferOrder[]>(terminal, `SELECT * FROM transfer_order
             //
             toArray(),
             tap((v) => {
-              MetricFailedTransferOrders.record(v.length, {
+              MetricFailedTransferOrders.set(v.length, {
                 debit_account_id: v[0].debit_account_id,
                 credit_account_id: v[0].credit_account_id,
               });
