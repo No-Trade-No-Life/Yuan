@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-bitget",
   "entries": [
     {
+      "version": "0.2.25",
+      "tag": "@yuants/vendor-bitget_v0.2.25",
+      "date": "Fri, 20 Jun 2025 03:33:46 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.24",
       "tag": "@yuants/vendor-bitget_v0.2.24",
       "date": "Tue, 17 Jun 2025 13:00:18 GMT",

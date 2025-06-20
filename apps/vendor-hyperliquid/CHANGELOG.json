@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-hyperliquid",
   "entries": [
     {
+      "version": "0.0.22",
+      "tag": "@yuants/vendor-hyperliquid_v0.0.22",
+      "date": "Fri, 20 Jun 2025 03:33:46 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.21",
       "tag": "@yuants/vendor-hyperliquid_v0.0.21",
       "date": "Sun, 15 Jun 2025 20:40:34 GMT",
