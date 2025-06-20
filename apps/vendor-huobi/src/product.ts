@@ -1,3 +1,4 @@
+import { encodePath } from '@yuants/data-model';
 import { IProduct } from '@yuants/data-product';
 import { createSQLWriter } from '@yuants/sql';
 import { defer, filter, map, mergeMap, repeat, retry, shareReplay, Subject, tap, toArray } from 'rxjs';
@@ -71,6 +72,7 @@ perpetualContractProducts$.subscribe();
 createSQLWriter<IProduct>(terminal, {
   tableName: 'product',
   writeInterval: 1000,
+  keyFn: (x) => encodePath(x.datasource_id, x.product_id),
   conflictKeys: ['datasource_id', 'product_id'],
   data$: product$,
 });

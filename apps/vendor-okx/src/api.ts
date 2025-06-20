@@ -6,15 +6,20 @@ import CryptoJS from 'crypto-js';
  * API v5: https://www.okx.com/docs-v5/#overview
  */
 export class OkxClient {
+  noAuth = true;
   constructor(
     public config: {
-      auth?: {
+      auth: {
         public_key: string;
         secret_key: string;
         passphrase: string;
       };
     },
-  ) {}
+  ) {
+    if (config.auth.public_key && config.auth.secret_key && config.auth.passphrase) {
+      this.noAuth = false;
+    }
+  }
 
   async request(method: string, path: string, params?: any) {
     const url = new URL('https://www.okx.com');
@@ -24,7 +29,7 @@ export class OkxClient {
         url.searchParams.set(key, params[key]);
       }
     }
-    if (!this.config.auth) {
+    if (this.noAuth) {
       console.info(formatTime(Date.now()), method, url.href);
       const res = await fetch(url.href, { method });
       return res.json();
@@ -1213,11 +1218,9 @@ export class OkxClient {
 }
 
 export const client = new OkxClient({
-  auth: process.env.PUBLIC_ONLY
-    ? undefined
-    : {
-        public_key: process.env.ACCESS_KEY!,
-        secret_key: process.env.SECRET_KEY!,
-        passphrase: process.env.PASSPHRASE!,
-      },
+  auth: {
+    public_key: process.env.ACCESS_KEY!,
+    secret_key: process.env.SECRET_KEY!,
+    passphrase: process.env.PASSPHRASE!,
+  },
 });
