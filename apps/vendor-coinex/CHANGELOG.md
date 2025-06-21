@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-coinex
 
-This log was last generated on Fri, 20 Jun 2025 03:33:46 GMT and should not be manually modified.
+This log was last generated on Sat, 21 Jun 2025 06:19:35 GMT and should not be manually modified.
+
+## 0.1.25
+Sat, 21 Jun 2025 06:19:35 GMT
+
+### Patches
+
+- fix
 
 ## 0.1.24
 Fri, 20 Jun 2025 03:33:46 GMT
