@@ -31,7 +31,7 @@ createSeriesProvider<IInterestRate>(terminal, {
           datasource_id,
           product_id,
           created_at: formatTime(+v.funding_time),
-          long_rate: `-${v.funding_rate}`,
+          long_rate: `${-v.funding_rate}`,
           short_rate: `${v.funding_rate}`,
           settlement_price: '',
         }),
