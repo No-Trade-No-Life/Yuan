@@ -1,12 +1,9 @@
-import { IAccountInfo, IAccountMoney, formatTime, getDataRecordSchema } from '@yuants/data-model';
-import { Terminal, publishAccountInfo, readDataRecords } from '@yuants/protocol';
-import Ajv from 'ajv';
-import addFormats from 'ajv-formats';
+import { IAccountInfo, IAccountMoney, formatTime } from '@yuants/data-model';
+import { publishAccountInfo } from '@yuants/protocol';
 import {
   Observable,
   combineLatest,
   defer,
-  filter,
   groupBy,
   map,
   mergeMap,
@@ -18,24 +15,29 @@ import {
   timeout,
   toArray,
 } from 'rxjs';
+import { requestSQL } from '../../../libraries/sql/lib';
+import { terminal } from './terminal';
 
-const TERMINAL_ID = process.env.TERMINAL_ID || `AccountComposer`;
-const terminal = new Terminal(process.env.HOST_URL!, { terminal_id: TERMINAL_ID, name: 'Account Composer' });
-
-const ajv = new Ajv({ strict: false });
-addFormats(ajv);
-
-const validate = ajv.compile(getDataRecordSchema('account_composition_relation')!);
+/**
+ * Account Composition Relation
+ *
+ * target account is composed by source accounts.
+ * the multiple is applied to the source account.
+ * and then sum up to the target account.
+ *
+ */
+interface IAccountCompositionRelation {
+  source_account_id: string;
+  target_account_id: string;
+  multiple: number;
+  hide_positions?: boolean;
+}
 
 const mapAccountIdToAccountInfo$: Record<string, Observable<IAccountInfo>> = {};
 
-defer(() => readDataRecords(terminal, { type: 'account_composition_relation' }))
+defer(() => requestSQL<IAccountCompositionRelation[]>(terminal, `select * from account_composition_relation`))
   .pipe(
     //
-    mergeMap((x) => x),
-    map((msg) => msg.origin),
-    filter((x) => validate(x)),
-    toArray(),
     tap((config) => console.info(formatTime(Date.now()), 'Loaded', JSON.stringify(config))),
     retry({ delay: 10_000 }),
     shareReplay(1),
