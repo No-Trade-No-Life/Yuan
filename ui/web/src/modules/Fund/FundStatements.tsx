@@ -9,8 +9,8 @@ import {
 } from '@douyinfe/semi-icons';
 import { Collapse, Descriptions, Space, Toast, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { formatTime, getDataRecordWrapper } from '@yuants/data-model';
-import { readDataRecords, writeDataRecords } from '@yuants/protocol';
+import { formatTime } from '@yuants/data-model';
+import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
 import { format } from 'date-fns';
 import EChartsReact from 'echarts-for-react';
 import { parse } from 'jsonc-parser';
@@ -427,7 +427,22 @@ registerPage('FundStatements', () => {
           disabled={!terminal}
           onClick={async () => {
             if (!terminal) return;
-            await writeDataRecords(terminal, [getDataRecordWrapper('fund_state')!(state)]);
+            await requestSQL(
+              terminal,
+              `
+              CREATE TABLE IF NOT EXISTS fund_event (
+                account_id TEXT NOT NULL PRIMARY KEY,
+                events JSONB NOT NULL
+              );
+
+              ${buildInsertManyIntoTableSQL(
+                [{ account_id: state.account_id, events: JSON.stringify(state.events) }],
+                'fund_event',
+                { conflictKeys: ['account_id'] },
+              )}
+              
+              `,
+            );
             Toast.success('成功');
           }}
         >
@@ -440,9 +455,14 @@ registerPage('FundStatements', () => {
             if (!terminal) return;
             if (!state.account_id) return;
 
-            const items = await readDataRecords(terminal, { type: 'fund_state', id: state.account_id });
+            const items = await requestSQL<{ events: IFundEvent[] }[]>(
+              terminal,
+              `
+              SELECT events FROM fund_event WHERE account_id = ${escape(state.account_id)}
+            `,
+            );
 
-            await saveStatementsToFile(items[0].origin.events);
+            await saveStatementsToFile(items[0].events);
             Toast.success('成功');
           }}
         >
