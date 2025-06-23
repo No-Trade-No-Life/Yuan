@@ -24,7 +24,7 @@ export const resolveRiskState = (
   state.valuation = accountInfo.positions.reduce((acc, x) => acc + x.valuation, 0);
 
   // Calculate Active Supply
-  if (riskInfo.active_supply_threshold !== undefined || riskInfo.active_supply_leverage !== undefined) {
+  if (riskInfo.active_supply_threshold != null || riskInfo.active_supply_leverage != null) {
     const resolved_threshold = Math.min(
       riskInfo.active_supply_threshold ? riskInfo.active_supply_threshold : Infinity,
       riskInfo.active_supply_leverage ? state.valuation / riskInfo.active_supply_leverage : Infinity,
@@ -32,37 +32,37 @@ export const resolveRiskState = (
     state.active_supply = Math.max(
       Math.min(
         state.equity - resolved_threshold,
-        state.free - (riskInfo.minimum_free !== undefined ? riskInfo.minimum_free : 0),
+        state.free - (riskInfo.minimum_free != null ? riskInfo.minimum_free : 0),
       ),
       0,
     );
   }
   // Calculate Passive Supply
-  if (riskInfo.passive_supply_threshold !== undefined || riskInfo.passive_supply_leverage !== undefined) {
+  if (riskInfo.passive_supply_threshold != null || riskInfo.passive_supply_leverage != null) {
     const resolved_threshold = Math.min(
-      riskInfo.passive_supply_threshold !== undefined ? riskInfo.passive_supply_threshold : Infinity,
-      riskInfo.passive_supply_leverage !== undefined
+      riskInfo.passive_supply_threshold != null && riskInfo.passive_supply_threshold !== null
+        ? riskInfo.passive_supply_threshold
+        : Infinity,
+      riskInfo.passive_supply_leverage != null
         ? state.valuation / riskInfo.passive_supply_leverage
         : Infinity,
     );
     state.passive_supply = Math.max(
       Math.min(
         state.equity - resolved_threshold,
-        state.free - (riskInfo.minimum_free !== undefined ? riskInfo.minimum_free : 0),
+        state.free - (riskInfo.minimum_free != null ? riskInfo.minimum_free : 0),
       ),
       0,
     );
   }
 
   // Calculate Active Demand
-  if (riskInfo.active_demand_threshold !== undefined || riskInfo.active_demand_leverage !== undefined) {
+  if (riskInfo.active_demand_threshold != null || riskInfo.active_demand_leverage != null) {
     const resolved_threshold = Math.max(
-      riskInfo.active_demand_threshold !== undefined ? riskInfo.active_demand_threshold : -Infinity,
-      riskInfo.active_demand_leverage !== undefined
-        ? state.valuation / riskInfo.active_demand_leverage
-        : -Infinity,
+      riskInfo.active_demand_threshold != null ? riskInfo.active_demand_threshold : -Infinity,
+      riskInfo.active_demand_leverage != null ? state.valuation / riskInfo.active_demand_leverage : -Infinity,
       // candidate for minimum free
-      riskInfo.minimum_free !== undefined
+      riskInfo.minimum_free != null
         ? state.equity + Math.max(0, riskInfo.minimum_free - state.free)
         : -Infinity,
     );
@@ -71,14 +71,14 @@ export const resolveRiskState = (
   }
 
   // Calculate Passive Demand
-  if (riskInfo.passive_demand_threshold !== undefined || riskInfo.passive_demand_leverage !== undefined) {
+  if (riskInfo.passive_demand_threshold != null || riskInfo.passive_demand_leverage != null) {
     const resolved_threshold = Math.max(
-      riskInfo.passive_demand_threshold !== undefined ? riskInfo.passive_demand_threshold : -Infinity,
-      riskInfo.passive_demand_leverage !== undefined
+      riskInfo.passive_demand_threshold != null ? riskInfo.passive_demand_threshold : -Infinity,
+      riskInfo.passive_demand_leverage != null
         ? state.valuation / riskInfo.passive_demand_leverage
         : -Infinity,
       // candidate for minimum free
-      riskInfo.minimum_free !== undefined
+      riskInfo.minimum_free != null
         ? state.equity + Math.max(0, riskInfo.minimum_free - state.free)
         : -Infinity,
     );

@@ -23,6 +23,7 @@
     "@yuants/data-product": "workspace:*",
     "@yuants/data-ohlc": "workspace:*",
     "@yuants/sql": "workspace:*",
+    "@yuants/app-risk-manager": "workspace:*",
     "@douyinfe/semi-icons": "~2.16.0",
     "@douyinfe/semi-ui": "~2.66.1",
     "@icon-park/react": "~1.4.2",

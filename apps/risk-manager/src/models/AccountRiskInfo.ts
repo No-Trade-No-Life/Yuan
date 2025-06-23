@@ -1,13 +1,12 @@
-import { addDataRecordSchema, addDataRecordWrapper } from './DataRecord';
-import { encodePath } from './utils';
+import { addDataRecordSchema, addDataRecordWrapper, encodePath } from '@yuants/data-model';
 
-declare module './DataRecord' {
+declare module '@yuants/data-model/lib/DataRecord' {
   export interface IDataRecordTypes {
     account_risk_info: IAccountRiskInfo;
   }
 }
 
-interface IAccountRiskInfo {
+export interface IAccountRiskInfo {
   /**
    * The account ID
    */
@@ -29,7 +28,7 @@ interface IAccountRiskInfo {
    *
    * if undefined, active supply is disabled
    */
-  active_supply_threshold?: number;
+  active_supply_threshold?: number | null;
   /**
    * The active supply leverage
    *
@@ -37,7 +36,7 @@ interface IAccountRiskInfo {
    *
    * if undefined, active supply leverage is disabled
    */
-  active_supply_leverage?: number;
+  active_supply_leverage?: number | null;
   /**
    * The passive supply threshold
    *
@@ -45,7 +44,7 @@ interface IAccountRiskInfo {
    *
    * if undefined, passive supply is disabled
    */
-  passive_supply_threshold?: number;
+  passive_supply_threshold?: number | null;
   /**
    * The passive supply leverage
    *
@@ -53,7 +52,7 @@ interface IAccountRiskInfo {
    *
    * if undefined, passive supply leverage is disabled
    */
-  passive_supply_leverage?: number;
+  passive_supply_leverage?: number | null;
   /**
    * The active demand threshold
    *
@@ -61,7 +60,7 @@ interface IAccountRiskInfo {
    *
    * if undefined, active demand is disabled
    */
-  active_demand_threshold?: number;
+  active_demand_threshold?: number | null;
 
   /**
    * The active demand leverage
@@ -70,7 +69,7 @@ interface IAccountRiskInfo {
    *
    * if undefined, active demand leverage is disabled
    */
-  active_demand_leverage?: number;
+  active_demand_leverage?: number | null;
   /**
    * The passive demand threshold
    *
@@ -78,7 +77,7 @@ interface IAccountRiskInfo {
    *
    * if undefined, passive demand is disabled
    */
-  passive_demand_threshold?: number;
+  passive_demand_threshold?: number | null;
   /**
    * The passive demand leverage
    *
@@ -86,7 +85,7 @@ interface IAccountRiskInfo {
    *
    * if undefined, passive demand leverage is disabled
    */
-  passive_demand_leverage?: number;
+  passive_demand_leverage?: number | null;
 
   /**
    * Minimum free money threshold
@@ -99,11 +98,11 @@ interface IAccountRiskInfo {
    *
    * if undefined, minimum free is disabled
    */
-  minimum_free?: number;
+  minimum_free?: number | null;
   /**
    * whether this info is disabled
    */
-  disabled?: boolean;
+  disabled?: boolean | null;
 }
 
 addDataRecordWrapper('account_risk_info', (x) => {

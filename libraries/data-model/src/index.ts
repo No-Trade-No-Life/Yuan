@@ -8,7 +8,6 @@
  */
 export * from './AccountCompositionRelation';
 export * from './AccountInfo';
-export * from './AccountRiskInfo';
 export * from './CopyDataRelation';
 export * from './DataRecord';
 export * from './FundingRate';
