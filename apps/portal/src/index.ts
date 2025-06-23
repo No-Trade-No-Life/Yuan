@@ -1,5 +1,6 @@
 import { formatTime, UUID } from '@yuants/data-model';
-import { readDataRecords, Terminal } from '@yuants/protocol';
+import { Terminal } from '@yuants/protocol';
+import { requestSQL } from '@yuants/sql';
 import { listWatch } from '@yuants/utils';
 import {
   combineLatest,
@@ -52,12 +53,7 @@ const portalTerminals$ = from(internalTerminal.terminalInfos$).pipe(
 );
 
 const portalRelation$ = defer(() =>
-  readDataRecords(internalTerminal, {
-    type: 'portal_relation',
-    options: {
-      sort: [['updated_at', 1]],
-    },
-  }),
+  requestSQL<IPortalRelation[]>(internalTerminal, `select * from portal_relation order by updated_at`),
 ).pipe(
   //
   retry({ delay: 5000 }),
@@ -69,11 +65,10 @@ const portalRelation$ = defer(() =>
 const portalRelationsGroupByExternalHost$ = portalRelation$.pipe(
   mergeMap((x) =>
     from(x).pipe(
-      groupBy((x) => x.origin.external_host_url),
+      groupBy((x) => x.external_host_url),
       mergeMap((group) =>
         group.pipe(
           //
-          map((v) => v.origin),
           toArray(),
           map((v) => ({ host_url: group.key, items: v })),
         ),

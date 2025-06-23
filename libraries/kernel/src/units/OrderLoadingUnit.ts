@@ -1,6 +1,7 @@
 import { formatTime, IOrder } from '@yuants/data-model';
-import { readDataRecords, Terminal } from '@yuants/protocol';
-import { defer, lastValueFrom, map, mergeMap, tap, toArray } from 'rxjs';
+import { Terminal } from '@yuants/protocol';
+import { escape, requestSQL } from '@yuants/sql';
+import { defer, lastValueFrom, mergeMap, tap, toArray } from 'rxjs';
 import { Kernel } from '../kernel';
 import { BasicUnit } from './BasicUnit';
 import { HistoryOrderUnit } from './HistoryOrderUnit';
@@ -29,15 +30,15 @@ export class OrderLoadingUnit extends BasicUnit {
       );
       const orders = await lastValueFrom(
         defer(() =>
-          readDataRecords(this.terminal, {
-            type: 'order',
-            time_range: [start_time, end_time],
-            tags: { account_id },
-          }),
+          requestSQL<IOrder[]>(
+            this.terminal,
+            `select * from order where account_id = ${escape(account_id)} and created_at >= ${escape(
+              formatTime(start_time),
+            )} and created_at < ${escape(formatTime(end_time))}`,
+          ),
         ).pipe(
           //
           mergeMap((x) => x),
-          map((dataRecord) => dataRecord.origin),
           tap((order) => {
             const id = this.kernel.alloc(order.submit_at!);
             this.mapEventIdToOrder.set(id, order);

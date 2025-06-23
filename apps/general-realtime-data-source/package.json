@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@yuants/protocol": "workspace:*",
+    "@yuants/sql": "workspace:*",
     "ajv": "~8.12.0",
     "cron": "~2.3.0",
     "rxjs": "~7.5.6",

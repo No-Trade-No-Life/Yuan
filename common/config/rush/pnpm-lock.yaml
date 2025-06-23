@@ -17,6 +17,7 @@ importers:
       '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
       ajv: ~8.12.0
@@ -27,6 +28,7 @@ importers:
     dependencies:
       '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
       ajv: 8.12.0
       ajv-formats: 2.1.1
@@ -257,6 +259,7 @@ importers:
       '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
       ajv: ~8.12.0
@@ -266,6 +269,7 @@ importers:
     dependencies:
       '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
       ajv: 8.12.0
       cron: 2.3.1
@@ -526,6 +530,7 @@ importers:
       '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
       ajv: ~8.12.0
@@ -534,6 +539,7 @@ importers:
     dependencies:
       '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
       ajv: 8.12.0
       rxjs: 7.5.7

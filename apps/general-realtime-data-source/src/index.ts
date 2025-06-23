@@ -1,6 +1,6 @@
-import { IDataRecordTypes, IPeriod, encodePath, formatTime, getDataRecordSchema } from '@yuants/data-model';
-import { Terminal, providePeriods, readDataRecords } from '@yuants/protocol';
-import Ajv from 'ajv';
+import { IDataRecordTypes, IPeriod, encodePath, formatTime } from '@yuants/data-model';
+import { Terminal, providePeriods } from '@yuants/protocol';
+import { requestSQL } from '@yuants/sql';
 import {
   EMPTY,
   Observable,
@@ -21,9 +21,6 @@ import {
 
 type IGeneralSpecificRelation = IDataRecordTypes['general_specific_relation'];
 
-const ajv = new Ajv({ strict: false });
-const validate = ajv.compile(getDataRecordSchema('general_specific_relation')!);
-
 const HV_URL = process.env.HV_URL!;
 const TERMINAL_ID = process.env.TERMINAL_ID || 'GeneralRealtimeDataSource';
 
@@ -34,19 +31,10 @@ const terminal = new Terminal(HV_URL, {
 });
 
 const mapProductIdToGSRList$ = defer(() =>
-  readDataRecords(terminal, {
-    type: 'general_specific_relation',
-  }),
+  requestSQL<IGeneralSpecificRelation[]>(terminal, `select * from general_specific_relation`),
 ).pipe(
   //
   mergeAll(),
-  map((record) => {
-    const config = record.origin;
-    if (!validate(config)) {
-      throw new Error(`invalid config: ${JSON.stringify(config)}`);
-    }
-    return config;
-  }),
   groupBy((gsr) => gsr.general_product_id),
   mergeMap((group) =>
     group.pipe(
