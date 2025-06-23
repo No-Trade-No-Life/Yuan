@@ -6,15 +6,13 @@ import {
   IProduct,
   UUID,
   formatTime,
-  getDataRecordSchema,
 } from '@yuants/data-model';
 import { IPositionDiff, diffPosition, mergePositions } from '@yuants/kernel';
-import { PromRegistry, Terminal, readDataRecords, useAccountInfo, useProducts } from '@yuants/protocol';
+import { PromRegistry, Terminal, useAccountInfo } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
+import { escape, requestSQL } from '@yuants/sql';
 import { roundToStep } from '@yuants/utils';
-import Ajv from 'ajv';
-import addFormats from 'ajv-formats';
 import {
   EMPTY,
   Observable,
@@ -34,7 +32,6 @@ import {
   groupBy,
   lastValueFrom,
   map,
-  mergeAll,
   mergeMap,
   of,
   pairwise,
@@ -46,10 +43,8 @@ import {
   timeout,
   toArray,
 } from 'rxjs';
-
-const HV_URL = process.env.HV_URL || 'ws://localhost:8888';
-const TERMINAL_ID = process.env.TERMINAL_ID || `TradeCopier`;
-const terminal = new Terminal(HV_URL, { terminal_id: TERMINAL_ID, name: 'Trade Copier' });
+import './migration';
+import { terminal } from './terminal';
 
 type ITradeCopyRelation = IDataRecordTypes['trade_copy_relation'];
 type ITradeCopierTradeConfig = IDataRecordTypes['trade_copier_trade_config'];
@@ -65,41 +60,15 @@ interface ITradeCopierConfig {
   }>;
 }
 
-const ajv = new Ajv({ strict: false });
-addFormats(ajv);
-
-const tradeConfigValidate = ajv.compile(getDataRecordSchema('trade_copier_trade_config')!);
-
 const tradeConfig$ = defer(() =>
-  readDataRecords(terminal, {
-    type: 'trade_copier_trade_config',
-  }),
-).pipe(
-  //
-  mergeAll(),
-  map((record) => {
-    const config = record.origin;
-    if (!tradeConfigValidate(config)) {
-      throw new Error(`Invalid Trade config: ${ajv.errorsText(tradeConfigValidate.errors)}`);
-    }
-    return config;
-  }),
-  toArray(),
-  shareReplay(1),
-);
+  requestSQL<ITradeCopierTradeConfig[]>(terminal, `select * from trade_copier_trade_config`),
+).pipe(shareReplay(1));
 
-const validateOfTradeCopyRelation = ajv.compile<ITradeCopyRelation>(
-  getDataRecordSchema('trade_copy_relation')!,
-);
-
-const config$ = defer(() => readDataRecords(terminal, { type: 'trade_copy_relation' }))
+const config$ = defer(() =>
+  requestSQL<ITradeCopyRelation[]>(terminal, `select * from trade_copy_relation where disabled = false`),
+)
   .pipe(
     //
-    mergeAll(),
-    map((msg) => msg.origin),
-    filter((msg) => !msg.disabled),
-    filter((x) => validateOfTradeCopyRelation(x)),
-    toArray(),
     map((data): ITradeCopierConfig => ({ tasks: data })),
   )
   .pipe(
@@ -179,7 +148,7 @@ allAccountIds$
     tap((account_id) => {
       MetricsAccountSubscribeStatus.set(0, {
         account_id,
-        terminal_id: TERMINAL_ID,
+        terminal_id: terminal.terminal_id,
       });
     }),
     mergeMap((account_id) =>
@@ -192,14 +161,14 @@ allAccountIds$
           tap((accountInfo) => {
             MetricsAccountSubscribeStatus.set(1, {
               account_id: accountInfo.account_id,
-              terminal_id: TERMINAL_ID,
+              terminal_id: terminal.terminal_id,
             });
           }),
           timeout({ each: 60_000, meta: `SubscribeAccountInfoTimeout, account_id: ${account_id}` }),
           catchError((e) => {
             MetricsAccountSubscribeStatus.set(0, {
               account_id,
-              terminal_id: TERMINAL_ID,
+              terminal_id: terminal.terminal_id,
             });
             console.error(
               formatTime(Date.now()),
@@ -225,7 +194,7 @@ allAccountIds$
         pairwise(),
         tap(([info1, info2]) => {
           const lag = info2.updated_at! - info1.updated_at!;
-          MetricTimeLag.observe(lag, { account_id, terminal_id: TERMINAL_ID });
+          MetricTimeLag.observe(lag, { account_id, terminal_id: terminal.terminal_id });
         }),
       ),
     ),
@@ -255,6 +224,23 @@ const mapKeyToCalcPositionDiffAction: Record<
 const mapKeyToCyberTradeOrderDispatchAction: Record<string, Subject<IPositionDiff[]>> = {};
 const mapKeyToSerialOrderPlaceAction: Record<string, Subject<IOrder[]>> = {};
 const mapKeyToConcurrentOrderPlaceAction: Record<string, Subject<IOrder[]>> = {};
+
+const useProducts = (() => {
+  const hub: Record<string, Observable<IProduct[]>> = {};
+  return (terminal: Terminal, datasource_id: string) =>
+    (hub[datasource_id] ??= defer(() =>
+      requestSQL<IProduct[]>(
+        terminal,
+        `select * from product where datasource_id = ${escape(datasource_id)}`,
+      ),
+    ).pipe(
+      //
+      timeout(60000),
+      retry({ delay: 1000 }),
+      repeat({ delay: 86400_000 }),
+      shareReplay(1),
+    ));
+})();
 
 async function setup() {
   const groups = await lastValueFrom(

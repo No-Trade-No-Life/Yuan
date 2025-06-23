@@ -757,6 +757,7 @@ importers:
       '@yuants/extension': workspace:*
       '@yuants/kernel': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
       ajv: ~8.12.0
@@ -769,6 +770,7 @@ importers:
       '@yuants/data-model': link:../../libraries/data-model
       '@yuants/kernel': link:../../libraries/kernel
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
       ajv: 8.12.0
       ajv-formats: 2.1.1
