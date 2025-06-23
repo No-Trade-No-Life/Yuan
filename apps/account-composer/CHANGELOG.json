@@ -2,6 +2,23 @@
   "name": "@yuants/app-account-composer",
   "entries": [
     {
+      "version": "0.2.35",
+      "tag": "@yuants/app-account-composer_v0.2.35",
+      "date": "Mon, 23 Jun 2025 21:18:59 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "migrate to SQL"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.34",
       "tag": "@yuants/app-account-composer_v0.2.34",
       "date": "Sun, 15 Jun 2025 06:01:16 GMT",

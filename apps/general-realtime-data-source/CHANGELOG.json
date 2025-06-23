@@ -2,6 +2,23 @@
   "name": "@yuants/app-general-realtime-data-source",
   "entries": [
     {
+      "version": "0.0.89",
+      "tag": "@yuants/app-general-realtime-data-source_v0.0.89",
+      "date": "Mon, 23 Jun 2025 21:18:59 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "migrate to SQL"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.88",
       "tag": "@yuants/app-general-realtime-data-source_v0.0.88",
       "date": "Sun, 15 Jun 2025 06:01:16 GMT",
