@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "remove API of MONGO_STORAGE",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

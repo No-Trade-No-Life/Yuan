@@ -22,7 +22,7 @@ SourceAccount3_Product2.A -->|x0.5| TargetAccount2_Product2;
 ## Getting started
 
 1. Prepare a host.
-2. Prepare a MongoDB storage terminal.
+2. Prepare a PostgreSQL storage terminal.
 3. Prepare the accounts you want to copy trades from and to.
 4. Ensure the products configured in the storage. (You can use the GUI to finish this step.)
 5. Write data records of `trade_copy_relation` in the storage. (You can use the GUI to finish this step.)

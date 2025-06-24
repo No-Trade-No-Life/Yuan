@@ -438,88 +438,6 @@ importers:
       '@yuants/tool-kit': link:../../tools/toolkit
       typescript: 4.7.4
 
-  ../../apps/mongodb-storage:
-    specifiers:
-      '@microsoft/api-extractor': ~7.30.0
-      '@rushstack/heft': ~0.47.5
-      '@rushstack/heft-jest-plugin': ~0.16.8
-      '@rushstack/heft-node-rig': ~1.10.7
-      '@types/heft-jest': 1.0.3
-      '@types/json-schema': ~7.0.11
-      '@types/node': '22'
-      '@yuants/data-model': workspace:*
-      '@yuants/extension': workspace:*
-      '@yuants/protocol': workspace:*
-      '@yuants/tool-kit': workspace:*
-      '@yuants/utils': workspace:*
-      ajv: ~8.12.0
-      ajv-formats: ~2.1.1
-      json-schema: ~0.4.0
-      mongodb: ~4.8.0
-      rxjs: 7.5.7
-      typescript: ~4.7.4
-    dependencies:
-      '@types/json-schema': 7.0.12
-      '@yuants/data-model': link:../../libraries/data-model
-      '@yuants/protocol': link:../../libraries/protocol
-      '@yuants/utils': link:../../libraries/utils
-      ajv: 8.12.0
-      ajv-formats: 2.1.1
-      mongodb: 4.8.1
-      rxjs: 7.5.7
-    devDependencies:
-      '@microsoft/api-extractor': 7.30.1
-      '@rushstack/heft': 0.47.11
-      '@rushstack/heft-jest-plugin': 0.16.8_cd919cf15781346720f8e992576a8e2b
-      '@rushstack/heft-node-rig': 1.10.13_@rushstack+heft@0.47.11
-      '@types/heft-jest': 1.0.3
-      '@types/node': 22.7.5
-      '@yuants/extension': link:../../libraries/extension
-      '@yuants/tool-kit': link:../../tools/toolkit
-      json-schema: 0.4.0
-      typescript: 4.7.4
-
-  ../../apps/namespaced-mongodb-storage:
-    specifiers:
-      '@microsoft/api-extractor': ~7.30.0
-      '@rushstack/heft': ~0.47.5
-      '@rushstack/heft-jest-plugin': ~0.16.8
-      '@rushstack/heft-node-rig': ~1.10.7
-      '@types/heft-jest': 1.0.3
-      '@types/json-schema': ~7.0.11
-      '@types/node': '22'
-      '@yuants/data-model': workspace:*
-      '@yuants/extension': workspace:*
-      '@yuants/protocol': workspace:*
-      '@yuants/tool-kit': workspace:*
-      '@yuants/utils': workspace:*
-      ajv: ~8.12.0
-      ajv-formats: ~2.1.1
-      json-schema: ~0.4.0
-      mongodb: ~4.8.0
-      rxjs: 7.5.7
-      typescript: ~4.7.4
-    dependencies:
-      '@types/json-schema': 7.0.15
-      '@yuants/data-model': link:../../libraries/data-model
-      '@yuants/protocol': link:../../libraries/protocol
-      '@yuants/utils': link:../../libraries/utils
-      ajv: 8.12.0
-      ajv-formats: 2.1.1
-      mongodb: 4.8.1
-      rxjs: 7.5.7
-    devDependencies:
-      '@microsoft/api-extractor': 7.30.1
-      '@rushstack/heft': 0.47.11
-      '@rushstack/heft-jest-plugin': 0.16.8_cd919cf15781346720f8e992576a8e2b
-      '@rushstack/heft-node-rig': 1.10.13_@rushstack+heft@0.47.11
-      '@types/heft-jest': 1.0.3
-      '@types/node': 22.7.5
-      '@yuants/extension': link:../../libraries/extension
-      '@yuants/tool-kit': link:../../tools/toolkit
-      json-schema: 0.4.0
-      typescript: 4.7.4
-
   ../../apps/portal:
     specifiers:
       '@microsoft/api-extractor': ~7.30.0
@@ -10123,21 +10041,10 @@ packages:
     resolution: {integrity: sha512-d/MUkJYdOeKycmm75Arql4M5+UuXmf4cHdHKsyw1GcvnNgL6s77UkgSgJ8TE/rI5PYsnwYq5jkcWBLuN/MpQ1A==}
     dev: false
 
-  /@types/webidl-conversions/7.0.0:
-    resolution: {integrity: sha512-xTE1E+YF4aWPJJeUzaZI5DRntlkY3+BCVJi0axFptnjGmAoWxkyREIh/XMrfxVLejwQxMCfDXdICo0VLxThrog==}
-    dev: false
-
   /@types/websocket/1.0.6:
     resolution: {integrity: sha512-JXkliwz93B2cMWOI1ukElQBPN88vMg3CruvW4KVSKpflt3NyNCJImnhIuB/f97rG7kakqRJGFiwkA895Kn02Dg==}
     dependencies:
       '@types/node': 18.17.12
-    dev: false
-
-  /@types/whatwg-url/8.2.2:
-    resolution: {integrity: sha512-FtQu10RWgn3D9U4aazdwIE2yzphmTJREDqNdODHrbrZmmMqI0vMheC/6NE/J1Yveaj8H+ela+YwWTjq5PGmuhA==}
-    dependencies:
-      '@types/node': 18.17.12
-      '@types/webidl-conversions': 7.0.0
     dev: false
 
   /@types/ws/8.5.10:
@@ -11401,13 +11308,6 @@ packages:
     dependencies:
       node-int64: 0.4.0
     dev: true
-
-  /bson/4.7.2:
-    resolution: {integrity: sha512-Ry9wCtIZ5kGqkJoi6aD8KjxFZEx78guTQDnpXWiNthsxzrxAK/i8E6pCHAIZTbaEFWcOCvbecMukfK7XUvyLpQ==}
-    engines: {node: '>=6.9.0'}
-    dependencies:
-      buffer: 5.7.1
-    dev: false
 
   /buffer-crc32/0.2.13:
     resolution: {integrity: sha512-VO9Ht/+p3SN7SKWqcrgEzjGbRSJYTx+Q1pTQC0wrWqHx0vpJraQ6GtHx8tvcg1rlK1byhU5gccxgOgj7B0TDkQ==}
@@ -13130,11 +13030,6 @@ packages:
   /delayed-stream/1.0.0:
     resolution: {integrity: sha512-ZySD7Nf91aLB0RxL4KGrKHBXl7Eds1DAmEdcoVawXnLD7SDhpNgtuII2aAkg7a7QS41jxPSZ17p4VdGnMHk3MQ==}
     engines: {node: '>=0.4.0'}
-
-  /denque/2.1.0:
-    resolution: {integrity: sha512-HVQE3AAb/pxF8fQAoiqpvg9i3evqug3hoiwakOyZAwJm+6vZehbkYXZ0l4JxS+I3QxM97v5aaRNhj8v5oBhekw==}
-    engines: {node: '>=0.10'}
-    dev: false
 
   /depcheck/1.4.5:
     resolution: {integrity: sha512-bgt8SfRJ5UQi+uieuTnx6Vd++xJaP7g28FwxM8pZlXHAVXe6mKfSyDDtTfKpF5PS5S6PrgW/o13CYn8YuWDnbQ==}
@@ -18896,11 +18791,6 @@ packages:
     resolution: {integrity: sha512-zYiwtZUcYyXKo/np96AGZAckk+FWWsUdJ3cHGGmld7+AhvcWmQyGCYUh1hc4Q/pkOhb65dQR/pqCyK0cOaHz4Q==}
     dev: false
 
-  /memory-pager/1.5.0:
-    resolution: {integrity: sha512-ZS4Bp4r/Zoeq6+NLJpP+0Zzm0pR8whtGPf1XExKLJBAczGMnSi3It14OiNCStjQjM6NU1okjQGSxgEZN8eBYKg==}
-    dev: false
-    optional: true
-
   /meow/9.0.0:
     resolution: {integrity: sha512-+obSblOQmRhcyBt62furQqRAQpNyWXo8BuQ5bN7dG8wmwQ+vwHKp/rCFD4CrTP8CsDQD1sjoZ94K417XEUk8IQ==}
     engines: {node: '>=10'}
@@ -19676,25 +19566,6 @@ packages:
 
   /monaco-editor/0.40.0:
     resolution: {integrity: sha512-1wymccLEuFSMBvCk/jT1YDW/GuxMLYwnFwF9CDyYCxoTw2Pt379J3FUhwy9c43j51JdcxVPjwk0jm0EVDsBS2g==}
-    dev: false
-
-  /mongodb-connection-string-url/2.6.0:
-    resolution: {integrity: sha512-WvTZlI9ab0QYtTYnuMLgobULWhokRjtC7db9LtcVfJ+Hsnyr5eo6ZtNAt3Ly24XZScGMelOcGtm7lSn0332tPQ==}
-    dependencies:
-      '@types/whatwg-url': 8.2.2
-      whatwg-url: 11.0.0
-    dev: false
-
-  /mongodb/4.8.1:
-    resolution: {integrity: sha512-/NyiM3Ox9AwP5zrfT9TXjRKDJbXlLaUDQ9Rg//2lbg8D2A8GXV0VidYYnA/gfdK6uwbnL4FnAflH7FbGw3TS7w==}
-    engines: {node: '>=12.9.0'}
-    dependencies:
-      bson: 4.7.2
-      denque: 2.1.0
-      mongodb-connection-string-url: 2.6.0
-      socks: 2.7.1
-    optionalDependencies:
-      saslprep: 1.0.3
     dev: false
 
   /mri/1.2.0:
@@ -22309,14 +22180,6 @@ packages:
   /safer-buffer/2.1.2:
     resolution: {integrity: sha512-YZo3K82SD7Riyi0E1EQPojLz7kpepnSQI9IyPbHHg1XXXevb5dJI7tpyN2ADxGcQbHG7vcyRHk0cbwqcQriUtg==}
 
-  /saslprep/1.0.3:
-    resolution: {integrity: sha512-/MY/PEMbk2SuY5sScONwhUDsV2p77Znkb/q3nSVstq/yQzYJOH/Azh29p9oJLsl3LnQwSvZDKagDGBsBwSooag==}
-    engines: {node: '>=6'}
-    dependencies:
-      sparse-bitfield: 3.0.3
-    dev: false
-    optional: true
-
   /sass/1.66.1:
     resolution: {integrity: sha512-50c+zTsZOJVgFfTgwwEzkjA3/QACgdNsKueWPyAR0mRINIvLAStVQBbPg14iuqEQ74NPDbXzJARJ/O4SI1zftA==}
     engines: {node: '>=14.0.0'}
@@ -22820,13 +22683,6 @@ packages:
   /space-separated-tokens/2.0.2:
     resolution: {integrity: sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==}
     dev: false
-
-  /sparse-bitfield/3.0.3:
-    resolution: {integrity: sha512-kvzhi7vqKTfkh0PZU+2D2PIllw2ymqJKujUcyPMd9Y75Nv4nPbGJZXNhxsgdQab2BmlDct1YnfQCguEvHr7VsQ==}
-    dependencies:
-      memory-pager: 1.5.0
-    dev: false
-    optional: true
 
   /spdx-correct/3.2.0:
     resolution: {integrity: sha512-kN9dJbvnySHULIluDHy32WHRUu3Og7B9sbY7tsFLctQkIqnMh3hErYgdMjTYuqmcXX+lK5T1lnUt3G7zNswmZA==}
@@ -23521,13 +23377,6 @@ packages:
     dependencies:
       punycode: 2.3.0
     dev: true
-
-  /tr46/3.0.0:
-    resolution: {integrity: sha512-l7FvfAHlcmulp8kr+flpQZmVwtu7nfRV7NZujtN0OqES8EL4O4e0qqzL0DC5gAvx/ZC/9lk6rhcUwYvkBnBnYA==}
-    engines: {node: '>=12'}
-    dependencies:
-      punycode: 2.3.0
-    dev: false
 
   /traverse/0.3.9:
     resolution: {integrity: sha512-iawgk0hLP3SxGKDfnDJf8wTz4p2qImnyihM5Hh/sGvQ3K37dPi/w8sRhdNIxYA1TwFwc5mDhIJq+O0RsvXBKdQ==}
@@ -24575,6 +24424,7 @@ packages:
     resolution: {integrity: sha512-VwddBukDzu71offAQR975unBIGqfKZpM+8ZX6ySk8nYhVoo5CYaZyzt3YBvYtRtO+aoGlqxPg/B87NGVZ/fu6g==}
     engines: {node: '>=12'}
     dev: false
+    optional: true
 
   /webpack-bundle-analyzer/4.9.1:
     resolution: {integrity: sha512-jnd6EoYrf9yMxCyYDPj8eutJvtjQNp8PHmni/e/ulydHBWhT5J3menXt3HEkScsu9YqMAcG4CfFjs3rj5pVU1w==}
@@ -24766,14 +24616,6 @@ packages:
   /whatwg-mimetype/2.3.0:
     resolution: {integrity: sha512-M4yMwr6mAnQz76TbJm914+gPpB/nCwvZbJU28cUD6dR004SAxDLOOSUaB1JDRqLtaOV/vi0IC5lEAGFgrjGv/g==}
     dev: true
-
-  /whatwg-url/11.0.0:
-    resolution: {integrity: sha512-RKT8HExMpoYx4igMiVMY83lN6UeITKJlBQ+vR/8ZJ8OCdSiN3RwCq+9gH0+Xzj0+5IrM6i4j/6LuvzbZIQgEcQ==}
-    engines: {node: '>=12'}
-    dependencies:
-      tr46: 3.0.0
-      webidl-conversions: 7.0.0
-    dev: false
 
   /whatwg-url/5.0.0:
     resolution: {integrity: sha512-saE57nupxk6v3HY35+jzBwYa0rKSy0XR8JSxZPwgLr7ys0IBzhGviA1/TUGJLmSVqs8pb9AnvICXEuOHLprYTw==}

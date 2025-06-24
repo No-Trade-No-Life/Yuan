@@ -5,8 +5,6 @@
 ```ts
 
 import { IAccountInfo } from '@yuants/data-model';
-import { IDataRecord } from '@yuants/data-model';
-import { IDataRecordTypes } from '@yuants/data-model';
 import { IPeriod } from '@yuants/data-model';
 import { ITick } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
@@ -164,13 +162,6 @@ export const publishAccountInfo: (terminal: Terminal, account_id: string, accoun
     dispose: () => void;
 };
 
-// Warning: (ae-forgotten-export) The symbol "IQueryDataRecordsRequest" needs to be exported by the entry point index.d.ts
-//
-// @public (undocumented)
-export const readDataRecords: <T extends keyof IDataRecordTypes>(terminal: Terminal, request: IQueryDataRecordsRequest & {
-    type: T;
-}) => Promise<IDataRecord<IDataRecordTypes[T]>[]>;
-
 // @public
 export const requestSharedKey: (terminal: Terminal, ed25519_public_key: string) => Promise<{
     public_key: string;
@@ -254,8 +245,5 @@ export const usePeriod: (terminal: Terminal, datasource_id: string, product_id: 
 
 // @public
 export const useTick: (terminal: Terminal, datasource_id: string, product_id: string) => Observable<ITick>;
-
-// @public (undocumented)
-export const writeDataRecords: <T extends keyof IDataRecordTypes>(terminal: Terminal, data: IDataRecord<IDataRecordTypes[T]>[]) => Promise<undefined>;
 
 ```
