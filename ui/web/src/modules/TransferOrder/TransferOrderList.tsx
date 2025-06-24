@@ -1,6 +1,6 @@
 import { Space, Steps, Toast, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { IDataRecord, UUID, formatTime } from '@yuants/data-model';
+import { UUID, formatTime } from '@yuants/data-model';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
 import { ITransferOrder } from '@yuants/transfer';
 import { first, firstValueFrom } from 'rxjs';
@@ -11,55 +11,44 @@ import { showForm } from '../Form';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 
-function newRecord(): Partial<ITransferOrder> {
-  return {
-    order_id: UUID(),
-    created_at: formatTime(Date.now()),
-  };
-}
-
-function beforeUpdateTrigger(x: ITransferOrder) {
-  x.updated_at = formatTime(Date.now());
-}
-
 function defineColumns() {
   return () => {
-    const columnHelper = createColumnHelper<IDataRecord<ITransferOrder>>();
+    const columnHelper = createColumnHelper<ITransferOrder>();
     return [
-      columnHelper.accessor('origin.order_id', {
+      columnHelper.accessor('order_id', {
         header: () => '订单ID',
       }),
-      columnHelper.accessor('origin.created_at', {
+      columnHelper.accessor('created_at', {
         header: () => '创建时间',
         cell: (ctx) => formatTime(ctx.getValue() ?? ''),
       }),
-      columnHelper.accessor('origin.updated_at', {
+      columnHelper.accessor('updated_at', {
         header: () => '更新时间',
         cell: (ctx) => formatTime(ctx.getValue() ?? ''),
       }),
-      columnHelper.accessor('origin.credit_account_id', {
+      columnHelper.accessor('credit_account_id', {
         header: () => '贷方账户',
         cell: (ctx) => <InlineAccountId account_id={ctx.getValue()} />,
       }),
-      columnHelper.accessor('origin.debit_account_id', {
+      columnHelper.accessor('debit_account_id', {
         header: () => '借方账户',
         cell: (ctx) => <InlineAccountId account_id={ctx.getValue()} />,
       }),
-      columnHelper.accessor('origin.expected_amount', {
+      columnHelper.accessor('expected_amount', {
         header: () => '初始金额',
       }),
-      columnHelper.accessor('origin.currency', {
+      columnHelper.accessor('currency', {
         header: () => '货币',
       }),
-      columnHelper.accessor('origin.status', {
+      columnHelper.accessor('status', {
         header: () => '状态',
       }),
-      columnHelper.accessor('origin.routing_path', {
+      columnHelper.accessor('routing_path', {
         header: () => '转账路径',
         cell: (ctx) => {
           const value = ctx.getValue();
           if (typeof value === 'string') return value;
-          const item = ctx.row.original.origin;
+          const item = ctx.row.original;
           const index =
             item.status === 'COMPLETE' ? item.routing_path?.length ?? 0 : item.current_routing_index ?? 0;
 
@@ -95,30 +84,30 @@ function defineColumns() {
           }
         },
       }),
-      columnHelper.accessor('origin.current_tx_account_id', {
+      columnHelper.accessor('current_tx_account_id', {
         header: () => '当前转账账户',
         cell: (ctx) => <InlineAccountId account_id={ctx.getValue() || ''} />,
       }),
-      columnHelper.accessor('origin.current_tx_state', {
+      columnHelper.accessor('current_tx_state', {
         header: () => '当前转账方状态',
       }),
-      columnHelper.accessor('origin.current_network_id', {
+      columnHelper.accessor('current_network_id', {
         header: () => '当前转账网络',
       }),
-      columnHelper.accessor('origin.current_rx_account_id', {
+      columnHelper.accessor('current_rx_account_id', {
         header: () => '当前收账账户',
         cell: (ctx) => <InlineAccountId account_id={ctx.getValue() || ''} />,
       }),
-      columnHelper.accessor('origin.current_rx_state', {
+      columnHelper.accessor('current_rx_state', {
         header: () => '当前收账方状态',
       }),
-      columnHelper.accessor('origin.current_amount', {
+      columnHelper.accessor('current_amount', {
         header: () => '当前金额',
       }),
-      columnHelper.accessor('origin.current_transaction_id', {
+      columnHelper.accessor('current_transaction_id', {
         header: () => '当前转账凭证号',
       }),
-      columnHelper.accessor('origin.error_message', {
+      columnHelper.accessor('error_message', {
         header: () => '错误信息',
       }),
     ];
@@ -126,14 +115,7 @@ function defineColumns() {
 }
 
 registerPage('TransferOrderList', () => {
-  return (
-    <DataRecordView
-      TYPE="transfer_order"
-      columns={defineColumns()}
-      newRecord={newRecord}
-      beforeUpdateTrigger={beforeUpdateTrigger}
-    />
-  );
+  return <DataRecordView TYPE="transfer_order" columns={defineColumns()} />;
 });
 
 registerCommand('Transfer', async (params: {}) => {

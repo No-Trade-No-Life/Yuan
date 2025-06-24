@@ -1,7 +1,7 @@
 import { IconRefresh } from '@douyinfe/semi-icons';
 import { Button } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { IDataRecord, IDataRecordTypes } from '@yuants/data-model';
+import { IDataRecordTypes } from '@yuants/data-model';
 import { InlineAccountId } from '../AccountInfo';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { DataRecordView } from '../DataRecord';
@@ -13,24 +13,20 @@ registerPage('AccountCompositionRelationList', () => {
     <DataRecordView
       TYPE={'account_composition_relation'}
       columns={() => {
-        const columnHelper =
-          createColumnHelper<IDataRecord<IDataRecordTypes['account_composition_relation']>>();
+        const columnHelper = createColumnHelper<IDataRecordTypes['account_composition_relation']>();
         return [
-          columnHelper.accessor('origin.target_account_id', {
+          columnHelper.accessor('target_account_id', {
             header: () => '目标账户',
             cell: (ctx) => <InlineAccountId account_id={ctx.getValue()} />,
           }),
-          columnHelper.accessor('origin.source_account_id', {
+          columnHelper.accessor('source_account_id', {
             header: () => '原账户',
             cell: (ctx) => <InlineAccountId account_id={ctx.getValue()} />,
           }),
-          columnHelper.accessor('origin.multiple', {
+          columnHelper.accessor('multiple', {
             header: () => '乘数',
           }),
         ];
-      }}
-      newRecord={() => {
-        return {};
       }}
       extraHeaderActions={(props) => {
         return (
