@@ -2,6 +2,26 @@
   "name": "@yuants/app-general-realtime-data-source",
   "entries": [
     {
+      "version": "0.0.91",
+      "tag": "@yuants/app-general-realtime-data-source_v0.0.91",
+      "date": "Tue, 24 Jun 2025 15:34:54 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.36.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.6.4`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.90",
       "tag": "@yuants/app-general-realtime-data-source_v0.0.90",
       "date": "Tue, 24 Jun 2025 12:18:24 GMT",
