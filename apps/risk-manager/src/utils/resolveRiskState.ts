@@ -40,9 +40,7 @@ export const resolveRiskState = (
   // Calculate Passive Supply
   if (riskInfo.passive_supply_threshold != null || riskInfo.passive_supply_leverage != null) {
     const resolved_threshold = Math.min(
-      riskInfo.passive_supply_threshold != null && riskInfo.passive_supply_threshold !== null
-        ? riskInfo.passive_supply_threshold
-        : Infinity,
+      riskInfo.passive_supply_threshold != null ? riskInfo.passive_supply_threshold : Infinity,
       riskInfo.passive_supply_leverage != null
         ? state.valuation / riskInfo.passive_supply_leverage
         : Infinity,
