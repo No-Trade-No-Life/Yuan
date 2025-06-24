@@ -1,11 +1,6 @@
 import { IDataRecord, IDataRecordTypes } from '@yuants/data-model';
-import { observableToAsyncIterable } from '@yuants/utils';
-import { EMPTY, bufferCount, concatMap, defer, firstValueFrom, from, map, mergeMap, of, toArray } from 'rxjs';
-import {
-  ICopyDataRecordsRequest,
-  IQueryDataRecordsRequest,
-  IRemoveDataRecordsRequest,
-} from '../services/data-record';
+import { EMPTY, bufferCount, concatMap, defer, firstValueFrom, from, map, mergeMap, toArray } from 'rxjs';
+import { IQueryDataRecordsRequest } from '../services/data-record';
 import { Terminal } from '../terminal';
 
 /**
@@ -53,46 +48,6 @@ export const writeDataRecords = <T extends keyof IDataRecordTypes>(
           }),
         ),
       ),
-      toArray(),
-      map(() => void 0),
-    ),
-  );
-
-/**
- * @public
- */
-export const copyDataRecords = (terminal: Terminal, req: ICopyDataRecordsRequest) =>
-  firstValueFrom(
-    defer(() => terminal.requestService('CopyDataRecords', req)).pipe(
-      mergeMap((msg) => {
-        if (msg.res) {
-          if (msg.res.code !== 0) {
-            throw Error(`ServerError: ${msg.res.code}: ${msg.res.message}`);
-          }
-          // emit an signal to indicate that the copy is complete
-          return of(void 0);
-        }
-        return EMPTY;
-      }),
-      toArray(),
-      map(() => void 0),
-    ),
-  );
-
-/**
- * @public
- */
-export const removeDataRecords = (terminal: Terminal, req: IRemoveDataRecordsRequest): Promise<void> =>
-  firstValueFrom(
-    defer(() => terminal.requestService('RemoveDataRecords', req)).pipe(
-      mergeMap((msg) => {
-        if (msg.res) {
-          if (msg.res.code !== 0) {
-            throw Error(`ServerError: ${msg.res.code}: ${msg.res.message}`);
-          }
-        }
-        return EMPTY;
-      }),
       toArray(),
       map(() => void 0),
     ),
