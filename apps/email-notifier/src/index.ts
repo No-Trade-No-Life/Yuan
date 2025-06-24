@@ -1,6 +1,5 @@
-import { IDataRecordTypes, formatTime } from '@yuants/data-model';
-import '@yuants/protocol/lib/services';
-import '@yuants/protocol/lib/services/notify';
+import { formatTime } from '@yuants/data-model';
+import { Terminal } from '@yuants/protocol';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
 import Imap, { ImapMessageAttributes } from 'imap';
 import { simpleParser } from 'mailparser';
@@ -12,7 +11,6 @@ import {
   defer,
   delayWhen,
   from,
-  map,
   mergeMap,
   repeat,
   retry,
@@ -20,7 +18,6 @@ import {
   toArray,
 } from 'rxjs';
 import './models/Email';
-import { terminal } from './terminal';
 
 if (process.env.SMTP_HOST) {
   const transporter = createTransport({
@@ -33,19 +30,7 @@ if (process.env.SMTP_HOST) {
     },
   });
 
-  terminal.provideService('Notify', {}, async (msg) => {
-    const [subject, ...content] = msg.req.message.split('\n');
-    const info = await transporter.sendMail({
-      from: process.env.EMAIL_USER!,
-      to: msg.req.receiver_id,
-      subject,
-      text: content.join('\n'),
-    });
-    console.info(formatTime(Date.now()), 'SendEmail', msg.trace_id, info.messageId, info.response);
-    return { res: { code: 0, message: 'OK' } };
-  });
-
-  terminal.provideService(
+  Terminal.fromNodeEnv().provideService(
     'Email/Send',
     {
       required: ['from'],
@@ -160,14 +145,18 @@ if (process.env.IMAP_HOST) {
                 ]),
               ),
               mergeMap(async ([attrs, body]) => ({
+                address: process.env.EMAIL_USER!,
+                uid: `${attrs.uid}`,
                 attrs,
                 body: await simpleParser(body),
               })),
-              map((x): IDataRecordTypes['email'] => ({ ...x, address: process.env.EMAIL_USER! })),
               toArray(),
               delayWhen((arr) =>
                 from(
-                  requestSQL(terminal, buildInsertManyIntoTableSQL(arr, 'email', { ignoreConflict: true })),
+                  requestSQL(
+                    Terminal.fromNodeEnv(),
+                    buildInsertManyIntoTableSQL(arr, 'email', { ignoreConflict: true }),
+                  ),
                 ),
               ),
               tap((arr) => console.info(formatTime(Date.now()), 'Email Written', arr.length)),
