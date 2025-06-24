@@ -1,5 +1,5 @@
+import { Terminal } from '@yuants/protocol';
 import { AddMigration, ExecuteMigrations } from '@yuants/sql';
-import { terminal } from './terminal';
 
 AddMigration({
   id: '35bd0733-1827-44cc-a927-286841f2df70',
@@ -22,4 +22,4 @@ CREATE INDEX IF NOT EXISTS email_address_idx ON email (address);
   `,
 });
 
-ExecuteMigrations(terminal);
+ExecuteMigrations(Terminal.fromNodeEnv());

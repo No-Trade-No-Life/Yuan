@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-email-notifier",
+      "comment": "fix",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-email-notifier"
+}
