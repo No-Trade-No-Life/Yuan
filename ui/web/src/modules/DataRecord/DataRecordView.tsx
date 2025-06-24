@@ -17,8 +17,7 @@ import {
   createColumnHelper,
 } from '@tanstack/react-table';
 import { IDataRecord, getDataRecordSchema, getDataRecordWrapper } from '@yuants/data-model';
-import { readDataRecords, removeDataRecords, writeDataRecords } from '@yuants/protocol';
-import Ajv from 'ajv';
+import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
 import { JSONSchema7 } from 'json-schema';
 import React, { useEffect, useMemo, useState } from 'react';
 import { firstValueFrom } from 'rxjs';
@@ -27,13 +26,12 @@ import { showForm } from '../Form';
 import { Button, DataView } from '../Interactive';
 import { terminal$ } from '../Terminals';
 
-interface IDataRecordViewDef<T> {
+interface IDataRecordViewDef<T extends {}> {
   TYPE: string;
-  columns: (ctx: { reloadData: () => Promise<void> }) => ColumnDef<IDataRecord<T>, any>[];
-  extraRecordActions?: React.ComponentType<{ reloadData: () => Promise<void>; record: IDataRecord<T> }>;
+  columns: (ctx: { reloadData: () => Promise<void> }) => ColumnDef<T, any>[];
+  extraRecordActions?: React.ComponentType<{ reloadData: () => Promise<void>; record: T }>;
   extraHeaderActions?: React.ComponentType<{}>;
-  newRecord: () => Partial<T>;
-  mapOriginToDataRecord?: (x: T) => IDataRecord<T>;
+  newRecord?: () => Partial<T>;
   beforeUpdateTrigger?: (x: T) => void | Promise<void>;
   schema?: JSONSchema7;
 }
@@ -42,13 +40,13 @@ const PAGE_SIZE = 100;
 /**
  * General Data Record View
  */
-export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
+export function DataRecordView<T extends {}>(props: IDataRecordViewDef<T>) {
   const [searchFormData, setSearchFormData] = useState({} as any);
   const [refreshCnt, setRefreshCnt] = useState(0);
   const [sorting, setSorting] = React.useState<SortingState>([]);
-  const tableRef = React.useRef<Table<IDataRecord<T>>>();
+  const tableRef = React.useRef<Table<T>>();
 
-  const { data, fetchNextPage, isFetching } = useInfiniteQuery<IDataRecord<T>[]>({
+  const { data, fetchNextPage, isFetching } = useInfiniteQuery<T[]>({
     // ISSUE: queryKey should be unique among all query situations under the same query client context
     queryKey: [props.TYPE, refreshCnt, sorting],
     queryFn: async (ctx) => {
@@ -63,31 +61,24 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
         for (const x of sorting) {
           const column = table.getColumn(x.id);
           if (column) {
-            const access_key = (column.columnDef as AccessorKeyColumnDef<IDataRecord<T>[], unknown>)
-              .accessorKey;
+            const access_key = (column.columnDef as AccessorKeyColumnDef<T[], unknown>).accessorKey;
             if (typeof access_key === 'string') {
               sort.push([access_key, x.desc ? -1 : 1]);
             }
           }
         }
       }
-      sort.push(['updated_at', -1]);
 
-      const queryParams = {
-        type: props.TYPE as any,
-        tags: Object.fromEntries(
-          Object.entries(searchFormData)
-            .map(([k, v]) => [k, `${v}`])
-            .filter(([, v]) => v !== ''),
-        ),
-        options: {
-          skip: pageParam * PAGE_SIZE,
-          limit: PAGE_SIZE,
-          sort: sort,
-        },
-      };
-      console.info('queryDataRecords', searchFormData, sorting, queryParams);
-      const data = await readDataRecords(terminal, queryParams);
+      const filters = Object.entries(searchFormData).filter(([, v]) => v !== '');
+
+      const ordering = sort.map(([key, asc]) => `${key} ${asc > 0 ? 'ASC' : 'DESC'}`);
+      const sql = `select * from ${props.TYPE} ${
+        filters.length > 0 ? `where ${filters.map(([k, v]) => `${k} = ${escape(v)}`)}` : ''
+      } ${ordering.length > 0 ? `order by ${ordering.join()}` : ''} offset ${
+        pageParam * PAGE_SIZE
+      } limit ${PAGE_SIZE}`;
+      console.info('queryDataRecords', searchFormData, sorting, sql);
+      const data = await requestSQL<T[]>(terminal, sql);
 
       return data;
     },
@@ -108,7 +99,7 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
   }, [searchFormData]);
 
   const columns = useMemo(() => {
-    const columnHelper = createColumnHelper<IDataRecord<T>>();
+    const columnHelper = createColumnHelper<T>();
 
     const cols = props.columns({ reloadData });
     cols.push(
@@ -131,15 +122,15 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
                     Toast.error(`找不到合适的数据规格，无法查询数据`);
                     return;
                   }
-                  const formData = await showForm<T>(schema, record.origin);
+                  const formData = await showForm<T>(schema, record);
                   await props.beforeUpdateTrigger?.(formData);
-                  const wrapper = props.mapOriginToDataRecord || getDataRecordWrapper(props.TYPE as any);
+                  const wrapper = getDataRecordWrapper(props.TYPE as any);
                   if (!wrapper) {
                     Toast.error(`找不到合适的包装函数，无法更新数据`);
                     return;
                   }
                   const nextRecord: IDataRecord<any> = wrapper(formData);
-                  await writeDataRecords(terminal, [nextRecord]);
+                  await requestSQL(terminal, buildInsertManyIntoTableSQL([nextRecord], props.TYPE));
                   await reloadData();
                   Toast.success(`成功更新数据记录 ${nextRecord.id}`);
                 }}
@@ -156,11 +147,13 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
                   if (!confirm) return;
                   const terminal = await firstValueFrom(terminal$);
                   if (!terminal) return;
-                  await removeDataRecords(terminal, {
-                    type: props.TYPE,
-                    id: record.id,
-                  });
-                  Toast.success(`成功删除数据记录 ${record.id}`);
+                  await requestSQL(
+                    terminal,
+                    `delete from ${props.TYPE} where ${Object.entries(record).map(
+                      ([k, v]) => `${k} = ${escape(v)}`,
+                    )}`,
+                  );
+                  Toast.success(`成功删除数据记录`);
                   await reloadData();
                 }}
               ></Button>
@@ -200,17 +193,12 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
             Toast.error(`找不到合适的数据规格，无法查询数据`);
             return;
           }
-          const formData = await showForm<T>(schema, props.newRecord());
+          const formData = await showForm<T>(schema, props.newRecord?.() ?? {});
           await props.beforeUpdateTrigger?.(formData);
-          const wrapper = props.mapOriginToDataRecord || getDataRecordWrapper(props.TYPE as any);
-          if (!wrapper) {
-            Toast.error(`找不到合适的包装函数，无法更新数据`);
-            return;
-          }
-          const nextRecord: IDataRecord<any> = wrapper(formData);
-          await writeDataRecords(terminal, [nextRecord]);
+          const nextRecord: T = formData;
+          await requestSQL(terminal, buildInsertManyIntoTableSQL([nextRecord], props.TYPE));
           await reloadData();
-          Toast.success(`成功更新数据记录 ${nextRecord.id}`);
+          Toast.success(`成功更新数据记录`);
         }}
       >
         添加
@@ -242,9 +230,8 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
             format: 'filename',
             pattern: '^/.+\\.json',
           });
-          const data = records.map((x) => x.origin);
-          await fs.writeFile(filename, JSON.stringify(data, null, 2));
-          Toast.success(`已导出: ${filename}, ${data.length} 条`);
+          await fs.writeFile(filename, JSON.stringify(records, null, 2));
+          Toast.success(`已导出: ${filename}, ${records.length} 条`);
           await reloadData();
         }}
       >
@@ -265,21 +252,13 @@ export function DataRecordView<T>(props: IDataRecordViewDef<T>) {
           if (!Array.isArray(data)) {
             return;
           }
-          const ajv = new Ajv({ strictSchema: false });
           const schema = props.schema || getDataRecordSchema(props.TYPE as any);
           if (!schema) {
             Toast.error(`找不到合适的数据规格，无法查询数据`);
             return;
           }
-          const validator = ajv.compile(schema);
-          const wrapper = props.mapOriginToDataRecord || getDataRecordWrapper(props.TYPE as any);
-          if (!wrapper) {
-            Toast.error(`找不到合适的包装函数，无法更新数据`);
-            return;
-          }
-          const records = data.filter((x) => validator(x)).map((x: any) => wrapper(x));
-          await writeDataRecords(terminal, records as IDataRecord<any>[]);
-          Toast.success(`已导入: ${filename}, ${records.length} / ${data.length} 条`);
+          await requestSQL(terminal, buildInsertManyIntoTableSQL(data, props.TYPE));
+          Toast.success(`已导入: ${filename}, ${data.length} / ${data.length} 条`);
           await reloadData();
         }}
       >
