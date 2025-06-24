@@ -184,6 +184,7 @@ importers:
       '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       imap: ~0.8.19
       mailparser: ~3.7.1
@@ -193,6 +194,7 @@ importers:
     dependencies:
       '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/sql': link:../../libraries/sql
       imap: 0.8.19
       mailparser: 3.7.1
       nodemailer: 6.8.0
