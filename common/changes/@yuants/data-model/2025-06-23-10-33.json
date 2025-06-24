@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-model",
+      "comment": "apply for pg",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-model"
+}

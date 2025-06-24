@@ -1,5 +1,5 @@
 import { IDataRecordTypes, UUID, formatTime, getDataRecordSchema } from '@yuants/data-model';
-import { PromRegistry, Terminal, readDataRecords, useAccountInfo } from '@yuants/protocol';
+import { PromRegistry, useAccountInfo } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
 import { ITransferOrder } from '@yuants/transfer';
@@ -22,13 +22,10 @@ import {
   tap,
   toArray,
 } from 'rxjs';
+import { IAccountRiskInfo } from './models';
+import { terminal } from './terminal';
 import { generateCandidateTransfer } from './utils/generateCandidateTransfer';
 import { resolveRiskState } from './utils/resolveRiskState';
-
-const terminal = new Terminal(process.env.HOST_URL!, {
-  terminal_id: process.env.TERMINAL_ID || 'RiskManager',
-  name: 'Risk Manager',
-});
 
 const MetricActiveDemand = PromRegistry.create('gauge', 'risk_manager_active_demand');
 const MetricPassiveDemand = PromRegistry.create('gauge', 'risk_manager_passive_demand');
@@ -69,14 +66,15 @@ function mapRiskInfoToState$(riskInfo: IDataRecordTypes['account_risk_info']) {
   );
 }
 
-const ajv = new Ajv({ strict: false });
-const validator = ajv.compile(getDataRecordSchema('account_risk_info')!);
+// const ajv = new Ajv({ strict: false });
+// const validator = ajv.compile(getDataRecordSchema('account_risk_info')!);
 
-const configs$ = defer(() => readDataRecords(terminal, { type: 'account_risk_info' })).pipe(
+const configs$ = defer(() =>
+  requestSQL<IAccountRiskInfo[]>(terminal, `SELECT * FROM account_risk_info`),
+).pipe(
   mergeMap((x) => x),
-  map((x) => x.origin),
   filter((x) => !x.disabled),
-  filter((x) => validator(x)),
+  // filter((x) => validator(x)),
   toArray(),
   retry({ delay: 5000 }),
   shareReplay(1),
