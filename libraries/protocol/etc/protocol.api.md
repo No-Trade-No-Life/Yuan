@@ -8,7 +8,6 @@ import { IAccountInfo } from '@yuants/data-model';
 import { IDataRecord } from '@yuants/data-model';
 import { IDataRecordTypes } from '@yuants/data-model';
 import { IPeriod } from '@yuants/data-model';
-import { IProduct } from '@yuants/data-model';
 import { ITick } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
 import { MeterProvider } from '@opentelemetry/sdk-metrics';
@@ -18,11 +17,6 @@ import { ObservableInput } from 'rxjs';
 import { Registry } from '@yuants/prometheus-client';
 import { Subject } from 'rxjs';
 import { ValidateFunction } from 'ajv';
-
-// Warning: (ae-forgotten-export) The symbol "ICopyDataRecordsRequest" needs to be exported by the entry point index.d.ts
-//
-// @public (undocumented)
-export const copyDataRecords: (terminal: Terminal, req: ICopyDataRecordsRequest) => Promise<undefined>;
 
 // @public
 export function createConnectionJson<T = any>(URL: string): IConnection<T>;
@@ -170,22 +164,12 @@ export const publishAccountInfo: (terminal: Terminal, account_id: string, accoun
     dispose: () => void;
 };
 
-// Warning: (ae-forgotten-export) The symbol "IQueryPeriodsRequest" needs to be exported by the entry point index.d.ts
-//
-// @public (undocumented)
-export const queryPeriods: (terminal: Terminal, req: IQueryPeriodsRequest) => Promise<IPeriod[]>;
-
 // Warning: (ae-forgotten-export) The symbol "IQueryDataRecordsRequest" needs to be exported by the entry point index.d.ts
 //
 // @public (undocumented)
 export const readDataRecords: <T extends keyof IDataRecordTypes>(terminal: Terminal, request: IQueryDataRecordsRequest & {
     type: T;
 }) => Promise<IDataRecord<IDataRecordTypes[T]>[]>;
-
-// Warning: (ae-forgotten-export) The symbol "IRemoveDataRecordsRequest" needs to be exported by the entry point index.d.ts
-//
-// @public (undocumented)
-export const removeDataRecords: (terminal: Terminal, req: IRemoveDataRecordsRequest) => Promise<void>;
 
 // @public
 export const requestSharedKey: (terminal: Terminal, ed25519_public_key: string) => Promise<{
@@ -214,6 +198,7 @@ export class Terminal {
     client: TerminalClient;
     dispose$: Subject<void>;
     dispose(): void;
+    static fromNodeEnv(): Terminal;
     // (undocumented)
     host_url: string;
     input$: Subject<ITerminalMessage>;
@@ -266,9 +251,6 @@ export const useAccountInfo: (terminal: Terminal, account_id: string) => Observa
 
 // @public
 export const usePeriod: (terminal: Terminal, datasource_id: string, product_id: string, period_in_sec: number) => Observable<IPeriod[]>;
-
-// @public (undocumented)
-export const useProducts: (terminal: Terminal, datasource_id: string) => AsyncIterable<IProduct[]>;
 
 // @public
 export const useTick: (terminal: Terminal, datasource_id: string, product_id: string) => Observable<ITick>;

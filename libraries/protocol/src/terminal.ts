@@ -149,6 +149,26 @@ export class Terminal {
     this._setupTerminalInfoStuff();
   }
 
+  private static _terminal: Terminal | null = null;
+
+  /**
+   * Create a default terminal from Node.js environment variables
+   */
+  static fromNodeEnv(): Terminal {
+    if (!isNode) throw new Error('Terminal.fromNodeEnv() can only be used in Node.js environment');
+    if (this._terminal) {
+      return this._terminal;
+    }
+    const HOST_URL = process.env.HOST_URL;
+    if (!HOST_URL) {
+      throw new Error('env HOST_URL is not set');
+    }
+    return new Terminal(HOST_URL, {
+      terminal_id: process.env.TERMINAL_ID || `DefaultTerminal/${UUID()}`,
+      name: process.env.TERMINAL_NAME || 'DefaultTerminal',
+    });
+  }
+
   private _mapTerminalIdToPeer: Record<
     string,
     { session_id: string; maxMessageSize: number; peer: SimplePeer.Instance } | undefined
