@@ -1,6 +1,11 @@
 # Change Log - @yuants/app-namespaced-mongodb-storage
 
-This log was last generated on Sun, 15 Jun 2025 06:01:16 GMT and should not be manually modified.
+This log was last generated on Tue, 24 Jun 2025 12:18:24 GMT and should not be manually modified.
+
+## 0.0.46
+Tue, 24 Jun 2025 12:18:24 GMT
+
+_Version update only_
 
 ## 0.0.45
 Sun, 15 Jun 2025 06:01:16 GMT

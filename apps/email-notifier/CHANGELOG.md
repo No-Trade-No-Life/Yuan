@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-email-notifier
 
-This log was last generated on Sun, 15 Jun 2025 06:01:16 GMT and should not be manually modified.
+This log was last generated on Tue, 24 Jun 2025 12:18:24 GMT and should not be manually modified.
+
+## 0.2.3
+Tue, 24 Jun 2025 12:18:24 GMT
+
+### Patches
+
+- migrate to SQL
 
 ## 0.2.2
 Sun, 15 Jun 2025 06:01:16 GMT

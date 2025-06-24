@@ -2,6 +2,32 @@
   "name": "@yuants/vendor-ctp",
   "entries": [
     {
+      "version": "0.2.49",
+      "tag": "@yuants/vendor-ctp_v0.2.49",
+      "date": "Tue, 24 Jun 2025 12:18:24 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.18.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.35.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.6.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.1.5`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.48",
       "tag": "@yuants/vendor-ctp_v0.2.48",
       "date": "Thu, 19 Jun 2025 16:34:18 GMT",
