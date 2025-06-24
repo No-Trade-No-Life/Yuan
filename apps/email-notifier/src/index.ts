@@ -1,7 +1,7 @@
-import { IDataRecordTypes, UUID, formatTime, getDataRecordWrapper } from '@yuants/data-model';
-import { Terminal, writeDataRecords } from '@yuants/protocol';
+import { IDataRecordTypes, formatTime } from '@yuants/data-model';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/notify';
+import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
 import Imap, { ImapMessageAttributes } from 'imap';
 import { simpleParser } from 'mailparser';
 import { createTransport } from 'nodemailer';
@@ -20,11 +20,7 @@ import {
   toArray,
 } from 'rxjs';
 import './models/Email';
-
-const terminal = new Terminal(process.env.HOST_URL!, {
-  terminal_id: process.env.TERMINAL_ID || `Email/${process.env.EMAIL_USER}`,
-  name: 'Email',
-});
+import { terminal } from './terminal';
 
 if (process.env.SMTP_HOST) {
   const transporter = createTransport({
@@ -168,11 +164,13 @@ if (process.env.IMAP_HOST) {
                 body: await simpleParser(body),
               })),
               map((x): IDataRecordTypes['email'] => ({ ...x, address: process.env.EMAIL_USER! })),
-              map((x) => getDataRecordWrapper('email')!(x)),
               toArray(),
-              map((arr) => arr.sort((a, b) => a.created_at! - b.created_at!)),
-              delayWhen((arr) => from(writeDataRecords(terminal, arr))),
-              tap((arr) => console.info(formatTime(Date.now()), 'Email Writen', arr.length)),
+              delayWhen((arr) =>
+                from(
+                  requestSQL(terminal, buildInsertManyIntoTableSQL(arr, 'email', { ignoreConflict: true })),
+                ),
+              ),
+              tap((arr) => console.info(formatTime(Date.now()), 'Email Written', arr.length)),
               repeat({
                 delay: 5_000,
               }),
