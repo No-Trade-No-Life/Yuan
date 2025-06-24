@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-bitget",
-  "version": "0.2.25",
+  "version": "0.2.26",
   "files": [
     "dist/extension.bundle.js"
   ],

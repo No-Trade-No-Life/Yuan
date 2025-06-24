@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-k8s-manifest-operator",
-  "version": "0.0.43",
+  "version": "0.0.44",
   "main": "lib/index.js",
   "scripts": {
     "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build",

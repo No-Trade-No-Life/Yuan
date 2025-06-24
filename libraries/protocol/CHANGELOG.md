@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Sun, 15 Jun 2025 06:01:17 GMT and should not be manually modified.
+This log was last generated on Tue, 24 Jun 2025 12:18:24 GMT and should not be manually modified.
+
+## 0.35.0
+Tue, 24 Jun 2025 12:18:24 GMT
+
+### Minor changes
+
+- add static method 'fromNodeEnv'
 
 ## 0.34.2
 Sun, 15 Jun 2025 06:01:17 GMT
