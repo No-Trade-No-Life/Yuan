@@ -121,7 +121,6 @@ In Yuan, extensions are treated as first-class citizens. Many core features are 
 [![prometheus](https://img.shields.io/badge/prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=FFFFFF)](https://prometheus.io/)
 [![PostgreSQL](https://img.shields.io/badge/postgresql-4169E1?style=for-the-badge&logo=postgresql&logoColor=FFFFFF)](https://www.postgresql.org/)
 [![Redis](https://img.shields.io/badge/redis-FF4438?style=for-the-badge&logo=redis&logoColor=FFFFFF)](https://redis.io/)
-[![mongodb](https://img.shields.io/badge/mongodb-47A248?style=for-the-badge&logo=mongodb&logoColor=FFFFFF)](https://github.com/mongodb/mongo)
 [![zeromq](https://img.shields.io/badge/zeromq-DF0000?style=for-the-badge&logo=zeromq&logoColor=FFFFFF)](https://zeromq.org/)
 [![openai](https://img.shields.io/badge/openai-412991?style=for-the-badge&logo=openai&logoColor=FFFFFF)](https://openai.com/)
 [![nginx](https://img.shields.io/badge/nginx-009639?style=for-the-badge&logo=nginx&logoColor=FFFFFF)](https://www.nginx.com/)
@@ -177,11 +176,8 @@ Yuan uses PostgreSQL for general-purpose scenarios, Prometheus for telemetry met
 
 Due to SQL complexity and significant variations between SQL databases, complex SQL statements are often incompatible. We default to only ensuring compatibility with PostgreSQL, sometimes requiring specific extensions (e.g., TimeScale DB).
 
-Previously using MongoDB as the default database, we transitioned to PostgreSQL due to performance issues. PostgreSQL offers better performance and scalability as a robust relational database. We plan to gradually migrate all data to PostgreSQL and eventually deprecate MongoDB.
-
 - [@yuants/postgres-storage](apps/postgres-storage) A PostgreSQL storage service that connects PostgreSQL instances to Host services while hiding connection credentials.
 - [@yuants/sql](libraries/sql) Client-side SQL library providing convenient read/write capabilities for PostgreSQL data in Hosts.
-- [@yuants/app-mongodb-storage](apps/mongodb-storage) Deploys a terminal as a storage service using MongoDB.
 
 ##### Telemetry
 

@@ -72,7 +72,6 @@ export const PREINSTALLED_EXTENSIONS = [
   '@yuants/app-host',
   '@yuants/app-agent',
   '@yuants/app-trade-copier',
-  '@yuants/app-mongodb-storage',
   '@yuants/app-email-notifier',
   '@yuants/app-feishu-notifier',
   '@yuants/app-market-data-collector',

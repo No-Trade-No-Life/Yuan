@@ -21,7 +21,7 @@ export default (context: IExtensionContext) => {
     }),
     make_docker_compose_file: async (ctx, envCtx) => {
       return {
-        mongodb_storage: {
+        metrics_collector: {
           image: `ghcr.io/no-trade-no-life/app-metrics-collector:${ctx.version ?? envCtx.version}`,
           environment: makeDockerEnvs(ctx.env),
         },

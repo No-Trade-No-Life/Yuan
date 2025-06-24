@@ -64,7 +64,6 @@ export {};
 //             {
 //               account_id: accountInfo.account_id
 //             },
-//             'MongoDB'
 //           )
 //         ),
 //         share()
@@ -165,7 +164,6 @@ export {};
 //                         end_time_in_us: Date.now() * 1000,
 //                         pull_source: false
 //                       },
-//                       'MongoDB'
 //                     ),
 //                   4
 //                 )

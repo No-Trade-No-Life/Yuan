@@ -152,7 +152,15 @@ export class Terminal {
   private static _terminal: Terminal | null = null;
 
   /**
-   * Create a default terminal from Node.js environment variables
+   * Create a default singleton terminal from Node.js environment variables
+   *
+   * You can call this method everywhere if you only need one terminal in a nodejs process
+   *
+   * Env:
+   *
+   * - `HOST_URL`: the host url (required)
+   * - `TERMINAL_ID`: the terminal id (default random UUID, should be unique in the host)
+   * - `TERMINAL_NAME`: the terminal name (default empty)
    */
   static fromNodeEnv(): Terminal {
     if (!isNode) throw new Error('Terminal.fromNodeEnv() can only be used in Node.js environment');
@@ -163,10 +171,10 @@ export class Terminal {
     if (!HOST_URL) {
       throw new Error('env HOST_URL is not set');
     }
-    return new Terminal(HOST_URL, {
+    return (this._terminal = new Terminal(HOST_URL, {
       terminal_id: process.env.TERMINAL_ID || `DefaultTerminal/${UUID()}`,
-      name: process.env.TERMINAL_NAME || 'DefaultTerminal',
-    });
+      name: process.env.TERMINAL_NAME || '',
+    }));
   }
 
   private _mapTerminalIdToPeer: Record<

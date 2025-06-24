@@ -122,7 +122,6 @@ Yuan 是一个混合云软件，允许您同时在家庭或公共云中部署您
 [![prometheus](https://img.shields.io/badge/prometheus-E6522C?style=for-the-badge&logo=prometheus&logoColor=FFFFFF)](https://prometheus.io/)
 [![PostgreSQL](https://img.shields.io/badge/postgresql-4169E1?style=for-the-badge&logo=postgresql&logoColor=FFFFFF)](https://www.postgresql.org/)
 [![Redis](https://img.shields.io/badge/redis-FF4438?style=for-the-badge&logo=redis&logoColor=FFFFFF)](https://redis.io/)
-[![mongodb](https://img.shields.io/badge/mongodb-47A248?style=for-the-badge&logo=mongodb&logoColor=FFFFFF)](https://github.com/mongodb/mongo)
 [![zeromq](https://img.shields.io/badge/zeromq-DF0000?style=for-the-badge&logo=zeromq&logoColor=FFFFFF)](https://zeromq.org/)
 [![openai](https://img.shields.io/badge/openai-412991?style=for-the-badge&logo=openai&logoColor=FFFFFF)](https://openai.com/)
 [![nginx](https://img.shields.io/badge/nginx-009639?style=for-the-badge&logo=nginx&logoColor=FFFFFF)](https://www.nginx.com/)
@@ -178,11 +177,8 @@ Yuan 使用 PostgreSQL 作为通用场景数据库；使用 Prometheus 存储遥
 
 由于 SQL 的复杂性，各种 SQL 数据库具有很大的差异性，较为复杂的 SQL 语句通常是不兼容的，我们默认只考虑在 PostgreSQL 上能够成功运行，甚至我们会要求 PostgreSQL 安装指定的插件 (例如 TimeScale DB)。
 
-以前，我们使用 MongoDB 作为默认数据库，但由于其性能问题，我们决定切换到 PostgreSQL。PostgreSQL 是一个强大的关系数据库，具有更好的性能和可扩展性。我们未来会逐步迁移所有数据到 PostgreSQL，并最终废弃 MongoDB。
-
 - [@yuants/postgres-storage](apps/postgres-storage) 这是一个 PostgreSQL 存储服务。它将 PostgreSQL 数据库实例接入主机服务，同时隐藏连接 PostgreSQL 所需的登录凭证。
 - [@yuants/sql](libraries/sql) 客户端侧的 SQL 库，提供向主机中的 PostgreSQL 读写数据的快捷能力。
-- [@yuants/app-mongodb-storage](apps/mongodb-storage) 这将部署一个终端作为存储服务。它将数据存储在 MongoDB 中。
 
 ##### 遥测
 
