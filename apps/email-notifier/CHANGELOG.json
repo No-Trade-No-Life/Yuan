@@ -2,6 +2,23 @@
   "name": "@yuants/app-email-notifier",
   "entries": [
     {
+      "version": "0.2.5",
+      "tag": "@yuants/app-email-notifier_v0.2.5",
+      "date": "Tue, 24 Jun 2025 18:15:52 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.4",
       "tag": "@yuants/app-email-notifier_v0.2.4",
       "date": "Tue, 24 Jun 2025 15:34:54 GMT",
