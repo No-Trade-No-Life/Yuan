@@ -1,6 +1,13 @@
 # Change Log - @yuants/sql
 
-This log was last generated on Tue, 24 Jun 2025 15:34:54 GMT and should not be manually modified.
+This log was last generated on Wed, 25 Jun 2025 21:53:12 GMT and should not be manually modified.
+
+## 0.7.0
+Wed, 25 Jun 2025 21:53:12 GMT
+
+### Minor changes
+
+- add writeToSQL helper
 
 ## 0.6.4
 Tue, 24 Jun 2025 15:34:54 GMT
