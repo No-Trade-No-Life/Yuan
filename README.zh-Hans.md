@@ -196,6 +196,7 @@ Yuan 使用 PostgreSQL 作为通用场景数据库；使用 Prometheus 存储遥
 
 - [@yuants/data-product](libraries/data-product) 市场中可交易的产品。
 - [@yuants/data-ohlc](libraries/data-ohlc) OHLC(V) 数据。OHLC 是 Open、High、Low、Close 的缩写，是一种常用的市场数据格式，也称为 K 线。
+- [@yuants/data-quote](libraries/data-quote) Level-1 报价数据，具体是指产品的最新价格和最优报价等信息。
 - [@yuants/data-interest-rate](libraries/data-interest-rate) 利率数据。利率是指交易者持有头寸经过结算点时产生的利息。它通常用于外汇交易和差价合约 (CFD) 交易，同时也适用于永续合约的资金费率。
 
 老旧的数据模型存放于 [@yuants/data-model](libraries/data-model)，我们计划将其拆分成很多不同的包，从而减少一些非核心模型变动冲击。

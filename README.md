@@ -195,6 +195,7 @@ The data modeling includes TypeScript types and SQL table definitions.
 
 - [@yuants/data-product](libraries/data-product) Tradable products in markets.
 - [@yuants/data-ohlc](libraries/data-ohlc) OHLC(V) data (Open, High, Low, Close with optional Volume) - a common market data format also known as candlestick charts.
+- [@yuants/data-quote](libraries/data-quote) Level-1 quote data, specifically referring to a product's latest price and top-of-book market quotes.
 - [@yuants/data-interest-rate](libraries/data-interest-rate) Interest rate data. Interest refers to the charges incurred when traders hold positions through settlement points. It's commonly used in forex trading and CFD (Contract for Difference) trading, and also applies to funding rates in perpetual contracts.
 
 Legacy data models are maintained in [@yuants/data-model](libraries/data-model). We plan to split them into multiple specialized packages to reduce impact from non-core model changes.
