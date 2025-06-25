@@ -1,9 +1,9 @@
 import { encodePath } from '@yuants/data-model';
 import { IProduct } from '@yuants/data-product';
+import { Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
 import { defer, filter, from, map, mergeMap, repeat, retry, shareReplay, Subject, tap, toArray } from 'rxjs';
 import { client } from './api';
-import { terminal } from './terminal';
 
 const product$ = new Subject<IProduct>();
 
@@ -90,7 +90,7 @@ export const mapProductIdToMarginProduct$ = marginProducts$.pipe(
   map((x) => new Map(x.map((x) => [x.product_id, x])), shareReplay(1)),
 );
 
-createSQLWriter<IProduct>(terminal, {
+createSQLWriter<IProduct>(Terminal.fromNodeEnv(), {
   data$: product$,
   tableName: 'product',
   writeInterval: 1_000,
