@@ -11,7 +11,12 @@ export interface IQuote {
     bid_price: string;
     bid_volume: string;
     datasource_id: string;
+    interest_rate_long: string;
+    interest_rate_next_settled_at: string;
+    interest_rate_prev_settled_at: string;
+    interest_rate_short: string;
     last_price: string;
+    open_interest: string;
     product_id: string;
     updated_at: string;
 }

@@ -1,9 +1,9 @@
 import { encodePath } from '@yuants/data-model';
 import { IProduct } from '@yuants/data-product';
+import { Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
 import { defer, filter, map, mergeMap, repeat, retry, shareReplay, Subject, tap, toArray } from 'rxjs';
 import { client } from './api';
-import { terminal } from './terminal';
 
 const product$ = new Subject<IProduct>();
 
@@ -69,7 +69,7 @@ export const spotProducts$ = defer(() => client.getSpotSymbols()).pipe(
 spotProducts$.subscribe();
 perpetualContractProducts$.subscribe();
 
-createSQLWriter<IProduct>(terminal, {
+createSQLWriter<IProduct>(Terminal.fromNodeEnv(), {
   tableName: 'product',
   writeInterval: 1000,
   keyFn: (x) => encodePath(x.datasource_id, x.product_id),

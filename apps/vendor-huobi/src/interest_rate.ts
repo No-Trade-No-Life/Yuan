@@ -1,11 +1,11 @@
 import { IInterestRate } from '@yuants/data-interest-rate';
 import { decodePath, formatTime } from '@yuants/data-model';
 import { createSeriesProvider } from '@yuants/data-series';
+import { Terminal } from '@yuants/protocol';
 import { firstValueFrom, timer } from 'rxjs';
 import { client } from './api';
-import { terminal } from './terminal';
 
-createSeriesProvider<IInterestRate>(terminal, {
+createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
   tableName: 'interest_rate',
   series_id_prefix_parts: ['HUOBI-SWAP'],
   reversed: true,

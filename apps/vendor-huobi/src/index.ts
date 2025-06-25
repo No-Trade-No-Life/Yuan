@@ -1,9 +1,9 @@
-import { IAccountInfo, IAccountMoney, IOrder, IPosition, ITick, formatTime } from '@yuants/data-model';
-import { provideAccountInfo, provideTicks } from '@yuants/protocol';
+import { IAccountInfo, IAccountMoney, IOrder, IPosition, formatTime } from '@yuants/data-model';
+import { Terminal, provideAccountInfo } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
-import '@yuants/transfer/lib/services';
 import { addAccountTransferAddress } from '@yuants/transfer';
+import '@yuants/transfer/lib/services';
 import { roundToStep } from '@yuants/utils';
 import {
   EMPTY,
@@ -15,7 +15,6 @@ import {
   expand,
   filter,
   first,
-  firstValueFrom,
   from,
   groupBy,
   map,
@@ -33,7 +32,9 @@ import {
 import { client } from './api';
 import './interest_rate';
 import { perpetualContractProducts$, spotProducts$ } from './product';
-import { terminal } from './terminal';
+import './quote';
+
+const terminal = Terminal.fromNodeEnv();
 
 (async () => {
   const swapAccountTypeRes = await client.getSwapUnifiedAccountType();
@@ -64,99 +65,6 @@ import { terminal } from './terminal';
   const subAccounts = subUsersRes.data;
   const isMainAccount = subUsersRes.ok;
   console.info(formatTime(Date.now()), 'subAccounts', JSON.stringify(subAccounts));
-
-  const mapSwapContractCodeToBboTick$ = defer(() => client.getSwapMarketBbo({})).pipe(
-    mergeMap((res) =>
-      from(res.ticks).pipe(
-        map((tick) => [tick.contract_code, tick] as const),
-        toArray(),
-        map((ticks) => Object.fromEntries(ticks)),
-      ),
-    ),
-
-    repeat({ delay: 1000 }),
-    retry({ delay: 1000 }),
-    shareReplay(1),
-  );
-
-  const mapSwapContractCodeToTradeTick$ = defer(() => client.getSwapMarketTrade({})).pipe(
-    mergeMap((res) =>
-      from(res.tick.data).pipe(
-        map((tick) => [tick.contract_code, tick] as const),
-        toArray(),
-        map((ticks) => Object.fromEntries(ticks)),
-      ),
-    ),
-
-    repeat({ delay: 1000 }),
-    retry({ delay: 1000 }),
-    shareReplay(1),
-  );
-
-  const mapSwapContractCodeToFundingRateTick$ = defer(() => client.getSwapBatchFundingRate({})).pipe(
-    mergeMap((res) =>
-      from(res.data).pipe(
-        map((tick) => [tick.contract_code, tick] as const),
-        toArray(),
-        map((ticks) => Object.fromEntries(ticks)),
-      ),
-    ),
-
-    repeat({ delay: 1000 }),
-    retry({ delay: 1000 }),
-    shareReplay(1),
-  );
-
-  const mapSwapContractCodeToOpenInterest$ = defer(() => client.getSwapOpenInterest({})).pipe(
-    mergeMap((res) =>
-      from(res.data).pipe(
-        map((tick) => [tick.contract_code, tick] as const),
-        toArray(),
-        map((ticks) => Object.fromEntries(ticks)),
-      ),
-    ),
-
-    repeat({ delay: 1000 }),
-    retry({ delay: 1000 }),
-    shareReplay(1),
-  );
-
-  provideTicks(terminal, 'HUOBI-SWAP', (product_id) => {
-    return defer(async () => {
-      const products = await firstValueFrom(perpetualContractProducts$);
-      const theProduct = products.find((x) => x.product_id === product_id);
-      if (!theProduct) throw `No Found ProductID ${product_id}`;
-
-      return [
-        of(theProduct),
-        mapSwapContractCodeToBboTick$,
-        mapSwapContractCodeToTradeTick$,
-        mapSwapContractCodeToFundingRateTick$,
-        mapSwapContractCodeToOpenInterest$,
-      ] as const;
-    }).pipe(
-      catchError(() => EMPTY),
-      mergeMap((x) =>
-        combineLatest(x).pipe(
-          map(([theProduct, bboTick, tradeTick, fundingRateTick, openInterest]): ITick => {
-            return {
-              datasource_id: 'HUOBI-SWAP',
-              product_id,
-              updated_at: Date.now(),
-              settlement_scheduled_at: +fundingRateTick[product_id].funding_time,
-              price: +tradeTick[product_id].price,
-              ask: bboTick[product_id].ask?.[0] ?? undefined,
-              bid: bboTick[product_id].bid?.[0] ?? undefined,
-              volume: +tradeTick[product_id].amount,
-              interest_rate_for_long: -+fundingRateTick[product_id].funding_rate,
-              interest_rate_for_short: +fundingRateTick[product_id].funding_rate,
-              open_interest: +openInterest[product_id]?.volume,
-            };
-          }),
-        ),
-      ),
-    );
-  });
 
   const mapProductIdToPerpetualProduct$ = perpetualContractProducts$.pipe(
     map((x) => new Map(x.map((v) => [v.product_id, v]))),
