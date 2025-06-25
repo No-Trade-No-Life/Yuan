@@ -31,7 +31,6 @@
     "@yuants/app-metrics-collector",
     "@yuants/app-prometheus-client",
     "@yuants/app-series-collector",
-    "@yuants/app-general-realtime-data-source",
     "@yuants/app-trade-copier",
     "@yuants/app-transfer-controller",
     "@yuants/app-risk-manager",
