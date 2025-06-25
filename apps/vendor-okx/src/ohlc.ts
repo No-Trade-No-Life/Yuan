@@ -1,9 +1,9 @@
 import { decodePath, formatTime } from '@yuants/data-model';
 import { IOHLC } from '@yuants/data-ohlc';
 import { createSeriesProvider } from '@yuants/data-series';
+import { Terminal } from '@yuants/protocol';
 import { firstValueFrom, timer } from 'rxjs';
 import { client } from './api';
-import { terminal } from './terminal';
 
 // 时间粒度，默认值1m
 // 如 [1m/3m/5m/15m/30m/1H/2H/4H]
@@ -46,7 +46,7 @@ const DURATION_TO_PERIOD_IN_SEC: Record<string, number> = {
   P1M: 2592000,
 };
 
-createSeriesProvider<IOHLC>(terminal, {
+createSeriesProvider<IOHLC>(Terminal.fromNodeEnv(), {
   tableName: 'ohlc',
   series_id_prefix_parts: ['OKX'],
   reversed: true,

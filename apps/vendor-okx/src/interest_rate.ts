@@ -1,13 +1,13 @@
 import { IInterestRate } from '@yuants/data-interest-rate';
 import { decodePath, encodePath, formatTime } from '@yuants/data-model';
 import { createSeriesProvider, ISeriesCollectingTask } from '@yuants/data-series';
+import { Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
 import { firstValueFrom, map, mergeAll, timer } from 'rxjs';
 import { client } from './api';
 import { usdtSwapProducts$ } from './product';
-import { terminal } from './terminal';
 
-createSQLWriter<ISeriesCollectingTask>(terminal, {
+createSQLWriter<ISeriesCollectingTask>(Terminal.fromNodeEnv(), {
   data$: usdtSwapProducts$.pipe(
     mergeAll(),
     map(
@@ -26,7 +26,7 @@ createSQLWriter<ISeriesCollectingTask>(terminal, {
   conflictKeys: ['series_id', 'table_name'],
 });
 
-createSeriesProvider<IInterestRate>(terminal, {
+createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
   tableName: 'interest_rate',
   series_id_prefix_parts: ['OKX'],
   reversed: true,
