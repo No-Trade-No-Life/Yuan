@@ -1204,6 +1204,7 @@ importers:
       '@yuants/data-model': workspace:*
       '@yuants/data-ohlc': workspace:*
       '@yuants/data-product': workspace:*
+      '@yuants/data-quote': workspace:*
       '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
@@ -1220,6 +1221,7 @@ importers:
       '@yuants/data-model': link:../../libraries/data-model
       '@yuants/data-ohlc': link:../../libraries/data-ohlc
       '@yuants/data-product': link:../../libraries/data-product
+      '@yuants/data-quote': link:../../libraries/data-quote
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/sql': link:../../libraries/sql
@@ -1588,6 +1590,39 @@ importers:
       typescript: 4.7.4
 
   ../../libraries/data-product:
+    specifiers:
+      '@microsoft/api-extractor': ~7.30.0
+      '@rushstack/heft': ~0.47.5
+      '@rushstack/heft-jest-plugin': ~0.16.8
+      '@rushstack/heft-node-rig': ~1.10.7
+      '@types/heft-jest': 1.0.3
+      '@types/json-schema': ~7.0.11
+      '@types/node': '22'
+      '@types/uuid': ~8.3.4
+      '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
+      '@yuants/tool-kit': workspace:*
+      rxjs: ~7.5.6
+      typescript: ~4.7.4
+      uuid: ~8.3.2
+    dependencies:
+      '@yuants/protocol': link:../protocol
+      '@yuants/sql': link:../sql
+      rxjs: 7.5.7
+      uuid: 8.3.2
+    devDependencies:
+      '@microsoft/api-extractor': 7.30.1
+      '@rushstack/heft': 0.47.11
+      '@rushstack/heft-jest-plugin': 0.16.8_cd919cf15781346720f8e992576a8e2b
+      '@rushstack/heft-node-rig': 1.10.13_@rushstack+heft@0.47.11
+      '@types/heft-jest': 1.0.3
+      '@types/json-schema': 7.0.15
+      '@types/node': 22.7.5
+      '@types/uuid': 8.3.4
+      '@yuants/tool-kit': link:../../tools/toolkit
+      typescript: 4.7.4
+
+  ../../libraries/data-quote:
     specifiers:
       '@microsoft/api-extractor': ~7.30.0
       '@rushstack/heft': ~0.47.5

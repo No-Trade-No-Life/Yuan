@@ -456,6 +456,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/data-quote",
+      "projectFolder": "libraries/data-quote",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/host-manager",
       "projectFolder": "libraries/host-manager",
       "shouldPublish": true

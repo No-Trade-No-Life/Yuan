@@ -8,7 +8,7 @@ import {
   encodePath,
   formatTime,
 } from '@yuants/data-model';
-import { provideAccountInfo, provideTicks } from '@yuants/protocol';
+import { Terminal, provideAccountInfo, provideTicks } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import { addAccountTransferAddress } from '@yuants/transfer';
@@ -28,7 +28,6 @@ import {
   repeat,
   retry,
   shareReplay,
-  toArray,
 } from 'rxjs';
 import { client } from './api';
 import {
@@ -37,7 +36,9 @@ import {
   marginProducts$,
   usdtSwapProducts$,
 } from './product';
-import { terminal } from './terminal';
+import { spotMarketTickers$, swapMarketTickers$ } from './quote';
+
+const terminal = Terminal.fromNodeEnv();
 
 const marketIndexTickerUSDT$ = defer(() => client.getMarketIndexTicker({ quoteCcy: 'USDT' })).pipe(
   map((x) => {
@@ -57,32 +58,6 @@ const resOfAssetCurrencies = defer(() => client.getAssetCurrencies()).pipe(
 );
 
 resOfAssetCurrencies.subscribe(); // make it hot
-
-const swapMarketTickers$ = defer(() => client.getMarketTickers({ instType: 'SWAP' })).pipe(
-  mergeMap((x) =>
-    from(x.data).pipe(
-      map((x) => [x.instId, x] as const),
-      toArray(),
-      map((x) => Object.fromEntries(x)),
-    ),
-  ),
-  repeat({ delay: 5000 }),
-  retry({ delay: 5000 }),
-  shareReplay(1),
-);
-
-const spotMarketTickers$ = defer(() => client.getMarketTickers({ instType: 'SPOT' })).pipe(
-  mergeMap((x) =>
-    from(x.data).pipe(
-      map((x) => [x.instId, x] as const),
-      toArray(),
-      map((x) => Object.fromEntries(x)),
-    ),
-  ),
-  repeat({ delay: 5000 }),
-  retry({ delay: 5000 }),
-  shareReplay(1),
-);
 
 const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
   const cache: Record<string, any> = {};
