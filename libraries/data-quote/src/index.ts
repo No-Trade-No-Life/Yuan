@@ -52,22 +52,61 @@ export interface IQuote {
    * 买一量，即买方愿意支付的最高价格的成交量
    */
   bid_volume: string;
+
+  /**
+   * Open interest, the total number of open contracts
+   *
+   * 未平仓合约数，即当前市场上未平仓的合约总数
+   */
+  open_interest: string;
+
+  /**
+   * Interest rate for long positions, the interest rate for holding long positions
+   *
+   * 多头利率，即持有多头头寸的利率
+   */
+  interest_rate_long: string;
+  /**
+   * Interest rate for short positions, the interest rate for holding short positions
+   *
+   * 空头利率，即持有空头头寸的利率
+   */
+  interest_rate_short: string;
+  /**
+   * Previous interest rate settlement time, the last time the interest rate was settled
+   *
+   * 上次利率结算时间，即上次利率结算的时间
+   */
+  interest_rate_prev_settled_at: string;
+  /**
+   * Next interest rate settlement time, the next time the interest rate will be settled
+   *
+   * 下次利率结算时间，即下次利率结算的预定时间
+   */
+  interest_rate_next_settled_at: string;
 }
 
 AddMigration({
-  id: '9ffcabfd-6968-435d-a15e-93f35722dbfa',
+  id: '52dd6e13-6d7d-4fd5-85cc-aa668b7bb44f',
   name: 'create_table_quote',
   dependencies: [],
   statement: `
     CREATE TABLE IF NOT EXISTS quote (
         datasource_id TEXT NOT NULL,
         product_id TEXT NOT NULL,
-        last_price TEXT NOT NULL,
-        ask_price TEXT NOT NULL,
-        ask_volume TEXT NOT NULL,
-        bid_price TEXT NOT NULL,
-        bid_volume TEXT NOT NULL,
         updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+        last_price TEXT,
+        ask_price TEXT,
+        ask_volume TEXT,
+        bid_price TEXT,
+        bid_volume TEXT,
+        open_interest TEXT,
+        interest_rate_long TEXT,
+        interest_rate_short TEXT,
+        interest_rate_prev_settled_at TIMESTAMPTZ,
+        interest_rate_next_settled_at TIMESTAMPTZ,
+        
         PRIMARY KEY (datasource_id, product_id)
     );
 

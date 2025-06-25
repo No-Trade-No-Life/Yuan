@@ -4,6 +4,7 @@
 
 ```ts
 
+import { MonoTypeOperatorFunction } from 'rxjs';
 import { Observable } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
 
@@ -21,13 +22,7 @@ export const buildInsertManyIntoTableSQL: <T extends {}>(data: T[], tableName: s
 // @public
 export const createSQLWriter: <T extends {}>(terminal: Terminal, ctx: {
     data$: Observable<T>;
-    tableName: string;
-    writeInterval: number;
-    columns?: (keyof T)[] | undefined;
-    keyFn?: ((data: T) => string) | undefined;
-    ignoreConflict?: boolean | undefined;
-    conflictKeys?: (keyof T)[] | undefined;
-}) => void;
+} & ISQLWritterContext<T>) => void;
 
 // @public
 const escape_2: (val: any, options?: {}) => string;
@@ -45,7 +40,22 @@ export interface ISQLMigration {
 }
 
 // @public
+export interface ISQLWritterContext<T extends {}> {
+    columns?: Array<keyof T>;
+    conflictKeys?: Array<keyof T>;
+    ignoreConflict?: boolean;
+    keyFn?: (data: T) => string;
+    tableName: string;
+    writeInterval: number;
+}
+
+// @public
 export const requestSQL: <T = unknown>(terminal: Terminal, query: string) => Promise<T>;
+
+// @public
+export const writeToSQL: <T extends {}>(ctx: ISQLWritterContext<T> & {
+    terminal: Terminal;
+}) => MonoTypeOperatorFunction<T>;
 
 // (No @packageDocumentation comment for this package)
 

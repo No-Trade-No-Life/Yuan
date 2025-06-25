@@ -1,6 +1,16 @@
 import { formatTime } from '@yuants/data-model';
 import { IResponse, Terminal } from '@yuants/protocol';
-import { concatMap, defer, from, lastValueFrom, Observable, retry, tap } from 'rxjs';
+import {
+  concatMap,
+  defer,
+  from,
+  lastValueFrom,
+  MonoTypeOperatorFunction,
+  Observable,
+  retry,
+  Subject,
+  tap,
+} from 'rxjs';
 import { createBufferWriter } from './bufferWriter';
 
 declare module '@yuants/protocol' {
@@ -251,34 +261,7 @@ export const createSQLWriter = <T extends {}>(
      * 数据流中的每一项都将被写入到数据库中的一行中
      */
     data$: Observable<T>;
-    /**
-     * 目标表名
-     */
-    tableName: string;
-    /**
-     * 写入间隔 (ms)
-     */
-    writeInterval: number;
-    /**
-     * 需要插入的列名
-     *
-     * 留空则使用数据的第一行的所有列进行推断
-     */
-    columns?: Array<keyof T>;
-    /**
-     * 具有相同 key 的数据仅取最后一个
-     */
-    keyFn?: (data: T) => string;
-    /**
-     * 是否忽略插入冲突 (默认 false)
-     */
-    ignoreConflict?: boolean;
-
-    /**
-     * 冲突时需要检查的键
-     */
-    conflictKeys?: Array<keyof T>;
-  },
+  } & ISQLWritterContext<T>,
 ) => {
   const writer = createBufferWriter<T>({
     writeInterval: ctx.writeInterval,
@@ -300,3 +283,55 @@ export const createSQLWriter = <T extends {}>(
     { res: { code: 0, message: 'OK', data: writer.state } },
   ]);
 };
+
+/**
+ * Context for the SQL writer
+ * @public
+ */
+export interface ISQLWritterContext<T extends {}> {
+  /**
+   * 目标表名
+   */
+  tableName: string;
+  /**
+   * 写入间隔 (ms)
+   */
+  writeInterval: number;
+  /**
+   * 需要插入的列名
+   *
+   * 留空则使用数据的第一行的所有列进行推断
+   */
+  columns?: Array<keyof T>;
+  /**
+   * 具有相同 key 的数据仅取最后一个
+   */
+  keyFn?: (data: T) => string;
+  /**
+   * 是否忽略插入冲突 (默认 false)
+   */
+  ignoreConflict?: boolean;
+  /**
+   * 冲突时需要检查的键
+   */
+  conflictKeys?: Array<keyof T>;
+}
+
+/**
+ * Pipe operator to write data to a SQL table
+ * @public
+ */
+export const writeToSQL =
+  <T extends {}>(ctx: ISQLWritterContext<T> & { terminal: Terminal }): MonoTypeOperatorFunction<T> =>
+  (source$) => {
+    const data$ = new Subject<T>();
+    createSQLWriter(ctx.terminal, {
+      ...ctx,
+      data$: data$,
+    });
+    return source$.pipe(
+      tap((x) => {
+        data$.next(x);
+      }),
+    );
+  };

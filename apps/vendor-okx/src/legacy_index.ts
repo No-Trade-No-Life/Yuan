@@ -36,7 +36,7 @@ import {
   marginProducts$,
   usdtSwapProducts$,
 } from './product';
-import { spotMarketTickers$, swapMarketTickers$ } from './quote';
+import { spotMarketTickers$, swapMarketTickers$, swapOpenInterest$ } from './quote';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -90,14 +90,6 @@ const interestRateByCurrency$ = memoizeMap((currency: string) =>
     ),
     shareReplay(1),
   ),
-);
-
-const swapOpenInterest$ = defer(() => client.getOpenInterest({ instType: 'SWAP' })).pipe(
-  map((x) => new Map(x.data.map((x) => [x.instId, +x.oi] as const))),
-
-  repeat({ delay: 10_000 }),
-  retry({ delay: 10_000 }),
-  shareReplay(1),
 );
 
 provideTicks(terminal, 'OKX', (product_id) => {
