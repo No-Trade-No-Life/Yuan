@@ -274,7 +274,6 @@ You can even build a logistics network to automatically balance funds between ac
 - [@yuants/utils](libraries/utils) General utilities not found in community packages.
 - [@yuants/extension](libraries/extension) Defines extension interfaces for enhanced functionality.
 - [@yuants/app-account-composer](apps/account-composer) Deploys an account aggregation service that combines multiple account balances into a unified view.
-- [@yuants/app-general-realtime-data-source](apps/general-realtime-data-source) The real-time version of the general data source, useful for creating index price ticks.
 - [@yuants/app-k8s-manifest-operator](apps/k8s-manifest-operator) Deploys a Kubernetes manifest operator that ensures cluster state matches CRD definitions.
 
 #### Web UI
