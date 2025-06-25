@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/data-quote",
+  "entries": [
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/data-quote_v0.1.0",
+      "date": "Wed, 25 Jun 2025 18:06:32 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "new"
+          }
+        ]
+      }
+    }
+  ]
+}
