@@ -469,13 +469,13 @@ export class BitgetClient {
   }> => this.request('GET', '/api/v2/mix/market/open-interest', params);
 
   /**
-   * 获取历史资金费率
+   * 获取下次资金费结算时间
    *
    * 限速规则: 20次/1s (IP)
    *
-   * 获取合约的历史资金费率
+   * 获取合约下一次的结算时间以及该合约的结算周期
    *
-   * https://www.bitget.com/zh-CN/api-doc/contract/market/Get-History-Funding-Rate
+   * https://www.bitget.com/zh-CN/api-doc/contract/market/Get-Symbol-Next-Funding-Time
    */
   getNextFundingTime = (params: {
     symbol: string;

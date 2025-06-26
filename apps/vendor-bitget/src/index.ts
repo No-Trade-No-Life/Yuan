@@ -2,68 +2,22 @@ import {
   IAccountInfo,
   IAccountMoney,
   IPosition,
-  ITick,
   decodePath,
   encodePath,
   formatTime,
 } from '@yuants/data-model';
-import { provideAccountInfo, provideTicks } from '@yuants/protocol';
+import { Terminal, provideAccountInfo } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import '@yuants/transfer/lib/services';
-import {
-  EMPTY,
-  combineLatest,
-  defer,
-  expand,
-  filter,
-  map,
-  mergeMap,
-  of,
-  repeat,
-  retry,
-  shareReplay,
-  skip,
-  tap,
-  timer,
-} from 'rxjs';
+import { defer, repeat, retry, shareReplay, tap } from 'rxjs';
 import { client } from './api';
 import './interest-rate';
 import './product';
-import { terminal } from './terminal';
+import './quote';
 
-const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
-  const cache: Record<string, any> = {};
-  return ((...params: any[]) => (cache[encodePath(params)] ??= fn(...params))) as T;
-};
-
-const fundingTime$ = memoizeMap((product_id: string) =>
-  // KNOWN ISSUE: the next funding time may be incorrect
-  of({ expire: 0 }).pipe(
-    //
-    expand((v) =>
-      timer(v.expire).pipe(
-        //
-        mergeMap(async () => {
-          const [instType, instId] = decodePath(product_id);
-          const res = await client.getNextFundingTime({
-            symbol: instId,
-            productType: instType,
-          });
-          if (res.msg !== 'success') {
-            throw new Error(res.msg);
-          }
-          console.info(formatTime(Date.now()), 'FundingTime', product_id, res.data[0].nextFundingTime);
-          return { ...res.data[0], expire: +res.data[0].nextFundingTime - Date.now() };
-        }),
-        retry({ delay: 5000 }),
-      ),
-    ),
-    skip(1),
-    shareReplay(1),
-  ),
-);
+const terminal = Terminal.fromNodeEnv();
 
 (async () => {
   const accountInfoRes = await client.getAccountInfo();
@@ -73,83 +27,6 @@ const fundingTime$ = memoizeMap((product_id: string) =>
 
   const USDT_FUTURE_ACCOUNT_ID = `bitget/${uid}/futures/USDT`;
   const SPOT_ACCOUNT_ID = `bitget/${uid}/spot/USDT`;
-
-  // ticks
-  {
-    const futureTickers$ = defer(async () => {
-      const usdtFuturesTickersRes = await client.getFutureMarketTickers({
-        productType: 'USDT-FUTURES',
-      });
-      if (usdtFuturesTickersRes.msg !== 'success') {
-        throw new Error(usdtFuturesTickersRes.msg);
-      }
-      const coinFuturesTickersRes = await client.getFutureMarketTickers({
-        productType: 'COIN-FUTURES',
-      });
-      if (coinFuturesTickersRes.msg !== 'success') {
-        throw new Error(coinFuturesTickersRes.msg);
-      }
-
-      const usdtFuturesTickers = usdtFuturesTickersRes.data.map((v) => [
-        encodePath('USDT-FUTURES', v.symbol),
-        v,
-      ]);
-      const coinFuturesTickers = coinFuturesTickersRes.data.map((v) => [
-        encodePath('COIN-FUTURES', v.symbol),
-        v,
-      ]);
-
-      return Object.fromEntries([...usdtFuturesTickers, ...coinFuturesTickers]);
-    }).pipe(
-      //
-      tap({
-        error: (e) => {
-          console.error(formatTime(Date.now()), 'FuturesTickers', e);
-        },
-      }),
-      retry({ delay: 5000 }),
-      repeat({ delay: 5000 }),
-      shareReplay(1),
-    );
-
-    provideTicks(terminal, 'BITGET', (product_id: string) => {
-      const [instType] = decodePath(product_id);
-      if (!['USDT-FUTURES', 'COIN-FUTURES'].includes(instType)) {
-        // TODO: margin
-        return EMPTY;
-      }
-      return defer(async () => {
-        const theTicker$ = futureTickers$.pipe(
-          //
-          map((v) => v[product_id]),
-          filter((v) => v !== undefined),
-          shareReplay(1),
-        );
-        return [theTicker$, fundingTime$(product_id)] as const;
-      }).pipe(
-        //
-        mergeMap((v) =>
-          combineLatest(v).pipe(
-            map(([ticker, fundingTime]): ITick => {
-              return {
-                datasource_id: 'BITGET',
-                product_id,
-                updated_at: Date.now(),
-                price: +ticker.lastPr,
-                volume: +ticker.baseVolume,
-                open_interest: +ticker.holdingAmount,
-                ask: +ticker.askPr,
-                bid: +ticker.bidPr,
-                settlement_scheduled_at: new Date(+fundingTime.nextFundingTime).getTime(),
-                interest_rate_for_long: -+ticker.fundingRate,
-                interest_rate_for_short: +ticker.fundingRate,
-              };
-            }),
-          ),
-        ),
-      );
-    });
-  }
 
   // swap account info
   {
