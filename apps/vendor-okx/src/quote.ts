@@ -91,21 +91,23 @@ const quote3$ = swapOpenInterests$.pipe(
 );
 
 // 合并不同来源的数据并进行合并，避免死锁
-merge(quote1$, quote2$, quote3$)
-  .pipe(
-    groupBy((x) => encodePath(x.datasource_id, x.product_id)),
-    mergeMap((group$) => {
-      return group$.pipe(scan((acc, cur) => Object.assign(acc, cur), {} as Partial<IQuote>));
-    }),
-    writeToSQL({
-      terminal: Terminal.fromNodeEnv(),
-      writeInterval: 1000,
-      tableName: 'quote',
-      keyFn: (quote) => encodePath(quote.datasource_id, quote.product_id),
-      conflictKeys: ['datasource_id', 'product_id'],
-    }),
-  )
-  .subscribe();
+if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
+  merge(quote1$, quote2$, quote3$)
+    .pipe(
+      groupBy((x) => encodePath(x.datasource_id, x.product_id)),
+      mergeMap((group$) => {
+        return group$.pipe(scan((acc, cur) => Object.assign(acc, cur), {} as Partial<IQuote>));
+      }),
+      writeToSQL({
+        terminal: Terminal.fromNodeEnv(),
+        writeInterval: 1000,
+        tableName: 'quote',
+        keyFn: (quote) => encodePath(quote.datasource_id, quote.product_id),
+        conflictKeys: ['datasource_id', 'product_id'],
+      }),
+    )
+    .subscribe();
+}
 
 export const swapOpenInterest$ = defer(() => swapOpenInterests$).pipe(
   map((x) => new Map(x.data.map((x) => [x.instId, +x.oi] as const))),
