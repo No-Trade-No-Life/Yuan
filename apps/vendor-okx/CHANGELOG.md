@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Thu, 26 Jun 2025 10:34:39 GMT and should not be manually modified.
+This log was last generated on Thu, 26 Jun 2025 19:18:22 GMT and should not be manually modified.
+
+## 0.12.2
+Thu, 26 Jun 2025 19:18:22 GMT
+
+### Patches
+
+- fix quote deadlock
 
 ## 0.12.1
 Thu, 26 Jun 2025 10:34:39 GMT

@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.12.2",
+      "tag": "@yuants/vendor-okx_v0.12.2",
+      "date": "Thu, 26 Jun 2025 19:18:22 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix quote deadlock"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.12.1",
       "tag": "@yuants/vendor-okx_v0.12.1",
       "date": "Thu, 26 Jun 2025 10:34:39 GMT",
