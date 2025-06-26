@@ -28,7 +28,7 @@ const swapBboTick$ = defer(() => client.getSwapMarketBbo({})).pipe(
 
 swapBboTick$
   .pipe(
-    mergeMap((res) => res.ticks),
+    mergeMap((res) => res.ticks || []),
     map((tick): Partial<IQuote> => {
       const [ask_price = '', ask_volume = ''] = tick.ask || [];
       const [bid_price = '', bid_volume = ''] = tick.bid || [];
@@ -73,7 +73,7 @@ const swapTradeTick$ = defer(() => client.getSwapMarketTrade({})).pipe(
 
 swapTradeTick$
   .pipe(
-    mergeMap((res) => res.tick.data),
+    mergeMap((res) => res.tick?.data || []),
     map(
       (tick): Partial<IQuote> => ({
         datasource_id: 'HUOBI-SWAP',
@@ -112,7 +112,7 @@ const swapFundingRateTick$ = defer(() => client.getSwapBatchFundingRate({})).pip
 
 swapFundingRateTick$
   .pipe(
-    mergeMap((res) => res.data),
+    mergeMap((res) => res.data || []),
     map(
       (tick): Partial<IQuote> => ({
         datasource_id: 'HUOBI-SWAP',
@@ -154,7 +154,7 @@ const swapOpenInterest$ = defer(() => client.getSwapOpenInterest({})).pipe(
 
 swapOpenInterest$
   .pipe(
-    mergeMap((res) => res.data),
+    mergeMap((res) => res.data || []),
     map(
       (tick): Partial<IQuote> => ({
         datasource_id: 'HUOBI-SWAP',
