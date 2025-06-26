@@ -520,6 +520,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/secret",
+      "projectFolder": "libraries/secret",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/app-alert-receiver",
       "projectFolder": "apps/alert-receiver",
       "shouldPublish": true
