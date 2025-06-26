@@ -45,7 +45,7 @@ export const spotMarketTickers$ = defer(() => spotTickers$).pipe(
 
 swapTickers$
   .pipe(
-    mergeMap((x) => x.data),
+    mergeMap((x) => x.data || []),
     map(
       (ticker): Partial<IQuote> => ({
         datasource_id: 'OKX',
@@ -69,7 +69,7 @@ swapTickers$
 
 spotTickers$
   .pipe(
-    mergeMap((x) => x.data),
+    mergeMap((x) => x.data || []),
     map(
       (ticker): Partial<IQuote> => ({
         datasource_id: 'OKX',
@@ -99,7 +99,7 @@ const swapOpenInterests$ = defer(() => client.getOpenInterest({ instType: 'SWAP'
 
 swapOpenInterests$
   .pipe(
-    mergeMap((x) => x.data),
+    mergeMap((x) => x.data || []),
     map(
       (x): Partial<IQuote> => ({
         datasource_id: 'OKX',
