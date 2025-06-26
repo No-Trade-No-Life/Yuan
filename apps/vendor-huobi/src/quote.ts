@@ -9,11 +9,14 @@ import {
   EMPTY,
   firstValueFrom,
   from,
+  groupBy,
   map,
+  merge,
   mergeMap,
   of,
   repeat,
   retry,
+  scan,
   shareReplay,
   toArray,
 } from 'rxjs';
@@ -26,30 +29,21 @@ const swapBboTick$ = defer(() => client.getSwapMarketBbo({})).pipe(
   shareReplay(1),
 );
 
-swapBboTick$
-  .pipe(
-    mergeMap((res) => res.ticks || []),
-    map((tick): Partial<IQuote> => {
-      const [ask_price = '', ask_volume = ''] = tick.ask || [];
-      const [bid_price = '', bid_volume = ''] = tick.bid || [];
-      return {
-        datasource_id: 'HUOBI-SWAP',
-        product_id: tick.contract_code,
-        ask_price: `${ask_price}`,
-        bid_price: `${bid_price}`,
-        ask_volume: `${ask_volume}`,
-        bid_volume: `${bid_volume}`,
-      };
-    }),
-    writeToSQL({
-      terminal: Terminal.fromNodeEnv(),
-      tableName: 'quote',
-      writeInterval: 1000,
-      conflictKeys: ['datasource_id', 'product_id'],
-      keyFn: (x) => encodePath(x.datasource_id, x.product_id),
-    }),
-  )
-  .subscribe();
+const quote1$ = swapBboTick$.pipe(
+  mergeMap((res) => res.ticks || []),
+  map((tick): Partial<IQuote> => {
+    const [ask_price = '', ask_volume = ''] = tick.ask || [];
+    const [bid_price = '', bid_volume = ''] = tick.bid || [];
+    return {
+      datasource_id: 'HUOBI-SWAP',
+      product_id: tick.contract_code,
+      ask_price: `${ask_price}`,
+      bid_price: `${bid_price}`,
+      ask_volume: `${ask_volume}`,
+      bid_volume: `${bid_volume}`,
+    };
+  }),
+);
 
 const mapSwapContractCodeToBboTick$ = defer(() => swapBboTick$).pipe(
   mergeMap((res) =>
@@ -71,25 +65,16 @@ const swapTradeTick$ = defer(() => client.getSwapMarketTrade({})).pipe(
   shareReplay(1),
 );
 
-swapTradeTick$
-  .pipe(
-    mergeMap((res) => res.tick?.data || []),
-    map(
-      (tick): Partial<IQuote> => ({
-        datasource_id: 'HUOBI-SWAP',
-        product_id: tick.contract_code,
-        last_price: `${tick.price}`,
-      }),
-    ),
-    writeToSQL({
-      terminal: Terminal.fromNodeEnv(),
-      tableName: 'quote',
-      writeInterval: 1000,
-      conflictKeys: ['datasource_id', 'product_id'],
-      keyFn: (x) => encodePath(x.datasource_id, x.product_id),
+const quote2$ = swapTradeTick$.pipe(
+  mergeMap((res) => res.tick?.data || []),
+  map(
+    (tick): Partial<IQuote> => ({
+      datasource_id: 'HUOBI-SWAP',
+      product_id: tick.contract_code,
+      last_price: `${tick.price}`,
     }),
-  )
-  .subscribe();
+  ),
+);
 
 const mapSwapContractCodeToTradeTick$ = defer(() => swapTradeTick$).pipe(
   mergeMap((res) =>
@@ -110,27 +95,18 @@ const swapFundingRateTick$ = defer(() => client.getSwapBatchFundingRate({})).pip
   shareReplay(1),
 );
 
-swapFundingRateTick$
-  .pipe(
-    mergeMap((res) => res.data || []),
-    map(
-      (tick): Partial<IQuote> => ({
-        datasource_id: 'HUOBI-SWAP',
-        product_id: tick.contract_code,
-        interest_rate_long: `${-tick.funding_rate}`,
-        interest_rate_short: `${tick.funding_rate}`,
-        interest_rate_next_settled_at: formatTime(+tick.funding_time),
-      }),
-    ),
-    writeToSQL({
-      terminal: Terminal.fromNodeEnv(),
-      tableName: 'quote',
-      writeInterval: 1000,
-      conflictKeys: ['datasource_id', 'product_id'],
-      keyFn: (x) => encodePath(x.datasource_id, x.product_id),
+const quote3$ = swapFundingRateTick$.pipe(
+  mergeMap((res) => res.data || []),
+  map(
+    (tick): Partial<IQuote> => ({
+      datasource_id: 'HUOBI-SWAP',
+      product_id: tick.contract_code,
+      interest_rate_long: `${-tick.funding_rate}`,
+      interest_rate_short: `${tick.funding_rate}`,
+      interest_rate_next_settled_at: formatTime(+tick.funding_time),
     }),
-  )
-  .subscribe();
+  ),
+);
 
 const mapSwapContractCodeToFundingRateTick$ = defer(() => swapFundingRateTick$).pipe(
   mergeMap((res) =>
@@ -152,16 +128,26 @@ const swapOpenInterest$ = defer(() => client.getSwapOpenInterest({})).pipe(
   shareReplay(1),
 );
 
-swapOpenInterest$
+const quote4$ = swapOpenInterest$.pipe(
+  mergeMap((res) => res.data || []),
+  map(
+    (tick): Partial<IQuote> => ({
+      datasource_id: 'HUOBI-SWAP',
+      product_id: tick.contract_code,
+      open_interest: `${tick.volume}`,
+    }),
+  ),
+);
+
+// 合并不同来源的数据并进行合并，避免死锁
+merge(quote1$, quote2$, quote3$, quote4$)
   .pipe(
-    mergeMap((res) => res.data || []),
-    map(
-      (tick): Partial<IQuote> => ({
-        datasource_id: 'HUOBI-SWAP',
-        product_id: tick.contract_code,
-        open_interest: `${tick.volume}`,
-      }),
-    ),
+    groupBy((x) => encodePath(x.datasource_id, x.product_id)),
+    mergeMap((group$) => {
+      return group$.pipe(scan((acc, cur) => Object.assign(acc, cur), {} as Partial<IQuote>));
+    }),
+  )
+  .pipe(
     writeToSQL({
       terminal: Terminal.fromNodeEnv(),
       tableName: 'quote',

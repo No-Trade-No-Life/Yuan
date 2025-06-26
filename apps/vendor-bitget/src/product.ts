@@ -3,7 +3,7 @@ import { IProduct } from '@yuants/data-product';
 import { createSQLWriter } from '@yuants/sql';
 import { Subject, defer, repeat, retry, shareReplay, tap } from 'rxjs';
 import { client } from './api';
-import { terminal } from './terminal';
+import { Terminal } from '@yuants/protocol';
 
 const product$ = new Subject<IProduct>();
 
@@ -75,7 +75,7 @@ const futureProducts$ = defer(async () => {
   shareReplay(1),
 );
 
-createSQLWriter<IProduct>(terminal, {
+createSQLWriter<IProduct>(Terminal.fromNodeEnv(), {
   data$: product$,
   tableName: 'product',
   keyFn: (x) => encodePath(x.datasource_id, x.product_id),
