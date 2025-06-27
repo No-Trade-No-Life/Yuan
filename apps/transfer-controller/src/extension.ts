@@ -62,7 +62,7 @@ export default (context: IExtensionContext) => {
                     name: COMPONENT_NAME,
                     resources: {
                       limits: {
-                        cpu: ctx.cpu?.max ?? '200',
+                        cpu: ctx.cpu?.max ?? '200m',
                         memory: ctx.memory?.max ?? '256Mi',
                       },
                       requests: {
