@@ -1,6 +1,17 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Thu, 26 Jun 2025 19:18:22 GMT and should not be manually modified.
+This log was last generated on Mon, 30 Jun 2025 09:08:40 GMT and should not be manually modified.
+
+## 0.8.0
+Mon, 30 Jun 2025 09:08:40 GMT
+
+### Minor changes
+
+- cluster mode
+
+### Patches
+
+- refactor using defer async pattern
 
 ## 0.7.2
 Thu, 26 Jun 2025 19:18:22 GMT
