@@ -32,6 +32,15 @@ export const accountIds$ = defer(() => terminal$).pipe(
                       if (typeof serviceInfo.schema.properties?.channel_id.const === 'string') {
                         return of(serviceInfo.schema.properties?.channel_id.const);
                       }
+                      if (typeof serviceInfo.schema.properties?.channel_id.allOf === 'object') {
+                        for (const item of serviceInfo.schema.properties?.channel_id.allOf) {
+                          // @ts-ignore
+                          if (typeof item?.const === 'string') {
+                            // @ts-ignore
+                            return of(item?.const);
+                          }
+                        }
+                      }
                     }
                   }
 
