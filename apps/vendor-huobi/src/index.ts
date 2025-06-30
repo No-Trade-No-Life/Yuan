@@ -38,7 +38,7 @@ const terminal = Terminal.fromNodeEnv();
 
 (async () => {
   const swapAccountTypeRes = await client.getSwapUnifiedAccountType();
-  if (swapAccountTypeRes.data.account_type !== 2) {
+  if (swapAccountTypeRes.data?.account_type === 1) {
     console.info(
       formatTime(Date.now()),
       'SwitchingAccountType',
@@ -76,7 +76,7 @@ const terminal = Terminal.fromNodeEnv();
     mergeMap(() => {
       const balance$ = defer(() => client.getUnifiedAccountInfo()).pipe(
         //
-        mergeMap((res) => res.data),
+        mergeMap((res) => res.data || []),
         filter((v) => v.margin_asset === 'USDT'),
         repeat({ delay: 1000 }),
         tap({
@@ -92,7 +92,7 @@ const terminal = Terminal.fromNodeEnv();
         //
         combineLatestWith(mapProductIdToPerpetualProduct$.pipe(first())),
         mergeMap(([res, mapProductIdToPerpetualProduct]) =>
-          from(res.data).pipe(
+          from(res.data || []).pipe(
             map((v): IPosition => {
               const product_id = v.contract_code;
               const theProduct = mapProductIdToPerpetualProduct.get(product_id);
@@ -135,7 +135,7 @@ const terminal = Terminal.fromNodeEnv();
             retry({ delay: 5000 }),
             map((v) => v.data),
             mergeMap((ret) => {
-              if (ret.orders.length === 0) {
+              if (!ret?.orders || ret.orders.length === 0) {
                 return EMPTY;
               }
               return of({ orders: ret.orders, page_index: v.page_index + 1, page_size: v.page_size });
@@ -144,7 +144,7 @@ const terminal = Terminal.fromNodeEnv();
         ),
 
         mergeMap((res) =>
-          from(res.orders).pipe(
+          from(res.orders || []).pipe(
             map((v): IOrder => {
               return {
                 order_id: v.order_id_str,

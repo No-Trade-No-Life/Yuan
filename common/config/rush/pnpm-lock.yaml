@@ -1080,6 +1080,7 @@ importers:
       '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/secret': workspace:*
       '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/transfer': workspace:*
@@ -1094,6 +1095,7 @@ importers:
       '@yuants/data-quote': link:../../libraries/data-quote
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/secret': link:../../libraries/secret
       '@yuants/sql': link:../../libraries/sql
       '@yuants/transfer': link:../../libraries/transfer
       '@yuants/utils': link:../../libraries/utils

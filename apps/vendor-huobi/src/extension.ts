@@ -10,8 +10,7 @@ export default (context: IExtensionContext) => {
           properties: {
             HOST_URL: { type: 'string' },
             TERMINAL_ID: { type: 'string' },
-            ACCESS_KEY: { type: 'string' },
-            SECRET_KEY: { type: 'string' },
+            ENCRYPTION_KEY_BASE58: { type: 'string' },
           },
         },
       },

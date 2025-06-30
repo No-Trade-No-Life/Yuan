@@ -24,4 +24,4 @@ RUN node create-links.js create
 WORKDIR /app/apps/vendor-huobi
 
 # USER nobody
-CMD ["node", "--heapsnapshot-signal=SIGUSR2", "./lib/index.js"]
+CMD ["node", "--heapsnapshot-signal=SIGUSR2", "./lib/cluster.js"]

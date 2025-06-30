@@ -139,24 +139,26 @@ const quote4$ = swapOpenInterest$.pipe(
   ),
 );
 
-// 合并不同来源的数据并进行合并，避免死锁
-merge(quote1$, quote2$, quote3$, quote4$)
-  .pipe(
-    groupBy((x) => encodePath(x.datasource_id, x.product_id)),
-    mergeMap((group$) => {
-      return group$.pipe(scan((acc, cur) => Object.assign(acc, cur), {} as Partial<IQuote>));
-    }),
-  )
-  .pipe(
-    writeToSQL({
-      terminal: Terminal.fromNodeEnv(),
-      tableName: 'quote',
-      writeInterval: 1000,
-      conflictKeys: ['datasource_id', 'product_id'],
-      keyFn: (x) => encodePath(x.datasource_id, x.product_id),
-    }),
-  )
-  .subscribe();
+if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
+  // 合并不同来源的数据并进行合并，避免死锁
+  merge(quote1$, quote2$, quote3$, quote4$)
+    .pipe(
+      groupBy((x) => encodePath(x.datasource_id, x.product_id)),
+      mergeMap((group$) => {
+        return group$.pipe(scan((acc, cur) => Object.assign(acc, cur), {} as Partial<IQuote>));
+      }),
+    )
+    .pipe(
+      writeToSQL({
+        terminal: Terminal.fromNodeEnv(),
+        tableName: 'quote',
+        writeInterval: 1000,
+        conflictKeys: ['datasource_id', 'product_id'],
+        keyFn: (x) => encodePath(x.datasource_id, x.product_id),
+      }),
+    )
+    .subscribe();
+}
 
 const mapSwapContractCodeToOpenInterest$ = defer(() => swapOpenInterest$).pipe(
   mergeMap((res) =>
