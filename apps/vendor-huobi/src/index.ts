@@ -6,17 +6,14 @@ import { addAccountTransferAddress } from '@yuants/transfer';
 import '@yuants/transfer/lib/services';
 import { roundToStep } from '@yuants/utils';
 import {
-  EMPTY,
   catchError,
-  combineLatest,
   combineLatestWith,
   defer,
   distinct,
-  expand,
   filter,
   first,
+  firstValueFrom,
   from,
-  groupBy,
   map,
   mergeMap,
   of,
@@ -25,7 +22,6 @@ import {
   retry,
   shareReplay,
   tap,
-  throttleTime,
   timeout,
   toArray,
 } from 'rxjs';
@@ -71,146 +67,111 @@ const terminal = Terminal.fromNodeEnv();
     shareReplay(1),
   );
 
-  // account info
-  const perpetualContractAccountInfo$ = of(0).pipe(
-    mergeMap(() => {
-      const balance$ = defer(() => client.getUnifiedAccountInfo()).pipe(
-        //
-        mergeMap((res) => res.data || []),
-        filter((v) => v.margin_asset === 'USDT'),
-        repeat({ delay: 1000 }),
-        tap({
-          error: (e) => {
-            console.error(formatTime(Date.now()), 'balanceAndPosition$', e);
-          },
-        }),
-        retry({ delay: 5000 }),
-        shareReplay(1),
-      );
+  const perpetualContractAccountInfo$ = defer(async () => {
+    // balance
+    const balance = await client.getUnifiedAccountInfo();
+    if (!balance.data) {
+      throw new Error('Failed to get unified account info');
+    }
+    const balanceData = balance.data.find((v) => v.margin_asset === 'USDT');
+    if (!balanceData) {
+      throw new Error('No USDT balance found in unified account');
+    }
+    const money: IAccountMoney = {
+      currency: 'USDT',
+      balance: balanceData.cross_margin_static,
+      equity: balanceData.margin_balance,
+      profit: balanceData.cross_profit_unreal,
+      free: balanceData.withdraw_available,
+      used: balanceData.margin_balance - balanceData.withdraw_available,
+    };
 
-      const positions$ = defer(() => client.getSwapCrossPositionInfo()).pipe(
-        //
-        combineLatestWith(mapProductIdToPerpetualProduct$.pipe(first())),
-        mergeMap(([res, mapProductIdToPerpetualProduct]) =>
-          from(res.data || []).pipe(
-            map((v): IPosition => {
-              const product_id = v.contract_code;
-              const theProduct = mapProductIdToPerpetualProduct.get(product_id);
-              const valuation = v.volume * v.last_price * (theProduct?.value_scale || 1);
-              return {
-                position_id: `${v.contract_code}/${v.contract_type}/${v.direction}/${v.margin_mode}`,
-                datasource_id: 'HUOBI-SWAP',
-                product_id,
-                direction: v.direction === 'buy' ? 'LONG' : 'SHORT',
-                volume: v.volume,
-                free_volume: v.available,
-                position_price: v.cost_hold,
-                closable_price: v.last_price,
-                floating_profit: v.profit_unreal,
-                valuation,
-              };
-            }),
-            toArray(),
-          ),
-        ),
-        repeat({ delay: 1000 }),
-        tap({
-          error: (e) => {
-            console.error(formatTime(Date.now()), 'balanceAndPosition$', e);
-          },
-        }),
-        retry({ delay: 5000 }),
-        shareReplay(1),
-      );
+    // positions
+    const positionsRes = await client.getSwapCrossPositionInfo();
+    const mapProductIdToPerpetualProduct = await mapProductIdToPerpetualProduct$.pipe(first()).toPromise();
+    const positions: IPosition[] = (positionsRes.data || []).map((v): IPosition => {
+      const product_id = v.contract_code;
+      const theProduct = mapProductIdToPerpetualProduct?.get(product_id);
+      const valuation = v.volume * v.last_price * (theProduct?.value_scale || 1);
+      return {
+        position_id: `${v.contract_code}/${v.contract_type}/${v.direction}/${v.margin_mode}`,
+        datasource_id: 'HUOBI-SWAP',
+        product_id,
+        direction: v.direction === 'buy' ? 'LONG' : 'SHORT',
+        volume: v.volume,
+        free_volume: v.available,
+        position_price: v.cost_hold,
+        closable_price: v.last_price,
+        floating_profit: v.profit_unreal,
+        valuation,
+      };
+    });
 
-      const orders$ = of({ orders: [], page_index: 1, page_size: 50 }).pipe(
-        expand((v) =>
-          defer(() =>
-            client.getSwapOpenOrders({
-              page_index: v.page_index,
-              page_size: v.page_size,
-            }),
-          ).pipe(
-            //
-            retry({ delay: 5000 }),
-            map((v) => v.data),
-            mergeMap((ret) => {
-              if (!ret?.orders || ret.orders.length === 0) {
-                return EMPTY;
-              }
-              return of({ orders: ret.orders, page_index: v.page_index + 1, page_size: v.page_size });
-            }),
-          ),
-        ),
+    // orders
+    const orders: IOrder[] = [];
+    let page_index = 1;
+    const page_size = 50;
 
-        mergeMap((res) =>
-          from(res.orders || []).pipe(
-            map((v): IOrder => {
-              return {
-                order_id: v.order_id_str,
-                account_id: SWAP_ACCOUNT_ID,
-                product_id: v.contract_code,
-                order_type: ['lightning'].includes(v.order_price_type)
-                  ? 'MARKET'
-                  : ['limit', 'opponent', 'post_only', 'optimal_5', 'optimal_10', 'optimal_20'].includes(
-                      v.order_price_type,
-                    )
-                  ? 'LIMIT'
-                  : ['fok'].includes(v.order_price_type)
-                  ? 'FOK'
-                  : v.order_price_type.includes('ioc')
-                  ? 'IOC'
-                  : 'STOP', // unreachable code
-                order_direction:
-                  v.direction === 'open'
-                    ? v.offset === 'buy'
-                      ? 'OPEN_LONG'
-                      : 'OPEN_SHORT'
-                    : v.offset === 'buy'
-                    ? 'CLOSE_SHORT'
-                    : 'CLOSE_LONG',
-                volume: v.volume,
-                submit_at: v.created_at,
-                price: v.price,
-                traded_volume: v.trade_volume,
-              };
-            }),
-            toArray(),
-          ),
-        ),
+    while (true) {
+      const ordersRes = await client.getSwapOpenOrders({ page_index, page_size });
+      if (!ordersRes.data?.orders || ordersRes.data.orders.length === 0) {
+        break;
+      }
 
-        repeat({ delay: 1000 }),
-        tap({
-          error: (e) => {
-            console.error(formatTime(Date.now()), 'orders$', e);
-          },
-        }),
-        retry({ delay: 5000 }),
-        shareReplay(1),
-      );
+      const pageOrders: IOrder[] = ordersRes.data.orders.map((v): IOrder => {
+        return {
+          order_id: v.order_id_str,
+          account_id: SWAP_ACCOUNT_ID,
+          product_id: v.contract_code,
+          order_type: ['lightning'].includes(v.order_price_type)
+            ? 'MARKET'
+            : ['limit', 'opponent', 'post_only', 'optimal_5', 'optimal_10', 'optimal_20'].includes(
+                v.order_price_type,
+              )
+            ? 'LIMIT'
+            : ['fok'].includes(v.order_price_type)
+            ? 'FOK'
+            : v.order_price_type.includes('ioc')
+            ? 'IOC'
+            : 'STOP', // unreachable code
+          order_direction:
+            v.direction === 'open'
+              ? v.offset === 'buy'
+                ? 'OPEN_LONG'
+                : 'OPEN_SHORT'
+              : v.offset === 'buy'
+              ? 'CLOSE_SHORT'
+              : 'CLOSE_LONG',
+          volume: v.volume,
+          submit_at: v.created_at,
+          price: v.price,
+          traded_volume: v.trade_volume,
+        };
+      });
 
-      return combineLatest([balance$, positions$, orders$]).pipe(
-        throttleTime(1000),
-        map(([balance, positions, orders]): IAccountInfo => {
-          const money: IAccountMoney = {
-            currency: 'USDT',
-            balance: balance.cross_margin_static,
-            equity: balance.margin_balance,
-            profit: balance.cross_profit_unreal,
-            free: balance.withdraw_available,
-            used: balance.margin_balance - balance.withdraw_available,
-          };
-          return {
-            updated_at: Date.now(),
-            account_id: SWAP_ACCOUNT_ID,
-            money: money,
-            currencies: [money],
-            positions,
-            orders,
-          };
-        }),
-      );
+      orders.push(...pageOrders);
+      page_index++;
+    }
+
+    const accountInfo: IAccountInfo = {
+      updated_at: Date.now(),
+      account_id: SWAP_ACCOUNT_ID,
+      money: money,
+      currencies: [money],
+      positions,
+      orders,
+    };
+
+    return accountInfo;
+  }).pipe(
+    repeat({ delay: 1000 }),
+    tap({
+      error: (e) => {
+        console.error(formatTime(Date.now()), 'perpetualContractAccountInfo', e);
+      },
     }),
+    retry({ delay: 1000 }),
+    shareReplay(1),
   );
 
   const superMarginUnifiedRawAccountBalance$ = defer(() =>
@@ -264,87 +225,105 @@ const terminal = Terminal.fromNodeEnv();
       }
     });
 
-  const superMarginAccountInfo$ = of(0).pipe(
-    //
-    mergeMap(() => {
-      const balance$ = superMarginUnifiedRawAccountBalance$.pipe(
-        //
-        mergeMap((res) =>
-          from(res?.list || []).pipe(
-            filter((v) => v.currency === 'usdt'),
-            reduce((acc, cur) => acc + +cur.balance, 0),
-          ),
-        ),
-      );
-      const position$ = superMarginUnifiedRawAccountBalance$.pipe(
-        //
-        mergeMap((res) =>
-          from(res?.list || []).pipe(
-            filter((v) => v.currency !== 'usdt'),
-            groupBy((res) => res.currency),
-            mergeMap((group$) =>
-              group$.pipe(
-                reduce((acc, cur) => ({ currency: acc.currency, balance: acc.balance + +cur.balance }), {
-                  currency: group$.key,
-                  balance: 0,
-                }),
-                combineLatestWith(
-                  defer(() => client.spot_ws.input$).pipe(
-                    //
-                    first((v) => v.ch?.includes('ticker') && v.ch?.includes(group$.key) && v.tick),
-                    map((v): number => v.tick.bid),
-                    timeout(5000),
-                    tap({
-                      error: (e) => {
-                        subscriptions.clear();
-                      },
-                    }),
-                    retry({ delay: 5000 }),
-                  ),
-                ),
-                map(([v, price]): IPosition => {
-                  return {
-                    position_id: `${v.currency}/usdt/spot`,
-                    product_id: `${v.currency}usdt`,
-                    direction: 'LONG',
-                    volume: v.balance,
-                    free_volume: v.balance,
-                    position_price: price,
-                    closable_price: price,
-                    floating_profit: 0,
-                    valuation: v.balance * price,
-                  };
+  const superMarginAccountInfo$ = defer(async () => {
+    // get account balance
+    const accountBalance = await client.getSpotAccountBalance(superMarginAccountUid);
+    const balanceList = accountBalance.data?.list || [];
+
+    // calculate usdt balance
+    const usdtBalance = balanceList
+      .filter((v) => v.currency === 'usdt')
+      .reduce((acc, cur) => acc + +cur.balance, 0);
+
+    // get positions (non-usdt currencies)
+    const positions: IPosition[] = [];
+    const nonUsdtCurrencies = balanceList
+      .filter((v) => v.currency !== 'usdt')
+      .reduce((acc, cur) => {
+        const existing = acc.find((item) => item.currency === cur.currency);
+        if (existing) {
+          existing.balance += +cur.balance;
+        } else {
+          acc.push({ currency: cur.currency, balance: +cur.balance });
+        }
+        return acc;
+      }, [] as { currency: string; balance: number }[]);
+
+    // get prices and create positions
+    for (const currencyData of nonUsdtCurrencies) {
+      if (currencyData.balance > 0) {
+        try {
+          // get current price from websocket or fallback to REST API
+          let price: number;
+          try {
+            const tickPrice = await firstValueFrom(
+              client.spot_ws.input$.pipe(
+                //
+                first((v) => v.ch?.includes('ticker') && v.ch?.includes(currencyData.currency) && v.tick),
+                map((v): number => v.tick.bid),
+                timeout(5000),
+                tap({
+                  error: (e) => {
+                    subscriptions.clear();
+                  },
                 }),
               ),
-            ),
-            toArray(),
-          ),
-        ),
-      );
-      return combineLatest([balance$, position$]).pipe(
-        //
-        throttleTime(1000),
-        map(([balance, positions]): IAccountInfo => {
-          const equity = positions.reduce((acc, cur) => acc + cur.closable_price * cur.volume, 0) + balance;
-          const money: IAccountMoney = {
-            currency: 'USDT',
-            balance: equity,
-            equity: equity,
-            profit: 0,
-            free: equity,
-            used: 0,
-          };
-          return {
-            updated_at: Date.now(),
-            account_id: SUPER_MARGIN_ACCOUNT_ID,
-            money: money,
-            currencies: [money],
-            positions,
-            orders: [],
-          };
-        }),
-      );
+            );
+            price = tickPrice;
+          } catch {
+            // fallback to REST API
+            const tickerRes = await client.getSpotTick({ symbol: `${currencyData.currency}usdt` });
+            price = tickerRes.tick.close;
+          }
+
+          positions.push({
+            position_id: `${currencyData.currency}/usdt/spot`,
+            product_id: `${currencyData.currency}usdt`,
+            direction: 'LONG',
+            volume: currencyData.balance,
+            free_volume: currencyData.balance,
+            position_price: price,
+            closable_price: price,
+            floating_profit: 0,
+            valuation: currencyData.balance * price,
+          });
+        } catch (error) {
+          console.warn(formatTime(Date.now()), `Failed to get price for ${currencyData.currency}:`, error);
+        }
+      }
+    }
+
+    // calculate equity
+    const equity = positions.reduce((acc, cur) => acc + cur.closable_price * cur.volume, 0) + usdtBalance;
+
+    const money: IAccountMoney = {
+      currency: 'USDT',
+      balance: equity,
+      equity: equity,
+      profit: 0,
+      free: equity,
+      used: 0,
+    };
+
+    const accountInfo: IAccountInfo = {
+      updated_at: Date.now(),
+      account_id: SUPER_MARGIN_ACCOUNT_ID,
+      money: money,
+      currencies: [money],
+      positions,
+      orders: [],
+    };
+
+    return accountInfo;
+  }).pipe(
+    repeat({ delay: 1000 }),
+    tap({
+      error: (e) => {
+        console.error(formatTime(Date.now()), 'superMarginAccountInfo', e);
+      },
     }),
+    retry({ delay: 5000 }),
+    shareReplay(1),
   );
 
   const spotRawBalance$ = defer(() => client.getSpotAccountBalance(spotAccountUid)).pipe(
