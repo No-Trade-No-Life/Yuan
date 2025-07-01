@@ -20,7 +20,8 @@
     "rxjs": "~7.5.6",
     "crypto-js": "^4.2.0",
     "hyperliquid": "~1.6.2",
-    "ethers": "~6.13.5"
+    "ethers": "~6.13.5",
+    "@msgpack/msgpack": "~3.1.2"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "~7.30.0",
