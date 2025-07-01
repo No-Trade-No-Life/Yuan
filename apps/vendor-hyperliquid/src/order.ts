@@ -100,7 +100,8 @@ terminal.provideService(
     let price = `${order.price}`;
     if (order.order_type === 'MARKET') {
       const allMids = await client.getAllMids();
-      price = allMids[baseCurrency];
+      const midPrice = +allMids[baseCurrency];
+      price = `${b ? (1 + 0.05) * midPrice : (1 - 0.05) * midPrice}`;
     }
     price = roundPrice(+price, instType as 'PERPETUAL' | 'SPOT', szDecimals);
 
