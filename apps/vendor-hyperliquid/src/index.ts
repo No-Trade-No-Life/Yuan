@@ -5,6 +5,7 @@ import '@yuants/protocol/lib/services/order';
 import '@yuants/transfer/lib/services';
 import { defer, repeat, retry, shareReplay, tap } from 'rxjs';
 import { client } from './api';
+import './order';
 import './product';
 import { terminal } from './terminal';
 
@@ -71,8 +72,6 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
   }
 
   // TODO: spot account info
-
-  // TODO: trade api
 
   // TODO: funding rate
 

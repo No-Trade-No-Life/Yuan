@@ -88,7 +88,7 @@ const terminal = Terminal.fromNodeEnv();
 
     // positions
     const positionsRes = await client.getSwapCrossPositionInfo();
-    const mapProductIdToPerpetualProduct = await mapProductIdToPerpetualProduct$.pipe(first()).toPromise();
+    const mapProductIdToPerpetualProduct = await firstValueFrom(mapProductIdToPerpetualProduct$);
     const positions: IPosition[] = (positionsRes.data || []).map((v): IPosition => {
       const product_id = v.contract_code;
       const theProduct = mapProductIdToPerpetualProduct?.get(product_id);

@@ -2,6 +2,7 @@ import { UUID, formatTime } from '@yuants/data-model';
 // @ts-ignore
 import { ethers } from 'ethers';
 import { Subject, filter, firstValueFrom, mergeMap, of, shareReplay, throwError, timeout, timer } from 'rxjs';
+import { signL1Action } from './sign';
 
 /**
  * API: https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/notation
@@ -164,7 +165,9 @@ export class HyperliquidClient {
    *
    * https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/info-endpoint/perpetuals#retrieve-perpetuals-metadata
    */
-  getPerpetualsMetaData = (): Promise<{
+  getPerpetualsMetaData = (params?: {
+    dex?: string;
+  }): Promise<{
     universe: {
       name: string;
       szDecimals: number;
@@ -172,6 +175,16 @@ export class HyperliquidClient {
       onlyIsolated?: boolean;
       isDelisted?: boolean;
     }[];
+    marginTables: [
+      number,
+      {
+        description: string;
+        marginTiers: {
+          lowerBound: string;
+          maxLeverage: number;
+        }[];
+      },
+    ][];
   }> => this.request('POST', 'info', { type: 'meta' });
 
   /**
@@ -235,6 +248,150 @@ export class HyperliquidClient {
       entryNtl: string;
     }[];
   }> => this.request('POST', 'info', { ...params, type: 'tokenBalances' });
+
+  /**
+   * Undocumented mysterious endpoint that returns all MIDs
+   *
+   * FYI: https://github.com/hyperliquid-dex/hyperliquid-python-sdk/blob/a4280d08ca42936a6851f309b7a4f4ae995a92c0/hyperliquid/info.py#L184
+   */
+  getAllMids = (): Promise<Record<string, string>> => this.request('POST', 'info', { type: 'allMids' });
+
+  /**
+   * exchange - placeOrder
+   *
+   * https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/exchange-endpoint#place-an-order
+   *
+   * Meaning of keys:
+   * a is asset
+   * b is isBuy
+   * p is price
+   * s is size
+   * r is reduceOnly
+   * t is type
+   * c is cloid (client order id)
+   *
+   * Meaning of keys in optional builder argument:
+   * b is the address the should receive the additional fee
+   * f is the size of the fee in tenths of a basis point e.g.
+   * if f is 10, 1bp of the order notional will be charged to the user and sent to the builder
+   */
+  placeOrder = async (params: {
+    orders: {
+      a: number;
+      b: boolean;
+      p: string;
+      s: string;
+      r: boolean;
+      t: {
+        limit?: {
+          tif: string;
+        };
+        trigger?: {
+          isMarke: boolean;
+          triggerPx: string;
+          tpsl: string;
+        };
+      };
+      c?: number; // optional, used for client order id
+    }[];
+    builder?: {
+      b: string;
+      f: number;
+    };
+    vaultAddress?: string; // optional, used for vault orders
+    expiresAfter?: number; // optional, used for vault orders
+  }): Promise<{
+    status: string;
+    response: {
+      type: 'order';
+      data: {
+        statuses: {
+          filled?: {
+            totalSz: string;
+            avgPx: string;
+            oid: number;
+          };
+          error?: string;
+          resting?: {
+            oid: number;
+          };
+        }[];
+      };
+    };
+  }> => {
+    const action: Record<string, any> = {
+      type: 'order',
+      orders: params.orders,
+      grouping: 'na',
+    };
+    if (params.builder) {
+      action['builder'] = params.builder;
+    }
+    const nonce = Date.now();
+    const signature = await signL1Action(
+      this.wallet!,
+      action,
+      null,
+      nonce,
+      !!params.expiresAfter ? params.expiresAfter : null,
+      true,
+    );
+
+    return this.request('POST', 'exchange', {
+      action,
+      nonce,
+      signature,
+    });
+  };
+
+  /**
+   * exchange - cancelOrder
+   *
+   * https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/exchange-endpoint#cancel-order-s
+   *
+   * Meaning of keys:
+   * a is asset
+   * o is oid (order id)
+   */
+  cancelOrder = async (params: {
+    cancels: {
+      a: number;
+      o: number;
+    }[];
+    vaultAddress?: string; // optional, used for vault orders
+    expiresAfter?: number; // optional, used for vault orders
+  }): Promise<{
+    status: string;
+    response: {
+      type: 'cancel';
+      data: {
+        statuses:
+          | string
+          | {
+              error: string;
+            }[];
+      };
+    };
+  }> => {
+    const action: Record<string, any> = {
+      type: 'cancel',
+      cancels: params.cancels,
+    };
+    const nonce = Date.now();
+    const signature = await signL1Action(
+      this.wallet!,
+      action,
+      null,
+      nonce,
+      !!params.expiresAfter ? params.expiresAfter : null,
+      true,
+    );
+    return this.request('POST', 'exchange', {
+      action,
+      nonce,
+      signature,
+    });
+  };
 }
 
 export const client = new HyperliquidClient({
