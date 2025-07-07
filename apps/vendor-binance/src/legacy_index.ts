@@ -1,13 +1,13 @@
 import {
-  IAccountInfo,
-  IAccountMoney,
-  IPosition,
+  // IAccountInfo,
+  // IAccountMoney,
+  // IPosition,
   ITick,
   decodePath,
   encodePath,
   formatTime,
 } from '@yuants/data-model';
-import { provideAccountInfo, provideTicks } from '@yuants/protocol';
+import { provideTicks } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import { addAccountTransferAddress } from '@yuants/transfer';
@@ -28,6 +28,7 @@ import {
 } from 'rxjs';
 import { client, isError } from './api';
 import { terminal } from './terminal';
+import { IAccountInfo, IAccountMoney, IPosition, publishAccountInfo } from '@yuants/data-account';
 
 const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
   const cache: Record<string, any> = {};
@@ -180,7 +181,7 @@ provideTicks(terminal, 'binance', (product_id) => {
       retry({ delay: 5000 }),
       repeat({ delay: 1000 }),
     );
-    provideAccountInfo(terminal, unifiedAccountInfo$);
+    publishAccountInfo(terminal, UNIFIED_ACCOUNT_ID, unifiedAccountInfo$);
   }
 
   {
@@ -219,7 +220,7 @@ provideTicks(terminal, 'binance', (product_id) => {
       repeat({ delay: 1000 }),
     );
 
-    provideAccountInfo(terminal, spotAccountInfo$);
+    publishAccountInfo(terminal, SPOT_ACCOUNT_ID, spotAccountInfo$);
   }
 
   // transfer

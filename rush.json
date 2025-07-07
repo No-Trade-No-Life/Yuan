@@ -456,6 +456,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/data-account",
+      "projectFolder": "libraries/data-account",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/data-quote",
       "projectFolder": "libraries/data-quote",
       "shouldPublish": true

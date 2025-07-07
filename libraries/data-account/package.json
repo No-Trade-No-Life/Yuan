@@ -1,0 +1,41 @@
+{
+  "name": "@yuants/data-account",
+  "version": "0.0.1",
+  "main": "lib/index.js",
+  "module": "dist/index.js",
+  "files": [
+    "dist",
+    "lib",
+    "temp"
+  ],
+  "scripts": {
+    "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
+  },
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
+  },
+  "devDependencies": {
+    "@yuants/data-model": "workspace:*",
+    "@yuants/tool-kit": "workspace:*",
+    "@microsoft/api-extractor": "~7.30.0",
+    "@rushstack/heft": "~0.47.5",
+    "@rushstack/heft-jest-plugin": "~0.16.8",
+    "@rushstack/heft-node-rig": "~1.10.7",
+    "@types/heft-jest": "1.0.3",
+    "@types/json-schema": "~7.0.11",
+    "@types/node": "22",
+    "@types/uuid": "~8.3.4",
+    "typescript": "~4.7.4"
+  },
+  "dependencies": {
+    "@yuants/protocol": "workspace:*",
+    "@yuants/sql": "workspace:*",
+    "@yuants/prometheus-client": "workspace:*",
+    "rxjs": "~7.5.6",
+    "uuid": "~8.3.2",
+    "@opentelemetry/api": "~1.9.0",
+    "@opentelemetry/sdk-metrics": "~2.0.0",
+    "@opentelemetry/exporter-prometheus": "~0.200.0"
+  }
+}

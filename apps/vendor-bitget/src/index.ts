@@ -1,12 +1,12 @@
 import {
-  IAccountInfo,
-  IAccountMoney,
+  // IAccountInfo,
+  // IAccountMoney,
   IPosition,
   decodePath,
   encodePath,
   formatTime,
 } from '@yuants/data-model';
-import { Terminal, provideAccountInfo } from '@yuants/protocol';
+import { Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import { addAccountTransferAddress } from '@yuants/transfer';
@@ -16,6 +16,7 @@ import { client } from './api';
 import './interest-rate';
 import './product';
 import './quote';
+import { IAccountInfo, IAccountMoney, publishAccountInfo } from '@yuants/data-account';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -80,7 +81,7 @@ const terminal = Terminal.fromNodeEnv();
       repeat({ delay: 1000 }),
       shareReplay(1),
     );
-    provideAccountInfo(terminal, swapAccountInfo$);
+    publishAccountInfo(terminal, USDT_FUTURE_ACCOUNT_ID, swapAccountInfo$);
   }
 
   // spot account info
@@ -121,7 +122,7 @@ const terminal = Terminal.fromNodeEnv();
       shareReplay(1),
     );
 
-    provideAccountInfo(terminal, spotAccountInfo$);
+    publishAccountInfo(terminal, SPOT_ACCOUNT_ID, spotAccountInfo$);
   }
 
   // trade api

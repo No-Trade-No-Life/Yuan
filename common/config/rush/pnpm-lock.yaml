@@ -762,6 +762,7 @@ importers:
       '@rushstack/heft-node-rig': ~1.10.7
       '@types/heft-jest': 1.0.3
       '@types/node': '22'
+      '@yuants/data-account': workspace:*
       '@yuants/data-interest-rate': workspace:*
       '@yuants/data-model': workspace:*
       '@yuants/data-ohlc': workspace:*
@@ -778,6 +779,7 @@ importers:
       ts-node: ~10.9.2
       typescript: ~4.7.4
     dependencies:
+      '@yuants/data-account': link:../../libraries/data-account
       '@yuants/data-interest-rate': link:../../libraries/data-interest-rate
       '@yuants/data-model': link:../../libraries/data-model
       '@yuants/data-ohlc': link:../../libraries/data-ohlc
@@ -809,6 +811,7 @@ importers:
       '@rushstack/heft-node-rig': ~1.10.7
       '@types/heft-jest': 1.0.3
       '@types/node': '22'
+      '@yuants/data-account': workspace:*
       '@yuants/data-interest-rate': workspace:*
       '@yuants/data-model': workspace:*
       '@yuants/data-ohlc': workspace:*
@@ -826,6 +829,7 @@ importers:
       ts-node: ~10.9.2
       typescript: ~4.7.4
     dependencies:
+      '@yuants/data-account': link:../../libraries/data-account
       '@yuants/data-interest-rate': link:../../libraries/data-interest-rate
       '@yuants/data-model': link:../../libraries/data-model
       '@yuants/data-ohlc': link:../../libraries/data-ohlc
@@ -858,6 +862,7 @@ importers:
       '@rushstack/heft-node-rig': ~1.10.7
       '@types/heft-jest': 1.0.3
       '@types/node': '22'
+      '@yuants/data-account': workspace:*
       '@yuants/data-model': workspace:*
       '@yuants/data-ohlc': workspace:*
       '@yuants/data-product': workspace:*
@@ -870,6 +875,7 @@ importers:
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
+      '@yuants/data-account': link:../../libraries/data-account
       '@yuants/data-model': link:../../libraries/data-model
       '@yuants/data-ohlc': link:../../libraries/data-ohlc
       '@yuants/data-product': link:../../libraries/data-product
@@ -1452,6 +1458,49 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': 7.0.11
       '@types/node': 22.7.5
+      '@yuants/tool-kit': link:../../tools/toolkit
+      typescript: 4.7.4
+
+  ../../libraries/data-account:
+    specifiers:
+      '@microsoft/api-extractor': ~7.30.0
+      '@opentelemetry/api': ~1.9.0
+      '@opentelemetry/exporter-prometheus': ~0.200.0
+      '@opentelemetry/sdk-metrics': ~2.0.0
+      '@rushstack/heft': ~0.47.5
+      '@rushstack/heft-jest-plugin': ~0.16.8
+      '@rushstack/heft-node-rig': ~1.10.7
+      '@types/heft-jest': 1.0.3
+      '@types/json-schema': ~7.0.11
+      '@types/node': '22'
+      '@types/uuid': ~8.3.4
+      '@yuants/data-model': workspace:*
+      '@yuants/prometheus-client': workspace:*
+      '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
+      '@yuants/tool-kit': workspace:*
+      rxjs: ~7.5.6
+      typescript: ~4.7.4
+      uuid: ~8.3.2
+    dependencies:
+      '@opentelemetry/api': 1.9.0
+      '@opentelemetry/exporter-prometheus': 0.200.0_@opentelemetry+api@1.9.0
+      '@opentelemetry/sdk-metrics': 2.0.0_@opentelemetry+api@1.9.0
+      '@yuants/prometheus-client': link:../prometheus-client
+      '@yuants/protocol': link:../protocol
+      '@yuants/sql': link:../sql
+      rxjs: 7.5.7
+      uuid: 8.3.2
+    devDependencies:
+      '@microsoft/api-extractor': 7.30.1
+      '@rushstack/heft': 0.47.11
+      '@rushstack/heft-jest-plugin': 0.16.8_cd919cf15781346720f8e992576a8e2b
+      '@rushstack/heft-node-rig': 1.10.13_@rushstack+heft@0.47.11
+      '@types/heft-jest': 1.0.3
+      '@types/json-schema': 7.0.15
+      '@types/node': 22.7.5
+      '@types/uuid': 8.3.4
+      '@yuants/data-model': link:../data-model
       '@yuants/tool-kit': link:../../tools/toolkit
       typescript: 4.7.4
 
