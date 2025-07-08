@@ -22,8 +22,8 @@ export const usdtSwapProducts$ = swapInstruments$.pipe(
       map(
         (x): IProduct => ({
           datasource_id: 'OKX',
-          product_id: encodePath(x.instType, x.instId),
-          name: `${x.ctValCcy}-${x.settleCcy}-PERP`,
+          product_id: encodePath('OKX', x.instType, x.instId),
+          name: `OKX ${x.ctValCcy}-${x.settleCcy}-PERP`,
           base_currency: x.ctValCcy,
           quote_currency: x.settleCcy,
           value_scale: +x.ctVal,
@@ -94,7 +94,7 @@ createSQLWriter<IProduct>(Terminal.fromNodeEnv(), {
   data$: product$,
   tableName: 'product',
   writeInterval: 1_000,
-  conflictKeys: ['datasource_id', 'product_id'],
+  conflictKeys: ['product_id'],
 });
 
 export const mapProductIdToUsdtSwapProduct$ = usdtSwapProducts$.pipe(

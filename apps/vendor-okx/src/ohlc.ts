@@ -63,7 +63,7 @@ createSeriesProvider<IOHLC>(Terminal.fromNodeEnv(), {
     if (!period_in_sec) {
       throw 'period_in_sec is required';
     }
-    const [instType, instId] = decodePath(product_id);
+    const [, instType, instId] = decodePath(product_id);
     if (!instId) {
       throw `invalid product_id: ${product_id}`;
     }
