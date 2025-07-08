@@ -1,12 +1,4 @@
-import {
-  // IAccountInfo,
-  // IAccountMoney,
-  // IPosition,
-  ITick,
-  decodePath,
-  encodePath,
-  formatTime,
-} from '@yuants/data-model';
+import { ITick, decodePath, encodePath, formatTime } from '@yuants/data-model';
 import { provideTicks } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';

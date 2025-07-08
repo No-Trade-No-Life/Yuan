@@ -1,6 +1,7 @@
-import { IAccountInfo, IAccountMoney, IOrder, IPosition, formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/data-model';
+import { IAccountInfo, IAccountMoney, IOrder, IPosition, publishAccountInfo } from '@yuants/data-account';
 import { IProduct } from '@yuants/data-product';
-import { IConnection, Terminal, provideAccountInfo } from '@yuants/protocol';
+import { IConnection, Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services/order';
 import { createSQLWriter } from '@yuants/sql';
 import { ChildProcess, spawn } from 'child_process';
@@ -637,7 +638,7 @@ const accountInfo$ = defer(() => mapProductIdToProduct$.pipe(first())).pipe(
   shareReplay(1),
 );
 
-provideAccountInfo(terminal, accountInfo$);
+publishAccountInfo(terminal, account_id, accountInfo$);
 
 terminal.provideService(
   'QueryProducts',

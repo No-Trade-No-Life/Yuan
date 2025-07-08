@@ -11,6 +11,7 @@
     "@yuants/protocol": "workspace:*",
     "@yuants/transfer": "workspace:*",
     "@yuants/data-model": "workspace:*",
+    "@yuants/data-account": "workspace:*",
     "@yuants/sql": "workspace:*",
     "@yuants/data-product": "workspace:*",
     "@yuants/utils": "workspace:*",

@@ -4,7 +4,6 @@
 
 ```ts
 
-import { IAccountInfo } from '@yuants/data-model';
 import { IPeriod } from '@yuants/data-model';
 import { ITick } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
@@ -149,18 +148,10 @@ export const MetricsMeterProvider: MeterProvider;
 export const PromRegistry: Registry;
 
 // @public
-export const provideAccountInfo: (terminal: Terminal, accountInfo$: ObservableInput<IAccountInfo>) => void;
-
-// @public
 export const providePeriods: (terminal: Terminal, datasource_id: string, usePeriods: (product_id: string, period_in_sec: number) => ObservableInput<IPeriod[]>) => void;
 
 // @public
 export const provideTicks: (terminal: Terminal, datasource_id: string, useTicks: (product_id: string) => ObservableInput<ITick>) => void;
-
-// @public
-export const publishAccountInfo: (terminal: Terminal, account_id: string, accountInfo$: ObservableInput<IAccountInfo>) => {
-    dispose: () => void;
-};
 
 // @public
 export const requestSharedKey: (terminal: Terminal, ed25519_public_key: string) => Promise<{
@@ -236,9 +227,6 @@ export class TerminalChannel {
     // (undocumented)
     terminal: Terminal;
 }
-
-// @public
-export const useAccountInfo: (terminal: Terminal, account_id: string) => Observable<IAccountInfo>;
 
 // @public
 export const usePeriod: (terminal: Terminal, datasource_id: string, product_id: string, period_in_sec: number) => Observable<IPeriod[]>;
