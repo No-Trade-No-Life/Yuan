@@ -65,7 +65,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
 };
 
 const fundingRate$ = memoizeMap((product_id: string) =>
-  defer(() => client.getFundingRate({ instId: decodePath(product_id)[1] })).pipe(
+  defer(() => client.getFundingRate({ instId: decodePath(product_id)[2] })).pipe(
     mergeMap((x) => x.data),
     repeat({ delay: 5000 }),
     retry({ delay: 5000 }),
@@ -93,7 +93,7 @@ const interestRateByCurrency$ = memoizeMap((currency: string) =>
 );
 
 provideTicks(terminal, 'OKX', (product_id) => {
-  const [instType, instId] = decodePath(product_id);
+  const [, instType, instId] = decodePath(product_id);
   if (instType === 'SWAP') {
     return defer(async () => {
       const products = await firstValueFrom(usdtSwapProducts$);
@@ -259,7 +259,7 @@ const tradingAccountInfo$ = combineLatest([
           const delta_used = delta_equity; // all used
           const delta_free = 0;
 
-          const product_id = encodePath('SPOT', `${detail.ccy}-USDT`);
+          const product_id = encodePath('OKX', 'SPOT', `${detail.ccy}-USDT`);
           positions.push({
             position_id: product_id,
             datasource_id: 'OKX',
@@ -284,7 +284,7 @@ const tradingAccountInfo$ = combineLatest([
         const direction =
           x.posSide === 'long' ? 'LONG' : x.posSide === 'short' ? 'SHORT' : +x.pos > 0 ? 'LONG' : 'SHORT';
         const volume = Math.abs(+x.pos);
-        const product_id = encodePath(x.instType, x.instId);
+        const product_id = encodePath('OKX', x.instType, x.instId);
         const closable_price = +x.last;
         const valuation =
           x.instType === 'SWAP'
@@ -326,7 +326,7 @@ const tradingAccountInfo$ = combineLatest([
           return {
             order_id: x.ordId,
             account_id,
-            product_id: encodePath(x.instType, x.instId),
+            product_id: encodePath('OKX', x.instType, x.instId),
             submit_at: +x.cTime,
             filled_at: +x.fillTime,
             order_type,
@@ -721,7 +721,7 @@ defer(async () => {
     async (msg) => {
       console.info(formatTime(Date.now()), 'SubmitOrder', JSON.stringify(msg));
       const order = msg.req;
-      const [instType, instId] = decodePath(order.product_id);
+      const [, instType, instId] = decodePath(order.product_id);
 
       const mapOrderDirectionToSide = (direction?: string) => {
         switch (direction) {
@@ -844,7 +844,7 @@ defer(async () => {
     (msg) =>
       defer(async () => {
         const order = msg.req;
-        const [instType, instId] = decodePath(order.product_id);
+        const [, instType, instId] = decodePath(order.product_id);
         const res = await client.postTradeCancelOrder({
           instId,
           ordId: order.order_id,

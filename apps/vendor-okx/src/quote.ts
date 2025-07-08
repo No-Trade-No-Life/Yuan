@@ -48,7 +48,7 @@ const quote1$ = swapTickers$.pipe(
   map(
     (ticker): Partial<IQuote> => ({
       datasource_id: 'OKX',
-      product_id: encodePath('SWAP', ticker.instId),
+      product_id: encodePath('OKX', 'SWAP', ticker.instId),
       last_price: ticker.last,
       ask_price: ticker.askPx,
       bid_price: ticker.bidPx,
@@ -63,7 +63,7 @@ const quote2$ = spotTickers$.pipe(
   map(
     (ticker): Partial<IQuote> => ({
       datasource_id: 'OKX',
-      product_id: encodePath('SPOT', ticker.instId),
+      product_id: encodePath('OKX', 'SPOT', ticker.instId),
       last_price: ticker.last,
       ask_price: ticker.askPx,
       bid_price: ticker.bidPx,
@@ -84,7 +84,7 @@ const quote3$ = swapOpenInterests$.pipe(
   map(
     (x): Partial<IQuote> => ({
       datasource_id: 'OKX',
-      product_id: encodePath('SWAP', x.instId),
+      product_id: encodePath('OKX', 'SWAP', x.instId),
       open_interest: x.oi,
     }),
   ),
@@ -103,7 +103,7 @@ if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
         writeInterval: 1000,
         tableName: 'quote',
         keyFn: (quote) => encodePath(quote.datasource_id, quote.product_id),
-        conflictKeys: ['datasource_id', 'product_id'],
+        conflictKeys: ['product_id'],
       }),
     )
     .subscribe();

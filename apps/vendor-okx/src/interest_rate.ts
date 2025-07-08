@@ -35,7 +35,7 @@ createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
     const start = started_at || 0;
     const end = ended_at || Date.now();
     const [datasource_id, product_id] = decodePath(series_id);
-    const [instType, instId] = decodePath(product_id);
+    const [, instType, instId] = decodePath(product_id);
     let current_end = end;
     while (true) {
       // 接口行为备注：向前翻页，时间降序，不含 after 当前时间点
