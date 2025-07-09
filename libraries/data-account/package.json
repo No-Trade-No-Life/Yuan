@@ -33,6 +33,9 @@
     "@yuants/sql": "workspace:*",
     "@yuants/prometheus-client": "workspace:*",
     "rxjs": "~7.5.6",
-    "uuid": "~8.3.2"
+    "uuid": "~8.3.2",
+    "@opentelemetry/api": "~1.9.0",
+    "@opentelemetry/sdk-metrics": "~2.0.0",
+    "@opentelemetry/exporter-prometheus": "~0.200.0"
   }
 }
