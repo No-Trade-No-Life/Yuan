@@ -20,21 +20,6 @@ const AccountInfoPositionClosablePrice = AccountMeter.createGauge('account_info_
 const AccountInfoPositionFloatingProfit = AccountMeter.createGauge('account_info_position_floating_profit');
 const AccountInfoPositionValuation = AccountMeter.createGauge('account_info_position_valuation');
 
-// /**
-//  * Provide a AccountInfo data stream, push to all subscriber terminals
-//  *
-//  * @public
-//  */
-// export const provideAccountInfo = (terminal: Terminal, accountInfo$: ObservableInput<IAccountInfo>) => {
-//   // setup services
-//   const sub = defer(() => accountInfo$)
-//     .pipe(first())
-//     .subscribe((info) => {
-//       publishAccountInfo(terminal, info.account_id, accountInfo$);
-//     });
-//   defer(() => terminal.dispose$).subscribe(() => sub.unsubscribe());
-// };
-
 /**
  * Provide a AccountInfo data stream, push to all subscriber terminals
  *
