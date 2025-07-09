@@ -1,14 +1,5 @@
-import {
-  IAccountInfo,
-  IAccountMoney,
-  IOrder,
-  IPosition,
-  ITick,
-  decodePath,
-  encodePath,
-  formatTime,
-} from '@yuants/data-model';
-import { Terminal, provideAccountInfo, provideTicks } from '@yuants/protocol';
+import { ITick, decodePath, encodePath, formatTime } from '@yuants/data-model';
+import { Terminal, provideTicks } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import { addAccountTransferAddress } from '@yuants/transfer';
@@ -20,6 +11,7 @@ import {
   combineLatest,
   defer,
   filter,
+  first,
   firstValueFrom,
   from,
   map,
@@ -37,6 +29,7 @@ import {
   usdtSwapProducts$,
 } from './product';
 import { spotMarketTickers$, swapMarketTickers$, swapOpenInterest$ } from './quote';
+import { IAccountInfo, IAccountMoney, IOrder, IPosition, publishAccountInfo } from '@yuants/data-account';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -343,7 +336,14 @@ const tradingAccountInfo$ = combineLatest([
   shareReplay(1),
 );
 
-provideAccountInfo(terminal, tradingAccountInfo$);
+const sub = defer(() => accountUid$)
+  .pipe(first())
+  .subscribe((uid) => {
+    publishAccountInfo(terminal, `okx/${uid}/trading`, tradingAccountInfo$);
+    publishAccountInfo(terminal, `okx/${uid}/funding/USDT`, fundingAccountInfo$);
+    publishAccountInfo(terminal, `okx/${uid}/earning/USDT`, earningAccountInfo$);
+  });
+defer(() => terminal.dispose$).subscribe(() => sub.unsubscribe());
 
 const assetBalance$ = defer(() => client.getAssetBalances({})).pipe(
   repeat({ delay: 1000 }),
@@ -396,8 +396,6 @@ const fundingAccountInfo$ = combineLatest([accountUid$, assetBalance$, marketInd
   shareReplay(1),
 );
 
-provideAccountInfo(terminal, fundingAccountInfo$);
-
 const savingBalance$ = defer(() => client.getFinanceSavingsBalance({})).pipe(
   repeat({ delay: 5000 }),
   retry({ delay: 5000 }),
@@ -431,8 +429,6 @@ const earningAccountInfo$ = combineLatest([accountUid$, savingBalance$]).pipe(
   }),
   shareReplay(1),
 );
-
-provideAccountInfo(terminal, earningAccountInfo$);
 
 defer(async () => {
   const account_config = await firstValueFrom(accountConfig$);

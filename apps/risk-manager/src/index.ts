@@ -1,5 +1,5 @@
 import { IDataRecordTypes, UUID, formatTime, getDataRecordSchema } from '@yuants/data-model';
-import { PromRegistry, useAccountInfo } from '@yuants/protocol';
+import { PromRegistry } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
 import { ITransferOrder } from '@yuants/transfer';
@@ -26,6 +26,7 @@ import { IAccountRiskInfo } from './models';
 import { terminal } from './terminal';
 import { generateCandidateTransfer } from './utils/generateCandidateTransfer';
 import { resolveRiskState } from './utils/resolveRiskState';
+import { useAccountInfo } from '@yuants/data-account';
 
 const MetricActiveDemand = PromRegistry.create('gauge', 'risk_manager_active_demand');
 const MetricPassiveDemand = PromRegistry.create('gauge', 'risk_manager_passive_demand');

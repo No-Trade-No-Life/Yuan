@@ -1,5 +1,5 @@
-import { IAccountInfo, IAccountMoney, IOrder, IPosition, formatTime } from '@yuants/data-model';
-import { Terminal, provideAccountInfo } from '@yuants/protocol';
+import { formatTime } from '@yuants/data-model';
+import { Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import { addAccountTransferAddress } from '@yuants/transfer';
@@ -29,6 +29,7 @@ import { client } from './api';
 import './interest_rate';
 import { perpetualContractProducts$, spotProducts$ } from './product';
 import './quote';
+import { IAccountInfo, IAccountMoney, IOrder, IPosition, publishAccountInfo } from '@yuants/data-account';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -357,9 +358,9 @@ const terminal = Terminal.fromNodeEnv();
     shareReplay(1),
   );
 
-  provideAccountInfo(terminal, spotAccountInfo$);
-  provideAccountInfo(terminal, superMarginAccountInfo$);
-  provideAccountInfo(terminal, perpetualContractAccountInfo$);
+  publishAccountInfo(terminal, SPOT_ACCOUNT_ID, spotAccountInfo$);
+  publishAccountInfo(terminal, SUPER_MARGIN_ACCOUNT_ID, superMarginAccountInfo$);
+  publishAccountInfo(terminal, SWAP_ACCOUNT_ID, perpetualContractAccountInfo$);
 
   // Submit order
   terminal.provideService(

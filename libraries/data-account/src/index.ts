@@ -1,33 +1,24 @@
+import './interface';
+import './migration';
+export * from './interface';
 import { IAccountInfo, mergeAccountInfoPositions } from '@yuants/data-model';
 import { ObservableInput, defer, first, mergeMap, pairwise, takeUntil } from 'rxjs';
-import { TerminalMeter } from '../services/metrics';
-import { Terminal } from '../terminal';
+import { MetricsMeterProvider } from '@yuants/protocol';
+import { Terminal } from '@yuants/protocol';
+import { Meter } from '@opentelemetry/api';
 
-const AccountInfoEquity = TerminalMeter.createGauge('account_info_equity');
-const AccountInfoBalance = TerminalMeter.createGauge('account_info_balance');
-const AccountInfoProfit = TerminalMeter.createGauge('account_info_profit');
-const AccountInfoUsed = TerminalMeter.createGauge('account_info_used');
-const AccountInfoFree = TerminalMeter.createGauge('account_info_free');
-const AccountInfoPositionVolume = TerminalMeter.createGauge('account_info_position_volume');
-const AccountInfoPositionPrice = TerminalMeter.createGauge('account_info_position_price');
-const AccountInfoPositionClosablePrice = TerminalMeter.createGauge('account_info_position_closable_price');
-const AccountInfoPositionFloatingProfit = TerminalMeter.createGauge('account_info_position_floating_profit');
-const AccountInfoPositionValuation = TerminalMeter.createGauge('account_info_position_valuation');
+const AccountMeter: Meter = MetricsMeterProvider.getMeter('account');
 
-/**
- * Provide a AccountInfo data stream, push to all subscriber terminals
- *
- * @public
- */
-export const provideAccountInfo = (terminal: Terminal, accountInfo$: ObservableInput<IAccountInfo>) => {
-  // setup services
-  const sub = defer(() => accountInfo$)
-    .pipe(first())
-    .subscribe((info) => {
-      publishAccountInfo(terminal, info.account_id, accountInfo$);
-    });
-  defer(() => terminal.dispose$).subscribe(() => sub.unsubscribe());
-};
+const AccountInfoEquity = AccountMeter.createGauge('account_info_equity');
+const AccountInfoBalance = AccountMeter.createGauge('account_info_balance');
+const AccountInfoProfit = AccountMeter.createGauge('account_info_profit');
+const AccountInfoUsed = AccountMeter.createGauge('account_info_used');
+const AccountInfoFree = AccountMeter.createGauge('account_info_free');
+const AccountInfoPositionVolume = AccountMeter.createGauge('account_info_position_volume');
+const AccountInfoPositionPrice = AccountMeter.createGauge('account_info_position_price');
+const AccountInfoPositionClosablePrice = AccountMeter.createGauge('account_info_position_closable_price');
+const AccountInfoPositionFloatingProfit = AccountMeter.createGauge('account_info_position_floating_profit');
+const AccountInfoPositionValuation = AccountMeter.createGauge('account_info_position_valuation');
 
 /**
  * Provide a AccountInfo data stream, push to all subscriber terminals

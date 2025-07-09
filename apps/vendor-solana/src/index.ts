@@ -1,5 +1,6 @@
-import { IAccountInfo, IAccountMoney, UUID, formatTime } from '@yuants/data-model';
-import { Terminal, provideAccountInfo } from '@yuants/protocol';
+import { IAccountInfo, IAccountMoney, publishAccountInfo } from '@yuants/data-account';
+import { UUID, formatTime } from '@yuants/data-model';
+import { Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/transfer/lib/services';
@@ -77,5 +78,5 @@ solanaAddress.forEach((address) => {
     retry({ delay: 1000 * 10 }),
     shareReplay(1),
   );
-  provideAccountInfo(terminal, accountInfo$);
+  publishAccountInfo(terminal, `SOLANA/${address}`, accountInfo$);
 });

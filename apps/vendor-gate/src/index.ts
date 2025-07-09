@@ -1,13 +1,5 @@
-import {
-  encodePath,
-  formatTime,
-  IAccountInfo,
-  IAccountMoney,
-  IOrder,
-  IPosition,
-  ITick,
-} from '@yuants/data-model';
-import { provideAccountInfo, provideTicks } from '@yuants/protocol';
+import { encodePath, formatTime, ITick } from '@yuants/data-model';
+import { provideTicks } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/transfer/lib/services';
@@ -32,6 +24,7 @@ import { client } from './api';
 import './interest_rate';
 import { mapProductIdToUsdtFutureProduct$ } from './product';
 import { terminal } from './terminal';
+import { IAccountInfo, IAccountMoney, IOrder, IPosition, publishAccountInfo } from '@yuants/data-account';
 
 const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
   const cache: Record<string, any> = {};
@@ -173,7 +166,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
     shareReplay(1),
   );
 
-  provideAccountInfo(terminal, futureUsdtAccountInfo$);
+  publishAccountInfo(terminal, FUTURE_USDT_ACCOUNT_ID, futureUsdtAccountInfo$);
 
   const getUnifiedAccountsUSDT$ = defer(() => client.getUnifiedAccounts({})).pipe(
     repeat({ delay: 1000 }),
@@ -247,7 +240,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
     shareReplay(1),
   );
 
-  provideAccountInfo(terminal, unifiedUsdtAccountInfo$);
+  publishAccountInfo(terminal, UNIFIED_USDT_ACCOUNT_ID, unifiedUsdtAccountInfo$);
 
   const spotAccountInfo$ = defer(async (): Promise<IAccountInfo> => {
     const res = await client.getSpotAccounts();
@@ -284,7 +277,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
     repeat({ delay: 1000 }),
     shareReplay(1),
   );
-  provideAccountInfo(terminal, spotAccountInfo$);
+  publishAccountInfo(terminal, SPOT_USDT_ACCOUNT_ID, spotAccountInfo$);
 
   const futuresTickers$ = defer(async () => {
     const contractRes = await client.getFuturesContracts('usdt');

@@ -1,12 +1,10 @@
 declare module '@yuants/ui-web' {
   /// <reference types="react" />
   import * as react_jsx_runtime from 'react/jsx-runtime';
-  import React$1, { ReactNode, ComponentType } from 'react';
+  import React$1, { ComponentType } from 'react';
   import * as rxjs from 'rxjs';
   import { BehaviorSubject, ReplaySubject, Observable, Subject } from 'rxjs';
   import * as _yuants_data_model from '@yuants/data-model';
-  import { IPeriod, IOrder, IDataRecord } from '@yuants/data-model';
-  import { IChartApi, ISeriesApi } from 'lightweight-charts/dist/lightweight-charts.esm.development.js';
   import {
     ColumnDef,
     Table,
@@ -33,7 +31,7 @@ declare module '@yuants/ui-web' {
   import { User } from '@supabase/supabase-js';
   import { Terminal } from '@yuants/protocol';
 
-  namespace index_d$y {
+  namespace index_d$x {
     export {};
   }
 
@@ -49,22 +47,22 @@ declare module '@yuants/ui-web' {
 
   const useAccountInfo: (account_id: string) => rxjs.Observable<_yuants_data_model.IAccountInfo>;
 
-  const index_d$x_AccountSelector: typeof AccountSelector;
-  const index_d$x_InlineAccountId: typeof InlineAccountId;
-  const index_d$x_useAccountInfo: typeof useAccountInfo;
-  namespace index_d$x {
+  const index_d$w_AccountSelector: typeof AccountSelector;
+  const index_d$w_InlineAccountId: typeof InlineAccountId;
+  const index_d$w_useAccountInfo: typeof useAccountInfo;
+  namespace index_d$w {
     export {
-      index_d$x_AccountSelector as AccountSelector,
-      index_d$x_InlineAccountId as InlineAccountId,
-      index_d$x_useAccountInfo as useAccountInfo,
+      index_d$w_AccountSelector as AccountSelector,
+      index_d$w_InlineAccountId as InlineAccountId,
+      index_d$w_useAccountInfo as useAccountInfo,
     };
   }
 
-  namespace index_d$w {
+  namespace index_d$v {
     export {};
   }
 
-  namespace index_d$v {
+  namespace index_d$u {
     export {};
   }
 
@@ -77,96 +75,34 @@ declare module '@yuants/ui-web' {
   const ready$: ReplaySubject<unknown>;
   const error$: ReplaySubject<unknown>;
 
-  const index_d$u_createPersistBehaviorSubject: typeof createPersistBehaviorSubject;
-  const index_d$u_error$: typeof error$;
-  const index_d$u_ready$: typeof ready$;
-  namespace index_d$u {
-    export {
-      index_d$u_createPersistBehaviorSubject as createPersistBehaviorSubject,
-      index_d$u_error$ as error$,
-      index_d$u_ready$ as ready$,
-    };
-  }
-
-  const Chart: React$1.MemoExoticComponent<(props: { children: ReactNode }) => react_jsx_runtime.JSX.Element>;
-  const CandlestickSeries: React$1.MemoExoticComponent<
-    (props: {
-      title?: string;
-      data: IPeriod[];
-      children?: React$1.ReactElement;
-    }) => React$1.ReactElement<any, string | React$1.JSXElementConstructor<any>> | null
-  >;
-  const LineSeries: React$1.MemoExoticComponent<
-    (props: {
-      options?: {
-        title?: string;
-        color?: string;
-      };
-      data: Array<{
-        timestamp: number;
-        value: number;
-      }>;
-    }) => null
-  >;
-  const HistogramSeries: React$1.MemoExoticComponent<
-    (props: {
-      options?: {
-        title?: string;
-        color?: string;
-      };
-      data: Array<{
-        timestamp: number;
-        value: number;
-      }>;
-    }) => null
-  >;
-  const ChartGroupApiContext: React$1.Context<Set<IChartApi> | null>;
-  const ChartGroup: React$1.MemoExoticComponent<
-    (props: { children: React$1.ReactNode }) => react_jsx_runtime.JSX.Element
-  >;
-  interface IOrderSeriesProps {
-    period_in_sec: number;
-    orders: IOrder[];
-    seriesApi?: ISeriesApi<any>;
-  }
-  const OrderSeries: React$1.MemoExoticComponent<(props: IOrderSeriesProps) => null>;
-
-  const index_d$t_CandlestickSeries: typeof CandlestickSeries;
-  const index_d$t_Chart: typeof Chart;
-  const index_d$t_ChartGroup: typeof ChartGroup;
-  const index_d$t_ChartGroupApiContext: typeof ChartGroupApiContext;
-  const index_d$t_HistogramSeries: typeof HistogramSeries;
-  const index_d$t_LineSeries: typeof LineSeries;
-  const index_d$t_OrderSeries: typeof OrderSeries;
+  const index_d$t_createPersistBehaviorSubject: typeof createPersistBehaviorSubject;
+  const index_d$t_error$: typeof error$;
+  const index_d$t_ready$: typeof ready$;
   namespace index_d$t {
     export {
-      index_d$t_CandlestickSeries as CandlestickSeries,
-      index_d$t_Chart as Chart,
-      index_d$t_ChartGroup as ChartGroup,
-      index_d$t_ChartGroupApiContext as ChartGroupApiContext,
-      index_d$t_HistogramSeries as HistogramSeries,
-      index_d$t_LineSeries as LineSeries,
-      index_d$t_OrderSeries as OrderSeries,
+      index_d$t_createPersistBehaviorSubject as createPersistBehaviorSubject,
+      index_d$t_error$ as error$,
+      index_d$t_ready$ as ready$,
     };
+  }
+
+  namespace index_d$s {
+    export {};
   }
 
   const registerCommand: (id: string, handler: (params: any) => void) => void;
   const executeCommand: (id: string, params?: {}) => Promise<void>;
   const CommandCenter: React$1.MemoExoticComponent<() => react_jsx_runtime.JSX.Element>;
 
-  const index_d$s_CommandCenter: typeof CommandCenter;
-  const index_d$s_executeCommand: typeof executeCommand;
-  const index_d$s_registerCommand: typeof registerCommand;
-  namespace index_d$s {
-    export {
-      index_d$s_CommandCenter as CommandCenter,
-      index_d$s_executeCommand as executeCommand,
-      index_d$s_registerCommand as registerCommand,
-    };
-  }
-
+  const index_d$r_CommandCenter: typeof CommandCenter;
+  const index_d$r_executeCommand: typeof executeCommand;
+  const index_d$r_registerCommand: typeof registerCommand;
   namespace index_d$r {
-    export {};
+    export {
+      index_d$r_CommandCenter as CommandCenter,
+      index_d$r_executeCommand as executeCommand,
+      index_d$r_registerCommand as registerCommand,
+    };
   }
 
   namespace index_d$q {
@@ -180,23 +116,22 @@ declare module '@yuants/ui-web' {
     export { index_d$p_useValue as useValue };
   }
 
-  interface IDataRecordViewDef<T> {
+  interface IDataRecordViewDef<T extends {}> {
     TYPE: string;
-    columns: (ctx: { reloadData: () => Promise<void> }) => ColumnDef<IDataRecord<T>, any>[];
+    columns: (ctx: { reloadData: () => Promise<void> }) => ColumnDef<T, any>[];
     extraRecordActions?: React$1.ComponentType<{
       reloadData: () => Promise<void>;
-      record: IDataRecord<T>;
+      record: T;
     }>;
     extraHeaderActions?: React$1.ComponentType<{}>;
-    newRecord: () => Partial<T>;
-    mapOriginToDataRecord?: (x: T) => IDataRecord<T>;
+    newRecord?: () => Partial<T>;
     beforeUpdateTrigger?: (x: T) => void | Promise<void>;
     schema?: JSONSchema7;
   }
   /**
    * General Data Record View
    */
-  function DataRecordView<T>(props: IDataRecordViewDef<T>): react_jsx_runtime.JSX.Element;
+  function DataRecordView<T extends {}>(props: IDataRecordViewDef<T>): react_jsx_runtime.JSX.Element;
 
   const index_d$o_DataRecordView: typeof DataRecordView;
   namespace index_d$o {
@@ -914,15 +849,14 @@ declare module '@yuants/ui-web' {
   }
 
   export {
-    index_d$y as AccountComposition,
-    index_d$x as AccountInfo,
-    index_d$w as AccountRiskInfo,
-    index_d$v as Agent,
-    index_d$u as BIOS,
-    index_d$t as Chart,
-    index_d$s as CommandCenter,
-    index_d$r as Copilot,
-    index_d$q as CopyDataRelation,
+    index_d$x as AccountComposition,
+    index_d$w as AccountInfo,
+    index_d$v as AccountRiskInfo,
+    index_d$u as Agent,
+    index_d$t as BIOS,
+    index_d$s as Chart,
+    index_d$r as CommandCenter,
+    index_d$q as Copilot,
     index_d$p as Data,
     index_d$o as DataRecord,
     index_d$n as DataSeries,

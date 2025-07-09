@@ -1,13 +1,5 @@
-import {
-  IAccountInfo,
-  IAccountMoney,
-  IOrder,
-  IPeriod,
-  IPosition,
-  ITick,
-  formatTime,
-} from '@yuants/data-model';
-import { provideAccountInfo, providePeriods, provideTicks } from '@yuants/protocol';
+import { IPeriod, IPosition, ITick, formatTime } from '@yuants/data-model';
+import { providePeriods, provideTicks } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import { FundingRate } from 'ccxt/js/src/base/types';
@@ -36,6 +28,7 @@ import {
 import { EXCHANGE_ID, ex } from './api';
 import { mapProductIdToSymbol, mapSymbolToProductId, products$ } from './product';
 import { terminal } from './terminal';
+import { IAccountInfo, IAccountMoney, IOrder, publishAccountInfo } from '@yuants/data-account';
 
 (async () => {
   const PUBLIC_ONLY = process.env.PUBLIC_ONLY === 'true';
@@ -232,7 +225,7 @@ import { terminal } from './terminal';
         shareReplay(1),
       );
 
-      provideAccountInfo(terminal, fundingAccountInfo$);
+      publishAccountInfo(terminal, `${account_id}/funding`, fundingAccountInfo$);
     }
 
     const accountInfo$ = defer(() => of(0)).pipe(
@@ -336,8 +329,9 @@ import { terminal } from './terminal';
       return netVolume;
     };
 
-    provideAccountInfo(
+    publishAccountInfo(
       terminal,
+      account_id,
       accountInfo$.pipe(
         // stuck on submit order to prevent duplicated order
         filter(() => !accountInfoLock),

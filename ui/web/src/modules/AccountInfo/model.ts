@@ -1,5 +1,5 @@
 import { IAccountPerformance } from '@yuants/kernel';
-import { useAccountInfo as _useAccountInfo } from '@yuants/protocol';
+import { useAccountInfo as _useAccountInfo } from '@yuants/data-account';
 import {
   BehaviorSubject,
   EMPTY,

@@ -1,5 +1,4 @@
-import { IAccountInfo, IAccountMoney, IPosition, encodePath, formatTime } from '@yuants/data-model';
-import { provideAccountInfo } from '@yuants/protocol';
+import { encodePath, formatTime } from '@yuants/data-model';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/transfer/lib/services';
@@ -8,6 +7,7 @@ import { client } from './api';
 import './order';
 import './product';
 import { terminal } from './terminal';
+import { IAccountInfo, IAccountMoney, IPosition, publishAccountInfo } from '@yuants/data-account';
 
 const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
   const cache: Record<string, any> = {};
@@ -68,7 +68,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
       repeat({ delay: 1000 }),
       shareReplay(1),
     );
-    provideAccountInfo(terminal, swapAccountInfo$);
+    publishAccountInfo(terminal, `Hyperliquid/${client.public_key}`, swapAccountInfo$);
   }
 
   // TODO: spot account info
