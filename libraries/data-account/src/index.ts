@@ -7,7 +7,7 @@ import { MetricsMeterProvider } from '@yuants/protocol';
 import { Terminal } from '@yuants/protocol';
 import { Meter } from '@opentelemetry/api';
 
-export const AccountMeter: Meter = MetricsMeterProvider.getMeter('account');
+const AccountMeter: Meter = MetricsMeterProvider.getMeter('account');
 
 const AccountInfoEquity = AccountMeter.createGauge('account_info_equity');
 const AccountInfoBalance = AccountMeter.createGauge('account_info_balance');
