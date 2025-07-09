@@ -3,19 +3,22 @@ import './migration';
 export * from './interface';
 import { IAccountInfo, mergeAccountInfoPositions } from '@yuants/data-model';
 import { ObservableInput, defer, first, mergeMap, pairwise, takeUntil } from 'rxjs';
-import { TerminalMeter } from './metrics';
+import { MetricsMeterProvider } from '@yuants/protocol';
 import { Terminal } from '@yuants/protocol';
+import { Meter } from '@opentelemetry/api';
 
-const AccountInfoEquity = TerminalMeter.createGauge('account_info_equity');
-const AccountInfoBalance = TerminalMeter.createGauge('account_info_balance');
-const AccountInfoProfit = TerminalMeter.createGauge('account_info_profit');
-const AccountInfoUsed = TerminalMeter.createGauge('account_info_used');
-const AccountInfoFree = TerminalMeter.createGauge('account_info_free');
-const AccountInfoPositionVolume = TerminalMeter.createGauge('account_info_position_volume');
-const AccountInfoPositionPrice = TerminalMeter.createGauge('account_info_position_price');
-const AccountInfoPositionClosablePrice = TerminalMeter.createGauge('account_info_position_closable_price');
-const AccountInfoPositionFloatingProfit = TerminalMeter.createGauge('account_info_position_floating_profit');
-const AccountInfoPositionValuation = TerminalMeter.createGauge('account_info_position_valuation');
+export const AccountMeter: Meter = MetricsMeterProvider.getMeter('account');
+
+const AccountInfoEquity = AccountMeter.createGauge('account_info_equity');
+const AccountInfoBalance = AccountMeter.createGauge('account_info_balance');
+const AccountInfoProfit = AccountMeter.createGauge('account_info_profit');
+const AccountInfoUsed = AccountMeter.createGauge('account_info_used');
+const AccountInfoFree = AccountMeter.createGauge('account_info_free');
+const AccountInfoPositionVolume = AccountMeter.createGauge('account_info_position_volume');
+const AccountInfoPositionPrice = AccountMeter.createGauge('account_info_position_price');
+const AccountInfoPositionClosablePrice = AccountMeter.createGauge('account_info_position_closable_price');
+const AccountInfoPositionFloatingProfit = AccountMeter.createGauge('account_info_position_floating_profit');
+const AccountInfoPositionValuation = AccountMeter.createGauge('account_info_position_valuation');
 
 // /**
 //  * Provide a AccountInfo data stream, push to all subscriber terminals
