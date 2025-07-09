@@ -5,13 +5,9 @@
 ```ts
 
 import { IAccountInfo as IAccountInfo_2 } from '@yuants/data-model';
-import { Meter } from '@opentelemetry/api';
 import { Observable } from 'rxjs';
 import { ObservableInput } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
-
-// @public (undocumented)
-export const AccountMeter: Meter;
 
 // @public
 export interface IAccountInfo {
