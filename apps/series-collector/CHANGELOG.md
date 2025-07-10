@@ -1,6 +1,11 @@
 # Change Log - @yuants/app-series-collector
 
-This log was last generated on Wed, 25 Jun 2025 21:53:12 GMT and should not be manually modified.
+This log was last generated on Thu, 10 Jul 2025 01:26:47 GMT and should not be manually modified.
+
+## 0.2.9
+Thu, 10 Jul 2025 01:26:47 GMT
+
+_Version update only_
 
 ## 0.2.8
 Wed, 25 Jun 2025 21:53:12 GMT
