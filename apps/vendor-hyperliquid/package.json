@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-hyperliquid",
-  "version": "0.0.28",
+  "version": "0.0.29",
   "files": [
     "dist/extension.bundle.js"
   ],

@@ -2,6 +2,23 @@
   "name": "@yuants/data-account",
   "entries": [
     {
+      "version": "0.0.4",
+      "tag": "@yuants/data-account_v0.0.4",
+      "date": "Fri, 11 Jul 2025 13:40:17 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix account dependence"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.3",
       "tag": "@yuants/data-account_v0.0.3",
       "date": "Fri, 11 Jul 2025 12:34:30 GMT",
