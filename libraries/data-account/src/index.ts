@@ -44,31 +44,26 @@ export const publishAccountInfo = (
         try {
           await requestSQL(
             terminal,
-            `
-              BEGIN;
-                    delete from position where account_id=${escape(account_id)}; 
-
-                    ${buildInsertManyIntoTableSQL(
-                      accountInfo.positions.map((item) => ({
-                        ...item,
-                        account_id,
-                      })),
-                      'position',
-                      {
-                        columns: [
-                          'account_id',
-                          'position_id',
-                          'product_id',
-                          'direction',
-                          'volume',
-                          'position_price',
-                          'closable_price',
-                          'floating_profit',
-                        ],
-                      },
-                    )};
-              COMMIT;
-            `,
+            buildInsertManyIntoTableSQL(
+              accountInfo.positions.map((item) => ({
+                ...item,
+                account_id,
+              })),
+              'position',
+              {
+                columns: [
+                  'account_id',
+                  'position_id',
+                  'product_id',
+                  'direction',
+                  'volume',
+                  'position_price',
+                  'closable_price',
+                  'floating_profit',
+                ],
+                conflictKeys: ['account_id', 'position_id'],
+              },
+            ),
           );
         } catch (e) {
           console.info(
