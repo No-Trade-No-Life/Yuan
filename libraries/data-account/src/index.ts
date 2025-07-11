@@ -176,7 +176,16 @@ export const publishAccountInfo = (
         await requestSQL(
           terminal,
           buildInsertManyIntoTableSQL(accountInfo.positions, 'position', {
-            columns: ['account_id', 'position_id', 'product_id'],
+            columns: [
+              'account_id',
+              'position_id',
+              'product_id',
+              'direction',
+              'volume',
+              'position_price',
+              'closable_price',
+              'floating_profit',
+            ],
           }),
         );
       } catch (e) {
