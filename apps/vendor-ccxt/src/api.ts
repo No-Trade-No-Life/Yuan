@@ -1,4 +1,4 @@
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 import ccxt, { Exchange } from 'ccxt';
 
 const PUBLIC_ONLY = process.env.PUBLIC_ONLY === 'true';

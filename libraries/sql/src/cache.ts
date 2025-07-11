@@ -1,4 +1,4 @@
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 import { catchError, defer, Observable, of, repeat, retry, takeUntil } from 'rxjs';
 
 export interface ICache<T> {

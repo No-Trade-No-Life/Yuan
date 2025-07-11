@@ -1,10 +1,11 @@
-import { ITick, decodePath, encodePath, formatTime } from '@yuants/data-model';
+import { IAccountInfo, IAccountMoney, IOrder, IPosition, publishAccountInfo } from '@yuants/data-account';
+import { ITick } from '@yuants/data-model';
 import { Terminal, provideTicks } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import '@yuants/transfer/lib/services';
-import { roundToStep } from '@yuants/utils';
+import { decodePath, encodePath, formatTime, roundToStep } from '@yuants/utils';
 import {
   EMPTY,
   catchError,
@@ -29,7 +30,6 @@ import {
   usdtSwapProducts$,
 } from './product';
 import { spotMarketTickers$, swapMarketTickers$, swapOpenInterest$ } from './quote';
-import { IAccountInfo, IAccountMoney, IOrder, IPosition, publishAccountInfo } from '@yuants/data-account';
 
 const terminal = Terminal.fromNodeEnv();
 

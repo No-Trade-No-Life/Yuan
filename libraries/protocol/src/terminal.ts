@@ -1,4 +1,4 @@
-import { UUID, formatTime } from '@yuants/data-model';
+import { UUID, formatTime } from '@yuants/utils';
 import Ajv from 'ajv';
 import { isNode } from 'browser-or-node';
 import { JSONSchema7 } from 'json-schema';

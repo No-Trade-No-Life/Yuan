@@ -15,6 +15,7 @@
     "@yuants/sql": "workspace:*",
     "@yuants/data-product": "workspace:*",
     "@yuants/data-ohlc": "workspace:*",
+    "@yuants/utils": "workspace:*",
     "rxjs": "~7.5.6",
     "ccxt": "~4.2.48"
   },

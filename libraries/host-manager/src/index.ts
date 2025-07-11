@@ -1,5 +1,5 @@
-import { formatTime, UUID } from '@yuants/data-model';
 import { ITerminalInfo, MetricsMeterProvider, Terminal } from '@yuants/protocol';
+import { formatTime, UUID } from '@yuants/utils';
 import { createServer } from 'http';
 import {
   bindCallback,

@@ -1,9 +1,9 @@
-import { encodePath, formatTime } from '@yuants/data-model';
 import { IProduct } from '@yuants/data-product';
+import { Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
+import { encodePath, formatTime } from '@yuants/utils';
 import { Subject, defer, repeat, retry, shareReplay, tap } from 'rxjs';
 import { client } from './api';
-import { Terminal } from '@yuants/protocol';
 
 const product$ = new Subject<IProduct>();
 

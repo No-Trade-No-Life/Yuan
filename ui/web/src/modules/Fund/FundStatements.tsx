@@ -9,8 +9,8 @@ import {
 } from '@douyinfe/semi-icons';
 import { Collapse, Descriptions, Space, Toast, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { formatTime } from '@yuants/data-model';
 import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
+import { formatTime } from '@yuants/utils';
 import { format } from 'date-fns';
 import EChartsReact from 'echarts-for-react';
 import { parse } from 'jsonc-parser';

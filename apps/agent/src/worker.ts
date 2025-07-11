@@ -1,7 +1,7 @@
 import { AgentScene } from '@yuants/agent';
-import { formatTime } from '@yuants/data-model';
 import { BasicUnit, PeriodDataCheckingUnit } from '@yuants/kernel';
 import { Terminal } from '@yuants/protocol';
+import { formatTime } from '@yuants/utils';
 import { of } from 'rxjs';
 import { parentPort, workerData } from 'worker_threads';
 

@@ -1,6 +1,6 @@
 import { IconRefresh } from '@douyinfe/semi-icons';
 import { Space, Switch } from '@douyinfe/semi-ui';
-import { encodePath } from '@yuants/data-model';
+import { encodePath } from '@yuants/utils';
 import { requestSQL } from '@yuants/sql';
 import { IAccountAddressInfo } from '@yuants/transfer';
 import EChartsReact from 'echarts-for-react';

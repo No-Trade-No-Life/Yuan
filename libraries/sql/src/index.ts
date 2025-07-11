@@ -1,4 +1,4 @@
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 import { IResponse, Terminal } from '@yuants/protocol';
 import {
   concatMap,

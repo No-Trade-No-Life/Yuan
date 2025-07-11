@@ -1,4 +1,4 @@
-import { UUID } from '@yuants/data-model';
+import { UUID } from '@yuants/utils';
 import { Terminal } from '@yuants/protocol';
 
 export const terminal = new Terminal(process.env.HOST_URL!, {

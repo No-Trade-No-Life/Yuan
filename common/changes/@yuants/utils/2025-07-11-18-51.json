@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/utils",
+      "comment": "add utils from data-model",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/utils"
+}

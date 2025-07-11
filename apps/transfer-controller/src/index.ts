@@ -1,4 +1,5 @@
-import { IDataRecordTypes, encodePath, formatTime } from '@yuants/data-model';
+import { IDataRecordTypes } from '@yuants/data-model';
+import { encodePath, formatTime } from '@yuants/utils';
 import { PromRegistry } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';

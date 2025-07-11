@@ -13,6 +13,7 @@
   "dependencies": {
     "@yuants/data-model": "workspace:*",
     "@yuants/protocol": "workspace:*",
+    "@yuants/utils": "workspace:*",
     "ajv": "~8.12.0",
     "express": "~4.18.2",
     "json-schema": "~0.4.0",

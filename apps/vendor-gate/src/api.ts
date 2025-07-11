@@ -1,4 +1,4 @@
-import { formatTime, UUID } from '@yuants/data-model';
+import { formatTime, UUID } from '@yuants/utils';
 // @ts-ignore
 import CryptoJS from 'crypto-js';
 import { filter, firstValueFrom, mergeMap, of, shareReplay, Subject, throwError, timeout, timer } from 'rxjs';

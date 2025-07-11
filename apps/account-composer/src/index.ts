@@ -1,4 +1,5 @@
-import { formatTime } from '@yuants/data-model';
+import { IAccountInfo, IAccountMoney, publishAccountInfo } from '@yuants/data-account';
+import { formatTime } from '@yuants/utils';
 import {
   Observable,
   combineLatest,
@@ -16,7 +17,6 @@ import {
 } from 'rxjs';
 import { requestSQL } from '../../../libraries/sql/lib';
 import { terminal } from './terminal';
-import { IAccountInfo, IAccountMoney, publishAccountInfo } from '@yuants/data-account';
 
 /**
  * Account Composition Relation

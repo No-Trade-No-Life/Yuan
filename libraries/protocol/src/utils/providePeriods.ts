@@ -1,7 +1,7 @@
-import { IPeriod, decodePath, encodePath } from '@yuants/data-model';
+import { IPeriod } from '@yuants/data-model';
+import { decodePath, encodePath, escapeRegExp } from '@yuants/utils';
 import { EMPTY, ObservableInput } from 'rxjs';
 import { Terminal } from '../terminal';
-import { escapeRegExp } from './escapeRegExp';
 
 /**
  * Provide a Period data stream, push to all subscriber terminals

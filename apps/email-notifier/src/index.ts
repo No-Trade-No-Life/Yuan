@@ -1,6 +1,6 @@
-import { formatTime } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
+import { formatTime } from '@yuants/utils';
 import Imap, { ImapMessageAttributes } from 'imap';
 import { simpleParser } from 'mailparser';
 import { createTransport } from 'nodemailer';

@@ -1,7 +1,8 @@
 import { IAgentConf, agentConfSchema } from '@yuants/agent';
-import { IAccountInfo, UUID, formatTime } from '@yuants/data-model';
+import { IAccountInfo } from '@yuants/data-model';
 import { IPositionDiff, diffPosition } from '@yuants/kernel';
 import { PromRegistry, Terminal } from '@yuants/protocol';
+import { UUID, formatTime } from '@yuants/utils';
 import Ajv from 'ajv';
 import fs from 'fs-extra';
 import path from 'path';

@@ -1,5 +1,5 @@
-import { formatTime, IAccountInfo, IOrder, UUID } from '@yuants/data-model';
-import { roundToStep } from '@yuants/utils';
+import { IAccountInfo, IOrder } from '@yuants/data-model';
+import { formatTime, roundToStep, UUID } from '@yuants/utils';
 import { Kernel } from '../kernel';
 import { diffPosition, mergePositions } from '../utils';
 import { AccountPerformanceUnit, IAccountPerformance } from './AccountPerformanceUnit';

@@ -1,4 +1,4 @@
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 import { PromRegistry, Terminal } from '@yuants/protocol';
 import http from 'http';
 import { EMPTY, catchError, defer, filter, first, from, map, mergeMap, tap, timeout, toArray } from 'rxjs';

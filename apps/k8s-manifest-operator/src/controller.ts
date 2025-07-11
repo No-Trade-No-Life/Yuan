@@ -19,7 +19,7 @@ import {
   timer,
   toArray,
 } from 'rxjs';
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 import { CRD, FINALIZER_NAME, GROUP, IDeployResource, KIND, PLURAL, VERSION } from './model';
 import { makeNamespacedName, useResources } from './utils';
 

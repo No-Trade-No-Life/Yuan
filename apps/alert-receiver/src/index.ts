@@ -1,5 +1,5 @@
-import { formatTime } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
+import { formatTime } from '@yuants/utils';
 import Ajv from 'ajv';
 import express from 'express';
 import { readFile } from 'fs';

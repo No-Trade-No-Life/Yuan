@@ -1,15 +1,8 @@
 import { IconClose, IconTaskMoneyStroked } from '@douyinfe/semi-icons';
 import { Collapse, Descriptions, Empty, Space, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import {
-  IAccountMoney,
-  IOrder,
-  IPosition,
-  ITick,
-  encodePath,
-  formatTime,
-  mergeAccountInfoPositions,
-} from '@yuants/data-model';
+import { IAccountMoney, IOrder, IPosition, ITick, mergeAccountInfoPositions } from '@yuants/data-model';
+import { encodePath, formatTime } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useMemo } from 'react';
 import {
@@ -36,7 +29,7 @@ import { executeCommand } from '../CommandCenter';
 import { Button, DataView } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
 import { InlineProductId } from '../Products/InlineProductId';
-import { InlineTerminalId, terminal$, useTick } from '../Terminals';
+import { terminal$, useTick } from '../Terminals';
 import { InlineAccountId } from './InlineAccountId';
 import { useAccountInfo } from './model';
 

@@ -1,7 +1,9 @@
-import { IPeriod, IPosition, ITick, formatTime } from '@yuants/data-model';
+import { IAccountInfo, IAccountMoney, IOrder, publishAccountInfo } from '@yuants/data-account';
+import { IPeriod, IPosition, ITick } from '@yuants/data-model';
 import { providePeriods, provideTicks } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
+import { formatTime } from '@yuants/utils';
 import { FundingRate } from 'ccxt/js/src/base/types';
 import {
   EMPTY,
@@ -28,7 +30,6 @@ import {
 import { EXCHANGE_ID, ex } from './api';
 import { mapProductIdToSymbol, mapSymbolToProductId, products$ } from './product';
 import { terminal } from './terminal';
-import { IAccountInfo, IAccountMoney, IOrder, publishAccountInfo } from '@yuants/data-account';
 
 (async () => {
   const PUBLIC_ONLY = process.env.PUBLIC_ONLY === 'true';

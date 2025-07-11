@@ -1,5 +1,5 @@
 import { Space, Typography } from '@douyinfe/semi-ui';
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 import { useObservableState } from 'observable-hooks';
 import React, { useContext, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';

@@ -1,4 +1,5 @@
-import { decodePath, formatTime, IPeriod, UUID } from '@yuants/data-model';
+import { IPeriod } from '@yuants/data-model';
+import { decodePath, formatTime, UUID } from '@yuants/utils';
 import { IOHLC } from '@yuants/data-ohlc';
 import { IProduct } from '@yuants/data-product';
 import { createSeriesProvider } from '@yuants/data-series';

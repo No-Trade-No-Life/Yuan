@@ -1,5 +1,5 @@
-import { formatTime } from '@yuants/data-model';
 import { IConnection } from '@yuants/protocol';
+import { formatTime } from '@yuants/utils';
 import {
   catchError,
   concatMap,

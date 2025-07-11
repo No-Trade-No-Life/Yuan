@@ -1,4 +1,4 @@
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 import { lastValueFrom, map, mergeMap, range, tap, timer } from 'rxjs';
 import { Terminal } from './terminal';
 

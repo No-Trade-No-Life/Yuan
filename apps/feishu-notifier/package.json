@@ -13,6 +13,7 @@
   "dependencies": {
     "@yuants/data-model": "workspace:*",
     "@yuants/protocol": "workspace:*",
+    "@yuants/utils": "workspace:*",
     "axios": "~1.2.3",
     "rxjs": "~7.5.6"
   },

@@ -1,6 +1,6 @@
 import { Terminal } from '@yuants/protocol';
+import { formatTime } from '@yuants/utils';
 import { defer, first } from 'rxjs';
-import { formatTime } from '../../../libraries/data-model/lib';
 
 const terminal = new Terminal(process.env.HOST_URL!, {
   terminal_id: process.env.TERMINAL_ID || 'TheBusybox',

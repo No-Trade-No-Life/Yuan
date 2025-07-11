@@ -1,5 +1,5 @@
-import { encodePath } from '@yuants/data-model';
-import { escapeRegExp, IResponse, IService, IServiceOptions, Terminal } from '@yuants/protocol';
+import { encodePath, escapeRegExp } from '@yuants/utils';
+import { IResponse, IService, IServiceOptions, Terminal } from '@yuants/protocol';
 import { AddMigration, buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
 import { observableToAsyncIterable } from '@yuants/utils';
 import { defer, ObservableInput } from 'rxjs';

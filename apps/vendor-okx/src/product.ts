@@ -1,4 +1,4 @@
-import { encodePath } from '@yuants/data-model';
+import { encodePath } from '@yuants/utils';
 import { IProduct } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';

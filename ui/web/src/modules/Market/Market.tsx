@@ -1,6 +1,6 @@
 import { IconDownload, IconRefresh } from '@douyinfe/semi-icons';
 import { ButtonGroup, Layout, Space, Toast, Typography } from '@douyinfe/semi-ui';
-import { encodePath, formatTime } from '@yuants/data-model';
+import { encodePath, formatTime } from '@yuants/utils';
 import { convertDurationToMilliseconds } from '@yuants/data-ohlc';
 import '@yuants/data-series';
 import {

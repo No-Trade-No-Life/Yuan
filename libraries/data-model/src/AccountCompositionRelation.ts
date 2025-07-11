@@ -1,5 +1,5 @@
+import { UUID } from '@yuants/utils';
 import { addDataRecordSchema, addDataRecordWrapper } from './DataRecord';
-import { UUID } from './utils';
 
 declare module './DataRecord' {
   export interface IDataRecordTypes {

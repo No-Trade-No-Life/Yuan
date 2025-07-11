@@ -4,8 +4,12 @@
 
 ```ts
 
+import { decodePath } from '@yuants/utils';
+import { encodePath } from '@yuants/utils';
+import { formatTime } from '@yuants/utils';
 import { JSONSchema7 } from 'json-schema';
 import { Observable } from 'rxjs';
+import { UUID } from '@yuants/utils';
 
 // @public @deprecated
 export const addDataRecordSchema: <K extends keyof IDataRecordTypes>(type: K, schema: JSONSchema7) => void;
@@ -16,14 +20,11 @@ export const addDataRecordWrapper: <K extends keyof IDataRecordTypes>(type: K, w
 // @public (undocumented)
 export const createEmptyAccountInfo: (account_id: string, currency: string, leverage?: number, initial_balance?: number) => IAccountInfo;
 
-// @public
-export const decodePath: (path: string) => string[];
+export { decodePath }
 
-// @public
-export const encodePath: (...params: any[]) => string;
+export { encodePath }
 
-// @public
-export const formatTime: (time: Date | number | string, timeZone?: string | undefined) => string;
+export { formatTime }
 
 // @public @deprecated
 export const getDataRecordSchema: <K extends keyof IDataRecordTypes>(type: K) => JSONSchema7 | undefined;
@@ -190,7 +191,6 @@ export interface ITick {
 // @public
 export const mergeAccountInfoPositions: (info: IAccountInfo) => Observable<IAccountInfo>;
 
-// @public (undocumented)
-export const UUID: () => string;
+export { UUID }
 
 ```

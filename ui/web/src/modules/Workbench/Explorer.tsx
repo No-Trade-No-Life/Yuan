@@ -12,7 +12,7 @@ import {
 } from '@douyinfe/semi-icons';
 import { Dropdown, Modal, Space, Toast, Tree } from '@douyinfe/semi-ui';
 import { TreeNodeData } from '@douyinfe/semi-ui/lib/es/tree/interface';
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 import copy from 'copy-to-clipboard';
 import { t } from 'i18next';
 import { useObservable, useObservableState } from 'observable-hooks';

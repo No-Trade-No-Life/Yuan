@@ -1,5 +1,5 @@
-import { UUID } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
+import { UUID } from '@yuants/utils';
 import { ProApiV2Client } from './api';
 
 const terminal = new Terminal(process.env.HOST_URL!, {

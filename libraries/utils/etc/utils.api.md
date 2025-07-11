@@ -24,6 +24,9 @@ export const createKeyPair: () => {
 export const decodeBase58: (data: string) => Uint8Array;
 
 // @public
+export const decodePath: (path: string) => string[];
+
+// @public
 export const decrypt: (data: Uint8Array, base58_key: string) => Promise<Uint8Array>;
 
 // @public
@@ -33,7 +36,16 @@ export const deriveSharedKey: (publicKey: string, privateKey: string) => string;
 export const encodeBase58: (data: Uint8Array) => string;
 
 // @public
+export const encodePath: (...params: any[]) => string;
+
+// @public
 export const encrypt: (data: Uint8Array, base58_key: string) => Promise<Uint8Array>;
+
+// @public
+export const escapeRegExp: (string: string) => string;
+
+// @public
+export const formatTime: (time: Date | number | string, timeZone?: string | undefined) => string;
 
 // @public
 export const fromPrivateKey: (privateKey: string) => {
@@ -80,6 +92,9 @@ export const subjectToNativeSubject: <T>(subject$: Subject<T>) => NativeSubject<
 
 // @public
 export const switchMapWithComplete: <T, U>(fn: (obj: T) => Observable<U>) => (source$: Observable<T>) => Observable<U>;
+
+// @public
+export const UUID: () => string;
 
 // @public
 export const verifyMessage: (message: string, signature: string, publicKey: string) => boolean;

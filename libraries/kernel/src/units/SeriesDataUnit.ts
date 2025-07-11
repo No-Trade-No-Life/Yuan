@@ -1,4 +1,4 @@
-import { UUID } from '@yuants/data-model';
+import { UUID } from '@yuants/utils';
 import { BasicUnit } from './BasicUnit';
 
 /**

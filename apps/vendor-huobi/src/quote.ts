@@ -1,7 +1,8 @@
-import { encodePath, formatTime, ITick } from '@yuants/data-model';
+import { ITick } from '@yuants/data-model';
 import { IQuote } from '@yuants/data-quote';
 import { provideTicks, Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
+import { encodePath, formatTime } from '@yuants/utils';
 import {
   catchError,
   combineLatest,

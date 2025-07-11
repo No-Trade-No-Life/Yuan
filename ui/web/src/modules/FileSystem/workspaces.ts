@@ -1,4 +1,4 @@
-import { UUID } from '@yuants/data-model';
+import { UUID } from '@yuants/utils';
 import { get, set } from 'idb-keyval';
 import { BehaviorSubject, map } from 'rxjs';
 import { IWorkspace } from './model';

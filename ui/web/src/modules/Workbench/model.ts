@@ -1,4 +1,4 @@
-import { encodePath, formatTime } from '@yuants/data-model';
+import { encodePath, formatTime } from '@yuants/utils';
 import {
   BehaviorSubject,
   ReplaySubject,

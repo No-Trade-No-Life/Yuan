@@ -1,13 +1,13 @@
+import { Meter } from '@opentelemetry/api';
+import { mergeAccountInfoPositions } from '@yuants/data-model';
+import { MetricsMeterProvider, Terminal } from '@yuants/protocol';
+import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
+import { formatTime } from '@yuants/utils';
+import { ObservableInput, defer, mergeMap, pairwise, takeUntil, tap } from 'rxjs';
 import './interface';
+import { IAccountInfo } from './interface';
 import './migration';
 export * from './interface';
-import { formatTime, mergeAccountInfoPositions } from '@yuants/data-model';
-import { ObservableInput, defer, first, mergeMap, pairwise, takeUntil, tap } from 'rxjs';
-import { MetricsMeterProvider } from '@yuants/protocol';
-import { Terminal } from '@yuants/protocol';
-import { Meter } from '@opentelemetry/api';
-import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
-import { IAccountInfo } from './interface';
 
 const AccountMeter: Meter = MetricsMeterProvider.getMeter('account');
 

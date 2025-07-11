@@ -1,7 +1,7 @@
 import { IconDelete, IconEyeOpened, IconRefresh } from '@douyinfe/semi-icons';
 import { Button, Space, Table, Toast, Typography } from '@douyinfe/semi-ui';
 import { IAgentConf } from '@yuants/agent';
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 import { t } from 'i18next';
 import { useObservableState } from 'observable-hooks';
 import { Subject, defer, firstValueFrom, repeat, shareReplay } from 'rxjs';

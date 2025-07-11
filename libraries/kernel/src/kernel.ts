@@ -1,5 +1,5 @@
 import { PriorityQueue } from '@datastructures-js/priority-queue';
-import { formatTime, UUID } from '@yuants/data-model';
+import { formatTime, UUID } from '@yuants/utils';
 import { firstValueFrom, Subject } from 'rxjs';
 
 /**

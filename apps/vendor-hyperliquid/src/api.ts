@@ -1,4 +1,4 @@
-import { UUID, formatTime } from '@yuants/data-model';
+import { UUID, formatTime } from '@yuants/utils';
 // @ts-ignore
 import { ethers } from 'ethers';
 import { Subject, filter, firstValueFrom, mergeMap, of, shareReplay, throwError, timeout, timer } from 'rxjs';

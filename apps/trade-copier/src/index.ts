@@ -1,10 +1,10 @@
-import { IDataRecordTypes, IProduct, UUID, formatTime } from '@yuants/data-model';
+import { IDataRecordTypes, IProduct } from '@yuants/data-model';
 import { IPositionDiff, diffPosition, mergePositions } from '@yuants/kernel';
 import { PromRegistry, Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import { escape, requestSQL } from '@yuants/sql';
-import { roundToStep } from '@yuants/utils';
+import { roundToStep, UUID, formatTime } from '@yuants/utils';
 import {
   EMPTY,
   Observable,

@@ -12,6 +12,7 @@
   "dependencies": {
     "@kubernetes/client-node": "0.20.0",
     "@yuants/extension": "workspace:*",
+    "@yuants/utils": "workspace:*",
     "deep-equal": "~2.2.2",
     "rxjs": "~7.5.6",
     "@yuants/data-model": "workspace:*",

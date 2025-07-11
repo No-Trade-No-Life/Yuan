@@ -1,10 +1,10 @@
-import { formatTime } from '@yuants/data-model';
+import { IAccountInfo, IAccountMoney, IOrder, IPosition, publishAccountInfo } from '@yuants/data-account';
 import { Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import '@yuants/transfer/lib/services';
-import { roundToStep } from '@yuants/utils';
+import { formatTime, roundToStep } from '@yuants/utils';
 import {
   catchError,
   combineLatestWith,
@@ -29,7 +29,6 @@ import { client } from './api';
 import './interest_rate';
 import { perpetualContractProducts$, spotProducts$ } from './product';
 import './quote';
-import { IAccountInfo, IAccountMoney, IOrder, IPosition, publishAccountInfo } from '@yuants/data-account';
 
 const terminal = Terminal.fromNodeEnv();
 

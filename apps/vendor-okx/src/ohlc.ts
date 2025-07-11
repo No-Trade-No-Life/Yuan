@@ -1,4 +1,4 @@
-import { decodePath, formatTime } from '@yuants/data-model';
+import { decodePath, formatTime } from '@yuants/utils';
 import { IOHLC } from '@yuants/data-ohlc';
 import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
