@@ -1,11 +1,12 @@
 import './interface';
 import './migration';
 export * from './interface';
-import { IAccountInfo, mergeAccountInfoPositions } from '@yuants/data-model';
-import { ObservableInput, defer, first, mergeMap, pairwise, takeUntil } from 'rxjs';
+import { formatTime, IAccountInfo, mergeAccountInfoPositions } from '@yuants/data-model';
+import { ObservableInput, defer, first, mergeMap, pairwise, takeUntil, tap } from 'rxjs';
 import { MetricsMeterProvider } from '@yuants/protocol';
 import { Terminal } from '@yuants/protocol';
 import { Meter } from '@opentelemetry/api';
+import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
 
 const AccountMeter: Meter = MetricsMeterProvider.getMeter('account');
 
@@ -38,6 +39,39 @@ export const publishAccountInfo = (
       //
       mergeMap(mergeAccountInfoPositions),
       pairwise(),
+      tap(async ([lastAccountInfo, accountInfo]) => {
+        try {
+          await requestSQL(
+            terminal,
+            `
+              BEGIN;
+                    delete from position where account_id=${escape(account_id)}; 
+
+                    ${buildInsertManyIntoTableSQL(accountInfo.positions, 'position', {
+                      columns: [
+                        'account_id',
+                        'position_id',
+                        'product_id',
+                        'direction',
+                        'volume',
+                        'position_price',
+                        'closable_price',
+                        'floating_profit',
+                      ],
+                    })}
+              COMMIT;
+            `,
+          );
+        } catch (e) {
+          console.info(
+            formatTime(Date.now()),
+            'DeletePositionError',
+            `Account_id:${JSON.stringify(accountInfo)}`,
+            `Error:`,
+            e,
+          );
+        }
+      }),
       takeUntil(terminal.dispose$),
     )
     .subscribe(([lastAccountInfo, accountInfo]) => {
@@ -166,6 +200,7 @@ export const publishAccountInfo = (
         });
       }
     });
+
   return {
     dispose: () => {
       sub.unsubscribe();

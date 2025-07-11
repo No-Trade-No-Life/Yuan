@@ -52,6 +52,7 @@ AddMigration({
       updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
 
+CREATE INDEX IF NOT EXISTS idx_position_id on position (position_id); 
 CREATE INDEX IF NOT EXISTS idx_account_id on position (account_id);    
 CREATE INDEX IF NOT EXISTS idx_product_id on position (product_id);
 CREATE INDEX IF NOT EXISTS idx_created_at on position (created_at desc);
