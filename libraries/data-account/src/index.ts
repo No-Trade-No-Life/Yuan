@@ -2,7 +2,7 @@ import './interface';
 import './migration';
 export * from './interface';
 import { formatTime, IAccountInfo, mergeAccountInfoPositions } from '@yuants/data-model';
-import { ObservableInput, defer, first, mergeMap, pairwise, takeUntil } from 'rxjs';
+import { ObservableInput, defer, first, mergeMap, pairwise, takeUntil, tap } from 'rxjs';
 import { MetricsMeterProvider } from '@yuants/protocol';
 import { Terminal } from '@yuants/protocol';
 import { Meter } from '@opentelemetry/api';
@@ -39,6 +39,39 @@ export const publishAccountInfo = (
       //
       mergeMap(mergeAccountInfoPositions),
       pairwise(),
+      tap(async ([lastAccountInfo, accountInfo]) => {
+        try {
+          await requestSQL(
+            terminal,
+            `
+              BEGIN;
+                    delete from position where account_id=${escape(account_id)}; 
+
+                    ${buildInsertManyIntoTableSQL(accountInfo.positions, 'position', {
+                      columns: [
+                        'account_id',
+                        'position_id',
+                        'product_id',
+                        'direction',
+                        'volume',
+                        'position_price',
+                        'closable_price',
+                        'floating_profit',
+                      ],
+                    })}
+              COMMIT;
+            `,
+          );
+        } catch (e) {
+          console.info(
+            formatTime(Date.now()),
+            'DeletePositionError',
+            `Account_id:${JSON.stringify(accountInfo)}`,
+            `Error:`,
+            e,
+          );
+        }
+      }),
       takeUntil(terminal.dispose$),
     )
     .subscribe(async ([lastAccountInfo, accountInfo]) => {
@@ -165,37 +198,6 @@ export const publishAccountInfo = (
           product_id: position.product_id,
           direction: position.direction || '',
         });
-      }
-      try {
-        await requestSQL(
-          terminal,
-          `
-          delete from position where account_id=${escape(account_id)}; 
-        `,
-        );
-        await requestSQL(
-          terminal,
-          buildInsertManyIntoTableSQL(accountInfo.positions, 'position', {
-            columns: [
-              'account_id',
-              'position_id',
-              'product_id',
-              'direction',
-              'volume',
-              'position_price',
-              'closable_price',
-              'floating_profit',
-            ],
-          }),
-        );
-      } catch (e) {
-        console.info(
-          formatTime(Date.now()),
-          'DeletePositionError',
-          `Account_id:${JSON.stringify(accountInfo)}`,
-          `Error:`,
-          e,
-        );
       }
     });
 
