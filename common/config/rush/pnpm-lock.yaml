@@ -1502,6 +1502,7 @@ importers:
       uuid: ~8.3.2
     dependencies:
       '@opentelemetry/api': 1.9.0
+      '@yuants/data-model': link:../data-model
       '@yuants/prometheus-client': link:../prometheus-client
       '@yuants/protocol': link:../protocol
       '@yuants/sql': link:../sql
@@ -1516,7 +1517,6 @@ importers:
       '@types/json-schema': 7.0.15
       '@types/node': 22.7.5
       '@types/uuid': 8.3.4
-      '@yuants/data-model': link:../data-model
       '@yuants/tool-kit': link:../../tools/toolkit
       typescript: 4.7.4
 
