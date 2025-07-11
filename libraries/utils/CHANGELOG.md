@@ -1,6 +1,13 @@
 # Change Log - @yuants/utils
 
-This log was last generated on Mon, 21 Apr 2025 17:48:12 GMT and should not be manually modified.
+This log was last generated on Fri, 11 Jul 2025 19:02:39 GMT and should not be manually modified.
+
+## 0.4.0
+Fri, 11 Jul 2025 19:02:39 GMT
+
+### Minor changes
+
+- add utils from data-model
 
 ## 0.3.8
 Mon, 21 Apr 2025 17:48:12 GMT
