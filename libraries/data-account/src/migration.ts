@@ -59,3 +59,15 @@ CREATE INDEX IF NOT EXISTS idx_created_at on position (created_at desc);
 CREATE INDEX IF NOT EXISTS idx_updated_at on position (updated_at desc);
     `,
 });
+
+AddMigration({
+  id: '57c1511f-4513-4765-bd09-f327b926415a',
+  name: 'alert_table_data_position_add_trigger',
+  dependencies: ['0e9eea4b-2107-4e9d-86e5-8b11c74f85d7'],
+  statement: `
+        ALTER TABLE position ADD CONSTRAINT position_account_key PRIMARY KEY (position_id, account_id);
+
+        create or replace trigger auto_update_updated_at before update
+              on position for each row execute function update_updated_at_column();
+      `,
+});
