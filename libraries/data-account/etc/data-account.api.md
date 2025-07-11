@@ -4,7 +4,6 @@
 
 ```ts
 
-import { IAccountInfo as IAccountInfo_2 } from '@yuants/data-model';
 import { Observable } from 'rxjs';
 import { ObservableInput } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
@@ -80,12 +79,12 @@ export interface IPosition {
 }
 
 // @public
-export const publishAccountInfo: (terminal: Terminal, account_id: string, accountInfo$: ObservableInput<IAccountInfo_2>) => {
+export const publishAccountInfo: (terminal: Terminal, account_id: string, accountInfo$: ObservableInput<IAccountInfo>) => {
     dispose: () => void;
 };
 
 // @public
-export const useAccountInfo: (terminal: Terminal, account_id: string) => Observable<IAccountInfo_2>;
+export const useAccountInfo: (terminal: Terminal, account_id: string) => Observable<IAccountInfo>;
 
 // (No @packageDocumentation comment for this package)
 
