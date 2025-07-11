@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-account
 
-This log was last generated on Fri, 11 Jul 2025 15:27:25 GMT and should not be manually modified.
+This log was last generated on Fri, 11 Jul 2025 16:14:49 GMT and should not be manually modified.
+
+## 0.0.7
+Fri, 11 Jul 2025 16:14:49 GMT
+
+### Patches
+
+- add trigger to position
 
 ## 0.0.6
 Fri, 11 Jul 2025 15:27:25 GMT
