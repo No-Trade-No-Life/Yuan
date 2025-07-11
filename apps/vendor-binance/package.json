@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-binance",
-  "version": "0.4.33",
+  "version": "0.4.34",
   "files": [
     "dist/extension.bundle.js"
   ],
