@@ -1,4 +1,4 @@
-import { encodePath } from '@yuants/data-model';
+import { encodePath } from '@yuants/utils';
 import { BasicUnit } from './BasicUnit';
 
 interface IAccountDatasourceRelation {

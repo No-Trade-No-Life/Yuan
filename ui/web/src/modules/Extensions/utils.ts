@@ -1,4 +1,4 @@
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 import { IDeployProvider, IExtensionContext } from '@yuants/extension';
 import ini from 'ini';
 import { dirname, join } from 'path-browserify';

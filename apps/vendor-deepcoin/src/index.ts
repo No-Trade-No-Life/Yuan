@@ -1,4 +1,5 @@
-import { ITick, UUID, formatTime } from '@yuants/data-model';
+import { ITick } from '@yuants/data-model';
+import { UUID, formatTime } from '@yuants/utils';
 import { Terminal, provideTicks } from '@yuants/protocol';
 import { Subject, filter, fromEvent, interval, map, mergeMap, tap } from 'rxjs';
 import { MessageEvent, WebSocket } from 'ws';

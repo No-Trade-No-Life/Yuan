@@ -1,4 +1,4 @@
-import { formatTime, UUID } from '@yuants/data-model';
+import { formatTime, UUID } from '@yuants/utils';
 import Ajv from 'ajv';
 import {
   defer,

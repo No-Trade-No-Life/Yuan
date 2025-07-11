@@ -20,4 +20,6 @@ export * from './PullSourceRelation';
 export * from './Tick';
 export * from './TradeCopierTradeConfig';
 export * from './TradeCopyRelation';
-export * from './utils';
+
+// Re-export utils (for backward compatibility)
+export { decodePath, encodePath, formatTime, UUID } from '@yuants/utils';

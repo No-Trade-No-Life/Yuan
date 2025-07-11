@@ -1,5 +1,5 @@
 import { Card, Descriptions, Popover, Typography } from '@douyinfe/semi-ui';
-import { encodePath } from '@yuants/data-model';
+import { encodePath } from '@yuants/utils';
 import { IProduct } from '@yuants/data-product';
 import { escape, requestSQL } from '@yuants/sql';
 import { useObservable, useObservableState } from 'observable-hooks';

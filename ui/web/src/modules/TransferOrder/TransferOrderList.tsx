@@ -1,8 +1,8 @@
 import { Space, Steps, Toast, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { UUID, formatTime } from '@yuants/data-model';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
 import { ITransferOrder } from '@yuants/transfer';
+import { UUID, formatTime } from '@yuants/utils';
 import { first, firstValueFrom } from 'rxjs';
 import { InlineAccountId, useAccountInfo } from '../AccountInfo';
 import { registerCommand } from '../CommandCenter';

@@ -1,5 +1,5 @@
 import { IAccountInfo, IAccountMoney, publishAccountInfo } from '@yuants/data-account';
-import { UUID, formatTime } from '@yuants/data-model';
+import { UUID, formatTime } from '@yuants/utils';
 import { Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';

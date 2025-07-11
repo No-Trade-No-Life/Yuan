@@ -2,7 +2,7 @@ import { IconCode, IconTick } from '@douyinfe/semi-icons';
 import { Card, Divider, Progress, Space, Tag, Typography } from '@douyinfe/semi-ui';
 import { Button } from '../../Interactive';
 import { IAgentConf } from '@yuants/agent';
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 import { useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { first, from, fromEvent, lastValueFrom, map, mergeAll, mergeMap, tap, toArray } from 'rxjs';

@@ -1,5 +1,5 @@
 import * as k8s from '@kubernetes/client-node';
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 import { Observable, defer, mergeMap, retry, shareReplay } from 'rxjs';
 import { IDeployResource } from './model';
 // @ts-ignore

@@ -1,11 +1,11 @@
 import { ISeriesCollectingTask } from '@yuants/data-series';
 import { requestSQL } from '@yuants/sql';
-import { useObservable, useObservableState } from 'observable-hooks';
-import { BehaviorSubject, first, firstValueFrom, of, Subject, switchMap, timeout } from 'rxjs';
+import { encodePath, formatTime } from '@yuants/utils';
+import { useObservableState } from 'observable-hooks';
+import { BehaviorSubject, first, firstValueFrom, of, switchMap, timeout } from 'rxjs';
 import { Button, DataView, Toast } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
-import { encodePath, formatTime } from '@yuants/data-model';
 
 const refresh$ = new BehaviorSubject<void>(void 0);
 

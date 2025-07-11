@@ -1,6 +1,6 @@
 import { IInterestRate } from '@yuants/data-interest-rate';
-import { decodePath, formatTime } from '@yuants/data-model';
 import { createSeriesProvider } from '@yuants/data-series';
+import { decodePath, formatTime } from '@yuants/utils';
 import { client } from './api';
 import { terminal } from './terminal';
 

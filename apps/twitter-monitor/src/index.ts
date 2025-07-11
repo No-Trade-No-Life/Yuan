@@ -1,5 +1,4 @@
-import { formatTime } from '@yuants/data-model';
-import { listWatch } from '@yuants/utils';
+import { formatTime, listWatch } from '@yuants/utils';
 import {
   bufferTime,
   concatMap,

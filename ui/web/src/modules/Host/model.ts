@@ -1,5 +1,5 @@
 import { Toast } from '@douyinfe/semi-ui';
-import { UUID } from '@yuants/data-model';
+import { UUID } from '@yuants/utils';
 import { t } from 'i18next';
 import { Subject, defer, repeat, shareReplay } from 'rxjs';
 import { registerCommand } from '../CommandCenter';

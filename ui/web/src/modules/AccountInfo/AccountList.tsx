@@ -1,5 +1,5 @@
 import { Button, Typography } from '@douyinfe/semi-ui';
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { combineLatest, concatWith, from, map, mergeMap, of, switchMap, throttleTime, toArray } from 'rxjs';
 import { executeCommand } from '../CommandCenter';

@@ -1,6 +1,6 @@
-import { formatTime, UUID } from '@yuants/data-model';
 import { PromRegistry, Terminal } from '@yuants/protocol';
 import type {} from '@yuants/sql';
+import { formatTime, UUID } from '@yuants/utils';
 import postgres from 'postgres';
 import { first, from, tap } from 'rxjs';
 

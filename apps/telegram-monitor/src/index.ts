@@ -1,6 +1,5 @@
-import { encodePath, formatTime } from '@yuants/data-model';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
-import { listWatch } from '@yuants/utils';
+import { encodePath, formatTime, listWatch } from '@yuants/utils';
 import {
   bufferTime,
   defer,

@@ -1,9 +1,8 @@
-import { encodePath, formatTime } from '@yuants/data-model';
 import '@yuants/data-series';
 import { ISeriesCollectingTask } from '@yuants/data-series';
 import { IService, PromRegistry, Terminal } from '@yuants/protocol';
 import { escape, requestSQL } from '@yuants/sql';
-import { listWatch } from '@yuants/utils';
+import { encodePath, formatTime, listWatch } from '@yuants/utils';
 import CronJob from 'cron';
 import {
   EMPTY,

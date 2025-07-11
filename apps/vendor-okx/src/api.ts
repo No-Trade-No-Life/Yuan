@@ -1,4 +1,4 @@
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 // @ts-ignore
 import CryptoJS from 'crypto-js';
 

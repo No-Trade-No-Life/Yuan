@@ -1,10 +1,11 @@
-import { IDataRecordTypes, UUID, formatTime, getDataRecordSchema } from '@yuants/data-model';
+import { useAccountInfo } from '@yuants/data-account';
+import { IDataRecordTypes } from '@yuants/data-model';
+import { UUID, formatTime } from '@yuants/utils';
 import { PromRegistry } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
 import { ITransferOrder } from '@yuants/transfer';
 import '@yuants/transfer/lib/services';
-import Ajv from 'ajv';
 import {
   combineLatest,
   defer,
@@ -26,7 +27,6 @@ import { IAccountRiskInfo } from './models';
 import { terminal } from './terminal';
 import { generateCandidateTransfer } from './utils/generateCandidateTransfer';
 import { resolveRiskState } from './utils/resolveRiskState';
-import { useAccountInfo } from '@yuants/data-account';
 
 const MetricActiveDemand = PromRegistry.create('gauge', 'risk_manager_active_demand');
 const MetricPassiveDemand = PromRegistry.create('gauge', 'risk_manager_passive_demand');

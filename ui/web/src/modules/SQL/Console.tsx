@@ -1,8 +1,8 @@
 import { IconPlay } from '@douyinfe/semi-icons';
 import { Space, Typography } from '@douyinfe/semi-ui';
 import { ColumnDef } from '@tanstack/react-table';
-import { UUID } from '@yuants/data-model';
 import '@yuants/sql';
+import { UUID } from '@yuants/utils';
 import { editor } from 'monaco-editor';
 import { useMemo, useRef, useState } from 'react';
 import { firstValueFrom } from 'rxjs';

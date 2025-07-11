@@ -1,5 +1,5 @@
 import { IInterestRate } from '@yuants/data-interest-rate';
-import { decodePath, formatTime } from '@yuants/data-model';
+import { decodePath, formatTime } from '@yuants/utils';
 import { createSeriesProvider } from '@yuants/data-series';
 import { firstValueFrom, timer } from 'rxjs';
 import { client } from './api';

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-model",
+      "comment": "remove utils",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/data-model"
+}

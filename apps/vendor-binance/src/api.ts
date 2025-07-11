@@ -1,5 +1,5 @@
-import { formatTime } from '@yuants/data-model';
 import { PromRegistry } from '@yuants/protocol';
+import { formatTime } from '@yuants/utils';
 // @ts-ignore
 import CryptoJS from 'crypto-js';
 

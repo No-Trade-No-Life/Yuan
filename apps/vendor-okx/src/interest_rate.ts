@@ -1,8 +1,8 @@
 import { IInterestRate } from '@yuants/data-interest-rate';
-import { decodePath, encodePath, formatTime } from '@yuants/data-model';
 import { createSeriesProvider, ISeriesCollectingTask } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
+import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, map, mergeAll, timer } from 'rxjs';
 import { client } from './api';
 import { usdtSwapProducts$ } from './product';

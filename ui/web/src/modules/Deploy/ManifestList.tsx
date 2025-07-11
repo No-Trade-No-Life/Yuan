@@ -1,8 +1,8 @@
 import { IconDelete, IconRefresh, IconUndo } from '@douyinfe/semi-icons';
 import { Space } from '@douyinfe/semi-ui';
-import { createColumnHelper, getCoreRowModel, useReactTable } from '@tanstack/react-table';
-import { formatTime } from '@yuants/data-model';
+import { createColumnHelper } from '@tanstack/react-table';
 import { IDeploySpec } from '@yuants/extension';
+import { formatTime } from '@yuants/utils';
 import { t } from 'i18next';
 import { useObservableState } from 'observable-hooks';
 import { useEffect, useMemo } from 'react';

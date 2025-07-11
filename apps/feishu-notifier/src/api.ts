@@ -1,4 +1,4 @@
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 import { expand, firstValueFrom, map, mergeMap, of, retry, shareReplay, skip, tap, timer } from 'rxjs';
 
 export class FeishuClient {

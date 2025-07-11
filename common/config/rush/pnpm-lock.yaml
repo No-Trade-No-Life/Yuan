@@ -66,6 +66,7 @@ importers:
       '@yuants/kernel': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
+      '@yuants/utils': workspace:*
       ajv: ~8.12.0
       fs-extra: ~11.1.1
       javascript-obfuscator: ~4.0.2
@@ -79,6 +80,7 @@ importers:
       '@yuants/data-model': link:../../libraries/data-model
       '@yuants/kernel': link:../../libraries/kernel
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/utils': link:../../libraries/utils
       ajv: 8.12.0
       fs-extra: 11.1.1
       javascript-obfuscator: 4.0.2
@@ -113,6 +115,7 @@ importers:
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
+      '@yuants/utils': workspace:*
       ajv: ~8.12.0
       express: ~4.18.2
       json-schema: ~0.4.0
@@ -122,6 +125,7 @@ importers:
     dependencies:
       '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/utils': link:../../libraries/utils
       ajv: 8.12.0
       express: 4.18.2
       json-schema: 0.4.0
@@ -149,15 +153,15 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
-      '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
+      '@yuants/utils': workspace:*
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/utils': link:../../libraries/utils
       rxjs: 7.5.7
     devDependencies:
       '@microsoft/api-extractor': 7.30.1
@@ -188,6 +192,7 @@ importers:
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
+      '@yuants/utils': workspace:*
       imap: ~0.8.19
       mailparser: ~3.7.1
       nodemailer: ~6.8.0
@@ -197,6 +202,7 @@ importers:
       '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/sql': link:../../libraries/sql
+      '@yuants/utils': link:../../libraries/utils
       imap: 0.8.19
       mailparser: 3.7.1
       nodemailer: 6.8.0
@@ -229,6 +235,7 @@ importers:
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
+      '@yuants/utils': workspace:*
       axios: ~1.2.3
       json-schema: ~0.4.0
       rxjs: ~7.5.6
@@ -236,6 +243,7 @@ importers:
     dependencies:
       '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/utils': link:../../libraries/utils
       axios: 1.2.6
       rxjs: 7.5.7
     devDependencies:
@@ -343,6 +351,7 @@ importers:
       '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/tool-kit': workspace:*
+      '@yuants/utils': workspace:*
       deep-equal: ~2.2.2
       node-fetch: ~2.7.0
       rxjs: ~7.5.6
@@ -352,6 +361,7 @@ importers:
       '@kubernetes/client-node': 0.20.0
       '@yuants/data-model': link:../../libraries/data-model
       '@yuants/extension': link:../../libraries/extension
+      '@yuants/utils': link:../../libraries/utils
       deep-equal: 2.2.3
       node-fetch: 2.7.0
       rxjs: 7.5.7
@@ -383,11 +393,13 @@ importers:
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
+      '@yuants/utils': workspace:*
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
       '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/utils': link:../../libraries/utils
       rxjs: 7.5.7
     devDependencies:
       '@microsoft/api-extractor': 7.30.1
@@ -877,6 +889,7 @@ importers:
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
+      '@yuants/utils': workspace:*
       ccxt: ~4.2.48
       rxjs: ~7.5.6
       typescript: ~4.7.4
@@ -888,6 +901,7 @@ importers:
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/sql': link:../../libraries/sql
+      '@yuants/utils': link:../../libraries/utils
       ccxt: 4.2.48
       rxjs: 7.5.7
     devDependencies:
@@ -1326,6 +1340,7 @@ importers:
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
+      '@yuants/utils': workspace:*
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
@@ -1335,6 +1350,7 @@ importers:
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/sql': link:../../libraries/sql
+      '@yuants/utils': link:../../libraries/utils
       rxjs: 7.5.7
     devDependencies:
       '@microsoft/api-extractor': 7.30.1
@@ -1359,20 +1375,24 @@ importers:
       '@types/node': '22'
       '@yuants/data-model': workspace:*
       '@yuants/data-ohlc': workspace:*
+      '@yuants/data-product': workspace:*
       '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
+      '@yuants/utils': workspace:*
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
       '@mathieuc/tradingview': 3.4.6
       '@yuants/data-model': link:../../libraries/data-model
       '@yuants/data-ohlc': link:../../libraries/data-ohlc
+      '@yuants/data-product': link:../../libraries/data-product
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/sql': link:../../libraries/sql
+      '@yuants/utils': link:../../libraries/utils
       rxjs: 7.5.7
     devDependencies:
       '@microsoft/api-extractor': 7.30.1
@@ -1497,6 +1517,7 @@ importers:
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
+      '@yuants/utils': workspace:*
       rxjs: ~7.5.6
       typescript: ~4.7.4
       uuid: ~8.3.2
@@ -1506,6 +1527,7 @@ importers:
       '@yuants/prometheus-client': link:../prometheus-client
       '@yuants/protocol': link:../protocol
       '@yuants/sql': link:../sql
+      '@yuants/utils': link:../utils
       rxjs: 7.5.7
       uuid: 8.3.2
     devDependencies:
@@ -1568,12 +1590,14 @@ importers:
       '@types/node': '22'
       '@types/uuid': ~8.3.4
       '@yuants/tool-kit': workspace:*
+      '@yuants/utils': workspace:*
       date-fns: ~2.30.0
       date-fns-tz: ~2.0.0
       rxjs: ~7.5.6
       typescript: ~4.7.4
       uuid: ~8.3.2
     dependencies:
+      '@yuants/utils': link:../utils
       date-fns: 2.30.0
       date-fns-tz: 2.0.0_date-fns@2.30.0
       rxjs: 7.5.7
@@ -2031,6 +2055,7 @@ importers:
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
+      '@yuants/utils': workspace:*
       rxjs: ~7.5.6
       typescript: ~4.7.4
       uuid: ~8.3.2
@@ -2038,6 +2063,7 @@ importers:
       '@yuants/data-model': link:../data-model
       '@yuants/protocol': link:../protocol
       '@yuants/sql': link:../sql
+      '@yuants/utils': link:../utils
       rxjs: 7.5.7
       uuid: 8.3.2
     devDependencies:
@@ -2062,11 +2088,15 @@ importers:
       '@types/node': '22'
       '@yuants/tool-kit': workspace:*
       bs58: ~6.0.0
+      date-fns: ~2.30.0
+      date-fns-tz: ~2.0.0
       rxjs: ~7.5.6
       tweetnacl: ~1.0.3
       typescript: ~4.7.4
     dependencies:
       bs58: 6.0.0
+      date-fns: 2.30.0
+      date-fns-tz: 2.0.0_date-fns@2.30.0
       rxjs: 7.5.7
       tweetnacl: 1.0.3
     devDependencies:

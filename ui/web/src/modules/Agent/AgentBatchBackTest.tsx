@@ -9,7 +9,7 @@ import {
   Toast,
   Typography,
 } from '@douyinfe/semi-ui';
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 import { formatDuration, intervalToDuration } from 'date-fns';
 import ExcelJS from 'exceljs';
 import { t } from 'i18next';

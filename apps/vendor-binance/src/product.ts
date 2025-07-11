@@ -1,4 +1,4 @@
-import { encodePath } from '@yuants/data-model';
+import { encodePath } from '@yuants/utils';
 import { IProduct } from '@yuants/data-product';
 import { createSQLWriter } from '@yuants/sql';
 import { Subject, defer, from, map, mergeMap, repeat, retry, shareReplay, tap, toArray } from 'rxjs';

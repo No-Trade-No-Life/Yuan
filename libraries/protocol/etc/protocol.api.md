@@ -22,9 +22,6 @@ export function createConnectionJson<T = any>(URL: string): IConnection<T>;
 export function createConnectionWs<T = any>(URL: string): IConnection<T>;
 
 // @public
-export const escapeRegExp: (string: string) => string;
-
-// @public
 export interface IConnection<T> {
     connection$: Observable<unknown>;
     input$: Observable<T>;

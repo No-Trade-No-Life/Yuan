@@ -1,5 +1,5 @@
-import { UUID, formatTime } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
+import { UUID, formatTime } from '@yuants/utils';
 import { join } from 'path';
 import { stringify } from 'querystring';
 

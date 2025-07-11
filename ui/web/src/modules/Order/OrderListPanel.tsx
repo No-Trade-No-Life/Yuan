@@ -1,6 +1,6 @@
 import { IconExport } from '@douyinfe/semi-icons';
 import { Button, Space } from '@douyinfe/semi-ui';
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 import { stringify } from 'csv-stringify/browser/esm/sync';
 import download from 'downloadjs';
 import { useObservableState } from 'observable-hooks';

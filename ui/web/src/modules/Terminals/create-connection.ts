@@ -1,5 +1,5 @@
-import { UUID } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
+import { UUID } from '@yuants/utils';
 import { useObservableState } from 'observable-hooks';
 import { Observable, filter, shareReplay, switchMap } from 'rxjs';
 import { currentHostConfig$ } from '../Workbench/model';

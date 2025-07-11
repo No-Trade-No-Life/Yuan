@@ -1,6 +1,6 @@
-import { encodePath, formatTime } from '@yuants/data-model';
 import { IProduct } from '@yuants/data-product';
 import { createSQLWriter } from '@yuants/sql';
+import { encodePath, formatTime } from '@yuants/utils';
 import { defer, from, map, mergeMap, repeat, retry, shareReplay, Subject, tap, toArray } from 'rxjs';
 import { client } from './api';
 import { terminal } from './terminal';

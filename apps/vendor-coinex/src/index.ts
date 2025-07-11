@@ -1,8 +1,9 @@
-import { decodePath, ITick } from '@yuants/data-model';
+import { ITick } from '@yuants/data-model';
 import { provideTicks } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import '@yuants/transfer/lib/services';
+import { decodePath } from '@yuants/utils';
 import { combineLatest, defer, from, map, mergeMap, repeat, retry, shareReplay, toArray } from 'rxjs';
 import { client } from './api';
 import './interest_rate';

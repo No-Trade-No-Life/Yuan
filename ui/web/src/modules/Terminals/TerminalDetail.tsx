@@ -1,5 +1,5 @@
 import { Collapse, Descriptions, Space, Spin, Typography } from '@douyinfe/semi-ui';
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 import { IServiceInfo } from '@yuants/protocol';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useMemo } from 'react';

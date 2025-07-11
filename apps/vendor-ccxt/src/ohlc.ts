@@ -1,6 +1,6 @@
-import { decodePath, encodePath, formatTime } from '@yuants/data-model';
 import { convertDurationToMilliseconds, IOHLC } from '@yuants/data-ohlc';
 import { createSeriesProvider } from '@yuants/data-series';
+import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, timer } from 'rxjs';
 import { ex, EXCHANGE_ID } from './api';
 import { mapProductIdToSymbol } from './product';

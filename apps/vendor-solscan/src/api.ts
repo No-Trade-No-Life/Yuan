@@ -1,4 +1,4 @@
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 import { defer, firstValueFrom, mergeMap, tap } from 'rxjs';
 
 /**

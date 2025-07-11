@@ -1,7 +1,8 @@
-import { IPeriod, encodePath, formatTime } from '@yuants/data-model';
+import { IPeriod } from '@yuants/data-model';
 import { IOHLC } from '@yuants/data-ohlc';
 import { Terminal } from '@yuants/protocol';
 import { escape, requestSQL } from '@yuants/sql';
+import { encodePath, formatTime } from '@yuants/utils';
 import { defer, lastValueFrom, map, retry, tap } from 'rxjs';
 import { Kernel } from '../kernel';
 import { mapDurationToPeriodInSec } from '../utils/mapDurationToPeriodInSec';

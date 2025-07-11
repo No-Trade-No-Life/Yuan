@@ -1,7 +1,6 @@
-import { formatTime, UUID } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
 import { requestSQL } from '@yuants/sql';
-import { listWatch } from '@yuants/utils';
+import { formatTime, listWatch, UUID } from '@yuants/utils';
 import {
   combineLatest,
   defer,

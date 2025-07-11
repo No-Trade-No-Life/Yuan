@@ -16,7 +16,7 @@ The key to implementing trading interfaces is to correctly convert the standard 
 
 ```ts
 import { Terminal } from '@yuants/protocol';
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 
 const terminal = new Terminal(process.env.HOST_URL!, {});
 
@@ -60,7 +60,7 @@ Some external systems do not support order modification operations, so the vendo
 
 ```ts
 import { Terminal } from '@yuants/protocol';
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 
 const terminal = new Terminal(process.env.HOST_URL!, {});
 
@@ -99,7 +99,7 @@ terminal.provideService(
 
 ```ts
 import { Terminal } from '@yuants/protocol';
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 
 const terminal = new Terminal(process.env.HOST_URL!, {});
 

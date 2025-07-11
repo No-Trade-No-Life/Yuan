@@ -1,5 +1,5 @@
 import { ValueType } from '@opentelemetry/api';
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 import {
   BehaviorSubject,
   catchError,

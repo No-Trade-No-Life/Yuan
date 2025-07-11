@@ -1,4 +1,4 @@
-import { encodePath } from '@yuants/data-model';
+import { encodePath } from '@yuants/utils';
 import { IQuote } from '@yuants/data-quote';
 import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';

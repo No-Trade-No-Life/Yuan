@@ -1,4 +1,4 @@
-import { UUID, decodePath, encodePath, formatTime, getProfit } from '@yuants/data-model';
+import { getProfit } from '@yuants/data-model';
 import {
   AccountInfoUnit,
   BasicUnit,
@@ -12,7 +12,7 @@ import {
   SeriesDataUnit,
   TickDataUnit,
 } from '@yuants/kernel';
-import { roundToStep } from '@yuants/utils';
+import { UUID, decodePath, encodePath, formatTime, roundToStep } from '@yuants/utils';
 import { JSONSchema7 } from 'json-schema';
 import {
   useAccountInfo,

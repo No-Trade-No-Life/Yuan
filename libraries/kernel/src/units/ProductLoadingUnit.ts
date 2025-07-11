@@ -1,4 +1,4 @@
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 import { IProduct } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
 import { escape, requestSQL } from '@yuants/sql';

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-ctp",
+      "comment": "move utils",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-ctp"
+}

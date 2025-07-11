@@ -1,7 +1,8 @@
-import { encodePath, formatTime, IPeriod } from '@yuants/data-model';
+import { IPeriod } from '@yuants/data-model';
 import { ISeriesCollectingTask } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
+import { encodePath, formatTime } from '@yuants/utils';
 import { defer, Subscription } from 'rxjs';
 import { Kernel } from '../kernel';
 import { mapDurationToPeriodInSec } from '../utils/mapDurationToPeriodInSec';

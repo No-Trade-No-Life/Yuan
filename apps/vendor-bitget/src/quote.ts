@@ -1,7 +1,7 @@
-import { decodePath, encodePath, formatTime } from '@yuants/data-model';
 import { IQuote } from '@yuants/data-quote';
 import { Terminal } from '@yuants/protocol';
 import { requestSQL, writeToSQL } from '@yuants/sql';
+import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { defer, groupBy, map, merge, mergeMap, repeat, retry, scan, shareReplay, Subject, tap } from 'rxjs';
 import { client } from './api';
 import { createCyclicTask } from './cyclic-task';

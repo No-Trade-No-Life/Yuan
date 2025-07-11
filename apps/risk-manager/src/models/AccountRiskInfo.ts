@@ -1,4 +1,5 @@
-import { addDataRecordSchema, addDataRecordWrapper, encodePath } from '@yuants/data-model';
+import { addDataRecordSchema, addDataRecordWrapper } from '@yuants/data-model';
+import { encodePath } from '@yuants/utils';
 
 declare module '@yuants/data-model/lib/DataRecord' {
   export interface IDataRecordTypes {

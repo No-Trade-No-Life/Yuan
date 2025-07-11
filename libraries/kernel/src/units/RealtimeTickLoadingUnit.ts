@@ -1,5 +1,6 @@
-import { ITick, decodePath, encodePath } from '@yuants/data-model';
+import { ITick } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
+import { decodePath, encodePath } from '@yuants/utils';
 import { Subscription, defer } from 'rxjs';
 import { Kernel } from '../kernel';
 import { AccountDatasourceRelationUnit } from './AccountDatasouceRelationUnit';
