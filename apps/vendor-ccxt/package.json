@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-ccxt",
-  "version": "0.3.58",
+  "version": "0.3.59",
   "files": [
     "dist/extension.bundle.js"
   ],
