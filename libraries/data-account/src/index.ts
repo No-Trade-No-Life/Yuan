@@ -1,11 +1,12 @@
 import './interface';
 import './migration';
 export * from './interface';
-import { IAccountInfo, mergeAccountInfoPositions } from '@yuants/data-model';
+import { formatTime, IAccountInfo, mergeAccountInfoPositions } from '@yuants/data-model';
 import { ObservableInput, defer, first, mergeMap, pairwise, takeUntil } from 'rxjs';
 import { MetricsMeterProvider } from '@yuants/protocol';
 import { Terminal } from '@yuants/protocol';
 import { Meter } from '@opentelemetry/api';
+import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
 
 const AccountMeter: Meter = MetricsMeterProvider.getMeter('account');
 
@@ -40,7 +41,7 @@ export const publishAccountInfo = (
       pairwise(),
       takeUntil(terminal.dispose$),
     )
-    .subscribe(([lastAccountInfo, accountInfo]) => {
+    .subscribe(async ([lastAccountInfo, accountInfo]) => {
       AccountInfoBalance.record(accountInfo.money.balance, {
         account_id,
         currency: accountInfo.money.currency,
@@ -165,7 +166,30 @@ export const publishAccountInfo = (
           direction: position.direction || '',
         });
       }
+      try {
+        await requestSQL(
+          terminal,
+          `
+          delete from position where account_id=${escape(account_id)}; 
+        `,
+        );
+        await requestSQL(
+          terminal,
+          buildInsertManyIntoTableSQL(accountInfo.positions, 'position', {
+            columns: ['account_id', 'position_id', 'product_id'],
+          }),
+        );
+      } catch (e) {
+        console.info(
+          formatTime(Date.now()),
+          'DeletePositionError',
+          `Account_id:${JSON.stringify(accountInfo)}`,
+          `Error:`,
+          e,
+        );
+      }
     });
+
   return {
     dispose: () => {
       sub.unsubscribe();
