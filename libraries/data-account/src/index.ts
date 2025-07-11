@@ -51,7 +51,7 @@ export const publishAccountInfo = (
                     ${buildInsertManyIntoTableSQL(
                       accountInfo.positions.map((item) => ({
                         ...item,
-                        account_id: item.account_id || account_id,
+                        account_id,
                       })),
                       'position',
                       {
