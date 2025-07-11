@@ -48,18 +48,25 @@ export const publishAccountInfo = (
               BEGIN;
                     delete from position where account_id=${escape(account_id)}; 
 
-                    ${buildInsertManyIntoTableSQL(accountInfo.positions, 'position', {
-                      columns: [
-                        'account_id',
-                        'position_id',
-                        'product_id',
-                        'direction',
-                        'volume',
-                        'position_price',
-                        'closable_price',
-                        'floating_profit',
-                      ],
-                    })}
+                    ${buildInsertManyIntoTableSQL(
+                      accountInfo.positions.map((item) => ({
+                        ...item,
+                        account_id: item.account_id || account_id,
+                      })),
+                      'position',
+                      {
+                        columns: [
+                          'account_id',
+                          'position_id',
+                          'product_id',
+                          'direction',
+                          'volume',
+                          'position_price',
+                          'closable_price',
+                          'floating_profit',
+                        ],
+                      },
+                    )};
               COMMIT;
             `,
           );
