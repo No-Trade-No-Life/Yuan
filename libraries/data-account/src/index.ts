@@ -74,7 +74,7 @@ export const publishAccountInfo = (
       }),
       takeUntil(terminal.dispose$),
     )
-    .subscribe(async ([lastAccountInfo, accountInfo]) => {
+    .subscribe(([lastAccountInfo, accountInfo]) => {
       AccountInfoBalance.record(accountInfo.money.balance, {
         account_id,
         currency: accountInfo.money.currency,

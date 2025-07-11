@@ -2,7 +2,7 @@
   "changes": [
     {
       "packageName": "@yuants/data-account",
-      "comment": "1",
+      "comment": "store position to db",
       "type": "patch"
     }
   ],
