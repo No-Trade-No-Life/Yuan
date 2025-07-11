@@ -2,6 +2,37 @@
   "name": "@yuants/app-metrics-collector",
   "entries": [
     {
+      "version": "0.0.106",
+      "tag": "@yuants/app-metrics-collector_v0.0.106",
+      "date": "Fri, 11 Jul 2025 19:02:39 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "move utils"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.18.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.4.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.36.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.18`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.105",
       "tag": "@yuants/app-metrics-collector_v0.0.105",
       "date": "Thu, 10 Jul 2025 01:26:47 GMT",
