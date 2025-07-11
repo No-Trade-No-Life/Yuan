@@ -16,7 +16,6 @@
     "access": "public"
   },
   "devDependencies": {
-    "@yuants/data-model": "workspace:*",
     "@yuants/tool-kit": "workspace:*",
     "@microsoft/api-extractor": "~7.30.0",
     "@rushstack/heft": "~0.47.5",
@@ -29,6 +28,7 @@
     "typescript": "~4.7.4"
   },
   "dependencies": {
+    "@yuants/data-model": "workspace:*",
     "@yuants/protocol": "workspace:*",
     "@yuants/sql": "workspace:*",
     "@yuants/prometheus-client": "workspace:*",

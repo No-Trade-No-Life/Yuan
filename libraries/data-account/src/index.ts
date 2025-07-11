@@ -1,12 +1,13 @@
 import './interface';
 import './migration';
 export * from './interface';
-import { formatTime, IAccountInfo, mergeAccountInfoPositions } from '@yuants/data-model';
+import { formatTime, mergeAccountInfoPositions } from '@yuants/data-model';
 import { ObservableInput, defer, first, mergeMap, pairwise, takeUntil, tap } from 'rxjs';
 import { MetricsMeterProvider } from '@yuants/protocol';
 import { Terminal } from '@yuants/protocol';
 import { Meter } from '@opentelemetry/api';
 import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
+import { IAccountInfo } from './interface';
 
 const AccountMeter: Meter = MetricsMeterProvider.getMeter('account');
 
