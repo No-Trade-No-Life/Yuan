@@ -1,4 +1,4 @@
-import { getProfit } from '@yuants/data-model';
+import { getProfit } from '@yuants/data-product';
 import {
   AccountInfoUnit,
   BasicUnit,

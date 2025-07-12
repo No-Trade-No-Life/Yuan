@@ -18,8 +18,6 @@ export interface IOrder {
   /**
    * Product ID.
    * 品种 ID
-   *
-   * {@link IProduct}
    */
   product_id: string;
 
