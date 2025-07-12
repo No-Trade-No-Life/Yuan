@@ -4,6 +4,7 @@
 
 ```ts
 
+import { IResponse } from '@yuants/protocol';
 import { Terminal } from '@yuants/protocol';
 
 // Warning: (ae-forgotten-export) The symbol "IAccountTransferAddressContext" needs to be exported by the entry point index.d.ts
@@ -99,6 +100,21 @@ export interface ITransferRoutingCache {
     // (undocumented)
     routing_path: ITransferPair[];
 }
+
+// @public
+export const transferApply: (terminal: Terminal, order: ITransferOrder) => Promise<IResponse<{
+    state: string;
+    context?: string;
+    transaction_id?: string;
+    message?: string;
+}>>;
+
+// @public
+export const transferEval: (terminal: Terminal, order: ITransferOrder) => Promise<IResponse<{
+    state: string;
+    context?: string;
+    received_amount?: number;
+} | void>>;
 
 // (No @packageDocumentation comment for this package)
 

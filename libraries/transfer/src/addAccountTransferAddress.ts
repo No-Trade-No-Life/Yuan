@@ -59,7 +59,7 @@ export const addAccountTransferAddress = (ctx: IAccountTransferAddressContext) =
       },
     },
     async (msg) => {
-      const order = msg.req;
+      const order = msg.req as ITransferOrder;
       const handler = ctx.onApply[order.current_tx_state || 'INIT'];
       console.info(formatTime(Date.now()), 'TransferApply', JSON.stringify(order));
       if (!handler) {
@@ -90,7 +90,7 @@ export const addAccountTransferAddress = (ctx: IAccountTransferAddressContext) =
       },
     },
     async (msg) => {
-      const order = msg.req;
+      const order = msg.req as ITransferOrder;
       console.info(formatTime(Date.now()), 'TransferEval', JSON.stringify(order));
       const res = await ctx.onEval(order);
       return { res: { code: 0, message: 'OK', data: res } };

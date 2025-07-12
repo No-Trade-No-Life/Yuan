@@ -6,8 +6,9 @@ import {
   ITransferOrder,
   ITransferPair,
   ITransferRoutingCache,
+  transferApply,
+  transferEval,
 } from '@yuants/transfer';
-import '@yuants/transfer/lib/services';
 import { encodePath, formatTime } from '@yuants/utils';
 // @ts-ignore
 import dijkstra from 'dijkstrajs';
@@ -381,21 +382,18 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
         order.order_id,
         `current step: ${order.current_tx_account_id}->${order.current_rx_account_id}`,
       );
-      const applyResult = await firstValueFrom(
-        defer(() => terminal.requestService('TransferApply', order)).pipe(
-          tap((v) => {
-            console.info(formatTime(Date.now()), 'TransferApplyResponse', v);
-          }),
-        ),
-      );
+      const applyResult = await transferApply(terminal, order);
+
+      console.info(formatTime(Date.now()), 'TransferApplyResponse', applyResult);
+
       const nextOrder: ITransferOrder = {
         ...order,
         updated_at: formatTime(Date.now()),
-        error_message: applyResult.res?.data?.message,
-        status: applyResult.res?.data?.state === 'ERROR' ? 'ERROR' : 'ONGOING',
-        current_transaction_id: applyResult.res?.data?.transaction_id,
-        current_tx_state: applyResult.res?.data?.state || order.current_tx_state,
-        current_tx_context: applyResult.res?.data?.context,
+        error_message: applyResult.data?.message,
+        status: applyResult.data?.state === 'ERROR' ? 'ERROR' : 'ONGOING',
+        current_transaction_id: applyResult.data?.transaction_id,
+        current_tx_state: applyResult.data?.state || order.current_tx_state,
+        current_tx_context: applyResult.data?.context,
       };
 
       if (
@@ -433,22 +431,17 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
         `current step: ${order.current_tx_account_id}->${order.current_rx_account_id}`,
       );
 
-      const evalResult = await firstValueFrom(
-        defer(() => terminal.requestService('TransferEval', order)).pipe(
-          tap((v) => {
-            console.info(formatTime(Date.now()), 'TransferEvalResponse', v);
-          }),
-        ),
-      );
+      const evalResult = await transferEval(terminal, order);
+      console.info(formatTime(Date.now()), 'TransferEvalResponse', evalResult);
 
       const nextOrder: ITransferOrder = {
         ...order,
         updated_at: formatTime(Date.now()),
-        error_message: evalResult.res?.message,
-        status: evalResult.res?.data?.state === 'ERROR' ? 'ERROR' : 'ONGOING',
-        current_rx_state: evalResult.res?.data?.state,
-        current_rx_context: evalResult.res?.data?.context,
-        current_amount: evalResult.res?.data?.received_amount ?? order.current_amount, // Ensure the amount available (not empty), change it only if new received_amount coming
+        error_message: evalResult?.message,
+        status: evalResult?.data?.state === 'ERROR' ? 'ERROR' : 'ONGOING',
+        current_rx_state: evalResult?.data?.state,
+        current_rx_context: evalResult?.data?.context,
+        current_amount: evalResult?.data?.received_amount ?? order.current_amount, // Ensure the amount available (not empty), change it only if new received_amount coming
       };
 
       if (
