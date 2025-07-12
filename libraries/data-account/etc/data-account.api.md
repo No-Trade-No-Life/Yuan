@@ -9,6 +9,12 @@ import { ObservableInput } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
 
 // @public
+export const addAccountMarket: (terminal: Terminal, cxt: {
+    account_id: string;
+    market_id: string;
+}) => Promise<void>;
+
+// @public
 export interface IAccountInfo {
     account_id: string;
     currencies: IAccountMoney[];

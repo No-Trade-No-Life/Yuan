@@ -23,6 +23,7 @@ export interface IProduct {
     base_currency: string;
     datasource_id: string;
     margin_rate: number;
+    market_id?: string;
     max_position: number;
     max_volume: number;
     name: string;

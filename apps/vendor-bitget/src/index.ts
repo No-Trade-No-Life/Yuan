@@ -1,4 +1,4 @@
-import { IAccountInfo, IAccountMoney, publishAccountInfo } from '@yuants/data-account';
+import { addAccountMarket, IAccountInfo, IAccountMoney, publishAccountInfo } from '@yuants/data-account';
 import { IPosition } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
 import { addAccountTransferAddress } from '@yuants/transfer';
@@ -73,6 +73,7 @@ const terminal = Terminal.fromNodeEnv();
       shareReplay(1),
     );
     publishAccountInfo(terminal, USDT_FUTURE_ACCOUNT_ID, swapAccountInfo$);
+    addAccountMarket(terminal, { account_id: USDT_FUTURE_ACCOUNT_ID, market_id: 'BITGET/USDT-FUTURE' });
   }
 
   // spot account info
@@ -114,6 +115,7 @@ const terminal = Terminal.fromNodeEnv();
     );
 
     publishAccountInfo(terminal, SPOT_ACCOUNT_ID, spotAccountInfo$);
+    addAccountMarket(terminal, { account_id: SPOT_ACCOUNT_ID, market_id: 'BITGET/SPOT' });
   }
 
   // trade api

@@ -1,4 +1,10 @@
-import { IAccountInfo, IAccountMoney, IPosition, publishAccountInfo } from '@yuants/data-account';
+import {
+  addAccountMarket,
+  IAccountInfo,
+  IAccountMoney,
+  IPosition,
+  publishAccountInfo,
+} from '@yuants/data-account';
 import { encodePath, formatTime } from '@yuants/utils';
 import { defer, repeat, retry, shareReplay, tap } from 'rxjs';
 import { client } from './api';
@@ -66,6 +72,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
       shareReplay(1),
     );
     publishAccountInfo(terminal, `Hyperliquid/${client.public_key}`, swapAccountInfo$);
+    addAccountMarket(terminal, { account_id: `Hyperliquid/${client.public_key}`, market_id: 'Hyperliquid' });
   }
 
   // TODO: spot account info

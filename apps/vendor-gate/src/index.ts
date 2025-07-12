@@ -1,4 +1,11 @@
-import { IAccountInfo, IAccountMoney, IOrder, IPosition, publishAccountInfo } from '@yuants/data-account';
+import {
+  addAccountMarket,
+  IAccountInfo,
+  IAccountMoney,
+  IOrder,
+  IPosition,
+  publishAccountInfo,
+} from '@yuants/data-account';
 import { ITick } from '@yuants/data-model';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import { encodePath, formatTime } from '@yuants/utils';
@@ -163,6 +170,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
   );
 
   publishAccountInfo(terminal, FUTURE_USDT_ACCOUNT_ID, futureUsdtAccountInfo$);
+  addAccountMarket(terminal, { account_id: FUTURE_USDT_ACCOUNT_ID, market_id: 'GATE/USDT-FUTURE' });
 
   const getUnifiedAccountsUSDT$ = defer(() => client.getUnifiedAccounts({})).pipe(
     repeat({ delay: 1000 }),
@@ -237,6 +245,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
   );
 
   publishAccountInfo(terminal, UNIFIED_USDT_ACCOUNT_ID, unifiedUsdtAccountInfo$);
+  addAccountMarket(terminal, { account_id: UNIFIED_USDT_ACCOUNT_ID, market_id: 'GATE/UNIFIED' });
 
   const spotAccountInfo$ = defer(async (): Promise<IAccountInfo> => {
     const res = await client.getSpotAccounts();
@@ -274,6 +283,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
     shareReplay(1),
   );
   publishAccountInfo(terminal, SPOT_USDT_ACCOUNT_ID, spotAccountInfo$);
+  addAccountMarket(terminal, { account_id: SPOT_USDT_ACCOUNT_ID, market_id: 'GATE/SPOT' });
 
   const futuresTickers$ = defer(async () => {
     const contractRes = await client.getFuturesContracts('usdt');

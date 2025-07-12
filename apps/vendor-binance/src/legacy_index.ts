@@ -1,4 +1,10 @@
-import { IAccountInfo, IAccountMoney, IPosition, publishAccountInfo } from '@yuants/data-account';
+import {
+  addAccountMarket,
+  IAccountInfo,
+  IAccountMoney,
+  IPosition,
+  publishAccountInfo,
+} from '@yuants/data-account';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { defer, from, map, mergeMap, repeat, retry, shareReplay, tap, toArray } from 'rxjs';
@@ -157,6 +163,7 @@ const getOpenInterest = async (symbol: string) => {
       repeat({ delay: 1000 }),
     );
     publishAccountInfo(terminal, UNIFIED_ACCOUNT_ID, unifiedAccountInfo$);
+    addAccountMarket(terminal, { account_id: UNIFIED_ACCOUNT_ID, market_id: 'BINANCE/UNIFIED' });
   }
 
   {
@@ -196,6 +203,7 @@ const getOpenInterest = async (symbol: string) => {
     );
 
     publishAccountInfo(terminal, SPOT_ACCOUNT_ID, spotAccountInfo$);
+    addAccountMarket(terminal, { account_id: SPOT_ACCOUNT_ID, market_id: 'BINANCE/SPOT' });
   }
 
   // transfer

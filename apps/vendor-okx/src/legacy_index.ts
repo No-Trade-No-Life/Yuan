@@ -1,4 +1,11 @@
-import { IAccountInfo, IAccountMoney, IOrder, IPosition, publishAccountInfo } from '@yuants/data-account';
+import {
+  addAccountMarket,
+  IAccountInfo,
+  IAccountMoney,
+  IOrder,
+  IPosition,
+  publishAccountInfo,
+} from '@yuants/data-account';
 import { Terminal } from '@yuants/protocol';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import { decodePath, encodePath, formatTime, roundToStep } from '@yuants/utils';
@@ -328,6 +335,7 @@ const sub = defer(() => accountUid$)
   .pipe(first())
   .subscribe((uid) => {
     publishAccountInfo(terminal, `okx/${uid}/trading`, tradingAccountInfo$);
+    addAccountMarket(terminal, { account_id: `okx/${uid}/trading`, market_id: 'OKX' });
     publishAccountInfo(terminal, `okx/${uid}/funding/USDT`, fundingAccountInfo$);
     publishAccountInfo(terminal, `okx/${uid}/earning/USDT`, earningAccountInfo$);
   });
