@@ -1,14 +1,8 @@
 import { IAccountInfo, IAccountMoney, IOrder, IPosition, publishAccountInfo } from '@yuants/data-account';
-import { ITick } from '@yuants/data-model';
-import { Terminal, provideTicks } from '@yuants/protocol';
-import '@yuants/protocol/lib/services';
-import '@yuants/protocol/lib/services/order';
+import { Terminal } from '@yuants/protocol';
 import { addAccountTransferAddress } from '@yuants/transfer';
-import '@yuants/transfer/lib/services';
 import { decodePath, encodePath, formatTime, roundToStep } from '@yuants/utils';
 import {
-  EMPTY,
-  catchError,
   combineLatest,
   defer,
   filter,
@@ -17,19 +11,13 @@ import {
   from,
   map,
   mergeMap,
-  of,
   repeat,
   retry,
   shareReplay,
 } from 'rxjs';
 import { client } from './api';
-import {
-  mapProductIdToMarginProduct$,
-  mapProductIdToUsdtSwapProduct$,
-  marginProducts$,
-  usdtSwapProducts$,
-} from './product';
-import { spotMarketTickers$, swapMarketTickers$, swapOpenInterest$ } from './quote';
+import { mapProductIdToMarginProduct$, mapProductIdToUsdtSwapProduct$ } from './product';
+import { spotMarketTickers$ } from './quote';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -85,79 +73,79 @@ const interestRateByCurrency$ = memoizeMap((currency: string) =>
   ),
 );
 
-provideTicks(terminal, 'OKX', (product_id) => {
-  const [instType, instId] = decodePath(product_id);
-  if (instType === 'SWAP') {
-    return defer(async () => {
-      const products = await firstValueFrom(usdtSwapProducts$);
-      const theProduct = products.find((x) => x.product_id === product_id);
-      if (!theProduct) throw `No Found ProductID ${product_id}`;
-      const theTicker$ = swapMarketTickers$.pipe(
-        map((x) => x[instId]),
-        shareReplay(1),
-      );
-      return [of(theProduct), theTicker$, fundingRate$(product_id), swapOpenInterest$] as const;
-    }).pipe(
-      catchError(() => EMPTY),
-      mergeMap((x) =>
-        combineLatest(x).pipe(
-          map(([theProduct, ticker, fundingRate, swapOpenInterest]): ITick => {
-            return {
-              datasource_id: 'OKX',
-              product_id,
-              updated_at: Date.now(),
-              settlement_scheduled_at: +fundingRate.fundingTime,
-              price: +ticker.last,
-              ask: +ticker.askPx,
-              bid: +ticker.bidPx,
-              volume: +ticker.lastSz,
-              interest_rate_for_long: -+fundingRate.fundingRate,
-              interest_rate_for_short: +fundingRate.fundingRate,
-              open_interest: swapOpenInterest.get(instId),
-            };
-          }),
-        ),
-      ),
-    );
-  }
-  if (instType === 'MARGIN') {
-    return defer(async () => {
-      const products = await firstValueFrom(marginProducts$);
-      const theProduct = products.find((x) => x.product_id === product_id);
-      if (!theProduct) throw `No Found ProductID ${product_id}`;
-      const theTicker$ = spotMarketTickers$.pipe(
-        map((x) => x[instId]),
-        shareReplay(1),
-      );
-      return [
-        of(theProduct),
-        theTicker$,
-        interestRateByCurrency$(theProduct.base_currency!),
-        interestRateByCurrency$(theProduct.quote_currency!),
-      ] as const;
-    }).pipe(
-      catchError(() => EMPTY),
-      mergeMap((x) =>
-        combineLatest(x).pipe(
-          map(
-            ([theProduct, ticker, interestRateForBase, interestRateForQuote]): ITick => ({
-              datasource_id: 'OKX',
-              product_id,
-              updated_at: Date.now(),
-              price: +ticker.last,
-              volume: +ticker.lastSz,
-              // 在下一个整点扣除利息 See 如何计算利息 https://www.okx.com/zh-hans/help/how-to-calculate-borrowing-interest
-              settlement_scheduled_at: new Date().setMinutes(0, 0, 0) + 3600_000,
-              interest_rate_for_long: -interestRateForQuote / 24,
-              interest_rate_for_short: -interestRateForBase / 24,
-            }),
-          ),
-        ),
-      ),
-    );
-  }
-  return EMPTY;
-});
+// provideTicks(terminal, 'OKX', (product_id) => {
+//   const [instType, instId] = decodePath(product_id);
+//   if (instType === 'SWAP') {
+//     return defer(async () => {
+//       const products = await firstValueFrom(usdtSwapProducts$);
+//       const theProduct = products.find((x) => x.product_id === product_id);
+//       if (!theProduct) throw `No Found ProductID ${product_id}`;
+//       const theTicker$ = swapMarketTickers$.pipe(
+//         map((x) => x[instId]),
+//         shareReplay(1),
+//       );
+//       return [of(theProduct), theTicker$, fundingRate$(product_id), swapOpenInterest$] as const;
+//     }).pipe(
+//       catchError(() => EMPTY),
+//       mergeMap((x) =>
+//         combineLatest(x).pipe(
+//           map(([theProduct, ticker, fundingRate, swapOpenInterest]): ITick => {
+//             return {
+//               datasource_id: 'OKX',
+//               product_id,
+//               updated_at: Date.now(),
+//               settlement_scheduled_at: +fundingRate.fundingTime,
+//               price: +ticker.last,
+//               ask: +ticker.askPx,
+//               bid: +ticker.bidPx,
+//               volume: +ticker.lastSz,
+//               interest_rate_for_long: -+fundingRate.fundingRate,
+//               interest_rate_for_short: +fundingRate.fundingRate,
+//               open_interest: swapOpenInterest.get(instId),
+//             };
+//           }),
+//         ),
+//       ),
+//     );
+//   }
+//   if (instType === 'MARGIN') {
+//     return defer(async () => {
+//       const products = await firstValueFrom(marginProducts$);
+//       const theProduct = products.find((x) => x.product_id === product_id);
+//       if (!theProduct) throw `No Found ProductID ${product_id}`;
+//       const theTicker$ = spotMarketTickers$.pipe(
+//         map((x) => x[instId]),
+//         shareReplay(1),
+//       );
+//       return [
+//         of(theProduct),
+//         theTicker$,
+//         interestRateByCurrency$(theProduct.base_currency!),
+//         interestRateByCurrency$(theProduct.quote_currency!),
+//       ] as const;
+//     }).pipe(
+//       catchError(() => EMPTY),
+//       mergeMap((x) =>
+//         combineLatest(x).pipe(
+//           map(
+//             ([theProduct, ticker, interestRateForBase, interestRateForQuote]): ITick => ({
+//               datasource_id: 'OKX',
+//               product_id,
+//               updated_at: Date.now(),
+//               price: +ticker.last,
+//               volume: +ticker.lastSz,
+//               // 在下一个整点扣除利息 See 如何计算利息 https://www.okx.com/zh-hans/help/how-to-calculate-borrowing-interest
+//               settlement_scheduled_at: new Date().setMinutes(0, 0, 0) + 3600_000,
+//               interest_rate_for_long: -interestRateForQuote / 24,
+//               interest_rate_for_short: -interestRateForBase / 24,
+//             }),
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+//   return EMPTY;
+// });
 
 const accountPosition$ = defer(() => client.getAccountPositions({})).pipe(
   repeat({ delay: 5000 }),

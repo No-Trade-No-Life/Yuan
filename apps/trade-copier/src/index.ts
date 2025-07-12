@@ -2,8 +2,6 @@ import { IAccountInfo, IOrder, IPosition, useAccountInfo } from '@yuants/data-ac
 import { IProduct, ITradeCopierTradeConfig, ITradeCopyRelation } from '@yuants/data-model';
 import { IPositionDiff, diffPosition, mergePositions } from '@yuants/kernel';
 import { PromRegistry, Terminal } from '@yuants/protocol';
-import '@yuants/protocol/lib/services';
-import '@yuants/protocol/lib/services/order';
 import { escape, requestSQL } from '@yuants/sql';
 import { UUID, formatTime, roundToStep } from '@yuants/utils';
 import {

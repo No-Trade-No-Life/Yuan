@@ -1,25 +1,7 @@
 import { IAccountInfo, IAccountMoney, IPosition, publishAccountInfo } from '@yuants/data-account';
-import { ITick } from '@yuants/data-model';
-import { provideTicks } from '@yuants/protocol';
-import '@yuants/protocol/lib/services';
-import '@yuants/protocol/lib/services/order';
 import { addAccountTransferAddress } from '@yuants/transfer';
-import '@yuants/transfer/lib/services';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
-import {
-  EMPTY,
-  combineLatest,
-  combineLatestWith,
-  defer,
-  from,
-  map,
-  mergeMap,
-  repeat,
-  retry,
-  shareReplay,
-  tap,
-  toArray,
-} from 'rxjs';
+import { defer, from, map, mergeMap, repeat, retry, shareReplay, tap, toArray } from 'rxjs';
 import { client, isError } from './api';
 import { terminal } from './terminal';
 
@@ -69,37 +51,37 @@ const getOpenInterest = async (symbol: string) => {
   return value;
 };
 
-provideTicks(terminal, 'binance', (product_id) => {
-  const [instType, symbol] = decodePath(product_id);
-  if (instType === 'usdt-future') {
-    return combineLatest([mapSymbolToFuturePremiumIndex$, mapSymbolToFutureBookTicker$]).pipe(
-      combineLatestWith(defer(() => getOpenInterest(symbol))),
-      map(([[mapSymbolToFuturePremiumIndex, mapSymbolToFutureBookTicker], openInterestVolume]): ITick => {
-        const premiumIndex = mapSymbolToFuturePremiumIndex.get(symbol);
-        const bookTicker = mapSymbolToFutureBookTicker.get(symbol);
-        if (!premiumIndex) {
-          throw new Error(`Premium Index Not Found: ${symbol}`);
-        }
-        if (!bookTicker) {
-          throw new Error(`Book Ticker Not Found: ${symbol}`);
-        }
-        return {
-          datasource_id: 'binance',
-          product_id,
-          updated_at: Date.now(),
-          price: +premiumIndex.markPrice,
-          ask: +bookTicker.askPrice,
-          bid: +bookTicker.bidPrice,
-          interest_rate_for_long: -+premiumIndex.lastFundingRate,
-          interest_rate_for_short: +premiumIndex.lastFundingRate,
-          settlement_scheduled_at: premiumIndex.nextFundingTime,
-          open_interest: openInterestVolume,
-        };
-      }),
-    );
-  }
-  return EMPTY;
-});
+// provideTicks(terminal, 'binance', (product_id) => {
+//   const [instType, symbol] = decodePath(product_id);
+//   if (instType === 'usdt-future') {
+//     return combineLatest([mapSymbolToFuturePremiumIndex$, mapSymbolToFutureBookTicker$]).pipe(
+//       combineLatestWith(defer(() => getOpenInterest(symbol))),
+//       map(([[mapSymbolToFuturePremiumIndex, mapSymbolToFutureBookTicker], openInterestVolume]): ITick => {
+//         const premiumIndex = mapSymbolToFuturePremiumIndex.get(symbol);
+//         const bookTicker = mapSymbolToFutureBookTicker.get(symbol);
+//         if (!premiumIndex) {
+//           throw new Error(`Premium Index Not Found: ${symbol}`);
+//         }
+//         if (!bookTicker) {
+//           throw new Error(`Book Ticker Not Found: ${symbol}`);
+//         }
+//         return {
+//           datasource_id: 'binance',
+//           product_id,
+//           updated_at: Date.now(),
+//           price: +premiumIndex.markPrice,
+//           ask: +bookTicker.askPrice,
+//           bid: +bookTicker.bidPrice,
+//           interest_rate_for_long: -+premiumIndex.lastFundingRate,
+//           interest_rate_for_short: +premiumIndex.lastFundingRate,
+//           settlement_scheduled_at: premiumIndex.nextFundingTime,
+//           open_interest: openInterestVolume,
+//         };
+//       }),
+//     );
+//   }
+//   return EMPTY;
+// });
 
 (async () => {
   const spotAccountInfo = await client.getSpotAccountInfo();

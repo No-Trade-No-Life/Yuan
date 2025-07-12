@@ -1,14 +1,6 @@
-import { ITick } from '@yuants/data-model';
-import { provideTicks } from '@yuants/protocol';
-import '@yuants/protocol/lib/services';
-import '@yuants/protocol/lib/services/order';
-import '@yuants/transfer/lib/services';
-import { decodePath } from '@yuants/utils';
-import { combineLatest, defer, from, map, mergeMap, repeat, retry, shareReplay, toArray } from 'rxjs';
+import { defer, from, map, mergeMap, repeat, retry, shareReplay, toArray } from 'rxjs';
 import { client } from './api';
 import './interest_rate';
-import { mapSymbolToMarket$ } from './product';
-import { terminal } from './terminal';
 
 const mapSymbolToFundingRate$ = defer(() => client.getFuturesFundingRate()).pipe(
   //
@@ -40,34 +32,34 @@ const mapSymbolToTicker$ = defer(() => client.getFuturesTicker()).pipe(
   shareReplay(1),
 );
 
-provideTicks(terminal, 'COINEX', (product_id) => {
-  const [instType, instId] = decodePath(product_id);
-  if (instType !== 'SWAP') return [];
-  return combineLatest([mapSymbolToTicker$, mapSymbolToMarket$, mapSymbolToFundingRate$]).pipe(
-    //
-    map(([mapSymbolToTicker, mapSymbolToMarket, mapSymbolToFundingRate]): ITick => {
-      const ticker = mapSymbolToTicker.get(instId);
-      const market = mapSymbolToMarket.get(instId);
-      const fundingRate = mapSymbolToFundingRate.get(instId);
-      if (!ticker) {
-        throw new Error(`ticker ${instId} not found`);
-      }
-      if (!market) {
-        throw new Error(`market ${instId} not found`);
-      }
-      if (!fundingRate) {
-        throw new Error(`fundingRate ${instId} not found`);
-      }
-      return {
-        product_id,
-        datasource_id: 'COINEX',
-        updated_at: Date.now(),
-        price: +ticker.last,
-        interest_rate_for_long: -+fundingRate.latest_funding_rate,
-        interest_rate_for_short: +fundingRate.latest_funding_rate,
-        settlement_scheduled_at: +fundingRate.next_funding_time,
-        open_interest: +market.open_interest_volume,
-      };
-    }),
-  );
-});
+// provideTicks(terminal, 'COINEX', (product_id) => {
+//   const [instType, instId] = decodePath(product_id);
+//   if (instType !== 'SWAP') return [];
+//   return combineLatest([mapSymbolToTicker$, mapSymbolToMarket$, mapSymbolToFundingRate$]).pipe(
+//     //
+//     map(([mapSymbolToTicker, mapSymbolToMarket, mapSymbolToFundingRate]): ITick => {
+//       const ticker = mapSymbolToTicker.get(instId);
+//       const market = mapSymbolToMarket.get(instId);
+//       const fundingRate = mapSymbolToFundingRate.get(instId);
+//       if (!ticker) {
+//         throw new Error(`ticker ${instId} not found`);
+//       }
+//       if (!market) {
+//         throw new Error(`market ${instId} not found`);
+//       }
+//       if (!fundingRate) {
+//         throw new Error(`fundingRate ${instId} not found`);
+//       }
+//       return {
+//         product_id,
+//         datasource_id: 'COINEX',
+//         updated_at: Date.now(),
+//         price: +ticker.last,
+//         interest_rate_for_long: -+fundingRate.latest_funding_rate,
+//         interest_rate_for_short: +fundingRate.latest_funding_rate,
+//         settlement_scheduled_at: +fundingRate.next_funding_time,
+//         open_interest: +market.open_interest_volume,
+//       };
+//     }),
+//   );
+// });

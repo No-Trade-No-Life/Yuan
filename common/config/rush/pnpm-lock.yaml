@@ -1934,7 +1934,6 @@ importers:
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
       '@types/simple-peer': ~9.11.8
-      '@yuants/data-model': workspace:*
       '@yuants/prometheus-client': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
@@ -1951,7 +1950,6 @@ importers:
       '@opentelemetry/exporter-prometheus': 0.200.0_@opentelemetry+api@1.9.0
       '@opentelemetry/sdk-metrics': 2.0.0_@opentelemetry+api@1.9.0
       '@roamhq/wrtc': 0.8.0
-      '@yuants/data-model': link:../data-model
       '@yuants/prometheus-client': link:../prometheus-client
       '@yuants/utils': link:../utils
       ajv: 8.12.0

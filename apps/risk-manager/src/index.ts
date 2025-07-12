@@ -1,10 +1,8 @@
 import { useAccountInfo } from '@yuants/data-account';
 import { UUID, formatTime } from '@yuants/utils';
 import { PromRegistry } from '@yuants/protocol';
-import '@yuants/protocol/lib/services';
 import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
 import { ITransferOrder } from '@yuants/transfer';
-import '@yuants/transfer/lib/services';
 import {
   combineLatest,
   defer,

@@ -1,5 +1,4 @@
 import { PromRegistry } from '@yuants/protocol';
-import '@yuants/protocol/lib/services';
 import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
 import {
   IAccountAddressInfo,
