@@ -2,6 +2,43 @@
   "name": "@yuants/vendor-ctp",
   "entries": [
     {
+      "version": "0.2.60",
+      "tag": "@yuants/vendor-ctp_v0.2.60",
+      "date": "Sat, 12 Jul 2025 09:58:56 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove ticks"
+          },
+          {
+            "comment": "add account market"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.18.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.1.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.37.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.7.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.2.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.59",
       "tag": "@yuants/vendor-ctp_v0.2.59",
       "date": "Sat, 12 Jul 2025 06:20:10 GMT",

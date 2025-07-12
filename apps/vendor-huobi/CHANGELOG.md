@@ -1,6 +1,14 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Sat, 12 Jul 2025 06:20:10 GMT and should not be manually modified.
+This log was last generated on Sat, 12 Jul 2025 09:58:56 GMT and should not be manually modified.
+
+## 0.8.10
+Sat, 12 Jul 2025 09:58:56 GMT
+
+### Patches
+
+- remove ticks
+- add account market
 
 ## 0.8.9
 Sat, 12 Jul 2025 06:20:10 GMT
