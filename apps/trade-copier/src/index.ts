@@ -1,10 +1,11 @@
-import { IDataRecordTypes, IProduct } from '@yuants/data-model';
+import { IAccountInfo, IOrder, IPosition, useAccountInfo } from '@yuants/data-account';
+import { IProduct, ITradeCopierTradeConfig, ITradeCopyRelation } from '@yuants/data-model';
 import { IPositionDiff, diffPosition, mergePositions } from '@yuants/kernel';
 import { PromRegistry, Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
 import { escape, requestSQL } from '@yuants/sql';
-import { roundToStep, UUID, formatTime } from '@yuants/utils';
+import { UUID, formatTime, roundToStep } from '@yuants/utils';
 import {
   EMPTY,
   Observable,
@@ -37,10 +38,6 @@ import {
 } from 'rxjs';
 import './migration';
 import { terminal } from './terminal';
-import { IAccountInfo, IOrder, IPosition, useAccountInfo } from '@yuants/data-account';
-
-type ITradeCopyRelation = IDataRecordTypes['trade_copy_relation'];
-type ITradeCopierTradeConfig = IDataRecordTypes['trade_copier_trade_config'];
 
 interface ITradeCopierConfig {
   multiple?: number;

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/transfer",
+      "comment": "remove data record types",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/transfer"
+}

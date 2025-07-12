@@ -23,12 +23,6 @@ const internalTerminal = new Terminal(process.env.HOST_URL!, {
   name: 'Portal-Internal',
 });
 
-declare module '@yuants/data-model/lib/DataRecord' {
-  interface IDataRecordTypes {
-    portal_relation: IPortalRelation;
-  }
-}
-
 interface IPortalRelation {
   external_host_url: string;
   type: 'request' | 'channel';

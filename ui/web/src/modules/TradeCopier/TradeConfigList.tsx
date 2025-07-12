@@ -1,7 +1,7 @@
 import { IconRefresh } from '@douyinfe/semi-icons';
 import { Button } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { IDataRecordTypes } from '@yuants/data-model';
+import { ITradeCopierTradeConfig } from '@yuants/data-model';
 import { InlineAccountId } from '../AccountInfo';
 import { executeCommand } from '../CommandCenter';
 import { DataRecordView } from '../DataRecord';
@@ -12,7 +12,7 @@ registerPage('TradeConfigList', () => {
     <DataRecordView
       TYPE="trade_copier_trade_config"
       columns={(ctx) => {
-        const columnHelper = createColumnHelper<IDataRecordTypes['trade_copier_trade_config']>();
+        const columnHelper = createColumnHelper<ITradeCopierTradeConfig>();
         return [
           columnHelper.accessor('account_id', {
             header: () => '账户 ID',

@@ -1,6 +1,6 @@
 import { StockMarket } from '@icon-park/react';
 import { ColumnFiltersState } from '@tanstack/react-table';
-import { IProduct } from '@yuants/data-model';
+import { IProduct } from '@yuants/data-product';
 import { escape, requestSQL } from '@yuants/sql';
 import { useObservableState } from 'observable-hooks';
 import { BehaviorSubject, combineLatest, debounceTime, defer, of, switchMap } from 'rxjs';

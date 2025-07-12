@@ -8,7 +8,7 @@ import { IAccountInfo } from '@yuants/data-model';
 import { IOrder } from '@yuants/data-model';
 import { IPeriod } from '@yuants/data-model';
 import { IPosition } from '@yuants/data-model';
-import { IProduct } from '@yuants/data-model';
+import { IProduct } from '@yuants/data-product';
 import { ITick } from '@yuants/data-model';
 import { Observable } from 'rxjs';
 import { Subject } from 'rxjs';

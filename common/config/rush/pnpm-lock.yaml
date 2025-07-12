@@ -1473,6 +1473,7 @@ importers:
       '@types/node': '22'
       '@yuants/data-account': workspace:*
       '@yuants/data-model': workspace:*
+      '@yuants/data-product': workspace:*
       '@yuants/kernel': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -1484,6 +1485,7 @@ importers:
     dependencies:
       '@yuants/data-account': link:../data-account
       '@yuants/data-model': link:../data-model
+      '@yuants/data-product': link:../data-product
       '@yuants/kernel': link:../kernel
       '@yuants/protocol': link:../protocol
       '@yuants/utils': link:../utils

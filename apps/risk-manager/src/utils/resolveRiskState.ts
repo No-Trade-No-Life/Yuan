@@ -1,10 +1,8 @@
-import { IAccountInfo, IDataRecordTypes } from '@yuants/data-model';
+import { IAccountInfo } from '@yuants/data-model';
+import { IAccountRiskInfo } from '../models';
 import { IRiskState } from '../models/RiskState';
 
-export const resolveRiskState = (
-  riskInfo: IDataRecordTypes['account_risk_info'],
-  accountInfo: IAccountInfo,
-): IRiskState => {
+export const resolveRiskState = (riskInfo: IAccountRiskInfo, accountInfo: IAccountInfo): IRiskState => {
   const state: IRiskState = {
     account_id: riskInfo.account_id,
     currency: riskInfo.currency,

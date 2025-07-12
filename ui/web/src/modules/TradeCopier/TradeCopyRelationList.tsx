@@ -1,7 +1,7 @@
 import { IconRefresh } from '@douyinfe/semi-icons';
 import { Button, Switch, Toast } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { IDataRecordTypes } from '@yuants/data-model';
+import { ITradeCopyRelation } from '@yuants/data-model';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
 import { filter, first, mergeMap, tap } from 'rxjs';
 import { InlineAccountId } from '../AccountInfo';
@@ -16,7 +16,7 @@ registerPage('TradeCopyRelationList', () => {
     <DataRecordView
       TYPE="trade_copy_relation"
       columns={(ctx) => {
-        const columnHelper = createColumnHelper<IDataRecordTypes['trade_copy_relation']>();
+        const columnHelper = createColumnHelper<ITradeCopyRelation>();
         return [
           columnHelper.accessor('source_account_id', {
             header: () => '源账户 ID',

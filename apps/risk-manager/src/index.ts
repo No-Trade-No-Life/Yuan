@@ -1,5 +1,4 @@
 import { useAccountInfo } from '@yuants/data-account';
-import { IDataRecordTypes } from '@yuants/data-model';
 import { UUID, formatTime } from '@yuants/utils';
 import { PromRegistry } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
@@ -33,7 +32,7 @@ const MetricPassiveDemand = PromRegistry.create('gauge', 'risk_manager_passive_d
 const MetricActiveSupply = PromRegistry.create('gauge', 'risk_manager_active_supply');
 const MetricPassiveSupply = PromRegistry.create('gauge', 'risk_manager_passive_supply');
 
-function mapRiskInfoToState$(riskInfo: IDataRecordTypes['account_risk_info']) {
+function mapRiskInfoToState$(riskInfo: IAccountRiskInfo) {
   const labels = {
     account_id: riskInfo.account_id,
     group_id: riskInfo.group_id,

@@ -16,7 +16,6 @@ export * as Extensions from './modules/Extensions';
 export * as FileSystem from './modules/FileSystem';
 export * as Form from './modules/Form';
 export * as Fund from './modules/Fund';
-export * as GeneralSpecificRelations from './modules/GeneralSpecificRelations';
 export * as Interactive from './modules/Interactive';
 export * as Kernel from './modules/Kernel';
 export * as Launch from './modules/Launch';

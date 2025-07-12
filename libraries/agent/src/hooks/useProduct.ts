@@ -1,4 +1,4 @@
-import { IProduct } from '@yuants/data-model';
+import { IProduct } from '@yuants/data-product';
 import { useAgent, useEffect } from './basic-set';
 
 /**
@@ -19,6 +19,20 @@ export const useProduct = (datasource_id: string, product_id: string): IProduct 
     agent.productDataUnit.getProduct(datasource_id, product_id) || {
       datasource_id,
       product_id,
+      name: '',
+      quote_currency: '',
+      value_scale: 1,
+      value_scale_unit: '',
+      volume_step: 1,
+      price_step: 1,
+      allow_long: true,
+      allow_short: true,
+      margin_rate: 1,
+      base_currency: '',
+      value_based_cost: 0,
+      volume_based_cost: 0,
+      max_position: 0,
+      max_volume: 0,
     }
   );
 };

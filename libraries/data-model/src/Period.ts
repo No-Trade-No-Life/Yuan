@@ -1,11 +1,3 @@
-import { addDataRecordWrapper } from './DataRecord';
-
-declare module './DataRecord' {
-  export interface IDataRecordTypes {
-    period: IPeriod;
-  }
-}
-
 /**
  * Period: Market transaction data during a certain period of time
  * Period: 某个时间段内的市场成交行情数据
@@ -90,24 +82,3 @@ export interface IPeriod {
    */
   spread?: number;
 }
-
-addDataRecordWrapper('period', (period) => {
-  const period_end_time = period.timestamp_in_us / 1000 + period.period_in_sec * 1000;
-  return {
-    id: `${period.datasource_id}/${period.product_id}/${period.period_in_sec}/${period.timestamp_in_us}`,
-    type: `period`,
-    created_at: period.timestamp_in_us / 1000,
-    updated_at: Date.now(),
-    frozen_at: period_end_time < Date.now() ? period_end_time : null,
-    tags: {
-      datasource_id: period.datasource_id,
-      product_id: period.product_id,
-      duration: period.duration || '',
-      period_in_sec: '' + period.period_in_sec,
-    },
-    paths: {
-      id: `/${period.datasource_id}/${period.product_id}/${period.duration}`,
-    },
-    origin: period,
-  };
-});

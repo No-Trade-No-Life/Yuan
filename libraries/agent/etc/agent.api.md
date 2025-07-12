@@ -11,7 +11,7 @@ import { DataLoadingTaskUnit } from '@yuants/kernel';
 import { HistoryOrderUnit } from '@yuants/kernel';
 import { IAccountInfo } from '@yuants/data-model';
 import { IOrder } from '@yuants/data-model';
-import { IProduct } from '@yuants/data-model';
+import { IProduct } from '@yuants/data-product';
 import { ITick } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
 import { Kernel } from '@yuants/kernel';

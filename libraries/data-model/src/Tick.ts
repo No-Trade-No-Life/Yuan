@@ -64,9 +64,3 @@ export interface ITick {
    */
   interest_rate_for_short?: number;
 }
-
-declare module './DataRecord' {
-  export interface IDataRecordTypes {
-    tick: ITick;
-  }
-}

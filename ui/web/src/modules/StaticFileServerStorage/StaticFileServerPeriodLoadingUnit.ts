@@ -1,4 +1,5 @@
-import { IPeriod, IProduct } from '@yuants/data-model';
+import { IPeriod } from '@yuants/data-model';
+import { IProduct } from '@yuants/data-product';
 import { BasicUnit, Kernel, PeriodDataUnit, ProductDataUnit } from '@yuants/kernel';
 import { formatTime } from '@yuants/utils';
 import { parse as csvParse } from 'csv-parse/browser/esm/sync';
@@ -125,7 +126,6 @@ export class StaticFileServerPeriodLoadingUnit extends BasicUnit {
           map((periods) => {
             periods.sort((a, b) => a.timestamp_in_us - b.timestamp_in_us);
             periods.forEach((period, idx) => {
-              const spread = period.spread || theProduct?.spread || 0;
               // Push Period Data
               // ISSUE: Push the K-line at the opening time into the queue, which generates a simulated event,
               //        which can confirm the closing of the previous K-line early
@@ -136,7 +136,6 @@ export class StaticFileServerPeriodLoadingUnit extends BasicUnit {
                 low: period.open,
                 close: period.open,
                 volume: 0,
-                spread,
               });
               // ISSUE: Generally speaking, the closing timestamp of the K-line is the opening timestamp + period,
               //        but in historical data, the closing timestamp of the K-line may be earlier than the opening timestamp + period
@@ -146,7 +145,7 @@ export class StaticFileServerPeriodLoadingUnit extends BasicUnit {
                 Date.now(),
               );
               const closeEventId = this.kernel.alloc(inferred_close_timestamp);
-              this.mapEventIdToPeriod.set(closeEventId, { ...period, spread });
+              this.mapEventIdToPeriod.set(closeEventId, period);
             });
             return periods;
           }),

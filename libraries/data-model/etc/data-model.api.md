@@ -7,15 +7,8 @@
 import { decodePath } from '@yuants/utils';
 import { encodePath } from '@yuants/utils';
 import { formatTime } from '@yuants/utils';
-import { JSONSchema7 } from 'json-schema';
 import { Observable } from 'rxjs';
 import { UUID } from '@yuants/utils';
-
-// @public @deprecated
-export const addDataRecordSchema: <K extends keyof IDataRecordTypes>(type: K, schema: JSONSchema7) => void;
-
-// @public @deprecated
-export const addDataRecordWrapper: <K extends keyof IDataRecordTypes>(type: K, wrapper: (v: IDataRecordTypes[K]) => IDataRecord<IDataRecordTypes[K]>) => void;
 
 // @public (undocumented)
 export const createEmptyAccountInfo: (account_id: string, currency: string, leverage?: number, initial_balance?: number) => IAccountInfo;
@@ -25,12 +18,6 @@ export { decodePath }
 export { encodePath }
 
 export { formatTime }
-
-// @public @deprecated
-export const getDataRecordSchema: <K extends keyof IDataRecordTypes>(type: K) => JSONSchema7 | undefined;
-
-// @public @deprecated
-export const getDataRecordWrapper: <K extends keyof IDataRecordTypes>(type: K) => ((v: IDataRecordTypes[K]) => IDataRecord<IDataRecordTypes[K]>) | undefined;
 
 // @public (undocumented)
 export const getMargin: (product: IProduct, openPrice: number, volume: number, variant: string, currency: string, quote: (product_id: string) => {
@@ -43,6 +30,18 @@ export const getProfit: (product: IProduct, openPrice: number, closePrice: numbe
     ask: number;
     bid: number;
 } | undefined) => number;
+
+// @public
+export interface IAccountCompositionRelation {
+    // (undocumented)
+    hide_positions?: boolean;
+    // (undocumented)
+    multiple: number;
+    // (undocumented)
+    source_account_id: string;
+    // (undocumented)
+    target_account_id: string;
+}
 
 // @public
 export interface IAccountInfo {
@@ -63,23 +62,6 @@ export interface IAccountMoney {
     leverage?: number;
     profit: number;
     used: number;
-}
-
-// @public
-export interface IDataRecord<T = unknown> {
-    created_at?: number | null;
-    expired_at?: number;
-    frozen_at?: number | null;
-    id: string;
-    origin: T;
-    paths?: Record<string, string>;
-    tags: Record<string, string>;
-    type: string;
-    updated_at: number;
-}
-
-// @public
-export interface IDataRecordTypes {
 }
 
 // @public
@@ -172,6 +154,28 @@ export interface IProduct {
     volume_step?: number;
 }
 
+// @alpha
+export interface IStandardOrder {
+    account_id: string;
+    amount: string;
+    amount_type: 'BASE' | 'QUOTE';
+    broker_id?: string;
+    broker_priority_fee?: string;
+    cancel_at?: string;
+    direction: 'BUY' | 'SELL';
+    execution_price?: string;
+    maker_only?: boolean;
+    max_broker_execution_fee?: string;
+    max_trigger_amount?: string;
+    max_trigger_times?: string;
+    min_execution_amount?: string;
+    order_downstream_id?: string;
+    order_id: string;
+    order_upstream_id?: string;
+    product_id: string;
+    trigger_price?: string;
+}
+
 // @public
 export interface ITick {
     ask?: number;
@@ -186,6 +190,37 @@ export interface ITick {
     spread?: number;
     updated_at: number;
     volume?: number;
+}
+
+// @public (undocumented)
+export interface ITradeCopierTradeConfig {
+    // (undocumented)
+    account_id: string;
+    // (undocumented)
+    id?: string;
+    // (undocumented)
+    max_volume_per_order: number;
+    // (undocumented)
+    product_id: string;
+}
+
+// @public (undocumented)
+export interface ITradeCopyRelation {
+    // (undocumented)
+    disabled?: boolean;
+    exclusive_comment_pattern?: string;
+    // (undocumented)
+    id?: string;
+    // (undocumented)
+    multiple: number;
+    // (undocumented)
+    source_account_id: string;
+    // (undocumented)
+    source_product_id: string;
+    // (undocumented)
+    target_account_id: string;
+    // (undocumented)
+    target_product_id: string;
 }
 
 // @public

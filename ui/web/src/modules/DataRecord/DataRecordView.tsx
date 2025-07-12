@@ -16,7 +16,6 @@ import {
   Table,
   createColumnHelper,
 } from '@tanstack/react-table';
-import { IDataRecord, getDataRecordSchema, getDataRecordWrapper } from '@yuants/data-model';
 import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
 import { JSONSchema7 } from 'json-schema';
 import React, { useEffect, useMemo, useState } from 'react';
@@ -117,22 +116,12 @@ export function DataRecordView<T extends {}>(props: IDataRecordViewDef<T>) {
                 onClick={async () => {
                   const terminal = await firstValueFrom(terminal$);
                   if (!terminal) return;
-                  const schema = props.schema || getDataRecordSchema(props.TYPE as any);
-                  if (!schema) {
-                    Toast.error(`找不到合适的数据规格，无法查询数据`);
-                    return;
-                  }
+                  const schema = {};
                   const formData = await showForm<T>(schema, record);
                   await props.beforeUpdateTrigger?.(formData);
-                  const wrapper = getDataRecordWrapper(props.TYPE as any);
-                  if (!wrapper) {
-                    Toast.error(`找不到合适的包装函数，无法更新数据`);
-                    return;
-                  }
-                  const nextRecord: IDataRecord<any> = wrapper(formData);
-                  await requestSQL(terminal, buildInsertManyIntoTableSQL([nextRecord], props.TYPE));
+                  await requestSQL(terminal, buildInsertManyIntoTableSQL([formData], props.TYPE));
                   await reloadData();
-                  Toast.success(`成功更新数据记录 ${nextRecord.id}`);
+                  Toast.success(`成功更新数据记录`);
                 }}
               ></Button>
               <Button
@@ -172,11 +161,7 @@ export function DataRecordView<T extends {}>(props: IDataRecordViewDef<T>) {
       <Button
         icon={<IconSearch />}
         onClick={async () => {
-          const schema = props.schema || getDataRecordSchema(props.TYPE as any);
-          if (!schema) {
-            Toast.error(`找不到合适的数据规格，无法查询数据`);
-            return;
-          }
+          const schema = props.schema || {};
           const formData = await showForm(schema, searchFormData);
           setSearchFormData(formData);
         }}
@@ -188,11 +173,7 @@ export function DataRecordView<T extends {}>(props: IDataRecordViewDef<T>) {
         onClick={async () => {
           const terminal = await firstValueFrom(terminal$);
           if (!terminal) return;
-          const schema = props.schema || getDataRecordSchema(props.TYPE as any);
-          if (!schema) {
-            Toast.error(`找不到合适的数据规格，无法查询数据`);
-            return;
-          }
+          const schema = props.schema || {};
           const formData = await showForm<T>(schema, props.newRecord?.() ?? {});
           await props.beforeUpdateTrigger?.(formData);
           const nextRecord: T = formData;
@@ -250,11 +231,6 @@ export function DataRecordView<T extends {}>(props: IDataRecordViewDef<T>) {
           });
           const data = JSON.parse(await fs.readFile(filename));
           if (!Array.isArray(data)) {
-            return;
-          }
-          const schema = props.schema || getDataRecordSchema(props.TYPE as any);
-          if (!schema) {
-            Toast.error(`找不到合适的数据规格，无法查询数据`);
             return;
           }
           await requestSQL(terminal, buildInsertManyIntoTableSQL(data, props.TYPE));

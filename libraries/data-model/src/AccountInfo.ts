@@ -270,11 +270,6 @@ export interface IAccountInfo {
    */
   updated_at: number;
 }
-declare module './DataRecord' {
-  export interface IDataRecordTypes {
-    account_info: IAccountInfo;
-  }
-}
 
 /**
  * @public

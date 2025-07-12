@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-transfer-controller",
+      "comment": "remove data record types",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-transfer-controller"
+}
