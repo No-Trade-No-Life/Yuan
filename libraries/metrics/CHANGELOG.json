@@ -2,6 +2,26 @@
   "name": "@yuants/metrics",
   "entries": [
     {
+      "version": "0.1.8",
+      "tag": "@yuants/metrics_v0.1.8",
+      "date": "Sat, 12 Jul 2025 06:20:10 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.18.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.36.3`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.7",
       "tag": "@yuants/metrics_v0.1.7",
       "date": "Fri, 11 Jul 2025 19:02:39 GMT",

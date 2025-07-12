@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Fri, 11 Jul 2025 19:02:39 GMT and should not be manually modified.
+This log was last generated on Sat, 12 Jul 2025 06:20:10 GMT and should not be manually modified.
+
+## 0.36.3
+Sat, 12 Jul 2025 06:20:10 GMT
+
+### Patches
+
+- remove service
 
 ## 0.36.2
 Fri, 11 Jul 2025 19:02:39 GMT
