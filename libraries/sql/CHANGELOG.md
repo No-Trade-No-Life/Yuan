@@ -1,6 +1,13 @@
 # Change Log - @yuants/sql
 
-This log was last generated on Sat, 12 Jul 2025 09:58:56 GMT and should not be manually modified.
+This log was last generated on Sat, 12 Jul 2025 15:53:22 GMT and should not be manually modified.
+
+## 0.8.0
+Sat, 12 Jul 2025 15:53:22 GMT
+
+### Minor changes
+
+- escapeSQL rename
 
 ## 0.7.4
 Sat, 12 Jul 2025 09:58:56 GMT
