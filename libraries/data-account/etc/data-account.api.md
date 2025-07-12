@@ -8,7 +8,7 @@ import { Observable } from 'rxjs';
 import { ObservableInput } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
 
-// @public (undocumented)
+// @public
 export const addAccountMarket: (terminal: Terminal, cxt: {
     account_id: string;
     market_id: string;
