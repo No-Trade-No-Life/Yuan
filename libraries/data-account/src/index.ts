@@ -219,6 +219,11 @@ export const publishAccountInfo = (
 export const useAccountInfo = (terminal: Terminal, account_id: string) =>
   terminal.channel.subscribeChannel<IAccountInfo>('AccountInfo', account_id);
 
+/**
+ * write account market info to db
+ *
+ * @public
+ */
 export const addAccountMarket = async (
   terminal: Terminal,
   cxt: { account_id: string; market_id: string },
