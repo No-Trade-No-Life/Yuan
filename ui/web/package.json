@@ -20,6 +20,7 @@
     "@yuants/kernel": "workspace:*",
     "@yuants/protocol": "workspace:*",
     "@yuants/utils": "workspace:*",
+    "@yuants/cache": "workspace:*",
     "@yuants/data-series": "workspace:*",
     "@yuants/data-product": "workspace:*",
     "@yuants/data-ohlc": "workspace:*",

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/cache",
+      "comment": "new",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/cache"
+}

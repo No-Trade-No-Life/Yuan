@@ -520,6 +520,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/cache",
+      "projectFolder": "libraries/cache",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/sql",
       "projectFolder": "libraries/sql",
       "shouldPublish": true

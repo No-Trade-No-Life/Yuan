@@ -24,9 +24,12 @@ export const createSQLWriter: <T extends {}>(terminal: Terminal, ctx: {
     data$: Observable<T>;
 } & ISQLWritterContext<T>) => void;
 
-// @public
+// @public @deprecated
 const escape_2: (val: any, options?: {}) => string;
 export { escape_2 as escape }
+
+// @public
+export const escapeSQL: (val: any, options?: {}) => string;
 
 // @public
 export const ExecuteMigrations: (terminal: Terminal) => Promise<void>;
