@@ -1,6 +1,14 @@
 # Change Log - @yuants/vendor-ctp
 
-This log was last generated on Sat, 12 Jul 2025 06:20:10 GMT and should not be manually modified.
+This log was last generated on Sat, 12 Jul 2025 09:58:56 GMT and should not be manually modified.
+
+## 0.2.60
+Sat, 12 Jul 2025 09:58:56 GMT
+
+### Patches
+
+- remove ticks
+- add account market
 
 ## 0.2.59
 Sat, 12 Jul 2025 06:20:10 GMT
