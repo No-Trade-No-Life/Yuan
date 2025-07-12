@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "remove service",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

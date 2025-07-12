@@ -1,12 +1,3 @@
-import { addDataRecordSchema, addDataRecordWrapper } from '@yuants/data-model';
-import { encodePath } from '@yuants/utils';
-
-declare module '@yuants/data-model/lib/DataRecord' {
-  export interface IDataRecordTypes {
-    account_risk_info: IAccountRiskInfo;
-  }
-}
-
 export interface IAccountRiskInfo {
   /**
    * The account ID
@@ -105,65 +96,3 @@ export interface IAccountRiskInfo {
    */
   disabled?: boolean | null;
 }
-
-addDataRecordWrapper('account_risk_info', (x) => {
-  return {
-    type: 'account_risk_info',
-    id: encodePath(x.group_id, x.account_id),
-    created_at: Date.now(),
-    updated_at: Date.now(),
-    frozen_at: null,
-    tags: {
-      group_id: x.group_id,
-      account_id: x.account_id,
-    },
-    origin: x,
-  };
-});
-
-addDataRecordSchema('account_risk_info', {
-  type: 'object',
-  required: ['account_id', 'currency', 'group_id'],
-  properties: {
-    currency: {
-      type: 'string',
-    },
-    group_id: {
-      type: 'string',
-    },
-    account_id: {
-      type: 'string',
-      format: 'account_id',
-    },
-    active_demand_threshold: {
-      type: 'number',
-    },
-    passive_demand_threshold: {
-      type: 'number',
-    },
-    passive_supply_threshold: {
-      type: 'number',
-    },
-    active_supply_threshold: {
-      type: 'number',
-    },
-    active_demand_leverage: {
-      type: 'number',
-    },
-    passive_demand_leverage: {
-      type: 'number',
-    },
-    passive_supply_leverage: {
-      type: 'number',
-    },
-    active_supply_leverage: {
-      type: 'number',
-    },
-    minimum_free: {
-      type: 'number',
-    },
-    disabled: {
-      type: 'boolean',
-    },
-  },
-});

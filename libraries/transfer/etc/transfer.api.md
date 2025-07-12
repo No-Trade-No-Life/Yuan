@@ -4,7 +4,6 @@
 
 ```ts
 
-import { IDataRecordTypes } from '@yuants/data-model';
 import { Terminal } from '@yuants/protocol';
 
 // Warning: (ae-forgotten-export) The symbol "IAccountTransferAddressContext" needs to be exported by the entry point index.d.ts

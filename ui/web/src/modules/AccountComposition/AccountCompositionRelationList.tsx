@@ -1,7 +1,7 @@
 import { IconRefresh } from '@douyinfe/semi-icons';
 import { Button } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { IDataRecordTypes } from '@yuants/data-model';
+import { IAccountCompositionRelation } from '@yuants/data-model';
 import { InlineAccountId } from '../AccountInfo';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { DataRecordView } from '../DataRecord';
@@ -13,7 +13,7 @@ registerPage('AccountCompositionRelationList', () => {
     <DataRecordView
       TYPE={'account_composition_relation'}
       columns={() => {
-        const columnHelper = createColumnHelper<IDataRecordTypes['account_composition_relation']>();
+        const columnHelper = createColumnHelper<IAccountCompositionRelation>();
         return [
           columnHelper.accessor('target_account_id', {
             header: () => '目标账户',

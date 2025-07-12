@@ -110,10 +110,7 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
               return;
             }
             const eventId = this.kernel.alloc(Date.now());
-            this.mapEventIdToPeriod.set(
-              eventId,
-              periods.map((period) => ({ ...period, spread: period.spread || theProduct?.spread || 0 })),
-            );
+            this.mapEventIdToPeriod.set(eventId, periods);
           },
         ),
       );

@@ -1,10 +1,15 @@
-import { IDataRecordTypes } from '@yuants/data-model';
-import { encodePath, formatTime } from '@yuants/utils';
 import { PromRegistry } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
-import { ITransferOrder } from '@yuants/transfer';
+import {
+  IAccountAddressInfo,
+  ITransferNetworkInfo,
+  ITransferOrder,
+  ITransferPair,
+  ITransferRoutingCache,
+} from '@yuants/transfer';
 import '@yuants/transfer/lib/services';
+import { encodePath, formatTime } from '@yuants/utils';
 // @ts-ignore
 import dijkstra from 'dijkstrajs';
 import {
@@ -26,11 +31,6 @@ import {
 } from 'rxjs';
 import './migration';
 import { terminal } from './terminal';
-
-type ITransferRoutingCache = IDataRecordTypes['transfer_routing_cache'];
-type ITransferPair = ITransferRoutingCache['routing_path'][number];
-type ITransferNetworkInfo = IDataRecordTypes['transfer_network_info'];
-type IAccountAddressInfo = IDataRecordTypes['account_address_info'];
 
 defer(() =>
   requestSQL<ITransferOrder[]>(

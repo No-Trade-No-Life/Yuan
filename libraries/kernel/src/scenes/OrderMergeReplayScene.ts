@@ -1,4 +1,5 @@
-import { IAccountInfo, IOrder, IPeriod, IProduct } from '@yuants/data-model';
+import { IAccountInfo, IOrder, IPeriod } from '@yuants/data-model';
+import { IProduct } from '@yuants/data-product';
 import { Kernel } from '../kernel';
 import {
   AccountPerformanceUnit,

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-portal",
+      "comment": "remove data record types",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-portal"
+}

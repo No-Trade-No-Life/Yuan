@@ -1,11 +1,3 @@
-import { addDataRecordWrapper } from '@yuants/data-model';
-
-declare module '@yuants/data-model/lib/DataRecord' {
-  export interface IDataRecordTypes {
-    transfer_routing_cache: ITransferRoutingCache;
-  }
-}
-
 /**
  * @public
  */
@@ -30,16 +22,3 @@ export interface ITransferRoutingCache {
   debit_account_id: string;
   routing_path: ITransferPair[];
 }
-
-addDataRecordWrapper('transfer_routing_cache', (origin) => ({
-  id: `${origin.credit_account_id}-${origin.debit_account_id}`,
-  type: 'transfer_routing_cache',
-  created_at: Date.now(),
-  updated_at: Date.now(),
-  frozen_at: null,
-  tags: {
-    credit_account_id: origin.credit_account_id,
-    debit_account_id: origin.debit_account_id,
-  },
-  origin,
-}));

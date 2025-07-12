@@ -1,4 +1,4 @@
-import { IOrder, IPeriod, IProduct, ITick } from '@yuants/data-model';
+import { IOrder, IPeriod, ITick } from '@yuants/data-model';
 /**
  * Request to query Ticks
  * 查询 Ticks 的请求
@@ -93,11 +93,6 @@ declare module '.' {
    * - 查询相关接口已载入
    */
   interface IService {
-    QueryProducts: {
-      req: IQueryProductsRequest;
-      res: IResponse<IProduct[]>;
-      frame: void;
-    };
     QueryHistoryOrders: {
       req: IQueryHistoryOrdersRequest;
       res: IResponse<IOrder[]>;

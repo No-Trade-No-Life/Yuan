@@ -1,5 +1,3 @@
-import { addDataRecordWrapper } from '@yuants/data-model';
-
 export interface IFundEvent {
   type: string;
   updated_at: string;
@@ -104,18 +102,3 @@ export interface InvestorInfoDerived {
   /** 份额占比 */
   share_ratio: number;
 }
-
-declare module '@yuants/data-model/lib/DataRecord' {
-  interface IDataRecordTypes {
-    fund_state: IFundState;
-  }
-}
-
-addDataRecordWrapper('fund_state', (x) => ({
-  type: 'fund_state',
-  id: x.account_id,
-  created_at: x.created_at,
-  updated_at: x.updated_at,
-  tags: {},
-  origin: x,
-}));
