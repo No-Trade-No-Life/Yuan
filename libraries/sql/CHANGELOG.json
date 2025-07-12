@@ -2,6 +2,23 @@
   "name": "@yuants/sql",
   "entries": [
     {
+      "version": "0.8.0",
+      "tag": "@yuants/sql_v0.8.0",
+      "date": "Sat, 12 Jul 2025 15:53:22 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "escapeSQL rename"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.7.4",
       "tag": "@yuants/sql_v0.7.4",
       "date": "Sat, 12 Jul 2025 09:58:56 GMT",

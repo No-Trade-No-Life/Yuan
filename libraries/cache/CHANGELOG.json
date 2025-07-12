@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/cache",
+  "entries": [
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/cache_v0.1.0",
+      "date": "Sat, 12 Jul 2025 15:53:22 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "new"
+          }
+        ]
+      }
+    }
+  ]
+}
