@@ -34,7 +34,6 @@
     "@yuants/app-trade-copier",
     "@yuants/app-transfer-controller",
     "@yuants/app-risk-manager",
-    "@yuants/vendor-deepcoin",
     "@yuants/vendor-ccxt",
     "@yuants/vendor-binance",
     "@yuants/vendor-bitget",

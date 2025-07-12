@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-model",
+      "comment": "remove IProduct",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/data-model"
+}

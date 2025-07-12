@@ -1,4 +1,5 @@
-import { IAccountInfo, IOrder, IProduct, createEmptyAccountInfo } from '@yuants/data-model';
+import { IAccountInfo, IOrder, createEmptyAccountInfo } from '@yuants/data-model';
+import { IProduct } from '@yuants/data-product';
 import { AccountInfoResolver } from './index';
 import { IAccountInfoResolver } from './model';
 
@@ -13,7 +14,12 @@ const product: IProduct = {
   margin_rate: 0.1,
   allow_long: true,
   allow_short: true,
-  spread: 0.5,
+  datasource_id: '',
+  value_scale_unit: '',
+  value_based_cost: 0,
+  volume_based_cost: 0,
+  max_position: 0,
+  max_volume: 0,
 };
 
 describe('AccountInfoResolver', () => {

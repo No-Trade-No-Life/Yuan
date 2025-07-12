@@ -1,4 +1,5 @@
-import { IAccountInfo, IOrder, IPosition, IProduct } from '@yuants/data-model';
+import { IAccountInfo, IOrder, IPosition } from '@yuants/data-model';
+import { IProduct } from '@yuants/data-product';
 
 /**
  * @public

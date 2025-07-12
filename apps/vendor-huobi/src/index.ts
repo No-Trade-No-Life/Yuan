@@ -7,10 +7,7 @@ import {
   publishAccountInfo,
 } from '@yuants/data-account';
 import { Terminal } from '@yuants/protocol';
-import '@yuants/protocol/lib/services';
-import '@yuants/protocol/lib/services/order';
 import { addAccountTransferAddress } from '@yuants/transfer';
-import '@yuants/transfer/lib/services';
 import { formatTime, roundToStep } from '@yuants/utils';
 import {
   catchError,

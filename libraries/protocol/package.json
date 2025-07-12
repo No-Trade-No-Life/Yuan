@@ -12,7 +12,6 @@
     "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
   },
   "dependencies": {
-    "@yuants/data-model": "workspace:*",
     "@yuants/utils": "workspace:*",
     "ajv": "~8.12.0",
     "browser-or-node": "~2.0.0",

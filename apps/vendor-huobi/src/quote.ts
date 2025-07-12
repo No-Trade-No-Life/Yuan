@@ -1,28 +1,9 @@
-import { ITick } from '@yuants/data-model';
 import { IQuote } from '@yuants/data-quote';
-import { provideTicks, Terminal } from '@yuants/protocol';
+import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { encodePath, formatTime } from '@yuants/utils';
-import {
-  catchError,
-  combineLatest,
-  defer,
-  EMPTY,
-  firstValueFrom,
-  from,
-  groupBy,
-  map,
-  merge,
-  mergeMap,
-  of,
-  repeat,
-  retry,
-  scan,
-  shareReplay,
-  toArray,
-} from 'rxjs';
+import { defer, from, groupBy, map, merge, mergeMap, repeat, retry, scan, shareReplay, toArray } from 'rxjs';
 import { client } from './api';
-import { perpetualContractProducts$ } from './product';
 
 const swapBboTick$ = defer(() => client.getSwapMarketBbo({})).pipe(
   repeat({ delay: 1000 }),
@@ -175,39 +156,39 @@ const mapSwapContractCodeToOpenInterest$ = defer(() => swapOpenInterest$).pipe(
   shareReplay(1),
 );
 
-provideTicks(Terminal.fromNodeEnv(), 'HUOBI-SWAP', (product_id) => {
-  return defer(async () => {
-    const products = await firstValueFrom(perpetualContractProducts$);
-    const theProduct = products.find((x) => x.product_id === product_id);
-    if (!theProduct) throw `No Found ProductID ${product_id}`;
+// provideTicks(Terminal.fromNodeEnv(), 'HUOBI-SWAP', (product_id) => {
+//   return defer(async () => {
+//     const products = await firstValueFrom(perpetualContractProducts$);
+//     const theProduct = products.find((x) => x.product_id === product_id);
+//     if (!theProduct) throw `No Found ProductID ${product_id}`;
 
-    return [
-      of(theProduct),
-      mapSwapContractCodeToBboTick$,
-      mapSwapContractCodeToTradeTick$,
-      mapSwapContractCodeToFundingRateTick$,
-      mapSwapContractCodeToOpenInterest$,
-    ] as const;
-  }).pipe(
-    catchError(() => EMPTY),
-    mergeMap((x) =>
-      combineLatest(x).pipe(
-        map(([theProduct, bboTick, tradeTick, fundingRateTick, openInterest]): ITick => {
-          return {
-            datasource_id: 'HUOBI-SWAP',
-            product_id,
-            updated_at: Date.now(),
-            settlement_scheduled_at: +fundingRateTick[product_id].funding_time,
-            price: +tradeTick[product_id].price,
-            ask: bboTick[product_id].ask?.[0] ?? undefined,
-            bid: bboTick[product_id].bid?.[0] ?? undefined,
-            volume: +tradeTick[product_id].amount,
-            interest_rate_for_long: -+fundingRateTick[product_id].funding_rate,
-            interest_rate_for_short: +fundingRateTick[product_id].funding_rate,
-            open_interest: +openInterest[product_id]?.volume,
-          };
-        }),
-      ),
-    ),
-  );
-});
+//     return [
+//       of(theProduct),
+//       mapSwapContractCodeToBboTick$,
+//       mapSwapContractCodeToTradeTick$,
+//       mapSwapContractCodeToFundingRateTick$,
+//       mapSwapContractCodeToOpenInterest$,
+//     ] as const;
+//   }).pipe(
+//     catchError(() => EMPTY),
+//     mergeMap((x) =>
+//       combineLatest(x).pipe(
+//         map(([theProduct, bboTick, tradeTick, fundingRateTick, openInterest]): ITick => {
+//           return {
+//             datasource_id: 'HUOBI-SWAP',
+//             product_id,
+//             updated_at: Date.now(),
+//             settlement_scheduled_at: +fundingRateTick[product_id].funding_time,
+//             price: +tradeTick[product_id].price,
+//             ask: bboTick[product_id].ask?.[0] ?? undefined,
+//             bid: bboTick[product_id].bid?.[0] ?? undefined,
+//             volume: +tradeTick[product_id].amount,
+//             interest_rate_for_long: -+fundingRateTick[product_id].funding_rate,
+//             interest_rate_for_short: +fundingRateTick[product_id].funding_rate,
+//             open_interest: +openInterest[product_id]?.volume,
+//           };
+//         }),
+//       ),
+//     ),
+//   );
+// });

@@ -4,8 +4,6 @@
 
 ```ts
 
-import { IPeriod } from '@yuants/data-model';
-import { ITick } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
 import { MeterProvider } from '@opentelemetry/sdk-metrics';
 import { MetricReader } from '@opentelemetry/sdk-metrics';
@@ -145,12 +143,6 @@ export const MetricsMeterProvider: MeterProvider;
 export const PromRegistry: Registry;
 
 // @public
-export const providePeriods: (terminal: Terminal, datasource_id: string, usePeriods: (product_id: string, period_in_sec: number) => ObservableInput<IPeriod[]>) => void;
-
-// @public
-export const provideTicks: (terminal: Terminal, datasource_id: string, useTicks: (product_id: string) => ObservableInput<ITick>) => void;
-
-// @public
 export const requestSharedKey: (terminal: Terminal, ed25519_public_key: string) => Promise<{
     public_key: string;
     private_key: string;
@@ -224,11 +216,5 @@ export class TerminalChannel {
     // (undocumented)
     terminal: Terminal;
 }
-
-// @public
-export const usePeriod: (terminal: Terminal, datasource_id: string, product_id: string, period_in_sec: number) => Observable<IPeriod[]>;
-
-// @public
-export const useTick: (terminal: Terminal, datasource_id: string, product_id: string) => Observable<ITick>;
 
 ```

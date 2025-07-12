@@ -5,9 +5,6 @@ import {
   IPosition,
   publishAccountInfo,
 } from '@yuants/data-account';
-import '@yuants/protocol/lib/services';
-import '@yuants/protocol/lib/services/order';
-import '@yuants/transfer/lib/services';
 import { encodePath, formatTime } from '@yuants/utils';
 import { defer, repeat, retry, shareReplay, tap } from 'rxjs';
 import { client } from './api';

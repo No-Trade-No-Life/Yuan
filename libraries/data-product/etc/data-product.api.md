@@ -4,6 +4,18 @@
 
 ```ts
 
+// @public (undocumented)
+export const getMargin: (product: IProduct, openPrice: number, volume: number, variant: string, currency: string, quote: (product_id: string) => {
+    ask: number;
+    bid: number;
+} | undefined) => number;
+
+// @public (undocumented)
+export const getProfit: (product: IProduct, openPrice: number, closePrice: number, volume: number, variant: string, currency: string, quotes: (product_id: string) => {
+    ask: number;
+    bid: number;
+} | undefined) => number;
+
 // @public
 export interface IProduct {
     allow_long: boolean;

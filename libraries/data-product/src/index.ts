@@ -142,3 +142,51 @@ AddMigration({
     );
   `,
 });
+
+/**
+ * @see https://tradelife.feishu.cn/wiki/wikcnRNzWSF7jtkH8nGruaMhhlh
+ *
+ * @public
+ */
+export const getProfit = (
+  product: IProduct,
+  openPrice: number,
+  closePrice: number,
+  volume: number,
+  variant: string,
+  currency: string,
+  quotes: (product_id: string) => { ask: number; bid: number } | undefined,
+) =>
+  (variant === 'LONG' ? 1 : -1) *
+  volume *
+  (closePrice - openPrice) *
+  (product.value_scale ?? 1) *
+  (product.value_scale_unit ? 1 / openPrice : 1) *
+  (product.quote_currency !== currency
+    ? (variant === 'LONG'
+        ? quotes(`${product.quote_currency}${currency}`)?.bid
+        : quotes(`${product.quote_currency}${currency}`)?.ask) ?? 1
+    : 1);
+
+/**
+ * @see https://tradelife.feishu.cn/wiki/wikcnEVBM0RQ7pmbNZUxMV8viRg
+ *
+ * @public
+ */
+export const getMargin = (
+  product: IProduct,
+  openPrice: number,
+  volume: number,
+  variant: string,
+  currency: string,
+  quote: (product_id: string) => { ask: number; bid: number } | undefined,
+) =>
+  volume *
+  (product.value_scale ?? 1) *
+  (product.value_scale_unit ? 1 : openPrice) *
+  (product.margin_rate ?? 1) *
+  (product.quote_currency !== currency
+    ? (variant === 'LONG'
+        ? quote(`${product.quote_currency}${currency}`)?.bid
+        : quote(`${product.quote_currency}${currency}`)?.ask) ?? 1
+    : 1);
