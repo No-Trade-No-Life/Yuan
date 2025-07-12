@@ -49,6 +49,40 @@ export class HuobiClient {
   }
 
   async request(method: string, path: string, api_root: string, params?: any) {
+    const noAuth = !(this.params.auth.access_key && this.params.auth.secret_key);
+
+    if (noAuth) {
+      const requestParams = `${
+        method === 'GET' && params !== undefined
+          ? `&${Object.entries(params)
+              .sort(([a], [b]) => a.localeCompare(b))
+              .map(([k, v]) => `${k}=${v}`)
+              .join('&')}`
+          : ''
+      }`;
+
+      const body = method === 'GET' ? '' : JSON.stringify(params);
+
+      const url = new URL(`https://${api_root}${path}?${requestParams}`);
+      // url.searchParams.sort();
+      console.info(formatTime(Date.now()), method, url.href, body);
+
+      const res = await fetch(url.href, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: body || undefined,
+      });
+
+      const retStr = await res.text();
+      // console.info(formatTime(Date.now()), 'response', url.href, retStr);
+      try {
+        return JSON.parse(retStr);
+      } catch (e) {
+        console.error(formatTime(Date.now()), 'huobiRequestFailed', path, JSON.stringify(params), retStr);
+        throw e;
+      }
+    }
+
     const requestParams = `AccessKeyId=${
       this.params.auth.access_key
     }&SignatureMethod=HmacSHA256&SignatureVersion=2&Timestamp=${encodeURIComponent(
@@ -222,6 +256,21 @@ export class HuobiClient {
     // https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb74963-77b5-11ed-9966-0242ac110003
     return this.request('POST', '/linear-swap-api/v1/swap_cross_position_info', this.swap_api_root, params);
   }
+
+  /**
+   * 【全仓】获取平台阶梯保证金
+   *
+   * https://www.htx.com/zh-cn/opend/newApiPages/?id=8cb72290-77b5-11ed-9966-0242ac110003
+   */
+  getSwapCrossLadderMargin = (params?: {
+    contract_code?: string;
+    pair?: string;
+    contract_type?: string;
+    business_type?: string;
+  }): Promise<{
+    status: string;
+    data: Array<{ contract_code: string; pair: string; list: Array<{ lever_rate: number }> }>;
+  }> => this.request('GET', '/linear-swap-api/v1/swap_cross_ladder_margin', this.swap_api_root, params);
 
   getSwapOpenOrders(params?: {
     contract_code?: string;
