@@ -1,4 +1,11 @@
-import { IAccountInfo, IAccountMoney, IOrder, IPosition, publishAccountInfo } from '@yuants/data-account';
+import {
+  addAccountMarket,
+  IAccountInfo,
+  IAccountMoney,
+  IOrder,
+  IPosition,
+  publishAccountInfo,
+} from '@yuants/data-account';
 import { Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services';
 import '@yuants/protocol/lib/services/order';
@@ -358,8 +365,11 @@ const terminal = Terminal.fromNodeEnv();
   );
 
   publishAccountInfo(terminal, SPOT_ACCOUNT_ID, spotAccountInfo$);
+  addAccountMarket(terminal, { account_id: SPOT_ACCOUNT_ID, market_id: 'HUOBI/SPOT' });
   publishAccountInfo(terminal, SUPER_MARGIN_ACCOUNT_ID, superMarginAccountInfo$);
+  addAccountMarket(terminal, { account_id: SUPER_MARGIN_ACCOUNT_ID, market_id: 'HUOBI/SUPER-MARGIN' });
   publishAccountInfo(terminal, SWAP_ACCOUNT_ID, perpetualContractAccountInfo$);
+  addAccountMarket(terminal, { account_id: SWAP_ACCOUNT_ID, market_id: 'HUOBI/SWAP' });
 
   // Submit order
   terminal.provideService(

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-account",
+      "comment": "add account market",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/data-account"
+}

@@ -35,6 +35,7 @@ const futureProducts$ = futureExchangeInfo$.pipe(
           max_volume: 0,
           allow_long: true,
           allow_short: true,
+          market_id: 'BINANCE/USDT-FUTURE',
         };
       }),
       tap((v) => product$.next(v)),

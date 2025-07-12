@@ -1,7 +1,7 @@
 import { Meter } from '@opentelemetry/api';
 import { mergeAccountInfoPositions } from '@yuants/data-model';
 import { MetricsMeterProvider, Terminal } from '@yuants/protocol';
-import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
+import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
 import { ObservableInput, defer, mergeMap, pairwise, takeUntil, tap } from 'rxjs';
 import './interface';
@@ -218,3 +218,28 @@ export const publishAccountInfo = (
  */
 export const useAccountInfo = (terminal: Terminal, account_id: string) =>
   terminal.channel.subscribeChannel<IAccountInfo>('AccountInfo', account_id);
+
+export const addAccountMarket = async (
+  terminal: Terminal,
+  cxt: { account_id: string; market_id: string },
+) => {
+  const { account_id, market_id } = cxt;
+  try {
+    await requestSQL(
+      terminal,
+      `
+        INSERT INTO account_market (account_id, market_id) values (${escape(account_id)}, ${escape(
+        market_id,
+      )}) ON CONFLICT (account_id, market_id) DO NOTHING;
+      `,
+    );
+  } catch (e) {
+    console.error(
+      formatTime(Date.now()),
+      'AddAccountMarketError',
+      `accountId: ${account_id}, marketId: ${market_id}`,
+      `Error: `,
+      e,
+    );
+  }
+};

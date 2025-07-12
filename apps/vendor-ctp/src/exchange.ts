@@ -1,5 +1,12 @@
 import { formatTime } from '@yuants/utils';
-import { IAccountInfo, IAccountMoney, IOrder, IPosition, publishAccountInfo } from '@yuants/data-account';
+import {
+  addAccountMarket,
+  IAccountInfo,
+  IAccountMoney,
+  IOrder,
+  IPosition,
+  publishAccountInfo,
+} from '@yuants/data-account';
 import { IProduct } from '@yuants/data-product';
 import { IConnection, Terminal } from '@yuants/protocol';
 import '@yuants/protocol/lib/services/order';
@@ -617,7 +624,10 @@ const products$ = defer(() => loginRes$.pipe(first())).pipe(
 );
 
 createSQLWriter<IProduct>(terminal, {
-  data$: products$.pipe(mergeAll()),
+  data$: products$.pipe(
+    mergeAll(),
+    map((item) => ({ ...item, market_id: 'CTP' })),
+  ),
   tableName: 'product',
   writeInterval: 1000,
   conflictKeys: ['datasource_id', 'product_id'],
@@ -639,6 +649,7 @@ const accountInfo$ = defer(() => mapProductIdToProduct$.pipe(first())).pipe(
 );
 
 publishAccountInfo(terminal, account_id, accountInfo$);
+addAccountMarket(terminal, { account_id, market_id: 'CTP' });
 
 terminal.provideService(
   'QueryProducts',

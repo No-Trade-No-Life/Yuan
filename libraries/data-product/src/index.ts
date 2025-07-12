@@ -107,6 +107,12 @@ export interface IProduct {
    * 如果此值为空，语义上等同于 true.
    */
   allow_short: boolean;
+  /**
+   * Market id
+   * Which market this product belong to, like Binance, OKX etc
+   * 该商品属于哪一个市场
+   */
+  market_id?: string;
 }
 
 AddMigration({
