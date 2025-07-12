@@ -10,7 +10,6 @@ export * from './AccountCompositionRelation';
 export * from './AccountInfo';
 export * from './Order';
 export * from './Period';
-export * from './Product';
 export * from './Tick';
 export * from './TradeCopierTradeConfig';
 export * from './TradeCopyRelation';

@@ -19,18 +19,6 @@ export { encodePath }
 
 export { formatTime }
 
-// @public (undocumented)
-export const getMargin: (product: IProduct, openPrice: number, volume: number, variant: string, currency: string, quote: (product_id: string) => {
-    ask: number;
-    bid: number;
-} | undefined) => number;
-
-// @public (undocumented)
-export const getProfit: (product: IProduct, openPrice: number, closePrice: number, volume: number, variant: string, currency: string, quotes: (product_id: string) => {
-    ask: number;
-    bid: number;
-} | undefined) => number;
-
 // @public
 export interface IAccountCompositionRelation {
     // (undocumented)
@@ -130,28 +118,6 @@ export interface IPosition {
     updated_at?: number;
     valuation: number;
     volume: number;
-}
-
-// @public
-export interface IProduct {
-    allow_long?: boolean;
-    allow_short?: boolean;
-    base_currency?: string;
-    // @deprecated
-    datasource_id?: string;
-    margin_rate?: number;
-    max_position?: number;
-    max_volume?: number;
-    name?: string;
-    price_step?: number;
-    product_id: string;
-    quote_currency?: string;
-    spread?: number;
-    value_based_cost?: number;
-    value_scale?: number;
-    value_scale_unit?: string;
-    volume_based_cost?: number;
-    volume_step?: number;
 }
 
 // @alpha

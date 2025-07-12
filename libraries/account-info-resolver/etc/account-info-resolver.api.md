@@ -7,7 +7,7 @@
 import { IAccountInfo } from '@yuants/data-model';
 import { IOrder } from '@yuants/data-model';
 import { IPosition } from '@yuants/data-model';
-import { IProduct } from '@yuants/data-model';
+import { IProduct } from '@yuants/data-product';
 
 // Warning: (ae-forgotten-export) The symbol "IAccountInfoResolver" needs to be exported by the entry point index.d.ts
 //

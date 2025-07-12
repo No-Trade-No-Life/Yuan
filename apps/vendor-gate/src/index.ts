@@ -1,16 +1,11 @@
 import { IAccountInfo, IAccountMoney, IOrder, IPosition, publishAccountInfo } from '@yuants/data-account';
 import { ITick } from '@yuants/data-model';
-import { provideTicks } from '@yuants/protocol';
-import '@yuants/protocol/lib/services';
-import '@yuants/protocol/lib/services/order';
 import { addAccountTransferAddress } from '@yuants/transfer';
-import '@yuants/transfer/lib/services';
 import { encodePath, formatTime } from '@yuants/utils';
 import {
   combineLatest,
   combineLatestWith,
   defer,
-  filter,
   first,
   from,
   map,
@@ -339,16 +334,16 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
     ),
   );
 
-  provideTicks(terminal, 'GATE-FUTURE', (product_id: string) => {
-    return defer(() =>
-      futuresTickers$.pipe(
-        //
-        map((v) => v[product_id]),
-        filter((v) => v !== undefined),
-        shareReplay(1),
-      ),
-    );
-  });
+  // provideTicks(terminal, 'GATE-FUTURE', (product_id: string) => {
+  //   return defer(() =>
+  //     futuresTickers$.pipe(
+  //       //
+  //       map((v) => v[product_id]),
+  //       filter((v) => v !== undefined),
+  //       shareReplay(1),
+  //     ),
+  //   );
+  // });
 
   terminal.provideService(
     'SubmitOrder',

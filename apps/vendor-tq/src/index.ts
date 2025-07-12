@@ -1,10 +1,10 @@
 import { IPeriod } from '@yuants/data-model';
-import { decodePath, formatTime, UUID } from '@yuants/utils';
 import { IOHLC } from '@yuants/data-ohlc';
 import { IProduct } from '@yuants/data-product';
 import { createSeriesProvider } from '@yuants/data-series';
-import { providePeriods, Terminal } from '@yuants/protocol';
+import { Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
+import { decodePath, formatTime, UUID } from '@yuants/utils';
 import {
   catchError,
   defer,
@@ -274,8 +274,6 @@ defer(() => of(createConnectionTq()))
     }),
   )
   .subscribe();
-
-providePeriods(terminal, DATASOURCE_ID, usePeriods);
 
 const calcNumPeriods = (start_time: number, period_in_sec: number) => {
   const now = Date.now();

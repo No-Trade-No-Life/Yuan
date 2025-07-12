@@ -2,7 +2,6 @@ import { formatTime } from '@yuants/utils';
 import { IAccountInfo, IAccountMoney, IOrder, IPosition, publishAccountInfo } from '@yuants/data-account';
 import { IProduct } from '@yuants/data-product';
 import { IConnection, Terminal } from '@yuants/protocol';
-import '@yuants/protocol/lib/services/order';
 import { createSQLWriter } from '@yuants/sql';
 import { ChildProcess, spawn } from 'child_process';
 import { parse } from 'date-fns';

@@ -1,15 +1,9 @@
 import { IAccountInfo, IAccountMoney, IOrder, publishAccountInfo } from '@yuants/data-account';
-import { IPeriod, IPosition, ITick } from '@yuants/data-model';
-import { providePeriods, provideTicks } from '@yuants/protocol';
-import '@yuants/protocol/lib/services';
-import '@yuants/protocol/lib/services/order';
+import { IPosition } from '@yuants/data-model';
 import { formatTime } from '@yuants/utils';
 import { FundingRate } from 'ccxt/js/src/base/types';
 import {
-  EMPTY,
-  catchError,
   combineLatest,
-  combineLatestWith,
   defer,
   delayWhen,
   filter,
@@ -101,97 +95,58 @@ import { terminal } from './terminal';
     );
   });
 
-  provideTicks(terminal, EXCHANGE_ID, (product_id) => {
-    console.info(formatTime(Date.now()), 'tick_stream', product_id);
-    const symbol = mapProductIdToSymbol[product_id];
-    if (!symbol) {
-      console.info(formatTime(Date.now()), 'tick_stream', product_id, 'no such symbol');
-      return EMPTY;
-    }
-    return (
-      ex.has['watchTicker']
-        ? defer(() => ex.watchTicker(symbol)).pipe(repeat())
-        : defer(() => ex.fetchTicker(symbol)).pipe(
-            //
-            repeat({ delay: 1000 }),
-          )
-    ).pipe(
-      combineLatestWith(useFundingRate(symbol)),
-      map(([ticker, fundingRateObj]): ITick => {
-        // console.info(
-        //   formatTime(Date.now()),
-        //   'tick_stream',
-        //   JSON.stringify(ticker),
-        //   JSON.stringify(fundingRateObj),
-        // );
-        const markPrice = (fundingRateObj.markPrice || ticker.last || ticker.close)!;
-        // ISSUE: fundingTimestamp of bitmex might be a meaningless string
-        let settlement_scheduled_at: number | undefined;
-        if (!isNaN(Number(fundingRateObj.fundingTimestamp))) {
-          settlement_scheduled_at = +fundingRateObj.fundingTimestamp!;
-        }
-        if (!isNaN(new Date(fundingRateObj.fundingDatetime!).getTime())) {
-          settlement_scheduled_at = new Date(fundingRateObj.fundingDatetime!).getTime();
-        }
-        return {
-          datasource_id: EXCHANGE_ID,
-          product_id,
-          updated_at: ticker.timestamp!,
-          ask: ticker.ask,
-          bid: ticker.bid,
-          price: ticker.last || ticker.close,
-          volume: ticker.baseVolume,
-          interest_rate_for_long: -fundingRateObj.fundingRate!,
-          interest_rate_for_short: fundingRateObj.fundingRate!,
-          settlement_scheduled_at,
-        };
-      }),
-      catchError((e) => {
-        console.error(formatTime(Date.now()), 'tick_stream', product_id, e);
-        throw e;
-      }),
-      retry(1000),
-    );
-  });
-
-  providePeriods(terminal, EXCHANGE_ID, (product_id, period_in_sec) => {
-    console.info(formatTime(Date.now()), 'period_stream', product_id, period_in_sec);
-    const timeframe = mapPeriodInSecToCCXTTimeframe(period_in_sec);
-    const symbol = mapProductIdToSymbol[product_id];
-    if (!symbol) {
-      return of([]);
-    }
-    return defer(() => {
-      const since = Date.now() - 3 * period_in_sec * 1000;
-      return ex.fetchOHLCV(symbol, timeframe, since);
-    })
-      .pipe(
-        //
-        repeat({ delay: 1000 }),
-      )
-      .pipe(
-        mergeMap((x) =>
-          from(x).pipe(
-            map(
-              ([t, o, h, l, c, vol]): IPeriod => ({
-                datasource_id: EXCHANGE_ID,
-                product_id,
-                period_in_sec,
-                timestamp_in_us: t! * 1000,
-                start_at: t,
-                open: o!,
-                high: h!,
-                low: l!,
-                close: c!,
-                volume: vol!,
-              }),
-            ),
-            toArray(),
-          ),
-        ),
-        retry({ delay: 1000 }),
-      );
-  });
+  // provideTicks(terminal, EXCHANGE_ID, (product_id) => {
+  //   console.info(formatTime(Date.now()), 'tick_stream', product_id);
+  //   const symbol = mapProductIdToSymbol[product_id];
+  //   if (!symbol) {
+  //     console.info(formatTime(Date.now()), 'tick_stream', product_id, 'no such symbol');
+  //     return EMPTY;
+  //   }
+  //   return (
+  //     ex.has['watchTicker']
+  //       ? defer(() => ex.watchTicker(symbol)).pipe(repeat())
+  //       : defer(() => ex.fetchTicker(symbol)).pipe(
+  //           //
+  //           repeat({ delay: 1000 }),
+  //         )
+  //   ).pipe(
+  //     combineLatestWith(useFundingRate(symbol)),
+  //     map(([ticker, fundingRateObj]): ITick => {
+  //       // console.info(
+  //       //   formatTime(Date.now()),
+  //       //   'tick_stream',
+  //       //   JSON.stringify(ticker),
+  //       //   JSON.stringify(fundingRateObj),
+  //       // );
+  //       const markPrice = (fundingRateObj.markPrice || ticker.last || ticker.close)!;
+  //       // ISSUE: fundingTimestamp of bitmex might be a meaningless string
+  //       let settlement_scheduled_at: number | undefined;
+  //       if (!isNaN(Number(fundingRateObj.fundingTimestamp))) {
+  //         settlement_scheduled_at = +fundingRateObj.fundingTimestamp!;
+  //       }
+  //       if (!isNaN(new Date(fundingRateObj.fundingDatetime!).getTime())) {
+  //         settlement_scheduled_at = new Date(fundingRateObj.fundingDatetime!).getTime();
+  //       }
+  //       return {
+  //         datasource_id: EXCHANGE_ID,
+  //         product_id,
+  //         updated_at: ticker.timestamp!,
+  //         ask: ticker.ask,
+  //         bid: ticker.bid,
+  //         price: ticker.last || ticker.close,
+  //         volume: ticker.baseVolume,
+  //         interest_rate_for_long: -fundingRateObj.fundingRate!,
+  //         interest_rate_for_short: fundingRateObj.fundingRate!,
+  //         settlement_scheduled_at,
+  //       };
+  //     }),
+  //     catchError((e) => {
+  //       console.error(formatTime(Date.now()), 'tick_stream', product_id, e);
+  //       throw e;
+  //     }),
+  //     retry(1000),
+  //   );
+  // });
 
   if (!PUBLIC_ONLY) {
     // NOTE: some exchange has the concept of funding account

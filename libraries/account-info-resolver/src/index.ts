@@ -1,4 +1,5 @@
-import { IAccountInfo, IOrder, IPosition, IProduct, getMargin, getProfit } from '@yuants/data-model';
+import { IAccountInfo, IOrder, IPosition } from '@yuants/data-model';
+import { getMargin, getProfit, IProduct } from '@yuants/data-product';
 import { observableToAsyncIterable, roundToStep } from '@yuants/utils';
 import { Subject } from 'rxjs';
 import { IAccountInfoResolver } from './model';

@@ -5,7 +5,7 @@ import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
 import { ObservableInput, defer, mergeMap, pairwise, takeUntil, tap } from 'rxjs';
 import './interface';
-import { IAccountInfo } from './interface';
+import { IAccountInfo, IOrder } from './interface';
 import './migration';
 export * from './interface';
 
@@ -21,6 +21,30 @@ const AccountInfoPositionPrice = AccountMeter.createGauge('account_info_position
 const AccountInfoPositionClosablePrice = AccountMeter.createGauge('account_info_position_closable_price');
 const AccountInfoPositionFloatingProfit = AccountMeter.createGauge('account_info_position_floating_profit');
 const AccountInfoPositionValuation = AccountMeter.createGauge('account_info_position_valuation');
+
+declare module '@yuants/protocol/lib/services' {
+  /**
+   * - Order operation interface has been loaded
+   * - 订单操作接口已载入
+   */
+  interface IService {
+    SubmitOrder: {
+      req: IOrder;
+      res: IResponse;
+      frame: void;
+    };
+    ModifyOrder: {
+      req: IOrder;
+      res: IResponse;
+      frame: void;
+    };
+    CancelOrder: {
+      req: IOrder;
+      res: IResponse;
+      frame: void;
+    };
+  }
+}
 
 /**
  * Provide a AccountInfo data stream, push to all subscriber terminals
