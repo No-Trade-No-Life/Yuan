@@ -187,14 +187,23 @@ export const requestSQL = async <T = unknown>(terminal: Terminal, query: string)
  *
  * @public
  */
-export const escape = (val: any, options: {} = {}): string => {
+export const escapeSQL = (val: any, options: {} = {}): string => {
   if (val === undefined || val === null) return 'NULL';
   if (typeof val === 'number') return `${val}`;
   if (typeof val === 'string') return `'${val.replace(/'/g, "''")}'`;
   if (typeof val === 'boolean') return val ? 'TRUE' : 'FALSE';
   // fallback to JSON
-  return escape(JSON.stringify(val));
+  return escapeSQL(JSON.stringify(val));
 };
+
+/**
+ * 进行值的转义，防止 SQL 注入
+ *
+ * @deprecated - Use `escapeSQL` instead
+ *
+ * @public
+ */
+export const escape = escapeSQL;
 
 const isValidColumnName = (name: string): boolean => {
   return /^[a-zA-Z_][a-zA-Z0-9_]*$/.test(name);

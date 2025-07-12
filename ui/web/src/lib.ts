@@ -5,6 +5,7 @@ import * as dataModel from '@yuants/data-model';
 import * as protocol from '@yuants/protocol';
 import * as yuantsSql from '@yuants/sql';
 import * as yuantsUtils from '@yuants/utils';
+import * as yuantsCache from '@yuants/cache';
 import echartsForReact from 'echarts-for-react';
 import * as ethers from 'ethers';
 import i18next from 'i18next';
@@ -18,6 +19,7 @@ export const libs = {
   '@yuants/data-model': dataModel,
   '@yuants/protocol': protocol,
   '@yuants/utils': yuantsUtils,
+  '@yuants/cache': yuantsCache,
   '@yuants/sql': yuantsSql,
   react: React,
   rxjs,

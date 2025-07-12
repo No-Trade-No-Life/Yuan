@@ -1,6 +1,9 @@
 import { formatTime } from '@yuants/utils';
 import { catchError, defer, Observable, of, repeat, retry, takeUntil } from 'rxjs';
 
+/**
+ * @public
+ */
 export interface ICache<T> {
   stats: Record<string, number>;
   get: (key: string) => T | undefined;
@@ -8,34 +11,20 @@ export interface ICache<T> {
 }
 
 /**
- * 创建一个缓存系统，支持从本地存储和远程获取数据
+ * 创建一个缓存装置，支持从本地存储和远程获取数据
  *
- * @template T - 缓存数据的类型
- * @param ctx - 缓存配置对象
- * @param ctx.readLocal - 可选的本地数据读取函数，如果存在则在缓存未命中时尝试从本地读取
- * @param ctx.writeLocal - 可选的本地数据写入函数，如果存在则在获取到远程数据后同步到本地
- * @param ctx.readRemote - 从远程获取数据的函数
- * @param ctx.expire - 可选的数据过期时间（毫秒）
- * @param ctx.dispose$ - 缓存清理任务的终止信号
- * @returns 返回实现了 ICache 接口的缓存对象
- *
- * @example
- * const userCache = createCache<UserData>({
- *   readLocal: async (userId) => localStorage.getItem(userId),
- *   writeLocal: async (userId, data) => localStorage.setItem(userId, data),
- *   readRemote: async (userId) => api.fetchUserData(userId),
- *   expire: 60 * 60 * 1000, // 1小时过期
- *   dispose$: someObservable
- * });
- *
- * // 使用缓存
- * const userData = await userCache.query('user123');
+ * @public
  */
 export const createCache = <T>(ctx: {
+  /** 可选的本地数据读取函数，如果存在则在缓存未命中时尝试从本地读取 */
   readLocal?: (key: string) => Promise<T | undefined>;
+  /** 可选的本地数据写入函数，如果存在则在获取到远程数据后同步到本地 */
   writeLocal?: (key: string, data: T) => Promise<void>;
+  /** 从远程获取数据的函数 */
   readRemote: (key: string, force_update: boolean) => Promise<T | undefined>;
+  /** 可选的数据过期时间（毫秒） */
   expire?: number;
+  /** 缓存清理任务的终止信号 */
   dispose$: Observable<any>;
 }): ICache<T> => {
   const mapKeyToReadRemotePromise: Record<string, Promise<T | undefined>> = {};
