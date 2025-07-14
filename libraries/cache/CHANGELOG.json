@@ -2,6 +2,23 @@
   "name": "@yuants/cache",
   "entries": [
     {
+      "version": "0.1.1",
+      "tag": "@yuants/cache_v0.1.1",
+      "date": "Mon, 14 Jul 2025 14:56:55 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "update API"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.0",
       "tag": "@yuants/cache_v0.1.0",
       "date": "Sat, 12 Jul 2025 15:53:22 GMT",
