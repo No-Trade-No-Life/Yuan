@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-hyperliquid",
+      "comment": "fix product",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-hyperliquid"
+}

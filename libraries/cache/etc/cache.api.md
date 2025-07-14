@@ -4,18 +4,10 @@
 
 ```ts
 
-import { Observable } from 'rxjs';
+// @public
+export const createCache: <T>(readRemote: (key: string, force_update: boolean) => Promise<T | undefined>, options?: ICacheOptions<T> | undefined) => ICache<T>;
 
 // @public
-export const createCache: <T>(ctx: {
-    readLocal?: ((key: string) => Promise<T | undefined>) | undefined;
-    writeLocal?: ((key: string, data: T) => Promise<void>) | undefined;
-    readRemote: (key: string, force_update: boolean) => Promise<T | undefined>;
-    expire?: number | undefined;
-    dispose$: Observable<any>;
-}) => ICache<T>;
-
-// @public (undocumented)
 export interface ICache<T> {
     // (undocumented)
     get: (key: string) => T | undefined;
@@ -23,6 +15,13 @@ export interface ICache<T> {
     query: (key: string, force_update?: boolean) => Promise<T | undefined>;
     // (undocumented)
     stats: Record<string, number>;
+}
+
+// @public
+export interface ICacheOptions<T> {
+    expire?: number;
+    readLocal?: (key: string) => Promise<T | undefined>;
+    writeLocal?: (key: string, data: T) => Promise<void>;
 }
 
 // (No @packageDocumentation comment for this package)

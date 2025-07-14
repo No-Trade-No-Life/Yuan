@@ -1,7 +1,7 @@
-import { formatTime } from '@yuants/utils';
-import { catchError, defer, Observable, of, repeat, retry, takeUntil } from 'rxjs';
+import { defer, repeat, retry, timer } from 'rxjs';
 
 /**
+ * Cache Interface
  * @public
  */
 export interface ICache<T> {
@@ -11,22 +11,35 @@ export interface ICache<T> {
 }
 
 /**
- * 创建一个缓存装置，支持从本地存储和远程获取数据
- *
+ * Cache Options Interface
  * @public
  */
-export const createCache = <T>(ctx: {
+export interface ICacheOptions<T> {
   /** 可选的本地数据读取函数，如果存在则在缓存未命中时尝试从本地读取 */
   readLocal?: (key: string) => Promise<T | undefined>;
   /** 可选的本地数据写入函数，如果存在则在获取到远程数据后同步到本地 */
   writeLocal?: (key: string, data: T) => Promise<void>;
-  /** 从远程获取数据的函数 */
-  readRemote: (key: string, force_update: boolean) => Promise<T | undefined>;
   /** 可选的数据过期时间（毫秒） */
   expire?: number;
-  /** 缓存清理任务的终止信号 */
-  dispose$: Observable<any>;
-}): ICache<T> => {
+}
+
+/**
+ * 创建一个缓存记忆装置，从远程读取数据，缓存在内存中
+ *
+ * 装置自身不负责判断数据的新鲜程度，如果需要强制更新数据，可以在查询时传入 `force_update` 参数。
+ *
+ * - [可选] 可以将数据抄送到一个本地持久化存储中，可以降低热启动读取代价。(readLocal/writeLocal)
+ * - [可选] 可以设置数据的过期时间，过期后会自动清理缓存，并且保证不会脏读到已经过期的数据。 (expire)
+ *
+ * @public
+ */
+export const createCache = <T>(
+  /**
+   * 从远程读取数据的函数
+   */
+  readRemote: (key: string, force_update: boolean) => Promise<T | undefined>,
+  options?: ICacheOptions<T>,
+): ICache<T> => {
   const mapKeyToReadRemotePromise: Record<string, Promise<T | undefined>> = {};
   const mapKeyToReadStoragePromise: Record<string, Promise<T | undefined>> = {};
   const mapKeyToWriteStoragePromise: Record<string, Promise<void>> = {};
@@ -44,7 +57,7 @@ export const createCache = <T>(ctx: {
 
   // Helper function to check if a key has expired
   const checkExpired = (key: string): boolean => {
-    if (!ctx.expire || !(key in mapKeyToExpireTime)) return false;
+    if (!options?.expire || !(key in mapKeyToExpireTime)) return false;
 
     stats.expire_check++;
     const expired = Date.now() > mapKeyToExpireTime[key];
@@ -57,22 +70,28 @@ export const createCache = <T>(ctx: {
     return expired;
   };
 
-  defer(async () => {
+  const clearExpiredData = () => {
+    const t = Date.now();
+    let clearedCount = 0;
     for (const [k, v] of Object.entries(mapKeyToExpireTime)) {
-      if (Date.now() > v) {
+      if (t > v) {
+        clearedCount++;
         delete mapKeyToData[k];
         delete mapKeyToExpireTime[k];
       }
     }
+    return clearedCount;
+  };
+
+  defer(async () => {
+    const cleared = clearExpiredData();
+    if (cleared === 0) throw new Error('No expired data found to clear');
   })
     .pipe(
-      takeUntil(ctx.dispose$),
-      catchError((err) => {
-        console.log(formatTime(Date.now()), 'CleanCacheDataError', `Error:`, err);
-        return of([]); // 返回空数组，避免流中断
-      }),
-      retry({ delay: 2000 }),
-      repeat({ delay: 20000 }),
+      // 指数退避重试
+      // 最长等待时间为 1 小时，初始延迟为 30秒，指数增长
+      retry({ delay: (err, count) => timer(Math.min(3600_000, 30_000 * 2 ** count)) }),
+      repeat({ delay: 30_000 }),
     )
     .subscribe();
 
@@ -90,7 +109,7 @@ export const createCache = <T>(ctx: {
         // Check if the key has expired, if not expired and data exists, return it
         if (!checkExpired(key) && mapKeyToData[key]) return mapKeyToData[key];
 
-        const readLocal = ctx.readLocal;
+        const readLocal = options?.readLocal;
         if (readLocal) {
           const data = await (mapKeyToReadStoragePromise[key] ??= new Promise<void>((resolve) => {
             stats.readLocal++;
@@ -101,8 +120,8 @@ export const createCache = <T>(ctx: {
           delete mapKeyToReadStoragePromise[key];
           if (data) {
             mapKeyToData[key] = data;
-            if (ctx.expire) {
-              mapKeyToExpireTime[key] = Date.now() + ctx.expire;
+            if (options.expire) {
+              mapKeyToExpireTime[key] = Date.now() + options.expire;
             }
             return data;
           }
@@ -115,7 +134,7 @@ export const createCache = <T>(ctx: {
         stats.readRemote++;
         resolve();
       })
-        .then(() => ctx.readRemote(key, force_update))
+        .then(() => readRemote(key, force_update))
         .catch(() => undefined));
       delete mapKeyToReadRemotePromise[key];
 
@@ -123,7 +142,7 @@ export const createCache = <T>(ctx: {
         return undefined;
       }
 
-      const writeLocal = ctx.writeLocal;
+      const writeLocal = options?.writeLocal;
       if (writeLocal) {
         await (mapKeyToWriteStoragePromise[key] ??= new Promise<void>((resolve) => {
           stats.writeLocal++;
@@ -135,8 +154,8 @@ export const createCache = <T>(ctx: {
       }
 
       mapKeyToData[key] = data;
-      if (ctx.expire) {
-        mapKeyToExpireTime[key] = Date.now() + ctx.expire;
+      if (options?.expire) {
+        mapKeyToExpireTime[key] = Date.now() + options.expire;
       }
 
       return data;
