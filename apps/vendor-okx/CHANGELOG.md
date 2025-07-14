@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Sat, 12 Jul 2025 15:53:22 GMT and should not be manually modified.
+This log was last generated on Mon, 14 Jul 2025 16:17:53 GMT and should not be manually modified.
+
+## 0.14.0
+Mon, 14 Jul 2025 16:17:53 GMT
+
+### Minor changes
+
+- add spot product
 
 ## 0.13.10
 Sat, 12 Jul 2025 15:53:22 GMT
