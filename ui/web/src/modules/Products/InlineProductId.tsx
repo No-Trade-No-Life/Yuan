@@ -1,7 +1,7 @@
 import { Card, Descriptions, Popover, Typography } from '@douyinfe/semi-ui';
-import { encodePath } from '@yuants/utils';
 import { IProduct } from '@yuants/data-product';
-import { escape, requestSQL } from '@yuants/sql';
+import { escapeSQL, requestSQL } from '@yuants/sql';
+import { encodePath } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { filter, map, switchMap } from 'rxjs';
 import { terminal$ } from '../Terminals';
@@ -15,9 +15,9 @@ const ProductCard = (props: { datasource_id: string; product_id: string }) => {
           switchMap((terminal) =>
             requestSQL<IProduct[]>(
               terminal,
-              `select * from product where datasource_id = ${escape(
+              `select * from product where datasource_id = ${escapeSQL(
                 props.datasource_id,
-              )} and product_id = ${escape(props.product_id)}`,
+              )} and product_id = ${escapeSQL(props.product_id)}`,
             ),
           ),
           map((x) => x[0]),

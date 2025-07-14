@@ -8,38 +8,33 @@ import { client } from './api';
 
 const product$ = new Subject<IProduct>();
 
-const cacheOfCrossLeverage = createCache({
-  readRemote: () => client.getSwapCrossLadderMargin(),
-  dispose$: Terminal.fromNodeEnv().dispose$,
+const cacheOfCrossLeverage = createCache(() => client.getSwapCrossLadderMargin(), {
   expire: 3600_000, // 1 hour
 });
 
-const productIdToMaxLeverage = createCache({
-  readRemote: async (product_id, force_update) => {
+const productIdToMaxLeverage = createCache(
+  async (product_id, force_update) => {
     const res = await cacheOfCrossLeverage.query('', force_update);
     return res?.data
       .find((x) => x.contract_code === product_id)
       ?.list.reduce((acc, cur) => Math.max(acc, cur.lever_rate), 1);
   },
-  dispose$: Terminal.fromNodeEnv().dispose$,
-  expire: 3600_000, // 1 hour
-});
+  {
+    expire: 3600_000, // 1 hour
+  },
+);
 
-const swapSymbols = createCache({
-  readRemote: () => client.getPerpetualContractSymbols(),
+const swapSymbols = createCache(() => client.getPerpetualContractSymbols(), {
   expire: 3600_000,
-  dispose$: Terminal.fromNodeEnv().dispose$,
 });
 
-const swapProducts = createCache({
-  readRemote: async (_, force_update) => {
+const swapProducts = createCache(
+  async (_, force_update) => {
     const products: IProduct[] = [];
-    console.info(new Date(), '正在加载合约产品信息');
     const symbols = await swapSymbols.query('', force_update);
-    console.info(new Date(), '合约产品信息', symbols?.data);
     for (const symbol of symbols?.data || []) {
       if (symbol.contract_status !== 1) continue; // Only include active contracts
-      const maxLeverage = await productIdToMaxLeverage.query(symbol.contract_code, force_update);
+      const maxLeverage = await productIdToMaxLeverage.query(symbol.contract_code);
       const product: IProduct = {
         datasource_id: 'HUOBI-SWAP',
         product_id: symbol.contract_code,
@@ -64,9 +59,10 @@ const swapProducts = createCache({
     }
     return products;
   },
-  expire: 3600_000, // 1 hour
-  dispose$: Terminal.fromNodeEnv().dispose$,
-});
+  {
+    expire: 3600_000, // 1 hour
+  },
+);
 
 export const perpetualContractProducts$ = defer(() => swapProducts.query('')).pipe(
   map((res) => res || []),
