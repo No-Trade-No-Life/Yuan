@@ -92,6 +92,40 @@ export const mapProductIdToMarginProduct$ = marginProducts$.pipe(
   map((x) => new Map(x.map((x) => [x.product_id, x])), shareReplay(1)),
 );
 
+defer(() => client.getInstruments({ instType: 'SPOT' }))
+  .pipe(
+    repeat({ delay: 3600_000 }),
+    retry({ delay: 10_000 }),
+    mergeMap((x) =>
+      from(x.data || []).pipe(
+        map(
+          (x): IProduct => ({
+            datasource_id: 'OKX',
+            product_id: encodePath(x.instType, x.instId),
+            base_currency: x.baseCcy,
+            quote_currency: x.quoteCcy,
+            value_scale: 1,
+            volume_step: +x.lotSz,
+            price_step: +x.tickSz,
+            margin_rate: 1,
+            name: `${x.baseCcy}-${x.quoteCcy}-SPOT`,
+            value_scale_unit: '',
+            value_based_cost: 0,
+            volume_based_cost: 0,
+            max_position: 0,
+            max_volume: 0,
+            allow_long: true,
+            allow_short: true,
+            market_id: 'OKX',
+          }),
+        ),
+        tap((x) => product$.next(x)),
+        toArray(),
+      ),
+    ),
+  )
+  .subscribe();
+
 createSQLWriter<IProduct>(Terminal.fromNodeEnv(), {
   data$: product$,
   tableName: 'product',
