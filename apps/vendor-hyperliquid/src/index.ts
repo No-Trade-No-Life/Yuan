@@ -11,6 +11,7 @@ import { client } from './api';
 import './order';
 import './product';
 import { terminal } from './terminal';
+import './interest_rate';
 
 const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
   const cache: Record<string, any> = {};

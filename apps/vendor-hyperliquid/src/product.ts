@@ -42,7 +42,7 @@ const tokenProduct$ = defer(async () => {
   shareReplay(1),
 );
 
-const perpetualProduct$ = defer(async () => {
+export const perpetualProduct$ = defer(async () => {
   const res = await client.getPerpetualsMetaData();
   return res.universe.map(
     (product): IProduct => ({
