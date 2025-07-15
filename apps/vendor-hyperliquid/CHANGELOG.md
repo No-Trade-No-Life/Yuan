@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-hyperliquid
 
-This log was last generated on Mon, 14 Jul 2025 14:56:55 GMT and should not be manually modified.
+This log was last generated on Tue, 15 Jul 2025 09:44:50 GMT and should not be manually modified.
+
+## 0.0.38
+Tue, 15 Jul 2025 09:44:50 GMT
+
+### Patches
+
+- add funding rate
 
 ## 0.0.37
 Mon, 14 Jul 2025 14:56:55 GMT

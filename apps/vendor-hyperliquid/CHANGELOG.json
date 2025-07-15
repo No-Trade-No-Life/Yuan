@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-hyperliquid",
   "entries": [
     {
+      "version": "0.0.38",
+      "tag": "@yuants/vendor-hyperliquid_v0.0.38",
+      "date": "Tue, 15 Jul 2025 09:44:50 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add funding rate"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.37",
       "tag": "@yuants/vendor-hyperliquid_v0.0.37",
       "date": "Mon, 14 Jul 2025 14:56:55 GMT",
