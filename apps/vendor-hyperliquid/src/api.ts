@@ -250,6 +250,48 @@ export class HyperliquidClient {
   }> => this.request('POST', 'info', { ...params, type: 'tokenBalances' });
 
   /**
+   * info - Get Historical Funding Rates
+   *
+   * https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/info-endpoint/perpetuals#retrieve-historical-funding-rates
+   *
+   * Data Characteristics:
+   * - API Limit: Maximum 500 records per request
+   * - Time Ordering: Data returned in **ascending** chronological order (earliest to latest)
+   * - Time Format: Uses millisecond timestamps
+   * - Pagination Strategy: When data exceeds 500 records, use startTime parameter for pagination
+   *   - First request: startTime = query start time, endTime = query end time
+   *   - Subsequent requests: startTime = last record time + 1ms, endTime = query end time
+   * - Rate Format:
+   *   - fundingRate: String decimal, positive means longs pay shorts, negative means shorts pay longs
+   *   - premium: Premium rate
+   *   - time: Timestamp when the funding rate takes effect (milliseconds)
+   *
+   * Example Response Data Structure:
+   * ```json
+   * [
+   *   {
+   *     "coin": "BTC",
+   *     "fundingRate": "0.0001",
+   *     "premium": "0.00005",
+   *     "time": 1705123200000
+   *   }
+   * ]
+   * ```
+   */
+  getHistoricalFundingRates = (params: {
+    coin: string;
+    startTime: number;
+    endTime?: number;
+  }): Promise<
+    {
+      coin: string;
+      fundingRate: string;
+      premium: string;
+      time: number;
+    }[]
+  > => this.request('POST', 'info', { ...params, type: 'fundingHistory' });
+
+  /**
    * Undocumented mysterious endpoint that returns all MIDs
    *
    * FYI: https://github.com/hyperliquid-dex/hyperliquid-python-sdk/blob/a4280d08ca42936a6851f309b7a4f4ae995a92c0/hyperliquid/info.py#L184
