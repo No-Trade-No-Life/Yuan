@@ -110,8 +110,8 @@ createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
 
         resQuote.data.forEach((v) => {
           if (!mapTsToBaseRate.has(v.ts)) return;
-          const long_rate = +mapTsToBaseRate.get(v.ts)! / 365 / 24; // 转换为小时利率
-          const short_rate = +v.rate / 365 / 24; // 转换为小时利率
+          const long_rate = +v.rate / 365 / 24; // 转换为小时利率
+          const short_rate = +mapTsToBaseRate.get(v.ts)! / 365 / 24; // 转换为小时利率
           data.push({
             series_id,
             product_id,
