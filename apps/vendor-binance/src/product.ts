@@ -28,7 +28,7 @@ const futureProducts$ = futureExchangeInfo$.pipe(
           volume_step: +`1e-${symbol.quantityPrecision}`,
           name: `${symbol.baseAsset}/${symbol.quoteAsset} PERP`,
           value_scale_unit: '',
-          margin_rate: +symbol.requiredMarginPercent,
+          margin_rate: +symbol.requiredMarginPercent / 100,
           value_based_cost: 0,
           volume_based_cost: 0,
           max_position: 0,
