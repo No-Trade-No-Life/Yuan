@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Mon, 14 Jul 2025 16:17:53 GMT and should not be manually modified.
+This log was last generated on Wed, 16 Jul 2025 14:43:34 GMT and should not be manually modified.
+
+## 0.15.0
+Wed, 16 Jul 2025 14:43:34 GMT
+
+### Minor changes
+
+- support margin interest rate
 
 ## 0.14.0
 Mon, 14 Jul 2025 16:17:53 GMT
