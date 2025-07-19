@@ -386,7 +386,7 @@ function DataViewFieldSettingModal<T>(props: {
         items={props.table.getAllLeafColumns().map((x) => x.id)}
         onSort={(ids) => {
           props.table.setColumnOrder(() => {
-            return ids.filter((id) => typeof id === 'string');
+            return ids.filter((id): id is string => typeof id === 'string');
           });
         }}
         render={(id) => {
