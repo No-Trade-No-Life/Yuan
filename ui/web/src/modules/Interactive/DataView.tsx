@@ -1,8 +1,18 @@
-import { IconExpand, IconEyeOpened, IconList, IconMinimize, IconPause, IconSort } from '@douyinfe/semi-icons';
-import { Input, Pagination, Radio, RadioGroup, Space, Spin, Tag } from '@douyinfe/semi-ui';
+import {
+  IconExpand,
+  IconEyeClosed,
+  IconEyeOpened,
+  IconList,
+  IconMinimize,
+  IconPause,
+  IconSetting,
+  IconSort,
+} from '@douyinfe/semi-icons';
+import { Input, Modal, Pagination, Radio, RadioGroup, Space, Spin, Tag } from '@douyinfe/semi-ui';
 import {
   ColumnDef,
   ColumnFiltersState,
+  flexRender,
   getCoreRowModel,
   getExpandedRowModel,
   getFilteredRowModel,
@@ -24,6 +34,7 @@ import { showForm } from '../Form';
 import { ErrorBoundary } from '../Pages';
 import { Button } from './Button';
 import { ListView } from './ListView';
+import { SortableList } from './SortableList';
 import { TableView } from './TableView';
 
 export function DataView<T, K>(props: {
@@ -196,6 +207,8 @@ export function DataView<T, K>(props: {
     setActualLayoutMode(layoutMode);
   }, [width, layoutMode]);
 
+  const [isFieldSettingModalVisible, setIsFieldSettingModalVisible] = useState(false);
+
   const topSlot = (
     <>
       {props.topSlot}
@@ -234,35 +247,12 @@ export function DataView<T, K>(props: {
         {t('sort')}
       </Button>
       <Button
+        icon={<IconSetting />}
         onClick={async () => {
-          const visibleColumns = table
-            .getAllLeafColumns()
-            .map((x) => x.id)
-            .filter((x) => table.getState().columnVisibility[x] ?? true);
-          const value: string[] = await showForm(
-            {
-              title: t('visibleFields'),
-              type: 'array',
-              uniqueItems: true,
-              items: {
-                type: 'string',
-                enum: table.getAllLeafColumns().map((x) => x.id),
-              },
-            },
-            visibleColumns,
-          );
-          const nextVisibility = Object.fromEntries(
-            table
-              .getAllLeafColumns()
-              .map((x) => x.id)
-              .filter((x) => !value.includes(x))
-              .map((x) => [x, false]),
-          );
-          table.setColumnVisibility(nextVisibility);
+          setIsFieldSettingModalVisible(true);
         }}
-        icon={<IconEyeOpened />}
       >
-        {t('visibleFields')}
+        {t('fieldsSetting')}
       </Button>
       <Button
         onClick={async () => {
@@ -358,6 +348,13 @@ export function DataView<T, K>(props: {
           }}
         />
       </Space>
+      <ErrorBoundary>
+        <DataViewFieldSettingModal
+          table={table}
+          visible={isFieldSettingModalVisible}
+          setVisible={setIsFieldSettingModalVisible}
+        />
+      </ErrorBoundary>
       <div ref={dataContainerRef} style={{ width: '100%', flexGrow: 1, overflow: 'auto', zIndex: 0 }}>
         <ErrorBoundary>
           <Spin spinning={isLoading}>
@@ -368,5 +365,53 @@ export function DataView<T, K>(props: {
         </ErrorBoundary>
       </div>
     </div>
+  );
+}
+
+function DataViewFieldSettingModal<T>(props: {
+  table: Table<T>;
+  visible: boolean;
+  setVisible: (visible: boolean) => void;
+}) {
+  return (
+    <Modal
+      visible={props.visible}
+      onCancel={() => props.setVisible(false)}
+      okButtonProps={{ style: { display: 'none' } }}
+      cancelButtonProps={{ style: { display: 'none' } }}
+      closeIcon={null}
+      closable={false}
+    >
+      <SortableList
+        items={props.table.getAllLeafColumns().map((x) => x.id)}
+        onSort={(ids) => {
+          props.table.setColumnOrder(() => {
+            return ids.filter((id) => typeof id === 'string');
+          });
+        }}
+        render={(id) => {
+          const header = props.table.getFlatHeaders().find((x) => x.id === id)!;
+          const visible = props.table.getState().columnVisibility[id] ?? true;
+          const headerNode = header ? flexRender(header.column.columnDef.header, header.getContext()) : id;
+
+          return (
+            <Space style={{ width: '100%' }}>
+              <Tag>{headerNode}</Tag>
+              <Space style={{ marginLeft: 'auto' }}>
+                <Button
+                  theme="borderless"
+                  icon={visible ? <IconEyeOpened /> : <IconEyeClosed />}
+                  onClick={async () => {
+                    props.table.setColumnVisibility((prev) => {
+                      return { ...prev, [id]: !visible };
+                    });
+                  }}
+                />
+              </Space>
+            </Space>
+          );
+        }}
+      />
+    </Modal>
   );
 }

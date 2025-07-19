@@ -71,6 +71,20 @@ export function TableView<T>(props: { table: Table<T> }) {
                                   {header.column.getIsGrouped() ? '取消分组' : '分组'}
                                 </DropdownItem>
                               )}
+                              {header.column.getCanPin() && (
+                                <DropdownItem
+                                  icon={<IconArrowLeft />}
+                                  onClick={() => {
+                                    if (header.column.getIsPinned() === 'left') {
+                                      header.column.pin(false);
+                                    } else {
+                                      header.column.pin('left');
+                                    }
+                                  }}
+                                >
+                                  {header.column.getIsPinned() === 'left' ? '取消左固定' : '左固定'}
+                                </DropdownItem>
+                              )}
                             </DropdownMenu>
                           }
                         >
