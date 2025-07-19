@@ -71,7 +71,10 @@
     "version-compare": "~3.11.0",
     "react-loading": "~2.0.3",
     "ini": "~5.0.0",
-    "ethers": "~6.13.5"
+    "ethers": "~6.13.5",
+    "@dnd-kit/core": "~6.3.1",
+    "@dnd-kit/sortable": "~10.0.0",
+    "@dnd-kit/utilities": "~3.2.2"
   },
   "devDependencies": {
     "@originjs/vite-plugin-commonjs": "~1.0.3",
