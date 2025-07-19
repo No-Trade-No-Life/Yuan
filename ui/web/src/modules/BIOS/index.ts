@@ -69,6 +69,9 @@ defer(async () => {
         const root = workspace?.directoryHandle;
         if (root) {
           log('WORKSPACE ROOT EXISTS', root.name);
+          if (globalThis.document?.title) {
+            globalThis.document.title = `Yuan | ${root.name}`;
+          }
           const granted = await root.queryPermission({ mode: 'readwrite' });
           log('WORKSPACE PERMISSION', granted);
           if (granted !== 'granted') {
