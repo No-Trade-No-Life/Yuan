@@ -22,7 +22,9 @@ import { Space } from '@douyinfe/semi-ui';
 import { useEffect, useState } from 'react';
 
 function SortableItem(props: { id: UniqueIdentifier; render: (id: UniqueIdentifier) => React.ReactNode }) {
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: props.id });
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: props.id,
+  });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -32,7 +34,7 @@ function SortableItem(props: { id: UniqueIdentifier; render: (id: UniqueIdentifi
   return (
     <div ref={setNodeRef} style={style}>
       <Space style={{ width: '100%' }}>
-        <IconMenu {...attributes} {...listeners} />
+        <IconMenu {...attributes} {...listeners} style={{ cursor: isDragging ? 'grabbing' : 'grab' }} />
         {props.render(props.id)}
       </Space>
     </div>

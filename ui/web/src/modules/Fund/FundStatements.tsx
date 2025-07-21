@@ -625,7 +625,11 @@ registerPage('FundStatements', () => {
           />
         </Collapse.Panel>
         <Collapse.Panel itemKey="investors" header={'投资人列表'}>
-          <DataView columns={columnsOfInvestor} data={investors} />
+          <DataView
+            columns={columnsOfInvestor}
+            data={investors}
+            initialSorting={[{ id: 'detail_after_tax_assets', desc: true }]}
+          />
         </Collapse.Panel>
         <Collapse.Panel itemKey="state" header={'基金历史'}>
           <DataView
