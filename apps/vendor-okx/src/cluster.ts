@@ -1,11 +1,23 @@
 import { Terminal } from '@yuants/protocol';
 import { loadSecrets } from '@yuants/secret';
-import { listWatch } from '@yuants/utils';
+import { formatTime, listWatch } from '@yuants/utils';
 import cluster from 'cluster';
-import { defer, Observable, repeat, retry } from 'rxjs';
+import { bufferTime, defer, map, Observable, repeat, retry, Subject } from 'rxjs';
 
 if (cluster.isPrimary) {
-  console.info('This is the primary process');
+  console.info(`[${formatTime(Date.now())}] This is the primary process`);
+
+  const logBuffer = new Subject<string>();
+
+  logBuffer
+    .pipe(
+      //
+      bufferTime(100),
+      map((v) => v.join('\n')),
+    )
+    .subscribe((message) => {
+      console.info(message);
+    });
 
   defer(() =>
     loadSecrets<{ access_key: string; secret_key: string; passphrase: string }>({
@@ -40,13 +52,32 @@ if (cluster.isPrimary) {
                   WRITE_QUOTE_TO_SQL: account.secret.public_data.write_quote_to_sql ? 'true' : 'false',
                   TERMINAL_ID: `@yuants/vendor-okx/worker/${account.secret.public_data.name}`,
                 });
+
+                // ignore the worker's stdout and stderr by default
+                // if (worker.process.stdout) {
+                //   worker.process.stdout.pipe(process.stdout);
+                // }
+                // if (worker.process.stderr) {
+                //   worker.process.stderr.pipe(process.stderr);
+                // }
+
+                worker.on('message', (message: any) => {
+                  if (message.type === 'log') {
+                    logBuffer.next(`[Worker ${worker.process.pid}] ${message.level}: ${message.message}`);
+                  }
+                });
+
                 worker.on('exit', (code, signal) => {
                   if (code === 0) {
-                    console.log(`Worker ${worker.process.pid} exited gracefully`);
+                    console.info(
+                      `[${formatTime(Date.now())}] Worker ${worker.process.pid} exited gracefully`,
+                    );
                     subscriber.complete();
                   } else {
                     console.error(
-                      `Worker ${worker.process.pid} exited with code ${code} and signal ${signal}`,
+                      `[${formatTime(Date.now())}] Worker ${
+                        worker.process.pid
+                      } exited with code ${code} and signal ${signal}`,
                     );
                     subscriber.error(
                       new Error(`Worker ${worker.process.pid} exited with code ${code} and signal ${signal}`),
@@ -55,7 +86,7 @@ if (cluster.isPrimary) {
                 });
                 return () => {
                   worker.kill();
-                  console.log(`Worker ${worker.process.pid} killed`);
+                  console.info(`[${formatTime(Date.now())}] Worker ${worker.process.pid} killed`);
                 };
               }),
           ).pipe(
@@ -68,6 +99,10 @@ if (cluster.isPrimary) {
     )
     .subscribe();
 } else {
-  console.info('This is the worker process', process.pid, process.env);
-  import('./index');
+  console.info(`[${formatTime(Date.now())}] This is the worker process`, process.pid, process.env);
+  // 在worker进程中初始化日志系统
+  import('./logger').then(({ overrideConsole }) => {
+    overrideConsole();
+    import('./index');
+  });
 }
