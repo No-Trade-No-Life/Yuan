@@ -8,7 +8,7 @@ import { overrideConsole } from './logger';
 overrideConsole();
 
 if (cluster.isPrimary) {
-  console.info(`[${formatTime(Date.now())}] This is the primary process`);
+  console.info(`[Primary] ${formatTime(Date.now())} This is the primary process`);
 
   const logBuffer = new Subject<string>();
 
@@ -33,7 +33,7 @@ if (cluster.isPrimary) {
       //
       tap({
         error: (e) => {
-          console.error(`[${formatTime(Date.now())}] Failed to load secrets`, e);
+          console.error(`[Primary] ${formatTime(Date.now())} Failed to load secrets`, e);
         },
       }),
       retry({ delay: 5000 }),
