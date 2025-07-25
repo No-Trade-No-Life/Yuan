@@ -2,7 +2,10 @@ import { Terminal } from '@yuants/protocol';
 import { loadSecrets } from '@yuants/secret';
 import { formatTime, listWatch } from '@yuants/utils';
 import cluster from 'cluster';
-import { bufferTime, defer, map, Observable, repeat, retry, Subject } from 'rxjs';
+import { bufferTime, defer, filter, map, Observable, repeat, retry, Subject, tap } from 'rxjs';
+import { overrideConsole } from './logger';
+
+overrideConsole();
 
 if (cluster.isPrimary) {
   console.info(`[${formatTime(Date.now())}] This is the primary process`);
@@ -14,6 +17,7 @@ if (cluster.isPrimary) {
       //
       bufferTime(100),
       map((v) => v.join('\n')),
+      filter((v) => v.trim() !== ''),
     )
     .subscribe((message) => {
       console.info(message);
@@ -27,6 +31,11 @@ if (cluster.isPrimary) {
   )
     .pipe(
       //
+      tap({
+        error: (e) => {
+          console.error(`[${formatTime(Date.now())}] Failed to load secrets`, e);
+        },
+      }),
       retry({ delay: 5000 }),
       repeat({ delay: 5000 }),
     )
@@ -37,6 +46,12 @@ if (cluster.isPrimary) {
           defer(
             () =>
               new Observable((subscriber) => {
+                console.info(
+                  formatTime(Date.now()),
+                  `[Primary] ${formatTime(Date.now())} Starting worker for account ${
+                    account.secret.public_data.name
+                  } (${account.secret.id})`,
+                );
                 if (account.secret.public_data.type !== 'api_key_okx') return;
                 if (!account.secret.public_data.name) return;
                 if (!account.decrypted_data) return;
@@ -70,12 +85,12 @@ if (cluster.isPrimary) {
                 worker.on('exit', (code, signal) => {
                   if (code === 0) {
                     console.info(
-                      `[${formatTime(Date.now())}] Worker ${worker.process.pid} exited gracefully`,
+                      `[Primary] ${formatTime(Date.now())} Worker ${worker.process.pid} exited gracefully`,
                     );
                     subscriber.complete();
                   } else {
                     console.error(
-                      `[${formatTime(Date.now())}] Worker ${
+                      `[Primary] ${formatTime(Date.now())} Worker ${
                         worker.process.pid
                       } exited with code ${code} and signal ${signal}`,
                     );
@@ -86,7 +101,7 @@ if (cluster.isPrimary) {
                 });
                 return () => {
                   worker.kill();
-                  console.info(`[${formatTime(Date.now())}] Worker ${worker.process.pid} killed`);
+                  console.info(`[Primary] ${formatTime(Date.now())} Worker ${worker.process.pid} killed`);
                 };
               }),
           ).pipe(
@@ -99,10 +114,10 @@ if (cluster.isPrimary) {
     )
     .subscribe();
 } else {
-  console.info(`[${formatTime(Date.now())}] This is the worker process`, process.pid, process.env);
-  // 在worker进程中初始化日志系统
-  import('./logger').then(({ overrideConsole }) => {
-    overrideConsole();
-    import('./index');
-  });
+  console.info(`${formatTime(Date.now())} This is the worker process`, process.pid, process.env);
+  // import('./logger').then(({ overrideConsole }) => {
+  //   overrideConsole();
+  //   import('./index');
+  // });
+  import('./index');
 }

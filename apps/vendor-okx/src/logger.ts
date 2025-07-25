@@ -25,7 +25,7 @@ class ClusterLogger {
       process.send({
         type: 'log',
         level,
-        message: `[${formatTime(Date.now())}] [PID:${process.pid}] ${formattedMessage}`,
+        message: `[PID:${process.pid}] ${formattedMessage}`,
         pid: process.pid,
         timestamp: Date.now(),
       });
@@ -38,7 +38,7 @@ class ClusterLogger {
               .join(' ')}`
           : message;
 
-      const logMessage = `[${formatTime(Date.now())}] [PID:${process.pid}] ${formattedMessage}`;
+      const logMessage = `[PID:${process.pid}] ${formattedMessage}`;
 
       // 控制台输出
       switch (level) {
