@@ -111,7 +111,7 @@ export const publishAccountInfo = (
                 },
               ].map((item) =>
                 Object.fromEntries(
-                  Object.entries(item).map(([k, v]) => [k, typeof v === 'number' ? String(v) : v]),
+                  Object.entries(item).map(([k, v]) => [k, typeof v === 'number' ? v.toString() : v]),
                 ),
               ),
               'account_balance',
