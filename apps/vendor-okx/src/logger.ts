@@ -27,6 +27,7 @@ class ClusterLogger {
         level,
         message: `[PID:${process.pid}] ${formattedMessage}`,
         pid: process.pid,
+        label: process.env.WORKER_LABEL || 'unknown',
         timestamp: Date.now(),
       });
     } else {

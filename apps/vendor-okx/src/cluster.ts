@@ -66,6 +66,7 @@ if (cluster.isPrimary) {
                   PASSPHRASE: account.decrypted_data.passphrase,
                   WRITE_QUOTE_TO_SQL: account.secret.public_data.write_quote_to_sql ? 'true' : 'false',
                   TERMINAL_ID: `@yuants/vendor-okx/worker/${account.secret.public_data.name}`,
+                  WORKER_LABEL: account.secret.public_data.name,
                 });
 
                 // ignore the worker's stdout and stderr by default
