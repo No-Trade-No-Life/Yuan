@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-account",
+      "comment": "store account balance",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/data-account"
+}
