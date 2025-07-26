@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Sat, 26 Jul 2025 07:39:34 GMT and should not be manually modified.
+This log was last generated on Sat, 26 Jul 2025 09:15:48 GMT and should not be manually modified.
+
+## 0.15.3
+Sat, 26 Jul 2025 09:15:48 GMT
+
+### Patches
+
+- add worker label in log
 
 ## 0.15.2
 Sat, 26 Jul 2025 07:39:34 GMT
