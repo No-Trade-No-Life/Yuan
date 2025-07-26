@@ -12,6 +12,30 @@ AddMigration({
 });
 
 AddMigration({
+  id: '433502e0-5e2c-42c7-91eb-3fafb3979ed3',
+  name: 'create_table_data_account_balance',
+  dependencies: [],
+  statement: `
+    CREATE TABLE IF NOT EXISTS public.account_balance (
+      account_id TEXT NOT NULL PRIMARY KEY,
+      currency TEXT,
+      equity TEXT,
+      balance TEXT,
+      profit TEXT,
+      free TEXT,
+      used TEXT,
+      leverage TEXT,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+    CREATE INDEX IF NOT EXISTS idx_account_balance_created_at on account_balance (created_at desc);
+    CREATE INDEX IF NOT EXISTS idx_account_balance_updated_at on account_balance (updated_at desc);
+    create or replace trigger auto_update_updated_at before update
+              on account_balance for each row execute function update_updated_at_column();
+  `,
+});
+
+AddMigration({
   id: '33707e67-7799-4778-aac8-06f0da17ee7b',
   name: 'create_table_data_account_market',
   dependencies: [],

@@ -99,6 +99,47 @@ export const publishAccountInfo = (
           );
         }
       }),
+      tap(async ([lastAccountInfo, accountInfo]) => {
+        try {
+          await requestSQL(
+            terminal,
+            buildInsertManyIntoTableSQL(
+              [
+                {
+                  account_id,
+                  ...accountInfo.money,
+                },
+              ].map((item) =>
+                Object.fromEntries(
+                  Object.entries(item).map(([k, v]) => [k, typeof v === 'number' ? v.toString() : v]),
+                ),
+              ),
+              'account_balance',
+              {
+                columns: [
+                  'account_id',
+                  'currency',
+                  'equity',
+                  'balance',
+                  'profit',
+                  'free',
+                  'used',
+                  'leverage',
+                ],
+                conflictKeys: ['account_id'],
+              },
+            ),
+          );
+        } catch (e) {
+          console.info(
+            formatTime(Date.now()),
+            'UpdateAccountBalanceError',
+            `AccountInfo:${JSON.stringify(accountInfo)}`,
+            `Error:`,
+            e,
+          );
+        }
+      }),
       takeUntil(terminal.dispose$),
     )
     .subscribe(([lastAccountInfo, accountInfo]) => {
