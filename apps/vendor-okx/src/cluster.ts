@@ -79,7 +79,9 @@ if (cluster.isPrimary) {
 
                 worker.on('message', (message: any) => {
                   if (message.type === 'log') {
-                    logBuffer.next(`[Worker ${worker.process.pid}] ${message.level}: ${message.message}`);
+                    logBuffer.next(
+                      `[Worker ${worker.process.pid} ${message.label}] ${message.level}: ${message.message}`,
+                    );
                   }
                 });
 
