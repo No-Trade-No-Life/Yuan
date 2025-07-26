@@ -28,10 +28,10 @@ AddMigration({
       created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
-    CREATE INDEX IF NOT EXISTS idx_account_balance_created_at on position (created_at desc);
-    CREATE INDEX IF NOT EXISTS idx_account_balance_updated_at on position (updated_at desc);
+    CREATE INDEX IF NOT EXISTS idx_account_balance_created_at on account_balance (created_at desc);
+    CREATE INDEX IF NOT EXISTS idx_account_balance_updated_at on account_balance (updated_at desc);
     create or replace trigger auto_update_updated_at before update
-              on position for each row execute function update_updated_at_column();
+              on account_balance for each row execute function update_updated_at_column();
   `,
 });
 
