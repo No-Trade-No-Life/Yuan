@@ -28,6 +28,8 @@ import { spotMarketTickers$ } from './quote';
 
 const terminal = Terminal.fromNodeEnv();
 
+console.info(formatTime(Date.now()), 'Terminal', terminal.terminalInfo.terminal_id);
+
 const marketIndexTickerUSDT$ = defer(() => client.getMarketIndexTicker({ quoteCcy: 'USDT' })).pipe(
   map((x) => {
     const mapInstIdToPrice = new Map<string, number>();

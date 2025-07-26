@@ -1,11 +1,27 @@
 import { Terminal } from '@yuants/protocol';
 import { loadSecrets } from '@yuants/secret';
-import { listWatch } from '@yuants/utils';
+import { formatTime, listWatch } from '@yuants/utils';
 import cluster from 'cluster';
-import { defer, Observable, repeat, retry } from 'rxjs';
+import { bufferTime, defer, filter, map, Observable, repeat, retry, Subject, tap } from 'rxjs';
+import { overrideConsole } from './logger';
+
+overrideConsole();
 
 if (cluster.isPrimary) {
-  console.info('This is the primary process');
+  console.info(`[Primary] ${formatTime(Date.now())} This is the primary process`);
+
+  const logBuffer = new Subject<string>();
+
+  logBuffer
+    .pipe(
+      //
+      bufferTime(100),
+      map((v) => v.join('\n')),
+      filter((v) => v.trim() !== ''),
+    )
+    .subscribe((message) => {
+      console.info(message);
+    });
 
   defer(() =>
     loadSecrets<{ access_key: string; secret_key: string; passphrase: string }>({
@@ -15,6 +31,11 @@ if (cluster.isPrimary) {
   )
     .pipe(
       //
+      tap({
+        error: (e) => {
+          console.error(`[Primary] ${formatTime(Date.now())} Failed to load secrets`, e);
+        },
+      }),
       retry({ delay: 5000 }),
       repeat({ delay: 5000 }),
     )
@@ -25,6 +46,12 @@ if (cluster.isPrimary) {
           defer(
             () =>
               new Observable((subscriber) => {
+                console.info(
+                  formatTime(Date.now()),
+                  `[Primary] ${formatTime(Date.now())} Starting worker for account ${
+                    account.secret.public_data.name
+                  } (${account.secret.id})`,
+                );
                 if (account.secret.public_data.type !== 'api_key_okx') return;
                 if (!account.secret.public_data.name) return;
                 if (!account.decrypted_data) return;
@@ -39,14 +66,34 @@ if (cluster.isPrimary) {
                   PASSPHRASE: account.decrypted_data.passphrase,
                   WRITE_QUOTE_TO_SQL: account.secret.public_data.write_quote_to_sql ? 'true' : 'false',
                   TERMINAL_ID: `@yuants/vendor-okx/worker/${account.secret.public_data.name}`,
+                  WORKER_LABEL: account.secret.public_data.name,
                 });
+
+                // ignore the worker's stdout and stderr by default
+                // if (worker.process.stdout) {
+                //   worker.process.stdout.pipe(process.stdout);
+                // }
+                // if (worker.process.stderr) {
+                //   worker.process.stderr.pipe(process.stderr);
+                // }
+
+                worker.on('message', (message: any) => {
+                  if (message.type === 'log') {
+                    logBuffer.next(`[Worker ${worker.process.pid}] ${message.level}: ${message.message}`);
+                  }
+                });
+
                 worker.on('exit', (code, signal) => {
                   if (code === 0) {
-                    console.log(`Worker ${worker.process.pid} exited gracefully`);
+                    console.info(
+                      `[Primary] ${formatTime(Date.now())} Worker ${worker.process.pid} exited gracefully`,
+                    );
                     subscriber.complete();
                   } else {
                     console.error(
-                      `Worker ${worker.process.pid} exited with code ${code} and signal ${signal}`,
+                      `[Primary] ${formatTime(Date.now())} Worker ${
+                        worker.process.pid
+                      } exited with code ${code} and signal ${signal}`,
                     );
                     subscriber.error(
                       new Error(`Worker ${worker.process.pid} exited with code ${code} and signal ${signal}`),
@@ -55,7 +102,7 @@ if (cluster.isPrimary) {
                 });
                 return () => {
                   worker.kill();
-                  console.log(`Worker ${worker.process.pid} killed`);
+                  console.info(`[Primary] ${formatTime(Date.now())} Worker ${worker.process.pid} killed`);
                 };
               }),
           ).pipe(
@@ -68,6 +115,10 @@ if (cluster.isPrimary) {
     )
     .subscribe();
 } else {
-  console.info('This is the worker process', process.pid, process.env);
+  console.info(`${formatTime(Date.now())} This is the worker process`, process.pid, process.env);
+  // import('./logger').then(({ overrideConsole }) => {
+  //   overrideConsole();
+  //   import('./index');
+  // });
   import('./index');
 }
