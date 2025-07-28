@@ -69,14 +69,6 @@ if (cluster.isPrimary) {
                   WORKER_LABEL: account.secret.public_data.name,
                 });
 
-                // ignore the worker's stdout and stderr by default
-                // if (worker.process.stdout) {
-                //   worker.process.stdout.pipe(process.stdout);
-                // }
-                // if (worker.process.stderr) {
-                //   worker.process.stderr.pipe(process.stderr);
-                // }
-
                 worker.on('message', (message: any) => {
                   if (message.type === 'log') {
                     logBuffer.next(
@@ -118,9 +110,5 @@ if (cluster.isPrimary) {
     .subscribe();
 } else {
   console.info(`${formatTime(Date.now())} This is the worker process`, process.pid, process.env);
-  // import('./logger').then(({ overrideConsole }) => {
-  //   overrideConsole();
-  //   import('./index');
-  // });
   import('./index');
 }
