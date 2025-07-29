@@ -13,4 +13,7 @@ describe('roundToStep', () => {
   it('roundToStep(0.6997, 1e-8, Math.floor) = 0.6997', () => {
     expect(roundToStep(0.6997, 1e-8, Math.floor)).toBe(0.6997);
   });
+  it('roundToStep(12.3, 10, Math.ceil) = 20', () => {
+    expect(roundToStep(12.3, 10, Math.ceil)).toBe(20);
+  });
 });

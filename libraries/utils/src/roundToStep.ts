@@ -27,5 +27,5 @@ const getDecimals = (v: number) => {
   const match = v.toExponential().match(/^\d+(?:\.(\d+))?e([+-]\d+)$/);
   if (!match) return 0;
   const [, decimalPart, exponent] = match;
-  return (decimalPart?.length ?? 0) + -exponent;
+  return Math.max(0, (decimalPart?.length ?? 0) + -exponent);
 };
