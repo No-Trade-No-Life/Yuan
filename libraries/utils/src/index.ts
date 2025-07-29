@@ -10,7 +10,7 @@ export * from './async-iterator-interop';
 export * from './crypto';
 export * from './escapeRegExp';
 export * from './format-time';
-export * from './order-utils';
 export * from './path';
+export * from './roundToStep';
 export * from './rx-utils';
 export * from './uuid';
