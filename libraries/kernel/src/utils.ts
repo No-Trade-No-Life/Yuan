@@ -118,6 +118,8 @@ export interface IPositionDiff {
  * @returns - 持仓差距
  *
  * @public
+ *
+ * @deprecated - use `@yuants/data-account#diffPosition` instead
  */
 export const diffPosition = (source: IPosition[], target: IPosition[]): IPositionDiff[] => {
   const sourceMapped = source

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-account",
+      "comment": "add position diff ",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-account"
+}

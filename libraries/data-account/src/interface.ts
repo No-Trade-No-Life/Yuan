@@ -413,3 +413,21 @@ export interface IOrder {
    */
   stop_loss_price?: number;
 }
+
+/**
+ * IPositionDiff: Represents the difference between two positions.
+ *
+ * @public
+ */
+export interface IPositionDiff {
+  /** Product ID */
+  product_id: string;
+  /** position variant LONG/SHORT */
+  direction: string;
+  /** source volume */
+  volume_in_source: number;
+  /** Target volume */
+  volume_in_target: number;
+  /** Error Volume */
+  error_volume: number;
+}

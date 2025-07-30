@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/kernel",
+      "comment": "deprecate position diff",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/kernel"
+}

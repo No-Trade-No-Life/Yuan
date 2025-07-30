@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/order",
+      "comment": "implement rolling order controller",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/order"
+}
