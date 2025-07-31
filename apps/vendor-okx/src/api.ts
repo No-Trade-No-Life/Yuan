@@ -972,6 +972,59 @@ export class OkxClient {
   }> => this.request('POST', '/api/v5/trade/order', params);
 
   /**
+   * 修改订单
+   *
+   * 修改当前未成交的挂单
+   *
+   * 限速：60次/2s
+   *
+   * 跟单交易带单员带单产品的限速：4个/2s
+   *
+   * 限速规则：User ID + Instrument ID
+   *
+   * 权限：交易
+   *
+   * 该接口限速同时受到 子账户限速 及 基于成交比率的子账户限速 限速规则的影响。
+   */
+  postTradeAmendOrder = (params: {
+    instId: string;
+    cxIOnFail?: boolean;
+    ordId?: string;
+    clOrdId?: string;
+    reqId?: string;
+    newSz?: string;
+    newPx?: string;
+    newPxUsd?: string;
+    newPxVol?: string;
+    attachAlgoOrds?: Array<{
+      attachAlgoId?: string;
+      attachAlgoClOrdId?: string;
+      newTpTriggerPx?: string;
+      newTpOrdPx?: string;
+      newTpOrdKind?: string;
+      newSlTriggerPx?: string;
+      newSlOrdPx?: string;
+      newTpTriggerPxType?: string;
+      newSlTriggerPxType?: string;
+      sz?: string;
+      amendPxOnTriggerType?: string;
+    }>;
+  }): Promise<{
+    code: string;
+    msg: string;
+    data: {
+      clOrdId: string;
+      ordId: string;
+      ts: string;
+      reqId: string;
+      sCode: string;
+      sMsg: string;
+    }[];
+    inTime: string;
+    outTime: string;
+  }> => this.request('POST', '/api/v5/trade/amend-order', params);
+
+  /**
    * 获取未成交订单列表
    *
    * 获取当前账户下所有未成交订单信息
