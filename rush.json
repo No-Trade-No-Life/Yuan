@@ -466,6 +466,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/order",
+      "projectFolder": "libraries/order",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/host-manager",
       "projectFolder": "libraries/host-manager",
       "shouldPublish": true

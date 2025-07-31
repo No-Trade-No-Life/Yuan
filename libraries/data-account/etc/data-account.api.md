@@ -15,6 +15,9 @@ export const addAccountMarket: (terminal: Terminal, cxt: {
 }) => Promise<void>;
 
 // @public
+export const diffPosition: (source: IPosition[], target: IPosition[]) => IPositionDiff[];
+
+// @public
 export interface IAccountInfo {
     account_id: string;
     currencies: IAccountMoney[];
@@ -82,6 +85,15 @@ export interface IPosition {
     updated_at?: number;
     valuation: number;
     volume: number;
+}
+
+// @public
+export interface IPositionDiff {
+    direction: string;
+    error_volume: number;
+    product_id: string;
+    volume_in_source: number;
+    volume_in_target: number;
 }
 
 // @public
