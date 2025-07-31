@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/order",
+      "comment": "fix order id",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/order"
+}
