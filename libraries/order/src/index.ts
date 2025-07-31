@@ -55,7 +55,7 @@ export async function* limitOrderController(
   if (!theProduct) throw new Error(`No Found ProductID ${target.product_id}`);
 
   // 生成 Order ID
-  const order_id = `${target.product_id}-${target.direction}-${Date.now()}`;
+  let order_id = undefined;
 
   // 提取订单生成逻辑
   const createOrder = (
@@ -130,6 +130,7 @@ export async function* limitOrderController(
               ? o.order_direction === 'OPEN_LONG' || o.order_direction === 'CLOSE_LONG'
               : o.order_direction === 'OPEN_SHORT' || o.order_direction === 'CLOSE_SHORT'),
         );
+        order_id = theOrder?.order_id;
         const priceDiff =
           theOrder !== undefined
             ? Math.abs(
@@ -199,7 +200,7 @@ export async function* limitOrderController(
           } catch (e) {
             await terminal.requestForResponse('CancelOrder', {
               account_id: order.account_id,
-              order_id: order.order_id,
+              order_id,
               product_id: order.product_id,
             });
             yield terminal.requestForResponse('SubmitOrder', order);
@@ -224,7 +225,7 @@ export async function* limitOrderController(
             } catch (e) {
               await terminal.requestForResponse('CancelOrder', {
                 account_id: order.account_id,
-                order_id: order.order_id,
+                order_id,
                 product_id: order.product_id,
               });
               yield terminal.requestForResponse('SubmitOrder', order);
