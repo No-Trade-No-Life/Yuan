@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-trade-copier",
+      "comment": "apply for new data-order pkg",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-trade-copier"
+}

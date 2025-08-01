@@ -3,10 +3,10 @@ import {
   addAccountMarket,
   IAccountInfo,
   IAccountMoney,
-  IOrder,
   IPosition,
   publishAccountInfo,
 } from '@yuants/data-account';
+import { IOrder } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
 import { IConnection, Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';

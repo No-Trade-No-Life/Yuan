@@ -1,4 +1,5 @@
-import { diffPosition, IAccountInfo, IOrder, IPosition, useAccountInfo } from '@yuants/data-account';
+import { diffPosition, IAccountInfo, IPosition, useAccountInfo } from '@yuants/data-account';
+import { IOrder } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
 import { IQuote } from '@yuants/data-quote';
 import { Terminal } from '@yuants/protocol';
@@ -247,3 +248,29 @@ export async function* limitOrderController(
       .catch((err) => console.error('Cleanup error:', err));
   }
 }
+
+(async () => {
+  const terminal = new Terminal(process.env.HOST_URL!, {
+    name: 'c1-script',
+    terminal_id: 'c1-script',
+  });
+
+  console.info('c1-script started');
+
+  const products = await requestSQL<IProduct[]>(
+    terminal,
+    `select * from product where datasource_id = ${escapeSQL('OKX')}`,
+  );
+
+  const generator = limitOrderController(terminal, products, {
+    account_id: 'okx/545691082089502136/trading',
+    datasource_id: 'OKX',
+    product_id: 'SWAP/SOL-USDT-SWAP',
+    direction: 'LONG',
+    volume: 0.02,
+  });
+
+  for await (const result of generator) {
+    console.log('Order result:', result);
+  }
+})();

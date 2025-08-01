@@ -4,6 +4,7 @@
 
 ```ts
 
+import { IOrder } from '@yuants/data-model';
 import { Observable } from 'rxjs';
 import { ObservableInput } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
@@ -36,31 +37,6 @@ export interface IAccountMoney {
     leverage?: number;
     profit: number;
     used: number;
-}
-
-// @public
-export interface IOrder {
-    account_id: string;
-    comment?: string;
-    filled_at?: number;
-    inferred_base_currency_price?: number;
-    order_direction?: string;
-    order_id?: string;
-    order_status?: string;
-    order_type?: string;
-    position_id?: string;
-    price?: number;
-    product_id: string;
-    profit_correction?: number;
-    real_profit?: number;
-    // @deprecated
-    stop_loss_price?: number;
-    submit_at?: number;
-    // @deprecated
-    take_profit_price?: number;
-    traded_price?: number;
-    traded_volume?: number;
-    volume: number;
 }
 
 // @public

@@ -2,10 +2,10 @@ import {
   addAccountMarket,
   IAccountInfo,
   IAccountMoney,
-  IOrder,
   IPosition,
   publishAccountInfo,
 } from '@yuants/data-account';
+import { IOrder } from '@yuants/data-order';
 import { ITick } from '@yuants/data-model';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import { encodePath, formatTime } from '@yuants/utils';
