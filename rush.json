@@ -466,6 +466,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/data-order",
+      "projectFolder": "libraries/data-order",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/order",
       "projectFolder": "libraries/order",
       "shouldPublish": true

@@ -1,11 +1,12 @@
 import { Meter } from '@opentelemetry/api';
 import { mergeAccountInfoPositions } from '@yuants/data-model';
+import { IOrder } from '@yuants/data-order';
 import { MetricsMeterProvider, Terminal } from '@yuants/protocol';
 import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
 import { ObservableInput, defer, mergeMap, pairwise, takeUntil, tap } from 'rxjs';
 import './interface';
-import { IAccountInfo, IOrder, IPosition, IPositionDiff } from './interface';
+import { IAccountInfo, IPosition, IPositionDiff } from './interface';
 import './migration';
 export * from './interface';
 

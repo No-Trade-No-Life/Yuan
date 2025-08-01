@@ -17,6 +17,7 @@
     "@yuants/data-model": "workspace:*",
     "@yuants/data-product": "workspace:*",
     "@yuants/data-account": "workspace:*",
+    "@yuants/data-order": "workspace:*",
     "@yuants/kernel": "workspace:*",
     "@yuants/protocol": "workspace:*",
     "@yuants/utils": "workspace:*",

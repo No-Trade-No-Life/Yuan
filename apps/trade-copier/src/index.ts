@@ -1,4 +1,5 @@
-import { IAccountInfo, IOrder, IPosition, useAccountInfo } from '@yuants/data-account';
+import { IAccountInfo, IPosition, useAccountInfo } from '@yuants/data-account';
+import { IOrder } from '@yuants/data-order';
 import { ITradeCopierTradeConfig, ITradeCopyRelation } from '@yuants/data-model';
 import { IProduct } from '@yuants/data-product';
 import { IPositionDiff, diffPosition, mergePositions } from '@yuants/kernel';

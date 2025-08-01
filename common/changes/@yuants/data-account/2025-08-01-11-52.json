@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-account",
+      "comment": "extract IOrder to data-order package",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-account"
+}
