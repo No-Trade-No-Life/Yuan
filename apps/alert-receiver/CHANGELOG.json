@@ -2,6 +2,32 @@
   "name": "@yuants/app-alert-receiver",
   "entries": [
     {
+      "version": "0.1.106",
+      "tag": "@yuants/app-alert-receiver_v0.1.106",
+      "date": "Fri, 01 Aug 2025 13:20:25 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.18.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.37.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.4.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.19`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.105",
       "tag": "@yuants/app-alert-receiver_v0.1.105",
       "date": "Sat, 12 Jul 2025 09:58:56 GMT",

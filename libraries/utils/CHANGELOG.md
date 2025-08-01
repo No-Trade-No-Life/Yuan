@@ -1,6 +1,13 @@
 # Change Log - @yuants/utils
 
-This log was last generated on Fri, 11 Jul 2025 19:02:39 GMT and should not be manually modified.
+This log was last generated on Fri, 01 Aug 2025 13:20:25 GMT and should not be manually modified.
+
+## 0.4.1
+Fri, 01 Aug 2025 13:20:25 GMT
+
+### Patches
+
+- fix roundToStep
 
 ## 0.4.0
 Fri, 11 Jul 2025 19:02:39 GMT
