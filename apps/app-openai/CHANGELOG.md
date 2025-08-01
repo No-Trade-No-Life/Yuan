@@ -1,6 +1,11 @@
 # Change Log - @yuants/app-openai
 
-This log was last generated on Sat, 12 Jul 2025 09:58:56 GMT and should not be manually modified.
+This log was last generated on Fri, 01 Aug 2025 13:20:25 GMT and should not be manually modified.
+
+## 0.0.29
+Fri, 01 Aug 2025 13:20:25 GMT
+
+_Version update only_
 
 ## 0.0.28
 Sat, 12 Jul 2025 09:58:56 GMT

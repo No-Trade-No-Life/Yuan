@@ -1,6 +1,17 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Sat, 26 Jul 2025 11:27:04 GMT and should not be manually modified.
+This log was last generated on Fri, 01 Aug 2025 13:20:25 GMT and should not be manually modified.
+
+## 0.16.0
+Fri, 01 Aug 2025 13:20:25 GMT
+
+### Minor changes
+
+- add modify order interface
+
+### Patches
+
+- apply for new data-order pkg
 
 ## 0.15.4
 Sat, 26 Jul 2025 11:27:04 GMT
