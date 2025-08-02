@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/redis-channel",
+      "comment": "open source pkg",
+      "type": "none"
+    }
+  ],
+  "packageName": "@yuants/redis-channel"
+}
