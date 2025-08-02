@@ -1,10 +1,12 @@
-import { IconRefresh, IconSetting } from '@douyinfe/semi-icons';
+import { IconExport, IconRefresh, IconSetting } from '@douyinfe/semi-icons';
 import { Button, Empty, Space } from '@douyinfe/semi-ui';
 import { AccountInfoUnit, PeriodDataUnit, Series, SeriesDataUnit } from '@yuants/kernel';
 import { useObservableState } from 'observable-hooks';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AccountSelector } from '../AccountInfo';
+import { fs } from '../FileSystem';
+import { Toast } from '../Interactive';
 import { currentKernel$ } from '../Kernel/model';
 import { orders$ } from '../Order/model';
 import { registerPage } from '../Pages';
@@ -140,6 +142,28 @@ registerPage('TechnicalChart', () => {
             setFrame((x) => x + 1);
           }}
         ></Button>
+        <Button
+          icon={<IconExport />}
+          onClick={async () => {
+            //
+            const series = kernel.findUnit(SeriesDataUnit)!.series;
+
+            const headers = series.map((s) => `"${s.name || s.series_id}"`);
+
+            const content =
+              headers.join(',') +
+              '\n' +
+              selectedPeriodData
+                .map((_, i) => {
+                  return series.map((s) => s[i] ?? '').join(',');
+                })
+                .join('\n');
+            await fs.writeFile('/export.csv', content);
+            Toast.success(`导出成功到 /export.csv`);
+          }}
+        >
+          导出序列
+        </Button>
         <Button icon={<IconSetting />} disabled></Button>
       </Space>
       <ChartGroup key={kernel.id + frame}>
