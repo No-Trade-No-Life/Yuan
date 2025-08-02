@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-ctp",
-  "version": "0.2.62",
+  "version": "0.2.63",
   "main": "lib/index.js",
   "files": [
     "dist/extension.bundle.js"
@@ -11,6 +11,7 @@
   "dependencies": {
     "@yuants/data-model": "workspace:*",
     "@yuants/data-account": "workspace:*",
+    "@yuants/data-order": "workspace:*",
     "@yuants/protocol": "workspace:*",
     "@yuants/utils": "workspace:*",
     "@yuants/sql": "workspace:*",

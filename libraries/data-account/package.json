@@ -1,6 +1,6 @@
 {
   "name": "@yuants/data-account",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [
@@ -29,6 +29,7 @@
   },
   "dependencies": {
     "@yuants/data-model": "workspace:*",
+    "@yuants/data-order": "workspace:*",
     "@yuants/protocol": "workspace:*",
     "@yuants/sql": "workspace:*",
     "@yuants/prometheus-client": "workspace:*",

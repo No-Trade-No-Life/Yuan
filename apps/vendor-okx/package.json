@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-okx",
-  "version": "0.15.4",
+  "version": "0.16.0",
   "files": [
     "dist/extension.bundle.js"
   ],
@@ -13,6 +13,7 @@
     "@yuants/transfer": "workspace:*",
     "@yuants/data-model": "workspace:*",
     "@yuants/data-account": "workspace:*",
+    "@yuants/data-order": "workspace:*",
     "@yuants/utils": "workspace:*",
     "@yuants/sql": "workspace:*",
     "@yuants/data-series": "workspace:*",

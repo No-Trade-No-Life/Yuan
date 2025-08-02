@@ -206,7 +206,7 @@ export class DataLoadingTaskUnit extends BasicUnit {
     restore(state: any): void;
 }
 
-// @public
+// @public @deprecated
 export const diffPosition: (source: IPosition[], target: IPosition[]) => IPositionDiff[];
 
 // @public

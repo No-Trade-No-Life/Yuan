@@ -2,10 +2,10 @@ import {
   addAccountMarket,
   IAccountInfo,
   IAccountMoney,
-  IOrder,
   IPosition,
   publishAccountInfo,
 } from '@yuants/data-account';
+import { IOrder } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import { decodePath, encodePath, formatTime, roundToStep } from '@yuants/utils';
@@ -823,6 +823,84 @@ defer(async () => {
       if (res.code !== '0') {
         return { res: { code: +res.code, message: res.msg } };
       }
+      return { res: { code: 0, message: 'OK' } };
+    },
+  );
+
+  terminal.provideService(
+    'ModifyOrder',
+    {
+      required: ['account_id'],
+      properties: {
+        account_id: { const: tradingAccountInfo.account_id },
+      },
+    },
+    async (msg) => {
+      console.info(formatTime(Date.now()), 'ModifyOrder', JSON.stringify(msg));
+      const order = msg.req;
+      const [instType, instId] = decodePath(order.product_id);
+
+      const params: any = {
+        instId,
+        ordId: order.order_id, // 使用现有订单ID
+      };
+
+      // 如果需要修改价格
+      if (order.price !== undefined) {
+        params.newPx = order.price.toString();
+      }
+
+      // 如果需要修改数量
+      if (order.volume !== undefined) {
+        // 处理数量修改，类似于 SubmitOrder 中的逻辑
+        if (instType === 'SWAP') {
+          params.newSz = order.volume.toString();
+        } else if (instType === 'SPOT') {
+          params.newSz = order.volume.toString();
+        } else if (instType === 'MARGIN') {
+          if (order.order_type === 'LIMIT') {
+            params.newSz = order.volume.toString();
+          }
+          if (order.order_type === 'MARKET') {
+            // 对于市价单，可能需要根据当前价格计算新的数量
+            const price = await firstValueFrom(
+              spotMarketTickers$.pipe(
+                map((x) =>
+                  order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_SHORT'
+                    ? +x[instId].askPx
+                    : +x[instId].bidPx,
+                ),
+              ),
+            );
+            if (!price) {
+              throw new Error(`invalid tick: ${price}`);
+            }
+            console.info(formatTime(Date.now()), 'ModifyOrder', 'price', price);
+            const theProduct = await firstValueFrom(
+              mapProductIdToMarginProduct$.pipe(map((x) => x.get(order.product_id))),
+            );
+            if (!theProduct) {
+              throw new Error(`Unknown product: ${order.position_id}`);
+            }
+            params.newSz = roundToStep(order.volume * price, theProduct.volume_step!).toString();
+          }
+        } else {
+          throw new Error(`Unknown instType: ${instType}`);
+        }
+      }
+
+      console.info(formatTime(Date.now()), 'ModifyOrder', 'params', JSON.stringify(params));
+
+      const res = await client.postTradeAmendOrder(params);
+      if (res.code !== '0') {
+        return {
+          res: {
+            code: +res.code,
+            message: res.msg,
+          },
+        };
+      }
+
       return { res: { code: 0, message: 'OK' } };
     },
   );

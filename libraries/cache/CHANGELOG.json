@@ -2,6 +2,23 @@
   "name": "@yuants/cache",
   "entries": [
     {
+      "version": "0.1.2",
+      "tag": "@yuants/cache_v0.1.2",
+      "date": "Fri, 01 Aug 2025 13:20:25 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.4.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.1",
       "tag": "@yuants/cache_v0.1.1",
       "date": "Mon, 14 Jul 2025 14:56:55 GMT",
