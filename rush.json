@@ -535,6 +535,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/redis-channel",
+      "projectFolder": "libraries/redis-channel",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/sql",
       "projectFolder": "libraries/sql",
       "shouldPublish": true
