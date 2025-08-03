@@ -495,11 +495,6 @@
       "shouldPublish": true
     },
     {
-      "packageName": "@yuants/metrics",
-      "projectFolder": "libraries/metrics",
-      "shouldPublish": true
-    },
-    {
       "packageName": "@yuants/extension",
       "projectFolder": "libraries/extension",
       "shouldPublish": true

@@ -1,4 +1,4 @@
-import { IOrder } from '@yuants/data-model';
+import { IOrder } from '@yuants/data-order';
 
 /**
  * Position: Atomic position information.

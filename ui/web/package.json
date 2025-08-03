@@ -24,6 +24,7 @@
     "@yuants/data-series": "workspace:*",
     "@yuants/data-product": "workspace:*",
     "@yuants/data-ohlc": "workspace:*",
+    "@yuants/data-order": "workspace:*",
     "@yuants/sql": "workspace:*",
     "@yuants/app-risk-manager": "workspace:*",
     "@douyinfe/semi-icons": "~2.16.0",

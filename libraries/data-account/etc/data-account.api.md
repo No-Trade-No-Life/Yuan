@@ -4,7 +4,7 @@
 
 ```ts
 
-import { IOrder } from '@yuants/data-model';
+import { IOrder } from '@yuants/data-order';
 import { Observable } from 'rxjs';
 import { ObservableInput } from 'rxjs';
 import { Terminal } from '@yuants/protocol';

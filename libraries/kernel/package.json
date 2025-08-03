@@ -19,6 +19,8 @@
     "@yuants/sql": "workspace:*",
     "@yuants/data-series": "workspace:*",
     "@yuants/data-product": "workspace:*",
+    "@yuants/data-account": "workspace:*",
+    "@yuants/data-order": "workspace:*",
     "@yuants/data-ohlc": "workspace:*",
     "date-fns": "~2.30.0",
     "json-schema": "~0.4.0",

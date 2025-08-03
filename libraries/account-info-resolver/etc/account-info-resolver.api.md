@@ -4,9 +4,9 @@
 
 ```ts
 
-import { IAccountInfo } from '@yuants/data-model';
-import { IOrder } from '@yuants/data-model';
-import { IPosition } from '@yuants/data-model';
+import { IAccountInfo } from '@yuants/data-account';
+import { IOrder } from '@yuants/data-order';
+import { IPosition } from '@yuants/data-account';
 import { IProduct } from '@yuants/data-product';
 
 // Warning: (ae-forgotten-export) The symbol "IAccountInfoResolver" needs to be exported by the entry point index.d.ts

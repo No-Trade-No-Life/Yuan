@@ -1,4 +1,4 @@
-import { IAccountInfo, IAccountMoney, IPosition } from '@yuants/data-model';
+import { IAccountInfo, IAccountMoney, IPosition } from '@yuants/data-account';
 import { roundToStep } from '@yuants/utils';
 import { Subscription } from 'rxjs';
 import { Kernel } from '../kernel';

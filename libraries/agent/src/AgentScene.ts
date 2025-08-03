@@ -1,4 +1,4 @@
-import { IAccountInfo } from '@yuants/data-model';
+import { IAccountInfo, publishAccountInfo } from '@yuants/data-account';
 import {
   AccountDatasourceRelationUnit,
   AccountInfoUnit,
@@ -28,7 +28,6 @@ import { Terminal } from '@yuants/protocol';
 import { JSONSchema7 } from 'json-schema';
 import { Subject } from 'rxjs';
 import { AgentUnit } from './AgentUnit';
-import { publishAccountInfo } from '@yuants/data-account';
 
 /**
  * @public

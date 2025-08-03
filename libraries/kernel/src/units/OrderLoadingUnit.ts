@@ -1,11 +1,11 @@
-import { IOrder } from '@yuants/data-model';
+import { IOrder } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { escape, requestSQL } from '@yuants/sql';
+import { formatTime } from '@yuants/utils';
 import { defer, lastValueFrom, mergeMap, tap, toArray } from 'rxjs';
 import { Kernel } from '../kernel';
 import { BasicUnit } from './BasicUnit';
 import { HistoryOrderUnit } from './HistoryOrderUnit';
-import { formatTime } from '@yuants/utils';
 
 /**
  * 历史订单加载单元
