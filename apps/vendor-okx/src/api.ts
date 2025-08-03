@@ -1268,7 +1268,159 @@ export class OkxClient {
       ts: string;
     }[];
   }> => this.request('GET', '/api/v5/market/index-tickers', params);
+
+  /**
+   * 账单流水查询（近七天）
+   *
+   *
+   * 限速：5次/s
+   *
+   *
+   * https://www.okx.com/docs-v5/zh/#trading-account-rest-api-get-bills-details-last-7-days
+   */
+  getAccountBills = (params?: {
+    instType?: string;
+    instId?: string;
+    ccy?: string;
+    mgnMode?: 'isolated' | 'cross';
+    ctType?: 'linear' | 'inverse';
+    type?: AccountBillType;
+    subType?: string;
+    after?: string; //请求此id之前（更旧的数据）的分页内容，传的值为对应接口的billId
+    before?: string; //请求此id之后（更新的数据）的分页内容，传的值为对应接口的billId
+    begin?: string; //筛选的开始时间戳 ts，Unix 时间戳为毫秒数格式，如 1597026383085
+    end?: string;
+    limit?: string; //分页返回的结果集数量，最大为100，不填默认返回100条
+  }): Promise<{
+    code: string;
+    msg: string;
+    data: {
+      instType: string;
+      billId: string;
+      type: string;
+      subType: string;
+      ts: string;
+      balChg: string;
+      posBalChg: string;
+      bal: string;
+      posBal: string;
+      sz: string;
+      px: string;
+      ccy: string;
+      pnl: string;
+      fee: string;
+      mgnMode: 'isolated' | 'cross' | 'cash' | '';
+      instId: string;
+      ordId: string;
+      execType: string;
+      from: string;
+      to: string;
+      notes: string;
+      interest: string;
+      tag: string;
+      fillTime: string;
+      tradeId: string;
+      clOrdId: string;
+      fillIdxPx: string;
+      fillMarkPx: string;
+      fillPxVol: string;
+      fillPxUsd: string;
+      fillMarkVol: string;
+      fillFwdPx: string;
+    }[];
+  }> => this.request('GET', '/api/v5/account/bills', params);
+
+  /**
+   * 账单流水查询（近三个月）
+   *
+   *
+   * 限速：5次/2s
+   *
+   *
+   * https://www.okx.com/docs-v5/zh/#trading-account-rest-api-get-bills-details-last-3-months
+   */
+  getAccountBillsArchive = (params?: {
+    instType?: string;
+    instId?: string;
+    ccy?: string;
+    mgnMode?: 'isolated' | 'cross';
+    ctType?: 'linear' | 'inverse';
+    type?: AccountBillType;
+    subType?: string;
+    after?: string; //请求此id之前（更旧的数据）的分页内容，传的值为对应接口的billId
+    before?: string; //请求此id之后（更新的数据）的分页内容，传的值为对应接口的billId
+    begin?: string; //筛选的开始时间戳 ts，Unix 时间戳为毫秒数格式，如 1597026383085
+    end?: string;
+    limit?: string; //分页返回的结果集数量，最大为100，不填默认返回100条
+  }): Promise<{
+    code: string;
+    msg: string;
+    data: {
+      instType: string;
+      billId: string;
+      type: string;
+      subType: string;
+      ts: string;
+      balChg: string;
+      posBalChg: string;
+      bal: string;
+      posBal: string;
+      sz: string;
+      px: string;
+      ccy: string;
+      pnl: string;
+      fee: string;
+      mgnMode: 'isolated' | 'cross' | 'cash' | '';
+      instId: string;
+      ordId: string;
+      execType: string;
+      from: string;
+      to: string;
+      notes: string;
+      interest: string;
+      tag: string;
+      fillTime: string;
+      tradeId: string;
+      clOrdId: string;
+      fillIdxPx: string;
+      fillMarkPx: string;
+      fillPxVol: string;
+      fillPxUsd: string;
+      fillMarkVol: string;
+      fillFwdPx: string;
+    }[];
+  }> => this.request('GET', '/api/v5/account/bills-archive', params);
 }
+
+type AccountBillType =
+  | '1'
+  | '2'
+  | '3'
+  | '4'
+  | '5'
+  | '6'
+  | '7'
+  | '8'
+  | '9'
+  | '10'
+  | '11'
+  | '12'
+  | '13'
+  | '14'
+  | '15'
+  | '16'
+  | '22'
+  | '24'
+  | '26'
+  | '27'
+  | '28'
+  | '29'
+  | '30'
+  | '32'
+  | '33'
+  | '34'
+  | '250'
+  | '251';
 
 export const client = new OkxClient({
   auth: {

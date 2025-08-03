@@ -636,6 +636,34 @@ export class ApiClient {
       isSellAllowed: boolean;
     }[]
   > => this.request('GET', 'https://api.binance.com/sapi/v1/margin/allPairs', params);
+
+  /**
+   * 获取UM损益资金流水(USER_DATA)
+   *
+   * 权重: 30
+   *
+   * https://developers.binance.com/docs/zh-CN/derivatives/portfolio-margin/account/Get-UM-Income-History
+   */
+  getUMIncome = (params?: {
+    symbol?: string;
+    incomeType?: string;
+    startTime?: number;
+    endTime?: number;
+    recvWindow?: number;
+    limit?: number;
+    timestamp: number;
+  }): Promise<
+    {
+      symbol: string; // 交易对，仅针对涉及交易对的资金流
+      incomeType: string; // 资金流类型
+      income: string; // 资金流数量，正数代表流入，负数代表流出
+      asset: string; // 资产内容
+      info: string; // 备注信息，取决于流水类型
+      time: number;
+      tranId: string; // 划转ID
+      tradeId: string; // 引起流水产生的原始交易ID
+    }[]
+  > => this.request('GET', 'https://api.binance.com/papi/v1/um/income', params);
 }
 export const client = new ApiClient({
   auth: process.env.PUBLIC_ONLY
