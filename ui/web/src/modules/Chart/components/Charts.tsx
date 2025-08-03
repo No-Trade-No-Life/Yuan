@@ -76,6 +76,7 @@ const chartDefaultOptions: DeepPartial<ChartOptions> = {
   },
 };
 const ChartApiContext = createContext<IChartApi | null>(null);
+const ChartUIContext = createContext<{ hoverIndex: number } | null>(null);
 
 // ISSUE: This is Lightweight Chart unmerged API
 // TODO: This API is merged and publish in lightweight-charts 4.1, re-eval it.
@@ -204,6 +205,8 @@ export const Chart = React.memo((props: { children: ReactNode }) => {
     }
   }, [chartApi]);
 
+  const [crosshairIndex, setCrossHairIndex] = useState(-1);
+
   // Legend
   useEffect(() => {
     if (chartApi && legendRef.current) {
@@ -212,6 +215,8 @@ export const Chart = React.memo((props: { children: ReactNode }) => {
         const model = (chartApi as any)._private__chartWidget._private__model;
         const crosshair = model._private__crosshair;
         const index = crosshair._private__index;
+        setCrossHairIndex(index);
+
         // TODO: Emit Event with index
         const serieses = model._private__serieses;
         serieses.forEach((series: any) => {
@@ -228,8 +233,8 @@ export const Chart = React.memo((props: { children: ReactNode }) => {
             );
           }
         });
-        if (texts.length > 0) {
-          legendRef.current!.innerHTML = texts.join(' ');
+        if (texts.length > 0 && legendRef.current) {
+          legendRef.current.innerHTML = texts.join(' ');
         }
       };
       (chartApi as any).__updateLegend = handler;
@@ -308,20 +313,28 @@ export const Chart = React.memo((props: { children: ReactNode }) => {
 
   return (
     <ChartApiContext.Provider value={chartApi}>
-      <div style={{ position: 'relative' }}>
-        <div
-          ref={legendRef}
-          style={{ position: 'absolute', top: 0, left: 0, zIndex: 2, color: isDarkmode ? 'white' : 'black' }}
-        ></div>
-      </div>
-      <div style={{ width: '100%', height: '100%' }} ref={chartContainerRef} />
-      {props.children}
+      <ChartUIContext.Provider value={{ hoverIndex: crosshairIndex }}>
+        <div style={{ position: 'relative' }}>
+          <div
+            ref={legendRef}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              zIndex: 2,
+              color: isDarkmode ? 'white' : 'black',
+            }}
+          ></div>
+        </div>
+        <div style={{ width: '100%', height: '100%' }} ref={chartContainerRef} />
+        {props.children}
+      </ChartUIContext.Provider>
     </ChartApiContext.Provider>
   );
 });
 
 export const CandlestickSeries = React.memo(
-  (props: { title?: string; data: IOHLC[]; children?: React.ReactElement }) => {
+  (props: { title?: string; data: IOHLC[]; children?: React.ReactNode }) => {
     const chartApi = useContext(ChartApiContext);
     const [seriesApi, setSeriesApi] = useState<ISeriesApi<'Candlestick'>>();
     const [volumeSeriesApi, setVolumeSeriesApi] = useState<ISeriesApi<'Histogram'>>();
@@ -404,8 +417,22 @@ export const CandlestickSeries = React.memo(
       }
     }, [chartApi, volumeSeriesApi, volumeData]);
 
+    const renderChildren = (children: React.ReactNode): React.ReactNode => {
+      if (React.isValidElement(children)) {
+        return React.cloneElement(children, {
+          ...children.props,
+          seriesApi: seriesApi,
+          ohlcData: props.data,
+        });
+      }
+      if (Array.isArray(children)) {
+        return children.map((child) => renderChildren(child));
+      }
+      return children;
+    };
+
     if (props.children) {
-      return React.cloneElement(props.children, { ...props.children.props, seriesApi: seriesApi });
+      return renderChildren(props.children);
     }
     return null;
   },
@@ -585,3 +612,81 @@ export const OrderSeries = React.memo((props: IOrderSeriesProps) => {
   }, [props.seriesApi, ordersMarkers]);
   return null;
 });
+
+export const IndexSeries = React.memo(
+  (props: {
+    options?: { title?: string; color?: string };
+    data: Array<{ timestamp: number; value: number }>;
+    // seriesApi?: ISeriesApi<any>;
+    ohlcData?: IOHLC[];
+  }) => {
+    const chartApi = useContext(ChartApiContext);
+    const uiCtx = useContext(ChartUIContext);
+    const seriesApiRef = useRef<ISeriesApi<any>>();
+
+    useEffect(() => {
+      if (chartApi) {
+        const precision = 5;
+        const series = chartApi.addLineSeries({
+          lineWidth: 1,
+          priceLineVisible: false,
+          lastValueVisible: false,
+          priceFormat: { type: 'price', precision, minMove: +(0.1 ** precision).toFixed(precision) },
+          ...props.options,
+          title: undefined,
+          ...{ yuan_title: props.options?.title },
+        });
+        seriesApiRef.current = series;
+        return () => {
+          chartApi.removeSeries(series);
+          seriesApiRef.current = undefined;
+        };
+      }
+    }, [chartApi]);
+
+    const seriesData = useMemo(
+      () =>
+        props.data.map(
+          (period, i): LineData => ({
+            time: (period.timestamp / 1e3) as UTCTimestamp,
+            // ISSUE: Inf / -Inf cause axis disappear, norm to NaN
+            value: props.ohlcData && props.ohlcData[i] ? +props.ohlcData[i].low : NaN,
+            color: 'transparent',
+          }),
+        ),
+      [props.data, props.ohlcData],
+    );
+
+    useEffect(() => {
+      if (chartApi) {
+        if (seriesApiRef.current) {
+          seriesApiRef.current.setData(seriesData);
+        }
+      }
+    }, [chartApi, seriesData]);
+
+    const markers = useMemo((): SeriesMarker<Time>[] => {
+      if (!uiCtx) return [];
+      const theIndex = props.data[uiCtx.hoverIndex]?.value;
+      if (!(theIndex >= 0)) return [];
+      const theRefData = props.data[theIndex];
+      if (!theRefData) return [];
+      return [
+        {
+          time: (theRefData.timestamp / 1e3) as UTCTimestamp,
+          position: 'belowBar',
+          color: props.options?.color || '',
+          shape: 'arrowUp',
+          text: props.options?.title,
+        },
+      ];
+    }, [props.data, uiCtx]);
+    useEffect(() => {
+      if (seriesApiRef.current) {
+        seriesApiRef.current.setMarkers(markers);
+      }
+    }, [markers]);
+
+    return null;
+  },
+);

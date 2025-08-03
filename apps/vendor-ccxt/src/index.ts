@@ -47,25 +47,6 @@ import { terminal } from './terminal';
 
   await firstValueFrom(products$);
 
-  const mapPeriodInSecToCCXTTimeframe = (period_in_sec: number): string => {
-    if (period_in_sec % 2592000 === 0) {
-      return `${period_in_sec / 2592000}M`;
-    }
-    if (period_in_sec % 604800 === 0) {
-      return `${period_in_sec / 604800}w`;
-    }
-    if (period_in_sec % 86400 === 0) {
-      return `${period_in_sec / 86400}d`;
-    }
-    if (period_in_sec % 3600 === 0) {
-      return `${period_in_sec / 3600}h`;
-    }
-    if (period_in_sec % 60 === 0) {
-      return `${period_in_sec / 60}m`;
-    }
-    return `${period_in_sec}s`;
-  };
-
   const memoize = <T extends (...args: any[]) => any>(fn: T): T => {
     const cache = new Map<string, ReturnType<T>>();
     return ((...args: any[]) => {
