@@ -203,15 +203,6 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
         } 条数据`,
       );
 
-      if (this.fsUnit) {
-        await this.fsUnit.writeFile(
-          `/.Y/cache/ohlc/${encodeURIComponent(
-            encodePath(task.datasource_id, task.product_id, task.duration),
-          )}.csv`,
-          JSON.stringify(data, null, 2),
-        );
-      }
-
       data.forEach((period, idx) => {
         // 推入 Period 数据
         // ISSUE: 将开盘时的K线也推入队列，产生一个模拟的事件，可以提早确认上一根K线的收盘
