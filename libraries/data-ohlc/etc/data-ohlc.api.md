@@ -5,9 +5,6 @@
 ```ts
 
 // @public
-export const convertDurationToMilliseconds: (duration: string) => number;
-
-// @public
 export interface IOHLC {
     close: string;
     closed_at: string;

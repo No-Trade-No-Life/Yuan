@@ -1,4 +1,5 @@
-import { IPeriod, ITick } from '@yuants/data-model';
+import { ITick } from '@yuants/data-model';
+import { IOHLC } from '@yuants/data-ohlc';
 import { IOrder } from '@yuants/data-order';
 import { encodePath, roundToStep } from '@yuants/utils';
 import { Subject, Subscription } from 'rxjs';
@@ -62,33 +63,32 @@ export class OrderMatchingUnit extends BasicUnit {
     this.doMatching();
   }
 
-  private prevPeriodMap: Record<string, IPeriod> = {};
+  private prevPeriodMap: Record<string, IOHLC> = {};
 
-  private updateRangeByPeriod(period: IPeriod): void {
+  private updateRangeByPeriod(period: IOHLC): void {
     const product_id = period.product_id;
-    const spread = period.spread || 0;
-    const key = [period.datasource_id, period.product_id, period.period_in_sec].join();
+    const key = [period.datasource_id, period.product_id, period.duration].join();
     const prevPeriod = this.prevPeriodMap[key];
-    if (prevPeriod && prevPeriod.timestamp_in_us === period.timestamp_in_us) {
+    if (prevPeriod && new Date(prevPeriod.created_at).getTime() === new Date(period.created_at).getTime()) {
       // 同一K线，使用连续性的保守推断
-      const first = prevPeriod.close;
+      const first = +prevPeriod.close;
       const high = Math.max(
-        prevPeriod.close,
-        period.close,
-        period.high > prevPeriod.high ? period.high : -Infinity,
+        +prevPeriod.close,
+        +period.close,
+        +period.high > +prevPeriod.high ? +period.high : -Infinity,
       );
       const low = Math.min(
-        prevPeriod.close,
-        period.close,
-        period.low < prevPeriod.low ? period.low : Infinity,
+        +prevPeriod.close,
+        +period.close,
+        +period.low < +prevPeriod.low ? +period.low : Infinity,
       );
       for (const accountId of this.accountInfoUnit.mapAccountIdToAccountInfo.keys()) {
         this.mapProductIdToRange.set(encodePath(accountId, product_id), {
           ask: {
-            first: first + spread,
-            high: high + spread,
-            low: low + spread,
-            last: first + spread,
+            first: first,
+            high: high,
+            low: low,
+            last: first,
           },
           bid: {
             first,
@@ -103,16 +103,16 @@ export class OrderMatchingUnit extends BasicUnit {
       for (const accountId of this.accountInfoUnit.mapAccountIdToAccountInfo.keys()) {
         this.mapProductIdToRange.set(encodePath(accountId, product_id), {
           ask: {
-            first: period.open + spread,
-            high: period.high + spread,
-            low: period.low + spread,
-            last: period.close + spread,
+            first: +period.open,
+            high: +period.high,
+            low: +period.low,
+            last: +period.close,
           },
           bid: {
-            first: period.open,
-            high: period.high,
-            low: period.low,
-            last: period.close,
+            first: +period.open,
+            high: +period.high,
+            low: +period.low,
+            last: +period.close,
           },
         });
       }

@@ -1,41 +1,23 @@
-import { IPeriod } from '@yuants/data-model';
+import { IOHLC } from '@yuants/data-ohlc';
 import { ISeriesCollectingTask } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
 import { encodePath, formatTime } from '@yuants/utils';
 import { defer, Subscription } from 'rxjs';
 import { Kernel } from '../kernel';
-import { mapDurationToPeriodInSec } from '../utils/mapDurationToPeriodInSec';
 import { BasicUnit } from './BasicUnit';
 import { PeriodDataUnit } from './PeriodDataUnit';
 import { ProductDataUnit } from './ProductDataUnit';
 
-const mapPeriodInSecToCronPattern: Record<string, string> = {
-  60: '* * * * *',
-  300: '*/5 * * * *',
-  900: '*/15 * * * *',
-  1800: '*/30 * * * *',
-  3600: '0 * * * *',
-  14400: '0 */4 * * *',
-  86400: '0 0 * * *',
+const mapDurationToCronPattern: Record<string, string> = {
+  PT1M: '* * * * *',
+  PT5M: '*/5 * * * *',
+  PT15M: '*/15 * * * *',
+  PT30M: '*/30 * * * *',
+  PT1H: '0 * * * *',
+  PT4H: '0 */4 * * *',
+  P1D: '0 0 * * *',
 };
-
-interface IPullSourceRelation {
-  datasource_id: string;
-  product_id: string;
-  period_in_sec: number;
-  /** CronJob 模式: 定义拉取数据的时机 */
-  cron_pattern: string;
-  /** CronJob 的评估时区 */
-  // 对于许多国际品种，使用 EET 时区配合工作日 Cron 比较好
-  // 对于国内的品种，使用 CST 时区比较好
-  // 例如 "0 * * * 1-5" (EET) 表示 EET 时区的工作日每小时的0分拉取数据。
-  cron_timezone: string;
-  /** 超时时间 (in ms) */
-  timeout: number;
-  /** 失败后重试的次数 (默认为 0 - 不重试) */
-  retry_times: number;
-}
 
 /**
  * 实时周期数据加载单元
@@ -51,7 +33,7 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
     super(kernel);
     this.kernel = kernel;
   }
-  private mapEventIdToPeriod = new Map<number, IPeriod[]>();
+  private mapEventIdToPeriod = new Map<number, IOHLC[]>();
 
   periodTasks: {
     datasource_id: string;
@@ -74,12 +56,10 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
 
   async onInit() {
     const tasks = this.periodTasks.map((task): ISeriesCollectingTask => {
-      const period_in_sec = mapDurationToPeriodInSec(task.duration);
-
       return {
         table_name: 'ohlc',
         series_id: encodePath(task.datasource_id, task.product_id, task.duration),
-        cron_pattern: mapPeriodInSecToCronPattern[period_in_sec],
+        cron_pattern: mapDurationToCronPattern[task.duration],
         cron_timezone: 'GMT',
         disabled: false,
         replay_count: 0,
@@ -99,7 +79,7 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
       const channelId = encodePath(datasource_id, product_id, duration);
       // ISSUE: Period[].length >= 2 to ensure overlay
       this.subscriptions.push(
-        defer(() => this.terminal.channel.subscribeChannel<IPeriod[]>('Periods', channelId)).subscribe(
+        defer(() => this.terminal.channel.subscribeChannel<IOHLC[]>('Periods', channelId)).subscribe(
           (periods) => {
             if (periods.length < 2) {
               console.warn(

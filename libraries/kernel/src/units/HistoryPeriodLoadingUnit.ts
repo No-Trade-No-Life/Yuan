@@ -1,11 +1,9 @@
-import { IPeriod } from '@yuants/data-model';
 import { IOHLC } from '@yuants/data-ohlc';
 import { Terminal } from '@yuants/protocol';
 import { escape, requestSQL } from '@yuants/sql';
 import { encodePath, formatTime } from '@yuants/utils';
 import { defer, lastValueFrom, map, retry, tap } from 'rxjs';
 import { Kernel } from '../kernel';
-import { mapDurationToPeriodInSec } from '../utils/mapDurationToPeriodInSec';
 import { BasicUnit } from './BasicUnit';
 import { PeriodDataUnit } from './PeriodDataUnit';
 import { ProductDataUnit } from './ProductDataUnit';
@@ -23,7 +21,7 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
   ) {
     super(kernel);
   }
-  private mapEventIdToPeriod = new Map<number, IPeriod>();
+  private mapEventIdToPeriod = new Map<number, IOHLC>();
 
   periodTasks: {
     datasource_id: string;
@@ -36,8 +34,7 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
   async onInit() {
     this.kernel.log?.(`${formatTime(Date.now())} 正在加载历史行情数据: 共 ${this.periodTasks.length} 个任务`);
     for (const task of this.periodTasks) {
-      const { datasource_id, product_id, duration } = task;
-      const period_in_sec = mapDurationToPeriodInSec(duration);
+      const { datasource_id, product_id } = task;
       this.kernel.log?.(
         `${formatTime(Date.now())} 正在加载 "${task.datasource_id}" / "${task.product_id}" / "${
           task.duration
@@ -72,16 +69,12 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
               // ISSUE: 将开盘时的K线也推入队列，产生一个模拟的事件，可以提早确认上一根K线的收盘
               const openEventId = this.kernel.alloc(new Date(period.created_at).getTime());
               this.mapEventIdToPeriod.set(openEventId, {
-                high: +period.open,
-                low: +period.open,
-                close: +period.open,
-                open: +period.open,
-                volume: +period.volume,
-                spread: 0,
-                datasource_id: period.datasource_id,
-                product_id: period.product_id,
-                period_in_sec: period_in_sec,
-                timestamp_in_us: new Date(period.created_at).getTime() * 1000,
+                ...period,
+                high: period.open,
+                low: period.open,
+                close: period.open,
+                open: period.open,
+                volume: '0',
               });
               // ISSUE: 一般来说，K线的收盘时间戳是开盘时间戳 + 周期，但是在历史数据中，K线的收盘时间戳可能会比开盘时间戳 + 周期要早
               const inferred_close_timestamp = Math.min(
@@ -90,17 +83,7 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
                 Date.now(),
               );
               const closeEventId = this.kernel.alloc(inferred_close_timestamp);
-              this.mapEventIdToPeriod.set(closeEventId, {
-                datasource_id: period.datasource_id,
-                product_id: period.product_id,
-                period_in_sec: period_in_sec,
-                timestamp_in_us: new Date(period.created_at).getTime() * 1000,
-                open: +period.open,
-                high: +period.high,
-                low: +period.low,
-                close: +period.close,
-                volume: +period.volume,
-              });
+              this.mapEventIdToPeriod.set(closeEventId, period);
             });
             return periods;
           }),
@@ -127,7 +110,7 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
   restore(state: any): void {
     this.periodTasks = this.periodTasks;
     this.mapEventIdToPeriod = new Map(
-      Object.entries(state.mapEventIdToPeriod).map(([k, v]: [string, any]): [number, IPeriod] => [
+      Object.entries(state.mapEventIdToPeriod).map(([k, v]: [string, any]): [number, IOHLC] => [
         Number(k),
         v,
       ]),

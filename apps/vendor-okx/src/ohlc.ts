@@ -1,7 +1,7 @@
-import { decodePath, formatTime } from '@yuants/utils';
 import { IOHLC } from '@yuants/data-ohlc';
 import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
+import { convertDurationToOffset, decodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, timer } from 'rxjs';
 import { client } from './api';
 
@@ -28,24 +28,6 @@ const DURATION_TO_OKX_BAR_TYPE: Record<string, string> = {
   P1M: '1M',
 };
 
-const DURATION_TO_PERIOD_IN_SEC: Record<string, number> = {
-  PT1M: 60,
-  PT3M: 180,
-  PT5M: 300,
-  PT15M: 900,
-  PT30M: 1800,
-
-  PT1H: 3600,
-  PT2H: 7200,
-  PT4H: 14400,
-  PT6H: 21600,
-  PT12H: 43200,
-
-  P1D: 86400,
-  P1W: 604800,
-  P1M: 2592000,
-};
-
 createSeriesProvider<IOHLC>(Terminal.fromNodeEnv(), {
   tableName: 'ohlc',
   series_id_prefix_parts: ['OKX'],
@@ -53,15 +35,15 @@ createSeriesProvider<IOHLC>(Terminal.fromNodeEnv(), {
   serviceOptions: { concurrent: 1 },
   queryFn: async function* ({ series_id, ended_at }) {
     const [datasource_id, product_id, duration] = decodePath(series_id);
-    const period_in_sec = DURATION_TO_PERIOD_IN_SEC[duration];
+    const offset = convertDurationToOffset(duration);
     if (!datasource_id) {
       throw 'datasource_id is required';
     }
     if (!product_id) {
       throw 'product_id is required';
     }
-    if (!period_in_sec) {
-      throw 'period_in_sec is required';
+    if (!offset) {
+      throw 'duration is invalid';
     }
     const [instType, instId] = decodePath(product_id);
     if (!instId) {
@@ -95,7 +77,7 @@ createSeriesProvider<IOHLC>(Terminal.fromNodeEnv(), {
           product_id,
           duration,
           created_at: formatTime(+x[0]),
-          closed_at: formatTime(+x[0] + period_in_sec * 1000),
+          closed_at: formatTime(+x[0] + offset),
           open: x[1],
           high: x[2],
           low: x[3],

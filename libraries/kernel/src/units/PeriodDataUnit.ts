@@ -1,4 +1,4 @@
-import { IPeriod } from '@yuants/data-model';
+import { IOHLC } from '@yuants/data-ohlc';
 import { Observable, Subject } from 'rxjs';
 import { Kernel } from '../kernel';
 import { BasicUnit } from './BasicUnit';
@@ -13,32 +13,30 @@ export class PeriodDataUnit extends BasicUnit {
     super(kernel);
   }
 
-  private _periodUpdated$ = new Subject<IPeriod>();
+  private _periodUpdated$ = new Subject<IOHLC>();
 
   /** 更新Period事件 */
-  periodUpdated$: Observable<IPeriod> = this._periodUpdated$.asObservable();
+  periodUpdated$: Observable<IOHLC> = this._periodUpdated$.asObservable();
 
-  data: Record<string, IPeriod[]> = {};
+  data: Record<string, IOHLC[]> = {};
 
-  updatePeriod(period: IPeriod) {
-    const key = [period.datasource_id, period.product_id, period.period_in_sec].join();
+  updatePeriod(period: IOHLC) {
+    const key = [period.datasource_id, period.product_id, period.duration].join();
     const list = (this.data[key] ??= []);
     const idx = list.length - 1;
 
     // ISSUE: skip if the period is older than the latest period
-    if (list[idx]?.timestamp_in_us > period.timestamp_in_us) return;
+    if (list[idx] && new Date(list[idx].created_at) > new Date(period.created_at)) return;
 
     // Overwrite Period or Append Period
-    const updateIdx = list[idx]?.timestamp_in_us === period.timestamp_in_us ? idx : idx + 1;
+    const updateIdx =
+      list[idx] && new Date(list[idx].created_at).getTime() === new Date(period.created_at).getTime()
+        ? idx
+        : idx + 1;
     // Update Period
     list[updateIdx] = period;
     // Copy to QuoteDataUnit
-    this.quoteDataUnit.updateQuote(
-      period.datasource_id,
-      period.product_id,
-      period.close + (period.spread || 0),
-      period.close,
-    );
+    this.quoteDataUnit.updateQuote(period.datasource_id, period.product_id, +period.close, +period.close);
     this._periodUpdated$.next(period);
   }
 

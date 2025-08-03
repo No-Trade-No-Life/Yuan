@@ -7,6 +7,7 @@
  * 定义了一些通用工具
  */
 export * from './async-iterator-interop';
+export * from './convertDurationToOffset';
 export * from './crypto';
 export * from './escapeRegExp';
 export * from './format-time';

@@ -1,23 +1,5 @@
-import { useAgent, useEffect, useMemo, useSeries } from '.';
+import { useAgent, useEffect, useSeries } from '.';
 
-const mapDurationToPeriodInSec = (duration: string) => {
-  const match = duration.match(
-    /^P(?:((?:(\d+)Y)?(?:(\d+)M)?(?:(\d+)D)?)(?:T((?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?))?|((\d+)W))$/,
-  );
-  const [durDate, year, month, day, durTime, hour, minute, second, durWeek, week] = match?.slice(1) ?? [];
-  if (durDate || durTime || durWeek) {
-    return (
-      (+year || 0) * 365 * 24 * 60 * 60 +
-      (+month || 0) * 30 * 24 * 60 * 60 +
-      (+day || 0) * 24 * 60 * 60 +
-      (+hour || 0) * 60 * 60 +
-      (+minute || 0) * 60 +
-      (+second || 0) +
-      (+week || 0) * 7 * 24 * 60 * 60
-    );
-  }
-  return NaN;
-};
 /**
  * 使用 OHLC(V) 数据
  * @param datasource_id - 数据源ID
@@ -28,8 +10,7 @@ const mapDurationToPeriodInSec = (duration: string) => {
  */
 export const useOHLC = (datasource_id: string, product_id: string, duration: string) => {
   const agent = useAgent();
-  const period_in_sec = useMemo(() => mapDurationToPeriodInSec(duration), [duration]);
-  const key = [datasource_id, product_id, period_in_sec].join(); // TODO: Memoize Key
+  const key = [datasource_id, product_id, duration].join(); // TODO: Memoize Key
 
   const time = useSeries(`T(${key})`, undefined, {
     type: 'period',
@@ -64,12 +45,12 @@ export const useOHLC = (datasource_id: string, product_id: string, duration: str
   useEffect(() => {
     const period = periods[idx];
     if (period) {
-      time[idx] = period.timestamp_in_us / 1000;
-      open[idx] = period.open;
-      high[idx] = period.high;
-      low[idx] = period.low;
-      close[idx] = period.close;
-      volume[idx] = period.volume;
+      time[idx] = new Date(period.created_at).getTime();
+      open[idx] = +period.open;
+      high[idx] = +period.high;
+      low[idx] = +period.low;
+      close[idx] = +period.close;
+      volume[idx] = +period.volume;
     }
   });
 
