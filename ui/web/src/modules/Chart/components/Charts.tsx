@@ -432,7 +432,7 @@ export const CandlestickSeries = React.memo(
     };
 
     if (props.children) {
-      return renderChildren(props.children);
+      return <>{renderChildren(props.children)}</>;
     }
     return null;
   },
