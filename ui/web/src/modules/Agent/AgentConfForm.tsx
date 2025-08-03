@@ -10,11 +10,13 @@ import {
 } from '@douyinfe/semi-icons';
 import { Divider, Layout, Space, Toast } from '@douyinfe/semi-ui';
 import { AgentScene, IAgentConf, agentConfSchema } from '@yuants/agent';
+import { BasicFileSystemUnit } from '@yuants/kernel';
 import Ajv from 'ajv';
 import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
 import { parse } from 'jsonc-parser';
 import { useObservableState } from 'observable-hooks';
+import path from 'path-browserify';
 import { useTranslation } from 'react-i18next';
 import {
   BehaviorSubject,
@@ -157,6 +159,17 @@ export const runAgent = async () => {
     } else {
       const agentCode = await bundleCode(agentConf.entry!);
       const scene = await AgentScene(terminal, { ...agentConf, bundled_code: agentCode });
+      const kernel = scene.kernel;
+      const fsUnit = new BasicFileSystemUnit(kernel);
+      fsUnit.readFile = async (filename: string) => {
+        await fs.ensureDir(path.dirname(filename));
+        const content = await fs.readFile(filename);
+        return content;
+      };
+      fsUnit.writeFile = async (filename: string, content: string) => {
+        await fs.ensureDir(path.dirname(filename));
+        await fs.writeFile(filename, content);
+      };
       const accountFrameUnit = new AccountFrameUnit(
         scene.kernel,
         scene.accountInfoUnit,

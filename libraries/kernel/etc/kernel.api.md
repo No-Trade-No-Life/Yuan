@@ -152,6 +152,29 @@ export class AccountSimulatorUnit extends BasicUnit {
 }
 
 // @public
+export class BasicFileSystemUnit extends BasicUnit {
+    constructor(kernel: Kernel);
+    // (undocumented)
+    dump(): {};
+    // (undocumented)
+    kernel: Kernel;
+    // (undocumented)
+    onDispose(): void | Promise<void>;
+    // (undocumented)
+    onEvent(): void | Promise<void>;
+    // (undocumented)
+    onIdle(): void | Promise<void>;
+    // (undocumented)
+    onInit(): void | Promise<void>;
+    // (undocumented)
+    readFile(filename: string): Promise<string | null>;
+    // (undocumented)
+    restore(state: any): void;
+    // (undocumented)
+    writeFile(filename: string, content: string): Promise<void>;
+}
+
+// @public
 export class BasicUnit implements IKernelUnit {
     constructor(kernel: Kernel);
     // (undocumented)
