@@ -2057,15 +2057,15 @@ importers:
       '@rushstack/heft-node-rig': ~2.6.46
       '@types/heft-jest': 1.0.3
       '@types/node': '22'
-      '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/tool-kit': workspace:*
+      '@yuants/utils': workspace:*
       redis: ~5.0.0
       rxjs: 7.5.6
       ts-node: ~10.9.2
       typescript: ~5.5.4
     dependencies:
-      '@yuants/data-model': link:../data-model
+      '@yuants/utils': link:../utils
       redis: 5.0.1
       rxjs: 7.5.6
     devDependencies:

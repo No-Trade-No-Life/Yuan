@@ -1,4 +1,4 @@
-import { formatTime } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 import { createClient } from 'redis';
 import {
   defer,
@@ -73,7 +73,7 @@ export const redis$ = createRedis(process.env.REDIS_URL!).pipe(shareReplay(1));
  * @param ctx.dispose$ - 用于清理资源的终止信号 Observable
  * @param ctx.streamMaxLength - Redis Stream 的最大长度
  */
-export const createRedisStreamWritter = <T>(ctx: {
+export const createRedisStreamWriter = <T>(ctx: {
   redisKey: string;
   data$: Observable<T>;
   dispose$: Observable<any>;

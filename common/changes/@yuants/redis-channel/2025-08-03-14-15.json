@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/redis-channel",
+      "comment": "fix release",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/redis-channel"
+}
