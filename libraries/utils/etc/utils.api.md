@@ -15,6 +15,9 @@ export const batchGroupBy: <T>(keyFunc: (obj: T) => string) => (source$: Observa
 }>;
 
 // @public
+export const convertDurationToOffset: (duration: string) => number;
+
+// @public
 export const createKeyPair: () => {
     public_key: string;
     private_key: string;

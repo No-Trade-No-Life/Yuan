@@ -1,5 +1,6 @@
-import { IPeriod } from '@yuants/data-model';
+import { IOHLC } from '@yuants/data-ohlc';
 import { IOrder } from '@yuants/data-order';
+import { convertDurationToOffset } from '@yuants/utils';
 import { format } from 'date-fns';
 import {
   ChartOptions,
@@ -320,7 +321,7 @@ export const Chart = React.memo((props: { children: ReactNode }) => {
 });
 
 export const CandlestickSeries = React.memo(
-  (props: { title?: string; data: IPeriod[]; children?: React.ReactElement }) => {
+  (props: { title?: string; data: IOHLC[]; children?: React.ReactElement }) => {
     const chartApi = useContext(ChartApiContext);
     const [seriesApi, setSeriesApi] = useState<ISeriesApi<'Candlestick'>>();
     const [volumeSeriesApi, setVolumeSeriesApi] = useState<ISeriesApi<'Histogram'>>();
@@ -340,8 +341,7 @@ export const CandlestickSeries = React.memo(
           borderUpColor: upColor,
           borderDownColor: downColor,
           ...{
-            yuan_title:
-              props.title || `${sample?.datasource_id} ${sample?.product_id} ${sample?.period_in_sec}`,
+            yuan_title: props.title || `${sample?.datasource_id} ${sample?.product_id} ${sample?.duration}`,
           },
         });
         setSeriesApi(series);
@@ -373,20 +373,20 @@ export const CandlestickSeries = React.memo(
     const candlestickData = useMemo(
       () =>
         props.data.map((period) => ({
-          time: (period.timestamp_in_us / 1e6) as UTCTimestamp,
-          open: period.open,
-          high: period.high,
-          low: period.low,
-          close: period.close,
+          time: (new Date(period.created_at).getTime() / 1e3) as UTCTimestamp,
+          open: +period.open,
+          high: +period.high,
+          low: +period.low,
+          close: +period.close,
         })),
       [props.data],
     );
     const volumeData = useMemo(
       () =>
         props.data.map((period) => ({
-          time: (period.timestamp_in_us / 1e6) as UTCTimestamp,
-          value: period.volume || 0,
-          color: period.close > period.open ? upColor : downColor,
+          time: (new Date(period.created_at).getTime() / 1e3) as UTCTimestamp,
+          value: +period.volume || 0,
+          color: +period.close > +period.open ? upColor : downColor,
         })),
       [props.data],
     );
@@ -541,7 +541,7 @@ export const ChartGroup = React.memo((props: { children: React.ReactNode }) => {
 });
 
 interface IOrderSeriesProps {
-  period_in_sec: number;
+  duration: string;
   orders: IOrder[];
   seriesApi?: ISeriesApi<any>;
 }
@@ -566,7 +566,8 @@ export const OrderSeries = React.memo((props: IOrderSeriesProps) => {
       }[order.order_direction!]!;
       const text = directionMapper[order.order_direction!];
       // Issue: TradingView Chart will place order annotation in the next bar, so we need to align the order's time to bar's start-time
-      const divider = (props.period_in_sec ?? 1) * 1e3;
+      const divider = convertDurationToOffset(props.duration);
+
       const alignedTimestamp = Math.floor(order.filled_at! / divider) * divider;
       return {
         time: (alignedTimestamp / 1e3) as UTCTimestamp,
@@ -576,7 +577,7 @@ export const OrderSeries = React.memo((props: IOrderSeriesProps) => {
         text: `${text} @ ${order.traded_price} (${order.traded_volume})`,
       };
     });
-  }, [props.period_in_sec, props.orders, directionMapper]);
+  }, [props.duration, props.orders, directionMapper]);
   useEffect(() => {
     if (props.seriesApi) {
       props.seriesApi.setMarkers(ordersMarkers);

@@ -170,7 +170,7 @@ registerPage('TechnicalChart', () => {
         <div style={{ width: '100%', minHeight: '50%', flex: 'auto' }}>
           <Chart>
             <CandlestickSeries data={selectedPeriodData}>
-              <OrderSeries period_in_sec={selectedPeriodData[0]?.period_in_sec ?? 1} orders={orders} />
+              <OrderSeries duration={selectedPeriodData[0]?.duration ?? 'PT1M'} orders={orders} />
             </CandlestickSeries>
             {displayConfigList[timeSeriesList[0]?.series_id]?.map((chartData) => (
               <LineSeries

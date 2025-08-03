@@ -1,6 +1,6 @@
-import { convertDurationToMilliseconds, IOHLC } from '@yuants/data-ohlc';
+import { IOHLC } from '@yuants/data-ohlc';
 import { createSeriesProvider } from '@yuants/data-series';
-import { decodePath, encodePath, formatTime } from '@yuants/utils';
+import { convertDurationToOffset, decodePath, encodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, timer } from 'rxjs';
 import { ex, EXCHANGE_ID } from './api';
 import { mapProductIdToSymbol } from './product';
@@ -31,7 +31,7 @@ createSeriesProvider<IOHLC>(terminal, {
   reversed: false,
   queryFn: async function* ({ series_id, started_at }) {
     const [datasource_id, product_id, duration] = decodePath(series_id);
-    const ms = convertDurationToMilliseconds(duration);
+    const ms = convertDurationToOffset(duration);
     const timeframe = mapMsToCCXTTimeframe(ms);
 
     const LIMIT = 100;

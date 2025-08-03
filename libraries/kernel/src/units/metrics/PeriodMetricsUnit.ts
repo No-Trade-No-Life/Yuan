@@ -23,7 +23,7 @@ export class PeriodMetricsUnit extends BasicUnit {
           kernel_id: this.kernel.id,
           datasource_id: periods[0].datasource_id,
           product_id: periods[0].product_id,
-          period_in_sec: periods[0].period_in_sec,
+          duration: periods[0].duration,
         });
       }
     }

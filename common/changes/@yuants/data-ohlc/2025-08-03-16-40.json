@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-ohlc",
+      "comment": "remove util convertDurationToMilliseconds",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/data-ohlc"
+}

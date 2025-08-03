@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-agent",
+      "comment": "remove period_in_sec",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-agent"
+}

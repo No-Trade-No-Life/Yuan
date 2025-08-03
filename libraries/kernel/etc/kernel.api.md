@@ -5,8 +5,8 @@
 ```ts
 
 import { IAccountInfo } from '@yuants/data-account';
+import { IOHLC } from '@yuants/data-ohlc';
 import { IOrder } from '@yuants/data-order';
-import { IPeriod } from '@yuants/data-model';
 import { IPosition } from '@yuants/data-account';
 import { IProduct } from '@yuants/data-product';
 import { ITick } from '@yuants/data-model';
@@ -254,7 +254,7 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
             end_time_in_us: number;
         }[];
         mapEventIdToPeriod: {
-            [k: string]: IPeriod;
+            [k: string]: IOHLC;
         };
     };
     // (undocumented)
@@ -487,7 +487,7 @@ export class OrderMatchingUnit extends BasicUnit {
             ask: IMatchingRange;
             bid: IMatchingRange;
         }>;
-        prevPeriodMap: Record<string, IPeriod>;
+        prevPeriodMap: Record<string, IOHLC>;
     };
     // (undocumented)
     getOrderById(id: string): IOrder | undefined;
@@ -520,7 +520,7 @@ export class OrderMatchingUnit extends BasicUnit {
 }
 
 // @public
-export const OrderMergeReplayScene: (kernel: Kernel, init_account_info: IAccountInfo, periods: IPeriod[], orders: IOrder[], products: IProduct[]) => {
+export const OrderMergeReplayScene: (kernel: Kernel, init_account_info: IAccountInfo, periods: IOHLC[], orders: IOrder[], products: IProduct[]) => {
     kernel: Kernel;
     accountInfoUnit: AccountSimulatorUnit;
     accountPerformanceUnit: AccountPerformanceUnit;
@@ -557,18 +557,18 @@ export class PeriodDataCheckingUnit extends BasicUnit {
 export class PeriodDataUnit extends BasicUnit {
     constructor(kernel: Kernel, quoteDataUnit: QuoteDataUnit);
     // (undocumented)
-    data: Record<string, IPeriod[]>;
+    data: Record<string, IOHLC[]>;
     // (undocumented)
     dump(): {};
     // (undocumented)
     kernel: Kernel;
-    periodUpdated$: Observable<IPeriod>;
+    periodUpdated$: Observable<IOHLC>;
     // (undocumented)
     quoteDataUnit: QuoteDataUnit;
     // (undocumented)
     restore(state: any): void;
     // (undocumented)
-    updatePeriod(period: IPeriod): void;
+    updatePeriod(period: IOHLC): void;
 }
 
 // @public (undocumented)

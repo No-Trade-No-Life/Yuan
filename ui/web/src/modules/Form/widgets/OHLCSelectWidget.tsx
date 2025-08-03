@@ -7,16 +7,6 @@ import { useObservableState } from 'observable-hooks';
 import { useMemo } from 'react';
 import { OHLCIdList$ } from '../../Workbench/model';
 
-const mapPeriodInSecToReadable: Record<string, string> = {
-  60: '1分钟',
-  300: '5分钟',
-  900: '15分钟',
-  1800: '30分钟',
-  3600: '1小时',
-  14400: '4小时',
-  86400: '1日',
-};
-
 const HighlightChars = (props: { str: string; indices: Set<number> }) => {
   const chars = props.str.split('');
 
@@ -40,9 +30,9 @@ export function OHLCSelectWidget<
 
   const options = useMemo(() => {
     return OHLCIdList.map((v) => {
-      const [datasource_id, product_id, period_in_sec] = decodePath(v);
+      const [datasource_id, product_id, duration] = decodePath(v);
       return {
-        label: `${datasource_id} / ${product_id} / ${mapPeriodInSecToReadable[period_in_sec]}`,
+        label: `${datasource_id} / ${product_id} / ${duration}`,
         value: v,
       };
     });

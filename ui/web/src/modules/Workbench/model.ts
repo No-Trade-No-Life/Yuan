@@ -79,16 +79,6 @@ export const OHLCIdList$ = new BehaviorSubject<string[]>([]);
 
 const PUBLIC_DATA_URL = 'https://y.ntnl.io/Yuan-Public-Data';
 
-const mapDurationLiteralToPeriodInSec: Record<string, number> = {
-  PT1M: 60,
-  PT5M: 300,
-  PT15M: 900,
-  PT30M: 1800,
-  PT1H: 3600,
-  PT4H: 14400,
-  P1D: 86400,
-};
-
 // for No-Host Mode
 currentHostConfig$
   .pipe(
@@ -103,7 +93,7 @@ currentHostConfig$
         mergeMap((x: string) => x.split('\n')),
         map((x) => {
           const [, product_id, duration_literal] = x.split('/');
-          return encodePath('Y', product_id, mapDurationLiteralToPeriodInSec[duration_literal]);
+          return encodePath('Y', product_id, duration_literal);
         }),
         distinct(),
         toArray(),

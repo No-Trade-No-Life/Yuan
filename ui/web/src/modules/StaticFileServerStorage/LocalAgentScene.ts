@@ -3,7 +3,6 @@ import {
   AccountDatasourceRelationUnit,
   AccountInfoUnit,
   AccountPerformanceHubUnit,
-  BasicUnit,
   DataLoadingTaskUnit,
   HistoryOrderUnit,
   Kernel,
@@ -15,7 +14,6 @@ import {
   TerminateUnit,
   TickDataUnit,
 } from '@yuants/kernel';
-import { StaticFileServerPeriodLoadingUnit } from './StaticFileServerPeriodLoadingUnit';
 
 /**
  * For back-test only
@@ -40,13 +38,13 @@ export const LocalAgentScene = async (agentConf: IAgentConf) => {
   const periodDataUnit = new PeriodDataUnit(kernel, quoteDataUnit);
   const seriesDataUnit = new SeriesDataUnit(kernel);
   const dataLoadingTaskUnit = new DataLoadingTaskUnit(kernel);
-  new BasicUnit(kernel).onInit = () => {
-    for (const periodTask of dataLoadingTaskUnit.periodTasks) {
-      // FIXME: `period_in_sec` property is deprecated
-      periodLoadingUnit.periodTasks.push({ ...periodTask, period_in_sec: 0 });
-    }
-  };
-  const periodLoadingUnit = new StaticFileServerPeriodLoadingUnit(kernel, productDataUnit, periodDataUnit);
+  // new BasicUnit(kernel).onInit = () => {
+  //   for (const periodTask of dataLoadingTaskUnit.periodTasks) {
+  //     // FIXME: `period_in_sec` property is deprecated
+  //     periodLoadingUnit.periodTasks.push({ ...periodTask, period_in_sec: 0 });
+  //   }
+  // };
+  // const periodLoadingUnit = new StaticFileServerPeriodLoadingUnit(kernel, productDataUnit, periodDataUnit);
   const historyOrderUnit = new HistoryOrderUnit(kernel, quoteDataUnit, productDataUnit);
   const accountInfoUnit = new AccountInfoUnit(kernel, productDataUnit, quoteDataUnit, historyOrderUnit);
   const orderMatchingUnit = new OrderMatchingUnit(

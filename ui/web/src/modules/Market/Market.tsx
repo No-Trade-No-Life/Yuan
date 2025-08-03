@@ -1,7 +1,6 @@
 import { IconDownload, IconRefresh } from '@douyinfe/semi-icons';
 import { ButtonGroup, Layout, Space, Toast, Typography } from '@douyinfe/semi-ui';
-import { encodePath, formatTime } from '@yuants/utils';
-import { convertDurationToMilliseconds } from '@yuants/data-ohlc';
+import { convertDurationToOffset, encodePath, formatTime } from '@yuants/utils';
 import '@yuants/data-series';
 import {
   HistoryPeriodLoadingUnit,
@@ -77,7 +76,7 @@ registerPage('Market', () => {
   const [duration, setDuration] = useState(initialConfig.duration);
 
   // const duration = useObservableState(duration$);
-  const period_in_sec = useMemo(() => convertDurationToMilliseconds(duration || '') / 1000, [duration]);
+  const ms = useMemo(() => convertDurationToOffset(duration || ''), [duration]);
   const TAKE_PERIODS = 10000; // 2x TradingView
 
   const scene = useMemo(() => {
@@ -101,7 +100,7 @@ registerPage('Market', () => {
         datasource_id,
         product_id,
         duration,
-        start_time_in_us: (Date.now() - TAKE_PERIODS * period_in_sec * 1000) * 1000,
+        start_time_in_us: (Date.now() - TAKE_PERIODS * ms) * 1000,
         end_time_in_us: Date.now() * 1000,
       });
       const realtimePeriodLoadingUnit = new RealtimePeriodLoadingUnit(
@@ -146,7 +145,7 @@ registerPage('Market', () => {
   const timestamp = useObservableState(timestamp$);
   const [cnt, setCnt] = useState(0);
 
-  const periodKey = [datasource_id, product_id, period_in_sec].join();
+  const periodKey = [datasource_id, product_id, duration].join();
   const periods = scene?.periodDataUnit.data[periodKey] ?? [];
 
   return (
