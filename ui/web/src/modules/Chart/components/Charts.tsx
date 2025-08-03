@@ -17,11 +17,12 @@ import {
 import React, { ReactNode, createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BehaviorSubject } from 'rxjs';
+import { useIsDarkMode } from '../../Workbench';
 
 const upColor = 'rgba(255,82,82, 0.8)';
 const downColor = 'rgba(0, 150, 136, 0.8)';
 
-const chartDefaultOptions: DeepPartial<ChartOptions> = {
+const darkmodeColorOptions: DeepPartial<ChartOptions> = {
   layout: {
     backgroundColor: '#000000',
     textColor: 'rgba(255, 255, 255, 0.9)',
@@ -34,8 +35,26 @@ const chartDefaultOptions: DeepPartial<ChartOptions> = {
       color: 'rgba(197, 203, 206, 0.5)',
     },
   },
-  crosshair: {
-    mode: CrosshairMode.Normal,
+  rightPriceScale: {
+    borderColor: 'rgba(197, 203, 206, 0.8)',
+  },
+  timeScale: {
+    borderColor: 'rgba(197, 203, 206, 0.8)',
+  },
+};
+
+const lightmodeColorOptions: DeepPartial<ChartOptions> = {
+  layout: {
+    backgroundColor: '#FFFFFF',
+    textColor: 'rgba(0, 0, 0, 0.9)',
+  },
+  grid: {
+    vertLines: {
+      color: 'rgba(197, 203, 206, 0.5)',
+    },
+    horzLines: {
+      color: 'rgba(197, 203, 206, 0.5)',
+    },
   },
   rightPriceScale: {
     borderColor: 'rgba(197, 203, 206, 0.8)',
@@ -43,6 +62,13 @@ const chartDefaultOptions: DeepPartial<ChartOptions> = {
   timeScale: {
     borderColor: 'rgba(197, 203, 206, 0.8)',
   },
+};
+
+const chartDefaultOptions: DeepPartial<ChartOptions> = {
+  crosshair: {
+    mode: CrosshairMode.Normal,
+  },
+
   localization: {
     timeFormatter: (time: UTCTimestamp) => format(time * 1000, 'yyyy-MM-dd HH:mm:ss eee'),
   },
@@ -148,6 +174,18 @@ export const Chart = React.memo((props: { children: ReactNode }) => {
     }
   }, []);
 
+  const isDarkmode = useIsDarkMode();
+
+  useEffect(() => {
+    if (chartApi) {
+      if (isDarkmode) {
+        chartApi.applyOptions(darkmodeColorOptions);
+      } else {
+        chartApi.applyOptions(lightmodeColorOptions);
+      }
+    }
+  }, [chartApi, isDarkmode]);
+
   // auto resize chart
   useEffect(() => {
     const el = chartContainerRef.current;
@@ -175,7 +213,7 @@ export const Chart = React.memo((props: { children: ReactNode }) => {
         // TODO: Emit Event with index
         const serieses = model._private__serieses;
         serieses.forEach((series: any) => {
-          const { yuan_title: title, color } = series._private__options;
+          const { yuan_title: title, color = 'inherit' } = series._private__options;
           const p = series._internal_dataAt(index);
           // console.info('##', p, index, series);
           if (p === undefined || p === null || Number.isNaN(p)) {
@@ -271,7 +309,7 @@ export const Chart = React.memo((props: { children: ReactNode }) => {
       <div style={{ position: 'relative' }}>
         <div
           ref={legendRef}
-          style={{ position: 'absolute', top: 0, left: 0, zIndex: 2, color: 'white' }}
+          style={{ position: 'absolute', top: 0, left: 0, zIndex: 2, color: isDarkmode ? 'white' : 'black' }}
         ></div>
       </div>
       <div style={{ width: '100%', height: '100%' }} ref={chartContainerRef} />
@@ -312,7 +350,7 @@ export const CandlestickSeries = React.memo(
           priceFormat: {
             type: 'volume',
           },
-          color: 'white',
+          color: '',
           priceScaleId: 'volume',
           ...{ yuan_title: 'VOL' },
         });

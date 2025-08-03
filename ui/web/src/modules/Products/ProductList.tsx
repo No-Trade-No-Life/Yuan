@@ -54,8 +54,11 @@ registerPage('ProductList', () => {
         { header: '基准货币', accessorKey: 'base_currency' },
         {
           header: '价值尺度',
-          accessorKey: 'value_scale_unit',
           enableColumnFilter: false,
+          cell: (ctx) => {
+            const item = ctx.row.original;
+            return item.value_scale + (item.value_scale_unit || 'x');
+          },
         },
         { header: '成交量粒度', accessorKey: 'volume_step', enableColumnFilter: false },
         { header: '报价粒度', accessorKey: 'price_step', enableColumnFilter: false },
