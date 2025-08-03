@@ -1,5 +1,5 @@
 import { IAgentConf, agentConfSchema } from '@yuants/agent';
-import { IAccountInfo } from '@yuants/data-model';
+import { IAccountInfo } from '@yuants/data-account';
 import { IPositionDiff, diffPosition } from '@yuants/kernel';
 import { PromRegistry, Terminal } from '@yuants/protocol';
 import { UUID, formatTime } from '@yuants/utils';

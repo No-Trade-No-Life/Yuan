@@ -1,6 +1,6 @@
 import * as rollup from '@rollup/browser';
 import { AgentScene, IAgentConf } from '@yuants/agent';
-import { IAccountInfo } from '@yuants/data-model';
+import { IAccountInfo } from '@yuants/data-account';
 import { IDeploySpec } from '@yuants/extension';
 import { BasicUnit, IAccountPerformance } from '@yuants/kernel';
 import { UUID } from '@yuants/utils';

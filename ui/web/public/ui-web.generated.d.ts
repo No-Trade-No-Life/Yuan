@@ -26,6 +26,7 @@ declare module '@yuants/ui-web' {
     UiSchema,
   } from '@rjsf/utils';
   import { ButtonProps } from '@douyinfe/semi-ui/lib/es/button';
+  import { UniqueIdentifier } from '@dnd-kit/core';
   import { ToastReactProps } from '@douyinfe/semi-ui/lib/es/toast';
   import * as _supabase_supabase_js from '@supabase/supabase-js';
   import { User } from '@supabase/supabase-js';
@@ -399,6 +400,12 @@ declare module '@yuants/ui-web' {
   }
   function PivotTable<T>(props: IPivotTableProps<T>): react_jsx_runtime.JSX.Element;
 
+  const SortableList: (props: {
+    items: UniqueIdentifier[];
+    render: (item: UniqueIdentifier) => React.ReactNode;
+    onSort: (items: UniqueIdentifier[]) => void;
+  }) => react_jsx_runtime.JSX.Element;
+
   function TableView<T>(props: { table: Table<T> }): react_jsx_runtime.JSX.Element;
 
   type ToastProps = string | Omit<ToastReactProps, 'type'>;
@@ -418,6 +425,7 @@ declare module '@yuants/ui-web' {
   type index_d$e_IPivotTableProps<T> = IPivotTableProps<T>;
   const index_d$e_ListView: typeof ListView;
   const index_d$e_PivotTable: typeof PivotTable;
+  const index_d$e_SortableList: typeof SortableList;
   const index_d$e_TableView: typeof TableView;
   const index_d$e_Toast: typeof Toast;
   type index_d$e_ToastProps = ToastProps;
@@ -428,6 +436,7 @@ declare module '@yuants/ui-web' {
       type index_d$e_IPivotTableProps as IPivotTableProps,
       index_d$e_ListView as ListView,
       index_d$e_PivotTable as PivotTable,
+      index_d$e_SortableList as SortableList,
       index_d$e_TableView as TableView,
       index_d$e_Toast as Toast,
       type index_d$e_ToastProps as ToastProps,

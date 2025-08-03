@@ -1,4 +1,5 @@
-import { IAccountInfo, IOrder, IPosition } from '@yuants/data-model';
+import { IAccountInfo, IPosition } from '@yuants/data-account';
+import { IOrder } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
 
 /**

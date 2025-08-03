@@ -1,4 +1,5 @@
-import { IOrder, IPeriod, ITick } from '@yuants/data-model';
+import { IPeriod, ITick } from '@yuants/data-model';
+import { IOrder } from '@yuants/data-order';
 import { encodePath, roundToStep } from '@yuants/utils';
 import { Subject, Subscription } from 'rxjs';
 import { Kernel } from '../kernel';

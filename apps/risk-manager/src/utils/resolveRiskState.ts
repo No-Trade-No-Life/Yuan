@@ -1,4 +1,4 @@
-import { IAccountInfo } from '@yuants/data-model';
+import { IAccountInfo } from '@yuants/data-account';
 import { IAccountRiskInfo } from '../models';
 import { IRiskState } from '../models/RiskState';
 

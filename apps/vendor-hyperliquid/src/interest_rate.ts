@@ -1,9 +1,9 @@
 import { IInterestRate } from '@yuants/data-interest-rate';
-import { decodePath, encodePath, formatTime } from '@yuants/data-model';
 import { IProduct } from '@yuants/data-product';
 import { createSeriesProvider, ISeriesCollectingTask } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
+import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, map, mergeAll, ObservableInput, timer } from 'rxjs';
 import { client } from './api';
 import { perpetualProduct$ } from './product';

@@ -1,5 +1,5 @@
 import { Button, Space, Toast } from '@douyinfe/semi-ui';
-import { IOrder } from '@yuants/data-model';
+import { IOrder } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
 import { escape, requestSQL } from '@yuants/sql';
 import { useObservable, useObservableState } from 'observable-hooks';

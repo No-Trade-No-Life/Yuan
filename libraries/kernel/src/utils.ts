@@ -1,4 +1,4 @@
-import { IPosition } from '@yuants/data-model';
+import { IPosition } from '@yuants/data-account';
 import { IProduct } from '@yuants/data-product';
 
 /**

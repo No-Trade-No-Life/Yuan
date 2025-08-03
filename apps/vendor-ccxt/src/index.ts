@@ -1,6 +1,5 @@
-import { IAccountInfo, IAccountMoney, publishAccountInfo } from '@yuants/data-account';
+import { IAccountInfo, IAccountMoney, IPosition, publishAccountInfo } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
-import { IPosition } from '@yuants/data-model';
 import { formatTime } from '@yuants/utils';
 import { FundingRate } from 'ccxt/js/src/base/types';
 import {

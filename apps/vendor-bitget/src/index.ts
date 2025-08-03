@@ -1,5 +1,10 @@
-import { addAccountMarket, IAccountInfo, IAccountMoney, publishAccountInfo } from '@yuants/data-account';
-import { IPosition } from '@yuants/data-model';
+import {
+  addAccountMarket,
+  IAccountInfo,
+  IAccountMoney,
+  IPosition,
+  publishAccountInfo,
+} from '@yuants/data-account';
 import { Terminal } from '@yuants/protocol';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
