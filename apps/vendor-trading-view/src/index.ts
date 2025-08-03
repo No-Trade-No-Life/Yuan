@@ -1,4 +1,4 @@
-import { UUID, decodePath, formatTime } from '@yuants/utils';
+import { UUID, convertDurationToOffset, decodePath, formatTime } from '@yuants/utils';
 import { IOHLC } from '@yuants/data-ohlc';
 import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
@@ -10,25 +10,6 @@ const terminal = new Terminal(process.env.HOST_URL!, {
   terminal_id: process.env.TERMINAL_ID || `TradingView/${UUID()}`,
   name: '@yuants/vendor-trading-view',
 });
-
-const DURATION_TO_PERIOD_IN_SEC: Record<string, number> = {
-  PT1M: 60,
-  PT3M: 180,
-  PT5M: 300,
-  PT15M: 900,
-  PT30M: 1800,
-  PT45M: 2700,
-  PT1H: 3600,
-  PT2H: 7200,
-  PT3H: 10800,
-  PT4H: 14400,
-  P1D: 86400,
-  P1W: 7 * 86400,
-  P1M: 30 * 86400,
-  P3M: 3 * 30 * 86400,
-  P6M: 6 * 30 * 86400,
-  P1Y: 12 * 30 * 86400,
-};
 
 const DURATION_TO_TRADINGVIEW_PERIOD: Record<string, string> = {
   PT1M: '1',
@@ -56,13 +37,13 @@ createSeriesProvider(terminal, {
   serviceOptions: { concurrent: +(process.env.CONCURRENCY || 2) },
   queryFn: async ({ series_id, started_at, ended_at }) => {
     const [datasource_id, product_id, duration] = decodePath(series_id);
-    const period_in_sec = DURATION_TO_PERIOD_IN_SEC[duration];
-    if (!period_in_sec) throw new Error(`Unsupported duration: ${duration}`);
+    const offset = convertDurationToOffset(duration);
+    if (!offset) throw new Error(`Unsupported duration: ${duration}`);
 
     const timeframe = DURATION_TO_TRADINGVIEW_PERIOD[duration];
     if (!timeframe) throw new Error(`Unsupported timeframe: ${duration}`);
 
-    const range = Math.ceil((ended_at - started_at) / 1000 / period_in_sec);
+    const range = Math.ceil((ended_at - started_at) / offset);
     if (range <= 0) {
       throw `range=${range} is invalid`;
     }
@@ -95,7 +76,7 @@ createSeriesProvider(terminal, {
                 datasource_id,
                 product_id,
                 duration,
-                closed_at: formatTime((v.time + period_in_sec) * 1000),
+                closed_at: formatTime(v.time * 1000 + offset),
                 open: `${v.open}`,
                 high: `${v.max}`,
                 low: `${v.min}`,

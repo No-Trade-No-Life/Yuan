@@ -15,6 +15,7 @@ import {
   Chart,
   ChartGroup,
   HistogramSeries,
+  IndexSeries,
   LineSeries,
   OrderSeries,
 } from './components/Charts';
@@ -171,13 +172,20 @@ registerPage('TechnicalChart', () => {
           <Chart>
             <CandlestickSeries data={selectedPeriodData}>
               <OrderSeries duration={selectedPeriodData[0]?.duration ?? 'PT1M'} orders={orders} />
+              {displayConfigList[timeSeriesList[0]?.series_id]?.map((chartData) =>
+                chartData.type === 'index' ? (
+                  <IndexSeries
+                    options={{ title: chartData.title, color: chartData.color }}
+                    data={chartData.data}
+                  />
+                ) : (
+                  <LineSeries
+                    options={{ title: chartData.title, color: chartData.color }}
+                    data={chartData.data}
+                  />
+                ),
+              )}
             </CandlestickSeries>
-            {displayConfigList[timeSeriesList[0]?.series_id]?.map((chartData) => (
-              <LineSeries
-                options={{ title: chartData.title, color: chartData.color }}
-                data={chartData.data}
-              />
-            ))}
           </Chart>
         </div>
         {hasAuxChart && (
@@ -190,6 +198,11 @@ registerPage('TechnicalChart', () => {
                     {chartDataList.map((chartData) =>
                       chartData.type === 'hist' ? (
                         <HistogramSeries
+                          options={{ title: chartData.title, color: chartData.color }}
+                          data={chartData.data}
+                        />
+                      ) : chartData.type === 'index' ? (
+                        <IndexSeries
                           options={{ title: chartData.title, color: chartData.color }}
                           data={chartData.data}
                         />
