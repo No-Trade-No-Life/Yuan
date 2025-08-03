@@ -772,6 +772,40 @@ export class HuobiClient {
       instStatus: string;
     }[];
   }> => this.request('GET', '/v2/reference/currencies', this.spot_api_root, params);
+
+  /**
+   * APIv2币链参考信息
+   *
+   * https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec41049-7773-11ed-9966-0242ac110003
+   */
+  getAccountHistory = (params: {
+    'account-id': string;
+    currency?: string;
+    'transact-types'?: number;
+    'start-time'?: number;
+    'end-time'?: number;
+    sort?: 'asc' | 'desc';
+    size?: number;
+    'from-id'?: number;
+  }): Promise<{
+    // code: number;
+    'transact-amt': string;
+    'avail-balance': string;
+    'acct-balance': string;
+    'transact-time': string;
+    'record-id': string;
+    status: string;
+    data: {
+      'account-id': string;
+      currency: string;
+      'record-id': string;
+      'transact-amt': string;
+      'transact-type': string;
+      'avail-balance': string;
+      'acct-balance': string;
+      'transact-time': string;
+    }[];
+  }> => this.request('GET', '/v1/account/history', this.spot_api_root, params);
 }
 
 export const client = new HuobiClient({

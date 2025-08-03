@@ -861,6 +861,43 @@ export class BitgetClient {
       endId: string;
     };
   }> => this.request('GET', '/api/v2/user/virtual-subaccount-list', params);
+
+  /**
+   * 获取财务记录
+   *
+   * 限速规则 20次/1s (UID)
+   *
+   * 获取财务记录
+   *
+   * https://www.bitget.com/zh-CN/api-doc/uta/account/Get-Financial-Records
+   */
+  getAccountFinancialRecord = (params?: {
+    category: string;
+    coin?: string;
+    type?: string;
+    startTime?: string;
+    endTime?: string;
+    limit?: string;
+    cursor?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    requestTime: number;
+    data: {
+      list: {
+        category: string;
+        id: string;
+        symbol: string;
+        coin: string;
+        type: string;
+        amount: string;
+        fee: string;
+        balance: string;
+        ts: string;
+      }[];
+      cursor: string;
+    };
+  }> => this.request('GET', '/api/v3/account/financial-records', params);
 }
 
 export const client = new BitgetClient({
