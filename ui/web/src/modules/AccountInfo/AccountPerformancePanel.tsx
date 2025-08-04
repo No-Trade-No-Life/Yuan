@@ -1,11 +1,13 @@
 import { IconInfoCircle } from '@douyinfe/semi-icons';
 import { Button, Descriptions, Space, Tooltip } from '@douyinfe/semi-ui';
 import { AccountPerformanceUnit, IAccountPerformance } from '@yuants/kernel';
-import { useObservableState } from 'observable-hooks';
+import { useObservable, useObservableState } from 'observable-hooks';
 import { useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
+import { debounceTime } from 'rxjs';
 import { WeeklyEquityChart } from '../Chart/WeeklyEquityChart';
 import { executeCommand } from '../CommandCenter';
+import { orders$ } from '../Order/model';
 import { registerPage } from '../Pages';
 import { AccountSelector } from './AccountSelector';
 import { accountPerformance$ } from './model';
@@ -13,12 +15,31 @@ import { accountPerformance$ } from './model';
 registerPage('AccountPerformancePanel', () => {
   const [t] = useTranslation('AccountPerformancePanel');
 
-  const mapAccountIdToPerformance = useObservableState(accountPerformance$);
+  const mapAccountIdToPerformance = useObservableState(
+    useObservable(() => accountPerformance$.pipe(debounceTime(100))),
+    {},
+  );
+
+  const orders = useObservableState(
+    useObservable(() => orders$.pipe(debounceTime(100))),
+    [],
+  );
+
   const accountIdOptions = useMemo(() => Object.keys(mapAccountIdToPerformance), [mapAccountIdToPerformance]);
   const [accountId, setAccountId] = useState(accountIdOptions[0] || '');
 
   const performance: IAccountPerformance | undefined =
     mapAccountIdToPerformance[accountId] || AccountPerformanceUnit.makeInitAccountPerformance(accountId);
+
+  const accountOrders = useMemo(() => {
+    return orders.filter((order) => order.account_id === accountId);
+  }, [orders, accountId]);
+
+  const totalTurnover = useMemo(
+    () =>
+      accountOrders.reduce((acc, order) => acc + (order.traded_price || 0) * (order.traded_volume || 0), 0),
+    [accountOrders],
+  );
 
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
@@ -306,6 +327,19 @@ registerPage('AccountPerformancePanel', () => {
             key: t('average_position_interval'),
             value: t('average_position_interval_value', {
               value: (performance.total_days / performance.total_positions).toFixed(1),
+            }),
+          },
+          {
+            key: t('total_turnover'),
+            value: totalTurnover.toLocaleString(undefined, {
+              maximumFractionDigits: 2,
+            }),
+          },
+          {
+            key: t('model_efficiency_ratio'),
+            value: (performance.equity / totalTurnover).toLocaleString(undefined, {
+              style: 'percent',
+              maximumSignificantDigits: 2,
             }),
           },
         ]}
