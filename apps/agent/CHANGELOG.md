@@ -1,6 +1,14 @@
 # Change Log - @yuants/app-agent
 
-This log was last generated on Fri, 01 Aug 2025 13:20:25 GMT and should not be manually modified.
+This log was last generated on Tue, 05 Aug 2025 16:36:43 GMT and should not be manually modified.
+
+## 0.4.117
+Tue, 05 Aug 2025 16:36:43 GMT
+
+### Patches
+
+- refactor
+- remove period_in_sec
 
 ## 0.4.116
 Fri, 01 Aug 2025 13:20:25 GMT

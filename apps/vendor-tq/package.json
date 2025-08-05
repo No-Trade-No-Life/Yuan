@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-tq",
-  "version": "0.1.15",
+  "version": "0.2.0",
   "files": [
     "dist/extension.bundle.js"
   ],

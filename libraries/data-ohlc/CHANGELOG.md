@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-ohlc
 
-This log was last generated on Fri, 01 Aug 2025 13:20:25 GMT and should not be manually modified.
+This log was last generated on Tue, 05 Aug 2025 16:36:43 GMT and should not be manually modified.
+
+## 0.3.11
+Tue, 05 Aug 2025 16:36:43 GMT
+
+### Patches
+
+- remove util convertDurationToMilliseconds
 
 ## 0.3.10
 Fri, 01 Aug 2025 13:20:25 GMT

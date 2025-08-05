@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Bump Version",
+      "type": "none",
+      "packageName": "@yuants/redis-channel"
+    }
+  ],
+  "packageName": "@yuants/redis-channel",
+  "email": "41898282+github-actions[bot]@users.noreply.github.com"
+}

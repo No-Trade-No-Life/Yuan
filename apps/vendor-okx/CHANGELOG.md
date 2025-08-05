@@ -1,6 +1,15 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Fri, 01 Aug 2025 13:20:25 GMT and should not be manually modified.
+This log was last generated on Tue, 05 Aug 2025 16:36:43 GMT and should not be manually modified.
+
+## 0.16.1
+Tue, 05 Aug 2025 16:36:43 GMT
+
+### Patches
+
+- use util convertDurationToOffset
+- add account bill
+- add order write into db
 
 ## 0.16.0
 Fri, 01 Aug 2025 13:20:25 GMT
