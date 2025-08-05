@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-order",
+      "comment": "add timestamp to index for order",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/data-order"
+}

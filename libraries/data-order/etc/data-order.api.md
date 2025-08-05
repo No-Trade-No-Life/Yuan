@@ -8,6 +8,7 @@
 export interface IOrder {
     account_id: string;
     comment?: string;
+    created_at?: string;
     filled_at?: number;
     inferred_base_currency_price?: number;
     order_direction?: string;
@@ -26,6 +27,7 @@ export interface IOrder {
     take_profit_price?: number;
     traded_price?: number;
     traded_volume?: number;
+    updated_at?: string;
     volume: number;
 }
 

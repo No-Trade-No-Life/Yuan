@@ -106,7 +106,7 @@ AddMigration({
         interest_rate_short TEXT,
         interest_rate_prev_settled_at TIMESTAMPTZ,
         interest_rate_next_settled_at TIMESTAMPTZ,
-        
+
         PRIMARY KEY (datasource_id, product_id)
     );
 

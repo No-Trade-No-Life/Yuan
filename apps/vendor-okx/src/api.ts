@@ -1100,6 +1100,86 @@ export class OkxClient {
   }> => this.request('GET', '/api/v5/trade/orders-pending', params);
 
   /**
+   * 获取历史订单记录（近七天）
+   *
+   * 获取最近7天挂单，且完成的订单数据，包括7天以前挂单，但近7天才成交的订单数据。按照订单创建时间倒序排序。
+   *
+   * 已经撤销的未成交单 只保留2小时
+   * 限速：40次/2s
+   * 限速规则：User ID
+   */
+  getTradeOrdersHistory = (params: {
+    instType: string;
+    uly?: string;
+    instFamily?: string;
+    instId?: string;
+    ordType?: string;
+    state?: string;
+    category?: string;
+    after?: string;
+    before?: string;
+    begin?: string;
+    end?: string;
+    limit?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    data: Array<{
+      instType: string;
+      instId: string;
+      tgtCcy: string;
+      ccy: string;
+      ordId: string;
+      clOrdId: string;
+      tag: string;
+      px: string;
+      pxUsd: string;
+      pxVol: string;
+      pxType: string;
+      sz: string;
+      ordType: string;
+      side: string;
+      posSide: string;
+      tdMode: string;
+      accFillSz: string;
+      fillPx: string;
+      tradeId: string;
+      fillSz: string;
+      fillTime: string;
+      avgPx: string;
+      state: string;
+      lever: string;
+      attachAlgoClOrdId: string;
+      tpTriggerPx: string;
+      tpTriggerPxType: string;
+      tpOrdPx: string;
+      slTriggerPx: string;
+      slTriggerPxType: string;
+      slOrdPx: string;
+      attachAlgoOrds: any[];
+      linkedAlgoOrd: any[];
+      stpId: string;
+      stpMode: string;
+      feeCcy: string;
+      fee: string;
+      rebateCcy: string;
+      source: string;
+      rebate: string;
+      pnl: string;
+      category: string;
+      reduceOnly: string;
+      cancelSource: string;
+      cancelSourceReason: string;
+      algoClOrdId: string;
+      algoId: string;
+      isTpLimit: string;
+      uTime: string;
+      cTime: string;
+      tradeQuoteCcy: string;
+    }>;
+  }> => this.request('GET', '/api/v5/trade/orders-history', params);
+
+  /**
    * 撤单
    *
    * 撤销之前下的未完成订单。
@@ -1429,3 +1509,7 @@ export const client = new OkxClient({
     passphrase: process.env.PASSPHRASE!,
   },
 });
+
+(async () => {
+  console.info(await client.getTradeOrdersHistory({ instType: 'SWAP' }));
+})();

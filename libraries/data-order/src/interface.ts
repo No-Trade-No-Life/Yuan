@@ -65,6 +65,16 @@ export interface IOrder {
    */
   filled_at?: number;
   /**
+   * Last updated timestamp.
+   * 最后更新时间戳，使用 RFC-3339 格式，包含时区信息
+   */
+  updated_at?: string;
+  /**
+   * Order created timestamp.
+   * 订单创建时间戳，使用 RFC-3339 格式，包含时区信息
+   */
+  created_at?: string;
+  /**
    * Order price.
    * 委托价
    */
