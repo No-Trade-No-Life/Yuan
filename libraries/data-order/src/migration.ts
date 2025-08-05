@@ -13,10 +13,10 @@ AddMigration({
       order_type TEXT,
       order_direction TEXT,
       volume DECIMAL(20, 8) NOT NULL,
-      submit_at TIMESTAMPTZ NOT NULL,
+      submit_at BIGINT,
       created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMPTZ NOT NULL,
-      filled_at TIMESTAMPTZ,
+      filled_at BIGINT,
       price DECIMAL(20, 8),
       traded_volume DECIMAL(20, 8),
       traded_price DECIMAL(20, 8),
@@ -26,7 +26,7 @@ AddMigration({
       real_profit DECIMAL(20, 8),
       inferred_base_currency_price DECIMAL(20, 8),
       take_profit_price DECIMAL(20, 8),
-      stop_loss_price DECIMAL(20, 8),
+      stop_loss_price DECIMAL(20, 8)
     );
 
     CREATE INDEX IF NOT EXISTS idx_order_account_id ON "order" (account_id);
