@@ -5,6 +5,7 @@
 ```ts
 
 import { IAccountInfo } from '@yuants/data-account';
+import { IAccountInfo as IAccountInfo_2 } from '@yuants/data-model';
 import { IOHLC } from '@yuants/data-ohlc';
 import { IOrder } from '@yuants/data-order';
 import { IPosition } from '@yuants/data-account';
@@ -65,7 +66,7 @@ export class AccountInfoUnit extends BasicUnit {
     // (undocumented)
     updateAccountInfo(accountId: string): void;
     // (undocumented)
-    useAccount(account_id: string, currency: string, leverage?: number, initial_balance?: number): IAccountInfo;
+    useAccount(account_id: string, currency: string, leverage?: number, initial_balance?: number): IAccountInfo_2;
 }
 
 // @public (undocumented)
