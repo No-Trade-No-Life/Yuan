@@ -2,6 +2,64 @@
   "name": "@yuants/vendor-bitget",
   "entries": [
     {
+      "version": "0.3.13",
+      "tag": "@yuants/vendor-bitget_v0.3.13",
+      "date": "Tue, 05 Aug 2025 16:36:43 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor"
+          },
+          {
+            "comment": "add account bill"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.37.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/transfer\" to `0.2.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.18.5`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.2.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.8.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.5.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.2.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-ohlc\" to `0.3.11`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-quote\" to `0.2.7`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.3.15`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-interest-rate\" to `0.1.12`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.20`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.12",
       "tag": "@yuants/vendor-bitget_v0.3.12",
       "date": "Fri, 01 Aug 2025 13:20:25 GMT",

@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-solscan",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "files": [
     "dist/extension.bundle.js"
   ],

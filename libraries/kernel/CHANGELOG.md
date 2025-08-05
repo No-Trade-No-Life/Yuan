@@ -1,6 +1,19 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Fri, 01 Aug 2025 13:20:25 GMT and should not be manually modified.
+This log was last generated on Tue, 05 Aug 2025 16:36:43 GMT and should not be manually modified.
+
+## 0.14.0
+Tue, 05 Aug 2025 16:36:43 GMT
+
+### Minor changes
+
+- add fs cache to history ohlc loader
+
+### Patches
+
+- refactor
+- remove IPeriod
+- remove extra cache
 
 ## 0.13.43
 Fri, 01 Aug 2025 13:20:25 GMT
