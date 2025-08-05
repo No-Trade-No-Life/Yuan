@@ -75,7 +75,7 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
             if (content) {
               const data: IOHLC[] = JSON.parse(content);
               if (data.length > 0) {
-                result.push(...data);
+                data.forEach((x) => result.push(x));
               }
               this.kernel.log?.(
                 `${formatTime(Date.now())} 从本地文件系统加载 ${filename} 成功，共 ${data.length} 条数据`,
@@ -133,7 +133,7 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
           )}, ${formatTime(t2)}] 成功，共 ${data.length} 条数据`,
         );
 
-        result.push(...data);
+        data.forEach((x) => result.push(x));
 
         // 将远程数据和本地数据合并
         if (this.fsUnit && data.length > 0) {
