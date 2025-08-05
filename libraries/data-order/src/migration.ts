@@ -13,8 +13,10 @@ AddMigration({
       order_type TEXT,
       order_direction TEXT,
       volume DECIMAL(20, 8) NOT NULL,
-      submit_at BIGINT,
-      filled_at BIGINT,
+      submit_at TIMESTAMPTZ NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMPTZ NOT NULL,
+      filled_at TIMESTAMPTZ,
       price DECIMAL(20, 8),
       traded_volume DECIMAL(20, 8),
       traded_price DECIMAL(20, 8),
@@ -32,6 +34,8 @@ AddMigration({
     CREATE INDEX IF NOT EXISTS idx_order_position_id ON "order" (position_id);
     CREATE INDEX IF NOT EXISTS idx_order_order_id ON "order" (order_id);
     CREATE INDEX IF NOT EXISTS idx_order_submit_at ON "order" (submit_at);
+    CREATE INDEX IF NOT EXISTS idx_order_updated_at ON "order" (updated_at);
+    CREATE INDEX IF NOT EXISTS idx_order_created_at ON "order" (created_at);
     CREATE INDEX IF NOT EXISTS idx_order_filled_at ON "order" (filled_at);
   `,
 });
