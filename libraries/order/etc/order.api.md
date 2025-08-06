@@ -5,7 +5,6 @@
 ```ts
 
 import { IProduct } from '@yuants/data-product';
-import { IResponse } from '@yuants/protocol';
 import { Terminal } from '@yuants/protocol';
 
 // @public
@@ -15,7 +14,7 @@ export function limitOrderController(terminal: Terminal, products: IProduct[], t
     product_id: string;
     direction: 'LONG' | 'SHORT';
     volume: number;
-}): AsyncGenerator<IResponse<void> & IResponse<unknown>, void, unknown>;
+}): AsyncGenerator<undefined, void, unknown>;
 
 // (No @packageDocumentation comment for this package)
 
