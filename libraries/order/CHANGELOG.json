@@ -2,6 +2,26 @@
   "name": "@yuants/order",
   "entries": [
     {
+      "version": "0.1.2",
+      "tag": "@yuants/order_v0.1.2",
+      "date": "Wed, 06 Aug 2025 15:08:09 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.2.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.1.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.1",
       "tag": "@yuants/order_v0.1.1",
       "date": "Tue, 05 Aug 2025 16:36:43 GMT",
