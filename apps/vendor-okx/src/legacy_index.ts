@@ -519,10 +519,18 @@ defer(async () => {
       };
       console.info(formatTime(Date.now()), 'SubmitOrder', 'params', JSON.stringify(params));
       const res = await client.postTradeOrder(params);
-      if (res.code !== '0') {
-        return { res: { code: +res.code, message: res.msg } };
+      if (res.code === '0' && res.data?.[0]?.ordId) {
+        return {
+          res: {
+            code: 0,
+            message: 'OK',
+            data: {
+              order_id: res.data[0].ordId,
+            },
+          },
+        };
       }
-      return { res: { code: 0, message: 'OK' } };
+      return { res: { code: +res.code, message: res.msg } };
     },
   );
 

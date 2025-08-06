@@ -31,7 +31,9 @@ declare module '@yuants/protocol/lib/services' {
   interface IService {
     SubmitOrder: {
       req: IOrder;
-      res: IResponse;
+      res: IResponse<{
+        order_id?: string;
+      }>;
       frame: void;
     };
     ModifyOrder: {
