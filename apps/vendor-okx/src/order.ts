@@ -20,41 +20,39 @@ import { client } from './api';
 
 export const order$ = new Subject<IOrder>();
 
-if (process.env.WRITE_ORDER_TO_SQL === 'true') {
-  order$
-    .pipe(
-      //
-      // mergeMap((x) => x),
-      writeToSQL({
-        terminal: Terminal.fromNodeEnv(),
-        tableName: 'order',
-        writeInterval: 1000,
-        keyFn: (order) => encodePath(order.account_id, order.order_id),
-        columns: [
-          'order_id',
-          'account_id',
-          'product_id',
-          'position_id',
-          'order_type',
-          'order_direction',
-          'volume',
-          'submit_at',
-          'updated_at',
-          'filled_at',
-          'price',
-          'traded_volume',
-          'traded_price',
-          'order_status',
-          'comment',
-          'profit_correction',
-          'real_profit',
-          'inferred_base_currency_price',
-        ],
-        conflictKeys: ['account_id', 'order_id'],
-      }),
-    )
-    .subscribe();
-}
+order$
+  .pipe(
+    //
+    // mergeMap((x) => x),
+    writeToSQL({
+      terminal: Terminal.fromNodeEnv(),
+      tableName: 'order',
+      writeInterval: 1000,
+      keyFn: (order) => encodePath(order.account_id, order.order_id),
+      columns: [
+        'order_id',
+        'account_id',
+        'product_id',
+        'position_id',
+        'order_type',
+        'order_direction',
+        'volume',
+        'submit_at',
+        'updated_at',
+        'filled_at',
+        'price',
+        'traded_volume',
+        'traded_price',
+        'order_status',
+        'comment',
+        'profit_correction',
+        'real_profit',
+        'inferred_base_currency_price',
+      ],
+      conflictKeys: ['account_id', 'order_id'],
+    }),
+  )
+  .subscribe();
 
 const makeOrder = (
   x: {
