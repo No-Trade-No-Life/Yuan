@@ -1509,7 +1509,3 @@ export const client = new OkxClient({
     passphrase: process.env.PASSPHRASE!,
   },
 });
-
-(async () => {
-  console.info(await client.getTradeOrdersHistory({ instType: 'SWAP' }));
-})();

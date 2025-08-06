@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-order",
+      "comment": "escape table name for order",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/data-order"
+}

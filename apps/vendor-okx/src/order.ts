@@ -26,7 +26,7 @@ order$
     // mergeMap((x) => x),
     writeToSQL({
       terminal: Terminal.fromNodeEnv(),
-      tableName: 'order',
+      tableName: '"order"',
       writeInterval: 1000,
       keyFn: (order) => encodePath(order.account_id, order.order_id),
       columns: [
