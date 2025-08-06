@@ -2,6 +2,23 @@
   "name": "@yuants/data-account",
   "entries": [
     {
+      "version": "0.3.0",
+      "tag": "@yuants/data-account_v0.3.0",
+      "date": "Wed, 06 Aug 2025 16:50:42 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "return order id after submit"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.2",
       "tag": "@yuants/data-account_v0.2.2",
       "date": "Wed, 06 Aug 2025 15:08:09 GMT",
