@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Tue, 05 Aug 2025 16:36:43 GMT and should not be manually modified.
+This log was last generated on Wed, 06 Aug 2025 09:26:36 GMT and should not be manually modified.
+
+## 0.16.2
+Wed, 06 Aug 2025 09:26:36 GMT
+
+### Patches
+
+- write order to sql anyway
 
 ## 0.16.1
 Tue, 05 Aug 2025 16:36:43 GMT

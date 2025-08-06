@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.16.2",
+      "tag": "@yuants/vendor-okx_v0.16.2",
+      "date": "Wed, 06 Aug 2025 09:26:36 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "write order to sql anyway"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.16.1",
       "tag": "@yuants/vendor-okx_v0.16.1",
       "date": "Tue, 05 Aug 2025 16:36:43 GMT",

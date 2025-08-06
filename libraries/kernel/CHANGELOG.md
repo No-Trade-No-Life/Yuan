@@ -1,6 +1,13 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Tue, 05 Aug 2025 16:36:43 GMT and should not be manually modified.
+This log was last generated on Wed, 06 Aug 2025 09:26:36 GMT and should not be manually modified.
+
+## 0.14.1
+Wed, 06 Aug 2025 09:26:36 GMT
+
+### Patches
+
+- fix stack overflow when pushing item
 
 ## 0.14.0
 Tue, 05 Aug 2025 16:36:43 GMT
