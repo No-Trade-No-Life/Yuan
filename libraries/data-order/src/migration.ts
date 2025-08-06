@@ -26,7 +26,9 @@ AddMigration({
       real_profit DECIMAL(20, 8),
       inferred_base_currency_price DECIMAL(20, 8),
       take_profit_price DECIMAL(20, 8),
-      stop_loss_price DECIMAL(20, 8)
+      stop_loss_price DECIMAL(20, 8),
+
+      PRIMARY KEY (account_id, order_id)
     );
 
     CREATE INDEX IF NOT EXISTS idx_order_account_id ON "order" (account_id);
