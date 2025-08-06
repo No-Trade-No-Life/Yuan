@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-huobi",
   "entries": [
     {
+      "version": "0.9.5",
+      "tag": "@yuants/vendor-huobi_v0.9.5",
+      "date": "Wed, 06 Aug 2025 16:50:42 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.3.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.9.4",
       "tag": "@yuants/vendor-huobi_v0.9.4",
       "date": "Wed, 06 Aug 2025 15:08:09 GMT",

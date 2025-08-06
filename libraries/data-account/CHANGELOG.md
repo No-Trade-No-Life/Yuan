@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-account
 
-This log was last generated on Wed, 06 Aug 2025 15:08:09 GMT and should not be manually modified.
+This log was last generated on Wed, 06 Aug 2025 16:50:42 GMT and should not be manually modified.
+
+## 0.3.0
+Wed, 06 Aug 2025 16:50:42 GMT
+
+### Minor changes
+
+- return order id after submit
 
 ## 0.2.2
 Wed, 06 Aug 2025 15:08:09 GMT
