@@ -8,3 +8,5 @@ for (const [key, value] of Object.entries(import.meta.glob('./components/*.tsx',
     registerCopilotMessageBlock(name, component);
   }
 }
+
+import './Chat';
