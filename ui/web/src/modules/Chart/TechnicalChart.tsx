@@ -1,12 +1,10 @@
-import { IconExport, IconRefresh, IconSetting } from '@douyinfe/semi-icons';
+import { IconRefresh, IconSetting } from '@douyinfe/semi-icons';
 import { Button, Empty, Space } from '@douyinfe/semi-ui';
 import { AccountInfoUnit, PeriodDataUnit, Series, SeriesDataUnit } from '@yuants/kernel';
 import { useObservableState } from 'observable-hooks';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AccountSelector } from '../AccountInfo';
-import { fs } from '../FileSystem';
-import { Toast } from '../Interactive';
 import { currentKernel$ } from '../Kernel/model';
 import { orders$ } from '../Order/model';
 import { registerPage } from '../Pages';
@@ -19,6 +17,7 @@ import {
   LineSeries,
   OrderSeries,
 } from './components/Charts';
+
 const DEFAULT_SINGLE_COLOR_SCHEME: string[] = [
   '#5B8FF9',
   '#61DDAA',
@@ -30,6 +29,7 @@ const DEFAULT_SINGLE_COLOR_SCHEME: string[] = [
   '#008685',
   '#F08BB4',
 ];
+
 const resolveChartId = (series: Series): string => {
   const chartConfig = series.tags['chart'];
   if (series.parent === undefined) {
@@ -52,6 +52,7 @@ registerPage('TechnicalChart', () => {
   const [t] = useTranslation('TechnicalChart');
   const [frame, setFrame] = useState(0);
   const kernel = useObservableState(currentKernel$);
+  const all_orders = useObservableState(orders$);
   const [periodKey, setPeriodKey] = useState(undefined as string | undefined);
 
   const periodDataMap = useMemo(() => {
@@ -71,6 +72,8 @@ registerPage('TechnicalChart', () => {
     () => kernel?.units.find((unit): unit is SeriesDataUnit => unit instanceof SeriesDataUnit)?.series ?? [],
     [kernel],
   );
+
+  const noData = series.length === 0;
 
   const timeSeriesList = useMemo(() => [...new Set(series.map((series) => series.resolveRoot()))], [series]);
 
@@ -112,10 +115,10 @@ registerPage('TechnicalChart', () => {
     return mapChartIdToDisplayConfigList;
   }, [series]);
 
-  const all_orders = useObservableState(orders$);
   const accountInfoUnit = kernel?.units.find(
     (unit): unit is AccountInfoUnit => unit instanceof AccountInfoUnit,
   );
+
   const accountIdOptions = useMemo(
     () => [...(accountInfoUnit?.mapAccountIdToAccountInfo.keys() ?? [])],
     [accountInfoUnit],
@@ -123,7 +126,7 @@ registerPage('TechnicalChart', () => {
   const [accountId, setAccountId] = useState('');
   const orders = all_orders.filter((order) => order.account_id === accountId);
 
-  if (!kernel || periodsOptions.length === 0) {
+  if (noData) {
     return <Empty title={t('empty_reminder')} description={t('empty_reminder_description')} />;
   }
 
@@ -143,31 +146,9 @@ registerPage('TechnicalChart', () => {
             setFrame((x) => x + 1);
           }}
         ></Button>
-        <Button
-          icon={<IconExport />}
-          onClick={async () => {
-            //
-            const series = kernel.findUnit(SeriesDataUnit)!.series;
-
-            const headers = series.map((s) => `"${s.name || s.series_id}"`);
-
-            const content =
-              headers.join(',') +
-              '\n' +
-              selectedPeriodData
-                .map((_, i) => {
-                  return series.map((s) => s[i] ?? '').join(',');
-                })
-                .join('\n');
-            await fs.writeFile('/export.csv', content);
-            Toast.success(`导出成功到 /export.csv`);
-          }}
-        >
-          导出序列
-        </Button>
         <Button icon={<IconSetting />} disabled></Button>
       </Space>
-      <ChartGroup key={kernel.id + frame}>
+      <ChartGroup key={frame}>
         <div style={{ width: '100%', minHeight: '50%', flex: 'auto' }}>
           <Chart>
             <CandlestickSeries data={selectedPeriodData}>
