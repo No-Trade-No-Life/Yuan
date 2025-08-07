@@ -2,7 +2,7 @@ import * as rollup from '@rollup/browser';
 import { AgentScene, IAgentConf } from '@yuants/agent';
 import { IAccountInfo } from '@yuants/data-account';
 import { IDeploySpec } from '@yuants/extension';
-import { BasicUnit, IAccountPerformance } from '@yuants/kernel';
+import { BasicUnit, IAccountPerformance, Series } from '@yuants/kernel';
 import { UUID } from '@yuants/utils';
 import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
@@ -410,4 +410,18 @@ function blobToDataURL(blob: Blob): Promise<string> {
     reader.onabort = (_e) => reject(new Error('Read aborted'));
     reader.readAsDataURL(blob);
   });
+}
+
+export async function exportSeriesToCsv(filename: string, series: Series[]) {
+  const headers = series.map((s) => `"${s.name || s.series_id}"`);
+  const n = series[0]?.length ?? 0;
+
+  const content =
+    headers.join(',') +
+    '\n' +
+    Array.from({ length: n }, (_, i) => {
+      return series.map((s) => s[i] ?? '').join(',');
+    }).join('\n');
+  await fs.ensureDir(path.dirname(filename));
+  await fs.writeFile(filename, content);
 }

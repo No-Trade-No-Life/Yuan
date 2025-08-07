@@ -10,7 +10,7 @@ import {
 } from '@douyinfe/semi-icons';
 import { Divider, Layout, Space, Toast } from '@douyinfe/semi-ui';
 import { AgentScene, IAgentConf, agentConfSchema } from '@yuants/agent';
-import { BasicFileSystemUnit } from '@yuants/kernel';
+import { BasicFileSystemUnit, SeriesDataUnit } from '@yuants/kernel';
 import Ajv from 'ajv';
 import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
@@ -48,7 +48,7 @@ import { authState$ } from '../SupaBase';
 import { registerAssociationRule } from '../System';
 import { terminal$ } from '../Terminals';
 import { clearLogAction$ } from '../Workbench/Program';
-import { bundleCode } from './utils';
+import { bundleCode, exportSeriesToCsv } from './utils';
 
 const mapScriptParamsSchemaToAgentConfSchema = (schema: JSONSchema7): JSONSchema7 => ({
   allOf: [
@@ -156,6 +156,10 @@ export const runAgent = async () => {
         Object.fromEntries(scene.accountPerformanceUnit.mapAccountIdToPerformance.entries()),
       );
       accountFrameSeries$.next(accountFrameUnit.data);
+
+      const seriesFilename = `/.Y/kernel/${encodeURIComponent(scene.kernel.id)}/series.csv`;
+      await exportSeriesToCsv(seriesFilename, scene.kernel.findUnit(SeriesDataUnit)!.series);
+      Toast.success(`序列保存到 ${seriesFilename}`);
     } else {
       const agentCode = await bundleCode(agentConf.entry!);
       const scene = await AgentScene(terminal, { ...agentConf, bundled_code: agentCode });
@@ -185,6 +189,10 @@ export const runAgent = async () => {
         Object.fromEntries(scene.accountPerformanceUnit.mapAccountIdToPerformance.entries()),
       );
       accountFrameSeries$.next(accountFrameUnit.data);
+
+      const seriesFilename = `/.Y/kernel/${encodeURIComponent(scene.kernel.id)}/series.csv`;
+      await exportSeriesToCsv(seriesFilename, scene.kernel.findUnit(SeriesDataUnit)!.series);
+      Toast.success(`序列保存到 ${seriesFilename}`);
     }
 
     executeCommand('Page.open', { type: 'AccountPerformancePanel' });
