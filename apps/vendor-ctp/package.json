@@ -9,7 +9,6 @@
     "build": "heft test --clean && node ./lib/scripts/build-ctp-types.js && node ./lib/scripts/build-ctp-bridge.js && yuan-toolkit post-build"
   },
   "dependencies": {
-    "@yuants/data-model": "workspace:*",
     "@yuants/data-account": "workspace:*",
     "@yuants/data-order": "workspace:*",
     "@yuants/protocol": "workspace:*",

@@ -9,7 +9,6 @@
   },
   "dependencies": {
     "@yuants/protocol": "workspace:*",
-    "@yuants/data-model": "workspace:*",
     "@yuants/data-account": "workspace:*",
     "@yuants/data-order": "workspace:*",
     "@yuants/transfer": "workspace:*",

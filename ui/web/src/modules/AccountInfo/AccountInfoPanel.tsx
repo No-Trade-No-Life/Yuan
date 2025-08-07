@@ -1,7 +1,9 @@
 import { IconClose, IconTaskMoneyStroked } from '@douyinfe/semi-icons';
 import { Collapse, Descriptions, Empty, Space, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { IAccountMoney, IOrder, IPosition, ITick, mergeAccountInfoPositions } from '@yuants/data-model';
+import { IAccountMoney, IPosition, mergeAccountInfoPositions } from '@yuants/data-account';
+import { ITick } from '@yuants/data-model';
+import { IOrder } from '@yuants/data-order';
 import { encodePath, formatTime } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useMemo } from 'react';

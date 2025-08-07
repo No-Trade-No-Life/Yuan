@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-okx",
+      "comment": "refactor",
+      "type": "none"
+    }
+  ],
+  "packageName": "@yuants/vendor-okx"
+}

@@ -13,7 +13,6 @@
   "dependencies": {
     "@rollup/browser": "~3.26.3",
     "@yuants/agent": "workspace:*",
-    "@yuants/data-model": "workspace:*",
     "@yuants/data-account": "workspace:*",
     "@yuants/kernel": "workspace:*",
     "@yuants/protocol": "workspace:*",
