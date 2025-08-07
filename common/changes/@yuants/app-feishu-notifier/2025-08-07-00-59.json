@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-feishu-notifier",
+      "comment": "refactor",
+      "type": "none"
+    }
+  ],
+  "packageName": "@yuants/app-feishu-notifier"
+}

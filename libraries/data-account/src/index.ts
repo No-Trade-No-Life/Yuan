@@ -1,12 +1,24 @@
 import { Meter } from '@opentelemetry/api';
-import { mergeAccountInfoPositions } from '@yuants/data-model';
 import { IOrder } from '@yuants/data-order';
 import { MetricsMeterProvider, Terminal } from '@yuants/protocol';
 import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
-import { ObservableInput, defer, mergeMap, pairwise, takeUntil, tap } from 'rxjs';
+import {
+  Observable,
+  ObservableInput,
+  defer,
+  from,
+  groupBy,
+  map,
+  mergeMap,
+  pairwise,
+  reduce,
+  takeUntil,
+  tap,
+  toArray,
+} from 'rxjs';
 import './interface';
-import { IAccountInfo, IPosition, IPositionDiff } from './interface';
+import { IAccountInfo, IAccountMoney, IPosition, IPositionDiff } from './interface';
 import './migration';
 export * from './interface';
 
@@ -368,4 +380,67 @@ export const diffPosition = (source: IPosition[], target: IPosition[]) => {
   }
 
   return result;
+};
+
+/**
+ * @public
+ */
+export const createEmptyAccountInfo = (
+  account_id: string,
+  currency: string,
+  leverage: number = 1,
+  initial_balance: number = 0,
+): IAccountInfo => {
+  const money: IAccountMoney = {
+    currency,
+    leverage,
+    equity: initial_balance,
+    balance: initial_balance,
+    profit: 0,
+    used: 0,
+    free: 0,
+  };
+  return {
+    updated_at: 0,
+    account_id,
+    money: money,
+    currencies: [money],
+    positions: [],
+    orders: [],
+  };
+};
+/**
+ * Merge Positions by their product_id and direction
+ * @public
+ */
+export const mergeAccountInfoPositions = (info: IAccountInfo): Observable<IAccountInfo> => {
+  return from(info.positions).pipe(
+    groupBy((position) => position.product_id),
+    mergeMap((groupWithSameProductId) =>
+      groupWithSameProductId.pipe(
+        groupBy((position) => position.direction),
+        mergeMap((groupWithSameVariant) =>
+          groupWithSameVariant.pipe(
+            reduce(
+              (acc: IPosition, cur: IPosition): IPosition => ({
+                ...acc,
+                volume: acc.volume + cur.volume,
+                free_volume: acc.free_volume + cur.free_volume,
+                position_price:
+                  (acc.position_price * acc.volume + cur.position_price * cur.volume) /
+                  (acc.volume + cur.volume),
+                floating_profit: acc.floating_profit + cur.floating_profit,
+                closable_price:
+                  (acc.closable_price * acc.volume + cur.closable_price * cur.volume) /
+                  (acc.volume + cur.volume),
+                valuation: acc.valuation + cur.valuation,
+              }),
+            ),
+          ),
+        ),
+      ),
+    ),
+    toArray(),
+    map((positions): IAccountInfo => ({ ...info, positions })),
+  );
 };

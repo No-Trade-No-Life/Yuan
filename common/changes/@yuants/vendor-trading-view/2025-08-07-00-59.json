@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-trading-view",
+      "comment": "refactor",
+      "type": "none"
+    }
+  ],
+  "packageName": "@yuants/vendor-trading-view"
+}

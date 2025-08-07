@@ -15,6 +15,9 @@ export const addAccountMarket: (terminal: Terminal, cxt: {
     market_id: string;
 }) => Promise<void>;
 
+// @public (undocumented)
+export const createEmptyAccountInfo: (account_id: string, currency: string, leverage?: number, initial_balance?: number) => IAccountInfo;
+
 // @public
 export const diffPosition: (source: IPosition[], target: IPosition[]) => IPositionDiff[];
 
@@ -71,6 +74,9 @@ export interface IPositionDiff {
     volume_in_source: number;
     volume_in_target: number;
 }
+
+// @public
+export const mergeAccountInfoPositions: (info: IAccountInfo) => Observable<IAccountInfo>;
 
 // @public
 export const publishAccountInfo: (terminal: Terminal, account_id: string, accountInfo$: ObservableInput<IAccountInfo>) => {

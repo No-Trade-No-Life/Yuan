@@ -10,7 +10,6 @@
   "dependencies": {
     "@yuants/protocol": "workspace:*",
     "@yuants/transfer": "workspace:*",
-    "@yuants/data-model": "workspace:*",
     "@yuants/data-account": "workspace:*",
     "@yuants/data-order": "workspace:*",
     "@yuants/sql": "workspace:*",

@@ -29,7 +29,6 @@
   "dependencies": {
     "rxjs": "~7.5.6",
     "ws": "~8.8.1",
-    "@yuants/data-model": "workspace:*",
     "@yuants/protocol": "workspace:*",
     "@yuants/utils": "workspace:*"
   }

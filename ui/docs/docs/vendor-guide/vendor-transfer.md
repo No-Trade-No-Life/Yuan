@@ -14,7 +14,7 @@ A single running vendor instance may provide multiple ways of transferring and c
 
 ```ts
 import { ITerminal, addAccountTransferAddress } from '@yuants/protocol';
-import { ITransferOrder } from '@yuants/data-model';
+import { ITransferOrder } from '@yuants/transfer';
 
 const terminal = new ITerminal(process.env.HOST_URL!, {});
 
