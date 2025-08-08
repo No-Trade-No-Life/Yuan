@@ -16,6 +16,7 @@
   "stop": "Stop order",
   "timestamp": "Time",
   "traded_price": "Traded price",
+  "traded_value": "Traded Value",
   "traded_volume": "Traded Volume",
   "volume": "Volume"
 }

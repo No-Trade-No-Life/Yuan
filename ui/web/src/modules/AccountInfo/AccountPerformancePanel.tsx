@@ -36,8 +36,7 @@ registerPage('AccountPerformancePanel', () => {
   }, [orders, accountId]);
 
   const totalTurnover = useMemo(
-    () =>
-      accountOrders.reduce((acc, order) => acc + (order.traded_price || 0) * (order.traded_volume || 0), 0),
+    () => accountOrders.reduce((acc, order) => acc + (order.traded_value || 0), 0),
     [accountOrders],
   );
 

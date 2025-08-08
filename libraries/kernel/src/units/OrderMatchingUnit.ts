@@ -12,7 +12,11 @@ import { ProductDataUnit } from './ProductDataUnit';
 import { QuoteDataUnit } from './QuoteDataUnit';
 import { TickDataUnit } from './TickDataUnit';
 
-interface IMatchingRange {
+/**
+ *
+ * @public
+ */
+export interface IMatchingRange {
   first: number;
   high: number;
   low: number;
@@ -225,6 +229,7 @@ export class OrderMatchingUnit extends BasicUnit {
         traded_price: tradedPrice,
         volume,
         traded_volume: volume,
+        traded_value: tradedPrice * volume * (theProduct?.value_scale ?? 1),
       };
       // 成交
       this.kernel.log?.(
