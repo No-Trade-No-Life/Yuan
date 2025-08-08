@@ -396,6 +396,18 @@ export interface IKernelUnit {
 }
 
 // @public (undocumented)
+export interface IMatchingRange {
+    // (undocumented)
+    first: number;
+    // (undocumented)
+    high: number;
+    // (undocumented)
+    last: number;
+    // (undocumented)
+    low: number;
+}
+
+// @public (undocumented)
 export interface IPortfolioStatistics {
     // (undocumented)
     coefficients: Record<string, number>;
@@ -820,10 +832,6 @@ export class TickDataUnit extends BasicUnit {
     // (undocumented)
     tickUpdated$: Subject<ITick>;
 }
-
-// Warnings were encountered during analysis:
-//
-// src/units/OrderMatchingUnit.ts:262:11 - (ae-forgotten-export) The symbol "IMatchingRange" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

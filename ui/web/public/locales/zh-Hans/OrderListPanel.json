@@ -16,6 +16,7 @@
   "stop": "触发单",
   "timestamp": "时间",
   "traded_price": "成交价",
+  "traded_value": "成交额",
   "traded_volume": "成交量",
   "volume": "委托量"
 }

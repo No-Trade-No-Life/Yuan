@@ -41,3 +41,12 @@ AddMigration({
     CREATE INDEX IF NOT EXISTS idx_order_filled_at ON "order" (filled_at);
   `,
 });
+
+AddMigration({
+  id: '80893ad8-e42b-414c-8623-6e256f333cac',
+  name: 'add_column_order_traded_value',
+  dependencies: ['dcc5ee42-00da-4eca-8abc-6bb165dcdd41'],
+  statement: `
+    ALTER TABLE "order" ADD COLUMN IF NOT EXISTS traded_value DECIMAL(20, 8)
+  `,
+});

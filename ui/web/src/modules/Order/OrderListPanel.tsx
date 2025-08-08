@@ -25,6 +25,7 @@ registerPage('OrderListPanel', () => {
           'order_type',
           'traded_price',
           'traded_volume',
+          'traded_value',
           'price',
           'volume',
           'profit_correction',
@@ -66,12 +67,14 @@ registerPage('OrderListPanel', () => {
           },
           { header: t('traded_price'), accessorKey: 'traded_price' },
           { header: t('traded_volume'), accessorKey: 'traded_volume' },
+          { header: t('traded_value'), accessorKey: 'traded_value' },
           { header: t('price'), accessorKey: 'price' },
           { header: t('volume'), accessorKey: 'volume' },
           { header: t('inferred_base_currency_price'), accessorKey: 'inferred_base_currency_price' },
           { header: t('profit_correction'), accessorKey: 'profit_correction' },
           { header: t('comment'), accessorKey: 'comment' },
         ]}
+        columnsDependencyList={[t]}
       />
     </div>
   );

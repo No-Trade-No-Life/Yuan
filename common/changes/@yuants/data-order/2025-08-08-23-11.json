@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-order",
+      "comment": "add field traded_value to IOrder",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-order"
+}

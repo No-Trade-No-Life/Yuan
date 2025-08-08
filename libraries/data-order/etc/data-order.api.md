@@ -26,6 +26,7 @@ export interface IOrder {
     // @deprecated
     take_profit_price?: number;
     traded_price?: number;
+    traded_value?: number;
     traded_volume?: number;
     updated_at?: string;
     volume: number;
