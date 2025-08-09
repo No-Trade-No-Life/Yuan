@@ -4,7 +4,7 @@
   "description": "Node Unit",
   "main": "lib/index.js",
   "module": "dist/index.js",
-  "bin": "lib/index.js",
+  "bin": "lib/cli.js",
   "files": [
     "dist",
     "lib",
