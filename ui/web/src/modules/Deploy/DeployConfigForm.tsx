@@ -233,46 +233,6 @@ registerPage('DeployConfigForm', () => {
     );
   };
 
-  const handleDeployToCloud = async () => {
-    await lastValueFrom(
-      from(manifests).pipe(
-        //
-        map((config) => {
-          const packageName = config.package;
-          const task = DeployProviders[packageName];
-          if (!task) {
-            throw `Invalid package name ${packageName}`;
-          }
-          const validate = ajv.compile(mergeSchema(task.make_json_schema()));
-          if (!validate(config)) {
-            throw new Error(`Invalid config ${JSON.stringify(validate.errors)}`);
-          }
-          return {
-            version: ImageTags[packageName],
-            ...config,
-          };
-        }),
-        catchError((e) => {
-          Toast.error(`Manifest 格式错误: ${e}`);
-          return EMPTY;
-        }),
-        toArray(),
-        delayWhen((manifests) =>
-          from(
-            supabase.from('manifest').insert(
-              manifests.map((v) => ({
-                content: v,
-                deploy_key: v.key,
-                host_id: hostId === '' ? null : hostId,
-              })),
-            ),
-          ),
-        ),
-      ),
-    );
-    Toast.success(`${t('common:succeed')}`);
-  };
-
   return (
     <DataView
       data={manifests}
@@ -325,9 +285,6 @@ registerPage('DeployConfigForm', () => {
               setHostId(v as string);
             }}
           ></Select>
-          <Button disabled={!authState} onClick={handleDeployToCloud}>
-            部署到 Yuan Cloud
-          </Button>
         </>
       }
     />

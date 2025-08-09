@@ -1,5 +1,4 @@
 import {
-  IconCloud,
   IconCode,
   IconFile,
   IconPlay,
@@ -251,13 +250,6 @@ registerPage('AgentConfForm', () => {
             onClick={() => executeCommand('FileEditor', { filename: agentConf?.entry })}
           >
             {t('common:view_source')}
-          </Button>
-          <Button
-            icon={<IconCloud />}
-            disabled={!authState}
-            onClick={() => executeCommand('Agent.DeployToCloud', { agentConf })}
-          >
-            {t('cloud_deploy')}
           </Button>
         </Space>
         <Divider />

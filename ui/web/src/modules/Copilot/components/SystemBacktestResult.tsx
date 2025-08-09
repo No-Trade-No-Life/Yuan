@@ -40,16 +40,6 @@ export default ({
       }
       style={{ width: '100%', flexShrink: 0 }}
       actions={[
-        //
-        <Button
-          icon={<IconTick />}
-          onClick={() => {
-            gtag('event', 'copilot_deploy_click');
-            return executeCommand('Agent.DeployToCloud', { agentConf: payload.agent_conf });
-          }}
-        >
-          {t('Copilot:SystemBacktestResult:deploy')}
-        </Button>,
         <Button
           icon={<SmartOptimization />}
           onClick={async () => {

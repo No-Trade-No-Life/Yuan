@@ -2,7 +2,6 @@
   "bundle": "Bundle",
   "bundle_failed": "Failed to bundle {{ source }} to {{ target }}",
   "bundle_succeed": "Bundle {{ source }} to {{ target }} successfully",
-  "cloud_deploy": "Deploy to Cloud",
   "config_invalid": "Model configuration parameter verification failed",
   "input_kernel_id": "Agent ID",
   "load_config": "Load config",
