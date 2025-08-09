@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-order
 
-This log was last generated on Wed, 06 Aug 2025 15:08:09 GMT and should not be manually modified.
+This log was last generated on Sat, 09 Aug 2025 05:56:01 GMT and should not be manually modified.
+
+## 0.2.0
+Sat, 09 Aug 2025 05:56:01 GMT
+
+### Minor changes
+
+- add field traded_value to IOrder
 
 ## 0.1.2
 Wed, 06 Aug 2025 15:08:09 GMT
