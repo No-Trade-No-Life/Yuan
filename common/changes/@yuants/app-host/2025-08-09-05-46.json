@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-host",
+      "comment": "add main entry",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-host"
+}
