@@ -1,4 +1,4 @@
-import { IconCloud, IconCode, IconExport, IconImport, IconPlay, IconSearch } from '@douyinfe/semi-icons';
+import { IconCode, IconExport, IconImport, IconPlay, IconSearch } from '@douyinfe/semi-icons';
 import {
   Button,
   Descriptions,
@@ -23,7 +23,6 @@ import {
   defer,
   filter,
   first,
-  firstValueFrom,
   from,
   fromEvent,
   map,
@@ -38,7 +37,6 @@ import { executeCommand } from '../CommandCenter';
 import { useValue } from '../Data';
 import { fs } from '../FileSystem/api';
 import { showForm } from '../Form';
-import { shareHosts$ } from '../Host/model';
 import { DataView } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
 import { authState$ } from '../SupaBase';
@@ -356,26 +354,7 @@ registerPage('AgentBatchBackTest', () => {
         >
           导出部署配置
         </Button>
-        <Button
-          disabled={!authState || !currentHost}
-          icon={<IconCloud />}
-          onClick={async (e) => {
-            const sharedHosts = await firstValueFrom(shareHosts$);
-            const host_url = await showForm<string>({
-              title: t('AgentConfForm:select_host'),
-              type: 'string',
-              examples: sharedHosts.map((host) => host.host_url),
-            });
-            for (const agentConf of tasks) {
-              await executeCommand('Agent.DeployToCloud', {
-                agentConf,
-                host_url,
-              });
-            }
-          }}
-        >
-          全部部署到云
-        </Button>
+
         <Button
           onClick={async (e) => {
             const res = await showForm<{ x?: string; y?: string; z?: string }>({
@@ -567,13 +546,6 @@ registerPage('AgentBatchBackTest', () => {
                   }}
                 >
                   详情
-                </Button>
-                <Button
-                  onClick={async () => {
-                    executeCommand('Agent.DeployToCloud', { agentConf: ctx.getValue().agentConf });
-                  }}
-                >
-                  部署到云
                 </Button>
               </Space>
             ),

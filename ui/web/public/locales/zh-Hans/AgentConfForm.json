@@ -2,7 +2,6 @@
   "bundle": "打包",
   "bundle_failed": "打包 {{ source }} 到 {{ target }} 失败",
   "bundle_succeed": "打包 {{ source }} 到 {{ target }} 成功",
-  "cloud_deploy": "部署到云",
   "config_invalid": "模型配置参数校验失败",
   "input_kernel_id": "模型ID",
   "load_config": "载入配置",
