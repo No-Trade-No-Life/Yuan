@@ -1,6 +1,13 @@
 # Change Log - @yuants/agent
 
-This log was last generated on Wed, 06 Aug 2025 16:50:42 GMT and should not be manually modified.
+This log was last generated on Sat, 09 Aug 2025 05:56:01 GMT and should not be manually modified.
+
+## 0.13.83
+Sat, 09 Aug 2025 05:56:01 GMT
+
+### Patches
+
+- remove ITick, use IQuote
 
 ## 0.13.82
 Wed, 06 Aug 2025 16:50:42 GMT
