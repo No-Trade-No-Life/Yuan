@@ -1387,7 +1387,6 @@ importers:
       '@types/json-schema': 7.0.11
       '@types/node': '22'
       '@yuants/data-account': workspace:*
-      '@yuants/data-model': workspace:*
       '@yuants/data-order': workspace:*
       '@yuants/data-product': workspace:*
       '@yuants/kernel': workspace:*
@@ -1400,7 +1399,6 @@ importers:
       typescript: ~4.7.4
     dependencies:
       '@yuants/data-account': link:../data-account
-      '@yuants/data-model': link:../data-model
       '@yuants/data-order': link:../data-order
       '@yuants/data-product': link:../data-product
       '@yuants/kernel': link:../kernel
@@ -1803,10 +1801,10 @@ importers:
       '@types/node': '22'
       '@types/path-browserify': ~1.0.0
       '@yuants/data-account': workspace:*
-      '@yuants/data-model': workspace:*
       '@yuants/data-ohlc': workspace:*
       '@yuants/data-order': workspace:*
       '@yuants/data-product': workspace:*
+      '@yuants/data-quote': workspace:*
       '@yuants/data-series': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
@@ -1821,10 +1819,10 @@ importers:
     dependencies:
       '@datastructures-js/priority-queue': 6.3.0
       '@yuants/data-account': link:../data-account
-      '@yuants/data-model': link:../data-model
       '@yuants/data-ohlc': link:../data-ohlc
       '@yuants/data-order': link:../data-order
       '@yuants/data-product': link:../data-product
+      '@yuants/data-quote': link:../data-quote
       '@yuants/data-series': link:../data-series
       '@yuants/protocol': link:../protocol
       '@yuants/sql': link:../sql

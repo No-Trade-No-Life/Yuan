@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/agent",
+      "comment": "remove ITick, use IQuote",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/agent"
+}

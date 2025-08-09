@@ -1,4 +1,4 @@
-import { ITick } from '@yuants/data-model';
+import { IQuote } from '@yuants/data-quote';
 import { Subject } from 'rxjs';
 import { BasicUnit } from './BasicUnit';
 
@@ -7,15 +7,15 @@ import { BasicUnit } from './BasicUnit';
  * @public
  */
 export class TickDataUnit extends BasicUnit {
-  private _tickMap: Record<string, Record<string, ITick>> = {};
+  private _tickMap: Record<string, Record<string, IQuote>> = {};
 
-  tickUpdated$ = new Subject<ITick>();
+  tickUpdated$ = new Subject<IQuote>();
 
-  getTick(datasource_id: string, product_id: string): ITick | undefined {
+  getTick(datasource_id: string, product_id: string): IQuote | undefined {
     return this._tickMap[datasource_id]?.[product_id];
   }
 
-  setTick(tick: ITick) {
+  setTick(tick: IQuote) {
     (this._tickMap[tick.datasource_id] ??= {})[tick.product_id] = tick;
     this.tickUpdated$.next(tick);
   }

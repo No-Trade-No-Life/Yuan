@@ -9,7 +9,7 @@ import { IOHLC } from '@yuants/data-ohlc';
 import { IOrder } from '@yuants/data-order';
 import { IPosition } from '@yuants/data-account';
 import { IProduct } from '@yuants/data-product';
-import { ITick } from '@yuants/data-model';
+import { IQuote as IQuote_2 } from '@yuants/data-quote';
 import { Observable } from 'rxjs';
 import { Subject } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
@@ -821,16 +821,16 @@ export class TerminateUnit extends BasicUnit {
 export class TickDataUnit extends BasicUnit {
     // (undocumented)
     dump(): {
-        tickMap: Record<string, Record<string, ITick>>;
+        tickMap: Record<string, Record<string, IQuote_2>>;
     };
     // (undocumented)
-    getTick(datasource_id: string, product_id: string): ITick | undefined;
+    getTick(datasource_id: string, product_id: string): IQuote_2 | undefined;
     // (undocumented)
     restore(state: any): void;
     // (undocumented)
-    setTick(tick: ITick): void;
+    setTick(tick: IQuote_2): void;
     // (undocumented)
-    tickUpdated$: Subject<ITick>;
+    tickUpdated$: Subject<IQuote_2>;
 }
 
 // (No @packageDocumentation comment for this package)

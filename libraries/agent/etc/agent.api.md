@@ -12,7 +12,6 @@ import { HistoryOrderUnit } from '@yuants/kernel';
 import { IAccountInfo } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
-import { ITick } from '@yuants/data-model';
 import { JSONSchema7 } from 'json-schema';
 import { Kernel } from '@yuants/kernel';
 import { OrderMatchingUnit } from '@yuants/kernel';
@@ -182,8 +181,10 @@ export const useSeries: (name: string, parent: Series | undefined, tags?: Record
 // @public
 export const useState: <T>(initState: T) => [T, (v: T) => void];
 
+// Warning: (ae-forgotten-export) The symbol "IQuote" needs to be exported by the entry point index.d.ts
+//
 // @public
-export const useTick: (account_id: string, datasource_id: string, product_id: string) => ITick | undefined;
+export const useTick: (account_id: string, datasource_id: string, product_id: string) => IQuote | undefined;
 
 // (No @packageDocumentation comment for this package)
 
