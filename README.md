@@ -33,81 +33,46 @@
   </p>
 </div>
 
-## Snapshots
-
-![image](https://github.com/No-Trade-No-Life/Yuan/assets/12707521/426f51d3-6ed3-4ad5-9583-ca8e63518965)
-
-![image](https://github.com/No-Trade-No-Life/Yuan/assets/12707521/badf274a-7249-44c8-84fa-943ac6651d96)
-
-![image](https://github.com/No-Trade-No-Life/Yuan/assets/12707521/6bac83f1-434d-400f-b6a1-a0874a812d5a)
-
 ## Motivation
 
-In the early stages of our quantitative trading endeavors, after extensively searching and researching various existing quantitative trading frameworks and products, we found that none could fully meet the development and research needs of our unique trading strategies. Thus, undeterred by the challenges, we embarked on creating our own product, Yuan, driven by our specific requirements.
+Yuan is a "Personal Investment Operating System" that provides all the foundational software and infrastructure needed for diverse personal investment activities.
 
-Our basic requirements are:
+Our organization operates multiple quantitative trading projects that require a robust underlying platform - this is precisely why we created Yuan. We sustain Yuan's development through revenue generated from these projects, while selectively contributing portions of their code back to the Yuan ecosystem to enhance the platform's capabilities.
 
-1. **Strong Privacy Security**
+**In-house development is our security baseline**. While open-source pioneers have created excellent projects like VNPY, Zipline, BackTrader, and Qlib, why build another similar system? **Security supersedes efficiency**. Rather than critiquing others to assert superiority, we prioritize maximum self-development to maintain full control over every component. More third-party technologies mean more overlooked issues and technical debt. When systems adopted to reduce costs fail, they become existential threats.
 
-   Quantitative model code is the core asset of users and is at risk of being stolen. Many products on the market require uploading strategy code to servers, and these products can fully evaluate and steal the code as long as they have the user's code. If the user's strategy can be grasped by potential competitors, the user will be at a disadvantage. Therefore, there are also some products on the market that allow private deployment. We have designed a local workspace for users to ensure that their privacy is protected from being stolen by anyone, including the Yuan project team. Additionally, we have completed open-source, subject to the supervision of the open-source community, and will not do anything in the code that harms the interests of users.
+**Yuan imposes no commercial restrictions**. You may legally use Yuan for commercial purposes, including developing proprietary applications or profit-generating derivatives.
 
-2. **Full Market Compatibility**
+**Yuan assumes no user liability**. Never deploy Yuan in production environments without thorough evaluation. We open-source under MIT license without warranties. Strongly recommend understanding and agreeing with our design philosophy before use. We prefer collaborative learning.
 
-   Users invest and trade in different markets. We hope that the same strategy code can be applied to different market varieties, both for historical backtesting and real-time trading, without any additional cost. We also hope that the platform product can support various types of markets. However, due to regional laws and regulations and some business restrictions, products on the market usually only support a part of the markets, forcing users to use different platforms in different markets. Through architectural design, we decouple specific market modules, not only improving software quality but also overcoming compliance obstacles, paving the way for the globalization of the product.
+**Yuan seeks no venture capital**. The core project generates no direct revenue, offering no returns for investors. Development is sustained through our derivative implementations.
 
-3. **Cross-Platform Compatibility**
+Industry Pain Points:
 
-   We hope that our product can run without restrictions on any device on any platform, whether on desktop or mobile. After all, the market does not care about the user's situation. Users can switch to work and interact with the market at any time in any scenario.
+1. **Privacy Security**  
+   Strategy code represents core intellectual property vulnerable to theft. Many products require uploading code to servers where providers could evaluate and steal strategies. Yuan's local workspace ensures privacy – even from us as project maintainers. Being open-source under community scrutiny guarantees no malicious code exists.
 
-4. **Low Cost and High Scalability**
+   **Our choice:** Strategy code never leaves user-trusted devices.
 
-   Industry initial licensing fees often reach thousands, not to mention the high additional and maintenance costs. We believe that these costs are partly due to bundling sales to offset development costs, partly due to inefficiency, and partly due to the desire to profit. As a product aimed at individual investors rather than enterprises, we must consider the consumption ability of ordinary investors. For investors, the most important aspect of tools is cheap and durable. Whether on personal computers or server clusters, our product can run effectively.
-   Yuan is an investment operating system designed to empower you to master your finances.
+2. **Market Coverage**  
+   Investors operate across markets. A strategy should apply universally without additional cost. Existing products often limit market access due to regional regulations or business constraints, forcing platform fragmentation. Our architecture decouples market-specific modules, enhancing software quality while enabling global compliance.
 
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
+   **Our choice:** Standardized models for trading scenarios with global market support. Non-commercial use only.
 
-### Why use Yuan
+3. **Cross-Platform Capability**  
+   Markets don't accommodate user schedules. We enable operation on any device – desktop or mobile – without restrictions. Competitors often lock users to specific OS/hardware or charge multi-platform fees.
 
-**Powerful Web GUI**
+   **Our choice:** Browser-based Web UI for universal accessibility.
 
-With Yuan Web GUI, you have access to a comprehensive solution for creating, testing, and managing your trading system, as well as deploying and monitoring your applications. The GUI is completely open-source and can be deployed anywhere, without an internet connection. You can easily switch between multiple environments using just one GUI, making your experience more streamlined.
+4. **Cost Efficiency**  
+   Industry entry fees often exceed thousands with high maintenance costs – bundling development expenses, inefficiencies, or profiteering. As a product for individual investors, affordability is essential. Tools must be robust and economical across devices from PCs to server clusters.
 
-We have designed the GUI with modern browsers in mind, and it integrates with the latest web technologies, such as WebWorker, FileSystemHandle, WebRTC, and more. It is highly responsive and fast, and we are constantly working to make it even better for you.
+   **Our choice:** Fully free. No commercial services. Zero cost transfer. Machine cost optimization guidance.
 
-Although the GUI is currently written in Chinese, we have plans to make it internationalized, so you can use it in your native language in the future. We welcome contributions to the project's translation, so everyone can benefit from this amazing tool. You can access the GUI for free under the MIT license, without the need to install anything - simply use the [GUI](https://y.ntnl.io).
+5. **Programming Barrier**  
+   Coding skills remain essential for quant trading. Many possess viable strategies but lack programming ability to implement/test them. Outsourcing risks strategy theft and misimplementation, with slow iteration cycles. Proprietary DSLs (Domain-Specific Languages) further complicate learning without adequate documentation.
 
-**Simple language and AI assistant**
-
-If you're interested in developing a trading strategy without the need to learn a new language or DSL, the modern JavaScript/TypeScript language is an excellent option. You can use any IDE to write your code and any version control system to manage it. If you have difficulty with coding, you can seek assistance from an AI assistant by communicating your idea to it.
-
-```ts
-// It's a simple trend-tracking trading strategy that uses the SMA indicator.
-import { useSMA, useSimplePositionManager } from '@libs';
-export default () => {
-  const { close } = useOHLC('Y', 'XAUUSD', 'PT1H');
-  const ma20 = useSMA(close, 20);
-  const accountInfo = useAccountInfo();
-  const [targetVolume, setTargetVolume] = useSimplePositionManager(accountInfo.account_id, 'XAUUSD');
-  useEffect(() => {
-    const idx = close.length - 2;
-    if (close[idx] > ma20[idx]) {
-      setTargetVolume(1);
-    } else {
-      setTargetVolume(0);
-    }
-  }, [close.length]);
-};
-```
-
-More examples can be found [here](https://github.com/No-Trade-No-Life/Yuan-Public-Workspace).
-
-**Local, cloud...or hybrid!**
-
-Yuan is a hybrid-cloud software that allows you to deploy your trading system in your home or public cloud simultaneously. You can start using your home PC and then gradually switch to the public cloud as your business grows. Choosing between your home PC or the public cloud will depend on your availability, costs, privacy, and security requirements.
-
-**Extension-first Ecosystem**
-
-In Yuan, extensions are treated as first-class citizens. Many core features are built and distributed as extensions. You can use extensions to add new features, connect with more markets, and enhance your experience. You can download extensions from the community or create your own extensions to share with others.
+   **Our choice:** Modern TypeScript (no obscure DSLs). AI-assisted strategy coding. Rapid iteration capabilities.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -198,6 +163,7 @@ The data modeling includes TypeScript types and SQL table definitions.
 - [@yuants/data-quote](libraries/data-quote) Level-1 quote data, specifically referring to a product's latest price and top-of-book market quotes.
 - [@yuants/data-interest-rate](libraries/data-interest-rate) Interest rate data. Interest refers to the charges incurred when traders hold positions through settlement points. It's commonly used in forex trading and CFD (Contract for Difference) trading, and also applies to funding rates in perpetual contracts.
 - [@yuants/data-account](libraries/data-account) Account and position data.
+- [@yuants/data-order](libraries/data-order) Order data. An order represents a buy or sell instruction submitted by a trader to the market.
 
 Legacy data models are maintained in [@yuants/data-model](libraries/data-model). We plan to split them into multiple specialized packages to reduce impact from non-core model changes.
 
@@ -347,20 +313,6 @@ Don't forget to give the project a star! Thanks again!
 3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
 4. Push to the Branch (`git push origin feature/AmazingFeature`)
 5. Open a Pull Request
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## Contact
-
-- Join Discord server: [![Discord](https://img.shields.io/discord/1141802173676654675?style=for-the-badge&logo=discord)](https://discord.gg/BRH2447DUV)
-
-<p align="right">(<a href="#readme-top">back to top</a>)</p>
-
-## Acknowledgments 📖
-
-1. [Yuan-Public-Data](https://github.com/No-Trade-No-Life/Yuan-Public-Data)
-   Our public data is maintained here as a repository. Free to use.
-   Welcome to contribute if you have other data!
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
