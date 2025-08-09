@@ -565,6 +565,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/node-unit",
+      "projectFolder": "apps/node-unit",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/app-host",
       "projectFolder": "apps/host",
       "shouldPublish": true
