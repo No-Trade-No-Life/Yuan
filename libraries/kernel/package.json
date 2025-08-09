@@ -13,7 +13,6 @@
   },
   "dependencies": {
     "@datastructures-js/priority-queue": "~6.3.0",
-    "@yuants/data-model": "workspace:*",
     "@yuants/protocol": "workspace:*",
     "@yuants/utils": "workspace:*",
     "@yuants/sql": "workspace:*",
@@ -22,6 +21,7 @@
     "@yuants/data-account": "workspace:*",
     "@yuants/data-order": "workspace:*",
     "@yuants/data-ohlc": "workspace:*",
+    "@yuants/data-quote": "workspace:*",
     "date-fns": "~2.30.0",
     "json-schema": "~0.4.0",
     "path-browserify": "~1.0.1",
