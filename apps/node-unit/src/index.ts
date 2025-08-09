@@ -6,8 +6,8 @@ import cluster from 'cluster';
 // 不能既不设置主机地址又不设置数据库地址
 
 if (cluster.isPrimary) {
-  if (!process.env.POSTGRES_URL && !process.env.HOST_URL) {
-    throw new Error('Either POSTGRES_URL or HOST_URL must be set');
+  if (!process.env.POSTGRES_URI && !process.env.HOST_URL) {
+    throw new Error('Either POSTGRES_URI or HOST_URL must be set');
   }
 
   if (!process.env.HOST_URL) {
