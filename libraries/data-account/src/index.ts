@@ -1,7 +1,7 @@
 import { Meter } from '@opentelemetry/api';
 import { IOrder } from '@yuants/data-order';
 import { MetricsMeterProvider, Terminal } from '@yuants/protocol';
-import { buildInsertManyIntoTableSQL, escape, escapeSQL, requestSQL } from '@yuants/sql';
+import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
 import {
   Observable,
@@ -313,7 +313,7 @@ export const addAccountMarket = async (
     await requestSQL(
       terminal,
       `
-        INSERT INTO account_market (account_id, market_id) values (${escape(account_id)}, ${escape(
+        INSERT INTO account_market (account_id, market_id) values (${escapeSQL(account_id)}, ${escapeSQL(
         market_id,
       )}) ON CONFLICT (account_id, market_id) DO NOTHING;
       `,
