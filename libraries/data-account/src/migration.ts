@@ -95,13 +95,3 @@ AddMigration({
               on position for each row execute function update_updated_at_column();
       `,
 });
-
-AddMigration({
-  id: 'b866c774-e9fb-4d67-bb63-e0ef1f31c78f',
-  name: 'alert_table_data_position_add_status',
-  dependencies: ['0e9eea4b-2107-4e9d-86e5-8b11c74f85d7'],
-  statement: `
-        ALTER TABLE public.position
-        ADD COLUMN status TEXT;
-      `,
-});

@@ -83,17 +83,10 @@ export const publishAccountInfo = (
         try {
           await requestSQL(
             terminal,
-            `
-            update position set status= ${escapeSQL('2')} where account_id=${escapeSQL(account_id)};
-            `,
-          );
-          await requestSQL(
-            terminal,
             buildInsertManyIntoTableSQL(
               accountInfo.positions.map((item) => ({
                 ...item,
                 account_id,
-                status: '1',
               })),
               'position',
               {
@@ -106,7 +99,6 @@ export const publishAccountInfo = (
                   'position_price',
                   'closable_price',
                   'floating_profit',
-                  'status',
                 ],
                 conflictKeys: ['account_id', 'position_id'],
               },
