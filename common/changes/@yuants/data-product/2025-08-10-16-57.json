@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-product",
+      "comment": "add no interest rate",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/data-product"
+}
