@@ -4,11 +4,11 @@ import { useObservableState } from 'observable-hooks';
 import React from 'react';
 import { executeCommand } from '../CommandCenter';
 import { currentHostConfig$ } from '../Workbench/model';
-import { isTerminalConnnected$ } from './is-connected';
+import { isTerminalConnected$ } from './is-connected';
 
 export const NetworkStatusWidget = React.memo(() => {
   const config = useObservableState(currentHostConfig$);
-  const isConnected = useObservableState(isTerminalConnnected$);
+  const isConnected = useObservableState(isTerminalConnected$);
 
   return (
     <Button
