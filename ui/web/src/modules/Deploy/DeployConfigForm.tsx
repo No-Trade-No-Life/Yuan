@@ -1,5 +1,5 @@
 import { IconCode, IconRefresh } from '@douyinfe/semi-icons';
-import { Select, Toast } from '@douyinfe/semi-ui';
+import { Toast } from '@douyinfe/semi-ui';
 import { IDeploySpec, IEnvContext, mergeSchema } from '@yuants/extension';
 import Ajv from 'ajv';
 import { t } from 'i18next';
@@ -7,27 +7,14 @@ import { parse } from 'jsonc-parser';
 import { useObservableState } from 'observable-hooks';
 import path from 'path-browserify';
 import { useEffect, useState } from 'react';
-import {
-  EMPTY,
-  catchError,
-  concatMap,
-  delayWhen,
-  from,
-  lastValueFrom,
-  map,
-  mergeMap,
-  reduce,
-  tap,
-  toArray,
-} from 'rxjs';
+import { concatMap, from, lastValueFrom, map, mergeMap, reduce, tap, toArray } from 'rxjs';
 import YAML from 'yaml';
 import { executeCommand } from '../CommandCenter';
 import { DeployProviders, ImageTags } from '../Extensions/utils';
 import { fs } from '../FileSystem/api';
-import { shareHosts$ } from '../Host/model';
 import { Button, DataView } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
-import { authState$, supabase } from '../SupaBase';
+import { authState$ } from '../SupaBase';
 import { registerAssociationRule } from '../System';
 import { loadManifests } from './utils';
 
@@ -69,8 +56,6 @@ registerPage('DeployConfigForm', () => {
   };
   const [manifests, setManifests] = useState<IDeploySpec[]>([]);
   const [hostId, setHostId] = useState<string>('');
-
-  const hosts = useObservableState(shareHosts$, []) || [];
 
   useEffect(() => {
     if (filename) {
@@ -274,17 +259,6 @@ registerPage('DeployConfigForm', () => {
 
           <Button onClick={makeDockerCompose}>生成 Docker Compose 配置文件</Button>
           <Button onClick={makeK8sResource}>生成 K8s 资源文件</Button>
-          <Select
-            placeholder={'选择主机'}
-            optionList={[
-              ...hosts.map((v) => ({ label: !!v.name ? v.name : v.id, value: v.id })),
-              { label: '非共享', value: '' },
-            ]}
-            value={hostId}
-            onChange={(v) => {
-              setHostId(v as string);
-            }}
-          ></Select>
         </>
       }
     />

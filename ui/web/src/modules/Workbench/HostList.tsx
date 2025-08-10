@@ -12,7 +12,6 @@ import {
   Button,
   ButtonGroup,
   Card,
-  Collapse,
   Descriptions,
   Popconfirm,
   Space,
@@ -20,7 +19,6 @@ import {
   Typography,
 } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { createKeyPair, signMessage } from '@yuants/utils';
 import copy from 'copy-to-clipboard';
 import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
@@ -28,13 +26,12 @@ import { useObservableState } from 'observable-hooks';
 import { useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { bufferTime, combineLatest, from, map, of, shareReplay, switchMap } from 'rxjs';
-import { createPersistBehaviorSubject } from '../BIOS';
 import { executeCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import { showForm } from '../Form';
 import { DataView } from '../Interactive';
 import { registerPage } from '../Pages';
-import { terminal$ } from '../Terminals';
+import { isTerminalConnected$, terminal$ } from '../Terminals';
 import { IHostConfigItem, currentHostConfig$, hostConfigList$ } from './model';
 
 const configSchema = (): JSONSchema7 => ({
@@ -50,15 +47,6 @@ const configSchema = (): JSONSchema7 => ({
     host_url: { type: 'string', title: t('HostList:host_url'), description: t('HostList:host_url_note') },
   },
 });
-
-interface ICryptoHostConfig {
-  label: string;
-  public_key: string;
-  private_key: string;
-  host_url: string;
-}
-
-export const cryptoHosts$ = createPersistBehaviorSubject('crypto-hosts', [] as Array<ICryptoHostConfig>);
 
 export const network$ = terminal$.pipe(
   switchMap((terminal) =>
@@ -84,55 +72,9 @@ registerPage('HostList', () => {
   const HOST_CONFIG = '/hosts.json';
   const config = useObservableState(currentHostConfig$);
   const terminal = useObservableState(terminal$);
+  const isOnline = useObservableState(isTerminalConnected$);
 
   const network = useObservableState(network$, ['0.0', '0.0'] as [string, string]);
-
-  const columnsOfCryptoHost = useMemo(() => {
-    const columnHelper = createColumnHelper<ICryptoHostConfig>();
-    return [
-      columnHelper.accessor('label', { header: 'Label' }),
-      columnHelper.accessor('public_key', { header: 'Public Key' }),
-      columnHelper.accessor('private_key', { header: 'Private Key' }),
-      columnHelper.accessor('host_url', {
-        header: () => <Trans i18nKey="HostList:host_url" />,
-        cell: (ctx) => (
-          <Typography.Text copyable={{ content: ctx.getValue() }}>{ctx.getValue()}</Typography.Text>
-        ),
-      }),
-      columnHelper.display({
-        id: 'actions',
-        header: () => <Trans i18nKey="common:actions" />,
-        cell: (ctx) => {
-          const host = ctx.row.original;
-          return (
-            <Space>
-              <Button
-                icon={<IconLink />}
-                onClick={() => {
-                  currentHostConfig$.next({
-                    name: host.label,
-                    host_url: host.host_url,
-                  });
-                }}
-              >
-                {t('connect')}
-              </Button>
-              <Button
-                type="danger"
-                icon={<IconDelete />}
-                onClick={() => {
-                  if (cryptoHosts$.value === undefined) return;
-                  cryptoHosts$.next(cryptoHosts$.value.filter((x) => x !== host));
-                }}
-              >
-                {t('common:delete')}
-              </Button>
-            </Space>
-          );
-        },
-      }),
-    ];
-  }, []);
 
   const columnsOfDedicatedHosts = useMemo(() => {
     const columnHelper = createColumnHelper<IHostConfigItem>();
@@ -211,8 +153,6 @@ registerPage('HostList', () => {
     ];
   }, []);
 
-  const cryptoHosts = useObservableState(cryptoHosts$) || [];
-
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
       <Space>
@@ -226,7 +166,6 @@ registerPage('HostList', () => {
           {t('disconnect')}
         </Button>
       </Space>
-
       {config && (
         <Card style={{ minWidth: 200 }}>
           <Descriptions
@@ -256,97 +195,56 @@ registerPage('HostList', () => {
               },
               {
                 key: t('status'),
-                value: <Typography.Text>{+network[1] > 0 ? t('online') : t('offline')}</Typography.Text>,
+                value: <Typography.Text>{isOnline ? t('online') : t('offline')}</Typography.Text>,
               },
             ]}
           />
         </Card>
       )}
-
-      <Collapse style={{ width: '100%' }}>
-        <Collapse.Panel header={t('shared_hosts')} itemKey="shared_hosts">
-          <DataView
-            topSlot={
-              <>
-                <Button
-                  icon={<IconPlus />}
-                  onClick={async () => {
-                    if (cryptoHosts$.value === undefined) return;
-                    const label = (await showForm<string>({ type: 'string', title: 'Label' })) || '';
-                    const keyPair = createKeyPair();
-                    const url = new URL(`wss://hosts.ntnl.io`);
-                    url.searchParams.set('public_key', keyPair.public_key);
-                    const signature = signMessage('', keyPair.private_key);
-                    url.searchParams.set('signature', signature);
-                    const host_url = url.toString();
-                    const config = {
-                      label: label,
-                      public_key: keyPair.public_key,
-                      private_key: keyPair.private_key,
-                      host_url,
-                    };
-                    cryptoHosts$.next(cryptoHosts$.value.concat([config]));
-                  }}
-                >
-                  New
-                </Button>
-              </>
-            }
-            columns={columnsOfCryptoHost}
-            data={cryptoHosts}
-          />
-        </Collapse.Panel>
-
-        <Collapse.Panel header={t('dedicated_hosts')} itemKey="dedicated_hosts">
-          <DataView
-            topSlot={
-              <>
-                <Button
-                  icon={<IconPlus />}
-                  onClick={async () => {
-                    const item = await showForm<IHostConfigItem>(
-                      { title: t('add_host'), ...configSchema() },
-                      {},
-                    );
-                    hostConfigList$.next([...(hostConfigList$.value ?? []), item]);
-                  }}
-                >
-                  {t('add_dedicated_host')}
-                </Button>
-                <Button
-                  icon={<IconExport />}
-                  onClick={async () => {
-                    const configs = JSON.parse(await fs.readFile(HOST_CONFIG));
-                    hostConfigList$.next(configs);
-                    Toast.success(`${t('common:import_succeed')}: ${HOST_CONFIG}`);
-                  }}
-                >
-                  {t('common:import')}
-                </Button>
-                <Button
-                  icon={<IconExport />}
-                  onClick={async () => {
-                    await fs.writeFile(HOST_CONFIG, JSON.stringify(configs, null, 2));
-                    Toast.success(`${t('common:export_succeed')}: ${HOST_CONFIG}`);
-                  }}
-                >
-                  {t('common:export')}
-                </Button>
-                <Button
-                  icon={<IconCode />}
-                  onClick={() => {
-                    executeCommand('FileEditor', { filename: HOST_CONFIG });
-                  }}
-                >
-                  {t('common:view_source')}
-                </Button>
-              </>
-            }
-            columns={columnsOfDedicatedHosts}
-            data={configs}
-          />
-        </Collapse.Panel>
-      </Collapse>
+      <DataView
+        topSlot={
+          <>
+            <Button
+              icon={<IconPlus />}
+              onClick={async () => {
+                const item = await showForm<IHostConfigItem>({ title: t('add_host'), ...configSchema() }, {});
+                hostConfigList$.next([...(hostConfigList$.value ?? []), item]);
+              }}
+            >
+              {t('add_dedicated_host')}
+            </Button>
+            <Button
+              icon={<IconExport />}
+              onClick={async () => {
+                const configs = JSON.parse(await fs.readFile(HOST_CONFIG));
+                hostConfigList$.next(configs);
+                Toast.success(`${t('common:import_succeed')}: ${HOST_CONFIG}`);
+              }}
+            >
+              {t('common:import')}
+            </Button>
+            <Button
+              icon={<IconExport />}
+              onClick={async () => {
+                await fs.writeFile(HOST_CONFIG, JSON.stringify(configs, null, 2));
+                Toast.success(`${t('common:export_succeed')}: ${HOST_CONFIG}`);
+              }}
+            >
+              {t('common:export')}
+            </Button>
+            <Button
+              icon={<IconCode />}
+              onClick={() => {
+                executeCommand('FileEditor', { filename: HOST_CONFIG });
+              }}
+            >
+              {t('common:view_source')}
+            </Button>
+          </>
+        }
+        columns={columnsOfDedicatedHosts}
+        data={configs}
+      />
     </Space>
   );
 });
