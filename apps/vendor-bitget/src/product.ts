@@ -38,6 +38,7 @@ const futureProducts$ = defer(async () => {
       allow_long: true,
       allow_short: true,
       market_id: 'BITGET/USDT-FUTURES',
+      no_interest_rate: false,
     }),
   );
   const coinFutures = coinFuturesProductRes.data.map(
@@ -59,6 +60,7 @@ const futureProducts$ = defer(async () => {
       allow_long: true,
       allow_short: true,
       market_id: 'BITGET/USDT-FUTURES',
+      no_interest_rate: false,
     }),
   );
 

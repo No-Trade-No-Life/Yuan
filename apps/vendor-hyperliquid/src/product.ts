@@ -28,6 +28,7 @@ const tokenProduct$ = defer(async () => {
       allow_long: true,
       allow_short: false,
       market_id: 'Hyperliquid',
+      no_interest_rate: true,
     }),
   );
 }).pipe(
@@ -63,6 +64,7 @@ export const perpetualProduct$ = defer(async () => {
       allow_long: true,
       allow_short: true,
       market_id: 'Hyperliquid',
+      no_interest_rate: false,
     }),
   );
 }).pipe(

@@ -53,6 +53,7 @@ const swapProducts = createCache(
         allow_long: true,
         allow_short: true,
         market_id: 'HUOBI/SWAP',
+        no_interest_rate: false,
       };
       products.push(product);
       product$.next(product);
@@ -93,6 +94,7 @@ export const spotProducts$ = defer(() => client.getSpotSymbols()).pipe(
       allow_long: true,
       allow_short: false,
       market_id: 'HUOBI/SPOT',
+      no_interest_rate: true,
     }),
   ),
   toArray(),

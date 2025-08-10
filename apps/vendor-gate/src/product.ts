@@ -30,6 +30,7 @@ const usdtFutureProducts$ = defer(() => client.getFuturesContracts('usdt', {})).
           allow_long: true,
           allow_short: true,
           market_id: 'GATE/USDT-FUTURE',
+          no_interest_rate: false,
         };
       }),
       tap((x) => product$.next(x)),

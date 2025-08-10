@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-hyperliquid",
+      "comment": "add no interest rate",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-hyperliquid"
+}

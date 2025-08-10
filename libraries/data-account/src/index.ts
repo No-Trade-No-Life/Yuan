@@ -1,7 +1,7 @@
 import { Meter } from '@opentelemetry/api';
 import { IOrder } from '@yuants/data-order';
 import { MetricsMeterProvider, Terminal } from '@yuants/protocol';
-import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
+import { buildInsertManyIntoTableSQL, escape, escapeSQL, requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
 import {
   Observable,
@@ -83,10 +83,17 @@ export const publishAccountInfo = (
         try {
           await requestSQL(
             terminal,
+            `
+            update position set status= ${escapeSQL('2')} where account_id=${escapeSQL(account_id)};
+            `,
+          );
+          await requestSQL(
+            terminal,
             buildInsertManyIntoTableSQL(
               accountInfo.positions.map((item) => ({
                 ...item,
                 account_id,
+                status: '1',
               })),
               'position',
               {
@@ -99,6 +106,7 @@ export const publishAccountInfo = (
                   'position_price',
                   'closable_price',
                   'floating_profit',
+                  'status',
                 ],
                 conflictKeys: ['account_id', 'position_id'],
               },

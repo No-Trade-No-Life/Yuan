@@ -113,6 +113,13 @@ export interface IProduct {
    * 该商品属于哪一个市场
    */
   market_id?: string;
+
+  /**
+   * No interest rate
+   * If this product has interest rate.
+   * 该商品是否有资金费率
+   */
+  no_interest_rate?: boolean;
 }
 
 AddMigration({
@@ -141,6 +148,16 @@ AddMigration({
         PRIMARY KEY (datasource_id, product_id)
     );
   `,
+});
+
+AddMigration({
+  id: 'bb128de2-3f1e-4788-8e13-abae8655b63e',
+  name: 'update_table_data_product_add_no_interest_rate',
+  dependencies: ['7c9189cb-a335-4e95-8174-cd6a975d19a2'],
+  statement: `
+        ALTER TABLE public.product
+        ADD COLUMN IF NOT EXISTS no_interest_rate BOOLEAN;
+    `,
 });
 
 /**
