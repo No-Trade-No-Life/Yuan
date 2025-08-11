@@ -108,7 +108,6 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
         if (t_end > cache_t_end) {
           fetchList.push([cache_t_end + 1, t_end]);
         }
-        // TODO: 拆分 fetchList 为多个小的请求，避免单个请求过大导致超时
       }
 
       for (const [t1, t2] of fetchList) {
@@ -119,11 +118,27 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
             t1,
           )}, ${formatTime(t2)}]`,
         );
-        const sql = `select * from ohlc where series_id=${escapeSQL(
+        const _sql = `select * from ohlc where series_id=${escapeSQL(
           encodePath(datasource_id, product_id, duration),
         )} and created_at >= ${escapeSQL(formatTime(t1))} and created_at < ${escapeSQL(formatTime(t2))}
             order by created_at`;
-        const data = await requestSQL<IOHLC[]>(this.terminal, sql);
+        const step = 50000; // 拆分请求，避免过大导致网络错误
+        const data: IOHLC[] = [];
+        for (let offset = 0; ; offset += step) {
+          this.kernel.log?.(
+            `${formatTime(
+              Date.now(),
+            )} 正在从远程数据库加载 "${datasource_id}" / "${product_id}" / "${duration}" [${formatTime(
+              t1,
+            )}, ${formatTime(t2)}] offset=${offset} step=${step}`,
+          );
+          const sql = `with t as (${_sql}) select * from t limit ${step} offset ${offset}`;
+          const _data = await requestSQL<IOHLC[]>(this.terminal, sql);
+          _data.forEach((x) => {
+            data.push(x);
+          });
+          if (_data.length < step) break;
+        }
 
         this.kernel.log?.(
           `${formatTime(
