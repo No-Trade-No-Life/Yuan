@@ -99,6 +99,31 @@ Industry Pain Points:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
+Here's the English translation of your Markdown content while preserving all formatting and links:
+
+## Getting Started (Standalone Deployment) 🚀
+
+Prerequisites:
+
+- nodejs >= 22.14.0, [download Node.js](https://nodejs.org/en/download/) and install it, ensure the `npx` command is available in your local command line.
+- PostgreSQL database, [download from official website](https://www.postgresql.org/download/) and install it, obtain a PostgreSQL database connection URI (`POSTGRES_URI`).
+
+Run Yuan's Node unit from npx:
+
+1. Create a local host and connect it to your database
+
+   ```bash
+   $ POSTGRES_URI="<your-postgres-uri>" npx @yuants/node-unit
+   ```
+
+2. Connect to the newly created local host using Web GUI
+
+   Open your browser and visit http://y.ntnl.io, you will see Yuan's Web GUI.
+
+   Find the network connection at the bottom right corner, configure the host with URL `ws://localhost:8888`, then click connect.
+
+   Once connected successfully, you'll see the service list on the host and can use various services. Please follow the wizard in the GUI for further usage.
+
 ## Getting started (for developers) 🚀
 
 Prerequisites: `nodejs >= 22.14.0`, [docker](https://www.docker.com/) for image build, and [rush](https://rushjs.io/) for mono repo management.
@@ -171,10 +196,10 @@ Additionally, private data models that don't need to be shared between packages 
 
 We have identified two particularly useful properties of data: hierarchical structure and time-series nature.
 
-**Hierarchical Structure**  
+**Hierarchical Structure**
 For example, product hierarchies stem from different markets and various asset categories. Account information hierarchies originate from different brokers, parent-child account relationships, fund component structures, etc. Hierarchical properties enable us to store and manage vast amounts of data efficiently. The hierarchical nature also provides intuitive understanding - we only need to work within a specific subdirectory at any time.
 
-**Time-Series Nature**  
+**Time-Series Nature**
 Data is typically generated chronologically and continuously aggregated by time periods. Taking OHLC data as an example, we can leverage time-series characteristics for data management across different time slices. For instance, we can periodically fetch data from providers and store it in databases. Time-series data offers highly efficient storage and query performance.
 
 #### Data Collection
