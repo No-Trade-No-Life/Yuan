@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/kernel",
+      "comment": "implement pagination for SQL requests to prevent timeout errors",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/kernel"
+}
