@@ -1,9 +1,11 @@
 import { IconRefresh, IconSetting } from '@douyinfe/semi-icons';
-import { Button, Empty, Space } from '@douyinfe/semi-ui';
+import { Button, Empty, Slider, Space } from '@douyinfe/semi-ui';
 import { AccountInfoUnit, PeriodDataUnit, Series, SeriesDataUnit } from '@yuants/kernel';
-import { useObservableState } from 'observable-hooks';
+import { formatTime } from '@yuants/utils';
+import { useObservable, useObservableRef, useObservableState } from 'observable-hooks';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { debounceTime } from 'rxjs';
 import { AccountSelector } from '../AccountInfo';
 import { currentKernel$ } from '../Kernel/model';
 import { orders$ } from '../Order/model';
@@ -54,6 +56,10 @@ registerPage('TechnicalChart', () => {
   const kernel = useObservableState(currentKernel$);
   const all_orders = useObservableState(orders$);
   const [periodKey, setPeriodKey] = useState(undefined as string | undefined);
+
+  const [page, setPage] = useState(1);
+
+  const PAGE_SIZE = 20000;
 
   const periodDataMap = useMemo(() => {
     return kernel?.units.find((unit): unit is PeriodDataUnit => unit instanceof PeriodDataUnit)?.data ?? {};
@@ -126,6 +132,14 @@ registerPage('TechnicalChart', () => {
   const [accountId, setAccountId] = useState('');
   const orders = all_orders.filter((order) => order.account_id === accountId);
 
+  const [hoverIndex, setHoverIndex] = useState(-1);
+  // const [viewStartIndex, setViewStartIndex] = useState(0);
+  const [viewStartIndexRef, viewStartIndex$] = useObservableRef(0);
+  const viewStartIndex = useObservableState(
+    useObservable(() => viewStartIndex$.pipe(debounceTime(500))),
+    0,
+  );
+
   if (noData) {
     return <Empty title={t('empty_reminder')} description={t('empty_reminder_description')} />;
   }
@@ -136,6 +150,8 @@ registerPage('TechnicalChart', () => {
     // only 1 chart but not the main chart
     (Object.keys(displayConfigList).length === 1 && !displayConfigList[timeSeriesList[0]?.series_id]);
 
+  const viewEndIndex = viewStartIndex + PAGE_SIZE;
+  const totalItems = series?.[0].length ?? 0;
   return (
     <Space vertical align="start" style={{ height: '100%', width: '100%' }}>
       <Space>
@@ -147,8 +163,33 @@ registerPage('TechnicalChart', () => {
           }}
         ></Button>
         <Button icon={<IconSetting />} disabled></Button>
+        <Slider
+          showBoundary
+          style={{ width: 200 }}
+          min={0}
+          max={totalItems - PAGE_SIZE}
+          step={PAGE_SIZE / 10}
+          tipFormatter={(v) => {
+            return formatTime(selectedPeriodData[v as number]?.created_at);
+          }}
+          onChange={(v) => {
+            viewStartIndex$.next(v as number);
+          }}
+        />
+        {formatTime(selectedPeriodData[viewStartIndex]?.created_at)}
+        {' - '}
+        {formatTime(
+          (selectedPeriodData[viewEndIndex] || selectedPeriodData[selectedPeriodData.length - 1])?.created_at,
+        )}{' '}
+        #{hoverIndex + viewStartIndex}
       </Space>
-      <ChartGroup key={frame}>
+      <ChartGroup
+        key={frame}
+        viewStartIndex={viewStartIndex}
+        viewEndIndex={viewEndIndex}
+        hoverIndex={hoverIndex}
+        onHoverIndexChange={setHoverIndex}
+      >
         <div style={{ width: '100%', minHeight: '50%', flex: 'auto' }}>
           <Chart>
             <CandlestickSeries data={selectedPeriodData}>
