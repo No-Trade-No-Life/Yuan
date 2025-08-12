@@ -99,8 +99,6 @@ Industry Pain Points:
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-Here's the English translation of your Markdown content while preserving all formatting and links:
-
 ## Getting Started (Standalone Deployment) 🚀
 
 Prerequisites:

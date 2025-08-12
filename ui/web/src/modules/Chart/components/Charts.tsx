@@ -76,7 +76,6 @@ const chartDefaultOptions: DeepPartial<ChartOptions> = {
   },
 };
 const ChartApiContext = createContext<IChartApi | null>(null);
-const ChartUIContext = createContext<{ hoverIndex: number } | null>(null);
 
 // ISSUE: This is Lightweight Chart unmerged API
 // TODO: This API is merged and publish in lightweight-charts 4.1, re-eval it.
@@ -156,7 +155,8 @@ export const Chart = React.memo((props: { children: ReactNode }) => {
   const chartContainerRef = useRef<HTMLDivElement | null>(null);
   const legendRef = useRef<HTMLDivElement | null>(null);
   const [chartApi, setChartApi] = useState(null as IChartApi | null);
-  const group = useContext(ChartGroupApiContext);
+  const chartGroupContext = useContext(ChartGroupApiContext);
+  const group = chartGroupContext?.charts || new Set<IChartApi>();
 
   const chartApi$ = useMemo(() => new BehaviorSubject<IChartApi | null>(null), []);
 
@@ -205,8 +205,6 @@ export const Chart = React.memo((props: { children: ReactNode }) => {
     }
   }, [chartApi]);
 
-  const [crosshairIndex, setCrossHairIndex] = useState(-1);
-
   // Legend
   useEffect(() => {
     if (chartApi && legendRef.current) {
@@ -215,7 +213,7 @@ export const Chart = React.memo((props: { children: ReactNode }) => {
         const model = (chartApi as any)._private__chartWidget._private__model;
         const crosshair = model._private__crosshair;
         const index = crosshair._private__index;
-        setCrossHairIndex(index);
+        chartGroupContext?.onHoverIndexChange(index);
 
         // TODO: Emit Event with index
         const serieses = model._private__serieses;
@@ -223,13 +221,13 @@ export const Chart = React.memo((props: { children: ReactNode }) => {
           const { yuan_title: title, color = 'inherit' } = series._private__options;
           const p = series._internal_dataAt(index);
           // console.info('##', p, index, series);
-          if (p === undefined || p === null || Number.isNaN(p)) {
+          if (!title || p === undefined || p === null || Number.isNaN(p)) {
             // hide null data
           } else if (typeof p === 'number') {
             texts.push(`<div style="color:${color}">${title}=${p}</div>`);
           } else {
             texts.push(
-              `<div style="color:${color}">${title} O=${p.open} H=${p.high} L=${p.low} C=${p.close} #${index}</div>`,
+              `<div style="color:${color}">${title} O=${p.open} H=${p.high} L=${p.low} C=${p.close}</div>`,
             );
           }
         });
@@ -313,28 +311,34 @@ export const Chart = React.memo((props: { children: ReactNode }) => {
 
   return (
     <ChartApiContext.Provider value={chartApi}>
-      <ChartUIContext.Provider value={{ hoverIndex: crosshairIndex }}>
-        <div style={{ position: 'relative' }}>
-          <div
-            ref={legendRef}
-            style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              zIndex: 2,
-              color: isDarkmode ? 'white' : 'black',
-            }}
-          ></div>
-        </div>
-        <div style={{ width: '100%', height: '100%' }} ref={chartContainerRef} />
-        {props.children}
-      </ChartUIContext.Provider>
+      <div style={{ position: 'relative' }}>
+        <div
+          ref={legendRef}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            zIndex: 2,
+            color: isDarkmode ? 'white' : 'black',
+          }}
+        ></div>
+      </div>
+      <div style={{ width: '100%', height: '100%' }} ref={chartContainerRef} />
+      {props.children}
     </ChartApiContext.Provider>
   );
 });
 
+const useViewRange = () => {
+  const chartGroupContext = useContext(ChartGroupApiContext);
+  const viewStartIndex = chartGroupContext?.viewStartIndex ?? 0;
+  const viewEndIndex = chartGroupContext?.viewEndIndex ?? undefined;
+  return [viewStartIndex, viewEndIndex] as const;
+};
+
 export const CandlestickSeries = React.memo(
   (props: { title?: string; data: IOHLC[]; children?: React.ReactNode }) => {
+    const [viewStartIndex, viewEndIndex] = useViewRange();
     const chartApi = useContext(ChartApiContext);
     const [seriesApi, setSeriesApi] = useState<ISeriesApi<'Candlestick'>>();
     const [volumeSeriesApi, setVolumeSeriesApi] = useState<ISeriesApi<'Histogram'>>();
@@ -385,23 +389,23 @@ export const CandlestickSeries = React.memo(
 
     const candlestickData = useMemo(
       () =>
-        props.data.map((period) => ({
+        props.data.slice(viewStartIndex, viewEndIndex).map((period) => ({
           time: (new Date(period.created_at).getTime() / 1e3) as UTCTimestamp,
           open: +period.open,
           high: +period.high,
           low: +period.low,
           close: +period.close,
         })),
-      [props.data],
+      [props.data, viewStartIndex, viewEndIndex], // Ensure re-render when view range changes
     );
     const volumeData = useMemo(
       () =>
-        props.data.map((period) => ({
+        props.data.slice(viewStartIndex, viewEndIndex).map((period) => ({
           time: (new Date(period.created_at).getTime() / 1e3) as UTCTimestamp,
           value: +period.volume || 0,
           color: +period.close > +period.open ? upColor : downColor,
         })),
-      [props.data],
+      [props.data, viewStartIndex, viewEndIndex], // Ensure re-render when view range changes,
     );
 
     useEffect(() => {
@@ -444,6 +448,7 @@ export const LineSeries = React.memo(
     data: Array<{ timestamp: number; value: number }>;
   }) => {
     const chartApi = useContext(ChartApiContext);
+    const [viewStartIndex, viewEndIndex] = useViewRange();
     const seriesApiRef = useRef<ISeriesApi<'Line'>>();
 
     useEffect(() => {
@@ -468,7 +473,7 @@ export const LineSeries = React.memo(
 
     const seriesData = useMemo(
       () =>
-        props.data.map(
+        props.data.slice(viewStartIndex, viewEndIndex).map(
           (period): LineData => ({
             time: (period.timestamp / 1e3) as UTCTimestamp,
             // ISSUE: Inf / -Inf cause axis disappear, norm to NaN
@@ -479,7 +484,7 @@ export const LineSeries = React.memo(
                 : undefined,
           }),
         ),
-      [props.data],
+      [props.data, viewStartIndex, viewEndIndex],
     );
 
     useEffect(() => {
@@ -499,6 +504,7 @@ export const HistogramSeries = React.memo(
     data: Array<{ timestamp: number; value: number }>;
   }) => {
     const chartApi = useContext(ChartApiContext);
+    const [viewStartIndex, viewEndIndex] = useViewRange();
     const seriesApiRef = useRef<ISeriesApi<'Histogram'>>();
 
     useEffect(() => {
@@ -532,7 +538,7 @@ export const HistogramSeries = React.memo(
 
     const seriesData = useMemo(
       () =>
-        props.data.map(
+        props.data.slice(viewStartIndex, viewEndIndex).map(
           (period): LineData => ({
             time: (period.timestamp / 1e3) as UTCTimestamp,
             value: period.value,
@@ -543,7 +549,7 @@ export const HistogramSeries = React.memo(
               : `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5)`,
           }),
         ),
-      [props.data],
+      [props.data, viewStartIndex, viewEndIndex],
     );
 
     useEffect(() => {
@@ -557,24 +563,95 @@ export const HistogramSeries = React.memo(
   },
 );
 
-export const ChartGroupApiContext = React.createContext<Set<IChartApi> | null>(null);
+export const ChartGroupApiContext = React.createContext<{
+  charts: Set<IChartApi>;
+  viewStartIndex: number;
+  viewEndIndex: number;
+  hoverIndex: number;
+  onHoverIndexChange: (index: number) => void;
+} | null>(null);
 
-export const ChartGroup = React.memo((props: { children: React.ReactNode }) => {
-  const chartGroup = useRef(new Set<IChartApi>());
+export const ChartGroup = React.memo(
+  (props: {
+    children: React.ReactNode;
+    viewStartIndex?: number;
+    viewEndIndex?: number;
+    hoverIndex?: number;
+    onHoverIndexChange?: (index: number) => void;
+  }) => {
+    const chartGroup = useRef(new Set<IChartApi>());
 
-  return (
-    <ChartGroupApiContext.Provider value={chartGroup.current}>{props.children}</ChartGroupApiContext.Provider>
-  );
-});
+    return (
+      <ChartGroupApiContext.Provider
+        value={{
+          charts: chartGroup.current,
+          viewStartIndex: props.viewStartIndex || 0,
+          viewEndIndex: props.viewEndIndex || Infinity,
+          hoverIndex: props.hoverIndex || -1,
+          onHoverIndexChange: props.onHoverIndexChange || (() => {}),
+        }}
+      >
+        {props.children}
+      </ChartGroupApiContext.Provider>
+    );
+  },
+);
 
 interface IOrderSeriesProps {
   duration: string;
   orders: IOrder[];
+  options?: { title?: string; color?: string };
+  ohlcData?: IOHLC[];
   seriesApi?: ISeriesApi<any>;
 }
 
 export const OrderSeries = React.memo((props: IOrderSeriesProps) => {
   const { t } = useTranslation(['OrderSeries', 'common']);
+
+  const chartApi = useContext(ChartApiContext);
+  const seriesApiRef = useRef<ISeriesApi<any>>();
+  const [viewStartIndex, viewEndIndex] = useViewRange();
+
+  useEffect(() => {
+    if (chartApi) {
+      const precision = 5;
+      const series = chartApi.addLineSeries({
+        lineWidth: 1,
+        priceLineVisible: false,
+        lastValueVisible: false,
+        priceFormat: { type: 'price', precision, minMove: +(0.1 ** precision).toFixed(precision) },
+        ...props.options,
+        title: undefined,
+        // ...{ yuan_title: props.options?.title ?? "Order" },
+      });
+      seriesApiRef.current = series;
+      return () => {
+        chartApi.removeSeries(series);
+        seriesApiRef.current = undefined;
+      };
+    }
+  }, [chartApi]);
+
+  const seriesData = useMemo(
+    () =>
+      props.ohlcData?.slice(viewStartIndex, viewEndIndex).map(
+        (x, i): LineData => ({
+          time: (new Date(x.created_at!).getTime() / 1e3) as UTCTimestamp,
+          // ISSUE: Inf / -Inf cause axis disappear, norm to NaN
+          value: +x.open,
+          color: 'transparent',
+        }),
+      ) ?? [],
+    [props.ohlcData, viewStartIndex, viewEndIndex], // Ensure re-render when view range changes,
+  );
+  useEffect(() => {
+    if (chartApi) {
+      if (seriesApiRef.current) {
+        seriesApiRef.current.setData(seriesData);
+      }
+    }
+  }, [chartApi, seriesData]);
+
   const directionMapper: Record<string, string> = {
     //
     ['OPEN_LONG']: t('common:order_direction_open_long'),
@@ -582,34 +659,44 @@ export const OrderSeries = React.memo((props: IOrderSeriesProps) => {
     ['CLOSE_LONG']: t('common:order_direction_close_long'),
     ['CLOSE_SHORT']: t('common:order_direction_close_short'),
   };
-  const ordersMarkers = useMemo((): SeriesMarker<Time>[] => {
-    return props.orders.map((order): SeriesMarker<Time> => {
-      const dir = {
-        //
-        ['OPEN_LONG']: 1,
-        ['OPEN_SHORT']: -1,
-        ['CLOSE_SHORT']: 1,
-        ['CLOSE_LONG']: -1,
-      }[order.order_direction!]!;
-      const text = directionMapper[order.order_direction!];
-      // Issue: TradingView Chart will place order annotation in the next bar, so we need to align the order's time to bar's start-time
-      const divider = convertDurationToOffset(props.duration);
 
-      const alignedTimestamp = Math.floor(order.filled_at! / divider) * divider;
-      return {
-        time: (alignedTimestamp / 1e3) as UTCTimestamp,
-        position: dir > 0 ? 'belowBar' : 'aboveBar',
-        color: dir > 0 ? '#2196F3' : '#e91e63',
-        shape: dir > 0 ? 'arrowUp' : 'arrowDown',
-        text: `${text} @ ${order.traded_price} (${order.traded_volume})`,
-      };
-    });
-  }, [props.duration, props.orders, directionMapper]);
+  const markers = useMemo((): SeriesMarker<Time>[] => {
+    const viewStartTime = new Date(props.ohlcData?.[viewStartIndex]?.created_at ?? 0).getTime();
+    const viewEndTime = new Date(props.ohlcData?.[viewEndIndex! - 1]?.created_at ?? Date.now()).getTime();
+    return props.orders
+      .map((order): SeriesMarker<Time> => {
+        const dir = {
+          //
+          ['OPEN_LONG']: 1,
+          ['OPEN_SHORT']: -1,
+          ['CLOSE_SHORT']: 1,
+          ['CLOSE_LONG']: -1,
+        }[order.order_direction!]!;
+        const text = directionMapper[order.order_direction!];
+        // Issue: TradingView Chart will place order annotation in the next bar, so we need to align the order's time to bar's start-time
+        const divider = convertDurationToOffset(props.duration);
+
+        const alignedTimestamp = Math.floor(order.filled_at! / divider) * divider;
+        if (alignedTimestamp < viewStartTime || alignedTimestamp > viewEndTime) {
+          return null as any; // Skip markers outside the view range
+        }
+        return {
+          time: (alignedTimestamp / 1e3) as UTCTimestamp,
+          position: dir > 0 ? 'belowBar' : 'aboveBar',
+          color: dir > 0 ? '#2196F3' : '#e91e63',
+          shape: dir > 0 ? 'arrowUp' : 'arrowDown',
+          text: `${text} @ ${order.traded_price} (${order.traded_volume})`,
+        };
+      })
+      .filter((x) => x !== null);
+  }, [props.duration, props.orders, directionMapper, viewStartIndex, viewEndIndex, props.ohlcData]);
+
   useEffect(() => {
-    if (props.seriesApi) {
-      props.seriesApi.setMarkers(ordersMarkers);
+    if (seriesApiRef.current) {
+      seriesApiRef.current.setMarkers(markers);
     }
-  }, [props.seriesApi, ordersMarkers]);
+  }, [markers]);
+
   return null;
 });
 
@@ -621,7 +708,9 @@ export const IndexSeries = React.memo(
     ohlcData?: IOHLC[];
   }) => {
     const chartApi = useContext(ChartApiContext);
-    const uiCtx = useContext(ChartUIContext);
+    const [viewStartIndex, viewEndIndex] = useViewRange();
+    const groupContext = useContext(ChartGroupApiContext);
+
     const seriesApiRef = useRef<ISeriesApi<any>>();
 
     useEffect(() => {
@@ -634,7 +723,7 @@ export const IndexSeries = React.memo(
           priceFormat: { type: 'price', precision, minMove: +(0.1 ** precision).toFixed(precision) },
           ...props.options,
           title: undefined,
-          ...{ yuan_title: props.options?.title },
+          // ...{ yuan_title: props.options?.title },
         });
         seriesApiRef.current = series;
         return () => {
@@ -646,15 +735,15 @@ export const IndexSeries = React.memo(
 
     const seriesData = useMemo(
       () =>
-        props.data.map(
-          (period, i): LineData => ({
-            time: (period.timestamp / 1e3) as UTCTimestamp,
+        props.ohlcData?.slice(viewStartIndex, viewEndIndex).map(
+          (x, i): LineData => ({
+            time: (new Date(x.created_at).getTime() / 1e3) as UTCTimestamp,
             // ISSUE: Inf / -Inf cause axis disappear, norm to NaN
-            value: props.ohlcData && props.ohlcData[i] ? +props.ohlcData[i].low : NaN,
+            value: +x.low * (1 - 0.001),
             color: 'transparent',
           }),
-        ),
-      [props.data, props.ohlcData],
+        ) ?? [],
+      [props.ohlcData, viewStartIndex, viewEndIndex],
     );
 
     useEffect(() => {
@@ -666,9 +755,10 @@ export const IndexSeries = React.memo(
     }, [chartApi, seriesData]);
 
     const markers = useMemo((): SeriesMarker<Time>[] => {
-      if (!uiCtx) return [];
-      const theIndex = props.data[uiCtx.hoverIndex]?.value;
+      if (!groupContext) return [];
+      const theIndex = props.data[groupContext.hoverIndex + viewStartIndex]?.value;
       if (!(theIndex >= 0)) return [];
+      if (theIndex < viewStartIndex || (viewEndIndex ? theIndex >= viewEndIndex : false)) return [];
       const theRefData = props.data[theIndex];
       if (!theRefData) return [];
       return [
@@ -680,7 +770,7 @@ export const IndexSeries = React.memo(
           text: props.options?.title,
         },
       ];
-    }, [props.data, uiCtx]);
+    }, [props.data, groupContext, viewStartIndex, viewEndIndex]);
     useEffect(() => {
       if (seriesApiRef.current) {
         seriesApiRef.current.setMarkers(markers);

@@ -630,19 +630,19 @@ declare module '@yuants/ui-web' {
   const terminal$: Observable<Terminal | null>;
   const useTerminal: () => Terminal | null | undefined;
 
-  const isTerminalConnnected$: rxjs.Observable<boolean>;
+  const isTerminalConnected$: rxjs.Observable<boolean>;
 
   const useTick: (datasource_id: string, product_id: string) => rxjs.Observable<ITick>;
 
   const index_d$4_InlineTerminalId: typeof InlineTerminalId;
-  const index_d$4_isTerminalConnnected$: typeof isTerminalConnnected$;
+  const index_d$4_isTerminalConnected$: typeof isTerminalConnected$;
   const index_d$4_terminal$: typeof terminal$;
   const index_d$4_useTerminal: typeof useTerminal;
   const index_d$4_useTick: typeof useTick;
   namespace index_d$4 {
     export {
       index_d$4_InlineTerminalId as InlineTerminalId,
-      index_d$4_isTerminalConnnected$ as isTerminalConnnected$,
+      index_d$4_isTerminalConnected$ as isTerminalConnected$,
       index_d$4_terminal$ as terminal$,
       index_d$4_useTerminal as useTerminal,
       index_d$4_useTick as useTick,
@@ -689,13 +689,6 @@ declare module '@yuants/ui-web' {
 
   const FullScreenButton: () => react_jsx_runtime.JSX.Element;
 
-  interface ICryptoHostConfig {
-    label: string;
-    public_key: string;
-    private_key: string;
-    host_url: string;
-  }
-  const cryptoHosts$: rxjs.BehaviorSubject<ICryptoHostConfig[] | undefined>;
   const network$: rxjs.Observable<string[]>;
 
   interface IHostConfigItem {
@@ -717,7 +710,6 @@ declare module '@yuants/ui-web' {
   const index_d_HomePage: typeof HomePage;
   type index_d_IHostConfigItem = IHostConfigItem;
   const index_d_OHLCIdList$: typeof OHLCIdList$;
-  const index_d_cryptoHosts$: typeof cryptoHosts$;
   const index_d_currentHostConfig$: typeof currentHostConfig$;
   const index_d_hostConfigList$: typeof hostConfigList$;
   const index_d_initAction$: typeof initAction$;
@@ -736,7 +728,6 @@ declare module '@yuants/ui-web' {
       index_d_HomePage as HomePage,
       type index_d_IHostConfigItem as IHostConfigItem,
       index_d_OHLCIdList$ as OHLCIdList$,
-      index_d_cryptoHosts$ as cryptoHosts$,
       index_d_currentHostConfig$ as currentHostConfig$,
       index_d_hostConfigList$ as hostConfigList$,
       index_d_initAction$ as initAction$,
