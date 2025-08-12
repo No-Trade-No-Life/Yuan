@@ -2,6 +2,31 @@
   "name": "@yuants/kernel",
   "entries": [
     {
+      "version": "0.15.1",
+      "tag": "@yuants/kernel_v0.15.1",
+      "date": "Tue, 12 Aug 2025 08:51:40 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "implement pagination for SQL requests to prevent timeout errors"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.2.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.3.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.15.0",
       "tag": "@yuants/kernel_v0.15.0",
       "date": "Sat, 09 Aug 2025 05:56:01 GMT",
