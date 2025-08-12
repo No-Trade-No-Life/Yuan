@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-binance
 
-This log was last generated on Sat, 09 Aug 2025 05:56:01 GMT and should not be manually modified.
+This log was last generated on Tue, 12 Aug 2025 08:51:40 GMT and should not be manually modified.
+
+## 0.4.48
+Tue, 12 Aug 2025 08:51:40 GMT
+
+### Patches
+
+- add no interest rate
 
 ## 0.4.47
 Sat, 09 Aug 2025 05:56:01 GMT

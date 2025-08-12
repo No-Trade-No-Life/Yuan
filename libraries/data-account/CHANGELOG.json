@@ -2,6 +2,23 @@
   "name": "@yuants/data-account",
   "entries": [
     {
+      "version": "0.3.2",
+      "tag": "@yuants/data-account_v0.3.2",
+      "date": "Tue, 12 Aug 2025 08:51:40 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add no interest rate"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.1",
       "tag": "@yuants/data-account_v0.3.1",
       "date": "Sat, 09 Aug 2025 05:56:01 GMT",
