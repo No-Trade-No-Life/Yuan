@@ -7,17 +7,14 @@ import {
   IconLanguage,
   IconMenu,
   IconUndo,
-  IconUser,
 } from '@douyinfe/semi-icons';
-import { Avatar, Button, Dropdown, Toast } from '@douyinfe/semi-ui';
+import { Button, Dropdown } from '@douyinfe/semi-ui';
 import { t } from 'i18next';
-import { useObservableState } from 'observable-hooks';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { showForm } from '../Form';
 import i18n from '../Locale/i18n';
-import { authState$, supabase } from '../SupaBase';
 
 registerCommand('ChangeLanguage', async () => {
   const targetLang = await showForm<string>(
@@ -45,15 +42,7 @@ registerCommand('OpenSource', () => {
   open('https://github.com/No-Trade-No-Life/Yuan');
 });
 
-registerCommand('Logout', async () => {
-  const { error } = await supabase.auth.signOut();
-  if (error) {
-    Toast.error(`${t('UserMenu:sign_out_failed')}: ${error.message}`);
-  }
-});
-
 export const UserMenu = React.memo(() => {
-  const authState = useObservableState(authState$);
   const { t } = useTranslation(['UserMenu', 'common']);
 
   return (
@@ -63,19 +52,6 @@ export const UserMenu = React.memo(() => {
       position="topLeft"
       render={
         <Dropdown.Menu style={{ width: 300 }}>
-          {!authState && (
-            <>
-              <Dropdown.Item
-                icon={<IconUser />}
-                onClick={() => {
-                  executeCommand('Login');
-                }}
-              >
-                {t('sign_in')}
-              </Dropdown.Item>
-              <Dropdown.Divider />
-            </>
-          )}
           <Dropdown.Title>{t('settings')}</Dropdown.Title>
           <Dropdown.Item
             disabled={!window.showDirectoryPicker}
@@ -128,34 +104,10 @@ export const UserMenu = React.memo(() => {
           >
             {t('open_source')}
           </Dropdown.Item>
-          {authState && (
-            <>
-              <Dropdown.Divider />
-              <Dropdown.Item
-                icon={<IconExit />}
-                onClick={() => {
-                  executeCommand('Logout');
-                }}
-              >
-                {t('sign_out')}
-              </Dropdown.Item>
-            </>
-          )}
         </Dropdown.Menu>
       }
     >
-      {authState ? (
-        <Avatar
-          alt={authState.user.email}
-          src={authState.user.user_metadata['avatar_url']}
-          size="small"
-          style={{ margin: 4 }}
-        >
-          {authState.user.email![0].toUpperCase()}
-        </Avatar>
-      ) : (
-        <Button icon={<IconMenu />}></Button>
-      )}
+      <Button icon={<IconMenu />}></Button>
     </Dropdown>
   );
 });

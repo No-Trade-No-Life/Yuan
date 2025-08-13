@@ -43,7 +43,6 @@ import { orders$ } from '../Order/model';
 import { registerPage } from '../Pages';
 import { recordTable$ } from '../Shell/model';
 import { LocalAgentScene } from '../StaticFileServerStorage/LocalAgentScene';
-import { authState$ } from '../SupaBase';
 import { registerAssociationRule } from '../System';
 import { terminal$ } from '../Terminals';
 import { clearLogAction$ } from '../Workbench/Program';
@@ -221,7 +220,6 @@ registerPage('AgentConfForm', () => {
   const schema = useObservableState(agentConfSchema$) || {};
   const complete = useObservableState(complete$);
   const { t } = useTranslation('AgentConfForm');
-  const authState = useObservableState(authState$);
 
   return (
     <Layout style={{ width: '100%', height: '100%', overflow: 'hidden' }}>

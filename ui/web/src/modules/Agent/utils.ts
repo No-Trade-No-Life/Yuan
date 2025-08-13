@@ -2,7 +2,7 @@ import * as rollup from '@rollup/browser';
 import { AgentScene, IAgentConf } from '@yuants/agent';
 import { IAccountInfo } from '@yuants/data-account';
 import { IDeploySpec } from '@yuants/extension';
-import { BasicUnit, IAccountPerformance, Series } from '@yuants/kernel';
+import { BasicFileSystemUnit, BasicUnit, IAccountPerformance, Series } from '@yuants/kernel';
 import { UUID } from '@yuants/utils';
 import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
@@ -339,6 +339,17 @@ export const runBatchBackTestWorkItem = async (agentConf: IAgentConf): Promise<I
     : await LocalAgentScene({ ...agentConf, disable_log: true });
 
   const kernel = scene.kernel;
+
+  const fsUnit = new BasicFileSystemUnit(kernel);
+  fsUnit.readFile = async (filename: string) => {
+    await fs.ensureDir(path.dirname(filename));
+    const content = await fs.readFile(filename);
+    return content;
+  };
+  fsUnit.writeFile = async (filename: string, content: string) => {
+    await fs.ensureDir(path.dirname(filename));
+    await fs.writeFile(filename, content);
+  };
 
   const accountInfoLists: Record<string, IAccountInfo[]> = {};
   new BasicUnit(kernel).onEvent = () => {

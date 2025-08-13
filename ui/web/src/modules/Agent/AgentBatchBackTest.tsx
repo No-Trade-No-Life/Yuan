@@ -39,7 +39,6 @@ import { fs } from '../FileSystem/api';
 import { showForm } from '../Form';
 import { DataView } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
-import { authState$ } from '../SupaBase';
 import { registerAssociationRule } from '../System';
 import { clearLogAction$ } from '../Workbench/Program';
 import { currentHostConfig$ } from '../Workbench/model';
@@ -269,8 +268,6 @@ registerPage('AgentBatchBackTest', () => {
       }),
     );
   };
-
-  const authState = useObservableState(authState$);
 
   return (
     <Space vertical align="start" style={{ width: '100%', flexWrap: 'wrap' }}>

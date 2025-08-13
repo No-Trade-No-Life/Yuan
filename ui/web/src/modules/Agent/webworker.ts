@@ -1,4 +1,4 @@
-import { IAgentConf } from '@yuants/agent';
+import type { IAgentConf } from '@yuants/agent';
 import { runBatchBackTestWorkItem } from './utils';
 
 addEventListener('message', (event) => {

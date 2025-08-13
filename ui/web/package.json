@@ -34,7 +34,6 @@
     "@rjsf/utils": "~5.1.0",
     "@rjsf/validator-ajv8": "~5.1.0",
     "@rollup/browser": "~3.26.2",
-    "@supabase/supabase-js": "~2.31.0",
     "ajv": "~8.11.0",
     "copy-to-clipboard": "~3.3.3",
     "csv-parse": "~5.4.0",
