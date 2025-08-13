@@ -4,7 +4,6 @@ import { IDeploySpec, IEnvContext, mergeSchema } from '@yuants/extension';
 import Ajv from 'ajv';
 import { t } from 'i18next';
 import { parse } from 'jsonc-parser';
-import { useObservableState } from 'observable-hooks';
 import path from 'path-browserify';
 import { useEffect, useState } from 'react';
 import { concatMap, from, lastValueFrom, map, mergeMap, reduce, tap, toArray } from 'rxjs';
@@ -14,7 +13,6 @@ import { DeployProviders, ImageTags } from '../Extensions/utils';
 import { fs } from '../FileSystem/api';
 import { Button, DataView } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
-import { authState$ } from '../SupaBase';
 import { registerAssociationRule } from '../System';
 import { loadManifests } from './utils';
 
@@ -39,8 +37,6 @@ registerAssociationRule({
 
 registerPage('DeployConfigForm', () => {
   const { filename } = usePageParams() as { filename: string };
-
-  const authState = useObservableState(authState$);
 
   const [refreshCount, setRefreshCount] = useState(0);
 
