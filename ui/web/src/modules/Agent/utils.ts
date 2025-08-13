@@ -351,10 +351,14 @@ export const runBatchBackTestWorkItem = async (agentConf: IAgentConf): Promise<I
     await fs.writeFile(filename, content);
   };
 
-  const accountInfoLists: Record<string, IAccountInfo[]> = {};
+  // const accountInfoLists: Record<string, IAccountInfo[]> = {};
+  const mapAccountIdToEquityPoints: Record<string, { x: number; y: number }[]> = {};
   new BasicUnit(kernel).onEvent = () => {
     for (const [accountId, accountInfo] of scene.accountInfoUnit.mapAccountIdToAccountInfo.entries()) {
-      (accountInfoLists[accountId] ??= []).push(accountInfo);
+      (mapAccountIdToEquityPoints[accountId] ??= []).push({
+        x: kernel.currentTimestamp,
+        y: accountInfo.money.equity,
+      });
     }
   };
 
@@ -362,8 +366,8 @@ export const runBatchBackTestWorkItem = async (agentConf: IAgentConf): Promise<I
 
   const results: IBatchAgentResultItem[] = [];
 
-  for (const [accountId, accountInfos] of Object.entries(accountInfoLists)) {
-    const dataUrl = await generateEquityImage(accountInfos);
+  for (const [accountId, points] of Object.entries(mapAccountIdToEquityPoints)) {
+    const dataUrl = await generateEquityImage(points);
     results.push({
       agentConf: agentConf,
       performance: scene.accountPerformanceUnit.mapAccountIdToPerformance.get(accountId)!,
@@ -375,15 +379,11 @@ export const runBatchBackTestWorkItem = async (agentConf: IAgentConf): Promise<I
   return results;
 };
 
-async function generateEquityImage(accountInfos: IAccountInfo[]): Promise<string> {
-  const maxY = accountInfos.reduce((acc, cur) => Math.max(acc, cur.money.equity), -Infinity);
-  const minY = accountInfos.reduce((acc, cur) => Math.min(acc, cur.money.equity), Infinity);
-  const maxX = accountInfos
-    .filter((x) => x.updated_at! > 0)
-    .reduce((acc, cur) => Math.max(acc, cur.updated_at!), -Infinity);
-  const minX = accountInfos
-    .filter((x) => x.updated_at! > 0)
-    .reduce((acc, cur) => Math.min(acc, cur.updated_at!), Infinity);
+async function generateEquityImage(data: { x: number; y: number }[]): Promise<string> {
+  const maxY = data.reduce((acc, cur) => Math.max(acc, cur.y), -Infinity);
+  const minY = data.reduce((acc, cur) => Math.min(acc, cur.y), Infinity);
+  const maxX = data.filter((x) => x.x! > 0).reduce((acc, cur) => Math.max(acc, cur.x!), -Infinity);
+  const minX = data.filter((x) => x.x! > 0).reduce((acc, cur) => Math.min(acc, cur.x!), Infinity);
 
   const mapX = (v: number) => Math.round((1 - (maxX - v) / (maxX - minX)) * 200);
   const mapY = (v: number) => Math.round(((maxY - v) / (maxY - minY)) * 100);
@@ -403,8 +403,8 @@ async function generateEquityImage(accountInfos: IAccountInfo[]): Promise<string
   ctx.strokeStyle = 'green';
   ctx.beginPath();
   ctx.moveTo(0, mapY(0));
-  for (const info of accountInfos) {
-    ctx.lineTo(mapX(info.updated_at!), mapY(info.money.equity));
+  for (const info of data) {
+    ctx.lineTo(mapX(info.x!), mapY(info.y));
   }
   ctx.stroke();
 
