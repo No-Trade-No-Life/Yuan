@@ -28,5 +28,4 @@ export * as System from './modules/System';
 export * as Terminals from './modules/Terminals';
 export * as TradeCopier from './modules/TradeCopier';
 export * as TransferOrder from './modules/TransferOrder';
-export * as User from './modules/User';
 export * as Workbench from './modules/Workbench';

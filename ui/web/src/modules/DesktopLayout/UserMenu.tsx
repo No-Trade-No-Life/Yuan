@@ -1,5 +1,4 @@
 import {
-  IconExit,
   IconFolderOpen,
   IconGithubLogo,
   IconHelpCircle,
