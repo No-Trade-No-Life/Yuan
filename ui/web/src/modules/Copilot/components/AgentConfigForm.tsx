@@ -1,6 +1,5 @@
 import { IconTick, IconWrench } from '@douyinfe/semi-icons';
 import { Card, Space, Toast, Typography } from '@douyinfe/semi-ui';
-import { Button } from '../../Interactive';
 import { IAgentConf } from '@yuants/agent';
 import Ajv from 'ajv';
 import { JSONSchema7 } from 'json-schema';
@@ -8,10 +7,11 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { AccountFrameUnit } from '../../AccountInfo/AccountFrameUnit';
 import { accountFrameSeries$, accountPerformance$ } from '../../AccountInfo/model';
+import { recordTable$ } from '../../Agent/model';
 import Form from '../../Form';
+import { Button } from '../../Interactive';
 import { currentKernel$ } from '../../Kernel/model';
 import { orders$ } from '../../Order/model';
-import { recordTable$ } from '../../Shell/model';
 import { LocalAgentScene } from '../../StaticFileServerStorage/LocalAgentScene';
 import { IMessageCardProps } from '../model';
 

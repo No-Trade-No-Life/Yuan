@@ -27,21 +27,9 @@ const Modules = Object.fromEntries(
 Object.assign(globalThis, { Modules });
 
 // Layout -> App
-import { useObservableState } from 'observable-hooks';
-import { ready$ } from './modules/BIOS';
+import { Launch } from './modules/BIOS';
 import { DesktopLayout } from './modules/DesktopLayout';
-import { Launch } from './modules/Launch';
 import { DarkModeEffect } from './modules/Workbench';
-const App = () => {
-  const ready = useObservableState(ready$, false);
-  return (
-    <>
-      {!ready && <Launch />}
-      {ready && <DesktopLayout />}
-      <DarkModeEffect />
-    </>
-  );
-};
 
 const queryClient = new QueryClient();
 
@@ -50,7 +38,10 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <ConfigProvider getPopupContainer={() => document.getElementById('root') as HTMLElement}>
       <QueryClientProvider client={queryClient}>
-        <App />
+        <Launch>
+          <DesktopLayout />
+        </Launch>
+        <DarkModeEffect />
       </QueryClientProvider>
     </ConfigProvider>
   </React.StrictMode>,

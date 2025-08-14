@@ -1,6 +1,6 @@
 import type { IAgentConf } from '@yuants/agent';
 import { currentWorkspaceId$ } from '../FileSystem/workspaces';
-import { hostUrl$ } from '../Terminals/create-connection';
+import { hostUrl$ } from '../Network';
 import { runBatchBackTestWorkItem } from './utils';
 
 addEventListener('message', (event) => {

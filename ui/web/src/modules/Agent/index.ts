@@ -1,3 +1,3 @@
-import '../Shell/RecordTablePanel';
+import './RecordTablePanel';
 import './AgentBatchBackTest';
 import './AgentConfForm';

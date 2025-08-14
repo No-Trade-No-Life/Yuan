@@ -14,13 +14,12 @@ import {
   throwIfEmpty,
   toArray,
 } from 'rxjs';
-import { createPersistBehaviorSubject } from '../BIOS';
 import { registerCommand } from '../CommandCenter';
-import { FsBackend$, fs } from '../FileSystem';
+import { FsBackend$, createFileSystemBehaviorSubject, fs } from '../FileSystem';
 import { generateWallpaper } from './generateWallPaper';
 
 const reloadWallPaper$ = new Subject<void>();
-const currentWallPaperIndex$ = createPersistBehaviorSubject('wall-paper-index', 0);
+const currentWallPaperIndex$ = createFileSystemBehaviorSubject('wall-paper-index', 0);
 
 registerCommand('WallPaper.next', () => {
   currentWallPaperIndex$.next((currentWallPaperIndex$.value || 0) + 1);
