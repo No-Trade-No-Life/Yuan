@@ -1,20 +1,20 @@
 import { Terminal } from '@yuants/protocol';
 import { UUID } from '@yuants/utils';
 import { useObservableState } from 'observable-hooks';
-import { Observable, filter, shareReplay, switchMap } from 'rxjs';
-import { currentHostConfig$ } from '../Workbench/model';
+import { BehaviorSubject, Observable, shareReplay, switchMap } from 'rxjs';
 
-export const terminal$: Observable<Terminal | null> = currentHostConfig$.pipe(
-  filter((config): config is Exclude<typeof config, undefined> => config !== undefined),
-  switchMap((config) => {
+export const hostUrl$ = new BehaviorSubject<string | null>(null);
+
+export const terminal$: Observable<Terminal | null> = hostUrl$.pipe(
+  switchMap((host_url) => {
     return new Observable<Terminal | null>((subscriber) => {
-      if (!config) {
+      if (!host_url) {
         subscriber.next(null);
         return;
       }
-      const terminal = new Terminal(config.host_url, {
+      const terminal = new Terminal(host_url, {
         terminal_id: `@GUI/${UUID()}`,
-        name: 'Workbench GUI',
+        name: 'Workbench GUI' + (typeof window === 'undefined' ? `(worker)` : ''),
         status: 'OK',
       });
       subscriber.next(terminal);

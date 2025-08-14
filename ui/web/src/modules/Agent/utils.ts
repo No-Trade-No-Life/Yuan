@@ -8,20 +8,20 @@ import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
 import * as path from 'path-browserify';
 import {
-  Observable,
-  Subject,
+  filter,
   firstValueFrom,
   from,
   groupBy,
   lastValueFrom,
   map,
   mergeMap,
+  Observable,
   of,
+  Subject,
   toArray,
 } from 'rxjs';
 import * as ts from 'typescript';
 import { fs } from '../FileSystem/api';
-import { LocalAgentScene } from '../StaticFileServerStorage/LocalAgentScene';
 import { terminal$ } from '../Terminals/create-connection'; // ISSUE: WebWorker import this (Expected ":" but found "body")
 
 export const rollupLoadEvent$ = new Subject<{ id: string; content: string }>();
@@ -330,13 +330,13 @@ export interface IBatchAgentResultItem {
 
 export const runBatchBackTestWorkItem = async (agentConf: IAgentConf): Promise<IBatchAgentResultItem[]> => {
   if (!agentConf.bundled_code) throw new Error('No bundled_code');
-  const terminal = await firstValueFrom(terminal$);
-  const scene = terminal
-    ? await AgentScene(terminal, {
-        ...agentConf,
-        disable_log: true,
-      })
-    : await LocalAgentScene({ ...agentConf, disable_log: true });
+  const terminal = await firstValueFrom(
+    terminal$.pipe(filter((x): x is Exclude<typeof x, null> => x !== null)),
+  );
+  const scene = await AgentScene(terminal, {
+    ...agentConf,
+    disable_log: true,
+  });
 
   const kernel = scene.kernel;
 
