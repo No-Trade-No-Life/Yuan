@@ -11,7 +11,8 @@ import {
   mergeMap,
   toArray,
 } from 'rxjs';
-import { createPersistBehaviorSubject } from '../BIOS';
+import { createFileSystemBehaviorSubject } from '../FileSystem';
+import { hostUrl$ } from '../Terminals';
 
 export interface IHostConfigItem {
   //
@@ -19,12 +20,18 @@ export interface IHostConfigItem {
   host_url: string;
 }
 
-export const hostConfigList$ = createPersistBehaviorSubject<IHostConfigItem[]>('host-config-list', []);
+export const hostConfigList$ = createFileSystemBehaviorSubject<IHostConfigItem[]>('host-config-list', []);
 
-export const currentHostConfig$ = createPersistBehaviorSubject<IHostConfigItem | null>(
+export const currentHostConfig$ = createFileSystemBehaviorSubject<IHostConfigItem | null>(
   'current-host-config',
   null,
 );
+
+currentHostConfig$.subscribe((config) => {
+  if (config !== undefined) {
+    hostUrl$.next(config?.host_url || null);
+  }
+});
 
 export const initAction$ = new ReplaySubject<{ type: string; payload: any }>(1);
 

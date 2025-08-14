@@ -17,25 +17,12 @@ import { useObservable, useObservableState } from 'observable-hooks';
 import path from 'path-browserify';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import {
-  EMPTY,
-  catchError,
-  defer,
-  filter,
-  first,
-  from,
-  fromEvent,
-  map,
-  mergeMap,
-  pipe,
-  retry,
-  switchMap,
-  tap,
-} from 'rxjs';
+import { defer, filter, first, from, fromEvent, map, mergeMap, pipe, retry, switchMap, tap } from 'rxjs';
 import { agentConf$, runAgent } from '../Agent/AgentConfForm';
 import { executeCommand } from '../CommandCenter';
 import { useValue } from '../Data';
 import { fs } from '../FileSystem/api';
+import { currentWorkspaceId$ } from '../FileSystem/workspaces';
 import { showForm } from '../Form';
 import { DataView } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
@@ -46,7 +33,6 @@ import {
   IBatchAgentResultItem,
   loadBatchTasks,
   makeManifestsFromAgentConfList,
-  runBatchBackTestWorkItem,
   writeManifestsFromBatchTasks,
 } from './utils';
 import Worker from './webworker?worker';
@@ -112,39 +98,12 @@ registerPage('AgentBatchBackTest', () => {
     from(tasks)
       .pipe(
         mergeMap((task, i) => {
-          if (currentHostConfig$.value !== null) {
-            return from(runBatchBackTestWorkItem(task)).pipe(
-              tap({
-                next: (result) => {
-                  setResults((results) => results.concat(result));
-                },
-                subscribe: () => {
-                  console.info(formatTime(Date.now()), `批量回测子任务开始: ${i}/${tasks.length}`);
-                },
-                error: (err) => {
-                  console.info(formatTime(Date.now()), `批量回测子任务异常: ${i}/${tasks.length}: ${err}`);
-                },
-                complete: () => {
-                  console.info(formatTime(Date.now()), `批量回测子任务完成: ${i}/${tasks.length}`);
-                  setProgress((x) => ({
-                    ...x,
-                    current: x.current + 1,
-                    endTime: Math.max(x.endTime, Date.now()),
-                  }));
-                },
-                finalize: () => {
-                  setProgress((x) => ({
-                    ...x,
-                    endTime: Math.max(x.endTime, Date.now()),
-                  }));
-                },
-              }),
-              retry({ delay: 10000, count: 3 }),
-              catchError(() => EMPTY), // 忽略错误，跳过该任务
-            );
-          }
           const worker = new Worker();
-          worker.postMessage({ agentConf: task });
+          worker.postMessage({
+            agentConf: task,
+            hostUrl: currentHost?.host_url,
+            workspaceId: currentWorkspaceId$.value,
+          });
           return fromEvent(worker, 'message').pipe(
             //
             first(),
@@ -204,6 +163,7 @@ registerPage('AgentBatchBackTest', () => {
       for (const result of results) {
         data.push({
           净值曲线缩略图: result.equityImageSrc,
+          账户: result.accountInfo.account_id,
           配置: JSON.stringify(result.agentConf),
           回溯历史: result.performance.total_days,
           周收益率: result.performance.weekly_return_ratio,

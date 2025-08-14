@@ -221,6 +221,8 @@ declare module '@yuants/ui-web' {
    */
   const bundleCode: (entry: string, externals: string[]) => Promise<string>;
 
+  const createFileSystemBehaviorSubject: <T>(key: string, initialValue: T) => BehaviorSubject<T | undefined>;
+
   interface PackageJson {
     name?: string;
     main?: string;
@@ -259,12 +261,14 @@ declare module '@yuants/ui-web' {
 
   const index_d$f_FsBackend$: typeof FsBackend$;
   const index_d$f_bundleCode: typeof bundleCode;
+  const index_d$f_createFileSystemBehaviorSubject: typeof createFileSystemBehaviorSubject;
   const index_d$f_fs: typeof fs;
   const index_d$f_resolve: typeof resolve;
   namespace index_d$f {
     export {
       index_d$f_FsBackend$ as FsBackend$,
       index_d$f_bundleCode as bundleCode,
+      index_d$f_createFileSystemBehaviorSubject as createFileSystemBehaviorSubject,
       index_d$f_fs as fs,
       index_d$f_resolve as resolve,
     };
@@ -609,6 +613,7 @@ declare module '@yuants/ui-web' {
 
   const InlineTerminalId: (props: { terminal_id: string }) => react_jsx_runtime.JSX.Element;
 
+  const hostUrl$: BehaviorSubject<string | null>;
   const terminal$: Observable<Terminal | null>;
   const useTerminal: () => Terminal | null | undefined;
 
@@ -617,6 +622,7 @@ declare module '@yuants/ui-web' {
   const useTick: (datasource_id: string, product_id: string) => rxjs.Observable<ITick>;
 
   const index_d$3_InlineTerminalId: typeof InlineTerminalId;
+  const index_d$3_hostUrl$: typeof hostUrl$;
   const index_d$3_isTerminalConnected$: typeof isTerminalConnected$;
   const index_d$3_terminal$: typeof terminal$;
   const index_d$3_useTerminal: typeof useTerminal;
@@ -624,6 +630,7 @@ declare module '@yuants/ui-web' {
   namespace index_d$3 {
     export {
       index_d$3_InlineTerminalId as InlineTerminalId,
+      index_d$3_hostUrl$ as hostUrl$,
       index_d$3_isTerminalConnected$ as isTerminalConnected$,
       index_d$3_terminal$ as terminal$,
       index_d$3_useTerminal as useTerminal,
