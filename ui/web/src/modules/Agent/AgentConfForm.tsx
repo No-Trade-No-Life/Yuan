@@ -33,19 +33,19 @@ import {
 } from 'rxjs';
 import { AccountFrameUnit } from '../AccountInfo/AccountFrameUnit';
 import { accountFrameSeries$, accountPerformance$ } from '../AccountInfo/model';
-import { createPersistBehaviorSubject } from '../BIOS';
 import { executeCommand, registerCommand } from '../CommandCenter';
+import { createFileSystemBehaviorSubject } from '../FileSystem';
 import { fs } from '../FileSystem/api';
 import Form, { showForm } from '../Form';
 import { Button } from '../Interactive';
 import { currentKernel$ } from '../Kernel/model';
 import { orders$ } from '../Order/model';
 import { registerPage } from '../Pages';
-import { recordTable$ } from '../Shell/model';
 import { LocalAgentScene } from '../StaticFileServerStorage/LocalAgentScene';
 import { registerAssociationRule } from '../System';
 import { terminal$ } from '../Terminals';
 import { clearLogAction$ } from '../Workbench/Program';
+import { recordTable$ } from './model';
 import { bundleCode, exportSeriesToCsv } from './utils';
 
 const mapScriptParamsSchemaToAgentConfSchema = (schema: JSONSchema7): JSONSchema7 => ({
@@ -60,12 +60,12 @@ const mapScriptParamsSchemaToAgentConfSchema = (schema: JSONSchema7): JSONSchema
   ],
 });
 
-export const agentConfSchema$ = createPersistBehaviorSubject(
+export const agentConfSchema$ = createFileSystemBehaviorSubject(
   'agent-conf-schema',
   mapScriptParamsSchemaToAgentConfSchema({}),
 );
 
-export const agentConf$ = createPersistBehaviorSubject('agent-conf', {} as IAgentConf);
+export const agentConf$ = createFileSystemBehaviorSubject('agent-conf', {} as IAgentConf);
 agentConf$.subscribe((agentConf) => {
   Object.assign(globalThis, { agentConf });
 });

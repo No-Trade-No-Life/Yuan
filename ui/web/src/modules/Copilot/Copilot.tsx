@@ -6,8 +6,8 @@ import { join } from 'path-browserify';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EMPTY, Subject, catchError, defer, raceWith, tap, timeout } from 'rxjs';
-import { createPersistBehaviorSubject } from '../BIOS';
 import { executeCommand } from '../CommandCenter';
+import { createFileSystemBehaviorSubject } from '../FileSystem';
 import i18n from '../Locale/i18n';
 import { region$ } from '../Locale/utils';
 import { registerPage } from '../Pages';
@@ -25,7 +25,7 @@ export function registerCopilotMessageBlock<P extends {}>(
 
 const API_ENDPOINT = `https://api.ntnl.io/copilot`;
 
-const messages$ = createPersistBehaviorSubject<IChatMessage<any, any>[]>('copilotMessages', []);
+const messages$ = createFileSystemBehaviorSubject<IChatMessage<any, any>[]>('copilotMessages', []);
 
 registerPage('Copilot', () => {
   const [userInput, setUserInput] = useState('');

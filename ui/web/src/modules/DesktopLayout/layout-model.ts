@@ -4,8 +4,8 @@ import * as FlexLayout from 'flexlayout-react';
 import hotkeys from 'hotkeys-js';
 import { resolve } from 'path-browserify';
 import { filter, first, firstValueFrom, map, shareReplay } from 'rxjs';
-import { createPersistBehaviorSubject } from '../BIOS';
 import { executeCommand, registerCommand } from '../CommandCenter';
+import { createFileSystemBehaviorSubject } from '../FileSystem';
 import { fs } from '../FileSystem/api';
 import { showForm } from '../Form';
 
@@ -32,7 +32,7 @@ const initialJson = (): FlexLayout.IJsonModel => ({
  *
  * All Model operations should be done through this
  */
-export const layoutModelJson$ = createPersistBehaviorSubject('layout', initialJson());
+export const layoutModelJson$ = createFileSystemBehaviorSubject('layout', initialJson());
 
 // layoutModelJson$.subscribe((v) => {
 //   console.info(formatTime(Date.now()), '##layoutModelJson$', JSON.stringify(v));

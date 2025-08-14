@@ -22,7 +22,7 @@ import {
 } from 'rxjs';
 import * as ts from 'typescript';
 import { fs } from '../FileSystem/api';
-import { terminal$ } from '../Terminals/create-connection'; // ISSUE: WebWorker import this (Expected ":" but found "body")
+import { terminal$ } from '../Network';
 
 export const rollupLoadEvent$ = new Subject<{ id: string; content: string }>();
 

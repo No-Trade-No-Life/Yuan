@@ -27,6 +27,8 @@ import { FileSystemHandleBackend } from '../FileSystem/backends/FileSystemHandle
 import { InMemoryBackend } from '../FileSystem/backends/InMemoryBackend';
 import { currentWorkspace$ } from '../FileSystem/workspaces';
 import { fullLog$, log } from './log';
+export * from './createPersistBehaviorSubject';
+export * from './Launch';
 
 const url = new URL(window?.location.href ?? 'https://y.ntnl.io');
 const isDev = url.searchParams.get('mode') === 'development';
@@ -217,7 +219,6 @@ defer(async () => {
  */
 export const ready$ = new ReplaySubject(1);
 export const error$ = new ReplaySubject(1);
-export * from './createPersistBehaviorSubject';
 
 async function loadInmemoryWorkspaceFromNpm(
   scope: string | null,
