@@ -14,6 +14,7 @@ addEventListener('message', (event) => {
     hostUrl$.next(hostUrl || null);
     runBatchBackTestWorkItem(agentConf).then((x) => postMessage(x));
   } catch (e) {
+    postMessage(`Error: ${e}`);
     console.error('AgentBatchBackTest worker error', e);
   }
 });
