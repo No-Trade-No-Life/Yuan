@@ -1,6 +1,18 @@
 import { dirname } from 'path-browserify';
-import { BehaviorSubject, defaultIfEmpty, delayWhen, filter, from, map, switchMap, tap } from 'rxjs';
-import { FsBackend$, fs } from '../FileSystem';
+import {
+  BehaviorSubject,
+  catchError,
+  defaultIfEmpty,
+  defer,
+  delayWhen,
+  EMPTY,
+  filter,
+  from,
+  map,
+  switchMap,
+  tap,
+} from 'rxjs';
+import { fs, FsBackend$ } from '../FileSystem';
 
 export const createFileSystemBehaviorSubject = <T>(key: string, initialValue: T) => {
   const filename = `/.Y/states/${key}.json`;
@@ -9,8 +21,9 @@ export const createFileSystemBehaviorSubject = <T>(key: string, initialValue: T)
   // read when fsBackend ready
   FsBackend$.pipe(
     switchMap(() =>
-      from(fs.readFile(filename)).pipe(
+      defer(() => fs.readFile(filename)).pipe(
         map((x) => JSON.parse(x)),
+        catchError(() => EMPTY),
         defaultIfEmpty(initialValue),
       ),
     ),

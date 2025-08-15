@@ -11,12 +11,13 @@ import {
   map,
   merge,
   mergeMap,
+  of,
   throwIfEmpty,
   toArray,
 } from 'rxjs';
 import { registerCommand } from '../CommandCenter';
 import { FsBackend$, createFileSystemBehaviorSubject, fs } from '../FileSystem';
-import { generateWallpaper } from './generateWallPaper';
+import defaultWallPaper from './default-wallpaper.jpg';
 
 const reloadWallPaper$ = new Subject<void>();
 const currentWallPaperIndex$ = createFileSystemBehaviorSubject('wall-paper-index', 0);
@@ -84,9 +85,7 @@ export const WallPaper = React.memo(() => {
                 ),
               ),
               throwIfEmpty(() => new Error('No wallpaper found')),
-              catchError(() =>
-                generateWallpaper().then((url) => ({ filename: '', url, mime: 'image/jpeg' })),
-              ),
+              catchError(() => of({ filename: '', url: defaultWallPaper, mime: 'image/jpeg' })),
               toArray(),
             ),
           ),

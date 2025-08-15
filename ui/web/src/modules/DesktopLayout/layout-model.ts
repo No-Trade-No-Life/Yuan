@@ -34,9 +34,9 @@ const initialJson = (): FlexLayout.IJsonModel => ({
  */
 export const layoutModelJson$ = createFileSystemBehaviorSubject('layout', initialJson());
 
-// layoutModelJson$.subscribe((v) => {
-//   console.info(formatTime(Date.now()), '##layoutModelJson$', JSON.stringify(v));
-// });
+layoutModelJson$.subscribe((v) => {
+  console.info(formatTime(Date.now()), '##layoutModelJson$', JSON.stringify(v));
+});
 
 const loadPageFromURL = () => {
   const url = new URL(document.location.href);
