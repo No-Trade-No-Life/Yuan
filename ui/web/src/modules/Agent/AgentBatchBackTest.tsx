@@ -17,7 +17,23 @@ import { useObservable, useObservableState } from 'observable-hooks';
 import path from 'path-browserify';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { defer, filter, first, from, fromEvent, map, mergeMap, pipe, retry, switchMap, tap } from 'rxjs';
+import {
+  catchError,
+  defer,
+  EMPTY,
+  filter,
+  first,
+  from,
+  fromEvent,
+  map,
+  mergeMap,
+  Observable,
+  pipe,
+  retry,
+  switchMap,
+  tap,
+  timeout,
+} from 'rxjs';
 import { agentConf$, runAgent } from '../Agent/AgentConfForm';
 import { executeCommand } from '../CommandCenter';
 import { useValue } from '../Data';
@@ -98,20 +114,35 @@ registerPage('AgentBatchBackTest', () => {
     from(tasks)
       .pipe(
         mergeMap((task, i) => {
-          const worker = new Worker();
-          worker.postMessage({
-            agentConf: task,
-            hostUrl: currentHost?.host_url,
-            workspaceId: currentWorkspaceId$.value,
-          });
-          return fromEvent(worker, 'message').pipe(
+          return defer(
+            () =>
+              new Observable<any>((subscriber) => {
+                const worker = new Worker();
+                worker.postMessage({
+                  agentConf: task,
+                  hostUrl: currentHost?.host_url,
+                  workspaceId: currentWorkspaceId$.value,
+                });
+                fromEvent(worker, 'message').subscribe((e) => {
+                  subscriber.next(e);
+                });
+                return () => {
+                  worker.terminate();
+                };
+              }),
+          ).pipe(
             //
             first(),
             map((msg: any) => msg.data),
-            tap({
-              next: (result) => {
+            tap((result) => {
+              if (Array.isArray(result)) {
                 setResults((results) => results.concat(result));
-              },
+              } else {
+                throw new Error(`Unexpected result: ${result}`);
+              }
+            }),
+            timeout(30 * 60 * 1000), // 30 minutes timeout
+            tap({
               subscribe: () => {
                 console.info(formatTime(Date.now()), `批量回测子任务开始: ${i}/${tasks.length}`);
               },
@@ -131,9 +162,10 @@ registerPage('AgentBatchBackTest', () => {
                   ...x,
                   endTime: Math.max(x.endTime, Date.now()),
                 }));
-                worker.terminate();
               },
             }),
+            retry(3),
+            catchError(() => EMPTY),
           );
         }, jobs),
         tap({
@@ -149,7 +181,7 @@ registerPage('AgentBatchBackTest', () => {
             setStartLoading(true);
           },
           finalize: () => {
-            Toast.success(`批量回放结束`);
+            Toast.success(`批量回测结束`);
             setStartLoading(false);
           },
         }),
