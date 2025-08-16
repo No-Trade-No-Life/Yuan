@@ -1,15 +1,17 @@
 import { IconRefresh, IconSetting } from '@douyinfe/semi-icons';
-import { Button, Empty, Slider, Space } from '@douyinfe/semi-ui';
-import { AccountInfoUnit, PeriodDataUnit, Series, SeriesDataUnit } from '@yuants/kernel';
+import { Button, Empty, Input, Slider, Space } from '@douyinfe/semi-ui';
+import { IOrder } from '@yuants/data-model';
+import { PeriodDataUnit, Series, SeriesDataUnit } from '@yuants/kernel';
 import { formatTime } from '@yuants/utils';
 import { useObservable, useObservableRef, useObservableState } from 'observable-hooks';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { debounceTime } from 'rxjs';
+import { catchError, debounceTime, defer, map, of, pipe, switchMap } from 'rxjs';
 import { AccountSelector } from '../AccountInfo';
+import { fs } from '../FileSystem';
 import { currentKernel$ } from '../Kernel/model';
-import { orders$ } from '../Order/model';
 import { registerPage } from '../Pages';
+import { CSV } from '../Util';
 import {
   CandlestickSeries,
   Chart,
@@ -54,7 +56,32 @@ registerPage('TechnicalChart', () => {
   const [t] = useTranslation('TechnicalChart');
   const [frame, setFrame] = useState(0);
   const kernel = useObservableState(currentKernel$);
-  const all_orders = useObservableState(orders$);
+
+  const [ordersFilename, setOrdersFilename] = useState('');
+
+  useEffect(() => {
+    if (kernel) {
+      setOrdersFilename(`/.Y/kernels/${encodeURIComponent(kernel.id)}/orders.csv`);
+    }
+  }, [kernel?.id]);
+
+  const all_orders = useObservableState(
+    useObservable(
+      pipe(
+        debounceTime(200),
+        switchMap(([ordersFilename]) =>
+          defer(() => fs.readFile(ordersFilename)).pipe(
+            //
+            map((content) => CSV.parse<IOrder>(content)),
+            catchError(() => of([] as IOrder[])),
+          ),
+        ),
+      ),
+      [ordersFilename],
+    ),
+    [],
+  );
+
   const [periodKey, setPeriodKey] = useState(undefined as string | undefined);
 
   const [page, setPage] = useState(1);
@@ -121,13 +148,9 @@ registerPage('TechnicalChart', () => {
     return mapChartIdToDisplayConfigList;
   }, [series]);
 
-  const accountInfoUnit = kernel?.units.find(
-    (unit): unit is AccountInfoUnit => unit instanceof AccountInfoUnit,
-  );
-
   const accountIdOptions = useMemo(
-    () => [...(accountInfoUnit?.mapAccountIdToAccountInfo.keys() ?? [])],
-    [accountInfoUnit],
+    () => [...new Set(all_orders.map((order) => order.account_id))],
+    [all_orders],
   );
   const [accountId, setAccountId] = useState('');
   const orders = all_orders.filter((order) => order.account_id === accountId);
@@ -155,6 +178,9 @@ registerPage('TechnicalChart', () => {
   return (
     <Space vertical align="start" style={{ height: '100%', width: '100%' }}>
       <Space>
+        <Space>
+          <Input value={ordersFilename} onChange={(v) => setOrdersFilename(v)} />
+        </Space>
         <AccountSelector value={accountId} onChange={setAccountId} candidates={accountIdOptions} />
         <Button
           icon={<IconRefresh />}

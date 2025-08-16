@@ -2298,10 +2298,12 @@ importers:
       '@yuants/app-risk-manager': workspace:*
       '@yuants/cache': workspace:*
       '@yuants/data-account': workspace:*
+      '@yuants/data-interest-rate': workspace:*
       '@yuants/data-model': workspace:*
       '@yuants/data-ohlc': workspace:*
       '@yuants/data-order': workspace:*
       '@yuants/data-product': workspace:*
+      '@yuants/data-quote': workspace:*
       '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/kernel': workspace:*
@@ -2368,10 +2370,12 @@ importers:
       '@yuants/app-risk-manager': link:../../apps/risk-manager
       '@yuants/cache': link:../../libraries/cache
       '@yuants/data-account': link:../../libraries/data-account
+      '@yuants/data-interest-rate': link:../../libraries/data-interest-rate
       '@yuants/data-model': link:../../libraries/data-model
       '@yuants/data-ohlc': link:../../libraries/data-ohlc
       '@yuants/data-order': link:../../libraries/data-order
       '@yuants/data-product': link:../../libraries/data-product
+      '@yuants/data-quote': link:../../libraries/data-quote
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/extension': link:../../libraries/extension
       '@yuants/kernel': link:../../libraries/kernel
@@ -18106,7 +18110,7 @@ packages:
       pretty-format: 29.6.3
       slash: 3.0.0
       strip-json-comments: 3.1.1
-      ts-node: 10.9.2_a718138a4c76ef7ef00ec6bb7815892b
+      ts-node: 10.9.2_24c227b0eb5752a64240dae09531dbef
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
