@@ -9,13 +9,13 @@ import {
 } from '@douyinfe/semi-icons';
 import { Divider, Layout, Space, Toast } from '@douyinfe/semi-ui';
 import { AgentScene, IAgentConf, agentConfSchema } from '@yuants/agent';
-import { BasicFileSystemUnit, SeriesDataUnit } from '@yuants/kernel';
+import { BasicFileSystemUnit, HistoryOrderUnit, SeriesDataUnit } from '@yuants/kernel';
 import Ajv from 'ajv';
 import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
 import { parse } from 'jsonc-parser';
 import { useObservableState } from 'observable-hooks';
-import path from 'path-browserify';
+import path, { join } from 'path-browserify';
 import { useTranslation } from 'react-i18next';
 import {
   BehaviorSubject,
@@ -44,6 +44,7 @@ import { registerPage } from '../Pages';
 import { LocalAgentScene } from '../StaticFileServerStorage/LocalAgentScene';
 import { registerAssociationRule } from '../System';
 import { terminal$ } from '../Terminals';
+import { CSV } from '../Util';
 import { clearLogAction$ } from '../Workbench/Program';
 import { recordTable$ } from './model';
 import { bundleCode, exportSeriesToCsv } from './utils';
@@ -136,62 +137,49 @@ export const runAgent = async () => {
     }
     const terminal = await firstValueFrom(terminal$);
 
-    if (terminal === null) {
-      const agentCode = await bundleCode(agentConf.entry!);
-      const scene = await LocalAgentScene({ ...agentConf, bundled_code: agentCode });
-      const accountFrameUnit = new AccountFrameUnit(
-        scene.kernel,
-        scene.accountInfoUnit,
-        scene.accountPerformanceUnit,
-      );
-      await scene.kernel.start();
-      currentKernel$.next(scene.kernel);
+    const agentCode = await bundleCode(agentConf.entry!);
+    const scene = terminal
+      ? await AgentScene(terminal, { ...agentConf, bundled_code: agentCode })
+      : await LocalAgentScene({ ...agentConf, bundled_code: agentCode });
+    const kernel = scene.kernel;
+    const fsUnit = new BasicFileSystemUnit(kernel);
+    fsUnit.readFile = async (filename: string) => {
+      await fs.ensureDir(path.dirname(filename));
+      const content = await fs.readFile(filename);
+      return content;
+    };
+    fsUnit.writeFile = async (filename: string, content: string) => {
+      await fs.ensureDir(path.dirname(filename));
+      await fs.writeFile(filename, content);
+    };
+    const accountFrameUnit = new AccountFrameUnit(
+      scene.kernel,
+      scene.accountInfoUnit,
+      scene.accountPerformanceUnit,
+    );
+    await scene.kernel.start();
+    currentKernel$.next(scene.kernel);
 
-      recordTable$.next(scene.agentUnit.record_table);
+    recordTable$.next(scene.agentUnit.record_table);
 
-      orders$.next(scene.historyOrderUnit.historyOrders);
-      accountPerformance$.next(
-        Object.fromEntries(scene.accountPerformanceUnit.mapAccountIdToPerformance.entries()),
-      );
-      accountFrameSeries$.next(accountFrameUnit.data);
+    orders$.next(scene.historyOrderUnit.historyOrders);
+    accountPerformance$.next(
+      Object.fromEntries(scene.accountPerformanceUnit.mapAccountIdToPerformance.entries()),
+    );
+    accountFrameSeries$.next(accountFrameUnit.data);
 
-      const seriesFilename = `/.Y/kernel/${encodeURIComponent(scene.kernel.id)}/series.csv`;
-      await exportSeriesToCsv(seriesFilename, scene.kernel.findUnit(SeriesDataUnit)!.series);
-      Toast.success(`序列保存到 ${seriesFilename}`);
-    } else {
-      const agentCode = await bundleCode(agentConf.entry!);
-      const scene = await AgentScene(terminal, { ...agentConf, bundled_code: agentCode });
-      const kernel = scene.kernel;
-      const fsUnit = new BasicFileSystemUnit(kernel);
-      fsUnit.readFile = async (filename: string) => {
-        await fs.ensureDir(path.dirname(filename));
-        const content = await fs.readFile(filename);
-        return content;
-      };
-      fsUnit.writeFile = async (filename: string, content: string) => {
-        await fs.ensureDir(path.dirname(filename));
-        await fs.writeFile(filename, content);
-      };
-      const accountFrameUnit = new AccountFrameUnit(
-        scene.kernel,
-        scene.accountInfoUnit,
-        scene.accountPerformanceUnit,
-      );
-      await scene.kernel.start();
-      currentKernel$.next(scene.kernel);
+    const kernelDir = `/.Y/kernel/${encodeURIComponent(scene.kernel.id)}`;
 
-      recordTable$.next(scene.agentUnit.record_table);
+    const seriesFilename = join(kernelDir, 'series.csv');
+    await exportSeriesToCsv(seriesFilename, scene.kernel.findUnit(SeriesDataUnit)!.series);
+    Toast.success(`序列保存到 ${seriesFilename}`);
 
-      orders$.next(scene.historyOrderUnit.historyOrders);
-      accountPerformance$.next(
-        Object.fromEntries(scene.accountPerformanceUnit.mapAccountIdToPerformance.entries()),
-      );
-      accountFrameSeries$.next(accountFrameUnit.data);
-
-      const seriesFilename = `/.Y/kernel/${encodeURIComponent(scene.kernel.id)}/series.csv`;
-      await exportSeriesToCsv(seriesFilename, scene.kernel.findUnit(SeriesDataUnit)!.series);
-      Toast.success(`序列保存到 ${seriesFilename}`);
-    }
+    const ordersFilename = join(kernelDir, 'orders.csv');
+    await fs.writeFile(
+      ordersFilename,
+      CSV.stringify(scene.kernel.findUnit(HistoryOrderUnit)?.historyOrders!),
+    );
+    Toast.success(`订单保存到 ${ordersFilename}`);
 
     executeCommand('Page.open', { type: 'AccountPerformancePanel' });
 

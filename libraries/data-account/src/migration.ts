@@ -49,16 +49,6 @@ AddMigration({
 });
 
 AddMigration({
-  id: '8451f9eb-31c1-49a5-bc57-83958ff3b52e',
-  name: 'alert_table_data_product_add_market_id',
-  dependencies: [],
-  statement: `
-        ALTER TABLE public.product
-        ADD COLUMN market_id TEXT;
-      `,
-});
-
-AddMigration({
   id: '0e9eea4b-2107-4e9d-86e5-8b11c74f85d7',
   name: 'create_table_data_position',
   dependencies: [],

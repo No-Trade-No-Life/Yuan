@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/sql",
+      "comment": "fix migration",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/sql"
+}

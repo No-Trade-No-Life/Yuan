@@ -160,6 +160,15 @@ AddMigration({
     `,
 });
 
+AddMigration({
+  id: '8451f9eb-31c1-49a5-bc57-83958ff3b52e',
+  name: 'alert_table_data_product_add_market_id',
+  dependencies: ['7c9189cb-a335-4e95-8174-cd6a975d19a2'],
+  statement: `
+      ALTER TABLE public.product ADD COLUMN market_id TEXT;
+  `,
+});
+
 /**
  * @see https://tradelife.feishu.cn/wiki/wikcnRNzWSF7jtkH8nGruaMhhlh
  *

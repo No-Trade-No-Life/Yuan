@@ -530,7 +530,7 @@ registerPage('AgentBatchBackTest', () => {
               <Space>
                 <Button
                   onClick={() => {
-                    agentConf$.next(ctx.getValue().agentConf);
+                    agentConf$.next(ctx.row.original.agentConf);
                     runAgent();
                   }}
                 >
