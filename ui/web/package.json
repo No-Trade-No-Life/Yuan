@@ -36,8 +36,6 @@
     "@rollup/browser": "~3.26.2",
     "ajv": "~8.11.0",
     "copy-to-clipboard": "~3.3.3",
-    "csv-parse": "~5.4.0",
-    "csv-stringify": "~6.2.0",
     "date-fns": "~2.29.1",
     "downloadjs": "~1.4.7",
     "echarts": "~5.4.3",
@@ -76,7 +74,8 @@
     "@dnd-kit/sortable": "~10.0.0",
     "@dnd-kit/utilities": "~3.2.2",
     "@yuants/data-quote": "workspace:*",
-    "@yuants/data-interest-rate": "workspace:*"
+    "@yuants/data-interest-rate": "workspace:*",
+    "papaparse": "~5.5.3"
   },
   "devDependencies": {
     "@originjs/vite-plugin-commonjs": "~1.0.3",
@@ -93,6 +92,7 @@
     "rollup-plugin-dts": "~6.1.1",
     "vite-plugin-pwa": "~0.20.2",
     "@vite-pwa/assets-generator": "~0.2.4",
-    "@types/ini": "~4.1.1"
+    "@types/ini": "~4.1.1",
+    "@types/papaparse": "~5.3.16"
   }
 }

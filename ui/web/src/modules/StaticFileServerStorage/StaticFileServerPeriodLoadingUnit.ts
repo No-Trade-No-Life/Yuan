@@ -3,7 +3,6 @@ export {};
 // import { IProduct } from '@yuants/data-product';
 // import { BasicUnit, Kernel, PeriodDataUnit, ProductDataUnit } from '@yuants/kernel';
 // import { formatTime } from '@yuants/utils';
-// import { parse as csvParse } from 'csv-parse/browser/esm/sync';
 // import { parse } from 'date-fns';
 // import { filter, from, lastValueFrom, map, mergeMap, toArray } from 'rxjs';
 

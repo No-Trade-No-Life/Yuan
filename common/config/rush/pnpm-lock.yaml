@@ -2289,6 +2289,7 @@ importers:
       '@types/downloadjs': ~1.4.3
       '@types/ini': ~4.1.1
       '@types/json-schema': ~7.0.11
+      '@types/papaparse': ~5.3.16
       '@types/path-browserify': ^1.0.0
       '@types/react': ^18.2.29
       '@types/react-dom': 18.2.7
@@ -2313,8 +2314,6 @@ importers:
       '@yuants/utils': workspace:*
       ajv: ~8.11.0
       copy-to-clipboard: ~3.3.3
-      csv-parse: ~5.4.0
-      csv-stringify: ~6.2.0
       date-fns: ~2.29.1
       downloadjs: ~1.4.7
       echarts: ~5.4.3
@@ -2335,6 +2334,7 @@ importers:
       lightweight-charts: ~3.8.0
       monaco-editor: ~0.40.0
       observable-hooks: ~4.2.0
+      papaparse: ~5.5.3
       path-browserify: ^1.0.1
       react: ^18.2.0
       react-dom: ^18.2.0
@@ -2385,8 +2385,6 @@ importers:
       '@yuants/utils': link:../../libraries/utils
       ajv: 8.11.2
       copy-to-clipboard: 3.3.3
-      csv-parse: 5.4.1
-      csv-stringify: 6.2.4
       date-fns: 2.29.3
       downloadjs: 1.4.7
       echarts: 5.4.3
@@ -2407,6 +2405,7 @@ importers:
       lightweight-charts: 3.8.0
       monaco-editor: 0.40.0
       observable-hooks: 4.2.3_21bcef9a91ca98b9fc3ed9835ca1c6ff
+      papaparse: 5.5.3
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-i18next: 13.2.1_98cade5ad3a97019d15195744e997f78
@@ -2424,6 +2423,7 @@ importers:
       '@types/downloadjs': 1.4.3
       '@types/ini': 4.1.1
       '@types/json-schema': 7.0.12
+      '@types/papaparse': 5.3.16
       '@types/path-browserify': 1.0.0
       '@types/react': 18.2.37
       '@types/react-dom': 18.2.7
@@ -10540,6 +10540,12 @@ packages:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
     dev: false
 
+  /@types/papaparse/5.3.16:
+    resolution: {integrity: sha512-T3VuKMC2H0lgsjI9buTB3uuKj3EMD2eap1MOuEQuBQ44EnDx/IkGhU6EwiTf9zG3za4SKlmwKAImdDKdNnCsXg==}
+    dependencies:
+      '@types/node': 22.7.5
+    dev: true
+
   /@types/parse-json/4.0.0:
     resolution: {integrity: sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==}
     dev: false
@@ -13338,14 +13344,6 @@ packages:
 
   /csstype/3.1.2:
     resolution: {integrity: sha512-I7K1Uu0MBPzaFKg4nI5Q7Vs2t+3gWWW648spaF+Rg7pI9ds18Ugn+lvg4SHczUdKlHI5LWBXyqfS8+DufyBsgQ==}
-
-  /csv-parse/5.4.1:
-    resolution: {integrity: sha512-DL6gLkEatPgB8Fkwf5igeiSIBTY2MVDWb0Edp+cdbK/U+5IXVvVEEOjno9yA8+Dgyu0HaRZ5P/kOVqgUzGJGUA==}
-    dev: false
-
-  /csv-stringify/6.2.4:
-    resolution: {integrity: sha512-RVzGaBeHl0IspzOSiNr1e7XDM7ajuESlqetQbxH2pBPplIWycx0gAVclxNEa4lc91brK6LIE0PrdEoHtZYIHIQ==}
-    dev: false
 
   /cytoscape-cose-bilkent/4.1.0_cytoscape@3.27.0:
     resolution: {integrity: sha512-wgQlVIUJF13Quxiv5e1gstZ08rnZj2XaLHGoFMYXz7SkNfCDOOteKBE6SYRfA9WxxI/iBc3ajfDoc6hb/MRAHQ==}
@@ -21489,6 +21487,10 @@ packages:
 
   /pako/2.1.0:
     resolution: {integrity: sha512-w+eufiZ1WuJYgPXbV/PO3NCMEc3xqylkKHzp8bxp1uW4qaSNQUkwmLLEc3kKsfz8lpV1F8Ht3U1Cm+9Srog2ug==}
+    dev: false
+
+  /papaparse/5.5.3:
+    resolution: {integrity: sha512-5QvjGxYVjxO59MGU2lHVYpRWBBtKHnlIAcSe1uNFCkkptUh63NFRj0FJQm7nR67puEruUci/ZkjmEFrjCAyP4A==}
     dev: false
 
   /param-case/3.0.4:
