@@ -1,6 +1,5 @@
-import { Descriptions, List, Space } from '@douyinfe/semi-ui';
+import { Descriptions, List } from '@douyinfe/semi-ui';
 import { Table, flexRender } from '@tanstack/react-table';
-import React from 'react';
 
 export function ListView<T>(props: { table: Table<T> }) {
   const { table } = props;
@@ -11,19 +10,20 @@ export function ListView<T>(props: { table: Table<T> }) {
           <Descriptions>
             {table.getHeaderGroups().map((headerGroup) =>
               headerGroup.headers.map((header, idx) => {
+                const cell = row.getVisibleCells().find((cell) => cell.column.id === header.column.id);
+                if (!cell) {
+                  return null;
+                }
                 return (
                   <Descriptions.Item
-                    key={headerGroup.id + '/' + idx}
+                    key={headerGroup.id + '/' + cell.id}
                     itemKey={
                       header.isPlaceholder
                         ? null
                         : flexRender(header.column.columnDef.header, header.getContext())
                     }
                   >
-                    {row
-                      .getVisibleCells()
-                      .filter((cell) => cell.column.id === header.column.id)
-                      .map((cell) => flexRender(cell.column.columnDef.cell, cell.getContext()))}
+                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
                   </Descriptions.Item>
                 );
               }),
