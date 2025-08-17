@@ -63,7 +63,7 @@ registerPage('TechnicalChart', () => {
     if (kernel) {
       setOrdersFilename(`/.Y/kernels/${encodeURIComponent(kernel.id)}/orders.csv`);
     }
-  }, [kernel?.id]);
+  }, [kernel]);
 
   const all_orders = useObservableState(
     useObservable(
@@ -179,7 +179,7 @@ registerPage('TechnicalChart', () => {
     <Space vertical align="start" style={{ height: '100%', width: '100%' }}>
       <Space>
         <Space>
-          <Input value={ordersFilename} onChange={(v) => setOrdersFilename(v)} />
+          <Input prefix="订单文件路径" value={ordersFilename} onChange={(v) => setOrdersFilename(v)} />
         </Space>
         <AccountSelector value={accountId} onChange={setAccountId} candidates={accountIdOptions} />
         <Button
@@ -189,19 +189,21 @@ registerPage('TechnicalChart', () => {
           }}
         ></Button>
         <Button icon={<IconSetting />} disabled></Button>
-        <Slider
-          showBoundary
-          style={{ width: 200 }}
-          min={0}
-          max={totalItems - PAGE_SIZE}
-          step={PAGE_SIZE / 10}
-          tipFormatter={(v) => {
-            return formatTime(selectedPeriodData[v as number]?.created_at);
-          }}
-          onChange={(v) => {
-            viewStartIndex$.next(v as number);
-          }}
-        />
+        {totalItems - PAGE_SIZE > 0 && (
+          <Slider
+            showBoundary
+            style={{ width: 200 }}
+            min={0}
+            max={totalItems - PAGE_SIZE}
+            step={PAGE_SIZE / 10}
+            tipFormatter={(v) => {
+              return formatTime(selectedPeriodData[v as number]?.created_at);
+            }}
+            onChange={(v) => {
+              viewStartIndex$.next(v as number);
+            }}
+          />
+        )}
         {formatTime(selectedPeriodData[viewStartIndex]?.created_at)}
         {' - '}
         {formatTime(
