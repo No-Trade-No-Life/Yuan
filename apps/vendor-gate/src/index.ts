@@ -6,7 +6,6 @@ import {
   publishAccountInfo,
 } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
-import { ITick } from '@yuants/data-model';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import { encodePath, formatTime } from '@yuants/utils';
 import {
@@ -285,51 +284,51 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
   publishAccountInfo(terminal, SPOT_USDT_ACCOUNT_ID, spotAccountInfo$);
   addAccountMarket(terminal, { account_id: SPOT_USDT_ACCOUNT_ID, market_id: 'GATE/SPOT' });
 
-  const futuresTickers$ = defer(async () => {
-    const contractRes = await client.getFuturesContracts('usdt');
-    if (!(contractRes instanceof Array)) {
-      throw new Error(`${contractRes}`);
-    }
-    const tickerRes = await client.getFuturesTickers('usdt');
-    if (!(tickerRes instanceof Array)) {
-      throw new Error(`${contractRes}`);
-    }
-    const mapContractNameToContract = new Map(contractRes.map((v) => [v.name, v]));
-    const mapContractNameToTicker = new Map(tickerRes.map((v) => [v.contract, v]));
-    const ret: Record<string, ITick> = {};
-    for (const contractName of mapContractNameToContract.keys()) {
-      const ticker = mapContractNameToTicker.get(contractName);
-      const contract = mapContractNameToContract.get(contractName);
-      if (!ticker || !contract) {
-        continue;
-      }
-      const tick: ITick = {
-        datasource_id: 'GATE-FUTURE',
-        product_id: contractName,
-        updated_at: Date.now(),
-        price: +ticker.last,
-        ask: +ticker.lowest_ask,
-        bid: +ticker.highest_bid,
-        volume: +ticker.volume_24h,
-        open_interest: +ticker.total_size,
-        settlement_scheduled_at: contract.funding_next_apply * 1000,
-        interest_rate_for_long: -+contract.funding_rate,
-        interest_rate_for_short: +contract.funding_rate,
-      };
-      ret[contractName] = tick;
-    }
-    return ret;
-  }).pipe(
-    //
-    tap({
-      error: (e) => {
-        console.error(formatTime(Date.now()), 'FuturesTickers', e);
-      },
-    }),
-    retry({ delay: 5000 }),
-    repeat({ delay: 5000 }),
-    shareReplay(1),
-  );
+  // const futuresTickers$ = defer(async () => {
+  //   const contractRes = await client.getFuturesContracts('usdt');
+  //   if (!(contractRes instanceof Array)) {
+  //     throw new Error(`${contractRes}`);
+  //   }
+  //   const tickerRes = await client.getFuturesTickers('usdt');
+  //   if (!(tickerRes instanceof Array)) {
+  //     throw new Error(`${contractRes}`);
+  //   }
+  //   const mapContractNameToContract = new Map(contractRes.map((v) => [v.name, v]));
+  //   const mapContractNameToTicker = new Map(tickerRes.map((v) => [v.contract, v]));
+  //   const ret: Record<string, ITick> = {};
+  //   for (const contractName of mapContractNameToContract.keys()) {
+  //     const ticker = mapContractNameToTicker.get(contractName);
+  //     const contract = mapContractNameToContract.get(contractName);
+  //     if (!ticker || !contract) {
+  //       continue;
+  //     }
+  //     const tick: ITick = {
+  //       datasource_id: 'GATE-FUTURE',
+  //       product_id: contractName,
+  //       updated_at: Date.now(),
+  //       price: +ticker.last,
+  //       ask: +ticker.lowest_ask,
+  //       bid: +ticker.highest_bid,
+  //       volume: +ticker.volume_24h,
+  //       open_interest: +ticker.total_size,
+  //       settlement_scheduled_at: contract.funding_next_apply * 1000,
+  //       interest_rate_for_long: -+contract.funding_rate,
+  //       interest_rate_for_short: +contract.funding_rate,
+  //     };
+  //     ret[contractName] = tick;
+  //   }
+  //   return ret;
+  // }).pipe(
+  //   //
+  //   tap({
+  //     error: (e) => {
+  //       console.error(formatTime(Date.now()), 'FuturesTickers', e);
+  //     },
+  //   }),
+  //   retry({ delay: 5000 }),
+  //   repeat({ delay: 5000 }),
+  //   shareReplay(1),
+  // );
 
   const marketDepth$ = memoizeMap((contract_name: string) =>
     defer(async () => {

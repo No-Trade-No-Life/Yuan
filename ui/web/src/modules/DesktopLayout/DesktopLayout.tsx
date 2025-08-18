@@ -1,25 +1,24 @@
 import { IconHome } from '@douyinfe/semi-icons';
 import { Layout, Space } from '@douyinfe/semi-ui';
-import { Actions, Layout as FlexLayout, TabNode } from 'flexlayout-react';
+import { Layout as FlexLayout, TabNode } from 'flexlayout-react';
 import { useObservableState } from 'observable-hooks';
 import { useMemo } from 'react';
-import { createPersistBehaviorSubject } from '../BIOS';
 import { CommandCenter, executeCommand } from '../CommandCenter';
-import { fs } from '../FileSystem';
+import { createFileSystemBehaviorSubject, fs } from '../FileSystem';
 import { Button } from '../Interactive';
 import { LocalizePageTitle, Page } from '../Pages';
 import { ErrorBoundary } from '../Pages/ErrorBoundary';
 import { registerAssociationRule } from '../System';
 import { NetworkStatusWidget } from '../Terminals/NetworkStatusWidget';
-import { UserMenu } from '../User/UserMenu';
 import { FullScreenButton, HomePage, isShowHome$, toggleShowHome } from '../Workbench';
 import { DarkmodeSwitch } from '../Workbench/DarkmodeSwitch';
+import { UserMenu } from './UserMenu';
 import { WallPaper } from './WallPaper';
 import { layoutModel$, layoutModelJson$ } from './layout-model';
 
-export const isHideNavigator$ = createPersistBehaviorSubject('hide-navigator', false);
+export const isHideNavigator$ = createFileSystemBehaviorSubject('hide-navigator', false);
 
-const isFullScreen$ = createPersistBehaviorSubject('full-screen', false);
+const isFullScreen$ = createFileSystemBehaviorSubject('full-screen', false);
 
 registerAssociationRule({
   id: 'Layout',

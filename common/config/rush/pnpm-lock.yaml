@@ -15,7 +15,6 @@ importers:
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
       '@yuants/data-account': workspace:*
-      '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
@@ -28,7 +27,6 @@ importers:
       typescript: ~4.7.4
     dependencies:
       '@yuants/data-account': link:../../libraries/data-account
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
@@ -62,7 +60,6 @@ importers:
       '@types/path-browserify': ~1.0.0
       '@yuants/agent': workspace:*
       '@yuants/data-account': workspace:*
-      '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/kernel': workspace:*
       '@yuants/protocol': workspace:*
@@ -79,7 +76,6 @@ importers:
       '@rollup/browser': 3.26.3
       '@yuants/agent': link:../../libraries/agent
       '@yuants/data-account': link:../../libraries/data-account
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/kernel': link:../../libraries/kernel
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/utils': link:../../libraries/utils
@@ -113,7 +109,6 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
-      '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -125,7 +120,6 @@ importers:
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/utils': link:../../libraries/utils
       ajv: 8.12.0
@@ -189,7 +183,6 @@ importers:
       '@types/mailparser': ~3.4.4
       '@types/node': '22'
       '@types/nodemailer': ~6.4.7
-      '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
@@ -201,7 +194,6 @@ importers:
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
@@ -233,7 +225,6 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
-      '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -243,7 +234,6 @@ importers:
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/utils': link:../../libraries/utils
       axios: 1.2.6
@@ -271,7 +261,6 @@ importers:
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
       '@types/ws': ~8.5.3
-      '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/host-manager': workspace:*
       '@yuants/protocol': workspace:*
@@ -280,7 +269,6 @@ importers:
       typescript: ~4.7.4
       ws: ~8.8.1
     dependencies:
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/host-manager': link:../../libraries/host-manager
       '@yuants/protocol': link:../../libraries/protocol
       rxjs: 7.5.7
@@ -308,7 +296,6 @@ importers:
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
       '@types/ws': ~8.5.3
-      '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/host-manager': workspace:*
       '@yuants/protocol': workspace:*
@@ -318,7 +305,6 @@ importers:
       typescript: ~4.7.4
       ws: ~8.8.1
     dependencies:
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/host-manager': link:../../libraries/host-manager
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/utils': link:../../libraries/utils
@@ -350,7 +336,6 @@ importers:
       '@types/node': '22'
       '@types/node-fetch': ~2.6.9
       '@types/tar': ~6.1.10
-      '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
@@ -361,7 +346,6 @@ importers:
       typescript: ~4.7.4
     dependencies:
       '@kubernetes/client-node': 0.20.0
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/extension': link:../../libraries/extension
       '@yuants/utils': link:../../libraries/utils
       deep-equal: 2.2.3
@@ -391,7 +375,6 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
-      '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -399,7 +382,6 @@ importers:
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/utils': link:../../libraries/utils
       rxjs: 7.5.7
@@ -415,6 +397,39 @@ importers:
       '@yuants/tool-kit': link:../../tools/toolkit
       typescript: 4.7.4
 
+  ../../apps/node-unit:
+    specifiers:
+      '@microsoft/api-extractor': ~7.30.0
+      '@rushstack/heft': ~0.47.5
+      '@rushstack/heft-jest-plugin': ~0.16.8
+      '@rushstack/heft-node-rig': ~1.10.7
+      '@types/heft-jest': 1.0.3
+      '@types/json-schema': ~7.0.11
+      '@types/node': '22'
+      '@yuants/app-host': workspace:*
+      '@yuants/app-postgres-storage': workspace:*
+      '@yuants/extension': workspace:*
+      '@yuants/protocol': workspace:*
+      '@yuants/tool-kit': workspace:*
+      rxjs: ~7.5.6
+      typescript: ~4.7.4
+    dependencies:
+      '@yuants/app-host': link:../host
+      '@yuants/app-postgres-storage': link:../postgres-storage
+      '@yuants/protocol': link:../../libraries/protocol
+      rxjs: 7.5.7
+    devDependencies:
+      '@microsoft/api-extractor': 7.30.1
+      '@rushstack/heft': 0.47.11
+      '@rushstack/heft-jest-plugin': 0.16.8_cd919cf15781346720f8e992576a8e2b
+      '@rushstack/heft-node-rig': 1.10.13_@rushstack+heft@0.47.11
+      '@types/heft-jest': 1.0.3
+      '@types/json-schema': 7.0.15
+      '@types/node': 22.7.5
+      '@yuants/extension': link:../../libraries/extension
+      '@yuants/tool-kit': link:../../tools/toolkit
+      typescript: 4.7.4
+
   ../../apps/portal:
     specifiers:
       '@microsoft/api-extractor': ~7.30.0
@@ -424,7 +439,6 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
-      '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
@@ -434,7 +448,6 @@ importers:
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
@@ -461,7 +474,6 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
-      '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
@@ -473,7 +485,6 @@ importers:
       typescript: ~4.7.4
     dependencies:
       '@types/json-schema': 7.0.15
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
@@ -500,7 +511,6 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
-      '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -509,7 +519,6 @@ importers:
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/utils': link:../../libraries/utils
       ajv: 8.12.0
@@ -536,7 +545,6 @@ importers:
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
       '@yuants/data-account': workspace:*
-      '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
@@ -548,7 +556,6 @@ importers:
       typescript: ~4.7.4
     dependencies:
       '@yuants/data-account': link:../../libraries/data-account
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/sql': link:../../libraries/sql
       '@yuants/transfer': link:../../libraries/transfer
@@ -577,7 +584,6 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
-      '@yuants/data-model': workspace:*
       '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
@@ -589,7 +595,6 @@ importers:
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/sql': link:../../libraries/sql
@@ -619,7 +624,6 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
-      '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
@@ -631,7 +635,6 @@ importers:
       typescript: ~4.7.4
     dependencies:
       '@types/json-schema': 7.0.15
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
@@ -707,7 +710,6 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
-      '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
@@ -719,7 +721,6 @@ importers:
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/sql': link:../../libraries/sql
       '@yuants/transfer': link:../../libraries/transfer
@@ -748,7 +749,6 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
-      '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
@@ -760,7 +760,6 @@ importers:
       typescript: ~4.7.4
     dependencies:
       '@types/json-schema': 7.0.15
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
@@ -788,7 +787,6 @@ importers:
       '@types/node': '22'
       '@yuants/data-account': workspace:*
       '@yuants/data-interest-rate': workspace:*
-      '@yuants/data-model': workspace:*
       '@yuants/data-ohlc': workspace:*
       '@yuants/data-product': workspace:*
       '@yuants/data-series': workspace:*
@@ -805,7 +803,6 @@ importers:
     dependencies:
       '@yuants/data-account': link:../../libraries/data-account
       '@yuants/data-interest-rate': link:../../libraries/data-interest-rate
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/data-ohlc': link:../../libraries/data-ohlc
       '@yuants/data-product': link:../../libraries/data-product
       '@yuants/data-series': link:../../libraries/data-series
@@ -837,7 +834,6 @@ importers:
       '@types/node': '22'
       '@yuants/data-account': workspace:*
       '@yuants/data-interest-rate': workspace:*
-      '@yuants/data-model': workspace:*
       '@yuants/data-ohlc': workspace:*
       '@yuants/data-product': workspace:*
       '@yuants/data-quote': workspace:*
@@ -855,7 +851,6 @@ importers:
     dependencies:
       '@yuants/data-account': link:../../libraries/data-account
       '@yuants/data-interest-rate': link:../../libraries/data-interest-rate
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/data-ohlc': link:../../libraries/data-ohlc
       '@yuants/data-product': link:../../libraries/data-product
       '@yuants/data-quote': link:../../libraries/data-quote
@@ -887,7 +882,6 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/node': '22'
       '@yuants/data-account': workspace:*
-      '@yuants/data-model': workspace:*
       '@yuants/data-ohlc': workspace:*
       '@yuants/data-order': workspace:*
       '@yuants/data-product': workspace:*
@@ -902,7 +896,6 @@ importers:
       typescript: ~4.7.4
     dependencies:
       '@yuants/data-account': link:../../libraries/data-account
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/data-ohlc': link:../../libraries/data-ohlc
       '@yuants/data-order': link:../../libraries/data-order
       '@yuants/data-product': link:../../libraries/data-product
@@ -932,7 +925,6 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/node': '22'
       '@yuants/data-interest-rate': workspace:*
-      '@yuants/data-model': workspace:*
       '@yuants/data-product': workspace:*
       '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
@@ -947,7 +939,6 @@ importers:
       typescript: ~4.7.4
     dependencies:
       '@yuants/data-interest-rate': link:../../libraries/data-interest-rate
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/data-product': link:../../libraries/data-product
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
@@ -978,7 +969,6 @@ importers:
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
       '@yuants/data-account': workspace:*
-      '@yuants/data-model': workspace:*
       '@yuants/data-order': workspace:*
       '@yuants/data-product': workspace:*
       '@yuants/extension': workspace:*
@@ -993,7 +983,6 @@ importers:
       zeromq: 6.4.2
     dependencies:
       '@yuants/data-account': link:../../libraries/data-account
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/data-order': link:../../libraries/data-order
       '@yuants/data-product': link:../../libraries/data-product
       '@yuants/protocol': link:../../libraries/protocol
@@ -1025,7 +1014,6 @@ importers:
       '@types/node': '22'
       '@yuants/data-account': workspace:*
       '@yuants/data-interest-rate': workspace:*
-      '@yuants/data-model': workspace:*
       '@yuants/data-order': workspace:*
       '@yuants/data-product': workspace:*
       '@yuants/data-series': workspace:*
@@ -1041,7 +1029,6 @@ importers:
     dependencies:
       '@yuants/data-account': link:../../libraries/data-account
       '@yuants/data-interest-rate': link:../../libraries/data-interest-rate
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/data-order': link:../../libraries/data-order
       '@yuants/data-product': link:../../libraries/data-product
       '@yuants/data-series': link:../../libraries/data-series
@@ -1073,7 +1060,6 @@ importers:
       '@yuants/cache': workspace:*
       '@yuants/data-account': workspace:*
       '@yuants/data-interest-rate': workspace:*
-      '@yuants/data-model': workspace:*
       '@yuants/data-order': workspace:*
       '@yuants/data-product': workspace:*
       '@yuants/data-quote': workspace:*
@@ -1092,7 +1078,6 @@ importers:
       '@yuants/cache': link:../../libraries/cache
       '@yuants/data-account': link:../../libraries/data-account
       '@yuants/data-interest-rate': link:../../libraries/data-interest-rate
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/data-order': link:../../libraries/data-order
       '@yuants/data-product': link:../../libraries/data-product
       '@yuants/data-quote': link:../../libraries/data-quote
@@ -1126,7 +1111,6 @@ importers:
       '@types/node': '22'
       '@yuants/data-account': workspace:*
       '@yuants/data-interest-rate': workspace:*
-      '@yuants/data-model': workspace:*
       '@yuants/data-product': workspace:*
       '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
@@ -1145,7 +1129,6 @@ importers:
       '@msgpack/msgpack': 3.1.2
       '@yuants/data-account': link:../../libraries/data-account
       '@yuants/data-interest-rate': link:../../libraries/data-interest-rate
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/data-product': link:../../libraries/data-product
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
@@ -1178,7 +1161,6 @@ importers:
       '@types/node': '22'
       '@yuants/data-account': workspace:*
       '@yuants/data-interest-rate': workspace:*
-      '@yuants/data-model': workspace:*
       '@yuants/data-ohlc': workspace:*
       '@yuants/data-order': workspace:*
       '@yuants/data-product': workspace:*
@@ -1198,7 +1180,6 @@ importers:
     dependencies:
       '@yuants/data-account': link:../../libraries/data-account
       '@yuants/data-interest-rate': link:../../libraries/data-interest-rate
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/data-ohlc': link:../../libraries/data-ohlc
       '@yuants/data-order': link:../../libraries/data-order
       '@yuants/data-product': link:../../libraries/data-product
@@ -1232,7 +1213,6 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/node': '22'
       '@yuants/data-account': workspace:*
-      '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -1244,7 +1224,6 @@ importers:
       typescript: ~4.7.4
     dependencies:
       '@yuants/data-account': link:../../libraries/data-account
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/transfer': link:../../libraries/transfer
       '@yuants/utils': link:../../libraries/utils
@@ -1270,7 +1249,6 @@ importers:
       '@rushstack/heft-node-rig': ~1.10.7
       '@types/heft-jest': 1.0.3
       '@types/node': '22'
-      '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -1280,7 +1258,6 @@ importers:
       ts-node: ~10.9.2
       typescript: ~4.7.4
     dependencies:
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/utils': link:../../libraries/utils
       crypto-js: 4.2.0
@@ -1305,7 +1282,6 @@ importers:
       '@rushstack/heft-node-rig': ~1.10.7
       '@types/heft-jest': 1.0.3
       '@types/node': '22'
-      '@yuants/data-model': workspace:*
       '@yuants/data-ohlc': workspace:*
       '@yuants/data-product': workspace:*
       '@yuants/data-series': workspace:*
@@ -1317,7 +1293,6 @@ importers:
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/data-ohlc': link:../../libraries/data-ohlc
       '@yuants/data-product': link:../../libraries/data-product
       '@yuants/data-series': link:../../libraries/data-series
@@ -1346,7 +1321,6 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
-      '@yuants/data-model': workspace:*
       '@yuants/data-ohlc': workspace:*
       '@yuants/data-product': workspace:*
       '@yuants/data-series': workspace:*
@@ -1359,7 +1333,6 @@ importers:
       typescript: ~4.7.4
     dependencies:
       '@mathieuc/tradingview': 3.4.6
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/data-ohlc': link:../../libraries/data-ohlc
       '@yuants/data-product': link:../../libraries/data-product
       '@yuants/data-series': link:../../libraries/data-series
@@ -1386,7 +1359,6 @@ importers:
       '@types/node': ^16.11.7
       '@types/react': 18.2.37
       '@yuants/agent': workspace:*
-      '@yuants/data-model': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/utils': workspace:*
       observable-hooks: ~4.2.0
@@ -1397,7 +1369,6 @@ importers:
       '@douyinfe/semi-ui': 2.16.1_react-dom@18.2.0+react@18.2.0
       '@icon-park/react': 1.4.2_react-dom@18.2.0+react@18.2.0
       '@yuants/agent': link:../../libraries/agent
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/utils': link:../../libraries/utils
       observable-hooks: 4.2.3_885ddd8f46fc5f6714a13a0baaa0c42c
@@ -1417,7 +1388,6 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/node': '22'
       '@yuants/data-account': workspace:*
-      '@yuants/data-model': workspace:*
       '@yuants/data-order': workspace:*
       '@yuants/data-product': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -1426,7 +1396,6 @@ importers:
       typescript: ~4.7.4
     dependencies:
       '@yuants/data-account': link:../data-account
-      '@yuants/data-model': link:../data-model
       '@yuants/data-order': link:../data-order
       '@yuants/data-product': link:../data-product
       '@yuants/utils': link:../utils
@@ -1451,7 +1420,6 @@ importers:
       '@types/json-schema': 7.0.11
       '@types/node': '22'
       '@yuants/data-account': workspace:*
-      '@yuants/data-model': workspace:*
       '@yuants/data-order': workspace:*
       '@yuants/data-product': workspace:*
       '@yuants/kernel': workspace:*
@@ -1464,7 +1432,6 @@ importers:
       typescript: ~4.7.4
     dependencies:
       '@yuants/data-account': link:../data-account
-      '@yuants/data-model': link:../data-model
       '@yuants/data-order': link:../data-order
       '@yuants/data-product': link:../data-product
       '@yuants/kernel': link:../kernel
@@ -1520,7 +1487,6 @@ importers:
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
       '@types/uuid': ~8.3.4
-      '@yuants/data-model': workspace:*
       '@yuants/data-order': workspace:*
       '@yuants/prometheus-client': workspace:*
       '@yuants/protocol': workspace:*
@@ -1532,7 +1498,6 @@ importers:
       uuid: ~8.3.2
     dependencies:
       '@opentelemetry/api': 1.9.0
-      '@yuants/data-model': link:../data-model
       '@yuants/data-order': link:../data-order
       '@yuants/prometheus-client': link:../prometheus-client
       '@yuants/protocol': link:../protocol
@@ -1770,7 +1735,6 @@ importers:
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
       '@types/uuid': ~8.3.4
-      '@yuants/data-model': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -1781,7 +1745,6 @@ importers:
       typescript: ~4.7.4
       uuid: ~8.3.2
     dependencies:
-      '@yuants/data-model': link:../data-model
       '@yuants/protocol': link:../protocol
       '@yuants/sql': link:../sql
       '@yuants/utils': link:../utils
@@ -1837,7 +1800,6 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/node': '22'
       '@types/ws': ~8.5.3
-      '@yuants/data-model': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
@@ -1845,7 +1807,6 @@ importers:
       typescript: ~4.7.4
       ws: ~8.8.1
     dependencies:
-      '@yuants/data-model': link:../data-model
       '@yuants/protocol': link:../protocol
       '@yuants/utils': link:../utils
       rxjs: 7.5.7
@@ -1873,10 +1834,10 @@ importers:
       '@types/node': '22'
       '@types/path-browserify': ~1.0.0
       '@yuants/data-account': workspace:*
-      '@yuants/data-model': workspace:*
       '@yuants/data-ohlc': workspace:*
       '@yuants/data-order': workspace:*
       '@yuants/data-product': workspace:*
+      '@yuants/data-quote': workspace:*
       '@yuants/data-series': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
@@ -1891,10 +1852,10 @@ importers:
     dependencies:
       '@datastructures-js/priority-queue': 6.3.0
       '@yuants/data-account': link:../data-account
-      '@yuants/data-model': link:../data-model
       '@yuants/data-ohlc': link:../data-ohlc
       '@yuants/data-order': link:../data-order
       '@yuants/data-product': link:../data-product
+      '@yuants/data-quote': link:../data-quote
       '@yuants/data-series': link:../data-series
       '@yuants/protocol': link:../protocol
       '@yuants/sql': link:../sql
@@ -2106,7 +2067,6 @@ importers:
       '@types/json-schema': 7.0.11
       '@types/node': '22'
       '@types/path-browserify': ~1.0.0
-      '@yuants/data-model': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
@@ -2114,7 +2074,6 @@ importers:
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
-      '@yuants/data-model': link:../data-model
       '@yuants/protocol': link:../protocol
       '@yuants/utils': link:../utils
       json-schema: 0.4.0
@@ -2141,7 +2100,6 @@ importers:
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
       '@types/uuid': ~8.3.4
-      '@yuants/data-model': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -2150,7 +2108,6 @@ importers:
       typescript: ~4.7.4
       uuid: ~8.3.2
     dependencies:
-      '@yuants/data-model': link:../data-model
       '@yuants/protocol': link:../protocol
       '@yuants/sql': link:../sql
       '@yuants/utils': link:../utils
@@ -2207,7 +2164,6 @@ importers:
       '@rushstack/heft-node-rig': ~1.10.7
       '@types/heft-jest': 1.0.3
       '@types/node': '22'
-      '@yuants/data-model': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -2217,7 +2173,6 @@ importers:
       ts-node: ~10.9.2
       typescript: ~4.7.4
     dependencies:
-      '@yuants/data-model': link:../../libraries/data-model
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/utils': link:../../libraries/utils
       crypto-js: 4.2.0
@@ -2329,12 +2284,12 @@ importers:
       '@rjsf/utils': ~5.1.0
       '@rjsf/validator-ajv8': ~5.1.0
       '@rollup/browser': ~3.26.2
-      '@supabase/supabase-js': ~2.31.0
       '@tanstack/react-query': ~5.49.2
       '@tanstack/react-table': ~8.12.0
       '@types/downloadjs': ~1.4.3
       '@types/ini': ~4.1.1
       '@types/json-schema': ~7.0.11
+      '@types/papaparse': ~5.3.16
       '@types/path-browserify': ^1.0.0
       '@types/react': ^18.2.29
       '@types/react-dom': 18.2.7
@@ -2344,10 +2299,12 @@ importers:
       '@yuants/app-risk-manager': workspace:*
       '@yuants/cache': workspace:*
       '@yuants/data-account': workspace:*
+      '@yuants/data-interest-rate': workspace:*
       '@yuants/data-model': workspace:*
       '@yuants/data-ohlc': workspace:*
       '@yuants/data-order': workspace:*
       '@yuants/data-product': workspace:*
+      '@yuants/data-quote': workspace:*
       '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/kernel': workspace:*
@@ -2357,8 +2314,6 @@ importers:
       '@yuants/utils': workspace:*
       ajv: ~8.11.0
       copy-to-clipboard: ~3.3.3
-      csv-parse: ~5.4.0
-      csv-stringify: ~6.2.0
       date-fns: ~2.29.1
       downloadjs: ~1.4.7
       echarts: ~5.4.3
@@ -2379,6 +2334,7 @@ importers:
       lightweight-charts: ~3.8.0
       monaco-editor: ~0.40.0
       observable-hooks: ~4.2.0
+      papaparse: ~5.5.3
       path-browserify: ^1.0.1
       react: ^18.2.0
       react-dom: ^18.2.0
@@ -2408,17 +2364,18 @@ importers:
       '@rjsf/utils': 5.1.0_react@18.2.0
       '@rjsf/validator-ajv8': 5.1.0_@rjsf+utils@5.1.0
       '@rollup/browser': 3.26.3
-      '@supabase/supabase-js': 2.31.0
       '@tanstack/react-query': 5.49.2_react@18.2.0
       '@tanstack/react-table': 8.12.0_react-dom@18.2.0+react@18.2.0
       '@yuants/agent': link:../../libraries/agent
       '@yuants/app-risk-manager': link:../../apps/risk-manager
       '@yuants/cache': link:../../libraries/cache
       '@yuants/data-account': link:../../libraries/data-account
+      '@yuants/data-interest-rate': link:../../libraries/data-interest-rate
       '@yuants/data-model': link:../../libraries/data-model
       '@yuants/data-ohlc': link:../../libraries/data-ohlc
       '@yuants/data-order': link:../../libraries/data-order
       '@yuants/data-product': link:../../libraries/data-product
+      '@yuants/data-quote': link:../../libraries/data-quote
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/extension': link:../../libraries/extension
       '@yuants/kernel': link:../../libraries/kernel
@@ -2428,8 +2385,6 @@ importers:
       '@yuants/utils': link:../../libraries/utils
       ajv: 8.11.2
       copy-to-clipboard: 3.3.3
-      csv-parse: 5.4.1
-      csv-stringify: 6.2.4
       date-fns: 2.29.3
       downloadjs: 1.4.7
       echarts: 5.4.3
@@ -2450,6 +2405,7 @@ importers:
       lightweight-charts: 3.8.0
       monaco-editor: 0.40.0
       observable-hooks: 4.2.3_21bcef9a91ca98b9fc3ed9835ca1c6ff
+      papaparse: 5.5.3
       react: 18.2.0
       react-dom: 18.2.0_react@18.2.0
       react-i18next: 13.2.1_98cade5ad3a97019d15195744e997f78
@@ -2467,6 +2423,7 @@ importers:
       '@types/downloadjs': 1.4.3
       '@types/ini': 4.1.1
       '@types/json-schema': 7.0.12
+      '@types/papaparse': 5.3.16
       '@types/path-browserify': 1.0.0
       '@types/react': 18.2.37
       '@types/react-dom': 18.2.7
@@ -9993,64 +9950,6 @@ packages:
       webpack-sources: 3.2.3
     dev: false
 
-  /@supabase/functions-js/2.1.4:
-    resolution: {integrity: sha512-5EEhei1hFCMBX4Pig4kGKjJ59DZvXwilcIBYYp4wyK/iHdAN6Vw9di9VN6/oRXRVS/6jgZd0jdmI+QgGGSxZsA==}
-    dependencies:
-      cross-fetch: 3.1.8
-    transitivePeerDependencies:
-      - encoding
-    dev: false
-
-  /@supabase/gotrue-js/2.48.1:
-    resolution: {integrity: sha512-jTcqA/iz2crq2b3PbzXZrW3QIoKJ7SfwPWTGJNv//1nDi0i2vCx1mO+BjXwPx+TlOSG8okK0QB2eP8uaF83OvA==}
-    dependencies:
-      cross-fetch: 3.1.8
-    transitivePeerDependencies:
-      - encoding
-    dev: false
-
-  /@supabase/node-fetch/2.6.14:
-    resolution: {integrity: sha512-w/Tsd22e/5fAeoxqQ4P2MX6EyF+iM6rc9kmlMVFkHuG0rAltt2TLhFbDJfemnHbtvnazWaRfy5KnFU/SYT37dQ==}
-    engines: {node: 4.x || >=6.0.0}
-    dependencies:
-      whatwg-url: 5.0.0
-    dev: false
-
-  /@supabase/postgrest-js/1.8.4:
-    resolution: {integrity: sha512-ELjpvhb04wILUiJz9zIsTSwaz9LQNlX+Ig5/LgXQ7k68qQI6NqHVn+ISRNt53DngUIyOnLHjeqqIRHBZ7zpgGA==}
-    dependencies:
-      '@supabase/node-fetch': 2.6.14
-    dev: false
-
-  /@supabase/realtime-js/2.7.4:
-    resolution: {integrity: sha512-FzSzs1k9ruh/uds5AJ95Nc3beiMCCIhougExJ3O98CX1LMLAKUKFy5FivKLvcNhXnNfUEL0XUfGMb4UH2J7alg==}
-    dependencies:
-      '@types/phoenix': 1.6.1
-      '@types/websocket': 1.0.6
-      websocket: 1.0.34
-    dev: false
-
-  /@supabase/storage-js/2.5.3:
-    resolution: {integrity: sha512-wyCkBFMTiehvyLUvvvSszvhPkhaHKHcPx//fYN8NoKEa1TQwC2HuO5EIaJ5EagtAVmI1N3EFQ+M4RER6mnTaNg==}
-    dependencies:
-      cross-fetch: 3.1.8
-    transitivePeerDependencies:
-      - encoding
-    dev: false
-
-  /@supabase/supabase-js/2.31.0:
-    resolution: {integrity: sha512-W9/4s+KnSUX67wJKBn/3yLq+ieycnMzVjK3nNTLX5Wko3ypNT/081l2iFYrf+nsLQ1CiT4mA92I3dxCy6CmxTg==}
-    dependencies:
-      '@supabase/functions-js': 2.1.4
-      '@supabase/gotrue-js': 2.48.1
-      '@supabase/postgrest-js': 1.8.4
-      '@supabase/realtime-js': 2.7.4
-      '@supabase/storage-js': 2.5.3
-      cross-fetch: 3.1.8
-    transitivePeerDependencies:
-      - encoding
-    dev: false
-
   /@surma/rollup-plugin-off-main-thread/2.2.3:
     resolution: {integrity: sha512-lR8q/9W7hZpMWweNiAKU7NQerBnzQQLvi8qnTDU/fxItPhtZVMbPV3lbCwjhIlNBe9Bbr5V+KHshvWmVSG9cxQ==}
     dependencies:
@@ -10641,6 +10540,12 @@ packages:
     resolution: {integrity: sha512-Gj7cI7z+98M282Tqmp2K5EIsoouUEzbBJhQQzDE3jSIRk6r9gsz0oUokqIUR4u1R3dMHo0pDHM7sNOHyhulypw==}
     dev: false
 
+  /@types/papaparse/5.3.16:
+    resolution: {integrity: sha512-T3VuKMC2H0lgsjI9buTB3uuKj3EMD2eap1MOuEQuBQ44EnDx/IkGhU6EwiTf9zG3za4SKlmwKAImdDKdNnCsXg==}
+    dependencies:
+      '@types/node': 22.7.5
+    dev: true
+
   /@types/parse-json/4.0.0:
     resolution: {integrity: sha512-//oorEZjL6sbPcKUaCdIGlIUeH26mgzimjBB77G6XRgnDl/L5wOnpyBGRe/Mmf5CVW3PwEBE1NjiMZ/ssFh4wA==}
     dev: false
@@ -10652,10 +10557,6 @@ packages:
   /@types/path-browserify/1.0.0:
     resolution: {integrity: sha512-XMCcyhSvxcch8b7rZAtFAaierBYdeHXVvg2iYnxOV0MCQHmPuRRmGZPFDRzPayxcGiiSL1Te9UIO+f3cuj0tfw==}
     dev: true
-
-  /@types/phoenix/1.6.1:
-    resolution: {integrity: sha512-g2/8Ogi2zfiS25jdGT5iDSo5yjruhhXaOuOJCkOxMW28w16VxFvjtAXjBNRo7WlRS4+UXAMj3mK46UwieNM/5g==}
-    dev: false
 
   /@types/prettier/2.7.3:
     resolution: {integrity: sha512-+68kP9yzs4LMp7VNh8gdzMSPZFL44MLGqiHWvttYJe+6qnuVr4Ek9wSBQoveqY/r+LwjCcU29kNVkidwim+kYA==}
@@ -10810,12 +10711,6 @@ packages:
 
   /@types/validator/13.11.1:
     resolution: {integrity: sha512-d/MUkJYdOeKycmm75Arql4M5+UuXmf4cHdHKsyw1GcvnNgL6s77UkgSgJ8TE/rI5PYsnwYq5jkcWBLuN/MpQ1A==}
-    dev: false
-
-  /@types/websocket/1.0.6:
-    resolution: {integrity: sha512-JXkliwz93B2cMWOI1ukElQBPN88vMg3CruvW4KVSKpflt3NyNCJImnhIuB/f97rG7kakqRJGFiwkA895Kn02Dg==}
-    dependencies:
-      '@types/node': 18.17.12
     dev: false
 
   /@types/ws/8.5.10:
@@ -13449,14 +13344,6 @@ packages:
 
   /csstype/3.1.2:
     resolution: {integrity: sha512-I7K1Uu0MBPzaFKg4nI5Q7Vs2t+3gWWW648spaF+Rg7pI9ds18Ugn+lvg4SHczUdKlHI5LWBXyqfS8+DufyBsgQ==}
-
-  /csv-parse/5.4.1:
-    resolution: {integrity: sha512-DL6gLkEatPgB8Fkwf5igeiSIBTY2MVDWb0Edp+cdbK/U+5IXVvVEEOjno9yA8+Dgyu0HaRZ5P/kOVqgUzGJGUA==}
-    dev: false
-
-  /csv-stringify/6.2.4:
-    resolution: {integrity: sha512-RVzGaBeHl0IspzOSiNr1e7XDM7ajuESlqetQbxH2pBPplIWycx0gAVclxNEa4lc91brK6LIE0PrdEoHtZYIHIQ==}
-    dev: false
 
   /cytoscape-cose-bilkent/4.1.0_cytoscape@3.27.0:
     resolution: {integrity: sha512-wgQlVIUJF13Quxiv5e1gstZ08rnZj2XaLHGoFMYXz7SkNfCDOOteKBE6SYRfA9WxxI/iBc3ajfDoc6hb/MRAHQ==}
@@ -21600,6 +21487,10 @@ packages:
 
   /pako/2.1.0:
     resolution: {integrity: sha512-w+eufiZ1WuJYgPXbV/PO3NCMEc3xqylkKHzp8bxp1uW4qaSNQUkwmLLEc3kKsfz8lpV1F8Ht3U1Cm+9Srog2ug==}
+    dev: false
+
+  /papaparse/5.5.3:
+    resolution: {integrity: sha512-5QvjGxYVjxO59MGU2lHVYpRWBBtKHnlIAcSe1uNFCkkptUh63NFRj0FJQm7nR67puEruUci/ZkjmEFrjCAyP4A==}
     dev: false
 
   /param-case/3.0.4:

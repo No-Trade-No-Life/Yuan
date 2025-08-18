@@ -1,7 +1,9 @@
 import { UUID } from '@yuants/utils';
 import { get, set } from 'idb-keyval';
-import { BehaviorSubject, map } from 'rxjs';
+import { BehaviorSubject, combineLatest, map } from 'rxjs';
 import { IWorkspace } from './model';
+import { FsBackend$ } from './api';
+import { FileSystemHandleBackend } from './backends/FileSystemHandleBackend';
 
 const WORKSPACE_KEY = 'workspaces';
 
@@ -14,7 +16,15 @@ get(WORKSPACE_KEY).then((workspaces) => {
   workspaces$.next(workspaces || new Map());
 });
 
-export const currentWorkspaceId = new URL(document.location.href).searchParams.get('workspace') || '';
+export const currentWorkspaceId$ = new BehaviorSubject<string>('');
+
+// Compatibility for web worker
+if (typeof document !== 'undefined') {
+  const workspaceId = new URL(document.location.href).searchParams.get('workspace');
+  if (workspaceId) {
+    currentWorkspaceId$.next(workspaceId);
+  }
+}
 
 export const openWorkspace = (workspace_id: string, target = '_self') => {
   const url = new URL(document.location.href);
@@ -40,17 +50,24 @@ export const removeWorkspace = async (workspace_id: string) => {
   workspaces$.next(nextMap);
 };
 
-export const currentWorkspace$ = workspaces$.pipe(
-  map((workspaces) => {
+export const currentWorkspace$ = combineLatest([workspaces$, currentWorkspaceId$]).pipe(
+  map(([workspaces, workspaceId]) => {
     if (!workspaces) return undefined; // not loaded yet
     if (workspaces.size === 0) return null; // no workspaces
-    const current = workspaces.get(currentWorkspaceId);
+    const current = workspaces.get(workspaceId);
     if (current) {
       return current;
     }
     return null;
   }),
 );
+
+currentWorkspace$.subscribe((workspace) => {
+  if (workspace?.directoryHandle) {
+    // request permission for local workspace
+    FsBackend$.next(new FileSystemHandleBackend(workspace.directoryHandle));
+  }
+});
 
 /**
  * Create a local workspace

@@ -2,6 +2,43 @@
   "name": "@yuants/data-account",
   "entries": [
     {
+      "version": "0.3.2",
+      "tag": "@yuants/data-account_v0.3.2",
+      "date": "Tue, 12 Aug 2025 08:51:40 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add no interest rate"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.3.1",
+      "tag": "@yuants/data-account_v0.3.1",
+      "date": "Sat, 09 Aug 2025 05:56:01 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "refactor"
+          },
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.2.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.0",
       "tag": "@yuants/data-account_v0.3.0",
       "date": "Wed, 06 Aug 2025 16:50:42 GMT",

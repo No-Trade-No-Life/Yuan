@@ -27,6 +27,7 @@ export interface IProduct {
     max_position: number;
     max_volume: number;
     name: string;
+    no_interest_rate?: boolean;
     price_step: number;
     product_id: string;
     quote_currency: string;

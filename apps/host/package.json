@@ -1,7 +1,8 @@
 {
   "name": "@yuants/app-host",
-  "version": "0.3.37",
+  "version": "0.3.38",
   "description": "Host",
+  "main": "lib/index.js",
   "files": [
     "dist",
     "lib",
@@ -11,7 +12,6 @@
     "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
   },
   "dependencies": {
-    "@yuants/data-model": "workspace:*",
     "@yuants/protocol": "workspace:*",
     "@yuants/host-manager": "workspace:*",
     "rxjs": "~7.5.6",

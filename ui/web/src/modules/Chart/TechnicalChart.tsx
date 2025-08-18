@@ -1,15 +1,17 @@
-import { IconExport, IconRefresh, IconSetting } from '@douyinfe/semi-icons';
-import { Button, Empty, Space } from '@douyinfe/semi-ui';
-import { AccountInfoUnit, PeriodDataUnit, Series, SeriesDataUnit } from '@yuants/kernel';
-import { useObservableState } from 'observable-hooks';
+import { IconRefresh, IconSetting } from '@douyinfe/semi-icons';
+import { Button, Empty, Input, Slider, Space } from '@douyinfe/semi-ui';
+import { IOrder } from '@yuants/data-model';
+import { PeriodDataUnit, Series, SeriesDataUnit } from '@yuants/kernel';
+import { formatTime } from '@yuants/utils';
+import { useObservable, useObservableRef, useObservableState } from 'observable-hooks';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { catchError, debounceTime, defer, map, of, pipe, switchMap } from 'rxjs';
 import { AccountSelector } from '../AccountInfo';
 import { fs } from '../FileSystem';
-import { Toast } from '../Interactive';
 import { currentKernel$ } from '../Kernel/model';
-import { orders$ } from '../Order/model';
 import { registerPage } from '../Pages';
+import { CSV } from '../Util';
 import {
   CandlestickSeries,
   Chart,
@@ -19,6 +21,7 @@ import {
   LineSeries,
   OrderSeries,
 } from './components/Charts';
+
 const DEFAULT_SINGLE_COLOR_SCHEME: string[] = [
   '#5B8FF9',
   '#61DDAA',
@@ -30,6 +33,7 @@ const DEFAULT_SINGLE_COLOR_SCHEME: string[] = [
   '#008685',
   '#F08BB4',
 ];
+
 const resolveChartId = (series: Series): string => {
   const chartConfig = series.tags['chart'];
   if (series.parent === undefined) {
@@ -52,7 +56,37 @@ registerPage('TechnicalChart', () => {
   const [t] = useTranslation('TechnicalChart');
   const [frame, setFrame] = useState(0);
   const kernel = useObservableState(currentKernel$);
+
+  const [ordersFilename, setOrdersFilename] = useState('');
+
+  useEffect(() => {
+    if (kernel) {
+      setOrdersFilename(`/.Y/kernels/${encodeURIComponent(kernel.id)}/orders.csv`);
+    }
+  }, [kernel]);
+
+  const all_orders = useObservableState(
+    useObservable(
+      pipe(
+        debounceTime(200),
+        switchMap(([ordersFilename]) =>
+          defer(() => fs.readFile(ordersFilename)).pipe(
+            //
+            map((content) => CSV.parse<IOrder>(content)),
+            catchError(() => of([] as IOrder[])),
+          ),
+        ),
+      ),
+      [ordersFilename],
+    ),
+    [],
+  );
+
   const [periodKey, setPeriodKey] = useState(undefined as string | undefined);
+
+  const [page, setPage] = useState(1);
+
+  const PAGE_SIZE = 20000;
 
   const periodDataMap = useMemo(() => {
     return kernel?.units.find((unit): unit is PeriodDataUnit => unit instanceof PeriodDataUnit)?.data ?? {};
@@ -71,6 +105,8 @@ registerPage('TechnicalChart', () => {
     () => kernel?.units.find((unit): unit is SeriesDataUnit => unit instanceof SeriesDataUnit)?.series ?? [],
     [kernel],
   );
+
+  const noData = series.length === 0;
 
   const timeSeriesList = useMemo(() => [...new Set(series.map((series) => series.resolveRoot()))], [series]);
 
@@ -112,18 +148,22 @@ registerPage('TechnicalChart', () => {
     return mapChartIdToDisplayConfigList;
   }, [series]);
 
-  const all_orders = useObservableState(orders$);
-  const accountInfoUnit = kernel?.units.find(
-    (unit): unit is AccountInfoUnit => unit instanceof AccountInfoUnit,
-  );
   const accountIdOptions = useMemo(
-    () => [...(accountInfoUnit?.mapAccountIdToAccountInfo.keys() ?? [])],
-    [accountInfoUnit],
+    () => [...new Set(all_orders.map((order) => order.account_id))],
+    [all_orders],
   );
   const [accountId, setAccountId] = useState('');
   const orders = all_orders.filter((order) => order.account_id === accountId);
 
-  if (!kernel || periodsOptions.length === 0) {
+  const [hoverIndex, setHoverIndex] = useState(-1);
+  // const [viewStartIndex, setViewStartIndex] = useState(0);
+  const [viewStartIndexRef, viewStartIndex$] = useObservableRef(0);
+  const viewStartIndex = useObservableState(
+    useObservable(() => viewStartIndex$.pipe(debounceTime(500))),
+    0,
+  );
+
+  if (noData) {
     return <Empty title={t('empty_reminder')} description={t('empty_reminder_description')} />;
   }
 
@@ -133,9 +173,14 @@ registerPage('TechnicalChart', () => {
     // only 1 chart but not the main chart
     (Object.keys(displayConfigList).length === 1 && !displayConfigList[timeSeriesList[0]?.series_id]);
 
+  const viewEndIndex = viewStartIndex + PAGE_SIZE;
+  const totalItems = series?.[0].length ?? 0;
   return (
     <Space vertical align="start" style={{ height: '100%', width: '100%' }}>
       <Space>
+        <Space>
+          <Input prefix="订单文件路径" value={ordersFilename} onChange={(v) => setOrdersFilename(v)} />
+        </Space>
         <AccountSelector value={accountId} onChange={setAccountId} candidates={accountIdOptions} />
         <Button
           icon={<IconRefresh />}
@@ -143,31 +188,36 @@ registerPage('TechnicalChart', () => {
             setFrame((x) => x + 1);
           }}
         ></Button>
-        <Button
-          icon={<IconExport />}
-          onClick={async () => {
-            //
-            const series = kernel.findUnit(SeriesDataUnit)!.series;
-
-            const headers = series.map((s) => `"${s.name || s.series_id}"`);
-
-            const content =
-              headers.join(',') +
-              '\n' +
-              selectedPeriodData
-                .map((_, i) => {
-                  return series.map((s) => s[i] ?? '').join(',');
-                })
-                .join('\n');
-            await fs.writeFile('/export.csv', content);
-            Toast.success(`导出成功到 /export.csv`);
-          }}
-        >
-          导出序列
-        </Button>
         <Button icon={<IconSetting />} disabled></Button>
+        {totalItems - PAGE_SIZE > 0 && (
+          <Slider
+            showBoundary
+            style={{ width: 200 }}
+            min={0}
+            max={totalItems - PAGE_SIZE}
+            step={PAGE_SIZE / 10}
+            tipFormatter={(v) => {
+              return formatTime(selectedPeriodData[v as number]?.created_at);
+            }}
+            onChange={(v) => {
+              viewStartIndex$.next(v as number);
+            }}
+          />
+        )}
+        {formatTime(selectedPeriodData[viewStartIndex]?.created_at)}
+        {' - '}
+        {formatTime(
+          (selectedPeriodData[viewEndIndex] || selectedPeriodData[selectedPeriodData.length - 1])?.created_at,
+        )}{' '}
+        #{hoverIndex + viewStartIndex}
       </Space>
-      <ChartGroup key={kernel.id + frame}>
+      <ChartGroup
+        key={frame}
+        viewStartIndex={viewStartIndex}
+        viewEndIndex={viewEndIndex}
+        hoverIndex={hoverIndex}
+        onHoverIndexChange={setHoverIndex}
+      >
         <div style={{ width: '100%', minHeight: '50%', flex: 'auto' }}>
           <Chart>
             <CandlestickSeries data={selectedPeriodData}>

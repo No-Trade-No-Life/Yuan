@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-risk-manager",
-  "version": "0.4.18",
+  "version": "0.4.20",
   "main": "lib/index.js",
   "files": [
     "dist",
@@ -11,7 +11,6 @@
     "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
   },
   "dependencies": {
-    "@yuants/data-model": "workspace:*",
     "@yuants/data-account": "workspace:*",
     "@yuants/transfer": "workspace:*",
     "@yuants/sql": "workspace:*",

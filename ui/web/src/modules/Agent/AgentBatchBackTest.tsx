@@ -1,4 +1,4 @@
-import { IconCloud, IconCode, IconExport, IconImport, IconPlay, IconSearch } from '@douyinfe/semi-icons';
+import { IconCode, IconExport, IconImport, IconPlay, IconSearch } from '@douyinfe/semi-icons';
 import {
   Button,
   Descriptions,
@@ -18,30 +18,30 @@ import path from 'path-browserify';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  EMPTY,
   catchError,
   defer,
+  EMPTY,
   filter,
   first,
-  firstValueFrom,
   from,
   fromEvent,
   map,
   mergeMap,
+  Observable,
   pipe,
   retry,
   switchMap,
   tap,
+  timeout,
 } from 'rxjs';
 import { agentConf$, runAgent } from '../Agent/AgentConfForm';
 import { executeCommand } from '../CommandCenter';
 import { useValue } from '../Data';
 import { fs } from '../FileSystem/api';
+import { currentWorkspaceId$ } from '../FileSystem/workspaces';
 import { showForm } from '../Form';
-import { shareHosts$ } from '../Host/model';
 import { DataView } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
-import { authState$ } from '../SupaBase';
 import { registerAssociationRule } from '../System';
 import { clearLogAction$ } from '../Workbench/Program';
 import { currentHostConfig$ } from '../Workbench/model';
@@ -49,7 +49,6 @@ import {
   IBatchAgentResultItem,
   loadBatchTasks,
   makeManifestsFromAgentConfList,
-  runBatchBackTestWorkItem,
   writeManifestsFromBatchTasks,
 } from './utils';
 import Worker from './webworker?worker';
@@ -115,47 +114,35 @@ registerPage('AgentBatchBackTest', () => {
     from(tasks)
       .pipe(
         mergeMap((task, i) => {
-          if (currentHostConfig$.value !== null) {
-            return from(runBatchBackTestWorkItem(task)).pipe(
-              tap({
-                next: (result) => {
-                  setResults((results) => results.concat(result));
-                },
-                subscribe: () => {
-                  console.info(formatTime(Date.now()), `批量回测子任务开始: ${i}/${tasks.length}`);
-                },
-                error: (err) => {
-                  console.info(formatTime(Date.now()), `批量回测子任务异常: ${i}/${tasks.length}: ${err}`);
-                },
-                complete: () => {
-                  console.info(formatTime(Date.now()), `批量回测子任务完成: ${i}/${tasks.length}`);
-                  setProgress((x) => ({
-                    ...x,
-                    current: x.current + 1,
-                    endTime: Math.max(x.endTime, Date.now()),
-                  }));
-                },
-                finalize: () => {
-                  setProgress((x) => ({
-                    ...x,
-                    endTime: Math.max(x.endTime, Date.now()),
-                  }));
-                },
+          return defer(
+            () =>
+              new Observable<any>((subscriber) => {
+                const worker = new Worker();
+                worker.postMessage({
+                  agentConf: task,
+                  hostUrl: currentHost?.host_url,
+                  workspaceId: currentWorkspaceId$.value,
+                });
+                fromEvent(worker, 'message').subscribe((e) => {
+                  subscriber.next(e);
+                });
+                return () => {
+                  worker.terminate();
+                };
               }),
-              retry({ delay: 10000, count: 3 }),
-              catchError(() => EMPTY), // 忽略错误，跳过该任务
-            );
-          }
-          const worker = new Worker();
-          worker.postMessage({ agentConf: task });
-          return fromEvent(worker, 'message').pipe(
+          ).pipe(
             //
             first(),
             map((msg: any) => msg.data),
-            tap({
-              next: (result) => {
+            tap((result) => {
+              if (Array.isArray(result)) {
                 setResults((results) => results.concat(result));
-              },
+              } else {
+                throw new Error(`Unexpected result: ${result}`);
+              }
+            }),
+            timeout(30 * 60 * 1000), // 30 minutes timeout
+            tap({
               subscribe: () => {
                 console.info(formatTime(Date.now()), `批量回测子任务开始: ${i}/${tasks.length}`);
               },
@@ -175,9 +162,10 @@ registerPage('AgentBatchBackTest', () => {
                   ...x,
                   endTime: Math.max(x.endTime, Date.now()),
                 }));
-                worker.terminate();
               },
             }),
+            retry(3),
+            catchError(() => EMPTY),
           );
         }, jobs),
         tap({
@@ -193,7 +181,7 @@ registerPage('AgentBatchBackTest', () => {
             setStartLoading(true);
           },
           finalize: () => {
-            Toast.success(`批量回放结束`);
+            Toast.success(`批量回测结束`);
             setStartLoading(false);
           },
         }),
@@ -207,6 +195,7 @@ registerPage('AgentBatchBackTest', () => {
       for (const result of results) {
         data.push({
           净值曲线缩略图: result.equityImageSrc,
+          账户: result.accountInfo.account_id,
           配置: JSON.stringify(result.agentConf),
           回溯历史: result.performance.total_days,
           周收益率: result.performance.weekly_return_ratio,
@@ -271,8 +260,6 @@ registerPage('AgentBatchBackTest', () => {
       }),
     );
   };
-
-  const authState = useObservableState(authState$);
 
   return (
     <Space vertical align="start" style={{ width: '100%', flexWrap: 'wrap' }}>
@@ -356,26 +343,7 @@ registerPage('AgentBatchBackTest', () => {
         >
           导出部署配置
         </Button>
-        <Button
-          disabled={!authState || !currentHost}
-          icon={<IconCloud />}
-          onClick={async (e) => {
-            const sharedHosts = await firstValueFrom(shareHosts$);
-            const host_url = await showForm<string>({
-              title: t('AgentConfForm:select_host'),
-              type: 'string',
-              examples: sharedHosts.map((host) => host.host_url),
-            });
-            for (const agentConf of tasks) {
-              await executeCommand('Agent.DeployToCloud', {
-                agentConf,
-                host_url,
-              });
-            }
-          }}
-        >
-          全部部署到云
-        </Button>
+
         <Button
           onClick={async (e) => {
             const res = await showForm<{ x?: string; y?: string; z?: string }>({
@@ -562,18 +530,11 @@ registerPage('AgentBatchBackTest', () => {
               <Space>
                 <Button
                   onClick={() => {
-                    agentConf$.next(ctx.getValue().agentConf);
+                    agentConf$.next(ctx.row.original.agentConf);
                     runAgent();
                   }}
                 >
                   详情
-                </Button>
-                <Button
-                  onClick={async () => {
-                    executeCommand('Agent.DeployToCloud', { agentConf: ctx.getValue().agentConf });
-                  }}
-                >
-                  部署到云
                 </Button>
               </Space>
             ),

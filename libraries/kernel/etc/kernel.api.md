@@ -5,12 +5,11 @@
 ```ts
 
 import { IAccountInfo } from '@yuants/data-account';
-import { IAccountInfo as IAccountInfo_2 } from '@yuants/data-model';
 import { IOHLC } from '@yuants/data-ohlc';
 import { IOrder } from '@yuants/data-order';
 import { IPosition } from '@yuants/data-account';
 import { IProduct } from '@yuants/data-product';
-import { ITick } from '@yuants/data-model';
+import { IQuote as IQuote_2 } from '@yuants/data-quote';
 import { Observable } from 'rxjs';
 import { Subject } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
@@ -66,7 +65,7 @@ export class AccountInfoUnit extends BasicUnit {
     // (undocumented)
     updateAccountInfo(accountId: string): void;
     // (undocumented)
-    useAccount(account_id: string, currency: string, leverage?: number, initial_balance?: number): IAccountInfo_2;
+    useAccount(account_id: string, currency: string, leverage?: number, initial_balance?: number): IAccountInfo;
 }
 
 // @public (undocumented)
@@ -394,6 +393,18 @@ export interface IKernelUnit {
     onIdle(): void | Promise<void>;
     onInit(): void | Promise<void>;
     restore(state: any): void;
+}
+
+// @public (undocumented)
+export interface IMatchingRange {
+    // (undocumented)
+    first: number;
+    // (undocumented)
+    high: number;
+    // (undocumented)
+    last: number;
+    // (undocumented)
+    low: number;
 }
 
 // @public (undocumented)
@@ -810,21 +821,17 @@ export class TerminateUnit extends BasicUnit {
 export class TickDataUnit extends BasicUnit {
     // (undocumented)
     dump(): {
-        tickMap: Record<string, Record<string, ITick>>;
+        tickMap: Record<string, Record<string, IQuote_2>>;
     };
     // (undocumented)
-    getTick(datasource_id: string, product_id: string): ITick | undefined;
+    getTick(datasource_id: string, product_id: string): IQuote_2 | undefined;
     // (undocumented)
     restore(state: any): void;
     // (undocumented)
-    setTick(tick: ITick): void;
+    setTick(tick: IQuote_2): void;
     // (undocumented)
-    tickUpdated$: Subject<ITick>;
+    tickUpdated$: Subject<IQuote_2>;
 }
-
-// Warnings were encountered during analysis:
-//
-// src/units/OrderMatchingUnit.ts:262:11 - (ae-forgotten-export) The symbol "IMatchingRange" needs to be exported by the entry point index.d.ts
 
 // (No @packageDocumentation comment for this package)
 

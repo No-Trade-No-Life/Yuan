@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-gate",
-  "version": "0.3.45",
+  "version": "0.3.47",
   "files": [
     "dist/extension.bundle.js"
   ],
@@ -10,7 +10,6 @@
   "dependencies": {
     "@yuants/protocol": "workspace:*",
     "@yuants/transfer": "workspace:*",
-    "@yuants/data-model": "workspace:*",
     "@yuants/data-account": "workspace:*",
     "@yuants/data-order": "workspace:*",
     "@yuants/sql": "workspace:*",

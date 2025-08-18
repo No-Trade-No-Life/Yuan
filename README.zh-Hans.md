@@ -33,86 +33,55 @@
   </p>
 </div>
 
-## 快照
-
-![image](https://github.com/No-Trade-No-Life/Yuan/assets/12707521/426f51d3-6ed3-4ad5-9583-ca8e63518965)
-
-![image](https://github.com/No-Trade-No-Life/Yuan/assets/12707521/badf274a-7249-44c8-84fa-943ac6651d96)
-
-![image](https://github.com/No-Trade-No-Life/Yuan/assets/12707521/6bac83f1-434d-400f-b6a1-a0874a812d5a)
-
 ## 动机
 
-在我们量化交易事业的早期阶段，经过广泛搜索和研究各种现有的量化交易框架和产品后，我们发现没有一个能够完全满足我们独特交易策略的开发和研究需求。因此，我们不畏挑战，开始创造自己的产品——Yuan，以满足我们的特定需求。
+Yuan 是一个“个人投资操作系统”，包含各式各样的个人投资行为所需的一切基础软件和基础设施。
 
-我们的基本需求是：
+我们自身存在许多量化交易项目，这些项目需要一个基础平台，这就是 Yuan。我们使用这些项目的收入来维持 Yuan 的开发，并将这些项目的部分代码回馈到 Yuan 项目中，增强平台的能力。
 
-1. **强隐私安全性**
+**自研是安全底线**。实际上，有许多开源界的前辈已经做过许多优秀的项目了，例如 VNPY、Zipline，BackTrader、Qlib 等等。那么我们为什么还要再做一个类似的项目呢？**安全大于效率**。与其找一些角度把他们批判一番以证明我们的优越性，不如说我们需要尽可能多地自研，保证每一个环节都在掌控之中。引用的技术越多，忽略的问题越多，技术债越多。一旦出了问题，我们曾经为了节省开发成本而依赖的系统，就会反过来变成我们的催命符。
+
+**Yuan 不限制商业使用**。你可以将 Yuan 用于合法的商业用途，基于 Yuan 进行二次开发、封装盈利性的应用等都是被允许的。
+
+**Yuan 不承担用户责任**。不要随意将 Yuan 用于生产环境，我们基于 MIT 协议开源并免责。强烈建议在使用前充分理解并认同我们的设计。我们更希望与你交流学习。
+
+**Yuan 不寻求风险投资**。Yuan 自身并没有盈利能力，风险投资者无法获得回报。
+
+介绍一下量化交易行业的一些痛点：
+
+1. **隐私安全**
 
    量化模型代码是用户的核心资产，存在被窃取的风险。市面上许多产品都需要将策略代码上传至服务器，而这些产品只要有用户的代码就可以充分评估并窃取代码，如果用户的策略可以被潜在的竞争对手掌握，那用户将处于不利地位。因此，市面上也有一些允许私有化部署的产品。而我们为用户设计了一个本地的工作区，可以保障用户的隐私免于被包括 Yuan 项目方在内的任何人窃取。并且我们完成了开源，受到开源社区的监督，不会在代码中做任何损害用户利益的事情。
 
-2. **全市场兼容性**
+   我们选择：模型代码永不离开用户信任的设备。
 
-   用户会在不同的市场中投资交易。我们希望同一份策略代码可以应用在不同的市场品种上，既可以历史回测，也可以实盘交易，这本不应该付出任何额外代价。同样也希望平台产品能够支持各种不同类型的市场。然而，市面上的产品，由于所处地区的法律法规和一些自身业务的限制，通常仅仅支持一部分的市场，迫使用户需要在不同的市场里，使用不同的平台。我们通过架构设计，与具体的市场模块解耦，不仅提升了软件的质量，还克服合规障碍，为产品的全球化铺路。
+2. **市场覆盖**
 
-3. **跨平台兼容性**
+   用户会在不同的市场中投资交易。我们希望同一份策略代码可以应用在不同的市场品种上，这本不需要付出任何额外代价。同样也希望平台产品能够支持各种不同类型的市场。然而，市面上的产品，由于所处地区的法律法规和一些自身业务的限制，通常仅仅支持一部分的市场，迫使用户需要在不同的市场里，使用不同的平台。我们通过架构设计，与具体的市场模块解耦剥离，不仅提升了软件的质量，还克服合规障碍，为产品的全球化铺路。
 
-   我们希望能在桌面端和移动端，任何平台的任何设备中，均能不受限制地运行我们的产品。毕竟，市场可不会顾及用户所处什么场合。用户可以在任何场景下，随时切入工作，与市场交互。
+   我们选择：为交易场景设计标准模型，支持全球市场，追求高覆盖率。非商用产品，仅供学习交流。
 
-4. **低成本高扩展**
+3. **跨平台**
+
+   我们希望能在桌面端和移动端，任何平台的任何设备中，均能不受限制地运行我们的产品。毕竟，市场可不会顾及用户所处什么场合。用户可以在任何场景下，随时切入工作，与市场交互。行业内有些产品，会要求用户在特定的操作系统上运行，或者需要特定的硬件支持。我们认为，用户不应该被限制在某个特定的平台上，更不应该为了多端使用而额外付费。
+
+   我们选择：通过浏览器 WebUI 支持跨平台 UI。
+
+4. **使用成本**
 
    行业初始许可费往往高达数千，更不用说高昂的额外和维护成本。我们认为这些成本部分是由于捆绑销售以抵消开发费用，部分是由于效率低下，部分是想牟取暴利。作为一个面向个人投资者而非企业的产品，我们必须考虑普通投资者的消费能力。对于投资者来说，工具最重要的方面是便宜、皮实。无论是个人电脑还是服务器集群，我们的产品都能有效运行。
 
-Yuan 是一个投资操作系统，旨在赋予您掌握财务的能力。
+   我们选择：完全免费，不提供任何商用服务，不转嫁任何成本给用户，协助用户控制机器成本。
+
+5. **程序化门槛**
+
+   不会编程就无法进行量化交易。对于大多数人来说，编程是一项高门槛的技能。许多人具有朴素原始的交易策略，但很难将其转化为程序化策略，更无法测试其性能。如果外包策略开发，用户会担心自己的策略被窃取，担心对方没有理解自己的意图，并且每次修改周期需要数小时到数天不等。如果不是自己能够编程，用户就无法开发量化交易策略，无法成为业内人士。另外，许多产品提供了特殊的编程方言（DSL），这使得用户需要学习新的编程语言或语法，却没有提供足够的社区支持，没有足够好的文档和学习资料。
+
+   我们选择：拒绝小众方言，使用现代 TypeScript 语言，提供 AI 助手支持策略代写，实现快速策略迭代。
 
 <p align="right">(<a href="#readme-top">返回顶部</a>)</p>
 
-### 为什么使用 Yuan
-
-**强大的 Web GUI**
-
-通过 Yuan Web GUI，您可以获得一个全面的解决方案，用于创建、测试和管理您的交易系统，以及部署和监控您的应用程序。该 GUI 完全开源，可以在任何地方部署，无需互联网连接。您可以轻松地在多个环境之间切换，使用一个 GUI，使您的体验更加流畅。
-
-我们设计 GUI 时考虑了现代浏览器，并集成了最新的网络技术，如 WebWorker、FileSystemHandle、WebRTC 等。它响应迅速且快速，我们正在不断努力使其对您来说更好。
-
-虽然 GUI 目前是中文的，但我们计划使其国际化，以便您将来可以使用您的母语。我们欢迎对项目翻译的贡献，这样每个人都可以从这个惊人的工具中受益。您可以在 MIT 许可证下免费访问 GUI，无需安装任何东西 - 只需使用 [GUI](https://y.ntnl.io)。
-
-**简单的语言和 AI 助手**
-
-如果您对开发交易策略感兴趣，无需学习新语言或 DSL，现代 JavaScript/TypeScript 语言是一个绝佳的选择。您可以使用任何 IDE 编写代码，并使用任何版本控制系统进行管理。如果您在编码方面有困难，您可以向 AI 助手寻求帮助，通过沟通您的想法。
-
-```ts
-// 这是一个简单的趋势跟踪交易策略，使用 SMA 指标。
-import { useSMA, useSimplePositionManager } from '@libs';
-export default () => {
-  const { close } = useOHLC('Y', 'XAUUSD', 'PT1H');
-  const ma20 = useSMA(close, 20);
-  const accountInfo = useAccountInfo();
-  const [targetVolume, setTargetVolume] = useSimplePositionManager(accountInfo.account_id, 'XAUUSD');
-  useEffect(() => {
-    const idx = close.length - 2;
-    if (close[idx] > ma20[idx]) {
-      setTargetVolume(1);
-    } else {
-      setTargetVolume(0);
-    }
-  }, [close.length]);
-};
-```
-
-更多示例可以在 [这里](https://github.com/No-Trade-No-Life/Yuan-Public-Workspace) 找到。
-
-**本地，云...或混合！**
-
-Yuan 是一个混合云软件，允许您同时在家庭或公共云中部署您的交易系统。您可以从家庭 PC 开始，然后随着业务增长逐渐切换到公共云。选择家庭 PC 或公共云将取决于您的可用性、成本、隐私和安全要求。
-
-**以扩展为核心的生态系统**
-
-在 Yuan 中，扩展被视为一等公民。许多核心功能都是作为扩展构建和分发的。您可以使用扩展添加新功能，连接更多市场，并增强您的体验。您可以从社区下载扩展或创建自己的扩展与他人分享。
-
-<p align="right">(<a href="#readme-top">返回顶部</a>)</p>
-
-## 构建于
+## 技术栈
 
 [![TypeScript](https://img.shields.io/badge/typescript-3178C6?style=for-the-badge&logo=typescript&logoColor=FFFFFF)](https://github.com/microsoft/TypeScript)
 [![reactivex](https://img.shields.io/badge/reactivex-B7178C?style=for-the-badge&logo=reactivex&logoColor=FFFFFF)](https://github.com/ReactiveX/rxjs)
@@ -134,6 +103,29 @@ Yuan 是一个混合云软件，允许您同时在家庭或公共云中部署您
 [![letsencrypt](https://img.shields.io/badge/letsencrypt-003A70?style=for-the-badge&logo=letsencrypt&logoColor=FFFFFF)](https://letsencrypt.org/)
 
 <p align="right">(<a href="#readme-top">返回顶部</a>)</p>
+
+## 开始使用 (单机部署) 🚀
+
+前提条件：
+
+- nodejs >= 22.14.0，[下载 Node.js](https://nodejs.org/en/download/) 并安装，确保本地命令行中存在 `npx` 命令。
+- PostgreSQL 数据库，[从官方网站下载](https://www.postgresql.org/download/) 并安装，获得一个 PostgreSQL 数据库连接 URI (`POSTGRES_URI`)。
+
+从 npx 运行 Yuan 的 Node 节点:
+
+1. 创建本地主机，并连接到你的数据库
+
+   ```bash
+   $ POSTGRES_URI="<your-postgres-uri>" npx @yuants/node-unit
+   ```
+
+2. 使用 Web GUI 连接刚刚创建的本地主机
+
+   打开浏览器，访问 http://y.ntnl.io ，您将看到 Yuan 的 Web GUI。
+
+   于右下角找到网络连接，配置主机，主机 URL 为 `ws://localhost:8888`，然后点击连接。
+
+   待连接成功后，您可以看到主机中的服务列表，并使用各种服务，随后请遵循 GUI 中的向导进行使用。
 
 ## 开始使用（开发者）🚀
 
@@ -199,6 +191,7 @@ Yuan 使用 PostgreSQL 作为通用场景数据库；使用 Prometheus 存储遥
 - [@yuants/data-quote](libraries/data-quote) Level-1 报价数据，具体是指产品的最新价格和最优报价等信息。
 - [@yuants/data-interest-rate](libraries/data-interest-rate) 利率数据。利率是指交易者持有头寸经过结算点时产生的利息。它通常用于外汇交易和差价合约 (CFD) 交易，同时也适用于永续合约的资金费率。
 - [@yuants/data-account](libraries/data-account) 账户和持仓信息。
+- [@yuants/data-order](libraries/data-order) 订单数据。订单是指交易者在市场中提交的买入或卖出指令。
 
 老旧的数据模型存放于 [@yuants/data-model](libraries/data-model)，我们计划将其拆分成很多不同的包，从而减少一些非核心模型变动冲击。
 
@@ -346,20 +339,6 @@ https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin&version=>=0.0.2
 3. 提交您的更改 (`git commit -m '添加一些 AmazingFeature'`)
 4. 推送到分支 (`git push origin feature/AmazingFeature`)
 5. 打开一个拉取请求
-
-<p align="right">(<a href="#readme-top">返回顶部</a>)</p>
-
-## 联系
-
-- 加入 Discord 服务器：[![Discord](https://img.shields.io/discord/1141802173676654675?style=for-the-badge&logo=discord)](https://discord.gg/BRH2447DUV)
-
-<p align="right">(<a href="#readme-top">返回顶部</a>)</p>
-
-## 致谢 📖
-
-1. [Yuan-Public-Data](https://github.com/No-Trade-No-Life/Yuan-Public-Data)
-   我们的公共数据作为仓库维护在这里。免费使用。
-   如果您有其他数据，欢迎贡献！
 
 <p align="right">(<a href="#readme-top">返回顶部</a>)</p>
 

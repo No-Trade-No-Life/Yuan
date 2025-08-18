@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-solana",
-  "version": "0.1.66",
+  "version": "0.1.68",
   "files": [
     "dist/extension.bundle.js"
   ],
@@ -13,7 +13,6 @@
     "@yuants/transfer": "workspace:*",
     "rxjs": "~7.5.6",
     "crypto-js": "^4.2.0",
-    "@yuants/data-model": "workspace:*",
     "@yuants/data-account": "workspace:*",
     "@yuants/utils": "workspace:*"
   },

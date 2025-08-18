@@ -1,11 +1,17 @@
 import * as SemiUIIcon from '@douyinfe/semi-icons';
 import * as SemiUI from '@douyinfe/semi-ui';
 import * as IconParksIcons from '@icon-park/react';
+import * as yuantsCache from '@yuants/cache';
+import * as dataInterestRate from '@yuants/data-interest-rate';
 import * as dataModel from '@yuants/data-model';
+import * as dataOHLC from '@yuants/data-ohlc';
+import * as dataOrder from '@yuants/data-order';
+import * as dataProduct from '@yuants/data-product';
+import * as dataQuote from '@yuants/data-quote';
+import * as dataSeries from '@yuants/data-series';
 import * as protocol from '@yuants/protocol';
 import * as yuantsSql from '@yuants/sql';
 import * as yuantsUtils from '@yuants/utils';
-import * as yuantsCache from '@yuants/cache';
 import echartsForReact from 'echarts-for-react';
 import * as ethers from 'ethers';
 import i18next from 'i18next';
@@ -21,6 +27,12 @@ export const libs = {
   '@yuants/utils': yuantsUtils,
   '@yuants/cache': yuantsCache,
   '@yuants/sql': yuantsSql,
+  '@yuants/data-ohlc': dataOHLC,
+  '@yuants/data-order': dataOrder,
+  '@yuants/data-quote': dataQuote,
+  '@yuants/data-interest-rate': dataInterestRate,
+  '@yuants/data-series': dataSeries,
+  '@yuants/data-product': dataProduct,
   react: React,
   rxjs,
   yalps,

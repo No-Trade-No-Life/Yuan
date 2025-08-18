@@ -1,5 +1,4 @@
-import { IAccountInfo } from '@yuants/data-account';
-import { createEmptyAccountInfo } from '@yuants/data-model';
+import { IAccountInfo, createEmptyAccountInfo } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
 import { AccountInfoResolver } from './index';

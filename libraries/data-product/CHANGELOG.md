@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-product
 
-This log was last generated on Tue, 05 Aug 2025 16:36:43 GMT and should not be manually modified.
+This log was last generated on Tue, 12 Aug 2025 08:51:40 GMT and should not be manually modified.
+
+## 0.2.4
+Tue, 12 Aug 2025 08:51:40 GMT
+
+### Patches
+
+- add no interest rate
 
 ## 0.2.3
 Tue, 05 Aug 2025 16:36:43 GMT

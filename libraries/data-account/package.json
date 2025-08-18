@@ -1,6 +1,6 @@
 {
   "name": "@yuants/data-account",
-  "version": "0.3.0",
+  "version": "0.3.2",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [
@@ -28,7 +28,6 @@
     "typescript": "~4.7.4"
   },
   "dependencies": {
-    "@yuants/data-model": "workspace:*",
     "@yuants/data-order": "workspace:*",
     "@yuants/protocol": "workspace:*",
     "@yuants/sql": "workspace:*",

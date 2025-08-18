@@ -36,8 +36,7 @@ registerPage('AccountPerformancePanel', () => {
   }, [orders, accountId]);
 
   const totalTurnover = useMemo(
-    () =>
-      accountOrders.reduce((acc, order) => acc + (order.traded_price || 0) * (order.traded_volume || 0), 0),
+    () => accountOrders.reduce((acc, order) => acc + (order.traded_value || 0), 0),
     [accountOrders],
   );
 
@@ -106,7 +105,20 @@ registerPage('AccountPerformancePanel', () => {
             ),
             value: `${(performance.yearly_return_ratio * 100).toFixed(2)}%`,
           },
-
+          {
+            key: (
+              <>
+                {t('gross_profit_margin')}
+                <Tooltip content={t('gross_profit_margin_description')}>
+                  <IconInfoCircle />
+                </Tooltip>
+              </>
+            ),
+            value: (performance.equity / totalTurnover).toLocaleString(undefined, {
+              style: 'percent',
+              maximumSignificantDigits: 2,
+            }),
+          },
           {
             key: (
               <>
@@ -173,18 +185,7 @@ registerPage('AccountPerformancePanel', () => {
           },
           {
             key: t('daily_sharpe_ratio'),
-            value: (
-              <>
-                {performance.daily_sharpe_ratio.toFixed(5)}{' '}
-                <Tooltip
-                  content={t('daily_sharpe_ratio_description', {
-                    value: (performance.daily_sharpe_ratio * 252 ** 0.5).toFixed(5),
-                  })}
-                >
-                  <IconInfoCircle />
-                </Tooltip>
-              </>
-            ),
+            value: (performance.daily_sharpe_ratio * 252 ** 0.5).toFixed(5),
           },
           {
             key: t('total_downside_days'),
@@ -223,18 +224,7 @@ registerPage('AccountPerformancePanel', () => {
           },
           {
             key: t('weekly_sharpe_ratio'),
-            value: (
-              <>
-                {performance.weekly_sharpe_ratio.toFixed(5)}{' '}
-                <Tooltip
-                  content={t('weekly_sharpe_ratio_description', {
-                    value: performance.weekly_sharpe_ratio * 50 ** 0.5,
-                  })}
-                >
-                  <IconInfoCircle />
-                </Tooltip>
-              </>
-            ),
+            value: (performance.weekly_sharpe_ratio * 50 ** 0.5).toFixed(5),
           },
           {
             key: t('total_downside_weeks'),
@@ -333,13 +323,6 @@ registerPage('AccountPerformancePanel', () => {
             key: t('total_turnover'),
             value: totalTurnover.toLocaleString(undefined, {
               maximumFractionDigits: 2,
-            }),
-          },
-          {
-            key: t('model_efficiency_ratio'),
-            value: (performance.equity / totalTurnover).toLocaleString(undefined, {
-              style: 'percent',
-              maximumSignificantDigits: 2,
             }),
           },
         ]}

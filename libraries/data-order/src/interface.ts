@@ -89,6 +89,13 @@ export interface IOrder {
    * 成交价
    */
   traded_price?: number;
+
+  /**
+   * Traded value.
+   *
+   * 成交额
+   */
+  traded_value?: number;
   /**
    * Order status.
    *

@@ -1,12 +1,12 @@
 import { IconExport } from '@douyinfe/semi-icons';
 import { Button, Space } from '@douyinfe/semi-ui';
 import { formatTime } from '@yuants/utils';
-import { stringify } from 'csv-stringify/browser/esm/sync';
 import download from 'downloadjs';
 import { useObservableState } from 'observable-hooks';
 import { useTranslation } from 'react-i18next';
 import { DataView } from '../Interactive';
 import { registerPage } from '../Pages';
+import { CSV } from '../Util';
 import { orders$ } from './model';
 
 registerPage('OrderListPanel', () => {
@@ -14,26 +14,7 @@ registerPage('OrderListPanel', () => {
   const orders = useObservableState(orders$);
 
   const handleExportOrderList = () => {
-    download(
-      stringify(orders, {
-        header: true,
-        columns: [
-          'order_id',
-          'product_id',
-          'submit_at',
-          'order_direction',
-          'order_type',
-          'traded_price',
-          'traded_volume',
-          'price',
-          'volume',
-          'profit_correction',
-          'comment',
-        ],
-      }),
-      'orders.csv',
-      'text/csv',
-    );
+    download(CSV.stringify(orders), 'orders.csv', 'text/csv');
   };
 
   return (
@@ -66,12 +47,14 @@ registerPage('OrderListPanel', () => {
           },
           { header: t('traded_price'), accessorKey: 'traded_price' },
           { header: t('traded_volume'), accessorKey: 'traded_volume' },
+          { header: t('traded_value'), accessorKey: 'traded_value' },
           { header: t('price'), accessorKey: 'price' },
           { header: t('volume'), accessorKey: 'volume' },
           { header: t('inferred_base_currency_price'), accessorKey: 'inferred_base_currency_price' },
           { header: t('profit_correction'), accessorKey: 'profit_correction' },
           { header: t('comment'), accessorKey: 'comment' },
         ]}
+        columnsDependencyList={[t]}
       />
     </div>
   );

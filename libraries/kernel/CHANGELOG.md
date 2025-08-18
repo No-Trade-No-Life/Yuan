@@ -1,6 +1,24 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Wed, 06 Aug 2025 16:50:42 GMT and should not be manually modified.
+This log was last generated on Tue, 12 Aug 2025 08:51:40 GMT and should not be manually modified.
+
+## 0.15.1
+Tue, 12 Aug 2025 08:51:40 GMT
+
+### Patches
+
+- implement pagination for SQL requests to prevent timeout errors
+
+## 0.15.0
+Sat, 09 Aug 2025 05:56:01 GMT
+
+### Minor changes
+
+- use traded_value
+
+### Patches
+
+- remove ITick, use IQuote
 
 ## 0.14.3
 Wed, 06 Aug 2025 16:50:42 GMT

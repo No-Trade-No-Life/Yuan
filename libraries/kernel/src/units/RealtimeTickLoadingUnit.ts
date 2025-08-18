@@ -1,4 +1,4 @@
-import { ITick } from '@yuants/data-model';
+import { IQuote } from '@yuants/data-quote';
 import { Terminal } from '@yuants/protocol';
 import { decodePath, encodePath } from '@yuants/utils';
 import { Subscription, defer } from 'rxjs';
@@ -22,7 +22,7 @@ export class RealtimeTickLoadingUnit extends BasicUnit {
     super(kernel);
     this.kernel = kernel;
   }
-  private mapEventIdToTick = new Map<number, ITick>();
+  private mapEventIdToTick = new Map<number, IQuote>();
 
   addTickTask(datasource_id: string, product_id: string, account_id: string = '') {
     this.kernel
@@ -35,8 +35,8 @@ export class RealtimeTickLoadingUnit extends BasicUnit {
 
   onEvent(): void | Promise<void> {
     const tick = this.mapEventIdToTick.get(this.kernel.currentEventId);
-    if (tick && tick.ask && tick.bid) {
-      this.quoteDataUnit.updateQuote(tick.datasource_id, tick.product_id, tick.ask, tick.bid);
+    if (tick && tick.ask_price && tick.bid_price) {
+      this.quoteDataUnit.updateQuote(tick.datasource_id, tick.product_id, +tick.ask_price, +tick.bid_price);
 
       this.tickDataUnit.setTick(tick);
 
@@ -53,7 +53,7 @@ export class RealtimeTickLoadingUnit extends BasicUnit {
 
       this.subscriptions.push(
         defer(() =>
-          this.terminal.channel.subscribeChannel<ITick>('Tick', encodePath(datasource_id, product_id)),
+          this.terminal.channel.subscribeChannel<IQuote>('Tick', encodePath(datasource_id, product_id)),
         ).subscribe((tick) => {
           const eventId = this.kernel.alloc(Date.now());
           if (account_id) {

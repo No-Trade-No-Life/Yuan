@@ -1,135 +1,113 @@
 # Web UI
 
-This is the source of https://y.ntnl.io and https://y.ntnl.tech
+这是 https://y.ntnl.io 和 https://y.ntnl.tech 的源代码
 
-## Getting started 🚀
+## 快速开始 🚀
 
-After `rush update` and build dependencies by `rush build`, you can setup a local development server by running:
+执行 `rush update` 并运行 `rush build` 构建依赖后，可通过以下命令启动本地开发服务器：
 
 ```bash
-rushx dev # must execute under the working path: 'ui/web'
+rushx dev # 必须在 'ui/web' 路径下执行
 ```
 
-### Modules
+## 模块结构
 
-This package is organized into modules, each of which is high cohesion and contains some of React components, RxJS Observables & Subjects, utils and others.
+本工程采用模块化组织，每个模块具有高内聚性，包含 React 组件、RxJS Observables & Subjects、工具函数等。
 
-#### Core Data Management
+### 通用模块
 
-These modules provide core data models management. They are the foundation of the whole system.
+需要保证能同时在 主线程 和 Web Worker 中运行的模块，提供核心的 IO 能力：
 
-- [AccountInfo](src/modules/AccountInfo) This deals with AccountInfo.
-- [Order](src/modules/Order) This provides some features of order management (view & submit).
-- [Products](src/modules/Products) This provides some features of viewing products.
+- [FileSystem](src/modules/FileSystem) 模块提供 Promise 风格的文件系统 API。负责创建和绑定工作区。
+- [Network](src/modules/Network) 模块提供连接到主机的相关网络功能，以远程调用其他终端提供的服务。
 
-Generally, basic data model will be associated with many derived relations.
+对于主线程而言，需要首先引导 UI 启动：
 
-- [General Specific Relations](src/modules/GeneralSpecificRelations) This provides the corresponding relations between general and specific products.
-- [Pull Source Relation](src/modules/PullSourceRelations) This provides which OHLC data need to pull.
-- [TradeCopier](src/modules/TradeCopier) This provides config management for Trade Copier
+- [BIOS](src/modules/BIOS) 模块提供 BIOS 相关功能，提供不同方式的启动引导 (从本地/远程工作区启动)，完成引导后切换到 Workbench UI。
+- [Workbench](src/modules/Workbench) 模块提供通用 UI 框架。
+- [DesktopLayout](src/modules/DesktopLayout) 模块提供桌面布局，基于 flexlayout-react 支持多页面拖拽布局。
+- [Pages](src/modules/Pages) 模块提供与布局无关的页面模型和操作方法。
+- [CommandCenter](src/modules/CommandCenter) 模块提供命令注册与执行功能。
+- [System](src/modules/System) 模块提供注册关联表等相关功能。
+- [Locale](src/modules/Locale) 模块提供国际化支持。
+- [Extensions](src/modules/Extensions) 管理扩展功能。
 
-#### User Stories & Business Scenes
+以及我们自身对于 UI 的一些增强：
 
-These modules build scenes for user cases. They are directly create value for users. They are explicit features for users.
+- [Interactive](src/modules/Interactive) 模块提供交互式 UI 组件。包括如何点击、提示和展示数据。
+- [Form](src/modules/Form) 模块将 React JSON Schema Form 接入 Semi UI，提供表单输入功能。
+- [Editor](src/modules/Editor) 模块基于 Monaco 提供网页文件编辑器。
 
-- [Agent](src/modules/Agent) This contains business logic of the AgentScene.
-- [Deploy](src/modules/Deploy) This provides some features about deploying.
-- [Extensions](src/modules/Extensions) This provides some features about extensions.
-- [Fund](src/modules/Fund) This provides some features of Fund management. You can sum up multiple accounts and calc investors's equity. You will need it when you're accounting for a fund.
-- [Kernel](src/modules/Kernel) This provides some scenes built with `@yuants/kernel`.
-- [Market](src/modules/Market) This provides some features of viewing market data.
-- [Workspace](src/modules/Workspace) This provides some features of Workspace. Workspace is the user's private files.
+以上模块与 Yuan 的业务领域 (量化投资) 无关，提供了基础的 UI 框架和功能，开发者可以基于上述模块开发一个其他领域的 Web 应用。
 
-#### Great works from community
+### 业务模块
 
-Thanks to the community, we have some UI enhancement modules. These modules encapsulated some UI components to provide excellent user experience.
+- [SQL](src/modules/SQL) 模块提供 SQL 查询数据库的 UI。
 
-- [Chart](src/modules/Chart) This provides many time series chart, powered by [TradingView/lighweight-charts](https://github.com/tradingview/lightweight-charts)
-- [Editor](src/modules/Editor) This provides web file editor, powered by [Monaco](https://github.com/microsoft/monaco-editor).
-- [Form](src/modules/Form) This connects [React JSON Schema Form](https://github.com/rjsf-team/react-jsonschema-form) to Semi UI.
-- [Locale](src/modules/Locale) This provides i18n support. Powered by [react-i18next](https://github.com/i18next/react-i18next)
+数据管理相关:
 
-#### We contribute to the community
+- [AccountInfo](src/modules/AccountInfo) 处理账户信息
+- [AccountComposition](src/modules/AccountComposition) 提供账户组合的 UI
+- [AccountRiskInfo](src/modules/AccountRiskInfo) 提供账户风险信息的 UI
+- [Order](src/modules/Order) 提供订单管理功能（查看与提交）
+- [Products](src/modules/Products) 提供产品查看功能
+- [TransferOrder](src/modules/TransferOrder) 提供转账订单的 UI
+- [TradeCopier](src/modules/TradeCopier) 提供交易复制器的配置管理
+- [DataSeries](src/modules/DataSeries) 提供数据序列的管理功能
 
-These modules are general purpose. They are not related to any specific business. So we can develop them independently and feed back to the community.
+其他:
 
-- [FileSystem](src/modules/FileSystem) This provides a promise-style filesystem API. Use FileSystemHandle and IndexedDB internally.
-- [CommandCenter](src/modules/CommandCenter) This provides a command center module. Other modules and extensions can register commands or execute commands.
+- [Agent](src/modules/Agent) 包含智能体场景的业务逻辑
+- [Chart](src/modules/Chart) 基于 [TradingView/lighweight-charts](https://github.com/tradingview/lightweight-charts) 的时间序列图表
+- [Copilot](src/modules/Copilot) 提供 AI Copilot 功能
+- [DataRecord](src/modules/DataRecord) 提供数据记录的管理功能
+- [Deploy](src/modules/Deploy) 提供部署相关功能
+- [Fund](src/modules/Fund) 提供资金管理功能，可汇总多账户并计算投资者权益，适用于基金核算
+- [Kernel](src/modules/Kernel) 基于 `@yuants/kernel` 构建的场景
+- [Market](src/modules/Market) 提供市场数据查看功能
+- [Terminals](src/modules/Terminals) 查看终端及其状态
 
-#### Connects to the Yuan Cloud Service
+### 国际化与本地化
 
-We have some enterprise features that users need to connect to the Yuan Cloud Service.
+强烈推荐安装 **Lokalise** 开发的 VSCode 插件：[**i18n Ally**](https://github.com/lokalise/i18n-ally)，请阅读其文档获取最佳体验。
 
-- [User](src/modules/User) This provides some features of user (Login / Logout, Identity Provider).
-- [AI](src/modules/AI) This contains LUI, which is a React component that renders a chatbot UI.
+只需配置显示语言 (`i18n-ally.displayLanguage`) 为 `zh`、`en` 等（建议配置在用户设置而非工作区设置）。
 
-#### Misc
+所有翻译文件位于 [`public/locales`](public/locales) 目录。
 
-I don't know where to put these modules. I have plans to move them to other modules.
+我们推荐使用命名空间组织 i18n 键值，命名空间名称对应 React 组件名。每个导出的 React 组件应有唯一命名空间，文件名称与组件名相同。模块内未导出的小型组件可使用简单名称。
 
-- [StaticFileServerStorage](src/modules/StaticFileServerStorage) This provides product and OHLC data in No Host mode.
-- [Terminals](src/modules/Terminals) This provides some features of viewing terminals and their status.
-- [Workbench](src/modules/Workbench) This provides some features of Workbench. Workbench is the general UI framework.
-
-#### Deprecated
-
-No need to view these modules. They are deprecated.
-
-- [Analyze](src/modules/Analyze) Deprecated.
-- [Shell](src/modules/Shell/) Deprecated.
-- [StopLoss](src/modules/StopLoss) Deprecated.
-
-### Internationalize & Localize
-
-We strongly recommend you to install VSCode extension: [**i18n Ally**](https://github.com/lokalise/i18n-ally) developed by **Lokalise**. Read its documentation to learn how to use it. You will found an amazing experience.
-
-The only config to the i18n Ally is Display Language (`i18n-ally.displayLanguage`). You can set it to `zh`, `en` or others according to your preference. Please note you should set it in the User configuration, not the Workspace configuration.
-
-All the translation files are in the [`public/locales`](public/locales) directory.
-
-We prefer to use namespace to organize i18n keys. The name of namespace is corresponding to the name of React component. We assume every exported React component has an unique name and has its own namespace. And the file name is same with the component's name. Tiny components inner a module and never be exported can have a simpler and replicable name.
-
-We don't like to repeat namespace as the prefix of key. For example, we don't like to use `SomeComponent_xxx` and `SomeComponent_yyy` as the key. We prefer to use `xxx`, `yyy` with namespace `SomeComponent` as the key.
+不推荐在键值中重复命名空间前缀：
 
 ```ts
-// Bad
+// 不推荐
 const { t } = useTranslation();
-
 t('SomeComponent_xxx');
-t('SomeComponent_yyy');
 
-// Good
+// 推荐
 const { t } = useTranslation('SomeComponent');
-
 t('xxx');
-t('yyy');
 ```
 
-#### Special namespace
+#### 特殊命名空间
 
-Note that some special namespaces are reserved for special usage.
+保留命名空间：
 
-- i18n key formed with `"commands:<id>"` will be used for translating the command's display name.
-- i18n key formed with `"pages:<id>"` will be used for translating the title of the page.
+- `"commands:<id>"` 用于翻译命令显示名称
+- `"pages:<id>"` 用于翻译页面标题
 
-### Layouts & Pages
+### 布局与页面
 
-There are several pages from different modules.
+包含来自不同模块的多个页面：
 
-**Page** is a top-level React component with some serializable params.
-Module ["Pages"](src/modules/Pages) provides the layout-independent model and methods to manipulate pages.
+**页面** 是具有可序列化参数的顶级 React 组件。[页面模块](src/modules/Pages) 提供与布局无关的模型和操作方法。
 
-**Layout** is a top-top-level React component that indicates how to render the pages.
+**布局** 是顶级 React 组件，决定页面渲染方式：
 
-Layout should respond to the device screen size and adjust the layout accordingly, while the page should respond to the page's inner viewport.
+- 大屏使用 [桌面布局](src/modules/DesktopLayout)，基于 [flexlayout-react](https://github.com/caplin/FlexLayout) 支持多页面拖拽布局
+- 小屏使用移动布局，单页面显示支持滑动导航
 
-There are two kinds of layout: DesktopLayout and MobileLayout. They are used to render different UI according to the screen size.
+响应式设计建议：
 
-With large screen, module ["DesktopLayout"](src/modules/DesktopLayout) will be used. You can manage multiple pages in one screen. DesktopLayout use [flexlayout-react](https://github.com/caplin/FlexLayout) to render the layout. You can drag and drop the panels to change the layout.
-
-With small screen, MobileLayout will be used. In mobile layout, you can view only one page at a time. You can swipe left to go-back or right to go-forward by the history.
-
-Some Tips for responsive design:
-
-- use `<Table />` in large screen and use `<List />` in small screen.
-- use `<Modal />` and other pop-ups in large screen and use a single page in small screen.
+- 大屏用 `<Table />`，小屏用 `<List />`
+- 大屏用 `<Modal />` 等弹窗，小屏用独立页面

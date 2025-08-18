@@ -1,5 +1,5 @@
-import { ITick } from '@yuants/data-model';
 import { IOHLC } from '@yuants/data-ohlc';
+import { IQuote } from '@yuants/data-quote';
 import { IOrder } from '@yuants/data-order';
 import { encodePath, roundToStep } from '@yuants/utils';
 import { Subject, Subscription } from 'rxjs';
@@ -12,7 +12,11 @@ import { ProductDataUnit } from './ProductDataUnit';
 import { QuoteDataUnit } from './QuoteDataUnit';
 import { TickDataUnit } from './TickDataUnit';
 
-interface IMatchingRange {
+/**
+ *
+ * @public
+ */
+export interface IMatchingRange {
   first: number;
   high: number;
   low: number;
@@ -120,9 +124,9 @@ export class OrderMatchingUnit extends BasicUnit {
     this.prevPeriodMap[key] = period;
   }
 
-  private updateRangeByTick(tick: ITick): void {
-    const ask = tick.ask;
-    const bid = tick.bid;
+  private updateRangeByTick(tick: IQuote): void {
+    const ask = +tick.ask_price;
+    const bid = +tick.bid_price;
     if (!ask || !bid) return;
     this.mapProductIdToRange.set(encodePath(tick.datasource_id, tick.product_id), {
       ask: {
@@ -225,6 +229,7 @@ export class OrderMatchingUnit extends BasicUnit {
         traded_price: tradedPrice,
         volume,
         traded_volume: volume,
+        traded_value: tradedPrice * volume * (theProduct?.value_scale ?? 1),
       };
       // 成交
       this.kernel.log?.(

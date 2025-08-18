@@ -1,8 +1,8 @@
 import { useObservableState } from 'observable-hooks';
 import { combineLatest, map, Observable, shareReplay } from 'rxjs';
-import { createPersistBehaviorSubject } from '../BIOS';
+import { createFileSystemBehaviorSubject } from '../FileSystem';
 
-export const DarkModeSetting$ = createPersistBehaviorSubject<'dark' | 'light' | 'auto'>(
+export const DarkModeSetting$ = createFileSystemBehaviorSubject<'dark' | 'light' | 'auto'>(
   'dark-mode-setting',
   'auto',
 );

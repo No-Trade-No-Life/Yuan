@@ -12,7 +12,6 @@
     "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
   },
   "dependencies": {
-    "@yuants/data-model": "workspace:*",
     "@yuants/protocol": "workspace:*",
     "@yuants/utils": "workspace:*",
     "json-schema": "~0.4.0",

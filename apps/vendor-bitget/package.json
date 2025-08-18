@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-bitget",
-  "version": "0.3.15",
+  "version": "0.3.17",
   "files": [
     "dist/extension.bundle.js"
   ],
@@ -11,7 +11,6 @@
   "dependencies": {
     "@yuants/protocol": "workspace:*",
     "@yuants/transfer": "workspace:*",
-    "@yuants/data-model": "workspace:*",
     "@yuants/data-account": "workspace:*",
     "@yuants/sql": "workspace:*",
     "@yuants/utils": "workspace:*",

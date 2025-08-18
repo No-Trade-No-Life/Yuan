@@ -2,6 +2,43 @@
   "name": "@yuants/app-account-composer",
   "entries": [
     {
+      "version": "0.2.55",
+      "tag": "@yuants/app-account-composer_v0.2.55",
+      "date": "Tue, 12 Aug 2025 08:51:40 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.3.2`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.2.54",
+      "tag": "@yuants/app-account-composer_v0.2.54",
+      "date": "Sat, 09 Aug 2025 05:56:01 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "refactor"
+          },
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.3.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.53",
       "tag": "@yuants/app-account-composer_v0.2.53",
       "date": "Wed, 06 Aug 2025 16:50:42 GMT",

@@ -1,6 +1,18 @@
 # Change Log - @yuants/vendor-hyperliquid
 
-This log was last generated on Wed, 06 Aug 2025 16:50:42 GMT and should not be manually modified.
+This log was last generated on Tue, 12 Aug 2025 08:51:40 GMT and should not be manually modified.
+
+## 0.0.45
+Tue, 12 Aug 2025 08:51:40 GMT
+
+### Patches
+
+- add no interest rate
+
+## 0.0.44
+Sat, 09 Aug 2025 05:56:01 GMT
+
+_Version update only_
 
 ## 0.0.43
 Wed, 06 Aug 2025 16:50:42 GMT

@@ -54,7 +54,7 @@ AddMigration({
       PRIMARY KEY (series_id, created_at)
     );
 
-    CREATE INDEX IF NOT EXISTS idx_interest_rate_series_id_created_at ON ohlc (series_id, created_at desc);
-    create or replace trigger auto_update_updated_at before update on ohlc for each row execute function update_updated_at_column();
+    CREATE INDEX IF NOT EXISTS idx_interest_rate_series_id_created_at ON interest_rate (series_id, created_at desc);
+    create or replace trigger auto_update_updated_at before update on interest_rate for each row execute function update_updated_at_column();
   `,
 });

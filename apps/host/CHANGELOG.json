@@ -2,6 +2,26 @@
   "name": "@yuants/app-host",
   "entries": [
     {
+      "version": "0.3.38",
+      "tag": "@yuants/app-host_v0.3.38",
+      "date": "Sat, 09 Aug 2025 05:56:01 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "refactor"
+          },
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "add main entry"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.37",
       "tag": "@yuants/app-host_v0.3.37",
       "date": "Tue, 05 Aug 2025 16:36:43 GMT",

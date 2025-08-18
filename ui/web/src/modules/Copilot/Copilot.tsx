@@ -6,14 +6,12 @@ import { join } from 'path-browserify';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EMPTY, Subject, catchError, defer, raceWith, tap, timeout } from 'rxjs';
-import { createPersistBehaviorSubject } from '../BIOS';
 import { executeCommand } from '../CommandCenter';
+import { createFileSystemBehaviorSubject } from '../FileSystem';
 import i18n from '../Locale/i18n';
 import { region$ } from '../Locale/utils';
 import { registerPage } from '../Pages';
 import { ErrorBoundary } from '../Pages/ErrorBoundary';
-import { authState$ } from '../SupaBase';
-import { ensureAuthenticated } from '../User';
 import CopilotButton from './components/CopilotButton';
 import { IChatMessage, IMessageCardProps } from './model';
 const mapMessageTypeToComponent: Record<string, React.ComponentType<IMessageCardProps<any>>> = {};
@@ -27,12 +25,11 @@ export function registerCopilotMessageBlock<P extends {}>(
 
 const API_ENDPOINT = `https://api.ntnl.io/copilot`;
 
-const messages$ = createPersistBehaviorSubject<IChatMessage<any, any>[]>('copilotMessages', []);
+const messages$ = createFileSystemBehaviorSubject<IChatMessage<any, any>[]>('copilotMessages', []);
 
 registerPage('Copilot', () => {
   const [userInput, setUserInput] = useState('');
   const [isLoading, setLoading] = useState(false);
-  const authState = useObservableState(authState$);
   const { t } = useTranslation('Copilot');
   const messages = useObservableState(messages$) ?? [];
 
@@ -94,16 +91,12 @@ registerPage('Copilot', () => {
         return;
       }
       const messagesToSend = messages$.value.filter((v) => v.type !== 'SystemError');
-      await ensureAuthenticated();
       const res = await fetch(API_ENDPOINT, {
         mode: 'cors',
         method: 'POST',
         body: JSON.stringify({ messages: messagesToSend }),
         credentials: 'include',
-        // TODO: use cookies
         headers: {
-          'yuan-refresh-token': authState!.refresh_token,
-          'yuan-access-token': authState!.access_token,
           'Content-Type': 'application/json',
         },
       });
@@ -135,10 +128,6 @@ registerPage('Copilot', () => {
   const handleSend = async () => {
     if (!userInput) return;
     gtag('event', 'copilot_push_message');
-    if (!authState) {
-      gtag('event', 'copilot_push_message_401');
-    }
-    await ensureAuthenticated();
     gtag('event', 'copilot_push_message_200');
     const theUserInput = userInput;
     messages$.next(

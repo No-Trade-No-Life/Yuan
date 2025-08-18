@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-account-composer",
-  "version": "0.2.53",
+  "version": "0.2.55",
   "homepage": "https://github.com/No-Trade-No-Life/Yuan/tree/main/apps/account-composer",
   "main": "lib/index.js",
   "module": "dist/index.js",
@@ -13,7 +13,6 @@
     "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
   },
   "dependencies": {
-    "@yuants/data-model": "workspace:*",
     "@yuants/data-account": "workspace:*",
     "@yuants/protocol": "workspace:*",
     "@yuants/sql": "workspace:*",

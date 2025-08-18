@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-agent",
-  "version": "0.4.120",
+  "version": "0.4.122",
   "main": "lib/index.js",
   "files": [
     "dist",
@@ -13,7 +13,6 @@
   "dependencies": {
     "@rollup/browser": "~3.26.3",
     "@yuants/agent": "workspace:*",
-    "@yuants/data-model": "workspace:*",
     "@yuants/data-account": "workspace:*",
     "@yuants/kernel": "workspace:*",
     "@yuants/protocol": "workspace:*",

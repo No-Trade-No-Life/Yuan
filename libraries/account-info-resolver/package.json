@@ -1,6 +1,6 @@
 {
   "name": "@yuants/account-info-resolver",
-  "version": "0.2.20",
+  "version": "0.2.22",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [
@@ -27,7 +27,6 @@
   },
   "dependencies": {
     "rxjs": "~7.5.6",
-    "@yuants/data-model": "workspace:*",
     "@yuants/data-product": "workspace:*",
     "@yuants/data-account": "workspace:*",
     "@yuants/data-order": "workspace:*",

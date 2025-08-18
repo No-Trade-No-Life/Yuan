@@ -1,13 +1,26 @@
 import { useObservable, useObservableState } from 'observable-hooks';
 import { extname, join } from 'path-browserify';
 import React from 'react';
-import { EMPTY, Subject, catchError, defer, filter, from, map, merge, mergeMap, toArray } from 'rxjs';
-import { createPersistBehaviorSubject } from '../BIOS';
+import {
+  EMPTY,
+  Subject,
+  catchError,
+  defer,
+  filter,
+  from,
+  map,
+  merge,
+  mergeMap,
+  of,
+  throwIfEmpty,
+  toArray,
+} from 'rxjs';
 import { registerCommand } from '../CommandCenter';
-import { FsBackend$, fs } from '../FileSystem';
+import { FsBackend$, createFileSystemBehaviorSubject, fs } from '../FileSystem';
+import defaultWallPaper from './default-wallpaper.jpg';
 
 const reloadWallPaper$ = new Subject<void>();
-const currentWallPaperIndex$ = createPersistBehaviorSubject('wall-paper-index', 0);
+const currentWallPaperIndex$ = createFileSystemBehaviorSubject('wall-paper-index', 0);
 
 registerCommand('WallPaper.next', () => {
   currentWallPaperIndex$.next((currentWallPaperIndex$.value || 0) + 1);
@@ -71,6 +84,8 @@ export const WallPaper = React.memo(() => {
                   catchError(() => EMPTY),
                 ),
               ),
+              throwIfEmpty(() => new Error('No wallpaper found')),
+              catchError(() => of({ filename: '', url: defaultWallPaper, mime: 'image/jpeg' })),
               toArray(),
             ),
           ),
