@@ -80,6 +80,11 @@ const createOrder = (
   };
 };
 
+/**
+ * Limit Order Controller
+ *
+ * @public
+ */
 export const limitOrderController = (
   terminal: Terminal,
   products: IProduct[],
