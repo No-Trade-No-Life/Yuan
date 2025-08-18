@@ -37,18 +37,17 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
   private fsUnit: BasicFileSystemUnit | undefined;
 
   periodTasks: {
-    datasource_id: string;
-    product_id: string;
-    duration: string;
-    start_time_in_us: number;
-    end_time_in_us: number;
+    series_id: string;
+    start_time: number;
+    end_time: number;
   }[] = [];
 
   async onInit() {
     this.fsUnit = this.kernel.findUnit(BasicFileSystemUnit);
 
-    const queryData = async (key: string): Promise<IOHLC[]> => {
-      const [datasource_id, product_id, duration, start, end] = decodePath(key);
+    const queryData = async (series_id: string, key: string): Promise<IOHLC[]> => {
+      const [datasource_id, product_id, duration] = decodePath(series_id);
+      const [start, end] = decodePath(key);
       const t_start = new Date(start).getTime();
       const t_end = new Date(end).getTime();
       const ms = convertDurationToOffset(duration);
@@ -66,9 +65,9 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
 
         for (let i = start_index; i <= end_index; i++) {
           const t = i * chunk_step;
-          const filename = `/.Y/cache/ohlc/${encodeURIComponent(
-            encodePath(datasource_id, product_id, duration),
-          )}/${encodeURIComponent(formatTime(t).slice(0, 10))}.json`;
+          const filename = `/.Y/cache/ohlc/${encodeURIComponent(series_id)}/${encodeURIComponent(
+            formatTime(t).slice(0, 10),
+          )}.json`;
           this.kernel.log?.(`${formatTime(Date.now())} 正在从本地文件系统加载 ${filename}`);
           try {
             const content = await this.fsUnit.readFile(filename);
@@ -88,11 +87,7 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
       result.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
 
       this.kernel.log?.(
-        `${formatTime(
-          Date.now(),
-        )} 从本地文件系统加载 "${datasource_id}" / "${product_id}" / "${duration}" 共 ${
-          result.length
-        } 条数据`,
+        `${formatTime(Date.now())} 从本地文件系统加载 "${series_id}" 共 ${result.length} 条数据`,
       );
 
       if (result.length === 0) {
@@ -112,25 +107,21 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
 
       for (const [t1, t2] of fetchList) {
         this.kernel.log?.(
-          `${formatTime(
-            Date.now(),
-          )} 正在从远程数据库加载 "${datasource_id}" / "${product_id}" / "${duration}" [${formatTime(
-            t1,
-          )}, ${formatTime(t2)}]`,
+          `${formatTime(Date.now())} 正在从远程数据库加载 "${series_id}" [${formatTime(t1)}, ${formatTime(
+            t2,
+          )}]`,
         );
         const _sql = `select * from ohlc where series_id=${escapeSQL(
-          encodePath(datasource_id, product_id, duration),
+          series_id,
         )} and created_at >= ${escapeSQL(formatTime(t1))} and created_at < ${escapeSQL(formatTime(t2))}
             order by created_at`;
         const step = 50000; // 拆分请求，避免过大导致网络错误
         const data: IOHLC[] = [];
         for (let offset = 0; ; offset += step) {
           this.kernel.log?.(
-            `${formatTime(
-              Date.now(),
-            )} 正在从远程数据库加载 "${datasource_id}" / "${product_id}" / "${duration}" [${formatTime(
-              t1,
-            )}, ${formatTime(t2)}] offset=${offset} step=${step}`,
+            `${formatTime(Date.now())} 正在从远程数据库加载 "${series_id}" [${formatTime(t1)}, ${formatTime(
+              t2,
+            )}] offset=${offset} step=${step}`,
           );
           const sql = `with t as (${_sql}) select * from t limit ${step} offset ${offset}`;
           const _data = await requestSQL<IOHLC[]>(this.terminal, sql);
@@ -141,11 +132,9 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
         }
 
         this.kernel.log?.(
-          `${formatTime(
-            Date.now(),
-          )} 从远程数据库加载 "${datasource_id}" / "${product_id}" / "${duration}" [${formatTime(
-            t1,
-          )}, ${formatTime(t2)}] 成功，共 ${data.length} 条数据`,
+          `${formatTime(Date.now())} 从远程数据库加载 "${series_id}" [${formatTime(t1)}, ${formatTime(
+            t2,
+          )}] 成功，共 ${data.length} 条数据`,
         );
 
         data.forEach((x) => result.push(x));
@@ -158,9 +147,9 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
           });
 
           for (const [start_time, chunk] of theMap) {
-            const filename = `/.Y/cache/ohlc/${encodeURIComponent(
-              encodePath(datasource_id, product_id, duration),
-            )}/${encodeURIComponent(formatTime(start_time).slice(0, 10))}.json`;
+            const filename = `/.Y/cache/ohlc/${encodeURIComponent(series_id)}/${encodeURIComponent(
+              formatTime(start_time).slice(0, 10),
+            )}.json`;
 
             const oldData: IOHLC[] = await this.fsUnit
               .readFile(filename)
@@ -192,30 +181,22 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
     this.kernel.log?.(`${formatTime(Date.now())} 正在加载历史行情数据: 共 ${this.periodTasks.length} 个任务`);
     for (const task of this.periodTasks) {
       this.kernel.log?.(
-        `${formatTime(Date.now())} 正在加载 "${task.datasource_id}" / "${task.product_id}" / "${
-          task.duration
-        }" [${formatTime(task.start_time_in_us / 1000)}, ${formatTime(task.end_time_in_us / 1000)})`,
+        `${formatTime(Date.now())} 正在加载 "${task.series_id}" [${formatTime(task.start_time)}, ${formatTime(
+          task.end_time,
+        )})`,
       );
 
       const data = await queryData(
-        encodePath(
-          task.datasource_id,
-          task.product_id,
-          task.duration,
-          formatTime(task.start_time_in_us / 1000),
-          formatTime(task.end_time_in_us / 1000),
-        ),
+        task.series_id,
+        encodePath(formatTime(task.start_time), formatTime(task.end_time)),
       );
 
-      if (!data)
-        throw new Error(`No data found for ${task.datasource_id} / ${task.product_id} / ${task.duration}`);
+      if (!data) throw new Error(`No data found for ${task.series_id}`);
 
       this.kernel.log?.(
-        `${formatTime(Date.now())} 加载完毕 "${task.datasource_id}" / "${task.product_id}" / "${
-          task.duration
-        }" [${formatTime(task.start_time_in_us / 1000)}, ${formatTime(task.end_time_in_us / 1000)}) 共 ${
-          data.length
-        } 条数据`,
+        `${formatTime(Date.now())} 加载完毕 "${task.series_id}" [${formatTime(task.start_time)}, ${formatTime(
+          task.end_time,
+        )}) 共 ${data.length} 条数据`,
       );
 
       data.forEach((period, idx) => {

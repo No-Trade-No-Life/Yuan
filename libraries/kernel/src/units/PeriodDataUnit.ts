@@ -21,7 +21,7 @@ export class PeriodDataUnit extends BasicUnit {
   data: Record<string, IOHLC[]> = {};
 
   updatePeriod(period: IOHLC) {
-    const key = [period.datasource_id, period.product_id, period.duration].join();
+    const key = period.series_id;
     const list = (this.data[key] ??= []);
     const idx = list.length - 1;
 

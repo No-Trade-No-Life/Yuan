@@ -28,7 +28,7 @@ export class PeriodDataCheckingUnit extends BasicUnit {
     datasource_id: string;
     product_id: string;
     duration: string;
-    start_time_in_us: number;
+    start_time: number;
   }[] = [];
 
   private subscriptions: Subscription[] = [];

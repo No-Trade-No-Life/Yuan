@@ -1,6 +1,6 @@
 import { IOHLC } from '@yuants/data-ohlc';
-import { IQuote } from '@yuants/data-quote';
 import { IOrder } from '@yuants/data-order';
+import { IQuote } from '@yuants/data-quote';
 import { encodePath, roundToStep } from '@yuants/utils';
 import { Subject, Subscription } from 'rxjs';
 import { Kernel } from '../kernel';
@@ -71,8 +71,7 @@ export class OrderMatchingUnit extends BasicUnit {
 
   private updateRangeByPeriod(period: IOHLC): void {
     const product_id = period.product_id;
-    const key = [period.datasource_id, period.product_id, period.duration].join();
-    const prevPeriod = this.prevPeriodMap[key];
+    const prevPeriod = this.prevPeriodMap[period.series_id];
     if (prevPeriod && new Date(prevPeriod.created_at).getTime() === new Date(period.created_at).getTime()) {
       // 同一K线，使用连续性的保守推断
       const first = +prevPeriod.close;
@@ -121,7 +120,7 @@ export class OrderMatchingUnit extends BasicUnit {
         });
       }
     }
-    this.prevPeriodMap[key] = period;
+    this.prevPeriodMap[period.series_id] = period;
   }
 
   private updateRangeByTick(tick: IQuote): void {

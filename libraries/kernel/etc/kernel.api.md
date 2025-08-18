@@ -199,11 +199,9 @@ export class DataLoadingTaskUnit extends BasicUnit {
     // (undocumented)
     dump(): {
         periodTasks: {
-            datasource_id: string;
-            product_id: string;
-            duration: string;
-            start_time_in_us: number;
-            end_time_in_us: number;
+            series_id: string;
+            start_time: number;
+            end_time: number;
         }[];
         productTasks: {
             datasource_id: string;
@@ -214,11 +212,9 @@ export class DataLoadingTaskUnit extends BasicUnit {
     kernel: Kernel;
     // (undocumented)
     periodTasks: {
-        datasource_id: string;
-        product_id: string;
-        duration: string;
-        start_time_in_us: number;
-        end_time_in_us: number;
+        series_id: string;
+        start_time: number;
+        end_time: number;
     }[];
     // (undocumented)
     productTasks: {
@@ -270,11 +266,9 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
     // (undocumented)
     dump(): {
         periodTasks: {
-            datasource_id: string;
-            product_id: string;
-            duration: string;
-            start_time_in_us: number;
-            end_time_in_us: number;
+            series_id: string;
+            start_time: number;
+            end_time: number;
         }[];
         mapEventIdToPeriod: {
             [k: string]: IOHLC;
@@ -290,11 +284,9 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
     periodDataUnit: PeriodDataUnit;
     // (undocumented)
     periodTasks: {
-        datasource_id: string;
-        product_id: string;
-        duration: string;
-        start_time_in_us: number;
-        end_time_in_us: number;
+        series_id: string;
+        start_time: number;
+        end_time: number;
     }[];
     // (undocumented)
     productDataUnit: ProductDataUnit;
@@ -582,7 +574,7 @@ export class PeriodDataCheckingUnit extends BasicUnit {
         datasource_id: string;
         product_id: string;
         duration: string;
-        start_time_in_us: number;
+        start_time: number;
     }[];
     // (undocumented)
     terminal: Terminal;
@@ -748,13 +740,9 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
     // (undocumented)
     periodDataUnit: PeriodDataUnit;
     // (undocumented)
-    periodTasks: {
-        datasource_id: string;
-        product_id: string;
-        duration: string;
-    }[];
-    // (undocumented)
     productDataUnit: ProductDataUnit;
+    // (undocumented)
+    seriesIdList: string[];
     // (undocumented)
     terminal: Terminal;
 }

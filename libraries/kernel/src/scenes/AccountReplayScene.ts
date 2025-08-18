@@ -1,6 +1,7 @@
 import { IProduct } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
 import { escape, requestSQL } from '@yuants/sql';
+import { encodePath } from '@yuants/utils';
 import { Kernel } from '../kernel';
 import {
   AccountInfoUnit,
@@ -82,11 +83,9 @@ export const AccountReplayScene = (
   new BasicUnit(kernel).onInit = () => {
     for (const product of productDataUnit.listProducts()) {
       periodLoadingUnit.periodTasks.push({
-        datasource_id: datasource_id ?? account_id,
-        product_id: product.product_id,
-        duration,
-        start_time_in_us: start_timestamp * 1000,
-        end_time_in_us: end_timestamp * 1000,
+        series_id: encodePath(product.datasource_id, product.product_id, duration),
+        start_time: start_timestamp,
+        end_time: end_timestamp,
       });
     }
   };
