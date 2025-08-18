@@ -5,16 +5,17 @@
 ```ts
 
 import { IProduct } from '@yuants/data-product';
+import { Observable } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
 
 // @public
-export function limitOrderController(terminal: Terminal, products: IProduct[], target: {
+export const limitOrderController: (terminal: Terminal, products: IProduct[], target: {
     account_id: string;
     datasource_id: string;
     product_id: string;
     direction: 'LONG' | 'SHORT';
     volume: number;
-}): AsyncGenerator<undefined, void, unknown>;
+}) => Observable<void>;
 
 // (No @packageDocumentation comment for this package)
 
