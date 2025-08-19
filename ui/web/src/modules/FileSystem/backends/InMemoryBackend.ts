@@ -1,11 +1,13 @@
 import { dirname, relative } from 'path-browserify';
-import { IFileSystemBackend, IFileSystemStatResult } from '../interfaces';
+import { IFileSystemStatResult } from '../interfaces';
 import { bs64toBlob } from '../utils';
+import { BasicBackend } from './BasicBackend';
 
-export class InMemoryBackend implements IFileSystemBackend {
+export class InMemoryBackend extends BasicBackend {
   name: string = 'InMemory';
   files: Record<string, { type: 'file'; blob: Blob } | { type: 'dir' }> = { '/': { type: 'dir' } };
   constructor(name?: string) {
+    super();
     if (name) this.name = name;
   }
 

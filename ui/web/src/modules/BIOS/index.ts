@@ -258,7 +258,7 @@ async function loadInmemoryWorkspaceFromNpm(
       }
 
       log('SELECTED VERSION', selectedVersion);
-      FsBackend$.next(new InMemoryBackend(`${full_package_name}: ${selectedVersion}`));
+      const fs = new InMemoryBackend(`${full_package_name}: ${selectedVersion}`);
       log('FETCHING PACKAGE TARBALL');
       const res = await fetch(
         `${registry}/${scope ? `@${scope}/` : ''}${package_name}/-/${package_name}-${selectedVersion}.tgz`,
@@ -276,6 +276,7 @@ async function loadInmemoryWorkspaceFromNpm(
         await fs.writeFile(filename, file.blob);
       }
       log('FILES EXTRACTED');
+      FsBackend$.next(fs);
       return;
     } catch (err) {
       log('ERROR', err);
@@ -299,7 +300,7 @@ async function loadInmemoryWorkspaceFromGitHub(ctx: {
   sub_path: string | null;
   auth_token: string | null;
 }) {
-  FsBackend$.next(new InMemoryBackend(`${ctx.owner}/${ctx.repo}@${ctx.ref}`));
+  const fs = new InMemoryBackend(`${ctx.owner}/${ctx.repo}@${ctx.ref}`);
 
   const res = await fetch(
     mapUrlToCorsProxy(`https://api.github.com/repos/${ctx.owner}/${ctx.repo}/tarball/${ctx.ref}`),
@@ -330,4 +331,5 @@ async function loadInmemoryWorkspaceFromGitHub(ctx: {
     await fs.ensureDir(dirname(filename));
     await fs.writeFile(filename, file.blob);
   }
+  FsBackend$.next(fs);
 }

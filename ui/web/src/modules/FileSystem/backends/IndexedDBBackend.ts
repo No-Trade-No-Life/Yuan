@@ -1,10 +1,11 @@
-import { IFileSystemBackend, IFileSystemStatResult } from '../interfaces';
+import { IFileSystemStatResult } from '../interfaces';
 import { bs64toBlob } from '../utils';
+import { BasicBackend } from './BasicBackend';
 
 // @ts-ignore
 const FileSystem = globalThis.Filer?.FileSystem;
 
-export class IndexedDBBackend implements IFileSystemBackend {
+export class IndexedDBBackend extends BasicBackend {
   name: string = 'IndexedDB';
   // @ts-ignore
   fs = FileSystem ? new FileSystem().promises : null;

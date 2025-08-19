@@ -20,7 +20,7 @@ export const createFileSystemBehaviorSubject = <T>(key: string, initialValue: T)
   const subject$ = new BehaviorSubject<T | undefined>(undefined);
   // read when fsBackend ready
   FsBackend$.pipe(
-    switchMap(() =>
+    switchMap((fs) =>
       defer(() => fs.readFile(filename)).pipe(
         map((x) => JSON.parse(x)),
         catchError(() => EMPTY),
