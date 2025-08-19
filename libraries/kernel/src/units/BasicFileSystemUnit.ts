@@ -23,8 +23,6 @@ export class BasicFileSystemUnit extends BasicUnit {
 
   onIdle(): void | Promise<void> {}
 
-  onDispose(): void | Promise<void> {}
-
   readFile(filename: string): Promise<string | null> {
     throw new Error('readFile method not implemented');
   }

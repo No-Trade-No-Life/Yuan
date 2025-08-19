@@ -1,7 +1,7 @@
 import { IQuote } from '@yuants/data-quote';
 import { Terminal } from '@yuants/protocol';
 import { decodePath, encodePath } from '@yuants/utils';
-import { Subscription, defer } from 'rxjs';
+import { defer, takeUntil } from 'rxjs';
 import { Kernel } from '../kernel';
 import { AccountDatasourceRelationUnit } from './AccountDatasouceRelationUnit';
 import { BasicUnit } from './BasicUnit';
@@ -44,31 +44,23 @@ export class RealtimeTickLoadingUnit extends BasicUnit {
     }
   }
 
-  private subscriptions: Subscription[] = [];
-
   async onInit() {
     // 配置行情查询任务
     for (const task of this._tickTasks) {
       const [datasource_id, product_id, account_id] = decodePath(task);
 
-      this.subscriptions.push(
-        defer(() =>
-          this.terminal.channel.subscribeChannel<IQuote>('Tick', encodePath(datasource_id, product_id)),
-        ).subscribe((tick) => {
+      defer(() =>
+        this.terminal.channel.subscribeChannel<IQuote>('Tick', encodePath(datasource_id, product_id)),
+      )
+        .pipe(takeUntil(this.kernel.dispose$))
+        .subscribe((tick) => {
           const eventId = this.kernel.alloc(Date.now());
           if (account_id) {
             this.mapEventIdToTick.set(eventId, { ...tick, datasource_id: account_id });
           } else {
             this.mapEventIdToTick.set(eventId, tick);
           }
-        }),
-      );
-    }
-  }
-
-  onDispose(): void | Promise<void> {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
+        });
     }
   }
 }

@@ -132,7 +132,7 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
   if (agentConf.is_real) {
     new BasicUnit(kernel).onInit = () => {
       for (const periodTask of periodLoadingUnit.periodTasks) {
-        realtimePeriodLoadingUnit.periodTasks.push({ ...periodTask });
+        realtimePeriodLoadingUnit.seriesIdList.push(periodTask.series_id);
       }
     };
     const realtimePeriodLoadingUnit = new RealtimePeriodLoadingUnit(
@@ -147,14 +147,6 @@ export const AgentScene = async (terminal: Terminal, agentConf: IAgentConf) => {
       quoteDataUnit,
       tickDataUnit,
     );
-  }
-  if (agentConf.is_real) {
-    new BasicUnit(kernel).onInit = () => {
-      for (const periodTask of periodLoadingUnit.periodTasks) {
-        dataCheckingUnit.periodTasks.push({ ...periodTask });
-      }
-    };
-    const dataCheckingUnit = new PeriodDataCheckingUnit(kernel, terminal, periodDataUnit);
   }
 
   const historyOrderUnit = new HistoryOrderUnit(kernel, quoteDataUnit, productDataUnit);

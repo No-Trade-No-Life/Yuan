@@ -49,8 +49,6 @@ export class AccountInfoUnit extends BasicUnit {
     // (undocumented)
     mapAccountIdToAccountInfo: Map<string, IAccountInfo>;
     // (undocumented)
-    onDispose(): void | Promise<void>;
-    // (undocumented)
     onEvent(): void | Promise<void>;
     // (undocumented)
     onInit(): void | Promise<void>;
@@ -140,8 +138,6 @@ export class AccountSimulatorUnit extends BasicUnit {
     // (undocumented)
     kernel: Kernel;
     // (undocumented)
-    onDispose(): void | Promise<void>;
-    // (undocumented)
     onEvent(): void;
     // (undocumented)
     onInit(): void | Promise<void>;
@@ -158,8 +154,6 @@ export class BasicFileSystemUnit extends BasicUnit {
     dump(): {};
     // (undocumented)
     kernel: Kernel;
-    // (undocumented)
-    onDispose(): void | Promise<void>;
     // (undocumented)
     onEvent(): void | Promise<void>;
     // (undocumented)
@@ -199,11 +193,9 @@ export class DataLoadingTaskUnit extends BasicUnit {
     // (undocumented)
     dump(): {
         periodTasks: {
-            datasource_id: string;
-            product_id: string;
-            duration: string;
-            start_time_in_us: number;
-            end_time_in_us: number;
+            series_id: string;
+            start_time: number;
+            end_time: number;
         }[];
         productTasks: {
             datasource_id: string;
@@ -214,11 +206,9 @@ export class DataLoadingTaskUnit extends BasicUnit {
     kernel: Kernel;
     // (undocumented)
     periodTasks: {
-        datasource_id: string;
-        product_id: string;
-        duration: string;
-        start_time_in_us: number;
-        end_time_in_us: number;
+        series_id: string;
+        start_time: number;
+        end_time: number;
     }[];
     // (undocumented)
     productTasks: {
@@ -270,11 +260,9 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
     // (undocumented)
     dump(): {
         periodTasks: {
-            datasource_id: string;
-            product_id: string;
-            duration: string;
-            start_time_in_us: number;
-            end_time_in_us: number;
+            series_id: string;
+            start_time: number;
+            end_time: number;
         }[];
         mapEventIdToPeriod: {
             [k: string]: IOHLC;
@@ -290,11 +278,9 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
     periodDataUnit: PeriodDataUnit;
     // (undocumented)
     periodTasks: {
-        datasource_id: string;
-        product_id: string;
-        duration: string;
-        start_time_in_us: number;
-        end_time_in_us: number;
+        series_id: string;
+        start_time: number;
+        end_time: number;
     }[];
     // (undocumented)
     productDataUnit: ProductDataUnit;
@@ -445,6 +431,8 @@ export class Kernel {
     currentEventId: number;
     currentTimestamp: number;
     // (undocumented)
+    dispose$: Observable<void>;
+    // (undocumented)
     dump: () => {
         kernel: {
             id: string;
@@ -533,8 +521,6 @@ export class OrderMatchingUnit extends BasicUnit {
     // (undocumented)
     listOrders(): IOrder[];
     // (undocumented)
-    onDispose(): void | Promise<void>;
-    // (undocumented)
     onEvent(): void | Promise<void>;
     // (undocumented)
     onInit(): void | Promise<void>;
@@ -572,18 +558,9 @@ export class PeriodDataCheckingUnit extends BasicUnit {
     // (undocumented)
     kernel: Kernel;
     // (undocumented)
-    onDispose(): void | Promise<void>;
-    // (undocumented)
     onInit(): void;
     // (undocumented)
     periodDataUnit: PeriodDataUnit;
-    // (undocumented)
-    periodTasks: {
-        datasource_id: string;
-        product_id: string;
-        duration: string;
-        start_time_in_us: number;
-    }[];
     // (undocumented)
     terminal: Terminal;
 }
@@ -740,21 +717,15 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
     // (undocumented)
     kernel: Kernel;
     // (undocumented)
-    onDispose(): void | Promise<void>;
-    // (undocumented)
     onEvent(): void | Promise<void>;
     // (undocumented)
     onInit(): Promise<void>;
     // (undocumented)
     periodDataUnit: PeriodDataUnit;
     // (undocumented)
-    periodTasks: {
-        datasource_id: string;
-        product_id: string;
-        duration: string;
-    }[];
-    // (undocumented)
     productDataUnit: ProductDataUnit;
+    // (undocumented)
+    seriesIdList: string[];
     // (undocumented)
     terminal: Terminal;
 }
@@ -766,8 +737,6 @@ export class RealtimeTickLoadingUnit extends BasicUnit {
     addTickTask(datasource_id: string, product_id: string, account_id?: string): void;
     // (undocumented)
     kernel: Kernel;
-    // (undocumented)
-    onDispose(): void | Promise<void>;
     // (undocumented)
     onEvent(): void | Promise<void>;
     // (undocumented)

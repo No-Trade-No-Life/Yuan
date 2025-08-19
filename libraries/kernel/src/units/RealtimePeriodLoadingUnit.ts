@@ -1,9 +1,9 @@
 import { IOHLC } from '@yuants/data-ohlc';
 import { ISeriesCollectingTask } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
-import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
-import { encodePath, formatTime } from '@yuants/utils';
-import { defer, Subscription } from 'rxjs';
+import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
+import { decodePath, formatTime } from '@yuants/utils';
+import { defer, repeat, retry, takeUntil, timeout } from 'rxjs';
 import { Kernel } from '../kernel';
 import { BasicUnit } from './BasicUnit';
 import { PeriodDataUnit } from './PeriodDataUnit';
@@ -35,11 +35,7 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
   }
   private mapEventIdToPeriod = new Map<number, IOHLC[]>();
 
-  periodTasks: {
-    datasource_id: string;
-    product_id: string;
-    duration: string;
-  }[] = [];
+  seriesIdList: string[] = [];
 
   onEvent(): void | Promise<void> {
     const periods = this.mapEventIdToPeriod.get(this.kernel.currentEventId);
@@ -52,17 +48,16 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
     }
   }
 
-  private subscriptions: Subscription[] = [];
-
   async onInit() {
-    const tasks = this.periodTasks.map((task): ISeriesCollectingTask => {
+    const tasks = this.seriesIdList.map((series_id): ISeriesCollectingTask => {
+      const [datasource_id, product_id, duration] = decodePath(series_id);
       return {
         table_name: 'ohlc',
-        series_id: encodePath(task.datasource_id, task.product_id, task.duration),
-        cron_pattern: mapDurationToCronPattern[task.duration],
+        series_id: series_id,
+        cron_pattern: mapDurationToCronPattern[duration],
         cron_timezone: 'GMT',
         disabled: false,
-        replay_count: 0,
+        replay_count: 5,
       };
     });
 
@@ -72,33 +67,35 @@ export class RealtimePeriodLoadingUnit extends BasicUnit {
     );
 
     // 配置行情查询任务
-    for (const task of this.periodTasks) {
-      const { datasource_id, product_id, duration } = task;
-      const theProduct = this.productDataUnit.getProduct(datasource_id, product_id);
+    for (const series_id of this.seriesIdList) {
+      defer(async () => {
+        const replay_count = 5;
+        const series = this.periodDataUnit.data[series_id];
+        const lastCreatedAt =
+          series && series.length >= replay_count ? series[series.length - replay_count].created_at : 0;
+        const sql = `select * from ohlc where series_id = ${escapeSQL(
+          series_id,
+        )} and created_at >= ${escapeSQL(formatTime(lastCreatedAt))} order by created_at`;
+        this.kernel.log?.(
+          `${formatTime(Date.now())} 正在加载周期数据: ${series_id}， 从 ${formatTime(
+            lastCreatedAt,
+          )}, SQL: ${sql}`,
+        );
 
-      const channelId = encodePath(datasource_id, product_id, duration);
-      // ISSUE: Period[].length >= 2 to ensure overlay
-      this.subscriptions.push(
-        defer(() => this.terminal.channel.subscribeChannel<IOHLC[]>('Periods', channelId)).subscribe(
-          (periods) => {
-            if (periods.length < 2) {
-              console.warn(
-                formatTime(Date.now()),
-                `Period feeds too less. channel="${channelId}"`,
-                JSON.stringify(periods),
-              );
-              return;
-            }
-            const eventId = this.kernel.alloc(Date.now());
-            this.mapEventIdToPeriod.set(eventId, periods);
-          },
-        ),
-      );
-    }
-  }
-  onDispose(): void | Promise<void> {
-    for (const sub of this.subscriptions) {
-      sub.unsubscribe();
+        const data = await requestSQL<IOHLC[]>(this.terminal, sql);
+        return data;
+      })
+        .pipe(
+          //
+          timeout(5000),
+          retry({ delay: 1000 }),
+          repeat({ delay: 1000 }),
+          takeUntil(this.kernel.dispose$),
+        )
+        .subscribe((periods) => {
+          const eventId = this.kernel.alloc(Date.now());
+          this.mapEventIdToPeriod.set(eventId, periods);
+        });
     }
   }
 }

@@ -1,6 +1,6 @@
 import { PriorityQueue } from '@datastructures-js/priority-queue';
 import { formatTime, UUID } from '@yuants/utils';
-import { firstValueFrom, Subject } from 'rxjs';
+import { firstValueFrom, Observable, Subject } from 'rxjs';
 
 /**
  * 内核功能单元
@@ -86,6 +86,10 @@ export class Kernel {
    */
   units: IKernelUnit[] = [];
 
+  private _dispose$ = new Subject<void>();
+
+  dispose$: Observable<void> = this._dispose$.asObservable();
+
   /**
    * 内核状态
    */
@@ -165,6 +169,7 @@ export class Kernel {
         await ret;
       }
     }
+    this._dispose$.next();
     this.status = 'terminated';
   }
 

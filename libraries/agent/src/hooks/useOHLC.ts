@@ -1,3 +1,4 @@
+import { encodePath } from '@yuants/utils';
 import { useAgent, useEffect, useSeries } from '.';
 
 /**
@@ -10,20 +11,20 @@ import { useAgent, useEffect, useSeries } from '.';
  */
 export const useOHLC = (datasource_id: string, product_id: string, duration: string) => {
   const agent = useAgent();
-  const key = [datasource_id, product_id, duration].join(); // TODO: Memoize Key
+  const series_id = encodePath(datasource_id, product_id, duration);
 
-  const time = useSeries(`T(${key})`, undefined, {
+  const time = useSeries(`T(${series_id})`, undefined, {
     type: 'period',
     subType: 'timestamp_in_us',
     datasource_id,
     product_id,
     duration,
   });
-  const open = useSeries(`O(${key})`, time);
-  const high = useSeries(`H(${key})`, time);
-  const low = useSeries(`L(${key})`, time);
-  const close = useSeries(`C(${key})`, time);
-  const volume = useSeries(`VOL(${key})`, time);
+  const open = useSeries(`O(${series_id})`, time);
+  const high = useSeries(`H(${series_id})`, time);
+  const low = useSeries(`L(${series_id})`, time);
+  const close = useSeries(`C(${series_id})`, time);
+  const volume = useSeries(`VOL(${series_id})`, time);
 
   useEffect(() => {
     agent.productLoadingUnit?.productTasks.push({
@@ -31,15 +32,13 @@ export const useOHLC = (datasource_id: string, product_id: string, duration: str
       product_id,
     });
     agent.dataLoadingTaskUnit?.periodTasks.push({
-      datasource_id,
-      product_id,
-      duration,
-      start_time_in_us: agent.options.start_time * 1000,
-      end_time_in_us: agent.options.end_time * 1000,
+      series_id,
+      start_time: agent.options.start_time,
+      end_time: agent.options.end_time,
     });
   }, []);
 
-  const periods = agent.periodDataUnit.data[key] ?? [];
+  const periods = agent.periodDataUnit.data[series_id] ?? [];
   const idx = periods.length - 1;
 
   useEffect(() => {

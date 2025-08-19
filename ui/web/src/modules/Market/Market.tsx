@@ -96,12 +96,11 @@ registerPage('Market', () => {
         datasource_id,
         product_id,
       });
+
       periodLoadingUnit.periodTasks.push({
-        datasource_id,
-        product_id,
-        duration,
-        start_time_in_us: (Date.now() - TAKE_PERIODS * ms) * 1000,
-        end_time_in_us: Date.now() * 1000,
+        series_id: encodePath(datasource_id, product_id, duration),
+        start_time: Date.now() - TAKE_PERIODS * ms,
+        end_time: Date.now(),
       });
       const realtimePeriodLoadingUnit = new RealtimePeriodLoadingUnit(
         kernel,
@@ -109,11 +108,7 @@ registerPage('Market', () => {
         productDataUnit,
         periodDataUnit,
       );
-      realtimePeriodLoadingUnit.periodTasks.push({
-        datasource_id,
-        product_id,
-        duration,
-      });
+      realtimePeriodLoadingUnit.seriesIdList.push(encodePath(datasource_id, product_id, duration));
 
       return { kernel, periodDataUnit };
     }
@@ -145,7 +140,7 @@ registerPage('Market', () => {
   const timestamp = useObservableState(timestamp$);
   const [cnt, setCnt] = useState(0);
 
-  const periodKey = [datasource_id, product_id, duration].join();
+  const periodKey = encodePath(datasource_id, product_id, duration);
   const periods = scene?.periodDataUnit.data[periodKey] ?? [];
 
   return (

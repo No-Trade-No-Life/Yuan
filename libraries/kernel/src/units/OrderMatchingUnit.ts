@@ -2,7 +2,7 @@ import { IOHLC } from '@yuants/data-ohlc';
 import { IQuote } from '@yuants/data-quote';
 import { IOrder } from '@yuants/data-order';
 import { encodePath, roundToStep } from '@yuants/utils';
-import { Subject, Subscription } from 'rxjs';
+import { Subject, takeUntil } from 'rxjs';
 import { Kernel } from '../kernel';
 import { AccountInfoUnit } from './AccountInfoUnit';
 import { BasicUnit } from './BasicUnit';
@@ -40,8 +40,6 @@ export class OrderMatchingUnit extends BasicUnit {
     super(kernel);
   }
 
-  private subscriptions: Subscription[] = [];
-
   private _orderSubmitted$ = new Subject<IOrder[]>();
   private _orderCancelled$ = new Subject<string[]>();
 
@@ -51,16 +49,12 @@ export class OrderMatchingUnit extends BasicUnit {
   orderCancelled$ = this._orderCancelled$.asObservable();
 
   onInit(): void | Promise<void> {
-    this.subscriptions.push(
-      this.periodDataUnit.periodUpdated$.subscribe((period) => this.updateRangeByPeriod(period)),
-    );
-    this.subscriptions.push(this.tickDataUnit.tickUpdated$.subscribe((tick) => this.updateRangeByTick(tick)));
-  }
-
-  onDispose(): void | Promise<void> {
-    for (const subscription of this.subscriptions) {
-      subscription.unsubscribe();
-    }
+    this.periodDataUnit.periodUpdated$
+      .pipe(takeUntil(this.kernel.dispose$))
+      .subscribe((period) => this.updateRangeByPeriod(period));
+    this.tickDataUnit.tickUpdated$
+      .pipe(takeUntil(this.kernel.dispose$))
+      .subscribe((tick) => this.updateRangeByTick(tick));
   }
 
   onEvent(): void | Promise<void> {
@@ -71,8 +65,7 @@ export class OrderMatchingUnit extends BasicUnit {
 
   private updateRangeByPeriod(period: IOHLC): void {
     const product_id = period.product_id;
-    const key = [period.datasource_id, period.product_id, period.duration].join();
-    const prevPeriod = this.prevPeriodMap[key];
+    const prevPeriod = this.prevPeriodMap[period.series_id];
     if (prevPeriod && new Date(prevPeriod.created_at).getTime() === new Date(period.created_at).getTime()) {
       // 同一K线，使用连续性的保守推断
       const first = +prevPeriod.close;
@@ -121,7 +114,7 @@ export class OrderMatchingUnit extends BasicUnit {
         });
       }
     }
-    this.prevPeriodMap[key] = period;
+    this.prevPeriodMap[period.series_id] = period;
   }
 
   private updateRangeByTick(tick: IQuote): void {
