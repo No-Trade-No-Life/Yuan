@@ -2,6 +2,26 @@
   "name": "@yuants/sql",
   "entries": [
     {
+      "version": "0.8.3",
+      "tag": "@yuants/sql_v0.8.3",
+      "date": "Tue, 19 Aug 2025 05:51:53 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "refactor"
+          },
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "fix migration"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.8.2",
       "tag": "@yuants/sql_v0.8.2",
       "date": "Tue, 05 Aug 2025 16:36:43 GMT",
