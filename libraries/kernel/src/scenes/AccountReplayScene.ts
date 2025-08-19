@@ -1,6 +1,7 @@
 import { IProduct } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
-import { escape, requestSQL } from '@yuants/sql';
+import { escapeSQL, requestSQL } from '@yuants/sql';
+import { encodePath } from '@yuants/utils';
 import { Kernel } from '../kernel';
 import {
   AccountInfoUnit,
@@ -59,18 +60,18 @@ export const AccountReplayScene = (
       if (quote_currency && currency && product.quote_currency !== currency) {
         const [productA] = await requestSQL<IProduct[]>(
           terminal,
-          `select * from product where datasource_id = ${escape(
+          `select * from product where datasource_id = ${escapeSQL(
             datasource_id ?? account_id,
-          )} and base_currency = ${escape(currency)} and quote_currency = ${escape(quote_currency)}`,
+          )} and base_currency = ${escapeSQL(currency)} and quote_currency = ${escapeSQL(quote_currency)}`,
         );
         if (productA) {
           productDataUnit.updateProduct(productA);
         }
         const [productB] = await requestSQL<IProduct[]>(
           terminal,
-          `select * from product where datasource_id = ${escape(
+          `select * from product where datasource_id = ${escapeSQL(
             datasource_id ?? account_id,
-          )} and base_currency = ${escape(quote_currency)} and quote_currency = ${escape(currency)}`,
+          )} and base_currency = ${escapeSQL(quote_currency)} and quote_currency = ${escapeSQL(currency)}`,
         );
         if (productB) {
           productDataUnit.updateProduct(productB);
@@ -82,11 +83,9 @@ export const AccountReplayScene = (
   new BasicUnit(kernel).onInit = () => {
     for (const product of productDataUnit.listProducts()) {
       periodLoadingUnit.periodTasks.push({
-        datasource_id: datasource_id ?? account_id,
-        product_id: product.product_id,
-        duration,
-        start_time_in_us: start_timestamp * 1000,
-        end_time_in_us: end_timestamp * 1000,
+        series_id: encodePath(product.datasource_id, product.product_id, duration),
+        start_time: start_timestamp,
+        end_time: end_timestamp,
       });
     }
   };

@@ -1,6 +1,6 @@
 import { IAccountInfo, IPosition, createEmptyAccountInfo } from '@yuants/data-account';
 import { roundToStep } from '@yuants/utils';
-import { Subscription } from 'rxjs';
+import { takeUntil } from 'rxjs';
 import { Kernel } from '../kernel';
 import { getMargin, getProfit } from '../utils';
 import { BasicUnit } from './BasicUnit';
@@ -21,15 +21,8 @@ export class AccountInfoUnit extends BasicUnit {
     super(kernel);
   }
 
-  private subscriptions: Subscription[] = [];
-
   onInit(): void | Promise<void> {
-    this.subscriptions.push(this.historyOrderUnit.orderUpdated$.subscribe(() => this.onEvent()));
-  }
-  onDispose(): void | Promise<void> {
-    for (const subscription of this.subscriptions) {
-      subscription.unsubscribe();
-    }
+    this.historyOrderUnit.orderUpdated$.pipe(takeUntil(this.kernel.dispose$)).subscribe(() => this.onEvent());
   }
 
   orderIdx = 0;

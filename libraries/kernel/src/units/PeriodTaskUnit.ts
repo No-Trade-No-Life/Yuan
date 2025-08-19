@@ -9,11 +9,9 @@ export class DataLoadingTaskUnit extends BasicUnit {
     super(kernel);
   }
   periodTasks: {
-    datasource_id: string;
-    product_id: string;
-    duration: string;
-    start_time_in_us: number;
-    end_time_in_us: number;
+    series_id: string;
+    start_time: number;
+    end_time: number;
   }[] = [];
 
   productTasks: { datasource_id: string; product_id: string }[] = [];

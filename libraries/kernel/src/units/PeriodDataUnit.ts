@@ -21,8 +21,7 @@ export class PeriodDataUnit extends BasicUnit {
   data: Record<string, IOHLC[]> = {};
 
   updatePeriod(period: IOHLC) {
-    const key = [period.datasource_id, period.product_id, period.duration].join();
-    const list = (this.data[key] ??= []);
+    const list = (this.data[period.series_id] ??= []);
     const idx = list.length - 1;
 
     // ISSUE: skip if the period is older than the latest period
