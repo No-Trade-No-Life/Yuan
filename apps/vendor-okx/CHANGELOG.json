@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.16.8",
+      "tag": "@yuants/vendor-okx_v0.16.8",
+      "date": "Tue, 19 Aug 2025 07:00:17 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add margin ticker"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.16.7",
       "tag": "@yuants/vendor-okx_v0.16.7",
       "date": "Tue, 19 Aug 2025 05:51:53 GMT",
