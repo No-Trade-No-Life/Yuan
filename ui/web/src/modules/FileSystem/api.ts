@@ -1,10 +1,11 @@
-import { dirname } from 'path-browserify';
-import { ReplaySubject, first, firstValueFrom, mergeMap } from 'rxjs';
+import { BehaviorSubject } from 'rxjs';
+import { InMemoryBackend } from './backends/InMemoryBackend';
 import { IFileSystemBackend } from './interfaces';
 
-export const FsBackend$ = new ReplaySubject<IFileSystemBackend>(1);
+export const FsBackend$ = new BehaviorSubject<IFileSystemBackend>(new InMemoryBackend('default'));
 
 FsBackend$.subscribe(() => {
+  console.info('FileSystem backend changed:', FsBackend$.value.name);
   fetch('/ui-web.generated.d.ts')
     .then((res) => res.text())
     .then(async (content) => {
@@ -14,87 +15,20 @@ FsBackend$.subscribe(() => {
     });
 });
 
-const ensureDir = async (path: string): Promise<void> => {
-  if (path === '/') {
-    return;
-  }
-  await ensureDir(dirname(path));
-  const backend = await firstValueFrom(FsBackend$);
-  if (await backend.exists(path)) {
-    return;
-  }
-  await backend.mkdir(path);
-};
-
 export const fs: IFileSystemBackend & {
   ensureDir: (path: string) => Promise<void>;
 } = {
   name: 'ProxyFS',
-  stat: (...args) =>
-    firstValueFrom(
-      FsBackend$.pipe(
-        first(),
-        mergeMap((fs) => fs.stat(...args)),
-      ),
-    ),
-  readdir: (...args) =>
-    firstValueFrom(
-      FsBackend$.pipe(
-        first(),
-        mergeMap((fs) => fs.readdir(...args)),
-      ),
-    ),
-  writeFile: (...args) =>
-    firstValueFrom(
-      FsBackend$.pipe(
-        first(),
-        mergeMap((fs) => fs.writeFile(...args)),
-      ),
-    ),
-  readFile: (...args) =>
-    firstValueFrom(
-      FsBackend$.pipe(
-        first(),
-        mergeMap((fs) => fs.readFile(...args)),
-      ),
-    ),
-  readFileAsBase64: (...args) =>
-    firstValueFrom(
-      FsBackend$.pipe(
-        first(),
-        mergeMap((fs) => fs.readFileAsBase64(...args)),
-      ),
-    ),
-  readFileAsBlob: (...args) =>
-    firstValueFrom(
-      FsBackend$.pipe(
-        first(),
-        mergeMap((fs) => fs.readFileAsBlob(...args)),
-      ),
-    ),
-  mkdir: (...args) =>
-    firstValueFrom(
-      FsBackend$.pipe(
-        first(),
-        mergeMap((fs) => fs.mkdir(...args)),
-      ),
-    ),
-  rm: (...args) =>
-    firstValueFrom(
-      FsBackend$.pipe(
-        first(),
-        mergeMap((fs) => fs.rm(...args)),
-      ),
-    ),
-  exists: (...args) =>
-    firstValueFrom(
-      FsBackend$.pipe(
-        first(),
-        mergeMap((fs) => fs.exists(...args)),
-      ),
-    ),
-
-  ensureDir,
+  stat: (...args) => FsBackend$.value.stat(...args),
+  readdir: (...args) => FsBackend$.value.readdir(...args),
+  writeFile: (...args) => FsBackend$.value.writeFile(...args),
+  readFile: (...args) => FsBackend$.value.readFile(...args),
+  readFileAsBase64: (...args) => FsBackend$.value.readFileAsBase64(...args),
+  readFileAsBlob: (...args) => FsBackend$.value.readFileAsBlob(...args),
+  mkdir: (...args) => FsBackend$.value.mkdir(...args),
+  rm: (...args) => FsBackend$.value.rm(...args),
+  exists: (...args) => FsBackend$.value.exists(...args),
+  ensureDir: (...args) => FsBackend$.value.ensureDir(...args),
 };
 
 Object.assign(globalThis, { fs, FsBackend$ });

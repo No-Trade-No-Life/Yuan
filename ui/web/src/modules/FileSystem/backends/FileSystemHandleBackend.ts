@@ -1,8 +1,9 @@
 import { basename, dirname } from 'path-browserify';
 import { Subject, filter, firstValueFrom, mergeMap, shareReplay } from 'rxjs';
-import { IFileSystemBackend, IFileSystemStatResult } from '../interfaces';
+import { IFileSystemStatResult } from '../interfaces';
+import { BasicBackend } from './BasicBackend';
 
-export class FileSystemHandleBackend implements IFileSystemBackend {
+export class FileSystemHandleBackend extends BasicBackend {
   name: string;
   private request$ = new Subject<void>();
   private response$ = this.request$.pipe(
@@ -20,6 +21,7 @@ export class FileSystemHandleBackend implements IFileSystemBackend {
     shareReplay(1),
   );
   constructor(private root: FileSystemDirectoryHandle) {
+    super();
     this.name = root.name;
   }
 

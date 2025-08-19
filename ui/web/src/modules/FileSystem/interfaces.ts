@@ -13,4 +13,5 @@ export interface IFileSystemBackend {
   mkdir(path: string): Promise<void>;
   rm(path: string): Promise<void>;
   exists(path: string): Promise<boolean>;
+  ensureDir(path: string): Promise<void>;
 }
