@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-order
 
-This log was last generated on Sat, 09 Aug 2025 05:56:01 GMT and should not be manually modified.
+This log was last generated on Tue, 19 Aug 2025 05:51:53 GMT and should not be manually modified.
+
+## 0.2.1
+Tue, 19 Aug 2025 05:51:53 GMT
+
+### Patches
+
+- fix migration
 
 ## 0.2.0
 Sat, 09 Aug 2025 05:56:01 GMT
