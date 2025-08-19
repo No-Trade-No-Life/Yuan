@@ -73,6 +73,21 @@ const quote2$ = spotTickers$.pipe(
   ),
 );
 
+const quote4$ = spotTickers$.pipe(
+  mergeMap((x) => x.data || []),
+  map(
+    (ticker): Partial<IQuote> => ({
+      datasource_id: 'OKX',
+      product_id: encodePath('MARGIN', ticker.instId),
+      last_price: ticker.last,
+      ask_price: ticker.askPx,
+      bid_price: ticker.bidPx,
+      ask_volume: ticker.askSz,
+      bid_volume: ticker.bidSz,
+    }),
+  ),
+);
+
 const swapOpenInterests$ = defer(() => client.getOpenInterest({ instType: 'SWAP' })).pipe(
   repeat({ delay: 10_000 }),
   retry({ delay: 10_000 }),
@@ -92,7 +107,7 @@ const quote3$ = swapOpenInterests$.pipe(
 
 // 合并不同来源的数据并进行合并，避免死锁
 if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
-  merge(quote1$, quote2$, quote3$)
+  merge(quote1$, quote2$, quote3$, quote4$)
     .pipe(
       groupBy((x) => encodePath(x.datasource_id, x.product_id)),
       mergeMap((group$) => {
