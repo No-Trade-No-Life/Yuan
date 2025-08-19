@@ -6,9 +6,8 @@ import { formatTime } from '@yuants/utils';
 import { useObservable, useObservableRef, useObservableState } from 'observable-hooks';
 import { useEffect, useMemo, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { catchError, debounceTime, defer, map, of, pipe, switchMap } from 'rxjs';
+import { catchError, debounceTime, defer, of, pipe, switchMap } from 'rxjs';
 import { AccountSelector } from '../AccountInfo';
-import { fs } from '../FileSystem';
 import { currentKernel$ } from '../Kernel/model';
 import { registerPage } from '../Pages';
 import { CSV } from '../Util';
@@ -61,7 +60,7 @@ registerPage('TechnicalChart', () => {
 
   useEffect(() => {
     if (kernel) {
-      setOrdersFilename(`/.Y/kernels/${encodeURIComponent(kernel.id)}/orders.csv`);
+      setOrdersFilename(`/.Y/kernel/${encodeURIComponent(kernel.id)}/orders.csv`);
     }
   }, [kernel]);
 
@@ -70,9 +69,8 @@ registerPage('TechnicalChart', () => {
       pipe(
         debounceTime(200),
         switchMap(([ordersFilename]) =>
-          defer(() => fs.readFile(ordersFilename)).pipe(
+          defer(() => CSV.readFile<IOrder>(ordersFilename)).pipe(
             //
-            map((content) => CSV.parse<IOrder>(content)),
             catchError(() => of([] as IOrder[])),
           ),
         ),
@@ -83,8 +81,6 @@ registerPage('TechnicalChart', () => {
   );
 
   const [periodKey, setPeriodKey] = useState(undefined as string | undefined);
-
-  const [page, setPage] = useState(1);
 
   const PAGE_SIZE = 20000;
 
