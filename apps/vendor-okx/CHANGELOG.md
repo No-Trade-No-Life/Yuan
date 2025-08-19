@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Tue, 19 Aug 2025 05:51:53 GMT and should not be manually modified.
+This log was last generated on Tue, 19 Aug 2025 07:00:17 GMT and should not be manually modified.
+
+## 0.16.8
+Tue, 19 Aug 2025 07:00:17 GMT
+
+### Patches
+
+- add margin ticker
 
 ## 0.16.7
 Tue, 19 Aug 2025 05:51:53 GMT
