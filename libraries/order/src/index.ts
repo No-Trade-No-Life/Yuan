@@ -67,15 +67,32 @@ const createOrder = (
     volume: number;
   },
 ): IOrder => {
-  const price = target.direction === 'LONG' ? +quote.bid_price : +quote.ask_price;
+  const volume = target.volume - (thePosition?.volume || 0);
+  const direction =
+    volume > 0
+      ? target.direction === 'LONG'
+        ? 'OPEN_LONG'
+        : 'OPEN_SHORT'
+      : target.direction === 'LONG'
+      ? 'CLOSE_LONG'
+      : 'CLOSE_SHORT';
+  const price =
+    volume > 0
+      ? target.direction === 'LONG'
+        ? +quote.bid_price
+        : +quote.ask_price
+      : target.direction === 'LONG'
+      ? +quote.ask_price
+      : +quote.bid_price;
+
   return {
     order_id,
     account_id,
     product_id: target.product_id,
     position_id: thePosition ? thePosition.position_id : `${target.product_id}-${target.direction}`,
     order_type: 'LIMIT',
-    order_direction: target.direction === 'LONG' ? 'OPEN_LONG' : 'OPEN_SHORT',
-    volume: target.volume - (thePosition?.volume || 0),
+    order_direction: direction,
+    volume: Math.abs(volume),
     price,
   };
 };
@@ -166,7 +183,7 @@ export const limitOrderController = (
             controllerCtx.thePosition = thePosition;
 
             // 1. 满足持仓量则退出
-            if (thePosition && thePosition.volume >= target.volume) {
+            if (thePosition && thePosition.volume === target.volume) {
               completeState$.next();
               return;
             }
@@ -174,7 +191,10 @@ export const limitOrderController = (
             // 2. 不满足持仓量且无订单则创建新订单
             if (
               (controllerCtx.theOrder == null || controllerCtx.theOrder.order_status !== 'ACCEPTED') &&
-              (controllerCtx.thePosition?.volume || 0) < target.volume
+              // 开仓
+              ((controllerCtx.thePosition?.volume || 0) < target.volume ||
+                // 平仓
+                (controllerCtx.thePosition?.volume || 0) > target.volume)
             ) {
               toSubmitState$.next();
               return;
@@ -183,7 +203,10 @@ export const limitOrderController = (
             // 3. 不满足持仓量且有订单修改订单
             if (
               controllerCtx.theOrder != null &&
-              (controllerCtx.thePosition?.volume || 0) + controllerCtx.theOrder.volume < target.volume
+              // 开仓
+              ((controllerCtx.thePosition?.volume || 0) + controllerCtx.theOrder.volume < target.volume ||
+                // 平仓
+                (controllerCtx.thePosition?.volume || 0) + controllerCtx.theOrder.volume > target.volume)
             ) {
               toModifyState$.next();
               return;
