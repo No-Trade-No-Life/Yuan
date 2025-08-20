@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-host",
+      "comment": "add bin",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-host"
+}

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-trade-copier",
+      "comment": "add bin",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-trade-copier"
+}
