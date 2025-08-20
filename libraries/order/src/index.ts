@@ -63,7 +63,7 @@ const createOrder = (
   target: {
     account_id: string;
     product_id: string;
-    direction: 'LONG' | 'SHORT';
+    direction: string;
     volume: number;
   },
 ): IOrder => {
@@ -104,12 +104,11 @@ const createOrder = (
  */
 export const limitOrderController = (
   terminal: Terminal,
-  products: IProduct[],
+  theProduct: IProduct,
   target: {
     account_id: string;
-    datasource_id: string;
     product_id: string;
-    direction: 'LONG' | 'SHORT';
+    direction: string;
     volume: number;
   },
 ): Observable<void> => {
@@ -127,7 +126,7 @@ export const limitOrderController = (
       requestSQL<IQuote[]>(
         terminal,
         `select * from quote where datasource_id = ${escapeSQL(
-          target.datasource_id,
+          theProduct.datasource_id,
         )} and product_id = ${escapeSQL(target.product_id)} order by updated_at desc limit 1`,
       ),
     ).pipe(
@@ -169,11 +168,9 @@ export const limitOrderController = (
             const accountInfo = await firstValueFrom(accountInfo$);
             const quotes = await firstValueFrom(quotes$);
             if (quotes.length === 0) {
-              throw new Error(`No quotes found for ${target.datasource_id} and ${target.product_id}`);
+              throw new Error(`No quotes found for ${theProduct.datasource_id} and ${target.product_id}`);
             }
             const quote = quotes[0];
-            const theProduct = products.find((x) => x.product_id === target.product_id);
-            if (!theProduct) throw new Error(`No Found ProductID ${target.product_id}`);
             const thePosition = accountInfo.positions.find(
               (p) => p.product_id === target.product_id && p.direction === target.direction,
             );

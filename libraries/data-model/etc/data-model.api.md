@@ -165,6 +165,8 @@ export interface ITradeCopierTradeConfig {
     // (undocumented)
     id?: string;
     // (undocumented)
+    limit_order_control?: boolean;
+    // (undocumented)
     max_volume_per_order: number;
     // (undocumented)
     product_id: string;

@@ -3,6 +3,7 @@ import { ITradeCopierTradeConfig, ITradeCopyRelation } from '@yuants/data-model'
 import { IOrder } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
 import { IPositionDiff, diffPosition, mergePositions } from '@yuants/kernel';
+import { limitOrderController } from '@yuants/order';
 import { PromRegistry, Terminal } from '@yuants/protocol';
 import { requestSQL } from '@yuants/sql';
 import { UUID, formatTime, roundToStep } from '@yuants/utils';
@@ -23,6 +24,7 @@ import {
   from,
   generate,
   groupBy,
+  last,
   lastValueFrom,
   map,
   mergeMap,
@@ -49,6 +51,13 @@ interface ITradeCopierConfig {
     multiple: number;
     max_position: number;
   }>;
+}
+
+interface IPositionTarget {
+  account_id: string;
+  product_id: string;
+  direction: string;
+  volume: number;
 }
 
 const tradeConfig$ = defer(() =>
@@ -206,6 +215,7 @@ const mapKeyToCalcPositionDiffAction: Record<
 const mapKeyToCyberTradeOrderDispatchAction: Record<string, Subject<IPositionDiff[]>> = {};
 const mapKeyToSerialOrderPlaceAction: Record<string, Subject<IOrder[]>> = {};
 const mapKeyToConcurrentOrderPlaceAction: Record<string, Subject<IOrder[]>> = {};
+const mapKeyToLimitOrderPlaceAction: Record<string, Subject<IPositionTarget[]>> = {};
 
 const products$ = defer(() => requestSQL<IProduct[]>(terminal, `select * from product`)).pipe(
   //
@@ -458,35 +468,109 @@ async function setup() {
         return from(positionDiffList).pipe(
           //
           filter((positionDiff) => positionDiff.error_volume !== 0),
-          mergeMap((positionDiff): Observable<{ orders: IOrder[]; strategy: string }> => {
-            const volume = Math.abs(positionDiff.error_volume);
-            const config = mapKeyToTradeConfig[key];
+          mergeMap(
+            (
+              positionDiff,
+            ): Observable<{ orders: IOrder[]; positionTargets: IPositionTarget[]; strategy: string }> => {
+              const volume = Math.abs(positionDiff.error_volume);
+              const config = mapKeyToTradeConfig[key];
 
-            // ISSUE: to prevent position oscillation, we should not place order when the volume is too small,
-            //        the threshold could be any number in (0.5, 1), we take a magic number 0.618.
-            if (volume < 0.618 * (group.products[positionDiff.product_id]?.volume_step ?? 1)) {
-              console.info(formatTime(Date.now()), `VolumeTooSmall`, key);
-              return of({ orders: [], strategy: 'none' });
-            }
-
-            // if the config is not set or the volume is too small, no need to use Trade Algorithm
-            if (config === undefined || volume < config.max_volume_per_order) {
-              console.info(formatTime(Date.now()), `TradeConfigNotSetOrVolumeTooSmall`, key);
-              const rounded_volume = roundToStep(
-                volume,
-                group.products[positionDiff.product_id]?.volume_step ?? 1,
-              );
-              if (rounded_volume === 0) {
-                return of({ orders: [], strategy: 'none' });
+              // ISSUE: to prevent position oscillation, we should not place order when the volume is too small,
+              //        the threshold could be any number in (0.5, 1), we take a magic number 0.618.
+              if (volume < 0.618 * (group.products[positionDiff.product_id]?.volume_step ?? 1)) {
+                console.info(formatTime(Date.now()), `VolumeTooSmall`, key);
+                return of({ orders: [], positionTargets: [], strategy: 'none' });
               }
-              return of({
-                orders: [
-                  {
+
+              // if the config is not set or the volume is too small, no need to use Trade Algorithm
+              if (config === undefined || volume < config.max_volume_per_order) {
+                console.info(formatTime(Date.now()), `TradeConfigNotSetOrVolumeTooSmall`, key);
+                const rounded_volume = roundToStep(
+                  volume,
+                  group.products[positionDiff.product_id]?.volume_step ?? 1,
+                );
+                if (rounded_volume === 0) {
+                  return of({ orders: [], positionTargets: [], strategy: 'none' });
+                }
+                return of({
+                  orders: [
+                    {
+                      order_id: UUID(),
+                      account_id: group.target_account_id,
+                      order_type: 'MARKET',
+                      product_id: positionDiff.product_id,
+                      volume: rounded_volume,
+                      order_direction:
+                        positionDiff.direction === 'LONG'
+                          ? positionDiff.error_volume > 0
+                            ? 'OPEN_LONG'
+                            : 'CLOSE_LONG'
+                          : positionDiff.error_volume > 0
+                          ? 'OPEN_SHORT'
+                          : 'CLOSE_SHORT',
+                    },
+                  ],
+                  positionTargets: [
+                    {
+                      account_id: group.target_account_id,
+                      datasource_id: group.products[positionDiff.product_id]?.datasource_id ?? '',
+                      product_id: positionDiff.product_id,
+                      volume: positionDiff.volume_in_source,
+                      direction: positionDiff.direction,
+                    },
+                  ],
+                  strategy: config?.limit_order_control ? 'serial-limit' : 'concurrent',
+                });
+              }
+              // perform Trade Algorithm
+              const order_count = Math.ceil(volume / config.max_volume_per_order);
+              console.info(
+                formatTime(Date.now()),
+                `TradeConfigInitiated`,
+                `with config ${JSON.stringify(config)}, total ${order_count} orders, volume per order ${
+                  config.max_volume_per_order
+                }`,
+                key,
+              );
+              if (config.limit_order_control) {
+                return generate({
+                  initialState: 0,
+                  condition: (i) => i < order_count,
+                  iterate: (i) => i + 1,
+                  resultSelector: (i: number): IPositionTarget => ({
+                    account_id: group.target_account_id,
+                    product_id: positionDiff.product_id,
+                    volume:
+                      i < order_count - 1
+                        ? config.max_volume_per_order
+                        : roundToStep(
+                            volume - config.max_volume_per_order * (order_count - 1),
+                            group.products[positionDiff.product_id]?.volume_step ?? 1,
+                          ),
+                    direction: positionDiff.direction,
+                  }),
+                }).pipe(
+                  //
+                  toArray(),
+                  map((positionTargets) => ({ positionTargets, orders: [], strategy: 'serial-limit' })),
+                );
+              } else {
+                return generate({
+                  initialState: 0,
+                  condition: (i) => i < order_count,
+                  iterate: (i) => i + 1,
+                  resultSelector: (i: number): IOrder => ({
                     order_id: UUID(),
                     account_id: group.target_account_id,
                     order_type: 'MARKET',
                     product_id: positionDiff.product_id,
-                    volume: rounded_volume,
+                    volume:
+                      i < order_count - 1
+                        ? config.max_volume_per_order
+                        : roundToStep(
+                            volume - config.max_volume_per_order * (order_count - 1),
+                            group.products[positionDiff.product_id]?.volume_step ?? 1,
+                          ),
                     order_direction:
                       positionDiff.direction === 'LONG'
                         ? positionDiff.error_volume > 0
@@ -495,74 +579,93 @@ async function setup() {
                         : positionDiff.error_volume > 0
                         ? 'OPEN_SHORT'
                         : 'CLOSE_SHORT',
-                  },
-                ],
-                strategy: 'concurrent',
-              });
-            }
-            // perform Trade Algorithm
-            const order_count = Math.ceil(volume / config.max_volume_per_order);
-            console.info(
-              formatTime(Date.now()),
-              `TradeConfigInitiated`,
-              `with config ${JSON.stringify(config)}, total ${order_count} orders, volume per order ${
-                config.max_volume_per_order
-              }`,
-              key,
-            );
-            return generate({
-              initialState: 0,
-              condition: (i) => i < order_count,
-              iterate: (i) => i + 1,
-              resultSelector: (i: number): IOrder => ({
-                order_id: UUID(),
-                account_id: group.target_account_id,
-                order_type: 'MARKET',
-                product_id: positionDiff.product_id,
-                volume:
-                  i < order_count - 1
-                    ? config.max_volume_per_order
-                    : roundToStep(
-                        volume - config.max_volume_per_order * (order_count - 1),
-                        group.products[positionDiff.product_id]?.volume_step ?? 1,
-                      ),
-                order_direction:
-                  positionDiff.direction === 'LONG'
-                    ? positionDiff.error_volume > 0
-                      ? 'OPEN_LONG'
-                      : 'CLOSE_LONG'
-                    : positionDiff.error_volume > 0
-                    ? 'OPEN_SHORT'
-                    : 'CLOSE_SHORT',
-              }),
-            }).pipe(
-              //
-              toArray(),
-              map((orders) => ({ orders, strategy: 'serial' })),
-            );
-          }),
+                  }),
+                }).pipe(
+                  //
+                  toArray(),
+                  map((orders) => ({ positionTargets: [], orders, strategy: 'serial' })),
+                );
+              }
+            },
+          ),
           toArray(),
           map((orderPackList) => {
             if (orderPackList.some((pack) => pack.strategy === 'serial')) {
-              return { orders: orderPackList.flatMap((pack) => pack.orders), strategy: 'serial' };
+              return {
+                orders: orderPackList.flatMap((pack) => pack.orders),
+                positionTargets: [],
+                strategy: 'serial',
+              };
             }
-            return { orders: orderPackList.flatMap((pack) => pack.orders), strategy: 'concurrent' };
+            if (orderPackList.some((pack) => pack.strategy === 'serial-limit')) {
+              return {
+                positionTargets: orderPackList.flatMap((pack) => pack.positionTargets),
+                orders: [],
+                strategy: 'serial-limit',
+              };
+            }
+            return {
+              orders: orderPackList.flatMap((pack) => pack.orders),
+              positionTargets: [],
+              strategy: 'concurrent',
+            };
           }),
-          filter(({ orders }) => orders.length > 0),
-          defaultIfEmpty({ orders: [] as IOrder[], strategy: 'none' }),
+          filter(({ orders, positionTargets }) => orders.length > 0 || positionTargets.length > 0),
+          defaultIfEmpty({
+            orders: [] as IOrder[],
+            positionTargets: [] as IPositionTarget[],
+            strategy: 'none',
+          }),
         );
       }),
-    ).subscribe(({ orders, strategy }) => {
-      if (orders.length === 0) {
+    ).subscribe(({ orders, positionTargets, strategy }) => {
+      if (orders.length === 0 && positionTargets.length === 0) {
         // ISSUE: FOR HIGH FREQUENCY TRADING, WAIT 1s UNTIL NEXT LOOP MAY CAUSE LAG
         mapKeyToCompleteAction[key].next();
         return;
       }
       if (strategy === 'serial') {
         mapKeyToSerialOrderPlaceAction[key].next(orders);
-      } else {
+      } else if (strategy === 'concurrent') {
         mapKeyToConcurrentOrderPlaceAction[key].next(orders);
+      } else if (strategy === 'serial-limit') {
+        mapKeyToLimitOrderPlaceAction[key].next(positionTargets);
+      } else {
+        mapKeyToCompleteAction[key].next();
       }
+    });
+
+    const LimitOrderPlaceAction$ = new Subject<IPositionTarget[]>();
+    mapKeyToLimitOrderPlaceAction[key] = LimitOrderPlaceAction$;
+    LimitOrderPlaceAction$.subscribe((positionTargets) => {
+      console.debug(
+        formatTime(Date.now()),
+        'LimitOrderPlaceActionTriggered',
+        key,
+        `total ${positionTargets.length} positions`,
+        JSON.stringify(positionTargets),
+      );
+    });
+    LimitOrderPlaceAction$.pipe(
+      mergeMap((positionTargets) =>
+        from(positionTargets).pipe(
+          filter((positionTarget) => positionTarget.volume > 0),
+          concatMap((positionTarget) => {
+            const theProduct = group.products[positionTarget.product_id];
+            if (!theProduct) {
+              console.error(formatTime(Date.now()), `ProductNotFound`, JSON.stringify(positionTarget));
+              return of(void 0);
+            }
+            return defer(() => limitOrderController(terminal, theProduct, positionTarget)).pipe(
+              // No cancel for now.
+              last(),
+            );
+          }),
+          toArray(),
+        ),
+      ),
+    ).subscribe(() => {
+      mapKeyToCompleteAction[key].next();
     });
 
     // setup SerialOrderPlaceAction

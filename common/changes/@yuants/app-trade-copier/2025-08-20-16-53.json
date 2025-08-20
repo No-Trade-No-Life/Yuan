@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-trade-copier",
+      "comment": "apply for limit order controller",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-trade-copier"
+}
