@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/deploy",
+  "entries": [
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/deploy_v0.1.0",
+      "date": "Wed, 20 Aug 2025 18:20:04 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "new"
+          }
+        ]
+      }
+    }
+  ]
+}
