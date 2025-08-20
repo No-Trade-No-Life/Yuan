@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-feishu-notifier",
+      "comment": "add bin",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-feishu-notifier"
+}

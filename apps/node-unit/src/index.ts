@@ -4,7 +4,7 @@ import { requestSQL } from '@yuants/sql';
 import { formatTime, listWatch } from '@yuants/utils';
 import { spawn } from 'child_process';
 import { dirname, join } from 'path';
-import { defer, Observable, repeat, retry, tap } from 'rxjs';
+import { defer, fromEvent, merge, Observable, repeat, retry, takeUntil, tap } from 'rxjs';
 
 // 如果没有制定主机地址，则创建一个默认的主机管理器
 // 如果设置了数据库地址，则创建一个数据库连接服务
@@ -12,6 +12,12 @@ import { defer, Observable, repeat, retry, tap } from 'rxjs';
 if (!process.env.POSTGRES_URI && !process.env.HOST_URL) {
   throw new Error('Either POSTGRES_URI or HOST_URL must be set');
 }
+
+const kill$ = merge(fromEvent(process, 'SIGINT'), fromEvent(process, 'SIGTERM'));
+
+kill$.subscribe(() => {
+  process.exit();
+});
 
 defer(async () => {
   const deployments: IDeployment[] = [];
@@ -47,6 +53,9 @@ defer(async () => {
   return deployments.filter((x) => x.enabled);
 })
   .pipe(
+    repeat({ delay: 10000 }),
+    retry({ delay: 1000 }),
+    takeUntil(kill$),
     //
     listWatch(
       (item) => item.id,
@@ -65,6 +74,9 @@ defer(async () => {
                   : command === 'npm'
                   ? join(nodeBinDir, 'npm')
                   : command;
+              if (command === 'npx') {
+                deployment.args.unshift('-y');
+              }
               const child = spawn(executable, deployment.args, {
                 env: Object.assign({}, process.env, deployment.env),
                 stdio: 'inherit',
@@ -110,8 +122,5 @@ defer(async () => {
           retry({ delay: 1000 }),
         ),
     ),
-
-    repeat({ delay: 10000 }),
-    retry({ delay: 1000 }),
   )
   .subscribe();

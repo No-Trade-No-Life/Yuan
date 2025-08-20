@@ -2,6 +2,7 @@
   "name": "@yuants/app-feishu-notifier",
   "version": "0.1.68",
   "main": "lib/index.js",
+  "bin": "lib/cli.js",
   "files": [
     "dist",
     "lib",
