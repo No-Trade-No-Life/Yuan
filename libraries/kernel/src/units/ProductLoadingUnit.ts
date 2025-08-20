@@ -1,7 +1,7 @@
-import { formatTime } from '@yuants/utils';
 import { IProduct } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
-import { escape, requestSQL } from '@yuants/sql';
+import { escapeSQL, requestSQL } from '@yuants/sql';
+import { formatTime } from '@yuants/utils';
 import { defaultIfEmpty, defer, lastValueFrom, mergeAll, tap } from 'rxjs';
 import { Kernel } from '../kernel';
 import { BasicUnit } from './BasicUnit';
@@ -36,9 +36,9 @@ export class ProductLoadingUnit extends BasicUnit {
         defer(() =>
           requestSQL<IProduct[]>(
             this.terminal,
-            `SELECT * FROM product WHERE datasource_id = ${escape(
+            `SELECT * FROM product WHERE datasource_id = ${escapeSQL(
               task.datasource_id,
-            )} AND product_id = ${escape(task.product_id)}`,
+            )} AND product_id = ${escapeSQL(task.product_id)}`,
           ),
         ).pipe(
           mergeAll(),

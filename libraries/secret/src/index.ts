@@ -1,5 +1,5 @@
 import { Terminal } from '@yuants/protocol';
-import { AddMigration, buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
+import { AddMigration, buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { decodeBase58, decrypt, encodeBase58, encrypt } from '@yuants/utils';
 import { sha256 } from './sha256';
 /**
@@ -115,8 +115,8 @@ export const loadSecrets = async <T>(ctx: {
   const deserialize = ctx.deserialize || ((data: Uint8Array) => JSON.parse(new TextDecoder().decode(data)));
 
   const sql =
-    `SELECT * FROM secret WHERE encryption_key_sha256_base58 = ${escape(encryption_key_sha256_base58)}` +
-    (ctx.updated_after ? ` AND updated_at > ${escape(ctx.updated_after)}` : '');
+    `SELECT * FROM secret WHERE encryption_key_sha256_base58 = ${escapeSQL(encryption_key_sha256_base58)}` +
+    (ctx.updated_after ? ` AND updated_at > ${escapeSQL(ctx.updated_after)}` : '');
   console.debug('loadSecrets SQL:', sql);
   const secrets = await requestSQL<ISecret[]>(ctx.terminal, sql);
 

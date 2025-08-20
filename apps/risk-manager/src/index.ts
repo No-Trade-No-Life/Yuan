@@ -1,8 +1,8 @@
 import { useAccountInfo } from '@yuants/data-account';
-import { UUID, formatTime } from '@yuants/utils';
 import { PromRegistry } from '@yuants/protocol';
-import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
+import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { ITransferOrder } from '@yuants/transfer';
+import { UUID, formatTime } from '@yuants/utils';
 import {
   combineLatest,
   defer,
@@ -148,7 +148,7 @@ defer(() => configs$)
                   defer(() =>
                     requestSQL<ITransferOrder[]>(
                       terminal,
-                      `SELECT * FROM transfer_order WHERE order_id = ${escape(transfer_order.order_id)}`,
+                      `SELECT * FROM transfer_order WHERE order_id = ${escapeSQL(transfer_order.order_id)}`,
                     ),
                   ).pipe(
                     //

@@ -16,7 +16,7 @@ import {
   Table,
   createColumnHelper,
 } from '@tanstack/react-table';
-import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
+import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { JSONSchema7 } from 'json-schema';
 import React, { useEffect, useMemo, useState } from 'react';
 import { firstValueFrom } from 'rxjs';
@@ -72,7 +72,7 @@ export function DataRecordView<T extends {}>(props: IDataRecordViewDef<T>) {
 
       const ordering = sort.map(([key, asc]) => `${key} ${asc > 0 ? 'ASC' : 'DESC'}`);
       const sql = `select * from ${props.TYPE} ${
-        filters.length > 0 ? `where ${filters.map(([k, v]) => `${k} = ${escape(v)}`)}` : ''
+        filters.length > 0 ? `where ${filters.map(([k, v]) => `${k} = ${escapeSQL(v)}`)}` : ''
       } ${ordering.length > 0 ? `order by ${ordering.join()}` : ''} offset ${
         pageParam * PAGE_SIZE
       } limit ${PAGE_SIZE}`;
@@ -139,7 +139,7 @@ export function DataRecordView<T extends {}>(props: IDataRecordViewDef<T>) {
                   await requestSQL(
                     terminal,
                     `delete from ${props.TYPE} where ${Object.entries(record).map(
-                      ([k, v]) => `${k} = ${escape(v)}`,
+                      ([k, v]) => `${k} = ${escapeSQL(v)}`,
                     )}`,
                   );
                   Toast.success(`成功删除数据记录`);

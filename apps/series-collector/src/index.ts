@@ -1,7 +1,7 @@
 import '@yuants/data-series';
 import { ISeriesCollectingTask } from '@yuants/data-series';
 import { IService, PromRegistry, Terminal } from '@yuants/protocol';
-import { escape, requestSQL } from '@yuants/sql';
+import { escapeSQL, requestSQL } from '@yuants/sql';
 import { encodePath, formatTime, listWatch } from '@yuants/utils';
 import CronJob from 'cron';
 import {
@@ -193,7 +193,7 @@ const runTask = (task: ISeriesCollectingTask) =>
           terminal,
           `
               select created_at from ${task.table_name}
-              where series_id = ${escape(task.series_id)}
+              where series_id = ${escapeSQL(task.series_id)}
               order by created_at desc
               offset ${task.replay_count || 0}
               limit 1

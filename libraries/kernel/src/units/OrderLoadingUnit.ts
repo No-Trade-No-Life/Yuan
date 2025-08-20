@@ -1,6 +1,6 @@
 import { IOrder } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
-import { escape, requestSQL } from '@yuants/sql';
+import { escapeSQL, requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
 import { defer, lastValueFrom, mergeMap, tap, toArray } from 'rxjs';
 import { Kernel } from '../kernel';
@@ -33,9 +33,9 @@ export class OrderLoadingUnit extends BasicUnit {
         defer(() =>
           requestSQL<IOrder[]>(
             this.terminal,
-            `select * from order where account_id = ${escape(account_id)} and created_at >= ${escape(
+            `select * from order where account_id = ${escapeSQL(account_id)} and created_at >= ${escapeSQL(
               formatTime(start_time),
-            )} and created_at < ${escape(formatTime(end_time))}`,
+            )} and created_at < ${escapeSQL(formatTime(end_time))}`,
           ),
         ).pipe(
           //

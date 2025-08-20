@@ -1,10 +1,10 @@
 import { IAccountInfo, IPosition, useAccountInfo } from '@yuants/data-account';
-import { IOrder } from '@yuants/data-order';
 import { ITradeCopierTradeConfig, ITradeCopyRelation } from '@yuants/data-model';
+import { IOrder } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
 import { IPositionDiff, diffPosition, mergePositions } from '@yuants/kernel';
 import { PromRegistry, Terminal } from '@yuants/protocol';
-import { escape, requestSQL } from '@yuants/sql';
+import { escapeSQL, requestSQL } from '@yuants/sql';
 import { UUID, formatTime, roundToStep } from '@yuants/utils';
 import {
   EMPTY,
@@ -221,7 +221,7 @@ const useProducts = (() => {
     (hub[datasource_id] ??= defer(() =>
       requestSQL<IProduct[]>(
         terminal,
-        `select * from product where datasource_id = ${escape(datasource_id)}`,
+        `select * from product where datasource_id = ${escapeSQL(datasource_id)}`,
       ),
     ).pipe(
       //
