@@ -1,7 +1,7 @@
 import { Button, Space, Toast } from '@douyinfe/semi-ui';
 import { IOrder } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
-import { escape, requestSQL } from '@yuants/sql';
+import { escapeSQL, requestSQL } from '@yuants/sql';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import { defer, filter, first, mergeMap, of } from 'rxjs';
@@ -30,7 +30,7 @@ registerPage('ManualTradePanel', () => {
               defer(() =>
                 requestSQL<IProduct[]>(
                   terminal,
-                  `select * from product where datasource_id = ${escape(account_id)}`,
+                  `select * from product where datasource_id = ${escapeSQL(account_id)}`,
                 ),
               ),
             ),

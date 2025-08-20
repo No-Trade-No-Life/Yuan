@@ -94,7 +94,7 @@ export const buildInsertManyIntoTableSQL = <T extends {}>(
   const keyFn = options?.keyFn;
   const toInsert = keyFn ? [...new Map(data.map((x) => [keyFn(x), x])).values()] : data;
   return `INSERT INTO ${tableName} (${columns.join(',')}) VALUES ${toInsert
-    .map((x) => `(${columns.map((c) => escape(x[c as keyof T])).join(',')})`)
+    .map((x) => `(${columns.map((c) => escapeSQL(x[c as keyof T])).join(',')})`)
     .join(',')} ${
     options?.ignoreConflict
       ? 'ON CONFLICT DO NOTHING'

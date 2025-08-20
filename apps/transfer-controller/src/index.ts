@@ -1,5 +1,5 @@
 import { PromRegistry } from '@yuants/protocol';
-import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
+import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import {
   IAccountAddressInfo,
   ITransferNetworkInfo,
@@ -253,9 +253,9 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
         defer(() =>
           requestSQL<ITransferRoutingCache[]>(
             terminal,
-            `SELECT * FROM transfer_routing_cache WHERE credit_account_id = ${escape(
+            `SELECT * FROM transfer_routing_cache WHERE credit_account_id = ${escapeSQL(
               order.credit_account_id,
-            )} AND debit_account_id = ${escape(order.debit_account_id)}`,
+            )} AND debit_account_id = ${escapeSQL(order.debit_account_id)}`,
           ),
         ).pipe(
           //
@@ -327,7 +327,7 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
         defer(() =>
           requestSQL<ITransferNetworkInfo[]>(
             terminal,
-            `SELECT * FROM transfer_network_info WHERE network_id = ${escape(order.current_network_id)};`,
+            `SELECT * FROM transfer_network_info WHERE network_id = ${escapeSQL(order.current_network_id)};`,
           ),
         ).pipe(
           //

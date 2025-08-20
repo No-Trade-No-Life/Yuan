@@ -9,7 +9,7 @@ import {
 } from '@douyinfe/semi-icons';
 import { Collapse, Descriptions, Space, Toast, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { buildInsertManyIntoTableSQL, escape, requestSQL } from '@yuants/sql';
+import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
 import { format } from 'date-fns';
 import EChartsReact from 'echarts-for-react';
@@ -458,7 +458,7 @@ registerPage('FundStatements', () => {
             const items = await requestSQL<{ events: IFundEvent[] }[]>(
               terminal,
               `
-              SELECT events FROM fund_event WHERE account_id = ${escape(state.account_id)}
+              SELECT events FROM fund_event WHERE account_id = ${escapeSQL(state.account_id)}
             `,
             );
 

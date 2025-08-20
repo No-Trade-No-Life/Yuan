@@ -1,6 +1,5 @@
 import { IconDownload, IconRefresh } from '@douyinfe/semi-icons';
 import { ButtonGroup, Layout, Space, Toast, Typography } from '@douyinfe/semi-ui';
-import { convertDurationToOffset, encodePath, formatTime } from '@yuants/utils';
 import '@yuants/data-series';
 import {
   HistoryPeriodLoadingUnit,
@@ -11,7 +10,8 @@ import {
   QuoteDataUnit,
   RealtimePeriodLoadingUnit,
 } from '@yuants/kernel';
-import { escape, requestSQL } from '@yuants/sql';
+import { escapeSQL, requestSQL } from '@yuants/sql';
+import { convertDurationToOffset, encodePath, formatTime } from '@yuants/utils';
 import { t } from 'i18next';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useEffect, useMemo, useState } from 'react';
@@ -56,9 +56,9 @@ registerPage('Market', () => {
         switchMap(([datasource_id, product_id, terminal]) =>
           defer(async () => {
             if (!terminal) return undefined;
-            const sql = `select replace(series_id, ${escape(
+            const sql = `select replace(series_id, ${escapeSQL(
               encodePath(datasource_id, product_id, ''),
-            )}, '') as duration from series_collecting_task where table_name = 'ohlc' and series_id like ${escape(
+            )}, '') as duration from series_collecting_task where table_name = 'ohlc' and series_id like ${escapeSQL(
               // LIKE % pattern 中的 \ 需要转义
               encodePath(datasource_id, product_id, '%').replaceAll('\\', '\\\\'),
             )}`;

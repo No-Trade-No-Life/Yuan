@@ -1,7 +1,7 @@
 import { StockMarket } from '@icon-park/react';
 import { ColumnFiltersState } from '@tanstack/react-table';
 import { IProduct } from '@yuants/data-product';
-import { escape, requestSQL } from '@yuants/sql';
+import { escapeSQL, requestSQL } from '@yuants/sql';
 import { useObservableState } from 'observable-hooks';
 import { BehaviorSubject, combineLatest, debounceTime, defer, of, switchMap } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
@@ -21,7 +21,9 @@ const data$ = defer(() =>
             switchMap(([filterState]) => {
               const sql = `select * from product ${
                 filterState.length > 0
-                  ? `where ${filterState.map((x) => `${x.id} LIKE ${escape(`%${x.value}%`)}`).join(' AND ')}`
+                  ? `where ${filterState
+                      .map((x) => `${x.id} LIKE ${escapeSQL(`%${x.value}%`)}`)
+                      .join(' AND ')}`
                   : ''
               } limit 200`;
               // console.info('ProductList SQL:', sql);
