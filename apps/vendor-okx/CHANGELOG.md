@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Tue, 19 Aug 2025 07:00:17 GMT and should not be manually modified.
+This log was last generated on Wed, 20 Aug 2025 17:49:18 GMT and should not be manually modified.
+
+## 0.16.9
+Wed, 20 Aug 2025 17:49:18 GMT
+
+### Patches
+
+- fix account info push rate
 
 ## 0.16.8
 Tue, 19 Aug 2025 07:00:17 GMT

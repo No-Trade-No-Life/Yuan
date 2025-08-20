@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.16.9",
+      "tag": "@yuants/vendor-okx_v0.16.9",
+      "date": "Wed, 20 Aug 2025 17:49:18 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix account info push rate"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.16.8",
       "tag": "@yuants/vendor-okx_v0.16.8",
       "date": "Tue, 19 Aug 2025 07:00:17 GMT",
