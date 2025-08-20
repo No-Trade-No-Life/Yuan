@@ -1,6 +1,13 @@
 # Change Log - @yuants/node-unit
 
-This log was last generated on Tue, 19 Aug 2025 05:51:53 GMT and should not be manually modified.
+This log was last generated on Wed, 20 Aug 2025 18:20:04 GMT and should not be manually modified.
+
+## 0.2.0
+Wed, 20 Aug 2025 18:20:04 GMT
+
+### Minor changes
+
+- use spawn child process
 
 ## 0.1.3
 Tue, 19 Aug 2025 05:51:53 GMT
