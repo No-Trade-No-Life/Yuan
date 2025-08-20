@@ -1,5 +1,5 @@
+import { Terminal } from '@yuants/protocol';
 import { AddMigration, ExecuteMigrations } from '@yuants/sql';
-import { terminal } from './terminal';
 
 AddMigration({
   id: '8ac0f9bf-068b-4076-af81-06be5b60b822',
@@ -40,4 +40,4 @@ create or replace trigger auto_update_updated_at before update on trade_copier_t
   `,
 });
 
-ExecuteMigrations(terminal);
+ExecuteMigrations(Terminal.fromNodeEnv());
