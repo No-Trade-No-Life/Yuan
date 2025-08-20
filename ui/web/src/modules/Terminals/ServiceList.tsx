@@ -1,6 +1,6 @@
 import { Modal, Space } from '@douyinfe/semi-ui';
-import { formatTime } from '@yuants/utils';
 import { IServiceInfo } from '@yuants/protocol';
+import { formatTime } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
 import React, { useMemo } from 'react';
 import { firstValueFrom, from, scan, switchMap } from 'rxjs';
@@ -107,7 +107,10 @@ registerPage('ServiceList', () => {
                               initialSorting={[{ id: 'updated_at', desc: true }]}
                               columns={[
                                 { accessorKey: 'updated_at', cell: (x) => formatTime(x.getValue()) },
-                                { accessorKey: 'data' },
+                                {
+                                  accessorKey: 'data',
+                                  cell: (x) => <pre>{JSON.stringify(JSON.parse(x.getValue()), null, 2)}</pre>,
+                                },
                               ]}
                             />
                           </Space>
