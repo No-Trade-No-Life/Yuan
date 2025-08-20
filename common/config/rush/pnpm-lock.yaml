@@ -406,17 +406,19 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
-      '@yuants/app-host': workspace:*
-      '@yuants/app-postgres-storage': workspace:*
+      '@yuants/deploy': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
+      '@yuants/utils': workspace:*
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
-      '@yuants/app-host': link:../host
-      '@yuants/app-postgres-storage': link:../postgres-storage
+      '@yuants/deploy': link:../../libraries/deploy
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/sql': link:../../libraries/sql
+      '@yuants/utils': link:../../libraries/utils
       rxjs: 7.5.7
     devDependencies:
       '@microsoft/api-extractor': 7.30.1
@@ -1761,6 +1763,37 @@ importers:
       '@types/json-schema': 7.0.15
       '@types/node': 22.7.5
       '@types/uuid': 8.3.4
+      '@yuants/tool-kit': link:../../tools/toolkit
+      typescript: 4.7.4
+
+  ../../libraries/deploy:
+    specifiers:
+      '@microsoft/api-extractor': ~7.30.0
+      '@rushstack/heft': ~0.47.5
+      '@rushstack/heft-jest-plugin': ~0.16.8
+      '@rushstack/heft-node-rig': ~1.10.7
+      '@types/heft-jest': 1.0.3
+      '@types/json-schema': ~7.0.11
+      '@types/node': '22'
+      '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
+      '@yuants/tool-kit': workspace:*
+      '@yuants/utils': workspace:*
+      rxjs: ~7.5.6
+      typescript: ~4.7.4
+    dependencies:
+      '@yuants/protocol': link:../protocol
+      '@yuants/sql': link:../sql
+      '@yuants/utils': link:../utils
+      rxjs: 7.5.7
+    devDependencies:
+      '@microsoft/api-extractor': 7.30.1
+      '@rushstack/heft': 0.47.11
+      '@rushstack/heft-jest-plugin': 0.16.8_cd919cf15781346720f8e992576a8e2b
+      '@rushstack/heft-node-rig': 1.10.13_@rushstack+heft@0.47.11
+      '@types/heft-jest': 1.0.3
+      '@types/json-schema': 7.0.15
+      '@types/node': 22.7.5
       '@yuants/tool-kit': link:../../tools/toolkit
       typescript: 4.7.4
 

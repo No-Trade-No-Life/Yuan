@@ -476,6 +476,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/deploy",
+      "projectFolder": "libraries/deploy",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/host-manager",
       "projectFolder": "libraries/host-manager",
       "shouldPublish": true

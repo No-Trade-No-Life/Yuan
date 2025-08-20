@@ -1,10 +1,8 @@
 {
-  "name": "@yuants/node-unit",
-  "version": "0.1.3",
-  "description": "Node Unit",
+  "name": "@yuants/deploy",
+  "version": "0.0.0",
   "main": "lib/index.js",
   "module": "dist/index.js",
-  "bin": "lib/cli.js",
   "files": [
     "dist",
     "lib",
@@ -13,14 +11,12 @@
   "scripts": {
     "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
   },
-  "dependencies": {
-    "@yuants/utils": "workspace:*",
-    "@yuants/protocol": "workspace:*",
-    "@yuants/sql": "workspace:*",
-    "@yuants/deploy": "workspace:*",
-    "rxjs": "~7.5.6"
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org",
+    "access": "public"
   },
   "devDependencies": {
+    "@yuants/tool-kit": "workspace:*",
     "@microsoft/api-extractor": "~7.30.0",
     "@rushstack/heft": "~0.47.5",
     "@rushstack/heft-jest-plugin": "~0.16.8",
@@ -28,12 +24,12 @@
     "@types/heft-jest": "1.0.3",
     "@types/json-schema": "~7.0.11",
     "@types/node": "22",
-    "@yuants/extension": "workspace:*",
-    "@yuants/tool-kit": "workspace:*",
     "typescript": "~4.7.4"
   },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org"
+  "dependencies": {
+    "@yuants/protocol": "workspace:*",
+    "@yuants/sql": "workspace:*",
+    "@yuants/utils": "workspace:*",
+    "rxjs": "~7.5.6"
   }
 }

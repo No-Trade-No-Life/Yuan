@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-postgres-storage",
+      "comment": "add bin",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-postgres-storage"
+}
