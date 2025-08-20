@@ -8,7 +8,7 @@ import {
 import { IOrder } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
-import { combineLatest, defer, filter, first, map, repeat, retry, shareReplay } from 'rxjs';
+import { combineLatest, defer, filter, first, map, repeat, retry, shareReplay, withLatestFrom } from 'rxjs';
 import { client } from './api';
 import { mapProductIdToMarginProduct$, mapProductIdToUsdtSwapProduct$ } from './product';
 
@@ -67,20 +67,20 @@ const marketIndexTickerUSDT$ = defer(() => client.getMarketIndexTicker({ quoteCc
   shareReplay(1),
 );
 
-export const tradingAccountInfo$ = combineLatest([
-  accountUid$,
-  accountBalance$,
-  accountPosition$,
-  pendingOrders$,
-  mapProductIdToUsdtSwapProduct$,
-  mapProductIdToMarginProduct$,
-  marketIndexTickerUSDT$,
-]).pipe(
+export const tradingAccountInfo$ = accountPosition$.pipe(
+  withLatestFrom(
+    accountUid$,
+    accountBalance$,
+    pendingOrders$,
+    mapProductIdToUsdtSwapProduct$,
+    mapProductIdToMarginProduct$,
+    marketIndexTickerUSDT$,
+  ),
   map(
     ([
+      positionsApi,
       uid,
       balanceApi,
-      positionsApi,
       orders,
       mapProductIdToUsdtSwapProduct,
       mapProductIdToMarginProduct,
