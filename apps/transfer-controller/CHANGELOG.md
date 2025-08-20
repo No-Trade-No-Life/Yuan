@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-transfer-controller
 
-This log was last generated on Tue, 19 Aug 2025 05:51:53 GMT and should not be manually modified.
+This log was last generated on Wed, 20 Aug 2025 19:46:46 GMT and should not be manually modified.
+
+## 0.1.0
+Wed, 20 Aug 2025 19:46:46 GMT
+
+### Minor changes
+
+- add bin
 
 ## 0.0.75
 Tue, 19 Aug 2025 05:51:53 GMT
