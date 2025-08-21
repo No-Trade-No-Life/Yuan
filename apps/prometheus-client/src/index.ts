@@ -1,12 +1,9 @@
 import { Terminal } from '@yuants/protocol';
-import { UUID, formatTime } from '@yuants/utils';
+import { formatTime } from '@yuants/utils';
 import { join } from 'path';
 import { stringify } from 'querystring';
 
-const terminal = new Terminal(process.env.HOST_URL!, {
-  terminal_id: process.env.TERMINAL_ID || `PrometheusClient/${UUID()}`,
-  name: `@yuants/app-prometheus-client`,
-});
+const terminal = Terminal.fromNodeEnv();
 
 // See: https://prometheus.io/docs/prometheus/latest/querying/api/
 const request = async (path: string, params: any) => {
