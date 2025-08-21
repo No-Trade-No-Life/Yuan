@@ -24,7 +24,6 @@ export const diffPosition: (source: IPosition[], target: IPosition[]) => IPositi
 // @public
 export interface IAccountInfo {
     account_id: string;
-    currencies: IAccountMoney[];
     money: IAccountMoney;
     orders: IOrder[];
     positions: IPosition[];

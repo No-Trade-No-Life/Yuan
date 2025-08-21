@@ -161,7 +161,6 @@ const terminal = Terminal.fromNodeEnv();
       updated_at: Date.now(),
       account_id: SWAP_ACCOUNT_ID,
       money: money,
-      currencies: [money],
       positions,
       orders,
     };
@@ -313,7 +312,6 @@ const terminal = Terminal.fromNodeEnv();
       updated_at: Date.now(),
       account_id: SUPER_MARGIN_ACCOUNT_ID,
       money: money,
-      currencies: [money],
       positions,
       orders: [],
     };
@@ -353,7 +351,6 @@ const terminal = Terminal.fromNodeEnv();
         updated_at: Date.now(),
         account_id: SPOT_ACCOUNT_ID,
         money: money,
-        currencies: [money],
         positions: [],
         orders: [],
       };

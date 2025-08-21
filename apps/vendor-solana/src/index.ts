@@ -66,7 +66,6 @@ solanaAddress.forEach((address) => {
         updated_at: Date.now(),
         account_id: `SOLANA/${address}`,
         money: money,
-        currencies: [money],
         positions: [],
         orders: [],
       };

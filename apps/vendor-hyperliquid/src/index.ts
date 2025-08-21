@@ -42,7 +42,6 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
       return {
         account_id: `Hyperliquid/${client.public_key}`,
         money: money,
-        currencies: [money],
         positions: accountRes.assetPositions.map(
           (position): IPosition => ({
             position_id: `${position.position.coin}-USD`,

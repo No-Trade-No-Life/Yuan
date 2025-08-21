@@ -1,4 +1,4 @@
-import { IAccountInfo, IAccountMoney, publishAccountInfo } from '@yuants/data-account';
+import { IAccountInfo, publishAccountInfo } from '@yuants/data-account';
 import { requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
 import {
@@ -68,15 +68,6 @@ defer(() => requestSQL<IAccountCompositionRelation[]>(terminal, `select * from a
                         used: x.money.used * multiple,
                         free: x.money.free * multiple,
                       },
-                      currencies:
-                        x.currencies?.map((c) => ({
-                          ...c,
-                          equity: c.equity * multiple,
-                          balance: c.balance * multiple,
-                          profit: c.profit * multiple,
-                          used: c.used * multiple,
-                          free: c.free * multiple,
-                        })) ?? [],
                       positions: y.hide_positions
                         ? []
                         : x.positions.map((p) => ({
@@ -96,24 +87,6 @@ defer(() => requestSQL<IAccountCompositionRelation[]>(terminal, `select * from a
             retry(),
             throttleTime(1000),
             map((accountInfos): IAccountInfo => {
-              const mapCurrencyToCurrentInfo: Record<string, IAccountMoney> = {};
-              accountInfos.forEach((x) => {
-                x.currencies?.forEach((c) => {
-                  const y = (mapCurrencyToCurrentInfo[c.currency] ??= {
-                    currency: c.currency,
-                    equity: 0,
-                    balance: 0,
-                    profit: 0,
-                    used: 0,
-                    free: 0,
-                  });
-                  y.equity += c.equity;
-                  y.balance += c.balance;
-                  y.profit += c.profit;
-                  y.used += c.used;
-                  y.free += c.free;
-                });
-              });
               return {
                 account_id: group.key,
                 updated_at: Date.now(),
@@ -125,7 +98,6 @@ defer(() => requestSQL<IAccountCompositionRelation[]>(terminal, `select * from a
                   used: accountInfos.reduce((acc, x) => acc + x.money.used, 0),
                   free: accountInfos.reduce((acc, x) => acc + x.money.free, 0),
                 },
-                currencies: Object.values(mapCurrencyToCurrentInfo),
                 positions: accountInfos.flatMap((x) => x.positions),
                 orders: accountInfos.flatMap((x) => x.orders),
               };
