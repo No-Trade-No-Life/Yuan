@@ -132,15 +132,15 @@ Terminal.fromNodeEnv().channel.publishChannel('ohlc', { pattern: `^OKX/` }, (ser
     okxBusinessWsClient.subscribe(candleType, instId, async (data: string[]) => {
       const created_at = Number(data[0]);
       const closed_at = created_at + offset;
-      const open = Number(data[1]);
-      const high = Number(data[2]);
-      const low = Number(data[3]);
-      const close = Number(data[4]);
-      if (isNaN(closed_at) || isNaN(open) || isNaN(high) || isNaN(low) || isNaN(close)) {
+      const open = data[1];
+      const high = data[2];
+      const low = data[3];
+      const close = data[4];
+      if (isNaN(closed_at)) {
         return;
       }
       console.info(formatTime(Date.now()), `insertData`, data);
-      const cancelData = {
+      const cancelData: IOHLC = {
         closed_at: formatTime(closed_at),
         created_at: formatTime(created_at),
         open,
@@ -151,6 +151,8 @@ Terminal.fromNodeEnv().channel.publishChannel('ohlc', { pattern: `^OKX/` }, (ser
         datasource_id,
         duration,
         product_id,
+        volume: '0',
+        open_interest: '0',
       };
       subscriber.next(cancelData);
       await requestSQL(
