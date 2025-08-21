@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-trade-copier
 
-This log was last generated on Wed, 20 Aug 2025 18:20:04 GMT and should not be manually modified.
+This log was last generated on Thu, 21 Aug 2025 08:06:02 GMT and should not be manually modified.
+
+## 0.6.0
+Thu, 21 Aug 2025 08:06:02 GMT
+
+### Minor changes
+
+- apply for limit order controller
 
 ## 0.5.0
 Wed, 20 Aug 2025 18:20:04 GMT
