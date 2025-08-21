@@ -2,6 +2,31 @@
   "name": "@yuants/vendor-solana",
   "entries": [
     {
+      "version": "0.1.70",
+      "tag": "@yuants/vendor-solana_v0.1.70",
+      "date": "Thu, 21 Aug 2025 17:46:17 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove account's currencies field"
+          },
+          {
+            "comment": "remove accounts' orders field"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.3.4`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.69",
       "tag": "@yuants/vendor-solana_v0.1.69",
       "date": "Tue, 19 Aug 2025 05:51:53 GMT",

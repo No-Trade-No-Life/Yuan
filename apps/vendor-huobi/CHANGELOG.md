@@ -1,6 +1,14 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Thu, 21 Aug 2025 06:34:46 GMT and should not be manually modified.
+This log was last generated on Thu, 21 Aug 2025 17:46:17 GMT and should not be manually modified.
+
+## 0.10.1
+Thu, 21 Aug 2025 17:46:17 GMT
+
+### Patches
+
+- remove account's currencies field
+- remove accounts' orders field
 
 ## 0.10.0
 Thu, 21 Aug 2025 06:34:46 GMT

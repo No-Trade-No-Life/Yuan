@@ -1,6 +1,14 @@
 # Change Log - @yuants/account-info-resolver
 
-This log was last generated on Tue, 19 Aug 2025 05:51:53 GMT and should not be manually modified.
+This log was last generated on Thu, 21 Aug 2025 17:46:17 GMT and should not be manually modified.
+
+## 0.2.24
+Thu, 21 Aug 2025 17:46:17 GMT
+
+### Patches
+
+- remove account's currencies field
+- remove accounts' orders field 
 
 ## 0.2.23
 Tue, 19 Aug 2025 05:51:53 GMT

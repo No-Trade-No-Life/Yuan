@@ -2,6 +2,31 @@
   "name": "@yuants/vendor-bitget",
   "entries": [
     {
+      "version": "0.4.1",
+      "tag": "@yuants/vendor-bitget_v0.4.1",
+      "date": "Thu, 21 Aug 2025 17:46:17 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove account's currencies field"
+          },
+          {
+            "comment": "remove accounts' orders field"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.3.4`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.0",
       "tag": "@yuants/vendor-bitget_v0.4.0",
       "date": "Thu, 21 Aug 2025 06:34:45 GMT",

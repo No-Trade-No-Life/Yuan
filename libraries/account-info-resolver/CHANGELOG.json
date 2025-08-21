@@ -2,6 +2,31 @@
   "name": "@yuants/account-info-resolver",
   "entries": [
     {
+      "version": "0.2.24",
+      "tag": "@yuants/account-info-resolver_v0.2.24",
+      "date": "Thu, 21 Aug 2025 17:46:17 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove account's currencies field"
+          },
+          {
+            "comment": "remove accounts' orders field "
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.3.4`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.23",
       "tag": "@yuants/account-info-resolver_v0.2.23",
       "date": "Tue, 19 Aug 2025 05:51:53 GMT",

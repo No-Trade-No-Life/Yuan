@@ -1,6 +1,15 @@
 # Change Log - @yuants/app-account-composer
 
-This log was last generated on Thu, 21 Aug 2025 06:34:45 GMT and should not be manually modified.
+This log was last generated on Thu, 21 Aug 2025 17:46:17 GMT and should not be manually modified.
+
+## 0.3.2
+Thu, 21 Aug 2025 17:46:17 GMT
+
+### Patches
+
+- remove account's currencies field
+- remove accounts' orders field
+- add error log
 
 ## 0.3.1
 Thu, 21 Aug 2025 06:34:45 GMT
