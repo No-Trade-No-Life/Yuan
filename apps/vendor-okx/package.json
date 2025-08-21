@@ -25,7 +25,8 @@
     "@yuants/data-quote": "workspace:*",
     "@yuants/secret": "workspace:*",
     "rxjs": "~7.5.6",
-    "crypto-js": "^4.2.0"
+    "crypto-js": "^4.2.0",
+    "ws": "~8.8.1"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "~7.30.0",
@@ -37,7 +38,8 @@
     "@yuants/extension": "workspace:*",
     "@yuants/tool-kit": "workspace:*",
     "typescript": "~4.7.4",
-    "ts-node": "~10.9.2"
+    "ts-node": "~10.9.2",
+    "@types/ws": "~8.5.3"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
