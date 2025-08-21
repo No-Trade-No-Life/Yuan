@@ -669,6 +669,7 @@ importers:
       '@yuants/data-product': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/kernel': workspace:*
+      '@yuants/order': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
@@ -685,6 +686,7 @@ importers:
       '@yuants/data-order': link:../../libraries/data-order
       '@yuants/data-product': link:../../libraries/data-product
       '@yuants/kernel': link:../../libraries/kernel
+      '@yuants/order': link:../../libraries/order
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils

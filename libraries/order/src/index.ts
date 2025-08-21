@@ -39,6 +39,7 @@ const queryOrder = (terminal: Terminal, account_id: string, order_id: string, st
         next: (order) => {
           console.info(
             formatTime(Date.now()),
+            'LimitOrderController',
             `QueryOrderSuccess ${order.account_id} ${order.order_id} ${order.order_status}`,
           );
         },
@@ -63,7 +64,7 @@ const createOrder = (
   target: {
     account_id: string;
     product_id: string;
-    direction: 'LONG' | 'SHORT';
+    direction: string;
     volume: number;
   },
 ): IOrder => {
@@ -104,12 +105,11 @@ const createOrder = (
  */
 export const limitOrderController = (
   terminal: Terminal,
-  products: IProduct[],
+  theProduct: IProduct,
   target: {
     account_id: string;
-    datasource_id: string;
     product_id: string;
-    direction: 'LONG' | 'SHORT';
+    direction: string;
     volume: number;
   },
 ): Observable<void> => {
@@ -127,7 +127,7 @@ export const limitOrderController = (
       requestSQL<IQuote[]>(
         terminal,
         `select * from quote where datasource_id = ${escapeSQL(
-          target.datasource_id,
+          theProduct.datasource_id,
         )} and product_id = ${escapeSQL(target.product_id)} order by updated_at desc limit 1`,
       ),
     ).pipe(
@@ -146,7 +146,7 @@ export const limitOrderController = (
     const toModifyState$ = new Subject<void>();
 
     startState$.subscribe(() => {
-      console.debug(formatTime(Date.now()), `StartState`, JSON.stringify(target));
+      console.debug(formatTime(Date.now()), 'LimitOrderController', `StartState`, JSON.stringify(target));
     });
 
     startState$.subscribe(() => {
@@ -154,7 +154,12 @@ export const limitOrderController = (
     });
 
     distributeState$.subscribe(() => {
-      console.debug(formatTime(Date.now()), `DistributeState`, JSON.stringify(target));
+      console.debug(
+        formatTime(Date.now()),
+        'LimitOrderController',
+        `DistributeState`,
+        JSON.stringify(target),
+      );
     });
 
     distributeState$.subscribe(() => {
@@ -169,11 +174,11 @@ export const limitOrderController = (
             const accountInfo = await firstValueFrom(accountInfo$);
             const quotes = await firstValueFrom(quotes$);
             if (quotes.length === 0) {
-              throw new Error(`No quotes found for ${target.datasource_id} and ${target.product_id}`);
+              throw new Error(
+                `LimitOrderController No quotes found for ${theProduct.datasource_id} and ${target.product_id}`,
+              );
             }
             const quote = quotes[0];
-            const theProduct = products.find((x) => x.product_id === target.product_id);
-            if (!theProduct) throw new Error(`No Found ProductID ${target.product_id}`);
             const thePosition = accountInfo.positions.find(
               (p) => p.product_id === target.product_id && p.direction === target.direction,
             );
@@ -234,7 +239,7 @@ export const limitOrderController = (
       .subscribe(() => {});
 
     toSubmitState$.subscribe(() => {
-      console.debug(formatTime(Date.now()), `ToSubmitState`, JSON.stringify(target));
+      console.debug(formatTime(Date.now()), 'LimitOrderController', `ToSubmitState`, JSON.stringify(target));
     });
 
     toSubmitState$
@@ -252,7 +257,7 @@ export const limitOrderController = (
             const res = await terminal.requestForResponse('SubmitOrder', order);
 
             if (res.code !== 0 || !res.data?.order_id) {
-              console.error(formatTime(Date.now()), 'Failed to submit order', res);
+              console.error(formatTime(Date.now()), 'LimitOrderController', 'Failed to submit order', res);
               return;
             }
 
@@ -266,7 +271,7 @@ export const limitOrderController = (
       .subscribe();
 
     toModifyState$.subscribe(() => {
-      console.debug(formatTime(Date.now()), `ToModifyState`, JSON.stringify(target));
+      console.debug(formatTime(Date.now()), 'LimitOrderController', `ToModifyState`, JSON.stringify(target));
     });
 
     toModifyState$
@@ -293,7 +298,7 @@ export const limitOrderController = (
               await queryOrder(terminal, controllerCtx.account_id!, order.order_id!, 'CANCELLED');
               const res = await terminal.requestForResponse('SubmitOrder', order);
               if (res.code !== 0 || !res.data?.order_id) {
-                console.error(formatTime(Date.now()), 'Failed to submit order', res);
+                console.error(formatTime(Date.now()), 'LimitOrderController', 'Failed to submit order', res);
                 return;
               }
               const the_order_id = res.data.order_id;
@@ -306,7 +311,7 @@ export const limitOrderController = (
       .subscribe();
 
     completeState$.subscribe(() => {
-      console.debug(formatTime(Date.now()), `CompleteState`, JSON.stringify(target));
+      console.debug(formatTime(Date.now()), 'LimitOrderController', `CompleteState`, JSON.stringify(target));
     });
 
     completeState$.subscribe(() => {
@@ -323,7 +328,9 @@ export const limitOrderController = (
             order_id: controllerCtx.theOrder.order_id!,
             product_id: target.product_id,
           })
-          .catch((err) => console.error('CleanupError:', err));
+          .catch((err) =>
+            console.error(formatTime(Date.now()), 'LimitOrderController', 'CleanupError:', err),
+          );
       }
       startState$.complete();
       completeState$.complete();

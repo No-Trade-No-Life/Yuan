@@ -9,11 +9,10 @@ import { Observable } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
 
 // @public
-export const limitOrderController: (terminal: Terminal, products: IProduct[], target: {
+export const limitOrderController: (terminal: Terminal, theProduct: IProduct, target: {
     account_id: string;
-    datasource_id: string;
     product_id: string;
-    direction: 'LONG' | 'SHORT';
+    direction: string;
     volume: number;
 }) => Observable<void>;
 
