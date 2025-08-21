@@ -2,6 +2,23 @@
   "name": "@yuants/node-unit",
   "entries": [
     {
+      "version": "0.2.3",
+      "tag": "@yuants/node-unit_v0.2.3",
+      "date": "Thu, 21 Aug 2025 12:51:29 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix deployment"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.2",
       "tag": "@yuants/node-unit_v0.2.2",
       "date": "Thu, 21 Aug 2025 09:05:19 GMT",
