@@ -51,8 +51,10 @@ AccountInfoAggregateAction -.->|wait for target and source accounts| CalcPositio
 AccountInfoAggregateAction -.->|timeout in 30s and retry| AccountInfoAggregateAction;
 CalcPositionDiffAction -->|position diff list| CyberTradeOrderDispatchAction;
 CyberTradeOrderDispatchAction -->|if no order, immediately| CompleteAction;
+CyberTradeOrderDispatchAction -->|if limitOrder configured| LimitOrderPlaceAction;
 CyberTradeOrderDispatchAction -->|if algorithm configured| SerialOrderPlaceAction;
 CyberTradeOrderDispatchAction -->|if algorithm undefined| ConcurrentOrderPlaceAction;
+LimitOrderPlaceAction -.->|Orders all settled| CompleteAction;
 SerialOrderPlaceAction -.->|Orders all settled| CompleteAction;
 ConcurrentOrderPlaceAction -.->|Orders all settled| CompleteAction;
 CompleteAction -->|Immediately| StartAction;
@@ -78,6 +80,7 @@ interface ITradeCopierTradeConfig {
   account_id: string;
   product_id: string;
   max_volume_per_order: number;
+  limit_order_control?: boolean;
 }
 ```
 
