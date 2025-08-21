@@ -1,6 +1,20 @@
 # Change Log - @yuants/app-trade-copier
 
-This log was last generated on Tue, 19 Aug 2025 05:51:53 GMT and should not be manually modified.
+This log was last generated on Wed, 20 Aug 2025 18:20:04 GMT and should not be manually modified.
+
+## 0.5.0
+Wed, 20 Aug 2025 18:20:04 GMT
+
+### Minor changes
+
+- add bin
+
+## 0.4.87
+Wed, 20 Aug 2025 15:24:20 GMT
+
+### Patches
+
+- fix query product
 
 ## 0.4.86
 Tue, 19 Aug 2025 05:51:53 GMT

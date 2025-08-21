@@ -1,4 +1,5 @@
 import { IAccountInfo, IAccountMoney, publishAccountInfo } from '@yuants/data-account';
+import { requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
 import {
   Observable,
@@ -15,7 +16,6 @@ import {
   timeout,
   toArray,
 } from 'rxjs';
-import { requestSQL } from '../../../libraries/sql/lib';
 import { terminal } from './terminal';
 
 /**

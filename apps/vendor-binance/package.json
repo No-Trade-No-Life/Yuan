@@ -1,8 +1,11 @@
 {
   "name": "@yuants/vendor-binance",
-  "version": "0.4.49",
+  "version": "0.5.0",
+  "bin": "lib/cli.js",
   "files": [
-    "dist/extension.bundle.js"
+    "dist",
+    "lib",
+    "temp"
   ],
   "scripts": {
     "dev": "ts-node src/index.ts",

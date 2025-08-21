@@ -4,7 +4,7 @@ import { IOrder } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
 import { IPositionDiff, diffPosition, mergePositions } from '@yuants/kernel';
 import { PromRegistry, Terminal } from '@yuants/protocol';
-import { escapeSQL, requestSQL } from '@yuants/sql';
+import { requestSQL } from '@yuants/sql';
 import { UUID, formatTime, roundToStep } from '@yuants/utils';
 import {
   EMPTY,
@@ -37,7 +37,8 @@ import {
   toArray,
 } from 'rxjs';
 import './migration';
-import { terminal } from './terminal';
+
+const terminal = Terminal.fromNodeEnv();
 
 interface ITradeCopierConfig {
   multiple?: number;
@@ -84,15 +85,6 @@ const config$ = defer(() =>
     }),
     shareReplay(1),
   );
-
-config$
-  .pipe(
-    //
-    first(),
-  )
-  .subscribe(() => {
-    terminal.terminalInfo.status = 'OK';
-  });
 
 // Suggestions: alert when the lag is too high
 const MetricTimeLag = PromRegistry.create(
@@ -215,22 +207,13 @@ const mapKeyToCyberTradeOrderDispatchAction: Record<string, Subject<IPositionDif
 const mapKeyToSerialOrderPlaceAction: Record<string, Subject<IOrder[]>> = {};
 const mapKeyToConcurrentOrderPlaceAction: Record<string, Subject<IOrder[]>> = {};
 
-const useProducts = (() => {
-  const hub: Record<string, Observable<IProduct[]>> = {};
-  return (terminal: Terminal, datasource_id: string) =>
-    (hub[datasource_id] ??= defer(() =>
-      requestSQL<IProduct[]>(
-        terminal,
-        `select * from product where datasource_id = ${escapeSQL(datasource_id)}`,
-      ),
-    ).pipe(
-      //
-      timeout(60000),
-      retry({ delay: 1000 }),
-      repeat({ delay: 86400_000 }),
-      shareReplay(1),
-    ));
-})();
+const products$ = defer(() => requestSQL<IProduct[]>(terminal, `select * from product`)).pipe(
+  //
+  timeout(10000),
+  retry({ delay: 1000 }),
+  repeat({ delay: 86400_000 }),
+  shareReplay(1),
+);
 
 async function setup() {
   const groups = await lastValueFrom(
@@ -245,7 +228,7 @@ async function setup() {
             subGroup.pipe(
               //
               toArray(),
-              combineLatestWith(from(useProducts(terminal, group.key)).pipe(first())),
+              combineLatestWith(products$.pipe(first())),
               map(([tasks, products]) => ({
                 target_account_id: group.key,
                 target_product_id: subGroup.key,

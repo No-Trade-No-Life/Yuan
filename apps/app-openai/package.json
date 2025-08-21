@@ -1,8 +1,11 @@
 {
   "name": "@yuants/app-openai",
-  "version": "0.0.30",
+  "version": "0.1.0",
+  "bin": "lib/cli.js",
   "files": [
-    "dist/extension.bundle.js"
+    "dist",
+    "lib",
+    "temp"
   ],
   "scripts": {
     "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"

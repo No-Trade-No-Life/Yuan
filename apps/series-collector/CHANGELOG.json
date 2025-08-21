@@ -2,6 +2,26 @@
   "name": "@yuants/app-series-collector",
   "entries": [
     {
+      "version": "0.3.0",
+      "tag": "@yuants/app-series-collector_v0.3.0",
+      "date": "Thu, 21 Aug 2025 06:34:45 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "refactor"
+          },
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "add bin"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.16",
       "tag": "@yuants/app-series-collector_v0.2.16",
       "date": "Tue, 19 Aug 2025 05:51:53 GMT",

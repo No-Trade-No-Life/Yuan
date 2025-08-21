@@ -1,8 +1,9 @@
 {
   "name": "@yuants/app-postgres-storage",
-  "version": "0.1.35",
+  "version": "0.2.0",
   "main": "lib/index.js",
   "module": "dist/index.js",
+  "bin": "lib/cli.js",
   "files": [
     "dist",
     "lib",

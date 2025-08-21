@@ -1,8 +1,11 @@
 {
   "name": "@yuants/vendor-okx",
-  "version": "0.16.8",
+  "version": "0.17.0",
+  "bin": "lib/cli.js",
   "files": [
-    "dist/extension.bundle.js"
+    "dist",
+    "lib",
+    "temp"
   ],
   "scripts": {
     "dev": "ts-node src/index.ts",

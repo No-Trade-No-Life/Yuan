@@ -7,9 +7,9 @@ export default (context: IExtensionContext) => {
       properties: {
         env: {
           type: 'object',
-          required: ['HV_URL'],
+          required: ['HOST_URL'],
           properties: {
-            HV_URL: {
+            HOST_URL: {
               type: 'string',
             },
             TERMINAL_ID: {
