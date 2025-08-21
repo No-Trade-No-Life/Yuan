@@ -148,7 +148,6 @@ import { terminal } from './terminal';
             account_id: `${account_id}/funding`,
             money: money,
             positions: [],
-            orders: [],
           };
         }),
         repeat({ delay: 1000 }),
@@ -240,7 +239,6 @@ import { terminal } from './terminal';
               account_id: account_id,
               money: money,
               positions,
-              orders,
             };
           }),
         );

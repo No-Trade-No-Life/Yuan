@@ -62,7 +62,6 @@ const terminal = Terminal.fromNodeEnv();
             valuation: +position.total * +position.markPrice,
           }),
         ),
-        orders: [],
         updated_at: Date.now(),
       };
     }).pipe(
@@ -103,7 +102,6 @@ const terminal = Terminal.fromNodeEnv();
         account_id: SPOT_ACCOUNT_ID,
         money: money,
         positions: [],
-        orders: [],
       };
     }).pipe(
       //

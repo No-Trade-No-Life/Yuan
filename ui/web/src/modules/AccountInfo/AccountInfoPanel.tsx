@@ -454,9 +454,9 @@ registerPage('AccountInfoPanel', () => {
         <Collapse.Panel header={`持仓细节 (${accountInfo.positions.length})`} itemKey="持仓细节">
           <DataView data={accountInfo?.positions ?? []} columns={columnsOfPositions} />
         </Collapse.Panel>
-        <Collapse.Panel header={`订单 (${accountInfo.orders.length})`} itemKey="订单">
+        {/* <Collapse.Panel header={`订单 (${accountInfo.orders.length})`} itemKey="订单">
           <DataView data={accountInfo?.orders ?? []} columns={columnsOfOrders} />
-        </Collapse.Panel>
+        </Collapse.Panel> */}
       </Collapse>
     </Space>
   );

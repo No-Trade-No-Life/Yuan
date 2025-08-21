@@ -248,12 +248,7 @@ export interface IAccountInfo {
    * 持仓信息
    */
   positions: IPosition[];
-  /**
-   * Unfilled orders
-   *
-   * 未成交的挂单
-   */
-  orders: IOrder[];
+
   /**
    * Timestamp when the account information was generated
    *

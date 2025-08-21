@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-ccxt",
+      "comment": "remove accounts' orders field",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-ccxt"
+}

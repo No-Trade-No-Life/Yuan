@@ -150,7 +150,6 @@ const getOpenInterest = async (symbol: string) => {
         account_id: UNIFIED_ACCOUNT_ID,
         money,
         positions,
-        orders: [],
       };
     }).pipe(
       tap({
@@ -188,7 +187,6 @@ const getOpenInterest = async (symbol: string) => {
         account_id: SPOT_ACCOUNT_ID,
         money,
         positions: [],
-        orders: [],
       };
     }).pipe(
       tap({

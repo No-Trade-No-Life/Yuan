@@ -160,7 +160,6 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
         account_id: FUTURE_USDT_ACCOUNT_ID,
         money: money,
         positions,
-        orders,
       };
     }),
     throttleTime(1000),
@@ -234,7 +233,6 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
         account_id: UNIFIED_USDT_ACCOUNT_ID,
         money: money,
         positions: [...positions, ...spotPosition],
-        orders,
       };
     }),
     throttleTime(1000),
@@ -265,7 +263,6 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
       account_id: SPOT_USDT_ACCOUNT_ID,
       money,
       positions: [],
-      orders: [],
     };
   }).pipe(
     //

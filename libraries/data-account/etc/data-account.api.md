@@ -4,7 +4,6 @@
 
 ```ts
 
-import { IOrder } from '@yuants/data-order';
 import { Observable } from 'rxjs';
 import { ObservableInput } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
@@ -25,7 +24,6 @@ export const diffPosition: (source: IPosition[], target: IPosition[]) => IPositi
 export interface IAccountInfo {
     account_id: string;
     money: IAccountMoney;
-    orders: IOrder[];
     positions: IPosition[];
     updated_at: number;
 }

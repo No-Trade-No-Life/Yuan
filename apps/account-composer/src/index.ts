@@ -99,7 +99,6 @@ defer(() => requestSQL<IAccountCompositionRelation[]>(terminal, `select * from a
                   free: accountInfos.reduce((acc, x) => acc + x.money.free, 0),
                 },
                 positions: accountInfos.flatMap((x) => x.positions),
-                orders: accountInfos.flatMap((x) => x.orders),
               };
             }),
             share(),

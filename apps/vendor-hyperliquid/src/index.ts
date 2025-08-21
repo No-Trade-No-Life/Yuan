@@ -57,7 +57,6 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
             margin: +position.position.marginUsed,
           }),
         ),
-        orders: [],
         updated_at: Date.now(),
       };
     }).pipe(

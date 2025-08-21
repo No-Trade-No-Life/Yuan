@@ -170,31 +170,31 @@ export const tradingAccountInfo$ = accountPosition$.pipe(
         updated_at: Date.now(),
         money: money,
         positions: positions,
-        orders: orders.data.map((x): IOrder => {
-          const order_type = x.ordType === 'market' ? 'MARKET' : x.ordType === 'limit' ? 'LIMIT' : 'UNKNOWN';
+        // orders: orders.data.map((x): IOrder => {
+        //   const order_type = x.ordType === 'market' ? 'MARKET' : x.ordType === 'limit' ? 'LIMIT' : 'UNKNOWN';
 
-          const order_direction =
-            x.side === 'buy'
-              ? x.posSide === 'long'
-                ? 'OPEN_LONG'
-                : 'CLOSE_SHORT'
-              : x.posSide === 'short'
-              ? 'OPEN_SHORT'
-              : 'CLOSE_LONG';
-          return {
-            order_id: x.ordId,
-            account_id,
-            product_id: encodePath(x.instType, x.instId),
-            submit_at: +x.cTime,
-            filled_at: +x.fillTime,
-            order_type,
-            order_direction,
-            volume: +x.sz,
-            traded_volume: +x.accFillSz,
-            price: +x.px,
-            traded_price: +x.avgPx,
-          };
-        }),
+        //   const order_direction =
+        //     x.side === 'buy'
+        //       ? x.posSide === 'long'
+        //         ? 'OPEN_LONG'
+        //         : 'CLOSE_SHORT'
+        //       : x.posSide === 'short'
+        //       ? 'OPEN_SHORT'
+        //       : 'CLOSE_LONG';
+        //   return {
+        //     order_id: x.ordId,
+        //     account_id,
+        //     product_id: encodePath(x.instType, x.instId),
+        //     submit_at: +x.cTime,
+        //     filled_at: +x.fillTime,
+        //     order_type,
+        //     order_direction,
+        //     volume: +x.sz,
+        //     traded_volume: +x.accFillSz,
+        //     price: +x.px,
+        //     traded_price: +x.avgPx,
+        //   };
+        // }),
       };
     },
   ),
@@ -255,7 +255,6 @@ const fundingAccountInfo$ = combineLatest([accountUid$, assetBalance$, marketInd
       updated_at: Date.now(),
       money: money,
       positions: positions,
-      orders: [],
     };
   }),
   shareReplay(1),
@@ -288,7 +287,6 @@ const earningAccountInfo$ = combineLatest([accountUid$, savingBalance$]).pipe(
       updated_at: Date.now(),
       money: money,
       positions: [],
-      orders: [],
     };
   }),
   shareReplay(1),

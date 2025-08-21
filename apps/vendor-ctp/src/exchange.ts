@@ -316,7 +316,7 @@ export const queryAccountInfo = (
         account_id,
         money,
         positions,
-        orders,
+        // orders,
         updated_at: Date.now(),
       }),
     ),
