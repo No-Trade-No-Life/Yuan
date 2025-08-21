@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-agent",
+      "comment": "add bin",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-agent"
+}
