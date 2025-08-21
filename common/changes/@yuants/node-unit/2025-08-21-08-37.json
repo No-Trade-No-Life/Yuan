@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/node-unit",
+      "comment": "log file and failed exp crash back",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/node-unit"
+}
