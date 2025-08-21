@@ -2,6 +2,31 @@
   "name": "@yuants/vendor-hyperliquid",
   "entries": [
     {
+      "version": "0.1.1",
+      "tag": "@yuants/vendor-hyperliquid_v0.1.1",
+      "date": "Thu, 21 Aug 2025 17:46:17 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove account's currencies field"
+          },
+          {
+            "comment": "remove accounts' orders field"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.3.4`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.0",
       "tag": "@yuants/vendor-hyperliquid_v0.1.0",
       "date": "Wed, 20 Aug 2025 19:46:46 GMT",

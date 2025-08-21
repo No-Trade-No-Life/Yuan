@@ -2,6 +2,26 @@
   "name": "@yuants/data-account",
   "entries": [
     {
+      "version": "0.3.4",
+      "tag": "@yuants/data-account_v0.3.4",
+      "date": "Thu, 21 Aug 2025 17:46:17 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove account's currencies field"
+          },
+          {
+            "comment": "remove accounts' orders field"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.3",
       "tag": "@yuants/data-account_v0.3.3",
       "date": "Tue, 19 Aug 2025 05:51:53 GMT",

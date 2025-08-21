@@ -2,6 +2,34 @@
   "name": "@yuants/app-account-composer",
   "entries": [
     {
+      "version": "0.3.2",
+      "tag": "@yuants/app-account-composer_v0.3.2",
+      "date": "Thu, 21 Aug 2025 17:46:17 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove account's currencies field"
+          },
+          {
+            "comment": "remove accounts' orders field"
+          },
+          {
+            "comment": "add error log"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.3.4`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.1",
       "tag": "@yuants/app-account-composer_v0.3.1",
       "date": "Thu, 21 Aug 2025 06:34:45 GMT",

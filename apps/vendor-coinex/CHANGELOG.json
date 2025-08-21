@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-coinex",
   "entries": [
     {
+      "version": "0.2.0",
+      "tag": "@yuants/vendor-coinex_v0.2.0",
+      "date": "Thu, 21 Aug 2025 17:46:17 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add bin"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.37",
       "tag": "@yuants/vendor-coinex_v0.1.37",
       "date": "Tue, 19 Aug 2025 05:51:53 GMT",

@@ -2,6 +2,28 @@
   "name": "@yuants/kernel",
   "entries": [
     {
+      "version": "0.15.4",
+      "tag": "@yuants/kernel_v0.15.4",
+      "date": "Thu, 21 Aug 2025 17:46:17 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove account's currencies field"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.3.4`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.15.3",
       "tag": "@yuants/kernel_v0.15.3",
       "date": "Wed, 20 Aug 2025 15:24:20 GMT",

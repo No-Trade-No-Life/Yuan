@@ -1,6 +1,13 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Wed, 20 Aug 2025 15:24:20 GMT and should not be manually modified.
+This log was last generated on Thu, 21 Aug 2025 17:46:17 GMT and should not be manually modified.
+
+## 0.15.4
+Thu, 21 Aug 2025 17:46:17 GMT
+
+### Patches
+
+- remove account's currencies field
 
 ## 0.15.3
 Wed, 20 Aug 2025 15:24:20 GMT

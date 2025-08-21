@@ -1,6 +1,14 @@
 # Change Log - @yuants/vendor-hyperliquid
 
-This log was last generated on Wed, 20 Aug 2025 19:46:46 GMT and should not be manually modified.
+This log was last generated on Thu, 21 Aug 2025 17:46:17 GMT and should not be manually modified.
+
+## 0.1.1
+Thu, 21 Aug 2025 17:46:17 GMT
+
+### Patches
+
+- remove account's currencies field
+- remove accounts' orders field
 
 ## 0.1.0
 Wed, 20 Aug 2025 19:46:46 GMT

@@ -1,6 +1,11 @@
 # Change Log - @yuants/order
 
-This log was last generated on Thu, 21 Aug 2025 08:06:02 GMT and should not be manually modified.
+This log was last generated on Thu, 21 Aug 2025 17:46:17 GMT and should not be manually modified.
+
+## 0.2.1
+Thu, 21 Aug 2025 17:46:17 GMT
+
+_Version update only_
 
 ## 0.2.0
 Thu, 21 Aug 2025 08:06:02 GMT
