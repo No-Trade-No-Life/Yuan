@@ -127,36 +127,35 @@ Terminal.fromNodeEnv().channel.publishChannel('ohlc', { pattern: `^OKX/` }, (ser
     throw 'duration is invalid';
   }
   const candleType = DURATION_TO_OKX_CANDLE_TYPE[duration];
-  okxBusinessWsClient.subscribe(candleType, instId, async (data: string[]) => {
-    const created_at = Number(data[0]);
-    const closed_at = created_at + offset;
-    const open = Number(data[1]);
-    const high = Number(data[2]);
-    const low = Number(data[3]);
-    const close = Number(data[4]);
-    if (isNaN(closed_at) || isNaN(open) || isNaN(high) || isNaN(low) || isNaN(close)) {
-      return;
-    }
-    console.info(formatTime(Date.now()), `insertData`, data);
-    await requestSQL(
-      Terminal.fromNodeEnv(),
-      buildInsertManyIntoTableSQL(
-        [
-          {
-            closed_at: formatTime(closed_at),
-            created_at: formatTime(created_at),
-            open,
-            high,
-            low,
-            close,
-            series_id,
-            datasource_id,
-            duration,
-            product_id,
-          },
-        ],
-        'ohlc',
-        {
+
+  return new Observable((subscriber) => {
+    okxBusinessWsClient.subscribe(candleType, instId, async (data: string[]) => {
+      const created_at = Number(data[0]);
+      const closed_at = created_at + offset;
+      const open = Number(data[1]);
+      const high = Number(data[2]);
+      const low = Number(data[3]);
+      const close = Number(data[4]);
+      if (isNaN(closed_at) || isNaN(open) || isNaN(high) || isNaN(low) || isNaN(close)) {
+        return;
+      }
+      console.info(formatTime(Date.now()), `insertData`, data);
+      const cancelData = {
+        closed_at: formatTime(closed_at),
+        created_at: formatTime(created_at),
+        open,
+        high,
+        low,
+        close,
+        series_id,
+        datasource_id,
+        duration,
+        product_id,
+      };
+      subscriber.next(cancelData);
+      await requestSQL(
+        Terminal.fromNodeEnv(),
+        buildInsertManyIntoTableSQL([cancelData], 'ohlc', {
           columns: [
             'closed_at',
             'created_at',
@@ -170,11 +169,11 @@ Terminal.fromNodeEnv().channel.publishChannel('ohlc', { pattern: `^OKX/` }, (ser
             'product_id',
           ],
           conflictKeys: ['created_at', 'series_id'],
-        },
-      ),
-    );
-  });
-  return new Observable(() => {
-    okxBusinessWsClient.unsubscribe(candleType, instId);
+        }),
+      );
+    });
+    return () => {
+      okxBusinessWsClient.unsubscribe(candleType, instId);
+    };
   });
 });
