@@ -1,12 +1,12 @@
 import { Switch } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { IAccountRiskInfo } from '@yuants/app-risk-manager/lib/models';
 import { InlineAccountId } from '../AccountInfo';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { DataRecordView } from '../DataRecord';
 import { Button } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminate } from '../Terminals/TerminalListItem';
+import { IAccountRiskInfo } from './AccountRiskInfo';
 
 function defineColumns() {
   return () => {

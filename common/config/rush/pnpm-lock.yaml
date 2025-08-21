@@ -2335,7 +2335,6 @@ importers:
       '@vite-pwa/assets-generator': ~0.2.4
       '@vitejs/plugin-react': ^2.0.0
       '@yuants/agent': workspace:*
-      '@yuants/app-risk-manager': workspace:*
       '@yuants/cache': workspace:*
       '@yuants/data-account': workspace:*
       '@yuants/data-interest-rate': workspace:*
@@ -2406,7 +2405,6 @@ importers:
       '@tanstack/react-query': 5.49.2_react@18.2.0
       '@tanstack/react-table': 8.12.0_react-dom@18.2.0+react@18.2.0
       '@yuants/agent': link:../../libraries/agent
-      '@yuants/app-risk-manager': link:../../apps/risk-manager
       '@yuants/cache': link:../../libraries/cache
       '@yuants/data-account': link:../../libraries/data-account
       '@yuants/data-interest-rate': link:../../libraries/data-interest-rate
