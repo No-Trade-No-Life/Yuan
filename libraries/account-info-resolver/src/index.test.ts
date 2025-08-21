@@ -157,7 +157,6 @@ describe('AccountInfoResolver', () => {
           direction: 'LONG',
         },
       ],
-      orders: [],
       updated_at: 0,
     };
 

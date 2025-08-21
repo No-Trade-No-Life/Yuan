@@ -382,7 +382,6 @@ export const createEmptyAccountInfo = (
     account_id,
     money: money,
     positions: [],
-    orders: [],
   };
 };
 /**

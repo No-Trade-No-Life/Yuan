@@ -67,7 +67,6 @@ solanaAddress.forEach((address) => {
         account_id: `SOLANA/${address}`,
         money: money,
         positions: [],
-        orders: [],
       };
     }),
     repeat({ delay: 1000 * 10 }),
