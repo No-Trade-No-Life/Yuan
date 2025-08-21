@@ -112,73 +112,69 @@ createSeriesProvider<IOHLC>(Terminal.fromNodeEnv(), {
   },
 });
 
-Terminal.fromNodeEnv().channel.publishChannel(
-  'ohlc',
-  { pattern: `^OKX\/([\s\S]+)\/(P[T0-9HMSD]+)$` },
-  (series_id) => {
-    // const [] = decodePath(args)
-    const [datasource_id, product_id, duration] = decodePath(series_id);
-    const [, instId] = decodePath(product_id);
-    const offset = convertDurationToOffset(duration);
-    if (!datasource_id) {
-      throw 'datasource_id is required';
+Terminal.fromNodeEnv().channel.publishChannel('ohlc', { pattern: `^OKX/` }, (series_id) => {
+  // const [] = decodePath(args)
+  const [datasource_id, product_id, duration] = decodePath(series_id);
+  const [, instId] = decodePath(product_id);
+  const offset = convertDurationToOffset(duration);
+  if (!datasource_id) {
+    throw 'datasource_id is required';
+  }
+  if (!product_id) {
+    throw 'product_id is required';
+  }
+  if (!offset) {
+    throw 'duration is invalid';
+  }
+  const candleType = DURATION_TO_OKX_CANDLE_TYPE[duration];
+  okxBusinessWsClient.subscribe(candleType, instId, async (data: string[]) => {
+    const created_at = Number(data[0]);
+    const closed_at = created_at + offset;
+    const open = Number(data[1]);
+    const high = Number(data[2]);
+    const low = Number(data[3]);
+    const close = Number(data[4]);
+    if (isNaN(closed_at) || isNaN(open) || isNaN(high) || isNaN(low) || isNaN(close)) {
+      return;
     }
-    if (!product_id) {
-      throw 'product_id is required';
-    }
-    if (!offset) {
-      throw 'duration is invalid';
-    }
-    const candleType = DURATION_TO_OKX_CANDLE_TYPE[duration];
-    okxBusinessWsClient.subscribe(candleType, instId, async (data: string[]) => {
-      const created_at = Number(data[0]);
-      const closed_at = created_at + offset;
-      const open = Number(data[1]);
-      const high = Number(data[2]);
-      const low = Number(data[3]);
-      const close = Number(data[4]);
-      if (isNaN(closed_at) || isNaN(open) || isNaN(high) || isNaN(low) || isNaN(close)) {
-        return;
-      }
-      console.info(formatTime(Date.now()), `insertData`, data);
-      await requestSQL(
-        Terminal.fromNodeEnv(),
-        buildInsertManyIntoTableSQL(
-          [
-            {
-              closed_at: formatTime(closed_at),
-              created_at: formatTime(created_at),
-              open,
-              high,
-              low,
-              close,
-              series_id,
-              datasource_id,
-              duration,
-              product_id,
-            },
-          ],
-          'ohlc',
+    console.info(formatTime(Date.now()), `insertData`, data);
+    await requestSQL(
+      Terminal.fromNodeEnv(),
+      buildInsertManyIntoTableSQL(
+        [
           {
-            columns: [
-              'closed_at',
-              'created_at',
-              'open',
-              'high',
-              'close',
-              'close',
-              'series_id',
-              'datasource_id',
-              'duration',
-              'product_id',
-            ],
-            conflictKeys: ['created_at', 'series_id'],
+            closed_at: formatTime(closed_at),
+            created_at: formatTime(created_at),
+            open,
+            high,
+            low,
+            close,
+            series_id,
+            datasource_id,
+            duration,
+            product_id,
           },
-        ),
-      );
-    });
-    return new Observable(() => {
-      okxBusinessWsClient.unsubscribe(candleType, instId);
-    });
-  },
-);
+        ],
+        'ohlc',
+        {
+          columns: [
+            'closed_at',
+            'created_at',
+            'open',
+            'high',
+            'close',
+            'close',
+            'series_id',
+            'datasource_id',
+            'duration',
+            'product_id',
+          ],
+          conflictKeys: ['created_at', 'series_id'],
+        },
+      ),
+    );
+  });
+  return new Observable(() => {
+    okxBusinessWsClient.unsubscribe(candleType, instId);
+  });
+});
