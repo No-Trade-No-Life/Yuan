@@ -147,7 +147,6 @@ import { terminal } from './terminal';
             updated_at: Date.now(),
             account_id: `${account_id}/funding`,
             money: money,
-            currencies: [money],
             positions: [],
             orders: [],
           };
@@ -240,7 +239,6 @@ import { terminal } from './terminal';
               updated_at: Date.now(),
               account_id: account_id,
               money: money,
-              currencies: [money],
               positions,
               orders,
             };

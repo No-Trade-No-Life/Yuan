@@ -203,29 +203,6 @@ export const publishAccountInfo = (
       //   });
       // }
 
-      for (const currency of accountInfo.currencies || []) {
-        AccountInfoBalance.record(currency.balance, {
-          account_id,
-          currency: currency.currency,
-        });
-        AccountInfoEquity.record(currency.equity, {
-          account_id,
-          currency: currency.currency,
-        });
-        AccountInfoProfit.record(currency.profit, {
-          account_id,
-          currency: currency.currency,
-        });
-        AccountInfoUsed.record(currency.used, {
-          account_id,
-          currency: currency.currency,
-        });
-        AccountInfoFree.record(currency.free, {
-          account_id,
-          currency: currency.currency,
-        });
-      }
-
       // ISSUE: https://github.com/open-telemetry/opentelemetry-js/issues/2997
       // for (const position of lastAccountInfo.positions) {
       //   AccountInfoPositionVolume.clear({
@@ -404,7 +381,6 @@ export const createEmptyAccountInfo = (
     updated_at: 0,
     account_id,
     money: money,
-    currencies: [money],
     positions: [],
     orders: [],
   };

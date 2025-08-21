@@ -241,12 +241,7 @@ export interface IAccountInfo {
    * 资金信息
    */
   money: IAccountMoney;
-  /**
-   * Currency information
-   *
-   * 货币信息
-   */
-  currencies: IAccountMoney[];
+
   /**
    * Position information
    *

@@ -178,7 +178,6 @@ export class AccountSimulatorUnit extends BasicUnit {
       ...this.accountInfo,
       updated_at: this.kernel.currentTimestamp,
       money: money,
-      currencies: [money],
       positions,
     };
   }

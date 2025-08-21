@@ -157,17 +157,6 @@ describe('AccountInfoResolver', () => {
           direction: 'LONG',
         },
       ],
-      currencies: [
-        {
-          equity: 100_000_000,
-          profit: 0,
-          balance: 100_000_000,
-          free: 99_997_500,
-          used: 2500,
-          leverage: 1,
-          currency: 'USD',
-        },
-      ],
       orders: [],
       updated_at: 0,
     };

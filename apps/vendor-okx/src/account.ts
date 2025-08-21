@@ -169,7 +169,6 @@ export const tradingAccountInfo$ = accountPosition$.pipe(
         account_id: account_id,
         updated_at: Date.now(),
         money: money,
-        currencies: [money],
         positions: positions,
         orders: orders.data.map((x): IOrder => {
           const order_type = x.ordType === 'market' ? 'MARKET' : x.ordType === 'limit' ? 'LIMIT' : 'UNKNOWN';
@@ -255,7 +254,6 @@ const fundingAccountInfo$ = combineLatest([accountUid$, assetBalance$, marketInd
       account_id: `okx/${uid}/funding/USDT`,
       updated_at: Date.now(),
       money: money,
-      currencies: [money],
       positions: positions,
       orders: [],
     };
@@ -289,7 +287,6 @@ const earningAccountInfo$ = combineLatest([accountUid$, savingBalance$]).pipe(
       account_id: `okx/${uid}/earning/USDT`,
       updated_at: Date.now(),
       money: money,
-      currencies: [money],
       positions: [],
       orders: [],
     };

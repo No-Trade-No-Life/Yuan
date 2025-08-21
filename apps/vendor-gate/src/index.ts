@@ -159,7 +159,6 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
         updated_at: Date.now(),
         account_id: FUTURE_USDT_ACCOUNT_ID,
         money: money,
-        currencies: [money],
         positions,
         orders,
       };
@@ -234,7 +233,6 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
         updated_at: Date.now(),
         account_id: UNIFIED_USDT_ACCOUNT_ID,
         money: money,
-        currencies: [money],
         positions: [...positions, ...spotPosition],
         orders,
       };
@@ -266,7 +264,6 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
       updated_at: Date.now(),
       account_id: SPOT_USDT_ACCOUNT_ID,
       money,
-      currencies: [money],
       positions: [],
       orders: [],
     };

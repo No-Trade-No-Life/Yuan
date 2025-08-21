@@ -448,9 +448,6 @@ registerPage('AccountInfoPanel', () => {
         ]}
       />
       <Collapse defaultActiveKey={'通货汇总'} style={{ width: '100%' }}>
-        <Collapse.Panel header={`通货汇总 (${accountInfo.currencies.length})`} itemKey="通货汇总">
-          <DataView data={accountInfo?.currencies ?? []} columns={columnsOfCurrencies} />
-        </Collapse.Panel>
         <Collapse.Panel header={`持仓汇总 (${positionSummary.length})`} itemKey="持仓汇总">
           <DataView data={positionSummary} columns={columns} />
         </Collapse.Panel>

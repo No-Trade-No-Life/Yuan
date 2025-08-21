@@ -48,7 +48,6 @@ const terminal = Terminal.fromNodeEnv();
       return {
         account_id: USDT_FUTURE_ACCOUNT_ID,
         money: money,
-        currencies: [money],
         positions: positionsRes.data.map(
           (position): IPosition => ({
             position_id: `${position.symbol}-${position.holdSide}`,
@@ -103,7 +102,6 @@ const terminal = Terminal.fromNodeEnv();
         updated_at: Date.now(),
         account_id: SPOT_ACCOUNT_ID,
         money: money,
-        currencies: [money],
         positions: [],
         orders: [],
       };

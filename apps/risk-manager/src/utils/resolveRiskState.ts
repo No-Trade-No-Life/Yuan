@@ -15,7 +15,7 @@ export const resolveRiskState = (riskInfo: IAccountRiskInfo, accountInfo: IAccou
     passive_supply: NaN,
     active_supply: NaN,
   };
-  const currencyItem = accountInfo.currencies.find((x) => x.currency === riskInfo.currency);
+  const currencyItem = accountInfo.money;
   state.equity = currencyItem?.equity ?? 0;
   state.free = currencyItem?.free ?? 0;
   // TODO: add filter currency for positions

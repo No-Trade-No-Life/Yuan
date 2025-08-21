@@ -149,7 +149,6 @@ const getOpenInterest = async (symbol: string) => {
         updated_at: Date.now(),
         account_id: UNIFIED_ACCOUNT_ID,
         money,
-        currencies: [money],
         positions,
         orders: [],
       };
@@ -188,7 +187,6 @@ const getOpenInterest = async (symbol: string) => {
         updated_at: Date.now(),
         account_id: SPOT_ACCOUNT_ID,
         money,
-        currencies: [money],
         positions: [],
         orders: [],
       };
