@@ -86,22 +86,3 @@ class OKXWsClient {
 }
 
 export const okxBusinessWsClient = new OKXWsClient('wss://wspap.okx.com:8443/ws/v5/business');
-
-// okxBusinessWsClient.subscribe('mark-price-candle1m', 'BTC-USDT-SWAP', console.log);
-
-// Terminal.fromNodeEnv().channel.subscribeChannel('ohlc', 'OKX/SWAP\\/BTC-USDT-SWAP/PT1M');
-
-// console.log(decodePath('OKX/SWAP\\/BTC-USDT-SWAP/PT1M'));
-// Terminal.fromNodeEnv().channel.publishChannel("ohlc", {pattern})
-
-// const str = 'OKX/SWAP\\/BTC-USDT-SWAP/PT1M';
-
-// const regex = /^OKX\/([\s\S]+)\/(P[T0-9HMSD]+)$/;
-// const match = str.match(regex);
-
-// console.log({ match, tt: regex.test(str) });
-// if (match) {
-//   console.log('Exchange:', 'OKX'); // OKX
-//   console.log('Symbol:', match[1]); // SWAP\/BTC-USDT-SWAP
-//   console.log('Interval:', match[2]); // PT1M
-// }
