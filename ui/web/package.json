@@ -25,7 +25,6 @@
     "@tanstack/react-query": "~5.49.2",
     "@tanstack/react-table": "~8.12.0",
     "@yuants/agent": "workspace:*",
-    "@yuants/app-risk-manager": "workspace:*",
     "@yuants/cache": "workspace:*",
     "@yuants/data-account": "workspace:*",
     "@yuants/data-interest-rate": "workspace:*",
