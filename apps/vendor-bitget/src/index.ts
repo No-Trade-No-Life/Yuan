@@ -330,8 +330,10 @@ const terminal = Terminal.fromNodeEnv();
     // sub-account transfer
     const getSubAccountNetworkId = (subUid: string) => `Bitget/${parentId}/SubAccount/${subUid}`;
     if (isMainAccount) {
+      // 需要绑定 IP 才能使用
       const subAccountInfoRes = await client.getVirtualSubAccountList();
-      for (const item of subAccountInfoRes.data.subAccountList || []) {
+      console.info(formatTime(Date.now()), 'SubAccountInfo', subAccountInfoRes);
+      for (const item of subAccountInfoRes.data?.subAccountList || []) {
         addAccountTransferAddress({
           terminal,
           account_id: SPOT_ACCOUNT_ID,
