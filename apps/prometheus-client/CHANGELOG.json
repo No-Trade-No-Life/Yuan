@@ -2,6 +2,26 @@
   "name": "@yuants/app-prometheus-client",
   "entries": [
     {
+      "version": "0.1.0",
+      "tag": "@yuants/app-prometheus-client_v0.1.0",
+      "date": "Thu, 21 Aug 2025 06:34:45 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "refactor"
+          },
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "add bin"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.51",
       "tag": "@yuants/app-prometheus-client_v0.0.51",
       "date": "Tue, 05 Aug 2025 16:36:43 GMT",

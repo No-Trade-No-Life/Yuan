@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Tue, 19 Aug 2025 05:51:53 GMT and should not be manually modified.
+This log was last generated on Thu, 21 Aug 2025 06:34:46 GMT and should not be manually modified.
+
+## 0.10.0
+Thu, 21 Aug 2025 06:34:46 GMT
+
+### Minor changes
+
+- add bin
 
 ## 0.9.8
 Tue, 19 Aug 2025 05:51:53 GMT
