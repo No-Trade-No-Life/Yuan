@@ -80,6 +80,16 @@ defer(() => requestSQL<IAccountCompositionRelation[]>(terminal, `select * from a
                     };
                   }),
                   timeout(30_000),
+                  tap({
+                    error: (err) => {
+                      console.info(
+                        formatTime(Date.now()),
+                        'AccountInfoError',
+                        `target=${group.key}, source=${y.source_account_id}`,
+                        err,
+                      );
+                    },
+                  }),
                 ),
               ),
             ),
@@ -103,7 +113,10 @@ defer(() => requestSQL<IAccountCompositionRelation[]>(terminal, `select * from a
             }),
             share(),
           );
-          accountInfo$.subscribe(); // Keep hot observable
+          accountInfo$.subscribe(() => {
+            console.info(formatTime(Date.now()), 'AccountInfoEmit', group.key);
+          }); // Keep hot observable
+          console.info(formatTime(Date.now()), 'AccountInfoPublish', group.key);
           publishAccountInfo(terminal, group.key, accountInfo$);
         }),
       ),
