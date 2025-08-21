@@ -1,6 +1,5 @@
-import { Terminal } from '@yuants/protocol';
-import { decodePath, encodePath, formatTime } from '@yuants/utils';
-import WebSocket from 'ws';
+import { encodePath, formatTime } from '@yuants/utils';
+// import WebSocket from 'ws';
 
 class OKXWsClient {
   ws: WebSocket;
@@ -12,7 +11,8 @@ class OKXWsClient {
     // this.instId = instId;
     this.ws = new WebSocket(url);
     this.pendingSub = [];
-    this.ws.on('open', () => {
+    // this.ws.
+    this.ws.addEventListener('open', () => {
       this.connected = true;
       console.info(formatTime(Date.now()), '✅ WS connected');
       while (this.pendingSub.length > 0) {
@@ -23,14 +23,14 @@ class OKXWsClient {
         }
       }
     });
-    this.ws.on('message', (raw) => this.handleMessage(raw));
+    this.ws.addEventListener('message', (raw) => this.handleMessage(raw));
     this.subscriptions = new Set();
     this.handlers = {}; // key: channel, value: callback
   }
 
   // 处理消息
   handleMessage(raw: any) {
-    const msg = JSON.parse(raw);
+    const msg = JSON.parse(raw.data);
     if (msg.arg?.channel) {
       const channelId = encodePath(msg.arg.channel, msg.arg.instId);
       const data = msg.data?.[0];
@@ -87,7 +87,7 @@ class OKXWsClient {
 
 export const okxBusinessWsClient = new OKXWsClient('wss://wspap.okx.com:8443/ws/v5/business');
 
-// okxBusinessWsClient.subscribe('mark-price-candle1m', 'BTC-USDT-SWAP', console.log);
+okxBusinessWsClient.subscribe('mark-price-candle1m', 'BTC-USDT-SWAP', console.log);
 
 // Terminal.fromNodeEnv().channel.subscribeChannel('ohlc', 'OKX/SWAP\\/BTC-USDT-SWAP/PT1M');
 
