@@ -87,7 +87,7 @@ class OKXWsClient {
 
 export const okxBusinessWsClient = new OKXWsClient('wss://wspap.okx.com:8443/ws/v5/business');
 
-okxBusinessWsClient.subscribe('mark-price-candle1m', 'BTC-USDT-SWAP', console.log);
+// okxBusinessWsClient.subscribe('mark-price-candle1m', 'BTC-USDT-SWAP', console.log);
 
 // Terminal.fromNodeEnv().channel.subscribeChannel('ohlc', 'OKX/SWAP\\/BTC-USDT-SWAP/PT1M');
 

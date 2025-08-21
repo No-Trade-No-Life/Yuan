@@ -5,7 +5,7 @@ import { convertDurationToOffset, decodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, Observable, of, timer } from 'rxjs';
 import { client } from './api';
 import { okxBusinessWsClient } from './websocket';
-import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
+import { buildInsertManyIntoTableSQL, requestSQL, writeToSQL } from '@yuants/sql';
 
 // 时间粒度，默认值1m
 // 如 [1m/3m/5m/15m/30m/1H/2H/4H]
@@ -127,8 +127,9 @@ Terminal.fromNodeEnv().channel.publishChannel('ohlc', { pattern: `^OKX/` }, (ser
     throw 'duration is invalid';
   }
   const candleType = DURATION_TO_OKX_CANDLE_TYPE[duration];
-
-  return new Observable((subscriber) => {
+  console.info(formatTime(Date.now()), `subscribe`, series_id);
+  return new Observable<IOHLC>((subscriber) => {
+    console.info(formatTime(Date.now()), `subscribe`, candleType, instId);
     okxBusinessWsClient.subscribe(candleType, instId, async (data: string[]) => {
       const created_at = Number(data[0]);
       const closed_at = created_at + offset;
@@ -155,27 +156,16 @@ Terminal.fromNodeEnv().channel.publishChannel('ohlc', { pattern: `^OKX/` }, (ser
         open_interest: '0',
       };
       subscriber.next(cancelData);
-      await requestSQL(
-        Terminal.fromNodeEnv(),
-        buildInsertManyIntoTableSQL([cancelData], 'ohlc', {
-          columns: [
-            'closed_at',
-            'created_at',
-            'open',
-            'high',
-            'close',
-            'close',
-            'series_id',
-            'datasource_id',
-            'duration',
-            'product_id',
-          ],
-          conflictKeys: ['created_at', 'series_id'],
-        }),
-      );
     });
     return () => {
       okxBusinessWsClient.unsubscribe(candleType, instId);
     };
-  });
+  }).pipe(
+    writeToSQL({
+      tableName: 'ohlc',
+      conflictKeys: ['created_at', 'series_id'],
+      writeInterval: 1000,
+      terminal: Terminal.fromNodeEnv(),
+    }),
+  );
 });
