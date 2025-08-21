@@ -1,8 +1,13 @@
 {
   "name": "@yuants/vendor-coinex",
   "version": "0.1.37",
+  "main": "lib/index.js",
+  "bin": "lib/cli.js",
+  "module": "dist/index.js",
   "files": [
-    "dist/extension.bundle.js"
+    "dist",
+    "lib",
+    "temp"
   ],
   "scripts": {
     "dev": "ts-node src/index.ts",
