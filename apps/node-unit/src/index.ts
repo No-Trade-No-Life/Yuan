@@ -3,8 +3,10 @@ import { Terminal } from '@yuants/protocol';
 import { requestSQL } from '@yuants/sql';
 import { formatTime, listWatch } from '@yuants/utils';
 import { spawn } from 'child_process';
+import { createWriteStream, mkdirSync } from 'fs';
+import { tmpdir } from 'os';
 import { dirname, join } from 'path';
-import { defer, fromEvent, merge, Observable, repeat, retry, takeUntil, tap } from 'rxjs';
+import { defer, fromEvent, merge, Observable, repeat, retry, takeUntil, tap, timer } from 'rxjs';
 
 // 如果没有制定主机地址，则创建一个默认的主机管理器
 // 如果设置了数据库地址，则创建一个数据库连接服务
@@ -74,13 +76,29 @@ defer(async () => {
                   : command === 'npm'
                   ? join(nodeBinDir, 'npm')
                   : command;
+              const args = deployment.args.slice();
               if (command === 'npx') {
-                deployment.args.unshift('-y');
+                args.unshift('-y');
               }
-              const child = spawn(executable, deployment.args, {
+              const child = spawn(executable, args, {
                 env: Object.assign({}, process.env, deployment.env),
-                stdio: 'inherit',
               });
+
+              const logHome = join(tmpdir(), 'yuants', 'node-unit', 'logs');
+
+              mkdirSync(logHome, { recursive: true });
+
+              const stdoutFilename = join(logHome, `${deployment.id}.log`);
+              child.stdout.pipe(createWriteStream(stdoutFilename, { flags: 'a' }));
+              const stderrFilename = join(logHome, `${deployment.id}.err.log`);
+              child.stderr.pipe(createWriteStream(stderrFilename, { flags: 'a' }));
+
+              console.info(
+                formatTime(Date.now()),
+                `Deployment started: ${deployment.command} ${args.join(' ')}`,
+                `stdout: ${stdoutFilename}`,
+                `stderr: ${stderrFilename}`,
+              );
 
               child.on('error', (err) => {
                 subscriber.error(err);
@@ -118,9 +136,10 @@ defer(async () => {
             },
           }),
           //
+          retry({ delay: (err, cnt) => timer(Math.min(1000 * 2 ** cnt, 300_000)) }),
           repeat({ delay: 1000 }),
-          retry({ delay: 1000 }),
         ),
+      (a, b) => a.updated_at === b.updated_at,
     ),
   )
   .subscribe();
