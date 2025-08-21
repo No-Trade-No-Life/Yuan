@@ -2,6 +2,31 @@
   "name": "@yuants/app-trade-copier",
   "entries": [
     {
+      "version": "0.6.0",
+      "tag": "@yuants/app-trade-copier_v0.6.0",
+      "date": "Thu, 21 Aug 2025 08:06:02 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "apply for limit order controller"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-model\" to `0.19.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/order\" to `0.2.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.0",
       "tag": "@yuants/app-trade-copier_v0.5.0",
       "date": "Wed, 20 Aug 2025 18:20:04 GMT",

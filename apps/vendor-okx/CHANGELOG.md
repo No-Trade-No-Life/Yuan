@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Wed, 20 Aug 2025 19:46:46 GMT and should not be manually modified.
+This log was last generated on Thu, 21 Aug 2025 08:06:02 GMT and should not be manually modified.
+
+## 0.17.1
+Thu, 21 Aug 2025 08:06:02 GMT
+
+### Patches
+
+- add ws for okx
 
 ## 0.17.0
 Wed, 20 Aug 2025 19:46:46 GMT
