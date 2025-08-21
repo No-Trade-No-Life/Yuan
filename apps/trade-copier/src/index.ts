@@ -540,13 +540,7 @@ async function setup() {
                   resultSelector: (i: number): IPositionTarget => ({
                     account_id: group.target_account_id,
                     product_id: positionDiff.product_id,
-                    volume:
-                      i < order_count - 1
-                        ? config.max_volume_per_order
-                        : roundToStep(
-                            volume - config.max_volume_per_order * (order_count - 1),
-                            group.products[positionDiff.product_id]?.volume_step ?? 1,
-                          ),
+                    volume: i < order_count - 1 ? config.max_volume_per_order * i : volume,
                     direction: positionDiff.direction,
                   }),
                 }).pipe(
@@ -649,7 +643,6 @@ async function setup() {
     LimitOrderPlaceAction$.pipe(
       mergeMap((positionTargets) =>
         from(positionTargets).pipe(
-          filter((positionTarget) => positionTarget.volume > 0),
           concatMap((positionTarget) => {
             const theProduct = group.products[positionTarget.product_id];
             if (!theProduct) {

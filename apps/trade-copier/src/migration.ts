@@ -40,4 +40,14 @@ create or replace trigger auto_update_updated_at before update on trade_copier_t
   `,
 });
 
+AddMigration({
+  id: '70a24770-adb4-4e96-bc67-678853a678e6',
+  name: 'alter-table-trade-copier-trade-config-add-new-column-limit_order_control',
+  dependencies: ['8ac0f9bf-068b-4076-af81-06be5b60b822'],
+  statement: `
+ALTER TABLE trade_copier_trade_config
+ADD COLUMN limit_order_control BOOLEAN NOT NULL DEFAULT FALSE;
+`,
+});
+
 ExecuteMigrations(Terminal.fromNodeEnv());
