@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-bitget",
   "entries": [
     {
+      "version": "0.4.2",
+      "tag": "@yuants/vendor-bitget_v0.4.2",
+      "date": "Thu, 21 Aug 2025 18:03:11 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix crush when no IP binding API-KEY"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.1",
       "tag": "@yuants/vendor-bitget_v0.4.1",
       "date": "Thu, 21 Aug 2025 17:46:17 GMT",

@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-bitget
 
-This log was last generated on Thu, 21 Aug 2025 17:46:17 GMT and should not be manually modified.
+This log was last generated on Thu, 21 Aug 2025 18:03:11 GMT and should not be manually modified.
+
+## 0.4.2
+Thu, 21 Aug 2025 18:03:11 GMT
+
+### Patches
+
+- fix crush when no IP binding API-KEY
 
 ## 0.4.1
 Thu, 21 Aug 2025 17:46:17 GMT
