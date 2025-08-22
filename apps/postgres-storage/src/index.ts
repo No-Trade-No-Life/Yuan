@@ -1,6 +1,6 @@
 import { PromRegistry, Terminal } from '@yuants/protocol';
 import type {} from '@yuants/sql';
-import { formatTime, UUID } from '@yuants/utils';
+import { formatTime } from '@yuants/utils';
 import postgres from 'postgres';
 import { first, from, tap } from 'rxjs';
 
@@ -13,13 +13,7 @@ const MetricsPostgresStorageRequestDurationMs = PromRegistry.create(
   [10, 50, 100, 500, 1000, 2000, 5000, 10000],
 );
 
-const HOST_URL = process.env.HOST_URL!;
-const TERMINAL_ID = process.env.TERMINAL_ID || `Postgres/${UUID()}`;
-const terminal = new Terminal(HOST_URL, {
-  terminal_id: TERMINAL_ID,
-  enable_WebRTC: process.env.ENABLE_WEBRTC === 'true',
-  name: 'Postgres Storage',
-});
+const terminal = Terminal.fromNodeEnv();
 
 const sql = postgres(process.env.POSTGRES_URI!, {
   // ISSUE: automatically close the connection after 20 seconds of inactivity or 30 minutes of lifetime

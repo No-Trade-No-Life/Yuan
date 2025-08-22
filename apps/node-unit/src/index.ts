@@ -15,6 +15,8 @@ if (!process.env.POSTGRES_URI && !process.env.HOST_URL) {
   throw new Error('Either POSTGRES_URI or HOST_URL must be set');
 }
 
+const NODE_UNIT_ID = process.env.NODE_UNIT_ID || UUID();
+
 const localHostDeployment: IDeployment | null = !process.env.HOST_URL
   ? {
       id: 'local-host',
@@ -36,14 +38,14 @@ const localPgDeployment: IDeployment | null = process.env.POSTGRES_URI
       id: 'local-postgres-storage',
       command: 'npx',
       args: ['@yuants/app-postgres-storage'],
-      env: {},
+      env: {
+        TERMINAL_ID: encodePath('PG', NODE_UNIT_ID),
+      },
       enabled: true,
       created_at: formatTime(Date.now()),
       updated_at: formatTime(Date.now()),
     }
   : null;
-
-const NODE_UNIT_ID = process.env.NODE_UNIT_ID || UUID();
 
 const terminal = new Terminal(process.env.HOST_URL!, {
   terminal_id: encodePath('NodeUnit', NODE_UNIT_ID),

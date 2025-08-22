@@ -1,15 +1,12 @@
-import { UUID, convertDurationToOffset, decodePath, formatTime } from '@yuants/utils';
 import { IOHLC } from '@yuants/data-ohlc';
 import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
+import { convertDurationToOffset, decodePath, formatTime } from '@yuants/utils';
 import { Observable, firstValueFrom } from 'rxjs';
 //@ts-ignore
 import TradingView from '@mathieuc/tradingview';
 
-const terminal = new Terminal(process.env.HOST_URL!, {
-  terminal_id: process.env.TERMINAL_ID || `TradingView/${UUID()}`,
-  name: '@yuants/vendor-trading-view',
-});
+const terminal = Terminal.fromNodeEnv();
 
 const DURATION_TO_TRADINGVIEW_PERIOD: Record<string, string> = {
   PT1M: '1',

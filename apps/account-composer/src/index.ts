@@ -1,4 +1,5 @@
 import { IAccountInfo, publishAccountInfo } from '@yuants/data-account';
+import { Terminal } from '@yuants/protocol';
 import { requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
 import {
@@ -16,7 +17,8 @@ import {
   timeout,
   toArray,
 } from 'rxjs';
-import { terminal } from './terminal';
+
+const terminal = Terminal.fromNodeEnv();
 
 /**
  * Account Composition Relation
