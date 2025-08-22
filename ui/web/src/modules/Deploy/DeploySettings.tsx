@@ -95,8 +95,6 @@ registerPage('DeploySettings', () => {
     try {
       const terminal = await firstValueFrom(terminal$);
       if (terminal) {
-        console.log('toUpdate', deployment);
-
         await requestSQL(
           terminal,
           buildInsertManyIntoTableSQL([deployment], 'deployment', {
@@ -189,12 +187,11 @@ registerPage('DeploySettings', () => {
       >
         {visible && editDeployment && (
           <Form
-            onValueChange={(values) => {
+            onValueChange={(values: any) => {
               const args = values.args.map((item: { arg: string }) => item.arg) as string[];
 
               const env: Record<string, string> = {};
               values.env?.forEach((item: { key: string; value: string }) => (env[item.key] = item.value));
-              console.log({ values, args, env });
               setEditDeployment({ ...values, args, env });
             }}
             initValues={editDeployment}
