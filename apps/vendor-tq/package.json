@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-tq",
-  "version": "0.3.0",
+  "version": "0.3.1",
   "bin": "lib/cli.js",
   "files": [
     "dist",
