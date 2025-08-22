@@ -2,6 +2,57 @@
   "name": "@yuants/node-unit",
   "entries": [
     {
+      "version": "0.2.6",
+      "tag": "@yuants/node-unit_v0.2.6",
+      "date": "Fri, 22 Aug 2025 12:41:57 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix local pg"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.2.5",
+      "tag": "@yuants/node-unit_v0.2.5",
+      "date": "Fri, 22 Aug 2025 11:34:11 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix terminating"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.2.4",
+      "tag": "@yuants/node-unit_v0.2.4",
+      "date": "Fri, 22 Aug 2025 10:53:16 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix zombie child process"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.3",
       "tag": "@yuants/node-unit_v0.2.3",
       "date": "Thu, 21 Aug 2025 12:51:29 GMT",

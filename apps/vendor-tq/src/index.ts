@@ -30,10 +30,7 @@ import {
 import { ITQResponse } from './common/tq-datatype';
 import { createConnectionTq } from './common/ws';
 
-const terminal = new Terminal(process.env.HOST_URL!, {
-  terminal_id: process.env.TERMINAL_ID || `TQ/${UUID()}`,
-  name: 'TQ-SDK WS-API',
-});
+const terminal = Terminal.fromNodeEnv();
 
 const DATASOURCE_ID = process.env.DATASOURCE_ID || 'TQ';
 const CONCURRENCY = +(process.env.CONCURRENCY || 5);

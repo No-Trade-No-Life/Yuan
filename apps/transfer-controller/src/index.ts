@@ -1,4 +1,4 @@
-import { PromRegistry } from '@yuants/protocol';
+import { PromRegistry, Terminal } from '@yuants/protocol';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import {
   IAccountAddressInfo,
@@ -30,7 +30,8 @@ import {
   toArray,
 } from 'rxjs';
 import './migration';
-import { terminal } from './terminal';
+
+const terminal = Terminal.fromNodeEnv();
 
 defer(() =>
   requestSQL<ITransferOrder[]>(

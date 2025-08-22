@@ -1,5 +1,5 @@
+import { Terminal } from '@yuants/protocol';
 import { AddMigration, ExecuteMigrations } from '@yuants/sql';
-import { terminal } from './terminal';
 
 AddMigration({
   id: '70ab1c8b-c957-456c-b653-d8bace4d367f',
@@ -20,4 +20,4 @@ create or replace trigger auto_update_updated_at before update on account_compos
 `,
 });
 
-ExecuteMigrations(terminal);
+ExecuteMigrations(Terminal.fromNodeEnv());
