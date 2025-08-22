@@ -1,12 +1,12 @@
 import { IDeployment } from '@yuants/deploy';
 import { Terminal } from '@yuants/protocol';
 import { requestSQL } from '@yuants/sql';
-import { formatTime, listWatch } from '@yuants/utils';
+import { encodePath, formatTime, listWatch, UUID } from '@yuants/utils';
 import { spawn } from 'child_process';
 import { createWriteStream, mkdirSync } from 'fs';
 import { tmpdir } from 'os';
 import { dirname, join } from 'path';
-import { defer, fromEvent, merge, Observable, repeat, retry, takeUntil, tap, timer } from 'rxjs';
+import { defer, fromEvent, merge, Observable, repeat, retry, takeUntil, tap } from 'rxjs';
 
 // 如果没有制定主机地址，则创建一个默认的主机管理器
 // 如果设置了数据库地址，则创建一个数据库连接服务
@@ -14,6 +14,38 @@ import { defer, fromEvent, merge, Observable, repeat, retry, takeUntil, tap, tim
 if (!process.env.POSTGRES_URI && !process.env.HOST_URL) {
   throw new Error('Either POSTGRES_URI or HOST_URL must be set');
 }
+
+const localHostDeployment: IDeployment | null = !process.env.HOST_URL
+  ? {
+      id: 'local-host',
+      command: 'npx',
+      args: ['@yuants/app-host'],
+      env: {},
+      enabled: true,
+      created_at: formatTime(Date.now()),
+      updated_at: formatTime(Date.now()),
+    }
+  : null;
+
+if (localHostDeployment) {
+  process.env.HOST_URL = `ws://localhost:8888`;
+}
+
+const localPgDeployment: IDeployment | null = !process.env.POSTGRES_URI
+  ? {
+      id: 'local-postgres-storage',
+      command: 'npx',
+      args: ['@yuants/app-postgres-storage'],
+      env: {},
+      enabled: true,
+      created_at: formatTime(Date.now()),
+      updated_at: formatTime(Date.now()),
+    }
+  : null;
+
+const terminal = Terminal.fromNodeEnv();
+
+const NODE_UNIT_ID = process.env.NODE_UNIT_ID || UUID();
 
 const kill$ = merge(fromEvent(process, 'SIGINT'), fromEvent(process, 'SIGTERM'));
 
@@ -23,65 +55,59 @@ kill$.subscribe(() => {
 
 defer(async () => {
   const deployments: IDeployment[] = [];
-  if (!process.env.HOST_URL) {
-    deployments.push({
-      id: 'local-host',
-      command: 'npx',
-      args: ['@yuants/app-host'],
-      env: {},
-      enabled: true,
-      created_at: formatTime(Date.now()),
-      updated_at: formatTime(Date.now()),
-    });
-  } else {
-    const terminal = Terminal.fromNodeEnv();
-    await requestSQL<IDeployment[]>(terminal, `select * from deployment`).then((list) => {
-      list.forEach((x) => deployments.push(x));
-    });
+  if (localHostDeployment) {
+    deployments.push(localHostDeployment);
   }
-  if (process.env.POSTGRES_URI) {
-    deployments.push({
-      id: 'local-postgres-storage',
-      command: 'npx',
-      args: ['@yuants/app-postgres-storage'],
-      env: {
-        HOST_URL: process.env.HOST_URL || 'ws://localhost:8888',
-      },
-      enabled: true,
-      created_at: formatTime(Date.now()),
-      updated_at: formatTime(Date.now()),
-    });
+  if (localPgDeployment) {
+    deployments.push(localPgDeployment);
   }
-  return deployments.filter((x) => x.enabled);
+  await requestSQL<IDeployment[]>(terminal, `select * from deployment where enabled = true`).then((list) => {
+    list.forEach((x) => deployments.push(x));
+  });
+  return deployments;
 })
   .pipe(
     repeat({ delay: 10000 }),
     retry({ delay: 1000 }),
+    tap((deployments) => {
+      console.info(formatTime(Date.now()), 'Deployments', deployments.length);
+      console.table(deployments);
+    }),
     takeUntil(kill$),
     //
     listWatch(
       (item) => item.id,
-      (deployment) =>
-        defer(
+      (deployment) => {
+        const nodePath = process.argv[0];
+        const nodeBinDir = dirname(nodePath);
+        const command = deployment.command;
+        const executable =
+          command === 'npx'
+            ? join(nodeBinDir, 'npx')
+            : command === 'node'
+            ? nodePath
+            : command === 'npm'
+            ? join(nodeBinDir, 'npm')
+            : command;
+        const args = deployment.args.slice();
+        if (command === 'npx') {
+          args.unshift('-y');
+        }
+        const terminalName = `${command} ${args.join(' ')}`;
+        return defer(
           () =>
             new Observable<void>((subscriber) => {
-              const nodePath = process.argv[0];
-              const nodeBinDir = dirname(nodePath);
-              const command = deployment.command;
-              const executable =
-                command === 'npx'
-                  ? join(nodeBinDir, 'npx')
-                  : command === 'node'
-                  ? nodePath
-                  : command === 'npm'
-                  ? join(nodeBinDir, 'npm')
-                  : command;
-              const args = deployment.args.slice();
-              if (command === 'npx') {
-                args.unshift('-y');
-              }
               const child = spawn(executable, args, {
-                env: Object.assign({}, process.env, deployment.env),
+                env: Object.assign(
+                  {},
+                  process.env,
+                  {
+                    HOST_URL: process.env.HOST_URL,
+                    TERMINAL_ID: encodePath('Deployment', deployment.id),
+                    TERMINAL_NAME: terminalName,
+                  },
+                  deployment.env,
+                ),
               });
 
               const logHome = join(tmpdir(), 'yuants', 'node-unit', 'logs');
@@ -108,37 +134,47 @@ defer(async () => {
                 subscriber.complete();
               });
 
+              function isProcessRunning(pid: number): boolean {
+                try {
+                  process.kill(pid, 0);
+                  return true; // Process exists
+                } catch (e) {
+                  return e.code === 'ESRCH' ? false : true; // ESRCH means no such process
+                }
+              }
+
               return () => {
-                child.kill();
+                defer(async () => {
+                  while (child.pid && isProcessRunning(child.pid)) {
+                    console.info(formatTime(Date.now()), `Terminating deployment: ${deployment.id}`);
+                    process.kill(child.pid, 'SIGKILL');
+                  }
+                }).subscribe();
               };
             }),
         ).pipe(
           tap({
             subscribe: () => {
-              console.info(
-                formatTime(Date.now()),
-                `Starting deployment: ${deployment.command} ${deployment.args.join(' ')}`,
-              );
+              console.info(formatTime(Date.now()), 'DeploymentStart', deployment.id, terminalName);
             },
             error: (err) => {
               console.info(
                 formatTime(Date.now()),
-                `Deployment failed: ${deployment.command} ${deployment.args.join(' ')}, Error: ${
-                  err.message || err
-                }`,
+                'DeploymentFailed',
+                deployment.id,
+                terminalName,
+                `Error: ${err.message || err}`,
               );
             },
             finalize: () => {
-              console.info(
-                formatTime(Date.now()),
-                `Deployment finished: ${deployment.command} ${deployment.args.join(' ')}`,
-              );
+              console.info(formatTime(Date.now()), `DeploymentComplete`, deployment.id, terminalName);
             },
           }),
           //
-          retry({ delay: (err, cnt) => timer(Math.min(1000 * 2 ** cnt, 300_000)) }),
+          retry({ delay: 1000 }),
           repeat({ delay: 1000 }),
-        ),
+        );
+      },
       (a, b) => a.updated_at === b.updated_at,
     ),
   )
