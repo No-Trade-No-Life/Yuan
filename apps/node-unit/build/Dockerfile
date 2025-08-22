@@ -14,7 +14,7 @@ ENTRYPOINT ["/tini", "--"]
 RUN apt update && apt install -y vim curl dnsutils procps htop
 
 # Install pnpm, pnpx
-RUN curl -fsSL https://get.pnpm.io/install.sh | sh -
+RUN wget -qO- https://get.pnpm.io/install.sh | ENV="$HOME/.bashrc" SHELL="$(which bash)" bash -
 
 ENV NODE_ENV=production
 
