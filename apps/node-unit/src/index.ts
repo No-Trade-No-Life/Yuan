@@ -31,7 +31,7 @@ if (localHostDeployment) {
   process.env.HOST_URL = `ws://localhost:8888`;
 }
 
-const localPgDeployment: IDeployment | null = !process.env.POSTGRES_URI
+const localPgDeployment: IDeployment | null = process.env.POSTGRES_URI
   ? {
       id: 'local-postgres-storage',
       command: 'npx',
@@ -43,9 +43,12 @@ const localPgDeployment: IDeployment | null = !process.env.POSTGRES_URI
     }
   : null;
 
-const terminal = Terminal.fromNodeEnv();
-
 const NODE_UNIT_ID = process.env.NODE_UNIT_ID || UUID();
+
+const terminal = new Terminal(process.env.HOST_URL!, {
+  terminal_id: encodePath('NodeUnit', NODE_UNIT_ID),
+  name: '@yuants/node-unit',
+});
 
 const kill$ = merge(fromEvent(process, 'SIGINT'), fromEvent(process, 'SIGTERM'));
 
