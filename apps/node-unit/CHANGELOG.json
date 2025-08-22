@@ -2,6 +2,26 @@
   "name": "@yuants/node-unit",
   "entries": [
     {
+      "version": "0.3.1",
+      "tag": "@yuants/node-unit_v0.3.1",
+      "date": "Fri, 22 Aug 2025 18:54:03 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix dockerfile"
+          },
+          {
+            "comment": "fix dockerfile"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.0",
       "tag": "@yuants/node-unit_v0.3.0",
       "date": "Fri, 22 Aug 2025 18:14:22 GMT",
