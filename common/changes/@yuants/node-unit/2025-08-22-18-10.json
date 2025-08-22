@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/node-unit",
+      "comment": "use pnpm",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/node-unit"
+}
