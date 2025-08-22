@@ -27,10 +27,7 @@ import {
 const MetricDataCollectorLatencyMsBucket = PromRegistry.create('histogram', 'series_collector_latency_ms');
 const MetricCronjobStatus = PromRegistry.create('gauge', 'series_collector_cronjob_status');
 
-const terminal = new Terminal(process.env.HOST_URL!, {
-  terminal_id: process.env.TERMINAL_ID || 'SeriesCollector',
-  name: '@yuants/series-collector',
-});
+const terminal = Terminal.fromNodeEnv();
 
 interface ITaskContext {
   table_name: string;

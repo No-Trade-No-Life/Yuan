@@ -1,5 +1,5 @@
+import { Terminal } from '@yuants/protocol';
 import { AddMigration, ExecuteMigrations } from '@yuants/sql';
-import { terminal } from './terminal';
 
 AddMigration({
   id: 'f07b00ea-5301-4cff-b3e4-48e807683c75',
@@ -77,4 +77,4 @@ CREATE TABLE IF NOT EXISTS account_address_info (
 `,
 });
 
-ExecuteMigrations(terminal);
+ExecuteMigrations(Terminal.fromNodeEnv());

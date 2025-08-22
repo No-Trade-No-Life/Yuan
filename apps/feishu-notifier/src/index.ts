@@ -4,14 +4,10 @@ import '@yuants/protocol/lib/services/notify';
 import { catchError, defer, from, map, mergeMap, timeout } from 'rxjs';
 import { FeishuClient } from './api';
 
-const TERMINAL_ID = process.env.TERMINAL_ID || `notifier/feishu/${process.env.APP_ID!}`;
 const APP_ID = process.env.APP_ID!;
 const APP_SECRET = process.env.APP_SECRET!;
 const EMERGENCY_RECEIVER_ID = process.env.EMERGENCY_RECEIVER_ID!;
-const terminal = new Terminal(process.env.HOST_URL!, {
-  terminal_id: TERMINAL_ID,
-  name: 'Notifier Feishu',
-});
+const terminal = Terminal.fromNodeEnv();
 
 const client = new FeishuClient({
   auth: {
