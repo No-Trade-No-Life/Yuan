@@ -11,7 +11,7 @@ ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
 RUN chmod a+x /tini
 ENTRYPOINT ["/tini", "--"]
 
-RUN apt update && apt install -y vim curl dnsutils procps htop
+RUN apt update && apt install -y vim curl wget dnsutils procps htop
 
 # Install pnpm, pnpx
 RUN wget -qO- https://get.pnpm.io/install.sh | ENV="$HOME/.bashrc" SHELL="$(which bash)" bash -
