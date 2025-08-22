@@ -1,6 +1,6 @@
 {
   "name": "@yuants/node-unit",
-  "version": "0.2.7",
+  "version": "0.2.8",
   "description": "Node Unit",
   "main": "lib/index.js",
   "module": "dist/index.js",
