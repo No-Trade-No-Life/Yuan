@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/node-unit",
+      "comment": "fix dockerfile",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/node-unit"
+}
