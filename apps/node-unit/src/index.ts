@@ -139,6 +139,7 @@ defer(async () => {
                   process.kill(pid, 0);
                   return true; // Process exists
                 } catch (e) {
+                  console.info(deployment.id, 'Process check failed', e);
                   return e.code === 'ESRCH' ? false : true; // ESRCH means no such process
                 }
               }
@@ -146,9 +147,11 @@ defer(async () => {
               return () => {
                 defer(async () => {
                   while (child.pid && isProcessRunning(child.pid)) {
-                    console.info(formatTime(Date.now()), `Terminating deployment: ${deployment.id}`);
+                    console.info(formatTime(Date.now()), `DeploymentKilling`, deployment.id);
                     process.kill(child.pid, 'SIGKILL');
+                    await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for a second before checking again (IMPORTANT)
                   }
+                  console.info(formatTime(Date.now()), `DeploymentTerminated`, deployment.id);
                 }).subscribe();
               };
             }),
