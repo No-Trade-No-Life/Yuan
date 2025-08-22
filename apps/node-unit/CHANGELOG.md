@@ -1,6 +1,13 @@
 # Change Log - @yuants/node-unit
 
-This log was last generated on Fri, 22 Aug 2025 11:34:11 GMT and should not be manually modified.
+This log was last generated on Fri, 22 Aug 2025 12:41:57 GMT and should not be manually modified.
+
+## 0.2.6
+Fri, 22 Aug 2025 12:41:57 GMT
+
+### Patches
+
+- fix local pg
 
 ## 0.2.5
 Fri, 22 Aug 2025 11:34:11 GMT
