@@ -1,6 +1,13 @@
 # Change Log - @yuants/node-unit
 
-This log was last generated on Thu, 21 Aug 2025 12:51:29 GMT and should not be manually modified.
+This log was last generated on Fri, 22 Aug 2025 10:53:16 GMT and should not be manually modified.
+
+## 0.2.4
+Fri, 22 Aug 2025 10:53:16 GMT
+
+### Patches
+
+- fix zombie child process
 
 ## 0.2.3
 Thu, 21 Aug 2025 12:51:29 GMT
