@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/utils",
+      "comment": "add sha256 util",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/utils"
+}
