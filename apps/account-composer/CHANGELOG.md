@@ -1,6 +1,17 @@
 # Change Log - @yuants/app-account-composer
 
-This log was last generated on Fri, 22 Aug 2025 14:41:37 GMT and should not be manually modified.
+This log was last generated on Sat, 23 Aug 2025 20:08:09 GMT and should not be manually modified.
+
+## 0.4.0
+Sat, 23 Aug 2025 20:08:09 GMT
+
+### Minor changes
+
+- use dynamic config
+
+### Patches
+
+- fix hash when some source deleted
 
 ## 0.3.3
 Fri, 22 Aug 2025 14:41:37 GMT

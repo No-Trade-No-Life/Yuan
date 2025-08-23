@@ -2,6 +2,38 @@
   "name": "@yuants/app-risk-manager",
   "entries": [
     {
+      "version": "0.6.1",
+      "tag": "@yuants/app-risk-manager_v0.6.1",
+      "date": "Sat, 23 Aug 2025 20:08:09 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.3.5`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/transfer\" to `0.2.5`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.8.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.37.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.6.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.21`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.6.0",
       "tag": "@yuants/app-risk-manager_v0.6.0",
       "date": "Thu, 21 Aug 2025 18:35:36 GMT",
