@@ -7,6 +7,7 @@ import { createWriteStream, mkdirSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { defer, fromEvent, merge, Observable, repeat, retry, takeUntil, tap } from 'rxjs';
+import treeKill from 'tree-kill';
 
 // 如果没有制定主机地址，则创建一个默认的主机管理器
 // 如果设置了数据库地址，则创建一个数据库连接服务
@@ -155,14 +156,33 @@ defer(async () => {
               }
 
               return () => {
-                defer(async () => {
-                  while (child.pid && isProcessRunning(child.pid)) {
-                    console.info(formatTime(Date.now()), `DeploymentKilling`, deployment.id);
-                    process.kill(child.pid, 'SIGKILL');
-                    await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for a second before checking again (IMPORTANT)
-                  }
-                  console.info(formatTime(Date.now()), `DeploymentTerminated`, deployment.id);
-                }).subscribe();
+                defer(
+                  () =>
+                    new Observable((sub) => {
+                      treeKill(child.pid!, 'SIGKILL', (err) => {
+                        if (err) {
+                          sub.error(err);
+                        } else {
+                          sub.complete();
+                        }
+                      });
+                    }),
+                )
+                  .pipe(
+                    tap({
+                      subscribe: () => {
+                        console.info(formatTime(Date.now()), `DeploymentKilling`, deployment.id);
+                      },
+                      error: (err) => {
+                        console.error(formatTime(Date.now()), 'DeploymentKillFailed', deployment.id, err);
+                      },
+                      complete: () => {
+                        console.info(formatTime(Date.now()), `DeploymentTerminated`, deployment.id);
+                      },
+                    }),
+                    retry({ delay: 5000 }),
+                  )
+                  .subscribe();
               };
             }),
         ).pipe(
