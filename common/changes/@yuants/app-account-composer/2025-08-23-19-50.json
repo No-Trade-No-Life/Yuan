@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-account-composer",
+      "comment": "fix hash when some source deleted",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-account-composer"
+}
