@@ -4,8 +4,8 @@ import { Terminal } from '@yuants/protocol';
 import { convertDurationToOffset, decodePath, encodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, Observable, of, timer } from 'rxjs';
 import { client } from './api';
-import { okxBusinessWsClient } from './websocket';
-import { buildInsertManyIntoTableSQL, requestSQL, writeToSQL } from '@yuants/sql';
+import { OKXWsClient } from './websocket';
+import { writeToSQL } from '@yuants/sql';
 
 // 时间粒度，默认值1m
 // 如 [1m/3m/5m/15m/30m/1H/2H/4H]
@@ -130,6 +130,7 @@ Terminal.fromNodeEnv().channel.publishChannel('ohlc', { pattern: `^OKX/` }, (ser
   console.info(formatTime(Date.now()), `subscribe`, series_id);
   return new Observable<IOHLC>((subscriber) => {
     console.info(formatTime(Date.now()), `subscribe`, candleType, instId);
+    const okxBusinessWsClient = new OKXWsClient('wss://wspap.okx.com:8443/ws/v5/business');
     okxBusinessWsClient.subscribe(candleType, instId, async (data: string[]) => {
       const created_at = Number(data[0]);
       const closed_at = created_at + offset;
