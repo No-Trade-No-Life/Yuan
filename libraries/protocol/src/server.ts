@@ -111,6 +111,17 @@ export class TerminalServer {
     if (!service) return;
     this.mapServiceIdToService.delete(serviceId);
     this._mapMethodToServiceIds.get(service.serviceInfo.method)?.delete(serviceId);
+
+    // Abort all processing and pending requests
+    const serviceContext = this._mapServiceIdToServiceRuntimeContext.get(serviceId);
+    if (serviceContext) {
+      serviceContext.pending.forEach((requestContext) => {
+        requestContext.isAborted$.next(true);
+      });
+      serviceContext.processing.forEach((requestContext) => {
+        requestContext.isAborted$.next(true);
+      });
+    }
   };
 
   // Events
@@ -139,20 +150,36 @@ export class TerminalServer {
 
         const output$ = new Subject<IServiceOutput>();
 
-        output$.subscribe((x) => {
-          const terminalMessage: ITerminalMessage = {
-            ...x,
-            trace_id: msg.trace_id,
-            method: msg.method,
-            // ISSUE: Reverse source / target as response, otherwise the host cannot guarantee the forwarding direction
-            source_terminal_id: this.terminal.terminal_id,
-            target_terminal_id: msg.source_terminal_id,
-          };
-          if (x.res) {
-            terminalMessage.done = true;
-          }
+        const terminalMessageBase: ITerminalMessage = {
           // Auto fill the trace_id and method
-          this.terminal.output$.next(terminalMessage);
+          trace_id: msg.trace_id,
+          method: msg.method,
+          // ISSUE: Reverse source / target as response, otherwise the host cannot guarantee the forwarding direction
+          source_terminal_id: this.terminal.terminal_id,
+          target_terminal_id: msg.source_terminal_id,
+        };
+
+        output$.subscribe({
+          next: (x) => {
+            const terminalMessage: ITerminalMessage = {
+              ...x,
+              ...terminalMessageBase,
+            };
+            if (x.res) {
+              terminalMessage.done = true;
+            }
+            this.terminal.output$.next(terminalMessage);
+          },
+          complete: () => {
+            this.terminal.output$.next({ ...terminalMessageBase, done: true });
+          },
+          error: () => {
+            this.terminal.output$.next({
+              ...terminalMessageBase,
+              res: { code: 500, message: 'Internal Server Error' },
+              done: true,
+            });
+          },
         });
 
         const requestContext: IRequestContext = {

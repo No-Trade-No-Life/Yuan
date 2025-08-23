@@ -155,3 +155,25 @@ export const decrypt = async (data: Uint8Array, base58_key: string): Promise<Uin
   const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, theKey, encryptedData);
   return new Uint8Array(decrypted);
 };
+
+/**
+ * Compute SHA-256 hash of the given data
+ * @param data - the data to hash
+ * @returns the SHA-256 hash of the data
+ * @public
+ */
+export async function sha256(data: Uint8Array): Promise<Uint8Array> {
+  // Web Crypto API (browsers and Node.js >= 18)
+  if (typeof globalThis.crypto.subtle.digest === 'function') {
+    const hashBuffer = await globalThis.crypto.subtle.digest('SHA-256', data);
+    return new Uint8Array(hashBuffer);
+  }
+
+  // Node.js 环境 (Node.js < 18)
+  if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+    const crypto = require('crypto');
+    return new Uint8Array(crypto.createHash('sha256').update(data).digest());
+  }
+
+  throw new Error('Unsupported environment: No crypto implementation found');
+}
