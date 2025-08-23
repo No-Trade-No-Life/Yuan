@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Thu, 21 Aug 2025 17:46:17 GMT and should not be manually modified.
+This log was last generated on Sat, 23 Aug 2025 15:29:11 GMT and should not be manually modified.
+
+## 0.17.3
+Sat, 23 Aug 2025 15:29:11 GMT
+
+### Patches
+
+- add ws keep alive
 
 ## 0.17.2
 Thu, 21 Aug 2025 17:46:17 GMT
