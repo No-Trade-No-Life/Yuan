@@ -2,11 +2,12 @@ import { IDeployment } from '@yuants/deploy';
 import { Terminal } from '@yuants/protocol';
 import { requestSQL } from '@yuants/sql';
 import { encodePath, formatTime, listWatch, UUID } from '@yuants/utils';
-import { spawn } from 'child_process';
+import { execSync, spawn } from 'child_process';
 import { createWriteStream, mkdirSync } from 'fs';
 import { tmpdir } from 'os';
-import { dirname, join } from 'path';
+import { join } from 'path';
 import { defer, fromEvent, merge, Observable, repeat, retry, takeUntil, tap } from 'rxjs';
+import treeKill from 'tree-kill';
 
 // 如果没有制定主机地址，则创建一个默认的主机管理器
 // 如果设置了数据库地址，则创建一个数据库连接服务
@@ -17,10 +18,24 @@ if (!process.env.POSTGRES_URI && !process.env.HOST_URL) {
 
 const NODE_UNIT_ID = process.env.NODE_UNIT_ID || UUID();
 
+const NODE_PATH = execSync('which node || echo ""', { encoding: 'utf-8' }).trim();
+const NPM_PATH = execSync('which npm || echo ""', { encoding: 'utf-8' }).trim();
+const NPX_PATH = execSync('which npx || echo ""', { encoding: 'utf-8' }).trim();
+const PNPM_PATH = execSync('which pnpm || echo ""', { encoding: 'utf-8' }).trim();
+const PNPX_PATH = execSync('which pnpx || echo ""', { encoding: 'utf-8' }).trim();
+
+const mapCommandToExecutable: Record<string, string> = {
+  node: NODE_PATH,
+  npm: NPM_PATH,
+  npx: NPX_PATH,
+  pnpm: PNPM_PATH,
+  pnpx: PNPX_PATH,
+};
+
 const localHostDeployment: IDeployment | null = !process.env.HOST_URL
   ? {
       id: 'local-host',
-      command: 'npx',
+      command: PNPX_PATH ? 'pnpx' : 'npx',
       args: ['@yuants/app-host'],
       env: {},
       enabled: true,
@@ -36,7 +51,7 @@ if (localHostDeployment) {
 const localPgDeployment: IDeployment | null = process.env.POSTGRES_URI
   ? {
       id: 'local-postgres-storage',
-      command: 'npx',
+      command: PNPX_PATH ? 'pnpx' : 'npx',
       args: ['@yuants/app-postgres-storage'],
       env: {
         TERMINAL_ID: encodePath('PG', NODE_UNIT_ID),
@@ -83,17 +98,8 @@ defer(async () => {
     listWatch(
       (item) => item.id,
       (deployment) => {
-        const nodePath = process.argv[0];
-        const nodeBinDir = dirname(nodePath);
         const command = deployment.command;
-        const executable =
-          command === 'npx'
-            ? join(nodeBinDir, 'npx')
-            : command === 'node'
-            ? nodePath
-            : command === 'npm'
-            ? join(nodeBinDir, 'npm')
-            : command;
+        const executable = mapCommandToExecutable[command] || command;
         const args = deployment.args.slice();
         if (command === 'npx') {
           args.unshift('-y');
@@ -126,7 +132,7 @@ defer(async () => {
 
               console.info(
                 formatTime(Date.now()),
-                `Deployment started: ${deployment.command} ${args.join(' ')}`,
+                `Deployment started: ${terminalName}`,
                 `stdout: ${stdoutFilename}`,
                 `stderr: ${stderrFilename}`,
               );
@@ -150,14 +156,33 @@ defer(async () => {
               }
 
               return () => {
-                defer(async () => {
-                  while (child.pid && isProcessRunning(child.pid)) {
-                    console.info(formatTime(Date.now()), `DeploymentKilling`, deployment.id);
-                    process.kill(child.pid, 'SIGKILL');
-                    await new Promise((resolve) => setTimeout(resolve, 1000)); // Wait for a second before checking again (IMPORTANT)
-                  }
-                  console.info(formatTime(Date.now()), `DeploymentTerminated`, deployment.id);
-                }).subscribe();
+                defer(
+                  () =>
+                    new Observable((sub) => {
+                      treeKill(child.pid!, 'SIGKILL', (err) => {
+                        if (err) {
+                          sub.error(err);
+                        } else {
+                          sub.complete();
+                        }
+                      });
+                    }),
+                )
+                  .pipe(
+                    tap({
+                      subscribe: () => {
+                        console.info(formatTime(Date.now()), `DeploymentKilling`, deployment.id);
+                      },
+                      error: (err) => {
+                        console.error(formatTime(Date.now()), 'DeploymentKillFailed', deployment.id, err);
+                      },
+                      complete: () => {
+                        console.info(formatTime(Date.now()), `DeploymentTerminated`, deployment.id);
+                      },
+                    }),
+                    retry({ delay: 5000 }),
+                  )
+                  .subscribe();
               };
             }),
         ).pipe(

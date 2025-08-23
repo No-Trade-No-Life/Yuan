@@ -2,6 +2,60 @@
   "name": "@yuants/node-unit",
   "entries": [
     {
+      "version": "0.3.2",
+      "tag": "@yuants/node-unit_v0.3.2",
+      "date": "Sat, 23 Aug 2025 13:48:48 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "dockerfile pnpm and tree kill"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.3.1",
+      "tag": "@yuants/node-unit_v0.3.1",
+      "date": "Fri, 22 Aug 2025 18:54:03 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix dockerfile"
+          },
+          {
+            "comment": "fix dockerfile"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.3.0",
+      "tag": "@yuants/node-unit_v0.3.0",
+      "date": "Fri, 22 Aug 2025 18:14:22 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "use pnpm"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.8",
       "tag": "@yuants/node-unit_v0.2.8",
       "date": "Fri, 22 Aug 2025 14:59:03 GMT",
