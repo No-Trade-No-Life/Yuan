@@ -1,6 +1,13 @@
 # Change Log - @yuants/node-unit
 
-This log was last generated on Fri, 22 Aug 2025 18:54:03 GMT and should not be manually modified.
+This log was last generated on Sat, 23 Aug 2025 13:48:48 GMT and should not be manually modified.
+
+## 0.3.2
+Sat, 23 Aug 2025 13:48:48 GMT
+
+### Patches
+
+- dockerfile pnpm and tree kill
 
 ## 0.3.1
 Fri, 22 Aug 2025 18:54:03 GMT
