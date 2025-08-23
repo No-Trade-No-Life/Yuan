@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.17.3",
+      "tag": "@yuants/vendor-okx_v0.17.3",
+      "date": "Sat, 23 Aug 2025 15:29:11 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add ws keep alive"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.17.2",
       "tag": "@yuants/vendor-okx_v0.17.2",
       "date": "Thu, 21 Aug 2025 17:46:17 GMT",
