@@ -59,7 +59,10 @@ defer(() => requestSQL<IAccountCompositionRelation[]>(terminal, `select * from a
             map((x) => ({
               target_account_id: group.key,
               sources: x,
-              updated_at: x.map((y) => new Date(y.updated_at).getTime()).reduce((a, b) => Math.max(a, b), 0),
+              // changed if some source content changed or some source deleted
+              hash: `t=${x
+                .map((y) => new Date(y.updated_at).getTime())
+                .reduce((a, b) => Math.max(a, b), 0)} s=${x.length}`,
             })),
           ),
         ),
@@ -74,7 +77,7 @@ defer(() => requestSQL<IAccountCompositionRelation[]>(terminal, `select * from a
             formatTime(Date.now()),
             'AccountInfoConfig',
             x.target_account_id,
-            x.updated_at,
+            x.hash,
             JSON.stringify(x),
           );
           const accountInfo$ = defer(() =>
@@ -153,7 +156,7 @@ defer(() => requestSQL<IAccountCompositionRelation[]>(terminal, `select * from a
             sub.unsubscribe();
           };
         }),
-      (a, b) => a.updated_at === b.updated_at,
+      (a, b) => a.hash === b.hash,
     ),
   )
   .subscribe();
