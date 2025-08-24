@@ -1,5 +1,8 @@
-import { Button, Modal, Space, Switch, Form, ArrayField, Popconfirm } from '@douyinfe/semi-ui';
+import { IconMinusCircle, IconPlusCircle } from '@douyinfe/semi-icons';
+import { ArrayField, Form, Modal, Popconfirm, Space } from '@douyinfe/semi-ui';
+import { IDeployment } from '@yuants/deploy';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
+import { UUID } from '@yuants/utils';
 import { useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import {
@@ -14,12 +17,9 @@ import {
   shareReplay,
   switchMap,
 } from 'rxjs';
+import { Button, Switch, Toast } from '../Interactive';
 import { registerPage } from '../Pages';
-import { terminal$, useTerminal } from '../Terminals';
-import { IDeployment } from '@yuants/deploy';
-import { IconMinusCircle, IconPlusCircle } from '@douyinfe/semi-icons';
-import { Toast } from '../Interactive';
-import { UUID } from '@yuants/utils';
+import { terminal$ } from '../Terminals';
 
 export const refresh$ = new BehaviorSubject<void>(undefined);
 
@@ -130,17 +130,15 @@ registerPage('DeploySettings', () => {
           },
           {
             header: 'args',
-            accessorKey: 'args',
+            accessorFn: (x) => (x.args || []).join(' '),
           },
           {
             header: 'env',
             accessorKey: 'env',
-            cell: (ctx) => {
-              const env = ctx.getValue();
-              return Object.entries(env)
+            accessorFn: (x) =>
+              Object.entries(x.env)
                 .map(([key, v]) => `${key}="${v}"`)
-                .join(' ');
-            },
+                .join(' '),
           },
           {
             header: 'enabled',
@@ -148,13 +146,14 @@ registerPage('DeploySettings', () => {
             cell: (ctx) => {
               const enabled = ctx.getValue();
               const deployment = ctx.row.original;
-              const [loading, setLoading] = useState(false);
-              const onChange = async (checked: boolean) => {
-                setLoading(true);
-                await onUpdate({ ...deployment, enabled: checked });
-                setLoading(false);
-              };
-              return <Switch checked={enabled} onChange={onChange} loading={loading} />;
+              return (
+                <Switch
+                  checked={enabled}
+                  onChange={async (checked) => {
+                    await onUpdate({ ...deployment, enabled: checked });
+                  }}
+                />
+              );
             },
           },
           {
