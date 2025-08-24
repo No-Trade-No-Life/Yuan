@@ -81,6 +81,7 @@ export const publishAccountInfo = (
       pairwise(),
       tap(async ([lastAccountInfo, accountInfo]) => {
         try {
+          if (accountInfo.positions.length === 0) return;
           await requestSQL(
             terminal,
             buildInsertManyIntoTableSQL(
@@ -204,33 +205,33 @@ export const publishAccountInfo = (
       // }
 
       // ISSUE: https://github.com/open-telemetry/opentelemetry-js/issues/2997
-      // for (const position of lastAccountInfo.positions) {
-      //   AccountInfoPositionVolume.clear({
-      //     account_id,
-      //     product_id: position.product_id,
-      //     direction: position.direction || '',
-      //   });
-      //   AccountInfoPositionPrice.clear({
-      //     account_id,
-      //     product_id: position.product_id,
-      //     direction: position.direction || '',
-      //   });
-      //   AccountInfoPositionClosablePrice.clear({
-      //     account_id,
-      //     product_id: position.product_id,
-      //     direction: position.direction || '',
-      //   });
-      //   AccountInfoPositionFloatingProfit.clear({
-      //     account_id,
-      //     product_id: position.product_id,
-      //     direction: position.direction || '',
-      //   });
-      //   AccountInfoPositionValuation.clear({
-      //     account_id,
-      //     product_id: position.product_id,
-      //     direction: position.direction || '',
-      //   });
-      // }
+      for (const position of lastAccountInfo.positions) {
+        AccountInfoPositionVolume.record(0, {
+          account_id,
+          product_id: position.product_id,
+          direction: position.direction || '',
+        });
+        AccountInfoPositionPrice.record(0, {
+          account_id,
+          product_id: position.product_id,
+          direction: position.direction || '',
+        });
+        AccountInfoPositionClosablePrice.record(0, {
+          account_id,
+          product_id: position.product_id,
+          direction: position.direction || '',
+        });
+        AccountInfoPositionFloatingProfit.record(0, {
+          account_id,
+          product_id: position.product_id,
+          direction: position.direction || '',
+        });
+        AccountInfoPositionValuation.record(0, {
+          account_id,
+          product_id: position.product_id,
+          direction: position.direction || '',
+        });
+      }
 
       for (const position of accountInfo.positions) {
         AccountInfoPositionVolume.record(position.volume || 0, {
