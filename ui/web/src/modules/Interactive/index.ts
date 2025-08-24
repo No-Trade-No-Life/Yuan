@@ -3,5 +3,7 @@ export * from './DataView';
 export * from './ListView';
 export * from './PivotTable';
 export * from './SortableList';
+export * from './Switch';
 export * from './TableView';
+export * from './TimeSeriesChartView';
 export * from './Toast';
