@@ -985,6 +985,8 @@ export class OkxClient {
    * 权限：交易
    *
    * 该接口限速同时受到 子账户限速 及 基于成交比率的子账户限速 限速规则的影响。
+   *
+   * https://www.okx.com/docs-v5/zh/#order-book-trading-trade-post-amend-order
    */
   postTradeAmendOrder = (params: {
     instId: string;
