@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-account",
+      "comment": "handle empty positions and position metric after exited",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/data-account"
+}
