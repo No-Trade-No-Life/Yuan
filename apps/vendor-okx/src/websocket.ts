@@ -9,9 +9,11 @@ export class OKXWsClient {
   handlers: Record<string, Function>;
   pendingSub: string[];
   keepAlive: Subscription;
-  constructor(url: string) {
+
+  baseURL: string = `wss://ws.okx.com:8443`;
+  constructor(path: string) {
     // this.instId = instId;
-    this.ws = new WebSocket(url);
+    this.ws = new WebSocket(`${this.baseURL}/${path}`);
     this.pendingSub = [];
     this.keepAlive = interval(25000)
       .pipe(
@@ -53,7 +55,7 @@ export class OKXWsClient {
         this.handlers[channelId](data, msg.arg);
       }
     } else if (msg.event) {
-      console.info('Event:', msg);
+      console.info(formatTime(Date.now()), 'Event:', msg);
     }
   }
 
@@ -99,6 +101,6 @@ export class OKXWsClient {
       this.keepAlive.unsubscribe();
     }
     delete this.handlers[channelId];
-    console.info(`📩 Sent unsubscribe for ${channelId}`);
+    console.info(formatTime(Date.now()), `📩 Sent unsubscribe for ${channelId}`);
   }
 }
