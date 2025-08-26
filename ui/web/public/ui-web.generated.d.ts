@@ -27,6 +27,7 @@ declare module '@yuants/ui-web' {
   } from '@rjsf/utils';
   import { ButtonProps } from '@douyinfe/semi-ui/lib/es/button';
   import { UniqueIdentifier } from '@dnd-kit/core';
+  import { SwitchProps } from '@douyinfe/semi-ui/lib/es/switch';
   import { ToastReactProps } from '@douyinfe/semi-ui/lib/es/toast';
   import * as _yuants_protocol from '@yuants/protocol';
   import { Terminal } from '@yuants/protocol';
@@ -372,7 +373,7 @@ declare module '@yuants/ui-web' {
   const Button: React$1.MemoExoticComponent<
     (
       props: Omit<ButtonProps, 'onClick' | 'loading'> & {
-        onClick: () => Promise<any>;
+        onClick?: () => any;
       },
     ) => react_jsx_runtime.JSX.Element
   >;
@@ -418,6 +419,21 @@ declare module '@yuants/ui-web' {
     render: (item: UniqueIdentifier) => React.ReactNode;
     onSort: (items: UniqueIdentifier[]) => void;
   }) => react_jsx_runtime.JSX.Element;
+
+  /**
+   * Yuan Switch Component
+   *
+   * - Switch must display loading status after clicking
+   * - Switch displays loading if and only if click event processing
+   * - We need to know whether the backend click event is processing or not.
+   */
+  const Switch: React$1.MemoExoticComponent<
+    (
+      props: Omit<SwitchProps, 'loading' | 'onChange'> & {
+        onChange: (checked: boolean) => any;
+      },
+    ) => react_jsx_runtime.JSX.Element
+  >;
 
   function TableView<T>(props: { table: Table<T> }): react_jsx_runtime.JSX.Element;
 
@@ -504,6 +520,7 @@ declare module '@yuants/ui-web' {
   const index_d$d_ListView: typeof ListView;
   const index_d$d_PivotTable: typeof PivotTable;
   const index_d$d_SortableList: typeof SortableList;
+  const index_d$d_Switch: typeof Switch;
   const index_d$d_TableView: typeof TableView;
   const index_d$d_TimeSeriesChartView: typeof TimeSeriesChartView;
   const index_d$d_Toast: typeof Toast;
@@ -517,6 +534,7 @@ declare module '@yuants/ui-web' {
       index_d$d_ListView as ListView,
       index_d$d_PivotTable as PivotTable,
       index_d$d_SortableList as SortableList,
+      index_d$d_Switch as Switch,
       index_d$d_TableView as TableView,
       index_d$d_TimeSeriesChartView as TimeSeriesChartView,
       index_d$d_Toast as Toast,
