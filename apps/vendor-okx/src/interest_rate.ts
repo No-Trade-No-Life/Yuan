@@ -14,7 +14,7 @@ createSQLWriter<ISeriesCollectingTask>(Terminal.fromNodeEnv(), {
       (x): ISeriesCollectingTask => ({
         series_id: encodePath(x.datasource_id, x.product_id),
         table_name: 'interest_rate',
-        cron_pattern: '0 * * * * *', // 每小时执行一次
+        cron_pattern: '0 * * * *', // 每小时执行一次
         cron_timezone: 'UTC',
         disabled: false,
         replay_count: 0,

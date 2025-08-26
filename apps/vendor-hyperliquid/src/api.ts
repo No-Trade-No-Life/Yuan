@@ -299,6 +299,37 @@ export class HyperliquidClient {
   getAllMids = (): Promise<Record<string, string>> => this.request('POST', 'info', { type: 'allMids' });
 
   /**
+   * info
+   *
+   * Only the most recent 5000 candles are available
+   *
+   * Supported intervals: "1m", "3m", "5m", "15m", "30m", "1h", "2h", "4h", "8h", "12h", "1d", "3d", "1w", "1M"
+   *
+   * https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/info-endpoint#candle-snapshot
+   */
+  getCandleSnapshot = (params: {
+    req: {
+      coin: string;
+      interval: string;
+      startTime: number;
+      endTime: number;
+    };
+  }): Promise<
+    {
+      T: number;
+      c: string; // close price
+      h: string; // high price
+      i: string;
+      l: string; // low price
+      o: string; // open price
+      n: number;
+      s: string; // Symbol
+      t: number; // time in milliseconds
+      v: string; // volume
+    }[]
+  > => this.request('POST', 'info', { type: 'candleSnapshot', ...params });
+
+  /**
    * exchange - placeOrder
    *
    * https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/exchange-endpoint#place-an-order
