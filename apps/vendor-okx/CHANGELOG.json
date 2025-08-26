@@ -2,6 +2,26 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.18.2",
+      "tag": "@yuants/vendor-okx_v0.18.2",
+      "date": "Tue, 26 Aug 2025 07:39:15 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix cron for interest rate"
+          },
+          {
+            "comment": "fix url bug"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.18.1",
       "tag": "@yuants/vendor-okx_v0.18.1",
       "date": "Sun, 24 Aug 2025 23:08:59 GMT",
