@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-hyperliquid
 
-This log was last generated on Sun, 24 Aug 2025 23:08:59 GMT and should not be manually modified.
+This log was last generated on Tue, 26 Aug 2025 07:39:15 GMT and should not be manually modified.
+
+## 0.2.0
+Tue, 26 Aug 2025 07:39:15 GMT
+
+### Minor changes
+
+- add ohlc for hyperliquid
 
 ## 0.1.4
 Sun, 24 Aug 2025 23:08:59 GMT

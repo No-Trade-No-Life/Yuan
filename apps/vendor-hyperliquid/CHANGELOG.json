@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-hyperliquid",
   "entries": [
     {
+      "version": "0.2.0",
+      "tag": "@yuants/vendor-hyperliquid_v0.2.0",
+      "date": "Tue, 26 Aug 2025 07:39:15 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add ohlc for hyperliquid"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.4",
       "tag": "@yuants/vendor-hyperliquid_v0.1.4",
       "date": "Sun, 24 Aug 2025 23:08:59 GMT",

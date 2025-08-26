@@ -1,6 +1,14 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Sun, 24 Aug 2025 23:08:59 GMT and should not be manually modified.
+This log was last generated on Tue, 26 Aug 2025 07:39:15 GMT and should not be manually modified.
+
+## 0.18.2
+Tue, 26 Aug 2025 07:39:15 GMT
+
+### Patches
+
+- fix cron for interest rate
+- fix url bug
 
 ## 0.18.1
 Sun, 24 Aug 2025 23:08:59 GMT
