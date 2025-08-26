@@ -1117,6 +1117,7 @@ importers:
       '@types/node': '22'
       '@yuants/data-account': workspace:*
       '@yuants/data-interest-rate': workspace:*
+      '@yuants/data-ohlc': workspace:*
       '@yuants/data-product': workspace:*
       '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
@@ -1135,6 +1136,7 @@ importers:
       '@msgpack/msgpack': 3.1.2
       '@yuants/data-account': link:../../libraries/data-account
       '@yuants/data-interest-rate': link:../../libraries/data-interest-rate
+      '@yuants/data-ohlc': link:../../libraries/data-ohlc
       '@yuants/data-product': link:../../libraries/data-product
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
