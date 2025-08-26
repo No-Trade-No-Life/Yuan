@@ -1,6 +1,6 @@
 import { IconRefresh, IconSetting } from '@douyinfe/semi-icons';
 import { Button, Empty, Input, Slider, Space } from '@douyinfe/semi-ui';
-import { IOrder } from '@yuants/data-model';
+import { IOrder } from '@yuants/data-order';
 import { PeriodDataUnit, Series, SeriesDataUnit } from '@yuants/kernel';
 import { formatTime } from '@yuants/utils';
 import { useObservable, useObservableRef, useObservableState } from 'observable-hooks';
