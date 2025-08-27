@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Tue, 05 Aug 2025 16:36:43 GMT and should not be manually modified.
+This log was last generated on Sat, 23 Aug 2025 20:08:09 GMT and should not be manually modified.
+
+## 0.37.3
+Sat, 23 Aug 2025 20:08:09 GMT
+
+### Patches
+
+- abort requests when service disposed, and sent done to client
 
 ## 0.37.2
 Tue, 05 Aug 2025 16:36:43 GMT

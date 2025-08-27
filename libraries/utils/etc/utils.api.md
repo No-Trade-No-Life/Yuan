@@ -88,6 +88,9 @@ export function roundToStep(value: number, step: number,
 roundFn?: (x: number) => number): number;
 
 // @public
+export function sha256(data: Uint8Array): Promise<Uint8Array>;
+
+// @public
 export const signMessage: (message: string, privateKey: string) => string;
 
 // @public

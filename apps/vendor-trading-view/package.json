@@ -1,7 +1,8 @@
 {
   "name": "@yuants/vendor-trading-view",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "bin": "lib/cli.js",
+  "main": "lib/index.js",
   "files": [
     "dist",
     "lib",

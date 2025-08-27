@@ -1,6 +1,23 @@
 # Change Log - @yuants/order
 
-This log was last generated on Thu, 21 Aug 2025 17:46:17 GMT and should not be manually modified.
+This log was last generated on Sun, 24 Aug 2025 23:08:59 GMT and should not be manually modified.
+
+## 0.3.1
+Sun, 24 Aug 2025 23:08:59 GMT
+
+_Version update only_
+
+## 0.3.0
+Sun, 24 Aug 2025 12:04:50 GMT
+
+### Minor changes
+
+- use MAKER order to reduce fee
+
+## 0.2.2
+Sat, 23 Aug 2025 20:08:09 GMT
+
+_Version update only_
 
 ## 0.2.1
 Thu, 21 Aug 2025 17:46:17 GMT

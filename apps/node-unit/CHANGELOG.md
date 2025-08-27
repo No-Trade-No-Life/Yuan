@@ -1,6 +1,18 @@
 # Change Log - @yuants/node-unit
 
-This log was last generated on Sat, 23 Aug 2025 13:48:48 GMT and should not be manually modified.
+This log was last generated on Wed, 27 Aug 2025 18:03:26 GMT and should not be manually modified.
+
+## 0.4.0
+Wed, 27 Aug 2025 18:03:26 GMT
+
+### Minor changes
+
+- support install npm package
+
+## 0.3.3
+Sat, 23 Aug 2025 20:08:09 GMT
+
+_Version update only_
 
 ## 0.3.2
 Sat, 23 Aug 2025 13:48:48 GMT

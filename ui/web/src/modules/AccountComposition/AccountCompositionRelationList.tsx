@@ -1,12 +1,26 @@
-import { IconRefresh } from '@douyinfe/semi-icons';
-import { Button } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { IAccountCompositionRelation } from '@yuants/data-model';
+import { formatTime } from '@yuants/utils';
 import { InlineAccountId } from '../AccountInfo';
-import { executeCommand, registerCommand } from '../CommandCenter';
 import { DataRecordView } from '../DataRecord';
 import { registerPage } from '../Pages';
-import { terminate } from '../Terminals/TerminalListItem';
+
+/**
+ * Account Composition Relation
+ *
+ * target account is composed by source accounts.
+ * the multiple is applied to the source account.
+ * and then sum up to the target account.
+ *
+ * @public
+ */
+interface IAccountCompositionRelation {
+  source_account_id: string;
+  target_account_id: string;
+  multiple: number;
+  hide_positions?: boolean;
+  created_at: string;
+  updated_at: string;
+}
 
 registerPage('AccountCompositionRelationList', () => {
   return (
@@ -26,19 +40,16 @@ registerPage('AccountCompositionRelationList', () => {
           columnHelper.accessor('multiple', {
             header: () => '乘数',
           }),
+          columnHelper.accessor('created_at', {
+            header: () => '创建时间',
+            cell: (ctx) => formatTime(ctx.getValue()),
+          }),
+          columnHelper.accessor('updated_at', {
+            header: () => '更新时间',
+            cell: (ctx) => formatTime(ctx.getValue()),
+          }),
         ];
-      }}
-      extraHeaderActions={(props) => {
-        return (
-          <Button icon={<IconRefresh />} onClick={() => executeCommand('AccountComposer.Restart')}>
-            重启合成器
-          </Button>
-        );
       }}
     />
   );
-});
-
-registerCommand('AccountComposer.Restart', () => {
-  terminate('AccountComposer');
 });

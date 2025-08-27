@@ -1,7 +1,8 @@
 {
   "name": "@yuants/vendor-hyperliquid",
-  "version": "0.1.2",
+  "version": "0.3.0",
   "bin": "lib/cli.js",
+  "main": "lib/index.js",
   "files": [
     "dist",
     "lib",
@@ -24,7 +25,8 @@
     "crypto-js": "^4.2.0",
     "hyperliquid": "~1.6.2",
     "ethers": "~6.13.5",
-    "@msgpack/msgpack": "~3.1.2"
+    "@msgpack/msgpack": "~3.1.2",
+    "@yuants/data-ohlc": "workspace:*"
   },
   "devDependencies": {
     "@microsoft/api-extractor": "~7.30.0",

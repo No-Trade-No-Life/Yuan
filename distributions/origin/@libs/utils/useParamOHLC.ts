@@ -8,7 +8,7 @@ export const useParamOHLC = (key: string) => {
   });
   const { datasource_id, product_id, period_in_sec } = useMemo(() => {
     const [datasource_id = '', product_id = '', _period_in_sec] = decodePath(OHLCKey || '');
-    const period_in_sec = +_period_in_sec;
+    const period_in_sec = _period_in_sec;
     return { datasource_id, product_id, period_in_sec };
   }, []);
 

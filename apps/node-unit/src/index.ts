@@ -1,12 +1,12 @@
 import { IDeployment } from '@yuants/deploy';
 import { Terminal } from '@yuants/protocol';
-import { requestSQL } from '@yuants/sql';
+import { ExecuteMigrations, requestSQL } from '@yuants/sql';
 import { encodePath, formatTime, listWatch, UUID } from '@yuants/utils';
 import { execSync, spawn } from 'child_process';
-import { createWriteStream, mkdirSync } from 'fs';
+import { createWriteStream, mkdirSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { defer, fromEvent, merge, Observable, repeat, retry, takeUntil, tap } from 'rxjs';
+import { concat, defer, EMPTY, fromEvent, merge, Observable, repeat, retry, takeUntil, tap } from 'rxjs';
 import treeKill from 'tree-kill';
 
 // 如果没有制定主机地址，则创建一个默认的主机管理器
@@ -24,6 +24,9 @@ const NPX_PATH = execSync('which npx || echo ""', { encoding: 'utf-8' }).trim();
 const PNPM_PATH = execSync('which pnpm || echo ""', { encoding: 'utf-8' }).trim();
 const PNPX_PATH = execSync('which pnpx || echo ""', { encoding: 'utf-8' }).trim();
 
+const WORKSPACE_DIR = join(tmpdir(), 'yuants', 'node-unit');
+console.info('Workspace Dir:', WORKSPACE_DIR);
+
 const mapCommandToExecutable: Record<string, string> = {
   node: NODE_PATH,
   npm: NPM_PATH,
@@ -37,6 +40,8 @@ const localHostDeployment: IDeployment | null = !process.env.HOST_URL
       id: 'local-host',
       command: PNPX_PATH ? 'pnpx' : 'npx',
       args: ['@yuants/app-host'],
+      package_name: '@yuants/app-host',
+      package_version: 'latest',
       env: {},
       enabled: true,
       created_at: formatTime(Date.now()),
@@ -53,6 +58,8 @@ const localPgDeployment: IDeployment | null = process.env.POSTGRES_URI
       id: 'local-postgres-storage',
       command: PNPX_PATH ? 'pnpx' : 'npx',
       args: ['@yuants/app-postgres-storage'],
+      package_name: '@yuants/app-postgres-storage',
+      package_version: 'latest',
       env: {
         TERMINAL_ID: encodePath('PG', NODE_UNIT_ID),
       },
@@ -67,11 +74,47 @@ const terminal = new Terminal(process.env.HOST_URL!, {
   name: '@yuants/node-unit',
 });
 
+ExecuteMigrations(terminal);
+
 const kill$ = merge(fromEvent(process, 'SIGINT'), fromEvent(process, 'SIGTERM'));
 
 kill$.subscribe(() => {
   process.exit();
 });
+
+const spawnChild = (ctx: {
+  command: string;
+  args: string[];
+  env: Record<string, string>;
+  cwd: string;
+  stdoutFilename: string;
+  stderrFilename: string;
+}) => {
+  return new Observable<void>((sub) => {
+    // console.info(formatTime(Date.now()), 'Spawn', JSON.stringify(ctx));
+    const child = spawn(ctx.command, ctx.args, {
+      env: ctx.env,
+      cwd: ctx.cwd,
+    });
+
+    child.stdout.pipe(createWriteStream(ctx.stdoutFilename, { flags: 'a' }));
+    child.stderr.pipe(createWriteStream(ctx.stderrFilename, { flags: 'a' }));
+
+    child.on('error', (err) => {
+      console.error(formatTime(Date.now()), 'Error', err);
+      sub.error(err);
+    });
+
+    child.on('exit', () => {
+      console.info(formatTime(Date.now()), 'Exit');
+      sub.complete();
+    });
+
+    return () => {
+      treeKill(child.pid!, 'SIGKILL');
+    };
+  });
+};
 
 defer(async () => {
   const deployments: IDeployment[] = [];
@@ -82,7 +125,9 @@ defer(async () => {
     deployments.push(localPgDeployment);
   }
   await requestSQL<IDeployment[]>(terminal, `select * from deployment where enabled = true`).then((list) => {
-    list.forEach((x) => deployments.push(x));
+    list.forEach((x) => {
+      deployments.push(x);
+    });
   });
   return deployments;
 })
@@ -105,86 +150,78 @@ defer(async () => {
           args.unshift('-y');
         }
         const terminalName = `${command} ${args.join(' ')}`;
-        return defer(
-          () =>
-            new Observable<void>((subscriber) => {
-              const child = spawn(executable, args, {
-                env: Object.assign(
-                  {},
-                  process.env,
-                  {
-                    HOST_URL: process.env.HOST_URL,
-                    TERMINAL_ID: encodePath('Deployment', deployment.id),
-                    TERMINAL_NAME: terminalName,
-                  },
-                  deployment.env,
-                ),
-              });
 
-              const logHome = join(tmpdir(), 'yuants', 'node-unit', 'logs');
+        const deploymentDir = join(WORKSPACE_DIR, 'deployments', deployment.id);
+        const logHome = join(WORKSPACE_DIR, 'logs');
 
-              mkdirSync(logHome, { recursive: true });
+        mkdirSync(logHome, { recursive: true });
+        mkdirSync(deploymentDir, { recursive: true });
 
-              const stdoutFilename = join(logHome, `${deployment.id}.log`);
-              child.stdout.pipe(createWriteStream(stdoutFilename, { flags: 'a' }));
-              const stderrFilename = join(logHome, `${deployment.id}.err.log`);
-              child.stderr.pipe(createWriteStream(stderrFilename, { flags: 'a' }));
+        const needInstall = deployment.package_name && deployment.package_version;
 
-              console.info(
-                formatTime(Date.now()),
-                `Deployment started: ${terminalName}`,
-                `stdout: ${stdoutFilename}`,
-                `stderr: ${stderrFilename}`,
-              );
+        // 使用 node 运行这个包目录本身，会通过 main 字段去加载入口文件
+        const entryFile = join(deploymentDir, 'node_modules', deployment.package_name);
 
-              child.on('error', (err) => {
-                subscriber.error(err);
-              });
-
-              child.on('exit', () => {
-                subscriber.complete();
-              });
-
-              function isProcessRunning(pid: number): boolean {
-                try {
-                  process.kill(pid, 0);
-                  return true; // Process exists
-                } catch (e) {
-                  console.info(deployment.id, 'Process check failed', e);
-                  return e.code === 'ESRCH' ? false : true; // ESRCH means no such process
-                }
-              }
-
-              return () => {
-                defer(
-                  () =>
-                    new Observable((sub) => {
-                      treeKill(child.pid!, 'SIGKILL', (err) => {
-                        if (err) {
-                          sub.error(err);
-                        } else {
-                          sub.complete();
-                        }
-                      });
-                    }),
-                )
-                  .pipe(
-                    tap({
-                      subscribe: () => {
-                        console.info(formatTime(Date.now()), `DeploymentKilling`, deployment.id);
-                      },
-                      error: (err) => {
-                        console.error(formatTime(Date.now()), 'DeploymentKillFailed', deployment.id, err);
-                      },
-                      complete: () => {
-                        console.info(formatTime(Date.now()), `DeploymentTerminated`, deployment.id);
-                      },
-                    }),
-                    retry({ delay: 5000 }),
-                  )
-                  .subscribe();
-              };
+        if (needInstall) {
+          writeFileSync(
+            join(deploymentDir, 'package.json'),
+            JSON.stringify({
+              dependencies: {
+                [deployment.package_name]: deployment.package_version,
+              },
             }),
+          );
+        }
+
+        return defer(() =>
+          concat(
+            needInstall
+              ? spawnChild({
+                  command: PNPM_PATH || NPM_PATH,
+                  args: ['install'],
+                  env: Object.assign({}, process.env, deployment.env),
+                  cwd: deploymentDir,
+                  stdoutFilename: join(logHome, `${deployment.id}.install.log`),
+                  stderrFilename: join(logHome, `${deployment.id}.install.err.log`),
+                })
+              : EMPTY,
+
+            needInstall
+              ? spawnChild({
+                  command: NODE_PATH,
+                  args: [entryFile],
+                  env: Object.assign(
+                    {},
+                    process.env,
+                    {
+                      HOST_URL: process.env.HOST_URL,
+                      TERMINAL_ID: encodePath('Deployment', deployment.id),
+                      TERMINAL_NAME: terminalName,
+                    },
+                    deployment.env,
+                  ),
+                  cwd: deploymentDir,
+                  stdoutFilename: join(logHome, `${deployment.id}.log`),
+                  stderrFilename: join(logHome, `${deployment.id}.err.log`),
+                })
+              : spawnChild({
+                  command: executable,
+                  args,
+                  env: Object.assign(
+                    {},
+                    process.env,
+                    {
+                      HOST_URL: process.env.HOST_URL,
+                      TERMINAL_ID: encodePath('Deployment', deployment.id),
+                      TERMINAL_NAME: terminalName,
+                    },
+                    deployment.env,
+                  ),
+                  cwd: deploymentDir,
+                  stdoutFilename: join(logHome, `${deployment.id}.log`),
+                  stderrFilename: join(logHome, `${deployment.id}.err.log`),
+                }),
+          ),
         ).pipe(
           tap({
             subscribe: () => {

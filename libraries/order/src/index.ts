@@ -91,7 +91,7 @@ const createOrder = (
     account_id,
     product_id: target.product_id,
     position_id: thePosition ? thePosition.position_id : `${target.product_id}-${target.direction}`,
-    order_type: 'LIMIT',
+    order_type: 'MAKER',
     order_direction: direction,
     volume: Math.abs(volume),
     price,

@@ -1,32 +1,40 @@
-import { Button, Typography } from '@douyinfe/semi-ui';
+import { requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
-import { combineLatest, concatWith, from, map, mergeMap, of, switchMap, throttleTime, toArray } from 'rxjs';
-import { executeCommand } from '../CommandCenter';
+import { defer, EMPTY, repeat, retry, switchMap } from 'rxjs';
 import { DataView } from '../Interactive';
+import { terminal$ } from '../Network';
 import { registerPage } from '../Pages';
-import { accountIds$, useAccountInfo } from './model';
+import { InlineAccountId } from './InlineAccountId';
 
 registerPage('AccountList', () => {
   const accountInfos = useObservableState(
     useObservable(
       () =>
-        accountIds$.pipe(
-          switchMap((accountIds) =>
-            from(accountIds).pipe(
-              //
-              map((accountId) =>
-                of(undefined).pipe(
-                  concatWith(useAccountInfo(accountId)),
-                  map((info) => ({ accountId, info })),
-                ),
-              ),
-              toArray(),
-              mergeMap((x$) => combineLatest(x$)),
-            ),
+        terminal$.pipe(
+          switchMap((terminal) =>
+            terminal
+              ? defer(() =>
+                  requestSQL<
+                    {
+                      account_id: string;
+                      currency: string;
+                      balance: string;
+                      equity: string;
+                      profit: string;
+                      free: string;
+                      used: string;
+                    }[]
+                  >(terminal, `select * from account_balance order by account_id`),
+                ).pipe(
+                  //
+                  retry({ delay: 10_000 }),
+                  repeat({ delay: 10_000 }),
+                )
+              : EMPTY,
           ),
-          throttleTime(1000),
         ),
+
       [],
     ),
     [],
@@ -37,38 +45,40 @@ registerPage('AccountList', () => {
       data={accountInfos}
       columns={[
         {
-          accessorKey: 'accountId',
-          header: () => '账户 ID',
-          cell: (x) => <Typography.Text copyable>{x.renderValue()}</Typography.Text>,
+          accessorKey: 'account_id',
+          header: '账户 ID',
+          cell: (x) => <InlineAccountId account_id={x.getValue()} />,
         },
         {
-          accessorKey: 'info.money.currency',
-          header: () => '货币',
+          accessorKey: 'currency',
+          header: '货币',
         },
         {
-          accessorKey: 'info.money.equity',
-          header: () => '净值',
+          accessorKey: 'equity',
+          header: '净值',
         },
         {
-          accessorKey: 'info.money.balance',
-          header: () => '余额',
+          accessorKey: 'balance',
+          header: '余额',
         },
         {
-          accessorKey: 'info.money.profit',
-          header: () => '盈亏',
+          accessorKey: 'profit',
+          header: '盈亏',
         },
         {
-          accessorKey: 'info.money.free',
-          header: () => '可用保证金',
+          accessorKey: 'free',
+          header: '可用保证金',
+        },
+        {
+          accessorKey: 'used',
+          header: '已用保证金',
         },
         {
           id: 'used-margin-ratio',
           accessorFn: (x) => {
-            const accountInfo = x.info;
-            if (!accountInfo) return NaN;
-            return accountInfo.money.used / accountInfo.money.equity;
+            return +x.used / +x.equity;
           },
-          header: () => '保证金使用率',
+          header: '保证金使用率',
           cell: (x) => {
             const v = x.getValue();
             if (isNaN(v)) return 'N/A';
@@ -76,22 +86,9 @@ registerPage('AccountList', () => {
           },
         },
         {
-          accessorKey: 'info.updated_at',
-          header: () => '更新时间',
+          accessorKey: 'updated_at',
+          header: '更新时间',
           cell: (x) => formatTime(x.getValue()),
-        },
-
-        {
-          header: '操作',
-          cell: (x) => {
-            return (
-              <Button
-                onClick={() => executeCommand('AccountInfoPanel', { account_id: x.row.original.accountId })}
-              >
-                查看
-              </Button>
-            );
-          },
         },
       ]}
     />

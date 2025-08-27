@@ -130,7 +130,7 @@ Terminal.fromNodeEnv().channel.publishChannel('ohlc', { pattern: `^OKX/` }, (ser
   console.info(formatTime(Date.now()), `subscribe`, series_id);
   return new Observable<IOHLC>((subscriber) => {
     console.info(formatTime(Date.now()), `subscribe`, candleType, instId);
-    const okxBusinessWsClient = new OKXWsClient('wss://wspap.okx.com:8443/ws/v5/business');
+    const okxBusinessWsClient = new OKXWsClient('ws/v5/business');
     okxBusinessWsClient.subscribe(candleType, instId, async (data: string[]) => {
       const created_at = Number(data[0]);
       const closed_at = created_at + offset;

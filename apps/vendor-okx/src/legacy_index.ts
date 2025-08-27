@@ -444,6 +444,8 @@ defer(async () => {
             return 'limit';
           case 'MARKET':
             return 'market';
+          case 'MAKER':
+            return 'post_only';
         }
         throw new Error(`Unknown order type: ${order_type}`);
       };
@@ -460,6 +462,9 @@ defer(async () => {
         }
         if (instType === 'MARGIN') {
           if (order.order_type === 'LIMIT') {
+            return order.volume;
+          }
+          if (order.order_type === 'MAKER') {
             return order.volume;
           }
           if (order.order_type === 'MARKET') {
@@ -566,6 +571,9 @@ defer(async () => {
           params.newSz = order.volume.toString();
         } else if (instType === 'MARGIN') {
           if (order.order_type === 'LIMIT') {
+            params.newSz = order.volume.toString();
+          }
+          if (order.order_type === 'MAKER') {
             params.newSz = order.volume.toString();
           }
           if (order.order_type === 'MARKET') {

@@ -12,6 +12,16 @@ export interface IDeployment {
   id: string;
 
   /**
+   * package name for the deployment
+   */
+  package_name: string;
+
+  /**
+   * package version for the deployment
+   */
+  package_version: string;
+
+  /**
    * Deployment setup command
    */
   command: string;
@@ -32,12 +42,12 @@ export interface IDeployment {
   enabled: boolean;
 
   /**
-   * Timestamp when the secret was created
+   * Timestamp when the deployment was created
    */
   created_at: string;
 
   /**
-   * Timestamp when the secret was last updated (Automatically updated on modification)
+   * Timestamp when the deployment was last updated (Automatically updated on modification)
    */
   updated_at: string;
 }
@@ -65,4 +75,15 @@ AddMigration({
         CREATE INDEX IF NOT EXISTS deployment_enabled ON deployment (enabled);
 
     `,
+});
+
+AddMigration({
+  id: 'c0934318-1618-4d65-961e-eb266190197b',
+  name: 'add_columns_package_name_version_to_deployment',
+  dependencies: ['b9fcea5f-f772-4e79-9055-af4ca238dcad'],
+  statement: `
+        ALTER TABLE deployment
+        ADD COLUMN IF NOT EXISTS package_name TEXT NOT NULL DEFAULT '',
+        ADD COLUMN IF NOT EXISTS version TEXT NOT NULL DEFAULT '';
+  `,
 });
