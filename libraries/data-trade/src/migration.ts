@@ -6,19 +6,19 @@ AddMigration({
   dependencies: [],
   statement: `
     CREATE TABLE IF NOT EXISTS trade (
-      id TEXT;
+      id TEXT PRIMARY KEY,
       account_id TEXT NOT NULL,
       product_id TEXT NOT NULL,
       direction TEXT NOT NULL,
       traded_volume TEXT,
       traded_price TEXT,
       traded_value TEXT,
-      fee: TEXT,
+      fee TEXT,
       fee_currency TEXT,
       created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
       updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
     );
-     CREATE INDEX IF NOT EXISTS idx_trade_created_at on trade (created_at desc);
+    CREATE INDEX IF NOT EXISTS idx_trade_created_at on trade (created_at desc);
     CREATE INDEX IF NOT EXISTS idx_trade_updated_at on trade (updated_at desc);
     create or replace trigger auto_update_updated_at before update
               on trade for each row execute function update_updated_at_column();

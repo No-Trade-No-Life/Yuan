@@ -16,7 +16,7 @@ const tradeParser = async (accountId: string, params: Record<string, string>): P
       mapTradeIdToBillList.set(item.tradeId, [...(mapTradeIdToBillList.get(item.tradeId) ?? []), item]),
     );
     mapTradeIdToBillList.forEach((v, tradeId) => {
-      if (v.length !== 2) return;
+      if (!((v[0].instType === 'SPOT' && v.length === 2) || v[0].instType === 'SWAP')) return;
 
       const trade: ITrade = {
         id: tradeId,
@@ -29,35 +29,38 @@ const tradeParser = async (accountId: string, params: Record<string, string>): P
         fee: '',
         fee_currency: '',
         created_at: '0',
-        // updated_at: '',
       };
 
       v.forEach((bill) => {
         trade.created_at = Math.max(Number(trade.created_at), Number(bill.ts)).toString();
-        trade.product_id = bill.instId + '-' + bill.instType;
+        trade.product_id = bill.instId;
         if (bill.instType === 'SWAP') {
           if (bill.subType === '3') trade.direction = 'OPEN_LONG';
           if (bill.subType === '4') trade.direction = 'OPEN_SHORT';
           if (bill.subType === '5') trade.direction = 'CLOSE_LONG';
           if (bill.subType === '6') trade.direction = 'CLOSE_SHORT';
+          trade.traded_volume = bill.sz;
+          trade.traded_value = (Number(bill.sz) * Number(bill.px)).toString();
         }
-        if (bill.instId === 'SPOT' && bill.subType === '1') {
+        if (bill.instType === 'SPOT') {
+          if (bill.subType === '1') {
+            if (bill.ccy !== 'USDT') {
+              trade.direction = 'OPEN_LONG';
+            } else {
+              trade.direction = 'CLOSE_LONG';
+            }
+          }
+
           if (bill.ccy !== 'USDT') {
-            trade.direction = 'OPEN_LONG';
-          } else {
-            trade.direction = 'CLOSE_LONG';
+            trade.traded_volume = bill.sz;
+          }
+          if (bill.ccy === 'USDT') {
+            trade.traded_value = bill.sz;
           }
         }
-        if (bill.ccy === 'USDT') {
-          trade.traded_price = bill.px;
-          trade.traded_value = bill.balChg;
-        } else {
-          trade.traded_volume = bill.balChg;
-        }
-
         // fee
         if (bill.fee !== '0') {
-          trade.fee = bill.fee;
+          trade.fee = Math.abs(Number(bill.fee)).toString();
           trade.fee_currency = bill.ccy;
         }
       });
@@ -82,7 +85,9 @@ const getAccountTradeWithAccountId = async (accountId: string) => {
     params['begin'] = new Date(currentTrade[0].created_at ?? 0).getTime().toString();
     params['end'] = Date.now().toString();
   }
+  console.log(formatTime(Date.now()), 'getAccountTrade', `params: ${JSON.stringify(params)}`);
   const tradeList = await tradeParser(accountId, params);
+  console.log(formatTime(Date.now()), 'getAccountTrade', `tradeList: ${JSON.stringify(tradeList)}`);
   await requestSQL(
     Terminal.fromNodeEnv(),
     buildInsertManyIntoTableSQL(tradeList, 'trade', {
@@ -99,7 +104,6 @@ const getAccountTradeWithAccountId = async (accountId: string) => {
         'created_at',
       ],
       conflictKeys: ['id'],
-      ignoreConflict: true,
     }),
   );
 };
@@ -108,7 +112,7 @@ defer(() => accountUid$)
   .pipe(first())
   .subscribe((uid) => {
     const account_id = `okx/${uid}/trading`;
-
+    console.log(formatTime(Date.now()), 'getAccountTrade', `AccountID: ${account_id}`);
     defer(() => getAccountTradeWithAccountId(account_id))
       .pipe(
         //
