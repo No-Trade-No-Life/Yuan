@@ -1,3 +1,7 @@
+/**
+ *
+ * @public
+ */
 export interface ITrade {
   id: string;
   /**
