@@ -125,6 +125,14 @@ registerPage('DeploySettings', () => {
             accessorKey: 'id',
           },
           {
+            header: 'package_name',
+            accessorKey: 'package_name',
+          },
+          {
+            header: 'package_version',
+            accessorKey: 'package_version',
+          },
+          {
             header: 'command',
             accessorKey: 'command',
           },
