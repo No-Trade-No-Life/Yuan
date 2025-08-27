@@ -12,6 +12,8 @@ export interface IDeployment {
     enabled: boolean;
     env: Record<string, string>;
     id: string;
+    package_name: string;
+    package_version: string;
     updated_at: string;
 }
 
