@@ -41,6 +41,7 @@
     "@yuants/transfer": "workspace:*",
     "@yuants/utils": "workspace:*",
     "@yuants/deploy": "workspace:*",
+    "@yuants/secret": "workspace:*",
     "ajv": "~8.11.0",
     "copy-to-clipboard": "~3.3.3",
     "date-fns": "~2.29.1",

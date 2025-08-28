@@ -63,6 +63,8 @@ importers:
       '@yuants/extension': workspace:*
       '@yuants/kernel': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/secret': workspace:*
+      '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
       ajv: ~8.12.0
@@ -78,6 +80,8 @@ importers:
       '@yuants/data-account': link:../../libraries/data-account
       '@yuants/kernel': link:../../libraries/kernel
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/secret': link:../../libraries/secret
+      '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
       ajv: 8.12.0
       fs-extra: 11.1.1
@@ -2387,6 +2391,7 @@ importers:
       '@yuants/extension': workspace:*
       '@yuants/kernel': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/secret': workspace:*
       '@yuants/sql': workspace:*
       '@yuants/transfer': workspace:*
       '@yuants/utils': workspace:*
@@ -2458,6 +2463,7 @@ importers:
       '@yuants/extension': link:../../libraries/extension
       '@yuants/kernel': link:../../libraries/kernel
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/secret': link:../../libraries/secret
       '@yuants/sql': link:../../libraries/sql
       '@yuants/transfer': link:../../libraries/transfer
       '@yuants/utils': link:../../libraries/utils

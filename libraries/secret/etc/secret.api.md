@@ -21,6 +21,7 @@ export const loadSecrets: <T>(ctx: {
     terminal: Terminal;
     encryption_key_base58: string;
     updated_after?: string | undefined;
+    id?: string | undefined;
     deserialize?: ((data: Uint8Array) => T) | undefined;
 }) => Promise<{
     secret: ISecret;
@@ -36,7 +37,7 @@ export const saveSecret: <T>(ctx: {
     encryption_key_base58: string;
     serialize?: ((data: T) => Uint8Array) | undefined;
     id?: string | undefined;
-}) => Promise<void>;
+}) => Promise<ISecret[]>;
 
 // (No @packageDocumentation comment for this package)
 

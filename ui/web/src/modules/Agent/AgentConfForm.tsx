@@ -5,11 +5,14 @@ import {
   IconRefresh,
   IconSave,
   IconUndo,
+  IconUpload,
   IconWrench,
 } from '@douyinfe/semi-icons';
 import { Divider, Layout, Space, Toast } from '@douyinfe/semi-ui';
 import { AgentScene, IAgentConf, agentConfSchema } from '@yuants/agent';
 import { BasicFileSystemUnit, HistoryOrderUnit, SeriesDataUnit } from '@yuants/kernel';
+import { saveSecret } from '@yuants/secret';
+import { encodeBase58 } from '@yuants/utils';
 import Ajv from 'ajv';
 import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
@@ -236,6 +239,54 @@ registerPage('AgentConfForm', () => {
             onClick={() => executeCommand('FileEditor', { filename: agentConf?.entry })}
           >
             {t('common:view_source')}
+          </Button>
+          <Button
+            icon={<IconUpload />}
+            onClick={async () => {
+              const entry = agentConf?.entry;
+              if (!entry) throw 'Entry is empty';
+              const bundled_code = await bundleCode(entry);
+
+              const terminal = await firstValueFrom(terminal$);
+
+              if (!terminal) throw 'Terminal is not connected';
+
+              // AES KEY must be 256 bits (or 128 bits)
+              const encryption_key_base58 = encodeBase58(crypto.getRandomValues(new Uint8Array(32)));
+
+              const secrets = await saveSecret({
+                terminal,
+                encryption_key_base58: encryption_key_base58,
+                decrypted_data: { bundled_code: bundled_code },
+                public_data: {},
+              });
+
+              const theSecret = secrets[0];
+
+              await showForm(
+                {
+                  type: 'object',
+                  properties: {
+                    secret_code_id: {
+                      type: 'string',
+                      title: 'Secret Code ID',
+                    },
+                    encryption_key_base58: {
+                      type: 'string',
+                      title: "Encryption Key (Base58), please save it, it's required for decryption",
+                    },
+                  },
+                },
+                {
+                  secret_code_id: theSecret.id,
+                  encryption_key_base58,
+                },
+              );
+
+              // console.log('encryption_key_base58', encryption_key_base58);
+            }}
+          >
+            部署
           </Button>
         </Space>
         <Divider />
