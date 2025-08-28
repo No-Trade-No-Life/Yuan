@@ -1,16 +1,5 @@
-import { encodePath, formatTime } from '@yuants/utils';
-import {
-  BehaviorSubject,
-  ReplaySubject,
-  defer,
-  delayWhen,
-  distinct,
-  filter,
-  first,
-  map,
-  mergeMap,
-  toArray,
-} from 'rxjs';
+import { formatTime } from '@yuants/utils';
+import { ReplaySubject, delayWhen, filter, first } from 'rxjs';
 import { createFileSystemBehaviorSubject } from '../FileSystem';
 import { hostUrl$ } from '../Terminals';
 
@@ -80,33 +69,4 @@ initAction$
       hostConfigList$.next([...(hostConfigList$.value || []), config]);
       currentHostConfig$.next(config);
     }
-  });
-
-export const OHLCIdList$ = new BehaviorSubject<string[]>([]);
-
-const PUBLIC_DATA_URL = 'https://y.ntnl.io/Yuan-Public-Data';
-
-// for No-Host Mode
-currentHostConfig$
-  .pipe(
-    //
-    filter((x) => x === null),
-    mergeMap(() => {
-      // No-Host Mode
-      return defer(() => fetch(`${PUBLIC_DATA_URL}/index`)).pipe(
-        //
-
-        mergeMap((x) => x.text()),
-        mergeMap((x: string) => x.split('\n')),
-        map((x) => {
-          const [, product_id, duration_literal] = x.split('/');
-          return encodePath('Y', product_id, duration_literal);
-        }),
-        distinct(),
-        toArray(),
-      );
-    }),
-  )
-  .subscribe((v) => {
-    OHLCIdList$.next(v);
   });
