@@ -1,11 +1,13 @@
 import { IconSearch } from '@douyinfe/semi-icons';
 import { AutoComplete } from '@douyinfe/semi-ui';
 import { FormContextType, RJSFSchema, StrictRJSFSchema, WidgetProps } from '@rjsf/utils';
+import { requestSQL } from '@yuants/sql';
 import { decodePath } from '@yuants/utils';
 import { Fzf } from 'fzf';
 import { useObservableState } from 'observable-hooks';
 import { useMemo } from 'react';
-import { OHLCIdList$ } from '../../Workbench/model';
+import { defer, filter, map, retry, switchMap } from 'rxjs';
+import { terminal$ } from '../../Network';
 
 const HighlightChars = (props: { str: string; indices: Set<number> }) => {
   const chars = props.str.split('');
@@ -21,12 +23,22 @@ const HighlightChars = (props: { str: string; indices: Set<number> }) => {
   return <>{nodes}</>;
 };
 
+const seriesIdList$ = terminal$.pipe(
+  filter((x): x is Exclude<typeof x, null> => !!x),
+  switchMap((terminal) =>
+    defer(() => requestSQL<{ series_id: string }[]>(terminal, `select distinct(series_id) from ohlc`)).pipe(
+      retry({ delay: 10_000 }),
+      map((x) => x.map((v) => v.series_id)),
+    ),
+  ),
+);
+
 export function OHLCSelectWidget<
   T = any,
   S extends StrictRJSFSchema = RJSFSchema,
   F extends FormContextType = any,
 >(props: WidgetProps<T, S, F>) {
-  const OHLCIdList = useObservableState(OHLCIdList$);
+  const OHLCIdList = useObservableState(seriesIdList$, []);
 
   const options = useMemo(() => {
     return OHLCIdList.map((v) => {

@@ -78,7 +78,6 @@ registerPage('DeploySettings', () => {
     ),
   );
 
-  console.log({ versionInfoList });
   const onDelete = async (id: string) => {
     try {
       const terminal = await firstValueFrom(terminal$);
@@ -141,12 +140,14 @@ registerPage('DeploySettings', () => {
   };
 
   return (
-    <Space vertical align="start">
-      <Button icon={<IconPlusCircle />} onClick={onCreate} style={{ margin: '10px 0' }}>
-        创建新配置
-      </Button>
+    <>
       <Modules.Interactive.DataView
         data={deploySettings}
+        topSlot={
+          <Button icon={<IconPlusCircle />} onClick={onCreate} style={{ margin: '10px 0' }}>
+            创建新配置
+          </Button>
+        }
         columns={[
           {
             header: 'id',
@@ -302,6 +303,6 @@ registerPage('DeploySettings', () => {
           </Form>
         )}
       </Modal>
-    </Space>
+    </>
   );
 });
