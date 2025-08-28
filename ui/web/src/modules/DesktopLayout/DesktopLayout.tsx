@@ -72,8 +72,8 @@ export const DesktopLayout = () => {
       <Layout.Content
         style={{
           position: 'relative',
-          width: '100%',
-          height: '100%',
+          width: isShowHome ? 0 : '100%',
+          height: isShowHome ? 0 : '100%',
           visibility: isShowHome ? 'hidden' : 'visible',
         }}
       >
