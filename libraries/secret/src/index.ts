@@ -1,7 +1,6 @@
 import { Terminal } from '@yuants/protocol';
 import { AddMigration, buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
-import { decodeBase58, decrypt, encodeBase58, encrypt } from '@yuants/utils';
-import { sha256 } from './sha256';
+import { decodeBase58, decrypt, encodeBase58, encrypt, sha256 } from '@yuants/utils';
 /**
  * Arbitrary secret data storage interface
  *
@@ -95,7 +94,10 @@ export const saveSecret = async <T>(ctx: {
     secret.id = ctx.id;
   }
 
-  await requestSQL(ctx.terminal, buildInsertManyIntoTableSQL([secret], 'secret', { conflictKeys: ['id'] }));
+  return requestSQL<ISecret[]>(
+    ctx.terminal,
+    buildInsertManyIntoTableSQL([secret], 'secret', { conflictKeys: ['id'] }) + ' RETURNING *',
+  );
 };
 
 /**
@@ -107,6 +109,7 @@ export const loadSecrets = async <T>(ctx: {
   terminal: Terminal;
   encryption_key_base58: string;
   updated_after?: string;
+  id?: string;
   deserialize?: (data: Uint8Array) => T;
 }): Promise<Array<{ secret: ISecret; decrypted_data: T | null; err: any }>> => {
   const encryption_key_sha256 = await sha256(decodeBase58(ctx.encryption_key_base58));
@@ -116,7 +119,8 @@ export const loadSecrets = async <T>(ctx: {
 
   const sql =
     `SELECT * FROM secret WHERE encryption_key_sha256_base58 = ${escapeSQL(encryption_key_sha256_base58)}` +
-    (ctx.updated_after ? ` AND updated_at > ${escapeSQL(ctx.updated_after)}` : '');
+    (ctx.updated_after ? ` AND updated_at > ${escapeSQL(ctx.updated_after)}` : '') +
+    (ctx.id ? ` AND id = ${escapeSQL(ctx.id)}` : '');
   console.debug('loadSecrets SQL:', sql);
   const secrets = await requestSQL<ISecret[]>(ctx.terminal, sql);
 
