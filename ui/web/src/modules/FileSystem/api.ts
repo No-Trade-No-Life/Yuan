@@ -15,9 +15,7 @@ FsBackend$.subscribe(() => {
     });
 });
 
-export const fs: IFileSystemBackend & {
-  ensureDir: (path: string) => Promise<void>;
-} = {
+export const fs: IFileSystemBackend = {
   name: 'ProxyFS',
   stat: (...args) => FsBackend$.value.stat(...args),
   readdir: (...args) => FsBackend$.value.readdir(...args),
@@ -29,6 +27,12 @@ export const fs: IFileSystemBackend & {
   rm: (...args) => FsBackend$.value.rm(...args),
   exists: (...args) => FsBackend$.value.exists(...args),
   ensureDir: (...args) => FsBackend$.value.ensureDir(...args),
+  createReadableStream: function (path: string): Promise<ReadableStream> {
+    return FsBackend$.value.createReadableStream(path);
+  },
+  createWritableStream: function (path: string): Promise<WritableStream> {
+    return FsBackend$.value.createWritableStream(path);
+  },
 };
 
 Object.assign(globalThis, { fs, FsBackend$ });

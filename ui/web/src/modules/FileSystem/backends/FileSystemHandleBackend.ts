@@ -121,6 +121,18 @@ export class FileSystemHandleBackend extends BasicBackend {
     });
   }
   async writeFile(path: string, content: FileSystemWriteChunkType): Promise<void> {
+    const writable = await this.createWritableStream(path);
+    const writer = writable.getWriter();
+    await writer.write(content);
+    await writer.close();
+  }
+
+  async createReadableStream(path: string): Promise<ReadableStream> {
+    const file = await this.getFile(path);
+    return file.stream();
+  }
+
+  async createWritableStream(path: string): Promise<WritableStream> {
     const dirFilename = dirname(path);
     const dirHandle = await this.resolveHandle(dirFilename);
     if (dirHandle === null) {
@@ -137,9 +149,9 @@ export class FileSystemHandleBackend extends BasicBackend {
       throw `EISDIR: illegal operation on a directory, open "${path}"`;
     }
     const writable = await handle.createWritable();
-    await writable.write(content);
-    await writable.close();
+    return writable;
   }
+
   async mkdir(path: string): Promise<void> {
     const dirFilename = dirname(path);
     const dirHandle = await this.resolveHandle(dirFilename);

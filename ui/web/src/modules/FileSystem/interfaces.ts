@@ -10,6 +10,10 @@ export interface IFileSystemBackend {
   readFileAsBase64(path: string): Promise<string>;
   readFileAsBlob(path: string): Promise<Blob>;
   writeFile(path: string, content: FileSystemWriteChunkType): Promise<void>;
+
+  createReadableStream(path: string): Promise<ReadableStream>;
+  createWritableStream(path: string): Promise<WritableStream>;
+
   mkdir(path: string): Promise<void>;
   rm(path: string): Promise<void>;
   exists(path: string): Promise<boolean>;
