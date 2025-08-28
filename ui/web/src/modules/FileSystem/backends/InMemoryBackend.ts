@@ -64,8 +64,27 @@ export class InMemoryBackend extends BasicBackend {
       return;
     }
 
-    throw Error('Not Impleemented');
+    throw Error('Not Implemented');
   }
+
+  async createReadableStream(path: string): Promise<ReadableStream> {
+    const blob = await this.readFileAsBlob(path);
+    return blob.stream();
+  }
+
+  async createWritableStream(path: string): Promise<WritableStream> {
+    const that = this;
+    const parts: BlobPart[] = [];
+    return new WritableStream({
+      write(chunk) {
+        parts.push(chunk);
+      },
+      close() {
+        that.files[path] = { type: 'file', blob: new Blob(parts) };
+      },
+    });
+  }
+
   async mkdir(path: string): Promise<void> {
     const file = this.files[path];
     if (file) return;

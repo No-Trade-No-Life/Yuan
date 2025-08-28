@@ -50,7 +50,7 @@ import { terminal$ } from '../Terminals';
 import { CSV } from '../Util';
 import { clearLogAction$ } from '../Workbench/Program';
 import { recordTable$ } from './model';
-import { bundleCode, exportSeriesToCsv } from './utils';
+import { bundleCode } from './utils';
 
 const mapScriptParamsSchemaToAgentConfSchema = (schema: JSONSchema7): JSONSchema7 => ({
   allOf: [
@@ -174,14 +174,17 @@ export const runAgent = async () => {
     const kernelDir = `/.Y/kernel/${encodeURIComponent(scene.kernel.id)}`;
 
     const seriesFilename = join(kernelDir, 'series.csv');
-    await exportSeriesToCsv(seriesFilename, scene.kernel.findUnit(SeriesDataUnit)!.series);
+
+    const series = scene.kernel.findUnit(SeriesDataUnit)!.series;
+    await fs.ensureDir(path.dirname(seriesFilename));
+    const rawTable = series.map((s) => [s.name || s.series_id, ...s]);
+    await CSV.writeFileFromRawTable(seriesFilename, rawTable, true);
+
     Toast.success(`序列保存到 ${seriesFilename}`);
 
     const ordersFilename = join(kernelDir, 'orders.csv');
-    await fs.writeFile(
-      ordersFilename,
-      CSV.stringify(scene.kernel.findUnit(HistoryOrderUnit)?.historyOrders!),
-    );
+    await CSV.writeFile(ordersFilename, scene.kernel.findUnit(HistoryOrderUnit)?.historyOrders!);
+
     Toast.success(`订单保存到 ${ordersFilename}`);
 
     executeCommand('Page.open', { type: 'AccountPerformancePanel' });
