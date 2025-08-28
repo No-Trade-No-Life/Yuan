@@ -4,3 +4,4 @@ import './ohlc';
 import './quote';
 import './account';
 import './order';
+import './trade';
