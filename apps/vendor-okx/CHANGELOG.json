@@ -2,6 +2,31 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.19.1",
+      "tag": "@yuants/vendor-okx_v0.19.1",
+      "date": "Thu, 28 Aug 2025 10:37:41 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add trade"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-trade\" to `0.0.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/secret\" to `0.2.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.19.0",
       "tag": "@yuants/vendor-okx_v0.19.0",
       "date": "Wed, 27 Aug 2025 18:03:26 GMT",
