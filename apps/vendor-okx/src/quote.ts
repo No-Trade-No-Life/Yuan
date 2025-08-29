@@ -27,6 +27,15 @@ const wsPool: {
   isFull: boolean;
 }[] = [];
 
+// ISSUE: 连接限制：3 次/秒 (基于IP)
+//
+// https://www.okx.com/docs-v5/zh/#overview-websocket-connect
+//
+// 当订阅公有频道时，使用公有服务的地址；当订阅私有频道时，使用私有服务的地址
+//
+// 请求限制：
+//
+// 每个连接 对于 订阅/取消订阅/登录 请求的总次数限制为 480 次/小时
 const getWsClient = () => {
   const existing = wsPool.find((item) => !item.isFull);
   if (existing) {
