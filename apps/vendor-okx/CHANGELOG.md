@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Fri, 29 Aug 2025 18:40:40 GMT and should not be manually modified.
+This log was last generated on Fri, 29 Aug 2025 19:05:47 GMT and should not be manually modified.
+
+## 0.20.1
+Fri, 29 Aug 2025 19:05:47 GMT
+
+### Patches
+
+- add datasource_id to loan positions
 
 ## 0.20.0
 Fri, 29 Aug 2025 18:40:40 GMT
