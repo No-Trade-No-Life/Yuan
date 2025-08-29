@@ -14,13 +14,32 @@ import {
   repeat,
   retry,
   scan,
+  share,
   shareReplay,
   toArray,
 } from 'rxjs';
 import { client } from './api';
 import { OKXWsClient } from './websocket';
 
-const wsClient = new OKXWsClient('ws/v5/public');
+const wsPool: {
+  client: OKXWsClient;
+  requests: number;
+  isFull: boolean;
+}[] = [];
+
+const getWsClient = () => {
+  const existing = wsPool.find((item) => !item.isFull);
+  if (existing) {
+    existing.requests++;
+    if (existing.requests >= 480) {
+      existing.isFull = true;
+    }
+    return existing.client;
+  }
+  const newClient = new OKXWsClient('ws/v5/public');
+  wsPool.push({ client: newClient, requests: 1, isFull: false });
+  return newClient;
+};
 
 const swapInstruments$ = defer(() => client.getInstruments({ instType: 'SWAP' })).pipe(
   repeat({ delay: 3600_000 }),
@@ -59,23 +78,26 @@ const swapTicker$ = swapInstruments$.pipe(
   mergeMap((x) => {
     return new Observable<any>((subscriber) => {
       for (const inst of x) {
-        wsClient.subscribe('tickers', inst.instId, (data: any) => {
+        getWsClient().subscribe('tickers', inst.instId, (data: any) => {
           subscriber.next(data);
         });
       }
     });
   }),
+  share(),
 );
 const spotTicker$ = spotInstruments$.pipe(
   mergeMap((x) => {
+    console.info('SPOT INSTRUMENTS', x.length);
     return new Observable<any>((subscriber) => {
       for (const inst of x) {
-        wsClient.subscribe('tickers', inst.instId, (data: any) => {
+        getWsClient().subscribe('tickers', inst.instId, (data: any) => {
           subscriber.next(data);
         });
       }
     });
   }),
+  share(),
 );
 
 const quote1$ = swapTicker$.pipe(
@@ -88,6 +110,7 @@ const quote1$ = swapTicker$.pipe(
     ask_volume: ticker.askSz,
     bid_volume: ticker.bidSz,
   })),
+  share(),
 );
 const quote2$ = spotTicker$.pipe(
   map((ticker) => ({
@@ -99,6 +122,7 @@ const quote2$ = spotTicker$.pipe(
     ask_volume: ticker.askSz,
     bid_volume: ticker.bidSz,
   })),
+  share(),
 );
 
 const quote3$ = spotTicker$.pipe(
@@ -111,6 +135,7 @@ const quote3$ = spotTicker$.pipe(
     ask_volume: ticker.askSz,
     bid_volume: ticker.bidSz,
   })),
+  share(),
 );
 
 const swapOpenInterestInner$ = swapInstruments$.pipe(
@@ -118,14 +143,8 @@ const swapOpenInterestInner$ = swapInstruments$.pipe(
     (x) =>
       new Observable<any>((subscriber) => {
         for (const inst of x) {
-          wsClient.subscribe('open-interest', inst.instId, (data: any) => {
-            console.info(data);
-            const quote: Partial<IQuote> = {
-              datasource_id: 'OKX',
-              product_id: encodePath('SWAP', data.instId),
-              open_interest: data.oi,
-            };
-            subscriber.next(quote);
+          getWsClient().subscribe('open-interest', inst.instId, (data: any) => {
+            subscriber.next(data);
           });
         }
       }),
@@ -146,13 +165,24 @@ const quote4$ = swapOpenInterestInner$.pipe(
       open_interest: x.oi,
     }),
   ),
+  share(),
 );
 
-const quote$ = merge(quote1$, quote2$, quote3$, quote4$).pipe(
+const quote$ = merge(
+  //
+  quote1$,
+  quote2$,
+  quote3$,
+  quote4$,
+).pipe(
   groupBy((x) => encodePath(x.datasource_id, x.product_id)),
   mergeMap((group$) => {
-    return group$.pipe(scan((acc, cur) => Object.assign(acc, cur), {} as Partial<IQuote>));
+    return group$.pipe(
+      //
+      scan((acc, cur) => Object.assign(acc, cur), {} as Partial<IQuote>),
+    );
   }),
+  share(),
 );
 
 Terminal.fromNodeEnv().channel.publishChannel('quote', { pattern: `^OKX/` }, (channel_id) => {
