@@ -38,6 +38,12 @@ export class OKXWsClient {
     });
 
     this.ws.addEventListener('message', (raw) => this.handleMessage(raw));
+    this.ws.addEventListener('error', (raw) => {
+      console.error(formatTime(Date.now()), '❌ WS error', raw);
+    });
+    this.ws.addEventListener('close', (event) => {
+      console.error(formatTime(Date.now()), '❌ WS closed', event);
+    });
     this.subscriptions = new Set();
     this.handlers = {}; // key: channel, value: callback
   }
