@@ -24,6 +24,7 @@ defer(async () => {
           const positions: IPosition[] = [];
           for (const loan of x.loanData) {
             positions.push({
+              datasource_id: 'OKX',
               product_id: `SPOT/${loan.ccy}-USDT`,
               volume: +loan.amt,
               free_volume: +loan.amt,
@@ -37,6 +38,7 @@ defer(async () => {
           }
           for (const collateral of x.collateralData) {
             positions.push({
+              datasource_id: 'OKX',
               product_id: `SPOT/${collateral.ccy}-USDT`,
               volume: +collateral.amt,
               free_volume: +collateral.amt,
