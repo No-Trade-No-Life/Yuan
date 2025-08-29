@@ -1,6 +1,28 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Tue, 26 Aug 2025 07:39:15 GMT and should not be manually modified.
+This log was last generated on Thu, 28 Aug 2025 15:22:23 GMT and should not be manually modified.
+
+## 0.19.2
+Thu, 28 Aug 2025 15:22:23 GMT
+
+### Patches
+
+- import trade service
+- fix price
+
+## 0.19.1
+Thu, 28 Aug 2025 10:37:41 GMT
+
+### Patches
+
+- add trade
+
+## 0.19.0
+Wed, 27 Aug 2025 18:03:26 GMT
+
+### Minor changes
+
+- add main entry
 
 ## 0.18.2
 Tue, 26 Aug 2025 07:39:15 GMT

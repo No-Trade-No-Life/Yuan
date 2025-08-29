@@ -350,14 +350,12 @@ registerPage('FundStatements', () => {
             const info = await showForm<{
               name: string;
               deposit: number;
-              account_id: string;
               timing: string;
             }>({
               type: 'object',
               properties: {
                 name: { type: 'string', title: '投资人', examples: Object.keys(state.investors) },
                 deposit: { type: 'number', title: '申购额', description: '负数代表赎回额' },
-                account_id: { type: 'string', title: '选取账户作为基金净值', format: 'account_id' },
                 timing: {
                   type: 'string',
                   title: '申购赎回时机',
@@ -370,26 +368,24 @@ registerPage('FundStatements', () => {
             });
 
             const nextStatements = [...events];
-            if (info.account_id) {
-              const equity = (await firstValueFrom(useAccountInfo(info.account_id))).money.equity;
-              if (info.timing === 'POST') {
-                nextStatements.push({
-                  type: 'equity',
-                  updated_at: formatTime(Date.now()),
-                  fund_equity: {
-                    equity: equity - info.deposit,
-                  },
-                });
-              }
-              if (info.timing === 'PRE') {
-                nextStatements.push({
-                  type: 'equity',
-                  updated_at: formatTime(Date.now()),
-                  fund_equity: {
-                    equity: equity,
-                  },
-                });
-              }
+            const equity = (await firstValueFrom(useAccountInfo(state.account_id))).money.equity;
+            if (info.timing === 'POST') {
+              nextStatements.push({
+                type: 'equity',
+                updated_at: formatTime(Date.now()),
+                fund_equity: {
+                  equity: equity - info.deposit,
+                },
+              });
+            }
+            if (info.timing === 'PRE') {
+              nextStatements.push({
+                type: 'equity',
+                updated_at: formatTime(Date.now()),
+                fund_equity: {
+                  equity: equity,
+                },
+              });
             }
             nextStatements.push({
               type: 'order',

@@ -5,11 +5,14 @@ import {
   IconRefresh,
   IconSave,
   IconUndo,
+  IconUpload,
   IconWrench,
 } from '@douyinfe/semi-icons';
 import { Divider, Layout, Space, Toast } from '@douyinfe/semi-ui';
 import { AgentScene, IAgentConf, agentConfSchema } from '@yuants/agent';
 import { BasicFileSystemUnit, HistoryOrderUnit, SeriesDataUnit } from '@yuants/kernel';
+import { saveSecret } from '@yuants/secret';
+import { encodeBase58 } from '@yuants/utils';
 import Ajv from 'ajv';
 import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
@@ -47,7 +50,7 @@ import { terminal$ } from '../Terminals';
 import { CSV } from '../Util';
 import { clearLogAction$ } from '../Workbench/Program';
 import { recordTable$ } from './model';
-import { bundleCode, exportSeriesToCsv } from './utils';
+import { bundleCode } from './utils';
 
 const mapScriptParamsSchemaToAgentConfSchema = (schema: JSONSchema7): JSONSchema7 => ({
   allOf: [
@@ -171,14 +174,17 @@ export const runAgent = async () => {
     const kernelDir = `/.Y/kernel/${encodeURIComponent(scene.kernel.id)}`;
 
     const seriesFilename = join(kernelDir, 'series.csv');
-    await exportSeriesToCsv(seriesFilename, scene.kernel.findUnit(SeriesDataUnit)!.series);
+
+    const series = scene.kernel.findUnit(SeriesDataUnit)!.series;
+    await fs.ensureDir(path.dirname(seriesFilename));
+    const rawTable = series.map((s) => [s.name || s.series_id, ...s]);
+    await CSV.writeFileFromRawTable(seriesFilename, rawTable, true);
+
     Toast.success(`序列保存到 ${seriesFilename}`);
 
     const ordersFilename = join(kernelDir, 'orders.csv');
-    await fs.writeFile(
-      ordersFilename,
-      CSV.stringify(scene.kernel.findUnit(HistoryOrderUnit)?.historyOrders!),
-    );
+    await CSV.writeFile(ordersFilename, scene.kernel.findUnit(HistoryOrderUnit)?.historyOrders!);
+
     Toast.success(`订单保存到 ${ordersFilename}`);
 
     executeCommand('Page.open', { type: 'AccountPerformancePanel' });
@@ -236,6 +242,54 @@ registerPage('AgentConfForm', () => {
             onClick={() => executeCommand('FileEditor', { filename: agentConf?.entry })}
           >
             {t('common:view_source')}
+          </Button>
+          <Button
+            icon={<IconUpload />}
+            onClick={async () => {
+              const entry = agentConf?.entry;
+              if (!entry) throw 'Entry is empty';
+              const bundled_code = await bundleCode(entry);
+
+              const terminal = await firstValueFrom(terminal$);
+
+              if (!terminal) throw 'Terminal is not connected';
+
+              // AES KEY must be 256 bits (or 128 bits)
+              const encryption_key_base58 = encodeBase58(crypto.getRandomValues(new Uint8Array(32)));
+
+              const secrets = await saveSecret({
+                terminal,
+                encryption_key_base58: encryption_key_base58,
+                decrypted_data: { bundled_code: bundled_code },
+                public_data: {},
+              });
+
+              const theSecret = secrets[0];
+
+              await showForm(
+                {
+                  type: 'object',
+                  properties: {
+                    secret_code_id: {
+                      type: 'string',
+                      title: 'Secret Code ID',
+                    },
+                    encryption_key_base58: {
+                      type: 'string',
+                      title: "Encryption Key (Base58), please save it, it's required for decryption",
+                    },
+                  },
+                },
+                {
+                  secret_code_id: theSecret.id,
+                  encryption_key_base58,
+                },
+              );
+
+              // console.log('encryption_key_base58', encryption_key_base58);
+            }}
+          >
+            部署
           </Button>
         </Space>
         <Divider />

@@ -3,15 +3,19 @@ import { ArrayField, Form, Modal, Popconfirm, Space } from '@douyinfe/semi-ui';
 import { IDeployment } from '@yuants/deploy';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { UUID } from '@yuants/utils';
-import { useObservableState } from 'observable-hooks';
+import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import {
   BehaviorSubject,
+  catchError,
   combineLatest,
   defer,
+  EMPTY,
+  filter,
   firstValueFrom,
   map,
   of,
+  pipe,
   repeat,
   retry,
   shareReplay,
@@ -20,7 +24,8 @@ import {
 import { Button, Switch, Toast } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
-
+import { resolveVersion } from '../Extensions';
+const { Option } = Form.Select;
 export const refresh$ = new BehaviorSubject<void>(undefined);
 
 const deploySettings$ = combineLatest([terminal$, refresh$]).pipe(
@@ -50,6 +55,28 @@ registerPage('DeploySettings', () => {
   const [editDeployment, setEditDeployment] = useState<IDeployment>();
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const versionInfoList = useObservableState(
+    useObservable(
+      pipe(
+        switchMap(([package_name]) =>
+          defer(() => {
+            return package_name
+              ? resolveVersion({ name: package_name, registry: 'https://registry.npmjs.org' })
+              : EMPTY;
+          }).pipe(
+            filter((x) => !!x),
+            map((info) => Object.keys(info.meta.versions).reverse() as string[]),
+            catchError((err) => {
+              console.error('getVersionListError', err);
+              return of([]);
+            }),
+          ),
+        ),
+      ),
+      [editDeployment?.package_name],
+    ),
+  );
 
   const onDelete = async (id: string) => {
     try {
@@ -98,7 +125,7 @@ registerPage('DeploySettings', () => {
         await requestSQL(
           terminal,
           buildInsertManyIntoTableSQL([deployment], 'deployment', {
-            columns: ['args', 'command', 'enabled', 'env', 'id'],
+            columns: ['args', 'command', 'enabled', 'env', 'id', 'package_version', 'package_name'],
             conflictKeys: ['id'],
           }),
         );
@@ -113,16 +140,26 @@ registerPage('DeploySettings', () => {
   };
 
   return (
-    <Space vertical align="start">
-      <Button icon={<IconPlusCircle />} onClick={onCreate} style={{ margin: '10px 0' }}>
-        创建新配置
-      </Button>
+    <>
       <Modules.Interactive.DataView
         data={deploySettings}
+        topSlot={
+          <Button icon={<IconPlusCircle />} onClick={onCreate} style={{ margin: '10px 0' }}>
+            创建新配置
+          </Button>
+        }
         columns={[
           {
             header: 'id',
             accessorKey: 'id',
+          },
+          {
+            header: 'package_name',
+            accessorKey: 'package_name',
+          },
+          {
+            header: 'package_version',
+            accessorKey: 'package_version',
           },
           {
             header: 'command',
@@ -191,6 +228,7 @@ registerPage('DeploySettings', () => {
 
               const env: Record<string, string> = {};
               values.env?.forEach((item: { key: string; value: string }) => (env[item.key] = item.value));
+              console.log({ values });
               setEditDeployment({ ...values, args, env });
             }}
             initValues={editDeployment}
@@ -199,6 +237,12 @@ registerPage('DeploySettings', () => {
             style={{ marginTop: '20px' }}
           >
             <Form.Input field="command" label="command" style={{ width: '560px' }} />
+            <Form.Input field="package_name" label="package name" style={{ width: '560px' }} />
+            <Form.Select field="package_version" label="package version" style={{ width: '560px' }}>
+              {versionInfoList?.map((version) => (
+                <Option value={version}>{version}</Option>
+              ))}
+            </Form.Select>
             <ArrayField field="args" initValue={(editDeployment?.args ?? []).map((item) => ({ arg: item }))}>
               {({ add, arrayFields, addWithInitValue }) => (
                 <>
@@ -259,6 +303,6 @@ registerPage('DeploySettings', () => {
           </Form>
         )}
       </Modal>
-    </Space>
+    </>
   );
 });

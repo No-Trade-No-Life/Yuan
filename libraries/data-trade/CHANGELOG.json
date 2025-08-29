@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/data-trade",
+  "entries": [
+    {
+      "version": "0.0.2",
+      "tag": "@yuants/data-trade_v0.0.2",
+      "date": "Thu, 28 Aug 2025 10:37:41 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add trade"
+          }
+        ]
+      }
+    }
+  ]
+}

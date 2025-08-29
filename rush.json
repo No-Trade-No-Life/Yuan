@@ -728,6 +728,11 @@
     {
       "packageName": "@yuants/ui-web",
       "projectFolder": "ui/web"
+    },
+    {
+      "packageName": "@yuants/data-trade",
+      "projectFolder": "libraries/data-trade",
+      "shouldPublish": true
     }
   ]
 }

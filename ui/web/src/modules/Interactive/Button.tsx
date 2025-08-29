@@ -1,6 +1,7 @@
 import { Button as SemiButton } from '@douyinfe/semi-ui';
 import { ButtonProps } from '@douyinfe/semi-ui/lib/es/button';
 import React, { useState } from 'react';
+import { Toast } from './Toast';
 
 /**
  * Yuan Button Component
@@ -22,7 +23,9 @@ export const Button = React.memo(
           setLoading(true);
           try {
             await props.onClick?.();
-          } catch (e) {}
+          } catch (e) {
+            Toast.error(`${e}`);
+          }
           setLoading(false);
         }}
       />

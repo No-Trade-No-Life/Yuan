@@ -2,6 +2,13 @@ import { dirname } from 'path-browserify';
 import { IFileSystemBackend, IFileSystemStatResult } from '../interfaces';
 
 export class BasicBackend implements IFileSystemBackend {
+  createWritableStream(path: string): Promise<WritableStream> {
+    throw new Error('Method not implemented.');
+  }
+  createReadableStream(path: string): Promise<ReadableStream> {
+    throw new Error('Method not implemented.');
+  }
+
   name: string = 'BasicBackend';
   readdir(path: string): Promise<string[]> {
     throw new Error('Method not implemented.');
