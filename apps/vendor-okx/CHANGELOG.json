@@ -2,6 +2,26 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.20.0",
+      "tag": "@yuants/vendor-okx_v0.20.0",
+      "date": "Fri, 29 Aug 2025 18:40:40 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "refactor quote using ws, add channel"
+          },
+          {
+            "comment": "new loan account info"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.19.2",
       "tag": "@yuants/vendor-okx_v0.19.2",
       "date": "Thu, 28 Aug 2025 15:22:23 GMT",
