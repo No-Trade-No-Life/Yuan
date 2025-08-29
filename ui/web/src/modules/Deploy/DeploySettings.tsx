@@ -21,10 +21,11 @@ import {
   shareReplay,
   switchMap,
 } from 'rxjs';
+import { resolveVersion } from '../Extensions';
 import { Button, Switch, Toast } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
-import { resolveVersion } from '../Extensions';
+import { escapeForBash } from './utils';
 const { Option } = Form.Select;
 export const refresh$ = new BehaviorSubject<void>(undefined);
 
@@ -174,7 +175,7 @@ registerPage('DeploySettings', () => {
             accessorKey: 'env',
             accessorFn: (x) =>
               Object.entries(x.env)
-                .map(([key, v]) => `${key}="${v}"`)
+                .map(([key, v]) => `${key}=${escapeForBash(v)}`)
                 .join(' '),
           },
           {
