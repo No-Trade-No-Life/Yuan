@@ -1352,6 +1352,39 @@ export class OkxClient {
   }> => this.request('GET', '/api/v5/market/index-tickers', params);
 
   /**
+   * GET / 借贷信息
+   * 限速：5次/2s
+   * 限速规则：User ID
+   * 权限：读取
+   * HTTP请求
+   *
+   * https://www.okx.com/docs-v5/zh/#financial-product-flexible-loan-get-loan-info
+   */
+  getFlexibleLoanInfo = (): Promise<{
+    code: string;
+    data: {
+      collateralData: {
+        amt: string;
+        ccy: string;
+      }[];
+      collateralNotionalUsd: string;
+      curLTV: string;
+      liqLTV: string;
+      loanData: {
+        amt: string;
+        ccy: string;
+      }[];
+      loanNotionalUsd: string;
+      marginCallLTV: string;
+      riskWarningData: {
+        instId: string;
+        liqPx: string;
+      };
+    }[];
+    msg: string;
+  }> => this.request('GET', '/api/v5/finance/flexible-loan/loan-info');
+
+  /**
    * 账单流水查询（近七天）
    *
    *
