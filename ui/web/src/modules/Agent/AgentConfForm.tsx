@@ -8,7 +8,7 @@ import {
   IconUpload,
   IconWrench,
 } from '@douyinfe/semi-icons';
-import { Divider, Layout, Space, Toast } from '@douyinfe/semi-ui';
+import { Divider, Layout, Modal, Space, Toast, Typography } from '@douyinfe/semi-ui';
 import { AgentScene, IAgentConf, agentConfSchema } from '@yuants/agent';
 import { BasicFileSystemUnit, HistoryOrderUnit, SeriesDataUnit } from '@yuants/kernel';
 import { saveSecret } from '@yuants/secret';
@@ -51,6 +51,7 @@ import { CSV } from '../Util';
 import { clearLogAction$ } from '../Workbench/Program';
 import { recordTable$ } from './model';
 import { bundleCode } from './utils';
+import { escapeForBash } from '../Deploy/utils';
 
 const mapScriptParamsSchemaToAgentConfSchema = (schema: JSONSchema7): JSONSchema7 => ({
   allOf: [
@@ -266,25 +267,28 @@ registerPage('AgentConfForm', () => {
 
               const theSecret = secrets[0];
 
-              await showForm(
-                {
-                  type: 'object',
-                  properties: {
-                    secret_code_id: {
-                      type: 'string',
-                      title: 'Secret Code ID',
-                    },
-                    encryption_key_base58: {
-                      type: 'string',
-                      title: "Encryption Key (Base58), please save it, it's required for decryption",
-                    },
-                  },
-                },
-                {
-                  secret_code_id: theSecret.id,
-                  encryption_key_base58,
-                },
-              );
+              const env = {
+                SECRET_CODE_ID: theSecret.id,
+                PRIVATE_KEY: encryption_key_base58,
+                AGENT_PARAMS: JSON.stringify(agentConf?.agent_params || {}),
+                KERNEL_ID: agentConf.kernel_id || '',
+              };
+
+              const envStr = Object.entries(env)
+                .map(([k, v]) => `${k}=${escapeForBash(v)}`)
+                .join(' ');
+
+              Modal.info({
+                title: '部署脚本',
+                content: (
+                  <div>
+                    <p>运行下述命令以部署：</p>
+                    <Typography.Text copyable>{envStr} npx -y @yuants/app-agent@latest</Typography.Text>
+                    <p>请妥善保存 PRIVATE_KEY，泄漏给他人可能导致源码泄漏</p>
+                    <p>他人如果获取了 PRIVATE_KEY，并且具有您主机或者数据库的访问权限，将能够解密您的代码</p>
+                  </div>
+                ),
+              });
 
               // console.log('encryption_key_base58', encryption_key_base58);
             }}
