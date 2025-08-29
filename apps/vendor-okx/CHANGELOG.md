@@ -1,6 +1,14 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Thu, 28 Aug 2025 15:22:23 GMT and should not be manually modified.
+This log was last generated on Fri, 29 Aug 2025 18:40:40 GMT and should not be manually modified.
+
+## 0.20.0
+Fri, 29 Aug 2025 18:40:40 GMT
+
+### Minor changes
+
+- refactor quote using ws, add channel
+- new loan account info
 
 ## 0.19.2
 Thu, 28 Aug 2025 15:22:23 GMT
