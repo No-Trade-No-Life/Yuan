@@ -1,16 +1,9 @@
-import { formatTime } from '@yuants/utils';
 import { PromRegistry, Terminal } from '@yuants/protocol';
+import { formatTime } from '@yuants/utils';
 import http from 'http';
 import { EMPTY, catchError, defer, filter, first, from, map, mergeMap, tap, timeout, toArray } from 'rxjs';
 
-const HV_URL = process.env.HV_URL!;
-const TERMINAL_ID = process.env.TERMINAL_ID || 'MetricsCollector';
-
-const term = new Terminal(HV_URL, {
-  terminal_id: TERMINAL_ID,
-  name: 'Metrics Collector',
-  status: 'OK',
-});
+const terminal = Terminal.fromNodeEnv();
 
 const MetricTerminalMetricFetchErrorsTotal = PromRegistry.create(
   'counter',
@@ -21,7 +14,7 @@ const MetricTerminalMetricFetchErrorsTotal = PromRegistry.create(
 const server = http.createServer((req, res) => {
   try {
     res.setHeader('Content-Type', 'text/plain; version=0.0.4; charset=utf-8');
-    from(term.terminalInfos$)
+    from(terminal.terminalInfos$)
       .pipe(
         //
         first(),
@@ -29,7 +22,7 @@ const server = http.createServer((req, res) => {
           from(infos).pipe(
             //
             mergeMap((info) =>
-              defer(() => term.request('Metrics', info.terminal_id, {})).pipe(
+              defer(() => terminal.request('Metrics', info.terminal_id, {})).pipe(
                 //
                 map((data) => data.res?.data?.metrics),
                 filter((v): v is Exclude<typeof v, undefined> => !!v),

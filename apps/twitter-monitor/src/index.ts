@@ -1,3 +1,4 @@
+import { Terminal } from '@yuants/protocol';
 import { formatTime, listWatch } from '@yuants/utils';
 import {
   bufferTime,
@@ -14,10 +15,9 @@ import {
   tap,
 } from 'rxjs';
 import './migrations';
-import { terminal } from './terminal';
 import { ITwitterEvent } from './types/ITwitterEvent';
 import { getUserTweetsByName } from './utils/getUserTweetsByName';
-
+const terminal = Terminal.fromNodeEnv();
 const twitterMonitorUsers$ = defer(() =>
   terminal.requestForResponse('SQL', {
     query: `select * from twitter_monitor_users`,
