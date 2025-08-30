@@ -2,6 +2,23 @@
   "name": "@yuants/node-unit",
   "entries": [
     {
+      "version": "0.5.2",
+      "tag": "@yuants/node-unit_v0.5.2",
+      "date": "Sat, 30 Aug 2025 17:14:22 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "adjust setup ordering, avoid error in the set-up phase"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.1",
       "tag": "@yuants/node-unit_v0.5.1",
       "date": "Sat, 30 Aug 2025 16:06:39 GMT",
