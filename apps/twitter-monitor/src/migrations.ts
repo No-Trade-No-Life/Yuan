@@ -1,5 +1,5 @@
+import { Terminal } from '@yuants/protocol';
 import { AddMigration, ExecuteMigrations } from '@yuants/sql';
-import { terminal } from './terminal';
 
 AddMigration({
   id: '73ce7f3e-f359-4968-b57a-8ecf8deb71c7',
@@ -72,4 +72,4 @@ PERFORM create_hypertable('twitter_messages', by_range('created_at'), migrate_da
 `,
 });
 
-ExecuteMigrations(terminal);
+ExecuteMigrations(Terminal.fromNodeEnv());

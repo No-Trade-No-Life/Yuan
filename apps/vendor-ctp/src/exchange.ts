@@ -1,15 +1,15 @@
-import { formatTime } from '@yuants/utils';
 import {
-  addAccountMarket,
   IAccountInfo,
   IAccountMoney,
   IPosition,
+  addAccountMarket,
   publishAccountInfo,
 } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
 import { IConnection, Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
+import { formatTime } from '@yuants/utils';
 import { ChildProcess, spawn } from 'child_process';
 import { parse } from 'date-fns';
 import { join } from 'path';
@@ -568,12 +568,7 @@ process.env.ZMQ_PUSH_URL = 'tcp://*:5701';
 const account_id = ACCOUNT_ID;
 const mutable = process.env.NO_TRADE! !== 'true';
 
-const TERMINAL_ID = process.env.TERMINAL_ID || `CTP/${account_id}`;
-
-const terminal = new Terminal(process.env.HV_URL!, {
-  terminal_id: TERMINAL_ID,
-  name: 'CTP',
-});
+const terminal = Terminal.fromNodeEnv();
 
 const zmqConn = createZMQConnection(process.env.ZMQ_PUSH_URL!, process.env.ZMQ_PULL_URL!);
 // // ISSUE: 观测到 OnFrontDisconnected 之后会卡死，命令 exchange 自杀

@@ -1,5 +1,5 @@
 import { useAccountInfo } from '@yuants/data-account';
-import { PromRegistry } from '@yuants/protocol';
+import { PromRegistry, Terminal } from '@yuants/protocol';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { ITransferOrder } from '@yuants/transfer';
 import { UUID, formatTime } from '@yuants/utils';
@@ -21,10 +21,9 @@ import {
   toArray,
 } from 'rxjs';
 import { IAccountRiskInfo } from './models';
-import { terminal } from './terminal';
 import { generateCandidateTransfer } from './utils/generateCandidateTransfer';
 import { resolveRiskState } from './utils/resolveRiskState';
-
+const terminal = Terminal.fromNodeEnv();
 const MetricActiveDemand = PromRegistry.create('gauge', 'risk_manager_active_demand');
 const MetricPassiveDemand = PromRegistry.create('gauge', 'risk_manager_passive_demand');
 const MetricActiveSupply = PromRegistry.create('gauge', 'risk_manager_active_supply');

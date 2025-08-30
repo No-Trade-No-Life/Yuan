@@ -1,3 +1,4 @@
+import { Terminal } from '@yuants/protocol';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
 import { encodePath, formatTime, listWatch } from '@yuants/utils';
 import {
@@ -17,8 +18,8 @@ import { TelegramClient } from 'telegram';
 import { UpdateConnectionState } from 'telegram/network';
 import { StringSession } from 'telegram/sessions';
 import './migration';
-import { terminal } from './terminal';
 
+const terminal = Terminal.fromNodeEnv();
 const encodeId = (tgId: any) => {
   if (tgId.className === 'PeerUser') {
     return encodePath('PeerUser', tgId.userId);

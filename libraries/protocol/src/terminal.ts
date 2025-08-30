@@ -161,6 +161,7 @@ export class Terminal {
    * - `HOST_URL`: the host url (required)
    * - `TERMINAL_ID`: the terminal id (default random UUID, should be unique in the host)
    * - `TERMINAL_NAME`: the terminal name (default empty)
+   * - `ENABLE_WEBRTC`: enable WebRTC connection (default false)
    */
   static fromNodeEnv(): Terminal {
     if (!isNode) throw new Error('Terminal.fromNodeEnv() can only be used in Node.js environment');
@@ -174,6 +175,7 @@ export class Terminal {
     return (this._terminal = new Terminal(HOST_URL, {
       terminal_id: process.env.TERMINAL_ID || `DefaultTerminal/${UUID()}`,
       name: process.env.TERMINAL_NAME || '',
+      enable_WebRTC: process.env.ENABLE_WEBRTC === 'true',
     }));
   }
 

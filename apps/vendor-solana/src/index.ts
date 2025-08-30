@@ -1,13 +1,10 @@
 import { IAccountInfo, IAccountMoney, publishAccountInfo } from '@yuants/data-account';
-import { UUID, formatTime } from '@yuants/utils';
 import { Terminal } from '@yuants/protocol';
+import { formatTime } from '@yuants/utils';
 import { defer, map, repeat, retry, shareReplay } from 'rxjs';
 
 const solanaAddress = process.env.PUBLIC_KEY?.split(',') || [];
-const terminal = new Terminal(process.env.HOST_URL!, {
-  terminal_id: process.env.TERMINAL_ID || `solana/${UUID()}`,
-  name: 'SOLANA',
-});
+const terminal = Terminal.fromNodeEnv();
 
 const getAccountInfo = async (
   address: string,

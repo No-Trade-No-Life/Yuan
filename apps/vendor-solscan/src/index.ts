@@ -1,11 +1,7 @@
 import { Terminal } from '@yuants/protocol';
-import { UUID } from '@yuants/utils';
 import { ProApiV2Client } from './api';
 
-const terminal = new Terminal(process.env.HOST_URL!, {
-  terminal_id: process.env.TERMINAL_ID || `Solscan/${UUID()}`,
-  name: 'Solscan API',
-});
+const terminal = Terminal.fromNodeEnv();
 
 const client = new ProApiV2Client(process.env.SOLSCAN_API_TOKEN!);
 
