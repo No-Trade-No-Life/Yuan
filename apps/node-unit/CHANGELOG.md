@@ -1,6 +1,13 @@
 # Change Log - @yuants/node-unit
 
-This log was last generated on Sat, 30 Aug 2025 16:06:39 GMT and should not be manually modified.
+This log was last generated on Sat, 30 Aug 2025 17:14:22 GMT and should not be manually modified.
+
+## 0.5.2
+Sat, 30 Aug 2025 17:14:22 GMT
+
+### Patches
+
+- adjust setup ordering, avoid error in the set-up phase
 
 ## 0.5.1
 Sat, 30 Aug 2025 16:06:39 GMT
