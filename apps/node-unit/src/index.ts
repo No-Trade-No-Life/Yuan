@@ -1,7 +1,7 @@
 import { IDeployment } from '@yuants/deploy';
-import { Terminal } from '@yuants/protocol';
+import { setupHandShakeService, Terminal } from '@yuants/protocol';
 import { ExecuteMigrations, requestSQL } from '@yuants/sql';
-import { encodePath, formatTime, listWatch, UUID } from '@yuants/utils';
+import { createKeyPair, encodePath, formatTime, fromPrivateKey, listWatch } from '@yuants/utils';
 import { execSync, spawn } from 'child_process';
 import { createWriteStream, mkdirSync, writeFileSync } from 'fs';
 import { tmpdir } from 'os';
@@ -16,7 +16,12 @@ if (!process.env.POSTGRES_URI && !process.env.HOST_URL) {
   throw new Error('Either POSTGRES_URI or HOST_URL must be set');
 }
 
-const NODE_UNIT_ID = process.env.NODE_UNIT_ID || UUID();
+// 每个 Node Unit 都有一个表明其身份的公私钥对，在环境变量中可以指定，不指定时随机生成
+// 用于部署鉴权，区分部署环境
+const NodeUnitKeyPair = process.env.PRIVATE_KEY ? fromPrivateKey(process.env.PRIVATE_KEY) : createKeyPair();
+delete process.env.PRIVATE_KEY; // 阅后即焚，防止泄漏
+
+const NODE_UNIT_PUBLIC_KEY = NodeUnitKeyPair.public_key;
 
 const NODE_PATH = execSync('which node || echo ""', { encoding: 'utf-8' }).trim();
 const NPM_PATH = execSync('which npm || echo ""', { encoding: 'utf-8' }).trim();
@@ -61,7 +66,7 @@ const localPgDeployment: IDeployment | null = process.env.POSTGRES_URI
       package_name: '@yuants/app-postgres-storage',
       package_version: 'latest',
       env: {
-        TERMINAL_ID: encodePath('PG', NODE_UNIT_ID),
+        TERMINAL_ID: encodePath('PG', NODE_UNIT_PUBLIC_KEY),
       },
       enabled: true,
       created_at: formatTime(Date.now()),
@@ -70,9 +75,11 @@ const localPgDeployment: IDeployment | null = process.env.POSTGRES_URI
   : null;
 
 const terminal = new Terminal(process.env.HOST_URL!, {
-  terminal_id: encodePath('NodeUnit', NODE_UNIT_ID),
+  terminal_id: encodePath('NodeUnit', NODE_UNIT_PUBLIC_KEY),
   name: '@yuants/node-unit',
 });
+
+setupHandShakeService(terminal, NodeUnitKeyPair.private_key);
 
 ExecuteMigrations(terminal);
 
@@ -124,11 +131,19 @@ defer(async () => {
   if (localPgDeployment) {
     deployments.push(localPgDeployment);
   }
-  await requestSQL<IDeployment[]>(terminal, `select * from deployment where enabled = true`).then((list) => {
-    list.forEach((x) => {
-      deployments.push(x);
-    });
-  });
+
+  // 如果有终端提供了 SQL 服务，则加载所有启用的部署
+  const sqlReady = await terminal.resolveTargetTerminalIds('SQL', { query: '' });
+  if (sqlReady.length > 0) {
+    await requestSQL<IDeployment[]>(terminal, `select * from deployment where enabled = true`).then(
+      (list) => {
+        list.forEach((x) => {
+          deployments.push(x);
+        });
+      },
+    );
+  }
+
   return deployments;
 })
   .pipe(
