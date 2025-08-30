@@ -79,11 +79,6 @@ export class Terminal {
    */
   terminal_id: string;
 
-  /**
-   * Terminal Message Header Flag
-   */
-  private has_header: boolean;
-
   private _terminalInfoUpdated$ = new Subject<void>();
 
   /**
@@ -135,8 +130,8 @@ export class Terminal {
 
     const url = new URL(host_url);
     url.searchParams.set('terminal_id', this.terminal_id); // make sure terminal_id is in the connection parameters
+    url.searchParams.set('has_header', 'true'); // enforce header mode
     this.host_url = url.toString();
-    this.has_header = url.searchParams.get('has_header') === 'true';
 
     this._conn = this.options.connection || createConnectionWs(this.host_url);
     this.isConnected$ = this._conn.isConnected$;
@@ -191,30 +186,21 @@ export class Terminal {
       tunnel: 'WS',
     });
 
-    if (this.has_header) {
-      return JSON.parse(msg.slice(msg.indexOf('\n') + 1));
-    }
-    return JSON.parse(msg);
+    return JSON.parse(msg.slice(msg.indexOf('\n') + 1));
   };
 
   private _sendMsgByWs = (msg: ITerminalMessage): void => {
-    //
-    if (this.has_header) {
-      const headers = {
-        target_terminal_id: msg.target_terminal_id,
-        source_terminal_id: msg.source_terminal_id,
-      };
-      this._conn.output$.next(JSON.stringify(headers) + '\n' + JSON.stringify(msg));
-      return;
-    }
-
-    const content = JSON.stringify(msg);
+    const headers = {
+      target_terminal_id: msg.target_terminal_id,
+      source_terminal_id: msg.source_terminal_id,
+    };
+    const content = JSON.stringify(headers) + '\n' + JSON.stringify(msg);
     TerminalTransmittedBytesTotal.add(content.length, {
       terminal_id: this.terminal_id,
       tunnel: 'WS',
     });
-
     this._conn.output$.next(content);
+    return;
   };
 
   private _setupTunnel() {
