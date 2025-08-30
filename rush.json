@@ -481,11 +481,6 @@
       "shouldPublish": true
     },
     {
-      "packageName": "@yuants/host-manager",
-      "projectFolder": "libraries/host-manager",
-      "shouldPublish": true
-    },
-    {
       "packageName": "@yuants/docs",
       "projectFolder": "ui/docs"
     },
@@ -577,11 +572,6 @@
     {
       "packageName": "@yuants/app-host",
       "projectFolder": "apps/host",
-      "shouldPublish": true
-    },
-    {
-      "packageName": "@yuants/app-hosts",
-      "projectFolder": "apps/hosts",
       "shouldPublish": true
     },
     {

@@ -24,7 +24,6 @@
     "@yuants/app-email-notifier",
     "@yuants/app-feishu-notifier",
     "@yuants/app-host",
-    "@yuants/app-hosts",
     "@yuants/app-portal",
     "@yuants/app-openai",
     "@yuants/app-k8s-manifest-operator",

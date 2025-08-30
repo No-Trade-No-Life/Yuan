@@ -88,14 +88,12 @@ Industry Pain Points:
 [![Redis](https://img.shields.io/badge/redis-FF4438?style=for-the-badge&logo=redis&logoColor=FFFFFF)](https://redis.io/)
 [![zeromq](https://img.shields.io/badge/zeromq-DF0000?style=for-the-badge&logo=zeromq&logoColor=FFFFFF)](https://zeromq.org/)
 [![openai](https://img.shields.io/badge/openai-412991?style=for-the-badge&logo=openai&logoColor=FFFFFF)](https://openai.com/)
-[![nginx](https://img.shields.io/badge/nginx-009639?style=for-the-badge&logo=nginx&logoColor=FFFFFF)](https://www.nginx.com/)
 [![pnpm](https://img.shields.io/badge/pnpm-F69220?style=for-the-badge&logo=pnpm&logoColor=FFFFFF)](https://github.com/pnpm/pnpm)
 [![monaco editor](https://img.shields.io/badge/monaco-646CFF?style=for-the-badge&logo=visualstudiocode&logoColor=FFFFFF)](https://github.com/microsoft/monaco-editor)
 [![vite](https://img.shields.io/badge/vite-646CFF?style=for-the-badge&logo=vite&logoColor=FFFFFF)](https://github.com/vitejs/vite)
 [![rollup](https://img.shields.io/badge/rollup-EC4A3F?style=for-the-badge&logo=rollupdotjs&logoColor=FFFFFF)](https://rollupjs.org/)
 [![ajv](https://img.shields.io/badge/ajv-000000?style=for-the-badge&logo=ajv&logoColor=23C8D2)](https://github.com/ajv-validator/ajv)
 [![webrtc](https://img.shields.io/badge/webrtc-333333?style=for-the-badge&logo=webrtc&logoColor=FFFFFF)](https://webrtc.org/)
-[![letsencrypt](https://img.shields.io/badge/letsencrypt-003A70?style=for-the-badge&logo=letsencrypt&logoColor=FFFFFF)](https://letsencrypt.org/)
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
@@ -151,9 +149,7 @@ CI_RUN=true rush build
 Yuan implements communication between terminals in a distributed system through an RPC framework. It natively supports both browser and NodeJS environments. It uses a star topology where all terminals connect to a central Host node. Terminals can send messages to other terminals via the Host, which is responsible for message forwarding. Meanwhile, terminals utilize WebRTC to establish peer-to-peer connections for more efficient communication, reducing the Host's load. The Host acts as a signaling service to facilitate P2P connection establishment.
 
 - [@yuants/protocol](libraries/protocol) Network protocols, service definitions, and infrastructure.
-- [@yuants/app-host](apps/host) Host is a lightweight message broker. Terminals can connect to the Host and send messages to each other. Note that all terminals in a Host should trust each other. In practice, all terminals within a Host belong to the same owner. There's no need to verify each message. You can deploy multiple Hosts to isolate risks.
-- [@yuants/app-hosts](apps/hosts) A lightweight host cluster that can handle message forwarding for multiple hosts within a single process. No pre-registration of host token tables is required - it automatically accepts terminals with valid ED25519 signatures without needing to send private keys. Ideal for multi-tenant environments and scenarios requiring low-cost creation of multiple hosts.
-- [@yuants/host-manager](libraries/host-manager) The underlying abstraction for Hosts, enabling programmatic management of multiple isolated Hosts. Provides simple APIs for creation, deletion, and management. Useful for creating multi-tenant environments or isolating different business units.
+- [@yuants/app-host](apps/host) An ultra-lightweight in-memory message broker and service discovery. Terminals connected to the same host can send messages to each other. Supports connection authentication control via the environment variable `HOST_TOKEN`. Supports enabling a multi-tenancy environment through the environment variable `MULTI_TENANCY=ED25519`, which can automatically accept terminals with valid ED25519 signatures without requiring terminals to send private keys to the host.
 - [@yuants/app-portal](apps/portal) Deploys a service that shares existing services (and channels) from one Host to others. Acts as an intermediary to forward messages between Hosts. A powerful tool for building data sharing scenarios.
 
 #### Storage
