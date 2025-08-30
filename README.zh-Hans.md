@@ -93,14 +93,12 @@ Yuan 是一个“个人投资操作系统”，包含各式各样的个人投资
 [![Redis](https://img.shields.io/badge/redis-FF4438?style=for-the-badge&logo=redis&logoColor=FFFFFF)](https://redis.io/)
 [![zeromq](https://img.shields.io/badge/zeromq-DF0000?style=for-the-badge&logo=zeromq&logoColor=FFFFFF)](https://zeromq.org/)
 [![openai](https://img.shields.io/badge/openai-412991?style=for-the-badge&logo=openai&logoColor=FFFFFF)](https://openai.com/)
-[![nginx](https://img.shields.io/badge/nginx-009639?style=for-the-badge&logo=nginx&logoColor=FFFFFF)](https://www.nginx.com/)
 [![pnpm](https://img.shields.io/badge/pnpm-F69220?style=for-the-badge&logo=pnpm&logoColor=FFFFFF)](https://github.com/pnpm/pnpm)
 [![monaco editor](https://img.shields.io/badge/monaco-646CFF?style=for-the-badge&logo=visualstudiocode&logoColor=FFFFFF)](https://github.com/microsoft/monaco-editor)
 [![vite](https://img.shields.io/badge/vite-646CFF?style=for-the-badge&logo=vite&logoColor=FFFFFF)](https://github.com/vitejs/vite)
 [![rollup](https://img.shields.io/badge/rollup-EC4A3F?style=for-the-badge&logo=rollupdotjs&logoColor=FFFFFF)](https://rollupjs.org/)
 [![ajv](https://img.shields.io/badge/ajv-000000?style=for-the-badge&logo=ajv&logoColor=23C8D2)](https://github.com/ajv-validator/ajv)
 [![webrtc](https://img.shields.io/badge/webrtc-333333?style=for-the-badge&logo=webrtc&logoColor=FFFFFF)](https://webrtc.org/)
-[![letsencrypt](https://img.shields.io/badge/letsencrypt-003A70?style=for-the-badge&logo=letsencrypt&logoColor=FFFFFF)](https://letsencrypt.org/)
 
 <p align="right">(<a href="#readme-top">返回顶部</a>)</p>
 
@@ -156,9 +154,7 @@ CI_RUN=true rush build
 Yuan 通过一套 RPC 框架来实现分布式系统中终端之间的通信。原生支持浏览器和 NodeJS 环境。它使用星形拓扑结构，所有终端都连接到一个中心节点主机（Host）。终端可以通过 Host 发送消息给其他终端。Host 负责转发消息。同时，终端会利用 WebRTC 来建立点对点连接，以实现更高效的通信，降低 Host 的负载，Host 会充当信令服务来帮助终端建立点对点连接。
 
 - [@yuants/protocol](libraries/protocol) 网络协议、服务定义和基础设施。
-- [@yuants/app-host](apps/host) Host 是一个非常轻量级的消息代理。终端可以连接到 Host 并相互发送消息。请注意，Host 中的所有终端应相互信任。实际上，Host 中的所有终端都属于同一所有者。无需验证每条消息。您可以部署多个 Host 以隔离风险。
-- [@yuants/app-hosts](apps/hosts) 这是一个非常轻量级的主机集群，它可以在一个进程中处理多个主机的消息转发业务。无需提前注册主机的令牌表，它可以自动接受符合 ED25519 签名的终端，终端不需要向主机发送签名的私钥。非常适合于多租户环境和需要低成本创建多个主机的场景。
-- [@yuants/host-manager](libraries/host-manager) 这是 Host 的底层抽象，它允许以编程方式管理若干互相隔离的 Host。它提供了一个简单的 API 来创建、删除和管理 Host。您可以使用它来创建多租户环境或隔离不同的业务。
+- [@yuants/app-host](apps/host) 超轻量级的内存型消息代理和服务发现。连接到同一主机的终端之间可以相互发送消息。支持通过环境变量 `HOST_TOKEN` 进行连接权限控制。支持通过环境变量 `MULTI_TENANCY=ED25519` 开启多租户环境，可以自动接受符合 ED25519 签名的终端，终端不需要向主机发送私钥。
 - [@yuants/app-portal](apps/portal) 这将部署一个允许将主机中已有的服务（和频道）分享给其他主机的服务。它是一个中间人，它可以将消息从一个主机转发到另一个主机。它是一个非常强大的工具，可以帮助您构建数据分享场景。
 
 #### 存储
