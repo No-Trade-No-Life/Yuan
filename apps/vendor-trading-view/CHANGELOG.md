@@ -1,6 +1,11 @@
 # Change Log - @yuants/vendor-trading-view
 
-This log was last generated on Wed, 27 Aug 2025 18:03:26 GMT and should not be manually modified.
+This log was last generated on Sat, 30 Aug 2025 22:44:40 GMT and should not be manually modified.
+
+## 0.3.1
+Sat, 30 Aug 2025 22:44:40 GMT
+
+_Version update only_
 
 ## 0.3.0
 Wed, 27 Aug 2025 18:03:26 GMT

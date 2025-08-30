@@ -2,6 +2,26 @@
   "name": "@yuants/dist-origin",
   "entries": [
     {
+      "version": "0.1.66",
+      "tag": "@yuants/dist-origin_v0.1.66",
+      "date": "Sat, 30 Aug 2025 22:44:39 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/agent\" to `0.13.90`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.38.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.65",
       "tag": "@yuants/dist-origin_v0.1.65",
       "date": "Wed, 27 Aug 2025 18:03:26 GMT",

@@ -1,6 +1,14 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Sat, 23 Aug 2025 20:08:09 GMT and should not be manually modified.
+This log was last generated on Sat, 30 Aug 2025 22:44:39 GMT and should not be manually modified.
+
+## 0.38.0
+Sat, 30 Aug 2025 22:44:39 GMT
+
+### Minor changes
+
+- add enableWebRtc in fromNodeEnv
+- enforce has_header message mode
 
 ## 0.37.3
 Sat, 23 Aug 2025 20:08:09 GMT
