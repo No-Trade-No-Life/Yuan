@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "enforce has_header message mode",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
