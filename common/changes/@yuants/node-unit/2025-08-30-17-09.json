@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/node-unit",
+      "comment": "adjust setup ordering, avoid error in the set-up phase",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/node-unit"
+}

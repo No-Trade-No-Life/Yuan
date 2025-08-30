@@ -4,10 +4,25 @@ import { setupHandShakeService, Terminal } from '@yuants/protocol';
 import { ExecuteMigrations, requestSQL } from '@yuants/sql';
 import { createKeyPair, encodePath, formatTime, fromPrivateKey, listWatch } from '@yuants/utils';
 import { execSync, spawn } from 'child_process';
-import { createWriteStream, mkdirSync, writeFileSync } from 'fs';
+import { createWriteStream } from 'fs';
+import { mkdir, rm, writeFile } from 'fs/promises';
 import { tmpdir } from 'os';
 import { join } from 'path';
-import { concat, defer, EMPTY, fromEvent, merge, Observable, repeat, retry, takeUntil, tap } from 'rxjs';
+import {
+  concat,
+  defer,
+  EMPTY,
+  firstValueFrom,
+  fromEvent,
+  merge,
+  mergeMap,
+  Observable,
+  repeat,
+  retry,
+  share,
+  takeUntil,
+  tap,
+} from 'rxjs';
 import treeKill from 'tree-kill';
 
 // 如果没有制定主机地址，则创建一个默认的主机管理器
@@ -79,15 +94,6 @@ const localPgDeployment: IDeployment | null = process.env.POSTGRES_URI
     }
   : null;
 
-const terminal = new Terminal(process.env.HOST_URL!, {
-  terminal_id: encodePath('NodeUnit', NODE_UNIT_PUBLIC_KEY),
-  name: '@yuants/node-unit',
-});
-
-setupHandShakeService(terminal, NodeUnitKeyPair.private_key);
-
-ExecuteMigrations(terminal);
-
 const kill$ = merge(fromEvent(process, 'SIGINT'), fromEvent(process, 'SIGTERM'));
 
 kill$.subscribe(() => {
@@ -112,13 +118,18 @@ const spawnChild = (ctx: {
     child.stdout.pipe(createWriteStream(ctx.stdoutFilename, { flags: 'a' }));
     child.stderr.pipe(createWriteStream(ctx.stderrFilename, { flags: 'a' }));
 
+    child.on('spawn', () => {
+      console.info(formatTime(Date.now()), 'Spawn', ctx.command, ctx.args, child.pid);
+      sub.next(); // 只发出一次，用于表示启动成功
+    });
+
     child.on('error', (err) => {
       console.error(formatTime(Date.now()), 'Error', err);
       sub.error(err);
     });
 
     child.on('exit', () => {
-      console.info(formatTime(Date.now()), 'Exit');
+      console.info(formatTime(Date.now()), 'Exit', ctx.command, ctx.args, child.pid);
       sub.complete();
     });
 
@@ -149,9 +160,14 @@ const runDeployment = (deployment: IDeployment) => {
     concat(
       needInstall
         ? defer(async () => {
-            mkdirSync(logHome, { recursive: true });
-            mkdirSync(deploymentDir, { recursive: true });
-            writeFileSync(
+            // EnsureDir log
+            await mkdir(logHome, { recursive: true });
+
+            // EnsureEmptyDir deployment
+            await rm(deploymentDir, { recursive: true, force: true });
+            await mkdir(deploymentDir, { recursive: true });
+
+            await writeFile(
               join(deploymentDir, 'package.json'),
               JSON.stringify({
                 dependencies: {
@@ -159,7 +175,7 @@ const runDeployment = (deployment: IDeployment) => {
                 },
               }),
             );
-          })
+          }).pipe(mergeMap(() => EMPTY)) // suppress signal
         : EMPTY,
       needInstall
         ? spawnChild({
@@ -169,7 +185,7 @@ const runDeployment = (deployment: IDeployment) => {
             cwd: deploymentDir,
             stdoutFilename: join(logHome, `${deployment.id}.install.log`),
             stderrFilename: join(logHome, `${deployment.id}.install.err.log`),
-          })
+          }).pipe(mergeMap(() => EMPTY)) // suppress signal
         : EMPTY,
 
       needInstall
@@ -232,28 +248,40 @@ const runDeployment = (deployment: IDeployment) => {
   );
 };
 
-if (localHostDeployment) {
-  runDeployment(localHostDeployment).subscribe();
-}
+// Setup
+defer(async () => {
+  if (localHostDeployment) {
+    await firstValueFrom(runDeployment(localHostDeployment).pipe(share({ resetOnRefCountZero: false })));
+  }
 
-if (localPgDeployment) {
-  runDeployment(localPgDeployment).subscribe();
-}
+  if (localPgDeployment) {
+    await firstValueFrom(runDeployment(localPgDeployment).pipe(share({ resetOnRefCountZero: false })));
+  }
 
-defer(() => requestSQL<IDeployment[]>(terminal, `select * from deployment where enabled = true`))
-  .pipe(
-    repeat({ delay: 10000 }),
-    retry({ delay: 1000 }),
-    tap((deployments) => {
-      console.info(formatTime(Date.now()), 'Deployments', deployments.length);
-      console.table(deployments);
-    }),
-    takeUntil(kill$),
-    //
-    listWatch(
-      (item) => item.id,
-      runDeployment,
-      (a, b) => a.updated_at === b.updated_at,
-    ),
-  )
-  .subscribe();
+  const terminal = new Terminal(process.env.HOST_URL!, {
+    terminal_id: encodePath('NodeUnit', NODE_UNIT_PUBLIC_KEY),
+    name: '@yuants/node-unit',
+  });
+
+  setupHandShakeService(terminal, NodeUnitKeyPair.private_key);
+
+  ExecuteMigrations(terminal);
+
+  defer(() => requestSQL<IDeployment[]>(terminal, `select * from deployment where enabled = true`))
+    .pipe(
+      repeat({ delay: 10000 }),
+      retry({ delay: 1000 }),
+      tap((deployments) => {
+        console.info(formatTime(Date.now()), 'Deployments', deployments.length);
+        console.table(deployments);
+      }),
+      takeUntil(kill$),
+      //
+      listWatch(
+        (item) => item.id,
+        runDeployment,
+        (a, b) => a.updated_at === b.updated_at,
+      ),
+    )
+    .subscribe();
+}).subscribe();
