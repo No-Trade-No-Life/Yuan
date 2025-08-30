@@ -1,6 +1,13 @@
 # Change Log - @yuants/tool-busybox
 
-This log was last generated on Sat, 23 Aug 2025 20:08:09 GMT and should not be manually modified.
+This log was last generated on Sat, 30 Aug 2025 22:44:39 GMT and should not be manually modified.
+
+## 0.0.28
+Sat, 30 Aug 2025 22:44:39 GMT
+
+### Patches
+
+- refactor
 
 ## 0.0.27
 Sat, 23 Aug 2025 20:08:09 GMT
