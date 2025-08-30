@@ -2,6 +2,23 @@
   "name": "@yuants/deploy",
   "entries": [
     {
+      "version": "0.2.1",
+      "tag": "@yuants/deploy_v0.2.1",
+      "date": "Sat, 30 Aug 2025 16:06:39 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix migration"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.0",
       "tag": "@yuants/deploy_v0.2.0",
       "date": "Wed, 27 Aug 2025 18:03:26 GMT",
