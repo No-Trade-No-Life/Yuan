@@ -1,6 +1,13 @@
 # Change Log - @yuants/node-unit
 
-This log was last generated on Wed, 27 Aug 2025 18:03:26 GMT and should not be manually modified.
+This log was last generated on Sat, 30 Aug 2025 08:44:03 GMT and should not be manually modified.
+
+## 0.5.0
+Sat, 30 Aug 2025 08:44:03 GMT
+
+### Minor changes
+
+- use keypair to identify node unit and fix deployments with no SQL deployed
 
 ## 0.4.0
 Wed, 27 Aug 2025 18:03:26 GMT
