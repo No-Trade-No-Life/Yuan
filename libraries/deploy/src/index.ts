@@ -84,6 +84,6 @@ AddMigration({
   statement: `
         ALTER TABLE deployment
         ADD COLUMN IF NOT EXISTS package_name TEXT NOT NULL DEFAULT '',
-        ADD COLUMN IF NOT EXISTS version TEXT NOT NULL DEFAULT '';
+        ADD COLUMN IF NOT EXISTS package_version TEXT NOT NULL DEFAULT '';
   `,
 });

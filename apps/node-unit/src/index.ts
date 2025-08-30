@@ -1,3 +1,4 @@
+import '@yuants/deploy';
 import { IDeployment } from '@yuants/deploy';
 import { setupHandShakeService, Terminal } from '@yuants/protocol';
 import { ExecuteMigrations, requestSQL } from '@yuants/sql';
@@ -55,7 +56,11 @@ const localHostDeployment: IDeployment | null = !process.env.HOST_URL
   : null;
 
 if (localHostDeployment) {
-  process.env.HOST_URL = `ws://localhost:8888`;
+  const hostUrl = new URL('ws://localhost:8888');
+  if (process.env.HOST_TOKEN) {
+    hostUrl.searchParams.set('host_token', process.env.HOST_TOKEN);
+  }
+  process.env.HOST_URL = hostUrl.toString();
 }
 
 const localPgDeployment: IDeployment | null = process.env.POSTGRES_URI
@@ -123,29 +128,119 @@ const spawnChild = (ctx: {
   });
 };
 
-defer(async () => {
-  const deployments: IDeployment[] = [];
-  if (localHostDeployment) {
-    deployments.push(localHostDeployment);
+const runDeployment = (deployment: IDeployment) => {
+  const command = deployment.command;
+  const executable = mapCommandToExecutable[command] || command;
+  const args = deployment.args.slice();
+  if (command === 'npx') {
+    args.unshift('-y');
   }
-  if (localPgDeployment) {
-    deployments.push(localPgDeployment);
-  }
+  const terminalName = `${command} ${args.join(' ')}`;
 
-  // 如果有终端提供了 SQL 服务，则加载所有启用的部署
-  const sqlReady = await terminal.resolveTargetTerminalIds('SQL', { query: '' });
-  if (sqlReady.length > 0) {
-    await requestSQL<IDeployment[]>(terminal, `select * from deployment where enabled = true`).then(
-      (list) => {
-        list.forEach((x) => {
-          deployments.push(x);
-        });
+  const deploymentDir = join(WORKSPACE_DIR, 'deployments', deployment.id);
+  const logHome = join(WORKSPACE_DIR, 'logs');
+
+  const needInstall = deployment.package_name && deployment.package_version;
+
+  // 使用 node 运行这个包目录本身，会通过 main 字段去加载入口文件
+  const entryFile = join(deploymentDir, 'node_modules', deployment.package_name);
+
+  return defer(() =>
+    concat(
+      needInstall
+        ? defer(async () => {
+            mkdirSync(logHome, { recursive: true });
+            mkdirSync(deploymentDir, { recursive: true });
+            writeFileSync(
+              join(deploymentDir, 'package.json'),
+              JSON.stringify({
+                dependencies: {
+                  [deployment.package_name]: deployment.package_version,
+                },
+              }),
+            );
+          })
+        : EMPTY,
+      needInstall
+        ? spawnChild({
+            command: PNPM_PATH || NPM_PATH,
+            args: ['install'],
+            env: Object.assign({}, process.env, deployment.env),
+            cwd: deploymentDir,
+            stdoutFilename: join(logHome, `${deployment.id}.install.log`),
+            stderrFilename: join(logHome, `${deployment.id}.install.err.log`),
+          })
+        : EMPTY,
+
+      needInstall
+        ? spawnChild({
+            command: NODE_PATH,
+            args: [entryFile],
+            env: Object.assign(
+              {},
+              process.env,
+              {
+                HOST_URL: process.env.HOST_URL,
+                TERMINAL_ID: encodePath('Deployment', deployment.id),
+                TERMINAL_NAME: terminalName,
+              },
+              deployment.env,
+            ),
+            cwd: deploymentDir,
+            stdoutFilename: join(logHome, `${deployment.id}.log`),
+            stderrFilename: join(logHome, `${deployment.id}.err.log`),
+          })
+        : spawnChild({
+            command: executable,
+            args,
+            env: Object.assign(
+              {},
+              process.env,
+              {
+                HOST_URL: process.env.HOST_URL,
+                TERMINAL_ID: encodePath('Deployment', deployment.id),
+                TERMINAL_NAME: terminalName,
+              },
+              deployment.env,
+            ),
+            cwd: deploymentDir,
+            stdoutFilename: join(logHome, `${deployment.id}.log`),
+            stderrFilename: join(logHome, `${deployment.id}.err.log`),
+          }),
+    ),
+  ).pipe(
+    tap({
+      subscribe: () => {
+        console.info(formatTime(Date.now()), 'DeploymentStart', deployment.id, terminalName);
       },
-    );
-  }
+      error: (err) => {
+        console.info(
+          formatTime(Date.now()),
+          'DeploymentFailed',
+          deployment.id,
+          terminalName,
+          `Error: ${err.message || err}`,
+        );
+      },
+      finalize: () => {
+        console.info(formatTime(Date.now()), `DeploymentComplete`, deployment.id, terminalName);
+      },
+    }),
+    //
+    retry({ delay: 1000 }),
+    repeat({ delay: 1000 }),
+  );
+};
 
-  return deployments;
-})
+if (localHostDeployment) {
+  runDeployment(localHostDeployment).subscribe();
+}
+
+if (localPgDeployment) {
+  runDeployment(localPgDeployment).subscribe();
+}
+
+defer(() => requestSQL<IDeployment[]>(terminal, `select * from deployment where enabled = true`))
   .pipe(
     repeat({ delay: 10000 }),
     retry({ delay: 1000 }),
@@ -157,109 +252,7 @@ defer(async () => {
     //
     listWatch(
       (item) => item.id,
-      (deployment) => {
-        const command = deployment.command;
-        const executable = mapCommandToExecutable[command] || command;
-        const args = deployment.args.slice();
-        if (command === 'npx') {
-          args.unshift('-y');
-        }
-        const terminalName = `${command} ${args.join(' ')}`;
-
-        const deploymentDir = join(WORKSPACE_DIR, 'deployments', deployment.id);
-        const logHome = join(WORKSPACE_DIR, 'logs');
-
-        mkdirSync(logHome, { recursive: true });
-        mkdirSync(deploymentDir, { recursive: true });
-
-        const needInstall = deployment.package_name && deployment.package_version;
-
-        // 使用 node 运行这个包目录本身，会通过 main 字段去加载入口文件
-        const entryFile = join(deploymentDir, 'node_modules', deployment.package_name);
-
-        if (needInstall) {
-          writeFileSync(
-            join(deploymentDir, 'package.json'),
-            JSON.stringify({
-              dependencies: {
-                [deployment.package_name]: deployment.package_version,
-              },
-            }),
-          );
-        }
-
-        return defer(() =>
-          concat(
-            needInstall
-              ? spawnChild({
-                  command: PNPM_PATH || NPM_PATH,
-                  args: ['install'],
-                  env: Object.assign({}, process.env, deployment.env),
-                  cwd: deploymentDir,
-                  stdoutFilename: join(logHome, `${deployment.id}.install.log`),
-                  stderrFilename: join(logHome, `${deployment.id}.install.err.log`),
-                })
-              : EMPTY,
-
-            needInstall
-              ? spawnChild({
-                  command: NODE_PATH,
-                  args: [entryFile],
-                  env: Object.assign(
-                    {},
-                    process.env,
-                    {
-                      HOST_URL: process.env.HOST_URL,
-                      TERMINAL_ID: encodePath('Deployment', deployment.id),
-                      TERMINAL_NAME: terminalName,
-                    },
-                    deployment.env,
-                  ),
-                  cwd: deploymentDir,
-                  stdoutFilename: join(logHome, `${deployment.id}.log`),
-                  stderrFilename: join(logHome, `${deployment.id}.err.log`),
-                })
-              : spawnChild({
-                  command: executable,
-                  args,
-                  env: Object.assign(
-                    {},
-                    process.env,
-                    {
-                      HOST_URL: process.env.HOST_URL,
-                      TERMINAL_ID: encodePath('Deployment', deployment.id),
-                      TERMINAL_NAME: terminalName,
-                    },
-                    deployment.env,
-                  ),
-                  cwd: deploymentDir,
-                  stdoutFilename: join(logHome, `${deployment.id}.log`),
-                  stderrFilename: join(logHome, `${deployment.id}.err.log`),
-                }),
-          ),
-        ).pipe(
-          tap({
-            subscribe: () => {
-              console.info(formatTime(Date.now()), 'DeploymentStart', deployment.id, terminalName);
-            },
-            error: (err) => {
-              console.info(
-                formatTime(Date.now()),
-                'DeploymentFailed',
-                deployment.id,
-                terminalName,
-                `Error: ${err.message || err}`,
-              );
-            },
-            finalize: () => {
-              console.info(formatTime(Date.now()), `DeploymentComplete`, deployment.id, terminalName);
-            },
-          }),
-          //
-          retry({ delay: 1000 }),
-          repeat({ delay: 1000 }),
-        );
-      },
+      runDeployment,
       (a, b) => a.updated_at === b.updated_at,
     ),
   )
