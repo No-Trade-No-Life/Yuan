@@ -2,6 +2,23 @@
   "name": "@yuants/app-metrics-collector",
   "entries": [
     {
+      "version": "0.1.0",
+      "tag": "@yuants/app-metrics-collector_v0.1.0",
+      "date": "Sun, 31 Aug 2025 15:52:13 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "use external http api call, remove http server"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.112",
       "tag": "@yuants/app-metrics-collector_v0.0.112",
       "date": "Sat, 30 Aug 2025 22:44:39 GMT",
