@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-host",
+      "comment": "remove has_header connection option",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-host"
+}

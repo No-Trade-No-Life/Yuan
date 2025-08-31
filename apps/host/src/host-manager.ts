@@ -56,7 +56,6 @@ export interface IHostManger {
  */
 export interface IHost {
   mapTerminalIdToSocket: Record<string, WebSocket.WebSocket>;
-  mapTerminalIdToHasHeader: Record<string, boolean>;
   terminalInfos: Map<string, ITerminalInfo>;
   host_id: string;
   host_terminal: Terminal;
@@ -79,7 +78,6 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
   const createHost = (host_id: string): IHost => {
     console.info(formatTime(Date.now()), 'Host Creating', host_id);
     const mapTerminalIdToSocket: Record<string, WebSocket.WebSocket> = {};
-    const mapTerminalIdToHasHeader: Record<string, boolean> = {};
 
     merge(
       bindCallback(process.once).call(process, 'SIGINT'),
@@ -148,7 +146,6 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
                 terminalInfoChangeEvent$.next({ old: oldTerminalInfo });
                 mapTerminalIdToSocket[target_terminal_id]?.terminate();
                 delete mapTerminalIdToSocket[target_terminal_id];
-                delete mapTerminalIdToHasHeader[target_terminal_id];
               },
             }),
             catchError(() => EMPTY),
@@ -168,7 +165,6 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
     return {
       host_id,
       host_terminal: terminal,
-      mapTerminalIdToHasHeader,
       mapTerminalIdToSocket,
       terminalInfos,
       dispose,
@@ -221,7 +217,6 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
     );
     const params = url.searchParams;
     const terminal_id = params.get('terminal_id');
-    const has_header = params.get('has_header') === 'true';
 
     let host_id: string;
     try {
@@ -250,7 +245,6 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
       MetricsHostManagerConnectionEstablishedCounter.add(1, {
         host_id,
         terminal_id,
-        has_header: has_header ? 'true' : 'false',
       });
       const oldTerminal = host.mapTerminalIdToSocket[terminal_id];
       if (oldTerminal) {
@@ -258,55 +252,26 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
         oldTerminal.close();
       }
       host.mapTerminalIdToSocket[terminal_id] = ws; // Register New Terminal
-      host.mapTerminalIdToHasHeader[terminal_id] = has_header;
       // Forward Terminal Messages
       (fromEvent(ws, 'message') as Observable<WebSocket.MessageEvent>).subscribe((origin) => {
         const raw_message = origin.data.toString();
         MetricsHostManagerMessageSize.record(raw_message.length, {
           host_id,
-          has_header: has_header ? 'true' : 'false',
           source_terminal_id: terminal_id,
         });
-        if (has_header) {
-          const idx = raw_message.indexOf('\n');
-          const raw_headers = raw_message.slice(0, idx + 1);
-          let target_terminal_id;
-          try {
-            const headers = JSON.parse(raw_headers);
-            target_terminal_id = headers.target_terminal_id;
-            if (!target_terminal_id) return; // Skip if target_terminal_id not defined
-            if (!host.terminalInfos.has(target_terminal_id)) return; // Skip if Terminal Not Found
-            if (host.mapTerminalIdToHasHeader[target_terminal_id]) {
-              // if target terminal supports header, forward the message as is
-              host.mapTerminalIdToSocket[target_terminal_id]?.send(raw_message);
-            } else {
-              // if target terminal does not support header, strip the header and forward the message
-              host.mapTerminalIdToSocket[target_terminal_id]?.send(raw_message.slice(idx + 1));
-            }
-          } catch (e) {
-            console.error(formatTime(Date.now()), 'InvalidHeader', raw_headers);
-            return;
-          }
-        } else {
-          // message without headers
-          try {
-            const msg = JSON.parse(raw_message);
-            const target_terminal_id = msg.target_terminal_id;
-            if (!host.terminalInfos.has(target_terminal_id)) return; // Skip if Terminal Not Found
-            if (host.mapTerminalIdToHasHeader[target_terminal_id]) {
-              const headers = { target_terminal_id, source_terminal_id: msg.source_terminal_id };
-              // if target terminal supports headers, wrap the message with header and forward
-              host.mapTerminalIdToSocket[target_terminal_id]?.send(
-                JSON.stringify(headers) + '\n' + raw_message,
-              );
-            } else {
-              // if target terminal does not support headers, forward the message as is
-              host.mapTerminalIdToSocket[target_terminal_id]?.send(origin.data);
-            }
-          } catch (e) {
-            console.error(formatTime(Date.now()), 'InvalidMessage', raw_message);
-            return;
-          }
+        const idx = raw_message.indexOf('\n');
+        const raw_headers = raw_message.slice(0, idx + 1);
+        let target_terminal_id;
+        try {
+          const headers = JSON.parse(raw_headers);
+          target_terminal_id = headers.target_terminal_id;
+          if (!target_terminal_id) return; // Skip if target_terminal_id not defined
+          if (!host.terminalInfos.has(target_terminal_id)) return; // Skip if Terminal Not Found
+          // forward the message as is
+          host.mapTerminalIdToSocket[target_terminal_id]?.send(raw_message);
+        } catch (e) {
+          console.error(formatTime(Date.now()), 'InvalidHeader', raw_headers);
+          return;
         }
       });
       // Clean up on Terminal Disconnect
@@ -316,16 +281,13 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
         host.mapTerminalIdToSocket[terminal_id]?.terminate();
         // MetricsHostManagerMessageSize.clear({
         //   host_id,
-        //   has_header: has_header ? 'true' : 'false',
         //   source_terminal_id: terminal_id,
         // });
         // MetricsHostManagerConnectionEstablishedCounter.clear({
         //   host_id,
         //   terminal_id,
-        //   has_header: has_header ? 'true' : 'false',
         // });
         delete host.mapTerminalIdToSocket[terminal_id];
-        delete host.mapTerminalIdToHasHeader[terminal_id];
       });
     });
   });
