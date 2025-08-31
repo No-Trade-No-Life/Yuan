@@ -2,6 +2,23 @@
   "name": "@yuants/app-host",
   "entries": [
     {
+      "version": "0.6.2",
+      "tag": "@yuants/app-host_v0.6.2",
+      "date": "Sun, 31 Aug 2025 15:02:57 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "change k8s config"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.6.1",
       "tag": "@yuants/app-host_v0.6.1",
       "date": "Sun, 31 Aug 2025 14:21:07 GMT",
