@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-host
 
-This log was last generated on Sun, 31 Aug 2025 09:31:11 GMT and should not be manually modified.
+This log was last generated on Sun, 31 Aug 2025 13:49:54 GMT and should not be manually modified.
+
+## 0.6.0
+Sun, 31 Aug 2025 13:49:54 GMT
+
+### Minor changes
+
+- add external http call API
 
 ## 0.5.1
 Sun, 31 Aug 2025 09:31:11 GMT
