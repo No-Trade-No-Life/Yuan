@@ -1,6 +1,6 @@
 import { ITerminalInfo, MetricsMeterProvider, Terminal } from '@yuants/protocol';
 import { formatTime, UUID } from '@yuants/utils';
-import { createServer } from 'http';
+import { createServer, IncomingMessage } from 'http';
 import {
   bindCallback,
   catchError,
@@ -171,7 +171,96 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
     };
   };
 
+  const resolveHost = (request: IncomingMessage) => {
+    const url = new URL(request.url || '', 'http://localhost:8888');
+    const params = url.searchParams;
+    const headers = request.headers;
+
+    if (headers['host_token']) {
+      url.searchParams.set('host_token', headers['host_token'] as string);
+    }
+
+    if (headers['terminal_id']) {
+      url.searchParams.set('terminal_id', headers['terminal_id'] as string);
+    }
+
+    const terminal_id = params.get('terminal_id');
+
+    let host_id: string;
+    try {
+      if (!terminal_id) return null;
+      // ISSUE: is this secure to treat host as a special terminal?
+      if (terminal_id === '@host') {
+        if (!params.get('host_id')) return null;
+        if (params.get('internal_host_key') !== internal_host_key) return null;
+        host_id = params.get('host_id')!;
+      } else {
+        host_id = config.mapHostUrlToHostId(url.toString());
+      }
+    } catch (err) {
+      MetricsHostManagerConnectionErrorCounter.add(1);
+      console.info(formatTime(Date.now()), 'Auth Failed', url.toString(), `${err}`);
+      return null;
+    }
+
+    // create host if not exists
+    const host = (hosts[host_id] ??= createHost(host_id));
+    return { host, terminal_id };
+  };
+
   const server = createServer();
+
+  server.addListener('request', async (req, res) => {
+    const theUrl = new URL(req.url || '', 'http://localhost:8888');
+    const x = resolveHost(req);
+    if (!x) {
+      MetricsHostManagerConnectionErrorCounter.add(1);
+      res.writeHead(401);
+      res.end('Unauthorized');
+      return;
+    }
+    if (theUrl.pathname.startsWith('/external/')) {
+      const reqBody = await new Promise<string>((resolve) => {
+        const body: Uint8Array[] = [];
+        req.on('data', (chunk) => {
+          body.push(chunk);
+        });
+        req.on('end', () => {
+          const reqBody = Buffer.concat(body).toString();
+          resolve(reqBody);
+        });
+      });
+
+      const reqJson = {
+        method: req.method,
+        url: req.url,
+        pathname: theUrl.pathname,
+        headers: req.headers,
+        body: reqBody,
+        host_id: x?.host.host_id,
+      };
+
+      try {
+        const response = await x!.host.host_terminal.client.requestForResponse(reqJson.pathname, reqJson);
+        const { status = 200, headers, body } = response.data as any;
+        if (headers) {
+          for (const [k, v] of Object.entries(headers)) {
+            if (v) res.setHeader(k, v as string);
+          }
+        }
+        res.writeHead(status);
+        res.end(body);
+
+        return;
+      } catch (e) {
+        res.writeHead(500);
+        res.end(`${e}`);
+        return;
+      }
+    }
+    res.writeHead(404);
+    res.end();
+  });
 
   const wss = new WebSocket.Server({
     noServer: true,
@@ -207,38 +296,17 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
   };
 
   server.on('upgrade', async (request, socket, head) => {
-    const url = new URL(request.url || '', 'http://localhost:8888');
-    console.info(
-      formatTime(Date.now()),
-      'HostManager',
-      'Upgrade',
-      url.toString(),
-      request.socket.remoteAddress,
-    );
-    const params = url.searchParams;
-    const terminal_id = params.get('terminal_id');
-
-    let host_id: string;
-    try {
-      if (!terminal_id) throw new Error('TerminalIdRequired');
-      // ISSUE: is this secure to treat host as a special terminal?
-      if (terminal_id === '@host') {
-        if (!params.get('host_id')) throw new Error('HostIdRequired');
-        if (params.get('internal_host_key') !== internal_host_key) throw new Error('InvalidInternalHostKey');
-        host_id = params.get('host_id')!;
-      } else {
-        host_id = config.mapHostUrlToHostId(url.toString());
-      }
-    } catch (err) {
+    const x = resolveHost(request);
+    if (!x) {
       MetricsHostManagerConnectionErrorCounter.add(1);
-      console.info(formatTime(Date.now()), 'Auth Failed', url.toString(), `${err}`);
       socket.write('HTTP/1.1 401 Unauthorized\r\n\r\n');
       socket.destroy();
       return;
     }
 
     // create host if not exists
-    const host = (hosts[host_id] ??= createHost(host_id));
+    const { host, terminal_id } = x;
+    const host_id = host.host_id;
 
     wss.handleUpgrade(request, socket, head, (ws) => {
       console.info(formatTime(Date.now()), 'Host', host_id, 'terminal connected', terminal_id);
