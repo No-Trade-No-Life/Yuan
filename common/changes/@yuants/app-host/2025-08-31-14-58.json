@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-host",
+      "comment": "change k8s config",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-host"
+}

@@ -153,6 +153,7 @@ export default (context: IExtensionContext) => {
           namespace: 'yuan',
           annotations: {
             'cert-manager.io/cluster-issuer': 'letsencrypt-prod', // TODO(wsy): make this a dependent value
+            'nginx.ingress.kubernetes.io/rewrite-target': '/$2',
             // 'nginx.ingress.kubernetes.io/auth-signin': `https://${
             //   ctx.annotations!.sso_url
             // }/oauth2/start?rd=$scheme://$best_http_host$request_uri`,
@@ -178,8 +179,8 @@ export default (context: IExtensionContext) => {
                 http: {
                   paths: [
                     {
-                      path: parts.pathname,
-                      pathType: 'Prefix',
+                      path: parts.pathname + '(/|$)(.*)',
+                      pathType: 'ImplementationSpecific',
                       backend: {
                         service: {
                           name,
@@ -199,6 +200,56 @@ export default (context: IExtensionContext) => {
               secretName: 'host-tls',
             },
           ],
+        },
+      },
+
+      secret: {
+        apiVersion: 'v1',
+        kind: 'Secret',
+        metadata: {
+          name: `host-config`,
+          namespace: 'yuan',
+          labels: {
+            'y.ntnl.io/version': ctx.version ?? envCtx.version,
+            'y.ntnl.io/component': 'host',
+          },
+        },
+        stringData: {
+          host_token: ctx.env?.HOST_TOKEN,
+        },
+      },
+
+      serviceMonitor: {
+        apiVersion: 'monitoring.coreos.com/v1',
+        kind: 'ServiceMonitor',
+        metadata: {
+          name: 'host',
+          namespace: 'yuan',
+          labels: {
+            'y.ntnl.io/version': ctx.version ?? envCtx.version,
+            'y.ntnl.io/component': 'host',
+          },
+        },
+        spec: {
+          endpoints: [
+            {
+              interval: '30s',
+              port: 'http',
+              path: '/external/prometheus/metrics',
+              bearer_token_secret: {
+                key: 'host_token',
+                name: 'host-config',
+              },
+            },
+          ],
+          namespaceSelector: {
+            matchNames: ['yuan'],
+          },
+          selector: {
+            matchLabels: {
+              'y.ntnl.io/component': 'host',
+            },
+          },
         },
       },
     }),
