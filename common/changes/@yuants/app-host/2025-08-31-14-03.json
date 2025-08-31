@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-host",
+      "comment": "add log and authentication bearer token support",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-host"
+}
