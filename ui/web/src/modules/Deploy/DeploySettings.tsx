@@ -3,19 +3,17 @@ import { ArrayField, Form, Modal, Popconfirm, Space } from '@douyinfe/semi-ui';
 import { IDeployment } from '@yuants/deploy';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { UUID } from '@yuants/utils';
-import { useObservable, useObservableState } from 'observable-hooks';
+import { useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import {
   BehaviorSubject,
-  catchError,
   combineLatest,
   defer,
-  EMPTY,
-  filter,
   firstValueFrom,
+  forkJoin,
+  from,
   map,
   of,
-  pipe,
   repeat,
   retry,
   shareReplay,
@@ -50,6 +48,35 @@ const deploySettings$ = combineLatest([terminal$, refresh$]).pipe(
   ),
   shareReplay(1),
 );
+const packageVersion$ = deploySettings$.pipe(
+  //
+  switchMap((settings) =>
+    forkJoin(
+      settings
+        .filter((setting) => Boolean(setting.package_name))
+        .map((setting) =>
+          fetchVersionInfo(setting.package_name).pipe(
+            map((version) => ({ packageName: setting.package_name, version })),
+          ),
+        ),
+    ),
+  ),
+);
+
+const mapPackageNameToVersions = new Map<string, string[]>();
+
+const fetchVersionInfo = (packageName: string) => {
+  if (mapPackageNameToVersions.has(packageName)) {
+    return of(mapPackageNameToVersions.get(packageName)?.[0]);
+  }
+  return from(
+    resolveVersion({ name: packageName, registry: 'https://registry.npmjs.org' }).then((info) => {
+      const versions = Object.keys(info.meta.versions).reverse() as string[];
+      mapPackageNameToVersions.set(packageName, versions);
+      return info.version;
+    }),
+  );
+};
 
 registerPage('DeploySettings', () => {
   const deploySettings = useObservableState(deploySettings$);
@@ -57,27 +84,7 @@ registerPage('DeploySettings', () => {
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const versionInfoList = useObservableState(
-    useObservable(
-      pipe(
-        switchMap(([package_name]) =>
-          defer(() => {
-            return package_name
-              ? resolveVersion({ name: package_name, registry: 'https://registry.npmjs.org' })
-              : EMPTY;
-          }).pipe(
-            filter((x) => !!x),
-            map((info) => Object.keys(info.meta.versions).reverse() as string[]),
-            catchError((err) => {
-              console.error('getVersionListError', err);
-              return of([]);
-            }),
-          ),
-        ),
-      ),
-      [editDeployment?.package_name],
-    ),
-  );
+  const packageVersion = useObservableState(packageVersion$);
 
   const onDelete = async (id: string) => {
     try {
@@ -96,6 +103,19 @@ registerPage('DeploySettings', () => {
     }
   };
 
+  const updateToLatestVersion = () => {
+    if (packageVersion && deploySettings) {
+      const newSettings = deploySettings.map((setting) => {
+        const version = packageVersion.find((xx) => setting.package_name === xx.packageName);
+        if (version && version.version) {
+          setting.package_version = version.version;
+        }
+        return setting;
+      });
+      onUpdate(newSettings);
+    }
+  };
+
   const onOpenEdit = () => {
     setVisible(true);
   };
@@ -107,7 +127,7 @@ registerPage('DeploySettings', () => {
   const onSave = async () => {
     if (editDeployment) {
       setLoading(true);
-      onUpdate(editDeployment);
+      onUpdate([editDeployment]);
       setLoading(false);
     }
   };
@@ -119,13 +139,13 @@ registerPage('DeploySettings', () => {
     setEditDeployment({ id: UUID(), enabled: false } as IDeployment);
     onOpenEdit();
   };
-  const onUpdate = async (deployment: IDeployment) => {
+  const onUpdate = async (deployment: IDeployment[]) => {
     try {
       const terminal = await firstValueFrom(terminal$);
       if (terminal) {
-        await requestSQL(
+        const result = await requestSQL(
           terminal,
-          buildInsertManyIntoTableSQL([deployment], 'deployment', {
+          buildInsertManyIntoTableSQL(deployment, 'deployment', {
             columns: ['args', 'command', 'enabled', 'env', 'id', 'package_version', 'package_name'],
             conflictKeys: ['id'],
           }),
@@ -145,9 +165,14 @@ registerPage('DeploySettings', () => {
       <Modules.Interactive.DataView
         data={deploySettings}
         topSlot={
-          <Button icon={<IconPlusCircle />} onClick={onCreate} style={{ margin: '10px 0' }}>
-            创建新配置
-          </Button>
+          <>
+            <Button icon={<IconPlusCircle />} onClick={onCreate} style={{ margin: '10px 0' }}>
+              创建新配置
+            </Button>
+            <Button icon={<IconPlusCircle />} onClick={updateToLatestVersion} style={{ margin: '10px 0' }}>
+              版本一键更新
+            </Button>
+          </>
         }
         columns={[
           {
@@ -188,7 +213,7 @@ registerPage('DeploySettings', () => {
                 <Switch
                   checked={enabled}
                   onChange={async (checked) => {
-                    await onUpdate({ ...deployment, enabled: checked });
+                    await onUpdate([{ ...deployment, enabled: checked }]);
                   }}
                 />
               );
@@ -203,7 +228,7 @@ registerPage('DeploySettings', () => {
                   title="确定是否要删除改配置？"
                   content="此修改将不可逆"
                   onConfirm={() => onDelete(ctx.row.original.id)}
-                  // onCancel={onCancel}
+                  // onCancel={() => {}}
                   position="left"
                 >
                   {/* <Button>保存</Button> */}
@@ -240,7 +265,7 @@ registerPage('DeploySettings', () => {
             <Form.Input field="command" label="command" style={{ width: '560px' }} />
             <Form.Input field="package_name" label="package name" style={{ width: '560px' }} />
             <Form.Select field="package_version" label="package version" style={{ width: '560px' }}>
-              {versionInfoList?.map((version) => (
+              {mapPackageNameToVersions.get(editDeployment.package_name ?? '')?.map((version) => (
                 <Option value={version}>{version}</Option>
               ))}
             </Form.Select>
