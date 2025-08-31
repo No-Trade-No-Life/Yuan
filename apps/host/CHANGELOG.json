@@ -2,6 +2,23 @@
   "name": "@yuants/app-host",
   "entries": [
     {
+      "version": "0.6.0",
+      "tag": "@yuants/app-host_v0.6.0",
+      "date": "Sun, 31 Aug 2025 13:49:54 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add external http call API"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.1",
       "tag": "@yuants/app-host_v0.5.1",
       "date": "Sun, 31 Aug 2025 09:31:11 GMT",
