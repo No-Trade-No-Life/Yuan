@@ -176,12 +176,21 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
     const params = url.searchParams;
     const headers = request.headers;
 
-    if (headers['host_token']) {
-      url.searchParams.set('host_token', headers['host_token'] as string);
+    console.info(formatTime(Date.now()), 'ResolveHost', url.toString(), JSON.stringify(headers));
+
+    if (headers['authorization']) {
+      const auth = headers['authorization'];
+
+      if (auth.startsWith('Bearer ')) {
+        const token = auth.slice('Bearer '.length);
+        url.searchParams.set('host_token', token);
+        url.searchParams.set('terminal_id', UUID()); // tmp terminal_id
+      }
     }
 
-    if (headers['terminal_id']) {
-      url.searchParams.set('terminal_id', headers['terminal_id'] as string);
+    if (headers['host_token']) {
+      url.searchParams.set('host_token', headers['host_token'] as string);
+      url.searchParams.set('terminal_id', UUID()); // tmp terminal_id
     }
 
     const terminal_id = params.get('terminal_id');
@@ -216,7 +225,7 @@ export const createNodeJSHostManager = (config: IHostManagerConfig): IHostManger
     if (!x) {
       MetricsHostManagerConnectionErrorCounter.add(1);
       res.writeHead(401);
-      res.end('Unauthorized');
+      res.end('Unauthorized: ' + req.url);
       return;
     }
     if (theUrl.pathname.startsWith('/external/')) {
