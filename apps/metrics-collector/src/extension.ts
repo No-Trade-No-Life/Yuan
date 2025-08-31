@@ -111,60 +111,6 @@ export default (context: IExtensionContext) => {
             },
           },
         },
-        service: {
-          apiVersion: 'v1',
-          kind: 'Service',
-          metadata: {
-            name: 'metrics-collector',
-            namespace: 'yuan',
-            labels: {
-              'y.ntnl.io/version': ctx.version ?? envCtx.version,
-              'y.ntnl.io/component': 'metrics-collector',
-            },
-          },
-          spec: {
-            type: 'ClusterIP',
-            ports: ['http']
-              .map((name) => ({
-                port: ctx.network?.port_forward?.[name],
-                targetPort: name,
-                name,
-                protocol: 'TCP',
-              }))
-              .filter(({ port }) => port != undefined),
-            selector: {
-              'y.ntnl.io/component': 'metrics-collector',
-            },
-          },
-        },
-        serviceMonitor: {
-          apiVersion: 'monitoring.coreos.com/v1',
-          kind: 'ServiceMonitor',
-          metadata: {
-            name: 'metrics-collector',
-            namespace: 'yuan',
-            labels: {
-              'y.ntnl.io/version': ctx.version ?? envCtx.version,
-              'y.ntnl.io/component': 'metrics-collector',
-            },
-          },
-          spec: {
-            endpoints: [
-              {
-                interval: '30s',
-                port: 'http',
-              },
-            ],
-            namespaceSelector: {
-              matchNames: ['yuan'],
-            },
-            selector: {
-              matchLabels: {
-                'y.ntnl.io/component': 'metrics-collector',
-              },
-            },
-          },
-        },
         prometheusRule: {
           apiVersion: 'monitoring.coreos.com/v1',
           kind: 'PrometheusRule',

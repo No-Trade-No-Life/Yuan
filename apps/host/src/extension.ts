@@ -234,9 +234,9 @@ export default (context: IExtensionContext) => {
           endpoints: [
             {
               interval: '30s',
-              port: 'http',
+              port: 'host',
               path: '/external/prometheus/metrics',
-              bearer_token_secret: {
+              bearerTokenSecret: {
                 key: 'host_token',
                 name: 'host-config',
               },
