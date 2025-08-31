@@ -214,7 +214,7 @@ export default (context: IExtensionContext) => {
             'y.ntnl.io/component': 'host',
           },
         },
-        data: {
+        stringData: {
           host_token: ctx.env?.HOST_TOKEN,
         },
       },
