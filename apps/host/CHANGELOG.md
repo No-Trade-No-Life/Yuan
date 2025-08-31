@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-host
 
-This log was last generated on Sun, 31 Aug 2025 15:02:57 GMT and should not be manually modified.
+This log was last generated on Sun, 31 Aug 2025 15:52:13 GMT and should not be manually modified.
+
+## 0.6.3
+Sun, 31 Aug 2025 15:52:13 GMT
+
+### Patches
+
+- fix k8s config
 
 ## 0.6.2
 Sun, 31 Aug 2025 15:02:57 GMT
