@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-metrics-collector",
+      "comment": "use external http api call, remove http server",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-metrics-collector"
+}
