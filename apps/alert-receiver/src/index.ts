@@ -141,7 +141,12 @@ const ENV = process.env.ENV!;
 
 const config$ = defer(() =>
   requestSQL<IAlertReceiverConfig[]>(terminal, `select * from alert_receiver_config where enabled = true`),
-).pipe(retry({ delay: 1000 }), shareReplay(1));
+).pipe(
+  //
+  retry({ delay: 1_000 }),
+  repeat({ delay: 10_000 }),
+  shareReplay(1),
+);
 
 const terminal = Terminal.fromNodeEnv();
 
