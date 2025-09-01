@@ -1,5 +1,5 @@
-import { IconMinusCircle, IconPlusCircle } from '@douyinfe/semi-icons';
-import { ArrayField, Form, Modal, Popconfirm, Space } from '@douyinfe/semi-ui';
+import { IconHelpCircle, IconMinusCircle, IconPlusCircle } from '@douyinfe/semi-icons';
+import { ArrayField, Form, Modal, Popconfirm, Space, Tooltip } from '@douyinfe/semi-ui';
 import { IDeployment } from '@yuants/deploy';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { UUID } from '@yuants/utils';
@@ -152,7 +152,17 @@ registerPage('DeploySettings', () => {
         const result = await requestSQL(
           terminal,
           buildInsertManyIntoTableSQL(deployment, 'deployment', {
-            columns: ['args', 'command', 'enabled', 'env', 'id', 'package_version', 'package_name'],
+            columns: [
+              //
+              'id',
+              'package_name',
+              'package_version',
+              'env',
+              'address',
+              'command',
+              'args',
+              'enabled',
+            ],
             conflictKeys: ['id'],
           }),
         );
@@ -194,20 +204,24 @@ registerPage('DeploySettings', () => {
             accessorKey: 'package_version',
           },
           {
-            header: 'command',
-            accessorKey: 'command',
-          },
-          {
-            header: 'args',
-            accessorFn: (x) => (x.args || []).join(' '),
-          },
-          {
             header: 'env',
             accessorKey: 'env',
             accessorFn: (x) =>
               Object.entries(x.env)
                 .map(([key, v]) => `${key}=${escapeForBash(v)}`)
                 .join(' '),
+          },
+          {
+            header: 'address',
+            accessorKey: 'address',
+          },
+          {
+            header: 'command',
+            accessorKey: 'command',
+          },
+          {
+            header: 'args',
+            accessorFn: (x) => (x.args || []).join(' '),
           },
           {
             header: 'enabled',
@@ -268,38 +282,25 @@ registerPage('DeploySettings', () => {
             labelPosition={'left'}
             style={{ marginTop: '20px' }}
           >
-            <Form.Input field="command" label="command" style={{ width: '560px' }} />
-            <Form.Input field="package_name" label="package name" style={{ width: '560px' }} />
-            <Form.Select field="package_version" label="package version" style={{ width: '560px' }}>
+            <Form.Input field="package_name" label="NPM 包名" style={{ width: '560px' }} />
+            <Form.Select field="package_version" label="部署版本" style={{ width: '560px' }}>
               {mapPackageNameToVersions.get(editDeployment.package_name ?? '')?.map((version) => (
                 <Option value={version}>{version}</Option>
               ))}
             </Form.Select>
-            <ArrayField field="args" initValue={(editDeployment?.args ?? []).map((item) => ({ arg: item }))}>
-              {({ add, arrayFields, addWithInitValue }) => (
-                <>
-                  <Button onClick={add} icon={<IconPlusCircle />} theme="light" style={{ display: 'flex' }}>
-                    Add new arg
-                  </Button>
-                  {arrayFields.map(({ field, key, remove }, i) => (
-                    <div key={key} style={{ display: 'flex' }}>
-                      <Form.Input
-                        field={`${field}[arg]`}
-                        label={`arg[${i}]`}
-                        style={{ width: 400, marginRight: 16 }}
-                      />
-                      <Button
-                        type="danger"
-                        theme="borderless"
-                        icon={<IconMinusCircle />}
-                        onClick={remove}
-                        style={{ margin: 12 }}
-                      />
-                    </div>
-                  ))}
-                </>
-              )}
-            </ArrayField>
+            <Form.Input
+              field="address"
+              label={{
+                text: '部署地址',
+                extra: (
+                  <Tooltip content="部署到指定的 Node Unit 地址 (ED25519 公钥)。NodeUnit 仅会部署与其地址匹配的项目。">
+                    <IconHelpCircle style={{ color: 'var(--semi-color-text-2)' }} />
+                  </Tooltip>
+                ),
+              }}
+              style={{ width: '560px' }}
+            />
+            <Form.Section text="环境变量" />
             <ArrayField
               field="env"
               initValue={Object.entries(editDeployment?.env ?? {})?.map(([k, v]) => ({ key: k, value: v }))}
@@ -319,6 +320,33 @@ registerPage('DeploySettings', () => {
                         field={`${field}[value]`}
                         label={`value[${i}]`}
                         style={{ width: '300px' }}
+                      />
+                      <Button
+                        type="danger"
+                        theme="borderless"
+                        icon={<IconMinusCircle />}
+                        onClick={remove}
+                        style={{ margin: 12 }}
+                      />
+                    </div>
+                  ))}
+                </>
+              )}
+            </ArrayField>
+            <Form.Section text="自定义启动命令 (高级)" />
+            <Form.Input field="command" label="command" style={{ width: '560px' }} />
+            <ArrayField field="args" initValue={(editDeployment?.args ?? []).map((item) => ({ arg: item }))}>
+              {({ add, arrayFields, addWithInitValue }) => (
+                <>
+                  <Button onClick={add} icon={<IconPlusCircle />} theme="light" style={{ display: 'flex' }}>
+                    Add new arg
+                  </Button>
+                  {arrayFields.map(({ field, key, remove }, i) => (
+                    <div key={key} style={{ display: 'flex' }}>
+                      <Form.Input
+                        field={`${field}[arg]`}
+                        label={`arg[${i}]`}
+                        style={{ width: 400, marginRight: 16 }}
                       />
                       <Button
                         type="danger"

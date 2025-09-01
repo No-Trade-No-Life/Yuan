@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/deploy",
+      "comment": "add field address",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/deploy"
+}

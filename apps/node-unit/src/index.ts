@@ -1,7 +1,7 @@
 import '@yuants/deploy';
 import { IDeployment } from '@yuants/deploy';
 import { setupHandShakeService, Terminal } from '@yuants/protocol';
-import { ExecuteMigrations, requestSQL } from '@yuants/sql';
+import { escapeSQL, ExecuteMigrations, requestSQL } from '@yuants/sql';
 import { createKeyPair, encodePath, formatTime, fromPrivateKey, listWatch } from '@yuants/utils';
 import { execSync, spawn } from 'child_process';
 import { createWriteStream } from 'fs';
@@ -64,6 +64,7 @@ const localHostDeployment: IDeployment | null = !process.env.HOST_URL
       package_name: '@yuants/app-host',
       package_version: 'latest',
       env: {},
+      address: '',
       enabled: true,
       created_at: formatTime(Date.now()),
       updated_at: formatTime(Date.now()),
@@ -85,6 +86,7 @@ const localPgDeployment: IDeployment | null = process.env.POSTGRES_URI
       args: ['@yuants/app-postgres-storage'],
       package_name: '@yuants/app-postgres-storage',
       package_version: 'latest',
+      address: '',
       env: {
         TERMINAL_ID: encodePath('PG', NODE_UNIT_PUBLIC_KEY),
       },
@@ -267,7 +269,12 @@ defer(async () => {
 
   ExecuteMigrations(terminal);
 
-  defer(() => requestSQL<IDeployment[]>(terminal, `select * from deployment where enabled = true`))
+  defer(() =>
+    requestSQL<IDeployment[]>(
+      terminal,
+      `select * from deployment where enabled = true and address = ${escapeSQL(NODE_UNIT_PUBLIC_KEY)}`,
+    ),
+  )
     .pipe(
       repeat({ delay: 10000 }),
       retry({ delay: 1000 }),
