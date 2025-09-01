@@ -2,6 +2,23 @@
   "name": "@yuants/app-alert-receiver",
   "entries": [
     {
+      "version": "0.2.2",
+      "tag": "@yuants/app-alert-receiver_v0.2.2",
+      "date": "Mon, 01 Sep 2025 19:06:30 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix infinite trigger"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.1",
       "tag": "@yuants/app-alert-receiver_v0.2.1",
       "date": "Mon, 01 Sep 2025 18:33:34 GMT",
