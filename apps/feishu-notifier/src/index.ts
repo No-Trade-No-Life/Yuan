@@ -34,8 +34,19 @@ defer(() => terminal.input$)
   )
   .subscribe();
 
-terminal.provideService('Notify', {}, (msg) =>
-  from(client.sendFeishuMessage(msg.req.receiver_id, msg.req.message)).pipe(
-    map(() => ({ res: { code: 0, message: 'OK' } })),
-  ),
+terminal.provideService(
+  'Notify',
+  {
+    type: 'object',
+    required: ['type', 'receiver_id', 'message'],
+    properties: {
+      type: { const: 'feishu' },
+      receiver_id: { type: 'string' },
+      message: { type: 'string' },
+    },
+  },
+  (msg) =>
+    from(client.sendFeishuMessage(msg.req.receiver_id, msg.req.message)).pipe(
+      map(() => ({ res: { code: 0, message: 'OK' } })),
+    ),
 );

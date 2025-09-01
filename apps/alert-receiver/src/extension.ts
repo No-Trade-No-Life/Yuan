@@ -16,26 +16,6 @@ export default (context: IExtensionContext) => {
               ENV: { type: 'string' },
             },
           },
-          network: {
-            type: 'object',
-            properties: {
-              port_forward: {
-                type: 'object',
-                properties: {
-                  http: { type: 'number' },
-                },
-              },
-            },
-          },
-          filesystem: {
-            type: 'object',
-            required: ['config'],
-            properties: {
-              config: {
-                type: 'string',
-              },
-            },
-          },
         },
       };
     },
@@ -43,16 +23,6 @@ export default (context: IExtensionContext) => {
       return {
         [`webhook-receiver-alert`]: {
           image: `ghcr.io/no-trade-no-life/app-alert-receiver:${ctx.version ?? envCtx.version}`,
-          ports: [['http', 3000]]
-            .filter(([name]) => ctx.network?.port_forward?.[name] !== undefined)
-            .map(([name, targetPort]) => `${ctx.network!.port_forward![name]}:${targetPort}`),
-          volumes: [
-            {
-              type: 'bind',
-              source: await envCtx.resolveLocal(ctx.filesystem!['config']),
-              target: '/etc/alert-receiver/config.json',
-            },
-          ],
           environment: makeDockerEnvs(ctx.env),
         },
       };
@@ -138,47 +108,6 @@ export default (context: IExtensionContext) => {
                 ],
               },
             },
-          },
-        },
-        service: {
-          apiVersion: 'v1',
-          kind: 'Service',
-          metadata: {
-            name: 'alert-receiver',
-            namespace: 'yuan',
-            labels: {
-              'y.ntnl.io/version': ctx.version ?? envCtx.version,
-              'y.ntnl.io/component': 'alert-receiver',
-            },
-          },
-          spec: {
-            type: 'ClusterIP',
-            ports: ['http']
-              .map((name) => ({
-                port: ctx.network?.port_forward?.[name],
-                targetPort: name,
-                name,
-                protocol: 'TCP',
-              }))
-              .filter(({ port }) => port != undefined),
-            selector: {
-              'y.ntnl.io/component': 'alert-receiver',
-            },
-          },
-        },
-        secret: {
-          apiVersion: 'v1',
-          kind: 'Secret',
-          metadata: {
-            name: `alert-receiver-config`,
-            namespace: 'yuan',
-            labels: {
-              'y.ntnl.io/version': ctx.version ?? envCtx.version,
-              'y.ntnl.io/component': 'alert-receiver',
-            },
-          },
-          data: {
-            'config.json': await envCtx.readFileAsBase64(ctx.filesystem!['config']),
           },
         },
       };

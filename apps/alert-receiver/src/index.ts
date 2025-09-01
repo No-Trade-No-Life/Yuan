@@ -1,23 +1,20 @@
 import { Terminal } from '@yuants/protocol';
+import { AddMigration, ExecuteMigrations, requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
-import Ajv from 'ajv';
-import express from 'express';
-import { readFile } from 'fs';
-import { JSONSchema7 } from 'json-schema';
-import moment from 'moment-timezone';
 import {
-  bindNodeCallback,
   catchError,
   defer,
   delay,
   EMPTY,
   filter,
   first,
+  firstValueFrom,
   from,
   map,
   mergeMap,
   of,
   repeat,
+  retry,
   shareReplay,
   Subject,
   tap,
@@ -82,72 +79,39 @@ enum AlertSeverity {
 }
 
 interface IAlertReceiverConfig {
-  receivers: Array<{
-    receiver_id: string;
-    route: string;
-    type: string;
-  }>;
-  notify_terminals: Record<string, string>;
-  route_match: {
-    UNKNOWN: string;
-    INFO: string;
-    WARNING: string;
-    ERROR: string;
-    CRITICAL: string;
-  };
+  type: string;
+  receiver_id: string;
+  /**
+   * 接收者想要接收的最低等级的告警
+   *
+   * UNKNOWN > CRITICAL > ERROR > WARNING > INFO
+   *
+   * 例如，route 设置为 ERROR，则 ERROR, CRITICAL, UNKNOWN 级别的告警都会发送给该接收者
+   */
+  severity: string;
+  enabled: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
-const configSchema: JSONSchema7 = {
-  type: 'object',
-  properties: {
-    receivers: {
-      type: 'array',
-      items: {
-        type: 'object',
-        required: ['receiver_id', 'route', 'type'],
-        properties: {
-          receiver_id: {
-            type: 'string',
-          },
-          route: {
-            type: 'string',
-          },
-          type: {
-            type: 'string',
-          },
-        },
-      },
-    },
-    notify_terminals: {
-      // TODO(wsy): validate for record
-      type: 'object',
-    },
-    route_match: {
-      type: 'object',
-      required: ['UNKNOWN', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'],
-      properties: {
-        UNKNOWN: {
-          type: 'string',
-        },
-        INFO: {
-          type: 'string',
-        },
-        WARNING: {
-          type: 'string',
-        },
-        ERROR: {
-          type: 'string',
-        },
-        CRITICAL: {
-          type: 'string',
-        },
-      },
-    },
-  },
-};
+AddMigration({
+  id: '5d4b9762-7e83-417b-94f4-21fe4cba0f1d',
+  name: 'create alert_receiver_config table',
+  dependencies: [],
+  statement: `
+    CREATE TABLE IF NOT EXISTS alert_receiver_config (
+      type TEXT NOT NULL,
+      receiver_id TEXT NOT NULL,
+      severity TEXT NOT NULL,
+      created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
+      enabled BOOLEAN DEFAULT TRUE,
+      PRIMARY KEY (type, receiver_id)
+    );
 
-const ajv = new Ajv();
-const validate = ajv.compile(configSchema);
+    create or replace trigger auto_update_updated_at before update on alert_receiver_config for each row execute function update_updated_at_column();
+  `,
+});
 
 const makeNotifyMessage = (ctx: IAlertGroup) => {
   return [
@@ -164,8 +128,8 @@ const makeNotifyMessage = (ctx: IAlertGroup) => {
         `###########`,
         `- description: ${alert.description ?? 'None'}`,
         `  status: ${alert.resolved ? 'resolved' : 'firing'}`,
-        `  start_time: ${moment.utc(alert.start_time).format()}`,
-        `  end_time: ${alert.end_time !== 0 ? moment.utc(alert.end_time).format() : 'still firing'}`,
+        `  start_time: ${formatTime(alert.start_time)}`,
+        `  end_time: ${alert.end_time !== 0 ? formatTime(alert.end_time) : 'still firing'}`,
         `  metric_value: ${alert.metric_value ?? 'None'}`,
         `###########`,
       ].join('\n');
@@ -175,26 +139,13 @@ const makeNotifyMessage = (ctx: IAlertGroup) => {
 
 const ENV = process.env.ENV!;
 
-const configFilePath = '/etc/alert-receiver/config.json';
-
-const config$ = defer(() => bindNodeCallback(readFile)(configFilePath)).pipe(
-  //
-  map((x) => JSON.parse(x.toString()) as IAlertReceiverConfig),
-  mergeMap((data) => {
-    const isValid = validate(data);
-    if (!isValid) {
-      console.error(validate.errors);
-    }
-    return of(data);
-  }),
-  catchError((err) => {
-    terminal.terminalInfo.status = 'ERROR';
-    throw err;
-  }),
-  shareReplay(1),
-);
+const config$ = defer(() =>
+  requestSQL<IAlertReceiverConfig[]>(terminal, `select * from alert_receiver_config where enabled = true`),
+).pipe(retry({ delay: 1000 }), shareReplay(1));
 
 const terminal = Terminal.fromNodeEnv();
+
+ExecuteMigrations(terminal);
 
 const keepAliveSignal$ = new Subject<void>();
 
@@ -232,16 +183,14 @@ defer(() => keepAliveSignal$.pipe(first()))
   )
   .subscribe();
 
-const httpServer = express();
+terminal.provideService('/external/alertmanager/webhook', {}, async (msg) => {
+  //
+  const { body } = msg.req as { body: string };
+  console.info(formatTime(Date.now()), 'AlertReceived', body);
+  const alertMsg = JSON.parse(body) as IAlertManagerMessage;
 
-// ISSUE: 默认 100kb, alert-receiver 传过来的数据可能会很大，需要增加限制
-httpServer.use(express.json({ limit: '128mb' }));
-
-httpServer.post('/alertmanager', (req, res) => {
-  // receive alerts from alertmanager
-  console.info(formatTime(Date.now()), 'AlertReceived', JSON.stringify(req.body));
-  of(req.body as IAlertManagerMessage)
-    .pipe(
+  await firstValueFrom(
+    of(alertMsg).pipe(
       // keep alive signal
       tap((msg) => {
         if (msg.commonLabels['alertname'] === 'Watchdog') {
@@ -280,22 +229,19 @@ httpServer.post('/alertmanager', (req, res) => {
       }),
       mergeMap((alert) => sendAlert(alert)),
       toArray(),
-    )
-    .subscribe((alerts) => {
-      res.status(204).end();
-    });
+    ),
+  );
+  return { res: { code: 0, message: 'OK', data: { status: 204 } } };
 });
 
-httpServer.listen(3000);
+const SEVERITY_LEVEL = ['UNKNOWN', 'CRITICAL', 'ERROR', 'WARNING', 'INFO'];
 
 function sendAlert(alert: IAlertGroup) {
   return config$.pipe(
     //
-    first(),
     mergeMap((config) =>
-      from(config.receivers).pipe(
-        //
-        filter((v) => (config.route_match[alert.severity] ?? config.route_match['UNKNOWN']) === v.route),
+      from(config).pipe(
+        filter((v) => SEVERITY_LEVEL.indexOf(alert.severity) <= SEVERITY_LEVEL.indexOf(v.severity)),
         tap((v) => {
           console.info(
             formatTime(Date.now()),
@@ -307,7 +253,8 @@ function sendAlert(alert: IAlertGroup) {
           );
         }),
         mergeMap((v) =>
-          terminal.request('Notify', config.notify_terminals[v.type], {
+          terminal.requestService('Notify', {
+            type: v.type,
             receiver_id: v.receiver_id,
             message: makeNotifyMessage(alert),
           }),
