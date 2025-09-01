@@ -1,6 +1,13 @@
 # Change Log - @yuants/deploy
 
-This log was last generated on Sat, 30 Aug 2025 22:44:39 GMT and should not be manually modified.
+This log was last generated on Mon, 01 Sep 2025 23:04:02 GMT and should not be manually modified.
+
+## 0.3.0
+Mon, 01 Sep 2025 23:04:02 GMT
+
+### Minor changes
+
+- add field address
 
 ## 0.2.2
 Sat, 30 Aug 2025 22:44:39 GMT
