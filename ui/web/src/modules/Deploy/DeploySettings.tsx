@@ -4,7 +4,7 @@ import { IDeployment } from '@yuants/deploy';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { UUID } from '@yuants/utils';
 import { useObservableState } from 'observable-hooks';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   BehaviorSubject,
   combineLatest,
@@ -85,6 +85,12 @@ registerPage('DeploySettings', () => {
   const [loading, setLoading] = useState(false);
 
   const packageVersion = useObservableState(packageVersion$);
+
+  useEffect(() => {
+    if (editDeployment?.package_name && !mapPackageNameToVersions.has(editDeployment.package_name)) {
+      fetchVersionInfo(editDeployment.package_name).subscribe();
+    }
+  }, [editDeployment?.package_name]);
 
   const onDelete = async (id: string) => {
     try {

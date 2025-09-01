@@ -62,13 +62,18 @@ interface IPositionTarget {
 
 const tradeConfig$ = defer(() =>
   requestSQL<ITradeCopierTradeConfig[]>(terminal, `select * from trade_copier_trade_config`),
-).pipe(shareReplay(1));
+).pipe(
+  //
+  retry({ delay: 1000 }),
+  shareReplay(1),
+);
 
 const config$ = defer(() =>
   requestSQL<ITradeCopyRelation[]>(terminal, `select * from trade_copy_relation where disabled = false`),
 )
   .pipe(
     //
+    retry({ delay: 1000 }),
     map((data): ITradeCopierConfig => ({ tasks: data })),
   )
   .pipe(
