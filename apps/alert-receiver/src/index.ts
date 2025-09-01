@@ -173,10 +173,6 @@ const makeNotifyMessage = (ctx: IAlertGroup) => {
   ].join('\n');
 };
 
-const HV_URL = process.env.HV_URL!;
-
-const TERMINAL_ID = process.env.TERMINAL_ID || `webhook-receiver/alert`;
-
 const ENV = process.env.ENV!;
 
 const configFilePath = '/etc/alert-receiver/config.json';
@@ -192,17 +188,13 @@ const config$ = defer(() => bindNodeCallback(readFile)(configFilePath)).pipe(
     return of(data);
   }),
   catchError((err) => {
-    term.terminalInfo.status = 'ERROR';
+    terminal.terminalInfo.status = 'ERROR';
     throw err;
   }),
   shareReplay(1),
 );
 
-const term = new Terminal(HV_URL, {
-  terminal_id: TERMINAL_ID,
-  name: 'Webhook Receiver Alert',
-  status: 'OK',
-});
+const terminal = Terminal.fromNodeEnv();
 
 const keepAliveSignal$ = new Subject<void>();
 
@@ -315,7 +307,7 @@ function sendAlert(alert: IAlertGroup) {
           );
         }),
         mergeMap((v) =>
-          term.request('Notify', config.notify_terminals[v.type], {
+          terminal.request('Notify', config.notify_terminals[v.type], {
             receiver_id: v.receiver_id,
             message: makeNotifyMessage(alert),
           }),

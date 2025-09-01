@@ -9,10 +9,10 @@ export default (context: IExtensionContext) => {
         properties: {
           env: {
             type: 'object',
-            required: ['HV_URL', 'ENV'],
+            required: ['HOST_URL', 'ENV'],
             properties: {
               TERMINAL_ID: { type: 'string' },
-              HV_URL: { type: 'string' },
+              HOST_URL: { type: 'string' },
               ENV: { type: 'string' },
             },
           },
