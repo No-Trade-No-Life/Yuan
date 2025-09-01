@@ -2,6 +2,23 @@
   "name": "@yuants/app-alert-receiver",
   "entries": [
     {
+      "version": "0.2.0",
+      "tag": "@yuants/app-alert-receiver_v0.2.0",
+      "date": "Mon, 01 Sep 2025 15:30:31 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "use external http call"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.110",
       "tag": "@yuants/app-alert-receiver_v0.1.110",
       "date": "Mon, 01 Sep 2025 12:11:32 GMT",
