@@ -31,21 +31,21 @@ const DURATION_TO_OKX_BAR_TYPE: Record<string, string> = {
 };
 
 const DURATION_TO_OKX_CANDLE_TYPE: Record<string, string> = {
-  PT1M: 'mark-price-candle1m',
-  PT3M: 'mark-price-candle3m',
-  PT5M: 'mark-price-candle5m',
-  PT15M: 'mark-price-candle15m',
-  PT30M: 'mark-price-candle30m',
+  PT1M: 'candle1m',
+  PT3M: 'candle3m',
+  PT5M: 'candle5m',
+  PT15M: 'candle15m',
+  PT30M: 'candle30m',
 
-  PT1H: 'mark-price-candle1H',
-  PT2H: 'mark-price-candle2H',
-  PT4H: 'mark-price-candle4H',
-  PT6H: 'mark-price-candle6H',
-  PT12H: 'mark-price-candle12H',
+  PT1H: 'candle1H',
+  PT2H: 'candle2H',
+  PT4H: 'candle4H',
+  PT6H: 'candle6H',
+  PT12H: 'candle12H',
 
-  P1D: 'mark-price-candle1D',
-  P1W: 'mark-price-candle1W',
-  P1M: 'mark-price-candle1M',
+  P1D: 'candle1D',
+  P1W: 'candle1W',
+  P1M: 'candle1M',
 };
 
 createSeriesProvider<IOHLC>(Terminal.fromNodeEnv(), {
@@ -127,21 +127,22 @@ Terminal.fromNodeEnv().channel.publishChannel('ohlc', { pattern: `^OKX/` }, (ser
     throw 'duration is invalid';
   }
   const candleType = DURATION_TO_OKX_CANDLE_TYPE[duration];
-  console.info(formatTime(Date.now()), `subscribe`, series_id);
+  console.info(formatTime(Date.now()), `subscribe`, series_id, product_id);
   return new Observable<IOHLC>((subscriber) => {
     console.info(formatTime(Date.now()), `subscribe`, candleType, instId);
     const okxBusinessWsClient = new OKXWsClient('ws/v5/business');
     okxBusinessWsClient.subscribe(candleType, instId, async (data: string[]) => {
+      console.info(formatTime(Date.now()), `#######Data`, data);
       const created_at = Number(data[0]);
       const closed_at = created_at + offset;
       const open = data[1];
       const high = data[2];
       const low = data[3];
       const close = data[4];
+      const volume = data[5];
       if (isNaN(closed_at)) {
         return;
       }
-      console.info(formatTime(Date.now()), `insertData`, data);
       const cancelData: IOHLC = {
         closed_at: formatTime(closed_at),
         created_at: formatTime(created_at),
@@ -153,7 +154,7 @@ Terminal.fromNodeEnv().channel.publishChannel('ohlc', { pattern: `^OKX/` }, (ser
         datasource_id,
         duration,
         product_id,
-        volume: '0',
+        volume,
         open_interest: '0',
       };
       subscriber.next(cancelData);
