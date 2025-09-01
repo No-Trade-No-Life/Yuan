@@ -115,21 +115,16 @@ importers:
       '@types/node': '22'
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
-      ajv: ~8.12.0
-      express: ~4.18.2
       json-schema: ~0.4.0
-      moment-timezone: ~0.5.40
       rxjs: ~7.5.6
       typescript: ~4.7.4
     dependencies:
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
-      ajv: 8.12.0
-      express: 4.18.2
-      json-schema: 0.4.0
-      moment-timezone: 0.5.43
       rxjs: 7.5.7
     devDependencies:
       '@microsoft/api-extractor': 7.30.1
@@ -142,6 +137,7 @@ importers:
       '@types/node': 22.7.5
       '@yuants/extension': link:../../libraries/extension
       '@yuants/tool-kit': link:../../tools/toolkit
+      json-schema: 0.4.0
       typescript: 4.7.4
 
   ../../apps/app-openai:
@@ -20824,16 +20820,6 @@ packages:
     resolution: {integrity: sha512-sjAkg21peAG9HS+Dkx7hlG9Ztx7HLeKnvB3NQRcu/mltCVmvkF0pisbiTSfDVYTT86XEfZrTUosLdZLStquZUw==}
     engines: {node: '>=10'}
     hasBin: true
-    dev: false
-
-  /moment-timezone/0.5.43:
-    resolution: {integrity: sha512-72j3aNyuIsDxdF1i7CEgV2FfxM1r6aaqJyLB2vwb33mXYyoyLly+F1zbWqhA3/bVIoJ4szlUoMbUnVdid32NUQ==}
-    dependencies:
-      moment: 2.29.4
-    dev: false
-
-  /moment/2.29.4:
-    resolution: {integrity: sha512-5LC9SOxjSc2HF6vO2CyuTDNivEdoz2IvyJJGj6X8DJ0eFyfszE0QiEd+iXmBvUP3WHxSjFH/vIsA0EN00cgr8w==}
     dev: false
 
   /monaco-editor/0.40.0:
