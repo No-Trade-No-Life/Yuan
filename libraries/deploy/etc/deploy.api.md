@@ -6,6 +6,7 @@
 
 // @public
 export interface IDeployment {
+    address: string;
     args: string[];
     command: string;
     created_at: string;

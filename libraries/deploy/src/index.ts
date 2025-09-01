@@ -37,6 +37,14 @@ export interface IDeployment {
   env: Record<string, string>;
 
   /**
+   * Node Unit Address (ED25519 Public Key)
+   *
+   * If not empty, the deployment will be deployed to the specified Node Unit
+   * If empty, the deployment will be deployed to any available Node Unit
+   */
+  address: string;
+
+  /**
    * Is the deployment enabled?
    */
   enabled: boolean;
@@ -85,5 +93,23 @@ AddMigration({
         ALTER TABLE deployment
         ADD COLUMN IF NOT EXISTS package_name TEXT NOT NULL DEFAULT '',
         ADD COLUMN IF NOT EXISTS package_version TEXT NOT NULL DEFAULT '';
+  `,
+});
+
+AddMigration({
+  id: '6636f371-eec9-4295-bac1-29f23a3c470f',
+  name: 'alter_column_command_set_default_empty_string',
+  dependencies: ['b9fcea5f-f772-4e79-9055-af4ca238dcad'],
+  statement: `
+    ALTER TABLE deployment ALTER COLUMN command SET DEFAULT '';
+  `,
+});
+
+AddMigration({
+  id: 'fef4fb20-af13-41f3-93c6-ab0cec526bb4',
+  name: 'add_column_address_to_deployment',
+  dependencies: ['b9fcea5f-f772-4e79-9055-af4ca238dcad'],
+  statement: `
+    ALTER TABLE deployment ADD COLUMN IF NOT EXISTS address TEXT NOT NULL DEFAULT '';
   `,
 });
