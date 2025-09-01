@@ -2,6 +2,23 @@
   "name": "@yuants/app-feishu-notifier",
   "entries": [
     {
+      "version": "0.3.0",
+      "tag": "@yuants/app-feishu-notifier_v0.3.0",
+      "date": "Mon, 01 Sep 2025 15:30:31 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add type"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.3",
       "tag": "@yuants/app-feishu-notifier_v0.2.3",
       "date": "Sat, 30 Aug 2025 22:44:39 GMT",
