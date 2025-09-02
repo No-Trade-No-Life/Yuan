@@ -1,6 +1,13 @@
 # Change Log - @yuants/node-unit
 
-This log was last generated on Tue, 02 Sep 2025 15:03:38 GMT and should not be manually modified.
+This log was last generated on Tue, 02 Sep 2025 18:08:47 GMT and should not be manually modified.
+
+## 0.7.2
+Tue, 02 Sep 2025 18:08:47 GMT
+
+### Patches
+
+- fix childkey lost issue
 
 ## 0.7.1
 Tue, 02 Sep 2025 15:03:38 GMT
