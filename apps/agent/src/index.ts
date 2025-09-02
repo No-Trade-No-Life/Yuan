@@ -37,7 +37,7 @@ defer(async () => {
   });
 
   const resData = res.data as { data: string };
-  if (!resData) throw new Error(`Failed to decrypt secret ${secret_code_id}`);
+  if (!resData) throw new Error(`Failed to decrypt secret ${secret_code_id}: ${res.code}: ${res.message}`);
   const decrypted_data_base58 = decryptByPrivateKey(decodeBase58(resData.data), PRIVATE_KEY);
   const code = new TextDecoder().decode(decrypted_data_base58);
 
