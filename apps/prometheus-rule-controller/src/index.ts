@@ -3,7 +3,20 @@ import { ExecuteMigrations, requestSQL } from '@yuants/sql';
 import { formatTime, listWatch } from '@yuants/utils';
 import fs from 'fs';
 import path from 'path';
-import { debounceTime, defer, groupBy, map, mergeMap, repeat, retry, Subject, tap, toArray } from 'rxjs';
+import {
+  catchError,
+  debounceTime,
+  defer,
+  EMPTY,
+  groupBy,
+  map,
+  mergeMap,
+  repeat,
+  retry,
+  Subject,
+  tap,
+  toArray,
+} from 'rxjs';
 import YAML from 'yaml';
 import './migration';
 import { IPrometheusRule, IRawPrometheusRuleGroup } from './models';
@@ -62,6 +75,9 @@ reloadPrometheusAction$
           },
         }),
         retry({ count: 3, delay: 1000 }),
+        catchError((e) => {
+          return EMPTY;
+        }),
       ),
     ),
   )
