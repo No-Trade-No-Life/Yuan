@@ -329,13 +329,13 @@ export const createNodeJSHostManager = () => {
   };
 
   const servers = [
-    ...[createServer().listen(8888)],
+    ...[createServer().listen(process.env.PORT ? Number(process.env.PORT) : 8888)],
     ...(process.env.SSL_KEY_PATH && process.env.SSL_CERT_PATH
       ? [
           createHttpsServer({
             key: readFileSync(process.env.SSL_KEY_PATH),
             cert: readFileSync(process.env.SSL_CERT_PATH),
-          }).listen(18888),
+          }).listen(process.env.SSL_PORT ? Number(process.env.SSL_PORT) : 18888),
         ]
       : []),
   ];
