@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-host
 
-This log was last generated on Tue, 02 Sep 2025 22:24:07 GMT and should not be manually modified.
+This log was last generated on Tue, 02 Sep 2025 22:59:18 GMT and should not be manually modified.
+
+## 0.8.0
+Tue, 02 Sep 2025 22:59:18 GMT
+
+### Minor changes
+
+- support custom port
 
 ## 0.7.0
 Tue, 02 Sep 2025 22:24:07 GMT
