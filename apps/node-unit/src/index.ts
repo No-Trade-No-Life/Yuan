@@ -215,6 +215,7 @@ const runDeployment = (deployment: IDeployment) => {
                 HOST_URL: process.env.HOST_URL,
                 TERMINAL_ID: encodePath('Deployment', deployment.id),
                 TERMINAL_NAME: terminalName,
+                DEPLOYMENT_NODE_UNIT_ADDRESS: NODE_UNIT_PUBLIC_KEY,
                 DEPLOYMENT_PRIVATE_KEY: childKeyPair.private_key,
               },
               deployment.env,
@@ -287,6 +288,7 @@ defer(async () => {
     'NodeUnit/DecryptForChild',
     {
       type: 'object',
+      required: ['node_unit_address', 'encrypted_data_base58', 'child_public_key'],
       properties: {
         node_unit_address: { type: 'string', const: NODE_UNIT_PUBLIC_KEY },
         encrypted_data_base58: { type: 'string' },
