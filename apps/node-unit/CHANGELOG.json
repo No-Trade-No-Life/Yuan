@@ -2,6 +2,23 @@
   "name": "@yuants/node-unit",
   "entries": [
     {
+      "version": "0.7.0",
+      "tag": "@yuants/node-unit_v0.7.0",
+      "date": "Tue, 02 Sep 2025 12:18:18 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "allow decrypt for child processes"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.6.1",
       "tag": "@yuants/node-unit_v0.6.1",
       "date": "Tue, 02 Sep 2025 01:40:20 GMT",

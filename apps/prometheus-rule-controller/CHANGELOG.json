@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/app-prometheus-rule-controller",
+  "entries": [
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/app-prometheus-rule-controller_v0.1.0",
+      "date": "Tue, 02 Sep 2025 12:18:18 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "init package"
+          }
+        ]
+      }
+    }
+  ]
+}
