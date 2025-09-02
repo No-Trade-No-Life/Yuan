@@ -1,6 +1,13 @@
 # Change Log - @yuants/node-unit
 
-This log was last generated on Tue, 02 Sep 2025 01:40:20 GMT and should not be manually modified.
+This log was last generated on Tue, 02 Sep 2025 12:18:18 GMT and should not be manually modified.
+
+## 0.7.0
+Tue, 02 Sep 2025 12:18:18 GMT
+
+### Minor changes
+
+- allow decrypt for child processes
 
 ## 0.6.1
 Tue, 02 Sep 2025 01:40:20 GMT
