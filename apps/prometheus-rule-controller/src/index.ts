@@ -77,11 +77,11 @@ reloadPrometheusAction$
  * 4. 触发 Prometheus 重新加载配置
  *
  * @param configDirPath - Prometheus 规则文件的输出目录路径
- *                       函数会在此目录下为每个规则组创建对应的 .yml 文件
+ *                        函数会在此目录下为每个规则组创建对应的 .yml 文件
  * @param prometheusURL - Prometheus 服务器的 URL（包括协议和端口）
- *                       用于调用 /-/reload 端点重新加载配置
- * @returns Observable<IPrometheusRuleGroup[]> - 返回一个 Observable，发出规则组数组
- *                                              每当数据库中的规则发生变化时会发出新的值
+ *                        用于调用 /-/reload 端点重新加载配置
+ * @returns - 返回一个 Observable，发出规则组数组
+ *            每当数据库中的规则发生变化时会发出新的值
  *
  * @example
  * ```typescript

@@ -6,7 +6,7 @@
 
 import { Observable } from 'rxjs';
 
-// @public (undocumented)
+// @public
 export const reconcile: (configDirPath: string, prometheusURL: string) => Observable<undefined>;
 
 // (No @packageDocumentation comment for this package)
