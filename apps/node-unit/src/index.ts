@@ -154,94 +154,78 @@ const spawnChild = (ctx: {
 const childPublicKeys = new Set<string>();
 
 const runDeployment = (deployment: IDeployment) => {
-  const command = deployment.command;
-  const executable = mapCommandToExecutable[command] || command;
-  const args = deployment.args.slice();
-  if (command === 'npx') {
-    args.unshift('-y');
-  }
-  const terminalName = `${command} ${args.join(' ')}`;
+  const terminalName = `${deployment.package_name}@${deployment.package_version}`;
 
   const deploymentDir = join(WORKSPACE_DIR, 'deployments', deployment.id);
   const logHome = join(WORKSPACE_DIR, 'logs');
 
-  const needInstall = deployment.package_name && deployment.package_version;
-
   // 使用 node 运行这个包目录本身，会通过 main 字段去加载入口文件
   const entryFile = join(deploymentDir, 'node_modules', deployment.package_name);
 
-  const childKeyPair = createKeyPair();
-  childPublicKeys.add(childKeyPair.public_key);
-
   return defer(() =>
     concat(
-      needInstall
-        ? defer(async () => {
-            // EnsureDir log
-            await mkdir(logHome, { recursive: true });
+      defer(async () => {
+        // EnsureDir log
+        await mkdir(logHome, { recursive: true });
 
-            // EnsureEmptyDir deployment
-            await rm(deploymentDir, { recursive: true, force: true });
-            await mkdir(deploymentDir, { recursive: true });
+        // EnsureEmptyDir deployment
+        await rm(deploymentDir, { recursive: true, force: true });
+        await mkdir(deploymentDir, { recursive: true });
 
-            await writeFile(
-              join(deploymentDir, 'package.json'),
-              JSON.stringify({
-                dependencies: {
-                  [deployment.package_name]: deployment.package_version,
-                },
-              }),
-            );
-          }).pipe(mergeMap(() => EMPTY)) // suppress signal
-        : EMPTY,
-      needInstall
-        ? spawnChild({
-            command: PNPM_PATH || NPM_PATH,
-            args: ['install'],
-            env: Object.assign({}, process.env, deployment.env),
-            cwd: deploymentDir,
-            stdoutFilename: join(logHome, `${deployment.id}.install.log`),
-            stderrFilename: join(logHome, `${deployment.id}.install.err.log`),
-          }).pipe(mergeMap(() => EMPTY)) // suppress signal
-        : EMPTY,
-
-      needInstall
-        ? spawnChild({
-            command: NODE_PATH,
-            args: [entryFile],
-            env: Object.assign(
-              {},
-              process.env,
-              {
-                HOST_URL: process.env.HOST_URL,
-                TERMINAL_ID: encodePath('Deployment', deployment.id),
-                TERMINAL_NAME: terminalName,
-                DEPLOYMENT_NODE_UNIT_ADDRESS: NODE_UNIT_PUBLIC_KEY,
-                DEPLOYMENT_PRIVATE_KEY: childKeyPair.private_key,
-              },
-              deployment.env,
-            ),
-            cwd: deploymentDir,
-            stdoutFilename: join(logHome, `${deployment.id}.log`),
-            stderrFilename: join(logHome, `${deployment.id}.err.log`),
-          })
-        : spawnChild({
-            command: executable,
-            args,
-            env: Object.assign(
-              {},
-              process.env,
-              {
-                HOST_URL: process.env.HOST_URL,
-                TERMINAL_ID: encodePath('Deployment', deployment.id),
-                TERMINAL_NAME: terminalName,
-              },
-              deployment.env,
-            ),
-            cwd: deploymentDir,
-            stdoutFilename: join(logHome, `${deployment.id}.log`),
-            stderrFilename: join(logHome, `${deployment.id}.err.log`),
+        await writeFile(
+          join(deploymentDir, 'package.json'),
+          JSON.stringify({
+            dependencies: {
+              [deployment.package_name]: deployment.package_version,
+            },
           }),
+        );
+      }).pipe(mergeMap(() => EMPTY)), // suppress signal
+      spawnChild({
+        command: PNPM_PATH || NPM_PATH,
+        args: ['install'],
+        env: Object.assign({}, process.env, deployment.env),
+        cwd: deploymentDir,
+        stdoutFilename: join(logHome, `${deployment.id}.install.log`),
+        stderrFilename: join(logHome, `${deployment.id}.install.err.log`),
+      }).pipe(mergeMap(() => EMPTY)), // suppress signal
+      defer(() => {
+        const childKeyPair = createKeyPair();
+        childPublicKeys.add(childKeyPair.public_key);
+        console.info(formatTime(Date.now()), 'DeploymentAddChildKey', deployment.id, childKeyPair.public_key);
+
+        return spawnChild({
+          command: NODE_PATH,
+          args: [entryFile],
+          env: Object.assign(
+            {},
+            process.env,
+            {
+              HOST_URL: process.env.HOST_URL,
+              TERMINAL_ID: encodePath('Deployment', deployment.id),
+              TERMINAL_NAME: terminalName,
+              DEPLOYMENT_NODE_UNIT_ADDRESS: NODE_UNIT_PUBLIC_KEY,
+              DEPLOYMENT_PRIVATE_KEY: childKeyPair.private_key,
+            },
+            deployment.env,
+          ),
+          cwd: deploymentDir,
+          stdoutFilename: join(logHome, `${deployment.id}.log`),
+          stderrFilename: join(logHome, `${deployment.id}.err.log`),
+        }).pipe(
+          tap({
+            finalize: () => {
+              console.info(
+                formatTime(Date.now()),
+                'DeploymentRemoveChildKey',
+                deployment.id,
+                childKeyPair.public_key,
+              );
+              childPublicKeys.delete(childKeyPair.public_key);
+            },
+          }),
+        );
+      }),
     ),
   ).pipe(
     tap({
@@ -259,7 +243,6 @@ const runDeployment = (deployment: IDeployment) => {
       },
       finalize: () => {
         console.info(formatTime(Date.now()), `DeploymentComplete`, deployment.id, terminalName);
-        childPublicKeys.delete(childKeyPair.public_key);
       },
     }),
     //

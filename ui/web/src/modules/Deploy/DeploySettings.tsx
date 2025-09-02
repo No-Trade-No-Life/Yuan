@@ -1,5 +1,5 @@
 import { IconHelpCircle, IconMinusCircle, IconPlusCircle } from '@douyinfe/semi-icons';
-import { ArrayField, Form, Modal, Popconfirm, Space, Tooltip } from '@douyinfe/semi-ui';
+import { ArrayField, Form, Modal, Space, Tooltip } from '@douyinfe/semi-ui';
 import { IDeployment } from '@yuants/deploy';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { UUID } from '@yuants/utils';
@@ -102,6 +102,7 @@ registerPage('DeploySettings', () => {
           delete from deployment where id=${escapeSQL(id)}
           `,
         );
+        Toast.success('删除成功');
         refresh$.next();
       }
     } catch (e) {
@@ -244,16 +245,25 @@ registerPage('DeploySettings', () => {
             cell: (ctx) => (
               <Space vertical>
                 <Button onClick={() => onEdit(ctx.row.original)}>编辑</Button>
-                <Popconfirm
-                  title="确定是否要删除改配置？"
-                  content="此修改将不可逆"
-                  onConfirm={() => onDelete(ctx.row.original.id)}
-                  // onCancel={() => {}}
-                  position="left"
+                <Button
+                  type="danger"
+                  doubleCheck={{
+                    title: '确认删除此配置？',
+                    description: (
+                      <pre
+                        style={{
+                          width: '100%',
+                          overflow: 'auto',
+                        }}
+                      >
+                        {JSON.stringify(ctx.row.original, null, 2)}
+                      </pre>
+                    ),
+                  }}
+                  onClick={() => onDelete(ctx.row.original.id)}
                 >
-                  {/* <Button>保存</Button> */}
-                  <Button type="danger">删除</Button>
-                </Popconfirm>
+                  删除
+                </Button>
               </Space>
             ),
           },

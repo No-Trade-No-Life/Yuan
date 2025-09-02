@@ -1,7 +1,8 @@
-import { Button as SemiButton } from '@douyinfe/semi-ui';
+import { Modal, Button as SemiButton } from '@douyinfe/semi-ui';
 import { ButtonProps } from '@douyinfe/semi-ui/lib/es/button';
 import React, { useState } from 'react';
 import { Toast } from './Toast';
+import { showForm } from '../Form';
 
 /**
  * Yuan Button Component
@@ -11,7 +12,12 @@ import { Toast } from './Toast';
  * - We need to know whether the backend click event is processing or not.
  */
 export const Button = React.memo(
-  (props: Omit<ButtonProps, 'onClick' | 'loading'> & { onClick?: () => any }) => {
+  (
+    props: Omit<ButtonProps, 'onClick' | 'loading'> & {
+      onClick?: () => any;
+      doubleCheck?: { title: React.ReactNode; description?: React.ReactNode };
+    },
+  ) => {
     const [isLoading, setLoading] = useState(false);
     return (
       <SemiButton
@@ -22,6 +28,22 @@ export const Button = React.memo(
         onClick={async (e) => {
           setLoading(true);
           try {
+            const doubleCheck = props.doubleCheck;
+            if (doubleCheck) {
+              const confirmed = await new Promise((res) =>
+                Modal.confirm({
+                  title: doubleCheck.title,
+                  content: doubleCheck.description,
+                  okText: '确认',
+                  cancelText: '取消',
+                  onCancel: () => res(false),
+                  onOk: () => res(true),
+                }),
+              );
+              if (!confirmed) {
+                throw new Error('User Cancelled');
+              }
+            }
             await props.onClick?.();
           } catch (e) {
             Toast.error(`${e}`);
