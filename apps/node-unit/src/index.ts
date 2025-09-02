@@ -5,6 +5,7 @@ import { escapeSQL, ExecuteMigrations, requestSQL } from '@yuants/sql';
 import {
   createKeyPair,
   decodeBase58,
+  decryptByPrivateKey,
   encodeBase58,
   encodePath,
   encryptByPublicKey,
@@ -304,7 +305,13 @@ defer(async () => {
         return { res: { code: 403, message: 'Child public key not recognized' } };
       }
       const encrypted_data = decodeBase58(encrypted_data_base58);
-      const data = encodeBase58(encryptByPublicKey(encrypted_data, child_public_key));
+      // decrypt with parent private key
+      const decrypted_data = decryptByPrivateKey(encrypted_data, NodeUnitKeyPair.private_key);
+      if (!decrypted_data) {
+        return { res: { code: 403, message: 'NodeUnit decryption failed: wrong parent private key' } };
+      }
+      // re-encrypt with child's public key
+      const data = encodeBase58(encryptByPublicKey(decrypted_data, child_public_key));
       return {
         res: {
           code: 0,
