@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-host
 
-This log was last generated on Tue, 02 Sep 2025 01:40:20 GMT and should not be manually modified.
+This log was last generated on Tue, 02 Sep 2025 22:24:07 GMT and should not be manually modified.
+
+## 0.7.0
+Tue, 02 Sep 2025 22:24:07 GMT
+
+### Minor changes
+
+- support tls
 
 ## 0.6.4
 Tue, 02 Sep 2025 01:40:20 GMT

@@ -2,6 +2,23 @@
   "name": "@yuants/app-host",
   "entries": [
     {
+      "version": "0.7.0",
+      "tag": "@yuants/app-host_v0.7.0",
+      "date": "Tue, 02 Sep 2025 22:24:07 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "support tls"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.6.4",
       "tag": "@yuants/app-host_v0.6.4",
       "date": "Tue, 02 Sep 2025 01:40:20 GMT",
