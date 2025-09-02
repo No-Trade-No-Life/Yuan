@@ -2,6 +2,28 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.39.0",
+      "tag": "@yuants/protocol_v0.39.0",
+      "date": "Tue, 02 Sep 2025 01:40:20 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "metrics using terminal_id to distinct"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.7.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.38.0",
       "tag": "@yuants/protocol_v0.38.0",
       "date": "Sat, 30 Aug 2025 22:44:39 GMT",

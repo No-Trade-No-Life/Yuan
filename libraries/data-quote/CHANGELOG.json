@@ -2,6 +2,26 @@
   "name": "@yuants/data-quote",
   "entries": [
     {
+      "version": "0.2.11",
+      "tag": "@yuants/data-quote_v0.2.11",
+      "date": "Tue, 02 Sep 2025 01:40:20 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.39.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.8.6`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.10",
       "tag": "@yuants/data-quote_v0.2.10",
       "date": "Sat, 30 Aug 2025 22:44:39 GMT",

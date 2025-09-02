@@ -1,6 +1,13 @@
 # Change Log - @yuants/utils
 
-This log was last generated on Sat, 23 Aug 2025 20:08:09 GMT and should not be manually modified.
+This log was last generated on Tue, 02 Sep 2025 01:40:20 GMT and should not be manually modified.
+
+## 0.7.0
+Tue, 02 Sep 2025 01:40:20 GMT
+
+### Minor changes
+
+- add new utils (using ED25519 to encrypt / decrypt)
 
 ## 0.6.0
 Sat, 23 Aug 2025 20:08:09 GMT

@@ -2,6 +2,26 @@
   "name": "@yuants/sql",
   "entries": [
     {
+      "version": "0.8.6",
+      "tag": "@yuants/sql_v0.8.6",
+      "date": "Tue, 02 Sep 2025 01:40:20 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.39.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.7.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.8.5",
       "tag": "@yuants/sql_v0.8.5",
       "date": "Sat, 30 Aug 2025 22:44:39 GMT",
