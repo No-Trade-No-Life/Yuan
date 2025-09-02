@@ -9,6 +9,9 @@ import { Observable } from 'rxjs';
 // @public
 export const reconcile: (configDirPath: string, prometheusURL: string) => Observable<undefined>;
 
+// @public
+export const reconcileK8s: (kubeConfigPath?: string) => Observable<undefined>;
+
 // (No @packageDocumentation comment for this package)
 
 ```
