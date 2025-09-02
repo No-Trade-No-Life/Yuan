@@ -44,18 +44,8 @@ AddMigration({
     CREATE INDEX IF NOT EXISTS idx_prometheus_rule_created_at ON prometheus_rule(created_at);
     CREATE INDEX IF NOT EXISTS idx_prometheus_rule_created_at ON prometheus_rule(created_at);
 
-    -- 创建更新时间触发器函数
-    CREATE OR REPLACE FUNCTION update_updated_at_column()
-    RETURNS TRIGGER AS $$
-    BEGIN
-        NEW.updated_at = CURRENT_TIMESTAMP;
-        RETURN NEW;
-    END;
-    $$ language 'plpgsql';
-
     -- 为规则表创建更新时间触发器
-    DROP TRIGGER IF EXISTS update_prometheus_rule_updated_at ON prometheus_rule;
-    CREATE TRIGGER update_prometheus_rule_updated_at
+    CREATE OR REPLACE TRIGGER update_prometheus_rule_updated_at
         BEFORE UPDATE ON prometheus_rule
         FOR EACH ROW
         EXECUTE FUNCTION update_updated_at_column();

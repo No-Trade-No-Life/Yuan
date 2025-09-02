@@ -132,7 +132,7 @@ export const reconcile = (configDirPath: string, prometheusURL: string) => {
           const yamlObject = {
             groups: [ruleFileContent],
           };
-          const yamlContent = YAML.stringify(yamlObject);
+          const yamlContent = YAML.stringify(JSON.parse(JSON.stringify(yamlObject)));
 
           // 2. write to file according to it's rule name
           const filePath = path.join(configDirPath, `${group.name}.yml`);

@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { formatTime } from '@yuants/utils';
 import { existsSync } from 'fs';
 import { resolve } from 'path';
