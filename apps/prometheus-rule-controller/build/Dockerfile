@@ -17,10 +17,10 @@ USER node
 
 WORKDIR /app
 
-COPY --chown=node:node ./out/app-alert-receiver-out /app
+COPY --chown=node:node ./out/app-prometheus-rule-controller-out /app
 
 RUN node create-links.js create
 
-WORKDIR /app/apps/alert-receiver
+WORKDIR /app/apps/prometheus-rule-controller
 
 CMD ["node", "--heapsnapshot-signal=SIGUSR2", "./lib/index.js"]

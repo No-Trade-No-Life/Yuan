@@ -13,7 +13,7 @@ AddMigration({
       group_name TEXT NOT NULL,
       
       -- 规则基本信息
-      rule_type TEXT NOT NULL CHECK (rule_type IN ('alerting', 'recording')),
+      type TEXT NOT NULL CHECK (type IN ('alerting', 'recording')),
       name TEXT NOT NULL,
       expr TEXT NOT NULL,
       
@@ -42,7 +42,7 @@ AddMigration({
     CREATE INDEX IF NOT EXISTS idx_prometheus_rule_labels ON prometheus_rule USING GIN(labels);
     CREATE INDEX IF NOT EXISTS idx_prometheus_rule_annotations ON prometheus_rule USING GIN(annotations);
     CREATE INDEX IF NOT EXISTS idx_prometheus_rule_created_at ON prometheus_rule(created_at);
-    CREATE INDEX IF NOT EXISTS idx_prometheus_rule_updated_at ON prometheus_rule(updated_at);
+    CREATE INDEX IF NOT EXISTS idx_prometheus_rule_created_at ON prometheus_rule(created_at);
 
     -- 创建更新时间触发器函数
     CREATE OR REPLACE FUNCTION update_updated_at_column()
