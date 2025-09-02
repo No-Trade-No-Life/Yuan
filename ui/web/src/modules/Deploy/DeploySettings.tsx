@@ -275,7 +275,7 @@ registerPage('DeploySettings', () => {
               const env: Record<string, string> = {};
               values.env?.forEach((item: { key: string; value: string }) => (env[item.key] = item.value));
               console.log({ values });
-              setEditDeployment({ ...values, args, env });
+              setEditDeployment({ ...values, args, env, command: values.command || '' });
             }}
             initValues={editDeployment}
             labelAlign="left"

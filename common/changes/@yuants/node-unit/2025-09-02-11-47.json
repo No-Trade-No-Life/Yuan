@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/node-unit",
+      "comment": "allow decrypt for child processes",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/node-unit"
+}
