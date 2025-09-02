@@ -2,7 +2,16 @@ import '@yuants/deploy';
 import { IDeployment } from '@yuants/deploy';
 import { setupHandShakeService, Terminal } from '@yuants/protocol';
 import { escapeSQL, ExecuteMigrations, requestSQL } from '@yuants/sql';
-import { createKeyPair, encodePath, formatTime, fromPrivateKey, listWatch } from '@yuants/utils';
+import {
+  createKeyPair,
+  decodeBase58,
+  encodeBase58,
+  encodePath,
+  encryptByPublicKey,
+  formatTime,
+  fromPrivateKey,
+  listWatch,
+} from '@yuants/utils';
 import { execSync, spawn } from 'child_process';
 import { createWriteStream } from 'fs';
 import { mkdir, rm, writeFile } from 'fs/promises';
@@ -141,6 +150,8 @@ const spawnChild = (ctx: {
   });
 };
 
+const childPublicKeys = new Set<string>();
+
 const runDeployment = (deployment: IDeployment) => {
   const command = deployment.command;
   const executable = mapCommandToExecutable[command] || command;
@@ -157,6 +168,9 @@ const runDeployment = (deployment: IDeployment) => {
 
   // 使用 node 运行这个包目录本身，会通过 main 字段去加载入口文件
   const entryFile = join(deploymentDir, 'node_modules', deployment.package_name);
+
+  const childKeyPair = createKeyPair();
+  childPublicKeys.add(childKeyPair.public_key);
 
   return defer(() =>
     concat(
@@ -201,6 +215,8 @@ const runDeployment = (deployment: IDeployment) => {
                 HOST_URL: process.env.HOST_URL,
                 TERMINAL_ID: encodePath('Deployment', deployment.id),
                 TERMINAL_NAME: terminalName,
+                DEPLOYMENT_NODE_UNIT_ADDRESS: NODE_UNIT_PUBLIC_KEY,
+                DEPLOYMENT_PRIVATE_KEY: childKeyPair.private_key,
               },
               deployment.env,
             ),
@@ -242,6 +258,7 @@ const runDeployment = (deployment: IDeployment) => {
       },
       finalize: () => {
         console.info(formatTime(Date.now()), `DeploymentComplete`, deployment.id, terminalName);
+        childPublicKeys.delete(childKeyPair.public_key);
       },
     }),
     //
@@ -266,6 +283,37 @@ defer(async () => {
   });
 
   setupHandShakeService(terminal, NodeUnitKeyPair.private_key);
+
+  terminal.provideService(
+    'NodeUnit/DecryptForChild',
+    {
+      type: 'object',
+      required: ['node_unit_address', 'encrypted_data_base58', 'child_public_key'],
+      properties: {
+        node_unit_address: { type: 'string', const: NODE_UNIT_PUBLIC_KEY },
+        encrypted_data_base58: { type: 'string' },
+        child_public_key: { type: 'string' },
+      },
+    },
+    async (msg) => {
+      const { encrypted_data_base58, child_public_key } = msg.req as {
+        encrypted_data_base58: string;
+        child_public_key: string;
+      };
+      if (!childPublicKeys.has(child_public_key)) {
+        return { res: { code: 403, message: 'Child public key not recognized' } };
+      }
+      const encrypted_data = decodeBase58(encrypted_data_base58);
+      const data = encodeBase58(encryptByPublicKey(encrypted_data, child_public_key));
+      return {
+        res: {
+          code: 0,
+          message: 'OK',
+          data: { data },
+        },
+      };
+    },
+  );
 
   ExecuteMigrations(terminal);
 

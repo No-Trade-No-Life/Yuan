@@ -1,31 +1,48 @@
 import { AgentScene, IAgentConf } from '@yuants/agent';
 import { Terminal } from '@yuants/protocol';
-import { loadSecrets } from '@yuants/secret';
+import { ISecret } from '@yuants/secret';
+import { escapeSQL, requestSQL } from '@yuants/sql';
+import { decodeBase58, decryptByPrivateKey, fromPrivateKey } from '@yuants/utils';
 import { defer, of } from 'rxjs';
 
 const terminal = Terminal.fromNodeEnv();
 
 defer(async () => {
-  const secret_code_id = process.env.SECRET_CODE_ID!;
-  const private_key = process.env.PRIVATE_KEY!;
+  const secret_code_id = process.env.SECRET_CODE_ID;
+  if (!secret_code_id) throw new Error(`SECRET_CODE_ID is not set`);
+  const PRIVATE_KEY = process.env.DEPLOYMENT_PRIVATE_KEY;
+  if (!PRIVATE_KEY) throw new Error(`DEPLOYMENT_PRIVATE_KEY is not set`);
+  const DEPLOYMENT_NODE_UNIT_ADDRESS = process.env.DEPLOYMENT_NODE_UNIT_ADDRESS;
+  if (!DEPLOYMENT_NODE_UNIT_ADDRESS) throw new Error(`DEPLOYMENT_NODE_UNIT_ADDRESS is not set`);
+  const keyPair = fromPrivateKey(PRIVATE_KEY);
   const agent_params = JSON.parse(process.env.AGENT_PARAMS!);
   const start_time = process.env.STARTED_AT!;
   const kernel_id = process.env.KERNEL_ID!;
 
-  const secrets = await loadSecrets<{ bundled_code: string }>({
+  const secrets = await requestSQL<ISecret[]>(
     terminal,
-    encryption_key_base58: private_key,
-    id: secret_code_id,
-  });
+    `select * from secret where id = ${escapeSQL(secret_code_id)}`,
+  );
 
-  const theSecret = secrets.find((x) => x.decrypted_data)?.decrypted_data;
+  const theSecret = secrets[0];
 
   if (!theSecret) {
-    throw new Error(`Failed to load secret ${secret_code_id}: ${secrets[0].err}`);
+    throw new Error(`Failed to load secret ${secret_code_id}`);
   }
 
+  const res = await terminal.client.requestForResponse('NodeUnit/DecryptForChild', {
+    node_unit_address: DEPLOYMENT_NODE_UNIT_ADDRESS,
+    encrypted_data_base58: theSecret.encrypted_data_base58,
+    child_public_key: keyPair.public_key,
+  });
+
+  const resData = res.data as { data: string };
+  if (!resData) throw new Error(`Failed to decrypt secret ${secret_code_id}`);
+  const decrypted_data_base58 = decryptByPrivateKey(decodeBase58(resData.data), PRIVATE_KEY);
+  const code = new TextDecoder().decode(decrypted_data_base58);
+
   const agent_conf: IAgentConf = {
-    bundled_code: theSecret.bundled_code,
+    bundled_code: code,
     agent_params: agent_params,
     start_time: start_time,
     kernel_id: kernel_id,
