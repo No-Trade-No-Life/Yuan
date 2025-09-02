@@ -525,6 +525,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/app-prometheus-rule-controller",
+      "projectFolder": "apps/prometheus-rule-controller",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/cache",
       "projectFolder": "libraries/cache",
       "shouldPublish": true

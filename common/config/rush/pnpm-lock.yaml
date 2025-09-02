@@ -502,6 +502,41 @@ importers:
       '@yuants/tool-kit': link:../../tools/toolkit
       typescript: 4.7.4
 
+  ../../apps/prometheus-rule-controller:
+    specifiers:
+      '@microsoft/api-extractor': ~7.30.0
+      '@rushstack/heft': ~0.47.5
+      '@rushstack/heft-jest-plugin': ~0.16.8
+      '@rushstack/heft-node-rig': ~1.10.7
+      '@types/heft-jest': 1.0.3
+      '@types/node': '22'
+      '@yuants/extension': workspace:*
+      '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
+      '@yuants/tool-kit': workspace:*
+      '@yuants/utils': workspace:*
+      json-schema: ~0.4.0
+      rxjs: ~7.5.6
+      typescript: ~4.7.4
+      yaml: ~2.8.1
+    dependencies:
+      '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/sql': link:../../libraries/sql
+      '@yuants/utils': link:../../libraries/utils
+      json-schema: 0.4.0
+      rxjs: 7.5.7
+      yaml: 2.8.1
+    devDependencies:
+      '@microsoft/api-extractor': 7.30.1
+      '@rushstack/heft': 0.47.11
+      '@rushstack/heft-jest-plugin': 0.16.8_cd919cf15781346720f8e992576a8e2b
+      '@rushstack/heft-node-rig': 1.10.13_@rushstack+heft@0.47.11
+      '@types/heft-jest': 1.0.3
+      '@types/node': 22.7.5
+      '@yuants/extension': link:../../libraries/extension
+      '@yuants/tool-kit': link:../../tools/toolkit
+      typescript: 4.7.4
+
   ../../apps/risk-manager:
     specifiers:
       '@microsoft/api-extractor': ~7.30.0
@@ -18144,7 +18179,7 @@ packages:
       pretty-format: 29.6.3
       slash: 3.0.0
       strip-json-comments: 3.1.1
-      ts-node: 10.9.2_a718138a4c76ef7ef00ec6bb7815892b
+      ts-node: 10.9.2_24c227b0eb5752a64240dae09531dbef
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
@@ -26617,6 +26652,12 @@ packages:
   /yaml/2.4.1:
     resolution: {integrity: sha512-pIXzoImaqmfOrL7teGUBt/T7ZDnyeGBWyXQBvOVhLkWLN37GXv8NMLK406UY6dS51JfcQHsmcW5cJ441bHg6Lg==}
     engines: {node: '>= 14'}
+    hasBin: true
+    dev: false
+
+  /yaml/2.8.1:
+    resolution: {integrity: sha512-lcYcMxX2PO9XMGvAJkJ3OsNMw+/7FKes7/hgerGUYWIoWu5j/+YQqcZr5JnPZWzOsEBgMbSbiSTn/dv/69Mkpw==}
+    engines: {node: '>= 14.6'}
     hasBin: true
     dev: false
 
