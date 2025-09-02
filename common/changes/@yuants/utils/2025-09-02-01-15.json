@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/utils",
+      "comment": "add new utils (using ED25519 to encrypt / decrypt)",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/utils"
+}

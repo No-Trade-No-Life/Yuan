@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "metrics using terminal_id to distinct",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

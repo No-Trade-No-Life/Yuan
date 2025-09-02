@@ -1,6 +1,6 @@
 import bs58 from 'bs58';
+import { convertPublicKey, convertSecretKey } from 'ed2curve';
 import { box, sign } from 'tweetnacl';
-
 /**
  * create a new key pair
  *
@@ -50,6 +50,48 @@ export const signMessage = (message: string, privateKey: string): string => {
   const messageUint8Array = new TextEncoder().encode(message);
   const signedMessage = sign.detached(messageUint8Array, secretKeyUint8Array);
   return bs58.encode(signedMessage);
+};
+
+/**
+ * Encrypt data with a public key (ED25519, base58 encoded)
+ *
+ * @param data - data to be encrypted
+ * @param publicKey - the public key to encrypt the data with (base58 encoded)
+ * @returns the encrypted data (Uint8Array)
+ *
+ * @public
+ */
+export const encryptByPublicKey = (data: Uint8Array, publicKey: string) => {
+  const tempKeyPair = box.keyPair();
+  const curvePublicKey = convertPublicKey(bs58.decode(publicKey));
+  if (!curvePublicKey) throw new Error('Failed to convert public key to curve25519');
+  const nonce = crypto.getRandomValues(new Uint8Array(24));
+  const sharedKey = box.before(curvePublicKey, tempKeyPair.secretKey);
+  const encryptedData = box.after(data, nonce, sharedKey);
+  const combinedData = new Uint8Array(nonce.length + tempKeyPair.publicKey.length + encryptedData.length);
+  combinedData.set(nonce, 0);
+  combinedData.set(tempKeyPair.publicKey, nonce.length);
+  combinedData.set(encryptedData, nonce.length + tempKeyPair.publicKey.length);
+  return combinedData;
+};
+
+/**
+ * Decrypt data with a private key (ED25519, base58 encoded)
+ * @param data - encrypted data (Uint8Array)
+ * @param privateKey - the private key to decrypt the data with (base58 encoded)
+ * @returns the decrypted data (Uint8Array)
+ * @public
+ */
+export const decryptByPrivateKey = (data: Uint8Array, privateKey: string) => {
+  const privateKeyUint8Array = bs58.decode(privateKey);
+  const curvePrivateKey = convertSecretKey(privateKeyUint8Array);
+  if (!curvePrivateKey) throw new Error('Failed to convert private key to curve25519');
+  // data = nonce(24) + publicKey(32) + encryptedData
+  const nonce = data.slice(0, 24);
+  const publicKey = data.slice(24, 56);
+  const encryptedData = data.slice(56);
+  const sharedKey = box.before(publicKey, curvePrivateKey);
+  return box.open.after(encryptedData, nonce, sharedKey);
 };
 
 /**
