@@ -2141,12 +2141,14 @@ importers:
       '@rushstack/heft': ~0.47.5
       '@rushstack/heft-jest-plugin': ~0.16.8
       '@rushstack/heft-node-rig': ~1.10.7
+      '@types/ed2curve': ~0.2.4
       '@types/heft-jest': 1.0.3
       '@types/node': '22'
       '@yuants/tool-kit': workspace:*
       bs58: ~6.0.0
       date-fns: ~2.30.0
       date-fns-tz: ~2.0.0
+      ed2curve: ~0.3.0
       rxjs: ~7.5.6
       tweetnacl: ~1.0.3
       typescript: ~4.7.4
@@ -2154,6 +2156,7 @@ importers:
       bs58: 6.0.0
       date-fns: 2.30.0
       date-fns-tz: 2.0.0_date-fns@2.30.0
+      ed2curve: 0.3.0
       rxjs: 7.5.7
       tweetnacl: 1.0.3
     devDependencies:
@@ -2161,6 +2164,7 @@ importers:
       '@rushstack/heft': 0.47.11
       '@rushstack/heft-jest-plugin': 0.16.8_cd919cf15781346720f8e992576a8e2b
       '@rushstack/heft-node-rig': 1.10.13_@rushstack+heft@0.47.11
+      '@types/ed2curve': 0.2.4
       '@types/heft-jest': 1.0.3
       '@types/node': 22.7.5
       '@yuants/tool-kit': link:../../tools/toolkit
@@ -10308,6 +10312,12 @@ packages:
     resolution: {integrity: sha512-MjJepFle/tLtT2/jmDNth6ZnwWzEhm40L+olE5HKR70ISUCfgT55eqreeHldAzFLY2HDUGsn8zgyto8KygN0CA==}
     dev: true
 
+  /@types/ed2curve/0.2.4:
+    resolution: {integrity: sha512-1m9IX8qypOa0K1NfdMsMxB3gjhKyXbr5Yl9FzzwWQjLSDFGLkvRvSfla1NYqzIt72ocIALMXsF+twRlzr1ov/g==}
+    dependencies:
+      tweetnacl: 1.0.3
+    dev: true
+
   /@types/eslint-scope/3.7.5:
     resolution: {integrity: sha512-JNvhIEyxVW6EoMIFIvj93ZOywYFatlpu9deeH6eSx6PE3WHYvHaQtmHmQeNw7aA81bYGBPPQqdtBm6b1SsQMmA==}
     dependencies:
@@ -14316,6 +14326,12 @@ packages:
       zrender: 5.4.4
     dev: false
 
+  /ed2curve/0.3.0:
+    resolution: {integrity: sha512-8w2fmmq3hv9rCrcI7g9hms2pMunQr1JINfcjwR9tAyZqhtyaMN991lF/ZfHfr5tzZQ8c7y7aBgZbjfbd0fjFwQ==}
+    dependencies:
+      tweetnacl: 1.0.3
+    dev: false
+
   /editions/6.21.0:
     resolution: {integrity: sha512-ofkXJtn7z0urokN62DI3SBo/5xAtF0rR7tn+S/bSYV79Ka8pTajIIl+fFQ1q88DQEImymmo97M4azY3WX/nUdg==}
     engines: {node: '>=4'}
@@ -18128,7 +18144,7 @@ packages:
       pretty-format: 29.6.3
       slash: 3.0.0
       strip-json-comments: 3.1.1
-      ts-node: 10.9.2_24c227b0eb5752a64240dae09531dbef
+      ts-node: 10.9.2_a718138a4c76ef7ef00ec6bb7815892b
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
@@ -24935,7 +24951,6 @@ packages:
 
   /tweetnacl/1.0.3:
     resolution: {integrity: sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==}
-    dev: false
 
   /typanion/3.14.0:
     resolution: {integrity: sha512-ZW/lVMRabETuYCd9O9ZvMhAh8GslSqaUjxmK/JLPCh6l73CvLBiuXswj/+7LdnWOgYsQ130FqLzFz5aGT4I3Ug==}
