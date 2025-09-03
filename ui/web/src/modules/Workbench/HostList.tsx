@@ -8,16 +8,7 @@ import {
   IconShareStroked,
   IconUnlink,
 } from '@douyinfe/semi-icons';
-import {
-  Button,
-  ButtonGroup,
-  Card,
-  Descriptions,
-  Popconfirm,
-  Space,
-  Toast,
-  Typography,
-} from '@douyinfe/semi-ui';
+import { ButtonGroup, Card, Descriptions, Space, Toast, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
 import copy from 'copy-to-clipboard';
 import { t } from 'i18next';
@@ -29,7 +20,7 @@ import { bufferTime, combineLatest, from, map, of, shareReplay, switchMap } from
 import { executeCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import { showForm } from '../Form';
-import { DataView } from '../Interactive';
+import { Button, DataView } from '../Interactive';
 import { registerPage } from '../Pages';
 import { isTerminalConnected$, terminal$ } from '../Terminals';
 import { IHostConfigItem, currentHostConfig$, hostConfigList$ } from './model';
@@ -133,19 +124,19 @@ registerPage('HostList', () => {
                   Toast.success(t('link_copied'));
                 }}
               ></Button>
-              <Popconfirm
-                style={{ width: 300 }}
-                title={t('common:confirm_delete')}
-                content={t('common:confirm_delete_note')}
-                onConfirm={() => {
+              <Button
+                icon={<IconDelete />}
+                type="danger"
+                doubleCheck={{
+                  title: t('common:confirm_delete'),
+                  description: (
+                    <pre style={{ width: '100%', overflow: 'auto' }}>{JSON.stringify(config, null, 2)}</pre>
+                  ),
+                }}
+                onClick={() => {
                   hostConfigList$.next(hostConfigList$.value!.filter((item) => item !== config));
                 }}
-                okText={t('common:confirm_delete_ok')}
-                okType="danger"
-                cancelText={t('common:confirm_delete_cancel')}
-              >
-                <Button icon={<IconDelete />} type="danger"></Button>
-              </Popconfirm>
+              ></Button>
             </ButtonGroup>
           );
         },
