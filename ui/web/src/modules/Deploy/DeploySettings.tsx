@@ -184,7 +184,7 @@ registerPage('DeploySettings', () => {
         topSlot={
           <>
             <Button icon={<IconPlusCircle />} onClick={onCreate} style={{ margin: '10px 0' }}>
-              创建新配置
+              创建新部署
             </Button>
             <Button icon={<IconPlusCircle />} onClick={updateToLatestVersion} style={{ margin: '10px 0' }}>
               版本一键更新
@@ -193,19 +193,19 @@ registerPage('DeploySettings', () => {
         }
         columns={[
           {
-            header: 'id',
+            header: '部署 ID',
             accessorKey: 'id',
           },
           {
-            header: 'package_name',
+            header: 'NPM 包名',
             accessorKey: 'package_name',
           },
           {
-            header: 'package_version',
+            header: '版本',
             accessorKey: 'package_version',
           },
           {
-            header: 'env',
+            header: '环境变量',
             accessorKey: 'env',
             accessorFn: (x) =>
               Object.entries(x.env)
@@ -213,19 +213,19 @@ registerPage('DeploySettings', () => {
                 .join(' '),
           },
           {
-            header: 'address',
+            header: '部署地址',
             accessorKey: 'address',
           },
           {
-            header: 'command',
+            header: '运行命令',
             accessorKey: 'command',
           },
           {
-            header: 'args',
+            header: '命令参数',
             accessorFn: (x) => (x.args || []).join(' '),
           },
           {
-            header: 'enabled',
+            header: '是否启用',
             accessorKey: 'enabled',
             cell: (ctx) => {
               const enabled = ctx.getValue();
@@ -241,7 +241,7 @@ registerPage('DeploySettings', () => {
             },
           },
           {
-            header: 'Action',
+            header: '动作',
             cell: (ctx) => (
               <Space vertical>
                 <Button onClick={() => onEdit(ctx.row.original)}>编辑</Button>
@@ -283,9 +283,17 @@ registerPage('DeploySettings', () => {
               const args = values.args.map((item: { arg: string }) => item.arg) as string[];
 
               const env: Record<string, string> = {};
-              values.env?.forEach((item: { key: string; value: string }) => (env[item.key] = item.value));
+              values.env?.forEach((item: { key: string; value: string }) => {
+                env[item.key] = item.value || ''; // Ensure value defaults to empty string
+              });
               console.log({ values });
-              setEditDeployment({ ...values, args, env, command: values.command || '' });
+              setEditDeployment({
+                ...values,
+                args,
+                env,
+                // default command to empty string if undefined
+                command: values.command || '',
+              });
             }}
             initValues={editDeployment}
             labelAlign="left"
