@@ -73,7 +73,7 @@ const makeRulePrometheusK8sOperatorFormat = (group: IPrometheusRuleGroup): Prome
     kind: 'PrometheusRule',
     metadata: {
       name: group.name,
-      namespace: 'monitoring',
+      namespace: 'yuan',
       labels: {
         'y.ntnl.io/owner': 'prometheus-rule-controller',
       },
