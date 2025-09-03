@@ -2,6 +2,23 @@
   "name": "@yuants/app-prometheus-rule-controller",
   "entries": [
     {
+      "version": "0.2.1",
+      "tag": "@yuants/app-prometheus-rule-controller_v0.2.1",
+      "date": "Wed, 03 Sep 2025 06:17:46 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "change namespace for k8s"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.0",
       "tag": "@yuants/app-prometheus-rule-controller_v0.2.0",
       "date": "Tue, 02 Sep 2025 18:08:46 GMT",
