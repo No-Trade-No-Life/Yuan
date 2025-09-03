@@ -442,7 +442,7 @@ async function setup() {
               MetricErrorVolumeRatio.set(error_ratio, {
                 account_id: group.target_account_id,
                 product_id: positionDiff.product_id,
-                direction: positionDiff.direction,
+                variant: positionDiff.direction,
               });
             }
           }),
