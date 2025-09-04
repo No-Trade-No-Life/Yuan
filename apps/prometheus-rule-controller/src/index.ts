@@ -9,6 +9,7 @@ import {
   debounceTime,
   defer,
   EMPTY,
+  filter,
   groupBy,
   map,
   mergeMap,
@@ -140,6 +141,7 @@ const prometheusRuleGroup$ = defer(() =>
 ).pipe(
   // pre processing data, group rules by rule group name
   mergeMap((rules) => rules),
+  filter((rule) => rule.enabled),
   groupBy((rule) => rule.group_name),
   mergeMap((group) =>
     group.pipe(

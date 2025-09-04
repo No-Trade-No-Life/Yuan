@@ -51,3 +51,15 @@ AddMigration({
         EXECUTE FUNCTION update_updated_at_column();
   `,
 });
+
+AddMigration({
+  id: '6d53d4cd-af81-4ca2-8968-0e03ecdffb04',
+  dependencies: ['23c3bfad-4e37-412e-8f4e-2e6cfb0f1bff'],
+  name: 'alter-table-prometheus_rule-add-column-enabled',
+  statement: `
+    ALTER TABLE prometheus_rule
+    ADD COLUMN IF NOT EXISTS enabled BOOLEAN DEFAULT TRUE;
+    
+    CREATE INDEX IF NOT EXISTS idx_prometheus_rule_enabled ON prometheus_rule(enabled);
+  `,
+});
