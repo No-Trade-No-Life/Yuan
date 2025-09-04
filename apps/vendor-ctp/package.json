@@ -3,10 +3,13 @@
   "version": "0.2.74",
   "main": "lib/index.js",
   "files": [
-    "dist/extension.bundle.js"
+    "dist",
+    "lib",
+    "ctp/lib",
+    "ctp/build"
   ],
   "scripts": {
-    "build": "heft test --clean && node ./lib/scripts/build-ctp-types.js && node ./lib/scripts/build-ctp-bridge.js && yuan-toolkit post-build"
+    "build": "heft test --clean && node ./lib/scripts/build-ctp-types.js && node ./lib/scripts/build-ctp-bridge.js && CI_RUN=false yuan-toolkit post-build"
   },
   "dependencies": {
     "@yuants/data-account": "workspace:*",

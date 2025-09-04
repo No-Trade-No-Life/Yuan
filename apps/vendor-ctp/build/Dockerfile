@@ -36,6 +36,11 @@ RUN rm -rf build && \
     # cmake -DUSE_DEMO_LIBS=ON .. && \
     make
 
+
+# 将构建产物复制到挂载目录
+RUN --mount=type=bind,source=../../apps/vendor-ctp/ctp,target=/mnt/output \
+    cp -r /app/apps/vendor-ctp/build /mnt/output/
+
 FROM node:22.14.0-bullseye
 
 RUN apt-get update && apt-get install -y \
