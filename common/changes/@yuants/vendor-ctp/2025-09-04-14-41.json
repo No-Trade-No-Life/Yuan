@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-ctp",
+      "comment": "prebuild ctp binary",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/vendor-ctp"
+}
