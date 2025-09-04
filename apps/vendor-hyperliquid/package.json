@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-hyperliquid",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "bin": "lib/cli.js",
   "main": "lib/index.js",
   "files": [

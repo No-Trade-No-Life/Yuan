@@ -2,6 +2,23 @@
   "name": "@yuants/tool-kit",
   "entries": [
     {
+      "version": "0.2.0",
+      "tag": "@yuants/tool-kit_v0.2.0",
+      "date": "Thu, 04 Sep 2025 15:24:17 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add DOCKER_BUILD_INSTANTLY and remove CI_RUN option"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.10",
       "tag": "@yuants/tool-kit_v0.1.10",
       "date": "Mon, 21 Apr 2025 17:48:12 GMT",

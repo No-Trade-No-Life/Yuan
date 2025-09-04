@@ -1,6 +1,17 @@
 # Change Log - @yuants/vendor-ctp
 
-This log was last generated on Tue, 02 Sep 2025 01:40:20 GMT and should not be manually modified.
+This log was last generated on Thu, 04 Sep 2025 15:24:17 GMT and should not be manually modified.
+
+## 0.3.0
+Thu, 04 Sep 2025 15:24:17 GMT
+
+### Minor changes
+
+- prebuild ctp binary
+
+### Patches
+
+- fix build
 
 ## 0.2.74
 Tue, 02 Sep 2025 01:40:20 GMT

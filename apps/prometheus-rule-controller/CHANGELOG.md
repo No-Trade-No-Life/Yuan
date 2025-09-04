@@ -1,6 +1,11 @@
 # Change Log - @yuants/app-prometheus-rule-controller
 
-This log was last generated on Thu, 04 Sep 2025 08:58:57 GMT and should not be manually modified.
+This log was last generated on Thu, 04 Sep 2025 15:24:17 GMT and should not be manually modified.
+
+## 0.3.1
+Thu, 04 Sep 2025 15:24:17 GMT
+
+_Version update only_
 
 ## 0.3.0
 Thu, 04 Sep 2025 08:58:57 GMT
