@@ -1,5 +1,5 @@
-import { execSync } from 'child_process';
-import { arch } from 'os';
+const { execSync } = require('child_process');
+const { arch } = require('os');
 
 // 检测系统是否为Debian/Ubuntu
 
