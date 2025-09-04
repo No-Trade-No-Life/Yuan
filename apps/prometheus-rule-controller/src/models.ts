@@ -14,6 +14,8 @@ export interface IPrometheusRule {
   labels: Record<string, string>;
   annotations: Record<string, string>;
 
+  enabled: boolean;
+
   created_at: string;
   updated_at: string;
 }
