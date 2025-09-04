@@ -24,6 +24,7 @@ import {
   EMPTY,
   firstValueFrom,
   fromEvent,
+  map,
   merge,
   mergeMap,
   Observable,
@@ -49,30 +50,23 @@ delete process.env.PRIVATE_KEY; // 阅后即焚，防止泄漏
 
 const NODE_UNIT_PUBLIC_KEY = NodeUnitKeyPair.public_key;
 
-const NODE_PATH = execSync('which node || echo ""', { encoding: 'utf-8' }).trim();
-const NPM_PATH = execSync('which npm || echo ""', { encoding: 'utf-8' }).trim();
-const NPX_PATH = execSync('which npx || echo ""', { encoding: 'utf-8' }).trim();
-const PNPM_PATH = execSync('which pnpm || echo ""', { encoding: 'utf-8' }).trim();
-const PNPX_PATH = execSync('which pnpx || echo ""', { encoding: 'utf-8' }).trim();
+const getAbsolutePath = (command: string) =>
+  execSync(`which ${command} || echo ""`, { encoding: 'utf-8' }).trim();
+
+const NODE_PATH = getAbsolutePath('node');
+const NPM_PATH = getAbsolutePath('npm');
+const PNPM_PATH = getAbsolutePath('pnpm');
 
 const WORKSPACE_DIR = join(tmpdir(), 'yuants', 'node-unit');
 console.info('Workspace Dir:', WORKSPACE_DIR);
 
-const mapCommandToExecutable: Record<string, string> = {
-  node: NODE_PATH,
-  npm: NPM_PATH,
-  npx: NPX_PATH,
-  pnpm: PNPM_PATH,
-  pnpx: PNPX_PATH,
-};
-
 const localHostDeployment: IDeployment | null = !process.env.HOST_URL
   ? {
       id: 'local-host',
-      command: PNPX_PATH ? 'pnpx' : 'npx',
-      args: ['@yuants/app-host'],
       package_name: '@yuants/app-host',
-      package_version: 'latest',
+      package_version: process.env.HOST_PACKAGE_VERSION || 'latest',
+      command: '',
+      args: [],
       env: {},
       address: '',
       enabled: true,
@@ -92,10 +86,10 @@ if (localHostDeployment) {
 const localPgDeployment: IDeployment | null = process.env.POSTGRES_URI
   ? {
       id: 'local-postgres-storage',
-      command: PNPX_PATH ? 'pnpx' : 'npx',
-      args: ['@yuants/app-postgres-storage'],
       package_name: '@yuants/app-postgres-storage',
-      package_version: 'latest',
+      package_version: process.env.PG_PACKAGE_VERSION || 'latest',
+      command: '',
+      args: [],
       address: '',
       env: {
         TERMINAL_ID: encodePath('PG', NODE_UNIT_PUBLIC_KEY),
@@ -194,9 +188,15 @@ const runDeployment = (deployment: IDeployment) => {
         childPublicKeys.add(childKeyPair.public_key);
         console.info(formatTime(Date.now()), 'DeploymentAddChildKey', deployment.id, childKeyPair.public_key);
 
+        const isCustomCommandMode = process.env.ENABLE_CUSTOM_COMMAND === 'true' && !!deployment.command;
+
+        // Mode 1: no command, use node to run the package (from main entry)
+        // Mode 2: custom command, use the command to run the package
         return spawnChild({
-          command: NODE_PATH,
-          args: [entryFile],
+          command: isCustomCommandMode
+            ? getAbsolutePath(deployment.command) || deployment.command
+            : NODE_PATH,
+          args: isCustomCommandMode ? deployment.args : [entryFile, ...deployment.args],
           env: Object.assign(
             {},
             process.env,
@@ -209,7 +209,8 @@ const runDeployment = (deployment: IDeployment) => {
             },
             deployment.env,
           ),
-          cwd: deploymentDir,
+          // Current working directory is the installed package directory
+          cwd: join(deploymentDir, 'node_modules', deployment.package_name),
           stdoutFilename: join(logHome, `${deployment.id}.log`),
           stderrFilename: join(logHome, `${deployment.id}.err.log`),
         }).pipe(
@@ -307,6 +308,8 @@ defer(async () => {
 
   ExecuteMigrations(terminal);
 
+  const trustedPackageRegExp = new RegExp(process.env.TRUSTED_PACKAGE_REGEXP || '^@yuants/');
+
   defer(() =>
     requestSQL<IDeployment[]>(
       terminal,
@@ -314,6 +317,12 @@ defer(async () => {
     ),
   )
     .pipe(
+      map((deployments) =>
+        deployments.filter((deployment) =>
+          trustedPackageRegExp.test(`${deployment.package_name}@${deployment.package_version}`),
+        ),
+      ),
+
       repeat({ delay: 10000 }),
       retry({ delay: 1000 }),
       tap((deployments) => {

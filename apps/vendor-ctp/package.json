@@ -5,11 +5,10 @@
   "files": [
     "dist",
     "lib",
-    "ctp/lib",
-    "ctp/build"
+    "ctp"
   ],
   "scripts": {
-    "build": "heft test --clean && node ./lib/scripts/build-ctp-types.js && node ./lib/scripts/build-ctp-bridge.js && DOCKER_BUILD_INSTANTLY=true yuan-toolkit post-build"
+    "build": "heft test --clean && node ./lib/scripts/build-ctp-types.js && node ./lib/scripts/build-ctp-bridge.js && yuan-toolkit post-build"
   },
   "dependencies": {
     "@yuants/data-account": "workspace:*",
