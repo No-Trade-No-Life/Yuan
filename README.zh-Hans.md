@@ -117,6 +117,8 @@ Yuan 是一个“个人投资操作系统”，包含各式各样的个人投资
    $ POSTGRES_URI="<your-postgres-uri>" npx @yuants/node-unit
    ```
 
+   更多的配置选项，请参考 [@yuants/node-unit](apps/node-unit) 。
+
 2. 使用 Web GUI 连接刚刚创建的本地主机
 
    打开浏览器，访问 http://y.ntnl.io ，您将看到 Yuan 的 Web GUI。
