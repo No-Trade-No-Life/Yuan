@@ -72,7 +72,6 @@ jobs:
         env:
           REGISTRY: ghcr.io
           REGISTRY_NAMESPACE: no-trade-no-life
-          CI_RUN: 'true'
         run: node common/scripts/install-run-rush.js rebuild --verbose
 
       - name: Rush build
@@ -80,7 +79,6 @@ jobs:
         env:
           REGISTRY: ghcr.io
           REGISTRY_NAMESPACE: no-trade-no-life
-          CI_RUN: 'true'
           NODE_OPTIONS: '--max-old-space-size=8192'
         run: node common/scripts/install-run-rush.js build --verbose
 

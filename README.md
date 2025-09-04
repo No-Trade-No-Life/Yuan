@@ -134,12 +134,6 @@ Then you can install dependencies and build projects
 rush update && rush build
 ```
 
-If you have no docker installed, you can skip the docker build by setting the environment variable `CI_RUN` to `true`.
-
-```bash
-CI_RUN=true rush build
-```
-
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
 ### Packages
