@@ -79,6 +79,7 @@ const fetchVersionInfo = (packageName: string) => {
 };
 
 registerPage('DeploySettings', () => {
+  const terminal = useObservableState(terminal$);
   const deploySettings = useObservableState(deploySettings$);
   const [editDeployment, setEditDeployment] = useState<IDeployment>();
   const [visible, setVisible] = useState(false);
@@ -301,12 +302,14 @@ registerPage('DeploySettings', () => {
             style={{ marginTop: '20px' }}
           >
             <Form.Input field="package_name" label="NPM 包名" style={{ width: '560px' }} />
-            <Form.Select field="package_version" label="部署版本" style={{ width: '560px' }}>
-              {mapPackageNameToVersions.get(editDeployment.package_name ?? '')?.map((version) => (
-                <Option value={version}>{version}</Option>
-              ))}
-            </Form.Select>
-            <Form.Input
+            <Form.AutoComplete
+              field="package_version"
+              label="部署版本"
+              style={{ width: '560px' }}
+              data={mapPackageNameToVersions.get(editDeployment.package_name ?? '') ?? []}
+            />
+
+            <Form.AutoComplete
               field="address"
               label={{
                 text: '部署地址',
@@ -317,7 +320,12 @@ registerPage('DeploySettings', () => {
                 ),
               }}
               style={{ width: '560px' }}
+              data={terminal?.terminalInfos
+                .filter((x) => x.name === '@yuants/node-unit')
+                .map((x) => x.terminal_id.split('/')[1])
+                .filter(Boolean)}
             />
+
             <Form.Section text="环境变量" />
             <ArrayField
               field="env"
