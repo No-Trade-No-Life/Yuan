@@ -604,7 +604,9 @@ const ctp_process$ = new BehaviorSubject<ChildProcess | null>(null);
 
 ctp_process$.subscribe((p) => {
   if (p === null) {
-    ctp_process$.next(spawn(join(__dirname, '../build/main_linux'), { detached: false, stdio: 'inherit' }));
+    ctp_process$.next(
+      spawn(join(__dirname, '../ctp/build/main_linux'), { detached: false, stdio: 'inherit' }),
+    );
   }
 });
 
