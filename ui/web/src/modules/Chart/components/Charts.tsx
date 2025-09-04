@@ -2,20 +2,20 @@ import { IOHLC } from '@yuants/data-ohlc';
 import { IOrder } from '@yuants/data-order';
 import { convertDurationToOffset } from '@yuants/utils';
 import { format } from 'date-fns';
-import {
-  ChartOptions,
-  CrosshairMode,
-  DeepPartial,
-  IChartApi,
-  ISeriesApi,
-  LineData,
-  MouseEventParams,
-  SeriesMarker,
-  Time,
-  TimeRange,
-  UTCTimestamp,
-  createChart,
-} from 'lightweight-charts/dist/lightweight-charts.esm.development.js'; // must use development version to dynamically inject API
+// import {
+//   ChartOptions,
+//   CrosshairMode,
+//   DeepPartial,
+//   IChartApi,
+//   ISeriesApi,
+//   LineData,
+//   MouseEventParams,
+//   SeriesMarker,
+//   Time,
+//   TimeRange,
+//   UTCTimestamp,
+//   createChart,
+// } from 'lightweight-charts/dist/lightweight-charts.esm.development.js'; // must use development version to dynamically inject API
 import React, { ReactNode, createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BehaviorSubject } from 'rxjs';
@@ -24,58 +24,58 @@ import { useIsDarkMode } from '../../Workbench';
 const upColor = 'rgba(255,82,82, 0.8)';
 const downColor = 'rgba(0, 150, 136, 0.8)';
 
-const darkmodeColorOptions: DeepPartial<ChartOptions> = {
-  layout: {
-    backgroundColor: '#000000',
-    textColor: 'rgba(255, 255, 255, 0.9)',
-  },
-  grid: {
-    vertLines: {
-      color: 'rgba(197, 203, 206, 0.5)',
-    },
-    horzLines: {
-      color: 'rgba(197, 203, 206, 0.5)',
-    },
-  },
-  rightPriceScale: {
-    borderColor: 'rgba(197, 203, 206, 0.8)',
-  },
-  timeScale: {
-    borderColor: 'rgba(197, 203, 206, 0.8)',
-  },
-};
+// const darkmodeColorOptions: DeepPartial<ChartOptions> = {
+//   layout: {
+//     backgroundColor: '#000000',
+//     textColor: 'rgba(255, 255, 255, 0.9)',
+//   },
+//   grid: {
+//     vertLines: {
+//       color: 'rgba(197, 203, 206, 0.5)',
+//     },
+//     horzLines: {
+//       color: 'rgba(197, 203, 206, 0.5)',
+//     },
+//   },
+//   rightPriceScale: {
+//     borderColor: 'rgba(197, 203, 206, 0.8)',
+//   },
+//   timeScale: {
+//     borderColor: 'rgba(197, 203, 206, 0.8)',
+//   },
+// };
 
-const lightmodeColorOptions: DeepPartial<ChartOptions> = {
-  layout: {
-    backgroundColor: '#FFFFFF',
-    textColor: 'rgba(0, 0, 0, 0.9)',
-  },
-  grid: {
-    vertLines: {
-      color: 'rgba(197, 203, 206, 0.5)',
-    },
-    horzLines: {
-      color: 'rgba(197, 203, 206, 0.5)',
-    },
-  },
-  rightPriceScale: {
-    borderColor: 'rgba(197, 203, 206, 0.8)',
-  },
-  timeScale: {
-    borderColor: 'rgba(197, 203, 206, 0.8)',
-  },
-};
+// const lightmodeColorOptions: DeepPartial<ChartOptions> = {
+//   layout: {
+//     backgroundColor: '#FFFFFF',
+//     textColor: 'rgba(0, 0, 0, 0.9)',
+//   },
+//   grid: {
+//     vertLines: {
+//       color: 'rgba(197, 203, 206, 0.5)',
+//     },
+//     horzLines: {
+//       color: 'rgba(197, 203, 206, 0.5)',
+//     },
+//   },
+//   rightPriceScale: {
+//     borderColor: 'rgba(197, 203, 206, 0.8)',
+//   },
+//   timeScale: {
+//     borderColor: 'rgba(197, 203, 206, 0.8)',
+//   },
+// };
 
-const chartDefaultOptions: DeepPartial<ChartOptions> = {
-  crosshair: {
-    mode: CrosshairMode.Normal,
-  },
+// const chartDefaultOptions: DeepPartial<ChartOptions> = {
+//   crosshair: {
+//     mode: CrosshairMode.Normal,
+//   },
 
-  localization: {
-    timeFormatter: (time: UTCTimestamp) => format(time * 1000, 'yyyy-MM-dd HH:mm:ss eee'),
-  },
-};
-const ChartApiContext = createContext<IChartApi | null>(null);
+//   localization: {
+//     timeFormatter: (time: UTCTimestamp) => format(time * 1000, 'yyyy-MM-dd HH:mm:ss eee'),
+//   },
+// };
+// const ChartApiContext = createContext<IChartApi | null>(null);
 
 // ISSUE: This is Lightweight Chart unmerged API
 // TODO: This API is merged and publish in lightweight-charts 4.1, re-eval it.
@@ -152,294 +152,297 @@ const injectApiToChart = (chart: any) => {
 };
 
 export const Chart = React.memo((props: { children: ReactNode }) => {
-  const chartContainerRef = useRef<HTMLDivElement | null>(null);
-  const legendRef = useRef<HTMLDivElement | null>(null);
-  const [chartApi, setChartApi] = useState(null as IChartApi | null);
-  const chartGroupContext = useContext(ChartGroupApiContext);
-  const group = chartGroupContext?.charts || new Set<IChartApi>();
+  return <></>;
+  // const chartContainerRef = useRef<HTMLDivElement | null>(null);
+  // const legendRef = useRef<HTMLDivElement | null>(null);
+  // const [chartApi, setChartApi] = useState(null as IChartApi | null);
+  // const chartGroupContext = useContext(ChartGroupApiContext);
+  // const group = chartGroupContext?.charts || new Set<IChartApi>();
 
-  const chartApi$ = useMemo(() => new BehaviorSubject<IChartApi | null>(null), []);
+  // const chartApi$ = useMemo(() => new BehaviorSubject<IChartApi | null>(null), []);
 
-  // create chart api
-  useEffect(() => {
-    if (chartContainerRef.current) {
-      chartContainerRef.current.innerHTML = ''; // clear HTML
-      const chart = createChart(
-        chartContainerRef.current,
-        Object.assign({}, chartDefaultOptions, {
-          width: chartContainerRef.current.clientWidth,
-          height: chartContainerRef.current.clientHeight,
-        }),
-      );
-      injectApiToChart(chart);
-      setChartApi(chart);
-      chartApi$.next(chart);
-    }
-  }, []);
+  // // create chart api
+  // useEffect(() => {
+  //   if (chartContainerRef.current) {
+  //     chartContainerRef.current.innerHTML = ''; // clear HTML
+  //     const chart = createChart(
+  //       chartContainerRef.current,
+  //       Object.assign({}, chartDefaultOptions, {
+  //         width: chartContainerRef.current.clientWidth,
+  //         height: chartContainerRef.current.clientHeight,
+  //       }),
+  //     );
+  //     injectApiToChart(chart);
+  //     setChartApi(chart);
+  //     chartApi$.next(chart);
+  //   }
+  // }, []);
 
-  const isDarkmode = useIsDarkMode();
+  // const isDarkmode = useIsDarkMode();
 
-  useEffect(() => {
-    if (chartApi) {
-      if (isDarkmode) {
-        chartApi.applyOptions(darkmodeColorOptions);
-      } else {
-        chartApi.applyOptions(lightmodeColorOptions);
-      }
-    }
-  }, [chartApi, isDarkmode]);
+  // useEffect(() => {
+  //   if (chartApi) {
+  //     if (isDarkmode) {
+  //       chartApi.applyOptions(darkmodeColorOptions);
+  //     } else {
+  //       chartApi.applyOptions(lightmodeColorOptions);
+  //     }
+  //   }
+  // }, [chartApi, isDarkmode]);
 
-  // auto resize chart
-  useEffect(() => {
-    const el = chartContainerRef.current;
-    if (chartApi && el) {
-      const observer = new ResizeObserver((entries) => {
-        entries.forEach((entry) => {
-          chartApi.resize(entry.contentRect.width, entry.contentRect.height);
-        });
-      });
-      observer.observe(el);
-      return () => {
-        observer.unobserve(el);
-      };
-    }
-  }, [chartApi]);
+  // // auto resize chart
+  // useEffect(() => {
+  //   const el = chartContainerRef.current;
+  //   if (chartApi && el) {
+  //     const observer = new ResizeObserver((entries) => {
+  //       entries.forEach((entry) => {
+  //         chartApi.resize(entry.contentRect.width, entry.contentRect.height);
+  //       });
+  //     });
+  //     observer.observe(el);
+  //     return () => {
+  //       observer.unobserve(el);
+  //     };
+  //   }
+  // }, [chartApi]);
 
-  // Legend
-  useEffect(() => {
-    if (chartApi && legendRef.current) {
-      const handler = () => {
-        const texts: string[] = [];
-        const model = (chartApi as any)._private__chartWidget._private__model;
-        const crosshair = model._private__crosshair;
-        const index = crosshair._private__index;
-        chartGroupContext?.onHoverIndexChange(index);
+  // // Legend
+  // useEffect(() => {
+  //   if (chartApi && legendRef.current) {
+  //     const handler = () => {
+  //       const texts: string[] = [];
+  //       const model = (chartApi as any)._private__chartWidget._private__model;
+  //       const crosshair = model._private__crosshair;
+  //       const index = crosshair._private__index;
+  //       chartGroupContext?.onHoverIndexChange(index);
 
-        // TODO: Emit Event with index
-        const serieses = model._private__serieses;
-        serieses.forEach((series: any) => {
-          const { yuan_title: title, color = 'inherit' } = series._private__options;
-          const p = series._internal_dataAt(index);
-          // console.info('##', p, index, series);
-          if (!title || p === undefined || p === null || Number.isNaN(p)) {
-            // hide null data
-          } else if (typeof p === 'number') {
-            texts.push(`<div style="color:${color}">${title}=${p}</div>`);
-          } else {
-            texts.push(
-              `<div style="color:${color}">${title} O=${p.open} H=${p.high} L=${p.low} C=${p.close}</div>`,
-            );
-          }
-        });
-        if (texts.length > 0 && legendRef.current) {
-          legendRef.current.innerHTML = texts.join(' ');
-        }
-      };
-      (chartApi as any).__updateLegend = handler;
-      chartApi.subscribeCrosshairMove(handler);
-      return () => {
-        delete (chartApi as any).__updateLegend;
-        chartApi.unsubscribeCrosshairMove(handler);
-      };
-    }
-  }, [chartApi]);
+  //       // TODO: Emit Event with index
+  //       const serieses = model._private__serieses;
+  //       serieses.forEach((series: any) => {
+  //         const { yuan_title: title, color = 'inherit' } = series._private__options;
+  //         const p = series._internal_dataAt(index);
+  //         // console.info('##', p, index, series);
+  //         if (!title || p === undefined || p === null || Number.isNaN(p)) {
+  //           // hide null data
+  //         } else if (typeof p === 'number') {
+  //           texts.push(`<div style="color:${color}">${title}=${p}</div>`);
+  //         } else {
+  //           texts.push(
+  //             `<div style="color:${color}">${title} O=${p.open} H=${p.high} L=${p.low} C=${p.close}</div>`,
+  //           );
+  //         }
+  //       });
+  //       if (texts.length > 0 && legendRef.current) {
+  //         legendRef.current.innerHTML = texts.join(' ');
+  //       }
+  //     };
+  //     (chartApi as any).__updateLegend = handler;
+  //     chartApi.subscribeCrosshairMove(handler);
+  //     return () => {
+  //       delete (chartApi as any).__updateLegend;
+  //       chartApi.unsubscribeCrosshairMove(handler);
+  //     };
+  //   }
+  // }, [chartApi]);
 
-  // join to ChartGroup
-  useEffect(() => {
-    if (chartApi && group) {
-      group.add(chartApi);
-      return () => {
-        group.delete(chartApi);
-      };
-    }
-  }, [chartApi]);
+  // // join to ChartGroup
+  // useEffect(() => {
+  //   if (chartApi && group) {
+  //     group.add(chartApi);
+  //     return () => {
+  //       group.delete(chartApi);
+  //     };
+  //   }
+  // }, [chartApi]);
 
-  // sync time range among charts in a group.
-  useEffect(() => {
-    if (chartApi) {
-      const timeScaleApi = chartApi.timeScale();
-      const handler = (timeRange: TimeRange | null) => {
-        if (!timeRange) return;
-        if (group) {
-          group.forEach((otherChart) => {
-            // if (otherChart === chartApi) return;
-            try {
-              otherChart.timeScale().setVisibleRange(timeRange);
-            } catch (e) {
-              console.error(e);
-            }
-          });
-        }
-      };
-      timeScaleApi.subscribeVisibleTimeRangeChange(handler);
-      return () => {
-        timeScaleApi.unsubscribeVisibleTimeRangeChange(handler);
-      };
-    }
-  }, [chartApi]);
+  // // sync time range among charts in a group.
+  // useEffect(() => {
+  //   if (chartApi) {
+  //     const timeScaleApi = chartApi.timeScale();
+  //     const handler = (timeRange: TimeRange | null) => {
+  //       if (!timeRange) return;
+  //       if (group) {
+  //         group.forEach((otherChart) => {
+  //           // if (otherChart === chartApi) return;
+  //           try {
+  //             otherChart.timeScale().setVisibleRange(timeRange);
+  //           } catch (e) {
+  //             console.error(e);
+  //           }
+  //         });
+  //       }
+  //     };
+  //     timeScaleApi.subscribeVisibleTimeRangeChange(handler);
+  //     return () => {
+  //       timeScaleApi.unsubscribeVisibleTimeRangeChange(handler);
+  //     };
+  //   }
+  // }, [chartApi]);
 
-  // Sync Crosshair
-  useEffect(() => {
-    if (chartApi && group) {
-      const handler = (e: MouseEventParams) => {
-        // Sync crosshair of charts in one group
-        // NOTE: use injected API.
-        const { time, point } = e;
-        if (time !== undefined) {
-          group.forEach((otherChart: IChartApi) => {
-            if (otherChart !== chartApi) {
-              var xx = otherChart.timeScale().timeToCoordinate(time);
-              (otherChart as any).setCrossHairXY(xx, 0, true);
-              (otherChart as any).__updateLegend();
-            }
-          });
-        } else if (point !== undefined) {
-          group.forEach((otherChart) => {
-            if (otherChart !== chartApi) {
-              (otherChart as any).setCrossHairXY(point.x, 0, false);
-              (otherChart as any).__updateLegend();
-            }
-          });
-        }
-      };
-      chartApi.subscribeCrosshairMove(handler);
-      return () => {
-        chartApi.unsubscribeCrosshairMove(handler);
-      };
-    }
-  }, [chartApi]);
+  // // Sync Crosshair
+  // useEffect(() => {
+  //   if (chartApi && group) {
+  //     const handler = (e: MouseEventParams) => {
+  //       // Sync crosshair of charts in one group
+  //       // NOTE: use injected API.
+  //       const { time, point } = e;
+  //       if (time !== undefined) {
+  //         group.forEach((otherChart: IChartApi) => {
+  //           if (otherChart !== chartApi) {
+  //             var xx = otherChart.timeScale().timeToCoordinate(time);
+  //             (otherChart as any).setCrossHairXY(xx, 0, true);
+  //             (otherChart as any).__updateLegend();
+  //           }
+  //         });
+  //       } else if (point !== undefined) {
+  //         group.forEach((otherChart) => {
+  //           if (otherChart !== chartApi) {
+  //             (otherChart as any).setCrossHairXY(point.x, 0, false);
+  //             (otherChart as any).__updateLegend();
+  //           }
+  //         });
+  //       }
+  //     };
+  //     chartApi.subscribeCrosshairMove(handler);
+  //     return () => {
+  //       chartApi.unsubscribeCrosshairMove(handler);
+  //     };
+  //   }
+  // }, [chartApi]);
 
-  return (
-    <ChartApiContext.Provider value={chartApi}>
-      <div style={{ position: 'relative' }}>
-        <div
-          ref={legendRef}
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            zIndex: 2,
-            color: isDarkmode ? 'white' : 'black',
-          }}
-        ></div>
-      </div>
-      <div style={{ width: '100%', height: '100%' }} ref={chartContainerRef} />
-      {props.children}
-    </ChartApiContext.Provider>
-  );
+  // return (
+  //   <ChartApiContext.Provider value={chartApi}>
+  //     <div style={{ position: 'relative' }}>
+  //       <div
+  //         ref={legendRef}
+  //         style={{
+  //           position: 'absolute',
+  //           top: 0,
+  //           left: 0,
+  //           zIndex: 2,
+  //           color: isDarkmode ? 'white' : 'black',
+  //         }}
+  //       ></div>
+  //     </div>
+  //     <div style={{ width: '100%', height: '100%' }} ref={chartContainerRef} />
+  //     {props.children}
+  //   </ChartApiContext.Provider>
+  // );
 });
 
 const useViewRange = () => {
-  const chartGroupContext = useContext(ChartGroupApiContext);
-  const viewStartIndex = chartGroupContext?.viewStartIndex ?? 0;
-  const viewEndIndex = chartGroupContext?.viewEndIndex ?? undefined;
-  return [viewStartIndex, viewEndIndex] as const;
+  // const chartGroupContext = useContext(ChartGroupApiContext);
+  // const viewStartIndex = chartGroupContext?.viewStartIndex ?? 0;
+  // const viewEndIndex = chartGroupContext?.viewEndIndex ?? undefined;
+  // return [viewStartIndex, viewEndIndex] as const;
 };
 
 export const CandlestickSeries = React.memo(
   (props: { title?: string; data: IOHLC[]; children?: React.ReactNode }) => {
-    const [viewStartIndex, viewEndIndex] = useViewRange();
-    const chartApi = useContext(ChartApiContext);
-    const [seriesApi, setSeriesApi] = useState<ISeriesApi<'Candlestick'>>();
-    const [volumeSeriesApi, setVolumeSeriesApi] = useState<ISeriesApi<'Histogram'>>();
-
-    useEffect(() => {
-      if (chartApi) {
-        const precision = 5;
-        const sample = props.data[0];
-        const series = chartApi.addCandlestickSeries({
-          borderVisible: false,
-          lastValueVisible: false,
-          priceFormat: { type: 'price', precision, minMove: +(0.1 ** precision).toFixed(precision) },
-          upColor: upColor,
-          downColor: downColor,
-          wickUpColor: upColor,
-          wickDownColor: downColor,
-          borderUpColor: upColor,
-          borderDownColor: downColor,
-          ...{
-            yuan_title: props.title || `${sample?.datasource_id} ${sample?.product_id} ${sample?.duration}`,
-          },
-        });
-        setSeriesApi(series);
-
-        const volumeSeries = chartApi.addHistogramSeries({
-          lastValueVisible: false,
-          priceFormat: {
-            type: 'volume',
-          },
-          color: '',
-          priceScaleId: 'volume',
-          ...{ yuan_title: 'VOL' },
-        });
-        chartApi.priceScale('volume').applyOptions({
-          scaleMargins: {
-            top: 0.8,
-            bottom: 0,
-          },
-        });
-        setVolumeSeriesApi(volumeSeries);
-
-        return () => {
-          chartApi.removeSeries(series);
-          setSeriesApi(undefined);
-        };
-      }
-    }, [chartApi, props.title]);
-
-    const candlestickData = useMemo(
-      () =>
-        props.data.slice(viewStartIndex, viewEndIndex).map((period) => ({
-          time: (new Date(period.created_at).getTime() / 1e3) as UTCTimestamp,
-          open: +period.open,
-          high: +period.high,
-          low: +period.low,
-          close: +period.close,
-        })),
-      [props.data, viewStartIndex, viewEndIndex], // Ensure re-render when view range changes
-    );
-    const volumeData = useMemo(
-      () =>
-        props.data.slice(viewStartIndex, viewEndIndex).map((period) => ({
-          time: (new Date(period.created_at).getTime() / 1e3) as UTCTimestamp,
-          value: +period.volume || 0,
-          color: +period.close > +period.open ? upColor : downColor,
-        })),
-      [props.data, viewStartIndex, viewEndIndex], // Ensure re-render when view range changes,
-    );
-
-    useEffect(() => {
-      if (chartApi && seriesApi) {
-        //
-        seriesApi.setData(candlestickData);
-      }
-    }, [chartApi, seriesApi, candlestickData]);
-    useEffect(() => {
-      if (chartApi && volumeSeriesApi) {
-        //
-        volumeSeriesApi.setData(volumeData);
-      }
-    }, [chartApi, volumeSeriesApi, volumeData]);
-
-    const renderChildren = (children: React.ReactNode): React.ReactNode => {
-      if (React.isValidElement(children)) {
-        return React.cloneElement(children, {
-          ...children.props,
-          seriesApi: seriesApi,
-          ohlcData: props.data,
-        });
-      }
-      if (Array.isArray(children)) {
-        return children.map((child) => renderChildren(child));
-      }
-      return children;
-    };
-
-    if (props.children) {
-      return <>{renderChildren(props.children)}</>;
-    }
-    return null;
+    return <></>;
   },
+  //   const [viewStartIndex, viewEndIndex] = useViewRange();
+  //   const chartApi = useContext(ChartApiContext);
+  //   const [seriesApi, setSeriesApi] = useState<ISeriesApi<'Candlestick'>>();
+  //   const [volumeSeriesApi, setVolumeSeriesApi] = useState<ISeriesApi<'Histogram'>>();
+
+  //   useEffect(() => {
+  //     if (chartApi) {
+  //       const precision = 5;
+  //       const sample = props.data[0];
+  //       const series = chartApi.addCandlestickSeries({
+  //         borderVisible: false,
+  //         lastValueVisible: false,
+  //         priceFormat: { type: 'price', precision, minMove: +(0.1 ** precision).toFixed(precision) },
+  //         upColor: upColor,
+  //         downColor: downColor,
+  //         wickUpColor: upColor,
+  //         wickDownColor: downColor,
+  //         borderUpColor: upColor,
+  //         borderDownColor: downColor,
+  //         ...{
+  //           yuan_title: props.title || `${sample?.datasource_id} ${sample?.product_id} ${sample?.duration}`,
+  //         },
+  //       });
+  //       setSeriesApi(series);
+
+  //       const volumeSeries = chartApi.addHistogramSeries({
+  //         lastValueVisible: false,
+  //         priceFormat: {
+  //           type: 'volume',
+  //         },
+  //         color: '',
+  //         priceScaleId: 'volume',
+  //         ...{ yuan_title: 'VOL' },
+  //       });
+  //       chartApi.priceScale('volume').applyOptions({
+  //         scaleMargins: {
+  //           top: 0.8,
+  //           bottom: 0,
+  //         },
+  //       });
+  //       setVolumeSeriesApi(volumeSeries);
+
+  //       return () => {
+  //         chartApi.removeSeries(series);
+  //         setSeriesApi(undefined);
+  //       };
+  //     }
+  //   }, [chartApi, props.title]);
+
+  //   const candlestickData = useMemo(
+  //     () =>
+  //       props.data.slice(viewStartIndex, viewEndIndex).map((period) => ({
+  //         time: (new Date(period.created_at).getTime() / 1e3) as UTCTimestamp,
+  //         open: +period.open,
+  //         high: +period.high,
+  //         low: +period.low,
+  //         close: +period.close,
+  //       })),
+  //     [props.data, viewStartIndex, viewEndIndex], // Ensure re-render when view range changes
+  //   );
+  //   const volumeData = useMemo(
+  //     () =>
+  //       props.data.slice(viewStartIndex, viewEndIndex).map((period) => ({
+  //         time: (new Date(period.created_at).getTime() / 1e3) as UTCTimestamp,
+  //         value: +period.volume || 0,
+  //         color: +period.close > +period.open ? upColor : downColor,
+  //       })),
+  //     [props.data, viewStartIndex, viewEndIndex], // Ensure re-render when view range changes,
+  //   );
+
+  //   useEffect(() => {
+  //     if (chartApi && seriesApi) {
+  //       //
+  //       seriesApi.setData(candlestickData);
+  //     }
+  //   }, [chartApi, seriesApi, candlestickData]);
+  //   useEffect(() => {
+  //     if (chartApi && volumeSeriesApi) {
+  //       //
+  //       volumeSeriesApi.setData(volumeData);
+  //     }
+  //   }, [chartApi, volumeSeriesApi, volumeData]);
+
+  //   const renderChildren = (children: React.ReactNode): React.ReactNode => {
+  //     if (React.isValidElement(children)) {
+  //       return React.cloneElement(children, {
+  //         ...children.props,
+  //         seriesApi: seriesApi,
+  //         ohlcData: props.data,
+  //       });
+  //     }
+  //     if (Array.isArray(children)) {
+  //       return children.map((child) => renderChildren(child));
+  //     }
+  //     return children;
+  //   };
+
+  //   if (props.children) {
+  //     return <>{renderChildren(props.children)}</>;
+  //   }
+  //   return null;
+  // },
 );
 
 export const LineSeries = React.memo(
@@ -447,52 +450,52 @@ export const LineSeries = React.memo(
     options?: { title?: string; color?: string };
     data: Array<{ timestamp: number; value: number }>;
   }) => {
-    const chartApi = useContext(ChartApiContext);
-    const [viewStartIndex, viewEndIndex] = useViewRange();
-    const seriesApiRef = useRef<ISeriesApi<'Line'>>();
+    // const chartApi = useContext(ChartApiContext);
+    // const [viewStartIndex, viewEndIndex] = useViewRange();
+    // const seriesApiRef = useRef<ISeriesApi<'Line'>>();
 
-    useEffect(() => {
-      if (chartApi) {
-        const precision = 5;
-        const series = chartApi.addLineSeries({
-          lineWidth: 1,
-          priceLineVisible: false,
-          lastValueVisible: false,
-          priceFormat: { type: 'price', precision, minMove: +(0.1 ** precision).toFixed(precision) },
-          ...props.options,
-          title: undefined,
-          ...{ yuan_title: props.options?.title },
-        });
-        seriesApiRef.current = series;
-        return () => {
-          chartApi.removeSeries(series);
-          seriesApiRef.current = undefined;
-        };
-      }
-    }, [chartApi]);
+    // useEffect(() => {
+    //   if (chartApi) {
+    //     const precision = 5;
+    //     const series = chartApi.addLineSeries({
+    //       lineWidth: 1,
+    //       priceLineVisible: false,
+    //       lastValueVisible: false,
+    //       priceFormat: { type: 'price', precision, minMove: +(0.1 ** precision).toFixed(precision) },
+    //       ...props.options,
+    //       title: undefined,
+    //       ...{ yuan_title: props.options?.title },
+    //     });
+    //     seriesApiRef.current = series;
+    //     return () => {
+    //       chartApi.removeSeries(series);
+    //       seriesApiRef.current = undefined;
+    //     };
+    //   }
+    // }, [chartApi]);
 
-    const seriesData = useMemo(
-      () =>
-        props.data.slice(viewStartIndex, viewEndIndex).map(
-          (period): LineData => ({
-            time: (period.timestamp / 1e3) as UTCTimestamp,
-            // ISSUE: Inf / -Inf cause axis disappear, norm to NaN
-            value: period.value === Infinity || period.value === -Infinity ? NaN : period.value,
-            color:
-              Number.isNaN(period.value) || period.value === Infinity || period.value === -Infinity
-                ? 'transparent'
-                : undefined,
-          }),
-        ),
-      [props.data, viewStartIndex, viewEndIndex],
-    );
+    // const seriesData = useMemo(
+    //   () =>
+    //     props.data.slice(viewStartIndex, viewEndIndex).map(
+    //       (period): LineData => ({
+    //         time: (period.timestamp / 1e3) as UTCTimestamp,
+    //         // ISSUE: Inf / -Inf cause axis disappear, norm to NaN
+    //         value: period.value === Infinity || period.value === -Infinity ? NaN : period.value,
+    //         color:
+    //           Number.isNaN(period.value) || period.value === Infinity || period.value === -Infinity
+    //             ? 'transparent'
+    //             : undefined,
+    //       }),
+    //     ),
+    //   [props.data, viewStartIndex, viewEndIndex],
+    // );
 
-    useEffect(() => {
-      if (chartApi && seriesApiRef.current) {
-        //
-        seriesApiRef.current.setData(seriesData);
-      }
-    }, [chartApi, seriesData]);
+    // useEffect(() => {
+    //   if (chartApi && seriesApiRef.current) {
+    //     //
+    //     seriesApiRef.current.setData(seriesData);
+    //   }
+    // }, [chartApi, seriesData]);
 
     return null;
   },
@@ -503,73 +506,73 @@ export const HistogramSeries = React.memo(
     options?: { title?: string; color?: string };
     data: Array<{ timestamp: number; value: number }>;
   }) => {
-    const chartApi = useContext(ChartApiContext);
-    const [viewStartIndex, viewEndIndex] = useViewRange();
-    const seriesApiRef = useRef<ISeriesApi<'Histogram'>>();
+    // const chartApi = useContext(ChartApiContext);
+    // const [viewStartIndex, viewEndIndex] = useViewRange();
+    // const seriesApiRef = useRef<ISeriesApi<'Histogram'>>();
 
-    useEffect(() => {
-      if (chartApi) {
-        const precision = 5;
-        const series = chartApi.addHistogramSeries({
-          priceLineVisible: false,
-          lastValueVisible: false,
-          priceFormat: { type: 'price', precision, minMove: +(0.1 ** precision).toFixed(precision) },
-          ...props.options,
-          title: undefined,
-          ...{ yuan_title: props.options?.title },
-        });
-        seriesApiRef.current = series;
-        return () => {
-          chartApi.removeSeries(series);
-          seriesApiRef.current = undefined;
-        };
-      }
-    }, [chartApi]);
+    // useEffect(() => {
+    //   if (chartApi) {
+    //     const precision = 5;
+    //     const series = chartApi.addHistogramSeries({
+    //       priceLineVisible: false,
+    //       lastValueVisible: false,
+    //       priceFormat: { type: 'price', precision, minMove: +(0.1 ** precision).toFixed(precision) },
+    //       ...props.options,
+    //       title: undefined,
+    //       ...{ yuan_title: props.options?.title },
+    //     });
+    //     seriesApiRef.current = series;
+    //     return () => {
+    //       chartApi.removeSeries(series);
+    //       seriesApiRef.current = undefined;
+    //     };
+    //   }
+    // }, [chartApi]);
 
-    const color = props.options?.color ?? '#000000';
-    const getRGB = (value: string) => {
-      const [r, g, b] = value
-        .slice(1)
-        .match(/.{2}/g)!
-        .map((x) => parseInt(x, 16));
-      return { r, g, b };
-    };
-    const rgb = getRGB(color);
+    // const color = props.options?.color ?? '#000000';
+    // const getRGB = (value: string) => {
+    //   const [r, g, b] = value
+    //     .slice(1)
+    //     .match(/.{2}/g)!
+    //     .map((x) => parseInt(x, 16));
+    //   return { r, g, b };
+    // };
+    // const rgb = getRGB(color);
 
-    const seriesData = useMemo(
-      () =>
-        props.data.slice(viewStartIndex, viewEndIndex).map(
-          (period): LineData => ({
-            time: (period.timestamp / 1e3) as UTCTimestamp,
-            value: period.value,
-            color: Number.isNaN(period.value)
-              ? 'transparent'
-              : period.value > 0
-              ? undefined
-              : `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5)`,
-          }),
-        ),
-      [props.data, viewStartIndex, viewEndIndex],
-    );
+    // const seriesData = useMemo(
+    //   () =>
+    //     props.data.slice(viewStartIndex, viewEndIndex).map(
+    //       (period): LineData => ({
+    //         time: (period.timestamp / 1e3) as UTCTimestamp,
+    //         value: period.value,
+    //         color: Number.isNaN(period.value)
+    //           ? 'transparent'
+    //           : period.value > 0
+    //           ? undefined
+    //           : `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, 0.5)`,
+    //       }),
+    //     ),
+    //   [props.data, viewStartIndex, viewEndIndex],
+    // );
 
-    useEffect(() => {
-      if (chartApi && seriesApiRef.current) {
-        //
-        seriesApiRef.current.setData(seriesData);
-      }
-    }, [chartApi, seriesData]);
+    // useEffect(() => {
+    //   if (chartApi && seriesApiRef.current) {
+    //     //
+    //     seriesApiRef.current.setData(seriesData);
+    //   }
+    // }, [chartApi, seriesData]);
 
     return null;
   },
 );
 
-export const ChartGroupApiContext = React.createContext<{
-  charts: Set<IChartApi>;
-  viewStartIndex: number;
-  viewEndIndex: number;
-  hoverIndex: number;
-  onHoverIndexChange: (index: number) => void;
-} | null>(null);
+// export const ChartGroupApiContext = React.createContext<{
+//   charts: Set<IChartApi>;
+//   viewStartIndex: number;
+//   viewEndIndex: number;
+//   hoverIndex: number;
+//   onHoverIndexChange: (index: number) => void;
+// } | null>(null);
 
 export const ChartGroup = React.memo(
   (props: {
@@ -579,21 +582,22 @@ export const ChartGroup = React.memo(
     hoverIndex?: number;
     onHoverIndexChange?: (index: number) => void;
   }) => {
-    const chartGroup = useRef(new Set<IChartApi>());
+    // const chartGroup = useRef(new Set<IChartApi>());
 
-    return (
-      <ChartGroupApiContext.Provider
-        value={{
-          charts: chartGroup.current,
-          viewStartIndex: props.viewStartIndex || 0,
-          viewEndIndex: props.viewEndIndex || Infinity,
-          hoverIndex: props.hoverIndex || -1,
-          onHoverIndexChange: props.onHoverIndexChange || (() => {}),
-        }}
-      >
-        {props.children}
-      </ChartGroupApiContext.Provider>
-    );
+    // return (
+    //   <ChartGroupApiContext.Provider
+    //     value={{
+    //       charts: chartGroup.current,
+    //       viewStartIndex: props.viewStartIndex || 0,
+    //       viewEndIndex: props.viewEndIndex || Infinity,
+    //       hoverIndex: props.hoverIndex || -1,
+    //       onHoverIndexChange: props.onHoverIndexChange || (() => {}),
+    //     }}
+    //   >
+    //     {props.children}
+    //   </ChartGroupApiContext.Provider>
+    // );
+    return <></>;
   },
 );
 
@@ -602,100 +606,100 @@ interface IOrderSeriesProps {
   orders: IOrder[];
   options?: { title?: string; color?: string };
   ohlcData?: IOHLC[];
-  seriesApi?: ISeriesApi<any>;
+  // seriesApi?: ISeriesApi<any>;
 }
 
 export const OrderSeries = React.memo((props: IOrderSeriesProps) => {
-  const { t } = useTranslation(['OrderSeries', 'common']);
+  // const { t } = useTranslation(['OrderSeries', 'common']);
 
-  const chartApi = useContext(ChartApiContext);
-  const seriesApiRef = useRef<ISeriesApi<any>>();
-  const [viewStartIndex, viewEndIndex] = useViewRange();
+  // const chartApi = useContext(ChartApiContext);
+  // const seriesApiRef = useRef<ISeriesApi<any>>();
+  // const [viewStartIndex, viewEndIndex] = useViewRange();
 
-  useEffect(() => {
-    if (chartApi) {
-      const precision = 5;
-      const series = chartApi.addLineSeries({
-        lineWidth: 1,
-        priceLineVisible: false,
-        lastValueVisible: false,
-        priceFormat: { type: 'price', precision, minMove: +(0.1 ** precision).toFixed(precision) },
-        ...props.options,
-        title: undefined,
-        // ...{ yuan_title: props.options?.title ?? "Order" },
-      });
-      seriesApiRef.current = series;
-      return () => {
-        chartApi.removeSeries(series);
-        seriesApiRef.current = undefined;
-      };
-    }
-  }, [chartApi]);
+  // useEffect(() => {
+  //   if (chartApi) {
+  //     const precision = 5;
+  //     const series = chartApi.addLineSeries({
+  //       lineWidth: 1,
+  //       priceLineVisible: false,
+  //       lastValueVisible: false,
+  //       priceFormat: { type: 'price', precision, minMove: +(0.1 ** precision).toFixed(precision) },
+  //       ...props.options,
+  //       title: undefined,
+  //       // ...{ yuan_title: props.options?.title ?? "Order" },
+  //     });
+  //     seriesApiRef.current = series;
+  //     return () => {
+  //       chartApi.removeSeries(series);
+  //       seriesApiRef.current = undefined;
+  //     };
+  //   }
+  // }, [chartApi]);
 
-  const seriesData = useMemo(
-    () =>
-      props.ohlcData?.slice(viewStartIndex, viewEndIndex).map(
-        (x, i): LineData => ({
-          time: (new Date(x.created_at!).getTime() / 1e3) as UTCTimestamp,
-          // ISSUE: Inf / -Inf cause axis disappear, norm to NaN
-          value: +x.open,
-          color: 'transparent',
-        }),
-      ) ?? [],
-    [props.ohlcData, viewStartIndex, viewEndIndex], // Ensure re-render when view range changes,
-  );
-  useEffect(() => {
-    if (chartApi) {
-      if (seriesApiRef.current) {
-        seriesApiRef.current.setData(seriesData);
-      }
-    }
-  }, [chartApi, seriesData]);
+  // const seriesData = useMemo(
+  //   () =>
+  //     props.ohlcData?.slice(viewStartIndex, viewEndIndex).map(
+  //       (x, i): LineData => ({
+  //         time: (new Date(x.created_at!).getTime() / 1e3) as UTCTimestamp,
+  //         // ISSUE: Inf / -Inf cause axis disappear, norm to NaN
+  //         value: +x.open,
+  //         color: 'transparent',
+  //       }),
+  //     ) ?? [],
+  //   [props.ohlcData, viewStartIndex, viewEndIndex], // Ensure re-render when view range changes,
+  // );
+  // useEffect(() => {
+  //   if (chartApi) {
+  //     if (seriesApiRef.current) {
+  //       seriesApiRef.current.setData(seriesData);
+  //     }
+  //   }
+  // }, [chartApi, seriesData]);
 
-  const directionMapper: Record<string, string> = {
-    //
-    ['OPEN_LONG']: t('common:order_direction_open_long'),
-    ['OPEN_SHORT']: t('common:order_direction_open_short'),
-    ['CLOSE_LONG']: t('common:order_direction_close_long'),
-    ['CLOSE_SHORT']: t('common:order_direction_close_short'),
-  };
+  // const directionMapper: Record<string, string> = {
+  //   //
+  //   ['OPEN_LONG']: t('common:order_direction_open_long'),
+  //   ['OPEN_SHORT']: t('common:order_direction_open_short'),
+  //   ['CLOSE_LONG']: t('common:order_direction_close_long'),
+  //   ['CLOSE_SHORT']: t('common:order_direction_close_short'),
+  // };
 
-  const markers = useMemo((): SeriesMarker<Time>[] => {
-    const viewStartTime = new Date(props.ohlcData?.[viewStartIndex]?.created_at ?? 0).getTime();
-    const viewEndTime = new Date(props.ohlcData?.[viewEndIndex! - 1]?.created_at ?? Date.now()).getTime();
-    return props.orders
-      .map((order): SeriesMarker<Time> => {
-        const dir = {
-          //
-          ['OPEN_LONG']: 1,
-          ['OPEN_SHORT']: -1,
-          ['CLOSE_SHORT']: 1,
-          ['CLOSE_LONG']: -1,
-        }[order.order_direction!]!;
-        const text = directionMapper[order.order_direction!];
-        // Issue: TradingView Chart will place order annotation in the next bar, so we need to align the order's time to bar's start-time
-        const divider = convertDurationToOffset(props.duration);
+  // const markers = useMemo((): SeriesMarker<Time>[] => {
+  //   const viewStartTime = new Date(props.ohlcData?.[viewStartIndex]?.created_at ?? 0).getTime();
+  //   const viewEndTime = new Date(props.ohlcData?.[viewEndIndex! - 1]?.created_at ?? Date.now()).getTime();
+  //   return props.orders
+  //     .map((order): SeriesMarker<Time> => {
+  //       const dir = {
+  //         //
+  //         ['OPEN_LONG']: 1,
+  //         ['OPEN_SHORT']: -1,
+  //         ['CLOSE_SHORT']: 1,
+  //         ['CLOSE_LONG']: -1,
+  //       }[order.order_direction!]!;
+  //       const text = directionMapper[order.order_direction!];
+  //       // Issue: TradingView Chart will place order annotation in the next bar, so we need to align the order's time to bar's start-time
+  //       const divider = convertDurationToOffset(props.duration);
 
-        const alignedTimestamp = Math.floor(order.filled_at! / divider) * divider;
-        if (alignedTimestamp < viewStartTime || alignedTimestamp > viewEndTime) {
-          return null as any; // Skip markers outside the view range
-        }
-        return {
-          time: (alignedTimestamp / 1e3) as UTCTimestamp,
-          position: dir > 0 ? 'belowBar' : 'aboveBar',
-          color: dir > 0 ? '#2196F3' : '#e91e63',
-          shape: dir > 0 ? 'arrowUp' : 'arrowDown',
-          text: `${text} @ ${order.traded_price} (${order.traded_volume})`,
-        };
-      })
-      .filter((x) => x !== null);
-  }, [props.duration, props.orders, directionMapper, viewStartIndex, viewEndIndex, props.ohlcData]);
+  //       const alignedTimestamp = Math.floor(order.filled_at! / divider) * divider;
+  //       if (alignedTimestamp < viewStartTime || alignedTimestamp > viewEndTime) {
+  //         return null as any; // Skip markers outside the view range
+  //       }
+  //       return {
+  //         time: (alignedTimestamp / 1e3) as UTCTimestamp,
+  //         position: dir > 0 ? 'belowBar' : 'aboveBar',
+  //         color: dir > 0 ? '#2196F3' : '#e91e63',
+  //         shape: dir > 0 ? 'arrowUp' : 'arrowDown',
+  //         text: `${text} @ ${order.traded_price} (${order.traded_volume})`,
+  //       };
+  //     })
+  //     .filter((x) => x !== null);
+  // }, [props.duration, props.orders, directionMapper, viewStartIndex, viewEndIndex, props.ohlcData]);
 
-  useEffect(() => {
-    if (seriesApiRef.current) {
-      seriesApiRef.current.setMarkers(markers);
-    }
-  }, [markers]);
+  // useEffect(() => {
+  //   if (seriesApiRef.current) {
+  //     seriesApiRef.current.setMarkers(markers);
+  //   }
+  // }, [markers]);
 
   return null;
 });
@@ -707,75 +711,75 @@ export const IndexSeries = React.memo(
     // seriesApi?: ISeriesApi<any>;
     ohlcData?: IOHLC[];
   }) => {
-    const chartApi = useContext(ChartApiContext);
-    const [viewStartIndex, viewEndIndex] = useViewRange();
-    const groupContext = useContext(ChartGroupApiContext);
+    // const chartApi = useContext(ChartApiContext);
+    // const [viewStartIndex, viewEndIndex] = useViewRange();
+    // const groupContext = useContext(ChartGroupApiContext);
 
-    const seriesApiRef = useRef<ISeriesApi<any>>();
+    // const seriesApiRef = useRef<ISeriesApi<any>>();
 
-    useEffect(() => {
-      if (chartApi) {
-        const precision = 5;
-        const series = chartApi.addLineSeries({
-          lineWidth: 1,
-          priceLineVisible: false,
-          lastValueVisible: false,
-          priceFormat: { type: 'price', precision, minMove: +(0.1 ** precision).toFixed(precision) },
-          ...props.options,
-          title: undefined,
-          // ...{ yuan_title: props.options?.title },
-        });
-        seriesApiRef.current = series;
-        return () => {
-          chartApi.removeSeries(series);
-          seriesApiRef.current = undefined;
-        };
-      }
-    }, [chartApi]);
+    // useEffect(() => {
+    //   if (chartApi) {
+    //     const precision = 5;
+    //     const series = chartApi.addLineSeries({
+    //       lineWidth: 1,
+    //       priceLineVisible: false,
+    //       lastValueVisible: false,
+    //       priceFormat: { type: 'price', precision, minMove: +(0.1 ** precision).toFixed(precision) },
+    //       ...props.options,
+    //       title: undefined,
+    //       // ...{ yuan_title: props.options?.title },
+    //     });
+    //     seriesApiRef.current = series;
+    //     return () => {
+    //       chartApi.removeSeries(series);
+    //       seriesApiRef.current = undefined;
+    //     };
+    //   }
+    // }, [chartApi]);
 
-    const seriesData = useMemo(
-      () =>
-        props.ohlcData?.slice(viewStartIndex, viewEndIndex).map(
-          (x, i): LineData => ({
-            time: (new Date(x.created_at).getTime() / 1e3) as UTCTimestamp,
-            // ISSUE: Inf / -Inf cause axis disappear, norm to NaN
-            value: +x.low * (1 - 0.001),
-            color: 'transparent',
-          }),
-        ) ?? [],
-      [props.ohlcData, viewStartIndex, viewEndIndex],
-    );
+    // const seriesData = useMemo(
+    //   () =>
+    //     props.ohlcData?.slice(viewStartIndex, viewEndIndex).map(
+    //       (x, i): LineData => ({
+    //         time: (new Date(x.created_at).getTime() / 1e3) as UTCTimestamp,
+    //         // ISSUE: Inf / -Inf cause axis disappear, norm to NaN
+    //         value: +x.low * (1 - 0.001),
+    //         color: 'transparent',
+    //       }),
+    //     ) ?? [],
+    //   [props.ohlcData, viewStartIndex, viewEndIndex],
+    // );
 
-    useEffect(() => {
-      if (chartApi) {
-        if (seriesApiRef.current) {
-          seriesApiRef.current.setData(seriesData);
-        }
-      }
-    }, [chartApi, seriesData]);
+    // useEffect(() => {
+    //   if (chartApi) {
+    //     if (seriesApiRef.current) {
+    //       seriesApiRef.current.setData(seriesData);
+    //     }
+    //   }
+    // }, [chartApi, seriesData]);
 
-    const markers = useMemo((): SeriesMarker<Time>[] => {
-      if (!groupContext) return [];
-      const theIndex = props.data[groupContext.hoverIndex + viewStartIndex]?.value;
-      if (!(theIndex >= 0)) return [];
-      if (theIndex < viewStartIndex || (viewEndIndex ? theIndex >= viewEndIndex : false)) return [];
-      const theRefData = props.data[theIndex];
-      if (!theRefData) return [];
-      return [
-        {
-          time: (theRefData.timestamp / 1e3) as UTCTimestamp,
-          position: 'belowBar',
-          color: props.options?.color || '',
-          shape: 'arrowUp',
-          text: props.options?.title,
-        },
-      ];
-    }, [props.data, groupContext, viewStartIndex, viewEndIndex]);
-    useEffect(() => {
-      if (seriesApiRef.current) {
-        seriesApiRef.current.setMarkers(markers);
-      }
-    }, [markers]);
+    // const markers = useMemo((): SeriesMarker<Time>[] => {
+    //   if (!groupContext) return [];
+    //   const theIndex = props.data[groupContext.hoverIndex + viewStartIndex]?.value;
+    //   if (!(theIndex >= 0)) return [];
+    //   if (theIndex < viewStartIndex || (viewEndIndex ? theIndex >= viewEndIndex : false)) return [];
+    //   const theRefData = props.data[theIndex];
+    //   if (!theRefData) return [];
+    //   return [
+    //     {
+    //       time: (theRefData.timestamp / 1e3) as UTCTimestamp,
+    //       position: 'belowBar',
+    //       color: props.options?.color || '',
+    //       shape: 'arrowUp',
+    //       text: props.options?.title,
+    //     },
+    //   ];
+    // }, [props.data, groupContext, viewStartIndex, viewEndIndex]);
+    // useEffect(() => {
+    //   if (seriesApiRef.current) {
+    //     seriesApiRef.current.setMarkers(markers);
+    //   }
+    // }, [markers]);
 
     return null;
   },

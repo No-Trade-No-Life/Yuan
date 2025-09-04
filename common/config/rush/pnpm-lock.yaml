@@ -2342,7 +2342,7 @@ importers:
       ini: ~5.0.0
       js-untar: ~2.0.0
       jsonc-parser: ~3.2.0
-      lightweight-charts: ~3.8.0
+      lightweight-charts: ~5.0.8
       monaco-editor: ~0.40.0
       observable-hooks: ~4.2.0
       papaparse: ~5.5.3
@@ -2414,7 +2414,7 @@ importers:
       ini: 5.0.0
       js-untar: 2.0.0
       jsonc-parser: 3.2.0
-      lightweight-charts: 3.8.0
+      lightweight-charts: 5.0.8
       monaco-editor: 0.40.0
       observable-hooks: 4.2.3_21bcef9a91ca98b9fc3ed9835ca1c6ff
       papaparse: 5.5.3
@@ -15505,8 +15505,8 @@ packages:
     engines: {'0': node >=0.6.0}
     dev: false
 
-  /fancy-canvas/0.2.2:
-    resolution: {integrity: sha512-50qi8xA0QkHbjmb8h7XQ6k2fvD7y/yMfiUw9YTarJ7rWrq6o5/3CCXPouYk+XSLASvvxtjyiQLRBFt3qkE3oyA==}
+  /fancy-canvas/2.1.0:
+    resolution: {integrity: sha512-nifxXJ95JNLFR2NgRV4/MxVP45G9909wJTEKz5fg/TZS20JJZA6hfgRVh/bC9bwl2zBtBNcYPjiBE4njQHVBwQ==}
     dev: false
 
   /fast-copy/3.0.2:
@@ -19361,10 +19361,10 @@ packages:
       immediate: 3.0.6
     dev: false
 
-  /lightweight-charts/3.8.0:
-    resolution: {integrity: sha512-7yFGnYuE1RjRJG9RwUTBz5wvF1QtjBOSW4FFlikr8Dh+/TDNt4ci+HsWSYmStgQUpawpvkCJ3j5/W25GppGj9Q==}
+  /lightweight-charts/5.0.8:
+    resolution: {integrity: sha512-dNBK5TlNcG78RUnxYRAZP4XpY5bkp3EE0PPjFFPkdIZ8RvnvL2JLgTb1BLh40trHhgJl51b1bCz8678GpnKvIw==}
     dependencies:
-      fancy-canvas: 0.2.2
+      fancy-canvas: 2.1.0
     dev: false
 
   /lilconfig/2.1.0:

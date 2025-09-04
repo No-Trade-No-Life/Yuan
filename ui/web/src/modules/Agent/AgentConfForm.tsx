@@ -10,7 +10,13 @@ import {
 } from '@douyinfe/semi-icons';
 import { Divider, Layout, Modal, Space, Toast, Typography } from '@douyinfe/semi-ui';
 import { AgentScene, IAgentConf, agentConfSchema } from '@yuants/agent';
-import { BasicFileSystemUnit, HistoryOrderUnit, SeriesDataUnit } from '@yuants/kernel';
+import {
+  BasicFileSystemUnit,
+  HistoryOrderUnit,
+  PeriodDataUnit,
+  Series,
+  SeriesDataUnit,
+} from '@yuants/kernel';
 import { saveSecret } from '@yuants/secret';
 import { encodeBase58 } from '@yuants/utils';
 import Ajv from 'ajv';
@@ -40,7 +46,7 @@ import { executeCommand, registerCommand } from '../CommandCenter';
 import { createFileSystemBehaviorSubject } from '../FileSystem';
 import { fs } from '../FileSystem/api';
 import Form, { showForm } from '../Form';
-import { Button } from '../Interactive';
+import { Button, ITimeSeriesChartConfig } from '../Interactive';
 import { currentKernel$ } from '../Kernel/model';
 import { orders$ } from '../Order/model';
 import { registerPage } from '../Pages';
@@ -187,6 +193,110 @@ export const runAgent = async () => {
     await CSV.writeFile(ordersFilename, scene.kernel.findUnit(HistoryOrderUnit)?.historyOrders!);
 
     Toast.success(`订单保存到 ${ordersFilename}`);
+
+    const configFilename = join(kernelDir, 'config.json');
+
+    const config: ITimeSeriesChartConfig = {
+      data: [
+        {
+          type: 'csv',
+          filename: seriesFilename,
+          time_column_name: series[0]?.resolveRoot().name ?? '',
+        },
+        {
+          type: 'csv',
+          filename: ordersFilename,
+          time_column_name: 'filled_at',
+        },
+      ],
+      views: [
+        {
+          name: '走势图',
+          time_ref: {
+            data_index: 0,
+            column_name: series[0]?.resolveRoot().name ?? '',
+          },
+          panes: [],
+        },
+      ],
+    };
+
+    const resolveChartId = (series: Series): string => {
+      const chartConfig = series.tags['chart'];
+      if (series.parent === undefined) {
+        // Main Chart ID is the TimeSeries's ID
+        return series.series_id;
+      }
+      if (chartConfig === undefined) {
+        return resolveChartId(series.parent);
+      }
+      if (chartConfig === 'new') {
+        return series.series_id;
+      }
+      if (typeof chartConfig === 'string') {
+        return chartConfig;
+      }
+      throw new Error(`chart config illegal: ${series.series_id} (${series.name})`);
+    };
+
+    // const mapChartIdToDisplayConfigList: Record<
+    //   string,
+    //   {
+    //     chartId: string;
+    //     title: string;
+    //     type: string;
+    //     color: string;
+    //     data: Array<{ timestamp: number; value: number }>;
+    //   }[]
+    // > = {};
+    const chartIds: string[] = [];
+
+    series.forEach((series) => {
+      const chartId = resolveChartId(series);
+      // const brothers = (mapChartIdToDisplayConfigList[chartId] ??= []);
+      if (!chartIds.includes(chartId)) {
+        chartIds.push(chartId);
+        config.views[0].panes.push({
+          series: [],
+        });
+      }
+      const paneIndex = chartIds.indexOf(chartId);
+      config.views[0].panes[paneIndex].series.push({
+        type: series.tags['display'] || '',
+        refs: [
+          {
+            data_index: 0,
+            column_name: series.name || '',
+          },
+        ],
+      });
+    });
+
+    const seriesIds = Object.keys(kernel.findUnit(PeriodDataUnit)!.data);
+
+    config.views[0].panes[0].series.unshift({
+      type: 'ohlc',
+      refs: [
+        {
+          data_index: 0,
+          column_name: `O(${seriesIds[0]})`,
+        },
+        {
+          data_index: 0,
+          column_name: `H(${seriesIds[0]})`,
+        },
+        {
+          data_index: 0,
+          column_name: `L(${seriesIds[0]})`,
+        },
+        {
+          data_index: 0,
+          column_name: `C(${seriesIds[0]})`,
+        },
+      ],
+    });
+
+    await fs.writeFile(configFilename, JSON.stringify(config));
 
     executeCommand('Page.open', { type: 'AccountPerformancePanel' });
 

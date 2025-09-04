@@ -11,6 +11,7 @@ import { orders$ } from '../Order/model';
 import { registerPage } from '../Pages';
 import { AccountSelector } from './AccountSelector';
 import { accountPerformance$ } from './model';
+import { currentKernel$ } from '../Kernel/model';
 
 registerPage('AccountPerformancePanel', () => {
   const [t] = useTranslation('AccountPerformancePanel');
@@ -39,6 +40,7 @@ registerPage('AccountPerformancePanel', () => {
     () => accountOrders.reduce((acc, order) => acc + (order.traded_value || 0), 0),
     [accountOrders],
   );
+  const kernel = useObservableState(currentKernel$);
 
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
@@ -46,7 +48,9 @@ registerPage('AccountPerformancePanel', () => {
         <AccountSelector value={accountId} onChange={setAccountId} candidates={accountIdOptions} />
         <Button
           onClick={() => {
-            executeCommand('TechnicalChart');
+            executeCommand('NewTechnicalChart', {
+              filename: `/.Y/kernel/${kernel?.id}/config.json`,
+            });
           }}
         >
           {t('pages:TechnicalChart')}
