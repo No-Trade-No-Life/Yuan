@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-ctp",
   "entries": [
     {
+      "version": "0.3.2",
+      "tag": "@yuants/vendor-ctp_v0.3.2",
+      "date": "Thu, 04 Sep 2025 19:38:55 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add prebuild binary"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.1",
       "tag": "@yuants/vendor-ctp_v0.3.1",
       "date": "Thu, 04 Sep 2025 16:45:39 GMT",
