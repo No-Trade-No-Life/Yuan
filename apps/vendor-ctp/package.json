@@ -8,6 +8,7 @@
     "ctp"
   ],
   "scripts": {
+    "install": "node ./lib/scripts/post-install.js",
     "build": "heft test --clean && node ./lib/scripts/build-ctp-types.js && node ./lib/scripts/build-ctp-bridge.js && yuan-toolkit post-build"
   },
   "dependencies": {
