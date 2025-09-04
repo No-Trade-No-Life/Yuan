@@ -112,6 +112,8 @@ Run Yuan's Node unit from npx:
    $ POSTGRES_URI="<your-postgres-uri>" npx @yuants/node-unit
    ```
 
+   For more configuration options, please refer to [@yuants/node-unit](apps/node-unit).
+
 2. Connect to the newly created local host using Web GUI
 
    Open your browser and visit http://y.ntnl.io, you will see Yuan's Web GUI.
