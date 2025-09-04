@@ -38,8 +38,8 @@ RUN rm -rf build && \
 
 
 # 将构建产物复制到挂载目录
-RUN --mount=type=bind,source=../../apps/vendor-ctp/ctp,target=/mnt/output \
-    cp -r /app/apps/vendor-ctp/build /mnt/output/
+# RUN --mount=type=bind,source=../../apps/vendor-ctp/ctp,target=/mnt/output \
+#     cp -r /app/apps/vendor-ctp/build /mnt/output/
 
 FROM node:22.14.0-bullseye
 
