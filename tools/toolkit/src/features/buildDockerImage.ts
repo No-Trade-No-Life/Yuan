@@ -184,23 +184,22 @@ export const buildDockerImage = async () => {
           },
         };
 
-        // for CI run, we compose a single docker-bake file, and let the CI do the work
-        // else we build docker image
-        if ((process.env.CI_RUN ?? 'false') === 'true') {
-          console.info(new Date(), `CI_RUN=true, skip building docker image, compose docker-bake.json only`);
-          const uniOutBakeFile = path.resolve(rushJsonFolder, `common/temp/docker-bake.json`);
-          if (fs.existsSync(uniOutBakeFile)) {
-            const content = JSON.parse(fs.readFileSync(uniOutBakeFile).toString());
-            content.group.default.targets = [...content.group.default.targets, ...group.default.targets];
-            content.target = {
-              ...content.target,
-              ...target,
-            };
-            fs.writeFileSync(uniOutBakeFile, JSON.stringify(content, undefined, 2));
-          } else {
-            fs.writeFileSync(uniOutBakeFile, JSON.stringify({ target, group }, undefined, 2));
-          }
+        // ISSUE: 并发合并可能会对 docker-bake.json 文件造成破坏
+        const uniOutBakeFile = path.resolve(rushJsonFolder, `common/temp/docker-bake.json`);
+        if (fs.existsSync(uniOutBakeFile)) {
+          const content = JSON.parse(fs.readFileSync(uniOutBakeFile).toString());
+          content.group.default.targets = [...content.group.default.targets, ...group.default.targets];
+          content.target = {
+            ...content.target,
+            ...target,
+          };
+          fs.writeFileSync(uniOutBakeFile, JSON.stringify(content, undefined, 2));
         } else {
+          fs.writeFileSync(uniOutBakeFile, JSON.stringify({ target, group }, undefined, 2));
+        }
+
+        // for CI run, we compose a single docker-bake file, and let the CI do the work
+        if (process.env.DOCKER_BUILD_INSTANTLY === 'true') {
           console.info(new Date(), `building docker image for ${packageName} at ${absArtifactDir}`);
           fs.writeFileSync(outBakeFile, JSON.stringify({ target, group }, undefined, 2));
           // const output = execSync(`docker buildx bake -f ${outBakeFile}`, { stdio: 'pipe' });

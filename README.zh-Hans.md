@@ -139,12 +139,6 @@ npm install -g @microsoft/rush
 rush update && rush build
 ```
 
-如果您没有安装 docker，可以通过设置环境变量 `CI_RUN` 为 `true` 来跳过 docker 构建。
-
-```bash
-CI_RUN=true rush build
-```
-
 <p align="right">(<a href="#readme-top">返回顶部</a>)</p>
 
 ### 代码导读
