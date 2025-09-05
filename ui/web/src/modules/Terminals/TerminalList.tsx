@@ -63,6 +63,9 @@ registerPage('TerminalList', () => {
       //     header: () => '订阅频道数',
       //   },
       // ),
+      columnHelper.accessor('tags.public_ip', {
+        header: () => '终端公网 IP',
+      }),
       columnHelper.accessor((x) => 0, {
         id: 'actions',
         header: () => '操作',
@@ -90,5 +93,5 @@ registerPage('TerminalList', () => {
     return columns;
   }, []);
 
-  return <DataView columns={columns} data={terminals} initialGroupping={['name']} />;
+  return <DataView columns={columns} data={terminals} />;
 });
