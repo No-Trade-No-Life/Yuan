@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-ctp
 
-This log was last generated on Thu, 04 Sep 2025 21:31:00 GMT and should not be manually modified.
+This log was last generated on Fri, 05 Sep 2025 04:52:57 GMT and should not be manually modified.
+
+## 0.3.4
+Fri, 05 Sep 2025 04:52:57 GMT
+
+### Patches
+
+- use debian 12
 
 ## 0.3.3
 Thu, 04 Sep 2025 21:31:00 GMT
