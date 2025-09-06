@@ -239,9 +239,13 @@ An Agent is a trading bot/strategy program that can automatically execute tradin
 
 #### Trade Execution
 
-In the trade execution phase, we use an execution engine to convert an Agent's simulated positions into actual trading orders. The execution engine sends these orders to exchanges or other trading platforms.
+The agent is responsible for outputting simulated account positions in real-time, but it does not interact directly with the market. This is to maintain a stateless design and simplify the agent's logic.
 
-- [@yuants/app-trade-copier](apps/trade-copier) Deploys a terminal as a trade copying service that monitors source accounts and ensures target accounts mirror them.
+We use an account composer to combine information from simulated accounts and derive the planned account information required for live trading. Then, a trade executor is used to align the positions of the real trading account with those of the planned account.
+
+- [@yuants/app-account-composer](apps/account-composer) Account Composer. It can derive a new account information from several accounts. It has a wide range of applications, such as consolidating multiple agent accounts into a single account.
+
+- [@yuants/app-trade-copier](apps/trade-copier) Trade Copier. It **sends orders to the market** to ensure the real account follows the planned account, with the goal of keeping their positions consistent. It supports configuring various micro-strategies, such as market price chasing, limiting single-order volume, rolling optimal pending orders, etc. Of course, you can also use one real account to follow another real account.
 
 For multiple accounts, a transfer controller handles inter-account fund movements:
 
@@ -255,7 +259,6 @@ You can even build a logistics network to automatically balance funds between ac
 
 - [@yuants/utils](libraries/utils) General utilities not found in community packages.
 - [@yuants/extension](libraries/extension) Defines extension interfaces for enhanced functionality.
-- [@yuants/app-account-composer](apps/account-composer) Deploys an account aggregation service that combines multiple account balances into a unified view.
 - [@yuants/app-k8s-manifest-operator](apps/k8s-manifest-operator) Deploys a Kubernetes manifest operator that ensures cluster state matches CRD definitions.
 
 #### Web UI
