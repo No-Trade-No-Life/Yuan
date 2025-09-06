@@ -150,7 +150,8 @@ registerPage('DeploySettings', () => {
               'enabled',
             ],
             conflictKeys: ['id'],
-          }) + ' returning *',
+            returningAll: true,
+          }),
         );
         refresh$.next();
         Toast.success(`成功更新 ${result.length} 条数据记录`);

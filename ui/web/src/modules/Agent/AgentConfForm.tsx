@@ -280,7 +280,10 @@ registerPage('AgentConfForm', () => {
                     },
                   ],
                   'secret',
-                ) + ' returning *',
+                  {
+                    returningAll: true,
+                  },
+                ),
               );
 
               const theSecret = secrets[0];
@@ -305,7 +308,10 @@ registerPage('AgentConfForm', () => {
                     },
                   ],
                   'deployment',
-                ) + ' RETURNING *',
+                  {
+                    returningAll: true,
+                  },
+                ),
               );
 
               const theDeployment = deployments[0];

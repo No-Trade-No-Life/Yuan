@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-series",
+      "comment": "refactor: sql remove keyFn option",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/data-series"
+}

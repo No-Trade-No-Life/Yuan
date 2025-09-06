@@ -28,7 +28,6 @@ order$
       terminal: Terminal.fromNodeEnv(),
       tableName: '"order"',
       writeInterval: 1000,
-      keyFn: (order) => encodePath(order.account_id, order.order_id),
       columns: [
         'order_id',
         'account_id',

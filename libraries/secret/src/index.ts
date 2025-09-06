@@ -96,7 +96,7 @@ export const saveSecret = async <T>(ctx: {
 
   return requestSQL<ISecret[]>(
     ctx.terminal,
-    buildInsertManyIntoTableSQL([secret], 'secret', { conflictKeys: ['id'] }) + ' RETURNING *',
+    buildInsertManyIntoTableSQL([secret], 'secret', { conflictKeys: ['id'], returningAll: true }),
   );
 };
 

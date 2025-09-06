@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/sql",
+      "comment": "refactor: sql remove keyFn option and add returningAll option",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/sql"
+}
