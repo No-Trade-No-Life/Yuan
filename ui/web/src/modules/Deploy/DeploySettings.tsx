@@ -1,5 +1,6 @@
-import { IconHelpCircle, IconMinusCircle, IconPlusCircle } from '@douyinfe/semi-icons';
+import { IconArrowUp, IconHelpCircle, IconMinusCircle, IconPlusCircle } from '@douyinfe/semi-icons';
 import { ArrayField, Form, Modal, Space, Tooltip } from '@douyinfe/semi-ui';
+import { createCache } from '@yuants/cache';
 import { IDeployment } from '@yuants/deploy';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { UUID } from '@yuants/utils';
@@ -10,8 +11,6 @@ import {
   combineLatest,
   defer,
   firstValueFrom,
-  forkJoin,
-  from,
   map,
   of,
   repeat,
@@ -24,7 +23,7 @@ import { Button, Switch, Toast } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 import { escapeForBash } from './utils';
-const { Option } = Form.Select;
+
 export const refresh$ = new BehaviorSubject<void>(undefined);
 
 const deploySettings$ = combineLatest([terminal$, refresh$]).pipe(
@@ -48,35 +47,17 @@ const deploySettings$ = combineLatest([terminal$, refresh$]).pipe(
   ),
   shareReplay(1),
 );
-const packageVersion$ = deploySettings$.pipe(
-  //
-  switchMap((settings) =>
-    forkJoin(
-      settings
-        .filter((setting) => Boolean(setting.package_name))
-        .map((setting) =>
-          fetchVersionInfo(setting.package_name).pipe(
-            map((version) => ({ packageName: setting.package_name, version })),
-          ),
-        ),
-    ),
-  ),
-);
 
-const mapPackageNameToVersions = new Map<string, string[]>();
-
-const fetchVersionInfo = (packageName: string) => {
-  if (mapPackageNameToVersions.has(packageName)) {
-    return of(mapPackageNameToVersions.get(packageName)?.[0]);
-  }
-  return from(
+const packageVersionsCache = createCache<string[]>(
+  (packageName) =>
     resolveVersion({ name: packageName, registry: 'https://registry.npmjs.org' }).then((info) => {
       const versions = Object.keys(info.meta.versions).reverse() as string[];
-      mapPackageNameToVersions.set(packageName, versions);
-      return info.version;
+      return versions;
     }),
-  );
-};
+  {
+    expire: 600_000, // Cache for 10 minutes
+  },
+);
 
 registerPage('DeploySettings', () => {
   const terminal = useObservableState(terminal$);
@@ -85,11 +66,9 @@ registerPage('DeploySettings', () => {
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const packageVersion = useObservableState(packageVersion$);
-
   useEffect(() => {
-    if (editDeployment?.package_name && !mapPackageNameToVersions.has(editDeployment.package_name)) {
-      fetchVersionInfo(editDeployment.package_name).subscribe();
+    if (editDeployment?.package_name) {
+      packageVersionsCache.query(editDeployment.package_name, true);
     }
   }, [editDeployment?.package_name]);
 
@@ -111,16 +90,21 @@ registerPage('DeploySettings', () => {
     }
   };
 
-  const updateToLatestVersion = () => {
-    if (packageVersion && deploySettings) {
-      const newSettings = deploySettings.map((setting) => {
-        const version = packageVersion.find((xx) => setting.package_name === xx.packageName);
-        if (version && version.version) {
-          setting.package_version = version.version;
+  const updateToLatestVersion = async () => {
+    if (deploySettings) {
+      const packages = new Set<string>(deploySettings.map((x) => x.package_name));
+      await Promise.allSettled([...packages].map((pkg) => packageVersionsCache.query(pkg, true)));
+      const deploymentsToUpdate: IDeployment[] = [];
+      deploySettings.forEach((setting) => {
+        const nextVersion = packageVersionsCache.get(setting.package_name || '')?.[0] || '';
+        if (nextVersion && nextVersion !== setting.package_version) {
+          deploymentsToUpdate.push({
+            ...setting,
+            package_version: nextVersion,
+          });
         }
-        return setting;
       });
-      onUpdate(newSettings);
+      onUpdate(deploymentsToUpdate);
     }
   };
 
@@ -147,13 +131,13 @@ registerPage('DeploySettings', () => {
     setEditDeployment({ id: UUID(), enabled: false } as IDeployment);
     onOpenEdit();
   };
-  const onUpdate = async (deployment: IDeployment[]) => {
+  const onUpdate = async (deployments: IDeployment[]) => {
     try {
       const terminal = await firstValueFrom(terminal$);
       if (terminal) {
-        const result = await requestSQL(
+        const result = await requestSQL<IDeployment[]>(
           terminal,
-          buildInsertManyIntoTableSQL(deployment, 'deployment', {
+          buildInsertManyIntoTableSQL(deployments, 'deployment', {
             columns: [
               //
               'id',
@@ -166,10 +150,10 @@ registerPage('DeploySettings', () => {
               'enabled',
             ],
             conflictKeys: ['id'],
-          }),
+          }) + ' returning *',
         );
         refresh$.next();
-        Toast.success('更新成功');
+        Toast.success(`成功更新 ${result.length} 条数据记录`);
         setVisible(false);
       }
     } catch (e) {
@@ -204,6 +188,26 @@ registerPage('DeploySettings', () => {
           {
             header: '版本',
             accessorKey: 'package_version',
+            cell: (ctx) => {
+              const latestVersion = packageVersionsCache.get(ctx.row.original.package_name || '')?.[0];
+
+              useEffect(() => {
+                if (ctx.row.original.package_name) {
+                  packageVersionsCache.query(ctx.row.original.package_name);
+                }
+              }, [ctx.row.original.package_name]);
+
+              return (
+                <Space>
+                  {ctx.getValue()}
+                  {latestVersion && latestVersion !== ctx.getValue() ? (
+                    <Tooltip content={`最新版本 ${latestVersion}`}>
+                      <IconArrowUp style={{ color: '--var(--semi-color-success)' }} />
+                    </Tooltip>
+                  ) : null}
+                </Space>
+              );
+            },
           },
           {
             header: '环境变量',
@@ -306,7 +310,7 @@ registerPage('DeploySettings', () => {
               field="package_version"
               label="部署版本"
               style={{ width: '560px' }}
-              data={mapPackageNameToVersions.get(editDeployment.package_name ?? '') ?? []}
+              data={packageVersionsCache.get(editDeployment.package_name ?? '') ?? []}
             />
 
             <Form.AutoComplete
