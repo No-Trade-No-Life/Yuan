@@ -6,10 +6,7 @@ import {
   Observable,
   combineLatest,
   defer,
-  from,
-  groupBy,
   map,
-  mergeMap,
   repeat,
   retry,
   share,
@@ -17,31 +14,15 @@ import {
   tap,
   throttleTime,
   timeout,
-  toArray,
 } from 'rxjs';
+import { IAccountComposerConfig } from './interface';
+import './migration';
 
 const terminal = Terminal.fromNodeEnv();
 
-/**
- * Account Composition Relation
- *
- * target account is composed by source accounts.
- * the multiple is applied to the source account.
- * and then sum up to the target account.
- *
- */
-interface IAccountCompositionRelation {
-  source_account_id: string;
-  target_account_id: string;
-  multiple: number;
-  hide_positions?: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
 const mapAccountIdToAccountInfo$: Record<string, Observable<IAccountInfo>> = {};
 
-defer(() => requestSQL<IAccountCompositionRelation[]>(terminal, `select * from account_composition_relation`))
+defer(() => requestSQL<IAccountComposerConfig[]>(terminal, `select * from account_composer_config`))
   .pipe(
     //
     tap((config) => console.info(formatTime(Date.now()), 'Loaded', JSON.stringify(config))),
@@ -50,65 +31,76 @@ defer(() => requestSQL<IAccountCompositionRelation[]>(terminal, `select * from a
     shareReplay(1),
   )
   .pipe(
-    mergeMap((x) =>
-      from(x).pipe(
-        groupBy((x) => x.target_account_id),
-        mergeMap((group) =>
-          group.pipe(
-            toArray(),
-            map((x) => ({
-              target_account_id: group.key,
-              sources: x,
-              // changed if some source content changed or some source deleted
-              hash: `t=${x
-                .map((y) => new Date(y.updated_at).getTime())
-                .reduce((a, b) => Math.max(a, b), 0)} s=${x.length}`,
-            })),
-          ),
-        ),
-        toArray(),
-      ),
-    ),
     listWatch(
-      (x) => x.target_account_id,
+      (x) => x.account_id,
       (x) =>
         new Observable(() => {
           console.info(
             formatTime(Date.now()),
             'AccountInfoConfig',
-            x.target_account_id,
-            x.hash,
+            x.account_id,
+            x.updated_at,
             JSON.stringify(x),
           );
           const accountInfo$ = defer(() =>
             combineLatest(
               x.sources.map((y) =>
                 // Keep hot observable
-                (mapAccountIdToAccountInfo$[y.source_account_id] ??= terminal.channel
-                  .subscribeChannel<IAccountInfo>('AccountInfo', y.source_account_id)
+                (mapAccountIdToAccountInfo$[y.account_id] ??= terminal.channel
+                  .subscribeChannel<IAccountInfo>('AccountInfo', y.account_id)
                   .pipe(share())).pipe(
-                  map((x): IAccountInfo => {
+                  map((x): IAccountInfo | undefined => {
                     const multiple = y.multiple ?? 1;
-                    return {
-                      ...x,
-                      money: {
-                        ...x.money,
-                        equity: x.money.equity * multiple,
-                        balance: x.money.balance * multiple,
-                        profit: x.money.profit * multiple,
-                        used: x.money.used * multiple,
-                        free: x.money.free * multiple,
-                      },
-                      positions: y.hide_positions
-                        ? []
-                        : x.positions.map((p) => ({
+
+                    if (y.type === 'ALL') {
+                      return {
+                        ...x,
+                        money: {
+                          ...x.money,
+                          equity: x.money.equity * multiple,
+                          balance: x.money.balance * multiple,
+                          profit: x.money.profit * multiple,
+                          used: x.money.used * multiple,
+                          free: x.money.free * multiple,
+                        },
+                        positions: x.positions.map((p) => ({
+                          ...p,
+                          account_id: p.account_id || x.account_id,
+                          volume: p.volume * multiple,
+                          free_volume: p.free_volume * multiple,
+                          floating_profit: p.floating_profit * multiple,
+                        })),
+                      };
+                    }
+                    if (y.type === 'BY_PRODUCT') {
+                      if (!y.source_product_id) return;
+                      return {
+                        ...x,
+                        money: {
+                          currency: x.money.currency,
+                          equity: 0,
+                          balance: 0,
+                          profit: 0,
+                          used: 0,
+                          free: 0,
+                        },
+                        positions: x.positions
+                          .filter(
+                            (p) =>
+                              p.product_id === y.source_product_id &&
+                              (y.source_datasource_id ? p.datasource_id === y.source_datasource_id : true),
+                          )
+                          .map((p) => ({
                             ...p,
                             account_id: p.account_id || x.account_id,
+                            product_id: y.target_product_id ? y.target_product_id : p.product_id,
+                            datasource_id: y.target_datasource_id ? y.target_datasource_id : p.datasource_id,
                             volume: p.volume * multiple,
                             free_volume: p.free_volume * multiple,
                             floating_profit: p.floating_profit * multiple,
                           })),
-                    };
+                      };
+                    }
                   }),
                   timeout(30_000),
                   tap({
@@ -116,7 +108,7 @@ defer(() => requestSQL<IAccountCompositionRelation[]>(terminal, `select * from a
                       console.info(
                         formatTime(Date.now()),
                         'AccountInfoError',
-                        `target=${x.target_account_id}, source=${y.source_account_id}`,
+                        `target=${x.account_id}, source=${y.account_id}`,
                         err,
                       );
                     },
@@ -127,12 +119,13 @@ defer(() => requestSQL<IAccountCompositionRelation[]>(terminal, `select * from a
           ).pipe(
             retry(),
             throttleTime(1000),
+            map((x) => x.filter((y): y is IAccountInfo => !!y)),
             map((accountInfos): IAccountInfo => {
               return {
-                account_id: x.target_account_id,
+                account_id: x.account_id,
                 updated_at: Date.now(),
                 money: {
-                  currency: accountInfos[0].money.currency,
+                  currency: accountInfos[0]?.money.currency || '',
                   equity: accountInfos.reduce((acc, x) => acc + x.money.equity, 0),
                   balance: accountInfos.reduce((acc, x) => acc + x.money.balance, 0),
                   profit: accountInfos.reduce((acc, x) => acc + x.money.profit, 0),
@@ -145,18 +138,18 @@ defer(() => requestSQL<IAccountCompositionRelation[]>(terminal, `select * from a
             share(),
           );
           const sub = accountInfo$.subscribe(() => {
-            console.info(formatTime(Date.now()), 'AccountInfoEmit', x.target_account_id);
+            console.info(formatTime(Date.now()), 'AccountInfoEmit', x.account_id);
           }); // Keep hot observable
-          console.info(formatTime(Date.now()), 'AccountInfoPublish', x.target_account_id);
-          const z = publishAccountInfo(terminal, x.target_account_id, accountInfo$);
+          console.info(formatTime(Date.now()), 'AccountInfoPublish', x.account_id);
+          const z = publishAccountInfo(terminal, x.account_id, accountInfo$);
 
           return () => {
-            console.info(formatTime(Date.now()), 'AccountInfoUnpublish', x.target_account_id);
+            console.info(formatTime(Date.now()), 'AccountInfoUnpublish', x.account_id);
             z.dispose();
             sub.unsubscribe();
           };
         }),
-      (a, b) => a.hash === b.hash,
+      (a, b) => a.updated_at === b.updated_at,
     ),
   )
   .subscribe();

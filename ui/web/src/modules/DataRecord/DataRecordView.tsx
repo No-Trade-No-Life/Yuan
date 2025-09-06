@@ -26,6 +26,7 @@ import { Button, DataView } from '../Interactive';
 import { terminal$ } from '../Terminals';
 
 interface IDataRecordViewDef<T extends {}> {
+  conflictKeys?: (keyof T)[];
   TYPE: string;
   columns: (ctx: { reloadData: () => Promise<void> }) => ColumnDef<T, any>[];
   extraRecordActions?: React.ComponentType<{ reloadData: () => Promise<void>; record: T }>;
@@ -116,10 +117,15 @@ export function DataRecordView<T extends {}>(props: IDataRecordViewDef<T>) {
                 onClick={async () => {
                   const terminal = await firstValueFrom(terminal$);
                   if (!terminal) return;
-                  const schema = {};
+                  const schema = props.schema || {};
                   const formData = await showForm<T>(schema, record);
                   await props.beforeUpdateTrigger?.(formData);
-                  await requestSQL(terminal, buildInsertManyIntoTableSQL([formData], props.TYPE));
+                  await requestSQL(
+                    terminal,
+                    buildInsertManyIntoTableSQL([formData], props.TYPE, {
+                      conflictKeys: props.conflictKeys || undefined,
+                    }),
+                  );
                   await reloadData();
                   Toast.success(`成功更新数据记录`);
                 }}
@@ -127,13 +133,13 @@ export function DataRecordView<T extends {}>(props: IDataRecordViewDef<T>) {
               <Button
                 icon={<IconDelete />}
                 type="danger"
+                doubleCheck={{
+                  title: '确定是否删除？',
+                  description: (
+                    <pre style={{ width: '100%', overflow: 'auto' }}>{JSON.stringify(record, null, 2)}</pre>
+                  ),
+                }}
                 onClick={async () => {
-                  const confirm = await showForm<boolean>({
-                    type: 'boolean',
-                    title: '确定是否删除？',
-                    description: '此操作将不可逆',
-                  });
-                  if (!confirm) return;
                   const terminal = await firstValueFrom(terminal$);
                   if (!terminal) return;
                   await requestSQL(
