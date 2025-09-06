@@ -109,7 +109,6 @@ perpetualContractProducts$.subscribe();
 createSQLWriter<IProduct>(Terminal.fromNodeEnv(), {
   tableName: 'product',
   writeInterval: 1000,
-  keyFn: (x) => encodePath(x.datasource_id, x.product_id),
   conflictKeys: ['datasource_id', 'product_id'],
   data$: product$,
 });

@@ -1,4 +1,5 @@
 import { IResponse, Terminal } from '@yuants/protocol';
+import { encodePath } from '@yuants/utils';
 import { MonoTypeOperatorFunction, Observable, Subject, tap } from 'rxjs';
 import { createBufferWriter } from './bufferWriter';
 export * from './migration';
@@ -75,23 +76,28 @@ export const buildInsertManyIntoTableSQL = <T extends {}>(
      */
     columns?: Array<keyof T>;
     /**
-     * 具有相同 key 的数据仅取最后一个
-     */
-    keyFn?: (data: T) => string;
-    /**
      * 是否忽略插入冲突 (默认 false)
      */
     ignoreConflict?: boolean;
 
     /**
      * 冲突时需要检查的键
+     *
+     * 如果一批写入中有多个数据，具有相同 key，仅取最后一个
      */
     conflictKeys?: Array<keyof T>;
+
+    /**
+     * SQL 语句是否以 `RETURNING *` 结尾
+     */
+    returningAll?: boolean;
   },
 ): string => {
   if (data.length === 0) throw 'Data is empty';
   const columns = (options?.columns ?? Object.keys(data[0]).filter(isValidColumnName)) as string[];
-  const keyFn = options?.keyFn;
+  const keyFn = options?.conflictKeys
+    ? (x: T) => encodePath(options.conflictKeys!.map((k) => x[k]))
+    : undefined;
   const toInsert = keyFn ? [...new Map(data.map((x) => [keyFn(x), x])).values()] : data;
   return `INSERT INTO ${tableName} (${columns.join(',')}) VALUES ${toInsert
     .map((x) => `(${columns.map((c) => escapeSQL(x[c as keyof T])).join(',')})`)
@@ -103,7 +109,7 @@ export const buildInsertManyIntoTableSQL = <T extends {}>(
           (c) => `${c} = EXCLUDED.${c}`,
         )}`
       : ''
-  }`;
+  } ${options?.returningAll ? 'RETURNING *' : ''}`;
 };
 
 /**
@@ -129,7 +135,6 @@ export const createSQLWriter = <T extends {}>(
         terminal,
         buildInsertManyIntoTableSQL(data, ctx.tableName, {
           columns: ctx.columns,
-          keyFn: ctx.keyFn,
           ignoreConflict: ctx.ignoreConflict,
           conflictKeys: ctx.conflictKeys,
         }),
@@ -163,15 +168,13 @@ export interface ISQLWritterContext<T extends {}> {
    */
   columns?: Array<keyof T>;
   /**
-   * 具有相同 key 的数据仅取最后一个
-   */
-  keyFn?: (data: T) => string;
-  /**
    * 是否忽略插入冲突 (默认 false)
    */
   ignoreConflict?: boolean;
   /**
    * 冲突时需要检查的键
+   *
+   * 一批写入中，多个数据具有相同 key 的数据仅取最后一个
    */
   conflictKeys?: Array<keyof T>;
 }

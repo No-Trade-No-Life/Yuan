@@ -217,7 +217,6 @@ if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
         terminal: Terminal.fromNodeEnv(),
         writeInterval: 1000,
         tableName: 'quote',
-        keyFn: (quote) => encodePath(quote.datasource_id, quote.product_id),
         conflictKeys: ['datasource_id', 'product_id'],
       }),
     )

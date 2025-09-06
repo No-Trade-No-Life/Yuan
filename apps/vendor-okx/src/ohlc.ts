@@ -168,7 +168,6 @@ Terminal.fromNodeEnv().channel.publishChannel('ohlc', { pattern: `^OKX/` }, (ser
       conflictKeys: ['created_at', 'series_id'],
       writeInterval: 1000,
       terminal: Terminal.fromNodeEnv(),
-      keyFn: (x) => encodePath(x.created_at, x.series_id),
     }),
   );
 });

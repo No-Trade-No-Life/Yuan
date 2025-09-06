@@ -85,7 +85,6 @@ tokenProduct$.subscribe();
 createSQLWriter<IProduct>(terminal, {
   data$: product$,
   tableName: 'product',
-  keyFn: (x) => encodePath(x.datasource_id, x.product_id),
   conflictKeys: ['datasource_id', 'product_id'],
   writeInterval: 1000,
 });

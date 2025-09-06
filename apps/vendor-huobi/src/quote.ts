@@ -136,7 +136,6 @@ if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
         tableName: 'quote',
         writeInterval: 1000,
         conflictKeys: ['datasource_id', 'product_id'],
-        keyFn: (x) => encodePath(x.datasource_id, x.product_id),
       }),
     )
     .subscribe();
