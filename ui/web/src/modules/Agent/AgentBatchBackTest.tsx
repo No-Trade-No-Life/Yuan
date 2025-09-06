@@ -63,9 +63,9 @@ registerAssociationRule({
 
 registerAssociationRule({
   id: 'AgentBatchBackTest_generate',
-  match: ({ path, isFile }) => isFile && !!path.match(/\.batch\.ts$/) && !!currentHostConfig$.value,
+  match: ({ path, isFile }) => isFile && !!path.match(/\.batch\.ts$/),
   action: async ({ path }) => {
-    await writeManifestsFromBatchTasks(path, currentHostConfig$.value?.host_url!);
+    await writeManifestsFromBatchTasks(path);
     Toast.success(t('common:succeed'));
   },
 });
@@ -336,7 +336,7 @@ registerPage('AgentBatchBackTest', () => {
           onClick={async (e) => {
             await fs.ensureDir(path.join(path.dirname(filename), `agentConfs`));
             const agentConfList = selectedRows.map((v) => v.agentConf);
-            const manifests = await makeManifestsFromAgentConfList(agentConfList, currentHost?.host_url!);
+            const manifests = await makeManifestsFromAgentConfList(agentConfList);
             await fs.writeFile(`${filename}.manifest.json`, JSON.stringify(manifests, null, 2));
             Toast.success(`导出部署配置成功`);
           }}
