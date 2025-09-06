@@ -214,10 +214,7 @@ export const loadBatchTasks = async (entry: string) => {
   );
 };
 
-export const makeManifestsFromAgentConfList = async (
-  agentConfList: IAgentConf[],
-  hv_url: string,
-): Promise<IDeploySpec[]> => {
+export const makeManifestsFromAgentConfList = async (agentConfList: IAgentConf[]): Promise<IDeploySpec[]> => {
   const ret: IDeploySpec[] = [];
   for (const agentConf of agentConfList) {
     const bundled_code = await agentConf.bundled_code;
@@ -230,9 +227,7 @@ export const makeManifestsFromAgentConfList = async (
     const manifest: IDeploySpec = {
       key: agentConf.kernel_id!,
       package: '@yuants/app-agent',
-      env: {
-        HV_URL: hv_url,
-      },
+      env: {},
       one_json: JSON.stringify(theConfig),
     };
     ret.push(manifest);
@@ -240,9 +235,9 @@ export const makeManifestsFromAgentConfList = async (
   return ret;
 };
 
-export const writeManifestsFromBatchTasks = async (entry: string, hv_url: string) => {
+export const writeManifestsFromBatchTasks = async (entry: string) => {
   const tasks = await loadBatchTasks(entry);
-  const manifests = await makeManifestsFromAgentConfList(tasks, hv_url);
+  const manifests = await makeManifestsFromAgentConfList(tasks);
   await fs.writeFile(`${entry}.manifests.json`, JSON.stringify(manifests, null, 2));
 };
 
