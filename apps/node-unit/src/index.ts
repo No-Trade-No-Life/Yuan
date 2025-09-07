@@ -14,8 +14,8 @@ import {
   listWatch,
 } from '@yuants/utils';
 import { execSync, spawn } from 'child_process';
-import { createWriteStream } from 'fs';
-import { mkdir, rm, writeFile } from 'fs/promises';
+import { createReadStream, createWriteStream, statSync } from 'fs';
+import { mkdir, rm, stat, writeFile } from 'fs/promises';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import {
@@ -307,6 +307,114 @@ defer(async () => {
   );
 
   ExecuteMigrations(terminal);
+
+  terminal.provideService(
+    'Deployment/ReadLogSlice',
+    {
+      type: 'object',
+      required: ['deployment_id', 'start'],
+      properties: {
+        deployment_id: { type: 'string' },
+        start: { type: 'number', title: 'Start byte position' },
+      },
+    },
+    async (msg) => {
+      const { deployment_id, start } = msg.req as {
+        deployment_id: string;
+        start: number;
+      };
+
+      const logsDir = join(WORKSPACE_DIR, 'logs');
+
+      const logPath = join(logsDir, `${deployment_id}.log`);
+      // deployment_id must be a UUID v4 string, so no need to check for path traversal attack
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(deployment_id)) {
+        return { res: { code: 403, message: 'Invalid deployment_id: invalid format' } };
+      }
+      // Guard against path traversal attack
+      if (!logPath.startsWith(logsDir)) {
+        return { res: { code: 403, message: 'Invalid deployment_id: path traversal attack detected' } };
+      }
+      const fileStat = await stat(logPath);
+      if (!fileStat.isFile()) {
+        return { res: { code: 404, message: 'Log file not found' } };
+      }
+      const fileSize = fileStat.size;
+      // for given size, start, calculate the actual read range (inclusive, zero-based)
+      // The read range behaves like Array.prototype.slice, we allow start to be negative to count from the end
+      const theTrueStart = start < 0 ? Math.max(0, fileSize + start) : start;
+      const MAX_READ_BYTES = 128 * 1024; // 128 KB
+      const theTrueEnd = Math.min(fileSize, theTrueStart + MAX_READ_BYTES) - 1; // inclusive
+
+      const stream = createReadStream(logPath, {
+        start: theTrueStart,
+        // it's inclusive range for createReadStream
+        end: theTrueEnd,
+        encoding: 'utf-8',
+      });
+
+      const content = await new Promise<string>((resolve, reject) => {
+        let content = '';
+        stream.on('data', (chunk) => {
+          content += chunk;
+        });
+        stream.on('end', () => {
+          resolve(content);
+        });
+        stream.on('error', (err) => {
+          reject(err);
+        });
+      });
+
+      return {
+        res: {
+          code: 0,
+          message: 'OK',
+          data: {
+            content,
+            start: theTrueStart,
+            end: theTrueEnd,
+            file_size: fileSize,
+          },
+        },
+      };
+    },
+  );
+
+  if (getAbsolutePath('tail')) {
+    // Realtime log streaming via `tail -f`
+    terminal.channel.publishChannel('Deployment/RealtimeLog', {}, (deployment_id) => {
+      // Subscribe to the log stream for the given deployment_id
+      const logPath = join(WORKSPACE_DIR, 'logs', `${deployment_id}.log`);
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(deployment_id)) {
+        throw new Error('Invalid deployment_id: invalid format');
+      }
+      if (!logPath.startsWith(join(WORKSPACE_DIR, 'logs'))) {
+        throw new Error('Invalid deployment_id: path traversal attack detected');
+      }
+
+      return new Observable<string>((sub) => {
+        const child = spawn('tail', ['-f', logPath], {
+          stdio: ['ignore', 'pipe', 'pipe'],
+        });
+        child.stdout?.on('data', (chunk) => {
+          sub.next(chunk.toString('utf-8'));
+        });
+        child.stderr?.on('data', (chunk) => {
+          sub.next(chunk.toString('utf-8'));
+        });
+        child.on('error', (err) => {
+          sub.error(err);
+        });
+        child.on('exit', () => {
+          sub.complete();
+        });
+        return () => {
+          treeKill(child.pid!, 'SIGKILL');
+        };
+      });
+    });
+  }
 
   const trustedPackageRegExp = new RegExp(process.env.TRUSTED_PACKAGE_REGEXP || '^@yuants/');
 
