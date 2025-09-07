@@ -238,7 +238,7 @@ const InterleavingAccountStatus = (props: {
         { key: '当前仓位', value: volume },
         { key: '下次仓位', value: next_target_volume },
         { key: '最终仓位', value: final_target_volume },
-        { key: '当前报价', value: `${tick?.ask} ${tick?.price} ${tick?.bid}` },
+        { key: '当前报价', value: `${tick?.ask_price} ${tick?.last_price} ${tick?.bid_price}` },
         { key: '订单方向', value: item.order_direction },
         { key: '订单类型', value: item.order_type },
       ]}

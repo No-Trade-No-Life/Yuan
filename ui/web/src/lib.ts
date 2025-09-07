@@ -3,7 +3,6 @@ import * as SemiUI from '@douyinfe/semi-ui';
 import * as IconParksIcons from '@icon-park/react';
 import * as yuantsCache from '@yuants/cache';
 import * as dataInterestRate from '@yuants/data-interest-rate';
-import * as dataModel from '@yuants/data-model';
 import * as dataOHLC from '@yuants/data-ohlc';
 import * as dataOrder from '@yuants/data-order';
 import * as dataProduct from '@yuants/data-product';
@@ -22,7 +21,6 @@ import * as rxjs from 'rxjs';
 import * as yalps from 'yalps';
 
 export const libs = {
-  '@yuants/data-model': dataModel,
   '@yuants/protocol': protocol,
   '@yuants/utils': yuantsUtils,
   '@yuants/cache': yuantsCache,
