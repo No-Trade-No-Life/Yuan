@@ -185,8 +185,6 @@ Yuan 使用 PostgreSQL 作为通用场景数据库；使用 Prometheus 存储遥
 - [@yuants/data-account](libraries/data-account) 账户和持仓信息。
 - [@yuants/data-order](libraries/data-order) 订单数据。订单是指交易者在市场中提交的买入或卖出指令。
 
-老旧的数据模型存放于 [@yuants/data-model](libraries/data-model)，我们计划将其拆分成很多不同的包，从而减少一些非核心模型变动冲击。
-
 另外，不需要在包之间共享的私有数据建模，我们会放在对应领域的包中。
 
 我们发现，数据有两种非常有用的性质：层级属性和时间序列性。
