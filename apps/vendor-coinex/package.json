@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-coinex",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "main": "lib/index.js",
   "bin": "lib/cli.js",
   "module": "dist/index.js",

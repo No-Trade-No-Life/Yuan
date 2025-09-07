@@ -1,6 +1,13 @@
 # Change Log - @yuants/node-unit
 
-This log was last generated on Thu, 04 Sep 2025 16:45:39 GMT and should not be manually modified.
+This log was last generated on Sun, 07 Sep 2025 23:43:00 GMT and should not be manually modified.
+
+## 0.9.0
+Sun, 07 Sep 2025 23:43:00 GMT
+
+### Minor changes
+
+- add log services
 
 ## 0.8.0
 Thu, 04 Sep 2025 16:45:39 GMT

@@ -2,6 +2,23 @@
   "name": "@yuants/data-ohlc",
   "entries": [
     {
+      "version": "0.3.17",
+      "tag": "@yuants/data-ohlc_v0.3.17",
+      "date": "Sun, 07 Sep 2025 23:43:00 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.16",
       "tag": "@yuants/data-ohlc_v0.3.16",
       "date": "Thu, 04 Sep 2025 15:24:17 GMT",
