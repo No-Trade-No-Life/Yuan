@@ -1,5 +1,4 @@
 import { IAccountInfo, IPosition, useAccountInfo } from '@yuants/data-account';
-import { ITradeCopierTradeConfig, ITradeCopyRelation } from '@yuants/data-model';
 import { IOrder } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
 import { IPositionDiff, diffPosition, mergePositions } from '@yuants/kernel';
@@ -38,6 +37,7 @@ import {
   timeout,
   toArray,
 } from 'rxjs';
+import { ITradeCopierTradeConfig, ITradeCopyRelation } from './interface';
 import './migration';
 
 const terminal = Terminal.fromNodeEnv();

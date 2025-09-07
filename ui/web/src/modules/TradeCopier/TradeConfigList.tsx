@@ -1,11 +1,11 @@
 import { IconRefresh } from '@douyinfe/semi-icons';
 import { Button } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { ITradeCopierTradeConfig } from '@yuants/data-model';
 import { InlineAccountId } from '../AccountInfo';
 import { executeCommand } from '../CommandCenter';
 import { DataRecordView } from '../DataRecord';
 import { registerPage } from '../Pages';
+import { ITradeCopierTradeConfig } from './interface';
 
 registerPage('TradeConfigList', () => {
   return (

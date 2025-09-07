@@ -1,7 +1,6 @@
 import { IconRefresh } from '@douyinfe/semi-icons';
 import { Button, Switch, Toast } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { ITradeCopyRelation } from '@yuants/data-model';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
 import { filter, first, mergeMap, tap } from 'rxjs';
 import { InlineAccountId } from '../AccountInfo';
@@ -10,6 +9,7 @@ import { DataRecordView } from '../DataRecord';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 import { terminate } from '../Terminals/TerminalListItem';
+import { ITradeCopyRelation } from './interface';
 
 registerPage('TradeCopyRelationList', () => {
   return (

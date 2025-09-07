@@ -28,7 +28,6 @@
     "@yuants/cache": "workspace:*",
     "@yuants/data-account": "workspace:*",
     "@yuants/data-interest-rate": "workspace:*",
-    "@yuants/data-model": "workspace:*",
     "@yuants/data-ohlc": "workspace:*",
     "@yuants/data-order": "workspace:*",
     "@yuants/data-product": "workspace:*",

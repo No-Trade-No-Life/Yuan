@@ -31,7 +31,7 @@ declare module '@yuants/ui-web' {
   import { ToastReactProps } from '@douyinfe/semi-ui/lib/es/toast';
   import * as _yuants_protocol from '@yuants/protocol';
   import { Terminal } from '@yuants/protocol';
-  import { ITick } from '@yuants/data-model';
+  import { IQuote } from '@yuants/data-quote';
 
   namespace index_d$v {
     export {};
@@ -128,6 +128,7 @@ declare module '@yuants/ui-web' {
   }
 
   interface IDataRecordViewDef<T extends {}> {
+    conflictKeys?: (keyof T)[];
     TYPE: string;
     columns: (ctx: { reloadData: () => Promise<void> }) => ColumnDef<T, any>[];
     extraRecordActions?: React$1.ComponentType<{
@@ -214,6 +215,8 @@ declare module '@yuants/ui-web' {
     readFileAsBase64(path: string): Promise<string>;
     readFileAsBlob(path: string): Promise<Blob>;
     writeFile(path: string, content: FileSystemWriteChunkType): Promise<void>;
+    createReadableStream(path: string): Promise<ReadableStream>;
+    createWritableStream(path: string): Promise<WritableStream>;
     mkdir(path: string): Promise<void>;
     rm(path: string): Promise<void>;
     exists(path: string): Promise<boolean>;
@@ -221,9 +224,7 @@ declare module '@yuants/ui-web' {
   }
 
   const FsBackend$: BehaviorSubject<IFileSystemBackend>;
-  const fs: IFileSystemBackend & {
-    ensureDir: (path: string) => Promise<void>;
-  };
+  const fs: IFileSystemBackend;
 
   /**
    * Bundle code from entry
@@ -374,6 +375,10 @@ declare module '@yuants/ui-web' {
     (
       props: Omit<ButtonProps, 'onClick' | 'loading'> & {
         onClick?: () => any;
+        doubleCheck?: {
+          title: React$1.ReactNode;
+          description?: React$1.ReactNode;
+        };
       },
     ) => react_jsx_runtime.JSX.Element
   >;
@@ -713,7 +718,7 @@ declare module '@yuants/ui-web' {
 
   const isTerminalConnected$: rxjs.Observable<boolean>;
 
-  const useTick: (datasource_id: string, product_id: string) => rxjs.Observable<ITick>;
+  const useTick: (datasource_id: string, product_id: string) => rxjs.Observable<IQuote>;
 
   const index_d$4_InlineTerminalId: typeof InlineTerminalId;
   const index_d$4_hostUrl$: typeof hostUrl$;
@@ -741,7 +746,16 @@ declare module '@yuants/ui-web' {
   }
 
   const CSV: {
+    escapeCellValue: (cell: any) => string;
     readFile: <T = any>(filename: string) => Promise<T[]>;
+    writeFile: (filename: string, data: any[]) => Promise<void>;
+    /**
+     * 通过原始表格数据写入 CSV 文件
+     * @param filename 写入的文件名
+     * @param data 原始表格数据
+     * @param transpose 是否转置数据 (行列互换), 默认不转置
+     */
+    writeFileFromRawTable: (filename: string, data: any[][], transpose?: boolean) => Promise<void>;
     parse: <T_1 = any>(csvString: string) => T_1[];
     stringify: (data: any[]) => string;
   };
@@ -782,13 +796,12 @@ declare module '@yuants/ui-web' {
     name: string;
     host_url: string;
   }
-  const hostConfigList$: BehaviorSubject<IHostConfigItem[] | undefined>;
-  const currentHostConfig$: BehaviorSubject<IHostConfigItem | null | undefined>;
+  const hostConfigList$: rxjs.BehaviorSubject<IHostConfigItem[] | undefined>;
+  const currentHostConfig$: rxjs.BehaviorSubject<IHostConfigItem | null | undefined>;
   const initAction$: ReplaySubject<{
     type: string;
     payload: any;
   }>;
-  const OHLCIdList$: BehaviorSubject<string[]>;
 
   const index_d_DarkModeEffect: typeof DarkModeEffect;
   const index_d_DarkModeSetting$: typeof DarkModeSetting$;
@@ -796,7 +809,6 @@ declare module '@yuants/ui-web' {
   const index_d_FullScreenButton: typeof FullScreenButton;
   const index_d_HomePage: typeof HomePage;
   type index_d_IHostConfigItem = IHostConfigItem;
-  const index_d_OHLCIdList$: typeof OHLCIdList$;
   const index_d_currentHostConfig$: typeof currentHostConfig$;
   const index_d_hostConfigList$: typeof hostConfigList$;
   const index_d_initAction$: typeof initAction$;
@@ -814,7 +826,6 @@ declare module '@yuants/ui-web' {
       index_d_FullScreenButton as FullScreenButton,
       index_d_HomePage as HomePage,
       type index_d_IHostConfigItem as IHostConfigItem,
-      index_d_OHLCIdList$ as OHLCIdList$,
       index_d_currentHostConfig$ as currentHostConfig$,
       index_d_hostConfigList$ as hostConfigList$,
       index_d_initAction$ as initAction$,

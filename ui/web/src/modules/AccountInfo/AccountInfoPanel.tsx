@@ -2,8 +2,8 @@ import { IconClose, IconTaskMoneyStroked } from '@douyinfe/semi-icons';
 import { Collapse, Descriptions, Empty, Space, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
 import { IAccountMoney, IPosition, mergeAccountInfoPositions } from '@yuants/data-account';
-import { ITick } from '@yuants/data-model';
 import { IOrder } from '@yuants/data-order';
+import { IQuote } from '@yuants/data-quote';
 import { encodePath, formatTime } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useMemo } from 'react';
@@ -155,19 +155,31 @@ registerPage('AccountInfoPanel', () => {
                         tap((tick) => {
                           position.interest_to_settle =
                             position.direction === 'LONG'
-                              ? position.valuation * (tick.interest_rate_for_long ?? 0)
+                              ? position.valuation * (Number(tick.interest_rate_long) ?? 0)
                               : position.direction === 'SHORT'
-                              ? position.valuation * (tick.interest_rate_for_short ?? 0)
+                              ? position.valuation * (Number(tick.interest_rate_short) ?? 0)
                               : 0;
-                          position.settlement_scheduled_at = tick.settlement_scheduled_at;
+                          position.settlement_scheduled_at = new Date(
+                            tick.interest_rate_next_settled_at,
+                          ).getTime();
                         }),
                         raceWith(
                           timer(5000).pipe(
                             map(
-                              (x): ITick => ({
+                              (x): IQuote => ({
                                 datasource_id: position.datasource_id!,
                                 product_id: position.product_id,
-                                updated_at: Date.now(),
+                                updated_at: formatTime(Date.now()),
+                                last_price: '',
+                                ask_price: '',
+                                ask_volume: '',
+                                bid_price: '',
+                                bid_volume: '',
+                                open_interest: '',
+                                interest_rate_long: '',
+                                interest_rate_short: '',
+                                interest_rate_prev_settled_at: '',
+                                interest_rate_next_settled_at: '',
                               }),
                             ),
                           ),
