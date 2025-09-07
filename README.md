@@ -180,8 +180,6 @@ The data modeling includes TypeScript types and SQL table definitions.
 - [@yuants/data-account](libraries/data-account) Account and position data.
 - [@yuants/data-order](libraries/data-order) Order data. An order represents a buy or sell instruction submitted by a trader to the market.
 
-Legacy data models are maintained in [@yuants/data-model](libraries/data-model). We plan to split them into multiple specialized packages to reduce impact from non-core model changes.
-
 Additionally, private data models that don't need to be shared between packages will be kept within their respective domain-specific packages.
 
 We have identified two particularly useful properties of data: hierarchical structure and time-series nature.

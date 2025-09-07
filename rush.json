@@ -431,11 +431,6 @@
       "shouldPublish": true
     },
     {
-      "packageName": "@yuants/data-model",
-      "projectFolder": "libraries/data-model",
-      "shouldPublish": true
-    },
-    {
       "packageName": "@yuants/data-series",
       "projectFolder": "libraries/data-series",
       "shouldPublish": true
