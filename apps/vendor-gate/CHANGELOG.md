@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-gate
 
-This log was last generated on Thu, 04 Sep 2025 15:24:17 GMT and should not be manually modified.
+This log was last generated on Sun, 07 Sep 2025 23:52:03 GMT and should not be manually modified.
+
+## 0.3.55
+Sun, 07 Sep 2025 23:52:03 GMT
+
+### Patches
+
+- refactor: sql remove keyFn option
 
 ## 0.3.54
 Thu, 04 Sep 2025 15:24:17 GMT
