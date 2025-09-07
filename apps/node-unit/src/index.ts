@@ -383,37 +383,41 @@ defer(async () => {
 
   if (getAbsolutePath('tail')) {
     // Realtime log streaming via `tail -f`
-    terminal.channel.publishChannel('Deployment/RealtimeLog', {}, (deployment_id) => {
-      // Subscribe to the log stream for the given deployment_id
-      const logPath = join(WORKSPACE_DIR, 'logs', `${deployment_id}.log`);
-      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(deployment_id)) {
-        throw new Error('Invalid deployment_id: invalid format');
-      }
-      if (!logPath.startsWith(join(WORKSPACE_DIR, 'logs'))) {
-        throw new Error('Invalid deployment_id: path traversal attack detected');
-      }
+    terminal.channel.publishChannel(
+      encodePath('Deployment', 'RealtimeLog', NODE_UNIT_PUBLIC_KEY),
+      {},
+      (deployment_id) => {
+        // Subscribe to the log stream for the given deployment_id
+        const logPath = join(WORKSPACE_DIR, 'logs', `${deployment_id}.log`);
+        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(deployment_id)) {
+          throw new Error('Invalid deployment_id: invalid format');
+        }
+        if (!logPath.startsWith(join(WORKSPACE_DIR, 'logs'))) {
+          throw new Error('Invalid deployment_id: path traversal attack detected');
+        }
 
-      return new Observable<string>((sub) => {
-        const child = spawn('tail', ['-f', logPath], {
-          stdio: ['ignore', 'pipe', 'pipe'],
+        return new Observable<string>((sub) => {
+          const child = spawn('tail', ['-f', logPath], {
+            stdio: ['ignore', 'pipe', 'pipe'],
+          });
+          child.stdout?.on('data', (chunk) => {
+            sub.next(chunk.toString('utf-8'));
+          });
+          child.stderr?.on('data', (chunk) => {
+            sub.next(chunk.toString('utf-8'));
+          });
+          child.on('error', (err) => {
+            sub.error(err);
+          });
+          child.on('exit', () => {
+            sub.complete();
+          });
+          return () => {
+            treeKill(child.pid!, 'SIGKILL');
+          };
         });
-        child.stdout?.on('data', (chunk) => {
-          sub.next(chunk.toString('utf-8'));
-        });
-        child.stderr?.on('data', (chunk) => {
-          sub.next(chunk.toString('utf-8'));
-        });
-        child.on('error', (err) => {
-          sub.error(err);
-        });
-        child.on('exit', () => {
-          sub.complete();
-        });
-        return () => {
-          treeKill(child.pid!, 'SIGKILL');
-        };
-      });
-    });
+      },
+    );
   }
 
   const trustedPackageRegExp = new RegExp(process.env.TRUSTED_PACKAGE_REGEXP || '^@yuants/');
