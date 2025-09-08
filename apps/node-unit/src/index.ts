@@ -121,8 +121,13 @@ const spawnChild = (ctx: {
       cwd: ctx.cwd,
     });
 
-    child.stdout.pipe(createWriteStream(ctx.stdoutFilename, { flags: 'a' }));
-    child.stderr.pipe(createWriteStream(ctx.stderrFilename, { flags: 'a' }));
+    const stdout = createWriteStream(ctx.stdoutFilename, { flags: 'a' });
+    const stderr =
+      ctx.stderrFilename === ctx.stdoutFilename
+        ? stdout
+        : createWriteStream(ctx.stderrFilename, { flags: 'a' });
+    child.stdout.pipe(stdout);
+    child.stderr.pipe(stderr);
 
     child.on('spawn', () => {
       console.info(formatTime(Date.now()), 'Spawn', ctx.command, ctx.args, child.pid);
@@ -180,8 +185,8 @@ const runDeployment = (deployment: IDeployment) => {
         args: ['install'],
         env: Object.assign({}, process.env, deployment.env),
         cwd: deploymentDir,
-        stdoutFilename: join(logHome, `${deployment.id}.install.log`),
-        stderrFilename: join(logHome, `${deployment.id}.install.err.log`),
+        stdoutFilename: join(logHome, `${deployment.id}.log`),
+        stderrFilename: join(logHome, `${deployment.id}.log`),
       }).pipe(mergeMap(() => EMPTY)), // suppress signal
       defer(() => {
         const childKeyPair = createKeyPair();
@@ -212,7 +217,7 @@ const runDeployment = (deployment: IDeployment) => {
           // Current working directory is the installed package directory
           cwd: join(deploymentDir, 'node_modules', deployment.package_name),
           stdoutFilename: join(logHome, `${deployment.id}.log`),
-          stderrFilename: join(logHome, `${deployment.id}.err.log`),
+          stderrFilename: join(logHome, `${deployment.id}.log`),
         }).pipe(
           tap({
             finalize: () => {
