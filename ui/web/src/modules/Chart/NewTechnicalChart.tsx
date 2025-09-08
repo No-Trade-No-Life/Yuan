@@ -3,12 +3,15 @@ import { formatTime } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { createContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { debounceTime, pipe, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, combineLatestWith, debounceTime, mergeWith, pipe, switchMap, tap } from 'rxjs';
 import { registerPage, usePageParams } from '../Pages';
 import { CSV } from '../Util';
-import { ITimeSeriesChartConfig } from '../Interactive';
+import { Button, ITimeSeriesChartConfig } from '../Interactive';
 import { ChartComponent } from './components/ChartComponent';
 import { fs } from '../FileSystem';
+import { IconRefresh, IconSetting } from '@douyinfe/semi-icons';
+
+const refresh$ = new BehaviorSubject(undefined);
 
 export const ChartDataContext = createContext<
   | {
@@ -29,8 +32,9 @@ registerPage('NewTechnicalChart', () => {
   const config = useObservableState(
     useObservable(
       pipe(
+        combineLatestWith(refresh$),
         debounceTime(500),
-        switchMap(([filename]) =>
+        switchMap(([[filename]]) =>
           fs.readFile(filename).then((content) => {
             return JSON.parse(content) as ITimeSeriesChartConfig;
           }),
@@ -75,11 +79,16 @@ registerPage('NewTechnicalChart', () => {
       [config?.data],
     ),
   );
-
   return (
     <Space vertical align="start" style={{ height: '100%', width: '100%', overflow: 'hidden' }}>
-      <Space vertical align="start" style={{ height: '100px', width: '100%' }}>
-        TODO 获取数据 修改config
+      <Space align="start" style={{ width: '100%' }}>
+        <Button disabled icon={<IconSetting />}></Button>
+        <Button
+          icon={<IconRefresh />}
+          onClick={() => {
+            refresh$.next(undefined);
+          }}
+        ></Button>
       </Space>
       <Space
         vertical

@@ -239,21 +239,10 @@ export const runAgent = async () => {
       throw new Error(`chart config illegal: ${series.series_id} (${series.name})`);
     };
 
-    // const mapChartIdToDisplayConfigList: Record<
-    //   string,
-    //   {
-    //     chartId: string;
-    //     title: string;
-    //     type: string;
-    //     color: string;
-    //     data: Array<{ timestamp: number; value: number }>;
-    //   }[]
-    // > = {};
     const chartIds: string[] = [];
 
     series.forEach((series) => {
       const chartId = resolveChartId(series);
-      // const brothers = (mapChartIdToDisplayConfigList[chartId] ??= []);
       if (!chartIds.includes(chartId)) {
         chartIds.push(chartId);
         config.views[0].panes.push({
@@ -274,6 +263,23 @@ export const runAgent = async () => {
 
     const seriesIds = Object.keys(kernel.findUnit(PeriodDataUnit)!.data);
 
+    config.views[0].panes[0].series.unshift({
+      type: 'order',
+      refs: [
+        {
+          data_index: 1,
+          column_name: `order_direction`,
+        },
+        {
+          data_index: 1,
+          column_name: `traded_price`,
+        },
+        {
+          data_index: 1,
+          column_name: `volume`,
+        },
+      ],
+    });
     config.views[0].panes[0].series.unshift({
       type: 'ohlc',
       refs: [

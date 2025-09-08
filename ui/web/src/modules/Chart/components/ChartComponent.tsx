@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useRef } from 'react';
+import { memo, useEffect, useMemo, useRef, useState } from 'react';
 import {
   createChart,
   CandlestickSeries,
@@ -8,9 +8,12 @@ import {
   Time,
   DeepPartial,
   ChartOptions,
+  createSeriesMarkers,
+  MouseEventParams,
+  IChartApi,
 } from 'lightweight-charts';
 import { ITimeSeriesChartConfig } from '../../Interactive';
-import { formatTime } from '@yuants/utils';
+import { useIsDarkMode } from '../../Workbench';
 
 const DEFAULT_SINGLE_COLOR_SCHEME: string[] = [
   '#5B8FF9',
@@ -32,7 +35,7 @@ const AreaOption = {
 };
 const ChartOption: DeepPartial<ChartOptions> = {
   layout: {
-    textColor: 'black',
+    textColor: 'rgba(0, 0, 0, 0.9)',
     background: { type: ColorType.Solid, color: 'white' },
     panes: {
       separatorColor: '#f22c3d',
@@ -40,6 +43,49 @@ const ChartOption: DeepPartial<ChartOptions> = {
       // setting this to false will disable the resize of the panes by the user
       enableResize: true,
     },
+  },
+  grid: {
+    vertLines: {
+      color: 'rgba(197, 203, 206, 0.5)',
+    },
+    horzLines: {
+      color: 'rgba(197, 203, 206, 0.5)',
+    },
+  },
+  rightPriceScale: {
+    borderColor: 'rgba(197, 203, 206, 0.8)',
+  },
+  timeScale: {
+    borderColor: 'rgba(197, 203, 206, 0.8)',
+  },
+  localization: {
+    timeFormatter: (v: Time) => new Date(Number(v) * 1000).toLocaleString(),
+  },
+};
+const DarkModeChartOption: DeepPartial<ChartOptions> = {
+  layout: {
+    textColor: 'rgba(255, 255, 255, 0.9)',
+    background: { type: ColorType.Solid, color: '#000000' },
+    panes: {
+      separatorColor: '#f22c3d',
+      separatorHoverColor: 'rgba(255, 0, 0, 0.1)',
+      // setting this to false will disable the resize of the panes by the user
+      enableResize: true,
+    },
+  },
+  grid: {
+    vertLines: {
+      color: 'rgba(197, 203, 206, 0.5)',
+    },
+    horzLines: {
+      color: 'rgba(197, 203, 206, 0.5)',
+    },
+  },
+  rightPriceScale: {
+    borderColor: 'rgba(197, 203, 206, 0.8)',
+  },
+  timeScale: {
+    borderColor: 'rgba(197, 203, 206, 0.8)',
   },
   localization: {
     timeFormatter: (v: Time) => new Date(Number(v) * 1000).toLocaleString(),
@@ -54,6 +100,28 @@ const candlestickOption = {
   wickDownColor: '#ef5350',
 };
 
+function waitForPaneElement(pane: any, maxRetries: number = 20): Promise<HTMLElement> {
+  return new Promise((resolve, reject) => {
+    let retries = 0;
+    function check() {
+      const el = pane.getHTMLElement();
+      if (el) {
+        resolve(el);
+        return;
+      }
+      if (retries++ >= maxRetries) {
+        reject(new Error('Pane element not available after retries'));
+        return;
+      }
+      // 下一帧再试
+      requestAnimationFrame(check);
+    }
+    check();
+  });
+}
+
+const UpdateLegendFuncQueue: Function[] = [];
+
 interface Props {
   view: ITimeSeriesChartConfig['views'][0];
   data?: {
@@ -65,115 +133,158 @@ interface Props {
   }[];
 }
 
+interface DisplayData {
+  time: Time;
+  value?: any;
+  high?: number;
+  open?: number;
+  low?: number;
+  close?: number;
+  orderDirection?: string;
+  tradePrice?: number;
+  volume?: number;
+}
+
+const mergeTimeLine = (timeLine: number[][], mainTimeLine: number[]): number[][] => {
+  const result: number[][] = [];
+  let timeLineIndex = 0;
+
+  for (let mainTimeLineIndex = 0; mainTimeLineIndex < mainTimeLine.length; mainTimeLineIndex++) {
+    const mainTime = mainTimeLine[mainTimeLineIndex];
+    for (; timeLineIndex < timeLine.length; timeLineIndex++) {
+      const [currentTime, dataIndex] = timeLine[timeLineIndex];
+      const [nextTime] = timeLine[timeLineIndex + 1] ?? [];
+      if (currentTime > mainTime) break;
+      if (timeLineIndex === timeLine.length - 1 && currentTime <= mainTime) {
+        result.push([mainTime, dataIndex]);
+      } else if (currentTime <= mainTime && nextTime > mainTime) {
+        result.push([mainTime, dataIndex]);
+      }
+    }
+  }
+
+  // 将剩余数据进行合并
+  timeLine.slice(timeLineIndex).forEach((data) => {
+    if (result[result.length - 1][0] !== data[0]) {
+      result.push(data);
+    }
+  });
+  return result;
+};
+
 export const ChartComponent = memo((props: Props) => {
   const { view, data } = props;
+  const darkMode = useIsDarkMode();
 
   const domRef = useRef<HTMLDivElement | null>(null);
+  const [chartState, setChartState] = useState<IChartApi | null>(null);
+
+  const chartRef = useRef<IChartApi | null>(null);
 
   const displayData = useMemo(() => {
     if (!view || !data) return null;
     const mainTimeLine = data
       .find((item) => item.data_index === view.time_ref.data_index)
-      ?.series.get(view.time_ref.column_name);
+      ?.series.get(view.time_ref.column_name)
+      ?.map((t) => ~~(Number(t) / 1000));
     if (!mainTimeLine) return null;
 
     return view.panes.map((pane) => {
-      return pane.series
-        .map((s) => {
-          if (s.refs.length < 1) return null;
-          //找到ref对应的timeline
-          const dataItem = data.find((item) => item.data_index === s.refs[0].data_index);
-          if (!dataItem) return null;
-          const timeLine = dataItem.series.get(dataItem.time_column_name);
-          if (!timeLine) return null;
-          const displayDataList: {
-            time: Time;
-            value?: any;
-            high?: number;
-            open?: number;
-            low?: number;
-            close?: number;
-          }[] = [];
-
-          if (s.type === 'line' || s.type === 'bar' || s.type === 'index') {
-            // 通过data_index column_name找到数据，并完成映射为图表需要的结构
-            const dataSeries = data
-              .find((item) => item.data_index === s.refs[0].data_index)
-              ?.series.get(s.refs[0].column_name);
-            if (dataSeries) {
-              timeLine.forEach((time, index) => {
-                displayDataList.push({
-                  time: ~~(new Date(formatTime(Number(time))).getTime() / 1000) as Time,
-                  value: Number(dataSeries[index]),
-                });
+      return pane.series.map((s) => {
+        if (s.refs.length < 1) return null;
+        //找到ref对应的timeline
+        const dataItem = data.find((item) => item.data_index === s.refs[0].data_index);
+        if (!dataItem) return null;
+        let timeLine = dataItem.series
+          .get(dataItem.time_column_name)
+          ?.map((t, index) => [~~(Number(t) / 1000), index]);
+        if (!timeLine) return null;
+        // 若ref与view timeline不一致则归并对其
+        if (s.refs[0].data_index !== view.time_ref.data_index) {
+          timeLine = mergeTimeLine(timeLine, mainTimeLine);
+        }
+        const displayDataList: DisplayData[] = [];
+        // 通过data_index column_name找到数据
+        const dataSeries = s.refs
+          .map((ref) => data.find((item) => item.data_index === ref.data_index)?.series.get(ref.column_name))
+          .filter((x) => !!x);
+        if (s.type === 'line' || s.type === 'bar' || s.type === 'index') {
+          // 通过data_index column_name找到数据，并完成映射为图表需要的结构
+          if (dataSeries) {
+            timeLine.forEach(([time], index) => {
+              displayDataList.push({
+                time: time as Time,
+                value: Number(dataSeries[0][index]),
               });
-            }
+            });
           }
-          if (s.type === 'ohlc') {
-            const dataSeries = s.refs
-              .map((ref) =>
-                data.find((item) => item.data_index === ref.data_index)?.series.get(ref.column_name),
-              )
-              .filter((x) => !!x);
-            if (dataSeries.length === 4) {
-              timeLine
-                .map((time, index) => ({
-                  time: ~~(new Date(formatTime(Number(time))).getTime() / 1000) as Time,
-                  open: Number(dataSeries[0]![index]),
-                  high: Number(dataSeries[1]![index]),
-                  low: Number(dataSeries[2]![index]),
-                  close: Number(dataSeries[3]![index]),
-                }))
-                .filter(
-                  (x) => !!x.time && !isNaN(x.open) && !isNaN(x.high) && !isNaN(x.low) && !isNaN(x.close),
-                )
-                .forEach((item) => displayDataList.push(item));
-            }
+        }
+        if (s.type === 'ohlc') {
+          if (dataSeries.length === 4) {
+            timeLine
+              .map(([time, index]) => ({
+                time: time as Time,
+                open: Number(dataSeries[0]![index]),
+                high: Number(dataSeries[1]![index]),
+                low: Number(dataSeries[2]![index]),
+                close: Number(dataSeries[3]![index]),
+              }))
+              .filter((x) => !!x.time && !isNaN(x.open) && !isNaN(x.high) && !isNaN(x.low) && !isNaN(x.close))
+              .forEach((item) => displayDataList.push(item));
           }
-          // 若ref timeline与main timeline 不一致，则需要对齐
-          if (s.refs[0].data_index !== view.time_ref.data_index) {
-            const result: {
-              time: Time;
-              value?: any;
-              high?: number;
-              open?: number;
-              low?: number;
-              close?: number;
-            }[] = [];
-            const newDisplayDataList = [...displayDataList];
-            const newMainTimeLine = [...mainTimeLine];
-            while (newDisplayDataList.length > 0 && newMainTimeLine.length > 0) {
-              const mainTime = newMainTimeLine.shift();
-              let tempDataItem = newDisplayDataList[0];
-              while (newDisplayDataList.length > 0) {
-                const dataItem = newDisplayDataList[0];
-                if (
-                  new Date(Number(dataItem.time) * 1000).getTime() <=
-                  new Date(formatTime(Number(mainTime))).getTime()
-                ) {
-                  tempDataItem = {
-                    ...dataItem,
-                    time: ~~(new Date(formatTime(Number(mainTime))).getTime() / 1000) as Time,
-                  };
-                  newDisplayDataList.shift();
-                } else {
-                  break;
+        }
+        if (s.type === 'order') {
+          if (dataSeries.length === 3) {
+            let dataIndex = 0;
+            timeLine
+              .map(([time, index]) => {
+                let volume = 0;
+                let tradeValue = 0;
+                let totalVolume = 0;
+                for (; dataIndex <= index; dataIndex++) {
+                  totalVolume += Number(dataSeries[2]![dataIndex]);
+                  tradeValue += Number(dataSeries[2]![dataIndex]) * Number(dataSeries[1]![dataIndex]);
+                  const tempVolume = Number(dataSeries[2]![dataIndex]);
+                  const orderDirection = dataSeries[0]![index];
+                  if (orderDirection === 'OPEN_LONG' || orderDirection === 'CLOSE_SHORT') {
+                    volume += tempVolume;
+                  } else {
+                    volume -= tempVolume;
+                  }
                 }
-              }
-              result.push(tempDataItem);
-            }
-            result.push(...newDisplayDataList);
-            return result;
+                return {
+                  time: time as Time,
+                  volume,
+                  tradePrice: tradeValue / totalVolume,
+                  orderDirection: volume > 0 ? 'OPEN_LONG' : 'OPEN_SHORT',
+                };
+              })
+              .filter((x) => !!x.time && !isNaN(x.tradePrice) && !!x.orderDirection && !isNaN(x.volume))
+              .forEach((item) => displayDataList.push(item));
           }
-          return displayDataList;
-        })
-        .filter((x) => !!x);
+        }
+
+        return displayDataList;
+      });
     });
   }, [data, view]);
-  console.log({ displayData });
+  useEffect(() => {
+    if (chartState) {
+      chartState.applyOptions(darkMode ? DarkModeChartOption : ChartOption);
+    }
+  }, [chartState, darkMode]);
+
   useEffect(() => {
     if (!domRef.current || !view || !displayData) return;
+    if (chartRef.current) {
+      chartRef.current?.remove();
+    }
     const chart = createChart(domRef.current, ChartOption);
+    chartRef.current = chart;
+    setChartState(chart);
+    chart.subscribeCrosshairMove((param) => {
+      UpdateLegendFuncQueue.forEach((fn) => fn(param));
+    });
     view.panes.forEach((pane, paneIndex) => {
       pane.series.forEach((s, seriesIndex) => {
         const data = displayData[paneIndex][seriesIndex] ?? [];
@@ -202,6 +313,60 @@ export const ChartComponent = memo((props: Props) => {
           const candlestickSeries = chart.addSeries(CandlestickSeries, candlestickOption, paneIndex);
           candlestickSeries.setData(data);
         }
+        if (s.type === 'order') {
+          const lineSeries = chart.addSeries(
+            LineSeries,
+            {
+              color: 'red',
+              lineWidth: 3,
+            },
+            paneIndex,
+          );
+          lineSeries.setData(data.map((item) => ({ time: item.time, value: item.tradePrice })));
+          const markers = data.map((item) => ({
+            time: item.time,
+            position: 'aboveBar' as const,
+            color: item.orderDirection?.includes('LONG') ? 'green' : 'red',
+            shape: item.orderDirection?.includes('LONG') ? ('arrowUp' as const) : ('arrowDown' as const),
+            text: item.volume !== 0 ? `P: ${item.tradePrice} | Vol: ${item.volume}` : 'T',
+            price: item.tradePrice || 0,
+          }));
+          const seriesMarkers = createSeriesMarkers(lineSeries, markers);
+        }
+      });
+      const currentPane = chart.panes()[paneIndex];
+      waitForPaneElement(currentPane).then((container) => {
+        container.style = 'position:relative';
+        const legend = document.createElement('div');
+        legend.style = `position: absolute; left: 12px; top: 0px; z-index: 1; font-size: 14px; font-family: sans-serif; line-height: 18px; font-weight: 300;`;
+        container.appendChild(legend);
+        pane.series.forEach((s, seriesIndex) => {
+          const data = displayData[paneIndex][seriesIndex] ?? [];
+          const firstRow = document.createElement('div');
+          firstRow.style.fontSize = '14px';
+          firstRow.style.fontWeight = '400';
+          if (s.type === 'line') {
+            legend.appendChild(firstRow);
+            firstRow.style.color =
+              DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length];
+
+            UpdateLegendFuncQueue.push((param: MouseEventParams<Time>) => {
+              if (!param) return;
+              const value = data.find((item) => item.time === param.time);
+              if (!value) return;
+              firstRow.innerHTML = `${s.refs[0]?.column_name} : ${value.value}`;
+            });
+          }
+          if (s.type === 'ohlc') {
+            legend.appendChild(firstRow);
+            UpdateLegendFuncQueue.push((param: MouseEventParams<Time>) => {
+              if (!param) return;
+              const value = data.find((item) => item.time === param.time);
+              if (!value) return;
+              firstRow.innerHTML = `O:${value.open} H:${value.high} L:${value.low} C:${value.close}`;
+            });
+          }
+        });
       });
     });
 
@@ -217,15 +382,6 @@ export const ChartComponent = memo((props: Props) => {
         observer.unobserve(el);
       };
     }
-
-    const candlesPane = chart.panes()[1];
-    // candlesPane.getHTMLElement()?.appendChild
-    // console.log({ candlesPane });
-    // candlesPane.moveTo(0);
-    // candlesPane.attachPrimitive()
-    // // candlesPane.setHeight(150);
-    // chart.timeScale().fitContent();
   }, [view, displayData]);
-
   return <div id="App" style={{ width: '100%', height: '100%' }} ref={domRef} />;
 });
