@@ -1,7 +1,7 @@
 import { Select, Space } from '@douyinfe/semi-ui';
 import { formatTime } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
-import { createContext } from 'react';
+import { createContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BehaviorSubject, combineLatestWith, debounceTime, mergeWith, pipe, switchMap, tap } from 'rxjs';
 import { registerPage, usePageParams } from '../Pages';
@@ -10,6 +10,7 @@ import { Button, ITimeSeriesChartConfig } from '../Interactive';
 import { ChartComponent } from './components/ChartComponent';
 import { fs } from '../FileSystem';
 import { IconRefresh, IconSetting } from '@douyinfe/semi-icons';
+import { SelectProps } from '@douyinfe/semi-ui/lib/es/select';
 
 const refresh$ = new BehaviorSubject(undefined);
 
@@ -28,6 +29,7 @@ registerPage('NewTechnicalChart', () => {
   const [t] = useTranslation('TechnicalChart');
 
   const params = usePageParams() as { filename: string };
+  const [viewIndex, setViewIndex] = useState<number>(0);
 
   const config = useObservableState(
     useObservable(
@@ -79,7 +81,11 @@ registerPage('NewTechnicalChart', () => {
       [config?.data],
     ),
   );
-  console.log({ data, config });
+
+  const onSelectView = (v: SelectProps['value']) => {
+    setViewIndex(Number(v));
+  };
+
   return (
     <Space vertical align="start" style={{ height: '100%', width: '100%', overflow: 'hidden' }}>
       <Space
@@ -98,10 +104,14 @@ registerPage('NewTechnicalChart', () => {
                     refresh$.next(undefined);
                   }}
                 />
-                <Select prefix="View" optionList={[]}></Select>
+                <Select
+                  prefix="View"
+                  onSelect={onSelectView}
+                  optionList={config.views.map((item, index) => ({ value: index, label: item.name }))}
+                ></Select>
               </>
             }
-            view={config.views[0]}
+            view={config.views[viewIndex]}
             data={data}
           />
         )}
