@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-binance",
-  "version": "0.6.4",
+  "version": "0.6.5",
   "bin": "lib/cli.js",
   "main": "lib/index.js",
   "files": [
