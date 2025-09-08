@@ -100,16 +100,11 @@ const candlestickOption = {
   wickDownColor: '#ef5350',
 };
 
-function waitForPaneElement(
-  pane: any,
-  chart: IChartApi,
-  index: number,
-  maxRetries: number = 20,
-): Promise<HTMLElement> {
+function waitForPaneElement(pane: any, maxRetries: number = 20): Promise<HTMLElement> {
   return new Promise((resolve, reject) => {
     let retries = 0;
     function check() {
-      const el = chart.panes()?.[index]?.getHTMLElement();
+      const el = pane.getHTMLElement();
       if (el) {
         resolve(el);
         return;
@@ -336,7 +331,7 @@ export const ChartComponent = memo((props: Props) => {
         }
       });
       const currentPane = chart.panes()[paneIndex];
-      waitForPaneElement(currentPane, chart, paneIndex).then((container) => {
+      waitForPaneElement(currentPane).then((container) => {
         container.setAttribute('style', 'position:relative');
         const legend = document.createElement('div');
         legend.setAttribute(
