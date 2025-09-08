@@ -100,11 +100,16 @@ const candlestickOption = {
   wickDownColor: '#ef5350',
 };
 
-function waitForPaneElement(pane: any, maxRetries: number = 20): Promise<HTMLElement> {
+function waitForPaneElement(
+  pane: any,
+  chart: IChartApi,
+  index: number,
+  maxRetries: number = 20,
+): Promise<HTMLElement> {
   return new Promise((resolve, reject) => {
     let retries = 0;
     function check() {
-      const el = pane.getHTMLElement();
+      const el = chart.panes()?.[index]?.getHTMLElement();
       if (el) {
         resolve(el);
         return;
@@ -270,11 +275,16 @@ export const ChartComponent = memo((props: Props) => {
 
   useEffect(() => {
     if (!displayData || !domRef.current || !view) return;
-
-    const chart = createChart(domRef.current, darkMode ? DarkModeChartOption : ChartOption);
     const handler = (param: MouseEventParams<Time>) => {
       UpdateLegendFuncQueue.forEach((fn) => fn(param));
     };
+    // if (chartRef.current) {
+    //   chartRef.current.remove();
+    //   chartRef.current.unsubscribeCrosshairMove(handler);
+    //   chartRef.current = null;
+    // }
+    const chart = createChart(domRef.current, darkMode ? DarkModeChartOption : ChartOption);
+    chartRef.current = chart;
     chart.subscribeCrosshairMove(handler);
     view.panes.forEach((pane, paneIndex) => {
       pane.series.forEach((s, seriesIndex) => {
@@ -326,7 +336,7 @@ export const ChartComponent = memo((props: Props) => {
         }
       });
       const currentPane = chart.panes()[paneIndex];
-      waitForPaneElement(currentPane).then((container) => {
+      waitForPaneElement(currentPane, chart, paneIndex).then((container) => {
         container.setAttribute('style', 'position:relative');
         const legend = document.createElement('div');
         legend.setAttribute(
