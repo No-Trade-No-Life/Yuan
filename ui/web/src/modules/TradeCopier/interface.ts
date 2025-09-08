@@ -7,6 +7,7 @@ export interface ITradeCopierTradeConfig {
   product_id: string;
   max_volume_per_order: number;
   limit_order_control?: boolean;
+  disabled?: boolean;
 }
 /**
  * @public
