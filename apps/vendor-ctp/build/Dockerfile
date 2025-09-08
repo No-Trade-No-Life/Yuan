@@ -1,4 +1,4 @@
-FROM debian:bullseye as builder
+FROM debian:bookworm AS build_env
 
 RUN apt-get update && apt-get install -y \
     gcc \
@@ -21,6 +21,8 @@ RUN mkdir /cppzmq && \
     cd / && \
     rm -rf /cppzmq
 
+FROM debian:bookworm AS builder
+
 COPY ./out/vendor-ctp-out/apps/vendor-ctp/ctp /app/apps/vendor-ctp
 
 WORKDIR /app/apps/vendor-ctp
@@ -41,7 +43,7 @@ RUN rm -rf build && \
 # RUN --mount=type=bind,source=../../apps/vendor-ctp/ctp,target=/mnt/output \
 #     cp -r /app/apps/vendor-ctp/build /mnt/output/
 
-FROM node:22.14.0-bullseye
+FROM node:22.14.0-bookworm
 
 RUN apt-get update && apt-get install -y \
     libspdlog-dev \

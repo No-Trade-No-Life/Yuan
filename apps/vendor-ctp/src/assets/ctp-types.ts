@@ -53,6 +53,8 @@ export enum TThostFtdcIdCardTypeType {
   THOST_FTDC_ICT_FrgPrmtRdCard = 'K',
   // 资管产品备案函
   THOST_FTDC_ICT_CptMngPrdLetter = 'L',
+  // 港澳台居民居住证
+  THOST_FTDC_ICT_HKMCTwResidencePermit = 'M',
   // 统一社会信用代码
   THOST_FTDC_ICT_UniformSocialCreditCode = 'N',
   // 机构成立证明文件
@@ -153,6 +155,8 @@ export enum TThostFtdcFunctionCodeType {
   THOST_FTDC_FC_SyncOTP = 'E',
   // 删除未知单
   THOST_FTDC_FC_DeleteOrder = 'F',
+  // 退出紧急状态
+  THOST_FTDC_FC_ExitEmergency = 'G',
 }
 
 // TFtdcBrokerFunctionCodeType是一个经纪公司功能代码类型
@@ -375,9 +379,9 @@ export enum TThostFtdcAPIProductClassType {
   THOST_FTDC_APC_Futures = '3',
   // 可交易期权(含期权组合和期权单一合约)
   THOST_FTDC_APC_Options = '4',
-  // 可下单组合（目前包含DCE和ZCE的期货组合）
+  // 可下单套利组合
   THOST_FTDC_APC_TradingComb = '5',
-  // 可申请的组合（dce可以申请的组合合约 包含dce可以交易的合约）
+  // 可申请的组合（可以申请的组合合约 包含可以交易的合约）
   THOST_FTDC_APC_UnTradingComb = '6',
   // 所有可以交易合约
   THOST_FTDC_APC_AllTrading = '7',
@@ -455,9 +459,9 @@ export enum TThostFtdcHedgeFlagType {
   THOST_FTDC_HF_Hedge = '3',
   // 做市商
   THOST_FTDC_HF_MarketMaker = '5',
-  // 第一腿投机第二腿套保 大商所专用
+  // 第一腿投机第二腿套保
   THOST_FTDC_HF_SpecHedge = '6',
-  // 第一腿套保第二腿投机  大商所专用
+  // 第一腿套保第二腿投机
   THOST_FTDC_HF_HedgeSpec = '7',
 }
 
@@ -555,6 +559,14 @@ export enum TThostFtdcForceCloseReasonType {
   THOST_FTDC_FCC_Other = '6',
   // 自然人临近交割
   THOST_FTDC_FCC_PersonDeliv = '7',
+  // 本地强平资金不足忽略敞口
+  THOST_FTDC_FCC_Notverifycapital = '8',
+  // 本地强平资金不足
+  THOST_FTDC_FCC_LocalLackDeposit = '9',
+  // 本地强平违规持仓忽略敞口
+  THOST_FTDC_FCC_LocalViolationNocheck = 'a',
+  // 本地强平违规持仓
+  THOST_FTDC_FCC_LocalViolation = 'b',
 }
 
 // TFtdcOrderTypeType是一个报单类型类型
@@ -719,6 +731,8 @@ export enum TThostFtdcInstrumentStatusType {
   THOST_FTDC_IS_AuctionMatch = '5',
   // 收盘
   THOST_FTDC_IS_Closed = '6',
+  // 交易业务处理
+  THOST_FTDC_IS_TransactionProcessing = '7',
 }
 
 // TFtdcInstStatusEnterReasonType是一个品种进入交易状态原因类型
@@ -925,6 +939,14 @@ export enum TThostFtdcTradeParamIDType {
   THOST_FTDC_TPID_LoginFailMaxNumForIP = 'U',
   // 密码有效期
   THOST_FTDC_TPID_PasswordPeriod = 'V',
+  // 历史密码重复限制次数
+  THOST_FTDC_TPID_PwdHistoryCmp = 'X',
+  // 转账是否验证预留银行账户
+  THOST_FTDC_TPID_TranferChkProperty = 'i',
+  // 非交易时间异常报单校验参数
+  THOST_FTDC_TPID_TradeChkPhase = 'j',
+  // 其他异常报单校验参数（价格和手数）
+  THOST_FTDC_TPID_TradeChkPriceVol = 'k',
 }
 
 // TFtdcFileIDType是一个文件标识类型
@@ -1423,9 +1445,9 @@ export enum TThostFtdcUserEventTypeType {
   THOST_FTDC_UET_Login = '1',
   // 登出
   THOST_FTDC_UET_Logout = '2',
-  // 交易成功
+  // CTP校验通过
   THOST_FTDC_UET_Trading = '3',
-  // 交易失败
+  // CTP校验失败
   THOST_FTDC_UET_TradingError = '4',
   // 修改密码
   THOST_FTDC_UET_UpdatePassword = '5',
@@ -1437,6 +1459,8 @@ export enum TThostFtdcUserEventTypeType {
   THOST_FTDC_UET_Transfer = '8',
   // 其他
   THOST_FTDC_UET_Other = '9',
+  // 修改资金密码
+  THOST_FTDC_UET_UpdateTradingAccountPassword = 'a',
 }
 
 // TFtdcCloseStyleType是一个平仓方式类型
@@ -3745,6 +3769,186 @@ export enum TThostFtdcActionDirectionType {
   THOST_FTDC_ACD_Upd = '3',
 }
 
+// TFtdcOrderCancelAlgType是一个撤单时选择席位算法类型
+export enum TThostFtdcOrderCancelAlgType {
+  // 轮询席位撤单
+  THOST_FTDC_OAC_Balance = '1',
+  // 优先原报单席位撤单
+  THOST_FTDC_OAC_OrigFirst = '2',
+}
+
+// TFtdcOpenLimitControlLevelType是一个开仓量限制粒度类型
+export enum TThostFtdcOpenLimitControlLevelType {
+  // 不控制
+  THOST_FTDC_PLCL_None = '0',
+  // 产品级别
+  THOST_FTDC_PLCL_Product = '1',
+  // 合约级别
+  THOST_FTDC_PLCL_Inst = '2',
+}
+
+// TFtdcOrderFreqControlLevelType是一个报单频率控制粒度类型
+export enum TThostFtdcOrderFreqControlLevelType {
+  // 不控制
+  THOST_FTDC_OFCL_None = '0',
+  // 产品级别
+  THOST_FTDC_OFCL_Product = '1',
+  // 合约级别
+  THOST_FTDC_OFCL_Inst = '2',
+}
+
+// TFtdcEnumBoolType是一个枚举bool类型类型
+export enum TThostFtdcEnumBoolType {
+  // false
+  THOST_FTDC_EBL_False = '0',
+  // true
+  THOST_FTDC_EBL_True = '1',
+}
+
+// TFtdcTimeRangeType是一个期货合约阶段标识类型
+export enum TThostFtdcTimeRangeType {
+  // 一般月份
+  THOST_FTDC_ETR_USUAL = '1',
+  // 交割月前一个月上半月
+  THOST_FTDC_ETR_FNSP = '2',
+  // 交割月前一个月下半月
+  THOST_FTDC_ETR_BNSP = '3',
+  // 交割月份
+  THOST_FTDC_ETR_SPOT = '4',
+}
+
+// TFtdcPortfolioType是一个新型组保算法类型
+export enum TThostFtdcPortfolioType {
+  // 不使用新型组保算法
+  THOST_FTDC_EPF_None = '0',
+  // SPBM算法
+  THOST_FTDC_EPF_SPBM = '1',
+  // RULE算法
+  THOST_FTDC_EPF_RULE = '2',
+  // SPMM算法
+  THOST_FTDC_EPF_SPMM = '3',
+  // RCAMS算法
+  THOST_FTDC_EPF_RCAMS = '4',
+}
+
+// TFtdcWithDrawParamIDType是一个可提参数代码类型
+export enum TThostFtdcWithDrawParamIDType {
+  // 权利金收支是否可提 1 代表可提 0 不可提
+  THOST_FTDC_WDPID_CashIn = 'C',
+}
+
+// TFtdcInvstTradingRightType是一个投资者交易权限类型
+export enum TThostFtdcInvstTradingRightType {
+  // 只能平仓
+  THOST_FTDC_ITR_CloseOnly = '1',
+  // 不能交易
+  THOST_FTDC_ITR_Forbidden = '2',
+}
+
+// TFtdcInstMarginCalIDType是一个SPMM合约保证金算法类型
+export enum TThostFtdcInstMarginCalIDType {
+  // 标准算法收取双边
+  THOST_FTDC_IMID_BothSide = '1',
+  // 单向大边
+  THOST_FTDC_IMID_MMSA = '2',
+  // 新组保SPMM
+  THOST_FTDC_IMID_SPMM = '3',
+}
+
+// TFtdcRCAMSCombinationTypeType是一个RCAMS组合类型类型
+export enum TThostFtdcRCAMSCombinationTypeType {
+  // 牛市看涨价差组合
+  THOST_FTDC_ERComb_BUC = '0',
+  // 熊市看涨价差组合
+  THOST_FTDC_ERComb_BEC = '1',
+  // 熊市看跌价差组合
+  THOST_FTDC_ERComb_BEP = '2',
+  // 牛市看跌价差组合
+  THOST_FTDC_ERComb_BUP = '3',
+  // 日历价差组合
+  THOST_FTDC_ERComb_CAS = '4',
+}
+
+// TFtdcPortfTypeType是一个新组保算法启用类型类型
+export enum TThostFtdcPortfTypeType {
+  // 使用初版交易所算法
+  THOST_FTDC_EET_None = '0',
+  // SPBM算法V1.1.0_附加保证金调整
+  THOST_FTDC_EET_SPBM_AddOnHedge = '1',
+}
+
+// TFtdcInstrumentClassType是一个合约类型类型
+export enum TThostFtdcInstrumentClassType {
+  // 一般月份合约
+  THOST_FTDC_EIC_Usual = '1',
+  // 临近交割合约
+  THOST_FTDC_EIC_Delivery = '2',
+  // 非组合合约
+  THOST_FTDC_EIC_NonComb = '3',
+}
+
+// TFtdcProdChangeFlagType是一个品种记录改变状态类型
+export enum TThostFtdcProdChangeFlagType {
+  // 持仓量和冻结量均无变化
+  THOST_FTDC_PCF_None = '0',
+  // 持仓量无变化，冻结量有变化
+  THOST_FTDC_PCF_OnlyFrozen = '1',
+  // 持仓量有变化
+  THOST_FTDC_PCF_PositionChange = '2',
+}
+
+// TFtdcPwdRcdSrcType是一个历史密码来源类型
+export enum TThostFtdcPwdRcdSrcType {
+  // 来源于Sync初始化数据
+  THOST_FTDC_PRS_Init = '0',
+  // 来源于实时上场数据
+  THOST_FTDC_PRS_Sync = '1',
+  // 来源于用户修改
+  THOST_FTDC_PRS_UserUpd = '2',
+  // 来源于超户修改，很可能来自主席同步数据
+  THOST_FTDC_PRS_SuperUserUpd = '3',
+  // 来源于次席同步的修改
+  THOST_FTDC_PRS_SecUpd = '4',
+}
+
+// TFtdcAddrSrvModeType是一个地址服务类型类型
+export enum TThostFtdcAddrSrvModeType {
+  // 交易地址
+  THOST_FTDC_ASM_Trade = '0',
+  // 行情地址
+  THOST_FTDC_ASM_MarketData = '1',
+  // 其他
+  THOST_FTDC_ASM_Other = '2',
+}
+
+// TFtdcAddrVerType是一个地址版本类型
+export enum TThostFtdcAddrVerType {
+  // IPV4
+  THOST_FTDC_ADV_V4 = '0',
+  // IPV6
+  THOST_FTDC_ADV_V6 = '1',
+}
+
+// TFtdcTGSessionQryStatusType是一个TGATE会话查询状态类型
+export enum TThostFtdcTGSessionQryStatusType {
+  // 查询状态空闲
+  THOST_FTDC_TGQS_QryIdle = '1',
+  // 查询状态频繁
+  THOST_FTDC_TGQS_QryBusy = '2',
+}
+
+// TFtdcOffsetTypeType是一个对冲类型类型
+export enum TThostFtdcOffsetTypeType {
+  // 期权对冲
+  THOST_FTDC_OT_OPT_OFFSET = '0',
+  // 期货对冲
+  THOST_FTDC_OT_FUT_OFFSET = '1',
+  // 行权后期货对冲
+  THOST_FTDC_OT_EXEC_OFFSET = '2',
+  // 履约后期货对冲
+  THOST_FTDC_OT_PERFORM_OFFSET = '3',
+}
+
 // 信息分发
 export interface ICThostFtdcDisseminationField {
   // 序列系列号
@@ -3811,6 +4015,14 @@ export interface ICThostFtdcRspUserLoginField {
   FFEXTime: string;
   // 能源中心时间
   INETime: string;
+  // 后台版本信息
+  SysVersion: string;
+  // 广期所时间
+  GFEXTime: string;
+  // 当前登录中心号
+  LoginDRIdentityID: number;
+  // 用户所属中心号
+  UserDRIdentityID: number;
 }
 
 // 用户登出请求
@@ -4131,6 +4343,10 @@ export interface ICThostFtdcProductField {
   ProductID: string;
   // 交易所产品代码
   ExchangeProductID: string;
+  // 开仓量限制粒度
+  OpenLimitControlLevel: TThostFtdcOpenLimitControlLevelType;
+  // 报单频率控制粒度
+  OrderFreqControlLevel: TThostFtdcOrderFreqControlLevelType;
 }
 
 // 合约
@@ -4233,6 +4449,12 @@ export interface ICThostFtdcTraderField {
   InstallCount: number;
   // 经纪公司代码
   BrokerID: string;
+  // 撤单时选择席位算法
+  OrderCancelAlg: TThostFtdcOrderCancelAlgType;
+  // 交易报盘安装数量
+  TradeInstallCount: number;
+  // 行情报盘安装数量
+  MDInstallCount: number;
 }
 
 // 投资者
@@ -4263,6 +4485,10 @@ export interface ICThostFtdcInvestorField {
   CommModelID: string;
   // 保证金率模板代码
   MarginModelID: string;
+  // 是否频率控制
+  IsOrderFreq: TThostFtdcEnumBoolType;
+  // 是否开仓限制
+  IsOpenVolLimit: TThostFtdcEnumBoolType;
 }
 
 // 交易编码
@@ -4525,7 +4751,7 @@ export interface ICThostFtdcInvestorPositionField {
   YdStrikeFrozen: number;
   // 投资单元代码
   InvestUnitID: string;
-  // 大商所持仓成本差值，只有大商所使用
+  // 持仓成本差值
   PositionCostOffset: number;
   // tas持仓手数
   TasPosition: number;
@@ -4799,6 +5025,8 @@ export interface ICThostFtdcTraderOfferField {
   MaxTradeID: string;
   // 本席位最大报单备拷
   MaxOrderMessageReference: string;
+  // 撤单时选择席位算法
+  OrderCancelAlg: TThostFtdcOrderCancelAlgType;
 }
 
 // 投资者结算结果
@@ -4929,13 +5157,13 @@ export interface ICThostFtdcSettlementRefField {
 
 // 当前时间
 export interface ICThostFtdcCurrentTimeField {
-  // 当前日期
+  // 当前交易日
   CurrDate: string;
   // 当前时间
   CurrTime: string;
   // 当前时间（毫秒）
   CurrMillisec: number;
-  // 业务日期
+  // 自然日期
   ActionDay: string;
 }
 
@@ -5079,7 +5307,7 @@ export interface ICThostFtdcInputOrderField {
   BusinessUnit: string;
   // 请求编号
   RequestID: number;
-  // 用户强评标志
+  // 用户强平标志
   UserForceClose: number;
   // 互换单标志
   IsSwapOrder: number;
@@ -5101,6 +5329,10 @@ export interface ICThostFtdcInputOrderField {
   InstrumentID: string;
   // IP地址
   IPAddress: string;
+  // 报单回显字段
+  OrderMemo: string;
+  // session上请求计数 api自动维护
+  SessionReqSeq: number;
 }
 
 // 报单
@@ -5207,7 +5439,7 @@ export interface ICThostFtdcOrderField {
   UserProductInfo: string;
   // 状态信息
   StatusMsg: string;
-  // 用户强评标志
+  // 用户强平标志
   UserForceClose: number;
   // 操作用户代码
   ActiveUserID: string;
@@ -5237,6 +5469,10 @@ export interface ICThostFtdcOrderField {
   ExchangeInstID: string;
   // IP地址
   IPAddress: string;
+  // 报单回显字段
+  OrderMemo: string;
+  // session上请求计数 api自动维护
+  SessionReqSeq: number;
 }
 
 // 交易所报单
@@ -5395,6 +5631,10 @@ export interface ICThostFtdcInputOrderActionField {
   InstrumentID: string;
   // IP地址
   IPAddress: string;
+  // 报单回显字段
+  OrderMemo: string;
+  // session上请求计数 api自动维护
+  SessionReqSeq: number;
 }
 
 // 报单操作
@@ -5461,6 +5701,10 @@ export interface ICThostFtdcOrderActionField {
   InstrumentID: string;
   // IP地址
   IPAddress: string;
+  // 报单回显字段
+  OrderMemo: string;
+  // session上请求计数 api自动维护
+  SessionReqSeq: number;
 }
 
 // 交易所报单操作
@@ -5737,6 +5981,8 @@ export interface ICThostFtdcSyncDepositField {
   IsFromSopt: number;
   // 资金密码
   TradingPassword: string;
+  // 是否二级代理商的内转
+  IsSecAgentTranfer: number;
 }
 
 // 货币质押同步
@@ -5789,6 +6035,10 @@ export interface ICThostFtdcSyncingInvestorField {
   CommModelID: string;
   // 保证金率模板代码
   MarginModelID: string;
+  // 是否频率控制
+  IsOrderFreq: TThostFtdcEnumBoolType;
+  // 是否开仓限制
+  IsOpenVolLimit: TThostFtdcEnumBoolType;
 }
 
 // 正在同步中的交易代码
@@ -6011,7 +6261,7 @@ export interface ICThostFtdcSyncingInvestorPositionField {
   YdStrikeFrozen: number;
   // 投资单元代码
   InvestUnitID: string;
-  // 大商所持仓成本差值，只有大商所使用
+  // 持仓成本差值
   PositionCostOffset: number;
   // tas持仓手数
   TasPosition: number;
@@ -6377,6 +6627,8 @@ export interface ICThostFtdcQryDepthMarketDataField {
   ExchangeID: string;
   // 合约代码
   InstrumentID: string;
+  // 产品类型
+  ProductClass: TThostFtdcProductClassType;
 }
 
 // 查询经纪公司用户
@@ -7431,6 +7683,12 @@ export interface ICThostFtdcInputQuoteField {
   IPAddress: string;
   // 被顶单编号
   ReplaceSysID: string;
+  // 有效期类型
+  TimeCondition: TThostFtdcTimeConditionType;
+  // 报单回显字段
+  OrderMemo: string;
+  // session上请求计数 api自动维护
+  SessionReqSeq: number;
 }
 
 // 输入报价操作
@@ -7471,6 +7729,10 @@ export interface ICThostFtdcInputQuoteActionField {
   InstrumentID: string;
   // IP地址
   IPAddress: string;
+  // 报单回显字段
+  OrderMemo: string;
+  // session上请求计数 api自动维护
+  SessionReqSeq: number;
 }
 
 // 报价
@@ -7583,6 +7845,12 @@ export interface ICThostFtdcQuoteField {
   IPAddress: string;
   // 被顶单编号
   ReplaceSysID: string;
+  // 有效期类型
+  TimeCondition: TThostFtdcTimeConditionType;
+  // 报单回显字段
+  OrderMemo: string;
+  // session上请求计数 api自动维护
+  SessionReqSeq: number;
 }
 
 // 报价操作
@@ -7645,6 +7913,10 @@ export interface ICThostFtdcQuoteActionField {
   InstrumentID: string;
   // IP地址
   IPAddress: string;
+  // 报单回显字段
+  OrderMemo: string;
+  // session上请求计数 api自动维护
+  SessionReqSeq: number;
 }
 
 // 报价查询
@@ -7743,6 +8015,8 @@ export interface ICThostFtdcExchangeQuoteField {
   ExchangeInstID: string;
   // IP地址
   IPAddress: string;
+  // 有效期类型
+  TimeCondition: TThostFtdcTimeConditionType;
 }
 
 // 交易所报价查询
@@ -9279,7 +9553,7 @@ export interface ICThostFtdcInvestorPositionDetailField {
   CloseVolume: number;
   // 平仓金额
   CloseAmount: number;
-  // 先开先平剩余数量（DCE）
+  // 先开先平剩余数量
   TimeFirstVolume: number;
   // 投资单元代码
   InvestUnitID: string;
@@ -9343,6 +9617,8 @@ export interface ICThostFtdcMDTraderOfferField {
   MaxTradeID: string;
   // 本席位最大报单备拷
   MaxOrderMessageReference: string;
+  // 撤单时选择席位算法
+  OrderCancelAlg: TThostFtdcOrderCancelAlgType;
 }
 
 // 查询行情报盘机
@@ -9567,6 +9843,10 @@ export interface ICThostFtdcBrokerUserEventField {
   reserve1: string;
   // 合约代码
   InstrumentID: string;
+  // 交易中心代码
+  DRIdentityID: number;
+  // 交易日
+  TradingDay: string;
 }
 
 // 查询签约银行请求
@@ -9685,7 +9965,7 @@ export interface ICThostFtdcParkedOrderField {
   BusinessUnit: string;
   // 请求编号
   RequestID: number;
-  // 用户强评标志
+  // 用户强平标志
   UserForceClose: number;
   // 交易所代码
   ExchangeID: string;
@@ -9995,7 +10275,7 @@ export interface ICThostFtdcErrOrderField {
   BusinessUnit: string;
   // 请求编号
   RequestID: number;
-  // 用户强评标志
+  // 用户强平标志
   UserForceClose: number;
   // 错误代码
   ErrorID: number;
@@ -10021,6 +10301,10 @@ export interface ICThostFtdcErrOrderField {
   InstrumentID: string;
   // IP地址
   IPAddress: string;
+  // 报单回显字段
+  OrderMemo: string;
+  // session上请求计数 api自动维护
+  SessionReqSeq: number;
 }
 
 // 查询错误报单操作
@@ -10127,7 +10411,7 @@ export interface ICThostFtdcErrorConditionalOrderField {
   UserProductInfo: string;
   // 状态信息
   StatusMsg: string;
-  // 用户强评标志
+  // 用户强平标志
   UserForceClose: number;
   // 操作用户代码
   ActiveUserID: string;
@@ -10239,6 +10523,10 @@ export interface ICThostFtdcErrOrderActionField {
   InstrumentID: string;
   // IP地址
   IPAddress: string;
+  // 报单回显字段
+  OrderMemo: string;
+  // session上请求计数 api自动维护
+  SessionReqSeq: number;
 }
 
 // 查询交易所状态
@@ -13311,6 +13599,8 @@ export interface ICThostFtdcDepartmentUserField {
 export interface ICThostFtdcQueryFreqField {
   // 查询频率
   QueryFreq: number;
+  // FTD频率
+  FTDPkgFreq: number;
 }
 
 // 禁止认证IP
@@ -13423,6 +13713,44 @@ export interface ICThostFtdcCombPromotionParamField {
   Xparameter: number;
 }
 
+// 国密用户登录请求
+export interface ICThostFtdcReqUserLoginSMField {
+  // 交易日
+  TradingDay: string;
+  // 经纪公司代码
+  BrokerID: string;
+  // 用户代码
+  UserID: string;
+  // 密码
+  Password: string;
+  // 用户端产品信息
+  UserProductInfo: string;
+  // 接口端产品信息
+  InterfaceProductInfo: string;
+  // 协议信息
+  ProtocolInfo: string;
+  // Mac地址
+  MacAddress: string;
+  // 动态密码
+  OneTimePassword: string;
+  // 保留的无效字段
+  reserve1: string;
+  // 登录备注
+  LoginRemark: string;
+  // 终端IP端口
+  ClientIPPort: number;
+  // 终端IP地址
+  ClientIPAddress: string;
+  // 经纪公司名称
+  BrokerName: string;
+  // 认证码
+  AuthCode: string;
+  // App代码
+  AppID: string;
+  // PIN码
+  PIN: string;
+}
+
 // 投资者风险结算持仓查询
 export interface ICThostFtdcQryRiskSettleInvstPositionField {
   // 经纪公司代码
@@ -13533,7 +13861,7 @@ export interface ICThostFtdcRiskSettleInvstPositionField {
   YdStrikeFrozen: number;
   // 投资单元代码
   InvestUnitID: string;
-  // 大商所持仓成本差值，只有大商所使用
+  // 持仓成本差值
   PositionCostOffset: number;
   // tas持仓手数
   TasPosition: number;
@@ -13629,7 +13957,7 @@ export interface ICThostFtdcSyncDeltaInvstPosDtlField {
   CloseVolume: number;
   // 平仓金额
   CloseAmount: number;
-  // 先开先平剩余数量（DCE）
+  // 先开先平剩余数量
   TimeFirstVolume: number;
   // 特殊持仓标志
   SpecPosiType: TThostFtdcSpecPosiTypeType;
@@ -14195,5 +14523,2291 @@ export interface ICThostFtdcSyncDeltaEWarrantOffsetField {
   ActionDirection: TThostFtdcActionDirectionType;
   // 追平序号
   SyncDeltaSequenceNo: number;
+}
+
+// SPBM期货合约保证金参数
+export interface ICThostFtdcSPBMFutureParameterField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 合约代码
+  InstrumentID: string;
+  // 品种代码
+  ProdFamilyCode: string;
+  // 期货合约因子
+  Cvf: number;
+  // 阶段标识
+  TimeRange: TThostFtdcTimeRangeType;
+  // 品种保证金标准
+  MarginRate: number;
+  // 期货合约内部对锁仓费率折扣比例
+  LockRateX: number;
+  // 提高保证金标准
+  AddOnRate: number;
+  // 昨结算价
+  PreSettlementPrice: number;
+  // 期货合约内部对锁仓附加费率折扣比例
+  AddOnLockRateX2: number;
+}
+
+// SPBM期权合约保证金参数
+export interface ICThostFtdcSPBMOptionParameterField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 合约代码
+  InstrumentID: string;
+  // 品种代码
+  ProdFamilyCode: string;
+  // 期权合约因子
+  Cvf: number;
+  // 期权冲抵价格
+  DownPrice: number;
+  // Delta值
+  Delta: number;
+  // 卖方期权风险转换最低值
+  SlimiDelta: number;
+  // 昨结算价
+  PreSettlementPrice: number;
+}
+
+// SPBM品种内对锁仓折扣参数
+export interface ICThostFtdcSPBMIntraParameterField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 品种代码
+  ProdFamilyCode: string;
+  // 品种内合约间对锁仓费率折扣比例
+  IntraRateY: number;
+  // 品种内合约间对锁仓附加费率折扣比例
+  AddOnIntraRateY2: number;
+}
+
+// SPBM跨品种抵扣参数
+export interface ICThostFtdcSPBMInterParameterField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 优先级
+  SpreadId: number;
+  // 品种间对锁仓费率折扣比例
+  InterRateZ: number;
+  // 第一腿构成品种
+  Leg1ProdFamilyCode: string;
+  // 第二腿构成品种
+  Leg2ProdFamilyCode: string;
+}
+
+// 同步SPBM参数结束
+export interface ICThostFtdcSyncSPBMParameterEndField {
+  // 交易日
+  TradingDay: string;
+}
+
+// SPBM期货合约保证金参数查询
+export interface ICThostFtdcQrySPBMFutureParameterField {
+  // 交易所代码
+  ExchangeID: string;
+  // 合约代码
+  InstrumentID: string;
+  // 品种代码
+  ProdFamilyCode: string;
+}
+
+// SPBM期权合约保证金参数查询
+export interface ICThostFtdcQrySPBMOptionParameterField {
+  // 交易所代码
+  ExchangeID: string;
+  // 合约代码
+  InstrumentID: string;
+  // 品种代码
+  ProdFamilyCode: string;
+}
+
+// SPBM品种内对锁仓折扣参数查询
+export interface ICThostFtdcQrySPBMIntraParameterField {
+  // 交易所代码
+  ExchangeID: string;
+  // 品种代码
+  ProdFamilyCode: string;
+}
+
+// SPBM跨品种抵扣参数查询
+export interface ICThostFtdcQrySPBMInterParameterField {
+  // 交易所代码
+  ExchangeID: string;
+  // 第一腿构成品种
+  Leg1ProdFamilyCode: string;
+  // 第二腿构成品种
+  Leg2ProdFamilyCode: string;
+}
+
+// 组合保证金套餐
+export interface ICThostFtdcSPBMPortfDefinitionField {
+  // 交易所代码
+  ExchangeID: string;
+  // 组合保证金套餐代码
+  PortfolioDefID: number;
+  // 品种代码
+  ProdFamilyCode: string;
+  // 是否启用SPBM
+  IsSPBM: number;
+}
+
+// 投资者套餐选择
+export interface ICThostFtdcSPBMInvestorPortfDefField {
+  // 交易所代码
+  ExchangeID: string;
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 组合保证金套餐代码
+  PortfolioDefID: number;
+}
+
+// 投资者新型组合保证金系数
+export interface ICThostFtdcInvestorPortfMarginRatioField {
+  // 投资者范围
+  InvestorRange: TThostFtdcInvestorRangeType;
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 会员对投资者收取的保证金和交易所对投资者收取的保证金的比例
+  MarginRatio: number;
+  // 产品群代码
+  ProductGroupID: string;
+}
+
+// 组合保证金套餐查询
+export interface ICThostFtdcQrySPBMPortfDefinitionField {
+  // 交易所代码
+  ExchangeID: string;
+  // 组合保证金套餐代码
+  PortfolioDefID: number;
+  // 品种代码
+  ProdFamilyCode: string;
+}
+
+// 投资者套餐选择查询
+export interface ICThostFtdcQrySPBMInvestorPortfDefField {
+  // 交易所代码
+  ExchangeID: string;
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+}
+
+// 投资者新型组合保证金系数查询
+export interface ICThostFtdcQryInvestorPortfMarginRatioField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 产品群代码
+  ProductGroupID: string;
+}
+
+// 投资者产品SPBM明细
+export interface ICThostFtdcInvestorProdSPBMDetailField {
+  // 交易所代码
+  ExchangeID: string;
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 品种代码
+  ProdFamilyCode: string;
+  // 合约内对锁保证金
+  IntraInstrMargin: number;
+  // 买归集保证金
+  BCollectingMargin: number;
+  // 卖归集保证金
+  SCollectingMargin: number;
+  // 品种内合约间对锁保证金
+  IntraProdMargin: number;
+  // 净保证金
+  NetMargin: number;
+  // 产品间对锁保证金
+  InterProdMargin: number;
+  // 裸保证金
+  SingleMargin: number;
+  // 附加保证金
+  AddOnMargin: number;
+  // 交割月保证金
+  DeliveryMargin: number;
+  // 看涨期权最低风险
+  CallOptionMinRisk: number;
+  // 看跌期权最低风险
+  PutOptionMinRisk: number;
+  // 卖方期权最低风险
+  OptionMinRisk: number;
+  // 买方期权冲抵价值
+  OptionValueOffset: number;
+  // 卖方期权权利金
+  OptionRoyalty: number;
+  // 价值冲抵
+  RealOptionValueOffset: number;
+  // 保证金
+  Margin: number;
+  // 交易所保证金
+  ExchMargin: number;
+}
+
+// 投资者产品SPBM明细查询
+export interface ICThostFtdcQryInvestorProdSPBMDetailField {
+  // 交易所代码
+  ExchangeID: string;
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 品种代码
+  ProdFamilyCode: string;
+}
+
+// 组保交易参数设置
+export interface ICThostFtdcPortfTradeParamSettingField {
+  // 交易所代码
+  ExchangeID: string;
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 新型组保算法
+  Portfolio: TThostFtdcPortfolioType;
+  // 撤单是否验资
+  IsActionVerify: number;
+  // 平仓是否验资
+  IsCloseVerify: number;
+}
+
+// 投资者交易权限设置
+export interface ICThostFtdcInvestorTradingRightField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 交易权限
+  InvstTradingRight: TThostFtdcInvstTradingRightType;
+}
+
+// 质押配比参数
+export interface ICThostFtdcMortgageParamField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者帐号
+  AccountID: string;
+  // 质押配比系数
+  MortgageBalance: number;
+  // 开仓是否验证质押配比
+  CheckMortgageRatio: number;
+}
+
+// 可提控制参数
+export interface ICThostFtdcWithDrawParamField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者帐号
+  AccountID: string;
+  // 参数代码
+  WithDrawParamID: TThostFtdcWithDrawParamIDType;
+  // 参数代码值
+  WithDrawParamValue: string;
+}
+
+// Thost终端用户功能权限
+export interface ICThostFtdcThostUserFunctionField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 用户代码
+  UserID: string;
+  // Thost终端功能代码
+  ThostFunctionCode: number;
+}
+
+// Thost终端用户功能权限查询
+export interface ICThostFtdcQryThostUserFunctionField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 用户代码
+  UserID: string;
+}
+
+// SPBM附加跨品种抵扣参数
+export interface ICThostFtdcSPBMAddOnInterParameterField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 优先级
+  SpreadId: number;
+  // 品种间对锁仓附加费率折扣比例
+  AddOnInterRateZ2: number;
+  // 第一腿构成品种
+  Leg1ProdFamilyCode: string;
+  // 第二腿构成品种
+  Leg2ProdFamilyCode: string;
+}
+
+// SPBM附加跨品种抵扣参数查询
+export interface ICThostFtdcQrySPBMAddOnInterParameterField {
+  // 交易所代码
+  ExchangeID: string;
+  // 第一腿构成品种
+  Leg1ProdFamilyCode: string;
+  // 第二腿构成品种
+  Leg2ProdFamilyCode: string;
+}
+
+// 投资者商品组SPMM记录查询
+export interface ICThostFtdcQryInvestorCommoditySPMMMarginField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 商品组代码
+  CommodityID: string;
+}
+
+// 投资者商品群SPMM记录查询
+export interface ICThostFtdcQryInvestorCommodityGroupSPMMMarginField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 商品群代码
+  CommodityGroupID: string;
+}
+
+// SPMM合约参数查询
+export interface ICThostFtdcQrySPMMInstParamField {
+  // 合约代码
+  InstrumentID: string;
+}
+
+// SPMM产品参数查询
+export interface ICThostFtdcQrySPMMProductParamField {
+  // 产品代码
+  ProductID: string;
+}
+
+// 投资者商品组SPMM记录
+export interface ICThostFtdcInvestorCommoditySPMMMarginField {
+  // 交易所代码
+  ExchangeID: string;
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 商品组代码
+  CommodityID: string;
+  // 优惠仓位应收保证金
+  MarginBeforeDiscount: number;
+  // 不优惠仓位应收保证金
+  MarginNoDiscount: number;
+  // 多头实仓风险
+  LongPosRisk: number;
+  // 多头开仓冻结风险
+  LongOpenFrozenRisk: number;
+  // 多头被平冻结风险
+  LongCloseFrozenRisk: number;
+  // 空头实仓风险
+  ShortPosRisk: number;
+  // 空头开仓冻结风险
+  ShortOpenFrozenRisk: number;
+  // 空头被平冻结风险
+  ShortCloseFrozenRisk: number;
+  // SPMM品种内跨期优惠系数
+  IntraCommodityRate: number;
+  // SPMM期权优惠系数
+  OptionDiscountRate: number;
+  // 实仓对冲优惠金额
+  PosDiscount: number;
+  // 开仓报单对冲优惠金额
+  OpenFrozenDiscount: number;
+  // 品种风险净头
+  NetRisk: number;
+  // 平仓冻结保证金
+  CloseFrozenMargin: number;
+  // 冻结的手续费
+  FrozenCommission: number;
+  // 手续费
+  Commission: number;
+  // 冻结的资金
+  FrozenCash: number;
+  // 资金差额
+  CashIn: number;
+  // 行权冻结资金
+  StrikeFrozenMargin: number;
+}
+
+// 投资者商品群SPMM记录
+export interface ICThostFtdcInvestorCommodityGroupSPMMMarginField {
+  // 交易所代码
+  ExchangeID: string;
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 商品群代码
+  CommodityGroupID: string;
+  // 优惠仓位应收保证金
+  MarginBeforeDiscount: number;
+  // 不优惠仓位应收保证金
+  MarginNoDiscount: number;
+  // 多头风险
+  LongRisk: number;
+  // 空头风险
+  ShortRisk: number;
+  // 商品群平仓冻结保证金
+  CloseFrozenMargin: number;
+  // SPMM跨品种优惠系数
+  InterCommodityRate: number;
+  // 商品群最小保证金比例
+  MiniMarginRatio: number;
+  // 投资者保证金和交易所保证金的比例
+  AdjustRatio: number;
+  // SPMM品种内优惠汇总
+  IntraCommodityDiscount: number;
+  // SPMM跨品种优惠
+  InterCommodityDiscount: number;
+  // 交易所保证金
+  ExchMargin: number;
+  // 投资者保证金
+  InvestorMargin: number;
+  // 冻结的手续费
+  FrozenCommission: number;
+  // 手续费
+  Commission: number;
+  // 冻结的资金
+  FrozenCash: number;
+  // 资金差额
+  CashIn: number;
+  // 行权冻结资金
+  StrikeFrozenMargin: number;
+}
+
+// SPMM合约参数
+export interface ICThostFtdcSPMMInstParamField {
+  // 交易所代码
+  ExchangeID: string;
+  // 合约代码
+  InstrumentID: string;
+  // SPMM合约保证金算法
+  InstMarginCalID: TThostFtdcInstMarginCalIDType;
+  // 商品组代码
+  CommodityID: string;
+  // 商品群代码
+  CommodityGroupID: string;
+}
+
+// SPMM产品参数
+export interface ICThostFtdcSPMMProductParamField {
+  // 交易所代码
+  ExchangeID: string;
+  // 产品代码
+  ProductID: string;
+  // 商品组代码
+  CommodityID: string;
+  // 商品群代码
+  CommodityGroupID: string;
+}
+
+// 席位与交易中心对应关系维护查询
+export interface ICThostFtdcQryTraderAssignField {
+  // 交易员代码
+  TraderID: string;
+}
+
+// 席位与交易中心对应关系
+export interface ICThostFtdcTraderAssignField {
+  // 应用单元代码
+  BrokerID: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 交易所交易员代码
+  TraderID: string;
+  // 会员代码
+  ParticipantID: string;
+  // 交易中心代码
+  DRIdentityID: number;
+}
+
+// 投资者申报费阶梯收取设置
+export interface ICThostFtdcInvestorInfoCntSettingField {
+  // 交易所代码
+  ExchangeID: string;
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 商品代码
+  ProductID: string;
+  // 是否收取申报费
+  IsCalInfoComm: number;
+  // 是否限制信息量
+  IsLimitInfoMax: number;
+  // 信息量限制笔数
+  InfoMaxLimit: number;
+}
+
+// RCAMS产品组合信息
+export interface ICThostFtdcRCAMSCombProductInfoField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 产品代码
+  ProductID: string;
+  // 商品组代码
+  CombProductID: string;
+  // 商品群代码
+  ProductGroupID: string;
+}
+
+// RCAMS同合约风险对冲参数
+export interface ICThostFtdcRCAMSInstrParameterField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 产品代码
+  ProductID: string;
+  // 同合约风险对冲比率
+  HedgeRate: number;
+}
+
+// RCAMS品种内风险对冲参数
+export interface ICThostFtdcRCAMSIntraParameterField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 产品组合代码
+  CombProductID: string;
+  // 品种内对冲比率
+  HedgeRate: number;
+}
+
+// RCAMS跨品种风险折抵参数
+export interface ICThostFtdcRCAMSInterParameterField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 商品群代码
+  ProductGroupID: string;
+  // 优先级
+  Priority: number;
+  // 折抵率
+  CreditRate: number;
+  // 产品组合代码1
+  CombProduct1: string;
+  // 产品组合代码2
+  CombProduct2: string;
+}
+
+// RCAMS空头期权风险调整参数
+export interface ICThostFtdcRCAMSShortOptAdjustParamField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 产品组合代码
+  CombProductID: string;
+  // 投套标志
+  HedgeFlag: TThostFtdcHedgeFlagType;
+  // 空头期权风险调整标准
+  AdjustValue: number;
+}
+
+// RCAMS策略组合持仓
+export interface ICThostFtdcRCAMSInvestorCombPositionField {
+  // 交易所代码
+  ExchangeID: string;
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 合约代码
+  InstrumentID: string;
+  // 投套标志
+  HedgeFlag: TThostFtdcHedgeFlagType;
+  // 持仓多空方向
+  PosiDirection: TThostFtdcPosiDirectionType;
+  // 组合合约代码
+  CombInstrumentID: string;
+  // 单腿编号
+  LegID: number;
+  // 交易所组合合约代码
+  ExchangeInstID: string;
+  // 持仓量
+  TotalAmt: number;
+  // 交易所保证金
+  ExchMargin: number;
+  // 投资者保证金
+  Margin: number;
+}
+
+// 投资者品种RCAMS保证金
+export interface ICThostFtdcInvestorProdRCAMSMarginField {
+  // 交易所代码
+  ExchangeID: string;
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 产品组合代码
+  CombProductID: string;
+  // 投套标志
+  HedgeFlag: TThostFtdcHedgeFlagType;
+  // 商品群代码
+  ProductGroupID: string;
+  // 品种组合前风险
+  RiskBeforeDiscount: number;
+  // 同合约对冲风险
+  IntraInstrRisk: number;
+  // 品种买持仓风险
+  BPosRisk: number;
+  // 品种卖持仓风险
+  SPosRisk: number;
+  // 品种内对冲风险
+  IntraProdRisk: number;
+  // 品种净持仓风险
+  NetRisk: number;
+  // 品种间对冲风险
+  InterProdRisk: number;
+  // 空头期权风险调整
+  ShortOptRiskAdj: number;
+  // 空头期权权利金
+  OptionRoyalty: number;
+  // 大边组合平仓冻结保证金
+  MMSACloseFrozenMargin: number;
+  // 策略组合平仓
+  CloseCombFrozenMargin: number;
+  // 平仓
+  CloseFrozenMargin: number;
+  // 大边组合开仓冻结保证金
+  MMSAOpenFrozenMargin: number;
+  // 交割月期货开仓冻结保证金
+  DeliveryOpenFrozenMargin: number;
+  // 开仓冻结保证金
+  OpenFrozenMargin: number;
+  // 投资者冻结保证金
+  UseFrozenMargin: number;
+  // 大边组合交易所持仓保证金
+  MMSAExchMargin: number;
+  // 交割月期货交易所持仓保证金
+  DeliveryExchMargin: number;
+  // 策略组合交易所保证金
+  CombExchMargin: number;
+  // 交易所持仓保证金
+  ExchMargin: number;
+  // 投资者持仓保证金
+  UseMargin: number;
+}
+
+// RCAMS产品组合信息查询
+export interface ICThostFtdcQryRCAMSCombProductInfoField {
+  // 产品代码
+  ProductID: string;
+  // 商品组代码
+  CombProductID: string;
+  // 商品群代码
+  ProductGroupID: string;
+}
+
+// RCAMS同合约风险对冲参数查询
+export interface ICThostFtdcQryRCAMSInstrParameterField {
+  // 产品代码
+  ProductID: string;
+}
+
+// RCAMS品种内风险对冲参数查询
+export interface ICThostFtdcQryRCAMSIntraParameterField {
+  // 产品组合代码
+  CombProductID: string;
+}
+
+// RCAMS跨品种风险折抵参数查询
+export interface ICThostFtdcQryRCAMSInterParameterField {
+  // 商品群代码
+  ProductGroupID: string;
+  // 产品组合代码1
+  CombProduct1: string;
+  // 产品组合代码2
+  CombProduct2: string;
+}
+
+// RCAMS空头期权风险调整参数查询
+export interface ICThostFtdcQryRCAMSShortOptAdjustParamField {
+  // 产品组合代码
+  CombProductID: string;
+}
+
+// RCAMS策略组合持仓查询
+export interface ICThostFtdcQryRCAMSInvestorCombPositionField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 合约代码
+  InstrumentID: string;
+  // 组合合约代码
+  CombInstrumentID: string;
+}
+
+// 投资者品种RCAMS保证金查询
+export interface ICThostFtdcQryInvestorProdRCAMSMarginField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 产品组合代码
+  CombProductID: string;
+  // 商品群代码
+  ProductGroupID: string;
+}
+
+// RULE合约保证金参数
+export interface ICThostFtdcRULEInstrParameterField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 合约代码
+  InstrumentID: string;
+  // 合约类型
+  InstrumentClass: TThostFtdcInstrumentClassType;
+  // 标准合约
+  StdInstrumentID: string;
+  // 投机买折算系数
+  BSpecRatio: number;
+  // 投机卖折算系数
+  SSpecRatio: number;
+  // 套保买折算系数
+  BHedgeRatio: number;
+  // 套保卖折算系数
+  SHedgeRatio: number;
+  // 买附加风险保证金
+  BAddOnMargin: number;
+  // 卖附加风险保证金
+  SAddOnMargin: number;
+  // 商品群号
+  CommodityGroupID: number;
+}
+
+// RULE品种内对锁仓折扣参数
+export interface ICThostFtdcRULEIntraParameterField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 品种代码
+  ProdFamilyCode: string;
+  // 标准合约
+  StdInstrumentID: string;
+  // 标准合约保证金
+  StdInstrMargin: number;
+  // 一般月份合约组合保证金系数
+  UsualIntraRate: number;
+  // 临近交割合约组合保证金系数
+  DeliveryIntraRate: number;
+}
+
+// RULE跨品种抵扣参数
+export interface ICThostFtdcRULEInterParameterField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 优先级
+  SpreadId: number;
+  // 品种间对锁仓费率折扣比例
+  InterRate: number;
+  // 第一腿构成品种
+  Leg1ProdFamilyCode: string;
+  // 第二腿构成品种
+  Leg2ProdFamilyCode: string;
+  // 腿1比例系数
+  Leg1PropFactor: number;
+  // 腿2比例系数
+  Leg2PropFactor: number;
+  // 商品群号
+  CommodityGroupID: number;
+  // 商品群名称
+  CommodityGroupName: string;
+}
+
+// RULE合约保证金参数查询
+export interface ICThostFtdcQryRULEInstrParameterField {
+  // 交易所代码
+  ExchangeID: string;
+  // 合约代码
+  InstrumentID: string;
+}
+
+// RULE品种内对锁仓折扣参数查询
+export interface ICThostFtdcQryRULEIntraParameterField {
+  // 交易所代码
+  ExchangeID: string;
+  // 品种代码
+  ProdFamilyCode: string;
+}
+
+// RULE跨品种抵扣参数查询
+export interface ICThostFtdcQryRULEInterParameterField {
+  // 交易所代码
+  ExchangeID: string;
+  // 第一腿构成品种
+  Leg1ProdFamilyCode: string;
+  // 第二腿构成品种
+  Leg2ProdFamilyCode: string;
+  // 商品群号
+  CommodityGroupID: number;
+}
+
+// 投资者产品RULE保证金
+export interface ICThostFtdcInvestorProdRULEMarginField {
+  // 交易所代码
+  ExchangeID: string;
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 品种代码
+  ProdFamilyCode: string;
+  // 合约类型
+  InstrumentClass: TThostFtdcInstrumentClassType;
+  // 商品群号
+  CommodityGroupID: number;
+  // 买标准持仓
+  BStdPosition: number;
+  // 卖标准持仓
+  SStdPosition: number;
+  // 买标准开仓冻结
+  BStdOpenFrozen: number;
+  // 卖标准开仓冻结
+  SStdOpenFrozen: number;
+  // 买标准平仓冻结
+  BStdCloseFrozen: number;
+  // 卖标准平仓冻结
+  SStdCloseFrozen: number;
+  // 品种内对冲标准持仓
+  IntraProdStdPosition: number;
+  // 品种内单腿标准持仓
+  NetStdPosition: number;
+  // 品种间对冲标准持仓
+  InterProdStdPosition: number;
+  // 单腿标准持仓
+  SingleStdPosition: number;
+  // 品种内对锁保证金
+  IntraProdMargin: number;
+  // 品种间对锁保证金
+  InterProdMargin: number;
+  // 跨品种单腿保证金
+  SingleMargin: number;
+  // 非组合合约保证金
+  NonCombMargin: number;
+  // 附加保证金
+  AddOnMargin: number;
+  // 交易所保证金
+  ExchMargin: number;
+  // 附加冻结保证金
+  AddOnFrozenMargin: number;
+  // 开仓冻结保证金
+  OpenFrozenMargin: number;
+  // 平仓冻结保证金
+  CloseFrozenMargin: number;
+  // 品种保证金
+  Margin: number;
+  // 冻结保证金
+  FrozenMargin: number;
+}
+
+// 投资者产品RULE保证金查询
+export interface ICThostFtdcQryInvestorProdRULEMarginField {
+  // 交易所代码
+  ExchangeID: string;
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 品种代码
+  ProdFamilyCode: string;
+  // 商品群号
+  CommodityGroupID: number;
+}
+
+// 风险结算追平SPBM组合保证金套餐
+export interface ICThostFtdcSyncDeltaSPBMPortfDefinitionField {
+  // 交易所代码
+  ExchangeID: string;
+  // 组合保证金套餐代码
+  PortfolioDefID: number;
+  // 品种代码
+  ProdFamilyCode: string;
+  // 是否启用SPBM
+  IsSPBM: number;
+  // 操作标志
+  ActionDirection: TThostFtdcActionDirectionType;
+  // 追平序号
+  SyncDeltaSequenceNo: number;
+}
+
+// 风险结算追平投资者SPBM套餐选择
+export interface ICThostFtdcSyncDeltaSPBMInvstPortfDefField {
+  // 交易所代码
+  ExchangeID: string;
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 组合保证金套餐代码
+  PortfolioDefID: number;
+  // 操作标志
+  ActionDirection: TThostFtdcActionDirectionType;
+  // 追平序号
+  SyncDeltaSequenceNo: number;
+}
+
+// 风险结算追平SPBM期货合约保证金参数
+export interface ICThostFtdcSyncDeltaSPBMFutureParameterField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 合约代码
+  InstrumentID: string;
+  // 品种代码
+  ProdFamilyCode: string;
+  // 期货合约因子
+  Cvf: number;
+  // 阶段标识
+  TimeRange: TThostFtdcTimeRangeType;
+  // 品种保证金标准
+  MarginRate: number;
+  // 期货合约内部对锁仓费率折扣比例
+  LockRateX: number;
+  // 提高保证金标准
+  AddOnRate: number;
+  // 昨结算价
+  PreSettlementPrice: number;
+  // 期货合约内部对锁仓附加费率折扣比例
+  AddOnLockRateX2: number;
+  // 操作标志
+  ActionDirection: TThostFtdcActionDirectionType;
+  // 追平序号
+  SyncDeltaSequenceNo: number;
+}
+
+// 风险结算追平SPBM期权合约保证金参数
+export interface ICThostFtdcSyncDeltaSPBMOptionParameterField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 合约代码
+  InstrumentID: string;
+  // 品种代码
+  ProdFamilyCode: string;
+  // 期权合约因子
+  Cvf: number;
+  // 期权冲抵价格
+  DownPrice: number;
+  // Delta值
+  Delta: number;
+  // 卖方期权风险转换最低值
+  SlimiDelta: number;
+  // 昨结算价
+  PreSettlementPrice: number;
+  // 操作标志
+  ActionDirection: TThostFtdcActionDirectionType;
+  // 追平序号
+  SyncDeltaSequenceNo: number;
+}
+
+// 风险结算追平SPBM品种内对锁仓折扣参数
+export interface ICThostFtdcSyncDeltaSPBMIntraParameterField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 品种代码
+  ProdFamilyCode: string;
+  // 品种内合约间对锁仓费率折扣比例
+  IntraRateY: number;
+  // 品种内合约间对锁仓附加费率折扣比例
+  AddOnIntraRateY2: number;
+  // 操作标志
+  ActionDirection: TThostFtdcActionDirectionType;
+  // 追平序号
+  SyncDeltaSequenceNo: number;
+}
+
+// 风险结算追平SPBM跨品种抵扣参数
+export interface ICThostFtdcSyncDeltaSPBMInterParameterField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 优先级
+  SpreadId: number;
+  // 品种间对锁仓费率折扣比例
+  InterRateZ: number;
+  // 第一腿构成品种
+  Leg1ProdFamilyCode: string;
+  // 第二腿构成品种
+  Leg2ProdFamilyCode: string;
+  // 操作标志
+  ActionDirection: TThostFtdcActionDirectionType;
+  // 追平序号
+  SyncDeltaSequenceNo: number;
+}
+
+// 风险结算追平SPBM附加跨品种抵扣参数
+export interface ICThostFtdcSyncDeltaSPBMAddOnInterParamField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 优先级
+  SpreadId: number;
+  // 品种间对锁仓附加费率折扣比例
+  AddOnInterRateZ2: number;
+  // 第一腿构成品种
+  Leg1ProdFamilyCode: string;
+  // 第二腿构成品种
+  Leg2ProdFamilyCode: string;
+  // 操作标志
+  ActionDirection: TThostFtdcActionDirectionType;
+  // 追平序号
+  SyncDeltaSequenceNo: number;
+}
+
+// 风险结算追平SPMM合约参数
+export interface ICThostFtdcSyncDeltaSPMMInstParamField {
+  // 交易所代码
+  ExchangeID: string;
+  // 合约代码
+  InstrumentID: string;
+  // SPMM合约保证金算法
+  InstMarginCalID: TThostFtdcInstMarginCalIDType;
+  // 商品组代码
+  CommodityID: string;
+  // 商品群代码
+  CommodityGroupID: string;
+  // 操作标志
+  ActionDirection: TThostFtdcActionDirectionType;
+  // 追平序号
+  SyncDeltaSequenceNo: number;
+}
+
+// 风险结算追平SPMM产品相关参数
+export interface ICThostFtdcSyncDeltaSPMMProductParamField {
+  // 交易所代码
+  ExchangeID: string;
+  // 产品代码
+  ProductID: string;
+  // 商品组代码
+  CommodityID: string;
+  // 商品群代码
+  CommodityGroupID: string;
+  // 操作标志
+  ActionDirection: TThostFtdcActionDirectionType;
+  // 追平序号
+  SyncDeltaSequenceNo: number;
+}
+
+// 风险结算追平投资者SPMM模板选择
+export interface ICThostFtdcSyncDeltaInvestorSPMMModelField {
+  // 交易所代码
+  ExchangeID: string;
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // SPMM模板ID
+  SPMMModelID: string;
+  // 操作标志
+  ActionDirection: TThostFtdcActionDirectionType;
+  // 追平序号
+  SyncDeltaSequenceNo: number;
+}
+
+// 风险结算追平SPMM模板参数设置
+export interface ICThostFtdcSyncDeltaSPMMModelParamField {
+  // 交易所代码
+  ExchangeID: string;
+  // SPMM模板ID
+  SPMMModelID: string;
+  // 商品群代码
+  CommodityGroupID: string;
+  // SPMM品种内跨期优惠系数
+  IntraCommodityRate: number;
+  // SPMM品种间优惠系数
+  InterCommodityRate: number;
+  // SPMM期权优惠系数
+  OptionDiscountRate: number;
+  // 商品群最小保证金比例
+  MiniMarginRatio: number;
+  // 操作标志
+  ActionDirection: TThostFtdcActionDirectionType;
+  // 追平序号
+  SyncDeltaSequenceNo: number;
+}
+
+// 风险结算追平RCAMS产品组合信息
+export interface ICThostFtdcSyncDeltaRCAMSCombProdInfoField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 产品代码
+  ProductID: string;
+  // 商品组代码
+  CombProductID: string;
+  // 商品群代码
+  ProductGroupID: string;
+  // 操作标志
+  ActionDirection: TThostFtdcActionDirectionType;
+  // 追平序号
+  SyncDeltaSequenceNo: number;
+}
+
+// 风险结算追平RCAMS同合约风险对冲参数
+export interface ICThostFtdcSyncDeltaRCAMSInstrParameterField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 产品代码
+  ProductID: string;
+  // 同合约风险对冲比率
+  HedgeRate: number;
+  // 操作标志
+  ActionDirection: TThostFtdcActionDirectionType;
+  // 追平序号
+  SyncDeltaSequenceNo: number;
+}
+
+// 风险结算追平RCAMS品种内风险对冲参数
+export interface ICThostFtdcSyncDeltaRCAMSIntraParameterField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 产品组合代码
+  CombProductID: string;
+  // 品种内对冲比率
+  HedgeRate: number;
+  // 操作标志
+  ActionDirection: TThostFtdcActionDirectionType;
+  // 追平序号
+  SyncDeltaSequenceNo: number;
+}
+
+// 风险结算追平RCAMS跨品种风险折抵参数
+export interface ICThostFtdcSyncDeltaRCAMSInterParameterField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 商品群代码
+  ProductGroupID: string;
+  // 优先级
+  Priority: number;
+  // 折抵率
+  CreditRate: number;
+  // 产品组合代码1
+  CombProduct1: string;
+  // 产品组合代码2
+  CombProduct2: string;
+  // 操作标志
+  ActionDirection: TThostFtdcActionDirectionType;
+  // 追平序号
+  SyncDeltaSequenceNo: number;
+}
+
+// 风险结算追平RCAMS空头期权风险调整参数
+export interface ICThostFtdcSyncDeltaRCAMSSOptAdjParamField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 产品组合代码
+  CombProductID: string;
+  // 投套标志
+  HedgeFlag: TThostFtdcHedgeFlagType;
+  // 空头期权风险调整标准
+  AdjustValue: number;
+  // 操作标志
+  ActionDirection: TThostFtdcActionDirectionType;
+  // 追平序号
+  SyncDeltaSequenceNo: number;
+}
+
+// 风险结算追平RCAMS策略组合规则明细
+export interface ICThostFtdcSyncDeltaRCAMSCombRuleDtlField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 策略产品
+  ProdGroup: string;
+  // 策略id
+  RuleId: string;
+  // 优先级
+  Priority: number;
+  // 投套标志
+  HedgeFlag: TThostFtdcHedgeFlagType;
+  // 组合保证金标准
+  CombMargin: number;
+  // 交易所组合合约代码
+  ExchangeInstID: string;
+  // 单腿编号
+  LegID: number;
+  // 单腿合约代码
+  LegInstrumentID: string;
+  // 买卖方向
+  Direction: TThostFtdcDirectionType;
+  // 单腿乘数
+  LegMultiple: number;
+  // 操作标志
+  ActionDirection: TThostFtdcActionDirectionType;
+  // 追平序号
+  SyncDeltaSequenceNo: number;
+}
+
+// 风险结算追平RCAMS策略组合持仓
+export interface ICThostFtdcSyncDeltaRCAMSInvstCombPosField {
+  // 交易所代码
+  ExchangeID: string;
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 合约代码
+  InstrumentID: string;
+  // 投套标志
+  HedgeFlag: TThostFtdcHedgeFlagType;
+  // 持仓多空方向
+  PosiDirection: TThostFtdcPosiDirectionType;
+  // 组合合约代码
+  CombInstrumentID: string;
+  // 单腿编号
+  LegID: number;
+  // 交易所组合合约代码
+  ExchangeInstID: string;
+  // 持仓量
+  TotalAmt: number;
+  // 交易所保证金
+  ExchMargin: number;
+  // 投资者保证金
+  Margin: number;
+  // 操作标志
+  ActionDirection: TThostFtdcActionDirectionType;
+  // 追平序号
+  SyncDeltaSequenceNo: number;
+}
+
+// 风险结算追平RULE合约保证金参数
+export interface ICThostFtdcSyncDeltaRULEInstrParameterField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 合约代码
+  InstrumentID: string;
+  // 合约类型
+  InstrumentClass: TThostFtdcInstrumentClassType;
+  // 标准合约
+  StdInstrumentID: string;
+  // 投机买折算系数
+  BSpecRatio: number;
+  // 投机卖折算系数
+  SSpecRatio: number;
+  // 套保买折算系数
+  BHedgeRatio: number;
+  // 套保卖折算系数
+  SHedgeRatio: number;
+  // 买附加风险保证金
+  BAddOnMargin: number;
+  // 卖附加风险保证金
+  SAddOnMargin: number;
+  // 商品群号
+  CommodityGroupID: number;
+  // 操作标志
+  ActionDirection: TThostFtdcActionDirectionType;
+  // 追平序号
+  SyncDeltaSequenceNo: number;
+}
+
+// 风险结算追平RULE品种内对锁仓折扣参数
+export interface ICThostFtdcSyncDeltaRULEIntraParameterField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 品种代码
+  ProdFamilyCode: string;
+  // 标准合约
+  StdInstrumentID: string;
+  // 标准合约保证金
+  StdInstrMargin: number;
+  // 一般月份合约组合保证金系数
+  UsualIntraRate: number;
+  // 临近交割合约组合保证金系数
+  DeliveryIntraRate: number;
+  // 操作标志
+  ActionDirection: TThostFtdcActionDirectionType;
+  // 追平序号
+  SyncDeltaSequenceNo: number;
+}
+
+// 风险结算追平RULE跨品种抵扣参数
+export interface ICThostFtdcSyncDeltaRULEInterParameterField {
+  // 交易日
+  TradingDay: string;
+  // 交易所代码
+  ExchangeID: string;
+  // 优先级
+  SpreadId: number;
+  // 品种间对锁仓费率折扣比例
+  InterRate: number;
+  // 第一腿构成品种
+  Leg1ProdFamilyCode: string;
+  // 第二腿构成品种
+  Leg2ProdFamilyCode: string;
+  // 腿1比例系数
+  Leg1PropFactor: number;
+  // 腿2比例系数
+  Leg2PropFactor: number;
+  // 商品群号
+  CommodityGroupID: number;
+  // 商品群名称
+  CommodityGroupName: string;
+  // 操作标志
+  ActionDirection: TThostFtdcActionDirectionType;
+  // 追平序号
+  SyncDeltaSequenceNo: number;
+}
+
+// 服务地址参数
+export interface ICThostFtdcIpAddrParamField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 服务地址
+  Address: string;
+  // 交易中心代码
+  DRIdentityID: number;
+  // 交易中心名称
+  DRIdentityName: string;
+  // 交易地址OR行情地址
+  AddrSrvMode: TThostFtdcAddrSrvModeType;
+  // 地址版本
+  AddrVer: TThostFtdcAddrVerType;
+  // 服务地址编号
+  AddrNo: number;
+  // 服务地址名称
+  AddrName: string;
+  // 是否是国密地址
+  IsSM: number;
+  // 是否是内网地址
+  IsLocalAddr: number;
+  // 地址补充信息
+  Remark: string;
+  // 站点
+  Site: string;
+  // 网络运营商
+  NetOperator: string;
+}
+
+// 服务地址参数查询
+export interface ICThostFtdcQryIpAddrParamField {
+  // 经纪公司代码
+  BrokerID: string;
+}
+
+// 服务地址参数
+export interface ICThostFtdcTGIpAddrParamField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 用户代码
+  UserID: string;
+  // 服务地址
+  Address: string;
+  // 交易中心代码
+  DRIdentityID: number;
+  // 交易中心名称
+  DRIdentityName: string;
+  // 交易地址OR行情地址
+  AddrSrvMode: TThostFtdcAddrSrvModeType;
+  // 地址版本
+  AddrVer: TThostFtdcAddrVerType;
+  // 服务地址编号
+  AddrNo: number;
+  // 服务地址名称
+  AddrName: string;
+  // 是否是国密地址
+  IsSM: number;
+  // 是否是内网地址
+  IsLocalAddr: number;
+  // 地址补充信息
+  Remark: string;
+  // 站点
+  Site: string;
+  // 网络运营商
+  NetOperator: string;
+}
+
+// 服务地址参数查询
+export interface ICThostFtdcQryTGIpAddrParamField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 用户代码
+  UserID: string;
+  // App代码
+  AppID: string;
+}
+
+// TGate会话查询状态
+export interface ICThostFtdcTGSessionQryStatusField {
+  // 最近30s的查询频率
+  LastQryFreq: number;
+  // 查询状态
+  QryStatus: TThostFtdcTGSessionQryStatusType;
+}
+
+// 内网地址配置
+export interface ICThostFtdcLocalAddrConfigField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 对端地址
+  PeerAddr: string;
+  // 子网掩码
+  NetMask: string;
+  // 交易中心代码
+  DRIdentityID: number;
+  // 内网服务地址
+  LocalAddress: string;
+}
+
+// 内网地址配置查询
+export interface ICThostFtdcQryLocalAddrConfigField {
+  // 经纪公司代码
+  BrokerID: string;
+}
+
+// 次席查询银行资金帐户信息请求
+export interface ICThostFtdcReqQueryBankAccountBySecField {
+  // 业务功能码
+  TradeCode: string;
+  // 银行代码
+  BankID: string;
+  // 银行分支机构代码
+  BankBranchID: string;
+  // 期商代码
+  BrokerID: string;
+  // 期商分支机构代码
+  BrokerBranchID: string;
+  // 交易日期
+  TradeDate: string;
+  // 交易时间
+  TradeTime: string;
+  // 银行流水号
+  BankSerial: string;
+  // 交易系统日期 
+  TradingDay: string;
+  // 银期平台消息流水号
+  PlateSerial: number;
+  // 最后分片标志
+  LastFragment: TThostFtdcLastFragmentType;
+  // 会话号
+  SessionID: number;
+  // 客户姓名
+  CustomerName: string;
+  // 证件类型
+  IdCardType: TThostFtdcIdCardTypeType;
+  // 证件号码
+  IdentifiedCardNo: string;
+  // 客户类型
+  CustType: TThostFtdcCustTypeType;
+  // 银行帐号
+  BankAccount: string;
+  // 银行密码
+  BankPassWord: string;
+  // 投资者帐号
+  AccountID: string;
+  // 期货密码
+  Password: string;
+  // 期货公司流水号
+  FutureSerial: number;
+  // 安装编号
+  InstallID: number;
+  // 用户标识
+  UserID: string;
+  // 验证客户证件号码标志
+  VerifyCertNoFlag: TThostFtdcYesNoIndicatorType;
+  // 币种代码
+  CurrencyID: string;
+  // 摘要
+  Digest: string;
+  // 银行帐号类型
+  BankAccType: TThostFtdcBankAccTypeType;
+  // 渠道标志
+  DeviceID: string;
+  // 期货单位帐号类型
+  BankSecuAccType: TThostFtdcBankAccTypeType;
+  // 期货公司银行编码
+  BrokerIDByBank: string;
+  // 期货单位帐号
+  BankSecuAcc: string;
+  // 银行密码标志
+  BankPwdFlag: TThostFtdcPwdFlagType;
+  // 期货资金密码核对标志
+  SecuPwdFlag: TThostFtdcPwdFlagType;
+  // 交易柜员
+  OperNo: string;
+  // 请求编号
+  RequestID: number;
+  // 交易ID
+  TID: number;
+  // 长客户姓名
+  LongCustomerName: string;
+  // 交易中心代码
+  DRIdentityID: number;
+  // 次中心发起转账期货公司流水号
+  SecFutureSerial: number;
+}
+
+// 次席查询银行资金帐户信息回报
+export interface ICThostFtdcRspQueryBankAccountBySecField {
+  // 业务功能码
+  TradeCode: string;
+  // 银行代码
+  BankID: string;
+  // 银行分支机构代码
+  BankBranchID: string;
+  // 期商代码
+  BrokerID: string;
+  // 期商分支机构代码
+  BrokerBranchID: string;
+  // 交易日期
+  TradeDate: string;
+  // 交易时间
+  TradeTime: string;
+  // 银行流水号
+  BankSerial: string;
+  // 交易系统日期 
+  TradingDay: string;
+  // 银期平台消息流水号
+  PlateSerial: number;
+  // 最后分片标志
+  LastFragment: TThostFtdcLastFragmentType;
+  // 会话号
+  SessionID: number;
+  // 客户姓名
+  CustomerName: string;
+  // 证件类型
+  IdCardType: TThostFtdcIdCardTypeType;
+  // 证件号码
+  IdentifiedCardNo: string;
+  // 客户类型
+  CustType: TThostFtdcCustTypeType;
+  // 银行帐号
+  BankAccount: string;
+  // 银行密码
+  BankPassWord: string;
+  // 投资者帐号
+  AccountID: string;
+  // 期货密码
+  Password: string;
+  // 期货公司流水号
+  FutureSerial: number;
+  // 安装编号
+  InstallID: number;
+  // 用户标识
+  UserID: string;
+  // 验证客户证件号码标志
+  VerifyCertNoFlag: TThostFtdcYesNoIndicatorType;
+  // 币种代码
+  CurrencyID: string;
+  // 摘要
+  Digest: string;
+  // 银行帐号类型
+  BankAccType: TThostFtdcBankAccTypeType;
+  // 渠道标志
+  DeviceID: string;
+  // 期货单位帐号类型
+  BankSecuAccType: TThostFtdcBankAccTypeType;
+  // 期货公司银行编码
+  BrokerIDByBank: string;
+  // 期货单位帐号
+  BankSecuAcc: string;
+  // 银行密码标志
+  BankPwdFlag: TThostFtdcPwdFlagType;
+  // 期货资金密码核对标志
+  SecuPwdFlag: TThostFtdcPwdFlagType;
+  // 交易柜员
+  OperNo: string;
+  // 请求编号
+  RequestID: number;
+  // 交易ID
+  TID: number;
+  // 银行可用金额
+  BankUseAmount: number;
+  // 银行可取金额
+  BankFetchAmount: number;
+  // 长客户姓名
+  LongCustomerName: string;
+  // 交易中心代码
+  DRIdentityID: number;
+  // 次中心发起转账期货公司流水号
+  SecFutureSerial: number;
+}
+
+// 次中心发起的转帐交易
+export interface ICThostFtdcReqTransferBySecField {
+  // 业务功能码
+  TradeCode: string;
+  // 银行代码
+  BankID: string;
+  // 银行分支机构代码
+  BankBranchID: string;
+  // 期商代码
+  BrokerID: string;
+  // 期商分支机构代码
+  BrokerBranchID: string;
+  // 交易日期
+  TradeDate: string;
+  // 交易时间
+  TradeTime: string;
+  // 银行流水号
+  BankSerial: string;
+  // 交易系统日期 
+  TradingDay: string;
+  // 银期平台消息流水号
+  PlateSerial: number;
+  // 最后分片标志
+  LastFragment: TThostFtdcLastFragmentType;
+  // 会话号
+  SessionID: number;
+  // 客户姓名
+  CustomerName: string;
+  // 证件类型
+  IdCardType: TThostFtdcIdCardTypeType;
+  // 证件号码
+  IdentifiedCardNo: string;
+  // 客户类型
+  CustType: TThostFtdcCustTypeType;
+  // 银行帐号
+  BankAccount: string;
+  // 银行密码
+  BankPassWord: string;
+  // 投资者帐号
+  AccountID: string;
+  // 期货密码
+  Password: string;
+  // 安装编号
+  InstallID: number;
+  // 期货公司流水号
+  FutureSerial: number;
+  // 用户标识
+  UserID: string;
+  // 验证客户证件号码标志
+  VerifyCertNoFlag: TThostFtdcYesNoIndicatorType;
+  // 币种代码
+  CurrencyID: string;
+  // 转帐金额
+  TradeAmount: number;
+  // 期货可取金额
+  FutureFetchAmount: number;
+  // 费用支付标志
+  FeePayFlag: TThostFtdcFeePayFlagType;
+  // 应收客户费用
+  CustFee: number;
+  // 应收期货公司费用
+  BrokerFee: number;
+  // 发送方给接收方的消息
+  Message: string;
+  // 摘要
+  Digest: string;
+  // 银行帐号类型
+  BankAccType: TThostFtdcBankAccTypeType;
+  // 渠道标志
+  DeviceID: string;
+  // 期货单位帐号类型
+  BankSecuAccType: TThostFtdcBankAccTypeType;
+  // 期货公司银行编码
+  BrokerIDByBank: string;
+  // 期货单位帐号
+  BankSecuAcc: string;
+  // 银行密码标志
+  BankPwdFlag: TThostFtdcPwdFlagType;
+  // 期货资金密码核对标志
+  SecuPwdFlag: TThostFtdcPwdFlagType;
+  // 交易柜员
+  OperNo: string;
+  // 请求编号
+  RequestID: number;
+  // 交易ID
+  TID: number;
+  // 转账交易状态
+  TransferStatus: TThostFtdcTransferStatusType;
+  // 长客户姓名
+  LongCustomerName: string;
+  // 交易中心代码
+  DRIdentityID: number;
+  // 次中心发起转账期货公司流水号
+  SecFutureSerial: number;
+}
+
+// 次中心发起的转帐交易回报
+export interface ICThostFtdcRspTransferBySecField {
+  // 业务功能码
+  TradeCode: string;
+  // 银行代码
+  BankID: string;
+  // 银行分支机构代码
+  BankBranchID: string;
+  // 期商代码
+  BrokerID: string;
+  // 期商分支机构代码
+  BrokerBranchID: string;
+  // 交易日期
+  TradeDate: string;
+  // 交易时间
+  TradeTime: string;
+  // 银行流水号
+  BankSerial: string;
+  // 交易系统日期 
+  TradingDay: string;
+  // 银期平台消息流水号
+  PlateSerial: number;
+  // 最后分片标志
+  LastFragment: TThostFtdcLastFragmentType;
+  // 会话号
+  SessionID: number;
+  // 客户姓名
+  CustomerName: string;
+  // 证件类型
+  IdCardType: TThostFtdcIdCardTypeType;
+  // 证件号码
+  IdentifiedCardNo: string;
+  // 客户类型
+  CustType: TThostFtdcCustTypeType;
+  // 银行帐号
+  BankAccount: string;
+  // 银行密码
+  BankPassWord: string;
+  // 投资者帐号
+  AccountID: string;
+  // 期货密码
+  Password: string;
+  // 安装编号
+  InstallID: number;
+  // 期货公司流水号
+  FutureSerial: number;
+  // 用户标识
+  UserID: string;
+  // 验证客户证件号码标志
+  VerifyCertNoFlag: TThostFtdcYesNoIndicatorType;
+  // 币种代码
+  CurrencyID: string;
+  // 转帐金额
+  TradeAmount: number;
+  // 期货可取金额
+  FutureFetchAmount: number;
+  // 费用支付标志
+  FeePayFlag: TThostFtdcFeePayFlagType;
+  // 应收客户费用
+  CustFee: number;
+  // 应收期货公司费用
+  BrokerFee: number;
+  // 发送方给接收方的消息
+  Message: string;
+  // 摘要
+  Digest: string;
+  // 银行帐号类型
+  BankAccType: TThostFtdcBankAccTypeType;
+  // 渠道标志
+  DeviceID: string;
+  // 期货单位帐号类型
+  BankSecuAccType: TThostFtdcBankAccTypeType;
+  // 期货公司银行编码
+  BrokerIDByBank: string;
+  // 期货单位帐号
+  BankSecuAcc: string;
+  // 银行密码标志
+  BankPwdFlag: TThostFtdcPwdFlagType;
+  // 期货资金密码核对标志
+  SecuPwdFlag: TThostFtdcPwdFlagType;
+  // 交易柜员
+  OperNo: string;
+  // 请求编号
+  RequestID: number;
+  // 交易ID
+  TID: number;
+  // 转账交易状态
+  TransferStatus: TThostFtdcTransferStatusType;
+  // 错误代码
+  ErrorID: number;
+  // 错误信息
+  ErrorMsg: string;
+  // 长客户姓名
+  LongCustomerName: string;
+  // 交易中心代码
+  DRIdentityID: number;
+  // 次中心发起转账期货公司流水号
+  SecFutureSerial: number;
+}
+
+// 查询银行资金帐户信息通知 要发往次席
+export interface ICThostFtdcNotifyQueryFutureAccountBySecField {
+  // 业务功能码
+  TradeCode: string;
+  // 银行代码
+  BankID: string;
+  // 银行分支机构代码
+  BankBranchID: string;
+  // 期商代码
+  BrokerID: string;
+  // 期商分支机构代码
+  BrokerBranchID: string;
+  // 交易日期
+  TradeDate: string;
+  // 交易时间
+  TradeTime: string;
+  // 银行流水号
+  BankSerial: string;
+  // 交易系统日期 
+  TradingDay: string;
+  // 银期平台消息流水号
+  PlateSerial: number;
+  // 最后分片标志
+  LastFragment: TThostFtdcLastFragmentType;
+  // 会话号
+  SessionID: number;
+  // 客户姓名
+  CustomerName: string;
+  // 证件类型
+  IdCardType: TThostFtdcIdCardTypeType;
+  // 证件号码
+  IdentifiedCardNo: string;
+  // 客户类型
+  CustType: TThostFtdcCustTypeType;
+  // 银行帐号
+  BankAccount: string;
+  // 银行密码
+  BankPassWord: string;
+  // 投资者帐号
+  AccountID: string;
+  // 期货密码
+  Password: string;
+  // 期货公司流水号
+  FutureSerial: number;
+  // 安装编号
+  InstallID: number;
+  // 用户标识
+  UserID: string;
+  // 验证客户证件号码标志
+  VerifyCertNoFlag: TThostFtdcYesNoIndicatorType;
+  // 币种代码
+  CurrencyID: string;
+  // 摘要
+  Digest: string;
+  // 银行帐号类型
+  BankAccType: TThostFtdcBankAccTypeType;
+  // 渠道标志
+  DeviceID: string;
+  // 期货单位帐号类型
+  BankSecuAccType: TThostFtdcBankAccTypeType;
+  // 期货公司银行编码
+  BrokerIDByBank: string;
+  // 期货单位帐号
+  BankSecuAcc: string;
+  // 银行密码标志
+  BankPwdFlag: TThostFtdcPwdFlagType;
+  // 期货资金密码核对标志
+  SecuPwdFlag: TThostFtdcPwdFlagType;
+  // 交易柜员
+  OperNo: string;
+  // 请求编号
+  RequestID: number;
+  // 交易ID
+  TID: number;
+  // 银行可用金额
+  BankUseAmount: number;
+  // 银行可取金额
+  BankFetchAmount: number;
+  // 错误代码
+  ErrorID: number;
+  // 错误信息
+  ErrorMsg: string;
+  // 长客户姓名
+  LongCustomerName: string;
+  // 交易中心代码
+  DRIdentityID: number;
+  // 次中心发起转账期货公司流水号
+  SecFutureSerial: number;
+}
+
+// 退出紧急状态参数
+export interface ICThostFtdcExitEmergencyField {
+  // 经纪公司代码
+  BrokerID: string;
+}
+
+// 新组保保证金系数投资者模板对应关系
+export interface ICThostFtdcInvestorPortfMarginModelField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 保证金系数模板
+  MarginModelID: string;
+}
+
+// 投资者新组保设置
+export interface ICThostFtdcInvestorPortfSettingField {
+  // 交易所代码
+  ExchangeID: string;
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者编号
+  InvestorID: string;
+  // 投机套保标志
+  HedgeFlag: TThostFtdcHedgeFlagType;
+  // 是否开启新组保
+  UsePortf: number;
+}
+
+// 投资者新组保设置查询
+export interface ICThostFtdcQryInvestorPortfSettingField {
+  // 交易所代码
+  ExchangeID: string;
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者编号
+  InvestorID: string;
+}
+
+// 来自次席的用户口令变更
+export interface ICThostFtdcUserPasswordUpdateFromSecField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 用户代码
+  UserID: string;
+  // 原来的口令
+  OldPassword: string;
+  // 新的口令
+  NewPassword: string;
+  // 次席的交易中心代码
+  FromSec: number;
+}
+
+// 来自次席的结算结果确认
+export interface ICThostFtdcSettlementInfoConfirmFromSecField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 确认日期
+  ConfirmDate: string;
+  // 确认时间
+  ConfirmTime: string;
+  // 次席的交易中心代码
+  FromSec: number;
+}
+
+// 来自次席的资金账户口令变更
+export interface ICThostFtdcTradingAccountPasswordUpdateFromSecField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者帐号
+  AccountID: string;
+  // 原来的口令
+  OldPassword: string;
+  // 新的口令
+  NewPassword: string;
+  // 币种代码
+  CurrencyID: string;
+  // 次席的交易中心代码
+  FromSec: number;
+}
+
+// 风控禁止的合约交易权限
+export interface ICThostFtdcRiskForbiddenRightField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者编号
+  InvestorID: string;
+  // 合约
+  InstrumentID: string;
+  // 用户代码
+  UserID: string;
+}
+
+// 投资者申报费阶梯收取记录
+export interface ICThostFtdcInvestorInfoCommRecField {
+  // 交易所代码
+  ExchangeID: string;
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 商品代码
+  InstrumentID: string;
+  // 报单总笔数
+  OrderCount: number;
+  // 撤单总笔数
+  OrderActionCount: number;
+  // 询价总次数
+  ForQuoteCnt: number;
+  // 申报费
+  InfoComm: number;
+  // 是否期权系列
+  IsOptSeries: number;
+  // 品种代码
+  ProductID: string;
+  // 信息量总量
+  InfoCnt: number;
+}
+
+// 投资者申报费阶梯收取记录查询
+export interface ICThostFtdcQryInvestorInfoCommRecField {
+  // 投资者代码
+  InvestorID: string;
+  // 商品代码
+  InstrumentID: string;
+  // 经纪公司代码
+  BrokerID: string;
+}
+
+// 组合腿信息
+export interface ICThostFtdcCombLegField {
+  // 组合合约代码
+  CombInstrumentID: string;
+  // 单腿编号
+  LegID: number;
+  // 单腿合约代码
+  LegInstrumentID: string;
+  // 买卖方向
+  Direction: TThostFtdcDirectionType;
+  // 单腿乘数
+  LegMultiple: number;
+  // 派生层数
+  ImplyLevel: number;
+}
+
+// 组合腿信息查询
+export interface ICThostFtdcQryCombLegField {
+  // 单腿合约代码
+  LegInstrumentID: string;
+}
+
+// 输入的对冲设置
+export interface ICThostFtdcInputOffsetSettingField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 合约代码
+  InstrumentID: string;
+  // 标的期货合约代码
+  UnderlyingInstrID: string;
+  // 产品代码
+  ProductID: string;
+  // 对冲类型
+  OffsetType: TThostFtdcOffsetTypeType;
+  // 申请对冲的合约数量
+  Volume: number;
+  // 是否对冲
+  IsOffset: number;
+  // 请求编号
+  RequestID: number;
+  // 用户代码
+  UserID: string;
+  // 交易所代码
+  ExchangeID: string;
+  // IP地址
+  IPAddress: string;
+  // Mac地址
+  MacAddress: string;
+}
+
+// 对冲设置
+export interface ICThostFtdcOffsetSettingField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 合约代码
+  InstrumentID: string;
+  // 标的期货合约代码
+  UnderlyingInstrID: string;
+  // 产品代码
+  ProductID: string;
+  // 对冲类型
+  OffsetType: TThostFtdcOffsetTypeType;
+  // 申请对冲的合约数量
+  Volume: number;
+  // 是否对冲
+  IsOffset: number;
+  // 请求编号
+  RequestID: number;
+  // 用户代码
+  UserID: string;
+  // 交易所代码
+  ExchangeID: string;
+  // IP地址
+  IPAddress: string;
+  // Mac地址
+  MacAddress: string;
+  // 交易所合约代码
+  ExchangeInstID: string;
+  // 交易所期权系列号
+  ExchangeSerialNo: string;
+  // 交易所产品代码
+  ExchangeProductID: string;
+  // 会员代码
+  ParticipantID: string;
+  // 客户代码
+  ClientID: string;
+  // 交易所交易员代码
+  TraderID: string;
+  // 安装编号
+  InstallID: number;
+  // 对冲提交状态
+  OrderSubmitStatus: TThostFtdcOrderSubmitStatusType;
+  // 交易日
+  TradingDay: string;
+  // 结算编号
+  SettlementID: number;
+  // 报单日期
+  InsertDate: string;
+  // 插入时间
+  InsertTime: string;
+  // 撤销时间
+  CancelTime: string;
+  // 对冲设置结果
+  ExecResult: TThostFtdcExecResultType;
+  // 序号
+  SequenceNo: number;
+  // 前置编号
+  FrontID: number;
+  // 会话编号
+  SessionID: number;
+  // 状态信息
+  StatusMsg: string;
+  // 操作用户代码
+  ActiveUserID: string;
+  // 经纪公司报单编号
+  BrokerOffsetSettingSeq: number;
+}
+
+// 撤销对冲设置
+export interface ICThostFtdcCancelOffsetSettingField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 合约代码
+  InstrumentID: string;
+  // 标的期货合约代码
+  UnderlyingInstrID: string;
+  // 产品代码
+  ProductID: string;
+  // 对冲类型
+  OffsetType: TThostFtdcOffsetTypeType;
+  // 申请对冲的合约数量
+  Volume: number;
+  // 是否对冲
+  IsOffset: number;
+  // 请求编号
+  RequestID: number;
+  // 用户代码
+  UserID: string;
+  // 交易所代码
+  ExchangeID: string;
+  // IP地址
+  IPAddress: string;
+  // Mac地址
+  MacAddress: string;
+  // 交易所合约代码
+  ExchangeInstID: string;
+  // 交易所期权系列号
+  ExchangeSerialNo: string;
+  // 交易所产品代码
+  ExchangeProductID: string;
+  // 交易所交易员代码
+  TraderID: string;
+  // 安装编号
+  InstallID: number;
+  // 会员代码
+  ParticipantID: string;
+  // 客户代码
+  ClientID: string;
+  // 报单操作状态
+  OrderActionStatus: TThostFtdcOrderActionStatusType;
+  // 状态信息
+  StatusMsg: string;
+  // 操作本地编号
+  ActionLocalID: string;
+  // 操作日期
+  ActionDate: string;
+  // 操作时间
+  ActionTime: string;
+}
+
+// 查询对冲设置
+export interface ICThostFtdcQryOffsetSettingField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 投资者代码
+  InvestorID: string;
+  // 产品代码
+  ProductID: string;
+  // 对冲类型
+  OffsetType: TThostFtdcOffsetTypeType;
+}
+
+// 服务地址和AppID的关系
+export interface ICThostFtdcAddrAppIDRelationField {
+  // 经纪公司代码
+  BrokerID: string;
+  // 服务地址
+  Address: string;
+  // 交易中心代码
+  DRIdentityID: number;
+  // App代码
+  AppID: string;
+}
+
+// 服务地址和AppID的关系查询
+export interface ICThostFtdcQryAddrAppIDRelationField {
+  // 经纪公司代码
+  BrokerID: string;
+}
+
+// 前置信息
+export interface ICThostFtdcFrontInfoField {
+  // 前置地址
+  QryFreq: number;
+  // 查询流控
+  FTDPkgFreq: number;
 }
 
