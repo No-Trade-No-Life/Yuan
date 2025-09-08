@@ -207,7 +207,7 @@ export const ChartComponent = memo((props: Props) => {
         const dataSeries = s.refs
           .map((ref) => data.find((item) => item.data_index === ref.data_index)?.series.get(ref.column_name))
           .filter((x) => !!x);
-        if (s.type === 'line' || s.type === 'bar' || s.type === 'index') {
+        if (s.type === 'line' || s.type === 'hist' || s.type === 'index') {
           // 通过data_index column_name找到数据，并完成映射为图表需要的结构
           if (dataSeries) {
             timeLine.forEach(([time], index) => {
@@ -273,11 +273,11 @@ export const ChartComponent = memo((props: Props) => {
     const handler = (param: MouseEventParams<Time>) => {
       UpdateLegendFuncQueue.forEach((fn) => fn(param));
     };
-    // if (chartRef.current) {
-    //   chartRef.current.remove();
-    //   chartRef.current.unsubscribeCrosshairMove(handler);
-    //   chartRef.current = null;
-    // }
+    if (chartRef.current) {
+      chartRef.current.remove();
+      chartRef.current.unsubscribeCrosshairMove(handler);
+      chartRef.current = null;
+    }
     const chart = createChart(domRef.current, darkMode ? DarkModeChartOption : ChartOption);
     chartRef.current = chart;
     chart.subscribeCrosshairMove(handler);
@@ -295,7 +295,7 @@ export const ChartComponent = memo((props: Props) => {
           );
           lineSeries.setData(data);
         }
-        if (s.type === 'bar') {
+        if (s.type === 'hist') {
           const histogramSeries = chart.addSeries(
             HistogramSeries,
             {
@@ -344,7 +344,7 @@ export const ChartComponent = memo((props: Props) => {
           const firstRow = document.createElement('div');
           firstRow.style.fontSize = '14px';
           firstRow.style.fontWeight = '400';
-          if (s.type === 'line' || s.type === 'bar') {
+          if (s.type === 'line' || s.type === 'hist') {
             legend.appendChild(firstRow);
             firstRow.style.color =
               DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length];
@@ -374,9 +374,6 @@ export const ChartComponent = memo((props: Props) => {
     });
     observer.observe(el);
     return () => {
-      chart.remove();
-      chart.unsubscribeCrosshairMove(handler);
-      chartRef.current = null;
       observer.unobserve(el);
     };
     // }
