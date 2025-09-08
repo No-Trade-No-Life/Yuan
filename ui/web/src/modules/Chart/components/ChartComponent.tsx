@@ -120,7 +120,7 @@ function waitForPaneElement(pane: any, maxRetries: number = 20): Promise<HTMLEle
   });
 }
 
-const UpdateLegendFuncQueue: Function[] = [];
+let UpdateLegendFuncQueue: Function[] = [];
 
 interface Props {
   view: ITimeSeriesChartConfig['views'][0];
@@ -276,20 +276,26 @@ export const ChartComponent = memo((props: Props) => {
 
   useEffect(() => {
     if (!domRef.current || !view || !displayData) return;
-    if (chartRef.current) {
-      chartRef.current?.remove();
-    }
     const chart = createChart(domRef.current, ChartOption);
-    chartRef.current = chart;
     setChartState(chart);
-    chart.subscribeCrosshairMove((param) => {
+    return () => {
+      if (chartRef.current) {
+        chartRef.current.remove();
+        UpdateLegendFuncQueue = [];
+      }
+    };
+  }, [view, displayData]);
+
+  useEffect(() => {
+    if (!chartState || !displayData) return;
+    chartState.subscribeCrosshairMove((param) => {
       UpdateLegendFuncQueue.forEach((fn) => fn(param));
     });
     view.panes.forEach((pane, paneIndex) => {
       pane.series.forEach((s, seriesIndex) => {
         const data = displayData[paneIndex][seriesIndex] ?? [];
         if (s.type === 'line') {
-          const lineSeries = chart.addSeries(
+          const lineSeries = chartState.addSeries(
             LineSeries,
             {
               color: DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
@@ -300,7 +306,7 @@ export const ChartComponent = memo((props: Props) => {
           lineSeries.setData(data);
         }
         if (s.type === 'bar') {
-          const histogramSeries = chart.addSeries(
+          const histogramSeries = chartState.addSeries(
             HistogramSeries,
             {
               color: DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
@@ -310,11 +316,11 @@ export const ChartComponent = memo((props: Props) => {
           histogramSeries.setData(data);
         }
         if (s.type === 'ohlc') {
-          const candlestickSeries = chart.addSeries(CandlestickSeries, candlestickOption, paneIndex);
+          const candlestickSeries = chartState.addSeries(CandlestickSeries, candlestickOption, paneIndex);
           candlestickSeries.setData(data);
         }
         if (s.type === 'order') {
-          const lineSeries = chart.addSeries(
+          const lineSeries = chartState.addSeries(
             LineSeries,
             {
               color: 'red',
@@ -334,7 +340,7 @@ export const ChartComponent = memo((props: Props) => {
           const seriesMarkers = createSeriesMarkers(lineSeries, markers);
         }
       });
-      const currentPane = chart.panes()[paneIndex];
+      const currentPane = chartState.panes()[paneIndex];
       waitForPaneElement(currentPane).then((container) => {
         container.setAttribute('style', 'position:relative');
         const legend = document.createElement('div');
@@ -352,9 +358,9 @@ export const ChartComponent = memo((props: Props) => {
             legend.appendChild(firstRow);
             firstRow.style.color =
               DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length];
-
             UpdateLegendFuncQueue.push((param: MouseEventParams<Time>) => {
               if (!param) return;
+              // param.
               const value = data.find((item) => item.time === param.time);
               if (!value) return;
               firstRow.innerHTML = `${s.refs[0]?.column_name} : ${value.value}`;
@@ -377,7 +383,7 @@ export const ChartComponent = memo((props: Props) => {
     if (el) {
       const observer = new ResizeObserver((entries) => {
         entries.forEach((entry) => {
-          chart.resize(entry.contentRect.width, entry.contentRect.height);
+          chartState.resize(entry.contentRect.width, entry.contentRect.height);
         });
       });
       observer.observe(el);
@@ -385,6 +391,6 @@ export const ChartComponent = memo((props: Props) => {
         observer.unobserve(el);
       };
     }
-  }, [view, displayData]);
+  }, [chartState, view, displayData]);
   return <div id="App" style={{ width: '100%', height: '100%' }} ref={domRef} />;
 });
