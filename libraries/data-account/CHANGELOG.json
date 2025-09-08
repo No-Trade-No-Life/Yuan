@@ -2,6 +2,23 @@
   "name": "@yuants/data-account",
   "entries": [
     {
+      "version": "0.3.11",
+      "tag": "@yuants/data-account_v0.3.11",
+      "date": "Mon, 08 Sep 2025 04:07:02 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix migration "
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.10",
       "tag": "@yuants/data-account_v0.3.10",
       "date": "Sun, 07 Sep 2025 23:52:03 GMT",
