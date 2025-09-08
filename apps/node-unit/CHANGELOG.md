@@ -1,6 +1,13 @@
 # Change Log - @yuants/node-unit
 
-This log was last generated on Sun, 07 Sep 2025 23:52:03 GMT and should not be manually modified.
+This log was last generated on Mon, 08 Sep 2025 02:42:21 GMT and should not be manually modified.
+
+## 0.9.1
+Mon, 08 Sep 2025 02:42:21 GMT
+
+### Patches
+
+- unify stdout, stderr logs
 
 ## 0.9.0
 Sun, 07 Sep 2025 23:52:03 GMT
