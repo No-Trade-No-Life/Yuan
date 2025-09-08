@@ -6,47 +6,14 @@ import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql'
 import { UUID } from '@yuants/utils';
 import { useObservableState } from 'observable-hooks';
 import { useEffect, useState } from 'react';
-import {
-  BehaviorSubject,
-  combineLatest,
-  defer,
-  firstValueFrom,
-  map,
-  of,
-  repeat,
-  retry,
-  shareReplay,
-  switchMap,
-} from 'rxjs';
+import { firstValueFrom } from 'rxjs';
+import { executeCommand } from '../CommandCenter';
 import { resolveVersion } from '../Extensions';
 import { Button, Switch, Toast } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
+import { deployments$, refreshDeployments$ } from './model';
 import { escapeForBash } from './utils';
-
-export const refresh$ = new BehaviorSubject<void>(undefined);
-
-const deploySettings$ = combineLatest([terminal$, refresh$]).pipe(
-  //
-  switchMap(([terminal]) =>
-    defer(() =>
-      terminal
-        ? requestSQL(
-            terminal,
-            `
-            select * from deployment order by created_at desc;
-        `,
-          )
-        : of([]),
-    ).pipe(
-      //
-      map((x) => x as IDeployment[]),
-      repeat({ delay: 2_000 }),
-      retry({ delay: 2_000 }),
-    ),
-  ),
-  shareReplay(1),
-);
 
 const packageVersionsCache = createCache<string[]>(
   (packageName) =>
@@ -61,7 +28,7 @@ const packageVersionsCache = createCache<string[]>(
 
 registerPage('DeploySettings', () => {
   const terminal = useObservableState(terminal$);
-  const deploySettings = useObservableState(deploySettings$);
+  const deploySettings = useObservableState(deployments$);
   const [editDeployment, setEditDeployment] = useState<IDeployment>();
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -83,7 +50,7 @@ registerPage('DeploySettings', () => {
           `,
         );
         Toast.success('删除成功');
-        refresh$.next();
+        refreshDeployments$.next();
       }
     } catch (e) {
       Toast.error('删除失败');
@@ -153,7 +120,7 @@ registerPage('DeploySettings', () => {
             returningAll: true,
           }),
         );
-        refresh$.next();
+        refreshDeployments$.next();
         Toast.success(`成功更新 ${result.length} 条数据记录`);
         setVisible(false);
       }
@@ -178,6 +145,43 @@ registerPage('DeploySettings', () => {
           </>
         }
         columns={[
+          {
+            header: '动作',
+            cell: (ctx) => (
+              <Space vertical>
+                <Button
+                  onClick={() =>
+                    executeCommand('DeploymentRealtimeLog', {
+                      node_unit_address: ctx.row.original.address,
+                      deployment_id: ctx.row.original.id,
+                    })
+                  }
+                >
+                  日志
+                </Button>
+                <Button onClick={() => onEdit(ctx.row.original)}>编辑</Button>
+                <Button
+                  type="danger"
+                  doubleCheck={{
+                    title: '确认删除此配置？',
+                    description: (
+                      <pre
+                        style={{
+                          width: '100%',
+                          overflow: 'auto',
+                        }}
+                      >
+                        {JSON.stringify(ctx.row.original, null, 2)}
+                      </pre>
+                    ),
+                  }}
+                  onClick={() => onDelete(ctx.row.original.id)}
+                >
+                  删除
+                </Button>
+              </Space>
+            ),
+          },
           {
             header: '部署 ID',
             accessorKey: 'id',
@@ -245,33 +249,6 @@ registerPage('DeploySettings', () => {
                 />
               );
             },
-          },
-          {
-            header: '动作',
-            cell: (ctx) => (
-              <Space vertical>
-                <Button onClick={() => onEdit(ctx.row.original)}>编辑</Button>
-                <Button
-                  type="danger"
-                  doubleCheck={{
-                    title: '确认删除此配置？',
-                    description: (
-                      <pre
-                        style={{
-                          width: '100%',
-                          overflow: 'auto',
-                        }}
-                      >
-                        {JSON.stringify(ctx.row.original, null, 2)}
-                      </pre>
-                    ),
-                  }}
-                  onClick={() => onDelete(ctx.row.original.id)}
-                >
-                  删除
-                </Button>
-              </Space>
-            ),
           },
         ]}
       ></Modules.Interactive.DataView>
