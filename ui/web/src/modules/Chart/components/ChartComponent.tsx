@@ -185,7 +185,7 @@ export const ChartComponent = memo((props: Props) => {
     const mainTimeLine = data
       .find((item) => item.data_index === view.time_ref.data_index)
       ?.series.get(view.time_ref.column_name)
-      ?.map((t) => ~~(Number(t) / 1000));
+      ?.map((t) => ~~(parseFloat(t) / 1000));
     if (!mainTimeLine) return null;
 
     return view.panes.map((pane) => {
@@ -196,7 +196,7 @@ export const ChartComponent = memo((props: Props) => {
         if (!dataItem) return null;
         let timeLine = dataItem.series
           .get(dataItem.time_column_name)
-          ?.map((t, index) => [~~(Number(t) / 1000), index]);
+          ?.map((t, index) => [~~(parseFloat(t) / 1000), index]);
         if (!timeLine) return null;
         // 若ref与view timeline不一致则归并对其
         if (s.refs[0].data_index !== view.time_ref.data_index) {
@@ -213,7 +213,7 @@ export const ChartComponent = memo((props: Props) => {
             timeLine.forEach(([time], index) => {
               displayDataList.push({
                 time: time as Time,
-                value: Number(dataSeries[0]![index]),
+                value: parseFloat(dataSeries[0]![index]),
               });
             });
           }
@@ -223,10 +223,10 @@ export const ChartComponent = memo((props: Props) => {
             timeLine
               .map(([time, index]) => ({
                 time: time as Time,
-                open: Number(dataSeries[0]![index]),
-                high: Number(dataSeries[1]![index]),
-                low: Number(dataSeries[2]![index]),
-                close: Number(dataSeries[3]![index]),
+                open: parseFloat(dataSeries[0]![index]),
+                high: parseFloat(dataSeries[1]![index]),
+                low: parseFloat(dataSeries[2]![index]),
+                close: parseFloat(dataSeries[3]![index]),
               }))
               .filter((x) => !!x.time && !isNaN(x.open) && !isNaN(x.high) && !isNaN(x.low) && !isNaN(x.close))
               .forEach((item) => displayDataList.push(item));
@@ -241,9 +241,9 @@ export const ChartComponent = memo((props: Props) => {
                 let tradeValue = 0;
                 let totalVolume = 0;
                 for (; dataIndex <= index; dataIndex++) {
-                  totalVolume += Number(dataSeries[2]![dataIndex]);
-                  tradeValue += Number(dataSeries[2]![dataIndex]) * Number(dataSeries[1]![dataIndex]);
-                  const tempVolume = Number(dataSeries[2]![dataIndex]);
+                  totalVolume += parseFloat(dataSeries[2]![dataIndex]);
+                  tradeValue += parseFloat(dataSeries[2]![dataIndex]) * parseFloat(dataSeries[1]![dataIndex]);
+                  const tempVolume = parseFloat(dataSeries[2]![dataIndex]);
                   const orderDirection = dataSeries[0]![index];
                   if (orderDirection === 'OPEN_LONG' || orderDirection === 'CLOSE_SHORT') {
                     volume += tempVolume;
