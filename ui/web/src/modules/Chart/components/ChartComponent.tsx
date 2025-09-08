@@ -153,20 +153,20 @@ const mergeTimeLine = (timeLine: number[][], mainTimeLine: number[]): number[][]
       const [currentTime, dataIndex] = timeLine[timeLineIndex];
       const [nextTime] = timeLine[timeLineIndex + 1] ?? [];
       if (currentTime > mainTime) break;
-      if (timeLineIndex === timeLine.length - 1 && currentTime <= mainTime) {
+      if (timeLineIndex === timeLine.length - 1) {
         result.push([mainTime, dataIndex]);
-      } else if (currentTime <= mainTime && nextTime > mainTime) {
+      } else if (currentTime <= mainTime) {
         result.push([mainTime, dataIndex]);
       }
     }
   }
 
   // 将剩余数据进行合并
-  timeLine.slice(timeLineIndex).forEach((data) => {
-    if (result[result.length - 1][0] !== data[0]) {
-      result.push(data);
-    }
-  });
+  // timeLine.slice(timeLineIndex).forEach((data) => {
+  //   if (result[result.length - 1][0] !== data[0]) {
+  //     result.push(data);
+  //   }
+  // });
   return result;
 };
 
@@ -350,16 +350,20 @@ export const ChartComponent = memo((props: Props) => {
               DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length];
             UpdateLegendFuncQueue.push((param: MouseEventParams<Time>) => {
               if (!param || !param.logical) return;
-              firstRow.innerHTML = `${s.refs[0]?.column_name} : ${data[param.logical].value}`;
+              firstRow.innerHTML = `${s.refs[0]?.column_name} : ${
+                data[param.logical] ? data[param.logical].value : ''
+              }`;
             });
           }
           if (s.type === 'ohlc') {
             legend.appendChild(firstRow);
             UpdateLegendFuncQueue.push((param: MouseEventParams<Time>) => {
               if (!param || !param.logical) return;
-              firstRow.innerHTML = `O:${data[param.logical].open} H:${data[param.logical].high} L:${
-                data[param.logical].low
-              } C:${data[param.logical].close}`;
+              firstRow.innerHTML = data[param.logical]
+                ? `O:${data[param.logical].open} H:${data[param.logical].high} L:${
+                    data[param.logical].low
+                  } C:${data[param.logical].close}`
+                : '';
             });
           }
         });
