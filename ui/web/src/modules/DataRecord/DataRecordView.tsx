@@ -23,7 +23,7 @@ import { firstValueFrom } from 'rxjs';
 import { fs } from '../FileSystem/api';
 import { showForm } from '../Form';
 import { Button, DataView } from '../Interactive';
-import { terminal$ } from '../Terminals';
+import { terminal$, useTerminal } from '../Terminals';
 
 interface IDataRecordViewDef<T extends {}> {
   conflictKeys?: (keyof T)[];
@@ -45,6 +45,7 @@ export function DataRecordView<T extends {}>(props: IDataRecordViewDef<T>) {
   const [refreshCnt, setRefreshCnt] = useState(0);
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const tableRef = React.useRef<Table<T>>();
+  const terminal = useTerminal();
 
   const { data, fetchNextPage, isFetching } = useInfiniteQuery<T[]>({
     // ISSUE: queryKey should be unique among all query situations under the same query client context
@@ -96,7 +97,7 @@ export function DataRecordView<T extends {}>(props: IDataRecordViewDef<T>) {
 
   useEffect(() => {
     reloadData();
-  }, [searchFormData]);
+  }, [terminal, searchFormData]);
 
   const columns = useMemo(() => {
     const columnHelper = createColumnHelper<T>();
