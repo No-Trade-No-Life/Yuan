@@ -1,6 +1,11 @@
 # Change Log - @yuants/deploy
 
-This log was last generated on Thu, 04 Sep 2025 15:24:17 GMT and should not be manually modified.
+This log was last generated on Sun, 07 Sep 2025 23:52:03 GMT and should not be manually modified.
+
+## 0.3.3
+Sun, 07 Sep 2025 23:52:03 GMT
+
+_Version update only_
 
 ## 0.3.2
 Thu, 04 Sep 2025 15:24:17 GMT
