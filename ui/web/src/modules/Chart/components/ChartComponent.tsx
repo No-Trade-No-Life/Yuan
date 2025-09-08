@@ -287,6 +287,7 @@ export const ChartComponent = memo((props: Props) => {
   useEffect(() => {
     if (!chartState || !displayData) return;
     chartState.subscribeCrosshairMove((param) => {
+      console.log({ param });
       UpdateLegendFuncQueue.forEach((fn) => fn(param));
     });
     view.panes.forEach((pane, paneIndex) => {
@@ -352,25 +353,23 @@ export const ChartComponent = memo((props: Props) => {
           const firstRow = document.createElement('div');
           firstRow.style.fontSize = '14px';
           firstRow.style.fontWeight = '400';
-          if (s.type === 'line') {
+          if (s.type === 'line' || s.type === 'bar') {
             legend.appendChild(firstRow);
             firstRow.style.color =
               DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length];
             UpdateLegendFuncQueue.push((param: MouseEventParams<Time>) => {
-              if (!param) return;
-              // param.
-              const value = data.find((item) => item.time === param.time);
-              if (!value) return;
-              firstRow.innerHTML = `${s.refs[0]?.column_name} : ${value.value}`;
+              if (!param || !param.logical) return;
+              console.log({ param: data.length });
+              firstRow.innerHTML = `${s.refs[0]?.column_name} : ${data[param.logical].value}`;
             });
           }
           if (s.type === 'ohlc') {
             legend.appendChild(firstRow);
             UpdateLegendFuncQueue.push((param: MouseEventParams<Time>) => {
-              if (!param) return;
-              const value = data.find((item) => item.time === param.time);
-              if (!value) return;
-              firstRow.innerHTML = `O:${value.open} H:${value.high} L:${value.low} C:${value.close}`;
+              if (!param || !param.logical) return;
+              firstRow.innerHTML = `O:${data[param.logical].open} H:${data[param.logical].high} L:${
+                data[param.logical].low
+              } C:${data[param.logical].close}`;
             });
           }
         });
