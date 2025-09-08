@@ -18,7 +18,10 @@ import {
   SeriesDataUnit,
 } from '@yuants/kernel';
 import { saveSecret } from '@yuants/secret';
-import { encodeBase58 } from '@yuants/utils';
+import { IDeployment } from '@yuants/deploy';
+import { ISecret } from '@yuants/secret';
+import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
+import { encodeBase58, encryptByPublicKey, formatTime } from '@yuants/utils';
 import Ajv from 'ajv';
 import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
@@ -57,7 +60,6 @@ import { CSV } from '../Util';
 import { clearLogAction$ } from '../Workbench/Program';
 import { recordTable$ } from './model';
 import { bundleCode } from './utils';
-import { escapeForBash } from '../Deploy/utils';
 
 const mapScriptParamsSchemaToAgentConfSchema = (schema: JSONSchema7): JSONSchema7 => ({
   allOf: [
@@ -371,42 +373,84 @@ registerPage('AgentConfForm', () => {
 
               if (!terminal) throw 'Terminal is not connected';
 
-              // AES KEY must be 256 bits (or 128 bits)
-              const encryption_key_base58 = encodeBase58(crypto.getRandomValues(new Uint8Array(32)));
-
-              const secrets = await saveSecret({
-                terminal,
-                encryption_key_base58: encryption_key_base58,
-                decrypted_data: { bundled_code: bundled_code },
-                public_data: {},
+              const nodeUnits = terminal.terminalInfos.filter((t) => t.terminal_id.startsWith('NodeUnit/'));
+              const addresses = nodeUnits.map((t) => t.terminal_id.replace('NodeUnit/', ''));
+              const address = await showForm<string>({
+                type: 'string',
+                title: '请选择部署地址',
+                description: `您的代码将会被加密并且部署到选中节点，选中节点的私钥可以解密代码，请确保您信任选中节点的所有者`,
+                enum: addresses,
               });
+
+              const encrypted_code = encodeBase58(
+                encryptByPublicKey(new TextEncoder().encode(bundled_code), address),
+              );
+
+              const secrets = await requestSQL<ISecret[]>(
+                terminal,
+                buildInsertManyIntoTableSQL(
+                  [
+                    {
+                      public_data: {},
+                      encrypted_data_base58: encrypted_code,
+                      encryption_key_sha256_base58: address,
+                    },
+                  ],
+                  'secret',
+                  {
+                    returningAll: true,
+                  },
+                ),
+              );
 
               const theSecret = secrets[0];
 
               const env = {
-                SECRET_CODE_ID: theSecret.id,
-                PRIVATE_KEY: encryption_key_base58,
+                SECRET_CODE_ID: theSecret.id!,
                 AGENT_PARAMS: JSON.stringify(agentConf?.agent_params || {}),
+                STARTED_AT: agentConf.start_time ? formatTime(agentConf.start_time) : '',
                 KERNEL_ID: agentConf.kernel_id || '',
               };
 
-              const envStr = Object.entries(env)
-                .map(([k, v]) => `${k}=${escapeForBash(v)}`)
-                .join(' ');
+              const deployments = await requestSQL<IDeployment[]>(
+                terminal,
+                buildInsertManyIntoTableSQL(
+                  [
+                    {
+                      package_name: '@yuants/app-agent',
+                      package_version: 'latest',
+                      address,
+                      env,
+                      enabled: false,
+                    },
+                  ],
+                  'deployment',
+                  {
+                    returningAll: true,
+                  },
+                ),
+              );
+
+              const theDeployment = deployments[0];
 
               Modal.info({
-                title: '部署脚本',
+                title: '部署已就绪',
                 content: (
                   <div>
-                    <p>运行下述命令以部署：</p>
-                    <Typography.Text copyable>{envStr} npx -y @yuants/app-agent@latest</Typography.Text>
-                    <p>请妥善保存 PRIVATE_KEY，泄漏给他人可能导致源码泄漏</p>
-                    <p>他人如果获取了 PRIVATE_KEY，并且具有您主机或者数据库的访问权限，将能够解密您的代码</p>
+                    <p>
+                      部署 ID: <Typography.Text copyable>{theDeployment.id}</Typography.Text>
+                    </p>
+                    <p>部署地址: {theDeployment.address}</p>
+                    <p>请前往部署页面手动启动部署</p>
+                    <p>请妥善保存部署地址的私钥，泄漏给他人可能导致源码泄漏</p>
                   </div>
                 ),
+                hasCancel: false,
+                onOk: () => {
+                  executeCommand('DeploySettings', {});
+                },
+                okText: '查看部署',
               });
-
-              // console.log('encryption_key_base58', encryption_key_base58);
             }}
           >
             部署

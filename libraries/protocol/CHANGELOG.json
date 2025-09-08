@@ -2,6 +2,51 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.39.1",
+      "tag": "@yuants/protocol_v0.39.1",
+      "date": "Thu, 04 Sep 2025 15:24:17 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.7.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/prometheus-client\" to `0.1.7`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/tool-kit\" to `0.2.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.39.0",
+      "tag": "@yuants/protocol_v0.39.0",
+      "date": "Tue, 02 Sep 2025 01:40:20 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "metrics using terminal_id to distinct"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.7.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.38.0",
       "tag": "@yuants/protocol_v0.38.0",
       "date": "Sat, 30 Aug 2025 22:44:39 GMT",

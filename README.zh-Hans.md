@@ -117,6 +117,8 @@ Yuan 是一个“个人投资操作系统”，包含各式各样的个人投资
    $ POSTGRES_URI="<your-postgres-uri>" npx @yuants/node-unit
    ```
 
+   更多的配置选项，请参考 [@yuants/node-unit](apps/node-unit) 。
+
 2. 使用 Web GUI 连接刚刚创建的本地主机
 
    打开浏览器，访问 http://y.ntnl.io ，您将看到 Yuan 的 Web GUI。
@@ -137,12 +139,6 @@ npm install -g @microsoft/rush
 
 ```bash
 rush update && rush build
-```
-
-如果您没有安装 docker，可以通过设置环境变量 `CI_RUN` 为 `true` 来跳过 docker 构建。
-
-```bash
-CI_RUN=true rush build
 ```
 
 <p align="right">(<a href="#readme-top">返回顶部</a>)</p>
@@ -188,8 +184,6 @@ Yuan 使用 PostgreSQL 作为通用场景数据库；使用 Prometheus 存储遥
 - [@yuants/data-interest-rate](libraries/data-interest-rate) 利率数据。利率是指交易者持有头寸经过结算点时产生的利息。它通常用于外汇交易和差价合约 (CFD) 交易，同时也适用于永续合约的资金费率。
 - [@yuants/data-account](libraries/data-account) 账户和持仓信息。
 - [@yuants/data-order](libraries/data-order) 订单数据。订单是指交易者在市场中提交的买入或卖出指令。
-
-老旧的数据模型存放于 [@yuants/data-model](libraries/data-model)，我们计划将其拆分成很多不同的包，从而减少一些非核心模型变动冲击。
 
 另外，不需要在包之间共享的私有数据建模，我们会放在对应领域的包中。
 
@@ -246,9 +240,13 @@ Yuan 使用 PostgreSQL 作为通用场景数据库；使用 Prometheus 存储遥
 
 #### 交易执行环节
 
-在交易执行环节，我们用一个交易执行器将智能体的模拟仓位转换为实际的交易指令。交易执行器会将交易指令发送到交易所或其他交易平台。
+智能体负责实时输出模拟账户仓位，但它并不直接与市场交互，这是为了保持无状态，简化智能体的逻辑。
 
-- [@yuants/app-trade-copier](apps/trade-copier) 这将部署一个终端作为交易复制服务。它监视源账户并确保目标账户跟随源账户。
+我们使用账户组合器来组合模拟账户的信息，得到实盘交易所需的计划账户信息。然后，使用交易执行器使得真实交易账户的仓位与计划账户的仓位保持一致。
+
+- [@yuants/app-account-composer](apps/account-composer) 账户组合器。它可以从若干账户计算派生出一个新的账户信息。用途广泛，可以将多个智能体的账户合并为一个账户。
+
+- [@yuants/app-trade-copier](apps/trade-copier) 跟单器。它**向市场发送订单**确保真实账户跟随计划账户，其目标是保持两者的仓位一致。支持配置多种微策略，例如市价追入、限制单笔成交量、滚动最优挂单等。当然，你也可以使用一个真实账户跟随另一个真实账户。
 
 如果有多个账户，可以通过转账控制器来实现账户之间的转账。
 
@@ -262,7 +260,6 @@ Yuan 使用 PostgreSQL 作为通用场景数据库；使用 Prometheus 存储遥
 
 - [@yuants/utils](libraries/utils) 社区中未找到的一些通用工具。
 - [@yuants/extension](libraries/extension) 这定义了扩展接口。您可以使用扩展来增强您的体验。
-- [@yuants/app-account-composer](apps/account-composer) 这将部署一个终端作为账户组合服务。它将多个账户信息组合成一个账户信息。因此，您可以查看分散在多个账户中的资金。
 - [@yuants/app-k8s-manifest-operator](apps/k8s-manifest-operator) 这将部署一个终端作为 Kubernetes 清单操作员。它监视 Kubernetes 集群的清单 CRD 并确保 Kubernetes 集群遵循清单 CRD。您可以将清单 CRD 添加到 k8s 集群，然后操作员将部署清单 CRD 中定义的资源。
 
 #### Web UI

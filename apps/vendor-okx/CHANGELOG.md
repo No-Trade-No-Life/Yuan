@@ -1,6 +1,28 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Mon, 01 Sep 2025 15:30:31 GMT and should not be manually modified.
+This log was last generated on Mon, 08 Sep 2025 04:07:02 GMT and should not be manually modified.
+
+## 0.20.7
+Mon, 08 Sep 2025 04:07:02 GMT
+
+_Version update only_
+
+## 0.20.6
+Sun, 07 Sep 2025 23:52:03 GMT
+
+### Patches
+
+- refactor: sql remove keyFn option
+
+## 0.20.5
+Thu, 04 Sep 2025 15:24:17 GMT
+
+_Version update only_
+
+## 0.20.4
+Tue, 02 Sep 2025 01:40:20 GMT
+
+_Version update only_
 
 ## 0.20.3
 Mon, 01 Sep 2025 15:30:31 GMT

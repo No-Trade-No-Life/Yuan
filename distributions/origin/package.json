@@ -1,6 +1,6 @@
 {
   "name": "@yuants/dist-origin",
-  "version": "0.1.66",
+  "version": "0.1.70",
   "description": "Yuan Origin Distribution",
   "scripts": {
     "build": "echo skip build"

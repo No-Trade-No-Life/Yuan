@@ -112,6 +112,8 @@ Run Yuan's Node unit from npx:
    $ POSTGRES_URI="<your-postgres-uri>" npx @yuants/node-unit
    ```
 
+   For more configuration options, please refer to [@yuants/node-unit](apps/node-unit).
+
 2. Connect to the newly created local host using Web GUI
 
    Open your browser and visit http://y.ntnl.io, you will see Yuan's Web GUI.
@@ -132,12 +134,6 @@ Then you can install dependencies and build projects
 
 ```bash
 rush update && rush build
-```
-
-If you have no docker installed, you can skip the docker build by setting the environment variable `CI_RUN` to `true`.
-
-```bash
-CI_RUN=true rush build
 ```
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
@@ -183,8 +179,6 @@ The data modeling includes TypeScript types and SQL table definitions.
 - [@yuants/data-interest-rate](libraries/data-interest-rate) Interest rate data. Interest refers to the charges incurred when traders hold positions through settlement points. It's commonly used in forex trading and CFD (Contract for Difference) trading, and also applies to funding rates in perpetual contracts.
 - [@yuants/data-account](libraries/data-account) Account and position data.
 - [@yuants/data-order](libraries/data-order) Order data. An order represents a buy or sell instruction submitted by a trader to the market.
-
-Legacy data models are maintained in [@yuants/data-model](libraries/data-model). We plan to split them into multiple specialized packages to reduce impact from non-core model changes.
 
 Additionally, private data models that don't need to be shared between packages will be kept within their respective domain-specific packages.
 
@@ -243,9 +237,13 @@ An Agent is a trading bot/strategy program that can automatically execute tradin
 
 #### Trade Execution
 
-In the trade execution phase, we use an execution engine to convert an Agent's simulated positions into actual trading orders. The execution engine sends these orders to exchanges or other trading platforms.
+The agent is responsible for outputting simulated account positions in real-time, but it does not interact directly with the market. This is to maintain a stateless design and simplify the agent's logic.
 
-- [@yuants/app-trade-copier](apps/trade-copier) Deploys a terminal as a trade copying service that monitors source accounts and ensures target accounts mirror them.
+We use an account composer to combine information from simulated accounts and derive the planned account information required for live trading. Then, a trade executor is used to align the positions of the real trading account with those of the planned account.
+
+- [@yuants/app-account-composer](apps/account-composer) Account Composer. It can derive a new account information from several accounts. It has a wide range of applications, such as consolidating multiple agent accounts into a single account.
+
+- [@yuants/app-trade-copier](apps/trade-copier) Trade Copier. It **sends orders to the market** to ensure the real account follows the planned account, with the goal of keeping their positions consistent. It supports configuring various micro-strategies, such as market price chasing, limiting single-order volume, rolling optimal pending orders, etc. Of course, you can also use one real account to follow another real account.
 
 For multiple accounts, a transfer controller handles inter-account fund movements:
 
@@ -259,7 +257,6 @@ You can even build a logistics network to automatically balance funds between ac
 
 - [@yuants/utils](libraries/utils) General utilities not found in community packages.
 - [@yuants/extension](libraries/extension) Defines extension interfaces for enhanced functionality.
-- [@yuants/app-account-composer](apps/account-composer) Deploys an account aggregation service that combines multiple account balances into a unified view.
 - [@yuants/app-k8s-manifest-operator](apps/k8s-manifest-operator) Deploys a Kubernetes manifest operator that ensures cluster state matches CRD definitions.
 
 #### Web UI

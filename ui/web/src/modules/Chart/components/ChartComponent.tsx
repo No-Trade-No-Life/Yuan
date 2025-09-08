@@ -214,7 +214,7 @@ export const ChartComponent = memo((props: Props) => {
             timeLine.forEach(([time], index) => {
               displayDataList.push({
                 time: time as Time,
-                value: Number(dataSeries[0][index]),
+                value: Number(dataSeries[0]![index]),
               });
             });
           }
@@ -336,9 +336,12 @@ export const ChartComponent = memo((props: Props) => {
       });
       const currentPane = chart.panes()[paneIndex];
       waitForPaneElement(currentPane).then((container) => {
-        container.style = 'position:relative';
+        container.setAttribute('style', 'position:relative');
         const legend = document.createElement('div');
-        legend.style = `position: absolute; left: 12px; top: 0px; z-index: 1; font-size: 14px; font-family: sans-serif; line-height: 18px; font-weight: 300;`;
+        legend.setAttribute(
+          'style',
+          `position: absolute; left: 12px; top: 0px; z-index: 1; font-size: 14px; font-family: sans-serif; line-height: 18px; font-weight: 300;`,
+        );
         container.appendChild(legend);
         pane.series.forEach((s, seriesIndex) => {
           const data = displayData[paneIndex][seriesIndex] ?? [];

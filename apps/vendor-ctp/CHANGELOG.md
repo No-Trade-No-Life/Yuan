@@ -1,6 +1,60 @@
 # Change Log - @yuants/vendor-ctp
 
-This log was last generated on Sat, 30 Aug 2025 22:44:39 GMT and should not be manually modified.
+This log was last generated on Mon, 08 Sep 2025 04:07:02 GMT and should not be manually modified.
+
+## 0.3.6
+Mon, 08 Sep 2025 04:07:02 GMT
+
+_Version update only_
+
+## 0.3.5
+Sun, 07 Sep 2025 23:52:03 GMT
+
+_Version update only_
+
+## 0.3.4
+Fri, 05 Sep 2025 04:52:57 GMT
+
+### Patches
+
+- use debian 12
+
+## 0.3.3
+Thu, 04 Sep 2025 21:31:00 GMT
+
+### Patches
+
+- fix build
+
+## 0.3.2
+Thu, 04 Sep 2025 19:38:55 GMT
+
+### Patches
+
+- add prebuild binary
+
+## 0.3.1
+Thu, 04 Sep 2025 16:45:39 GMT
+
+### Patches
+
+- fix build
+
+## 0.3.0
+Thu, 04 Sep 2025 15:24:17 GMT
+
+### Minor changes
+
+- prebuild ctp binary
+
+### Patches
+
+- fix build
+
+## 0.2.74
+Tue, 02 Sep 2025 01:40:20 GMT
+
+_Version update only_
 
 ## 0.2.73
 Sat, 30 Aug 2025 22:44:39 GMT

@@ -30,6 +30,7 @@
     "@yuants/app-postgres-storage",
     "@yuants/app-metrics-collector",
     "@yuants/app-prometheus-client",
+    "@yuants/app-prometheus-rule-controller",
     "@yuants/app-series-collector",
     "@yuants/app-trade-copier",
     "@yuants/app-transfer-controller",

@@ -5,7 +5,6 @@ import {
   catchError,
   defer,
   delay,
-  EMPTY,
   filter,
   first,
   firstValueFrom,
@@ -141,7 +140,12 @@ const ENV = process.env.ENV!;
 
 const config$ = defer(() =>
   requestSQL<IAlertReceiverConfig[]>(terminal, `select * from alert_receiver_config where enabled = true`),
-).pipe(retry({ delay: 1000 }), shareReplay(1));
+).pipe(
+  //
+  retry({ delay: 1_000 }),
+  repeat({ delay: 10_000 }),
+  shareReplay(1),
+);
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -174,7 +178,7 @@ defer(() => keepAliveSignal$.pipe(first()))
           },
         ],
       };
-      return sendAlert(alert).pipe(
+      return defer(() => sendAlert(alert)).pipe(
         // cool down for 30 minutes
         delay(30 * 60_000),
       );
@@ -227,7 +231,7 @@ terminal.provideService('/external/alertmanager/webhook', {}, async (msg) => {
           ),
         );
       }),
-      mergeMap((alert) => sendAlert(alert)),
+      mergeMap(sendAlert),
       toArray(),
     ),
   );
@@ -236,34 +240,28 @@ terminal.provideService('/external/alertmanager/webhook', {}, async (msg) => {
 
 const SEVERITY_LEVEL = ['UNKNOWN', 'CRITICAL', 'ERROR', 'WARNING', 'INFO'];
 
-function sendAlert(alert: IAlertGroup) {
-  return config$.pipe(
-    //
-    mergeMap((config) =>
-      from(config).pipe(
-        filter((v) => SEVERITY_LEVEL.indexOf(alert.severity) <= SEVERITY_LEVEL.indexOf(v.severity)),
-        tap((v) => {
-          console.info(
-            formatTime(Date.now()),
-            'MatchingAlertsWithReceivers',
-            JSON.stringify({
-              alert,
-              receiver: v,
-            }),
-          );
-        }),
-        mergeMap((v) =>
-          terminal.requestService('Notify', {
-            type: v.type,
-            receiver_id: v.receiver_id,
-            message: makeNotifyMessage(alert),
-          }),
-        ),
-        catchError((err) => {
-          console.error(formatTime(Date.now()), 'NotifyFailed', err);
-          return EMPTY;
-        }),
-      ),
+async function sendAlert(alert: IAlertGroup) {
+  const config = await firstValueFrom(config$);
+
+  const receivers = config.filter(
+    (v) => SEVERITY_LEVEL.indexOf(alert.severity) <= SEVERITY_LEVEL.indexOf(v.severity),
+  );
+  console.info(
+    formatTime(Date.now()),
+    'MatchingAlertsWithReceivers',
+    JSON.stringify({
+      alert,
+      receivers,
+    }),
+  );
+
+  await Promise.allSettled(
+    receivers.map((v) =>
+      terminal.requestForResponse('Notify', {
+        type: v.type,
+        receiver_id: v.receiver_id,
+        message: makeNotifyMessage(alert),
+      }),
     ),
   );
 }

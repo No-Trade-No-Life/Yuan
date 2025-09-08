@@ -1,6 +1,35 @@
 # Change Log - @yuants/app-trade-copier
 
-This log was last generated on Mon, 01 Sep 2025 12:11:32 GMT and should not be manually modified.
+This log was last generated on Mon, 08 Sep 2025 04:07:02 GMT and should not be manually modified.
+
+## 0.6.11
+Mon, 08 Sep 2025 04:07:02 GMT
+
+_Version update only_
+
+## 0.6.10
+Sun, 07 Sep 2025 23:52:03 GMT
+
+### Patches
+
+- add self interfaces
+
+## 0.6.9
+Thu, 04 Sep 2025 15:24:17 GMT
+
+_Version update only_
+
+## 0.6.8
+Wed, 03 Sep 2025 21:29:08 GMT
+
+### Patches
+
+- fix: rename direction to variant in MetricErrorVolumeRatio
+
+## 0.6.7
+Tue, 02 Sep 2025 01:40:20 GMT
+
+_Version update only_
 
 ## 0.6.6
 Mon, 01 Sep 2025 12:11:32 GMT

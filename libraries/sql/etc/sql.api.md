@@ -14,9 +14,9 @@ export const AddMigration: (migration: ISQLMigration) => void;
 // @public
 export const buildInsertManyIntoTableSQL: <T extends {}>(data: T[], tableName: string, options?: {
     columns?: (keyof T)[] | undefined;
-    keyFn?: ((data: T) => string) | undefined;
     ignoreConflict?: boolean | undefined;
     conflictKeys?: (keyof T)[] | undefined;
+    returningAll?: boolean | undefined;
 } | undefined) => string;
 
 // @public
@@ -47,7 +47,6 @@ export interface ISQLWritterContext<T extends {}> {
     columns?: Array<keyof T>;
     conflictKeys?: Array<keyof T>;
     ignoreConflict?: boolean;
-    keyFn?: (data: T) => string;
     tableName: string;
     writeInterval: number;
 }

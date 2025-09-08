@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Bump Version",
+      "type": "none",
+      "packageName": "@yuants/order"
+    }
+  ],
+  "packageName": "@yuants/order",
+  "email": "41898282+github-actions[bot]@users.noreply.github.com"
+}

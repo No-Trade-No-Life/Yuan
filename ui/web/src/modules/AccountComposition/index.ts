@@ -1,1 +1,2 @@
+import './AccountComposerConfigList';
 import './AccountCompositionRelationList';

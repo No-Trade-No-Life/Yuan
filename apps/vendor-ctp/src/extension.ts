@@ -7,7 +7,7 @@ export default (context: IExtensionContext) => {
         env: {
           type: 'object',
           required: [
-            'HV_URL',
+            'HOST_URL',
             'TRADER_ADDR',
             'MARKET_ADDR',
             'BROKER_ID',
@@ -17,7 +17,7 @@ export default (context: IExtensionContext) => {
             'AUTH_CODE',
           ],
           properties: {
-            HV_URL: { type: 'string' },
+            HOST_URL: { type: 'string' },
             NO_TRADE: { type: 'boolean' },
             TRADER_ADDR: { type: 'string' },
             MARKET_ADDR: { type: 'string' },

@@ -1,11 +1,21 @@
 import '@yuants/deploy';
 import { IDeployment } from '@yuants/deploy';
 import { setupHandShakeService, Terminal } from '@yuants/protocol';
-import { ExecuteMigrations, requestSQL } from '@yuants/sql';
-import { createKeyPair, encodePath, formatTime, fromPrivateKey, listWatch } from '@yuants/utils';
+import { escapeSQL, ExecuteMigrations, requestSQL } from '@yuants/sql';
+import {
+  createKeyPair,
+  decodeBase58,
+  decryptByPrivateKey,
+  encodeBase58,
+  encodePath,
+  encryptByPublicKey,
+  formatTime,
+  fromPrivateKey,
+  listWatch,
+} from '@yuants/utils';
 import { execSync, spawn } from 'child_process';
-import { createWriteStream } from 'fs';
-import { mkdir, rm, writeFile } from 'fs/promises';
+import { createReadStream, createWriteStream, statSync } from 'fs';
+import { mkdir, rm, stat, writeFile } from 'fs/promises';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import {
@@ -14,6 +24,7 @@ import {
   EMPTY,
   firstValueFrom,
   fromEvent,
+  map,
   merge,
   mergeMap,
   Observable,
@@ -39,31 +50,25 @@ delete process.env.PRIVATE_KEY; // 阅后即焚，防止泄漏
 
 const NODE_UNIT_PUBLIC_KEY = NodeUnitKeyPair.public_key;
 
-const NODE_PATH = execSync('which node || echo ""', { encoding: 'utf-8' }).trim();
-const NPM_PATH = execSync('which npm || echo ""', { encoding: 'utf-8' }).trim();
-const NPX_PATH = execSync('which npx || echo ""', { encoding: 'utf-8' }).trim();
-const PNPM_PATH = execSync('which pnpm || echo ""', { encoding: 'utf-8' }).trim();
-const PNPX_PATH = execSync('which pnpx || echo ""', { encoding: 'utf-8' }).trim();
+const getAbsolutePath = (command: string) =>
+  execSync(`which ${command} || echo ""`, { encoding: 'utf-8' }).trim();
+
+const NODE_PATH = getAbsolutePath('node');
+const NPM_PATH = getAbsolutePath('npm');
+const PNPM_PATH = getAbsolutePath('pnpm');
 
 const WORKSPACE_DIR = join(tmpdir(), 'yuants', 'node-unit');
 console.info('Workspace Dir:', WORKSPACE_DIR);
 
-const mapCommandToExecutable: Record<string, string> = {
-  node: NODE_PATH,
-  npm: NPM_PATH,
-  npx: NPX_PATH,
-  pnpm: PNPM_PATH,
-  pnpx: PNPX_PATH,
-};
-
 const localHostDeployment: IDeployment | null = !process.env.HOST_URL
   ? {
       id: 'local-host',
-      command: PNPX_PATH ? 'pnpx' : 'npx',
-      args: ['@yuants/app-host'],
       package_name: '@yuants/app-host',
-      package_version: 'latest',
+      package_version: process.env.HOST_PACKAGE_VERSION || 'latest',
+      command: '',
+      args: [],
       env: {},
+      address: '',
       enabled: true,
       created_at: formatTime(Date.now()),
       updated_at: formatTime(Date.now()),
@@ -81,10 +86,11 @@ if (localHostDeployment) {
 const localPgDeployment: IDeployment | null = process.env.POSTGRES_URI
   ? {
       id: 'local-postgres-storage',
-      command: PNPX_PATH ? 'pnpx' : 'npx',
-      args: ['@yuants/app-postgres-storage'],
       package_name: '@yuants/app-postgres-storage',
-      package_version: 'latest',
+      package_version: process.env.PG_PACKAGE_VERSION || 'latest',
+      command: '',
+      args: [],
+      address: '',
       env: {
         TERMINAL_ID: encodePath('PG', NODE_UNIT_PUBLIC_KEY),
       },
@@ -115,8 +121,13 @@ const spawnChild = (ctx: {
       cwd: ctx.cwd,
     });
 
-    child.stdout.pipe(createWriteStream(ctx.stdoutFilename, { flags: 'a' }));
-    child.stderr.pipe(createWriteStream(ctx.stderrFilename, { flags: 'a' }));
+    const stdout = createWriteStream(ctx.stdoutFilename, { flags: 'a' });
+    const stderr =
+      ctx.stderrFilename === ctx.stdoutFilename
+        ? stdout
+        : createWriteStream(ctx.stderrFilename, { flags: 'a' });
+    child.stdout.pipe(stdout);
+    child.stderr.pipe(stderr);
 
     child.on('spawn', () => {
       console.info(formatTime(Date.now()), 'Spawn', ctx.command, ctx.args, child.pid);
@@ -139,90 +150,88 @@ const spawnChild = (ctx: {
   });
 };
 
+const childPublicKeys = new Set<string>();
+
 const runDeployment = (deployment: IDeployment) => {
-  const command = deployment.command;
-  const executable = mapCommandToExecutable[command] || command;
-  const args = deployment.args.slice();
-  if (command === 'npx') {
-    args.unshift('-y');
-  }
-  const terminalName = `${command} ${args.join(' ')}`;
+  const terminalName = `${deployment.package_name}@${deployment.package_version}`;
 
   const deploymentDir = join(WORKSPACE_DIR, 'deployments', deployment.id);
   const logHome = join(WORKSPACE_DIR, 'logs');
-
-  const needInstall = deployment.package_name && deployment.package_version;
 
   // 使用 node 运行这个包目录本身，会通过 main 字段去加载入口文件
   const entryFile = join(deploymentDir, 'node_modules', deployment.package_name);
 
   return defer(() =>
     concat(
-      needInstall
-        ? defer(async () => {
-            // EnsureDir log
-            await mkdir(logHome, { recursive: true });
+      defer(async () => {
+        // EnsureDir log
+        await mkdir(logHome, { recursive: true });
 
-            // EnsureEmptyDir deployment
-            await rm(deploymentDir, { recursive: true, force: true });
-            await mkdir(deploymentDir, { recursive: true });
+        // EnsureEmptyDir deployment
+        await rm(deploymentDir, { recursive: true, force: true });
+        await mkdir(deploymentDir, { recursive: true });
 
-            await writeFile(
-              join(deploymentDir, 'package.json'),
-              JSON.stringify({
-                dependencies: {
-                  [deployment.package_name]: deployment.package_version,
-                },
-              }),
-            );
-          }).pipe(mergeMap(() => EMPTY)) // suppress signal
-        : EMPTY,
-      needInstall
-        ? spawnChild({
-            command: PNPM_PATH || NPM_PATH,
-            args: ['install'],
-            env: Object.assign({}, process.env, deployment.env),
-            cwd: deploymentDir,
-            stdoutFilename: join(logHome, `${deployment.id}.install.log`),
-            stderrFilename: join(logHome, `${deployment.id}.install.err.log`),
-          }).pipe(mergeMap(() => EMPTY)) // suppress signal
-        : EMPTY,
-
-      needInstall
-        ? spawnChild({
-            command: NODE_PATH,
-            args: [entryFile],
-            env: Object.assign(
-              {},
-              process.env,
-              {
-                HOST_URL: process.env.HOST_URL,
-                TERMINAL_ID: encodePath('Deployment', deployment.id),
-                TERMINAL_NAME: terminalName,
-              },
-              deployment.env,
-            ),
-            cwd: deploymentDir,
-            stdoutFilename: join(logHome, `${deployment.id}.log`),
-            stderrFilename: join(logHome, `${deployment.id}.err.log`),
-          })
-        : spawnChild({
-            command: executable,
-            args,
-            env: Object.assign(
-              {},
-              process.env,
-              {
-                HOST_URL: process.env.HOST_URL,
-                TERMINAL_ID: encodePath('Deployment', deployment.id),
-                TERMINAL_NAME: terminalName,
-              },
-              deployment.env,
-            ),
-            cwd: deploymentDir,
-            stdoutFilename: join(logHome, `${deployment.id}.log`),
-            stderrFilename: join(logHome, `${deployment.id}.err.log`),
+        await writeFile(
+          join(deploymentDir, 'package.json'),
+          JSON.stringify({
+            dependencies: {
+              [deployment.package_name]: deployment.package_version,
+            },
           }),
+        );
+      }).pipe(mergeMap(() => EMPTY)), // suppress signal
+      spawnChild({
+        command: PNPM_PATH || NPM_PATH,
+        args: ['install'],
+        env: Object.assign({}, process.env, deployment.env),
+        cwd: deploymentDir,
+        stdoutFilename: join(logHome, `${deployment.id}.log`),
+        stderrFilename: join(logHome, `${deployment.id}.log`),
+      }).pipe(mergeMap(() => EMPTY)), // suppress signal
+      defer(() => {
+        const childKeyPair = createKeyPair();
+        childPublicKeys.add(childKeyPair.public_key);
+        console.info(formatTime(Date.now()), 'DeploymentAddChildKey', deployment.id, childKeyPair.public_key);
+
+        const isCustomCommandMode = process.env.ENABLE_CUSTOM_COMMAND === 'true' && !!deployment.command;
+
+        // Mode 1: no command, use node to run the package (from main entry)
+        // Mode 2: custom command, use the command to run the package
+        return spawnChild({
+          command: isCustomCommandMode
+            ? getAbsolutePath(deployment.command) || deployment.command
+            : NODE_PATH,
+          args: isCustomCommandMode ? deployment.args : [entryFile, ...deployment.args],
+          env: Object.assign(
+            {},
+            process.env,
+            {
+              HOST_URL: process.env.HOST_URL,
+              TERMINAL_ID: encodePath('Deployment', deployment.id),
+              TERMINAL_NAME: terminalName,
+              DEPLOYMENT_NODE_UNIT_ADDRESS: NODE_UNIT_PUBLIC_KEY,
+              DEPLOYMENT_PRIVATE_KEY: childKeyPair.private_key,
+            },
+            deployment.env,
+          ),
+          // Current working directory is the installed package directory
+          cwd: join(deploymentDir, 'node_modules', deployment.package_name),
+          stdoutFilename: join(logHome, `${deployment.id}.log`),
+          stderrFilename: join(logHome, `${deployment.id}.log`),
+        }).pipe(
+          tap({
+            finalize: () => {
+              console.info(
+                formatTime(Date.now()),
+                'DeploymentRemoveChildKey',
+                deployment.id,
+                childKeyPair.public_key,
+              );
+              childPublicKeys.delete(childKeyPair.public_key);
+            },
+          }),
+        );
+      }),
     ),
   ).pipe(
     tap({
@@ -265,10 +274,172 @@ defer(async () => {
 
   setupHandShakeService(terminal, NodeUnitKeyPair.private_key);
 
+  terminal.provideService(
+    'NodeUnit/DecryptForChild',
+    {
+      type: 'object',
+      required: ['node_unit_address', 'encrypted_data_base58', 'child_public_key'],
+      properties: {
+        node_unit_address: { type: 'string', const: NODE_UNIT_PUBLIC_KEY },
+        encrypted_data_base58: { type: 'string' },
+        child_public_key: { type: 'string' },
+      },
+    },
+    async (msg) => {
+      const { encrypted_data_base58, child_public_key } = msg.req as {
+        encrypted_data_base58: string;
+        child_public_key: string;
+      };
+      if (!childPublicKeys.has(child_public_key)) {
+        return { res: { code: 403, message: 'Child public key not recognized' } };
+      }
+      const encrypted_data = decodeBase58(encrypted_data_base58);
+      // decrypt with parent private key
+      const decrypted_data = decryptByPrivateKey(encrypted_data, NodeUnitKeyPair.private_key);
+      if (!decrypted_data) {
+        return { res: { code: 403, message: 'NodeUnit decryption failed: wrong parent private key' } };
+      }
+      // re-encrypt with child's public key
+      const data = encodeBase58(encryptByPublicKey(decrypted_data, child_public_key));
+      return {
+        res: {
+          code: 0,
+          message: 'OK',
+          data: { data },
+        },
+      };
+    },
+  );
+
   ExecuteMigrations(terminal);
 
-  defer(() => requestSQL<IDeployment[]>(terminal, `select * from deployment where enabled = true`))
+  terminal.provideService(
+    'Deployment/ReadLogSlice',
+    {
+      type: 'object',
+      required: ['deployment_id', 'start'],
+      properties: {
+        deployment_id: { type: 'string' },
+        start: { type: 'number', title: 'Start byte position' },
+      },
+    },
+    async (msg) => {
+      const { deployment_id, start } = msg.req as {
+        deployment_id: string;
+        start: number;
+      };
+
+      const logsDir = join(WORKSPACE_DIR, 'logs');
+
+      const logPath = join(logsDir, `${deployment_id}.log`);
+      // deployment_id must be a UUID v4 string, so no need to check for path traversal attack
+      if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(deployment_id)) {
+        return { res: { code: 403, message: 'Invalid deployment_id: invalid format' } };
+      }
+      // Guard against path traversal attack
+      if (!logPath.startsWith(logsDir)) {
+        return { res: { code: 403, message: 'Invalid deployment_id: path traversal attack detected' } };
+      }
+      const fileStat = await stat(logPath);
+      if (!fileStat.isFile()) {
+        return { res: { code: 404, message: 'Log file not found' } };
+      }
+      const fileSize = fileStat.size;
+      // for given size, start, calculate the actual read range (inclusive, zero-based)
+      // The read range behaves like Array.prototype.slice, we allow start to be negative to count from the end
+      const theTrueStart = start < 0 ? Math.max(0, fileSize + start) : start;
+      const MAX_READ_BYTES = 128 * 1024; // 128 KB
+      const theTrueEnd = Math.min(fileSize, theTrueStart + MAX_READ_BYTES) - 1; // inclusive
+
+      const stream = createReadStream(logPath, {
+        start: theTrueStart,
+        // it's inclusive range for createReadStream
+        end: theTrueEnd,
+        encoding: 'utf-8',
+      });
+
+      const content = await new Promise<string>((resolve, reject) => {
+        let content = '';
+        stream.on('data', (chunk) => {
+          content += chunk;
+        });
+        stream.on('end', () => {
+          resolve(content);
+        });
+        stream.on('error', (err) => {
+          reject(err);
+        });
+      });
+
+      return {
+        res: {
+          code: 0,
+          message: 'OK',
+          data: {
+            content,
+            start: theTrueStart,
+            end: theTrueEnd,
+            file_size: fileSize,
+          },
+        },
+      };
+    },
+  );
+
+  if (getAbsolutePath('tail')) {
+    // Realtime log streaming via `tail -f`
+    terminal.channel.publishChannel(
+      encodePath('Deployment', 'RealtimeLog', NODE_UNIT_PUBLIC_KEY),
+      {},
+      (deployment_id) => {
+        // Subscribe to the log stream for the given deployment_id
+        const logPath = join(WORKSPACE_DIR, 'logs', `${deployment_id}.log`);
+        if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(deployment_id)) {
+          throw new Error('Invalid deployment_id: invalid format');
+        }
+        if (!logPath.startsWith(join(WORKSPACE_DIR, 'logs'))) {
+          throw new Error('Invalid deployment_id: path traversal attack detected');
+        }
+
+        return new Observable<string>((sub) => {
+          const child = spawn('tail', ['-f', logPath], {
+            stdio: ['ignore', 'pipe', 'pipe'],
+          });
+          child.stdout?.on('data', (chunk) => {
+            sub.next(chunk.toString('utf-8'));
+          });
+          child.stderr?.on('data', (chunk) => {
+            sub.next(chunk.toString('utf-8'));
+          });
+          child.on('error', (err) => {
+            sub.error(err);
+          });
+          child.on('exit', () => {
+            sub.complete();
+          });
+          return () => {
+            treeKill(child.pid!, 'SIGKILL');
+          };
+        });
+      },
+    );
+  }
+
+  const trustedPackageRegExp = new RegExp(process.env.TRUSTED_PACKAGE_REGEXP || '^@yuants/');
+
+  defer(() =>
+    requestSQL<IDeployment[]>(
+      terminal,
+      `select * from deployment where enabled = true and address = ${escapeSQL(NODE_UNIT_PUBLIC_KEY)}`,
+    ),
+  )
     .pipe(
+      map((deployments) =>
+        deployments.filter((deployment) =>
+          trustedPackageRegExp.test(`${deployment.package_name}@${deployment.package_version}`),
+        ),
+      ),
+
       repeat({ delay: 10000 }),
       retry({ delay: 1000 }),
       tap((deployments) => {

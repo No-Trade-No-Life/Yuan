@@ -431,11 +431,6 @@
       "shouldPublish": true
     },
     {
-      "packageName": "@yuants/data-model",
-      "projectFolder": "libraries/data-model",
-      "shouldPublish": true
-    },
-    {
       "packageName": "@yuants/data-series",
       "projectFolder": "libraries/data-series",
       "shouldPublish": true
@@ -522,6 +517,11 @@
     {
       "packageName": "@yuants/prometheus-client",
       "projectFolder": "libraries/prometheus-client",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/app-prometheus-rule-controller",
+      "projectFolder": "apps/prometheus-rule-controller",
       "shouldPublish": true
     },
     {

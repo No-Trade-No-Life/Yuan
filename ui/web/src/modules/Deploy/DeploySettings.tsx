@@ -1,94 +1,41 @@
-import { IconMinusCircle, IconPlusCircle } from '@douyinfe/semi-icons';
-import { ArrayField, Form, Modal, Popconfirm, Space } from '@douyinfe/semi-ui';
+import { IconArrowUp, IconHelpCircle, IconMinusCircle, IconPlusCircle } from '@douyinfe/semi-icons';
+import { ArrayField, Form, Modal, Space, Tooltip } from '@douyinfe/semi-ui';
+import { createCache } from '@yuants/cache';
 import { IDeployment } from '@yuants/deploy';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { UUID } from '@yuants/utils';
 import { useObservableState } from 'observable-hooks';
 import { useEffect, useState } from 'react';
-import {
-  BehaviorSubject,
-  combineLatest,
-  defer,
-  firstValueFrom,
-  forkJoin,
-  from,
-  map,
-  of,
-  repeat,
-  retry,
-  shareReplay,
-  switchMap,
-} from 'rxjs';
+import { firstValueFrom } from 'rxjs';
+import { executeCommand } from '../CommandCenter';
 import { resolveVersion } from '../Extensions';
 import { Button, Switch, Toast } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
+import { deployments$, refreshDeployments$ } from './model';
 import { escapeForBash } from './utils';
-const { Option } = Form.Select;
-export const refresh$ = new BehaviorSubject<void>(undefined);
 
-const deploySettings$ = combineLatest([terminal$, refresh$]).pipe(
-  //
-  switchMap(([terminal]) =>
-    defer(() =>
-      terminal
-        ? requestSQL(
-            terminal,
-            `
-            select * from deployment order by created_at desc;
-        `,
-          )
-        : of([]),
-    ).pipe(
-      //
-      map((x) => x as IDeployment[]),
-      repeat({ delay: 2_000 }),
-      retry({ delay: 2_000 }),
-    ),
-  ),
-  shareReplay(1),
-);
-const packageVersion$ = deploySettings$.pipe(
-  //
-  switchMap((settings) =>
-    forkJoin(
-      settings
-        .filter((setting) => Boolean(setting.package_name))
-        .map((setting) =>
-          fetchVersionInfo(setting.package_name).pipe(
-            map((version) => ({ packageName: setting.package_name, version })),
-          ),
-        ),
-    ),
-  ),
-);
-
-const mapPackageNameToVersions = new Map<string, string[]>();
-
-const fetchVersionInfo = (packageName: string) => {
-  if (mapPackageNameToVersions.has(packageName)) {
-    return of(mapPackageNameToVersions.get(packageName)?.[0]);
-  }
-  return from(
+const packageVersionsCache = createCache<string[]>(
+  (packageName) =>
     resolveVersion({ name: packageName, registry: 'https://registry.npmjs.org' }).then((info) => {
       const versions = Object.keys(info.meta.versions).reverse() as string[];
-      mapPackageNameToVersions.set(packageName, versions);
-      return info.version;
+      return versions;
     }),
-  );
-};
+  {
+    expire: 600_000, // Cache for 10 minutes
+  },
+);
 
 registerPage('DeploySettings', () => {
-  const deploySettings = useObservableState(deploySettings$);
+  const terminal = useObservableState(terminal$);
+  const deploySettings = useObservableState(deployments$);
   const [editDeployment, setEditDeployment] = useState<IDeployment>();
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const packageVersion = useObservableState(packageVersion$);
-
   useEffect(() => {
-    if (editDeployment?.package_name && !mapPackageNameToVersions.has(editDeployment.package_name)) {
-      fetchVersionInfo(editDeployment.package_name).subscribe();
+    if (editDeployment?.package_name) {
+      packageVersionsCache.query(editDeployment.package_name, true);
     }
   }, [editDeployment?.package_name]);
 
@@ -102,23 +49,29 @@ registerPage('DeploySettings', () => {
           delete from deployment where id=${escapeSQL(id)}
           `,
         );
-        refresh$.next();
+        Toast.success('删除成功');
+        refreshDeployments$.next();
       }
     } catch (e) {
       Toast.error('删除失败');
     }
   };
 
-  const updateToLatestVersion = () => {
-    if (packageVersion && deploySettings) {
-      const newSettings = deploySettings.map((setting) => {
-        const version = packageVersion.find((xx) => setting.package_name === xx.packageName);
-        if (version && version.version) {
-          setting.package_version = version.version;
+  const updateToLatestVersion = async () => {
+    if (deploySettings) {
+      const packages = new Set<string>(deploySettings.map((x) => x.package_name));
+      await Promise.allSettled([...packages].map((pkg) => packageVersionsCache.query(pkg, true)));
+      const deploymentsToUpdate: IDeployment[] = [];
+      deploySettings.forEach((setting) => {
+        const nextVersion = packageVersionsCache.get(setting.package_name || '')?.[0] || '';
+        if (nextVersion && nextVersion !== setting.package_version) {
+          deploymentsToUpdate.push({
+            ...setting,
+            package_version: nextVersion,
+          });
         }
-        return setting;
       });
-      onUpdate(newSettings);
+      onUpdate(deploymentsToUpdate);
     }
   };
 
@@ -145,19 +98,30 @@ registerPage('DeploySettings', () => {
     setEditDeployment({ id: UUID(), enabled: false } as IDeployment);
     onOpenEdit();
   };
-  const onUpdate = async (deployment: IDeployment[]) => {
+  const onUpdate = async (deployments: IDeployment[]) => {
     try {
       const terminal = await firstValueFrom(terminal$);
       if (terminal) {
-        const result = await requestSQL(
+        const result = await requestSQL<IDeployment[]>(
           terminal,
-          buildInsertManyIntoTableSQL(deployment, 'deployment', {
-            columns: ['args', 'command', 'enabled', 'env', 'id', 'package_version', 'package_name'],
+          buildInsertManyIntoTableSQL(deployments, 'deployment', {
+            columns: [
+              //
+              'id',
+              'package_name',
+              'package_version',
+              'env',
+              'address',
+              'command',
+              'args',
+              'enabled',
+            ],
             conflictKeys: ['id'],
+            returningAll: true,
           }),
         );
-        refresh$.next();
-        Toast.success('更新成功');
+        refreshDeployments$.next();
+        Toast.success(`成功更新 ${result.length} 条数据记录`);
         setVisible(false);
       }
     } catch (e) {
@@ -173,7 +137,7 @@ registerPage('DeploySettings', () => {
         topSlot={
           <>
             <Button icon={<IconPlusCircle />} onClick={onCreate} style={{ margin: '10px 0' }}>
-              创建新配置
+              创建新部署
             </Button>
             <Button icon={<IconPlusCircle />} onClick={updateToLatestVersion} style={{ margin: '10px 0' }}>
               版本一键更新
@@ -182,27 +146,76 @@ registerPage('DeploySettings', () => {
         }
         columns={[
           {
-            header: 'id',
+            header: '动作',
+            cell: (ctx) => (
+              <Space vertical>
+                <Button
+                  onClick={() =>
+                    executeCommand('DeploymentRealtimeLog', {
+                      node_unit_address: ctx.row.original.address,
+                      deployment_id: ctx.row.original.id,
+                    })
+                  }
+                >
+                  日志
+                </Button>
+                <Button onClick={() => onEdit(ctx.row.original)}>编辑</Button>
+                <Button
+                  type="danger"
+                  doubleCheck={{
+                    title: '确认删除此配置？',
+                    description: (
+                      <pre
+                        style={{
+                          width: '100%',
+                          overflow: 'auto',
+                        }}
+                      >
+                        {JSON.stringify(ctx.row.original, null, 2)}
+                      </pre>
+                    ),
+                  }}
+                  onClick={() => onDelete(ctx.row.original.id)}
+                >
+                  删除
+                </Button>
+              </Space>
+            ),
+          },
+          {
+            header: '部署 ID',
             accessorKey: 'id',
           },
           {
-            header: 'package_name',
+            header: 'NPM 包名',
             accessorKey: 'package_name',
           },
           {
-            header: 'package_version',
+            header: '版本',
             accessorKey: 'package_version',
+            cell: (ctx) => {
+              const latestVersion = packageVersionsCache.get(ctx.row.original.package_name || '')?.[0];
+
+              useEffect(() => {
+                if (ctx.row.original.package_name) {
+                  packageVersionsCache.query(ctx.row.original.package_name);
+                }
+              }, [ctx.row.original.package_name]);
+
+              return (
+                <Space>
+                  {ctx.getValue()}
+                  {latestVersion && latestVersion !== ctx.getValue() ? (
+                    <Tooltip content={`最新版本 ${latestVersion}`}>
+                      <IconArrowUp style={{ color: '--var(--semi-color-success)' }} />
+                    </Tooltip>
+                  ) : null}
+                </Space>
+              );
+            },
           },
           {
-            header: 'command',
-            accessorKey: 'command',
-          },
-          {
-            header: 'args',
-            accessorFn: (x) => (x.args || []).join(' '),
-          },
-          {
-            header: 'env',
+            header: '环境变量',
             accessorKey: 'env',
             accessorFn: (x) =>
               Object.entries(x.env)
@@ -210,7 +223,19 @@ registerPage('DeploySettings', () => {
                 .join(' '),
           },
           {
-            header: 'enabled',
+            header: '部署地址',
+            accessorKey: 'address',
+          },
+          {
+            header: '运行命令',
+            accessorKey: 'command',
+          },
+          {
+            header: '命令参数',
+            accessorFn: (x) => (x.args || []).join(' '),
+          },
+          {
+            header: '是否启用',
             accessorKey: 'enabled',
             cell: (ctx) => {
               const enabled = ctx.getValue();
@@ -224,24 +249,6 @@ registerPage('DeploySettings', () => {
                 />
               );
             },
-          },
-          {
-            header: 'Action',
-            cell: (ctx) => (
-              <Space vertical>
-                <Button onClick={() => onEdit(ctx.row.original)}>编辑</Button>
-                <Popconfirm
-                  title="确定是否要删除改配置？"
-                  content="此修改将不可逆"
-                  onConfirm={() => onDelete(ctx.row.original.id)}
-                  // onCancel={() => {}}
-                  position="left"
-                >
-                  {/* <Button>保存</Button> */}
-                  <Button type="danger">删除</Button>
-                </Popconfirm>
-              </Space>
-            ),
           },
         ]}
       ></Modules.Interactive.DataView>
@@ -259,47 +266,49 @@ registerPage('DeploySettings', () => {
               const args = values.args.map((item: { arg: string }) => item.arg) as string[];
 
               const env: Record<string, string> = {};
-              values.env?.forEach((item: { key: string; value: string }) => (env[item.key] = item.value));
+              values.env?.forEach((item: { key: string; value: string }) => {
+                env[item.key] = item.value || ''; // Ensure value defaults to empty string
+              });
               console.log({ values });
-              setEditDeployment({ ...values, args, env });
+              setEditDeployment({
+                ...values,
+                args,
+                env,
+                // default command to empty string if undefined
+                command: values.command || '',
+              });
             }}
             initValues={editDeployment}
             labelAlign="left"
             labelPosition={'left'}
             style={{ marginTop: '20px' }}
           >
-            <Form.Input field="command" label="command" style={{ width: '560px' }} />
-            <Form.Input field="package_name" label="package name" style={{ width: '560px' }} />
-            <Form.Select field="package_version" label="package version" style={{ width: '560px' }}>
-              {mapPackageNameToVersions.get(editDeployment.package_name ?? '')?.map((version) => (
-                <Option value={version}>{version}</Option>
-              ))}
-            </Form.Select>
-            <ArrayField field="args" initValue={(editDeployment?.args ?? []).map((item) => ({ arg: item }))}>
-              {({ add, arrayFields, addWithInitValue }) => (
-                <>
-                  <Button onClick={add} icon={<IconPlusCircle />} theme="light" style={{ display: 'flex' }}>
-                    Add new arg
-                  </Button>
-                  {arrayFields.map(({ field, key, remove }, i) => (
-                    <div key={key} style={{ display: 'flex' }}>
-                      <Form.Input
-                        field={`${field}[arg]`}
-                        label={`arg[${i}]`}
-                        style={{ width: 400, marginRight: 16 }}
-                      />
-                      <Button
-                        type="danger"
-                        theme="borderless"
-                        icon={<IconMinusCircle />}
-                        onClick={remove}
-                        style={{ margin: 12 }}
-                      />
-                    </div>
-                  ))}
-                </>
-              )}
-            </ArrayField>
+            <Form.Input field="package_name" label="NPM 包名" style={{ width: '560px' }} />
+            <Form.AutoComplete
+              field="package_version"
+              label="部署版本"
+              style={{ width: '560px' }}
+              data={packageVersionsCache.get(editDeployment.package_name ?? '') ?? []}
+            />
+
+            <Form.AutoComplete
+              field="address"
+              label={{
+                text: '部署地址',
+                extra: (
+                  <Tooltip content="部署到指定的 Node Unit 地址 (ED25519 公钥)。NodeUnit 仅会部署与其地址匹配的项目。">
+                    <IconHelpCircle style={{ color: 'var(--semi-color-text-2)' }} />
+                  </Tooltip>
+                ),
+              }}
+              style={{ width: '560px' }}
+              data={terminal?.terminalInfos
+                .filter((x) => x.name === '@yuants/node-unit')
+                .map((x) => x.terminal_id.split('/')[1])
+                .filter(Boolean)}
+            />
+
+            <Form.Section text="环境变量" />
             <ArrayField
               field="env"
               initValue={Object.entries(editDeployment?.env ?? {})?.map(([k, v]) => ({ key: k, value: v }))}
@@ -319,6 +328,33 @@ registerPage('DeploySettings', () => {
                         field={`${field}[value]`}
                         label={`value[${i}]`}
                         style={{ width: '300px' }}
+                      />
+                      <Button
+                        type="danger"
+                        theme="borderless"
+                        icon={<IconMinusCircle />}
+                        onClick={remove}
+                        style={{ margin: 12 }}
+                      />
+                    </div>
+                  ))}
+                </>
+              )}
+            </ArrayField>
+            <Form.Section text="自定义启动命令 (高级)" />
+            <Form.Input field="command" label="command" style={{ width: '560px' }} />
+            <ArrayField field="args" initValue={(editDeployment?.args ?? []).map((item) => ({ arg: item }))}>
+              {({ add, arrayFields, addWithInitValue }) => (
+                <>
+                  <Button onClick={add} icon={<IconPlusCircle />} theme="light" style={{ display: 'flex' }}>
+                    Add new arg
+                  </Button>
+                  {arrayFields.map(({ field, key, remove }, i) => (
+                    <div key={key} style={{ display: 'flex' }}>
+                      <Form.Input
+                        field={`${field}[arg]`}
+                        label={`arg[${i}]`}
+                        style={{ width: 400, marginRight: 16 }}
                       />
                       <Button
                         type="danger"

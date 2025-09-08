@@ -33,6 +33,9 @@ export const decodePath: (path: string) => string[];
 export const decrypt: (data: Uint8Array, base58_key: string) => Promise<Uint8Array>;
 
 // @public
+export const decryptByPrivateKey: (data: Uint8Array, privateKey: string) => Uint8Array | null;
+
+// @public
 export const deriveSharedKey: (publicKey: string, privateKey: string) => string;
 
 // @public
@@ -43,6 +46,9 @@ export const encodePath: (...params: any[]) => string;
 
 // @public
 export const encrypt: (data: Uint8Array, base58_key: string) => Promise<Uint8Array>;
+
+// @public
+export const encryptByPublicKey: (data: Uint8Array, publicKey: string) => Uint8Array;
 
 // @public
 export const escapeRegExp: (string: string) => string;

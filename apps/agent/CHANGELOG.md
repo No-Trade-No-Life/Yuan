@@ -1,6 +1,40 @@
 # Change Log - @yuants/app-agent
 
-This log was last generated on Sat, 30 Aug 2025 22:44:39 GMT and should not be manually modified.
+This log was last generated on Mon, 08 Sep 2025 04:07:02 GMT and should not be manually modified.
+
+## 0.7.4
+Mon, 08 Sep 2025 04:07:02 GMT
+
+_Version update only_
+
+## 0.7.3
+Sun, 07 Sep 2025 23:52:03 GMT
+
+_Version update only_
+
+## 0.7.2
+Thu, 04 Sep 2025 15:24:17 GMT
+
+_Version update only_
+
+## 0.7.1
+Tue, 02 Sep 2025 15:03:38 GMT
+
+### Patches
+
+- add log for DecryptForChild
+
+## 0.7.0
+Tue, 02 Sep 2025 12:18:18 GMT
+
+### Minor changes
+
+- use new crypto method to load secret code
+
+## 0.6.2
+Tue, 02 Sep 2025 01:40:20 GMT
+
+_Version update only_
 
 ## 0.6.1
 Sat, 30 Aug 2025 22:44:39 GMT

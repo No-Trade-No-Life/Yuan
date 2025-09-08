@@ -168,7 +168,6 @@ export const createSeriesProvider = <T extends ISeriesDataItem>(
         await requestSQL(
           terminal,
           buildInsertManyIntoTableSQL(data, ctx.tableName, {
-            keyFn: (x) => encodePath(x.series_id, x.created_at),
             conflictKeys: ['series_id', 'created_at'],
           }),
         );

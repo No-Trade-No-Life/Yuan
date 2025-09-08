@@ -1,6 +1,69 @@
 # Change Log - @yuants/node-unit
 
-This log was last generated on Sat, 30 Aug 2025 22:44:39 GMT and should not be manually modified.
+This log was last generated on Mon, 08 Sep 2025 02:42:21 GMT and should not be manually modified.
+
+## 0.9.1
+Mon, 08 Sep 2025 02:42:21 GMT
+
+### Patches
+
+- unify stdout, stderr logs
+
+## 0.9.0
+Sun, 07 Sep 2025 23:52:03 GMT
+
+### Minor changes
+
+- add log services
+
+### Patches
+
+- add distinguish to node_address
+
+## 0.8.0
+Thu, 04 Sep 2025 16:45:39 GMT
+
+### Minor changes
+
+- add some options (trust and version locking)
+
+## 0.7.3
+Thu, 04 Sep 2025 15:24:17 GMT
+
+_Version update only_
+
+## 0.7.2
+Tue, 02 Sep 2025 18:08:47 GMT
+
+### Patches
+
+- fix childkey lost issue
+
+## 0.7.1
+Tue, 02 Sep 2025 15:03:38 GMT
+
+### Patches
+
+- fix DecryptForChild
+
+## 0.7.0
+Tue, 02 Sep 2025 12:18:18 GMT
+
+### Minor changes
+
+- allow decrypt for child processes
+
+## 0.6.1
+Tue, 02 Sep 2025 01:40:20 GMT
+
+_Version update only_
+
+## 0.6.0
+Mon, 01 Sep 2025 23:04:02 GMT
+
+### Minor changes
+
+- select address
 
 ## 0.5.3
 Sat, 30 Aug 2025 22:44:39 GMT

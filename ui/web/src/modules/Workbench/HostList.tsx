@@ -1,23 +1,14 @@
 import {
-  IconCode,
+  IconApps,
   IconDelete,
   IconEdit,
-  IconExport,
   IconLink,
   IconPlus,
   IconShareStroked,
+  IconTerminal,
   IconUnlink,
 } from '@douyinfe/semi-icons';
-import {
-  Button,
-  ButtonGroup,
-  Card,
-  Descriptions,
-  Popconfirm,
-  Space,
-  Toast,
-  Typography,
-} from '@douyinfe/semi-ui';
+import { ButtonGroup, Card, Descriptions, Space, Toast, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
 import copy from 'copy-to-clipboard';
 import { t } from 'i18next';
@@ -27,9 +18,8 @@ import { useMemo } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { bufferTime, combineLatest, from, map, of, shareReplay, switchMap } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
-import { fs } from '../FileSystem/api';
 import { showForm } from '../Form';
-import { DataView } from '../Interactive';
+import { Button, DataView } from '../Interactive';
 import { registerPage } from '../Pages';
 import { isTerminalConnected$, terminal$ } from '../Terminals';
 import { IHostConfigItem, currentHostConfig$, hostConfigList$ } from './model';
@@ -69,7 +59,6 @@ export const network$ = terminal$.pipe(
 registerPage('HostList', () => {
   const configs = useObservableState(hostConfigList$, []) || [];
   const { t } = useTranslation('HostList');
-  const HOST_CONFIG = '/hosts.json';
   const config = useObservableState(currentHostConfig$);
   const terminal = useObservableState(terminal$);
   const isOnline = useObservableState(isTerminalConnected$);
@@ -133,19 +122,19 @@ registerPage('HostList', () => {
                   Toast.success(t('link_copied'));
                 }}
               ></Button>
-              <Popconfirm
-                style={{ width: 300 }}
-                title={t('common:confirm_delete')}
-                content={t('common:confirm_delete_note')}
-                onConfirm={() => {
+              <Button
+                icon={<IconDelete />}
+                type="danger"
+                doubleCheck={{
+                  title: t('common:confirm_delete'),
+                  description: (
+                    <pre style={{ width: '100%', overflow: 'auto' }}>{JSON.stringify(config, null, 2)}</pre>
+                  ),
+                }}
+                onClick={() => {
                   hostConfigList$.next(hostConfigList$.value!.filter((item) => item !== config));
                 }}
-                okText={t('common:confirm_delete_ok')}
-                okType="danger"
-                cancelText={t('common:confirm_delete_cancel')}
-              >
-                <Button icon={<IconDelete />} type="danger"></Button>
-              </Popconfirm>
+              ></Button>
             </ButtonGroup>
           );
         },
@@ -164,6 +153,12 @@ registerPage('HostList', () => {
           }}
         >
           {t('disconnect')}
+        </Button>
+        <Button icon={<IconTerminal />} onClick={() => executeCommand('TerminalList')}>
+          终端列表
+        </Button>
+        <Button icon={<IconApps />} onClick={() => executeCommand('DeploySettings')}>
+          应用部署列表
         </Button>
       </Space>
       {config && (
@@ -211,39 +206,12 @@ registerPage('HostList', () => {
                 hostConfigList$.next([...(hostConfigList$.value ?? []), item]);
               }}
             >
-              {t('add_dedicated_host')}
-            </Button>
-            <Button
-              icon={<IconExport />}
-              onClick={async () => {
-                const configs = JSON.parse(await fs.readFile(HOST_CONFIG));
-                hostConfigList$.next(configs);
-                Toast.success(`${t('common:import_succeed')}: ${HOST_CONFIG}`);
-              }}
-            >
-              {t('common:import')}
-            </Button>
-            <Button
-              icon={<IconExport />}
-              onClick={async () => {
-                await fs.writeFile(HOST_CONFIG, JSON.stringify(configs, null, 2));
-                Toast.success(`${t('common:export_succeed')}: ${HOST_CONFIG}`);
-              }}
-            >
-              {t('common:export')}
-            </Button>
-            <Button
-              icon={<IconCode />}
-              onClick={() => {
-                executeCommand('FileEditor', { filename: HOST_CONFIG });
-              }}
-            >
-              {t('common:view_source')}
+              {t('add_host')}
             </Button>
           </>
         }
-        columns={columnsOfDedicatedHosts}
         data={configs}
+        columns={columnsOfDedicatedHosts}
       />
     </Space>
   );

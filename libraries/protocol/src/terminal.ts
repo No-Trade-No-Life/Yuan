@@ -921,16 +921,20 @@ export class Terminal {
     this.provideService('Ping', {}, () => [{ res: { code: 0, message: 'Pong' } }]);
 
     if (!this.options.disableMetrics) {
-      this.provideService('Metrics', {}, async () => {
-        const metrics = await MetricsExporter.export();
-        return {
-          res: {
-            code: 0,
-            message: 'OK',
-            data: { metrics: `${PromRegistry.metrics()}\n${metrics}` },
-          },
-        };
-      });
+      this.provideService(
+        'Metrics',
+        { type: 'object', properties: { terminal_id: { type: 'string', const: this.terminal_id } } },
+        async () => {
+          const metrics = await MetricsExporter.export();
+          return {
+            res: {
+              code: 0,
+              message: 'OK',
+              data: { metrics: `${PromRegistry.metrics()}\n${metrics}` },
+            },
+          };
+        },
+      );
     }
 
     if (isNode) {

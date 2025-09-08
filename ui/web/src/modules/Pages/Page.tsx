@@ -68,7 +68,7 @@ export const Page = React.memo((props: { page: IPage }) => {
   );
 });
 
-export const usePageParams = () => {
+export const usePageParams = function <T = any>(): T {
   const page = useContext(PageContext);
   return page?.params ?? {};
 };

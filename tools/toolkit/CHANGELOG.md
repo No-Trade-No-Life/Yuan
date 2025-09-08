@@ -1,6 +1,13 @@
 # Change Log - @yuants/tool-kit
 
-This log was last generated on Mon, 21 Apr 2025 17:48:12 GMT and should not be manually modified.
+This log was last generated on Thu, 04 Sep 2025 15:24:17 GMT and should not be manually modified.
+
+## 0.2.0
+Thu, 04 Sep 2025 15:24:17 GMT
+
+### Minor changes
+
+- add DOCKER_BUILD_INSTANTLY and remove CI_RUN option
 
 ## 0.1.10
 Mon, 21 Apr 2025 17:48:12 GMT

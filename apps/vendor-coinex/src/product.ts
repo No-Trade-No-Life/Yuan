@@ -72,7 +72,6 @@ createSQLWriter<IProduct>(terminal, {
   tableName: 'product',
   data$: product$,
   writeInterval: 1000,
-  keyFn: (x) => encodePath(x.datasource_id, x.product_id),
   conflictKeys: ['datasource_id', 'product_id'],
 });
 

@@ -1,6 +1,6 @@
 {
   "name": "@yuants/utils",
-  "version": "0.6.0",
+  "version": "0.7.1",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [
@@ -23,13 +23,15 @@
     "@types/heft-jest": "1.0.3",
     "@types/node": "22",
     "@yuants/tool-kit": "workspace:*",
-    "typescript": "~4.7.4"
+    "typescript": "~4.7.4",
+    "@types/ed2curve": "~0.2.4"
   },
   "dependencies": {
     "rxjs": "~7.5.6",
     "tweetnacl": "~1.0.3",
     "bs58": "~6.0.0",
     "date-fns": "~2.30.0",
-    "date-fns-tz": "~2.0.0"
+    "date-fns-tz": "~2.0.0",
+    "ed2curve": "~0.3.0"
   }
 }

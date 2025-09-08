@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-trade-copier",
-  "version": "0.6.6",
+  "version": "0.6.11",
   "homepage": "https://github.com/No-Trade-No-Life/Yuan/tree/main/apps/trade-copier",
   "main": "lib/index.js",
   "module": "dist/index.js",
@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "@types/json-schema": "~7.0.11",
-    "@yuants/data-model": "workspace:*",
     "@yuants/data-product": "workspace:*",
     "@yuants/data-account": "workspace:*",
     "@yuants/data-order": "workspace:*",
