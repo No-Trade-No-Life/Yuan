@@ -1,4 +1,4 @@
-import { Space } from '@douyinfe/semi-ui';
+import { Select, Space } from '@douyinfe/semi-ui';
 import { formatTime } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { createContext } from 'react';
@@ -79,23 +79,32 @@ registerPage('NewTechnicalChart', () => {
       [config?.data],
     ),
   );
+  console.log({ data, config });
   return (
     <Space vertical align="start" style={{ height: '100%', width: '100%', overflow: 'hidden' }}>
-      <Space align="start" style={{ width: '100%' }}>
-        <Button disabled icon={<IconSetting />}></Button>
-        <Button
-          icon={<IconRefresh />}
-          onClick={() => {
-            refresh$.next(undefined);
-          }}
-        ></Button>
-      </Space>
       <Space
         vertical
         align="start"
         style={{ display: 'flex', width: '100%', flexGrow: '1', overflow: 'hidden' }}
       >
-        {config && <ChartComponent view={config.views[0]} data={data} />}
+        {config && (
+          <ChartComponent
+            topSlot={
+              <>
+                <Button disabled icon={<IconSetting />} />
+                <Button
+                  icon={<IconRefresh />}
+                  onClick={() => {
+                    refresh$.next(undefined);
+                  }}
+                />
+                <Select prefix="View" optionList={[]}></Select>
+              </>
+            }
+            view={config.views[0]}
+            data={data}
+          />
+        )}
       </Space>
     </Space>
   );

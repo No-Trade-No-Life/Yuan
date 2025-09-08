@@ -1,4 +1,4 @@
-import { memo, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
 import {
   createChart,
   CandlestickSeries,
@@ -14,6 +14,7 @@ import {
 } from 'lightweight-charts';
 import { ITimeSeriesChartConfig } from '../../Interactive';
 import { useIsDarkMode } from '../../Workbench';
+import { Space } from '@douyinfe/semi-ui';
 
 const DEFAULT_SINGLE_COLOR_SCHEME: string[] = [
   '#5B8FF9',
@@ -122,6 +123,7 @@ function waitForPaneElement(pane: any, maxRetries: number = 20): Promise<HTMLEle
 
 interface Props {
   view: ITimeSeriesChartConfig['views'][0];
+  topSlot?: ReactNode;
   data?: {
     filename: string;
     data_index: number;
@@ -155,7 +157,7 @@ const mergeTimeLine = (timeLine: number[][], mainTimeLine: number[]): number[][]
       if (currentTime > mainTime) break;
       if (timeLineIndex === timeLine.length - 1) {
         result.push([mainTime, dataIndex]);
-      } else if (currentTime <= mainTime) {
+      } else if (nextTime > mainTime) {
         result.push([mainTime, dataIndex]);
       }
     }
@@ -173,7 +175,7 @@ const mergeTimeLine = (timeLine: number[][], mainTimeLine: number[]): number[][]
 export const ChartComponent = memo((props: Props) => {
   const { view, data } = props;
   const darkMode = useIsDarkMode();
-
+  const [position, setPosition] = useState<number>();
   const UpdateLegendFuncQueue: Function[] = [];
 
   const domRef = useRef<HTMLDivElement | null>(null);
@@ -271,6 +273,7 @@ export const ChartComponent = memo((props: Props) => {
   useEffect(() => {
     if (!displayData || !domRef.current || !view) return;
     const handler = (param: MouseEventParams<Time>) => {
+      if (param.logical) setPosition(param.logical);
       UpdateLegendFuncQueue.forEach((fn) => fn(param));
     };
     if (chartRef.current) {
@@ -383,5 +386,13 @@ export const ChartComponent = memo((props: Props) => {
     // }
   }, [view, displayData, darkMode]);
 
-  return <div id="App" style={{ width: '100%', height: '100%' }} ref={domRef} />;
+  return (
+    <Space vertical align="start" style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
+      <Space align="start">
+        {props.topSlot}
+        Position: {position}
+      </Space>
+      <div style={{ width: '100%', height: '100%', flexGrow: 1 }} ref={domRef} />
+    </Space>
+  );
 });
