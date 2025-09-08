@@ -79,6 +79,7 @@ AddMigration({
   name: 'alert_table_data_position_add_trigger',
   dependencies: ['0e9eea4b-2107-4e9d-86e5-8b11c74f85d7'],
   statement: `
+        ALTER TABLE position DROP CONSTRAINT IF EXISTS position_account_key;
         ALTER TABLE position ADD CONSTRAINT position_account_key PRIMARY KEY (position_id, account_id);
 
         create or replace trigger auto_update_updated_at before update
