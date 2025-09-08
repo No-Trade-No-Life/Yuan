@@ -100,6 +100,10 @@ void to_json(json& j, const CThostFtdcRspUserLoginField& p) {
            {"CZCETime", codec_convert("UTF-8//TRANSLIT", "GBK", p.CZCETime)},
            {"FFEXTime", codec_convert("UTF-8//TRANSLIT", "GBK", p.FFEXTime)},
            {"INETime", codec_convert("UTF-8//TRANSLIT", "GBK", p.INETime)},
+           {"SysVersion", codec_convert("UTF-8//TRANSLIT", "GBK", p.SysVersion)},
+           {"GFEXTime", codec_convert("UTF-8//TRANSLIT", "GBK", p.GFEXTime)},
+           {"LoginDRIdentityID", p.LoginDRIdentityID},
+           {"UserDRIdentityID", p.UserDRIdentityID},
   };
 }
 
@@ -128,6 +132,12 @@ void from_json(const json& j, CThostFtdcRspUserLoginField& p) {
   std::strncpy(p.FFEXTime, codec_convert("GBK//TRANSLIT", "UTF-8", v11.c_str()).c_str(), sizeof(p.FFEXTime));
   auto &v12 = j.at("INETime").get_ref<const std::string &>();
   std::strncpy(p.INETime, codec_convert("GBK//TRANSLIT", "UTF-8", v12.c_str()).c_str(), sizeof(p.INETime));
+  auto &v13 = j.at("SysVersion").get_ref<const std::string &>();
+  std::strncpy(p.SysVersion, codec_convert("GBK//TRANSLIT", "UTF-8", v13.c_str()).c_str(), sizeof(p.SysVersion));
+  auto &v14 = j.at("GFEXTime").get_ref<const std::string &>();
+  std::strncpy(p.GFEXTime, codec_convert("GBK//TRANSLIT", "UTF-8", v14.c_str()).c_str(), sizeof(p.GFEXTime));
+  j.at("LoginDRIdentityID").get_to(p.LoginDRIdentityID);
+  j.at("UserDRIdentityID").get_to(p.UserDRIdentityID);
 
 }
 
@@ -636,6 +646,8 @@ void to_json(json& j, const CThostFtdcProductField& p) {
            {"UnderlyingMultiple", p.UnderlyingMultiple},
            {"ProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductID)},
            {"ExchangeProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeProductID)},
+           {"OpenLimitControlLevel", std::string(1, p.OpenLimitControlLevel)},
+           {"OrderFreqControlLevel", std::string(1, p.OrderFreqControlLevel)},
   };
 }
 
@@ -671,6 +683,10 @@ void from_json(const json& j, CThostFtdcProductField& p) {
   std::strncpy(p.ProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v17.c_str()).c_str(), sizeof(p.ProductID));
   auto &v18 = j.at("ExchangeProductID").get_ref<const std::string &>();
   std::strncpy(p.ExchangeProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v18.c_str()).c_str(), sizeof(p.ExchangeProductID));
+  auto &v19 = j.at("OpenLimitControlLevel").get_ref<const std::string &>();
+  p.OpenLimitControlLevel = v19.at(0);
+  auto &v20 = j.at("OrderFreqControlLevel").get_ref<const std::string &>();
+  p.OrderFreqControlLevel = v20.at(0);
 
 }
 
@@ -809,6 +825,9 @@ void to_json(json& j, const CThostFtdcTraderField& p) {
            {"Password", codec_convert("UTF-8//TRANSLIT", "GBK", p.Password)},
            {"InstallCount", p.InstallCount},
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"OrderCancelAlg", std::string(1, p.OrderCancelAlg)},
+           {"TradeInstallCount", p.TradeInstallCount},
+           {"MDInstallCount", p.MDInstallCount},
   };
 }
 
@@ -824,6 +843,10 @@ void from_json(const json& j, CThostFtdcTraderField& p) {
   j.at("InstallCount").get_to(p.InstallCount);
   auto &v5 = j.at("BrokerID").get_ref<const std::string &>();
   std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v6 = j.at("OrderCancelAlg").get_ref<const std::string &>();
+  p.OrderCancelAlg = v6.at(0);
+  j.at("TradeInstallCount").get_to(p.TradeInstallCount);
+  j.at("MDInstallCount").get_to(p.MDInstallCount);
 
 }
 
@@ -844,6 +867,8 @@ void to_json(json& j, const CThostFtdcInvestorField& p) {
            {"Mobile", codec_convert("UTF-8//TRANSLIT", "GBK", p.Mobile)},
            {"CommModelID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CommModelID)},
            {"MarginModelID", codec_convert("UTF-8//TRANSLIT", "GBK", p.MarginModelID)},
+           {"IsOrderFreq", std::string(1, p.IsOrderFreq)},
+           {"IsOpenVolLimit", std::string(1, p.IsOpenVolLimit)},
   };
 }
 
@@ -873,6 +898,10 @@ void from_json(const json& j, CThostFtdcInvestorField& p) {
   std::strncpy(p.CommModelID, codec_convert("GBK//TRANSLIT", "UTF-8", v11.c_str()).c_str(), sizeof(p.CommModelID));
   auto &v12 = j.at("MarginModelID").get_ref<const std::string &>();
   std::strncpy(p.MarginModelID, codec_convert("GBK//TRANSLIT", "UTF-8", v12.c_str()).c_str(), sizeof(p.MarginModelID));
+  auto &v13 = j.at("IsOrderFreq").get_ref<const std::string &>();
+  p.IsOrderFreq = v13.at(0);
+  auto &v14 = j.at("IsOpenVolLimit").get_ref<const std::string &>();
+  p.IsOpenVolLimit = v14.at(0);
 
 }
 
@@ -1569,6 +1598,7 @@ void to_json(json& j, const CThostFtdcTraderOfferField& p) {
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
            {"MaxTradeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.MaxTradeID)},
            {"MaxOrderMessageReference", codec_convert("UTF-8//TRANSLIT", "GBK", p.MaxOrderMessageReference)},
+           {"OrderCancelAlg", std::string(1, p.OrderCancelAlg)},
   };
 }
 
@@ -1610,6 +1640,8 @@ void from_json(const json& j, CThostFtdcTraderOfferField& p) {
   std::strncpy(p.MaxTradeID, codec_convert("GBK//TRANSLIT", "UTF-8", v17.c_str()).c_str(), sizeof(p.MaxTradeID));
   auto &v18 = j.at("MaxOrderMessageReference").get_ref<const std::string &>();
   std::strncpy(p.MaxOrderMessageReference, codec_convert("GBK//TRANSLIT", "UTF-8", v18.c_str()).c_str(), sizeof(p.MaxOrderMessageReference));
+  auto &v19 = j.at("OrderCancelAlg").get_ref<const std::string &>();
+  p.OrderCancelAlg = v19.at(0);
 
 }
 
@@ -2025,6 +2057,8 @@ void to_json(json& j, const CThostFtdcInputOrderField& p) {
            {"MacAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.MacAddress)},
            {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
            {"IPAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.IPAddress)},
+           {"OrderMemo", codec_convert("UTF-8//TRANSLIT", "GBK", p.OrderMemo)},
+           {"SessionReqSeq", p.SessionReqSeq},
   };
 }
 
@@ -2085,6 +2119,9 @@ void from_json(const json& j, CThostFtdcInputOrderField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v30.c_str()).c_str(), sizeof(p.InstrumentID));
   auto &v31 = j.at("IPAddress").get_ref<const std::string &>();
   std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v31.c_str()).c_str(), sizeof(p.IPAddress));
+  auto &v32 = j.at("OrderMemo").get_ref<const std::string &>();
+  std::strncpy(p.OrderMemo, codec_convert("GBK//TRANSLIT", "UTF-8", v32.c_str()).c_str(), sizeof(p.OrderMemo));
+  j.at("SessionReqSeq").get_to(p.SessionReqSeq);
 
 }
 
@@ -2158,6 +2195,8 @@ void to_json(json& j, const CThostFtdcOrderField& p) {
            {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
            {"ExchangeInstID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeInstID)},
            {"IPAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.IPAddress)},
+           {"OrderMemo", codec_convert("UTF-8//TRANSLIT", "GBK", p.OrderMemo)},
+           {"SessionReqSeq", p.SessionReqSeq},
   };
 }
 
@@ -2276,6 +2315,9 @@ void from_json(const json& j, CThostFtdcOrderField& p) {
   std::strncpy(p.ExchangeInstID, codec_convert("GBK//TRANSLIT", "UTF-8", v64.c_str()).c_str(), sizeof(p.ExchangeInstID));
   auto &v65 = j.at("IPAddress").get_ref<const std::string &>();
   std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v65.c_str()).c_str(), sizeof(p.IPAddress));
+  auto &v66 = j.at("OrderMemo").get_ref<const std::string &>();
+  std::strncpy(p.OrderMemo, codec_convert("GBK//TRANSLIT", "UTF-8", v66.c_str()).c_str(), sizeof(p.OrderMemo));
+  j.at("SessionReqSeq").get_to(p.SessionReqSeq);
 
 }
 
@@ -2472,6 +2514,8 @@ void to_json(json& j, const CThostFtdcInputOrderActionField& p) {
            {"MacAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.MacAddress)},
            {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
            {"IPAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.IPAddress)},
+           {"OrderMemo", codec_convert("UTF-8//TRANSLIT", "GBK", p.OrderMemo)},
+           {"SessionReqSeq", p.SessionReqSeq},
   };
 }
 
@@ -2508,6 +2552,9 @@ void from_json(const json& j, CThostFtdcInputOrderActionField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v17.c_str()).c_str(), sizeof(p.InstrumentID));
   auto &v18 = j.at("IPAddress").get_ref<const std::string &>();
   std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v18.c_str()).c_str(), sizeof(p.IPAddress));
+  auto &v19 = j.at("OrderMemo").get_ref<const std::string &>();
+  std::strncpy(p.OrderMemo, codec_convert("GBK//TRANSLIT", "UTF-8", v19.c_str()).c_str(), sizeof(p.OrderMemo));
+  j.at("SessionReqSeq").get_to(p.SessionReqSeq);
 
 }
 
@@ -2546,6 +2593,8 @@ void to_json(json& j, const CThostFtdcOrderActionField& p) {
            {"MacAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.MacAddress)},
            {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
            {"IPAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.IPAddress)},
+           {"OrderMemo", codec_convert("UTF-8//TRANSLIT", "GBK", p.OrderMemo)},
+           {"SessionReqSeq", p.SessionReqSeq},
   };
 }
 
@@ -2605,6 +2654,9 @@ void from_json(const json& j, CThostFtdcOrderActionField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v29.c_str()).c_str(), sizeof(p.InstrumentID));
   auto &v30 = j.at("IPAddress").get_ref<const std::string &>();
   std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v30.c_str()).c_str(), sizeof(p.IPAddress));
+  auto &v31 = j.at("OrderMemo").get_ref<const std::string &>();
+  std::strncpy(p.OrderMemo, codec_convert("GBK//TRANSLIT", "UTF-8", v31.c_str()).c_str(), sizeof(p.OrderMemo));
+  j.at("SessionReqSeq").get_to(p.SessionReqSeq);
 
 }
 
@@ -3022,6 +3074,7 @@ void to_json(json& j, const CThostFtdcSyncDepositField& p) {
            {"CurrencyID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CurrencyID)},
            {"IsFromSopt", p.IsFromSopt},
            {"TradingPassword", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingPassword)},
+           {"IsSecAgentTranfer", p.IsSecAgentTranfer},
   };
 }
 
@@ -3039,6 +3092,7 @@ void from_json(const json& j, CThostFtdcSyncDepositField& p) {
   j.at("IsFromSopt").get_to(p.IsFromSopt);
   auto &v7 = j.at("TradingPassword").get_ref<const std::string &>();
   std::strncpy(p.TradingPassword, codec_convert("GBK//TRANSLIT", "UTF-8", v7.c_str()).c_str(), sizeof(p.TradingPassword));
+  j.at("IsSecAgentTranfer").get_to(p.IsSecAgentTranfer);
 
 }
 
@@ -3101,6 +3155,8 @@ void to_json(json& j, const CThostFtdcSyncingInvestorField& p) {
            {"Mobile", codec_convert("UTF-8//TRANSLIT", "GBK", p.Mobile)},
            {"CommModelID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CommModelID)},
            {"MarginModelID", codec_convert("UTF-8//TRANSLIT", "GBK", p.MarginModelID)},
+           {"IsOrderFreq", std::string(1, p.IsOrderFreq)},
+           {"IsOpenVolLimit", std::string(1, p.IsOpenVolLimit)},
   };
 }
 
@@ -3130,6 +3186,10 @@ void from_json(const json& j, CThostFtdcSyncingInvestorField& p) {
   std::strncpy(p.CommModelID, codec_convert("GBK//TRANSLIT", "UTF-8", v11.c_str()).c_str(), sizeof(p.CommModelID));
   auto &v12 = j.at("MarginModelID").get_ref<const std::string &>();
   std::strncpy(p.MarginModelID, codec_convert("GBK//TRANSLIT", "UTF-8", v12.c_str()).c_str(), sizeof(p.MarginModelID));
+  auto &v13 = j.at("IsOrderFreq").get_ref<const std::string &>();
+  p.IsOrderFreq = v13.at(0);
+  auto &v14 = j.at("IsOpenVolLimit").get_ref<const std::string &>();
+  p.IsOpenVolLimit = v14.at(0);
 
 }
 
@@ -4058,6 +4118,7 @@ void to_json(json& j, const CThostFtdcQryDepthMarketDataField& p) {
            {"reserve1", codec_convert("UTF-8//TRANSLIT", "GBK", p.reserve1)},
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
            {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
+           {"ProductClass", std::string(1, p.ProductClass)},
   };
 }
 
@@ -4068,6 +4129,8 @@ void from_json(const json& j, CThostFtdcQryDepthMarketDataField& p) {
   std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
   auto &v2 = j.at("InstrumentID").get_ref<const std::string &>();
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InstrumentID));
+  auto &v3 = j.at("ProductClass").get_ref<const std::string &>();
+  p.ProductClass = v3.at(0);
 
 }
 
@@ -5719,6 +5782,9 @@ void to_json(json& j, const CThostFtdcInputQuoteField& p) {
            {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
            {"IPAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.IPAddress)},
            {"ReplaceSysID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ReplaceSysID)},
+           {"TimeCondition", std::string(1, p.TimeCondition)},
+           {"OrderMemo", codec_convert("UTF-8//TRANSLIT", "GBK", p.OrderMemo)},
+           {"SessionReqSeq", p.SessionReqSeq},
   };
 }
 
@@ -5770,6 +5836,11 @@ void from_json(const json& j, CThostFtdcInputQuoteField& p) {
   std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v24.c_str()).c_str(), sizeof(p.IPAddress));
   auto &v25 = j.at("ReplaceSysID").get_ref<const std::string &>();
   std::strncpy(p.ReplaceSysID, codec_convert("GBK//TRANSLIT", "UTF-8", v25.c_str()).c_str(), sizeof(p.ReplaceSysID));
+  auto &v26 = j.at("TimeCondition").get_ref<const std::string &>();
+  p.TimeCondition = v26.at(0);
+  auto &v27 = j.at("OrderMemo").get_ref<const std::string &>();
+  std::strncpy(p.OrderMemo, codec_convert("GBK//TRANSLIT", "UTF-8", v27.c_str()).c_str(), sizeof(p.OrderMemo));
+  j.at("SessionReqSeq").get_to(p.SessionReqSeq);
 
 }
 
@@ -5795,6 +5866,8 @@ void to_json(json& j, const CThostFtdcInputQuoteActionField& p) {
            {"MacAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.MacAddress)},
            {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
            {"IPAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.IPAddress)},
+           {"OrderMemo", codec_convert("UTF-8//TRANSLIT", "GBK", p.OrderMemo)},
+           {"SessionReqSeq", p.SessionReqSeq},
   };
 }
 
@@ -5831,6 +5904,9 @@ void from_json(const json& j, CThostFtdcInputQuoteActionField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v16.c_str()).c_str(), sizeof(p.InstrumentID));
   auto &v17 = j.at("IPAddress").get_ref<const std::string &>();
   std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v17.c_str()).c_str(), sizeof(p.IPAddress));
+  auto &v18 = j.at("OrderMemo").get_ref<const std::string &>();
+  std::strncpy(p.OrderMemo, codec_convert("GBK//TRANSLIT", "UTF-8", v18.c_str()).c_str(), sizeof(p.OrderMemo));
+  j.at("SessionReqSeq").get_to(p.SessionReqSeq);
 
 }
 
@@ -5892,6 +5968,9 @@ void to_json(json& j, const CThostFtdcQuoteField& p) {
            {"ExchangeInstID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeInstID)},
            {"IPAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.IPAddress)},
            {"ReplaceSysID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ReplaceSysID)},
+           {"TimeCondition", std::string(1, p.TimeCondition)},
+           {"OrderMemo", codec_convert("UTF-8//TRANSLIT", "GBK", p.OrderMemo)},
+           {"SessionReqSeq", p.SessionReqSeq},
   };
 }
 
@@ -5992,6 +6071,11 @@ void from_json(const json& j, CThostFtdcQuoteField& p) {
   std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v52.c_str()).c_str(), sizeof(p.IPAddress));
   auto &v53 = j.at("ReplaceSysID").get_ref<const std::string &>();
   std::strncpy(p.ReplaceSysID, codec_convert("GBK//TRANSLIT", "UTF-8", v53.c_str()).c_str(), sizeof(p.ReplaceSysID));
+  auto &v54 = j.at("TimeCondition").get_ref<const std::string &>();
+  p.TimeCondition = v54.at(0);
+  auto &v55 = j.at("OrderMemo").get_ref<const std::string &>();
+  std::strncpy(p.OrderMemo, codec_convert("GBK//TRANSLIT", "UTF-8", v55.c_str()).c_str(), sizeof(p.OrderMemo));
+  j.at("SessionReqSeq").get_to(p.SessionReqSeq);
 
 }
 
@@ -6028,6 +6112,8 @@ void to_json(json& j, const CThostFtdcQuoteActionField& p) {
            {"MacAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.MacAddress)},
            {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
            {"IPAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.IPAddress)},
+           {"OrderMemo", codec_convert("UTF-8//TRANSLIT", "GBK", p.OrderMemo)},
+           {"SessionReqSeq", p.SessionReqSeq},
   };
 }
 
@@ -6085,6 +6171,9 @@ void from_json(const json& j, CThostFtdcQuoteActionField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v27.c_str()).c_str(), sizeof(p.InstrumentID));
   auto &v28 = j.at("IPAddress").get_ref<const std::string &>();
   std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v28.c_str()).c_str(), sizeof(p.IPAddress));
+  auto &v29 = j.at("OrderMemo").get_ref<const std::string &>();
+  std::strncpy(p.OrderMemo, codec_convert("GBK//TRANSLIT", "UTF-8", v29.c_str()).c_str(), sizeof(p.OrderMemo));
+  j.at("SessionReqSeq").get_to(p.SessionReqSeq);
 
 }
 
@@ -6166,6 +6255,7 @@ void to_json(json& j, const CThostFtdcExchangeQuoteField& p) {
            {"MacAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.MacAddress)},
            {"ExchangeInstID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeInstID)},
            {"IPAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.IPAddress)},
+           {"TimeCondition", std::string(1, p.TimeCondition)},
   };
 }
 
@@ -6233,6 +6323,8 @@ void from_json(const json& j, CThostFtdcExchangeQuoteField& p) {
   std::strncpy(p.ExchangeInstID, codec_convert("GBK//TRANSLIT", "UTF-8", v34.c_str()).c_str(), sizeof(p.ExchangeInstID));
   auto &v35 = j.at("IPAddress").get_ref<const std::string &>();
   std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v35.c_str()).c_str(), sizeof(p.IPAddress));
+  auto &v36 = j.at("TimeCondition").get_ref<const std::string &>();
+  p.TimeCondition = v36.at(0);
 
 }
 
@@ -8784,6 +8876,7 @@ void to_json(json& j, const CThostFtdcMDTraderOfferField& p) {
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
            {"MaxTradeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.MaxTradeID)},
            {"MaxOrderMessageReference", codec_convert("UTF-8//TRANSLIT", "GBK", p.MaxOrderMessageReference)},
+           {"OrderCancelAlg", std::string(1, p.OrderCancelAlg)},
   };
 }
 
@@ -8825,6 +8918,8 @@ void from_json(const json& j, CThostFtdcMDTraderOfferField& p) {
   std::strncpy(p.MaxTradeID, codec_convert("GBK//TRANSLIT", "UTF-8", v17.c_str()).c_str(), sizeof(p.MaxTradeID));
   auto &v18 = j.at("MaxOrderMessageReference").get_ref<const std::string &>();
   std::strncpy(p.MaxOrderMessageReference, codec_convert("GBK//TRANSLIT", "UTF-8", v18.c_str()).c_str(), sizeof(p.MaxOrderMessageReference));
+  auto &v19 = j.at("OrderCancelAlg").get_ref<const std::string &>();
+  p.OrderCancelAlg = v19.at(0);
 
 }
 
@@ -9213,6 +9308,8 @@ void to_json(json& j, const CThostFtdcBrokerUserEventField& p) {
            {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
            {"reserve1", codec_convert("UTF-8//TRANSLIT", "GBK", p.reserve1)},
            {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
+           {"DRIdentityID", p.DRIdentityID},
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
   };
 }
 
@@ -9236,6 +9333,9 @@ void from_json(const json& j, CThostFtdcBrokerUserEventField& p) {
   std::strncpy(p.reserve1, codec_convert("GBK//TRANSLIT", "UTF-8", v8.c_str()).c_str(), sizeof(p.reserve1));
   auto &v9 = j.at("InstrumentID").get_ref<const std::string &>();
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v9.c_str()).c_str(), sizeof(p.InstrumentID));
+  j.at("DRIdentityID").get_to(p.DRIdentityID);
+  auto &v11 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v11.c_str()).c_str(), sizeof(p.TradingDay));
 
 }
 
@@ -9908,6 +10008,8 @@ void to_json(json& j, const CThostFtdcErrOrderField& p) {
            {"MacAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.MacAddress)},
            {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
            {"IPAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.IPAddress)},
+           {"OrderMemo", codec_convert("UTF-8//TRANSLIT", "GBK", p.OrderMemo)},
+           {"SessionReqSeq", p.SessionReqSeq},
   };
 }
 
@@ -9971,6 +10073,9 @@ void from_json(const json& j, CThostFtdcErrOrderField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v32.c_str()).c_str(), sizeof(p.InstrumentID));
   auto &v33 = j.at("IPAddress").get_ref<const std::string &>();
   std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v33.c_str()).c_str(), sizeof(p.IPAddress));
+  auto &v34 = j.at("OrderMemo").get_ref<const std::string &>();
+  std::strncpy(p.OrderMemo, codec_convert("GBK//TRANSLIT", "UTF-8", v34.c_str()).c_str(), sizeof(p.OrderMemo));
+  j.at("SessionReqSeq").get_to(p.SessionReqSeq);
 
 }
 
@@ -10224,6 +10329,8 @@ void to_json(json& j, const CThostFtdcErrOrderActionField& p) {
            {"ErrorMsg", codec_convert("UTF-8//TRANSLIT", "GBK", p.ErrorMsg)},
            {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
            {"IPAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.IPAddress)},
+           {"OrderMemo", codec_convert("UTF-8//TRANSLIT", "GBK", p.OrderMemo)},
+           {"SessionReqSeq", p.SessionReqSeq},
   };
 }
 
@@ -10286,6 +10393,9 @@ void from_json(const json& j, CThostFtdcErrOrderActionField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v31.c_str()).c_str(), sizeof(p.InstrumentID));
   auto &v32 = j.at("IPAddress").get_ref<const std::string &>();
   std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v32.c_str()).c_str(), sizeof(p.IPAddress));
+  auto &v33 = j.at("OrderMemo").get_ref<const std::string &>();
+  std::strncpy(p.OrderMemo, codec_convert("GBK//TRANSLIT", "UTF-8", v33.c_str()).c_str(), sizeof(p.OrderMemo));
+  j.at("SessionReqSeq").get_to(p.SessionReqSeq);
 
 }
 
@@ -15132,11 +15242,13 @@ void from_json(const json& j, CThostFtdcDepartmentUserField& p) {
 void to_json(json& j, const CThostFtdcQueryFreqField& p) {
   j = json{
            {"QueryFreq", p.QueryFreq},
+           {"FTDPkgFreq", p.FTDPkgFreq},
   };
 }
 
 void from_json(const json& j, CThostFtdcQueryFreqField& p) {
   j.at("QueryFreq").get_to(p.QueryFreq);
+  j.at("FTDPkgFreq").get_to(p.FTDPkgFreq);
 
 }
 
@@ -15342,6 +15454,67 @@ void from_json(const json& j, CThostFtdcCombPromotionParamField& p) {
   auto &v2 = j.at("CombHedgeFlag").get_ref<const std::string &>();
   std::strncpy(p.CombHedgeFlag, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.CombHedgeFlag));
   j.at("Xparameter").get_to(p.Xparameter);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcReqUserLoginSMField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"UserID", codec_convert("UTF-8//TRANSLIT", "GBK", p.UserID)},
+           {"Password", codec_convert("UTF-8//TRANSLIT", "GBK", p.Password)},
+           {"UserProductInfo", codec_convert("UTF-8//TRANSLIT", "GBK", p.UserProductInfo)},
+           {"InterfaceProductInfo", codec_convert("UTF-8//TRANSLIT", "GBK", p.InterfaceProductInfo)},
+           {"ProtocolInfo", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProtocolInfo)},
+           {"MacAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.MacAddress)},
+           {"OneTimePassword", codec_convert("UTF-8//TRANSLIT", "GBK", p.OneTimePassword)},
+           {"reserve1", codec_convert("UTF-8//TRANSLIT", "GBK", p.reserve1)},
+           {"LoginRemark", codec_convert("UTF-8//TRANSLIT", "GBK", p.LoginRemark)},
+           {"ClientIPPort", p.ClientIPPort},
+           {"ClientIPAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.ClientIPAddress)},
+           {"BrokerName", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerName)},
+           {"AuthCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.AuthCode)},
+           {"AppID", codec_convert("UTF-8//TRANSLIT", "GBK", p.AppID)},
+           {"PIN", codec_convert("UTF-8//TRANSLIT", "GBK", p.PIN)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcReqUserLoginSMField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v2 = j.at("UserID").get_ref<const std::string &>();
+  std::strncpy(p.UserID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.UserID));
+  auto &v3 = j.at("Password").get_ref<const std::string &>();
+  std::strncpy(p.Password, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.Password));
+  auto &v4 = j.at("UserProductInfo").get_ref<const std::string &>();
+  std::strncpy(p.UserProductInfo, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.UserProductInfo));
+  auto &v5 = j.at("InterfaceProductInfo").get_ref<const std::string &>();
+  std::strncpy(p.InterfaceProductInfo, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.InterfaceProductInfo));
+  auto &v6 = j.at("ProtocolInfo").get_ref<const std::string &>();
+  std::strncpy(p.ProtocolInfo, codec_convert("GBK//TRANSLIT", "UTF-8", v6.c_str()).c_str(), sizeof(p.ProtocolInfo));
+  auto &v7 = j.at("MacAddress").get_ref<const std::string &>();
+  std::strncpy(p.MacAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v7.c_str()).c_str(), sizeof(p.MacAddress));
+  auto &v8 = j.at("OneTimePassword").get_ref<const std::string &>();
+  std::strncpy(p.OneTimePassword, codec_convert("GBK//TRANSLIT", "UTF-8", v8.c_str()).c_str(), sizeof(p.OneTimePassword));
+  auto &v9 = j.at("reserve1").get_ref<const std::string &>();
+  std::strncpy(p.reserve1, codec_convert("GBK//TRANSLIT", "UTF-8", v9.c_str()).c_str(), sizeof(p.reserve1));
+  auto &v10 = j.at("LoginRemark").get_ref<const std::string &>();
+  std::strncpy(p.LoginRemark, codec_convert("GBK//TRANSLIT", "UTF-8", v10.c_str()).c_str(), sizeof(p.LoginRemark));
+  j.at("ClientIPPort").get_to(p.ClientIPPort);
+  auto &v12 = j.at("ClientIPAddress").get_ref<const std::string &>();
+  std::strncpy(p.ClientIPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v12.c_str()).c_str(), sizeof(p.ClientIPAddress));
+  auto &v13 = j.at("BrokerName").get_ref<const std::string &>();
+  std::strncpy(p.BrokerName, codec_convert("GBK//TRANSLIT", "UTF-8", v13.c_str()).c_str(), sizeof(p.BrokerName));
+  auto &v14 = j.at("AuthCode").get_ref<const std::string &>();
+  std::strncpy(p.AuthCode, codec_convert("GBK//TRANSLIT", "UTF-8", v14.c_str()).c_str(), sizeof(p.AuthCode));
+  auto &v15 = j.at("AppID").get_ref<const std::string &>();
+  std::strncpy(p.AppID, codec_convert("GBK//TRANSLIT", "UTF-8", v15.c_str()).c_str(), sizeof(p.AppID));
+  auto &v16 = j.at("PIN").get_ref<const std::string &>();
+  std::strncpy(p.PIN, codec_convert("GBK//TRANSLIT", "UTF-8", v16.c_str()).c_str(), sizeof(p.PIN));
 
 }
 
@@ -16389,6 +16562,3663 @@ void from_json(const json& j, CThostFtdcSyncDeltaEWarrantOffsetField& p) {
 
 
 
+void to_json(json& j, const CThostFtdcSPBMFutureParameterField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
+           {"ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProdFamilyCode)},
+           {"Cvf", p.Cvf},
+           {"TimeRange", std::string(1, p.TimeRange)},
+           {"MarginRate", p.MarginRate},
+           {"LockRateX", p.LockRateX},
+           {"AddOnRate", p.AddOnRate},
+           {"PreSettlementPrice", p.PreSettlementPrice},
+           {"AddOnLockRateX2", p.AddOnLockRateX2},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSPBMFutureParameterField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v2 = j.at("InstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InstrumentID));
+  auto &v3 = j.at("ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.ProdFamilyCode));
+  j.at("Cvf").get_to(p.Cvf);
+  auto &v5 = j.at("TimeRange").get_ref<const std::string &>();
+  p.TimeRange = v5.at(0);
+  j.at("MarginRate").get_to(p.MarginRate);
+  j.at("LockRateX").get_to(p.LockRateX);
+  j.at("AddOnRate").get_to(p.AddOnRate);
+  j.at("PreSettlementPrice").get_to(p.PreSettlementPrice);
+  j.at("AddOnLockRateX2").get_to(p.AddOnLockRateX2);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSPBMOptionParameterField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
+           {"ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProdFamilyCode)},
+           {"Cvf", p.Cvf},
+           {"DownPrice", p.DownPrice},
+           {"Delta", p.Delta},
+           {"SlimiDelta", p.SlimiDelta},
+           {"PreSettlementPrice", p.PreSettlementPrice},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSPBMOptionParameterField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v2 = j.at("InstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InstrumentID));
+  auto &v3 = j.at("ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.ProdFamilyCode));
+  j.at("Cvf").get_to(p.Cvf);
+  j.at("DownPrice").get_to(p.DownPrice);
+  j.at("Delta").get_to(p.Delta);
+  j.at("SlimiDelta").get_to(p.SlimiDelta);
+  j.at("PreSettlementPrice").get_to(p.PreSettlementPrice);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSPBMIntraParameterField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProdFamilyCode)},
+           {"IntraRateY", p.IntraRateY},
+           {"AddOnIntraRateY2", p.AddOnIntraRateY2},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSPBMIntraParameterField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v2 = j.at("ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ProdFamilyCode));
+  j.at("IntraRateY").get_to(p.IntraRateY);
+  j.at("AddOnIntraRateY2").get_to(p.AddOnIntraRateY2);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSPBMInterParameterField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"SpreadId", p.SpreadId},
+           {"InterRateZ", p.InterRateZ},
+           {"Leg1ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.Leg1ProdFamilyCode)},
+           {"Leg2ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.Leg2ProdFamilyCode)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSPBMInterParameterField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  j.at("SpreadId").get_to(p.SpreadId);
+  j.at("InterRateZ").get_to(p.InterRateZ);
+  auto &v4 = j.at("Leg1ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.Leg1ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.Leg1ProdFamilyCode));
+  auto &v5 = j.at("Leg2ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.Leg2ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.Leg2ProdFamilyCode));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSyncSPBMParameterEndField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSyncSPBMParameterEndField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQrySPBMFutureParameterField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
+           {"ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProdFamilyCode)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQrySPBMFutureParameterField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("InstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InstrumentID));
+  auto &v2 = j.at("ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ProdFamilyCode));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQrySPBMOptionParameterField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
+           {"ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProdFamilyCode)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQrySPBMOptionParameterField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("InstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InstrumentID));
+  auto &v2 = j.at("ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ProdFamilyCode));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQrySPBMIntraParameterField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProdFamilyCode)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQrySPBMIntraParameterField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ProdFamilyCode));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQrySPBMInterParameterField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"Leg1ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.Leg1ProdFamilyCode)},
+           {"Leg2ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.Leg2ProdFamilyCode)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQrySPBMInterParameterField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("Leg1ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.Leg1ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.Leg1ProdFamilyCode));
+  auto &v2 = j.at("Leg2ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.Leg2ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.Leg2ProdFamilyCode));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSPBMPortfDefinitionField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"PortfolioDefID", p.PortfolioDefID},
+           {"ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProdFamilyCode)},
+           {"IsSPBM", p.IsSPBM},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSPBMPortfDefinitionField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  j.at("PortfolioDefID").get_to(p.PortfolioDefID);
+  auto &v2 = j.at("ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ProdFamilyCode));
+  j.at("IsSPBM").get_to(p.IsSPBM);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSPBMInvestorPortfDefField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"PortfolioDefID", p.PortfolioDefID},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSPBMInvestorPortfDefField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v2 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestorID));
+  j.at("PortfolioDefID").get_to(p.PortfolioDefID);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcInvestorPortfMarginRatioField& p) {
+  j = json{
+           {"InvestorRange", std::string(1, p.InvestorRange)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"MarginRatio", p.MarginRatio},
+           {"ProductGroupID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductGroupID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcInvestorPortfMarginRatioField& p) {
+  auto &v0 = j.at("InvestorRange").get_ref<const std::string &>();
+  p.InvestorRange = v0.at(0);
+  auto &v1 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v2 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v3 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.ExchangeID));
+  j.at("MarginRatio").get_to(p.MarginRatio);
+  auto &v5 = j.at("ProductGroupID").get_ref<const std::string &>();
+  std::strncpy(p.ProductGroupID, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.ProductGroupID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQrySPBMPortfDefinitionField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"PortfolioDefID", p.PortfolioDefID},
+           {"ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProdFamilyCode)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQrySPBMPortfDefinitionField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  j.at("PortfolioDefID").get_to(p.PortfolioDefID);
+  auto &v2 = j.at("ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ProdFamilyCode));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQrySPBMInvestorPortfDefField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQrySPBMInvestorPortfDefField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v2 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestorID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryInvestorPortfMarginRatioField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"ProductGroupID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductGroupID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryInvestorPortfMarginRatioField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v2 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v3 = j.at("ProductGroupID").get_ref<const std::string &>();
+  std::strncpy(p.ProductGroupID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.ProductGroupID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcInvestorProdSPBMDetailField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProdFamilyCode)},
+           {"IntraInstrMargin", p.IntraInstrMargin},
+           {"BCollectingMargin", p.BCollectingMargin},
+           {"SCollectingMargin", p.SCollectingMargin},
+           {"IntraProdMargin", p.IntraProdMargin},
+           {"NetMargin", p.NetMargin},
+           {"InterProdMargin", p.InterProdMargin},
+           {"SingleMargin", p.SingleMargin},
+           {"AddOnMargin", p.AddOnMargin},
+           {"DeliveryMargin", p.DeliveryMargin},
+           {"CallOptionMinRisk", p.CallOptionMinRisk},
+           {"PutOptionMinRisk", p.PutOptionMinRisk},
+           {"OptionMinRisk", p.OptionMinRisk},
+           {"OptionValueOffset", p.OptionValueOffset},
+           {"OptionRoyalty", p.OptionRoyalty},
+           {"RealOptionValueOffset", p.RealOptionValueOffset},
+           {"Margin", p.Margin},
+           {"ExchMargin", p.ExchMargin},
+  };
+}
+
+void from_json(const json& j, CThostFtdcInvestorProdSPBMDetailField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v2 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v3 = j.at("ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.ProdFamilyCode));
+  j.at("IntraInstrMargin").get_to(p.IntraInstrMargin);
+  j.at("BCollectingMargin").get_to(p.BCollectingMargin);
+  j.at("SCollectingMargin").get_to(p.SCollectingMargin);
+  j.at("IntraProdMargin").get_to(p.IntraProdMargin);
+  j.at("NetMargin").get_to(p.NetMargin);
+  j.at("InterProdMargin").get_to(p.InterProdMargin);
+  j.at("SingleMargin").get_to(p.SingleMargin);
+  j.at("AddOnMargin").get_to(p.AddOnMargin);
+  j.at("DeliveryMargin").get_to(p.DeliveryMargin);
+  j.at("CallOptionMinRisk").get_to(p.CallOptionMinRisk);
+  j.at("PutOptionMinRisk").get_to(p.PutOptionMinRisk);
+  j.at("OptionMinRisk").get_to(p.OptionMinRisk);
+  j.at("OptionValueOffset").get_to(p.OptionValueOffset);
+  j.at("OptionRoyalty").get_to(p.OptionRoyalty);
+  j.at("RealOptionValueOffset").get_to(p.RealOptionValueOffset);
+  j.at("Margin").get_to(p.Margin);
+  j.at("ExchMargin").get_to(p.ExchMargin);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryInvestorProdSPBMDetailField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProdFamilyCode)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryInvestorProdSPBMDetailField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v2 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v3 = j.at("ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.ProdFamilyCode));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcPortfTradeParamSettingField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"Portfolio", std::string(1, p.Portfolio)},
+           {"IsActionVerify", p.IsActionVerify},
+           {"IsCloseVerify", p.IsCloseVerify},
+  };
+}
+
+void from_json(const json& j, CThostFtdcPortfTradeParamSettingField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v2 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v3 = j.at("Portfolio").get_ref<const std::string &>();
+  p.Portfolio = v3.at(0);
+  j.at("IsActionVerify").get_to(p.IsActionVerify);
+  j.at("IsCloseVerify").get_to(p.IsCloseVerify);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcInvestorTradingRightField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"InvstTradingRight", std::string(1, p.InvstTradingRight)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcInvestorTradingRightField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v2 = j.at("InvstTradingRight").get_ref<const std::string &>();
+  p.InvstTradingRight = v2.at(0);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcMortgageParamField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"AccountID", codec_convert("UTF-8//TRANSLIT", "GBK", p.AccountID)},
+           {"MortgageBalance", p.MortgageBalance},
+           {"CheckMortgageRatio", p.CheckMortgageRatio},
+  };
+}
+
+void from_json(const json& j, CThostFtdcMortgageParamField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("AccountID").get_ref<const std::string &>();
+  std::strncpy(p.AccountID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.AccountID));
+  j.at("MortgageBalance").get_to(p.MortgageBalance);
+  j.at("CheckMortgageRatio").get_to(p.CheckMortgageRatio);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcWithDrawParamField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"AccountID", codec_convert("UTF-8//TRANSLIT", "GBK", p.AccountID)},
+           {"WithDrawParamID", std::string(1, p.WithDrawParamID)},
+           {"WithDrawParamValue", codec_convert("UTF-8//TRANSLIT", "GBK", p.WithDrawParamValue)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcWithDrawParamField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("AccountID").get_ref<const std::string &>();
+  std::strncpy(p.AccountID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.AccountID));
+  auto &v2 = j.at("WithDrawParamID").get_ref<const std::string &>();
+  p.WithDrawParamID = v2.at(0);
+  auto &v3 = j.at("WithDrawParamValue").get_ref<const std::string &>();
+  std::strncpy(p.WithDrawParamValue, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.WithDrawParamValue));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcThostUserFunctionField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"UserID", codec_convert("UTF-8//TRANSLIT", "GBK", p.UserID)},
+           {"ThostFunctionCode", p.ThostFunctionCode},
+  };
+}
+
+void from_json(const json& j, CThostFtdcThostUserFunctionField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("UserID").get_ref<const std::string &>();
+  std::strncpy(p.UserID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.UserID));
+  j.at("ThostFunctionCode").get_to(p.ThostFunctionCode);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryThostUserFunctionField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"UserID", codec_convert("UTF-8//TRANSLIT", "GBK", p.UserID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryThostUserFunctionField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("UserID").get_ref<const std::string &>();
+  std::strncpy(p.UserID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.UserID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSPBMAddOnInterParameterField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"SpreadId", p.SpreadId},
+           {"AddOnInterRateZ2", p.AddOnInterRateZ2},
+           {"Leg1ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.Leg1ProdFamilyCode)},
+           {"Leg2ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.Leg2ProdFamilyCode)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSPBMAddOnInterParameterField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  j.at("SpreadId").get_to(p.SpreadId);
+  j.at("AddOnInterRateZ2").get_to(p.AddOnInterRateZ2);
+  auto &v4 = j.at("Leg1ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.Leg1ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.Leg1ProdFamilyCode));
+  auto &v5 = j.at("Leg2ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.Leg2ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.Leg2ProdFamilyCode));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQrySPBMAddOnInterParameterField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"Leg1ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.Leg1ProdFamilyCode)},
+           {"Leg2ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.Leg2ProdFamilyCode)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQrySPBMAddOnInterParameterField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("Leg1ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.Leg1ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.Leg1ProdFamilyCode));
+  auto &v2 = j.at("Leg2ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.Leg2ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.Leg2ProdFamilyCode));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryInvestorCommoditySPMMMarginField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"CommodityID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CommodityID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryInvestorCommoditySPMMMarginField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v2 = j.at("CommodityID").get_ref<const std::string &>();
+  std::strncpy(p.CommodityID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.CommodityID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryInvestorCommodityGroupSPMMMarginField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"CommodityGroupID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CommodityGroupID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryInvestorCommodityGroupSPMMMarginField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v2 = j.at("CommodityGroupID").get_ref<const std::string &>();
+  std::strncpy(p.CommodityGroupID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.CommodityGroupID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQrySPMMInstParamField& p) {
+  j = json{
+           {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQrySPMMInstParamField& p) {
+  auto &v0 = j.at("InstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.InstrumentID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQrySPMMProductParamField& p) {
+  j = json{
+           {"ProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQrySPMMProductParamField& p) {
+  auto &v0 = j.at("ProductID").get_ref<const std::string &>();
+  std::strncpy(p.ProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ProductID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcInvestorCommoditySPMMMarginField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"CommodityID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CommodityID)},
+           {"MarginBeforeDiscount", p.MarginBeforeDiscount},
+           {"MarginNoDiscount", p.MarginNoDiscount},
+           {"LongPosRisk", p.LongPosRisk},
+           {"LongOpenFrozenRisk", p.LongOpenFrozenRisk},
+           {"LongCloseFrozenRisk", p.LongCloseFrozenRisk},
+           {"ShortPosRisk", p.ShortPosRisk},
+           {"ShortOpenFrozenRisk", p.ShortOpenFrozenRisk},
+           {"ShortCloseFrozenRisk", p.ShortCloseFrozenRisk},
+           {"IntraCommodityRate", p.IntraCommodityRate},
+           {"OptionDiscountRate", p.OptionDiscountRate},
+           {"PosDiscount", p.PosDiscount},
+           {"OpenFrozenDiscount", p.OpenFrozenDiscount},
+           {"NetRisk", p.NetRisk},
+           {"CloseFrozenMargin", p.CloseFrozenMargin},
+           {"FrozenCommission", p.FrozenCommission},
+           {"Commission", p.Commission},
+           {"FrozenCash", p.FrozenCash},
+           {"CashIn", p.CashIn},
+           {"StrikeFrozenMargin", p.StrikeFrozenMargin},
+  };
+}
+
+void from_json(const json& j, CThostFtdcInvestorCommoditySPMMMarginField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v2 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v3 = j.at("CommodityID").get_ref<const std::string &>();
+  std::strncpy(p.CommodityID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.CommodityID));
+  j.at("MarginBeforeDiscount").get_to(p.MarginBeforeDiscount);
+  j.at("MarginNoDiscount").get_to(p.MarginNoDiscount);
+  j.at("LongPosRisk").get_to(p.LongPosRisk);
+  j.at("LongOpenFrozenRisk").get_to(p.LongOpenFrozenRisk);
+  j.at("LongCloseFrozenRisk").get_to(p.LongCloseFrozenRisk);
+  j.at("ShortPosRisk").get_to(p.ShortPosRisk);
+  j.at("ShortOpenFrozenRisk").get_to(p.ShortOpenFrozenRisk);
+  j.at("ShortCloseFrozenRisk").get_to(p.ShortCloseFrozenRisk);
+  j.at("IntraCommodityRate").get_to(p.IntraCommodityRate);
+  j.at("OptionDiscountRate").get_to(p.OptionDiscountRate);
+  j.at("PosDiscount").get_to(p.PosDiscount);
+  j.at("OpenFrozenDiscount").get_to(p.OpenFrozenDiscount);
+  j.at("NetRisk").get_to(p.NetRisk);
+  j.at("CloseFrozenMargin").get_to(p.CloseFrozenMargin);
+  j.at("FrozenCommission").get_to(p.FrozenCommission);
+  j.at("Commission").get_to(p.Commission);
+  j.at("FrozenCash").get_to(p.FrozenCash);
+  j.at("CashIn").get_to(p.CashIn);
+  j.at("StrikeFrozenMargin").get_to(p.StrikeFrozenMargin);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcInvestorCommodityGroupSPMMMarginField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"CommodityGroupID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CommodityGroupID)},
+           {"MarginBeforeDiscount", p.MarginBeforeDiscount},
+           {"MarginNoDiscount", p.MarginNoDiscount},
+           {"LongRisk", p.LongRisk},
+           {"ShortRisk", p.ShortRisk},
+           {"CloseFrozenMargin", p.CloseFrozenMargin},
+           {"InterCommodityRate", p.InterCommodityRate},
+           {"MiniMarginRatio", p.MiniMarginRatio},
+           {"AdjustRatio", p.AdjustRatio},
+           {"IntraCommodityDiscount", p.IntraCommodityDiscount},
+           {"InterCommodityDiscount", p.InterCommodityDiscount},
+           {"ExchMargin", p.ExchMargin},
+           {"InvestorMargin", p.InvestorMargin},
+           {"FrozenCommission", p.FrozenCommission},
+           {"Commission", p.Commission},
+           {"FrozenCash", p.FrozenCash},
+           {"CashIn", p.CashIn},
+           {"StrikeFrozenMargin", p.StrikeFrozenMargin},
+  };
+}
+
+void from_json(const json& j, CThostFtdcInvestorCommodityGroupSPMMMarginField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v2 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v3 = j.at("CommodityGroupID").get_ref<const std::string &>();
+  std::strncpy(p.CommodityGroupID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.CommodityGroupID));
+  j.at("MarginBeforeDiscount").get_to(p.MarginBeforeDiscount);
+  j.at("MarginNoDiscount").get_to(p.MarginNoDiscount);
+  j.at("LongRisk").get_to(p.LongRisk);
+  j.at("ShortRisk").get_to(p.ShortRisk);
+  j.at("CloseFrozenMargin").get_to(p.CloseFrozenMargin);
+  j.at("InterCommodityRate").get_to(p.InterCommodityRate);
+  j.at("MiniMarginRatio").get_to(p.MiniMarginRatio);
+  j.at("AdjustRatio").get_to(p.AdjustRatio);
+  j.at("IntraCommodityDiscount").get_to(p.IntraCommodityDiscount);
+  j.at("InterCommodityDiscount").get_to(p.InterCommodityDiscount);
+  j.at("ExchMargin").get_to(p.ExchMargin);
+  j.at("InvestorMargin").get_to(p.InvestorMargin);
+  j.at("FrozenCommission").get_to(p.FrozenCommission);
+  j.at("Commission").get_to(p.Commission);
+  j.at("FrozenCash").get_to(p.FrozenCash);
+  j.at("CashIn").get_to(p.CashIn);
+  j.at("StrikeFrozenMargin").get_to(p.StrikeFrozenMargin);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSPMMInstParamField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
+           {"InstMarginCalID", std::string(1, p.InstMarginCalID)},
+           {"CommodityID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CommodityID)},
+           {"CommodityGroupID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CommodityGroupID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSPMMInstParamField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("InstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InstrumentID));
+  auto &v2 = j.at("InstMarginCalID").get_ref<const std::string &>();
+  p.InstMarginCalID = v2.at(0);
+  auto &v3 = j.at("CommodityID").get_ref<const std::string &>();
+  std::strncpy(p.CommodityID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.CommodityID));
+  auto &v4 = j.at("CommodityGroupID").get_ref<const std::string &>();
+  std::strncpy(p.CommodityGroupID, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.CommodityGroupID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSPMMProductParamField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"ProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductID)},
+           {"CommodityID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CommodityID)},
+           {"CommodityGroupID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CommodityGroupID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSPMMProductParamField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("ProductID").get_ref<const std::string &>();
+  std::strncpy(p.ProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ProductID));
+  auto &v2 = j.at("CommodityID").get_ref<const std::string &>();
+  std::strncpy(p.CommodityID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.CommodityID));
+  auto &v3 = j.at("CommodityGroupID").get_ref<const std::string &>();
+  std::strncpy(p.CommodityGroupID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.CommodityGroupID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryTraderAssignField& p) {
+  j = json{
+           {"TraderID", codec_convert("UTF-8//TRANSLIT", "GBK", p.TraderID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryTraderAssignField& p) {
+  auto &v0 = j.at("TraderID").get_ref<const std::string &>();
+  std::strncpy(p.TraderID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TraderID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcTraderAssignField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"TraderID", codec_convert("UTF-8//TRANSLIT", "GBK", p.TraderID)},
+           {"ParticipantID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ParticipantID)},
+           {"DRIdentityID", p.DRIdentityID},
+  };
+}
+
+void from_json(const json& j, CThostFtdcTraderAssignField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v2 = j.at("TraderID").get_ref<const std::string &>();
+  std::strncpy(p.TraderID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.TraderID));
+  auto &v3 = j.at("ParticipantID").get_ref<const std::string &>();
+  std::strncpy(p.ParticipantID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.ParticipantID));
+  j.at("DRIdentityID").get_to(p.DRIdentityID);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcInvestorInfoCntSettingField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"ProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductID)},
+           {"IsCalInfoComm", p.IsCalInfoComm},
+           {"IsLimitInfoMax", p.IsLimitInfoMax},
+           {"InfoMaxLimit", p.InfoMaxLimit},
+  };
+}
+
+void from_json(const json& j, CThostFtdcInvestorInfoCntSettingField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v2 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v3 = j.at("ProductID").get_ref<const std::string &>();
+  std::strncpy(p.ProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.ProductID));
+  j.at("IsCalInfoComm").get_to(p.IsCalInfoComm);
+  j.at("IsLimitInfoMax").get_to(p.IsLimitInfoMax);
+  j.at("InfoMaxLimit").get_to(p.InfoMaxLimit);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcRCAMSCombProductInfoField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"ProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductID)},
+           {"CombProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombProductID)},
+           {"ProductGroupID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductGroupID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcRCAMSCombProductInfoField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v2 = j.at("ProductID").get_ref<const std::string &>();
+  std::strncpy(p.ProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ProductID));
+  auto &v3 = j.at("CombProductID").get_ref<const std::string &>();
+  std::strncpy(p.CombProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.CombProductID));
+  auto &v4 = j.at("ProductGroupID").get_ref<const std::string &>();
+  std::strncpy(p.ProductGroupID, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.ProductGroupID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcRCAMSInstrParameterField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"ProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductID)},
+           {"HedgeRate", p.HedgeRate},
+  };
+}
+
+void from_json(const json& j, CThostFtdcRCAMSInstrParameterField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v2 = j.at("ProductID").get_ref<const std::string &>();
+  std::strncpy(p.ProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ProductID));
+  j.at("HedgeRate").get_to(p.HedgeRate);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcRCAMSIntraParameterField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"CombProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombProductID)},
+           {"HedgeRate", p.HedgeRate},
+  };
+}
+
+void from_json(const json& j, CThostFtdcRCAMSIntraParameterField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v2 = j.at("CombProductID").get_ref<const std::string &>();
+  std::strncpy(p.CombProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.CombProductID));
+  j.at("HedgeRate").get_to(p.HedgeRate);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcRCAMSInterParameterField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"ProductGroupID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductGroupID)},
+           {"Priority", p.Priority},
+           {"CreditRate", p.CreditRate},
+           {"CombProduct1", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombProduct1)},
+           {"CombProduct2", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombProduct2)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcRCAMSInterParameterField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v2 = j.at("ProductGroupID").get_ref<const std::string &>();
+  std::strncpy(p.ProductGroupID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ProductGroupID));
+  j.at("Priority").get_to(p.Priority);
+  j.at("CreditRate").get_to(p.CreditRate);
+  auto &v5 = j.at("CombProduct1").get_ref<const std::string &>();
+  std::strncpy(p.CombProduct1, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.CombProduct1));
+  auto &v6 = j.at("CombProduct2").get_ref<const std::string &>();
+  std::strncpy(p.CombProduct2, codec_convert("GBK//TRANSLIT", "UTF-8", v6.c_str()).c_str(), sizeof(p.CombProduct2));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcRCAMSShortOptAdjustParamField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"CombProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombProductID)},
+           {"HedgeFlag", std::string(1, p.HedgeFlag)},
+           {"AdjustValue", p.AdjustValue},
+  };
+}
+
+void from_json(const json& j, CThostFtdcRCAMSShortOptAdjustParamField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v2 = j.at("CombProductID").get_ref<const std::string &>();
+  std::strncpy(p.CombProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.CombProductID));
+  auto &v3 = j.at("HedgeFlag").get_ref<const std::string &>();
+  p.HedgeFlag = v3.at(0);
+  j.at("AdjustValue").get_to(p.AdjustValue);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcRCAMSInvestorCombPositionField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
+           {"HedgeFlag", std::string(1, p.HedgeFlag)},
+           {"PosiDirection", std::string(1, p.PosiDirection)},
+           {"CombInstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombInstrumentID)},
+           {"LegID", p.LegID},
+           {"ExchangeInstID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeInstID)},
+           {"TotalAmt", p.TotalAmt},
+           {"ExchMargin", p.ExchMargin},
+           {"Margin", p.Margin},
+  };
+}
+
+void from_json(const json& j, CThostFtdcRCAMSInvestorCombPositionField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v2 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v3 = j.at("InstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.InstrumentID));
+  auto &v4 = j.at("HedgeFlag").get_ref<const std::string &>();
+  p.HedgeFlag = v4.at(0);
+  auto &v5 = j.at("PosiDirection").get_ref<const std::string &>();
+  p.PosiDirection = v5.at(0);
+  auto &v6 = j.at("CombInstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.CombInstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v6.c_str()).c_str(), sizeof(p.CombInstrumentID));
+  j.at("LegID").get_to(p.LegID);
+  auto &v8 = j.at("ExchangeInstID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeInstID, codec_convert("GBK//TRANSLIT", "UTF-8", v8.c_str()).c_str(), sizeof(p.ExchangeInstID));
+  j.at("TotalAmt").get_to(p.TotalAmt);
+  j.at("ExchMargin").get_to(p.ExchMargin);
+  j.at("Margin").get_to(p.Margin);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcInvestorProdRCAMSMarginField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"CombProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombProductID)},
+           {"HedgeFlag", std::string(1, p.HedgeFlag)},
+           {"ProductGroupID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductGroupID)},
+           {"RiskBeforeDiscount", p.RiskBeforeDiscount},
+           {"IntraInstrRisk", p.IntraInstrRisk},
+           {"BPosRisk", p.BPosRisk},
+           {"SPosRisk", p.SPosRisk},
+           {"IntraProdRisk", p.IntraProdRisk},
+           {"NetRisk", p.NetRisk},
+           {"InterProdRisk", p.InterProdRisk},
+           {"ShortOptRiskAdj", p.ShortOptRiskAdj},
+           {"OptionRoyalty", p.OptionRoyalty},
+           {"MMSACloseFrozenMargin", p.MMSACloseFrozenMargin},
+           {"CloseCombFrozenMargin", p.CloseCombFrozenMargin},
+           {"CloseFrozenMargin", p.CloseFrozenMargin},
+           {"MMSAOpenFrozenMargin", p.MMSAOpenFrozenMargin},
+           {"DeliveryOpenFrozenMargin", p.DeliveryOpenFrozenMargin},
+           {"OpenFrozenMargin", p.OpenFrozenMargin},
+           {"UseFrozenMargin", p.UseFrozenMargin},
+           {"MMSAExchMargin", p.MMSAExchMargin},
+           {"DeliveryExchMargin", p.DeliveryExchMargin},
+           {"CombExchMargin", p.CombExchMargin},
+           {"ExchMargin", p.ExchMargin},
+           {"UseMargin", p.UseMargin},
+  };
+}
+
+void from_json(const json& j, CThostFtdcInvestorProdRCAMSMarginField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v2 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v3 = j.at("CombProductID").get_ref<const std::string &>();
+  std::strncpy(p.CombProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.CombProductID));
+  auto &v4 = j.at("HedgeFlag").get_ref<const std::string &>();
+  p.HedgeFlag = v4.at(0);
+  auto &v5 = j.at("ProductGroupID").get_ref<const std::string &>();
+  std::strncpy(p.ProductGroupID, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.ProductGroupID));
+  j.at("RiskBeforeDiscount").get_to(p.RiskBeforeDiscount);
+  j.at("IntraInstrRisk").get_to(p.IntraInstrRisk);
+  j.at("BPosRisk").get_to(p.BPosRisk);
+  j.at("SPosRisk").get_to(p.SPosRisk);
+  j.at("IntraProdRisk").get_to(p.IntraProdRisk);
+  j.at("NetRisk").get_to(p.NetRisk);
+  j.at("InterProdRisk").get_to(p.InterProdRisk);
+  j.at("ShortOptRiskAdj").get_to(p.ShortOptRiskAdj);
+  j.at("OptionRoyalty").get_to(p.OptionRoyalty);
+  j.at("MMSACloseFrozenMargin").get_to(p.MMSACloseFrozenMargin);
+  j.at("CloseCombFrozenMargin").get_to(p.CloseCombFrozenMargin);
+  j.at("CloseFrozenMargin").get_to(p.CloseFrozenMargin);
+  j.at("MMSAOpenFrozenMargin").get_to(p.MMSAOpenFrozenMargin);
+  j.at("DeliveryOpenFrozenMargin").get_to(p.DeliveryOpenFrozenMargin);
+  j.at("OpenFrozenMargin").get_to(p.OpenFrozenMargin);
+  j.at("UseFrozenMargin").get_to(p.UseFrozenMargin);
+  j.at("MMSAExchMargin").get_to(p.MMSAExchMargin);
+  j.at("DeliveryExchMargin").get_to(p.DeliveryExchMargin);
+  j.at("CombExchMargin").get_to(p.CombExchMargin);
+  j.at("ExchMargin").get_to(p.ExchMargin);
+  j.at("UseMargin").get_to(p.UseMargin);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryRCAMSCombProductInfoField& p) {
+  j = json{
+           {"ProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductID)},
+           {"CombProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombProductID)},
+           {"ProductGroupID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductGroupID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryRCAMSCombProductInfoField& p) {
+  auto &v0 = j.at("ProductID").get_ref<const std::string &>();
+  std::strncpy(p.ProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ProductID));
+  auto &v1 = j.at("CombProductID").get_ref<const std::string &>();
+  std::strncpy(p.CombProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.CombProductID));
+  auto &v2 = j.at("ProductGroupID").get_ref<const std::string &>();
+  std::strncpy(p.ProductGroupID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ProductGroupID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryRCAMSInstrParameterField& p) {
+  j = json{
+           {"ProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryRCAMSInstrParameterField& p) {
+  auto &v0 = j.at("ProductID").get_ref<const std::string &>();
+  std::strncpy(p.ProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ProductID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryRCAMSIntraParameterField& p) {
+  j = json{
+           {"CombProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombProductID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryRCAMSIntraParameterField& p) {
+  auto &v0 = j.at("CombProductID").get_ref<const std::string &>();
+  std::strncpy(p.CombProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.CombProductID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryRCAMSInterParameterField& p) {
+  j = json{
+           {"ProductGroupID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductGroupID)},
+           {"CombProduct1", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombProduct1)},
+           {"CombProduct2", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombProduct2)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryRCAMSInterParameterField& p) {
+  auto &v0 = j.at("ProductGroupID").get_ref<const std::string &>();
+  std::strncpy(p.ProductGroupID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ProductGroupID));
+  auto &v1 = j.at("CombProduct1").get_ref<const std::string &>();
+  std::strncpy(p.CombProduct1, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.CombProduct1));
+  auto &v2 = j.at("CombProduct2").get_ref<const std::string &>();
+  std::strncpy(p.CombProduct2, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.CombProduct2));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryRCAMSShortOptAdjustParamField& p) {
+  j = json{
+           {"CombProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombProductID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryRCAMSShortOptAdjustParamField& p) {
+  auto &v0 = j.at("CombProductID").get_ref<const std::string &>();
+  std::strncpy(p.CombProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.CombProductID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryRCAMSInvestorCombPositionField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
+           {"CombInstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombInstrumentID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryRCAMSInvestorCombPositionField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v2 = j.at("InstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InstrumentID));
+  auto &v3 = j.at("CombInstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.CombInstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.CombInstrumentID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryInvestorProdRCAMSMarginField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"CombProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombProductID)},
+           {"ProductGroupID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductGroupID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryInvestorProdRCAMSMarginField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v2 = j.at("CombProductID").get_ref<const std::string &>();
+  std::strncpy(p.CombProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.CombProductID));
+  auto &v3 = j.at("ProductGroupID").get_ref<const std::string &>();
+  std::strncpy(p.ProductGroupID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.ProductGroupID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcRULEInstrParameterField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
+           {"InstrumentClass", std::string(1, p.InstrumentClass)},
+           {"StdInstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.StdInstrumentID)},
+           {"BSpecRatio", p.BSpecRatio},
+           {"SSpecRatio", p.SSpecRatio},
+           {"BHedgeRatio", p.BHedgeRatio},
+           {"SHedgeRatio", p.SHedgeRatio},
+           {"BAddOnMargin", p.BAddOnMargin},
+           {"SAddOnMargin", p.SAddOnMargin},
+           {"CommodityGroupID", p.CommodityGroupID},
+  };
+}
+
+void from_json(const json& j, CThostFtdcRULEInstrParameterField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v2 = j.at("InstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InstrumentID));
+  auto &v3 = j.at("InstrumentClass").get_ref<const std::string &>();
+  p.InstrumentClass = v3.at(0);
+  auto &v4 = j.at("StdInstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.StdInstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.StdInstrumentID));
+  j.at("BSpecRatio").get_to(p.BSpecRatio);
+  j.at("SSpecRatio").get_to(p.SSpecRatio);
+  j.at("BHedgeRatio").get_to(p.BHedgeRatio);
+  j.at("SHedgeRatio").get_to(p.SHedgeRatio);
+  j.at("BAddOnMargin").get_to(p.BAddOnMargin);
+  j.at("SAddOnMargin").get_to(p.SAddOnMargin);
+  j.at("CommodityGroupID").get_to(p.CommodityGroupID);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcRULEIntraParameterField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProdFamilyCode)},
+           {"StdInstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.StdInstrumentID)},
+           {"StdInstrMargin", p.StdInstrMargin},
+           {"UsualIntraRate", p.UsualIntraRate},
+           {"DeliveryIntraRate", p.DeliveryIntraRate},
+  };
+}
+
+void from_json(const json& j, CThostFtdcRULEIntraParameterField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v2 = j.at("ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ProdFamilyCode));
+  auto &v3 = j.at("StdInstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.StdInstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.StdInstrumentID));
+  j.at("StdInstrMargin").get_to(p.StdInstrMargin);
+  j.at("UsualIntraRate").get_to(p.UsualIntraRate);
+  j.at("DeliveryIntraRate").get_to(p.DeliveryIntraRate);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcRULEInterParameterField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"SpreadId", p.SpreadId},
+           {"InterRate", p.InterRate},
+           {"Leg1ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.Leg1ProdFamilyCode)},
+           {"Leg2ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.Leg2ProdFamilyCode)},
+           {"Leg1PropFactor", p.Leg1PropFactor},
+           {"Leg2PropFactor", p.Leg2PropFactor},
+           {"CommodityGroupID", p.CommodityGroupID},
+           {"CommodityGroupName", codec_convert("UTF-8//TRANSLIT", "GBK", p.CommodityGroupName)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcRULEInterParameterField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  j.at("SpreadId").get_to(p.SpreadId);
+  j.at("InterRate").get_to(p.InterRate);
+  auto &v4 = j.at("Leg1ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.Leg1ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.Leg1ProdFamilyCode));
+  auto &v5 = j.at("Leg2ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.Leg2ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.Leg2ProdFamilyCode));
+  j.at("Leg1PropFactor").get_to(p.Leg1PropFactor);
+  j.at("Leg2PropFactor").get_to(p.Leg2PropFactor);
+  j.at("CommodityGroupID").get_to(p.CommodityGroupID);
+  auto &v9 = j.at("CommodityGroupName").get_ref<const std::string &>();
+  std::strncpy(p.CommodityGroupName, codec_convert("GBK//TRANSLIT", "UTF-8", v9.c_str()).c_str(), sizeof(p.CommodityGroupName));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryRULEInstrParameterField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryRULEInstrParameterField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("InstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InstrumentID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryRULEIntraParameterField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProdFamilyCode)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryRULEIntraParameterField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ProdFamilyCode));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryRULEInterParameterField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"Leg1ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.Leg1ProdFamilyCode)},
+           {"Leg2ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.Leg2ProdFamilyCode)},
+           {"CommodityGroupID", p.CommodityGroupID},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryRULEInterParameterField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("Leg1ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.Leg1ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.Leg1ProdFamilyCode));
+  auto &v2 = j.at("Leg2ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.Leg2ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.Leg2ProdFamilyCode));
+  j.at("CommodityGroupID").get_to(p.CommodityGroupID);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcInvestorProdRULEMarginField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProdFamilyCode)},
+           {"InstrumentClass", std::string(1, p.InstrumentClass)},
+           {"CommodityGroupID", p.CommodityGroupID},
+           {"BStdPosition", p.BStdPosition},
+           {"SStdPosition", p.SStdPosition},
+           {"BStdOpenFrozen", p.BStdOpenFrozen},
+           {"SStdOpenFrozen", p.SStdOpenFrozen},
+           {"BStdCloseFrozen", p.BStdCloseFrozen},
+           {"SStdCloseFrozen", p.SStdCloseFrozen},
+           {"IntraProdStdPosition", p.IntraProdStdPosition},
+           {"NetStdPosition", p.NetStdPosition},
+           {"InterProdStdPosition", p.InterProdStdPosition},
+           {"SingleStdPosition", p.SingleStdPosition},
+           {"IntraProdMargin", p.IntraProdMargin},
+           {"InterProdMargin", p.InterProdMargin},
+           {"SingleMargin", p.SingleMargin},
+           {"NonCombMargin", p.NonCombMargin},
+           {"AddOnMargin", p.AddOnMargin},
+           {"ExchMargin", p.ExchMargin},
+           {"AddOnFrozenMargin", p.AddOnFrozenMargin},
+           {"OpenFrozenMargin", p.OpenFrozenMargin},
+           {"CloseFrozenMargin", p.CloseFrozenMargin},
+           {"Margin", p.Margin},
+           {"FrozenMargin", p.FrozenMargin},
+  };
+}
+
+void from_json(const json& j, CThostFtdcInvestorProdRULEMarginField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v2 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v3 = j.at("ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.ProdFamilyCode));
+  auto &v4 = j.at("InstrumentClass").get_ref<const std::string &>();
+  p.InstrumentClass = v4.at(0);
+  j.at("CommodityGroupID").get_to(p.CommodityGroupID);
+  j.at("BStdPosition").get_to(p.BStdPosition);
+  j.at("SStdPosition").get_to(p.SStdPosition);
+  j.at("BStdOpenFrozen").get_to(p.BStdOpenFrozen);
+  j.at("SStdOpenFrozen").get_to(p.SStdOpenFrozen);
+  j.at("BStdCloseFrozen").get_to(p.BStdCloseFrozen);
+  j.at("SStdCloseFrozen").get_to(p.SStdCloseFrozen);
+  j.at("IntraProdStdPosition").get_to(p.IntraProdStdPosition);
+  j.at("NetStdPosition").get_to(p.NetStdPosition);
+  j.at("InterProdStdPosition").get_to(p.InterProdStdPosition);
+  j.at("SingleStdPosition").get_to(p.SingleStdPosition);
+  j.at("IntraProdMargin").get_to(p.IntraProdMargin);
+  j.at("InterProdMargin").get_to(p.InterProdMargin);
+  j.at("SingleMargin").get_to(p.SingleMargin);
+  j.at("NonCombMargin").get_to(p.NonCombMargin);
+  j.at("AddOnMargin").get_to(p.AddOnMargin);
+  j.at("ExchMargin").get_to(p.ExchMargin);
+  j.at("AddOnFrozenMargin").get_to(p.AddOnFrozenMargin);
+  j.at("OpenFrozenMargin").get_to(p.OpenFrozenMargin);
+  j.at("CloseFrozenMargin").get_to(p.CloseFrozenMargin);
+  j.at("Margin").get_to(p.Margin);
+  j.at("FrozenMargin").get_to(p.FrozenMargin);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryInvestorProdRULEMarginField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProdFamilyCode)},
+           {"CommodityGroupID", p.CommodityGroupID},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryInvestorProdRULEMarginField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v2 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v3 = j.at("ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.ProdFamilyCode));
+  j.at("CommodityGroupID").get_to(p.CommodityGroupID);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSyncDeltaSPBMPortfDefinitionField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"PortfolioDefID", p.PortfolioDefID},
+           {"ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProdFamilyCode)},
+           {"IsSPBM", p.IsSPBM},
+           {"ActionDirection", std::string(1, p.ActionDirection)},
+           {"SyncDeltaSequenceNo", p.SyncDeltaSequenceNo},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSyncDeltaSPBMPortfDefinitionField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  j.at("PortfolioDefID").get_to(p.PortfolioDefID);
+  auto &v2 = j.at("ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ProdFamilyCode));
+  j.at("IsSPBM").get_to(p.IsSPBM);
+  auto &v4 = j.at("ActionDirection").get_ref<const std::string &>();
+  p.ActionDirection = v4.at(0);
+  j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSyncDeltaSPBMInvstPortfDefField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"PortfolioDefID", p.PortfolioDefID},
+           {"ActionDirection", std::string(1, p.ActionDirection)},
+           {"SyncDeltaSequenceNo", p.SyncDeltaSequenceNo},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSyncDeltaSPBMInvstPortfDefField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v2 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestorID));
+  j.at("PortfolioDefID").get_to(p.PortfolioDefID);
+  auto &v4 = j.at("ActionDirection").get_ref<const std::string &>();
+  p.ActionDirection = v4.at(0);
+  j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSyncDeltaSPBMFutureParameterField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
+           {"ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProdFamilyCode)},
+           {"Cvf", p.Cvf},
+           {"TimeRange", std::string(1, p.TimeRange)},
+           {"MarginRate", p.MarginRate},
+           {"LockRateX", p.LockRateX},
+           {"AddOnRate", p.AddOnRate},
+           {"PreSettlementPrice", p.PreSettlementPrice},
+           {"AddOnLockRateX2", p.AddOnLockRateX2},
+           {"ActionDirection", std::string(1, p.ActionDirection)},
+           {"SyncDeltaSequenceNo", p.SyncDeltaSequenceNo},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSyncDeltaSPBMFutureParameterField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v2 = j.at("InstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InstrumentID));
+  auto &v3 = j.at("ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.ProdFamilyCode));
+  j.at("Cvf").get_to(p.Cvf);
+  auto &v5 = j.at("TimeRange").get_ref<const std::string &>();
+  p.TimeRange = v5.at(0);
+  j.at("MarginRate").get_to(p.MarginRate);
+  j.at("LockRateX").get_to(p.LockRateX);
+  j.at("AddOnRate").get_to(p.AddOnRate);
+  j.at("PreSettlementPrice").get_to(p.PreSettlementPrice);
+  j.at("AddOnLockRateX2").get_to(p.AddOnLockRateX2);
+  auto &v11 = j.at("ActionDirection").get_ref<const std::string &>();
+  p.ActionDirection = v11.at(0);
+  j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSyncDeltaSPBMOptionParameterField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
+           {"ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProdFamilyCode)},
+           {"Cvf", p.Cvf},
+           {"DownPrice", p.DownPrice},
+           {"Delta", p.Delta},
+           {"SlimiDelta", p.SlimiDelta},
+           {"PreSettlementPrice", p.PreSettlementPrice},
+           {"ActionDirection", std::string(1, p.ActionDirection)},
+           {"SyncDeltaSequenceNo", p.SyncDeltaSequenceNo},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSyncDeltaSPBMOptionParameterField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v2 = j.at("InstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InstrumentID));
+  auto &v3 = j.at("ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.ProdFamilyCode));
+  j.at("Cvf").get_to(p.Cvf);
+  j.at("DownPrice").get_to(p.DownPrice);
+  j.at("Delta").get_to(p.Delta);
+  j.at("SlimiDelta").get_to(p.SlimiDelta);
+  j.at("PreSettlementPrice").get_to(p.PreSettlementPrice);
+  auto &v9 = j.at("ActionDirection").get_ref<const std::string &>();
+  p.ActionDirection = v9.at(0);
+  j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSyncDeltaSPBMIntraParameterField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProdFamilyCode)},
+           {"IntraRateY", p.IntraRateY},
+           {"AddOnIntraRateY2", p.AddOnIntraRateY2},
+           {"ActionDirection", std::string(1, p.ActionDirection)},
+           {"SyncDeltaSequenceNo", p.SyncDeltaSequenceNo},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSyncDeltaSPBMIntraParameterField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v2 = j.at("ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ProdFamilyCode));
+  j.at("IntraRateY").get_to(p.IntraRateY);
+  j.at("AddOnIntraRateY2").get_to(p.AddOnIntraRateY2);
+  auto &v5 = j.at("ActionDirection").get_ref<const std::string &>();
+  p.ActionDirection = v5.at(0);
+  j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSyncDeltaSPBMInterParameterField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"SpreadId", p.SpreadId},
+           {"InterRateZ", p.InterRateZ},
+           {"Leg1ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.Leg1ProdFamilyCode)},
+           {"Leg2ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.Leg2ProdFamilyCode)},
+           {"ActionDirection", std::string(1, p.ActionDirection)},
+           {"SyncDeltaSequenceNo", p.SyncDeltaSequenceNo},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSyncDeltaSPBMInterParameterField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  j.at("SpreadId").get_to(p.SpreadId);
+  j.at("InterRateZ").get_to(p.InterRateZ);
+  auto &v4 = j.at("Leg1ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.Leg1ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.Leg1ProdFamilyCode));
+  auto &v5 = j.at("Leg2ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.Leg2ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.Leg2ProdFamilyCode));
+  auto &v6 = j.at("ActionDirection").get_ref<const std::string &>();
+  p.ActionDirection = v6.at(0);
+  j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSyncDeltaSPBMAddOnInterParamField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"SpreadId", p.SpreadId},
+           {"AddOnInterRateZ2", p.AddOnInterRateZ2},
+           {"Leg1ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.Leg1ProdFamilyCode)},
+           {"Leg2ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.Leg2ProdFamilyCode)},
+           {"ActionDirection", std::string(1, p.ActionDirection)},
+           {"SyncDeltaSequenceNo", p.SyncDeltaSequenceNo},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSyncDeltaSPBMAddOnInterParamField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  j.at("SpreadId").get_to(p.SpreadId);
+  j.at("AddOnInterRateZ2").get_to(p.AddOnInterRateZ2);
+  auto &v4 = j.at("Leg1ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.Leg1ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.Leg1ProdFamilyCode));
+  auto &v5 = j.at("Leg2ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.Leg2ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.Leg2ProdFamilyCode));
+  auto &v6 = j.at("ActionDirection").get_ref<const std::string &>();
+  p.ActionDirection = v6.at(0);
+  j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSyncDeltaSPMMInstParamField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
+           {"InstMarginCalID", std::string(1, p.InstMarginCalID)},
+           {"CommodityID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CommodityID)},
+           {"CommodityGroupID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CommodityGroupID)},
+           {"ActionDirection", std::string(1, p.ActionDirection)},
+           {"SyncDeltaSequenceNo", p.SyncDeltaSequenceNo},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSyncDeltaSPMMInstParamField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("InstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InstrumentID));
+  auto &v2 = j.at("InstMarginCalID").get_ref<const std::string &>();
+  p.InstMarginCalID = v2.at(0);
+  auto &v3 = j.at("CommodityID").get_ref<const std::string &>();
+  std::strncpy(p.CommodityID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.CommodityID));
+  auto &v4 = j.at("CommodityGroupID").get_ref<const std::string &>();
+  std::strncpy(p.CommodityGroupID, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.CommodityGroupID));
+  auto &v5 = j.at("ActionDirection").get_ref<const std::string &>();
+  p.ActionDirection = v5.at(0);
+  j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSyncDeltaSPMMProductParamField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"ProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductID)},
+           {"CommodityID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CommodityID)},
+           {"CommodityGroupID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CommodityGroupID)},
+           {"ActionDirection", std::string(1, p.ActionDirection)},
+           {"SyncDeltaSequenceNo", p.SyncDeltaSequenceNo},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSyncDeltaSPMMProductParamField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("ProductID").get_ref<const std::string &>();
+  std::strncpy(p.ProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ProductID));
+  auto &v2 = j.at("CommodityID").get_ref<const std::string &>();
+  std::strncpy(p.CommodityID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.CommodityID));
+  auto &v3 = j.at("CommodityGroupID").get_ref<const std::string &>();
+  std::strncpy(p.CommodityGroupID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.CommodityGroupID));
+  auto &v4 = j.at("ActionDirection").get_ref<const std::string &>();
+  p.ActionDirection = v4.at(0);
+  j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSyncDeltaInvestorSPMMModelField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"SPMMModelID", codec_convert("UTF-8//TRANSLIT", "GBK", p.SPMMModelID)},
+           {"ActionDirection", std::string(1, p.ActionDirection)},
+           {"SyncDeltaSequenceNo", p.SyncDeltaSequenceNo},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSyncDeltaInvestorSPMMModelField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v2 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v3 = j.at("SPMMModelID").get_ref<const std::string &>();
+  std::strncpy(p.SPMMModelID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.SPMMModelID));
+  auto &v4 = j.at("ActionDirection").get_ref<const std::string &>();
+  p.ActionDirection = v4.at(0);
+  j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSyncDeltaSPMMModelParamField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"SPMMModelID", codec_convert("UTF-8//TRANSLIT", "GBK", p.SPMMModelID)},
+           {"CommodityGroupID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CommodityGroupID)},
+           {"IntraCommodityRate", p.IntraCommodityRate},
+           {"InterCommodityRate", p.InterCommodityRate},
+           {"OptionDiscountRate", p.OptionDiscountRate},
+           {"MiniMarginRatio", p.MiniMarginRatio},
+           {"ActionDirection", std::string(1, p.ActionDirection)},
+           {"SyncDeltaSequenceNo", p.SyncDeltaSequenceNo},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSyncDeltaSPMMModelParamField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("SPMMModelID").get_ref<const std::string &>();
+  std::strncpy(p.SPMMModelID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.SPMMModelID));
+  auto &v2 = j.at("CommodityGroupID").get_ref<const std::string &>();
+  std::strncpy(p.CommodityGroupID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.CommodityGroupID));
+  j.at("IntraCommodityRate").get_to(p.IntraCommodityRate);
+  j.at("InterCommodityRate").get_to(p.InterCommodityRate);
+  j.at("OptionDiscountRate").get_to(p.OptionDiscountRate);
+  j.at("MiniMarginRatio").get_to(p.MiniMarginRatio);
+  auto &v7 = j.at("ActionDirection").get_ref<const std::string &>();
+  p.ActionDirection = v7.at(0);
+  j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSyncDeltaRCAMSCombProdInfoField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"ProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductID)},
+           {"CombProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombProductID)},
+           {"ProductGroupID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductGroupID)},
+           {"ActionDirection", std::string(1, p.ActionDirection)},
+           {"SyncDeltaSequenceNo", p.SyncDeltaSequenceNo},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSyncDeltaRCAMSCombProdInfoField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v2 = j.at("ProductID").get_ref<const std::string &>();
+  std::strncpy(p.ProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ProductID));
+  auto &v3 = j.at("CombProductID").get_ref<const std::string &>();
+  std::strncpy(p.CombProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.CombProductID));
+  auto &v4 = j.at("ProductGroupID").get_ref<const std::string &>();
+  std::strncpy(p.ProductGroupID, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.ProductGroupID));
+  auto &v5 = j.at("ActionDirection").get_ref<const std::string &>();
+  p.ActionDirection = v5.at(0);
+  j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSyncDeltaRCAMSInstrParameterField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"ProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductID)},
+           {"HedgeRate", p.HedgeRate},
+           {"ActionDirection", std::string(1, p.ActionDirection)},
+           {"SyncDeltaSequenceNo", p.SyncDeltaSequenceNo},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSyncDeltaRCAMSInstrParameterField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v2 = j.at("ProductID").get_ref<const std::string &>();
+  std::strncpy(p.ProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ProductID));
+  j.at("HedgeRate").get_to(p.HedgeRate);
+  auto &v4 = j.at("ActionDirection").get_ref<const std::string &>();
+  p.ActionDirection = v4.at(0);
+  j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSyncDeltaRCAMSIntraParameterField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"CombProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombProductID)},
+           {"HedgeRate", p.HedgeRate},
+           {"ActionDirection", std::string(1, p.ActionDirection)},
+           {"SyncDeltaSequenceNo", p.SyncDeltaSequenceNo},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSyncDeltaRCAMSIntraParameterField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v2 = j.at("CombProductID").get_ref<const std::string &>();
+  std::strncpy(p.CombProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.CombProductID));
+  j.at("HedgeRate").get_to(p.HedgeRate);
+  auto &v4 = j.at("ActionDirection").get_ref<const std::string &>();
+  p.ActionDirection = v4.at(0);
+  j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSyncDeltaRCAMSInterParameterField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"ProductGroupID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductGroupID)},
+           {"Priority", p.Priority},
+           {"CreditRate", p.CreditRate},
+           {"CombProduct1", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombProduct1)},
+           {"CombProduct2", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombProduct2)},
+           {"ActionDirection", std::string(1, p.ActionDirection)},
+           {"SyncDeltaSequenceNo", p.SyncDeltaSequenceNo},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSyncDeltaRCAMSInterParameterField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v2 = j.at("ProductGroupID").get_ref<const std::string &>();
+  std::strncpy(p.ProductGroupID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ProductGroupID));
+  j.at("Priority").get_to(p.Priority);
+  j.at("CreditRate").get_to(p.CreditRate);
+  auto &v5 = j.at("CombProduct1").get_ref<const std::string &>();
+  std::strncpy(p.CombProduct1, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.CombProduct1));
+  auto &v6 = j.at("CombProduct2").get_ref<const std::string &>();
+  std::strncpy(p.CombProduct2, codec_convert("GBK//TRANSLIT", "UTF-8", v6.c_str()).c_str(), sizeof(p.CombProduct2));
+  auto &v7 = j.at("ActionDirection").get_ref<const std::string &>();
+  p.ActionDirection = v7.at(0);
+  j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSyncDeltaRCAMSSOptAdjParamField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"CombProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombProductID)},
+           {"HedgeFlag", std::string(1, p.HedgeFlag)},
+           {"AdjustValue", p.AdjustValue},
+           {"ActionDirection", std::string(1, p.ActionDirection)},
+           {"SyncDeltaSequenceNo", p.SyncDeltaSequenceNo},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSyncDeltaRCAMSSOptAdjParamField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v2 = j.at("CombProductID").get_ref<const std::string &>();
+  std::strncpy(p.CombProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.CombProductID));
+  auto &v3 = j.at("HedgeFlag").get_ref<const std::string &>();
+  p.HedgeFlag = v3.at(0);
+  j.at("AdjustValue").get_to(p.AdjustValue);
+  auto &v5 = j.at("ActionDirection").get_ref<const std::string &>();
+  p.ActionDirection = v5.at(0);
+  j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSyncDeltaRCAMSCombRuleDtlField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"ProdGroup", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProdGroup)},
+           {"RuleId", codec_convert("UTF-8//TRANSLIT", "GBK", p.RuleId)},
+           {"Priority", p.Priority},
+           {"HedgeFlag", std::string(1, p.HedgeFlag)},
+           {"CombMargin", p.CombMargin},
+           {"ExchangeInstID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeInstID)},
+           {"LegID", p.LegID},
+           {"LegInstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.LegInstrumentID)},
+           {"Direction", std::string(1, p.Direction)},
+           {"LegMultiple", p.LegMultiple},
+           {"ActionDirection", std::string(1, p.ActionDirection)},
+           {"SyncDeltaSequenceNo", p.SyncDeltaSequenceNo},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSyncDeltaRCAMSCombRuleDtlField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v2 = j.at("ProdGroup").get_ref<const std::string &>();
+  std::strncpy(p.ProdGroup, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ProdGroup));
+  auto &v3 = j.at("RuleId").get_ref<const std::string &>();
+  std::strncpy(p.RuleId, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.RuleId));
+  j.at("Priority").get_to(p.Priority);
+  auto &v5 = j.at("HedgeFlag").get_ref<const std::string &>();
+  p.HedgeFlag = v5.at(0);
+  j.at("CombMargin").get_to(p.CombMargin);
+  auto &v7 = j.at("ExchangeInstID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeInstID, codec_convert("GBK//TRANSLIT", "UTF-8", v7.c_str()).c_str(), sizeof(p.ExchangeInstID));
+  j.at("LegID").get_to(p.LegID);
+  auto &v9 = j.at("LegInstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.LegInstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v9.c_str()).c_str(), sizeof(p.LegInstrumentID));
+  auto &v10 = j.at("Direction").get_ref<const std::string &>();
+  p.Direction = v10.at(0);
+  j.at("LegMultiple").get_to(p.LegMultiple);
+  auto &v12 = j.at("ActionDirection").get_ref<const std::string &>();
+  p.ActionDirection = v12.at(0);
+  j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSyncDeltaRCAMSInvstCombPosField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
+           {"HedgeFlag", std::string(1, p.HedgeFlag)},
+           {"PosiDirection", std::string(1, p.PosiDirection)},
+           {"CombInstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombInstrumentID)},
+           {"LegID", p.LegID},
+           {"ExchangeInstID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeInstID)},
+           {"TotalAmt", p.TotalAmt},
+           {"ExchMargin", p.ExchMargin},
+           {"Margin", p.Margin},
+           {"ActionDirection", std::string(1, p.ActionDirection)},
+           {"SyncDeltaSequenceNo", p.SyncDeltaSequenceNo},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSyncDeltaRCAMSInvstCombPosField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v2 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v3 = j.at("InstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.InstrumentID));
+  auto &v4 = j.at("HedgeFlag").get_ref<const std::string &>();
+  p.HedgeFlag = v4.at(0);
+  auto &v5 = j.at("PosiDirection").get_ref<const std::string &>();
+  p.PosiDirection = v5.at(0);
+  auto &v6 = j.at("CombInstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.CombInstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v6.c_str()).c_str(), sizeof(p.CombInstrumentID));
+  j.at("LegID").get_to(p.LegID);
+  auto &v8 = j.at("ExchangeInstID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeInstID, codec_convert("GBK//TRANSLIT", "UTF-8", v8.c_str()).c_str(), sizeof(p.ExchangeInstID));
+  j.at("TotalAmt").get_to(p.TotalAmt);
+  j.at("ExchMargin").get_to(p.ExchMargin);
+  j.at("Margin").get_to(p.Margin);
+  auto &v12 = j.at("ActionDirection").get_ref<const std::string &>();
+  p.ActionDirection = v12.at(0);
+  j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSyncDeltaRULEInstrParameterField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
+           {"InstrumentClass", std::string(1, p.InstrumentClass)},
+           {"StdInstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.StdInstrumentID)},
+           {"BSpecRatio", p.BSpecRatio},
+           {"SSpecRatio", p.SSpecRatio},
+           {"BHedgeRatio", p.BHedgeRatio},
+           {"SHedgeRatio", p.SHedgeRatio},
+           {"BAddOnMargin", p.BAddOnMargin},
+           {"SAddOnMargin", p.SAddOnMargin},
+           {"CommodityGroupID", p.CommodityGroupID},
+           {"ActionDirection", std::string(1, p.ActionDirection)},
+           {"SyncDeltaSequenceNo", p.SyncDeltaSequenceNo},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSyncDeltaRULEInstrParameterField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v2 = j.at("InstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InstrumentID));
+  auto &v3 = j.at("InstrumentClass").get_ref<const std::string &>();
+  p.InstrumentClass = v3.at(0);
+  auto &v4 = j.at("StdInstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.StdInstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.StdInstrumentID));
+  j.at("BSpecRatio").get_to(p.BSpecRatio);
+  j.at("SSpecRatio").get_to(p.SSpecRatio);
+  j.at("BHedgeRatio").get_to(p.BHedgeRatio);
+  j.at("SHedgeRatio").get_to(p.SHedgeRatio);
+  j.at("BAddOnMargin").get_to(p.BAddOnMargin);
+  j.at("SAddOnMargin").get_to(p.SAddOnMargin);
+  j.at("CommodityGroupID").get_to(p.CommodityGroupID);
+  auto &v12 = j.at("ActionDirection").get_ref<const std::string &>();
+  p.ActionDirection = v12.at(0);
+  j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSyncDeltaRULEIntraParameterField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProdFamilyCode)},
+           {"StdInstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.StdInstrumentID)},
+           {"StdInstrMargin", p.StdInstrMargin},
+           {"UsualIntraRate", p.UsualIntraRate},
+           {"DeliveryIntraRate", p.DeliveryIntraRate},
+           {"ActionDirection", std::string(1, p.ActionDirection)},
+           {"SyncDeltaSequenceNo", p.SyncDeltaSequenceNo},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSyncDeltaRULEIntraParameterField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v2 = j.at("ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ProdFamilyCode));
+  auto &v3 = j.at("StdInstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.StdInstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.StdInstrumentID));
+  j.at("StdInstrMargin").get_to(p.StdInstrMargin);
+  j.at("UsualIntraRate").get_to(p.UsualIntraRate);
+  j.at("DeliveryIntraRate").get_to(p.DeliveryIntraRate);
+  auto &v7 = j.at("ActionDirection").get_ref<const std::string &>();
+  p.ActionDirection = v7.at(0);
+  j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSyncDeltaRULEInterParameterField& p) {
+  j = json{
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"SpreadId", p.SpreadId},
+           {"InterRate", p.InterRate},
+           {"Leg1ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.Leg1ProdFamilyCode)},
+           {"Leg2ProdFamilyCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.Leg2ProdFamilyCode)},
+           {"Leg1PropFactor", p.Leg1PropFactor},
+           {"Leg2PropFactor", p.Leg2PropFactor},
+           {"CommodityGroupID", p.CommodityGroupID},
+           {"CommodityGroupName", codec_convert("UTF-8//TRANSLIT", "GBK", p.CommodityGroupName)},
+           {"ActionDirection", std::string(1, p.ActionDirection)},
+           {"SyncDeltaSequenceNo", p.SyncDeltaSequenceNo},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSyncDeltaRULEInterParameterField& p) {
+  auto &v0 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
+  auto &v1 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
+  j.at("SpreadId").get_to(p.SpreadId);
+  j.at("InterRate").get_to(p.InterRate);
+  auto &v4 = j.at("Leg1ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.Leg1ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.Leg1ProdFamilyCode));
+  auto &v5 = j.at("Leg2ProdFamilyCode").get_ref<const std::string &>();
+  std::strncpy(p.Leg2ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.Leg2ProdFamilyCode));
+  j.at("Leg1PropFactor").get_to(p.Leg1PropFactor);
+  j.at("Leg2PropFactor").get_to(p.Leg2PropFactor);
+  j.at("CommodityGroupID").get_to(p.CommodityGroupID);
+  auto &v9 = j.at("CommodityGroupName").get_ref<const std::string &>();
+  std::strncpy(p.CommodityGroupName, codec_convert("GBK//TRANSLIT", "UTF-8", v9.c_str()).c_str(), sizeof(p.CommodityGroupName));
+  auto &v10 = j.at("ActionDirection").get_ref<const std::string &>();
+  p.ActionDirection = v10.at(0);
+  j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcIpAddrParamField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"Address", codec_convert("UTF-8//TRANSLIT", "GBK", p.Address)},
+           {"DRIdentityID", p.DRIdentityID},
+           {"DRIdentityName", codec_convert("UTF-8//TRANSLIT", "GBK", p.DRIdentityName)},
+           {"AddrSrvMode", std::string(1, p.AddrSrvMode)},
+           {"AddrVer", std::string(1, p.AddrVer)},
+           {"AddrNo", p.AddrNo},
+           {"AddrName", codec_convert("UTF-8//TRANSLIT", "GBK", p.AddrName)},
+           {"IsSM", p.IsSM},
+           {"IsLocalAddr", p.IsLocalAddr},
+           {"Remark", codec_convert("UTF-8//TRANSLIT", "GBK", p.Remark)},
+           {"Site", codec_convert("UTF-8//TRANSLIT", "GBK", p.Site)},
+           {"NetOperator", codec_convert("UTF-8//TRANSLIT", "GBK", p.NetOperator)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcIpAddrParamField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("Address").get_ref<const std::string &>();
+  std::strncpy(p.Address, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.Address));
+  j.at("DRIdentityID").get_to(p.DRIdentityID);
+  auto &v3 = j.at("DRIdentityName").get_ref<const std::string &>();
+  std::strncpy(p.DRIdentityName, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.DRIdentityName));
+  auto &v4 = j.at("AddrSrvMode").get_ref<const std::string &>();
+  p.AddrSrvMode = v4.at(0);
+  auto &v5 = j.at("AddrVer").get_ref<const std::string &>();
+  p.AddrVer = v5.at(0);
+  j.at("AddrNo").get_to(p.AddrNo);
+  auto &v7 = j.at("AddrName").get_ref<const std::string &>();
+  std::strncpy(p.AddrName, codec_convert("GBK//TRANSLIT", "UTF-8", v7.c_str()).c_str(), sizeof(p.AddrName));
+  j.at("IsSM").get_to(p.IsSM);
+  j.at("IsLocalAddr").get_to(p.IsLocalAddr);
+  auto &v10 = j.at("Remark").get_ref<const std::string &>();
+  std::strncpy(p.Remark, codec_convert("GBK//TRANSLIT", "UTF-8", v10.c_str()).c_str(), sizeof(p.Remark));
+  auto &v11 = j.at("Site").get_ref<const std::string &>();
+  std::strncpy(p.Site, codec_convert("GBK//TRANSLIT", "UTF-8", v11.c_str()).c_str(), sizeof(p.Site));
+  auto &v12 = j.at("NetOperator").get_ref<const std::string &>();
+  std::strncpy(p.NetOperator, codec_convert("GBK//TRANSLIT", "UTF-8", v12.c_str()).c_str(), sizeof(p.NetOperator));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryIpAddrParamField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryIpAddrParamField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcTGIpAddrParamField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"UserID", codec_convert("UTF-8//TRANSLIT", "GBK", p.UserID)},
+           {"Address", codec_convert("UTF-8//TRANSLIT", "GBK", p.Address)},
+           {"DRIdentityID", p.DRIdentityID},
+           {"DRIdentityName", codec_convert("UTF-8//TRANSLIT", "GBK", p.DRIdentityName)},
+           {"AddrSrvMode", std::string(1, p.AddrSrvMode)},
+           {"AddrVer", std::string(1, p.AddrVer)},
+           {"AddrNo", p.AddrNo},
+           {"AddrName", codec_convert("UTF-8//TRANSLIT", "GBK", p.AddrName)},
+           {"IsSM", p.IsSM},
+           {"IsLocalAddr", p.IsLocalAddr},
+           {"Remark", codec_convert("UTF-8//TRANSLIT", "GBK", p.Remark)},
+           {"Site", codec_convert("UTF-8//TRANSLIT", "GBK", p.Site)},
+           {"NetOperator", codec_convert("UTF-8//TRANSLIT", "GBK", p.NetOperator)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcTGIpAddrParamField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("UserID").get_ref<const std::string &>();
+  std::strncpy(p.UserID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.UserID));
+  auto &v2 = j.at("Address").get_ref<const std::string &>();
+  std::strncpy(p.Address, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.Address));
+  j.at("DRIdentityID").get_to(p.DRIdentityID);
+  auto &v4 = j.at("DRIdentityName").get_ref<const std::string &>();
+  std::strncpy(p.DRIdentityName, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.DRIdentityName));
+  auto &v5 = j.at("AddrSrvMode").get_ref<const std::string &>();
+  p.AddrSrvMode = v5.at(0);
+  auto &v6 = j.at("AddrVer").get_ref<const std::string &>();
+  p.AddrVer = v6.at(0);
+  j.at("AddrNo").get_to(p.AddrNo);
+  auto &v8 = j.at("AddrName").get_ref<const std::string &>();
+  std::strncpy(p.AddrName, codec_convert("GBK//TRANSLIT", "UTF-8", v8.c_str()).c_str(), sizeof(p.AddrName));
+  j.at("IsSM").get_to(p.IsSM);
+  j.at("IsLocalAddr").get_to(p.IsLocalAddr);
+  auto &v11 = j.at("Remark").get_ref<const std::string &>();
+  std::strncpy(p.Remark, codec_convert("GBK//TRANSLIT", "UTF-8", v11.c_str()).c_str(), sizeof(p.Remark));
+  auto &v12 = j.at("Site").get_ref<const std::string &>();
+  std::strncpy(p.Site, codec_convert("GBK//TRANSLIT", "UTF-8", v12.c_str()).c_str(), sizeof(p.Site));
+  auto &v13 = j.at("NetOperator").get_ref<const std::string &>();
+  std::strncpy(p.NetOperator, codec_convert("GBK//TRANSLIT", "UTF-8", v13.c_str()).c_str(), sizeof(p.NetOperator));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryTGIpAddrParamField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"UserID", codec_convert("UTF-8//TRANSLIT", "GBK", p.UserID)},
+           {"AppID", codec_convert("UTF-8//TRANSLIT", "GBK", p.AppID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryTGIpAddrParamField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("UserID").get_ref<const std::string &>();
+  std::strncpy(p.UserID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.UserID));
+  auto &v2 = j.at("AppID").get_ref<const std::string &>();
+  std::strncpy(p.AppID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.AppID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcTGSessionQryStatusField& p) {
+  j = json{
+           {"LastQryFreq", p.LastQryFreq},
+           {"QryStatus", std::string(1, p.QryStatus)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcTGSessionQryStatusField& p) {
+  j.at("LastQryFreq").get_to(p.LastQryFreq);
+  auto &v1 = j.at("QryStatus").get_ref<const std::string &>();
+  p.QryStatus = v1.at(0);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcLocalAddrConfigField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"PeerAddr", codec_convert("UTF-8//TRANSLIT", "GBK", p.PeerAddr)},
+           {"NetMask", codec_convert("UTF-8//TRANSLIT", "GBK", p.NetMask)},
+           {"DRIdentityID", p.DRIdentityID},
+           {"LocalAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.LocalAddress)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcLocalAddrConfigField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("PeerAddr").get_ref<const std::string &>();
+  std::strncpy(p.PeerAddr, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.PeerAddr));
+  auto &v2 = j.at("NetMask").get_ref<const std::string &>();
+  std::strncpy(p.NetMask, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.NetMask));
+  j.at("DRIdentityID").get_to(p.DRIdentityID);
+  auto &v4 = j.at("LocalAddress").get_ref<const std::string &>();
+  std::strncpy(p.LocalAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.LocalAddress));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryLocalAddrConfigField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryLocalAddrConfigField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcReqQueryBankAccountBySecField& p) {
+  j = json{
+           {"TradeCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeCode)},
+           {"BankID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankID)},
+           {"BankBranchID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankBranchID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"BrokerBranchID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerBranchID)},
+           {"TradeDate", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeDate)},
+           {"TradeTime", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeTime)},
+           {"BankSerial", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankSerial)},
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"PlateSerial", p.PlateSerial},
+           {"LastFragment", std::string(1, p.LastFragment)},
+           {"SessionID", p.SessionID},
+           {"CustomerName", codec_convert("UTF-8//TRANSLIT", "GBK", p.CustomerName)},
+           {"IdCardType", std::string(1, p.IdCardType)},
+           {"IdentifiedCardNo", codec_convert("UTF-8//TRANSLIT", "GBK", p.IdentifiedCardNo)},
+           {"CustType", std::string(1, p.CustType)},
+           {"BankAccount", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankAccount)},
+           {"BankPassWord", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankPassWord)},
+           {"AccountID", codec_convert("UTF-8//TRANSLIT", "GBK", p.AccountID)},
+           {"Password", codec_convert("UTF-8//TRANSLIT", "GBK", p.Password)},
+           {"FutureSerial", p.FutureSerial},
+           {"InstallID", p.InstallID},
+           {"UserID", codec_convert("UTF-8//TRANSLIT", "GBK", p.UserID)},
+           {"VerifyCertNoFlag", std::string(1, p.VerifyCertNoFlag)},
+           {"CurrencyID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CurrencyID)},
+           {"Digest", codec_convert("UTF-8//TRANSLIT", "GBK", p.Digest)},
+           {"BankAccType", std::string(1, p.BankAccType)},
+           {"DeviceID", codec_convert("UTF-8//TRANSLIT", "GBK", p.DeviceID)},
+           {"BankSecuAccType", std::string(1, p.BankSecuAccType)},
+           {"BrokerIDByBank", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerIDByBank)},
+           {"BankSecuAcc", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankSecuAcc)},
+           {"BankPwdFlag", std::string(1, p.BankPwdFlag)},
+           {"SecuPwdFlag", std::string(1, p.SecuPwdFlag)},
+           {"OperNo", codec_convert("UTF-8//TRANSLIT", "GBK", p.OperNo)},
+           {"RequestID", p.RequestID},
+           {"TID", p.TID},
+           {"LongCustomerName", codec_convert("UTF-8//TRANSLIT", "GBK", p.LongCustomerName)},
+           {"DRIdentityID", p.DRIdentityID},
+           {"SecFutureSerial", p.SecFutureSerial},
+  };
+}
+
+void from_json(const json& j, CThostFtdcReqQueryBankAccountBySecField& p) {
+  auto &v0 = j.at("TradeCode").get_ref<const std::string &>();
+  std::strncpy(p.TradeCode, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradeCode));
+  auto &v1 = j.at("BankID").get_ref<const std::string &>();
+  std::strncpy(p.BankID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BankID));
+  auto &v2 = j.at("BankBranchID").get_ref<const std::string &>();
+  std::strncpy(p.BankBranchID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.BankBranchID));
+  auto &v3 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v4 = j.at("BrokerBranchID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerBranchID, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.BrokerBranchID));
+  auto &v5 = j.at("TradeDate").get_ref<const std::string &>();
+  std::strncpy(p.TradeDate, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.TradeDate));
+  auto &v6 = j.at("TradeTime").get_ref<const std::string &>();
+  std::strncpy(p.TradeTime, codec_convert("GBK//TRANSLIT", "UTF-8", v6.c_str()).c_str(), sizeof(p.TradeTime));
+  auto &v7 = j.at("BankSerial").get_ref<const std::string &>();
+  std::strncpy(p.BankSerial, codec_convert("GBK//TRANSLIT", "UTF-8", v7.c_str()).c_str(), sizeof(p.BankSerial));
+  auto &v8 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v8.c_str()).c_str(), sizeof(p.TradingDay));
+  j.at("PlateSerial").get_to(p.PlateSerial);
+  auto &v10 = j.at("LastFragment").get_ref<const std::string &>();
+  p.LastFragment = v10.at(0);
+  j.at("SessionID").get_to(p.SessionID);
+  auto &v12 = j.at("CustomerName").get_ref<const std::string &>();
+  std::strncpy(p.CustomerName, codec_convert("GBK//TRANSLIT", "UTF-8", v12.c_str()).c_str(), sizeof(p.CustomerName));
+  auto &v13 = j.at("IdCardType").get_ref<const std::string &>();
+  p.IdCardType = v13.at(0);
+  auto &v14 = j.at("IdentifiedCardNo").get_ref<const std::string &>();
+  std::strncpy(p.IdentifiedCardNo, codec_convert("GBK//TRANSLIT", "UTF-8", v14.c_str()).c_str(), sizeof(p.IdentifiedCardNo));
+  auto &v15 = j.at("CustType").get_ref<const std::string &>();
+  p.CustType = v15.at(0);
+  auto &v16 = j.at("BankAccount").get_ref<const std::string &>();
+  std::strncpy(p.BankAccount, codec_convert("GBK//TRANSLIT", "UTF-8", v16.c_str()).c_str(), sizeof(p.BankAccount));
+  auto &v17 = j.at("BankPassWord").get_ref<const std::string &>();
+  std::strncpy(p.BankPassWord, codec_convert("GBK//TRANSLIT", "UTF-8", v17.c_str()).c_str(), sizeof(p.BankPassWord));
+  auto &v18 = j.at("AccountID").get_ref<const std::string &>();
+  std::strncpy(p.AccountID, codec_convert("GBK//TRANSLIT", "UTF-8", v18.c_str()).c_str(), sizeof(p.AccountID));
+  auto &v19 = j.at("Password").get_ref<const std::string &>();
+  std::strncpy(p.Password, codec_convert("GBK//TRANSLIT", "UTF-8", v19.c_str()).c_str(), sizeof(p.Password));
+  j.at("FutureSerial").get_to(p.FutureSerial);
+  j.at("InstallID").get_to(p.InstallID);
+  auto &v22 = j.at("UserID").get_ref<const std::string &>();
+  std::strncpy(p.UserID, codec_convert("GBK//TRANSLIT", "UTF-8", v22.c_str()).c_str(), sizeof(p.UserID));
+  auto &v23 = j.at("VerifyCertNoFlag").get_ref<const std::string &>();
+  p.VerifyCertNoFlag = v23.at(0);
+  auto &v24 = j.at("CurrencyID").get_ref<const std::string &>();
+  std::strncpy(p.CurrencyID, codec_convert("GBK//TRANSLIT", "UTF-8", v24.c_str()).c_str(), sizeof(p.CurrencyID));
+  auto &v25 = j.at("Digest").get_ref<const std::string &>();
+  std::strncpy(p.Digest, codec_convert("GBK//TRANSLIT", "UTF-8", v25.c_str()).c_str(), sizeof(p.Digest));
+  auto &v26 = j.at("BankAccType").get_ref<const std::string &>();
+  p.BankAccType = v26.at(0);
+  auto &v27 = j.at("DeviceID").get_ref<const std::string &>();
+  std::strncpy(p.DeviceID, codec_convert("GBK//TRANSLIT", "UTF-8", v27.c_str()).c_str(), sizeof(p.DeviceID));
+  auto &v28 = j.at("BankSecuAccType").get_ref<const std::string &>();
+  p.BankSecuAccType = v28.at(0);
+  auto &v29 = j.at("BrokerIDByBank").get_ref<const std::string &>();
+  std::strncpy(p.BrokerIDByBank, codec_convert("GBK//TRANSLIT", "UTF-8", v29.c_str()).c_str(), sizeof(p.BrokerIDByBank));
+  auto &v30 = j.at("BankSecuAcc").get_ref<const std::string &>();
+  std::strncpy(p.BankSecuAcc, codec_convert("GBK//TRANSLIT", "UTF-8", v30.c_str()).c_str(), sizeof(p.BankSecuAcc));
+  auto &v31 = j.at("BankPwdFlag").get_ref<const std::string &>();
+  p.BankPwdFlag = v31.at(0);
+  auto &v32 = j.at("SecuPwdFlag").get_ref<const std::string &>();
+  p.SecuPwdFlag = v32.at(0);
+  auto &v33 = j.at("OperNo").get_ref<const std::string &>();
+  std::strncpy(p.OperNo, codec_convert("GBK//TRANSLIT", "UTF-8", v33.c_str()).c_str(), sizeof(p.OperNo));
+  j.at("RequestID").get_to(p.RequestID);
+  j.at("TID").get_to(p.TID);
+  auto &v36 = j.at("LongCustomerName").get_ref<const std::string &>();
+  std::strncpy(p.LongCustomerName, codec_convert("GBK//TRANSLIT", "UTF-8", v36.c_str()).c_str(), sizeof(p.LongCustomerName));
+  j.at("DRIdentityID").get_to(p.DRIdentityID);
+  j.at("SecFutureSerial").get_to(p.SecFutureSerial);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcRspQueryBankAccountBySecField& p) {
+  j = json{
+           {"TradeCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeCode)},
+           {"BankID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankID)},
+           {"BankBranchID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankBranchID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"BrokerBranchID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerBranchID)},
+           {"TradeDate", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeDate)},
+           {"TradeTime", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeTime)},
+           {"BankSerial", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankSerial)},
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"PlateSerial", p.PlateSerial},
+           {"LastFragment", std::string(1, p.LastFragment)},
+           {"SessionID", p.SessionID},
+           {"CustomerName", codec_convert("UTF-8//TRANSLIT", "GBK", p.CustomerName)},
+           {"IdCardType", std::string(1, p.IdCardType)},
+           {"IdentifiedCardNo", codec_convert("UTF-8//TRANSLIT", "GBK", p.IdentifiedCardNo)},
+           {"CustType", std::string(1, p.CustType)},
+           {"BankAccount", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankAccount)},
+           {"BankPassWord", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankPassWord)},
+           {"AccountID", codec_convert("UTF-8//TRANSLIT", "GBK", p.AccountID)},
+           {"Password", codec_convert("UTF-8//TRANSLIT", "GBK", p.Password)},
+           {"FutureSerial", p.FutureSerial},
+           {"InstallID", p.InstallID},
+           {"UserID", codec_convert("UTF-8//TRANSLIT", "GBK", p.UserID)},
+           {"VerifyCertNoFlag", std::string(1, p.VerifyCertNoFlag)},
+           {"CurrencyID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CurrencyID)},
+           {"Digest", codec_convert("UTF-8//TRANSLIT", "GBK", p.Digest)},
+           {"BankAccType", std::string(1, p.BankAccType)},
+           {"DeviceID", codec_convert("UTF-8//TRANSLIT", "GBK", p.DeviceID)},
+           {"BankSecuAccType", std::string(1, p.BankSecuAccType)},
+           {"BrokerIDByBank", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerIDByBank)},
+           {"BankSecuAcc", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankSecuAcc)},
+           {"BankPwdFlag", std::string(1, p.BankPwdFlag)},
+           {"SecuPwdFlag", std::string(1, p.SecuPwdFlag)},
+           {"OperNo", codec_convert("UTF-8//TRANSLIT", "GBK", p.OperNo)},
+           {"RequestID", p.RequestID},
+           {"TID", p.TID},
+           {"BankUseAmount", p.BankUseAmount},
+           {"BankFetchAmount", p.BankFetchAmount},
+           {"LongCustomerName", codec_convert("UTF-8//TRANSLIT", "GBK", p.LongCustomerName)},
+           {"DRIdentityID", p.DRIdentityID},
+           {"SecFutureSerial", p.SecFutureSerial},
+  };
+}
+
+void from_json(const json& j, CThostFtdcRspQueryBankAccountBySecField& p) {
+  auto &v0 = j.at("TradeCode").get_ref<const std::string &>();
+  std::strncpy(p.TradeCode, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradeCode));
+  auto &v1 = j.at("BankID").get_ref<const std::string &>();
+  std::strncpy(p.BankID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BankID));
+  auto &v2 = j.at("BankBranchID").get_ref<const std::string &>();
+  std::strncpy(p.BankBranchID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.BankBranchID));
+  auto &v3 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v4 = j.at("BrokerBranchID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerBranchID, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.BrokerBranchID));
+  auto &v5 = j.at("TradeDate").get_ref<const std::string &>();
+  std::strncpy(p.TradeDate, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.TradeDate));
+  auto &v6 = j.at("TradeTime").get_ref<const std::string &>();
+  std::strncpy(p.TradeTime, codec_convert("GBK//TRANSLIT", "UTF-8", v6.c_str()).c_str(), sizeof(p.TradeTime));
+  auto &v7 = j.at("BankSerial").get_ref<const std::string &>();
+  std::strncpy(p.BankSerial, codec_convert("GBK//TRANSLIT", "UTF-8", v7.c_str()).c_str(), sizeof(p.BankSerial));
+  auto &v8 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v8.c_str()).c_str(), sizeof(p.TradingDay));
+  j.at("PlateSerial").get_to(p.PlateSerial);
+  auto &v10 = j.at("LastFragment").get_ref<const std::string &>();
+  p.LastFragment = v10.at(0);
+  j.at("SessionID").get_to(p.SessionID);
+  auto &v12 = j.at("CustomerName").get_ref<const std::string &>();
+  std::strncpy(p.CustomerName, codec_convert("GBK//TRANSLIT", "UTF-8", v12.c_str()).c_str(), sizeof(p.CustomerName));
+  auto &v13 = j.at("IdCardType").get_ref<const std::string &>();
+  p.IdCardType = v13.at(0);
+  auto &v14 = j.at("IdentifiedCardNo").get_ref<const std::string &>();
+  std::strncpy(p.IdentifiedCardNo, codec_convert("GBK//TRANSLIT", "UTF-8", v14.c_str()).c_str(), sizeof(p.IdentifiedCardNo));
+  auto &v15 = j.at("CustType").get_ref<const std::string &>();
+  p.CustType = v15.at(0);
+  auto &v16 = j.at("BankAccount").get_ref<const std::string &>();
+  std::strncpy(p.BankAccount, codec_convert("GBK//TRANSLIT", "UTF-8", v16.c_str()).c_str(), sizeof(p.BankAccount));
+  auto &v17 = j.at("BankPassWord").get_ref<const std::string &>();
+  std::strncpy(p.BankPassWord, codec_convert("GBK//TRANSLIT", "UTF-8", v17.c_str()).c_str(), sizeof(p.BankPassWord));
+  auto &v18 = j.at("AccountID").get_ref<const std::string &>();
+  std::strncpy(p.AccountID, codec_convert("GBK//TRANSLIT", "UTF-8", v18.c_str()).c_str(), sizeof(p.AccountID));
+  auto &v19 = j.at("Password").get_ref<const std::string &>();
+  std::strncpy(p.Password, codec_convert("GBK//TRANSLIT", "UTF-8", v19.c_str()).c_str(), sizeof(p.Password));
+  j.at("FutureSerial").get_to(p.FutureSerial);
+  j.at("InstallID").get_to(p.InstallID);
+  auto &v22 = j.at("UserID").get_ref<const std::string &>();
+  std::strncpy(p.UserID, codec_convert("GBK//TRANSLIT", "UTF-8", v22.c_str()).c_str(), sizeof(p.UserID));
+  auto &v23 = j.at("VerifyCertNoFlag").get_ref<const std::string &>();
+  p.VerifyCertNoFlag = v23.at(0);
+  auto &v24 = j.at("CurrencyID").get_ref<const std::string &>();
+  std::strncpy(p.CurrencyID, codec_convert("GBK//TRANSLIT", "UTF-8", v24.c_str()).c_str(), sizeof(p.CurrencyID));
+  auto &v25 = j.at("Digest").get_ref<const std::string &>();
+  std::strncpy(p.Digest, codec_convert("GBK//TRANSLIT", "UTF-8", v25.c_str()).c_str(), sizeof(p.Digest));
+  auto &v26 = j.at("BankAccType").get_ref<const std::string &>();
+  p.BankAccType = v26.at(0);
+  auto &v27 = j.at("DeviceID").get_ref<const std::string &>();
+  std::strncpy(p.DeviceID, codec_convert("GBK//TRANSLIT", "UTF-8", v27.c_str()).c_str(), sizeof(p.DeviceID));
+  auto &v28 = j.at("BankSecuAccType").get_ref<const std::string &>();
+  p.BankSecuAccType = v28.at(0);
+  auto &v29 = j.at("BrokerIDByBank").get_ref<const std::string &>();
+  std::strncpy(p.BrokerIDByBank, codec_convert("GBK//TRANSLIT", "UTF-8", v29.c_str()).c_str(), sizeof(p.BrokerIDByBank));
+  auto &v30 = j.at("BankSecuAcc").get_ref<const std::string &>();
+  std::strncpy(p.BankSecuAcc, codec_convert("GBK//TRANSLIT", "UTF-8", v30.c_str()).c_str(), sizeof(p.BankSecuAcc));
+  auto &v31 = j.at("BankPwdFlag").get_ref<const std::string &>();
+  p.BankPwdFlag = v31.at(0);
+  auto &v32 = j.at("SecuPwdFlag").get_ref<const std::string &>();
+  p.SecuPwdFlag = v32.at(0);
+  auto &v33 = j.at("OperNo").get_ref<const std::string &>();
+  std::strncpy(p.OperNo, codec_convert("GBK//TRANSLIT", "UTF-8", v33.c_str()).c_str(), sizeof(p.OperNo));
+  j.at("RequestID").get_to(p.RequestID);
+  j.at("TID").get_to(p.TID);
+  j.at("BankUseAmount").get_to(p.BankUseAmount);
+  j.at("BankFetchAmount").get_to(p.BankFetchAmount);
+  auto &v38 = j.at("LongCustomerName").get_ref<const std::string &>();
+  std::strncpy(p.LongCustomerName, codec_convert("GBK//TRANSLIT", "UTF-8", v38.c_str()).c_str(), sizeof(p.LongCustomerName));
+  j.at("DRIdentityID").get_to(p.DRIdentityID);
+  j.at("SecFutureSerial").get_to(p.SecFutureSerial);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcReqTransferBySecField& p) {
+  j = json{
+           {"TradeCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeCode)},
+           {"BankID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankID)},
+           {"BankBranchID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankBranchID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"BrokerBranchID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerBranchID)},
+           {"TradeDate", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeDate)},
+           {"TradeTime", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeTime)},
+           {"BankSerial", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankSerial)},
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"PlateSerial", p.PlateSerial},
+           {"LastFragment", std::string(1, p.LastFragment)},
+           {"SessionID", p.SessionID},
+           {"CustomerName", codec_convert("UTF-8//TRANSLIT", "GBK", p.CustomerName)},
+           {"IdCardType", std::string(1, p.IdCardType)},
+           {"IdentifiedCardNo", codec_convert("UTF-8//TRANSLIT", "GBK", p.IdentifiedCardNo)},
+           {"CustType", std::string(1, p.CustType)},
+           {"BankAccount", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankAccount)},
+           {"BankPassWord", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankPassWord)},
+           {"AccountID", codec_convert("UTF-8//TRANSLIT", "GBK", p.AccountID)},
+           {"Password", codec_convert("UTF-8//TRANSLIT", "GBK", p.Password)},
+           {"InstallID", p.InstallID},
+           {"FutureSerial", p.FutureSerial},
+           {"UserID", codec_convert("UTF-8//TRANSLIT", "GBK", p.UserID)},
+           {"VerifyCertNoFlag", std::string(1, p.VerifyCertNoFlag)},
+           {"CurrencyID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CurrencyID)},
+           {"TradeAmount", p.TradeAmount},
+           {"FutureFetchAmount", p.FutureFetchAmount},
+           {"FeePayFlag", std::string(1, p.FeePayFlag)},
+           {"CustFee", p.CustFee},
+           {"BrokerFee", p.BrokerFee},
+           {"Message", codec_convert("UTF-8//TRANSLIT", "GBK", p.Message)},
+           {"Digest", codec_convert("UTF-8//TRANSLIT", "GBK", p.Digest)},
+           {"BankAccType", std::string(1, p.BankAccType)},
+           {"DeviceID", codec_convert("UTF-8//TRANSLIT", "GBK", p.DeviceID)},
+           {"BankSecuAccType", std::string(1, p.BankSecuAccType)},
+           {"BrokerIDByBank", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerIDByBank)},
+           {"BankSecuAcc", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankSecuAcc)},
+           {"BankPwdFlag", std::string(1, p.BankPwdFlag)},
+           {"SecuPwdFlag", std::string(1, p.SecuPwdFlag)},
+           {"OperNo", codec_convert("UTF-8//TRANSLIT", "GBK", p.OperNo)},
+           {"RequestID", p.RequestID},
+           {"TID", p.TID},
+           {"TransferStatus", std::string(1, p.TransferStatus)},
+           {"LongCustomerName", codec_convert("UTF-8//TRANSLIT", "GBK", p.LongCustomerName)},
+           {"DRIdentityID", p.DRIdentityID},
+           {"SecFutureSerial", p.SecFutureSerial},
+  };
+}
+
+void from_json(const json& j, CThostFtdcReqTransferBySecField& p) {
+  auto &v0 = j.at("TradeCode").get_ref<const std::string &>();
+  std::strncpy(p.TradeCode, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradeCode));
+  auto &v1 = j.at("BankID").get_ref<const std::string &>();
+  std::strncpy(p.BankID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BankID));
+  auto &v2 = j.at("BankBranchID").get_ref<const std::string &>();
+  std::strncpy(p.BankBranchID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.BankBranchID));
+  auto &v3 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v4 = j.at("BrokerBranchID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerBranchID, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.BrokerBranchID));
+  auto &v5 = j.at("TradeDate").get_ref<const std::string &>();
+  std::strncpy(p.TradeDate, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.TradeDate));
+  auto &v6 = j.at("TradeTime").get_ref<const std::string &>();
+  std::strncpy(p.TradeTime, codec_convert("GBK//TRANSLIT", "UTF-8", v6.c_str()).c_str(), sizeof(p.TradeTime));
+  auto &v7 = j.at("BankSerial").get_ref<const std::string &>();
+  std::strncpy(p.BankSerial, codec_convert("GBK//TRANSLIT", "UTF-8", v7.c_str()).c_str(), sizeof(p.BankSerial));
+  auto &v8 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v8.c_str()).c_str(), sizeof(p.TradingDay));
+  j.at("PlateSerial").get_to(p.PlateSerial);
+  auto &v10 = j.at("LastFragment").get_ref<const std::string &>();
+  p.LastFragment = v10.at(0);
+  j.at("SessionID").get_to(p.SessionID);
+  auto &v12 = j.at("CustomerName").get_ref<const std::string &>();
+  std::strncpy(p.CustomerName, codec_convert("GBK//TRANSLIT", "UTF-8", v12.c_str()).c_str(), sizeof(p.CustomerName));
+  auto &v13 = j.at("IdCardType").get_ref<const std::string &>();
+  p.IdCardType = v13.at(0);
+  auto &v14 = j.at("IdentifiedCardNo").get_ref<const std::string &>();
+  std::strncpy(p.IdentifiedCardNo, codec_convert("GBK//TRANSLIT", "UTF-8", v14.c_str()).c_str(), sizeof(p.IdentifiedCardNo));
+  auto &v15 = j.at("CustType").get_ref<const std::string &>();
+  p.CustType = v15.at(0);
+  auto &v16 = j.at("BankAccount").get_ref<const std::string &>();
+  std::strncpy(p.BankAccount, codec_convert("GBK//TRANSLIT", "UTF-8", v16.c_str()).c_str(), sizeof(p.BankAccount));
+  auto &v17 = j.at("BankPassWord").get_ref<const std::string &>();
+  std::strncpy(p.BankPassWord, codec_convert("GBK//TRANSLIT", "UTF-8", v17.c_str()).c_str(), sizeof(p.BankPassWord));
+  auto &v18 = j.at("AccountID").get_ref<const std::string &>();
+  std::strncpy(p.AccountID, codec_convert("GBK//TRANSLIT", "UTF-8", v18.c_str()).c_str(), sizeof(p.AccountID));
+  auto &v19 = j.at("Password").get_ref<const std::string &>();
+  std::strncpy(p.Password, codec_convert("GBK//TRANSLIT", "UTF-8", v19.c_str()).c_str(), sizeof(p.Password));
+  j.at("InstallID").get_to(p.InstallID);
+  j.at("FutureSerial").get_to(p.FutureSerial);
+  auto &v22 = j.at("UserID").get_ref<const std::string &>();
+  std::strncpy(p.UserID, codec_convert("GBK//TRANSLIT", "UTF-8", v22.c_str()).c_str(), sizeof(p.UserID));
+  auto &v23 = j.at("VerifyCertNoFlag").get_ref<const std::string &>();
+  p.VerifyCertNoFlag = v23.at(0);
+  auto &v24 = j.at("CurrencyID").get_ref<const std::string &>();
+  std::strncpy(p.CurrencyID, codec_convert("GBK//TRANSLIT", "UTF-8", v24.c_str()).c_str(), sizeof(p.CurrencyID));
+  j.at("TradeAmount").get_to(p.TradeAmount);
+  j.at("FutureFetchAmount").get_to(p.FutureFetchAmount);
+  auto &v27 = j.at("FeePayFlag").get_ref<const std::string &>();
+  p.FeePayFlag = v27.at(0);
+  j.at("CustFee").get_to(p.CustFee);
+  j.at("BrokerFee").get_to(p.BrokerFee);
+  auto &v30 = j.at("Message").get_ref<const std::string &>();
+  std::strncpy(p.Message, codec_convert("GBK//TRANSLIT", "UTF-8", v30.c_str()).c_str(), sizeof(p.Message));
+  auto &v31 = j.at("Digest").get_ref<const std::string &>();
+  std::strncpy(p.Digest, codec_convert("GBK//TRANSLIT", "UTF-8", v31.c_str()).c_str(), sizeof(p.Digest));
+  auto &v32 = j.at("BankAccType").get_ref<const std::string &>();
+  p.BankAccType = v32.at(0);
+  auto &v33 = j.at("DeviceID").get_ref<const std::string &>();
+  std::strncpy(p.DeviceID, codec_convert("GBK//TRANSLIT", "UTF-8", v33.c_str()).c_str(), sizeof(p.DeviceID));
+  auto &v34 = j.at("BankSecuAccType").get_ref<const std::string &>();
+  p.BankSecuAccType = v34.at(0);
+  auto &v35 = j.at("BrokerIDByBank").get_ref<const std::string &>();
+  std::strncpy(p.BrokerIDByBank, codec_convert("GBK//TRANSLIT", "UTF-8", v35.c_str()).c_str(), sizeof(p.BrokerIDByBank));
+  auto &v36 = j.at("BankSecuAcc").get_ref<const std::string &>();
+  std::strncpy(p.BankSecuAcc, codec_convert("GBK//TRANSLIT", "UTF-8", v36.c_str()).c_str(), sizeof(p.BankSecuAcc));
+  auto &v37 = j.at("BankPwdFlag").get_ref<const std::string &>();
+  p.BankPwdFlag = v37.at(0);
+  auto &v38 = j.at("SecuPwdFlag").get_ref<const std::string &>();
+  p.SecuPwdFlag = v38.at(0);
+  auto &v39 = j.at("OperNo").get_ref<const std::string &>();
+  std::strncpy(p.OperNo, codec_convert("GBK//TRANSLIT", "UTF-8", v39.c_str()).c_str(), sizeof(p.OperNo));
+  j.at("RequestID").get_to(p.RequestID);
+  j.at("TID").get_to(p.TID);
+  auto &v42 = j.at("TransferStatus").get_ref<const std::string &>();
+  p.TransferStatus = v42.at(0);
+  auto &v43 = j.at("LongCustomerName").get_ref<const std::string &>();
+  std::strncpy(p.LongCustomerName, codec_convert("GBK//TRANSLIT", "UTF-8", v43.c_str()).c_str(), sizeof(p.LongCustomerName));
+  j.at("DRIdentityID").get_to(p.DRIdentityID);
+  j.at("SecFutureSerial").get_to(p.SecFutureSerial);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcRspTransferBySecField& p) {
+  j = json{
+           {"TradeCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeCode)},
+           {"BankID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankID)},
+           {"BankBranchID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankBranchID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"BrokerBranchID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerBranchID)},
+           {"TradeDate", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeDate)},
+           {"TradeTime", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeTime)},
+           {"BankSerial", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankSerial)},
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"PlateSerial", p.PlateSerial},
+           {"LastFragment", std::string(1, p.LastFragment)},
+           {"SessionID", p.SessionID},
+           {"CustomerName", codec_convert("UTF-8//TRANSLIT", "GBK", p.CustomerName)},
+           {"IdCardType", std::string(1, p.IdCardType)},
+           {"IdentifiedCardNo", codec_convert("UTF-8//TRANSLIT", "GBK", p.IdentifiedCardNo)},
+           {"CustType", std::string(1, p.CustType)},
+           {"BankAccount", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankAccount)},
+           {"BankPassWord", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankPassWord)},
+           {"AccountID", codec_convert("UTF-8//TRANSLIT", "GBK", p.AccountID)},
+           {"Password", codec_convert("UTF-8//TRANSLIT", "GBK", p.Password)},
+           {"InstallID", p.InstallID},
+           {"FutureSerial", p.FutureSerial},
+           {"UserID", codec_convert("UTF-8//TRANSLIT", "GBK", p.UserID)},
+           {"VerifyCertNoFlag", std::string(1, p.VerifyCertNoFlag)},
+           {"CurrencyID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CurrencyID)},
+           {"TradeAmount", p.TradeAmount},
+           {"FutureFetchAmount", p.FutureFetchAmount},
+           {"FeePayFlag", std::string(1, p.FeePayFlag)},
+           {"CustFee", p.CustFee},
+           {"BrokerFee", p.BrokerFee},
+           {"Message", codec_convert("UTF-8//TRANSLIT", "GBK", p.Message)},
+           {"Digest", codec_convert("UTF-8//TRANSLIT", "GBK", p.Digest)},
+           {"BankAccType", std::string(1, p.BankAccType)},
+           {"DeviceID", codec_convert("UTF-8//TRANSLIT", "GBK", p.DeviceID)},
+           {"BankSecuAccType", std::string(1, p.BankSecuAccType)},
+           {"BrokerIDByBank", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerIDByBank)},
+           {"BankSecuAcc", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankSecuAcc)},
+           {"BankPwdFlag", std::string(1, p.BankPwdFlag)},
+           {"SecuPwdFlag", std::string(1, p.SecuPwdFlag)},
+           {"OperNo", codec_convert("UTF-8//TRANSLIT", "GBK", p.OperNo)},
+           {"RequestID", p.RequestID},
+           {"TID", p.TID},
+           {"TransferStatus", std::string(1, p.TransferStatus)},
+           {"ErrorID", p.ErrorID},
+           {"ErrorMsg", codec_convert("UTF-8//TRANSLIT", "GBK", p.ErrorMsg)},
+           {"LongCustomerName", codec_convert("UTF-8//TRANSLIT", "GBK", p.LongCustomerName)},
+           {"DRIdentityID", p.DRIdentityID},
+           {"SecFutureSerial", p.SecFutureSerial},
+  };
+}
+
+void from_json(const json& j, CThostFtdcRspTransferBySecField& p) {
+  auto &v0 = j.at("TradeCode").get_ref<const std::string &>();
+  std::strncpy(p.TradeCode, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradeCode));
+  auto &v1 = j.at("BankID").get_ref<const std::string &>();
+  std::strncpy(p.BankID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BankID));
+  auto &v2 = j.at("BankBranchID").get_ref<const std::string &>();
+  std::strncpy(p.BankBranchID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.BankBranchID));
+  auto &v3 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v4 = j.at("BrokerBranchID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerBranchID, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.BrokerBranchID));
+  auto &v5 = j.at("TradeDate").get_ref<const std::string &>();
+  std::strncpy(p.TradeDate, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.TradeDate));
+  auto &v6 = j.at("TradeTime").get_ref<const std::string &>();
+  std::strncpy(p.TradeTime, codec_convert("GBK//TRANSLIT", "UTF-8", v6.c_str()).c_str(), sizeof(p.TradeTime));
+  auto &v7 = j.at("BankSerial").get_ref<const std::string &>();
+  std::strncpy(p.BankSerial, codec_convert("GBK//TRANSLIT", "UTF-8", v7.c_str()).c_str(), sizeof(p.BankSerial));
+  auto &v8 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v8.c_str()).c_str(), sizeof(p.TradingDay));
+  j.at("PlateSerial").get_to(p.PlateSerial);
+  auto &v10 = j.at("LastFragment").get_ref<const std::string &>();
+  p.LastFragment = v10.at(0);
+  j.at("SessionID").get_to(p.SessionID);
+  auto &v12 = j.at("CustomerName").get_ref<const std::string &>();
+  std::strncpy(p.CustomerName, codec_convert("GBK//TRANSLIT", "UTF-8", v12.c_str()).c_str(), sizeof(p.CustomerName));
+  auto &v13 = j.at("IdCardType").get_ref<const std::string &>();
+  p.IdCardType = v13.at(0);
+  auto &v14 = j.at("IdentifiedCardNo").get_ref<const std::string &>();
+  std::strncpy(p.IdentifiedCardNo, codec_convert("GBK//TRANSLIT", "UTF-8", v14.c_str()).c_str(), sizeof(p.IdentifiedCardNo));
+  auto &v15 = j.at("CustType").get_ref<const std::string &>();
+  p.CustType = v15.at(0);
+  auto &v16 = j.at("BankAccount").get_ref<const std::string &>();
+  std::strncpy(p.BankAccount, codec_convert("GBK//TRANSLIT", "UTF-8", v16.c_str()).c_str(), sizeof(p.BankAccount));
+  auto &v17 = j.at("BankPassWord").get_ref<const std::string &>();
+  std::strncpy(p.BankPassWord, codec_convert("GBK//TRANSLIT", "UTF-8", v17.c_str()).c_str(), sizeof(p.BankPassWord));
+  auto &v18 = j.at("AccountID").get_ref<const std::string &>();
+  std::strncpy(p.AccountID, codec_convert("GBK//TRANSLIT", "UTF-8", v18.c_str()).c_str(), sizeof(p.AccountID));
+  auto &v19 = j.at("Password").get_ref<const std::string &>();
+  std::strncpy(p.Password, codec_convert("GBK//TRANSLIT", "UTF-8", v19.c_str()).c_str(), sizeof(p.Password));
+  j.at("InstallID").get_to(p.InstallID);
+  j.at("FutureSerial").get_to(p.FutureSerial);
+  auto &v22 = j.at("UserID").get_ref<const std::string &>();
+  std::strncpy(p.UserID, codec_convert("GBK//TRANSLIT", "UTF-8", v22.c_str()).c_str(), sizeof(p.UserID));
+  auto &v23 = j.at("VerifyCertNoFlag").get_ref<const std::string &>();
+  p.VerifyCertNoFlag = v23.at(0);
+  auto &v24 = j.at("CurrencyID").get_ref<const std::string &>();
+  std::strncpy(p.CurrencyID, codec_convert("GBK//TRANSLIT", "UTF-8", v24.c_str()).c_str(), sizeof(p.CurrencyID));
+  j.at("TradeAmount").get_to(p.TradeAmount);
+  j.at("FutureFetchAmount").get_to(p.FutureFetchAmount);
+  auto &v27 = j.at("FeePayFlag").get_ref<const std::string &>();
+  p.FeePayFlag = v27.at(0);
+  j.at("CustFee").get_to(p.CustFee);
+  j.at("BrokerFee").get_to(p.BrokerFee);
+  auto &v30 = j.at("Message").get_ref<const std::string &>();
+  std::strncpy(p.Message, codec_convert("GBK//TRANSLIT", "UTF-8", v30.c_str()).c_str(), sizeof(p.Message));
+  auto &v31 = j.at("Digest").get_ref<const std::string &>();
+  std::strncpy(p.Digest, codec_convert("GBK//TRANSLIT", "UTF-8", v31.c_str()).c_str(), sizeof(p.Digest));
+  auto &v32 = j.at("BankAccType").get_ref<const std::string &>();
+  p.BankAccType = v32.at(0);
+  auto &v33 = j.at("DeviceID").get_ref<const std::string &>();
+  std::strncpy(p.DeviceID, codec_convert("GBK//TRANSLIT", "UTF-8", v33.c_str()).c_str(), sizeof(p.DeviceID));
+  auto &v34 = j.at("BankSecuAccType").get_ref<const std::string &>();
+  p.BankSecuAccType = v34.at(0);
+  auto &v35 = j.at("BrokerIDByBank").get_ref<const std::string &>();
+  std::strncpy(p.BrokerIDByBank, codec_convert("GBK//TRANSLIT", "UTF-8", v35.c_str()).c_str(), sizeof(p.BrokerIDByBank));
+  auto &v36 = j.at("BankSecuAcc").get_ref<const std::string &>();
+  std::strncpy(p.BankSecuAcc, codec_convert("GBK//TRANSLIT", "UTF-8", v36.c_str()).c_str(), sizeof(p.BankSecuAcc));
+  auto &v37 = j.at("BankPwdFlag").get_ref<const std::string &>();
+  p.BankPwdFlag = v37.at(0);
+  auto &v38 = j.at("SecuPwdFlag").get_ref<const std::string &>();
+  p.SecuPwdFlag = v38.at(0);
+  auto &v39 = j.at("OperNo").get_ref<const std::string &>();
+  std::strncpy(p.OperNo, codec_convert("GBK//TRANSLIT", "UTF-8", v39.c_str()).c_str(), sizeof(p.OperNo));
+  j.at("RequestID").get_to(p.RequestID);
+  j.at("TID").get_to(p.TID);
+  auto &v42 = j.at("TransferStatus").get_ref<const std::string &>();
+  p.TransferStatus = v42.at(0);
+  j.at("ErrorID").get_to(p.ErrorID);
+  auto &v44 = j.at("ErrorMsg").get_ref<const std::string &>();
+  std::strncpy(p.ErrorMsg, codec_convert("GBK//TRANSLIT", "UTF-8", v44.c_str()).c_str(), sizeof(p.ErrorMsg));
+  auto &v45 = j.at("LongCustomerName").get_ref<const std::string &>();
+  std::strncpy(p.LongCustomerName, codec_convert("GBK//TRANSLIT", "UTF-8", v45.c_str()).c_str(), sizeof(p.LongCustomerName));
+  j.at("DRIdentityID").get_to(p.DRIdentityID);
+  j.at("SecFutureSerial").get_to(p.SecFutureSerial);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcNotifyQueryFutureAccountBySecField& p) {
+  j = json{
+           {"TradeCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeCode)},
+           {"BankID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankID)},
+           {"BankBranchID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankBranchID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"BrokerBranchID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerBranchID)},
+           {"TradeDate", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeDate)},
+           {"TradeTime", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeTime)},
+           {"BankSerial", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankSerial)},
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"PlateSerial", p.PlateSerial},
+           {"LastFragment", std::string(1, p.LastFragment)},
+           {"SessionID", p.SessionID},
+           {"CustomerName", codec_convert("UTF-8//TRANSLIT", "GBK", p.CustomerName)},
+           {"IdCardType", std::string(1, p.IdCardType)},
+           {"IdentifiedCardNo", codec_convert("UTF-8//TRANSLIT", "GBK", p.IdentifiedCardNo)},
+           {"CustType", std::string(1, p.CustType)},
+           {"BankAccount", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankAccount)},
+           {"BankPassWord", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankPassWord)},
+           {"AccountID", codec_convert("UTF-8//TRANSLIT", "GBK", p.AccountID)},
+           {"Password", codec_convert("UTF-8//TRANSLIT", "GBK", p.Password)},
+           {"FutureSerial", p.FutureSerial},
+           {"InstallID", p.InstallID},
+           {"UserID", codec_convert("UTF-8//TRANSLIT", "GBK", p.UserID)},
+           {"VerifyCertNoFlag", std::string(1, p.VerifyCertNoFlag)},
+           {"CurrencyID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CurrencyID)},
+           {"Digest", codec_convert("UTF-8//TRANSLIT", "GBK", p.Digest)},
+           {"BankAccType", std::string(1, p.BankAccType)},
+           {"DeviceID", codec_convert("UTF-8//TRANSLIT", "GBK", p.DeviceID)},
+           {"BankSecuAccType", std::string(1, p.BankSecuAccType)},
+           {"BrokerIDByBank", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerIDByBank)},
+           {"BankSecuAcc", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankSecuAcc)},
+           {"BankPwdFlag", std::string(1, p.BankPwdFlag)},
+           {"SecuPwdFlag", std::string(1, p.SecuPwdFlag)},
+           {"OperNo", codec_convert("UTF-8//TRANSLIT", "GBK", p.OperNo)},
+           {"RequestID", p.RequestID},
+           {"TID", p.TID},
+           {"BankUseAmount", p.BankUseAmount},
+           {"BankFetchAmount", p.BankFetchAmount},
+           {"ErrorID", p.ErrorID},
+           {"ErrorMsg", codec_convert("UTF-8//TRANSLIT", "GBK", p.ErrorMsg)},
+           {"LongCustomerName", codec_convert("UTF-8//TRANSLIT", "GBK", p.LongCustomerName)},
+           {"DRIdentityID", p.DRIdentityID},
+           {"SecFutureSerial", p.SecFutureSerial},
+  };
+}
+
+void from_json(const json& j, CThostFtdcNotifyQueryFutureAccountBySecField& p) {
+  auto &v0 = j.at("TradeCode").get_ref<const std::string &>();
+  std::strncpy(p.TradeCode, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradeCode));
+  auto &v1 = j.at("BankID").get_ref<const std::string &>();
+  std::strncpy(p.BankID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BankID));
+  auto &v2 = j.at("BankBranchID").get_ref<const std::string &>();
+  std::strncpy(p.BankBranchID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.BankBranchID));
+  auto &v3 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v4 = j.at("BrokerBranchID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerBranchID, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.BrokerBranchID));
+  auto &v5 = j.at("TradeDate").get_ref<const std::string &>();
+  std::strncpy(p.TradeDate, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.TradeDate));
+  auto &v6 = j.at("TradeTime").get_ref<const std::string &>();
+  std::strncpy(p.TradeTime, codec_convert("GBK//TRANSLIT", "UTF-8", v6.c_str()).c_str(), sizeof(p.TradeTime));
+  auto &v7 = j.at("BankSerial").get_ref<const std::string &>();
+  std::strncpy(p.BankSerial, codec_convert("GBK//TRANSLIT", "UTF-8", v7.c_str()).c_str(), sizeof(p.BankSerial));
+  auto &v8 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v8.c_str()).c_str(), sizeof(p.TradingDay));
+  j.at("PlateSerial").get_to(p.PlateSerial);
+  auto &v10 = j.at("LastFragment").get_ref<const std::string &>();
+  p.LastFragment = v10.at(0);
+  j.at("SessionID").get_to(p.SessionID);
+  auto &v12 = j.at("CustomerName").get_ref<const std::string &>();
+  std::strncpy(p.CustomerName, codec_convert("GBK//TRANSLIT", "UTF-8", v12.c_str()).c_str(), sizeof(p.CustomerName));
+  auto &v13 = j.at("IdCardType").get_ref<const std::string &>();
+  p.IdCardType = v13.at(0);
+  auto &v14 = j.at("IdentifiedCardNo").get_ref<const std::string &>();
+  std::strncpy(p.IdentifiedCardNo, codec_convert("GBK//TRANSLIT", "UTF-8", v14.c_str()).c_str(), sizeof(p.IdentifiedCardNo));
+  auto &v15 = j.at("CustType").get_ref<const std::string &>();
+  p.CustType = v15.at(0);
+  auto &v16 = j.at("BankAccount").get_ref<const std::string &>();
+  std::strncpy(p.BankAccount, codec_convert("GBK//TRANSLIT", "UTF-8", v16.c_str()).c_str(), sizeof(p.BankAccount));
+  auto &v17 = j.at("BankPassWord").get_ref<const std::string &>();
+  std::strncpy(p.BankPassWord, codec_convert("GBK//TRANSLIT", "UTF-8", v17.c_str()).c_str(), sizeof(p.BankPassWord));
+  auto &v18 = j.at("AccountID").get_ref<const std::string &>();
+  std::strncpy(p.AccountID, codec_convert("GBK//TRANSLIT", "UTF-8", v18.c_str()).c_str(), sizeof(p.AccountID));
+  auto &v19 = j.at("Password").get_ref<const std::string &>();
+  std::strncpy(p.Password, codec_convert("GBK//TRANSLIT", "UTF-8", v19.c_str()).c_str(), sizeof(p.Password));
+  j.at("FutureSerial").get_to(p.FutureSerial);
+  j.at("InstallID").get_to(p.InstallID);
+  auto &v22 = j.at("UserID").get_ref<const std::string &>();
+  std::strncpy(p.UserID, codec_convert("GBK//TRANSLIT", "UTF-8", v22.c_str()).c_str(), sizeof(p.UserID));
+  auto &v23 = j.at("VerifyCertNoFlag").get_ref<const std::string &>();
+  p.VerifyCertNoFlag = v23.at(0);
+  auto &v24 = j.at("CurrencyID").get_ref<const std::string &>();
+  std::strncpy(p.CurrencyID, codec_convert("GBK//TRANSLIT", "UTF-8", v24.c_str()).c_str(), sizeof(p.CurrencyID));
+  auto &v25 = j.at("Digest").get_ref<const std::string &>();
+  std::strncpy(p.Digest, codec_convert("GBK//TRANSLIT", "UTF-8", v25.c_str()).c_str(), sizeof(p.Digest));
+  auto &v26 = j.at("BankAccType").get_ref<const std::string &>();
+  p.BankAccType = v26.at(0);
+  auto &v27 = j.at("DeviceID").get_ref<const std::string &>();
+  std::strncpy(p.DeviceID, codec_convert("GBK//TRANSLIT", "UTF-8", v27.c_str()).c_str(), sizeof(p.DeviceID));
+  auto &v28 = j.at("BankSecuAccType").get_ref<const std::string &>();
+  p.BankSecuAccType = v28.at(0);
+  auto &v29 = j.at("BrokerIDByBank").get_ref<const std::string &>();
+  std::strncpy(p.BrokerIDByBank, codec_convert("GBK//TRANSLIT", "UTF-8", v29.c_str()).c_str(), sizeof(p.BrokerIDByBank));
+  auto &v30 = j.at("BankSecuAcc").get_ref<const std::string &>();
+  std::strncpy(p.BankSecuAcc, codec_convert("GBK//TRANSLIT", "UTF-8", v30.c_str()).c_str(), sizeof(p.BankSecuAcc));
+  auto &v31 = j.at("BankPwdFlag").get_ref<const std::string &>();
+  p.BankPwdFlag = v31.at(0);
+  auto &v32 = j.at("SecuPwdFlag").get_ref<const std::string &>();
+  p.SecuPwdFlag = v32.at(0);
+  auto &v33 = j.at("OperNo").get_ref<const std::string &>();
+  std::strncpy(p.OperNo, codec_convert("GBK//TRANSLIT", "UTF-8", v33.c_str()).c_str(), sizeof(p.OperNo));
+  j.at("RequestID").get_to(p.RequestID);
+  j.at("TID").get_to(p.TID);
+  j.at("BankUseAmount").get_to(p.BankUseAmount);
+  j.at("BankFetchAmount").get_to(p.BankFetchAmount);
+  j.at("ErrorID").get_to(p.ErrorID);
+  auto &v39 = j.at("ErrorMsg").get_ref<const std::string &>();
+  std::strncpy(p.ErrorMsg, codec_convert("GBK//TRANSLIT", "UTF-8", v39.c_str()).c_str(), sizeof(p.ErrorMsg));
+  auto &v40 = j.at("LongCustomerName").get_ref<const std::string &>();
+  std::strncpy(p.LongCustomerName, codec_convert("GBK//TRANSLIT", "UTF-8", v40.c_str()).c_str(), sizeof(p.LongCustomerName));
+  j.at("DRIdentityID").get_to(p.DRIdentityID);
+  j.at("SecFutureSerial").get_to(p.SecFutureSerial);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcExitEmergencyField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcExitEmergencyField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcInvestorPortfMarginModelField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"MarginModelID", codec_convert("UTF-8//TRANSLIT", "GBK", p.MarginModelID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcInvestorPortfMarginModelField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v2 = j.at("MarginModelID").get_ref<const std::string &>();
+  std::strncpy(p.MarginModelID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.MarginModelID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcInvestorPortfSettingField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"HedgeFlag", std::string(1, p.HedgeFlag)},
+           {"UsePortf", p.UsePortf},
+  };
+}
+
+void from_json(const json& j, CThostFtdcInvestorPortfSettingField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v2 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v3 = j.at("HedgeFlag").get_ref<const std::string &>();
+  p.HedgeFlag = v3.at(0);
+  j.at("UsePortf").get_to(p.UsePortf);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryInvestorPortfSettingField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryInvestorPortfSettingField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v2 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestorID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcUserPasswordUpdateFromSecField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"UserID", codec_convert("UTF-8//TRANSLIT", "GBK", p.UserID)},
+           {"OldPassword", codec_convert("UTF-8//TRANSLIT", "GBK", p.OldPassword)},
+           {"NewPassword", codec_convert("UTF-8//TRANSLIT", "GBK", p.NewPassword)},
+           {"FromSec", p.FromSec},
+  };
+}
+
+void from_json(const json& j, CThostFtdcUserPasswordUpdateFromSecField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("UserID").get_ref<const std::string &>();
+  std::strncpy(p.UserID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.UserID));
+  auto &v2 = j.at("OldPassword").get_ref<const std::string &>();
+  std::strncpy(p.OldPassword, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.OldPassword));
+  auto &v3 = j.at("NewPassword").get_ref<const std::string &>();
+  std::strncpy(p.NewPassword, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.NewPassword));
+  j.at("FromSec").get_to(p.FromSec);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcSettlementInfoConfirmFromSecField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"ConfirmDate", codec_convert("UTF-8//TRANSLIT", "GBK", p.ConfirmDate)},
+           {"ConfirmTime", codec_convert("UTF-8//TRANSLIT", "GBK", p.ConfirmTime)},
+           {"FromSec", p.FromSec},
+  };
+}
+
+void from_json(const json& j, CThostFtdcSettlementInfoConfirmFromSecField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v2 = j.at("ConfirmDate").get_ref<const std::string &>();
+  std::strncpy(p.ConfirmDate, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ConfirmDate));
+  auto &v3 = j.at("ConfirmTime").get_ref<const std::string &>();
+  std::strncpy(p.ConfirmTime, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.ConfirmTime));
+  j.at("FromSec").get_to(p.FromSec);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcTradingAccountPasswordUpdateFromSecField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"AccountID", codec_convert("UTF-8//TRANSLIT", "GBK", p.AccountID)},
+           {"OldPassword", codec_convert("UTF-8//TRANSLIT", "GBK", p.OldPassword)},
+           {"NewPassword", codec_convert("UTF-8//TRANSLIT", "GBK", p.NewPassword)},
+           {"CurrencyID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CurrencyID)},
+           {"FromSec", p.FromSec},
+  };
+}
+
+void from_json(const json& j, CThostFtdcTradingAccountPasswordUpdateFromSecField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("AccountID").get_ref<const std::string &>();
+  std::strncpy(p.AccountID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.AccountID));
+  auto &v2 = j.at("OldPassword").get_ref<const std::string &>();
+  std::strncpy(p.OldPassword, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.OldPassword));
+  auto &v3 = j.at("NewPassword").get_ref<const std::string &>();
+  std::strncpy(p.NewPassword, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.NewPassword));
+  auto &v4 = j.at("CurrencyID").get_ref<const std::string &>();
+  std::strncpy(p.CurrencyID, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.CurrencyID));
+  j.at("FromSec").get_to(p.FromSec);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcRiskForbiddenRightField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
+           {"UserID", codec_convert("UTF-8//TRANSLIT", "GBK", p.UserID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcRiskForbiddenRightField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v2 = j.at("InstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InstrumentID));
+  auto &v3 = j.at("UserID").get_ref<const std::string &>();
+  std::strncpy(p.UserID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.UserID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcInvestorInfoCommRecField& p) {
+  j = json{
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
+           {"OrderCount", p.OrderCount},
+           {"OrderActionCount", p.OrderActionCount},
+           {"ForQuoteCnt", p.ForQuoteCnt},
+           {"InfoComm", p.InfoComm},
+           {"IsOptSeries", p.IsOptSeries},
+           {"ProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductID)},
+           {"InfoCnt", p.InfoCnt},
+  };
+}
+
+void from_json(const json& j, CThostFtdcInvestorInfoCommRecField& p) {
+  auto &v0 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v1 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v2 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v3 = j.at("InstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.InstrumentID));
+  j.at("OrderCount").get_to(p.OrderCount);
+  j.at("OrderActionCount").get_to(p.OrderActionCount);
+  j.at("ForQuoteCnt").get_to(p.ForQuoteCnt);
+  j.at("InfoComm").get_to(p.InfoComm);
+  j.at("IsOptSeries").get_to(p.IsOptSeries);
+  auto &v9 = j.at("ProductID").get_ref<const std::string &>();
+  std::strncpy(p.ProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v9.c_str()).c_str(), sizeof(p.ProductID));
+  j.at("InfoCnt").get_to(p.InfoCnt);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryInvestorInfoCommRecField& p) {
+  j = json{
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryInvestorInfoCommRecField& p) {
+  auto &v0 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v1 = j.at("InstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InstrumentID));
+  auto &v2 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.BrokerID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcCombLegField& p) {
+  j = json{
+           {"CombInstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombInstrumentID)},
+           {"LegID", p.LegID},
+           {"LegInstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.LegInstrumentID)},
+           {"Direction", std::string(1, p.Direction)},
+           {"LegMultiple", p.LegMultiple},
+           {"ImplyLevel", p.ImplyLevel},
+  };
+}
+
+void from_json(const json& j, CThostFtdcCombLegField& p) {
+  auto &v0 = j.at("CombInstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.CombInstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.CombInstrumentID));
+  j.at("LegID").get_to(p.LegID);
+  auto &v2 = j.at("LegInstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.LegInstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.LegInstrumentID));
+  auto &v3 = j.at("Direction").get_ref<const std::string &>();
+  p.Direction = v3.at(0);
+  j.at("LegMultiple").get_to(p.LegMultiple);
+  j.at("ImplyLevel").get_to(p.ImplyLevel);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryCombLegField& p) {
+  j = json{
+           {"LegInstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.LegInstrumentID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryCombLegField& p) {
+  auto &v0 = j.at("LegInstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.LegInstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.LegInstrumentID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcInputOffsetSettingField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
+           {"UnderlyingInstrID", codec_convert("UTF-8//TRANSLIT", "GBK", p.UnderlyingInstrID)},
+           {"ProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductID)},
+           {"OffsetType", std::string(1, p.OffsetType)},
+           {"Volume", p.Volume},
+           {"IsOffset", p.IsOffset},
+           {"RequestID", p.RequestID},
+           {"UserID", codec_convert("UTF-8//TRANSLIT", "GBK", p.UserID)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"IPAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.IPAddress)},
+           {"MacAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.MacAddress)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcInputOffsetSettingField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v2 = j.at("InstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InstrumentID));
+  auto &v3 = j.at("UnderlyingInstrID").get_ref<const std::string &>();
+  std::strncpy(p.UnderlyingInstrID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.UnderlyingInstrID));
+  auto &v4 = j.at("ProductID").get_ref<const std::string &>();
+  std::strncpy(p.ProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.ProductID));
+  auto &v5 = j.at("OffsetType").get_ref<const std::string &>();
+  p.OffsetType = v5.at(0);
+  j.at("Volume").get_to(p.Volume);
+  j.at("IsOffset").get_to(p.IsOffset);
+  j.at("RequestID").get_to(p.RequestID);
+  auto &v9 = j.at("UserID").get_ref<const std::string &>();
+  std::strncpy(p.UserID, codec_convert("GBK//TRANSLIT", "UTF-8", v9.c_str()).c_str(), sizeof(p.UserID));
+  auto &v10 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v10.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v11 = j.at("IPAddress").get_ref<const std::string &>();
+  std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v11.c_str()).c_str(), sizeof(p.IPAddress));
+  auto &v12 = j.at("MacAddress").get_ref<const std::string &>();
+  std::strncpy(p.MacAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v12.c_str()).c_str(), sizeof(p.MacAddress));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcOffsetSettingField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
+           {"UnderlyingInstrID", codec_convert("UTF-8//TRANSLIT", "GBK", p.UnderlyingInstrID)},
+           {"ProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductID)},
+           {"OffsetType", std::string(1, p.OffsetType)},
+           {"Volume", p.Volume},
+           {"IsOffset", p.IsOffset},
+           {"RequestID", p.RequestID},
+           {"UserID", codec_convert("UTF-8//TRANSLIT", "GBK", p.UserID)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"IPAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.IPAddress)},
+           {"MacAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.MacAddress)},
+           {"ExchangeInstID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeInstID)},
+           {"ExchangeSerialNo", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeSerialNo)},
+           {"ExchangeProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeProductID)},
+           {"ParticipantID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ParticipantID)},
+           {"ClientID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ClientID)},
+           {"TraderID", codec_convert("UTF-8//TRANSLIT", "GBK", p.TraderID)},
+           {"InstallID", p.InstallID},
+           {"OrderSubmitStatus", std::string(1, p.OrderSubmitStatus)},
+           {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
+           {"SettlementID", p.SettlementID},
+           {"InsertDate", codec_convert("UTF-8//TRANSLIT", "GBK", p.InsertDate)},
+           {"InsertTime", codec_convert("UTF-8//TRANSLIT", "GBK", p.InsertTime)},
+           {"CancelTime", codec_convert("UTF-8//TRANSLIT", "GBK", p.CancelTime)},
+           {"ExecResult", std::string(1, p.ExecResult)},
+           {"SequenceNo", p.SequenceNo},
+           {"FrontID", p.FrontID},
+           {"SessionID", p.SessionID},
+           {"StatusMsg", codec_convert("UTF-8//TRANSLIT", "GBK", p.StatusMsg)},
+           {"ActiveUserID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ActiveUserID)},
+           {"BrokerOffsetSettingSeq", p.BrokerOffsetSettingSeq},
+  };
+}
+
+void from_json(const json& j, CThostFtdcOffsetSettingField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v2 = j.at("InstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InstrumentID));
+  auto &v3 = j.at("UnderlyingInstrID").get_ref<const std::string &>();
+  std::strncpy(p.UnderlyingInstrID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.UnderlyingInstrID));
+  auto &v4 = j.at("ProductID").get_ref<const std::string &>();
+  std::strncpy(p.ProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.ProductID));
+  auto &v5 = j.at("OffsetType").get_ref<const std::string &>();
+  p.OffsetType = v5.at(0);
+  j.at("Volume").get_to(p.Volume);
+  j.at("IsOffset").get_to(p.IsOffset);
+  j.at("RequestID").get_to(p.RequestID);
+  auto &v9 = j.at("UserID").get_ref<const std::string &>();
+  std::strncpy(p.UserID, codec_convert("GBK//TRANSLIT", "UTF-8", v9.c_str()).c_str(), sizeof(p.UserID));
+  auto &v10 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v10.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v11 = j.at("IPAddress").get_ref<const std::string &>();
+  std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v11.c_str()).c_str(), sizeof(p.IPAddress));
+  auto &v12 = j.at("MacAddress").get_ref<const std::string &>();
+  std::strncpy(p.MacAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v12.c_str()).c_str(), sizeof(p.MacAddress));
+  auto &v13 = j.at("ExchangeInstID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeInstID, codec_convert("GBK//TRANSLIT", "UTF-8", v13.c_str()).c_str(), sizeof(p.ExchangeInstID));
+  auto &v14 = j.at("ExchangeSerialNo").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeSerialNo, codec_convert("GBK//TRANSLIT", "UTF-8", v14.c_str()).c_str(), sizeof(p.ExchangeSerialNo));
+  auto &v15 = j.at("ExchangeProductID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v15.c_str()).c_str(), sizeof(p.ExchangeProductID));
+  auto &v16 = j.at("ParticipantID").get_ref<const std::string &>();
+  std::strncpy(p.ParticipantID, codec_convert("GBK//TRANSLIT", "UTF-8", v16.c_str()).c_str(), sizeof(p.ParticipantID));
+  auto &v17 = j.at("ClientID").get_ref<const std::string &>();
+  std::strncpy(p.ClientID, codec_convert("GBK//TRANSLIT", "UTF-8", v17.c_str()).c_str(), sizeof(p.ClientID));
+  auto &v18 = j.at("TraderID").get_ref<const std::string &>();
+  std::strncpy(p.TraderID, codec_convert("GBK//TRANSLIT", "UTF-8", v18.c_str()).c_str(), sizeof(p.TraderID));
+  j.at("InstallID").get_to(p.InstallID);
+  auto &v20 = j.at("OrderSubmitStatus").get_ref<const std::string &>();
+  p.OrderSubmitStatus = v20.at(0);
+  auto &v21 = j.at("TradingDay").get_ref<const std::string &>();
+  std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v21.c_str()).c_str(), sizeof(p.TradingDay));
+  j.at("SettlementID").get_to(p.SettlementID);
+  auto &v23 = j.at("InsertDate").get_ref<const std::string &>();
+  std::strncpy(p.InsertDate, codec_convert("GBK//TRANSLIT", "UTF-8", v23.c_str()).c_str(), sizeof(p.InsertDate));
+  auto &v24 = j.at("InsertTime").get_ref<const std::string &>();
+  std::strncpy(p.InsertTime, codec_convert("GBK//TRANSLIT", "UTF-8", v24.c_str()).c_str(), sizeof(p.InsertTime));
+  auto &v25 = j.at("CancelTime").get_ref<const std::string &>();
+  std::strncpy(p.CancelTime, codec_convert("GBK//TRANSLIT", "UTF-8", v25.c_str()).c_str(), sizeof(p.CancelTime));
+  auto &v26 = j.at("ExecResult").get_ref<const std::string &>();
+  p.ExecResult = v26.at(0);
+  j.at("SequenceNo").get_to(p.SequenceNo);
+  j.at("FrontID").get_to(p.FrontID);
+  j.at("SessionID").get_to(p.SessionID);
+  auto &v30 = j.at("StatusMsg").get_ref<const std::string &>();
+  std::strncpy(p.StatusMsg, codec_convert("GBK//TRANSLIT", "UTF-8", v30.c_str()).c_str(), sizeof(p.StatusMsg));
+  auto &v31 = j.at("ActiveUserID").get_ref<const std::string &>();
+  std::strncpy(p.ActiveUserID, codec_convert("GBK//TRANSLIT", "UTF-8", v31.c_str()).c_str(), sizeof(p.ActiveUserID));
+  j.at("BrokerOffsetSettingSeq").get_to(p.BrokerOffsetSettingSeq);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcCancelOffsetSettingField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
+           {"UnderlyingInstrID", codec_convert("UTF-8//TRANSLIT", "GBK", p.UnderlyingInstrID)},
+           {"ProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductID)},
+           {"OffsetType", std::string(1, p.OffsetType)},
+           {"Volume", p.Volume},
+           {"IsOffset", p.IsOffset},
+           {"RequestID", p.RequestID},
+           {"UserID", codec_convert("UTF-8//TRANSLIT", "GBK", p.UserID)},
+           {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
+           {"IPAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.IPAddress)},
+           {"MacAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.MacAddress)},
+           {"ExchangeInstID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeInstID)},
+           {"ExchangeSerialNo", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeSerialNo)},
+           {"ExchangeProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeProductID)},
+           {"TraderID", codec_convert("UTF-8//TRANSLIT", "GBK", p.TraderID)},
+           {"InstallID", p.InstallID},
+           {"ParticipantID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ParticipantID)},
+           {"ClientID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ClientID)},
+           {"OrderActionStatus", std::string(1, p.OrderActionStatus)},
+           {"StatusMsg", codec_convert("UTF-8//TRANSLIT", "GBK", p.StatusMsg)},
+           {"ActionLocalID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ActionLocalID)},
+           {"ActionDate", codec_convert("UTF-8//TRANSLIT", "GBK", p.ActionDate)},
+           {"ActionTime", codec_convert("UTF-8//TRANSLIT", "GBK", p.ActionTime)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcCancelOffsetSettingField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v2 = j.at("InstrumentID").get_ref<const std::string &>();
+  std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InstrumentID));
+  auto &v3 = j.at("UnderlyingInstrID").get_ref<const std::string &>();
+  std::strncpy(p.UnderlyingInstrID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.UnderlyingInstrID));
+  auto &v4 = j.at("ProductID").get_ref<const std::string &>();
+  std::strncpy(p.ProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.ProductID));
+  auto &v5 = j.at("OffsetType").get_ref<const std::string &>();
+  p.OffsetType = v5.at(0);
+  j.at("Volume").get_to(p.Volume);
+  j.at("IsOffset").get_to(p.IsOffset);
+  j.at("RequestID").get_to(p.RequestID);
+  auto &v9 = j.at("UserID").get_ref<const std::string &>();
+  std::strncpy(p.UserID, codec_convert("GBK//TRANSLIT", "UTF-8", v9.c_str()).c_str(), sizeof(p.UserID));
+  auto &v10 = j.at("ExchangeID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v10.c_str()).c_str(), sizeof(p.ExchangeID));
+  auto &v11 = j.at("IPAddress").get_ref<const std::string &>();
+  std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v11.c_str()).c_str(), sizeof(p.IPAddress));
+  auto &v12 = j.at("MacAddress").get_ref<const std::string &>();
+  std::strncpy(p.MacAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v12.c_str()).c_str(), sizeof(p.MacAddress));
+  auto &v13 = j.at("ExchangeInstID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeInstID, codec_convert("GBK//TRANSLIT", "UTF-8", v13.c_str()).c_str(), sizeof(p.ExchangeInstID));
+  auto &v14 = j.at("ExchangeSerialNo").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeSerialNo, codec_convert("GBK//TRANSLIT", "UTF-8", v14.c_str()).c_str(), sizeof(p.ExchangeSerialNo));
+  auto &v15 = j.at("ExchangeProductID").get_ref<const std::string &>();
+  std::strncpy(p.ExchangeProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v15.c_str()).c_str(), sizeof(p.ExchangeProductID));
+  auto &v16 = j.at("TraderID").get_ref<const std::string &>();
+  std::strncpy(p.TraderID, codec_convert("GBK//TRANSLIT", "UTF-8", v16.c_str()).c_str(), sizeof(p.TraderID));
+  j.at("InstallID").get_to(p.InstallID);
+  auto &v18 = j.at("ParticipantID").get_ref<const std::string &>();
+  std::strncpy(p.ParticipantID, codec_convert("GBK//TRANSLIT", "UTF-8", v18.c_str()).c_str(), sizeof(p.ParticipantID));
+  auto &v19 = j.at("ClientID").get_ref<const std::string &>();
+  std::strncpy(p.ClientID, codec_convert("GBK//TRANSLIT", "UTF-8", v19.c_str()).c_str(), sizeof(p.ClientID));
+  auto &v20 = j.at("OrderActionStatus").get_ref<const std::string &>();
+  p.OrderActionStatus = v20.at(0);
+  auto &v21 = j.at("StatusMsg").get_ref<const std::string &>();
+  std::strncpy(p.StatusMsg, codec_convert("GBK//TRANSLIT", "UTF-8", v21.c_str()).c_str(), sizeof(p.StatusMsg));
+  auto &v22 = j.at("ActionLocalID").get_ref<const std::string &>();
+  std::strncpy(p.ActionLocalID, codec_convert("GBK//TRANSLIT", "UTF-8", v22.c_str()).c_str(), sizeof(p.ActionLocalID));
+  auto &v23 = j.at("ActionDate").get_ref<const std::string &>();
+  std::strncpy(p.ActionDate, codec_convert("GBK//TRANSLIT", "UTF-8", v23.c_str()).c_str(), sizeof(p.ActionDate));
+  auto &v24 = j.at("ActionTime").get_ref<const std::string &>();
+  std::strncpy(p.ActionTime, codec_convert("GBK//TRANSLIT", "UTF-8", v24.c_str()).c_str(), sizeof(p.ActionTime));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryOffsetSettingField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
+           {"ProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductID)},
+           {"OffsetType", std::string(1, p.OffsetType)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryOffsetSettingField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("InvestorID").get_ref<const std::string &>();
+  std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InvestorID));
+  auto &v2 = j.at("ProductID").get_ref<const std::string &>();
+  std::strncpy(p.ProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ProductID));
+  auto &v3 = j.at("OffsetType").get_ref<const std::string &>();
+  p.OffsetType = v3.at(0);
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcAddrAppIDRelationField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+           {"Address", codec_convert("UTF-8//TRANSLIT", "GBK", p.Address)},
+           {"DRIdentityID", p.DRIdentityID},
+           {"AppID", codec_convert("UTF-8//TRANSLIT", "GBK", p.AppID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcAddrAppIDRelationField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+  auto &v1 = j.at("Address").get_ref<const std::string &>();
+  std::strncpy(p.Address, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.Address));
+  j.at("DRIdentityID").get_to(p.DRIdentityID);
+  auto &v3 = j.at("AppID").get_ref<const std::string &>();
+  std::strncpy(p.AppID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.AppID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcQryAddrAppIDRelationField& p) {
+  j = json{
+           {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
+  };
+}
+
+void from_json(const json& j, CThostFtdcQryAddrAppIDRelationField& p) {
+  auto &v0 = j.at("BrokerID").get_ref<const std::string &>();
+  std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
+
+}
+
+
+
+void to_json(json& j, const CThostFtdcFrontInfoField& p) {
+  j = json{
+           {"QryFreq", p.QryFreq},
+           {"FTDPkgFreq", p.FTDPkgFreq},
+  };
+}
+
+void from_json(const json& j, CThostFtdcFrontInfoField& p) {
+  j.at("QryFreq").get_to(p.QryFreq);
+  j.at("FTDPkgFreq").get_to(p.FTDPkgFreq);
+
+}
+
+
+
 /* 登出请求响应 */
 void Bridge::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspUserLogout",
@@ -17250,6 +21080,31 @@ void Bridge::OnRspQryDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarke
   j["res"] = msg;
   if (pDepthMarketData != nullptr) {
     j["res"]["value"] = *pDepthMarketData;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* 请求查询交易员报盘机响应 */
+void Bridge::OnRspQryTraderOffer(CThostFtdcTraderOfferField *pTraderOffer, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQryTraderOffer",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pTraderOffer != nullptr) {
+    j["res"]["value"] = *pTraderOffer;
   }
   try {
     std::string string_msg = j.dump();
@@ -19464,6 +23319,831 @@ void Bridge::OnRspQryRiskSettleProductStatus(CThostFtdcRiskSettleProductStatusFi
 
 
 
+/* SPBM期货合约参数查询响应 */
+void Bridge::OnRspQrySPBMFutureParameter(CThostFtdcSPBMFutureParameterField *pSPBMFutureParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQrySPBMFutureParameter",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pSPBMFutureParameter != nullptr) {
+    j["res"]["value"] = *pSPBMFutureParameter;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* SPBM期权合约参数查询响应 */
+void Bridge::OnRspQrySPBMOptionParameter(CThostFtdcSPBMOptionParameterField *pSPBMOptionParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQrySPBMOptionParameter",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pSPBMOptionParameter != nullptr) {
+    j["res"]["value"] = *pSPBMOptionParameter;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* SPBM品种内对锁仓折扣参数查询响应 */
+void Bridge::OnRspQrySPBMIntraParameter(CThostFtdcSPBMIntraParameterField *pSPBMIntraParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQrySPBMIntraParameter",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pSPBMIntraParameter != nullptr) {
+    j["res"]["value"] = *pSPBMIntraParameter;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* SPBM跨品种抵扣参数查询响应 */
+void Bridge::OnRspQrySPBMInterParameter(CThostFtdcSPBMInterParameterField *pSPBMInterParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQrySPBMInterParameter",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pSPBMInterParameter != nullptr) {
+    j["res"]["value"] = *pSPBMInterParameter;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* SPBM组合保证金套餐查询响应 */
+void Bridge::OnRspQrySPBMPortfDefinition(CThostFtdcSPBMPortfDefinitionField *pSPBMPortfDefinition, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQrySPBMPortfDefinition",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pSPBMPortfDefinition != nullptr) {
+    j["res"]["value"] = *pSPBMPortfDefinition;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* 投资者SPBM套餐选择查询响应 */
+void Bridge::OnRspQrySPBMInvestorPortfDef(CThostFtdcSPBMInvestorPortfDefField *pSPBMInvestorPortfDef, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQrySPBMInvestorPortfDef",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pSPBMInvestorPortfDef != nullptr) {
+    j["res"]["value"] = *pSPBMInvestorPortfDef;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* 投资者新型组合保证金系数查询响应 */
+void Bridge::OnRspQryInvestorPortfMarginRatio(CThostFtdcInvestorPortfMarginRatioField *pInvestorPortfMarginRatio, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQryInvestorPortfMarginRatio",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pInvestorPortfMarginRatio != nullptr) {
+    j["res"]["value"] = *pInvestorPortfMarginRatio;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* 投资者产品SPBM明细查询响应 */
+void Bridge::OnRspQryInvestorProdSPBMDetail(CThostFtdcInvestorProdSPBMDetailField *pInvestorProdSPBMDetail, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQryInvestorProdSPBMDetail",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pInvestorProdSPBMDetail != nullptr) {
+    j["res"]["value"] = *pInvestorProdSPBMDetail;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* 投资者商品组SPMM记录查询响应 */
+void Bridge::OnRspQryInvestorCommoditySPMMMargin(CThostFtdcInvestorCommoditySPMMMarginField *pInvestorCommoditySPMMMargin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQryInvestorCommoditySPMMMargin",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pInvestorCommoditySPMMMargin != nullptr) {
+    j["res"]["value"] = *pInvestorCommoditySPMMMargin;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* 投资者商品群SPMM记录查询响应 */
+void Bridge::OnRspQryInvestorCommodityGroupSPMMMargin(CThostFtdcInvestorCommodityGroupSPMMMarginField *pInvestorCommodityGroupSPMMMargin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQryInvestorCommodityGroupSPMMMargin",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pInvestorCommodityGroupSPMMMargin != nullptr) {
+    j["res"]["value"] = *pInvestorCommodityGroupSPMMMargin;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* SPMM合约参数查询响应 */
+void Bridge::OnRspQrySPMMInstParam(CThostFtdcSPMMInstParamField *pSPMMInstParam, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQrySPMMInstParam",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pSPMMInstParam != nullptr) {
+    j["res"]["value"] = *pSPMMInstParam;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* SPMM产品参数查询响应 */
+void Bridge::OnRspQrySPMMProductParam(CThostFtdcSPMMProductParamField *pSPMMProductParam, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQrySPMMProductParam",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pSPMMProductParam != nullptr) {
+    j["res"]["value"] = *pSPMMProductParam;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* SPBM附加跨品种抵扣参数查询响应 */
+void Bridge::OnRspQrySPBMAddOnInterParameter(CThostFtdcSPBMAddOnInterParameterField *pSPBMAddOnInterParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQrySPBMAddOnInterParameter",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pSPBMAddOnInterParameter != nullptr) {
+    j["res"]["value"] = *pSPBMAddOnInterParameter;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* RCAMS产品组合信息查询响应 */
+void Bridge::OnRspQryRCAMSCombProductInfo(CThostFtdcRCAMSCombProductInfoField *pRCAMSCombProductInfo, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQryRCAMSCombProductInfo",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pRCAMSCombProductInfo != nullptr) {
+    j["res"]["value"] = *pRCAMSCombProductInfo;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* RCAMS同合约风险对冲参数查询响应 */
+void Bridge::OnRspQryRCAMSInstrParameter(CThostFtdcRCAMSInstrParameterField *pRCAMSInstrParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQryRCAMSInstrParameter",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pRCAMSInstrParameter != nullptr) {
+    j["res"]["value"] = *pRCAMSInstrParameter;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* RCAMS品种内风险对冲参数查询响应 */
+void Bridge::OnRspQryRCAMSIntraParameter(CThostFtdcRCAMSIntraParameterField *pRCAMSIntraParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQryRCAMSIntraParameter",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pRCAMSIntraParameter != nullptr) {
+    j["res"]["value"] = *pRCAMSIntraParameter;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* RCAMS跨品种风险折抵参数查询响应 */
+void Bridge::OnRspQryRCAMSInterParameter(CThostFtdcRCAMSInterParameterField *pRCAMSInterParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQryRCAMSInterParameter",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pRCAMSInterParameter != nullptr) {
+    j["res"]["value"] = *pRCAMSInterParameter;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* RCAMS空头期权风险调整参数查询响应 */
+void Bridge::OnRspQryRCAMSShortOptAdjustParam(CThostFtdcRCAMSShortOptAdjustParamField *pRCAMSShortOptAdjustParam, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQryRCAMSShortOptAdjustParam",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pRCAMSShortOptAdjustParam != nullptr) {
+    j["res"]["value"] = *pRCAMSShortOptAdjustParam;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* RCAMS策略组合持仓查询响应 */
+void Bridge::OnRspQryRCAMSInvestorCombPosition(CThostFtdcRCAMSInvestorCombPositionField *pRCAMSInvestorCombPosition, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQryRCAMSInvestorCombPosition",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pRCAMSInvestorCombPosition != nullptr) {
+    j["res"]["value"] = *pRCAMSInvestorCombPosition;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* 投资者品种RCAMS保证金查询响应 */
+void Bridge::OnRspQryInvestorProdRCAMSMargin(CThostFtdcInvestorProdRCAMSMarginField *pInvestorProdRCAMSMargin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQryInvestorProdRCAMSMargin",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pInvestorProdRCAMSMargin != nullptr) {
+    j["res"]["value"] = *pInvestorProdRCAMSMargin;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* RULE合约保证金参数查询响应 */
+void Bridge::OnRspQryRULEInstrParameter(CThostFtdcRULEInstrParameterField *pRULEInstrParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQryRULEInstrParameter",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pRULEInstrParameter != nullptr) {
+    j["res"]["value"] = *pRULEInstrParameter;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* RULE品种内对锁仓折扣参数查询响应 */
+void Bridge::OnRspQryRULEIntraParameter(CThostFtdcRULEIntraParameterField *pRULEIntraParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQryRULEIntraParameter",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pRULEIntraParameter != nullptr) {
+    j["res"]["value"] = *pRULEIntraParameter;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* RULE跨品种抵扣参数查询响应 */
+void Bridge::OnRspQryRULEInterParameter(CThostFtdcRULEInterParameterField *pRULEInterParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQryRULEInterParameter",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pRULEInterParameter != nullptr) {
+    j["res"]["value"] = *pRULEInterParameter;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* 投资者产品RULE保证金查询响应 */
+void Bridge::OnRspQryInvestorProdRULEMargin(CThostFtdcInvestorProdRULEMarginField *pInvestorProdRULEMargin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQryInvestorProdRULEMargin",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pInvestorProdRULEMargin != nullptr) {
+    j["res"]["value"] = *pInvestorProdRULEMargin;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* 投资者新型组合保证金开关查询响应 */
+void Bridge::OnRspQryInvestorPortfSetting(CThostFtdcInvestorPortfSettingField *pInvestorPortfSetting, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQryInvestorPortfSetting",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pInvestorPortfSetting != nullptr) {
+    j["res"]["value"] = *pInvestorPortfSetting;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* 投资者申报费阶梯收取记录查询响应 */
+void Bridge::OnRspQryInvestorInfoCommRec(CThostFtdcInvestorInfoCommRecField *pInvestorInfoCommRec, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQryInvestorInfoCommRec",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pInvestorInfoCommRec != nullptr) {
+    j["res"]["value"] = *pInvestorInfoCommRec;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* 组合腿信息查询响应 */
+void Bridge::OnRspQryCombLeg(CThostFtdcCombLegField *pCombLeg, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQryCombLeg",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pCombLeg != nullptr) {
+    j["res"]["value"] = *pCombLeg;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* 对冲设置请求响应 */
+void Bridge::OnRspOffsetSetting(CThostFtdcInputOffsetSettingField *pInputOffsetSetting, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspOffsetSetting",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pInputOffsetSetting != nullptr) {
+    j["res"]["value"] = *pInputOffsetSetting;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* 对冲设置撤销请求响应 */
+void Bridge::OnRspCancelOffsetSetting(CThostFtdcInputOffsetSettingField *pInputOffsetSetting, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspCancelOffsetSetting",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pInputOffsetSetting != nullptr) {
+    j["res"]["value"] = *pInputOffsetSetting;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* 对冲设置通知 */
+void Bridge::OnRtnOffsetSetting(CThostFtdcOffsetSettingField *pOffsetSetting) {
+  Message msg = {.event = "OnRtnOffsetSetting",
+                 .error_code = 0,
+                 .error_message = "",
+                 .is_last = true};
+  json j;
+  j["request_id"] = 0;
+  j["res"] = msg;
+  if (pOffsetSetting != nullptr) {
+    j["res"]["value"] = *pOffsetSetting;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* 对冲设置错误回报 */
+void Bridge::OnErrRtnOffsetSetting(CThostFtdcInputOffsetSettingField *pInputOffsetSetting, CThostFtdcRspInfoField *pRspInfo) {
+  Message msg = {.event = "OnErrRtnOffsetSetting",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = true};
+  json j;
+  j["request_id"] = 0;
+  j["res"] = msg;
+  if (pInputOffsetSetting != nullptr) {
+    j["res"]["value"] = *pInputOffsetSetting;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* 对冲设置撤销错误回报 */
+void Bridge::OnErrRtnCancelOffsetSetting(CThostFtdcCancelOffsetSettingField *pCancelOffsetSetting, CThostFtdcRspInfoField *pRspInfo) {
+  Message msg = {.event = "OnErrRtnCancelOffsetSetting",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = true};
+  json j;
+  j["request_id"] = 0;
+  j["res"] = msg;
+  if (pCancelOffsetSetting != nullptr) {
+    j["res"]["value"] = *pCancelOffsetSetting;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
+/* 投资者对冲设置查询响应 */
+void Bridge::OnRspQryOffsetSetting(CThostFtdcOffsetSettingField *pOffsetSetting, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
+  Message msg = {.event = "OnRspQryOffsetSetting",
+                 .error_code = pRspInfo != nullptr ? pRspInfo->ErrorID : 0,
+                 .error_message = pRspInfo != nullptr ? codec_convert("UTF-8//TRANSLIT", "GBK", pRspInfo->ErrorMsg): "",
+                 .is_last = bIsLast};
+  json j;
+  j["request_id"] = nRequestID;
+  j["res"] = msg;
+  if (pOffsetSetting != nullptr) {
+    j["res"]["value"] = *pOffsetSetting;
+  }
+  try {
+    std::string string_msg = j.dump();
+    spdlog::info("ZMQ PUSH: {}", string_msg);
+    push_sock_.send(zmq::buffer(string_msg));
+    spdlog::info("SentZMQ");
+  } catch (json::exception &e) {
+    spdlog::error("error: {}", e.what());
+    throw;
+  }
+}
+
+
+
 void Bridge::Serve() {
   auto serveThread = std::async(std::launch::async, ListenReq, trader_api_, &push_sock_, &pull_sock_);
   serveThread.wait();
@@ -20581,6 +25261,34 @@ void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock
         if (a != 0) {
           spdlog::error("RTN CODE: {}", a);
           Message msg = {.event = "ReqQryDepthMarketData",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* 请求查询交易员报盘机 */
+      if (method_name == "ReqQryTraderOffer") {
+        auto field = data["req"]["params"].get<CThostFtdcQryTraderOfferField>();
+        auto a = trader_api->ReqQryTraderOffer(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQryTraderOffer",
                          .error_code = a,
                          .error_message = "error",
                          .is_last = true};
@@ -21869,6 +26577,846 @@ void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock
         if (a != 0) {
           spdlog::error("RTN CODE: {}", a);
           Message msg = {.event = "ReqQryRiskSettleProductStatus",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* SPBM期货合约参数查询 */
+      if (method_name == "ReqQrySPBMFutureParameter") {
+        auto field = data["req"]["params"].get<CThostFtdcQrySPBMFutureParameterField>();
+        auto a = trader_api->ReqQrySPBMFutureParameter(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQrySPBMFutureParameter",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* SPBM期权合约参数查询 */
+      if (method_name == "ReqQrySPBMOptionParameter") {
+        auto field = data["req"]["params"].get<CThostFtdcQrySPBMOptionParameterField>();
+        auto a = trader_api->ReqQrySPBMOptionParameter(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQrySPBMOptionParameter",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* SPBM品种内对锁仓折扣参数查询 */
+      if (method_name == "ReqQrySPBMIntraParameter") {
+        auto field = data["req"]["params"].get<CThostFtdcQrySPBMIntraParameterField>();
+        auto a = trader_api->ReqQrySPBMIntraParameter(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQrySPBMIntraParameter",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* SPBM跨品种抵扣参数查询 */
+      if (method_name == "ReqQrySPBMInterParameter") {
+        auto field = data["req"]["params"].get<CThostFtdcQrySPBMInterParameterField>();
+        auto a = trader_api->ReqQrySPBMInterParameter(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQrySPBMInterParameter",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* SPBM组合保证金套餐查询 */
+      if (method_name == "ReqQrySPBMPortfDefinition") {
+        auto field = data["req"]["params"].get<CThostFtdcQrySPBMPortfDefinitionField>();
+        auto a = trader_api->ReqQrySPBMPortfDefinition(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQrySPBMPortfDefinition",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* 投资者SPBM套餐选择查询 */
+      if (method_name == "ReqQrySPBMInvestorPortfDef") {
+        auto field = data["req"]["params"].get<CThostFtdcQrySPBMInvestorPortfDefField>();
+        auto a = trader_api->ReqQrySPBMInvestorPortfDef(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQrySPBMInvestorPortfDef",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* 投资者新型组合保证金系数查询 */
+      if (method_name == "ReqQryInvestorPortfMarginRatio") {
+        auto field = data["req"]["params"].get<CThostFtdcQryInvestorPortfMarginRatioField>();
+        auto a = trader_api->ReqQryInvestorPortfMarginRatio(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQryInvestorPortfMarginRatio",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* 投资者产品SPBM明细查询 */
+      if (method_name == "ReqQryInvestorProdSPBMDetail") {
+        auto field = data["req"]["params"].get<CThostFtdcQryInvestorProdSPBMDetailField>();
+        auto a = trader_api->ReqQryInvestorProdSPBMDetail(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQryInvestorProdSPBMDetail",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* 投资者商品组SPMM记录查询 */
+      if (method_name == "ReqQryInvestorCommoditySPMMMargin") {
+        auto field = data["req"]["params"].get<CThostFtdcQryInvestorCommoditySPMMMarginField>();
+        auto a = trader_api->ReqQryInvestorCommoditySPMMMargin(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQryInvestorCommoditySPMMMargin",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* 投资者商品群SPMM记录查询 */
+      if (method_name == "ReqQryInvestorCommodityGroupSPMMMargin") {
+        auto field = data["req"]["params"].get<CThostFtdcQryInvestorCommodityGroupSPMMMarginField>();
+        auto a = trader_api->ReqQryInvestorCommodityGroupSPMMMargin(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQryInvestorCommodityGroupSPMMMargin",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* SPMM合约参数查询 */
+      if (method_name == "ReqQrySPMMInstParam") {
+        auto field = data["req"]["params"].get<CThostFtdcQrySPMMInstParamField>();
+        auto a = trader_api->ReqQrySPMMInstParam(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQrySPMMInstParam",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* SPMM产品参数查询 */
+      if (method_name == "ReqQrySPMMProductParam") {
+        auto field = data["req"]["params"].get<CThostFtdcQrySPMMProductParamField>();
+        auto a = trader_api->ReqQrySPMMProductParam(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQrySPMMProductParam",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* SPBM附加跨品种抵扣参数查询 */
+      if (method_name == "ReqQrySPBMAddOnInterParameter") {
+        auto field = data["req"]["params"].get<CThostFtdcQrySPBMAddOnInterParameterField>();
+        auto a = trader_api->ReqQrySPBMAddOnInterParameter(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQrySPBMAddOnInterParameter",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* RCAMS产品组合信息查询 */
+      if (method_name == "ReqQryRCAMSCombProductInfo") {
+        auto field = data["req"]["params"].get<CThostFtdcQryRCAMSCombProductInfoField>();
+        auto a = trader_api->ReqQryRCAMSCombProductInfo(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQryRCAMSCombProductInfo",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* RCAMS同合约风险对冲参数查询 */
+      if (method_name == "ReqQryRCAMSInstrParameter") {
+        auto field = data["req"]["params"].get<CThostFtdcQryRCAMSInstrParameterField>();
+        auto a = trader_api->ReqQryRCAMSInstrParameter(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQryRCAMSInstrParameter",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* RCAMS品种内风险对冲参数查询 */
+      if (method_name == "ReqQryRCAMSIntraParameter") {
+        auto field = data["req"]["params"].get<CThostFtdcQryRCAMSIntraParameterField>();
+        auto a = trader_api->ReqQryRCAMSIntraParameter(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQryRCAMSIntraParameter",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* RCAMS跨品种风险折抵参数查询 */
+      if (method_name == "ReqQryRCAMSInterParameter") {
+        auto field = data["req"]["params"].get<CThostFtdcQryRCAMSInterParameterField>();
+        auto a = trader_api->ReqQryRCAMSInterParameter(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQryRCAMSInterParameter",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* RCAMS空头期权风险调整参数查询 */
+      if (method_name == "ReqQryRCAMSShortOptAdjustParam") {
+        auto field = data["req"]["params"].get<CThostFtdcQryRCAMSShortOptAdjustParamField>();
+        auto a = trader_api->ReqQryRCAMSShortOptAdjustParam(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQryRCAMSShortOptAdjustParam",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* RCAMS策略组合持仓查询 */
+      if (method_name == "ReqQryRCAMSInvestorCombPosition") {
+        auto field = data["req"]["params"].get<CThostFtdcQryRCAMSInvestorCombPositionField>();
+        auto a = trader_api->ReqQryRCAMSInvestorCombPosition(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQryRCAMSInvestorCombPosition",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* 投资者品种RCAMS保证金查询 */
+      if (method_name == "ReqQryInvestorProdRCAMSMargin") {
+        auto field = data["req"]["params"].get<CThostFtdcQryInvestorProdRCAMSMarginField>();
+        auto a = trader_api->ReqQryInvestorProdRCAMSMargin(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQryInvestorProdRCAMSMargin",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* RULE合约保证金参数查询 */
+      if (method_name == "ReqQryRULEInstrParameter") {
+        auto field = data["req"]["params"].get<CThostFtdcQryRULEInstrParameterField>();
+        auto a = trader_api->ReqQryRULEInstrParameter(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQryRULEInstrParameter",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* RULE品种内对锁仓折扣参数查询 */
+      if (method_name == "ReqQryRULEIntraParameter") {
+        auto field = data["req"]["params"].get<CThostFtdcQryRULEIntraParameterField>();
+        auto a = trader_api->ReqQryRULEIntraParameter(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQryRULEIntraParameter",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* RULE跨品种抵扣参数查询 */
+      if (method_name == "ReqQryRULEInterParameter") {
+        auto field = data["req"]["params"].get<CThostFtdcQryRULEInterParameterField>();
+        auto a = trader_api->ReqQryRULEInterParameter(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQryRULEInterParameter",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* 投资者产品RULE保证金查询 */
+      if (method_name == "ReqQryInvestorProdRULEMargin") {
+        auto field = data["req"]["params"].get<CThostFtdcQryInvestorProdRULEMarginField>();
+        auto a = trader_api->ReqQryInvestorProdRULEMargin(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQryInvestorProdRULEMargin",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* 投资者新型组合保证金开关查询 */
+      if (method_name == "ReqQryInvestorPortfSetting") {
+        auto field = data["req"]["params"].get<CThostFtdcQryInvestorPortfSettingField>();
+        auto a = trader_api->ReqQryInvestorPortfSetting(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQryInvestorPortfSetting",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* 投资者申报费阶梯收取记录查询 */
+      if (method_name == "ReqQryInvestorInfoCommRec") {
+        auto field = data["req"]["params"].get<CThostFtdcQryInvestorInfoCommRecField>();
+        auto a = trader_api->ReqQryInvestorInfoCommRec(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQryInvestorInfoCommRec",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* 组合腿信息查询 */
+      if (method_name == "ReqQryCombLeg") {
+        auto field = data["req"]["params"].get<CThostFtdcQryCombLegField>();
+        auto a = trader_api->ReqQryCombLeg(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQryCombLeg",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* 对冲设置请求 */
+      if (method_name == "ReqOffsetSetting") {
+        auto field = data["req"]["params"].get<CThostFtdcInputOffsetSettingField>();
+        auto a = trader_api->ReqOffsetSetting(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqOffsetSetting",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* 对冲设置撤销请求 */
+      if (method_name == "ReqCancelOffsetSetting") {
+        auto field = data["req"]["params"].get<CThostFtdcInputOffsetSettingField>();
+        auto a = trader_api->ReqCancelOffsetSetting(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqCancelOffsetSetting",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* 投资者对冲设置查询 */
+      if (method_name == "ReqQryOffsetSetting") {
+        auto field = data["req"]["params"].get<CThostFtdcQryOffsetSettingField>();
+        auto a = trader_api->ReqQryOffsetSetting(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "ReqQryOffsetSetting",
                          .error_code = a,
                          .error_message = "error",
                          .is_last = true};

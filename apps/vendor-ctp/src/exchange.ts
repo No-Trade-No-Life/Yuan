@@ -66,6 +66,7 @@ import {
   TThostFtdcOrderPriceTypeType,
   TThostFtdcOrderStatusType,
   TThostFtdcPosiDirectionType,
+  TThostFtdcProductClassType,
   TThostFtdcTimeConditionType,
   TThostFtdcVolumeConditionType,
 } from './assets/ctp-types';
@@ -399,6 +400,7 @@ export const submitOrder = (
       reserve1: '',
       ExchangeID: ctpExchangeId,
       InstrumentID: instrumentId,
+      ProductClass: TThostFtdcProductClassType.THOST_FTDC_PC_Futures,
     },
   }).pipe(
     //
@@ -474,6 +476,8 @@ export const submitOrder = (
           ClientID: '',
           MacAddress: '',
           IPAddress: '',
+          OrderMemo: '',
+          SessionReqSeq: 0,
         },
       }),
     ),
@@ -551,6 +555,8 @@ export const cancelOrder = (
       MacAddress: '',
       InstrumentID: '',
       IPAddress: '',
+      OrderMemo: '',
+      SessionReqSeq: 0,
     },
   });
 
