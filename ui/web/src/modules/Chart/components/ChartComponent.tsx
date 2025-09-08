@@ -279,10 +279,8 @@ export const ChartComponent = memo((props: Props) => {
     const chart = createChart(domRef.current, ChartOption);
     setChartState(chart);
     return () => {
-      if (chartRef.current) {
-        chartRef.current.remove();
-        UpdateLegendFuncQueue = [];
-      }
+      chart.remove();
+      UpdateLegendFuncQueue = [];
     };
   }, [view, displayData]);
 
