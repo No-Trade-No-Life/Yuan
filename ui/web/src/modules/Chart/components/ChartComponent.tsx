@@ -120,8 +120,6 @@ function waitForPaneElement(pane: any, maxRetries: number = 20): Promise<HTMLEle
   });
 }
 
-let UpdateLegendFuncQueue: Function[] = [];
-
 interface Props {
   view: ITimeSeriesChartConfig['views'][0];
   data?: {
@@ -176,8 +174,9 @@ export const ChartComponent = memo((props: Props) => {
   const { view, data } = props;
   const darkMode = useIsDarkMode();
 
+  const UpdateLegendFuncQueue: Function[] = [];
+
   const domRef = useRef<HTMLDivElement | null>(null);
-  const [chartState, setChartState] = useState<IChartApi | null>(null);
 
   const chartRef = useRef<IChartApi | null>(null);
 
@@ -268,33 +267,20 @@ export const ChartComponent = memo((props: Props) => {
       });
     });
   }, [data, view]);
-  useEffect(() => {
-    if (chartState) {
-      chartState.applyOptions(darkMode ? DarkModeChartOption : ChartOption);
-    }
-  }, [chartState, darkMode]);
 
   useEffect(() => {
-    if (!domRef.current || !view || !displayData) return;
-    const chart = createChart(domRef.current, ChartOption);
-    setChartState(chart);
-    return () => {
-      chart.remove();
-      UpdateLegendFuncQueue = [];
-    };
-  }, [view, displayData]);
+    if (!displayData || !domRef.current || !view) return;
 
-  useEffect(() => {
-    if (!chartState || !displayData) return;
-    chartState.subscribeCrosshairMove((param) => {
-      console.log({ param });
+    const chart = createChart(domRef.current, darkMode ? DarkModeChartOption : ChartOption);
+    const handler = (param: MouseEventParams<Time>) => {
       UpdateLegendFuncQueue.forEach((fn) => fn(param));
-    });
+    };
+    chart.subscribeCrosshairMove(handler);
     view.panes.forEach((pane, paneIndex) => {
       pane.series.forEach((s, seriesIndex) => {
         const data = displayData[paneIndex][seriesIndex] ?? [];
         if (s.type === 'line') {
-          const lineSeries = chartState.addSeries(
+          const lineSeries = chart.addSeries(
             LineSeries,
             {
               color: DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
@@ -305,7 +291,7 @@ export const ChartComponent = memo((props: Props) => {
           lineSeries.setData(data);
         }
         if (s.type === 'bar') {
-          const histogramSeries = chartState.addSeries(
+          const histogramSeries = chart.addSeries(
             HistogramSeries,
             {
               color: DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
@@ -315,11 +301,11 @@ export const ChartComponent = memo((props: Props) => {
           histogramSeries.setData(data);
         }
         if (s.type === 'ohlc') {
-          const candlestickSeries = chartState.addSeries(CandlestickSeries, candlestickOption, paneIndex);
+          const candlestickSeries = chart.addSeries(CandlestickSeries, candlestickOption, paneIndex);
           candlestickSeries.setData(data);
         }
         if (s.type === 'order') {
-          const lineSeries = chartState.addSeries(
+          const lineSeries = chart.addSeries(
             LineSeries,
             {
               color: 'red',
@@ -339,7 +325,7 @@ export const ChartComponent = memo((props: Props) => {
           const seriesMarkers = createSeriesMarkers(lineSeries, markers);
         }
       });
-      const currentPane = chartState.panes()[paneIndex];
+      const currentPane = chart.panes()[paneIndex];
       waitForPaneElement(currentPane).then((container) => {
         container.setAttribute('style', 'position:relative');
         const legend = document.createElement('div');
@@ -359,7 +345,6 @@ export const ChartComponent = memo((props: Props) => {
               DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length];
             UpdateLegendFuncQueue.push((param: MouseEventParams<Time>) => {
               if (!param || !param.logical) return;
-              console.log({ param: data.length });
               firstRow.innerHTML = `${s.refs[0]?.column_name} : ${data[param.logical].value}`;
             });
           }
@@ -377,17 +362,20 @@ export const ChartComponent = memo((props: Props) => {
     });
 
     const el = domRef.current;
-    if (el) {
-      const observer = new ResizeObserver((entries) => {
-        entries.forEach((entry) => {
-          chartState.resize(entry.contentRect.width, entry.contentRect.height);
-        });
+    const observer = new ResizeObserver((entries) => {
+      entries.forEach((entry) => {
+        chart.resize(entry.contentRect.width, entry.contentRect.height);
       });
-      observer.observe(el);
-      return () => {
-        observer.unobserve(el);
-      };
-    }
-  }, [chartState, view, displayData]);
+    });
+    observer.observe(el);
+    return () => {
+      chart.remove();
+      chart.unsubscribeCrosshairMove(handler);
+      chartRef.current = null;
+      observer.unobserve(el);
+    };
+    // }
+  }, [view, displayData, darkMode]);
+
   return <div id="App" style={{ width: '100%', height: '100%' }} ref={domRef} />;
 });
