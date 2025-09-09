@@ -1,7 +1,7 @@
 import { Select, Space } from '@douyinfe/semi-ui';
 import { formatTime } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
-import { createContext, useState } from 'react';
+import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { BehaviorSubject, combineLatestWith, debounceTime, mergeWith, pipe, switchMap, tap } from 'rxjs';
 import { registerPage, usePageParams } from '../Pages';
@@ -13,17 +13,6 @@ import { IconRefresh, IconSetting } from '@douyinfe/semi-icons';
 import { SelectProps } from '@douyinfe/semi-ui/lib/es/select';
 
 const refresh$ = new BehaviorSubject(undefined);
-
-export const ChartDataContext = createContext<
-  | {
-      filename: string;
-      data_index: number;
-      data_length: number;
-      time_column_name: string;
-      series: Map<string, any[]>;
-    }[]
-  | undefined
->(undefined);
 
 registerPage('NewTechnicalChart', () => {
   const [t] = useTranslation('TechnicalChart');
@@ -41,7 +30,6 @@ registerPage('NewTechnicalChart', () => {
             return JSON.parse(content) as ITimeSeriesChartConfig;
           }),
         ),
-        tap((data) => console.info(formatTime(Date.now()), 'Data loaded:', data)),
       ),
       [params.filename],
     ),
@@ -76,7 +64,6 @@ registerPage('NewTechnicalChart', () => {
             ),
           ),
         ),
-        tap((data) => console.info(formatTime(Date.now()), 'Data loaded:', data)),
       ),
       [config?.data],
     ),
