@@ -39,6 +39,7 @@ export const CSV = {
     const fileSize = file.size;
     await new Promise((resolve) => {
       Papa.parse(file as File, {
+        skipEmptyLines: true,
         header: true,
         worker: true,
         step: (results) => {
