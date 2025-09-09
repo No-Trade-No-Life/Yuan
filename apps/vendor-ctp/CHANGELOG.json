@@ -2,6 +2,26 @@
   "name": "@yuants/vendor-ctp",
   "entries": [
     {
+      "version": "0.4.2",
+      "tag": "@yuants/vendor-ctp_v0.4.2",
+      "date": "Tue, 09 Sep 2025 18:03:39 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "always restart ctp main_linux"
+          },
+          {
+            "comment": "portable"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.1",
       "tag": "@yuants/vendor-ctp_v0.4.1",
       "date": "Tue, 09 Sep 2025 13:23:41 GMT",
