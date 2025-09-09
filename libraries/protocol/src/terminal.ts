@@ -37,18 +37,20 @@ import type SimplePeer from 'simple-peer';
 import { TerminalChannel } from './channel';
 import { TerminalClient } from './client';
 import { IConnection, createConnectionWs } from './create-connection';
+import { MetricsExporter, MetricsMeterProvider, PromRegistry } from './metrics';
 import {
   IServiceHandler,
   IServiceInfo,
   IServiceInfoServerSide,
   IServiceOptions,
   ITerminalInfo,
+  ITerminalMessage,
 } from './model';
 import { TerminalServer } from './server';
-import { IService, ITerminalMessage } from './services';
-import { MetricsExporter, PromRegistry, TerminalMeter } from './services/metrics';
 import { inferNodePackageTags } from './tags/inferVersionTags';
 import { getSimplePeerInstance } from './webrtc';
+
+const TerminalMeter = MetricsMeterProvider.getMeter('terminal');
 
 const TerminalReceivedBytesTotal = TerminalMeter.createCounter('terminal_received_bytes_total');
 const TerminalTransmittedBytesTotal = TerminalMeter.createCounter('terminal_transmitted_bytes_total');
@@ -492,8 +494,8 @@ export class Terminal {
   private _setupWebRTCTunnel() {
     console.info(formatTime(Date.now()), 'Terminal', 'WebRTC', 'Setup');
 
-    this.provideService('WebRTC/Offer', {}, async (msg) => {
-      const { session_id, offer } = msg.req as { session_id: string; offer: any };
+    this.provideService<{ session_id: string; offer: any }>('WebRTC/Offer', {}, async (msg) => {
+      const { session_id, offer } = msg.req;
       if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
         console.info(
           formatTime(Date.now()),
@@ -555,7 +557,9 @@ export class Terminal {
         direction: 'Passive',
         remote_terminal_id: msg.source_terminal_id,
         onSignal: (data) => {
-          return from(this.request('WebRTC/Answer', msg.source_terminal_id, { session_id, answer: data }));
+          return from(
+            this.client.request('WebRTC/Answer', msg.source_terminal_id, { session_id, answer: data }),
+          );
         },
         onDestroy: () => {},
       });
@@ -564,8 +568,8 @@ export class Terminal {
       return { res: { code: 200, message: 'OK' } };
     });
 
-    this.provideService('WebRTC/Answer', {}, async (msg) => {
-      const { session_id, answer } = msg.req as { session_id: string; answer: any };
+    this.provideService<{ session_id: string; answer: any }>('WebRTC/Answer', {}, async (msg) => {
+      const { session_id, answer } = msg.req;
       if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
         console.info(
           formatTime(Date.now()),
@@ -652,7 +656,10 @@ export class Terminal {
                       remote_terminal_id: target_terminal_id,
                       onSignal: (data) => {
                         return from(
-                          this.request('WebRTC/Offer', target_terminal_id, { session_id, offer: data }),
+                          this.client.request('WebRTC/Offer', target_terminal_id, {
+                            session_id,
+                            offer: data,
+                          }),
                         );
                       },
                       onDestroy: () => {
@@ -671,7 +678,7 @@ export class Terminal {
   private _setupTerminalInfoStuff() {
     // Periodically update the whole terminal list
     this._subscriptions.push(
-      defer(() => this.request('ListTerminals', '@host', {}))
+      defer(() => this.client.request<{}, ITerminalInfo[]>('ListTerminals', '@host', {}))
         .pipe(
           filter((msg) => !!msg.res),
           map((msg) => msg.res?.data ?? []),
@@ -732,7 +739,7 @@ export class Terminal {
           tap(() => console.info(formatTime(Date.now()), 'Terminal', 'terminalInfo', 'pushing')),
           // request maybe failed, so we should retry until success or cancelled by new pushing action
           switchMap(() =>
-            defer(() => this.request('UpdateTerminalInfo', '@host', this.terminalInfo)).pipe(
+            defer(() => this.client.request('UpdateTerminalInfo', '@host', this.terminalInfo)).pipe(
               tap((msg) =>
                 console.info(
                   formatTime(Date.now()),
@@ -790,23 +797,12 @@ export class Terminal {
   }
 
   /**
-   * Make a request to specified terminal's service
-   */
-  request<T extends string>(
-    method: T,
-    target_terminal_id: string,
-    req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req'],
-  ): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage> {
-    return this.client.request(method, target_terminal_id, req);
-  }
-
-  /**
    * Provide a service
    */
-  provideService<T extends string>(
-    method: T,
+  provideService<TReq = {}, TRes = void, TFrame = void>(
+    method: string,
     requestSchema: JSONSchema7,
-    handler: IServiceHandler<T>,
+    handler: IServiceHandler<TReq, TRes, TFrame>,
     options?: IServiceOptions,
   ): { dispose: () => void } {
     const service_id = UUID();
@@ -830,61 +826,6 @@ export class Terminal {
       this.server.removeService(service_id);
     };
     return { dispose };
-  }
-
-  /**
-   * Resolve candidate target_terminal_ids for a request
-   */
-  resolveTargetTerminalIds = (method: string, req: ITerminalMessage['req']): Promise<string[]> => {
-    return this.client.resolveTargetTerminalIds(method, req);
-  };
-
-  /**
-   * Make a request to a service
-   *
-   * - [x] SINGLE-IN-SINGLE-OUT
-   * - [x] SINGLE-IN-STREAM-OUT
-   * - [ ] STREAM-IN-SINGLE-OUT
-   * - [ ] STREAM-IN-STREAM-OUT
-   */
-  requestService<T extends keyof IService>(
-    method: T,
-    req: IService[T]['req'],
-  ): Observable<Partial<IService[T]> & ITerminalMessage>;
-
-  requestService(method: string, req: ITerminalMessage['req']): Observable<ITerminalMessage>;
-
-  requestService(method: string, req: ITerminalMessage['req']): Observable<ITerminalMessage> {
-    return this.client.requestService(method, req);
-  }
-
-  /**
-   * Make a request to get the response
-   *
-   * Use it only when using SINGLE-IN-SINGLE-OUT pattern.
-   *
-   * It's simpler to call this method when using this pattern.
-   *
-   * - [x] SINGLE-IN-SINGLE-OUT
-   * - [ ] SINGLE-IN-STREAM-OUT
-   * - [ ] STREAM-IN-SINGLE-OUT
-   * - [ ] STREAM-IN-STREAM-OUT
-   */
-  requestForResponse<T extends keyof IService>(
-    method: T,
-    req: IService[T]['req'],
-  ): Promise<Exclude<(Partial<IService[T]> & ITerminalMessage)['res'], undefined>>;
-
-  requestForResponse(
-    method: string,
-    req: ITerminalMessage['req'],
-  ): Promise<Exclude<ITerminalMessage['res'], undefined>>;
-
-  requestForResponse(
-    method: string,
-    req: ITerminalMessage['req'],
-  ): Promise<Exclude<ITerminalMessage['res'], undefined>> {
-    return this.client.requestForResponse(method, req);
   }
 
   private _setupDebugLog = () => {
@@ -921,7 +862,7 @@ export class Terminal {
     this.provideService('Ping', {}, () => [{ res: { code: 0, message: 'Pong' } }]);
 
     if (!this.options.disableMetrics) {
-      this.provideService(
+      this.provideService<{}, { metrics: string }>(
         'Metrics',
         { type: 'object', properties: { terminal_id: { type: 'string', const: this.terminal_id } } },
         async () => {

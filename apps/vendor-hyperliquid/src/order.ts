@@ -1,3 +1,4 @@
+import { IOrder } from '@yuants/data-order';
 import { formatTime } from '@yuants/utils';
 import { client } from './api';
 import { terminal } from './terminal';
@@ -60,7 +61,7 @@ const roundPrice = (price: number, instType: 'PERPETUAL' | 'SPOT', szDecimals: n
   return finalPrice.toString();
 };
 
-terminal.provideService(
+terminal.provideService<IOrder>(
   'SubmitOrder',
   {
     required: ['account_id'],

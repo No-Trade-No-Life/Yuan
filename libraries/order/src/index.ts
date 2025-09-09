@@ -254,7 +254,10 @@ export const limitOrderController = (
               controllerCtx.quote!,
               target,
             );
-            const res = await terminal.requestForResponse('SubmitOrder', order);
+            const res = await terminal.client.requestForResponse<IOrder, { order_id?: string }>(
+              'SubmitOrder',
+              order,
+            );
 
             if (res.code !== 0 || !res.data?.order_id) {
               console.error(formatTime(Date.now()), 'LimitOrderController', 'Failed to submit order', res);
@@ -287,16 +290,19 @@ export const limitOrderController = (
               target,
             );
             try {
-              await terminal.requestForResponse('ModifyOrder', order);
+              await terminal.client.requestForResponse('ModifyOrder', order);
               controllerCtx.theOrder = await queryOrder(terminal, controllerCtx.account_id!, order.order_id!);
             } catch (e) {
-              await terminal.requestForResponse('CancelOrder', {
+              await terminal.client.requestForResponse('CancelOrder', {
                 account_id: order.account_id,
                 order_id: controllerCtx.theOrder!.order_id!,
                 product_id: order.product_id,
               });
               await queryOrder(terminal, controllerCtx.account_id!, order.order_id!, 'CANCELLED');
-              const res = await terminal.requestForResponse('SubmitOrder', order);
+              const res = await terminal.client.requestForResponse<IOrder, { order_id?: string }>(
+                'SubmitOrder',
+                order,
+              );
               if (res.code !== 0 || !res.data?.order_id) {
                 console.error(formatTime(Date.now()), 'LimitOrderController', 'Failed to submit order', res);
                 return;
@@ -322,7 +328,7 @@ export const limitOrderController = (
 
     return () => {
       if (controllerCtx.theOrder != null) {
-        terminal
+        terminal.client
           .requestForResponse('CancelOrder', {
             account_id: controllerCtx.account_id!,
             order_id: controllerCtx.theOrder.order_id!,

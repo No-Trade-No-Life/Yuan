@@ -1,6 +1,6 @@
 import '@yuants/data-series';
 import { ISeriesCollectingTask } from '@yuants/data-series';
-import { IService, PromRegistry, Terminal } from '@yuants/protocol';
+import { PromRegistry, Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import { encodePath, formatTime, listWatch } from '@yuants/utils';
 import CronJob from 'cron';
@@ -58,7 +58,7 @@ interface ITaskContext {
   /** 上次完成时间 */
   completed_at: number;
 
-  api_status?: IService['CollectSeries']['frame'];
+  api_status?: any;
 
   error_message?: string;
 }

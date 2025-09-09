@@ -20,6 +20,7 @@
     "@yuants/sql": "workspace:*",
     "@yuants/data-product": "workspace:*",
     "@yuants/data-interest-rate": "workspace:*",
+    "@yuants/data-order": "workspace:*",
     "@yuants/data-series": "workspace:*",
     "rxjs": "~7.5.6",
     "crypto-js": "^4.2.0",

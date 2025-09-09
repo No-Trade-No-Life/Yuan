@@ -5,6 +5,7 @@ import {
   IPosition,
   publishAccountInfo,
 } from '@yuants/data-account';
+import { IOrder } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
@@ -121,7 +122,7 @@ const terminal = Terminal.fromNodeEnv();
 
   // trade api
   {
-    terminal.provideService(
+    terminal.provideService<IOrder>(
       'SubmitOrder',
       {
         required: ['account_id'],
@@ -181,7 +182,7 @@ const terminal = Terminal.fromNodeEnv();
         }),
     );
 
-    terminal.provideService(
+    terminal.provideService<IOrder>(
       'CancelOrder',
       {
         required: ['account_id'],

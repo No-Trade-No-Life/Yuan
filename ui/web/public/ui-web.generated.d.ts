@@ -435,7 +435,7 @@ declare module '@yuants/ui-web' {
   const Switch: React$1.MemoExoticComponent<
     (
       props: Omit<SwitchProps, 'loading' | 'onChange'> & {
-        onChange: (checked: boolean) => any;
+        onChange?: ((checked: boolean) => any) | undefined;
       },
     ) => react_jsx_runtime.JSX.Element
   >;
@@ -636,7 +636,7 @@ declare module '@yuants/ui-web' {
     };
   }
   const Page: React$1.MemoExoticComponent<(props: { page: IPage }) => react_jsx_runtime.JSX.Element>;
-  const usePageParams: () => any;
+  const usePageParams: <T = any>() => T;
   const usePageTitle: (title: string) => void;
   const usePageType: () => string;
   const usePageViewport: () =>

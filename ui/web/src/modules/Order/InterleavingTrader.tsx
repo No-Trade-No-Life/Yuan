@@ -151,7 +151,7 @@ registerPage('InterleavingTrader', () => {
                 try {
                   const res = await lastValueFrom(
                     from(
-                      terminal.requestService('SubmitOrder', {
+                      terminal.client.requestService('SubmitOrder', {
                         account_id: item.account_id,
                         product_id: item.product_id,
                         volume: item.volume,

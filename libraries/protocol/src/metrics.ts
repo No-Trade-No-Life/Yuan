@@ -7,10 +7,7 @@ import {
 } from '@opentelemetry/sdk-metrics';
 import { Registry } from '@yuants/prometheus-client';
 
-/**
- * @public
- */
-export class YuanMetricsReader extends MetricReader {
+class YuanMetricsReader extends MetricReader {
   private serializer: PrometheusSerializer;
   constructor(
     public config: {
@@ -57,24 +54,9 @@ export const MetricsMeterProvider = new MeterProvider({
   readers: [MetricsExporter],
 });
 
-export const TerminalMeter = MetricsMeterProvider.getMeter('terminal');
 /**
  * Prometheus Metrics Registry
  * @public
  * @deprecated - use {@link MetricsMeterProvider} instead
  */
 export const PromRegistry = new Registry();
-
-declare module '.' {
-  /**
-   * - Metrics interface has been loaded
-   * - 打点接口 (Metrics) 已载入
-   */
-  interface IService {
-    Metrics: {
-      req: {};
-      res: IResponse<{ metrics: string }>;
-      frame: void;
-    };
-  }
-}

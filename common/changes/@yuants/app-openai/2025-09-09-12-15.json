@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-openai",
+      "comment": "refactor",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-openai"
+}

@@ -350,7 +350,7 @@ registerPage('AccountInfoPanel', () => {
                 icon={<IconClose />}
                 onClick={async () => {
                   if (!terminal) return;
-                  await terminal.requestForResponse('CancelOrder', order);
+                  await terminal.client.requestForResponse('CancelOrder', order);
                 }}
               ></Button>
             </Space>

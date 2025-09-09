@@ -363,7 +363,7 @@ const terminal = Terminal.fromNodeEnv();
   addAccountMarket(terminal, { account_id: SWAP_ACCOUNT_ID, market_id: 'HUOBI/SWAP' });
 
   // Submit order
-  terminal.provideService(
+  terminal.provideService<IOrder>(
     'SubmitOrder',
     {
       required: ['account_id'],

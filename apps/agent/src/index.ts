@@ -30,13 +30,16 @@ defer(async () => {
     throw new Error(`Failed to load secret ${secret_code_id}`);
   }
 
-  const res = await terminal.client.requestForResponse('NodeUnit/DecryptForChild', {
+  const res = await terminal.client.requestForResponse<
+    { node_unit_address: string; encrypted_data_base58: string; child_public_key: string },
+    { data: string }
+  >('NodeUnit/DecryptForChild', {
     node_unit_address: DEPLOYMENT_NODE_UNIT_ADDRESS,
     encrypted_data_base58: theSecret.encrypted_data_base58,
     child_public_key: keyPair.public_key,
   });
 
-  const resData = res.data as { data: string };
+  const resData = res.data;
   if (!resData) throw new Error(`Failed to decrypt secret ${secret_code_id}: ${res.code}: ${res.message}`);
   const decrypted_data_base58 = decryptByPrivateKey(decodeBase58(resData.data), PRIVATE_KEY);
   const code = new TextDecoder().decode(decrypted_data_base58);

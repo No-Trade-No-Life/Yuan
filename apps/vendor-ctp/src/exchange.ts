@@ -687,7 +687,7 @@ terminal.provideService(
     ),
 );
 
-terminal.provideService(
+terminal.provideService<IOrder>(
   'SubmitOrder',
   {
     required: ['account_id'],
@@ -715,7 +715,7 @@ terminal.provideService(
   },
 );
 
-terminal.provideService(
+terminal.provideService<IOrder>(
   'CancelOrder',
   {
     required: ['account_id'],

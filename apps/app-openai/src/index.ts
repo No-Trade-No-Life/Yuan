@@ -1,5 +1,5 @@
+import { Terminal } from '@yuants/protocol';
 import { formatTime, UUID } from '@yuants/utils';
-import { IResponse, Terminal } from '@yuants/protocol';
 import { first, from, ObservableInput } from 'rxjs';
 
 const terminal = new Terminal(process.env.HOST_URL!, {
@@ -19,23 +19,6 @@ if (!availableModels || availableModels.length === 0) {
   process.exit(1);
 }
 
-declare module '@yuants/protocol' {
-  interface IService {
-    ChatWithAI: {
-      req: {
-        model: string;
-        messages: { role: string; content: string }[];
-      };
-      frame: {
-        content: string;
-      };
-      res: IResponse<{
-        content: string;
-      }>;
-    };
-  }
-}
-
 const getAbortSignalFromNativeObservable = (observable: ObservableInput<boolean>) => {
   const abortController = new AbortController();
   from(observable)
@@ -46,7 +29,18 @@ const getAbortSignalFromNativeObservable = (observable: ObservableInput<boolean>
   return abortController.signal;
 };
 
-terminal.provideService(
+terminal.provideService<
+  {
+    model: string;
+    messages: { role: string; content: string }[];
+  },
+  {
+    content: string;
+  },
+  {
+    content: string;
+  }
+>(
   'ChatWithAI',
   {
     required: ['model', 'messages'],

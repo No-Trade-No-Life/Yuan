@@ -1,7 +1,6 @@
-import { encodePath, escapeRegExp } from '@yuants/utils';
-import { IResponse, IService, IServiceOptions, Terminal } from '@yuants/protocol';
+import { IServiceOptions, Terminal } from '@yuants/protocol';
 import { AddMigration, buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
-import { observableToAsyncIterable } from '@yuants/utils';
+import { encodePath, escapeRegExp, observableToAsyncIterable } from '@yuants/utils';
 import { defer, ObservableInput } from 'rxjs';
 
 /**
@@ -22,51 +21,6 @@ export interface ISeriesCollectingTask {
   disabled: boolean;
   /** default to 0, means start from the latest data record, above 0 means pull start from earlier data records */
   replay_count: number;
-}
-
-declare module '@yuants/protocol' {
-  interface IService {
-    CollectSeries: {
-      req: {
-        /**
-         * 目标数据表的名称
-         */
-        table_name: string;
-        /**
-         * 数据序列的 ID
-         */
-        series_id: string;
-        /**
-         * 数据序列的起始时间戳 (ms)
-         */
-        started_at: number;
-        /**
-         * 数据序列的结束时间戳 (ms)
-         */
-        ended_at: number;
-      };
-
-      frame: {
-        /**
-         * 已获取的数据条数
-         */
-        fetched: number;
-        /**
-         * 已保存的数据条数
-         */
-        saved: number;
-        /**
-         * 已获取数据的时间戳 (ms)
-         */
-        fetched_at: number;
-        /**
-         * 已保存数据的时间戳 (ms)
-         */
-        saved_at: number;
-      };
-      res: IResponse;
-    };
-  }
 }
 
 /**
@@ -122,7 +76,47 @@ export const createSeriesProvider = <T extends ISeriesDataItem>(
   terminal: Terminal,
   ctx: ISeriesProviderContext<T>,
 ) => {
-  return terminal.provideService(
+  interface IFrame {
+    /**
+     * 已获取的数据条数
+     */
+    fetched: number;
+    /**
+     * 已保存的数据条数
+     */
+    saved: number;
+    /**
+     * 已获取数据的时间戳 (ms)
+     */
+    fetched_at: number;
+    /**
+     * 已保存数据的时间戳 (ms)
+     */
+    saved_at: number;
+  }
+
+  return terminal.provideService<
+    {
+      /**
+       * 目标数据表的名称
+       */
+      table_name: string;
+      /**
+       * 数据序列的 ID
+       */
+      series_id: string;
+      /**
+       * 数据序列的起始时间戳 (ms)
+       */
+      started_at: number;
+      /**
+       * 数据序列的结束时间戳 (ms)
+       */
+      ended_at: number;
+    },
+    void,
+    IFrame
+  >(
     'CollectSeries',
     {
       type: 'object',
@@ -140,7 +134,7 @@ export const createSeriesProvider = <T extends ISeriesDataItem>(
     async function* (msg) {
       // @ts-ignore
       const { series_id, started_at, ended_at } = msg.req;
-      const status: IService['CollectSeries']['frame'] = {
+      const status: IFrame = {
         fetched: 0,
         saved: 0,
         fetched_at: ctx.reversed ? ended_at : started_at,
