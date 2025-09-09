@@ -1,6 +1,18 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Thu, 04 Sep 2025 15:24:17 GMT and should not be manually modified.
+This log was last generated on Tue, 09 Sep 2025 13:23:41 GMT and should not be manually modified.
+
+## 0.40.0
+Tue, 09 Sep 2025 13:23:41 GMT
+
+### Minor changes
+
+- use Generic Types for Service. remove IService and service types injection
+
+### Patches
+
+- add metrics to pending and processing request total
+- refactor: use takeUntil rather than add subscriptions array
 
 ## 0.39.1
 Thu, 04 Sep 2025 15:24:17 GMT
