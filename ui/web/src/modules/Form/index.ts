@@ -121,14 +121,14 @@ export const showForm = <T>(
         onCancel: () => {
           reject(new Error('User Cancelled'));
         },
-        onOk: () => {
+        onOk: (e) => {
           const ajv = new Ajv({ strictSchema: false });
           if (ajv.validate(schema, data)) {
             resolve(data);
             return;
           }
           Toast.error(ajv.errorsText());
-          reject(new Error('Validation Failed'));
+          throw '';
         },
         okText: t('common:submit'),
         cancelText: t('common:cancel'),

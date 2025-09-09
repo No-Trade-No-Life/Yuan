@@ -1,24 +1,25 @@
-import { memo, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import {
-  createChart,
-  CandlestickSeries,
-  ColorType,
-  LineSeries,
-  HistogramSeries,
-  Time,
-  DeepPartial,
-  ChartOptions,
-  createSeriesMarkers,
-  MouseEventParams,
-  IChartApi,
-  ISeriesMarkersPluginApi,
-  SeriesMarker,
-} from 'lightweight-charts';
-import { ITimeSeriesChartConfig } from '../../Interactive';
-import { useIsDarkMode } from '../../Workbench';
 import { Slider, Space } from '@douyinfe/semi-ui';
 import { formatTime } from '@yuants/utils';
+import {
+  CandlestickSeries,
+  ChartOptions,
+  ColorType,
+  createChart,
+  createSeriesMarkers,
+  DeepPartial,
+  HistogramSeries,
+  IChartApi,
+  LineSeries,
+  MouseEventParams,
+  SeriesMarker,
+  Time,
+} from 'lightweight-charts';
+import { memo, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { ITimeSeriesChartConfig } from '../../Interactive';
+import { useIsDarkMode } from '../../Workbench';
 import { VertLine } from '../Plugins/VerticalLine';
+import { useObservable, useObservableRef, useObservableState } from 'observable-hooks';
+import { debounceTime } from 'rxjs';
 
 const DEFAULT_SINGLE_COLOR_SCHEME: string[] = [
   '#5B8FF9',
@@ -182,7 +183,11 @@ export const ChartComponent = memo((props: Props) => {
   const darkMode = useIsDarkMode();
   const [cursor, setCursor] = useState<number>();
 
-  const [viewStartIndex, setViewStartIndex] = useState<number>(0);
+  const [, sliderValue$] = useObservableRef(0);
+  const viewStartIndex = useObservableState(
+    useObservable(() => sliderValue$.pipe(debounceTime(100)), []),
+    0,
+  );
   const UpdateLegendFuncQueue: Function[] = [];
 
   const domRef = useRef<HTMLDivElement | null>(null);
@@ -196,7 +201,7 @@ export const ChartComponent = memo((props: Props) => {
   const totalItems = totalTimeLine?.length ?? 0;
 
   const startIndex = viewStartIndex;
-  const endIndex = viewStartIndex + PAGE_SIZE;
+  const endIndex = Math.min(totalItems, viewStartIndex + PAGE_SIZE);
   const endTime = ~~(parseFloat(totalTimeLine?.[endIndex - 1]) / 1000);
   const startTime = ~~(parseFloat(totalTimeLine?.[startIndex]) / 1000);
 
@@ -456,22 +461,24 @@ export const ChartComponent = memo((props: Props) => {
 
   return (
     <Space vertical align="start" style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
-      <Space align="start">
+      <Space>
         {props.topSlot}
-        <Slider
-          key={totalItems}
-          showBoundary
-          style={{ width: 200 }}
-          min={0}
-          max={Math.max(0, totalItems - PAGE_SIZE)}
-          step={1}
-          tipFormatter={(v) => {
-            return formatTime(Number(totalTimeLine?.[v as number]));
-          }}
-          onChange={(v) => {
-            setViewStartIndex(v as number);
-          }}
-        />
+        {totalItems > PAGE_SIZE && (
+          <Slider
+            key={totalItems}
+            style={{ width: 200 }}
+            showBoundary={false}
+            min={0}
+            max={Math.max(0, totalItems - PAGE_SIZE)}
+            step={1}
+            tipFormatter={(v) => {
+              return formatTime(Number(totalTimeLine?.[v as number]));
+            }}
+            onChange={(v) => {
+              sliderValue$.next(v as number);
+            }}
+          />
+        )}
         {formatTime(startTime * 1000)}-{formatTime(endTime * 1000)}
         -- Cursor: {(cursor ?? 0) + viewStartIndex}
       </Space>
