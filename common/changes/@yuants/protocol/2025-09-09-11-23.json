@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "add metrics to pending and processing request total",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
