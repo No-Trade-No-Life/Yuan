@@ -1,6 +1,14 @@
 # Change Log - @yuants/vendor-ctp
 
-This log was last generated on Tue, 09 Sep 2025 13:23:41 GMT and should not be manually modified.
+This log was last generated on Tue, 09 Sep 2025 18:03:39 GMT and should not be manually modified.
+
+## 0.4.2
+Tue, 09 Sep 2025 18:03:39 GMT
+
+### Patches
+
+- always restart ctp main_linux
+- portable
 
 ## 0.4.1
 Tue, 09 Sep 2025 13:23:41 GMT
