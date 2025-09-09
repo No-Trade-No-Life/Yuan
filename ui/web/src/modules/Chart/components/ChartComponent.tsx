@@ -1,5 +1,5 @@
 import { Slider, Space } from '@douyinfe/semi-ui';
-import { formatTime } from '@yuants/utils';
+import { encodePath, formatTime } from '@yuants/utils';
 import {
   CandlestickSeries,
   ChartOptions,
@@ -9,17 +9,20 @@ import {
   DeepPartial,
   HistogramSeries,
   IChartApi,
+  IPaneApi,
   LineSeries,
   MouseEventParams,
   SeriesMarker,
   Time,
 } from 'lightweight-charts';
+import { useObservable, useObservableRef, useObservableState } from 'observable-hooks';
 import { memo, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
-import { ITimeSeriesChartConfig } from '../../Interactive';
+import { createPortal } from 'react-dom';
+import { debounceTime } from 'rxjs';
+import { Button, ITimeSeriesChartConfig } from '../../Interactive';
 import { useIsDarkMode } from '../../Workbench';
 import { VertLine } from '../Plugins/VerticalLine';
-import { useObservable, useObservableRef, useObservableState } from 'observable-hooks';
-import { debounceTime } from 'rxjs';
+import { IconClose } from '@douyinfe/semi-icons';
 
 const DEFAULT_SINGLE_COLOR_SCHEME: string[] = [
   '#5B8FF9',
@@ -107,11 +110,11 @@ const candlestickOption = {
 };
 const PAGE_SIZE = 5000;
 
-function waitForPaneElement(pane: any, maxRetries: number = 20): Promise<HTMLElement> {
+function waitForPaneElement(pane: IPaneApi<Time>, maxRetries: number = 50): Promise<HTMLElement> {
   return new Promise((resolve, reject) => {
     let retries = 0;
     function check() {
-      const el = pane.getHTMLElement();
+      const el = pane?.getHTMLElement();
       if (el) {
         resolve(el);
         return;
@@ -129,6 +132,7 @@ function waitForPaneElement(pane: any, maxRetries: number = 20): Promise<HTMLEle
 
 interface Props {
   view: ITimeSeriesChartConfig['views'][0];
+  onViewChange: (newView: ITimeSeriesChartConfig['views'][0]) => Promise<void>;
   topSlot?: ReactNode;
   data?: {
     filename: string;
@@ -183,16 +187,42 @@ export const ChartComponent = memo((props: Props) => {
   const darkMode = useIsDarkMode();
   const [cursor, setCursor] = useState<number>();
 
+  const legendDomRef = useRef<Map<string, HTMLElement>>(new Map()).current;
+
+  useEffect(() => {
+    return () => {
+      legendDomRef.clear();
+    };
+  }, []);
+
   const [, sliderValue$] = useObservableRef(0);
   const viewStartIndex = useObservableState(
     useObservable(() => sliderValue$.pipe(debounceTime(100)), []),
     0,
   );
-  const UpdateLegendFuncQueue: Function[] = [];
 
   const domRef = useRef<HTMLDivElement | null>(null);
 
-  const chartRef = useRef<IChartApi | null>(null);
+  const [chartRef, chart$] = useObservableRef<IChartApi | null>(null);
+  const chart = useObservableState(chart$);
+
+  // 管理 chart 实例的创建和销毁
+  useEffect(() => {
+    if (!domRef.current) return;
+    const chart = createChart(domRef.current, darkMode ? DarkModeChartOption : ChartOption);
+    chartRef.current = chart;
+    return () => {
+      chart.remove();
+      chartRef.current = null;
+    };
+  }, []);
+
+  // 响应暗黑模式
+  useEffect(() => {
+    if (chart) {
+      chart.applyOptions(darkMode ? DarkModeChartOption : ChartOption);
+    }
+  }, [darkMode, chart]);
 
   const totalTimeLine = (data || [])
     .find((item) => item.data_index === view.time_ref.data_index)
@@ -344,20 +374,22 @@ export const ChartComponent = memo((props: Props) => {
     }
   }, [cursor, displayData, view, viewStartIndex]);
 
+  // 同步鼠标位置到 cursor 状态
   useEffect(() => {
-    if (!displayData || !domRef.current || !view) return;
-    const handler = (param: MouseEventParams<Time>) => {
-      if (param.logical) setCursor(param.logical);
-      UpdateLegendFuncQueue.forEach((fn) => fn(param));
-    };
-    if (chartRef.current) {
-      chartRef.current.remove();
-      chartRef.current.unsubscribeCrosshairMove(handler);
-      chartRef.current = null;
+    if (chart) {
+      const handler = (param: MouseEventParams<Time>) => {
+        if (param.logical) setCursor(param.logical);
+      };
+      chart.subscribeCrosshairMove(handler);
+      return () => {
+        chart.unsubscribeCrosshairMove(handler);
+      };
     }
-    const chart = createChart(domRef.current, darkMode ? DarkModeChartOption : ChartOption);
-    chartRef.current = chart;
-    chart.subscribeCrosshairMove(handler);
+  }, [chart]);
+
+  // 管理 panes / series 的创建和销毁
+  useEffect(() => {
+    if (!displayData || !chart || !view) return;
     view.panes.forEach((pane, paneIndex) => {
       pane.series.forEach((s, seriesIndex) => {
         const data = displayData[paneIndex][seriesIndex] ?? [];
@@ -367,6 +399,7 @@ export const ChartComponent = memo((props: Props) => {
             {
               color: DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
               lineWidth: 2,
+              priceLineVisible: false,
             },
             paneIndex,
           );
@@ -413,51 +446,39 @@ export const ChartComponent = memo((props: Props) => {
         const legend = document.createElement('div');
         legend.setAttribute(
           'style',
-          `position: absolute; left: 12px; top: 0px; z-index: 1; font-size: 14px; font-family: sans-serif; line-height: 18px; font-weight: 300;`,
+          `position: absolute; left: 12px; top: 0px; z-index: 10; font-size: 14px; font-family: sans-serif; line-height: 18px; font-weight: 300;`,
         );
         container.appendChild(legend);
         pane.series.forEach((s, seriesIndex) => {
-          const data = displayData[paneIndex][seriesIndex] ?? [];
-          const firstRow = document.createElement('div');
-          firstRow.style.fontSize = '14px';
-          firstRow.style.fontWeight = '400';
-          if (s.type === 'line' || s.type === 'hist' || s.type === 'index') {
-            legend.appendChild(firstRow);
-            firstRow.style.color =
-              DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length];
-            UpdateLegendFuncQueue.push((param: MouseEventParams<Time>) => {
-              if (!param || !param.logical) return;
-              firstRow.innerHTML = `${s.refs[0]?.column_name} : ${
-                data[param.logical] ? data[param.logical].value : ''
-              }`;
-            });
-          }
-          if (s.type === 'ohlc') {
-            legend.appendChild(firstRow);
-            UpdateLegendFuncQueue.push((param: MouseEventParams<Time>) => {
-              if (!param || !param.logical) return;
-              firstRow.innerHTML = data[param.logical]
-                ? `O:${data[param.logical].open} H:${data[param.logical].high} L:${
-                    data[param.logical].low
-                  } C:${data[param.logical].close}`
-                : '';
-            });
-          }
+          const div = document.createElement('div');
+          legendDomRef.set(encodePath(paneIndex, seriesIndex), div);
+          legend.appendChild(div);
         });
       });
     });
-
-    const el = domRef.current;
-    const observer = new ResizeObserver((entries) => {
-      entries.forEach((entry) => {
-        chart.resize(entry.contentRect.width, entry.contentRect.height);
-      });
-    });
-    observer.observe(el);
     return () => {
-      observer.unobserve(el);
+      for (let i = chart.panes().length - 1; i >= 0; i--) {
+        chart.removePane(i);
+      }
     };
-  }, [view, displayData, darkMode]);
+  }, [chart, view, displayData, darkMode]);
+
+  // Resize chart on container resize
+  useEffect(() => {
+    if (chart) {
+      const el = chart.chartElement().parentElement;
+      if (!el) return;
+      const observer = new ResizeObserver((entries) => {
+        entries.forEach((entry) => {
+          chart.resize(entry.contentRect.width, entry.contentRect.height);
+        });
+      });
+      observer.observe(el);
+      return () => {
+        observer.unobserve(el);
+      };
+    }
+  }, [chart]);
 
   return (
     <Space vertical align="start" style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
@@ -482,7 +503,88 @@ export const ChartComponent = memo((props: Props) => {
         {formatTime(startTime * 1000)}-{formatTime(endTime * 1000)}
         -- Cursor: {(cursor ?? 0) + viewStartIndex}
       </Space>
-      <div style={{ width: '100%', height: '100%', flexGrow: 1 }} ref={domRef} />
+      <div key="canvas" style={{ width: '100%', flex: 1, overflow: 'hidden' }} ref={domRef} />
+      <>
+        {view.panes.flatMap((pane, paneIndex) =>
+          pane.series.map((s, seriesIndex) => {
+            const key = encodePath(paneIndex, seriesIndex);
+            const legendDom = legendDomRef.get(key);
+
+            function renderTitle(): ReactNode {
+              if (!data) return null;
+
+              if (s.type === 'line' || s.type === 'hist' || s.type === 'index') {
+                const dataRef = s.refs[0];
+                if (!dataRef) return null;
+                const dataItem = data.find((item) => item.data_index === dataRef.data_index);
+                if (!dataItem) return null;
+                const dataArray = dataItem.series.get(dataRef.column_name);
+                if (!dataArray) return null;
+                return (
+                  <div
+                    style={{
+                      color: DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
+                    }}
+                  >
+                    {s.refs[0]?.column_name}: {dataArray[cursor! + viewStartIndex]}
+                  </div>
+                );
+              }
+
+              if (s.type === 'ohlc') {
+                const dataRefOpen = s.refs[0];
+                const dataRefHigh = s.refs[1];
+                const dataRefLow = s.refs[2];
+                const dataRefClose = s.refs[3];
+                if (!dataRefOpen || !dataRefHigh || !dataRefLow || !dataRefClose) return null;
+                const dataItemOpen = data.find((item) => item.data_index === dataRefOpen.data_index);
+                const dataItemHigh = data.find((item) => item.data_index === dataRefHigh.data_index);
+                const dataItemLow = data.find((item) => item.data_index === dataRefLow.data_index);
+                const dataItemClose = data.find((item) => item.data_index === dataRefClose.data_index);
+                if (!dataItemOpen || !dataItemHigh || !dataItemLow || !dataItemClose) return null;
+                const dataArrayOpen = dataItemOpen.series.get(dataRefOpen.column_name);
+                const dataArrayHigh = dataItemHigh.series.get(dataRefHigh.column_name);
+                const dataArrayLow = dataItemLow.series.get(dataRefLow.column_name);
+                const dataArrayClose = dataItemClose.series.get(dataRefClose.column_name);
+                if (!dataArrayOpen || !dataArrayHigh || !dataArrayLow || !dataArrayClose) return null;
+                return (
+                  <div>
+                    O: {dataArrayOpen[cursor! + viewStartIndex]} H: {dataArrayHigh[cursor! + viewStartIndex]}{' '}
+                    L: {dataArrayLow[cursor! + viewStartIndex]} C: {dataArrayClose[cursor! + viewStartIndex]}
+                  </div>
+                );
+              }
+
+              return null;
+            }
+
+            const render = () => {
+              const title = renderTitle();
+              if (!title) return null;
+              return (
+                <Space style={{ fontSize: 14, fontWeight: 400 }}>
+                  {title}
+                  <Button
+                    size="small"
+                    theme="borderless"
+                    icon={<IconClose />}
+                    onClick={async () => {
+                      const newView = structuredClone(view);
+                      newView.panes[paneIndex].series.splice(seriesIndex, 1);
+                      if (newView.panes[paneIndex].series.length === 0) {
+                        newView.panes.splice(paneIndex, 1);
+                      }
+                      await props.onViewChange(newView);
+                    }}
+                  />
+                </Space>
+              );
+            };
+
+            return legendDom ? createPortal(render(), legendDom, key) : null;
+          }),
+        )}
+      </>
     </Space>
   );
 });

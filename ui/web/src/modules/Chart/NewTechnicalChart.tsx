@@ -1,6 +1,7 @@
 import { IconRefresh, IconSetting } from '@douyinfe/semi-icons';
 import { Select, Space, Toast } from '@douyinfe/semi-ui';
 import { SelectProps } from '@douyinfe/semi-ui/lib/es/select';
+import { JSONSchema7 } from 'json-schema';
 import { useObservable, useObservableRef, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -11,6 +12,80 @@ import { Button, ITimeSeriesChartConfig } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
 import { CSV } from '../Util';
 import { ChartComponent } from './components/ChartComponent';
+
+const schemaOfChartConfig: JSONSchema7 = {
+  type: 'object',
+  required: ['data', 'views'],
+  properties: {
+    data: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['type', 'filename', 'time_column_name'],
+        properties: {
+          type: { const: 'csv' },
+          filename: { type: 'string', title: 'CSV 文件路径' },
+          time_column_name: { type: 'string', title: '时间列名称' },
+        },
+      },
+    },
+    views: {
+      type: 'array',
+      items: {
+        type: 'object',
+        required: ['name', 'time_ref', 'panes'],
+        properties: {
+          name: { type: 'string', title: '视图名称' },
+          time_ref: {
+            type: 'object',
+            title: '时间轴',
+            required: ['data_index', 'column_name'],
+            properties: {
+              data_index: { type: 'number', title: '数据源索引' },
+              column_name: { type: 'string', title: '列名称' },
+            },
+          },
+          panes: {
+            type: 'array',
+            title: '窗格',
+            items: {
+              type: 'object',
+              properties: {
+                series: {
+                  type: 'array',
+                  title: '数据列',
+                  minItems: 1,
+                  items: {
+                    type: 'object',
+                    required: ['type', 'refs'],
+                    properties: {
+                      type: {
+                        type: 'string',
+                        title: '图表类型',
+                        enum: ['line', 'hist', 'ohlc', 'order', 'index'],
+                      },
+                      refs: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          required: ['data_index', 'column_name'],
+                          properties: {
+                            data_index: { type: 'number', title: '数据源索引' },
+                            column_name: { type: 'string', title: '列名称' },
+                          },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+};
 
 registerPage('NewTechnicalChart', () => {
   const [t] = useTranslation('TechnicalChart');
@@ -75,118 +150,44 @@ registerPage('NewTechnicalChart', () => {
 
   return (
     <Space vertical align="start" style={{ height: '100%', width: '100%', overflow: 'hidden' }}>
-      <Space
-        vertical
-        align="start"
-        style={{ display: 'flex', width: '100%', flexGrow: '1', overflow: 'hidden' }}
-      >
-        {config && (
-          <ChartComponent
-            topSlot={
-              <>
-                <Button
-                  icon={<IconSetting />}
-                  onClick={async () => {
-                    const data = await showForm<ITimeSeriesChartConfig>(
-                      {
-                        type: 'object',
-                        required: ['data', 'views'],
-                        properties: {
-                          data: {
-                            type: 'array',
-                            items: {
-                              type: 'object',
-                              required: ['type', 'filename', 'time_column_name'],
-                              properties: {
-                                type: { const: 'csv' },
-                                filename: { type: 'string', title: 'CSV 文件路径' },
-                                time_column_name: { type: 'string', title: '时间列名称' },
-                              },
-                            },
-                          },
-                          views: {
-                            type: 'array',
-                            items: {
-                              type: 'object',
-                              required: ['name', 'time_ref', 'panes'],
-                              properties: {
-                                name: { type: 'string', title: '视图名称' },
-                                time_ref: {
-                                  type: 'object',
-                                  title: '时间轴',
-                                  required: ['data_index', 'column_name'],
-                                  properties: {
-                                    data_index: { type: 'number', title: '数据源索引' },
-                                    column_name: { type: 'string', title: '列名称' },
-                                  },
-                                },
-                                panes: {
-                                  type: 'array',
-                                  title: '窗格',
-                                  items: {
-                                    type: 'object',
-                                    properties: {
-                                      series: {
-                                        type: 'array',
-                                        title: '数据列',
-                                        minItems: 1,
-                                        items: {
-                                          type: 'object',
-                                          required: ['type', 'refs'],
-                                          properties: {
-                                            type: {
-                                              type: 'string',
-                                              title: '图表类型',
-                                              enum: ['line', 'hist', 'ohlc', 'order', 'index'],
-                                            },
-                                            refs: {
-                                              type: 'array',
-                                              items: {
-                                                type: 'object',
-                                                required: ['data_index', 'column_name'],
-                                                properties: {
-                                                  data_index: { type: 'number', title: '数据源索引' },
-                                                  column_name: { type: 'string', title: '列名称' },
-                                                },
-                                              },
-                                            },
-                                          },
-                                        },
-                                      },
-                                    },
-                                  },
-                                },
-                              },
-                            },
-                          },
-                        },
-                      },
-                      config,
-                    );
-                    await fs.writeFile(params.filename, JSON.stringify(data, null, 2));
-                    refresh$.next();
-                    Toast.success('保存成功到 ' + params.filename);
-                  }}
-                />
-                <Button
-                  icon={<IconRefresh />}
-                  onClick={() => {
-                    refresh$.next();
-                  }}
-                />
-                <Select
-                  value={viewIndex}
-                  prefix="View"
-                  onSelect={onSelectView}
-                  optionList={config.views.map((item, index) => ({ value: index, label: item.name }))}
-                ></Select>
-              </>
-            }
-            view={config.views[viewIndex]}
-            data={data}
-          />
-        )}
-      </Space>
+      {config && (
+        <ChartComponent
+          topSlot={
+            <>
+              <Button
+                icon={<IconSetting />}
+                onClick={async () => {
+                  const data = await showForm<ITimeSeriesChartConfig>(schemaOfChartConfig, config);
+                  await fs.writeFile(params.filename, JSON.stringify(data, null, 2));
+                  refresh$.next();
+                  Toast.success('保存成功到 ' + params.filename);
+                }}
+              />
+              <Button
+                icon={<IconRefresh />}
+                onClick={() => {
+                  refresh$.next();
+                }}
+              />
+              <Select
+                value={viewIndex}
+                prefix="View"
+                onSelect={onSelectView}
+                optionList={config.views.map((item, index) => ({ value: index, label: item.name }))}
+              ></Select>
+            </>
+          }
+          view={config.views[viewIndex]}
+          data={data}
+          onViewChange={async (newView) => {
+            const newConfig = structuredClone(config);
+            newConfig.views[viewIndex] = newView;
+            await fs.writeFile(params.filename, JSON.stringify(newConfig, null, 2));
+            refresh$.next();
+            Toast.success('视图已更新');
+          }}
+        />
+      )}
     </Space>
   );
 });
