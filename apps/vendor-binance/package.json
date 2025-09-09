@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-binance",
-  "version": "0.6.5",
+  "version": "0.6.6",
   "bin": "lib/cli.js",
   "main": "lib/index.js",
   "files": [
@@ -20,6 +20,7 @@
     "@yuants/sql": "workspace:*",
     "@yuants/data-product": "workspace:*",
     "@yuants/data-ohlc": "workspace:*",
+    "@yuants/data-order": "workspace:*",
     "@yuants/data-interest-rate": "workspace:*",
     "@yuants/transfer": "workspace:*",
     "rxjs": "~7.5.6",

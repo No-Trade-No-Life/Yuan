@@ -17,6 +17,7 @@ import {
   from,
   fromEvent,
   groupBy,
+  interval,
   map,
   mergeMap,
   mergeWith,
@@ -37,18 +38,20 @@ import type SimplePeer from 'simple-peer';
 import { TerminalChannel } from './channel';
 import { TerminalClient } from './client';
 import { IConnection, createConnectionWs } from './create-connection';
+import { MetricsExporter, MetricsMeterProvider, PromRegistry } from './metrics';
 import {
   IServiceHandler,
   IServiceInfo,
   IServiceInfoServerSide,
   IServiceOptions,
   ITerminalInfo,
+  ITerminalMessage,
 } from './model';
 import { TerminalServer } from './server';
-import { IService, ITerminalMessage } from './services';
-import { MetricsExporter, PromRegistry, TerminalMeter } from './services/metrics';
 import { inferNodePackageTags } from './tags/inferVersionTags';
 import { getSimplePeerInstance } from './webrtc';
+
+const TerminalMeter = MetricsMeterProvider.getMeter('terminal');
 
 const TerminalReceivedBytesTotal = TerminalMeter.createCounter('terminal_received_bytes_total');
 const TerminalTransmittedBytesTotal = TerminalMeter.createCounter('terminal_transmitted_bytes_total');
@@ -204,81 +207,66 @@ export class Terminal {
   };
 
   private _setupTunnel() {
-    this._subscriptions.push(
-      from(this._conn.input$)
-        .pipe(
-          map((msg) => msg.toString()),
-          map((msg): ITerminalMessage => this._parseMsgFromWs(msg)),
-        )
-        .subscribe((msg) => {
-          if (msg.method) {
-            TerminalReceiveMassageTotal.add(1, {
-              target_terminal_id: msg.target_terminal_id,
-              source_terminal_id: msg.source_terminal_id,
-              tunnel: 'WS',
-              method: msg.method,
-            });
-          }
-          this._input$.next(msg);
-        }),
-    );
+    from(this._conn.input$)
+      .pipe(
+        takeUntil(this.dispose$),
+        map((msg) => msg.toString()),
+        map((msg): ITerminalMessage => this._parseMsgFromWs(msg)),
+      )
+      .subscribe((msg) => {
+        if (msg.method) {
+          TerminalReceiveMassageTotal.add(1, {
+            target_terminal_id: msg.target_terminal_id,
+            source_terminal_id: msg.source_terminal_id,
+            tunnel: 'WS',
+            method: msg.method,
+          });
+        }
+        this._input$.next(msg);
+      });
 
     if (this.terminalInfo.enable_WebRTC) {
       this._setupWebRTCTunnel();
     }
 
-    this._subscriptions.push(
-      this._output$.subscribe((msg) => {
-        // Local Loop Back Tunnel
-        if (msg.target_terminal_id === this.terminal_id) {
-          // ISSUE: Avoid infinite loop, so we should delay the loopback message
-          setTimeout(() => this._input$.next(msg));
-          return;
-        }
+    this._output$.pipe(takeUntil(this.dispose$)).subscribe((msg) => {
+      // Local Loop Back Tunnel
+      if (msg.target_terminal_id === this.terminal_id) {
+        // ISSUE: Avoid infinite loop, so we should delay the loopback message
+        setTimeout(() => this._input$.next(msg));
+        return;
+      }
 
-        // WebRTC Tunnel
-        const peerInfo = this._mapTerminalIdToPeer[msg.target_terminal_id];
-        if (msg.method) {
-          TerminalTransmittedMessageTotal.add(1, {
-            target_terminal_id: msg.target_terminal_id,
-            source_terminal_id: msg.source_terminal_id,
-            tunnel: peerInfo !== undefined && peerInfo.peer.connected ? 'WebRTC' : 'WS',
-            method: msg.method,
-          });
-        }
+      // WebRTC Tunnel
+      const peerInfo = this._mapTerminalIdToPeer[msg.target_terminal_id];
+      if (msg.method) {
+        TerminalTransmittedMessageTotal.add(1, {
+          target_terminal_id: msg.target_terminal_id,
+          source_terminal_id: msg.source_terminal_id,
+          tunnel: peerInfo !== undefined && peerInfo.peer.connected ? 'WebRTC' : 'WS',
+          method: msg.method,
+        });
+      }
 
-        // NOTE: reserve 32KB for other purpose
-        const reservedSize = 32 * 1024;
-        if (peerInfo && peerInfo.peer.connected && (peerInfo.maxMessageSize ?? 0) > reservedSize) {
-          const stringified = JSON.stringify(msg);
-          setTimeout(() => {
-            try {
-              const trace_id = UUID();
-              const chunkSize = peerInfo.maxMessageSize - reservedSize;
-              if (stringified.length > chunkSize) {
-                for (let i = 0; i < stringified.length; i += chunkSize) {
-                  const body = stringified.slice(i, i + chunkSize);
-                  if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
-                    console.info(
-                      formatTime(Date.now()),
-                      'Terminal',
-                      'WebRTC',
-                      'sent',
-                      `chunkSize: ${chunkSize}`,
-                      body.length,
-                    );
-                  }
-                  peerInfo.peer.send(
-                    JSON.stringify({
-                      trace_id,
-                      method: `WebRTC/Chunk`,
-                      source_terminal_id: msg.source_terminal_id,
-                      target_terminal_id: msg.target_terminal_id,
-                      frame: {
-                        seq: i / chunkSize,
-                        body,
-                      },
-                    }),
+      // NOTE: reserve 32KB for other purpose
+      const reservedSize = 32 * 1024;
+      if (peerInfo && peerInfo.peer.connected && (peerInfo.maxMessageSize ?? 0) > reservedSize) {
+        const stringified = JSON.stringify(msg);
+        setTimeout(() => {
+          try {
+            const trace_id = UUID();
+            const chunkSize = peerInfo.maxMessageSize - reservedSize;
+            if (stringified.length > chunkSize) {
+              for (let i = 0; i < stringified.length; i += chunkSize) {
+                const body = stringified.slice(i, i + chunkSize);
+                if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
+                  console.info(
+                    formatTime(Date.now()),
+                    'Terminal',
+                    'WebRTC',
+                    'sent',
+                    `chunkSize: ${chunkSize}`,
+                    body.length,
                   );
                 }
                 peerInfo.peer.send(
@@ -287,24 +275,36 @@ export class Terminal {
                     method: `WebRTC/Chunk`,
                     source_terminal_id: msg.source_terminal_id,
                     target_terminal_id: msg.target_terminal_id,
-                    res: { code: 200, message: 'OK' },
+                    frame: {
+                      seq: i / chunkSize,
+                      body,
+                    },
                   }),
                 );
-              } else {
-                peerInfo.peer.send(stringified);
               }
-            } catch (err) {
-              console.error(formatTime(Date.now()), 'Terminal', 'WebRTC', 'send', 'error', err);
-              // fall back to WS
-              this._sendMsgByWs(msg);
+              peerInfo.peer.send(
+                JSON.stringify({
+                  trace_id,
+                  method: `WebRTC/Chunk`,
+                  source_terminal_id: msg.source_terminal_id,
+                  target_terminal_id: msg.target_terminal_id,
+                  res: { code: 200, message: 'OK' },
+                }),
+              );
+            } else {
+              peerInfo.peer.send(stringified);
             }
-          });
-          return;
-        }
+          } catch (err) {
+            console.error(formatTime(Date.now()), 'Terminal', 'WebRTC', 'send', 'error', err);
+            // fall back to WS
+            this._sendMsgByWs(msg);
+          }
+        });
+        return;
+      }
 
-        this._sendMsgByWs(msg);
-      }),
-    );
+      this._sendMsgByWs(msg);
+    });
   }
 
   private _setupPeer(config: {
@@ -492,8 +492,8 @@ export class Terminal {
   private _setupWebRTCTunnel() {
     console.info(formatTime(Date.now()), 'Terminal', 'WebRTC', 'Setup');
 
-    this.provideService('WebRTC/Offer', {}, async (msg) => {
-      const { session_id, offer } = msg.req as { session_id: string; offer: any };
+    this.provideService<{ session_id: string; offer: any }>('WebRTC/Offer', {}, async (msg) => {
+      const { session_id, offer } = msg.req;
       if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
         console.info(
           formatTime(Date.now()),
@@ -555,7 +555,9 @@ export class Terminal {
         direction: 'Passive',
         remote_terminal_id: msg.source_terminal_id,
         onSignal: (data) => {
-          return from(this.request('WebRTC/Answer', msg.source_terminal_id, { session_id, answer: data }));
+          return from(
+            this.client.request('WebRTC/Answer', msg.source_terminal_id, { session_id, answer: data }),
+          );
         },
         onDestroy: () => {},
       });
@@ -564,8 +566,8 @@ export class Terminal {
       return { res: { code: 200, message: 'OK' } };
     });
 
-    this.provideService('WebRTC/Answer', {}, async (msg) => {
-      const { session_id, answer } = msg.req as { session_id: string; answer: any };
+    this.provideService<{ session_id: string; answer: any }>('WebRTC/Answer', {}, async (msg) => {
+      const { session_id, answer } = msg.req;
       if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
         console.info(
           formatTime(Date.now()),
@@ -589,167 +591,164 @@ export class Terminal {
       return { res: { code: 200, message: 'OK' } };
     });
 
-    this._subscriptions.push(
-      this._output$
-        .pipe(
-          map((msg) => msg.target_terminal_id),
-          filter((x) => x !== this.terminal_id),
-          groupBy((x) => x),
-          mergeMap((group) =>
-            group.pipe(
-              withLatestFrom(this._terminalInfos$),
-              exhaustMap(
-                ([target_terminal_id, terminal_infos]) =>
-                  new Observable((observer) => {
-                    if (
-                      !terminal_infos.find((x) => x.terminal_id === target_terminal_id && x.enable_WebRTC)
-                    ) {
-                      if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
-                        console.info(
-                          formatTime(Date.now()),
-                          'Terminal',
-                          'WebRTC',
-                          'Active',
-                          'not enabled for',
-                          target_terminal_id,
-                        );
-                      }
-                      observer.complete();
-                      return;
-                    }
-
-                    const peerInfo = this._mapTerminalIdToPeer[target_terminal_id];
-                    if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
-                      if (peerInfo !== undefined) {
-                        console.info(
-                          formatTime(Date.now()),
-                          'Terminal',
-                          'WebRTC',
-                          'Active',
-                          'already connected',
-                          peerInfo.session_id,
-                          target_terminal_id,
-                        );
-                        // NOTE: we don't complete the observer here to block the next active connection requests
-                        return;
-                      }
-                    }
-                    const session_id = UUID();
+    this._output$
+      .pipe(
+        takeUntil(this.dispose$),
+        map((msg) => msg.target_terminal_id),
+        filter((x) => x !== this.terminal_id),
+        groupBy((x) => x),
+        mergeMap((group) =>
+          group.pipe(
+            withLatestFrom(this._terminalInfos$),
+            exhaustMap(
+              ([target_terminal_id, terminal_infos]) =>
+                new Observable((observer) => {
+                  if (!terminal_infos.find((x) => x.terminal_id === target_terminal_id && x.enable_WebRTC)) {
                     if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
                       console.info(
                         formatTime(Date.now()),
                         'Terminal',
                         'WebRTC',
                         'Active',
-                        'connecting',
-                        session_id,
+                        'not enabled for',
                         target_terminal_id,
                       );
                     }
-                    const _ = this._setupPeer({
+                    observer.complete();
+                    return;
+                  }
+
+                  const peerInfo = this._mapTerminalIdToPeer[target_terminal_id];
+                  if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
+                    if (peerInfo !== undefined) {
+                      console.info(
+                        formatTime(Date.now()),
+                        'Terminal',
+                        'WebRTC',
+                        'Active',
+                        'already connected',
+                        peerInfo.session_id,
+                        target_terminal_id,
+                      );
+                      // NOTE: we don't complete the observer here to block the next active connection requests
+                      return;
+                    }
+                  }
+                  const session_id = UUID();
+                  if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
+                    console.info(
+                      formatTime(Date.now()),
+                      'Terminal',
+                      'WebRTC',
+                      'Active',
+                      'connecting',
                       session_id,
-                      direction: 'Active',
-                      remote_terminal_id: target_terminal_id,
-                      onSignal: (data) => {
-                        return from(
-                          this.request('WebRTC/Offer', target_terminal_id, { session_id, offer: data }),
-                        );
-                      },
-                      onDestroy: () => {
-                        observer.complete();
-                      },
-                    });
-                  }),
-              ),
+                      target_terminal_id,
+                    );
+                  }
+                  const _ = this._setupPeer({
+                    session_id,
+                    direction: 'Active',
+                    remote_terminal_id: target_terminal_id,
+                    onSignal: (data) => {
+                      return from(
+                        this.client.request('WebRTC/Offer', target_terminal_id, {
+                          session_id,
+                          offer: data,
+                        }),
+                      );
+                    },
+                    onDestroy: () => {
+                      observer.complete();
+                    },
+                  });
+                }),
             ),
           ),
-        )
-        .subscribe(),
-    );
+        ),
+      )
+      .subscribe();
   }
 
   private _setupTerminalInfoStuff() {
     // Periodically update the whole terminal list
-    this._subscriptions.push(
-      defer(() => this.request('ListTerminals', '@host', {}))
-        .pipe(
-          filter((msg) => !!msg.res),
-          map((msg) => msg.res?.data ?? []),
-          mergeMap((x) => x),
-          // ISSUE: filter out terminals that have not been updated for a long time
-          // filter((x) => Date.now() - x.updated_at! < 60_000),
-          toArray(),
-          timeout(5000),
-          retry({ delay: 1000 }),
-          // ISSUE: Storage workload
-          repeat({ delay: 10000 }),
-        )
-        .subscribe((list) => {
-          console.info(formatTime(Date.now()), 'Terminal', 'ListTerminalInfo', list.length);
-          this.terminalInfos = list;
-          this._terminalInfos$.next(list);
-        }),
-    );
+    defer(() => this.client.request<{}, ITerminalInfo[]>('ListTerminals', '@host', {}))
+      .pipe(
+        takeUntil(this.dispose$),
+        filter((msg) => !!msg.res),
+        map((msg) => msg.res?.data ?? []),
+        mergeMap((x) => x),
+        // ISSUE: filter out terminals that have not been updated for a long time
+        // filter((x) => Date.now() - x.updated_at! < 60_000),
+        toArray(),
+        timeout(5000),
+        retry({ delay: 1000 }),
+        // ISSUE: Storage workload
+        repeat({ delay: 10000 }),
+      )
+      .subscribe((list) => {
+        console.info(formatTime(Date.now()), 'Terminal', 'ListTerminalInfo', list.length);
+        this.terminalInfos = list;
+        this._terminalInfos$.next(list);
+      });
 
     // Receive TerminalInfo from the channel
-    this._subscriptions.push(
-      defer(() => this.channel.subscribeChannel<ITerminalInfo>('TerminalInfo'))
-        .pipe(
-          mergeMap((x) =>
-            this._terminalInfos$.pipe(
-              first(),
-              map((list) => {
-                const idx = list.findIndex((y) => y.terminal_id === x.terminal_id);
-                if (idx === -1) {
-                  return [...list, x];
-                }
-                list[idx] = x;
-                return list;
-              }),
-              tap((list) => {
-                console.info(
-                  formatTime(Date.now()),
-                  'Terminal',
-                  'TerminalInfoUpdate',
-                  x.terminal_id,
-                  list.length,
-                );
-                this.terminalInfos = list;
-                this._terminalInfos$.next(list);
-              }),
-            ),
+    defer(() => this.channel.subscribeChannel<ITerminalInfo>('TerminalInfo'))
+      .pipe(
+        takeUntil(this.dispose$),
+        mergeMap((x) =>
+          this._terminalInfos$.pipe(
+            first(),
+            map((list) => {
+              const idx = list.findIndex((y) => y.terminal_id === x.terminal_id);
+              if (idx === -1) {
+                return [...list, x];
+              }
+              list[idx] = x;
+              return list;
+            }),
+            tap((list) => {
+              console.info(
+                formatTime(Date.now()),
+                'Terminal',
+                'TerminalInfoUpdate',
+                x.terminal_id,
+                list.length,
+              );
+              this.terminalInfos = list;
+              this._terminalInfos$.next(list);
+            }),
           ),
-        )
-        .subscribe(),
-    );
+        ),
+      )
+      .subscribe();
 
-    this._subscriptions.push(
-      this._terminalInfoUpdated$
-        .pipe(
-          tap(() => console.info(formatTime(Date.now()), 'Terminal', 'terminalInfo', 'updating')),
-          debounceTime(10),
-          tap(() => (this.terminalInfo.updated_at = Date.now())),
-          tap(() => console.info(formatTime(Date.now()), 'Terminal', 'terminalInfo', 'pushing')),
-          // request maybe failed, so we should retry until success or cancelled by new pushing action
-          switchMap(() =>
-            defer(() => this.request('UpdateTerminalInfo', '@host', this.terminalInfo)).pipe(
-              tap((msg) =>
-                console.info(
-                  formatTime(Date.now()),
-                  'Terminal',
-                  'terminalInfo',
-                  'pushed',
-                  msg.res?.code,
-                  msg.trace_id,
-                ),
+    this._terminalInfoUpdated$
+      .pipe(
+        takeUntil(this.dispose$),
+        tap(() => console.info(formatTime(Date.now()), 'Terminal', 'terminalInfo', 'updating')),
+        debounceTime(10),
+        tap(() => (this.terminalInfo.updated_at = Date.now())),
+        tap(() => console.info(formatTime(Date.now()), 'Terminal', 'terminalInfo', 'pushing')),
+        // request maybe failed, so we should retry until success or cancelled by new pushing action
+        switchMap(() =>
+          defer(() => this.client.request('UpdateTerminalInfo', '@host', this.terminalInfo)).pipe(
+            tap((msg) =>
+              console.info(
+                formatTime(Date.now()),
+                'Terminal',
+                'terminalInfo',
+                'pushed',
+                msg.res?.code,
+                msg.trace_id,
               ),
-              timeout(5000),
-              retry({ delay: 1000 }),
             ),
+            timeout(5000),
+            retry({ delay: 1000 }),
           ),
-        )
-        .subscribe(() => {}),
-    );
+        ),
+      )
+      .subscribe();
 
     // while reconnection
     from(this._conn.connection$).subscribe(() => {
@@ -759,8 +758,6 @@ export class Terminal {
     // First Emit
     this._terminalInfoUpdated$.next();
   }
-
-  private _subscriptions: Subscription[] = [];
 
   private _input$ = new Subject<ITerminalMessage>();
   private _output$ = new Subject<ITerminalMessage>();
@@ -785,28 +782,16 @@ export class Terminal {
   dispose() {
     this._output$.complete();
     this._conn.output$.complete(); // close the WS connection
-    this._subscriptions.forEach((sub) => sub.unsubscribe());
     this._dispose$.next();
-  }
-
-  /**
-   * Make a request to specified terminal's service
-   */
-  request<T extends string>(
-    method: T,
-    target_terminal_id: string,
-    req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req'],
-  ): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage> {
-    return this.client.request(method, target_terminal_id, req);
   }
 
   /**
    * Provide a service
    */
-  provideService<T extends string>(
-    method: T,
+  provideService<TReq = {}, TRes = void, TFrame = void>(
+    method: string,
     requestSchema: JSONSchema7,
-    handler: IServiceHandler<T>,
+    handler: IServiceHandler<TReq, TRes, TFrame>,
     options?: IServiceOptions,
   ): { dispose: () => void } {
     const service_id = UUID();
@@ -832,63 +817,8 @@ export class Terminal {
     return { dispose };
   }
 
-  /**
-   * Resolve candidate target_terminal_ids for a request
-   */
-  resolveTargetTerminalIds = (method: string, req: ITerminalMessage['req']): Promise<string[]> => {
-    return this.client.resolveTargetTerminalIds(method, req);
-  };
-
-  /**
-   * Make a request to a service
-   *
-   * - [x] SINGLE-IN-SINGLE-OUT
-   * - [x] SINGLE-IN-STREAM-OUT
-   * - [ ] STREAM-IN-SINGLE-OUT
-   * - [ ] STREAM-IN-STREAM-OUT
-   */
-  requestService<T extends keyof IService>(
-    method: T,
-    req: IService[T]['req'],
-  ): Observable<Partial<IService[T]> & ITerminalMessage>;
-
-  requestService(method: string, req: ITerminalMessage['req']): Observable<ITerminalMessage>;
-
-  requestService(method: string, req: ITerminalMessage['req']): Observable<ITerminalMessage> {
-    return this.client.requestService(method, req);
-  }
-
-  /**
-   * Make a request to get the response
-   *
-   * Use it only when using SINGLE-IN-SINGLE-OUT pattern.
-   *
-   * It's simpler to call this method when using this pattern.
-   *
-   * - [x] SINGLE-IN-SINGLE-OUT
-   * - [ ] SINGLE-IN-STREAM-OUT
-   * - [ ] STREAM-IN-SINGLE-OUT
-   * - [ ] STREAM-IN-STREAM-OUT
-   */
-  requestForResponse<T extends keyof IService>(
-    method: T,
-    req: IService[T]['req'],
-  ): Promise<Exclude<(Partial<IService[T]> & ITerminalMessage)['res'], undefined>>;
-
-  requestForResponse(
-    method: string,
-    req: ITerminalMessage['req'],
-  ): Promise<Exclude<ITerminalMessage['res'], undefined>>;
-
-  requestForResponse(
-    method: string,
-    req: ITerminalMessage['req'],
-  ): Promise<Exclude<ITerminalMessage['res'], undefined>> {
-    return this.client.requestForResponse(method, req);
-  }
-
   private _setupDebugLog = () => {
-    const sub1 = this._input$.subscribe((msg) => {
+    this._input$.pipe(takeUntil(this.dispose$)).subscribe((msg) => {
       if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
         console.debug(
           formatTime(Date.now()),
@@ -901,7 +831,7 @@ export class Terminal {
         );
       }
     });
-    const sub2 = this._output$.subscribe((msg) => {
+    this._output$.pipe(takeUntil(this.dispose$)).subscribe((msg) => {
       if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
         console.debug(
           formatTime(Date.now()),
@@ -914,14 +844,13 @@ export class Terminal {
         );
       }
     });
-    this._subscriptions.push(sub1, sub2);
   };
 
   private _setupPredefinedServerHandlers = () => {
     this.provideService('Ping', {}, () => [{ res: { code: 0, message: 'Pong' } }]);
 
     if (!this.options.disableMetrics) {
-      this.provideService(
+      this.provideService<{}, { metrics: string }>(
         'Metrics',
         { type: 'object', properties: { terminal_id: { type: 'string', const: this.terminal_id } } },
         async () => {
@@ -939,30 +868,29 @@ export class Terminal {
 
     if (isNode) {
       // Setup Process Metrics
-      this._subscriptions.push(
-        timer(0, 5000)
-          .pipe(
-            tap(() => {
-              const usage = process.resourceUsage();
-              for (const key in usage) {
-                MetricsProcessResourceUsage.record(usage[key as keyof NodeJS.ResourceUsage], {
-                  type: key,
-                  terminal_id: this.terminal_id,
-                });
-              }
-            }),
-            tap(() => {
-              const usage = process.memoryUsage();
-              for (const key in usage) {
-                MetricsProcessMemoryUsage.record(usage[key as keyof NodeJS.MemoryUsage], {
-                  type: key,
-                  terminal_id: this.terminal_id,
-                });
-              }
-            }),
-          )
-          .subscribe(),
-      );
+      interval(5000)
+        .pipe(
+          takeUntil(this.dispose$),
+          tap(() => {
+            const usage = process.resourceUsage();
+            for (const key in usage) {
+              MetricsProcessResourceUsage.record(usage[key as keyof NodeJS.ResourceUsage], {
+                type: key,
+                terminal_id: this.terminal_id,
+              });
+            }
+          }),
+          tap(() => {
+            const usage = process.memoryUsage();
+            for (const key in usage) {
+              MetricsProcessMemoryUsage.record(usage[key as keyof NodeJS.MemoryUsage], {
+                type: key,
+                terminal_id: this.terminal_id,
+              });
+            }
+          }),
+        )
+        .subscribe();
 
       if (!this.options.disableTerminate) {
         this.provideService('Terminate', {}, function* () {

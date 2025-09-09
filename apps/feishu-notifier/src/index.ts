@@ -34,7 +34,18 @@ defer(() => terminal.input$)
   )
   .subscribe();
 
-terminal.provideService(
+terminal.provideService<{
+  /**
+   * Receiver ID parsed by Transport
+   * 由 Transport 解析的接收者 ID
+   */
+  receiver_id: string;
+  /**
+   * Message content
+   * 消息正文
+   */
+  message: string;
+}>(
   'Notify',
   {
     type: 'object',

@@ -13,9 +13,8 @@ import {
   tap,
   timeout,
 } from 'rxjs';
-import { IServiceInfoServerSide } from './model';
-import { ITerminalMessage } from './services';
-import { TerminalMeter } from './services/metrics';
+import { MetricsMeterProvider } from './metrics';
+import { IServiceInfoServerSide, ITerminalMessage } from './model';
 import { Terminal } from './terminal';
 
 // 1. Initialize: create a RequestContext
@@ -67,15 +66,35 @@ interface IServiceContext {
 }
 
 /**
- * Terminal Server
+ * Terminal Server Module
  *
- * @internal
+ * @public
  */
 export class TerminalServer {
   constructor(public readonly terminal: Terminal) {
     //
     this._setupServer();
     this._setupHeartbeat();
+    this._setMetrics();
+  }
+
+  private _setMetrics() {
+    interval(5000)
+      .pipe(takeUntil(this.terminal.dispose$))
+      .subscribe(() => {
+        this._mapServiceIdToServiceRuntimeContext.forEach((serviceContext) => {
+          RequestPendingTotal.record(serviceContext.pending.length, {
+            method: serviceContext.method,
+            service_id: serviceContext.service_id,
+            terminal_id: this.terminal.terminal_id,
+          });
+          RequestProcessingTotal.record(serviceContext.processing.size, {
+            method: serviceContext.method,
+            service_id: serviceContext.service_id,
+            terminal_id: this.terminal.terminal_id,
+          });
+        });
+      });
   }
 
   public mapServiceIdToService = new Map<string, IServiceInfoServerSide>();
@@ -326,7 +345,7 @@ export class TerminalServer {
 
       // ISSUE: from -> defer, make sure the error of handler will be caught
       defer(() =>
-        serviceContext.service.handler(message, {
+        serviceContext.service.handler(message as any, {
           isAborted$: requestContext.isAborted$,
         }),
       )
@@ -411,6 +430,8 @@ export class TerminalServer {
   }
 }
 
+const TerminalMeter = MetricsMeterProvider.getMeter('terminal-server');
+
 const RequestDurationBucket = TerminalMeter.createHistogram('terminal_request_duration_milliseconds', {
   description: 'terminal_request_duration_milliseconds Request Duration bucket in 1, 10, 100, 1000, 10000 ms',
   valueType: ValueType.INT,
@@ -421,4 +442,12 @@ const RequestDurationBucket = TerminalMeter.createHistogram('terminal_request_du
 
 const RequestReceivedTotal = TerminalMeter.createCounter('terminal_request_received_total', {
   description: 'terminal_request_received_total Request Received',
+});
+
+const RequestPendingTotal = TerminalMeter.createGauge('terminal_request_pending_total', {
+  description: 'terminal_request_pending_total Request Pending',
+});
+
+const RequestProcessingTotal = TerminalMeter.createGauge('terminal_request_processing_total', {
+  description: 'terminal_request_processing_total Request Processing',
 });

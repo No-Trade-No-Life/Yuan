@@ -1,6 +1,7 @@
 import { Terminal } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
 import { concatMap, defer, from, lastValueFrom, retry, tap } from 'rxjs';
+import { requestSQL } from './requestSQL';
 
 /**
  * @public
@@ -73,13 +74,7 @@ export const ExecuteMigrations = async (terminal: Terminal) => {
       concatMap((migration) =>
         defer(async () => {
           console.info(formatTime(Date.now()), `MigrationStart ${migration.id} ${migration.name}`);
-          const ensureMigrationsTableResult = await terminal.requestForResponse('SQL', {
-            query: createMigrationsTableSQL,
-          });
-          if (ensureMigrationsTableResult.code !== 0) {
-            console.error(formatTime(Date.now()), JSON.stringify(ensureMigrationsTableResult));
-            throw new Error("Failed to ensure 'migrations' table exists");
-          }
+          await requestSQL(terminal, createMigrationsTableSQL);
 
           if (migration.dependencies.length !== 0) {
             console.info(formatTime(Date.now()), `MigrationDepsCheckStart ${migration.id} ${migration.name}`);
@@ -87,16 +82,9 @@ export const ExecuteMigrations = async (terminal: Terminal) => {
               .map((id) => `'${id}'`)
               .join(', ')});`;
 
-            const checkDepsResult = await terminal.requestForResponse('SQL', {
-              query: checkDepsSQL,
-            });
+            const checkDepsResult = await requestSQL<any[]>(terminal, checkDepsSQL);
 
-            if (checkDepsResult.code !== 0) {
-              console.error(formatTime(Date.now()), JSON.stringify(checkDepsResult));
-              throw new Error(`Failed to check dependencies for migration ${migration.id}`);
-            }
-
-            const executedDeps = new Set((checkDepsResult.data as any[]).map((row: any) => row.id));
+            const executedDeps = new Set(checkDepsResult.map((row: any) => row.id));
 
             if (migration.dependencies.some((id) => !executedDeps.has(id))) {
               // Some dependencies are not met
@@ -108,14 +96,7 @@ export const ExecuteMigrations = async (terminal: Terminal) => {
 
           const migrationStatement = makeMigrationSQL(migration);
 
-          const migrationResult = await terminal.requestForResponse('SQL', {
-            query: migrationStatement,
-          });
-
-          if (migrationResult.code !== 0) {
-            console.error(formatTime(Date.now()), JSON.stringify(migrationResult));
-            throw new Error(`Failed to run migration ${migration.id}`);
-          }
+          const migrationResult = await requestSQL(terminal, migrationStatement);
 
           return migrationResult;
         }).pipe(

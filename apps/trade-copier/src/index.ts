@@ -683,7 +683,7 @@ async function setup() {
         from(orders).pipe(
           filter((order) => order.volume > 0),
           concatMap((order) =>
-            from(terminal.requestForResponse('SubmitOrder', order)).pipe(
+            from(terminal.client.requestForResponse('SubmitOrder', order)).pipe(
               tap(() => {
                 console.info(formatTime(Date.now()), `SucceedToSubmitOrder`, key, JSON.stringify(order));
               }),
@@ -721,7 +721,7 @@ async function setup() {
         from(orders).pipe(
           filter((order) => order.volume > 0),
           mergeMap((order) =>
-            from(terminal.requestForResponse('SubmitOrder', order)).pipe(
+            from(terminal.client.requestForResponse('SubmitOrder', order)).pipe(
               tap(() => {
                 console.info(formatTime(Date.now()), `SucceedToSubmitOrder`, key, JSON.stringify(order));
               }),

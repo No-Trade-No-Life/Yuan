@@ -89,6 +89,7 @@ public:
   void OnRspQryProduct(CThostFtdcProductField *pProduct, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
   void OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
   void OnRspQryDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQryTraderOffer(CThostFtdcTraderOfferField *pTraderOffer, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
   void OnRspQrySettlementInfo(CThostFtdcSettlementInfoField *pSettlementInfo, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
   void OnRspQryTransferBank(CThostFtdcTransferBankField *pTransferBank, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
   void OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDetailField *pInvestorPositionDetail, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
@@ -177,6 +178,39 @@ public:
   void OnRspQryCombPromotionParam(CThostFtdcCombPromotionParamField *pCombPromotionParam, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
   void OnRspQryRiskSettleInvstPosition(CThostFtdcRiskSettleInvstPositionField *pRiskSettleInvstPosition, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
   void OnRspQryRiskSettleProductStatus(CThostFtdcRiskSettleProductStatusField *pRiskSettleProductStatus, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQrySPBMFutureParameter(CThostFtdcSPBMFutureParameterField *pSPBMFutureParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQrySPBMOptionParameter(CThostFtdcSPBMOptionParameterField *pSPBMOptionParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQrySPBMIntraParameter(CThostFtdcSPBMIntraParameterField *pSPBMIntraParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQrySPBMInterParameter(CThostFtdcSPBMInterParameterField *pSPBMInterParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQrySPBMPortfDefinition(CThostFtdcSPBMPortfDefinitionField *pSPBMPortfDefinition, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQrySPBMInvestorPortfDef(CThostFtdcSPBMInvestorPortfDefField *pSPBMInvestorPortfDef, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQryInvestorPortfMarginRatio(CThostFtdcInvestorPortfMarginRatioField *pInvestorPortfMarginRatio, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQryInvestorProdSPBMDetail(CThostFtdcInvestorProdSPBMDetailField *pInvestorProdSPBMDetail, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQryInvestorCommoditySPMMMargin(CThostFtdcInvestorCommoditySPMMMarginField *pInvestorCommoditySPMMMargin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQryInvestorCommodityGroupSPMMMargin(CThostFtdcInvestorCommodityGroupSPMMMarginField *pInvestorCommodityGroupSPMMMargin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQrySPMMInstParam(CThostFtdcSPMMInstParamField *pSPMMInstParam, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQrySPMMProductParam(CThostFtdcSPMMProductParamField *pSPMMProductParam, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQrySPBMAddOnInterParameter(CThostFtdcSPBMAddOnInterParameterField *pSPBMAddOnInterParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQryRCAMSCombProductInfo(CThostFtdcRCAMSCombProductInfoField *pRCAMSCombProductInfo, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQryRCAMSInstrParameter(CThostFtdcRCAMSInstrParameterField *pRCAMSInstrParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQryRCAMSIntraParameter(CThostFtdcRCAMSIntraParameterField *pRCAMSIntraParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQryRCAMSInterParameter(CThostFtdcRCAMSInterParameterField *pRCAMSInterParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQryRCAMSShortOptAdjustParam(CThostFtdcRCAMSShortOptAdjustParamField *pRCAMSShortOptAdjustParam, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQryRCAMSInvestorCombPosition(CThostFtdcRCAMSInvestorCombPositionField *pRCAMSInvestorCombPosition, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQryInvestorProdRCAMSMargin(CThostFtdcInvestorProdRCAMSMarginField *pInvestorProdRCAMSMargin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQryRULEInstrParameter(CThostFtdcRULEInstrParameterField *pRULEInstrParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQryRULEIntraParameter(CThostFtdcRULEIntraParameterField *pRULEIntraParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQryRULEInterParameter(CThostFtdcRULEInterParameterField *pRULEInterParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQryInvestorProdRULEMargin(CThostFtdcInvestorProdRULEMarginField *pInvestorProdRULEMargin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQryInvestorPortfSetting(CThostFtdcInvestorPortfSettingField *pInvestorPortfSetting, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQryInvestorInfoCommRec(CThostFtdcInvestorInfoCommRecField *pInvestorInfoCommRec, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspQryCombLeg(CThostFtdcCombLegField *pCombLeg, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspOffsetSetting(CThostFtdcInputOffsetSettingField *pInputOffsetSetting, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRspCancelOffsetSetting(CThostFtdcInputOffsetSettingField *pInputOffsetSetting, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
+  void OnRtnOffsetSetting(CThostFtdcOffsetSettingField *pOffsetSetting) override;
+  void OnErrRtnOffsetSetting(CThostFtdcInputOffsetSettingField *pInputOffsetSetting, CThostFtdcRspInfoField *pRspInfo) override;
+  void OnErrRtnCancelOffsetSetting(CThostFtdcCancelOffsetSettingField *pCancelOffsetSetting, CThostFtdcRspInfoField *pRspInfo) override;
+  void OnRspQryOffsetSetting(CThostFtdcOffsetSettingField *pOffsetSetting, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
   static void ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock, zmq::socket_t *pull_sock);
   void Serve();
 };
@@ -1277,6 +1311,9 @@ void from_json(const json& j, CThostFtdcQryCombPromotionParamField& p);
 void to_json(json& j, const CThostFtdcCombPromotionParamField& p);
 void from_json(const json& j, CThostFtdcCombPromotionParamField& p);
 
+void to_json(json& j, const CThostFtdcReqUserLoginSMField& p);
+void from_json(const json& j, CThostFtdcReqUserLoginSMField& p);
+
 void to_json(json& j, const CThostFtdcQryRiskSettleInvstPositionField& p);
 void from_json(const json& j, CThostFtdcQryRiskSettleInvstPositionField& p);
 
@@ -1342,3 +1379,333 @@ void from_json(const json& j, CThostFtdcSyncDeltaIndexPriceField& p);
 
 void to_json(json& j, const CThostFtdcSyncDeltaEWarrantOffsetField& p);
 void from_json(const json& j, CThostFtdcSyncDeltaEWarrantOffsetField& p);
+
+void to_json(json& j, const CThostFtdcSPBMFutureParameterField& p);
+void from_json(const json& j, CThostFtdcSPBMFutureParameterField& p);
+
+void to_json(json& j, const CThostFtdcSPBMOptionParameterField& p);
+void from_json(const json& j, CThostFtdcSPBMOptionParameterField& p);
+
+void to_json(json& j, const CThostFtdcSPBMIntraParameterField& p);
+void from_json(const json& j, CThostFtdcSPBMIntraParameterField& p);
+
+void to_json(json& j, const CThostFtdcSPBMInterParameterField& p);
+void from_json(const json& j, CThostFtdcSPBMInterParameterField& p);
+
+void to_json(json& j, const CThostFtdcSyncSPBMParameterEndField& p);
+void from_json(const json& j, CThostFtdcSyncSPBMParameterEndField& p);
+
+void to_json(json& j, const CThostFtdcQrySPBMFutureParameterField& p);
+void from_json(const json& j, CThostFtdcQrySPBMFutureParameterField& p);
+
+void to_json(json& j, const CThostFtdcQrySPBMOptionParameterField& p);
+void from_json(const json& j, CThostFtdcQrySPBMOptionParameterField& p);
+
+void to_json(json& j, const CThostFtdcQrySPBMIntraParameterField& p);
+void from_json(const json& j, CThostFtdcQrySPBMIntraParameterField& p);
+
+void to_json(json& j, const CThostFtdcQrySPBMInterParameterField& p);
+void from_json(const json& j, CThostFtdcQrySPBMInterParameterField& p);
+
+void to_json(json& j, const CThostFtdcSPBMPortfDefinitionField& p);
+void from_json(const json& j, CThostFtdcSPBMPortfDefinitionField& p);
+
+void to_json(json& j, const CThostFtdcSPBMInvestorPortfDefField& p);
+void from_json(const json& j, CThostFtdcSPBMInvestorPortfDefField& p);
+
+void to_json(json& j, const CThostFtdcInvestorPortfMarginRatioField& p);
+void from_json(const json& j, CThostFtdcInvestorPortfMarginRatioField& p);
+
+void to_json(json& j, const CThostFtdcQrySPBMPortfDefinitionField& p);
+void from_json(const json& j, CThostFtdcQrySPBMPortfDefinitionField& p);
+
+void to_json(json& j, const CThostFtdcQrySPBMInvestorPortfDefField& p);
+void from_json(const json& j, CThostFtdcQrySPBMInvestorPortfDefField& p);
+
+void to_json(json& j, const CThostFtdcQryInvestorPortfMarginRatioField& p);
+void from_json(const json& j, CThostFtdcQryInvestorPortfMarginRatioField& p);
+
+void to_json(json& j, const CThostFtdcInvestorProdSPBMDetailField& p);
+void from_json(const json& j, CThostFtdcInvestorProdSPBMDetailField& p);
+
+void to_json(json& j, const CThostFtdcQryInvestorProdSPBMDetailField& p);
+void from_json(const json& j, CThostFtdcQryInvestorProdSPBMDetailField& p);
+
+void to_json(json& j, const CThostFtdcPortfTradeParamSettingField& p);
+void from_json(const json& j, CThostFtdcPortfTradeParamSettingField& p);
+
+void to_json(json& j, const CThostFtdcInvestorTradingRightField& p);
+void from_json(const json& j, CThostFtdcInvestorTradingRightField& p);
+
+void to_json(json& j, const CThostFtdcMortgageParamField& p);
+void from_json(const json& j, CThostFtdcMortgageParamField& p);
+
+void to_json(json& j, const CThostFtdcWithDrawParamField& p);
+void from_json(const json& j, CThostFtdcWithDrawParamField& p);
+
+void to_json(json& j, const CThostFtdcThostUserFunctionField& p);
+void from_json(const json& j, CThostFtdcThostUserFunctionField& p);
+
+void to_json(json& j, const CThostFtdcQryThostUserFunctionField& p);
+void from_json(const json& j, CThostFtdcQryThostUserFunctionField& p);
+
+void to_json(json& j, const CThostFtdcSPBMAddOnInterParameterField& p);
+void from_json(const json& j, CThostFtdcSPBMAddOnInterParameterField& p);
+
+void to_json(json& j, const CThostFtdcQrySPBMAddOnInterParameterField& p);
+void from_json(const json& j, CThostFtdcQrySPBMAddOnInterParameterField& p);
+
+void to_json(json& j, const CThostFtdcQryInvestorCommoditySPMMMarginField& p);
+void from_json(const json& j, CThostFtdcQryInvestorCommoditySPMMMarginField& p);
+
+void to_json(json& j, const CThostFtdcQryInvestorCommodityGroupSPMMMarginField& p);
+void from_json(const json& j, CThostFtdcQryInvestorCommodityGroupSPMMMarginField& p);
+
+void to_json(json& j, const CThostFtdcQrySPMMInstParamField& p);
+void from_json(const json& j, CThostFtdcQrySPMMInstParamField& p);
+
+void to_json(json& j, const CThostFtdcQrySPMMProductParamField& p);
+void from_json(const json& j, CThostFtdcQrySPMMProductParamField& p);
+
+void to_json(json& j, const CThostFtdcInvestorCommoditySPMMMarginField& p);
+void from_json(const json& j, CThostFtdcInvestorCommoditySPMMMarginField& p);
+
+void to_json(json& j, const CThostFtdcInvestorCommodityGroupSPMMMarginField& p);
+void from_json(const json& j, CThostFtdcInvestorCommodityGroupSPMMMarginField& p);
+
+void to_json(json& j, const CThostFtdcSPMMInstParamField& p);
+void from_json(const json& j, CThostFtdcSPMMInstParamField& p);
+
+void to_json(json& j, const CThostFtdcSPMMProductParamField& p);
+void from_json(const json& j, CThostFtdcSPMMProductParamField& p);
+
+void to_json(json& j, const CThostFtdcQryTraderAssignField& p);
+void from_json(const json& j, CThostFtdcQryTraderAssignField& p);
+
+void to_json(json& j, const CThostFtdcTraderAssignField& p);
+void from_json(const json& j, CThostFtdcTraderAssignField& p);
+
+void to_json(json& j, const CThostFtdcInvestorInfoCntSettingField& p);
+void from_json(const json& j, CThostFtdcInvestorInfoCntSettingField& p);
+
+void to_json(json& j, const CThostFtdcRCAMSCombProductInfoField& p);
+void from_json(const json& j, CThostFtdcRCAMSCombProductInfoField& p);
+
+void to_json(json& j, const CThostFtdcRCAMSInstrParameterField& p);
+void from_json(const json& j, CThostFtdcRCAMSInstrParameterField& p);
+
+void to_json(json& j, const CThostFtdcRCAMSIntraParameterField& p);
+void from_json(const json& j, CThostFtdcRCAMSIntraParameterField& p);
+
+void to_json(json& j, const CThostFtdcRCAMSInterParameterField& p);
+void from_json(const json& j, CThostFtdcRCAMSInterParameterField& p);
+
+void to_json(json& j, const CThostFtdcRCAMSShortOptAdjustParamField& p);
+void from_json(const json& j, CThostFtdcRCAMSShortOptAdjustParamField& p);
+
+void to_json(json& j, const CThostFtdcRCAMSInvestorCombPositionField& p);
+void from_json(const json& j, CThostFtdcRCAMSInvestorCombPositionField& p);
+
+void to_json(json& j, const CThostFtdcInvestorProdRCAMSMarginField& p);
+void from_json(const json& j, CThostFtdcInvestorProdRCAMSMarginField& p);
+
+void to_json(json& j, const CThostFtdcQryRCAMSCombProductInfoField& p);
+void from_json(const json& j, CThostFtdcQryRCAMSCombProductInfoField& p);
+
+void to_json(json& j, const CThostFtdcQryRCAMSInstrParameterField& p);
+void from_json(const json& j, CThostFtdcQryRCAMSInstrParameterField& p);
+
+void to_json(json& j, const CThostFtdcQryRCAMSIntraParameterField& p);
+void from_json(const json& j, CThostFtdcQryRCAMSIntraParameterField& p);
+
+void to_json(json& j, const CThostFtdcQryRCAMSInterParameterField& p);
+void from_json(const json& j, CThostFtdcQryRCAMSInterParameterField& p);
+
+void to_json(json& j, const CThostFtdcQryRCAMSShortOptAdjustParamField& p);
+void from_json(const json& j, CThostFtdcQryRCAMSShortOptAdjustParamField& p);
+
+void to_json(json& j, const CThostFtdcQryRCAMSInvestorCombPositionField& p);
+void from_json(const json& j, CThostFtdcQryRCAMSInvestorCombPositionField& p);
+
+void to_json(json& j, const CThostFtdcQryInvestorProdRCAMSMarginField& p);
+void from_json(const json& j, CThostFtdcQryInvestorProdRCAMSMarginField& p);
+
+void to_json(json& j, const CThostFtdcRULEInstrParameterField& p);
+void from_json(const json& j, CThostFtdcRULEInstrParameterField& p);
+
+void to_json(json& j, const CThostFtdcRULEIntraParameterField& p);
+void from_json(const json& j, CThostFtdcRULEIntraParameterField& p);
+
+void to_json(json& j, const CThostFtdcRULEInterParameterField& p);
+void from_json(const json& j, CThostFtdcRULEInterParameterField& p);
+
+void to_json(json& j, const CThostFtdcQryRULEInstrParameterField& p);
+void from_json(const json& j, CThostFtdcQryRULEInstrParameterField& p);
+
+void to_json(json& j, const CThostFtdcQryRULEIntraParameterField& p);
+void from_json(const json& j, CThostFtdcQryRULEIntraParameterField& p);
+
+void to_json(json& j, const CThostFtdcQryRULEInterParameterField& p);
+void from_json(const json& j, CThostFtdcQryRULEInterParameterField& p);
+
+void to_json(json& j, const CThostFtdcInvestorProdRULEMarginField& p);
+void from_json(const json& j, CThostFtdcInvestorProdRULEMarginField& p);
+
+void to_json(json& j, const CThostFtdcQryInvestorProdRULEMarginField& p);
+void from_json(const json& j, CThostFtdcQryInvestorProdRULEMarginField& p);
+
+void to_json(json& j, const CThostFtdcSyncDeltaSPBMPortfDefinitionField& p);
+void from_json(const json& j, CThostFtdcSyncDeltaSPBMPortfDefinitionField& p);
+
+void to_json(json& j, const CThostFtdcSyncDeltaSPBMInvstPortfDefField& p);
+void from_json(const json& j, CThostFtdcSyncDeltaSPBMInvstPortfDefField& p);
+
+void to_json(json& j, const CThostFtdcSyncDeltaSPBMFutureParameterField& p);
+void from_json(const json& j, CThostFtdcSyncDeltaSPBMFutureParameterField& p);
+
+void to_json(json& j, const CThostFtdcSyncDeltaSPBMOptionParameterField& p);
+void from_json(const json& j, CThostFtdcSyncDeltaSPBMOptionParameterField& p);
+
+void to_json(json& j, const CThostFtdcSyncDeltaSPBMIntraParameterField& p);
+void from_json(const json& j, CThostFtdcSyncDeltaSPBMIntraParameterField& p);
+
+void to_json(json& j, const CThostFtdcSyncDeltaSPBMInterParameterField& p);
+void from_json(const json& j, CThostFtdcSyncDeltaSPBMInterParameterField& p);
+
+void to_json(json& j, const CThostFtdcSyncDeltaSPBMAddOnInterParamField& p);
+void from_json(const json& j, CThostFtdcSyncDeltaSPBMAddOnInterParamField& p);
+
+void to_json(json& j, const CThostFtdcSyncDeltaSPMMInstParamField& p);
+void from_json(const json& j, CThostFtdcSyncDeltaSPMMInstParamField& p);
+
+void to_json(json& j, const CThostFtdcSyncDeltaSPMMProductParamField& p);
+void from_json(const json& j, CThostFtdcSyncDeltaSPMMProductParamField& p);
+
+void to_json(json& j, const CThostFtdcSyncDeltaInvestorSPMMModelField& p);
+void from_json(const json& j, CThostFtdcSyncDeltaInvestorSPMMModelField& p);
+
+void to_json(json& j, const CThostFtdcSyncDeltaSPMMModelParamField& p);
+void from_json(const json& j, CThostFtdcSyncDeltaSPMMModelParamField& p);
+
+void to_json(json& j, const CThostFtdcSyncDeltaRCAMSCombProdInfoField& p);
+void from_json(const json& j, CThostFtdcSyncDeltaRCAMSCombProdInfoField& p);
+
+void to_json(json& j, const CThostFtdcSyncDeltaRCAMSInstrParameterField& p);
+void from_json(const json& j, CThostFtdcSyncDeltaRCAMSInstrParameterField& p);
+
+void to_json(json& j, const CThostFtdcSyncDeltaRCAMSIntraParameterField& p);
+void from_json(const json& j, CThostFtdcSyncDeltaRCAMSIntraParameterField& p);
+
+void to_json(json& j, const CThostFtdcSyncDeltaRCAMSInterParameterField& p);
+void from_json(const json& j, CThostFtdcSyncDeltaRCAMSInterParameterField& p);
+
+void to_json(json& j, const CThostFtdcSyncDeltaRCAMSSOptAdjParamField& p);
+void from_json(const json& j, CThostFtdcSyncDeltaRCAMSSOptAdjParamField& p);
+
+void to_json(json& j, const CThostFtdcSyncDeltaRCAMSCombRuleDtlField& p);
+void from_json(const json& j, CThostFtdcSyncDeltaRCAMSCombRuleDtlField& p);
+
+void to_json(json& j, const CThostFtdcSyncDeltaRCAMSInvstCombPosField& p);
+void from_json(const json& j, CThostFtdcSyncDeltaRCAMSInvstCombPosField& p);
+
+void to_json(json& j, const CThostFtdcSyncDeltaRULEInstrParameterField& p);
+void from_json(const json& j, CThostFtdcSyncDeltaRULEInstrParameterField& p);
+
+void to_json(json& j, const CThostFtdcSyncDeltaRULEIntraParameterField& p);
+void from_json(const json& j, CThostFtdcSyncDeltaRULEIntraParameterField& p);
+
+void to_json(json& j, const CThostFtdcSyncDeltaRULEInterParameterField& p);
+void from_json(const json& j, CThostFtdcSyncDeltaRULEInterParameterField& p);
+
+void to_json(json& j, const CThostFtdcIpAddrParamField& p);
+void from_json(const json& j, CThostFtdcIpAddrParamField& p);
+
+void to_json(json& j, const CThostFtdcQryIpAddrParamField& p);
+void from_json(const json& j, CThostFtdcQryIpAddrParamField& p);
+
+void to_json(json& j, const CThostFtdcTGIpAddrParamField& p);
+void from_json(const json& j, CThostFtdcTGIpAddrParamField& p);
+
+void to_json(json& j, const CThostFtdcQryTGIpAddrParamField& p);
+void from_json(const json& j, CThostFtdcQryTGIpAddrParamField& p);
+
+void to_json(json& j, const CThostFtdcTGSessionQryStatusField& p);
+void from_json(const json& j, CThostFtdcTGSessionQryStatusField& p);
+
+void to_json(json& j, const CThostFtdcLocalAddrConfigField& p);
+void from_json(const json& j, CThostFtdcLocalAddrConfigField& p);
+
+void to_json(json& j, const CThostFtdcQryLocalAddrConfigField& p);
+void from_json(const json& j, CThostFtdcQryLocalAddrConfigField& p);
+
+void to_json(json& j, const CThostFtdcReqQueryBankAccountBySecField& p);
+void from_json(const json& j, CThostFtdcReqQueryBankAccountBySecField& p);
+
+void to_json(json& j, const CThostFtdcRspQueryBankAccountBySecField& p);
+void from_json(const json& j, CThostFtdcRspQueryBankAccountBySecField& p);
+
+void to_json(json& j, const CThostFtdcReqTransferBySecField& p);
+void from_json(const json& j, CThostFtdcReqTransferBySecField& p);
+
+void to_json(json& j, const CThostFtdcRspTransferBySecField& p);
+void from_json(const json& j, CThostFtdcRspTransferBySecField& p);
+
+void to_json(json& j, const CThostFtdcNotifyQueryFutureAccountBySecField& p);
+void from_json(const json& j, CThostFtdcNotifyQueryFutureAccountBySecField& p);
+
+void to_json(json& j, const CThostFtdcExitEmergencyField& p);
+void from_json(const json& j, CThostFtdcExitEmergencyField& p);
+
+void to_json(json& j, const CThostFtdcInvestorPortfMarginModelField& p);
+void from_json(const json& j, CThostFtdcInvestorPortfMarginModelField& p);
+
+void to_json(json& j, const CThostFtdcInvestorPortfSettingField& p);
+void from_json(const json& j, CThostFtdcInvestorPortfSettingField& p);
+
+void to_json(json& j, const CThostFtdcQryInvestorPortfSettingField& p);
+void from_json(const json& j, CThostFtdcQryInvestorPortfSettingField& p);
+
+void to_json(json& j, const CThostFtdcUserPasswordUpdateFromSecField& p);
+void from_json(const json& j, CThostFtdcUserPasswordUpdateFromSecField& p);
+
+void to_json(json& j, const CThostFtdcSettlementInfoConfirmFromSecField& p);
+void from_json(const json& j, CThostFtdcSettlementInfoConfirmFromSecField& p);
+
+void to_json(json& j, const CThostFtdcTradingAccountPasswordUpdateFromSecField& p);
+void from_json(const json& j, CThostFtdcTradingAccountPasswordUpdateFromSecField& p);
+
+void to_json(json& j, const CThostFtdcRiskForbiddenRightField& p);
+void from_json(const json& j, CThostFtdcRiskForbiddenRightField& p);
+
+void to_json(json& j, const CThostFtdcInvestorInfoCommRecField& p);
+void from_json(const json& j, CThostFtdcInvestorInfoCommRecField& p);
+
+void to_json(json& j, const CThostFtdcQryInvestorInfoCommRecField& p);
+void from_json(const json& j, CThostFtdcQryInvestorInfoCommRecField& p);
+
+void to_json(json& j, const CThostFtdcCombLegField& p);
+void from_json(const json& j, CThostFtdcCombLegField& p);
+
+void to_json(json& j, const CThostFtdcQryCombLegField& p);
+void from_json(const json& j, CThostFtdcQryCombLegField& p);
+
+void to_json(json& j, const CThostFtdcInputOffsetSettingField& p);
+void from_json(const json& j, CThostFtdcInputOffsetSettingField& p);
+
+void to_json(json& j, const CThostFtdcOffsetSettingField& p);
+void from_json(const json& j, CThostFtdcOffsetSettingField& p);
+
+void to_json(json& j, const CThostFtdcCancelOffsetSettingField& p);
+void from_json(const json& j, CThostFtdcCancelOffsetSettingField& p);
+
+void to_json(json& j, const CThostFtdcQryOffsetSettingField& p);
+void from_json(const json& j, CThostFtdcQryOffsetSettingField& p);
+
+void to_json(json& j, const CThostFtdcAddrAppIDRelationField& p);
+void from_json(const json& j, CThostFtdcAddrAppIDRelationField& p);
+
+void to_json(json& j, const CThostFtdcQryAddrAppIDRelationField& p);
+void from_json(const json& j, CThostFtdcQryAddrAppIDRelationField& p);
+
+void to_json(json& j, const CThostFtdcFrontInfoField& p);
+void from_json(const json& j, CThostFtdcFrontInfoField& p);

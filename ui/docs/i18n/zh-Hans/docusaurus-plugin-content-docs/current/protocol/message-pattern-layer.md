@@ -61,7 +61,7 @@ terminal.provideService(
 
 ```ts
 // message$ 是由服务器返回的消息流 (AsyncIterable)
-const message$ = terminal.requestService('SubmitOrder', {
+const message$ = terminal.client.requestService('SubmitOrder', {
   account_id: 'MyAccountId',
   // ... 其他字段省略
 });

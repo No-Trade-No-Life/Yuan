@@ -49,7 +49,9 @@ export class TerminalChannel {
     channelSchema: JSONSchema7 | undefined,
     handler: (channel_id: string) => ObservableInput<T>,
   ) {
-    return this.terminal.provideService(
+    return this.terminal.provideService<{
+      channel_id: string;
+    }>(
       // ISSUE: 将频道类型作为服务名为了优化方法索引速度，因为频道类型是常量，主机内会有很多不同类型的频道
       encodePath('SubscribeChannel', type),
       {
@@ -66,11 +68,7 @@ export class TerminalChannel {
         },
       },
       (msg) => {
-        const channel_id = (
-          msg.req as {
-            channel_id: string;
-          }
-        ).channel_id;
+        const channel_id = msg.req.channel_id;
 
         const typeAndChannelId = encodePath(type, channel_id);
         if (!this._mapTypeAndChannelIdToPublishedObservable$.get(typeAndChannelId)) {
@@ -166,9 +164,12 @@ export class TerminalChannel {
       this._mapTypeAndChannelIdToSubscribedObservable$.set(
         typeAndChannelId,
         defer(() =>
-          this.terminal.client.requestService(encodePath('SubscribeChannel', type), { channel_id }),
+          this.terminal.client.requestService<{ channel_id: string }, void, { value: any }>(
+            encodePath('SubscribeChannel', type),
+            { channel_id },
+          ),
         ).pipe(
-          map((msg) => (msg.frame as { value: any })?.value as T | undefined),
+          map((msg) => msg.frame?.value as T | undefined),
           filter((x): x is T => !!x),
           // Auto re-subscribe when the connection is broken
           repeat({ delay: 1000 }), // ISSUE: Server maybe response 504 if timeout

@@ -15,6 +15,22 @@ registerPage('TradeCopyRelationList', () => {
   return (
     <DataRecordView
       TYPE="trade_copy_relation"
+      schema={{
+        type: 'object',
+        properties: {
+          source_account_id: { type: 'string', title: '源账户 ID', format: 'account_id' },
+          source_product_id: { type: 'string', title: '源品种 ID', default: '' },
+          target_account_id: { type: 'string', title: '目标账户 ID', format: 'account_id' },
+          target_product_id: { type: 'string', title: '目标品种 ID', default: '' },
+          multiple: { type: 'number', title: '头寸倍数', default: 1 },
+          exclusive_comment_pattern: {
+            type: 'string',
+            title: '根据正则表达式匹配头寸的备注 (黑名单)',
+            default: '',
+          },
+          disabled: { type: 'boolean', title: '禁用', default: false },
+        },
+      }}
       columns={(ctx) => {
         const columnHelper = createColumnHelper<ITradeCopyRelation>();
         return [

@@ -39,7 +39,7 @@ describe('terminal', () => {
     await lastValueFrom(
       range(0, 10).pipe(
         //
-        mergeMap(() => client.request('test', 'ut/server', {})),
+        mergeMap(() => client.client.request('test', 'ut/server', {})),
       ),
     );
   });

@@ -61,7 +61,7 @@ terminal.provideService(
 
 ```ts
 // message$ is the stream of messages (AsyncIterable) returned by the server
-const message$ = terminal.requestService('SubmitOrder', {
+const message$ = terminal.client.requestService('SubmitOrder', {
   account_id: 'MyAccountId',
   // ... other fields omitted
 });

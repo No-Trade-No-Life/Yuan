@@ -1,7 +1,6 @@
 import { ValidateFunction } from 'ajv';
 import { JSONSchema7 } from 'json-schema';
 import { Observable, ObservableInput } from 'rxjs';
-import { IService, ITerminalMessage } from './services';
 
 /**
  * ServiceInfo
@@ -161,25 +160,12 @@ export interface IServiceOptions {
 /**
  * @internal
  */
-export type IServiceHandler<T extends string = string> = T extends keyof IService
-  ? (
-      msg: ITerminalMessage & Pick<IService[T], 'req'> & { method: T },
-      ctx: {
-        isAborted$: Observable<boolean>;
-      },
-    ) => ObservableInput<
-      Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> &
-        Partial<Pick<IService[T], 'res' | 'frame'>>
-    >
-  : // ISSUE: Allow custom methods between terminals
-    (
-      msg: ITerminalMessage,
-      ctx: {
-        isAborted$: Observable<boolean>;
-      },
-    ) => ObservableInput<
-      Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>
-    >;
+export type IServiceHandler<TReq = {}, TRes = void, TFrame = void> = (
+  msg: ITerminalMessage & { req: TReq },
+  ctx: {
+    isAborted$: Observable<boolean>;
+  },
+) => ObservableInput<{ res?: IResponse<TRes>; frame?: TFrame }>;
 
 /**
  * @internal
@@ -200,4 +186,41 @@ export interface IServiceCandidateClientSide {
   serviceInfo: IServiceInfo;
   terminal_id: string;
   validator?: ValidateFunction;
+}
+
+/**
+ * Message format for terminal communication
+ * 终端通讯时的消息格式
+ * @public
+ */
+export interface ITerminalMessage {
+  source_terminal_id: string;
+  target_terminal_id: string;
+  trace_id: string;
+
+  method?: string;
+
+  req?: unknown;
+  res?: IResponse<unknown>;
+  frame?: unknown;
+  /**
+   * if true, both client and server should close the session defined by `trace_id`
+   */
+  done?: boolean;
+}
+/**
+ * Response body for operations with side effects
+ * 有副作用的操作的执行响应体
+ * @public
+ */
+export interface IResponse<T = void> {
+  /**
+   * Code for Error Handling
+   *
+   * - String Code is recommended for business errors, e.g. "AccountNotExist"
+   * - Number Code is recommended for transport errors, e.g. 404, 503, etc.
+   */
+  code: number | string;
+  message: string;
+  data?: T;
 }

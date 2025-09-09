@@ -1,37 +1,10 @@
-import { IResponse, Terminal } from '@yuants/protocol';
+import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
 import { MonoTypeOperatorFunction, Observable, Subject, tap } from 'rxjs';
 import { createBufferWriter } from './bufferWriter';
+import { requestSQL } from './requestSQL';
 export * from './migration';
-
-declare module '@yuants/protocol' {
-  interface IService {
-    SQL: {
-      req: {
-        query: string;
-      };
-      res: IResponse<any[]>;
-      frame: {};
-    };
-  }
-}
-
-/**
- * 执行 SQL 语句
- *
- * @public
- */
-export const requestSQL = async <T = unknown>(terminal: Terminal, query: string): Promise<T> => {
-  const result = await terminal.requestForResponse('SQL', {
-    query,
-  });
-
-  if (result.code !== 0) {
-    throw new Error(`Failed to run SQL query: ${query}, message: ${result.message}`);
-  }
-
-  return result.data as any as T;
-};
+export * from './requestSQL';
 
 /**
  * 进行值的转义，防止 SQL 注入

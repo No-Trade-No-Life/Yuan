@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-bitget",
-  "version": "0.5.5",
+  "version": "0.5.6",
   "bin": "lib/cli.js",
   "main": "lib/index.js",
   "files": [
@@ -20,6 +20,7 @@
     "@yuants/utils": "workspace:*",
     "@yuants/data-product": "workspace:*",
     "@yuants/data-ohlc": "workspace:*",
+    "@yuants/data-order": "workspace:*",
     "@yuants/data-quote": "workspace:*",
     "@yuants/data-series": "workspace:*",
     "@yuants/data-interest-rate": "workspace:*",

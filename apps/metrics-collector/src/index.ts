@@ -22,57 +22,63 @@ const MetricTerminalMetricFetchErrorsTotal = PromRegistry.create(
   'terminal_metrics_fetch_errors_total terminal metrics fetch error',
 );
 
-terminal.provideService('/external/prometheus/metrics', {}, async () => {
-  try {
-    const metrics = await firstValueFrom(
-      from(terminal.terminalInfos).pipe(
-        //
-        mergeMap((info) =>
-          defer(() => terminal.request('Metrics', info.terminal_id, {})).pipe(
-            //
-            map((data) => data.res?.data?.metrics),
-            filter((v): v is Exclude<typeof v, undefined> => !!v),
-            map((content) =>
-              [
-                // ISSUE: Add a comment to the beginning of the file to indicate the terminal_id
-                `# TERMINAL "${info.terminal_id}" START`,
-                content,
-                `# TERMINAL "${info.terminal_id}" END`,
-              ].join('\n'),
+terminal.provideService<{}, { status: number; headers?: Record<string, string>; body: string }>(
+  '/external/prometheus/metrics',
+  {},
+  async () => {
+    try {
+      const metrics = await firstValueFrom(
+        from(terminal.terminalInfos).pipe(
+          //
+          mergeMap((info) =>
+            defer(() =>
+              terminal.client.request<{}, { metrics: string }>('Metrics', info.terminal_id, {}),
+            ).pipe(
+              //
+              map((data) => data.res?.data?.metrics),
+              filter((v): v is Exclude<typeof v, undefined> => !!v),
+              map((content) =>
+                [
+                  // ISSUE: Add a comment to the beginning of the file to indicate the terminal_id
+                  `# TERMINAL "${info.terminal_id}" START`,
+                  content,
+                  `# TERMINAL "${info.terminal_id}" END`,
+                ].join('\n'),
+              ),
+              tap(() => {
+                MetricTerminalMetricFetchErrorsTotal.add(0, { terminal_id: info.terminal_id });
+              }),
+              timeout({ each: 5000, meta: `RequestMetrics for ${info.terminal_id} Timeout` }),
+              catchError((err) => {
+                console.error(`RequestMetrics for ${info.terminal_id} timeout`, err);
+                MetricTerminalMetricFetchErrorsTotal.inc({ terminal_id: info.terminal_id });
+                return EMPTY;
+              }),
             ),
-            tap(() => {
-              MetricTerminalMetricFetchErrorsTotal.add(0, { terminal_id: info.terminal_id });
-            }),
-            timeout({ each: 5000, meta: `RequestMetrics for ${info.terminal_id} Timeout` }),
-            catchError((err) => {
-              console.error(`RequestMetrics for ${info.terminal_id} timeout`, err);
-              MetricTerminalMetricFetchErrorsTotal.inc({ terminal_id: info.terminal_id });
-              return EMPTY;
-            }),
           ),
+          toArray(),
+          tap((metrics) => {
+            console.debug(formatTime(Date.now()), `MetricsFetched from terminals: ${metrics.length}`);
+          }),
+          map((metrics) => metrics.join('\n')),
         ),
-        toArray(),
-        tap((metrics) => {
-          console.debug(formatTime(Date.now()), `MetricsFetched from terminals: ${metrics.length}`);
-        }),
-        map((metrics) => metrics.join('\n')),
-      ),
-    );
+      );
 
-    return {
-      res: {
-        code: 0,
-        message: 'OK',
-        data: {
-          status: 200,
-          headers: {
-            'Content-Type': 'text/plain; version=0.0.4; charset=utf-8',
+      return {
+        res: {
+          code: 0,
+          message: 'OK',
+          data: {
+            status: 200,
+            headers: {
+              'Content-Type': 'text/plain; version=0.0.4; charset=utf-8',
+            },
+            body: metrics,
           },
-          body: metrics,
         },
-      },
-    };
-  } catch {
-    return { res: { code: 0, message: 'OK', data: { status: 500, body: '' } } };
-  }
-});
+      };
+    } catch {
+      return { res: { code: 0, message: 'OK', data: { status: 500, body: '' } } };
+    }
+  },
+);

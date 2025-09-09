@@ -10,11 +10,8 @@ import { IProduct } from '@yuants/data-product';
 import { IConnection, Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
-import { ChildProcess, spawn } from 'child_process';
 import { parse } from 'date-fns';
-import { join } from 'path';
 import {
-  BehaviorSubject,
   Observable,
   catchError,
   combineLatest,
@@ -66,10 +63,12 @@ import {
   TThostFtdcOrderPriceTypeType,
   TThostFtdcOrderStatusType,
   TThostFtdcPosiDirectionType,
+  TThostFtdcProductClassType,
   TThostFtdcTimeConditionType,
   TThostFtdcVolumeConditionType,
 } from './assets/ctp-types';
 import { IBridgeMessage, createZMQConnection } from './bridge';
+import { restartCtpAction$ } from './ctp-monitor';
 
 const ACCOUNT_ID = `${process.env.BROKER_ID!}/${process.env.USER_ID!}`;
 const DATASOURCE_ID = ACCOUNT_ID;
@@ -115,15 +114,7 @@ export const requestZMQ = <Req, Rep>(
     }),
     map((msg) => {
       if (msg.res!.error_code === -2) {
-        ctp_process$
-          .pipe(
-            //
-            first((p) => !!p),
-          )
-          .subscribe((p) => {
-            p!.kill();
-            ctp_process$.next(null);
-          });
+        restartCtpAction$.next();
         throw new Error('CTP RTN_CODE: -2');
       }
       return msg;
@@ -399,6 +390,7 @@ export const submitOrder = (
       reserve1: '',
       ExchangeID: ctpExchangeId,
       InstrumentID: instrumentId,
+      ProductClass: TThostFtdcProductClassType.THOST_FTDC_PC_Futures,
     },
   }).pipe(
     //
@@ -474,6 +466,8 @@ export const submitOrder = (
           ClientID: '',
           MacAddress: '',
           IPAddress: '',
+          OrderMemo: '',
+          SessionReqSeq: 0,
         },
       }),
     ),
@@ -551,6 +545,8 @@ export const cancelOrder = (
       MacAddress: '',
       InstrumentID: '',
       IPAddress: '',
+      OrderMemo: '',
+      SessionReqSeq: 0,
     },
   });
 
@@ -599,16 +595,6 @@ const settlement$ = from(zmqConn.input$).pipe(
 );
 
 settlement$.subscribe();
-
-const ctp_process$ = new BehaviorSubject<ChildProcess | null>(null);
-
-ctp_process$.subscribe((p) => {
-  if (p === null) {
-    ctp_process$.next(
-      spawn(join(__dirname, '../ctp/build/main_linux'), { detached: false, stdio: 'inherit' }),
-    );
-  }
-});
 
 const products$ = defer(() => loginRes$.pipe(first())).pipe(
   mergeMap(() => queryProducts(zmqConn)),
@@ -681,7 +667,7 @@ terminal.provideService(
     ),
 );
 
-terminal.provideService(
+terminal.provideService<IOrder>(
   'SubmitOrder',
   {
     required: ['account_id'],
@@ -709,7 +695,7 @@ terminal.provideService(
   },
 );
 
-terminal.provideService(
+terminal.provideService<IOrder>(
   'CancelOrder',
   {
     required: ['account_id'],

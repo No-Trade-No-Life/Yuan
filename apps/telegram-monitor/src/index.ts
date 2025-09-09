@@ -5,7 +5,6 @@ import {
   bufferTime,
   defer,
   filter,
-  map,
   mergeAll,
   mergeMap,
   Observable,
@@ -34,11 +33,12 @@ const encodeId = (tgId: any) => {
 };
 
 const telegramAccounts$ = defer(() =>
-  terminal.requestForResponse('SQL', {
-    query: `select * from telegram_monitor_accounts`,
-  }),
+  requestSQL<{ account_id: string; string_session: string; phone_number: string }[]>(
+    terminal,
+    `select * from telegram_monitor_accounts`,
+  ),
 ).pipe(
-  map((v) => (v.data || []) as { account_id: string; string_session: string; phone_number: string }[]),
+  //
   retry({ delay: 5000 }),
   repeat({ delay: 5000 }),
   shareReplay(1),

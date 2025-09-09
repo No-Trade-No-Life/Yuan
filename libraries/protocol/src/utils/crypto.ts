@@ -5,24 +5,7 @@ import {
   signMessage,
   verifyMessage,
 } from '@yuants/utils';
-import { from, lastValueFrom } from 'rxjs';
 import { Terminal } from '../terminal';
-
-declare module '../services' {
-  interface IService {
-    HandShake: {
-      req: {
-        ed25519_public_key: string;
-        x25519_public_key: string;
-      };
-      res: IResponse<{
-        x25519_public_key: string;
-        signature: string;
-      }>;
-      frame: void;
-    };
-  }
-}
 
 /**
  * Setup HandShake service
@@ -37,7 +20,16 @@ export const setupHandShakeService = (terminal: Terminal, private_key: string) =
 
   const mapX25519PublicKeyToSharedKey = new Map<string, string>();
 
-  terminal.provideService(
+  terminal.provideService<
+    {
+      ed25519_public_key: string;
+      x25519_public_key: string;
+    },
+    {
+      x25519_public_key: string;
+      signature: string;
+    }
+  >(
     'HandShake',
     {
       type: 'object',
@@ -75,18 +67,19 @@ export const setupHandShakeService = (terminal: Terminal, private_key: string) =
  */
 export const requestSharedKey = async (terminal: Terminal, ed25519_public_key: string) => {
   const myPair = generateX25519KeyPair();
-  const res = await lastValueFrom(
-    from(
-      terminal.requestService('HandShake', {
-        ed25519_public_key,
-        x25519_public_key: myPair.public_key,
-      }),
-    ),
-  );
-  const data = res.res?.data;
-  if (!data) {
-    throw new Error('Failed to get shared key');
-  }
+  const data = await terminal.client.requestForResponseData<
+    {
+      ed25519_public_key: string;
+      x25519_public_key: string;
+    },
+    {
+      x25519_public_key: string;
+      signature: string;
+    }
+  >('HandShake', {
+    ed25519_public_key,
+    x25519_public_key: myPair.public_key,
+  });
   if (!verifyMessage(`${myPair.public_key}${data.x25519_public_key}`, data.signature, ed25519_public_key)) {
     throw new Error('Invalid signature');
   }

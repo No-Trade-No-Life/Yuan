@@ -30,16 +30,11 @@ export interface IConnection<T> {
 
 // @public
 export interface IResponse<T = void> {
-    // (undocumented)
-    code: number;
+    code: number | string;
     // (undocumented)
     data?: T;
     // (undocumented)
     message: string;
-}
-
-// @public
-export interface IService {
 }
 
 // Warning: (ae-internal-missing-underscore) The name "IServiceCandidateClientSide" should be prefixed with an underscore because the declaration is marked as @internal
@@ -59,13 +54,14 @@ export interface IServiceCandidateClientSide {
 // Warning: (ae-internal-missing-underscore) The name "IServiceHandler" should be prefixed with an underscore because the declaration is marked as @internal
 //
 // @internal (undocumented)
-export type IServiceHandler<T extends string = string> = T extends keyof IService ? (msg: ITerminalMessage & Pick<IService[T], 'req'> & {
-    method: T;
+export type IServiceHandler<TReq = {}, TRes = void, TFrame = void> = (msg: ITerminalMessage & {
+    req: TReq;
 }, ctx: {
     isAborted$: Observable<boolean>;
-}) => ObservableInput<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'> & Partial<Pick<IService[T], 'res' | 'frame'>>> : (msg: ITerminalMessage, ctx: {
-    isAborted$: Observable<boolean>;
-}) => ObservableInput<Omit<ITerminalMessage, 'method' | 'trace_id' | 'source_terminal_id' | 'target_terminal_id'>>;
+}) => ObservableInput<{
+    res?: IResponse<TRes>;
+    frame?: TFrame;
+}>;
 
 // @public
 export interface IServiceInfo {
@@ -163,8 +159,6 @@ export class Terminal {
     });
     // (undocumented)
     channel: TerminalChannel;
-    // Warning: (ae-forgotten-export) The symbol "TerminalClient" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     client: TerminalClient;
     dispose$: Subject<void>;
@@ -183,19 +177,9 @@ export class Terminal {
     };
     output$: Subject<ITerminalMessage>;
     // Warning: (ae-incompatible-release-tags) The symbol "provideService" is marked as @public, but its signature references "IServiceHandler" which is marked as @internal
-    provideService<T extends string>(method: T, requestSchema: JSONSchema7, handler: IServiceHandler<T>, options?: IServiceOptions): {
+    provideService<TReq = {}, TRes = void, TFrame = void>(method: string, requestSchema: JSONSchema7, handler: IServiceHandler<TReq, TRes, TFrame>, options?: IServiceOptions): {
         dispose: () => void;
     };
-    request<T extends string>(method: T, target_terminal_id: string, req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req']): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage>;
-    requestForResponse<T extends keyof IService>(method: T, req: IService[T]['req']): Promise<Exclude<(Partial<IService[T]> & ITerminalMessage)['res'], undefined>>;
-    // (undocumented)
-    requestForResponse(method: string, req: ITerminalMessage['req']): Promise<Exclude<ITerminalMessage['res'], undefined>>;
-    requestService<T extends keyof IService>(method: T, req: IService[T]['req']): Observable<Partial<IService[T]> & ITerminalMessage>;
-    // (undocumented)
-    requestService(method: string, req: ITerminalMessage['req']): Observable<ITerminalMessage>;
-    resolveTargetTerminalIds: (method: string, req: ITerminalMessage['req']) => Promise<string[]>;
-    // Warning: (ae-forgotten-export) The symbol "TerminalServer" needs to be exported by the entry point index.d.ts
-    //
     // (undocumented)
     server: TerminalServer;
     terminal_id: string;
@@ -215,6 +199,45 @@ export class TerminalChannel {
     subscribeChannel<T>(type: string, channel_id?: string): Observable<T>;
     // (undocumented)
     terminal: Terminal;
+}
+
+// @public
+export class TerminalClient {
+    constructor(terminal: Terminal);
+    request<TReq, TRes = void, TFrame = void>(method: string, target_terminal_id: string, req: TReq): Observable<ITerminalMessage & {
+        res?: IResponse<TRes>;
+        frame?: TFrame;
+    }>;
+    requestForResponse<TReq = {}, TRes = void>(method: string, req: TReq, ctx?: {
+        abort$?: AsyncIterable<void>;
+    }): Promise<IResponse<TRes>>;
+    requestForResponseData<TReq, TData>(method: string, req: TReq, ctx?: {
+        abort$?: AsyncIterable<void>;
+    }): Promise<TData>;
+    requestService<TReq = {}, TRes = void, TFrame = void>(method: string, req: TReq): Observable<ITerminalMessage & {
+        res?: IResponse<TRes>;
+        frame?: TFrame;
+    }>;
+    resolveTargetTerminalIds: (method: string, req: ITerminalMessage['req']) => Promise<string[]>;
+    // (undocumented)
+    readonly terminal: Terminal;
+}
+
+// @public
+export class TerminalServer {
+    constructor(terminal: Terminal);
+    // Warning: (ae-incompatible-release-tags) The symbol "addService" is marked as @public, but its signature references "IServiceInfoServerSide" which is marked as @internal
+    //
+    // (undocumented)
+    addService: (service: IServiceInfoServerSide) => void;
+    // Warning: (ae-incompatible-release-tags) The symbol "mapServiceIdToService" is marked as @public, but its signature references "IServiceInfoServerSide" which is marked as @internal
+    //
+    // (undocumented)
+    mapServiceIdToService: Map<string, IServiceInfoServerSide>;
+    // (undocumented)
+    removeService: (serviceId: string) => void;
+    // (undocumented)
+    readonly terminal: Terminal;
 }
 
 ```

@@ -10,7 +10,7 @@ import React, { useState } from 'react';
  * - We need to know whether the backend click event is processing or not.
  */
 export const Switch = React.memo(
-  (props: Omit<SwitchProps, 'onChange' | 'loading'> & { onChange: (checked: boolean) => any }) => {
+  (props: Omit<SwitchProps, 'onChange' | 'loading'> & { onChange?: (checked: boolean) => any }) => {
     const [isLoading, setLoading] = useState(false);
     return (
       <SemiSwitch

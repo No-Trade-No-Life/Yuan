@@ -16,7 +16,7 @@ defer(() => terminal.terminalInfos$)
   .subscribe((v) => {
     const req = { req: 'Hello, World!' };
     console.info(formatTime(Date.now()), JSON.stringify(req));
-    defer(() => terminal.requestService('Echo', req)).subscribe((v) => {
+    defer(() => terminal.client.requestService('Echo', req)).subscribe((v) => {
       console.info(formatTime(Date.now()), JSON.stringify(v));
     });
   });
