@@ -84,7 +84,7 @@ export function terminate(terminal_id: string) {
       filter((x): x is Exclude<typeof x, null> => !!x),
       first(),
       mergeMap((terminal) =>
-        defer(() => terminal.request('Terminate', terminal_id, {})).pipe(
+        defer(() => terminal.client.request('Terminate', terminal_id, {})).pipe(
           tap((msg) => {
             if (msg.res) {
               if (msg.res.code === 0) {

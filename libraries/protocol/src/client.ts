@@ -15,10 +15,14 @@ import {
   tap,
   timeout,
 } from 'rxjs';
-import { IServiceCandidateClientSide } from './model';
-import { IService, ITerminalMessage } from './services';
+import { IResponse, IServiceCandidateClientSide, ITerminalMessage } from './model';
 import { Terminal } from './terminal';
 
+/**
+ * Terminal Client Module
+ *
+ * @public
+ */
 export class TerminalClient {
   constructor(public readonly terminal: Terminal) {
     this._setupTerminalIdAndMethodValidatorSubscription();
@@ -131,14 +135,11 @@ export class TerminalClient {
    * - [ ] STREAM-IN-SINGLE-OUT
    * - [ ] STREAM-IN-STREAM-OUT
    */
-  requestService<T extends keyof IService>(
-    method: T,
-    req: IService[T]['req'],
-  ): Observable<Partial<IService[T]> & ITerminalMessage>;
 
-  requestService(method: string, req: ITerminalMessage['req']): Observable<ITerminalMessage>;
-
-  requestService(method: string, req: ITerminalMessage['req']): Observable<ITerminalMessage> {
+  requestService<TReq = {}, TRes = void, TFrame = void>(
+    method: string,
+    req: TReq,
+  ): Observable<ITerminalMessage & { res?: IResponse<TRes>; frame?: TFrame }> {
     return defer(() => this.resolveTargetTerminalIds(method, req)).pipe(
       map((arr) => {
         if (arr.length === 0) {
@@ -147,7 +148,7 @@ export class TerminalClient {
         const target = arr[~~(Math.random() * arr.length)]; // Simple Random Load Balancer
         return target;
       }),
-      mergeMap((target_terminal_id) => this.request(method, target_terminal_id, req)),
+      mergeMap((target_terminal_id) => this.request<TReq, TRes, TFrame>(method, target_terminal_id, req)),
     );
   }
 
@@ -156,11 +157,11 @@ export class TerminalClient {
   /**
    * Make a request to specified terminal's service
    */
-  request<T extends string>(
-    method: T,
+  request<TReq, TRes = void, TFrame = void>(
+    method: string,
     target_terminal_id: string,
-    req: T extends keyof IService ? IService[T]['req'] : ITerminalMessage['req'],
-  ): Observable<T extends keyof IService ? Partial<IService[T]> & ITerminalMessage : ITerminalMessage> {
+    req: TReq,
+  ): Observable<ITerminalMessage & { res?: IResponse<TRes>; frame?: TFrame }> {
     const trace_id = UUID();
     const msg = {
       trace_id,
@@ -224,23 +225,11 @@ export class TerminalClient {
    * - [ ] STREAM-IN-SINGLE-OUT
    * - [ ] STREAM-IN-STREAM-OUT
    */
-  requestForResponse<T extends keyof IService>(
-    method: T,
-    req: IService[T]['req'],
-    ctx?: { abort$?: AsyncIterable<void> },
-  ): Promise<Exclude<(Partial<IService[T]> & ITerminalMessage)['res'], undefined>>;
-
-  requestForResponse(
+  requestForResponse<TReq = {}, TRes = void>(
     method: string,
-    req: ITerminalMessage['req'],
+    req: TReq,
     ctx?: { abort$?: AsyncIterable<void> },
-  ): Promise<Exclude<ITerminalMessage['res'], undefined>>;
-
-  requestForResponse(
-    method: string,
-    req: ITerminalMessage['req'],
-    ctx?: { abort$?: AsyncIterable<void> },
-  ): Promise<Exclude<ITerminalMessage['res'], undefined>> {
+  ): Promise<IResponse<TRes>> {
     return firstValueFrom(
       from(this.requestService(method as any, req as any)).pipe(
         map((msg) => msg.res),
@@ -255,13 +244,11 @@ export class TerminalClient {
    *
    * if data is undefined, it will throw the response message
    */
-  async requestForResponseData<T extends keyof IService>(
-    method: T,
-    req: IService[T]['req'],
+  async requestForResponseData<TReq, TData>(
+    method: string,
+    req: TReq,
     ctx?: { abort$?: AsyncIterable<void> },
-  ): Promise<
-    Exclude<Exclude<(Partial<IService[T]> & ITerminalMessage)['res'], undefined>['data'], undefined>
-  > {
+  ): Promise<TData> {
     const res = await this.requestForResponse(method, req, ctx);
     if (res.data !== undefined) {
       return res.data as any;

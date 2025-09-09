@@ -403,7 +403,7 @@ defer(async () => {
 
 defer(async () => {
   const tradingAccountInfo = await firstValueFrom(tradingAccountInfo$);
-  terminal.provideService(
+  terminal.provideService<IOrder, { order_id?: string }>(
     'SubmitOrder',
     {
       required: ['account_id'],
@@ -539,7 +539,7 @@ defer(async () => {
     },
   );
 
-  terminal.provideService(
+  terminal.provideService<IOrder>(
     'ModifyOrder',
     {
       required: ['account_id'],
@@ -620,7 +620,7 @@ defer(async () => {
     },
   );
 
-  terminal.provideService(
+  terminal.provideService<IOrder>(
     'CancelOrder',
     {
       required: ['account_id'],

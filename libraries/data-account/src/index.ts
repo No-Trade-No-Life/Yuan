@@ -35,32 +35,6 @@ const AccountInfoPositionClosablePrice = AccountMeter.createGauge('account_info_
 const AccountInfoPositionFloatingProfit = AccountMeter.createGauge('account_info_position_floating_profit');
 const AccountInfoPositionValuation = AccountMeter.createGauge('account_info_position_valuation');
 
-declare module '@yuants/protocol/lib/services' {
-  /**
-   * - Order operation interface has been loaded
-   * - 订单操作接口已载入
-   */
-  interface IService {
-    SubmitOrder: {
-      req: IOrder;
-      res: IResponse<{
-        order_id?: string;
-      }>;
-      frame: void;
-    };
-    ModifyOrder: {
-      req: IOrder;
-      res: IResponse;
-      frame: void;
-    };
-    CancelOrder: {
-      req: IOrder;
-      res: IResponse;
-      frame: void;
-    };
-  }
-}
-
 /**
  * Provide a AccountInfo data stream, push to all subscriber terminals
  *

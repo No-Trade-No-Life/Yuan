@@ -11,6 +11,7 @@ import { MonacoEditor } from '../Editor/Monaco';
 import { Button, DataView } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
 import { terminal$ } from '../Terminals';
+import { requestSQL } from '@yuants/sql';
 
 registerCommand('SQL/Console/New', () => executeCommand('SQLConsole', { id: UUID() }));
 
@@ -50,13 +51,9 @@ registerPage('SQLConsole', () => {
                     const query = editorRef.current?.getValue();
                     if (!query) throw 'Empty query';
                     const t = Date.now();
-                    const res = await terminal.requestForResponse('SQL', { query });
-                    if (res.code === 0 && res.data) {
-                      Object.assign(globalThis, { $sql: res.data });
-                      setData(res.data as any[]);
-                    } else {
-                      throw res.message;
-                    }
+                    const res = await requestSQL<any[]>(terminal, query);
+                    Object.assign(globalThis, { $sql: res });
+                    setData(res);
                     setMessage(`DONE in ${Date.now() - t} ms`);
                   } catch (e) {
                     setMessage(`ERROR: ${e}`);

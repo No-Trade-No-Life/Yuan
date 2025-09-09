@@ -13,9 +13,8 @@ import {
   tap,
   timeout,
 } from 'rxjs';
-import { IServiceInfoServerSide } from './model';
-import { ITerminalMessage } from './services';
-import { TerminalMeter } from './services/metrics';
+import { MetricsMeterProvider } from './metrics';
+import { IServiceInfoServerSide, ITerminalMessage } from './model';
 import { Terminal } from './terminal';
 
 // 1. Initialize: create a RequestContext
@@ -67,9 +66,9 @@ interface IServiceContext {
 }
 
 /**
- * Terminal Server
+ * Terminal Server Module
  *
- * @internal
+ * @public
  */
 export class TerminalServer {
   constructor(public readonly terminal: Terminal) {
@@ -346,7 +345,7 @@ export class TerminalServer {
 
       // ISSUE: from -> defer, make sure the error of handler will be caught
       defer(() =>
-        serviceContext.service.handler(message, {
+        serviceContext.service.handler(message as any, {
           isAborted$: requestContext.isAborted$,
         }),
       )
@@ -430,6 +429,8 @@ export class TerminalServer {
       });
   }
 }
+
+const TerminalMeter = MetricsMeterProvider.getMeter('terminal-server');
 
 const RequestDurationBucket = TerminalMeter.createHistogram('terminal_request_duration_milliseconds', {
   description: 'terminal_request_duration_milliseconds Request Duration bucket in 1, 10, 100, 1000, 10000 ms',

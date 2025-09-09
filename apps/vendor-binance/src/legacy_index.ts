@@ -5,6 +5,7 @@ import {
   IPosition,
   publishAccountInfo,
 } from '@yuants/data-account';
+import { IOrder } from '@yuants/data-order';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { defer, from, map, mergeMap, repeat, retry, shareReplay, tap, toArray } from 'rxjs';
@@ -311,7 +312,7 @@ const getOpenInterest = async (symbol: string) => {
 
   // order related
   {
-    terminal.provideService(
+    terminal.provideService<IOrder>(
       'SubmitOrder',
       {
         required: ['account_id'],

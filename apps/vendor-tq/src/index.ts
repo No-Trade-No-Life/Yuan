@@ -33,7 +33,6 @@ import { createConnectionTq } from './common/ws';
 const terminal = Terminal.fromNodeEnv();
 
 const DATASOURCE_ID = process.env.DATASOURCE_ID || 'TQ';
-const CONCURRENCY = +(process.env.CONCURRENCY || 5);
 
 // const realtimePeriods: Record<string, Observable<IOHLC>> = {};
 const queryChart = (product_id: string, period_in_sec: number, periods_length: number) => {
@@ -281,7 +280,10 @@ createSeriesProvider<IOHLC>(terminal, {
   tableName: 'ohlc',
   series_id_prefix_parts: [DATASOURCE_ID],
   reversed: false,
-  serviceOptions: { concurrent: CONCURRENCY },
+  serviceOptions: {
+    concurrent: +(process.env.CONCURRENCY || 5),
+    max_pending_requests: +(process.env.MAX_PENDING_REQUESTS || 100),
+  },
   queryFn: async ({ series_id, started_at }) => {
     const [datasource_id, product_id, duration] = decodePath(series_id);
     const period_in_sec = {

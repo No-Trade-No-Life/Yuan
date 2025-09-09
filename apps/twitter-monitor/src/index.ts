@@ -1,4 +1,5 @@
 import { Terminal } from '@yuants/protocol';
+import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
 import { formatTime, listWatch } from '@yuants/utils';
 import {
   bufferTime,
@@ -6,7 +7,6 @@ import {
   defer,
   filter,
   from,
-  map,
   mergeMap,
   repeat,
   retry,
@@ -19,11 +19,9 @@ import { ITwitterEvent } from './types/ITwitterEvent';
 import { getUserTweetsByName } from './utils/getUserTweetsByName';
 const terminal = Terminal.fromNodeEnv();
 const twitterMonitorUsers$ = defer(() =>
-  terminal.requestForResponse('SQL', {
-    query: `select * from twitter_monitor_users`,
-  }),
+  requestSQL<{ user_id: string }[]>(terminal, `select * from twitter_monitor_users`),
 ).pipe(
-  map((v) => (v.data || []) as { user_id: string }[]),
+  //
   retry({ delay: 5000 }),
   repeat({ delay: 5000 }),
   shareReplay(1),
@@ -80,18 +78,23 @@ twitterMessage$
     filter((x) => x.length > 0),
     mergeMap((messages) =>
       defer(() =>
-        terminal.requestForResponse('SQL', {
-          query: `
-      insert into twitter_messages (id, content, author_id, author, author_description, author_followers, author_image, created_at, raw_data) 
-      values ${messages
-        .map(
-          (event) =>
-            `('${event.id}', '${event.content}', '${event.author_id}', '${event.author}', '${event.author_description}', '${event.author_followers}', '${event.author_image}', '${event.created_at}', '${event.raw_data}')`,
-        )
-        .join(', ')} 
-      ON CONFLICT (id) DO NOTHING;
-`,
-        }),
+        requestSQL(
+          terminal,
+          buildInsertManyIntoTableSQL(messages, 'twitter_messages', {
+            columns: [
+              'id',
+              'content',
+              'author_id',
+              'author',
+              'author_description',
+              'author_followers',
+              'author_image',
+              'created_at',
+              'raw_data',
+            ],
+            ignoreConflict: true,
+          }),
+        ),
       ).pipe(retry({ delay: 5000 })),
     ),
   )

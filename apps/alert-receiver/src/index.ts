@@ -257,7 +257,7 @@ async function sendAlert(alert: IAlertGroup) {
 
   await Promise.allSettled(
     receivers.map((v) =>
-      terminal.requestForResponse('Notify', {
+      terminal.client.requestForResponse('Notify', {
         type: v.type,
         receiver_id: v.receiver_id,
         message: makeNotifyMessage(alert),

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "use Generic Types for Service. remove IService and service types injection",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

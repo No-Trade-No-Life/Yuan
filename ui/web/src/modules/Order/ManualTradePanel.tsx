@@ -98,7 +98,7 @@ registerPage('ManualTradePanel', () => {
               .pipe(
                 filter((x): x is Exclude<typeof x, null> => !!x),
                 first(),
-                mergeMap((terminal) => terminal.requestForResponse('SubmitOrder', order)),
+                mergeMap((terminal) => terminal.client.requestForResponse('SubmitOrder', order)),
               )
               .forEach((res) => {
                 if (res?.code === 0) {
@@ -134,7 +134,9 @@ registerPage('ManualTradePanel', () => {
               .pipe(
                 filter((x): x is Exclude<typeof x, null> => !!x),
                 first(),
-                mergeMap((terminal) => terminal.requestForResponse('CancelOrder', cancelFormData as IOrder)),
+                mergeMap((terminal) =>
+                  terminal.client.requestForResponse('CancelOrder', cancelFormData as IOrder),
+                ),
               )
               .forEach((res) => {
                 if (res?.code === 0) {

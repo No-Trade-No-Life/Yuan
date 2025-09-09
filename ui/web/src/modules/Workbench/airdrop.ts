@@ -1,7 +1,7 @@
 import { Modal, Toast } from '@douyinfe/semi-ui';
 import { Terminal } from '@yuants/protocol';
 import { dirname } from 'path-browserify';
-import { bufferTime, defer, lastValueFrom, mergeMap } from 'rxjs';
+import { defer, lastValueFrom } from 'rxjs';
 import { fs } from '../FileSystem/api';
 import { blobToDataURL, dataURLToBlob } from '../FileSystem/utils';
 import { terminal$ } from '../Terminals';
@@ -11,7 +11,7 @@ export const sendFileByAirdrop = async (terminal: Terminal, target_terminal_id: 
   const blob = await fs.readFileAsBlob(filename);
   const content = await blobToDataURL(blob);
   const res = await lastValueFrom(
-    defer(() => terminal.request('AirDrop', target_terminal_id, { filename, content })),
+    defer(() => terminal.client.request('AirDrop', target_terminal_id, { filename, content })),
   );
   if (res.res?.code === 0) {
     Toast.success(`对方接收了 ${filename}`);
@@ -20,22 +20,11 @@ export const sendFileByAirdrop = async (terminal: Terminal, target_terminal_id: 
   }
 };
 
-declare module '@yuants/protocol/lib/services' {
-  /**
-   * - AirDrop
-   */
-  export interface IService {
-    AirDrop: {
-      req: { filename: string; content: string };
-      res: { code: number; message: string };
-      frame: any;
-    };
-  }
-}
-
 terminal$.subscribe((terminal) => {
-  terminal?.provideService('AirDrop', {}, (msg) =>
-    defer(async () => {
+  terminal?.provideService<{ filename: string; content: string }, { code: number; message: string }>(
+    'AirDrop',
+    {},
+    async (msg) => {
       const { filename, content } = msg.req;
       const ok = await new Promise((resolve, reject) => {
         Modal.confirm({
@@ -58,9 +47,6 @@ terminal$.subscribe((terminal) => {
       const blob = await dataURLToBlob(content);
       await fs.writeFile(filename, blob);
       return { res: { code: 0, message: 'OK' } };
-    }).pipe(
-      bufferTime(2000),
-      mergeMap((res) => (res.length === 0 ? [{ frame: {} }] : res)),
-    ),
+    },
   );
 });

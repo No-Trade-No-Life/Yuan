@@ -115,7 +115,7 @@ export const createNodeJSHostManager = () => {
 
     terminal.provideService('ListTerminals', {}, () => listTerminalsMessage$.pipe(first()));
 
-    terminal.provideService('UpdateTerminalInfo', {}, async (msg) => {
+    terminal.provideService<ITerminalInfo>('UpdateTerminalInfo', {}, async (msg) => {
       const oldTerminalInfo = terminalInfos.get(msg.req.terminal_id);
       terminalInfos.set(msg.req.terminal_id, msg.req);
       terminalInfo$.next(msg.req);
@@ -127,7 +127,7 @@ export const createNodeJSHostManager = () => {
     const sub = defer(() => terminalInfos.keys())
       .pipe(
         mergeMap((target_terminal_id) =>
-          from(terminal.request('Ping', target_terminal_id, {})).pipe(
+          from(terminal.client.request('Ping', target_terminal_id, {})).pipe(
             last(),
             timeout(5000),
             retry(3),
