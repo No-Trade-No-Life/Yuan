@@ -1,5 +1,6 @@
 import {
   IconExpand,
+  IconExport,
   IconEyeClosed,
   IconEyeOpened,
   IconList,
@@ -8,7 +9,7 @@ import {
   IconSetting,
   IconSort,
 } from '@douyinfe/semi-icons';
-import { Input, Modal, Pagination, Radio, RadioGroup, Space, Spin, Tag } from '@douyinfe/semi-ui';
+import { Input, Modal, Pagination, Radio, RadioGroup, Space, Spin, Tag, Toast } from '@douyinfe/semi-ui';
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -32,6 +33,7 @@ import { useTranslation } from 'react-i18next';
 import { fromEvent } from 'rxjs';
 import { showForm } from '../Form';
 import { ErrorBoundary } from '../Pages';
+import { CSV } from '../Util';
 import { Button } from './Button';
 import { ListView } from './ListView';
 import { SortableList } from './SortableList';
@@ -273,6 +275,20 @@ export function DataView<T, K>(props: {
         icon={<IconList />}
       >
         {t('group')}
+      </Button>
+      <Button
+        icon={<IconExport />}
+        onClick={async () => {
+          const columns = table.getAllLeafColumns();
+          const data = table
+            .getFilteredRowModel()
+            .rows.map((row) => columns.map((col) => row.getValue(col.id)));
+          data.unshift(columns.map((col) => col.id));
+          await CSV.writeFileFromRawTable(`/export.csv`, data);
+          Toast.success('导出到 /export.csv');
+        }}
+      >
+        {'导出CSV'}
       </Button>
       <RadioGroup
         type="button"

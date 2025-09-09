@@ -1,24 +1,24 @@
-import { Select, Space } from '@douyinfe/semi-ui';
-import { formatTime } from '@yuants/utils';
-import { useObservable, useObservableState } from 'observable-hooks';
+import { IconRefresh, IconSetting } from '@douyinfe/semi-icons';
+import { Select, Space, Toast } from '@douyinfe/semi-ui';
+import { SelectProps } from '@douyinfe/semi-ui/lib/es/select';
+import { useObservable, useObservableRef, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { BehaviorSubject, combineLatestWith, debounceTime, mergeWith, pipe, switchMap, tap } from 'rxjs';
+import { combineLatestWith, debounceTime, pipe, switchMap } from 'rxjs';
+import { fs } from '../FileSystem';
+import { showForm } from '../Form';
+import { Button, ITimeSeriesChartConfig } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
 import { CSV } from '../Util';
-import { Button, ITimeSeriesChartConfig } from '../Interactive';
 import { ChartComponent } from './components/ChartComponent';
-import { fs } from '../FileSystem';
-import { IconRefresh, IconSetting } from '@douyinfe/semi-icons';
-import { SelectProps } from '@douyinfe/semi-ui/lib/es/select';
-
-const refresh$ = new BehaviorSubject(undefined);
 
 registerPage('NewTechnicalChart', () => {
   const [t] = useTranslation('TechnicalChart');
 
-  const params = usePageParams() as { filename: string };
+  const params = usePageParams<{ filename: string }>();
   const [viewIndex, setViewIndex] = useState<number>(0);
+
+  const [, refresh$] = useObservableRef<void>();
 
   const config = useObservableState(
     useObservable(
@@ -84,11 +84,94 @@ registerPage('NewTechnicalChart', () => {
           <ChartComponent
             topSlot={
               <>
-                <Button disabled icon={<IconSetting />} />
+                <Button
+                  icon={<IconSetting />}
+                  onClick={async () => {
+                    const data = await showForm<ITimeSeriesChartConfig>(
+                      {
+                        type: 'object',
+                        required: ['data', 'views'],
+                        properties: {
+                          data: {
+                            type: 'array',
+                            items: {
+                              type: 'object',
+                              required: ['type', 'filename', 'time_column_name'],
+                              properties: {
+                                type: { const: 'csv' },
+                                filename: { type: 'string', title: 'CSV 文件路径' },
+                                time_column_name: { type: 'string', title: '时间列名称' },
+                              },
+                            },
+                          },
+                          views: {
+                            type: 'array',
+                            items: {
+                              type: 'object',
+                              required: ['name', 'time_ref', 'panes'],
+                              properties: {
+                                name: { type: 'string', title: '视图名称' },
+                                time_ref: {
+                                  type: 'object',
+                                  title: '时间轴',
+                                  required: ['data_index', 'column_name'],
+                                  properties: {
+                                    data_index: { type: 'number', title: '数据源索引' },
+                                    column_name: { type: 'string', title: '列名称' },
+                                  },
+                                },
+                                panes: {
+                                  type: 'array',
+                                  title: '窗格',
+                                  items: {
+                                    type: 'object',
+                                    properties: {
+                                      series: {
+                                        type: 'array',
+                                        title: '数据列',
+                                        minItems: 1,
+                                        items: {
+                                          type: 'object',
+                                          required: ['type', 'refs'],
+                                          properties: {
+                                            type: {
+                                              type: 'string',
+                                              title: '图表类型',
+                                              enum: ['line', 'hist', 'ohlc', 'order', 'index'],
+                                            },
+                                            refs: {
+                                              type: 'array',
+                                              items: {
+                                                type: 'object',
+                                                required: ['data_index', 'column_name'],
+                                                properties: {
+                                                  data_index: { type: 'number', title: '数据源索引' },
+                                                  column_name: { type: 'string', title: '列名称' },
+                                                },
+                                              },
+                                            },
+                                          },
+                                        },
+                                      },
+                                    },
+                                  },
+                                },
+                              },
+                            },
+                          },
+                        },
+                      },
+                      config,
+                    );
+                    await fs.writeFile(params.filename, JSON.stringify(data, null, 2));
+                    refresh$.next();
+                    Toast.success('保存成功到 ' + params.filename);
+                  }}
+                />
                 <Button
                   icon={<IconRefresh />}
                   onClick={() => {
-                    refresh$.next(undefined);
+                    refresh$.next();
                   }}
                 />
                 <Select
