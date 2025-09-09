@@ -21,7 +21,7 @@ RUN mkdir /cppzmq && \
     cd / && \
     rm -rf /cppzmq
 
-FROM debian:bookworm AS builder
+FROM build_env AS builder
 
 COPY ./out/vendor-ctp-out/apps/vendor-ctp/ctp /app/apps/vendor-ctp
 
