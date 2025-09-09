@@ -76,6 +76,26 @@ export class TerminalServer {
     //
     this._setupServer();
     this._setupHeartbeat();
+    this._setMetrics();
+  }
+
+  private _setMetrics() {
+    interval(5000)
+      .pipe(takeUntil(this.terminal.dispose$))
+      .subscribe(() => {
+        this._mapServiceIdToServiceRuntimeContext.forEach((serviceContext) => {
+          RequestPendingTotal.record(serviceContext.pending.length, {
+            method: serviceContext.method,
+            service_id: serviceContext.service_id,
+            terminal_id: this.terminal.terminal_id,
+          });
+          RequestProcessingTotal.record(serviceContext.processing.size, {
+            method: serviceContext.method,
+            service_id: serviceContext.service_id,
+            terminal_id: this.terminal.terminal_id,
+          });
+        });
+      });
   }
 
   public mapServiceIdToService = new Map<string, IServiceInfoServerSide>();
@@ -421,4 +441,12 @@ const RequestDurationBucket = TerminalMeter.createHistogram('terminal_request_du
 
 const RequestReceivedTotal = TerminalMeter.createCounter('terminal_request_received_total', {
   description: 'terminal_request_received_total Request Received',
+});
+
+const RequestPendingTotal = TerminalMeter.createGauge('terminal_request_pending_total', {
+  description: 'terminal_request_pending_total Request Pending',
+});
+
+const RequestProcessingTotal = TerminalMeter.createGauge('terminal_request_processing_total', {
+  description: 'terminal_request_processing_total Request Processing',
 });
