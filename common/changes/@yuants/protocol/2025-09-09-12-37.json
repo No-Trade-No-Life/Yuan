@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "refactor: use takeUntil rather than add subscriptions array",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
