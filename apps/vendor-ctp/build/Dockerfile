@@ -5,7 +5,8 @@ RUN apt-get update && apt-get install -y \
     cmake \
     make \
     libspdlog-dev \
-    libzmq3-dev \
+    pkg-config \
+    cppzmq-dev \
     wget \
     git \
     build-essential
