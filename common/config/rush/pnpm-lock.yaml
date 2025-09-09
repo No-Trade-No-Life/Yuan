@@ -2341,6 +2341,7 @@ importers:
       echarts-gl: ~2.0.9
       ethers: ~6.13.5
       exceljs: ~4.3.0
+      fancy-canvas: ~2.1.0
       flexlayout-react: ~0.7.4
       fzf: ~0.5.2
       hotkeys-js: ~3.12.0
@@ -2412,6 +2413,7 @@ importers:
       echarts-gl: 2.0.9_echarts@5.4.3
       ethers: 6.13.5
       exceljs: 4.3.0
+      fancy-canvas: 2.1.0
       flexlayout-react: 0.7.9_react-dom@18.2.0+react@18.2.0
       fzf: 0.5.2
       hotkeys-js: 3.12.0

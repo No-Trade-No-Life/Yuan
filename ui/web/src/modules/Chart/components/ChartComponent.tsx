@@ -18,6 +18,7 @@ import { ITimeSeriesChartConfig } from '../../Interactive';
 import { useIsDarkMode } from '../../Workbench';
 import { Slider, Space } from '@douyinfe/semi-ui';
 import { formatTime } from '@yuants/utils';
+import { VertLine } from '../Plugins/VerticalLine';
 
 const DEFAULT_SINGLE_COLOR_SCHEME: string[] = [
   '#5B8FF9',
@@ -188,8 +189,6 @@ export const ChartComponent = memo((props: Props) => {
 
   const chartRef = useRef<IChartApi | null>(null);
 
-  const indexMarkerRef = useRef<ISeriesMarkersPluginApi<unknown> | null>(null);
-
   const totalTimeLine = (data || [])
     .find((item) => item.data_index === view.time_ref.data_index)
     ?.series.get(view.time_ref.column_name);
@@ -299,7 +298,7 @@ export const ChartComponent = memo((props: Props) => {
   }, [totalDisplayData, totalTimeLine, viewStartIndex, startTime, endTime]);
 
   useEffect(() => {
-    if (!displayData || !indexMarkerRef.current) return;
+    if (!displayData || !chartRef.current) return;
     const markerList: SeriesMarker<unknown>[] = [];
     view.panes.forEach((pane, paneIndex) => {
       pane.series.forEach((s, seriesIndex) => {
@@ -321,7 +320,23 @@ export const ChartComponent = memo((props: Props) => {
         }
       });
     });
-    indexMarkerRef.current.setMarkers(markerList);
+    if (markerList.length > 0) {
+      const lineSeries = chartRef.current.addSeries(LineSeries);
+      lineSeries.setData([]);
+      const lines = markerList.map((marker) => {
+        const vertLine = new VertLine(chartRef.current!, lineSeries, marker.time as Time, {
+          showLabel: true,
+          labelText: marker.text,
+          color: marker.color,
+          width: 1,
+        });
+        lineSeries.attachPrimitive(vertLine);
+        return vertLine;
+      });
+      return () => {
+        lines.forEach((line) => lineSeries.detachPrimitive(line));
+      };
+    }
   }, [cursor, displayData, view, viewStartIndex]);
 
   useEffect(() => {
@@ -338,16 +353,9 @@ export const ChartComponent = memo((props: Props) => {
     const chart = createChart(domRef.current, darkMode ? DarkModeChartOption : ChartOption);
     chartRef.current = chart;
     chart.subscribeCrosshairMove(handler);
-    let candlestickSeries: any;
     view.panes.forEach((pane, paneIndex) => {
       pane.series.forEach((s, seriesIndex) => {
         const data = displayData[paneIndex][seriesIndex] ?? [];
-        if (s.type === 'index') {
-          if (candlestickSeries) {
-            const markers = createSeriesMarkers(candlestickSeries, []);
-            indexMarkerRef.current = markers;
-          }
-        }
         if (s.type === 'line') {
           const lineSeries = chart.addSeries(
             LineSeries,
@@ -370,7 +378,7 @@ export const ChartComponent = memo((props: Props) => {
           histogramSeries.setData(data);
         }
         if (s.type === 'ohlc') {
-          candlestickSeries = chart.addSeries(CandlestickSeries, candlestickOption, paneIndex);
+          const candlestickSeries = chart.addSeries(CandlestickSeries, candlestickOption, paneIndex);
           candlestickSeries.setData(data);
         }
         if (s.type === 'order') {
@@ -444,7 +452,6 @@ export const ChartComponent = memo((props: Props) => {
     return () => {
       observer.unobserve(el);
     };
-    // }
   }, [view, displayData, darkMode]);
 
   return (
