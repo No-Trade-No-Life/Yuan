@@ -105,6 +105,7 @@ registerPage('NewTechnicalChart', () => {
                   }}
                 />
                 <Select
+                  value={viewIndex}
                   prefix="View"
                   onSelect={onSelectView}
                   optionList={config.views.map((item, index) => ({ value: index, label: item.name }))}

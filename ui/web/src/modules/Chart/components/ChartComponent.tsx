@@ -11,10 +11,13 @@ import {
   createSeriesMarkers,
   MouseEventParams,
   IChartApi,
+  ISeriesMarkersPluginApi,
+  SeriesMarker,
 } from 'lightweight-charts';
 import { ITimeSeriesChartConfig } from '../../Interactive';
 import { useIsDarkMode } from '../../Workbench';
-import { Space } from '@douyinfe/semi-ui';
+import { Slider, Space } from '@douyinfe/semi-ui';
+import { formatTime } from '@yuants/utils';
 
 const DEFAULT_SINGLE_COLOR_SCHEME: string[] = [
   '#5B8FF9',
@@ -100,6 +103,7 @@ const candlestickOption = {
   wickUpColor: '#26a69a',
   wickDownColor: '#ef5350',
 };
+const PAGE_SIZE = 5000;
 
 function waitForPaneElement(pane: any, maxRetries: number = 20): Promise<HTMLElement> {
   return new Promise((resolve, reject) => {
@@ -175,14 +179,29 @@ const mergeTimeLine = (timeLine: number[][], mainTimeLine: number[]): number[][]
 export const ChartComponent = memo((props: Props) => {
   const { view, data } = props;
   const darkMode = useIsDarkMode();
-  const [position, setPosition] = useState<number>();
+  const [cursor, setCursor] = useState<number>();
+
+  const [viewStartIndex, setViewStartIndex] = useState<number>(0);
   const UpdateLegendFuncQueue: Function[] = [];
 
   const domRef = useRef<HTMLDivElement | null>(null);
 
   const chartRef = useRef<IChartApi | null>(null);
 
-  const displayData = useMemo(() => {
+  const indexMarkerRef = useRef<ISeriesMarkersPluginApi<unknown> | null>(null);
+
+  const totalTimeLine = (data || [])
+    .find((item) => item.data_index === view.time_ref.data_index)
+    ?.series.get(view.time_ref.column_name);
+
+  const totalItems = totalTimeLine?.length ?? 0;
+
+  const startIndex = viewStartIndex;
+  const endIndex = viewStartIndex + PAGE_SIZE;
+  const endTime = ~~(parseFloat(totalTimeLine?.[endIndex - 1]) / 1000);
+  const startTime = ~~(parseFloat(totalTimeLine?.[startIndex]) / 1000);
+
+  const totalDisplayData = useMemo(() => {
     if (!view || !data) return null;
     const mainTimeLine = data
       .find((item) => item.data_index === view.time_ref.data_index)
@@ -269,11 +288,46 @@ export const ChartComponent = memo((props: Props) => {
       });
     });
   }, [data, view]);
+  const displayData = useMemo(() => {
+    if (totalDisplayData && totalTimeLine) {
+      return totalDisplayData.map((paneDate) =>
+        paneDate.map((seriesData) =>
+          seriesData?.filter((data) => Number(data.time) >= startTime && Number(data.time) <= endTime),
+        ),
+      );
+    }
+  }, [totalDisplayData, totalTimeLine, viewStartIndex, startTime, endTime]);
+
+  useEffect(() => {
+    if (!displayData || !indexMarkerRef.current) return;
+    const markerList: SeriesMarker<unknown>[] = [];
+    view.panes.forEach((pane, paneIndex) => {
+      pane.series.forEach((s, seriesIndex) => {
+        const data = displayData[paneIndex][seriesIndex] ?? [];
+        if (s.type === 'index') {
+          if (cursor) {
+            const indexData = data[cursor];
+            const Index = data[indexData?.value - viewStartIndex];
+            if (Index && Number(Index.time) >= startTime && Number(Index.time) <= endTime) {
+              markerList.push({
+                time: Index.time,
+                position: 'aboveBar',
+                shape: 'circle',
+                color: DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
+                text: `${s.refs[0].column_name}`,
+              });
+            }
+          }
+        }
+      });
+    });
+    indexMarkerRef.current.setMarkers(markerList);
+  }, [cursor, displayData, view, viewStartIndex]);
 
   useEffect(() => {
     if (!displayData || !domRef.current || !view) return;
     const handler = (param: MouseEventParams<Time>) => {
-      if (param.logical) setPosition(param.logical);
+      if (param.logical) setCursor(param.logical);
       UpdateLegendFuncQueue.forEach((fn) => fn(param));
     };
     if (chartRef.current) {
@@ -284,9 +338,16 @@ export const ChartComponent = memo((props: Props) => {
     const chart = createChart(domRef.current, darkMode ? DarkModeChartOption : ChartOption);
     chartRef.current = chart;
     chart.subscribeCrosshairMove(handler);
+    let candlestickSeries: any;
     view.panes.forEach((pane, paneIndex) => {
       pane.series.forEach((s, seriesIndex) => {
         const data = displayData[paneIndex][seriesIndex] ?? [];
+        if (s.type === 'index') {
+          if (candlestickSeries) {
+            const markers = createSeriesMarkers(candlestickSeries, []);
+            indexMarkerRef.current = markers;
+          }
+        }
         if (s.type === 'line') {
           const lineSeries = chart.addSeries(
             LineSeries,
@@ -309,7 +370,7 @@ export const ChartComponent = memo((props: Props) => {
           histogramSeries.setData(data);
         }
         if (s.type === 'ohlc') {
-          const candlestickSeries = chart.addSeries(CandlestickSeries, candlestickOption, paneIndex);
+          candlestickSeries = chart.addSeries(CandlestickSeries, candlestickOption, paneIndex);
           candlestickSeries.setData(data);
         }
         if (s.type === 'order') {
@@ -347,7 +408,7 @@ export const ChartComponent = memo((props: Props) => {
           const firstRow = document.createElement('div');
           firstRow.style.fontSize = '14px';
           firstRow.style.fontWeight = '400';
-          if (s.type === 'line' || s.type === 'hist') {
+          if (s.type === 'line' || s.type === 'hist' || s.type === 'index') {
             legend.appendChild(firstRow);
             firstRow.style.color =
               DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length];
@@ -390,7 +451,22 @@ export const ChartComponent = memo((props: Props) => {
     <Space vertical align="start" style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
       <Space align="start">
         {props.topSlot}
-        Position: {position}
+        <Slider
+          key={totalItems}
+          showBoundary
+          style={{ width: 200 }}
+          min={0}
+          max={Math.max(0, totalItems - PAGE_SIZE)}
+          step={1}
+          tipFormatter={(v) => {
+            return formatTime(Number(totalTimeLine?.[v as number]));
+          }}
+          onChange={(v) => {
+            setViewStartIndex(v as number);
+          }}
+        />
+        {formatTime(startTime * 1000)}-{formatTime(endTime * 1000)}
+        -- Cursor: {(cursor ?? 0) + viewStartIndex}
       </Space>
       <div style={{ width: '100%', height: '100%', flexGrow: 1 }} ref={domRef} />
     </Space>
