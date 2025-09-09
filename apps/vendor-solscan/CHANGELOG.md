@@ -1,6 +1,11 @@
 # Change Log - @yuants/vendor-solscan
 
-This log was last generated on Thu, 04 Sep 2025 15:24:17 GMT and should not be manually modified.
+This log was last generated on Tue, 09 Sep 2025 13:23:41 GMT and should not be manually modified.
+
+## 0.1.21
+Tue, 09 Sep 2025 13:23:41 GMT
+
+_Version update only_
 
 ## 0.1.20
 Thu, 04 Sep 2025 15:24:17 GMT

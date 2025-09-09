@@ -1,6 +1,14 @@
 # Change Log - @yuants/vendor-ctp
 
-This log was last generated on Mon, 08 Sep 2025 09:45:42 GMT and should not be manually modified.
+This log was last generated on Tue, 09 Sep 2025 13:23:41 GMT and should not be manually modified.
+
+## 0.4.1
+Tue, 09 Sep 2025 13:23:41 GMT
+
+### Patches
+
+- refactor
+- fix docker build
 
 ## 0.4.0
 Mon, 08 Sep 2025 09:45:42 GMT

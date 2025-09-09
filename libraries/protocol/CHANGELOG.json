@@ -2,6 +2,31 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.40.0",
+      "tag": "@yuants/protocol_v0.40.0",
+      "date": "Tue, 09 Sep 2025 13:23:41 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add metrics to pending and processing request total"
+          },
+          {
+            "comment": "refactor: use takeUntil rather than add subscriptions array"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "use Generic Types for Service. remove IService and service types injection"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.39.1",
       "tag": "@yuants/protocol_v0.39.1",
       "date": "Thu, 04 Sep 2025 15:24:17 GMT",
