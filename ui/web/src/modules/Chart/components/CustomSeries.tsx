@@ -121,7 +121,7 @@ export const customSeries: ICustomSeries[] = [
 
       candlestickSeries.setData(displayDataList);
     },
-    Legend: function ({ globalDataSeries, cursorIndex, seriesConfig }): React.ReactNode {
+    Legend: ({ globalDataSeries, cursorIndex, seriesConfig }) => {
       if (globalDataSeries.length < 4) return null;
       return (
         <div>
@@ -190,7 +190,7 @@ export const customSeries: ICustomSeries[] = [
       lineSeries.setData(seriesData);
       const seriesMarkers = createSeriesMarkers(lineSeries, markerData);
     },
-    Legend: function (): React.ReactNode {
+    Legend: () => {
       return <div>订单</div>;
     },
   },
