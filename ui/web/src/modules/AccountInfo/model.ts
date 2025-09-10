@@ -60,7 +60,7 @@ export const accountIds$ = defer(() => terminal$).pipe(
 );
 
 export interface IAccountFrame {
-  timestamp_in_us: number;
+  timestamp: number;
   equity: number;
   balance: number;
   profit: number;

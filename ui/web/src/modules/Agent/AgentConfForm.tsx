@@ -181,6 +181,11 @@ export const runAgent = async () => {
     accountFrameSeries$.next(accountFrameUnit.data);
 
     const kernelDir = `/.Y/kernel/${encodeURIComponent(scene.kernel.id)}`;
+    for (const accountId in accountFrameUnit.data) {
+      const data = accountFrameUnit.data[accountId];
+      const filename = join(kernelDir, `${encodeURIComponent(accountId)}.account.csv`);
+      await CSV.writeFile(filename, data);
+    }
 
     const seriesFilename = join(kernelDir, 'series.csv');
 
@@ -198,6 +203,10 @@ export const runAgent = async () => {
 
     const configFilename = join(kernelDir, 'config.json');
 
+    const seriesIds = Object.keys(kernel.findUnit(PeriodDataUnit)!.data);
+
+    const firstOhlcSeriesId = seriesIds[0];
+
     const config: ITimeSeriesChartConfig = {
       data: [
         {
@@ -208,7 +217,7 @@ export const runAgent = async () => {
         {
           type: 'csv',
           filename: ordersFilename,
-          time_column_name: 'filled_at',
+          time_column_name: 'submit_at',
         },
       ],
       views: [
@@ -218,7 +227,50 @@ export const runAgent = async () => {
             data_index: 0,
             column_name: series[0]?.resolveRoot().name ?? '',
           },
-          panes: [],
+          panes: [
+            {
+              series: [
+                {
+                  type: 'ohlc',
+                  refs: [
+                    {
+                      data_index: 0,
+                      column_name: `O(${firstOhlcSeriesId})`,
+                    },
+                    {
+                      data_index: 0,
+                      column_name: `H(${firstOhlcSeriesId})`,
+                    },
+                    {
+                      data_index: 0,
+                      column_name: `L(${firstOhlcSeriesId})`,
+                    },
+                    {
+                      data_index: 0,
+                      column_name: `C(${firstOhlcSeriesId})`,
+                    },
+                  ],
+                },
+                {
+                  type: 'order',
+                  refs: [
+                    {
+                      data_index: 1,
+                      column_name: `order_direction`,
+                    },
+                    {
+                      data_index: 1,
+                      column_name: `traded_price`,
+                    },
+                    {
+                      data_index: 1,
+                      column_name: `volume`,
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
         },
       ],
     };
@@ -241,9 +293,11 @@ export const runAgent = async () => {
       throw new Error(`chart config illegal: ${series.series_id} (${series.name})`);
     };
 
-    const chartIds: string[] = [];
+    const chartIds: string[] = [series[0]?.resolveRoot().series_id];
 
     series.forEach((series) => {
+      const displayType = series.tags['display'] || '';
+      if (!displayType || displayType === 'none') return;
       const chartId = resolveChartId(series);
       if (!chartIds.includes(chartId)) {
         chartIds.push(chartId);
@@ -253,7 +307,7 @@ export const runAgent = async () => {
       }
       const paneIndex = chartIds.indexOf(chartId);
       config.views[0].panes[paneIndex].series.push({
-        type: series.tags['display'] || '',
+        type: displayType,
         refs: [
           {
             data_index: 0,
@@ -261,47 +315,6 @@ export const runAgent = async () => {
           },
         ],
       });
-    });
-
-    const seriesIds = Object.keys(kernel.findUnit(PeriodDataUnit)!.data);
-
-    config.views[0].panes[0].series.unshift({
-      type: 'order',
-      refs: [
-        {
-          data_index: 1,
-          column_name: `order_direction`,
-        },
-        {
-          data_index: 1,
-          column_name: `traded_price`,
-        },
-        {
-          data_index: 1,
-          column_name: `volume`,
-        },
-      ],
-    });
-    config.views[0].panes[0].series.unshift({
-      type: 'ohlc',
-      refs: [
-        {
-          data_index: 0,
-          column_name: `O(${seriesIds[0]})`,
-        },
-        {
-          data_index: 0,
-          column_name: `H(${seriesIds[0]})`,
-        },
-        {
-          data_index: 0,
-          column_name: `L(${seriesIds[0]})`,
-        },
-        {
-          data_index: 0,
-          column_name: `C(${seriesIds[0]})`,
-        },
-      ],
     });
 
     await fs.writeFile(configFilename, JSON.stringify(config));

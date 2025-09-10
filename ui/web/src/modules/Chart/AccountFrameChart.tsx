@@ -15,24 +15,24 @@ registerPage('AccountFrameChart', () => {
   const accountFrames = mapAccountIdToFrames[accountId] || [];
 
   const balanceData = useMemo(
-    () => accountFrames.map((e) => ({ timestamp: e.timestamp_in_us / 1000, value: e.balance })),
+    () => accountFrames.map((e) => ({ timestamp: e.timestamp, value: e.balance })),
     [accountFrames],
   );
 
   const equityData = useMemo(
-    () => accountFrames.map((e) => ({ timestamp: e.timestamp_in_us / 1000, value: e.equity })),
+    () => accountFrames.map((e) => ({ timestamp: e.timestamp, value: e.equity })),
     [accountFrames],
   );
   const marginData = useMemo(
-    () => accountFrames.map((e) => ({ timestamp: e.timestamp_in_us / 1000, value: e.margin })),
+    () => accountFrames.map((e) => ({ timestamp: e.timestamp, value: e.margin })),
     [accountFrames],
   );
   const requireData = useMemo(
-    () => accountFrames.map((e) => ({ timestamp: e.timestamp_in_us / 1000, value: e.require })),
+    () => accountFrames.map((e) => ({ timestamp: e.timestamp, value: e.require })),
     [accountFrames],
   );
   const profitData = useMemo(
-    () => accountFrames.map((e) => ({ timestamp: e.timestamp_in_us / 1000, value: e.profit })),
+    () => accountFrames.map((e) => ({ timestamp: e.timestamp, value: e.profit })),
     [accountFrames],
   );
 
