@@ -585,83 +585,83 @@ export const ChartComponent = memo((props: Props) => {
 
           return legendDom
             ? createPortal(
-                <Space vertical align="start" spacing={0}>
+                <Space vertical align="start" spacing={0} key={paneIndex}>
                   {pane.series.map((s, seriesIndex) => {
-            function renderTitle(): ReactNode {
-              if (!data) return null;
+                    function renderTitle(): ReactNode {
+                      if (!data) return null;
 
-              if (s.type === 'line' || s.type === 'hist' || s.type === 'index') {
-                const dataRef = s.refs[0];
-                if (!dataRef) return null;
-                const dataItem = data.find((item) => item.data_index === dataRef.data_index);
-                if (!dataItem) return null;
-                const dataArray = dataItem.series.get(dataRef.column_name);
-                if (!dataArray) return null;
-                return (
-                  <div
-                    style={{
+                      if (s.type === 'line' || s.type === 'hist' || s.type === 'index') {
+                        const dataRef = s.refs[0];
+                        if (!dataRef) return null;
+                        const dataItem = data.find((item) => item.data_index === dataRef.data_index);
+                        if (!dataItem) return null;
+                        const dataArray = dataItem.series.get(dataRef.column_name);
+                        if (!dataArray) return null;
+                        return (
+                          <div
+                            style={{
                               color:
                                 DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
-                    }}
-                  >
-                    {s.refs[0]?.column_name}: {dataArray[cursor! + viewStartIndex]}
-                  </div>
-                );
-              }
+                            }}
+                          >
+                            {s.refs[0]?.column_name}: {dataArray[cursor! + viewStartIndex]}
+                          </div>
+                        );
+                      }
 
-              if (s.type === 'ohlc') {
-                const dataRefOpen = s.refs[0];
-                const dataRefHigh = s.refs[1];
-                const dataRefLow = s.refs[2];
-                const dataRefClose = s.refs[3];
-                if (!dataRefOpen || !dataRefHigh || !dataRefLow || !dataRefClose) return null;
-                const dataItemOpen = data.find((item) => item.data_index === dataRefOpen.data_index);
-                const dataItemHigh = data.find((item) => item.data_index === dataRefHigh.data_index);
-                const dataItemLow = data.find((item) => item.data_index === dataRefLow.data_index);
+                      if (s.type === 'ohlc') {
+                        const dataRefOpen = s.refs[0];
+                        const dataRefHigh = s.refs[1];
+                        const dataRefLow = s.refs[2];
+                        const dataRefClose = s.refs[3];
+                        if (!dataRefOpen || !dataRefHigh || !dataRefLow || !dataRefClose) return null;
+                        const dataItemOpen = data.find((item) => item.data_index === dataRefOpen.data_index);
+                        const dataItemHigh = data.find((item) => item.data_index === dataRefHigh.data_index);
+                        const dataItemLow = data.find((item) => item.data_index === dataRefLow.data_index);
                         const dataItemClose = data.find(
                           (item) => item.data_index === dataRefClose.data_index,
                         );
-                if (!dataItemOpen || !dataItemHigh || !dataItemLow || !dataItemClose) return null;
-                const dataArrayOpen = dataItemOpen.series.get(dataRefOpen.column_name);
-                const dataArrayHigh = dataItemHigh.series.get(dataRefHigh.column_name);
-                const dataArrayLow = dataItemLow.series.get(dataRefLow.column_name);
-                const dataArrayClose = dataItemClose.series.get(dataRefClose.column_name);
-                if (!dataArrayOpen || !dataArrayHigh || !dataArrayLow || !dataArrayClose) return null;
-                return (
-                  <div>
+                        if (!dataItemOpen || !dataItemHigh || !dataItemLow || !dataItemClose) return null;
+                        const dataArrayOpen = dataItemOpen.series.get(dataRefOpen.column_name);
+                        const dataArrayHigh = dataItemHigh.series.get(dataRefHigh.column_name);
+                        const dataArrayLow = dataItemLow.series.get(dataRefLow.column_name);
+                        const dataArrayClose = dataItemClose.series.get(dataRefClose.column_name);
+                        if (!dataArrayOpen || !dataArrayHigh || !dataArrayLow || !dataArrayClose) return null;
+                        return (
+                          <div>
                             O: {dataArrayOpen[cursor! + viewStartIndex]} H:{' '}
                             {dataArrayHigh[cursor! + viewStartIndex]} L:{' '}
                             {dataArrayLow[cursor! + viewStartIndex]} C:{' '}
                             {dataArrayClose[cursor! + viewStartIndex]}
-                  </div>
-                );
-              }
-
-              if (s.type === 'order') {
-                return <div>订单</div>;
-              }
-
-              return null;
-            }
-
-              return (
-                <Space style={{ fontSize: 14, fontWeight: 400 }}>
-                        {renderTitle()}
-                  <Button
-                    size="small"
-                    theme="borderless"
-                    icon={<IconClose />}
-                    onClick={async () => {
-                      const newView = structuredClone(view);
-                      newView.panes[paneIndex].series.splice(seriesIndex, 1);
-                      if (newView.panes[paneIndex].series.length === 0) {
-                        newView.panes.splice(paneIndex, 1);
+                          </div>
+                        );
                       }
-                      await props.onViewChange(newView);
-                    }}
-                  />
-                </Space>
-              );
+
+                      if (s.type === 'order') {
+                        return <div>订单</div>;
+                      }
+
+                      return null;
+                    }
+
+                    return (
+                      <Space style={{ fontSize: 14, fontWeight: 400 }} key={`${paneIndex}/${seriesIndex}`}>
+                        {renderTitle()}
+                        <Button
+                          size="small"
+                          theme="borderless"
+                          icon={<IconClose />}
+                          onClick={async () => {
+                            const newView = structuredClone(view);
+                            newView.panes[paneIndex].series.splice(seriesIndex, 1);
+                            if (newView.panes[paneIndex].series.length === 0) {
+                              newView.panes.splice(paneIndex, 1);
+                            }
+                            await props.onViewChange(newView);
+                          }}
+                        />
+                      </Space>
+                    );
                   })}
                 </Space>,
                 legendDom,
