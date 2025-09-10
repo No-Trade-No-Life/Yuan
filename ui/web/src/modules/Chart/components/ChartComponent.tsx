@@ -394,7 +394,7 @@ export const ChartComponent = memo((props: Props) => {
       .filter((x) => !!x);
     if (s.type === 'line' || s.type === 'hist' || s.type === 'index') {
       // 通过data_index column_name找到数据，并完成映射为图表需要的结构
-      if (dataSeries) {
+      if (dataSeries.length > 0) {
         timeLine.forEach(([time], index) => {
           displayDataList.push({
             time: time as Time,
@@ -406,47 +406,49 @@ export const ChartComponent = memo((props: Props) => {
     }
     if (s.type === 'ohlc') {
       if (dataSeries.length === 4) {
-        timeLine
-          .map(([time, index]) => ({
+        timeLine.map(([time, index]) => {
+          const x = {
             time: time as Time,
             open: parseFloat(dataSeries[0]![index]),
             high: parseFloat(dataSeries[1]![index]),
             low: parseFloat(dataSeries[2]![index]),
             close: parseFloat(dataSeries[3]![index]),
-          }))
-          .filter((x) => !!x.time && !isNaN(x.open) && !isNaN(x.high) && !isNaN(x.low) && !isNaN(x.close))
-          .forEach((item) => displayDataList.push(item));
+          };
+          if (!!x.time && !isNaN(x.open) && !isNaN(x.high) && !isNaN(x.low) && !isNaN(x.close)) {
+            displayDataList.push(x);
+          }
+        });
         return displayDataList;
       }
     }
     if (s.type === 'order') {
       if (dataSeries.length === 3) {
         let dataIndex = timeLine[0]?.[1] || 0;
-        timeLine
-          .map(([time, index]) => {
-            let volume = 0;
-            let tradeValue = 0;
-            let totalVolume = 0;
-            for (; dataIndex <= index; dataIndex++) {
-              totalVolume += parseFloat(dataSeries[2]![dataIndex]);
-              tradeValue += parseFloat(dataSeries[2]![dataIndex]) * parseFloat(dataSeries[1]![dataIndex]);
-              const tempVolume = parseFloat(dataSeries[2]![dataIndex]);
-              const orderDirection = dataSeries[0]![index];
-              if (orderDirection === 'OPEN_LONG' || orderDirection === 'CLOSE_SHORT') {
-                volume += tempVolume;
-              } else {
-                volume -= tempVolume;
-              }
+        timeLine.map(([time, index]) => {
+          let volume = 0;
+          let tradeValue = 0;
+          let totalVolume = 0;
+          for (; dataIndex <= index; dataIndex++) {
+            totalVolume += parseFloat(dataSeries[2]![dataIndex]);
+            tradeValue += parseFloat(dataSeries[2]![dataIndex]) * parseFloat(dataSeries[1]![dataIndex]);
+            const tempVolume = parseFloat(dataSeries[2]![dataIndex]);
+            const orderDirection = dataSeries[0]![index];
+            if (orderDirection === 'OPEN_LONG' || orderDirection === 'CLOSE_SHORT') {
+              volume += tempVolume;
+            } else {
+              volume -= tempVolume;
             }
-            return {
-              time: time as Time,
-              volume,
-              tradePrice: tradeValue / totalVolume,
-              orderDirection: volume > 0 ? 'OPEN_LONG' : 'OPEN_SHORT',
-            };
-          })
-          .filter((x) => !!x.time && !isNaN(x.tradePrice) && !!x.orderDirection && !isNaN(x.volume))
-          .forEach((item) => displayDataList.push(item));
+          }
+          const x = {
+            time: time as Time,
+            volume,
+            tradePrice: tradeValue / totalVolume,
+            orderDirection: volume > 0 ? 'OPEN_LONG' : 'OPEN_SHORT',
+          };
+          if (!!x.time && !isNaN(x.tradePrice) && !!x.orderDirection && !isNaN(x.volume)) {
+            displayDataList.push(x);
+          }
+        });
         return displayDataList;
       }
     }
