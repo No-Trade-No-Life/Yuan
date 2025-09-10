@@ -31,10 +31,10 @@ export interface ICustomSeries {
     viewStartIndex: number;
     dispose$: Observable<void>;
   }) => void;
-  renderLegend: (props: {
+  Legend: React.ComponentType<{
     seriesConfig: { type: string; refs: IDataRef[] };
     seriesIndex: number;
     globalDataSeries: any[][];
     cursorIndex: number;
-  }) => React.ReactNode;
+  }>;
 }

@@ -22,7 +22,7 @@ export const DEFAULT_SINGLE_COLOR_SCHEME: string[] = [
   '#26a69a',
 ];
 
-const SimpleKeyValueLegend: ICustomSeries['renderLegend'] = ({
+const SimpleKeyValueLegend: ICustomSeries['Legend'] = ({
   globalDataSeries,
   seriesIndex,
   seriesConfig,
@@ -64,7 +64,7 @@ export const customSeries: ICustomSeries[] = [
         }),
       );
     },
-    renderLegend: SimpleKeyValueLegend,
+    Legend: SimpleKeyValueLegend,
   },
   {
     type: 'hist',
@@ -87,7 +87,7 @@ export const customSeries: ICustomSeries[] = [
         }),
       );
     },
-    renderLegend: SimpleKeyValueLegend,
+    Legend: SimpleKeyValueLegend,
   },
   {
     type: 'ohlc',
@@ -121,7 +121,7 @@ export const customSeries: ICustomSeries[] = [
 
       candlestickSeries.setData(displayDataList);
     },
-    renderLegend: function ({ globalDataSeries, cursorIndex, seriesConfig }): React.ReactNode {
+    Legend: function ({ globalDataSeries, cursorIndex, seriesConfig }): React.ReactNode {
       if (globalDataSeries.length < 4) return null;
       return (
         <div>
@@ -190,7 +190,7 @@ export const customSeries: ICustomSeries[] = [
       lineSeries.setData(seriesData);
       const seriesMarkers = createSeriesMarkers(lineSeries, markerData);
     },
-    renderLegend: function (): React.ReactNode {
+    Legend: function (): React.ReactNode {
       return <div>订单</div>;
     },
   },
@@ -241,6 +241,6 @@ export const customSeries: ICustomSeries[] = [
         )
         .subscribe();
     },
-    renderLegend: SimpleKeyValueLegend,
+    Legend: SimpleKeyValueLegend,
   },
 ];

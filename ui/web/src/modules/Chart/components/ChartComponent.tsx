@@ -213,7 +213,9 @@ export const ChartComponent = memo((props: Props) => {
             ? mergeTimeLine(_timeLine, mainTimeLine)
             : _timeLine;
 
-        const dataSeries = s.refs.map((ref) => resolveDataRefToDataArray(data, ref)).filter((x) => !!x);
+        const dataSeries = s.refs
+          .map((ref) => resolveDataRefToDataArray(data, ref))
+          .filter((x): x is Exclude<typeof x, undefined | null> => !!x);
 
         // 根据不同的 series type 创建不同的图表逻辑 (可拓展点)
         const seriesComponent = customSeries.find((cs) => cs.type === s.type);
@@ -301,7 +303,7 @@ export const ChartComponent = memo((props: Props) => {
                       .map((ref) => resolveDataRefToDataArray(data || [], ref))
                       .filter((x): x is Exclude<typeof x, null | undefined> => !!x);
 
-                    const LegendComponent = customSeries.find((cs) => cs.type === s.type)?.renderLegend;
+                    const LegendComponent = customSeries.find((cs) => cs.type === s.type)?.Legend;
 
                     return (
                       <Space style={{ fontSize: 14, fontWeight: 400 }} key={`${paneIndex}/${seriesIndex}`}>
