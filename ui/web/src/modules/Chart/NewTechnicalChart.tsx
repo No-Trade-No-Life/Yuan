@@ -87,9 +87,7 @@ const schemaOfChartConfig: JSONSchema7 = {
   },
 };
 
-registerPage('NewTechnicalChart', () => {
-  const [t] = useTranslation('TechnicalChart');
-
+registerPage('TimeSeriesChart', () => {
   const params = usePageParams<{ filename: string }>();
   const [viewIndex, setViewIndex] = useState<number>(0);
 
