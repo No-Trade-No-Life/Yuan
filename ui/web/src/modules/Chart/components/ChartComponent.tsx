@@ -10,6 +10,7 @@ import {
   HistogramSeries,
   IChartApi,
   IPaneApi,
+  ISeriesApi,
   LineSeries,
   MouseEventParams,
   SeriesMarker,
@@ -101,13 +102,6 @@ const DarkModeChartOption: DeepPartial<ChartOptions> = {
   },
 };
 
-const candlestickOption = {
-  upColor: '#26a69a',
-  downColor: '#ef5350',
-  borderVisible: false,
-  wickUpColor: '#26a69a',
-  wickDownColor: '#ef5350',
-};
 const PAGE_SIZE = 5000;
 
 function waitForPaneElement(pane: IPaneApi<Time>, maxRetries: number = 50): Promise<HTMLElement> {
@@ -271,6 +265,7 @@ export const ChartComponent = memo((props: Props) => {
                 value: parseFloat(dataSeries[0]![index]),
               });
             });
+            return displayDataList;
           }
         }
         if (s.type === 'ohlc') {
@@ -285,6 +280,7 @@ export const ChartComponent = memo((props: Props) => {
               }))
               .filter((x) => !!x.time && !isNaN(x.open) && !isNaN(x.high) && !isNaN(x.low) && !isNaN(x.close))
               .forEach((item) => displayDataList.push(item));
+            return displayDataList;
           }
         }
         if (s.type === 'order') {
@@ -315,6 +311,7 @@ export const ChartComponent = memo((props: Props) => {
               })
               .filter((x) => !!x.time && !isNaN(x.tradePrice) && !!x.orderDirection && !isNaN(x.volume))
               .forEach((item) => displayDataList.push(item));
+            return displayDataList;
           }
         }
 
@@ -322,6 +319,7 @@ export const ChartComponent = memo((props: Props) => {
       });
     });
   }, [data, view]);
+
   const displayData = useMemo(() => {
     if (totalDisplayData && totalTimeLine) {
       return totalDisplayData.map((paneDate) =>
@@ -356,7 +354,7 @@ export const ChartComponent = memo((props: Props) => {
       });
     });
     if (markerList.length > 0) {
-      const lineSeries = chartRef.current.addSeries(LineSeries);
+      const lineSeries = chartRef.current.addSeries(LineSeries, { priceLineVisible: false });
       lineSeries.setData([]);
       const lines = markerList.map((marker) => {
         const vertLine = new VertLine(chartRef.current!, lineSeries, marker.time as Time, {
@@ -390,6 +388,7 @@ export const ChartComponent = memo((props: Props) => {
   // 管理 panes / series 的创建和销毁
   useEffect(() => {
     if (!displayData || !chart || !view) return;
+    const seriesList: ISeriesApi<any>[] = [];
     view.panes.forEach((pane, paneIndex) => {
       pane.series.forEach((s, seriesIndex) => {
         const data = displayData[paneIndex][seriesIndex] ?? [];
@@ -404,20 +403,35 @@ export const ChartComponent = memo((props: Props) => {
             paneIndex,
           );
           lineSeries.setData(data);
+          seriesList.push(lineSeries);
         }
         if (s.type === 'hist') {
           const histogramSeries = chart.addSeries(
             HistogramSeries,
             {
               color: DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
+              priceLineVisible: false,
             },
             paneIndex,
           );
           histogramSeries.setData(data);
+          seriesList.push(histogramSeries);
         }
         if (s.type === 'ohlc') {
-          const candlestickSeries = chart.addSeries(CandlestickSeries, candlestickOption, paneIndex);
+          const candlestickSeries = chart.addSeries(
+            CandlestickSeries,
+            {
+              upColor: '#26a69a',
+              downColor: '#ef5350',
+              borderVisible: false,
+              wickUpColor: '#26a69a',
+              wickDownColor: '#ef5350',
+              priceLineVisible: false,
+            },
+            paneIndex,
+          );
           candlestickSeries.setData(data);
+          seriesList.push(candlestickSeries);
         }
         if (s.type === 'order') {
           const lineSeries = chart.addSeries(
@@ -425,6 +439,7 @@ export const ChartComponent = memo((props: Props) => {
             {
               color: 'red',
               lineWidth: 3,
+              priceLineVisible: false,
             },
             paneIndex,
           );
@@ -438,6 +453,7 @@ export const ChartComponent = memo((props: Props) => {
             price: item.tradePrice || 0,
           }));
           const seriesMarkers = createSeriesMarkers(lineSeries, markers);
+          seriesList.push(lineSeries);
         }
       });
       const currentPane = chart.panes()[paneIndex];
@@ -457,6 +473,9 @@ export const ChartComponent = memo((props: Props) => {
       });
     });
     return () => {
+      seriesList.forEach((s) => {
+        chart.removeSeries(s);
+      });
       for (let i = chart.panes().length - 1; i >= 0; i--) {
         chart.removePane(i);
       }
@@ -555,12 +574,15 @@ export const ChartComponent = memo((props: Props) => {
                 );
               }
 
+              if (s.type === 'order') {
+                return <div>订单</div>;
+              }
+
               return null;
             }
 
             const render = () => {
               const title = renderTitle();
-              if (!title) return null;
               return (
                 <Space style={{ fontSize: 14, fontWeight: 400 }}>
                   {title}

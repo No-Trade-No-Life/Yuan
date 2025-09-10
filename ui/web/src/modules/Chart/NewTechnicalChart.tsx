@@ -5,7 +5,7 @@ import { JSONSchema7 } from 'json-schema';
 import { useObservable, useObservableRef, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { combineLatestWith, debounceTime, pipe, switchMap } from 'rxjs';
+import { combineLatestWith, debounceTime, filter, firstValueFrom, pipe, switchMap, timeout } from 'rxjs';
 import { fs } from '../FileSystem';
 import { showForm } from '../Form';
 import { Button, ITimeSeriesChartConfig } from '../Interactive';
@@ -110,39 +110,39 @@ registerPage('NewTechnicalChart', () => {
     ),
   );
 
-  const data = useObservableState(
-    useObservable(
-      pipe(
-        debounceTime(500),
-        switchMap(([data]) =>
-          Promise.all(
-            (data ?? []).map((item, index) =>
-              CSV.readFile(item.filename).then((records) => {
-                const series: Map<string, any[]> = new Map();
-                records.forEach((record) => {
-                  for (const key in record) {
-                    if (!series.has(key)) {
-                      series.set(key, []);
-                    }
-                    series.get(key)!.push(record[key]);
+  const data$ = useObservable(
+    pipe(
+      debounceTime(500),
+      switchMap(([data]) =>
+        Promise.all(
+          (data ?? []).map((item, index) =>
+            CSV.readFile(item.filename).then((records) => {
+              const series: Map<string, any[]> = new Map();
+              records.forEach((record) => {
+                for (const key in record) {
+                  if (!series.has(key)) {
+                    series.set(key, []);
                   }
-                });
-                return {
-                  //
-                  time_column_name: item.time_column_name,
-                  filename: item.filename,
-                  data_index: index,
-                  data_length: records.length,
-                  series,
-                };
-              }),
-            ),
+                  series.get(key)!.push(record[key]);
+                }
+              });
+              return {
+                //
+                time_column_name: item.time_column_name,
+                filename: item.filename,
+                data_index: index,
+                data_length: records.length,
+                series,
+              };
+            }),
           ),
         ),
       ),
-      [config?.data],
     ),
+    [config?.data],
   );
+
+  const data = useObservableState(data$);
 
   const onSelectView = (v: SelectProps['value']) => {
     setViewIndex(Number(v));
@@ -165,8 +165,15 @@ registerPage('NewTechnicalChart', () => {
               />
               <Button
                 icon={<IconRefresh />}
-                onClick={() => {
+                onClick={async () => {
                   refresh$.next();
+                  await firstValueFrom(
+                    data$.pipe(
+                      filter((x) => x !== data),
+                      timeout(30_000),
+                    ),
+                  );
+                  Toast.success('数据已刷新');
                 }}
               />
               <Select
