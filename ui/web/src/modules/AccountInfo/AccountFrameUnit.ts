@@ -14,7 +14,7 @@ export class AccountFrameUnit extends BasicUnit {
   onEvent(): void | Promise<void> {
     for (const [accountId, accountInfo] of this.accountInfoUnit.mapAccountIdToAccountInfo.entries()) {
       const metric = {
-        timestamp_in_us: accountInfo.updated_at! * 1000,
+        timestamp: accountInfo.updated_at!,
         balance: accountInfo.money.balance,
         equity: accountInfo.money.equity,
         margin: accountInfo.money.used,
@@ -24,7 +24,7 @@ export class AccountFrameUnit extends BasicUnit {
       this.data[accountId] ??= [];
       const idx = this.data[accountId].length - 1;
       // ensure unique timestamp
-      if (idx >= 0 && this.data[accountId][idx].timestamp_in_us === metric.timestamp_in_us) {
+      if (idx >= 0 && this.data[accountId][idx].timestamp === metric.timestamp) {
         this.data[accountId][idx] = metric;
       } else {
         this.data[accountId].push(metric);

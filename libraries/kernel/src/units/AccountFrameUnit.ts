@@ -7,7 +7,7 @@ import { BasicUnit } from './BasicUnit';
  * @public
  */
 export interface IAccountFrame {
-  timestamp_in_us: number;
+  timestamp: number;
   equity: number;
   balance: number;
   profit: number;
@@ -30,7 +30,7 @@ export class AccountFrameUnit extends BasicUnit {
   data: IAccountFrame[] = [];
   onEvent(): void | Promise<void> {
     const metric = {
-      timestamp_in_us: this.accountInfoUnit.accountInfo.updated_at! * 1000,
+      timestamp: this.accountInfoUnit.accountInfo.updated_at!,
       balance: this.accountInfoUnit.accountInfo.money.balance,
       equity: this.accountInfoUnit.accountInfo.money.equity,
       margin: this.accountInfoUnit.accountInfo.money.used,
@@ -39,7 +39,7 @@ export class AccountFrameUnit extends BasicUnit {
     };
     const idx = this.data.length - 1;
     // 保证每个帧的时间戳不重复
-    if (idx >= 0 && this.data[idx].timestamp_in_us === metric.timestamp_in_us) {
+    if (idx >= 0 && this.data[idx].timestamp === metric.timestamp) {
       this.data[idx] = metric;
     } else {
       this.data.push(metric);

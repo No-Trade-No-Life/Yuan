@@ -181,6 +181,11 @@ export const runAgent = async () => {
     accountFrameSeries$.next(accountFrameUnit.data);
 
     const kernelDir = `/.Y/kernel/${encodeURIComponent(scene.kernel.id)}`;
+    for (const accountId in accountFrameUnit.data) {
+      const data = accountFrameUnit.data[accountId];
+      const filename = join(kernelDir, `${encodeURIComponent(accountId)}.account.csv`);
+      await CSV.writeFile(filename, data);
+    }
 
     const seriesFilename = join(kernelDir, 'series.csv');
 
@@ -212,7 +217,7 @@ export const runAgent = async () => {
         {
           type: 'csv',
           filename: ordersFilename,
-          time_column_name: 'filled_at',
+          time_column_name: 'submit_at',
         },
       ],
       views: [
