@@ -17,12 +17,14 @@ import {
   Time,
 } from 'lightweight-charts';
 import { useObservable, useObservableRef, useObservableState } from 'observable-hooks';
-import { memo, ReactNode, useEffect, useMemo, useState } from 'react';
+import { memo, ReactNode, useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { debounceTime } from 'rxjs';
 import { Button, ITimeSeriesChartConfig } from '../../Interactive';
 import { useIsDarkMode } from '../../Workbench';
 import { VertLine } from '../Plugins/VerticalLine';
+import { ILoadedData } from './model';
+import { resolveDataRefToDataArray, resolveDataRefToTimeArray } from './resolveDataRef';
 import './TimeSeriesChart.css';
 import { useLegendContainers } from './useLegendContainers';
 
@@ -109,13 +111,7 @@ interface Props {
   view: ITimeSeriesChartConfig['views'][0];
   onViewChange: (newView: ITimeSeriesChartConfig['views'][0]) => Promise<void>;
   topSlot?: ReactNode;
-  data?: {
-    filename: string;
-    data_index: number;
-    data_length: number;
-    time_column_name: string;
-    series: Map<string, any[]>;
-  }[];
+  data?: ILoadedData[];
 }
 
 interface DisplayData {
@@ -194,9 +190,7 @@ export const ChartComponent = memo((props: Props) => {
     }
   }, [darkMode, chart]);
 
-  const totalTimeLine = (data || [])
-    .find((item) => item.data_index === view.time_ref.data_index)
-    ?.series.get(view.time_ref.column_name);
+  const totalTimeLine = resolveDataRefToDataArray(data || [], view.time_ref);
 
   const totalItems = totalTimeLine?.length ?? 0;
 
@@ -208,107 +202,6 @@ export const ChartComponent = memo((props: Props) => {
   const mainTimeLine = (totalTimeLine ?? [])
     .map((t) => ~~(parseFloat(t) / 1000))
     ?.filter((t) => t >= startTime && t <= endTime);
-
-  const totalDisplayData = useMemo(() => {
-    if (!view || !data) return null;
-    const mainTimeLine = data
-      .find((item) => item.data_index === view.time_ref.data_index)
-      ?.series.get(view.time_ref.column_name)
-      ?.map((t) => ~~(parseFloat(t) / 1000));
-    if (!mainTimeLine) return null;
-
-    return view.panes.map((pane) => {
-      return pane.series.map((s) => {
-        if (s.refs.length < 1) return null;
-        //找到ref对应的timeline
-        const dataItem = data.find((item) => item.data_index === s.refs[0].data_index);
-        if (!dataItem) return null;
-        let timeLine: [time: number, dataIndex: number][] | undefined = dataItem.series
-          .get(dataItem.time_column_name)
-          ?.map((t, index) => [~~(parseFloat(t) / 1000), index] as [time: number, dataIndex: number]);
-        if (!timeLine) return null;
-        // 若ref与view timeline不一致则归并对其
-        if (s.refs[0].data_index !== view.time_ref.data_index) {
-          timeLine = mergeTimeLine(timeLine, mainTimeLine);
-        }
-        const displayDataList: DisplayData[] = [];
-        // 通过data_index column_name找到数据
-        const dataSeries = s.refs
-          .map((ref) => data.find((item) => item.data_index === ref.data_index)?.series.get(ref.column_name))
-          .filter((x) => !!x);
-        if (s.type === 'line' || s.type === 'hist' || s.type === 'index') {
-          // 通过data_index column_name找到数据，并完成映射为图表需要的结构
-          if (dataSeries) {
-            timeLine.forEach(([time], index) => {
-              displayDataList.push({
-                time: time as Time,
-                value: parseFloat(dataSeries[0]![index]),
-              });
-            });
-            return displayDataList;
-          }
-        }
-        if (s.type === 'ohlc') {
-          if (dataSeries.length === 4) {
-            timeLine
-              .map(([time, index]) => ({
-                time: time as Time,
-                open: parseFloat(dataSeries[0]![index]),
-                high: parseFloat(dataSeries[1]![index]),
-                low: parseFloat(dataSeries[2]![index]),
-                close: parseFloat(dataSeries[3]![index]),
-              }))
-              .filter((x) => !!x.time && !isNaN(x.open) && !isNaN(x.high) && !isNaN(x.low) && !isNaN(x.close))
-              .forEach((item) => displayDataList.push(item));
-            return displayDataList;
-          }
-        }
-        if (s.type === 'order') {
-          if (dataSeries.length === 3) {
-            let dataIndex = 0;
-            timeLine
-              .map(([time, index]) => {
-                let volume = 0;
-                let tradeValue = 0;
-                let totalVolume = 0;
-                for (; dataIndex <= index; dataIndex++) {
-                  totalVolume += parseFloat(dataSeries[2]![dataIndex]);
-                  tradeValue += parseFloat(dataSeries[2]![dataIndex]) * parseFloat(dataSeries[1]![dataIndex]);
-                  const tempVolume = parseFloat(dataSeries[2]![dataIndex]);
-                  const orderDirection = dataSeries[0]![index];
-                  if (orderDirection === 'OPEN_LONG' || orderDirection === 'CLOSE_SHORT') {
-                    volume += tempVolume;
-                  } else {
-                    volume -= tempVolume;
-                  }
-                }
-                return {
-                  time: time as Time,
-                  volume,
-                  tradePrice: tradeValue / totalVolume,
-                  orderDirection: volume > 0 ? 'OPEN_LONG' : 'OPEN_SHORT',
-                };
-              })
-              .filter((x) => !!x.time && !isNaN(x.tradePrice) && !!x.orderDirection && !isNaN(x.volume))
-              .forEach((item) => displayDataList.push(item));
-            return displayDataList;
-          }
-        }
-
-        return displayDataList;
-      });
-    });
-  }, [data, view]);
-
-  const displayData = useMemo(() => {
-    if (totalDisplayData && totalTimeLine) {
-      return totalDisplayData.map((paneDate) =>
-        paneDate.map((seriesData) =>
-          seriesData?.filter((data) => Number(data.time) >= startTime && Number(data.time) <= endTime),
-        ),
-      );
-    }
-  }, [totalDisplayData, totalTimeLine, viewStartIndex, startTime, endTime]);
 
   // draw index
   useEffect(() => {
@@ -377,25 +270,23 @@ export const ChartComponent = memo((props: Props) => {
     // timeLine: [time: number, dataIndex: number][],
   ) => {
     if (!data) return [];
-    const dataItem = data.find((item) => item.data_index === s.refs[0].data_index);
-    if (!dataItem) return [];
-    let timeLine: [number, number][] | undefined = dataItem.series
-      .get(dataItem.time_column_name)
+    const _timeLine: [number, number][] | undefined = resolveDataRefToTimeArray(data, s.refs[0])
       ?.map((t, index) => [~~(parseFloat(t) / 1000), index] as [time: number, dataIndex: number])
       ?.filter(([t]) => t >= startTime && t <= endTime);
-    if (!timeLine) return [];
-    // 若ref与view timeline不一致则归并对其
-    if (s.refs[0].data_index !== view.time_ref.data_index) {
-      timeLine = mergeTimeLine(timeLine, mainTimeLine);
-    }
+    if (!_timeLine) return [];
+    // 若ref与view timeline不一致则对其归并
+
+    const timeLine =
+      s.refs[0].data_index !== view.time_ref.data_index ? mergeTimeLine(_timeLine, mainTimeLine) : _timeLine;
+
     const displayDataList: DisplayData[] = [];
-    const dataSeries = s.refs
-      .map((ref) => data.find((item) => item.data_index === ref.data_index)?.series.get(ref.column_name))
-      .filter((x) => !!x);
+
+    const dataSeries = s.refs.map((ref) => resolveDataRefToDataArray(data, ref)).filter((x) => !!x);
+
     if (s.type === 'line' || s.type === 'hist' || s.type === 'index') {
       // 通过data_index column_name找到数据，并完成映射为图表需要的结构
       if (dataSeries.length > 0) {
-        timeLine.forEach(([time], index) => {
+        timeLine.forEach(([time, index]) => {
           displayDataList.push({
             time: time as Time,
             value: parseFloat(dataSeries[0]![index]),
@@ -406,7 +297,7 @@ export const ChartComponent = memo((props: Props) => {
     }
     if (s.type === 'ohlc') {
       if (dataSeries.length === 4) {
-        timeLine.map(([time, index]) => {
+        timeLine.forEach(([time, index]) => {
           const x = {
             time: time as Time,
             open: parseFloat(dataSeries[0]![index]),
@@ -424,7 +315,7 @@ export const ChartComponent = memo((props: Props) => {
     if (s.type === 'order') {
       if (dataSeries.length === 3) {
         let dataIndex = timeLine[0]?.[1] || 0;
-        timeLine.map(([time, index]) => {
+        timeLine.forEach(([time, index]) => {
           let volume = 0;
           let tradeValue = 0;
           let totalVolume = 0;
@@ -529,12 +420,11 @@ export const ChartComponent = memo((props: Props) => {
       });
     });
     return () => {
-      seriesList.forEach((s) => {
-        chart.removeSeries(s);
+      chart.panes().forEach((pane) => {
+        pane.getSeries().forEach((s) => {
+          chart.removeSeries(s);
+        });
       });
-      for (let i = chart.panes().length - 1; i >= 0; i--) {
-        chart.removePane(i);
-      }
     };
   }, [chart, view, startTime, endTime, data]);
 
@@ -589,15 +479,13 @@ export const ChartComponent = memo((props: Props) => {
             ? createPortal(
                 <Space vertical align="start" spacing={0} key={paneIndex}>
                   {pane.series.map((s, seriesIndex) => {
+                    const cursorIndex = cursor! + viewStartIndex;
+
                     function renderTitle(): ReactNode {
                       if (!data) return null;
 
                       if (s.type === 'line' || s.type === 'hist' || s.type === 'index') {
-                        const dataRef = s.refs[0];
-                        if (!dataRef) return null;
-                        const dataItem = data.find((item) => item.data_index === dataRef.data_index);
-                        if (!dataItem) return null;
-                        const dataArray = dataItem.series.get(dataRef.column_name);
+                        const dataArray = resolveDataRefToDataArray(data, s.refs[0]);
                         if (!dataArray) return null;
                         return (
                           <div
@@ -606,35 +494,21 @@ export const ChartComponent = memo((props: Props) => {
                                 DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
                             }}
                           >
-                            {s.refs[0]?.column_name}: {dataArray[cursor! + viewStartIndex]}
+                            {s.refs[0]?.column_name}: {dataArray[cursorIndex]}
                           </div>
                         );
                       }
 
-                      if (s.type === 'ohlc') {
-                        const dataRefOpen = s.refs[0];
-                        const dataRefHigh = s.refs[1];
-                        const dataRefLow = s.refs[2];
-                        const dataRefClose = s.refs[3];
-                        if (!dataRefOpen || !dataRefHigh || !dataRefLow || !dataRefClose) return null;
-                        const dataItemOpen = data.find((item) => item.data_index === dataRefOpen.data_index);
-                        const dataItemHigh = data.find((item) => item.data_index === dataRefHigh.data_index);
-                        const dataItemLow = data.find((item) => item.data_index === dataRefLow.data_index);
-                        const dataItemClose = data.find(
-                          (item) => item.data_index === dataRefClose.data_index,
-                        );
-                        if (!dataItemOpen || !dataItemHigh || !dataItemLow || !dataItemClose) return null;
-                        const dataArrayOpen = dataItemOpen.series.get(dataRefOpen.column_name);
-                        const dataArrayHigh = dataItemHigh.series.get(dataRefHigh.column_name);
-                        const dataArrayLow = dataItemLow.series.get(dataRefLow.column_name);
-                        const dataArrayClose = dataItemClose.series.get(dataRefClose.column_name);
+                      if (s.type === 'ohlc' && s.refs.length === 4) {
+                        const dataArrayOpen = resolveDataRefToDataArray(data, s.refs[0]);
+                        const dataArrayHigh = resolveDataRefToDataArray(data, s.refs[1]);
+                        const dataArrayLow = resolveDataRefToDataArray(data, s.refs[2]);
+                        const dataArrayClose = resolveDataRefToDataArray(data, s.refs[3]);
                         if (!dataArrayOpen || !dataArrayHigh || !dataArrayLow || !dataArrayClose) return null;
                         return (
                           <div>
-                            O: {dataArrayOpen[cursor! + viewStartIndex]} H:{' '}
-                            {dataArrayHigh[cursor! + viewStartIndex]} L:{' '}
-                            {dataArrayLow[cursor! + viewStartIndex]} C:{' '}
-                            {dataArrayClose[cursor! + viewStartIndex]}
+                            O: {dataArrayOpen[cursorIndex]} H: {dataArrayHigh[cursorIndex]} L:{' '}
+                            {dataArrayLow[cursorIndex]} C: {dataArrayClose[cursorIndex]}
                           </div>
                         );
                       }
