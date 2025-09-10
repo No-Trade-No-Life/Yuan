@@ -2,50 +2,27 @@ import { IconClose } from '@douyinfe/semi-icons';
 import { Slider, Space } from '@douyinfe/semi-ui';
 import { formatTime } from '@yuants/utils';
 import {
-  CandlestickSeries,
   ChartOptions,
   ColorType,
   createChart,
-  createSeriesMarkers,
   DeepPartial,
-  HistogramSeries,
   IChartApi,
-  ISeriesApi,
-  LineSeries,
   MouseEventParams,
-  SeriesMarker,
   Time,
 } from 'lightweight-charts';
 import { useObservable, useObservableRef, useObservableState } from 'observable-hooks';
-import { memo, ReactNode, useEffect, useState } from 'react';
+import { memo, ReactNode, useEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { debounceTime } from 'rxjs';
+import { debounceTime, Subject } from 'rxjs';
 import { Button, ITimeSeriesChartConfig } from '../../Interactive';
 import { useIsDarkMode } from '../../Workbench';
-import { VertLine } from '../Plugins/VerticalLine';
+import { customSeries, DEFAULT_SINGLE_COLOR_SCHEME } from './CustomSeries';
 import { ILoadedData } from './model';
 import { resolveDataRefToDataArray, resolveDataRefToTimeArray } from './resolveDataRef';
 import './TimeSeriesChart.css';
 import { useLegendContainers } from './useLegendContainers';
+import { ErrorBoundary } from '../../Pages';
 
-const DEFAULT_SINGLE_COLOR_SCHEME: string[] = [
-  '#5B8FF9',
-  '#61DDAA',
-  '#F6BD16',
-  '#7262fd',
-  '#78D3F8',
-  '#9661BC',
-  '#F6903D',
-  '#008685',
-  '#F08BB4',
-  '#26a69a',
-];
-
-const AreaOption = {
-  lineColor: '#2962FF',
-  topColor: '#2962FF',
-  bottomColor: 'rgba(41, 98, 255, 0.28)',
-};
 const ChartOption: DeepPartial<ChartOptions> = {
   layout: {
     textColor: 'rgba(0, 0, 0, 0.9)',
@@ -159,7 +136,8 @@ const mergeTimeLine = (
 export const ChartComponent = memo((props: Props) => {
   const { view, data } = props;
   const darkMode = useIsDarkMode();
-  const [cursor, setCursor] = useState<number>();
+  const [, cursor$] = useObservableRef<number | undefined>();
+  const cursor = useObservableState(cursor$);
 
   const [, sliderValue$] = useObservableRef(0);
   const viewStartIndex = useObservableState(
@@ -203,54 +181,11 @@ export const ChartComponent = memo((props: Props) => {
     .map((t) => ~~(parseFloat(t) / 1000))
     ?.filter((t) => t >= startTime && t <= endTime);
 
-  // draw index
-  useEffect(() => {
-    if (!chartRef.current || !data) return;
-    const markerList: SeriesMarker<unknown>[] = [];
-    view.panes.forEach((pane) => {
-      pane.series.forEach((s, seriesIndex) => {
-        if (s.type === 'index') {
-          const displayData = calculateDisplayData(s);
-          if (cursor) {
-            const indexData = displayData[cursor];
-            const Index = displayData[indexData?.value - viewStartIndex];
-            if (Index && Number(Index.time) >= startTime && Number(Index.time) <= endTime) {
-              markerList.push({
-                time: Index.time,
-                position: 'aboveBar',
-                shape: 'circle',
-                color: DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
-                text: `${s.refs[0].column_name}`,
-              });
-            }
-          }
-        }
-      });
-    });
-    if (markerList.length > 0) {
-      const lineSeries = chartRef.current.addSeries(LineSeries, { priceLineVisible: false });
-      lineSeries.setData([]);
-      const lines = markerList.map((marker) => {
-        const vertLine = new VertLine(chartRef.current!, lineSeries, marker.time as Time, {
-          showLabel: true,
-          labelText: marker.text,
-          color: marker.color,
-          width: 1,
-        });
-        lineSeries.attachPrimitive(vertLine);
-        return vertLine;
-      });
-      return () => {
-        lines.forEach((line) => lineSeries.detachPrimitive(line));
-      };
-    }
-  }, [cursor, view, viewStartIndex, data]);
-
   // 同步鼠标位置到 cursor 状态
   useEffect(() => {
     if (chart) {
       const handler = (param: MouseEventParams<Time>) => {
-        if (param.logical !== undefined && param.logical !== null) setCursor(param.logical);
+        if (param.logical !== undefined && param.logical !== null) cursor$.next(param.logical);
       };
       chart.subscribeCrosshairMove(handler);
       return () => {
@@ -259,167 +194,49 @@ export const ChartComponent = memo((props: Props) => {
     }
   }, [chart]);
 
-  const calculateDisplayData = (
-    s: {
-      type: string;
-      refs: Array<{
-        data_index: number;
-        column_name: string;
-      }>;
-    },
-    // timeLine: [time: number, dataIndex: number][],
-  ) => {
-    if (!data) return [];
-    const _timeLine: [number, number][] | undefined = resolveDataRefToTimeArray(data, s.refs[0])
-      ?.map((t, index) => [~~(parseFloat(t) / 1000), index] as [time: number, dataIndex: number])
-      ?.filter(([t]) => t >= startTime && t <= endTime);
-    if (!_timeLine) return [];
-    // 若ref与view timeline不一致则对其归并
-
-    const timeLine =
-      s.refs[0].data_index !== view.time_ref.data_index ? mergeTimeLine(_timeLine, mainTimeLine) : _timeLine;
-
-    const displayDataList: DisplayData[] = [];
-
-    const dataSeries = s.refs.map((ref) => resolveDataRefToDataArray(data, ref)).filter((x) => !!x);
-
-    if (s.type === 'line' || s.type === 'hist' || s.type === 'index') {
-      // 通过data_index column_name找到数据，并完成映射为图表需要的结构
-      if (dataSeries.length > 0) {
-        timeLine.forEach(([time, index]) => {
-          displayDataList.push({
-            time: time as Time,
-            value: parseFloat(dataSeries[0]![index]),
-          });
-        });
-        return displayDataList;
-      }
-    }
-    if (s.type === 'ohlc') {
-      if (dataSeries.length === 4) {
-        timeLine.forEach(([time, index]) => {
-          const x = {
-            time: time as Time,
-            open: parseFloat(dataSeries[0]![index]),
-            high: parseFloat(dataSeries[1]![index]),
-            low: parseFloat(dataSeries[2]![index]),
-            close: parseFloat(dataSeries[3]![index]),
-          };
-          if (!!x.time && !isNaN(x.open) && !isNaN(x.high) && !isNaN(x.low) && !isNaN(x.close)) {
-            displayDataList.push(x);
-          }
-        });
-        return displayDataList;
-      }
-    }
-    if (s.type === 'order') {
-      if (dataSeries.length === 3) {
-        let dataIndex = timeLine[0]?.[1] || 0;
-        timeLine.forEach(([time, index]) => {
-          let volume = 0;
-          let tradeValue = 0;
-          let totalVolume = 0;
-          for (; dataIndex <= index; dataIndex++) {
-            totalVolume += parseFloat(dataSeries[2]![dataIndex]);
-            tradeValue += parseFloat(dataSeries[2]![dataIndex]) * parseFloat(dataSeries[1]![dataIndex]);
-            const tempVolume = parseFloat(dataSeries[2]![dataIndex]);
-            const orderDirection = dataSeries[0]![index];
-            if (orderDirection === 'OPEN_LONG' || orderDirection === 'CLOSE_SHORT') {
-              volume += tempVolume;
-            } else {
-              volume -= tempVolume;
-            }
-          }
-          const x = {
-            time: time as Time,
-            volume,
-            tradePrice: tradeValue / totalVolume,
-            orderDirection: volume > 0 ? 'OPEN_LONG' : 'OPEN_SHORT',
-          };
-          if (!!x.time && !isNaN(x.tradePrice) && !!x.orderDirection && !isNaN(x.volume)) {
-            displayDataList.push(x);
-          }
-        });
-        return displayDataList;
-      }
-    }
-    return displayDataList;
-  };
-
   // 管理 panes / series 的创建和销毁
   useEffect(() => {
     if (!data || !chart || !view || startTime >= endTime || !totalTimeLine) return;
-    const seriesList: ISeriesApi<any>[] = [];
+    const dispose$ = new Subject<void>();
     view.panes.forEach((pane, paneIndex) => {
       pane.series.forEach((s, seriesIndex) => {
         if (s.refs.length < 1) return;
-        const displayData = calculateDisplayData(s);
-        if (s.type === 'line') {
-          const lineSeries = chart.addSeries(
-            LineSeries,
-            {
-              color: DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
-              lineWidth: 2,
-              priceLineVisible: false,
-            },
-            paneIndex,
-          );
-          lineSeries.setData(displayData);
-          seriesList.push(lineSeries);
-        }
-        if (s.type === 'hist') {
-          const histogramSeries = chart.addSeries(
-            HistogramSeries,
-            {
-              color: DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
-              priceLineVisible: false,
-            },
-            paneIndex,
-          );
-          histogramSeries.setData(displayData);
-          seriesList.push(histogramSeries);
-        }
-        if (s.type === 'ohlc') {
-          const candlestickSeries = chart.addSeries(
-            CandlestickSeries,
-            {
-              upColor: '#26a69a',
-              downColor: '#ef5350',
-              borderVisible: false,
-              wickUpColor: '#26a69a',
-              wickDownColor: '#ef5350',
-              priceLineVisible: false,
-            },
-            paneIndex,
-          );
-          candlestickSeries.setData(displayData);
-          seriesList.push(candlestickSeries);
-        }
-        if (s.type === 'order') {
-          const lineSeries = chart.addSeries(
-            LineSeries,
-            {
-              color: 'red',
-              lineWidth: 3,
-              priceLineVisible: false,
-            },
-            paneIndex,
-          );
-          lineSeries.setData(displayData.map((item) => ({ time: item.time, value: item.tradePrice })));
-          const markers = displayData.map((item) => ({
-            time: item.time,
-            position: 'aboveBar' as const,
-            color: item.orderDirection?.includes('LONG') ? 'green' : 'red',
-            shape: item.orderDirection?.includes('LONG') ? ('arrowUp' as const) : ('arrowDown' as const),
-            text: item.volume !== 0 ? `P: ${item.tradePrice} | Vol: ${item.volume}` : 'T',
-            price: item.tradePrice || 0,
-          }));
-          const seriesMarkers = createSeriesMarkers(lineSeries, markers);
-          seriesList.push(lineSeries);
+
+        const _timeLine: [number, number][] | undefined = resolveDataRefToTimeArray(data, s.refs[0])
+          ?.map((t, index) => [~~(parseFloat(t) / 1000), index] as [time: number, dataIndex: number])
+          ?.filter(([t]) => t >= startTime && t <= endTime);
+
+        if (!_timeLine) return; // 无法找到 series 对应的时间序列 (无法确定 data 自身每个点的时间)
+        // 若ref与view timeline不一致则对其归并
+        const timeLine =
+          s.refs[0].data_index !== view.time_ref.data_index
+            ? mergeTimeLine(_timeLine, mainTimeLine)
+            : _timeLine;
+
+        const dataSeries = s.refs.map((ref) => resolveDataRefToDataArray(data, ref)).filter((x) => !!x);
+
+        // 根据不同的 series type 创建不同的图表逻辑 (可拓展点)
+        const seriesComponent = customSeries.find((cs) => cs.type === s.type);
+        if (seriesComponent) {
+          try {
+            seriesComponent.addSeries({
+              chart,
+              paneIndex,
+              seriesIndex,
+              timeLine,
+              dataSeries,
+              cursor$,
+              viewStartIndex,
+              seriesConfig: s,
+              dispose$,
+            });
+          } catch (e) {}
+          return;
         }
       });
     });
     return () => {
+      dispose$.next();
       chart.panes().forEach((pane) => {
         pane.getSeries().forEach((s) => {
           chart.removeSeries(s);
@@ -480,49 +297,24 @@ export const ChartComponent = memo((props: Props) => {
                 <Space vertical align="start" spacing={0} key={paneIndex}>
                   {pane.series.map((s, seriesIndex) => {
                     const cursorIndex = cursor! + viewStartIndex;
+                    const globalDataSeries = s.refs
+                      .map((ref) => resolveDataRefToDataArray(data || [], ref))
+                      .filter((x): x is Exclude<typeof x, null | undefined> => !!x);
 
-                    function renderTitle(): ReactNode {
-                      if (!data) return null;
-
-                      if (s.type === 'line' || s.type === 'hist' || s.type === 'index') {
-                        const dataArray = resolveDataRefToDataArray(data, s.refs[0]);
-                        if (!dataArray) return null;
-                        return (
-                          <div
-                            style={{
-                              color:
-                                DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
-                            }}
-                          >
-                            {s.refs[0]?.column_name}: {dataArray[cursorIndex]}
-                          </div>
-                        );
-                      }
-
-                      if (s.type === 'ohlc' && s.refs.length === 4) {
-                        const dataArrayOpen = resolveDataRefToDataArray(data, s.refs[0]);
-                        const dataArrayHigh = resolveDataRefToDataArray(data, s.refs[1]);
-                        const dataArrayLow = resolveDataRefToDataArray(data, s.refs[2]);
-                        const dataArrayClose = resolveDataRefToDataArray(data, s.refs[3]);
-                        if (!dataArrayOpen || !dataArrayHigh || !dataArrayLow || !dataArrayClose) return null;
-                        return (
-                          <div>
-                            O: {dataArrayOpen[cursorIndex]} H: {dataArrayHigh[cursorIndex]} L:{' '}
-                            {dataArrayLow[cursorIndex]} C: {dataArrayClose[cursorIndex]}
-                          </div>
-                        );
-                      }
-
-                      if (s.type === 'order') {
-                        return <div>订单</div>;
-                      }
-
-                      return null;
-                    }
+                    const LegendComponent = customSeries.find((cs) => cs.type === s.type)?.renderLegend;
 
                     return (
                       <Space style={{ fontSize: 14, fontWeight: 400 }} key={`${paneIndex}/${seriesIndex}`}>
-                        {renderTitle()}
+                        {LegendComponent && (
+                          <ErrorBoundary>
+                            <LegendComponent
+                              globalDataSeries={globalDataSeries}
+                              seriesConfig={s}
+                              seriesIndex={seriesIndex}
+                              cursorIndex={cursorIndex}
+                            />
+                          </ErrorBoundary>
+                        )}
                         <Button
                           size="small"
                           theme="borderless"

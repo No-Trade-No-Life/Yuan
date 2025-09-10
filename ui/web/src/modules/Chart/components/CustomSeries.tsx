@@ -1,0 +1,246 @@
+import {
+  CandlestickSeries,
+  createSeriesMarkers,
+  HistogramSeries,
+  LineSeries,
+  Time,
+} from 'lightweight-charts';
+import { Observable, switchMap, takeUntil } from 'rxjs';
+import { VertLine } from '../Plugins/VerticalLine';
+import { ICustomSeries } from './model';
+
+export const DEFAULT_SINGLE_COLOR_SCHEME: string[] = [
+  '#5B8FF9',
+  '#61DDAA',
+  '#F6BD16',
+  '#7262fd',
+  '#78D3F8',
+  '#9661BC',
+  '#F6903D',
+  '#008685',
+  '#F08BB4',
+  '#26a69a',
+];
+
+const SimpleKeyValueLegend: ICustomSeries['renderLegend'] = ({
+  globalDataSeries,
+  seriesIndex,
+  seriesConfig,
+  cursorIndex,
+}) => {
+  if (globalDataSeries.length < 1) return null;
+
+  return (
+    <div
+      style={{
+        color: DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
+      }}
+    >
+      {seriesConfig.refs[0]?.column_name}: {globalDataSeries[0][cursorIndex]}
+    </div>
+  );
+};
+
+export const customSeries: ICustomSeries[] = [
+  {
+    type: 'line',
+    addSeries: ({ chart, paneIndex, seriesIndex, dataSeries, timeLine }) => {
+      if (dataSeries.length < 1) return;
+      const lineSeries = chart.addSeries(
+        LineSeries,
+        {
+          color: DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
+          lineWidth: 2,
+          priceLineVisible: false,
+        },
+        paneIndex,
+      );
+      lineSeries.setData(
+        timeLine.map(([time, index]) => {
+          return {
+            time: time as Time,
+            value: parseFloat(dataSeries[0]![index]),
+          };
+        }),
+      );
+    },
+    renderLegend: SimpleKeyValueLegend,
+  },
+  {
+    type: 'hist',
+    addSeries: ({ chart, paneIndex, seriesIndex, timeLine, dataSeries }) => {
+      if (dataSeries.length < 1) return;
+      const histogramSeries = chart.addSeries(
+        HistogramSeries,
+        {
+          color: DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
+          priceLineVisible: false,
+        },
+        paneIndex,
+      );
+      histogramSeries.setData(
+        timeLine.map(([time, index]) => {
+          return {
+            time: time as Time,
+            value: parseFloat(dataSeries[0]![index]),
+          };
+        }),
+      );
+    },
+    renderLegend: SimpleKeyValueLegend,
+  },
+  {
+    type: 'ohlc',
+    addSeries: ({ chart, paneIndex, seriesIndex, dataSeries, timeLine }) => {
+      if (dataSeries.length < 4) return;
+      const candlestickSeries = chart.addSeries(
+        CandlestickSeries,
+        {
+          upColor: '#26a69a',
+          downColor: '#ef5350',
+          borderVisible: false,
+          wickUpColor: '#26a69a',
+          wickDownColor: '#ef5350',
+          priceLineVisible: false,
+        },
+        paneIndex,
+      );
+      const displayDataList: { time: Time; open: number; high: number; low: number; close: number }[] = [];
+      timeLine.forEach(([time, index]) => {
+        const x = {
+          time: time as Time,
+          open: parseFloat(dataSeries[0]![index]),
+          high: parseFloat(dataSeries[1]![index]),
+          low: parseFloat(dataSeries[2]![index]),
+          close: parseFloat(dataSeries[3]![index]),
+        };
+        if (!!x.time && !isNaN(x.open) && !isNaN(x.high) && !isNaN(x.low) && !isNaN(x.close)) {
+          displayDataList.push(x);
+        }
+      });
+
+      candlestickSeries.setData(displayDataList);
+    },
+    renderLegend: function ({ globalDataSeries, cursorIndex, seriesConfig }): React.ReactNode {
+      if (globalDataSeries.length < 4) return null;
+      return (
+        <div>
+          O: {globalDataSeries[0][cursorIndex]} H: {globalDataSeries[1][cursorIndex]} L:{' '}
+          {globalDataSeries[2][cursorIndex]} C: {globalDataSeries[3][cursorIndex]}
+        </div>
+      );
+    },
+  },
+  {
+    type: 'order',
+    addSeries: ({ chart, paneIndex, seriesIndex, timeLine, dataSeries }) => {
+      if (dataSeries.length < 3) return;
+      const seriesData: Array<{ time: Time; value: number }> = [];
+      const markerData: {
+        time: Time;
+        position: 'aboveBar';
+        color: string;
+        shape: 'arrowUp' | 'arrowDown';
+        text: string;
+        price: number;
+      }[] = [];
+
+      let dataIndex = timeLine[0]?.[1] || 0;
+      timeLine.forEach(([_time, index]) => {
+        let volume = 0;
+        let tradeValue = 0;
+        let totalVolume = 0;
+        for (; dataIndex <= index; dataIndex++) {
+          totalVolume += parseFloat(dataSeries[2]![dataIndex]);
+          tradeValue += parseFloat(dataSeries[2]![dataIndex]) * parseFloat(dataSeries[1]![dataIndex]);
+          const tempVolume = parseFloat(dataSeries[2]![dataIndex]);
+          const orderDirection = dataSeries[0]![index];
+          if (orderDirection === 'OPEN_LONG' || orderDirection === 'CLOSE_SHORT') {
+            volume += tempVolume;
+          } else {
+            volume -= tempVolume;
+          }
+        }
+
+        const orderDirection = volume > 0 ? 'OPEN_LONG' : 'OPEN_SHORT';
+        const tradePrice = tradeValue / totalVolume;
+        const time = _time as Time;
+        if (!!time && !isNaN(tradePrice) && !!orderDirection && !isNaN(volume)) {
+          seriesData.push({ time, value: tradeValue / totalVolume });
+          markerData.push({
+            time,
+            position: 'aboveBar' as const,
+            color: orderDirection?.includes('LONG') ? 'green' : 'red',
+            shape: orderDirection?.includes('LONG') ? ('arrowUp' as const) : ('arrowDown' as const),
+            text: volume !== 0 ? `P: ${tradePrice} | Vol: ${volume}` : 'T',
+            price: tradePrice || 0,
+          });
+        }
+      });
+
+      const lineSeries = chart.addSeries(
+        LineSeries,
+        {
+          color: 'red',
+          lineWidth: 3,
+          priceLineVisible: false,
+        },
+        paneIndex,
+      );
+      lineSeries.setData(seriesData);
+      const seriesMarkers = createSeriesMarkers(lineSeries, markerData);
+    },
+    renderLegend: function (): React.ReactNode {
+      return <div>订单</div>;
+    },
+  },
+  {
+    type: 'index',
+    addSeries: ({
+      chart,
+      paneIndex,
+      seriesIndex,
+      seriesConfig,
+      dataSeries,
+      timeLine,
+      cursor$,
+      viewStartIndex,
+      dispose$,
+    }) => {
+      if (dataSeries.length < 1) return;
+      const lineSeries = chart.addSeries(LineSeries, { priceLineVisible: false });
+      lineSeries.setData([]);
+
+      cursor$
+        .pipe(
+          takeUntil(dispose$),
+          switchMap(
+            (cursor) =>
+              new Observable((sub) => {
+                if (cursor === undefined) return;
+
+                const [time, index] = timeLine[cursor];
+
+                const indexData = parseFloat(dataSeries[0][index]);
+                const Index = timeLine[indexData - viewStartIndex];
+
+                if (!Index) return;
+
+                const vertLine = new VertLine(chart, lineSeries, Index[0] as Time, {
+                  showLabel: true,
+                  labelText: `${seriesConfig.refs[0].column_name}`,
+                  color: DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
+                  width: 1,
+                });
+                lineSeries.attachPrimitive(vertLine);
+                return () => {
+                  lineSeries.detachPrimitive(vertLine);
+                };
+              }),
+          ),
+        )
+        .subscribe();
+    },
+    renderLegend: SimpleKeyValueLegend,
+  },
+];
