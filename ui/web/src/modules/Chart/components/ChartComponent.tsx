@@ -1,5 +1,6 @@
+import { IconClose } from '@douyinfe/semi-icons';
 import { Slider, Space } from '@douyinfe/semi-ui';
-import { encodePath, formatTime } from '@yuants/utils';
+import { formatTime } from '@yuants/utils';
 import {
   CandlestickSeries,
   ChartOptions,
@@ -9,7 +10,6 @@ import {
   DeepPartial,
   HistogramSeries,
   IChartApi,
-  IPaneApi,
   ISeriesApi,
   LineSeries,
   MouseEventParams,
@@ -17,13 +17,14 @@ import {
   Time,
 } from 'lightweight-charts';
 import { useObservable, useObservableRef, useObservableState } from 'observable-hooks';
-import { memo, ReactNode, useEffect, useMemo, useRef, useState } from 'react';
+import { memo, ReactNode, useEffect, useMemo, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { debounceTime } from 'rxjs';
 import { Button, ITimeSeriesChartConfig } from '../../Interactive';
 import { useIsDarkMode } from '../../Workbench';
 import { VertLine } from '../Plugins/VerticalLine';
-import { IconClose } from '@douyinfe/semi-icons';
+import './TimeSeriesChart.css';
+import { useLegendContainers } from './useLegendContainers';
 
 const DEFAULT_SINGLE_COLOR_SCHEME: string[] = [
   '#5B8FF9',
@@ -104,26 +105,6 @@ const DarkModeChartOption: DeepPartial<ChartOptions> = {
 
 const PAGE_SIZE = 5000;
 
-function waitForPaneElement(pane: IPaneApi<Time>, maxRetries: number = 50): Promise<HTMLElement> {
-  return new Promise((resolve, reject) => {
-    let retries = 0;
-    function check() {
-      const el = pane?.getHTMLElement();
-      if (el) {
-        resolve(el);
-        return;
-      }
-      if (retries++ >= maxRetries) {
-        reject(new Error('Pane element not available after retries'));
-        return;
-      }
-      // 下一帧再试
-      requestAnimationFrame(check);
-    }
-    check();
-  });
-}
-
 interface Props {
   view: ITimeSeriesChartConfig['views'][0];
   onViewChange: (newView: ITimeSeriesChartConfig['views'][0]) => Promise<void>;
@@ -184,21 +165,13 @@ export const ChartComponent = memo((props: Props) => {
   const darkMode = useIsDarkMode();
   const [cursor, setCursor] = useState<number>();
 
-  const legendDomRef = useRef<Map<string, HTMLElement>>(new Map()).current;
-
-  useEffect(() => {
-    return () => {
-      legendDomRef.clear();
-    };
-  }, []);
-
   const [, sliderValue$] = useObservableRef(0);
   const viewStartIndex = useObservableState(
     useObservable(() => sliderValue$.pipe(debounceTime(100)), []),
     0,
   );
 
-  const domRef = useRef<HTMLDivElement | null>(null);
+  const [domRef, dom$] = useObservableRef<HTMLDivElement | null>(null);
 
   const [chartRef, chart$] = useObservableRef<IChartApi | null>(null);
   const chart = useObservableState(chart$);
@@ -552,21 +525,6 @@ export const ChartComponent = memo((props: Props) => {
           seriesList.push(lineSeries);
         }
       });
-      const currentPane = chart.panes()[paneIndex];
-      waitForPaneElement(currentPane).then((container) => {
-        container.setAttribute('style', 'position:relative');
-        const legend = document.createElement('div');
-        legend.setAttribute(
-          'style',
-          `position: absolute; left: 12px; top: 0px; z-index: 10; font-size: 14px; font-family: sans-serif; line-height: 18px; font-weight: 300;`,
-        );
-        container.appendChild(legend);
-        pane.series.forEach((s, seriesIndex) => {
-          const div = document.createElement('div');
-          legendDomRef.set(encodePath(paneIndex, seriesIndex), div);
-          legend.appendChild(div);
-        });
-      });
     });
     return () => {
       seriesList.forEach((s) => {
@@ -595,6 +553,8 @@ export const ChartComponent = memo((props: Props) => {
     }
   }, [chart]);
 
+  const legendContainers = useLegendContainers(dom$);
+
   return (
     <Space vertical align="start" style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
       <Space>
@@ -616,15 +576,17 @@ export const ChartComponent = memo((props: Props) => {
           />
         )}
         {formatTime(startTime * 1000)}-{formatTime(endTime * 1000)}
-        -- Cursor: {(cursor ?? 0) + viewStartIndex}
+        -- Cursor: {(cursor ?? 0) + viewStartIndex} ({cursor ?? 0} + {viewStartIndex})
       </Space>
       <div key="canvas" style={{ width: '100%', flex: 1, overflow: 'hidden' }} ref={domRef} />
       <>
-        {view.panes.flatMap((pane, paneIndex) =>
-          pane.series.map((s, seriesIndex) => {
-            const key = encodePath(paneIndex, seriesIndex);
-            const legendDom = legendDomRef.get(key);
+        {view.panes.map((pane, paneIndex) => {
+          const legendDom = legendContainers?.[paneIndex];
 
+          return legendDom
+            ? createPortal(
+                <Space vertical align="start" spacing={0}>
+                  {pane.series.map((s, seriesIndex) => {
             function renderTitle(): ReactNode {
               if (!data) return null;
 
@@ -638,7 +600,8 @@ export const ChartComponent = memo((props: Props) => {
                 return (
                   <div
                     style={{
-                      color: DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
+                              color:
+                                DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
                     }}
                   >
                     {s.refs[0]?.column_name}: {dataArray[cursor! + viewStartIndex]}
@@ -655,7 +618,9 @@ export const ChartComponent = memo((props: Props) => {
                 const dataItemOpen = data.find((item) => item.data_index === dataRefOpen.data_index);
                 const dataItemHigh = data.find((item) => item.data_index === dataRefHigh.data_index);
                 const dataItemLow = data.find((item) => item.data_index === dataRefLow.data_index);
-                const dataItemClose = data.find((item) => item.data_index === dataRefClose.data_index);
+                        const dataItemClose = data.find(
+                          (item) => item.data_index === dataRefClose.data_index,
+                        );
                 if (!dataItemOpen || !dataItemHigh || !dataItemLow || !dataItemClose) return null;
                 const dataArrayOpen = dataItemOpen.series.get(dataRefOpen.column_name);
                 const dataArrayHigh = dataItemHigh.series.get(dataRefHigh.column_name);
@@ -664,8 +629,10 @@ export const ChartComponent = memo((props: Props) => {
                 if (!dataArrayOpen || !dataArrayHigh || !dataArrayLow || !dataArrayClose) return null;
                 return (
                   <div>
-                    O: {dataArrayOpen[cursor! + viewStartIndex]} H: {dataArrayHigh[cursor! + viewStartIndex]}{' '}
-                    L: {dataArrayLow[cursor! + viewStartIndex]} C: {dataArrayClose[cursor! + viewStartIndex]}
+                            O: {dataArrayOpen[cursor! + viewStartIndex]} H:{' '}
+                            {dataArrayHigh[cursor! + viewStartIndex]} L:{' '}
+                            {dataArrayLow[cursor! + viewStartIndex]} C:{' '}
+                            {dataArrayClose[cursor! + viewStartIndex]}
                   </div>
                 );
               }
@@ -677,11 +644,9 @@ export const ChartComponent = memo((props: Props) => {
               return null;
             }
 
-            const render = () => {
-              const title = renderTitle();
               return (
                 <Space style={{ fontSize: 14, fontWeight: 400 }}>
-                  {title}
+                        {renderTitle()}
                   <Button
                     size="small"
                     theme="borderless"
@@ -697,11 +662,13 @@ export const ChartComponent = memo((props: Props) => {
                   />
                 </Space>
               );
-            };
-
-            return legendDom ? createPortal(render(), legendDom, key) : null;
-          }),
-        )}
+                  })}
+                </Space>,
+                legendDom,
+                paneIndex.toString(),
+              )
+            : null;
+        })}
       </>
     </Space>
   );

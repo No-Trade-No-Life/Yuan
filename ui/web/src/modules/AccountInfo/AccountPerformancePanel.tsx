@@ -47,11 +47,12 @@ registerPage('AccountPerformancePanel', () => {
       <Space>
         <AccountSelector value={accountId} onChange={setAccountId} candidates={accountIdOptions} />
         <Button
-          onClick={() => {
-            executeCommand('NewTechnicalChart', {
+          disabled={!kernel?.id}
+          onClick={() =>
+            executeCommand('TimeSeriesChart', {
               filename: `/.Y/kernel/${kernel?.id}/config.json`,
-            });
-          }}
+            })
+          }
         >
           {t('pages:TechnicalChart')}
         </Button>

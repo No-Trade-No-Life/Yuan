@@ -1,0 +1,9 @@
+.TimeSeriesChart_pane {
+  position: relative;
+}
+.TimeSeriesChart_legend-container {
+  position: absolute;
+  left: 12px;
+  top: 0px;
+  z-index: 10;
+}
