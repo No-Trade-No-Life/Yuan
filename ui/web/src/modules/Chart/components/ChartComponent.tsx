@@ -130,8 +130,11 @@ interface DisplayData {
   volume?: number;
 }
 
-const mergeTimeLine = (timeLine: number[][], mainTimeLine: number[]): number[][] => {
-  const result: number[][] = [];
+const mergeTimeLine = (
+  timeLine: [time: number, dataIndex: number][],
+  mainTimeLine: number[],
+): [time: number, dataIndex: number][] => {
+  const result: [time: number, dataIndex: number][] = [];
   let timeLineIndex = 0;
 
   for (let mainTimeLineIndex = 0; mainTimeLineIndex < mainTimeLine.length; mainTimeLineIndex++) {
@@ -202,6 +205,10 @@ export const ChartComponent = memo((props: Props) => {
   const endTime = ~~(parseFloat(totalTimeLine?.[endIndex - 1]) / 1000);
   const startTime = ~~(parseFloat(totalTimeLine?.[startIndex]) / 1000);
 
+  const mainTimeLine = (totalTimeLine ?? [])
+    .map((t) => ~~(parseFloat(t) / 1000))
+    ?.filter((t) => t >= startTime && t <= endTime);
+
   const totalDisplayData = useMemo(() => {
     if (!view || !data) return null;
     const mainTimeLine = data
@@ -216,9 +223,9 @@ export const ChartComponent = memo((props: Props) => {
         //找到ref对应的timeline
         const dataItem = data.find((item) => item.data_index === s.refs[0].data_index);
         if (!dataItem) return null;
-        let timeLine = dataItem.series
+        let timeLine: [time: number, dataIndex: number][] | undefined = dataItem.series
           .get(dataItem.time_column_name)
-          ?.map((t, index) => [~~(parseFloat(t) / 1000), index]);
+          ?.map((t, index) => [~~(parseFloat(t) / 1000), index] as [time: number, dataIndex: number]);
         if (!timeLine) return null;
         // 若ref与view timeline不一致则归并对其
         if (s.refs[0].data_index !== view.time_ref.data_index) {
@@ -303,16 +310,17 @@ export const ChartComponent = memo((props: Props) => {
     }
   }, [totalDisplayData, totalTimeLine, viewStartIndex, startTime, endTime]);
 
+  // draw index
   useEffect(() => {
-    if (!displayData || !chartRef.current) return;
+    if (!chartRef.current || !data) return;
     const markerList: SeriesMarker<unknown>[] = [];
-    view.panes.forEach((pane, paneIndex) => {
+    view.panes.forEach((pane) => {
       pane.series.forEach((s, seriesIndex) => {
-        const data = displayData[paneIndex][seriesIndex] ?? [];
         if (s.type === 'index') {
+          const displayData = calculateDisplayData(s);
           if (cursor) {
-            const indexData = data[cursor];
-            const Index = data[indexData?.value - viewStartIndex];
+            const indexData = displayData[cursor];
+            const Index = displayData[indexData?.value - viewStartIndex];
             if (Index && Number(Index.time) >= startTime && Number(Index.time) <= endTime) {
               markerList.push({
                 time: Index.time,
@@ -343,13 +351,13 @@ export const ChartComponent = memo((props: Props) => {
         lines.forEach((line) => lineSeries.detachPrimitive(line));
       };
     }
-  }, [cursor, displayData, view, viewStartIndex]);
+  }, [cursor, view, viewStartIndex, data]);
 
   // 同步鼠标位置到 cursor 状态
   useEffect(() => {
     if (chart) {
       const handler = (param: MouseEventParams<Time>) => {
-        if (param.logical) setCursor(param.logical);
+        if (param.logical !== undefined && param.logical !== null) setCursor(param.logical);
       };
       chart.subscribeCrosshairMove(handler);
       return () => {
@@ -358,13 +366,101 @@ export const ChartComponent = memo((props: Props) => {
     }
   }, [chart]);
 
+  const calculateDisplayData = (
+    s: {
+      type: string;
+      refs: Array<{
+        data_index: number;
+        column_name: string;
+      }>;
+    },
+    // timeLine: [time: number, dataIndex: number][],
+  ) => {
+    if (!data) return [];
+    const dataItem = data.find((item) => item.data_index === s.refs[0].data_index);
+    if (!dataItem) return [];
+    let timeLine: [number, number][] | undefined = dataItem.series
+      .get(dataItem.time_column_name)
+      ?.map((t, index) => [~~(parseFloat(t) / 1000), index] as [time: number, dataIndex: number])
+      ?.filter(([t]) => t >= startTime && t <= endTime);
+    if (!timeLine) return [];
+    // 若ref与view timeline不一致则归并对其
+    if (s.refs[0].data_index !== view.time_ref.data_index) {
+      timeLine = mergeTimeLine(timeLine, mainTimeLine);
+    }
+    const displayDataList: DisplayData[] = [];
+    const dataSeries = s.refs
+      .map((ref) => data.find((item) => item.data_index === ref.data_index)?.series.get(ref.column_name))
+      .filter((x) => !!x);
+    if (s.type === 'line' || s.type === 'hist' || s.type === 'index') {
+      // 通过data_index column_name找到数据，并完成映射为图表需要的结构
+      if (dataSeries) {
+        timeLine.forEach(([time], index) => {
+          displayDataList.push({
+            time: time as Time,
+            value: parseFloat(dataSeries[0]![index]),
+          });
+        });
+        return displayDataList;
+      }
+    }
+    if (s.type === 'ohlc') {
+      if (dataSeries.length === 4) {
+        timeLine
+          .map(([time, index]) => ({
+            time: time as Time,
+            open: parseFloat(dataSeries[0]![index]),
+            high: parseFloat(dataSeries[1]![index]),
+            low: parseFloat(dataSeries[2]![index]),
+            close: parseFloat(dataSeries[3]![index]),
+          }))
+          .filter((x) => !!x.time && !isNaN(x.open) && !isNaN(x.high) && !isNaN(x.low) && !isNaN(x.close))
+          .forEach((item) => displayDataList.push(item));
+        return displayDataList;
+      }
+    }
+    if (s.type === 'order') {
+      if (dataSeries.length === 3) {
+        let dataIndex = timeLine[0]?.[1] || 0;
+        timeLine
+          .map(([time, index]) => {
+            let volume = 0;
+            let tradeValue = 0;
+            let totalVolume = 0;
+            for (; dataIndex <= index; dataIndex++) {
+              totalVolume += parseFloat(dataSeries[2]![dataIndex]);
+              tradeValue += parseFloat(dataSeries[2]![dataIndex]) * parseFloat(dataSeries[1]![dataIndex]);
+              const tempVolume = parseFloat(dataSeries[2]![dataIndex]);
+              const orderDirection = dataSeries[0]![index];
+              if (orderDirection === 'OPEN_LONG' || orderDirection === 'CLOSE_SHORT') {
+                volume += tempVolume;
+              } else {
+                volume -= tempVolume;
+              }
+            }
+            return {
+              time: time as Time,
+              volume,
+              tradePrice: tradeValue / totalVolume,
+              orderDirection: volume > 0 ? 'OPEN_LONG' : 'OPEN_SHORT',
+            };
+          })
+          .filter((x) => !!x.time && !isNaN(x.tradePrice) && !!x.orderDirection && !isNaN(x.volume))
+          .forEach((item) => displayDataList.push(item));
+        return displayDataList;
+      }
+    }
+    return displayDataList;
+  };
+
   // 管理 panes / series 的创建和销毁
   useEffect(() => {
-    if (!displayData || !chart || !view) return;
+    if (!data || !chart || !view || startTime >= endTime || !totalTimeLine) return;
     const seriesList: ISeriesApi<any>[] = [];
     view.panes.forEach((pane, paneIndex) => {
       pane.series.forEach((s, seriesIndex) => {
-        const data = displayData[paneIndex][seriesIndex] ?? [];
+        if (s.refs.length < 1) return;
+        const displayData = calculateDisplayData(s);
         if (s.type === 'line') {
           const lineSeries = chart.addSeries(
             LineSeries,
@@ -375,7 +471,7 @@ export const ChartComponent = memo((props: Props) => {
             },
             paneIndex,
           );
-          lineSeries.setData(data);
+          lineSeries.setData(displayData);
           seriesList.push(lineSeries);
         }
         if (s.type === 'hist') {
@@ -387,7 +483,7 @@ export const ChartComponent = memo((props: Props) => {
             },
             paneIndex,
           );
-          histogramSeries.setData(data);
+          histogramSeries.setData(displayData);
           seriesList.push(histogramSeries);
         }
         if (s.type === 'ohlc') {
@@ -403,7 +499,7 @@ export const ChartComponent = memo((props: Props) => {
             },
             paneIndex,
           );
-          candlestickSeries.setData(data);
+          candlestickSeries.setData(displayData);
           seriesList.push(candlestickSeries);
         }
         if (s.type === 'order') {
@@ -416,8 +512,8 @@ export const ChartComponent = memo((props: Props) => {
             },
             paneIndex,
           );
-          lineSeries.setData(data.map((item) => ({ time: item.time, value: item.tradePrice })));
-          const markers = data.map((item) => ({
+          lineSeries.setData(displayData.map((item) => ({ time: item.time, value: item.tradePrice })));
+          const markers = displayData.map((item) => ({
             time: item.time,
             position: 'aboveBar' as const,
             color: item.orderDirection?.includes('LONG') ? 'green' : 'red',
@@ -438,7 +534,7 @@ export const ChartComponent = memo((props: Props) => {
         chart.removePane(i);
       }
     };
-  }, [chart, view, displayData, darkMode]);
+  }, [chart, view, startTime, endTime, data]);
 
   // Resize chart on container resize
   useEffect(() => {
@@ -489,83 +585,83 @@ export const ChartComponent = memo((props: Props) => {
 
           return legendDom
             ? createPortal(
-                <Space vertical align="start" spacing={0}>
+                <Space vertical align="start" spacing={0} key={paneIndex}>
                   {pane.series.map((s, seriesIndex) => {
-            function renderTitle(): ReactNode {
-              if (!data) return null;
+                    function renderTitle(): ReactNode {
+                      if (!data) return null;
 
-              if (s.type === 'line' || s.type === 'hist' || s.type === 'index') {
-                const dataRef = s.refs[0];
-                if (!dataRef) return null;
-                const dataItem = data.find((item) => item.data_index === dataRef.data_index);
-                if (!dataItem) return null;
-                const dataArray = dataItem.series.get(dataRef.column_name);
-                if (!dataArray) return null;
-                return (
-                  <div
-                    style={{
+                      if (s.type === 'line' || s.type === 'hist' || s.type === 'index') {
+                        const dataRef = s.refs[0];
+                        if (!dataRef) return null;
+                        const dataItem = data.find((item) => item.data_index === dataRef.data_index);
+                        if (!dataItem) return null;
+                        const dataArray = dataItem.series.get(dataRef.column_name);
+                        if (!dataArray) return null;
+                        return (
+                          <div
+                            style={{
                               color:
                                 DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
-                    }}
-                  >
-                    {s.refs[0]?.column_name}: {dataArray[cursor! + viewStartIndex]}
-                  </div>
-                );
-              }
+                            }}
+                          >
+                            {s.refs[0]?.column_name}: {dataArray[cursor! + viewStartIndex]}
+                          </div>
+                        );
+                      }
 
-              if (s.type === 'ohlc') {
-                const dataRefOpen = s.refs[0];
-                const dataRefHigh = s.refs[1];
-                const dataRefLow = s.refs[2];
-                const dataRefClose = s.refs[3];
-                if (!dataRefOpen || !dataRefHigh || !dataRefLow || !dataRefClose) return null;
-                const dataItemOpen = data.find((item) => item.data_index === dataRefOpen.data_index);
-                const dataItemHigh = data.find((item) => item.data_index === dataRefHigh.data_index);
-                const dataItemLow = data.find((item) => item.data_index === dataRefLow.data_index);
+                      if (s.type === 'ohlc') {
+                        const dataRefOpen = s.refs[0];
+                        const dataRefHigh = s.refs[1];
+                        const dataRefLow = s.refs[2];
+                        const dataRefClose = s.refs[3];
+                        if (!dataRefOpen || !dataRefHigh || !dataRefLow || !dataRefClose) return null;
+                        const dataItemOpen = data.find((item) => item.data_index === dataRefOpen.data_index);
+                        const dataItemHigh = data.find((item) => item.data_index === dataRefHigh.data_index);
+                        const dataItemLow = data.find((item) => item.data_index === dataRefLow.data_index);
                         const dataItemClose = data.find(
                           (item) => item.data_index === dataRefClose.data_index,
                         );
-                if (!dataItemOpen || !dataItemHigh || !dataItemLow || !dataItemClose) return null;
-                const dataArrayOpen = dataItemOpen.series.get(dataRefOpen.column_name);
-                const dataArrayHigh = dataItemHigh.series.get(dataRefHigh.column_name);
-                const dataArrayLow = dataItemLow.series.get(dataRefLow.column_name);
-                const dataArrayClose = dataItemClose.series.get(dataRefClose.column_name);
-                if (!dataArrayOpen || !dataArrayHigh || !dataArrayLow || !dataArrayClose) return null;
-                return (
-                  <div>
+                        if (!dataItemOpen || !dataItemHigh || !dataItemLow || !dataItemClose) return null;
+                        const dataArrayOpen = dataItemOpen.series.get(dataRefOpen.column_name);
+                        const dataArrayHigh = dataItemHigh.series.get(dataRefHigh.column_name);
+                        const dataArrayLow = dataItemLow.series.get(dataRefLow.column_name);
+                        const dataArrayClose = dataItemClose.series.get(dataRefClose.column_name);
+                        if (!dataArrayOpen || !dataArrayHigh || !dataArrayLow || !dataArrayClose) return null;
+                        return (
+                          <div>
                             O: {dataArrayOpen[cursor! + viewStartIndex]} H:{' '}
                             {dataArrayHigh[cursor! + viewStartIndex]} L:{' '}
                             {dataArrayLow[cursor! + viewStartIndex]} C:{' '}
                             {dataArrayClose[cursor! + viewStartIndex]}
-                  </div>
-                );
-              }
-
-              if (s.type === 'order') {
-                return <div>订单</div>;
-              }
-
-              return null;
-            }
-
-              return (
-                <Space style={{ fontSize: 14, fontWeight: 400 }}>
-                        {renderTitle()}
-                  <Button
-                    size="small"
-                    theme="borderless"
-                    icon={<IconClose />}
-                    onClick={async () => {
-                      const newView = structuredClone(view);
-                      newView.panes[paneIndex].series.splice(seriesIndex, 1);
-                      if (newView.panes[paneIndex].series.length === 0) {
-                        newView.panes.splice(paneIndex, 1);
+                          </div>
+                        );
                       }
-                      await props.onViewChange(newView);
-                    }}
-                  />
-                </Space>
-              );
+
+                      if (s.type === 'order') {
+                        return <div>订单</div>;
+                      }
+
+                      return null;
+                    }
+
+                    return (
+                      <Space style={{ fontSize: 14, fontWeight: 400 }} key={`${paneIndex}/${seriesIndex}`}>
+                        {renderTitle()}
+                        <Button
+                          size="small"
+                          theme="borderless"
+                          icon={<IconClose />}
+                          onClick={async () => {
+                            const newView = structuredClone(view);
+                            newView.panes[paneIndex].series.splice(seriesIndex, 1);
+                            if (newView.panes[paneIndex].series.length === 0) {
+                              newView.panes.splice(paneIndex, 1);
+                            }
+                            await props.onViewChange(newView);
+                          }}
+                        />
+                      </Space>
+                    );
                   })}
                 </Space>,
                 legendDom,
