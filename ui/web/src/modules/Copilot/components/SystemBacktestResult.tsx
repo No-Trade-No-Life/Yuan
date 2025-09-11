@@ -100,7 +100,6 @@ export default ({
           <AccountSelector value={accountId} onChange={setAccountId} candidates={accountIdOptions} />
           <Button onClick={() => executeCommand('TechnicalChart')}>{t('pages:TechnicalChart')}</Button>
           <Button onClick={() => executeCommand('OrderListPanel')}>{t('pages:OrderListPanel')}</Button>
-          <Button onClick={() => executeCommand('AccountFrameChart')}>{t('pages:AccountFrameChart')}</Button>
           <Button onClick={() => executeCommand('RecordTablePanel')}>{t('pages:RecordTablePanel')}</Button>
         </Space>
         <Descriptions

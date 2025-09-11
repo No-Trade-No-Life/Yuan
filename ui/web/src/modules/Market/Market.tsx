@@ -29,7 +29,6 @@ import {
   switchMap,
   tap,
 } from 'rxjs';
-import { CandlestickSeries, Chart, ChartGroup } from '../Chart/components/Charts';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { showForm } from '../Form';
 import { Button } from '../Interactive';
@@ -179,11 +178,11 @@ registerPage('Market', () => {
         </Space>
       </Layout.Header>
       <Layout.Content>
-        <ChartGroup key={cnt}>
+        {/* <ChartGroup key={cnt}>
           <Chart>
             <CandlestickSeries title={periodKey} data={periods} />
           </Chart>
-        </ChartGroup>
+        </ChartGroup> */}
       </Layout.Content>
     </Layout>
   );
