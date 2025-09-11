@@ -219,14 +219,19 @@ export const customSeries: ICustomSeries[] = [
               new Observable((sub) => {
                 if (cursor === undefined) return;
 
+                if (!timeLine[cursor]) return;
                 const [time, index] = timeLine[cursor];
 
                 const indexData = parseFloat(dataSeries[0][index]);
                 const Index = timeLine[indexData - viewStartIndex];
 
                 if (!Index) return;
+                if (Index[0] < timeLine[0][0]) return;
+                if (Index[0] > timeLine[timeLine.length - 1][0]) return;
 
-                const vertLine = new VertLine(chart, lineSeries, Index[0] as Time, {
+                const theTime = Index[0] as Time;
+
+                const vertLine = new VertLine(chart, lineSeries, theTime, {
                   showLabel: true,
                   labelText: `${seriesConfig.refs[0].column_name}`,
                   color: DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
