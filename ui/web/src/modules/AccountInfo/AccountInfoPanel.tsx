@@ -467,50 +467,49 @@ registerPage('AccountInfoPanel', () => {
         <Collapse.Panel header={`持仓细节 (${accountInfo.positions.length})`} itemKey="持仓细节">
           <DataView data={accountInfo?.positions ?? []} columns={columnsOfPositions} />
         </Collapse.Panel>
-        {/* <Collapse.Panel header={`订单 (${accountInfo.orders.length})`} itemKey="订单">
-          <DataView data={accountInfo?.orders ?? []} columns={columnsOfOrders} />
-        </Collapse.Panel> */}
-      </Collapse>
-      <div style={{ height: 400 }}>
-        <TimeSeriesChart
-          config={{
-            data: [
-              {
-                type: 'promql',
-                query: `sum (account_info_equity{account_id="${accountInfo.account_id}"})`,
-                start_time: formatTime(Date.now() - 14 * 24 * 3600 * 1000),
-                end_time: formatTime(Date.now()),
-                step: '1h',
-              },
-            ],
-            views: [
-              {
-                name: '账户历史净值监控',
-                time_ref: {
-                  data_index: 0,
-                  column_name: '__time',
-                },
-                panes: [
+        <Collapse.Panel header={`监控`} itemKey="监控">
+          <div style={{ height: 400, width: '100%', overflow: 'hidden' }}>
+            <TimeSeriesChart
+              config={{
+                data: [
                   {
-                    series: [
+                    type: 'promql',
+                    query: `sum (account_info_equity{account_id="${accountInfo.account_id}"})`,
+                    start_time: formatTime(Date.now() - 14 * 24 * 3600 * 1000),
+                    end_time: formatTime(Date.now()),
+                    step: '2h',
+                  },
+                ],
+                views: [
+                  {
+                    name: '账户历史净值监控',
+                    time_ref: {
+                      data_index: 0,
+                      column_name: '__time',
+                    },
+                    panes: [
                       {
-                        type: 'line',
-                        refs: [
+                        series: [
                           {
-                            data_index: 0,
-                            column_name: '{}',
+                            type: 'line',
+                            refs: [
+                              {
+                                data_index: 0,
+                                column_name: '{}',
+                              },
+                            ],
                           },
                         ],
                       },
                     ],
                   },
                 ],
-              },
-            ],
-          }}
-          onConfigChange={() => {}}
-        />
-      </div>
+              }}
+              onConfigChange={() => {}}
+            />
+          </div>
+        </Collapse.Panel>
+      </Collapse>
     </Space>
   );
 });
