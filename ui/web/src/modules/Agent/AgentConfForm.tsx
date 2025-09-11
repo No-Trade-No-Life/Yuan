@@ -178,7 +178,6 @@ export const runAgent = async () => {
     accountPerformance$.next(
       Object.fromEntries(scene.accountPerformanceUnit.mapAccountIdToPerformance.entries()),
     );
-    accountFrameSeries$.next(accountFrameUnit.data);
 
     const kernelDir = `/.Y/kernel/${encodeURIComponent(scene.kernel.id)}`;
     for (const accountId in accountFrameUnit.data) {
@@ -317,9 +316,14 @@ export const runAgent = async () => {
       });
     });
 
+    // 主图占 50%
+    const coef = 0.5;
+    // 解方程: (x + panels - 1) * coef === x
+    config.views[0].panes[0].height_weight = ((config.views[0].panes.length - 1) * coef) / (1 - coef);
+
     await fs.writeFile(configFilename, JSON.stringify(config));
 
-    executeCommand('Page.open', { type: 'AccountPerformancePanel' });
+    executeCommand('AccountPerformancePanel', { kernelId: kernel.id });
 
     Toast.success(t('AgentConfForm:run_succeed'));
     gtag('event', 'agent_run_complete');
