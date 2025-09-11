@@ -65,13 +65,6 @@ registerPage('AccountPerformancePanel', () => {
         </Button>
         <Button
           onClick={() => {
-            executeCommand('AccountFrameChart');
-          }}
-        >
-          {t('pages:AccountFrameChart')}
-        </Button>
-        <Button
-          onClick={() => {
             executeCommand('RecordTablePanel');
           }}
         >
