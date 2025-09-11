@@ -27,6 +27,7 @@ import {
   timer,
   toArray,
 } from 'rxjs';
+import { TimeSeriesChart } from '../Chart/components/TimeSeriesChart';
 import { executeCommand } from '../CommandCenter';
 import { Button, DataView } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
@@ -470,6 +471,46 @@ registerPage('AccountInfoPanel', () => {
           <DataView data={accountInfo?.orders ?? []} columns={columnsOfOrders} />
         </Collapse.Panel> */}
       </Collapse>
+      <div style={{ height: 400 }}>
+        <TimeSeriesChart
+          config={{
+            data: [
+              {
+                type: 'promql',
+                query: `sum (account_info_equity{account_id="${accountInfo.account_id}"})`,
+                start_time: formatTime(Date.now() - 14 * 24 * 3600 * 1000),
+                end_time: formatTime(Date.now()),
+                step: '1h',
+              },
+            ],
+            views: [
+              {
+                name: '账户历史净值监控',
+                time_ref: {
+                  data_index: 0,
+                  column_name: '__time',
+                },
+                panes: [
+                  {
+                    series: [
+                      {
+                        type: 'line',
+                        refs: [
+                          {
+                            data_index: 0,
+                            column_name: '{}',
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          }}
+          onConfigChange={() => {}}
+        />
+      </div>
     </Space>
   );
 });
