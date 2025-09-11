@@ -15,13 +15,13 @@ import { memo, ReactNode, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { debounceTime, Subject } from 'rxjs';
 import { Button, ITimeSeriesChartConfig } from '../../Interactive';
+import { ErrorBoundary } from '../../Pages';
 import { useIsDarkMode } from '../../Workbench';
-import { customSeries, DEFAULT_SINGLE_COLOR_SCHEME } from './CustomSeries';
+import { customSeries } from './CustomSeries';
 import { ILoadedData } from './model';
 import { resolveDataRefToDataArray, resolveDataRefToTimeArray } from './resolveDataRef';
 import './TimeSeriesChart.css';
 import { useLegendContainers } from './useLegendContainers';
-import { ErrorBoundary } from '../../Pages';
 
 const ChartOption: DeepPartial<ChartOptions> = {
   layout: {
@@ -237,6 +237,17 @@ export const ChartComponent = memo((props: Props) => {
         }
       });
     });
+
+    // 管理主图比例
+    const panes = chart.panes();
+    const mainPane = panes[0];
+    if (panes.length > 1 && mainPane) {
+      const coef = 0.5;
+      // 占 50% 的空间
+      // 解方程: (x + panels - 1) * coef === x
+      mainPane.setStretchFactor(((panes.length - 1) * coef) / (1 - coef));
+    }
+
     return () => {
       dispose$.next();
       chart.panes().forEach((pane) => {
