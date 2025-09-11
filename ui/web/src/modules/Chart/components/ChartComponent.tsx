@@ -161,7 +161,7 @@ export const ChartComponent = memo((props: Props) => {
   const totalItems = totalTimeLine?.length ?? 0;
   // 自动调整 slider 的位置到最右侧
   useEffect(() => {
-    sliderValue$.next(totalItems - PAGE_SIZE);
+    sliderValue$.next(Math.max(0, totalItems - PAGE_SIZE));
   }, [view, data, totalItems]);
 
   const startIndex = viewStartIndex;
