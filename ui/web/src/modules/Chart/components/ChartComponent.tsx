@@ -14,11 +14,11 @@ import { useObservable, useObservableRef, useObservableState } from 'observable-
 import { memo, ReactNode, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { debounceTime, Subject } from 'rxjs';
-import { Button, ITimeSeriesChartConfig } from '../../Interactive';
+import { Button } from '../../Interactive';
 import { ErrorBoundary } from '../../Pages';
 import { useIsDarkMode } from '../../Workbench';
 import { customSeries } from './CustomSeries';
-import { ILoadedData } from './model';
+import { ILoadedData, ITimeSeriesChartConfig } from './model';
 import { resolveDataRefToDataArray, resolveDataRefToTimeArray } from './resolveDataRef';
 import './TimeSeriesChart.css';
 import { useLegendContainers } from './useLegendContainers';
@@ -91,18 +91,6 @@ interface Props {
   data?: ILoadedData[];
 }
 
-interface DisplayData {
-  time: Time;
-  value?: any;
-  high?: number;
-  open?: number;
-  low?: number;
-  close?: number;
-  orderDirection?: string;
-  tradePrice?: number;
-  volume?: number;
-}
-
 const mergeTimeLine = (
   timeLine: [time: number, dataIndex: number][],
   mainTimeLine: number[],
@@ -171,6 +159,10 @@ export const ChartComponent = memo((props: Props) => {
   const totalTimeLine = resolveDataRefToDataArray(data || [], view.time_ref);
 
   const totalItems = totalTimeLine?.length ?? 0;
+  // 自动调整 slider 的位置到最右侧
+  useEffect(() => {
+    sliderValue$.next(totalItems - PAGE_SIZE);
+  }, [view, data, totalItems]);
 
   const startIndex = viewStartIndex;
   const endIndex = Math.min(totalItems, viewStartIndex + PAGE_SIZE);
@@ -277,18 +269,63 @@ export const ChartComponent = memo((props: Props) => {
 
   const legendContainers = useLegendContainers(dom$);
 
+  // 根据 cursor, viewStartIndex, visibleLogicalRange 来自动翻页 (待完善)
+  // useObservableState(
+  //   useObservable(
+  //     pipe(
+  //       switchMap(([totalItems]) =>
+  //         chart$.pipe(
+  //           switchMap((chart) => {
+  //             if (!chart) return EMPTY;
+  //             return new Observable<LogicalRange | null>((sub) => {
+  //               const handler: LogicalRangeChangeEventHandler = (t) => {
+  //                 sub.next(t);
+  //               };
+  //               chart.timeScale().subscribeVisibleLogicalRangeChange(handler);
+  //               return () => {
+  //                 chart.timeScale().unsubscribeVisibleLogicalRangeChange(handler);
+  //               };
+  //             });
+  //           }),
+  //           debounceTime(1000),
+  //           tap((t) => {
+  //             const cursor = cursor$.value || 0;
+  //             const STEP = 100;
+  //             console.info('timeScale change', t, sliderValue$.value);
+  //             if (t) {
+  //               if (t.from < 0 && cursor < 0 && sliderValue$.value > 0) {
+  //                 const nextV = Math.max(0, sliderValue$.value - STEP);
+  //                 console.info('timeScale change, move left', nextV, sliderValue$.value, '?');
+  //                 sliderValue$.next(nextV);
+  //                 // chart$.value?.timeScale().setVisibleLogicalRange({ from: 0, to: t.to - t.from });
+  //               }
+  //               if (t.to > PAGE_SIZE && cursor > PAGE_SIZE && sliderValue$.value < totalItems - PAGE_SIZE) {
+  //                 const nextV = Math.min(totalItems - PAGE_SIZE, Math.ceil(sliderValue$.value + STEP));
+  //                 console.info('timeScale change, move right', nextV, sliderValue$.value, '?');
+  //                 sliderValue$.next(nextV);
+  //               }
+  //             }
+  //           }),
+  //         ),
+  //       ),
+  //     ),
+  //     [totalItems],
+  //   ),
+  // );
+
   return (
     <Space vertical align="start" style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
       <Space>
         {props.topSlot}
         {totalItems > PAGE_SIZE && (
           <Slider
-            key={totalItems}
+            key={totalItems + viewStartIndex}
             style={{ width: 200 }}
             showBoundary={false}
             min={0}
             max={Math.max(0, totalItems - PAGE_SIZE)}
             step={1}
+            defaultValue={viewStartIndex}
             tipFormatter={(v) => {
               return formatTime(Number(totalTimeLine?.[v as number]));
             }}
