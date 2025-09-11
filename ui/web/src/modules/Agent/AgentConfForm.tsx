@@ -10,6 +10,7 @@ import {
 } from '@douyinfe/semi-icons';
 import { Divider, Layout, Modal, Space, Toast, Typography } from '@douyinfe/semi-ui';
 import { AgentScene, IAgentConf, agentConfSchema } from '@yuants/agent';
+import { IDeployment } from '@yuants/deploy';
 import {
   BasicFileSystemUnit,
   HistoryOrderUnit,
@@ -17,8 +18,6 @@ import {
   Series,
   SeriesDataUnit,
 } from '@yuants/kernel';
-import { saveSecret } from '@yuants/secret';
-import { IDeployment } from '@yuants/deploy';
 import { ISecret } from '@yuants/secret';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
 import { encodeBase58, encryptByPublicKey, formatTime } from '@yuants/utils';
@@ -45,11 +44,12 @@ import {
 } from 'rxjs';
 import { AccountFrameUnit } from '../AccountInfo/AccountFrameUnit';
 import { accountFrameSeries$, accountPerformance$ } from '../AccountInfo/model';
+import { ITimeSeriesChartConfig } from '../Chart/components/model';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { createFileSystemBehaviorSubject } from '../FileSystem';
 import { fs } from '../FileSystem/api';
 import Form, { showForm } from '../Form';
-import { Button, ITimeSeriesChartConfig } from '../Interactive';
+import { Button } from '../Interactive';
 import { currentKernel$ } from '../Kernel/model';
 import { orders$ } from '../Order/model';
 import { registerPage } from '../Pages';
@@ -194,12 +194,12 @@ export const runAgent = async () => {
     const rawTable = series.map((s) => [s.name || s.series_id, ...s]);
     await CSV.writeFileFromRawTable(seriesFilename, rawTable, true);
 
-    Toast.success(`序列保存到 ${seriesFilename}`);
+    Toast.info(`序列保存到 ${seriesFilename}`);
 
     const ordersFilename = join(kernelDir, 'orders.csv');
     await CSV.writeFile(ordersFilename, scene.kernel.findUnit(HistoryOrderUnit)?.historyOrders!);
 
-    Toast.success(`订单保存到 ${ordersFilename}`);
+    Toast.info(`订单保存到 ${ordersFilename}`);
 
     const configFilename = join(kernelDir, 'config.json');
 

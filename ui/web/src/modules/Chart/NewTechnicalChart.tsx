@@ -3,15 +3,25 @@ import { Select, Space, Toast } from '@douyinfe/semi-ui';
 import { SelectProps } from '@douyinfe/semi-ui/lib/es/select';
 import { JSONSchema7 } from 'json-schema';
 import { useObservable, useObservableRef, useObservableState } from 'observable-hooks';
-import { useState } from 'react';
-import { combineLatestWith, debounceTime, filter, firstValueFrom, pipe, switchMap, timeout } from 'rxjs';
+import { useEffect, useState } from 'react';
+import {
+  combineLatestWith,
+  debounceTime,
+  filter,
+  firstValueFrom,
+  pipe,
+  Subject,
+  switchMap,
+  timeout,
+} from 'rxjs';
 import { fs } from '../FileSystem';
 import { showForm } from '../Form';
-import { Button, ITimeSeriesChartConfig } from '../Interactive';
+import { Button } from '../Interactive';
 import { terminal$ } from '../Network';
 import { registerPage, usePageParams } from '../Pages';
 import { CSV } from '../Util';
 import { ChartComponent } from './components/ChartComponent';
+import { ITimeSeriesChartConfig } from './components/model';
 
 const schemaOfChartConfig: JSONSchema7 = {
   type: 'object',
@@ -87,6 +97,16 @@ const schemaOfChartConfig: JSONSchema7 = {
   },
 };
 
+const reloadSignals = new Map<string, Subject<void>>();
+
+/**
+ * 重新加载指定配置文件名的图表
+ * @param configFilename 图表配置文件名
+ */
+export const reloadTimeSeriesChart = (configFilename: string) => {
+  reloadSignals.get(configFilename)?.next();
+};
+
 /**
  * 时序图表视图组件
  *
@@ -106,6 +126,13 @@ registerPage('TimeSeriesChart', () => {
   const [viewIndex, setViewIndex] = useState<number>(0);
 
   const [, refresh$] = useObservableRef<void>();
+
+  useEffect(() => {
+    reloadSignals.set(params.filename, refresh$);
+    return () => {
+      reloadSignals.delete(params.filename);
+    };
+  }, []);
 
   const config = useObservableState(
     useObservable(

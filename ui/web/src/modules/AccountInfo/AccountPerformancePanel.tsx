@@ -5,13 +5,14 @@ import { useObservable, useObservableState } from 'observable-hooks';
 import { useMemo, useState } from 'react';
 import { Trans, useTranslation } from 'react-i18next';
 import { debounceTime } from 'rxjs';
+import { reloadTimeSeriesChart } from '../Chart/NewTechnicalChart';
 import { WeeklyEquityChart } from '../Chart/WeeklyEquityChart';
 import { executeCommand } from '../CommandCenter';
+import { currentKernel$ } from '../Kernel/model';
 import { orders$ } from '../Order/model';
 import { registerPage } from '../Pages';
 import { AccountSelector } from './AccountSelector';
 import { accountPerformance$ } from './model';
-import { currentKernel$ } from '../Kernel/model';
 
 registerPage('AccountPerformancePanel', () => {
   const [t] = useTranslation('AccountPerformancePanel');
@@ -48,11 +49,13 @@ registerPage('AccountPerformancePanel', () => {
         <AccountSelector value={accountId} onChange={setAccountId} candidates={accountIdOptions} />
         <Button
           disabled={!kernel?.id}
-          onClick={() =>
-            executeCommand('TimeSeriesChart', {
-              filename: `/.Y/kernel/${kernel?.id}/config.json`,
-            })
-          }
+          onClick={async () => {
+            const filename = `/.Y/kernel/${kernel?.id}/config.json`;
+            await executeCommand('TimeSeriesChart', {
+              filename,
+            });
+            reloadTimeSeriesChart(filename);
+          }}
         >
           {t('pages:TechnicalChart')}
         </Button>
