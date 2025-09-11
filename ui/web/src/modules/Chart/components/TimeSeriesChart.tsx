@@ -1,5 +1,5 @@
 import { IconRefresh, IconSetting } from '@douyinfe/semi-icons';
-import { Select, Space, Toast } from '@douyinfe/semi-ui';
+import { Select, Space, Spin, Toast } from '@douyinfe/semi-ui';
 import { SelectProps } from '@douyinfe/semi-ui/lib/es/select';
 import { formatTime } from '@yuants/utils';
 import { JSONSchema7 } from 'json-schema';
@@ -20,13 +20,28 @@ const schemaOfChartConfig: JSONSchema7 = {
     data: {
       type: 'array',
       items: {
-        type: 'object',
-        required: ['type', 'filename', 'time_column_name'],
-        properties: {
-          type: { const: 'csv' },
-          filename: { type: 'string', title: 'CSV 文件路径' },
-          time_column_name: { type: 'string', title: '时间列名称' },
-        },
+        oneOf: [
+          {
+            type: 'object',
+            required: ['type', 'filename', 'time_column_name'],
+            properties: {
+              type: { const: 'csv' },
+              filename: { type: 'string', title: 'CSV 文件路径' },
+              time_column_name: { type: 'string', title: '时间列名称' },
+            },
+          },
+          {
+            type: 'object',
+            required: ['type', 'query', 'start_time', 'end_time', 'step'],
+            properties: {
+              type: { const: 'promql' },
+              query: { type: 'string', title: 'PromQL 查询语句' },
+              start_time: { type: 'string', format: 'date-time', title: '开始时间' },
+              end_time: { type: 'string', format: 'date-time', title: '结束时间' },
+              step: { type: 'string', title: '步长 (如 15s, 1m, 1h)' },
+            },
+          },
+        ],
       },
     },
     views: {
@@ -51,6 +66,10 @@ const schemaOfChartConfig: JSONSchema7 = {
             items: {
               type: 'object',
               properties: {
+                height_weight: {
+                  type: 'number',
+                  title: '窗格高度权重 (默认 1, 数值越大窗格越高)',
+                },
                 series: {
                   type: 'array',
                   title: '数据列',
@@ -63,6 +82,11 @@ const schemaOfChartConfig: JSONSchema7 = {
                         type: 'string',
                         title: '图表类型',
                         enum: ['line', 'hist', 'ohlc', 'order', 'index'],
+                      },
+                      name: {
+                        type: 'string',
+                        title: '序列名称',
+                        description: '显示在图例中, 默认使用数据列名称',
                       },
                       refs: {
                         type: 'array',
@@ -113,7 +137,7 @@ export const reloadTimeSeriesChart = (configFilename: string) => {
  */
 export const TimeSeriesChart = (props: {
   config: ITimeSeriesChartConfig;
-  onConfigChange: (config: ITimeSeriesChartConfig) => void | Promise<void>;
+  onConfigChange?: (config: ITimeSeriesChartConfig) => void | Promise<void>;
 }) => {
   const [viewIndex, setViewIndex] = useState<number>(0);
 
@@ -239,7 +263,7 @@ export const TimeSeriesChart = (props: {
                 icon={<IconSetting />}
                 onClick={async () => {
                   const data = await showForm<ITimeSeriesChartConfig>(schemaOfChartConfig, config);
-                  await props.onConfigChange(data);
+                  await props.onConfigChange?.(data);
                   refresh$.next();
                   Toast.success('配置已更新');
                 }}
@@ -257,6 +281,7 @@ export const TimeSeriesChart = (props: {
                   Toast.success('数据已刷新');
                 }}
               />
+              {!data && <Spin />}
               <Select
                 value={viewIndex}
                 prefix="View"
@@ -270,7 +295,7 @@ export const TimeSeriesChart = (props: {
           onViewChange={async (newView) => {
             const newConfig = structuredClone(config);
             newConfig.views[viewIndex] = newView;
-            await props.onConfigChange(newConfig);
+            await props.onConfigChange?.(newConfig);
             refresh$.next();
             Toast.success('视图已更新');
           }}

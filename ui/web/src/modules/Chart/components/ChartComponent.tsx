@@ -230,15 +230,11 @@ export const ChartComponent = memo((props: Props) => {
       });
     });
 
-    // 管理主图比例
+    // 管理 pane 高度比例
     const panes = chart.panes();
-    const mainPane = panes[0];
-    if (panes.length > 1 && mainPane) {
-      const coef = 0.5;
-      // 占 50% 的空间
-      // 解方程: (x + panels - 1) * coef === x
-      mainPane.setStretchFactor(((panes.length - 1) * coef) / (1 - coef));
-    }
+    panes.forEach((pane, index) => {
+      pane.setStretchFactor(view.panes[index].height_weight || 1);
+    });
 
     return () => {
       dispose$.next();

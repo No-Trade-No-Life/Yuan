@@ -1,6 +1,7 @@
 import './About';
 import './Explorer';
 import './HomePage';
+import './HostStatus';
 import './NotFound';
 import './Program';
 

@@ -6,6 +6,7 @@ import { EMPTY, switchMap, tap } from 'rxjs';
 import { terminal$ } from '../Network';
 import { registerPage, usePageParams } from '../Pages';
 import { availableNodeUnitAddress$, deployments$ } from './model';
+import { Button } from '../Interactive';
 
 registerPage('DeploymentRealtimeLog', () => {
   const { node_unit_address, deployment_id } = usePageParams<{
@@ -72,6 +73,17 @@ registerPage('DeploymentRealtimeLog', () => {
           style={{ width: '100%' }}
           filter
         />
+        <Space>
+          <Button
+            onClick={() => {
+              if (logDomRef.current) {
+                logDomRef.current.innerText = '';
+              }
+            }}
+          >
+            清空日志
+          </Button>
+        </Space>
       </Space>
       <Space
         vertical

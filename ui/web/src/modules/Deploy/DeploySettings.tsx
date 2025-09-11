@@ -1,5 +1,13 @@
-import { IconArrowUp, IconHelpCircle, IconMinusCircle, IconPlusCircle } from '@douyinfe/semi-icons';
-import { ArrayField, Form, Modal, Space, Tooltip } from '@douyinfe/semi-ui';
+import {
+  IconArrowUp,
+  IconDelete,
+  IconEdit,
+  IconFile,
+  IconHelpCircle,
+  IconMinusCircle,
+  IconPlusCircle,
+} from '@douyinfe/semi-icons';
+import { ArrayField, Form, Modal, Space, Tooltip, Typography } from '@douyinfe/semi-ui';
 import { createCache } from '@yuants/cache';
 import { IDeployment } from '@yuants/deploy';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
@@ -149,7 +157,14 @@ registerPage('DeploySettings', () => {
             header: '动作',
             cell: (ctx) => (
               <Space vertical>
+                <Switch
+                  checked={ctx.row.original.enabled}
+                  onChange={async (checked) => {
+                    await onUpdate([{ ...ctx.row.original, enabled: checked }]);
+                  }}
+                />
                 <Button
+                  icon={<IconFile />}
                   onClick={() =>
                     executeCommand('DeploymentRealtimeLog', {
                       node_unit_address: ctx.row.original.address,
@@ -159,9 +174,12 @@ registerPage('DeploySettings', () => {
                 >
                   日志
                 </Button>
-                <Button onClick={() => onEdit(ctx.row.original)}>编辑</Button>
+                <Button icon={<IconEdit />} onClick={() => onEdit(ctx.row.original)}>
+                  编辑
+                </Button>
                 <Button
                   type="danger"
+                  icon={<IconDelete />}
                   doubleCheck={{
                     title: '确认删除此配置？',
                     description: (
@@ -189,6 +207,14 @@ registerPage('DeploySettings', () => {
           {
             header: 'NPM 包名',
             accessorKey: 'package_name',
+            cell: (ctx) => (
+              <Typography.Text
+                link={{ href: `https://www.npmjs.com/package/${ctx.getValue()}`, target: '_blank' }}
+                copyable
+              >
+                {ctx.getValue()}
+              </Typography.Text>
+            ),
           },
           {
             header: '版本',
@@ -233,22 +259,6 @@ registerPage('DeploySettings', () => {
           {
             header: '命令参数',
             accessorFn: (x) => (x.args || []).join(' '),
-          },
-          {
-            header: '是否启用',
-            accessorKey: 'enabled',
-            cell: (ctx) => {
-              const enabled = ctx.getValue();
-              const deployment = ctx.row.original;
-              return (
-                <Switch
-                  checked={enabled}
-                  onChange={async (checked) => {
-                    await onUpdate([{ ...deployment, enabled: checked }]);
-                  }}
-                />
-              );
-            },
           },
         ]}
       ></Modules.Interactive.DataView>

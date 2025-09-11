@@ -30,13 +30,15 @@ const SimpleKeyValueLegend: ICustomSeries['Legend'] = ({
 }) => {
   if (globalDataSeries.length < 1) return null;
 
+  const name = seriesConfig.name || seriesConfig.refs[0]?.column_name;
+
   return (
     <div
       style={{
         color: DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
       }}
     >
-      {seriesConfig.refs[0]?.column_name}: {globalDataSeries[0][cursorIndex]}
+      {name}: {globalDataSeries[0][cursorIndex]}
     </div>
   );
 };

@@ -35,6 +35,10 @@ export interface ISeriesConfig {
    */
   type: string;
   /**
+   * 序列名称 (显示在图例中, 默认使用数据列名称)
+   */
+  name?: string;
+  /**
    * 对数据的引用
    */
   refs: IDataRef[];
@@ -88,6 +92,10 @@ export interface ITimeSeriesChartConfig {
     time_ref: IDataRef;
     panes: Array<{
       series: ISeriesConfig[];
+      /**
+       * 窗格高度权重 (默认 1, 数值越大窗格越高)
+       */
+      height_weight?: number;
     }>;
   }>;
 }
