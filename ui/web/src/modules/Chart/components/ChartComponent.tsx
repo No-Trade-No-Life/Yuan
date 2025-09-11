@@ -171,6 +171,10 @@ export const ChartComponent = memo((props: Props) => {
   const totalTimeLine = resolveDataRefToDataArray(data || [], view.time_ref);
 
   const totalItems = totalTimeLine?.length ?? 0;
+  // 自动调整 slider 的位置到最右侧
+  useEffect(() => {
+    sliderValue$.next(totalItems - PAGE_SIZE);
+  }, [view, data, totalItems]);
 
   const startIndex = viewStartIndex;
   const endIndex = Math.min(totalItems, viewStartIndex + PAGE_SIZE);
@@ -283,12 +287,13 @@ export const ChartComponent = memo((props: Props) => {
         {props.topSlot}
         {totalItems > PAGE_SIZE && (
           <Slider
-            key={totalItems}
+            key={totalItems + viewStartIndex}
             style={{ width: 200 }}
             showBoundary={false}
             min={0}
             max={Math.max(0, totalItems - PAGE_SIZE)}
             step={1}
+            defaultValue={viewStartIndex}
             tipFormatter={(v) => {
               return formatTime(Number(totalTimeLine?.[v as number]));
             }}
