@@ -4,11 +4,11 @@ import { SelectProps } from '@douyinfe/semi-ui/lib/es/select';
 import { JSONSchema7 } from 'json-schema';
 import { useObservable, useObservableRef, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
-import { useTranslation } from 'react-i18next';
 import { combineLatestWith, debounceTime, filter, firstValueFrom, pipe, switchMap, timeout } from 'rxjs';
 import { fs } from '../FileSystem';
 import { showForm } from '../Form';
 import { Button, ITimeSeriesChartConfig } from '../Interactive';
+import { terminal$ } from '../Network';
 import { registerPage, usePageParams } from '../Pages';
 import { CSV } from '../Util';
 import { ChartComponent } from './components/ChartComponent';
@@ -87,6 +87,20 @@ const schemaOfChartConfig: JSONSchema7 = {
   },
 };
 
+/**
+ * 时序图表视图组件
+ *
+ * 基于 lightweight-charts 库，实现图表展示数据
+ *
+ * 图表的核心是配置，从配置中定义数据源的获取方式、图表类型、样式等。
+ *
+ * 图表配置从一个 JSON 文件中获取
+ *
+ * - 支持多数据源
+ * - 支持多种图表类型 (OHLC, Line, Bar, ...etc)
+ * - 支持多个视图配置
+ *
+ */
 registerPage('TimeSeriesChart', () => {
   const params = usePageParams<{ filename: string }>();
   const [viewIndex, setViewIndex] = useState<number>(0);
@@ -113,27 +127,81 @@ registerPage('TimeSeriesChart', () => {
       debounceTime(500),
       switchMap(([data]) =>
         Promise.all(
-          (data ?? []).map((item, index) =>
-            CSV.readFile(item.filename).then((records) => {
-              const series: Map<string, any[]> = new Map();
-              records.forEach((record) => {
-                for (const key in record) {
-                  if (!series.has(key)) {
-                    series.set(key, []);
+          (data ?? []).map(async (s, index) => {
+            if (s.type === 'csv') {
+              return CSV.readFile(s.filename).then((records) => {
+                const series: Map<string, any[]> = new Map();
+                records.forEach((record) => {
+                  for (const key in record) {
+                    if (!series.has(key)) {
+                      series.set(key, []);
+                    }
+                    series.get(key)!.push(record[key]);
                   }
-                  series.get(key)!.push(record[key]);
-                }
+                });
+                return {
+                  //
+                  filename: s.filename,
+                  data_index: index,
+                  data_length: records.length,
+                  time_column_name: s.time_column_name,
+                  series,
+                };
               });
+            }
+            if (s.type === 'promql') {
+              const terminal = await firstValueFrom(terminal$);
+              if (!terminal) throw new Error('No terminal available for Prometheus query');
+              const data = await terminal.client.requestForResponseData<
+                { query: string; start: string; end: string; step: string },
+                {
+                  data: {
+                    resultType: string;
+                    result: Array<{ metric: Record<string, string>; values: [number, string][] }>;
+                  };
+                  status: string;
+                }
+              >('prometheus/query_range', {
+                query: s.query,
+                start: s.start_time,
+                end: s.end_time,
+                step: s.step,
+              });
+
+              const series = new Map<string, any[]>();
+
+              const times = new Set<number>();
+              data.data.result.forEach((s) => {
+                s.values.forEach(([t, v]) => {
+                  times.add(t);
+                });
+              });
+
+              const timeSeries = Array.from(times).sort((a, b) => a - b);
+              series.set(
+                '__time',
+                timeSeries.map((t) => t * 1000),
+              );
+
+              data.data.result.forEach((s) => {
+                const seriesName = JSON.stringify(s.metric);
+                const map = new Map(s.values);
+                series.set(
+                  seriesName,
+                  timeSeries.map((t) => map.get(t)),
+                );
+              });
+
               return {
-                //
-                time_column_name: item.time_column_name,
-                filename: item.filename,
+                filename: `promql:${s.query}`,
                 data_index: index,
-                data_length: records.length,
+                data_length: data.data.result[0].values.length,
+                time_column_name: '__time',
                 series,
               };
-            }),
-          ),
+            }
+            throw new Error(`Unsupported data source type: ${(s as any).type}`);
+          }),
         ),
       ),
     ),
