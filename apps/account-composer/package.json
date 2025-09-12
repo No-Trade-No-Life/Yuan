@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-account-composer",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "homepage": "https://github.com/No-Trade-No-Life/Yuan/tree/main/apps/account-composer",
   "main": "lib/index.js",
   "module": "dist/index.js",

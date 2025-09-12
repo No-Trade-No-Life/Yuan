@@ -1,6 +1,14 @@
 # Change Log - @yuants/app-account-composer
 
-This log was last generated on Fri, 12 Sep 2025 04:06:29 GMT and should not be manually modified.
+This log was last generated on Fri, 12 Sep 2025 20:36:31 GMT and should not be manually modified.
+
+## 0.5.5
+Fri, 12 Sep 2025 20:36:31 GMT
+
+### Patches
+
+- fix multiple on valuation
+- fix profit and valuation in BY_PRODUCT mode
 
 ## 0.5.4
 Fri, 12 Sep 2025 04:06:29 GMT
