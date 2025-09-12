@@ -66,6 +66,10 @@ const MetricsProcessResourceUsage = TerminalMeter.createGauge('nodejs_process_re
   description: 'nodejs process resourceUsage',
 });
 
+const MetricsProcessFileSystemStat = TerminalMeter.createGauge('nodejs_process_file_system_stat', {
+  description: 'nodejs process file system stat',
+});
+
 /**
  * Terminal
  *
@@ -884,6 +888,23 @@ export class Terminal {
             const usage = process.memoryUsage();
             for (const key in usage) {
               MetricsProcessMemoryUsage.record(usage[key as keyof NodeJS.MemoryUsage], {
+                type: key,
+                terminal_id: this.terminal_id,
+              });
+            }
+          }),
+        )
+        .subscribe();
+
+      // Setup File System Stats
+      interval(60_000)
+        .pipe(
+          takeUntil(this.dispose$),
+          switchMap(async () => {
+            const fs = await import('fs/promises');
+            const stat = await fs.statfs(process.cwd());
+            for (const key in stat) {
+              MetricsProcessFileSystemStat.record(stat[key as keyof typeof stat], {
                 type: key,
                 terminal_id: this.terminal_id,
               });

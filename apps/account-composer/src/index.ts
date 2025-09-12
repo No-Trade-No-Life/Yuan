@@ -38,7 +38,12 @@ const cacheOfProduct = createCache(
   { expire: 3600 * 1000 }, // 1 hour
 );
 
-defer(() => requestSQL<IAccountComposerConfig[]>(terminal, `select * from account_composer_config`))
+defer(() =>
+  requestSQL<IAccountComposerConfig[]>(
+    terminal,
+    `select * from account_composer_config where enabled = true`,
+  ),
+)
   .pipe(
     //
     tap((config) => console.info(formatTime(Date.now()), 'Loaded', JSON.stringify(config))),
@@ -60,110 +65,112 @@ defer(() => requestSQL<IAccountComposerConfig[]>(terminal, `select * from accoun
           );
           const accountInfo$ = defer(() =>
             combineLatest(
-              x.sources.map((y) =>
-                // Keep hot observable
-                (mapAccountIdToAccountInfo$[y.account_id] ??= terminal.channel
-                  .subscribeChannel<IAccountInfo>('AccountInfo', y.account_id)
-                  .pipe(share())).pipe(
-                  map((x): IAccountInfo | undefined => {
-                    const multiple = y.multiple ?? 1;
+              x.sources
+                .filter((xx) => xx.enabled)
+                .map((y) =>
+                  // Keep hot observable
+                  (mapAccountIdToAccountInfo$[y.account_id] ??= terminal.channel
+                    .subscribeChannel<IAccountInfo>('AccountInfo', y.account_id)
+                    .pipe(share())).pipe(
+                    map((x): IAccountInfo | undefined => {
+                      const multiple = y.multiple ?? 1;
 
-                    if (y.type === 'ALL') {
-                      return {
-                        ...x,
-                        money: {
-                          ...x.money,
-                          equity: x.money.equity * multiple,
-                          balance: x.money.balance * multiple,
-                          profit: x.money.profit * multiple,
-                          used: x.money.used * multiple,
-                          free: x.money.free * multiple,
-                        },
-                        positions: x.positions.map((p) => ({
-                          ...p,
-                          account_id: p.account_id || x.account_id,
-                          volume: p.volume * multiple,
-                          free_volume: p.free_volume * multiple,
-                          floating_profit: p.floating_profit * multiple,
-                          valuation: p.valuation * multiple,
-                        })),
-                      };
-                    }
-                    if (y.type === 'BY_PRODUCT') {
-                      if (!y.source_product_id) return;
-                      const positions = x.positions
-                        .filter(
-                          (p) =>
-                            p.product_id === y.source_product_id &&
-                            (y.source_datasource_id ? p.datasource_id === y.source_datasource_id : true),
-                        )
-                        .map((p) => {
-                          const theDatasourceId = y.target_datasource_id
-                            ? y.target_datasource_id
-                            : p.datasource_id;
-                          const theProductId = y.target_product_id ? y.target_product_id : p.product_id;
-
-                          const productKey = encodePath(theDatasourceId, theProductId);
-                          cacheOfProduct.query(productKey, false); // SWR (Stale While Revalidate, Sync Mode)
-                          const theProduct = cacheOfProduct.get(productKey);
-                          const theVolume = p.volume * multiple;
-
-                          if (!theProduct) throw new Error('ProductNotFound ' + productKey);
-
-                          const theProfit = getProfit(
-                            theProduct,
-                            p.position_price,
-                            p.closable_price,
-                            theVolume,
-                            p.direction || 'LONG',
-                            // ISSUE: 先忽略了交叉盘的货币转换
-                            theProduct.quote_currency!,
-                            () => {
-                              throw new Error('ExchangeRateNotFound');
-                            },
-                          );
-
-                          const theValuation = (theProduct.value_scale || 1) * theVolume * p.closable_price;
-
-                          return {
+                      if (y.type === 'ALL') {
+                        return {
+                          ...x,
+                          money: {
+                            ...x.money,
+                            equity: x.money.equity * multiple,
+                            balance: x.money.balance * multiple,
+                            profit: x.money.profit * multiple,
+                            used: x.money.used * multiple,
+                            free: x.money.free * multiple,
+                          },
+                          positions: x.positions.map((p) => ({
                             ...p,
                             account_id: p.account_id || x.account_id,
-                            product_id: theProductId,
-                            datasource_id: theDatasourceId,
-                            volume: theVolume,
+                            volume: p.volume * multiple,
                             free_volume: p.free_volume * multiple,
-                            floating_profit: theProfit,
-                            valuation: theValuation,
-                          };
-                        });
-                      const sumProfit = positions.reduce((acc, p) => acc + p.floating_profit, 0);
-                      return {
-                        ...x,
-                        money: {
-                          currency: x.money.currency,
-                          equity: sumProfit,
-                          balance: 0,
-                          profit: sumProfit,
-                          used: sumProfit,
-                          free: 0,
-                        },
-                        positions: positions,
-                      };
-                    }
-                  }),
-                  timeout(30_000),
-                  tap({
-                    error: (err) => {
-                      console.info(
-                        formatTime(Date.now()),
-                        'AccountInfoError',
-                        `target=${x.account_id}, source=${y.account_id}`,
-                        err,
-                      );
-                    },
-                  }),
+                            floating_profit: p.floating_profit * multiple,
+                            valuation: p.valuation * multiple,
+                          })),
+                        };
+                      }
+                      if (y.type === 'BY_PRODUCT') {
+                        if (!y.source_product_id) return;
+                        const positions = x.positions
+                          .filter(
+                            (p) =>
+                              p.product_id === y.source_product_id &&
+                              (y.source_datasource_id ? p.datasource_id === y.source_datasource_id : true),
+                          )
+                          .map((p) => {
+                            const theDatasourceId = y.target_datasource_id
+                              ? y.target_datasource_id
+                              : p.datasource_id;
+                            const theProductId = y.target_product_id ? y.target_product_id : p.product_id;
+
+                            const productKey = encodePath(theDatasourceId, theProductId);
+                            cacheOfProduct.query(productKey, false); // SWR (Stale While Revalidate, Sync Mode)
+                            const theProduct = cacheOfProduct.get(productKey);
+                            const theVolume = p.volume * multiple;
+
+                            if (!theProduct) throw new Error('ProductNotFound ' + productKey);
+
+                            const theProfit = getProfit(
+                              theProduct,
+                              p.position_price,
+                              p.closable_price,
+                              theVolume,
+                              p.direction || 'LONG',
+                              // ISSUE: 先忽略了交叉盘的货币转换
+                              theProduct.quote_currency!,
+                              () => {
+                                throw new Error('ExchangeRateNotFound');
+                              },
+                            );
+
+                            const theValuation = (theProduct.value_scale || 1) * theVolume * p.closable_price;
+
+                            return {
+                              ...p,
+                              account_id: p.account_id || x.account_id,
+                              product_id: theProductId,
+                              datasource_id: theDatasourceId,
+                              volume: theVolume,
+                              free_volume: p.free_volume * multiple,
+                              floating_profit: theProfit,
+                              valuation: theValuation,
+                            };
+                          });
+                        const sumProfit = positions.reduce((acc, p) => acc + p.floating_profit, 0);
+                        return {
+                          ...x,
+                          money: {
+                            currency: x.money.currency,
+                            equity: sumProfit,
+                            balance: 0,
+                            profit: sumProfit,
+                            used: sumProfit,
+                            free: 0,
+                          },
+                          positions: positions,
+                        };
+                      }
+                    }),
+                    timeout(30_000),
+                    tap({
+                      error: (err) => {
+                        console.info(
+                          formatTime(Date.now()),
+                          'AccountInfoError',
+                          `target=${x.account_id}, source=${y.account_id}`,
+                          err,
+                        );
+                      },
+                    }),
+                  ),
                 ),
-              ),
             ),
           ).pipe(
             retry(),

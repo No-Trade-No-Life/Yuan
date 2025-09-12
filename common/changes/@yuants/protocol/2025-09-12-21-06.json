@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "add filssystem stat metric",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
