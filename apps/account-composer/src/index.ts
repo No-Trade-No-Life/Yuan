@@ -1,12 +1,14 @@
+import { createCache } from '@yuants/cache';
 import { IAccountInfo, publishAccountInfo } from '@yuants/data-account';
+import { getProfit, IProduct } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
-import { requestSQL } from '@yuants/sql';
-import { formatTime, listWatch } from '@yuants/utils';
+import { escapeSQL, requestSQL } from '@yuants/sql';
+import { decodePath, encodePath, formatTime, listWatch } from '@yuants/utils';
 import {
-  Observable,
   combineLatest,
   defer,
   map,
+  Observable,
   repeat,
   retry,
   share,
@@ -21,6 +23,20 @@ import './migration';
 const terminal = Terminal.fromNodeEnv();
 
 const mapAccountIdToAccountInfo$: Record<string, Observable<IAccountInfo>> = {};
+
+const cacheOfProduct = createCache(
+  async (key) => {
+    const [datasource_id, product_id] = decodePath(key);
+    const [data] = await requestSQL<IProduct[]>(
+      terminal,
+      `select * from product where datasource_id=${escapeSQL(datasource_id)} and product_id=${escapeSQL(
+        product_id,
+      )}`,
+    );
+    return data;
+  },
+  { expire: 3600 * 1000 }, // 1 hour
+);
 
 defer(() => requestSQL<IAccountComposerConfig[]>(terminal, `select * from account_composer_config`))
   .pipe(
@@ -81,16 +97,45 @@ defer(() => requestSQL<IAccountComposerConfig[]>(terminal, `select * from accoun
                             p.product_id === y.source_product_id &&
                             (y.source_datasource_id ? p.datasource_id === y.source_datasource_id : true),
                         )
-                        .map((p) => ({
-                          ...p,
-                          account_id: p.account_id || x.account_id,
-                          product_id: y.target_product_id ? y.target_product_id : p.product_id,
-                          datasource_id: y.target_datasource_id ? y.target_datasource_id : p.datasource_id,
-                          volume: p.volume * multiple,
-                          free_volume: p.free_volume * multiple,
-                          floating_profit: p.floating_profit * multiple,
-                          valuation: p.valuation * multiple,
-                        }));
+                        .map((p) => {
+                          const theDatasourceId = y.target_datasource_id
+                            ? y.target_datasource_id
+                            : p.datasource_id;
+                          const theProductId = y.target_product_id ? y.target_product_id : p.product_id;
+
+                          const productKey = encodePath(theDatasourceId, theProductId);
+                          cacheOfProduct.query(productKey, false); // SWR (Stale While Revalidate, Sync Mode)
+                          const theProduct = cacheOfProduct.get(productKey);
+                          const theVolume = p.volume * multiple;
+
+                          if (!theProduct) throw new Error('ProductNotFound ' + productKey);
+
+                          const theProfit = getProfit(
+                            theProduct,
+                            p.position_price,
+                            p.closable_price,
+                            theVolume,
+                            p.direction || 'LONG',
+                            // ISSUE: 先忽略了交叉盘的货币转换
+                            theProduct.quote_currency!,
+                            () => {
+                              throw new Error('ExchangeRateNotFound');
+                            },
+                          );
+
+                          const theValuation = (theProduct.value_scale || 1) * theVolume * p.closable_price;
+
+                          return {
+                            ...p,
+                            account_id: p.account_id || x.account_id,
+                            product_id: theProductId,
+                            datasource_id: theDatasourceId,
+                            volume: theVolume,
+                            free_volume: p.free_volume * multiple,
+                            floating_profit: theProfit,
+                            valuation: theValuation,
+                          };
+                        });
                       const sumProfit = positions.reduce((acc, p) => acc + p.floating_profit, 0);
                       return {
                         ...x,

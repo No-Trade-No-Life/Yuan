@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-account-composer",
+      "comment": "fix profit and valuation in BY_PRODUCT mode",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-account-composer"
+}
