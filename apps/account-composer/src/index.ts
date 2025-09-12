@@ -74,31 +74,33 @@ defer(() => requestSQL<IAccountComposerConfig[]>(terminal, `select * from accoun
                     }
                     if (y.type === 'BY_PRODUCT') {
                       if (!y.source_product_id) return;
+                      const positions = x.positions
+                        .filter(
+                          (p) =>
+                            p.product_id === y.source_product_id &&
+                            (y.source_datasource_id ? p.datasource_id === y.source_datasource_id : true),
+                        )
+                        .map((p) => ({
+                          ...p,
+                          account_id: p.account_id || x.account_id,
+                          product_id: y.target_product_id ? y.target_product_id : p.product_id,
+                          datasource_id: y.target_datasource_id ? y.target_datasource_id : p.datasource_id,
+                          volume: p.volume * multiple,
+                          free_volume: p.free_volume * multiple,
+                          floating_profit: p.floating_profit * multiple,
+                        }));
+                      const sumProfit = positions.reduce((acc, p) => acc + p.floating_profit, 0);
                       return {
                         ...x,
                         money: {
                           currency: x.money.currency,
-                          equity: 0,
+                          equity: sumProfit,
                           balance: 0,
-                          profit: 0,
-                          used: 0,
+                          profit: sumProfit,
+                          used: sumProfit,
                           free: 0,
                         },
-                        positions: x.positions
-                          .filter(
-                            (p) =>
-                              p.product_id === y.source_product_id &&
-                              (y.source_datasource_id ? p.datasource_id === y.source_datasource_id : true),
-                          )
-                          .map((p) => ({
-                            ...p,
-                            account_id: p.account_id || x.account_id,
-                            product_id: y.target_product_id ? y.target_product_id : p.product_id,
-                            datasource_id: y.target_datasource_id ? y.target_datasource_id : p.datasource_id,
-                            volume: p.volume * multiple,
-                            free_volume: p.free_volume * multiple,
-                            floating_profit: p.floating_profit * multiple,
-                          })),
+                        positions: positions,
                       };
                     }
                   }),
