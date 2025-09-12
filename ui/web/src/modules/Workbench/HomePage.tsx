@@ -114,6 +114,8 @@ export const HomePage = React.memo(() => {
       >
         {files.map((filename) => {
           const filePath = join(DESKTOP_DIR, filename);
+          const baseName = filename.split('.')[0] || '';
+
           return (
             <div
               key={filename}
@@ -143,7 +145,7 @@ export const HomePage = React.memo(() => {
                 }}
                 style={{ width: iconSize + 20, textAlign: 'center' }}
               >
-                {filename}
+                {baseName}
               </Typography.Text>
             </div>
           );
