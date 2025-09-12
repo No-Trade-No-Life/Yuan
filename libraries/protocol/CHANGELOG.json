@@ -2,6 +2,23 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.41.0",
+      "tag": "@yuants/protocol_v0.41.0",
+      "date": "Fri, 12 Sep 2025 21:28:30 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add filssystem stat metric"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.40.0",
       "tag": "@yuants/protocol_v0.40.0",
       "date": "Tue, 09 Sep 2025 13:23:41 GMT",
