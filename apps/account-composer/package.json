@@ -18,6 +18,8 @@
     "@yuants/protocol": "workspace:*",
     "@yuants/sql": "workspace:*",
     "@yuants/utils": "workspace:*",
+    "@yuants/cache": "workspace:*",
+    "@yuants/data-product": "workspace:*",
     "ajv": "~8.12.0",
     "ajv-formats": "~2.1.1",
     "rxjs": "~7.5.6"
