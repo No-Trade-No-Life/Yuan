@@ -21,11 +21,12 @@ import {
 } from 'rxjs';
 import versionCompare from 'version-compare';
 import versionSatisfy from 'version-range';
-import { loadExtension, loadTgzBlob } from '../Extensions/utils';
+import { loadExtension } from '../Extensions/utils';
 import { FsBackend$, bundleCode, fs } from '../FileSystem';
 import { FileSystemHandleBackend } from '../FileSystem/backends/FileSystemHandleBackend';
 import { InMemoryBackend } from '../FileSystem/backends/InMemoryBackend';
 import { currentWorkspace$ } from '../FileSystem/workspaces';
+import { ZIP } from '../Util';
 import { fullLog$, log } from './log';
 export * from './createPersistBehaviorSubject';
 export * from './Launch';
@@ -303,7 +304,7 @@ async function loadInmemoryWorkspaceFromGitHub(ctx: {
   const fs = new InMemoryBackend(`${ctx.owner}/${ctx.repo}@${ctx.ref}`);
 
   const res = await fetch(
-    mapUrlToCorsProxy(`https://api.github.com/repos/${ctx.owner}/${ctx.repo}/tarball/${ctx.ref}`),
+    mapUrlToCorsProxy(`https://api.github.com/repos/${ctx.owner}/${ctx.repo}/zipball/${ctx.ref}`),
     ctx.auth_token
       ? {
           headers: {
@@ -317,10 +318,11 @@ async function loadInmemoryWorkspaceFromGitHub(ctx: {
 
   const blob = await res.blob();
   log('BLOB SIZE', blob.size, 'BYTES');
-  const files = await loadTgzBlob(blob);
+  const files = await ZIP.read(blob);
   log(`EXTRACTING ${files.length} FILES...`);
   for (const file of files) {
     if (!file.isFile) continue;
+    // remove the first path segment which is like owner-repo-hash/
     let filename = resolve('/', file.filename.replace(/^[^/]+\//, ''));
     if (ctx.sub_path && !filename.startsWith(ctx.sub_path)) continue;
     if (ctx.sub_path) {
