@@ -165,7 +165,7 @@ AddMigration({
   name: 'alert_table_data_product_add_market_id',
   dependencies: ['7c9189cb-a335-4e95-8174-cd6a975d19a2'],
   statement: `
-      ALTER TABLE public.product ADD COLUMN market_id TEXT;
+      ALTER TABLE public.product ADD COLUMN IF NOT EXISTS market_id TEXT;
   `,
 });
 
