@@ -2332,6 +2332,7 @@ importers:
       '@yuants/sql': workspace:*
       '@yuants/transfer': workspace:*
       '@yuants/utils': workspace:*
+      '@zip.js/zip.js': ~2.8.2
       ajv: ~8.11.0
       copy-to-clipboard: ~3.3.3
       date-fns: ~2.29.1
@@ -2404,6 +2405,7 @@ importers:
       '@yuants/sql': link:../../libraries/sql
       '@yuants/transfer': link:../../libraries/transfer
       '@yuants/utils': link:../../libraries/utils
+      '@zip.js/zip.js': 2.8.2
       ajv: 8.11.2
       copy-to-clipboard: 3.3.3
       date-fns: 2.29.3
@@ -11184,6 +11186,11 @@ packages:
 
   /@yarnpkg/lockfile/1.0.2:
     resolution: {integrity: sha512-MqJ00WXw89ga0rK6GZkdmmgv3bAsxpJixyTthjcix73O44pBqotyU2BejBkLuIsaOBI6SEu77vAnSyLe5iIHkw==}
+    dev: false
+
+  /@zip.js/zip.js/2.8.2:
+    resolution: {integrity: sha512-PI6UdgpSeVoGvzguKHmy2bwOqI3UYkntLZOCpyJSKIi7234c5aJmQYkJB/P4P2YUJkqhbqvu7iM2/0eJZ178nA==}
+    engines: {bun: '>=0.7.0', deno: '>=1.0.0', node: '>=16.5.0'}
     dev: false
 
   /@zkochan/cmd-shim/5.4.1:
