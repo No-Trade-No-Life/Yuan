@@ -69,6 +69,7 @@ defer(() => requestSQL<IAccountComposerConfig[]>(terminal, `select * from accoun
                           volume: p.volume * multiple,
                           free_volume: p.free_volume * multiple,
                           floating_profit: p.floating_profit * multiple,
+                          valuation: p.valuation * multiple,
                         })),
                       };
                     }
@@ -88,6 +89,7 @@ defer(() => requestSQL<IAccountComposerConfig[]>(terminal, `select * from accoun
                           volume: p.volume * multiple,
                           free_volume: p.free_volume * multiple,
                           floating_profit: p.floating_profit * multiple,
+                          valuation: p.valuation * multiple,
                         }));
                       const sumProfit = positions.reduce((acc, p) => acc + p.floating_profit, 0);
                       return {
