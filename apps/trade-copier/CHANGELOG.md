@@ -1,6 +1,17 @@
 # Change Log - @yuants/app-trade-copier
 
-This log was last generated on Fri, 12 Sep 2025 21:28:30 GMT and should not be manually modified.
+This log was last generated on Sat, 13 Sep 2025 03:56:43 GMT and should not be manually modified.
+
+## 0.7.0
+Sat, 13 Sep 2025 03:56:43 GMT
+
+### Minor changes
+
+- add new entry point
+
+### Patches
+
+- fix account retension bug
 
 ## 0.6.13
 Fri, 12 Sep 2025 21:28:30 GMT

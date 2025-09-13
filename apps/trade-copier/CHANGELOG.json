@@ -2,6 +2,31 @@
   "name": "@yuants/app-trade-copier",
   "entries": [
     {
+      "version": "0.7.0",
+      "tag": "@yuants/app-trade-copier_v0.7.0",
+      "date": "Sat, 13 Sep 2025 03:56:43 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "add new implement"
+          },
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "add new entry point"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "fix account retension bug"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.6.13",
       "tag": "@yuants/app-trade-copier_v0.6.13",
       "date": "Fri, 12 Sep 2025 21:28:30 GMT",
