@@ -154,7 +154,25 @@ defer(() =>
                             used: sumProfit,
                             free: 0,
                           },
-                          positions: positions,
+                          positions:
+                            positions.length > 0
+                              ? positions
+                              : /** ISSUE: 没有头寸时也需要强行加一个，为了跟单的时候能知道它有这个配置 */
+                                [
+                                  {
+                                    datasource_id: y.target_datasource_id || '',
+                                    product_id: y.target_product_id || '',
+                                    position_id: y.target_product_id || '',
+                                    account_id: x.account_id,
+                                    direction: 'LONG',
+                                    volume: 0,
+                                    free_volume: 0,
+                                    position_price: 0,
+                                    closable_price: 0,
+                                    floating_profit: 0,
+                                    valuation: 0,
+                                  },
+                                ],
                         };
                       }
                     }),
