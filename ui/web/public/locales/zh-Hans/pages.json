@@ -1,7 +1,7 @@
 {
   "AI": "AI助理",
   "About": "关于",
-  "AccountCompositionRelationList": "账户组合关系列表",
+  "AccountComposerConfigList": "账户组合配置",
   "AccountFrameChart": "账户走势图",
   "AccountInfoPanel": "账户信息 {{ account_id }}",
   "AccountList": "账户列表",

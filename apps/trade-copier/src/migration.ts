@@ -50,4 +50,22 @@ ADD COLUMN limit_order_control BOOLEAN NOT NULL DEFAULT FALSE;
 `,
 });
 
+AddMigration({
+  id: 'acb1692e-6a13-4b7d-b39a-1793de91e7a1',
+  name: 'create-table_trade_copier_config',
+  dependencies: [],
+  statement: `
+    CREATE TABLE IF NOT EXISTS trade_copier_config (
+      account_id TEXT PRIMARY KEY NOT NULL,
+      enabled BOOLEAN NOT NULL DEFAULT FALSE,
+      strategy JSONB NOT NULL DEFAULT '{}',
+      
+      created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
+    );
+
+    create or replace trigger auto_update_updated_at before update on trade_copier_config for each row execute function update_updated_at_column();
+  `,
+});
+
 ExecuteMigrations(Terminal.fromNodeEnv());
