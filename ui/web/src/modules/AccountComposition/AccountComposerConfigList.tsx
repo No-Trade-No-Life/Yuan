@@ -1,62 +1,64 @@
 import { createColumnHelper } from '@tanstack/react-table';
+import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
+import { JSONSchema7 } from 'json-schema';
+import { firstValueFrom } from 'rxjs';
 import { InlineAccountId } from '../AccountInfo';
 import { DataRecordView } from '../DataRecord';
+import { DataView, Switch, Toast } from '../Interactive';
+import { terminal$ } from '../Network';
 import { registerPage } from '../Pages';
 import { IAccountComposerConfig } from './interface';
-import { DataView, Switch, Toast } from '../Interactive';
-import { firstValueFrom } from 'rxjs';
-import { terminal$ } from '../Network';
-import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
 
+export const schemaOfAccountComposerConfig: JSONSchema7 = {
+  type: 'object',
+  properties: {
+    account_id: { type: 'string', title: '账户 ID' },
+    sources: {
+      type: 'array',
+      title: '成分',
+      items: {
+        type: 'object',
+        properties: {
+          enabled: { type: 'boolean', title: '启用', default: true },
+          account_id: { type: 'string', title: '成分账户 ID', format: 'account_id' },
+          multiple: { type: 'number', title: '乘数', default: 1 },
+          type: {
+            type: 'string',
+            title: '类型',
+            enum: ['ALL', 'BY_PRODUCT'],
+          },
+          source_product_id: {
+            type: 'string',
+            title: '源品种 ID (仅 类型=BY_PRODUCT 有效)',
+          },
+          source_datasource_id: {
+            type: 'string',
+            title: '源数据源 ID (仅 类型=BY_PRODUCT 有效)',
+            description: '为空则表示匹配所有数据源',
+          },
+          target_product_id: {
+            type: 'string',
+            title: '目标品种 ID (仅 类型=BY_PRODUCT 有效)',
+            description: '为空则表示与源品种相同',
+          },
+          target_datasource_id: {
+            type: 'string',
+            title: '目标数据源 ID (仅 类型=BY_PRODUCT 有效)',
+            description: '为空则表示与源数据源相同',
+          },
+        },
+      },
+    },
+    enabled: { type: 'boolean', title: '启用' },
+  },
+};
 registerPage('AccountComposerConfigList', () => {
   return (
     <DataRecordView
       TYPE={'account_composer_config'}
       conflictKeys={['account_id']}
-      schema={{
-        type: 'object',
-        properties: {
-          account_id: { type: 'string', title: '账户 ID' },
-          sources: {
-            type: 'array',
-            title: '成分',
-            items: {
-              type: 'object',
-              properties: {
-                enabled: { type: 'boolean', title: '启用', default: true },
-                account_id: { type: 'string', title: '成分账户 ID', format: 'account_id' },
-                multiple: { type: 'number', title: '乘数', default: 1 },
-                type: {
-                  type: 'string',
-                  title: '类型',
-                  enum: ['ALL', 'BY_PRODUCT'],
-                },
-                source_product_id: {
-                  type: 'string',
-                  title: '源品种 ID (仅 类型=BY_PRODUCT 有效)',
-                },
-                source_datasource_id: {
-                  type: 'string',
-                  title: '源数据源 ID (仅 类型=BY_PRODUCT 有效)',
-                  description: '为空则表示匹配所有数据源',
-                },
-                target_product_id: {
-                  type: 'string',
-                  title: '目标品种 ID (仅 类型=BY_PRODUCT 有效)',
-                  description: '为空则表示与源品种相同',
-                },
-                target_datasource_id: {
-                  type: 'string',
-                  title: '目标数据源 ID (仅 类型=BY_PRODUCT 有效)',
-                  description: '为空则表示与源数据源相同',
-                },
-              },
-            },
-          },
-          enabled: { type: 'boolean', title: '启用' },
-        },
-      }}
+      schema={schemaOfAccountComposerConfig}
       columns={(c) => {
         const columnHelper = createColumnHelper<IAccountComposerConfig>();
         return [
