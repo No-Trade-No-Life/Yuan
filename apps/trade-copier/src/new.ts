@@ -3,24 +3,26 @@ import { IOrder } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
-import { listWatch, roundToStep } from '@yuants/utils';
+import { decodePath, encodePath, listWatch, roundToStep } from '@yuants/utils';
 import { defer, firstValueFrom, map, repeat, retry, tap, timeout } from 'rxjs';
 import { ITradeCopierConfig } from './interface';
 import './migration';
 
 const terminal = Terminal.fromNodeEnv();
 
-const runContext = async (config: ITradeCopierConfig, product_id: string) => {
+const runContext = async (config: ITradeCopierConfig, productKey: string) => {
   const expected_account_id = `TradeCopier/Expected/${config.account_id}`;
-  const strategy = Object.assign(
-    {},
-    config.strategy.global,
-    config.strategy.product_id_overrides?.[product_id],
-  );
+  const [datasource_id, product_id] = decodePath(productKey);
+  const strategy = Object.assign({}, config.strategy.global, config.strategy.product_overrides?.[productKey]);
   // 一次性将所需的数据拉取完毕 (考虑性能优化可以使用 cache 机制)
   // 不同的下单策略所需的策略不同，这里先简单实现市价追入所需的数据
   const [[theProduct], actualAccountInfo, expectedAccountInfo] = await Promise.all([
-    requestSQL<IProduct[]>(terminal, `select * from product where product_id = ${escapeSQL(product_id)}`),
+    requestSQL<IProduct[]>(
+      terminal,
+      `select * from product where product_id = ${escapeSQL(product_id)} and datasource_id = ${escapeSQL(
+        datasource_id,
+      )}`,
+    ),
     firstValueFrom(useAccountInfo(terminal, config.account_id)),
     firstValueFrom(useAccountInfo(terminal, expected_account_id)),
   ]);
@@ -96,17 +98,17 @@ defer(() =>
         const expectedAccountInfo$ = useAccountInfo(terminal, expectedAccountId);
 
         return expectedAccountInfo$.pipe(
-          map((x) => [...new Set(x.positions.map((p) => p.product_id))]),
+          map((x) => [...new Set(x.positions.map((p) => encodePath(p.datasource_id, p.product_id)))]),
           listWatch(
             (x) => x,
-            (product_id) =>
+            (productKey) =>
               // runContext 是简短执行一步的函数，负责拉取所需的数据并且下单/撤单一次
-              defer(() => runContext(config, product_id)).pipe(
+              defer(() => runContext(config, productKey)).pipe(
                 timeout(60_000),
                 tap({
                   error: (err) => {
                     console.info(
-                      `Error in context for account ${config.account_id}, product ${product_id}:`,
+                      `Error in context for account ${config.account_id}, product ${productKey}:`,
                       err,
                     );
                   },
@@ -115,11 +117,11 @@ defer(() =>
                 repeat({ delay: 1000 }),
                 tap({
                   subscribe: () => {
-                    console.log(`Setting up context for account ${config.account_id}, product ${product_id}`);
+                    console.log(`Setting up context for account ${config.account_id}, product ${productKey}`);
                   },
                   finalize: () => {
                     console.log(
-                      `Tearing down context for account ${config.account_id}, product ${product_id}`,
+                      `Tearing down context for account ${config.account_id}, product ${productKey}`,
                     );
                   },
                 }),

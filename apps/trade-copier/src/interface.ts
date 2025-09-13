@@ -41,9 +41,9 @@ export type ITradeCopierStrategyConfig = {
    */
   global?: ITradeCopierStrategyBase;
   /**
-   * 按照 product_id 特殊覆盖的配置
+   * 按照 product 特殊覆盖的配置
    */
-  product_id_overrides?: Record<string, ITradeCopierStrategyBase>;
+  product_overrides?: Record<string, ITradeCopierStrategyBase>;
 };
 
 /**
