@@ -1,8 +1,9 @@
 import { useAccountInfo } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
+import { IProduct } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
-import { requestSQL } from '@yuants/sql';
-import { listWatch } from '@yuants/utils';
+import { escapeSQL, requestSQL } from '@yuants/sql';
+import { listWatch, roundToStep } from '@yuants/utils';
 import { defer, firstValueFrom, map, repeat, retry, tap, timeout } from 'rxjs';
 import { ITradeCopierConfig } from './interface';
 import './migration';
@@ -16,13 +17,15 @@ const runContext = async (config: ITradeCopierConfig, product_id: string) => {
     config.strategy.global,
     config.strategy.product_id_overrides?.[product_id],
   );
-  const [actualAccountInfo, expectedAccountInfo] = await Promise.all([
-    //
+  // 一次性将所需的数据拉取完毕 (考虑性能优化可以使用 cache 机制)
+  // 不同的下单策略所需的策略不同，这里先简单实现市价追入所需的数据
+  const [[theProduct], actualAccountInfo, expectedAccountInfo] = await Promise.all([
+    requestSQL<IProduct[]>(terminal, `select * from product where product_id = ${escapeSQL(product_id)}`),
     firstValueFrom(useAccountInfo(terminal, config.account_id)),
     firstValueFrom(useAccountInfo(terminal, expected_account_id)),
   ]);
 
-  // 默认市价追入
+  // 计算实际账户和预期账户的持仓差异
   const actualPositions = actualAccountInfo.positions.filter((p) => p.product_id === product_id);
   const actualLongVolume = actualPositions
     .filter((p) => p.direction === 'LONG')
@@ -40,8 +43,10 @@ const runContext = async (config: ITradeCopierConfig, product_id: string) => {
     .reduce((a, b) => a + b.volume, 0);
   const expectedNetVolume = expectedLongVolume - expectedShortVolume;
   const diff = expectedNetVolume - actualNetVolume;
+  // TODO: 对 diff 进行打点
 
-  if (diff === 0) {
+  // TODO: 0.618 * product.volume_step 作为 tolerance
+  if (Math.abs(diff) < 0.618 * theProduct.volume_step) {
     return;
   }
 
@@ -68,14 +73,12 @@ const runContext = async (config: ITradeCopierConfig, product_id: string) => {
     }
   }
 
-  volume = Math.min(volume, strategy.max_volume ?? Infinity);
-
   const order: IOrder = {
     order_type: 'MARKET',
     account_id: config.account_id,
     product_id: product_id,
     order_direction: order_direction,
-    volume: volume,
+    volume: roundToStep(Math.min(volume, strategy.max_volume ?? Infinity), theProduct.volume_step),
   };
   await terminal.client.requestForResponse('SubmitOrder', order);
 };
