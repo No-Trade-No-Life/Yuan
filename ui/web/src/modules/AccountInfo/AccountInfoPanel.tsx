@@ -33,6 +33,7 @@ import { Button, DataView } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
 import { InlineProductId } from '../Products/InlineProductId';
 import { terminal$, useTick } from '../Terminals';
+import { TradeCopierDetail } from '../TradeCopier';
 import { InlineAccountId } from './InlineAccountId';
 import { useAccountInfo } from './model';
 
@@ -466,6 +467,9 @@ registerPage('AccountInfoPanel', () => {
         </Collapse.Panel>
         <Collapse.Panel header={`持仓细节 (${accountInfo.positions.length})`} itemKey="持仓细节">
           <DataView data={accountInfo?.positions ?? []} columns={columnsOfPositions} />
+        </Collapse.Panel>
+        <Collapse.Panel header={`跟单配置`} itemKey="跟单配置">
+          <TradeCopierDetail account_id={accountInfo.account_id} />
         </Collapse.Panel>
         <Collapse.Panel header={`监控`} itemKey="监控">
           <div style={{ height: 400, width: '100%', overflow: 'hidden' }}>
