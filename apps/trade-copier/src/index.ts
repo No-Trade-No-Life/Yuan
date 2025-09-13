@@ -39,6 +39,7 @@ import {
 } from 'rxjs';
 import { ITradeCopierTradeConfig, ITradeCopyRelation } from './interface';
 import './migration';
+import './new';
 
 const terminal = Terminal.fromNodeEnv();
 
