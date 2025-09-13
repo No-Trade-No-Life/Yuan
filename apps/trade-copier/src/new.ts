@@ -42,11 +42,12 @@ const runContext = async (config: ITradeCopierConfig, product_id: string) => {
     .filter((p) => p.direction === 'SHORT')
     .reduce((a, b) => a + b.volume, 0);
   const expectedNetVolume = expectedLongVolume - expectedShortVolume;
-  const diff = expectedNetVolume - actualNetVolume;
-  // TODO: 对 diff 进行打点
+  const lowerBound = roundToStep(expectedNetVolume, theProduct.volume_step, Math.floor);
+  const upperBound = roundToStep(expectedNetVolume, theProduct.volume_step, Math.ceil);
+  const diff = expectedNetVolume - actualNetVolume; // TODO: 对 diff 进行打点
 
-  // TODO: 0.618 * product.volume_step 作为 tolerance
-  if (Math.abs(diff) < 0.618 * theProduct.volume_step) {
+  // 实际值在容忍区间之间，不需要下单 (但是某些策略可能需要撤单)
+  if (lowerBound <= actualNetVolume && actualNetVolume <= upperBound) {
     return;
   }
 
