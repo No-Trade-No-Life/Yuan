@@ -133,6 +133,7 @@ export function DataRecordView<T extends {}>(props: IDataRecordViewDef<T>) {
               ></Button>
               <Button
                 icon={<IconDelete />}
+                disabled={!props.conflictKeys}
                 type="danger"
                 doubleCheck={{
                   title: '确定是否删除？',
@@ -145,8 +146,8 @@ export function DataRecordView<T extends {}>(props: IDataRecordViewDef<T>) {
                   if (!terminal) return;
                   await requestSQL(
                     terminal,
-                    `delete from ${props.TYPE} where ${Object.entries(record).map(
-                      ([k, v]) => `${k} = ${escapeSQL(v)}`,
+                    `delete from ${props.TYPE} where ${props.conflictKeys!.map(
+                      (k) => `${String(k)} = ${escapeSQL(record[k])}`,
                     )}`,
                   );
                   Toast.success(`成功删除数据记录`);
