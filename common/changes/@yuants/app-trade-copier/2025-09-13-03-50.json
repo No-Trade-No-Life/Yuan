@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-trade-copier",
+      "comment": "fix account retension bug",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-trade-copier"
+}
