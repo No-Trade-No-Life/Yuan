@@ -3,17 +3,16 @@ import { IOrder } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
-import { decodePath, encodePath, listWatch, roundToStep } from '@yuants/utils';
-import { defer, firstValueFrom, map, repeat, retry, tap, timeout } from 'rxjs';
-import { ITradeCopierConfig } from './interface';
+import { decodePath, encodePath, formatTime, listWatch, roundToStep } from '@yuants/utils';
+import { defer, firstValueFrom, map, repeat, retry, skip, tap, timeout } from 'rxjs';
+import { ITradeCopierConfig, ITradeCopierStrategyBase } from './interface';
 import './migration';
 
 const terminal = Terminal.fromNodeEnv();
 
-const runContext = async (config: ITradeCopierConfig, productKey: string) => {
-  const expected_account_id = `TradeCopier/Expected/${config.account_id}`;
+const runStrategy = async (account_id: string, productKey: string, strategy: ITradeCopierStrategyBase) => {
+  const expected_account_id = `TradeCopier/Expected/${account_id}`;
   const [datasource_id, product_id] = decodePath(productKey);
-  const strategy = Object.assign({}, config.strategy.global, config.strategy.product_overrides?.[productKey]);
   // 一次性将所需的数据拉取完毕 (考虑性能优化可以使用 cache 机制)
   // 不同的下单策略所需的策略不同，这里先简单实现市价追入所需的数据
   const [[theProduct], actualAccountInfo, expectedAccountInfo] = await Promise.all([
@@ -23,7 +22,8 @@ const runContext = async (config: ITradeCopierConfig, productKey: string) => {
         datasource_id,
       )}`,
     ),
-    firstValueFrom(useAccountInfo(terminal, config.account_id)),
+    // ISSUE: useAccountInfo 可能会拉到上一次没更新的数据，需要跳过一个来保证数据是最新的
+    firstValueFrom(useAccountInfo(terminal, account_id).pipe(skip(1))),
     firstValueFrom(useAccountInfo(terminal, expected_account_id)),
   ]);
 
@@ -46,51 +46,63 @@ const runContext = async (config: ITradeCopierConfig, productKey: string) => {
   const expectedNetVolume = expectedLongVolume - expectedShortVolume;
   const lowerBound = roundToStep(expectedNetVolume, theProduct.volume_step, Math.floor);
   const upperBound = roundToStep(expectedNetVolume, theProduct.volume_step, Math.ceil);
-  const diff = expectedNetVolume - actualNetVolume; // TODO: 对 diff 进行打点
+  const delta_volume =
+    actualNetVolume < lowerBound
+      ? lowerBound - actualNetVolume
+      : actualNetVolume > upperBound
+      ? upperBound - actualNetVolume
+      : 0;
 
+  console.info(
+    formatTime(Date.now()),
+    'EchoContext',
+    `account ${account_id}, product ${productKey}: actualNetVolume=${actualNetVolume}, expectedNetVolume=${expectedNetVolume}, bounds=[${lowerBound}, ${upperBound}], delta_volume=${delta_volume}`,
+  );
   // 实际值在容忍区间之间，不需要下单 (但是某些策略可能需要撤单)
   if (lowerBound <= actualNetVolume && actualNetVolume <= upperBound) {
+    console.info(formatTime(Date.now()), `NoActionNeeded`, `account=${account_id}, product=${productKey}`);
     return;
   }
 
   let order_direction: string;
   let volume: number;
 
-  if (diff > 0) {
+  if (delta_volume > 0) {
     if (actualShortVolume > 0) {
       // 先平空
       order_direction = 'CLOSE_SHORT';
-      volume = Math.min(diff, actualShortVolume);
+      volume = Math.min(delta_volume, actualShortVolume);
     } else {
       order_direction = 'OPEN_LONG';
-      volume = diff;
+      volume = delta_volume;
     }
   } else {
     if (actualLongVolume > 0) {
       // 先平多
       order_direction = 'CLOSE_LONG';
-      volume = Math.min(-diff, actualLongVolume);
+      volume = Math.min(-delta_volume, actualLongVolume);
     } else {
       order_direction = 'OPEN_SHORT';
-      volume = -diff;
+      volume = -delta_volume;
     }
   }
 
   const order: IOrder = {
     order_type: 'MARKET',
-    account_id: config.account_id,
+    account_id: account_id,
     product_id: product_id,
     order_direction: order_direction,
     volume: roundToStep(Math.min(volume, strategy.max_volume ?? Infinity), theProduct.volume_step),
   };
   await terminal.client.requestForResponse('SubmitOrder', order);
+  console.info(formatTime(Date.now()), `OrderSubmitted`, JSON.stringify(order));
 };
 
 defer(() =>
   requestSQL<ITradeCopierConfig[]>(terminal, `select * from trade_copier_config where enabled = true`),
 )
+  .pipe(retry({ delay: 1000 }), repeat({ delay: 1000 }))
   .pipe(
-    tap((configs) => console.log('Loaded Trade Copier Configs:', configs.length, JSON.stringify(configs))),
     listWatch(
       (x) => x.account_id,
       (config) => {
@@ -103,12 +115,20 @@ defer(() =>
             (x) => x,
             (productKey) =>
               // runContext 是简短执行一步的函数，负责拉取所需的数据并且下单/撤单一次
-              defer(() => runContext(config, productKey)).pipe(
+              defer(() =>
+                runStrategy(
+                  config.account_id,
+                  productKey,
+                  Object.assign({}, config.strategy.global, config.strategy.product_overrides?.[productKey]),
+                ),
+              ).pipe(
                 timeout(60_000),
                 tap({
                   error: (err) => {
                     console.info(
-                      `Error in context for account ${config.account_id}, product ${productKey}:`,
+                      formatTime(Date.now()),
+                      'RunStrategyError',
+                      `account=${config.account_id}, product=${productKey}`,
                       err,
                     );
                   },
@@ -117,11 +137,17 @@ defer(() =>
                 repeat({ delay: 1000 }),
                 tap({
                   subscribe: () => {
-                    console.log(`Setting up context for account ${config.account_id}, product ${productKey}`);
+                    console.info(
+                      formatTime(Date.now()),
+                      `StrategyStart`,
+                      `account=${config.account_id}, product=${productKey}`,
+                    );
                   },
                   finalize: () => {
-                    console.log(
-                      `Tearing down context for account ${config.account_id}, product ${productKey}`,
+                    console.info(
+                      formatTime(Date.now()),
+                      `StrategyEnd`,
+                      `account=${config.account_id}, product=${productKey}`,
                     );
                   },
                 }),
@@ -133,5 +159,4 @@ defer(() =>
       (a, b) => a.updated_at === b.updated_at,
     ),
   )
-  .pipe(retry({ delay: 1000 }), repeat({ delay: 1000 }))
   .subscribe();
