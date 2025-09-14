@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-trade-copier",
+      "comment": "add metrics and remove legacy code",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-trade-copier"
+}

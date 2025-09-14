@@ -1,14 +1,17 @@
 import { useAccountInfo } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
-import { Terminal } from '@yuants/protocol';
+import { PromRegistry, Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import { decodePath, encodePath, formatTime, listWatch, roundToStep } from '@yuants/utils';
 import { defer, firstValueFrom, map, repeat, retry, skip, tap, timeout } from 'rxjs';
 import { ITradeCopierConfig, ITradeCopierStrategyBase } from './interface';
-import './migration';
 
 const terminal = Terminal.fromNodeEnv();
+
+const MetricRunStrategyResultCounter = PromRegistry.create('counter', 'trade_copier_run_strategy_result');
+
+const MetricRunStrategyContextGauge = PromRegistry.create('gauge', 'trade_copier_run_strategy_context');
 
 const runStrategy = async (account_id: string, productKey: string, strategy: ITradeCopierStrategyBase) => {
   const expected_account_id = `TradeCopier/Expected/${account_id}`;
@@ -58,6 +61,33 @@ const runStrategy = async (account_id: string, productKey: string, strategy: ITr
     'EchoContext',
     `account ${account_id}, product ${productKey}: actualNetVolume=${actualNetVolume}, expectedNetVolume=${expectedNetVolume}, bounds=[${lowerBound}, ${upperBound}], delta_volume=${delta_volume}`,
   );
+
+  MetricRunStrategyContextGauge.set(actualNetVolume, {
+    type: 'actual_net_volume',
+    account_id,
+    product: productKey,
+  });
+  MetricRunStrategyContextGauge.set(expectedNetVolume, {
+    type: 'expected_net_volume',
+    account_id,
+    product: productKey,
+  });
+  MetricRunStrategyContextGauge.set(lowerBound, {
+    type: 'lower_bound',
+    account_id,
+    product: productKey,
+  });
+  MetricRunStrategyContextGauge.set(upperBound, {
+    type: 'upper_bound',
+    account_id,
+    product: productKey,
+  });
+  MetricRunStrategyContextGauge.set(delta_volume, {
+    type: 'delta_volume',
+    account_id,
+    product: productKey,
+  });
+
   // 实际值在容忍区间之间，不需要下单 (但是某些策略可能需要撤单)
   if (lowerBound <= actualNetVolume && actualNetVolume <= upperBound) {
     console.info(formatTime(Date.now()), `NoActionNeeded`, `account=${account_id}, product=${productKey}`);
@@ -124,7 +154,19 @@ defer(() =>
               ).pipe(
                 timeout(60_000),
                 tap({
+                  complete: () => {
+                    MetricRunStrategyResultCounter.add(1, {
+                      result: 'complete',
+                      account_id: config.account_id,
+                      product: productKey,
+                    });
+                  },
                   error: (err) => {
+                    MetricRunStrategyResultCounter.add(1, {
+                      result: 'error',
+                      account_id: config.account_id,
+                      product: productKey,
+                    });
                     console.info(
                       formatTime(Date.now()),
                       'RunStrategyError',
@@ -149,6 +191,42 @@ defer(() =>
                       `StrategyEnd`,
                       `account=${config.account_id}, product=${productKey}`,
                     );
+
+                    MetricRunStrategyResultCounter.clear({
+                      result: 'complete',
+                      account_id: config.account_id,
+                      product: productKey,
+                    });
+                    MetricRunStrategyResultCounter.clear({
+                      result: 'error',
+                      account_id: config.account_id,
+                      product: productKey,
+                    });
+                    MetricRunStrategyContextGauge.clear({
+                      type: 'actual_net_volume',
+                      account_id: config.account_id,
+                      product: productKey,
+                    });
+                    MetricRunStrategyContextGauge.clear({
+                      type: 'expected_net_volume',
+                      account_id: config.account_id,
+                      product: productKey,
+                    });
+                    MetricRunStrategyContextGauge.clear({
+                      type: 'lower_bound',
+                      account_id: config.account_id,
+                      product: productKey,
+                    });
+                    MetricRunStrategyContextGauge.clear({
+                      type: 'upper_bound',
+                      account_id: config.account_id,
+                      product: productKey,
+                    });
+                    MetricRunStrategyContextGauge.clear({
+                      type: 'delta_volume',
+                      account_id: config.account_id,
+                      product: productKey,
+                    });
                   },
                 }),
               ),
