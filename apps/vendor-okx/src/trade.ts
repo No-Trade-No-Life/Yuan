@@ -1,4 +1,4 @@
-import { catchError, defer, first, firstValueFrom, interval, of, repeat, retry, timeout } from 'rxjs';
+import { defer, first, of, repeat, retry, tap, timeout } from 'rxjs';
 import { client } from './api';
 import { ITrade } from '@yuants/data-trade';
 import { accountUid$ } from './account';
@@ -119,13 +119,14 @@ defer(() => accountUid$)
     defer(() => getAccountTradeWithAccountId(account_id))
       .pipe(
         //
+        timeout(10_000), //  超时设定：10 秒
+        tap({
+          error: (err) => {
+            console.error(formatTime(Date.now()), 'getAccountTradeError', err);
+          },
+        }),
         repeat({ delay: 30_000 }),
         retry({ delay: 5000 }),
-        timeout(10_000), //  超时设定：10 秒
-        catchError((err) => {
-          console.error(formatTime(Date.now()), 'getAccountTradeError', err);
-          return of([]);
-        }),
       )
       .subscribe();
   });
