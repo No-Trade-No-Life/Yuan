@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-okx",
+      "comment": "migrate to new provideAccountInfoService API",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/vendor-okx"
+}

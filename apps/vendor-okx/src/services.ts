@@ -1,18 +1,18 @@
 import { Terminal } from '@yuants/protocol';
-import { client } from './api';
 import { defer, firstValueFrom } from 'rxjs';
-import { tradingAccountInfo$ } from './account';
+import { tradingAccountId$ } from './account';
+import { client } from './api';
 
 const terminal = Terminal.fromNodeEnv();
 
 defer(async () => {
-  const tradingAccountInfo = await firstValueFrom(tradingAccountInfo$);
+  const tradingAccountId = await firstValueFrom(tradingAccountId$);
   terminal.server.provideService(
     'Grid/Algo-Order',
     {
       required: ['account_id'],
       properties: {
-        account_id: { const: tradingAccountInfo.account_id },
+        account_id: { const: tradingAccountId },
       },
     },
     async (msg) => {

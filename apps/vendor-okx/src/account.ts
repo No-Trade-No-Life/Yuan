@@ -3,33 +3,17 @@ import {
   IAccountInfo,
   IAccountMoney,
   IPosition,
+  provideAccountInfoService,
   publishAccountInfo,
 } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
-import {
-  combineLatest,
-  defer,
-  filter,
-  first,
-  firstValueFrom,
-  map,
-  repeat,
-  retry,
-  shareReplay,
-  withLatestFrom,
-} from 'rxjs';
+import { combineLatest, defer, filter, first, firstValueFrom, map, repeat, retry, shareReplay } from 'rxjs';
 import { client } from './api';
 import { mapProductIdToMarginProduct$, mapProductIdToUsdtSwapProduct$ } from './product';
 
 const terminal = Terminal.fromNodeEnv();
-
-export const accountPosition$ = defer(() => client.getAccountPositions({})).pipe(
-  repeat({ delay: 5000 }),
-  retry({ delay: 5000 }),
-  shareReplay(1),
-);
 
 export const accountConfig$ = defer(() => client.getAccountConfig()).pipe(
   repeat({ delay: 10_000 }),
@@ -49,33 +33,16 @@ export const accountUid$ = accountConfig$.pipe(
   shareReplay(1),
 );
 
-const accountBalance$ = defer(() => client.getAccountBalance({})).pipe(
-  repeat({ delay: 1000 }),
-  retry({ delay: 5000 }),
-  shareReplay(1),
-);
-
-const accountUsdtBalance$ = accountBalance$.pipe(
-  map((x) => x.data[0]?.details.find((x) => x.ccy === 'USDT')),
-  filter((x): x is Exclude<typeof x, undefined> => !!x),
-  shareReplay(1),
-);
-
-const pendingOrders$ = defer(() => client.getTradeOrdersPending({})).pipe(
-  repeat({ delay: 1000 }),
-  retry({ delay: 5000 }),
-  shareReplay(1),
-);
-
 defer(async () => {
   const uid = await firstValueFrom(accountUid$);
   const account_id = `okx/${uid}/trading`;
   terminal.server.provideService(
     'QueryPendingOrders',
     {
+      required: ['account_id'],
       properties: { account_id: { type: 'string', const: account_id } },
     },
-    async (msg) => {
+    async () => {
       const orders = await client.getTradeOrdersPending({});
       const data = orders.data.map((x): IOrder => {
         const order_type = x.ordType === 'market' ? 'MARKET' : x.ordType === 'limit' ? 'LIMIT' : 'UNKNOWN';
@@ -118,26 +85,32 @@ const marketIndexTickerUSDT$ = defer(() => client.getMarketIndexTicker({ quoteCc
   shareReplay(1),
 );
 
-export const tradingAccountInfo$ = accountPosition$.pipe(
-  withLatestFrom(
-    accountUid$,
-    accountBalance$,
-    pendingOrders$,
-    mapProductIdToUsdtSwapProduct$,
-    mapProductIdToMarginProduct$,
-    marketIndexTickerUSDT$,
-  ),
-  map(
-    ([
-      positionsApi,
-      uid,
-      balanceApi,
-      orders,
-      mapProductIdToUsdtSwapProduct,
-      mapProductIdToMarginProduct,
-      marketIndexTickerUSDT,
-    ]): IAccountInfo => {
-      const account_id = `okx/${uid}/trading`;
+export const tradingAccountId$ = accountUid$.pipe(
+  map((uid) => `okx/${uid}/trading`),
+  shareReplay(1),
+);
+
+defer(async () => {
+  const tradingAccountId = await firstValueFrom(tradingAccountId$);
+
+  provideAccountInfoService(
+    terminal,
+    tradingAccountId,
+    async () => {
+      const [
+        positionsApi,
+        balanceApi,
+        mapProductIdToUsdtSwapProduct,
+        mapProductIdToMarginProduct,
+        marketIndexTickerUSDT,
+      ] = await Promise.all([
+        client.getAccountPositions({}),
+        client.getAccountBalance({}),
+        firstValueFrom(mapProductIdToUsdtSwapProduct$),
+        firstValueFrom(mapProductIdToMarginProduct$),
+        firstValueFrom(marketIndexTickerUSDT$),
+      ]);
+
       const money: IAccountMoney = { currency: 'USDT', equity: 0, balance: 0, used: 0, free: 0, profit: 0 };
       const positions: IPosition[] = [];
 
@@ -217,45 +190,19 @@ export const tradingAccountInfo$ = accountPosition$.pipe(
         });
       });
       return {
-        account_id: account_id,
+        account_id: tradingAccountId,
         updated_at: Date.now(),
         money: money,
         positions: positions,
-        // orders: orders.data.map((x): IOrder => {
-        //   const order_type = x.ordType === 'market' ? 'MARKET' : x.ordType === 'limit' ? 'LIMIT' : 'UNKNOWN';
-
-        //   const order_direction =
-        //     x.side === 'buy'
-        //       ? x.posSide === 'long'
-        //         ? 'OPEN_LONG'
-        //         : 'CLOSE_SHORT'
-        //       : x.posSide === 'short'
-        //       ? 'OPEN_SHORT'
-        //       : 'CLOSE_LONG';
-        //   return {
-        //     order_id: x.ordId,
-        //     account_id,
-        //     product_id: encodePath(x.instType, x.instId),
-        //     submit_at: +x.cTime,
-        //     filled_at: +x.fillTime,
-        //     order_type,
-        //     order_direction,
-        //     volume: +x.sz,
-        //     traded_volume: +x.accFillSz,
-        //     price: +x.px,
-        //     traded_price: +x.avgPx,
-        //   };
-        // }),
       };
     },
-  ),
-  shareReplay(1),
-);
+    { auto_refresh_interval: 1000 },
+  );
+}).subscribe();
 
 const sub = defer(() => accountUid$)
   .pipe(first())
   .subscribe((uid) => {
-    publishAccountInfo(terminal, `okx/${uid}/trading`, tradingAccountInfo$);
     addAccountMarket(terminal, { account_id: `okx/${uid}/trading`, market_id: 'OKX' });
     publishAccountInfo(terminal, `okx/${uid}/funding/USDT`, fundingAccountInfo$);
     publishAccountInfo(terminal, `okx/${uid}/earning/USDT`, earningAccountInfo$);
