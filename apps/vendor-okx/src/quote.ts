@@ -194,25 +194,21 @@ const quote$ = merge(
   share(),
 );
 
-Terminal.fromNodeEnv().channel.publishChannel('quote', { pattern: `^OKX/` }, (channel_id) => {
-  const [datasource_id, product_id] = decodePath(channel_id);
-  if (!datasource_id) {
-    throw 'datasource_id is required';
-  }
-  if (!product_id) {
-    throw 'product_id is required';
-  }
-  return quote$.pipe(filter((x) => x.product_id === product_id));
-});
-
 // 合并不同来源的数据并进行合并，避免死锁
 if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
-  merge(quote1$, quote2$, quote3$, quote4$)
+  Terminal.fromNodeEnv().channel.publishChannel('quote', { pattern: `^OKX/` }, (channel_id) => {
+    const [datasource_id, product_id] = decodePath(channel_id);
+    if (!datasource_id) {
+      throw 'datasource_id is required';
+    }
+    if (!product_id) {
+      throw 'product_id is required';
+    }
+    return quote$.pipe(filter((x) => x.product_id === product_id));
+  });
+
+  quote$
     .pipe(
-      groupBy((x) => encodePath(x.datasource_id, x.product_id)),
-      mergeMap((group$) => {
-        return group$.pipe(scan((acc, cur) => Object.assign(acc, cur), {} as Partial<IQuote>));
-      }),
       writeToSQL({
         terminal: Terminal.fromNodeEnv(),
         writeInterval: 1000,
