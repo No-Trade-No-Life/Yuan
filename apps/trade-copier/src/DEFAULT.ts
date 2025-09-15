@@ -1,10 +1,10 @@
-import { useAccountInfo } from '@yuants/data-account';
+import { IAccountInfo, useAccountInfo } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import { decodePath, formatTime, roundToStep } from '@yuants/utils';
-import { firstValueFrom, skip } from 'rxjs';
+import { firstValueFrom } from 'rxjs';
 import { runStrategyBboMaker } from './BBO_MAKER';
 import { ITradeCopierStrategyBase } from './interface';
 import { MetricRunStrategyContextGauge } from './metrics';
@@ -23,15 +23,18 @@ export const runStrategyDefault = async (
   const [datasource_id, product_id] = decodePath(productKey);
   // 一次性将所需的数据拉取完毕 (考虑性能优化可以使用 cache 机制)
   // 不同的下单策略所需的策略不同，这里先简单实现市价追入所需的数据
-  const [[theProduct], actualAccountInfo, expectedAccountInfo] = await Promise.all([
+  const [actualAccountInfo, [theProduct], expectedAccountInfo] = await Promise.all([
+    // 实际账户信息 (持仓、余额等) 需要完全准确 (不允许读任何缓存)
+    terminal.client.requestForResponseData<{ account_id: string }, IAccountInfo>('QueryAccountInfo', {
+      account_id,
+    }),
+    // 其他数据允许读缓存 (因为这些数据的变化不要求非常及时，容错性强)
     requestSQL<IProduct[]>(
       terminal,
       `select * from product where product_id = ${escapeSQL(product_id)} and datasource_id = ${escapeSQL(
         datasource_id,
       )}`,
     ),
-    // ISSUE: useAccountInfo 可能会拉到上一次没更新的数据，需要跳过一个来保证数据是最新的
-    firstValueFrom(useAccountInfo(terminal, account_id).pipe(skip(1))),
     firstValueFrom(useAccountInfo(terminal, expected_account_id)),
   ]);
 
