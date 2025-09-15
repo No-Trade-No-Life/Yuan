@@ -51,6 +51,17 @@ const getWsClient = () => {
   return newClient;
 };
 
+const fromWsChannelAndInstId = (channel: string, instId: string) =>
+  new Observable<any>((subscriber) => {
+    const client = getWsClient();
+    client.subscribe(channel, instId, (data: any) => {
+      subscriber.next(data);
+    });
+    subscriber.add(() => {
+      client.unsubscribe(channel, instId);
+    });
+  });
+
 const swapInstruments$ = defer(() => client.getInstruments({ instType: 'SWAP' })).pipe(
   repeat({ delay: 3600_000 }),
   retry({ delay: 10_000 }),
@@ -90,13 +101,7 @@ const spotTicker$ = spotInstruments$.pipe(
   }),
   listWatch(
     (x) => x.instId,
-    (x) => {
-      return new Observable<any>((subscriber) => {
-        getWsClient().subscribe('tickers', x.instId, (data: any) => {
-          subscriber.next(data);
-        });
-      });
-    },
+    (x) => fromWsChannelAndInstId('tickers', x.instId),
     () => true,
   ),
   share(),
@@ -105,12 +110,7 @@ const spotTicker$ = spotInstruments$.pipe(
 const quote1$ = swapInstruments$.pipe(
   listWatch(
     (x) => x.instId,
-    (x) =>
-      new Observable<any>((subscriber) => {
-        getWsClient().subscribe('tickers', x.instId, (data: any) => {
-          subscriber.next(data);
-        });
-      }),
+    (x) => fromWsChannelAndInstId('tickers', x.instId),
     () => true,
   ),
   map((ticker) => ({
@@ -160,12 +160,7 @@ const swapOpenInterests$ = defer(() => client.getOpenInterest({ instType: 'SWAP'
 const quote4$ = swapInstruments$.pipe(
   listWatch(
     (x) => x.instId,
-    (x) =>
-      new Observable<any>((subscriber) => {
-        getWsClient().subscribe('open-interest', x.instId, (data: any) => {
-          subscriber.next(data);
-        });
-      }),
+    (x) => fromWsChannelAndInstId('open-interest', x.instId),
     () => true,
   ),
   map(
