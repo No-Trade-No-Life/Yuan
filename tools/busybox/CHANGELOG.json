@@ -2,6 +2,28 @@
   "name": "@yuants/tool-busybox",
   "entries": [
     {
+      "version": "0.0.33",
+      "tag": "@yuants/tool-busybox_v0.0.33",
+      "date": "Mon, 15 Sep 2025 13:09:36 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor for terminal changed"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.42.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.0.32",
       "tag": "@yuants/tool-busybox_v0.0.32",
       "date": "Fri, 12 Sep 2025 21:28:30 GMT",
