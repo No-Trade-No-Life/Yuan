@@ -116,7 +116,7 @@ export const createSQLWriter = <T extends {}>(
     dispose$: terminal.dispose$,
   });
 
-  terminal.provideService('BufferWriterStatus', {}, () => [
+  terminal.server.provideService('BufferWriterStatus', {}, () => [
     { res: { code: 0, message: 'OK', data: writer.state } },
   ]);
 };

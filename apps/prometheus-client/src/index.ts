@@ -24,7 +24,7 @@ const request = async (path: string, params: any) => {
 };
 
 // Instant Query
-terminal.provideService(
+terminal.server.provideService(
   'prometheus/query',
   {
     required: ['query'],
@@ -41,7 +41,7 @@ terminal.provideService(
 );
 
 // Range Query
-terminal.provideService(
+terminal.server.provideService(
   'prometheus/query_range',
   {
     required: ['query', 'start', 'end', 'step'],
@@ -60,7 +60,7 @@ terminal.provideService(
 );
 
 // Metadata: Finding series by label matchers
-terminal.provideService(
+terminal.server.provideService(
   'prometheus/series',
   {
     required: ['match', 'start', 'end'],
@@ -78,7 +78,7 @@ terminal.provideService(
 );
 
 // Metadata: Getting label names
-terminal.provideService(
+terminal.server.provideService(
   'prometheus/labels',
   {
     properties: {
@@ -95,7 +95,7 @@ terminal.provideService(
 );
 
 // Metadata: Querying label values
-terminal.provideService(
+terminal.server.provideService(
   'prometheus/label_values',
   {
     required: ['label_name'],

@@ -54,7 +54,7 @@ defer(async () => {
 
   const scene = await AgentScene(terminal, agent_conf);
 
-  terminal.provideService(
+  terminal.server.provideService(
     'KernelDump',
     {
       required: ['kernel_id'],
@@ -65,7 +65,7 @@ defer(async () => {
     () => of({ res: { code: 0, message: 'OK', data: scene.kernel.dump() } }),
   );
 
-  terminal.provideService(
+  terminal.server.provideService(
     'KernelRestore',
     {
       required: ['kernel_id'],

@@ -95,7 +95,7 @@ export const createSeriesProvider = <T extends ISeriesDataItem>(
     saved_at: number;
   }
 
-  return terminal.provideService<
+  return terminal.server.provideService<
     {
       /**
        * 目标数据表的名称

@@ -21,7 +21,7 @@ export const sendFileByAirdrop = async (terminal: Terminal, target_terminal_id: 
 };
 
 terminal$.subscribe((terminal) => {
-  terminal?.provideService<{ filename: string; content: string }, { code: number; message: string }>(
+  terminal?.server.provideService<{ filename: string; content: string }, { code: number; message: string }>(
     'AirDrop',
     {},
     async (msg) => {

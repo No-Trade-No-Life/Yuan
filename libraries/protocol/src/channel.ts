@@ -49,7 +49,7 @@ export class TerminalChannel {
     channelSchema: JSONSchema7 | undefined,
     handler: (channel_id: string) => ObservableInput<T>,
   ) {
-    return this.terminal.provideService<{
+    return this.terminal.server.provideService<{
       channel_id: string;
     }>(
       // ISSUE: 将频道类型作为服务名为了优化方法索引速度，因为频道类型是常量，主机内会有很多不同类型的频道

@@ -113,9 +113,9 @@ export const createNodeJSHostManager = () => {
     terminal.channel.publishChannel('TerminalInfo', { const: '' }, () => terminalInfo$);
     terminal.channel.publishChannel('TerminalInfoChangeEvent', { const: '' }, () => terminalInfoChangeEvent$);
 
-    terminal.provideService('ListTerminals', {}, () => listTerminalsMessage$.pipe(first()));
+    terminal.server.provideService('ListTerminals', {}, () => listTerminalsMessage$.pipe(first()));
 
-    terminal.provideService<ITerminalInfo>('UpdateTerminalInfo', {}, async (msg) => {
+    terminal.server.provideService<ITerminalInfo>('UpdateTerminalInfo', {}, async (msg) => {
       const oldTerminalInfo = terminalInfos.get(msg.req.terminal_id);
       terminalInfos.set(msg.req.terminal_id, msg.req);
       terminalInfo$.next(msg.req);

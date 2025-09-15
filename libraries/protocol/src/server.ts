@@ -1,5 +1,7 @@
 import { ValueType } from '@opentelemetry/api';
-import { formatTime } from '@yuants/utils';
+import { formatTime, UUID } from '@yuants/utils';
+import Ajv from 'ajv';
+import { JSONSchema7 } from 'json-schema';
 import {
   BehaviorSubject,
   catchError,
@@ -14,7 +16,13 @@ import {
   timeout,
 } from 'rxjs';
 import { MetricsMeterProvider } from './metrics';
-import { IServiceInfoServerSide, ITerminalMessage } from './model';
+import {
+  IServiceHandler,
+  IServiceInfo,
+  IServiceInfoServerSide,
+  IServiceOptions,
+  ITerminalMessage,
+} from './model';
 import { Terminal } from './terminal';
 
 // 1. Initialize: create a RequestContext
@@ -102,6 +110,38 @@ export class TerminalServer {
   private _mapServiceIdToServiceRuntimeContext = new Map<string, IServiceContext>();
 
   private _mapMethodToServiceIds = new Map<string, Set<string>>();
+
+  /**
+   * Provide a service
+   */
+  provideService<TReq = {}, TRes = void, TFrame = void>(
+    method: string,
+    requestSchema: JSONSchema7,
+    handler: IServiceHandler<TReq, TRes, TFrame>,
+    options?: IServiceOptions,
+  ): { dispose: () => void } {
+    const service_id = UUID();
+    const serviceInfo: IServiceInfo = { service_id, method, schema: requestSchema };
+
+    // update terminalInfo
+    (this.terminal.terminalInfo.serviceInfo ??= {})[service_id] = serviceInfo;
+    this.terminal.terminalInfoUpdated$.next();
+
+    const service: IServiceInfoServerSide = {
+      serviceInfo,
+      handler: handler as any,
+      options: options || {},
+      validator: new Ajv({ strict: false, strictSchema: false }).compile(requestSchema),
+    };
+    // update service object
+    this.addService(service);
+    const dispose = () => {
+      delete this.terminal.terminalInfo.serviceInfo?.[service_id];
+      this.terminal.terminalInfoUpdated$.next();
+      this.removeService(service_id);
+    };
+    return { dispose };
+  }
 
   addService = (service: IServiceInfoServerSide) => {
     const serviceId = service.serviceInfo.service_id || service.serviceInfo.method;

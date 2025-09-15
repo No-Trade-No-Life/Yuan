@@ -1,5 +1,4 @@
 import { UUID, formatTime } from '@yuants/utils';
-import Ajv from 'ajv';
 import { isNode } from 'browser-or-node';
 import { JSONSchema7 } from 'json-schema';
 import {
@@ -39,14 +38,7 @@ import { TerminalChannel } from './channel';
 import { TerminalClient } from './client';
 import { IConnection, createConnectionWs } from './create-connection';
 import { MetricsExporter, MetricsMeterProvider, PromRegistry } from './metrics';
-import {
-  IServiceHandler,
-  IServiceInfo,
-  IServiceInfoServerSide,
-  IServiceOptions,
-  ITerminalInfo,
-  ITerminalMessage,
-} from './model';
+import { IServiceHandler, IServiceOptions, ITerminalInfo, ITerminalMessage } from './model';
 import { TerminalServer } from './server';
 import { inferNodePackageTags } from './tags/inferVersionTags';
 import { getSimplePeerInstance } from './webrtc';
@@ -86,7 +78,7 @@ export class Terminal {
    */
   terminal_id: string;
 
-  private _terminalInfoUpdated$ = new Subject<void>();
+  terminalInfoUpdated$ = new Subject<void>();
 
   /**
    * if the terminal is connected to host
@@ -121,7 +113,7 @@ export class Terminal {
         .then((res) => res.text())
         .then((public_ip) => {
           Object.assign(tags, { public_ip });
-          this._terminalInfoUpdated$.next();
+          this.terminalInfoUpdated$.next();
         }),
     )
       .pipe(
@@ -496,7 +488,7 @@ export class Terminal {
   private _setupWebRTCTunnel() {
     console.info(formatTime(Date.now()), 'Terminal', 'WebRTC', 'Setup');
 
-    this.provideService<{ session_id: string; offer: any }>('WebRTC/Offer', {}, async (msg) => {
+    this.server.provideService<{ session_id: string; offer: any }>('WebRTC/Offer', {}, async (msg) => {
       const { session_id, offer } = msg.req;
       if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
         console.info(
@@ -570,7 +562,7 @@ export class Terminal {
       return { res: { code: 200, message: 'OK' } };
     });
 
-    this.provideService<{ session_id: string; answer: any }>('WebRTC/Answer', {}, async (msg) => {
+    this.server.provideService<{ session_id: string; answer: any }>('WebRTC/Answer', {}, async (msg) => {
       const { session_id, answer } = msg.req;
       if (globalThis.process?.env?.LOG_LEVEL === 'DEBUG') {
         console.info(
@@ -727,7 +719,7 @@ export class Terminal {
       )
       .subscribe();
 
-    this._terminalInfoUpdated$
+    this.terminalInfoUpdated$
       .pipe(
         takeUntil(this.dispose$),
         tap(() => console.info(formatTime(Date.now()), 'Terminal', 'terminalInfo', 'updating')),
@@ -756,11 +748,11 @@ export class Terminal {
 
     // while reconnection
     from(this._conn.connection$).subscribe(() => {
-      this._terminalInfoUpdated$.next();
+      this.terminalInfoUpdated$.next();
     });
 
     // First Emit
-    this._terminalInfoUpdated$.next();
+    this.terminalInfoUpdated$.next();
   }
 
   private _input$ = new Subject<ITerminalMessage>();
@@ -791,6 +783,8 @@ export class Terminal {
 
   /**
    * Provide a service
+   *
+   * @deprecated - use `terminal.server.provideService` instead
    */
   provideService<TReq = {}, TRes = void, TFrame = void>(
     method: string,
@@ -798,27 +792,7 @@ export class Terminal {
     handler: IServiceHandler<TReq, TRes, TFrame>,
     options?: IServiceOptions,
   ): { dispose: () => void } {
-    const service_id = UUID();
-    const serviceInfo: IServiceInfo = { service_id, method, schema: requestSchema };
-
-    // update terminalInfo
-    (this.terminalInfo.serviceInfo ??= {})[service_id] = serviceInfo;
-    this._terminalInfoUpdated$.next();
-
-    const service: IServiceInfoServerSide = {
-      serviceInfo,
-      handler: handler as any,
-      options: options || {},
-      validator: new Ajv({ strict: false, strictSchema: false }).compile(requestSchema),
-    };
-    // update service object
-    this.server.addService(service);
-    const dispose = () => {
-      delete this.terminalInfo.serviceInfo?.[service_id];
-      this._terminalInfoUpdated$.next();
-      this.server.removeService(service_id);
-    };
-    return { dispose };
+    return this.server.provideService<TReq, TRes, TFrame>(method, requestSchema, handler, options);
   }
 
   private _setupDebugLog = () => {
@@ -851,10 +825,10 @@ export class Terminal {
   };
 
   private _setupPredefinedServerHandlers = () => {
-    this.provideService('Ping', {}, () => [{ res: { code: 0, message: 'Pong' } }]);
+    this.server.provideService('Ping', {}, () => [{ res: { code: 0, message: 'Pong' } }]);
 
     if (!this.options.disableMetrics) {
-      this.provideService<{}, { metrics: string }>(
+      this.server.provideService<{}, { metrics: string }>(
         'Metrics',
         { type: 'object', properties: { terminal_id: { type: 'string', const: this.terminal_id } } },
         async () => {
@@ -914,7 +888,7 @@ export class Terminal {
         .subscribe();
 
       if (!this.options.disableTerminate) {
-        this.provideService('Terminate', {}, function* () {
+        this.server.provideService('Terminate', {}, function* () {
           yield { res: { code: 0, message: 'OK' } };
           timer(1000).subscribe(() => process.exit(0));
         });

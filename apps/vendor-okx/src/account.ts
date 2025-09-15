@@ -8,7 +8,18 @@ import {
 import { IOrder } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
-import { combineLatest, defer, filter, first, map, repeat, retry, shareReplay, withLatestFrom } from 'rxjs';
+import {
+  combineLatest,
+  defer,
+  filter,
+  first,
+  firstValueFrom,
+  map,
+  repeat,
+  retry,
+  shareReplay,
+  withLatestFrom,
+} from 'rxjs';
 import { client } from './api';
 import { mapProductIdToMarginProduct$, mapProductIdToUsdtSwapProduct$ } from './product';
 
@@ -55,6 +66,46 @@ const pendingOrders$ = defer(() => client.getTradeOrdersPending({})).pipe(
   retry({ delay: 5000 }),
   shareReplay(1),
 );
+
+defer(async () => {
+  const uid = await firstValueFrom(accountUid$);
+  const account_id = `okx/${uid}/trading`;
+  terminal.server.provideService(
+    'QueryPendingOrders',
+    {
+      properties: { account_id: { type: 'string', const: account_id } },
+    },
+    async (msg) => {
+      const orders = await client.getTradeOrdersPending({});
+      const data = orders.data.map((x): IOrder => {
+        const order_type = x.ordType === 'market' ? 'MARKET' : x.ordType === 'limit' ? 'LIMIT' : 'UNKNOWN';
+
+        const order_direction =
+          x.side === 'buy'
+            ? x.posSide === 'long'
+              ? 'OPEN_LONG'
+              : 'CLOSE_SHORT'
+            : x.posSide === 'short'
+            ? 'OPEN_SHORT'
+            : 'CLOSE_LONG';
+        return {
+          order_id: x.ordId,
+          account_id,
+          product_id: encodePath(x.instType, x.instId),
+          submit_at: +x.cTime,
+          filled_at: +x.fillTime,
+          order_type,
+          order_direction,
+          volume: +x.sz,
+          traded_volume: +x.accFillSz,
+          price: +x.px,
+          traded_price: +x.avgPx,
+        };
+      });
+      return { res: { code: 0, message: 'OK', data } };
+    },
+  );
+}).subscribe();
 
 const marketIndexTickerUSDT$ = defer(() => client.getMarketIndexTicker({ quoteCcy: 'USDT' })).pipe(
   map((x) => {

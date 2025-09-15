@@ -187,7 +187,7 @@ defer(() => keepAliveSignal$.pipe(first()))
   )
   .subscribe();
 
-terminal.provideService('/external/alertmanager/webhook', {}, async (msg) => {
+terminal.server.provideService('/external/alertmanager/webhook', {}, async (msg) => {
   //
   const { body } = msg.req as { body: string };
   console.info(formatTime(Date.now()), 'AlertReceived', body);

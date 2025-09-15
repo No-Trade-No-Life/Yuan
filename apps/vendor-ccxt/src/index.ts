@@ -271,7 +271,7 @@ import { terminal } from './terminal';
       ),
     );
 
-    terminal.provideService<IOrder>(
+    terminal.server.provideService<IOrder>(
       'SubmitOrder',
       {
         required: ['account_id'],
@@ -341,7 +341,7 @@ import { terminal } from './terminal';
       },
     );
 
-    terminal.provideService<IOrder>(
+    terminal.server.provideService<IOrder>(
       'CancelOrder',
       {
         required: ['account_id'],
@@ -361,7 +361,7 @@ import { terminal } from './terminal';
       },
     );
 
-    terminal.provideService<IOrder>(
+    terminal.server.provideService<IOrder>(
       'ModifyOrder',
       {
         required: ['account_id'],

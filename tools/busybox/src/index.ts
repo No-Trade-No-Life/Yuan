@@ -4,7 +4,7 @@ import { defer, first } from 'rxjs';
 
 const terminal = Terminal.fromNodeEnv();
 
-terminal.provideService('Echo', {}, async (req) => {
+terminal.server.provideService('Echo', {}, async (req) => {
   return { res: { data: req.req, message: 'OK', code: 0 } };
 });
 

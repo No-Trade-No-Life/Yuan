@@ -106,7 +106,7 @@ const fromCronJob = (options: Omit<CronJob.CronJobParameters, 'onTick' | 'start'
     }
   });
 
-terminal.provideService('SeriesCollector/PeekTaskContext', {}, () => [
+terminal.server.provideService('SeriesCollector/PeekTaskContext', {}, () => [
   { res: { code: 0, message: 'OK', data: [...taskContexts] } },
 ]);
 

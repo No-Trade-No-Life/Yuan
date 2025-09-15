@@ -43,7 +43,7 @@ How to use this mode:
 **Server-side**:
 
 ```ts
-terminal.provideService(
+terminal.server.provideService(
   'SubmitOrder',
   {
     type: 'object',

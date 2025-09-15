@@ -5,7 +5,7 @@ const terminal = Terminal.fromNodeEnv();
 
 const client = new ProApiV2Client(process.env.SOLSCAN_API_TOKEN!);
 
-terminal.provideService(
+terminal.server.provideService(
   'solscan/account/detail',
   {
     type: 'object',
@@ -19,7 +19,7 @@ terminal.provideService(
   },
 );
 
-terminal.provideService(
+terminal.server.provideService(
   'solscan/account/transactions',
   {
     type: 'object',
@@ -33,7 +33,7 @@ terminal.provideService(
   },
 );
 
-terminal.provideService(
+terminal.server.provideService(
   'solscan/account/token-accounts',
   {
     type: 'object',
@@ -59,7 +59,7 @@ terminal.provideService(
   },
 );
 
-terminal.provideService(
+terminal.server.provideService(
   'solscan/token/meta',
   {
     type: 'object',

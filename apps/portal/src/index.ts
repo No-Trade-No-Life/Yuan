@@ -118,7 +118,7 @@ combineLatest([portalRelationsGroupByExternalHost$, portalTerminals$])
 
         if (service.type === 'request' && service.method) {
           console.info(formatTime(Date.now()), `SetupService: ${service.method}`);
-          toTerminal.provideService(service.method, service.schema, (msg) =>
+          toTerminal.server.provideService(service.method, service.schema, (msg) =>
             fromTerminal.client.requestService(msg.method!, msg.req),
           );
         }

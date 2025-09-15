@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-portal",
+      "comment": "refactor for terminal changed",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-portal"
+}

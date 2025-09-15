@@ -34,7 +34,7 @@ defer(() => terminal.input$)
   )
   .subscribe();
 
-terminal.provideService<{
+terminal.server.provideService<{
   /**
    * Receiver ID parsed by Transport
    * 由 Transport 解析的接收者 ID
