@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { registerPage } from '../Pages';
 import { Interactive } from '../../modules';
 import { firstValueFrom } from 'rxjs';
@@ -7,12 +7,14 @@ import { requestSQL } from '@yuants/sql';
 import { Button, Switch } from '../Interactive';
 import { ITrade } from '@yuants/data-trade';
 import { formatTime } from '@yuants/utils';
+import { Table } from '@tanstack/react-table';
 
 const Toast = Interactive.Toast;
 
 registerPage('Reconciliation', () => {
   const [mergeTrade, setMergeTrade] = useState(false);
   const [data, setData] = useState<ITrade[]>([]);
+  const tableRef = useRef<Table<ITrade>>();
   const fetchTradeData = async () => {
     try {
       const terminal = await firstValueFrom(terminal$);
@@ -27,7 +29,13 @@ registerPage('Reconciliation', () => {
     }
   };
 
+  console.log({ pagination: tableRef?.current?.getState().pagination });
+
   useEffect(() => {
+    if (tableRef.current) {
+      const pagination = tableRef.current.getState().pagination;
+      console.log({ pagination });
+    }
     fetchTradeData();
   }, []);
 
@@ -40,6 +48,7 @@ registerPage('Reconciliation', () => {
             <Switch checked={mergeTrade} onChange={(v) => setMergeTrade(v)} />
           </>
         }
+        tableRef={tableRef}
         data={data}
         columns={[
           {
