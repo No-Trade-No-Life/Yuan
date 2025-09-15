@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-account
 
-This log was last generated on Mon, 15 Sep 2025 13:09:36 GMT and should not be manually modified.
+This log was last generated on Mon, 15 Sep 2025 20:23:37 GMT and should not be manually modified.
+
+## 0.4.0
+Mon, 15 Sep 2025 20:23:37 GMT
+
+### Minor changes
+
+- add method provideAccountInfoService
 
 ## 0.3.14
 Mon, 15 Sep 2025 13:09:36 GMT
