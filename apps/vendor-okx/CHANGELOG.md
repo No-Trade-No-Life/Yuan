@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Mon, 15 Sep 2025 21:47:42 GMT and should not be manually modified.
+This log was last generated on Mon, 15 Sep 2025 22:05:44 GMT and should not be manually modified.
+
+## 0.22.2
+Mon, 15 Sep 2025 22:05:44 GMT
+
+### Patches
+
+- fix duplicate ws subscribe
 
 ## 0.22.1
 Mon, 15 Sep 2025 21:47:42 GMT
