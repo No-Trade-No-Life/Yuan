@@ -519,7 +519,8 @@ defer(async () => {
           instType === 'MARGIN' && ['CLOSE_LONG', 'CLOSE_SHORT'].includes(order.order_direction ?? '')
             ? 'true'
             : undefined,
-        px: order.order_type === 'LIMIT' ? order.price!.toString() : undefined,
+        px:
+          order.order_type === 'LIMIT' || order.order_type === 'MAKER' ? order.price!.toString() : undefined,
         ccy: instType === 'MARGIN' ? 'USDT' : undefined,
       };
       console.info(formatTime(Date.now()), 'SubmitOrder', 'params', JSON.stringify(params));
