@@ -7,7 +7,7 @@ const terminal = Terminal.fromNodeEnv();
 
 defer(async () => {
   const tradingAccountInfo = await firstValueFrom(tradingAccountInfo$);
-  terminal.provideService(
+  terminal.server.provideService(
     'Grid/Algo-Order',
     {
       required: ['account_id'],
