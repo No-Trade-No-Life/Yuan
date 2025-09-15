@@ -36,6 +36,8 @@ const tradeParser = async (accountId: string, params: Record<string, string>): P
         trade.product_id = bill.instId;
         trade.traded_price = bill.px;
         if (bill.instType === 'SWAP') {
+          if (bill.subType === '1') trade.direction = 'OPEN_LONG';
+          if (bill.subType === '2') trade.direction = 'CLOSE_LONG';
           if (bill.subType === '3') trade.direction = 'OPEN_LONG';
           if (bill.subType === '4') trade.direction = 'OPEN_SHORT';
           if (bill.subType === '5') trade.direction = 'CLOSE_LONG';
