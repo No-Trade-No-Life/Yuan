@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.21.3",
+      "tag": "@yuants/vendor-okx_v0.21.3",
+      "date": "Mon, 15 Sep 2025 20:03:15 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix grid trade"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.21.2",
       "tag": "@yuants/vendor-okx_v0.21.2",
       "date": "Mon, 15 Sep 2025 18:22:32 GMT",

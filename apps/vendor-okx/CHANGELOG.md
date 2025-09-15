@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Mon, 15 Sep 2025 18:22:32 GMT and should not be manually modified.
+This log was last generated on Mon, 15 Sep 2025 20:03:15 GMT and should not be manually modified.
+
+## 0.21.3
+Mon, 15 Sep 2025 20:03:15 GMT
+
+### Patches
+
+- fix grid trade
 
 ## 0.21.2
 Mon, 15 Sep 2025 18:22:32 GMT
