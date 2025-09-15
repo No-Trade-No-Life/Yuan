@@ -3,7 +3,7 @@ import { Terminal } from '@yuants/protocol';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import { decodePath, encodePath, formatTime, roundToStep } from '@yuants/utils';
 import { defer, filter, firstValueFrom, from, map, mergeMap, repeat, retry, shareReplay } from 'rxjs';
-import { accountConfig$, tradingAccountInfo$ } from './account';
+import { accountConfig$, tradingAccountId$ } from './account';
 import { client } from './api';
 import { mapProductIdToMarginProduct$ } from './product';
 import { spotMarketTickers$ } from './quote';
@@ -402,13 +402,13 @@ defer(async () => {
 }).subscribe();
 
 defer(async () => {
-  const tradingAccountInfo = await firstValueFrom(tradingAccountInfo$);
+  const tradingAccountId = await firstValueFrom(tradingAccountId$);
   terminal.server.provideService<IOrder, { order_id?: string }>(
     'SubmitOrder',
     {
       required: ['account_id'],
       properties: {
-        account_id: { const: tradingAccountInfo.account_id },
+        account_id: { const: tradingAccountId },
       },
     },
     async (msg) => {
@@ -545,7 +545,7 @@ defer(async () => {
     {
       required: ['account_id'],
       properties: {
-        account_id: { const: tradingAccountInfo.account_id },
+        account_id: { const: tradingAccountId },
       },
     },
     async (msg) => {
@@ -626,7 +626,7 @@ defer(async () => {
     {
       required: ['account_id'],
       properties: {
-        account_id: { const: tradingAccountInfo.account_id },
+        account_id: { const: tradingAccountId },
       },
     },
     (msg) =>

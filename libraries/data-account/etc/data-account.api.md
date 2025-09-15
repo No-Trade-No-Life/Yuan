@@ -6,6 +6,7 @@
 
 import { Observable } from 'rxjs';
 import { ObservableInput } from 'rxjs';
+import { Subject } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
 
 // @public
@@ -74,6 +75,13 @@ export interface IPositionDiff {
 
 // @public
 export const mergeAccountInfoPositions: (info: IAccountInfo) => Observable<IAccountInfo>;
+
+// @public
+export const provideAccountInfoService: (terminal: Terminal, account_id: string, query: () => Promise<IAccountInfo>, options?: {
+    auto_refresh_interval?: number;
+}) => {
+    dispose$: Subject<void>;
+};
 
 // @public
 export const publishAccountInfo: (terminal: Terminal, account_id: string, accountInfo$: ObservableInput<IAccountInfo>) => {

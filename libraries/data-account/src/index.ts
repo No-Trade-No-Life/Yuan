@@ -1,11 +1,11 @@
 import { Meter } from '@opentelemetry/api';
-import { IOrder } from '@yuants/data-order';
 import { MetricsMeterProvider, Terminal } from '@yuants/protocol';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
 import {
   Observable,
   ObservableInput,
+  Subject,
   defer,
   from,
   groupBy,
@@ -13,8 +13,10 @@ import {
   mergeMap,
   pairwise,
   reduce,
+  retry,
   takeUntil,
   tap,
+  timeout,
   toArray,
 } from 'rxjs';
 import './interface';
@@ -34,6 +36,75 @@ const AccountInfoPositionPrice = AccountMeter.createGauge('account_info_position
 const AccountInfoPositionClosablePrice = AccountMeter.createGauge('account_info_position_closable_price');
 const AccountInfoPositionFloatingProfit = AccountMeter.createGauge('account_info_position_floating_profit');
 const AccountInfoPositionValuation = AccountMeter.createGauge('account_info_position_valuation');
+
+/**
+ * Provide a AccountInfo service, which can be queried and auto-updated
+ * @public
+ */
+export const provideAccountInfoService = (
+  terminal: Terminal,
+  account_id: string,
+  query: () => Promise<IAccountInfo>,
+  options?: {
+    auto_refresh_interval?: number;
+  },
+) => {
+  const dispose$ = new Subject<void>();
+  const accountInfo$ = new Subject<IAccountInfo>();
+
+  const disposable0 = terminal.server.provideService(
+    'QueryAccountInfo',
+    {
+      type: 'object',
+      required: ['account_id'],
+      properties: {
+        account_id: { type: 'string', const: account_id },
+      },
+    },
+    async () => {
+      const accountInfo = await query();
+      // 立即推送最新的数据
+      accountInfo$.next(accountInfo);
+      return { res: { code: 0, message: 'OK', data: accountInfo } };
+    },
+  );
+
+  dispose$.subscribe(() => {
+    disposable0.dispose();
+  });
+
+  const disposable1 = publishAccountInfo(terminal, account_id, accountInfo$);
+
+  dispose$.subscribe(() => {
+    disposable1.dispose();
+  });
+
+  const { auto_refresh_interval } = options || {};
+
+  if (auto_refresh_interval) {
+    // 当 accountInfo$ 超时没有数据时，自动拉取一次
+    defer(() => accountInfo$)
+      .pipe(
+        timeout(auto_refresh_interval),
+        tap({
+          error: () => {
+            terminal.client
+              .requestForResponseData<{ account_id: string }, IAccountInfo>('QueryAccountInfo', {
+                account_id,
+              })
+              .catch(() => {});
+          },
+        }),
+        retry(),
+        takeUntil(dispose$),
+      )
+      .subscribe();
+  }
+
+  return {
+    dispose$,
+  };
+};
 
 /**
  * Provide a AccountInfo data stream, push to all subscriber terminals
