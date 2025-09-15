@@ -1,7 +1,9 @@
 // Basic Input Output System (BIOS)
 // First thing to run when the computer is turned on
 
+import { Input, Modal } from '@douyinfe/semi-ui';
 import { dirname, join, resolve } from 'path-browserify';
+import React from 'react';
 import {
   EMPTY,
   ReplaySubject,
@@ -59,7 +61,24 @@ defer(async () => {
           const ref = url.searchParams.get('ref');
           const sub_path = url.searchParams.get('sub_path');
           // ISSUE: auth_token in URL is not safe
-          const auth_token = prompt('GitHub Auth Token if needed');
+          // const auth_token = prompt('GitHub Auth Token if needed');
+
+          // const auth_token = await showForm<string>({
+          //   type: 'string',
+          //   title: 'GitHub Auth Token (Optional)',
+          //   description: 'GitHub 认证 Token (可选)，用于访问私有仓库或增加 API 访问配额',
+          // }).catch(() => null);
+
+          const auth_token = await new Promise<string | null>((resolve) => {
+            let value: string = '';
+            Modal.info({
+              title: 'GitHub Auth Token (Optional)',
+              content: React.createElement(Input, { onChange: (v) => (value = v) }),
+              onOk: () => resolve(value || null),
+              onCancel: () => resolve(null),
+            });
+          });
+
           if (!owner) throw new Error('NO OWNER');
           if (!repo) throw new Error('NO REPO');
           if (!ref) throw new Error('NO REF');
