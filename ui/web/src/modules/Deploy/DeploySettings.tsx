@@ -26,7 +26,11 @@ import { escapeForBash } from './utils';
 const packageVersionsCache = createCache<string[]>(
   (packageName) =>
     resolveVersion({ name: packageName, registry: 'https://registry.npmjs.org' }).then((info) => {
-      const versions = Object.keys(info.meta.versions).reverse() as string[];
+      const versions: string[] = Object.keys(info.meta.versions)
+        .map((v) => v.split('.'))
+        // Sort by major, minor, patch in descending order
+        .sort((a, b) => +b[0] - +a[0] || +b[1] - +a[1] || +b[2] - +a[2])
+        .map((v) => v.join('.'));
       return versions;
     }),
   {
