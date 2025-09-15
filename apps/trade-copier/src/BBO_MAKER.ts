@@ -66,11 +66,12 @@ export const runStrategyBboMaker = async (
       : actualNetVolume > upperBound
       ? upperBound - actualNetVolume
       : 0;
+  const orders = pendingOrders.filter((o) => o.product_id === product_id);
 
   console.info(
     formatTime(Date.now()),
     'EchoContext',
-    `account ${account_id}, product ${productKey}: actualNetVolume=${actualNetVolume}, expectedNetVolume=${expectedNetVolume}, bounds=[${lowerBound}, ${upperBound}], delta_volume=${delta_volume}`,
+    `account ${account_id}, product ${productKey}: actualNetVolume=${actualNetVolume}, expectedNetVolume=${expectedNetVolume}, bounds=[${lowerBound}, ${upperBound}], delta_volume=${delta_volume}, orders=${orders.length}`,
   );
 
   MetricRunStrategyContextGauge.set(actualNetVolume, {
@@ -99,7 +100,6 @@ export const runStrategyBboMaker = async (
     product: productKey,
   });
 
-  const orders = pendingOrders.filter((o) => o.product_id === product_id);
   if (orders.length > 1) {
     // 超过1个订单，为避免状态复杂化，直接全部撤单
     console.info(formatTime(Date.now()), `MoreThanOnePendingOrder`, JSON.stringify(orders));
@@ -149,20 +149,23 @@ export const runStrategyBboMaker = async (
   };
 
   const theOrder = orders[0];
-  if (
-    theOrder &&
-    (order.volume !== theOrder.volume ||
+  if (theOrder) {
+    if (
+      order.volume !== theOrder.volume ||
       order.price !== theOrder.price ||
-      order.order_direction !== theOrder.order_direction)
-  ) {
-    console.info(
-      formatTime(Date.now()),
-      `NeedToUpdatePendingOrder`,
-      JSON.stringify(theOrder),
-      '=>',
-      JSON.stringify(order),
-    );
-    await terminal.client.requestForResponse('CancelOrder', theOrder);
+      order.order_direction !== theOrder.order_direction
+    ) {
+      console.info(
+        formatTime(Date.now()),
+        `NeedToUpdatePendingOrder`,
+        JSON.stringify(theOrder),
+        '=>',
+        JSON.stringify(order),
+      );
+      await terminal.client.requestForResponse('CancelOrder', theOrder);
+      return;
+    }
+    console.info(formatTime(Date.now()), `PendingOrderAlreadyExists`, JSON.stringify(theOrder));
     return;
   }
 
