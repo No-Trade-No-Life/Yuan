@@ -348,7 +348,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
   //   );
   // });
 
-  terminal.provideService<IOrder>(
+  terminal.server.provideService<IOrder>(
     'SubmitOrder',
     {
       required: ['account_id'],
@@ -372,7 +372,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
     },
   );
 
-  terminal.provideService<IOrder>(
+  terminal.server.provideService<IOrder>(
     'CancelOrder',
     {
       required: ['account_id'],

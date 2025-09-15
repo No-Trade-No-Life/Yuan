@@ -29,7 +29,7 @@ const getAbortSignalFromNativeObservable = (observable: ObservableInput<boolean>
   return abortController.signal;
 };
 
-terminal.provideService<
+terminal.server.provideService<
   {
     model: string;
     messages: { role: string; content: string }[];

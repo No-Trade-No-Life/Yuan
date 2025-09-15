@@ -30,7 +30,7 @@ if (process.env.SMTP_HOST) {
     },
   });
 
-  Terminal.fromNodeEnv().provideService(
+  Terminal.fromNodeEnv().server.provideService(
     'Email/Send',
     {
       required: ['from'],

@@ -20,7 +20,7 @@ export const setupHandShakeService = (terminal: Terminal, private_key: string) =
 
   const mapX25519PublicKeyToSharedKey = new Map<string, string>();
 
-  terminal.provideService<
+  terminal.server.provideService<
     {
       ed25519_public_key: string;
       x25519_public_key: string;

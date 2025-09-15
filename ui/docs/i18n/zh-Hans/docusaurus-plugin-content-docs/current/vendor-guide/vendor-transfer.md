@@ -142,7 +142,7 @@ const contextList = {
   },
 };
 
-terminal.provideService(
+terminal.server.provideService(
   'TransferApply',
   {
     type: 'object',
@@ -203,7 +203,7 @@ terminal.provideService(
   },
 );
 
-terminal.provideService(
+terminal.server.provideService(
   'TransferEval',
   {
     type: 'object',

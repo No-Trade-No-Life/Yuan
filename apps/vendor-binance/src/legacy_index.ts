@@ -312,7 +312,7 @@ const getOpenInterest = async (symbol: string) => {
 
   // order related
   {
-    terminal.provideService<IOrder>(
+    terminal.server.provideService<IOrder>(
       'SubmitOrder',
       {
         required: ['account_id'],

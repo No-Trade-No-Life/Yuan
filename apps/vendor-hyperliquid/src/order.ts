@@ -61,7 +61,7 @@ const roundPrice = (price: number, instType: 'PERPETUAL' | 'SPOT', szDecimals: n
   return finalPrice.toString();
 };
 
-terminal.provideService<IOrder>(
+terminal.server.provideService<IOrder>(
   'SubmitOrder',
   {
     required: ['account_id'],

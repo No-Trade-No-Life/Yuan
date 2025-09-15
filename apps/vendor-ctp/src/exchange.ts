@@ -632,7 +632,7 @@ const accountInfo$ = defer(() => mapProductIdToProduct$.pipe(first())).pipe(
 publishAccountInfo(terminal, account_id, accountInfo$);
 addAccountMarket(terminal, { account_id, market_id: 'CTP' });
 
-terminal.provideService(
+terminal.server.provideService(
   'QueryProducts',
   {
     required: ['datasource_id'],
@@ -647,7 +647,7 @@ terminal.provideService(
     ),
 );
 
-terminal.provideService(
+terminal.server.provideService(
   'QueryHistoryOrders',
   {
     required: ['account_id'],
@@ -667,7 +667,7 @@ terminal.provideService(
     ),
 );
 
-terminal.provideService<IOrder>(
+terminal.server.provideService<IOrder>(
   'SubmitOrder',
   {
     required: ['account_id'],
@@ -695,7 +695,7 @@ terminal.provideService<IOrder>(
   },
 );
 
-terminal.provideService<IOrder>(
+terminal.server.provideService<IOrder>(
   'CancelOrder',
   {
     required: ['account_id'],

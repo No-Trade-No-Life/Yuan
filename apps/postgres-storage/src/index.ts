@@ -23,7 +23,7 @@ const sql = postgres(process.env.POSTGRES_URI!, {
   max: 20,
 });
 
-terminal.provideService(
+terminal.server.provideService(
   'SQL',
   {
     required: ['query'],

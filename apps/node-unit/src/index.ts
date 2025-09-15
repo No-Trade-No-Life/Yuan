@@ -274,7 +274,7 @@ defer(async () => {
 
   setupHandShakeService(terminal, NodeUnitKeyPair.private_key);
 
-  terminal.provideService(
+  terminal.server.provideService(
     'NodeUnit/DecryptForChild',
     {
       type: 'object',
@@ -313,7 +313,7 @@ defer(async () => {
 
   ExecuteMigrations(terminal);
 
-  terminal.provideService(
+  terminal.server.provideService(
     'Deployment/ReadLogSlice',
     {
       type: 'object',

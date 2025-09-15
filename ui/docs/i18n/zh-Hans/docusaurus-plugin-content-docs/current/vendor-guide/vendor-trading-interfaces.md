@@ -20,7 +20,7 @@ import { formatTime } from '@yuants/utils';
 
 const terminal = new Terminal(process.env.HOST_URL!, {});
 
-terminal.provideService(
+terminal.server.provideService(
   'SubmitOrder',
   {
     required: ['account_id'],
@@ -64,7 +64,7 @@ import { formatTime } from '@yuants/utils';
 
 const terminal = new Terminal(process.env.HOST_URL!, {});
 
-terminal.provideService(
+terminal.server.provideService(
   'ModifyOrder',
   {
     required: ['account_id'],
@@ -103,7 +103,7 @@ import { formatTime } from '@yuants/utils';
 
 const terminal = new Terminal(process.env.HOST_URL!, {});
 
-terminal.provideService(
+terminal.server.provideService(
   'CancelOrder',
   {
     required: ['account_id'],

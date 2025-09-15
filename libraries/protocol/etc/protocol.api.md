@@ -177,6 +177,8 @@ export class Terminal {
     };
     output$: Subject<ITerminalMessage>;
     // Warning: (ae-incompatible-release-tags) The symbol "provideService" is marked as @public, but its signature references "IServiceHandler" which is marked as @internal
+    //
+    // @deprecated
     provideService<TReq = {}, TRes = void, TFrame = void>(method: string, requestSchema: JSONSchema7, handler: IServiceHandler<TReq, TRes, TFrame>, options?: IServiceOptions): {
         dispose: () => void;
     };
@@ -188,6 +190,8 @@ export class Terminal {
     terminalInfos$: Observable<ITerminalInfo[]>;
     // (undocumented)
     terminalInfos: ITerminalInfo[];
+    // (undocumented)
+    terminalInfoUpdated$: Subject<void>;
 }
 
 // @public
@@ -234,6 +238,10 @@ export class TerminalServer {
     //
     // (undocumented)
     mapServiceIdToService: Map<string, IServiceInfoServerSide>;
+    // Warning: (ae-incompatible-release-tags) The symbol "provideService" is marked as @public, but its signature references "IServiceHandler" which is marked as @internal
+    provideService<TReq = {}, TRes = void, TFrame = void>(method: string, requestSchema: JSONSchema7, handler: IServiceHandler<TReq, TRes, TFrame>, options?: IServiceOptions): {
+        dispose: () => void;
+    };
     // (undocumented)
     removeService: (serviceId: string) => void;
     // (undocumented)

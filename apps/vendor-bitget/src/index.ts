@@ -122,7 +122,7 @@ const terminal = Terminal.fromNodeEnv();
 
   // trade api
   {
-    terminal.provideService<IOrder>(
+    terminal.server.provideService<IOrder>(
       'SubmitOrder',
       {
         required: ['account_id'],
@@ -182,7 +182,7 @@ const terminal = Terminal.fromNodeEnv();
         }),
     );
 
-    terminal.provideService<IOrder>(
+    terminal.server.provideService<IOrder>(
       'CancelOrder',
       {
         required: ['account_id'],

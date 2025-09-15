@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "move provideService to server module",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

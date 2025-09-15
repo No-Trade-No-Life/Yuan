@@ -43,7 +43,7 @@ sidebar_position: 3
 **服务器侧**：
 
 ```ts
-terminal.provideService(
+terminal.server.provideService(
   'SubmitOrder',
   {
     type: 'object',

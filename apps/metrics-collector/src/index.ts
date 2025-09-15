@@ -22,7 +22,7 @@ const MetricTerminalMetricFetchErrorsTotal = PromRegistry.create(
   'terminal_metrics_fetch_errors_total terminal metrics fetch error',
 );
 
-terminal.provideService<{}, { status: number; headers?: Record<string, string>; body: string }>(
+terminal.server.provideService<{}, { status: number; headers?: Record<string, string>; body: string }>(
   '/external/prometheus/metrics',
   {},
   async () => {

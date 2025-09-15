@@ -38,7 +38,7 @@ export const addAccountTransferAddress = (ctx: IAccountTransferAddressContext) =
     ctx.address,
   );
 
-  ctx.terminal.provideService(
+  ctx.terminal.server.provideService(
     'TransferApply',
     {
       type: 'object',
@@ -69,7 +69,7 @@ export const addAccountTransferAddress = (ctx: IAccountTransferAddressContext) =
       return { res: { code: 0, message: 'OK', data: res } };
     },
   );
-  ctx.terminal.provideService(
+  ctx.terminal.server.provideService(
     'TransferEval',
     {
       type: 'object',
