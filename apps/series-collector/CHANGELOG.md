@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-series-collector
 
-This log was last generated on Fri, 12 Sep 2025 21:28:30 GMT and should not be manually modified.
+This log was last generated on Mon, 15 Sep 2025 13:09:36 GMT and should not be manually modified.
+
+## 0.3.9
+Mon, 15 Sep 2025 13:09:35 GMT
+
+### Patches
+
+- refactor for terminal changed
 
 ## 0.3.8
 Fri, 12 Sep 2025 21:28:30 GMT

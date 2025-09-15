@@ -2,6 +2,28 @@
   "name": "@yuants/app-openai",
   "entries": [
     {
+      "version": "0.1.7",
+      "tag": "@yuants/app-openai_v0.1.7",
+      "date": "Mon, 15 Sep 2025 13:09:35 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor for terminal changed"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.42.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.6",
       "tag": "@yuants/app-openai_v0.1.6",
       "date": "Fri, 12 Sep 2025 21:28:30 GMT",

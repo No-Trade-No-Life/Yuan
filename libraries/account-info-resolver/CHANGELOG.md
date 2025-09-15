@@ -1,6 +1,11 @@
 # Change Log - @yuants/account-info-resolver
 
-This log was last generated on Fri, 12 Sep 2025 21:28:30 GMT and should not be manually modified.
+This log was last generated on Mon, 15 Sep 2025 13:09:35 GMT and should not be manually modified.
+
+## 0.2.34
+Mon, 15 Sep 2025 13:09:35 GMT
+
+_Version update only_
 
 ## 0.2.33
 Fri, 12 Sep 2025 21:28:30 GMT
