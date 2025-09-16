@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/node-unit",
+      "comment": "add npmrc for k8s deploy",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/node-unit"
+}
