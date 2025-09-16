@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-feishu-notifier",
+      "comment": "remove Dockerfile and extension.ts",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-feishu-notifier"
+}

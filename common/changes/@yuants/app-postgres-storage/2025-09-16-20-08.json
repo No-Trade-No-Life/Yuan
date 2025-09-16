@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-postgres-storage",
+      "comment": "remove Dockerfile and extension.ts",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-postgres-storage"
+}
