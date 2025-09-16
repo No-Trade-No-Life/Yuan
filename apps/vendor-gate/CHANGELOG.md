@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-gate
 
-This log was last generated on Tue, 16 Sep 2025 15:38:41 GMT and should not be manually modified.
+This log was last generated on Tue, 16 Sep 2025 20:13:51 GMT and should not be manually modified.
+
+## 0.3.62
+Tue, 16 Sep 2025 20:13:51 GMT
+
+### Patches
+
+- remove Dockerfile and extension.ts
 
 ## 0.3.61
 Tue, 16 Sep 2025 15:38:41 GMT

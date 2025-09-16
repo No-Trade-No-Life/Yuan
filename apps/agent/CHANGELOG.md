@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-agent
 
-This log was last generated on Tue, 16 Sep 2025 15:38:41 GMT and should not be manually modified.
+This log was last generated on Tue, 16 Sep 2025 20:13:51 GMT and should not be manually modified.
+
+## 0.7.10
+Tue, 16 Sep 2025 20:13:51 GMT
+
+### Patches
+
+- remove Dockerfile and extension.ts
 
 ## 0.7.9
 Tue, 16 Sep 2025 15:38:41 GMT

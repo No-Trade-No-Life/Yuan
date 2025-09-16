@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-prometheus-client",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "main": "lib/index.js",
   "bin": "lib/cli.js",
   "files": [

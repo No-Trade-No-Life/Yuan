@@ -2,6 +2,23 @@
   "name": "@yuants/app-prometheus-rule-controller",
   "entries": [
     {
+      "version": "0.3.7",
+      "tag": "@yuants/app-prometheus-rule-controller_v0.3.7",
+      "date": "Tue, 16 Sep 2025 20:13:51 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove Dockerfile and extension.ts"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.6",
       "tag": "@yuants/app-prometheus-rule-controller_v0.3.6",
       "date": "Tue, 16 Sep 2025 15:38:41 GMT",

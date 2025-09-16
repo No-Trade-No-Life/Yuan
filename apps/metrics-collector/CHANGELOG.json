@@ -2,6 +2,23 @@
   "name": "@yuants/app-metrics-collector",
   "entries": [
     {
+      "version": "0.1.7",
+      "tag": "@yuants/app-metrics-collector_v0.1.7",
+      "date": "Tue, 16 Sep 2025 20:13:51 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove Dockerfile and extension.ts"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.6",
       "tag": "@yuants/app-metrics-collector_v0.1.6",
       "date": "Tue, 16 Sep 2025 15:38:41 GMT",

@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.22.4",
+      "tag": "@yuants/vendor-okx_v0.22.4",
+      "date": "Tue, 16 Sep 2025 20:13:51 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove Dockerfile and extension.ts"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.22.3",
       "tag": "@yuants/vendor-okx_v0.22.3",
       "date": "Tue, 16 Sep 2025 15:38:41 GMT",

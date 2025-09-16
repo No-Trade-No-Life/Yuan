@@ -2,6 +2,23 @@
   "name": "@yuants/app-trade-copier",
   "entries": [
     {
+      "version": "0.9.4",
+      "tag": "@yuants/app-trade-copier_v0.9.4",
+      "date": "Tue, 16 Sep 2025 20:13:51 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove Dockerfile and extension.ts"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.9.3",
       "tag": "@yuants/app-trade-copier_v0.9.3",
       "date": "Tue, 16 Sep 2025 15:38:41 GMT",

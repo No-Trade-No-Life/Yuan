@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-gate",
   "entries": [
     {
+      "version": "0.3.62",
+      "tag": "@yuants/vendor-gate_v0.3.62",
+      "date": "Tue, 16 Sep 2025 20:13:51 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove Dockerfile and extension.ts"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.61",
       "tag": "@yuants/vendor-gate_v0.3.61",
       "date": "Tue, 16 Sep 2025 15:38:41 GMT",
