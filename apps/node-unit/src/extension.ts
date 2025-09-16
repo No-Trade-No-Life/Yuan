@@ -80,6 +80,22 @@ export default (context: IExtensionContext) => {
                       memory: ctx.memory?.min ?? '1Gi',
                     },
                   },
+                  volumeMounts: [
+                    {
+                      name: 'npmrc-volume',
+                      mountPath: '/home/node/.npmrc',
+                      subPath: '.npmrc',
+                      readOnly: true,
+                    },
+                  ],
+                },
+              ],
+              volumes: [
+                {
+                  name: 'npmrc-volume',
+                  secret: {
+                    secretName: 'npmrc-secret',
+                  },
                 },
               ],
             },
