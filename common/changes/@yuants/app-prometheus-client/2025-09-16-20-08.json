@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-prometheus-client",
+      "comment": "remove Dockerfile and extension.ts",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-prometheus-client"
+}

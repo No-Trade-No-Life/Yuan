@@ -2182,39 +2182,6 @@ importers:
       '@yuants/tool-kit': link:../../tools/toolkit
       typescript: 4.7.4
 
-  ../../tools/busybox:
-    specifiers:
-      '@microsoft/api-extractor': ~7.30.0
-      '@rushstack/heft': ~0.47.5
-      '@rushstack/heft-jest-plugin': ~0.16.8
-      '@rushstack/heft-node-rig': ~1.10.7
-      '@types/heft-jest': 1.0.3
-      '@types/node': '22'
-      '@yuants/extension': workspace:*
-      '@yuants/protocol': workspace:*
-      '@yuants/tool-kit': workspace:*
-      '@yuants/utils': workspace:*
-      crypto-js: ^4.2.0
-      rxjs: ~7.5.6
-      ts-node: ~10.9.2
-      typescript: ~4.7.4
-    dependencies:
-      '@yuants/protocol': link:../../libraries/protocol
-      '@yuants/utils': link:../../libraries/utils
-      crypto-js: 4.2.0
-      rxjs: 7.5.7
-    devDependencies:
-      '@microsoft/api-extractor': 7.30.1
-      '@rushstack/heft': 0.47.11
-      '@rushstack/heft-jest-plugin': 0.16.8_eb78401e78b89b7ced770679dea7e48a
-      '@rushstack/heft-node-rig': 1.10.13_154bfccaf757d04bbe52f933b349182c
-      '@types/heft-jest': 1.0.3
-      '@types/node': 22.7.5
-      '@yuants/extension': link:../../libraries/extension
-      '@yuants/tool-kit': link:../toolkit
-      ts-node: 10.9.2_24c227b0eb5752a64240dae09531dbef
-      typescript: 4.7.4
-
   ../../tools/toolkit:
     specifiers:
       '@microsoft/api-extractor': ~7.30.0

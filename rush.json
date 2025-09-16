@@ -706,11 +706,6 @@
       "shouldPublish": true
     },
     {
-      "packageName": "@yuants/tool-busybox",
-      "projectFolder": "tools/busybox",
-      "shouldPublish": true
-    },
-    {
       "packageName": "@yuants/dist-origin",
       "projectFolder": "distributions/origin",
       "shouldPublish": true

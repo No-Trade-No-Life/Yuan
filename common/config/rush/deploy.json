@@ -48,7 +48,6 @@
     "@yuants/vendor-trading-view",
     "@yuants/vendor-ctp",
     "@yuants/vendor-tq",
-    "@yuants/tool-busybox",
     "@yuants/app-telegram-monitor",
     "@yuants/app-twitter-monitor"
   ],
