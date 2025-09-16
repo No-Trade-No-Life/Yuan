@@ -62,7 +62,7 @@ export default (context: IExtensionContext) => {
                   env: [
                     ...makeK8sEnvs(ctx.env),
                     {
-                      name: 'PRIVATE_KEY_SEED',
+                      name: 'NODE_UNIT_NAME',
                       valueFrom: {
                         fieldRef: {
                           fieldPath: 'spec.nodeName',
