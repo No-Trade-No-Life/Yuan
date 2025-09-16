@@ -15,26 +15,51 @@ export const createKeyPair = (): { public_key: string; private_key: string } => 
 };
 
 /**
+ * the ED25519 key pair
+ * @public
+ */
+export interface IEd25519KeyPair {
+  public_key: string;
+  private_key: string;
+}
+
+/**
+ * create a key pair from a seed
+ * @param seed - the seed to create the key pair from (32 bytes)
+ * @returns the public key and the private key (both base58 encoded)
+ * @public
+ */
+export const fromSeed = (seed: Uint8Array): IEd25519KeyPair => {
+  if (seed.length !== 32) {
+    throw new Error('Seed must be 32 bytes');
+  }
+  const pair = sign.keyPair.fromSeed(seed);
+  const public_key = bs58.encode(pair.publicKey);
+  const private_key = bs58.encode(pair.secretKey);
+  return { public_key, private_key };
+};
+
+/**
  * create a key pair from a secret key
  * @param privateKey - the private key to create the key pair from (base58 encoded)
  * @returns the public key and the private key (both base58 encoded)
  * @public
  */
-export const fromPrivateKey = (privateKey: string): { public_key: string; private_key: string } => {
+export const fromPrivateKey = (privateKey: string): IEd25519KeyPair => {
   const buffer = bs58.decode(privateKey);
   if (buffer.length !== 64) {
     throw new Error('Invalid private key: wrong size');
   }
   const seed = buffer.slice(0, 32);
-  const pair = sign.keyPair.fromSeed(seed);
-  const public_key = bs58.encode(pair.publicKey);
+  const pair = fromSeed(seed);
+  const public_key = pair.public_key;
   const the_public_key = bs58.encode(buffer.slice(32, 64));
   if (public_key !== the_public_key) {
     throw new Error(
       `Invalid private key: public key mismatch: expected ${public_key}, got ${the_public_key}`,
     );
   }
-  return { public_key, private_key: privateKey };
+  return pair;
 };
 
 /**
