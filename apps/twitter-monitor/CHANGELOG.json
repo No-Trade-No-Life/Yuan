@@ -2,6 +2,23 @@
   "name": "@yuants/app-twitter-monitor",
   "entries": [
     {
+      "version": "0.1.10",
+      "tag": "@yuants/app-twitter-monitor_v0.1.10",
+      "date": "Tue, 16 Sep 2025 20:13:51 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "remove Dockerfile and extension.ts"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.9",
       "tag": "@yuants/app-twitter-monitor_v0.1.9",
       "date": "Tue, 16 Sep 2025 15:38:41 GMT",
