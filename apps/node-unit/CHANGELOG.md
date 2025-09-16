@@ -1,6 +1,13 @@
 # Change Log - @yuants/node-unit
 
-This log was last generated on Tue, 16 Sep 2025 15:38:41 GMT and should not be manually modified.
+This log was last generated on Tue, 16 Sep 2025 18:17:23 GMT and should not be manually modified.
+
+## 0.10.1
+Tue, 16 Sep 2025 18:17:23 GMT
+
+### Patches
+
+- add npmrc for k8s deploy
 
 ## 0.10.0
 Tue, 16 Sep 2025 15:38:41 GMT
