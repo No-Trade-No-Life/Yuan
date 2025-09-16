@@ -2,6 +2,32 @@
   "name": "@yuants/account-info-resolver",
   "entries": [
     {
+      "version": "0.2.36",
+      "tag": "@yuants/account-info-resolver_v0.2.36",
+      "date": "Tue, 16 Sep 2025 15:38:41 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.2.14`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.4.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.2.10`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.8.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.35",
       "tag": "@yuants/account-info-resolver_v0.2.35",
       "date": "Mon, 15 Sep 2025 20:23:37 GMT",

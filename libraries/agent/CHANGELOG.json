@@ -2,6 +2,38 @@
   "name": "@yuants/agent",
   "entries": [
     {
+      "version": "0.13.99",
+      "tag": "@yuants/agent_v0.13.99",
+      "date": "Tue, 16 Sep 2025 15:38:41 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.2.14`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.4.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.2.10`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.15.16`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.42.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.8.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.13.98",
       "tag": "@yuants/agent_v0.13.98",
       "date": "Mon, 15 Sep 2025 20:23:37 GMT",

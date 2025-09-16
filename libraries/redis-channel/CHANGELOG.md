@@ -1,6 +1,11 @@
 # Change Log - @yuants/redis-channel
 
-This log was last generated on Thu, 04 Sep 2025 15:24:17 GMT and should not be manually modified.
+This log was last generated on Tue, 16 Sep 2025 15:38:41 GMT and should not be manually modified.
+
+## 0.2.4
+Tue, 16 Sep 2025 15:38:41 GMT
+
+_Version update only_
 
 ## 0.2.3
 Thu, 04 Sep 2025 15:24:17 GMT
