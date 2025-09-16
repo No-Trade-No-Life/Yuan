@@ -1,6 +1,13 @@
 # Change Log - @yuants/utils
 
-This log was last generated on Thu, 04 Sep 2025 15:24:17 GMT and should not be manually modified.
+This log was last generated on Tue, 16 Sep 2025 15:38:41 GMT and should not be manually modified.
+
+## 0.8.0
+Tue, 16 Sep 2025 15:38:41 GMT
+
+### Minor changes
+
+- add fromSeed util
 
 ## 0.7.1
 Thu, 04 Sep 2025 15:24:17 GMT
