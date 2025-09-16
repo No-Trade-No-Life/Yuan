@@ -52,6 +52,8 @@ export function DataView<T, K>(props: {
   onSortingChange?: OnChangeFn<SortingState>;
   manualSorting?: boolean;
 
+  manualPagination?: boolean;
+
   initialGroupping?: GroupingState;
   initialColumnVisibility?: VisibilityState;
 
@@ -67,6 +69,9 @@ export function DataView<T, K>(props: {
   CustomView?: React.ComponentType<{ table: Table<T> }>;
 
   enableAutoPause?: boolean;
+
+  pageCount?: number;
+  totalCount?: number;
 }) {
   const { t } = useTranslation('DataView');
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -127,6 +132,8 @@ export function DataView<T, K>(props: {
     autoResetExpanded: false,
     manualSorting: props.manualSorting,
     enableGlobalFilter: true,
+    manualPagination: props.manualPagination,
+    pageCount: props.pageCount,
   };
 
   // ISSUE: if tableOptions.onSortingChange is set to undefined, there's a bug
@@ -304,12 +311,14 @@ export function DataView<T, K>(props: {
         {props.CustomView && <Radio value={'custom'}>{t('customView')}</Radio>}
       </RadioGroup>
       <Space>
-        <div>{t('total', { count: table.options.data.length })}</div>
+        <div>{t('total', { count: props.totalCount ?? table.options.data.length })}</div>
         <div>{t('filtered', { count: table.getFilteredRowModel().rows.length })}</div>
-        <div>{t('prePageNation', { count: table.getPrePaginationRowModel().rows.length })}</div>
+        <div>
+          {t('prePageNation', { count: props.totalCount ?? table.getPrePaginationRowModel().rows.length })}
+        </div>
       </Space>
       <Pagination
-        total={table.getPrePaginationRowModel().rows.length}
+        total={props.totalCount ?? table.getPrePaginationRowModel().rows.length}
         showTotal
         showQuickJumper
         showSizeChanger
