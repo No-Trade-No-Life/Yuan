@@ -10,13 +10,16 @@ import {
   encodePath,
   encryptByPublicKey,
   formatTime,
-  fromPrivateKey,
+  fromSeed,
+  IEd25519KeyPair,
   listWatch,
+  sha256,
+  UUID,
 } from '@yuants/utils';
 import { execSync, spawn } from 'child_process';
-import { createReadStream, createWriteStream, statSync } from 'fs';
+import { createReadStream, createWriteStream } from 'fs';
 import { mkdir, rm, stat, writeFile } from 'fs/promises';
-import { tmpdir } from 'os';
+import { hostname, tmpdir } from 'os';
 import { join } from 'path';
 import {
   concat,
@@ -45,10 +48,13 @@ if (!process.env.POSTGRES_URI && !process.env.HOST_URL) {
 
 // 每个 Node Unit 都有一个表明其身份的公私钥对，在环境变量中可以指定，不指定时随机生成
 // 用于部署鉴权，区分部署环境
-const NodeUnitKeyPair = process.env.PRIVATE_KEY ? fromPrivateKey(process.env.PRIVATE_KEY) : createKeyPair();
-delete process.env.PRIVATE_KEY; // 阅后即焚，防止泄漏
-
-const NODE_UNIT_PUBLIC_KEY = NodeUnitKeyPair.public_key;
+const getNodeKeyPairFromEnv = async (): Promise<IEd25519KeyPair> => {
+  const password = process.env.NODE_UNIT_PASSWORD || UUID();
+  delete process.env.NODE_UNIT_PASSWORD; // 阅后即焚，防止泄漏
+  const nodeUnitName = process.env.NODE_UNIT_NAME || hostname();
+  const seed = await sha256(new TextEncoder().encode(password + nodeUnitName));
+  return fromSeed(seed);
+};
 
 const getAbsolutePath = (command: string) =>
   execSync(`which ${command} || echo ""`, { encoding: 'utf-8' }).trim();
@@ -59,46 +65,6 @@ const PNPM_PATH = getAbsolutePath('pnpm');
 
 const WORKSPACE_DIR = join(tmpdir(), 'yuants', 'node-unit');
 console.info('Workspace Dir:', WORKSPACE_DIR);
-
-const localHostDeployment: IDeployment | null = !process.env.HOST_URL
-  ? {
-      id: 'local-host',
-      package_name: '@yuants/app-host',
-      package_version: process.env.HOST_PACKAGE_VERSION || 'latest',
-      command: '',
-      args: [],
-      env: {},
-      address: '',
-      enabled: true,
-      created_at: formatTime(Date.now()),
-      updated_at: formatTime(Date.now()),
-    }
-  : null;
-
-if (localHostDeployment) {
-  const hostUrl = new URL('ws://localhost:8888');
-  if (process.env.HOST_TOKEN) {
-    hostUrl.searchParams.set('host_token', process.env.HOST_TOKEN);
-  }
-  process.env.HOST_URL = hostUrl.toString();
-}
-
-const localPgDeployment: IDeployment | null = process.env.POSTGRES_URI
-  ? {
-      id: 'local-postgres-storage',
-      package_name: '@yuants/app-postgres-storage',
-      package_version: process.env.PG_PACKAGE_VERSION || 'latest',
-      command: '',
-      args: [],
-      address: '',
-      env: {
-        TERMINAL_ID: encodePath('PG', NODE_UNIT_PUBLIC_KEY),
-      },
-      enabled: true,
-      created_at: formatTime(Date.now()),
-      updated_at: formatTime(Date.now()),
-    }
-  : null;
 
 const kill$ = merge(fromEvent(process, 'SIGINT'), fromEvent(process, 'SIGTERM'));
 
@@ -152,7 +118,7 @@ const spawnChild = (ctx: {
 
 const childPublicKeys = new Set<string>();
 
-const runDeployment = (deployment: IDeployment) => {
+const runDeployment = (nodeKeyPair: IEd25519KeyPair, deployment: IDeployment) => {
   const terminalName = `${deployment.package_name}@${deployment.package_version}`;
 
   const deploymentDir = join(WORKSPACE_DIR, 'deployments', deployment.id);
@@ -209,7 +175,7 @@ const runDeployment = (deployment: IDeployment) => {
               HOST_URL: process.env.HOST_URL,
               TERMINAL_ID: encodePath('Deployment', deployment.id),
               TERMINAL_NAME: terminalName,
-              DEPLOYMENT_NODE_UNIT_ADDRESS: NODE_UNIT_PUBLIC_KEY,
+              DEPLOYMENT_NODE_UNIT_ADDRESS: nodeKeyPair.public_key,
               DEPLOYMENT_PRIVATE_KEY: childKeyPair.private_key,
             },
             deployment.env,
@@ -259,20 +225,68 @@ const runDeployment = (deployment: IDeployment) => {
 
 // Setup
 defer(async () => {
+  const nodeKeyPair = await getNodeKeyPairFromEnv();
+
+  console.info(formatTime(Date.now()), 'Node Unit Address:', nodeKeyPair.public_key);
+
+  const localHostDeployment: IDeployment | null = !process.env.HOST_URL
+    ? {
+        id: 'local-host',
+        package_name: '@yuants/app-host',
+        package_version: process.env.HOST_PACKAGE_VERSION || 'latest',
+        command: '',
+        args: [],
+        env: {},
+        address: '',
+        enabled: true,
+        created_at: formatTime(Date.now()),
+        updated_at: formatTime(Date.now()),
+      }
+    : null;
+
   if (localHostDeployment) {
-    await firstValueFrom(runDeployment(localHostDeployment).pipe(share({ resetOnRefCountZero: false })));
+    const hostUrl = new URL('ws://localhost:8888');
+    if (process.env.HOST_TOKEN) {
+      hostUrl.searchParams.set('host_token', process.env.HOST_TOKEN);
+    }
+    process.env.HOST_URL = hostUrl.toString();
+  }
+
+  const localPgDeployment: IDeployment | null = process.env.POSTGRES_URI
+    ? {
+        id: 'local-postgres-storage',
+        package_name: '@yuants/app-postgres-storage',
+        package_version: process.env.PG_PACKAGE_VERSION || 'latest',
+        command: '',
+        args: [],
+        address: '',
+        env: {
+          TERMINAL_ID: encodePath('PG', nodeKeyPair.public_key),
+        },
+        enabled: true,
+        created_at: formatTime(Date.now()),
+        updated_at: formatTime(Date.now()),
+      }
+    : null;
+
+  if (localHostDeployment) {
+    await firstValueFrom(
+      runDeployment(nodeKeyPair, localHostDeployment).pipe(share({ resetOnRefCountZero: false })),
+    );
   }
 
   if (localPgDeployment) {
-    await firstValueFrom(runDeployment(localPgDeployment).pipe(share({ resetOnRefCountZero: false })));
+    await firstValueFrom(
+      runDeployment(nodeKeyPair, localPgDeployment).pipe(share({ resetOnRefCountZero: false })),
+    );
   }
 
   const terminal = new Terminal(process.env.HOST_URL!, {
-    terminal_id: encodePath('NodeUnit', NODE_UNIT_PUBLIC_KEY),
+    terminal_id: encodePath('NodeUnit', nodeKeyPair.public_key),
     name: '@yuants/node-unit',
   });
 
-  setupHandShakeService(terminal, NodeUnitKeyPair.private_key);
+  setupHandShakeService(terminal, nodeKeyPair.private_key);
 
   terminal.server.provideService(
     'NodeUnit/DecryptForChild',
@@ -280,7 +294,7 @@ defer(async () => {
       type: 'object',
       required: ['node_unit_address', 'encrypted_data_base58', 'child_public_key'],
       properties: {
-        node_unit_address: { type: 'string', const: NODE_UNIT_PUBLIC_KEY },
+        node_unit_address: { type: 'string', const: nodeKeyPair.public_key },
         encrypted_data_base58: { type: 'string' },
         child_public_key: { type: 'string' },
       },
@@ -295,7 +309,7 @@ defer(async () => {
       }
       const encrypted_data = decodeBase58(encrypted_data_base58);
       // decrypt with parent private key
-      const decrypted_data = decryptByPrivateKey(encrypted_data, NodeUnitKeyPair.private_key);
+      const decrypted_data = decryptByPrivateKey(encrypted_data, nodeKeyPair.private_key);
       if (!decrypted_data) {
         return { res: { code: 403, message: 'NodeUnit decryption failed: wrong parent private key' } };
       }
@@ -389,7 +403,7 @@ defer(async () => {
   if (getAbsolutePath('tail')) {
     // Realtime log streaming via `tail -f`
     terminal.channel.publishChannel(
-      encodePath('Deployment', 'RealtimeLog', NODE_UNIT_PUBLIC_KEY),
+      encodePath('Deployment', 'RealtimeLog', nodeKeyPair.public_key),
       {},
       (deployment_id) => {
         // Subscribe to the log stream for the given deployment_id
@@ -430,7 +444,7 @@ defer(async () => {
   defer(() =>
     requestSQL<IDeployment[]>(
       terminal,
-      `select * from deployment where enabled = true and address = ${escapeSQL(NODE_UNIT_PUBLIC_KEY)}`,
+      `select * from deployment where enabled = true and address = ${escapeSQL(nodeKeyPair.public_key)}`,
     ),
   )
     .pipe(
@@ -450,7 +464,7 @@ defer(async () => {
       //
       listWatch(
         (item) => item.id,
-        runDeployment,
+        (x) => runDeployment(nodeKeyPair, x),
         (a, b) => a.updated_at === b.updated_at,
       ),
     )

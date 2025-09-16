@@ -2,6 +2,40 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.42.1",
+      "tag": "@yuants/protocol_v0.42.1",
+      "date": "Tue, 16 Sep 2025 15:38:41 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.8.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.42.0",
+      "tag": "@yuants/protocol_v0.42.0",
+      "date": "Mon, 15 Sep 2025 13:09:36 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "move provideService to server module"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.41.0",
       "tag": "@yuants/protocol_v0.41.0",
       "date": "Fri, 12 Sep 2025 21:28:30 GMT",

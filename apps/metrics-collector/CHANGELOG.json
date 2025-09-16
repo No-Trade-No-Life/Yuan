@@ -2,6 +2,51 @@
   "name": "@yuants/app-metrics-collector",
   "entries": [
     {
+      "version": "0.1.6",
+      "tag": "@yuants/app-metrics-collector_v0.1.6",
+      "date": "Tue, 16 Sep 2025 15:38:41 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.8.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.42.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.24`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.1.5",
+      "tag": "@yuants/app-metrics-collector_v0.1.5",
+      "date": "Mon, 15 Sep 2025 13:09:35 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor for terminal changed"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.42.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.4",
       "tag": "@yuants/app-metrics-collector_v0.1.4",
       "date": "Fri, 12 Sep 2025 21:28:30 GMT",

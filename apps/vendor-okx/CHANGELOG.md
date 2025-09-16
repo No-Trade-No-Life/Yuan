@@ -1,6 +1,61 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Fri, 12 Sep 2025 21:28:30 GMT and should not be manually modified.
+This log was last generated on Tue, 16 Sep 2025 15:38:41 GMT and should not be manually modified.
+
+## 0.22.3
+Tue, 16 Sep 2025 15:38:41 GMT
+
+_Version update only_
+
+## 0.22.2
+Mon, 15 Sep 2025 22:05:44 GMT
+
+### Patches
+
+- fix duplicate ws subscribe
+
+## 0.22.1
+Mon, 15 Sep 2025 21:47:42 GMT
+
+### Patches
+
+- fix trade timeout
+
+## 0.22.0
+Mon, 15 Sep 2025 20:23:37 GMT
+
+### Minor changes
+
+- migrate to new provideAccountInfoService API
+
+## 0.21.3
+Mon, 15 Sep 2025 20:03:15 GMT
+
+### Patches
+
+- fix grid trade
+
+## 0.21.2
+Mon, 15 Sep 2025 18:22:32 GMT
+
+### Patches
+
+- add grid api
+- fix quote
+
+## 0.21.1
+Mon, 15 Sep 2025 17:08:24 GMT
+
+### Patches
+
+- fix MAKER 
+
+## 0.21.0
+Mon, 15 Sep 2025 13:09:36 GMT
+
+### Minor changes
+
+- add service and refactor for terminal changed
 
 ## 0.20.9
 Fri, 12 Sep 2025 21:28:30 GMT

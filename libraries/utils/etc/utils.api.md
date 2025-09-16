@@ -57,16 +57,24 @@ export const escapeRegExp: (string: string) => string;
 export const formatTime: (time: Date | number | string, timeZone?: string | undefined) => string;
 
 // @public
-export const fromPrivateKey: (privateKey: string) => {
-    public_key: string;
-    private_key: string;
-};
+export const fromPrivateKey: (privateKey: string) => IEd25519KeyPair;
+
+// @public
+export const fromSeed: (seed: Uint8Array) => IEd25519KeyPair;
 
 // @public
 export const generateX25519KeyPair: () => {
     public_key: string;
     private_key: string;
 };
+
+// @public
+export interface IEd25519KeyPair {
+    // (undocumented)
+    private_key: string;
+    // (undocumented)
+    public_key: string;
+}
 
 // @public
 export const listWatch: <T, K>(keyFunc: (item: T) => string, consumer: (item: T) => Observable<K>, comparator?: (a: T, b: T) => boolean) => OperatorFunction<T[], K>;

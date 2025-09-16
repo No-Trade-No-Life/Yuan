@@ -1,4 +1,4 @@
-import { catchError, defer, first, firstValueFrom, interval, of, repeat, retry, timeout } from 'rxjs';
+import { defer, first, of, repeat, retry, tap, timeout } from 'rxjs';
 import { client } from './api';
 import { ITrade } from '@yuants/data-trade';
 import { accountUid$ } from './account';
@@ -36,6 +36,8 @@ const tradeParser = async (accountId: string, params: Record<string, string>): P
         trade.product_id = bill.instId;
         trade.traded_price = bill.px;
         if (bill.instType === 'SWAP') {
+          if (bill.subType === '1') trade.direction = 'OPEN_LONG';
+          if (bill.subType === '2') trade.direction = 'CLOSE_LONG';
           if (bill.subType === '3') trade.direction = 'OPEN_LONG';
           if (bill.subType === '4') trade.direction = 'OPEN_SHORT';
           if (bill.subType === '5') trade.direction = 'CLOSE_LONG';
@@ -117,13 +119,14 @@ defer(() => accountUid$)
     defer(() => getAccountTradeWithAccountId(account_id))
       .pipe(
         //
+        timeout(10_000), //  超时设定：10 秒
+        tap({
+          error: (err) => {
+            console.error(formatTime(Date.now()), 'getAccountTradeError', err);
+          },
+        }),
         repeat({ delay: 30_000 }),
         retry({ delay: 5000 }),
-        timeout(10_000), //  超时设定：10 秒
-        catchError((err) => {
-          console.error(formatTime(Date.now()), 'getAccountTradeError', err);
-          return of([]);
-        }),
       )
       .subscribe();
   });

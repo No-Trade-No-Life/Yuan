@@ -1,7 +1,7 @@
 import { IQuote } from '@yuants/data-quote';
 import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
-import { decodePath, encodePath } from '@yuants/utils';
+import { decodePath, encodePath, listWatch } from '@yuants/utils';
 import {
   defer,
   filter,
@@ -16,6 +16,7 @@ import {
   scan,
   share,
   shareReplay,
+  tap,
   toArray,
 } from 'rxjs';
 import { client } from './api';
@@ -50,6 +51,17 @@ const getWsClient = () => {
   return newClient;
 };
 
+const fromWsChannelAndInstId = (channel: string, instId: string) =>
+  new Observable<any>((subscriber) => {
+    const client = getWsClient();
+    client.subscribe(channel, instId, (data: any) => {
+      subscriber.next(data);
+    });
+    subscriber.add(() => {
+      client.unsubscribe(channel, instId);
+    });
+  });
+
 const swapInstruments$ = defer(() => client.getInstruments({ instType: 'SWAP' })).pipe(
   repeat({ delay: 3600_000 }),
   retry({ delay: 10_000 }),
@@ -83,33 +95,24 @@ export const spotMarketTickers$ = defer(() => spotTickers$).pipe(
   shareReplay(1),
 );
 
-const swapTicker$ = swapInstruments$.pipe(
-  mergeMap((x) => {
-    return new Observable<any>((subscriber) => {
-      for (const inst of x) {
-        getWsClient().subscribe('tickers', inst.instId, (data: any) => {
-          subscriber.next(data);
-        });
-      }
-    });
-  }),
-  share(),
-);
 const spotTicker$ = spotInstruments$.pipe(
-  mergeMap((x) => {
+  tap((x) => {
     console.info('SPOT INSTRUMENTS', x.length);
-    return new Observable<any>((subscriber) => {
-      for (const inst of x) {
-        getWsClient().subscribe('tickers', inst.instId, (data: any) => {
-          subscriber.next(data);
-        });
-      }
-    });
   }),
+  listWatch(
+    (x) => x.instId,
+    (x) => fromWsChannelAndInstId('tickers', x.instId),
+    () => true,
+  ),
   share(),
 );
 
-const quote1$ = swapTicker$.pipe(
+const quote1$ = swapInstruments$.pipe(
+  listWatch(
+    (x) => x.instId,
+    (x) => fromWsChannelAndInstId('tickers', x.instId),
+    () => true,
+  ),
   map((ticker) => ({
     datasource_id: 'OKX',
     product_id: encodePath('SWAP', ticker.instId),
@@ -121,6 +124,7 @@ const quote1$ = swapTicker$.pipe(
   })),
   share(),
 );
+
 const quote2$ = spotTicker$.pipe(
   map((ticker) => ({
     datasource_id: 'OKX',
@@ -147,26 +151,18 @@ const quote3$ = spotTicker$.pipe(
   share(),
 );
 
-const swapOpenInterestInner$ = swapInstruments$.pipe(
-  mergeMap(
-    (x) =>
-      new Observable<any>((subscriber) => {
-        for (const inst of x) {
-          getWsClient().subscribe('open-interest', inst.instId, (data: any) => {
-            subscriber.next(data);
-          });
-        }
-      }),
-  ),
-);
-
 const swapOpenInterests$ = defer(() => client.getOpenInterest({ instType: 'SWAP' })).pipe(
   repeat({ delay: 10_000 }),
   retry({ delay: 10_000 }),
   shareReplay(1),
 );
 
-const quote4$ = swapOpenInterestInner$.pipe(
+const quote4$ = swapInstruments$.pipe(
+  listWatch(
+    (x) => x.instId,
+    (x) => fromWsChannelAndInstId('open-interest', x.instId),
+    () => true,
+  ),
   map(
     (x): Partial<IQuote> => ({
       datasource_id: 'OKX',
@@ -194,25 +190,21 @@ const quote$ = merge(
   share(),
 );
 
-Terminal.fromNodeEnv().channel.publishChannel('quote', { pattern: `^OKX/` }, (channel_id) => {
-  const [datasource_id, product_id] = decodePath(channel_id);
-  if (!datasource_id) {
-    throw 'datasource_id is required';
-  }
-  if (!product_id) {
-    throw 'product_id is required';
-  }
-  return quote$.pipe(filter((x) => x.product_id === product_id));
-});
-
 // 合并不同来源的数据并进行合并，避免死锁
 if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
-  merge(quote1$, quote2$, quote3$, quote4$)
+  Terminal.fromNodeEnv().channel.publishChannel('quote', { pattern: `^OKX/` }, (channel_id) => {
+    const [datasource_id, product_id] = decodePath(channel_id);
+    if (!datasource_id) {
+      throw 'datasource_id is required';
+    }
+    if (!product_id) {
+      throw 'product_id is required';
+    }
+    return quote$.pipe(filter((x) => x.product_id === product_id));
+  });
+
+  quote$
     .pipe(
-      groupBy((x) => encodePath(x.datasource_id, x.product_id)),
-      mergeMap((group$) => {
-        return group$.pipe(scan((acc, cur) => Object.assign(acc, cur), {} as Partial<IQuote>));
-      }),
       writeToSQL({
         terminal: Terminal.fromNodeEnv(),
         writeInterval: 1000,

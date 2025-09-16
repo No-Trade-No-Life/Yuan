@@ -2,6 +2,87 @@
   "name": "@yuants/agent",
   "entries": [
     {
+      "version": "0.13.99",
+      "tag": "@yuants/agent_v0.13.99",
+      "date": "Tue, 16 Sep 2025 15:38:41 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.2.14`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.4.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.2.10`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.15.16`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.42.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.8.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.13.98",
+      "tag": "@yuants/agent_v0.13.98",
+      "date": "Mon, 15 Sep 2025 20:23:37 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.4.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.15.15`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.13.97",
+      "tag": "@yuants/agent_v0.13.97",
+      "date": "Mon, 15 Sep 2025 13:09:35 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.2.13`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.3.14`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.2.9`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.15.14`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.42.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.13.96",
       "tag": "@yuants/agent_v0.13.96",
       "date": "Fri, 12 Sep 2025 21:28:30 GMT",

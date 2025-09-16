@@ -1505,7 +1505,70 @@ export class OkxClient {
       fillFwdPx: string;
     }[];
   }> => this.request('GET', '/api/v5/account/bills-archive', params);
+
+  /**
+   * POST /  网格策略委托下单
+   * 限速：20次/2s
+   * 限速规则：User ID + Instrument ID
+   * 权限：交易
+   * HTTP请求
+   *
+   * https://www.okx.com/docs-v5/zh/?language=shell#order-book-trading-grid-trading-post-place-grid-algo-order
+   */
+  postGridAlgoOrder = (
+    params: {
+      instId: string;
+      algoOrdType: string;
+      maxPx: string;
+      minPx: string;
+      gridNum: string;
+      runType?: string;
+      tpTriggerPx?: string;
+      slTriggerPx?: string;
+      algoClOrdId?: string;
+      tag?: string;
+      profitSharingRatio?: string;
+      triggerParams?: {
+        triggerAction: string;
+        triggerStrategy: string;
+        timeframe?: string;
+        thold?: string;
+        triggerCond?: string;
+        timePeriod?: string;
+        delaySeconds?: string;
+        triggerPx?: string;
+        stopType?: string;
+      }[];
+    } & Grid,
+  ): Promise<{
+    code: string;
+    msg: string;
+    data: {
+      algoId: string;
+      algoClOrdId: string;
+      sCode: string;
+      sMsg: string;
+      tag: string;
+    }[];
+  }> => this.request('POST', '/api/v5/tradingBot/grid/order-algo', params);
 }
+
+type SpotGrid = {
+  quoteSz?: string;
+  baseSz?: string;
+  tradeQuoteCcy?: string;
+};
+
+type SwapGrid = {
+  sz: string;
+  direction: string;
+  lever: string;
+  basePos?: string;
+  tpRatio?: string;
+  slRatio?: string;
+};
+
+type Grid = SpotGrid | SwapGrid;
 
 type AccountBillType =
   | '1'

@@ -6,3 +6,4 @@ import './ohlc';
 import './order';
 import './quote';
 import './trade';
+import './services';

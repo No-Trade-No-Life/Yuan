@@ -1,6 +1,23 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Fri, 12 Sep 2025 21:28:30 GMT and should not be manually modified.
+This log was last generated on Tue, 16 Sep 2025 15:38:41 GMT and should not be manually modified.
+
+## 0.11.11
+Tue, 16 Sep 2025 15:38:41 GMT
+
+_Version update only_
+
+## 0.11.10
+Mon, 15 Sep 2025 20:23:37 GMT
+
+_Version update only_
+
+## 0.11.9
+Mon, 15 Sep 2025 13:09:36 GMT
+
+### Patches
+
+- refactor for terminal changed
 
 ## 0.11.8
 Fri, 12 Sep 2025 21:28:30 GMT

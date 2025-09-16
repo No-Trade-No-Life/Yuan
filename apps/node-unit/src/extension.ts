@@ -23,9 +23,9 @@ export default (context: IExtensionContext) => {
       },
     }),
     make_k8s_resource_objects: async (ctx, envCtx) => ({
-      deployment: {
+      daemonSet: {
         apiVersion: 'apps/v1',
-        kind: 'Deployment',
+        kind: 'DaemonSet',
         metadata: {
           name: COMPONENT_NAME,
           namespace: 'yuan',
@@ -35,7 +35,6 @@ export default (context: IExtensionContext) => {
           },
         },
         spec: {
-          replicas: 1,
           selector: {
             matchLabels: {
               'y.ntnl.io/component': COMPONENT_NAME,
@@ -60,7 +59,17 @@ export default (context: IExtensionContext) => {
                   name: COMPONENT_NAME,
                   image: `ghcr.io/no-trade-no-life/${COMPONENT_NAME}:${ctx.version ?? envCtx.version}`,
                   imagePullPolicy: 'IfNotPresent',
-                  env: makeK8sEnvs(ctx.env),
+                  env: [
+                    ...makeK8sEnvs(ctx.env),
+                    {
+                      name: 'NODE_UNIT_NAME',
+                      valueFrom: {
+                        fieldRef: {
+                          fieldPath: 'spec.nodeName',
+                        },
+                      },
+                    },
+                  ],
                   resources: {
                     limits: {
                       cpu: ctx.cpu?.max ?? '1',

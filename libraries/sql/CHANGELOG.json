@@ -2,6 +2,48 @@
   "name": "@yuants/sql",
   "entries": [
     {
+      "version": "0.9.4",
+      "tag": "@yuants/sql_v0.9.4",
+      "date": "Tue, 16 Sep 2025 15:38:41 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.42.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.8.0`"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.9.3",
+      "tag": "@yuants/sql_v0.9.3",
+      "date": "Mon, 15 Sep 2025 13:09:36 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor for terminal changed"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.42.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.9.2",
       "tag": "@yuants/sql_v0.9.2",
       "date": "Fri, 12 Sep 2025 21:28:30 GMT",
