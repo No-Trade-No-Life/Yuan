@@ -1,6 +1,4 @@
 import { Terminal } from '@yuants/protocol';
-import '@yuants/protocol/lib/services';
-import '@yuants/protocol/lib/services/notify';
 import { catchError, defer, from, map, mergeMap, timeout } from 'rxjs';
 import { FeishuClient } from './api';
 
