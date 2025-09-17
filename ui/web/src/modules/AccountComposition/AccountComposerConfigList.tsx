@@ -23,11 +23,11 @@ export const schemaOfAccountComposerConfig: JSONSchema7 = {
           enabled: { type: 'boolean', title: '启用', default: true },
           account_id: { type: 'string', title: '成分账户 ID', format: 'account_id' },
           multiple: { type: 'number', title: '乘数', default: 1 },
-          reset_zero: {
+          force_zero: {
             type: 'boolean',
-            title: '清零',
+            title: '强制清零',
             description:
-              '清零时，强制输出持仓量为 0，同时保留品种持仓数据存在，等效于配置乘数为 0，适合需要平仓的操作',
+              '强制清零时，强制输出持仓量为 0，同时保留品种持仓数据存在，等效于配置乘数为 0，适合需要平仓的操作',
             default: false,
           },
           type: {
@@ -115,8 +115,8 @@ registerPage('AccountComposerConfigList', () => {
                       ),
                     },
                     {
-                      header: '清零',
-                      accessorKey: 'reset_zero',
+                      header: '强制清零',
+                      accessorKey: 'force_zero',
                       cell: (info) => (
                         <Switch checked={!!info.getValue()} disabled onChange={() => {}}></Switch>
                       ),
