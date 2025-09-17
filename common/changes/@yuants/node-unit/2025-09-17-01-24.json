@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/node-unit",
+      "comment": "report node_unit tags and use tail -F to track log file and npm install -C to show deployment dir",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/node-unit"
+}
