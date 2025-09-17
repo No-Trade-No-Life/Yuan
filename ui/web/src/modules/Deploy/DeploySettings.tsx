@@ -20,7 +20,8 @@ import { resolveVersion } from '../Extensions';
 import { Button, Switch, Toast } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
-import { deployments$, refreshDeployments$ } from './model';
+import { InlineNodeUnitAddress } from './InlineNodeUnitAddress';
+import { availableNodeUnit$, deployments$, refreshDeployments$ } from './model';
 import { escapeForBash } from './utils';
 
 const packageVersionsCache = createCache<string[]>(
@@ -44,6 +45,8 @@ registerPage('DeploySettings', () => {
   const [editDeployment, setEditDeployment] = useState<IDeployment>();
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const availableNodeUnit = useObservableState(availableNodeUnit$);
 
   useEffect(() => {
     if (editDeployment?.package_name) {
@@ -205,6 +208,11 @@ registerPage('DeploySettings', () => {
             ),
           },
           {
+            header: '部署地址',
+            accessorKey: 'address',
+            cell: (ctx) => <InlineNodeUnitAddress address={ctx.getValue()} />,
+          },
+          {
             header: '部署 ID',
             accessorKey: 'id',
           },
@@ -251,10 +259,6 @@ registerPage('DeploySettings', () => {
               Object.entries(x.env)
                 .map(([key, v]) => `${key}=${escapeForBash(v)}`)
                 .join(' '),
-          },
-          {
-            header: '部署地址',
-            accessorKey: 'address',
           },
           {
             header: '运行命令',
@@ -316,10 +320,10 @@ registerPage('DeploySettings', () => {
                 ),
               }}
               style={{ width: '560px' }}
-              data={terminal?.terminalInfos
-                .filter((x) => x.name === '@yuants/node-unit')
-                .map((x) => x.terminal_id.split('/')[1])
-                .filter(Boolean)}
+              data={availableNodeUnit?.map((unit) => ({
+                label: `${unit.node_unit_name} (${unit.node_unit_address}) @yuants/node-unit@${unit.node_unit_version}`,
+                value: unit.node_unit_address,
+              }))}
             />
 
             <Form.Section text="环境变量" />

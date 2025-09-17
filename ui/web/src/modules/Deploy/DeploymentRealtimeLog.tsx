@@ -3,10 +3,10 @@ import { encodePath } from '@yuants/utils';
 import { useObservableState } from 'observable-hooks';
 import { useEffect, useRef, useState } from 'react';
 import { EMPTY, switchMap, tap } from 'rxjs';
+import { Button } from '../Interactive';
 import { terminal$ } from '../Network';
 import { registerPage, usePageParams } from '../Pages';
-import { availableNodeUnitAddress$, deployments$ } from './model';
-import { Button } from '../Interactive';
+import { availableNodeUnit$, deployments$ } from './model';
 
 registerPage('DeploymentRealtimeLog', () => {
   const { node_unit_address, deployment_id } = usePageParams<{
@@ -17,7 +17,7 @@ registerPage('DeploymentRealtimeLog', () => {
   const [nodeUnitAddress, setNodeUnitAddress] = useState(node_unit_address || '');
   const [deploymentId, setDeploymentId] = useState(deployment_id || '');
 
-  const availableNodeUnitAddresses = useObservableState(availableNodeUnitAddress$);
+  const availableNodeUnit = useObservableState(availableNodeUnit$);
 
   const deployments = useObservableState(deployments$);
 
@@ -56,7 +56,10 @@ registerPage('DeploymentRealtimeLog', () => {
           prefix="Node Unit"
           value={nodeUnitAddress}
           onChange={(e) => setNodeUnitAddress(e as string)}
-          optionList={availableNodeUnitAddresses?.map((address) => ({ label: address, value: address }))}
+          optionList={availableNodeUnit?.map((unit) => ({
+            label: `${unit.node_unit_name} (${unit.node_unit_address}) @yuants/node-unit@${unit.node_unit_version}`,
+            value: unit.node_unit_address,
+          }))}
           style={{ width: '100%' }}
           filter
         />
