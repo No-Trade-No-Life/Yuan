@@ -34,7 +34,7 @@ UPDATE ON trade_copier_trade_config FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column ();
 
 ALTER TABLE trade_copier_trade_config
-ADD COLUMN limit_order_control BOOLEAN NOT NULL DEFAULT FALSE;
+ADD COLUMN IF NOT EXISTS limit_order_control BOOLEAN NOT NULL DEFAULT FALSE;
 
 CREATE TABLE IF NOT EXISTS
     trade_copier_config (
