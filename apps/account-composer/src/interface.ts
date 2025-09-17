@@ -16,7 +16,7 @@ export interface IAccountComposerConfig {
     /**
      * If true, force the output position volume to be 0, while keeping the product position data existing. Equivalent to setting multiple to 0, suitable for operations that require closing positions.
      */
-    reset_zero?: boolean;
+    force_zero?: boolean;
 
     source_datasource_id?: string;
     source_product_id?: string;

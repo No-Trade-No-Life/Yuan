@@ -73,7 +73,7 @@ defer(() =>
                     .subscribeChannel<IAccountInfo>('AccountInfo', y.account_id)
                     .pipe(share())).pipe(
                     map((x): IAccountInfo | undefined => {
-                      const multiple = y.reset_zero ? 0 : y.multiple ?? 1;
+                      const multiple = y.force_zero ? 0 : y.multiple ?? 1;
 
                       if (y.type === 'ALL') {
                         return {
