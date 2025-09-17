@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-account-composer
 
-This log was last generated on Tue, 16 Sep 2025 20:13:51 GMT and should not be manually modified.
+This log was last generated on Wed, 17 Sep 2025 18:13:27 GMT and should not be manually modified.
+
+## 0.6.0
+Wed, 17 Sep 2025 18:13:27 GMT
+
+### Minor changes
+
+- add reset_zero option
 
 ## 0.5.11
 Tue, 16 Sep 2025 20:13:51 GMT
