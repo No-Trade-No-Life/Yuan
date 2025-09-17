@@ -1,3 +1,4 @@
+import { Typography } from '@douyinfe/semi-ui';
 import { createCache } from '@yuants/cache';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { memo } from 'react';
@@ -15,5 +16,9 @@ export const InlineIPv4 = memo((props: { ipv4: string }) => {
       [props.ipv4],
     ),
   );
-  return `${props.ipv4} (${country || ''})`;
+  return (
+    <Typography.Text>
+      {props.ipv4} {country || ''}
+    </Typography.Text>
+  );
 });
