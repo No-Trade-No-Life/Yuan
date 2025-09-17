@@ -43,9 +43,10 @@ import {
   tap,
 } from 'rxjs';
 import { AccountFrameUnit } from '../AccountInfo/AccountFrameUnit';
-import { accountFrameSeries$, accountPerformance$ } from '../AccountInfo/model';
+import { accountPerformance$ } from '../AccountInfo/model';
 import { ITimeSeriesChartConfig } from '../Chart/components/model';
 import { executeCommand, registerCommand } from '../CommandCenter';
+import { availableNodeUnit$ } from '../Deploy/model';
 import { createFileSystemBehaviorSubject } from '../FileSystem';
 import { fs } from '../FileSystem/api';
 import Form, { showForm } from '../Form';
@@ -390,13 +391,15 @@ registerPage('AgentConfForm', () => {
 
               if (!terminal) throw 'Terminal is not connected';
 
-              const nodeUnits = terminal.terminalInfos.filter((t) => t.terminal_id.startsWith('NodeUnit/'));
-              const addresses = nodeUnits.map((t) => t.terminal_id.replace('NodeUnit/', ''));
+              const addresses = await firstValueFrom(availableNodeUnit$);
               const address = await showForm<string>({
                 type: 'string',
                 title: '请选择部署地址',
                 description: `您的代码将会被加密并且部署到选中节点，选中节点的私钥可以解密代码，请确保您信任选中节点的所有者`,
-                enum: addresses,
+                oneOf: addresses.map((unit) => ({
+                  title: `${unit.node_unit_name} (${unit.node_unit_address}) @yuants/node-unit@${unit.node_unit_version}`,
+                  const: unit.node_unit_address,
+                })),
               });
 
               const encrypted_code = encodeBase58(
