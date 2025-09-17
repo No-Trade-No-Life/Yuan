@@ -1,7 +1,11 @@
+import { IDeployment } from '@yuants/deploy';
+import { requestSQL } from '@yuants/sql';
 import {
   BehaviorSubject,
   combineLatest,
   defer,
+  filter,
+  from,
   map,
   Observable,
   of,
@@ -9,24 +13,26 @@ import {
   retry,
   shareReplay,
   switchMap,
+  toArray,
 } from 'rxjs';
 import { terminal$ } from '../Network';
-import { IDeployment } from '@yuants/deploy';
-import { requestSQL } from '@yuants/sql';
 
-export const availableNodeUnitAddress$: Observable<string[]> = terminal$.pipe(
+export const availableNodeUnit$: Observable<
+  Array<{ node_unit_address: string; node_unit_name: string; node_unit_version: string }>
+> = terminal$.pipe(
   switchMap(
     (terminal) =>
       terminal?.terminalInfos$.pipe(
         switchMap((terminalInfos) =>
-          of(
-            terminalInfos
-              .map((info): string => {
-                if (info.name !== '@yuants/node-unit') return '';
-                const match = info.terminal_id.match(/^NodeUnit\/(\w+)$/);
-                return match ? match[1] : '';
-              })
-              .filter(Boolean),
+          from(terminalInfos).pipe(
+            map((info) => info.tags || {}),
+            filter((tags) => tags.node_unit === 'true'),
+            map((tags) => ({
+              node_unit_address: tags.node_unit_address || '',
+              node_unit_name: tags.node_unit_name || '',
+              node_unit_version: tags.node_unit_version || '',
+            })),
+            toArray(),
           ),
         ),
       ) || of([]),
