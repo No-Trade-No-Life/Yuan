@@ -1,13 +1,14 @@
 import { Space, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { formatTime } from '@yuants/utils';
 import { ITerminalInfo } from '@yuants/protocol';
+import { formatTime } from '@yuants/utils';
 import { useObservableState } from 'observable-hooks';
 import { useMemo } from 'react';
 import { of, shareReplay, switchMap } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
 import { Button, DataView } from '../Interactive';
 import { registerPage } from '../Pages';
+import { InlineIPv4 } from './InlineIPv4';
 import { terminate } from './TerminalListItem';
 import { terminal$ } from './create-connection';
 import { formatDuration } from './utils';
@@ -65,6 +66,7 @@ registerPage('TerminalList', () => {
       // ),
       columnHelper.accessor('tags.public_ip', {
         header: () => '终端公网 IP',
+        cell: (info) => <InlineIPv4 ipv4={info.getValue()} />,
       }),
       columnHelper.accessor((x) => 0, {
         id: 'actions',
