@@ -1,5 +1,5 @@
 import { IServiceOptions, Terminal } from '@yuants/protocol';
-import { AddMigration, buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
+import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
 import { encodePath, escapeRegExp, observableToAsyncIterable } from '@yuants/utils';
 import { defer, ObservableInput } from 'rxjs';
 
@@ -190,25 +190,3 @@ export const createSeriesProvider = <T extends ISeriesDataItem>(
     ctx.serviceOptions,
   );
 };
-
-AddMigration({
-  id: '0f00f07c-dc95-4c45-a5cc-1c627235ed9c',
-  dependencies: [],
-  name: 'create_table_series_collecting_task',
-  statement: `
-      CREATE TABLE IF NOT EXISTS series_collecting_task (
-        table_name TEXT NOT NULL,
-        series_id TEXT NOT NULL,
-        cron_pattern TEXT NOT NULL,
-        cron_timezone TEXT NOT NULL,
-        disabled BOOLEAN NOT NULL DEFAULT FALSE,
-        replay_count INTEGER NOT NULL DEFAULT 0,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        PRIMARY KEY (table_name, series_id)
-      );
-  
-      CREATE INDEX IF NOT EXISTS idx_series_collecting_task_updated_at ON series_collecting_task (updated_at DESC);
-      create or replace trigger auto_update_updated_at before update on series_collecting_task for each row execute function update_updated_at_column();
-    `,
-});

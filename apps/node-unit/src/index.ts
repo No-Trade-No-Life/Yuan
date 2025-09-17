@@ -1,7 +1,7 @@
 import '@yuants/deploy';
 import { IDeployment } from '@yuants/deploy';
 import { setupHandShakeService, Terminal } from '@yuants/protocol';
-import { escapeSQL, ExecuteMigrations, requestSQL } from '@yuants/sql';
+import { escapeSQL, requestSQL } from '@yuants/sql';
 import {
   createKeyPair,
   decodeBase58,
@@ -330,8 +330,6 @@ defer(async () => {
       };
     },
   );
-
-  ExecuteMigrations(terminal);
 
   terminal.server.provideService(
     'Deployment/ReadLogSlice',

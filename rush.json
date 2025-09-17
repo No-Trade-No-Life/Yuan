@@ -431,6 +431,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/tool-sql-migration",
+      "projectFolder": "tools/sql-migration",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/data-series",
       "projectFolder": "libraries/data-series",
       "shouldPublish": true

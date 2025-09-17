@@ -29,7 +29,6 @@ import {
   tap,
   toArray,
 } from 'rxjs';
-import './migration';
 
 const terminal = Terminal.fromNodeEnv();
 

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-series",
+      "comment": "remove migration",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/data-series"
+}

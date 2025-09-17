@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/tool-sql-migration",
+      "comment": "new tool to migrate all sql",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/tool-sql-migration"
+}

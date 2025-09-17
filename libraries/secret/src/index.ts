@@ -1,5 +1,5 @@
 import { Terminal } from '@yuants/protocol';
-import { AddMigration, buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
+import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { decodeBase58, decrypt, encodeBase58, encrypt, sha256 } from '@yuants/utils';
 /**
  * Arbitrary secret data storage interface
@@ -37,30 +37,6 @@ export interface ISecret {
    */
   updated_at: string;
 }
-
-AddMigration({
-  id: '1c0403f1-095c-41c7-bc11-e7d71f11cc60',
-  name: 'create_table_secret',
-  dependencies: [],
-  statement: `
-        CREATE TABLE IF NOT EXISTS secret (
-            id UUID PRIMARY KEY NOT NULL DEFAULT gen_random_uuid(),
-            public_data JSONB NOT NULL,
-            encrypted_data_base58 TEXT NOT NULL,
-            encryption_key_sha256_base58 TEXT NOT NULL,
-
-            created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP
-        );
-
-        create or replace trigger auto_update_updated_at before update on secret for each row execute function update_updated_at_column();
-
-        CREATE INDEX IF NOT EXISTS secret_encryption_key_sha256_base58_idx ON secret (encryption_key_sha256_base58);
-        CREATE INDEX IF NOT EXISTS secret_updated_at ON secret (updated_at desc);
-        CREATE INDEX IF NOT EXISTS secret_public_data ON secret USING gin (public_data);
-
-    `,
-});
 
 /**
  * Saves a secret with public data and encrypted data.
