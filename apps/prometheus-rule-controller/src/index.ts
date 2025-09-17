@@ -1,6 +1,6 @@
 import * as k8s from '@kubernetes/client-node';
 import { Terminal } from '@yuants/protocol';
-import { ExecuteMigrations, requestSQL } from '@yuants/sql';
+import { requestSQL } from '@yuants/sql';
 import { formatTime, listWatch } from '@yuants/utils';
 import fs from 'fs';
 import path from 'path';
@@ -21,7 +21,6 @@ import {
   toArray,
 } from 'rxjs';
 import YAML from 'yaml';
-import './migration';
 import { IPrometheusRule, IRawPrometheusRuleGroup } from './models';
 
 interface IPrometheusRuleGroup {
@@ -30,8 +29,6 @@ interface IPrometheusRuleGroup {
 }
 
 const terminal = Terminal.fromNodeEnv();
-
-ExecuteMigrations(terminal);
 
 const makeRuleFileFormat = (group: IPrometheusRuleGroup): IRawPrometheusRuleGroup => {
   return {

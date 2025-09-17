@@ -16,7 +16,6 @@ import {
 import { TelegramClient } from 'telegram';
 import { UpdateConnectionState } from 'telegram/network';
 import { StringSession } from 'telegram/sessions';
-import './migration';
 
 const terminal = Terminal.fromNodeEnv();
 const encodeId = (tgId: any) => {

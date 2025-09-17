@@ -18,7 +18,6 @@ import {
   timeout,
 } from 'rxjs';
 import { IAccountComposerConfig } from './interface';
-import './migration';
 
 const terminal = Terminal.fromNodeEnv();
 

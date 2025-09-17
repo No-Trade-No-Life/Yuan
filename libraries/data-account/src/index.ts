@@ -21,7 +21,6 @@ import {
 } from 'rxjs';
 import './interface';
 import { IAccountInfo, IAccountMoney, IPosition, IPositionDiff } from './interface';
-import './migration';
 export * from './interface';
 
 const AccountMeter: Meter = MetricsMeterProvider.getMeter('account');

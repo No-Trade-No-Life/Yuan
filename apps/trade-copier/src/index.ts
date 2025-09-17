@@ -1,2 +1,1 @@
-import './migration';
 import './new';

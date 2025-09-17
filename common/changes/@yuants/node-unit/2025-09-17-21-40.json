@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/node-unit",
+      "comment": "remove migration",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/node-unit"
+}

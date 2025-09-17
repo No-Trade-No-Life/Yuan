@@ -1,5 +1,5 @@
 import { Terminal } from '@yuants/protocol';
-import { AddMigration, ExecuteMigrations, requestSQL } from '@yuants/sql';
+import { requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
 import {
   catchError,
@@ -92,26 +92,6 @@ interface IAlertReceiverConfig {
   created_at: string;
   updated_at: string;
 }
-
-AddMigration({
-  id: '5d4b9762-7e83-417b-94f4-21fe4cba0f1d',
-  name: 'create alert_receiver_config table',
-  dependencies: [],
-  statement: `
-    CREATE TABLE IF NOT EXISTS alert_receiver_config (
-      type TEXT NOT NULL,
-      receiver_id TEXT NOT NULL,
-      severity TEXT NOT NULL,
-      created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-      updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-      enabled BOOLEAN DEFAULT TRUE,
-      PRIMARY KEY (type, receiver_id)
-    );
-
-    create or replace trigger auto_update_updated_at before update on alert_receiver_config for each row execute function update_updated_at_column();
-  `,
-});
-
 const makeNotifyMessage = (ctx: IAlertGroup) => {
   return [
     //
@@ -148,8 +128,6 @@ const config$ = defer(() =>
 );
 
 const terminal = Terminal.fromNodeEnv();
-
-ExecuteMigrations(terminal);
 
 const keepAliveSignal$ = new Subject<void>();
 

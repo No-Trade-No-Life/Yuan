@@ -14,7 +14,6 @@ import {
   Subject,
   tap,
 } from 'rxjs';
-import './migrations';
 import { ITwitterEvent } from './types/ITwitterEvent';
 import { getUserTweetsByName } from './utils/getUserTweetsByName';
 const terminal = Terminal.fromNodeEnv();
