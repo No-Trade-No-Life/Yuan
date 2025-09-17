@@ -148,9 +148,9 @@ const runDeployment = (nodeKeyPair: IEd25519KeyPair, deployment: IDeployment) =>
       }).pipe(mergeMap(() => EMPTY)), // suppress signal
       spawnChild({
         command: PNPM_PATH || NPM_PATH,
-        args: ['install'],
+        args: ['install', '-C', deploymentDir], // -C is for npm, --prefix is for pnpm, but pnpm also supports -C (可以在 htop 中显示正在安装哪个部署)
         env: Object.assign({}, process.env, deployment.env),
-        cwd: deploymentDir,
+        cwd: deploymentDir, // 重复了，但无妨
         stdoutFilename: join(logHome, `${deployment.id}.log`),
         stderrFilename: join(logHome, `${deployment.id}.log`),
       }).pipe(mergeMap(() => EMPTY)), // suppress signal
@@ -284,6 +284,12 @@ defer(async () => {
   const terminal = new Terminal(process.env.HOST_URL!, {
     terminal_id: encodePath('NodeUnit', nodeKeyPair.public_key),
     name: '@yuants/node-unit',
+    tags: {
+      node_unit: 'true',
+      node_unit_address: nodeKeyPair.public_key,
+      node_unit_name: process.env.NODE_UNIT_NAME || hostname(),
+      node_unit_version: require('../package.json').version,
+    },
   });
 
   setupHandShakeService(terminal, nodeKeyPair.private_key);
@@ -416,7 +422,8 @@ defer(async () => {
         }
 
         return new Observable<string>((sub) => {
-          const child = spawn('tail', ['-f', logPath], {
+          // Use `tail -F` to follow the log file (-F to follow even if the file is rotated)
+          const child = spawn('tail', ['-F', logPath], {
             stdio: ['ignore', 'pipe', 'pipe'],
           });
           child.stdout?.on('data', (chunk) => {
