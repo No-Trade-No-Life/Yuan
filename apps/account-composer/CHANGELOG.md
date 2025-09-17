@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-account-composer
 
-This log was last generated on Wed, 17 Sep 2025 18:13:27 GMT and should not be manually modified.
+This log was last generated on Wed, 17 Sep 2025 18:26:30 GMT and should not be manually modified.
+
+## 0.6.1
+Wed, 17 Sep 2025 18:26:30 GMT
+
+### Patches
+
+- rename reset_zero to force_zero
 
 ## 0.6.0
 Wed, 17 Sep 2025 18:13:27 GMT
