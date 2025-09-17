@@ -1,9 +1,11 @@
 import { IQuote } from '@yuants/data-quote';
 import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
-import { decodePath, encodePath, listWatch } from '@yuants/utils';
+import { decodePath, encodePath, formatTime, listWatch } from '@yuants/utils';
 import {
+  catchError,
   defer,
+  EMPTY,
   filter,
   from,
   groupBy,
@@ -17,6 +19,7 @@ import {
   share,
   shareReplay,
   tap,
+  timeout,
   toArray,
 } from 'rxjs';
 import { client } from './api';
@@ -52,15 +55,35 @@ const getWsClient = () => {
 };
 
 const fromWsChannelAndInstId = (channel: string, instId: string) =>
-  new Observable<any>((subscriber) => {
-    const client = getWsClient();
-    client.subscribe(channel, instId, (data: any) => {
-      subscriber.next(data);
-    });
-    subscriber.add(() => {
-      client.unsubscribe(channel, instId);
-    });
-  });
+  defer(
+    () =>
+      new Observable<any>((subscriber) => {
+        const client = getWsClient();
+        client.subscribe(channel, instId, (data: any) => {
+          subscriber.next(data);
+        });
+        client.ws.addEventListener('error', (err) => {
+          subscriber.error(err);
+        });
+        client.ws.addEventListener('close', () => {
+          subscriber.error('WS Connection Closed');
+        });
+        subscriber.add(() => {
+          client.unsubscribe(channel, instId);
+        });
+      }),
+  ).pipe(
+    // 防止单个连接断开导致数据流关闭
+    timeout(60_000),
+    tap({
+      error: (err) => {
+        console.info(formatTime(Date.now()), 'WS_SUBSCRIBE_ERROR', channel, instId, err);
+      },
+    }),
+    // 暂时不太确定是否能支持 retry
+    // retry({ delay: 1000 }),
+    catchError(() => EMPTY),
+  );
 
 const swapInstruments$ = defer(() => client.getInstruments({ instType: 'SWAP' })).pipe(
   repeat({ delay: 3600_000 }),
@@ -107,48 +130,89 @@ const spotTicker$ = spotInstruments$.pipe(
   share(),
 );
 
-const quote1$ = swapInstruments$.pipe(
+const quoteOfSwapFromRest$ = defer(() => client.getMarketTickers({ instType: 'SWAP' })).pipe(
+  mergeMap((x) => x.data || []),
+  map(
+    (x): Partial<IQuote> => ({
+      datasource_id: 'OKX',
+      product_id: encodePath(x.instType, x.instId),
+      last_price: x.last,
+      ask_price: x.askPx,
+      bid_price: x.bidPx,
+      ask_volume: x.askSz,
+      bid_volume: x.bidSz,
+    }),
+  ),
+  repeat({ delay: 1000 }),
+  retry({ delay: 1000 }),
+);
+
+const quoteOfSpotAndMarginFromRest$ = defer(() => client.getMarketTickers({ instType: 'SPOT' })).pipe(
+  mergeMap((x) => x.data || []),
+  mergeMap((x): Partial<IQuote>[] => [
+    {
+      datasource_id: 'OKX',
+      product_id: encodePath('SPOT', x.instId),
+      last_price: x.last,
+      ask_price: x.askPx,
+      bid_price: x.bidPx,
+      ask_volume: x.askSz,
+      bid_volume: x.bidSz,
+    },
+    {
+      datasource_id: 'OKX',
+      product_id: encodePath('MARGIN', x.instId),
+      last_price: x.last,
+      ask_price: x.askPx,
+      bid_price: x.bidPx,
+      ask_volume: x.askSz,
+      bid_volume: x.bidSz,
+    },
+  ]),
+  repeat({ delay: 1000 }),
+  retry({ delay: 1000 }),
+);
+
+const quoteOfSwapFromWs$ = swapInstruments$.pipe(
   listWatch(
     (x) => x.instId,
     (x) => fromWsChannelAndInstId('tickers', x.instId),
     () => true,
   ),
-  map((ticker) => ({
-    datasource_id: 'OKX',
-    product_id: encodePath('SWAP', ticker.instId),
-    last_price: ticker.last,
-    ask_price: ticker.askPx,
-    bid_price: ticker.bidPx,
-    ask_volume: ticker.askSz,
-    bid_volume: ticker.bidSz,
-  })),
-  share(),
+  map(
+    (ticker): Partial<IQuote> => ({
+      datasource_id: 'OKX',
+      product_id: encodePath('SWAP', ticker.instId),
+      last_price: ticker.last,
+      ask_price: ticker.askPx,
+      bid_price: ticker.bidPx,
+      ask_volume: ticker.askSz,
+      bid_volume: ticker.bidSz,
+    }),
+  ),
 );
 
-const quote2$ = spotTicker$.pipe(
-  map((ticker) => ({
-    datasource_id: 'OKX',
-    product_id: encodePath('SPOT', ticker.instId),
-    last_price: ticker.last,
-    ask_price: ticker.askPx,
-    bid_price: ticker.bidPx,
-    ask_volume: ticker.askSz,
-    bid_volume: ticker.bidSz,
-  })),
-  share(),
-);
-
-const quote3$ = spotTicker$.pipe(
-  map((ticker) => ({
-    datasource_id: 'OKX',
-    product_id: encodePath('MARGIN', ticker.instId),
-    last_price: ticker.last,
-    ask_price: ticker.askPx,
-    bid_price: ticker.bidPx,
-    ask_volume: ticker.askSz,
-    bid_volume: ticker.bidSz,
-  })),
-  share(),
+const quoteOfSpotAndMarginFromWs$ = spotTicker$.pipe(
+  mergeMap((ticker): Partial<IQuote>[] => [
+    {
+      datasource_id: 'OKX',
+      product_id: encodePath('SPOT', ticker.instId),
+      last_price: ticker.last,
+      ask_price: ticker.askPx,
+      bid_price: ticker.bidPx,
+      ask_volume: ticker.askSz,
+      bid_volume: ticker.bidSz,
+    },
+    {
+      datasource_id: 'OKX',
+      product_id: encodePath('MARGIN', ticker.instId),
+      last_price: ticker.last,
+      ask_price: ticker.askPx,
+      bid_price: ticker.bidPx,
+      ask_volume: ticker.askSz,
+      bid_volume: ticker.bidSz,
+    },
+  ]),
 );
 
 const swapOpenInterests$ = defer(() => client.getOpenInterest({ instType: 'SWAP' })).pipe(
@@ -157,7 +221,7 @@ const swapOpenInterests$ = defer(() => client.getOpenInterest({ instType: 'SWAP'
   shareReplay(1),
 );
 
-const quote4$ = swapInstruments$.pipe(
+const interestRateOfSwapFromWS$ = swapInstruments$.pipe(
   listWatch(
     (x) => x.instId,
     (x) => fromWsChannelAndInstId('open-interest', x.instId),
@@ -173,12 +237,23 @@ const quote4$ = swapInstruments$.pipe(
   share(),
 );
 
-const quote$ = merge(
-  //
-  quote1$,
-  quote2$,
-  quote3$,
-  quote4$,
+const quoteSources$ = [
+  quoteOfSwapFromWs$,
+  interestRateOfSwapFromWS$,
+  quoteOfSwapFromRest$,
+  quoteOfSpotAndMarginFromWs$,
+  quoteOfSpotAndMarginFromRest$,
+];
+
+const quote$ = defer(() =>
+  merge(
+    ...quoteSources$.map((x$) =>
+      defer(() => x$).pipe(
+        // 防止单个流关闭导致整体关闭
+        catchError(() => EMPTY),
+      ),
+    ),
+  ),
 ).pipe(
   groupBy((x) => encodePath(x.datasource_id, x.product_id)),
   mergeMap((group$) => {
