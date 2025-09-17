@@ -1,6 +1,13 @@
 # Change Log - @yuants/node-unit
 
-This log was last generated on Tue, 16 Sep 2025 18:17:23 GMT and should not be manually modified.
+This log was last generated on Wed, 17 Sep 2025 01:44:28 GMT and should not be manually modified.
+
+## 0.11.0
+Wed, 17 Sep 2025 01:44:28 GMT
+
+### Minor changes
+
+- report node_unit tags and use tail -F to track log file and npm install -C to show deployment dir
 
 ## 0.10.1
 Tue, 16 Sep 2025 18:17:23 GMT

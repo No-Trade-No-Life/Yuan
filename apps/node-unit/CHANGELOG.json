@@ -2,6 +2,23 @@
   "name": "@yuants/node-unit",
   "entries": [
     {
+      "version": "0.11.0",
+      "tag": "@yuants/node-unit_v0.11.0",
+      "date": "Wed, 17 Sep 2025 01:44:28 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "report node_unit tags and use tail -F to track log file and npm install -C to show deployment dir"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.10.1",
       "tag": "@yuants/node-unit_v0.10.1",
       "date": "Tue, 16 Sep 2025 18:17:23 GMT",
