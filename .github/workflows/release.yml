@@ -96,10 +96,11 @@ jobs:
     needs: build
     if: ${{ needs.build.outputs.bake_file_existence == 'true' }}
     steps:
-      - name: Free Disk Space (Ubuntu)
-        uses: jlumbroso/free-disk-space@main
-        with:
-          tool-cache: true
+      # 没有以前那么多 Dockerfile 了，应该不需要清理空间了
+      # - name: Free Disk Space (Ubuntu)
+      #   uses: jlumbroso/free-disk-space@main
+      #   with:
+      #     tool-cache: true
 
       - uses: actions/checkout@v4
         with:
