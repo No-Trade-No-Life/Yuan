@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-ctp",
   "entries": [
     {
+      "version": "0.4.9",
+      "tag": "@yuants/vendor-ctp_v0.4.9",
+      "date": "Thu, 18 Sep 2025 16:00:00 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix zombie"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.8",
       "tag": "@yuants/vendor-ctp_v0.4.8",
       "date": "Thu, 18 Sep 2025 15:20:01 GMT",
