@@ -9,7 +9,7 @@
     "ctp"
   ],
   "scripts": {
-    "install": "node ./scripts/post-install.js",
+    "postinstall": "node ./scripts/post-install.js",
     "build": "heft test --clean && node ./lib/scripts/build-ctp-types.js && node ./lib/scripts/build-ctp-bridge.js && docker buildx build --target build_env -t build-env -f ./build/Dockerfile . 2>/dev/null && yuan-toolkit post-build && docker run --rm -v ./ctp:/app -w /app --user $(id -u):$(id -g) build-env /bin/bash -c 'rm -rf build && mkdir -p build && cd build && cmake .. && make && find . -mindepth 1 -name 'main_linux' -prune -o -exec rm -rf {} +'"
   },
   "dependencies": {

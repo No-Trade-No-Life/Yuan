@@ -13,7 +13,7 @@ restartCtpAction$
           new Observable((sub) => {
             const child = spawn(join(__dirname, '../ctp/build/main_linux'), {
               detached: false,
-              stdio: 'inherit',
+              stdio: 'pipe', // 不能用 'inherit', 否则会成为僵尸进程
             });
             child.on('error', (e) => {
               console.error(formatTime(Date.now()), 'ctp_process$ error', e);
