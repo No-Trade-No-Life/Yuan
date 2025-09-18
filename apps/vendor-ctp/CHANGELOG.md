@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-ctp
 
-This log was last generated on Thu, 18 Sep 2025 16:00:00 GMT and should not be manually modified.
+This log was last generated on Thu, 18 Sep 2025 17:13:45 GMT and should not be manually modified.
+
+## 0.4.10
+Thu, 18 Sep 2025 17:13:45 GMT
+
+### Patches
+
+- fix
 
 ## 0.4.9
 Thu, 18 Sep 2025 16:00:00 GMT
