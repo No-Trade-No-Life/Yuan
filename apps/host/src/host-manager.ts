@@ -366,6 +366,10 @@ export const createNodeJSHostManager = () => {
       },
     });
 
+    wss.on('error', (err) => {
+      console.info(formatTime(Date.now()), 'WebSocketServerError', err);
+    });
+
     wss.on('connection', (ws, request) => {
       const x = resolveHost(request);
       if (!x) {
@@ -373,6 +377,10 @@ export const createNodeJSHostManager = () => {
         ws.close(1008, 'Authentication failed: Invalid or expired token');
         return;
       }
+
+      ws.on('error', (err) => {
+        console.info(formatTime(Date.now()), 'WebSocketError', x?.host.host_id, x?.terminal_id, err);
+      });
 
       const { host, terminal_id } = x;
       const conn: IHostTerminalConnection = {
