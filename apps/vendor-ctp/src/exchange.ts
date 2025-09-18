@@ -9,11 +9,9 @@ import { IOrder } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
 import { IConnection, Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
-import { formatTime } from '@yuants/utils';
 import { parse } from 'date-fns';
 import {
   Observable,
-  catchError,
   combineLatest,
   defer,
   filter,
@@ -30,7 +28,6 @@ import {
   retry,
   share,
   shareReplay,
-  takeWhile,
   tap,
   timeout,
   toArray,
@@ -67,8 +64,8 @@ import {
   TThostFtdcTimeConditionType,
   TThostFtdcVolumeConditionType,
 } from './assets/ctp-types';
-import { IBridgeMessage, createZMQConnection } from './bridge';
-import { restartCtpAction$ } from './ctp-monitor';
+import { IBridgeMessage } from './bridge';
+import { requestZMQ, zmqConn } from './requestZMQ';
 
 const ACCOUNT_ID = `${process.env.BROKER_ID!}/${process.env.USER_ID!}`;
 const DATASOURCE_ID = ACCOUNT_ID;
@@ -87,7 +84,6 @@ const makeIdGen = () => {
   };
 };
 
-const requestIDGen = makeIdGen();
 const orderRefGen = makeIdGen();
 
 const mapToValue = <Req, Rep>(resp$: Observable<IBridgeMessage<Req, Rep>>) =>
@@ -96,44 +92,8 @@ const mapToValue = <Req, Rep>(resp$: Observable<IBridgeMessage<Req, Rep>>) =>
     filter((v): v is Exclude<typeof v, undefined> => !!v),
   );
 
-export const requestZMQ = <Req, Rep>(
-  conn: IConnection<IBridgeMessage<Req, Rep>>,
-  req: { method: string; params: Req },
-) => {
-  console.info(formatTime(Date.now()), req);
-  const requestID = requestIDGen();
-  const ret = from(conn.input$).pipe(
-    //
-    filter((msg) => msg.request_id === requestID && msg.res !== undefined),
-    takeWhile((msg) => !msg.res!.is_last, true),
-    // ISSUE: 碰到 -1 -2 问题先自杀
-    tap((msg) => {
-      if (msg.res!.error_code === -2 || msg.res!.error_code === -1) {
-        process.exit(1);
-      }
-    }),
-    map((msg) => {
-      if (msg.res!.error_code === -2) {
-        restartCtpAction$.next();
-        throw new Error('CTP RTN_CODE: -2');
-      }
-      return msg;
-    }),
-    timeout({ each: 5000, meta: `requestZMQ Timeout: ${req.method}` }),
-    catchError((e) => {
-      console.error(formatTime(Date.now()), e, 'REQ: ', req);
-      throw e;
-    }),
-  );
-  conn.output$.next({
-    request_id: requestID,
-    req: req,
-  });
-  return ret;
-};
-
 export const queryProducts = (conn: IConnection<IBridgeMessage<any, any>>): Observable<IProduct[]> =>
-  requestZMQ<ICThostFtdcQryInstrumentField, ICThostFtdcInstrumentField>(conn, {
+  requestZMQ<ICThostFtdcQryInstrumentField, ICThostFtdcInstrumentField>({
     method: 'ReqQryInstrument',
     params: {
       ExchangeID: '',
@@ -175,7 +135,7 @@ export const queryAccountInfo = (
   account_id: string,
   mapProductId2Product: Record<string, IProduct>,
 ) => {
-  const positions$ = requestZMQ<ICThostFtdcQryInvestorPositionField, ICThostFtdcInvestorPositionField>(conn, {
+  const positions$ = requestZMQ<ICThostFtdcQryInvestorPositionField, ICThostFtdcInvestorPositionField>({
     method: 'ReqQryInvestorPosition',
     params: {
       BrokerID: '',
@@ -217,7 +177,7 @@ export const queryAccountInfo = (
     toArray(),
   );
 
-  const money$ = requestZMQ<ICThostFtdcQryTradingAccountField, ICThostFtdcTradingAccountField>(conn, {
+  const money$ = requestZMQ<ICThostFtdcQryTradingAccountField, ICThostFtdcTradingAccountField>({
     method: 'ReqQryTradingAccount',
     params: {
       BrokerID: '',
@@ -252,7 +212,7 @@ export const queryAccountInfo = (
     ),
   );
 
-  const orders$ = requestZMQ<ICThostFtdcQryOrderField, ICThostFtdcOrderField>(conn, {
+  const orders$ = requestZMQ<ICThostFtdcQryOrderField, ICThostFtdcOrderField>({
     method: 'ReqQryOrder',
     params: {
       BrokerID: '',
@@ -319,7 +279,7 @@ export const queryHistoryOrders = (
   brokerId: string,
   investorId: string,
 ) =>
-  requestZMQ<ICThostFtdcQryTradeField, ICThostFtdcTradeField>(conn, {
+  requestZMQ<ICThostFtdcQryTradeField, ICThostFtdcTradeField>({
     method: 'ReqQryTrade',
     params: {
       BrokerID: brokerId,
@@ -384,7 +344,7 @@ export const submitOrder = (
     ),
   );
 
-  const quote$ = requestZMQ<ICThostFtdcQryDepthMarketDataField, ICThostFtdcDepthMarketDataField>(conn, {
+  const quote$ = requestZMQ<ICThostFtdcQryDepthMarketDataField, ICThostFtdcDepthMarketDataField>({
     method: 'ReqQryDepthMarketData',
     params: {
       reserve1: '',
@@ -403,7 +363,7 @@ export const submitOrder = (
   const error$ = quote$.pipe(
     //
     mergeMap((quote) =>
-      requestZMQ<ICThostFtdcInputOrderField, ICThostFtdcOrderField | ICThostFtdcInputOrderField>(conn, {
+      requestZMQ<ICThostFtdcInputOrderField, ICThostFtdcOrderField | ICThostFtdcInputOrderField>({
         method: 'ReqOrderInsert',
         params: {
           BrokerID: brokerId,
@@ -523,7 +483,7 @@ export const cancelOrder = (
 
   const [ctpExchangeId, ctpOrderSysId] = order.order_id.split('-');
   // 这里如果有报错则会是 CTP 柜台的报错
-  const error$ = requestZMQ<ICThostFtdcInputOrderActionField, ICThostFtdcInputOrderActionField>(conn, {
+  const error$ = requestZMQ<ICThostFtdcInputOrderActionField, ICThostFtdcInputOrderActionField>({
     method: 'ReqOrderAction',
     params: {
       BrokerID: brokerId,
@@ -566,7 +526,6 @@ const mutable = process.env.NO_TRADE! !== 'true';
 
 const terminal = Terminal.fromNodeEnv();
 
-const zmqConn = createZMQConnection(process.env.ZMQ_PUSH_URL!, process.env.ZMQ_PULL_URL!);
 // // ISSUE: 观测到 OnFrontDisconnected 之后会卡死，命令 exchange 自杀
 // zmqConn.input$
 //   .pipe(
