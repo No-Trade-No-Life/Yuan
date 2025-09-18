@@ -1,4 +1,4 @@
-import { IConnection, Terminal } from '@yuants/protocol';
+import { Terminal } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
 import { catchError, filter, from, map, Observable, takeWhile, timeout } from 'rxjs';
 import { createZMQConnection, IBridgeMessage } from './bridge';
@@ -54,7 +54,11 @@ const _requestZMQ = <Req, Res>(req: {
 const ACCOUNT_ID = `${process.env.BROKER_ID!}/${process.env.USER_ID!}`;
 const terminal = Terminal.fromNodeEnv();
 
-terminal.server.provideService<{ account_id: string; method: string; params: any }, void, any>(
+terminal.server.provideService<
+  { account_id: string; method: string; params: any },
+  void,
+  IBridgeMessage<any, any>
+>(
   'CTP/Query',
   {
     required: ['account_id', 'method', 'params'],

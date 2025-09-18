@@ -28,7 +28,6 @@ import {
   retry,
   share,
   shareReplay,
-  tap,
   timeout,
   toArray,
   withLatestFrom,
@@ -92,7 +91,7 @@ const mapToValue = <Req, Rep>(resp$: Observable<IBridgeMessage<Req, Rep>>) =>
     filter((v): v is Exclude<typeof v, undefined> => !!v),
   );
 
-export const queryProducts = (conn: IConnection<IBridgeMessage<any, any>>): Observable<IProduct[]> =>
+export const queryProducts = (): Observable<IProduct[]> =>
   requestZMQ<ICThostFtdcQryInstrumentField, ICThostFtdcInstrumentField>({
     method: 'ReqQryInstrument',
     params: {
@@ -130,11 +129,7 @@ export const queryProducts = (conn: IConnection<IBridgeMessage<any, any>>): Obse
     toArray(),
   );
 
-export const queryAccountInfo = (
-  conn: IConnection<IBridgeMessage<any, any>>,
-  account_id: string,
-  mapProductId2Product: Record<string, IProduct>,
-) => {
+export const queryAccountInfo = (account_id: string, mapProductId2Product: Record<string, IProduct>) => {
   const positions$ = requestZMQ<ICThostFtdcQryInvestorPositionField, ICThostFtdcInvestorPositionField>({
     method: 'ReqQryInvestorPosition',
     params: {
@@ -260,25 +255,20 @@ export const queryAccountInfo = (
     toArray(),
   );
 
-  return forkJoin([money$, positions$, orders$]).pipe(
+  return forkJoin([money$, positions$]).pipe(
     //
     map(
-      ([money, positions, orders]): IAccountInfo => ({
+      ([money, positions]): IAccountInfo => ({
         account_id,
         money,
         positions,
-        // orders,
         updated_at: Date.now(),
       }),
     ),
   );
 };
 
-export const queryHistoryOrders = (
-  conn: IConnection<IBridgeMessage<any, any>>,
-  brokerId: string,
-  investorId: string,
-) =>
+export const queryHistoryOrders = (brokerId: string, investorId: string) =>
   requestZMQ<ICThostFtdcQryTradeField, ICThostFtdcTradeField>({
     method: 'ReqQryTrade',
     params: {
@@ -556,7 +546,7 @@ const settlement$ = from(zmqConn.input$).pipe(
 settlement$.subscribe();
 
 const products$ = defer(() => loginRes$.pipe(first())).pipe(
-  mergeMap(() => queryProducts(zmqConn)),
+  mergeMap(() => queryProducts()),
   timeout({ each: 60000, meta: `QueryProduct Timeout` }),
   retry({ delay: 1000 }),
   repeat({ delay: 86400_000 }),
@@ -579,12 +569,9 @@ const mapProductIdToProduct$ = products$.pipe(
 );
 
 const accountInfo$ = defer(() => mapProductIdToProduct$.pipe(first())).pipe(
-  mergeMap((mapProductId2Product) => queryAccountInfo(zmqConn, account_id, mapProductId2Product)),
+  mergeMap((mapProductId2Product) => queryAccountInfo(account_id, mapProductId2Product)),
   retry({ delay: 1000 }),
   repeat({ delay: 1000 }),
-  tap(() => {
-    terminal.terminalInfo.status = 'OK';
-  }),
   shareReplay(1),
 );
 
@@ -618,7 +605,7 @@ terminal.server.provideService(
     combineLatest([loginRes$, settlement$]).pipe(
       first(),
       mergeMap(([loginRes, settlementRes]) =>
-        queryHistoryOrders(zmqConn, loginRes.BrokerID, settlementRes.InvestorID).pipe(
+        queryHistoryOrders(loginRes.BrokerID, settlementRes.InvestorID).pipe(
           //
           map((data) => ({ res: { code: 0, message: 'OK', data: data } })),
         ),
