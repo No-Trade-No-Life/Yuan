@@ -2,6 +2,47 @@
   "name": "@yuants/vendor-huobi",
   "entries": [
     {
+      "version": "0.11.13",
+      "tag": "@yuants/vendor-huobi_v0.11.13",
+      "date": "Thu, 18 Sep 2025 01:19:13 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.4.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.2.11`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/transfer\" to `0.2.14`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.5`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.2.15`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.3.26`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-interest-rate\" to `0.1.23`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-quote\" to `0.2.18`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/secret\" to `0.2.9`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.11.12",
       "tag": "@yuants/vendor-huobi_v0.11.12",
       "date": "Tue, 16 Sep 2025 20:13:51 GMT",
