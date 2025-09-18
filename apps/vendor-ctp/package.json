@@ -5,6 +5,7 @@
   "files": [
     "dist",
     "lib",
+    "scripts",
     "ctp"
   ],
   "scripts": {

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-ctp",
+      "comment": "add scripts to npm package",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-ctp"
+}
