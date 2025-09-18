@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-ctp
 
-This log was last generated on Thu, 18 Sep 2025 01:19:13 GMT and should not be manually modified.
+This log was last generated on Thu, 18 Sep 2025 15:20:01 GMT and should not be manually modified.
+
+## 0.4.8
+Thu, 18 Sep 2025 15:20:01 GMT
+
+### Patches
+
+- add scripts to npm package
 
 ## 0.4.7
 Thu, 18 Sep 2025 01:19:13 GMT
