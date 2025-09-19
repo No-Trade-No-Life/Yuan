@@ -87,11 +87,9 @@ export interface IServiceInfoServerSide {
 // @public
 export interface IServiceOptions {
     concurrent?: number;
+    global_token_capacity?: number;
+    global_token_refill_interval?: number;
     max_pending_requests?: number;
-    rateLimitConfig?: {
-        count: number;
-        period: number;
-    };
 }
 
 // @public

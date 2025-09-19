@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "global token bucket rate limit",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

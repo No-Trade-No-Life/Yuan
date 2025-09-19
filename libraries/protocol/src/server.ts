@@ -68,9 +68,22 @@ interface IServiceContext {
   concurrency: number;
   capacity: number;
 
+  /** 全局令牌容量 */
+  global_token_capacity: number;
+  /** 全局剩余令牌 */
+  global_token_remaining: number;
+
+  /** 全局令牌重新填充间隔 */
+  global_token_refill_interval: number;
+
   // counts
   total_routed: number;
   total_processed: number;
+
+  /**
+   * Service 被清理时触发
+   */
+  dispose$: Subject<void>;
 }
 
 /**
@@ -145,12 +158,14 @@ export class TerminalServer {
 
   addService = (service: IServiceInfoServerSide) => {
     const serviceId = service.serviceInfo.service_id || service.serviceInfo.method;
+    const dispose$ = new Subject<void>();
     this.mapServiceIdToService.set(serviceId, service);
     this._mapMethodToServiceIds.set(
       service.serviceInfo.method,
       (this._mapMethodToServiceIds.get(service.serviceInfo.method) || new Set()).add(serviceId),
     );
-    this._mapServiceIdToServiceRuntimeContext.set(serviceId, {
+
+    const serviceRuntimeContext: IServiceContext = {
       service_id: serviceId,
       method: service.serviceInfo.method,
       service: this.mapServiceIdToService.get(serviceId)!,
@@ -160,9 +175,27 @@ export class TerminalServer {
       concurrency: service.options.concurrent || Infinity,
       capacity: service.options.max_pending_requests || Infinity,
 
+      global_token_capacity: service.options.global_token_capacity || Infinity,
+      global_token_remaining: service.options.global_token_capacity || Infinity,
+      global_token_refill_interval: service.options.global_token_refill_interval || 1000,
+
       total_routed: 0,
       total_processed: 0,
-    });
+      dispose$,
+    };
+
+    if (service.options.global_token_capacity) {
+      interval(service.options.global_token_refill_interval || 1000)
+        .pipe(
+          takeUntil(dispose$),
+          tap(() => {
+            serviceRuntimeContext.global_token_remaining = serviceRuntimeContext.global_token_capacity;
+          }),
+        )
+        .subscribe();
+    }
+
+    this._mapServiceIdToServiceRuntimeContext.set(serviceId, serviceRuntimeContext);
   };
 
   removeService = (serviceId: string) => {
@@ -180,6 +213,7 @@ export class TerminalServer {
       serviceContext.processing.forEach((requestContext) => {
         requestContext.isAborted$.next(true);
       });
+      serviceContext.dispose$.next();
     }
   };
 
@@ -349,6 +383,18 @@ export class TerminalServer {
       if (!serviceContext) throw new Error('ServiceContext Not Found');
 
       serviceContext.total_routed++;
+
+      if (serviceContext.global_token_remaining <= 0) {
+        output$.next({
+          res: {
+            code: 429,
+            message: `Too Many Requests: Global Rate Limit Exceeded: capacity = ${serviceContext.global_token_capacity}, interval = ${serviceContext.global_token_refill_interval} ms`,
+          },
+        });
+        this._requestFinalizing$.next(requestContext);
+        return;
+      }
+      serviceContext.global_token_remaining--;
 
       if (serviceContext.pending.length >= serviceContext.capacity) {
         output$.next({ res: { code: 503, message: 'Service Unavailable' } });
