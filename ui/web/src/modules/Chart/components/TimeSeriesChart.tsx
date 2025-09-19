@@ -12,7 +12,7 @@ import { Button } from '../../Interactive';
 import { terminal$ } from '../../Network';
 import { CSV } from '../../Util';
 import { ChartComponent } from './ChartComponent';
-import { ITimeSeriesChartConfig } from './model';
+import { ILoadedData, ITimeSeriesChartConfig } from './model';
 
 const schemaOfChartConfig: JSONSchema7 = {
   type: 'object',
@@ -153,7 +153,7 @@ export const TimeSeriesChart = (props: {
       switchMap(([data]) =>
         Promise.allSettled(
           (data ?? [])
-            .map(async (s, index) => {
+            .map(async (s, index): Promise<ILoadedData> => {
               if (s.type === 'csv') {
                 return CSV.readFile(s.filename).then((records) => {
                   const series: Map<string, any[]> = new Map();
@@ -277,7 +277,9 @@ export const TimeSeriesChart = (props: {
               }),
             ),
         ).then((results) => {
-          const fulfilled = results.filter((r) => r.status === 'fulfilled').map((r) => r.value);
+          const fulfilled = results
+            .filter((r): r is PromiseFulfilledResult<ILoadedData> => r.status === 'fulfilled')
+            .map((r) => r.value);
           // TODO: show rejected in UI
           return fulfilled;
         }),
