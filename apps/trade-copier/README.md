@@ -1,98 +1,33 @@
 # Trade Copier
 
-A [trade copier](https://github.com/No-Trade-No-Life/Yuan/tree/main/apps/trade-copier) is an app that copies trades from some accounts to others.
+在 Yuan 中，进行实盘自动交易的推荐方式是使用交易跟单器 (Trade Copier)。
 
-```mermaid
-graph LR;
+- 支持选择跟单某个模型的信号。
+- 支持选择跟单某个交易员的交易。
+- 支持让一个账户带领其他账户。
+- 支持缩放头寸。
+- 支持不同的下单策略和参数。
+- 支持按照不同的品种使用不同的下单策略和参数。
 
-SourceAccount1_Product1 -->|x2| TargetAccount1_Product1;
-SourceAccount1_Product2 -->|x1| TargetAccount2_Product2;
-SourceAccount3_Product1 -->|x-1| TargetAccount1_Product1;
-SourceAccount1_Product1 -->|x3| TargetAccount2_Product1;
-SourceAccount2_Product1 -->|x3| TargetAccount1_Product1;
-SourceAccount2_Product2 -->|x2| TargetAccount2_Product2;
-SourceAccount3_Product2.A -->|x0.5| TargetAccount2_Product2;
-```
+## 📒 使用方法
 
-- If you want to follow the signals from some agent models in your accounts.
-- If you want to follow some traders' trades in your accounts.
-- If you want to make a account leading others.
-- If you want to scale the positions.
+1. 在集群中部署 `@yuants/app-trade-copier`（交易跟单器）和 `@yuants/app-account-composer`（账户组合器）应用。
+1. 选择你需要进行实盘的账户作为实际账户 (Actual Account)。
+1. 配置预览账户 (Preview Account) 的构成，选取其他账户 (其他真实账户或者模型的模拟账户) 的全部或者某个头寸，乘以一个系数得到预览账户的头寸。
+1. 观察预览账户的头寸是否符合您的预期。
+1. 如果符合预期，将其发布至预期账户 (Expected Account)，预期账户会与预览账户完全一致。
+1. 配置交易跟单器的选项，**支持不同的下单策略和参数**。
+1. 启用跟单，交易跟单器会自动将预期账户的头寸复制到实际账户。
 
-## Getting started
+## ⚠️ 注意事项
 
-1. Prepare a host.
-2. Prepare a PostgreSQL storage terminal.
-3. Prepare the accounts you want to copy trades from and to.
-4. Ensure the products configured in the storage. (You can use the GUI to finish this step.)
-5. Write data records of `trade_copy_relation` in the storage. (You can use the GUI to finish this step.)
-6. If you want to use trading algorithm, you need to write data records of `trade_copier_trade_config` in the storage. (You can use the GUI to finish this step).
-7. Deploy this app in the host.
-8. Restart this app if you update the `trade_copy_relation` or the `trade_copier_trade_config` records.
+- 修改配置的瞬间，跟单器就会开始执行。因此，为了避免人为配置错误导致的错误交易损失，总是先配置预览账户，观察预览账户的头寸是否符合预期，再发布到预期账户。
+- 如果需要平仓，请设置预览账户对应的头寸配置的强制归零 (`force_zero` ) 选项为 true (推荐做法)。或者将其乘数 (`multiple`) 设置为 0。
+- 禁用预期账户的某个成分，可能会导致预期账户的该成分对应的品种的头寸消失，从而导致跟单器放弃管理这个品种的头寸，而不是平仓。
+- 禁用交易账户的跟单配置，会导致跟单器放弃管理这个实际账户的头寸，而不是平仓。
+- 避免在同一个主机集群中，部署两个及以上的跟单器，否则可能会导致竞争状态，导致头寸震荡，造成大量资金损失。
 
-## Technical Notes
+## ⚙️ 支持的交易策略
 
-When the trade copier starts, it will do the following things:
-
-1. Load relations of trade copier `trade_copy_relation` from the storage. See the `ITradeCopyRelation` interface.
-2. Subscribe related account info as `Observable<IAccountInfo>`.
-3. For **each target account** and **each target product**,
-   1. Combine the latest related source account info list as `Observable<IAccountInfo[]>`;
-   2. Summary the target account's target position;
-   3. Submit orders if the target position is not equal to the target account's current position;
-   4. Wait until the order-submitting request done (no matter succeeds or fails);
-   5. Wait until the next target account info feed back, to ensure the target account's current position is updated;
-   6. Loop until the target account's target position is equal to the target account's current position.
-
-```mermaid
-graph TD;
-StartAction -->|Immediately| AccountInfoAggregateAction;
-AccountInfoAggregateAction -.->|wait for target and source accounts| CalcPositionDiffAction;
-AccountInfoAggregateAction -.->|timeout in 30s and retry| AccountInfoAggregateAction;
-CalcPositionDiffAction -->|position diff list| CyberTradeOrderDispatchAction;
-CyberTradeOrderDispatchAction -->|if no order, immediately| CompleteAction;
-CyberTradeOrderDispatchAction -->|if limitOrder configured| LimitOrderPlaceAction;
-CyberTradeOrderDispatchAction -->|if algorithm configured| SerialOrderPlaceAction;
-CyberTradeOrderDispatchAction -->|if algorithm undefined| ConcurrentOrderPlaceAction;
-LimitOrderPlaceAction -.->|Orders all settled| CompleteAction;
-SerialOrderPlaceAction -.->|Orders all settled| CompleteAction;
-ConcurrentOrderPlaceAction -.->|Orders all settled| CompleteAction;
-CompleteAction -->|Immediately| StartAction;
-```
-
-### Model
-
-- You can specify a certain product of a source account to a certain product of a target account.
-- You can scale the position by specifying `multiple`. Trade copier will scale the position by `multiple` times. Trade copier will close the positions if the value of `multiple` is equal to 0. If the value of `multiple` is negative, the position's direction will be flip from `LONG` to `SHORT` and vice versa.
-- You can ignore some positions by specifying `exclusive_comment_pattern`. The value of `exclusive_comment_pattern` should be a regular expression. If the comment of a position matches the regular expression, the position will be ignored.
-
-```ts
-interface ITradeCopyRelation {
-  source_account_id: string;
-  source_product_id: string;
-  target_account_id: string;
-  target_product_id: string;
-  multiple: number;
-  exclusive_comment_pattern?: string;
-  disabled?: boolean;
-}
-interface ITradeCopierTradeConfig {
-  account_id: string;
-  product_id: string;
-  max_volume_per_order: number;
-  limit_order_control?: boolean;
-}
-```
-
-### Q&A
-
-#### Q: What if multiple trade copiers copy trades work with same target account?
-
-A: **It's very dangerous.** It may cause position oscillation. Orders may be over-submitted or under-submitted. Your account balance maybe rapidly decrease. You should avoid this problem.
-
-1. Ensure there's only one trade copier app instance in one host.
-2. Ensure every target account is under only one trade copier's control if you have multiple hosts.
-
-#### Q: What if multiple source accounts work with same target account?
-
-A: It's OK. The trade copier will sum up the positions from multiple source accounts.
+- 市价追入 (默认策略): 以市价单的方式下单，直到头寸达到预期值为止。适合流动性十分充足的品种，或者需要快速成交的品种。
+- 最优报价挂单成交 (`BBO_MAKER`): 将订单挂在最优报价上，等待成交。适合挂单手续费低于吃单手续费的品种，或者流动性匮乏的品种。
