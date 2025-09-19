@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-ctp",
+      "comment": "run ctp only mode",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/vendor-ctp"
+}

@@ -1,7 +1,10 @@
 import { Terminal } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
-import { catchError, filter, from, map, Observable, takeWhile, timeout } from 'rxjs';
-import { createZMQConnection, IBridgeMessage } from './bridge';
+import { catchError, filter, first, from, map, Observable, shareReplay, takeWhile, timeout } from 'rxjs';
+import { ICThostFtdcRspUserLoginField, ICThostFtdcSettlementInfoConfirmField } from './assets/ctp-types';
+import { createZMQConnection } from './bridge';
+import './ctp-monitor';
+import { IBridgeMessage } from './interfaces';
 
 const makeIdGen = () => {
   let requestID = 0;
@@ -88,18 +91,22 @@ terminal.server.provideService<
   },
 );
 
-export const requestZMQ = <Req, Res>(req: {
-  method: string;
-  params: Req;
-}): Observable<IBridgeMessage<Req, Res>> =>
-  terminal.client
-    .requestService<any, any, IBridgeMessage<Req, Res>>('CTP/Query', {
-      account_id: ACCOUNT_ID,
-      method: req.method,
-      params: req.params,
-    })
-    .pipe(
-      //
-      map((msg) => msg.frame),
-      filter((x): x is Exclude<typeof x, undefined> => Boolean(x)),
-    );
+const loginRes$ = from(zmqConn.input$).pipe(
+  //
+  first((msg) => msg?.res?.event !== undefined && msg.res.event === 'OnRspUserLogin'),
+  map((msg) => msg.res!.value as ICThostFtdcRspUserLoginField),
+  shareReplay(1),
+);
+
+terminal.channel.publishChannel('CTP/Login', { const: ACCOUNT_ID }, () => loginRes$);
+
+const settlement$ = from(zmqConn.input$).pipe(
+  //
+  first((msg) => msg?.res?.event !== undefined && msg.res.event === 'OnRspSettlementInfoConfirm'),
+  map((msg) => msg.res!.value as ICThostFtdcSettlementInfoConfirmField),
+  shareReplay(1),
+);
+
+terminal.channel.publishChannel('CTP/Settlement', { const: ACCOUNT_ID }, () => settlement$);
+
+terminal.channel.publishChannel('CTP/ZMQ', { const: ACCOUNT_ID }, () => from(zmqConn.input$));
