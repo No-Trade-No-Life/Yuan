@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-ctp
 
-This log was last generated on Fri, 19 Sep 2025 03:37:57 GMT and should not be manually modified.
+This log was last generated on Fri, 19 Sep 2025 05:01:03 GMT and should not be manually modified.
+
+## 0.4.14
+Fri, 19 Sep 2025 05:01:03 GMT
+
+### Patches
+
+- add global token capacity to CTP Query
 
 ## 0.4.13
 Fri, 19 Sep 2025 03:37:57 GMT

@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Tue, 16 Sep 2025 15:38:41 GMT and should not be manually modified.
+This log was last generated on Fri, 19 Sep 2025 05:01:03 GMT and should not be manually modified.
+
+## 0.43.0
+Fri, 19 Sep 2025 05:01:03 GMT
+
+### Minor changes
+
+- global token bucket rate limit
 
 ## 0.42.1
 Tue, 16 Sep 2025 15:38:41 GMT
