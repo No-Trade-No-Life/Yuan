@@ -57,7 +57,9 @@ registerPage('Market', () => {
             data: [
               {
                 type: 'sql',
-                query: `select * from ohlc where series_id = ${escapeSQL(seriesId)} order by created_at`,
+                query: `select * from ohlc where series_id = ${escapeSQL(
+                  seriesId,
+                )} order by created_at desc limit 50000`,
                 time_column_name: 'created_at',
               },
             ],
