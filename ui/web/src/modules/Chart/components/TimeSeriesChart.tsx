@@ -1,6 +1,7 @@
 import { IconRefresh, IconSetting } from '@douyinfe/semi-icons';
 import { Select, Space, Spin, Toast } from '@douyinfe/semi-ui';
 import { SelectProps } from '@douyinfe/semi-ui/lib/es/select';
+import { requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
 import { JSONSchema7 } from 'json-schema';
 import { useObservable, useObservableRef, useObservableState } from 'observable-hooks';
@@ -136,6 +137,7 @@ export const reloadTimeSeriesChart = (configFilename: string) => {
  *
  */
 export const TimeSeriesChart = (props: {
+  topSlot?: React.ReactNode;
   config: ITimeSeriesChartConfig;
   onConfigChange?: (config: ITimeSeriesChartConfig) => void | Promise<void>;
 }) => {
@@ -224,6 +226,33 @@ export const TimeSeriesChart = (props: {
                   series,
                 };
               }
+              if (s.type === 'sql') {
+                const terminal = await firstValueFrom(terminal$);
+                if (!terminal) throw new Error('No terminal available for SQL query');
+                const data = await requestSQL<any[]>(terminal, s.query);
+                const series: Map<string, any[]> = new Map();
+                data.forEach((record) => {
+                  const { [s.time_column_name]: time, ...others } = record;
+                  const t = new Date(time).getTime();
+                  if (!series.has(s.time_column_name)) {
+                    series.set(s.time_column_name, []);
+                  }
+                  series.get(s.time_column_name)!.push(t);
+                  for (const key in others) {
+                    if (!series.has(key)) {
+                      series.set(key, []);
+                    }
+                    series.get(key)!.push(others[key]);
+                  }
+                });
+                return {
+                  filename: `sql:${s.query.slice(0, 30)}...`,
+                  data_index: index,
+                  data_length: data.length,
+                  time_column_name: s.time_column_name,
+                  series,
+                };
+              }
               throw new Error(`Unsupported data source type: ${(s as any).type}`);
             })
             .map((p) =>
@@ -259,6 +288,7 @@ export const TimeSeriesChart = (props: {
         <ChartComponent
           topSlot={
             <>
+              {props.topSlot}
               <Button
                 icon={<IconSetting />}
                 onClick={async () => {

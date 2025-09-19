@@ -20,7 +20,7 @@
   "HostList": "Hosts",
   "Login": "Log in",
   "ManualTradePanel": "Manual Trading",
-  "Market": "{{ product_id }}",
+  "Market": "Market",
   "OrderListPanel": "Order List",
   "ProductList": "Products",
   "Program": "Outputs",

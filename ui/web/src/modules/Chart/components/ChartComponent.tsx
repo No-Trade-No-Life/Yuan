@@ -311,7 +311,7 @@ export const ChartComponent = memo((props: Props) => {
 
   return (
     <Space vertical align="start" style={{ width: '100%', height: '100%', overflow: 'hidden' }}>
-      <Space>
+      <Space style={{ width: '100%' }}>
         {props.topSlot}
         {totalItems > PAGE_SIZE && (
           <Slider

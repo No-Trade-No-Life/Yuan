@@ -1,183 +1,104 @@
-import { IconDownload, IconRefresh } from '@douyinfe/semi-icons';
-import { ButtonGroup, Layout, Space, Toast, Typography } from '@douyinfe/semi-ui';
+import { IconDownload } from '@douyinfe/semi-icons';
+import { Layout, Space, Toast } from '@douyinfe/semi-ui';
 import '@yuants/data-series';
-import {
-  HistoryPeriodLoadingUnit,
-  Kernel,
-  PeriodDataUnit,
-  ProductDataUnit,
-  ProductLoadingUnit,
-  QuoteDataUnit,
-  RealtimePeriodLoadingUnit,
-} from '@yuants/kernel';
 import { escapeSQL, requestSQL } from '@yuants/sql';
-import { convertDurationToOffset, encodePath, formatTime } from '@yuants/utils';
+import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { t } from 'i18next';
-import { useObservable, useObservableState } from 'observable-hooks';
-import { useEffect, useMemo, useState } from 'react';
-import {
-  BehaviorSubject,
-  defer,
-  distinctUntilChanged,
-  filter,
-  firstValueFrom,
-  interval,
-  lastValueFrom,
-  map,
-  mergeMap,
-  pipe,
-  switchMap,
-  tap,
-} from 'rxjs';
+import { useObservableState } from 'observable-hooks';
+import { useState } from 'react';
+import { defer, filter, firstValueFrom, lastValueFrom, map, retry, shareReplay, switchMap, tap } from 'rxjs';
+import { TimeSeriesChart } from '../Chart/components/TimeSeriesChart';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { showForm } from '../Form';
-import { Button } from '../Interactive';
-import { registerPage, usePageParams } from '../Pages';
+import { AutoComplete, Button } from '../Interactive';
+import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 
-registerPage('Market', () => {
-  const params = usePageParams();
-  const initialConfig = params as {
-    datasource_id: string;
-    product_id: string;
-    duration?: string;
-  };
-  const datasource_id$ = new BehaviorSubject(initialConfig.datasource_id);
-  const product_id$ = new BehaviorSubject(initialConfig.product_id);
-
-  const datasource_id = useObservableState(datasource_id$);
-  const product_id = useObservableState(product_id$);
-  const terminal = useObservableState(terminal$);
-
-  const durationOptions = useObservableState(
-    useObservable(
-      pipe(
-        switchMap(([datasource_id, product_id, terminal]) =>
-          defer(async () => {
-            if (!terminal) return undefined;
-            const sql = `select replace(series_id, ${escapeSQL(
-              encodePath(datasource_id, product_id, ''),
-            )}, '') as duration from series_collecting_task where table_name = 'ohlc' and series_id like ${escapeSQL(
-              // LIKE % pattern 中的 \ 需要转义
-              encodePath(datasource_id, product_id, '%').replaceAll('\\', '\\\\'),
-            )}`;
-            // console.info('ProductList Duration SQL:', sql);
-            const data = await requestSQL<{ duration: string }[]>(terminal, sql);
-            // console.info('ProductList Duration Data:', data);
-            return data.map((x) => x.duration);
-          }),
-        ),
-      ),
-      [datasource_id, product_id, terminal],
+const seriesIdList$ = terminal$.pipe(
+  filter((x): x is Exclude<typeof x, null> => !!x),
+  switchMap((terminal) =>
+    defer(() => requestSQL<{ series_id: string }[]>(terminal, `select distinct(series_id) from ohlc`)).pipe(
+      retry({ delay: 10_000 }),
+      map((x) => x.map((v) => v.series_id)),
     ),
-  );
+  ),
+  shareReplay(1),
+);
 
-  const [duration, setDuration] = useState(initialConfig.duration);
-
-  // const duration = useObservableState(duration$);
-  const ms = useMemo(() => convertDurationToOffset(duration || ''), [duration]);
-  const TAKE_PERIODS = 10000; // 2x TradingView
-
-  const scene = useMemo(() => {
-    if (terminal && datasource_id && product_id && duration) {
-      const kernel = new Kernel();
-      const productDataUnit = new ProductDataUnit(kernel);
-      const productLoadingUnit = new ProductLoadingUnit(kernel, terminal, productDataUnit, {});
-      const quoteDataUnit = new QuoteDataUnit(kernel);
-      const periodDataUnit = new PeriodDataUnit(kernel, quoteDataUnit);
-      const periodLoadingUnit = new HistoryPeriodLoadingUnit(
-        kernel,
-        terminal,
-        productDataUnit,
-        periodDataUnit,
-      );
-      productLoadingUnit.productTasks.push({
-        datasource_id,
-        product_id,
-      });
-
-      periodLoadingUnit.periodTasks.push({
-        series_id: encodePath(datasource_id, product_id, duration),
-        start_time: Date.now() - TAKE_PERIODS * ms,
-        end_time: Date.now(),
-      });
-      const realtimePeriodLoadingUnit = new RealtimePeriodLoadingUnit(
-        kernel,
-        terminal,
-        productDataUnit,
-        periodDataUnit,
-      );
-      realtimePeriodLoadingUnit.seriesIdList.push(encodePath(datasource_id, product_id, duration));
-
-      return { kernel, periodDataUnit };
-    }
-    return null;
-  }, [terminal, datasource_id, product_id, duration]);
-
-  useEffect(() => {
-    if (scene) {
-      scene.kernel.start();
-      return () => {
-        scene.kernel.terminate();
-      };
-    }
-  }, [scene]);
-
-  const timestamp$ = useObservable(
-    (s) =>
-      s.pipe(
-        mergeMap(([scene]) =>
-          interval(1000).pipe(
-            map(() => scene?.kernel.currentTimestamp),
-            distinctUntilChanged(),
-          ),
-        ),
-      ),
-    [scene],
-  );
-
-  const timestamp = useObservableState(timestamp$);
-  const [cnt, setCnt] = useState(0);
-
-  const periodKey = encodePath(datasource_id, product_id, duration);
-  const periods = scene?.periodDataUnit.data[periodKey] ?? [];
+registerPage('Market', () => {
+  const seriesIdList = useObservableState(seriesIdList$);
+  const [seriesId, setSeriesId] = useState('');
+  const [datasource_id, product_id, duration = ''] = decodePath(seriesId);
 
   return (
     <Layout style={{ width: '100%', height: '100%' }}>
       <Layout.Header>
-        <Space>
-          <div>数据源 {datasource_id}</div>
-          <div>品种 {product_id}</div>
-          <div>周期 {duration}</div>
-          <ButtonGroup>
-            {durationOptions?.map((duration) => {
-              return (
-                <Button
-                  onClick={async () => {
-                    setDuration(duration);
-                  }}
-                >
-                  {duration}
-                </Button>
-              );
-            })}
-          </ButtonGroup>
-          <Button
-            icon={<IconRefresh />}
-            onClick={async () => {
-              setCnt((x) => x + 1);
-            }}
-          ></Button>
-          <Button
-            icon={<IconDownload />}
-            onClick={() => executeCommand('fetchOHLCV', { datasource_id, product_id, duration })}
-          >
-            拉取历史
-          </Button>
-          <Typography.Text>{timestamp && formatTime(timestamp)}</Typography.Text>
-        </Space>
+        <Space></Space>
       </Layout.Header>
       <Layout.Content>
+        <TimeSeriesChart
+          topSlot={
+            <>
+              <AutoComplete
+                data={seriesIdList?.map((id) => ({ label: id, value: id }))}
+                value={seriesId}
+                onChange={setSeriesId}
+                placeholder="请输入或选择K线品种/周期"
+              />
+              <Button
+                icon={<IconDownload />}
+                onClick={() => executeCommand('fetchOHLCV', { datasource_id, product_id, duration })}
+              >
+                拉取历史
+              </Button>
+            </>
+          }
+          config={{
+            data: [
+              {
+                type: 'sql',
+                query: `select * from ohlc where series_id = ${escapeSQL(seriesId)} order by created_at`,
+                time_column_name: 'created_at',
+              },
+            ],
+            views: [
+              {
+                name: '主视图',
+                time_ref: {
+                  data_index: 0,
+                  column_name: 'created_at',
+                },
+                panes: [
+                  {
+                    series: [
+                      {
+                        type: 'ohlc',
+                        refs: [
+                          {
+                            data_index: 0,
+                            column_name: 'open',
+                          },
+                          {
+                            data_index: 0,
+                            column_name: 'high',
+                          },
+                          {
+                            data_index: 0,
+                            column_name: 'low',
+                          },
+                          {
+                            data_index: 0,
+                            column_name: 'close',
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+            ],
+          }}
+        />
         {/* <ChartGroup key={cnt}>
           <Chart>
             <CandlestickSeries title={periodKey} data={periods} />
