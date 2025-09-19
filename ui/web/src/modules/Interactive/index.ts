@@ -1,3 +1,4 @@
+export * from './AutoComplete';
 export * from './Button';
 export * from './DataView';
 export * from './ListView';

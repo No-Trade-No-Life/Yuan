@@ -20,7 +20,7 @@
   "HostList": "主机配置",
   "Login": "登录",
   "ManualTradePanel": "手动交易",
-  "Market": "市场行情 {{ product_id }}",
+  "Market": "市场行情",
   "OrderListPanel": "订单列表",
   "ProductList": "品种列表",
   "Program": "程序输出",

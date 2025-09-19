@@ -86,6 +86,11 @@ export interface ITimeSeriesChartConfig {
         end_time: string;
         step: string;
       }
+    | {
+        type: 'sql';
+        query: string;
+        time_column_name: string;
+      }
   >;
   views: Array<{
     name: string;
