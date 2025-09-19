@@ -26,8 +26,12 @@ const _requestZMQ = <Req, Res>(req: {
   method: string;
   params: Req;
 }): Observable<IBridgeMessage<Req, Res>> => {
-  console.info(formatTime(Date.now()), req);
   const requestID = requestIDGen();
+  console.info(
+    formatTime(Date.now()),
+    'CTP Request',
+    `requestID=${requestID} method=${req.method} params=${JSON.stringify(req.params)}`,
+  );
   const ret = from(zmqConn.input$).pipe(
     //
     filter((msg) => msg.request_id === requestID && msg.res !== undefined),
@@ -79,6 +83,7 @@ terminal.server.provideService<
     }).pipe(map((x) => ({ frame: x }))),
   {
     concurrent: 1,
+    global_token_capacity: 1,
     max_pending_requests: 10,
   },
 );

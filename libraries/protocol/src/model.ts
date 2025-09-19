@@ -134,27 +134,26 @@ export interface IServiceOptions {
    * 如果超出限制，请求将被拒绝，返回 503 状态码
    */
   max_pending_requests?: number;
+
   /**
-   * Rate limit configuration
-   * 速率限制配置
+   * Global token bucket rate limiting configuration: All requests for each service share the same token bucket capacity.
+   * 全局令牌桶限流配置: 对于每个服务的所有请求，共享同一个令牌桶的容量。
    *
-   * by default not limited
+   * by default no limit
    * 默认不限制
    *
    * if exceeded, the request will be rejected with 429 status code
    * 如果超出限制，请求将被拒绝，返回 429 状态码
-   *
-   * use token bucket algorithm
-   * 使用令牌桶算法
    */
-  rateLimitConfig?: {
-    /**
-     * Maximum number of requests allowed in a period
-     * 在一个周期内允许的最大请求数
-     */
-    count: number;
-    period: number;
-  };
+  global_token_capacity?: number;
+  /**
+   * Global token refill interval (ms)
+   * 全局令牌补充间隔 (毫秒)
+   *
+   * by default 1000ms
+   * 默认 1000ms
+   */
+  global_token_refill_interval?: number;
 }
 
 /**
