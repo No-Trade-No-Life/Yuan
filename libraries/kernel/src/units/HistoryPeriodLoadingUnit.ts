@@ -172,9 +172,11 @@ export class HistoryPeriodLoadingUnit extends BasicUnit {
         }
       }
       // 去重, 排序
-      return [...new Map(result.map((item) => [new Date(item.created_at).getTime(), item])).values()].sort(
-        (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
-      );
+      return [...new Map(result.map((item) => [new Date(item.created_at).getTime(), item])).values()]
+        .filter(
+          (x) => new Date(x.created_at).getTime() >= t_start && new Date(x.created_at).getTime() < t_end,
+        )
+        .sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
     };
 
     this.kernel.log?.(`${formatTime(Date.now())} 正在加载历史行情数据: 共 ${this.periodTasks.length} 个任务`);
