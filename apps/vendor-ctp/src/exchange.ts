@@ -508,9 +508,6 @@ export const cancelOrder = (
   );
 };
 
-process.env.ZMQ_PULL_URL = 'tcp://localhost:5700';
-process.env.ZMQ_PUSH_URL = 'tcp://*:5701';
-
 const account_id = ACCOUNT_ID;
 const mutable = process.env.NO_TRADE! !== 'true';
 

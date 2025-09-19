@@ -16,7 +16,11 @@ const makeIdGen = () => {
 
 const requestIDGen = makeIdGen();
 
-export const zmqConn = createZMQConnection(process.env.ZMQ_PUSH_URL!, process.env.ZMQ_PULL_URL!);
+// Note: You should never create multiple CTP in the same machine
+export const zmqConn = createZMQConnection(
+  process.env.ZMQ_PUSH_URL || 'tcp://*:5701',
+  process.env.ZMQ_PULL_URL || 'tcp://localhost:5700',
+);
 
 const _requestZMQ = <Req, Res>(req: {
   method: string;
