@@ -23,6 +23,35 @@ jobs:
   build:
     if: contains(github.event.pull_request.labels.*.name, 'skip-ci') == false
     runs-on: ubuntu-latest
+    # Service containers to run with `container-job`
+    services:
+      # Label used to access the service container
+      postgres:
+        # Docker Hub image
+        image: timescale/timescaledb-ha:pg17
+        # Provide the password for postgres
+        env:
+          POSTGRES_PASSWORD: postgres
+        # Set health checks to wait until postgres has started
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          # Maps tcp port 5432 on service container to the host
+          - 5432:5432
+      node-unit:
+        image: ghcr.io/no-trade-no-life/node-unit:0.11.2
+        env:
+          POSTGRES_URI: 'postgresql://postgres:postgres@postgres:5432/postgres'
+        options: >-
+          --health-cmd "grep 'Terminal terminalInfo pushed' /tmp/yuants/node-unit/logs/local-postgres-storage.log"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 8888:8888
     outputs:
       bake_file_existence: ${{ steps.bake_file_existence.outputs.files_exists }}
     steps:
@@ -84,6 +113,15 @@ jobs:
 
       - name: prune rush build cache
         run: node common/scripts/prune-cache.js --ci-run '^[a-zA-Z0-9-+]+' common/temp/build-cache
+
+      # Migration e2e smoke tests
+      - name: Run migration smoke tests
+        run: |
+          node ./lib/cli.js
+        working-directory: ./tools/sql-migration
+        env:
+          HOST_URL: 'ws://localhost:8888'
+          SQL_DIR: './sql'
 
       - name: Check docker bake file existence
         id: bake_file_existence
