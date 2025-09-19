@@ -2,6 +2,40 @@
   "name": "@yuants/vendor-ctp",
   "entries": [
     {
+      "version": "0.4.14",
+      "tag": "@yuants/vendor-ctp_v0.4.14",
+      "date": "Fri, 19 Sep 2025 05:01:03 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add global token capacity to CTP Query"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.4.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.2.12`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.43.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.6`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.2.16`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.13",
       "tag": "@yuants/vendor-ctp_v0.4.13",
       "date": "Fri, 19 Sep 2025 03:37:57 GMT",
