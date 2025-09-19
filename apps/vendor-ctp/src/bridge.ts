@@ -18,22 +18,8 @@ import {
   timeout,
 } from 'rxjs';
 import * as zmq from 'zeromq';
+import { IBridgeMessage } from './interfaces';
 const context = new zmq.Context({ maxSockets: 1024 * 1024 });
-
-export interface IBridgeMessage<Req, Rep> {
-  request_id: number;
-  req?: {
-    method: string;
-    params: Req; // in JSON
-  };
-  res?: {
-    error_code: number;
-    error_message: string;
-    event: string;
-    value?: Rep; // in JSON
-    is_last: boolean;
-  };
-}
 
 export const createZMQConnection = (
   ZMQ_PUSH_URL: string,

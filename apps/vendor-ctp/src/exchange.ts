@@ -7,7 +7,7 @@ import {
 } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
-import { IConnection, Terminal } from '@yuants/protocol';
+import { Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
 import { parse } from 'date-fns';
 import {
@@ -63,11 +63,31 @@ import {
   TThostFtdcTimeConditionType,
   TThostFtdcVolumeConditionType,
 } from './assets/ctp-types';
-import { IBridgeMessage } from './bridge';
-import { requestZMQ, zmqConn } from './requestZMQ';
+import { IBridgeMessage } from './interfaces';
 
+const terminal = Terminal.fromNodeEnv();
 const ACCOUNT_ID = `${process.env.BROKER_ID!}/${process.env.USER_ID!}`;
 const DATASOURCE_ID = ACCOUNT_ID;
+
+const requestZMQ = <Req, Res>(req: { method: string; params: Req }): Observable<IBridgeMessage<Req, Res>> =>
+  terminal.client
+    .requestService<any, any, IBridgeMessage<Req, Res>>('CTP/Query', {
+      account_id: ACCOUNT_ID,
+      method: req.method,
+      params: req.params,
+    })
+    .pipe(
+      //
+      map((msg) => msg.frame),
+      filter((x): x is Exclude<typeof x, undefined> => Boolean(x)),
+    );
+
+const loginRes$ = terminal.channel.subscribeChannel<ICThostFtdcRspUserLoginField>('CTP/Login', ACCOUNT_ID);
+const settlement$ = terminal.channel.subscribeChannel<ICThostFtdcSettlementInfoConfirmField>(
+  'CTP/Settlement',
+  ACCOUNT_ID,
+);
+const input$ = terminal.channel.subscribeChannel<IBridgeMessage<any, any>>('CTP/ZMQ', ACCOUNT_ID);
 
 const parseCTPTime = (date: string, time: string): Date =>
   parse(`${date}-${time}`, 'yyyyMMdd-HH:mm:ss', new Date());
@@ -311,7 +331,6 @@ export const queryHistoryOrders = (brokerId: string, investorId: string) =>
   );
 
 export const submitOrder = (
-  conn: IConnection<IBridgeMessage<any, any>>,
   brokerId: string,
   investorId: string,
   frontId: number,
@@ -322,7 +341,7 @@ export const submitOrder = (
   const orderRef = '' + orderRefGen();
 
   // 即使通过 OnRtnOrder 回来的回报也有可能包含来自交易所的报错，因此需要额外检查订单状态是否为取消
-  const ret$ = from(conn.input$).pipe(
+  const ret$ = from(input$).pipe(
     //
     first(
       (msg) =>
@@ -434,7 +453,6 @@ export const submitOrder = (
 };
 
 export const cancelOrder = (
-  conn: IConnection<IBridgeMessage<any, any>>,
   brokerId: string,
   investorId: string,
   frontId: number,
@@ -449,7 +467,7 @@ export const cancelOrder = (
       })),
     );
   }
-  const ret$ = from(conn.input$).pipe(
+  const ret$ = from(input$).pipe(
     //
     first(
       (msg) =>
@@ -511,8 +529,6 @@ export const cancelOrder = (
 const account_id = ACCOUNT_ID;
 const mutable = process.env.NO_TRADE! !== 'true';
 
-const terminal = Terminal.fromNodeEnv();
-
 // // ISSUE: 观测到 OnFrontDisconnected 之后会卡死，命令 exchange 自杀
 // zmqConn.input$
 //   .pipe(
@@ -525,20 +541,6 @@ const terminal = Terminal.fromNodeEnv();
 //   .subscribe(() => {
 //     process.exit(1);
 //   });
-
-const loginRes$ = from(zmqConn.input$).pipe(
-  //
-  first((msg) => msg?.res?.event !== undefined && msg.res.event === 'OnRspUserLogin'),
-  map((msg) => msg.res!.value as ICThostFtdcRspUserLoginField),
-  shareReplay(1),
-);
-
-const settlement$ = from(zmqConn.input$).pipe(
-  //
-  first((msg) => msg?.res?.event !== undefined && msg.res.event === 'OnRspSettlementInfoConfirm'),
-  map((msg) => msg.res!.value as ICThostFtdcSettlementInfoConfirmField),
-  shareReplay(1),
-);
 
 settlement$.subscribe();
 
@@ -626,7 +628,6 @@ terminal.server.provideService<IOrder>(
       first(),
       mergeMap(([loginRes, settlementRes]) =>
         submitOrder(
-          zmqConn,
           loginRes.BrokerID,
           settlementRes.InvestorID,
           loginRes.FrontID,
@@ -654,7 +655,6 @@ terminal.server.provideService<IOrder>(
       first(),
       mergeMap(([loginRes, settlementRes]) =>
         cancelOrder(
-          zmqConn,
           loginRes.BrokerID,
           settlementRes.InvestorID,
           loginRes.FrontID,
