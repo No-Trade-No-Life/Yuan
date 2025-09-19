@@ -9,6 +9,7 @@ import { IOrder } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
+import { formatTime } from '@yuants/utils';
 import { parse } from 'date-fns';
 import {
   Observable,
@@ -28,6 +29,7 @@ import {
   retry,
   share,
   shareReplay,
+  tap,
   timeout,
   toArray,
   withLatestFrom,
@@ -111,7 +113,7 @@ const mapToValue = <Req, Rep>(resp$: Observable<IBridgeMessage<Req, Rep>>) =>
     filter((v): v is Exclude<typeof v, undefined> => !!v),
   );
 
-export const queryProducts = (): Observable<IProduct[]> =>
+const queryProducts = (): Observable<IProduct[]> =>
   requestZMQ<ICThostFtdcQryInstrumentField, ICThostFtdcInstrumentField>({
     method: 'ReqQryInstrument',
     params: {
@@ -544,9 +546,10 @@ const mutable = process.env.NO_TRADE! !== 'true';
 
 settlement$.subscribe();
 
-const products$ = defer(() => loginRes$.pipe(first())).pipe(
-  mergeMap(() => queryProducts()),
-  timeout({ each: 60000, meta: `QueryProduct Timeout` }),
+const products$ = defer(() => queryProducts()).pipe(
+  tap({
+    error: (err) => console.info(formatTime(Date.now()), `QueryProductError`, err),
+  }),
   retry({ delay: 1000 }),
   repeat({ delay: 86400_000 }),
   shareReplay(1),
