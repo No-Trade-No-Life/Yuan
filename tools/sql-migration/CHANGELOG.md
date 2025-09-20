@@ -1,6 +1,13 @@
 # Change Log - @yuants/tool-sql-migration
 
-This log was last generated on Fri, 19 Sep 2025 05:01:03 GMT and should not be manually modified.
+This log was last generated on Sat, 20 Sep 2025 02:19:18 GMT and should not be manually modified.
+
+## 0.1.2
+Sat, 20 Sep 2025 02:19:18 GMT
+
+### Patches
+
+- add sql
 
 ## 0.1.1
 Fri, 19 Sep 2025 05:01:03 GMT
