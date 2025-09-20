@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/app-fund",
+  "entries": [
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/app-fund_v0.1.0",
+      "date": "Sat, 20 Sep 2025 02:59:21 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "new"
+          }
+        ]
+      }
+    }
+  ]
+}
