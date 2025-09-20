@@ -15,6 +15,7 @@ import {
 import { ICThostFtdcRspUserLoginField, ICThostFtdcSettlementInfoConfirmField } from './assets/ctp-types';
 import { createZMQConnection } from './bridge';
 import './ctp-monitor';
+import { restartCtpAction$ } from './ctp-monitor';
 import { IBridgeMessage } from './interfaces';
 
 const makeIdGen = () => {
@@ -55,6 +56,11 @@ const _requestZMQ = <Req, Res>(req: {
     // -2: 未处理请求队列总数量超限
     // -3: 每秒发送请求数量超限
     map((msg) => {
+      // 遇到网络问题，自动重启 CTP
+      if (msg.res?.error_code === -1) {
+        console.warn(formatTime(Date.now()), 'CTP Connection Error, restarting CTP Bridge...');
+        restartCtpAction$.next();
+      }
       if (msg.res!.error_code < 0) {
         throw new Error(`CTP RTN_CODE: ${msg.res!.error_code}`);
       }
