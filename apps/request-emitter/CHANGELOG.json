@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/app-request-emitter",
+  "entries": [
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/app-request-emitter_v0.1.0",
+      "date": "Sat, 20 Sep 2025 02:19:18 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "new"
+          }
+        ]
+      }
+    }
+  ]
+}
