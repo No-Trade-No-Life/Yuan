@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-request-emitter",
+      "comment": "new",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-request-emitter"
+}
