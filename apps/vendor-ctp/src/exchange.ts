@@ -101,7 +101,7 @@ const mapToValue = <Req, Rep>(resp$: Observable<IBridgeMessage<Req, Rep>>) =>
     filter((v): v is Exclude<typeof v, undefined> => !!v),
   );
 
-export const queryProducts = (): Observable<IProduct[]> =>
+const queryProducts = (): Observable<IProduct[]> =>
   requestZMQ<ICThostFtdcQryInstrumentField, ICThostFtdcInstrumentField>({
     method: 'ReqQryInstrument',
     params: {
@@ -139,7 +139,7 @@ export const queryProducts = (): Observable<IProduct[]> =>
     toArray(),
   );
 
-export const queryHistoryOrders = () =>
+const queryHistoryOrders = () =>
   requestZMQ<ICThostFtdcQryTradeField, ICThostFtdcTradeField>({
     method: 'ReqQryTrade',
     params: {
@@ -181,7 +181,7 @@ export const queryHistoryOrders = () =>
     toArray(),
   );
 
-export const submitOrder = (
+const submitOrder = (
   brokerId: string,
   investorId: string,
   frontId: number,
@@ -303,7 +303,7 @@ export const submitOrder = (
   );
 };
 
-export const cancelOrder = (
+const cancelOrder = (
   brokerId: string,
   investorId: string,
   frontId: number,
@@ -378,7 +378,6 @@ export const cancelOrder = (
 };
 
 const account_id = ACCOUNT_ID;
-const mutable = process.env.NO_TRADE! !== 'true';
 
 // // ISSUE: 观测到 OnFrontDisconnected 之后会卡死，命令 exchange 自杀
 // zmqConn.input$
