@@ -91,6 +91,13 @@ export interface ITimeSeriesChartConfig {
         query: string;
         time_column_name: string;
       }
+    | {
+        type: 'data';
+        name: string;
+        time_column_name: string;
+        series: Map<string, any[]>;
+        data_length: number;
+      }
   >;
   views: Array<{
     name: string;
