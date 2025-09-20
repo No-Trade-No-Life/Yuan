@@ -600,6 +600,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/app-fund",
+      "projectFolder": "apps/fund",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/app-twitter-monitor",
       "projectFolder": "apps/twitter-monitor",
       "shouldPublish": true
@@ -607,6 +612,11 @@
     {
       "packageName": "@yuants/app-series-collector",
       "projectFolder": "apps/series-collector",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/app-request-emitter",
+      "projectFolder": "apps/request-emitter",
       "shouldPublish": true
     },
     {

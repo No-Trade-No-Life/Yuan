@@ -2,6 +2,23 @@
   "name": "@yuants/tool-sql-migration",
   "entries": [
     {
+      "version": "0.1.2",
+      "tag": "@yuants/tool-sql-migration_v0.1.2",
+      "date": "Sat, 20 Sep 2025 02:19:18 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add sql"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.1",
       "tag": "@yuants/tool-sql-migration_v0.1.1",
       "date": "Fri, 19 Sep 2025 05:01:03 GMT",
