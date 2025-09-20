@@ -1,6 +1,17 @@
 import { Terminal } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
-import { catchError, filter, first, from, map, Observable, shareReplay, takeWhile, timeout } from 'rxjs';
+import {
+  BehaviorSubject,
+  catchError,
+  filter,
+  first,
+  from,
+  map,
+  Observable,
+  takeWhile,
+  tap,
+  timeout,
+} from 'rxjs';
 import { ICThostFtdcRspUserLoginField, ICThostFtdcSettlementInfoConfirmField } from './assets/ctp-types';
 import { createZMQConnection } from './bridge';
 import './ctp-monitor';
@@ -79,11 +90,20 @@ terminal.server.provideService<
       params: { type: 'object', additionalItems: true },
     },
   },
-  (msg) =>
-    _requestZMQ({
+  (msg) => {
+    if (!loginRes$.value) {
+      throw new Error('CTP not logged in');
+    }
+
+    if (!settlementRes$.value) {
+      throw new Error('CTP settlement not confirmed');
+    }
+
+    return _requestZMQ({
       method: msg.req.method,
       params: msg.req.params,
-    }).pipe(map((x) => ({ frame: x }))),
+    }).pipe(map((x) => ({ frame: x })));
+  },
   {
     concurrent: 1,
     global_token_capacity: 1,
@@ -91,22 +111,54 @@ terminal.server.provideService<
   },
 );
 
-const loginRes$ = from(zmqConn.input$).pipe(
-  //
-  first((msg) => msg?.res?.event !== undefined && msg.res.event === 'OnRspUserLogin'),
-  map((msg) => msg.res!.value as ICThostFtdcRspUserLoginField),
-  shareReplay(1),
+const loginRes$ = new BehaviorSubject<ICThostFtdcRspUserLoginField | null>(null);
+
+from(zmqConn.input$)
+  .pipe(
+    //
+    first((msg) => msg?.res?.event !== undefined && msg.res.event === 'OnRspUserLogin'),
+    map((msg) => msg.res!.value as ICThostFtdcRspUserLoginField),
+    tap((res) => {
+      console.info(formatTime(Date.now()), 'CTP Logged In');
+      loginRes$.next(res);
+    }),
+  )
+  .subscribe();
+
+const settlementRes$ = new BehaviorSubject<ICThostFtdcSettlementInfoConfirmField | null>(null);
+
+from(zmqConn.input$)
+  .pipe(
+    //
+    first((msg) => msg?.res?.event !== undefined && msg.res.event === 'OnRspSettlementInfoConfirm'),
+    map((msg) => msg.res!.value as ICThostFtdcSettlementInfoConfirmField),
+    tap((res) => {
+      console.info(formatTime(Date.now()), 'CTP Settlement Confirmed');
+      settlementRes$.next(res);
+    }),
+  )
+  .subscribe();
+
+terminal.server.provideService(
+  'CTP/QueryLoginResponse',
+  { required: ['account_id'], properties: { account_id: { const: ACCOUNT_ID } } },
+  async () => {
+    if (!loginRes$.value) {
+      throw new Error('CTP not logged in');
+    }
+    return { res: { code: 0, message: 'OK', data: loginRes$.value } };
+  },
 );
 
-terminal.channel.publishChannel('CTP/Login', { const: ACCOUNT_ID }, () => loginRes$);
-
-const settlement$ = from(zmqConn.input$).pipe(
-  //
-  first((msg) => msg?.res?.event !== undefined && msg.res.event === 'OnRspSettlementInfoConfirm'),
-  map((msg) => msg.res!.value as ICThostFtdcSettlementInfoConfirmField),
-  shareReplay(1),
+terminal.server.provideService(
+  'CTP/QuerySettlementResponse',
+  { required: ['account_id'], properties: { account_id: { const: ACCOUNT_ID } } },
+  async () => {
+    if (!settlementRes$.value) {
+      throw new Error('CTP settlement not confirmed');
+    }
+    return { res: { code: 0, message: 'OK', data: settlementRes$.value } };
+  },
 );
-
-terminal.channel.publishChannel('CTP/Settlement', { const: ACCOUNT_ID }, () => settlement$);
 
 terminal.channel.publishChannel('CTP/ZMQ', { const: ACCOUNT_ID }, () => from(zmqConn.input$));
