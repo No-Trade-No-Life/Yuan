@@ -610,6 +610,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/app-request-emitter",
+      "projectFolder": "apps/request-emitter",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/app-openai",
       "projectFolder": "apps/app-openai",
       "shouldPublish": true
