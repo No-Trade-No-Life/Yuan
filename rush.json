@@ -600,6 +600,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/app-fund",
+      "projectFolder": "apps/fund",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/app-twitter-monitor",
       "projectFolder": "apps/twitter-monitor",
       "shouldPublish": true
