@@ -30,3 +30,4 @@ export * as TradeCopier from './modules/TradeCopier';
 export * as TransferOrder from './modules/TransferOrder';
 export * as Util from './modules/Util';
 export * as Workbench from './modules/Workbench';
+export * as Audit from './modules/Audit';
