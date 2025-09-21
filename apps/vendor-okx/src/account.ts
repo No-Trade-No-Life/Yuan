@@ -205,7 +205,6 @@ const sub = defer(() => accountUid$)
   .subscribe((uid) => {
     addAccountMarket(terminal, { account_id: `okx/${uid}/trading`, market_id: 'OKX' });
     publishAccountInfo(terminal, `okx/${uid}/funding/USDT`, fundingAccountInfo$);
-    publishAccountInfo(terminal, `okx/${uid}/earning/USDT`, earningAccountInfo$);
   });
 defer(() => terminal.dispose$).subscribe(() => sub.unsubscribe());
 
@@ -258,34 +257,35 @@ const fundingAccountInfo$ = combineLatest([accountUid$, assetBalance$, marketInd
   shareReplay(1),
 );
 
-const savingBalance$ = defer(() => client.getFinanceSavingsBalance({})).pipe(
-  repeat({ delay: 5000 }),
-  retry({ delay: 5000 }),
-  shareReplay(1),
-);
+defer(async () => {
+  const uid = await firstValueFrom(accountUid$);
+  const earningAccountId = `okx/${uid}/earning/USDT`;
+  provideAccountInfoService(
+    terminal,
+    earningAccountId,
+    async () => {
+      const offers = await client.getFinanceSavingsBalance({});
+      const equity = offers.data.filter((x) => x.ccy === 'USDT').reduce((acc, x) => acc + +x.amt, 0);
+      const balance = equity;
+      const free = equity;
+      const used = 0;
+      const profit = 0;
 
-const earningAccountInfo$ = combineLatest([accountUid$, savingBalance$]).pipe(
-  map(([uid, offers]): IAccountInfo => {
-    const equity = offers.data.filter((x) => x.ccy === 'USDT').reduce((acc, x) => acc + +x.amt, 0);
-    const balance = equity;
-    const free = equity;
-    const used = 0;
-    const profit = 0;
-
-    const money: IAccountMoney = {
-      currency: 'USDT',
-      equity,
-      balance,
-      used,
-      free,
-      profit,
-    };
-    return {
-      account_id: `okx/${uid}/earning/USDT`,
-      updated_at: Date.now(),
-      money: money,
-      positions: [],
-    };
-  }),
-  shareReplay(1),
-);
+      const money: IAccountMoney = {
+        currency: 'USDT',
+        equity,
+        balance,
+        used,
+        free,
+        profit,
+      };
+      return {
+        account_id: earningAccountId,
+        updated_at: Date.now(),
+        money: money,
+        positions: [],
+      };
+    },
+    { auto_refresh_interval: 5000 },
+  );
+});
