@@ -77,7 +77,10 @@ export interface IPositionDiff {
 export const mergeAccountInfoPositions: (info: IAccountInfo) => Observable<IAccountInfo>;
 
 // @public
-export const provideAccountInfoService: (terminal: Terminal, account_id: string, query: () => Promise<IAccountInfo>, options?: {
+export const provideAccountInfoService: (terminal: Terminal, account_id: string, query: () => Promise<{
+    money: IAccountMoney;
+    positions: IPosition[];
+}>, options?: {
     auto_refresh_interval?: number;
 }) => {
     dispose$: Subject<void>;

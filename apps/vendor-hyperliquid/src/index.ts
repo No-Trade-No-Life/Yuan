@@ -33,7 +33,6 @@ import { terminal } from './terminal';
         };
 
         return {
-          account_id: `Hyperliquid/${client.public_key}`,
           money: money,
           positions: accountRes.assetPositions.map(
             (position): IPosition => ({
@@ -50,7 +49,6 @@ import { terminal } from './terminal';
               margin: +position.position.marginUsed,
             }),
           ),
-          updated_at: Date.now(),
         };
       },
       { auto_refresh_interval: 1000 },

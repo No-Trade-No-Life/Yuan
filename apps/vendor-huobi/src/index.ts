@@ -1,10 +1,4 @@
-import {
-  addAccountMarket,
-  IAccountInfo,
-  IAccountMoney,
-  IPosition,
-  provideAccountInfoService,
-} from '@yuants/data-account';
+import { addAccountMarket, IAccountMoney, IPosition, provideAccountInfoService } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { addAccountTransferAddress } from '@yuants/transfer';
@@ -160,14 +154,10 @@ const terminal = Terminal.fromNodeEnv();
       //   page_index++;
       // }
 
-      const accountInfo: IAccountInfo = {
-        updated_at: Date.now(),
-        account_id: SWAP_ACCOUNT_ID,
+      return {
         money: money,
         positions,
       };
-
-      return accountInfo;
     },
     { auto_refresh_interval: 1000 },
   );
@@ -306,14 +296,10 @@ const terminal = Terminal.fromNodeEnv();
         used: 0,
       };
 
-      const accountInfo: IAccountInfo = {
-        updated_at: Date.now(),
-        account_id: SUPER_MARGIN_ACCOUNT_ID,
-        money: money,
+      return {
+        money,
         positions,
       };
-
-      return accountInfo;
     },
     { auto_refresh_interval: 1000 },
   );
@@ -336,8 +322,6 @@ const terminal = Terminal.fromNodeEnv();
         used: 0,
       };
       return {
-        updated_at: Date.now(),
-        account_id: SPOT_ACCOUNT_ID,
         money: money,
         positions: [],
       };

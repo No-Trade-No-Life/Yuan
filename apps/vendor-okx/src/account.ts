@@ -190,8 +190,6 @@ defer(async () => {
         });
       });
       return {
-        account_id: tradingAccountId,
-        updated_at: Date.now(),
         money: money,
         positions: positions,
       };
@@ -280,8 +278,6 @@ defer(async () => {
         profit,
       };
       return {
-        account_id: earningAccountId,
-        updated_at: Date.now(),
         money: money,
         positions: [],
       };

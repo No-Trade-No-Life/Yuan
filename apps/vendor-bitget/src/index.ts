@@ -1,10 +1,4 @@
-import {
-  addAccountMarket,
-  IAccountInfo,
-  IAccountMoney,
-  IPosition,
-  provideAccountInfoService,
-} from '@yuants/data-account';
+import { addAccountMarket, IAccountMoney, IPosition, provideAccountInfoService } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { addAccountTransferAddress } from '@yuants/transfer';
@@ -31,7 +25,7 @@ const terminal = Terminal.fromNodeEnv();
     provideAccountInfoService(
       terminal,
       USDT_FUTURE_ACCOUNT_ID,
-      async (): Promise<IAccountInfo> => {
+      async () => {
         const balanceRes = await client.getFutureAccounts({ productType: 'USDT-FUTURES' });
         if (balanceRes.msg !== 'success') {
           throw new Error(balanceRes.msg);
@@ -53,7 +47,6 @@ const terminal = Terminal.fromNodeEnv();
           balance: +balanceRes.data[0].available,
         };
         return {
-          account_id: USDT_FUTURE_ACCOUNT_ID,
           money: money,
           positions: positionsRes.data.map(
             (position): IPosition => ({
@@ -69,7 +62,6 @@ const terminal = Terminal.fromNodeEnv();
               valuation: +position.total * +position.markPrice,
             }),
           ),
-          updated_at: Date.now(),
         };
       },
       { auto_refresh_interval: 1000 },
@@ -82,7 +74,7 @@ const terminal = Terminal.fromNodeEnv();
     provideAccountInfoService(
       terminal,
       SPOT_ACCOUNT_ID,
-      async (): Promise<IAccountInfo> => {
+      async () => {
         const res = await client.getSpotAssets();
         if (res.msg !== 'success') {
           throw new Error(res.msg);
@@ -99,8 +91,6 @@ const terminal = Terminal.fromNodeEnv();
           balance,
         };
         return {
-          updated_at: Date.now(),
-          account_id: SPOT_ACCOUNT_ID,
           money: money,
           positions: [],
         };

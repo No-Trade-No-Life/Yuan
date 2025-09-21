@@ -246,7 +246,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
   provideAccountInfoService(
     terminal,
     SPOT_USDT_ACCOUNT_ID,
-    async (): Promise<IAccountInfo> => {
+    async () => {
       const res = await client.getSpotAccounts();
       if (!(res instanceof Array)) {
         throw new Error(`${res}`);
@@ -263,8 +263,6 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
         used: 0,
       };
       return {
-        updated_at: Date.now(),
-        account_id: SPOT_USDT_ACCOUNT_ID,
         money,
         positions: [],
       };

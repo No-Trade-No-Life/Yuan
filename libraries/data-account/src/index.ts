@@ -43,7 +43,7 @@ const AccountInfoPositionValuation = AccountMeter.createGauge('account_info_posi
 export const provideAccountInfoService = (
   terminal: Terminal,
   account_id: string,
-  query: () => Promise<IAccountInfo>,
+  query: () => Promise<{ money: IAccountMoney; positions: IPosition[] }>,
   options?: {
     auto_refresh_interval?: number;
   },
@@ -61,10 +61,15 @@ export const provideAccountInfoService = (
       },
     },
     async () => {
-      const accountInfo = await query();
+      const data = await query();
       // 立即推送最新的数据
-      accountInfo$.next(accountInfo);
-      return { res: { code: 0, message: 'OK', data: accountInfo } };
+      accountInfo$.next({
+        updated_at: Date.now(),
+        account_id,
+        money: data.money,
+        positions: data.positions,
+      });
+      return { res: { code: 0, message: 'OK', data: data } };
     },
   );
 
