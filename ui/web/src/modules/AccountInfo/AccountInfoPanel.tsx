@@ -85,7 +85,7 @@ const useTickMemoized = memoizeMap((datasource_id: string, product_id: string) =
 
 registerPage('AccountInfoPanel', () => {
   const terminal = useObservableState(terminal$);
-  const { account_id: accountId } = usePageParams();
+  const { account_id: accountId } = usePageParams<{ account_id: string }>();
 
   const accountInfo$ = useObservable(() => useAccountInfo(accountId).pipe(throttleTime(100)));
 
@@ -468,9 +468,11 @@ registerPage('AccountInfoPanel', () => {
         <Collapse.Panel header={`持仓细节 (${accountInfo.positions.length})`} itemKey="持仓细节">
           <DataView data={accountInfo?.positions ?? []} columns={columnsOfPositions} />
         </Collapse.Panel>
-        <Collapse.Panel header={`跟单配置`} itemKey="跟单配置">
-          <TradeCopierDetail account_id={accountInfo.account_id} />
-        </Collapse.Panel>
+        {accountId.startsWith('TradeCopier') ? null : (
+          <Collapse.Panel header={`跟单配置`} itemKey="跟单配置">
+            <TradeCopierDetail account_id={accountInfo.account_id} />
+          </Collapse.Panel>
+        )}
         <Collapse.Panel header={`监控`} itemKey="监控">
           <div style={{ height: 400, width: '100%', overflow: 'hidden' }}>
             <TimeSeriesChart

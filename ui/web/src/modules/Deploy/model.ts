@@ -3,6 +3,7 @@ import { requestSQL } from '@yuants/sql';
 import {
   BehaviorSubject,
   combineLatest,
+  concat,
   defer,
   filter,
   from,
@@ -45,13 +46,17 @@ export const refreshDeployments$ = new BehaviorSubject<void>(undefined);
 export const deployments$ = combineLatest([terminal$, refreshDeployments$]).pipe(
   //
   switchMap(([terminal]) =>
-    defer(() =>
-      terminal ? requestSQL(terminal, `select * from deployment order by created_at desc`) : of([]),
-    ).pipe(
-      //
-      map((x) => x as IDeployment[]),
-      repeat({ delay: 2_000 }),
-      retry({ delay: 2_000 }),
+    concat(
+      of(undefined),
+      defer(() =>
+        terminal
+          ? requestSQL<IDeployment[]>(terminal, `select * from deployment order by created_at desc`)
+          : of([] as IDeployment[]),
+      ).pipe(
+        //
+        repeat({ delay: 2_000 }),
+        retry({ delay: 2_000 }),
+      ),
     ),
   ),
   shareReplay(1),
