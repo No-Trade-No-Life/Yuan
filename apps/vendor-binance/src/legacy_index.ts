@@ -1,14 +1,8 @@
-import {
-  addAccountMarket,
-  IAccountInfo,
-  IAccountMoney,
-  IPosition,
-  publishAccountInfo,
-} from '@yuants/data-account';
+import { addAccountMarket, IAccountMoney, IPosition, provideAccountInfoService } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
-import { defer, from, map, mergeMap, repeat, retry, shareReplay, tap, toArray } from 'rxjs';
+import { defer, from, map, mergeMap, repeat, retry, shareReplay, toArray } from 'rxjs';
 import { client, isError } from './api';
 import { terminal } from './terminal';
 
@@ -102,72 +96,72 @@ const getOpenInterest = async (symbol: string) => {
 
   {
     // unified accountInfo
-    const unifiedAccountInfo$ = defer(async (): Promise<IAccountInfo> => {
-      const accountResult = await client.getUnifiedAccountBalance();
-      if (isError(accountResult)) {
-        throw new Error(accountResult.msg);
-      }
-      const usdtAssets = accountResult.find((v) => v.asset === 'USDT');
-      if (!usdtAssets) {
-        throw new Error('USDT not found');
-      }
-      const umAccountResult = await client.getUnifiedUmAccount();
-      if (isError(umAccountResult)) {
-        throw new Error(umAccountResult.msg);
-      }
-      const usdtUmAssets = umAccountResult.assets.find((v) => v.asset === 'USDT');
-      if (!usdtUmAssets) {
-        throw new Error('um USDT not found');
-      }
-      const money: IAccountMoney = {
-        currency: 'USDT',
-        leverage: 1,
-        equity: +usdtAssets.totalWalletBalance + +usdtAssets.umUnrealizedPNL,
-        balance: +usdtAssets.totalWalletBalance,
-        profit: +usdtAssets.umUnrealizedPNL,
-        used: +usdtUmAssets.initialMargin,
-        free: +usdtAssets.totalWalletBalance + +usdtAssets.umUnrealizedPNL - +usdtUmAssets.initialMargin,
-      };
 
-      const positions = umAccountResult.positions
-        .filter((v) => +v.positionAmt !== 0)
-        .map((v): IPosition => {
-          return {
-            position_id: `${v.symbol}/${v.positionSide}`,
-            datasource_id: 'BINANCE',
-            product_id: encodePath('usdt-future', v.symbol),
-            direction: v.positionSide,
-            volume: +v.positionAmt,
-            free_volume: +v.positionAmt,
-            position_price: +v.entryPrice,
-            closable_price: +v.entryPrice + +v.unrealizedProfit / +v.positionAmt,
-            floating_profit: +v.unrealizedProfit,
-            valuation: +v.positionAmt * (+v.entryPrice + +v.unrealizedProfit / +v.positionAmt),
-          };
-        });
+    provideAccountInfoService(
+      terminal,
+      UNIFIED_ACCOUNT_ID,
+      async () => {
+        const [accountResult, umAccountResult] = await Promise.all([
+          client.getUnifiedAccountBalance(),
+          client.getUnifiedUmAccount(),
+        ]);
+        if (isError(accountResult)) {
+          throw new Error(accountResult.msg);
+        }
+        const usdtAssets = accountResult.find((v) => v.asset === 'USDT');
+        if (!usdtAssets) {
+          throw new Error('USDT not found');
+        }
+        if (isError(umAccountResult)) {
+          throw new Error(umAccountResult.msg);
+        }
+        const usdtUmAssets = umAccountResult.assets.find((v) => v.asset === 'USDT');
+        if (!usdtUmAssets) {
+          throw new Error('um USDT not found');
+        }
+        const money: IAccountMoney = {
+          currency: 'USDT',
+          equity: +usdtAssets.totalWalletBalance + +usdtAssets.umUnrealizedPNL,
+          balance: +usdtAssets.totalWalletBalance,
+          profit: +usdtAssets.umUnrealizedPNL,
+          used: +usdtUmAssets.initialMargin,
+          free: +usdtAssets.totalWalletBalance + +usdtAssets.umUnrealizedPNL - +usdtUmAssets.initialMargin,
+        };
 
-      return {
-        updated_at: Date.now(),
-        account_id: UNIFIED_ACCOUNT_ID,
-        money,
-        positions,
-      };
-    }).pipe(
-      tap({
-        error: (err) => {
-          console.error(formatTime(Date.now()), 'unifiedAccountInfo$', err);
-        },
-      }),
-      retry({ delay: 5000 }),
-      repeat({ delay: 1000 }),
+        const positions = umAccountResult.positions
+          .filter((v) => +v.positionAmt !== 0)
+          .map((v): IPosition => {
+            return {
+              position_id: `${v.symbol}/${v.positionSide}`,
+              datasource_id: 'BINANCE',
+              product_id: encodePath('usdt-future', v.symbol),
+              direction: v.positionSide,
+              volume: +v.positionAmt,
+              free_volume: +v.positionAmt,
+              position_price: +v.entryPrice,
+              closable_price: +v.entryPrice + +v.unrealizedProfit / +v.positionAmt,
+              floating_profit: +v.unrealizedProfit,
+              valuation: +v.positionAmt * (+v.entryPrice + +v.unrealizedProfit / +v.positionAmt),
+            };
+          });
+
+        return {
+          updated_at: Date.now(),
+          account_id: UNIFIED_ACCOUNT_ID,
+          money,
+          positions,
+        };
+      },
+      { auto_refresh_interval: 1000 },
     );
-    publishAccountInfo(terminal, UNIFIED_ACCOUNT_ID, unifiedAccountInfo$);
+
     addAccountMarket(terminal, { account_id: UNIFIED_ACCOUNT_ID, market_id: 'BINANCE/UNIFIED' });
   }
 
   {
     // spot account info
-    const spotAccountInfo$ = defer(async (): Promise<IAccountInfo> => {
+
+    provideAccountInfoService(terminal, SPOT_ACCOUNT_ID, async () => {
       const spotAccountResult = await client.getSpotAccountInfo({ omitZeroBalances: true });
       if (isError(spotAccountResult)) {
         throw new Error(spotAccountResult.msg);
@@ -189,17 +183,8 @@ const getOpenInterest = async (symbol: string) => {
         money,
         positions: [],
       };
-    }).pipe(
-      tap({
-        error: (err) => {
-          console.error(formatTime(Date.now()), 'unifiedAccountInfo$', err);
-        },
-      }),
-      retry({ delay: 5000 }),
-      repeat({ delay: 1000 }),
-    );
+    });
 
-    publishAccountInfo(terminal, SPOT_ACCOUNT_ID, spotAccountInfo$);
     addAccountMarket(terminal, { account_id: SPOT_ACCOUNT_ID, market_id: 'BINANCE/SPOT' });
   }
 
