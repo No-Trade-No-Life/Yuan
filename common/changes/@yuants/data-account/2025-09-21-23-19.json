@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-account",
+      "comment": "remove account_id and updated_at ",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/data-account"
+}

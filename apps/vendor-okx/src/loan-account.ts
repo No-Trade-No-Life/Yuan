@@ -51,8 +51,6 @@ defer(async () => {
       const used = balance;
       const free = equity - used;
       return {
-        account_id: loanAccountId,
-        updated_at: Date.now(),
         money: {
           currency: 'USDT',
           equity,

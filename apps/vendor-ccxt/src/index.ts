@@ -153,8 +153,6 @@ import { terminal } from './terminal';
             profit: 0,
           };
           return {
-            updated_at: Date.now(),
-            account_id: `${account_id}/funding`,
             money: money,
             positions: [],
           };
