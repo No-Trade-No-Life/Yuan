@@ -1,7 +1,7 @@
 import { requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
-import { defer, EMPTY, repeat, retry, switchMap } from 'rxjs';
+import { concat, defer, of, repeat, retry, switchMap } from 'rxjs';
 import { DataView } from '../Interactive';
 import { terminal$ } from '../Network';
 import { registerPage } from '../Pages';
@@ -13,31 +13,32 @@ registerPage('AccountList', () => {
       () =>
         terminal$.pipe(
           switchMap((terminal) =>
-            terminal
-              ? defer(() =>
-                  requestSQL<
-                    {
-                      account_id: string;
-                      currency: string;
-                      balance: string;
-                      equity: string;
-                      profit: string;
-                      free: string;
-                      used: string;
-                    }[]
-                  >(terminal, `select * from account_balance order by account_id`),
-                ).pipe(
-                  //
-                  retry({ delay: 10_000 }),
-                  repeat({ delay: 10_000 }),
-                )
-              : EMPTY,
+            concat(
+              of(undefined),
+              terminal
+                ? defer(() =>
+                    requestSQL<
+                      {
+                        account_id: string;
+                        currency: string;
+                        balance: string;
+                        equity: string;
+                        profit: string;
+                        free: string;
+                        used: string;
+                      }[]
+                    >(terminal, `select * from account_balance order by account_id`),
+                  ).pipe(
+                    //
+                    retry({ delay: 10_000 }),
+                    repeat({ delay: 10_000 }),
+                  )
+                : of([]),
+            ),
           ),
         ),
-
       [],
     ),
-    [],
   );
 
   return (
