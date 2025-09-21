@@ -1,4 +1,10 @@
-import { IAccountInfo, IAccountMoney, IPosition, publishAccountInfo } from '@yuants/data-account';
+import {
+  IAccountInfo,
+  IAccountMoney,
+  IPosition,
+  provideAccountInfoService,
+  publishAccountInfo,
+} from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { formatTime } from '@yuants/utils';
 import { FundingRate } from 'ccxt/js/src/base/types';
@@ -132,8 +138,11 @@ import { terminal } from './terminal';
   if (!PUBLIC_ONLY) {
     // NOTE: some exchange has the concept of funding account
     if (['okx'].includes(EXCHANGE_ID)) {
-      const fundingAccountInfo$ = defer(() => ex.fetchBalance({ type: 'funding' })).pipe(
-        map((balance): IAccountInfo => {
+      provideAccountInfoService(
+        terminal,
+        `${account_id}/funding`,
+        async () => {
+          const balance = await ex.fetchBalance({ type: 'funding' });
           const okx_balance = balance[CURRENCY];
           const money: IAccountMoney = {
             currency: CURRENCY,
@@ -149,18 +158,9 @@ import { terminal } from './terminal';
             money: money,
             positions: [],
           };
-        }),
-        repeat({ delay: 1000 }),
-        tap({
-          error: (e) => {
-            console.error(formatTime(Date.now()), 'fundingAccountInfo$', e);
-          },
-        }),
-        retry({ delay: 1000 }),
-        shareReplay(1),
+        },
+        { auto_refresh_interval: 1000 },
       );
-
-      publishAccountInfo(terminal, `${account_id}/funding`, fundingAccountInfo$);
     }
 
     const accountInfo$ = defer(() => of(0)).pipe(

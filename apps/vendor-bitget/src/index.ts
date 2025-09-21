@@ -3,13 +3,13 @@ import {
   IAccountInfo,
   IAccountMoney,
   IPosition,
-  publishAccountInfo,
+  provideAccountInfoService,
 } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
-import { defer, repeat, retry, shareReplay, tap } from 'rxjs';
+import { defer } from 'rxjs';
 import { client } from './api';
 import './interest-rate';
 import './product';
@@ -28,95 +28,85 @@ const terminal = Terminal.fromNodeEnv();
 
   // swap account info
   {
-    const swapAccountInfo$ = defer(async (): Promise<IAccountInfo> => {
-      const balanceRes = await client.getFutureAccounts({ productType: 'USDT-FUTURES' });
-      if (balanceRes.msg !== 'success') {
-        throw new Error(balanceRes.msg);
-      }
-      const positionsRes = await client.getAllPositions({ productType: 'USDT-FUTURES', marginCoin: 'USDT' });
-      if (positionsRes.msg !== 'success') {
-        throw new Error(positionsRes.msg);
-      }
+    provideAccountInfoService(
+      terminal,
+      USDT_FUTURE_ACCOUNT_ID,
+      async (): Promise<IAccountInfo> => {
+        const balanceRes = await client.getFutureAccounts({ productType: 'USDT-FUTURES' });
+        if (balanceRes.msg !== 'success') {
+          throw new Error(balanceRes.msg);
+        }
+        const positionsRes = await client.getAllPositions({
+          productType: 'USDT-FUTURES',
+          marginCoin: 'USDT',
+        });
+        if (positionsRes.msg !== 'success') {
+          throw new Error(positionsRes.msg);
+        }
 
-      const money: IAccountMoney = {
-        currency: 'USDT',
-        equity: +balanceRes.data[0].accountEquity,
-        profit: +balanceRes.data[0].unrealizedPL,
-        free: +balanceRes.data[0].maxTransferOut,
-        used: +balanceRes.data[0].accountEquity - +balanceRes.data[0].maxTransferOut,
-        balance: +balanceRes.data[0].available,
-      };
-      return {
-        account_id: USDT_FUTURE_ACCOUNT_ID,
-        money: money,
-        positions: positionsRes.data.map(
-          (position): IPosition => ({
-            position_id: `${position.symbol}-${position.holdSide}`,
-            datasource_id: 'BITGET',
-            product_id: encodePath('USDT-FUTURES', position.symbol),
-            direction: position.holdSide === 'long' ? 'LONG' : 'SHORT',
-            volume: +position.total,
-            free_volume: +position.available,
-            position_price: +position.openPriceAvg,
-            closable_price: +position.markPrice,
-            floating_profit: +position.unrealizedPL,
-            valuation: +position.total * +position.markPrice,
-          }),
-        ),
-        updated_at: Date.now(),
-      };
-    }).pipe(
-      //
-      tap({
-        error: (e) => {
-          console.error(formatTime(Date.now()), 'SwapAccountInfo', e);
-        },
-      }),
-      retry({ delay: 5000 }),
-      repeat({ delay: 1000 }),
-      shareReplay(1),
+        const money: IAccountMoney = {
+          currency: 'USDT',
+          equity: +balanceRes.data[0].accountEquity,
+          profit: +balanceRes.data[0].unrealizedPL,
+          free: +balanceRes.data[0].maxTransferOut,
+          used: +balanceRes.data[0].accountEquity - +balanceRes.data[0].maxTransferOut,
+          balance: +balanceRes.data[0].available,
+        };
+        return {
+          account_id: USDT_FUTURE_ACCOUNT_ID,
+          money: money,
+          positions: positionsRes.data.map(
+            (position): IPosition => ({
+              position_id: `${position.symbol}-${position.holdSide}`,
+              datasource_id: 'BITGET',
+              product_id: encodePath('USDT-FUTURES', position.symbol),
+              direction: position.holdSide === 'long' ? 'LONG' : 'SHORT',
+              volume: +position.total,
+              free_volume: +position.available,
+              position_price: +position.openPriceAvg,
+              closable_price: +position.markPrice,
+              floating_profit: +position.unrealizedPL,
+              valuation: +position.total * +position.markPrice,
+            }),
+          ),
+          updated_at: Date.now(),
+        };
+      },
+      { auto_refresh_interval: 1000 },
     );
-    publishAccountInfo(terminal, USDT_FUTURE_ACCOUNT_ID, swapAccountInfo$);
     addAccountMarket(terminal, { account_id: USDT_FUTURE_ACCOUNT_ID, market_id: 'BITGET/USDT-FUTURE' });
   }
 
   // spot account info
   {
-    const spotAccountInfo$ = defer(async (): Promise<IAccountInfo> => {
-      const res = await client.getSpotAssets();
-      if (res.msg !== 'success') {
-        throw new Error(res.msg);
-      }
-      const balance = +(res.data.find((v) => v.coin === 'USDT')?.available ?? 0);
-      const equity = balance;
-      const free = equity;
-      const money: IAccountMoney = {
-        currency: 'USDT',
-        equity,
-        profit: 0,
-        free,
-        used: 0,
-        balance,
-      };
-      return {
-        updated_at: Date.now(),
-        account_id: SPOT_ACCOUNT_ID,
-        money: money,
-        positions: [],
-      };
-    }).pipe(
-      //
-      tap({
-        error: (e) => {
-          console.error(formatTime(Date.now()), 'SpotAccountInfo', e);
-        },
-      }),
-      retry({ delay: 5000 }),
-      repeat({ delay: 1000 }),
-      shareReplay(1),
+    provideAccountInfoService(
+      terminal,
+      SPOT_ACCOUNT_ID,
+      async (): Promise<IAccountInfo> => {
+        const res = await client.getSpotAssets();
+        if (res.msg !== 'success') {
+          throw new Error(res.msg);
+        }
+        const balance = +(res.data.find((v) => v.coin === 'USDT')?.available ?? 0);
+        const equity = balance;
+        const free = equity;
+        const money: IAccountMoney = {
+          currency: 'USDT',
+          equity,
+          profit: 0,
+          free,
+          used: 0,
+          balance,
+        };
+        return {
+          updated_at: Date.now(),
+          account_id: SPOT_ACCOUNT_ID,
+          money: money,
+          positions: [],
+        };
+      },
+      { auto_refresh_interval: 1000 },
     );
-
-    publishAccountInfo(terminal, SPOT_ACCOUNT_ID, spotAccountInfo$);
     addAccountMarket(terminal, { account_id: SPOT_ACCOUNT_ID, market_id: 'BITGET/SPOT' });
   }
 
