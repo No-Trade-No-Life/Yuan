@@ -1,28 +1,25 @@
+import { createCache } from '@yuants/cache';
 import { IAccountMoney, IPosition, addAccountMarket, provideAccountInfoService } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
-import { createSQLWriter } from '@yuants/sql';
-import { encodePath } from '@yuants/utils';
+import { encodePath, formatTime } from '@yuants/utils';
 import { parse } from 'date-fns';
 import {
   Observable,
-  defer,
   filter,
   first,
   firstValueFrom,
   from,
   lastValueFrom,
   map,
-  mergeAll,
   mergeMap,
   of,
   raceWith,
-  repeat,
-  retry,
   share,
-  shareReplay,
+  tap,
   timeout,
+  timer,
   toArray,
 } from 'rxjs';
 import {
@@ -73,7 +70,21 @@ const requestZMQ = <Req, Res>(req: { method: string; params: Req }): Observable<
     })
     .pipe(
       //
-      map((msg) => msg.frame),
+      tap({
+        subscribe: () => console.info(formatTime(Date.now()), 'Request_ZMQ', JSON.stringify(req)),
+        next: (msg) => console.info(formatTime(Date.now()), 'ZMQ_Res', JSON.stringify(msg)),
+        error: (err) => {
+          console.info(formatTime(Date.now()), 'Request_ZMQ_Error', err);
+        },
+      }),
+      map((msg) => {
+        if (msg.res) {
+          if (msg.res.code !== 0) {
+            throw msg.res.message;
+          }
+        }
+        return msg.frame;
+      }),
       filter((x): x is Exclude<typeof x, undefined> => Boolean(x)),
     );
 
@@ -101,85 +112,47 @@ const mapToValue = <Req, Rep>(resp$: Observable<IBridgeMessage<Req, Rep>>) =>
     filter((v): v is Exclude<typeof v, undefined> => !!v),
   );
 
-const queryProducts = (): Observable<IProduct[]> =>
-  requestZMQ<ICThostFtdcQryInstrumentField, ICThostFtdcInstrumentField>({
-    method: 'ReqQryInstrument',
-    params: {
-      ExchangeID: '',
-      reserve1: '',
-      reserve2: '',
-      reserve3: '',
-      ExchangeInstID: '',
-      ProductID: '',
-      InstrumentID: '',
-    },
-  }).pipe(
-    //
-    mapToValue,
-    map(
-      (msg): IProduct => ({
-        datasource_id: DATASOURCE_ID,
-        product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
-        name: msg.InstrumentName,
-        quote_currency: 'CNY',
-        price_step: msg.PriceTick,
-        value_scale: msg.VolumeMultiple,
-        volume_step: 1,
-        base_currency: '',
-        value_scale_unit: '',
-        margin_rate: msg.LongMarginRatio,
-        value_based_cost: 0,
-        volume_based_cost: 0,
-        max_position: 0,
-        max_volume: 0,
-        allow_long: true,
-        allow_short: true,
-      }),
+const cacheOfProduct = createCache<IProduct>(async (product_id) => {
+  const [exchange_id, instrument_id] = product_id.split('-');
+  const product = await firstValueFrom(
+    requestZMQ<ICThostFtdcQryInstrumentField, ICThostFtdcInstrumentField>({
+      method: 'ReqQryInstrument',
+      params: {
+        ExchangeID: exchange_id,
+        reserve1: '',
+        reserve2: '',
+        reserve3: '',
+        ExchangeInstID: '',
+        ProductID: '',
+        InstrumentID: instrument_id,
+      },
+    }).pipe(
+      mapToValue,
+      map(
+        (msg): IProduct => ({
+          datasource_id: DATASOURCE_ID,
+          product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
+          name: msg.InstrumentName,
+          quote_currency: 'CNY',
+          price_step: msg.PriceTick,
+          value_scale: msg.VolumeMultiple,
+          volume_step: 1,
+          base_currency: '',
+          value_scale_unit: '',
+          margin_rate: msg.LongMarginRatio,
+          value_based_cost: 0,
+          volume_based_cost: 0,
+          max_position: 0,
+          max_volume: 0,
+          allow_long: true,
+          allow_short: true,
+        }),
+      ),
+      filter((x) => x.product_id === product_id),
     ),
-    toArray(),
   );
-
-const queryHistoryOrders = () =>
-  requestZMQ<ICThostFtdcQryTradeField, ICThostFtdcTradeField>({
-    method: 'ReqQryTrade',
-    params: {
-      BrokerID: BROKER_ID,
-      InvestorID: INVESTOR_ID,
-      reserve1: '',
-      ExchangeID: '',
-      TradeID: '',
-      TradeTimeStart: '',
-      TradeTimeEnd: '',
-      InvestUnitID: '',
-      InstrumentID: '',
-    },
-  }).pipe(
-    //
-    mapToValue,
-    map(
-      (msg): IOrder => ({
-        order_id: `${msg.ExchangeID}-${msg.OrderSysID}`,
-        product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
-        account_id: msg.UserID,
-        order_type: 'LIMIT',
-        order_direction:
-          msg.Direction === TThostFtdcDirectionType.THOST_FTDC_D_Buy
-            ? TThostFtdcOffsetFlagType.THOST_FTDC_OF_Open === msg.OffsetFlag
-              ? 'OPEN_LONG'
-              : 'CLOSE_LONG'
-            : TThostFtdcOffsetFlagType.THOST_FTDC_OF_Open === msg.OffsetFlag
-            ? 'OPEN_SHORT'
-            : 'CLOSE_SHORT',
-        volume: msg.Volume,
-        submit_at: parseCTPTime(msg.TradeDate, msg.TradeTime).getTime() * 1e3,
-        price: msg.Price,
-        traded_volume: msg.Volume,
-        // traded_price:
-        order_status: 'TRADED',
-      }),
-    ),
-    toArray(),
-  );
+  return product;
+});
 
 const submitOrder = (
   brokerId: string,
@@ -392,30 +365,11 @@ const account_id = ACCOUNT_ID;
 //     process.exit(1);
 //   });
 
-const products$ = defer(() => queryProducts()).pipe(
-  retry({ delay: 5000 }),
-  repeat({ delay: 86400_000 }),
-  shareReplay(1),
-);
-
-createSQLWriter<IProduct>(terminal, {
-  data$: products$.pipe(
-    mergeAll(),
-    map((item): IProduct => ({ ...item, market_id: 'CTP' })),
-  ),
-  tableName: 'product',
-  writeInterval: 1000,
-  conflictKeys: ['datasource_id', 'product_id'],
-});
-
 provideAccountInfoService(
   terminal,
   account_id,
   async () => {
-    const products = await firstValueFrom(products$);
-    const mapProductId2Product = Object.fromEntries(products.map((v) => [v.product_id, v]));
-
-    const positions = await firstValueFrom(
+    const positionsRes = await firstValueFrom(
       requestZMQ<ICThostFtdcQryInvestorPositionField, ICThostFtdcInvestorPositionField>({
         method: 'ReqQryInvestorPosition',
         params: {
@@ -429,35 +383,41 @@ provideAccountInfoService(
       }).pipe(
         //
         mapToValue,
-        map((msg): IPosition => {
-          const value_scale = mapProductId2Product[`${msg.ExchangeID}-${msg.InstrumentID}`].value_scale ?? 1;
-          const position_price = msg.OpenCost / msg.Position / value_scale;
-          return {
-            position_id: `mixed`,
-            product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
-            direction: (
-              {
-                [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Long]: 'LONG',
-                [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Short]: 'SHORT',
-                // FIXME(cz): [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Net]: ???
-              } as Record<TThostFtdcPosiDirectionType, string>
-            )[msg.PosiDirection],
-            volume: msg.Position,
-            free_volume: msg.Position,
-            closable_price: msg.SettlementPrice,
-            floating_profit:
-              (msg.SettlementPrice - position_price) *
-              msg.Position *
-              value_scale *
-              (msg.PosiDirection === TThostFtdcPosiDirectionType.THOST_FTDC_PD_Long ? 1 : -1),
-            position_price,
-            valuation: 0, // TODO: 估值
-          };
-        }),
-        filter((v) => v.volume !== 0),
         toArray(),
       ),
     );
+
+    const positions: IPosition[] = [];
+    for (const msg of positionsRes) {
+      // Lazy Load Product: 避免一次性查询所有合约信息 (可能有上万个合约)
+      await firstValueFrom(timer(1000));
+      const theProduct = await cacheOfProduct.query(`${msg.ExchangeID}-${msg.InstrumentID}`);
+      const value_scale = theProduct?.value_scale ?? 1;
+      const position_price = msg.OpenCost / msg.Position / value_scale;
+      positions.push({
+        position_id: `mixed`,
+        product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
+        direction: (
+          {
+            [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Long]: 'LONG',
+            [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Short]: 'SHORT',
+            // FIXME(cz): [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Net]: ???
+          } as Record<TThostFtdcPosiDirectionType, string>
+        )[msg.PosiDirection],
+        volume: msg.Position,
+        free_volume: msg.Position,
+        closable_price: msg.SettlementPrice,
+        floating_profit:
+          (msg.SettlementPrice - position_price) *
+          msg.Position *
+          value_scale *
+          (msg.PosiDirection === TThostFtdcPosiDirectionType.THOST_FTDC_PD_Long ? 1 : -1),
+        position_price,
+        valuation: 0, // TODO: 估值
+      });
+    }
+
+    await firstValueFrom(timer(1000));
 
     const money1 = await firstValueFrom(
       requestZMQ<ICThostFtdcQryTradingAccountField, ICThostFtdcTradingAccountField>({
@@ -483,14 +443,12 @@ provideAccountInfoService(
     };
 
     return {
-      updated_at: Date.now(),
-      account_id,
       money,
       positions,
     };
   },
   {
-    // auto_refresh_interval: 5000,
+    auto_refresh_interval: 5000,
   },
 );
 
@@ -558,21 +516,6 @@ terminal.server.provideService(
 addAccountMarket(terminal, { account_id, market_id: 'CTP' });
 
 terminal.server.provideService(
-  'QueryProducts',
-  {
-    required: ['datasource_id'],
-    properties: {
-      datasource_id: { const: DATASOURCE_ID },
-    },
-  },
-  () =>
-    products$.pipe(
-      //
-      map((data) => ({ res: { code: 0, message: 'OK', data: data } })),
-    ),
-);
-
-terminal.server.provideService(
   'QueryHistoryOrders',
   {
     required: ['account_id'],
@@ -581,7 +524,48 @@ terminal.server.provideService(
     },
   },
   async () => {
-    const orders = await firstValueFrom(queryHistoryOrders());
+    const orders = await firstValueFrom(
+      requestZMQ<ICThostFtdcQryTradeField, ICThostFtdcTradeField>({
+        method: 'ReqQryTrade',
+        params: {
+          BrokerID: BROKER_ID,
+          InvestorID: INVESTOR_ID,
+          reserve1: '',
+          ExchangeID: '',
+          TradeID: '',
+          TradeTimeStart: '',
+          TradeTimeEnd: '',
+          InvestUnitID: '',
+          InstrumentID: '',
+        },
+      }).pipe(
+        //
+        mapToValue,
+        map(
+          (msg): IOrder => ({
+            order_id: `${msg.ExchangeID}-${msg.OrderSysID}`,
+            product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
+            account_id: msg.UserID,
+            order_type: 'LIMIT',
+            order_direction:
+              msg.Direction === TThostFtdcDirectionType.THOST_FTDC_D_Buy
+                ? TThostFtdcOffsetFlagType.THOST_FTDC_OF_Open === msg.OffsetFlag
+                  ? 'OPEN_LONG'
+                  : 'CLOSE_LONG'
+                : TThostFtdcOffsetFlagType.THOST_FTDC_OF_Open === msg.OffsetFlag
+                ? 'OPEN_SHORT'
+                : 'CLOSE_SHORT',
+            volume: msg.Volume,
+            submit_at: parseCTPTime(msg.TradeDate, msg.TradeTime).getTime() * 1e3,
+            price: msg.Price,
+            traded_volume: msg.Volume,
+            // traded_price:
+            order_status: 'TRADED',
+          }),
+        ),
+        toArray(),
+      ),
+    );
     return { res: { code: 0, message: 'OK', data: orders } };
   },
 );
