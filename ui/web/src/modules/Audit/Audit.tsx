@@ -25,6 +25,7 @@ import { AutoComplete, Button } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 import { loadSqlData } from '../Chart/components/utils';
+import { generateSimulateAccountNetValue } from './GenerateSimilateAccountNetValue';
 
 const DURATION_TO_OKX_STEP: Record<string, string> = {
   PT1M: '1m',
@@ -95,6 +96,14 @@ registerPage('Audit', () => {
           },
           0,
         );
+        const netSeries = await generateSimulateAccountNetValue(
+          ohlc.series.get('created_at') ?? [],
+          ohlc.series.get('close') ?? [],
+          accountId,
+          timeRange[0],
+          timeRange[1],
+          product_id,
+        );
         return {
           data: [
             {
@@ -114,9 +123,13 @@ registerPage('Audit', () => {
               end_time: formatTime(timeRange[1]),
               step: step.toString(),
             },
-            // {
-            //   type: 'data' as const,
-            // },
+            {
+              type: 'data' as const,
+              time_column_name: '_time',
+              series: netSeries,
+              name: '模拟账户净值曲线',
+              data_length: ohlc.data_length,
+            },
           ],
           views: [
             {
@@ -159,6 +172,19 @@ registerPage('Audit', () => {
                         {
                           data_index: 1,
                           column_name: '{}',
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  series: [
+                    {
+                      type: 'line',
+                      refs: [
+                        {
+                          data_index: 2,
+                          column_name: 'net_value',
                         },
                       ],
                     },
