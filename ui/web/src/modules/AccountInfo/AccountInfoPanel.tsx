@@ -1,5 +1,5 @@
 import { IconClose, IconTaskMoneyStroked } from '@douyinfe/semi-icons';
-import { Collapse, Descriptions, Empty, Space, Typography } from '@douyinfe/semi-ui';
+import { Collapse, Descriptions, Space, Spin, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
 import { IAccountMoney, IPosition, mergeAccountInfoPositions } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
@@ -390,15 +390,12 @@ registerPage('AccountInfoPanel', () => {
     ];
   }, []);
 
-  if (!accountInfo) {
-    return <Empty title={'加载中'}></Empty>;
-  }
-
   return (
     <Space vertical align="start" style={{ padding: '1em', width: '100%', boxSizing: 'border-box' }}>
-      <h3 style={{ color: 'var(--semi-color-text-0)', fontWeight: 500 }}>{accountInfo.account_id}</h3>
+      <h3 style={{ color: 'var(--semi-color-text-0)', fontWeight: 500 }}>{accountId}</h3>
       <Typography.Text>
-        最后更新时间: {formatTime(updatedAt)} (Ping {renderedAt - updatedAt}ms)
+        最后更新时间: {formatTime(updatedAt)} (Ping {renderedAt - updatedAt}ms){' '}
+        {accountInfo ? null : <Spin />}
       </Typography.Text>
       {/* <InlineTerminalId terminal_id={targetTerminalId || ''} /> */}
       <Space>
@@ -413,64 +410,68 @@ registerPage('AccountInfoPanel', () => {
         </Button>
       </Space>
 
-      <Descriptions
-        align="center"
-        size="small"
-        row
-        style={{ width: '100%' }}
-        data={[
-          {
-            key: '净值',
-            value: accountInfo.money.equity.toFixed(2) + ' ' + accountInfo.money.currency,
-          },
-          {
-            key: '余额',
-            value: accountInfo.money.balance.toFixed(2) + ' ' + accountInfo.money.currency,
-          },
-          {
-            key: '浮动盈亏',
-            value: accountInfo.money.profit.toFixed(2) + ' ' + accountInfo.money.currency,
-          },
-          {
-            key: '浮动收益率',
-            value: `${((accountInfo.money.profit / accountInfo.money.balance) * 100).toFixed(2)}%`,
-          },
-          {
-            key: '已用保证金',
-            value: accountInfo.money.used.toFixed(2) + ' ' + accountInfo.money.currency,
-          },
-          {
-            key: '可用保证金',
-            value: accountInfo.money.free.toFixed(2) + ' ' + accountInfo.money.currency,
-          },
-          {
-            key: '保证金使用率',
-            value: `${((accountInfo.money.used / accountInfo.money.equity) * 100).toFixed(2)}%`,
-          },
-          {
-            key: '头寸总估值',
-            value: valuation.toFixed(2) + ' ' + accountInfo.money.currency,
-          },
-          {
-            key: '实际杠杆',
-            value: actual_leverage.toFixed(2) + 'x',
-          },
-          {
-            key: '总预期利息',
-            value: total_interest_to_settle.toFixed(2) + ' ' + accountInfo.money.currency,
-          },
-        ]}
-      />
+      {accountInfo && (
+        <Descriptions
+          align="center"
+          size="small"
+          row
+          style={{ width: '100%' }}
+          data={[
+            {
+              key: '净值',
+              value: accountInfo.money.equity.toFixed(2) + ' ' + accountInfo.money.currency,
+            },
+            {
+              key: '余额',
+              value: accountInfo.money.balance.toFixed(2) + ' ' + accountInfo.money.currency,
+            },
+            {
+              key: '浮动盈亏',
+              value: accountInfo.money.profit.toFixed(2) + ' ' + accountInfo.money.currency,
+            },
+            {
+              key: '浮动收益率',
+              value: `${((accountInfo.money.profit / accountInfo.money.balance) * 100).toFixed(2)}%`,
+            },
+            {
+              key: '已用保证金',
+              value: accountInfo.money.used.toFixed(2) + ' ' + accountInfo.money.currency,
+            },
+            {
+              key: '可用保证金',
+              value: accountInfo.money.free.toFixed(2) + ' ' + accountInfo.money.currency,
+            },
+            {
+              key: '保证金使用率',
+              value: `${((accountInfo.money.used / accountInfo.money.equity) * 100).toFixed(2)}%`,
+            },
+            {
+              key: '头寸总估值',
+              value: valuation.toFixed(2) + ' ' + accountInfo.money.currency,
+            },
+            {
+              key: '实际杠杆',
+              value: actual_leverage.toFixed(2) + 'x',
+            },
+            {
+              key: '总预期利息',
+              value: total_interest_to_settle.toFixed(2) + ' ' + accountInfo.money.currency,
+            },
+          ]}
+        />
+      )}
       <Collapse defaultActiveKey={'通货汇总'} style={{ width: '100%' }}>
         <Collapse.Panel header={`持仓汇总 (${positionSummary.length})`} itemKey="持仓汇总">
           <DataView data={positionSummary} columns={columns} />
         </Collapse.Panel>
-        <Collapse.Panel header={`持仓细节 (${accountInfo.positions.length})`} itemKey="持仓细节">
-          <DataView data={accountInfo?.positions ?? []} columns={columnsOfPositions} />
-        </Collapse.Panel>
+        {accountInfo && (
+          <Collapse.Panel header={`持仓细节 (${accountInfo.positions.length})`} itemKey="持仓细节">
+            <DataView data={accountInfo?.positions ?? []} columns={columnsOfPositions} />
+          </Collapse.Panel>
+        )}
         {accountId.startsWith('TradeCopier') ? null : (
           <Collapse.Panel header={`跟单配置`} itemKey="跟单配置">
-            <TradeCopierDetail account_id={accountInfo.account_id} />
+            <TradeCopierDetail account_id={accountId} />
           </Collapse.Panel>
         )}
         <Collapse.Panel header={`监控`} itemKey="监控">
@@ -480,7 +481,7 @@ registerPage('AccountInfoPanel', () => {
                 data: [
                   {
                     type: 'promql',
-                    query: `sum (account_info_equity{account_id="${accountInfo.account_id}"})`,
+                    query: `sum (account_info_equity{account_id="${accountId}"})`,
                     start_time: formatTime(Date.now() - 14 * 24 * 3600 * 1000),
                     end_time: formatTime(Date.now()),
                     step: '2h',
