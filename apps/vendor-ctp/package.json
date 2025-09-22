@@ -19,6 +19,7 @@
     "@yuants/utils": "workspace:*",
     "@yuants/sql": "workspace:*",
     "@yuants/data-product": "workspace:*",
+    "@yuants/cache": "workspace:*",
     "binary-parser-encoder": "~1.5.3",
     "date-fns": "~2.29.3",
     "rxjs": "~7.5.6",
