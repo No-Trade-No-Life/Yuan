@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-trade-copier",
+      "comment": "BBO_MAKER_BY_DIRECTION",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-trade-copier"
+}

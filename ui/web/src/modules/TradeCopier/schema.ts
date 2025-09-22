@@ -15,6 +15,11 @@ export const schemaOfTradeCopierConfig: JSONSchema7 = {
           properties: {
             type: { type: 'string', title: '策略类型' },
             max_volume: { type: 'number', title: '最大订单量限制' },
+            open_slippage: {
+              type: 'number',
+              title: '开仓滑点',
+              description: '开仓时允许的滑点百分比',
+            },
           },
         },
         product_overrides: {
@@ -25,6 +30,11 @@ export const schemaOfTradeCopierConfig: JSONSchema7 = {
             properties: {
               type: { type: 'string', title: '策略类型' },
               max_volume: { type: 'number', title: '最大订单量限制' },
+              open_slippage: {
+                type: 'number',
+                title: '开仓滑点',
+                description: '开仓时允许的滑点百分比',
+              },
             },
           },
         },

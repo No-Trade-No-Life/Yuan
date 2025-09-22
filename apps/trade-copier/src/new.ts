@@ -4,6 +4,7 @@ import { requestSQL } from '@yuants/sql';
 import { encodePath, formatTime, listWatch } from '@yuants/utils';
 import { defer, map, repeat, retry, tap, timeout } from 'rxjs';
 import { runStrategyBboMaker } from './BBO_MAKER';
+import { runStrategyBboMakerByDirection } from './BBO_MAKER_BY_DIRECTION';
 import { runStrategyDefault } from './DEFAULT';
 import { ITradeCopierConfig, ITradeCopierStrategyBase } from './interface';
 import { MetricRunStrategyContextGauge, MetricRunStrategyResultCounter } from './metrics';
@@ -17,6 +18,9 @@ const runStrategy = async (account_id: string, productKey: string, strategy: ITr
     `account=${account_id}, product=${productKey}`,
     JSON.stringify(strategy),
   );
+  if (strategy.type === 'BBO_MAKER_BY_DIRECTION') {
+    return runStrategyBboMakerByDirection(account_id, productKey, strategy);
+  }
   if (strategy.type === 'BBO_MAKER') {
     return runStrategyBboMaker(account_id, productKey, strategy);
   }
@@ -100,31 +104,21 @@ defer(() =>
                       account_id: config.account_id,
                       product: productKey,
                     });
-                    MetricRunStrategyContextGauge.clear({
-                      type: 'actual_net_volume',
-                      account_id: config.account_id,
-                      product: productKey,
-                    });
-                    MetricRunStrategyContextGauge.clear({
-                      type: 'expected_net_volume',
-                      account_id: config.account_id,
-                      product: productKey,
-                    });
-                    MetricRunStrategyContextGauge.clear({
-                      type: 'lower_bound',
-                      account_id: config.account_id,
-                      product: productKey,
-                    });
-                    MetricRunStrategyContextGauge.clear({
-                      type: 'upper_bound',
-                      account_id: config.account_id,
-                      product: productKey,
-                    });
-                    MetricRunStrategyContextGauge.clear({
-                      type: 'delta_volume',
-                      account_id: config.account_id,
-                      product: productKey,
-                    });
+                    for (const type of [
+                      'actual_volume',
+                      'expected_volume',
+                      'actual_net_volume',
+                      'expected_net_volume',
+                      'lower_bound',
+                      'upper_bound',
+                      'delta_volume',
+                    ]) {
+                      MetricRunStrategyContextGauge.clear({
+                        type,
+                        account_id: config.account_id,
+                        product: productKey,
+                      });
+                    }
                   },
                 }),
               ),

@@ -33,6 +33,17 @@ export type ITradeCopierStrategyBase = {
    * 最大订单量限制
    */
   max_volume?: number;
+
+  /**
+   * 开仓滑点保护限制 (配置 0.5 = 50%)
+   *
+   * 如果设置了，则会在下单开仓时，参考预期仓位的持仓成本价，最多允许滑点在该范围内，否则不会下单。
+   *
+   * 平仓不受该配置影响，因为平仓优先于滑点保护。
+   *
+   * 默认: 不限制
+   */
+  open_slippage?: number;
 };
 
 export type ITradeCopierStrategyConfig = {
