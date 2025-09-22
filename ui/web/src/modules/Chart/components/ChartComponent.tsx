@@ -85,7 +85,7 @@ const DarkModeChartOption: DeepPartial<ChartOptions> = {
 const PAGE_SIZE = 5000;
 
 interface Props {
-  view: ITimeSeriesChartConfig['views'][0];
+  view?: ITimeSeriesChartConfig['views'][0];
   onViewChange: (newView: ITimeSeriesChartConfig['views'][0]) => Promise<void>;
   topSlot?: ReactNode;
   data?: ILoadedData[];
@@ -156,7 +156,7 @@ export const ChartComponent = memo((props: Props) => {
     }
   }, [darkMode, chart]);
 
-  const totalTimeLine = resolveDataRefToDataArray(data || [], view.time_ref);
+  const totalTimeLine = view ? resolveDataRefToDataArray(data || [], view.time_ref) : undefined;
 
   const totalItems = totalTimeLine?.length ?? 0;
   // 自动调整 slider 的位置到最右侧
@@ -335,7 +335,7 @@ export const ChartComponent = memo((props: Props) => {
       </Space>
       <div key="canvas" style={{ width: '100%', flex: 1, overflow: 'hidden' }} ref={domRef} />
       <>
-        {view.panes.map((pane, paneIndex) => {
+        {view?.panes.map((pane, paneIndex) => {
           const legendDom = legendContainers?.[paneIndex];
 
           return legendDom
