@@ -2,6 +2,31 @@
   "name": "@yuants/vendor-bitget",
   "entries": [
     {
+      "version": "0.5.14",
+      "tag": "@yuants/vendor-bitget_v0.5.14",
+      "date": "Sun, 21 Sep 2025 23:34:48 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "use new api"
+          },
+          {
+            "comment": "refactor"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.4.4`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.13",
       "tag": "@yuants/vendor-bitget_v0.5.13",
       "date": "Fri, 19 Sep 2025 05:01:03 GMT",

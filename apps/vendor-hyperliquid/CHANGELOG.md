@@ -1,6 +1,14 @@
 # Change Log - @yuants/vendor-hyperliquid
 
-This log was last generated on Fri, 19 Sep 2025 05:01:03 GMT and should not be manually modified.
+This log was last generated on Sun, 21 Sep 2025 23:34:48 GMT and should not be manually modified.
+
+## 0.3.14
+Sun, 21 Sep 2025 23:34:48 GMT
+
+### Patches
+
+- new api
+- refactor
 
 ## 0.3.13
 Fri, 19 Sep 2025 05:01:03 GMT
