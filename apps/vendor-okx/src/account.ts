@@ -284,4 +284,4 @@ defer(async () => {
     },
     { auto_refresh_interval: 5000 },
   );
-});
+}).subscribe();
