@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-trade-copier
 
-This log was last generated on Sun, 21 Sep 2025 23:34:48 GMT and should not be manually modified.
+This log was last generated on Mon, 22 Sep 2025 13:29:34 GMT and should not be manually modified.
+
+## 0.10.0
+Mon, 22 Sep 2025 13:29:34 GMT
+
+### Minor changes
+
+- BBO_MAKER_BY_DIRECTION
 
 ## 0.9.8
 Sun, 21 Sep 2025 23:34:48 GMT
