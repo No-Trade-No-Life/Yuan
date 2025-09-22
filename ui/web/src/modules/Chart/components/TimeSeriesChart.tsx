@@ -13,7 +13,7 @@ import { terminal$ } from '../../Network';
 import { CSV } from '../../Util';
 import { ChartComponent } from './ChartComponent';
 import { ILoadedData, ITimeSeriesChartConfig } from './model';
-
+import { loadSqlData } from './utils';
 const schemaOfChartConfig: JSONSchema7 = {
   type: 'object',
   required: ['data', 'views'],
@@ -138,7 +138,7 @@ export const reloadTimeSeriesChart = (configFilename: string) => {
  */
 export const TimeSeriesChart = (props: {
   topSlot?: React.ReactNode;
-  config: ITimeSeriesChartConfig;
+  config?: ITimeSeriesChartConfig;
   onConfigChange?: (config: ITimeSeriesChartConfig) => void | Promise<void>;
 }) => {
   const [viewIndex, setViewIndex] = useState<number>(0);
@@ -227,36 +227,15 @@ export const TimeSeriesChart = (props: {
                 };
               }
               if (s.type === 'sql') {
-                const terminal = await firstValueFrom(terminal$);
-                if (!terminal) throw new Error('No terminal available for SQL query');
-                const data = await requestSQL<any[]>(terminal, s.query);
-
-                if (data.length === 0) throw new Error(`Query returned no data: ${s.query}`);
-
-                if (data[0][s.time_column_name] === undefined)
-                  throw new Error(`Time column not found: ${s.time_column_name}`);
-                // Initialize series map
-                const series: Map<string, any[]> = new Map(Object.keys(data[0]).map((key) => [key, []]));
-
-                data
-                  .map(({ [s.time_column_name]: time, ...others }) => ({
-                    v: others,
-                    t: new Date(time).getTime(),
-                  }))
-                  .sort((a, b) => a.t - b.t)
-                  .forEach(({ t, v }) => {
-                    series.get(s.time_column_name)!.push(t);
-                    for (const key in v) {
-                      series.get(key)!.push(v[key]);
-                    }
-                  });
-
+                return await loadSqlData(s, index);
+              }
+              if (s.type === 'data') {
                 return {
-                  filename: `sql:${s.query.slice(0, 30)}...`,
+                  filename: s.name,
                   data_index: index,
-                  data_length: data.length,
+                  data_length: s.data_length,
+                  series: s.series,
                   time_column_name: s.time_column_name,
-                  series,
                 };
               }
               throw new Error(`Unsupported data source type: ${(s as any).type}`);
@@ -285,7 +264,7 @@ export const TimeSeriesChart = (props: {
         }),
       ),
     ),
-    [config.data],
+    [config?.data],
   );
 
   const data = useObservableState(data$);
