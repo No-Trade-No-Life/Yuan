@@ -8,6 +8,7 @@ import * as dataOrder from '@yuants/data-order';
 import * as dataProduct from '@yuants/data-product';
 import * as dataQuote from '@yuants/data-quote';
 import * as dataSeries from '@yuants/data-series';
+import * as dataAccount from '@yuants/data-account';
 import * as protocol from '@yuants/protocol';
 import * as yuantsSql from '@yuants/sql';
 import * as yuantsUtils from '@yuants/utils';
@@ -27,6 +28,7 @@ export const libs = {
   '@yuants/sql': yuantsSql,
   '@yuants/data-ohlc': dataOHLC,
   '@yuants/data-order': dataOrder,
+  '@yuants/data-account': dataAccount,
   '@yuants/data-quote': dataQuote,
   '@yuants/data-interest-rate': dataInterestRate,
   '@yuants/data-series': dataSeries,

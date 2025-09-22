@@ -49,7 +49,9 @@ const _runStrategyBboMakerDirectional = async (
 
   const actualVolume = actualPositions.reduce((a, b) => a + b.volume, 0);
   const actualAvgPositionPrice =
-    actualPositions.reduce((a, b) => a + b.volume * b.position_price, 0) / actualVolume;
+    actualVolume === 0
+      ? 0
+      : actualPositions.reduce((a, b) => a + b.volume * b.position_price, 0) / actualVolume;
 
   const expectedPositions = expectedAccountInfo.positions.filter(
     (p) => p.product_id === product_id && p.direction === direction,
@@ -57,7 +59,9 @@ const _runStrategyBboMakerDirectional = async (
 
   const expectedVolume = expectedPositions.reduce((a, b) => a + b.volume, 0);
   const expectedAvgPositionPrice =
-    expectedPositions.reduce((a, b) => a + b.volume * b.position_price, 0) / expectedVolume;
+    expectedVolume === 0
+      ? 0
+      : expectedPositions.reduce((a, b) => a + b.volume * b.position_price, 0) / expectedVolume;
 
   const lowerBound = roundToStep(expectedVolume, theProduct.volume_step, Math.floor);
   const upperBound = roundToStep(expectedVolume, theProduct.volume_step, Math.ceil);
@@ -143,13 +147,20 @@ const _runStrategyBboMakerDirectional = async (
           (1 + (direction === 'LONG' ? 1 : -1) * strategy.open_slippage) -
           actualVolume * actualAvgPositionPrice) /
         delta_volume; // 挂单限价
+      console.info(formatTime(Date.now()), `SlippageProtection`, x);
       if (isNaN(x) || !isFinite(x)) {
-        if (direction === 'LONG') {
-          price = Math.min(price, x);
-        }
-        if (direction === 'SHORT') {
-          price = Math.max(price, x);
-        }
+        console.info(
+          formatTime(Date.now()),
+          'InvalidSlippageCalculation',
+          `actualVolume=${actualVolume}, actualAvgPositionPrice=${actualAvgPositionPrice}, expectedVolume=${expectedVolume}, expectedAvgPositionPrice=${expectedAvgPositionPrice}, slippage=${strategy.open_slippage}`,
+        );
+        return;
+      }
+      if (direction === 'LONG') {
+        price = Math.min(price, x);
+      }
+      if (direction === 'SHORT') {
+        price = Math.max(price, x);
       }
     }
   } else {
@@ -164,7 +175,7 @@ const _runStrategyBboMakerDirectional = async (
     account_id: account_id,
     product_id: product_id,
     order_direction: order_direction,
-    price: price,
+    price: roundToStep(price, theProduct.price_step),
     volume: roundToStep(Math.min(volume, strategy.max_volume ?? Infinity), theProduct.volume_step),
   };
 
