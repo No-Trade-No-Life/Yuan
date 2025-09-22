@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-ctp
 
-This log was last generated on Sun, 21 Sep 2025 23:34:48 GMT and should not be manually modified.
+This log was last generated on Mon, 22 Sep 2025 03:26:10 GMT and should not be manually modified.
+
+## 0.5.3
+Mon, 22 Sep 2025 03:26:10 GMT
+
+### Patches
+
+- fix product list too long issue 
 
 ## 0.5.2
 Sun, 21 Sep 2025 23:34:48 GMT
