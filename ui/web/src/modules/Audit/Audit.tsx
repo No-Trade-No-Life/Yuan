@@ -1,31 +1,16 @@
-import { IconDownload } from '@douyinfe/semi-icons';
-import { DatePicker, Layout, Space, Toast } from '@douyinfe/semi-ui';
+import { DatePicker, Layout, Space } from '@douyinfe/semi-ui';
 import '@yuants/data-series';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import { convertDurationToOffset, decodePath, encodePath, formatTime } from '@yuants/utils';
-import { t } from 'i18next';
 import { useObservable, useObservableState } from 'observable-hooks';
-import { useMemo, useState } from 'react';
-import {
-  defer,
-  filter,
-  firstValueFrom,
-  lastValueFrom,
-  map,
-  pipe,
-  retry,
-  shareReplay,
-  switchMap,
-  tap,
-} from 'rxjs';
+import { useState } from 'react';
+import { defer, filter, map, pipe, retry, shareReplay, switchMap } from 'rxjs';
 import { TimeSeriesChart } from '../Chart/components/TimeSeriesChart';
-import { executeCommand, registerCommand } from '../CommandCenter';
-import { showForm } from '../Form';
 import { AutoComplete, Button } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 import { loadSqlData } from '../Chart/components/utils';
-import { generateSimulateAccountNetValue } from './GenerateSimilateAccountNetValue';
+import { generateAccountNetValue } from './GenerateAccountNetValue';
 
 const DURATION_TO_OKX_STEP: Record<string, string> = {
   PT1M: '1m',
@@ -76,16 +61,12 @@ registerPage('Audit', () => {
   const [seriesId, setSeriesId] = useState('');
   const [accountId, setAccountId] = useState('');
   const [expectedAccountId, setExpectedAccountId] = useState('');
-
-  const [datasource_id, product_id, duration = ''] = decodePath(seriesId);
-
   const config$ = useObservable(
     pipe(
       //
       switchMap(async ([seriesId, timeRange, accountId, expectedAccountId]) => {
-        const [datasource_id, product_id, duration] = decodePath(seriesId);
+        const [datasource_id, product_id] = decodePath(seriesId);
         if (!timeRange || !seriesId || !accountId) return { data: [], views: [] };
-        const step = convertDurationToOffset(duration) / 1000;
         const ohlc = await loadSqlData(
           {
             type: 'sql' as const,
@@ -96,7 +77,16 @@ registerPage('Audit', () => {
           },
           0,
         );
-        const netSeries = await generateSimulateAccountNetValue(
+        const [expectedAccountNetSeries, expectedAccountOrderSeries] = await generateAccountNetValue(
+          ohlc.series.get('created_at') ?? [],
+          ohlc.series.get('close') ?? [],
+          expectedAccountId,
+          timeRange[0],
+          timeRange[1],
+          product_id,
+        );
+
+        const [accountNetSeries, accountOrderSeries] = await generateAccountNetValue(
           ohlc.series.get('created_at') ?? [],
           ohlc.series.get('close') ?? [],
           accountId,
@@ -108,27 +98,38 @@ registerPage('Audit', () => {
           data: [
             {
               type: 'data' as const,
-              // query: `select * from ohlc where series_id = ${escapeSQL(seriesId)} and created_at>=${escapeSQL(
-              //   formatTime(timeRange[0]),
-              // )} and created_at<=${escapeSQL(formatTime(timeRange[1]))} order by created_at`,
               time_column_name: 'created_at',
               series: ohlc.series,
               name: ohlc.filename,
               data_length: ohlc.data_length,
             },
             {
-              type: 'promql' as const,
-              query: `sum (account_info_equity{account_id="${accountId}"})`,
-              start_time: formatTime(timeRange[0]),
-              end_time: formatTime(timeRange[1]),
-              step: step.toString(),
+              type: 'data' as const,
+              time_column_name: '_time',
+              series: expectedAccountNetSeries,
+              name: '模拟账户净值曲线',
+              data_length: ohlc.data_length,
+            },
+            {
+              type: 'data' as const,
+              time_column_name: 'traded_at',
+              series: expectedAccountOrderSeries,
+              name: '模拟账户订单',
+              data_length: expectedAccountOrderSeries.get('traded_at')?.length ?? 0,
             },
             {
               type: 'data' as const,
               time_column_name: '_time',
-              series: netSeries,
-              name: '模拟账户净值曲线',
+              series: accountNetSeries,
+              name: '账户净值曲线',
               data_length: ohlc.data_length,
+            },
+            {
+              type: 'data' as const,
+              time_column_name: 'traded_at',
+              series: accountOrderSeries,
+              name: '账户订单',
+              data_length: accountOrderSeries.get('traded_at')?.length ?? 0,
             },
           ],
           views: [
@@ -162,16 +163,39 @@ registerPage('Audit', () => {
                         },
                       ],
                     },
-                  ],
-                },
-                {
-                  series: [
                     {
-                      type: 'line',
+                      type: 'order',
+                      name: '模拟账户订单',
                       refs: [
                         {
-                          data_index: 1,
-                          column_name: '{}',
+                          data_index: 2,
+                          column_name: 'direction',
+                        },
+                        {
+                          data_index: 2,
+                          column_name: 'traded_price',
+                        },
+                        {
+                          data_index: 2,
+                          column_name: 'traded_volume',
+                        },
+                      ],
+                    },
+                    {
+                      type: 'order',
+                      name: '账户订单',
+                      refs: [
+                        {
+                          data_index: 4,
+                          column_name: 'direction',
+                        },
+                        {
+                          data_index: 4,
+                          column_name: 'traded_price',
+                        },
+                        {
+                          data_index: 4,
+                          column_name: 'traded_volume',
                         },
                       ],
                     },
@@ -181,9 +205,24 @@ registerPage('Audit', () => {
                   series: [
                     {
                       type: 'line',
+                      name: '模拟账户净值曲线',
                       refs: [
                         {
-                          data_index: 2,
+                          data_index: 1,
+                          column_name: 'net_value',
+                        },
+                      ],
+                    },
+                  ],
+                },
+                {
+                  series: [
+                    {
+                      type: 'line',
+                      name: '账户净值曲线',
+                      refs: [
+                        {
+                          data_index: 3,
                           column_name: 'net_value',
                         },
                       ],
@@ -205,7 +244,6 @@ registerPage('Audit', () => {
     if (time) setTimeRange(time as [string, string]);
   };
 
-  console.log({ config });
   return (
     <Layout style={{ width: '100%', height: '100%' }}>
       <Layout.Header>
@@ -238,11 +276,6 @@ registerPage('Audit', () => {
           }
           config={config}
         />
-        {/* <ChartGroup key={cnt}>
-          <Chart>
-            <stickSeries title={periodKey} data={periods} />
-          </Chart>
-        </ChartGroup> */}
       </Layout.Content>
     </Layout>
   );

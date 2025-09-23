@@ -192,8 +192,8 @@ export const customSeries: ICustomSeries[] = [
       lineSeries.setData(seriesData);
       const seriesMarkers = createSeriesMarkers(lineSeries, markerData);
     },
-    Legend: () => {
-      return <div>订单</div>;
+    Legend: ({ seriesConfig }) => {
+      return <div>{seriesConfig.name || '订单'}</div>;
     },
   },
   {
