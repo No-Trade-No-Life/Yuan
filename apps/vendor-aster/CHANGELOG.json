@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/vendor-aster",
+  "entries": [
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/vendor-aster_v0.1.0",
+      "date": "Tue, 23 Sep 2025 05:58:35 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "new"
+          }
+        ]
+      }
+    }
+  ]
+}
