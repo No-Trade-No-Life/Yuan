@@ -21,7 +21,6 @@ export const generateAccountNetValue = async (
 
   let cashBalance = 0;
   const position = { volume: 0, avgPrice: 0 };
-  const xxx: { time: number; value: number }[] = [];
   const netValueList: number[] = [];
   const directionList: string[] = [];
   const orderVolumeList: string[] = [];
@@ -61,7 +60,6 @@ export const generateAccountNetValue = async (
                 positionValue += position.volume * Number(close[timelineIndex]);
               }
               const netValue = positionValue + cashBalance;
-              xxx.push({ time: timeline[timelineIndex], value: netValue });
               netValueList.push(netValue);
             } else {
               break;
@@ -102,7 +100,6 @@ export const generateAccountNetValue = async (
     }
   }
   for (; timelineIndex < timeline.length; timelineIndex++) {
-    xxx.push({ time: timeline[timelineIndex], value: xxx[xxx.length - 1]?.value ?? 0 });
     netValueList.push(netValueList[netValueList.length - 1] ?? 0);
   }
   series.set('_time', timeline);
