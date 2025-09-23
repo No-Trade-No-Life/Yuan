@@ -676,6 +676,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/vendor-aster",
+      "projectFolder": "apps/vendor-aster",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/vendor-binance",
       "projectFolder": "apps/vendor-binance",
       "shouldPublish": true
