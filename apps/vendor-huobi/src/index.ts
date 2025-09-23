@@ -1,10 +1,4 @@
-import {
-  addAccountMarket,
-  IAccountInfo,
-  IAccountMoney,
-  IPosition,
-  publishAccountInfo,
-} from '@yuants/data-account';
+import { addAccountMarket, IAccountMoney, IPosition, provideAccountInfoService } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { addAccountTransferAddress } from '@yuants/transfer';
@@ -71,109 +65,101 @@ const terminal = Terminal.fromNodeEnv();
     shareReplay(1),
   );
 
-  const perpetualContractAccountInfo$ = defer(async () => {
-    // balance
-    const balance = await client.getUnifiedAccountInfo();
-    if (!balance.data) {
-      throw new Error('Failed to get unified account info');
-    }
-    const balanceData = balance.data.find((v) => v.margin_asset === 'USDT');
-    if (!balanceData) {
-      throw new Error('No USDT balance found in unified account');
-    }
-    const money: IAccountMoney = {
-      currency: 'USDT',
-      balance: balanceData.cross_margin_static,
-      equity: balanceData.margin_balance,
-      profit: balanceData.cross_profit_unreal,
-      free: balanceData.withdraw_available,
-      used: balanceData.margin_balance - balanceData.withdraw_available,
-    };
-
-    // positions
-    const positionsRes = await client.getSwapCrossPositionInfo();
-    const mapProductIdToPerpetualProduct = await firstValueFrom(mapProductIdToPerpetualProduct$);
-    const positions: IPosition[] = (positionsRes.data || []).map((v): IPosition => {
-      const product_id = v.contract_code;
-      const theProduct = mapProductIdToPerpetualProduct?.get(product_id);
-      const valuation = v.volume * v.last_price * (theProduct?.value_scale || 1);
-      return {
-        position_id: `${v.contract_code}/${v.contract_type}/${v.direction}/${v.margin_mode}`,
-        datasource_id: 'HUOBI-SWAP',
-        product_id,
-        direction: v.direction === 'buy' ? 'LONG' : 'SHORT',
-        volume: v.volume,
-        free_volume: v.available,
-        position_price: v.cost_hold,
-        closable_price: v.last_price,
-        floating_profit: v.profit_unreal,
-        valuation,
+  provideAccountInfoService(
+    terminal,
+    SWAP_ACCOUNT_ID,
+    async () => {
+      // balance
+      const balance = await client.getUnifiedAccountInfo();
+      if (!balance.data) {
+        throw new Error('Failed to get unified account info');
+      }
+      const balanceData = balance.data.find((v) => v.margin_asset === 'USDT');
+      if (!balanceData) {
+        throw new Error('No USDT balance found in unified account');
+      }
+      const money: IAccountMoney = {
+        currency: 'USDT',
+        balance: balanceData.cross_margin_static,
+        equity: balanceData.margin_balance,
+        profit: balanceData.cross_profit_unreal,
+        free: balanceData.withdraw_available,
+        used: balanceData.margin_balance - balanceData.withdraw_available,
       };
-    });
 
-    // orders
-    // const orders: IOrder[] = [];
-    // let page_index = 1;
-    // const page_size = 50;
+      // positions
+      const positionsRes = await client.getSwapCrossPositionInfo();
+      const mapProductIdToPerpetualProduct = await firstValueFrom(mapProductIdToPerpetualProduct$);
+      const positions: IPosition[] = (positionsRes.data || []).map((v): IPosition => {
+        const product_id = v.contract_code;
+        const theProduct = mapProductIdToPerpetualProduct?.get(product_id);
+        const valuation = v.volume * v.last_price * (theProduct?.value_scale || 1);
+        return {
+          position_id: `${v.contract_code}/${v.contract_type}/${v.direction}/${v.margin_mode}`,
+          datasource_id: 'HUOBI-SWAP',
+          product_id,
+          direction: v.direction === 'buy' ? 'LONG' : 'SHORT',
+          volume: v.volume,
+          free_volume: v.available,
+          position_price: v.cost_hold,
+          closable_price: v.last_price,
+          floating_profit: v.profit_unreal,
+          valuation,
+        };
+      });
 
-    // while (true) {
-    //   const ordersRes = await client.getSwapOpenOrders({ page_index, page_size });
-    //   if (!ordersRes.data?.orders || ordersRes.data.orders.length === 0) {
-    //     break;
-    //   }
+      // orders
+      // const orders: IOrder[] = [];
+      // let page_index = 1;
+      // const page_size = 50;
 
-    //   const pageOrders: IOrder[] = ordersRes.data.orders.map((v): IOrder => {
-    //     return {
-    //       order_id: v.order_id_str,
-    //       account_id: SWAP_ACCOUNT_ID,
-    //       product_id: v.contract_code,
-    //       order_type: ['lightning'].includes(v.order_price_type)
-    //         ? 'MARKET'
-    //         : ['limit', 'opponent', 'post_only', 'optimal_5', 'optimal_10', 'optimal_20'].includes(
-    //             v.order_price_type,
-    //           )
-    //         ? 'LIMIT'
-    //         : ['fok'].includes(v.order_price_type)
-    //         ? 'FOK'
-    //         : v.order_price_type.includes('ioc')
-    //         ? 'IOC'
-    //         : 'STOP', // unreachable code
-    //       order_direction:
-    //         v.direction === 'open'
-    //           ? v.offset === 'buy'
-    //             ? 'OPEN_LONG'
-    //             : 'OPEN_SHORT'
-    //           : v.offset === 'buy'
-    //           ? 'CLOSE_SHORT'
-    //           : 'CLOSE_LONG',
-    //       volume: v.volume,
-    //       submit_at: v.created_at,
-    //       price: v.price,
-    //       traded_volume: v.trade_volume,
-    //     };
-    //   });
+      // while (true) {
+      //   const ordersRes = await client.getSwapOpenOrders({ page_index, page_size });
+      //   if (!ordersRes.data?.orders || ordersRes.data.orders.length === 0) {
+      //     break;
+      //   }
 
-    //   orders.push(...pageOrders);
-    //   page_index++;
-    // }
+      //   const pageOrders: IOrder[] = ordersRes.data.orders.map((v): IOrder => {
+      //     return {
+      //       order_id: v.order_id_str,
+      //       account_id: SWAP_ACCOUNT_ID,
+      //       product_id: v.contract_code,
+      //       order_type: ['lightning'].includes(v.order_price_type)
+      //         ? 'MARKET'
+      //         : ['limit', 'opponent', 'post_only', 'optimal_5', 'optimal_10', 'optimal_20'].includes(
+      //             v.order_price_type,
+      //           )
+      //         ? 'LIMIT'
+      //         : ['fok'].includes(v.order_price_type)
+      //         ? 'FOK'
+      //         : v.order_price_type.includes('ioc')
+      //         ? 'IOC'
+      //         : 'STOP', // unreachable code
+      //       order_direction:
+      //         v.direction === 'open'
+      //           ? v.offset === 'buy'
+      //             ? 'OPEN_LONG'
+      //             : 'OPEN_SHORT'
+      //           : v.offset === 'buy'
+      //           ? 'CLOSE_SHORT'
+      //           : 'CLOSE_LONG',
+      //       volume: v.volume,
+      //       submit_at: v.created_at,
+      //       price: v.price,
+      //       traded_volume: v.trade_volume,
+      //     };
+      //   });
 
-    const accountInfo: IAccountInfo = {
-      updated_at: Date.now(),
-      account_id: SWAP_ACCOUNT_ID,
-      money: money,
-      positions,
-    };
+      //   orders.push(...pageOrders);
+      //   page_index++;
+      // }
 
-    return accountInfo;
-  }).pipe(
-    repeat({ delay: 1000 }),
-    tap({
-      error: (e) => {
-        console.error(formatTime(Date.now()), 'perpetualContractAccountInfo', e);
-      },
-    }),
-    retry({ delay: 1000 }),
-    shareReplay(1),
+      return {
+        money: money,
+        positions,
+      };
+    },
+    { auto_refresh_interval: 1000 },
   );
 
   const superMarginUnifiedRawAccountBalance$ = defer(() =>
@@ -227,113 +213,103 @@ const terminal = Terminal.fromNodeEnv();
       }
     });
 
-  const superMarginAccountInfo$ = defer(async () => {
-    // get account balance
-    const accountBalance = await client.getSpotAccountBalance(superMarginAccountUid);
-    const balanceList = accountBalance.data?.list || [];
+  provideAccountInfoService(
+    terminal,
+    SUPER_MARGIN_ACCOUNT_ID,
+    async () => {
+      // get account balance
+      const accountBalance = await client.getSpotAccountBalance(superMarginAccountUid);
+      const balanceList = accountBalance.data?.list || [];
 
-    // calculate usdt balance
-    const usdtBalance = balanceList
-      .filter((v) => v.currency === 'usdt')
-      .reduce((acc, cur) => acc + +cur.balance, 0);
+      // calculate usdt balance
+      const usdtBalance = balanceList
+        .filter((v) => v.currency === 'usdt')
+        .reduce((acc, cur) => acc + +cur.balance, 0);
 
-    // get positions (non-usdt currencies)
-    const positions: IPosition[] = [];
-    const nonUsdtCurrencies = balanceList
-      .filter((v) => v.currency !== 'usdt')
-      .reduce((acc, cur) => {
-        const existing = acc.find((item) => item.currency === cur.currency);
-        if (existing) {
-          existing.balance += +cur.balance;
-        } else {
-          acc.push({ currency: cur.currency, balance: +cur.balance });
-        }
-        return acc;
-      }, [] as { currency: string; balance: number }[]);
-
-    // get prices and create positions
-    for (const currencyData of nonUsdtCurrencies) {
-      if (currencyData.balance > 0) {
-        try {
-          // get current price from websocket or fallback to REST API
-          let price: number;
-          try {
-            const tickPrice = await firstValueFrom(
-              client.spot_ws.input$.pipe(
-                //
-                first((v) => v.ch?.includes('ticker') && v.ch?.includes(currencyData.currency) && v.tick),
-                map((v): number => v.tick.bid),
-                timeout(5000),
-                tap({
-                  error: (e) => {
-                    subscriptions.clear();
-                  },
-                }),
-              ),
-            );
-            price = tickPrice;
-          } catch {
-            // fallback to REST API
-            const tickerRes = await client.getSpotTick({ symbol: `${currencyData.currency}usdt` });
-            price = tickerRes.tick.close;
+      // get positions (non-usdt currencies)
+      const positions: IPosition[] = [];
+      const nonUsdtCurrencies = balanceList
+        .filter((v) => v.currency !== 'usdt')
+        .reduce((acc, cur) => {
+          const existing = acc.find((item) => item.currency === cur.currency);
+          if (existing) {
+            existing.balance += +cur.balance;
+          } else {
+            acc.push({ currency: cur.currency, balance: +cur.balance });
           }
+          return acc;
+        }, [] as { currency: string; balance: number }[]);
 
-          positions.push({
-            position_id: `${currencyData.currency}/usdt/spot`,
-            product_id: `${currencyData.currency}usdt`,
-            direction: 'LONG',
-            volume: currencyData.balance,
-            free_volume: currencyData.balance,
-            position_price: price,
-            closable_price: price,
-            floating_profit: 0,
-            valuation: currencyData.balance * price,
-          });
-        } catch (error) {
-          console.warn(formatTime(Date.now()), `Failed to get price for ${currencyData.currency}:`, error);
+      // get prices and create positions
+      for (const currencyData of nonUsdtCurrencies) {
+        if (currencyData.balance > 0) {
+          try {
+            // get current price from websocket or fallback to REST API
+            let price: number;
+            try {
+              const tickPrice = await firstValueFrom(
+                client.spot_ws.input$.pipe(
+                  //
+                  first((v) => v.ch?.includes('ticker') && v.ch?.includes(currencyData.currency) && v.tick),
+                  map((v): number => v.tick.bid),
+                  timeout(5000),
+                  tap({
+                    error: (e) => {
+                      subscriptions.clear();
+                    },
+                  }),
+                ),
+              );
+              price = tickPrice;
+            } catch {
+              // fallback to REST API
+              const tickerRes = await client.getSpotTick({ symbol: `${currencyData.currency}usdt` });
+              price = tickerRes.tick.close;
+            }
+
+            positions.push({
+              position_id: `${currencyData.currency}/usdt/spot`,
+              product_id: `${currencyData.currency}usdt`,
+              direction: 'LONG',
+              volume: currencyData.balance,
+              free_volume: currencyData.balance,
+              position_price: price,
+              closable_price: price,
+              floating_profit: 0,
+              valuation: currencyData.balance * price,
+            });
+          } catch (error) {
+            console.warn(formatTime(Date.now()), `Failed to get price for ${currencyData.currency}:`, error);
+          }
         }
       }
-    }
 
-    // calculate equity
-    const equity = positions.reduce((acc, cur) => acc + cur.closable_price * cur.volume, 0) + usdtBalance;
+      // calculate equity
+      const equity = positions.reduce((acc, cur) => acc + cur.closable_price * cur.volume, 0) + usdtBalance;
 
-    const money: IAccountMoney = {
-      currency: 'USDT',
-      balance: equity,
-      equity: equity,
-      profit: 0,
-      free: equity,
-      used: 0,
-    };
+      const money: IAccountMoney = {
+        currency: 'USDT',
+        balance: equity,
+        equity: equity,
+        profit: 0,
+        free: equity,
+        used: 0,
+      };
 
-    const accountInfo: IAccountInfo = {
-      updated_at: Date.now(),
-      account_id: SUPER_MARGIN_ACCOUNT_ID,
-      money: money,
-      positions,
-    };
-
-    return accountInfo;
-  }).pipe(
-    repeat({ delay: 1000 }),
-    tap({
-      error: (e) => {
-        console.error(formatTime(Date.now()), 'superMarginAccountInfo', e);
-      },
-    }),
-    retry({ delay: 5000 }),
-    shareReplay(1),
+      return {
+        money,
+        positions,
+      };
+    },
+    { auto_refresh_interval: 1000 },
   );
 
-  const spotRawBalance$ = defer(() => client.getSpotAccountBalance(spotAccountUid)).pipe(
-    repeat({ delay: 1000 }),
-    retry({ delay: 5000 }),
-    shareReplay(1),
-  );
+  provideAccountInfoService(
+    terminal,
+    SPOT_ACCOUNT_ID,
+    async () => {
+      const spotBalance = await client.getSpotAccountBalance(spotAccountUid);
 
-  const spotAccountInfo$ = spotRawBalance$.pipe(
-    map((spotBalance): IAccountInfo => {
       const balance = +(spotBalance.data.list.find((v) => v.currency === 'usdt')?.balance ?? 0);
       const equity = balance;
       const free = equity;
@@ -346,20 +322,14 @@ const terminal = Terminal.fromNodeEnv();
         used: 0,
       };
       return {
-        updated_at: Date.now(),
-        account_id: SPOT_ACCOUNT_ID,
         money: money,
         positions: [],
       };
-    }),
-    shareReplay(1),
+    },
+    { auto_refresh_interval: 1000 },
   );
-
-  publishAccountInfo(terminal, SPOT_ACCOUNT_ID, spotAccountInfo$);
   addAccountMarket(terminal, { account_id: SPOT_ACCOUNT_ID, market_id: 'HUOBI/SPOT' });
-  publishAccountInfo(terminal, SUPER_MARGIN_ACCOUNT_ID, superMarginAccountInfo$);
   addAccountMarket(terminal, { account_id: SUPER_MARGIN_ACCOUNT_ID, market_id: 'HUOBI/SUPER-MARGIN' });
-  publishAccountInfo(terminal, SWAP_ACCOUNT_ID, perpetualContractAccountInfo$);
   addAccountMarket(terminal, { account_id: SWAP_ACCOUNT_ID, market_id: 'HUOBI/SWAP' });
 
   // Submit order

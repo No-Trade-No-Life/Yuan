@@ -3,6 +3,7 @@ import {
   IAccountInfo,
   IAccountMoney,
   IPosition,
+  provideAccountInfoService,
   publishAccountInfo,
 } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
@@ -242,40 +243,32 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
   publishAccountInfo(terminal, UNIFIED_USDT_ACCOUNT_ID, unifiedUsdtAccountInfo$);
   addAccountMarket(terminal, { account_id: UNIFIED_USDT_ACCOUNT_ID, market_id: 'GATE/UNIFIED' });
 
-  const spotAccountInfo$ = defer(async (): Promise<IAccountInfo> => {
-    const res = await client.getSpotAccounts();
-    if (!(res instanceof Array)) {
-      throw new Error(`${res}`);
-    }
-    const balance = +(res.find((v) => v.currency === 'USDT')?.available ?? '0');
-    const equity = balance;
-    const free = equity;
-    const money: IAccountMoney = {
-      currency: 'USDT',
-      equity,
-      profit: 0,
-      balance,
-      free,
-      used: 0,
-    };
-    return {
-      updated_at: Date.now(),
-      account_id: SPOT_USDT_ACCOUNT_ID,
-      money,
-      positions: [],
-    };
-  }).pipe(
-    //
-    tap({
-      error: (err) => {
-        console.error(formatTime(Date.now()), 'spotAccountInfo$', err);
-      },
-    }),
-    retry({ delay: 5000 }),
-    repeat({ delay: 1000 }),
-    shareReplay(1),
+  provideAccountInfoService(
+    terminal,
+    SPOT_USDT_ACCOUNT_ID,
+    async () => {
+      const res = await client.getSpotAccounts();
+      if (!(res instanceof Array)) {
+        throw new Error(`${res}`);
+      }
+      const balance = +(res.find((v) => v.currency === 'USDT')?.available ?? '0');
+      const equity = balance;
+      const free = equity;
+      const money: IAccountMoney = {
+        currency: 'USDT',
+        equity,
+        profit: 0,
+        balance,
+        free,
+        used: 0,
+      };
+      return {
+        money,
+        positions: [],
+      };
+    },
+    { auto_refresh_interval: 1000 },
   );
-  publishAccountInfo(terminal, SPOT_USDT_ACCOUNT_ID, spotAccountInfo$);
   addAccountMarket(terminal, { account_id: SPOT_USDT_ACCOUNT_ID, market_id: 'GATE/SPOT' });
 
   // const futuresTickers$ = defer(async () => {

@@ -17,7 +17,7 @@ import { useEffect, useState } from 'react';
 import { firstValueFrom } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
 import { resolveVersion } from '../Extensions';
-import { Button, Switch, Toast } from '../Interactive';
+import { Button, DataView, Switch, Toast } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 import { InlineNodeUnitAddress } from './InlineNodeUnitAddress';
@@ -147,7 +147,7 @@ registerPage('DeploySettings', () => {
 
   return (
     <>
-      <Modules.Interactive.DataView
+      <DataView
         data={deploySettings}
         topSlot={
           <>
@@ -269,7 +269,7 @@ registerPage('DeploySettings', () => {
             accessorFn: (x) => (x.args || []).join(' '),
           },
         ]}
-      ></Modules.Interactive.DataView>
+      />
       <Modal
         visible={visible}
         okText="保存"

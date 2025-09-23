@@ -425,19 +425,11 @@ registerPage('FundStatements', () => {
             if (!terminal) return;
             await requestSQL(
               terminal,
-              `
-              CREATE TABLE IF NOT EXISTS fund_event (
-                account_id TEXT NOT NULL PRIMARY KEY,
-                events JSONB NOT NULL
-              );
-
-              ${buildInsertManyIntoTableSQL(
+              buildInsertManyIntoTableSQL(
                 [{ account_id: state.account_id, events: JSON.stringify(state.events) }],
                 'fund_event',
                 { conflictKeys: ['account_id'] },
-              )}
-              
-              `,
+              ),
             );
             Toast.success('成功');
           }}
@@ -453,9 +445,7 @@ registerPage('FundStatements', () => {
 
             const items = await requestSQL<{ events: IFundEvent[] }[]>(
               terminal,
-              `
-              SELECT events FROM fund_event WHERE account_id = ${escapeSQL(state.account_id)}
-            `,
+              `SELECT events FROM fund_event WHERE account_id = ${escapeSQL(state.account_id)}`,
             );
 
             await saveStatementsToFile(items[0].events);
