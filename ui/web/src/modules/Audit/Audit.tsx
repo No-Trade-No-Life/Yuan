@@ -12,24 +12,6 @@ import { terminal$ } from '../Terminals';
 import { loadSqlData } from '../Chart/components/utils';
 import { generateAccountNetValue } from './GenerateAccountNetValue';
 
-const DURATION_TO_OKX_STEP: Record<string, string> = {
-  PT1M: '1m',
-  PT3M: '3m',
-  PT5M: '5m',
-  PT15M: '15m',
-  PT30M: '30m',
-
-  PT1H: '1h',
-  PT2H: '2h',
-  PT4H: '4h',
-  PT6H: '6h',
-  PT12H: '12h',
-
-  P1D: '1d',
-  P1W: '1w',
-  P1M: '1M',
-};
-
 const seriesIdList$ = terminal$.pipe(
   filter((x): x is Exclude<typeof x, null> => !!x),
   switchMap((terminal) =>
