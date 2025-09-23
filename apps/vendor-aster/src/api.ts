@@ -1,46 +1,9 @@
+import { opensslEquivalentHMAC } from './utils';
+
 const API_KEY = process.env.API_KEY!;
 const SECRET_KEY = process.env.SECRET_KEY!;
 
 const BASE_URL = 'https://fapi.asterdex.com';
-
-function arrayBufferToHex(buffer: ArrayBuffer): string {
-  const bytes = new Uint8Array(buffer);
-  const hexArray: string[] = [];
-
-  for (const byte of bytes) {
-    const hex = byte.toString(16).padStart(2, '0');
-    hexArray.push(hex);
-  }
-
-  return hexArray.join('');
-}
-
-async function opensslEquivalentHMAC(message: string, secretKey: string): Promise<string> {
-  try {
-    const keyBuffer = new TextEncoder().encode(secretKey);
-    const messageBuffer = new TextEncoder().encode(message);
-
-    // 导入密钥
-    const cryptoKey = await crypto.subtle.importKey(
-      'raw',
-      keyBuffer,
-      {
-        name: 'HMAC',
-        hash: { name: 'SHA-256' },
-      },
-      false,
-      ['sign'],
-    );
-
-    // 进行 HMAC-SHA256 签名
-    const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageBuffer);
-
-    // 转换为16进制小写（与 openssl 输出格式一致）
-    return arrayBufferToHex(signature);
-  } catch (error) {
-    throw new Error(`HMAC-SHA256 签名失败: ${error}`);
-  }
-}
 
 const request = async <T>(
   type: 'NONE' | 'TRADE' | 'USER_DATA' | 'USER_STREAM' | 'MARKET_DATA',
@@ -66,14 +29,18 @@ const request = async <T>(
   }
 
   console.info(url.toString());
-  return fetch(url.toString(), {
+  const res = await fetch(url.toString(), {
     method,
     headers: needApiKey
       ? {
           'X-MBX-APIKEY': API_KEY,
         }
       : {},
-  }).then((response) => response.json() as any as T);
+  }).then((response) => response.json());
+  if (res.code && res.code !== 0) {
+    throw JSON.stringify(res);
+  }
+  return res;
 };
 
 const createApi =
