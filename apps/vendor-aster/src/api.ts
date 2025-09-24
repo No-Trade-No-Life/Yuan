@@ -112,6 +112,21 @@ export const getFApiV4Account = createApi<
   }
 >('USER_DATA', 'GET', '/fapi/v4/account');
 
+export const getFApiV2Balance = createApi<
+  {},
+  {
+    accountAlias: string; // 账户唯一识别码
+    asset: string; // 资产
+    balance: string; // 总余额
+    crossWalletBalance: string; // 全仓余额
+    crossUnPnl: string; // 全仓持仓未实现盈亏
+    availableBalance: string; // 下单可用余额
+    maxWithdrawAmount: string; // 最大可转出余额
+    marginAvailable: boolean; // 是否可用作联合保证金
+    updateTime: number;
+  }[]
+>('USER_DATA', 'GET', '/fapi/v2/balance');
+
 export const postFApiV1Order = createApi<
   {
     symbol: string;

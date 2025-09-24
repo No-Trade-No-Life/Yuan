@@ -1,6 +1,6 @@
 import { IAccountMoney, IPosition, provideAccountInfoService } from '@yuants/data-account';
 import { Terminal } from '@yuants/protocol';
-import { getFApiV4Account } from './api';
+import { getFApiV2Balance, getFApiV4Account } from './api';
 
 const ADDRESS = process.env.ADDRESS!;
 export const ACCOUNT_ID = `ASTER/${ADDRESS}`;
@@ -9,7 +9,7 @@ provideAccountInfoService(
   Terminal.fromNodeEnv(),
   ACCOUNT_ID,
   async () => {
-    const a = await getFApiV4Account({});
+    const [a] = await Promise.all([getFApiV4Account({})]);
 
     const profit = +a.totalUnrealizedProfit;
     const balance = +a.totalWalletBalance;
