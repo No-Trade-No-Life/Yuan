@@ -1,42 +1,77 @@
 import { IAccountPerformance } from '@yuants/kernel';
-import { format } from 'date-fns';
-import EChartsReact from 'echarts-for-react';
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ITimeSeriesChartConfig } from './components/model';
+import { TimeSeriesChart } from './components/TimeSeriesChart';
+import { loadObjectArrayData } from './components/utils';
 
 export const WeeklyEquityChart = React.memo((props: { accountPerformance?: IAccountPerformance }) => {
   const [t] = useTranslation('WeeklyEquityChart');
   const accountPerformance: IAccountPerformance | undefined = props.accountPerformance;
 
-  if (!accountPerformance) return null;
+  const config = useMemo((): ITimeSeriesChartConfig | undefined => {
+    if (!accountPerformance) return;
+
+    const data = accountPerformance._history_weekly_equity.map((v, i) => ({
+      time: accountPerformance._weekly_first_timestamp[i],
+      open: accountPerformance._weekly_equity[i],
+      close: accountPerformance._weekly_equity[i + 1] ?? accountPerformance.equity,
+      low: v.low,
+      high: v.high,
+    }));
+
+    return {
+      data: [
+        {
+          ...loadObjectArrayData(data, 'time'),
+          type: 'data',
+          name: '',
+        },
+      ],
+      views: [
+        {
+          name: t('weekly_equity_chart'),
+          time_ref: {
+            data_index: 0,
+            column_name: 'time',
+          },
+          panes: [
+            {
+              series: [
+                {
+                  type: 'ohlc',
+                  refs: [
+                    {
+                      data_index: 0,
+                      column_name: 'open',
+                    },
+                    {
+                      data_index: 0,
+                      column_name: 'high',
+                    },
+                    {
+                      data_index: 0,
+                      column_name: 'low',
+                    },
+                    {
+                      data_index: 0,
+                      column_name: 'close',
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+  }, [accountPerformance, t]);
+
+  if (!config) return null;
 
   return (
-    <EChartsReact
-      style={{ width: '100%', height: '100%', minHeight: 400 }}
-      option={{
-        title: {
-          text: t('weekly_equity_chart'),
-        },
-        tooltip: {
-          trigger: 'axis',
-        },
-        xAxis: {
-          data: accountPerformance._weekly_first_timestamp.map((v) => format(v, 'yyyy-MM-dd')),
-        },
-        yAxis: {},
-        series: [
-          {
-            type: 'candlestick',
-            // O-C-L-H
-            data: accountPerformance._history_weekly_equity.map((v, i) => [
-              accountPerformance._weekly_equity[i],
-              accountPerformance._weekly_equity[i + 1] ?? accountPerformance.equity,
-              v.low,
-              v.high,
-            ]),
-          },
-        ],
-      }}
-    />
+    <div style={{ width: '100%', height: 400 }}>
+      <TimeSeriesChart config={config} />
+    </div>
   );
 });
