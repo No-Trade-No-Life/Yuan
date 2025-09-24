@@ -14,6 +14,7 @@ import { CSV } from '../../Util';
 import { ChartComponent } from './ChartComponent';
 import { ILoadedData, ITimeSeriesChartConfig } from './model';
 import { loadSqlData } from './utils';
+
 const schemaOfChartConfig: JSONSchema7 = {
   type: 'object',
   required: ['data', 'views'],
