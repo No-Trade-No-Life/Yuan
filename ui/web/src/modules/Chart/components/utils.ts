@@ -1,7 +1,7 @@
 import { firstValueFrom } from 'rxjs';
 import { terminal$ } from '../../Network';
 import { requestSQL } from '@yuants/sql';
-import { ITimeSeriesChartConfig } from './model';
+import { ILoadedData, ITimeSeriesChartConfig } from './model';
 
 export const loadSqlData = async (s: ITimeSeriesChartConfig['data'][0], index: number) => {
   if (s.type === 'sql') {
@@ -38,4 +38,20 @@ export const loadSqlData = async (s: ITimeSeriesChartConfig['data'][0], index: n
     };
   }
   throw new Error(`Unsupported data source type: ${(s as any).type}`);
+};
+
+export const loadObjectArrayData = <T>(
+  data: T[],
+  time_column_name: keyof T & string,
+): Pick<ILoadedData, 'data_length' | 'time_column_name' | 'series'> => {
+  const data_length = data.length;
+  const keys = Object.keys(data[0] ?? {});
+  const series = new Map(
+    keys.map((key) => [key, Array.from({ length: data_length }, (_, i) => (data[i] as any)[key])]),
+  );
+  return {
+    data_length,
+    time_column_name,
+    series,
+  };
 };

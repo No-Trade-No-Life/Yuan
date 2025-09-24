@@ -11,14 +11,15 @@ import { Collapse, Descriptions, Space, Toast, Typography } from '@douyinfe/semi
 import { createColumnHelper } from '@tanstack/react-table';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
-import { format } from 'date-fns';
-import EChartsReact from 'echarts-for-react';
 import { parse } from 'jsonc-parser';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useMemo, useReducer } from 'react';
 import { firstValueFrom, from, map, of, pipe, switchMap } from 'rxjs';
 import { InlineAccountId } from '../AccountInfo';
 import { useAccountInfo } from '../AccountInfo/model';
+import { TimeSeriesChart } from '../Chart/components/TimeSeriesChart';
+import { ITimeSeriesChartConfig } from '../Chart/components/model';
+import { loadObjectArrayData } from '../Chart/components/utils';
 import { executeCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import { showForm } from '../Form';
@@ -209,6 +210,7 @@ registerPage('FundStatements', () => {
       difference: number;
       difference_annually: number;
       profit_close: number;
+      delta_profit_close: number;
       assets_close: number;
       max_value: number;
       drawdown: number;
@@ -233,6 +235,7 @@ registerPage('FundStatements', () => {
         last.max_value = max_value;
         last.drawdown = drawdown;
         last.max_drawdown = max_drawdown;
+        last.delta_profit_close = v.summary_derived.total_profit - (ret[ret.length - 2]?.profit_close ?? 0);
       } else {
         const difference = last ? value - last.close : 0;
         // New Period
@@ -249,60 +252,118 @@ registerPage('FundStatements', () => {
           max_value,
           drawdown,
           max_drawdown,
+          delta_profit_close: v.summary_derived.total_profit - (last ? last.profit_close : 0),
         });
       }
     });
     return ret;
   }, [history]);
 
-  const dateHeatmapOptions = useMemo(() => {
-    const maxValue = equityHistory.reduce((acc, cur) => Math.max(acc, Math.abs(cur.difference_annually)), 0);
+  const config = useMemo((): ITimeSeriesChartConfig => {
     return {
-      title: {
-        text: '每日年化收益率',
-      },
-      tooltip: {
-        position: 'top',
-        formatter: `{c0}`,
-        // formatter: function (p: { data: [number, number] }) {
-        //   return format(p.data[0], 'yyyy-MM-dd') + ': ' + p.data[1];
-        // },
-      },
-      visualMap: {
-        min: -maxValue,
-        max: maxValue,
-        inRange: {
-          color: ['rgba(0, 150, 136, 0.8)', 'white', 'rgba(255,82,82,0.8)'],
-        },
-        // calculable: true,
-        orient: 'horizontal',
-        left: 'center',
-        top: 'top',
-      },
-      calendar: [
+      data: [
         {
-          range:
-            equityHistory.length > 0
-              ? [
-                  format(equityHistory[0].created_at, 'yyyy-MM-dd'),
-                  format(equityHistory[equityHistory.length - 1].created_at, 'yyyy-MM-dd'),
-                ]
-              : format(Date.now(), 'yyyy'),
+          ...loadObjectArrayData(equityHistory, 'created_at'),
+          type: 'data',
+          name: 'Internal',
         },
       ],
-      series: [
+      views: [
         {
-          type: 'heatmap',
-          coordinateSystem: 'calendar',
-          calendarIndex: 0,
-          data: equityHistory.map((state) => [
-            format(state.created_at, 'yyyy-MM-dd'),
-            state.difference_annually,
-          ]),
+          name: '净值走势',
+          time_ref: {
+            data_index: 0,
+            column_name: 'created_at',
+          },
+          panes: [
+            {
+              series: [
+                {
+                  type: 'ohlc',
+                  refs: [
+                    {
+                      data_index: 0,
+                      column_name: 'open',
+                    },
+                    {
+                      data_index: 0,
+                      column_name: 'high',
+                    },
+                    {
+                      data_index: 0,
+                      column_name: 'low',
+                    },
+                    {
+                      data_index: 0,
+                      column_name: 'close',
+                    },
+                  ],
+                },
+              ],
+              height_weight: 3,
+            },
+            {
+              series: [
+                {
+                  type: 'line',
+                  name: '单位净值增量',
+                  refs: [
+                    {
+                      data_index: 0,
+                      column_name: 'difference',
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              series: [
+                {
+                  type: 'line',
+                  name: '净利润',
+                  refs: [
+                    {
+                      data_index: 0,
+                      column_name: 'profit_close',
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              series: [
+                {
+                  type: 'hist',
+                  name: '净利润增量',
+                  refs: [
+                    {
+                      data_index: 0,
+                      column_name: 'delta_profit_close',
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              series: [
+                {
+                  type: 'line',
+                  name: '每日年化收益率',
+                  refs: [
+                    {
+                      data_index: 0,
+                      column_name: 'difference_annually',
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
         },
       ],
     };
   }, [equityHistory]);
+
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
       <Space>
@@ -526,89 +587,11 @@ registerPage('FundStatements', () => {
         ]}
         row
       />
-      <Collapse defaultActiveKey={'investors'} style={{ width: '100%' }}>
+      <Collapse defaultActiveKey={['charts', 'investors']} style={{ width: '100%' }}>
         <Collapse.Panel itemKey="charts" header={'图表'}>
-          <EChartsReact
-            style={{ width: '100%', height: '100%', minHeight: 400 }}
-            option={{
-              title: {
-                text: '净值曲线',
-              },
-              tooltip: {
-                trigger: 'axis',
-              },
-              xAxis: {
-                data: equityHistory.map((v) => format(v.created_at, 'yyyy-MM-dd')),
-              },
-              yAxis: {
-                scale: true,
-              },
-              series: [
-                {
-                  type: 'candlestick',
-                  // O-C-L-H
-                  data: equityHistory.map((v) => [v.open, v.close, v.low, v.high]),
-                },
-              ],
-            }}
-          />
-          <EChartsReact
-            style={{ width: '100%', height: '100%', minHeight: 400 }}
-            option={{
-              title: {
-                text: '每日走势',
-              },
-              tooltip: {
-                trigger: 'axis',
-              },
-              xAxis: {
-                data: equityHistory.map((v) => format(v.created_at, 'yyyy-MM-dd')),
-              },
-              yAxis: [
-                {
-                  name: '单位净值增量',
-                  scale: true,
-                  alignTicks: true,
-                },
-                {
-                  name: '净利润增量',
-                  scale: true,
-                  alignTicks: true,
-                },
-                {
-                  name: '净利润',
-                  scale: true,
-                  offset: 80,
-                  alignTicks: true,
-                },
-              ],
-              series: [
-                {
-                  name: '单位净值增量',
-                  type: 'line',
-                  data: equityHistory.map((state) => state.difference),
-                },
-                {
-                  name: '净利润增量',
-                  type: 'bar',
-                  yAxisIndex: 1,
-                  data: equityHistory.map(
-                    (state, idx, arr) => state.profit_close - (arr[idx - 1]?.profit_close ?? 0),
-                  ),
-                },
-                {
-                  name: '净利润',
-                  type: 'line',
-                  yAxisIndex: 2,
-                  data: equityHistory.map((state) => state.profit_close),
-                },
-              ],
-            }}
-          />
-          <EChartsReact
-            style={{ width: '100%', height: '100%', minHeight: 400 }}
-            option={dateHeatmapOptions}
-          />
+          <div style={{ height: 800, width: '100%' }}>
+            <TimeSeriesChart config={config} />
+          </div>
         </Collapse.Panel>
         <Collapse.Panel itemKey="investors" header={'投资人列表'}>
           <DataView
