@@ -1,5 +1,6 @@
 import { IOrder } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
+import { roundToStep } from '@yuants/utils';
 import { SPOT_ACCOUNT_ID } from './account-spot';
 import { getApiV1TickerPrice, postApiV1Order } from './sapi';
 
@@ -31,7 +32,7 @@ Terminal.fromNodeEnv().server.provideService<IOrder>(
       const thePrice = spotPrice.find((x) => x.symbol === symbol)?.price;
       if (!thePrice) throw new Error(`Cannot get price for symbol ${symbol}`);
       quantity = undefined;
-      quoteOrderQty = order.volume * +thePrice;
+      quoteOrderQty = roundToStep(order.volume * +thePrice, 0.01);
     }
 
     await postApiV1Order({
