@@ -30,13 +30,12 @@ export const generateAccountNetValue = async (
 
   const mapSecondToTrades = new Map<Number, ITrade[]>();
 
-  const [, product_id] = decodePath(productId);
   if (terminal) {
     const tradeList = await requestSQL<ITrade[]>(
       terminal,
       `
         select * from trade where account_id=${escapeSQL(simulateAccountId)} and product_id=${escapeSQL(
-        product_id,
+        productId,
       )} and created_at>=${escapeSQL(formatTime(startTime))} and created_at<=${escapeSQL(
         formatTime(endTime),
       )} order by created_at;
