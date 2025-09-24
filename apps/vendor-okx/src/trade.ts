@@ -83,10 +83,10 @@ const getAccountTradeWithAccountId = async (accountId: string) => {
   );
   const params: Record<string, string> = {
     type: '2',
+    begin: (new Date().getTime() - 1000 * 60 * 60 * 24 * 30 * 3).toString(),
   };
   if (currentTrade.length === 1) {
     params['begin'] = new Date(currentTrade[0].created_at ?? 0).getTime().toString();
-    params['end'] = Date.now().toString();
   }
   console.log(formatTime(Date.now()), 'getAccountTrade', `params: ${JSON.stringify(params)}`);
   const tradeList = await tradeParser(accountId, params);
