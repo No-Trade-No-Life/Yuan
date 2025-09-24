@@ -300,7 +300,7 @@ registerPage('FundStatements', () => {
                   ],
                 },
               ],
-              height_weight: 3,
+              height_weight: 5,
             },
             {
               series: [
@@ -353,6 +353,20 @@ registerPage('FundStatements', () => {
                     {
                       data_index: 0,
                       column_name: 'difference_annually',
+                    },
+                  ],
+                },
+              ],
+            },
+            {
+              series: [
+                {
+                  type: 'line',
+                  name: '总资产',
+                  refs: [
+                    {
+                      data_index: 0,
+                      column_name: 'assets_close',
                     },
                   ],
                 },
