@@ -287,7 +287,6 @@ registerPage('DeploySettings', () => {
               values.env?.forEach((item: { key: string; value: string }) => {
                 env[item.key] = item.value || ''; // Ensure value defaults to empty string
               });
-              console.log({ values });
               setEditDeployment({
                 ...values,
                 args,
