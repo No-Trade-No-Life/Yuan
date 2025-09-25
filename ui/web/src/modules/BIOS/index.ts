@@ -2,6 +2,7 @@
 // First thing to run when the computer is turned on
 
 import { Input, Modal } from '@douyinfe/semi-ui';
+import { decodeBase58, decrypt, encodeBase58, encrypt, sha256 } from '@yuants/utils';
 import { dirname, join, resolve } from 'path-browserify';
 import React from 'react';
 import {
@@ -36,6 +37,26 @@ export * from './Launch';
 const url = new URL(window?.location.href ?? 'https://y.ntnl.io');
 const isDev = url.searchParams.get('mode') === 'development';
 
+const encryptGitHubTokenWithPassKey = async (token: string, passkey: string) => {
+  return encodeBase58(
+    await encrypt(
+      new TextEncoder().encode(token),
+      encodeBase58(await sha256(new TextEncoder().encode(passkey))),
+    ),
+  );
+};
+
+const decryptGitHubTokenWithPassKey = async (encrypted_token: string, passkey: string) => {
+  return new TextDecoder().decode(
+    await decrypt(
+      decodeBase58(encrypted_token),
+      encodeBase58(await sha256(new TextEncoder().encode(passkey))),
+    ),
+  );
+};
+
+Object.assign(globalThis, { encryptGitHubTokenWithPassKey, decryptGitHubTokenWithPassKey });
+
 defer(async () => {
   fullLog$.next('');
   log('BIOS START');
@@ -60,24 +81,31 @@ defer(async () => {
           const repo = url.searchParams.get('repo');
           const ref = url.searchParams.get('ref');
           const sub_path = url.searchParams.get('sub_path');
-          // ISSUE: auth_token in URL is not safe
-          // const auth_token = prompt('GitHub Auth Token if needed');
+          const encrypted_token = url.searchParams.get('encrypted_token');
 
-          // const auth_token = await showForm<string>({
-          //   type: 'string',
-          //   title: 'GitHub Auth Token (Optional)',
-          //   description: 'GitHub 认证 Token (可选)，用于访问私有仓库或增加 API 访问配额',
-          // }).catch(() => null);
-
-          const auth_token = await new Promise<string | null>((resolve) => {
-            let value: string = '';
-            Modal.info({
-              title: 'GitHub Auth Token (Optional)',
-              content: React.createElement(Input, { onChange: (v) => (value = v) }),
-              onOk: () => resolve(value || null),
-              onCancel: () => resolve(null),
-            });
-          });
+          let auth_token = '';
+          let passkey = '';
+          while (true) {
+            try {
+              auth_token = await decryptGitHubTokenWithPassKey(encrypted_token ?? '', passkey ?? '');
+              break;
+            } catch (e) {
+              log('DECRYPTION ERROR, RETRYING...', e);
+              const nextPasskey = await new Promise<string | null>((resolve) => {
+                let value: string = '';
+                Modal.info({
+                  title: 'Password (密码)',
+                  content: React.createElement(Input, { onChange: (v) => (value = v) }),
+                  onOk: () => resolve(value || null),
+                  onCancel: () => resolve(null),
+                });
+              });
+              if (nextPasskey === null) {
+                throw new Error('USER CANCELLED');
+              }
+              passkey = nextPasskey;
+            }
+          }
 
           if (!owner) throw new Error('NO OWNER');
           if (!repo) throw new Error('NO REPO');
