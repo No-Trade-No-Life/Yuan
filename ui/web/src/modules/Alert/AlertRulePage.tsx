@@ -14,7 +14,7 @@ import {
 } from 'rxjs';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { IPrometheusRule } from './model';
-import { formatTime } from '@yuants/utils';
+import { formatTime, UUID } from '@yuants/utils';
 import { escapeForBash } from '../Deploy/utils';
 import { ArrayField, Form, Modal, Space } from '@douyinfe/semi-ui';
 import { IconDelete, IconEdit, IconMinusCircle, IconPlusCircle } from '@douyinfe/semi-icons';
@@ -116,9 +116,18 @@ registerPage('AlertRulePage', () => {
     setVisible(false);
     setEditRule(undefined);
   };
+  const onCreate = () => {
+    setEditRule({ id: UUID(), enabled: false } as IPrometheusRule);
+    onOpenEdit();
+  };
   return (
     <>
       <Modules.Interactive.DataView
+        topSlot={
+          <Button icon={<IconPlusCircle />} onClick={onCreate} style={{ margin: '10px 0' }}>
+            创建新部署
+          </Button>
+        }
         data={alertRules}
         columns={[
           {
@@ -266,7 +275,7 @@ registerPage('AlertRulePage', () => {
               {({ add, arrayFields, addWithInitValue }) => (
                 <>
                   <Button onClick={add} icon={<IconPlusCircle />} theme="light" style={{ display: 'flex' }}>
-                    Add new env
+                    Add new labels
                   </Button>
                   {arrayFields.map(({ field, key, remove }, i) => (
                     <div
@@ -299,7 +308,7 @@ registerPage('AlertRulePage', () => {
               {({ add, arrayFields, addWithInitValue }) => (
                 <>
                   <Button onClick={add} icon={<IconPlusCircle />} theme="light" style={{ display: 'flex' }}>
-                    Add new env
+                    Add new annotations
                   </Button>
                   {arrayFields.map(({ field, key, remove }, i) => (
                     <div
