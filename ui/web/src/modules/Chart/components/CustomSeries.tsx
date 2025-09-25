@@ -125,10 +125,17 @@ export const customSeries: ICustomSeries[] = [
     },
     Legend: ({ globalDataSeries, cursorIndex, seriesConfig }) => {
       if (globalDataSeries.length < 4) return null;
+      const open = globalDataSeries[0][cursorIndex];
+      const high = globalDataSeries[1][cursorIndex];
+      const low = globalDataSeries[2][cursorIndex];
+      const close = globalDataSeries[3][cursorIndex];
+      const ratio = (close / (globalDataSeries[0][cursorIndex - 1] ?? open) - 1) * 100;
+      const isBullish = close > open;
+      const isBearish = close < open;
+      const ratioText = `${ratio > 0 ? '+' : ''}${+ratio.toFixed(2)}%`;
       return (
-        <div>
-          O: {globalDataSeries[0][cursorIndex]} H: {globalDataSeries[1][cursorIndex]} L:{' '}
-          {globalDataSeries[2][cursorIndex]} C: {globalDataSeries[3][cursorIndex]}
+        <div style={{ color: isBullish ? '#26a69a' : isBearish ? '#ef5350' : undefined }}>
+          {seriesConfig.name} 开: {open} 高: {high} 低: {low} 收: {close} ({ratioText})
         </div>
       );
     },

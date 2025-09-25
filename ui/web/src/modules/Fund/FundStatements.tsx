@@ -280,6 +280,7 @@ registerPage('FundStatements', () => {
               series: [
                 {
                   type: 'ohlc',
+                  name: '单位净值',
                   refs: [
                     {
                       data_index: 0,

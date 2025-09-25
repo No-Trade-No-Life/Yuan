@@ -5,17 +5,31 @@ import { accountUid$ } from './account';
 import { encodePath, formatTime } from '@yuants/utils';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { Terminal } from '@yuants/protocol';
+import { IProduct } from '@yuants/data-product';
 const tradeParser = async (accountId: string, params: Record<string, string>): Promise<ITrade[]> => {
   const tradeList: ITrade[] = [];
   const result = await client.getAccountBillsArchive(params);
-
+  const productIdToProduct = new Map<string, IProduct>();
+  const productIdSet = new Set<string>();
   if (result.code === '0' && result.data) {
     const data = result.data;
     const mapTradeIdToBillList = new Map<string, typeof data>();
-    data.forEach((item) =>
-      mapTradeIdToBillList.set(item.tradeId, [...(mapTradeIdToBillList.get(item.tradeId) ?? []), item]),
+    data.forEach((item) => {
+      productIdSet.add(encodePath(item.instType, item.instId));
+      mapTradeIdToBillList.set(item.tradeId, [...(mapTradeIdToBillList.get(item.tradeId) ?? []), item]);
+    });
+    const productList = await requestSQL<IProduct[]>(
+      Terminal.fromNodeEnv(),
+      `
+      select * from product where product_id in (${Array.from(productIdSet)
+        .map((productId) => escapeSQL(productId))
+        .join(',')})
+    `,
     );
-    mapTradeIdToBillList.forEach((v, tradeId) => {
+    if (productList.length > 0) {
+      productList.forEach((p) => productIdToProduct.set(p.product_id, p));
+    }
+    mapTradeIdToBillList.forEach(async (v, tradeId) => {
       if (!((v[0].instType === 'SPOT' && v.length === 2) || v[0].instType === 'SWAP')) return;
 
       const trade: ITrade = {
@@ -68,6 +82,13 @@ const tradeParser = async (accountId: string, params: Record<string, string>): P
         }
       });
       trade.created_at = formatTime(Number(trade.created_at));
+      if (productIdToProduct.has(trade.product_id)) {
+        trade.traded_value = (
+          +trade.traded_value * +(productIdToProduct.get(trade.product_id)?.value_scale ?? 1)
+        ).toString();
+      } else {
+        throw new Error(`Not Found Product With Product Id: ${trade.product_id}`);
+      }
       tradeList.push(trade);
     });
   }
@@ -83,10 +104,10 @@ const getAccountTradeWithAccountId = async (accountId: string) => {
   );
   const params: Record<string, string> = {
     type: '2',
+    begin: (new Date().getTime() - 1000 * 60 * 60 * 24 * 30 * 3).toString(),
   };
   if (currentTrade.length === 1) {
     params['begin'] = new Date(currentTrade[0].created_at ?? 0).getTime().toString();
-    params['end'] = Date.now().toString();
   }
   console.log(formatTime(Date.now()), 'getAccountTrade', `params: ${JSON.stringify(params)}`);
   const tradeList = await tradeParser(accountId, params);
