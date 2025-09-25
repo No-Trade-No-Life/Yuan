@@ -1,6 +1,13 @@
 # Change Log - @yuants/node-unit
 
-This log was last generated on Fri, 19 Sep 2025 05:01:03 GMT and should not be manually modified.
+This log was last generated on Thu, 25 Sep 2025 07:23:35 GMT and should not be manually modified.
+
+## 0.11.3
+Thu, 25 Sep 2025 07:23:35 GMT
+
+### Patches
+
+- add cluster permissions
 
 ## 0.11.2
 Fri, 19 Sep 2025 05:01:03 GMT
