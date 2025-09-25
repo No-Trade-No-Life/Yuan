@@ -23,6 +23,59 @@ export default (context: IExtensionContext) => {
       },
     }),
     make_k8s_resource_objects: async (ctx, envCtx) => ({
+      serviceAccount: {
+        apiVersion: 'v1',
+        kind: 'ServiceAccount',
+        metadata: {
+          name: COMPONENT_NAME,
+          namespace: 'yuan',
+          labels: {
+            'y.ntnl.io/version': ctx.version ?? envCtx.version,
+            'y.ntnl.io/component': COMPONENT_NAME,
+          },
+        },
+      },
+      clusterRole: {
+        apiVersion: 'rbac.authorization.k8s.io/v1',
+        kind: 'ClusterRole',
+        metadata: {
+          name: `${COMPONENT_NAME}-prometheus-rule-manager`,
+          labels: {
+            'y.ntnl.io/version': ctx.version ?? envCtx.version,
+            'y.ntnl.io/component': COMPONENT_NAME,
+          },
+        },
+        rules: [
+          {
+            apiGroups: ['monitoring.coreos.com'],
+            resources: ['prometheusrules'],
+            verbs: ['get', 'list', 'watch', 'create', 'update', 'patch', 'delete'],
+          },
+        ],
+      },
+      clusterRoleBinding: {
+        apiVersion: 'rbac.authorization.k8s.io/v1',
+        kind: 'ClusterRoleBinding',
+        metadata: {
+          name: `${COMPONENT_NAME}-prometheus-rule-manager`,
+          labels: {
+            'y.ntnl.io/version': ctx.version ?? envCtx.version,
+            'y.ntnl.io/component': COMPONENT_NAME,
+          },
+        },
+        roleRef: {
+          apiGroup: 'rbac.authorization.k8s.io',
+          kind: 'ClusterRole',
+          name: `${COMPONENT_NAME}-prometheus-rule-manager`,
+        },
+        subjects: [
+          {
+            kind: 'ServiceAccount',
+            name: COMPONENT_NAME,
+            namespace: 'yuan',
+          },
+        ],
+      },
       daemonSet: {
         apiVersion: 'apps/v1',
         kind: 'DaemonSet',
@@ -49,6 +102,7 @@ export default (context: IExtensionContext) => {
               },
             },
             spec: {
+              serviceAccountName: COMPONENT_NAME,
               imagePullSecrets: [
                 {
                   name: 'pull-secret', // TODO(wsy): such things should be managed at namespace scope

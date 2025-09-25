@@ -8,7 +8,7 @@ const args = process.argv.slice(2);
 
 function showHelp() {
   console.log(`
-使用方法: 
+使用方法:
   prometheus-rule-controller file <rule-dir-path> <prometheus-url>
   prometheus-rule-controller k8s [kubeconfig-path]
 
@@ -28,7 +28,7 @@ function showHelp() {
   # 文件模式
   prometheus-rule-controller file ./rules http://localhost:9090
   prometheus-rule-controller file /etc/prometheus/rules https://prometheus.example.com
-  
+
   # Kubernetes 模式
   prometheus-rule-controller k8s
   prometheus-rule-controller k8s ~/.kube/config
@@ -38,7 +38,7 @@ function showHelp() {
   文件模式:
   - rule-dir-path: 指向包含 Prometheus 规则 YAML 文件的目录路径
   - prometheus-url: Prometheus 服务器的完整 URL，包括协议和端口
-  
+
   K8s 模式:
   - kubeconfig-path: 可选的 kubeconfig 文件路径
   - 如果不提供 kubeconfig-path，会自动从以下位置获取：
@@ -50,8 +50,8 @@ function showHelp() {
 }
 
 function showError(message: string) {
-  console.error(`错误: ${message}`);
-  console.error('使用 -h 或 --help 查看使用说明');
+  console.info(`错误: ${message}`);
+  console.info('使用 -h 或 --help 查看使用说明');
   process.exit(1);
 }
 
@@ -162,8 +162,6 @@ if (mode === 'file' && configDirPath) {
 if (mode === 'file' && configDirPath) {
   reconcile(configDirPath, prometheusUrl).subscribe();
 } else if (mode === 'k8s') {
-  // TODO: 实现 K8s 模式的 reconcile 函数
   // 传递 kubeconfigPath 参数（可能为 undefined）
-  console.info(formatTime(Date.now()), `将使用 kubeconfig: ${kubeconfigPath || '默认配置'}`);
   reconcileK8s(kubeconfigPath).subscribe();
 }
