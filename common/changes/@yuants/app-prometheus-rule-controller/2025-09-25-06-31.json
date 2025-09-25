@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-prometheus-rule-controller",
+      "comment": "add logs",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-prometheus-rule-controller"
+}

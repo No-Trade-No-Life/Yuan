@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/node-unit",
+      "comment": "add cluster permissions",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/node-unit"
+}

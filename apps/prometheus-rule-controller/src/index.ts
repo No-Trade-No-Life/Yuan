@@ -9,7 +9,6 @@ import {
   debounceTime,
   defer,
   EMPTY,
-  filter,
   groupBy,
   map,
   mergeMap,
@@ -106,9 +105,16 @@ reloadPrometheusAction$
     debounceTime(1000),
     mergeMap((url) =>
       defer(async () => {
+        console.info(formatTime(Date.now()), `Reloading Prometheus: ${url}/-/reload`);
         const response = await fetch(`${url}/-/reload`, {
           method: 'POST',
         });
+        console.info(
+          formatTime(Date.now()),
+          `Prometheus Reload Response:`,
+          response.status,
+          response.statusText,
+        );
 
         if (!response.ok) {
           throw new Error(`Failed to reload Prometheus: ${response.status} ${response.statusText}`);
@@ -121,7 +127,7 @@ reloadPrometheusAction$
             console.info(formatTime(Date.now()), 'PrometheusReloaded');
           },
           error: (e) => {
-            console.error(formatTime(Date.now()), 'PrometheusReloadFaild', e);
+            console.info(formatTime(Date.now()), 'PrometheusReloadFaild', e);
           },
         }),
         retry({ count: 3, delay: 1000 }),
@@ -134,11 +140,10 @@ reloadPrometheusAction$
   .subscribe(() => {});
 
 const prometheusRuleGroup$ = defer(() =>
-  requestSQL<IPrometheusRule[]>(terminal, `select * from prometheus_rule`),
+  requestSQL<IPrometheusRule[]>(terminal, `select * from prometheus_rule where enabled = true`),
 ).pipe(
   // pre processing data, group rules by rule group name
   mergeMap((rules) => rules),
-  filter((rule) => rule.enabled),
   groupBy((rule) => rule.group_name),
   mergeMap((group) =>
     group.pipe(
@@ -200,6 +205,7 @@ export const reconcile = (configDirPath: string, prometheusURL: string) => {
       (group) =>
         defer(async () => {
           // 1. make file content
+          console.info(formatTime(Date.now()), `Reconciling File: ${group.name}`);
           const ruleFileContent = makeRuleFileFormat(group);
           const yamlObject = {
             groups: [ruleFileContent],
@@ -207,14 +213,25 @@ export const reconcile = (configDirPath: string, prometheusURL: string) => {
           const yamlContent = YAML.stringify(JSON.parse(JSON.stringify(yamlObject)));
 
           // 2. write to file according to it's rule name
+          console.info(formatTime(Date.now()), `Writing Rule File: ${group.name}.yml`);
           const filePath = path.join(configDirPath, `${group.name}.yml`);
           await fs.promises.writeFile(filePath, yamlContent, 'utf8');
 
           // 3. reload prometheus /-/reload endpoint
+          console.info(formatTime(Date.now()), `Trigger Prometheus Reload`);
           reloadPrometheusAction$.next(prometheusURL);
 
           return void 0;
-        }),
+        }).pipe(
+          tap({
+            error: (e) => {
+              console.info(formatTime(Date.now()), 'ReconcileFileError', e);
+            },
+          }),
+          catchError((e) => {
+            return EMPTY;
+          }),
+        ),
       (a, b) =>
         a.name + a.rules.map((v) => JSON.stringify(v)).join('\n') ===
         b.name + b.rules.map((v) => JSON.stringify(v)).join('\n'),
@@ -277,15 +294,22 @@ export const reconcileK8s = (kubeConfigPath?: string) => {
 
   return prometheusRuleGroup$.pipe(
     listWatch(
-      // to determin if rule has changed
+      // to determine if rule has changed
       (group) => group.name,
       (group) =>
         defer(async () => {
+          console.info(formatTime(Date.now()), `Reconciling K8s PrometheusRule: ${group.name}`);
           const k8sObject = makeRulePrometheusK8sOperatorFormat(group);
           try {
+            console.info(formatTime(Date.now()), `Creating PrometheusRule: ${group.name}`);
             await genericApi.create(k8sObject);
+            console.info(formatTime(Date.now()), `Created PrometheusRule: ${group.name}`);
           } catch (e) {
             if (e instanceof k8s.ApiException && e.code === 409) {
+              console.info(
+                formatTime(Date.now()),
+                `PrometheusRule ${group.name} already exists, updating...`,
+              );
               const obj = await genericApi.read({
                 apiVersion: k8sObject.apiVersion,
                 kind: k8sObject.kind,
@@ -295,13 +319,17 @@ export const reconcileK8s = (kubeConfigPath?: string) => {
                 },
               });
               k8sObject.metadata = obj.metadata;
+              console.info(formatTime(Date.now()), `Updating PrometheusRule: ${group.name}`);
               await genericApi.replace(k8sObject);
+              console.info(formatTime(Date.now()), `Updated PrometheusRule: ${group.name}`);
+              return void 0;
             }
+            throw e;
           }
           return void 0;
         }).pipe(
           catchError((e) => {
-            console.error(formatTime(Date.now()), 'ReconcileK8sError', e);
+            console.info(formatTime(Date.now()), 'ReconcileK8sError', e);
             return EMPTY;
           }),
         ),
