@@ -136,8 +136,8 @@ export interface IServiceOptions {
   max_pending_requests?: number;
 
   /**
-   * Global token bucket rate limiting configuration: All requests for each service share the same token bucket capacity.
-   * 全局令牌桶限流配置: 对于每个服务的所有请求，共享同一个令牌桶的容量。
+   * Ingress token bucket rate limiting configuration: All requests for each service share the same token bucket capacity.
+   * 入队令牌桶限流配置: 对于每个服务的所有请求，共享同一个令牌桶的容量。
    *
    * by default no limit
    * 默认不限制
@@ -145,15 +145,35 @@ export interface IServiceOptions {
    * if exceeded, the request will be rejected with 429 status code
    * 如果超出限制，请求将被拒绝，返回 429 状态码
    */
-  global_token_capacity?: number;
+  ingress_token_capacity?: number;
   /**
-   * Global token refill interval (ms)
-   * 全局令牌补充间隔 (毫秒)
+   * Ingress token refill interval (ms)
+   * 入队令牌补充间隔 (毫秒)
    *
    * by default 1000ms
    * 默认 1000ms
    */
-  global_token_refill_interval?: number;
+  ingress_token_refill_interval?: number;
+
+  /**
+   * Egress token bucket rate limiting configuration: All responses for each service share the same token bucket capacity.
+   * 出队令牌桶限流配置: 对于每个服务的所有响应，共享同一个令牌桶的容量。
+   *
+   * Requests that have already been enqueued must obtain a token before they can be processed, otherwise they will remain in the queue waiting.
+   * 已经入队的请求在真正被处理前必须获得令牌，否则将留在队列中等待
+   *
+   * by default no limit
+   * 默认不限制
+   */
+  egress_token_capacity?: number;
+  /**
+   * Egress token refill interval (ms)
+   * 出队令牌补充间隔 (毫秒)
+   *
+   * by default 1000ms
+   * 默认 1000ms
+   */
+  egress_token_refill_interval?: number;
 }
 
 /**

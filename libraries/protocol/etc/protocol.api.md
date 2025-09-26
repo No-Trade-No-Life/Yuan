@@ -87,8 +87,10 @@ export interface IServiceInfoServerSide {
 // @public
 export interface IServiceOptions {
     concurrent?: number;
-    global_token_capacity?: number;
-    global_token_refill_interval?: number;
+    egress_token_capacity?: number;
+    egress_token_refill_interval?: number;
+    ingress_token_capacity?: number;
+    ingress_token_refill_interval?: number;
     max_pending_requests?: number;
 }
 
