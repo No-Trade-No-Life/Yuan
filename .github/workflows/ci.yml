@@ -19,50 +19,31 @@ on:
         description: 'Docker bake file existence'
         value: ${{ jobs.build.outputs.bake_file_existence}}
 
+env:
+  SQL_DIR: tools/sql-migration/sql
+
 jobs:
   build:
     if: contains(github.event.pull_request.labels.*.name, 'skip-ci') == false
     runs-on: ubuntu-latest
-    # Service containers to run with `container-job`
-    services:
-      # Label used to access the service container
-      postgres:
-        # Docker Hub image
-        image: timescale/timescaledb-ha:pg17
-        # Provide the password for postgres
-        env:
-          POSTGRES_PASSWORD: postgres
-        # Set health checks to wait until postgres has started
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          # Maps tcp port 5432 on service container to the host
-          - 5432:5432
-      node-unit:
-        image: ghcr.io/no-trade-no-life/node-unit:0.11.2
-        env:
-          POSTGRES_URI: 'postgresql://postgres:postgres@postgres:5432/postgres'
-        options: >-
-          --health-cmd "grep 'Terminal terminalInfo pushed' /tmp/yuants/node-unit/logs/local-postgres-storage.log"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 8888:8888
     outputs:
       bake_file_existence: ${{ steps.bake_file_existence.outputs.files_exists }}
+      sql_changed: ${{ steps.sql_changes.outputs.changed }}
     steps:
       - uses: actions/checkout@v4
         with:
-          fetch-depth: 2
+          fetch-depth: 0
       - name: Git config user
         uses: snow-actions/git-config-user@v1.0.0
         with:
           name: NTNL Infra # Service Account's Name
           email: infra@ntnl.io # Service Account's Email Address
+      - name: Detect SQL migration changes
+        id: sql_changes
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          EVENT_NAME: ${{ github.event_name }}
+        run: ./scripts/detect-sql-migration-changes.sh
       - uses: actions/setup-node@v4
         with:
           node-version: 22.14.0
@@ -114,15 +95,6 @@ jobs:
       - name: prune rush build cache
         run: node common/scripts/prune-cache.js --ci-run '^[a-zA-Z0-9-+]+' common/temp/build-cache
 
-      # Migration e2e smoke tests
-      - name: Run migration smoke tests
-        run: |
-          node ./lib/cli.js
-        working-directory: ./tools/sql-migration
-        env:
-          HOST_URL: 'ws://localhost:8888'
-          SQL_DIR: './sql'
-
       - name: Check docker bake file existence
         id: bake_file_existence
         uses: andstor/file-existence-action@v2
@@ -168,3 +140,78 @@ jobs:
         env:
           NPM_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
         run: node common/scripts/install-run-rush.js publish -p --include-all
+
+  migration-smoke:
+    needs: build
+    if: ${{ needs.build.outputs.sql_changed == 'true' }}
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: timescale/timescaledb-ha:pg17
+        env:
+          POSTGRES_PASSWORD: postgres
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+      node-unit:
+        image: ghcr.io/no-trade-no-life/node-unit:0.11.2
+        env:
+          POSTGRES_URI: 'postgresql://postgres:postgres@postgres:5432/postgres'
+        options: >-
+          --health-cmd "grep 'Terminal terminalInfo pushed' /tmp/yuants/node-unit/logs/local-postgres-storage.log"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 8888:8888
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22.14.0
+
+      - name: Cache Rush
+        uses: actions/cache@v4
+        with:
+          path: |
+            common/temp/install-run
+            ~/.rush
+          key: ${{ runner.os }}-${{ hashFiles('rush.json') }}
+
+      - name: Cache Rush Build Cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            common/temp/build-cache
+          key: ${{ runner.os }}-rush-build-cache-${{ github.sha}}
+          restore-keys: |
+            ${{ runner.os }}-rush-build-cache-
+
+      - name: Cache pnpm
+        uses: actions/cache@v4
+        with:
+          path: |
+            common/temp/pnpm-store
+          key: ${{ runner.os }}-${{ hashFiles('**/pnpm-lock.yaml') }}
+
+      - name: Rush Install
+        run: node common/scripts/install-run-rush.js install
+
+      - name: Build SQL migration tool
+        env:
+          REGISTRY: ghcr.io
+          REGISTRY_NAMESPACE: no-trade-no-life
+          NODE_OPTIONS: '--max-old-space-size=8192'
+        run: node common/scripts/install-run-rush.js build --to @yuants/tool-sql-migration --verbose
+
+      - name: Run migration smoke tests
+        run: node ./tools/sql-migration/lib/cli.js
+        env:
+          HOST_URL: 'ws://localhost:8888'
+          SQL_DIR: ${{ env.SQL_DIR }}
