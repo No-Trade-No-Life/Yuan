@@ -92,7 +92,7 @@ terminal.server.provideService<
     required: ['account_id', 'method', 'params'],
     properties: {
       account_id: { type: 'string', const: ACCOUNT_ID },
-      method: { type: 'string' },
+      method: { type: 'string', pattern: '^ReqQry' },
       params: { type: 'object', additionalItems: true },
     },
   },
@@ -114,6 +114,39 @@ terminal.server.provideService<
     concurrent: 1,
     global_token_capacity: 1,
     max_pending_requests: 10,
+  },
+);
+
+terminal.server.provideService<
+  { account_id: string; method: string; params: any },
+  void,
+  IBridgeMessage<any, any>
+>(
+  'CTP/Query',
+  {
+    required: ['account_id', 'method', 'params'],
+    properties: {
+      account_id: { type: 'string', const: ACCOUNT_ID },
+      method: { type: 'string', pattern: '^ReqOrder' },
+      params: { type: 'object', additionalItems: true },
+    },
+  },
+  (msg) => {
+    if (!loginRes$.value) {
+      throw new Error('CTP not logged in');
+    }
+
+    if (!settlementRes$.value) {
+      throw new Error('CTP settlement not confirmed');
+    }
+
+    return _requestZMQ({
+      method: msg.req.method,
+      params: msg.req.params,
+    }).pipe(map((x) => ({ frame: x })));
+  },
+  {
+    concurrent: 1,
   },
 );
 
