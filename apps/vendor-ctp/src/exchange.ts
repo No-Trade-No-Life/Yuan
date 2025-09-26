@@ -19,7 +19,6 @@ import {
   share,
   tap,
   timeout,
-  timer,
   toArray,
 } from 'rxjs';
 import {
@@ -369,28 +368,41 @@ provideAccountInfoService(
   terminal,
   account_id,
   async () => {
-    const positionsRes = await firstValueFrom(
-      requestZMQ<ICThostFtdcQryInvestorPositionField, ICThostFtdcInvestorPositionField>({
-        method: 'ReqQryInvestorPosition',
-        params: {
-          BrokerID: '',
-          InvestorID: '',
-          reserve1: '',
-          InvestUnitID: '',
-          ExchangeID: '',
-          InstrumentID: '',
-        },
-      }).pipe(
-        //
-        mapToValue,
-        toArray(),
+    const [positionsRes, money1] = await Promise.all([
+      firstValueFrom(
+        requestZMQ<ICThostFtdcQryInvestorPositionField, ICThostFtdcInvestorPositionField>({
+          method: 'ReqQryInvestorPosition',
+          params: {
+            BrokerID: '',
+            InvestorID: '',
+            reserve1: '',
+            InvestUnitID: '',
+            ExchangeID: '',
+            InstrumentID: '',
+          },
+        }).pipe(
+          //
+          mapToValue,
+          toArray(),
+        ),
       ),
-    );
+      firstValueFrom(
+        requestZMQ<ICThostFtdcQryTradingAccountField, ICThostFtdcTradingAccountField>({
+          method: 'ReqQryTradingAccount',
+          params: {
+            BrokerID: '',
+            InvestorID: '',
+            CurrencyID: '',
+            BizType: TThostFtdcBizTypeType.THOST_FTDC_BZTP_Future,
+            AccountID: '',
+          },
+        }).pipe(mapToValue),
+      ),
+    ]);
 
     const positions: IPosition[] = [];
     for (const msg of positionsRes) {
       // Lazy Load Product: 避免一次性查询所有合约信息 (可能有上万个合约)
-      await firstValueFrom(timer(1000));
       const theProduct = await cacheOfProduct.query(`${msg.ExchangeID}-${msg.InstrumentID}`);
       const value_scale = theProduct?.value_scale ?? 1;
       const position_price = msg.OpenCost / msg.Position / value_scale;
@@ -416,21 +428,6 @@ provideAccountInfoService(
         valuation: 0, // TODO: 估值
       });
     }
-
-    await firstValueFrom(timer(1000));
-
-    const money1 = await firstValueFrom(
-      requestZMQ<ICThostFtdcQryTradingAccountField, ICThostFtdcTradingAccountField>({
-        method: 'ReqQryTradingAccount',
-        params: {
-          BrokerID: '',
-          InvestorID: '',
-          CurrencyID: '',
-          BizType: TThostFtdcBizTypeType.THOST_FTDC_BZTP_Future,
-          AccountID: '',
-        },
-      }).pipe(mapToValue),
-    );
 
     const profit = positions.reduce((acc, cur) => acc + cur.floating_profit, 0);
     const money: IAccountMoney = {

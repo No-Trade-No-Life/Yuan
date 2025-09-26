@@ -2,6 +2,60 @@
   "name": "@yuants/vendor-ctp",
   "entries": [
     {
+      "version": "0.5.5",
+      "tag": "@yuants/vendor-ctp_v0.5.5",
+      "date": "Fri, 26 Sep 2025 13:00:40 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.5.4",
+      "tag": "@yuants/vendor-ctp_v0.5.4",
+      "date": "Fri, 26 Sep 2025 07:29:31 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix"
+          },
+          {
+            "comment": "refactor"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.4.5`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.2.13`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.44.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.7`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.2.17`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.3",
       "tag": "@yuants/vendor-ctp_v0.5.3",
       "date": "Mon, 22 Sep 2025 03:26:10 GMT",

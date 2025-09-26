@@ -2,6 +2,23 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.44.0",
+      "tag": "@yuants/protocol_v0.44.0",
+      "date": "Fri, 26 Sep 2025 07:29:31 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "implement egress flow controlling"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.43.0",
       "tag": "@yuants/protocol_v0.43.0",
       "date": "Fri, 19 Sep 2025 05:01:03 GMT",
