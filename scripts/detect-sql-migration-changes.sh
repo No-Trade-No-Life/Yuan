@@ -24,7 +24,7 @@ fi
 
 CHANGED_SQL_FILES="$(git diff --name-only "${BASE_REF_SHA}"..HEAD -- "${SQL_DIR}")"
 
-if [[ -n "${CHANGED_SQL_FILES}" ]] && printf '%s\n' "${CHANGED_SQL_FILES}" | grep -qE '\\.sql$'; then
+if [[ -n "${CHANGED_SQL_FILES}" ]] && printf '%s\n' "${CHANGED_SQL_FILES}" | grep -qE '\.sql$'; then
   echo "changed=true" >> "${GITHUB_OUTPUT}"
 else
   echo "changed=false" >> "${GITHUB_OUTPUT}"
