@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "implement egress flow controlling",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

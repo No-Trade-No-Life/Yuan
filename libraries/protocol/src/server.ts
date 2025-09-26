@@ -65,16 +65,38 @@ interface IServiceContext {
   pending: IRequestContext[];
   processing: Set<IRequestContext>;
 
-  concurrency: number;
+  /**
+   * 入队令牌容量
+   */
+  ingress_token_capacity: number;
+  /**
+   * 当前剩余入队令牌
+   */
+  ingress_token_remaining: number;
+  /**
+   * 入队令牌补充间隔，单位毫秒
+   */
+  ingress_token_refill_interval: number;
+  /**
+   * 队列容量
+   */
   capacity: number;
-
-  /** 全局令牌容量 */
-  global_token_capacity: number;
-  /** 全局剩余令牌 */
-  global_token_remaining: number;
-
-  /** 全局令牌重新填充间隔 */
-  global_token_refill_interval: number;
+  /**
+   * 出队令牌容量
+   */
+  egress_token_capacity: number;
+  /**
+   * 当前剩余出队令牌
+   */
+  egress_token_remaining: number;
+  /**
+   * 出队令牌补充间隔，单位毫秒
+   */
+  egress_token_refill_interval: number;
+  /**
+   * 最大并发处理量
+   */
+  concurrency: number;
 
   // counts
   total_routed: number;
@@ -175,21 +197,37 @@ export class TerminalServer {
       concurrency: service.options.concurrent || Infinity,
       capacity: service.options.max_pending_requests || Infinity,
 
-      global_token_capacity: service.options.global_token_capacity || Infinity,
-      global_token_remaining: service.options.global_token_capacity || Infinity,
-      global_token_refill_interval: service.options.global_token_refill_interval || 1000,
+      ingress_token_capacity: service.options.ingress_token_capacity || Infinity,
+      ingress_token_remaining: service.options.ingress_token_capacity || Infinity,
+      ingress_token_refill_interval: service.options.ingress_token_refill_interval || 1000,
+
+      egress_token_capacity: service.options.egress_token_capacity || Infinity,
+      egress_token_remaining: service.options.egress_token_capacity || Infinity,
+      egress_token_refill_interval: service.options.egress_token_refill_interval || 1000,
 
       total_routed: 0,
       total_processed: 0,
       dispose$,
     };
 
-    if (service.options.global_token_capacity) {
-      interval(service.options.global_token_refill_interval || 1000)
+    if (service.options.ingress_token_capacity) {
+      interval(service.options.ingress_token_refill_interval || 1000)
         .pipe(
           takeUntil(dispose$),
           tap(() => {
-            serviceRuntimeContext.global_token_remaining = serviceRuntimeContext.global_token_capacity;
+            serviceRuntimeContext.ingress_token_remaining = serviceRuntimeContext.ingress_token_capacity;
+          }),
+        )
+        .subscribe();
+    }
+
+    if (service.options.egress_token_capacity) {
+      interval(service.options.egress_token_refill_interval || 1000)
+        .pipe(
+          takeUntil(dispose$),
+          tap(() => {
+            serviceRuntimeContext.egress_token_remaining = serviceRuntimeContext.egress_token_capacity;
+            this._checkQueue(serviceRuntimeContext);
           }),
         )
         .subscribe();
@@ -220,12 +258,30 @@ export class TerminalServer {
   // Events
   private _requestInitialized$ = new Subject<IRequestContext>();
   private _requestRouted$ = new Subject<IRequestContext>();
-  private _requestPending$ = new Subject<IRequestContext>();
   private _requestProcessing$ = new Subject<IRequestContext>();
   private _requestProcessed$ = new Subject<IRequestContext>();
   private _requestFinalizing$ = new Subject<IRequestContext>();
 
   private _mapTraceIdToRequestContext = new Map<string, IRequestContext>();
+
+  /**
+   * 检查队列，尝试将 Pending 的请求推进到 Processing
+   *
+   * 检查时机:
+   * - 新请求入队时
+   * - 出队令牌补充时
+   * - 每次请求处理完成时
+   *
+   * @param serviceContext - 服务上下文
+   */
+  private _checkQueue(serviceContext: IServiceContext) {
+    if (serviceContext.egress_token_remaining <= 0) return;
+    if (serviceContext.processing.size >= serviceContext.concurrency) return;
+    const nextRequest = serviceContext.pending.shift();
+    if (!nextRequest) return;
+    serviceContext.egress_token_remaining--;
+    this._requestProcessing$.next(nextRequest);
+  }
 
   private _setupServer() {
     // Msg -> Initialize Request
@@ -293,6 +349,18 @@ export class TerminalServer {
         output$.subscribe((x) => {
           if (x.res) {
             requestContext.response = x.res;
+          }
+        });
+
+        requestContext.isAborted$.subscribe((aborted) => {
+          if (!aborted) return;
+          if (requestContext.stage === 'pending') {
+            // remove from pending queue
+            const serviceContext = requestContext.serviceContext;
+            if (!serviceContext) return;
+            const idx = serviceContext.pending.lastIndexOf(requestContext);
+            if (idx < 0) return;
+            serviceContext.pending.splice(idx, 1);
           }
         });
 
@@ -384,41 +452,28 @@ export class TerminalServer {
 
       serviceContext.total_routed++;
 
-      if (serviceContext.global_token_remaining <= 0) {
+      if (serviceContext.pending.length >= serviceContext.capacity) {
+        output$.next({ res: { code: 503, message: 'Service Unavailable: Pending Queue Full' } });
+        this._requestFinalizing$.next(requestContext);
+        return;
+      }
+
+      if (serviceContext.ingress_token_remaining <= 0) {
         output$.next({
           res: {
             code: 429,
-            message: `Too Many Requests: Global Rate Limit Exceeded: capacity = ${serviceContext.global_token_capacity}, interval = ${serviceContext.global_token_refill_interval} ms`,
+            message: `Too Many Requests: Ingress Rate Limit Exceeded: capacity = ${serviceContext.ingress_token_capacity}, interval = ${serviceContext.ingress_token_refill_interval} ms`,
           },
         });
         this._requestFinalizing$.next(requestContext);
         return;
       }
-      serviceContext.global_token_remaining--;
+      serviceContext.ingress_token_remaining--;
 
-      if (serviceContext.pending.length >= serviceContext.capacity) {
-        output$.next({ res: { code: 503, message: 'Service Unavailable' } });
-        this._requestFinalizing$.next(requestContext);
-        return;
-      }
-
-      this._requestPending$.next(requestContext);
-    });
-
-    // Waiting Room: Pending -> Processing
-    this._requestPending$.pipe(takeUntil(this.terminal.dispose$)).subscribe((requestContext) => {
-      const { serviceContext } = requestContext;
       requestContext.stage = 'pending';
-      if (!serviceContext) throw new Error('ServiceContext Not Found');
+      serviceContext.pending.push(requestContext);
 
-      // if the processing is full, add to pending queue
-      if (serviceContext.processing.size >= serviceContext.concurrency) {
-        serviceContext.pending.push(requestContext);
-        return;
-      }
-
-      // move to processing
-      this._requestProcessing$.next(requestContext);
+      this._checkQueue(serviceContext);
     });
 
     // Processing: Request Processing -> Request Processed
@@ -475,10 +530,7 @@ export class TerminalServer {
       this._requestFinalizing$.next(requestContext);
 
       // schedule the next pending
-      if (serviceContext.pending.length > 0) {
-        const nextRequest = serviceContext.pending.shift()!;
-        this._requestProcessing$.next(nextRequest);
-      }
+      this._checkQueue(serviceContext);
     });
 
     // Finalizing
