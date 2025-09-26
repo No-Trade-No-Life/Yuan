@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/vendor-okx-web3",
+  "entries": [
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/vendor-okx-web3_v0.1.0",
+      "date": "Fri, 26 Sep 2025 15:18:43 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "init package"
+          }
+        ]
+      }
+    }
+  ]
+}
