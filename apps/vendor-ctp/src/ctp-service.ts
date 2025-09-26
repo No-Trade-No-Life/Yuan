@@ -113,7 +113,7 @@ terminal.server.provideService<
   {
     concurrent: 1,
     egress_token_capacity: 1,
-    max_pending_requests: 10,
+    max_pending_requests: 60,
   },
 );
 
