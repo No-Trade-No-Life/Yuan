@@ -9,10 +9,6 @@ export class OKXWeb3Client {
         secret_key: string;
         passphrase: string;
       };
-      rateLimit?: {
-        period: number;
-        limit: number;
-      };
     },
   ) {}
 
@@ -53,9 +49,5 @@ export const client = new OKXWeb3Client({
     api_key: process.env.ACCESS_KEY!,
     secret_key: process.env.SECRET_KEY!,
     passphrase: process.env.PASSPHRASE!,
-  },
-  rateLimit: {
-    period: process.env.RATE_LIMIT_PERIOD ? Number(process.env.RATE_LIMIT_PERIOD) : 1000,
-    limit: process.env.RATE_LIMIT_LIMIT ? Number(process.env.RATE_LIMIT_LIMIT) : 1,
   },
 });
