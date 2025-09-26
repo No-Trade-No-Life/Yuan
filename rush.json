@@ -706,6 +706,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/vendor-okx-web3",
+      "projectFolder": "apps/vendor-okx-web3",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/vendor-solana",
       "projectFolder": "apps/vendor-solana",
       "shouldPublish": true
