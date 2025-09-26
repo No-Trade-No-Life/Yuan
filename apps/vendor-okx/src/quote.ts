@@ -62,10 +62,10 @@ const fromWsChannelAndInstId = (channel: string, instId: string) =>
         client.subscribe(channel, instId, (data: any) => {
           subscriber.next(data);
         });
-        client.ws.addEventListener('error', (err) => {
+        client.ws?.addEventListener('error', (err) => {
           subscriber.error(err);
         });
-        client.ws.addEventListener('close', () => {
+        client.ws?.addEventListener('close', () => {
           subscriber.error('WS Connection Closed');
         });
         subscriber.add(() => {
