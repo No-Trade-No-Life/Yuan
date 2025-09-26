@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-openai",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "bin": "lib/cli.js",
   "files": [
     "dist",
