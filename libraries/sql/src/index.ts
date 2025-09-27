@@ -3,7 +3,6 @@ import { encodePath } from '@yuants/utils';
 import { MonoTypeOperatorFunction, Observable, Subject, tap } from 'rxjs';
 import { createBufferWriter } from './bufferWriter';
 import { requestSQL } from './requestSQL';
-export * from './migration';
 export * from './requestSQL';
 
 /**
