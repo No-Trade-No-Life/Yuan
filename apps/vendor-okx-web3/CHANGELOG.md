@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx-web3
 
-This log was last generated on Fri, 26 Sep 2025 16:26:01 GMT and should not be manually modified.
+This log was last generated on Sat, 27 Sep 2025 04:08:27 GMT and should not be manually modified.
+
+## 0.1.2
+Sat, 27 Sep 2025 04:08:27 GMT
+
+### Patches
+
+- add auto refresh interval
 
 ## 0.1.1
 Fri, 26 Sep 2025 16:26:01 GMT
