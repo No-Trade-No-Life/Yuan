@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-gate",
   "entries": [
     {
+      "version": "0.3.67",
+      "tag": "@yuants/vendor-gate_v0.3.67",
+      "date": "Sat, 27 Sep 2025 04:48:52 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.4.6`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.66",
       "tag": "@yuants/vendor-gate_v0.3.66",
       "date": "Fri, 26 Sep 2025 07:29:31 GMT",
