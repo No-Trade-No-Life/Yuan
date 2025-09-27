@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/sql",
+      "comment": "remove useless migration",
+      "type": "none"
+    }
+  ],
+  "packageName": "@yuants/sql"
+}

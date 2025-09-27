@@ -57,6 +57,5 @@ export const MetricsMeterProvider = new MeterProvider({
 /**
  * Prometheus Metrics Registry
  * @public
- * @deprecated - use {@link MetricsMeterProvider} instead
  */
 export const PromRegistry = new Registry();

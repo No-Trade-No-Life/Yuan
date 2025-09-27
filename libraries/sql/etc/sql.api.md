@@ -9,9 +9,6 @@ import { Observable } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
 
 // @public
-export const AddMigration: (migration: ISQLMigration) => void;
-
-// @public
 export const buildInsertManyIntoTableSQL: <T extends {}>(data: T[], tableName: string, options?: {
     columns?: (keyof T)[] | undefined;
     ignoreConflict?: boolean | undefined;
@@ -30,17 +27,6 @@ export { escape_2 as escape }
 
 // @public
 export const escapeSQL: (val: any, options?: {}) => string;
-
-// @public
-export const ExecuteMigrations: (terminal: Terminal) => Promise<void>;
-
-// @public (undocumented)
-export interface ISQLMigration {
-    dependencies: string[];
-    id: string;
-    name: string;
-    statement: string;
-}
 
 // @public
 export interface ISQLWritterContext<T extends {}> {

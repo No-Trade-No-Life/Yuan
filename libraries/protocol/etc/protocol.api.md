@@ -135,7 +135,7 @@ export const MetricsExporter: YuanMetricsReader;
 // @public (undocumented)
 export const MetricsMeterProvider: MeterProvider;
 
-// @public @deprecated
+// @public
 export const PromRegistry: Registry;
 
 // @public
