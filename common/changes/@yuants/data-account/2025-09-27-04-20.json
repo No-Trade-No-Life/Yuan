@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-account",
+      "comment": "do not retry when promise is in flight",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/data-account"
+}
