@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-okx-web3",
   "entries": [
     {
+      "version": "0.1.2",
+      "tag": "@yuants/vendor-okx-web3_v0.1.2",
+      "date": "Sat, 27 Sep 2025 04:08:27 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add auto refresh interval"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.1",
       "tag": "@yuants/vendor-okx-web3_v0.1.1",
       "date": "Fri, 26 Sep 2025 16:26:01 GMT",
