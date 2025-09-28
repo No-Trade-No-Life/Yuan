@@ -1,10 +1,12 @@
 import { IOHLC } from '@yuants/data-ohlc';
 import { createSeriesProvider } from '@yuants/data-series';
+import { Terminal } from '@yuants/protocol';
 import { convertDurationToOffset, decodePath, encodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, timer } from 'rxjs';
 import { ex, EXCHANGE_ID } from './api';
 import { mapProductIdToSymbol } from './product';
-import { terminal } from './terminal';
+
+const terminal = Terminal.fromNodeEnv();
 
 const mapMsToCCXTTimeframe = (period: number): string => {
   if (period % 2592_000_000 === 0) {

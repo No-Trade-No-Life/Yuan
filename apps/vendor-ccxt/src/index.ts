@@ -6,6 +6,7 @@ import {
   publishAccountInfo,
 } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
+import { Terminal } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
 import { FundingRate } from 'ccxt/js/src/base/types';
 import {
@@ -29,7 +30,8 @@ import {
 } from 'rxjs';
 import { EXCHANGE_ID, ex } from './api';
 import { mapProductIdToSymbol, mapSymbolToProductId, products$ } from './product';
-import { terminal } from './terminal';
+
+const terminal = Terminal.fromNodeEnv();
 
 (async () => {
   const PUBLIC_ONLY = process.env.PUBLIC_ONLY === 'true';

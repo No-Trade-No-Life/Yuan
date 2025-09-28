@@ -1,8 +1,10 @@
 import { IInterestRate } from '@yuants/data-interest-rate';
 import { createSeriesProvider } from '@yuants/data-series';
+import { Terminal } from '@yuants/protocol';
 import { decodePath, formatTime } from '@yuants/utils';
 import { client } from './api';
-import { terminal } from './terminal';
+
+const terminal = Terminal.fromNodeEnv();
 
 createSeriesProvider<IInterestRate>(terminal, {
   tableName: 'interest_rate',
