@@ -427,7 +427,10 @@ registerPage('AccountInfoPanel', () => {
             },
             {
               key: '浮动盈亏',
-              value: accountInfo.money.profit.toFixed(2) + ' ' + accountInfo.money.currency,
+              value:
+                accountInfo.positions.reduce((acc, cur) => acc + cur.floating_profit, 0) +
+                ' ' +
+                accountInfo.money.currency,
             },
             {
               key: '浮动收益率',

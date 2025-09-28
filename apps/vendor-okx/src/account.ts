@@ -98,12 +98,16 @@ defer(async () => {
     tradingAccountId,
     async () => {
       const [
+        gridAlgoOrders,
         positionsApi,
         balanceApi,
         mapProductIdToUsdtSwapProduct,
         mapProductIdToMarginProduct,
         marketIndexTickerUSDT,
       ] = await Promise.all([
+        client.getGridOrdersAlgoPending({
+          algoOrdType: 'contract_grid',
+        }),
         client.getAccountPositions({}),
         client.getAccountBalance({}),
         firstValueFrom(mapProductIdToUsdtSwapProduct$),
@@ -114,9 +118,34 @@ defer(async () => {
       const money: IAccountMoney = { currency: 'USDT', equity: 0, balance: 0, used: 0, free: 0, profit: 0 };
       const positions: IPosition[] = [];
 
+      const gridPositionsRes = await Promise.all(
+        gridAlgoOrders.data.map((item) =>
+          client.getGridPositions({ algoOrdType: 'contract_grid', algoId: item.algoId }),
+        ),
+      );
+
+      gridPositionsRes.forEach((gridPositions, index) => {
+        gridPositions?.data?.map((position) => {
+          if (+position.pos !== 0) {
+            positions.push({
+              position_id: encodePath(position.algoId, position.instId),
+              datasource_id: 'OKX',
+              product_id: encodePath('contract_grid', position.instId),
+              direction: gridAlgoOrders.data?.[index]?.direction.toUpperCase(),
+              volume: +position.pos,
+              free_volume: +position.pos,
+              position_price: +position.avgPx,
+              floating_profit: +position.upl,
+              closable_price: +position.last,
+              valuation: +position.notionalUsd,
+            });
+          }
+        });
+      });
+
       balanceApi.data[0]?.details.forEach((detail) => {
         if (detail.ccy === 'USDT') {
-          const balance = +(detail.cashBal ?? 0);
+          const balance = +(detail.cashBal ?? 0) - +(detail.stgyEq ?? 0);
           const free = Math.min(
             balance, // free should no more than balance if there is much profits
             +(detail.availEq ?? 0),
