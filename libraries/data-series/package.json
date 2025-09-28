@@ -1,6 +1,6 @@
 {
   "name": "@yuants/data-series",
-  "version": "0.3.28",
+  "version": "0.3.29",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [

@@ -1,6 +1,11 @@
 # Change Log - @yuants/app-postgres-storage
 
-This log was last generated on Fri, 26 Sep 2025 07:29:31 GMT and should not be manually modified.
+This log was last generated on Sun, 28 Sep 2025 04:21:21 GMT and should not be manually modified.
+
+## 0.2.15
+Sun, 28 Sep 2025 04:21:21 GMT
+
+_Version update only_
 
 ## 0.2.14
 Fri, 26 Sep 2025 07:29:31 GMT

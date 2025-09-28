@@ -1,11 +1,11 @@
 import { IOHLC } from '@yuants/data-ohlc';
 import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
-import { convertDurationToOffset, decodePath, encodePath, formatTime } from '@yuants/utils';
-import { firstValueFrom, Observable, of, timer } from 'rxjs';
-import { client } from './api';
-import { OKXWsClient } from './websocket';
 import { writeToSQL } from '@yuants/sql';
+import { convertDurationToOffset, decodePath, formatTime } from '@yuants/utils';
+import { firstValueFrom, map, timer } from 'rxjs';
+import { client } from './api';
+import { useOHLC } from './websocket';
 
 // 时间粒度，默认值1m
 // 如 [1m/3m/5m/15m/30m/1H/2H/4H]
@@ -113,7 +113,6 @@ createSeriesProvider<IOHLC>(Terminal.fromNodeEnv(), {
 });
 
 Terminal.fromNodeEnv().channel.publishChannel('ohlc', { pattern: `^OKX/` }, (series_id) => {
-  // const [] = decodePath(args)
   const [datasource_id, product_id, duration] = decodePath(series_id);
   const [, instId] = decodePath(product_id);
   const offset = convertDurationToOffset(duration);
@@ -128,11 +127,9 @@ Terminal.fromNodeEnv().channel.publishChannel('ohlc', { pattern: `^OKX/` }, (ser
   }
   const candleType = DURATION_TO_OKX_CANDLE_TYPE[duration];
   console.info(formatTime(Date.now()), `subscribe`, series_id, product_id);
-  return new Observable<IOHLC>((subscriber) => {
-    console.info(formatTime(Date.now()), `subscribe`, candleType, instId);
-    const okxBusinessWsClient = new OKXWsClient('ws/v5/business');
-    okxBusinessWsClient.subscribe(candleType, instId, async (data: string[]) => {
-      console.info(formatTime(Date.now()), `#######Data`, data);
+
+  return useOHLC(candleType, instId).pipe(
+    map((data): IOHLC => {
       const created_at = Number(data[0]);
       const closed_at = created_at + offset;
       const open = data[1];
@@ -140,10 +137,7 @@ Terminal.fromNodeEnv().channel.publishChannel('ohlc', { pattern: `^OKX/` }, (ser
       const low = data[3];
       const close = data[4];
       const volume = data[5];
-      if (isNaN(closed_at)) {
-        return;
-      }
-      const cancelData: IOHLC = {
+      return {
         closed_at: formatTime(closed_at),
         created_at: formatTime(created_at),
         open,
@@ -157,12 +151,7 @@ Terminal.fromNodeEnv().channel.publishChannel('ohlc', { pattern: `^OKX/` }, (ser
         volume,
         open_interest: '0',
       };
-      subscriber.next(cancelData);
-    });
-    return () => {
-      okxBusinessWsClient.unsubscribe(candleType, instId);
-    };
-  }).pipe(
+    }),
     writeToSQL({
       tableName: 'ohlc',
       conflictKeys: ['created_at', 'series_id'],

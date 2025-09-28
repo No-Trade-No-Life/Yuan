@@ -1,10 +1,12 @@
 import { addAccountMarket, IAccountMoney, IPosition, provideAccountInfoService } from '@yuants/data-account';
+import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
 import { client } from './api';
 import './interest_rate';
 import './order';
 import './product';
-import { terminal } from './terminal';
+
+const terminal = Terminal.fromNodeEnv();
 
 (async () => {
   // swap account info

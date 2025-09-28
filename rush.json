@@ -585,11 +585,6 @@
       "shouldPublish": true
     },
     {
-      "packageName": "@yuants/app-k8s-manifest-operator",
-      "projectFolder": "apps/k8s-manifest-operator",
-      "shouldPublish": true
-    },
-    {
       "packageName": "@yuants/app-postgres-storage",
       "projectFolder": "apps/postgres-storage",
       "shouldPublish": true
@@ -703,6 +698,11 @@
     {
       "packageName": "@yuants/vendor-okx",
       "projectFolder": "apps/vendor-okx",
+      "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/vendor-okx-web3",
+      "projectFolder": "apps/vendor-okx-web3",
       "shouldPublish": true
     },
     {

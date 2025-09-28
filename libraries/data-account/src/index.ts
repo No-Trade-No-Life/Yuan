@@ -86,18 +86,28 @@ export const provideAccountInfoService = (
   const { auto_refresh_interval } = options || {};
 
   if (auto_refresh_interval) {
+    let refreshInFlight: Promise<unknown> | null = null;
+    const triggerRefresh = () => {
+      if (refreshInFlight) return;
+      const promise = terminal.client
+        .requestForResponseData<{ account_id: string }, IAccountInfo>('QueryAccountInfo', {
+          account_id,
+        })
+        .catch(() => {});
+      refreshInFlight = promise;
+      promise.finally(() => {
+        if (refreshInFlight === promise) {
+          refreshInFlight = null;
+        }
+      });
+    };
+
     // 当 accountInfo$ 超时没有数据时，自动拉取一次
     defer(() => accountInfo$)
       .pipe(
         timeout(auto_refresh_interval),
         tap({
-          error: () => {
-            terminal.client
-              .requestForResponseData<{ account_id: string }, IAccountInfo>('QueryAccountInfo', {
-                account_id,
-              })
-              .catch(() => {});
-          },
+          error: triggerRefresh,
         }),
         retry(),
         takeUntil(dispose$),
