@@ -1,4 +1,5 @@
-import { formatTime } from '@yuants/utils';
+import { IPosition } from '@yuants/data-account';
+import { encodePath, formatTime } from '@yuants/utils';
 // @ts-ignore
 import CryptoJS from 'crypto-js';
 
@@ -1551,6 +1552,128 @@ export class OkxClient {
       tag: string;
     }[];
   }> => this.request('POST', '/api/v5/tradingBot/grid/order-algo', params);
+
+  /**
+   * GET / 获取未完成网格策略委托单列表
+   * 限速：20次/2s
+   * 限速规则：User ID
+   * 权限：读取
+   * HTTP请求
+   *
+   * https://www.okx.com/docs-v5/zh/#order-book-trading-grid-trading-get-grid-algo-order-list
+   */
+  getGridOrdersAlgoPending = (param: {
+    algoOrdType: 'grid' | 'contract_grid';
+    algoId?: string;
+    instId?: string;
+    instType?: string;
+    after?: string;
+    before?: string;
+    limit?: string;
+  }): Promise<{
+    code: string;
+    data: {
+      algoId: string;
+      algoClOrdId: string;
+      instType: string;
+      instId: string;
+      cTime: string;
+      uTime: string;
+      algoOrdType: 'grid' | 'contract_grid';
+      state: 'starting' | 'running' | 'stopping' | 'pending_signal' | 'no_close_position';
+      rebateTrans: {
+        rebate: string;
+        rebateCcy: string;
+      }[];
+      triggerParams: {
+        triggerAction: string;
+        triggerStrategy: string;
+        delaySeconds: string;
+        triggerTime: string;
+        triggerType: string;
+        timeframe: string;
+        thold: string;
+        triggerCond: 'cross_up' | 'cross_down' | 'above' | 'below' | 'cross';
+        timePeriod: string;
+        triggerPx: string;
+        stopType: string;
+      }[];
+      maxPx: string;
+      minPx: string;
+      gridNum: string;
+      runType: '1' | '2';
+      tpTriggerPx: string;
+      slTriggerPx: string;
+      arbitrageNum: string;
+      totalPnl: string;
+      pnlRatio: string;
+      investment: string;
+      gridProfit: string;
+      floatProfit: string;
+      cancelType: '0' | '1' | '2' | '3' | '4' | '5' | '6';
+      stopType: '1' | '2';
+      quoteSz: string;
+      baseSz: SpotGrid;
+      direction: string;
+      basePos: string;
+      sz: string;
+      lever: string;
+      actualLever: string;
+      liqPx: string;
+      uly: string;
+      instFamily: string;
+      ordFrozen: string;
+      availEq: string;
+      tag: string;
+      profitSharingRatio: string;
+      copyType: string;
+      fee: string;
+      fundingFee: string;
+      tradeQuoteCcy: string;
+    }[];
+    msg: string;
+  }> => this.request('GET', '/api/v5/tradingBot/grid/orders-algo-pending', param);
+
+  /**
+   * GET / 获取网格策略委托持仓
+   * 限速：20次/2s
+   * 限速规则：User ID
+   * 权限：读取
+   * HTTP请求
+   *
+   * https://www.okx.com/docs-v5/zh/#order-book-trading-grid-trading-get-grid-algo-order-positions
+   */
+  getGridPositions = (param: {
+    algoOrdType: 'contract_grid';
+    algoId: string;
+  }): Promise<{
+    code: string;
+    data: {
+      algoId: string;
+      algoClOrdId: string;
+      instType: string;
+      instId: string;
+      cTime: string;
+      uTime: string;
+      avgPx: string;
+      ccy: string;
+      lever: string;
+      liqPx: string;
+      posSide: string;
+      pos: string;
+      mgnMode: string;
+      mgnRatio: string;
+      imr: string;
+      mmr: string;
+      upl: string;
+      uplRatio: string;
+      last: string;
+      notionalUsd: string;
+      adl: string;
+      markPx: string;
+    }[];
+    msg: string;
+  }> => this.request('GET', '/api/v5/tradingBot/grid/positions', param);
 }
 
 type SpotGrid = {

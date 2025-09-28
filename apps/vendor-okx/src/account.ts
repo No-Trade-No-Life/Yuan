@@ -121,7 +121,7 @@ defer(async () => {
             balance, // free should no more than balance if there is much profits
             +(detail.availEq ?? 0),
           );
-          const equity = +(detail.eq ?? 0);
+          const equity = +(detail.eq ?? 0) - +(detail.stgyEq ?? 0);
           const used = equity - free;
           const profit = equity - balance;
           money.equity += equity;
