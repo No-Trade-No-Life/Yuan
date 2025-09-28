@@ -1,5 +1,18 @@
+import { PromRegistry } from '@yuants/protocol';
 import { encodePath, formatTime } from '@yuants/utils';
 import { catchError, defer, EMPTY, interval, Observable, Subscription, tap, timeout } from 'rxjs';
+
+const MetricsWebSocketConnectionsGauge = PromRegistry.create(
+  'gauge',
+  'okx_websocket_connections',
+  'Number of active OKX WebSocket connections',
+);
+
+const MetricsWebSocketChannelGauge = PromRegistry.create(
+  'gauge',
+  'okx_websocket_channel',
+  'Number of OKX WebSocket channels subscribed',
+);
 
 class OKXWsClient {
   ws: WebSocket;
@@ -13,6 +26,9 @@ class OKXWsClient {
   constructor(path: string) {
     // this.instId = instId;
     this.ws = new WebSocket(`${this.baseURL}/${path}`);
+
+    MetricsWebSocketConnectionsGauge.inc({ path });
+
     this.pendingSub = [];
     this.keepAlive = interval(25000)
       .pipe(
@@ -42,6 +58,8 @@ class OKXWsClient {
     });
     this.ws.addEventListener('close', (event) => {
       console.error(formatTime(Date.now()), '❌ WS closed', event);
+
+      MetricsWebSocketConnectionsGauge.dec({ path });
     });
     this.subscriptions = new Set();
     this.handlers = {}; // key: channel, value: callback
@@ -84,6 +102,7 @@ class OKXWsClient {
       this.pendingSub.push(JSON.stringify(subMsg));
       console.info(formatTime(Date.now()), `📩 add subscribe for ${channelId} to pending list`);
     }
+    MetricsWebSocketChannelGauge.inc({ channel });
     this.subscriptions.add(channelId);
     if (handler) {
       this.handlers[channelId] = handler;
@@ -105,6 +124,7 @@ class OKXWsClient {
     if (this.subscriptions.size === 0) {
       this.keepAlive.unsubscribe();
     }
+    MetricsWebSocketChannelGauge.dec({ channel });
     delete this.handlers[channelId];
     console.info(formatTime(Date.now()), `📩 Sent unsubscribe for ${channelId}`);
   }
