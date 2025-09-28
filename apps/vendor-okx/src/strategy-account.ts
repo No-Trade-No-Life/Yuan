@@ -1,8 +1,8 @@
-import { defer, filter, first, firstValueFrom, map, repeat, retry, shareReplay } from 'rxjs';
-import { addAccountMarket, IAccountMoney, IPosition, provideAccountInfoService } from '@yuants/data-account';
-import { client } from './api';
+import { addAccountMarket, IPosition, provideAccountInfoService } from '@yuants/data-account';
 import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
+import { defer, filter, first, firstValueFrom, map, repeat, retry, shareReplay } from 'rxjs';
+import { client } from './api';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -47,7 +47,8 @@ defer(async () => {
         firstValueFrom(marketIndexTickerUSDT$),
       ]);
 
-      const money: IAccountMoney = { currency: 'USDT', equity: 0, balance: 0, used: 0, free: 0, profit: 0 };
+      let totalEquity = 0;
+      let totalFree = 0;
       const positions: IPosition[] = [];
 
       const convertToUsdt = (amount: number, ccy: string | undefined) => {
@@ -91,17 +92,17 @@ defer(async () => {
         const free = convertToUsdt(+grid.availEq || 0, ccy);
 
         const equity = investment + totalPnl;
-        const used = Math.max(equity - free, 0);
 
-        money.balance += investment;
-        money.profit += totalPnl;
-        money.equity += equity;
-        money.free += free;
-        money.used += used;
+        totalEquity += equity;
+        totalFree += free;
       });
 
       return {
-        money,
+        money: {
+          currency: 'USDT',
+          equity: totalEquity,
+          free: totalFree,
+        },
         positions,
       };
     },

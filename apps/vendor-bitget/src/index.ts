@@ -1,4 +1,4 @@
-import { addAccountMarket, IAccountMoney, IPosition, provideAccountInfoService } from '@yuants/data-account';
+import { addAccountMarket, IPosition, provideAccountInfoService } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { addAccountTransferAddress } from '@yuants/transfer';
@@ -38,16 +38,12 @@ const terminal = Terminal.fromNodeEnv();
           throw new Error(positionsRes.msg);
         }
 
-        const money: IAccountMoney = {
-          currency: 'USDT',
-          equity: +balanceRes.data[0].accountEquity,
-          profit: +balanceRes.data[0].unrealizedPL,
-          free: +balanceRes.data[0].maxTransferOut,
-          used: +balanceRes.data[0].accountEquity - +balanceRes.data[0].maxTransferOut,
-          balance: +balanceRes.data[0].available,
-        };
         return {
-          money: money,
+          money: {
+            currency: 'USDT',
+            equity: +balanceRes.data[0].accountEquity,
+            free: +balanceRes.data[0].maxTransferOut,
+          },
           positions: positionsRes.data.map(
             (position): IPosition => ({
               position_id: `${position.symbol}-${position.holdSide}`,
@@ -79,19 +75,14 @@ const terminal = Terminal.fromNodeEnv();
         if (res.msg !== 'success') {
           throw new Error(res.msg);
         }
-        const balance = +(res.data.find((v) => v.coin === 'USDT')?.available ?? 0);
-        const equity = balance;
+        const equity = +(res.data.find((v) => v.coin === 'USDT')?.available ?? 0);
         const free = equity;
-        const money: IAccountMoney = {
-          currency: 'USDT',
-          equity,
-          profit: 0,
-          free,
-          used: 0,
-          balance,
-        };
         return {
-          money: money,
+          money: {
+            currency: 'USDT',
+            equity,
+            free,
+          },
           positions: [],
         };
       },

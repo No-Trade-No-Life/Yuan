@@ -1,4 +1,4 @@
-import { addAccountMarket, IAccountMoney, IPosition, provideAccountInfoService } from '@yuants/data-account';
+import { addAccountMarket, IPosition, provideAccountInfoService } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { addAccountTransferAddress } from '@yuants/transfer';
@@ -78,14 +78,8 @@ const terminal = Terminal.fromNodeEnv();
       if (!balanceData) {
         throw new Error('No USDT balance found in unified account');
       }
-      const money: IAccountMoney = {
-        currency: 'USDT',
-        balance: balanceData.cross_margin_static,
-        equity: balanceData.margin_balance,
-        profit: balanceData.cross_profit_unreal,
-        free: balanceData.withdraw_available,
-        used: balanceData.margin_balance - balanceData.withdraw_available,
-      };
+      const equity = balanceData.margin_balance;
+      const free = balanceData.withdraw_available;
 
       // positions
       const positionsRes = await client.getSwapCrossPositionInfo();
@@ -155,7 +149,11 @@ const terminal = Terminal.fromNodeEnv();
       // }
 
       return {
-        money: money,
+        money: {
+          currency: 'USDT',
+          equity,
+          free,
+        },
         positions,
       };
     },
@@ -287,17 +285,12 @@ const terminal = Terminal.fromNodeEnv();
       // calculate equity
       const equity = positions.reduce((acc, cur) => acc + cur.closable_price * cur.volume, 0) + usdtBalance;
 
-      const money: IAccountMoney = {
-        currency: 'USDT',
-        balance: equity,
-        equity: equity,
-        profit: 0,
-        free: equity,
-        used: 0,
-      };
-
       return {
-        money,
+        money: {
+          currency: 'USDT',
+          equity,
+          free: equity,
+        },
         positions,
       };
     },
@@ -310,19 +303,14 @@ const terminal = Terminal.fromNodeEnv();
     async () => {
       const spotBalance = await client.getSpotAccountBalance(spotAccountUid);
 
-      const balance = +(spotBalance.data.list.find((v) => v.currency === 'usdt')?.balance ?? 0);
-      const equity = balance;
+      const equity = +(spotBalance.data.list.find((v) => v.currency === 'usdt')?.balance ?? 0);
       const free = equity;
-      const money: IAccountMoney = {
-        currency: 'USDT',
-        balance,
-        equity,
-        profit: 0,
-        free,
-        used: 0,
-      };
       return {
-        money: money,
+        money: {
+          currency: 'USDT',
+          equity,
+          free,
+        },
         positions: [],
       };
     },

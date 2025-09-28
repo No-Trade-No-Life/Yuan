@@ -38,18 +38,12 @@ provideAccountInfoService(
     const usdtAsset = x.balances.find((b) => b.asset === 'USDT');
     const equity = positions.reduce((a, b) => a + b.valuation, 0);
     const free = usdtAsset ? +usdtAsset.free : 0;
-    const balance = usdtAsset ? +usdtAsset.free + +usdtAsset.locked : 0;
-    const profit = equity - balance;
-    const used = equity - free;
 
     return {
       money: {
         currency: 'USDT',
         equity,
-        balance,
-        profit,
         free,
-        used,
       },
       positions,
     };

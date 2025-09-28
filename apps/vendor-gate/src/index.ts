@@ -1,30 +1,9 @@
-import {
-  addAccountMarket,
-  IAccountInfo,
-  IAccountMoney,
-  IPosition,
-  provideAccountInfoService,
-  publishAccountInfo,
-} from '@yuants/data-account';
+import { addAccountMarket, IPosition, provideAccountInfoService } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import { encodePath, formatTime } from '@yuants/utils';
-import {
-  combineLatest,
-  combineLatestWith,
-  defer,
-  first,
-  from,
-  map,
-  mergeMap,
-  repeat,
-  retry,
-  shareReplay,
-  tap,
-  throttleTime,
-  toArray,
-} from 'rxjs';
+import { defer, firstValueFrom, repeat, retry, shareReplay } from 'rxjs';
 import { client } from './api';
 import './interest_rate';
 import { mapProductIdToUsdtFutureProduct$ } from './product';
@@ -44,179 +23,97 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
   const SPOT_USDT_ACCOUNT_ID = `gate/${uid}/spot/USDT`;
   const UNIFIED_USDT_ACCOUNT_ID = `gate/${uid}/unified/USDT`;
 
-  const accountFuturePosition$ = defer(() => client.getFuturePositions('usdt')).pipe(
-    //
-    map((res) => (res instanceof Array ? res : [])),
-    combineLatestWith(mapProductIdToUsdtFutureProduct$.pipe(first())),
-    mergeMap(([res, mapProductIdToUsdtFutureProduct]) =>
-      from(res).pipe(
-        map((position): IPosition => {
-          const product_id = position.contract;
-          const theProduct = mapProductIdToUsdtFutureProduct.get(product_id);
-          const volume = Math.abs(position.size);
-          const closable_price = +position.mark_price;
-          const valuation = volume * closable_price * (theProduct?.value_scale ?? 1);
-          return {
-            datasource_id: 'GATE-FUTURE',
-            position_id: `${position.contract}-${position.leverage}-${position.mode}`,
-            product_id,
-            direction:
-              position.mode === 'dual_long'
-                ? 'LONG'
-                : position.mode === 'dual_short'
-                ? 'SHORT'
-                : position.size > 0
-                ? 'LONG'
-                : 'SHORT',
-            volume: volume,
-            free_volume: Math.abs(position.size),
-            position_price: +position.entry_price,
-            closable_price,
-            floating_profit: +position.unrealised_pnl,
-            valuation,
-          };
-        }),
-        toArray(),
-      ),
-    ),
-    repeat({ delay: 1000 }),
-    tap({
-      error: (err) => {
-        console.error(formatTime(Date.now()), 'futuresAccountInfoPosition$', err);
-      },
-    }),
-    retry({ delay: 1000 }),
-    shareReplay(1),
-  );
+  const loadFuturePositions = async (): Promise<IPosition[]> => {
+    const [positionsRes, mapProductIdToUsdtFutureProduct] = await Promise.all([
+      client.getFuturePositions('usdt'),
+      firstValueFrom(mapProductIdToUsdtFutureProduct$),
+    ]);
 
-  const accountFutureOpenOrders$ = defer(() => client.getFuturesOrders('usdt', { status: 'open' })).pipe(
-    //
-    map((res) => (res instanceof Array ? res : [])),
-    mergeMap((res) =>
-      from(res).pipe(
-        map((order): IOrder => {
-          return {
-            order_id: order.id,
-            account_id: FUTURE_USDT_ACCOUNT_ID,
-            submit_at: order.create_time * 1000,
-            product_id: order.contract,
-            order_type: 'LIMIT',
-            order_direction:
-              order.size > 0
-                ? order.is_close
-                  ? 'CLOSE_SHORT'
-                  : 'OPEN_LONG'
-                : order.is_close
-                ? 'CLOSE_LONG'
-                : 'OPEN_SHORT',
-            volume: Math.abs(order.size),
-            price: order.price !== undefined ? +order.price : undefined,
-          };
-        }),
-        toArray(),
-      ),
-    ),
-    repeat({ delay: 1000 }),
-    tap({
-      error: (err) => {
-        console.error(formatTime(Date.now()), 'futuresAccountInfoOpenOrders$', err);
-      },
-    }),
-    retry({ delay: 1000 }),
-    shareReplay(1),
-  );
-
-  const futureAccount$ = defer(() => client.getFuturesAccounts('usdt')).pipe(
-    map((res) => (res.available ? res : { available: '0', total: '0', unrealised_pnl: '0' })),
-    repeat({ delay: 1000 }),
-    tap({
-      error: (err) => {
-        console.error(formatTime(Date.now()), 'futuresAccountInfoAccount$', err);
-      },
-    }),
-    retry({ delay: 1000 }),
-    shareReplay(1),
-  );
-
-  const futureUsdtAccountInfo$ = combineLatest([
-    accountFuturePosition$,
-    accountFutureOpenOrders$,
-    futureAccount$,
-  ]).pipe(
-    map(([positions, orders, account]): IAccountInfo => {
-      const free = +account.available;
-      const profit = +account.unrealised_pnl;
-      const balance = +account.total;
-      const equity = balance + profit;
-      const used = equity - free;
-
-      const money: IAccountMoney = {
-        currency: 'USDT',
-        balance,
-        profit,
-        free,
-        used,
-        equity,
-      };
+    const positions = Array.isArray(positionsRes) ? positionsRes : [];
+    return positions.map((position): IPosition => {
+      const product_id = position.contract;
+      const theProduct = mapProductIdToUsdtFutureProduct.get(product_id);
+      const volume = Math.abs(position.size);
+      const closable_price = +position.mark_price;
+      const valuation = volume * closable_price * (theProduct?.value_scale ?? 1);
       return {
-        updated_at: Date.now(),
-        account_id: FUTURE_USDT_ACCOUNT_ID,
-        money: money,
+        datasource_id: 'GATE-FUTURE',
+        position_id: `${position.contract}-${position.leverage}-${position.mode}`,
+        product_id,
+        direction:
+          position.mode === 'dual_long'
+            ? 'LONG'
+            : position.mode === 'dual_short'
+            ? 'SHORT'
+            : position.size > 0
+            ? 'LONG'
+            : 'SHORT',
+        volume,
+        free_volume: Math.abs(position.size),
+        position_price: +position.entry_price,
+        closable_price,
+        floating_profit: +position.unrealised_pnl,
+        valuation,
+      };
+    });
+  };
+
+  provideAccountInfoService(
+    terminal,
+    FUTURE_USDT_ACCOUNT_ID,
+    async () => {
+      const [positions, rawAccount] = await Promise.all([
+        loadFuturePositions(),
+        client.getFuturesAccounts('usdt'),
+      ]);
+
+      const account = rawAccount?.available
+        ? rawAccount
+        : { available: '0', total: '0', unrealised_pnl: '0' };
+      const free = Number(account.available ?? 0);
+      const equity = Number(account.total ?? 0) + Number(account.unrealised_pnl ?? 0);
+
+      return {
+        money: {
+          currency: 'USDT',
+          equity,
+          free,
+        },
         positions,
       };
-    }),
-    throttleTime(1000),
-    shareReplay(1),
+    },
+    { auto_refresh_interval: 1000 },
   );
-
-  publishAccountInfo(terminal, FUTURE_USDT_ACCOUNT_ID, futureUsdtAccountInfo$);
   addAccountMarket(terminal, { account_id: FUTURE_USDT_ACCOUNT_ID, market_id: 'GATE/USDT-FUTURE' });
 
-  const getUnifiedAccountsUSDT$ = defer(() => client.getUnifiedAccounts({})).pipe(
-    repeat({ delay: 1000 }),
-    retry({ delay: 5000 }),
-    shareReplay(1),
-  );
+  provideAccountInfoService(
+    terminal,
+    UNIFIED_USDT_ACCOUNT_ID,
+    async () => {
+      const [positions, unifiedAccount, spotTickers] = await Promise.all([
+        loadFuturePositions(),
+        client.getUnifiedAccounts({}),
+        client.getSpotTickers({}),
+      ]);
 
-  const getSpotTickers$ = defer(() => client.getSpotTickers({})).pipe(
-    repeat({ delay: 1000 }),
-    retry({ delay: 5000 }),
-    shareReplay(1),
-  );
+      const balances = unifiedAccount?.balances ?? {};
+      const balancesRecord = balances;
+      const spotTickerList = Array.isArray(spotTickers) ? spotTickers : [];
 
-  const unifiedUsdtAccountInfo$ = combineLatest([
-    accountFuturePosition$,
-    accountFutureOpenOrders$,
-    futureAccount$,
-    getUnifiedAccountsUSDT$,
-    getSpotTickers$,
-  ]).pipe(
-    map(([positions, orders, account, unifiedAccount, spotTickers]): IAccountInfo => {
-      const free = Number(unifiedAccount?.balances?.['USDT']?.available || 0);
-      const profit = +account.unrealised_pnl;
+      const free = Number(balancesRecord['USDT']?.available || 0);
       const equity = Number(unifiedAccount?.unified_account_total_equity || 0);
-      const balance = equity - profit;
-      const used = equity - free;
 
-      const money: IAccountMoney = {
-        currency: 'USDT',
-        balance,
-        profit,
-        free,
-        used,
-        equity,
-      };
-      const spotPosition: IPosition[] = Object.keys(unifiedAccount?.balances ?? {})
-        ?.map((instId) => {
+      const spotPosition: IPosition[] = Object.keys(balances)
+        .map((instId) => {
           if (instId === 'USDT') return;
           let currency_pair = instId + '_USDT';
           if (instId === 'SOL2') {
             currency_pair = 'SOL_USDT';
           }
           const closable_price = Number(
-            spotTickers.find((ticker) => ticker.currency_pair === currency_pair)?.last || 0,
+            spotTickerList.find((ticker) => ticker.currency_pair === currency_pair)?.last || 0,
           );
-          const volume = Number(unifiedAccount?.balances?.[instId]?.available || 0);
+          const volume = Number(balancesRecord[instId]?.available || 0);
           return {
             datasource_id: 'gate/spot',
             position_id: instId,
@@ -231,18 +128,18 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
           };
         })
         .filter((x): x is Exclude<typeof x, undefined> => !!x);
+
       return {
-        updated_at: Date.now(),
-        account_id: UNIFIED_USDT_ACCOUNT_ID,
-        money: money,
+        money: {
+          currency: 'USDT',
+          equity,
+          free,
+        },
         positions: [...positions, ...spotPosition],
       };
-    }),
-    throttleTime(1000),
-    shareReplay(1),
+    },
+    { auto_refresh_interval: 1000 },
   );
-
-  publishAccountInfo(terminal, UNIFIED_USDT_ACCOUNT_ID, unifiedUsdtAccountInfo$);
   addAccountMarket(terminal, { account_id: UNIFIED_USDT_ACCOUNT_ID, market_id: 'GATE/UNIFIED' });
 
   provideAccountInfoService(
@@ -256,16 +153,12 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
       const balance = +(res.find((v) => v.currency === 'USDT')?.available ?? '0');
       const equity = balance;
       const free = equity;
-      const money: IAccountMoney = {
-        currency: 'USDT',
-        equity,
-        profit: 0,
-        balance,
-        free,
-        used: 0,
-      };
       return {
-        money,
+        money: {
+          currency: 'USDT',
+          equity,
+          free,
+        },
         positions: [],
       };
     },

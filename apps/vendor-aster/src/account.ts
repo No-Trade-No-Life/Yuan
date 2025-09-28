@@ -1,6 +1,6 @@
-import { IAccountMoney, IPosition, provideAccountInfoService } from '@yuants/data-account';
+import { IPosition, provideAccountInfoService } from '@yuants/data-account';
 import { Terminal } from '@yuants/protocol';
-import { getFApiV2Balance, getFApiV4Account } from './api';
+import { getFApiV4Account } from './api';
 
 const ADDRESS = process.env.ADDRESS!;
 export const ACCOUNT_ID = `ASTER/${ADDRESS}`;
@@ -11,20 +11,9 @@ provideAccountInfoService(
   async () => {
     const [a] = await Promise.all([getFApiV4Account({})]);
 
-    const profit = +a.totalUnrealizedProfit;
-    const balance = +a.totalWalletBalance;
-    const equity = balance + profit;
+    const equity = +a.totalWalletBalance + +a.totalUnrealizedProfit;
     const free = +a.availableBalance;
-    const used = equity - free;
 
-    const money: IAccountMoney = {
-      currency: 'USD',
-      equity: equity,
-      balance: balance,
-      profit: profit,
-      free: free,
-      used: used,
-    };
     const positions = a.positions
       .filter((p) => +p.positionAmt !== 0)
       .map(
@@ -41,7 +30,14 @@ provideAccountInfoService(
           valuation: Math.abs(+p.notional),
         }),
       );
-    return { money, positions };
+    return {
+      money: {
+        currency: 'USD',
+        equity,
+        free,
+      },
+      positions,
+    };
   },
   { auto_refresh_interval: 1000 },
 );

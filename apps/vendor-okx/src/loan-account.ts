@@ -46,18 +46,12 @@ defer(async () => {
         });
       }
       const equity = +data.collateralNotionalUsd - +data.loanNotionalUsd;
-      const balance = +data.collateralNotionalUsd;
-      const profit = equity - balance;
-      const used = balance;
-      const free = equity - used;
+      const free = equity - +data.collateralNotionalUsd;
       return {
         money: {
           currency: 'USDT',
           equity,
-          balance,
-          used,
           free,
-          profit,
         },
         positions,
       };

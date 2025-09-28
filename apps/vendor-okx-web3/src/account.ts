@@ -181,10 +181,7 @@ provideAccountInfoService(
       money: {
         currency: 'USD',
         equity: totalAssets,
-        balance: totalAssets,
-        profit: 0,
         free: 0,
-        used: totalAssets,
       },
       positions,
     };

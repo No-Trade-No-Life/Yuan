@@ -1,4 +1,4 @@
-import { addAccountMarket, IAccountMoney, IPosition, provideAccountInfoService } from '@yuants/data-account';
+import { addAccountMarket, IPosition, provideAccountInfoService } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { addAccountTransferAddress } from '@yuants/transfer';
@@ -121,14 +121,8 @@ const getOpenInterest = async (symbol: string) => {
         if (!usdtUmAssets) {
           throw new Error('um USDT not found');
         }
-        const money: IAccountMoney = {
-          currency: 'USDT',
-          equity: +usdtAssets.totalWalletBalance + +usdtAssets.umUnrealizedPNL,
-          balance: +usdtAssets.totalWalletBalance,
-          profit: +usdtAssets.umUnrealizedPNL,
-          used: +usdtUmAssets.initialMargin,
-          free: +usdtAssets.totalWalletBalance + +usdtAssets.umUnrealizedPNL - +usdtUmAssets.initialMargin,
-        };
+        const equity = +usdtAssets.totalWalletBalance + +usdtAssets.umUnrealizedPNL;
+        const free = equity - +usdtUmAssets.initialMargin;
 
         const positions = umAccountResult.positions
           .filter((v) => +v.positionAmt !== 0)
@@ -148,7 +142,11 @@ const getOpenInterest = async (symbol: string) => {
           });
 
         return {
-          money,
+          money: {
+            currency: 'USDT',
+            equity,
+            free,
+          },
           positions,
         };
       },
@@ -167,18 +165,12 @@ const getOpenInterest = async (symbol: string) => {
         throw new Error(spotAccountResult.msg);
       }
       const usdtAssets = spotAccountResult.balances.find((v) => v.asset === 'USDT');
-      const money: IAccountMoney = {
-        currency: 'USDT',
-        leverage: 1,
-        equity: +(usdtAssets?.free || 0),
-        balance: +(usdtAssets?.free || 0),
-        profit: 0,
-        used: 0,
-        free: +(usdtAssets?.free || 0),
-      };
-
       return {
-        money,
+        money: {
+          currency: 'USDT',
+          equity: +(usdtAssets?.free || 0),
+          free: +(usdtAssets?.free || 0),
+        },
         positions: [],
       };
     });

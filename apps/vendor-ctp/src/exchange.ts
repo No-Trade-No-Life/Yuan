@@ -1,5 +1,5 @@
 import { createCache } from '@yuants/cache';
-import { IAccountMoney, IPosition, addAccountMarket, provideAccountInfoService } from '@yuants/data-account';
+import { IPosition, addAccountMarket, provideAccountInfoService } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
@@ -429,18 +429,12 @@ provideAccountInfoService(
       });
     }
 
-    const profit = positions.reduce((acc, cur) => acc + cur.floating_profit, 0);
-    const money: IAccountMoney = {
-      currency: money1.CurrencyID,
-      equity: money1.Balance,
-      balance: money1.Balance - profit,
-      profit: profit,
-      free: money1.Available,
-      used: money1.CurrMargin,
-    };
-
     return {
-      money,
+      money: {
+        currency: money1.CurrencyID,
+        equity: money1.Balance,
+        free: money1.Available,
+      },
       positions,
     };
   },

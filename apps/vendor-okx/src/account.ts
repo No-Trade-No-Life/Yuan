@@ -1,15 +1,8 @@
-import {
-  addAccountMarket,
-  IAccountInfo,
-  IAccountMoney,
-  IPosition,
-  provideAccountInfoService,
-  publishAccountInfo,
-} from '@yuants/data-account';
+import { addAccountMarket, IPosition, provideAccountInfoService } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
-import { combineLatest, defer, filter, first, firstValueFrom, map, repeat, retry, shareReplay } from 'rxjs';
+import { defer, filter, firstValueFrom, map, repeat, retry, shareReplay } from 'rxjs';
 import { client } from './api';
 import { mapProductIdToMarginProduct$, mapProductIdToUsdtSwapProduct$ } from './product';
 
@@ -92,6 +85,7 @@ export const tradingAccountId$ = accountUid$.pipe(
 
 defer(async () => {
   const tradingAccountId = await firstValueFrom(tradingAccountId$);
+  addAccountMarket(terminal, { account_id: tradingAccountId, market_id: 'OKX' });
 
   provideAccountInfoService(
     terminal,
@@ -111,7 +105,8 @@ defer(async () => {
         firstValueFrom(marketIndexTickerUSDT$),
       ]);
 
-      const money: IAccountMoney = { currency: 'USDT', equity: 0, balance: 0, used: 0, free: 0, profit: 0 };
+      let totalEquity = 0;
+      let totalFree = 0;
       const positions: IPosition[] = [];
 
       balanceApi.data[0]?.details.forEach((detail) => {
@@ -122,13 +117,8 @@ defer(async () => {
             +(detail.availEq ?? 0),
           );
           const equity = +(detail.eq ?? 0) - +(detail.stgyEq ?? 0);
-          const used = equity - free;
-          const profit = equity - balance;
-          money.equity += equity;
-          money.balance += balance;
-          money.used += used;
-          money.free += free;
-          money.profit += profit;
+          totalEquity += equity;
+          totalFree += free;
         } else {
           const volume = +(detail.cashBal ?? 0);
           const free_volume = Math.min(
@@ -138,9 +128,6 @@ defer(async () => {
           const closable_price = marketIndexTickerUSDT.get(detail.ccy + '-USDT') || 0;
           const delta_equity = volume * closable_price || 0;
           const delta_profit = +detail.totalPnl || 0;
-          const delta_balance = delta_equity - delta_profit;
-          const delta_used = delta_equity; // all used
-          const delta_free = 0;
 
           const product_id = encodePath('SPOT', `${detail.ccy}-USDT`);
           positions.push({
@@ -156,11 +143,7 @@ defer(async () => {
             valuation: delta_equity,
           });
 
-          money.equity += delta_equity;
-          money.profit += delta_profit;
-          money.balance += delta_balance;
-          money.used += delta_used;
-          money.free += delta_free;
+          totalEquity += delta_equity;
         }
       });
       positionsApi.data.forEach((x) => {
@@ -190,7 +173,11 @@ defer(async () => {
         });
       });
       return {
-        money: money,
+        money: {
+          currency: 'USDT',
+          equity: totalEquity,
+          free: totalFree,
+        },
         positions: positions,
       };
     },
@@ -198,34 +185,36 @@ defer(async () => {
   );
 }).subscribe();
 
-const sub = defer(() => accountUid$)
-  .pipe(first())
-  .subscribe((uid) => {
-    addAccountMarket(terminal, { account_id: `okx/${uid}/trading`, market_id: 'OKX' });
-    publishAccountInfo(terminal, `okx/${uid}/funding/USDT`, fundingAccountInfo$);
-  });
-defer(() => terminal.dispose$).subscribe(() => sub.unsubscribe());
+defer(async () => {
+  const uid = await firstValueFrom(accountUid$);
 
-const assetBalance$ = defer(() => client.getAssetBalances({})).pipe(
-  repeat({ delay: 1000 }),
-  retry({ delay: 5000 }),
-  shareReplay(1),
-);
+  const fundingAccountId = `okx/${uid}/funding/USDT`;
 
-const fundingAccountInfo$ = combineLatest([accountUid$, assetBalance$, marketIndexTickerUSDT$]).pipe(
-  map(([uid, assetBalances, marketIndexTickerUSDT]): IAccountInfo => {
-    const money: IAccountMoney = { currency: 'USDT', equity: 0, balance: 0, used: 0, free: 0, profit: 0 };
-    const positions: IPosition[] = [];
+  provideAccountInfoService(
+    terminal,
+    fundingAccountId,
+    async () => {
+      const [assetBalances, marketIndexTickerUSDT] = await Promise.all([
+        client.getAssetBalances({}),
+        firstValueFrom(marketIndexTickerUSDT$),
+      ]);
 
-    assetBalances.data.forEach((x) => {
-      if (x.ccy === 'USDT') {
-        money.equity += +x.bal;
-        money.balance += +x.bal;
-        money.free += +x.bal;
-      } else {
-        const price = marketIndexTickerUSDT.get(x.ccy + '-USDT') || 0;
-        const productId = encodePath('SPOT', `${x.ccy}-USDT`);
+      const positions: IPosition[] = [];
+      let equity = 0;
+      let free = 0;
+
+      assetBalances.data.forEach((x) => {
+        if (x.ccy === 'USDT') {
+          const balance = +x.bal;
+          equity += balance;
+          free += balance;
+          return;
+        }
+
+        const price = marketIndexTickerUSDT.get(`${x.ccy}-USDT`) || 0;
         const valuation = price * +x.bal || 0;
+        const productId = encodePath('SPOT', `${x.ccy}-USDT`);
+
         positions.push({
           datasource_id: 'OKX',
           position_id: productId,
@@ -236,24 +225,24 @@ const fundingAccountInfo$ = combineLatest([accountUid$, assetBalance$, marketInd
           position_price: price,
           floating_profit: 0,
           closable_price: price,
-          valuation: valuation,
+          valuation,
         });
 
-        money.equity += valuation;
-        money.balance += valuation;
-        money.used += valuation;
-      }
-    });
+        equity += valuation;
+      });
 
-    return {
-      account_id: `okx/${uid}/funding/USDT`,
-      updated_at: Date.now(),
-      money: money,
-      positions: positions,
-    };
-  }),
-  shareReplay(1),
-);
+      return {
+        money: {
+          currency: 'USDT',
+          equity,
+          free,
+        },
+        positions,
+      };
+    },
+    { auto_refresh_interval: 1000 },
+  );
+}).subscribe();
 
 defer(async () => {
   const uid = await firstValueFrom(accountUid$);
@@ -264,21 +253,13 @@ defer(async () => {
     async () => {
       const offers = await client.getFinanceSavingsBalance({});
       const equity = offers.data.filter((x) => x.ccy === 'USDT').reduce((acc, x) => acc + +x.amt, 0);
-      const balance = equity;
       const free = equity;
-      const used = 0;
-      const profit = 0;
-
-      const money: IAccountMoney = {
-        currency: 'USDT',
-        equity,
-        balance,
-        used,
-        free,
-        profit,
-      };
       return {
-        money: money,
+        money: {
+          currency: 'USDT',
+          equity,
+          free,
+        },
         positions: [],
       };
     },
