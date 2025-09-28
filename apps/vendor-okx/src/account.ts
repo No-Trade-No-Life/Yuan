@@ -145,7 +145,7 @@ defer(async () => {
 
       balanceApi.data[0]?.details.forEach((detail) => {
         if (detail.ccy === 'USDT') {
-          const balance = +(detail.cashBal ?? 0) - +(detail.stgyEq ?? 0);
+          const balance = +(detail.cashBal ?? 0) + +(detail.stgyEq ?? 0);
           const free = Math.min(
             balance, // free should no more than balance if there is much profits
             +(detail.availEq ?? 0),
