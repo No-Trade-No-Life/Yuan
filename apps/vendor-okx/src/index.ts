@@ -7,3 +7,4 @@ import './order';
 import './quote';
 import './trade';
 import './services';
+import './strategy-account';
