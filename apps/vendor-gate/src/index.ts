@@ -7,6 +7,7 @@ import {
   publishAccountInfo,
 } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
+import { Terminal } from '@yuants/protocol';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import { encodePath, formatTime } from '@yuants/utils';
 import {
@@ -27,7 +28,8 @@ import {
 import { client } from './api';
 import './interest_rate';
 import { mapProductIdToUsdtFutureProduct$ } from './product';
-import { terminal } from './terminal';
+
+const terminal = Terminal.fromNodeEnv();
 
 const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
   const cache: Record<string, any> = {};

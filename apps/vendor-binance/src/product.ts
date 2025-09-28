@@ -1,9 +1,11 @@
-import { encodePath } from '@yuants/utils';
 import { IProduct } from '@yuants/data-product';
+import { Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
+import { encodePath } from '@yuants/utils';
 import { Subject, defer, from, map, mergeMap, repeat, retry, shareReplay, tap, toArray } from 'rxjs';
 import { client } from './api';
-import { terminal } from './terminal';
+
+const terminal = Terminal.fromNodeEnv();
 
 const product$ = new Subject<IProduct>();
 

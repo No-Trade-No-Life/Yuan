@@ -1,8 +1,10 @@
 import { IProduct } from '@yuants/data-product';
+import { Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
 import { defer, filter, map, mergeMap, repeat, retry, shareReplay, Subject, tap, toArray } from 'rxjs';
 import { ex, EXCHANGE_ID } from './api';
-import { terminal } from './terminal';
+
+const terminal = Terminal.fromNodeEnv();
 
 export const mapProductIdToSymbol: Record<string, string> = {};
 export const mapSymbolToProductId: Record<string, string> = {};

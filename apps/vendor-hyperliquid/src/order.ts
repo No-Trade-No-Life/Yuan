@@ -1,7 +1,9 @@
 import { IOrder } from '@yuants/data-order';
+import { Terminal } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
 import { client } from './api';
-import { terminal } from './terminal';
+
+const terminal = Terminal.fromNodeEnv();
 
 /**
  * Round price according to Hyperliquid rules:
