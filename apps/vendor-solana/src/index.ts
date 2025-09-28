@@ -1,7 +1,6 @@
-import { IAccountInfo, IAccountMoney, publishAccountInfo } from '@yuants/data-account';
+import { provideAccountInfoService } from '@yuants/data-account';
 import { Terminal } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
-import { defer, map, repeat, retry, shareReplay } from 'rxjs';
 
 const solanaAddress = process.env.PUBLIC_KEY?.split(',') || [];
 const terminal = Terminal.fromNodeEnv();
@@ -46,29 +45,23 @@ const getAccountInfo = async (
 
 solanaAddress.forEach((address) => {
   console.info(formatTime(Date.now()), 'INIT', address);
-  const accountInfo$ = defer(() => getAccountInfo(address)).pipe(
-    map((info): IAccountInfo => {
+  provideAccountInfoService(
+    terminal,
+    `SOLANA/${address}`,
+    async () => {
+      const info = await getAccountInfo(address);
       console.info(formatTime(Date.now()), 'INFO', info);
-      const x = info.result.value.lamports;
-      const sol = x / 1e9;
-      const money: IAccountMoney = {
-        currency: 'SOL',
-        equity: sol,
-        balance: sol,
-        profit: 0,
-        free: sol,
-        used: 0,
-      };
+      const lamports = info.result.value.lamports;
+      const sol = lamports / 1e9;
       return {
-        updated_at: Date.now(),
-        account_id: `SOLANA/${address}`,
-        money: money,
+        money: {
+          currency: 'SOL',
+          equity: sol,
+          free: sol,
+        },
         positions: [],
       };
-    }),
-    repeat({ delay: 1000 * 10 }),
-    retry({ delay: 1000 * 10 }),
-    shareReplay(1),
+    },
+    { auto_refresh_interval: 10_000 },
   );
-  publishAccountInfo(terminal, `SOLANA/${address}`, accountInfo$);
 });

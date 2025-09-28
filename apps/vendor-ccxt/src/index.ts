@@ -1,33 +1,9 @@
-import {
-  IAccountInfo,
-  IAccountMoney,
-  IPosition,
-  provideAccountInfoService,
-  publishAccountInfo,
-} from '@yuants/data-account';
+import { provideAccountInfoService } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
 import { FundingRate } from 'ccxt/js/src/base/types';
-import {
-  combineLatest,
-  defer,
-  delayWhen,
-  filter,
-  first,
-  firstValueFrom,
-  from,
-  lastValueFrom,
-  map,
-  mergeMap,
-  of,
-  repeat,
-  retry,
-  shareReplay,
-  tap,
-  timeout,
-  toArray,
-} from 'rxjs';
+import { defer, firstValueFrom, from, lastValueFrom, map, repeat, retry, shareReplay } from 'rxjs';
 import { EXCHANGE_ID, ex } from './api';
 import { mapProductIdToSymbol, mapSymbolToProductId, products$ } from './product';
 
@@ -37,8 +13,6 @@ const terminal = Terminal.fromNodeEnv();
   const PUBLIC_ONLY = process.env.PUBLIC_ONLY === 'true';
   const ACCOUNT_ID = process.env.ACCOUNT_ID!;
   const CURRENCY = process.env.CURRENCY || 'USDT';
-
-  let accountInfoLock = false;
 
   if (EXCHANGE_ID === 'binance') {
     ex.options['warnOnFetchOpenOrdersWithoutSymbol'] = false;
@@ -138,137 +112,52 @@ const terminal = Terminal.fromNodeEnv();
   // });
 
   if (!PUBLIC_ONLY) {
-    // NOTE: some exchange has the concept of funding account
-    if (['okx'].includes(EXCHANGE_ID)) {
-      provideAccountInfoService(
-        terminal,
-        `${account_id}/funding`,
-        async () => {
-          const balance = await ex.fetchBalance({ type: 'funding' });
-          const okx_balance = balance[CURRENCY];
-          const money: IAccountMoney = {
-            currency: CURRENCY,
-            balance: okx_balance.total!,
-            free: okx_balance.free!,
-            used: okx_balance.used!,
-            equity: okx_balance.total!,
-            profit: 0,
-          };
-          return {
-            money: money,
-            positions: [],
-          };
-        },
-        { auto_refresh_interval: 1000 },
-      );
-    }
-
-    const accountInfo$ = defer(() => of(0)).pipe(
-      mergeMap(() => {
-        const balance$ = (
-          ex.has['watchBalance']
-            ? defer(() => ex.watchBalance()).pipe(repeat())
-            : defer(() => ex.fetchBalance()).pipe(repeat({ delay: 1000 }))
-        ).pipe(
-          //
-          shareReplay(1),
-        );
-        const positions$ = defer(() => ex.fetchPositions(undefined))
-          .pipe(
-            //
-            repeat({ delay: 1000 }),
-          )
-          .pipe(
-            mergeMap((positions) =>
-              from(positions).pipe(
-                map((position): IPosition => {
-                  return {
-                    position_id: position.id!,
-                    product_id: mapSymbolToProductId[position.symbol],
-                    direction: position.side === 'long' ? 'LONG' : 'SHORT',
-                    volume: position.contracts || 0,
-                    free_volume: position.contracts || 0,
-                    position_price: position.entryPrice || 0,
-                    closable_price: position.markPrice || 0,
-                    floating_profit: position.unrealizedPnl || 0,
-                    valuation: 0, // TODO: calculate valuation
-                  };
-                }),
-                toArray(),
-              ),
-            ),
-            shareReplay(1),
-          );
-        const orders$ = from(ex.fetchOpenOrders()).pipe(
-          repeat({ delay: 1000 }),
-          mergeMap((orders) =>
-            from(orders).pipe(
-              map((order): IOrder => {
-                return {
-                  order_id: order.id,
-                  account_id: account_id,
-                  product_id: mapSymbolToProductId[order.symbol],
-                  order_type: order.type === 'limit' ? 'LIMIT' : 'MARKET',
-                  order_direction: order.side === 'sell' ? 'OPEN_SHORT' : 'OPEN_LONG',
-                  volume: order.amount,
-                  submit_at: order.timestamp,
-                  price: order.price,
-                  traded_volume: order.amount - order.remaining,
-                };
-              }),
-              toArray(),
-            ),
-          ),
-          shareReplay(1),
-        );
-        return combineLatest([balance$, positions$, orders$]).pipe(
-          //
-          map(([balance, positions, orders]): IAccountInfo => {
-            const profit = positions.reduce((acc, cur) => cur.floating_profit + acc, 0);
-            const equity = +(balance[CURRENCY]?.total ?? 0);
-            const money: IAccountMoney = {
-              currency: CURRENCY,
-              balance: equity - profit,
-              free: +(balance[CURRENCY]?.free ?? 0),
-              used: +(balance[CURRENCY]?.used ?? 0),
-              equity: equity,
-              profit,
-            };
-            return {
-              updated_at: Date.now(),
-              account_id: account_id,
-              money: money,
-              positions,
-            };
+    terminal.server.provideService(
+      'QueryPendingOrders',
+      { required: ['account_id'], properties: { account_id: { type: 'string', const: account_id } } },
+      async () => {
+        const _orders = await ex.fetchOpenOrders();
+        const data = _orders.map(
+          (order): IOrder => ({
+            order_id: order.id,
+            account_id: account_id,
+            product_id: mapSymbolToProductId[order.symbol],
+            order_type: order.type === 'limit' ? 'LIMIT' : 'MARKET',
+            order_direction: order.side === 'sell' ? 'OPEN_SHORT' : 'OPEN_LONG',
+            volume: order.amount,
+            submit_at: order.timestamp,
+            price: order.price,
+            traded_volume: order.amount - order.remaining,
           }),
         );
-      }),
-      timeout(30_000),
-      tap({
-        error: (e) => console.error(formatTime(Date.now()), 'accountInfo$', e),
-        next: () => {
-          if (accountInfoLock) {
-            console.info(formatTime(Date.now()), 'accountInfo$ is locked');
-          }
-        },
-      }),
-      retry({ delay: 1000 }),
-      shareReplay(1),
+        return { res: { code: 0, message: 'OK', data } };
+      },
     );
-    const getAccountNetVolume = (accountInfo: IAccountInfo, product_id: string) => {
-      const netVolume = accountInfo.positions
-        .filter((v) => v.product_id === product_id)
-        .reduce((acc, cur) => acc + cur.volume * (cur.direction === 'LONG' ? 1 : -1), 0);
-      return netVolume;
-    };
 
-    publishAccountInfo(
+    provideAccountInfoService(
       terminal,
       account_id,
-      accountInfo$.pipe(
-        // stuck on submit order to prevent duplicated order
-        filter(() => !accountInfoLock),
-      ),
+      async () => {
+        const balance = await ex.fetchBalance();
+        const _positions = await ex.fetchPositions(undefined);
+        const positions = _positions.map((position) => ({
+          position_id: position.id!,
+          product_id: mapSymbolToProductId[position.symbol],
+          direction: position.side === 'long' ? 'LONG' : 'SHORT',
+          volume: position.contracts || 0,
+          free_volume: position.contracts || 0,
+          position_price: position.entryPrice || 0,
+          closable_price: position.markPrice || 0,
+          floating_profit: position.unrealizedPnl || 0,
+          valuation: 0, // TODO: calculate valuation
+        }));
+
+        const equity = +(balance[CURRENCY]?.total ?? 0);
+        const free = +(balance[CURRENCY]?.free ?? 0);
+
+        return { positions, money: { currency: CURRENCY, equity, free } };
+      },
+      { auto_refresh_interval: 1000 },
     );
 
     terminal.server.provideService<IOrder>(
@@ -281,12 +170,12 @@ const terminal = Terminal.fromNodeEnv();
           },
         },
       },
-      (msg) => {
+      async (msg) => {
         console.info(formatTime(Date.now()), `SubmitOrder`, JSON.stringify(msg.req));
         const { product_id, order_type, order_direction } = msg.req;
         const symbol = mapProductIdToSymbol[product_id];
         if (!symbol) {
-          return of({ res: { code: 400, message: 'No such symbol' } });
+          return { res: { code: 400, message: 'No such symbol' } };
         }
         const ccxtType = order_type === 'MARKET' ? 'market' : 'limit';
         const ccxtSide =
@@ -300,44 +189,13 @@ const terminal = Terminal.fromNodeEnv();
           'submit to ccxt',
           JSON.stringify({ symbol, ccxtType, ccxtSide, volume, price, posSide }),
         );
-        // ISSUE: wait until the account info position update
-        return defer(() => accountInfo$).pipe(
-          //
-          first(),
-          mergeMap((last_account_info) =>
-            from(
-              ex.createOrder(symbol, ccxtType, ccxtSide, volume, price, {
-                // ISSUE: okx hedge LONG/SHORT mode need to set 'posSide' to 'long' or 'short'.
-                posSide: posSide,
-              }),
-            ).pipe(
-              delayWhen((v) =>
-                accountInfo$.pipe(
-                  //
-                  first(
-                    (accountInfo) =>
-                      getAccountNetVolume(last_account_info, product_id) !==
-                      getAccountNetVolume(accountInfo, product_id),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          map(() => {
-            return { res: { code: 0, message: 'OK' } };
-          }),
-          tap({
-            subscribe: () => {
-              if (accountInfoLock) {
-                throw new Error('accountInfo is locked');
-              }
-              accountInfoLock = true;
-            },
-            finalize: () => {
-              accountInfoLock = false;
-            },
-          }),
-        );
+
+        await ex.createOrder(symbol, ccxtType, ccxtSide, volume, price, {
+          // ISSUE: okx hedge LONG/SHORT mode need to set 'posSide' to 'long' or 'short'.
+          posSide: posSide,
+        });
+
+        return { res: { code: 0, message: 'OK' } };
       },
     );
 
@@ -351,13 +209,10 @@ const terminal = Terminal.fromNodeEnv();
           },
         },
       },
-      (msg) => {
+      async (msg) => {
         console.info(formatTime(Date.now()), `CancelOrder`, JSON.stringify(msg.req));
-        return from(ex.cancelOrder(msg.req.order_id!)).pipe(
-          map(() => {
-            return { res: { code: 0, message: 'OK' } };
-          }),
-        );
+        await ex.cancelOrder(msg.req.order_id!);
+        return { res: { code: 0, message: 'OK' } };
       },
     );
 
@@ -371,23 +226,18 @@ const terminal = Terminal.fromNodeEnv();
           },
         },
       },
-      (msg) => {
+      async (msg) => {
         console.info(formatTime(Date.now()), `ModifyOrder`, JSON.stringify(msg.req));
         const { product_id, order_type, order_direction } = msg.req;
         const symbol = mapProductIdToSymbol[product_id];
         if (!symbol) {
-          return of({ res: { code: 400, message: 'No such symbol' } });
+          return { res: { code: 400, message: 'No such symbol' } };
         }
         const ccxtType = order_type === 'MARKET' ? 'market' : 'limit';
         const ccxtSide =
           order_direction === 'OPEN_LONG' || order_direction === 'CLOSE_SHORT' ? 'buy' : 'sell';
-        return from(
-          ex.editOrder(msg.req.order_id!, symbol, ccxtType, ccxtSide, msg.req.volume, msg.req.price),
-        ).pipe(
-          map(() => {
-            return { res: { code: 0, message: 'OK' } };
-          }),
-        );
+        await ex.editOrder(msg.req.order_id!, symbol, ccxtType, ccxtSide, msg.req.volume, msg.req.price);
+        return { res: { code: 0, message: 'OK' } };
       },
     );
   }

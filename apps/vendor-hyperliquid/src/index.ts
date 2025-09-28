@@ -1,4 +1,4 @@
-import { addAccountMarket, IAccountMoney, IPosition, provideAccountInfoService } from '@yuants/data-account';
+import { addAccountMarket, IPosition, provideAccountInfoService } from '@yuants/data-account';
 import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
 import { client } from './api';
@@ -21,21 +21,15 @@ const terminal = Terminal.fromNodeEnv();
           user: client.public_key!,
         });
 
-        const profit = accountRes.assetPositions
-          .map((pos) => +pos.position.unrealizedPnl)
-          .reduce((a, b) => a + b, 0);
-
-        const money: IAccountMoney = {
-          currency: 'USDC',
-          equity: +accountRes.crossMarginSummary.accountValue,
-          profit: profit,
-          free: +accountRes.withdrawable,
-          used: +accountRes.crossMarginSummary.accountValue - +accountRes.withdrawable,
-          balance: +accountRes.crossMarginSummary.accountValue - profit,
-        };
+        const equity = +accountRes.crossMarginSummary.accountValue;
+        const free = +accountRes.withdrawable;
 
         return {
-          money: money,
+          money: {
+            currency: 'USDC',
+            equity,
+            free,
+          },
           positions: accountRes.assetPositions.map(
             (position): IPosition => ({
               position_id: `${position.position.coin}-USD`,

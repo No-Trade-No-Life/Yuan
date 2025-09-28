@@ -78,7 +78,7 @@ export const mergeAccountInfoPositions: (info: IAccountInfo) => Observable<IAcco
 
 // @public
 export const provideAccountInfoService: (terminal: Terminal, account_id: string, query: () => Promise<{
-    money: IAccountMoney;
+    money: Pick<IAccountMoney, 'currency' | 'equity' | 'free'>;
     positions: IPosition[];
 }>, options?: {
     auto_refresh_interval?: number;

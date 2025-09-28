@@ -23,11 +23,7 @@ provideAccountInfoService(
     money: {
       currency: 'USDT',
       equity: 10_000,
-      balance: 10_000,
-      profit: 0,
       free: 10_000,
-      used: 0,
-      leverage: 20,
     },
     positions: [],
   }),
@@ -43,7 +39,7 @@ useAccountInfo(terminal, 'ACC-001').subscribe((info) => {
 
 ### 服务与频道
 
-- `provideAccountInfoService(terminal, account_id, query, options?)`：注册查询服务并推送账户信息，可选超时触发自动刷新。
+- `provideAccountInfoService(terminal, account_id, query, options?)`：注册查询服务并推送账户信息，可选超时触发自动刷新；内部会自动写入 SQL 与指标。
 - `publishAccountInfo(terminal, account_id, accountInfo$)`：将账户信息流发布为 `AccountInfo` 频道并同时写入 SQL 与指标。
 - `useAccountInfo(terminal, account_id)`：订阅指定账户的实时信息流，支持断线自动重连。
 
