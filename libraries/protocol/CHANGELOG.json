@@ -2,6 +2,26 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.45.0",
+      "tag": "@yuants/protocol_v0.45.0",
+      "date": "Sun, 28 Sep 2025 04:21:21 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "update README and remove deprecated tag of PromRegistry"
+          },
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "add metrics to channel"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.44.0",
       "tag": "@yuants/protocol_v0.44.0",
       "date": "Fri, 26 Sep 2025 07:29:31 GMT",
