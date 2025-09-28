@@ -1,8 +1,7 @@
 import { encodePath, formatTime } from '@yuants/utils';
-import { interval, Subscription, tap } from 'rxjs';
-// import WebSocket from 'ws';
+import { catchError, defer, EMPTY, interval, Observable, Subscription, tap, timeout } from 'rxjs';
 
-export class OKXWsClient {
+class OKXWsClient {
   ws: WebSocket;
   connected: boolean = false;
   subscriptions: Set<string>;
@@ -110,3 +109,83 @@ export class OKXWsClient {
     console.info(formatTime(Date.now()), `📩 Sent unsubscribe for ${channelId}`);
   }
 }
+
+const wsPool: {
+  path: string;
+  client: OKXWsClient;
+  requests: number;
+  isFull: boolean;
+}[] = [];
+
+// ISSUE: 连接限制：3 次/秒 (基于IP)
+//
+// https://www.okx.com/docs-v5/zh/#overview-websocket-connect
+//
+// 当订阅公有频道时，使用公有服务的地址；当订阅私有频道时，使用私有服务的地址
+//
+// 请求限制：
+//
+// 每个连接 对于 订阅/取消订阅/登录 请求的总次数限制为 480 次/小时
+const getWsClient = (path: string) => {
+  const existing = wsPool.find((item) => item.path === path && !item.isFull);
+  if (existing) {
+    existing.requests++;
+    if (existing.requests >= 480) {
+      existing.isFull = true;
+    }
+    return existing.client;
+  }
+  const newClient = new OKXWsClient(path);
+  wsPool.push({ path, client: newClient, requests: 1, isFull: false });
+  return newClient;
+};
+
+const fromWsChannelAndInstId = <T>(path: string, channel: string, instId: string) =>
+  defer(
+    () =>
+      new Observable<T>((subscriber) => {
+        const client = getWsClient(path);
+        client.subscribe(channel, instId, (data: T) => {
+          subscriber.next(data);
+        });
+        client.ws.addEventListener('error', (err) => {
+          subscriber.error(err);
+        });
+        client.ws.addEventListener('close', () => {
+          subscriber.error('WS Connection Closed');
+        });
+        subscriber.add(() => {
+          client.unsubscribe(channel, instId);
+        });
+      }),
+  ).pipe(
+    // 防止单个连接断开导致数据流关闭
+    timeout(60_000),
+    tap({
+      error: (err) => {
+        console.info(formatTime(Date.now()), 'WS_SUBSCRIBE_ERROR', channel, instId, err);
+      },
+    }),
+    // 暂时不太确定是否能支持 retry
+    // retry({ delay: 1000 }),
+    catchError(() => EMPTY),
+  );
+
+export const useTicker = (instId: string) =>
+  fromWsChannelAndInstId<{
+    instId: string;
+    last: string;
+    askPx: string;
+    bidPx: string;
+    askSz: string;
+    bidSz: string;
+  }>('ws/v5/public', 'tickers', instId);
+
+export const useOpenInterest = (instId: string) =>
+  fromWsChannelAndInstId<{
+    instId: string;
+    oi: string; // open interest
+  }>('ws/v5/public', 'open-interest', instId);
+
+export const useOHLC = (candleType: string, instId: string) =>
+  fromWsChannelAndInstId<string[]>('ws/v5/business', candleType, instId);
