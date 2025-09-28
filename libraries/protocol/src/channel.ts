@@ -17,6 +17,19 @@ import {
   tap,
 } from 'rxjs';
 import { Terminal } from './terminal';
+import { PromRegistry } from './metrics';
+
+const MetricChannelPayloadCounter = PromRegistry.create(
+  'counter',
+  'terminal_channel_payload_total',
+  'Count of payload messages sent through channels',
+);
+
+const MetricChannelSubscribersGauge = PromRegistry.create(
+  'gauge',
+  'terminal_channel_subscribers',
+  'Number of subscribers for each channel',
+);
 
 /**
  * Channel Manager
@@ -77,6 +90,11 @@ export class TerminalChannel {
             defer(() => handler(channel_id)).pipe(
               //
               map((value) => ({ frame: { value } })),
+              tap({
+                next: () => {
+                  MetricChannelPayloadCounter.inc({ type, channel_id });
+                },
+              }),
               mergeWith(interval(30_000).pipe(map(() => ({})))), // ISSUE: Heartbeat KeepAlive, Ensure the connection is not closed
               tap({
                 subscribe: () => {
@@ -113,6 +131,7 @@ export class TerminalChannel {
                   `type=${type} channel_id=${channel_id} is subscribed by ${msg.source_terminal_id}`,
                 );
               }
+              MetricChannelSubscribersGauge.inc({ type, channel_id });
             },
             finalize: () => {
               if (this.terminal.options.verbose) {
@@ -122,6 +141,7 @@ export class TerminalChannel {
                   `type=${type} channel_id=${channel_id} is unsubscribed by ${msg.source_terminal_id}`,
                 );
               }
+              MetricChannelSubscribersGauge.dec({ type, channel_id });
               this._mapTypeAndChannelIdToPublishedObservable$.delete(typeAndChannelId);
             },
           }),

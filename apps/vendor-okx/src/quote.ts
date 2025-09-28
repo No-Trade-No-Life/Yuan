@@ -1,7 +1,7 @@
 import { IQuote } from '@yuants/data-quote';
 import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
-import { decodePath, encodePath, formatTime, listWatch } from '@yuants/utils';
+import { decodePath, encodePath, listWatch } from '@yuants/utils';
 import {
   catchError,
   defer,
@@ -12,78 +12,16 @@ import {
   map,
   merge,
   mergeMap,
-  Observable,
   repeat,
   retry,
   scan,
   share,
   shareReplay,
   tap,
-  timeout,
   toArray,
 } from 'rxjs';
 import { client } from './api';
-import { OKXWsClient } from './websocket';
-
-const wsPool: {
-  client: OKXWsClient;
-  requests: number;
-  isFull: boolean;
-}[] = [];
-
-// ISSUE: 连接限制：3 次/秒 (基于IP)
-//
-// https://www.okx.com/docs-v5/zh/#overview-websocket-connect
-//
-// 当订阅公有频道时，使用公有服务的地址；当订阅私有频道时，使用私有服务的地址
-//
-// 请求限制：
-//
-// 每个连接 对于 订阅/取消订阅/登录 请求的总次数限制为 480 次/小时
-const getWsClient = () => {
-  const existing = wsPool.find((item) => !item.isFull);
-  if (existing) {
-    existing.requests++;
-    if (existing.requests >= 480) {
-      existing.isFull = true;
-    }
-    return existing.client;
-  }
-  const newClient = new OKXWsClient('ws/v5/public');
-  wsPool.push({ client: newClient, requests: 1, isFull: false });
-  return newClient;
-};
-
-const fromWsChannelAndInstId = (channel: string, instId: string) =>
-  defer(
-    () =>
-      new Observable<any>((subscriber) => {
-        const client = getWsClient();
-        client.subscribe(channel, instId, (data: any) => {
-          subscriber.next(data);
-        });
-        client.ws.addEventListener('error', (err) => {
-          subscriber.error(err);
-        });
-        client.ws.addEventListener('close', () => {
-          subscriber.error('WS Connection Closed');
-        });
-        subscriber.add(() => {
-          client.unsubscribe(channel, instId);
-        });
-      }),
-  ).pipe(
-    // 防止单个连接断开导致数据流关闭
-    timeout(60_000),
-    tap({
-      error: (err) => {
-        console.info(formatTime(Date.now()), 'WS_SUBSCRIBE_ERROR', channel, instId, err);
-      },
-    }),
-    // 暂时不太确定是否能支持 retry
-    // retry({ delay: 1000 }),
-    catchError(() => EMPTY),
-  );
+import { useOpenInterest, useTicker } from './websocket';
 
 const swapInstruments$ = defer(() => client.getInstruments({ instType: 'SWAP' })).pipe(
   repeat({ delay: 3600_000 }),
@@ -124,7 +62,7 @@ const spotTicker$ = spotInstruments$.pipe(
   }),
   listWatch(
     (x) => x.instId,
-    (x) => fromWsChannelAndInstId('tickers', x.instId),
+    (x) => useTicker(x.instId),
     () => true,
   ),
   share(),
@@ -176,7 +114,7 @@ const quoteOfSpotAndMarginFromRest$ = defer(() => client.getMarketTickers({ inst
 const quoteOfSwapFromWs$ = swapInstruments$.pipe(
   listWatch(
     (x) => x.instId,
-    (x) => fromWsChannelAndInstId('tickers', x.instId),
+    (x) => useTicker(x.instId),
     () => true,
   ),
   map(
@@ -224,7 +162,7 @@ const swapOpenInterests$ = defer(() => client.getOpenInterest({ instType: 'SWAP'
 const interestRateOfSwapFromWS$ = swapInstruments$.pipe(
   listWatch(
     (x) => x.instId,
-    (x) => fromWsChannelAndInstId('open-interest', x.instId),
+    (x) => useOpenInterest(x.instId),
     () => true,
   ),
   map(

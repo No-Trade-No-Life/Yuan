@@ -585,11 +585,6 @@
       "shouldPublish": true
     },
     {
-      "packageName": "@yuants/app-k8s-manifest-operator",
-      "projectFolder": "apps/k8s-manifest-operator",
-      "shouldPublish": true
-    },
-    {
       "packageName": "@yuants/app-postgres-storage",
       "projectFolder": "apps/postgres-storage",
       "shouldPublish": true
