@@ -82,6 +82,9 @@ const _requestZMQ = <Req, Res>(req: {
 const ACCOUNT_ID = `${process.env.BROKER_ID!}/${process.env.USER_ID!}`;
 const terminal = Terminal.fromNodeEnv();
 
+const QueryInProcessingLimit = +process.env.QUERY_IN_PROCESSING_LIMIT! || 1;
+const QueryRPS = +process.env.QUERY_RPS_LIMIT! || 1;
+
 terminal.server.provideService<
   { account_id: string; method: string; params: any },
   void,
@@ -111,12 +114,14 @@ terminal.server.provideService<
     }).pipe(map((x) => ({ frame: x })));
   },
   {
-    concurrent: 1,
-    egress_token_capacity: 1,
-    max_pending_requests: 60,
+    concurrent: QueryInProcessingLimit,
+    egress_token_capacity: QueryRPS,
+    max_pending_requests: 60 * QueryRPS,
   },
 );
 
+const OrderInProcessingLimit = +process.env.ORDER_IN_PROCESSING_LIMIT! || 1;
+const OrderRPS = +process.env.ORDER_RPS_LIMIT! || 100;
 terminal.server.provideService<
   { account_id: string; method: string; params: any },
   void,
@@ -146,7 +151,9 @@ terminal.server.provideService<
     }).pipe(map((x) => ({ frame: x })));
   },
   {
-    concurrent: 1,
+    concurrent: QueryInProcessingLimit,
+    egress_token_capacity: OrderRPS,
+    max_pending_requests: 60 * OrderRPS,
   },
 );
 

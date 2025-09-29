@@ -1062,6 +1062,7 @@ importers:
       '@yuants/data-account': workspace:*
       '@yuants/data-order': workspace:*
       '@yuants/data-product': workspace:*
+      '@yuants/data-quote': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/sql': workspace:*
@@ -1077,6 +1078,7 @@ importers:
       '@yuants/data-account': link:../../libraries/data-account
       '@yuants/data-order': link:../../libraries/data-order
       '@yuants/data-product': link:../../libraries/data-product
+      '@yuants/data-quote': link:../../libraries/data-quote
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
@@ -18082,7 +18084,7 @@ packages:
       pretty-format: 29.6.3
       slash: 3.0.0
       strip-json-comments: 3.1.1
-      ts-node: 10.9.2_a718138a4c76ef7ef00ec6bb7815892b
+      ts-node: 10.9.2_24c227b0eb5752a64240dae09531dbef
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color
