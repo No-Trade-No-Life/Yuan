@@ -1,4 +1,4 @@
-import { PromRegistry } from '@yuants/protocol';
+import { PromRegistry, Terminal } from '@yuants/protocol';
 import { encodePath, formatTime } from '@yuants/utils';
 import { catchError, defer, EMPTY, filter, interval, Observable, Subscription, tap, timeout } from 'rxjs';
 
@@ -15,6 +15,7 @@ const MetricsWebSocketChannelGauge = PromRegistry.create(
 );
 
 type ConnectStatus = 'connecting' | 'connected' | 'closed' | 'reconnecting';
+const terminal = Terminal.fromNodeEnv();
 
 class OKXWsClient {
   private static readonly pool: {
@@ -27,7 +28,7 @@ class OKXWsClient {
   // ISSUE: 连接限制：3 次/秒 (基于IP)
   // https://www.okx.com/docs-v5/zh/#overview-websocket-connect
   // 每个连接 对于 订阅/取消订阅/登录 请求的总次数限制为 480 次/小时
-  static acquire(path: string): OKXWsClient {
+  static GetWsClient(path: string): OKXWsClient {
     const existing = OKXWsClient.pool.find((item) => item.path === path && !item.isFull);
     if (existing && !existing.client.isClosed()) {
       existing.requests++;
@@ -142,7 +143,7 @@ class OKXWsClient {
   private initSocket() {
     this.connectStatus = 'connecting';
     this.ws = new WebSocket(`${this.baseURL}/${this.path}`);
-    MetricsWebSocketConnectionsGauge.inc({ path: this.path });
+    MetricsWebSocketConnectionsGauge.inc({ path: this.path, terminal_id: terminal.terminal_id });
 
     this.ws.addEventListener('open', this.handleOpen);
     this.ws.addEventListener('message', this.handleMessage);
@@ -219,7 +220,8 @@ class OKXWsClient {
     }
 
     this.subscriptions.set(channelId, { channel, instId });
-    MetricsWebSocketChannelGauge.inc({ channel });
+    MetricsWebSocketChannelGauge.inc({ channel, terminal_id: terminal.terminal_id });
+
     if (handler) {
       this.handlers[channelId] = handler;
     }
@@ -259,7 +261,7 @@ const fromWsChannelAndInstId = <T>(path: string, channel: string, instId: string
   defer(
     () =>
       new Observable<T>((subscriber) => {
-        const client = OKXWsClient.acquire(path);
+        const client = OKXWsClient.GetWsClient(path);
         client.subscribe(channel, instId, (data: T) => {
           subscriber.next(data);
         });
