@@ -142,7 +142,10 @@ export const customSeries: ICustomSeries[] = [
             filter((x) => !!x),
             switchMap((terminal) =>
               defer(() =>
-                terminal.channel.subscribeChannel<IOHLC>('ohlc', seriesConfig!.options!.realtimeSeriesId),
+                terminal.channel.subscribeChannel<IOHLC>(
+                  'ohlc',
+                  seriesConfig!.options!.realtimeSeriesId ?? '',
+                ),
               ),
             ),
           )
