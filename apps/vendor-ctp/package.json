@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-ctp",
-  "version": "0.5.7",
+  "version": "0.6.0",
   "main": "lib/index.js",
   "files": [
     "dist",
@@ -15,6 +15,7 @@
   "dependencies": {
     "@yuants/data-account": "workspace:*",
     "@yuants/data-order": "workspace:*",
+    "@yuants/data-quote": "workspace:*",
     "@yuants/protocol": "workspace:*",
     "@yuants/utils": "workspace:*",
     "@yuants/sql": "workspace:*",

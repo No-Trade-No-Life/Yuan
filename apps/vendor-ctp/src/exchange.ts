@@ -3,6 +3,7 @@ import { IPosition, addAccountMarket, provideAccountInfoService } from '@yuants/
 import { IOrder } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
+import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
 import { encodePath, formatTime } from '@yuants/utils';
 import { parse } from 'date-fns';
 import {
@@ -53,6 +54,7 @@ import {
   TThostFtdcVolumeConditionType,
 } from './assets/ctp-types';
 import { IBridgeMessage } from './interfaces';
+import { quoteToWrite$ } from './quote';
 
 const terminal = Terminal.fromNodeEnv();
 const BROKER_ID = process.env.BROKER_ID!;
@@ -111,47 +113,59 @@ const mapToValue = <Req, Rep>(resp$: Observable<IBridgeMessage<Req, Rep>>) =>
     filter((v): v is Exclude<typeof v, undefined> => !!v),
   );
 
-const cacheOfProduct = createCache<IProduct>(async (product_id) => {
-  const [exchange_id, instrument_id] = product_id.split('-');
-  const product = await firstValueFrom(
-    requestZMQ<ICThostFtdcQryInstrumentField, ICThostFtdcInstrumentField>({
-      method: 'ReqQryInstrument',
-      params: {
-        ExchangeID: exchange_id,
-        reserve1: '',
-        reserve2: '',
-        reserve3: '',
-        ExchangeInstID: '',
-        ProductID: '',
-        InstrumentID: instrument_id,
-      },
-    }).pipe(
-      mapToValue,
-      map(
-        (msg): IProduct => ({
-          datasource_id: DATASOURCE_ID,
-          product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
-          name: msg.InstrumentName,
-          quote_currency: 'CNY',
-          price_step: msg.PriceTick,
-          value_scale: msg.VolumeMultiple,
-          volume_step: 1,
-          base_currency: '',
-          value_scale_unit: '',
-          margin_rate: msg.LongMarginRatio,
-          value_based_cost: 0,
-          volume_based_cost: 0,
-          max_position: 0,
-          max_volume: 0,
-          allow_long: true,
-          allow_short: true,
+const cacheOfProduct = createCache<IProduct>(
+  async (product_id) => {
+    const [exchange_id, instrument_id] = product_id.split('-');
+    const product = await firstValueFrom(
+      requestZMQ<ICThostFtdcQryInstrumentField, ICThostFtdcInstrumentField>({
+        method: 'ReqQryInstrument',
+        params: {
+          ExchangeID: exchange_id,
+          reserve1: '',
+          reserve2: '',
+          reserve3: '',
+          ExchangeInstID: '',
+          ProductID: '',
+          InstrumentID: instrument_id,
+        },
+      }).pipe(
+        mapToValue,
+        map(
+          (msg): IProduct => ({
+            datasource_id: DATASOURCE_ID,
+            product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
+            name: msg.InstrumentName,
+            quote_currency: 'CNY',
+            price_step: msg.PriceTick,
+            value_scale: msg.VolumeMultiple,
+            volume_step: 1,
+            base_currency: '',
+            value_scale_unit: '',
+            margin_rate: msg.LongMarginRatio,
+            value_based_cost: 0,
+            volume_based_cost: 0,
+            max_position: 0,
+            max_volume: 0,
+            allow_long: true,
+            allow_short: true,
+          }),
+        ),
+        filter((x) => x.product_id === product_id),
+      ),
+    );
+    return product;
+  },
+  {
+    expire: 24 * 3600 * 1000,
+    writeLocal: (key, data) =>
+      requestSQL(
+        terminal,
+        buildInsertManyIntoTableSQL([data], 'product', {
+          conflictKeys: ['datasource_id', 'product_id'],
         }),
       ),
-      filter((x) => x.product_id === product_id),
-    ),
-  );
-  return product;
-});
+  },
+);
 
 const submitOrder = (
   brokerId: string,
@@ -188,6 +202,18 @@ const submitOrder = (
     //
     mapToValue,
     first((v) => v.InstrumentID === instrumentId),
+    tap((quote) => {
+      console.info(formatTime(Date.now()), 'CTP_Quote', JSON.stringify(quote));
+      quoteToWrite$.next({
+        datasource_id: DATASOURCE_ID,
+        product_id: order.product_id,
+        ask_price: `${quote.AskPrice1}`,
+        bid_price: `${quote.BidPrice1}`,
+        last_price: `${quote.LastPrice}`,
+        ask_volume: `${quote.AskVolume1}`,
+        bid_volume: `${quote.BidVolume1}`,
+      });
+    }),
     share(),
   );
 
@@ -406,9 +432,21 @@ provideAccountInfoService(
       const theProduct = await cacheOfProduct.query(`${msg.ExchangeID}-${msg.InstrumentID}`);
       const value_scale = theProduct?.value_scale ?? 1;
       const position_price = msg.OpenCost / msg.Position / value_scale;
+
+      const product_id = `${msg.ExchangeID}-${msg.InstrumentID}`;
+      quoteToWrite$.next({
+        datasource_id: DATASOURCE_ID,
+        product_id: product_id,
+        // TODO: 以后从订阅的行情里更新
+        last_price: `${msg.SettlementPrice}`,
+        ask_price: `${msg.SettlementPrice}`,
+        bid_price: `${msg.SettlementPrice}`,
+      });
+
       positions.push({
         position_id: `mixed`,
-        product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
+        datasource_id: DATASOURCE_ID,
+        product_id: product_id,
         direction: (
           {
             [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Long]: 'LONG',
