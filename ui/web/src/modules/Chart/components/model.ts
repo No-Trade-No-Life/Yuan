@@ -1,4 +1,4 @@
-import { IChartApi } from 'lightweight-charts';
+import { IChartApi, Time } from 'lightweight-charts';
 import { BehaviorSubject, Observable } from 'rxjs';
 
 export interface ILoadedData {
@@ -42,6 +42,8 @@ export interface ISeriesConfig {
    * 对数据的引用
    */
   refs: IDataRef[];
+
+  options?: Record<string, any>;
 }
 
 export interface ICustomSeries {
@@ -57,6 +59,7 @@ export interface ICustomSeries {
     cursor$: BehaviorSubject<number | undefined>;
     viewStartIndex: number;
     dispose$: Observable<void>;
+    realtime$?: Observable<any>;
   }) => void;
   Legend: React.ComponentType<{
     seriesConfig: ISeriesConfig;

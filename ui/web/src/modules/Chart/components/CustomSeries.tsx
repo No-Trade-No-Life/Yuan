@@ -5,9 +5,11 @@ import {
   LineSeries,
   Time,
 } from 'lightweight-charts';
-import { Observable, switchMap, takeUntil } from 'rxjs';
+import { defer, filter, Observable, switchMap, takeUntil } from 'rxjs';
 import { VertLine } from '../Plugins/VerticalLine';
 import { ICustomSeries } from './model';
+import { IOHLC } from '@yuants/data-ohlc';
+import { terminal$ } from '../../Network';
 
 export const DEFAULT_SINGLE_COLOR_SCHEME: string[] = [
   '#5B8FF9',
@@ -93,7 +95,16 @@ export const customSeries: ICustomSeries[] = [
   },
   {
     type: 'ohlc',
-    addSeries: ({ chart, paneIndex, seriesIndex, dataSeries, timeLine }) => {
+    addSeries: ({
+      chart,
+      paneIndex,
+      seriesIndex,
+      dataSeries,
+      timeLine,
+      realtime$,
+      dispose$,
+      seriesConfig,
+    }) => {
       if (dataSeries.length < 4) return;
       const candlestickSeries = chart.addSeries(
         CandlestickSeries,
@@ -122,6 +133,41 @@ export const customSeries: ICustomSeries[] = [
       });
 
       candlestickSeries.setData(displayDataList);
+
+      if (seriesConfig.options && seriesConfig.options.realtimeSeriesId) {
+        terminal$
+          .pipe(
+            //
+            takeUntil(dispose$),
+            filter((x) => !!x),
+            switchMap((terminal) =>
+              defer(() =>
+                terminal.channel.subscribeChannel<IOHLC>('ohlc', seriesConfig!.options!.realtimeSeriesId),
+              ),
+            ),
+          )
+          .subscribe((ohlc: IOHLC) => {
+            const last = displayDataList[displayDataList.length - 1];
+            const time = ~~(new Date(ohlc.created_at).getTime() / 1000) as Time;
+            if (last && last.time === time) {
+              last.open = +ohlc.open;
+              last.high = +ohlc.high;
+              last.low = +ohlc.low;
+              last.close = +ohlc.close;
+            } else {
+              // 新的一根 K：往 timeLine / dataSeries / displayDataList 追加
+              const nextIndex = dataSeries[0].length;
+              timeLine.push([~~(new Date(ohlc.created_at).getTime() / 1000), nextIndex]);
+            }
+            candlestickSeries.update({
+              time,
+              open: +ohlc.open,
+              high: +ohlc.high,
+              low: +ohlc.low,
+              close: +ohlc.close,
+            });
+          });
+      }
     },
     Legend: ({ globalDataSeries, cursorIndex, seriesConfig }) => {
       if (globalDataSeries.length < 4) return null;
