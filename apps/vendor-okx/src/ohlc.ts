@@ -113,7 +113,7 @@ createSeriesProvider<IOHLC>(Terminal.fromNodeEnv(), {
   },
 });
 
-Terminal.fromNodeEnv().channel.publishChannel('ohlc1', { pattern: `^OKX/` }, (series_id) => {
+Terminal.fromNodeEnv().channel.publishChannel('ohlc', { pattern: `^OKX/` }, (series_id) => {
   const [datasource_id, product_id, duration] = decodePath(series_id);
   const [, instId] = decodePath(product_id);
   const offset = convertDurationToOffset(duration);
