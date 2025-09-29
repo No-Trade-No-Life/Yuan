@@ -1,7 +1,6 @@
 import { IconRefresh, IconSetting } from '@douyinfe/semi-icons';
 import { Select, Space, Spin, Toast } from '@douyinfe/semi-ui';
 import { SelectProps } from '@douyinfe/semi-ui/lib/es/select';
-import { requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
 import { JSONSchema7 } from 'json-schema';
 import { useObservable, useObservableRef, useObservableState } from 'observable-hooks';
@@ -41,6 +40,15 @@ const schemaOfChartConfig: JSONSchema7 = {
               start_time: { type: 'string', format: 'date-time', title: '开始时间' },
               end_time: { type: 'string', format: 'date-time', title: '结束时间' },
               step: { type: 'string', title: '步长 (如 15s, 1m, 1h)' },
+            },
+          },
+          {
+            type: 'object',
+            required: ['type', 'query', 'time_column_name'],
+            properties: {
+              type: { const: 'sql' },
+              query: { type: 'string', title: 'SQL 查询语句' },
+              time_column_name: { type: 'string', title: '时间列名称' },
             },
           },
         ],
@@ -285,7 +293,10 @@ export const TimeSeriesChart = (props: {
                 icon={<IconSetting />}
                 onClick={async () => {
                   const data = await showForm<ITimeSeriesChartConfig>(schemaOfChartConfig, config);
-                  await props.onConfigChange?.(data);
+                  if (!props.onConfigChange) {
+                    throw new Error('此组件未支持配置修改');
+                  }
+                  await props.onConfigChange(data);
                   refresh$.next();
                   Toast.success('配置已更新');
                 }}
