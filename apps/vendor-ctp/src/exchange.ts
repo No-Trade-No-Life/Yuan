@@ -571,10 +571,17 @@ terminal.server.provideService<IOrder>(
   },
   async (msg) => {
     const [loginRes, settlementRes] = await Promise.all([
-      terminal.client.requestForResponseData<{}, ICThostFtdcRspUserLoginField>('CTP/QueryLoginResponse', {}),
-      terminal.client.requestForResponseData<{}, ICThostFtdcSettlementInfoConfirmField>(
+      terminal.client.requestForResponseData<{ account_id: string }, ICThostFtdcRspUserLoginField>(
+        'CTP/QueryLoginResponse',
+        {
+          account_id: ACCOUNT_ID,
+        },
+      ),
+      terminal.client.requestForResponseData<{ account_id: string }, ICThostFtdcSettlementInfoConfirmField>(
         'CTP/QuerySettlementResponse',
-        {},
+        {
+          account_id: ACCOUNT_ID,
+        },
       ),
     ]);
 
@@ -596,10 +603,17 @@ terminal.server.provideService<IOrder>(
   },
   async (msg) => {
     const [loginRes, settlementRes] = await Promise.all([
-      terminal.client.requestForResponseData<{}, ICThostFtdcRspUserLoginField>('CTP/QueryLoginResponse', {}),
-      terminal.client.requestForResponseData<{}, ICThostFtdcSettlementInfoConfirmField>(
+      terminal.client.requestForResponseData<{ account_id: string }, ICThostFtdcRspUserLoginField>(
+        'CTP/QueryLoginResponse',
+        {
+          account_id: ACCOUNT_ID,
+        },
+      ),
+      terminal.client.requestForResponseData<{ account_id: string }, ICThostFtdcSettlementInfoConfirmField>(
         'CTP/QuerySettlementResponse',
-        {},
+        {
+          account_id: ACCOUNT_ID,
+        },
       ),
     ]);
 
