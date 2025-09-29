@@ -2,6 +2,31 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.22.16",
+      "tag": "@yuants/vendor-okx_v0.22.16",
+      "date": "Mon, 29 Sep 2025 02:52:01 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add grid position"
+          },
+          {
+            "comment": "refactor"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.5.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.22.15",
       "tag": "@yuants/vendor-okx_v0.22.15",
       "date": "Sun, 28 Sep 2025 04:50:06 GMT",

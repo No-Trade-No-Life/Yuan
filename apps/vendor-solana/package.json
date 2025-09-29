@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-solana",
-  "version": "0.1.88",
+  "version": "0.1.89",
   "files": [
     "dist/extension.bundle.js"
   ],
