@@ -18,7 +18,7 @@ import {
 } from '@yuants/utils';
 import { execSync, spawn } from 'child_process';
 import { createReadStream, createWriteStream } from 'fs';
-import { mkdir, rm, stat, writeFile } from 'fs/promises';
+import { mkdir, rename, rm, stat, writeFile } from 'fs/promises';
 import { hostname, tmpdir } from 'os';
 import { join } from 'path';
 import {
@@ -144,6 +144,14 @@ const runDeployment = (nodeKeyPair: IEd25519KeyPair, deployment: IDeployment) =>
               [deployment.package_name]: deployment.package_version,
             },
           }),
+        );
+
+        // Rename old log file if exists
+        await rename(join(logHome, `${deployment.id}.log`), join(logHome, `${deployment.id}.prev.log`)).catch(
+          (err) => {
+            // File log not exists
+            console.info(formatTime(Date.now()), 'No previous log file to rename', err);
+          },
         );
       }).pipe(mergeMap(() => EMPTY)), // suppress signal
       spawnChild({
