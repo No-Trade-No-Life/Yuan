@@ -91,6 +91,30 @@ const requestZMQ = <Req, Res>(req: { method: string; params: Req }): Observable<
 
 const input$ = terminal.channel.subscribeChannel<IBridgeMessage<any, any>>('CTP/ZMQ', ACCOUNT_ID);
 
+const requestMdZMQ = <Req, Res>(req: { method: string; params: Req }): Observable<IBridgeMessage<Req, Res>> =>
+  terminal.client
+    .requestService<any, any, IBridgeMessage<Req, Res>>('CTP/Md', {
+      account_id: ACCOUNT_ID,
+      method: req.method,
+      params: req.params,
+    })
+    .pipe(
+      tap({
+        subscribe: () => console.info(formatTime(Date.now()), 'Request_MD_ZMQ', JSON.stringify(req)),
+        next: (msg) => console.info(formatTime(Date.now()), 'MD_ZMQ_Res', JSON.stringify(msg)),
+        error: (err) => console.warn(formatTime(Date.now()), 'Request_MD_ZMQ_Error', err),
+      }),
+      map((msg) => {
+        if (msg.res) {
+          if (msg.res.code !== 0) {
+            throw msg.res.message;
+          }
+        }
+        return msg.frame;
+      }),
+      filter((x): x is Exclude<typeof x, undefined> => Boolean(x)),
+    );
+
 const parseCTPTime = (date: string, time: string): Date =>
   parse(`${date}-${time}`, 'yyyyMMdd-HH:mm:ss', new Date());
 

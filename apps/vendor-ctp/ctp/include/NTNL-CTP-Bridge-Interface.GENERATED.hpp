@@ -4,11 +4,13 @@
 #pragma once
 #include <string>
 #include <future>
+#include <stdexcept>
 #include <iconv.h>
 #include "zmq.hpp"
 #include "json.hpp"
 #include "spdlog/spdlog.h"
 #include "ThostFtdcTraderApi.h"
+#include "ThostFtdcMdApi.h"
 #include "ThostFtdcUserApiStruct.h"
 #include "ThostFtdcUserApiDataType.h"
 
@@ -18,7 +20,6 @@ struct Message {
   std::string error_message;
   bool is_last;
 };
-
 
 class IConv {
   iconv_t ic_;
@@ -46,8 +47,10 @@ private:
   CThostFtdcTraderApi *trader_api_;
   zmq::socket_t push_sock_;
   zmq::socket_t pull_sock_;
+  CThostFtdcMdApi *md_api_;
 public:
   Bridge(zmq::context_t *ctx);
+  void SetMdApi(CThostFtdcMdApi *md_api);
   void OnFrontConnected() override;
   void OnFrontDisconnected(int nReason) override;
   void OnHeartBeatWarning(int nTimeLapse) override;
@@ -211,13 +214,9 @@ public:
   void OnErrRtnOffsetSetting(CThostFtdcInputOffsetSettingField *pInputOffsetSetting, CThostFtdcRspInfoField *pRspInfo) override;
   void OnErrRtnCancelOffsetSetting(CThostFtdcCancelOffsetSettingField *pCancelOffsetSetting, CThostFtdcRspInfoField *pRspInfo) override;
   void OnRspQryOffsetSetting(CThostFtdcOffsetSettingField *pOffsetSetting, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) override;
-  static void ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock, zmq::socket_t *pull_sock);
+  static void ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock, zmq::socket_t *pull_sock, CThostFtdcMdApi *md_api);
   void Serve();
 };
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Message, event, error_code, error_message, is_last);
-
-
 
 void to_json(json& j, const CThostFtdcDisseminationField& p);
 void from_json(const json& j, CThostFtdcDisseminationField& p);
@@ -1709,3 +1708,5 @@ void from_json(const json& j, CThostFtdcQryAddrAppIDRelationField& p);
 
 void to_json(json& j, const CThostFtdcFrontInfoField& p);
 void from_json(const json& j, CThostFtdcFrontInfoField& p);
+
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(Message, event, error_code, error_message, is_last);

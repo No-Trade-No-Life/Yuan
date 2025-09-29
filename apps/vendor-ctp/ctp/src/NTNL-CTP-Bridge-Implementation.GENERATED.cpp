@@ -1,22 +1,49 @@
 // THIS FILE IS AUTO GENERATED
+
 // DO NOT MODIFY MANUALLY
 
+
+
 #include <cstdio>
+
+#include <cstdlib>
+
+#include <cstring>
+
+#include <string>
+
+#include <vector>
+
 #include "spdlog/spdlog.h"
+
 #include "NTNL-CTP-Bridge-Interface.GENERATED.hpp"
 
+
+
 std::string codec_convert(const char *to, const char *from, const char *input) {
+
   if (from == nullptr) return "";
+
   IConv ic(to, from);
+
   char out[255];
+
   size_t outsize = 255;
+
   bool ret = ic.convert((char *)input, out, outsize);
+
   if (ret == false) {
+
     spdlog::error("iconv failed for, original value: {}, converted value: {}", input, out);
+
     return "";
+
   } else {
+
     return std::string(out);
+
   }
+
 }
 
 
@@ -20219,6 +20246,54 @@ void from_json(const json& j, CThostFtdcFrontInfoField& p) {
 
 
 
+Bridge::Bridge(zmq::context_t *ctx) : trader_api_(CThostFtdcTraderApi::CreateFtdcTraderApi()), md_api_(nullptr) {
+
+  char *trader_addr = getenv("TRADER_ADDR");
+
+  push_sock_ = zmq::socket_t(*ctx, zmq::socket_type::push);
+
+  const char *pull_url = getenv("ZMQ_PULL_URL");
+
+  std::string pull_endpoint = pull_url != nullptr ? pull_url : "tcp://127.0.0.1:5700";
+
+  auto star_pos = pull_endpoint.find('*');
+
+  if (star_pos != std::string::npos) {
+
+    pull_endpoint.replace(star_pos, 1, "127.0.0.1");
+
+  }
+
+  push_sock_.connect(pull_endpoint);
+
+  pull_sock_ = zmq::socket_t(*ctx, zmq::socket_type::pull);
+
+  pull_sock_.connect("tcp://localhost:5701");
+
+  spdlog::info("Init, connecting trader addr: {}", trader_addr);
+
+  trader_api_->RegisterSpi(this);
+
+  trader_api_->SubscribePublicTopic(THOST_TERT_QUICK);
+
+  trader_api_->SubscribePrivateTopic(THOST_TERT_QUICK);
+
+  trader_api_->RegisterFront(trader_addr);
+
+  trader_api_->Init();
+
+}
+
+
+
+void Bridge::SetMdApi(CThostFtdcMdApi *md_api) {
+
+  md_api_ = md_api;
+
+}
+
+
+
 /* 登出请求响应 */
 void Bridge::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspUserLogout",
@@ -24145,12 +24220,22 @@ void Bridge::OnRspQryOffsetSetting(CThostFtdcOffsetSettingField *pOffsetSetting,
 
 
 void Bridge::Serve() {
-  auto serveThread = std::async(std::launch::async, ListenReq, trader_api_, &push_sock_, &pull_sock_);
+
+  if (md_api_ == nullptr) {
+
+    spdlog::warn("MdApi has not been set before Serve; market data requests will not be handled");
+
+  }
+
+  auto serveThread = std::async(std::launch::async, ListenReq, trader_api_, &push_sock_, &pull_sock_, md_api_);
+
   serveThread.wait();
+
 }
 
 
-void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock, zmq::socket_t *pull_sock) {
+
+void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock, zmq::socket_t *pull_sock, CThostFtdcMdApi *md_api) {
   while (true) {
     zmq::message_t msg;
     spdlog::info("ReceivingZMQ");
@@ -27417,6 +27502,270 @@ void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock
         if (a != 0) {
           spdlog::error("RTN CODE: {}", a);
           Message msg = {.event = "ReqQryOffsetSetting",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* 用户登录请求 */
+      if (method_name == "ReqUserLogin") {
+        if (md_api == nullptr) {
+          spdlog::error("MdApi not initialized when invoking ReqUserLogin");
+          continue;
+        }
+        auto field = data["req"]["params"].get<CThostFtdcReqUserLoginField>();
+        auto a = md_api->ReqUserLogin(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "Md_ReqUserLogin",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* 登出请求 */
+      if (method_name == "ReqUserLogout") {
+        if (md_api == nullptr) {
+          spdlog::error("MdApi not initialized when invoking ReqUserLogout");
+          continue;
+        }
+        auto field = data["req"]["params"].get<CThostFtdcUserLogoutField>();
+        auto a = md_api->ReqUserLogout(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "Md_ReqUserLogout",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* 请求查询组播合约 */
+      if (method_name == "ReqQryMulticastInstrument") {
+        if (md_api == nullptr) {
+          spdlog::error("MdApi not initialized when invoking ReqQryMulticastInstrument");
+          continue;
+        }
+        auto field = data["req"]["params"].get<CThostFtdcQryMulticastInstrumentField>();
+        auto a = md_api->ReqQryMulticastInstrument(&field, data["request_id"].get<int>());
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "Md_ReqQryMulticastInstrument",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* @remark  */
+      if (method_name == "SubscribeMarketData") {
+        if (md_api == nullptr) {
+          spdlog::error("MdApi not initialized when invoking SubscribeMarketData");
+          continue;
+        }
+        auto instrument_ids = data["req"]["params"].at("instrument_ids").get<std::vector<std::string>>();
+        std::vector<std::string> buffer;
+        buffer.reserve(instrument_ids.size());
+        for (auto &id : instrument_ids) {
+          buffer.emplace_back(id);
+        }
+        std::vector<char *> ptrs;
+        ptrs.reserve(buffer.size());
+        for (auto &id : buffer) {
+          ptrs.emplace_back(const_cast<char *>(id.c_str()));
+        }
+        auto a = md_api->SubscribeMarketData(ptrs.data(), static_cast<int>(ptrs.size()));
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "Md_SubscribeMarketData",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* @remark  */
+      if (method_name == "UnSubscribeMarketData") {
+        if (md_api == nullptr) {
+          spdlog::error("MdApi not initialized when invoking UnSubscribeMarketData");
+          continue;
+        }
+        auto instrument_ids = data["req"]["params"].at("instrument_ids").get<std::vector<std::string>>();
+        std::vector<std::string> buffer;
+        buffer.reserve(instrument_ids.size());
+        for (auto &id : instrument_ids) {
+          buffer.emplace_back(id);
+        }
+        std::vector<char *> ptrs;
+        ptrs.reserve(buffer.size());
+        for (auto &id : buffer) {
+          ptrs.emplace_back(const_cast<char *>(id.c_str()));
+        }
+        auto a = md_api->UnSubscribeMarketData(ptrs.data(), static_cast<int>(ptrs.size()));
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "Md_UnSubscribeMarketData",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* @remark  */
+      if (method_name == "SubscribeForQuoteRsp") {
+        if (md_api == nullptr) {
+          spdlog::error("MdApi not initialized when invoking SubscribeForQuoteRsp");
+          continue;
+        }
+        auto instrument_ids = data["req"]["params"].at("instrument_ids").get<std::vector<std::string>>();
+        std::vector<std::string> buffer;
+        buffer.reserve(instrument_ids.size());
+        for (auto &id : instrument_ids) {
+          buffer.emplace_back(id);
+        }
+        std::vector<char *> ptrs;
+        ptrs.reserve(buffer.size());
+        for (auto &id : buffer) {
+          ptrs.emplace_back(const_cast<char *>(id.c_str()));
+        }
+        auto a = md_api->SubscribeForQuoteRsp(ptrs.data(), static_cast<int>(ptrs.size()));
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "Md_SubscribeForQuoteRsp",
+                         .error_code = a,
+                         .error_message = "error",
+                         .is_last = true};
+          json j;
+          j["request_id"] = data["request_id"];
+          j["res"] = msg;
+          try {
+            std::string string_msg = j.dump();
+            spdlog::info("ZMQ PUSH: {}", string_msg);
+            push_sock->send(zmq::buffer(string_msg));
+            spdlog::info("SentZMQ");
+          } catch (json::exception &e) {
+            spdlog::error("error: {}", e.what());
+            throw;
+          }
+        } else {
+          spdlog::info("RTN CODE: {}", a);
+        }
+        continue;
+      }
+
+      /* @remark  */
+      if (method_name == "UnSubscribeForQuoteRsp") {
+        if (md_api == nullptr) {
+          spdlog::error("MdApi not initialized when invoking UnSubscribeForQuoteRsp");
+          continue;
+        }
+        auto instrument_ids = data["req"]["params"].at("instrument_ids").get<std::vector<std::string>>();
+        std::vector<std::string> buffer;
+        buffer.reserve(instrument_ids.size());
+        for (auto &id : instrument_ids) {
+          buffer.emplace_back(id);
+        }
+        std::vector<char *> ptrs;
+        ptrs.reserve(buffer.size());
+        for (auto &id : buffer) {
+          ptrs.emplace_back(const_cast<char *>(id.c_str()));
+        }
+        auto a = md_api->UnSubscribeForQuoteRsp(ptrs.data(), static_cast<int>(ptrs.size()));
+        if (a != 0) {
+          spdlog::error("RTN CODE: {}", a);
+          Message msg = {.event = "Md_UnSubscribeForQuoteRsp",
                          .error_code = a,
                          .error_message = "error",
                          .is_last = true};

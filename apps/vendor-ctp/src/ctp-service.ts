@@ -34,7 +34,7 @@ const requestIDGen = makeIdGen();
 // Note: You should never create multiple CTP in the same machine
 export const zmqConn = createZMQConnection(
   process.env.ZMQ_PUSH_URL || 'tcp://*:5701',
-  process.env.ZMQ_PULL_URL || 'tcp://localhost:5700',
+  process.env.ZMQ_PULL_URL || 'tcp://*:5700',
 );
 
 const _requestZMQ = <Req, Res>(req: {
@@ -154,6 +154,40 @@ terminal.server.provideService<
     concurrent: QueryInProcessingLimit,
     egress_token_capacity: OrderRPS,
     max_pending_requests: 60 * OrderRPS,
+  },
+);
+
+const MdInProcessingLimit = +process.env.MD_IN_PROCESSING_LIMIT! || QueryInProcessingLimit;
+const MdRPS = +process.env.MD_RPS_LIMIT! || QueryRPS;
+
+terminal.server.provideService<
+  { account_id: string; method: string; params: any },
+  void,
+  IBridgeMessage<any, any>
+>(
+  'CTP/Md',
+  {
+    required: ['account_id', 'method', 'params'],
+    properties: {
+      account_id: { type: 'string', const: ACCOUNT_ID },
+      method: { type: 'string', pattern: '^(ReqUser|Subscribe|UnSubscribe)' },
+      params: { type: 'object', additionalProperties: true },
+    },
+  },
+  (msg) => {
+    if (!loginRes$.value) {
+      throw new Error('CTP not logged in');
+    }
+
+    return _requestZMQ({
+      method: msg.req.method,
+      params: msg.req.params,
+    }).pipe(map((x) => ({ frame: x })));
+  },
+  {
+    concurrent: MdInProcessingLimit,
+    egress_token_capacity: MdRPS,
+    max_pending_requests: 60 * MdRPS,
   },
 );
 
