@@ -21,7 +21,8 @@ import {
   toArray,
 } from 'rxjs';
 import { client } from './api';
-import { useOpenInterest, useTicker } from './websocket';
+import { useOpenInterest, useTicker } from './ws';
+// import { useOpenInterest, useTicker } from './websocket';
 
 const swapInstruments$ = defer(() => client.getInstruments({ instType: 'SWAP' })).pipe(
   repeat({ delay: 3600_000 }),
@@ -120,12 +121,12 @@ const quoteOfSwapFromWs$ = swapInstruments$.pipe(
   map(
     (ticker): Partial<IQuote> => ({
       datasource_id: 'OKX',
-      product_id: encodePath('SWAP', ticker.instId),
-      last_price: ticker.last,
-      ask_price: ticker.askPx,
-      bid_price: ticker.bidPx,
-      ask_volume: ticker.askSz,
-      bid_volume: ticker.bidSz,
+      product_id: encodePath('SWAP', ticker[0].instId),
+      last_price: ticker[0].last,
+      ask_price: ticker[0].askPx,
+      bid_price: ticker[0].bidPx,
+      ask_volume: ticker[0].askSz,
+      bid_volume: ticker[0].bidSz,
     }),
   ),
 );
@@ -134,21 +135,21 @@ const quoteOfSpotAndMarginFromWs$ = spotTicker$.pipe(
   mergeMap((ticker): Partial<IQuote>[] => [
     {
       datasource_id: 'OKX',
-      product_id: encodePath('SPOT', ticker.instId),
-      last_price: ticker.last,
-      ask_price: ticker.askPx,
-      bid_price: ticker.bidPx,
-      ask_volume: ticker.askSz,
-      bid_volume: ticker.bidSz,
+      product_id: encodePath('SPOT', ticker[0].instId),
+      last_price: ticker[0].last,
+      ask_price: ticker[0].askPx,
+      bid_price: ticker[0].bidPx,
+      ask_volume: ticker[0].askSz,
+      bid_volume: ticker[0].bidSz,
     },
     {
       datasource_id: 'OKX',
-      product_id: encodePath('MARGIN', ticker.instId),
-      last_price: ticker.last,
-      ask_price: ticker.askPx,
-      bid_price: ticker.bidPx,
-      ask_volume: ticker.askSz,
-      bid_volume: ticker.bidSz,
+      product_id: encodePath('MARGIN', ticker[0].instId),
+      last_price: ticker[0].last,
+      ask_price: ticker[0].askPx,
+      bid_price: ticker[0].bidPx,
+      ask_volume: ticker[0].askSz,
+      bid_volume: ticker[0].bidSz,
     },
   ]),
 );
@@ -168,8 +169,8 @@ const interestRateOfSwapFromWS$ = swapInstruments$.pipe(
   map(
     (x): Partial<IQuote> => ({
       datasource_id: 'OKX',
-      product_id: encodePath('SWAP', x.instId),
-      open_interest: x.oi,
+      product_id: encodePath('SWAP', x[0].instId),
+      open_interest: x[0].oi,
     }),
   ),
   share(),
