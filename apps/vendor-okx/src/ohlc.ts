@@ -5,7 +5,8 @@ import { writeToSQL } from '@yuants/sql';
 import { convertDurationToOffset, decodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, map, timer } from 'rxjs';
 import { client } from './api';
-import { useOHLC } from './websocket';
+import { useOHLC } from './ws';
+// import { useOHLC } from './websocket';
 
 // 时间粒度，默认值1m
 // 如 [1m/3m/5m/15m/30m/1H/2H/4H]
@@ -130,13 +131,13 @@ Terminal.fromNodeEnv().channel.publishChannel('ohlc', { pattern: `^OKX/` }, (ser
 
   return useOHLC(candleType, instId).pipe(
     map((data): IOHLC => {
-      const created_at = Number(data[0]);
+      const created_at = Number(data[0][0]);
       const closed_at = created_at + offset;
-      const open = data[1];
-      const high = data[2];
-      const low = data[3];
-      const close = data[4];
-      const volume = data[5];
+      const open = data[0][1];
+      const high = data[0][2];
+      const low = data[0][3];
+      const close = data[0][4];
+      const volume = data[0][5];
       return {
         closed_at: formatTime(closed_at),
         created_at: formatTime(created_at),
