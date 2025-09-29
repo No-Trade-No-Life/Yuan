@@ -144,7 +144,7 @@ export const customSeries: ICustomSeries[] = [
               defer(() =>
                 terminal.channel.subscribeChannel<IOHLC>(
                   'ohlc',
-                  seriesConfig!.options!.realtimeSeriesId ?? '',
+                  seriesConfig?.options?.realtimeSeriesId ?? '',
                 ),
               ),
             ),
