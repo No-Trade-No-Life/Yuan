@@ -18,16 +18,18 @@ const tradeParser = async (accountId: string, params: Record<string, string>): P
       productIdSet.add(encodePath(item.instType, item.instId));
       mapTradeIdToBillList.set(item.tradeId, [...(mapTradeIdToBillList.get(item.tradeId) ?? []), item]);
     });
-    const productList = await requestSQL<IProduct[]>(
-      Terminal.fromNodeEnv(),
-      `
-      select * from product where product_id in (${Array.from(productIdSet)
-        .map((productId) => escapeSQL(productId))
-        .join(',')})
-    `,
-    );
-    if (productList.length > 0) {
-      productList.forEach((p) => productIdToProduct.set(p.product_id, p));
+    if (productIdSet.size > 0) {
+      const productList = await requestSQL<IProduct[]>(
+        Terminal.fromNodeEnv(),
+        `
+        select * from product where product_id in (${Array.from(productIdSet)
+          .map((productId) => escapeSQL(productId))
+          .join(',')})
+      `,
+      );
+      if (productList.length > 0) {
+        productList.forEach((p) => productIdToProduct.set(p.product_id, p));
+      }
     }
     mapTradeIdToBillList.forEach(async (v, tradeId) => {
       if (!((v[0].instType === 'SPOT' && v.length === 2) || v[0].instType === 'SWAP')) return;
