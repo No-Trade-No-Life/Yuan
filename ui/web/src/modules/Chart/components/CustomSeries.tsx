@@ -139,7 +139,7 @@ export const customSeries: ICustomSeries[] = [
           .pipe(
             //
             takeUntil(dispose$),
-            filter((x) => !!x),
+            filter((x): x is Exclude<typeof x, null> => !!x),
             switchMap((terminal) =>
               defer(() =>
                 terminal.channel.subscribeChannel<IOHLC>(
