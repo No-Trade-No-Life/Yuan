@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-risk-manager",
-  "version": "0.6.18",
+  "version": "0.6.19",
   "main": "lib/index.js",
   "bin": "lib/cli.js",
   "module": "dist/index.js",

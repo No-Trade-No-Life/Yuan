@@ -2,6 +2,28 @@
   "name": "@yuants/vendor-ccxt",
   "entries": [
     {
+      "version": "0.3.95",
+      "tag": "@yuants/vendor-ccxt_v0.3.95",
+      "date": "Mon, 29 Sep 2025 02:52:01 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.5.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.94",
       "tag": "@yuants/vendor-ccxt_v0.3.94",
       "date": "Sun, 28 Sep 2025 04:21:21 GMT",
