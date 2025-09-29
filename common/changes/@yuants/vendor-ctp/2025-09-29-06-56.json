@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-ctp",
+      "comment": "add quote",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/vendor-ctp"
+}
