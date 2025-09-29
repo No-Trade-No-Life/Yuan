@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/node-unit",
+      "comment": "rotate prev log file",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/node-unit"
+}

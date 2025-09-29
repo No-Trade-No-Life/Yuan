@@ -1,4 +1,4 @@
-import { PromRegistry } from '@yuants/protocol';
+import { PromRegistry, Terminal } from '@yuants/protocol';
 import { encodePath, formatTime } from '@yuants/utils';
 import { catchError, defer, EMPTY, interval, Observable, Subscription, tap, timeout } from 'rxjs';
 
@@ -14,6 +14,8 @@ const MetricsWebSocketChannelGauge = PromRegistry.create(
   'Number of OKX WebSocket channels subscribed',
 );
 
+const terminal = Terminal.fromNodeEnv();
+
 class OKXWsClient {
   ws: WebSocket;
   connected: boolean = false;
@@ -27,7 +29,7 @@ class OKXWsClient {
     // this.instId = instId;
     this.ws = new WebSocket(`${this.baseURL}/${path}`);
 
-    MetricsWebSocketConnectionsGauge.inc({ path });
+    MetricsWebSocketConnectionsGauge.inc({ path, terminal_id: terminal.terminal_id });
 
     this.pendingSub = [];
     this.keepAlive = interval(25000)
@@ -102,7 +104,7 @@ class OKXWsClient {
       this.pendingSub.push(JSON.stringify(subMsg));
       console.info(formatTime(Date.now()), `📩 add subscribe for ${channelId} to pending list`);
     }
-    MetricsWebSocketChannelGauge.inc({ channel });
+    MetricsWebSocketChannelGauge.inc({ channel, terminal_id: terminal.terminal_id });
     this.subscriptions.add(channelId);
     if (handler) {
       this.handlers[channelId] = handler;
