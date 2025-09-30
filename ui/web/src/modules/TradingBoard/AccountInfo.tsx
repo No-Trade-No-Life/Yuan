@@ -1,6 +1,6 @@
 import { Space, Tabs } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { IPosition } from '@yuants/data-account';
+import { IAccountInfo, IPosition } from '@yuants/data-account';
 import { formatTime } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useMemo, useState } from 'react';
@@ -10,6 +10,7 @@ import { DataView } from '../Interactive';
 import { InlineProductId } from '../Products/InlineProductId';
 import { TradeInfo } from './TradeInfo';
 import { PendingOrderInfo } from './PendingOrderInfo';
+import { NAVCurve } from './NAVCurve';
 
 const { TabPane } = Tabs;
 
@@ -63,10 +64,8 @@ const createPositionColumns = (accountId: string) => {
   ];
 };
 
-export const AccountInfo = (props: { accountId: string }) => {
-  const { accountId } = props;
-  const accountInfo$ = useMemo(() => useAccountInfo(accountId), [accountId]);
-  const accountInfo = useObservableState(accountInfo$);
+export const AccountInfo = (props: { accountId: string; accountInfo?: IAccountInfo }) => {
+  const { accountId, accountInfo } = props;
 
   const positionColumns = useMemo(() => createPositionColumns(accountId ?? ''), [accountId]);
 
@@ -74,7 +73,18 @@ export const AccountInfo = (props: { accountId: string }) => {
 
   return (
     <div style={{ width: '100%', height: '100%', padding: '0 8px', boxSizing: 'border-box' }}>
-      <Tabs type="line">
+      <Tabs
+        type="line"
+        lazyRender
+        style={{
+          width: '100%',
+          height: '100%',
+          // 使得 TabContent 容器高度自适应， 并且 overflow 不会影响到 TabList
+          display: 'flex',
+          flexDirection: 'column',
+        }}
+        contentStyle={{ flex: 1, overflowY: 'auto' }}
+      >
         <TabPane
           tab={
             <>
@@ -101,6 +111,9 @@ export const AccountInfo = (props: { accountId: string }) => {
           itemKey="orders"
         >
           <PendingOrderInfo accountId={accountId} pendingOrderNumberChange={setPendingOrderNumber} />
+        </TabPane>
+        <TabPane tab="净值曲线" itemKey="nav_curve" style={{ height: '100%', flex: '1' }}>
+          <NAVCurve accountId={accountId} />
         </TabPane>
       </Tabs>
     </div>

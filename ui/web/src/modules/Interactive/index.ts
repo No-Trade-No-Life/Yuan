@@ -7,3 +7,4 @@ export * from './SortableList';
 export * from './Switch';
 export * from './TableView';
 export * from './Toast';
+export * from './Description';
