@@ -1,22 +1,20 @@
-import { IconRefresh } from '@douyinfe/semi-icons';
-import { Button } from '@douyinfe/semi-ui';
 import { ColumnFilter, Table, Updater } from '@tanstack/react-table';
 import { ITrade } from '@yuants/data-trade';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { firstValueFrom } from 'rxjs';
-import { DataView, Toast } from '../Interactive';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useObservable, useObservableState } from 'observable-hooks';
+import { combineLatestWith, defer, pipe, repeat, retry, switchMap, timer } from 'rxjs';
+import { DataView } from '../Interactive';
 import { terminal$ } from '../Terminals';
 
 const resolveUpdaterValue = (updater: Updater<number>, previous: number) =>
   typeof updater === 'function' ? updater(previous) : updater;
 
-export const TradeInfo = (props: { accountId?: string }) => {
-  const [tradeData, setTradeData] = useState<ITrade[]>([]);
+export const TradeInfo = (props: { accountId: string }) => {
+  const { accountId } = props;
   const [tradePage, setTradePage] = useState(0);
   const [tradePageSize, setTradePageSize] = useState(10);
-  const [tradeTotalCount, setTradeTotalCount] = useState(0);
   const [tradeFilters, setTradeFilters] = useState<ColumnFilter[]>([]);
   const tradeTableRef = useRef<Table<ITrade>>();
 
@@ -37,59 +35,46 @@ export const TradeInfo = (props: { accountId?: string }) => {
       table.setPageSize = originSetPageSize;
       table.setPageIndex = originSetPageIndex;
     };
-  });
+  }, []);
 
-  const fetchTradeData = useCallback(
-    async (page: number, pageSize: number, filters: ColumnFilter[]) => {
-      if (!props.accountId) {
-        setTradeData([]);
-        setTradeTotalCount(0);
-        return;
-      }
-      try {
-        const terminal = await firstValueFrom(terminal$);
-        if (!terminal) return;
-        const filteredStates = filters.filter((item) => item.id === 'product_id' || item.id === 'direction');
-        const conditions: string[] = [`t.account_id = ${escapeSQL(props.accountId)}`];
-        for (const item of filteredStates) {
-          if (!item.value) continue;
-          conditions.push(`t.${item.id} = ${escapeSQL(String(item.value))}`);
-        }
-        const whereClause = conditions.length > 0 ? `where ${conditions.join(' and ')}` : '';
-        const sql = `select t.*, COUNT(*) OVER() AS total_count from trade t ${whereClause} order by created_at desc limit ${pageSize} offset ${
-          page * pageSize
-        }`;
-        const result = await requestSQL<(ITrade & { total_count: number })[]>(terminal, sql);
-        setTradeData(result ?? []);
-        if (result && result[0]?.total_count) {
-          setTradeTotalCount(Number(result[0].total_count));
-        } else {
-          setTradeTotalCount(result?.length ?? 0);
-        }
-      } catch (error) {
-        console.log('获取交易数据失败', { error });
-        Toast.error('获取交易数据失败');
-      }
-    },
-    [props.accountId],
+  const tradeState = useObservableState(
+    useObservable(
+      pipe(
+        combineLatestWith(terminal$),
+        switchMap(([[accountId, tradePage, tradePageSize, tradeFilters], terminal]) =>
+          defer(async () => {
+            if (!terminal || !accountId) return { data: [] as ITrade[], totalCount: 0 };
+            const filteredStates = tradeFilters.filter(
+              (item) => item.id === 'product_id' || item.id === 'direction',
+            );
+            const conditions: string[] = [`t.account_id = ${escapeSQL(accountId)}`];
+            for (const item of filteredStates) {
+              if (!item.value) continue;
+              conditions.push(`t.${item.id} = ${escapeSQL(String(item.value))}`);
+            }
+            const whereClause = conditions.length > 0 ? `where ${conditions.join(' and ')}` : '';
+            const sql = `select t.*, COUNT(*) OVER() AS total_count from trade t ${whereClause} order by created_at desc limit ${tradePageSize} offset ${
+              tradePage * tradePageSize
+            }`;
+
+            const result = await requestSQL<(ITrade & { total_count: number })[]>(terminal, sql);
+            const totalCount =
+              result && result[0]?.total_count ? Number(result[0].total_count) : result?.length ?? 0;
+            return { data: result ?? [], totalCount };
+          }).pipe(
+            //
+            retry({ delay: 5_000 }),
+            repeat({ delay: 3_000 }),
+          ),
+        ),
+      ),
+      [accountId, tradePage, tradePageSize, tradeFilters],
+    ),
+    { data: [] as ITrade[], totalCount: 0 },
   );
 
   useEffect(() => {
-    if (!props.accountId) {
-      setTradePage(0);
-      setTradePageSize(10);
-      setTradeFilters([]);
-      setTradeData([]);
-      setTradeTotalCount(0);
-      return;
-    }
-    fetchTradeData(tradePage, tradePageSize, tradeFilters);
-  }, [props.accountId, tradePage, tradePageSize, tradeFilters, fetchTradeData]);
-
-  useEffect(() => {
-    if (!props.accountId) return;
-    setTradePage(0);
-    setTradeFilters([]);
+    tradeTableRef.current?.setPageIndex(0);
   }, [props.accountId]);
 
   const tradeColumns = useMemo(
@@ -140,17 +125,11 @@ export const TradeInfo = (props: { accountId?: string }) => {
 
   return (
     <DataView
-      topSlot={
-        <Button
-          icon={<IconRefresh />}
-          onClick={() => fetchTradeData(tradePage, tradePageSize, tradeFilters)}
-        />
-      }
       tableRef={tradeTableRef}
-      data={tradeData}
+      data={tradeState.data}
       manualPagination
-      pageCount={tradePageSize ? Math.ceil(tradeTotalCount / tradePageSize) : 0}
-      totalCount={tradeTotalCount}
+      pageCount={tradePageSize ? Math.ceil(tradeState.totalCount / tradePageSize) : 0}
+      totalCount={tradeState.totalCount}
       columns={tradeColumns}
       onColumnFiltersChange={setTradeFilters}
       columnFilters={tradeFilters}

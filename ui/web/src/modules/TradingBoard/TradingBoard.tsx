@@ -1,4 +1,4 @@
-import { Space } from '@douyinfe/semi-ui';
+import { Radio, RadioGroup, Space } from '@douyinfe/semi-ui';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import * as FlexLayout from 'flexlayout-react';
 import { useObservableState } from 'observable-hooks';
@@ -9,9 +9,10 @@ import { terminal$ } from '../Terminals';
 import { AutoComplete } from '../Interactive';
 import { TimeSeriesChart } from '../Chart/components/TimeSeriesChart';
 import { ManualTradePanelContent } from './ManualTradePanelContent';
-import { decodePath } from '@yuants/utils';
+import { decodePath, encodePath } from '@yuants/utils';
 import { IOHLC } from '@yuants/data-ohlc';
 import { AccountInfo } from './AccountInfo';
+import { RadioChangeEvent } from '@douyinfe/semi-ui/lib/es/radio';
 
 const seriesIdList$ = terminal$.pipe(
   filter((x): x is Exclude<typeof x, null> => !!x),
@@ -35,6 +36,24 @@ const accountIds$ = terminal$.pipe(
   ),
   shareReplay(1),
 );
+
+const DURATION_TO_OKX_BAR_TYPE: Record<string, number> = {
+  PT1M: 60,
+  PT3M: 180,
+  PT5M: 300,
+  PT15M: 900,
+  PT30M: 1800,
+
+  PT1H: 3600,
+  PT2H: 7200,
+  PT4H: 14400,
+  PT6H: 21600,
+  PT12H: 43200,
+
+  P1D: 86400,
+  P1W: 86400 * 7,
+  P1M: 86400 * 30,
+};
 
 const layoutJson: FlexLayout.IJsonModel = {
   global: {
@@ -99,23 +118,46 @@ registerPage('TradingBoard', () => {
   const seriesIdList = useObservableState(seriesIdList$);
   const accountIds = useObservableState(accountIds$);
 
-  const [seriesId, setSeriesId] = useState('');
+  const [uniqueProductId, setUniqueProductId] = useState('');
   const [accountId, setAccountId] = useState('');
+  const [candleDuration, setCandleDuration] = useState<string>();
 
-  const [datasource_id, product_id, duration = ''] = useMemo(() => {
-    // const [datasource_id, product_id, duration = ''] = decodePath(seriesId);
-    return decodePath(seriesId);
-  }, [seriesId]);
+  const mapUniqueProductIdToDurationListState = useMemo(() => {
+    const mapUniqueIdToDurationList = new Map<string, string[]>();
+    seriesIdList?.forEach((seriesId) => {
+      const [datasource_id, product_id, duration = ''] = decodePath(seriesId);
+      const id = encodePath(datasource_id, product_id);
+      mapUniqueIdToDurationList.set(
+        id,
+        [...(mapUniqueIdToDurationList.get(id) ?? []), duration].sort(
+          (a, b) => DURATION_TO_OKX_BAR_TYPE[a] - DURATION_TO_OKX_BAR_TYPE[b],
+        ),
+      );
+    });
+    return mapUniqueIdToDurationList;
+  }, [seriesIdList]);
+
+  const onSelectProduct = (v: string) => {
+    setUniqueProductId(v);
+    const durationList = mapUniqueProductIdToDurationListState.get(v);
+    if (!durationList || !durationList.includes(candleDuration ?? '')) {
+      setCandleDuration(mapUniqueProductIdToDurationListState.get(v)?.[0] ?? '');
+    }
+  };
+
+  const seriesId = useMemo(() => {
+    if (uniqueProductId && candleDuration) {
+      return encodePath(...decodePath(uniqueProductId), candleDuration);
+    }
+  }, [uniqueProductId, candleDuration]);
   useEffect(() => {
     if (seriesId) {
-      console.log({ data: 'data', seriesId });
       const sub = terminal$
         .pipe(
           switchMap((terminal) => {
             if (!terminal) return EMPTY;
             return terminal.channel.subscribeChannel<IOHLC>('ohlc1', seriesId).pipe(
               tap((data) => {
-                console.log({ data });
                 ohlc$.next(data);
               }),
             );
@@ -129,6 +171,10 @@ registerPage('TradingBoard', () => {
     }
   }, [seriesId]);
 
+  const onCandleDurationChange = (e: RadioChangeEvent) => {
+    setCandleDuration(e.target.value);
+  };
+
   return (
     <FlexLayout.Layout
       model={model}
@@ -139,6 +185,9 @@ registerPage('TradingBoard', () => {
             return (
               <Space style={{ height: '100%', width: '100%' }}>
                 <TimeSeriesChart
+                  hideRefresh={true}
+                  hideSettings={true}
+                  hideViewSelector={true}
                   topSlot={
                     <>
                       <AutoComplete
@@ -148,11 +197,18 @@ registerPage('TradingBoard', () => {
                         placeholder="请输入或选择账户id"
                       />
                       <AutoComplete
-                        data={seriesIdList?.map((id) => ({ label: id, value: id }))}
-                        value={seriesId}
-                        onChange={setSeriesId}
+                        data={Array.from(mapUniqueProductIdToDurationListState.keys()).map((id) => {
+                          return { label: id, value: id };
+                        })}
+                        value={uniqueProductId}
+                        onChange={onSelectProduct}
                         placeholder="请输入或选择K线品种/周期"
                       />
+                      <RadioGroup value={candleDuration} onChange={onCandleDurationChange}>
+                        {mapUniqueProductIdToDurationListState.get(uniqueProductId)?.map((id) => (
+                          <Radio value={id}>{id}</Radio>
+                        ))}
+                      </RadioGroup>
                     </>
                   }
                   config={{
@@ -161,7 +217,7 @@ registerPage('TradingBoard', () => {
                         type: 'sql',
                         query: `select * from ohlc where series_id = ${escapeSQL(
                           seriesId,
-                        )} order by created_at desc limit 50000`,
+                        )} order by created_at desc limit 5000`,
                         time_column_name: 'created_at',
                       },
                     ],

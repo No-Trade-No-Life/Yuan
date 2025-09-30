@@ -3,12 +3,13 @@ import { createColumnHelper } from '@tanstack/react-table';
 import { IPosition } from '@yuants/data-account';
 import { formatTime } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { of } from 'rxjs';
 import { InlineAccountId, useAccountInfo } from '../AccountInfo';
 import { DataView } from '../Interactive';
 import { InlineProductId } from '../Products/InlineProductId';
 import { TradeInfo } from './TradeInfo';
+import { PendingOrderInfo } from './PendingOrderInfo';
 
 const { TabPane } = Tabs;
 
@@ -69,13 +70,36 @@ export const AccountInfo = (props: { accountId: string }) => {
 
   const positionColumns = useMemo(() => createPositionColumns(accountId ?? ''), [accountId]);
 
+  const [pendingOrderNumber, setPendingOrderNumber] = useState(0);
+
   return (
     <Tabs type="line">
-      <TabPane tab="持仓" itemKey="positions">
+      <TabPane
+        tab={
+          <>
+            持仓
+            {accountInfo?.positions?.length && accountInfo?.positions?.length > 0 ? (
+              <span style={{ color: 'green' }}>({accountInfo.positions.length})</span>
+            ) : null}
+          </>
+        }
+        itemKey="positions"
+      >
         <DataView data={accountInfo?.positions ?? []} columns={positionColumns} />
       </TabPane>
       <TabPane tab="成交" itemKey="trades">
         <TradeInfo accountId={accountId} />
+      </TabPane>
+      <TabPane
+        tab={
+          <>
+            挂单
+            {pendingOrderNumber > 0 ? <span style={{ color: 'green' }}>({pendingOrderNumber})</span> : null}
+          </>
+        }
+        itemKey="orders"
+      >
+        <PendingOrderInfo accountId={accountId} pendingOrderNumberChange={setPendingOrderNumber} />
       </TabPane>
     </Tabs>
   );
