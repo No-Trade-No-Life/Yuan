@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-ctp
 
-This log was last generated on Mon, 29 Sep 2025 08:08:46 GMT and should not be manually modified.
+This log was last generated on Tue, 30 Sep 2025 05:38:40 GMT and should not be manually modified.
+
+## 0.7.0
+Tue, 30 Sep 2025 05:38:40 GMT
+
+### Minor changes
+
+- add interface adapt for md data
 
 ## 0.6.0
 Mon, 29 Sep 2025 08:08:46 GMT
