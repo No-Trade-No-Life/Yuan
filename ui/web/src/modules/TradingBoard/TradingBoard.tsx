@@ -28,7 +28,7 @@ const accountIds$ = terminal$.pipe(
   filter((x): x is Exclude<typeof x, null> => !!x),
   switchMap((terminal) =>
     defer(() =>
-      requestSQL<{ account_id: string }[]>(terminal, `select distinct(account_id) from trade`),
+      requestSQL<{ account_id: string }[]>(terminal, `select distinct(account_id) from account_balance`),
     ).pipe(
       retry({ delay: 10_000 }),
       map((x) => x.map((v) => v.account_id)),
@@ -150,6 +150,13 @@ registerPage('TradingBoard', () => {
       return encodePath(...decodePath(uniqueProductId), candleDuration);
     }
   }, [uniqueProductId, candleDuration]);
+
+  const [datasourceId, productId] = useMemo(() => {
+    if (uniqueProductId) {
+      return decodePath(uniqueProductId);
+    }
+    return [];
+  }, [uniqueProductId]);
   useEffect(() => {
     if (seriesId) {
       const sub = terminal$
@@ -267,7 +274,7 @@ registerPage('TradingBoard', () => {
           case 'left-bottom':
             return <AccountInfo accountId={accountId} />;
           case 'right-panel':
-            return <ManualTradePanelContent />;
+            return <ManualTradePanelContent accountId={accountId} productId={productId} />;
           default:
             return null;
         }
