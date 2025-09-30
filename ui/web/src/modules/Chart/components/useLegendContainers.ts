@@ -6,8 +6,11 @@ import {
   filter,
   map,
   mergeAll,
+  mergeWith,
   Observable,
+  of,
   switchMap,
+  tap,
 } from 'rxjs';
 
 /**
@@ -30,16 +33,18 @@ export const useLegendContainers = (dom$: Observable<HTMLDivElement | null>): HT
             return () => {
               obs.disconnect();
             };
-          });
+          }).pipe(
+            mergeAll(), // 扁平化
+            // 只关注 table 的直接子节点变化的情况
+            filter((m) => m.type === 'childList' && m.target instanceof HTMLTableElement),
+            mergeWith(of(0)), // 初始化时也触发一次
+            map(() => dom),
+          );
         }),
-        mergeAll(), // 扁平化
-        // 只关注 table 的直接子节点变化的情况
-        filter((m) => m.type === 'childList' && m.target instanceof HTMLTableElement),
         debounceTime(10),
+        map((dom) => dom.querySelectorAll('table')[0]),
         // 读取 tr 列表
-        map((m) =>
-          Array.from((m.target as HTMLTableElement).querySelectorAll('tr')).filter((_, i) => i % 2 === 0),
-        ),
+        map((table) => Array.from(table.querySelectorAll('tr')).filter((_, i) => i % 2 === 0)),
         // ListWatch 并管理 legend dom 的副作用
         distinctUntilChanged((a, b) => a.length === b.length && a.every((v, i) => v === b[i])), // 比较引用相等
         // 检测到发生变化

@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Mon, 29 Sep 2025 11:09:46 GMT and should not be manually modified.
+This log was last generated on Tue, 30 Sep 2025 05:38:40 GMT and should not be manually modified.
+
+## 0.22.19
+Tue, 30 Sep 2025 05:38:40 GMT
+
+### Patches
+
+- fix strategy equity
 
 ## 0.22.18
 Mon, 29 Sep 2025 11:09:46 GMT
