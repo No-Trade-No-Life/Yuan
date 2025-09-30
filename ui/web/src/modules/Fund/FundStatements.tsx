@@ -379,6 +379,9 @@ registerPage('FundStatements', () => {
     };
   }, [equityHistory]);
 
+  const drawdown = equityHistory[equityHistory.length - 1]?.drawdown ?? 0;
+  const isAllTimeHigh = drawdown === 0 && equityHistory.length > 0;
+
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
       <Space>
@@ -585,7 +588,7 @@ registerPage('FundStatements', () => {
           },
           {
             key: '当前回撤',
-            value: `${equityHistory[equityHistory.length - 1]?.drawdown ?? 0}`,
+            value: `${isAllTimeHigh ? '🔥 ALL-TIME-HIGH 🔥' : drawdown}`,
           },
           {
             key: '最大回撤',
