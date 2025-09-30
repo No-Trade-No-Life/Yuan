@@ -14,7 +14,7 @@ import { formatTime } from '@yuants/utils';
 import { parse } from 'jsonc-parser';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useMemo, useReducer } from 'react';
-import { firstValueFrom, from, map, of, pipe, switchMap } from 'rxjs';
+import { firstValueFrom, from, map, pipe, switchMap } from 'rxjs';
 import { InlineAccountId } from '../AccountInfo';
 import { useAccountInfo } from '../AccountInfo/model';
 import { TimeSeriesChart } from '../Chart/components/TimeSeriesChart';
@@ -27,8 +27,8 @@ import { Button, DataView } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
 import { registerAssociationRule } from '../System';
 import { useTerminal } from '../Terminals';
-import { IFundEvent, IFundState, InvestorInfoDerived, InvestorMeta } from './model';
-import { getInitFundState, reduceState } from './utils';
+import { IFundEvent, InvestorInfoDerived, InvestorMeta } from './model';
+import { scanFundEvents } from './utils';
 
 registerAssociationRule({
   id: 'FundStatements',
@@ -78,127 +78,14 @@ registerPage('FundStatements', () => {
     [events],
   );
 
-  const history = useMemo(() => {
-    const history: IFundState[] = [];
-    currentStatements.forEach((statement) => {
-      history.push(reduceState(history[history.length - 1] || getInitFundState(), statement));
-    });
-    return history;
-  }, [currentStatements]);
+  const history = useMemo(() => scanFundEvents(currentStatements), [currentStatements]);
 
-  const state = useMemo(() => history[history.length - 1] || getInitFundState(), [history]);
-
-  const fundAccountInfo = useObservableState(
-    useObservable(pipe(switchMap(([id]) => (id ? useAccountInfo(id) : of(undefined)))), [state.account_id]),
-  );
+  const state = history[history.length - 1];
 
   const investors = useMemo(
     () => Object.values(state.investors).map((meta) => ({ meta, detail: state.investor_derived[meta.name] })),
     [state],
   );
-
-  const columnsOfInvestor = useMemo(() => {
-    const columnHelper = createColumnHelper<{
-      meta: InvestorMeta;
-      detail: InvestorInfoDerived;
-    }>();
-    return [
-      columnHelper.accessor('meta.name', {
-        header: () => '投资人',
-      }),
-      columnHelper.accessor('detail.after_tax_assets', {
-        header: () => '净资产',
-      }),
-      columnHelper.accessor('meta.deposit', {
-        header: () => '净入金',
-      }),
-      columnHelper.accessor('detail.after_tax_profit', {
-        header: () => '收益',
-      }),
-      columnHelper.accessor('detail.holding_days', {
-        header: () => '持有天数',
-        cell: (ctx) => `${Math.ceil(ctx.getValue())}`,
-      }),
-      columnHelper.accessor('detail.after_tax_profit_rate', {
-        header: () => '简单收益率',
-        cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
-      }),
-      columnHelper.accessor('detail.after_tax_IRR', {
-        header: () => '内部收益率',
-        cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
-      }),
-      columnHelper.accessor('meta.share', {
-        header: () => '份额',
-      }),
-      columnHelper.accessor('detail.share_ratio', {
-        header: () => '份额占比',
-        cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
-      }),
-
-      columnHelper.accessor('detail.pre_tax_assets', {
-        header: () => '税前资产',
-      }),
-      columnHelper.accessor('meta.tax_threshold', {
-        header: () => '起征点',
-      }),
-      columnHelper.accessor('detail.taxable', {
-        header: () => '应税额',
-      }),
-      columnHelper.accessor('meta.tax_rate', {
-        header: () => '税率',
-        cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
-      }),
-      columnHelper.accessor('detail.tax', {
-        header: () => '税费',
-      }),
-      columnHelper.accessor('detail.after_tax_share', {
-        header: () => '税后份额',
-      }),
-    ];
-  }, []);
-
-  const columnsOfStatement = useMemo(() => {
-    const columnHelper = createColumnHelper<IFundEvent>();
-    return [
-      columnHelper.accessor('updated_at', {
-        header: () => '时间',
-        cell: (ctx) => formatTime(ctx.getValue()),
-      }),
-
-      columnHelper.accessor('fund_equity.equity', {
-        header: () => '基金总资产',
-      }),
-      columnHelper.accessor('order.name', {
-        header: () => '投资人',
-      }),
-      columnHelper.accessor('order.deposit', {
-        header: () => '净入金',
-      }),
-      columnHelper.accessor('comment', {
-        header: () => '备注',
-      }),
-    ];
-  }, []);
-
-  const columnsOfState = useMemo(() => {
-    const columnHelper = createColumnHelper<IFundState>();
-    return [
-      columnHelper.accessor('updated_at', {
-        header: () => '时间',
-        cell: (ctx) => formatTime(ctx.getValue()),
-      }),
-
-      columnHelper.accessor('total_assets', {
-        header: () => '总资产',
-      }),
-      columnHelper.accessor('summary_derived.total_share', {
-        header: () => '总份额',
-      }),
-      columnHelper.accessor('summary_derived.unit_price', {
-        header: () => '单位净值',
-      }),
-    ];
-  }, []);
 
   const equityHistory = useMemo(() => {
     const ret: Array<{
@@ -429,12 +316,19 @@ registerPage('FundStatements', () => {
             const info = await showForm<{
               name: string;
               deposit: number;
+              is_record_equity: boolean;
               timing: string;
             }>({
               type: 'object',
               properties: {
                 name: { type: 'string', title: '投资人', examples: Object.keys(state.investors) },
                 deposit: { type: 'number', title: '申购额', description: '负数代表赎回额' },
+                is_record_equity: {
+                  type: 'boolean',
+                  title: '是否记录净值',
+                  description: '如果选择是, 则会在申购/赎回时记录一次净值',
+                  default: true,
+                },
                 timing: {
                   type: 'string',
                   title: '申购赎回时机',
@@ -447,24 +341,26 @@ registerPage('FundStatements', () => {
             });
 
             const nextStatements = [...events];
-            const equity = (await firstValueFrom(useAccountInfo(state.account_id))).money.equity;
-            if (info.timing === 'POST') {
-              nextStatements.push({
-                type: 'equity',
-                updated_at: formatTime(Date.now()),
-                fund_equity: {
-                  equity: equity - info.deposit,
-                },
-              });
-            }
-            if (info.timing === 'PRE') {
-              nextStatements.push({
-                type: 'equity',
-                updated_at: formatTime(Date.now()),
-                fund_equity: {
-                  equity: equity,
-                },
-              });
+            if (info.is_record_equity) {
+              const equity = (await firstValueFrom(useAccountInfo(state.account_id))).money.equity;
+              if (info.timing === 'POST') {
+                nextStatements.push({
+                  type: 'equity',
+                  updated_at: formatTime(Date.now()),
+                  fund_equity: {
+                    equity: equity - info.deposit,
+                  },
+                });
+              }
+              if (info.timing === 'PRE') {
+                nextStatements.push({
+                  type: 'equity',
+                  updated_at: formatTime(Date.now()),
+                  fund_equity: {
+                    equity: equity,
+                  },
+                });
+              }
             }
             nextStatements.push({
               type: 'order',
@@ -483,12 +379,25 @@ registerPage('FundStatements', () => {
         <Button
           icon={<IconCoinMoneyStroked />}
           onClick={async () => {
+            const type = await showForm<string>({
+              type: 'string',
+              oneOf: [
+                {
+                  const: 'taxation',
+                  title: '征税V1: 税费从基金资产中扣除',
+                },
+                {
+                  const: 'taxation/v2',
+                  title: '征税V2: 转移税后份额至 @tax 账户',
+                },
+              ],
+            });
             await saveStatementsToFile(
               events.concat([
                 {
-                  type: 'taxation',
+                  type: type,
                   updated_at: formatTime(Date.now()),
-                  comment: 'Taxation',
+                  comment: type,
                 },
               ]),
             );
@@ -496,6 +405,35 @@ registerPage('FundStatements', () => {
           }}
         >
           征税
+        </Button>
+        <Button
+          onClick={async () => {
+            const info = await showForm<{ name: string; tax_threshold: number }>({
+              type: 'object',
+              title: '申报免税额',
+              required: ['name', 'tax_threshold'],
+              properties: {
+                name: { type: 'string', title: '投资人', examples: Object.keys(state.investors) },
+                tax_threshold: { type: 'number', title: '免税额' },
+              },
+            });
+            await saveStatementsToFile(
+              events.concat([
+                {
+                  type: 'investor',
+                  updated_at: formatTime(Date.now()),
+                  investor: {
+                    name: info.name,
+                    add_tax_threshold: info.tax_threshold,
+                  },
+                  comment: `申报免税额 ${info.tax_threshold}`,
+                },
+              ]),
+            );
+            Toast.success('成功');
+          }}
+        >
+          申报免税额
         </Button>
         <Button
           icon={<IconUpload />}
@@ -613,21 +551,135 @@ registerPage('FundStatements', () => {
         </Collapse.Panel>
         <Collapse.Panel itemKey="investors" header={'投资人列表'}>
           <DataView
-            columns={columnsOfInvestor}
+            columns={[
+              {
+                header: '投资人',
+                accessorKey: 'meta.name',
+              },
+
+              { header: '净资产', accessorKey: 'detail.after_tax_assets' },
+              { header: '净入金', accessorKey: 'meta.deposit' },
+              { header: '收益', accessorKey: 'detail.after_tax_profit' },
+              {
+                header: '持有天数',
+                accessorKey: 'detail.holding_days',
+                cell: (ctx) => `${Math.ceil(ctx.getValue())}`,
+              },
+              {
+                header: '简单收益率',
+                accessorKey: 'detail.after_tax_profit_rate',
+                cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
+              },
+              {
+                header: '内部收益率',
+                accessorKey: 'detail.after_tax_IRR',
+                cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
+              },
+              { header: '份额', accessorKey: 'meta.share' },
+              {
+                header: '份额占比',
+                accessorKey: 'detail.share_ratio',
+                cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
+              },
+              { header: '税前资产', accessorKey: 'detail.pre_tax_assets' },
+              { header: '起征点', accessorKey: 'meta.tax_threshold' },
+              { header: '应税额', accessorKey: 'detail.taxable' },
+              {
+                header: '税率',
+                accessorKey: 'meta.tax_rate',
+                cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
+              },
+              { header: '税费', accessorKey: 'detail.tax' },
+              { header: '税后份额', accessorKey: 'detail.after_tax_share' },
+              {
+                header: '操作',
+                cell: (ctx) => {
+                  const investorName = ctx.row.original.meta.name;
+                  return (
+                    <Space>
+                      <Button
+                        onClick={async () => {
+                          await saveStatementsToFile(
+                            events.concat([
+                              {
+                                type: 'investor',
+                                updated_at: formatTime(Date.now()),
+                                investor: {
+                                  name: investorName,
+                                  add_tax_threshold: ctx.row.original.detail.taxable,
+                                },
+                                comment: `快捷申报免税 ${ctx.row.original.meta.name} ${ctx.row.original.detail.taxable}`,
+                              },
+                            ]),
+                          );
+                        }}
+                      >
+                        快捷免税申报
+                      </Button>
+                    </Space>
+                  );
+                },
+              },
+            ]}
+            columnsDependencyList={[events]}
             data={investors}
             initialSorting={[{ id: 'detail_after_tax_assets', desc: true }]}
           />
         </Collapse.Panel>
         <Collapse.Panel itemKey="state" header={'基金历史'}>
           <DataView
-            columns={columnsOfState}
+            columns={[
+              {
+                header: '时间',
+                accessorKey: 'updated_at',
+                cell: (ctx) => formatTime(ctx.getValue()),
+              },
+              {
+                header: '总资产',
+                accessorKey: 'total_assets',
+              },
+              {
+                header: '总份额',
+                accessorKey: 'summary_derived.total_share',
+              },
+              {
+                header: '单位净值',
+                accessorKey: 'summary_derived.unit_price',
+              },
+            ]}
             data={history}
             initialSorting={[{ id: 'updated_at', desc: true }]}
           />
         </Collapse.Panel>
         <Collapse.Panel itemKey="actions" header={'操作历史'}>
           <DataView
-            columns={columnsOfStatement}
+            columns={[
+              {
+                header: '时间',
+                accessorKey: 'updated_at',
+                cell: (ctx) => formatTime(ctx.getValue()),
+              },
+              {
+                header: '类型',
+                accessorKey: 'type',
+              },
+              {
+                header: '投资人',
+                accessorKey: 'order.name',
+              },
+              {
+                header: '净入金',
+                accessorKey: 'order.deposit',
+              },
+              {
+                header: '基金总资产',
+                accessorKey: 'fund_equity.equity',
+              },
+              {
+                header: '备注',
+                accessorKey: 'comment',
+              },
+            ]}
             data={currentStatements}
             initialSorting={[{ id: 'updated_at', desc: true }]}
           />

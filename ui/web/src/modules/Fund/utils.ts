@@ -1,10 +1,11 @@
 import { IFundEvent, IFundState, InvestorCashFlowItem } from './model';
 
-export const reduceState = (state: IFundState, event: IFundEvent): IFundState => {
+const reduceState = (state: IFundState, event: IFundEvent): IFundState => {
   const nextState = structuredClone(state);
   nextState.updated_at = new Date(event.updated_at).getTime();
   nextState.description = event.comment || '';
   nextState.events.push(event);
+  nextState.event = event;
 
   if (!nextState.created_at) {
     nextState.created_at = nextState.updated_at;
@@ -43,6 +44,11 @@ export const reduceState = (state: IFundState, event: IFundEvent): IFundState =>
     if (typeof event.investor.tax_rate === 'number') {
       nextState.investors[event.investor.name].tax_rate = event.investor.tax_rate;
     }
+    if (typeof event.investor.add_tax_threshold === 'number') {
+      const nextTaxThreshold =
+        nextState.investors[event.investor.name].tax_threshold + event.investor.add_tax_threshold;
+      nextState.investors[event.investor.name].tax_threshold = nextTaxThreshold;
+    }
   }
   // 结税
   if (event.type === 'taxation') {
@@ -52,6 +58,31 @@ export const reduceState = (state: IFundState, event: IFundEvent): IFundState =>
       investor.tax_threshold = state.investor_derived[investor.name].after_tax_assets;
       nextState.total_taxed += state.investor_derived[investor.name].tax;
     }
+  }
+
+  if (event.type === 'taxation/v2') {
+    let totalTaxShare = 0;
+
+    for (const investor of Object.values(nextState.investors)) {
+      const tax = state.investor_derived[investor.name].tax;
+      const after_tax_share = state.investor_derived[investor.name].after_tax_share;
+      const taxShare = investor.share - after_tax_share;
+      totalTaxShare += taxShare;
+      investor.share = after_tax_share;
+      investor.tax_threshold = state.investor_derived[investor.name].after_tax_assets;
+      nextState.total_taxed += tax;
+    }
+
+    const taxAccount = (nextState.investors['@tax'] ??= {
+      name: '@tax',
+      created_at: nextState.updated_at,
+      deposit: 0,
+      share: 0,
+      tax_threshold: 0,
+      tax_rate: 0,
+    });
+
+    taxAccount.share += totalTaxShare;
   }
 
   // 计算衍生数据
@@ -133,7 +164,7 @@ export const reduceState = (state: IFundState, event: IFundEvent): IFundState =>
   return nextState;
 };
 
-export const getInitFundState = (): IFundState => ({
+const getInitFundState = (): IFundState => ({
   account_id: '',
   created_at: 0,
   updated_at: 0,
@@ -152,10 +183,33 @@ export const getInitFundState = (): IFundState => ({
   investor_derived: {},
   investor_cashflow: {},
   events: [],
+  event: null,
 });
 
 export const fromFundEvents = (events: IFundEvent[]): IFundState => {
-  return events.reduce(reduceState, getInitFundState());
+  return events.reduce((acc, cur) => {
+    try {
+      return reduceState(acc, cur);
+    } catch (error) {
+      console.error('Error processing event:', cur, error);
+      return acc;
+    }
+  }, getInitFundState());
+};
+
+export const scanFundEvents = (events: IFundEvent[]): IFundState[] => {
+  const states: IFundState[] = [getInitFundState()];
+  events.reduce((acc, cur) => {
+    try {
+      const next = reduceState(acc, cur);
+      states.push(next);
+      return next;
+    } catch (error) {
+      console.error('Error processing event:', cur, error);
+      return acc;
+    }
+  }, states[0]);
+  return states;
 };
 
 const XIRR = function xirr(cashflow: InvestorCashFlowItem[], guess = 0.05) {
