@@ -11,6 +11,7 @@ import { TimeSeriesChart } from '../Chart/components/TimeSeriesChart';
 import { ManualTradePanelContent } from './ManualTradePanelContent';
 import { decodePath } from '@yuants/utils';
 import { IOHLC } from '@yuants/data-ohlc';
+import { AccountInfo } from './AccountInfo';
 
 const seriesIdList$ = terminal$.pipe(
   filter((x): x is Exclude<typeof x, null> => !!x),
@@ -18,6 +19,18 @@ const seriesIdList$ = terminal$.pipe(
     defer(() => requestSQL<{ series_id: string }[]>(terminal, `select distinct(series_id) from ohlc`)).pipe(
       retry({ delay: 10_000 }),
       map((x) => x.map((v) => v.series_id)),
+    ),
+  ),
+  shareReplay(1),
+);
+const accountIds$ = terminal$.pipe(
+  filter((x): x is Exclude<typeof x, null> => !!x),
+  switchMap((terminal) =>
+    defer(() =>
+      requestSQL<{ account_id: string }[]>(terminal, `select distinct(account_id) from trade`),
+    ).pipe(
+      retry({ delay: 10_000 }),
+      map((x) => x.map((v) => v.account_id)),
     ),
   ),
   shareReplay(1),
@@ -84,7 +97,11 @@ const ohlc$ = new Subject<IOHLC | undefined>();
 registerPage('TradingBoard', () => {
   const model = useMemo(() => FlexLayout.Model.fromJson(layoutJson), []);
   const seriesIdList = useObservableState(seriesIdList$);
+  const accountIds = useObservableState(accountIds$);
+
   const [seriesId, setSeriesId] = useState('');
+  const [accountId, setAccountId] = useState('');
+
   const [datasource_id, product_id, duration = ''] = useMemo(() => {
     // const [datasource_id, product_id, duration = ''] = decodePath(seriesId);
     return decodePath(seriesId);
@@ -124,6 +141,12 @@ registerPage('TradingBoard', () => {
                 <TimeSeriesChart
                   topSlot={
                     <>
+                      <AutoComplete
+                        data={accountIds?.map((id) => ({ label: id, value: id }))}
+                        value={accountId}
+                        onChange={setAccountId}
+                        placeholder="请输入或选择账户id"
+                      />
                       <AutoComplete
                         data={seriesIdList?.map((id) => ({ label: id, value: id }))}
                         value={seriesId}
@@ -186,7 +209,7 @@ registerPage('TradingBoard', () => {
               </Space>
             );
           case 'left-bottom':
-            return <div style={{ height: '100%', width: '100%' }}>Left Bottom Content</div>;
+            return <AccountInfo accountId={accountId} />;
           case 'right-panel':
             return <ManualTradePanelContent />;
           default:
