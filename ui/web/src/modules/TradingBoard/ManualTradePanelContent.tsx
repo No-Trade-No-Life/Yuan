@@ -85,7 +85,7 @@ export const ManualTradePanelContent = (props: Props) => {
       <Tabs activeKey={orderType} onChange={setOrderType} style={{ width: '100%' }}>
         <TabPane tab="限价委托" itemKey="LIMIT" />
         <TabPane tab="市价委托" itemKey="MARKET" />
-        <TabPane tab="止盈止损" itemKey="STOP" />
+        <TabPane tab="止损" itemKey="STOP" />
       </Tabs>
       <Form style={{ width: '100%' }} ref={formRef}>
         <Form.InputNumber

@@ -73,7 +73,7 @@ export const AccountInfo = (props: { accountId: string }) => {
   const [pendingOrderNumber, setPendingOrderNumber] = useState(0);
 
   return (
-    <Space vertical style={{ width: '100%', height: '100%', padding: '0 8px' }}>
+    <div style={{ width: '100%', height: '100%', padding: '0 8px', boxSizing: 'border-box' }}>
       <Tabs type="line">
         <TabPane
           tab={
@@ -103,6 +103,6 @@ export const AccountInfo = (props: { accountId: string }) => {
           <PendingOrderInfo accountId={accountId} pendingOrderNumberChange={setPendingOrderNumber} />
         </TabPane>
       </Tabs>
-    </Space>
+    </div>
   );
 };
