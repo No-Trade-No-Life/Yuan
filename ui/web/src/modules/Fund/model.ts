@@ -18,6 +18,10 @@ export interface IFundEvent {
     name: string;
     /** 更改税率 */
     tax_rate?: number;
+    /**
+     * 增加起征点
+     */
+    add_tax_threshold?: number;
   };
 }
 
@@ -52,6 +56,7 @@ export interface IFundState {
   investors: Record<string, InvestorMeta>; // 投资人数据
   investor_cashflow: Record<string, InvestorCashFlowItem[]>;
   investor_derived: Record<string, InvestorInfoDerived>;
+  event: IFundEvent | null;
   events: IFundEvent[];
 }
 
