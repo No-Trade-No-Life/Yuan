@@ -149,7 +149,11 @@ export const TimeSeriesChart = (props: {
   topSlot?: React.ReactNode;
   config?: ITimeSeriesChartConfig;
   onConfigChange?: (config: ITimeSeriesChartConfig) => void | Promise<void>;
+  hideRefresh?: boolean;
+  hideSettings?: boolean;
+  hideViewSelector?: boolean;
 }) => {
+  const { hideRefresh, hideSettings, hideViewSelector } = props;
   const [viewIndex, setViewIndex] = useState<number>(0);
 
   const [, refresh$] = useObservableRef<void>();
@@ -289,38 +293,46 @@ export const TimeSeriesChart = (props: {
           topSlot={
             <>
               {props.topSlot}
-              <Button
-                icon={<IconSetting />}
-                onClick={async () => {
-                  const data = await showForm<ITimeSeriesChartConfig>(schemaOfChartConfig, config);
-                  if (!props.onConfigChange) {
-                    throw new Error('此组件未支持配置修改');
-                  }
-                  await props.onConfigChange(data);
-                  refresh$.next();
-                  Toast.success('配置已更新');
-                }}
-              />
-              <Button
-                icon={<IconRefresh />}
-                onClick={async () => {
-                  refresh$.next();
-                  await firstValueFrom(
-                    data$.pipe(
-                      filter((x) => x !== data),
-                      timeout(30_000),
-                    ),
-                  );
-                  Toast.success('数据已刷新');
-                }}
-              />
+
+              {!hideSettings && (
+                <Button
+                  icon={<IconSetting />}
+                  onClick={async () => {
+                    const data = await showForm<ITimeSeriesChartConfig>(schemaOfChartConfig, config);
+                    if (!props.onConfigChange) {
+                      throw new Error('此组件未支持配置修改');
+                    }
+                    await props.onConfigChange(data);
+                    refresh$.next();
+                    Toast.success('配置已更新');
+                  }}
+                />
+              )}
+              {!hideRefresh && (
+                <Button
+                  icon={<IconRefresh />}
+                  onClick={async () => {
+                    refresh$.next();
+                    await firstValueFrom(
+                      data$.pipe(
+                        filter((x) => x !== data),
+                        timeout(30_000),
+                      ),
+                    );
+                    Toast.success('数据已刷新');
+                  }}
+                />
+              )}
+
               {!data && <Spin />}
-              <Select
-                value={viewIndex}
-                prefix="View"
-                onSelect={onSelectView}
-                optionList={config.views.map((item, index) => ({ value: index, label: item.name }))}
-              ></Select>
+              {!hideViewSelector && (
+                <Select
+                  value={viewIndex}
+                  prefix="View"
+                  onSelect={onSelectView}
+                  optionList={config.views.map((item, index) => ({ value: index, label: item.name }))}
+                ></Select>
+              )}
             </>
           }
           view={config.views[viewIndex]}
