@@ -87,66 +87,6 @@ registerPage('FundStatements', () => {
     [state],
   );
 
-  const columnsOfInvestor = useMemo(() => {
-    const columnHelper = createColumnHelper<{
-      meta: InvestorMeta;
-      detail: InvestorInfoDerived;
-    }>();
-    return [
-      columnHelper.accessor('meta.name', {
-        header: () => '投资人',
-      }),
-      columnHelper.accessor('detail.after_tax_assets', {
-        header: () => '净资产',
-      }),
-      columnHelper.accessor('meta.deposit', {
-        header: () => '净入金',
-      }),
-      columnHelper.accessor('detail.after_tax_profit', {
-        header: () => '收益',
-      }),
-      columnHelper.accessor('detail.holding_days', {
-        header: () => '持有天数',
-        cell: (ctx) => `${Math.ceil(ctx.getValue())}`,
-      }),
-      columnHelper.accessor('detail.after_tax_profit_rate', {
-        header: () => '简单收益率',
-        cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
-      }),
-      columnHelper.accessor('detail.after_tax_IRR', {
-        header: () => '内部收益率',
-        cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
-      }),
-      columnHelper.accessor('meta.share', {
-        header: () => '份额',
-      }),
-      columnHelper.accessor('detail.share_ratio', {
-        header: () => '份额占比',
-        cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
-      }),
-
-      columnHelper.accessor('detail.pre_tax_assets', {
-        header: () => '税前资产',
-      }),
-      columnHelper.accessor('meta.tax_threshold', {
-        header: () => '起征点',
-      }),
-      columnHelper.accessor('detail.taxable', {
-        header: () => '应税额',
-      }),
-      columnHelper.accessor('meta.tax_rate', {
-        header: () => '税率',
-        cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
-      }),
-      columnHelper.accessor('detail.tax', {
-        header: () => '税费',
-      }),
-      columnHelper.accessor('detail.after_tax_share', {
-        header: () => '税后份额',
-      }),
-    ];
-  }, []);
-
   const equityHistory = useMemo(() => {
     const ret: Array<{
       created_at: number;
@@ -611,7 +551,77 @@ registerPage('FundStatements', () => {
         </Collapse.Panel>
         <Collapse.Panel itemKey="investors" header={'投资人列表'}>
           <DataView
-            columns={columnsOfInvestor}
+            columns={[
+              {
+                header: '投资人',
+                accessorKey: 'meta.name',
+              },
+
+              { header: '净资产', accessorKey: 'detail.after_tax_assets' },
+              { header: '净入金', accessorKey: 'meta.deposit' },
+              { header: '收益', accessorKey: 'detail.after_tax_profit' },
+              {
+                header: '持有天数',
+                accessorKey: 'detail.holding_days',
+                cell: (ctx) => `${Math.ceil(ctx.getValue())}`,
+              },
+              {
+                header: '简单收益率',
+                accessorKey: 'detail.after_tax_profit_rate',
+                cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
+              },
+              {
+                header: '内部收益率',
+                accessorKey: 'detail.after_tax_IRR',
+                cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
+              },
+              { header: '份额', accessorKey: 'meta.share' },
+              {
+                header: '份额占比',
+                accessorKey: 'detail.share_ratio',
+                cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
+              },
+              { header: '税前资产', accessorKey: 'detail.pre_tax_assets' },
+              { header: '起征点', accessorKey: 'meta.tax_threshold' },
+              { header: '应税额', accessorKey: 'detail.taxable' },
+              {
+                header: '税率',
+                accessorKey: 'meta.tax_rate',
+                cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
+              },
+              { header: '税费', accessorKey: 'detail.tax' },
+              { header: '税后份额', accessorKey: 'detail.after_tax_share' },
+              {
+                header: '操作',
+                cell: (ctx) => {
+                  const investorName = ctx.row.original.meta.name;
+                  return (
+                    <Space>
+                      <Button
+                        onClick={async () => {
+                          await saveStatementsToFile(
+                            events.concat([
+                              {
+                                type: 'investor',
+                                updated_at: formatTime(Date.now()),
+                                investor: {
+                                  name: investorName,
+                                  add_tax_threshold: ctx.row.original.detail.taxable,
+                                },
+                                comment: `快捷申报免税 ${ctx.row.original.meta.name} ${ctx.row.original.detail.taxable}`,
+                              },
+                            ]),
+                          );
+                        }}
+                      >
+                        快捷免税申报
+                      </Button>
+                    </Space>
+                  );
+                },
+              },
+            ]}
+            columnsDependencyList={[events]}
             data={investors}
             initialSorting={[{ id: 'detail_after_tax_assets', desc: true }]}
           />
