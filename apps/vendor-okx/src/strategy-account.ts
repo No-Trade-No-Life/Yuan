@@ -6,17 +6,6 @@ import { client } from './api';
 
 const terminal = Terminal.fromNodeEnv();
 
-const marketIndexTickerUSDT$ = defer(() => client.getMarketIndexTicker({ quoteCcy: 'USDT' })).pipe(
-  map((x) => {
-    const mapInstIdToPrice = new Map<string, number>();
-    x.data.forEach((inst) => mapInstIdToPrice.set(inst.instId, Number(inst.idxPx)));
-    return mapInstIdToPrice;
-  }),
-  repeat({ delay: 1000 }),
-  retry({ delay: 5000 }),
-  shareReplay(1),
-);
-
 export const accountConfig$ = defer(() => client.getAccountConfig()).pipe(
   repeat({ delay: 10_000 }),
   retry({ delay: 10_000 }),
@@ -40,23 +29,14 @@ defer(async () => {
     terminal,
     strategyAccountId,
     async () => {
-      const [gridAlgoOrders, marketIndexTickerUSDT] = await Promise.all([
+      const [gridAlgoOrders] = await Promise.all([
         client.getGridOrdersAlgoPending({
           algoOrdType: 'contract_grid',
         }),
-        firstValueFrom(marketIndexTickerUSDT$),
       ]);
 
       let totalEquity = 0;
-      let totalFree = 0;
       const positions: IPosition[] = [];
-
-      const convertToUsdt = (amount: number, ccy: string | undefined) => {
-        if (!amount) return 0;
-        if (!ccy || ccy === 'USDT') return amount;
-        const price = marketIndexTickerUSDT.get(`${ccy}-USDT`) || 0;
-        return amount * price;
-      };
 
       const gridPositionsRes = await Promise.all(
         gridAlgoOrders.data.map((item) =>
@@ -81,27 +61,20 @@ defer(async () => {
               closable_price: +position.last,
               valuation: +position.notionalUsd,
             });
+
+            // 历史提取金额不会从 investment, totalPnl 扣减
+            // 计算净值需要通过仓位的名义价值和实际杠杆计算
+            totalEquity += +position.notionalUsd / +gridAlgoOrders.data?.[index].actualLever;
           }
         });
-      });
-
-      gridAlgoOrders.data.forEach((grid) => {
-        const ccy = grid.tradeQuoteCcy || 'USDT';
-        const investment = convertToUsdt(+grid.investment || 0, ccy);
-        const totalPnl = convertToUsdt(+grid.totalPnl || 0, ccy);
-        const free = convertToUsdt(+grid.availEq || 0, ccy);
-
-        const equity = investment + totalPnl;
-
-        totalEquity += equity;
-        totalFree += free;
       });
 
       return {
         money: {
           currency: 'USDT',
           equity: totalEquity,
-          free: totalFree,
+          // TODO: 累计策略的可提取资金作为 free
+          free: 0,
         },
         positions,
       };
