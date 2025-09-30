@@ -13,6 +13,8 @@ import { decodePath, encodePath } from '@yuants/utils';
 import { IOHLC } from '@yuants/data-ohlc';
 import { AccountInfo } from './AccountInfo';
 import { RadioChangeEvent } from '@douyinfe/semi-ui/lib/es/radio';
+import { useAccountInfo } from '../AccountInfo';
+import { AccountProfit } from './AccountProfit';
 
 const seriesIdList$ = terminal$.pipe(
   filter((x): x is Exclude<typeof x, null> => !!x),
@@ -96,14 +98,32 @@ const layoutJson: FlexLayout.IJsonModel = {
         ],
       },
       {
-        type: 'tabset',
+        type: 'row',
         weight: 20,
-        enableDeleteWhenEmpty: false,
-        enableTabStrip: false,
         children: [
           {
-            type: 'tab',
-            component: 'right-panel',
+            type: 'tabset',
+            weight: 70,
+            enableDeleteWhenEmpty: false,
+            enableTabStrip: false,
+            children: [
+              {
+                type: 'tab',
+                component: 'right-top',
+              },
+            ],
+          },
+          {
+            type: 'tabset',
+            weight: 30,
+            enableDeleteWhenEmpty: false,
+            enableTabStrip: false,
+            children: [
+              {
+                type: 'tab',
+                component: 'right-bottom',
+              },
+            ],
           },
         ],
       },
@@ -136,6 +156,9 @@ registerPage('TradingBoard', () => {
     });
     return mapUniqueIdToDurationList;
   }, [seriesIdList]);
+
+  const accountInfo$ = useMemo(() => useAccountInfo(accountId), [accountId]);
+  const accountInfo = useObservableState(accountInfo$);
 
   const onSelectProduct = (v: string) => {
     setUniqueProductId(v);
@@ -276,9 +299,12 @@ registerPage('TradingBoard', () => {
               </Space>
             );
           case 'left-bottom':
-            return <AccountInfo accountId={accountId} />;
-          case 'right-panel':
+            return <AccountInfo accountId={accountId} accountInfo={accountInfo} />;
+          case 'right-top':
             return <ManualTradePanelContent accountId={accountId} productId={productId} />;
+
+          case 'right-bottom':
+            return <AccountProfit accountInfo={accountInfo} />;
           default:
             return null;
         }
