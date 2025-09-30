@@ -5,6 +5,7 @@ import {
   ChartOptions,
   ColorType,
   createChart,
+  CrosshairMode,
   DeepPartial,
   IChartApi,
   MouseEventParams,
@@ -34,6 +35,9 @@ const ChartOption: DeepPartial<ChartOptions> = {
       enableResize: true,
     },
   },
+  crosshair: {
+    mode: CrosshairMode.Normal, // 关键：Normal 表示跟随鼠标像素
+  },
   grid: {
     vertLines: {
       color: 'rgba(197, 203, 206, 0.5)',
@@ -62,6 +66,9 @@ const DarkModeChartOption: DeepPartial<ChartOptions> = {
       // setting this to false will disable the resize of the panes by the user
       enableResize: true,
     },
+  },
+  crosshair: {
+    mode: CrosshairMode.Normal, // 关键：Normal 表示跟随鼠标像素
   },
   grid: {
     vertLines: {
