@@ -1,3 +1,4 @@
+import { IOHLC } from '@yuants/data-ohlc';
 import {
   CandlestickSeries,
   createSeriesMarkers,
@@ -6,10 +7,9 @@ import {
   Time,
 } from 'lightweight-charts';
 import { defer, filter, Observable, switchMap, takeUntil } from 'rxjs';
+import { terminal$ } from '../../Network';
 import { VertLine } from '../Plugins/VerticalLine';
 import { ICustomSeries } from './model';
-import { IOHLC } from '@yuants/data-ohlc';
-import { terminal$ } from '../../Network';
 
 export const DEFAULT_SINGLE_COLOR_SCHEME: string[] = [
   '#5B8FF9',
@@ -34,13 +34,15 @@ const SimpleKeyValueLegend: ICustomSeries['Legend'] = ({
 
   const name = seriesConfig.name || seriesConfig.refs[0]?.column_name;
 
+  const value = globalDataSeries[0][cursorIndex] ?? globalDataSeries[0][globalDataSeries[0].length - 1];
+
   return (
     <div
       style={{
         color: DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
       }}
     >
-      {name}: {globalDataSeries[0][cursorIndex]}
+      {name}: {value}
     </div>
   );
 };
@@ -174,10 +176,10 @@ export const customSeries: ICustomSeries[] = [
     },
     Legend: ({ globalDataSeries, cursorIndex, seriesConfig }) => {
       if (globalDataSeries.length < 4) return null;
-      const open = globalDataSeries[0][cursorIndex];
-      const high = globalDataSeries[1][cursorIndex];
-      const low = globalDataSeries[2][cursorIndex];
-      const close = globalDataSeries[3][cursorIndex];
+      const open = globalDataSeries[0][cursorIndex] ?? globalDataSeries[0][globalDataSeries[0].length - 1];
+      const high = globalDataSeries[1][cursorIndex] ?? globalDataSeries[1][globalDataSeries[1].length - 1];
+      const low = globalDataSeries[2][cursorIndex] ?? globalDataSeries[2][globalDataSeries[2].length - 1];
+      const close = globalDataSeries[3][cursorIndex] ?? globalDataSeries[3][globalDataSeries[3].length - 1];
       const ratio = (close / (globalDataSeries[3][cursorIndex - 1] ?? open) - 1) * 100;
       const isBullish = close > open;
       const isBearish = close < open;
