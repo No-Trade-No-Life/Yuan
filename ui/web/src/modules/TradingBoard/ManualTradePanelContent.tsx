@@ -87,7 +87,7 @@ export const ManualTradePanelContent = (props: Props) => {
         <TabPane tab="市价委托" itemKey="MARKET" />
         <TabPane tab="止盈止损" itemKey="STOP" />
       </Tabs>
-      <Form style={{ width: '100%' }} onValueChange={(values) => {}} ref={formRef}>
+      <Form style={{ width: '100%' }} ref={formRef}>
         <Form.InputNumber
           field="price"
           label="价格"
