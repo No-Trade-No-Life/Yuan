@@ -1,0 +1,15 @@
+.manualTradeContainer {
+  display: flex;
+}
+
+.openPosition :global(.semi-radio-cardRadioGroup_checked) {
+  background: #26a69a;
+  border-color: transparent;
+  /* color: transparent; */
+}
+
+.closePosition :global(.semi-radio-cardRadioGroup_checked) {
+  background: #ef5350;
+  border-color: transparent;
+  /* color: transparent; */
+}
