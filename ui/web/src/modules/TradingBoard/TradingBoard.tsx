@@ -182,6 +182,59 @@ registerPage('TradingBoard', () => {
     setCandleDuration(e.target.value);
   };
 
+  const config = useMemo(() => {
+    return {
+      data: [
+        {
+          type: 'sql' as const,
+          query: `select * from ohlc where series_id = ${escapeSQL(
+            seriesId,
+          )} order by created_at desc limit 5000`,
+          time_column_name: 'created_at',
+        },
+      ],
+      views: [
+        {
+          name: '主视图',
+          time_ref: {
+            data_index: 0,
+            column_name: 'created_at',
+          },
+          panes: [
+            {
+              series: [
+                {
+                  type: 'ohlc',
+                  refs: [
+                    {
+                      data_index: 0,
+                      column_name: 'open',
+                    },
+                    {
+                      data_index: 0,
+                      column_name: 'high',
+                    },
+                    {
+                      data_index: 0,
+                      column_name: 'low',
+                    },
+                    {
+                      data_index: 0,
+                      column_name: 'close',
+                    },
+                  ],
+                  options: {
+                    realtimeSeriesId: seriesId,
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+  }, [seriesId]);
+
   return (
     <FlexLayout.Layout
       model={model}
@@ -190,7 +243,7 @@ registerPage('TradingBoard', () => {
         switch (component) {
           case 'left-top':
             return (
-              <Space style={{ height: '100%', width: '100%' }}>
+              <Space style={{ height: '100%', width: '100%', padding: '0 8px' }}>
                 <TimeSeriesChart
                   hideRefresh={true}
                   hideSettings={true}
@@ -218,56 +271,7 @@ registerPage('TradingBoard', () => {
                       </RadioGroup>
                     </>
                   }
-                  config={{
-                    data: [
-                      {
-                        type: 'sql',
-                        query: `select * from ohlc where series_id = ${escapeSQL(
-                          seriesId,
-                        )} order by created_at desc limit 5000`,
-                        time_column_name: 'created_at',
-                      },
-                    ],
-                    views: [
-                      {
-                        name: '主视图',
-                        time_ref: {
-                          data_index: 0,
-                          column_name: 'created_at',
-                        },
-                        panes: [
-                          {
-                            series: [
-                              {
-                                type: 'ohlc',
-                                refs: [
-                                  {
-                                    data_index: 0,
-                                    column_name: 'open',
-                                  },
-                                  {
-                                    data_index: 0,
-                                    column_name: 'high',
-                                  },
-                                  {
-                                    data_index: 0,
-                                    column_name: 'low',
-                                  },
-                                  {
-                                    data_index: 0,
-                                    column_name: 'close',
-                                  },
-                                ],
-                                options: {
-                                  realtimeSeriesId: seriesId,
-                                },
-                              },
-                            ],
-                          },
-                        ],
-                      },
-                    ],
-                  }}
+                  config={config}
                 />
               </Space>
             );
