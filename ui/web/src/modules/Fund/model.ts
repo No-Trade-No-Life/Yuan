@@ -22,6 +22,16 @@ export interface IFundEvent {
      * 增加起征点
      */
     add_tax_threshold?: number;
+
+    /**
+     * 推荐人
+     */
+    referrer?: string;
+
+    /**
+     * 推荐人返佣比例
+     */
+    referrer_rebate_rate?: number;
   };
 }
 
@@ -54,15 +64,9 @@ export interface IFundState {
     total_profit: number;
   };
   investors: Record<string, InvestorMeta>; // 投资人数据
-  investor_cashflow: Record<string, InvestorCashFlowItem[]>;
   investor_derived: Record<string, InvestorInfoDerived>;
   event: IFundEvent | null;
   events: IFundEvent[];
-}
-
-export interface InvestorCashFlowItem {
-  updated_at: number;
-  deposit: number;
 }
 
 export interface InvestorMeta {
@@ -76,6 +80,24 @@ export interface InvestorMeta {
   deposit: number;
   /** 税率 */
   tax_rate: number;
+
+  /**
+   * 推荐人
+   */
+  referrer?: string;
+  /**
+   * 推荐人返佣比例
+   */
+  referrer_rebate_rate?: number;
+  /**
+   * 已领取的推荐人返佣
+   */
+  claimed_referrer_rebate: number;
+
+  /**
+   * 累计税费
+   */
+  taxed: number;
   /** 创建时间 */
   created_at: number;
 }
@@ -100,7 +122,6 @@ export interface InvestorInfoDerived {
   after_tax_profit: number;
   /** 税后收益率 */
   after_tax_profit_rate: number;
-  after_tax_IRR: number;
   /** 税后份额 */
   after_tax_share: number;
 

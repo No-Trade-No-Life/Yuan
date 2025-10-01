@@ -1,4 +1,4 @@
-import { IFundEvent, IFundState, InvestorCashFlowItem } from './model';
+import { IFundEvent, IFundState } from './model';
 
 const reduceState = (state: IFundState, event: IFundEvent): IFundState => {
   const nextState = structuredClone(state);
@@ -23,20 +23,11 @@ const reduceState = (state: IFundState, event: IFundEvent): IFundState => {
   // 投资人订单
   if (event.order) {
     const deposit = event.order.deposit;
-    const investor = (nextState.investors[event.order.name] ??= {
-      name: event.order.name,
-      created_at: nextState.updated_at,
-      deposit: 0,
-      share: 0,
-      tax_threshold: 0,
-      tax_rate: 0,
-    });
+    const investor = ensureInvestor(nextState, event.order.name);
     investor.deposit += deposit;
     investor.tax_threshold += deposit;
     investor.share += deposit / state.summary_derived.unit_price;
     nextState.total_assets += deposit;
-    const cashflow = (nextState.investor_cashflow[event.order.name] ??= []);
-    cashflow.push({ updated_at: nextState.updated_at, deposit });
   }
   // 更新投资人信息
   if (event.investor) {
@@ -48,6 +39,12 @@ const reduceState = (state: IFundState, event: IFundEvent): IFundState => {
       const nextTaxThreshold =
         nextState.investors[event.investor.name].tax_threshold + event.investor.add_tax_threshold;
       nextState.investors[event.investor.name].tax_threshold = nextTaxThreshold;
+    }
+    if (event.investor.referrer) {
+      nextState.investors[event.investor.name].referrer = event.investor.referrer;
+    }
+    if (typeof event.investor.referrer_rebate_rate === 'number') {
+      nextState.investors[event.investor.name].referrer_rebate_rate = event.investor.referrer_rebate_rate;
     }
   }
   // 结税
@@ -61,26 +58,35 @@ const reduceState = (state: IFundState, event: IFundEvent): IFundState => {
   }
 
   if (event.type === 'taxation/v2') {
+    // 特点是，税前税后基金的总资产不变
     let totalTaxShare = 0;
 
     for (const investor of Object.values(nextState.investors)) {
       const tax = state.investor_derived[investor.name].tax;
       const after_tax_share = state.investor_derived[investor.name].after_tax_share;
+      // 作为税费的份额
       const taxShare = investor.share - after_tax_share;
-      totalTaxShare += taxShare;
-      investor.share = after_tax_share;
+      investor.share -= taxShare;
       investor.tax_threshold = state.investor_derived[investor.name].after_tax_assets;
+      investor.taxed += tax;
+      // 推荐人分佣
+      let tax_account_share = taxShare;
+      if (investor.referrer && investor.referrer_rebate_rate && nextState.investors[investor.referrer]) {
+        const referrer_rebate_share = taxShare * investor.referrer_rebate_rate;
+        const rebate_share_value = referrer_rebate_share * state.summary_derived.unit_price;
+
+        // 获得返佣，同时需要提高其起征点 (相当于返佣也是入金)
+        nextState.investors[investor.referrer].share += referrer_rebate_share;
+        nextState.investors[investor.referrer].tax_threshold += rebate_share_value;
+        nextState.investors[investor.referrer].claimed_referrer_rebate += rebate_share_value;
+
+        tax_account_share = taxShare - referrer_rebate_share;
+      }
+      totalTaxShare += tax_account_share;
       nextState.total_taxed += tax;
     }
 
-    const taxAccount = (nextState.investors['@tax'] ??= {
-      name: '@tax',
-      created_at: nextState.updated_at,
-      deposit: 0,
-      share: 0,
-      tax_threshold: 0,
-      tax_rate: 0,
-    });
+    const taxAccount = ensureInvestor(nextState, '@tax');
 
     taxAccount.share += totalTaxShare;
   }
@@ -119,20 +125,7 @@ const reduceState = (state: IFundState, event: IFundEvent): IFundState => {
       const avg_assets = (timed_assets / holding_days) * 365;
       const after_tax_profit_rate = after_tax_profit / avg_assets;
       const after_tax_share = after_tax_assets / nextState.summary_derived.unit_price;
-      const cashflow = nextState.investor_cashflow[v.name];
-      const after_tax_IRR =
-        nextState.updated_at - v.created_at > 0
-          ? Math.pow(
-              1 +
-                XIRR(
-                  cashflow.concat({
-                    updated_at: nextState.updated_at,
-                    deposit: -after_tax_assets,
-                  }),
-                ),
-              holding_days / 365,
-            ) - 1
-          : 0;
+
       nextState.investor_derived[v.name] = {
         holding_days,
         share_ratio,
@@ -142,7 +135,6 @@ const reduceState = (state: IFundState, event: IFundEvent): IFundState => {
         after_tax_assets,
         after_tax_profit,
         timed_assets,
-        after_tax_IRR,
         after_tax_profit_rate,
         after_tax_share,
       };
@@ -181,7 +173,6 @@ const getInitFundState = (): IFundState => ({
   },
   investors: {},
   investor_derived: {},
-  investor_cashflow: {},
   events: [],
   event: null,
 });
@@ -212,37 +203,17 @@ export const scanFundEvents = (events: IFundEvent[]): IFundState[] => {
   return states;
 };
 
-const XIRR = function xirr(cashflow: InvestorCashFlowItem[], guess = 0.05) {
-  // console.info('XIRR calculation started', cashflow);
-  const maxIterations = 100;
-  const tolerance = 1e-5;
-
-  let x0 = guess;
-  let x1;
-
-  for (let i = 0; i < maxIterations; i++) {
-    // console.info(`Iteration ${i}: ${x0}`);
-    let fValue = 0;
-    let fDerivative = 0;
-
-    for (let j = 0; j < cashflow.length; j++) {
-      const t = (cashflow[j].updated_at - cashflow[0].updated_at) / (1000 * 60 * 60 * 24 * 365); // Convert milliseconds to years
-      const expTerm = Math.exp(-x0 * t);
-      fValue -= cashflow[j].deposit * expTerm;
-      fDerivative += cashflow[j].deposit * expTerm * t;
-    }
-
-    fValue = fValue / cashflow.length;
-    fDerivative = fDerivative / cashflow.length;
-
-    x1 = x0 - fValue / fDerivative;
-
-    if (Math.abs(x1 - x0) < tolerance) {
-      return x1;
-    }
-
-    x0 = x1;
-  }
-
-  throw new Error('XIRR calculation did not converge');
-};
+function ensureInvestor(nextState: IFundState, investor_name: string) {
+  return (nextState.investors[investor_name] ??= {
+    name: investor_name,
+    created_at: nextState.updated_at,
+    deposit: 0,
+    share: 0,
+    tax_threshold: 0,
+    tax_rate: 0,
+    taxed: 0,
+    referrer: '',
+    referrer_rebate_rate: 0,
+    claimed_referrer_rebate: 0,
+  });
+}

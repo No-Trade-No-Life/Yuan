@@ -558,6 +558,23 @@ registerPage('FundStatements', () => {
 
               { header: '净资产', accessorKey: 'detail.after_tax_assets' },
               { header: '净入金', accessorKey: 'meta.deposit' },
+              // {
+              //   header: '推荐人',
+              //   accessorKey: 'meta.referrer',
+              // },
+              // {
+              //   header: '推荐人返佣比例',
+              //   accessorKey: 'meta.referrer_rebate_rate',
+              //   cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
+              // },
+              // {
+              //   header: '已领取的推荐人返佣',
+              //   accessorKey: 'meta.claimed_referrer_rebate',
+              // },
+              // {
+              //   header: '已交税费',
+              //   accessorKey: 'meta.taxed',
+              // },
               { header: '收益', accessorKey: 'detail.after_tax_profit' },
               {
                 header: '持有天数',
@@ -565,13 +582,8 @@ registerPage('FundStatements', () => {
                 cell: (ctx) => `${Math.ceil(ctx.getValue())}`,
               },
               {
-                header: '简单收益率',
+                header: '收益率',
                 accessorKey: 'detail.after_tax_profit_rate',
-                cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
-              },
-              {
-                header: '内部收益率',
-                accessorKey: 'detail.after_tax_IRR',
                 cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
               },
               { header: '份额', accessorKey: 'meta.share' },
