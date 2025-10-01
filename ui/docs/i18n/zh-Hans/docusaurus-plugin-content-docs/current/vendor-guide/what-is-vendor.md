@@ -64,5 +64,5 @@ sidebar_position: 1
 ```ts
 import { Terminal } from '@yuants/protocol';
 
-const terminal = new Terminal(process.env.HOST_URL!, {});
+const terminal = Terminal.fromNodeEnv();
 ``` -->

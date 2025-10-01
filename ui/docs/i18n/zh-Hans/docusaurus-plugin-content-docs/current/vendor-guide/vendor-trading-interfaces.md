@@ -18,7 +18,7 @@
 import { Terminal } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
 
-const terminal = new Terminal(process.env.HOST_URL!, {});
+const terminal = Terminal.fromNodeEnv();
 
 terminal.server.provideService(
   'SubmitOrder',
@@ -62,7 +62,7 @@ terminal.server.provideService(
 import { Terminal } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
 
-const terminal = new Terminal(process.env.HOST_URL!, {});
+const terminal = Terminal.fromNodeEnv();
 
 terminal.server.provideService(
   'ModifyOrder',
@@ -101,7 +101,7 @@ terminal.server.provideService(
 import { Terminal } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
 
-const terminal = new Terminal(process.env.HOST_URL!, {});
+const terminal = Terminal.fromNodeEnv();
 
 terminal.server.provideService(
   'CancelOrder',

@@ -8,7 +8,6 @@ import {
   IconUser,
 } from '@douyinfe/semi-icons';
 import { Collapse, Descriptions, Space, Toast, Typography } from '@douyinfe/semi-ui';
-import { createColumnHelper } from '@tanstack/react-table';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
 import { parse } from 'jsonc-parser';
@@ -27,7 +26,7 @@ import { Button, DataView } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
 import { registerAssociationRule } from '../System';
 import { useTerminal } from '../Terminals';
-import { IFundEvent, InvestorInfoDerived, InvestorMeta } from './model';
+import { IFundEvent } from './model';
 import { scanFundEvents } from './utils';
 
 registerAssociationRule({

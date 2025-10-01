@@ -8,7 +8,7 @@ First, obtain the list of product information from the external system, and then
 import { Terminal, writeDataRecords } from '@yuants/protocol';
 import { defer, repeat, retry, shareReplay, delayWhen, map, from } from 'rxjs';
 
-const terminal = new Terminal(process.env.HOST_URL!, {});
+const terminal = Terminal.fromNodeEnv();
 
 /// Note: Api.getAllProducts needs to be implemented by you
 const products$ = defer(() => Api.getAllProducts()) // Fetch all product information from the external system API
