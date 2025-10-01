@@ -8,7 +8,7 @@
 import { Terminal, writeDataRecords } from '@vendor/protocol';
 import { defer, repeat, retry, shareReplay, delayWhen, map, from } from 'rxjs';
 
-const terminal = new Terminal(process.env.HOST_URL!, {});
+const terminal = Terminal.fromNodeEnv();
 
 /// Note: Api.getAllProducts 需要自行实现
 const products$ = defer(() => Api.getAllProducts()) // 从外部系统 API 获取所有产品信息列表

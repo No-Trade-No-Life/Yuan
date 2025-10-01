@@ -6,7 +6,7 @@ When integrating with an exchange, the vendor needs to convert the account opene
 import { Terminal, provideAccountInfo } from '@yuants/protocol';
 import { combineLatest, defer, map, shareReplay } from 'rxjs';
 
-const terminal = new Terminal(process.env.HOST_URL!, {});
+const terminal = Terminal.fromNodeEnv();
 
 // Assume the vendor's name is VENDOR_NAME and the user ID is USER_ID, AccountId must be globally unique
 const ACCOUNT_ID = `${VENDOR_NAME}/${USER_ID}`;

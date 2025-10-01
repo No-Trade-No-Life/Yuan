@@ -5,7 +5,7 @@
 ```ts
 import { Terminal, provideSeriesData } from '@yuants/protocol';
 
-const terminal = new Terminal(process.env.HOST_URL!, {});
+const terminal = Terminal.fromNodeEnv();
 
 provideDataSeries(
   terminal,

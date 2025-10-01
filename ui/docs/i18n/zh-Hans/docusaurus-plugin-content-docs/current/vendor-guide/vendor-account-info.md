@@ -6,7 +6,7 @@
 import { Terminal, provideAccountInfo } from '@vendor/protocol';
 import { combineLatest, defer, map, shareReplay } from 'rxjs';
 
-const terminal = new Terminal(process.env.HOST_URL!, {});
+const terminal = Terminal.fromNodeEnv();
 
 // 假设供应商的名字为 VENDOR_NAME，用户 ID 为 USER_ID，AccountId 要求全局唯一
 const ACCOUNT_ID = `${VENDOR_NAME}/${USER_ID}`;
