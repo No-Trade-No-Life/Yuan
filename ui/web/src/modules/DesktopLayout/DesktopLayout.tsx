@@ -54,7 +54,8 @@ export const DesktopLayout = () => {
   const isHideNavigator = useObservableState(isHideNavigator$);
 
   const activeNode = model?.getActiveTabset()?.getSelectedNode();
-  const isFullScreen = useObservableState(isFullScreen$);
+  const isFullScreen = useObservableState(isFullScreen$) && !isDev;
+  const isShowWallPaper = !isFullScreen;
 
   if (document.location.hash === '#/popout') {
     return null;
@@ -67,7 +68,7 @@ export const DesktopLayout = () => {
         overflow: 'hidden',
       }}
     >
-      <WallPaper />
+      {isShowWallPaper && <WallPaper />}
       {isShowHome === true ? <HomePage /> : null}
       <Layout.Content
         style={{
@@ -75,9 +76,10 @@ export const DesktopLayout = () => {
           width: isShowHome ? 0 : '100%',
           height: isShowHome ? 0 : '100%',
           visibility: isShowHome ? 'hidden' : 'visible',
+          overflow: 'auto',
         }}
       >
-        {(isDev || !isFullScreen) && model && (
+        {!isFullScreen && model && (
           <FlexLayout
             onModelChange={(model) => {
               layoutModelJson$.next(model.toJson());
