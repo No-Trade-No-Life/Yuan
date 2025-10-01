@@ -1,11 +1,8 @@
 import { Terminal } from '@yuants/protocol';
-import { formatTime, UUID } from '@yuants/utils';
+import { formatTime } from '@yuants/utils';
 import { first, from, ObservableInput } from 'rxjs';
 
-const terminal = new Terminal(process.env.HOST_URL!, {
-  terminal_id: process.env.TERMINAL_ID || `app-openai/${UUID()}`,
-  name: '@yuants/app-openai',
-});
+const terminal = Terminal.fromNodeEnv();
 
 if (!process.env.OPENAI_API_KEY) {
   console.error('OPENAI_API_KEY is required');
