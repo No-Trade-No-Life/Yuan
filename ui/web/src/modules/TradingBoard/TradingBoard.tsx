@@ -186,7 +186,7 @@ registerPage('TradingBoard', () => {
         .pipe(
           switchMap((terminal) => {
             if (!terminal) return EMPTY;
-            return terminal.channel.subscribeChannel<IOHLC>('ohlc1', seriesId).pipe(
+            return terminal.channel.subscribeChannel<IOHLC>('ohlc', seriesId).pipe(
               tap((data) => {
                 ohlc$.next(data);
               }),
