@@ -151,6 +151,10 @@ export const customSeries: ICustomSeries[] = [
               ),
             ),
           )
+          .pipe(
+            //
+            takeUntil(dispose$),
+          )
           .subscribe((ohlc: IOHLC) => {
             const last = displayDataList[displayDataList.length - 1];
             const time = ~~(new Date(ohlc.created_at).getTime() / 1000) as Time;
@@ -159,10 +163,25 @@ export const customSeries: ICustomSeries[] = [
               last.high = +ohlc.high;
               last.low = +ohlc.low;
               last.close = +ohlc.close;
+              dataSeries[0][dataSeries[0].length - 1] = +ohlc.open;
+              dataSeries[1][dataSeries[1].length - 1] = +ohlc.high;
+              dataSeries[2][dataSeries[2].length - 1] = +ohlc.low;
+              dataSeries[3][dataSeries[3].length - 1] = +ohlc.close;
             } else {
               // 新的一根 K：往 timeLine / dataSeries / displayDataList 追加
               const nextIndex = dataSeries[0].length;
               timeLine.push([~~(new Date(ohlc.created_at).getTime() / 1000), nextIndex]);
+              dataSeries[0].push(+ohlc.open);
+              dataSeries[1].push(+ohlc.high);
+              dataSeries[2].push(+ohlc.low);
+              dataSeries[3].push(+ohlc.close);
+              displayDataList.push({
+                time,
+                open: +ohlc.open,
+                high: +ohlc.high,
+                low: +ohlc.low,
+                close: +ohlc.close,
+              });
             }
             candlestickSeries.update({
               time,
