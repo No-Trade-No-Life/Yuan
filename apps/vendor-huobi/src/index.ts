@@ -25,7 +25,7 @@ import {
 } from 'rxjs';
 import { client } from './api';
 import './interest_rate';
-import { perpetualContractProducts$, spotProducts$ } from './product';
+import { mapProductIdToPerpetualProduct$, spotProducts$ } from './product';
 import './quote';
 
 const terminal = Terminal.fromNodeEnv();
@@ -59,11 +59,6 @@ const terminal = Terminal.fromNodeEnv();
   const subAccounts = subUsersRes.data;
   const isMainAccount = subUsersRes.ok;
   console.info(formatTime(Date.now()), 'subAccounts', JSON.stringify(subAccounts));
-
-  const mapProductIdToPerpetualProduct$ = perpetualContractProducts$.pipe(
-    map((x) => new Map(x.map((v) => [v.product_id, v]))),
-    shareReplay(1),
-  );
 
   provideAccountInfoService(
     terminal,
