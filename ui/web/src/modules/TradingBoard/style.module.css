@@ -13,3 +13,9 @@
   border-color: transparent;
   /* color: transparent; */
 }
+
+.tabPaneContent {
+  > div {
+    height: 100%;
+  }
+}

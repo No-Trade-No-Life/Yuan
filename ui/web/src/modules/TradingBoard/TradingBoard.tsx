@@ -15,6 +15,7 @@ import { AccountInfo } from './AccountInfo';
 import { RadioChangeEvent } from '@douyinfe/semi-ui/lib/es/radio';
 import { useAccountInfo } from '../AccountInfo';
 import { AccountProfit } from './AccountProfit';
+import { createFileSystemBehaviorSubject } from '../FileSystem';
 
 const seriesIdList$ = terminal$.pipe(
   filter((x): x is Exclude<typeof x, null> => !!x),
@@ -131,16 +132,20 @@ const layoutJson: FlexLayout.IJsonModel = {
   },
 };
 
-const ohlc$ = new Subject<IOHLC | undefined>();
+export const accountId$ = createFileSystemBehaviorSubject('account-id', '');
+
+export const uniqueProductId$ = createFileSystemBehaviorSubject('unique-product-id', '');
+
+export const candleDuration$ = createFileSystemBehaviorSubject('candle-duration', '');
 
 registerPage('TradingBoard', () => {
   const model = useMemo(() => FlexLayout.Model.fromJson(layoutJson), []);
   const seriesIdList = useObservableState(seriesIdList$);
   const accountIds = useObservableState(accountIds$);
 
-  const [uniqueProductId, setUniqueProductId] = useState('');
-  const [accountId, setAccountId] = useState('');
-  const [candleDuration, setCandleDuration] = useState<string>();
+  const [uniqueProductId, setUniqueProductId] = useState(useObservableState(uniqueProductId$) ?? '');
+  const [accountId, setAccountId] = useState(useObservableState(accountId$) ?? '');
+  const [candleDuration, setCandleDuration] = useState<string>(useObservableState(candleDuration$) ?? '');
 
   const mapUniqueProductIdToDurationListState = useMemo(() => {
     const mapUniqueIdToDurationList = new Map<string, string[]>();
@@ -162,9 +167,11 @@ registerPage('TradingBoard', () => {
 
   const onSelectProduct = (v: string) => {
     setUniqueProductId(v);
+    uniqueProductId$.next(v);
     const durationList = mapUniqueProductIdToDurationListState.get(v);
     if (!durationList || !durationList.includes(candleDuration ?? '')) {
       setCandleDuration(mapUniqueProductIdToDurationListState.get(v)?.[0] ?? '');
+      candleDuration$.next(mapUniqueProductIdToDurationListState.get(v)?.[0] ?? '');
     }
   };
 
@@ -180,29 +187,10 @@ registerPage('TradingBoard', () => {
     }
     return [];
   }, [uniqueProductId]);
-  useEffect(() => {
-    if (seriesId) {
-      const sub = terminal$
-        .pipe(
-          switchMap((terminal) => {
-            if (!terminal) return EMPTY;
-            return terminal.channel.subscribeChannel<IOHLC>('ohlc', seriesId).pipe(
-              tap((data) => {
-                ohlc$.next(data);
-              }),
-            );
-          }),
-        )
-        .subscribe();
-      return () => {
-        ohlc$.next(undefined);
-        sub.unsubscribe();
-      };
-    }
-  }, [seriesId]);
 
   const onCandleDurationChange = (e: RadioChangeEvent) => {
     setCandleDuration(e.target.value);
+    candleDuration$.next(e.target.value);
   };
 
   const config = useMemo(() => {
@@ -276,7 +264,10 @@ registerPage('TradingBoard', () => {
                       <AutoComplete
                         data={accountIds?.map((id) => ({ label: id, value: id }))}
                         value={accountId}
-                        onChange={setAccountId}
+                        onChange={(v: string) => {
+                          setAccountId(v);
+                          accountId$.next(v);
+                        }}
                         placeholder="请输入或选择账户id"
                       />
                       <AutoComplete
