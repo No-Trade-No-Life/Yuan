@@ -18,6 +18,27 @@ void ensure_envs(std::vector<std::string> env_names) {
   }
 }
 
+Bridge::Bridge(zmq::context_t *ctx)
+    : trader_api_(CThostFtdcTraderApi::CreateFtdcTraderApi()) {
+  char *trader_addr = getenv("TRADER_ADDR");
+  // char *push_url = getenv("ZMQ_PUSH_URL");
+  // char *pull_url = getenv("ZMQ_PULL_URL");
+  push_sock_ = zmq::socket_t(*ctx, zmq::socket_type::push);
+  // push_sock_.bind(push_url);
+  push_sock_.bind("tcp://*:5700");
+  pull_sock_ = zmq::socket_t(*ctx, zmq::socket_type::pull);
+  // pull_sock_.connect(pull_url);
+  pull_sock_.connect("tcp://localhost:5701");
+  // TODO(wsy): timeout
+  spdlog::info("Init, connecting trader addr: {}", trader_addr);
+  trader_api_->RegisterSpi(this);
+  trader_api_->SubscribePublicTopic(THOST_TERT_QUICK);
+  trader_api_->SubscribePrivateTopic(THOST_TERT_QUICK);
+  trader_api_->RegisterFront(trader_addr);
+  trader_api_->Init();
+}
+
+
 void Bridge::OnFrontConnected() {
   char *broker_id = getenv("BROKER_ID");
   char *user_id = getenv("USER_ID");

@@ -20246,46 +20246,6 @@ void from_json(const json& j, CThostFtdcFrontInfoField& p) {
 
 
 
-Bridge::Bridge(zmq::context_t *ctx) : trader_api_(CThostFtdcTraderApi::CreateFtdcTraderApi()), md_api_(nullptr) {
-
-  char *trader_addr = getenv("TRADER_ADDR");
-
-  push_sock_ = zmq::socket_t(*ctx, zmq::socket_type::push);
-
-  const char *pull_url = getenv("ZMQ_PULL_URL");
-
-  std::string pull_endpoint = pull_url != nullptr ? pull_url : "tcp://127.0.0.1:5700";
-
-  auto star_pos = pull_endpoint.find('*');
-
-  if (star_pos != std::string::npos) {
-
-    pull_endpoint.replace(star_pos, 1, "127.0.0.1");
-
-  }
-
-  push_sock_.connect(pull_endpoint);
-
-  pull_sock_ = zmq::socket_t(*ctx, zmq::socket_type::pull);
-
-  pull_sock_.connect("tcp://localhost:5701");
-
-  spdlog::info("Init, connecting trader addr: {}", trader_addr);
-
-  trader_api_->RegisterSpi(this);
-
-  trader_api_->SubscribePublicTopic(THOST_TERT_QUICK);
-
-  trader_api_->SubscribePrivateTopic(THOST_TERT_QUICK);
-
-  trader_api_->RegisterFront(trader_addr);
-
-  trader_api_->Init();
-
-}
-
-
-
 void Bridge::SetMdApi(CThostFtdcMdApi *md_api) {
 
   md_api_ = md_api;
