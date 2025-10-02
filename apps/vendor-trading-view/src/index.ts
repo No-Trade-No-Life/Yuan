@@ -1,4 +1,4 @@
-import { IOHLC } from '@yuants/data-ohlc';
+import { IOHLC, provideOHLCDurationService } from '@yuants/data-ohlc';
 import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
 import { convertDurationToOffset, decodePath, formatTime } from '@yuants/utils';
@@ -26,6 +26,12 @@ const DURATION_TO_TRADINGVIEW_PERIOD: Record<string, string> = {
   P6M: '6M',
   P1Y: '12M',
 };
+
+provideOHLCDurationService(
+  terminal,
+  'TradingView', // datasource_id
+  () => Object.keys(DURATION_TO_TRADINGVIEW_PERIOD),
+);
 
 createSeriesProvider(terminal, {
   tableName: 'ohlc',

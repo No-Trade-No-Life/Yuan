@@ -147,3 +147,28 @@ export const postFApiV1Order = createApi<
   },
   {}
 >('TRADE', 'POST', '/fapi/v1/order');
+
+/**
+ * 获取交易对信息
+ *
+ * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#%E4%BA%A4%E6%98%93%E5%AF%B9%E4%BF%A1%E6%81%AF
+ */
+export const getFApiV1ExchangeInfo = createApi<
+  {},
+  {
+    symbols: {
+      symbol: string;
+      status: 'TRADING' | 'BREAK' | 'HALT';
+      baseAsset: string;
+      quoteAsset: string;
+      pricePrecision: number;
+      quantityPrecision: number;
+      baseAssetPrecision: number;
+      quotePrecision: number;
+      filters: {
+        filterType: string;
+        [key: string]: any;
+      }[];
+    }[];
+  }
+>('NONE', 'GET', '/fapi/v1/exchangeInfo');
