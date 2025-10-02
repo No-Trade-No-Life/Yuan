@@ -4,6 +4,8 @@
 
 ```ts
 
+import { Terminal } from '@yuants/protocol';
+
 // @public
 export interface IOHLC {
     close: string;
@@ -19,6 +21,9 @@ export interface IOHLC {
     series_id: string;
     volume: string;
 }
+
+// @public
+export function provideOHLCDurationService(terminal: Terminal, datasource_id: string, queryDurations: () => Promise<string[]> | string[]): void;
 
 // (No @packageDocumentation comment for this package)
 
