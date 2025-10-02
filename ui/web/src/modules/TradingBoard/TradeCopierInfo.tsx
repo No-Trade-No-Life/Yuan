@@ -1,15 +1,19 @@
-import { Space, Spin, Tag } from '@douyinfe/semi-ui';
+import { Divider, Space, Spin, Tag } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
-import { escapeSQL, requestSQL } from '@yuants/sql';
+import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { IPosition } from '@yuants/data-account';
 import { useObservable, useObservableRef, useObservableState } from 'observable-hooks';
 import { memo, useEffect, useMemo } from 'react';
 import { EMPTY, Observable, pipe, startWith, switchMap } from 'rxjs';
 import { InlineAccountId, useAccountInfo } from '../AccountInfo';
+import { schemaOfAccountComposerConfig } from '../AccountComposition';
 import { IAccountComposerConfig } from '../AccountComposition/interface';
-import { Button, DataView } from '../Interactive';
+import { showForm } from '../Form';
+import { Button, DataView, Switch, Toast } from '../Interactive';
 import { terminal$ } from '../Network';
+import { useTerminal } from '../Terminals';
 import { ITradeCopierConfig } from '../TradeCopier/interface';
+import { schemaOfTradeCopierConfig } from '../TradeCopier/schema';
 import { InlineProductId } from '../Products/InlineProductId';
 
 const columnHelper = createColumnHelper<ITradeCopierComparisonRow>();
@@ -68,6 +72,14 @@ type PositionSummaryInternal = PositionSummary & {
   totalAbsVolume: number;
 };
 
+type TradeCopierConfigState =
+  | ITradeCopierConfig
+  | {
+      account_id: string;
+      enabled?: boolean;
+      strategy?: ITradeCopierConfig['strategy'];
+    };
+
 const serializeKey = (key: PositionKey) => JSON.stringify(key);
 const deserializeKey = (key: string): PositionKey => JSON.parse(key) as PositionKey;
 
@@ -118,7 +130,7 @@ const formatPositionSummary = (summary?: PositionSummary) => {
   const volumeLabel = formatVolume(Math.abs(summary.volume));
   const priceLabel = summary.avgPrice !== undefined ? formatPrice(summary.avgPrice) : '-';
   const floatingLabel = formatAmount(summary.floatingProfit ?? 0);
-  return `${direction} ${volumeLabel} @ ${priceLabel} | 浮盈 ${floatingLabel}`;
+  return `${direction} | ${volumeLabel} | ${priceLabel} | 浮盈:${floatingLabel}`;
 };
 
 type DiffResult = {
@@ -312,15 +324,15 @@ export const TradeCopierInfo = memo((props: { accountId: string }) => {
 
   const [, refresh$] = useObservableRef<void>();
 
-  useEffect(() => {
-    refresh$.next();
-  }, [accountId, refresh$]);
-
   const tradeCopierConfigList = useSQLQuery<ITradeCopierConfig[]>(
     accountId ? `select * from trade_copier_config where account_id=${escapeSQL(accountId)}` : undefined,
     refresh$,
   );
-  const tradeCopierConfig = tradeCopierConfigList?.[0];
+  const tradeCopierConfig: TradeCopierConfigState | undefined = tradeCopierConfigList
+    ? tradeCopierConfigList[0] || { account_id: accountId }
+    : undefined;
+
+  const terminal = useTerminal();
 
   const previewComposerConfigList = useSQLQuery<IAccountComposerConfig[]>(
     previewAccountId
@@ -371,16 +383,162 @@ export const TradeCopierInfo = memo((props: { accountId: string }) => {
     [expectedAccountInfo?.positions],
   );
 
+  const handleToggleEnabled = async (value: boolean) => {
+    if (!terminal || !tradeCopierConfig) return;
+    try {
+      const nextConfig = {
+        ...(tradeCopierConfig as Record<string, unknown>),
+        account_id: accountId,
+        enabled: value,
+      };
+      await requestSQL(
+        terminal,
+        buildInsertManyIntoTableSQL([nextConfig], 'trade_copier_config', {
+          conflictKeys: ['account_id'],
+        }),
+      );
+      Toast.success('更新成功');
+      refresh$.next();
+    } catch (err) {
+      console.error(err);
+      Toast.error('更新失败');
+    }
+  };
+
+  const handleEditPreviewAccount = async () => {
+    if (!terminal) return;
+    try {
+      const data = await requestSQL<IAccountComposerConfig[]>(
+        terminal,
+        `select * from account_composer_config where account_id=${escapeSQL(previewAccountId)}`,
+      );
+      const nextConfig = await showForm<IAccountComposerConfig>(
+        schemaOfAccountComposerConfig,
+        data[0] || { account_id: previewAccountId },
+      );
+      if (!nextConfig) return;
+      await requestSQL(
+        terminal,
+        buildInsertManyIntoTableSQL([nextConfig], 'account_composer_config', {
+          conflictKeys: ['account_id'],
+        }),
+      );
+      Toast.success('编辑预览账户成功');
+      refresh$.next();
+    } catch (err) {
+      console.error(err);
+      Toast.error('编辑预览账户失败');
+    }
+  };
+
+  const handleEditStrategy = async () => {
+    if (!terminal || !tradeCopierConfig) return;
+    try {
+      const nextConfig = await showForm<ITradeCopierConfig>(
+        schemaOfTradeCopierConfig,
+        tradeCopierConfig as ITradeCopierConfig,
+      );
+      if (!nextConfig) return;
+      await requestSQL(
+        terminal,
+        buildInsertManyIntoTableSQL([nextConfig], 'trade_copier_config', {
+          conflictKeys: ['account_id'],
+        }),
+      );
+      Toast.success('编辑跟单配置成功');
+      refresh$.next();
+    } catch (err) {
+      console.error(err);
+      Toast.error('编辑跟单配置失败');
+    }
+  };
+
+  const handlePublish = async () => {
+    if (!terminal) return;
+    try {
+      const data = await requestSQL<IAccountComposerConfig[]>(
+        terminal,
+        `select * from account_composer_config where account_id=${escapeSQL(previewAccountId)}`,
+      );
+      if (data.length === 0) {
+        Toast.error('预览账户不存在，请先编辑预览账户');
+        return;
+      }
+      const nextRecords = data.map((item) => ({ ...item, account_id: expectedAccountId }));
+      await requestSQL(
+        terminal,
+        buildInsertManyIntoTableSQL(nextRecords, 'account_composer_config', {
+          conflictKeys: ['account_id'],
+        }),
+      );
+      Toast.success('发布成功');
+      refresh$.next();
+    } catch (err) {
+      console.error(err);
+      Toast.error('发布失败');
+    }
+  };
+
+  const handleRefresh = () => {
+    refresh$.next();
+  };
+
+  const actionsDisabled = tradeCopierConfigList === undefined || !terminal;
+  const currentEnabled = !!(tradeCopierConfig && (tradeCopierConfig as { enabled?: boolean }).enabled);
+
+  const actionTopSlot = (
+    <Space wrap align="center">
+      <Space align="center">
+        <Switch checked={currentEnabled} disabled={actionsDisabled} onChange={handleToggleEnabled} />
+        启用跟单
+      </Space>
+      <Button disabled={!terminal} onClick={handleEditPreviewAccount}>
+        配置预览账户
+      </Button>
+      <Button disabled={actionsDisabled} onClick={handleEditStrategy}>
+        修改跟单策略
+      </Button>
+      <Button
+        type="danger"
+        disabled={actionsDisabled}
+        doubleCheck={{
+          title: '发布上线: 将预览账户的数据覆盖预期账户',
+          description:
+            '交易跟单器会自动跟随预期账户进行跟单，请确保预览账户配置正确且可用。设置不当可能会导致错误的交易订单，造成资金损失。',
+        }}
+        onClick={handlePublish}
+      >
+        发布上线
+      </Button>
+      <Button onClick={handleRefresh}>刷新配置</Button>
+      {composerConfigMatched === undefined ? (
+        <Tag color="purple">配置数据缺失</Tag>
+      ) : composerConfigMatched ? (
+        <Tag color="green">预览配置已同步到预期账户</Tag>
+      ) : (
+        <Tag color="orange">预览与预期配置不一致</Tag>
+      )}
+    </Space>
+  );
+
   const comparisonRows = useMemo(() => {
+    const keySet = new Set<string>();
+    [actualPositions, previewPositions, expectedPositions].forEach((map) => {
+      map.forEach((value) => keySet.add(value.key));
+    });
     const rows: ITradeCopierComparisonRow[] = [];
-    expectedPositions.forEach((expected) => {
-      if (!expected || Math.abs(expected.volume) <= EPSILON_VOLUME) return;
-      const keyInfo = deserializeKey(expected.key);
-      const preview = previewPositions.get(expected.key);
-      const actual = actualPositions.get(expected.key);
-      const strategyDesc = describeStrategyForProduct(tradeCopierConfig, keyInfo);
+    keySet.forEach((key) => {
+      //   if (!expected || Math.abs(expected.volume) <= EPSILON_VOLUME) return;
+      const keyInfo = deserializeKey(key);
+      const preview = previewPositions.get(key);
+      const expected = expectedPositions.get(key);
+      const actual = actualPositions.get(key);
+      const strategyDesc = describeStrategyForProduct(
+        tradeCopierConfig as ITradeCopierConfig | undefined,
+        keyInfo,
+      );
       rows.push({
-        key: expected.key,
+        key: key,
         productId: keyInfo.productId,
         datasourceId: keyInfo.datasourceId,
         expected,
@@ -416,27 +574,16 @@ export const TradeCopierInfo = memo((props: { accountId: string }) => {
   }
 
   return (
-    <Space vertical align="start" style={{ width: '100%' }}>
-      <Space align="center">
-        <span>
-          主账户: <InlineAccountId account_id={accountId} />
-        </span>
-        <span>
-          预览账户: <InlineAccountId account_id={previewAccountId} />
-        </span>
-        <span>
-          预期账户: <InlineAccountId account_id={expectedAccountId} />
-        </span>
-        {composerConfigMatched === undefined ? (
-          <Tag color="purple">配置数据缺失</Tag>
-        ) : composerConfigMatched ? (
-          <Tag color="green">预览配置已同步到预期账户</Tag>
-        ) : (
-          <Tag color="orange">预览与预期配置不一致</Tag>
-        )}
-        <Button onClick={() => refresh$.next()}>刷新配置</Button>
-      </Space>
-      {isLoading ? <Spin tip="加载中..." /> : <DataView data={comparisonRows} columns={columns} />}
+    <Space vertical align="start" style={{ width: '100%', height: '100%' }}>
+      {actionTopSlot}
+      <Divider />
+      {isLoading ? (
+        <Space align="center" style={{ alignSelf: 'center' }}>
+          <Spin />
+        </Space>
+      ) : (
+        <DataView data={comparisonRows} columns={columns} />
+      )}
     </Space>
   );
 });
