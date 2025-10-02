@@ -219,9 +219,11 @@ export interface ITerminalMessage {
 
   method?: string;
 
+  service_id?: string;
   req?: unknown;
   res?: IResponse<unknown>;
   frame?: unknown;
+  event?: { type: string; payload?: any };
   /**
    * if true, both client and server should close the session defined by `trace_id`
    */

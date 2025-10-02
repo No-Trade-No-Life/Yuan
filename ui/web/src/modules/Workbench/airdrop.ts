@@ -11,7 +11,9 @@ export const sendFileByAirdrop = async (terminal: Terminal, target_terminal_id: 
   const blob = await fs.readFileAsBlob(filename);
   const content = await blobToDataURL(blob);
   const res = await lastValueFrom(
-    defer(() => terminal.client.request('AirDrop', target_terminal_id, { filename, content })),
+    defer(() =>
+      terminal.client.requestService('AirDrop', { terminal_id: target_terminal_id, filename, content }),
+    ),
   );
   if (res.res?.code === 0) {
     Toast.success(`对方接收了 ${filename}`);
@@ -23,7 +25,12 @@ export const sendFileByAirdrop = async (terminal: Terminal, target_terminal_id: 
 terminal$.subscribe((terminal) => {
   terminal?.server.provideService<{ filename: string; content: string }, { code: number; message: string }>(
     'AirDrop',
-    {},
+    {
+      required: ['terminal_id'],
+      properties: {
+        terminal_id: { type: 'string', const: terminal.terminal_id },
+      },
+    },
     async (msg) => {
       const { filename, content } = msg.req;
       const ok = await new Promise((resolve, reject) => {
