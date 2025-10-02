@@ -380,6 +380,7 @@ const buildListenReqLiteral = (
     [
       `      /* ${meta.comment} */`,
       `      if (method_name == "${meta.name}") {`,
+      `        spdlog::info("Invoking ${meta.name}");`,
       `        if (md_api == nullptr) {`,
       `          spdlog::error("MdApi not initialized when invoking ${meta.name}");`,
       `          continue;`,
@@ -390,12 +391,16 @@ const buildListenReqLiteral = (
       `        for (auto &id : instrument_ids) {`,
       `          buffer.emplace_back(id);`,
       `        }`,
+      `        spdlog::info("Prepared buffer for ${meta.name}");`,
       `        std::vector<char *> ptrs;`,
       `        ptrs.reserve(buffer.size());`,
       `        for (auto &id : buffer) {`,
       `          ptrs.emplace_back(const_cast<char *>(id.c_str()));`,
       `        }`,
-      `        auto a = md_api->${meta.name}(ptrs.data(), static_cast<int>(ptrs.size()));`,
+      `        spdlog::info("Prepared ptrs for ${meta.name}");`,
+      `        auto count = static_cast<int>(ptrs.size());`,
+      `        auto ptr = count > 0 ? ptrs.data() : nullptr;`,
+      `        auto a = md_api->${meta.name}(ptr, count);`,
       `        if (a != 0) {`,
       `          spdlog::error("RTN CODE: {}", a);`,
       `          Message msg = {.event = "Md_${meta.name}",`,
@@ -456,7 +461,7 @@ const buildListenReqLiteral = (
   ].join('\n');
 };
 
-const joinBlocks = (blocks: string[]) => blocks.filter((block) => block.trim().length > 0).join('\n\n');
+const joinBlocks = (blocks: string[]) => blocks.filter((block) => block.trim().length > 0).join('\n');
 
 const buildBridgeHeader = (traderMethodDecls: string[], serializerDecls: string[]) => {
   return [
@@ -580,7 +585,7 @@ const buildBridgeImplementation = ({
     `}`,
     ``,
     listenReq,
-  ].join('\n\n');
+  ].join('\n');
 };
 
 const buildMdHeader = (mdMethodDecls: string[]) => {
@@ -618,25 +623,6 @@ const buildMdImplementation = (mdMethodImpls: string[]) => {
     `#include <string>`,
     `#include "spdlog/spdlog.h"`,
     `#include "${mdApiInterfaceName}"`,
-    ``,
-    `MdBridge::MdBridge(zmq::context_t *ctx)`,
-    `    : md_api_(CThostFtdcMdApi::CreateFtdcMdApi()), md_push_sock_(*ctx, zmq::socket_type::push) {`,
-    `  if (ctx == nullptr) {`,
-    `    throw std::runtime_error("ctx must not be null when constructing MdBridge");`,
-    `  }`,
-    `  char *market_addr = getenv("MARKET_ADDR");`,
-    `  const char *pull_url = getenv("ZMQ_PULL_URL");`,
-    `  std::string pull_endpoint = pull_url != nullptr ? pull_url : "tcp://127.0.0.1:5700";`,
-    `  auto star_pos = pull_endpoint.find('*');`,
-    `  if (star_pos != std::string::npos) {`,
-    `    pull_endpoint.replace(star_pos, 1, "127.0.0.1");`,
-    `  }`,
-    `  md_push_sock_.connect(pull_endpoint);`,
-    `  spdlog::info("Init, connecting market addr: {}", market_addr);`,
-    `  md_api_->RegisterSpi(this);`,
-    `  md_api_->RegisterFront(market_addr);`,
-    `  md_api_->Init();`,
-    `}`,
     ``,
     `CThostFtdcMdApi *MdBridge::md_api() {`,
     `  return md_api_;`,
@@ -717,7 +703,7 @@ const buildMdImplementation = (mdMethodImpls: string[]) => {
     `}`,
     ``,
     joinBlocks(mdMethodImpls),
-  ].join('\n\n');
+  ].join('\n');
 };
 
 const makeCTPMessageJsonSerializerInterfaceLiteral = (structMeta$: Observable<IStructMeta>) =>
