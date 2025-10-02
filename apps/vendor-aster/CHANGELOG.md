@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-aster
 
-This log was last generated on Thu, 02 Oct 2025 07:19:32 GMT and should not be manually modified.
+This log was last generated on Thu, 02 Oct 2025 10:42:02 GMT and should not be manually modified.
+
+## 0.3.0
+Thu, 02 Oct 2025 10:42:02 GMT
+
+### Minor changes
+
+- add product
 
 ## 0.2.5
 Thu, 02 Oct 2025 07:19:32 GMT

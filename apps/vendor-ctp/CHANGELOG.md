@@ -1,6 +1,17 @@
 # Change Log - @yuants/vendor-ctp
 
-This log was last generated on Thu, 02 Oct 2025 07:19:32 GMT and should not be manually modified.
+This log was last generated on Thu, 02 Oct 2025 10:42:02 GMT and should not be manually modified.
+
+## 0.8.0
+Thu, 02 Oct 2025 10:42:02 GMT
+
+### Minor changes
+
+- port binding fix and build multi env
+
+### Patches
+
+- fix rpath
 
 ## 0.7.1
 Thu, 02 Oct 2025 07:19:32 GMT
