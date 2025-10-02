@@ -56,7 +56,7 @@
 1. 使用 Heft 编译 TypeScript -> `lib/`。
 2. 执行 `node ./lib/scripts/build-ctp-types.js` 生成 TypeScript 声明。
 3. 执行 `node ./lib/scripts/build-ctp-bridge.js` 生成 C++ 桥接代码。
-4. 进入 `build/Dockerfile` 描述的编译容器，运行 CMake 构建原生二进制（产物位于 `ctp/build/main_linux`）。
+4. 进入 `build/Dockerfile` 描述的编译容器，运行 CMake 依次构建 `prod` / `cp` / `demo` 三套原生二进制（产物分别位于 `ctp/build/<variant>/main_linux[_variant]`）。
 5. 调用 `yuan-toolkit post-build` 完成包内的后处理。
 
 如果只是想快速迭代生成步骤（无需整套构建），也可以单独运行：
@@ -70,16 +70,17 @@ pnpm --filter @yuants/vendor-ctp exec node ./lib/scripts/build-ctp-bridge.js
 
 ## 编译原生二进制
 
-生成文件就绪后，可在本地或容器里使用 CMake 构建 `main_linux`：
+生成文件就绪后，可在本地或容器里使用 CMake 构建指定环境的二进制：
 
 ```bash
-cmake -S apps/vendor-ctp/ctp -B apps/vendor-ctp/ctp/build \
-  -DUSE_DEMO_LIBS=ON -DCMAKE_BUILD_TYPE=RelWithDebInfo
-cmake --build apps/vendor-ctp/ctp/build --target main_linux
+cmake -S apps/vendor-ctp/ctp -B apps/vendor-ctp/ctp/build/cp \
+  -DCTP_BUILD_VARIANT=cp -DCMAKE_BUILD_TYPE=RelWithDebInfo
+cmake --build apps/vendor-ctp/ctp/build/cp --target main_linux_cp
 ```
 
-- `USE_DEMO_LIBS=ON` 时会自动链接 `apps/vendor-ctp/ctp/lib-demo` 下的 openctp 演示库；
-- 设为 `OFF` 则改为使用 `apps/vendor-ctp/ctp/lib` 目录中的官方 `.so`，请先将供应商库拷贝至该目录。
+- `CTP_BUILD_VARIANT=prod` 使用官方 `ctp/lib` 库；
+- `CTP_BUILD_VARIANT=cp` 使用测评环境 `ctp/lib-cp` 库；
+- `CTP_BUILD_VARIANT=demo` 使用 openctp 演示库 `ctp/lib-demo`。
 
 链接脚本会分别查找 `thosttraderapi*` 与 `thostmduserapi*`，并自动把库所在目录追加进 RPATH，使打包后的二进制可以直接运行。
 
@@ -91,6 +92,8 @@ cmake --build apps/vendor-ctp/ctp/build --target main_linux
 - `BROKER_ID` / `USER_ID` / `PASSWORD`：交易账号基本信息。
 - `APP_ID` / `AUTH_CODE`：终端认证所需的编号与授权码。
 - （可选）`ZMQ_PUSH_URL` / `ZMQ_PULL_URL`：默认分别为 `tcp://*:5701`（Node 端 PUSH bind）与 `tcp://*:5700`（Node 端 PULL bind）。C++ 侧会自动将 `*` 替换为 `127.0.0.1` 后再连接，如需调整可同步修改生成脚本或入口代码。
+
+Node 侧通过设置 `CTP_ENV=prod|cp|demo` 来选择启动哪份 `main_linux`，默认为 `prod`。
 
 桥接流程如下：
 
@@ -170,7 +173,7 @@ cmake --build apps/vendor-ctp/ctp/build --target main_linux
      run --rm vendor-ctp-apple-test
    ```
 
-镜像会在容器内执行 `pnpm install`、重新生成桥接代码、通过 CMake 构建二进制，并运行 `smoke-md.js` 校验生成物。默认使用 openctp 演示库，如需改用官方库，可在 `docker compose` 时传入 `--build-arg USE_DEMO_LIBS=OFF` 并确保镜像内 `/workspace/apps/vendor-ctp/ctp/lib` 已包含供应商提供的 `.so`。
+镜像会在容器内执行 `pnpm install`、重新生成桥接代码、通过 CMake 构建二进制，并运行 `smoke-md.js` 校验生成物。构建步骤会同时产出 `prod` / `cp` / `demo` 三份 `main_linux`，请在镜像内分别准备好 `/workspace/apps/vendor-ctp/ctp/lib*` 下对应环境的 `.so` 文件即可。
 
 ## 更新头文件的注意事项
 

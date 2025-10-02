@@ -32,12 +32,7 @@ WORKDIR /app/apps/vendor-ctp
 #     cp -r spdlog/spdlog-1.10.0/include/spdlog include && \
 #     rm -rf spdlog
 
-RUN rm -rf build && \
-    mkdir build && \
-    cd build && \
-    cmake .. && \
-    # cmake -DUSE_DEMO_LIBS=ON .. && \
-    make
+RUN ./ctp/scripts/build-variants.sh
 
 
 # 将构建产物复制到挂载目录

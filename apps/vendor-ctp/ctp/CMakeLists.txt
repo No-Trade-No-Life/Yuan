@@ -8,7 +8,23 @@ find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(ZMQ REQUIRED IMPORTED_TARGET libzmq)
 
-option(USE_DEMO_LIBS "whether to use demo libs AKA openctp" OFF)
+set(CTP_BUILD_VARIANT "prod" CACHE STRING "Target environment (prod, cp, demo)")
+set_property(CACHE CTP_BUILD_VARIANT PROPERTY STRINGS prod cp demo)
+
+set(CTP_TARGET_NAME "main_linux")
+string(TOLOWER "${CTP_BUILD_VARIANT}" CTP_BUILD_VARIANT_LOWER)
+
+if (CTP_BUILD_VARIANT_LOWER STREQUAL "demo")
+    set(CTP_LIB_SUBDIR "lib-demo")
+    set(CTP_TARGET_NAME "${CTP_TARGET_NAME}_demo")
+elseif (CTP_BUILD_VARIANT_LOWER STREQUAL "cp")
+    set(CTP_LIB_SUBDIR "lib-cp")
+    set(CTP_TARGET_NAME "${CTP_TARGET_NAME}_cp")
+else()
+    set(CTP_LIB_SUBDIR "lib")
+endif()
+
+set(CTP_LIB_ROOT ${PROJECT_SOURCE_DIR}/${CTP_LIB_SUBDIR})
 
 # 头文件目录
 include_directories(${PROJECT_SOURCE_DIR}/include)
@@ -16,15 +32,7 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 # 设置rpath
 set(CMAKE_SKIP_BUILD_RPATH FALSE)
 set(CMAKE_BUILD_WITH_INSTALL_RPATH FALSE)
-
-# 库文件目录
-if (USE_DEMO_LIBS)
-    set(CTP_LIB_ROOT ${PROJECT_SOURCE_DIR}/lib-demo)
-    set(CMAKE_BUILD_RPATH "\$ORIGIN/../lib-demo")
-else()
-    set(CTP_LIB_ROOT ${PROJECT_SOURCE_DIR}/lib)
-    set(CMAKE_BUILD_RPATH "\$ORIGIN/../lib")
-endif()
+set(CMAKE_BUILD_RPATH "\$ORIGIN/../${CTP_LIB_SUBDIR}")
 
 find_library(CTP_TRADER_LIB NAMES thosttraderapi_se thosttraderapi PATHS ${CTP_LIB_ROOT})
 find_library(CTP_MD_LIB NAMES thostmduserapi_se thostmduserapi PATHS ${CTP_LIB_ROOT})
@@ -47,10 +55,10 @@ endif()
 # 源文件列表存储进SRC变量
 aux_source_directory(${PROJECT_SOURCE_DIR}/src SRC)
 # 生成可执行文件
-add_executable(main_linux ${SRC})
+add_executable(${CTP_TARGET_NAME} ${SRC})
 # 链接动态库
 # target_include_directories(main_linux PRIVATE PkgConfig::ZMQ)
-target_link_libraries(main_linux ${CTP_TRADER_LIB} ${CTP_MD_LIB} PkgConfig::ZMQ Iconv::Iconv)
+target_link_libraries(${CTP_TARGET_NAME} ${CTP_TRADER_LIB} ${CTP_MD_LIB} PkgConfig::ZMQ Iconv::Iconv)
 # 将user_info.txt拷贝至build目录下(main_linux所在目录)；在build目录下建立 mdflow 和 traderflow 文件夹 存放 .con 文件
 # add_custom_command(TARGET main_linux POST_BUILD
 # COMMAND ${CMAKE_COMMAND} -E copy ${CMAKE_CURRENT_SOURCE_DIR}/${PROJECT_NAME}/user_info.txt ${CMAKE_BINARY_DIR}

@@ -11,7 +11,17 @@ restartCtpAction$
       defer(
         () =>
           new Observable((sub) => {
-            const child = spawn(join(__dirname, '../ctp/build/main_linux'), {
+            const variant = process.env.CTP_ENV ?? 'prod';
+            const binaryMapping: Record<string, string> = {
+              prod: '../ctp/build/prod/main_linux',
+              cp: '../ctp/build/cp/main_linux_cp',
+              demo: '../ctp/build/demo/main_linux_demo',
+            };
+            const binaryPath = binaryMapping[variant] ?? binaryMapping.prod;
+            if (!binaryMapping[variant]) {
+              console.warn(formatTime(Date.now()), `Unknown CTP_ENV "${variant}". Falling back to prod.`);
+            }
+            const child = spawn(join(__dirname, binaryPath), {
               stdio: 'inherit',
             });
             child.on('error', (e) => {
