@@ -32,7 +32,7 @@ WORKDIR /app/apps/vendor-ctp
 #     cp -r spdlog/spdlog-1.10.0/include/spdlog include && \
 #     rm -rf spdlog
 
-RUN ./ctp/scripts/build-variants.sh
+RUN ./scripts/build-variants.sh
 
 
 # 将构建产物复制到挂载目录
@@ -63,7 +63,7 @@ RUN node create-links.js create
 
 WORKDIR /app/apps/vendor-ctp
 
-COPY --from=builder --chown=node:node /app/apps/vendor-ctp/build ./build
-COPY --from=builder --chown=node:node /app/apps/vendor-ctp/lib ./lib
+COPY --from=builder --chown=node:node /app/apps/vendor-ctp/ctp/build ./build
+COPY --from=builder --chown=node:node /app/apps/vendor-ctp/ctp/lib ./lib
 
 CMD ["node", "./lib/exchange.js"]
