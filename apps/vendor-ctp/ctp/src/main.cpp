@@ -21,14 +21,10 @@ void ensure_envs(std::vector<std::string> env_names) {
 Bridge::Bridge(zmq::context_t *ctx)
     : trader_api_(CThostFtdcTraderApi::CreateFtdcTraderApi()) {
   char *trader_addr = getenv("TRADER_ADDR");
-  // char *push_url = getenv("ZMQ_PUSH_URL");
-  // char *pull_url = getenv("ZMQ_PULL_URL");
   push_sock_ = zmq::socket_t(*ctx, zmq::socket_type::push);
-  // push_sock_.bind(push_url);
-  push_sock_.bind("tcp://*:5700");
+  push_sock_.connect("tcp://localhost:5700");
   pull_sock_ = zmq::socket_t(*ctx, zmq::socket_type::pull);
-  // pull_sock_.connect(pull_url);
-  pull_sock_.connect("tcp://localhost:5701");
+  pull_sock_.bind("tcp://*:5701");
   // TODO(wsy): timeout
   spdlog::info("Init, connecting trader addr: {}", trader_addr);
   trader_api_->RegisterSpi(this);
@@ -38,6 +34,18 @@ Bridge::Bridge(zmq::context_t *ctx)
   trader_api_->Init();
 }
 
+MdBridge::MdBridge(zmq::context_t *ctx)
+    : md_api_(CThostFtdcMdApi::CreateFtdcMdApi()), md_push_sock_(*ctx, zmq::socket_type::push) {
+  if (ctx == nullptr) {
+    throw std::runtime_error("ctx must not be null when constructing MdBridge");
+  }
+  char *market_addr = getenv("MARKET_ADDR");
+  md_push_sock_.connect("tcp://localhost:5700");
+  spdlog::info("Init, connecting market addr: {}", market_addr);
+  md_api_->RegisterSpi(this);
+  md_api_->RegisterFront(market_addr);
+  md_api_->Init();
+}
 
 void Bridge::OnFrontConnected() {
   char *broker_id = getenv("BROKER_ID");

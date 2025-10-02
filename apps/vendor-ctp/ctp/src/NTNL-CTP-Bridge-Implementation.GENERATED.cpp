@@ -1,52 +1,27 @@
 // THIS FILE IS AUTO GENERATED
-
 // DO NOT MODIFY MANUALLY
 
-
-
 #include <cstdio>
-
 #include <cstdlib>
-
 #include <cstring>
-
 #include <string>
-
 #include <vector>
-
 #include "spdlog/spdlog.h"
-
 #include "NTNL-CTP-Bridge-Interface.GENERATED.hpp"
 
-
-
 std::string codec_convert(const char *to, const char *from, const char *input) {
-
   if (from == nullptr) return "";
-
   IConv ic(to, from);
-
   char out[255];
-
   size_t outsize = 255;
-
   bool ret = ic.convert((char *)input, out, outsize);
-
   if (ret == false) {
-
     spdlog::error("iconv failed for, original value: {}, converted value: {}", input, out);
-
     return "";
-
   } else {
-
     return std::string(out);
-
   }
-
 }
-
-
 
 void to_json(json& j, const CThostFtdcDisseminationField& p) {
   j = json{
@@ -60,7 +35,6 @@ void from_json(const json& j, CThostFtdcDisseminationField& p) {
   j.at("SequenceNo").get_to(p.SequenceNo);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcReqUserLoginField& p) {
@@ -109,7 +83,6 @@ void from_json(const json& j, CThostFtdcReqUserLoginField& p) {
   std::strncpy(p.ClientIPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v12.c_str()).c_str(), sizeof(p.ClientIPAddress));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcRspUserLoginField& p) {
@@ -169,7 +142,6 @@ void from_json(const json& j, CThostFtdcRspUserLoginField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcUserLogoutField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -186,7 +158,6 @@ void from_json(const json& j, CThostFtdcUserLogoutField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcForceUserLogoutField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -201,7 +172,6 @@ void from_json(const json& j, CThostFtdcForceUserLogoutField& p) {
   std::strncpy(p.UserID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.UserID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcReqAuthenticateField& p) {
@@ -229,7 +199,6 @@ void from_json(const json& j, CThostFtdcReqAuthenticateField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcRspAuthenticateField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -253,7 +222,6 @@ void from_json(const json& j, CThostFtdcRspAuthenticateField& p) {
   p.AppType = v4.at(0);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcAuthenticationInfoField& p) {
@@ -290,7 +258,6 @@ void from_json(const json& j, CThostFtdcAuthenticationInfoField& p) {
   std::strncpy(p.ClientIPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v8.c_str()).c_str(), sizeof(p.ClientIPAddress));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcRspUserLogin2Field& p) {
@@ -343,7 +310,6 @@ void from_json(const json& j, CThostFtdcRspUserLogin2Field& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcTransferHeaderField& p) {
   j = json{
            {"Version", codec_convert("UTF-8//TRANSLIT", "GBK", p.Version)},
@@ -391,7 +357,6 @@ void from_json(const json& j, CThostFtdcTransferHeaderField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcTransferBankToFutureReqField& p) {
   j = json{
            {"FutureAccount", codec_convert("UTF-8//TRANSLIT", "GBK", p.FutureAccount)},
@@ -416,7 +381,6 @@ void from_json(const json& j, CThostFtdcTransferBankToFutureReqField& p) {
   std::strncpy(p.CurrencyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.CurrencyCode));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcTransferBankToFutureRspField& p) {
@@ -445,7 +409,6 @@ void from_json(const json& j, CThostFtdcTransferBankToFutureRspField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcTransferFutureToBankReqField& p) {
   j = json{
            {"FutureAccount", codec_convert("UTF-8//TRANSLIT", "GBK", p.FutureAccount)},
@@ -470,7 +433,6 @@ void from_json(const json& j, CThostFtdcTransferFutureToBankReqField& p) {
   std::strncpy(p.CurrencyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.CurrencyCode));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcTransferFutureToBankRspField& p) {
@@ -499,7 +461,6 @@ void from_json(const json& j, CThostFtdcTransferFutureToBankRspField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcTransferQryBankReqField& p) {
   j = json{
            {"FutureAccount", codec_convert("UTF-8//TRANSLIT", "GBK", p.FutureAccount)},
@@ -520,7 +481,6 @@ void from_json(const json& j, CThostFtdcTransferQryBankReqField& p) {
   std::strncpy(p.CurrencyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.CurrencyCode));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcTransferQryBankRspField& p) {
@@ -551,7 +511,6 @@ void from_json(const json& j, CThostFtdcTransferQryBankRspField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcTransferQryDetailReqField& p) {
   j = json{
            {"FutureAccount", codec_convert("UTF-8//TRANSLIT", "GBK", p.FutureAccount)},
@@ -563,7 +522,6 @@ void from_json(const json& j, CThostFtdcTransferQryDetailReqField& p) {
   std::strncpy(p.FutureAccount, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.FutureAccount));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcTransferQryDetailRspField& p) {
@@ -615,7 +573,6 @@ void from_json(const json& j, CThostFtdcTransferQryDetailRspField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcRspInfoField& p) {
   j = json{
            {"ErrorID", p.ErrorID},
@@ -629,7 +586,6 @@ void from_json(const json& j, CThostFtdcRspInfoField& p) {
   std::strncpy(p.ErrorMsg, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ErrorMsg));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcExchangeField& p) {
@@ -649,7 +605,6 @@ void from_json(const json& j, CThostFtdcExchangeField& p) {
   p.ExchangeProperty = v2.at(0);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcProductField& p) {
@@ -716,7 +671,6 @@ void from_json(const json& j, CThostFtdcProductField& p) {
   p.OrderFreqControlLevel = v20.at(0);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInstrumentField& p) {
@@ -821,7 +775,6 @@ void from_json(const json& j, CThostFtdcInstrumentField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcBrokerField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -841,7 +794,6 @@ void from_json(const json& j, CThostFtdcBrokerField& p) {
   j.at("IsActive").get_to(p.IsActive);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcTraderField& p) {
@@ -876,7 +828,6 @@ void from_json(const json& j, CThostFtdcTraderField& p) {
   j.at("MDInstallCount").get_to(p.MDInstallCount);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInvestorField& p) {
@@ -933,7 +884,6 @@ void from_json(const json& j, CThostFtdcInvestorField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcTradingCodeField& p) {
   j = json{
            {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
@@ -970,7 +920,6 @@ void from_json(const json& j, CThostFtdcTradingCodeField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcPartBrokerField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -990,7 +939,6 @@ void from_json(const json& j, CThostFtdcPartBrokerField& p) {
   j.at("IsActive").get_to(p.IsActive);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSuperUserField& p) {
@@ -1014,7 +962,6 @@ void from_json(const json& j, CThostFtdcSuperUserField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSuperUserFunctionField& p) {
   j = json{
            {"UserID", codec_convert("UTF-8//TRANSLIT", "GBK", p.UserID)},
@@ -1029,7 +976,6 @@ void from_json(const json& j, CThostFtdcSuperUserFunctionField& p) {
   p.FunctionCode = v1.at(0);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInvestorGroupField& p) {
@@ -1049,7 +995,6 @@ void from_json(const json& j, CThostFtdcInvestorGroupField& p) {
   std::strncpy(p.InvestorGroupName, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestorGroupName));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcTradingAccountField& p) {
@@ -1163,7 +1108,6 @@ void from_json(const json& j, CThostFtdcTradingAccountField& p) {
   j.at("RemainSwap").get_to(p.RemainSwap);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInvestorPositionField& p) {
@@ -1286,7 +1230,6 @@ void from_json(const json& j, CThostFtdcInvestorPositionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcInstrumentMarginRateField& p) {
   j = json{
            {"reserve1", codec_convert("UTF-8//TRANSLIT", "GBK", p.reserve1)},
@@ -1329,7 +1272,6 @@ void from_json(const json& j, CThostFtdcInstrumentMarginRateField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v12.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInstrumentCommissionRateField& p) {
@@ -1376,7 +1318,6 @@ void from_json(const json& j, CThostFtdcInstrumentCommissionRateField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v13.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcDepthMarketDataField& p) {
@@ -1493,7 +1434,6 @@ void from_json(const json& j, CThostFtdcDepthMarketDataField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcInstrumentTradingRightField& p) {
   j = json{
            {"reserve1", codec_convert("UTF-8//TRANSLIT", "GBK", p.reserve1)},
@@ -1522,7 +1462,6 @@ void from_json(const json& j, CThostFtdcInstrumentTradingRightField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcBrokerUserField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -1549,7 +1488,6 @@ void from_json(const json& j, CThostFtdcBrokerUserField& p) {
   j.at("IsAuthForce").get_to(p.IsAuthForce);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcBrokerUserPasswordField& p) {
@@ -1583,7 +1521,6 @@ void from_json(const json& j, CThostFtdcBrokerUserPasswordField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcBrokerUserFunctionField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -1601,7 +1538,6 @@ void from_json(const json& j, CThostFtdcBrokerUserFunctionField& p) {
   p.BrokerFunctionCode = v2.at(0);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcTraderOfferField& p) {
@@ -1673,7 +1609,6 @@ void from_json(const json& j, CThostFtdcTraderOfferField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSettlementInfoField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -1704,7 +1639,6 @@ void from_json(const json& j, CThostFtdcSettlementInfoField& p) {
   std::strncpy(p.CurrencyID, codec_convert("GBK//TRANSLIT", "UTF-8", v7.c_str()).c_str(), sizeof(p.CurrencyID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInstrumentMarginRateAdjustField& p) {
@@ -1745,7 +1679,6 @@ void from_json(const json& j, CThostFtdcInstrumentMarginRateAdjustField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcExchangeMarginRateField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -1777,7 +1710,6 @@ void from_json(const json& j, CThostFtdcExchangeMarginRateField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v8.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcExchangeMarginRateAdjustField& p) {
@@ -1826,7 +1758,6 @@ void from_json(const json& j, CThostFtdcExchangeMarginRateAdjustField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcExchangeRateField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -1850,7 +1781,6 @@ void from_json(const json& j, CThostFtdcExchangeRateField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSettlementRefField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -1864,7 +1794,6 @@ void from_json(const json& j, CThostFtdcSettlementRefField& p) {
   j.at("SettlementID").get_to(p.SettlementID);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcCurrentTimeField& p) {
@@ -1888,7 +1817,6 @@ void from_json(const json& j, CThostFtdcCurrentTimeField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcCommPhaseField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -1905,7 +1833,6 @@ void from_json(const json& j, CThostFtdcCommPhaseField& p) {
   std::strncpy(p.SystemID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.SystemID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcLoginInfoField& p) {
@@ -1987,7 +1914,6 @@ void from_json(const json& j, CThostFtdcLoginInfoField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcLogoutAllField& p) {
   j = json{
            {"FrontID", p.FrontID},
@@ -2003,7 +1929,6 @@ void from_json(const json& j, CThostFtdcLogoutAllField& p) {
   std::strncpy(p.SystemName, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.SystemName));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcFrontStatusField& p) {
@@ -2026,7 +1951,6 @@ void from_json(const json& j, CThostFtdcFrontStatusField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcUserPasswordUpdateField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -2047,7 +1971,6 @@ void from_json(const json& j, CThostFtdcUserPasswordUpdateField& p) {
   std::strncpy(p.NewPassword, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.NewPassword));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInputOrderField& p) {
@@ -2151,7 +2074,6 @@ void from_json(const json& j, CThostFtdcInputOrderField& p) {
   j.at("SessionReqSeq").get_to(p.SessionReqSeq);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcOrderField& p) {
@@ -2349,7 +2271,6 @@ void from_json(const json& j, CThostFtdcOrderField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcExchangeOrderField& p) {
   j = json{
            {"OrderPriceType", std::string(1, p.OrderPriceType)},
@@ -2489,7 +2410,6 @@ void from_json(const json& j, CThostFtdcExchangeOrderField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcExchangeOrderInsertErrorField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -2517,7 +2437,6 @@ void from_json(const json& j, CThostFtdcExchangeOrderInsertErrorField& p) {
   std::strncpy(p.ErrorMsg, codec_convert("GBK//TRANSLIT", "UTF-8", v6.c_str()).c_str(), sizeof(p.ErrorMsg));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInputOrderActionField& p) {
@@ -2584,7 +2503,6 @@ void from_json(const json& j, CThostFtdcInputOrderActionField& p) {
   j.at("SessionReqSeq").get_to(p.SessionReqSeq);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcOrderActionField& p) {
@@ -2688,7 +2606,6 @@ void from_json(const json& j, CThostFtdcOrderActionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcExchangeOrderActionField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -2756,7 +2673,6 @@ void from_json(const json& j, CThostFtdcExchangeOrderActionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcExchangeOrderActionErrorField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -2787,7 +2703,6 @@ void from_json(const json& j, CThostFtdcExchangeOrderActionErrorField& p) {
   std::strncpy(p.ErrorMsg, codec_convert("GBK//TRANSLIT", "UTF-8", v7.c_str()).c_str(), sizeof(p.ErrorMsg));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcExchangeTradeField& p) {
@@ -2864,7 +2779,6 @@ void from_json(const json& j, CThostFtdcExchangeTradeField& p) {
   std::strncpy(p.ExchangeInstID, codec_convert("GBK//TRANSLIT", "UTF-8", v22.c_str()).c_str(), sizeof(p.ExchangeInstID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcTradeField& p) {
@@ -2971,7 +2885,6 @@ void from_json(const json& j, CThostFtdcTradeField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcUserSessionField& p) {
   j = json{
            {"FrontID", p.FrontID},
@@ -3019,7 +2932,6 @@ void from_json(const json& j, CThostFtdcUserSessionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryMaxOrderVolumeField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -3059,7 +2971,6 @@ void from_json(const json& j, CThostFtdcQryMaxOrderVolumeField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSettlementInfoConfirmField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -3088,7 +2999,6 @@ void from_json(const json& j, CThostFtdcSettlementInfoConfirmField& p) {
   std::strncpy(p.CurrencyID, codec_convert("GBK//TRANSLIT", "UTF-8", v6.c_str()).c_str(), sizeof(p.CurrencyID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSyncDepositField& p) {
@@ -3124,7 +3034,6 @@ void from_json(const json& j, CThostFtdcSyncDepositField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncFundMortgageField& p) {
   j = json{
            {"MortgageSeqNo", codec_convert("UTF-8//TRANSLIT", "GBK", p.MortgageSeqNo)},
@@ -3152,7 +3061,6 @@ void from_json(const json& j, CThostFtdcSyncFundMortgageField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcBrokerSyncField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -3164,7 +3072,6 @@ void from_json(const json& j, CThostFtdcBrokerSyncField& p) {
   std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSyncingInvestorField& p) {
@@ -3221,7 +3128,6 @@ void from_json(const json& j, CThostFtdcSyncingInvestorField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncingTradingCodeField& p) {
   j = json{
            {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
@@ -3249,7 +3155,6 @@ void from_json(const json& j, CThostFtdcSyncingTradingCodeField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncingInvestorGroupField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -3267,7 +3172,6 @@ void from_json(const json& j, CThostFtdcSyncingInvestorGroupField& p) {
   std::strncpy(p.InvestorGroupName, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestorGroupName));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSyncingTradingAccountField& p) {
@@ -3378,7 +3282,6 @@ void from_json(const json& j, CThostFtdcSyncingTradingAccountField& p) {
   j.at("RemainSwap").get_to(p.RemainSwap);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSyncingInvestorPositionField& p) {
@@ -3501,7 +3404,6 @@ void from_json(const json& j, CThostFtdcSyncingInvestorPositionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncingInstrumentMarginRateField& p) {
   j = json{
            {"reserve1", codec_convert("UTF-8//TRANSLIT", "GBK", p.reserve1)},
@@ -3538,7 +3440,6 @@ void from_json(const json& j, CThostFtdcSyncingInstrumentMarginRateField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v10.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSyncingInstrumentCommissionRateField& p) {
@@ -3578,7 +3479,6 @@ void from_json(const json& j, CThostFtdcSyncingInstrumentCommissionRateField& p)
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncingInstrumentTradingRightField& p) {
   j = json{
            {"reserve1", codec_convert("UTF-8//TRANSLIT", "GBK", p.reserve1)},
@@ -3605,7 +3505,6 @@ void from_json(const json& j, CThostFtdcSyncingInstrumentTradingRightField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryOrderField& p) {
@@ -3645,7 +3544,6 @@ void from_json(const json& j, CThostFtdcQryOrderField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryTradeField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -3683,7 +3581,6 @@ void from_json(const json& j, CThostFtdcQryTradeField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryInvestorPositionField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -3712,7 +3609,6 @@ void from_json(const json& j, CThostFtdcQryInvestorPositionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryTradingAccountField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -3738,7 +3634,6 @@ void from_json(const json& j, CThostFtdcQryTradingAccountField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryInvestorField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -3753,7 +3648,6 @@ void from_json(const json& j, CThostFtdcQryInvestorField& p) {
   std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InvestorID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryTradingCodeField& p) {
@@ -3784,7 +3678,6 @@ void from_json(const json& j, CThostFtdcQryTradingCodeField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryInvestorGroupField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -3796,7 +3689,6 @@ void from_json(const json& j, CThostFtdcQryInvestorGroupField& p) {
   std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryInstrumentMarginRateField& p) {
@@ -3830,7 +3722,6 @@ void from_json(const json& j, CThostFtdcQryInstrumentMarginRateField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryInstrumentCommissionRateField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -3859,7 +3750,6 @@ void from_json(const json& j, CThostFtdcQryInstrumentCommissionRateField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryInstrumentTradingRightField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -3882,7 +3772,6 @@ void from_json(const json& j, CThostFtdcQryInstrumentTradingRightField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryBrokerField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -3894,7 +3783,6 @@ void from_json(const json& j, CThostFtdcQryBrokerField& p) {
   std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryTraderField& p) {
@@ -3916,7 +3804,6 @@ void from_json(const json& j, CThostFtdcQryTraderField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQrySuperUserFunctionField& p) {
   j = json{
            {"UserID", codec_convert("UTF-8//TRANSLIT", "GBK", p.UserID)},
@@ -3928,7 +3815,6 @@ void from_json(const json& j, CThostFtdcQrySuperUserFunctionField& p) {
   std::strncpy(p.UserID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.UserID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryUserSessionField& p) {
@@ -3951,7 +3837,6 @@ void from_json(const json& j, CThostFtdcQryUserSessionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryPartBrokerField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -3971,7 +3856,6 @@ void from_json(const json& j, CThostFtdcQryPartBrokerField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryFrontStatusField& p) {
   j = json{
            {"FrontID", p.FrontID},
@@ -3982,7 +3866,6 @@ void from_json(const json& j, CThostFtdcQryFrontStatusField& p) {
   j.at("FrontID").get_to(p.FrontID);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryExchangeOrderField& p) {
@@ -4013,7 +3896,6 @@ void from_json(const json& j, CThostFtdcQryExchangeOrderField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryOrderActionField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -4031,7 +3913,6 @@ void from_json(const json& j, CThostFtdcQryOrderActionField& p) {
   std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ExchangeID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryExchangeOrderActionField& p) {
@@ -4056,7 +3937,6 @@ void from_json(const json& j, CThostFtdcQryExchangeOrderActionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQrySuperUserField& p) {
   j = json{
            {"UserID", codec_convert("UTF-8//TRANSLIT", "GBK", p.UserID)},
@@ -4070,7 +3950,6 @@ void from_json(const json& j, CThostFtdcQrySuperUserField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryExchangeField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -4082,7 +3961,6 @@ void from_json(const json& j, CThostFtdcQryExchangeField& p) {
   std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryProductField& p) {
@@ -4105,7 +3983,6 @@ void from_json(const json& j, CThostFtdcQryProductField& p) {
   std::strncpy(p.ProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.ProductID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryInstrumentField& p) {
@@ -4139,7 +4016,6 @@ void from_json(const json& j, CThostFtdcQryInstrumentField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryDepthMarketDataField& p) {
   j = json{
            {"reserve1", codec_convert("UTF-8//TRANSLIT", "GBK", p.reserve1)},
@@ -4162,7 +4038,6 @@ void from_json(const json& j, CThostFtdcQryDepthMarketDataField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryBrokerUserField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -4179,7 +4054,6 @@ void from_json(const json& j, CThostFtdcQryBrokerUserField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryBrokerUserFunctionField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -4194,7 +4068,6 @@ void from_json(const json& j, CThostFtdcQryBrokerUserFunctionField& p) {
   std::strncpy(p.UserID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.UserID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryTraderOfferField& p) {
@@ -4216,7 +4089,6 @@ void from_json(const json& j, CThostFtdcQryTraderOfferField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQrySyncDepositField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -4231,7 +4103,6 @@ void from_json(const json& j, CThostFtdcQrySyncDepositField& p) {
   std::strncpy(p.DepositSeqNo, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.DepositSeqNo));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQrySettlementInfoField& p) {
@@ -4259,7 +4130,6 @@ void from_json(const json& j, CThostFtdcQrySettlementInfoField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryExchangeMarginRateField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -4285,7 +4155,6 @@ void from_json(const json& j, CThostFtdcQryExchangeMarginRateField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryExchangeMarginRateAdjustField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -4308,7 +4177,6 @@ void from_json(const json& j, CThostFtdcQryExchangeMarginRateAdjustField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryExchangeRateField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -4328,7 +4196,6 @@ void from_json(const json& j, CThostFtdcQryExchangeRateField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQrySyncFundMortgageField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -4343,7 +4210,6 @@ void from_json(const json& j, CThostFtdcQrySyncFundMortgageField& p) {
   std::strncpy(p.MortgageSeqNo, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.MortgageSeqNo));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryHisOrderField& p) {
@@ -4385,7 +4251,6 @@ void from_json(const json& j, CThostFtdcQryHisOrderField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcOptionInstrMiniMarginField& p) {
   j = json{
            {"reserve1", codec_convert("UTF-8//TRANSLIT", "GBK", p.reserve1)},
@@ -4416,7 +4281,6 @@ void from_json(const json& j, CThostFtdcOptionInstrMiniMarginField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v7.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcOptionInstrMarginAdjustField& p) {
@@ -4460,7 +4324,6 @@ void from_json(const json& j, CThostFtdcOptionInstrMarginAdjustField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v13.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcOptionInstrCommRateField& p) {
@@ -4510,7 +4373,6 @@ void from_json(const json& j, CThostFtdcOptionInstrCommRateField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcOptionInstrTradeCostField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -4552,7 +4414,6 @@ void from_json(const json& j, CThostFtdcOptionInstrTradeCostField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryOptionInstrTradeCostField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -4588,7 +4449,6 @@ void from_json(const json& j, CThostFtdcQryOptionInstrTradeCostField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryOptionInstrCommRateField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -4617,7 +4477,6 @@ void from_json(const json& j, CThostFtdcQryOptionInstrCommRateField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcIndexPriceField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -4637,7 +4496,6 @@ void from_json(const json& j, CThostFtdcIndexPriceField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInputExecOrderField& p) {
@@ -4717,7 +4575,6 @@ void from_json(const json& j, CThostFtdcInputExecOrderField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcInputExecOrderActionField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -4773,7 +4630,6 @@ void from_json(const json& j, CThostFtdcInputExecOrderActionField& p) {
   std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v16.c_str()).c_str(), sizeof(p.IPAddress));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcExecOrderField& p) {
@@ -4918,7 +4774,6 @@ void from_json(const json& j, CThostFtdcExecOrderField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcExecOrderActionField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -5014,7 +4869,6 @@ void from_json(const json& j, CThostFtdcExecOrderActionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryExecOrderField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -5047,7 +4901,6 @@ void from_json(const json& j, CThostFtdcQryExecOrderField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v7.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcExchangeExecOrderField& p) {
@@ -5150,7 +5003,6 @@ void from_json(const json& j, CThostFtdcExchangeExecOrderField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryExchangeExecOrderField& p) {
   j = json{
            {"ParticipantID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ParticipantID)},
@@ -5179,7 +5031,6 @@ void from_json(const json& j, CThostFtdcQryExchangeExecOrderField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryExecOrderActionField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -5197,7 +5048,6 @@ void from_json(const json& j, CThostFtdcQryExecOrderActionField& p) {
   std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ExchangeID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcExchangeExecOrderActionField& p) {
@@ -5274,7 +5124,6 @@ void from_json(const json& j, CThostFtdcExchangeExecOrderActionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryExchangeExecOrderActionField& p) {
   j = json{
            {"ParticipantID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ParticipantID)},
@@ -5295,7 +5144,6 @@ void from_json(const json& j, CThostFtdcQryExchangeExecOrderActionField& p) {
   std::strncpy(p.TraderID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.TraderID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcErrExecOrderField& p) {
@@ -5380,7 +5228,6 @@ void from_json(const json& j, CThostFtdcErrExecOrderField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryErrExecOrderField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -5395,7 +5242,6 @@ void from_json(const json& j, CThostFtdcQryErrExecOrderField& p) {
   std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InvestorID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcErrExecOrderActionField& p) {
@@ -5460,7 +5306,6 @@ void from_json(const json& j, CThostFtdcErrExecOrderActionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryErrExecOrderActionField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -5475,7 +5320,6 @@ void from_json(const json& j, CThostFtdcQryErrExecOrderActionField& p) {
   std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InvestorID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcOptionInstrTradingRightField& p) {
@@ -5509,7 +5353,6 @@ void from_json(const json& j, CThostFtdcOptionInstrTradingRightField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryOptionInstrTradingRightField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -5533,7 +5376,6 @@ void from_json(const json& j, CThostFtdcQryOptionInstrTradingRightField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInputForQuoteField& p) {
@@ -5577,7 +5419,6 @@ void from_json(const json& j, CThostFtdcInputForQuoteField& p) {
   std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v10.c_str()).c_str(), sizeof(p.IPAddress));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcForQuoteField& p) {
@@ -5664,7 +5505,6 @@ void from_json(const json& j, CThostFtdcForQuoteField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryForQuoteField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -5697,7 +5537,6 @@ void from_json(const json& j, CThostFtdcQryForQuoteField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v7.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcExchangeForQuoteField& p) {
@@ -5751,7 +5590,6 @@ void from_json(const json& j, CThostFtdcExchangeForQuoteField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryExchangeForQuoteField& p) {
   j = json{
            {"ParticipantID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ParticipantID)},
@@ -5778,7 +5616,6 @@ void from_json(const json& j, CThostFtdcQryExchangeForQuoteField& p) {
   std::strncpy(p.ExchangeInstID, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.ExchangeInstID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInputQuoteField& p) {
@@ -5872,7 +5709,6 @@ void from_json(const json& j, CThostFtdcInputQuoteField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcInputQuoteActionField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -5936,7 +5772,6 @@ void from_json(const json& j, CThostFtdcInputQuoteActionField& p) {
   j.at("SessionReqSeq").get_to(p.SessionReqSeq);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQuoteField& p) {
@@ -6107,7 +5942,6 @@ void from_json(const json& j, CThostFtdcQuoteField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQuoteActionField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -6205,7 +6039,6 @@ void from_json(const json& j, CThostFtdcQuoteActionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryQuoteField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -6241,7 +6074,6 @@ void from_json(const json& j, CThostFtdcQryQuoteField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v8.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcExchangeQuoteField& p) {
@@ -6356,7 +6188,6 @@ void from_json(const json& j, CThostFtdcExchangeQuoteField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryExchangeQuoteField& p) {
   j = json{
            {"ParticipantID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ParticipantID)},
@@ -6385,7 +6216,6 @@ void from_json(const json& j, CThostFtdcQryExchangeQuoteField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryQuoteActionField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -6403,7 +6233,6 @@ void from_json(const json& j, CThostFtdcQryQuoteActionField& p) {
   std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ExchangeID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcExchangeQuoteActionField& p) {
@@ -6466,7 +6295,6 @@ void from_json(const json& j, CThostFtdcExchangeQuoteActionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryExchangeQuoteActionField& p) {
   j = json{
            {"ParticipantID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ParticipantID)},
@@ -6487,7 +6315,6 @@ void from_json(const json& j, CThostFtdcQryExchangeQuoteActionField& p) {
   std::strncpy(p.TraderID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.TraderID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcOptionInstrDeltaField& p) {
@@ -6515,7 +6342,6 @@ void from_json(const json& j, CThostFtdcOptionInstrDeltaField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcForQuoteRspField& p) {
@@ -6549,7 +6375,6 @@ void from_json(const json& j, CThostFtdcForQuoteRspField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcStrikeOffsetField& p) {
   j = json{
            {"reserve1", codec_convert("UTF-8//TRANSLIT", "GBK", p.reserve1)},
@@ -6580,7 +6405,6 @@ void from_json(const json& j, CThostFtdcStrikeOffsetField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryStrikeOffsetField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -6601,7 +6425,6 @@ void from_json(const json& j, CThostFtdcQryStrikeOffsetField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInputBatchOrderActionField& p) {
@@ -6644,7 +6467,6 @@ void from_json(const json& j, CThostFtdcInputBatchOrderActionField& p) {
   std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v11.c_str()).c_str(), sizeof(p.IPAddress));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcBatchOrderActionField& p) {
@@ -6718,7 +6540,6 @@ void from_json(const json& j, CThostFtdcBatchOrderActionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcExchangeBatchOrderActionField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -6770,7 +6591,6 @@ void from_json(const json& j, CThostFtdcExchangeBatchOrderActionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryBatchOrderActionField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -6788,7 +6608,6 @@ void from_json(const json& j, CThostFtdcQryBatchOrderActionField& p) {
   std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ExchangeID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcCombInstrumentGuardField& p) {
@@ -6812,7 +6631,6 @@ void from_json(const json& j, CThostFtdcCombInstrumentGuardField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryCombInstrumentGuardField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -6833,7 +6651,6 @@ void from_json(const json& j, CThostFtdcQryCombInstrumentGuardField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInputCombActionField& p) {
@@ -6892,7 +6709,6 @@ void from_json(const json& j, CThostFtdcInputCombActionField& p) {
   std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v16.c_str()).c_str(), sizeof(p.IPAddress));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcCombActionField& p) {
@@ -6997,7 +6813,6 @@ void from_json(const json& j, CThostFtdcCombActionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryCombActionField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -7024,7 +6839,6 @@ void from_json(const json& j, CThostFtdcQryCombActionField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcExchangeCombActionField& p) {
@@ -7098,7 +6912,6 @@ void from_json(const json& j, CThostFtdcExchangeCombActionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryExchangeCombActionField& p) {
   j = json{
            {"ParticipantID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ParticipantID)},
@@ -7127,7 +6940,6 @@ void from_json(const json& j, CThostFtdcQryExchangeCombActionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcProductExchRateField& p) {
   j = json{
            {"reserve1", codec_convert("UTF-8//TRANSLIT", "GBK", p.reserve1)},
@@ -7152,7 +6964,6 @@ void from_json(const json& j, CThostFtdcProductExchRateField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryProductExchRateField& p) {
   j = json{
            {"reserve1", codec_convert("UTF-8//TRANSLIT", "GBK", p.reserve1)},
@@ -7170,7 +6981,6 @@ void from_json(const json& j, CThostFtdcQryProductExchRateField& p) {
   std::strncpy(p.ProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ProductID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryForQuoteParamField& p) {
@@ -7193,7 +7003,6 @@ void from_json(const json& j, CThostFtdcQryForQuoteParamField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcForQuoteParamField& p) {
@@ -7220,7 +7029,6 @@ void from_json(const json& j, CThostFtdcForQuoteParamField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcMMOptionInstrCommRateField& p) {
@@ -7264,7 +7072,6 @@ void from_json(const json& j, CThostFtdcMMOptionInstrCommRateField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryMMOptionInstrCommRateField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -7285,7 +7092,6 @@ void from_json(const json& j, CThostFtdcQryMMOptionInstrCommRateField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcMMInstrumentCommissionRateField& p) {
@@ -7325,7 +7131,6 @@ void from_json(const json& j, CThostFtdcMMInstrumentCommissionRateField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryMMInstrumentCommissionRateField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -7346,7 +7151,6 @@ void from_json(const json& j, CThostFtdcQryMMInstrumentCommissionRateField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInstrumentOrderCommRateField& p) {
@@ -7391,7 +7195,6 @@ void from_json(const json& j, CThostFtdcInstrumentOrderCommRateField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryInstrumentOrderCommRateField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -7414,7 +7217,6 @@ void from_json(const json& j, CThostFtdcQryInstrumentOrderCommRateField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcTradeParamField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -7435,7 +7237,6 @@ void from_json(const json& j, CThostFtdcTradeParamField& p) {
   std::strncpy(p.Memo, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.Memo));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInstrumentMarginRateULField& p) {
@@ -7474,7 +7275,6 @@ void from_json(const json& j, CThostFtdcInstrumentMarginRateULField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcFutureLimitPosiParamField& p) {
   j = json{
            {"InvestorRange", std::string(1, p.InvestorRange)},
@@ -7506,7 +7306,6 @@ void from_json(const json& j, CThostFtdcFutureLimitPosiParamField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcLoginForbiddenIPField& p) {
   j = json{
            {"reserve1", codec_convert("UTF-8//TRANSLIT", "GBK", p.reserve1)},
@@ -7521,7 +7320,6 @@ void from_json(const json& j, CThostFtdcLoginForbiddenIPField& p) {
   std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.IPAddress));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcIPListField& p) {
@@ -7540,7 +7338,6 @@ void from_json(const json& j, CThostFtdcIPListField& p) {
   std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.IPAddress));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInputOptionSelfCloseField& p) {
@@ -7608,7 +7405,6 @@ void from_json(const json& j, CThostFtdcInputOptionSelfCloseField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcInputOptionSelfCloseActionField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -7664,7 +7460,6 @@ void from_json(const json& j, CThostFtdcInputOptionSelfCloseActionField& p) {
   std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v16.c_str()).c_str(), sizeof(p.IPAddress));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcOptionSelfCloseField& p) {
@@ -7797,7 +7592,6 @@ void from_json(const json& j, CThostFtdcOptionSelfCloseField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcOptionSelfCloseActionField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -7890,7 +7684,6 @@ void from_json(const json& j, CThostFtdcOptionSelfCloseActionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryOptionSelfCloseField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -7923,7 +7716,6 @@ void from_json(const json& j, CThostFtdcQryOptionSelfCloseField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v7.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcExchangeOptionSelfCloseField& p) {
@@ -8014,7 +7806,6 @@ void from_json(const json& j, CThostFtdcExchangeOptionSelfCloseField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryOptionSelfCloseActionField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -8032,7 +7823,6 @@ void from_json(const json& j, CThostFtdcQryOptionSelfCloseActionField& p) {
   std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ExchangeID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcExchangeOptionSelfCloseActionField& p) {
@@ -8107,7 +7897,6 @@ void from_json(const json& j, CThostFtdcExchangeOptionSelfCloseActionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncDelaySwapField& p) {
   j = json{
            {"DelaySwapSeqNo", codec_convert("UTF-8//TRANSLIT", "GBK", p.DelaySwapSeqNo)},
@@ -8145,7 +7934,6 @@ void from_json(const json& j, CThostFtdcSyncDelaySwapField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQrySyncDelaySwapField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -8160,7 +7948,6 @@ void from_json(const json& j, CThostFtdcQrySyncDelaySwapField& p) {
   std::strncpy(p.DelaySwapSeqNo, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.DelaySwapSeqNo));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInvestUnitField& p) {
@@ -8200,7 +7987,6 @@ void from_json(const json& j, CThostFtdcInvestUnitField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryInvestUnitField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -8218,7 +8004,6 @@ void from_json(const json& j, CThostFtdcQryInvestUnitField& p) {
   std::strncpy(p.InvestUnitID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestUnitID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSecAgentCheckModeField& p) {
@@ -8245,7 +8030,6 @@ void from_json(const json& j, CThostFtdcSecAgentCheckModeField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSecAgentTradeInfoField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -8266,7 +8050,6 @@ void from_json(const json& j, CThostFtdcSecAgentTradeInfoField& p) {
   std::strncpy(p.LongCustomerName, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.LongCustomerName));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcMarketDataField& p) {
@@ -8337,7 +8120,6 @@ void from_json(const json& j, CThostFtdcMarketDataField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcMarketDataBaseField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -8357,7 +8139,6 @@ void from_json(const json& j, CThostFtdcMarketDataBaseField& p) {
   j.at("PreDelta").get_to(p.PreDelta);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcMarketDataStaticField& p) {
@@ -8386,7 +8167,6 @@ void from_json(const json& j, CThostFtdcMarketDataStaticField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcMarketDataLastMatchField& p) {
   j = json{
            {"LastPrice", p.LastPrice},
@@ -8403,7 +8183,6 @@ void from_json(const json& j, CThostFtdcMarketDataLastMatchField& p) {
   j.at("OpenInterest").get_to(p.OpenInterest);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcMarketDataBestPriceField& p) {
@@ -8424,7 +8203,6 @@ void from_json(const json& j, CThostFtdcMarketDataBestPriceField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcMarketDataBid23Field& p) {
   j = json{
            {"BidPrice2", p.BidPrice2},
@@ -8441,7 +8219,6 @@ void from_json(const json& j, CThostFtdcMarketDataBid23Field& p) {
   j.at("BidVolume3").get_to(p.BidVolume3);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcMarketDataAsk23Field& p) {
@@ -8462,7 +8239,6 @@ void from_json(const json& j, CThostFtdcMarketDataAsk23Field& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcMarketDataBid45Field& p) {
   j = json{
            {"BidPrice4", p.BidPrice4},
@@ -8481,7 +8257,6 @@ void from_json(const json& j, CThostFtdcMarketDataBid45Field& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcMarketDataAsk45Field& p) {
   j = json{
            {"AskPrice4", p.AskPrice4},
@@ -8498,7 +8273,6 @@ void from_json(const json& j, CThostFtdcMarketDataAsk45Field& p) {
   j.at("AskVolume5").get_to(p.AskVolume5);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcMarketDataUpdateTimeField& p) {
@@ -8525,7 +8299,6 @@ void from_json(const json& j, CThostFtdcMarketDataUpdateTimeField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcMarketDataBandingPriceField& p) {
   j = json{
            {"BandingUpperPrice", p.BandingUpperPrice},
@@ -8540,7 +8313,6 @@ void from_json(const json& j, CThostFtdcMarketDataBandingPriceField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcMarketDataExchangeField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -8552,7 +8324,6 @@ void from_json(const json& j, CThostFtdcMarketDataExchangeField& p) {
   std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSpecificInstrumentField& p) {
@@ -8569,7 +8340,6 @@ void from_json(const json& j, CThostFtdcSpecificInstrumentField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInstrumentStatusField& p) {
@@ -8611,7 +8381,6 @@ void from_json(const json& j, CThostFtdcInstrumentStatusField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryInstrumentStatusField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -8629,7 +8398,6 @@ void from_json(const json& j, CThostFtdcQryInstrumentStatusField& p) {
   std::strncpy(p.ExchangeInstID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ExchangeInstID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInvestorAccountField& p) {
@@ -8652,7 +8420,6 @@ void from_json(const json& j, CThostFtdcInvestorAccountField& p) {
   std::strncpy(p.CurrencyID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.CurrencyID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcPositionProfitAlgorithmField& p) {
@@ -8680,7 +8447,6 @@ void from_json(const json& j, CThostFtdcPositionProfitAlgorithmField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcDiscountField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -8702,7 +8468,6 @@ void from_json(const json& j, CThostFtdcDiscountField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryTransferBankField& p) {
   j = json{
            {"BankID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BankID)},
@@ -8717,7 +8482,6 @@ void from_json(const json& j, CThostFtdcQryTransferBankField& p) {
   std::strncpy(p.BankBrchID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BankBrchID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcTransferBankField& p) {
@@ -8739,7 +8503,6 @@ void from_json(const json& j, CThostFtdcTransferBankField& p) {
   j.at("IsActive").get_to(p.IsActive);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryInvestorPositionDetailField& p) {
@@ -8768,7 +8531,6 @@ void from_json(const json& j, CThostFtdcQryInvestorPositionDetailField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInvestorPositionDetailField& p) {
@@ -8858,7 +8620,6 @@ void from_json(const json& j, CThostFtdcInvestorPositionDetailField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcTradingAccountPasswordField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -8879,7 +8640,6 @@ void from_json(const json& j, CThostFtdcTradingAccountPasswordField& p) {
   std::strncpy(p.CurrencyID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.CurrencyID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcMDTraderOfferField& p) {
@@ -8951,7 +8711,6 @@ void from_json(const json& j, CThostFtdcMDTraderOfferField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryMDTraderOfferField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -8971,7 +8730,6 @@ void from_json(const json& j, CThostFtdcQryMDTraderOfferField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryNoticeField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -8983,7 +8741,6 @@ void from_json(const json& j, CThostFtdcQryNoticeField& p) {
   std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcNoticeField& p) {
@@ -9005,7 +8762,6 @@ void from_json(const json& j, CThostFtdcNoticeField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcUserRightField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -9025,7 +8781,6 @@ void from_json(const json& j, CThostFtdcUserRightField& p) {
   j.at("IsForbidden").get_to(p.IsForbidden);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQrySettlementInfoConfirmField& p) {
@@ -9050,7 +8805,6 @@ void from_json(const json& j, CThostFtdcQrySettlementInfoConfirmField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcLoadSettlementInfoField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -9062,7 +8816,6 @@ void from_json(const json& j, CThostFtdcLoadSettlementInfoField& p) {
   std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcBrokerWithdrawAlgorithmField& p) {
@@ -9102,7 +8855,6 @@ void from_json(const json& j, CThostFtdcBrokerWithdrawAlgorithmField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcTradingAccountPasswordUpdateV1Field& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -9123,7 +8875,6 @@ void from_json(const json& j, CThostFtdcTradingAccountPasswordUpdateV1Field& p) 
   std::strncpy(p.NewPassword, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.NewPassword));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcTradingAccountPasswordUpdateField& p) {
@@ -9151,7 +8902,6 @@ void from_json(const json& j, CThostFtdcTradingAccountPasswordUpdateField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryCombinationLegField& p) {
   j = json{
            {"reserve1", codec_convert("UTF-8//TRANSLIT", "GBK", p.reserve1)},
@@ -9176,7 +8926,6 @@ void from_json(const json& j, CThostFtdcQryCombinationLegField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQrySyncStatusField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -9188,7 +8937,6 @@ void from_json(const json& j, CThostFtdcQrySyncStatusField& p) {
   std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcCombinationLegField& p) {
@@ -9222,7 +8970,6 @@ void from_json(const json& j, CThostFtdcCombinationLegField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncStatusField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -9239,7 +8986,6 @@ void from_json(const json& j, CThostFtdcSyncStatusField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryLinkManField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -9254,7 +9000,6 @@ void from_json(const json& j, CThostFtdcQryLinkManField& p) {
   std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InvestorID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcLinkManField& p) {
@@ -9302,7 +9047,6 @@ void from_json(const json& j, CThostFtdcLinkManField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryBrokerUserEventField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -9320,7 +9064,6 @@ void from_json(const json& j, CThostFtdcQryBrokerUserEventField& p) {
   p.UserEventType = v2.at(0);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcBrokerUserEventField& p) {
@@ -9367,7 +9110,6 @@ void from_json(const json& j, CThostFtdcBrokerUserEventField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryContractBankField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -9385,7 +9127,6 @@ void from_json(const json& j, CThostFtdcQryContractBankField& p) {
   std::strncpy(p.BankBrchID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.BankBrchID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcContractBankField& p) {
@@ -9408,7 +9149,6 @@ void from_json(const json& j, CThostFtdcContractBankField& p) {
   std::strncpy(p.BankName, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.BankName));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInvestorPositionCombineDetailField& p) {
@@ -9479,7 +9219,6 @@ void from_json(const json& j, CThostFtdcInvestorPositionCombineDetailField& p) {
   std::strncpy(p.CombInstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v22.c_str()).c_str(), sizeof(p.CombInstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcParkedOrderField& p) {
@@ -9594,7 +9333,6 @@ void from_json(const json& j, CThostFtdcParkedOrderField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcParkedOrderActionField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -9670,7 +9408,6 @@ void from_json(const json& j, CThostFtdcParkedOrderActionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryParkedOrderField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -9697,7 +9434,6 @@ void from_json(const json& j, CThostFtdcQryParkedOrderField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryParkedOrderActionField& p) {
@@ -9728,7 +9464,6 @@ void from_json(const json& j, CThostFtdcQryParkedOrderActionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcRemoveParkedOrderField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -9751,7 +9486,6 @@ void from_json(const json& j, CThostFtdcRemoveParkedOrderField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcRemoveParkedOrderActionField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -9772,7 +9506,6 @@ void from_json(const json& j, CThostFtdcRemoveParkedOrderActionField& p) {
   std::strncpy(p.InvestUnitID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.InvestUnitID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInvestorWithdrawAlgorithmField& p) {
@@ -9799,7 +9532,6 @@ void from_json(const json& j, CThostFtdcInvestorWithdrawAlgorithmField& p) {
   j.at("FundMortgageRatio").get_to(p.FundMortgageRatio);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryInvestorPositionCombineDetailField& p) {
@@ -9830,7 +9562,6 @@ void from_json(const json& j, CThostFtdcQryInvestorPositionCombineDetailField& p
 }
 
 
-
 void to_json(json& j, const CThostFtdcMarketDataAveragePriceField& p) {
   j = json{
            {"AveragePrice", p.AveragePrice},
@@ -9841,7 +9572,6 @@ void from_json(const json& j, CThostFtdcMarketDataAveragePriceField& p) {
   j.at("AveragePrice").get_to(p.AveragePrice);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcVerifyInvestorPasswordField& p) {
@@ -9861,7 +9591,6 @@ void from_json(const json& j, CThostFtdcVerifyInvestorPasswordField& p) {
   std::strncpy(p.Password, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.Password));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcUserIPField& p) {
@@ -9895,7 +9624,6 @@ void from_json(const json& j, CThostFtdcUserIPField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcTradingNoticeInfoField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -9923,7 +9651,6 @@ void from_json(const json& j, CThostFtdcTradingNoticeInfoField& p) {
   std::strncpy(p.InvestUnitID, codec_convert("GBK//TRANSLIT", "UTF-8", v6.c_str()).c_str(), sizeof(p.InvestUnitID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcTradingNoticeField& p) {
@@ -9961,7 +9688,6 @@ void from_json(const json& j, CThostFtdcTradingNoticeField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryTradingNoticeField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -9981,7 +9707,6 @@ void from_json(const json& j, CThostFtdcQryTradingNoticeField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryErrOrderField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -9996,7 +9721,6 @@ void from_json(const json& j, CThostFtdcQryErrOrderField& p) {
   std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InvestorID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcErrOrderField& p) {
@@ -10105,7 +9829,6 @@ void from_json(const json& j, CThostFtdcErrOrderField& p) {
   j.at("SessionReqSeq").get_to(p.SessionReqSeq);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcErrorConditionalOrderField& p) {
@@ -10303,7 +10026,6 @@ void from_json(const json& j, CThostFtdcErrorConditionalOrderField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryErrOrderActionField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -10318,7 +10040,6 @@ void from_json(const json& j, CThostFtdcQryErrOrderActionField& p) {
   std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InvestorID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcErrOrderActionField& p) {
@@ -10427,7 +10148,6 @@ void from_json(const json& j, CThostFtdcErrOrderActionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryExchangeSequenceField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -10439,7 +10159,6 @@ void from_json(const json& j, CThostFtdcQryExchangeSequenceField& p) {
   std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ExchangeID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcExchangeSequenceField& p) {
@@ -10458,7 +10177,6 @@ void from_json(const json& j, CThostFtdcExchangeSequenceField& p) {
   p.MarketStatus = v2.at(0);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryMaxOrderVolumeWithPriceField& p) {
@@ -10502,7 +10220,6 @@ void from_json(const json& j, CThostFtdcQryMaxOrderVolumeWithPriceField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryBrokerTradingParamsField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -10523,7 +10240,6 @@ void from_json(const json& j, CThostFtdcQryBrokerTradingParamsField& p) {
   std::strncpy(p.AccountID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.AccountID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcBrokerTradingParamsField& p) {
@@ -10560,7 +10276,6 @@ void from_json(const json& j, CThostFtdcBrokerTradingParamsField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryBrokerTradingAlgosField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -10581,7 +10296,6 @@ void from_json(const json& j, CThostFtdcQryBrokerTradingAlgosField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcBrokerTradingAlgosField& p) {
@@ -10615,7 +10329,6 @@ void from_json(const json& j, CThostFtdcBrokerTradingAlgosField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQueryBrokerDepositField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -10630,7 +10343,6 @@ void from_json(const json& j, CThostFtdcQueryBrokerDepositField& p) {
   std::strncpy(p.ExchangeID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ExchangeID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcBrokerDepositField& p) {
@@ -10673,7 +10385,6 @@ void from_json(const json& j, CThostFtdcBrokerDepositField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryCFMMCBrokerKeyField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -10685,7 +10396,6 @@ void from_json(const json& j, CThostFtdcQryCFMMCBrokerKeyField& p) {
   std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcCFMMCBrokerKeyField& p) {
@@ -10718,7 +10428,6 @@ void from_json(const json& j, CThostFtdcCFMMCBrokerKeyField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcCFMMCTradingAccountKeyField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -10743,7 +10452,6 @@ void from_json(const json& j, CThostFtdcCFMMCTradingAccountKeyField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryCFMMCTradingAccountKeyField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -10758,7 +10466,6 @@ void from_json(const json& j, CThostFtdcQryCFMMCTradingAccountKeyField& p) {
   std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InvestorID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcBrokerUserOTPParamField& p) {
@@ -10793,7 +10500,6 @@ void from_json(const json& j, CThostFtdcBrokerUserOTPParamField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcManualSyncBrokerUserOTPField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -10819,7 +10525,6 @@ void from_json(const json& j, CThostFtdcManualSyncBrokerUserOTPField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcCommRateModelField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -10839,7 +10544,6 @@ void from_json(const json& j, CThostFtdcCommRateModelField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryCommRateModelField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -10854,7 +10558,6 @@ void from_json(const json& j, CThostFtdcQryCommRateModelField& p) {
   std::strncpy(p.CommModelID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.CommModelID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcMarginModelField& p) {
@@ -10876,7 +10579,6 @@ void from_json(const json& j, CThostFtdcMarginModelField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryMarginModelField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -10891,7 +10593,6 @@ void from_json(const json& j, CThostFtdcQryMarginModelField& p) {
   std::strncpy(p.MarginModelID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.MarginModelID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcEWarrantOffsetField& p) {
@@ -10933,7 +10634,6 @@ void from_json(const json& j, CThostFtdcEWarrantOffsetField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryEWarrantOffsetField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -10960,7 +10660,6 @@ void from_json(const json& j, CThostFtdcQryEWarrantOffsetField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v5.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryInvestorProductGroupMarginField& p) {
@@ -10992,7 +10691,6 @@ void from_json(const json& j, CThostFtdcQryInvestorProductGroupMarginField& p) {
   std::strncpy(p.ProductGroupID, codec_convert("GBK//TRANSLIT", "UTF-8", v6.c_str()).c_str(), sizeof(p.ProductGroupID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInvestorProductGroupMarginField& p) {
@@ -11073,7 +10771,6 @@ void from_json(const json& j, CThostFtdcInvestorProductGroupMarginField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQueryCFMMCTradingAccountTokenField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -11091,7 +10788,6 @@ void from_json(const json& j, CThostFtdcQueryCFMMCTradingAccountTokenField& p) {
   std::strncpy(p.InvestUnitID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestUnitID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcCFMMCTradingAccountTokenField& p) {
@@ -11118,7 +10814,6 @@ void from_json(const json& j, CThostFtdcCFMMCTradingAccountTokenField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryProductGroupField& p) {
   j = json{
            {"reserve1", codec_convert("UTF-8//TRANSLIT", "GBK", p.reserve1)},
@@ -11136,7 +10831,6 @@ void from_json(const json& j, CThostFtdcQryProductGroupField& p) {
   std::strncpy(p.ProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ProductID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcProductGroupField& p) {
@@ -11162,7 +10856,6 @@ void from_json(const json& j, CThostFtdcProductGroupField& p) {
   std::strncpy(p.ProductGroupID, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.ProductGroupID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcBulletinField& p) {
@@ -11209,7 +10902,6 @@ void from_json(const json& j, CThostFtdcBulletinField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryBulletinField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -11231,7 +10923,6 @@ void from_json(const json& j, CThostFtdcQryBulletinField& p) {
   p.NewsUrgency = v4.at(0);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcMulticastInstrumentField& p) {
@@ -11260,7 +10951,6 @@ void from_json(const json& j, CThostFtdcMulticastInstrumentField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryMulticastInstrumentField& p) {
   j = json{
            {"TopicID", p.TopicID},
@@ -11279,7 +10969,6 @@ void from_json(const json& j, CThostFtdcQryMulticastInstrumentField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcAppIDAuthAssignField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -11296,7 +10985,6 @@ void from_json(const json& j, CThostFtdcAppIDAuthAssignField& p) {
   j.at("DRIdentityID").get_to(p.DRIdentityID);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcReqOpenAccountField& p) {
@@ -11440,7 +11128,6 @@ void from_json(const json& j, CThostFtdcReqOpenAccountField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcReqCancelAccountField& p) {
   j = json{
            {"TradeCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeCode)},
@@ -11582,7 +11269,6 @@ void from_json(const json& j, CThostFtdcReqCancelAccountField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcReqChangeAccountField& p) {
   j = json{
            {"TradeCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeCode)},
@@ -11710,7 +11396,6 @@ void from_json(const json& j, CThostFtdcReqChangeAccountField& p) {
   std::strncpy(p.LongCustomerName, codec_convert("GBK//TRANSLIT", "UTF-8", v40.c_str()).c_str(), sizeof(p.LongCustomerName));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcReqTransferField& p) {
@@ -11843,7 +11528,6 @@ void from_json(const json& j, CThostFtdcReqTransferField& p) {
   std::strncpy(p.LongCustomerName, codec_convert("GBK//TRANSLIT", "UTF-8", v43.c_str()).c_str(), sizeof(p.LongCustomerName));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcRspTransferField& p) {
@@ -11981,7 +11665,6 @@ void from_json(const json& j, CThostFtdcRspTransferField& p) {
   std::strncpy(p.LongCustomerName, codec_convert("GBK//TRANSLIT", "UTF-8", v45.c_str()).c_str(), sizeof(p.LongCustomerName));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcReqRepealField& p) {
@@ -12131,7 +11814,6 @@ void from_json(const json& j, CThostFtdcReqRepealField& p) {
   std::strncpy(p.LongCustomerName, codec_convert("GBK//TRANSLIT", "UTF-8", v50.c_str()).c_str(), sizeof(p.LongCustomerName));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcRspRepealField& p) {
@@ -12288,7 +11970,6 @@ void from_json(const json& j, CThostFtdcRspRepealField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcReqQueryAccountField& p) {
   j = json{
            {"TradeCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeCode)},
@@ -12402,7 +12083,6 @@ void from_json(const json& j, CThostFtdcReqQueryAccountField& p) {
   std::strncpy(p.LongCustomerName, codec_convert("GBK//TRANSLIT", "UTF-8", v36.c_str()).c_str(), sizeof(p.LongCustomerName));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcRspQueryAccountField& p) {
@@ -12524,7 +12204,6 @@ void from_json(const json& j, CThostFtdcRspQueryAccountField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcFutureSignIOField& p) {
   j = json{
            {"TradeCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeCode)},
@@ -12591,7 +12270,6 @@ void from_json(const json& j, CThostFtdcFutureSignIOField& p) {
   j.at("TID").get_to(p.TID);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcRspFutureSignInField& p) {
@@ -12673,7 +12351,6 @@ void from_json(const json& j, CThostFtdcRspFutureSignInField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcReqFutureSignOutField& p) {
   j = json{
            {"TradeCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeCode)},
@@ -12740,7 +12417,6 @@ void from_json(const json& j, CThostFtdcReqFutureSignOutField& p) {
   j.at("TID").get_to(p.TID);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcRspFutureSignOutField& p) {
@@ -12814,7 +12490,6 @@ void from_json(const json& j, CThostFtdcRspFutureSignOutField& p) {
   std::strncpy(p.ErrorMsg, codec_convert("GBK//TRANSLIT", "UTF-8", v22.c_str()).c_str(), sizeof(p.ErrorMsg));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcReqQueryTradeResultBySerialField& p) {
@@ -12904,7 +12579,6 @@ void from_json(const json& j, CThostFtdcReqQueryTradeResultBySerialField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcRspQueryTradeResultBySerialField& p) {
   j = json{
            {"TradeCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeCode)},
@@ -12988,7 +12662,6 @@ void from_json(const json& j, CThostFtdcRspQueryTradeResultBySerialField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcReqDayEndFileReadyField& p) {
   j = json{
            {"TradeCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeCode)},
@@ -13039,7 +12712,6 @@ void from_json(const json& j, CThostFtdcReqDayEndFileReadyField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcReturnResultField& p) {
   j = json{
            {"ReturnCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.ReturnCode)},
@@ -13054,7 +12726,6 @@ void from_json(const json& j, CThostFtdcReturnResultField& p) {
   std::strncpy(p.DescrInfoForReturnCode, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.DescrInfoForReturnCode));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcVerifyFuturePasswordField& p) {
@@ -13120,7 +12791,6 @@ void from_json(const json& j, CThostFtdcVerifyFuturePasswordField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcVerifyCustInfoField& p) {
   j = json{
            {"CustomerName", codec_convert("UTF-8//TRANSLIT", "GBK", p.CustomerName)},
@@ -13144,7 +12814,6 @@ void from_json(const json& j, CThostFtdcVerifyCustInfoField& p) {
   std::strncpy(p.LongCustomerName, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.LongCustomerName));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcVerifyFuturePasswordAndCustInfoField& p) {
@@ -13181,7 +12850,6 @@ void from_json(const json& j, CThostFtdcVerifyFuturePasswordAndCustInfoField& p)
 }
 
 
-
 void to_json(json& j, const CThostFtdcDepositResultInformField& p) {
   j = json{
            {"DepositSeqNo", codec_convert("UTF-8//TRANSLIT", "GBK", p.DepositSeqNo)},
@@ -13209,7 +12877,6 @@ void from_json(const json& j, CThostFtdcDepositResultInformField& p) {
   std::strncpy(p.DescrInfoForReturnCode, codec_convert("GBK//TRANSLIT", "UTF-8", v6.c_str()).c_str(), sizeof(p.DescrInfoForReturnCode));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcReqSyncKeyField& p) {
@@ -13275,7 +12942,6 @@ void from_json(const json& j, CThostFtdcReqSyncKeyField& p) {
   j.at("TID").get_to(p.TID);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcRspSyncKeyField& p) {
@@ -13346,7 +13012,6 @@ void from_json(const json& j, CThostFtdcRspSyncKeyField& p) {
   std::strncpy(p.ErrorMsg, codec_convert("GBK//TRANSLIT", "UTF-8", v21.c_str()).c_str(), sizeof(p.ErrorMsg));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcNotifyQueryAccountField& p) {
@@ -13473,7 +13138,6 @@ void from_json(const json& j, CThostFtdcNotifyQueryAccountField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcTransferSerialField& p) {
   j = json{
            {"PlateSerial", p.PlateSerial},
@@ -13561,7 +13225,6 @@ void from_json(const json& j, CThostFtdcTransferSerialField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryTransferSerialField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -13582,7 +13245,6 @@ void from_json(const json& j, CThostFtdcQryTransferSerialField& p) {
   std::strncpy(p.CurrencyID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.CurrencyID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcNotifyFutureSignInField& p) {
@@ -13664,7 +13326,6 @@ void from_json(const json& j, CThostFtdcNotifyFutureSignInField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcNotifyFutureSignOutField& p) {
   j = json{
            {"TradeCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeCode)},
@@ -13738,7 +13399,6 @@ void from_json(const json& j, CThostFtdcNotifyFutureSignOutField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcNotifySyncKeyField& p) {
   j = json{
            {"TradeCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeCode)},
@@ -13809,7 +13469,6 @@ void from_json(const json& j, CThostFtdcNotifySyncKeyField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryAccountregisterField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -13833,7 +13492,6 @@ void from_json(const json& j, CThostFtdcQryAccountregisterField& p) {
   std::strncpy(p.CurrencyID, codec_convert("GBK//TRANSLIT", "UTF-8", v4.c_str()).c_str(), sizeof(p.CurrencyID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcAccountregisterField& p) {
@@ -13897,7 +13555,6 @@ void from_json(const json& j, CThostFtdcAccountregisterField& p) {
   std::strncpy(p.LongCustomerName, codec_convert("GBK//TRANSLIT", "UTF-8", v17.c_str()).c_str(), sizeof(p.LongCustomerName));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcOpenAccountField& p) {
@@ -14046,7 +13703,6 @@ void from_json(const json& j, CThostFtdcOpenAccountField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcCancelAccountField& p) {
   j = json{
            {"TradeCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeCode)},
@@ -14193,7 +13849,6 @@ void from_json(const json& j, CThostFtdcCancelAccountField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcChangeAccountField& p) {
   j = json{
            {"TradeCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeCode)},
@@ -14328,7 +13983,6 @@ void from_json(const json& j, CThostFtdcChangeAccountField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSecAgentACIDMapField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -14354,7 +14008,6 @@ void from_json(const json& j, CThostFtdcSecAgentACIDMapField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQrySecAgentACIDMapField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -14377,7 +14030,6 @@ void from_json(const json& j, CThostFtdcQrySecAgentACIDMapField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcUserRightsAssignField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -14396,7 +14048,6 @@ void from_json(const json& j, CThostFtdcUserRightsAssignField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcBrokerUserRightAssignField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -14412,7 +14063,6 @@ void from_json(const json& j, CThostFtdcBrokerUserRightAssignField& p) {
   j.at("Tradeable").get_to(p.Tradeable);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcDRTransferField& p) {
@@ -14435,7 +14085,6 @@ void from_json(const json& j, CThostFtdcDRTransferField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcFensUserInfoField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -14455,7 +14104,6 @@ void from_json(const json& j, CThostFtdcFensUserInfoField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcCurrTransferIdentityField& p) {
   j = json{
            {"IdentityID", p.IdentityID},
@@ -14466,7 +14114,6 @@ void from_json(const json& j, CThostFtdcCurrTransferIdentityField& p) {
   j.at("IdentityID").get_to(p.IdentityID);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcLoginForbiddenUserField& p) {
@@ -14491,7 +14138,6 @@ void from_json(const json& j, CThostFtdcLoginForbiddenUserField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryLoginForbiddenUserField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -14506,7 +14152,6 @@ void from_json(const json& j, CThostFtdcQryLoginForbiddenUserField& p) {
   std::strncpy(p.UserID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.UserID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcTradingAccountReserveField& p) {
@@ -14530,7 +14175,6 @@ void from_json(const json& j, CThostFtdcTradingAccountReserveField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryLoginForbiddenIPField& p) {
   j = json{
            {"reserve1", codec_convert("UTF-8//TRANSLIT", "GBK", p.reserve1)},
@@ -14545,7 +14189,6 @@ void from_json(const json& j, CThostFtdcQryLoginForbiddenIPField& p) {
   std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.IPAddress));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryIPListField& p) {
@@ -14564,7 +14207,6 @@ void from_json(const json& j, CThostFtdcQryIPListField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryUserRightsAssignField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -14579,7 +14221,6 @@ void from_json(const json& j, CThostFtdcQryUserRightsAssignField& p) {
   std::strncpy(p.UserID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.UserID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcReserveOpenAccountConfirmField& p) {
@@ -14710,7 +14351,6 @@ void from_json(const json& j, CThostFtdcReserveOpenAccountConfirmField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcReserveOpenAccountField& p) {
   j = json{
            {"TradeCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeCode)},
@@ -14827,7 +14467,6 @@ void from_json(const json& j, CThostFtdcReserveOpenAccountField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcAccountPropertyField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -14879,7 +14518,6 @@ void from_json(const json& j, CThostFtdcAccountPropertyField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryCurrDRIdentityField& p) {
   j = json{
            {"DRIdentityID", p.DRIdentityID},
@@ -14892,7 +14530,6 @@ void from_json(const json& j, CThostFtdcQryCurrDRIdentityField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcCurrDRIdentityField& p) {
   j = json{
            {"DRIdentityID", p.DRIdentityID},
@@ -14903,7 +14540,6 @@ void from_json(const json& j, CThostFtdcCurrDRIdentityField& p) {
   j.at("DRIdentityID").get_to(p.DRIdentityID);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQrySecAgentCheckModeField& p) {
@@ -14922,7 +14558,6 @@ void from_json(const json& j, CThostFtdcQrySecAgentCheckModeField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQrySecAgentTradeInfoField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -14937,7 +14572,6 @@ void from_json(const json& j, CThostFtdcQrySecAgentTradeInfoField& p) {
   std::strncpy(p.BrokerSecAgentID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.BrokerSecAgentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcReqUserAuthMethodField& p) {
@@ -14959,7 +14593,6 @@ void from_json(const json& j, CThostFtdcReqUserAuthMethodField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcRspUserAuthMethodField& p) {
   j = json{
            {"UsableAuthMethod", p.UsableAuthMethod},
@@ -14970,7 +14603,6 @@ void from_json(const json& j, CThostFtdcRspUserAuthMethodField& p) {
   j.at("UsableAuthMethod").get_to(p.UsableAuthMethod);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcReqGenUserCaptchaField& p) {
@@ -14990,7 +14622,6 @@ void from_json(const json& j, CThostFtdcReqGenUserCaptchaField& p) {
   std::strncpy(p.UserID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.UserID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcRspGenUserCaptchaField& p) {
@@ -15014,7 +14645,6 @@ void from_json(const json& j, CThostFtdcRspGenUserCaptchaField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcReqGenUserTextField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -15034,7 +14664,6 @@ void from_json(const json& j, CThostFtdcReqGenUserTextField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcRspGenUserTextField& p) {
   j = json{
            {"UserTextSeq", p.UserTextSeq},
@@ -15045,7 +14674,6 @@ void from_json(const json& j, CThostFtdcRspGenUserTextField& p) {
   j.at("UserTextSeq").get_to(p.UserTextSeq);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcReqUserLoginWithCaptchaField& p) {
@@ -15096,7 +14724,6 @@ void from_json(const json& j, CThostFtdcReqUserLoginWithCaptchaField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcReqUserLoginWithTextField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -15143,7 +14770,6 @@ void from_json(const json& j, CThostFtdcReqUserLoginWithTextField& p) {
   std::strncpy(p.ClientIPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v12.c_str()).c_str(), sizeof(p.ClientIPAddress));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcReqUserLoginWithOTPField& p) {
@@ -15194,7 +14820,6 @@ void from_json(const json& j, CThostFtdcReqUserLoginWithOTPField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcReqApiHandshakeField& p) {
   j = json{
            {"CryptoKeyVersion", codec_convert("UTF-8//TRANSLIT", "GBK", p.CryptoKeyVersion)},
@@ -15206,7 +14831,6 @@ void from_json(const json& j, CThostFtdcReqApiHandshakeField& p) {
   std::strncpy(p.CryptoKeyVersion, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.CryptoKeyVersion));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcRspApiHandshakeField& p) {
@@ -15226,7 +14850,6 @@ void from_json(const json& j, CThostFtdcRspApiHandshakeField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcReqVerifyApiKeyField& p) {
   j = json{
            {"ApiHandshakeDataLen", p.ApiHandshakeDataLen},
@@ -15240,7 +14863,6 @@ void from_json(const json& j, CThostFtdcReqVerifyApiKeyField& p) {
   std::strncpy(p.ApiHandshakeData, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ApiHandshakeData));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcDepartmentUserField& p) {
@@ -15265,7 +14887,6 @@ void from_json(const json& j, CThostFtdcDepartmentUserField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQueryFreqField& p) {
   j = json{
            {"QueryFreq", p.QueryFreq},
@@ -15278,7 +14899,6 @@ void from_json(const json& j, CThostFtdcQueryFreqField& p) {
   j.at("FTDPkgFreq").get_to(p.FTDPkgFreq);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcAuthForbiddenIPField& p) {
@@ -15294,7 +14914,6 @@ void from_json(const json& j, CThostFtdcAuthForbiddenIPField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryAuthForbiddenIPField& p) {
   j = json{
            {"IPAddress", codec_convert("UTF-8//TRANSLIT", "GBK", p.IPAddress)},
@@ -15306,7 +14925,6 @@ void from_json(const json& j, CThostFtdcQryAuthForbiddenIPField& p) {
   std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.IPAddress));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSyncDelaySwapFrozenField& p) {
@@ -15333,7 +14951,6 @@ void from_json(const json& j, CThostFtdcSyncDelaySwapFrozenField& p) {
   j.at("IsManualSwap").get_to(p.IsManualSwap);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcUserSystemInfoField& p) {
@@ -15374,7 +14991,6 @@ void from_json(const json& j, CThostFtdcUserSystemInfoField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcAuthUserIDField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -15397,7 +15013,6 @@ void from_json(const json& j, CThostFtdcAuthUserIDField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcAuthIPField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -15415,7 +15030,6 @@ void from_json(const json& j, CThostFtdcAuthIPField& p) {
   std::strncpy(p.IPAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.IPAddress));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryClassifiedInstrumentField& p) {
@@ -15446,7 +15060,6 @@ void from_json(const json& j, CThostFtdcQryClassifiedInstrumentField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryCombPromotionParamField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -15461,7 +15074,6 @@ void from_json(const json& j, CThostFtdcQryCombPromotionParamField& p) {
   std::strncpy(p.InstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.InstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcCombPromotionParamField& p) {
@@ -15483,7 +15095,6 @@ void from_json(const json& j, CThostFtdcCombPromotionParamField& p) {
   j.at("Xparameter").get_to(p.Xparameter);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcReqUserLoginSMField& p) {
@@ -15546,7 +15157,6 @@ void from_json(const json& j, CThostFtdcReqUserLoginSMField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryRiskSettleInvstPositionField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -15566,7 +15176,6 @@ void from_json(const json& j, CThostFtdcQryRiskSettleInvstPositionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryRiskSettleProductStatusField& p) {
   j = json{
            {"ProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductID)},
@@ -15578,7 +15187,6 @@ void from_json(const json& j, CThostFtdcQryRiskSettleProductStatusField& p) {
   std::strncpy(p.ProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ProductID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcRiskSettleInvstPositionField& p) {
@@ -15698,7 +15306,6 @@ void from_json(const json& j, CThostFtdcRiskSettleInvstPositionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcRiskSettleProductStatusField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -15716,7 +15323,6 @@ void from_json(const json& j, CThostFtdcRiskSettleProductStatusField& p) {
   p.ProductStatus = v2.at(0);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSyncDeltaInfoField& p) {
@@ -15739,7 +15345,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaInfoField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncDeltaProductStatusField& p) {
   j = json{
            {"SyncDeltaSequenceNo", p.SyncDeltaSequenceNo},
@@ -15759,7 +15364,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaProductStatusField& p) {
   p.ProductStatus = v3.at(0);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSyncDeltaInvstPosDtlField& p) {
@@ -15845,7 +15449,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaInvstPosDtlField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncDeltaInvstPosCombDtlField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -15907,7 +15510,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaInvstPosCombDtlField& p) {
   j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSyncDeltaTradingAccountField& p) {
@@ -16022,7 +15624,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaTradingAccountField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncDeltaInitInvstMarginField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -16065,7 +15666,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaInitInvstMarginField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncDeltaDceCombInstrumentField& p) {
   j = json{
            {"CombInstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombInstrumentID)},
@@ -16104,7 +15704,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaDceCombInstrumentField& p) {
   j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSyncDeltaInvstMarginRateField& p) {
@@ -16147,7 +15746,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaInvstMarginRateField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncDeltaExchMarginRateField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -16178,7 +15776,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaExchMarginRateField& p) {
   j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSyncDeltaOptExchMarginField& p) {
@@ -16216,7 +15813,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaOptExchMarginField& p) {
   j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSyncDeltaOptInvstMarginField& p) {
@@ -16264,7 +15860,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaOptInvstMarginField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncDeltaInvstMarginRateULField& p) {
   j = json{
            {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
@@ -16301,7 +15896,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaInvstMarginRateULField& p) {
   j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSyncDeltaOptInvstCommRateField& p) {
@@ -16347,7 +15941,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaOptInvstCommRateField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncDeltaInvstCommRateField& p) {
   j = json{
            {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
@@ -16387,7 +15980,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaInvstCommRateField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncDeltaProductExchRateField& p) {
   j = json{
            {"ProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductID)},
@@ -16409,7 +16001,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaProductExchRateField& p) {
   j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSyncDeltaDepthMarketDataField& p) {
@@ -16525,7 +16116,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaDepthMarketDataField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncDeltaIndexPriceField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -16547,7 +16137,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaIndexPriceField& p) {
   j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSyncDeltaEWarrantOffsetField& p) {
@@ -16588,7 +16177,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaEWarrantOffsetField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSPBMFutureParameterField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -16626,7 +16214,6 @@ void from_json(const json& j, CThostFtdcSPBMFutureParameterField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSPBMOptionParameterField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -16659,7 +16246,6 @@ void from_json(const json& j, CThostFtdcSPBMOptionParameterField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSPBMIntraParameterField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -16681,7 +16267,6 @@ void from_json(const json& j, CThostFtdcSPBMIntraParameterField& p) {
   j.at("AddOnIntraRateY2").get_to(p.AddOnIntraRateY2);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSPBMInterParameterField& p) {
@@ -16710,7 +16295,6 @@ void from_json(const json& j, CThostFtdcSPBMInterParameterField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncSPBMParameterEndField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -16722,7 +16306,6 @@ void from_json(const json& j, CThostFtdcSyncSPBMParameterEndField& p) {
   std::strncpy(p.TradingDay, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TradingDay));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQrySPBMFutureParameterField& p) {
@@ -16744,7 +16327,6 @@ void from_json(const json& j, CThostFtdcQrySPBMFutureParameterField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQrySPBMOptionParameterField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -16764,7 +16346,6 @@ void from_json(const json& j, CThostFtdcQrySPBMOptionParameterField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQrySPBMIntraParameterField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -16779,7 +16360,6 @@ void from_json(const json& j, CThostFtdcQrySPBMIntraParameterField& p) {
   std::strncpy(p.ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ProdFamilyCode));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQrySPBMInterParameterField& p) {
@@ -16799,7 +16379,6 @@ void from_json(const json& j, CThostFtdcQrySPBMInterParameterField& p) {
   std::strncpy(p.Leg2ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.Leg2ProdFamilyCode));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSPBMPortfDefinitionField& p) {
@@ -16822,7 +16401,6 @@ void from_json(const json& j, CThostFtdcSPBMPortfDefinitionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSPBMInvestorPortfDefField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -16842,7 +16420,6 @@ void from_json(const json& j, CThostFtdcSPBMInvestorPortfDefField& p) {
   j.at("PortfolioDefID").get_to(p.PortfolioDefID);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInvestorPortfMarginRatioField& p) {
@@ -16872,7 +16449,6 @@ void from_json(const json& j, CThostFtdcInvestorPortfMarginRatioField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQrySPBMPortfDefinitionField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -16889,7 +16465,6 @@ void from_json(const json& j, CThostFtdcQrySPBMPortfDefinitionField& p) {
   std::strncpy(p.ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.ProdFamilyCode));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQrySPBMInvestorPortfDefField& p) {
@@ -16909,7 +16484,6 @@ void from_json(const json& j, CThostFtdcQrySPBMInvestorPortfDefField& p) {
   std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestorID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryInvestorPortfMarginRatioField& p) {
@@ -16932,7 +16506,6 @@ void from_json(const json& j, CThostFtdcQryInvestorPortfMarginRatioField& p) {
   std::strncpy(p.ProductGroupID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.ProductGroupID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInvestorProdSPBMDetailField& p) {
@@ -16991,7 +16564,6 @@ void from_json(const json& j, CThostFtdcInvestorProdSPBMDetailField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryInvestorProdSPBMDetailField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -17012,7 +16584,6 @@ void from_json(const json& j, CThostFtdcQryInvestorProdSPBMDetailField& p) {
   std::strncpy(p.ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.ProdFamilyCode));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcPortfTradeParamSettingField& p) {
@@ -17041,7 +16612,6 @@ void from_json(const json& j, CThostFtdcPortfTradeParamSettingField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcInvestorTradingRightField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -17059,7 +16629,6 @@ void from_json(const json& j, CThostFtdcInvestorTradingRightField& p) {
   p.InvstTradingRight = v2.at(0);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcMortgageParamField& p) {
@@ -17080,7 +16649,6 @@ void from_json(const json& j, CThostFtdcMortgageParamField& p) {
   j.at("CheckMortgageRatio").get_to(p.CheckMortgageRatio);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcWithDrawParamField& p) {
@@ -17105,7 +16673,6 @@ void from_json(const json& j, CThostFtdcWithDrawParamField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcThostUserFunctionField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -17124,7 +16691,6 @@ void from_json(const json& j, CThostFtdcThostUserFunctionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryThostUserFunctionField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -17139,7 +16705,6 @@ void from_json(const json& j, CThostFtdcQryThostUserFunctionField& p) {
   std::strncpy(p.UserID, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.UserID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSPBMAddOnInterParameterField& p) {
@@ -17168,7 +16733,6 @@ void from_json(const json& j, CThostFtdcSPBMAddOnInterParameterField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQrySPBMAddOnInterParameterField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -17186,7 +16750,6 @@ void from_json(const json& j, CThostFtdcQrySPBMAddOnInterParameterField& p) {
   std::strncpy(p.Leg2ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.Leg2ProdFamilyCode));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryInvestorCommoditySPMMMarginField& p) {
@@ -17208,7 +16771,6 @@ void from_json(const json& j, CThostFtdcQryInvestorCommoditySPMMMarginField& p) 
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryInvestorCommodityGroupSPMMMarginField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -17228,7 +16790,6 @@ void from_json(const json& j, CThostFtdcQryInvestorCommodityGroupSPMMMarginField
 }
 
 
-
 void to_json(json& j, const CThostFtdcQrySPMMInstParamField& p) {
   j = json{
            {"InstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InstrumentID)},
@@ -17242,7 +16803,6 @@ void from_json(const json& j, CThostFtdcQrySPMMInstParamField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQrySPMMProductParamField& p) {
   j = json{
            {"ProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductID)},
@@ -17254,7 +16814,6 @@ void from_json(const json& j, CThostFtdcQrySPMMProductParamField& p) {
   std::strncpy(p.ProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.ProductID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInvestorCommoditySPMMMarginField& p) {
@@ -17317,7 +16876,6 @@ void from_json(const json& j, CThostFtdcInvestorCommoditySPMMMarginField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcInvestorCommodityGroupSPMMMarginField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -17374,7 +16932,6 @@ void from_json(const json& j, CThostFtdcInvestorCommodityGroupSPMMMarginField& p
 }
 
 
-
 void to_json(json& j, const CThostFtdcSPMMInstParamField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -17400,7 +16957,6 @@ void from_json(const json& j, CThostFtdcSPMMInstParamField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSPMMProductParamField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -17423,7 +16979,6 @@ void from_json(const json& j, CThostFtdcSPMMProductParamField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryTraderAssignField& p) {
   j = json{
            {"TraderID", codec_convert("UTF-8//TRANSLIT", "GBK", p.TraderID)},
@@ -17435,7 +16990,6 @@ void from_json(const json& j, CThostFtdcQryTraderAssignField& p) {
   std::strncpy(p.TraderID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.TraderID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcTraderAssignField& p) {
@@ -17460,7 +17014,6 @@ void from_json(const json& j, CThostFtdcTraderAssignField& p) {
   j.at("DRIdentityID").get_to(p.DRIdentityID);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInvestorInfoCntSettingField& p) {
@@ -17491,7 +17044,6 @@ void from_json(const json& j, CThostFtdcInvestorInfoCntSettingField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcRCAMSCombProductInfoField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -17517,7 +17069,6 @@ void from_json(const json& j, CThostFtdcRCAMSCombProductInfoField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcRCAMSInstrParameterField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -17539,7 +17090,6 @@ void from_json(const json& j, CThostFtdcRCAMSInstrParameterField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcRCAMSIntraParameterField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -17559,7 +17109,6 @@ void from_json(const json& j, CThostFtdcRCAMSIntraParameterField& p) {
   j.at("HedgeRate").get_to(p.HedgeRate);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcRCAMSInterParameterField& p) {
@@ -17591,7 +17140,6 @@ void from_json(const json& j, CThostFtdcRCAMSInterParameterField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcRCAMSShortOptAdjustParamField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -17614,7 +17162,6 @@ void from_json(const json& j, CThostFtdcRCAMSShortOptAdjustParamField& p) {
   j.at("AdjustValue").get_to(p.AdjustValue);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcRCAMSInvestorCombPositionField& p) {
@@ -17657,7 +17204,6 @@ void from_json(const json& j, CThostFtdcRCAMSInvestorCombPositionField& p) {
   j.at("Margin").get_to(p.Margin);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInvestorProdRCAMSMarginField& p) {
@@ -17730,7 +17276,6 @@ void from_json(const json& j, CThostFtdcInvestorProdRCAMSMarginField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryRCAMSCombProductInfoField& p) {
   j = json{
            {"ProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductID)},
@@ -17750,7 +17295,6 @@ void from_json(const json& j, CThostFtdcQryRCAMSCombProductInfoField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryRCAMSInstrParameterField& p) {
   j = json{
            {"ProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ProductID)},
@@ -17764,7 +17308,6 @@ void from_json(const json& j, CThostFtdcQryRCAMSInstrParameterField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryRCAMSIntraParameterField& p) {
   j = json{
            {"CombProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombProductID)},
@@ -17776,7 +17319,6 @@ void from_json(const json& j, CThostFtdcQryRCAMSIntraParameterField& p) {
   std::strncpy(p.CombProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.CombProductID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryRCAMSInterParameterField& p) {
@@ -17798,7 +17340,6 @@ void from_json(const json& j, CThostFtdcQryRCAMSInterParameterField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryRCAMSShortOptAdjustParamField& p) {
   j = json{
            {"CombProductID", codec_convert("UTF-8//TRANSLIT", "GBK", p.CombProductID)},
@@ -17810,7 +17351,6 @@ void from_json(const json& j, CThostFtdcQryRCAMSShortOptAdjustParamField& p) {
   std::strncpy(p.CombProductID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.CombProductID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryRCAMSInvestorCombPositionField& p) {
@@ -17835,7 +17375,6 @@ void from_json(const json& j, CThostFtdcQryRCAMSInvestorCombPositionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryInvestorProdRCAMSMarginField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -17856,7 +17395,6 @@ void from_json(const json& j, CThostFtdcQryInvestorProdRCAMSMarginField& p) {
   std::strncpy(p.ProductGroupID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.ProductGroupID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcRULEInstrParameterField& p) {
@@ -17898,7 +17436,6 @@ void from_json(const json& j, CThostFtdcRULEInstrParameterField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcRULEIntraParameterField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -17925,7 +17462,6 @@ void from_json(const json& j, CThostFtdcRULEIntraParameterField& p) {
   j.at("DeliveryIntraRate").get_to(p.DeliveryIntraRate);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcRULEInterParameterField& p) {
@@ -17963,7 +17499,6 @@ void from_json(const json& j, CThostFtdcRULEInterParameterField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryRULEInstrParameterField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -17980,7 +17515,6 @@ void from_json(const json& j, CThostFtdcQryRULEInstrParameterField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryRULEIntraParameterField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -17995,7 +17529,6 @@ void from_json(const json& j, CThostFtdcQryRULEIntraParameterField& p) {
   std::strncpy(p.ProdFamilyCode, codec_convert("GBK//TRANSLIT", "UTF-8", v1.c_str()).c_str(), sizeof(p.ProdFamilyCode));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcQryRULEInterParameterField& p) {
@@ -18017,7 +17550,6 @@ void from_json(const json& j, CThostFtdcQryRULEInterParameterField& p) {
   j.at("CommodityGroupID").get_to(p.CommodityGroupID);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInvestorProdRULEMarginField& p) {
@@ -18089,7 +17621,6 @@ void from_json(const json& j, CThostFtdcInvestorProdRULEMarginField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryInvestorProdRULEMarginField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -18112,7 +17643,6 @@ void from_json(const json& j, CThostFtdcQryInvestorProdRULEMarginField& p) {
   j.at("CommodityGroupID").get_to(p.CommodityGroupID);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSyncDeltaSPBMPortfDefinitionField& p) {
@@ -18140,7 +17670,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaSPBMPortfDefinitionField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncDeltaSPBMInvstPortfDefField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -18165,7 +17694,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaSPBMInvstPortfDefField& p) {
   j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSyncDeltaSPBMFutureParameterField& p) {
@@ -18210,7 +17738,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaSPBMFutureParameterField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncDeltaSPBMOptionParameterField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -18248,7 +17775,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaSPBMOptionParameterField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncDeltaSPBMIntraParameterField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -18275,7 +17801,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaSPBMIntraParameterField& p) {
   j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSyncDeltaSPBMInterParameterField& p) {
@@ -18309,7 +17834,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaSPBMInterParameterField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncDeltaSPBMAddOnInterParamField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -18339,7 +17863,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaSPBMAddOnInterParamField& p) {
   j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSyncDeltaSPMMInstParamField& p) {
@@ -18372,7 +17895,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaSPMMInstParamField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncDeltaSPMMProductParamField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -18400,7 +17922,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaSPMMProductParamField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncDeltaInvestorSPMMModelField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -18426,7 +17947,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaInvestorSPMMModelField& p) {
   j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSyncDeltaSPMMModelParamField& p) {
@@ -18461,7 +17981,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaSPMMModelParamField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncDeltaRCAMSCombProdInfoField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -18492,7 +18011,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaRCAMSCombProdInfoField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncDeltaRCAMSInstrParameterField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -18519,7 +18037,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaRCAMSInstrParameterField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncDeltaRCAMSIntraParameterField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -18544,7 +18061,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaRCAMSIntraParameterField& p) {
   j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSyncDeltaRCAMSInterParameterField& p) {
@@ -18581,7 +18097,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaRCAMSInterParameterField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncDeltaRCAMSSOptAdjParamField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -18609,7 +18124,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaRCAMSSOptAdjParamField& p) {
   j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSyncDeltaRCAMSCombRuleDtlField& p) {
@@ -18659,7 +18173,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaRCAMSCombRuleDtlField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncDeltaRCAMSInvstCombPosField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -18707,7 +18220,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaRCAMSInvstCombPosField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncDeltaRULEInstrParameterField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -18752,7 +18264,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaRULEInstrParameterField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSyncDeltaRULEIntraParameterField& p) {
   j = json{
            {"TradingDay", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradingDay)},
@@ -18784,7 +18295,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaRULEIntraParameterField& p) {
   j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcSyncDeltaRULEInterParameterField& p) {
@@ -18825,7 +18335,6 @@ void from_json(const json& j, CThostFtdcSyncDeltaRULEInterParameterField& p) {
   j.at("SyncDeltaSequenceNo").get_to(p.SyncDeltaSequenceNo);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcIpAddrParamField& p) {
@@ -18873,7 +18382,6 @@ void from_json(const json& j, CThostFtdcIpAddrParamField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryIpAddrParamField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -18885,7 +18393,6 @@ void from_json(const json& j, CThostFtdcQryIpAddrParamField& p) {
   std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcTGIpAddrParamField& p) {
@@ -18936,7 +18443,6 @@ void from_json(const json& j, CThostFtdcTGIpAddrParamField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryTGIpAddrParamField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -18956,7 +18462,6 @@ void from_json(const json& j, CThostFtdcQryTGIpAddrParamField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcTGSessionQryStatusField& p) {
   j = json{
            {"LastQryFreq", p.LastQryFreq},
@@ -18970,7 +18475,6 @@ void from_json(const json& j, CThostFtdcTGSessionQryStatusField& p) {
   p.QryStatus = v1.at(0);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcLocalAddrConfigField& p) {
@@ -18997,7 +18501,6 @@ void from_json(const json& j, CThostFtdcLocalAddrConfigField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryLocalAddrConfigField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -19009,7 +18512,6 @@ void from_json(const json& j, CThostFtdcQryLocalAddrConfigField& p) {
   std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcReqQueryBankAccountBySecField& p) {
@@ -19129,7 +18631,6 @@ void from_json(const json& j, CThostFtdcReqQueryBankAccountBySecField& p) {
   j.at("SecFutureSerial").get_to(p.SecFutureSerial);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcRspQueryBankAccountBySecField& p) {
@@ -19253,7 +18754,6 @@ void from_json(const json& j, CThostFtdcRspQueryBankAccountBySecField& p) {
   j.at("SecFutureSerial").get_to(p.SecFutureSerial);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcReqTransferBySecField& p) {
@@ -19390,7 +18890,6 @@ void from_json(const json& j, CThostFtdcReqTransferBySecField& p) {
   j.at("SecFutureSerial").get_to(p.SecFutureSerial);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcRspTransferBySecField& p) {
@@ -19534,7 +19033,6 @@ void from_json(const json& j, CThostFtdcRspTransferBySecField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcNotifyQueryFutureAccountBySecField& p) {
   j = json{
            {"TradeCode", codec_convert("UTF-8//TRANSLIT", "GBK", p.TradeCode)},
@@ -19663,7 +19161,6 @@ void from_json(const json& j, CThostFtdcNotifyQueryFutureAccountBySecField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcExitEmergencyField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -19675,7 +19172,6 @@ void from_json(const json& j, CThostFtdcExitEmergencyField& p) {
   std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInvestorPortfMarginModelField& p) {
@@ -19695,7 +19191,6 @@ void from_json(const json& j, CThostFtdcInvestorPortfMarginModelField& p) {
   std::strncpy(p.MarginModelID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.MarginModelID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInvestorPortfSettingField& p) {
@@ -19722,7 +19217,6 @@ void from_json(const json& j, CThostFtdcInvestorPortfSettingField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryInvestorPortfSettingField& p) {
   j = json{
            {"ExchangeID", codec_convert("UTF-8//TRANSLIT", "GBK", p.ExchangeID)},
@@ -19740,7 +19234,6 @@ void from_json(const json& j, CThostFtdcQryInvestorPortfSettingField& p) {
   std::strncpy(p.InvestorID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.InvestorID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcUserPasswordUpdateFromSecField& p) {
@@ -19767,7 +19260,6 @@ void from_json(const json& j, CThostFtdcUserPasswordUpdateFromSecField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcSettlementInfoConfirmFromSecField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -19790,7 +19282,6 @@ void from_json(const json& j, CThostFtdcSettlementInfoConfirmFromSecField& p) {
   j.at("FromSec").get_to(p.FromSec);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcTradingAccountPasswordUpdateFromSecField& p) {
@@ -19820,7 +19311,6 @@ void from_json(const json& j, CThostFtdcTradingAccountPasswordUpdateFromSecField
 }
 
 
-
 void to_json(json& j, const CThostFtdcRiskForbiddenRightField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -19841,7 +19331,6 @@ void from_json(const json& j, CThostFtdcRiskForbiddenRightField& p) {
   std::strncpy(p.UserID, codec_convert("GBK//TRANSLIT", "UTF-8", v3.c_str()).c_str(), sizeof(p.UserID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInvestorInfoCommRecField& p) {
@@ -19881,7 +19370,6 @@ void from_json(const json& j, CThostFtdcInvestorInfoCommRecField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryInvestorInfoCommRecField& p) {
   j = json{
            {"InvestorID", codec_convert("UTF-8//TRANSLIT", "GBK", p.InvestorID)},
@@ -19899,7 +19387,6 @@ void from_json(const json& j, CThostFtdcQryInvestorInfoCommRecField& p) {
   std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v2.c_str()).c_str(), sizeof(p.BrokerID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcCombLegField& p) {
@@ -19927,7 +19414,6 @@ void from_json(const json& j, CThostFtdcCombLegField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryCombLegField& p) {
   j = json{
            {"LegInstrumentID", codec_convert("UTF-8//TRANSLIT", "GBK", p.LegInstrumentID)},
@@ -19939,7 +19425,6 @@ void from_json(const json& j, CThostFtdcQryCombLegField& p) {
   std::strncpy(p.LegInstrumentID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.LegInstrumentID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcInputOffsetSettingField& p) {
@@ -19986,7 +19471,6 @@ void from_json(const json& j, CThostFtdcInputOffsetSettingField& p) {
   std::strncpy(p.MacAddress, codec_convert("GBK//TRANSLIT", "UTF-8", v12.c_str()).c_str(), sizeof(p.MacAddress));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcOffsetSettingField& p) {
@@ -20089,7 +19573,6 @@ void from_json(const json& j, CThostFtdcOffsetSettingField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcCancelOffsetSettingField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -20171,7 +19654,6 @@ void from_json(const json& j, CThostFtdcCancelOffsetSettingField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryOffsetSettingField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -20192,7 +19674,6 @@ void from_json(const json& j, CThostFtdcQryOffsetSettingField& p) {
   p.OffsetType = v3.at(0);
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcAddrAppIDRelationField& p) {
@@ -20216,7 +19697,6 @@ void from_json(const json& j, CThostFtdcAddrAppIDRelationField& p) {
 }
 
 
-
 void to_json(json& j, const CThostFtdcQryAddrAppIDRelationField& p) {
   j = json{
            {"BrokerID", codec_convert("UTF-8//TRANSLIT", "GBK", p.BrokerID)},
@@ -20228,7 +19708,6 @@ void from_json(const json& j, CThostFtdcQryAddrAppIDRelationField& p) {
   std::strncpy(p.BrokerID, codec_convert("GBK//TRANSLIT", "UTF-8", v0.c_str()).c_str(), sizeof(p.BrokerID));
 
 }
-
 
 
 void to_json(json& j, const CThostFtdcFrontInfoField& p) {
@@ -20245,14 +19724,9 @@ void from_json(const json& j, CThostFtdcFrontInfoField& p) {
 }
 
 
-
 void Bridge::SetMdApi(CThostFtdcMdApi *md_api) {
-
   md_api_ = md_api;
-
 }
-
-
 
 /* 登出请求响应 */
 void Bridge::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
@@ -20276,7 +19750,6 @@ void Bridge::OnRspUserLogout(CThostFtdcUserLogoutField *pUserLogout, CThostFtdcR
     throw;
   }
 }
-
 
 
 /* 用户口令更新请求响应 */
@@ -20303,7 +19776,6 @@ void Bridge::OnRspUserPasswordUpdate(CThostFtdcUserPasswordUpdateField *pUserPas
 }
 
 
-
 /* 资金账户口令更新请求响应 */
 void Bridge::OnRspTradingAccountPasswordUpdate(CThostFtdcTradingAccountPasswordUpdateField *pTradingAccountPasswordUpdate, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspTradingAccountPasswordUpdate",
@@ -20326,7 +19798,6 @@ void Bridge::OnRspTradingAccountPasswordUpdate(CThostFtdcTradingAccountPasswordU
     throw;
   }
 }
-
 
 
 /* 查询用户当前支持的认证模式的回复 */
@@ -20353,7 +19824,6 @@ void Bridge::OnRspUserAuthMethod(CThostFtdcRspUserAuthMethodField *pRspUserAuthM
 }
 
 
-
 /* 获取图形验证码请求的回复 */
 void Bridge::OnRspGenUserCaptcha(CThostFtdcRspGenUserCaptchaField *pRspGenUserCaptcha, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspGenUserCaptcha",
@@ -20376,7 +19846,6 @@ void Bridge::OnRspGenUserCaptcha(CThostFtdcRspGenUserCaptchaField *pRspGenUserCa
     throw;
   }
 }
-
 
 
 /* 获取短信验证码请求的回复 */
@@ -20403,7 +19872,6 @@ void Bridge::OnRspGenUserText(CThostFtdcRspGenUserTextField *pRspGenUserText, CT
 }
 
 
-
 /* 报单录入请求响应 */
 void Bridge::OnRspOrderInsert(CThostFtdcInputOrderField *pInputOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspOrderInsert",
@@ -20426,7 +19894,6 @@ void Bridge::OnRspOrderInsert(CThostFtdcInputOrderField *pInputOrder, CThostFtdc
     throw;
   }
 }
-
 
 
 /* 预埋单录入请求响应 */
@@ -20453,7 +19920,6 @@ void Bridge::OnRspParkedOrderInsert(CThostFtdcParkedOrderField *pParkedOrder, CT
 }
 
 
-
 /* 预埋撤单录入请求响应 */
 void Bridge::OnRspParkedOrderAction(CThostFtdcParkedOrderActionField *pParkedOrderAction, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspParkedOrderAction",
@@ -20476,7 +19942,6 @@ void Bridge::OnRspParkedOrderAction(CThostFtdcParkedOrderActionField *pParkedOrd
     throw;
   }
 }
-
 
 
 /* 报单操作请求响应 */
@@ -20503,7 +19968,6 @@ void Bridge::OnRspOrderAction(CThostFtdcInputOrderActionField *pInputOrderAction
 }
 
 
-
 /* 查询最大报单数量响应 */
 void Bridge::OnRspQryMaxOrderVolume(CThostFtdcQryMaxOrderVolumeField *pQryMaxOrderVolume, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryMaxOrderVolume",
@@ -20526,7 +19990,6 @@ void Bridge::OnRspQryMaxOrderVolume(CThostFtdcQryMaxOrderVolumeField *pQryMaxOrd
     throw;
   }
 }
-
 
 
 /* 投资者结算结果确认响应 */
@@ -20553,7 +20016,6 @@ void Bridge::OnRspSettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pS
 }
 
 
-
 /* 删除预埋单响应 */
 void Bridge::OnRspRemoveParkedOrder(CThostFtdcRemoveParkedOrderField *pRemoveParkedOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspRemoveParkedOrder",
@@ -20576,7 +20038,6 @@ void Bridge::OnRspRemoveParkedOrder(CThostFtdcRemoveParkedOrderField *pRemovePar
     throw;
   }
 }
-
 
 
 /* 删除预埋撤单响应 */
@@ -20603,7 +20064,6 @@ void Bridge::OnRspRemoveParkedOrderAction(CThostFtdcRemoveParkedOrderActionField
 }
 
 
-
 /* 执行宣告录入请求响应 */
 void Bridge::OnRspExecOrderInsert(CThostFtdcInputExecOrderField *pInputExecOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspExecOrderInsert",
@@ -20626,7 +20086,6 @@ void Bridge::OnRspExecOrderInsert(CThostFtdcInputExecOrderField *pInputExecOrder
     throw;
   }
 }
-
 
 
 /* 执行宣告操作请求响应 */
@@ -20653,7 +20112,6 @@ void Bridge::OnRspExecOrderAction(CThostFtdcInputExecOrderActionField *pInputExe
 }
 
 
-
 /* 询价录入请求响应 */
 void Bridge::OnRspForQuoteInsert(CThostFtdcInputForQuoteField *pInputForQuote, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspForQuoteInsert",
@@ -20676,7 +20134,6 @@ void Bridge::OnRspForQuoteInsert(CThostFtdcInputForQuoteField *pInputForQuote, C
     throw;
   }
 }
-
 
 
 /* 报价录入请求响应 */
@@ -20703,7 +20160,6 @@ void Bridge::OnRspQuoteInsert(CThostFtdcInputQuoteField *pInputQuote, CThostFtdc
 }
 
 
-
 /* 报价操作请求响应 */
 void Bridge::OnRspQuoteAction(CThostFtdcInputQuoteActionField *pInputQuoteAction, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQuoteAction",
@@ -20726,7 +20182,6 @@ void Bridge::OnRspQuoteAction(CThostFtdcInputQuoteActionField *pInputQuoteAction
     throw;
   }
 }
-
 
 
 /* 批量报单操作请求响应 */
@@ -20753,7 +20208,6 @@ void Bridge::OnRspBatchOrderAction(CThostFtdcInputBatchOrderActionField *pInputB
 }
 
 
-
 /* 期权自对冲录入请求响应 */
 void Bridge::OnRspOptionSelfCloseInsert(CThostFtdcInputOptionSelfCloseField *pInputOptionSelfClose, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspOptionSelfCloseInsert",
@@ -20776,7 +20230,6 @@ void Bridge::OnRspOptionSelfCloseInsert(CThostFtdcInputOptionSelfCloseField *pIn
     throw;
   }
 }
-
 
 
 /* 期权自对冲操作请求响应 */
@@ -20803,7 +20256,6 @@ void Bridge::OnRspOptionSelfCloseAction(CThostFtdcInputOptionSelfCloseActionFiel
 }
 
 
-
 /* 申请组合录入请求响应 */
 void Bridge::OnRspCombActionInsert(CThostFtdcInputCombActionField *pInputCombAction, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspCombActionInsert",
@@ -20826,7 +20278,6 @@ void Bridge::OnRspCombActionInsert(CThostFtdcInputCombActionField *pInputCombAct
     throw;
   }
 }
-
 
 
 /* 请求查询报单响应 */
@@ -20853,7 +20304,6 @@ void Bridge::OnRspQryOrder(CThostFtdcOrderField *pOrder, CThostFtdcRspInfoField 
 }
 
 
-
 /* 请求查询成交响应 */
 void Bridge::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryTrade",
@@ -20876,7 +20326,6 @@ void Bridge::OnRspQryTrade(CThostFtdcTradeField *pTrade, CThostFtdcRspInfoField 
     throw;
   }
 }
-
 
 
 /* 请求查询投资者持仓响应 */
@@ -20903,7 +20352,6 @@ void Bridge::OnRspQryInvestorPosition(CThostFtdcInvestorPositionField *pInvestor
 }
 
 
-
 /* 请求查询资金账户响应 */
 void Bridge::OnRspQryTradingAccount(CThostFtdcTradingAccountField *pTradingAccount, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryTradingAccount",
@@ -20926,7 +20374,6 @@ void Bridge::OnRspQryTradingAccount(CThostFtdcTradingAccountField *pTradingAccou
     throw;
   }
 }
-
 
 
 /* 请求查询投资者响应 */
@@ -20953,7 +20400,6 @@ void Bridge::OnRspQryInvestor(CThostFtdcInvestorField *pInvestor, CThostFtdcRspI
 }
 
 
-
 /* 请求查询交易编码响应 */
 void Bridge::OnRspQryTradingCode(CThostFtdcTradingCodeField *pTradingCode, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryTradingCode",
@@ -20976,7 +20422,6 @@ void Bridge::OnRspQryTradingCode(CThostFtdcTradingCodeField *pTradingCode, CThos
     throw;
   }
 }
-
 
 
 /* 请求查询合约保证金率响应 */
@@ -21003,7 +20448,6 @@ void Bridge::OnRspQryInstrumentMarginRate(CThostFtdcInstrumentMarginRateField *p
 }
 
 
-
 /* 请求查询合约手续费率响应 */
 void Bridge::OnRspQryInstrumentCommissionRate(CThostFtdcInstrumentCommissionRateField *pInstrumentCommissionRate, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryInstrumentCommissionRate",
@@ -21026,7 +20470,6 @@ void Bridge::OnRspQryInstrumentCommissionRate(CThostFtdcInstrumentCommissionRate
     throw;
   }
 }
-
 
 
 /* 请求查询交易所响应 */
@@ -21053,7 +20496,6 @@ void Bridge::OnRspQryExchange(CThostFtdcExchangeField *pExchange, CThostFtdcRspI
 }
 
 
-
 /* 请求查询产品响应 */
 void Bridge::OnRspQryProduct(CThostFtdcProductField *pProduct, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryProduct",
@@ -21076,7 +20518,6 @@ void Bridge::OnRspQryProduct(CThostFtdcProductField *pProduct, CThostFtdcRspInfo
     throw;
   }
 }
-
 
 
 /* 请求查询合约响应 */
@@ -21103,7 +20544,6 @@ void Bridge::OnRspQryInstrument(CThostFtdcInstrumentField *pInstrument, CThostFt
 }
 
 
-
 /* 请求查询行情响应 */
 void Bridge::OnRspQryDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarketData, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryDepthMarketData",
@@ -21126,7 +20566,6 @@ void Bridge::OnRspQryDepthMarketData(CThostFtdcDepthMarketDataField *pDepthMarke
     throw;
   }
 }
-
 
 
 /* 请求查询交易员报盘机响应 */
@@ -21153,7 +20592,6 @@ void Bridge::OnRspQryTraderOffer(CThostFtdcTraderOfferField *pTraderOffer, CThos
 }
 
 
-
 /* 请求查询投资者结算结果响应 */
 void Bridge::OnRspQrySettlementInfo(CThostFtdcSettlementInfoField *pSettlementInfo, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQrySettlementInfo",
@@ -21176,7 +20614,6 @@ void Bridge::OnRspQrySettlementInfo(CThostFtdcSettlementInfoField *pSettlementIn
     throw;
   }
 }
-
 
 
 /* 请求查询转帐银行响应 */
@@ -21203,7 +20640,6 @@ void Bridge::OnRspQryTransferBank(CThostFtdcTransferBankField *pTransferBank, CT
 }
 
 
-
 /* 请求查询投资者持仓明细响应 */
 void Bridge::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDetailField *pInvestorPositionDetail, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryInvestorPositionDetail",
@@ -21226,7 +20662,6 @@ void Bridge::OnRspQryInvestorPositionDetail(CThostFtdcInvestorPositionDetailFiel
     throw;
   }
 }
-
 
 
 /* 请求查询客户通知响应 */
@@ -21253,7 +20688,6 @@ void Bridge::OnRspQryNotice(CThostFtdcNoticeField *pNotice, CThostFtdcRspInfoFie
 }
 
 
-
 /* 请求查询结算信息确认响应 */
 void Bridge::OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField *pSettlementInfoConfirm, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQrySettlementInfoConfirm",
@@ -21276,7 +20710,6 @@ void Bridge::OnRspQrySettlementInfoConfirm(CThostFtdcSettlementInfoConfirmField 
     throw;
   }
 }
-
 
 
 /* 请求查询投资者持仓明细响应 */
@@ -21303,7 +20736,6 @@ void Bridge::OnRspQryInvestorPositionCombineDetail(CThostFtdcInvestorPositionCom
 }
 
 
-
 /* 查询保证金监管系统经纪公司资金账户密钥响应 */
 void Bridge::OnRspQryCFMMCTradingAccountKey(CThostFtdcCFMMCTradingAccountKeyField *pCFMMCTradingAccountKey, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryCFMMCTradingAccountKey",
@@ -21326,7 +20758,6 @@ void Bridge::OnRspQryCFMMCTradingAccountKey(CThostFtdcCFMMCTradingAccountKeyFiel
     throw;
   }
 }
-
 
 
 /* 请求查询仓单折抵信息响应 */
@@ -21353,7 +20784,6 @@ void Bridge::OnRspQryEWarrantOffset(CThostFtdcEWarrantOffsetField *pEWarrantOffs
 }
 
 
-
 /* 请求查询投资者品种/跨品种保证金响应 */
 void Bridge::OnRspQryInvestorProductGroupMargin(CThostFtdcInvestorProductGroupMarginField *pInvestorProductGroupMargin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryInvestorProductGroupMargin",
@@ -21376,7 +20806,6 @@ void Bridge::OnRspQryInvestorProductGroupMargin(CThostFtdcInvestorProductGroupMa
     throw;
   }
 }
-
 
 
 /* 请求查询交易所保证金率响应 */
@@ -21403,7 +20832,6 @@ void Bridge::OnRspQryExchangeMarginRate(CThostFtdcExchangeMarginRateField *pExch
 }
 
 
-
 /* 请求查询交易所调整保证金率响应 */
 void Bridge::OnRspQryExchangeMarginRateAdjust(CThostFtdcExchangeMarginRateAdjustField *pExchangeMarginRateAdjust, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryExchangeMarginRateAdjust",
@@ -21426,7 +20854,6 @@ void Bridge::OnRspQryExchangeMarginRateAdjust(CThostFtdcExchangeMarginRateAdjust
     throw;
   }
 }
-
 
 
 /* 请求查询汇率响应 */
@@ -21453,7 +20880,6 @@ void Bridge::OnRspQryExchangeRate(CThostFtdcExchangeRateField *pExchangeRate, CT
 }
 
 
-
 /* 请求查询二级代理操作员银期权限响应 */
 void Bridge::OnRspQrySecAgentACIDMap(CThostFtdcSecAgentACIDMapField *pSecAgentACIDMap, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQrySecAgentACIDMap",
@@ -21476,7 +20902,6 @@ void Bridge::OnRspQrySecAgentACIDMap(CThostFtdcSecAgentACIDMapField *pSecAgentAC
     throw;
   }
 }
-
 
 
 /* 请求查询产品报价汇率 */
@@ -21503,7 +20928,6 @@ void Bridge::OnRspQryProductExchRate(CThostFtdcProductExchRateField *pProductExc
 }
 
 
-
 /* 请求查询产品组 */
 void Bridge::OnRspQryProductGroup(CThostFtdcProductGroupField *pProductGroup, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryProductGroup",
@@ -21526,7 +20950,6 @@ void Bridge::OnRspQryProductGroup(CThostFtdcProductGroupField *pProductGroup, CT
     throw;
   }
 }
-
 
 
 /* 请求查询做市商合约手续费率响应 */
@@ -21553,7 +20976,6 @@ void Bridge::OnRspQryMMInstrumentCommissionRate(CThostFtdcMMInstrumentCommission
 }
 
 
-
 /* 请求查询做市商期权合约手续费响应 */
 void Bridge::OnRspQryMMOptionInstrCommRate(CThostFtdcMMOptionInstrCommRateField *pMMOptionInstrCommRate, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryMMOptionInstrCommRate",
@@ -21576,7 +20998,6 @@ void Bridge::OnRspQryMMOptionInstrCommRate(CThostFtdcMMOptionInstrCommRateField 
     throw;
   }
 }
-
 
 
 /* 请求查询报单手续费响应 */
@@ -21603,7 +21024,6 @@ void Bridge::OnRspQryInstrumentOrderCommRate(CThostFtdcInstrumentOrderCommRateFi
 }
 
 
-
 /* 请求查询资金账户响应 */
 void Bridge::OnRspQrySecAgentTradingAccount(CThostFtdcTradingAccountField *pTradingAccount, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQrySecAgentTradingAccount",
@@ -21626,7 +21046,6 @@ void Bridge::OnRspQrySecAgentTradingAccount(CThostFtdcTradingAccountField *pTrad
     throw;
   }
 }
-
 
 
 /* 请求查询二级代理商资金校验模式响应 */
@@ -21653,7 +21072,6 @@ void Bridge::OnRspQrySecAgentCheckMode(CThostFtdcSecAgentCheckModeField *pSecAge
 }
 
 
-
 /* 请求查询二级代理商信息响应 */
 void Bridge::OnRspQrySecAgentTradeInfo(CThostFtdcSecAgentTradeInfoField *pSecAgentTradeInfo, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQrySecAgentTradeInfo",
@@ -21676,7 +21094,6 @@ void Bridge::OnRspQrySecAgentTradeInfo(CThostFtdcSecAgentTradeInfoField *pSecAge
     throw;
   }
 }
-
 
 
 /* 请求查询期权交易成本响应 */
@@ -21703,7 +21120,6 @@ void Bridge::OnRspQryOptionInstrTradeCost(CThostFtdcOptionInstrTradeCostField *p
 }
 
 
-
 /* 请求查询期权合约手续费响应 */
 void Bridge::OnRspQryOptionInstrCommRate(CThostFtdcOptionInstrCommRateField *pOptionInstrCommRate, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryOptionInstrCommRate",
@@ -21726,7 +21142,6 @@ void Bridge::OnRspQryOptionInstrCommRate(CThostFtdcOptionInstrCommRateField *pOp
     throw;
   }
 }
-
 
 
 /* 请求查询执行宣告响应 */
@@ -21753,7 +21168,6 @@ void Bridge::OnRspQryExecOrder(CThostFtdcExecOrderField *pExecOrder, CThostFtdcR
 }
 
 
-
 /* 请求查询询价响应 */
 void Bridge::OnRspQryForQuote(CThostFtdcForQuoteField *pForQuote, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryForQuote",
@@ -21776,7 +21190,6 @@ void Bridge::OnRspQryForQuote(CThostFtdcForQuoteField *pForQuote, CThostFtdcRspI
     throw;
   }
 }
-
 
 
 /* 请求查询报价响应 */
@@ -21803,7 +21216,6 @@ void Bridge::OnRspQryQuote(CThostFtdcQuoteField *pQuote, CThostFtdcRspInfoField 
 }
 
 
-
 /* 请求查询期权自对冲响应 */
 void Bridge::OnRspQryOptionSelfClose(CThostFtdcOptionSelfCloseField *pOptionSelfClose, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryOptionSelfClose",
@@ -21826,7 +21238,6 @@ void Bridge::OnRspQryOptionSelfClose(CThostFtdcOptionSelfCloseField *pOptionSelf
     throw;
   }
 }
-
 
 
 /* 请求查询投资单元响应 */
@@ -21853,7 +21264,6 @@ void Bridge::OnRspQryInvestUnit(CThostFtdcInvestUnitField *pInvestUnit, CThostFt
 }
 
 
-
 /* 请求查询组合合约安全系数响应 */
 void Bridge::OnRspQryCombInstrumentGuard(CThostFtdcCombInstrumentGuardField *pCombInstrumentGuard, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryCombInstrumentGuard",
@@ -21876,7 +21286,6 @@ void Bridge::OnRspQryCombInstrumentGuard(CThostFtdcCombInstrumentGuardField *pCo
     throw;
   }
 }
-
 
 
 /* 请求查询申请组合响应 */
@@ -21903,7 +21312,6 @@ void Bridge::OnRspQryCombAction(CThostFtdcCombActionField *pCombAction, CThostFt
 }
 
 
-
 /* 请求查询转帐流水响应 */
 void Bridge::OnRspQryTransferSerial(CThostFtdcTransferSerialField *pTransferSerial, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryTransferSerial",
@@ -21926,7 +21334,6 @@ void Bridge::OnRspQryTransferSerial(CThostFtdcTransferSerialField *pTransferSeri
     throw;
   }
 }
-
 
 
 /* 请求查询银期签约关系响应 */
@@ -21953,7 +21360,6 @@ void Bridge::OnRspQryAccountregister(CThostFtdcAccountregisterField *pAccountreg
 }
 
 
-
 /* 报单通知 */
 void Bridge::OnRtnOrder(CThostFtdcOrderField *pOrder) {
   Message msg = {.event = "OnRtnOrder",
@@ -21976,7 +21382,6 @@ void Bridge::OnRtnOrder(CThostFtdcOrderField *pOrder) {
     throw;
   }
 }
-
 
 
 /* 成交通知 */
@@ -22003,7 +21408,6 @@ void Bridge::OnRtnTrade(CThostFtdcTradeField *pTrade) {
 }
 
 
-
 /* 报单录入错误回报 */
 void Bridge::OnErrRtnOrderInsert(CThostFtdcInputOrderField *pInputOrder, CThostFtdcRspInfoField *pRspInfo) {
   Message msg = {.event = "OnErrRtnOrderInsert",
@@ -22026,7 +21430,6 @@ void Bridge::OnErrRtnOrderInsert(CThostFtdcInputOrderField *pInputOrder, CThostF
     throw;
   }
 }
-
 
 
 /* 报单操作错误回报 */
@@ -22053,7 +21456,6 @@ void Bridge::OnErrRtnOrderAction(CThostFtdcOrderActionField *pOrderAction, CThos
 }
 
 
-
 /* 合约交易状态通知 */
 void Bridge::OnRtnInstrumentStatus(CThostFtdcInstrumentStatusField *pInstrumentStatus) {
   Message msg = {.event = "OnRtnInstrumentStatus",
@@ -22076,7 +21478,6 @@ void Bridge::OnRtnInstrumentStatus(CThostFtdcInstrumentStatusField *pInstrumentS
     throw;
   }
 }
-
 
 
 /* 交易所公告通知 */
@@ -22103,7 +21504,6 @@ void Bridge::OnRtnBulletin(CThostFtdcBulletinField *pBulletin) {
 }
 
 
-
 /* 交易通知 */
 void Bridge::OnRtnTradingNotice(CThostFtdcTradingNoticeInfoField *pTradingNoticeInfo) {
   Message msg = {.event = "OnRtnTradingNotice",
@@ -22126,7 +21526,6 @@ void Bridge::OnRtnTradingNotice(CThostFtdcTradingNoticeInfoField *pTradingNotice
     throw;
   }
 }
-
 
 
 /* 提示条件单校验错误 */
@@ -22153,7 +21552,6 @@ void Bridge::OnRtnErrorConditionalOrder(CThostFtdcErrorConditionalOrderField *pE
 }
 
 
-
 /* 执行宣告通知 */
 void Bridge::OnRtnExecOrder(CThostFtdcExecOrderField *pExecOrder) {
   Message msg = {.event = "OnRtnExecOrder",
@@ -22176,7 +21574,6 @@ void Bridge::OnRtnExecOrder(CThostFtdcExecOrderField *pExecOrder) {
     throw;
   }
 }
-
 
 
 /* 执行宣告录入错误回报 */
@@ -22203,7 +21600,6 @@ void Bridge::OnErrRtnExecOrderInsert(CThostFtdcInputExecOrderField *pInputExecOr
 }
 
 
-
 /* 执行宣告操作错误回报 */
 void Bridge::OnErrRtnExecOrderAction(CThostFtdcExecOrderActionField *pExecOrderAction, CThostFtdcRspInfoField *pRspInfo) {
   Message msg = {.event = "OnErrRtnExecOrderAction",
@@ -22226,7 +21622,6 @@ void Bridge::OnErrRtnExecOrderAction(CThostFtdcExecOrderActionField *pExecOrderA
     throw;
   }
 }
-
 
 
 /* 询价录入错误回报 */
@@ -22253,7 +21648,6 @@ void Bridge::OnErrRtnForQuoteInsert(CThostFtdcInputForQuoteField *pInputForQuote
 }
 
 
-
 /* 报价通知 */
 void Bridge::OnRtnQuote(CThostFtdcQuoteField *pQuote) {
   Message msg = {.event = "OnRtnQuote",
@@ -22276,7 +21670,6 @@ void Bridge::OnRtnQuote(CThostFtdcQuoteField *pQuote) {
     throw;
   }
 }
-
 
 
 /* 报价录入错误回报 */
@@ -22303,7 +21696,6 @@ void Bridge::OnErrRtnQuoteInsert(CThostFtdcInputQuoteField *pInputQuote, CThostF
 }
 
 
-
 /* 报价操作错误回报 */
 void Bridge::OnErrRtnQuoteAction(CThostFtdcQuoteActionField *pQuoteAction, CThostFtdcRspInfoField *pRspInfo) {
   Message msg = {.event = "OnErrRtnQuoteAction",
@@ -22326,7 +21718,6 @@ void Bridge::OnErrRtnQuoteAction(CThostFtdcQuoteActionField *pQuoteAction, CThos
     throw;
   }
 }
-
 
 
 /* 询价通知 */
@@ -22353,7 +21744,6 @@ void Bridge::OnRtnForQuoteRsp(CThostFtdcForQuoteRspField *pForQuoteRsp) {
 }
 
 
-
 /* 保证金监控中心用户令牌 */
 void Bridge::OnRtnCFMMCTradingAccountToken(CThostFtdcCFMMCTradingAccountTokenField *pCFMMCTradingAccountToken) {
   Message msg = {.event = "OnRtnCFMMCTradingAccountToken",
@@ -22376,7 +21766,6 @@ void Bridge::OnRtnCFMMCTradingAccountToken(CThostFtdcCFMMCTradingAccountTokenFie
     throw;
   }
 }
-
 
 
 /* 批量报单操作错误回报 */
@@ -22403,7 +21792,6 @@ void Bridge::OnErrRtnBatchOrderAction(CThostFtdcBatchOrderActionField *pBatchOrd
 }
 
 
-
 /* 期权自对冲通知 */
 void Bridge::OnRtnOptionSelfClose(CThostFtdcOptionSelfCloseField *pOptionSelfClose) {
   Message msg = {.event = "OnRtnOptionSelfClose",
@@ -22426,7 +21814,6 @@ void Bridge::OnRtnOptionSelfClose(CThostFtdcOptionSelfCloseField *pOptionSelfClo
     throw;
   }
 }
-
 
 
 /* 期权自对冲录入错误回报 */
@@ -22453,7 +21840,6 @@ void Bridge::OnErrRtnOptionSelfCloseInsert(CThostFtdcInputOptionSelfCloseField *
 }
 
 
-
 /* 期权自对冲操作错误回报 */
 void Bridge::OnErrRtnOptionSelfCloseAction(CThostFtdcOptionSelfCloseActionField *pOptionSelfCloseAction, CThostFtdcRspInfoField *pRspInfo) {
   Message msg = {.event = "OnErrRtnOptionSelfCloseAction",
@@ -22476,7 +21862,6 @@ void Bridge::OnErrRtnOptionSelfCloseAction(CThostFtdcOptionSelfCloseActionField 
     throw;
   }
 }
-
 
 
 /* 申请组合通知 */
@@ -22503,7 +21888,6 @@ void Bridge::OnRtnCombAction(CThostFtdcCombActionField *pCombAction) {
 }
 
 
-
 /* 申请组合录入错误回报 */
 void Bridge::OnErrRtnCombActionInsert(CThostFtdcInputCombActionField *pInputCombAction, CThostFtdcRspInfoField *pRspInfo) {
   Message msg = {.event = "OnErrRtnCombActionInsert",
@@ -22526,7 +21910,6 @@ void Bridge::OnErrRtnCombActionInsert(CThostFtdcInputCombActionField *pInputComb
     throw;
   }
 }
-
 
 
 /* 请求查询签约银行响应 */
@@ -22553,7 +21936,6 @@ void Bridge::OnRspQryContractBank(CThostFtdcContractBankField *pContractBank, CT
 }
 
 
-
 /* 请求查询预埋单响应 */
 void Bridge::OnRspQryParkedOrder(CThostFtdcParkedOrderField *pParkedOrder, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryParkedOrder",
@@ -22576,7 +21958,6 @@ void Bridge::OnRspQryParkedOrder(CThostFtdcParkedOrderField *pParkedOrder, CThos
     throw;
   }
 }
-
 
 
 /* 请求查询预埋撤单响应 */
@@ -22603,7 +21984,6 @@ void Bridge::OnRspQryParkedOrderAction(CThostFtdcParkedOrderActionField *pParked
 }
 
 
-
 /* 请求查询交易通知响应 */
 void Bridge::OnRspQryTradingNotice(CThostFtdcTradingNoticeField *pTradingNotice, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryTradingNotice",
@@ -22626,7 +22006,6 @@ void Bridge::OnRspQryTradingNotice(CThostFtdcTradingNoticeField *pTradingNotice,
     throw;
   }
 }
-
 
 
 /* 请求查询经纪公司交易参数响应 */
@@ -22653,7 +22032,6 @@ void Bridge::OnRspQryBrokerTradingParams(CThostFtdcBrokerTradingParamsField *pBr
 }
 
 
-
 /* 请求查询经纪公司交易算法响应 */
 void Bridge::OnRspQryBrokerTradingAlgos(CThostFtdcBrokerTradingAlgosField *pBrokerTradingAlgos, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryBrokerTradingAlgos",
@@ -22676,7 +22054,6 @@ void Bridge::OnRspQryBrokerTradingAlgos(CThostFtdcBrokerTradingAlgosField *pBrok
     throw;
   }
 }
-
 
 
 /* 请求查询监控中心用户令牌 */
@@ -22703,7 +22080,6 @@ void Bridge::OnRspQueryCFMMCTradingAccountToken(CThostFtdcQueryCFMMCTradingAccou
 }
 
 
-
 /* 银行发起银行资金转期货通知 */
 void Bridge::OnRtnFromBankToFutureByBank(CThostFtdcRspTransferField *pRspTransfer) {
   Message msg = {.event = "OnRtnFromBankToFutureByBank",
@@ -22726,7 +22102,6 @@ void Bridge::OnRtnFromBankToFutureByBank(CThostFtdcRspTransferField *pRspTransfe
     throw;
   }
 }
-
 
 
 /* 银行发起期货资金转银行通知 */
@@ -22753,7 +22128,6 @@ void Bridge::OnRtnFromFutureToBankByBank(CThostFtdcRspTransferField *pRspTransfe
 }
 
 
-
 /* 银行发起冲正银行转期货通知 */
 void Bridge::OnRtnRepealFromBankToFutureByBank(CThostFtdcRspRepealField *pRspRepeal) {
   Message msg = {.event = "OnRtnRepealFromBankToFutureByBank",
@@ -22776,7 +22150,6 @@ void Bridge::OnRtnRepealFromBankToFutureByBank(CThostFtdcRspRepealField *pRspRep
     throw;
   }
 }
-
 
 
 /* 银行发起冲正期货转银行通知 */
@@ -22803,7 +22176,6 @@ void Bridge::OnRtnRepealFromFutureToBankByBank(CThostFtdcRspRepealField *pRspRep
 }
 
 
-
 /* 期货发起银行资金转期货通知 */
 void Bridge::OnRtnFromBankToFutureByFuture(CThostFtdcRspTransferField *pRspTransfer) {
   Message msg = {.event = "OnRtnFromBankToFutureByFuture",
@@ -22826,7 +22198,6 @@ void Bridge::OnRtnFromBankToFutureByFuture(CThostFtdcRspTransferField *pRspTrans
     throw;
   }
 }
-
 
 
 /* 期货发起期货资金转银行通知 */
@@ -22853,7 +22224,6 @@ void Bridge::OnRtnFromFutureToBankByFuture(CThostFtdcRspTransferField *pRspTrans
 }
 
 
-
 /* 系统运行时期货端手工发起冲正银行转期货请求，银行处理完毕后报盘发回的通知 */
 void Bridge::OnRtnRepealFromBankToFutureByFutureManual(CThostFtdcRspRepealField *pRspRepeal) {
   Message msg = {.event = "OnRtnRepealFromBankToFutureByFutureManual",
@@ -22876,7 +22246,6 @@ void Bridge::OnRtnRepealFromBankToFutureByFutureManual(CThostFtdcRspRepealField 
     throw;
   }
 }
-
 
 
 /* 系统运行时期货端手工发起冲正期货转银行请求，银行处理完毕后报盘发回的通知 */
@@ -22903,7 +22272,6 @@ void Bridge::OnRtnRepealFromFutureToBankByFutureManual(CThostFtdcRspRepealField 
 }
 
 
-
 /* 期货发起查询银行余额通知 */
 void Bridge::OnRtnQueryBankBalanceByFuture(CThostFtdcNotifyQueryAccountField *pNotifyQueryAccount) {
   Message msg = {.event = "OnRtnQueryBankBalanceByFuture",
@@ -22926,7 +22294,6 @@ void Bridge::OnRtnQueryBankBalanceByFuture(CThostFtdcNotifyQueryAccountField *pN
     throw;
   }
 }
-
 
 
 /* 期货发起银行资金转期货错误回报 */
@@ -22953,7 +22320,6 @@ void Bridge::OnErrRtnBankToFutureByFuture(CThostFtdcReqTransferField *pReqTransf
 }
 
 
-
 /* 期货发起期货资金转银行错误回报 */
 void Bridge::OnErrRtnFutureToBankByFuture(CThostFtdcReqTransferField *pReqTransfer, CThostFtdcRspInfoField *pRspInfo) {
   Message msg = {.event = "OnErrRtnFutureToBankByFuture",
@@ -22976,7 +22342,6 @@ void Bridge::OnErrRtnFutureToBankByFuture(CThostFtdcReqTransferField *pReqTransf
     throw;
   }
 }
-
 
 
 /* 系统运行时期货端手工发起冲正银行转期货错误回报 */
@@ -23003,7 +22368,6 @@ void Bridge::OnErrRtnRepealBankToFutureByFutureManual(CThostFtdcReqRepealField *
 }
 
 
-
 /* 系统运行时期货端手工发起冲正期货转银行错误回报 */
 void Bridge::OnErrRtnRepealFutureToBankByFutureManual(CThostFtdcReqRepealField *pReqRepeal, CThostFtdcRspInfoField *pRspInfo) {
   Message msg = {.event = "OnErrRtnRepealFutureToBankByFutureManual",
@@ -23026,7 +22390,6 @@ void Bridge::OnErrRtnRepealFutureToBankByFutureManual(CThostFtdcReqRepealField *
     throw;
   }
 }
-
 
 
 /* 期货发起查询银行余额错误回报 */
@@ -23053,7 +22416,6 @@ void Bridge::OnErrRtnQueryBankBalanceByFuture(CThostFtdcReqQueryAccountField *pR
 }
 
 
-
 /* 期货发起冲正银行转期货请求，银行处理完毕后报盘发回的通知 */
 void Bridge::OnRtnRepealFromBankToFutureByFuture(CThostFtdcRspRepealField *pRspRepeal) {
   Message msg = {.event = "OnRtnRepealFromBankToFutureByFuture",
@@ -23076,7 +22438,6 @@ void Bridge::OnRtnRepealFromBankToFutureByFuture(CThostFtdcRspRepealField *pRspR
     throw;
   }
 }
-
 
 
 /* 期货发起冲正期货转银行请求，银行处理完毕后报盘发回的通知 */
@@ -23103,7 +22464,6 @@ void Bridge::OnRtnRepealFromFutureToBankByFuture(CThostFtdcRspRepealField *pRspR
 }
 
 
-
 /* 期货发起银行资金转期货应答 */
 void Bridge::OnRspFromBankToFutureByFuture(CThostFtdcReqTransferField *pReqTransfer, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspFromBankToFutureByFuture",
@@ -23126,7 +22486,6 @@ void Bridge::OnRspFromBankToFutureByFuture(CThostFtdcReqTransferField *pReqTrans
     throw;
   }
 }
-
 
 
 /* 期货发起期货资金转银行应答 */
@@ -23153,7 +22512,6 @@ void Bridge::OnRspFromFutureToBankByFuture(CThostFtdcReqTransferField *pReqTrans
 }
 
 
-
 /* 期货发起查询银行余额应答 */
 void Bridge::OnRspQueryBankAccountMoneyByFuture(CThostFtdcReqQueryAccountField *pReqQueryAccount, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQueryBankAccountMoneyByFuture",
@@ -23176,7 +22534,6 @@ void Bridge::OnRspQueryBankAccountMoneyByFuture(CThostFtdcReqQueryAccountField *
     throw;
   }
 }
-
 
 
 /* 银行发起银期开户通知 */
@@ -23203,7 +22560,6 @@ void Bridge::OnRtnOpenAccountByBank(CThostFtdcOpenAccountField *pOpenAccount) {
 }
 
 
-
 /* 银行发起银期销户通知 */
 void Bridge::OnRtnCancelAccountByBank(CThostFtdcCancelAccountField *pCancelAccount) {
   Message msg = {.event = "OnRtnCancelAccountByBank",
@@ -23226,7 +22582,6 @@ void Bridge::OnRtnCancelAccountByBank(CThostFtdcCancelAccountField *pCancelAccou
     throw;
   }
 }
-
 
 
 /* 银行发起变更银行账号通知 */
@@ -23253,7 +22608,6 @@ void Bridge::OnRtnChangeAccountByBank(CThostFtdcChangeAccountField *pChangeAccou
 }
 
 
-
 /* 请求查询分类合约响应 */
 void Bridge::OnRspQryClassifiedInstrument(CThostFtdcInstrumentField *pInstrument, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryClassifiedInstrument",
@@ -23276,7 +22630,6 @@ void Bridge::OnRspQryClassifiedInstrument(CThostFtdcInstrumentField *pInstrument
     throw;
   }
 }
-
 
 
 /* 请求组合优惠比例响应 */
@@ -23303,7 +22656,6 @@ void Bridge::OnRspQryCombPromotionParam(CThostFtdcCombPromotionParamField *pComb
 }
 
 
-
 /* 投资者风险结算持仓查询响应 */
 void Bridge::OnRspQryRiskSettleInvstPosition(CThostFtdcRiskSettleInvstPositionField *pRiskSettleInvstPosition, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryRiskSettleInvstPosition",
@@ -23326,7 +22678,6 @@ void Bridge::OnRspQryRiskSettleInvstPosition(CThostFtdcRiskSettleInvstPositionFi
     throw;
   }
 }
-
 
 
 /* 风险结算产品查询响应 */
@@ -23353,7 +22704,6 @@ void Bridge::OnRspQryRiskSettleProductStatus(CThostFtdcRiskSettleProductStatusFi
 }
 
 
-
 /* SPBM期货合约参数查询响应 */
 void Bridge::OnRspQrySPBMFutureParameter(CThostFtdcSPBMFutureParameterField *pSPBMFutureParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQrySPBMFutureParameter",
@@ -23376,7 +22726,6 @@ void Bridge::OnRspQrySPBMFutureParameter(CThostFtdcSPBMFutureParameterField *pSP
     throw;
   }
 }
-
 
 
 /* SPBM期权合约参数查询响应 */
@@ -23403,7 +22752,6 @@ void Bridge::OnRspQrySPBMOptionParameter(CThostFtdcSPBMOptionParameterField *pSP
 }
 
 
-
 /* SPBM品种内对锁仓折扣参数查询响应 */
 void Bridge::OnRspQrySPBMIntraParameter(CThostFtdcSPBMIntraParameterField *pSPBMIntraParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQrySPBMIntraParameter",
@@ -23426,7 +22774,6 @@ void Bridge::OnRspQrySPBMIntraParameter(CThostFtdcSPBMIntraParameterField *pSPBM
     throw;
   }
 }
-
 
 
 /* SPBM跨品种抵扣参数查询响应 */
@@ -23453,7 +22800,6 @@ void Bridge::OnRspQrySPBMInterParameter(CThostFtdcSPBMInterParameterField *pSPBM
 }
 
 
-
 /* SPBM组合保证金套餐查询响应 */
 void Bridge::OnRspQrySPBMPortfDefinition(CThostFtdcSPBMPortfDefinitionField *pSPBMPortfDefinition, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQrySPBMPortfDefinition",
@@ -23476,7 +22822,6 @@ void Bridge::OnRspQrySPBMPortfDefinition(CThostFtdcSPBMPortfDefinitionField *pSP
     throw;
   }
 }
-
 
 
 /* 投资者SPBM套餐选择查询响应 */
@@ -23503,7 +22848,6 @@ void Bridge::OnRspQrySPBMInvestorPortfDef(CThostFtdcSPBMInvestorPortfDefField *p
 }
 
 
-
 /* 投资者新型组合保证金系数查询响应 */
 void Bridge::OnRspQryInvestorPortfMarginRatio(CThostFtdcInvestorPortfMarginRatioField *pInvestorPortfMarginRatio, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryInvestorPortfMarginRatio",
@@ -23526,7 +22870,6 @@ void Bridge::OnRspQryInvestorPortfMarginRatio(CThostFtdcInvestorPortfMarginRatio
     throw;
   }
 }
-
 
 
 /* 投资者产品SPBM明细查询响应 */
@@ -23553,7 +22896,6 @@ void Bridge::OnRspQryInvestorProdSPBMDetail(CThostFtdcInvestorProdSPBMDetailFiel
 }
 
 
-
 /* 投资者商品组SPMM记录查询响应 */
 void Bridge::OnRspQryInvestorCommoditySPMMMargin(CThostFtdcInvestorCommoditySPMMMarginField *pInvestorCommoditySPMMMargin, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryInvestorCommoditySPMMMargin",
@@ -23576,7 +22918,6 @@ void Bridge::OnRspQryInvestorCommoditySPMMMargin(CThostFtdcInvestorCommoditySPMM
     throw;
   }
 }
-
 
 
 /* 投资者商品群SPMM记录查询响应 */
@@ -23603,7 +22944,6 @@ void Bridge::OnRspQryInvestorCommodityGroupSPMMMargin(CThostFtdcInvestorCommodit
 }
 
 
-
 /* SPMM合约参数查询响应 */
 void Bridge::OnRspQrySPMMInstParam(CThostFtdcSPMMInstParamField *pSPMMInstParam, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQrySPMMInstParam",
@@ -23626,7 +22966,6 @@ void Bridge::OnRspQrySPMMInstParam(CThostFtdcSPMMInstParamField *pSPMMInstParam,
     throw;
   }
 }
-
 
 
 /* SPMM产品参数查询响应 */
@@ -23653,7 +22992,6 @@ void Bridge::OnRspQrySPMMProductParam(CThostFtdcSPMMProductParamField *pSPMMProd
 }
 
 
-
 /* SPBM附加跨品种抵扣参数查询响应 */
 void Bridge::OnRspQrySPBMAddOnInterParameter(CThostFtdcSPBMAddOnInterParameterField *pSPBMAddOnInterParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQrySPBMAddOnInterParameter",
@@ -23676,7 +23014,6 @@ void Bridge::OnRspQrySPBMAddOnInterParameter(CThostFtdcSPBMAddOnInterParameterFi
     throw;
   }
 }
-
 
 
 /* RCAMS产品组合信息查询响应 */
@@ -23703,7 +23040,6 @@ void Bridge::OnRspQryRCAMSCombProductInfo(CThostFtdcRCAMSCombProductInfoField *p
 }
 
 
-
 /* RCAMS同合约风险对冲参数查询响应 */
 void Bridge::OnRspQryRCAMSInstrParameter(CThostFtdcRCAMSInstrParameterField *pRCAMSInstrParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryRCAMSInstrParameter",
@@ -23726,7 +23062,6 @@ void Bridge::OnRspQryRCAMSInstrParameter(CThostFtdcRCAMSInstrParameterField *pRC
     throw;
   }
 }
-
 
 
 /* RCAMS品种内风险对冲参数查询响应 */
@@ -23753,7 +23088,6 @@ void Bridge::OnRspQryRCAMSIntraParameter(CThostFtdcRCAMSIntraParameterField *pRC
 }
 
 
-
 /* RCAMS跨品种风险折抵参数查询响应 */
 void Bridge::OnRspQryRCAMSInterParameter(CThostFtdcRCAMSInterParameterField *pRCAMSInterParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryRCAMSInterParameter",
@@ -23776,7 +23110,6 @@ void Bridge::OnRspQryRCAMSInterParameter(CThostFtdcRCAMSInterParameterField *pRC
     throw;
   }
 }
-
 
 
 /* RCAMS空头期权风险调整参数查询响应 */
@@ -23803,7 +23136,6 @@ void Bridge::OnRspQryRCAMSShortOptAdjustParam(CThostFtdcRCAMSShortOptAdjustParam
 }
 
 
-
 /* RCAMS策略组合持仓查询响应 */
 void Bridge::OnRspQryRCAMSInvestorCombPosition(CThostFtdcRCAMSInvestorCombPositionField *pRCAMSInvestorCombPosition, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryRCAMSInvestorCombPosition",
@@ -23826,7 +23158,6 @@ void Bridge::OnRspQryRCAMSInvestorCombPosition(CThostFtdcRCAMSInvestorCombPositi
     throw;
   }
 }
-
 
 
 /* 投资者品种RCAMS保证金查询响应 */
@@ -23853,7 +23184,6 @@ void Bridge::OnRspQryInvestorProdRCAMSMargin(CThostFtdcInvestorProdRCAMSMarginFi
 }
 
 
-
 /* RULE合约保证金参数查询响应 */
 void Bridge::OnRspQryRULEInstrParameter(CThostFtdcRULEInstrParameterField *pRULEInstrParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryRULEInstrParameter",
@@ -23876,7 +23206,6 @@ void Bridge::OnRspQryRULEInstrParameter(CThostFtdcRULEInstrParameterField *pRULE
     throw;
   }
 }
-
 
 
 /* RULE品种内对锁仓折扣参数查询响应 */
@@ -23903,7 +23232,6 @@ void Bridge::OnRspQryRULEIntraParameter(CThostFtdcRULEIntraParameterField *pRULE
 }
 
 
-
 /* RULE跨品种抵扣参数查询响应 */
 void Bridge::OnRspQryRULEInterParameter(CThostFtdcRULEInterParameterField *pRULEInterParameter, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryRULEInterParameter",
@@ -23926,7 +23254,6 @@ void Bridge::OnRspQryRULEInterParameter(CThostFtdcRULEInterParameterField *pRULE
     throw;
   }
 }
-
 
 
 /* 投资者产品RULE保证金查询响应 */
@@ -23953,7 +23280,6 @@ void Bridge::OnRspQryInvestorProdRULEMargin(CThostFtdcInvestorProdRULEMarginFiel
 }
 
 
-
 /* 投资者新型组合保证金开关查询响应 */
 void Bridge::OnRspQryInvestorPortfSetting(CThostFtdcInvestorPortfSettingField *pInvestorPortfSetting, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryInvestorPortfSetting",
@@ -23976,7 +23302,6 @@ void Bridge::OnRspQryInvestorPortfSetting(CThostFtdcInvestorPortfSettingField *p
     throw;
   }
 }
-
 
 
 /* 投资者申报费阶梯收取记录查询响应 */
@@ -24003,7 +23328,6 @@ void Bridge::OnRspQryInvestorInfoCommRec(CThostFtdcInvestorInfoCommRecField *pIn
 }
 
 
-
 /* 组合腿信息查询响应 */
 void Bridge::OnRspQryCombLeg(CThostFtdcCombLegField *pCombLeg, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryCombLeg",
@@ -24026,7 +23350,6 @@ void Bridge::OnRspQryCombLeg(CThostFtdcCombLegField *pCombLeg, CThostFtdcRspInfo
     throw;
   }
 }
-
 
 
 /* 对冲设置请求响应 */
@@ -24053,7 +23376,6 @@ void Bridge::OnRspOffsetSetting(CThostFtdcInputOffsetSettingField *pInputOffsetS
 }
 
 
-
 /* 对冲设置撤销请求响应 */
 void Bridge::OnRspCancelOffsetSetting(CThostFtdcInputOffsetSettingField *pInputOffsetSetting, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspCancelOffsetSetting",
@@ -24076,7 +23398,6 @@ void Bridge::OnRspCancelOffsetSetting(CThostFtdcInputOffsetSettingField *pInputO
     throw;
   }
 }
-
 
 
 /* 对冲设置通知 */
@@ -24103,7 +23424,6 @@ void Bridge::OnRtnOffsetSetting(CThostFtdcOffsetSettingField *pOffsetSetting) {
 }
 
 
-
 /* 对冲设置错误回报 */
 void Bridge::OnErrRtnOffsetSetting(CThostFtdcInputOffsetSettingField *pInputOffsetSetting, CThostFtdcRspInfoField *pRspInfo) {
   Message msg = {.event = "OnErrRtnOffsetSetting",
@@ -24126,7 +23446,6 @@ void Bridge::OnErrRtnOffsetSetting(CThostFtdcInputOffsetSettingField *pInputOffs
     throw;
   }
 }
-
 
 
 /* 对冲设置撤销错误回报 */
@@ -24153,7 +23472,6 @@ void Bridge::OnErrRtnCancelOffsetSetting(CThostFtdcCancelOffsetSettingField *pCa
 }
 
 
-
 /* 投资者对冲设置查询响应 */
 void Bridge::OnRspQryOffsetSetting(CThostFtdcOffsetSettingField *pOffsetSetting, CThostFtdcRspInfoField *pRspInfo, int nRequestID, bool bIsLast) {
   Message msg = {.event = "OnRspQryOffsetSetting",
@@ -24178,22 +23496,13 @@ void Bridge::OnRspQryOffsetSetting(CThostFtdcOffsetSettingField *pOffsetSetting,
 }
 
 
-
 void Bridge::Serve() {
-
   if (md_api_ == nullptr) {
-
     spdlog::warn("MdApi has not been set before Serve; market data requests will not be handled");
-
   }
-
   auto serveThread = std::async(std::launch::async, ListenReq, trader_api_, &push_sock_, &pull_sock_, md_api_);
-
   serveThread.wait();
-
 }
-
-
 
 void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock, zmq::socket_t *pull_sock, CThostFtdcMdApi *md_api) {
   while (true) {
@@ -27581,6 +26890,7 @@ void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock
 
       /* @remark  */
       if (method_name == "SubscribeMarketData") {
+        spdlog::info("Invoking SubscribeMarketData");
         if (md_api == nullptr) {
           spdlog::error("MdApi not initialized when invoking SubscribeMarketData");
           continue;
@@ -27591,12 +26901,16 @@ void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock
         for (auto &id : instrument_ids) {
           buffer.emplace_back(id);
         }
+        spdlog::info("Prepared buffer for SubscribeMarketData");
         std::vector<char *> ptrs;
         ptrs.reserve(buffer.size());
         for (auto &id : buffer) {
           ptrs.emplace_back(const_cast<char *>(id.c_str()));
         }
-        auto a = md_api->SubscribeMarketData(ptrs.data(), static_cast<int>(ptrs.size()));
+        spdlog::info("Prepared ptrs for SubscribeMarketData");
+        auto count = static_cast<int>(ptrs.size());
+        auto ptr = count > 0 ? ptrs.data() : nullptr;
+        auto a = md_api->SubscribeMarketData(ptr, count);
         if (a != 0) {
           spdlog::error("RTN CODE: {}", a);
           Message msg = {.event = "Md_SubscribeMarketData",
@@ -27623,6 +26937,7 @@ void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock
 
       /* @remark  */
       if (method_name == "UnSubscribeMarketData") {
+        spdlog::info("Invoking UnSubscribeMarketData");
         if (md_api == nullptr) {
           spdlog::error("MdApi not initialized when invoking UnSubscribeMarketData");
           continue;
@@ -27633,12 +26948,16 @@ void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock
         for (auto &id : instrument_ids) {
           buffer.emplace_back(id);
         }
+        spdlog::info("Prepared buffer for UnSubscribeMarketData");
         std::vector<char *> ptrs;
         ptrs.reserve(buffer.size());
         for (auto &id : buffer) {
           ptrs.emplace_back(const_cast<char *>(id.c_str()));
         }
-        auto a = md_api->UnSubscribeMarketData(ptrs.data(), static_cast<int>(ptrs.size()));
+        spdlog::info("Prepared ptrs for UnSubscribeMarketData");
+        auto count = static_cast<int>(ptrs.size());
+        auto ptr = count > 0 ? ptrs.data() : nullptr;
+        auto a = md_api->UnSubscribeMarketData(ptr, count);
         if (a != 0) {
           spdlog::error("RTN CODE: {}", a);
           Message msg = {.event = "Md_UnSubscribeMarketData",
@@ -27665,6 +26984,7 @@ void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock
 
       /* @remark  */
       if (method_name == "SubscribeForQuoteRsp") {
+        spdlog::info("Invoking SubscribeForQuoteRsp");
         if (md_api == nullptr) {
           spdlog::error("MdApi not initialized when invoking SubscribeForQuoteRsp");
           continue;
@@ -27675,12 +26995,16 @@ void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock
         for (auto &id : instrument_ids) {
           buffer.emplace_back(id);
         }
+        spdlog::info("Prepared buffer for SubscribeForQuoteRsp");
         std::vector<char *> ptrs;
         ptrs.reserve(buffer.size());
         for (auto &id : buffer) {
           ptrs.emplace_back(const_cast<char *>(id.c_str()));
         }
-        auto a = md_api->SubscribeForQuoteRsp(ptrs.data(), static_cast<int>(ptrs.size()));
+        spdlog::info("Prepared ptrs for SubscribeForQuoteRsp");
+        auto count = static_cast<int>(ptrs.size());
+        auto ptr = count > 0 ? ptrs.data() : nullptr;
+        auto a = md_api->SubscribeForQuoteRsp(ptr, count);
         if (a != 0) {
           spdlog::error("RTN CODE: {}", a);
           Message msg = {.event = "Md_SubscribeForQuoteRsp",
@@ -27707,6 +27031,7 @@ void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock
 
       /* @remark  */
       if (method_name == "UnSubscribeForQuoteRsp") {
+        spdlog::info("Invoking UnSubscribeForQuoteRsp");
         if (md_api == nullptr) {
           spdlog::error("MdApi not initialized when invoking UnSubscribeForQuoteRsp");
           continue;
@@ -27717,12 +27042,16 @@ void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock
         for (auto &id : instrument_ids) {
           buffer.emplace_back(id);
         }
+        spdlog::info("Prepared buffer for UnSubscribeForQuoteRsp");
         std::vector<char *> ptrs;
         ptrs.reserve(buffer.size());
         for (auto &id : buffer) {
           ptrs.emplace_back(const_cast<char *>(id.c_str()));
         }
-        auto a = md_api->UnSubscribeForQuoteRsp(ptrs.data(), static_cast<int>(ptrs.size()));
+        spdlog::info("Prepared ptrs for UnSubscribeForQuoteRsp");
+        auto count = static_cast<int>(ptrs.size());
+        auto ptr = count > 0 ? ptrs.data() : nullptr;
+        auto a = md_api->UnSubscribeForQuoteRsp(ptr, count);
         if (a != 0) {
           spdlog::error("RTN CODE: {}", a);
           Message msg = {.event = "Md_UnSubscribeForQuoteRsp",
