@@ -25,7 +25,7 @@ import {
 } from 'rxjs';
 import { client } from './api';
 import './interest_rate';
-import { mapProductIdToPerpetualProduct$, spotProducts$ } from './product';
+import { spotProductService, swapProductService } from './product';
 import './quote';
 
 const terminal = Terminal.fromNodeEnv();
@@ -78,7 +78,7 @@ const terminal = Terminal.fromNodeEnv();
 
       // positions
       const positionsRes = await client.getSwapCrossPositionInfo();
-      const mapProductIdToPerpetualProduct = await firstValueFrom(mapProductIdToPerpetualProduct$);
+      const mapProductIdToPerpetualProduct = await firstValueFrom(swapProductService.mapProductIdToProduct$);
       const positions: IPosition[] = (positionsRes.data || []).map((v): IPosition => {
         const product_id = v.contract_code;
         const theProduct = mapProductIdToPerpetualProduct?.get(product_id);
@@ -394,10 +394,10 @@ const terminal = Terminal.fromNodeEnv();
             ),
           ),
         ),
-        combineLatestWith(spotProducts$.pipe(first())),
-        mergeMap(async ([[loanable, balance], products]) => {
+        combineLatestWith(spotProductService.mapProductIdToProduct$.pipe(first())),
+        mergeMap(async ([[loanable, balance], mapProductIdToProduct]) => {
           const priceRes = await client.getSpotTick({ symbol: msg.req.product_id });
-          const theProduct = products.find((v) => v.product_id === msg.req.product_id);
+          const theProduct = mapProductIdToProduct.get(msg.req.product_id);
           const price: number = priceRes.tick.close;
           const borrow_amount =
             msg.req.order_direction === 'OPEN_LONG' || msg.req.order_direction === 'CLOSE_SHORT'

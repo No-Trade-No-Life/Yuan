@@ -1,6 +1,5 @@
 import { IProduct, IQueryProductsRequest, provideQueryProductsService } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
-import { map, shareReplay } from 'rxjs';
 import { client } from './api';
 
 const terminal = Terminal.fromNodeEnv();
@@ -95,11 +94,3 @@ export const spotProductService = provideQueryProductsService(
     auto_refresh_interval: 3600_000,
   },
 );
-
-// Create separate observables for different product types
-export const mapProductIdToPerpetualProduct$ = swapProductService.products$.pipe(
-  map((products) => new Map(products.map((v) => [v.product_id, v]))),
-  shareReplay(1),
-);
-
-export const spotProducts$ = spotProductService.products$.pipe(shareReplay(1));

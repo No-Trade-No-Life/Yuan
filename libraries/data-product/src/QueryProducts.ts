@@ -1,6 +1,6 @@
-import { Terminal } from '@yuants/protocol';
+import { IServiceOptions, Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
-import { BehaviorSubject, Observable, Subject, interval } from 'rxjs';
+import { Observable, ReplaySubject, Subject, defer, map, repeat, retry, shareReplay, takeUntil } from 'rxjs';
 import { IProduct } from './index';
 
 /**
@@ -45,16 +45,19 @@ export interface IQueryProductsResponse {
  */
 export interface IQueryProductsService {
   /**
-   * Local cache of products
-   * 本地产品缓存
-   */
-  products: IProduct[];
-
-  /**
    * Observable for local product updates
    * 本地产品更新的可观察对象
    */
   products$: Observable<IProduct[]>;
+
+  /**
+   * Observable mapping product_id to IProduct
+   * 将 product_id 映射到 IProduct 的可观察对象
+   *
+   * @remarks
+   * 使用 `shareReplay(1)` 缓存结果，避免重复计算
+   */
+  mapProductIdToProduct$: Observable<Map<string, IProduct>>;
 }
 
 /**
@@ -83,13 +86,7 @@ export function provideQueryProductsService(
      * Service options
      * 服务选项
      */
-    serviceOptions?: any;
-
-    /**
-     * Cache expiration time in milliseconds
-     * 缓存过期时间（毫秒）
-     */
-    cacheExpire?: number;
+    serviceOptions?: IServiceOptions;
 
     /**
      * Auto refresh interval in milliseconds
@@ -99,12 +96,17 @@ export function provideQueryProductsService(
   },
 ): IQueryProductsService {
   // Local cache for products
-  const productsSubject = new BehaviorSubject<IProduct[]>([]);
-  const product$ = new Subject<IProduct>();
+  const products$ = new ReplaySubject<IProduct[]>(1);
+  const productToWrite$ = new Subject<IProduct>();
+
+  const mapProductIdToProduct$ = products$.pipe(
+    map((products) => new Map(products.map((v) => [v.product_id, v]))),
+    shareReplay(1),
+  );
 
   // Set up SQL writer for all products
   createSQLWriter<IProduct>(terminal, {
-    data$: product$,
+    data$: productToWrite$,
     tableName: 'product',
     conflictKeys: ['datasource_id', 'product_id'],
     writeInterval: 1000,
@@ -112,11 +114,15 @@ export function provideQueryProductsService(
 
   // Set up auto refresh if interval is provided
   if (options?.auto_refresh_interval) {
-    interval(options.auto_refresh_interval).subscribe(async () => {
-      await terminal.client.requestForResponse('QueryProducts', { datasource_id }).catch((error) => {
-        console.error('Auto refresh query products failed:', error);
-      });
-    });
+    defer(async () => {
+      await terminal.client.requestForResponse('QueryProducts', { datasource_id });
+    })
+      .pipe(
+        takeUntil(terminal.dispose$),
+        repeat({ delay: options.auto_refresh_interval }),
+        retry({ delay: 5000 }),
+      )
+      .subscribe();
   }
 
   // Provide the service with proper generics
@@ -124,6 +130,7 @@ export function provideQueryProductsService(
     'QueryProducts',
     {
       type: 'object',
+      required: ['datasource_id'],
       properties: {
         datasource_id: {
           const: datasource_id,
@@ -148,12 +155,12 @@ export function provideQueryProductsService(
       products
         .filter((product) => product.datasource_id === datasource_id)
         .forEach((product) => {
-          product$.next(product);
+          productToWrite$.next(product);
         });
 
       // Update local cache with filtered products
       const filteredProducts = products.filter((product) => product.datasource_id === datasource_id);
-      productsSubject.next(filteredProducts);
+      products$.next(filteredProducts);
 
       return {
         res: {
@@ -170,7 +177,7 @@ export function provideQueryProductsService(
 
   // Return cache object
   return {
-    products: productsSubject.value,
-    products$: productsSubject.asObservable(),
+    products$: products$.asObservable(),
+    mapProductIdToProduct$,
   };
 }

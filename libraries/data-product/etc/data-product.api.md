@@ -4,6 +4,7 @@
 
 ```ts
 
+import { IServiceOptions } from '@yuants/protocol';
 import { Observable } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
 
@@ -54,14 +55,13 @@ export interface IQueryProductsResponse {
 
 // @public
 export interface IQueryProductsService {
+    mapProductIdToProduct$: Observable<Map<string, IProduct>>;
     products$: Observable<IProduct[]>;
-    products: IProduct[];
 }
 
 // @public
 export function provideQueryProductsService(terminal: Terminal, datasource_id: string, queryProduct: (req: IQueryProductsRequest) => Promise<IProduct[]>, options?: {
-    serviceOptions?: any;
-    cacheExpire?: number;
+    serviceOptions?: IServiceOptions;
     auto_refresh_interval?: number;
 }): IQueryProductsService;
 

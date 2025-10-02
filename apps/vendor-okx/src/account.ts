@@ -4,7 +4,7 @@ import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
 import { defer, filter, firstValueFrom, map, repeat, retry, shareReplay } from 'rxjs';
 import { client } from './api';
-import { mapProductIdToMarginProduct$, mapProductIdToUsdtSwapProduct$ } from './product';
+import { productService } from './product';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -91,17 +91,10 @@ defer(async () => {
     terminal,
     tradingAccountId,
     async () => {
-      const [
-        positionsApi,
-        balanceApi,
-        mapProductIdToUsdtSwapProduct,
-        mapProductIdToMarginProduct,
-        marketIndexTickerUSDT,
-      ] = await Promise.all([
+      const [positionsApi, balanceApi, mapProductIdToProduct, marketIndexTickerUSDT] = await Promise.all([
         client.getAccountPositions({}),
         client.getAccountBalance({}),
-        firstValueFrom(mapProductIdToUsdtSwapProduct$),
-        firstValueFrom(mapProductIdToMarginProduct$),
+        firstValueFrom(productService.mapProductIdToProduct$),
         firstValueFrom(marketIndexTickerUSDT$),
       ]);
 
@@ -153,11 +146,7 @@ defer(async () => {
         const product_id = encodePath(x.instType, x.instId);
         const closable_price = +x.last;
         const valuation =
-          x.instType === 'SWAP'
-            ? (mapProductIdToUsdtSwapProduct.get(product_id)?.value_scale ?? 1) * volume * closable_price
-            : x.instType === 'MARGIN'
-            ? (mapProductIdToMarginProduct.get(product_id)?.value_scale ?? 1) * volume * closable_price
-            : 0;
+          (mapProductIdToProduct.get(product_id)?.value_scale ?? 1) * volume * closable_price || 0;
 
         positions.push({
           position_id: x.posId,

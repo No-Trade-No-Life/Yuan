@@ -1,12 +1,12 @@
-import { encodePath } from '@yuants/utils';
 import { IProduct, IQueryProductsRequest, provideQueryProductsService } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
+import { encodePath } from '@yuants/utils';
 import { client } from './api';
 
 const terminal = Terminal.fromNodeEnv();
 
 // Provide QueryProducts service with the new design
-const cache = provideQueryProductsService(
+export const productService = provideQueryProductsService(
   terminal,
   'OKX',
   async (req: IQueryProductsRequest): Promise<IProduct[]> => {
