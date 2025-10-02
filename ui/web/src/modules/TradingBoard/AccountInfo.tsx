@@ -37,11 +37,11 @@ const createPositionColumns = (accountId: string) => {
       cell: (ctx) => <InlineAccountId account_id={ctx.getValue() || accountId} />,
     }),
     helper.accessor('direction', { header: () => '方向' }),
-    helper.accessor('volume', { header: () => '持仓量' }),
+    helper.accessor('volume', { header: () => '持仓量', cell: (ctx) => ctx.getValue().toFixed(2) }),
     helper.accessor('position_price', { header: () => '持仓价' }),
     helper.accessor('closable_price', { header: () => '现价' }),
-    helper.accessor('floating_profit', { header: () => '盈亏' }),
-    helper.accessor('valuation', { header: () => '估值' }),
+    helper.accessor('floating_profit', { header: () => '盈亏', cell: (ctx) => ctx.getValue().toFixed(2) }),
+    helper.accessor('valuation', { header: () => '估值', cell: (ctx) => ctx.getValue().toFixed(2) }),
     helper.accessor(
       (position): number => {
         const interestToSettle = position.interest_to_settle || 0;
