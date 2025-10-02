@@ -1,8 +1,6 @@
 import { IOHLC } from '@yuants/data-ohlc';
-import { IProduct } from '@yuants/data-product';
 import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
-import { createSQLWriter } from '@yuants/sql';
 import { decodePath, formatTime, UUID } from '@yuants/utils';
 import {
   catchError,
@@ -15,13 +13,8 @@ import {
   map,
   mergeAll,
   mergeMap,
-  Observable,
   of,
   repeat,
-  retry,
-  shareReplay,
-  skip,
-  Subject,
   takeWhile,
   tap,
   timeout,
@@ -29,6 +22,7 @@ import {
 } from 'rxjs';
 import { ITQResponse } from './common/tq-datatype';
 import { createConnectionTq } from './common/ws';
+import './product'; // Import the new product service
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -210,55 +204,6 @@ const queryChart = (product_id: string, period_in_sec: number, periods_length: n
 //       shareReplay(1),
 //     ));
 // })();
-
-const product$ = new Subject<IProduct>();
-
-createSQLWriter(terminal, {
-  data$: product$,
-  tableName: 'product',
-  writeInterval: 1_000,
-  ignoreConflict: true,
-});
-
-defer(() =>
-  // ISSUE: >200MB
-  fetch('https://openmd.shinnytech.com/t/md/symbols/latest.json').then((x) => x.json()),
-)
-  .pipe(
-    mergeMap((resp) => Object.values(resp)),
-    filter((item: any) => ['FUTURE', 'FUTURE_INDEX', 'INDEX'].includes(item.class)),
-    map(
-      (item): IProduct => ({
-        datasource_id: DATASOURCE_ID,
-        product_id: item.instrument_id,
-        name: item.ins_name,
-        quote_currency: 'CNY',
-        base_currency: '',
-        value_scale_unit: '',
-        value_based_cost: 0,
-        volume_based_cost: 0,
-        max_volume: 0,
-        price_step: +item.price_tick,
-        volume_step: 1,
-        value_scale: item.volume_multiple,
-        allow_long: true,
-        allow_short: true,
-        margin_rate: 0,
-        max_position: 0,
-      }),
-    ),
-    tap((product) => {
-      product$.next(product);
-    }),
-    toArray(),
-  )
-  .pipe(
-    //
-    timeout(120_000),
-    retry(),
-    repeat({ delay: 86400_000 }),
-  )
-  .subscribe();
 
 defer(() => of(createConnectionTq()))
   .pipe(
