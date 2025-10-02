@@ -1,4 +1,4 @@
-import { IOHLC } from '@yuants/data-ohlc';
+import { IOHLC, provideOHLCDurationService } from '@yuants/data-ohlc';
 import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
@@ -161,3 +161,10 @@ Terminal.fromNodeEnv().channel.publishChannel('ohlc', { pattern: `^OKX/` }, (ser
     }),
   );
 });
+
+// 提供 OKX 的K线周期服务
+provideOHLCDurationService(
+  Terminal.fromNodeEnv(),
+  'OKX', // datasource_id
+  () => Object.keys(DURATION_TO_OKX_BAR_TYPE),
+);

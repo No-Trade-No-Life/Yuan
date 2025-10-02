@@ -76,3 +76,5 @@ export interface IOHLC {
    */
   open_interest: string;
 }
+
+export * from './provideOHLCDurationService';

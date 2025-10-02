@@ -1,4 +1,4 @@
-import { IOHLC } from '@yuants/data-ohlc';
+import { IOHLC, provideOHLCDurationService } from '@yuants/data-ohlc';
 import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
 import { decodePath, formatTime, UUID } from '@yuants/utils';
@@ -26,7 +26,7 @@ import './product'; // Import the new product service
 
 const terminal = Terminal.fromNodeEnv();
 
-const DATASOURCE_ID = process.env.DATASOURCE_ID || 'TQ';
+const DATASOURCE_ID = 'TQ';
 
 // const realtimePeriods: Record<string, Observable<IOHLC>> = {};
 const queryChart = (product_id: string, period_in_sec: number, periods_length: number) => {
@@ -221,6 +221,20 @@ const calcNumPeriods = (start_time: number, period_in_sec: number) => {
   return num_periods;
 };
 
+const mapDurationToSec: Record<string, number> = {
+  PT1M: 60,
+  PT5M: 300,
+  PT15M: 900,
+  PT30M: 1800,
+  PT1H: 3600,
+  PT2H: 7200,
+  PT4H: 14400,
+  P1D: 86400,
+  P1W: 604800,
+  P1M: 2592000,
+  P1Y: 31536000,
+};
+
 createSeriesProvider<IOHLC>(terminal, {
   tableName: 'ohlc',
   series_id_prefix_parts: [DATASOURCE_ID],
@@ -231,19 +245,7 @@ createSeriesProvider<IOHLC>(terminal, {
   },
   queryFn: async ({ series_id, started_at }) => {
     const [datasource_id, product_id, duration] = decodePath(series_id);
-    const period_in_sec = {
-      PT1M: 60,
-      PT5M: 300,
-      PT15M: 900,
-      PT30M: 1800,
-      PT1H: 3600,
-      PT2H: 7200,
-      PT4H: 14400,
-      P1D: 86400,
-      P1W: 604800,
-      P1M: 2592000,
-      P1Y: 31536000,
-    }[duration];
+    const period_in_sec = mapDurationToSec[duration];
     if (!period_in_sec) throw new Error(`Unsupported duration: ${duration}`);
     const count = calcNumPeriods(started_at, period_in_sec);
     const data = await firstValueFrom(queryChart(product_id, period_in_sec, count));
@@ -264,3 +266,9 @@ createSeriesProvider<IOHLC>(terminal, {
     }));
   },
 });
+
+provideOHLCDurationService(
+  terminal,
+  DATASOURCE_ID, // datasource_id
+  () => Object.keys(mapDurationToSec),
+);
