@@ -2,6 +2,23 @@
   "name": "@yuants/agent",
   "entries": [
     {
+      "version": "0.13.108",
+      "tag": "@yuants/agent_v0.13.108",
+      "date": "Thu, 02 Oct 2025 10:42:02 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/kernel\" to `0.15.25`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.13.107",
       "tag": "@yuants/agent_v0.13.107",
       "date": "Thu, 02 Oct 2025 07:19:32 GMT",

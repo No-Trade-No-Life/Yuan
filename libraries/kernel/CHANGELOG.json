@@ -2,6 +2,23 @@
   "name": "@yuants/kernel",
   "entries": [
     {
+      "version": "0.15.25",
+      "tag": "@yuants/kernel_v0.15.25",
+      "date": "Thu, 02 Oct 2025 10:42:02 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-ohlc\" to `0.4.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.15.24",
       "tag": "@yuants/kernel_v0.15.24",
       "date": "Thu, 02 Oct 2025 07:19:32 GMT",

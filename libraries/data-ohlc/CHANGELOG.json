@@ -2,6 +2,23 @@
   "name": "@yuants/data-ohlc",
   "entries": [
     {
+      "version": "0.4.0",
+      "tag": "@yuants/data-ohlc_v0.4.0",
+      "date": "Thu, 02 Oct 2025 10:42:02 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add list duration"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.25",
       "tag": "@yuants/data-ohlc_v0.3.25",
       "date": "Sun, 28 Sep 2025 04:21:21 GMT",
