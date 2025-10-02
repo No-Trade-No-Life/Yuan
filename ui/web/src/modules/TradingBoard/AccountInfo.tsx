@@ -12,6 +12,7 @@ import { TradeInfo } from './TradeInfo';
 import { PendingOrderInfo } from './PendingOrderInfo';
 import { NAVCurve } from './NAVCurve';
 import styles from './style.module.css';
+import { TradeCopierInfo } from './TradeCopierInfo';
 
 const { TabPane } = Tabs;
 
@@ -120,6 +121,9 @@ export const AccountInfo = (props: { accountId: string; accountInfo?: IAccountIn
           className={styles.tabPaneContent}
         >
           <NAVCurve accountId={accountId} />
+        </TabPane>
+        <TabPane tab="跟单" itemKey="trade_copier">
+          <TradeCopierInfo accountId={accountId} />
         </TabPane>
       </Tabs>
     </div>
