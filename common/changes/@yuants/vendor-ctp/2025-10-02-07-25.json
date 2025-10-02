@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-ctp",
+      "comment": "port binding fix and build multi env",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/vendor-ctp"
+}
