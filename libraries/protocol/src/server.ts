@@ -44,7 +44,7 @@ interface IRequestContext {
   isAborted$: BehaviorSubject<boolean>;
 
   // timestamp
-  initilized_at: number;
+  initialized_at: number;
   routed_at: number;
   processing_at: number;
   processed_at: number;
@@ -255,13 +255,6 @@ export class TerminalServer {
     }
   };
 
-  // Events
-  private _requestInitialized$ = new Subject<IRequestContext>();
-  private _requestRouted$ = new Subject<IRequestContext>();
-  private _requestProcessing$ = new Subject<IRequestContext>();
-  private _requestProcessed$ = new Subject<IRequestContext>();
-  private _requestFinalizing$ = new Subject<IRequestContext>();
-
   private _mapTraceIdToRequestContext = new Map<string, IRequestContext>();
 
   /**
@@ -280,7 +273,7 @@ export class TerminalServer {
     const nextRequest = serviceContext.pending.shift();
     if (!nextRequest) return;
     serviceContext.egress_token_remaining--;
-    this._requestProcessing$.next(nextRequest);
+    this._handleRequestProcessing(nextRequest);
   }
 
   private _setupServer() {
@@ -337,7 +330,7 @@ export class TerminalServer {
           message: msg,
           output$,
           isAborted$: new BehaviorSubject(false),
-          initilized_at: NaN,
+          initialized_at: NaN,
           routed_at: NaN,
           processing_at: NaN,
           processed_at: NaN,
@@ -364,7 +357,7 @@ export class TerminalServer {
           }
         });
 
-        this._requestInitialized$.next(requestContext);
+        this._routeRequest(requestContext);
       });
 
     // Abort Request
@@ -392,166 +385,170 @@ export class TerminalServer {
 
         requestContext.isAborted$.next(true);
       });
+  }
 
-    // Service Routing: Request Initialized -> Request Routed / Request Finalized
-    this._requestInitialized$.pipe(takeUntil(this.terminal.dispose$)).subscribe((requestContext) => {
-      requestContext.initilized_at = Date.now();
-      requestContext.stage = 'initialized';
-      RequestReceivedTotal.add(1, {
-        method: requestContext.message.method!,
-        source_terminal_id: requestContext.message.source_terminal_id,
-        target_terminal_id: this.terminal.terminal_id,
-      });
+  private _routeRequest(requestContext: IRequestContext) {
+    requestContext.initialized_at = Date.now();
+    requestContext.stage = 'initialized';
+    RequestReceivedTotal.add(1, {
+      method: requestContext.message.method!,
+      source_terminal_id: requestContext.message.source_terminal_id,
+      target_terminal_id: this.terminal.terminal_id,
+    });
 
-      const { message, output$ } = requestContext;
-      const method = message.method!;
-      // find the service
-      const candidates = this._mapMethodToServiceIds.get(method);
-      if (!candidates) {
-        output$.next({ res: { code: 400, message: 'Bad Request: Method Not Found' } });
-        this._requestFinalizing$.next(requestContext);
-        return;
-      }
-      let targetService: IServiceInfoServerSide | undefined;
-      for (const serviceId of candidates) {
-        const serviceInfo = this.mapServiceIdToService.get(serviceId);
-        if (!serviceInfo) continue;
-        if (serviceInfo.validator(message.req!)) {
-          if (targetService) {
-            output$.next({ res: { code: 400, message: 'Bad Request: Ambiguous Service' } });
-            this._requestFinalizing$.next(requestContext);
-            return;
-          }
-          targetService = serviceInfo;
+    const { message, output$ } = requestContext;
+    const method = message.method!;
+    // find the service
+    const candidates = this._mapMethodToServiceIds.get(method);
+    if (!candidates) {
+      output$.next({ res: { code: 400, message: 'Bad Request: Method Not Found' } });
+      this._finalizeRequest(requestContext);
+      return;
+    }
+    let targetService: IServiceInfoServerSide | undefined;
+    for (const serviceId of candidates) {
+      const serviceInfo = this.mapServiceIdToService.get(serviceId);
+      if (!serviceInfo) continue;
+      if (serviceInfo.validator(message.req!)) {
+        if (targetService) {
+          output$.next({ res: { code: 400, message: 'Bad Request: Ambiguous Service' } });
+          this._finalizeRequest(requestContext);
+          return;
         }
+        targetService = serviceInfo;
       }
-      if (!targetService) {
-        output$.next({ res: { code: 400, message: 'Bad Request: No Matching Service' } });
-        this._requestFinalizing$.next(requestContext);
-        return;
-      }
+    }
+    if (!targetService) {
+      output$.next({ res: { code: 400, message: 'Bad Request: No Matching Service' } });
+      this._finalizeRequest(requestContext);
+      return;
+    }
 
-      // Routing Finished, Binding ServiceContext to RequestContext
-      const serviceId = targetService.serviceInfo.service_id || targetService.serviceInfo.method;
-      const serviceContext = this._mapServiceIdToServiceRuntimeContext.get(serviceId);
-      if (!serviceContext) {
-        output$.next({ res: { code: 500, message: 'Internal Server Error: Service Not Found' } });
-        this._requestFinalizing$.next(requestContext);
-        return;
-      }
-      requestContext.serviceContext = serviceContext;
-      this._requestRouted$.next(requestContext);
-    });
+    // Routing Finished, Binding ServiceContext to RequestContext
+    const serviceId = targetService.serviceInfo.service_id || targetService.serviceInfo.method;
+    const serviceContext = this._mapServiceIdToServiceRuntimeContext.get(serviceId);
+    if (!serviceContext) {
+      output$.next({ res: { code: 500, message: 'Internal Server Error: Service Not Found' } });
+      this._finalizeRequest(requestContext);
+      return;
+    }
+    requestContext.serviceContext = serviceContext;
 
-    // Add Pending: Request Routed -> Request Pending / Request Finalizing
-    this._requestRouted$.pipe(takeUntil(this.terminal.dispose$)).subscribe((requestContext) => {
-      requestContext.routed_at = Date.now();
-      requestContext.stage = 'routed';
-      const { serviceContext, output$ } = requestContext;
-      if (!serviceContext) throw new Error('ServiceContext Not Found');
+    // 路由成功
+    requestContext.routed_at = Date.now();
+    requestContext.stage = 'routed';
 
-      serviceContext.total_routed++;
+    serviceContext.total_routed++;
 
-      if (serviceContext.pending.length >= serviceContext.capacity) {
-        output$.next({ res: { code: 503, message: 'Service Unavailable: Pending Queue Full' } });
-        this._requestFinalizing$.next(requestContext);
-        return;
-      }
+    if (serviceContext.pending.length >= serviceContext.capacity) {
+      output$.next({ res: { code: 503, message: 'Service Unavailable: Pending Queue Full' } });
+      this._finalizeRequest(requestContext);
+      return;
+    }
 
-      if (serviceContext.ingress_token_remaining <= 0) {
-        output$.next({
-          res: {
-            code: 429,
-            message: `Too Many Requests: Ingress Rate Limit Exceeded: capacity = ${serviceContext.ingress_token_capacity}, interval = ${serviceContext.ingress_token_refill_interval} ms`,
+    if (serviceContext.ingress_token_remaining <= 0) {
+      output$.next({
+        res: {
+          code: 429,
+          message: `Too Many Requests: Ingress Rate Limit Exceeded: capacity = ${serviceContext.ingress_token_capacity}, interval = ${serviceContext.ingress_token_refill_interval} ms`,
+        },
+      });
+      this._finalizeRequest(requestContext);
+      return;
+    }
+    serviceContext.ingress_token_remaining--;
+
+    requestContext.stage = 'pending';
+    serviceContext.pending.push(requestContext);
+
+    this._checkQueue(serviceContext);
+  }
+
+  private _handleRequestProcessing(requestContext: IRequestContext) {
+    requestContext.processing_at = Date.now();
+    requestContext.stage = 'processing';
+    const { message, serviceContext, output$ } = requestContext;
+    if (!serviceContext) throw new Error('ServiceContext Not Found');
+    serviceContext.processing.add(requestContext);
+    requestContext.output$.next({ event: { type: 'in_processing' } });
+
+    defer(() =>
+      serviceContext.service.handler(message as any, {
+        isAborted$: requestContext.isAborted$,
+      }),
+    )
+      .pipe(
+        takeUntil(requestContext.isAborted$.pipe(filter((x) => x))), // Abort if true
+        catchError((err) => {
+          console.info(formatTime(Date.now()), `ServerError`, JSON.stringify(message), err);
+          return of({ res: { code: 500, message: `Internal Server Error: ${err}` } });
+        }),
+        timeout(60_000),
+        catchError((err) => {
+          console.info(formatTime(Date.now()), `ServerError`, JSON.stringify(message), err);
+          // Intentionally trigger the abort flag to stop further processing on timeout
+          requestContext.isAborted$.next(true);
+          return of({ res: { code: 504, message: `Service Handler Timeout: ${err}` } });
+        }),
+        tap({
+          next: (msg) => {
+            output$.next(msg);
           },
-        });
-        this._requestFinalizing$.next(requestContext);
-        return;
-      }
-      serviceContext.ingress_token_remaining--;
-
-      requestContext.stage = 'pending';
-      serviceContext.pending.push(requestContext);
-
-      this._checkQueue(serviceContext);
-    });
-
-    // Processing: Request Processing -> Request Processed
-    this._requestProcessing$.pipe(takeUntil(this.terminal.dispose$)).subscribe((requestContext) => {
-      requestContext.processing_at = Date.now();
-      requestContext.stage = 'processing';
-      const { message, serviceContext, output$ } = requestContext;
-      if (!serviceContext) throw new Error('ServiceContext Not Found');
-      serviceContext.processing.add(requestContext);
-
-      // ISSUE: from -> defer, make sure the error of handler will be caught
-      defer(() =>
-        serviceContext.service.handler(message as any, {
-          isAborted$: requestContext.isAborted$,
+          complete: () => {
+            this._handleRequestProcessed(requestContext);
+          },
         }),
       )
-        .pipe(
-          takeUntil(requestContext.isAborted$.pipe(filter((x) => x))), // Abort if true
-          catchError((err) => {
-            console.info(formatTime(Date.now()), `ServerError`, JSON.stringify(message), err);
-            return of({ res: { code: 500, message: `Internal Server Error: ${err}` } });
-          }),
-          timeout(60_000),
-          catchError((err) => {
-            console.info(formatTime(Date.now()), `ServerError`, JSON.stringify(message), err);
-            // Intentionally trigger the abort flag to stop further processing on timeout
-            requestContext.isAborted$.next(true);
-            return of({ res: { code: 504, message: `Service Handler Timeout: ${err}` } });
-          }),
-          tap({
-            next: (msg) => {
-              output$.next(msg);
-            },
-            complete: () => {
-              this._requestProcessed$.next(requestContext);
-            },
-          }),
-        )
-        .pipe(takeUntil(this.terminal.dispose$))
-        .subscribe();
+      .pipe(takeUntil(this.terminal.dispose$))
+      .subscribe();
+  }
+
+  /**
+   * 处理请求完成 (Processed) 逻辑
+   *
+   * 仅在调用业务处理函数后调用，由于各种原因 (限流、排队时取消)，没有被业务处理函数调用的请求不会进入该函数
+   *
+   * @param requestContext - 请求上下文
+   */
+  private _handleRequestProcessed(requestContext: IRequestContext) {
+    requestContext.processed_at = Date.now();
+    requestContext.stage = 'processed';
+    const { serviceContext } = requestContext;
+    if (!serviceContext) throw new Error('ServiceContext Not Found');
+
+    serviceContext.processing.delete(requestContext);
+    serviceContext.total_processed++;
+
+    // finalize
+    this._finalizeRequest(requestContext);
+
+    // schedule the next pending
+    this._checkQueue(serviceContext);
+  }
+
+  private _finalizeRequest(requestContext: IRequestContext) {
+    requestContext.finalized_at = Date.now();
+    requestContext.stage = 'finalizing';
+    requestContext.output$.complete();
+    if (this.terminal.options.verbose) {
+      console.info(formatTime(Date.now()), 'Server', 'RequestFinalized', requestContext.message.trace_id);
+    }
+
+    RequestFinalizedTotal.add(1, {
+      method: requestContext.message.method!,
+      source_terminal_id: requestContext.message.source_terminal_id,
+      target_terminal_id: this.terminal.terminal_id,
     });
 
-    // Processed: Request Processed -> Finalizing, release the processing, schedule the next pending
-    this._requestProcessed$.pipe(takeUntil(this.terminal.dispose$)).subscribe((requestContext) => {
-      requestContext.processed_at = Date.now();
-      requestContext.stage = 'processed';
-      const { serviceContext } = requestContext;
-      if (!serviceContext) throw new Error('ServiceContext Not Found');
+    this._mapTraceIdToRequestContext.delete(requestContext.trace_id);
 
-      serviceContext.processing.delete(requestContext);
-      serviceContext.total_processed++;
-
-      // finalize
-      this._requestFinalizing$.next(requestContext);
-
-      // schedule the next pending
-      this._checkQueue(serviceContext);
-    });
-
-    // Finalizing
-    this._requestFinalizing$.pipe(takeUntil(this.terminal.dispose$)).subscribe((requestContext) => {
-      requestContext.finalized_at = Date.now();
-      requestContext.stage = 'finalizing';
-      requestContext.output$.complete();
-      if (this.terminal.options.verbose) {
-        console.info(formatTime(Date.now()), 'Server', 'RequestFinalized', requestContext.message.trace_id);
-      }
-
-      this._mapTraceIdToRequestContext.delete(requestContext.trace_id);
-
-      const duration = requestContext.finalized_at - requestContext.initilized_at;
-      if (isNaN(duration)) return;
-      RequestDurationBucket.record(duration, {
-        method: requestContext.message.method!,
-        source_terminal_id: requestContext.message.source_terminal_id,
-        target_terminal_id: this.terminal.terminal_id,
-        code: requestContext.response?.code ?? 520,
-      });
+    const duration = requestContext.finalized_at - requestContext.initialized_at;
+    if (isNaN(duration)) return;
+    RequestDurationBucket.record(duration, {
+      method: requestContext.message.method!,
+      source_terminal_id: requestContext.message.source_terminal_id,
+      target_terminal_id: this.terminal.terminal_id,
+      code: requestContext.response?.code ?? 520,
     });
   }
 
@@ -560,8 +557,16 @@ export class TerminalServer {
       .pipe(takeUntil(this.terminal.dispose$))
       .subscribe(() => {
         this._mapServiceIdToServiceRuntimeContext.forEach((serviceContext) => {
-          serviceContext.pending.forEach((requestContext) => {
-            requestContext.output$.next({});
+          serviceContext.pending.forEach((requestContext, index) => {
+            requestContext.output$.next({
+              event: {
+                type: 'heartbeat',
+                payload: {
+                  position: index + 1,
+                  total: serviceContext.pending.length,
+                },
+              },
+            });
           });
         });
       });
@@ -580,6 +585,10 @@ const RequestDurationBucket = TerminalMeter.createHistogram('terminal_request_du
 
 const RequestReceivedTotal = TerminalMeter.createCounter('terminal_request_received_total', {
   description: 'terminal_request_received_total Request Received',
+});
+
+const RequestFinalizedTotal = TerminalMeter.createCounter('terminal_request_finalized_total', {
+  description: 'terminal_request_finalized_total Request Finalized',
 });
 
 const RequestPendingTotal = TerminalMeter.createGauge('terminal_request_pending_total', {

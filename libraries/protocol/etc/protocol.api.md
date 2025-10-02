@@ -112,6 +112,11 @@ export interface ITerminalInfo {
 export interface ITerminalMessage {
     done?: boolean;
     // (undocumented)
+    event?: {
+        type: string;
+        payload?: any;
+    };
+    // (undocumented)
     frame?: unknown;
     // (undocumented)
     method?: string;
@@ -119,6 +124,8 @@ export interface ITerminalMessage {
     req?: unknown;
     // (undocumented)
     res?: IResponse<unknown>;
+    // (undocumented)
+    service_id?: string;
     // (undocumented)
     source_terminal_id: string;
     // (undocumented)

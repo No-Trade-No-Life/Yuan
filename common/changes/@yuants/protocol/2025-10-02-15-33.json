@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "refactor server and add event",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
