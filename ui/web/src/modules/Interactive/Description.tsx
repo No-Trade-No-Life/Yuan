@@ -1,4 +1,5 @@
 import React, { ReactNode } from 'react';
+import styles from './Description.module.css';
 
 interface Props {
   data: Array<{
@@ -7,20 +8,21 @@ interface Props {
     suffix?: string | ReactNode;
     prefix?: string | ReactNode;
   }>;
+  minColumnWidth?: number;
 }
 
 export const Description = (props: Props) => {
-  const { data } = props;
+  const { data, minColumnWidth = 180 } = props;
+  const columnWidthStyle = {
+    ['--description-column-min-width' as const]: `${minColumnWidth}px`,
+  } as React.CSSProperties;
+
   return (
-    <div
-      style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'space-between', gap: '24px', flexGrow: 1 }}
-    >
+    <div className={styles.container} style={columnWidthStyle}>
       {data.map((item, index) => (
-        <div key={index}>
-          <div style={{ color: 'rgba(var(--semi-grey-3), 1)', fontWeight: 600, fontSize: '14px' }}>
-            {item.key}
-          </div>
-          <div style={{ fontSize: '12px', marginTop: '6px', fontWeight: 'bold' }}>
+        <div key={index} className={styles.item}>
+          <div className={styles.label}>{item.key}</div>
+          <div className={styles.value}>
             {item.prefix}
             {item.value}
             {item.suffix}

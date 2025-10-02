@@ -1,17 +1,19 @@
 import React from 'react';
 import { formatTime } from '@yuants/utils';
 import { TimeSeriesChart } from '../Chart/components/TimeSeriesChart';
-
 interface Props {
   accountId: string;
 }
 
 export const NAVCurve = (props: Props) => {
   const { accountId } = props;
-  if (accountId) return null;
+  if (!accountId) return null;
   return (
-    <div style={{ width: '100%', minHeight: '400px' }}>
+    <div style={{ width: '100%', height: '100%' }}>
       <TimeSeriesChart
+        hideRefresh={true}
+        hideSettings={true}
+        hideViewSelector={true}
         config={{
           data: [
             {

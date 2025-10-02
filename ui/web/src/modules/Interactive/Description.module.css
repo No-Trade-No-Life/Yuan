@@ -1,0 +1,26 @@
+.container {
+  display: grid;
+  width: 100%;
+  grid-template-columns: repeat(auto-fit, minmax(var(--description-column-min-width, 180px), 1fr));
+  grid-auto-flow: row dense;
+  gap: 24px;
+  align-items: start;
+}
+
+.item {
+  min-width: 0;
+}
+
+.label {
+  color: rgba(var(--semi-grey-3), 1);
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.value {
+  margin-top: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.4;
+  word-break: break-word;
+}

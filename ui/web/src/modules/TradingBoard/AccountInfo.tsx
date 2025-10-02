@@ -11,6 +11,7 @@ import { InlineProductId } from '../Products/InlineProductId';
 import { TradeInfo } from './TradeInfo';
 import { PendingOrderInfo } from './PendingOrderInfo';
 import { NAVCurve } from './NAVCurve';
+import styles from './style.module.css';
 
 const { TabPane } = Tabs;
 
@@ -112,7 +113,12 @@ export const AccountInfo = (props: { accountId: string; accountInfo?: IAccountIn
         >
           <PendingOrderInfo accountId={accountId} pendingOrderNumberChange={setPendingOrderNumber} />
         </TabPane>
-        <TabPane tab="净值曲线" itemKey="nav_curve" style={{ height: '100%', flex: '1' }}>
+        <TabPane
+          tab="净值曲线"
+          itemKey="nav_curve"
+          style={{ height: '100%', flex: '1' }}
+          className={styles.tabPaneContent}
+        >
           <NAVCurve accountId={accountId} />
         </TabPane>
       </Tabs>
