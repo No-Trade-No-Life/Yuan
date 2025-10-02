@@ -4,6 +4,10 @@
 
 ```ts
 
+import { IServiceOptions } from '@yuants/protocol';
+import { Observable } from 'rxjs';
+import { Terminal } from '@yuants/protocol';
+
 // @public (undocumented)
 export const getMargin: (product: IProduct, openPrice: number, volume: number, variant: string, currency: string, quote: (product_id: string) => {
     ask: number;
@@ -37,6 +41,29 @@ export interface IProduct {
     volume_based_cost: number;
     volume_step: number;
 }
+
+// @public
+export interface IQueryProductsRequest {
+    market_id?: string;
+    product_id_pattern?: string;
+}
+
+// @public
+export interface IQueryProductsResponse {
+    products: IProduct[];
+}
+
+// @public
+export interface IQueryProductsService {
+    mapProductIdToProduct$: Observable<Map<string, IProduct>>;
+    products$: Observable<IProduct[]>;
+}
+
+// @public
+export function provideQueryProductsService(terminal: Terminal, datasource_id: string, queryProduct: (req: IQueryProductsRequest) => Promise<IProduct[]>, options?: {
+    serviceOptions?: IServiceOptions;
+    auto_refresh_interval?: number;
+}): IQueryProductsService;
 
 // (No @packageDocumentation comment for this package)
 

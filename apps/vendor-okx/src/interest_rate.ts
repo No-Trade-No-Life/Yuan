@@ -5,10 +5,10 @@ import { createSQLWriter } from '@yuants/sql';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, map, mergeAll, timer } from 'rxjs';
 import { client } from './api';
-import { usdtSwapProducts$ } from './product';
+import { productService } from './product';
 
 createSQLWriter<ISeriesCollectingTask>(Terminal.fromNodeEnv(), {
-  data$: usdtSwapProducts$.pipe(
+  data$: productService.products$.pipe(
     mergeAll(),
     map(
       (x): ISeriesCollectingTask => ({

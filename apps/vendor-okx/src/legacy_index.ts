@@ -5,7 +5,7 @@ import { decodePath, encodePath, formatTime, roundToStep } from '@yuants/utils';
 import { defer, filter, firstValueFrom, from, map, mergeMap, repeat, retry, shareReplay } from 'rxjs';
 import { accountConfig$, tradingAccountId$ } from './account';
 import { client } from './api';
-import { mapProductIdToMarginProduct$ } from './product';
+import { productService } from './product';
 import { spotMarketTickers$ } from './quote';
 
 const terminal = Terminal.fromNodeEnv();
@@ -486,7 +486,7 @@ defer(async () => {
             }
             console.info(formatTime(Date.now()), 'SubmitOrder', 'price', price);
             const theProduct = await firstValueFrom(
-              mapProductIdToMarginProduct$.pipe(map((x) => x.get(order.product_id))),
+              productService.mapProductIdToProduct$.pipe(map((x) => x.get(order.product_id))),
             );
             if (!theProduct) {
               throw new Error(`Unknown product: ${order.position_id}`);
@@ -593,7 +593,7 @@ defer(async () => {
             }
             console.info(formatTime(Date.now()), 'ModifyOrder', 'price', price);
             const theProduct = await firstValueFrom(
-              mapProductIdToMarginProduct$.pipe(map((x) => x.get(order.product_id))),
+              productService.mapProductIdToProduct$.pipe(map((x) => x.get(order.product_id))),
             );
             if (!theProduct) {
               throw new Error(`Unknown product: ${order.position_id}`);

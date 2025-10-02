@@ -168,3 +168,5 @@ export const getMargin = (
         ? quote(`${product.quote_currency}${currency}`)?.bid
         : quote(`${product.quote_currency}${currency}`)?.ask) ?? 1
     : 1);
+
+export * from './QueryProducts';
