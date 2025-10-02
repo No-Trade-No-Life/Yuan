@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-product
 
-This log was last generated on Sun, 28 Sep 2025 04:21:21 GMT and should not be manually modified.
+This log was last generated on Thu, 02 Oct 2025 07:19:32 GMT and should not be manually modified.
+
+## 0.3.0
+Thu, 02 Oct 2025 07:19:32 GMT
+
+### Minor changes
+
+- add helper provideQueryProductsService
 
 ## 0.2.18
 Sun, 28 Sep 2025 04:21:21 GMT
