@@ -6,10 +6,12 @@ import { createSQLWriter } from '@yuants/sql';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, map, mergeAll, ObservableInput, timer } from 'rxjs';
 import { client } from './api';
-import { perpetualProduct$ } from './product';
+import { productService } from './product';
 
+// Use the new product service to get perpetual products
 createSQLWriter<ISeriesCollectingTask>(Terminal.fromNodeEnv(), {
-  data$: perpetualProduct$.pipe(
+  data$: productService.products$.pipe(
+    map((products: IProduct[]) => products.filter((product) => product.no_interest_rate === false)),
     mergeAll(),
     map(
       (x: IProduct): ISeriesCollectingTask => ({
