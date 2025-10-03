@@ -1,12 +1,15 @@
-import { IOHLC, provideOHLCDurationService } from '@yuants/data-ohlc';
+import { IOHLC } from '@yuants/data-ohlc';
 import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { convertDurationToOffset, decodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, map, timer } from 'rxjs';
 import { client } from './api';
+import { provideOHLCFromTimeBackwardService } from './provideOHLCFromTimeBackwardService';
 import { useOHLC } from './ws';
 // import { useOHLC } from './websocket';
+
+const terminal = Terminal.fromNodeEnv();
 
 // 时间粒度，默认值1m
 // 如 [1m/3m/5m/15m/30m/1H/2H/4H]
@@ -49,7 +52,7 @@ const DURATION_TO_OKX_CANDLE_TYPE: Record<string, string> = {
   P1M: 'candle1M',
 };
 
-createSeriesProvider<IOHLC>(Terminal.fromNodeEnv(), {
+createSeriesProvider<IOHLC>(terminal, {
   tableName: 'ohlc',
   series_id_prefix_parts: ['OKX'],
   reversed: true,
@@ -113,7 +116,7 @@ createSeriesProvider<IOHLC>(Terminal.fromNodeEnv(), {
   },
 });
 
-Terminal.fromNodeEnv().channel.publishChannel('ohlc', { pattern: `^OKX/` }, (series_id) => {
+terminal.channel.publishChannel('ohlc', { pattern: `^OKX/` }, (series_id) => {
   const [datasource_id, product_id, duration] = decodePath(series_id);
   const [, instId] = decodePath(product_id);
   const offset = convertDurationToOffset(duration);
@@ -162,9 +165,53 @@ Terminal.fromNodeEnv().channel.publishChannel('ohlc', { pattern: `^OKX/` }, (ser
   );
 });
 
-// 提供 OKX 的K线周期服务
-provideOHLCDurationService(
-  Terminal.fromNodeEnv(),
-  'OKX', // datasource_id
-  () => Object.keys(DURATION_TO_OKX_BAR_TYPE),
-);
+provideOHLCFromTimeBackwardService({
+  terminal,
+  datasource_id: 'OKX',
+  supported_durations: Object.keys(DURATION_TO_OKX_BAR_TYPE),
+  queryFn: async ({ series_id, datasource_id, product_id, duration, offset, time }) => {
+    const [instType, instId] = decodePath(product_id);
+    if (!instId) {
+      throw `invalid product_id: ${product_id}`;
+    }
+
+    const bar = DURATION_TO_OKX_BAR_TYPE[duration];
+    if (!bar) {
+      throw `unsupported duration: ${duration}`;
+    }
+
+    // 从指定时间点向过去获取一页数据
+    const res = await client.getHistoryCandles({
+      instId,
+      bar,
+      after: `${new Date(time).getTime()}`,
+      limit: `300`,
+    });
+
+    if (res.code !== '0') {
+      throw `API failed: ${res.code} ${res.msg}`;
+    }
+
+    return res.data.map(
+      (x): IOHLC => ({
+        series_id,
+        datasource_id,
+        product_id,
+        duration,
+        created_at: formatTime(+x[0]),
+        closed_at: formatTime(+x[0] + offset),
+        open: x[1],
+        high: x[2],
+        low: x[3],
+        close: x[4],
+        volume: x[5],
+        open_interest: '0',
+      }),
+    );
+  },
+  serviceOptions: {
+    // Rate limit: 20 requests per 2 seconds
+    egress_token_capacity: 20,
+    egress_token_refill_interval: 2000,
+  },
+});
