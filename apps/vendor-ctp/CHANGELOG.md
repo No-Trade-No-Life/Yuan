@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-ctp
 
-This log was last generated on Fri, 03 Oct 2025 04:17:01 GMT and should not be manually modified.
+This log was last generated on Fri, 03 Oct 2025 10:17:16 GMT and should not be manually modified.
+
+## 0.8.2
+Fri, 03 Oct 2025 10:17:16 GMT
+
+### Patches
+
+- build for arm64
 
 ## 0.8.1
 Fri, 03 Oct 2025 04:17:01 GMT

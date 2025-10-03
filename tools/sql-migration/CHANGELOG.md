@@ -1,6 +1,13 @@
 # Change Log - @yuants/tool-sql-migration
 
-This log was last generated on Fri, 03 Oct 2025 04:17:01 GMT and should not be manually modified.
+This log was last generated on Fri, 03 Oct 2025 10:17:16 GMT and should not be manually modified.
+
+## 0.2.0
+Fri, 03 Oct 2025 10:17:16 GMT
+
+### Minor changes
+
+- add post_volume column to trade table
 
 ## 0.1.5
 Fri, 03 Oct 2025 04:17:01 GMT
