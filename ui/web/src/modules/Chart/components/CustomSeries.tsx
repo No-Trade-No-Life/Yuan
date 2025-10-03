@@ -212,12 +212,12 @@ export const customSeries: ICustomSeries[] = [
   },
   {
     type: 'order',
-    addSeries: ({ chart, paneIndex, seriesIndex, timeLine, dataSeries }) => {
+    addSeries: ({ chart, paneIndex, seriesIndex, timeLine, dataSeries, seriesConfig }) => {
       if (dataSeries.length < 3) return;
       const seriesData: Array<{ time: Time; value: number }> = [];
       const markerData: {
         time: Time;
-        position: 'aboveBar';
+        position: 'aboveBar' | 'belowBar';
         color: string;
         shape: 'arrowUp' | 'arrowDown';
         text: string;
@@ -225,6 +225,7 @@ export const customSeries: ICustomSeries[] = [
       }[] = [];
 
       let dataIndex = timeLine[0]?.[1] || 0;
+      let candleDataIndex = 0;
       timeLine.forEach(([_time, index]) => {
         let volume = 0;
         let tradeValue = 0;
@@ -244,30 +245,67 @@ export const customSeries: ICustomSeries[] = [
         const orderDirection = volume > 0 ? 'OPEN_LONG' : 'OPEN_SHORT';
         const tradePrice = tradeValue / totalVolume;
         const time = _time as Time;
+        let price = tradePrice;
+        // 找到K线数据使用high, low来mark价格位置
+        if (
+          seriesConfig.options &&
+          seriesConfig.options.candlePaneIndex !== undefined &&
+          seriesConfig.options.candleSeriesIndex !== undefined
+        ) {
+          const candleData = chart
+            .panes()
+            [seriesConfig.options.candlePaneIndex].getSeries()
+            [seriesConfig.options.candleSeriesIndex].data();
+
+          if (candleData && candleData.length > 0)
+            for (; candleDataIndex < candleData.length; candleDataIndex++) {
+              const candleTime = candleData[candleDataIndex].time;
+              if (candleTime === time) {
+                if (orderDirection?.includes('LONG')) {
+                  price = (candleData[candleDataIndex] as { high: number }).high;
+                } else {
+                  price = (candleData[candleDataIndex] as { low: number }).low;
+                }
+                break;
+              }
+            }
+        }
+
         if (!!time && !isNaN(tradePrice) && !!orderDirection && !isNaN(volume)) {
-          seriesData.push({ time, value: tradeValue / totalVolume });
+          seriesData.push({ time, value: price });
           markerData.push({
             time,
-            position: 'aboveBar' as const,
-            color: orderDirection?.includes('LONG') ? 'green' : 'red',
+            position: orderDirection?.includes('LONG') ? 'belowBar' : 'aboveBar',
+            color: orderDirection?.includes('LONG') ? '#26a69a' : '#ef5350',
             shape: orderDirection?.includes('LONG') ? ('arrowUp' as const) : ('arrowDown' as const),
-            text: volume !== 0 ? `P: ${tradePrice} | Vol: ${volume}` : 'T',
-            price: tradePrice || 0,
+            text: volume !== 0 ? `${tradePrice.toFixed(3)} @ ${volume.toFixed(2)}` : 'T',
+            price: price || 0,
           });
         }
       });
 
-      const lineSeries = chart.addSeries(
-        LineSeries,
-        {
-          color: 'red',
-          lineWidth: 3,
-          priceLineVisible: false,
-        },
-        paneIndex,
-      );
-      lineSeries.setData(seriesData);
-      const seriesMarkers = createSeriesMarkers(lineSeries, markerData);
+      if (
+        seriesConfig.options &&
+        seriesConfig.options.candlePaneIndex !== undefined &&
+        seriesConfig.options.candleSeriesIndex !== undefined
+      ) {
+        const candleSeries = chart.panes()[seriesConfig.options.candlePaneIndex].getSeries()[
+          seriesConfig.options.candleSeriesIndex
+        ];
+        const seriesMarkers = createSeriesMarkers(candleSeries, markerData);
+      } else {
+        const lineSeries = chart.addSeries(
+          LineSeries,
+          {
+            color: 'red',
+            lineWidth: 3,
+            priceLineVisible: false,
+          },
+          paneIndex,
+        );
+        lineSeries.setData(seriesData);
+        const seriesMarkers = createSeriesMarkers(lineSeries, markerData);
+      }
     },
     Legend: ({ seriesConfig }) => {
       return <div>{seriesConfig.name || '订单'}</div>;
