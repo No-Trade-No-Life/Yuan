@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-trade
 
-This log was last generated on Fri, 03 Oct 2025 04:17:01 GMT and should not be manually modified.
+This log was last generated on Fri, 03 Oct 2025 10:17:16 GMT and should not be manually modified.
+
+## 0.1.0
+Fri, 03 Oct 2025 10:17:16 GMT
+
+### Minor changes
+
+- add post_volume field
 
 ## 0.0.15
 Fri, 03 Oct 2025 04:17:01 GMT
