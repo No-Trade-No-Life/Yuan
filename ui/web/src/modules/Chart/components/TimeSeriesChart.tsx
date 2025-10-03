@@ -288,64 +288,65 @@ export const TimeSeriesChart = (props: {
 
   return (
     <Space vertical align="start" style={{ height: '100%', width: '100%', overflow: 'hidden' }}>
-      {config && (
-        <ChartComponent
-          topSlot={
-            <>
-              {props.topSlot}
+      {/* {config && ( */}
+      <ChartComponent
+        topSlot={
+          <>
+            {props.topSlot}
 
-              {!hideSettings && (
-                <Button
-                  icon={<IconSetting />}
-                  onClick={async () => {
-                    const data = await showForm<ITimeSeriesChartConfig>(schemaOfChartConfig, config);
-                    if (!props.onConfigChange) {
-                      throw new Error('此组件未支持配置修改');
-                    }
-                    await props.onConfigChange(data);
-                    refresh$.next();
-                    Toast.success('配置已更新');
-                  }}
-                />
-              )}
-              {!hideRefresh && (
-                <Button
-                  icon={<IconRefresh />}
-                  onClick={async () => {
-                    refresh$.next();
-                    await firstValueFrom(
-                      data$.pipe(
-                        filter((x) => x !== data),
-                        timeout(30_000),
-                      ),
-                    );
-                    Toast.success('数据已刷新');
-                  }}
-                />
-              )}
-
-              {!data && <Spin />}
-              {!hideViewSelector && (
-                <Select
-                  value={viewIndex}
-                  prefix="View"
-                  onSelect={onSelectView}
-                  optionList={config.views.map((item, index) => ({ value: index, label: item.name }))}
-                ></Select>
-              )}
-            </>
-          }
-          view={config.views[viewIndex]}
-          data={data}
-          onViewChange={async (newView) => {
-            const newConfig = structuredClone(config);
+            {!hideSettings && (
+              <Button
+                icon={<IconSetting />}
+                onClick={async () => {
+                  const data = await showForm<ITimeSeriesChartConfig>(schemaOfChartConfig, config);
+                  if (!props.onConfigChange) {
+                    throw new Error('此组件未支持配置修改');
+                  }
+                  await props.onConfigChange(data);
+                  refresh$.next();
+                  Toast.success('配置已更新');
+                }}
+              />
+            )}
+            {!hideRefresh && (
+              <Button
+                icon={<IconRefresh />}
+                onClick={async () => {
+                  refresh$.next();
+                  await firstValueFrom(
+                    data$.pipe(
+                      filter((x) => x !== data),
+                      timeout(30_000),
+                    ),
+                  );
+                  Toast.success('数据已刷新');
+                }}
+              />
+            )}
+            {!hideViewSelector && (
+              <Select
+                value={viewIndex}
+                prefix="View"
+                onSelect={onSelectView}
+                optionList={config?.views.map((item, index) => ({ value: index, label: item.name }))}
+              ></Select>
+            )}
+            {(!data || data.length === 0) && <Spin style={{ alignSelf: 'center' }} />}
+          </>
+        }
+        view={config?.views[viewIndex]}
+        data={data}
+        onViewChange={async (newView) => {
+          const newConfig = structuredClone(config);
+          if (newConfig) {
             newConfig.views[viewIndex] = newView;
             await props.onConfigChange?.(newConfig);
             refresh$.next();
             Toast.success('视图已更新');
-          }}
-        />
-      )}
+          }
+        }}
+      />
+      {/* )} */}
     </Space>
   );
 };

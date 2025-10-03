@@ -1,9 +1,9 @@
 import { Radio, RadioGroup, Space } from '@douyinfe/semi-ui';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import * as FlexLayout from 'flexlayout-react';
-import { useObservableState } from 'observable-hooks';
+import { useObservable, useObservableState } from 'observable-hooks';
 import { useEffect, useMemo, useState } from 'react';
-import { defer, EMPTY, filter, map, retry, shareReplay, Subject, switchMap, tap } from 'rxjs';
+import { defer, EMPTY, filter, map, pipe, retry, shareReplay, Subject, switchMap, tap } from 'rxjs';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 import { AutoComplete } from '../Interactive';
@@ -16,6 +16,9 @@ import { RadioChangeEvent } from '@douyinfe/semi-ui/lib/es/radio';
 import { useAccountInfo } from '../AccountInfo';
 import { AccountProfit } from './AccountProfit';
 import { createFileSystemBehaviorSubject } from '../FileSystem';
+import { loadSqlData } from '../Chart/components/utils';
+import { generateAccountOrders } from './utils';
+import { ISeriesConfig, ITimeSeriesChartConfig } from '../Chart/components/model';
 
 const seriesIdList$ = terminal$.pipe(
   filter((x): x is Exclude<typeof x, null> => !!x),
@@ -143,6 +146,8 @@ registerPage('TradingBoard', () => {
   const seriesIdList = useObservableState(seriesIdList$);
   const accountIds = useObservableState(accountIds$);
 
+  const [drawOrders, setDrawOrders] = useState(false);
+
   const [uniqueProductId, setUniqueProductId] = useState(useObservableState(uniqueProductId$) ?? '');
   const [accountId, setAccountId] = useState(useObservableState(accountId$) ?? '');
   const [candleDuration, setCandleDuration] = useState<string>(useObservableState(candleDuration$) ?? '');
@@ -193,58 +198,118 @@ registerPage('TradingBoard', () => {
     candleDuration$.next(e.target.value);
   };
 
-  const config = useMemo(() => {
-    return {
-      data: [
-        {
-          type: 'sql' as const,
-          query: `select * from ohlc where series_id = ${escapeSQL(
-            seriesId,
-          )} order by created_at desc limit 5000`,
-          time_column_name: 'created_at',
-        },
-      ],
-      views: [
-        {
-          name: '主视图',
-          time_ref: {
-            data_index: 0,
-            column_name: 'created_at',
+  const config$ = useObservable(
+    pipe(
+      switchMap(async ([seriesId, drawOrders, accountId, productId]) => {
+        if (!seriesId) return { data: [], views: [] };
+        const ohlc = await loadSqlData(
+          {
+            type: 'sql' as const,
+            query: `select * from ohlc where series_id = ${escapeSQL(
+              seriesId,
+            )} order by created_at desc limit 5000`,
+            time_column_name: 'created_at',
           },
-          panes: [
-            {
-              series: [
-                {
-                  type: 'ohlc',
-                  refs: [
-                    {
-                      data_index: 0,
-                      column_name: 'open',
-                    },
-                    {
-                      data_index: 0,
-                      column_name: 'high',
-                    },
-                    {
-                      data_index: 0,
-                      column_name: 'low',
-                    },
-                    {
-                      data_index: 0,
-                      column_name: 'close',
-                    },
-                  ],
-                  options: {
-                    realtimeSeriesId: seriesId,
-                  },
-                },
-              ],
+          0,
+        );
+        const data = [
+          {
+            type: 'data' as const,
+            time_column_name: 'created_at',
+            series: ohlc.series,
+            name: ohlc.filename,
+            data_length: ohlc.data_length,
+          },
+        ];
+        const views: ITimeSeriesChartConfig['views'] = [
+          {
+            name: '主视图',
+            time_ref: {
+              data_index: 0,
+              column_name: 'created_at',
             },
-          ],
-        },
-      ],
-    };
-  }, [seriesId]);
+            panes: [
+              {
+                series: [
+                  {
+                    type: 'ohlc',
+                    refs: [
+                      {
+                        data_index: 0,
+                        column_name: 'open',
+                      },
+                      {
+                        data_index: 0,
+                        column_name: 'high',
+                      },
+                      {
+                        data_index: 0,
+                        column_name: 'low',
+                      },
+                      {
+                        data_index: 0,
+                        column_name: 'close',
+                      },
+                    ],
+                    options: {
+                      realtimeSeriesId: seriesId,
+                    },
+                  },
+                ],
+              },
+            ],
+          },
+        ];
+        if (drawOrders && accountId) {
+          const [series] = await generateAccountOrders(
+            accountId,
+            ohlc.series.get(ohlc.time_column_name)?.[0] ?? '',
+            ohlc.series.get(ohlc.time_column_name)?.[
+              (ohlc.series.get(ohlc.time_column_name)?.length ?? 1) - 1
+            ] ?? '',
+            productId,
+          );
+          data.push({
+            type: 'data' as const,
+            time_column_name: 'traded_at',
+            series: series,
+            name: '账户订单',
+            data_length: series.get('traded_at')?.length ?? 0,
+          });
+          views[0].panes[0].series.push({
+            type: 'order',
+            name: '模拟账户订单',
+            refs: [
+              {
+                data_index: 1,
+                column_name: 'direction',
+              },
+              {
+                data_index: 1,
+                column_name: 'traded_price',
+              },
+              {
+                data_index: 1,
+                column_name: 'traded_volume',
+              },
+            ],
+            options: {
+              candlePaneIndex: 0,
+              candleSeriesIndex: 0,
+            },
+          });
+        }
+        return {
+          data,
+          views,
+        };
+      }),
+    ),
+    //
+    [seriesId, drawOrders, accountId, productId],
+  );
+
+  const config = useObservableState(config$);
 
   return (
     <FlexLayout.Layout
@@ -290,7 +355,14 @@ registerPage('TradingBoard', () => {
               </Space>
             );
           case 'left-bottom':
-            return <AccountInfo accountId={accountId} accountInfo={accountInfo} />;
+            return (
+              <AccountInfo
+                accountId={accountId}
+                accountInfo={accountInfo}
+                setDrawOrders={setDrawOrders}
+                drawOrders={drawOrders}
+              />
+            );
           case 'right-top':
             return <ManualTradePanelContent accountId={accountId} productId={productId} />;
 

@@ -3,7 +3,7 @@ import { createColumnHelper } from '@tanstack/react-table';
 import { IAccountInfo, IPosition } from '@yuants/data-account';
 import { formatTime } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
-import { useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { of } from 'rxjs';
 import { InlineAccountId, useAccountInfo } from '../AccountInfo';
 import { DataView } from '../Interactive';
@@ -66,8 +66,15 @@ const createPositionColumns = (accountId: string) => {
   ];
 };
 
-export const AccountInfo = (props: { accountId: string; accountInfo?: IAccountInfo }) => {
-  const { accountId, accountInfo } = props;
+interface Props {
+  accountId: string;
+  accountInfo?: IAccountInfo;
+  setDrawOrders: (v: boolean) => void;
+  drawOrders: boolean;
+}
+
+export const AccountInfo = React.memo((props: Props) => {
+  const { accountId, accountInfo, setDrawOrders, drawOrders } = props;
 
   const positionColumns = useMemo(() => createPositionColumns(accountId ?? ''), [accountId]);
 
@@ -101,7 +108,7 @@ export const AccountInfo = (props: { accountId: string; accountInfo?: IAccountIn
           <DataView data={accountInfo?.positions ?? []} columns={positionColumns} />
         </TabPane>
         <TabPane tab="成交" itemKey="trades">
-          <TradeInfo accountId={accountId} />
+          <TradeInfo accountId={accountId} setDrawOrders={setDrawOrders} drawOrders={drawOrders} />
         </TabPane>
         <TabPane
           tab={
@@ -128,4 +135,4 @@ export const AccountInfo = (props: { accountId: string; accountInfo?: IAccountIn
       </Tabs>
     </div>
   );
-};
+});

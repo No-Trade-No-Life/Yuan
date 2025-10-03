@@ -2,17 +2,23 @@ import { ColumnFilter, Table, Updater } from '@tanstack/react-table';
 import { ITrade } from '@yuants/data-trade';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { combineLatestWith, defer, pipe, repeat, retry, switchMap, timer } from 'rxjs';
-import { DataView } from '../Interactive';
+import { DataView, Switch } from '../Interactive';
 import { terminal$ } from '../Terminals';
 
 const resolveUpdaterValue = (updater: Updater<number>, previous: number) =>
   typeof updater === 'function' ? updater(previous) : updater;
 
-export const TradeInfo = (props: { accountId: string }) => {
-  const { accountId } = props;
+interface Props {
+  accountId: string;
+  setDrawOrders: (v: boolean) => void;
+  drawOrders: boolean;
+}
+
+export const TradeInfo = React.memo((props: Props) => {
+  const { accountId, setDrawOrders, drawOrders } = props;
   const [tradePage, setTradePage] = useState(0);
   const [tradePageSize, setTradePageSize] = useState(10);
   const [tradeFilters, setTradeFilters] = useState<ColumnFilter[]>([]);
@@ -133,6 +139,12 @@ export const TradeInfo = (props: { accountId: string }) => {
       columns={tradeColumns}
       onColumnFiltersChange={setTradeFilters}
       columnFilters={tradeFilters}
+      topSlot={
+        <>
+          标记订单
+          <Switch onChange={setDrawOrders} checked={drawOrders} />
+        </>
+      }
     />
   );
-};
+});
