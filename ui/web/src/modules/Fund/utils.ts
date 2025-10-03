@@ -4,7 +4,6 @@ const reduceState = (state: IFundState, event: IFundEvent): IFundState => {
   const nextState = structuredClone(state);
   nextState.updated_at = new Date(event.updated_at).getTime();
   nextState.description = event.comment || '';
-  nextState.events.push(event);
   nextState.event = event;
 
   if (!nextState.created_at) {
@@ -173,7 +172,6 @@ const getInitFundState = (): IFundState => ({
   },
   investors: {},
   investor_derived: {},
-  events: [],
   event: null,
 });
 
