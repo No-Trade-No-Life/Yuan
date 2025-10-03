@@ -181,7 +181,11 @@ const buildPreviewDiff = (expected?: PositionSummary, preview?: PositionSummary)
       notes.push(`数量偏差 ${formatSigned(volumeDiff)}`);
       matched = false;
     } else {
-      notes.push('数量匹配');
+      if (expected.volume === 0) {
+        notes.push('已平仓');
+      } else {
+        notes.push('数量匹配');
+      }
     }
     if (expected.avgPrice !== undefined && preview.avgPrice !== undefined) {
       const priceDiff = preview.avgPrice - expected.avgPrice;
@@ -192,8 +196,10 @@ const buildPreviewDiff = (expected?: PositionSummary, preview?: PositionSummary)
         notes.push('价格匹配');
       }
     } else {
-      notes.push('价格信息缺失');
-      matched = false;
+      if (expected.volume !== 0) {
+        notes.push('价格信息缺失');
+        matched = false;
+      }
     }
   }
   return { text: notes.join('；'), matched };
@@ -212,8 +218,12 @@ const buildActualDiff = (
     matched = false;
   }
   if (!actual) {
-    notes.push('实际未持仓');
-    matched = false;
+    if (preview && preview.volume === 0) {
+      notes.push('已平仓');
+    } else {
+      notes.push('实际未持仓');
+      matched = false;
+    }
   }
   if (preview && actual) {
     const volumeDiff = actual.volume - preview.volume;
