@@ -105,16 +105,18 @@ const mergeTimeLine = (
   const result: [time: number, dataIndex: number][] = [];
   let timeLineIndex = 0;
 
-  for (let mainTimeLineIndex = 0; mainTimeLineIndex < mainTimeLine.length; mainTimeLineIndex++) {
-    const mainTime = mainTimeLine[mainTimeLineIndex];
+  for (let mainTimeLineIndex = 1; mainTimeLineIndex < mainTimeLine.length; mainTimeLineIndex++) {
+    const nextMainTime = mainTimeLine[mainTimeLineIndex];
+    const currentMainTime = mainTimeLine[mainTimeLineIndex - 1];
+
     for (; timeLineIndex < timeLine.length; timeLineIndex++) {
       const [currentTime, dataIndex] = timeLine[timeLineIndex];
       const [nextTime] = timeLine[timeLineIndex + 1] ?? [];
-      if (currentTime > mainTime) break;
+      if (currentTime > nextMainTime) break;
       if (timeLineIndex === timeLine.length - 1) {
-        result.push([mainTime, dataIndex]);
-      } else if (nextTime > mainTime) {
-        result.push([mainTime, dataIndex]);
+        result.push([currentMainTime, dataIndex]);
+      } else if (nextTime > nextMainTime) {
+        result.push([currentMainTime, dataIndex]);
       }
     }
   }
