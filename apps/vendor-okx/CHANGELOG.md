@@ -1,6 +1,20 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Fri, 03 Oct 2025 04:17:01 GMT and should not be manually modified.
+This log was last generated on Fri, 03 Oct 2025 14:27:05 GMT and should not be manually modified.
+
+## 0.23.0
+Fri, 03 Oct 2025 14:27:05 GMT
+
+### Minor changes
+
+- add ohlc time backward service
+
+## 0.22.23
+Fri, 03 Oct 2025 10:17:16 GMT
+
+### Patches
+
+- refactor 
 
 ## 0.22.22
 Fri, 03 Oct 2025 04:17:01 GMT

@@ -2,6 +2,45 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.23.0",
+      "tag": "@yuants/vendor-okx_v0.23.0",
+      "date": "Fri, 03 Oct 2025 14:27:05 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add ohlc time backward service"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
+      "version": "0.22.23",
+      "tag": "@yuants/vendor-okx_v0.22.23",
+      "date": "Fri, 03 Oct 2025 10:17:16 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor "
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-trade\" to `0.1.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.22.22",
       "tag": "@yuants/vendor-okx_v0.22.22",
       "date": "Fri, 03 Oct 2025 04:17:01 GMT",
