@@ -3,6 +3,7 @@ import { escapeSQL, requestSQL } from '@yuants/sql';
 import { firstValueFrom } from 'rxjs';
 import { terminal$ } from '../Network';
 import { decodePath, formatTime } from '@yuants/utils';
+import { IProduct } from '@yuants/data-product';
 
 export const generateAccountOrders = async (
   simulateAccountId: string,
@@ -17,10 +18,17 @@ export const generateAccountOrders = async (
   const orderVolumeList: string[] = [];
   const orderTimeline: number[] = [];
   const orderPriceList: string[] = [];
-
+  let productInfo: IProduct | null = null;
   const mapSecondToTrades = new Map<Number, ITrade[]>();
 
   if (terminal) {
+    const productInfoList = await requestSQL<IProduct[]>(
+      terminal,
+      `select * from product where product_id=${escapeSQL(productId)}`,
+    );
+    if (productInfoList.length === 1) {
+      productInfo = productInfoList[0];
+    }
     const tradeList = await requestSQL<ITrade[]>(
       terminal,
       `
@@ -63,7 +71,8 @@ export const generateAccountOrders = async (
           created_at: trades[trades.length - 1].created_at ?? 0,
           direction: totalVolume > 0 ? 'OPEN_LONG' : 'OPEN_SHORT',
           traded_volume: Math.abs(totalVolume),
-          traded_price: totalVolume !== 0 ? Math.abs(totalValue / totalVolume) : 0,
+          traded_price:
+            totalVolume !== 0 ? Math.abs(totalValue / (totalVolume * +(productInfo?.value_scale ?? 1))) : 0,
         };
       }
     })

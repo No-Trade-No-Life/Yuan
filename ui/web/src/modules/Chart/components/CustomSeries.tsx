@@ -234,14 +234,13 @@ export const customSeries: ICustomSeries[] = [
           totalVolume += parseFloat(dataSeries[2]![dataIndex]);
           tradeValue += parseFloat(dataSeries[2]![dataIndex]) * parseFloat(dataSeries[1]![dataIndex]);
           const tempVolume = parseFloat(dataSeries[2]![dataIndex]);
-          const orderDirection = dataSeries[0]![index];
+          const orderDirection = dataSeries[0]![dataIndex];
           if (orderDirection === 'OPEN_LONG' || orderDirection === 'CLOSE_SHORT') {
             volume += tempVolume;
           } else {
             volume -= tempVolume;
           }
         }
-
         const orderDirection = volume > 0 ? 'OPEN_LONG' : 'OPEN_SHORT';
         const tradePrice = tradeValue / totalVolume;
         const time = _time as Time;

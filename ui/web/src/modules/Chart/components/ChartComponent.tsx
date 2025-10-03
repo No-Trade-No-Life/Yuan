@@ -112,7 +112,15 @@ const mergeTimeLine = (
     for (; timeLineIndex < timeLine.length; timeLineIndex++) {
       const [currentTime, dataIndex] = timeLine[timeLineIndex];
       const [nextTime] = timeLine[timeLineIndex + 1] ?? [];
-      if (currentTime > nextMainTime) break;
+      if (currentTime > nextMainTime) {
+        if (
+          mainTimeLineIndex === mainTimeLine.length - 1 &&
+          currentTime < 2 * nextMainTime - currentMainTime
+        ) {
+          result.push([nextMainTime, dataIndex]);
+        }
+        break;
+      }
       if (timeLineIndex === timeLine.length - 1) {
         result.push([currentMainTime, dataIndex]);
       } else if (nextTime > nextMainTime) {
