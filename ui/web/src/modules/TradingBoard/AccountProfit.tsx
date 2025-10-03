@@ -19,7 +19,7 @@ export const AccountProfit = (props: Props) => {
   return (
     <Space vertical align="start" style={{ width: '100%', padding: '14px 12px', boxSizing: 'border-box' }}>
       <Description
-        minColumnWidth={100}
+        minColumnWidth={120}
         data={[
           {
             key: '净值',
