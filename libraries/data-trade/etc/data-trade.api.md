@@ -13,6 +13,7 @@ export interface ITrade {
     fee_currency: string;
     // (undocumented)
     id: string;
+    post_volume: string;
     product_id: string;
     traded_price: string;
     traded_value: string;

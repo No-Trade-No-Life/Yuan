@@ -29,6 +29,11 @@ export interface ITrade {
   traded_volume: string;
 
   /**
+   * Post-trade volume
+   */
+  post_volume: string;
+
+  /**
    * Traded price
    */
   traded_price: string;
