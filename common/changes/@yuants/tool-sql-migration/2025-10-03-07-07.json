@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/tool-sql-migration",
+      "comment": "add post_volume column to trade table",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/tool-sql-migration"
+}

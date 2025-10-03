@@ -42,6 +42,7 @@ const tradeParser = async (accountId: string, params: Record<string, string>): P
         traded_volume: '',
         traded_price: '',
         traded_value: '',
+        post_volume: '',
         fee: '',
         fee_currency: '',
         created_at: '0',
