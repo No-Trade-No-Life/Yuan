@@ -26890,7 +26890,6 @@ void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock
 
       /* @remark  */
       if (method_name == "SubscribeMarketData") {
-        spdlog::info("Invoking SubscribeMarketData");
         if (md_api == nullptr) {
           spdlog::error("MdApi not initialized when invoking SubscribeMarketData");
           continue;
@@ -26901,13 +26900,11 @@ void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock
         for (auto &id : instrument_ids) {
           buffer.emplace_back(id);
         }
-        spdlog::info("Prepared buffer for SubscribeMarketData");
         std::vector<char *> ptrs;
         ptrs.reserve(buffer.size());
         for (auto &id : buffer) {
           ptrs.emplace_back(const_cast<char *>(id.c_str()));
         }
-        spdlog::info("Prepared ptrs for SubscribeMarketData");
         auto count = static_cast<int>(ptrs.size());
         auto ptr = count > 0 ? ptrs.data() : nullptr;
         auto a = md_api->SubscribeMarketData(ptr, count);
@@ -26916,7 +26913,7 @@ void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock
           Message msg = {.event = "Md_SubscribeMarketData",
                          .error_code = a,
                          .error_message = "error",
-                         .is_last = true};
+                         .is_last = false};
           json j;
           j["request_id"] = data["request_id"];
           j["res"] = msg;
@@ -26937,7 +26934,6 @@ void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock
 
       /* @remark  */
       if (method_name == "UnSubscribeMarketData") {
-        spdlog::info("Invoking UnSubscribeMarketData");
         if (md_api == nullptr) {
           spdlog::error("MdApi not initialized when invoking UnSubscribeMarketData");
           continue;
@@ -26948,13 +26944,11 @@ void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock
         for (auto &id : instrument_ids) {
           buffer.emplace_back(id);
         }
-        spdlog::info("Prepared buffer for UnSubscribeMarketData");
         std::vector<char *> ptrs;
         ptrs.reserve(buffer.size());
         for (auto &id : buffer) {
           ptrs.emplace_back(const_cast<char *>(id.c_str()));
         }
-        spdlog::info("Prepared ptrs for UnSubscribeMarketData");
         auto count = static_cast<int>(ptrs.size());
         auto ptr = count > 0 ? ptrs.data() : nullptr;
         auto a = md_api->UnSubscribeMarketData(ptr, count);
@@ -26963,7 +26957,7 @@ void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock
           Message msg = {.event = "Md_UnSubscribeMarketData",
                          .error_code = a,
                          .error_message = "error",
-                         .is_last = true};
+                         .is_last = false};
           json j;
           j["request_id"] = data["request_id"];
           j["res"] = msg;
@@ -26984,7 +26978,6 @@ void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock
 
       /* @remark  */
       if (method_name == "SubscribeForQuoteRsp") {
-        spdlog::info("Invoking SubscribeForQuoteRsp");
         if (md_api == nullptr) {
           spdlog::error("MdApi not initialized when invoking SubscribeForQuoteRsp");
           continue;
@@ -26995,13 +26988,11 @@ void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock
         for (auto &id : instrument_ids) {
           buffer.emplace_back(id);
         }
-        spdlog::info("Prepared buffer for SubscribeForQuoteRsp");
         std::vector<char *> ptrs;
         ptrs.reserve(buffer.size());
         for (auto &id : buffer) {
           ptrs.emplace_back(const_cast<char *>(id.c_str()));
         }
-        spdlog::info("Prepared ptrs for SubscribeForQuoteRsp");
         auto count = static_cast<int>(ptrs.size());
         auto ptr = count > 0 ? ptrs.data() : nullptr;
         auto a = md_api->SubscribeForQuoteRsp(ptr, count);
@@ -27010,7 +27001,7 @@ void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock
           Message msg = {.event = "Md_SubscribeForQuoteRsp",
                          .error_code = a,
                          .error_message = "error",
-                         .is_last = true};
+                         .is_last = false};
           json j;
           j["request_id"] = data["request_id"];
           j["res"] = msg;
@@ -27031,7 +27022,6 @@ void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock
 
       /* @remark  */
       if (method_name == "UnSubscribeForQuoteRsp") {
-        spdlog::info("Invoking UnSubscribeForQuoteRsp");
         if (md_api == nullptr) {
           spdlog::error("MdApi not initialized when invoking UnSubscribeForQuoteRsp");
           continue;
@@ -27042,13 +27032,11 @@ void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock
         for (auto &id : instrument_ids) {
           buffer.emplace_back(id);
         }
-        spdlog::info("Prepared buffer for UnSubscribeForQuoteRsp");
         std::vector<char *> ptrs;
         ptrs.reserve(buffer.size());
         for (auto &id : buffer) {
           ptrs.emplace_back(const_cast<char *>(id.c_str()));
         }
-        spdlog::info("Prepared ptrs for UnSubscribeForQuoteRsp");
         auto count = static_cast<int>(ptrs.size());
         auto ptr = count > 0 ? ptrs.data() : nullptr;
         auto a = md_api->UnSubscribeForQuoteRsp(ptr, count);
@@ -27057,7 +27045,7 @@ void Bridge::ListenReq(CThostFtdcTraderApi *trader_api, zmq::socket_t *push_sock
           Message msg = {.event = "Md_UnSubscribeForQuoteRsp",
                          .error_code = a,
                          .error_message = "error",
-                         .is_last = true};
+                         .is_last = false};
           json j;
           j["request_id"] = data["request_id"];
           j["res"] = msg;

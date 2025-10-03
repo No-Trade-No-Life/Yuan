@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-ctp",
+      "comment": "minor fix for ctp bridge",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/vendor-ctp"
+}
