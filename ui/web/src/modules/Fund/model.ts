@@ -66,7 +66,6 @@ export interface IFundState {
   investors: Record<string, InvestorMeta>; // 投资人数据
   investor_derived: Record<string, InvestorInfoDerived>;
   event: IFundEvent | null;
-  events: IFundEvent[];
 }
 
 export interface InvestorMeta {

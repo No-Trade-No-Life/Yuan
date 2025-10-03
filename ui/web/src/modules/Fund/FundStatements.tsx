@@ -442,7 +442,12 @@ registerPage('FundStatements', () => {
             await requestSQL(
               terminal,
               buildInsertManyIntoTableSQL(
-                [{ account_id: state.account_id, events: JSON.stringify(state.events) }],
+                [
+                  {
+                    account_id: state.account_id,
+                    events: events,
+                  },
+                ],
                 'fund_event',
                 { conflictKeys: ['account_id'] },
               ),
