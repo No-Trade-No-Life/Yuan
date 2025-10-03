@@ -1,6 +1,16 @@
 # Change Log - @yuants/vendor-ctp
 
-This log was last generated on Thu, 02 Oct 2025 10:42:02 GMT and should not be manually modified.
+This log was last generated on Fri, 03 Oct 2025 04:17:01 GMT and should not be manually modified.
+
+## 0.8.1
+Fri, 03 Oct 2025 04:17:01 GMT
+
+### Patches
+
+- subscribe CTP ZMQ done
+- fix dockerfile
+- md api done
+- minor fix for ctp bridge
 
 ## 0.8.0
 Thu, 02 Oct 2025 10:42:02 GMT
