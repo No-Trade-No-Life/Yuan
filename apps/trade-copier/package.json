@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-trade-copier",
-  "version": "0.10.5",
+  "version": "0.10.6",
   "homepage": "https://github.com/No-Trade-No-Life/Yuan/tree/main/apps/trade-copier",
   "main": "lib/index.js",
   "module": "dist/index.js",

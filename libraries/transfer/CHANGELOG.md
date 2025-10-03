@@ -1,6 +1,11 @@
 # Change Log - @yuants/transfer
 
-This log was last generated on Sun, 28 Sep 2025 04:21:21 GMT and should not be manually modified.
+This log was last generated on Fri, 03 Oct 2025 04:17:01 GMT and should not be manually modified.
+
+## 0.2.18
+Fri, 03 Oct 2025 04:17:01 GMT
+
+_Version update only_
 
 ## 0.2.17
 Sun, 28 Sep 2025 04:21:21 GMT
