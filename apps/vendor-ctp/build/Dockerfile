@@ -63,7 +63,7 @@ RUN node create-links.js create
 
 WORKDIR /app/apps/vendor-ctp
 
-COPY --from=builder --chown=node:node /app/apps/vendor-ctp/ctp/build ./build
-COPY --from=builder --chown=node:node /app/apps/vendor-ctp/ctp/lib ./lib
+COPY --from=builder --chown=node:node /app/apps/vendor-ctp/build ./build
+COPY --from=builder --chown=node:node /app/apps/vendor-ctp/lib ./lib
 
 CMD ["node", "./lib/exchange.js"]
