@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/node-unit",
+      "comment": "optimize install speed",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/node-unit"
+}
