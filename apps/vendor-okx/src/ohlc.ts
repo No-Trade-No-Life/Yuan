@@ -184,7 +184,7 @@ provideOHLCFromTimeBackwardService({
     const res = await client.getHistoryCandles({
       instId,
       bar,
-      after: `${new Date(time).getTime()}`,
+      after: `${new Date(time).getTime()}`, // 不包含该时间点 (标准的右开)
       limit: `300`,
     });
 
