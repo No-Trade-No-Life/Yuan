@@ -5,7 +5,7 @@ import { encodePath, escapeRegExp } from '@yuants/utils';
 /**
  * Provide series from time backward service
  *
- * 提供从时间点向前查询序列数据的服务
+ * 提供从时间点向前 (不包含该时间点) 查询序列数据的服务
  *
  * @public
  */
@@ -63,24 +63,30 @@ export const provideSeriesFromTimeBackwardService = <
       },
     },
     async (msg) => {
-      const data = await ctx.terminal.client.requestForResponseData<IQuerySeriesFromTimeBackwardReq, T[]>(
+      const res = await ctx.terminal.client.requestForResponse<IQuerySeriesFromTimeBackwardReq, T[]>(
         'QuerySeriesFromTimeBackward',
         msg.req,
       );
 
-      await requestSQL(
-        ctx.terminal,
-        buildInsertManyIntoTableSQL(data, 'ohlc', {
-          conflictKeys: ['series_id', 'created_at'],
-        }),
-      );
+      if (!res.data) {
+        return { res };
+      }
+
+      if (res.data.length > 0) {
+        await requestSQL(
+          ctx.terminal,
+          buildInsertManyIntoTableSQL(res.data, 'ohlc', {
+            conflictKeys: ['series_id', 'created_at'],
+          }),
+        );
+      }
 
       return {
         res: {
           code: 0,
           message: 'OK',
           data: {
-            count: data.length,
+            count: res.data.length,
           },
         },
       };
