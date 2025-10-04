@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "use event-stream to sync terminal infos and immediately abort request when disconnected to host",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

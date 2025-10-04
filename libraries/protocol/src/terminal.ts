@@ -22,6 +22,7 @@ import {
   mergeWith,
   partition,
   repeat,
+  repeatWhen,
   retry,
   share,
   switchMap,
@@ -668,77 +669,139 @@ export class Terminal {
 
   private _setupTerminalInfoStuff() {
     // Periodically update the whole terminal list
-    defer(() => this.client.request<{}, ITerminalInfo[]>('ListTerminals', '@host', {}))
+    let ack_seq_id = -1;
+
+    const refresh$ = new Subject<void>();
+
+    defer(() =>
+      this.client.request<{}, { terminals: ITerminalInfo[]; seq_id: number }>(
+        'GetTerminalInfos',
+        '@host',
+        {},
+      ),
+    )
       .pipe(
         takeUntil(this.dispose$),
-        filter((msg) => !!msg.res),
-        map((msg) => msg.res?.data ?? []),
-        mergeMap((x) => x),
-        // ISSUE: filter out terminals that have not been updated for a long time
-        // filter((x) => Date.now() - x.updated_at! < 60_000),
-        toArray(),
-        timeout(5000),
+        map((msg) => msg.res?.data),
+        filter((x): x is Exclude<typeof x, undefined> => !!x),
+        first(),
+        timeout(10_000),
         retry({ delay: 1000 }),
-        // ISSUE: Storage workload
-        repeat({ delay: 10000 }),
+        tap((data) => {
+          if (this.options.verbose) {
+            console.info(
+              formatTime(Date.now()),
+              'Terminal',
+              'GetTerminalInfos',
+              `terminals = ${data.terminals.length}, seq_id = ${data.seq_id}`,
+            );
+          }
+          ack_seq_id = data.seq_id;
+          this.terminalInfos = data.terminals;
+          this._terminalInfos$.next(data.terminals);
+        }),
+        repeat({
+          delay: () =>
+            refresh$.pipe(
+              mergeWith(this._conn.connection$), // While Reconnection
+              debounceTime(200),
+            ),
+        }),
       )
-      .subscribe((list) => {
-        console.info(formatTime(Date.now()), 'Terminal', 'ListTerminalInfo', list.length);
-        this.terminalInfos = list;
-        this._terminalInfos$.next(list);
-      });
+      .subscribe();
 
     // Receive TerminalInfo from the channel
-    defer(() => this.channel.subscribeChannel<ITerminalInfo>('TerminalInfo'))
+    defer(() =>
+      this.channel.subscribeChannel<{ seq_id: number; type: string; payload?: unknown }>('HostEvent'),
+    )
       .pipe(
         takeUntil(this.dispose$),
-        mergeMap((x) =>
-          this._terminalInfos$.pipe(
-            first(),
-            map((list) => {
-              const idx = list.findIndex((y) => y.terminal_id === x.terminal_id);
-              if (idx === -1) {
-                return [...list, x];
+        tap((event) => {
+          if (event.seq_id !== ack_seq_id + 1) {
+            refresh$.next();
+            return;
+          }
+
+          if (event.type === 'TERMINAL_CHANGE') {
+            const payload = event.payload as { new?: ITerminalInfo; old?: ITerminalInfo };
+
+            if (!payload.new && !payload.old) {
+              // invalid payload
+              refresh$.next();
+              return;
+            }
+
+            if (payload.new && payload.old && payload.new.terminal_id !== payload.old.terminal_id) {
+              // invalid payload
+              refresh$.next();
+              return;
+            }
+
+            const terminalId = payload.new ? payload.new.terminal_id : payload.old!.terminal_id;
+            const variant = payload.new && payload.old ? 'UPDATE' : payload.new ? 'JOIN' : 'LEAVE';
+
+            if (payload.old) {
+              const oldTerminalId = payload.old.terminal_id;
+              const oldIdx = this.terminalInfos.findIndex((x) => x.terminal_id === oldTerminalId);
+              if (oldIdx !== -1) {
+                this.terminalInfos.splice(oldIdx, 1);
               }
-              list[idx] = x;
-              return list;
-            }),
-            tap((list) => {
+            }
+            if (payload.new) {
+              this.terminalInfos.push(payload.new);
+            }
+            this._terminalInfos$.next(this.terminalInfos);
+            if (this.options.verbose) {
               console.info(
                 formatTime(Date.now()),
                 'Terminal',
-                'TerminalInfoUpdate',
-                x.terminal_id,
-                list.length,
+                'HostEvent',
+                `seq_id = ${event.seq_id}, type = ${
+                  event.type
+                }, variant = ${variant}, terminal_id = ${terminalId!}`,
               );
-              this.terminalInfos = list;
-              this._terminalInfos$.next(list);
-            }),
-          ),
-        ),
+            }
+            ack_seq_id = event.seq_id;
+            return;
+          }
+
+          if (this.options.verbose) {
+            console.info(
+              formatTime(Date.now()),
+              'Terminal',
+              'HostEvent',
+              `seq_id = ${event.seq_id}, type = ${event.type}`,
+            );
+          }
+        }),
       )
       .subscribe();
 
     this.terminalInfoUpdated$
       .pipe(
         takeUntil(this.dispose$),
-        tap(() => console.info(formatTime(Date.now()), 'Terminal', 'terminalInfo', 'updating')),
         debounceTime(10),
         tap(() => (this.terminalInfo.updated_at = Date.now())),
-        tap(() => console.info(formatTime(Date.now()), 'Terminal', 'terminalInfo', 'pushing')),
+        tap(() => {
+          if (this.options.verbose) {
+            console.info(formatTime(Date.now()), 'Terminal', 'terminalInfo', 'pushing');
+          }
+        }),
         // request maybe failed, so we should retry until success or cancelled by new pushing action
         switchMap(() =>
           defer(() => this.client.request('UpdateTerminalInfo', '@host', this.terminalInfo)).pipe(
-            tap((msg) =>
-              console.info(
-                formatTime(Date.now()),
-                'Terminal',
-                'terminalInfo',
-                'pushed',
-                msg.res?.code,
-                msg.trace_id,
-              ),
-            ),
+            tap((msg) => {
+              if (this.options.verbose) {
+                console.info(
+                  formatTime(Date.now()),
+                  'Terminal',
+                  'terminalInfo',
+                  'pushed',
+                  msg.res?.code,
+                  msg.trace_id,
+                );
+              }
+            }),
             timeout(5000),
             retry({ delay: 1000 }),
           ),
