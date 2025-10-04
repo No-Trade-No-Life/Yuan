@@ -1,3 +1,4 @@
+-- prometheus_rule 表
 -- https://prometheus.io/docs/prometheus/latest/configuration/recording_rules/
 CREATE TABLE IF NOT EXISTS
     prometheus_rule (
@@ -39,7 +40,7 @@ CREATE INDEX IF NOT EXISTS idx_prometheus_rule_annotations ON prometheus_rule US
 
 CREATE INDEX IF NOT EXISTS idx_prometheus_rule_created_at ON prometheus_rule (created_at);
 
-CREATE INDEX IF NOT EXISTS idx_prometheus_rule_created_at ON prometheus_rule (created_at);
+CREATE INDEX IF NOT EXISTS idx_prometheus_rule_updated_at ON prometheus_rule (updated_at);
 
 -- 为规则表创建更新时间触发器
 CREATE

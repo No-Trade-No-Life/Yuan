@@ -1,3 +1,4 @@
+-- transfer_order 表
 CREATE TABLE IF NOT EXISTS
     transfer_order (
         order_id UUID NOT NULL PRIMARY KEY,
@@ -27,26 +28,3 @@ CREATE TABLE IF NOT EXISTS
     );
 
 CREATE INDEX IF NOT EXISTS idx_transfer_order_status ON transfer_order (status);
-
-CREATE TABLE IF NOT EXISTS
-    transfer_network_info (
-        network_id TEXT NOT NULL PRIMARY KEY,
-        commission NUMERIC NOT NULL,
-        currency TEXT NOT NULL,
-        timeout BIGINT
-    );
-
-CREATE TABLE IF NOT EXISTS
-    transfer_routing_cache (
-        credit_account_id TEXT NOT NULL,
-        debit_account_id TEXT NOT NULL,
-        routing_path jsonb NOT NULL
-    );
-
-CREATE TABLE IF NOT EXISTS
-    account_address_info (
-        account_id TEXT NOT NULL,
-        network_id TEXT NOT NULL,
-        address TEXT NOT NULL,
-        currency TEXT NOT NULL
-    );

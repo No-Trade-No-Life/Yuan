@@ -1,3 +1,4 @@
+-- account_risk_info 表
 CREATE TABLE IF NOT EXISTS
     account_risk_info (
         account_id TEXT NOT NULL,

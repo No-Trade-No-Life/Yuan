@@ -1,3 +1,4 @@
+-- interest_rate 表
 CREATE TABLE IF NOT EXISTS
     interest_rate (
         series_id TEXT NOT NULL,
