@@ -261,8 +261,18 @@ export const createNodeJSHostManager = () => {
       // Clean up on Terminal Disconnect
       conn.close$.subscribe(() => {
         console.info(formatTime(Date.now()), 'Host', host_id, 'terminal disconnected', conn.terminal_id);
+
+        const oldTerminalInfo = terminalInfos.get(conn.terminal_id);
+
+        hostEvent$.next({
+          seq_id: ++seq_id,
+          type: 'TERMINAL_CHANGE',
+          payload: { old: oldTerminalInfo },
+        });
+
         terminalInfos.delete(conn.terminal_id);
         delete mapTerminalIdToConn[conn.terminal_id];
+
         conn.dispose();
         dispose$.next();
       });
