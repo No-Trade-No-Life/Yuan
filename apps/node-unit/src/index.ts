@@ -16,10 +16,10 @@ import {
   sha256,
   UUID,
 } from '@yuants/utils';
-import { execSync, spawn } from 'child_process';
-import { createReadStream, createWriteStream } from 'fs';
-import { mkdir, rename, rm, stat, writeFile } from 'fs/promises';
-import { hostname, tmpdir } from 'os';
+import { spawn } from 'child_process';
+import { createReadStream } from 'fs';
+import { mkdir, rename, stat } from 'fs/promises';
+import { hostname } from 'os';
 import { join } from 'path';
 import {
   concat,
@@ -38,6 +38,9 @@ import {
   tap,
 } from 'rxjs';
 import treeKill from 'tree-kill';
+import { getAbsolutePath, NODE_PATH, WORKSPACE_DIR } from './const';
+import { installWorkspaceTo } from './prepare-workspace';
+import { spawnChild } from './spawnChild';
 
 // 如果没有制定主机地址，则创建一个默认的主机管理器
 // 如果设置了数据库地址，则创建一个数据库连接服务
@@ -56,14 +59,6 @@ const getNodeKeyPairFromEnv = async (): Promise<IEd25519KeyPair> => {
   return fromSeed(seed);
 };
 
-const getAbsolutePath = (command: string) =>
-  execSync(`which ${command} || echo ""`, { encoding: 'utf-8' }).trim();
-
-const NODE_PATH = getAbsolutePath('node');
-const NPM_PATH = getAbsolutePath('npm');
-const PNPM_PATH = getAbsolutePath('pnpm');
-
-const WORKSPACE_DIR = join(tmpdir(), 'yuants', 'node-unit');
 console.info('Workspace Dir:', WORKSPACE_DIR);
 
 const kill$ = merge(fromEvent(process, 'SIGINT'), fromEvent(process, 'SIGTERM'));
@@ -71,50 +66,6 @@ const kill$ = merge(fromEvent(process, 'SIGINT'), fromEvent(process, 'SIGTERM'))
 kill$.subscribe(() => {
   process.exit();
 });
-
-const spawnChild = (ctx: {
-  command: string;
-  args: string[];
-  env: Record<string, string>;
-  cwd: string;
-  stdoutFilename: string;
-  stderrFilename: string;
-}) => {
-  return new Observable<void>((sub) => {
-    // console.info(formatTime(Date.now()), 'Spawn', JSON.stringify(ctx));
-    const child = spawn(ctx.command, ctx.args, {
-      env: ctx.env,
-      cwd: ctx.cwd,
-    });
-
-    const stdout = createWriteStream(ctx.stdoutFilename, { flags: 'a' });
-    const stderr =
-      ctx.stderrFilename === ctx.stdoutFilename
-        ? stdout
-        : createWriteStream(ctx.stderrFilename, { flags: 'a' });
-    child.stdout.pipe(stdout);
-    child.stderr.pipe(stderr);
-
-    child.on('spawn', () => {
-      console.info(formatTime(Date.now()), 'Spawn', ctx.command, ctx.args, child.pid);
-      sub.next(); // 只发出一次，用于表示启动成功
-    });
-
-    child.on('error', (err) => {
-      console.error(formatTime(Date.now()), 'Error', err);
-      sub.error(err);
-    });
-
-    child.on('exit', () => {
-      console.info(formatTime(Date.now()), 'Exit', ctx.command, ctx.args, child.pid);
-      sub.complete();
-    });
-
-    return () => {
-      treeKill(child.pid!, 'SIGKILL');
-    };
-  });
-};
 
 const childPublicKeys = new Set<string>();
 
@@ -132,20 +83,6 @@ const runDeployment = (nodeKeyPair: IEd25519KeyPair, deployment: IDeployment) =>
       defer(async () => {
         // EnsureDir log
         await mkdir(logHome, { recursive: true });
-
-        // EnsureEmptyDir deployment
-        await rm(deploymentDir, { recursive: true, force: true });
-        await mkdir(deploymentDir, { recursive: true });
-
-        await writeFile(
-          join(deploymentDir, 'package.json'),
-          JSON.stringify({
-            dependencies: {
-              [deployment.package_name]: deployment.package_version,
-            },
-          }),
-        );
-
         // Rename old log file if exists
         await rename(join(logHome, `${deployment.id}.log`), join(logHome, `${deployment.id}.prev.log`)).catch(
           (err) => {
@@ -154,14 +91,15 @@ const runDeployment = (nodeKeyPair: IEd25519KeyPair, deployment: IDeployment) =>
           },
         );
       }).pipe(mergeMap(() => EMPTY)), // suppress signal
-      spawnChild({
-        command: PNPM_PATH || NPM_PATH,
-        args: ['install', '-C', deploymentDir], // -C is for npm, --prefix is for pnpm, but pnpm also supports -C (可以在 htop 中显示正在安装哪个部署)
-        env: Object.assign({}, process.env, deployment.env),
-        cwd: deploymentDir, // 重复了，但无妨
-        stdoutFilename: join(logHome, `${deployment.id}.log`),
-        stderrFilename: join(logHome, `${deployment.id}.log`),
-      }).pipe(mergeMap(() => EMPTY)), // suppress signal
+      // Install workspace
+      defer(() =>
+        installWorkspaceTo(
+          deployment.package_name,
+          deployment.package_version,
+          deploymentDir,
+          deployment.package_version === 'latest',
+        ),
+      ).pipe(mergeMap(() => EMPTY)),
       defer(() => {
         const childKeyPair = createKeyPair();
         childPublicKeys.add(childKeyPair.public_key);
@@ -461,18 +399,29 @@ defer(async () => {
     ),
   )
     .pipe(
-      map((deployments) =>
-        deployments.filter((deployment) =>
+      map((deployments) => {
+        const trusted = deployments.filter((deployment) =>
           trustedPackageRegExp.test(`${deployment.package_name}@${deployment.package_version}`),
-        ),
-      ),
-
-      repeat({ delay: 10000 }),
-      retry({ delay: 1000 }),
-      tap((deployments) => {
-        console.info(formatTime(Date.now()), 'Deployments', deployments.length);
-        console.table(deployments);
+        );
+        console.info(
+          formatTime(Date.now()),
+          'Deployments',
+          `${trusted.length} trusted, ${deployments.length} total`,
+        );
+        console.table(
+          deployments.map(({ id, package_name, package_version, updated_at }) => ({
+            id,
+            package_name,
+            package_version,
+            updated_at,
+            is_trusted: !!trusted.find((x) => x.id === id),
+          })),
+        );
+        return trusted;
       }),
+
+      repeat({ delay: 5000 }),
+      retry({ delay: 1000 }),
       takeUntil(kill$),
       //
       listWatch(
