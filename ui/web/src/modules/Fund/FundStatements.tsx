@@ -270,7 +270,7 @@ registerPage('FundStatements', () => {
 
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
-      <Space>
+      <Space style={{ width: '100%', visibility: terminal ? undefined : 'hidden' }} wrap>
         <Button icon={<IconCode />} onClick={() => executeCommand('FileEditor', { filename })}>
           源码
         </Button>
@@ -476,78 +476,72 @@ registerPage('FundStatements', () => {
           从主机下载
         </Button>
       </Space>
-      <Typography.Text>更新时间: {formatTime(state.updated_at)}</Typography.Text>
-      <Typography.Text>
-        基金账户: <InlineAccountId account_id={state.account_id} />
-      </Typography.Text>
-      <Typography.Title heading={4}>资金指标</Typography.Title>
-      <Descriptions
-        data={[
-          { key: '总资产', value: state.total_assets },
-          { key: '总份额', value: state.summary_derived.total_share },
-          { key: '净入金', value: state.summary_derived.total_deposit },
-          { key: '净利润', value: state.summary_derived.total_profit },
-          { key: '可征税费', value: state.summary_derived.total_tax },
-          { key: '已征税费', value: state.total_taxed },
-        ]}
-        row
-      />
-      <Typography.Title heading={4}>性能指标</Typography.Title>
-      <Descriptions
-        data={[
-          { key: '单位净值', value: state.summary_derived.unit_price },
-          { key: '存续天数', value: state.summary_derived.total_time / 86400_000 },
-          {
-            key: '日化收益率',
-            value: `${
-              ((state.summary_derived.unit_price - 1) / (state.summary_derived.total_time / 86400_000)) * 100
-            }%`,
-          },
-          {
-            key: '月化收益率',
-            value: `${
-              ((state.summary_derived.unit_price - 1) / (state.summary_derived.total_time / 86400_000)) *
-              100 *
-              30
-            }%`,
-          },
-          {
-            key: '年化收益率',
-            value: `${
-              ((state.summary_derived.unit_price - 1) / (state.summary_derived.total_time / 86400_000)) *
-              100 *
-              365
-            }%`,
-          },
-        ]}
-        row
-      />
-      <Descriptions
-        data={[
-          {
-            key: '最大净值',
-            value: `${equityHistory[equityHistory.length - 1]?.max_value ?? 0}`,
-          },
-          {
-            key: '当前回撤',
-            value: `${isAllTimeHigh ? '🔥 ALL-TIME-HIGH 🔥' : drawdown}`,
-          },
-          {
-            key: '最大回撤',
-            value: `${equityHistory[equityHistory.length - 1]?.max_drawdown ?? 0}`,
-          },
-          {
-            key: '年化收益率 / 最大回撤',
-            value: `${
-              (((state.summary_derived.unit_price - 1) / (state.summary_derived.total_time / 86400_000)) *
-                365) /
-              (equityHistory[equityHistory.length - 1]?.max_drawdown ?? 0)
-            }`,
-          },
-        ]}
-        row
-      />
-      <Collapse defaultActiveKey={['charts', 'investors']} style={{ width: '100%' }}>
+      <Collapse defaultActiveKey={['summary', 'charts', 'investors']} style={{ width: '100%' }}>
+        <Collapse.Panel itemKey="summary" header={'总览'}>
+          <DataView
+            initialTopSlotVisible={false}
+            data={[
+              // 一行数据作为 DataView 的数据源，以展示基金的总览信息 (自适应屏幕宽度)
+              {
+                account_id: state.account_id,
+                updated_at: state.updated_at,
+                total_assets: state.total_assets,
+                total_share: state.summary_derived.total_share,
+                total_deposit: state.summary_derived.total_deposit,
+                total_profit: state.summary_derived.total_profit,
+                total_tax: state.summary_derived.total_tax,
+                total_taxed: state.total_taxed,
+                unit_price: state.summary_derived.unit_price,
+                total_time: state.summary_derived.total_time / 86400_000,
+                daily_return: `${
+                  ((state.summary_derived.unit_price - 1) / (state.summary_derived.total_time / 86400_000)) *
+                  100
+                }%`,
+                monthly_return: `${
+                  ((state.summary_derived.unit_price - 1) / (state.summary_derived.total_time / 86400_000)) *
+                  100 *
+                  30
+                }%`,
+                annually_return: `${
+                  ((state.summary_derived.unit_price - 1) / (state.summary_derived.total_time / 86400_000)) *
+                  100 *
+                  365
+                }%`,
+                max_value: equityHistory[equityHistory.length - 1]?.max_value ?? 0,
+                current_drawdown: isAllTimeHigh ? '🔥 ALL-TIME-HIGH 🔥' : drawdown,
+                max_drawdown: equityHistory[equityHistory.length - 1]?.max_drawdown ?? 0,
+                return_drawdown_ratio: `${
+                  (((state.summary_derived.unit_price - 1) / (state.summary_derived.total_time / 86400_000)) *
+                    365) /
+                  (equityHistory[equityHistory.length - 1]?.max_drawdown ?? 0)
+                }`,
+              },
+            ]}
+            columns={[
+              {
+                header: '基金账户',
+                accessorKey: 'account_id',
+                cell: (ctx) => <InlineAccountId account_id={ctx.getValue()} />,
+              },
+              { header: '更新时间', accessorKey: 'updated_at', cell: (ctx) => formatTime(ctx.getValue()) },
+              { header: '总资产', accessorKey: 'total_assets' },
+              { header: '总份额', accessorKey: 'total_share' },
+              { header: '净入金', accessorKey: 'total_deposit' },
+              { header: '净利润', accessorKey: 'total_profit' },
+              { header: '可征税费', accessorKey: 'total_tax' },
+              { header: '已征税费', accessorKey: 'total_taxed' },
+              { header: '单位净值', accessorKey: 'unit_price' },
+              { header: '存续天数', accessorKey: 'total_time' },
+              { header: '日化收益率', accessorKey: 'daily_return' },
+              { header: '月化收益率', accessorKey: 'monthly_return' },
+              { header: '年化收益率', accessorKey: 'annually_return' },
+              { header: '最大净值', accessorKey: 'max_value' },
+              { header: '当前回撤', accessorKey: 'current_drawdown' },
+              { header: '最大回撤', accessorKey: 'max_drawdown' },
+              { header: '收益回撤比', accessorKey: 'return_drawdown_ratio' },
+            ]}
+          />
+        </Collapse.Panel>
         <Collapse.Panel itemKey="charts" header={'图表'}>
           <div style={{ height: 800, width: '100%' }}>
             <TimeSeriesChart config={config} />
@@ -555,14 +549,25 @@ registerPage('FundStatements', () => {
         </Collapse.Panel>
         <Collapse.Panel itemKey="investors" header={'投资人列表'}>
           <DataView
+            initialPageSize={200}
             columns={[
               {
                 header: '投资人',
                 accessorKey: 'meta.name',
               },
 
-              { header: '净资产', accessorKey: 'detail.after_tax_assets' },
-              { header: '净入金', accessorKey: 'meta.deposit' },
+              {
+                header: '净资产',
+                accessorKey: 'detail.after_tax_assets',
+                enableColumnFilter: false,
+                enableGlobalFilter: false,
+              },
+              {
+                header: '净入金',
+                accessorKey: 'meta.deposit',
+                enableColumnFilter: false,
+                enableGlobalFilter: false,
+              },
               // {
               //   header: '推荐人',
               //   accessorKey: 'meta.referrer',
@@ -580,33 +585,83 @@ registerPage('FundStatements', () => {
               //   header: '已交税费',
               //   accessorKey: 'meta.taxed',
               // },
-              { header: '收益', accessorKey: 'detail.after_tax_profit' },
+              {
+                header: '收益',
+                accessorKey: 'detail.after_tax_profit',
+                enableColumnFilter: false,
+                enableGlobalFilter: false,
+                cell: (ctx) => +ctx.getValue().toFixed(8),
+              },
               {
                 header: '持有天数',
                 accessorKey: 'detail.holding_days',
+                enableColumnFilter: false,
+                enableGlobalFilter: false,
                 cell: (ctx) => `${Math.ceil(ctx.getValue())}`,
               },
               {
                 header: '收益率',
                 accessorKey: 'detail.after_tax_profit_rate',
+                enableColumnFilter: false,
+                enableGlobalFilter: false,
                 cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
               },
-              { header: '份额', accessorKey: 'meta.share' },
+              {
+                header: '份额',
+                accessorKey: 'meta.share',
+                enableColumnFilter: false,
+                enableGlobalFilter: false,
+              },
               {
                 header: '份额占比',
                 accessorKey: 'detail.share_ratio',
+                enableColumnFilter: false,
+                enableGlobalFilter: false,
                 cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
               },
-              { header: '税前资产', accessorKey: 'detail.pre_tax_assets' },
-              { header: '起征点', accessorKey: 'meta.tax_threshold' },
-              { header: '应税额', accessorKey: 'detail.taxable' },
+              {
+                header: '税前资产',
+                accessorKey: 'detail.pre_tax_assets',
+                enableColumnFilter: false,
+                enableGlobalFilter: false,
+              },
+              {
+                header: '起征点',
+                accessorKey: 'meta.tax_threshold',
+                enableColumnFilter: false,
+                enableGlobalFilter: false,
+              },
+              {
+                header: '应税额',
+                accessorKey: 'detail.taxable',
+                enableColumnFilter: false,
+                enableGlobalFilter: false,
+              },
               {
                 header: '税率',
                 accessorKey: 'meta.tax_rate',
+                enableColumnFilter: false,
+                enableGlobalFilter: false,
                 cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
               },
-              { header: '税费', accessorKey: 'detail.tax' },
-              { header: '税后份额', accessorKey: 'detail.after_tax_share' },
+              {
+                header: '税费',
+                accessorKey: 'detail.tax',
+                enableColumnFilter: false,
+                enableGlobalFilter: false,
+              },
+              {
+                header: '税后份额',
+                accessorKey: 'detail.after_tax_share',
+                enableColumnFilter: false,
+                enableGlobalFilter: false,
+              },
+              {
+                header: '已交税费',
+                accessorKey: 'meta.taxed',
+                enableColumnFilter: false,
+                enableGlobalFilter: false,
+              },
               {
                 header: '操作',
                 cell: (ctx) => {
