@@ -2,6 +2,29 @@
   "name": "@yuants/app-fund",
   "entries": [
     {
+      "version": "0.1.6",
+      "tag": "@yuants/app-fund_v0.1.6",
+      "date": "Sat, 04 Oct 2025 21:07:38 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.46.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.10`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.5.2`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.5",
       "tag": "@yuants/app-fund_v0.1.5",
       "date": "Fri, 03 Oct 2025 04:17:01 GMT",

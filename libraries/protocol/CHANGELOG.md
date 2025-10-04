@@ -1,6 +1,14 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Fri, 03 Oct 2025 04:17:01 GMT and should not be manually modified.
+This log was last generated on Sat, 04 Oct 2025 21:07:38 GMT and should not be manually modified.
+
+## 0.46.0
+Sat, 04 Oct 2025 21:07:38 GMT
+
+### Minor changes
+
+- use event-stream to sync terminal infos and immediately abort request when disconnected to host
+- add seq_id to trace_id
 
 ## 0.45.1
 Fri, 03 Oct 2025 04:17:01 GMT
