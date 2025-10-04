@@ -115,7 +115,15 @@ export function provideQueryProductsService(
   // Set up auto refresh if interval is provided
   if (options?.auto_refresh_interval) {
     defer(async () => {
-      await terminal.client.requestForResponse('QueryProducts', { datasource_id });
+      const products = await terminal.client.requestForResponseData<{ datasource_id: string }, IProduct[]>(
+        'QueryProducts',
+        {
+          datasource_id,
+        },
+      );
+      // 或许会从别的终端执行，所以需要更新本地缓存
+      const filteredProducts = products.filter((product) => product.datasource_id === datasource_id);
+      products$.next(filteredProducts);
     })
       .pipe(
         takeUntil(terminal.dispose$),
