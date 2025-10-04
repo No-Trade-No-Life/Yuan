@@ -13,6 +13,7 @@ import {
   Subject,
   takeUntil,
   tap,
+  throwError,
   timeout,
 } from 'rxjs';
 import { IResponse, IServiceCandidateClientSide, ITerminalMessage } from './model';
@@ -190,6 +191,16 @@ export class TerminalClient {
           each: 60_000, // maybe configurable in the future
           meta: `Client Read Timeout: trace_id="${trace_id}" method=${msg.method} target=${msg.target_terminal_id}`,
         }),
+        // auto abort request (throwError) when disconnected
+        takeUntil(
+          this.terminal.isConnected$.pipe(
+            filter((x) => !x),
+            mergeMap(() => throwError(() => new Error('Client Connection Disconnected'))),
+          ),
+        ),
+        // TODO: Auto Abort request (throwError) when target terminal or service is not available
+
+        // auto abort request (throwError) when terminal is disposed
         takeUntil(this.terminal.dispose$),
         tap({
           unsubscribe: () => {
