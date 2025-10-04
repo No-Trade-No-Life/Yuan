@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-product
 
-This log was last generated on Fri, 03 Oct 2025 04:17:01 GMT and should not be manually modified.
+This log was last generated on Sat, 04 Oct 2025 06:21:41 GMT and should not be manually modified.
+
+## 0.3.2
+Sat, 04 Oct 2025 06:21:41 GMT
+
+### Patches
+
+- fix cache bug
 
 ## 0.3.1
 Fri, 03 Oct 2025 04:17:01 GMT
