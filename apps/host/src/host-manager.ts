@@ -113,10 +113,8 @@ export const createNodeJSHostManager = () => {
     );
 
     const terminalInfo$ = new Subject<ITerminalInfo>();
-    const terminalInfoChangeEvent$ = new Subject<{ new?: ITerminalInfo; old?: ITerminalInfo }>();
 
     terminal.channel.publishChannel('TerminalInfo', { const: '' }, () => terminalInfo$);
-    terminal.channel.publishChannel('TerminalInfoChangeEvent', { const: '' }, () => terminalInfoChangeEvent$);
 
     terminal.server.provideService('ListTerminals', {}, () => listTerminalsMessage$.pipe(first()));
 
@@ -171,7 +169,6 @@ export const createNodeJSHostManager = () => {
       const oldTerminalInfo = terminalInfos.get(msg.req.terminal_id);
       terminalInfos.set(msg.req.terminal_id, msg.req);
       terminalInfo$.next(msg.req);
-      terminalInfoChangeEvent$.next({ new: msg.req, old: oldTerminalInfo });
 
       hostEvent$.next({
         seq_id: ++seq_id,
@@ -195,7 +192,6 @@ export const createNodeJSHostManager = () => {
                 console.info(formatTime(Date.now()), 'Terminal ping failed', target_terminal_id, `${err}`);
                 const oldTerminalInfo = terminalInfos.get(target_terminal_id);
                 terminalInfos.delete(target_terminal_id);
-                terminalInfoChangeEvent$.next({ old: oldTerminalInfo });
 
                 hostEvent$.next({
                   seq_id: ++seq_id,
