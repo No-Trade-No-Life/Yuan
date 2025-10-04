@@ -166,6 +166,7 @@ export class TerminalClient {
     const trace_id = UUID();
     const msg = {
       trace_id,
+      seq_id: 0,
       method,
       target_terminal_id,
       source_terminal_id: this.terminal.terminal_id,
@@ -185,6 +186,7 @@ export class TerminalClient {
           target_terminal_id,
         );
       }
+      let ack_seq_id = -1;
       this.terminal.output$.next(msg);
       return response$.pipe(
         timeout({
@@ -203,12 +205,17 @@ export class TerminalClient {
         // auto abort request (throwError) when terminal is disposed
         takeUntil(this.terminal.dispose$),
         tap({
+          next: (msg) => {
+            // TODO: Check the order of seq_id to ensure the correctness of the protocol
+            ack_seq_id = msg.seq_id;
+          },
           unsubscribe: () => {
             if (this.terminal.options.verbose) {
               console.info(formatTime(Date.now()), 'Client', 'RequestAborted', msg.trace_id);
             }
             this.terminal.output$.next({
               trace_id,
+              seq_id: ++ack_seq_id,
               method,
               target_terminal_id,
               source_terminal_id: this.terminal.terminal_id,

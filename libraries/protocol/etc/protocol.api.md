@@ -124,6 +124,7 @@ export interface ITerminalMessage {
     req?: unknown;
     // (undocumented)
     res?: IResponse<unknown>;
+    seq_id: number;
     // (undocumented)
     service_id?: string;
     // (undocumented)
