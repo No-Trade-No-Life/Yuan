@@ -43,26 +43,25 @@ export const useLegendContainers = (dom$: Observable<HTMLDivElement | null>): HT
         }),
         debounceTime(10),
         map((dom) => dom.querySelectorAll('table')[0]),
-        // 读取 tr 列表
-        map((table) => Array.from(table.querySelectorAll('tr')).filter((_, i) => i % 2 === 0)),
+        // 读取 td 列表作为定位容器
+        // ISSUE: tr 容器作为绝对定位，在 Safari 下会有问题，需要找到 td 元素作为相对定位的参考 (第2个 td 是具有相对定位的)
+        map((table) => Array.from(table.querySelectorAll('tr td:nth-child(2)'))),
         // ListWatch 并管理 legend dom 的副作用
         distinctUntilChanged((a, b) => a.length === b.length && a.every((v, i) => v === b[i])), // 比较引用相等
         // 检测到发生变化
         switchMap(
-          (trs) =>
+          (tds) =>
             new Observable<HTMLDivElement[]>((sub) => {
-              const doms = trs.map((tr) => {
-                tr.classList.add('TimeSeriesChart_pane');
+              const doms = tds.map((td) => {
                 const dom = document.createElement('div');
                 dom.classList.add('TimeSeriesChart_legend-container');
-                tr.appendChild(dom);
+                td.appendChild(dom);
                 return dom;
               });
               sub.next(doms);
               return () => {
-                trs.forEach((tr, i) => {
-                  tr.classList.remove('TimeSeriesChart_pane');
-                  tr.removeChild(doms[i]);
+                tds.forEach((td, i) => {
+                  td.removeChild(doms[i]);
                 });
               };
             }),
