@@ -2,6 +2,26 @@
   "name": "@yuants/node-unit",
   "entries": [
     {
+      "version": "0.12.0",
+      "tag": "@yuants/node-unit_v0.12.0",
+      "date": "Sat, 04 Oct 2025 13:58:51 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "update README"
+          },
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "optimize install speed"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.11.7",
       "tag": "@yuants/node-unit_v0.11.7",
       "date": "Fri, 03 Oct 2025 04:17:01 GMT",
