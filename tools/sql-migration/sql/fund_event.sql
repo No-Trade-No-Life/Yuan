@@ -1,3 +1,4 @@
+-- fund_event 表
 CREATE TABLE IF NOT EXISTS
     fund_event (
         account_id TEXT NOT NULL PRIMARY KEY,

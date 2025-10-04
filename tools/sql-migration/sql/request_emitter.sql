@@ -1,3 +1,4 @@
+-- request_emitter 表
 CREATE TABLE IF NOT EXISTS
     request_emitter (
         id TEXT PRIMARY KEY DEFAULT gen_random_uuid (),

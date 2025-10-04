@@ -1,3 +1,4 @@
+-- twitter_messages 表
 CREATE TABLE IF NOT EXISTS
     twitter_messages (
         id TEXT PRIMARY KEY,
@@ -13,29 +14,7 @@ CREATE TABLE IF NOT EXISTS
         raw_data JSONB
     );
 
-CREATE TABLE IF NOT EXISTS
-    twitter_monitor_users (
-        id TEXT PRIMARY KEY,
-        user_id TEXT NOT NULL,
-        created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        updated_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP,
-        frozen_at TIMESTAMPTZ
-    );
-
-ALTER TABLE twitter_monitor_users
-DROP CONSTRAINT IF EXISTS twitter_monitor_users_pkey;
-
-ALTER TABLE twitter_monitor_users
-DROP COLUMN IF EXISTS id;
-
-ALTER TABLE twitter_monitor_users
-DROP CONSTRAINT IF EXISTS twitter_monitor_users_pk;
-
-ALTER TABLE twitter_monitor_users
-ADD CONSTRAINT twitter_monitor_users_pk PRIMARY KEY (user_id);
-
-CREATE EXTENSION IF NOT EXISTS timescaledb;
-
+-- 修改 twitter_messages 表约束
 ALTER TABLE twitter_messages
 DROP CONSTRAINT IF EXISTS twitter_messages_pkey;
 
@@ -53,6 +32,7 @@ BEGIN
     END IF;
 END $$;
 
+-- 创建超表
 PERFORM create_hypertable (
     'twitter_messages',
     by_range ('created_at'),

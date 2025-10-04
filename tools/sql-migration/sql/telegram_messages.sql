@@ -1,3 +1,4 @@
+-- telegram_messages 表
 CREATE TABLE IF NOT EXISTS
     public.telegram_messages (
         id serial4 NOT NULL,
@@ -13,19 +14,7 @@ CREATE TABLE IF NOT EXISTS
         CONSTRAINT telegram_messages_pkey PRIMARY KEY (id)
     );
 
-CREATE TABLE IF NOT EXISTS
-    public.telegram_monitor_accounts (
-        id serial4 NOT NULL,
-        phone_number TEXT NOT NULL,
-        string_session TEXT NOT NULL,
-        account_id TEXT NOT NULL,
-        created_at timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-        updated_at timestamptz DEFAULT CURRENT_TIMESTAMP NOT NULL,
-        frozen_at timestamptz NULL
-    );
-
-CREATE EXTENSION IF NOT EXISTS timescaledb;
-
+-- 修改 telegram_messages 表约束
 ALTER TABLE telegram_messages
 DROP CONSTRAINT IF EXISTS telegram_messages_pkey;
 
@@ -60,6 +49,7 @@ BEGIN
     END IF;
 END $$;
 
+-- 创建超表
 PERFORM create_hypertable (
     'telegram_messages',
     by_range ('created_at'),

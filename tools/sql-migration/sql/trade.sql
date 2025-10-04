@@ -1,4 +1,4 @@
--- create_table_trade migration
+-- trade 表
 CREATE TABLE IF NOT EXISTS
     trade (
         id TEXT PRIMARY KEY,
