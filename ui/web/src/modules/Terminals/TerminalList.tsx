@@ -4,7 +4,7 @@ import { ITerminalInfo } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
 import { useObservableState } from 'observable-hooks';
 import { useMemo } from 'react';
-import { of, shareReplay, switchMap } from 'rxjs';
+import { map, of, shareReplay, switchMap } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
 import { Button, DataView } from '../Interactive';
 import { registerPage } from '../Pages';
@@ -15,6 +15,7 @@ import { formatDuration } from './utils';
 
 export const terminalList$ = terminal$.pipe(
   switchMap((terminal) => terminal?.terminalInfos$ ?? of([])),
+  map((list) => list.slice()),
   shareReplay(1),
 );
 

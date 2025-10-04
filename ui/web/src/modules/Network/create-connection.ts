@@ -2,6 +2,9 @@ import { Terminal } from '@yuants/protocol';
 import { UUID } from '@yuants/utils';
 import { BehaviorSubject, Observable, shareReplay, switchMap } from 'rxjs';
 
+const url = new URL(window?.location.href ?? 'https://y.ntnl.io');
+const isDev = url.searchParams.get('mode') === 'development';
+
 export const hostUrl$ = new BehaviorSubject<string | null>(null);
 
 export const terminal$: Observable<Terminal | null> = hostUrl$.pipe(
@@ -11,11 +14,16 @@ export const terminal$: Observable<Terminal | null> = hostUrl$.pipe(
         subscriber.next(null);
         return;
       }
-      const terminal = new Terminal(host_url, {
-        terminal_id: `@GUI/${UUID()}`,
-        name: 'Workbench GUI' + (typeof window === 'undefined' ? `(worker)` : ''),
-        status: 'OK',
-      });
+      const terminal = new Terminal(
+        host_url,
+        {
+          terminal_id: `@GUI/${UUID()}`,
+          name: 'Workbench GUI' + (typeof window === 'undefined' ? `(worker)` : ''),
+        },
+        {
+          verbose: isDev,
+        },
+      );
       subscriber.next(terminal);
       return () => {
         terminal.dispose();
