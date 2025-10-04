@@ -2,6 +2,26 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.46.0",
+      "tag": "@yuants/protocol_v0.46.0",
+      "date": "Sat, 04 Oct 2025 21:07:38 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "use event-stream to sync terminal infos and immediately abort request when disconnected to host"
+          },
+          {
+            "comment": "add seq_id to trace_id"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.45.1",
       "tag": "@yuants/protocol_v0.45.1",
       "date": "Fri, 03 Oct 2025 04:17:01 GMT",

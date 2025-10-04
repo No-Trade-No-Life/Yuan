@@ -1,6 +1,11 @@
 # Change Log - @yuants/app-request-emitter
 
-This log was last generated on Fri, 03 Oct 2025 04:17:01 GMT and should not be manually modified.
+This log was last generated on Sat, 04 Oct 2025 21:07:38 GMT and should not be manually modified.
+
+## 0.1.4
+Sat, 04 Oct 2025 21:07:38 GMT
+
+_Version update only_
 
 ## 0.1.3
 Fri, 03 Oct 2025 04:17:01 GMT

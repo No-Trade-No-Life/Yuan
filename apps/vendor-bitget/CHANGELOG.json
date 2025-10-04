@@ -2,6 +2,50 @@
   "name": "@yuants/vendor-bitget",
   "entries": [
     {
+      "version": "0.5.22",
+      "tag": "@yuants/vendor-bitget_v0.5.22",
+      "date": "Sat, 04 Oct 2025 21:07:38 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.46.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/transfer\" to `0.2.19`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.5.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.10`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.3.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-ohlc\" to `0.4.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.2.16`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-quote\" to `0.2.23`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.3.31`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-interest-rate\" to `0.1.28`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.21",
       "tag": "@yuants/vendor-bitget_v0.5.21",
       "date": "Sat, 04 Oct 2025 06:21:41 GMT",
