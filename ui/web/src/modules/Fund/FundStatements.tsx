@@ -7,7 +7,7 @@ import {
   IconUpload,
   IconUser,
 } from '@douyinfe/semi-icons';
-import { Collapse, Descriptions, Space, Toast, Typography } from '@douyinfe/semi-ui';
+import { Collapse, Space, Toast } from '@douyinfe/semi-ui';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
 import { parse } from 'jsonc-parser';
@@ -270,7 +270,7 @@ registerPage('FundStatements', () => {
 
   return (
     <Space vertical align="start" style={{ width: '100%' }}>
-      <Space style={{ width: '100%', visibility: terminal ? undefined : 'hidden' }} wrap>
+      <Space style={{ width: '100%', display: terminal ? undefined : 'none' }} wrap>
         <Button icon={<IconCode />} onClick={() => executeCommand('FileEditor', { filename })}>
           源码
         </Button>
