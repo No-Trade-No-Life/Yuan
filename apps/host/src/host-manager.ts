@@ -4,6 +4,7 @@ import { readFileSync } from 'fs';
 import { createServer, IncomingMessage, RequestListener } from 'http';
 import { createServer as createHttpsServer } from 'https';
 import {
+  BehaviorSubject,
   bindCallback,
   catchError,
   defer,
@@ -100,6 +101,10 @@ export const createNodeJSHostManager = () => {
       },
     );
 
+    /**
+     * Host 维护的所有 Terminal 信息
+     * (Host 唯一需要同步给各个终端的状态)
+     */
     const terminalInfos = new Map<string, ITerminalInfo>();
 
     const listTerminalsMessage$ = interval(1000).pipe(
@@ -108,18 +113,69 @@ export const createNodeJSHostManager = () => {
     );
 
     const terminalInfo$ = new Subject<ITerminalInfo>();
-    const terminalInfoChangeEvent$ = new Subject<{ new?: ITerminalInfo; old?: ITerminalInfo }>();
 
     terminal.channel.publishChannel('TerminalInfo', { const: '' }, () => terminalInfo$);
-    terminal.channel.publishChannel('TerminalInfoChangeEvent', { const: '' }, () => terminalInfoChangeEvent$);
 
     terminal.server.provideService('ListTerminals', {}, () => listTerminalsMessage$.pipe(first()));
+
+    /**
+     * Host 事件序列 ID
+     */
+    let seq_id = 0;
+
+    interface IHostEvent {
+      /**
+       * 一个自增的序列号
+       *
+       * 终端应当订阅 HostEvent 事件流，并且保存上次收到的 seq_id
+       *
+       * 终端应当检查这个值是否连续的
+       *
+       * - 如果 seq_id 连续自增，说明事件是正常的，终端可以根据事件内容自行更新状态 (不需要重新 GetTerminalInfos)
+       * - 如果不连续，说明中间有事件丢失，应该重新 GetTerminalInfos 来获取最新的状态 (seq_id 会在 GetTerminalInfos 的返回值中给出)
+       */
+      seq_id: number;
+      /**
+       * 事件类型
+       * - INIT: 初始化事件，表示当前是一个新的主机
+       * - TERMINAL_CHANGE: 有终端连接、断开或者状态更新
+       * - 未来可能会有更多事件类型 (例如 SERVICE_CHANGE)
+       */
+      type: string;
+      /**
+       * 事件内容
+       */
+      payload?: unknown;
+    }
+
+    const hostEvent$ = new BehaviorSubject<IHostEvent>({ seq_id, type: 'INIT' });
+
+    terminal.channel.publishChannel('HostEvent', { const: '' }, () => hostEvent$);
+
+    terminal.server.provideService('GetTerminalInfos', {}, async () => {
+      return {
+        res: {
+          code: 0,
+          message: 'OK',
+          data: {
+            terminals: [...terminalInfos.values()],
+            seq_id,
+          },
+        },
+      };
+    });
 
     terminal.server.provideService<ITerminalInfo>('UpdateTerminalInfo', {}, async (msg) => {
       const oldTerminalInfo = terminalInfos.get(msg.req.terminal_id);
       terminalInfos.set(msg.req.terminal_id, msg.req);
       terminalInfo$.next(msg.req);
-      terminalInfoChangeEvent$.next({ new: msg.req, old: oldTerminalInfo });
+
+      hostEvent$.next({
+        seq_id: ++seq_id,
+        type: 'TERMINAL_CHANGE',
+        payload: { new: msg.req, old: oldTerminalInfo },
+      });
+
       return { res: { code: 0, message: 'OK' } };
     });
 
@@ -136,7 +192,13 @@ export const createNodeJSHostManager = () => {
                 console.info(formatTime(Date.now()), 'Terminal ping failed', target_terminal_id, `${err}`);
                 const oldTerminalInfo = terminalInfos.get(target_terminal_id);
                 terminalInfos.delete(target_terminal_id);
-                terminalInfoChangeEvent$.next({ old: oldTerminalInfo });
+
+                hostEvent$.next({
+                  seq_id: ++seq_id,
+                  type: 'TERMINAL_CHANGE',
+                  payload: { old: oldTerminalInfo },
+                });
+
                 mapTerminalIdToConn[target_terminal_id]?.dispose();
                 delete mapTerminalIdToConn[target_terminal_id];
               },
