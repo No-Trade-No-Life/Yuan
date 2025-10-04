@@ -55,7 +55,7 @@ interface IRequestContext {
 }
 type IServiceOutput = Omit<
   ITerminalMessage,
-  'trace_id' | 'method' | 'source_terminal_id' | 'target_terminal_id'
+  'trace_id' | 'method' | 'source_terminal_id' | 'target_terminal_id' | 'seq_id'
 >;
 
 interface IServiceContext {
@@ -295,6 +295,7 @@ export class TerminalServer {
         const terminalMessageBase: ITerminalMessage = {
           // Auto fill the trace_id and method
           trace_id: msg.trace_id,
+          seq_id: msg.seq_id || 0,
           method: msg.method,
           // ISSUE: Reverse source / target as response, otherwise the host cannot guarantee the forwarding direction
           source_terminal_id: this.terminal.terminal_id,
@@ -303,6 +304,7 @@ export class TerminalServer {
 
         output$.subscribe({
           next: (x) => {
+            terminalMessageBase.seq_id!++;
             const terminalMessage: ITerminalMessage = {
               ...x,
               ...terminalMessageBase,
@@ -313,9 +315,15 @@ export class TerminalServer {
             this.terminal.output$.next(terminalMessage);
           },
           complete: () => {
-            this.terminal.output$.next({ ...terminalMessageBase, done: true });
+            terminalMessageBase.seq_id!++;
+            this.terminal.output$.next({
+              //
+              ...terminalMessageBase,
+              done: true,
+            });
           },
           error: () => {
+            terminalMessageBase.seq_id!++;
             this.terminal.output$.next({
               ...terminalMessageBase,
               res: { code: 500, message: 'Internal Server Error' },

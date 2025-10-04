@@ -216,6 +216,11 @@ export interface ITerminalMessage {
   source_terminal_id: string;
   target_terminal_id: string;
   trace_id: string;
+  /**
+   * Sequence ID, used to identify the order of messages in a session defined by `trace_id`
+   * 序列 ID，用于标识 `trace_id` 定义的会话中消息的顺序
+   */
+  seq_id: number;
 
   method?: string;
 
