@@ -520,6 +520,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/prometheus",
+      "projectFolder": "libraries/prometheus",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/prometheus-client",
       "projectFolder": "libraries/prometheus-client",
       "shouldPublish": true
