@@ -1,6 +1,11 @@
 # Change Log - @yuants/kernel
 
-This log was last generated on Sat, 04 Oct 2025 21:07:38 GMT and should not be manually modified.
+This log was last generated on Sun, 05 Oct 2025 10:41:11 GMT and should not be manually modified.
+
+## 0.15.29
+Sun, 05 Oct 2025 10:41:11 GMT
+
+_Version update only_
 
 ## 0.15.28
 Sat, 04 Oct 2025 21:07:38 GMT
