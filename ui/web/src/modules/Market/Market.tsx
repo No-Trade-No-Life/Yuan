@@ -13,17 +13,7 @@ import { showForm } from '../Form';
 import { AutoComplete, Button } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
-
-const seriesIdList$ = terminal$.pipe(
-  filter((x): x is Exclude<typeof x, null> => !!x),
-  switchMap((terminal) =>
-    defer(() => requestSQL<{ series_id: string }[]>(terminal, `select distinct(series_id) from ohlc`)).pipe(
-      retry({ delay: 10_000 }),
-      map((x) => x.map((v) => v.series_id)),
-    ),
-  ),
-  shareReplay(1),
-);
+import { seriesIdList$ } from '../OHLC';
 
 registerPage('Market', () => {
   const seriesIdList = useObservableState(seriesIdList$);

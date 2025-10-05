@@ -11,17 +11,7 @@ import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 import { loadSqlData } from '../Chart/components/utils';
 import { generateAccountNetValue } from './GenerateAccountNetValue';
-
-const seriesIdList$ = terminal$.pipe(
-  filter((x): x is Exclude<typeof x, null> => !!x),
-  switchMap((terminal) =>
-    defer(() => requestSQL<{ series_id: string }[]>(terminal, `select distinct(series_id) from ohlc`)).pipe(
-      retry({ delay: 10_000 }),
-      map((x) => x.map((v) => v.series_id)),
-    ),
-  ),
-  shareReplay(1),
-);
+import { seriesIdList$ } from '../OHLC';
 
 const accountIds$ = terminal$.pipe(
   filter((x): x is Exclude<typeof x, null> => !!x),

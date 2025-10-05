@@ -19,17 +19,8 @@ import { createFileSystemBehaviorSubject } from '../FileSystem';
 import { loadSqlData } from '../Chart/components/utils';
 import { generateAccountOrders } from './utils';
 import { ISeriesConfig, ITimeSeriesChartConfig } from '../Chart/components/model';
+import { seriesIdList$ } from '../OHLC';
 
-const seriesIdList$ = terminal$.pipe(
-  filter((x): x is Exclude<typeof x, null> => !!x),
-  switchMap((terminal) =>
-    defer(() => requestSQL<{ series_id: string }[]>(terminal, `select distinct(series_id) from ohlc`)).pipe(
-      retry({ delay: 10_000 }),
-      map((x) => x.map((v) => v.series_id)),
-    ),
-  ),
-  shareReplay(1),
-);
 const accountIds$ = terminal$.pipe(
   filter((x): x is Exclude<typeof x, null> => !!x),
   switchMap((terminal) =>
