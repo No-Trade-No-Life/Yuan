@@ -2,6 +2,23 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.46.1",
+      "tag": "@yuants/protocol_v0.46.1",
+      "date": "Sun, 05 Oct 2025 10:41:11 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix initial state"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.46.0",
       "tag": "@yuants/protocol_v0.46.0",
       "date": "Sat, 04 Oct 2025 21:07:38 GMT",
