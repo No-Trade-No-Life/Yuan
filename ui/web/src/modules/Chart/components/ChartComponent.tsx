@@ -98,44 +98,40 @@ interface Props {
   data?: ILoadedData[];
 }
 
+/**
+ * 将数据的时间对齐到 view 的主时间轴上
+ *
+ * @remarks
+ * mainTimeline 将时间轴切分成多个区间，在每个区间内取 timeLine 的最后一个点 (reserve last 策略)
+ *
+ * mainTimeline[i] 对应的区间是 [mainTimeline[i], mainTimeline[i+1]) (左闭右开)，最后一个区间是 [mainTimeline[n-1], +∞)
+ *
+ * @param dataTimeLine - 数据本身的时间轴 (已经升序排序)
+ * @param mainTimeLine - view 的主时间轴 (已经升序排序)
+ * @returns 对齐后的时间轴 [mainTime, dataIndex][]
+ */
 const mergeTimeLine = (
-  timeLine: [time: number, dataIndex: number][],
+  dataTimeLine: [time: number, dataIndex: number][],
   mainTimeLine: number[],
-): [time: number, dataIndex: number][] => {
-  const result: [time: number, dataIndex: number][] = [];
-  let timeLineIndex = 0;
+): [mainTime: number, dataIndex: number][] => {
+  const result: [mainTime: number, dataIndex: number][] = [];
+  // 双指针法
+  for (let mainIdx = 0, dataIdx = 0; mainIdx < mainTimeLine.length && dataIdx < dataTimeLine.length; ) {
+    const currentMainTime = mainTimeLine[mainIdx];
+    const nextMainTime = mainTimeLine[mainIdx + 1] ?? Infinity;
+    const [currentTimelineTime, currentDataIndex] = dataTimeLine[dataIdx];
 
-  for (let mainTimeLineIndex = 1; mainTimeLineIndex < mainTimeLine.length; mainTimeLineIndex++) {
-    const nextMainTime = mainTimeLine[mainTimeLineIndex];
-    const currentMainTime = mainTimeLine[mainTimeLineIndex - 1];
-
-    for (; timeLineIndex < timeLine.length; timeLineIndex++) {
-      const [currentTime, dataIndex] = timeLine[timeLineIndex];
-      const [nextTime] = timeLine[timeLineIndex + 1] ?? [];
-      if (currentTime > nextMainTime) {
-        if (
-          mainTimeLineIndex === mainTimeLine.length - 1 &&
-          currentTime < 2 * nextMainTime - currentMainTime
-        ) {
-          result.push([nextMainTime, dataIndex]);
-        }
-        break;
-      }
-      if (timeLineIndex === timeLine.length - 1) {
-        result.push([currentMainTime, dataIndex]);
-      } else if (nextTime > nextMainTime) {
-        result.push([currentMainTime, dataIndex]);
-      }
+    if (currentMainTime <= currentTimelineTime && currentTimelineTime < nextMainTime) {
+      // 在当前区间内，更新当前区间的点
+      result[mainIdx] = [currentMainTime, currentDataIndex];
+      dataIdx++;
+    } else {
+      // 超出当前区间，推进到下一个区间，直到找到合适的区间
+      mainIdx++;
     }
   }
 
-  // 将剩余数据进行合并
-  // timeLine.slice(timeLineIndex).forEach((data) => {
-  //   if (result[result.length - 1][0] !== data[0]) {
-  //     result.push(data);
-  //   }
-  // });
-  return result;
+  return result.filter((x) => !!x); // 过滤 undefined (空格)
 };
 
 export const ChartComponent = memo((props: Props) => {
