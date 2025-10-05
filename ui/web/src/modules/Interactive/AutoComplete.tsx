@@ -60,7 +60,7 @@ export function AutoComplete(
             <div>
               <HighlightChars str={option.label} indices={option.entry.positions} />
             </div>
-            <pre>{option.value}</pre>
+            {/* <pre>{option.value}</pre> */}
           </div>
         );
       }}
