@@ -25,3 +25,6 @@ CREATE
 OR REPLACE TRIGGER auto_update_updated_at BEFORE
 UPDATE ON trade FOR EACH ROW
 EXECUTE FUNCTION update_updated_at_column ();
+
+
+CREATE INDEX IF NOT EXISTS idx_trade_account_id ON trade (account_id);

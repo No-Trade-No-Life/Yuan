@@ -27,17 +27,7 @@ import { ITrade } from '@yuants/data-trade';
 import { IOHLC } from '@yuants/data-ohlc';
 import { IProduct } from '@yuants/data-product';
 import { createFileSystemBehaviorSubject } from '../FileSystem';
-
-const seriesIdList$ = terminal$.pipe(
-  filter((x): x is Exclude<typeof x, null> => !!x),
-  switchMap((terminal) =>
-    defer(() => requestSQL<{ series_id: string }[]>(terminal, `select distinct(series_id) from ohlc`)).pipe(
-      retry({ delay: 10_000 }),
-      map((x) => x.map((v) => v.series_id)),
-    ),
-  ),
-  shareReplay(1),
-);
+import { seriesIdList$ } from '../OHLC';
 
 const accountIds$ = terminal$.pipe(
   filter((x): x is Exclude<typeof x, null> => !!x),
