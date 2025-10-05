@@ -27,6 +27,7 @@ export function AutoComplete(
   const fzf = useMemo(() => {
     return new Fzf(props.data || [], {
       selector: (item) => item.label,
+      limit: 200,
     });
   }, [props.data]);
 
