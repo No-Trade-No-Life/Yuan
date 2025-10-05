@@ -114,7 +114,7 @@ const mergeTimeLine = (
   dataTimeLine: [time: number, dataIndex: number][],
   mainTimeLine: number[],
 ): [mainTime: number, dataIndex: number][] => {
-  const result: [mainTime: number, dataIndex: number][] = [];
+  const mapMainTimeToDataIndex = new Map<number, number>();
   // 双指针法
   for (let mainIdx = 0, dataIdx = 0; mainIdx < mainTimeLine.length && dataIdx < dataTimeLine.length; ) {
     const currentMainTime = mainTimeLine[mainIdx];
@@ -123,7 +123,7 @@ const mergeTimeLine = (
 
     if (currentMainTime <= currentTimelineTime && currentTimelineTime < nextMainTime) {
       // 在当前区间内，更新当前区间的点
-      result[mainIdx] = [currentMainTime, currentDataIndex];
+      mapMainTimeToDataIndex.set(currentMainTime, currentDataIndex);
       dataIdx++;
     } else {
       // 超出当前区间，推进到下一个区间，直到找到合适的区间
@@ -131,7 +131,7 @@ const mergeTimeLine = (
     }
   }
 
-  return result.filter((x) => !!x); // 过滤 undefined (空格)
+  return [...mapMainTimeToDataIndex.entries()]; // 过滤 undefined (空格)
 };
 
 export const ChartComponent = memo((props: Props) => {
