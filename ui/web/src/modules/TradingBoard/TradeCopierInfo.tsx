@@ -206,37 +206,37 @@ const buildPreviewDiff = (expected?: PositionSummary, preview?: PositionSummary)
 };
 
 const buildActualDiff = (
-  preview?: PositionSummary,
+  expected?: PositionSummary,
   actual?: PositionSummary,
   openSlippage?: number,
 ): DiffResult => {
-  if (!preview && !actual) return { text: '-', matched: true };
+  if (!expected && !actual) return { text: '-', matched: true };
   const notes: string[] = [];
   let matched = true;
-  if (!preview) {
-    notes.push('缺少预览持仓');
+  if (!expected) {
+    notes.push('缺少预期持仓');
     matched = false;
   }
   if (!actual) {
-    if (preview && preview.volume === 0) {
+    if (expected && expected.volume === 0) {
       notes.push('已平仓');
     } else {
       notes.push('实际未持仓');
       matched = false;
     }
   }
-  if (preview && actual) {
-    const volumeDiff = actual.volume - preview.volume;
+  if (expected && actual) {
+    const volumeDiff = actual.volume - expected.volume;
     if (Math.abs(volumeDiff) > EPSILON_VOLUME) {
       notes.push(`数量偏差 ${formatSigned(volumeDiff)}`);
       matched = false;
     } else {
       notes.push('数量匹配');
     }
-    if (preview.avgPrice !== undefined && actual.avgPrice !== undefined) {
-      const priceDiff = actual.avgPrice - preview.avgPrice;
-      if (typeof openSlippage === 'number' && preview.avgPrice !== 0) {
-        const tolerance = Math.abs(preview.avgPrice * openSlippage);
+    if (expected.avgPrice !== undefined && actual.avgPrice !== undefined) {
+      const priceDiff = actual.avgPrice - expected.avgPrice;
+      if (typeof openSlippage === 'number' && expected.avgPrice !== 0) {
+        const tolerance = Math.abs(expected.avgPrice * openSlippage);
         if (Math.abs(priceDiff) > tolerance + EPSILON_PRICE) {
           notes.push(
             `价格偏差 ${formatSigned(priceDiff, 4, EPSILON_PRICE)} 超出 ±${formatPrice(tolerance, 4)}`,
@@ -556,7 +556,7 @@ export const TradeCopierInfo = memo((props: { accountId: string }) => {
         actual,
         previewDiff: buildPreviewDiff(expected, preview),
         tradeConfigText: strategyDesc.text,
-        actualDiff: buildActualDiff(preview, actual, strategyDesc.openSlippage),
+        actualDiff: buildActualDiff(expected, actual, strategyDesc.openSlippage),
       });
     });
 
