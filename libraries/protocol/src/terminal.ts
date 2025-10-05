@@ -685,6 +685,20 @@ export class Terminal {
         map((msg) => msg.res?.data),
         filter((x): x is Exclude<typeof x, undefined> => !!x),
         first(),
+        tap((data) => {
+          // 如果没有 @host，会导致无法收到后续的 TerminalInfo 更新，必须重试
+          if (!data.terminals.some((x) => x.terminal_id === '@host')) {
+            if (this.options.verbose) {
+              console.info(
+                formatTime(Date.now()),
+                'Terminal',
+                'GetTerminalInfos',
+                'Host TerminalInfo not found, retrying...',
+              );
+            }
+            throw '';
+          }
+        }),
         timeout(10_000),
         retry({ delay: 1000 }),
         tap((data) => {
