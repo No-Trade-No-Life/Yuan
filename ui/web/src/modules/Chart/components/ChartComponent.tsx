@@ -121,7 +121,10 @@ const mergeTimeLine = (
     const nextMainTime = mainTimeLine[mainIdx + 1] ?? Infinity;
     const [currentTimelineTime, currentDataIndex] = dataTimeLine[dataIdx];
 
-    if (currentMainTime <= currentTimelineTime && currentTimelineTime < nextMainTime) {
+    if (currentTimelineTime < currentMainTime) {
+      // 数据时间点还没到当前区间，继续推进数据时间点
+      dataIdx++;
+    } else if (currentTimelineTime < nextMainTime) {
       // 在当前区间内，更新当前区间的点
       mapMainTimeToDataIndex.set(currentMainTime, currentDataIndex);
       dataIdx++;
@@ -131,7 +134,8 @@ const mergeTimeLine = (
     }
   }
 
-  return [...mapMainTimeToDataIndex.entries()]; // 过滤 undefined (空格)
+  // TRICK: Map 的顺序即为时间升序 (按照 Map.prototype.set 的顺序)
+  return [...mapMainTimeToDataIndex.entries()];
 };
 
 export const ChartComponent = memo((props: Props) => {
