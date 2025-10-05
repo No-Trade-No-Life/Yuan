@@ -148,9 +148,9 @@ registerPage('TradingBoard', () => {
 
   const [drawOrders, setDrawOrders] = useState(false);
 
-  const [uniqueProductId, setUniqueProductId] = useState(useObservableState(uniqueProductId$) ?? '');
-  const [accountId, setAccountId] = useState(useObservableState(accountId$) ?? '');
-  const [candleDuration, setCandleDuration] = useState<string>(useObservableState(candleDuration$) ?? '');
+  const uniqueProductId = useObservableState(uniqueProductId$);
+  const accountId = useObservableState(accountId$);
+  const candleDuration = useObservableState(candleDuration$);
 
   const mapUniqueProductIdToDurationListState = useMemo(() => {
     const mapUniqueIdToDurationList = new Map<string, string[]>();
@@ -167,15 +167,13 @@ registerPage('TradingBoard', () => {
     return mapUniqueIdToDurationList;
   }, [seriesIdList]);
 
-  const accountInfo$ = useMemo(() => useAccountInfo(accountId), [accountId]);
+  const accountInfo$ = useMemo(() => useAccountInfo(accountId ?? ''), [accountId]);
   const accountInfo = useObservableState(accountInfo$);
 
   const onSelectProduct = (v: string) => {
-    setUniqueProductId(v);
     uniqueProductId$.next(v);
     const durationList = mapUniqueProductIdToDurationListState.get(v);
     if (!durationList || !durationList.includes(candleDuration ?? '')) {
-      setCandleDuration(mapUniqueProductIdToDurationListState.get(v)?.[0] ?? '');
       candleDuration$.next(mapUniqueProductIdToDurationListState.get(v)?.[0] ?? '');
     }
   };
@@ -194,7 +192,6 @@ registerPage('TradingBoard', () => {
   }, [uniqueProductId]);
 
   const onCandleDurationChange = (e: RadioChangeEvent) => {
-    setCandleDuration(e.target.value);
     candleDuration$.next(e.target.value);
   };
 
@@ -328,9 +325,8 @@ registerPage('TradingBoard', () => {
                     <>
                       <AutoComplete
                         data={accountIds?.map((id) => ({ label: id, value: id }))}
-                        value={accountId}
+                        value={accountId ?? ''}
                         onChange={(v: string) => {
-                          setAccountId(v);
                           accountId$.next(v);
                         }}
                         placeholder="请输入或选择账户id"
@@ -339,12 +335,12 @@ registerPage('TradingBoard', () => {
                         data={Array.from(mapUniqueProductIdToDurationListState.keys()).map((id) => {
                           return { label: id, value: id };
                         })}
-                        value={uniqueProductId}
+                        value={uniqueProductId ?? ''}
                         onChange={onSelectProduct}
                         placeholder="请输入或选择K线品种/周期"
                       />
                       <RadioGroup value={candleDuration} onChange={onCandleDurationChange}>
-                        {mapUniqueProductIdToDurationListState.get(uniqueProductId)?.map((id) => (
+                        {mapUniqueProductIdToDurationListState.get(uniqueProductId ?? '')?.map((id) => (
                           <Radio value={id}>{id}</Radio>
                         ))}
                       </RadioGroup>
@@ -357,14 +353,14 @@ registerPage('TradingBoard', () => {
           case 'left-bottom':
             return (
               <AccountInfo
-                accountId={accountId}
+                accountId={accountId ?? ''}
                 accountInfo={accountInfo}
                 setDrawOrders={setDrawOrders}
                 drawOrders={drawOrders}
               />
             );
           case 'right-top':
-            return <ManualTradePanelContent accountId={accountId} productId={productId} />;
+            return <ManualTradePanelContent accountId={accountId ?? ''} productId={productId} />;
 
           case 'right-bottom':
             return <AccountProfit accountInfo={accountInfo} />;

@@ -1,5 +1,6 @@
 import { IOHLC } from '@yuants/data-ohlc';
 import {
+  BaselineSeries,
   CandlestickSeries,
   createSeriesMarkers,
   HistogramSeries,
@@ -58,6 +59,37 @@ export const customSeries: ICustomSeries[] = [
           color: DEFAULT_SINGLE_COLOR_SCHEME[seriesIndex % DEFAULT_SINGLE_COLOR_SCHEME.length],
           lineWidth: 2,
           priceLineVisible: false,
+        },
+        paneIndex,
+      );
+      lineSeries.setData(
+        timeLine.map(([time, index]) => {
+          return {
+            time: time as Time,
+            value: parseFloat(dataSeries[0]![index]),
+          };
+        }),
+      );
+    },
+    Legend: SimpleKeyValueLegend,
+  },
+  {
+    type: 'baseline',
+    addSeries: ({ chart, paneIndex, seriesIndex, dataSeries, timeLine, seriesConfig }) => {
+      if (dataSeries.length < 1) return;
+      const lineSeries = chart.addSeries(
+        BaselineSeries,
+        {
+          baseValue: {
+            type: ((seriesConfig?.options?.type as 'price') || 'lastVisible') ?? 'price',
+            price: seriesConfig?.options?.price ?? 0,
+          },
+          topLineColor: 'rgba( 38, 166, 154, 1)',
+          topFillColor1: 'rgba( 38, 166, 154, 0.28)',
+          topFillColor2: 'rgba( 38, 166, 154, 0.05)',
+          bottomLineColor: 'rgba( 239, 83, 80, 1)',
+          bottomFillColor1: 'rgba( 239, 83, 80, 0.05)',
+          bottomFillColor2: 'rgba( 239, 83, 80, 0.28)',
         },
         paneIndex,
       );
