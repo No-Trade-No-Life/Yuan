@@ -81,40 +81,8 @@ const columns = [
   }),
 ];
 
-export const PendingOrderInfo = (props: {
-  accountId: string;
-  pendingOrderNumberChange: (v: number) => void;
-}) => {
-  const { accountId, pendingOrderNumberChange } = props;
-  const pendingOrders = useObservableState(
-    useObservable(
-      pipe(
-        combineLatestWith(terminal$),
-        switchMap(([[accountId], terminal]) => {
-          return defer(async () => {
-            if (!terminal || !accountId) return [];
-            const data = await terminal.client.requestForResponseData<{ account_id: string }, IOrder[]>(
-              'QueryPendingOrders',
-              { account_id: accountId },
-            );
-            return data ?? [];
-          }).pipe(
-            //
-            retry({ delay: 3_000 }),
-            repeat({ delay: 2_000 }),
-          );
-        }),
-      ),
-      [accountId],
-    ),
-    [] as IOrder[],
-  );
-
-  useEffect(() => {
-    if (pendingOrders) {
-      pendingOrderNumberChange(pendingOrders.length);
-    }
-  }, [pendingOrders, pendingOrderNumberChange]);
+export const PendingOrderInfo = (props: { pendingOrders: IOrder[] }) => {
+  const { pendingOrders } = props;
 
   return <DataView data={pendingOrders} columns={columns} />;
 };
