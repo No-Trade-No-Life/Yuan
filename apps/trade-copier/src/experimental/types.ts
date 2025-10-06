@@ -40,5 +40,6 @@ export interface StrategyContext {
 
 /**
  * 策略函数签名
+ * 策略只需要返回目标订单列表，由外部统一协调成动作
  */
-export type StrategyFunction = (context: StrategyContext) => StrategyAction[];
+export type StrategyFunction = (context: StrategyContext) => IOrder[];

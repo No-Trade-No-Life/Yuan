@@ -90,20 +90,6 @@ describe('reconcileOrders', () => {
     ]);
   });
 
-  it('应该撤单当订单类型不同', () => {
-    const currentOrders = [{ ...baseOrder }];
-    const targetOrders = [{ ...baseOrder, order_type: 'MARKET' }]; // 类型不同
-
-    const actions = reconcileOrders(currentOrders, targetOrders);
-
-    expect(actions).toEqual([
-      {
-        type: 'CancelOrder',
-        payload: currentOrders[0],
-      },
-    ]);
-  });
-
   it('应该撤单当账户不同', () => {
     const currentOrders = [{ ...baseOrder }];
     const targetOrders = [{ ...baseOrder, account_id: 'different_account' }]; // 账户不同

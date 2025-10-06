@@ -1,26 +1,22 @@
 import { IOrder } from '@yuants/data-order';
-import { formatTime, roundToStep } from '@yuants/utils';
+import { decodePath, roundToStep } from '@yuants/utils';
 import {
   calculateDirectionalPositionVolumes,
-  calculateOrdersVolume,
   calculatePositionBounds,
   calculateSlippageProtectedPrice,
-  sortOrdersByPrice,
 } from '../pure-functions';
 import { strategyRegistry } from '../strategy-registry';
-import { StrategyAction, StrategyContext, StrategyFunction } from '../types';
+import { StrategyContext, StrategyFunction } from '../types';
 
 /**
  * BBO_MAKER_BY_DIRECTION 策略的纯函数版本
  */
-export const makeStrategyBboMakerByDirection: StrategyFunction = (
-  context: StrategyContext,
-): StrategyAction[] => {
+export const makeStrategyBboMakerByDirection: StrategyFunction = (context: StrategyContext): IOrder[] => {
   // 分别处理多头和空头方向
-  const longActions = _makeDirectionalStrategy(context, 'LONG');
-  const shortActions = _makeDirectionalStrategy(context, 'SHORT');
+  const longOrders = _makeDirectionalStrategy(context, 'LONG');
+  const shortOrders = _makeDirectionalStrategy(context, 'SHORT');
 
-  return [...longActions, ...shortActions];
+  return [...longOrders, ...shortOrders];
 };
 
 strategyRegistry.set('BBO_MAKER_BY_DIRECTION', makeStrategyBboMakerByDirection);
@@ -28,18 +24,9 @@ strategyRegistry.set('BBO_MAKER_BY_DIRECTION', makeStrategyBboMakerByDirection);
 /**
  * 处理单个方向的策略逻辑
  */
-function _makeDirectionalStrategy(context: StrategyContext, direction: string): StrategyAction[] {
-  const {
-    accountId,
-    productKey,
-    actualAccountInfo,
-    expectedAccountInfo,
-    product,
-    quote,
-    pendingOrders,
-    strategy,
-  } = context;
-  const [datasource_id, product_id] = productKey.split('/');
+function _makeDirectionalStrategy(context: StrategyContext, direction: string): IOrder[] {
+  const { accountId, productKey, actualAccountInfo, expectedAccountInfo, product, quote, strategy } = context;
+  const [datasource_id, product_id] = decodePath(productKey);
 
   // 计算实际和预期持仓
   const actualPosition = calculateDirectionalPositionVolumes(
@@ -53,37 +40,13 @@ function _makeDirectionalStrategy(context: StrategyContext, direction: string): 
     direction,
   );
 
-  // 过滤该方向的挂单
-  const directionOrders = pendingOrders.filter(
-    (o) =>
-      o.product_id === product_id &&
-      { OPEN_LONG: 'LONG', CLOSE_LONG: 'LONG', OPEN_SHORT: 'SHORT', CLOSE_SHORT: 'SHORT' }[
-        o.order_direction!
-      ] === direction,
-  );
-
   // 计算持仓边界
   const bounds = calculatePositionBounds(actualPosition.volume, expectedPosition.volume, product.volume_step);
 
-  // 1. 检查是否需要撤单的情况
-
-  // 1.1 订单过多，直接全部撤单
-  if (directionOrders.length > 1) {
-    return directionOrders.map((order) => ({
-      type: 'CancelOrder' as const,
-      payload: order,
-    }));
-  }
-
-  // 1.2 在预期范围内，撤单
+  // 在预期范围内，不需要订单
   if (bounds.deltaVolume === 0) {
-    return directionOrders.map((order) => ({
-      type: 'CancelOrder' as const,
-      payload: order,
-    }));
+    return [];
   }
-
-  // 2. 下单逻辑
 
   let order_direction: string;
   let volume: number;
@@ -115,40 +78,14 @@ function _makeDirectionalStrategy(context: StrategyContext, direction: string): 
     volume = Math.min(-bounds.deltaVolume, actualPosition.volume);
   }
 
-  const order: IOrder = {
-    order_type: 'MAKER',
-    account_id: accountId,
-    product_id: product_id,
-    order_direction: order_direction,
-    price: roundToStep(price, product.price_step),
-    volume: roundToStep(Math.min(volume, strategy.max_volume ?? Infinity), product.volume_step),
-  };
-
-  // 3. 检查是否需要更新现有订单
-  const existingOrder = directionOrders[0];
-  if (existingOrder) {
-    if (
-      order.volume !== existingOrder.volume ||
-      order.price !== existingOrder.price ||
-      order.order_direction !== existingOrder.order_direction
-    ) {
-      // 订单参数不一致，撤销现有订单
-      return [
-        {
-          type: 'CancelOrder',
-          payload: existingOrder,
-        },
-      ];
-    }
-    // 订单已存在且参数正确，不需要操作
-    return [];
-  }
-
-  // 4. 没有现有订单，直接下单
   return [
     {
-      type: 'SubmitOrder',
-      payload: order,
+      order_type: 'MAKER',
+      account_id: accountId,
+      product_id: product_id,
+      order_direction: order_direction,
+      price: roundToStep(price, product.price_step),
+      volume: roundToStep(Math.min(volume, strategy.max_volume ?? Infinity), product.volume_step),
     },
   ];
 }

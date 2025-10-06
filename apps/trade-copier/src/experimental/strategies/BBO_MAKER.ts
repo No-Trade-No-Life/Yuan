@@ -1,27 +1,16 @@
 import { IOrder } from '@yuants/data-order';
-import { roundToStep } from '@yuants/utils';
-import { StrategyContext, StrategyAction, StrategyFunction } from '../types';
-import { calculatePositionVolumes, calculatePositionBounds, calculateOrdersVolume } from '../pure-functions';
+import { decodePath, roundToStep } from '@yuants/utils';
+import { StrategyContext, StrategyFunction } from '../types';
+import { calculatePositionVolumes, calculatePositionBounds } from '../pure-functions';
 import { strategyRegistry } from '../strategy-registry';
 
 /**
  * BBO_MAKER 策略的纯函数版本
  * 基于净持仓量的挂单策略，使用 BBO 价格
  */
-export const makeStrategyBboMaker: StrategyFunction = (context: StrategyContext): StrategyAction[] => {
-  const {
-    accountId,
-    productKey,
-    actualAccountInfo,
-    expectedAccountInfo,
-    product,
-    quote,
-    pendingOrders,
-    strategy,
-  } = context;
-  const [datasource_id, product_id] = productKey.split('/');
-
-  const actions: StrategyAction[] = [];
+export const makeStrategyBboMaker: StrategyFunction = (context: StrategyContext): IOrder[] => {
+  const { accountId, productKey, actualAccountInfo, expectedAccountInfo, product, quote, strategy } = context;
+  const [datasource_id, product_id] = decodePath(productKey);
 
   // 计算实际和预期净持仓量
   const actualVolumes = calculatePositionVolumes(actualAccountInfo.positions, product_id);
@@ -34,44 +23,10 @@ export const makeStrategyBboMaker: StrategyFunction = (context: StrategyContext)
     product.volume_step,
   );
 
-  // 过滤该产品的挂单
-  const productOrders = pendingOrders.filter((o) => o.product_id === product_id);
-
-  // 1. 检查是否需要撤单的情况
-
-  // 1.1 订单过多，直接全部撤单
-  if (productOrders.length > 1) {
-    return productOrders.map((order) => ({
-      type: 'CancelOrder' as const,
-      payload: order,
-    }));
+  // 在预期范围内，不需要订单
+  if (bounds.deltaVolume === 0) {
+    return [];
   }
-
-  // 1.2 在预期范围内，撤单
-  const isInExpectedRange =
-    bounds.lowerBound <= actualVolumes.netVolume && actualVolumes.netVolume <= bounds.upperBound;
-  if (isInExpectedRange) {
-    return productOrders.map((order) => ({
-      type: 'CancelOrder' as const,
-      payload: order,
-    }));
-  }
-
-  // 计算订单总成交量
-  const ordersVolume = calculateOrdersVolume(productOrders, product_id);
-
-  // 1.3 订单数量超过需求，撤销多余的订单
-  // 注意：当 deltaVolume 为负数时，ordersVolume 也应该为负数（平仓订单）
-  // 所以比较的是绝对值
-  if (Math.abs(ordersVolume) > Math.abs(bounds.deltaVolume)) {
-    // 撤销所有订单
-    return productOrders.map((order) => ({
-      type: 'CancelOrder' as const,
-      payload: order,
-    }));
-  }
-
-  // 2. 下单逻辑
 
   let order_direction: string;
   let volume: number;
@@ -105,45 +60,16 @@ export const makeStrategyBboMaker: StrategyFunction = (context: StrategyContext)
     }
   }
 
-  const order: IOrder = {
-    order_type: 'MAKER',
-    account_id: accountId,
-    product_id: product_id,
-    order_direction: order_direction,
-    price: roundToStep(price, product.price_step),
-    volume: roundToStep(Math.min(volume, strategy.max_volume ?? Infinity), product.volume_step),
-  };
-
-  // 3. 检查是否需要更新现有订单
-  const existingOrder = productOrders[0];
-  if (existingOrder) {
-    if (
-      order.volume !== existingOrder.volume ||
-      order.price !== existingOrder.price ||
-      order.order_direction !== existingOrder.order_direction
-    ) {
-      // 先撤单，然后下单
-      actions.push({
-        type: 'CancelOrder',
-        payload: existingOrder,
-      });
-      actions.push({
-        type: 'SubmitOrder',
-        payload: order,
-      });
-      return actions;
-    }
-    // 订单已存在且参数正确，不需要操作
-    return [];
-  }
-
-  // 4. 没有现有订单，直接下单
-  actions.push({
-    type: 'SubmitOrder',
-    payload: order,
-  });
-
-  return actions;
+  return [
+    {
+      order_type: 'MAKER',
+      account_id: accountId,
+      product_id: product_id,
+      order_direction: order_direction,
+      price: roundToStep(price, product.price_step),
+      volume: roundToStep(Math.min(volume, strategy.max_volume ?? Infinity), product.volume_step),
+    },
+  ];
 };
 
 strategyRegistry.set('BBO_MAKER', makeStrategyBboMaker);

@@ -102,13 +102,12 @@ describe('DEFAULT Strategy', () => {
       },
     });
 
-    const actions = makeStrategyDefault(context);
+    const orders = makeStrategyDefault(context);
 
-    expect(actions).toHaveLength(1);
-    expect(actions[0].type).toBe('SubmitOrder');
-    expect(actions[0].payload.order_direction).toBe('OPEN_LONG');
-    expect(actions[0].payload.volume).toBe(0.1); // 0.2 - 0.1 = 0.1
-    expect(actions[0].payload.order_type).toBe('MARKET');
+    expect(orders).toHaveLength(1);
+    expect(orders[0].order_direction).toBe('OPEN_LONG');
+    expect(orders[0].volume).toBe(0.1); // 0.2 - 0.1 = 0.1
+    expect(orders[0].order_type).toBe('MARKET');
   });
 
   it('should place sell order when actual volume is above upper bound', () => {
@@ -123,13 +122,12 @@ describe('DEFAULT Strategy', () => {
       },
     });
 
-    const actions = makeStrategyDefault(context);
+    const orders = makeStrategyDefault(context);
 
-    expect(actions).toHaveLength(1);
-    expect(actions[0].type).toBe('SubmitOrder');
-    expect(actions[0].payload.order_direction).toBe('CLOSE_LONG');
-    expect(actions[0].payload.volume).toBe(0.1); // 0.3 - 0.2 = 0.1
-    expect(actions[0].payload.order_type).toBe('MARKET');
+    expect(orders).toHaveLength(1);
+    expect(orders[0].order_direction).toBe('CLOSE_LONG');
+    expect(orders[0].volume).toBe(0.1); // 0.3 - 0.2 = 0.1
+    expect(orders[0].order_type).toBe('MARKET');
   });
 
   it('should close short position first when need to increase net volume', () => {
@@ -144,12 +142,11 @@ describe('DEFAULT Strategy', () => {
       },
     });
 
-    const actions = makeStrategyDefault(context);
+    const orders = makeStrategyDefault(context);
 
-    expect(actions).toHaveLength(1);
-    expect(actions[0].type).toBe('SubmitOrder');
-    expect(actions[0].payload.order_direction).toBe('CLOSE_SHORT');
-    expect(actions[0].payload.volume).toBe(0.05); // 0.05
+    expect(orders).toHaveLength(1);
+    expect(orders[0].order_direction).toBe('CLOSE_SHORT');
+    expect(orders[0].volume).toBe(0.05); // 0.05
   });
 
   it('should close long position first when need to decrease net volume', () => {
@@ -164,12 +161,11 @@ describe('DEFAULT Strategy', () => {
       },
     });
 
-    const actions = makeStrategyDefault(context);
+    const orders = makeStrategyDefault(context);
 
-    expect(actions).toHaveLength(1);
-    expect(actions[0].type).toBe('SubmitOrder');
-    expect(actions[0].payload.order_direction).toBe('CLOSE_LONG');
-    expect(actions[0].payload.volume).toBe(0.05); // 0.05
+    expect(orders).toHaveLength(1);
+    expect(orders[0].order_direction).toBe('CLOSE_LONG');
+    expect(orders[0].volume).toBe(0.05); // 0.05
   });
 
   it('should return empty array when in expected range', () => {
@@ -184,9 +180,9 @@ describe('DEFAULT Strategy', () => {
       },
     });
 
-    const actions = makeStrategyDefault(context);
+    const orders = makeStrategyDefault(context);
 
-    expect(actions).toHaveLength(0);
+    expect(orders).toHaveLength(0);
   });
 
   it('should respect max volume limit', () => {
@@ -207,9 +203,9 @@ describe('DEFAULT Strategy', () => {
       },
     });
 
-    const actions = makeStrategyDefault(context);
+    const orders = makeStrategyDefault(context);
 
-    expect(actions).toHaveLength(1);
-    expect(actions[0].payload.volume).toBe(0.5); // 0.5
+    expect(orders).toHaveLength(1);
+    expect(orders[0].volume).toBe(0.5); // 0.5
   });
 });

@@ -19,20 +19,6 @@ const createTestPosition = (
   valuation: volume * position_price,
 });
 
-const createTestOrder = (product_id: string, order_direction: string, volume: number, price: number) => ({
-  order_id: `${product_id}-${order_direction}-${Date.now()}`,
-  account_id: 'test-account',
-  product_id,
-  order_direction,
-  order_type: 'MAKER',
-  volume,
-  price,
-  filled_volume: 0,
-  status: 'pending',
-  submitted_at: Date.now(),
-  updated_at: new Date().toISOString(),
-});
-
 const createTestContext = (overrides: Partial<StrategyContext>): StrategyContext => ({
   accountId: 'test-account',
   productKey: 'datasource/BTC-USDT',
@@ -104,7 +90,7 @@ const createTestContext = (overrides: Partial<StrategyContext>): StrategyContext
 });
 
 describe('BBO_MAKER Strategy', () => {
-  it('should place buy order when actual volume is below lower bound', () => {
+  it('should place long open order when net volume is below expected', () => {
     const context = createTestContext({
       actualAccountInfo: {
         ...createTestContext({}).actualAccountInfo,
@@ -116,17 +102,16 @@ describe('BBO_MAKER Strategy', () => {
       },
     });
 
-    const actions = makeStrategyBboMaker(context);
+    const orders = makeStrategyBboMaker(context);
 
-    expect(actions).toHaveLength(1);
-    expect(actions[0].type).toBe('SubmitOrder');
-    expect(actions[0].payload.order_direction).toBe('OPEN_LONG');
-    expect(actions[0].payload.volume).toBe(0.1); // 0.2 - 0.1 = 0.1
-    expect(actions[0].payload.price).toBe(50000); // 开多用买一价
-    expect(actions[0].payload.order_type).toBe('MAKER');
+    expect(orders).toHaveLength(1);
+    expect(orders[0].order_direction).toBe('OPEN_LONG');
+    expect(orders[0].volume).toBe(0.1); // 0.2 - 0.1 = 0.1
+    expect(orders[0].order_type).toBe('MAKER');
+    expect(orders[0].price).toBe(50000); // 买一价
   });
 
-  it('should place sell order when actual volume is above upper bound', () => {
+  it('should place long close order when net volume is above expected', () => {
     const context = createTestContext({
       actualAccountInfo: {
         ...createTestContext({}).actualAccountInfo,
@@ -138,99 +123,13 @@ describe('BBO_MAKER Strategy', () => {
       },
     });
 
-    const actions = makeStrategyBboMaker(context);
+    const orders = makeStrategyBboMaker(context);
 
-    expect(actions).toHaveLength(1);
-    expect(actions[0].type).toBe('SubmitOrder');
-    expect(actions[0].payload.order_direction).toBe('CLOSE_LONG');
-    expect(actions[0].payload.volume).toBe(0.1); // 0.3 - 0.2 = 0.1
-    expect(actions[0].payload.price).toBe(51000); // 平多用卖一价
-    expect(actions[0].payload.order_type).toBe('MAKER');
-  });
-
-  it('should cancel all orders when more than one pending order exists', () => {
-    const context = createTestContext({
-      actualAccountInfo: {
-        ...createTestContext({}).actualAccountInfo,
-        positions: [createTestPosition('BTC-USDT', 'LONG', 0.1, 50000)],
-      },
-      expectedAccountInfo: {
-        ...createTestContext({}).expectedAccountInfo,
-        positions: [createTestPosition('BTC-USDT', 'LONG', 0.2, 50000)],
-      },
-      pendingOrders: [
-        createTestOrder('BTC-USDT', 'OPEN_LONG', 0.05, 50000),
-        createTestOrder('BTC-USDT', 'OPEN_LONG', 0.05, 50000),
-      ],
-    });
-
-    const actions = makeStrategyBboMaker(context);
-
-    expect(actions).toHaveLength(2);
-    expect(actions[0].type).toBe('CancelOrder');
-    expect(actions[1].type).toBe('CancelOrder');
-  });
-
-  it('should cancel order when in expected range', () => {
-    const context = createTestContext({
-      actualAccountInfo: {
-        ...createTestContext({}).actualAccountInfo,
-        positions: [createTestPosition('BTC-USDT', 'LONG', 0.2, 50000)],
-      },
-      expectedAccountInfo: {
-        ...createTestContext({}).expectedAccountInfo,
-        positions: [createTestPosition('BTC-USDT', 'LONG', 0.2, 50000)],
-      },
-      pendingOrders: [createTestOrder('BTC-USDT', 'OPEN_LONG', 0.1, 50000)],
-    });
-
-    const actions = makeStrategyBboMaker(context);
-
-    expect(actions).toHaveLength(1);
-    expect(actions[0].type).toBe('CancelOrder');
-  });
-
-  it('should update order when parameters changed', () => {
-    const existingOrder = createTestOrder('BTC-USDT', 'OPEN_LONG', 0.05, 50000);
-    const context = createTestContext({
-      actualAccountInfo: {
-        ...createTestContext({}).actualAccountInfo,
-        positions: [createTestPosition('BTC-USDT', 'LONG', 0.1, 50000)],
-      },
-      expectedAccountInfo: {
-        ...createTestContext({}).expectedAccountInfo,
-        positions: [createTestPosition('BTC-USDT', 'LONG', 0.2, 50000)],
-      },
-      pendingOrders: [existingOrder],
-    });
-
-    const actions = makeStrategyBboMaker(context);
-
-    expect(actions).toHaveLength(2);
-    expect(actions[0].type).toBe('CancelOrder');
-    expect(actions[0].payload).toBe(existingOrder);
-    expect(actions[1].type).toBe('SubmitOrder');
-    expect(actions[1].payload.order_direction).toBe('OPEN_LONG');
-    expect(actions[1].payload.volume).toBe(0.1); // 新的下单量
-  });
-
-  it('should not update order when parameters unchanged', () => {
-    const existingOrder = createTestOrder('BTC-USDT', 'OPEN_LONG', 0.1, 50000);
-    const context = createTestContext({
-      actualAccountInfo: {
-        ...createTestContext({}).actualAccountInfo,
-        positions: [createTestPosition('BTC-USDT', 'LONG', 0.1, 50000)],
-      },
-      expectedAccountInfo: {
-        ...createTestContext({}).expectedAccountInfo,
-        positions: [createTestPosition('BTC-USDT', 'LONG', 0.2, 50000)],
-      },
-      pendingOrders: [existingOrder],
-    });
-
-    const actions = makeStrategyBboMaker(context);
-
-    expect(actions).toHaveLength(0); // 订单参数正确，不需要更新
+    expect(orders).toHaveLength(1);
+    expect(orders[0].order_direction).toBe('CLOSE_LONG');
+    expect(orders[0].volume).toBe(0.1); // 0.3 - 0.2 = 0.1
+    expect(orders[0].order_type).toBe('MAKER');
+    expect(orders[0].price).toBe(51000); // 卖一价
   });
 
   it('should close short position first when need to increase net volume', () => {
@@ -245,13 +144,13 @@ describe('BBO_MAKER Strategy', () => {
       },
     });
 
-    const actions = makeStrategyBboMaker(context);
+    const orders = makeStrategyBboMaker(context);
 
-    expect(actions).toHaveLength(1);
-    expect(actions[0].type).toBe('SubmitOrder');
-    expect(actions[0].payload.order_direction).toBe('CLOSE_SHORT');
-    expect(actions[0].payload.volume).toBe(0.05); // 0.05
-    expect(actions[0].payload.price).toBe(51000); // 平空用卖一价
+    expect(orders).toHaveLength(1);
+    expect(orders[0].order_direction).toBe('CLOSE_SHORT');
+    expect(orders[0].volume).toBe(0.05); // 0.05
+    expect(orders[0].order_type).toBe('MAKER');
+    expect(orders[0].price).toBe(51000); // 卖一价
   });
 
   it('should close long position first when need to decrease net volume', () => {
@@ -266,12 +165,95 @@ describe('BBO_MAKER Strategy', () => {
       },
     });
 
-    const actions = makeStrategyBboMaker(context);
+    const orders = makeStrategyBboMaker(context);
 
-    expect(actions).toHaveLength(1);
-    expect(actions[0].type).toBe('SubmitOrder');
-    expect(actions[0].payload.order_direction).toBe('CLOSE_LONG');
-    expect(actions[0].payload.volume).toBe(0.05); // 0.05
-    expect(actions[0].payload.price).toBe(51000); // 平多用卖一价
+    expect(orders).toHaveLength(1);
+    expect(orders[0].order_direction).toBe('CLOSE_LONG');
+    expect(orders[0].volume).toBe(0.05); // 0.05
+    expect(orders[0].order_type).toBe('MAKER');
+    expect(orders[0].price).toBe(51000); // 卖一价
+  });
+
+  it('should place short open order when net volume needs to decrease and no long position', () => {
+    const context = createTestContext({
+      actualAccountInfo: {
+        ...createTestContext({}).actualAccountInfo,
+        positions: [], // 没有持仓
+      },
+      expectedAccountInfo: {
+        ...createTestContext({}).expectedAccountInfo,
+        positions: [createTestPosition('BTC-USDT', 'SHORT', 0.1, 50000)],
+      },
+    });
+
+    const orders = makeStrategyBboMaker(context);
+
+    expect(orders).toHaveLength(1);
+    expect(orders[0].order_direction).toBe('OPEN_SHORT');
+    expect(orders[0].volume).toBe(0.1); // 0.1
+    expect(orders[0].order_type).toBe('MAKER');
+    expect(orders[0].price).toBe(50000); // 买一价
+  });
+
+  it('should return empty array when in expected range', () => {
+    const context = createTestContext({
+      actualAccountInfo: {
+        ...createTestContext({}).actualAccountInfo,
+        positions: [createTestPosition('BTC-USDT', 'LONG', 0.2, 50000)],
+      },
+      expectedAccountInfo: {
+        ...createTestContext({}).expectedAccountInfo,
+        positions: [createTestPosition('BTC-USDT', 'LONG', 0.2, 50000)],
+      },
+    });
+
+    const orders = makeStrategyBboMaker(context);
+
+    expect(orders).toHaveLength(0);
+  });
+
+  it('should respect max volume limit', () => {
+    const context = createTestContext({
+      actualAccountInfo: {
+        ...createTestContext({}).actualAccountInfo,
+        positions: [createTestPosition('BTC-USDT', 'LONG', 0.1, 50000)],
+      },
+      expectedAccountInfo: {
+        ...createTestContext({}).expectedAccountInfo,
+        positions: [createTestPosition('BTC-USDT', 'LONG', 2.0, 50000)], // 需要开仓 1.9
+      },
+      strategy: {
+        type: 'BBO_MAKER',
+        max_volume: 0.5, // 限制最大下单量为 0.5
+      },
+    });
+
+    const orders = makeStrategyBboMaker(context);
+
+    expect(orders).toHaveLength(1);
+    expect(orders[0].volume).toBe(0.5); // 0.5
+  });
+
+  it('should handle mixed long and short positions correctly', () => {
+    const context = createTestContext({
+      actualAccountInfo: {
+        ...createTestContext({}).actualAccountInfo,
+        positions: [
+          createTestPosition('BTC-USDT', 'LONG', 0.2, 50000),
+          createTestPosition('BTC-USDT', 'SHORT', 0.1, 50000),
+        ],
+      },
+      expectedAccountInfo: {
+        ...createTestContext({}).expectedAccountInfo,
+        positions: [createTestPosition('BTC-USDT', 'LONG', 0.3, 50000)],
+      },
+    });
+
+    const orders = makeStrategyBboMaker(context);
+
+    expect(orders).toHaveLength(1);
+    expect(orders[0].order_direction).toBe('CLOSE_SHORT');
+    expect(orders[0].volume).toBe(0.1); // 先平空
+    expect(orders[0].price).toBe(51000); // 卖一价
   });
 });

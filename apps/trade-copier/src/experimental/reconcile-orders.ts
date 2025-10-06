@@ -6,7 +6,7 @@ import { StrategyAction } from './types';
  * 使用高效的字符串拼接替代 JSON.stringify
  */
 function getOrderKey(order: IOrder): string {
-  return `${order.account_id}|${order.product_id}|${order.order_type}|${order.order_direction}|${order.price}|${order.volume}`;
+  return `${order.account_id}|${order.product_id}|${order.order_direction}|${order.price}|${order.volume}`;
 }
 
 /**

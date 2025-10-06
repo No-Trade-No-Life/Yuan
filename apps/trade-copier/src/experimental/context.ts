@@ -54,7 +54,7 @@ export const getContext = async (
     expectedAccountInfo,
     product: product,
     quote: quote,
-    pendingOrders,
+    pendingOrders: pendingOrders.filter((o) => o.product_id === product_id),
     strategy: strategyConfig,
   };
 };

@@ -6,6 +6,7 @@ import { defer, map, repeat, retry, tap, timeout } from 'rxjs';
 import { ITradeCopierConfig } from '../interface';
 import { getContext } from './context';
 import './strategies'; // 引入所有策略以注册到 strategyRegistry
+import { reconcileOrders } from './reconcile-orders';
 import { strategyRegistry } from './strategy-registry';
 import { StrategyAction } from './types';
 
@@ -47,18 +48,53 @@ defer(() =>
                   config.strategy.global,
                   config.strategy.product_overrides?.[productKey],
                 );
-                const strategyFn =
-                  strategyRegistry.get(strategyConfig.type || 'DEFAULT') || strategyRegistry.get('DEFAULT')!;
+                const strategyFn = strategyConfig.type
+                  ? strategyRegistry.get(strategyConfig.type)
+                  : undefined;
+                if (!strategyFn) {
+                  console.info(
+                    formatTime(Date.now()),
+                    `StrategyFunctionNotFound`,
+                    `account=${accountId}, product=${productKey}, type=${strategyConfig.type}`,
+                  );
+                  throw 'StrategyFunctionNotFound';
+                }
                 // 1. 获取策略上下文
                 const context = await getContext(accountId, productKey, strategyConfig);
+                console.info(
+                  formatTime(Date.now()),
+                  'StrategyContext',
+                  `account=${accountId}, product=${productKey}`,
+                  JSON.stringify(context),
+                );
+                const currentOrders = structuredClone(context.pendingOrders); // 深拷贝当前挂单 (防止被错误修改)
 
-                // 2. 调用纯函数获得动作列表
-                const actions = strategyFn(context);
+                // 2. 调用策略获取目标订单列表
+                const targetOrders = strategyFn(context);
+                currentOrders.forEach((order) =>
+                  console.info(
+                    formatTime(Date.now()),
+                    'CurrentOrder',
+                    `account=${accountId}, product=${productKey}`,
+                    JSON.stringify(order),
+                  ),
+                );
+                targetOrders.forEach((order) =>
+                  console.info(
+                    formatTime(Date.now()),
+                    'TargetOrder',
+                    `account=${accountId}, product=${productKey}`,
+                    JSON.stringify(order),
+                  ),
+                );
+
+                // 3. 使用 reconcileOrders 协调当前挂单和目标订单，生成动作列表
+                const actions = reconcileOrders(currentOrders, targetOrders);
 
                 console.info(
                   formatTime(Date.now()),
-                  'StrategyActions',
-                  `account=${accountId}, product=${productKey}, actions=${actions.length}`,
+                  'StrategyOrders',
+                  `account=${accountId}, product=${productKey}, targetOrders=${targetOrders.length}, actions=${actions.length}`,
                 );
 
                 actions.forEach((action) =>
@@ -70,7 +106,7 @@ defer(() =>
                   ),
                 );
 
-                // 3. 并发执行所有动作
+                // 4. 并发执行所有动作
                 if (process.env.MODE === 'ACT') {
                   await Promise.all(actions.map((action) => executeAction(action)));
                 } else {

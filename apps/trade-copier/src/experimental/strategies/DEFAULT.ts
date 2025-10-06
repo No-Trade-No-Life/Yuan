@@ -1,15 +1,15 @@
-import { roundToStep } from '@yuants/utils';
+import { decodePath, roundToStep } from '@yuants/utils';
 import { calculatePositionBounds, calculatePositionVolumes } from '../pure-functions';
 import { strategyRegistry } from '../strategy-registry';
-import { StrategyAction, StrategyContext, StrategyFunction } from '../types';
+import { StrategyFunction } from '../types';
 
 /**
  * DEFAULT 策略的纯函数版本
  * 基于净持仓量的简单市价策略
  */
-export const makeStrategyDefault: StrategyFunction = (context: StrategyContext): StrategyAction[] => {
+export const makeStrategyDefault: StrategyFunction = (context) => {
   const { accountId, productKey, actualAccountInfo, expectedAccountInfo, product, strategy } = context;
-  const [datasource_id, product_id] = productKey.split('/');
+  const [datasource_id, product_id] = decodePath(productKey);
 
   // 计算实际和预期净持仓量
   const actualVolumes = calculatePositionVolumes(actualAccountInfo.positions, product_id);
@@ -56,14 +56,11 @@ export const makeStrategyDefault: StrategyFunction = (context: StrategyContext):
 
   return [
     {
-      type: 'SubmitOrder',
-      payload: {
-        order_type: 'MARKET',
-        account_id: accountId,
-        product_id: product_id,
-        order_direction: order_direction,
-        volume: roundToStep(Math.min(volume, strategy.max_volume ?? Infinity), product.volume_step),
-      },
+      order_type: 'MARKET',
+      account_id: accountId,
+      product_id: product_id,
+      order_direction: order_direction,
+      volume: roundToStep(Math.min(volume, strategy.max_volume ?? Infinity), product.volume_step),
     },
   ];
 };
