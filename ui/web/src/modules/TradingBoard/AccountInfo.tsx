@@ -5,8 +5,7 @@ import { formatTime } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
 import React, { useEffect, useMemo, useState } from 'react';
 import { combineLatestWith, defer, of, pipe, repeat, retry, switchMap } from 'rxjs';
-import { InlineAccountId, useAccountInfo } from '../AccountInfo';
-import { DataView } from '../Interactive';
+import { Button, DataView } from '../Interactive';
 import { InlineProductId } from '../Products/InlineProductId';
 import { TradeInfo } from './TradeInfo';
 import { PendingOrderInfo } from './PendingOrderInfo';
@@ -33,10 +32,6 @@ const createPositionColumns = (accountId: string) => {
         ) : (
           ctx.getValue()
         ),
-    }),
-    helper.accessor('account_id', {
-      header: () => '账户',
-      cell: (ctx) => <InlineAccountId account_id={ctx.getValue() || accountId} />,
     }),
     helper.accessor('direction', { header: () => '方向' }),
     helper.accessor('volume', { header: () => '持仓量', cell: (ctx) => ctx.getValue().toFixed(2) }),
@@ -65,6 +60,19 @@ const createPositionColumns = (accountId: string) => {
       },
     }),
     helper.accessor('comment', { header: () => '注释' }),
+    helper.accessor('datasource_id', {
+      header: () => '操作',
+      meta: {
+        fixed: 'right',
+      },
+      cell: (ctx) => {
+        return (
+          <Space vertical>
+            <Button type="danger">一键平仓</Button>
+          </Space>
+        );
+      },
+    }),
   ];
 };
 
@@ -137,7 +145,13 @@ export const AccountInfo = React.memo((props: Props) => {
           }
           itemKey="positions"
         >
-          <DataView data={accountInfo?.positions ?? []} columns={positionColumns} />
+          <DataView
+            data={accountInfo?.positions ?? []}
+            columns={positionColumns}
+            hideExport={true}
+            hideFieldSettings={true}
+            hideGroup={true}
+          />
         </TabPane>
         <TabPane tab="成交" itemKey="trades">
           <TradeInfo accountId={accountId} setDrawOrders={setDrawOrders} drawOrders={drawOrders} />
@@ -162,7 +176,7 @@ export const AccountInfo = React.memo((props: Props) => {
           <NAVCurve accountId={accountId} />
         </TabPane>
         <TabPane tab="跟单" itemKey="trade_copier">
-          <TradeCopierInfo accountId={accountId} />
+          <TradeCopierInfo accountId={accountId} accountInfo={accountInfo} />
         </TabPane>
       </Tabs>
     </div>

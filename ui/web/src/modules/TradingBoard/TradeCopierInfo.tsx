@@ -1,11 +1,11 @@
 import { Divider, Space, Spin, Tag } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
-import { IPosition } from '@yuants/data-account';
+import { IAccountInfo, IPosition } from '@yuants/data-account';
 import { useObservable, useObservableRef, useObservableState } from 'observable-hooks';
-import { memo, useEffect, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { EMPTY, Observable, pipe, startWith, switchMap } from 'rxjs';
-import { InlineAccountId, useAccountInfo } from '../AccountInfo';
+import { useAccountInfo } from '../AccountInfo';
 import { schemaOfAccountComposerConfig } from '../AccountComposition';
 import { IAccountComposerConfig } from '../AccountComposition/interface';
 import { showForm } from '../Form';
@@ -327,8 +327,8 @@ const columns = [
   }),
 ];
 
-export const TradeCopierInfo = memo((props: { accountId: string }) => {
-  const { accountId } = props;
+export const TradeCopierInfo = memo((props: { accountId: string; accountInfo?: IAccountInfo }) => {
+  const { accountId, accountInfo } = props;
   const previewAccountId = useMemo(() => `TradeCopier/Preview/${accountId}`, [accountId]);
   const expectedAccountId = useMemo(() => `TradeCopier/Expected/${accountId}`, [accountId]);
 
@@ -372,11 +372,10 @@ export const TradeCopierInfo = memo((props: { accountId: string }) => {
     );
   }, [previewComposerConfig, expectedComposerConfig]);
 
-  const actualAccount$ = useMemo(() => useAccountInfo(accountId), [accountId]);
   const previewAccount$ = useMemo(() => useAccountInfo(previewAccountId), [previewAccountId]);
   const expectedAccount$ = useMemo(() => useAccountInfo(expectedAccountId), [expectedAccountId]);
 
-  const actualAccountInfo = useObservableState(actualAccount$);
+  const actualAccountInfo = accountInfo;
   const previewAccountInfo = useObservableState(previewAccount$);
   const expectedAccountInfo = useObservableState(expectedAccount$);
 
@@ -592,7 +591,13 @@ export const TradeCopierInfo = memo((props: { accountId: string }) => {
           <Spin />
         </Space>
       ) : (
-        <DataView data={comparisonRows} columns={columns} />
+        <DataView
+          data={comparisonRows}
+          columns={columns}
+          hideExport={true}
+          hideFieldSettings={true}
+          hideGroup={true}
+        />
       )}
     </Space>
   );

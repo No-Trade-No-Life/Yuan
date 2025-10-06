@@ -20,6 +20,7 @@ import {
   getGroupedRowModel,
   getPaginationRowModel,
   getSortedRowModel,
+  ColumnPinningState,
   GroupingState,
   OnChangeFn,
   SortingState,
@@ -72,12 +73,46 @@ export function DataView<T, K>(props: {
 
   pageCount?: number;
   totalCount?: number;
+  hideGroup?: boolean;
+  hideFieldSettings?: boolean;
+  hideExport?: boolean;
 }) {
   const { t } = useTranslation('DataView');
   const containerRef = useRef<HTMLDivElement | null>(null);
 
   // ISSUE: if columns is not memoized, there's a bug to refresh columns
   const columns = useMemo(() => props.columns, props.columnsDependencyList ?? []);
+  const columnPinning = useMemo(() => {
+    const pinning: ColumnPinningState = { left: [], right: [] };
+
+    const collect = (cols: ColumnDef<T, any>[]) => {
+      cols.forEach((col) => {
+        if ('columns' in col && col.columns) {
+          collect(col.columns as ColumnDef<T, any>[]);
+          return;
+        }
+
+        const columnId =
+          (col as ColumnDef<T, any> & { accessorKey?: string }).id ??
+          (col as ColumnDef<T, any> & { accessorKey?: string }).accessorKey;
+        const fixed = col.meta && (col.meta as { fixed?: 'left' | 'right' }).fixed;
+
+        if (!columnId || !fixed) {
+          return;
+        }
+
+        if (fixed === 'left') {
+          pinning.left!.push(columnId);
+        } else if (fixed === 'right') {
+          pinning.right!.push(columnId);
+        }
+      });
+    };
+
+    collect(columns);
+
+    return pinning;
+  }, [columns]);
   const [isTopSlotVisible, setIsTopSlotVisible] = useState(
     props.topSlotVisible ?? props.initialTopSlotVisible ?? true,
   );
@@ -134,6 +169,7 @@ export function DataView<T, K>(props: {
     enableGlobalFilter: true,
     manualPagination: props.manualPagination,
     pageCount: props.pageCount,
+    enableColumnPinning: true,
   };
 
   // ISSUE: if tableOptions.onSortingChange is set to undefined, there's a bug
@@ -159,6 +195,17 @@ export function DataView<T, K>(props: {
 
   if (props.initialColumnVisibility) {
     (tableOptions.initialState ?? {}).columnVisibility = props.initialColumnVisibility;
+  }
+
+  if ((columnPinning.left?.length ?? 0) > 0 || (columnPinning.right?.length ?? 0) > 0) {
+    const initialState = (tableOptions.initialState ??= {});
+    const initialColumnPinning = (initialState.columnPinning ??= {} as ColumnPinningState);
+    if (!initialColumnPinning.left && columnPinning.left?.length) {
+      initialColumnPinning.left = columnPinning.left;
+    }
+    if (!initialColumnPinning.right && columnPinning.right?.length) {
+      initialColumnPinning.right = columnPinning.right;
+    }
   }
 
   if (props.columnFilters) {
@@ -255,48 +302,54 @@ export function DataView<T, K>(props: {
       >
         {t('sort')}
       </Button>
-      <Button
-        icon={<IconSetting />}
-        onClick={async () => {
-          setIsFieldSettingModalVisible(true);
-        }}
-      >
-        {t('fieldsSetting')}
-      </Button>
-      <Button
-        onClick={async () => {
-          const value: string[] = await showForm(
-            {
-              title: t('fieldGroup'),
-              type: 'array',
-              uniqueItems: true,
-              items: {
-                type: 'string',
-                enum: table.getAllLeafColumns().map((x) => x.id),
+      {!props.hideFieldSettings && (
+        <Button
+          icon={<IconSetting />}
+          onClick={async () => {
+            setIsFieldSettingModalVisible(true);
+          }}
+        >
+          {t('fieldsSetting')}
+        </Button>
+      )}
+      {!props.hideGroup && (
+        <Button
+          onClick={async () => {
+            const value: string[] = await showForm(
+              {
+                title: t('fieldGroup'),
+                type: 'array',
+                uniqueItems: true,
+                items: {
+                  type: 'string',
+                  enum: table.getAllLeafColumns().map((x) => x.id),
+                },
               },
-            },
-            table.getState().grouping,
-          );
-          table.setGrouping(value);
-        }}
-        icon={<IconList />}
-      >
-        {t('group')}
-      </Button>
-      <Button
-        icon={<IconExport />}
-        onClick={async () => {
-          const columns = table.getAllLeafColumns();
-          const data = table
-            .getFilteredRowModel()
-            .rows.map((row) => columns.map((col) => row.getValue(col.id)));
-          data.unshift(columns.map((col) => col.id));
-          await CSV.writeFileFromRawTable(`/export.csv`, data);
-          Toast.success('导出到 /export.csv');
-        }}
-      >
-        {'导出CSV'}
-      </Button>
+              table.getState().grouping,
+            );
+            table.setGrouping(value);
+          }}
+          icon={<IconList />}
+        >
+          {t('group')}
+        </Button>
+      )}
+      {!props.hideExport && (
+        <Button
+          icon={<IconExport />}
+          onClick={async () => {
+            const columns = table.getAllLeafColumns();
+            const data = table
+              .getFilteredRowModel()
+              .rows.map((row) => columns.map((col) => row.getValue(col.id)));
+            data.unshift(columns.map((col) => col.id));
+            await CSV.writeFileFromRawTable(`/export.csv`, data);
+            Toast.success('导出到 /export.csv');
+          }}
+        >
+          {'导出CSV'}
+        </Button>
+      )}
       <RadioGroup
         type="button"
         defaultValue={layoutMode}
