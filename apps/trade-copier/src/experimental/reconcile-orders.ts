@@ -10,23 +10,26 @@ function getOrderKey(order: IOrder): string {
 }
 
 /**
- * 计算订单计数和实例映射
+ * 计算订单计数和实例数组映射
  * 使用 Map 替代对象，提供更好的性能和类型安全
+ * 存储所有匹配的订单实例，确保撤单时能返回正确的 order_id
  */
 function computeOrderMaps(orders: IOrder[]): {
   counts: Map<string, number>;
-  instances: Map<string, IOrder>;
+  instances: Map<string, IOrder[]>;
 } {
   const counts = new Map<string, number>();
-  const instances = new Map<string, IOrder>();
+  const instances = new Map<string, IOrder[]>();
 
   for (const order of orders) {
     const key = getOrderKey(order);
     counts.set(key, (counts.get(key) || 0) + 1);
-    // 只存储每个键的第一个实例，避免重复引用
+
+    // 存储所有匹配的订单实例
     if (!instances.has(key)) {
-      instances.set(key, order);
+      instances.set(key, []);
     }
+    instances.get(key)!.push(order);
   }
 
   return { counts, instances };
@@ -51,11 +54,11 @@ export function reconcileOrders(currentOrders: IOrder[], targetOrders: IOrder[])
     const cancelCount = currentCount - targetCount;
 
     if (cancelCount > 0) {
-      const order = currentMaps.instances.get(orderKey);
-      if (order) {
-        // 直接添加需要撤单的数量，避免重复引用
+      const orderInstances = currentMaps.instances.get(orderKey);
+      if (orderInstances && orderInstances.length >= cancelCount) {
+        // 取出需要撤单的具体订单实例，确保每个撤单动作都有正确的 order_id
         for (let i = 0; i < cancelCount; i++) {
-          ordersToCancel.push(order);
+          ordersToCancel.push(orderInstances[i]);
         }
       }
     }
@@ -77,9 +80,11 @@ export function reconcileOrders(currentOrders: IOrder[], targetOrders: IOrder[])
     const submitCount = targetCount - currentCount;
 
     if (submitCount > 0) {
-      const order = targetMaps.instances.get(orderKey);
-      if (order) {
-        // 直接添加需要下单的数量，避免重复引用
+      const orderInstances = targetMaps.instances.get(orderKey);
+      if (orderInstances && orderInstances.length > 0) {
+        // 使用第一个订单实例作为下单模板，因为目标订单没有 order_id
+        const order = orderInstances[0];
+        // 直接添加需要下单的数量
         for (let i = 0; i < submitCount; i++) {
           ordersToSubmit.push(order);
         }

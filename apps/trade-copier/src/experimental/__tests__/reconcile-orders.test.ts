@@ -249,4 +249,28 @@ describe('reconcileOrders', () => {
     expect(actions).toHaveLength(1);
     expect(actions[0].type).toBe('SubmitOrder');
   });
+
+  it('应该撤单两个订单且订单ID不同当当前订单有三个只有order_id不同的订单而目标订单只有一个', () => {
+    // currentOrders 有三个只有 order_id 不同的订单
+    const currentOrders = [
+      { ...baseOrder, order_id: 'order-1' },
+      { ...baseOrder, order_id: 'order-2' },
+      { ...baseOrder, order_id: 'order-3' },
+    ];
+
+    // targetOrders 只有一个相同的订单（没有 order_id）
+    const targetOrders = [{ ...baseOrder }];
+
+    const actions = reconcileOrders(currentOrders, targetOrders);
+
+    // 预期：应该撤单两个订单
+    expect(actions).toHaveLength(2);
+    expect(actions[0].type).toBe('CancelOrder');
+    expect(actions[1].type).toBe('CancelOrder');
+
+    // 验证两个撤单动作中的订单ID不同
+    const orderIds = actions.map((action) => action.payload.order_id);
+    expect(orderIds).toHaveLength(2);
+    expect(new Set(orderIds).size).toBe(2); // 确保两个订单ID不同
+  });
 });
