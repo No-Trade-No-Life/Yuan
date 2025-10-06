@@ -1,6 +1,13 @@
 # Change Log - @yuants/tool-sql-migration
 
-This log was last generated on Sun, 05 Oct 2025 10:41:11 GMT and should not be manually modified.
+This log was last generated on Mon, 06 Oct 2025 21:56:42 GMT and should not be manually modified.
+
+## 0.2.4
+Mon, 06 Oct 2025 21:56:42 GMT
+
+### Patches
+
+- add index for trade account id
 
 ## 0.2.3
 Sun, 05 Oct 2025 10:41:11 GMT

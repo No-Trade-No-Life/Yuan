@@ -2,6 +2,23 @@
   "name": "@yuants/tool-sql-migration",
   "entries": [
     {
+      "version": "0.2.4",
+      "tag": "@yuants/tool-sql-migration_v0.2.4",
+      "date": "Mon, 06 Oct 2025 21:56:42 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add index for trade account id"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.3",
       "tag": "@yuants/tool-sql-migration_v0.2.3",
       "date": "Sun, 05 Oct 2025 10:41:11 GMT",
