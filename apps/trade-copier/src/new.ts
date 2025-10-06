@@ -24,7 +24,10 @@ const runStrategy = async (account_id: string, productKey: string, strategy: ITr
   if (strategy.type === 'BBO_MAKER') {
     return runStrategyBboMaker(account_id, productKey, strategy);
   }
-  return runStrategyDefault(account_id, productKey, strategy);
+  if (strategy.type === 'DEFAULT') {
+    return runStrategyDefault(account_id, productKey, strategy);
+  }
+  throw `UnknownStrategyType: ${strategy.type}`;
 };
 
 defer(() =>
