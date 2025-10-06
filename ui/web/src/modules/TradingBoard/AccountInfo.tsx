@@ -3,16 +3,17 @@ import { createColumnHelper } from '@tanstack/react-table';
 import { IAccountInfo, IPosition } from '@yuants/data-account';
 import { formatTime } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
-import React, { useMemo, useState } from 'react';
-import { of } from 'rxjs';
-import { InlineAccountId, useAccountInfo } from '../AccountInfo';
-import { DataView } from '../Interactive';
+import React, { useEffect, useMemo, useState } from 'react';
+import { combineLatestWith, defer, of, pipe, repeat, retry, switchMap } from 'rxjs';
+import { Button, DataView } from '../Interactive';
 import { InlineProductId } from '../Products/InlineProductId';
 import { TradeInfo } from './TradeInfo';
 import { PendingOrderInfo } from './PendingOrderInfo';
 import { NAVCurve } from './NAVCurve';
 import styles from './style.module.css';
 import { TradeCopierInfo } from './TradeCopierInfo';
+import { IOrder } from '@yuants/data-order';
+import { terminal$ } from '../Network';
 
 const { TabPane } = Tabs;
 
@@ -31,10 +32,6 @@ const createPositionColumns = (accountId: string) => {
         ) : (
           ctx.getValue()
         ),
-    }),
-    helper.accessor('account_id', {
-      header: () => '账户',
-      cell: (ctx) => <InlineAccountId account_id={ctx.getValue() || accountId} />,
     }),
     helper.accessor('direction', { header: () => '方向' }),
     helper.accessor('volume', { header: () => '持仓量', cell: (ctx) => ctx.getValue().toFixed(2) }),
@@ -63,6 +60,19 @@ const createPositionColumns = (accountId: string) => {
       },
     }),
     helper.accessor('comment', { header: () => '注释' }),
+    helper.accessor('datasource_id', {
+      header: () => '操作',
+      meta: {
+        fixed: 'right',
+      },
+      cell: (ctx) => {
+        return (
+          <Space vertical>
+            <Button type="danger">一键平仓</Button>
+          </Space>
+        );
+      },
+    }),
   ];
 };
 
@@ -79,6 +89,36 @@ export const AccountInfo = React.memo((props: Props) => {
   const positionColumns = useMemo(() => createPositionColumns(accountId ?? ''), [accountId]);
 
   const [pendingOrderNumber, setPendingOrderNumber] = useState(0);
+
+  const pendingOrders = useObservableState(
+    useObservable(
+      pipe(
+        combineLatestWith(terminal$),
+        switchMap(([[accountId], terminal]) => {
+          return defer(async () => {
+            if (!terminal || !accountId) return [];
+            const data = await terminal.client.requestForResponseData<{ account_id: string }, IOrder[]>(
+              'QueryPendingOrders',
+              { account_id: accountId },
+            );
+            return data ?? [];
+          }).pipe(
+            //
+            retry({ delay: 3_000 }),
+            repeat({ delay: 2_000 }),
+          );
+        }),
+      ),
+      [accountId],
+    ),
+    [] as IOrder[],
+  );
+
+  useEffect(() => {
+    if (pendingOrders) {
+      setPendingOrderNumber(pendingOrders.length);
+    }
+  }, [pendingOrders, setPendingOrderNumber]);
 
   return (
     <div style={{ width: '100%', height: '100%', padding: '0 8px', boxSizing: 'border-box' }}>
@@ -105,7 +145,13 @@ export const AccountInfo = React.memo((props: Props) => {
           }
           itemKey="positions"
         >
-          <DataView data={accountInfo?.positions ?? []} columns={positionColumns} />
+          <DataView
+            data={accountInfo?.positions ?? []}
+            columns={positionColumns}
+            hideExport={true}
+            hideFieldSettings={true}
+            hideGroup={true}
+          />
         </TabPane>
         <TabPane tab="成交" itemKey="trades">
           <TradeInfo accountId={accountId} setDrawOrders={setDrawOrders} drawOrders={drawOrders} />
@@ -119,7 +165,7 @@ export const AccountInfo = React.memo((props: Props) => {
           }
           itemKey="orders"
         >
-          <PendingOrderInfo accountId={accountId} pendingOrderNumberChange={setPendingOrderNumber} />
+          <PendingOrderInfo pendingOrders={pendingOrders} />
         </TabPane>
         <TabPane
           tab="净值曲线"
@@ -130,7 +176,7 @@ export const AccountInfo = React.memo((props: Props) => {
           <NAVCurve accountId={accountId} />
         </TabPane>
         <TabPane tab="跟单" itemKey="trade_copier">
-          <TradeCopierInfo accountId={accountId} />
+          <TradeCopierInfo accountId={accountId} accountInfo={accountInfo} />
         </TabPane>
       </Tabs>
     </div>

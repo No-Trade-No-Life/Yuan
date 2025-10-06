@@ -1,11 +1,11 @@
 import { Divider, Space, Spin, Tag } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
-import { IPosition } from '@yuants/data-account';
+import { IAccountInfo, IPosition } from '@yuants/data-account';
 import { useObservable, useObservableRef, useObservableState } from 'observable-hooks';
-import { memo, useEffect, useMemo } from 'react';
+import { memo, useMemo } from 'react';
 import { EMPTY, Observable, pipe, startWith, switchMap } from 'rxjs';
-import { InlineAccountId, useAccountInfo } from '../AccountInfo';
+import { useAccountInfo } from '../AccountInfo';
 import { schemaOfAccountComposerConfig } from '../AccountComposition';
 import { IAccountComposerConfig } from '../AccountComposition/interface';
 import { showForm } from '../Form';
@@ -27,8 +27,7 @@ const formatPrice = (value: number, digits = 6) => trimTrailingZeros(value.toFix
 const formatAmount = (value: number, digits = 2) => trimTrailingZeros(value.toFixed(digits));
 const formatSigned = (value: number, digits = 4, epsilon = EPSILON_VOLUME) => {
   if (Math.abs(value) < epsilon) return '0';
-  const prefix = value > 0 ? '+' : '-';
-  return `${prefix}${trimTrailingZeros(Math.abs(value).toFixed(digits))}`;
+  return `${trimTrailingZeros(Math.abs(value).toFixed(digits))}`;
 };
 
 const useSQLQuery = function <T>(query: string | undefined, refresh$: Observable<void>): T | undefined {
@@ -218,7 +217,7 @@ const buildActualDiff = (
     matched = false;
   }
   if (!actual) {
-    if (expected && expected.volume === 0) {
+    if ((expected && expected.volume === 0) || !expected) {
       notes.push('已平仓');
     } else {
       notes.push('实际未持仓');
@@ -234,18 +233,19 @@ const buildActualDiff = (
       notes.push('数量匹配');
     }
     if (expected.avgPrice !== undefined && actual.avgPrice !== undefined) {
-      const priceDiff = actual.avgPrice - expected.avgPrice;
+      const direction = expected.volume > 0 ? 1 : -1;
+      const priceDiff = (actual.avgPrice - expected.avgPrice) * direction;
       if (typeof openSlippage === 'number' && expected.avgPrice !== 0) {
         const tolerance = Math.abs(expected.avgPrice * openSlippage);
-        if (Math.abs(priceDiff) > tolerance + EPSILON_PRICE) {
+        if (priceDiff > tolerance + EPSILON_PRICE) {
           notes.push(
             `价格偏差 ${formatSigned(priceDiff, 4, EPSILON_PRICE)} 超出 ±${formatPrice(tolerance, 4)}`,
           );
           matched = false;
         } else {
-          notes.push(`价格在滑点 ±${trimTrailingZeros((openSlippage * 100).toFixed(2))}% 内`);
+          notes.push(`价格在滑点 ${trimTrailingZeros((openSlippage * 100).toString())}% 内`);
         }
-      } else if (Math.abs(priceDiff) > EPSILON_PRICE) {
+      } else if (priceDiff > EPSILON_PRICE) {
         notes.push(`价格差 ${formatSigned(priceDiff, 4, EPSILON_PRICE)}`);
         matched = false;
       } else {
@@ -327,8 +327,8 @@ const columns = [
   }),
 ];
 
-export const TradeCopierInfo = memo((props: { accountId: string }) => {
-  const { accountId } = props;
+export const TradeCopierInfo = memo((props: { accountId: string; accountInfo?: IAccountInfo }) => {
+  const { accountId, accountInfo } = props;
   const previewAccountId = useMemo(() => `TradeCopier/Preview/${accountId}`, [accountId]);
   const expectedAccountId = useMemo(() => `TradeCopier/Expected/${accountId}`, [accountId]);
 
@@ -372,11 +372,10 @@ export const TradeCopierInfo = memo((props: { accountId: string }) => {
     );
   }, [previewComposerConfig, expectedComposerConfig]);
 
-  const actualAccount$ = useMemo(() => useAccountInfo(accountId), [accountId]);
   const previewAccount$ = useMemo(() => useAccountInfo(previewAccountId), [previewAccountId]);
   const expectedAccount$ = useMemo(() => useAccountInfo(expectedAccountId), [expectedAccountId]);
 
-  const actualAccountInfo = useObservableState(actualAccount$);
+  const actualAccountInfo = accountInfo;
   const previewAccountInfo = useObservableState(previewAccount$);
   const expectedAccountInfo = useObservableState(expectedAccount$);
 
@@ -592,7 +591,13 @@ export const TradeCopierInfo = memo((props: { accountId: string }) => {
           <Spin />
         </Space>
       ) : (
-        <DataView data={comparisonRows} columns={columns} />
+        <DataView
+          data={comparisonRows}
+          columns={columns}
+          hideExport={true}
+          hideFieldSettings={true}
+          hideGroup={true}
+        />
       )}
     </Space>
   );

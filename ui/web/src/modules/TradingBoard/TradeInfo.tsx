@@ -12,7 +12,7 @@ const resolveUpdaterValue = (updater: Updater<number>, previous: number) =>
   typeof updater === 'function' ? updater(previous) : updater;
 
 interface Props {
-  accountId: string;
+  accountId?: string;
   setDrawOrders: (v: boolean) => void;
   drawOrders: boolean;
 }
@@ -131,6 +131,9 @@ export const TradeInfo = React.memo((props: Props) => {
 
   return (
     <DataView
+      hideExport={true}
+      hideFieldSettings={true}
+      hideGroup={true}
       tableRef={tradeTableRef}
       data={tradeState.data}
       manualPagination

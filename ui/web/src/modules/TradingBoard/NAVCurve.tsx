@@ -1,8 +1,7 @@
-import React from 'react';
 import { formatTime } from '@yuants/utils';
 import { TimeSeriesChart } from '../Chart/components/TimeSeriesChart';
 interface Props {
-  accountId: string;
+  accountId?: string;
 }
 
 export const NAVCurve = (props: Props) => {
