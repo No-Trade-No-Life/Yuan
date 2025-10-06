@@ -42,18 +42,18 @@ export interface PositionBounds {
  * 计算持仓边界和差异
  */
 export function calculatePositionBounds(
-  actualNetVolume: number,
-  expectedNetVolume: number,
+  actualVolume: number,
+  expectedVolume: number,
   volumeStep: number,
 ): PositionBounds {
-  const lowerBound = roundToStep(expectedNetVolume, volumeStep, Math.floor);
-  const upperBound = roundToStep(expectedNetVolume, volumeStep, Math.ceil);
+  const lowerBound = roundToStep(expectedVolume, volumeStep, Math.floor);
+  const upperBound = roundToStep(expectedVolume, volumeStep, Math.ceil);
 
   const deltaVolume =
-    actualNetVolume < lowerBound
-      ? lowerBound - actualNetVolume
-      : actualNetVolume > upperBound
-      ? upperBound - actualNetVolume
+    actualVolume < lowerBound
+      ? lowerBound - actualVolume
+      : actualVolume > upperBound
+      ? upperBound - actualVolume
       : 0;
 
   return { lowerBound, upperBound, deltaVolume };
@@ -82,27 +82,6 @@ export function calculateDirectionalPositionVolumes(
     volume === 0 ? 0 : actualPositions.reduce((a, b) => a + b.volume * b.position_price, 0) / volume;
 
   return { volume, avgPositionPrice };
-}
-
-/**
- * 计算方向性持仓边界
- */
-export function calculateDirectionalPositionBounds(
-  actualVolume: number,
-  expectedVolume: number,
-  volumeStep: number,
-): PositionBounds {
-  const lowerBound = roundToStep(expectedVolume, volumeStep, Math.floor);
-  const upperBound = roundToStep(expectedVolume, volumeStep, Math.ceil);
-
-  const deltaVolume =
-    actualVolume < lowerBound
-      ? lowerBound - actualVolume
-      : actualVolume > upperBound
-      ? upperBound - actualVolume
-      : 0;
-
-  return { lowerBound, upperBound, deltaVolume };
 }
 
 /**

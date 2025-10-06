@@ -2,7 +2,6 @@ import {
   calculatePositionVolumes,
   calculatePositionBounds,
   calculateDirectionalPositionVolumes,
-  calculateDirectionalPositionBounds,
   calculateOrdersVolume,
   sortOrdersByPrice,
   calculateSlippageProtectedPrice,

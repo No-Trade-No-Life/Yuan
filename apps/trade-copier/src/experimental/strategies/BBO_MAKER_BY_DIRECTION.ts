@@ -1,9 +1,9 @@
 import { IOrder } from '@yuants/data-order';
-import { roundToStep } from '@yuants/utils';
+import { formatTime, roundToStep } from '@yuants/utils';
 import {
-  calculateDirectionalPositionBounds,
   calculateDirectionalPositionVolumes,
   calculateOrdersVolume,
+  calculatePositionBounds,
   calculateSlippageProtectedPrice,
   sortOrdersByPrice,
 } from '../pure-functions';
@@ -16,18 +16,6 @@ import { StrategyAction, StrategyContext, StrategyFunction } from '../types';
 export const makeStrategyBboMakerByDirection: StrategyFunction = (
   context: StrategyContext,
 ): StrategyAction[] => {
-  const actions: StrategyAction[] = [];
-  const {
-    accountId,
-    productKey,
-    actualAccountInfo,
-    expectedAccountInfo,
-    product,
-    quote,
-    pendingOrders,
-    strategy,
-  } = context;
-
   // 分别处理多头和空头方向
   const longActions = _makeDirectionalStrategy(context, 'LONG');
   const shortActions = _makeDirectionalStrategy(context, 'SHORT');
@@ -53,8 +41,6 @@ function _makeDirectionalStrategy(context: StrategyContext, direction: string): 
   } = context;
   const [datasource_id, product_id] = productKey.split('/');
 
-  const actions: StrategyAction[] = [];
-
   // 计算实际和预期持仓
   const actualPosition = calculateDirectionalPositionVolumes(
     actualAccountInfo.positions,
@@ -77,11 +63,7 @@ function _makeDirectionalStrategy(context: StrategyContext, direction: string): 
   );
 
   // 计算持仓边界
-  const bounds = calculateDirectionalPositionBounds(
-    actualPosition.volume,
-    expectedPosition.volume,
-    product.volume_step,
-  );
+  const bounds = calculatePositionBounds(actualPosition.volume, expectedPosition.volume, product.volume_step);
 
   // 1. 检查是否需要撤单的情况
 
@@ -94,36 +76,8 @@ function _makeDirectionalStrategy(context: StrategyContext, direction: string): 
   }
 
   // 1.2 在预期范围内，撤单
-  const isInExpectedRange =
-    bounds.lowerBound <= actualPosition.volume && actualPosition.volume <= bounds.upperBound;
-  if (isInExpectedRange) {
+  if (bounds.deltaVolume === 0) {
     return directionOrders.map((order) => ({
-      type: 'CancelOrder' as const,
-      payload: order,
-    }));
-  }
-
-  // 计算订单总成交量
-  const ordersVolume = calculateOrdersVolume(directionOrders, product_id);
-
-  // 1.3 订单数量超过需求，撤销多余的订单
-  // 注意：当 deltaVolume 为负数时，ordersVolume 也应该为负数（平仓订单）
-  // 所以比较的是绝对值
-  if (Math.abs(ordersVolume) > Math.abs(bounds.deltaVolume)) {
-    const sortedOrders = sortOrdersByPrice(directionOrders, direction);
-    const ordersToCancel: IOrder[] = [];
-    let acc_volume = 0;
-    const volume_to_cancel = Math.abs(ordersVolume) - Math.abs(bounds.deltaVolume);
-
-    for (const o of sortedOrders) {
-      ordersToCancel.push(o);
-      acc_volume += o.volume;
-      if (acc_volume >= volume_to_cancel) {
-        break;
-      }
-    }
-
-    return ordersToCancel.map((order) => ({
       type: 'CancelOrder' as const,
       payload: order,
     }));
@@ -154,14 +108,11 @@ function _makeDirectionalStrategy(context: StrategyContext, direction: string): 
         strategy.open_slippage,
       );
     }
-  } else if (bounds.deltaVolume < 0) {
+  } else {
     // 平仓
     price = direction === 'LONG' ? +quote.ask_price : +quote.bid_price;
     order_direction = direction === 'LONG' ? 'CLOSE_LONG' : 'CLOSE_SHORT';
     volume = Math.min(-bounds.deltaVolume, actualPosition.volume);
-  } else {
-    // 在预期范围内，不需要操作
-    return [];
   }
 
   const order: IOrder = {
@@ -181,26 +132,23 @@ function _makeDirectionalStrategy(context: StrategyContext, direction: string): 
       order.price !== existingOrder.price ||
       order.order_direction !== existingOrder.order_direction
     ) {
-      // 先撤单，然后下单
-      actions.push({
-        type: 'CancelOrder',
-        payload: existingOrder,
-      });
-      actions.push({
-        type: 'SubmitOrder',
-        payload: order,
-      });
-      return actions;
+      // 订单参数不一致，撤销现有订单
+      return [
+        {
+          type: 'CancelOrder',
+          payload: existingOrder,
+        },
+      ];
     }
     // 订单已存在且参数正确，不需要操作
     return [];
   }
 
   // 4. 没有现有订单，直接下单
-  actions.push({
-    type: 'SubmitOrder',
-    payload: order,
-  });
-
-  return actions;
+  return [
+    {
+      type: 'SubmitOrder',
+      payload: order,
+    },
+  ];
 }
