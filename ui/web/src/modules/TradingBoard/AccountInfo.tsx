@@ -3,8 +3,8 @@ import { createColumnHelper } from '@tanstack/react-table';
 import { IAccountInfo, IPosition } from '@yuants/data-account';
 import { formatTime } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
-import React, { useMemo, useState } from 'react';
-import { of } from 'rxjs';
+import React, { useEffect, useMemo, useState } from 'react';
+import { combineLatestWith, defer, of, pipe, repeat, retry, switchMap } from 'rxjs';
 import { InlineAccountId, useAccountInfo } from '../AccountInfo';
 import { DataView } from '../Interactive';
 import { InlineProductId } from '../Products/InlineProductId';
@@ -13,6 +13,8 @@ import { PendingOrderInfo } from './PendingOrderInfo';
 import { NAVCurve } from './NAVCurve';
 import styles from './style.module.css';
 import { TradeCopierInfo } from './TradeCopierInfo';
+import { IOrder } from '@yuants/data-order';
+import { terminal$ } from '../Network';
 
 const { TabPane } = Tabs;
 
@@ -80,6 +82,36 @@ export const AccountInfo = React.memo((props: Props) => {
 
   const [pendingOrderNumber, setPendingOrderNumber] = useState(0);
 
+  const pendingOrders = useObservableState(
+    useObservable(
+      pipe(
+        combineLatestWith(terminal$),
+        switchMap(([[accountId], terminal]) => {
+          return defer(async () => {
+            if (!terminal || !accountId) return [];
+            const data = await terminal.client.requestForResponseData<{ account_id: string }, IOrder[]>(
+              'QueryPendingOrders',
+              { account_id: accountId },
+            );
+            return data ?? [];
+          }).pipe(
+            //
+            retry({ delay: 3_000 }),
+            repeat({ delay: 2_000 }),
+          );
+        }),
+      ),
+      [accountId],
+    ),
+    [] as IOrder[],
+  );
+
+  useEffect(() => {
+    if (pendingOrders) {
+      setPendingOrderNumber(pendingOrders.length);
+    }
+  }, [pendingOrders, setPendingOrderNumber]);
+
   return (
     <div style={{ width: '100%', height: '100%', padding: '0 8px', boxSizing: 'border-box' }}>
       <Tabs
@@ -119,7 +151,7 @@ export const AccountInfo = React.memo((props: Props) => {
           }
           itemKey="orders"
         >
-          <PendingOrderInfo accountId={accountId} pendingOrderNumberChange={setPendingOrderNumber} />
+          <PendingOrderInfo pendingOrders={pendingOrders} />
         </TabPane>
         <TabPane
           tab="净值曲线"
