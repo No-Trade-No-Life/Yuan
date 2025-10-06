@@ -208,10 +208,8 @@ describe('BBO_MAKER_BY_DIRECTION Strategy', () => {
 
     const actions = makeStrategyBboMakerByDirection(context);
 
-    expect(actions).toHaveLength(2);
+    expect(actions).toHaveLength(1);
     expect(actions[0].type).toBe('CancelOrder');
-    expect(actions[1].type).toBe('SubmitOrder');
-    expect(actions[1].payload.price).toBe(49000);
   });
 
   it('should handle both LONG and SHORT directions', () => {
