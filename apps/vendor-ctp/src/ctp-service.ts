@@ -8,11 +8,17 @@ import {
   from,
   map,
   Observable,
+  share,
   takeWhile,
   tap,
   timeout,
 } from 'rxjs';
-import { ICThostFtdcRspUserLoginField, ICThostFtdcSettlementInfoConfirmField } from './assets/ctp-types';
+import {
+  ICThostFtdcDepthMarketDataField,
+  ICThostFtdcRspUserLoginField,
+  ICThostFtdcSettlementInfoConfirmField,
+  ICThostFtdcSpecificInstrumentField,
+} from './assets/ctp-types';
 import { createZMQConnection } from './bridge';
 import './ctp-monitor';
 import { restartCtpAction$ } from './ctp-monitor';
@@ -242,3 +248,81 @@ terminal.server.provideService(
 );
 
 terminal.channel.publishChannel('CTP/ZMQ', { const: ACCOUNT_ID }, () => from(zmqConn.input$));
+
+const depthMarketData$ = from(zmqConn.input$).pipe(
+  filter((msg) => msg.res?.event === 'Md_OnRtnDepthMarketData' && msg.res?.value !== undefined),
+  map((msg) => msg.res!.value as ICThostFtdcDepthMarketDataField),
+  share({ resetOnRefCountZero: true }),
+);
+
+terminal.server.provideService<
+  { account_id: string; instrument_ids: string[] },
+  void,
+  IBridgeMessage<{ instrument_ids: string[] }, ICThostFtdcSpecificInstrumentField>
+>(
+  'CTP/SubscribeMarketData',
+  {
+    type: 'object',
+    required: ['account_id', 'instrument_ids'],
+    properties: {
+      account_id: { type: 'string', const: ACCOUNT_ID },
+      instrument_ids: {
+        type: 'array',
+        items: { type: 'string' },
+        minItems: 1,
+      },
+    },
+    additionalProperties: false,
+  },
+  (msg) => {
+    if (!loginRes$.value) {
+      throw new Error('CTP not logged in');
+    }
+
+    if (msg.req.account_id !== ACCOUNT_ID) {
+      throw new Error(`Unexpected account_id: ${msg.req.account_id}`);
+    }
+
+    return _requestZMQ<{ instrument_ids: string[] }, ICThostFtdcSpecificInstrumentField>({
+      method: 'SubscribeMarketData',
+      params: { instrument_ids: msg.req.instrument_ids },
+    }).pipe(map((frame) => ({ frame })));
+  },
+);
+
+terminal.server.provideService<
+  { account_id: string; instrument_ids: string[] },
+  void,
+  IBridgeMessage<{ instrument_ids: string[] }, ICThostFtdcSpecificInstrumentField>
+>(
+  'CTP/UnSubscribeMarketData',
+  {
+    type: 'object',
+    required: ['account_id', 'instrument_ids'],
+    properties: {
+      account_id: { type: 'string', const: ACCOUNT_ID },
+      instrument_ids: {
+        type: 'array',
+        items: { type: 'string' },
+        minItems: 1,
+      },
+    },
+    additionalProperties: false,
+  },
+  (msg) => {
+    if (!loginRes$.value) {
+      throw new Error('CTP not logged in');
+    }
+
+    if (msg.req.account_id !== ACCOUNT_ID) {
+      throw new Error(`Unexpected account_id: ${msg.req.account_id}`);
+    }
+
+    return _requestZMQ<{ instrument_ids: string[] }, ICThostFtdcSpecificInstrumentField>({
+      method: 'UnSubscribeMarketData',
+      params: { instrument_ids: msg.req.instrument_ids },
+    }).pipe(map((frame) => ({ frame })));
+  },
+);
+
+terminal.channel.publishChannel('CTP/DepthMarketData', { const: ACCOUNT_ID }, () => depthMarketData$);
