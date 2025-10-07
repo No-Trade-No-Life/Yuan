@@ -126,7 +126,7 @@ describe('Pure Functions', () => {
   });
 
   describe('sortOrdersByPrice', () => {
-    it('should sort LONG orders from low to high', () => {
+    it('should sort LONG orders from high to low (closest to bid first)', () => {
       const orders = [
         createTestOrder('BTC-USDT', 'OPEN_LONG', 100, 51000),
         createTestOrder('BTC-USDT', 'OPEN_LONG', 50, 50000),
@@ -135,12 +135,13 @@ describe('Pure Functions', () => {
 
       const result = sortOrdersByPrice(orders, 'LONG');
 
-      expect(result[0].price).toBe(50000);
+      // For LONG direction: higher prices are closer to bid
+      expect(result[0].price).toBe(52000);
       expect(result[1].price).toBe(51000);
-      expect(result[2].price).toBe(52000);
+      expect(result[2].price).toBe(50000);
     });
 
-    it('should sort SHORT orders from high to low', () => {
+    it('should sort SHORT orders from low to high (closest to ask first)', () => {
       const orders = [
         createTestOrder('BTC-USDT', 'OPEN_SHORT', 100, 51000),
         createTestOrder('BTC-USDT', 'OPEN_SHORT', 50, 50000),
@@ -149,9 +150,10 @@ describe('Pure Functions', () => {
 
       const result = sortOrdersByPrice(orders, 'SHORT');
 
-      expect(result[0].price).toBe(52000);
+      // For SHORT direction: lower prices are closer to ask
+      expect(result[0].price).toBe(50000);
       expect(result[1].price).toBe(51000);
-      expect(result[2].price).toBe(50000);
+      expect(result[2].price).toBe(52000);
     });
   });
 

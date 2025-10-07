@@ -11,7 +11,7 @@
     "temp"
   ],
   "scripts": {
-    "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
+    "build": "heft test --clean && yuan-toolkit post-build"
   },
   "dependencies": {
     "@types/json-schema": "~7.0.11",

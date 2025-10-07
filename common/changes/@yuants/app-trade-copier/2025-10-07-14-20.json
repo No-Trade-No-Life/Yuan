@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-trade-copier",
+      "comment": "feat: enhance trading strategies with new parameters and sorting logic",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-trade-copier"
+}
