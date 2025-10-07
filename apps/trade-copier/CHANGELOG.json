@@ -2,6 +2,23 @@
   "name": "@yuants/app-trade-copier",
   "entries": [
     {
+      "version": "0.11.1",
+      "tag": "@yuants/app-trade-copier_v0.11.1",
+      "date": "Tue, 07 Oct 2025 23:33:12 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "feat: enhance trading strategies with new parameters and sorting logic"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.11.0",
       "tag": "@yuants/app-trade-copier_v0.11.0",
       "date": "Mon, 06 Oct 2025 21:56:42 GMT",
