@@ -96,11 +96,11 @@ export const OrderBookComponent = React.memo((props: Props) => {
     let localMaxVolume = 0;
 
     let askCumulative = 0;
-    const computedAskRows = nextAsks.reverse().map(([price, volume, seqId]) => {
+    const computedAskRows = nextAsks.map(([price, volume, seqId]) => {
       const numericVolume = parseVolume(volume, productInfo?.value_scale ?? 1);
       askCumulative += numericVolume;
-      if (numericVolume > localMaxVolume) {
-        localMaxVolume = numericVolume;
+      if (askCumulative > localMaxVolume) {
+        localMaxVolume = askCumulative;
       }
       return { price, volume, cumulative: askCumulative, seqId, numericVolume };
     });
@@ -109,8 +109,8 @@ export const OrderBookComponent = React.memo((props: Props) => {
     const computedBidRows = nextBids.map(([price, volume, seqId]) => {
       const numericVolume = parseVolume(volume, productInfo?.value_scale ?? 1);
       bidCumulative += numericVolume;
-      if (numericVolume > localMaxVolume) {
-        localMaxVolume = numericVolume;
+      if (bidCumulative > localMaxVolume) {
+        localMaxVolume = bidCumulative;
       }
       return { price, volume, cumulative: bidCumulative, seqId, numericVolume };
     });
@@ -122,7 +122,7 @@ export const OrderBookComponent = React.memo((props: Props) => {
     row: { price: string; volume: string; cumulative: number; seqId: number; numericVolume: number },
     type: 'ask' | 'bid',
   ) => {
-    const volumeRatio = maxVolume > 0 ? Math.min(row.numericVolume / maxVolume, 1) : 0;
+    const volumeRatio = maxVolume > 0 ? Math.min(row.cumulative / maxVolume, 1) : 0;
     const backgroundColor = type === 'bid' ? 'rgba(16, 185, 129, 0.2)' : 'rgba(248, 113, 113, 0.2)';
 
     return (
@@ -216,7 +216,7 @@ export const OrderBookComponent = React.memo((props: Props) => {
           }}
         >
           {askRows.length ? (
-            askRows.map((row) => renderRow(row, 'ask'))
+            askRows.reverse().map((row) => renderRow(row, 'ask'))
           ) : (
             <li
               style={{
