@@ -20,6 +20,7 @@ import { loadSqlData } from '../Chart/components/utils';
 import { generateAccountOrders } from './utils';
 import { ISeriesConfig, ITimeSeriesChartConfig } from '../Chart/components/model';
 import { seriesIdList$ } from '../OHLC';
+import { OrderBook } from './OrderBook';
 
 const accountIds$ = terminal$.pipe(
   filter((x): x is Exclude<typeof x, null> => !!x),
@@ -67,14 +68,32 @@ const layoutJson: FlexLayout.IJsonModel = {
         weight: 80,
         children: [
           {
-            type: 'tabset',
+            type: 'row',
             weight: 70,
-            enableDeleteWhenEmpty: false,
-            enableTabStrip: false,
             children: [
               {
-                type: 'tab',
-                component: 'left-top',
+                type: 'tabset',
+                weight: 80,
+                enableDeleteWhenEmpty: false,
+                enableTabStrip: false,
+                children: [
+                  {
+                    type: 'tab',
+                    component: 'left-top-left',
+                  },
+                ],
+              },
+              {
+                type: 'tabset',
+                weight: 20,
+                enableDeleteWhenEmpty: false,
+                enableTabStrip: false,
+                children: [
+                  {
+                    type: 'tab',
+                    component: 'left-top-right',
+                  },
+                ],
               },
             ],
           },
@@ -306,6 +325,7 @@ registerPage('TradingBoard', () => {
         const component = node.getComponent();
         switch (component) {
           case 'left-top':
+          case 'left-top-left':
             return (
               <Space style={{ height: '100%', width: '100%', padding: '0 8px' }}>
                 <TimeSeriesChart
@@ -341,6 +361,8 @@ registerPage('TradingBoard', () => {
                 />
               </Space>
             );
+          case 'left-top-right':
+            return <OrderBook uniqueProductId={uniqueProductId ?? ''} />;
           case 'left-bottom':
             return (
               <AccountInfo

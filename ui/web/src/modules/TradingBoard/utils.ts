@@ -1,9 +1,11 @@
 import { ITrade } from '@yuants/data-trade';
 import { escapeSQL, requestSQL } from '@yuants/sql';
-import { firstValueFrom } from 'rxjs';
+import { BehaviorSubject, bufferTime, defer, filter, firstValueFrom, Subject, switchMap, tap } from 'rxjs';
 import { terminal$ } from '../Network';
-import { decodePath, formatTime } from '@yuants/utils';
+import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { IProduct } from '@yuants/data-product';
+import { useEffect, useMemo } from 'react';
+import { useObservableState } from 'observable-hooks';
 
 export const generateAccountOrders = async (
   simulateAccountId: string,
@@ -91,3 +93,119 @@ export const generateAccountOrders = async (
 
   return [orderSeries];
 };
+
+export interface IOrderBooks {
+  asks: Map<string, [price: string, volume: string, seqId: number]>;
+  bids: Map<string, [price: string, volume: string, seqId: number]>;
+  seqId: number;
+}
+
+interface IWSOrderBook {
+  asks: [price: string, volume: string, abandon: string, order_number: string][];
+  bids: [price: string, volume: string, abandon: string, order_number: string][];
+  ts: string;
+  prevSeqId: number;
+  seqId: number;
+  checksum: number;
+}
+
+// const sub = new Subject<{ bis: []; ask: [] }>();
+
+export const mapUniqueProductIdToOrderBookSubject = new Map<string, BehaviorSubject<IOrderBooks>>();
+
+export const useOrderBooks = (uniqueProductId: string) => {
+  const orderBookMemo$ = useMemo(() => {
+    const orderBook$ = new BehaviorSubject<IOrderBooks>({
+      bids: new Map(),
+      asks: new Map(),
+      seqId: 0,
+    });
+    mapUniqueProductIdToOrderBookSubject.set(uniqueProductId, orderBook$);
+    return orderBook$;
+  }, [uniqueProductId]);
+
+  useEffect(() => {
+    const [datasource_id, product_id] = decodePath(uniqueProductId);
+    if (datasource_id === 'OKX' && product_id) {
+      const orderBookSub = useOKXOrderBooks(uniqueProductId);
+      () => {
+        mapUniqueProductIdToOrderBookSubject.delete(uniqueProductId);
+        orderBookSub.unsubscribe();
+      };
+    }
+
+    return () => {
+      mapUniqueProductIdToOrderBookSubject.delete(uniqueProductId);
+    };
+  }, [uniqueProductId]);
+
+  return useObservableState(orderBookMemo$);
+};
+
+export const useOKXOrderBooks = (uniqueProductId: string) => {
+  const [, product_id] = decodePath(uniqueProductId);
+
+  const initBooks$ = defer(async () => {
+    const terminal = await firstValueFrom(terminal$);
+    if (terminal) {
+      return terminal.client.requestForResponseData<
+        {
+          product_id: string;
+          datasource_id: string;
+          sz: string;
+        },
+        {
+          asks: [price: string, volume: string, abandon: string, order_number: string][];
+          bids: [price: string, volume: string, abandon: string, order_number: string][];
+          ts: string;
+        }[]
+      >('QueryMarketBooks', {
+        product_id,
+        datasource_id: 'OKX',
+        sz: '50',
+      });
+    }
+    return null;
+  });
+
+  const sub = terminal$
+    .pipe(
+      //
+      filter((x): x is Exclude<typeof x, undefined | null> => !!x),
+      switchMap((terminal) =>
+        terminal.channel.subscribeChannel<IWSOrderBook>('MarketBooks', encodePath('OKX', product_id)),
+      ),
+    )
+    .pipe(
+      //
+      bufferTime(500),
+      tap((v) => mergeOKXOrderBooks(v, uniqueProductId)),
+    )
+    .subscribe();
+
+  return sub;
+};
+
+function mergeOKXOrderBooks(books: IWSOrderBook[], uniqueProductId: string) {
+  const orderBook$ = mapUniqueProductIdToOrderBookSubject.get(uniqueProductId);
+  if (orderBook$ && books) {
+    const currentBooks = orderBook$.value;
+    books.forEach((book) => {
+      book.bids.forEach((item) => {
+        if (item[1] === '0') {
+          currentBooks?.bids.delete(item[0]);
+        } else {
+          currentBooks?.bids.set(item[0], [item[0], item[1], book.seqId]);
+        }
+      });
+      book.asks.forEach((item) => {
+        if (item[1] === '0') {
+          currentBooks?.asks.delete(item[0]);
+        } else {
+          currentBooks?.asks.set(item[0], [item[0], item[1], book.seqId]);
+        }
+      });
+    });
+    orderBook$.next({ ...currentBooks });
+  }
+}
