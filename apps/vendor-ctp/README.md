@@ -1,6 +1,6 @@
 # vendor-ctp
 
-该模块负责把中金所 CTP 官方提供的 C 接口包装成我们可以直接在 Node.js 里调用的形态。核心思路是用 CTP SDK 附带的四个头文件作为唯一真实的数据源，然后借助脚本批量生成：
+该模块负责把 CTP 官方提供的 C 接口包装成我们可以直接在 Node.js 里调用的形态。核心思路是用 CTP SDK 附带的四个头文件作为唯一真实的数据源，然后借助脚本批量生成：
 
 - 类型安全的 TypeScript 枚举与结构体声明，方便在上层业务里构造请求、消费推送；
 - C++ 桥接代码，将 `CThostFtdcTraderSpi` 的回调和 `CThostFtdcTraderApi` 的请求转换成 ZeroMQ 与 JSON 协议，从而与 Node 侧进程通讯。
@@ -36,6 +36,7 @@
    - 上层业务通过 `import { I<CtpStruct> } from '@yuants/vendor-ctp/...'` 即可获得静态类型保障。
 
 3. **C++ 桥接生成（`build-ctp-bridge.ts`）**
+
    - 遍历 `CThostFtdcTraderSpi` 的所有虚函数，生成交易侧 `Bridge` 的回调实现，统一把回调结果打包成 JSON：
      - 失败时附带错误码和经过 `iconv`（GBK⇄UTF-8）转换后的错误信息；
      - 成功时将结构体内容序列化成 JSON（同样自动处理编码与数组长度）。
@@ -49,40 +50,69 @@
 - **推送方向**：所有 `OnXXX` 回调统一打包成 `{ request_id, res }` 结构，通过 `push_sock_` 发布给 Node 侧；
 - **请求方向**：`ListenReq` 常驻循环从 `pull_sock_` 读 JSON 队列，根据 `req.method` 调用 CTP SDK，并在必要时把错误透传回去。
 
-## 如何运行生成脚本
+## 构建脚本使用指南
 
-构建脚本默认在 `pnpm --filter @yuants/vendor-ctp build` 中自动调用，具体流程：
+项目提供了自动化构建脚本，简化 CTP 原生二进制的编译过程，无需手动配置 CMake。
 
-1. 使用 Heft 编译 TypeScript -> `lib/`。
-2. 执行 `node ./lib/scripts/build-ctp-types.js` 生成 TypeScript 声明。
-3. 执行 `node ./lib/scripts/build-ctp-bridge.js` 生成 C++ 桥接代码。
-4. 进入 `build/Dockerfile` 描述的编译容器，运行 CMake 依次构建 `prod` / `cp` / `demo` 三套原生二进制（产物分别位于 `ctp/build/<variant>/main_linux[_variant]`）。
-5. 调用 `yuan-toolkit post-build` 完成包内的后处理。
+### 脚本概览
 
-如果只是想快速迭代生成步骤（无需整套构建），也可以单独运行：
+- `scripts/build-native.sh` - 主构建脚本，在 Docker 容器中构建所有变体
+- `ctp/scripts/build-variants.sh` - 内部脚本，构建三个环境变体
+- `scripts/post-install.js` - 依赖安装脚本（自动运行）
 
-```bash
-pnpm --filter @yuants/vendor-ctp exec node ./lib/scripts/build-ctp-types.js
-pnpm --filter @yuants/vendor-ctp exec node ./lib/scripts/build-ctp-bridge.js
-```
+### 主要构建脚本
 
-运行脚本时会直接覆盖生成目录下的文件，请务必在提交前运行一次，以确认生成物与头文件同步。
-
-## 编译原生二进制
-
-生成文件就绪后，可在本地或容器里使用 CMake 构建指定环境的二进制：
+使用 `build-native.sh` 脚本一键构建：
 
 ```bash
-cmake -S apps/vendor-ctp/ctp -B apps/vendor-ctp/ctp/build/cp \
-  -DCTP_BUILD_VARIANT=cp -DCMAKE_BUILD_TYPE=RelWithDebInfo
-cmake --build apps/vendor-ctp/ctp/build/cp --target main_linux_cp
+./scripts/build-native.sh
 ```
 
-- `CTP_BUILD_VARIANT=prod` 使用官方 `ctp/lib` 库；
-- `CTP_BUILD_VARIANT=cp` 使用测评环境 `ctp/lib-cp` 库；
-- `CTP_BUILD_VARIANT=demo` 使用 openctp 演示库 `ctp/lib-demo`。
+该脚本会自动：
 
-链接脚本会分别查找 `thosttraderapi*` 与 `thostmduserapi*`，并自动把库所在目录追加进 RPATH，使打包后的二进制可以直接运行。
+- 检测 Linux 平台（仅支持 Linux）
+- 在 Docker 容器中构建，确保环境一致性
+- 构建所有三个环境变体（prod、cp、demo）
+- 清理不必要的构建文件
+
+### 构建变体说明
+
+脚本会自动构建三个环境变体：
+
+| 环境变体 | 用途         | 使用的库        | 生成的二进制      |
+| -------- | ------------ | --------------- | ----------------- |
+| `prod`   | 生产环境     | `ctp/lib/`      | `main_linux`      |
+| `cp`     | 测评环境     | `ctp/lib-cp/`   | `main_linux_cp`   |
+| `demo`   | OpenCTP 演示 | `ctp/lib-demo/` | `main_linux_demo` |
+
+### 依赖管理
+
+`post-install.js` 脚本会在安装时自动运行，处理系统依赖：
+
+- 在 Debian 12 系统上自动安装 `libzmq3-dev`
+- 其他平台会跳过依赖安装
+
+### 使用示例
+
+构建所有环境变体：
+
+```bash
+cd apps/vendor-ctp
+./scripts/build-native.sh
+```
+
+构建完成后，通过环境变量选择运行哪个变体：
+
+```bash
+export CTP_ENV=prod  # 或 cp、demo
+```
+
+### 注意事项
+
+- 仅支持 Linux 平台构建
+- 需要 Docker 环境
+- 构建过程在容器中进行，确保环境一致性
+- 生成的二进制会自动包含正确的 RPATH，可直接运行
 
 ## 原生桥接的使用方式
 
@@ -155,26 +185,6 @@ Node 侧通过设置 `CTP_ENV=prod|cp|demo` 来选择启动哪份 `main_linux`�
 - 交易类请求默认走 `CTP/Query` / `CTP/Query`（订单）服务；
 - 行情订阅 / 退订通过新增的 `CTP/Md` 服务发送，字段格式与官方结构体保持一致（例如 `instrument_ids: string[]`）。
 
-## Apple Silicon 测试容器
-
-仓库新增了适用于 Apple Silicon 的 x86 仿真测试镜像，位于 `apps/vendor-ctp/docker/apple-test/`：
-
-1. 启用 QEMU emulation（首次执行即可）：
-   ```bash
-   docker run --privileged --rm tonistiigi/binfmt --install amd64
-   ```
-2. 构建镜像（在仓库根目录）：
-   ```bash
-   docker compose -f apps/vendor-ctp/docker/apple-test/docker-compose.yml build
-   ```
-3. 运行烟囱测试：
-   ```bash
-   docker compose -f apps/vendor-ctp/docker/apple-test/docker-compose.yml \
-     run --rm vendor-ctp-apple-test
-   ```
-
-镜像会在容器内执行 `pnpm install`、重新生成桥接代码、通过 CMake 构建二进制，并运行 `smoke-md.js` 校验生成物。构建步骤会同时产出 `prod` / `cp` / `demo` 三份 `main_linux`，请在镜像内分别准备好 `/workspace/apps/vendor-ctp/ctp/lib*` 下对应环境的 `.so` 文件即可。
-
 ## 更新头文件的注意事项
 
 1. 将新的官方头文件覆盖到 `ctp/include` 目录（确保同名）。
@@ -191,3 +201,72 @@ Node 侧通过设置 `CTP_ENV=prod|cp|demo` 来选择启动哪份 `main_linux`�
 - **想快速验证生成结果？** 可以运行生成脚本后执行 `git diff apps/vendor-ctp/ctp apps/vendor-ctp/src/assets` 查看差异，再决定是否需要手工调整模板。
 
 通过以上流程，我们保证了 vendor-ctp 子项目与 CTP 官方 SDK 的同步性，也减轻了手写桥接代码的维护成本。如需扩展到行情接口或添加新的编码策略，只要在元数据阶段补充解析逻辑，再在模板中引用即可。
+
+## OpenCTP 支持
+
+> 参考：http://www.openctp.cn/TTS-CTPAPI.html
+
+vendor-ctp 支持使用 OpenCTP 开源模拟环境进行开发和测试。OpenCTP 提供了完整的 CTP API 模拟，无需真实交易账号即可进行功能验证。
+
+### OpenCTP 环境配置
+
+项目支持三种 CTP 环境变体：
+
+- `prod`：生产环境，使用官方 `ctp/lib` 库
+- `cp`：测评环境，使用 `ctp/lib-cp` 库
+- `demo`：OpenCTP 演示环境，使用 `ctp/lib-demo` 库
+
+要使用 OpenCTP 环境，设置环境变量：
+
+```bash
+export CTP_ENV=demo
+```
+
+### OpenCTP 前置地址配置
+
+以下是可用的 OpenCTP 环境配置：
+
+| 模拟平台 | 环境                                                                                       | 前置     | 地址                       |
+| -------- | ------------------------------------------------------------------------------------------ | -------- | -------------------------- |
+| openctp  | 7x24 环境<br>BrokerID: 无<br>AppID: 无<br>AuthCode: 无<br>品种：股票、期货、期权、ETF 期权 | 交易前置 | tcp://121.37.80.177:20002  |
+|          |                                                                                            | 行情前置 | tcp://121.37.80.177:20004  |
+| openctp  | 仿真环境<br>BrokerID: 无<br>AppID: 无<br>AuthCode: 无<br>品种：股票、期货、期权            | 交易前置 | tcp://121.37.90.193:20002  |
+|          |                                                                                            | 行情前置 | 直连实盘行情前置           |
+| openctp  | vip 仿真环境<br>BrokerID: 无<br>AppID: 无<br>AuthCode: 无<br>品种：期货、期权、ETF 期权    | 交易前置 | tcp://vip.openctp.cn:30003 |
+|          |                                                                                            | 行情前置 | 直连实盘行情前置           |
+
+### 使用示例
+
+> 关注 openctp 公众号获取测试账号
+
+配置环境变量连接 OpenCTP 7x24 环境：
+
+```bash
+export CTP_ENV=demo
+export TRADER_ADDR=tcp://121.37.80.177:20002
+export MARKET_ADDR=tcp://121.37.80.177:20004
+export BROKER_ID=""
+export USER_ID="14725"
+export PASSWORD="123456"
+export APP_ID=""
+export AUTH_CODE=""
+```
+
+### OpenCTP 特性
+
+- **无需真实账号**：使用测试账号即可进行完整的 CTP API 功能验证
+- **完整模拟**：支持交易、行情、查询等所有 CTP 功能
+- **开发友好**：适合在开发、调试和测试阶段使用
+- **多环境支持**：提供 7x24、仿真、VIP 仿真等多种环境选择
+
+### 环境对比
+
+| 环境   | 用途         | 库位置          | 二进制名称        |
+| ------ | ------------ | --------------- | ----------------- |
+| `prod` | 生产环境     | `ctp/lib/`      | `main_linux`      |
+| `cp`   | 测评环境     | `ctp/lib-cp/`   | `main_linux_cp`   |
+| `demo` | OpenCTP 演示 | `ctp/lib-demo/` | `main_linux_demo` |
+
+### Fun Facts
+
+- OpenCTP 的 7x24 环境的行情会轮播回放历史数据
