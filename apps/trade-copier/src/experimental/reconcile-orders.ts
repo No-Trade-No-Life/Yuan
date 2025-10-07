@@ -6,7 +6,9 @@ import { StrategyAction } from './types';
  * 使用高效的字符串拼接替代 JSON.stringify
  */
 function getOrderKey(order: IOrder): string {
-  return `${order.account_id}|${order.product_id}|${order.order_direction}|${order.price}|${order.volume}`;
+  return `${order.account_id}|${order.product_id}|${order.order_direction}|${order.price}|${
+    order.volume - (order.traded_volume || 0) // 使用剩余量 作为区分
+  }`;
 }
 
 /**
@@ -70,20 +72,52 @@ export function reconcileOrders(currentOrders: IOrder[], targetOrders: IOrder[])
   }
 
   // 只有在没有撤单需求时，才计算需要下单的订单
+  // 在 cancel 中没有找到的订单，就是需要下单的订单
   const ordersToSubmit: IOrder[] = [];
 
   for (const [orderKey, targetOrderInstances] of targetInstances) {
-    const targetCount = targetOrderInstances.length;
-    const currentCount = currentInstances.get(orderKey)?.length || 0;
-    const submitCount = targetCount - currentCount;
+    const targetOrders = targetOrderInstances;
+    const currentOrders = currentInstances.get(orderKey);
+    const notMatchedTargetOrders = new Set<IOrder>(targetOrders);
+    const notMatchedCurrentOrders = new Set<IOrder>(currentOrders || []);
 
-    if (submitCount > 0) {
-      // 使用第一个订单实例作为下单模板，因为目标订单没有 order_id
-      const order = targetOrderInstances[0];
-      // 直接添加需要下单的数量
-      for (let i = 0; i < submitCount; i++) {
-        ordersToSubmit.push(order);
+    // 1. 优先匹配引用相同的订单实例
+    notMatchedTargetOrders.forEach((order) => {
+      if (currentOrders && notMatchedCurrentOrders.has(order)) {
+        notMatchedTargetOrders.delete(order);
+        notMatchedCurrentOrders.delete(order);
+        return;
       }
+    });
+    // 2. 其次匹配 order_id 相同的订单实例
+    notMatchedTargetOrders.forEach((order) => {
+      notMatchedCurrentOrders.forEach((o) => {
+        if (o.order_id && order.order_id === o.order_id) {
+          notMatchedTargetOrders.delete(order);
+          notMatchedCurrentOrders.delete(o);
+          return;
+        }
+      });
+    });
+    // 3. 没有 order_id 的订单实例，尽量按照值的完全匹配来找
+    notMatchedTargetOrders.forEach((order) => {
+      notMatchedCurrentOrders.forEach((o) => {
+        if (shallowEquals(o, order)) {
+          notMatchedCurrentOrders.delete(o);
+          notMatchedTargetOrders.delete(order);
+          return;
+        }
+      });
+    });
+
+    // 4. 如果还有未匹配的订单实例，这些订单本来应该被撤单，无法安全下单，抛出错误
+    if (notMatchedCurrentOrders.size > 0) {
+      throw new Error('当前订单中有未匹配的订单实例，且这些订单没有 order_id，无法安全下单');
+    }
+
+    // 未匹配的订单实例，就是需要下单的订单
+    for (const order of notMatchedTargetOrders) {
+      ordersToSubmit.push(order);
     }
   }
 
@@ -92,4 +126,14 @@ export function reconcileOrders(currentOrders: IOrder[], targetOrders: IOrder[])
     type: 'SubmitOrder' as const,
     payload: order,
   }));
+}
+
+function shallowEquals(o: IOrder, order: IOrder) {
+  const keys1 = Object.keys(o) as (keyof IOrder)[];
+  const keys2 = Object.keys(order) as (keyof IOrder)[];
+  if (keys1.length !== keys2.length) return false;
+  for (const key of keys1) {
+    if (o[key] !== order[key]) return false;
+  }
+  return true;
 }

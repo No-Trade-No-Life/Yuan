@@ -25,6 +25,8 @@ const executeAction = async (action: StrategyAction): Promise<void> => {
   }
 };
 
+const allowedStrategies = new Set(process.env.ALLOWED_STRATEGY?.split(',') || []);
+
 defer(() =>
   requestSQL<ITradeCopierConfig[]>(terminal, `select * from trade_copier_config where enabled = true`),
 )
@@ -71,21 +73,19 @@ defer(() =>
 
                 // 2. 调用策略获取目标订单列表
                 const targetOrders = strategyFn(context);
-                currentOrders.forEach((order) =>
-                  console.info(
-                    formatTime(Date.now()),
-                    'CurrentOrder',
-                    `account=${accountId}, product=${productKey}`,
-                    JSON.stringify(order),
-                  ),
+
+                console.info(
+                  formatTime(Date.now()),
+                  'CurrentOrder',
+                  `account=${accountId}, product=${productKey}, orders=${currentOrders.length}`,
+                  JSON.stringify(currentOrders),
                 );
-                targetOrders.forEach((order) =>
-                  console.info(
-                    formatTime(Date.now()),
-                    'TargetOrder',
-                    `account=${accountId}, product=${productKey}`,
-                    JSON.stringify(order),
-                  ),
+
+                console.info(
+                  formatTime(Date.now()),
+                  'TargetOrder',
+                  `account=${accountId}, product=${productKey}, orders=${targetOrders.length}`,
+                  JSON.stringify(targetOrders),
                 );
 
                 // 3. 使用 reconcileOrders 协调当前挂单和目标订单，生成动作列表
@@ -107,10 +107,10 @@ defer(() =>
                 );
 
                 // 4. 并发执行所有动作
-                if (process.env.MODE === 'ACT') {
+                if (allowedStrategies.has(strategyConfig.type!)) {
                   await Promise.all(actions.map((action) => executeAction(action)));
                 } else {
-                  console.info('模拟模式，不执行任何动作');
+                  console.info(`策略类型 ${strategyConfig.type} 未在 ALLOWED_STRATEGY 中，跳过执行动作`);
                 }
               }).pipe(
                 timeout({

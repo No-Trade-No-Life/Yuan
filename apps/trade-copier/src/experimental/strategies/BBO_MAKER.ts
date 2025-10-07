@@ -1,8 +1,8 @@
 import { IOrder } from '@yuants/data-order';
 import { decodePath, roundToStep } from '@yuants/utils';
+import { calculatePositionBounds, calculatePositionVolumes } from '../pure-functions';
+import { addStrategy } from '../strategy-registry';
 import { StrategyContext, StrategyFunction } from '../types';
-import { calculatePositionVolumes, calculatePositionBounds } from '../pure-functions';
-import { strategyRegistry } from '../strategy-registry';
 
 /**
  * BBO_MAKER 策略的纯函数版本
@@ -72,4 +72,9 @@ export const makeStrategyBboMaker: StrategyFunction = (context: StrategyContext)
   ];
 };
 
-strategyRegistry.set('BBO_MAKER', makeStrategyBboMaker);
+addStrategy('BBO_MAKER', makeStrategyBboMaker, {
+  type: 'object',
+  properties: {
+    max_volume: { type: 'number', minimum: 0, description: '单次下单的最大数量，单位为合约数量' },
+  },
+});
