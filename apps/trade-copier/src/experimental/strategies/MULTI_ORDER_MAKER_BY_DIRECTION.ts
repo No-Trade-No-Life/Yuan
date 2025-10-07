@@ -53,7 +53,6 @@ function _makeDirectionalMultiOrderStrategy(context: StrategyContext, direction:
 
   // 计算持仓边界
   const bounds = calculatePositionBounds(actualPosition.volume, expectedPosition.volume, product.volume_step);
-  console.info({ bounds });
 
   // 情况1: 在预期范围内，不需要订单
   if (bounds.deltaVolume === 0) {
@@ -179,9 +178,7 @@ function _makeDirectionalMultiOrderStrategy(context: StrategyContext, direction:
   );
 
   // 计算需要补充的成交量
-  const actualHeldVolume = actualPosition.volume;
   const volumeToCreate = Math.max(0, targetVolume - maintainedVolume);
-  console.info({ targetVolume, actualHeldVolume, maintainedVolume, volumeToCreate });
 
   // 如果没有需要补充的成交量，直接返回现有订单
   if (volumeToCreate <= 0) {
