@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Sun, 05 Oct 2025 10:41:11 GMT and should not be manually modified.
+This log was last generated on Tue, 07 Oct 2025 23:33:12 GMT and should not be manually modified.
+
+## 0.23.5
+Tue, 07 Oct 2025 23:33:12 GMT
+
+### Patches
+
+- add market books ws
 
 ## 0.23.4
 Sun, 05 Oct 2025 10:41:11 GMT
