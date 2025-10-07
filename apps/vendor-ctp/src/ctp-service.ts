@@ -279,10 +279,6 @@ terminal.server.provideService<
       throw new Error('CTP not logged in');
     }
 
-    if (msg.req.account_id !== ACCOUNT_ID) {
-      throw new Error(`Unexpected account_id: ${msg.req.account_id}`);
-    }
-
     return _requestZMQ<{ instrument_ids: string[] }, ICThostFtdcSpecificInstrumentField>({
       method: 'SubscribeMarketData',
       params: { instrument_ids: msg.req.instrument_ids },
@@ -312,10 +308,6 @@ terminal.server.provideService<
   (msg) => {
     if (!loginRes$.value) {
       throw new Error('CTP not logged in');
-    }
-
-    if (msg.req.account_id !== ACCOUNT_ID) {
-      throw new Error(`Unexpected account_id: ${msg.req.account_id}`);
     }
 
     return _requestZMQ<{ instrument_ids: string[] }, ICThostFtdcSpecificInstrumentField>({

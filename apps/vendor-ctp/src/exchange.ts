@@ -1,13 +1,10 @@
-import { createCache } from '@yuants/cache';
 import { IPosition, addAccountMarket, provideAccountInfoService } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
-import { IProduct } from '@yuants/data-product';
-import { Terminal } from '@yuants/protocol';
-import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
-import { encodePath, formatTime } from '@yuants/utils';
+import { formatTime } from '@yuants/utils';
 import { parse } from 'date-fns';
 import {
   Observable,
+  defer,
   filter,
   first,
   firstValueFrom,
@@ -17,6 +14,7 @@ import {
   mergeMap,
   of,
   raceWith,
+  retry,
   share,
   tap,
   timeout,
@@ -26,11 +24,9 @@ import {
   ICThostFtdcDepthMarketDataField,
   ICThostFtdcInputOrderActionField,
   ICThostFtdcInputOrderField,
-  ICThostFtdcInstrumentField,
   ICThostFtdcInvestorPositionField,
   ICThostFtdcOrderField,
   ICThostFtdcQryDepthMarketDataField,
-  ICThostFtdcQryInstrumentField,
   ICThostFtdcQryInvestorPositionField,
   ICThostFtdcQryOrderField,
   ICThostFtdcQryTradeField,
@@ -53,41 +49,10 @@ import {
   TThostFtdcTimeConditionType,
   TThostFtdcVolumeConditionType,
 } from './assets/ctp-types';
+import { ACCOUNT_ID, BROKER_ID, DATASOURCE_ID, INVESTOR_ID, requestZMQ, terminal } from './context';
 import { IBridgeMessage } from './interfaces';
+import { cacheOfProduct } from './product';
 import { quoteToWrite$ } from './quote';
-
-const terminal = Terminal.fromNodeEnv();
-const BROKER_ID = process.env.BROKER_ID!;
-const INVESTOR_ID = process.env.USER_ID!;
-const ACCOUNT_ID = encodePath(BROKER_ID, INVESTOR_ID);
-const DATASOURCE_ID = ACCOUNT_ID;
-
-const requestZMQ = <Req, Res>(req: { method: string; params: Req }): Observable<IBridgeMessage<Req, Res>> =>
-  terminal.client
-    .requestService<any, any, IBridgeMessage<Req, Res>>('CTP/Query', {
-      account_id: ACCOUNT_ID,
-      method: req.method,
-      params: req.params,
-    })
-    .pipe(
-      //
-      tap({
-        subscribe: () => console.info(formatTime(Date.now()), 'Request_ZMQ', JSON.stringify(req)),
-        next: (msg) => console.info(formatTime(Date.now()), 'ZMQ_Res', JSON.stringify(msg)),
-        error: (err) => {
-          console.info(formatTime(Date.now()), 'Request_ZMQ_Error', err);
-        },
-      }),
-      map((msg) => {
-        if (msg.res) {
-          if (msg.res.code !== 0) {
-            throw msg.res.message;
-          }
-        }
-        return msg.frame;
-      }),
-      filter((x): x is Exclude<typeof x, undefined> => Boolean(x)),
-    );
 
 const input$ = terminal.channel.subscribeChannel<IBridgeMessage<any, any>>('CTP/ZMQ', ACCOUNT_ID);
 
@@ -112,60 +77,6 @@ const mapToValue = <Req, Rep>(resp$: Observable<IBridgeMessage<Req, Rep>>) =>
     map((msg) => msg.res?.value),
     filter((v): v is Exclude<typeof v, undefined> => !!v),
   );
-
-const cacheOfProduct = createCache<IProduct>(
-  async (product_id) => {
-    const [exchange_id, instrument_id] = product_id.split('-');
-    const product = await firstValueFrom(
-      requestZMQ<ICThostFtdcQryInstrumentField, ICThostFtdcInstrumentField>({
-        method: 'ReqQryInstrument',
-        params: {
-          ExchangeID: exchange_id,
-          reserve1: '',
-          reserve2: '',
-          reserve3: '',
-          ExchangeInstID: '',
-          ProductID: '',
-          InstrumentID: instrument_id,
-        },
-      }).pipe(
-        mapToValue,
-        map(
-          (msg): IProduct => ({
-            datasource_id: DATASOURCE_ID,
-            product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
-            name: msg.InstrumentName,
-            quote_currency: 'CNY',
-            price_step: msg.PriceTick,
-            value_scale: msg.VolumeMultiple,
-            volume_step: 1,
-            base_currency: '',
-            value_scale_unit: '',
-            margin_rate: msg.LongMarginRatio,
-            value_based_cost: 0,
-            volume_based_cost: 0,
-            max_position: 0,
-            max_volume: 0,
-            allow_long: true,
-            allow_short: true,
-          }),
-        ),
-        filter((x) => x.product_id === product_id),
-      ),
-    );
-    return product;
-  },
-  {
-    expire: 24 * 3600 * 1000,
-    writeLocal: (key, data) =>
-      requestSQL(
-        terminal,
-        buildInsertManyIntoTableSQL([data], 'product', {
-          conflictKeys: ['datasource_id', 'product_id'],
-        }),
-      ),
-  },
-);
 
 const submitOrder = (
   brokerId: string,
@@ -434,14 +345,19 @@ provideAccountInfoService(
       const position_price = msg.OpenCost / msg.Position / value_scale;
 
       const product_id = `${msg.ExchangeID}-${msg.InstrumentID}`;
-      quoteToWrite$.next({
-        datasource_id: DATASOURCE_ID,
-        product_id: product_id,
-        // TODO: 以后从订阅的行情里更新
-        last_price: `${msg.SettlementPrice}`,
-        ask_price: `${msg.SettlementPrice}`,
-        bid_price: `${msg.SettlementPrice}`,
-      });
+
+      //
+      defer(() =>
+        terminal.client.requestForResponse('CTP/SubscribeMarketData', {
+          account_id,
+          instrument_ids: [msg.InstrumentID],
+        }),
+      )
+        .pipe(
+          //
+          retry({ delay: 1000 }),
+        )
+        .subscribe();
 
       positions.push({
         position_id: `mixed`,
