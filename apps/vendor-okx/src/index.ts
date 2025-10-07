@@ -8,3 +8,4 @@ import './quote';
 import './trade';
 import './services';
 import './strategy-account';
+import './market-order';

@@ -1,9 +1,10 @@
 import { ITrade } from '@yuants/data-trade';
 import { escapeSQL, requestSQL } from '@yuants/sql';
-import { firstValueFrom } from 'rxjs';
+import { defer, filter, firstValueFrom, Subject, switchMap } from 'rxjs';
 import { terminal$ } from '../Network';
-import { decodePath, formatTime } from '@yuants/utils';
+import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { IProduct } from '@yuants/data-product';
+import { useEffect } from 'react';
 
 export const generateAccountOrders = async (
   simulateAccountId: string,
@@ -90,4 +91,72 @@ export const generateAccountOrders = async (
   orderSeries.set('traded_volume', orderVolumeList);
 
   return [orderSeries];
+};
+
+export interface IOrderBooks {
+  asks: [price: string, volume: string, seqId: string][];
+  bids: [price: string, volume: string, seqId: string][];
+}
+
+// const sub = new Subject<{ bis: []; ask: [] }>();
+
+export const mapUniqueProductIdToOrderBookSubject = new Map<string, Subject<IOrderBooks>>();
+
+export const useOrderBooks = (uniqueProductId: string) => {
+  useEffect(() => {
+    const [datasource_id, product_id] = decodePath(uniqueProductId);
+    mapUniqueProductIdToOrderBookSubject.set(uniqueProductId, new Subject<IOrderBooks>());
+    if (datasource_id === 'OKX' && product_id) {
+      const orderBook = useOKXOrderBooks(product_id);
+      // return orderBook;
+    }
+
+    return () => {
+      mapUniqueProductIdToOrderBookSubject.delete(uniqueProductId);
+    };
+  }, [uniqueProductId]);
+
+  return mapUniqueProductIdToOrderBookSubject.get(uniqueProductId);
+};
+
+export const useOKXOrderBooks = (product_id: string) => {
+  const initBooks$ = defer(async () => {
+    const terminal = await firstValueFrom(terminal$);
+    if (terminal) {
+      return terminal.client.requestForResponseData<
+        {
+          product_id: string;
+          datasource_id: string;
+          sz: string;
+        },
+        {
+          asks: [price: string, volume: string, abandon: string, order_number: string][];
+          bids: [price: string, volume: string, abandon: string, order_number: string][];
+          ts: string;
+        }[]
+      >('QueryMarketBooks', {
+        product_id,
+        datasource_id: 'OKX',
+        sz: '50',
+      });
+    }
+    return null;
+  });
+
+  const books$ = terminal$.pipe(
+    //
+    filter((x): x is Exclude<typeof x, undefined | null> => !!x),
+    switchMap((terminal) =>
+      terminal.channel.subscribeChannel<
+        {
+          asks: [price: string, volume: string, abandon: string, order_number: string][];
+          bids: [price: string, volume: string, abandon: string, order_number: string][];
+          ts: string;
+          prevSeqId: number;
+          seqId: number;
+          checksum: number;
+        }[]
+      >('MarketBooks', encodePath('OKX', product_id)),
+    ),
+  );
 };

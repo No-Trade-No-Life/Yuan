@@ -1674,6 +1674,27 @@ export class OkxClient {
     }[];
     msg: string;
   }> => this.request('GET', '/api/v5/tradingBot/grid/positions', param);
+
+  /**
+   * GET / 获取产品深度
+   * 限速：40次/2s
+   * 限速规则：IP
+   * HTTP请求
+   *
+   * https://www.okx.com/docs-v5/zh/#order-book-trading-market-data-get-order-book
+   */
+  getMarketBooks = (param: {
+    sz?: string;
+    instId: string;
+  }): Promise<{
+    code: string;
+    data: {
+      asks: [price: string, volume: string, abandon: string, order_number: string][];
+      bids: [price: string, volume: string, abandon: string, order_number: string][];
+      ts: string;
+    }[];
+    msg: string;
+  }> => this.request('GET', '/api/v5/market/books', param);
 }
 
 type SpotGrid = {

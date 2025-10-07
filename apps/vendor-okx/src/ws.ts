@@ -321,3 +321,21 @@ export const useOHLC = (candleType: string, instId: string) =>
     //
     filter((data) => data.length > 0),
   );
+
+export const useMarketBooks = (
+  channel: 'books' | 'books5' | 'bbo-tbt' | 'books-l2-tbt' | 'books50-l2-tbt',
+  instId: string,
+) =>
+  fromWsChannelAndInstId<
+    {
+      asks: [price: string, volume: string, abandon: string, order_number: string][];
+      bids: [price: string, volume: string, abandon: string, order_number: string][];
+      ts: string;
+      prevSeqId: number;
+      seqId: number;
+      checksum: number;
+    }[]
+  >('ws/v5/public', channel, instId).pipe(
+    //
+    filter((data) => data.length > 0),
+  );
