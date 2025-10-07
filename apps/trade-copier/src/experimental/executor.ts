@@ -73,21 +73,19 @@ defer(() =>
 
                 // 2. 调用策略获取目标订单列表
                 const targetOrders = strategyFn(context);
-                currentOrders.forEach((order) =>
-                  console.info(
-                    formatTime(Date.now()),
-                    'CurrentOrder',
-                    `account=${accountId}, product=${productKey}`,
-                    JSON.stringify(order),
-                  ),
+
+                console.info(
+                  formatTime(Date.now()),
+                  'CurrentOrder',
+                  `account=${accountId}, product=${productKey}, orders=${currentOrders.length}`,
+                  JSON.stringify(currentOrders),
                 );
-                targetOrders.forEach((order) =>
-                  console.info(
-                    formatTime(Date.now()),
-                    'TargetOrder',
-                    `account=${accountId}, product=${productKey}`,
-                    JSON.stringify(order),
-                  ),
+
+                console.info(
+                  formatTime(Date.now()),
+                  'TargetOrder',
+                  `account=${accountId}, product=${productKey}, orders=${targetOrders.length}`,
+                  JSON.stringify(targetOrders),
                 );
 
                 // 3. 使用 reconcileOrders 协调当前挂单和目标订单，生成动作列表
