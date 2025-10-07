@@ -1,5 +1,5 @@
 export const DecimalFormatter = (props: { number: number }) => {
-  if (typeof props.number !== 'number') return '---';
+  if (typeof props.number !== 'number') return <>---</>;
 
   if (props.number === Infinity) {
     return <span>∞</span>;
