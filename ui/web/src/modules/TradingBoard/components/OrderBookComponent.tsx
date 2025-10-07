@@ -45,8 +45,6 @@ export const OrderBookComponent = React.memo((props: Props) => {
     };
   }, [booksMap]);
 
-  console.log({ books });
-
   const productInfo = useObservableState(
     useObservable(
       pipe(
@@ -129,7 +127,7 @@ export const OrderBookComponent = React.memo((props: Props) => {
 
     return (
       <li
-        key={`${type}-${row.price}-${row.seqId}`}
+        // key={`${type}-${row.price}-${row.seqId}`}
         style={{
           listStyle: 'none',
           display: 'grid',
@@ -139,19 +137,21 @@ export const OrderBookComponent = React.memo((props: Props) => {
           height: rowHeight,
           padding: '0 8px',
           fontSize: 12,
-          color: '#1f2933',
+          color: 'var(--semi-color-text-0)',
           overflow: 'hidden',
         }}
       >
         <span
           style={{
             position: 'absolute',
-            inset: 0,
+            top: 0,
+            bottom: 0,
+            right: 0,
             width: `${volumeRatio * 100}%`,
             backgroundColor,
             display: 'block',
             height: '100%',
-            transition: 'width 0.8s ease-out',
+            transition: 'width 0.45s cubic-bezier(0.4, 0, 0.2, 1)',
           }}
         />
         <span style={{ position: 'relative' }}>{row.price}</span>
@@ -173,7 +173,6 @@ export const OrderBookComponent = React.memo((props: Props) => {
         height: '100%',
         backgroundColor: 'var(--color-1)',
         borderRadius: 8,
-        border: '1px solid #e5e7eb',
         overflow: 'hidden',
       }}
     >
@@ -186,12 +185,12 @@ export const OrderBookComponent = React.memo((props: Props) => {
           gridTemplateColumns: COLUMN_TEMPLATE,
           fontSize: 12,
           fontWeight: 600,
-          color: '#4b5563',
+          color: 'var(--semi-color-text-2)',
         }}
       >
-        <li style={{ listStyle: 'none', textAlign: 'left' }}>Price</li>
-        <li style={{ listStyle: 'none', textAlign: 'right' }}>Volumn</li>
-        <li style={{ listStyle: 'none', textAlign: 'right' }}>累计Volumn</li>
+        <li style={{ listStyle: 'none', textAlign: 'left' }}>价格</li>
+        <li style={{ listStyle: 'none', textAlign: 'right' }}>数量</li>
+        <li style={{ listStyle: 'none', textAlign: 'right' }}>累计数量</li>
       </ul>
       <div
         ref={listContainerRef}
@@ -225,7 +224,7 @@ export const OrderBookComponent = React.memo((props: Props) => {
                 textAlign: 'center',
                 padding: '8px 0',
                 fontSize: 12,
-                color: '#9ca3af',
+                color: 'var(--semi-color-text-2)',
               }}
             >
               No asks
@@ -254,7 +253,7 @@ export const OrderBookComponent = React.memo((props: Props) => {
                 textAlign: 'center',
                 padding: '8px 0',
                 fontSize: 12,
-                color: '#9ca3af',
+                color: 'var(--semi-color-text-2)',
               }}
             >
               No bids

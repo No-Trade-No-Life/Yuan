@@ -1,6 +1,6 @@
 import { ITrade } from '@yuants/data-trade';
 import { escapeSQL, requestSQL } from '@yuants/sql';
-import { BehaviorSubject, defer, filter, firstValueFrom, Subject, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, bufferTime, defer, filter, firstValueFrom, Subject, switchMap, tap } from 'rxjs';
 import { terminal$ } from '../Network';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { IProduct } from '@yuants/data-product';
@@ -176,29 +176,35 @@ export const useOKXOrderBooks = (uniqueProductId: string) => {
         terminal.channel.subscribeChannel<IWSOrderBook>('MarketBooks', encodePath('OKX', product_id)),
       ),
     )
-    .pipe(tap((v) => mergeOKXOrderBooks(v, uniqueProductId)))
+    .pipe(
+      //
+      bufferTime(500),
+      tap((v) => mergeOKXOrderBooks(v, uniqueProductId)),
+    )
     .subscribe();
 
   return sub;
 };
 
-function mergeOKXOrderBooks(book: IWSOrderBook, uniqueProductId: string) {
+function mergeOKXOrderBooks(books: IWSOrderBook[], uniqueProductId: string) {
   const orderBook$ = mapUniqueProductIdToOrderBookSubject.get(uniqueProductId);
-  if (orderBook$ && book) {
+  if (orderBook$ && books) {
     const currentBooks = orderBook$.value;
-    book.bids.forEach((item) => {
-      if (item[1] === '0') {
-        currentBooks?.bids.delete(item[0]);
-      } else {
-        currentBooks?.bids.set(item[0], [item[0], item[1], book.seqId]);
-      }
-    });
-    book.asks.forEach((item) => {
-      if (item[1] === '0') {
-        currentBooks?.asks.delete(item[0]);
-      } else {
-        currentBooks?.asks.set(item[0], [item[0], item[1], book.seqId]);
-      }
+    books.forEach((book) => {
+      book.bids.forEach((item) => {
+        if (item[1] === '0') {
+          currentBooks?.bids.delete(item[0]);
+        } else {
+          currentBooks?.bids.set(item[0], [item[0], item[1], book.seqId]);
+        }
+      });
+      book.asks.forEach((item) => {
+        if (item[1] === '0') {
+          currentBooks?.asks.delete(item[0]);
+        } else {
+          currentBooks?.asks.set(item[0], [item[0], item[1], book.seqId]);
+        }
+      });
     });
     orderBook$.next({ ...currentBooks });
   }
