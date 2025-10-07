@@ -1,10 +1,11 @@
 import { ITrade } from '@yuants/data-trade';
 import { escapeSQL, requestSQL } from '@yuants/sql';
-import { defer, filter, firstValueFrom, Subject, switchMap } from 'rxjs';
+import { BehaviorSubject, defer, filter, firstValueFrom, Subject, switchMap, tap } from 'rxjs';
 import { terminal$ } from '../Network';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { IProduct } from '@yuants/data-product';
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
+import { useObservableState } from 'observable-hooks';
 
 export const generateAccountOrders = async (
   simulateAccountId: string,
@@ -94,21 +95,43 @@ export const generateAccountOrders = async (
 };
 
 export interface IOrderBooks {
-  asks: [price: string, volume: string, seqId: string][];
-  bids: [price: string, volume: string, seqId: string][];
+  asks: Map<string, [price: string, volume: string, seqId: number]>;
+  bids: Map<string, [price: string, volume: string, seqId: number]>;
+  seqId: number;
+}
+
+interface IWSOrderBook {
+  asks: [price: string, volume: string, abandon: string, order_number: string][];
+  bids: [price: string, volume: string, abandon: string, order_number: string][];
+  ts: string;
+  prevSeqId: number;
+  seqId: number;
+  checksum: number;
 }
 
 // const sub = new Subject<{ bis: []; ask: [] }>();
 
-export const mapUniqueProductIdToOrderBookSubject = new Map<string, Subject<IOrderBooks>>();
+export const mapUniqueProductIdToOrderBookSubject = new Map<string, BehaviorSubject<IOrderBooks>>();
 
 export const useOrderBooks = (uniqueProductId: string) => {
+  const orderBookMemo$ = useMemo(() => {
+    const orderBook$ = new BehaviorSubject<IOrderBooks>({
+      bids: new Map(),
+      asks: new Map(),
+      seqId: 0,
+    });
+    mapUniqueProductIdToOrderBookSubject.set(uniqueProductId, orderBook$);
+    return orderBook$;
+  }, [uniqueProductId]);
+
   useEffect(() => {
     const [datasource_id, product_id] = decodePath(uniqueProductId);
-    mapUniqueProductIdToOrderBookSubject.set(uniqueProductId, new Subject<IOrderBooks>());
     if (datasource_id === 'OKX' && product_id) {
-      const orderBook = useOKXOrderBooks(product_id);
-      // return orderBook;
+      const orderBookSub = useOKXOrderBooks(uniqueProductId);
+      () => {
+        mapUniqueProductIdToOrderBookSubject.delete(uniqueProductId);
+        orderBookSub.unsubscribe();
+      };
     }
 
     return () => {
@@ -116,10 +139,12 @@ export const useOrderBooks = (uniqueProductId: string) => {
     };
   }, [uniqueProductId]);
 
-  return mapUniqueProductIdToOrderBookSubject.get(uniqueProductId);
+  return useObservableState(orderBookMemo$);
 };
 
-export const useOKXOrderBooks = (product_id: string) => {
+export const useOKXOrderBooks = (uniqueProductId: string) => {
+  const [, product_id] = decodePath(uniqueProductId);
+
   const initBooks$ = defer(async () => {
     const terminal = await firstValueFrom(terminal$);
     if (terminal) {
@@ -143,20 +168,38 @@ export const useOKXOrderBooks = (product_id: string) => {
     return null;
   });
 
-  const books$ = terminal$.pipe(
-    //
-    filter((x): x is Exclude<typeof x, undefined | null> => !!x),
-    switchMap((terminal) =>
-      terminal.channel.subscribeChannel<
-        {
-          asks: [price: string, volume: string, abandon: string, order_number: string][];
-          bids: [price: string, volume: string, abandon: string, order_number: string][];
-          ts: string;
-          prevSeqId: number;
-          seqId: number;
-          checksum: number;
-        }[]
-      >('MarketBooks', encodePath('OKX', product_id)),
-    ),
-  );
+  const sub = terminal$
+    .pipe(
+      //
+      filter((x): x is Exclude<typeof x, undefined | null> => !!x),
+      switchMap((terminal) =>
+        terminal.channel.subscribeChannel<IWSOrderBook>('MarketBooks', encodePath('OKX', product_id)),
+      ),
+    )
+    .pipe(tap((v) => mergeOKXOrderBooks(v, uniqueProductId)))
+    .subscribe();
+
+  return sub;
 };
+
+function mergeOKXOrderBooks(book: IWSOrderBook, uniqueProductId: string) {
+  const orderBook$ = mapUniqueProductIdToOrderBookSubject.get(uniqueProductId);
+  if (orderBook$ && book) {
+    const currentBooks = orderBook$.value;
+    book.bids.forEach((item) => {
+      if (item[1] === '0') {
+        currentBooks?.bids.delete(item[0]);
+      } else {
+        currentBooks?.bids.set(item[0], [item[0], item[1], book.seqId]);
+      }
+    });
+    book.asks.forEach((item) => {
+      if (item[1] === '0') {
+        currentBooks?.asks.delete(item[0]);
+      } else {
+        currentBooks?.asks.set(item[0], [item[0], item[1], book.seqId]);
+      }
+    });
+    orderBook$.next({ ...currentBooks });
+  }
+}
