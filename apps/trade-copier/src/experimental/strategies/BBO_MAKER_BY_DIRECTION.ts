@@ -5,7 +5,7 @@ import {
   calculatePositionBounds,
   calculateSlippageProtectedPrice,
 } from '../pure-functions';
-import { strategyRegistry } from '../strategy-registry';
+import { addStrategy } from '../strategy-registry';
 import { StrategyContext, StrategyFunction } from '../types';
 
 /**
@@ -18,8 +18,6 @@ export const makeStrategyBboMakerByDirection: StrategyFunction = (context: Strat
 
   return [...longOrders, ...shortOrders];
 };
-
-strategyRegistry.set('BBO_MAKER_BY_DIRECTION', makeStrategyBboMakerByDirection);
 
 /**
  * 处理单个方向的策略逻辑
@@ -89,3 +87,14 @@ function _makeDirectionalStrategy(context: StrategyContext, direction: string): 
     },
   ];
 }
+addStrategy('BBO_MAKER_BY_DIRECTION', makeStrategyBboMakerByDirection, {
+  type: 'object',
+  properties: {
+    max_volume: { type: 'number', minimum: 0, description: '单次下单的最大数量，单位为合约数量' },
+    open_slippage: {
+      type: 'number',
+      minimum: 0,
+      description: '开仓时允许的最大滑点，单位为价格（币种）',
+    },
+  },
+});

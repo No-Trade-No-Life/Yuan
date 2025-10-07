@@ -44,6 +44,13 @@ export type ITradeCopierStrategyBase = {
    * 默认: 不限制
    */
   open_slippage?: number;
+
+  /**
+   * 同时维护的订单数量 (N >= 2)
+   *
+   * 用于 MULTI_ORDER_MAKER_BY_DIRECTION 策略
+   */
+  order_count?: number;
 };
 
 export type ITradeCopierStrategyConfig = {

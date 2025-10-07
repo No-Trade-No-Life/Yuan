@@ -101,12 +101,14 @@ export function calculateOrdersVolume(orders: IOrder[], productId: string): numb
 }
 
 /**
- * 按价格排序订单（多头从低到高，空头从高到低）
+ * 按价格排序订单（多头从高到低，空头从低到高）
+ * 对于 LONG 方向：价格越高越接近盘口（bid）
+ * 对于 SHORT 方向：价格越低越接近盘口（ask）
  */
 export function sortOrdersByPrice(orders: IOrder[], direction: string): IOrder[] {
   return direction === 'LONG'
-    ? orders.sort((a, b) => a.price! - b.price!)
-    : orders.sort((a, b) => b.price! - a.price!);
+    ? orders.sort((a, b) => b.price! - a.price!) // LONG: 从高到低
+    : orders.sort((a, b) => a.price! - b.price!); // SHORT: 从低到高
 }
 
 /**

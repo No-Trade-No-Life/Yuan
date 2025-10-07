@@ -1,6 +1,6 @@
 import { decodePath, roundToStep } from '@yuants/utils';
 import { calculatePositionBounds, calculatePositionVolumes } from '../pure-functions';
-import { strategyRegistry } from '../strategy-registry';
+import { addStrategy, strategyRegistry } from '../strategy-registry';
 import { StrategyFunction } from '../types';
 
 /**
@@ -65,4 +65,9 @@ export const makeStrategyDefault: StrategyFunction = (context) => {
   ];
 };
 
-strategyRegistry.set('DEFAULT', makeStrategyDefault);
+addStrategy('DEFAULT', makeStrategyDefault, {
+  type: 'object',
+  properties: {
+    max_volume: { type: 'number', minimum: 0, description: '单次下单的最大数量，单位为合约数量' },
+  },
+});
