@@ -80,6 +80,9 @@ export interface InvestorMeta {
   /** 税率 */
   tax_rate: number;
 
+  /** 平均成本价 */
+  avg_cost_price: number;
+
   /**
    * 推荐人
    */
@@ -123,7 +126,10 @@ export interface InvestorInfoDerived {
   after_tax_profit_rate: number;
   /** 税后份额 */
   after_tax_share: number;
-
+  /** 平均资产 */
+  avg_assets: number;
+  /** 浮动收益率 */
+  floating_profit_rate: number;
   /** 份额占比 */
   share_ratio: number;
 }
