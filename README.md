@@ -102,7 +102,16 @@ Industry Pain Points:
 Prerequisites:
 
 - nodejs >= 22.14.0, [download Node.js](https://nodejs.org/en/download/) and install it, ensure the `npx` command is available in your local command line.
-- PostgreSQL database, [download from official website](https://www.postgresql.org/download/) and install it, obtain a PostgreSQL database connection URI (`POSTGRES_URI`).
+- TimeScaleDB (PostgreSQL + TimescaleDB extension), refer to [official website](https://docs.tigerdata.com/self-hosted/latest/install/) for installation, obtain a PostgreSQL database connection URI (`POSTGRES_URI`).
+
+We strongly recommend starting TimeScaleDB directly from Docker to protect your operating system from contamination.
+
+```bash
+$ docker pull timescale/timescaledb:latest-pg17
+$ docker run -v </a/local/data/folder>:/pgdata -e PGDATA=/pgdata \
+    -d --name timescaledb -p 5432:5432 -e POSTGRES_PASSWORD=password timescale/timescaledb:latest-pg17
+# You can get POSTGRES_URI=postgresql://postgres:password@localhost:5432/postgres
+```
 
 Run Yuan's Node unit from npx:
 
@@ -114,7 +123,13 @@ Run Yuan's Node unit from npx:
 
    For more configuration options, please refer to [@yuants/node-unit](apps/node-unit).
 
-2. Connect to the newly created local host using Web GUI
+2. Manually execute the script to create database tables
+
+   ```bash
+   $ HOST_URL="ws://localhost:8888" npx @yuants/tool-sql-migration
+   ```
+
+3. Connect to the newly created local host using Web GUI
 
    Open your browser and visit http://y.ntnl.io, you will see Yuan's Web GUI.
 

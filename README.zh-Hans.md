@@ -107,7 +107,17 @@ Yuan 是一个“个人投资操作系统”，包含各式各样的个人投资
 前提条件：
 
 - nodejs >= 22.14.0，[下载 Node.js](https://nodejs.org/en/download/) 并安装，确保本地命令行中存在 `npx` 命令。
-- PostgreSQL 数据库，[从官方网站下载](https://www.postgresql.org/download/) 并安装，获得一个 PostgreSQL 数据库连接 URI (`POSTGRES_URI`)。
+
+- TimeScaleDB (PostgreSQL + TimescaleDB 拓展)，参考 [官方网站](https://docs.tigerdata.com/self-hosted/latest/install/) 安装，获得一个 PostgreSQL 数据库连接 URI (`POSTGRES_URI`)。
+
+我们强烈推荐从 Docker 直接启动 TimeScaleDB，这样可以保护操作系统不被污染。
+
+```bash
+$ docker pull timescale/timescaledb:latest-pg17
+$ docker run -v </a/local/data/folder>:/pgdata -e PGDATA=/pgdata \
+    -d --name timescaledb -p 5432:5432 -e POSTGRES_PASSWORD=password timescale/timescaledb:latest-pg17
+# 你可以获得 POSTGRES_URI=postgresql://postgres:password@localhost:5432/postgres
+```
 
 从 npx 运行 Yuan 的 Node 节点:
 
@@ -119,7 +129,13 @@ Yuan 是一个“个人投资操作系统”，包含各式各样的个人投资
 
    更多的配置选项，请参考 [@yuants/node-unit](apps/node-unit) 。
 
-2. 使用 Web GUI 连接刚刚创建的本地主机
+2. 手动执行创建数据库表的脚本
+
+   ```bash
+   $ HOST_URL="ws://localhost:8888" npx @yuants/tool-sql-migration
+   ```
+
+3. 使用 Web GUI 连接刚刚创建的本地主机
 
    打开浏览器，访问 http://y.ntnl.io ，您将看到 Yuan 的 Web GUI。
 
