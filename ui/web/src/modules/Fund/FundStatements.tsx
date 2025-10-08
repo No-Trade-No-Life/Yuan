@@ -600,8 +600,8 @@ registerPage('FundStatements', () => {
                 cell: (ctx) => `${Math.ceil(ctx.getValue())}`,
               },
               {
-                header: '收益率',
-                accessorKey: 'detail.after_tax_profit_rate',
+                header: '浮动收益率',
+                accessorKey: 'detail.floating_profit_rate',
                 enableColumnFilter: false,
                 enableGlobalFilter: false,
                 cell: (ctx) => `${(ctx.getValue() * 100).toFixed(2)}%`,
@@ -622,6 +622,12 @@ registerPage('FundStatements', () => {
               {
                 header: '税前资产',
                 accessorKey: 'detail.pre_tax_assets',
+                enableColumnFilter: false,
+                enableGlobalFilter: false,
+              },
+              {
+                header: '平均成本价',
+                accessorKey: 'meta.avg_cost_price',
                 enableColumnFilter: false,
                 enableGlobalFilter: false,
               },
@@ -669,6 +675,7 @@ registerPage('FundStatements', () => {
                   return (
                     <Space>
                       <Button
+                        disabled={!terminal}
                         onClick={async () => {
                           await saveStatementsToFile(
                             events.concat([
@@ -692,7 +699,7 @@ registerPage('FundStatements', () => {
                 },
               },
             ]}
-            columnsDependencyList={[events]}
+            columnsDependencyList={[events, terminal]}
             data={investors}
             initialSorting={[{ id: 'detail_after_tax_assets', desc: true }]}
           />

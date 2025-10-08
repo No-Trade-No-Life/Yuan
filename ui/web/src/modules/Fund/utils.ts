@@ -23,9 +23,15 @@ const reduceState = (state: IFundState, event: IFundEvent): IFundState => {
   if (event.order) {
     const deposit = event.order.deposit;
     const investor = ensureInvestor(nextState, event.order.name);
+    const share = deposit / state.summary_derived.unit_price;
+    const avgCostPrice =
+      share > 0
+        ? (investor.avg_cost_price * investor.share + deposit) / (investor.share + share)
+        : investor.avg_cost_price;
+    investor.avg_cost_price = avgCostPrice;
     investor.deposit += deposit;
     investor.tax_threshold += deposit;
-    investor.share += deposit / state.summary_derived.unit_price;
+    investor.share += share;
     nextState.total_assets += deposit;
   }
   // 更新投资人信息
@@ -88,6 +94,7 @@ const reduceState = (state: IFundState, event: IFundEvent): IFundState => {
     const taxAccount = ensureInvestor(nextState, '@tax');
 
     taxAccount.share += totalTaxShare;
+    taxAccount.tax_threshold += totalTaxShare * state.summary_derived.unit_price;
   }
 
   // 计算衍生数据
@@ -124,6 +131,7 @@ const reduceState = (state: IFundState, event: IFundEvent): IFundState => {
       const avg_assets = (timed_assets / holding_days) * 365;
       const after_tax_profit_rate = after_tax_profit / avg_assets;
       const after_tax_share = after_tax_assets / nextState.summary_derived.unit_price;
+      const floating_profit_rate = nextState.summary_derived.unit_price / v.avg_cost_price - 1;
 
       nextState.investor_derived[v.name] = {
         holding_days,
@@ -133,6 +141,8 @@ const reduceState = (state: IFundState, event: IFundEvent): IFundState => {
         pre_tax_assets,
         after_tax_assets,
         after_tax_profit,
+        avg_assets,
+        floating_profit_rate,
         timed_assets,
         after_tax_profit_rate,
         after_tax_share,
@@ -209,6 +219,7 @@ function ensureInvestor(nextState: IFundState, investor_name: string) {
     share: 0,
     tax_threshold: 0,
     tax_rate: 0,
+    avg_cost_price: 0,
     taxed: 0,
     referrer: '',
     referrer_rebate_rate: 0,
