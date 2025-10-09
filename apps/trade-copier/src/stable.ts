@@ -2,7 +2,7 @@ import { useAccountInfo } from '@yuants/data-account';
 import { Terminal } from '@yuants/protocol';
 import { requestSQL } from '@yuants/sql';
 import { encodePath, formatTime, listWatch } from '@yuants/utils';
-import { defer, map, repeat, retry, tap, timeout } from 'rxjs';
+import { defer, map, mergeWith, repeat, retry, tap, timeout } from 'rxjs';
 import { runStrategyBboMaker } from './BBO_MAKER';
 import { runStrategyBboMakerByDirection } from './BBO_MAKER_BY_DIRECTION';
 import { runStrategyDefault } from './DEFAULT';
@@ -54,6 +54,7 @@ defer(() =>
                   Object.assign({}, config.strategy.global, config.strategy.product_overrides?.[productKey]),
                 ),
               ).pipe(
+                mergeWith(defer(() => terminal.channel.subscribeChannel('quote', productKey))),
                 timeout({
                   each: 60_000,
                   meta: { account_id: config.account_id, product: productKey, reason: 'runStrategyTimeout' },
