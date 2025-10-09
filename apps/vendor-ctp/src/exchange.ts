@@ -4,7 +4,6 @@ import { formatTime } from '@yuants/utils';
 import { parse } from 'date-fns';
 import {
   Observable,
-  defer,
   filter,
   first,
   firstValueFrom,
@@ -14,7 +13,6 @@ import {
   mergeMap,
   of,
   raceWith,
-  retry,
   share,
   tap,
   timeout,
@@ -52,7 +50,7 @@ import {
 import { ACCOUNT_ID, BROKER_ID, DATASOURCE_ID, INVESTOR_ID, requestZMQ, terminal } from './context';
 import { IBridgeMessage } from './interfaces';
 import { cacheOfProduct } from './product';
-import { quoteToWrite$ } from './quote';
+import { ensureMarketDataSubscription, quoteToWrite$ } from './quote';
 
 const input$ = terminal.channel.subscribeChannel<IBridgeMessage<any, any>>('CTP/ZMQ', ACCOUNT_ID);
 
@@ -288,6 +286,8 @@ const cancelOrder = (
 
 const account_id = ACCOUNT_ID;
 
+const subscribedInstrumentIds = new Set<string>();
+
 // // ISSUE: 观测到 OnFrontDisconnected 之后会卡死，命令 exchange 自杀
 // zmqConn.input$
 //   .pipe(
@@ -347,17 +347,7 @@ provideAccountInfoService(
       const product_id = `${msg.ExchangeID}-${msg.InstrumentID}`;
 
       //
-      defer(() =>
-        terminal.client.requestForResponse('CTP/SubscribeMarketData', {
-          account_id,
-          instrument_ids: [msg.InstrumentID],
-        }),
-      )
-        .pipe(
-          //
-          retry({ delay: 1000 }),
-        )
-        .subscribe();
+      ensureMarketDataSubscription(product_id);
 
       positions.push({
         position_id: `mixed`,
