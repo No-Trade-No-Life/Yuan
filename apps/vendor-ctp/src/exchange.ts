@@ -99,32 +99,38 @@ const submitOrder = (
     ),
   );
 
-  const quote$ = requestZMQ<ICThostFtdcQryDepthMarketDataField, ICThostFtdcDepthMarketDataField>({
-    method: 'ReqQryDepthMarketData',
-    params: {
-      reserve1: '',
-      ExchangeID: ctpExchangeId,
-      InstrumentID: instrumentId,
-      ProductClass: TThostFtdcProductClassType.THOST_FTDC_PC_Futures,
-    },
-  }).pipe(
-    //
-    mapToValue,
-    first((v) => v.InstrumentID === instrumentId),
-    tap((quote) => {
-      console.info(formatTime(Date.now()), 'CTP_Quote', JSON.stringify(quote));
-      quoteToWrite$.next({
-        datasource_id: DATASOURCE_ID,
-        product_id: order.product_id,
-        ask_price: `${quote.AskPrice1}`,
-        bid_price: `${quote.BidPrice1}`,
-        last_price: `${quote.LastPrice}`,
-        ask_volume: `${quote.AskVolume1}`,
-        bid_volume: `${quote.BidVolume1}`,
-      });
-    }),
-    share(),
-  );
+  const quote$ =
+    order.order_type === 'MARKET'
+      ? requestZMQ<ICThostFtdcQryDepthMarketDataField, ICThostFtdcDepthMarketDataField>({
+          method: 'ReqQryDepthMarketData',
+          params: {
+            reserve1: '',
+            ExchangeID: ctpExchangeId,
+            InstrumentID: instrumentId,
+            ProductClass: TThostFtdcProductClassType.THOST_FTDC_PC_Futures,
+          },
+        }).pipe(
+          //
+          mapToValue,
+          first((v) => v.InstrumentID === instrumentId),
+          tap((quote) => {
+            console.info(formatTime(Date.now()), 'CTP_Quote', JSON.stringify(quote));
+            quoteToWrite$.next({
+              datasource_id: DATASOURCE_ID,
+              product_id: order.product_id,
+              ask_price: `${quote.AskPrice1}`,
+              bid_price: `${quote.BidPrice1}`,
+              last_price: `${quote.LastPrice}`,
+              ask_volume: `${quote.AskVolume1}`,
+              bid_volume: `${quote.BidVolume1}`,
+            });
+          }),
+          share(),
+        )
+      : of({
+          UpperLimitPrice: 0,
+          LowerLimitPrice: 0,
+        });
 
   // 这里如果有报错则会是 CTP 柜台的报错
   const error$ = quote$.pipe(

@@ -21,7 +21,7 @@ defer(() =>
     tap((frame) => {
       quoteToWrite$.next({
         datasource_id: DATASOURCE_ID,
-        product_id: encodePath(frame.ExchangeID, frame.InstrumentID),
+        product_id: `${frame.ExchangeID}-${frame.InstrumentID}`,
         last_price: `${frame.LastPrice}`,
         ask_price: `${frame.AskPrice1}`,
         bid_price: `${frame.BidPrice1}`,
@@ -54,8 +54,7 @@ export const ensureMarketDataSubscription = (productId: string) => {
     return;
   }
   subscribedProductIds.add(productId);
-  const segments = decodePath(productId);
-  const instrumentId = segments[1] ?? segments[0] ?? productId;
+  const [, instrumentId] = productId.split('-', 2);
 
   defer(() =>
     terminal.client.requestForResponse('CTP/SubscribeMarketData', {
