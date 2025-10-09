@@ -2,6 +2,23 @@
   "name": "@yuants/app-trade-copier",
   "entries": [
     {
+      "version": "0.11.2",
+      "tag": "@yuants/app-trade-copier_v0.11.2",
+      "date": "Thu, 09 Oct 2025 13:08:55 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "subscribe actual account quote"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.11.1",
       "tag": "@yuants/app-trade-copier_v0.11.1",
       "date": "Tue, 07 Oct 2025 23:33:12 GMT",
