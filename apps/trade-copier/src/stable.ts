@@ -54,7 +54,6 @@ defer(() =>
                   Object.assign({}, config.strategy.global, config.strategy.product_overrides?.[productKey]),
                 ),
               ).pipe(
-                mergeWith(defer(() => terminal.channel.subscribeChannel('quote', productKey))),
                 timeout({
                   each: 60_000,
                   meta: { account_id: config.account_id, product: productKey, reason: 'runStrategyTimeout' },
@@ -83,6 +82,7 @@ defer(() =>
                 }),
                 retry({ delay: 1000 }),
                 repeat({ delay: 1000 }),
+                mergeWith(defer(() => terminal.channel.subscribeChannel('quote', productKey))),
                 tap({
                   subscribe: () => {
                     console.info(
