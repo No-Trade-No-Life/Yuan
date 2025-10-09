@@ -11,6 +11,7 @@ const INVESTOR_ID = process.env.USER_ID!;
 const ACCOUNT_ID = encodePath(BROKER_ID, INVESTOR_ID);
 const DATASOURCE_ID = 'CTP';
 const subscribedProductIds = new Set<string>();
+const instrumentIdToProductId = new Map<string, string>();
 
 defer(() =>
   terminal.channel.subscribeChannel<ICThostFtdcDepthMarketDataField>('CTP/DepthMarketData', ACCOUNT_ID),
@@ -19,9 +20,11 @@ defer(() =>
     //
     filter((frame): frame is ICThostFtdcDepthMarketDataField => !!frame),
     tap((frame) => {
+      const fallbackProductId = instrumentIdToProductId.get(frame.InstrumentID);
+      const productId = fallbackProductId ?? `${frame.ExchangeID}-${frame.InstrumentID}`;
       quoteToWrite$.next({
         datasource_id: DATASOURCE_ID,
-        product_id: `${frame.ExchangeID}-${frame.InstrumentID}`,
+        product_id: productId,
         last_price: `${frame.LastPrice}`,
         ask_price: `${frame.AskPrice1}`,
         bid_price: `${frame.BidPrice1}`,
@@ -55,6 +58,7 @@ export const ensureMarketDataSubscription = (productId: string) => {
   }
   subscribedProductIds.add(productId);
   const [, instrumentId] = productId.split('-', 2);
+  instrumentIdToProductId.set(instrumentId, productId);
 
   defer(() =>
     terminal.client.requestForResponse('CTP/SubscribeMarketData', {
