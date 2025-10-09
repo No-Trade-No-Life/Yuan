@@ -5,8 +5,6 @@ import { filter, firstValueFrom, map } from 'rxjs';
 import { ICThostFtdcInstrumentField, ICThostFtdcQryInstrumentField } from './assets/ctp-types';
 import { DATASOURCE_ID, requestZMQ, terminal } from './context';
 
-export const cachedProductId = new Set<string>();
-
 export const cacheOfProduct = createCache<IProduct>(
   async (productId) => {
     const [exchangeId, instrumentId] = productId.split('-');
@@ -58,5 +56,32 @@ export const cacheOfProduct = createCache<IProduct>(
           conflictKeys: ['datasource_id', 'product_id'],
         }),
       ),
+  },
+);
+
+interface IUpdateProductRequest {
+  datasource_id: string;
+  product_id: string;
+}
+
+terminal.server.provideService<IUpdateProductRequest, IProduct>(
+  'UpdateProduct',
+  {
+    required: ['datasource_id', 'product_id'],
+    properties: {
+      datasource_id: { const: DATASOURCE_ID },
+      product_id: { type: 'string' },
+    },
+  },
+  async (msg) => {
+    const productId = msg.req.product_id;
+
+    const product = await cacheOfProduct.query(productId, true);
+
+    if (!product) {
+      return { res: { code: 404, message: `Product ${productId} not found` } };
+    }
+
+    return { res: { code: 0, message: 'OK', data: product } };
   },
 );
