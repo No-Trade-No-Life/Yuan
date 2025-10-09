@@ -2,6 +2,26 @@
   "name": "@yuants/vendor-ctp",
   "entries": [
     {
+      "version": "0.9.1",
+      "tag": "@yuants/vendor-ctp_v0.9.1",
+      "date": "Thu, 09 Oct 2025 06:49:49 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add subscribe quotes"
+          },
+          {
+            "comment": "minor fix"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.9.0",
       "tag": "@yuants/vendor-ctp_v0.9.0",
       "date": "Tue, 07 Oct 2025 12:43:36 GMT",
