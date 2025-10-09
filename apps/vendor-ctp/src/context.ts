@@ -12,7 +12,7 @@ export const terminal = Terminal.fromNodeEnv();
 export const BROKER_ID = process.env.BROKER_ID!;
 export const INVESTOR_ID = process.env.USER_ID!;
 export const ACCOUNT_ID = encodePath(BROKER_ID, INVESTOR_ID);
-export const DATASOURCE_ID = ACCOUNT_ID;
+export const DATASOURCE_ID = 'CTP';
 
 export const requestZMQ: RequestZMQ = (req) =>
   terminal.client
