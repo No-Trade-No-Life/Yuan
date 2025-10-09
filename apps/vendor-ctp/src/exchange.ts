@@ -418,7 +418,7 @@ terminal.server.provideService(
           (msg): IOrder => ({
             order_id: `${msg.ExchangeID}-${msg.OrderSysID}`,
             product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
-            account_id: msg.UserID,
+            account_id: ACCOUNT_ID,
             order_type:
               msg.OrderPriceType === TThostFtdcOrderPriceTypeType.THOST_FTDC_OPT_LimitPrice
                 ? 'LIMIT'
@@ -430,8 +430,8 @@ terminal.server.provideService(
                   ? 'OPEN_LONG'
                   : 'OPEN_SHORT'
                 : msg.Direction === TThostFtdcDirectionType.THOST_FTDC_D_Buy
-                ? 'CLOSE_LONG'
-                : 'CLOSE_SHORT',
+                ? 'CLOSE_SHORT'
+                : 'CLOSE_LONG',
             volume: msg.VolumeTotalOriginal,
             submit_at: parseCTPTime(msg.InsertDate, msg.InsertTime).getTime() * 1e3,
             price: msg.LimitPrice === 0 ? undefined : msg.LimitPrice,
@@ -486,7 +486,7 @@ terminal.server.provideService(
           (msg): IOrder => ({
             order_id: `${msg.ExchangeID}-${msg.OrderSysID}`,
             product_id: `${msg.ExchangeID}-${msg.InstrumentID}`,
-            account_id: msg.UserID,
+            account_id: ACCOUNT_ID,
             order_type: 'LIMIT',
             order_direction:
               msg.Direction === TThostFtdcDirectionType.THOST_FTDC_D_Buy
