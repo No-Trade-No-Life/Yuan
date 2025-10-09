@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-ctp
 
-This log was last generated on Thu, 09 Oct 2025 06:49:49 GMT and should not be manually modified.
+This log was last generated on Thu, 09 Oct 2025 13:51:08 GMT and should not be manually modified.
+
+## 0.9.2
+Thu, 09 Oct 2025 13:51:08 GMT
+
+### Patches
+
+- write to sql with exchange id guard
 
 ## 0.9.1
 Thu, 09 Oct 2025 06:49:49 GMT
