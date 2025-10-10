@@ -1,9 +1,8 @@
-import { createCache } from '@yuants/cache';
 import { IAccountInfo, publishAccountInfo } from '@yuants/data-account';
-import { getProfit, IProduct } from '@yuants/data-product';
+import { createProductCache, getProfit } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
-import { escapeSQL, requestSQL } from '@yuants/sql';
-import { decodePath, encodePath, formatTime, listWatch } from '@yuants/utils';
+import { requestSQL } from '@yuants/sql';
+import { encodePath, formatTime, listWatch } from '@yuants/utils';
 import {
   combineLatest,
   defer,
@@ -23,19 +22,7 @@ const terminal = Terminal.fromNodeEnv();
 
 const mapAccountIdToAccountInfo$: Record<string, Observable<IAccountInfo>> = {};
 
-const cacheOfProduct = createCache(
-  async (key) => {
-    const [datasource_id, product_id] = decodePath(key);
-    const [data] = await requestSQL<IProduct[]>(
-      terminal,
-      `select * from product where datasource_id=${escapeSQL(datasource_id)} and product_id=${escapeSQL(
-        product_id,
-      )}`,
-    );
-    return data;
-  },
-  { expire: 3600 * 1000 }, // 1 hour
-);
+const cacheOfProduct = createProductCache(terminal);
 
 defer(() =>
   requestSQL<IAccountComposerConfig[]>(
