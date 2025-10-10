@@ -4,9 +4,13 @@
 
 ```ts
 
+import { ICache } from '@yuants/cache';
 import { IServiceOptions } from '@yuants/protocol';
 import { Observable } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
+
+// @public
+export const createProductCache: (terminal: Terminal, options?: IProductCacheOptions) => ICache<IProduct>;
 
 // @public (undocumented)
 export const getMargin: (product: IProduct, openPrice: number, volume: number, variant: string, currency: string, quote: (product_id: string) => {
@@ -40,6 +44,11 @@ export interface IProduct {
     value_scale_unit: string;
     volume_based_cost: number;
     volume_step: number;
+}
+
+// @public
+export interface IProductCacheOptions {
+    expire?: number;
 }
 
 // @public

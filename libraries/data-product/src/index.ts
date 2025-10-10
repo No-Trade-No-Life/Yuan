@@ -169,4 +169,5 @@ export const getMargin = (
         : quote(`${product.quote_currency}${currency}`)?.ask) ?? 1
     : 1);
 
+export * from './ProductCache';
 export * from './QueryProducts';

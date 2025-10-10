@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-account-composer",
+      "comment": "refactor use product cache",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-account-composer"
+}

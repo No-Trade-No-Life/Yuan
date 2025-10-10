@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-product",
+      "comment": "refactor use product cache",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-product"
+}
