@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-product
 
-This log was last generated on Sun, 05 Oct 2025 10:41:11 GMT and should not be manually modified.
+This log was last generated on Fri, 10 Oct 2025 06:03:57 GMT and should not be manually modified.
+
+## 0.4.0
+Fri, 10 Oct 2025 06:03:57 GMT
+
+### Minor changes
+
+- refactor use product cache
 
 ## 0.3.4
 Sun, 05 Oct 2025 10:41:11 GMT
