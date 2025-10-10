@@ -2,6 +2,28 @@
   "name": "@yuants/app-account-composer",
   "entries": [
     {
+      "version": "0.6.13",
+      "tag": "@yuants/app-account-composer_v0.6.13",
+      "date": "Fri, 10 Oct 2025 06:03:57 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor use product cache"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.4.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.6.12",
       "tag": "@yuants/app-account-composer_v0.6.12",
       "date": "Sun, 05 Oct 2025 10:41:11 GMT",

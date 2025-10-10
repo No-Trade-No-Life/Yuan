@@ -1,6 +1,18 @@
 # Change Log - @yuants/vendor-ctp
 
-This log was last generated on Thu, 09 Oct 2025 13:51:08 GMT and should not be manually modified.
+This log was last generated on Fri, 10 Oct 2025 06:03:57 GMT and should not be manually modified.
+
+## 0.10.0
+Fri, 10 Oct 2025 06:03:57 GMT
+
+### Minor changes
+
+- add UpdateProduct
+
+### Patches
+
+- fix DATASOURCE ID
+- minor fixes
 
 ## 0.9.2
 Thu, 09 Oct 2025 13:51:08 GMT
