@@ -1,6 +1,6 @@
-import { IPosition, addAccountMarket, provideAccountInfoService } from '@yuants/data-account';
+import { IAccountInfo, IPosition, addAccountMarket, provideAccountInfoService } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
-import { formatTime } from '@yuants/utils';
+import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { parse } from 'date-fns';
 import {
   Observable,
@@ -10,10 +10,8 @@ import {
   from,
   lastValueFrom,
   map,
-  mergeMap,
   of,
   raceWith,
-  share,
   tap,
   timeout,
   toArray,
@@ -63,7 +61,7 @@ const mapToValue = <Req, Rep>(resp$: Observable<IBridgeMessage<Req, Rep>>) =>
     filter((v): v is Exclude<typeof v, undefined> => !!v),
   );
 
-const submitOrder = (
+const submitOrder = async (
   brokerId: string,
   investorId: string,
   frontId: number,
@@ -86,120 +84,156 @@ const submitOrder = (
     ),
   );
 
-  const quote$ =
-    order.order_type === 'MARKET'
-      ? requestZMQ<ICThostFtdcQryDepthMarketDataField, ICThostFtdcDepthMarketDataField>({
-          method: 'ReqQryDepthMarketData',
-          params: {
-            reserve1: '',
-            ExchangeID: ctpExchangeId,
-            InstrumentID: instrumentId,
-            ProductClass: TThostFtdcProductClassType.THOST_FTDC_PC_Futures,
-          },
-        }).pipe(
-          //
-          mapToValue,
-          first((v) => v.InstrumentID === instrumentId),
-          tap((quote) => {
-            console.info(formatTime(Date.now()), 'CTP_Quote', JSON.stringify(quote));
-            quoteToWrite$.next({
-              datasource_id: DATASOURCE_ID,
-              product_id: order.product_id,
-              ask_price: `${quote.AskPrice1}`,
-              bid_price: `${quote.BidPrice1}`,
-              last_price: `${quote.LastPrice}`,
-              ask_volume: `${quote.AskVolume1}`,
-              bid_volume: `${quote.BidVolume1}`,
-            });
-          }),
-          share(),
-        )
-      : of({
-          UpperLimitPrice: 0,
-          LowerLimitPrice: 0,
-        });
+  let CombOffsetFlag: TThostFtdcOffsetFlagType | undefined = undefined;
+  let Direction: TThostFtdcDirectionType;
+  let LimitPrice: number | undefined = undefined;
+  let volume: number = order.volume;
 
-  // 这里如果有报错则会是 CTP 柜台的报错
-  const error$ = quote$.pipe(
-    //
-    mergeMap((quote) =>
-      requestZMQ<ICThostFtdcInputOrderField, ICThostFtdcOrderField | ICThostFtdcInputOrderField>({
-        method: 'ReqOrderInsert',
+  if (order.order_direction === 'OPEN_LONG' || order.order_direction === 'OPEN_SHORT') {
+    CombOffsetFlag = TThostFtdcOffsetFlagType.THOST_FTDC_OF_Open;
+  } else {
+    const [, , positionFlag] = decodePath(order.position_id ?? '');
+    if (positionFlag != null) {
+      if (positionFlag === 'YD') {
+        CombOffsetFlag = TThostFtdcOffsetFlagType.THOST_FTDC_OF_CloseYesterday;
+      } else {
+        CombOffsetFlag = TThostFtdcOffsetFlagType.THOST_FTDC_OF_CloseToday;
+      }
+    } else {
+      const accountInfo = await terminal.client.requestForResponseData<{ account_id: string }, IAccountInfo>(
+        'QueryAccountInfo',
+        { account_id: ACCOUNT_ID },
+      );
+      for (const pos of accountInfo.positions) {
+        const [, , positionFlag] = decodePath(pos.position_id);
+        if (pos.product_id === order.product_id) {
+          if (order.order_direction === 'CLOSE_LONG' && pos.direction === 'LONG') {
+            if (positionFlag === 'YD') {
+              CombOffsetFlag = TThostFtdcOffsetFlagType.THOST_FTDC_OF_CloseYesterday;
+              volume = Math.min(volume ?? order.volume, pos.free_volume);
+              break;
+            }
+          }
+        }
+        if (CombOffsetFlag === undefined) {
+          for (const pos of accountInfo.positions) {
+            const [, , positionFlag] = decodePath(pos.position_id);
+            if (pos.product_id === order.product_id) {
+              if (order.order_direction === 'CLOSE_LONG' && pos.direction === 'LONG') {
+                if (positionFlag === 'TD') {
+                  CombOffsetFlag = TThostFtdcOffsetFlagType.THOST_FTDC_OF_CloseToday;
+                  volume = Math.min(volume ?? order.volume, pos.free_volume);
+                  break;
+                }
+              }
+            }
+          }
+        }
+      }
+      CombOffsetFlag = TThostFtdcOffsetFlagType.THOST_FTDC_OF_Close;
+    }
+  }
+
+  if (order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_SHORT') {
+    Direction = TThostFtdcDirectionType.THOST_FTDC_D_Buy;
+  } else {
+    Direction = TThostFtdcDirectionType.THOST_FTDC_D_Sell;
+  }
+
+  if (order.order_type === 'MARKET') {
+    const quote = await firstValueFrom(
+      requestZMQ<ICThostFtdcQryDepthMarketDataField, ICThostFtdcDepthMarketDataField>({
+        method: 'ReqQryDepthMarketData',
         params: {
-          BrokerID: brokerId,
-          InvestorID: investorId,
+          reserve1: '',
           ExchangeID: ctpExchangeId,
           InstrumentID: instrumentId,
-          // 市价单/现价单 上期所不支持市价单
-          OrderPriceType: TThostFtdcOrderPriceTypeType.THOST_FTDC_OPT_LimitPrice,
-          // 触发条件
-          ContingentCondition:
-            order.order_type === 'STOP'
-              ? TThostFtdcContingentConditionType.THOST_FTDC_CC_BidPriceGreaterEqualStopPrice
-              : TThostFtdcContingentConditionType.THOST_FTDC_CC_Immediately,
-          // 时间条件
-          TimeCondition:
-            order.order_type === 'IOC' || order.order_type === 'FOK'
-              ? TThostFtdcTimeConditionType.THOST_FTDC_TC_IOC
-              : TThostFtdcTimeConditionType.THOST_FTDC_TC_GFD,
-          // 成交量条件
-          VolumeCondition:
-            order.order_type === 'FOK'
-              ? TThostFtdcVolumeConditionType.THOST_FTDC_VC_CV
-              : TThostFtdcVolumeConditionType.THOST_FTDC_VC_AV,
-          // 投机套保标识
-          CombHedgeFlag: TThostFtdcHedgeFlagType.THOST_FTDC_HF_Speculation,
-          // 开平标识
-          CombOffsetFlag:
-            order.order_direction === 'OPEN_LONG' || order.order_direction === 'OPEN_SHORT'
-              ? TThostFtdcOffsetFlagType.THOST_FTDC_OF_Open
-              : TThostFtdcOffsetFlagType.THOST_FTDC_OF_Close,
-          // ISSUE: 买入包括开多平空; 卖出包括开空平多
-          Direction:
-            order.order_direction === 'CLOSE_SHORT' || order.order_direction === 'OPEN_LONG'
-              ? TThostFtdcDirectionType.THOST_FTDC_D_Buy
-              : TThostFtdcDirectionType.THOST_FTDC_D_Sell,
-          LimitPrice:
-            order.order_type === 'MARKET'
-              ? // ISSUE: CTP 不支持市价单，但市价等效于挂在涨跌停价位
-                order.order_direction === 'CLOSE_SHORT' || order.order_direction === 'OPEN_LONG'
-                ? quote.UpperLimitPrice
-                : quote.LowerLimitPrice
-              : order.price ?? 0 /* 如果执意下限价单却没给价格 */,
-          VolumeTotalOriginal: order.volume,
-          ForceCloseReason: TThostFtdcForceCloseReasonType.THOST_FTDC_FCC_NotForceClose,
-          reserve1: '',
-          reserve2: '',
-          OrderRef: orderRef,
-          UserID: '',
-          GTDDate: '',
-          MinVolume: 0,
-          StopPrice: order.stop_loss_price ?? 0,
-          IsAutoSuspend: 0,
-          BusinessUnit: '',
-          RequestID: 0,
-          UserForceClose: 0,
-          IsSwapOrder: 0,
-          InvestUnitID: '',
-          AccountID: '',
-          CurrencyID: '',
-          ClientID: '',
-          MacAddress: '',
-          IPAddress: '',
-          OrderMemo: '',
-          SessionReqSeq: 0,
+          ProductClass: TThostFtdcProductClassType.THOST_FTDC_PC_Futures,
         },
+      }).pipe(
+        //
+        mapToValue,
+        first((v) => v.InstrumentID === instrumentId),
+        tap((quote) => {
+          console.info(formatTime(Date.now()), 'CTP_Quote', JSON.stringify(quote));
+          quoteToWrite$.next({
+            datasource_id: DATASOURCE_ID,
+            product_id: order.product_id,
+            ask_price: `${quote.AskPrice1}`,
+            bid_price: `${quote.BidPrice1}`,
+            last_price: `${quote.LastPrice}`,
+            ask_volume: `${quote.AskVolume1}`,
+            bid_volume: `${quote.BidVolume1}`,
+          });
+        }),
+      ),
+    );
+    if (order.order_direction === 'CLOSE_SHORT' || order.order_direction === 'OPEN_LONG') {
+      LimitPrice = quote.UpperLimitPrice;
+    } else {
+      LimitPrice = quote.LowerLimitPrice;
+    }
+  }
+
+  // 这里如果有报错则会是 CTP 柜台的报错
+  const error$ = requestZMQ<ICThostFtdcInputOrderField, ICThostFtdcOrderField | ICThostFtdcInputOrderField>({
+    method: 'ReqOrderInsert',
+    params: {
+      BrokerID: brokerId,
+      InvestorID: investorId,
+      ExchangeID: ctpExchangeId,
+      InstrumentID: instrumentId,
+      // 市价单/现价单 上期所不支持市价单
+      OrderPriceType: TThostFtdcOrderPriceTypeType.THOST_FTDC_OPT_LimitPrice,
+      // 触发条件
+      ContingentCondition: TThostFtdcContingentConditionType.THOST_FTDC_CC_Immediately,
+      // 时间条件
+      TimeCondition: TThostFtdcTimeConditionType.THOST_FTDC_TC_GFD,
+      // 成交量条件
+      VolumeCondition: TThostFtdcVolumeConditionType.THOST_FTDC_VC_AV,
+      // 投机套保标识
+      CombHedgeFlag: TThostFtdcHedgeFlagType.THOST_FTDC_HF_Speculation,
+      // 开平标识
+      CombOffsetFlag: CombOffsetFlag,
+      // ISSUE: 买入包括开多平空; 卖出包括开空平多
+      Direction: Direction,
+      LimitPrice: LimitPrice ?? order.price ?? 0,
+      VolumeTotalOriginal: volume,
+      ForceCloseReason: TThostFtdcForceCloseReasonType.THOST_FTDC_FCC_NotForceClose,
+      reserve1: '',
+      reserve2: '',
+      OrderRef: orderRef,
+      UserID: '',
+      GTDDate: '',
+      MinVolume: 0,
+      StopPrice: order.stop_loss_price ?? 0,
+      IsAutoSuspend: 0,
+      BusinessUnit: '',
+      RequestID: 0,
+      UserForceClose: 0,
+      IsSwapOrder: 0,
+      InvestUnitID: '',
+      AccountID: '',
+      CurrencyID: '',
+      ClientID: '',
+      MacAddress: '',
+      IPAddress: '',
+      OrderMemo: '',
+      SessionReqSeq: 0,
+    },
+  });
+
+  return firstValueFrom(
+    ret$.pipe(
+      //
+      raceWith(error$),
+      timeout({ each: 5000, meta: `requestZMQ Timeout: SubmitOrder` }),
+      map((msg) => {
+        if (msg.res?.error_code && msg.res.error_code !== 0) {
+          throw new Error(`CTP SubmitOrder Error: ${msg.res.error_message} (${msg.res.error_code})`);
+        }
       }),
     ),
-  );
-
-  return ret$.pipe(
-    //
-    raceWith(error$),
-    timeout({ each: 5000, meta: `requestZMQ Timeout: SubmitOrder` }),
-    map((msg) => ({
-      res: { code: msg.res?.error_code ?? 0, message: msg.res?.error_message ?? 'OK' },
-    })),
   );
 };
 
@@ -342,28 +376,51 @@ provideAccountInfoService(
       //
       ensureMarketDataSubscription(product_id);
 
-      positions.push({
-        position_id: `mixed`,
-        datasource_id: DATASOURCE_ID,
-        product_id: product_id,
-        direction: (
-          {
-            [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Long]: 'LONG',
-            [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Short]: 'SHORT',
-            // FIXME(cz): [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Net]: ???
-          } as Record<TThostFtdcPosiDirectionType, string>
-        )[msg.PosiDirection],
-        volume: msg.Position,
-        free_volume: msg.Position,
-        closable_price: msg.SettlementPrice,
-        floating_profit:
-          (msg.SettlementPrice - position_price) *
-          msg.Position *
-          value_scale *
-          (msg.PosiDirection === TThostFtdcPosiDirectionType.THOST_FTDC_PD_Long ? 1 : -1),
-        position_price,
-        valuation: 0, // TODO: 估值
-      });
+      const direction = (
+        {
+          [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Long]: 'LONG',
+          [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Short]: 'SHORT',
+          // FIXME(cz): [TThostFtdcPosiDirectionType.THOST_FTDC_PD_Net]: ???
+        } as Record<TThostFtdcPosiDirectionType, string>
+      )[msg.PosiDirection];
+
+      if (msg.TodayPosition !== 0) {
+        positions.push({
+          position_id: encodePath(product_id, direction, 'TD'),
+          datasource_id: DATASOURCE_ID,
+          product_id: product_id,
+          direction,
+          volume: msg.TodayPosition,
+          free_volume: msg.TodayPosition - (direction === 'LONG' ? msg.LongFrozen : msg.ShortFrozen),
+          closable_price: msg.SettlementPrice,
+          floating_profit:
+            (msg.SettlementPrice - position_price) *
+            msg.Position *
+            value_scale *
+            (msg.PosiDirection === TThostFtdcPosiDirectionType.THOST_FTDC_PD_Long ? 1 : -1),
+          position_price,
+          valuation: 0, // TODO: 估值
+        });
+      }
+
+      if (msg.YdPosition !== 0) {
+        positions.push({
+          position_id: encodePath(product_id, direction, 'TD'),
+          datasource_id: DATASOURCE_ID,
+          product_id: product_id,
+          direction,
+          volume: msg.YdPosition,
+          free_volume: msg.YdPosition,
+          closable_price: msg.SettlementPrice,
+          floating_profit:
+            (msg.SettlementPrice - position_price) *
+            msg.YdPosition *
+            value_scale *
+            (msg.PosiDirection === TThostFtdcPosiDirectionType.THOST_FTDC_PD_Long ? 1 : -1),
+          position_price,
+          valuation: 0, // TODO: 估值
+        });
+      }
     }
 
     return {
@@ -528,15 +585,13 @@ terminal.server.provideService<IOrder>(
       ),
     ]);
 
-    await lastValueFrom(
-      submitOrder(
-        loginRes.BrokerID,
-        settlementRes.InvestorID,
-        loginRes.FrontID,
-        loginRes.SessionID,
-        orderRefData.order_ref,
-        msg.req,
-      ),
+    await submitOrder(
+      loginRes.BrokerID,
+      settlementRes.InvestorID,
+      loginRes.FrontID,
+      loginRes.SessionID,
+      orderRefData.order_ref,
+      msg.req,
     );
 
     return { res: { code: 0, message: 'OK' } };
