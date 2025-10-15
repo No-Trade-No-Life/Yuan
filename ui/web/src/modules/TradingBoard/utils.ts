@@ -111,8 +111,6 @@ interface IWSOrderBook {
 
 // const sub = new Subject<{ bis: []; ask: [] }>();
 
-export const mapUniqueProductIdToOrderBookSubject = new Map<string, BehaviorSubject<IOrderBooks>>();
-
 export const useOrderBooks = (uniqueProductId: string) => {
   const orderBookMemo$ = useMemo(() => {
     const orderBook$ = new BehaviorSubject<IOrderBooks>({
@@ -120,29 +118,24 @@ export const useOrderBooks = (uniqueProductId: string) => {
       asks: new Map(),
       seqId: 0,
     });
-    mapUniqueProductIdToOrderBookSubject.set(uniqueProductId, orderBook$);
+
     return orderBook$;
   }, [uniqueProductId]);
 
   useEffect(() => {
     const [datasource_id, product_id] = decodePath(uniqueProductId);
     if (datasource_id === 'OKX' && product_id) {
-      const orderBookSub = useOKXOrderBooks(uniqueProductId);
-      () => {
-        mapUniqueProductIdToOrderBookSubject.delete(uniqueProductId);
+      const orderBookSub = useOKXOrderBooks(uniqueProductId, orderBookMemo$);
+      return () => {
         orderBookSub.unsubscribe();
       };
     }
-
-    return () => {
-      mapUniqueProductIdToOrderBookSubject.delete(uniqueProductId);
-    };
-  }, [uniqueProductId]);
+  }, [uniqueProductId, orderBookMemo$]);
 
   return useObservableState(orderBookMemo$);
 };
 
-export const useOKXOrderBooks = (uniqueProductId: string) => {
+export const useOKXOrderBooks = (uniqueProductId: string, orderBooks$: BehaviorSubject<IOrderBooks>) => {
   const [, product_id] = decodePath(uniqueProductId);
 
   const initBooks$ = defer(async () => {
@@ -179,15 +172,14 @@ export const useOKXOrderBooks = (uniqueProductId: string) => {
     .pipe(
       //
       bufferTime(500),
-      tap((v) => mergeOKXOrderBooks(v, uniqueProductId)),
+      tap((v) => mergeOKXOrderBooks(v, orderBooks$)),
     )
     .subscribe();
 
   return sub;
 };
 
-function mergeOKXOrderBooks(books: IWSOrderBook[], uniqueProductId: string) {
-  const orderBook$ = mapUniqueProductIdToOrderBookSubject.get(uniqueProductId);
+function mergeOKXOrderBooks(books: IWSOrderBook[], orderBook$: BehaviorSubject<IOrderBooks>) {
   if (orderBook$ && books) {
     const currentBooks = orderBook$.value;
     books.forEach((book) => {

@@ -148,7 +148,7 @@ export const customSeries: ICustomSeries[] = [
           borderVisible: false,
           wickUpColor: '#26a69a',
           wickDownColor: '#ef5350',
-          priceLineVisible: false,
+          priceLineVisible: true,
         },
         paneIndex,
       );
