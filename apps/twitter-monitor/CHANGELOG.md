@@ -1,6 +1,11 @@
 # Change Log - @yuants/app-twitter-monitor
 
-This log was last generated on Sun, 05 Oct 2025 10:41:11 GMT and should not be manually modified.
+This log was last generated on Wed, 15 Oct 2025 17:40:04 GMT and should not be manually modified.
+
+## 0.1.18
+Wed, 15 Oct 2025 17:40:04 GMT
+
+_Version update only_
 
 ## 0.1.17
 Sun, 05 Oct 2025 10:41:11 GMT

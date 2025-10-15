@@ -2,6 +2,26 @@
   "name": "@yuants/app-portal",
   "entries": [
     {
+      "version": "0.1.54",
+      "tag": "@yuants/app-portal_v0.1.54",
+      "date": "Wed, 15 Oct 2025 17:40:04 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.46.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.12`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.53",
       "tag": "@yuants/app-portal_v0.1.53",
       "date": "Sun, 05 Oct 2025 10:41:11 GMT",

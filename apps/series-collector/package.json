@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-series-collector",
-  "version": "0.3.18",
+  "version": "0.3.19",
   "main": "lib/index.js",
   "bin": "lib/cli.js",
   "files": [
