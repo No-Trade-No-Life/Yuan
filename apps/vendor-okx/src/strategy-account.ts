@@ -45,6 +45,8 @@ defer(async () => {
       );
 
       gridPositionsRes.forEach((gridPositions, index) => {
+        let positionValuation = 0;
+        const leverage = +gridAlgoOrders.data?.[index].actualLever;
         gridPositions?.data?.forEach((position) => {
           if (+position.pos !== 0) {
             const directionRaw = gridAlgoOrders.data?.[index]?.direction ?? '';
@@ -61,12 +63,17 @@ defer(async () => {
               closable_price: +position.last,
               valuation: +position.notionalUsd,
             });
-
-            // 历史提取金额不会从 investment, totalPnl 扣减
-            // 计算净值需要通过仓位的名义价值和实际杠杆计算
-            totalEquity += +position.notionalUsd / +gridAlgoOrders.data?.[index].actualLever;
+            positionValuation += +position.notionalUsd;
           }
         });
+        if (leverage === 0) {
+          // 实际杠杆为 0，说明没有持仓，直接把投资金额和累计盈亏算到净值里
+          totalEquity += +gridAlgoOrders.data?.[index].investment + +gridAlgoOrders.data?.[index].totalPnl;
+        } else {
+          // 历史提取金额不会从 investment, totalPnl 扣减
+          // 计算净值需要通过仓位的名义价值和实际杠杆计算
+          totalEquity += positionValuation / leverage;
+        }
       });
 
       return {
