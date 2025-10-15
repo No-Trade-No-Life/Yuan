@@ -9,6 +9,7 @@ import {
   DeepPartial,
   IChartApi,
   MouseEventParams,
+  TickMarkType,
   Time,
 } from 'lightweight-charts';
 import { useObservable, useObservableRef, useObservableState } from 'observable-hooks';
@@ -25,6 +26,26 @@ import './TimeSeriesChart.css';
 import { useLegendContainers } from './useLegendContainers';
 
 const ChartOption: DeepPartial<ChartOptions> = {
+  timeScale: {
+    tickMarkFormatter: (time: Time, tickMarkType: TickMarkType) => {
+      // time 是秒级 Unix 时间戳
+      const date = new Date((time as number) * 1000); // 转毫秒
+      // 转换为 UTC+8
+      date.setHours(date.getHours());
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const dd = String(date.getDate()).padStart(2, '0');
+      const hh = String(date.getHours()).padStart(2, '0');
+      const min = String(date.getMinutes()).padStart(2, '0');
+
+      // 按日/小时自动切换显示
+      if (tickMarkType === TickMarkType.Time) {
+        return `${hh}:${min}`;
+      } else {
+        return `${mm}-${dd} ${hh}:${min}`;
+      }
+    },
+    borderColor: 'rgba(197, 203, 206, 0.8)',
+  },
   layout: {
     textColor: 'rgba(0, 0, 0, 0.9)',
     background: { type: ColorType.Solid, color: 'white' },
@@ -49,14 +70,32 @@ const ChartOption: DeepPartial<ChartOptions> = {
   rightPriceScale: {
     borderColor: 'rgba(197, 203, 206, 0.8)',
   },
-  timeScale: {
-    borderColor: 'rgba(197, 203, 206, 0.8)',
-  },
+
   localization: {
     timeFormatter: (v: Time) => new Date(Number(v) * 1000).toLocaleString(),
   },
 };
 const DarkModeChartOption: DeepPartial<ChartOptions> = {
+  timeScale: {
+    tickMarkFormatter: (time: Time, tickMarkType: TickMarkType) => {
+      // time 是秒级 Unix 时间戳
+      const date = new Date((time as number) * 1000); // 转毫秒
+      // 转换为 UTC+8
+      date.setHours(date.getHours());
+      const mm = String(date.getMonth() + 1).padStart(2, '0');
+      const dd = String(date.getDate()).padStart(2, '0');
+      const hh = String(date.getHours()).padStart(2, '0');
+      const min = String(date.getMinutes()).padStart(2, '0');
+
+      // 按日/小时自动切换显示
+      if (tickMarkType === TickMarkType.Time) {
+        return `${hh}:${min}`;
+      } else {
+        return `${mm}-${dd} ${hh}:${min}`;
+      }
+    },
+    borderColor: 'rgba(197, 203, 206, 0.8)',
+  },
   layout: {
     textColor: 'rgba(255, 255, 255, 0.9)',
     background: { type: ColorType.Solid, color: '#000000' },
@@ -79,9 +118,6 @@ const DarkModeChartOption: DeepPartial<ChartOptions> = {
     },
   },
   rightPriceScale: {
-    borderColor: 'rgba(197, 203, 206, 0.8)',
-  },
-  timeScale: {
     borderColor: 'rgba(197, 203, 206, 0.8)',
   },
   localization: {
