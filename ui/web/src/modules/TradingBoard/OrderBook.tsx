@@ -1,10 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useOrderBooks } from './utils';
-import { useObservable, useObservableState } from 'observable-hooks';
-import { combineLatestWith, pipe, switchMap } from 'rxjs';
-import { terminal$ } from '../Network';
-import { decodePath } from '@yuants/utils';
-import { escapeSQL, requestSQL } from '@yuants/sql';
 import { IProduct } from '@yuants/data-product';
 import { Divider } from '@douyinfe/semi-ui';
 import { DecimalFormatter } from './components/DecimalFormatNumber';

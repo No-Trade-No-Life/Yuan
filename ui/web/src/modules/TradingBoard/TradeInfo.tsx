@@ -4,7 +4,7 @@ import { escapeSQL, requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useObservable, useObservableState } from 'observable-hooks';
-import { combineLatestWith, defer, pipe, repeat, retry, switchMap, timer } from 'rxjs';
+import { combineLatestWith, defer, pipe, repeat, retry, switchMap } from 'rxjs';
 import { DataView, Switch } from '../Interactive';
 import { terminal$ } from '../Terminals';
 

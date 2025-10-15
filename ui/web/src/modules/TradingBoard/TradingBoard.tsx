@@ -2,28 +2,14 @@ import { Radio, RadioGroup, Space } from '@douyinfe/semi-ui';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import * as FlexLayout from 'flexlayout-react';
 import { useObservable, useObservableState } from 'observable-hooks';
-import { useEffect, useMemo, useState } from 'react';
-import {
-  combineLatestWith,
-  defer,
-  EMPTY,
-  filter,
-  firstValueFrom,
-  map,
-  pipe,
-  retry,
-  shareReplay,
-  Subject,
-  switchMap,
-  tap,
-} from 'rxjs';
+import { useMemo, useState } from 'react';
+import { combineLatestWith, defer, filter, map, pipe, retry, shareReplay, switchMap, tap } from 'rxjs';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 import { AutoComplete } from '../Interactive';
 import { TimeSeriesChart } from '../Chart/components/TimeSeriesChart';
 import { ManualTradePanelContent } from './ManualTradePanelContent';
 import { decodePath, encodePath } from '@yuants/utils';
-import { IOHLC } from '@yuants/data-ohlc';
 import { AccountInfo } from './AccountInfo';
 import { RadioChangeEvent } from '@douyinfe/semi-ui/lib/es/radio';
 import { useAccountInfo } from '../AccountInfo';
@@ -31,7 +17,7 @@ import { AccountProfit } from './AccountProfit';
 import { createFileSystemBehaviorSubject } from '../FileSystem';
 import { loadSqlData } from '../Chart/components/utils';
 import { generateAccountOrders } from './utils';
-import { ISeriesConfig, ITimeSeriesChartConfig } from '../Chart/components/model';
+import { ITimeSeriesChartConfig } from '../Chart/components/model';
 import { seriesIdList$ } from '../OHLC';
 import { OrderBook } from './OrderBook';
 import { IProduct } from '@yuants/data-product';
