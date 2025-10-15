@@ -192,7 +192,7 @@ registerPage('FundStatements', () => {
             {
               series: [
                 {
-                  type: 'line',
+                  type: 'baseline',
                   name: '单位净值增量',
                   refs: [
                     {
@@ -220,7 +220,7 @@ registerPage('FundStatements', () => {
             {
               series: [
                 {
-                  type: 'hist',
+                  type: 'baseline',
                   name: '净利润增量',
                   refs: [
                     {
@@ -234,7 +234,7 @@ registerPage('FundStatements', () => {
             {
               series: [
                 {
-                  type: 'line',
+                  type: 'baseline',
                   name: '每日年化收益率',
                   refs: [
                     {

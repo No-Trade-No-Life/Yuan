@@ -318,3 +318,18 @@ terminal.server.provideService<
 );
 
 terminal.channel.publishChannel('CTP/DepthMarketData', { const: ACCOUNT_ID }, () => depthMarketData$);
+
+const orderRefGen = makeIdGen();
+
+terminal.server.provideService<
+  {
+    account_id: string;
+  },
+  { order_ref: string }
+>(
+  'CTP/GenerateOrderRef',
+  { required: ['account_id'], properties: { account_id: { const: ACCOUNT_ID } } },
+  async () => {
+    return { res: { code: 0, message: 'OK', data: { order_ref: '' + orderRefGen() } } };
+  },
+);

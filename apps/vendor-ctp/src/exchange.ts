@@ -57,19 +57,6 @@ const input$ = terminal.channel.subscribeChannel<IBridgeMessage<any, any>>('CTP/
 const parseCTPTime = (date: string, time: string): Date =>
   parse(`${date}-${time}`, 'yyyyMMdd-HH:mm:ss', new Date());
 
-const makeIdGen = () => {
-  let requestID = 0;
-  return () => {
-    if (requestID >= 2147483647) {
-      requestID = 0;
-    }
-    requestID++;
-    return requestID;
-  };
-};
-
-const orderRefGen = makeIdGen();
-
 const mapToValue = <Req, Rep>(resp$: Observable<IBridgeMessage<Req, Rep>>) =>
   resp$.pipe(
     map((msg) => msg.res?.value),
@@ -81,10 +68,10 @@ const submitOrder = (
   investorId: string,
   frontId: number,
   sessionId: number,
+  orderRef: string,
   order: IOrder,
 ) => {
   const [ctpExchangeId, instrumentId] = order.product_id.split('-');
-  const orderRef = '' + orderRefGen();
 
   // 即使通过 OnRtnOrder 回来的回报也有可能包含来自交易所的报错，因此需要额外检查订单状态是否为取消
   const ret$ = from(input$).pipe(
@@ -520,7 +507,7 @@ terminal.server.provideService<IOrder>(
     },
   },
   async (msg) => {
-    const [loginRes, settlementRes] = await Promise.all([
+    const [loginRes, settlementRes, orderRefData] = await Promise.all([
       terminal.client.requestForResponseData<{ account_id: string }, ICThostFtdcRspUserLoginField>(
         'CTP/QueryLoginResponse',
         {
@@ -533,10 +520,23 @@ terminal.server.provideService<IOrder>(
           account_id: ACCOUNT_ID,
         },
       ),
+      terminal.client.requestForResponseData<{ account_id: string }, { order_ref: string }>(
+        'CTP/GenerateOrderRef',
+        {
+          account_id: ACCOUNT_ID,
+        },
+      ),
     ]);
 
     await lastValueFrom(
-      submitOrder(loginRes.BrokerID, settlementRes.InvestorID, loginRes.FrontID, loginRes.SessionID, msg.req),
+      submitOrder(
+        loginRes.BrokerID,
+        settlementRes.InvestorID,
+        loginRes.FrontID,
+        loginRes.SessionID,
+        orderRefData.order_ref,
+        msg.req,
+      ),
     );
 
     return { res: { code: 0, message: 'OK' } };
