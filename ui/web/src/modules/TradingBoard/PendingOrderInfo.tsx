@@ -1,5 +1,5 @@
 import { IconRefresh } from '@douyinfe/semi-icons';
-import { Space } from '@douyinfe/semi-ui';
+import { Popconfirm, Space } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
 import { IOrder } from '@yuants/data-order';
 import { formatTime } from '@yuants/utils';
@@ -60,8 +60,11 @@ const columns = [
 
       return (
         <Space>
-          <Button
-            onClick={async () => {
+          <Popconfirm
+            title="确定是否要保存此修改？"
+            content="此修改将不可逆"
+            position="right"
+            onConfirm={async () => {
               const terminal = await firstValueFrom(terminal$);
               if (terminal) {
                 await terminal.client.requestForResponse('CancelOrder', {
@@ -71,10 +74,11 @@ const columns = [
                 });
               }
             }}
-            type="danger"
           >
-            撤单
-          </Button>
+            <div>
+              <Button type="danger">撤单</Button>
+            </div>
+          </Popconfirm>
         </Space>
       );
     },

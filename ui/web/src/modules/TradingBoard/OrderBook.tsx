@@ -19,7 +19,7 @@ const DEFAULT_ROW_HEIGHT = 24;
 const DEFAULT_MIN_ROWS_PER_SIDE = 5;
 const COLUMN_TEMPLATE = 'minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr)';
 
-const parseVolume = (value: string, valueScale: number) => {
+const parseVolumeToAmount = (value: string, valueScale: number) => {
   const volume = Number(value);
   return Number.isFinite(volume) ? volume * valueScale : 0;
 };
@@ -44,8 +44,6 @@ export const OrderBook = React.memo((props: Props) => {
       seqId: booksMap?.seqId ?? 0,
     };
   }, [booksMap]);
-
-  console.log({ books });
 
   const productInfo = useObservableState(
     useObservable(
@@ -99,29 +97,29 @@ export const OrderBook = React.memo((props: Props) => {
 
     let askCumulative = 0;
     const computedAskRows = nextAsks.map(([price, volume, seqId]) => {
-      const numericVolume = parseVolume(volume, productInfo?.value_scale ?? 1);
-      askCumulative += numericVolume;
+      const numericAmount = parseVolumeToAmount(volume, productInfo?.value_scale ?? 1);
+      askCumulative += numericAmount;
       if (askCumulative > localMaxVolume) {
         localMaxVolume = askCumulative;
       }
-      return { price, volume, cumulative: askCumulative, seqId, numericVolume };
+      return { price, volume, cumulative: askCumulative, seqId, numericAmount: numericAmount };
     });
 
     let bidCumulative = 0;
     const computedBidRows = nextBids.map(([price, volume, seqId]) => {
-      const numericVolume = parseVolume(volume, productInfo?.value_scale ?? 1);
-      bidCumulative += numericVolume;
+      const numericAmount = parseVolumeToAmount(volume, productInfo?.value_scale ?? 1);
+      bidCumulative += numericAmount;
       if (bidCumulative > localMaxVolume) {
         localMaxVolume = bidCumulative;
       }
-      return { price, volume, cumulative: bidCumulative, seqId, numericVolume };
+      return { price, volume, cumulative: bidCumulative, seqId, numericAmount: numericAmount };
     });
 
     return { askRows: computedAskRows, bidRows: computedBidRows, maxVolume: localMaxVolume };
   }, [books, rowsPerSide, productInfo]);
 
   const renderRow = (
-    row: { price: string; volume: string; cumulative: number; seqId: number; numericVolume: number },
+    row: { price: string; volume: string; cumulative: number; seqId: number; numericAmount: number },
     type: 'ask' | 'bid',
   ) => {
     const volumeRatio = maxVolume > 0 ? Math.min(row.cumulative / maxVolume, 1) : 0;
@@ -157,7 +155,7 @@ export const OrderBook = React.memo((props: Props) => {
         />
         <span style={{ position: 'relative' }}>{row.price}</span>
         <span style={{ position: 'relative', textAlign: 'right' }}>
-          <DecimalFormatter number={+row.volume} />
+          <DecimalFormatter number={row.numericAmount} />
         </span>
         <span style={{ position: 'relative', textAlign: 'right' }}>
           <DecimalFormatter number={row.cumulative} />
