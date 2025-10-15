@@ -54,7 +54,7 @@ defer(async () => {
               datasource_id: 'OKX',
               product_id: encodePath(position.instType, position.instId),
               direction,
-              volume: +position.pos,
+              volume: Math.abs(+position.pos),
               free_volume: +position.pos,
               position_price: +position.avgPx,
               floating_profit: +position.upl,
