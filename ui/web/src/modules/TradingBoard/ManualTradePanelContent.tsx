@@ -54,7 +54,7 @@ export const ManualTradePanelContent = (props: Props) => {
         }
       }
     } catch (e) {
-      Toast.error('操作失败');
+      Toast.error('操作失败:' + e);
     }
   };
 

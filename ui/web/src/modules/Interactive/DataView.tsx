@@ -13,6 +13,7 @@ import { Input, Modal, Pagination, Radio, RadioGroup, Space, Spin, Tag, Toast } 
 import {
   ColumnDef,
   ColumnFiltersState,
+  ColumnPinningState,
   flexRender,
   getCoreRowModel,
   getExpandedRowModel,
@@ -20,7 +21,6 @@ import {
   getGroupedRowModel,
   getPaginationRowModel,
   getSortedRowModel,
-  ColumnPinningState,
   GroupingState,
   OnChangeFn,
   SortingState,

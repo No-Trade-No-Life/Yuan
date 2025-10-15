@@ -89,7 +89,7 @@ registerPage('AlertRulePage', () => {
         setVisible(false);
       }
     } catch (e) {
-      Toast.error('更新失败');
+      Toast.error('更新失败: ' + e);
       console.log('UpdateError', e);
     }
   };
