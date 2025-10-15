@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Sun, 05 Oct 2025 10:41:11 GMT and should not be manually modified.
+This log was last generated on Wed, 15 Oct 2025 17:33:14 GMT and should not be manually modified.
+
+## 0.46.2
+Wed, 15 Oct 2025 17:33:14 GMT
+
+### Patches
+
+- fix channel multicast
 
 ## 0.46.1
 Sun, 05 Oct 2025 10:41:11 GMT
