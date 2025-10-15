@@ -103,7 +103,7 @@ const createPositionSummaryMap = (positions?: IPosition[]) => {
     const prevTotalAbsVolume = prev?.totalAbsVolume ?? 0;
     const priceVolumeSum = prevPriceVolumeSum + (price !== undefined ? price * absVolume : 0);
     const totalAbsVolume = prevTotalAbsVolume + absVolume;
-    const avgPrice = totalAbsVolume > EPSILON_VOLUME ? priceVolumeSum / totalAbsVolume : undefined;
+    const avgPrice = totalAbsVolume > EPSILON_VOLUME ? priceVolumeSum / totalAbsVolume : 0;
     map.set(key, {
       key,
       volume: nextVolume,

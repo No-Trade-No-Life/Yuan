@@ -1,6 +1,7 @@
 import { PromRegistry, Terminal } from '@yuants/protocol';
 import { encodePath, formatTime } from '@yuants/utils';
 import { catchError, defer, EMPTY, filter, interval, Observable, Subscription, tap, timeout } from 'rxjs';
+import { IWSOrderBook } from './market-order';
 
 const MetricsWebSocketConnectionsGauge = PromRegistry.create(
   'gauge',
@@ -326,16 +327,7 @@ export const useMarketBooks = (
   channel: 'books' | 'books5' | 'bbo-tbt' | 'books-l2-tbt' | 'books50-l2-tbt',
   instId: string,
 ) =>
-  fromWsChannelAndInstId<
-    {
-      asks: [price: string, volume: string, abandon: string, order_number: string][];
-      bids: [price: string, volume: string, abandon: string, order_number: string][];
-      ts: string;
-      prevSeqId: number;
-      seqId: number;
-      checksum: number;
-    }[]
-  >('ws/v5/public', channel, instId).pipe(
+  fromWsChannelAndInstId<IWSOrderBook[]>('ws/v5/public', channel, instId).pipe(
     //
     filter((data) => data.length > 0),
   );

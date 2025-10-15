@@ -1,6 +1,16 @@
 import { ITrade } from '@yuants/data-trade';
 import { escapeSQL, requestSQL } from '@yuants/sql';
-import { BehaviorSubject, bufferTime, defer, filter, firstValueFrom, Subject, switchMap, tap } from 'rxjs';
+import {
+  BehaviorSubject,
+  bufferTime,
+  defer,
+  filter,
+  firstValueFrom,
+  retry,
+  Subject,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { terminal$ } from '../Network';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { IProduct } from '@yuants/data-product';
@@ -103,10 +113,10 @@ export interface IOrderBooks {
 interface IWSOrderBook {
   asks: [price: string, volume: string, abandon: string, order_number: string][];
   bids: [price: string, volume: string, abandon: string, order_number: string][];
-  ts: string;
+  ts?: string;
   prevSeqId: number;
   seqId: number;
-  checksum: number;
+  checksum?: number;
 }
 
 // const sub = new Subject<{ bis: []; ask: [] }>();
@@ -137,7 +147,16 @@ export const useOrderBooks = (uniqueProductId: string) => {
 
 export const useOKXOrderBooks = (uniqueProductId: string, orderBooks$: BehaviorSubject<IOrderBooks>) => {
   const [, product_id] = decodePath(uniqueProductId);
-
+  const initStatus: {
+    value: 'Init' | 'FetchInitData' | 'MergeInitData' | 'Finished';
+  } = {
+    value: 'Init',
+  };
+  const orderBookTemp: IOrderBooks = {
+    bids: new Map(),
+    asks: new Map(),
+    seqId: 0,
+  };
   const initBooks$ = defer(async () => {
     const terminal = await firstValueFrom(terminal$);
     if (terminal) {
@@ -150,16 +169,20 @@ export const useOKXOrderBooks = (uniqueProductId: string, orderBooks$: BehaviorS
         {
           asks: [price: string, volume: string, abandon: string, order_number: string][];
           bids: [price: string, volume: string, abandon: string, order_number: string][];
-          ts: string;
-        }[]
+          seqId: number;
+        }
       >('QueryMarketBooks', {
         product_id,
         datasource_id: 'OKX',
-        sz: '50',
+        sz: '200',
       });
     }
     return null;
-  });
+  }).pipe(
+    //
+    filter((x): x is Exclude<typeof x, null | undefined> => !!x),
+    retry({ delay: 100 }),
+  );
 
   const sub = terminal$
     .pipe(
@@ -170,22 +193,47 @@ export const useOKXOrderBooks = (uniqueProductId: string, orderBooks$: BehaviorS
       ),
     )
     .pipe(
+      tap((v) => {
+        if (v.prevSeqId === -1) {
+          initStatus.value = 'Finished';
+        }
+        console.log({ initStatus });
+        if (initStatus.value === 'Init') {
+          initStatus.value = 'FetchInitData';
+          initBooks$.subscribe((data) => {
+            mergeOKXOrderBooks([{ ...data, prevSeqId: data.seqId }], orderBooks$, initStatus, orderBookTemp);
+            initStatus.value = 'MergeInitData';
+          });
+        }
+      }),
       //
       bufferTime(500),
-      tap((v) => mergeOKXOrderBooks(v, orderBooks$)),
+      tap((v) => mergeOKXOrderBooks(v, orderBooks$, initStatus, orderBookTemp)),
     )
     .subscribe();
 
   return sub;
 };
 
-function mergeOKXOrderBooks(books: IWSOrderBook[], orderBook$: BehaviorSubject<IOrderBooks>) {
+function mergeOKXOrderBooks(
+  books: IWSOrderBook[],
+  orderBook$: BehaviorSubject<IOrderBooks>,
+  initStatus: {
+    value: 'Init' | 'FetchInitData' | 'MergeInitData' | 'Finished';
+  },
+  orderBookTemp: IOrderBooks,
+) {
   if (orderBook$ && books) {
-    const currentBooks = orderBook$.value;
+    const currentBooks = initStatus.value === 'Finished' ? orderBook$.value : orderBookTemp;
     books.forEach((book) => {
       book.bids.forEach((item) => {
         if (item[1] === '0') {
           currentBooks?.bids.delete(item[0]);
+        } else if (initStatus.value === 'MergeInitData') {
+          const bookItem = currentBooks?.bids.get(item[0]);
+          if (bookItem && bookItem[2] < book.seqId) {
+            currentBooks?.bids.set(item[0], [item[0], item[1], book.seqId]);
+          }
         } else {
           currentBooks?.bids.set(item[0], [item[0], item[1], book.seqId]);
         }
@@ -193,11 +241,21 @@ function mergeOKXOrderBooks(books: IWSOrderBook[], orderBook$: BehaviorSubject<I
       book.asks.forEach((item) => {
         if (item[1] === '0') {
           currentBooks?.asks.delete(item[0]);
+        } else if (initStatus.value === 'MergeInitData') {
+          const bookItem = currentBooks?.bids.get(item[0]);
+          if (bookItem && bookItem[2] < book.seqId) {
+            currentBooks?.bids.set(item[0], [item[0], item[1], book.seqId]);
+          }
         } else {
           currentBooks?.asks.set(item[0], [item[0], item[1], book.seqId]);
         }
       });
     });
-    orderBook$.next({ ...currentBooks });
+    if (initStatus.value === 'MergeInitData') {
+      initStatus.value = 'Finished';
+    }
+    if (initStatus.value === 'Finished') {
+      orderBook$.next({ ...currentBooks });
+    }
   }
 }
