@@ -1,4 +1,8 @@
-import React from 'react';
+import { IconAlertCircle } from '@douyinfe/semi-icons';
+import { Modal } from '@douyinfe/semi-ui';
+import { formatTime } from '@yuants/utils';
+import React, { useMemo } from 'react';
+import { Button } from '../Interactive';
 
 export class ErrorBoundary extends React.Component<{
   fallback?: React.ComponentType<{ error: any; reset: () => void }>;
@@ -12,7 +16,7 @@ export class ErrorBoundary extends React.Component<{
 
   render() {
     if (this.state.hasError) {
-      const Fallback = this.props.fallback;
+      const Fallback = this.props.fallback || DefaultErrorFallback;
       if (Fallback) {
         return (
           <Fallback
@@ -29,3 +33,35 @@ export class ErrorBoundary extends React.Component<{
     return this.props.children;
   }
 }
+
+export const DefaultErrorFallback = ({ error, reset }: { error: any; reset: () => void }) => {
+  const isDev = useMemo(() => new URL(document.location.href).searchParams.get('mode') === 'development', []);
+
+  console.error(formatTime(Date.now()), error);
+
+  return (
+    <Button
+      icon={<IconAlertCircle />}
+      type="danger"
+      onClick={async () => {
+        if (isDev) {
+          await new Promise((resolve, reject) => {
+            Modal.error({
+              title: `Error: ${error.message || error.toString()}`,
+              width: '80vw',
+              content: <div>{error.stack && <pre>{error.stack}</pre>}</div>,
+              onOk: () => resolve(true),
+              onCancel: () => reject(new Error('User Cancelled')),
+              okText: 'Reload',
+              hasCancel: false,
+            });
+          });
+        }
+
+        reset();
+      }}
+    >
+      ERROR
+    </Button>
+  );
+};
