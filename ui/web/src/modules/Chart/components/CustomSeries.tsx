@@ -140,18 +140,7 @@ export const customSeries: ICustomSeries[] = [
       seriesConfig,
     }) => {
       if (dataSeries.length < 4) return;
-      const candlestickSeries = chart.addSeries(
-        CandlestickSeries,
-        {
-          upColor: '#26a69a',
-          downColor: '#ef5350',
-          borderVisible: false,
-          wickUpColor: '#26a69a',
-          wickDownColor: '#ef5350',
-          priceLineVisible: true,
-        },
-        paneIndex,
-      );
+
       const displayDataList: { time: Time; open: number; high: number; low: number; close: number }[] = [];
       timeLine.forEach(([time, index]) => {
         const x = {
@@ -165,6 +154,28 @@ export const customSeries: ICustomSeries[] = [
           displayDataList.push(x);
         }
       });
+      const candlestickSeries = chart.addSeries(
+        CandlestickSeries,
+        {
+          upColor: '#26a69a',
+          downColor: '#ef5350',
+          borderVisible: false,
+          wickUpColor: '#26a69a',
+          wickDownColor: '#ef5350',
+          priceLineVisible: true,
+        },
+        paneIndex,
+      );
+      const indexOfDot = (dataSeries[3][0] as string).indexOf('.');
+      if (indexOfDot !== -1) {
+        candlestickSeries.applyOptions({
+          priceFormat: {
+            type: 'custom',
+            minMove: 1 / Math.pow(10, (dataSeries[3][0] as string).length - indexOfDot - 1),
+            formatter: (price: number) => price.toFixed((dataSeries[3][0] as string).length - indexOfDot - 1), // ✅ 不做四舍五入
+          },
+        });
+      }
 
       candlestickSeries.setData(displayDataList);
 
