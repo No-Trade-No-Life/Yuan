@@ -1,4 +1,5 @@
 import { Meter } from '@opentelemetry/api';
+import { createCache } from '@yuants/cache';
 import { MetricsMeterProvider, Terminal } from '@yuants/protocol';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
@@ -53,22 +54,13 @@ export const provideAccountInfoService = (
 ) => {
   const dispose$ = new Subject<void>();
   const accountInfo$ = new Subject<IAccountInfo>();
-
-  const disposable0 = terminal.server.provideService(
-    'QueryAccountInfo',
-    {
-      type: 'object',
-      required: ['account_id'],
-      properties: {
-        account_id: { type: 'string', const: account_id },
-      },
-    },
+  const cache = createCache<IAccountInfo>(
     async () => {
       const data = await query();
       const positions = data.positions;
       const profit = positions.reduce((acc, cur) => acc + (cur.floating_profit || 0), 0);
       // 立即推送最新的数据
-      accountInfo$.next({
+      return {
         updated_at: Date.now(),
         account_id,
         money: {
@@ -80,8 +72,33 @@ export const provideAccountInfoService = (
           used: data.money.equity - data.money.free,
         },
         positions: positions,
-      });
-      return { res: { code: 0, message: 'OK', data: data } };
+      };
+    },
+    {
+      writeLocal: async (_, data) => {
+        accountInfo$.next(data);
+      },
+    },
+  );
+
+  const disposable0 = terminal.server.provideService<
+    {
+      account_id: string;
+      force_update?: boolean;
+    },
+    IAccountInfo
+  >(
+    'QueryAccountInfo',
+    {
+      type: 'object',
+      required: ['account_id'],
+      properties: {
+        account_id: { type: 'string', const: account_id },
+        force_update: { type: 'boolean' },
+      },
+    },
+    async ({ req }) => {
+      return { res: { code: 0, message: 'OK', data: await cache.query('', req.force_update) } };
     },
   );
 
@@ -98,20 +115,16 @@ export const provideAccountInfoService = (
   const { auto_refresh_interval } = options || {};
 
   if (auto_refresh_interval) {
-    let refreshInFlight: Promise<unknown> | null = null;
     const triggerRefresh = () => {
-      if (refreshInFlight) return;
-      const promise = terminal.client
-        .requestForResponseData<{ account_id: string }, IAccountInfo>('QueryAccountInfo', {
-          account_id,
-        })
+      terminal.client
+        .requestForResponseData<{ account_id: string; force_update: boolean }, IAccountInfo>(
+          'QueryAccountInfo',
+          {
+            account_id,
+            force_update: true,
+          },
+        )
         .catch(() => {});
-      refreshInFlight = promise;
-      promise.finally(() => {
-        if (refreshInFlight === promise) {
-          refreshInFlight = null;
-        }
-      });
     };
 
     // 当 accountInfo$ 超时没有数据时，自动拉取一次

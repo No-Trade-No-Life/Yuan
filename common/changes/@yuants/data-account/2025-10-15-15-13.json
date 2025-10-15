@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-account",
+      "comment": "add cache to account service",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-account"
+}
