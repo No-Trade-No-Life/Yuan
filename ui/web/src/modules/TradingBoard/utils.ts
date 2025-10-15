@@ -22,6 +22,7 @@ export const generateAccountOrders = async (
   startTime: string,
   endTime: string,
   productId: string,
+  productInfo: IProduct,
 ) => {
   const terminal = await firstValueFrom(terminal$);
   const orderSeries = new Map<string, any[]>();
@@ -30,17 +31,9 @@ export const generateAccountOrders = async (
   const orderVolumeList: string[] = [];
   const orderTimeline: number[] = [];
   const orderPriceList: string[] = [];
-  let productInfo: IProduct | null = null;
   const mapSecondToTrades = new Map<Number, ITrade[]>();
 
   if (terminal) {
-    const productInfoList = await requestSQL<IProduct[]>(
-      terminal,
-      `select * from product where product_id=${escapeSQL(productId)}`,
-    );
-    if (productInfoList.length === 1) {
-      productInfo = productInfoList[0];
-    }
     const tradeList = await requestSQL<ITrade[]>(
       terminal,
       `

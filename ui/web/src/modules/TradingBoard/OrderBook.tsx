@@ -1,10 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useOrderBooks } from './utils';
-import { useObservable, useObservableState } from 'observable-hooks';
-import { combineLatestWith, pipe, switchMap } from 'rxjs';
-import { terminal$ } from '../Network';
-import { decodePath } from '@yuants/utils';
-import { escapeSQL, requestSQL } from '@yuants/sql';
 import { IProduct } from '@yuants/data-product';
 import { Divider } from '@douyinfe/semi-ui';
 import { DecimalFormatter } from './components/DecimalFormatNumber';
@@ -13,6 +8,7 @@ interface Props {
   uniqueProductId: string;
   rowHeight?: number;
   minRowsPerSide?: number;
+  productInfo?: IProduct;
 }
 
 const DEFAULT_ROW_HEIGHT = 24;
@@ -29,6 +25,7 @@ export const OrderBook = React.memo((props: Props) => {
     uniqueProductId,
     rowHeight = DEFAULT_ROW_HEIGHT,
     minRowsPerSide = DEFAULT_MIN_ROWS_PER_SIDE,
+    productInfo,
   } = props;
 
   const booksMap = useOrderBooks(uniqueProductId);
@@ -44,28 +41,6 @@ export const OrderBook = React.memo((props: Props) => {
       seqId: booksMap?.seqId ?? 0,
     };
   }, [booksMap]);
-
-  const productInfo = useObservableState(
-    useObservable(
-      pipe(
-        combineLatestWith(terminal$),
-        switchMap(async ([[uniqueProductId], terminal]) => {
-          const [, product_id] = decodePath(uniqueProductId);
-          if (!product_id || !terminal) return;
-
-          const result = await requestSQL<IProduct[]>(
-            terminal,
-            `select * from product where product_id=${escapeSQL(product_id)}`,
-          );
-          if (result.length > 0) {
-            return result[0];
-          }
-        }),
-      ),
-      //
-      [uniqueProductId],
-    ),
-  );
 
   useEffect(() => {
     const el = listContainerRef.current;
