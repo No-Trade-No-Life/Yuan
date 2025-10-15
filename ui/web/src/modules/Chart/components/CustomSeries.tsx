@@ -166,13 +166,18 @@ export const customSeries: ICustomSeries[] = [
         },
         paneIndex,
       );
-      const indexOfDot = (dataSeries[3][0] as string).indexOf('.');
-      if (indexOfDot !== -1) {
+
+      if (seriesConfig && seriesConfig.options && seriesConfig.options.minMove) {
         candlestickSeries.applyOptions({
           priceFormat: {
             type: 'custom',
-            minMove: 1 / Math.pow(10, (dataSeries[3][0] as string).length - indexOfDot - 1),
-            formatter: (price: number) => price.toFixed((dataSeries[3][0] as string).length - indexOfDot - 1), // ✅ 不做四舍五入
+            minMove: Number(seriesConfig.options.minMove),
+            formatter: (price: number) =>
+              price.toFixed(
+                seriesConfig
+                  .options!.minMove.toString()
+                  .substring(seriesConfig.options!.minMove.toString().indexOf('.')).length,
+              ), // ✅ 不做四舍五入
           },
         });
       }

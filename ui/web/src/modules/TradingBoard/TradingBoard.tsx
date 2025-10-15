@@ -3,7 +3,20 @@ import { escapeSQL, requestSQL } from '@yuants/sql';
 import * as FlexLayout from 'flexlayout-react';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useEffect, useMemo, useState } from 'react';
-import { defer, EMPTY, filter, map, pipe, retry, shareReplay, Subject, switchMap, tap } from 'rxjs';
+import {
+  combineLatestWith,
+  defer,
+  EMPTY,
+  filter,
+  firstValueFrom,
+  map,
+  pipe,
+  retry,
+  shareReplay,
+  Subject,
+  switchMap,
+  tap,
+} from 'rxjs';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 import { AutoComplete } from '../Interactive';
@@ -21,6 +34,7 @@ import { generateAccountOrders } from './utils';
 import { ISeriesConfig, ITimeSeriesChartConfig } from '../Chart/components/model';
 import { seriesIdList$ } from '../OHLC';
 import { OrderBook } from './OrderBook';
+import { IProduct } from '@yuants/data-product';
 
 const accountIds$ = terminal$.pipe(
   filter((x): x is Exclude<typeof x, null> => !!x),
@@ -205,10 +219,32 @@ registerPage('TradingBoard', () => {
     candleDuration$.next(e.target.value);
   };
 
+  const productInfo = useObservableState(
+    useObservable(
+      pipe(
+        combineLatestWith(terminal$),
+        switchMap(async ([[uniqueProductId], terminal]) => {
+          if (!uniqueProductId) return;
+          const [, product_id] = decodePath(uniqueProductId);
+          if (!product_id || !terminal) return;
+
+          const result = await requestSQL<IProduct[]>(
+            terminal,
+            `select * from product where product_id=${escapeSQL(product_id)}`,
+          );
+          if (result.length > 0) {
+            return result[0];
+          }
+        }),
+      ),
+      //
+      [uniqueProductId],
+    ),
+  );
   const config$ = useObservable(
     pipe(
-      switchMap(async ([seriesId, drawOrders, accountId, productId]) => {
-        if (!seriesId) return { data: [], views: [] };
+      switchMap(async ([seriesId, drawOrders, accountId, productId, productInfo]) => {
+        if (!seriesId || !productInfo) return { data: [], views: [] };
         const ohlc = await loadSqlData(
           {
             type: 'sql' as const,
@@ -219,6 +255,7 @@ registerPage('TradingBoard', () => {
           },
           0,
         );
+
         const data = [
           {
             type: 'data' as const,
@@ -260,6 +297,7 @@ registerPage('TradingBoard', () => {
                     ],
                     options: {
                       realtimeSeriesId: seriesId,
+                      minMove: +productInfo.price_step * 10,
                     },
                   },
                 ],
@@ -275,6 +313,7 @@ registerPage('TradingBoard', () => {
               (ohlc.series.get(ohlc.time_column_name)?.length ?? 1) - 1
             ] ?? '',
             productId,
+            productInfo,
           );
           data.push({
             type: 'data' as const,
@@ -313,7 +352,7 @@ registerPage('TradingBoard', () => {
       }),
     ),
     //
-    [seriesId, drawOrders, accountId, productId],
+    [seriesId, drawOrders, accountId, productId, productInfo],
   );
 
   const config = useObservableState(config$);
@@ -362,7 +401,7 @@ registerPage('TradingBoard', () => {
               </Space>
             );
           case 'left-top-right':
-            return <OrderBook uniqueProductId={uniqueProductId ?? ''} />;
+            return <OrderBook uniqueProductId={uniqueProductId ?? ''} productInfo={productInfo} />;
           case 'left-bottom':
             return (
               <AccountInfo
