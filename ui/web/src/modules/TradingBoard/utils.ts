@@ -171,7 +171,7 @@ export const useOKXOrderBooks = (uniqueProductId: string, orderBooks$: BehaviorS
           bids: [price: string, volume: string, abandon: string, order_number: string][];
           seqId: number;
         }
-      >('QueryMarketBooks1', {
+      >('QueryMarketBooks', {
         product_id,
         datasource_id: 'OKX',
         sz: '200',
@@ -189,7 +189,7 @@ export const useOKXOrderBooks = (uniqueProductId: string, orderBooks$: BehaviorS
       //
       filter((x): x is Exclude<typeof x, undefined | null> => !!x),
       switchMap((terminal) =>
-        terminal.channel.subscribeChannel<IWSOrderBook>('MarketBooks1', encodePath('OKX', product_id)),
+        terminal.channel.subscribeChannel<IWSOrderBook>('MarketBooks', encodePath('OKX', product_id)),
       ),
     )
     .pipe(
@@ -197,6 +197,7 @@ export const useOKXOrderBooks = (uniqueProductId: string, orderBooks$: BehaviorS
         if (v.prevSeqId === -1) {
           initStatus.value = 'Finished';
         }
+        console.log({ initStatus });
         if (initStatus.value === 'Init') {
           initStatus.value = 'FetchInitData';
           initBooks$.subscribe((data) => {
