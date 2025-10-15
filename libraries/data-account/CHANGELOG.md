@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-account
 
-This log was last generated on Sun, 05 Oct 2025 10:41:11 GMT and should not be manually modified.
+This log was last generated on Wed, 15 Oct 2025 15:21:15 GMT and should not be manually modified.
+
+## 0.6.0
+Wed, 15 Oct 2025 15:21:15 GMT
+
+### Minor changes
+
+- add cache to account service
 
 ## 0.5.3
 Sun, 05 Oct 2025 10:41:11 GMT

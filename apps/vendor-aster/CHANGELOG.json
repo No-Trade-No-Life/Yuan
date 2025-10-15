@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-aster",
   "entries": [
     {
+      "version": "0.3.6",
+      "tag": "@yuants/vendor-aster_v0.3.6",
+      "date": "Wed, 15 Oct 2025 15:21:15 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.6.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.5",
       "tag": "@yuants/vendor-aster_v0.3.5",
       "date": "Fri, 10 Oct 2025 06:03:57 GMT",
