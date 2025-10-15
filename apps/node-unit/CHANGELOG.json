@@ -2,6 +2,29 @@
   "name": "@yuants/node-unit",
   "entries": [
     {
+      "version": "0.12.3",
+      "tag": "@yuants/node-unit_v0.12.3",
+      "date": "Wed, 15 Oct 2025 17:07:24 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.46.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.12`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/deploy\" to `0.3.15`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.12.2",
       "tag": "@yuants/node-unit_v0.12.2",
       "date": "Sun, 05 Oct 2025 10:41:11 GMT",

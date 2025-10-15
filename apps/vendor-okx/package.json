@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-okx",
-  "version": "0.23.8",
+  "version": "0.23.9",
   "bin": "lib/cli.js",
   "main": "lib/index.js",
   "files": [

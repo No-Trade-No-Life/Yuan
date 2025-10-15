@@ -1,6 +1,14 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Wed, 15 Oct 2025 15:21:15 GMT and should not be manually modified.
+This log was last generated on Wed, 15 Oct 2025 17:07:24 GMT and should not be manually modified.
+
+## 0.23.9
+Wed, 15 Oct 2025 17:07:24 GMT
+
+### Patches
+
+- add markert book api
+- fix strategy equity when no position
 
 ## 0.23.8
 Wed, 15 Oct 2025 15:21:15 GMT
