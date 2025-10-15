@@ -197,7 +197,6 @@ export const useOKXOrderBooks = (uniqueProductId: string, orderBooks$: BehaviorS
         if (v.prevSeqId === -1) {
           initStatus.value = 'Finished';
         }
-        console.log({ initStatus });
         if (initStatus.value === 'Init') {
           initStatus.value = 'FetchInitData';
           initBooks$.subscribe((data) => {
