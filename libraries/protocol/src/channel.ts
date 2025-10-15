@@ -114,6 +114,7 @@ export class TerminalChannel {
                       `type=${type} channel_id=${channel_id} is closed`,
                     );
                   }
+                  this._mapTypeAndChannelIdToPublishedObservable$.delete(typeAndChannelId);
                 },
               }),
               // shared observable is to be cold when all subscriptions are closed
@@ -142,7 +143,6 @@ export class TerminalChannel {
                 );
               }
               MetricChannelSubscribersGauge.dec({ type, channel_id });
-              this._mapTypeAndChannelIdToPublishedObservable$.delete(typeAndChannelId);
             },
           }),
           // 直到发起订阅的终端不在主机中，自动关闭频道
