@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-order
 
-This log was last generated on Wed, 15 Oct 2025 17:40:04 GMT and should not be manually modified.
+This log was last generated on Thu, 16 Oct 2025 08:27:17 GMT and should not be manually modified.
+
+## 0.3.0
+Thu, 16 Oct 2025 08:27:17 GMT
+
+### Minor changes
+
+- add helper func
 
 ## 0.2.18
 Wed, 15 Oct 2025 17:40:04 GMT
