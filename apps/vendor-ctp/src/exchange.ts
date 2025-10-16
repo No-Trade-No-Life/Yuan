@@ -1,5 +1,5 @@
 import { IAccountInfo, IPosition, addAccountMarket, provideAccountInfoService } from '@yuants/data-account';
-import { IOrder } from '@yuants/data-order';
+import { IOrder, providePendingOrdersService } from '@yuants/data-order';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { parse } from 'date-fns';
 import {
@@ -446,9 +446,9 @@ provideAccountInfoService(
   },
 );
 
-terminal.server.provideService(
-  'QueryPendingOrders',
-  { required: ['account_id'], properties: { account_id: { const: ACCOUNT_ID } } },
+providePendingOrdersService(
+  terminal,
+  ACCOUNT_ID,
   async () => {
     const orders = await firstValueFrom(
       requestZMQ<ICThostFtdcQryOrderField, ICThostFtdcOrderField>({
@@ -502,9 +502,9 @@ terminal.server.provideService(
         toArray(),
       ),
     );
-
-    return { res: { code: 0, message: 'OK', data: orders } };
+    return orders;
   },
+  { auto_refresh_interval: 5000 },
 );
 
 addAccountMarket(terminal, { account_id, market_id: 'CTP' });

@@ -1,5 +1,5 @@
 import { addAccountMarket, IPosition, provideAccountInfoService } from '@yuants/data-account';
-import { IOrder } from '@yuants/data-order';
+import { providePendingOrdersService } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
 import { defer, filter, firstValueFrom, map, repeat, retry, shareReplay } from 'rxjs';
@@ -29,15 +29,12 @@ export const accountUid$ = accountConfig$.pipe(
 defer(async () => {
   const uid = await firstValueFrom(accountUid$);
   const account_id = `okx/${uid}/trading`;
-  terminal.server.provideService(
-    'QueryPendingOrders',
-    {
-      required: ['account_id'],
-      properties: { account_id: { type: 'string', const: account_id } },
-    },
+  providePendingOrdersService(
+    terminal,
+    account_id,
     async () => {
       const orders = await client.getTradeOrdersPending({});
-      const data = orders.data.map((x): IOrder => {
+      return orders.data.map((x) => {
         const order_type = x.ordType === 'market' ? 'MARKET' : x.ordType === 'limit' ? 'LIMIT' : 'UNKNOWN';
 
         const order_direction =
@@ -62,8 +59,8 @@ defer(async () => {
           traded_price: +x.avgPx,
         };
       });
-      return { res: { code: 0, message: 'OK', data } };
     },
+    { auto_refresh_interval: 5000 },
   );
 }).subscribe();
 

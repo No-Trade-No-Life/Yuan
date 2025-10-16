@@ -1,5 +1,5 @@
 import { useAccountInfo } from '@yuants/data-account';
-import { IOrder } from '@yuants/data-order';
+import { IOrder, queryPendingOrders } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
 import { IQuote } from '@yuants/data-quote';
 import { Terminal } from '@yuants/protocol';
@@ -30,9 +30,7 @@ export const runStrategyBboMaker = async (
     // ISSUE: useAccountInfo 可能会拉到上一次没更新的数据，需要跳过一个来保证数据是最新的
     firstValueFrom(useAccountInfo(terminal, account_id).pipe(skip(1))),
     firstValueFrom(useAccountInfo(terminal, expected_account_id)),
-    terminal.client.requestForResponseData<{ account_id: string }, IOrder[]>('QueryPendingOrders', {
-      account_id,
-    }),
+    queryPendingOrders(terminal, account_id, true),
     requestSQL<IQuote[]>(
       terminal,
       `select * from quote where product_id = ${escapeSQL(product_id)} and datasource_id = ${escapeSQL(

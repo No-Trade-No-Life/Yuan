@@ -1,19 +1,19 @@
 import { Space, Tabs } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
 import { IAccountInfo, IPosition } from '@yuants/data-account';
+import { IOrder, queryPendingOrders } from '@yuants/data-order';
 import { formatTime } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
 import React, { useEffect, useMemo, useState } from 'react';
-import { combineLatestWith, defer, of, pipe, repeat, retry, switchMap } from 'rxjs';
+import { combineLatestWith, defer, pipe, repeat, retry, switchMap } from 'rxjs';
 import { Button, DataView } from '../Interactive';
+import { terminal$ } from '../Network';
 import { InlineProductId } from '../Products/InlineProductId';
-import { TradeInfo } from './TradeInfo';
-import { PendingOrderInfo } from './PendingOrderInfo';
 import { NAVCurve } from './NAVCurve';
+import { PendingOrderInfo } from './PendingOrderInfo';
 import styles from './style.module.css';
 import { TradeCopierInfo } from './TradeCopierInfo';
-import { IOrder } from '@yuants/data-order';
-import { terminal$ } from '../Network';
+import { TradeInfo } from './TradeInfo';
 
 const { TabPane } = Tabs;
 
@@ -97,10 +97,7 @@ export const AccountInfo = React.memo((props: Props) => {
         switchMap(([[accountId], terminal]) => {
           return defer(async () => {
             if (!terminal || !accountId) return [];
-            const data = await terminal.client.requestForResponseData<{ account_id: string }, IOrder[]>(
-              'QueryPendingOrders',
-              { account_id: accountId },
-            );
+            const data = await queryPendingOrders(terminal, accountId);
             return data ?? [];
           }).pipe(
             //

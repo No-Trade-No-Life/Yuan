@@ -4,6 +4,10 @@
 
 ```ts
 
+import { Observable } from 'rxjs';
+import { Subject } from 'rxjs';
+import { Terminal } from '@yuants/protocol';
+
 // @public
 export interface IOrder {
     account_id: string;
@@ -31,6 +35,19 @@ export interface IOrder {
     updated_at?: string;
     volume: number;
 }
+
+// @public
+export const providePendingOrdersService: (terminal: Terminal, account_id: string, query: () => Promise<IOrder[]>, options?: {
+    auto_refresh_interval?: number;
+}) => {
+    dispose$: Subject<void>;
+};
+
+// @public
+export const queryPendingOrders: (terminal: Terminal, account_id: string, force_update?: boolean) => Promise<IOrder[]>;
+
+// @public
+export const usePendingOrders: (terminal: Terminal, account_id: string) => Observable<IOrder[]>;
 
 // (No @packageDocumentation comment for this package)
 
