@@ -104,10 +104,14 @@ const submitOrder = async (
         'QueryAccountInfo',
         { account_id: ACCOUNT_ID },
       );
+      console.info(formatTime(Date.now()), 'CTP_AccountPositions', JSON.stringify(accountInfo.positions));
       for (const pos of accountInfo.positions) {
         const [, , positionFlag] = decodePath(pos.position_id);
         if (pos.product_id === order.product_id) {
-          if (order.order_direction === 'CLOSE_LONG' && pos.direction === 'LONG') {
+          if (
+            (order.order_direction === 'CLOSE_LONG' && pos.direction === 'LONG') ||
+            (order.order_direction === 'CLOSE_SHORT' && pos.direction === 'SHORT')
+          ) {
             if (positionFlag === 'YD') {
               CombOffsetFlag = TThostFtdcOffsetFlagType.THOST_FTDC_OF_CloseYesterday;
               volume = Math.min(volume ?? order.volume, pos.free_volume);
@@ -119,7 +123,10 @@ const submitOrder = async (
           for (const pos of accountInfo.positions) {
             const [, , positionFlag] = decodePath(pos.position_id);
             if (pos.product_id === order.product_id) {
-              if (order.order_direction === 'CLOSE_LONG' && pos.direction === 'LONG') {
+              if (
+                (order.order_direction === 'CLOSE_LONG' && pos.direction === 'LONG') ||
+                (order.order_direction === 'CLOSE_SHORT' && pos.direction === 'SHORT')
+              ) {
                 if (positionFlag === 'TD') {
                   CombOffsetFlag = TThostFtdcOffsetFlagType.THOST_FTDC_OF_CloseToday;
                   volume = Math.min(volume ?? order.volume, pos.free_volume);
@@ -130,7 +137,9 @@ const submitOrder = async (
           }
         }
       }
-      CombOffsetFlag = TThostFtdcOffsetFlagType.THOST_FTDC_OF_Close;
+      if (CombOffsetFlag === undefined) {
+        CombOffsetFlag = TThostFtdcOffsetFlagType.THOST_FTDC_OF_Close;
+      }
     }
   }
 
@@ -477,7 +486,7 @@ terminal.server.provideService(
                 ? 'CLOSE_SHORT'
                 : 'CLOSE_LONG',
             volume: msg.VolumeTotalOriginal,
-            submit_at: parseCTPTime(msg.InsertDate, msg.InsertTime).getTime() * 1e3,
+            submit_at: parseCTPTime(msg.InsertDate, msg.InsertTime).getTime(),
             price: msg.LimitPrice === 0 ? undefined : msg.LimitPrice,
             traded_volume: msg.VolumeTraded,
             // traded_price:
@@ -541,7 +550,7 @@ terminal.server.provideService(
                 ? 'OPEN_SHORT'
                 : 'CLOSE_SHORT',
             volume: msg.Volume,
-            submit_at: parseCTPTime(msg.TradeDate, msg.TradeTime).getTime() * 1e3,
+            submit_at: parseCTPTime(msg.TradeDate, msg.TradeTime).getTime(),
             price: msg.Price,
             traded_volume: msg.Volume,
             // traded_price:
