@@ -22,13 +22,45 @@ export const strategyAccountId$ = accountUid$.pipe(
   map((uid) => `okx/${uid}/strategy`),
   shareReplay(1),
 );
+
 defer(async () => {
   const strategyAccountId = await firstValueFrom(strategyAccountId$);
+
+  type InferPromise<T> = T extends Promise<infer U> ? U : T;
+
+  terminal.server.provideService<
+    { account_id: string; algoId: string },
+    InferPromise<ReturnType<typeof client.getGridPositions>>
+  >(
+    `OKX/QueryGridPositions`,
+    {
+      required: ['account_id', 'algoId'],
+      properties: {
+        account_id: { type: 'string', const: strategyAccountId },
+        algoId: { type: 'string' },
+      },
+    },
+    async (msg) => {
+      //
+      return {
+        res: {
+          code: 0,
+          message: 'OK',
+          data: await client.getGridPositions({ algoOrdType: 'contract_grid', algoId: msg.req.algoId }),
+        },
+      };
+    },
+    {
+      egress_token_capacity: 20,
+      egress_token_refill_interval: 4000, // 每 4 秒恢复 20 个令牌 (双倍冗余限流)
+    },
+  );
 
   provideAccountInfoService(
     terminal,
     strategyAccountId,
     async () => {
+      // TODO: 需要分页获取所有的网格订单 (每页 100 条)
       const [gridAlgoOrders] = await Promise.all([
         client.getGridOrdersAlgoPending({
           algoOrdType: 'contract_grid',
@@ -40,7 +72,13 @@ defer(async () => {
 
       const gridPositionsRes = await Promise.all(
         gridAlgoOrders.data.map((item) =>
-          client.getGridPositions({ algoOrdType: 'contract_grid', algoId: item.algoId }),
+          terminal.client.requestForResponseData<
+            { account_id: string; algoId: string },
+            InferPromise<ReturnType<typeof client.getGridPositions>>
+          >('OKX/QueryGridPositions', {
+            account_id: strategyAccountId,
+            algoId: item.algoId,
+          }),
         ),
       );
 
