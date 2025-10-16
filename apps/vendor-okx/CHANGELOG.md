@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Wed, 15 Oct 2025 17:40:04 GMT and should not be manually modified.
+This log was last generated on Thu, 16 Oct 2025 04:57:15 GMT and should not be manually modified.
+
+## 0.23.10
+Thu, 16 Oct 2025 04:57:15 GMT
+
+### Patches
+
+- fix grid positions rate limit
 
 ## 0.23.9
 Wed, 15 Oct 2025 17:40:04 GMT
