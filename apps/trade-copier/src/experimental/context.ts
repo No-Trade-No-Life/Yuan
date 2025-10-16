@@ -1,5 +1,5 @@
 import { useAccountInfo } from '@yuants/data-account';
-import { IOrder } from '@yuants/data-order';
+import { IOrder, queryPendingOrders } from '@yuants/data-order';
 import { IProduct } from '@yuants/data-product';
 import { IQuote } from '@yuants/data-quote';
 import { Terminal } from '@yuants/protocol';
@@ -35,9 +35,7 @@ export const getContext = async (
     // 获取预期账户信息
     firstValueFrom(useAccountInfo(terminal, expected_account_id)),
     // 获取挂单信息
-    terminal.client.requestForResponseData<{ account_id: string }, IOrder[]>('QueryPendingOrders', {
-      account_id: accountId,
-    }),
+    queryPendingOrders(terminal, accountId, true),
     // 获取行情数据
     requestSQL<IQuote[]>(
       terminal,

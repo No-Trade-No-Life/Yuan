@@ -1,5 +1,5 @@
 import { provideAccountInfoService } from '@yuants/data-account';
-import { IOrder } from '@yuants/data-order';
+import { IOrder, providePendingOrdersService } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
 import { FundingRate } from 'ccxt/js/src/base/types';
@@ -112,12 +112,12 @@ const terminal = Terminal.fromNodeEnv();
   // });
 
   if (!PUBLIC_ONLY) {
-    terminal.server.provideService(
-      'QueryPendingOrders',
-      { required: ['account_id'], properties: { account_id: { type: 'string', const: account_id } } },
+    providePendingOrdersService(
+      terminal,
+      account_id,
       async () => {
         const _orders = await ex.fetchOpenOrders();
-        const data = _orders.map(
+        return _orders.map(
           (order): IOrder => ({
             order_id: order.id,
             account_id: account_id,
@@ -130,8 +130,8 @@ const terminal = Terminal.fromNodeEnv();
             traded_volume: order.amount - order.remaining,
           }),
         );
-        return { res: { code: 0, message: 'OK', data } };
       },
+      { auto_refresh_interval: 5000 },
     );
 
     provideAccountInfoService(
