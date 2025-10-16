@@ -145,6 +145,10 @@ function _makeDirectionalMultiOrderStrategy(context: StrategyContext, direction:
     }
   }
 
+  const totalVolume = sortedOrders.reduce(
+    (sum: number, order: IOrder) => sum + (order.volume! - (order.traded_volume || 0)),
+    0,
+  );
   // 情况3: 订单数量正好为 N 个，但价格不在应该挂单的位置，需要撤销最远的一个订单
   if (sortedOrders.length === orderCount) {
     const farthestOrder = sortedOrders[orderCount - 1]; // 最远的订单
@@ -156,12 +160,21 @@ function _makeDirectionalMultiOrderStrategy(context: StrategyContext, direction:
     }
 
     // 如果没有下够单，撤销最远的订单重新下单
-    const totalVolume = sortedOrders.reduce(
-      (sum: number, order: IOrder) => sum + (order.volume! - (order.traded_volume || 0)),
-      0,
-    );
     if (totalVolume < targetVolume) {
       return sortedOrders.slice(0, orderCount - 1);
+    }
+
+    return sortedOrders; // 价格正确，直接返回现有订单
+  }
+
+  // 情况4: 订单数量不足 N 个，但成交量已经足够，但价格不在应该挂单的位置，需要撤销最远的一个订单
+  if (sortedOrders.length > 0 && totalVolume >= targetVolume) {
+    const farthestOrder = sortedOrders[sortedOrders.length - 1]; // 最远的订单
+
+    // 检查最远订单是否在应该挂单的位置
+    if (farthestOrder.price !== priceToSubmitOrder) {
+      // 撤销最远的一个订单，返回 N-1 个订单
+      return sortedOrders.slice(0, sortedOrders.length - 1);
     }
 
     return sortedOrders; // 价格正确，直接返回现有订单

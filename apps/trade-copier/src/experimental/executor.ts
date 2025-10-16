@@ -2,7 +2,7 @@ import { useAccountInfo } from '@yuants/data-account';
 import { Terminal } from '@yuants/protocol';
 import { requestSQL } from '@yuants/sql';
 import { encodePath, formatTime, listWatch } from '@yuants/utils';
-import { defer, map, repeat, retry, tap, timeout } from 'rxjs';
+import { defer, map, mergeWith, repeat, retry, tap, timeout } from 'rxjs';
 import { ITradeCopierConfig } from '../interface';
 import { getContext } from './context';
 import './strategies'; // 引入所有策略以注册到 strategyRegistry
@@ -130,6 +130,7 @@ defer(() =>
                 }),
                 retry({ delay: 1000 }),
                 repeat({ delay: 1000 }),
+                mergeWith(defer(() => terminal.channel.subscribeChannel('quote', productKey))),
                 tap({
                   subscribe: () => {
                     console.info(
