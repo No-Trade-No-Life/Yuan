@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-trade-copier
 
-This log was last generated on Wed, 15 Oct 2025 17:40:04 GMT and should not be manually modified.
+This log was last generated on Thu, 16 Oct 2025 06:30:10 GMT and should not be manually modified.
+
+## 0.11.6
+Thu, 16 Oct 2025 06:30:10 GMT
+
+### Patches
+
+- fix MULTI_ORDER_MAKER_BY_DIRECTION
 
 ## 0.11.5
 Wed, 15 Oct 2025 17:40:04 GMT
