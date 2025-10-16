@@ -199,7 +199,7 @@ describe('MULTI_ORDER_MAKER_BY_DIRECTION', () => {
           account_id: 'test-account',
           product_id: 'product',
           order_direction: 'OPEN_LONG',
-          price: 99.5,
+          price: 99,
           volume: 0.5,
           traded_volume: 0.2,
         }, // 部分成交
@@ -208,7 +208,7 @@ describe('MULTI_ORDER_MAKER_BY_DIRECTION', () => {
           account_id: 'test-account',
           product_id: 'product',
           order_direction: 'OPEN_LONG',
-          price: 99.3,
+          price: 99,
           volume: 0.5,
           traded_volume: 0,
         }, // 未成交
@@ -216,7 +216,7 @@ describe('MULTI_ORDER_MAKER_BY_DIRECTION', () => {
 
       const context = createMockContext({
         actualAccountInfo: {
-          positions: [{ product_id: 'product', direction: 'LONG', volume: 0.2, position_price: 99.5 }],
+          positions: [{ product_id: 'product', direction: 'LONG', volume: 0.2, position_price: 99 }],
           orders: existingOrders,
         } as any,
         expectedAccountInfo: {
