@@ -1,8 +1,10 @@
+import { createKeyPair } from '@yuants/utils';
 import { ExtensionConfig, NetworkRequest, STORAGE_KEYS } from '../shared/types.js';
 
 // 默认配置
 const DEFAULT_CONFIG: ExtensionConfig = {
   hostUrl: 'http://localhost:3000',
+  privateKey: createKeyPair().private_key,
   enabled: true,
   networkMonitoring: true,
   contentInjection: true,

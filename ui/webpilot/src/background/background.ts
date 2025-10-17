@@ -1,8 +1,29 @@
-// import { Terminal } from '@yuants/protocol';
-// import { UUID } from '@yuants/utils';
-import { defer, map, Observable, switchMap } from 'rxjs';
+import { setupHandShakeService, Terminal } from '@yuants/protocol';
+import {
+  decryptByPrivateKey,
+  encrypt,
+  formatTime,
+  fromPrivateKey,
+  listWatch,
+  verifyMessage,
+} from '@yuants/utils';
+import { defer, map, Observable } from 'rxjs';
 import { ContentMessage, NetworkRequest } from '../shared/types.js';
 import { getConfig, saveNetworkRequest } from '../storage/storage.js';
+
+function uint8ArrayToBase64(uint8Array: Uint8Array): string {
+  // @ts-ignore
+  if (typeof uint8Array.toBase64 === 'function') {
+    // @ts-ignore
+    return uint8Array.toBase64();
+  }
+
+  // 将 Uint8Array 转换为二进制字符串
+  const binaryString = Array.from(uint8Array, (byte) => String.fromCharCode(byte)).join('');
+
+  // 使用 btoa 编码为 Base64
+  return btoa(binaryString);
+}
 
 // 初始化后台脚本
 chrome.runtime.onInstalled.addListener(() => {
@@ -28,14 +49,6 @@ async function registerUserScript() {
     // 获取已注册的 userScripts
     const registeredScripts = await userScriptsAPI.getScripts();
     console.info('Registered userScripts:', registeredScripts);
-
-    userScriptsAPI.register([
-      {
-        id: 'test',
-        matches: ['*://*/*'],
-        js: [{ code: 'alert("Hi!" + document?.location?.href)' }],
-      },
-    ]);
 
     // 检查是否已经注册过
     const existingScript = registeredScripts.find((script: any) => script.id === 'yuan-unsafe-eval-script');
@@ -94,26 +107,204 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   return true;
 });
 
+const TRUSTED_PUBLIC_KEY = '76Fo6N5gM9cUUdR3hU6vfLY2iXKkt5bffhPuDHr9XKto';
+
 defer(() => getConfig())
   .pipe(
-    map((config) => config.hostUrl),
-    switchMap(
-      (hostUrl) =>
+    map((config) => [config]),
+    listWatch(
+      (config) => config.hostUrl,
+      (config) =>
         new Observable((sub) => {
-          if (hostUrl) {
-            // eval('console.log("Eval is enabled in background script")');
-            // const terminal = new Terminal(hostUrl, {
-            //   terminal_id: `WebPilot/${UUID()}`,
-            //   name: 'WebPilot Extension',
-            // });
-            // terminal.server.provideService<{ script: string }, any>('Eval', {}, async (msg) => {
-            //   const ret = eval(msg.req.script);
-            //   return { res: { code: 0, message: 'OK', data: ret } };
-            // });
-            // sub.next(terminal);
-            // sub.add(() => {
-            //   terminal.dispose();
-            // });
+          if (config.hostUrl) {
+            const keyPair = fromPrivateKey(config.privateKey);
+            const terminal = new Terminal(config.hostUrl, {
+              terminal_id: `WebPilot/${keyPair.public_key}`,
+              name: 'WebPilot Extension Background Script',
+            });
+
+            const mapX25519PublicKeyToSharedKey = setupHandShakeService(terminal, keyPair.private_key);
+
+            Object.assign(globalThis, { mapX25519PublicKeyToSharedKey });
+
+            let ack_seq_id = '';
+
+            terminal.server.provideService<
+              {
+                public_key: string;
+                seq_id: string;
+                signature: string;
+                x25519_public_key: string;
+              },
+              string
+            >(
+              'ListTabs',
+              {
+                type: 'object',
+                required: ['public_key', 'seq_id', 'signature', 'x25519_public_key'],
+                properties: {
+                  public_key: { type: 'string', const: keyPair.public_key },
+                  x25519_public_key: { type: 'string' },
+                  seq_id: { type: 'string' },
+                  signature: { type: 'string' },
+                },
+              },
+              async ({ req }) => {
+                const shared_key = mapX25519PublicKeyToSharedKey.get(req.x25519_public_key);
+
+                if (!shared_key) {
+                  return {
+                    res: {
+                      code: 400,
+                      message: 'No shared key found for the provided x25519_public_key',
+                    },
+                  };
+                }
+
+                const t1 = Date.now();
+                // 验证请求签名
+                const isValid = verifyMessage(req.seq_id, req.signature, TRUSTED_PUBLIC_KEY);
+                if (!isValid) {
+                  return {
+                    res: {
+                      code: 400,
+                      message: 'Invalid signature',
+                    },
+                  };
+                }
+
+                // 新请求的 seq_id 必须大于上次处理的 ack_seq_id
+                if (ack_seq_id && req.seq_id <= ack_seq_id) {
+                  return {
+                    res: {
+                      code: 400,
+                      message: 'seq_id must be greater than previous ack_seq_id',
+                    },
+                  };
+                }
+                ack_seq_id = req.seq_id;
+
+                const t2 = Date.now();
+                const tabs = await chrome.tabs.query({});
+                const data = new TextEncoder().encode(JSON.stringify(tabs));
+                const t3 = Date.now();
+                const _t = await encrypt(data, shared_key);
+                const t4 = Date.now();
+                const encrypted_data = uint8ArrayToBase64(_t);
+
+                const t5 = Date.now();
+
+                console.info(
+                  formatTime(Date.now()),
+                  'ListTabs processed',
+                  `timing: verifySig=${t2 - t1}ms, queryTabs=${t3 - t2}ms, encrypt=${
+                    t4 - t3
+                  }ms, encodeBase64=${t5 - t4}ms`,
+                );
+
+                return {
+                  res: {
+                    code: 0,
+                    message: 'OK',
+                    data: encrypted_data,
+                  },
+                };
+              },
+            );
+
+            const userScriptsAPI = (chrome as any).userScripts;
+
+            terminal.server.provideService<
+              {
+                public_key: string;
+                x25519_public_key: string;
+                signature: string;
+                encrypted_data: string;
+                seq_id: string;
+              },
+              any
+            >(
+              'ExecuteUserScript',
+              {
+                type: 'object',
+                required: ['public_key', 'encrypted_data', 'seq_id', 'signature', 'x25519_public_key'],
+                properties: {
+                  public_key: { type: 'string', const: keyPair.public_key },
+                  x25519_public_key: { type: 'string' },
+                  seq_id: { type: 'string' },
+                  signature: { type: 'string' },
+                  encrypted_data: { type: 'string' },
+                },
+              },
+              async ({ req }) => {
+                const shared_key = mapX25519PublicKeyToSharedKey.get(req.x25519_public_key);
+
+                if (!shared_key) {
+                  return {
+                    res: {
+                      code: 400,
+                      message: 'No shared key found for the provided x25519_public_key',
+                    },
+                  };
+                }
+
+                // 验证请求签名
+                const isValid = verifyMessage(req.seq_id, req.signature, TRUSTED_PUBLIC_KEY);
+                if (!isValid) {
+                  return {
+                    res: {
+                      code: 400,
+                      message: 'Invalid signature',
+                    },
+                  };
+                }
+
+                // 新请求的 seq_id 必须大于上次处理的 ack_seq_id
+                if (ack_seq_id && req.seq_id <= ack_seq_id) {
+                  return {
+                    res: {
+                      code: 400,
+                      message: 'seq_id must be greater than previous ack_seq_id',
+                    },
+                  };
+                }
+                ack_seq_id = req.seq_id;
+
+                const decrypted = decryptByPrivateKey(
+                  new TextEncoder().encode(req.encrypted_data),
+                  keyPair.private_key,
+                );
+
+                if (!decrypted) {
+                  return {
+                    res: {
+                      code: 400,
+                      message: 'Decryption failed',
+                    },
+                  };
+                }
+
+                const execReq = JSON.parse(new TextDecoder().decode(decrypted)) as {
+                  tabId: number;
+                  script: string;
+                };
+
+                const ret = await userScriptsAPI.execute({
+                  target: { tabId: execReq.tabId },
+                  js: [{ code: execReq.script }],
+                });
+
+                const data = uint8ArrayToBase64(
+                  await encrypt(new TextEncoder().encode(JSON.stringify(ret)), shared_key),
+                );
+
+                return { res: { code: 0, message: 'OK', data: data } };
+              },
+            );
+
+            sub.add(() => {
+              terminal.dispose();
+            });
           }
         }),
     ),

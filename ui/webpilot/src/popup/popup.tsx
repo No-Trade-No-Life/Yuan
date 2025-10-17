@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import { createKeyPair } from '@yuants/utils';
+import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ExtensionConfig } from '../shared/types.js';
-import { getConfig, saveConfig, getNetworkRequests, clearNetworkRequests } from '../storage/storage.js';
+import { clearNetworkRequests, getConfig, getNetworkRequests, saveConfig } from '../storage/storage.js';
 
 // eval('console.log("Eval is enabled in popup script")');
 
 const Popup: React.FC = () => {
   const [config, setConfig] = useState<ExtensionConfig>({
     hostUrl: '',
+    privateKey: createKeyPair().private_key,
     enabled: true,
     networkMonitoring: true,
     contentInjection: true,
