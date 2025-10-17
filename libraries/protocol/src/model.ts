@@ -1,4 +1,3 @@
-import { ValidateFunction } from 'ajv';
 import { JSONSchema7 } from 'json-schema';
 import { Observable, ObservableInput } from 'rxjs';
 
@@ -194,7 +193,7 @@ export interface IServiceInfoServerSide {
   handler: IServiceHandler;
   options: IServiceOptions;
   // cache the compiled validator
-  validator: ValidateFunction;
+  validator: (req: unknown) => boolean;
 }
 
 /**
@@ -204,7 +203,7 @@ export interface IServiceCandidateClientSide {
   service_id: string;
   serviceInfo: IServiceInfo;
   terminal_id: string;
-  validator?: ValidateFunction;
+  validator?: (req: unknown) => boolean;
 }
 
 /**

@@ -1,6 +1,5 @@
 import { ValueType } from '@opentelemetry/api';
 import { formatTime, UUID } from '@yuants/utils';
-import Ajv from 'ajv';
 import { JSONSchema7 } from 'json-schema';
 import {
   BehaviorSubject,
@@ -23,6 +22,7 @@ import {
   IServiceOptions,
   ITerminalMessage,
 } from './model';
+import { createValidator } from './schema';
 import { Terminal } from './terminal';
 
 // 1. Initialize: create a RequestContext
@@ -166,7 +166,7 @@ export class TerminalServer {
       serviceInfo,
       handler: handler as any,
       options: options || {},
-      validator: new Ajv({ strict: false, strictSchema: false }).compile(requestSchema),
+      validator: createValidator(requestSchema),
     };
     // update service object
     this.addService(service);

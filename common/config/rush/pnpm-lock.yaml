@@ -2097,6 +2097,7 @@ importers:
 
   ../../libraries/protocol:
     specifiers:
+      '@cfworker/json-schema': ~4.1.1
       '@microsoft/api-extractor': ~7.30.0
       '@opentelemetry/api': ~1.9.0
       '@opentelemetry/exporter-prometheus': ~0.200.0
@@ -2121,6 +2122,7 @@ importers:
       url: ~0.11.0
       ws: ~8.11.0
     dependencies:
+      '@cfworker/json-schema': 4.1.1
       '@opentelemetry/api': 1.9.0
       '@opentelemetry/exporter-prometheus': 0.200.0_@opentelemetry+api@1.9.0
       '@opentelemetry/sdk-metrics': 2.0.0_@opentelemetry+api@1.9.0
@@ -5666,6 +5668,10 @@ packages:
   /@canvas/image-data/1.0.0:
     resolution: {integrity: sha512-BxOqI5LgsIQP1odU5KMwV9yoijleOPzHL18/YvNqF9KFSGF2K/DLlYAbDQsWqd/1nbaFuSkYD/191dpMtNh4vw==}
     dev: true
+
+  /@cfworker/json-schema/4.1.1:
+    resolution: {integrity: sha512-gAmrUZSGtKc3AiBL71iNWxDsyUC5uMaKKGdvzYsBoTW/xi42JQHl7eKV2OYzCUqvc+D2RCcf7EXY2iCyFIk6og==}
+    dev: false
 
   /@colors/colors/1.5.0:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
