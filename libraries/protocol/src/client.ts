@@ -1,5 +1,4 @@
 import { formatTime, UUID } from '@yuants/utils';
-import Ajv from 'ajv';
 import {
   defer,
   filter,
@@ -17,6 +16,7 @@ import {
   timeout,
 } from 'rxjs';
 import { IResponse, IServiceCandidateClientSide, ITerminalMessage } from './model';
+import { createValidator } from './schema';
 import { Terminal } from './terminal';
 
 /**
@@ -56,9 +56,7 @@ export class TerminalClient {
     const result: string[] = [];
     for (const candidate of candidates.values()) {
       // ISSUE: Ajv is very slow and cause a lot CPU utilization, so we must cache the compiled validator
-      candidate.validator ??= new Ajv({ strict: false, strictSchema: false }).compile(
-        candidate.serviceInfo.schema,
-      );
+      candidate.validator ??= createValidator(candidate.serviceInfo.schema);
       if (candidate.validator(req)) {
         result.push(candidate.terminal_id);
       }

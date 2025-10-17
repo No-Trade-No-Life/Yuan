@@ -11,7 +11,6 @@ import { Observable } from 'rxjs';
 import { ObservableInput } from 'rxjs';
 import { Registry } from '@yuants/prometheus-client';
 import { Subject } from 'rxjs';
-import { ValidateFunction } from 'ajv';
 
 // @public
 export function createConnectionJson<T = any>(URL: string): IConnection<T>;
@@ -48,7 +47,7 @@ export interface IServiceCandidateClientSide {
     // (undocumented)
     terminal_id: string;
     // (undocumented)
-    validator?: ValidateFunction;
+    validator?: (req: unknown) => boolean;
 }
 
 // Warning: (ae-internal-missing-underscore) The name "IServiceHandler" should be prefixed with an underscore because the declaration is marked as @internal
@@ -81,7 +80,7 @@ export interface IServiceInfoServerSide {
     // (undocumented)
     serviceInfo: IServiceInfo;
     // (undocumented)
-    validator: ValidateFunction;
+    validator: (req: unknown) => boolean;
 }
 
 // @public
