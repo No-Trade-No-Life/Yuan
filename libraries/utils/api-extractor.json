@@ -398,6 +398,9 @@
       "default": {
         "logLevel": "warning"
         // "addToApiReportFile": false
+      },
+      "tsdoc-escape-greater-than": {
+        "logLevel": "none"
       }
 
       // "tsdoc-link-tag-unescaped-text": {

@@ -151,8 +151,8 @@ export const rateLimitMap =
  * 该操作符专门用于监控数据列表的变化，并自动管理每个项目的处理流程。
  * 当项目被添加到列表时自动启动处理，当项目被移除时自动取消处理。
  *
- * @template T - 输入数据项的类型
- * @template K - 消费者函数返回的 Observable 发出的值的类型
+ * @typeParam T - 输入数据项的类型
+ * @typeParam K - 消费者函数返回的 Observable 发出的值的类型
  *
  * @param keyFunc - 键提取函数，用于为每个数据项生成唯一的标识符
  *                  - 类型: (item: T) => string
@@ -173,7 +173,7 @@ export const rateLimitMap =
  *                     - 示例: (a, b) => JSON.stringify(a) === JSON.stringify(b)
  *                     - 示例: (a, b) => a.updated_at === b.updated_at
  *
- * @returns 返回一个 RxJS 操作符函数，将 Observable<T[]> 转换为 Observable<K>
+ * @returns 返回一个 RxJS 操作符函数，将 `Observable<T[]>` 转换为 `Observable<K>`
  *
  * @example
  * ```typescript
