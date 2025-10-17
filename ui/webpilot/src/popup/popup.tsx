@@ -1,10 +1,8 @@
-import { createKeyPair } from '@yuants/utils';
-import React, { useEffect, useState } from 'react';
+import { createKeyPair, fromPrivateKey } from '@yuants/utils';
+import React, { useEffect, useMemo, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { ExtensionConfig } from '../shared/types.js';
-import { clearNetworkRequests, getConfig, getNetworkRequests, saveConfig } from '../storage/storage.js';
-
-// eval('console.log("Eval is enabled in popup script")');
+import { getConfig, getNetworkRequests, saveConfig } from '../storage/storage.js';
 
 const Popup: React.FC = () => {
   const [config, setConfig] = useState<ExtensionConfig>({
@@ -73,26 +71,6 @@ const Popup: React.FC = () => {
     }
   };
 
-  const handleClearRequests = async () => {
-    try {
-      await clearNetworkRequests();
-      setRequestCount(0);
-      setLastUpdate('-');
-
-      const statusElement = document.getElementById('status');
-      if (statusElement) {
-        statusElement.textContent = '请求记录已清空';
-        statusElement.className = 'status enabled';
-        setTimeout(() => {
-          statusElement.textContent = '';
-          statusElement.className = 'status';
-        }, 2000);
-      }
-    } catch (error) {
-      console.error('Failed to clear requests:', error);
-    }
-  };
-
   const handleInputChange = (field: keyof ExtensionConfig, value: any) => {
     setConfig((prev) => ({
       ...prev,
@@ -100,10 +78,18 @@ const Popup: React.FC = () => {
     }));
   };
 
+  const keyPair = useMemo(() => {
+    try {
+      return fromPrivateKey(config.privateKey);
+    } catch (e) {
+      return null;
+    }
+  }, [config.privateKey]);
+
   return (
     <div>
       {/* 状态显示 */}
-      <div className={`status ${config.enabled ? 'enabled' : 'disabled'}`}>
+      <div id="status" className={`status ${config.enabled ? 'enabled' : 'disabled'}`}>
         {config.enabled ? '扩展已启用' : '扩展已禁用'}
       </div>
 
@@ -119,38 +105,30 @@ const Popup: React.FC = () => {
         />
       </div>
 
-      {/* 功能开关 */}
-      <div className="form-group">
-        <div className="checkbox-group">
-          <input
-            type="checkbox"
-            id="enabled"
-            checked={config.enabled}
-            onChange={(e) => handleInputChange('enabled', e.target.checked)}
-          />
-          <label htmlFor="enabled">启用扩展</label>
-        </div>
-
-        <div className="checkbox-group">
-          <input
-            type="checkbox"
-            id="networkMonitoring"
-            checked={config.networkMonitoring}
-            onChange={(e) => handleInputChange('networkMonitoring', e.target.checked)}
-          />
-          <label htmlFor="networkMonitoring">网络请求监控</label>
-        </div>
-
-        <div className="checkbox-group">
-          <input
-            type="checkbox"
-            id="contentInjection"
-            checked={config.contentInjection}
-            onChange={(e) => handleInputChange('contentInjection', e.target.checked)}
-          />
-          <label htmlFor="contentInjection">内容脚本注入</label>
-        </div>
+      <div>
+        <label htmlFor="publicKey">公钥:</label>
+        <code id="publicKey">{keyPair ? keyPair.public_key : '无效的私钥'}</code>
       </div>
+
+      <div className="form-group">
+        <label htmlFor="hostUrl">ED25519 私钥</label>
+        <input
+          type="password"
+          id="privateKey"
+          value={config.privateKey}
+          onChange={(e) => handleInputChange('privateKey', e.target.value)}
+          placeholder="请输入 ED25519 私钥"
+        />
+      </div>
+
+      <button
+        onClick={() => {
+          const newKeyPair = createKeyPair();
+          handleInputChange('privateKey', newKeyPair.private_key);
+        }}
+      >
+        随机生成新的私钥
+      </button>
 
       {/* 操作按钮 */}
       <div className="form-group">
@@ -158,28 +136,12 @@ const Popup: React.FC = () => {
           {isSaving ? '保存中...' : '保存配置'}
         </button>
       </div>
-
-      <div className="form-group">
-        <button id="clearRequests" className="btn-secondary" onClick={handleClearRequests}>
-          清空请求记录
-        </button>
-      </div>
-
-      {/* 统计信息 */}
-      <div className="stats">
-        <div>
-          网络请求数: <span id="requestCount">{requestCount}</span>
-        </div>
-        <div>
-          最后更新: <span id="lastUpdate">{lastUpdate}</span>
-        </div>
-      </div>
     </div>
   );
 };
 
 // 渲染 React 组件
-const container = document.getElementById('status')?.parentElement;
+const container = document.getElementById('app');
 if (container) {
   const root = createRoot(container);
   root.render(<Popup />);
