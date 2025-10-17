@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "WebPilot",
   "version": "1.0.0",
-  "description": "Chrome extension for web content injection and network monitoring",
+  "description": "Chrome extension for AI auto manipulation of web content",
   "permissions": [
     "activeTab",
     "storage",
@@ -17,13 +17,6 @@
     "service_worker": "background.js",
     "type": "module"
   },
-  "content_scripts": [
-    {
-      "matches": ["https://*/*", "http://*/*"],
-      "js": ["content.js"],
-      "run_at": "document_end"
-    }
-  ],
   "action": {
     "default_popup": "popup.html",
     "default_title": "WebPilot"

@@ -13,12 +13,8 @@ export default defineConfig({
       input: {
         // 后台脚本入口
         background: resolve(__dirname, 'src/background/background.ts'),
-        // 内容脚本入口
-        content: resolve(__dirname, 'src/content/content.ts'),
         // 弹窗入口
         popup: resolve(__dirname, 'src/popup/popup.tsx'),
-        // userScript 入口 - 用于运行需要 unsafe-eval 的代码
-        'unsafe-eval-script': resolve(__dirname, 'src/user-scripts/unsafe-eval-script.ts'),
       },
       output: {
         // 输出到 dist 目录，保持原有文件名
