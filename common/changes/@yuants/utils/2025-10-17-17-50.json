@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/utils",
+      "comment": "add comment for listWatch",
+      "type": "none"
+    }
+  ],
+  "packageName": "@yuants/utils"
+}
