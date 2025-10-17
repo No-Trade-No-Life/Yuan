@@ -735,6 +735,10 @@
       "projectFolder": "ui/web"
     },
     {
+      "packageName": "@yuants/ui-webpilot",
+      "projectFolder": "ui/webpilot"
+    },
+    {
       "packageName": "@yuants/data-trade",
       "projectFolder": "libraries/data-trade",
       "shouldPublish": true
