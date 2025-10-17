@@ -1,13 +1,14 @@
 import { setupHandShakeService, Terminal } from '@yuants/protocol';
 import {
   decryptByPrivateKey,
+  encodePath,
   encrypt,
   formatTime,
   fromPrivateKey,
   listWatch,
   verifyMessage,
 } from '@yuants/utils';
-import { defer, map, Observable } from 'rxjs';
+import { defer, map, Observable, repeat, retry } from 'rxjs';
 import { getConfig } from '../storage/storage.js';
 
 function uint8ArrayToBase64(uint8Array: Uint8Array): string {
@@ -33,12 +34,15 @@ const TRUSTED_PUBLIC_KEY = '76Fo6N5gM9cUUdR3hU6vfLY2iXKkt5bffhPuDHr9XKto';
 
 defer(() => getConfig())
   .pipe(
+    retry({ delay: 5000 }),
+    repeat({ delay: 5000 }),
     map((config) => [config]),
     listWatch(
-      (config) => config.hostUrl,
+      (config) => encodePath(config.hostUrl, config.privateKey),
       (config) =>
         new Observable((sub) => {
-          if (config.hostUrl) {
+          console.info(formatTime(Date.now()), 'Applying new config in background script', config);
+          if (config.hostUrl && config.privateKey) {
             const keyPair = fromPrivateKey(config.privateKey);
             const terminal = new Terminal(config.hostUrl, {
               terminal_id: `WebPilot/${keyPair.public_key}`,

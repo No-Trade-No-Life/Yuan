@@ -7,7 +7,6 @@
     <style>
       body {
         width: 400px;
-        min-height: 500px;
         margin: 0;
         padding: 16px;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
@@ -122,47 +121,7 @@
     </style>
   </head>
   <body>
-    <div class="container">
-      <h1>Yuan WebPilot</h1>
-
-      <div id="status" class="status"></div>
-
-      <div class="form-group">
-        <label for="hostUrl">主机地址 URL:</label>
-        <input type="url" id="hostUrl" placeholder="http://localhost:3000" />
-      </div>
-
-      <div class="form-group">
-        <div class="checkbox-group">
-          <input type="checkbox" id="enabled" checked />
-          <label for="enabled">启用扩展</label>
-        </div>
-
-        <div class="checkbox-group">
-          <input type="checkbox" id="networkMonitoring" checked />
-          <label for="networkMonitoring">网络请求监控</label>
-        </div>
-
-        <div class="checkbox-group">
-          <input type="checkbox" id="contentInjection" checked />
-          <label for="contentInjection">内容脚本注入</label>
-        </div>
-      </div>
-
-      <div class="form-group">
-        <button id="saveConfig" class="btn-primary">保存配置</button>
-      </div>
-
-      <div class="form-group">
-        <button id="clearRequests" class="btn-secondary">清空请求记录</button>
-      </div>
-
-      <div id="stats" class="stats">
-        <div>网络请求数: <span id="requestCount">0</span></div>
-        <div>最后更新: <span id="lastUpdate">-</span></div>
-      </div>
-    </div>
-
+    <div id="app"></div>
     <script type="module" src="./popup.js"></script>
   </body>
 </html>
