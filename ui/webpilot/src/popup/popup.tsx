@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client';
 import { ExtensionConfig } from '../shared/types.js';
 import { getConfig, saveConfig, getNetworkRequests, clearNetworkRequests } from '../storage/storage.js';
 
-eval('console.log("Eval is enabled in popup script")');
+// eval('console.log("Eval is enabled in popup script")');
 
 const Popup: React.FC = () => {
   const [config, setConfig] = useState<ExtensionConfig>({
