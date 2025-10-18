@@ -2,6 +2,23 @@
   "name": "@yuants/app-host",
   "entries": [
     {
+      "version": "0.9.6",
+      "tag": "@yuants/app-host_v0.9.6",
+      "date": "Sat, 18 Oct 2025 17:04:03 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix ingress service selector"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.9.5",
       "tag": "@yuants/app-host_v0.9.5",
       "date": "Sat, 18 Oct 2025 04:14:30 GMT",
