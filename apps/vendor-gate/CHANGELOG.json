@@ -2,6 +2,44 @@
   "name": "@yuants/vendor-gate",
   "entries": [
     {
+      "version": "0.3.78",
+      "tag": "@yuants/vendor-gate_v0.3.78",
+      "date": "Sat, 18 Oct 2025 04:14:30 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.46.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/transfer\" to `0.2.22`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.6.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.3.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.13`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.4.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.3.34`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-interest-rate\" to `0.1.31`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.77",
       "tag": "@yuants/vendor-gate_v0.3.77",
       "date": "Thu, 16 Oct 2025 08:27:17 GMT",

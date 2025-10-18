@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Wed, 15 Oct 2025 17:40:04 GMT and should not be manually modified.
+This log was last generated on Sat, 18 Oct 2025 04:14:30 GMT and should not be manually modified.
+
+## 0.46.3
+Sat, 18 Oct 2025 04:14:30 GMT
+
+### Patches
+
+- add compatiability to non unsafe-eval env
 
 ## 0.46.2
 Wed, 15 Oct 2025 17:40:04 GMT
