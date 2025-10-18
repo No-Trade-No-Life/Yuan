@@ -8,7 +8,7 @@ import {
   listWatch,
   verifyMessage,
 } from '@yuants/utils';
-import { defer, map, Observable, repeat, retry } from 'rxjs';
+import { concatMap, defer, map, Observable, repeat, retry, share } from 'rxjs';
 import { getConfig } from '../storage/storage.js';
 
 function uint8ArrayToBase64(uint8Array: Uint8Array): string {
@@ -228,56 +228,69 @@ defer(() => getConfig())
               },
             );
 
+            const network$ = new Observable((sub) => {
+              const cbForRequest = (details: chrome.webRequest.WebRequestBodyDetails) => {
+                sub.next({ type: 'request', payload: details });
+              };
+              chrome.webRequest.onBeforeRequest.addListener(cbForRequest, { urls: ['<all_urls>'] });
+              sub.add(() => {
+                chrome.webRequest.onBeforeRequest.removeListener(cbForRequest);
+              });
+
+              const cbForResponse = (details: chrome.webRequest.WebResponseDetails) => {
+                sub.next({ type: 'response', payload: details });
+              };
+              chrome.webRequest.onCompleted.addListener(cbForResponse, { urls: ['<all_urls>'] });
+              sub.add(() => {
+                chrome.webRequest.onCompleted.removeListener(cbForResponse);
+              });
+
+              const cbForRequestHeader = (details: chrome.webRequest.WebRequestHeadersDetails) => {
+                console.info('Request Headers:', details);
+                sub.next({ type: 'requestHeaders', payload: details });
+              };
+              chrome.webRequest.onBeforeSendHeaders.addListener(
+                cbForRequestHeader,
+                {
+                  urls: ['<all_urls>'],
+                },
+                ['requestHeaders', 'extraHeaders'],
+              );
+              sub.add(() => {
+                chrome.webRequest.onBeforeSendHeaders.removeListener(cbForRequestHeader);
+              });
+
+              const cbForResponseHeader = (details: chrome.webRequest.WebResponseHeadersDetails) => {
+                sub.next({ type: 'responseHeaders', payload: details });
+              };
+              chrome.webRequest.onHeadersReceived.addListener(
+                cbForResponseHeader,
+                {
+                  urls: ['<all_urls>'],
+                },
+                ['responseHeaders', 'extraHeaders'],
+              );
+              sub.add(() => {
+                chrome.webRequest.onHeadersReceived.removeListener(cbForResponseHeader);
+              });
+            }).pipe(
+              //
+              map((event) => new TextEncoder().encode(JSON.stringify(event))),
+              share({ resetOnRefCountZero: true }),
+            );
+
             terminal.channel.publishChannel(
-              'Network',
-              { const: keyPair.public_key },
-              () =>
-                new Observable((sub) => {
-                  const cbForRequest = (details: chrome.webRequest.WebRequestBodyDetails) => {
-                    sub.next({ type: 'request', payload: details });
-                  };
-                  chrome.webRequest.onBeforeRequest.addListener(cbForRequest, { urls: ['<all_urls>'] });
-                  sub.add(() => {
-                    chrome.webRequest.onBeforeRequest.removeListener(cbForRequest);
-                  });
-
-                  const cbForResponse = (details: chrome.webRequest.WebResponseDetails) => {
-                    sub.next({ type: 'response', payload: details });
-                  };
-                  chrome.webRequest.onCompleted.addListener(cbForResponse, { urls: ['<all_urls>'] });
-                  sub.add(() => {
-                    chrome.webRequest.onCompleted.removeListener(cbForResponse);
-                  });
-
-                  const cbForRequestHeader = (details: chrome.webRequest.WebRequestHeadersDetails) => {
-                    console.info('Request Headers:', details);
-                    sub.next({ type: 'requestHeaders', payload: details });
-                  };
-                  chrome.webRequest.onBeforeSendHeaders.addListener(
-                    cbForRequestHeader,
-                    {
-                      urls: ['<all_urls>'],
-                    },
-                    ['requestHeaders', 'extraHeaders'],
-                  );
-                  sub.add(() => {
-                    chrome.webRequest.onBeforeSendHeaders.removeListener(cbForRequestHeader);
-                  });
-
-                  const cbForResponseHeader = (details: chrome.webRequest.WebResponseHeadersDetails) => {
-                    sub.next({ type: 'responseHeaders', payload: details });
-                  };
-                  chrome.webRequest.onHeadersReceived.addListener(
-                    cbForResponseHeader,
-                    {
-                      urls: ['<all_urls>'],
-                    },
-                    ['responseHeaders', 'extraHeaders'],
-                  );
-                  sub.add(() => {
-                    chrome.webRequest.onHeadersReceived.removeListener(cbForResponseHeader);
-                  });
-                }),
+              encodePath('NetworkEvents', keyPair.public_key),
+              {},
+              (x25519_public_key) => {
+                const shared_key = mapX25519PublicKeyToSharedKey.get(x25519_public_key);
+                if (!shared_key) {
+                  throw new Error('No shared key found for the provided x25519_public_key');
+                }
+                return network$.pipe(
+                  concatMap(async (data) => uint8ArrayToBase64(await encrypt(data, shared_key))),
+                );
+              },
             );
 
             sub.add(() => {
