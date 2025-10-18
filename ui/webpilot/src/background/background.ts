@@ -1,5 +1,7 @@
 import { setupHandShakeService, Terminal } from '@yuants/protocol';
 import {
+  decodePath,
+  decrypt,
   decryptByPrivateKey,
   encodePath,
   encrypt,
@@ -23,6 +25,24 @@ function uint8ArrayToBase64(uint8Array: Uint8Array): string {
 
   // 使用 btoa 编码为 Base64
   return btoa(binaryString);
+}
+
+function base64ToUint8Array(base64: string): Uint8Array {
+  // @ts-ignore
+  if (typeof Uint8Array.fromBase64 === 'function') {
+    // @ts-ignore
+    return Uint8Array.fromBase64(base64);
+  }
+
+  // 使用 atob 解码 Base64 为二进制字符串
+  const binaryString = atob(base64);
+
+  // 将二进制字符串转换为 Uint8Array
+  const uint8Array = new Uint8Array(binaryString.length);
+  for (let i = 0; i < binaryString.length; i++) {
+    uint8Array[i] = binaryString.charCodeAt(i);
+  }
+  return uint8Array;
 }
 
 // 初始化后台脚本
@@ -204,10 +224,7 @@ defer(() => getConfig())
               }
               ack_seq_id = req.seq_id;
 
-              const decrypted = decryptByPrivateKey(
-                new TextEncoder().encode(req.encrypted_data),
-                keyPair.private_key,
-              );
+              const decrypted = await decrypt(base64ToUint8Array(req.encrypted_data), shared_key);
 
               if (!decrypted) {
                 return {
@@ -290,7 +307,23 @@ defer(() => getConfig())
           terminal.channel.publishChannel(
             encodePath('NetworkEvents', keyPair.public_key),
             {},
-            (x25519_public_key) => {
+            (channelId) => {
+              const [x25519_public_key, signature] = decodePath(channelId);
+
+              if (!x25519_public_key) {
+                throw new Error('No x25519_public_key provided in channelId[1]');
+              }
+
+              if (!signature) {
+                throw new Error('No signature provided in channelId[2]');
+              }
+
+              // 验证 signature
+              const isValid = verifyMessage(x25519_public_key, signature, trusted_public_key);
+              if (!isValid) {
+                throw new Error('Invalid signature for channel subscription');
+              }
+
               const shared_key = mapX25519PublicKeyToSharedKey.get(x25519_public_key);
               if (!shared_key) {
                 throw new Error('No shared key found for the provided x25519_public_key');
