@@ -3,7 +3,15 @@
   "name": "WebPilot",
   "version": "1.0.0",
   "description": "AI Web Automation",
-  "permissions": ["activeTab", "storage", "webRequest", "webNavigation", "scripting", "userScripts"],
+  "permissions": [
+    "activeTab",
+    "storage",
+    "webRequest",
+    "webNavigation",
+    "scripting",
+    "userScripts",
+    "debugger"
+  ],
   "host_permissions": ["https://*/*", "http://*/*"],
   "background": {
     "service_worker": "background.js",
