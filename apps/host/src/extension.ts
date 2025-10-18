@@ -1,5 +1,6 @@
 import { IExtensionContext, makeDockerEnvs, makeK8sEnvs } from '@yuants/extension';
 export default (context: IExtensionContext) => {
+  const COMPONENT_NAME = 'host';
   context.registerDeployProvider({
     make_json_schema: () => ({
       type: 'object',
@@ -31,7 +32,7 @@ export default (context: IExtensionContext) => {
       },
     }),
     make_docker_compose_file: async (ctx, envCtx) => ({
-      host: {
+      [`${COMPONENT_NAME}-${ctx.key}`]: {
         image: `ghcr.io/no-trade-no-life/app-host:${ctx.version ?? envCtx.version}`,
         ports: [['host', 8888]]
           .filter(([name]) => ctx.network?.port_forward?.[name] !== undefined)
@@ -44,18 +45,20 @@ export default (context: IExtensionContext) => {
         apiVersion: 'apps/v1',
         kind: 'Deployment',
         metadata: {
-          name: 'host',
+          name: `${COMPONENT_NAME}-${ctx.key}`,
           namespace: 'yuan',
           labels: {
             'y.ntnl.io/version': ctx.version ?? envCtx.version,
-            'y.ntnl.io/component': 'host',
+            'y.ntnl.io/component': COMPONENT_NAME,
+            'y.ntnl.io/instance': ctx.key,
           },
         },
         spec: {
           replicas: 1,
           selector: {
             matchLabels: {
-              'y.ntnl.io/component': 'host',
+              'y.ntnl.io/component': COMPONENT_NAME,
+              'y.ntnl.io/instance': ctx.key,
             },
           },
           template: {
@@ -63,7 +66,8 @@ export default (context: IExtensionContext) => {
               annotations: {},
               labels: {
                 'y.ntnl.io/version': ctx.version ?? envCtx.version,
-                'y.ntnl.io/component': 'host',
+                'y.ntnl.io/component': COMPONENT_NAME,
+                'y.ntnl.io/instance': ctx.key,
               },
             },
             spec: {
@@ -92,7 +96,7 @@ export default (context: IExtensionContext) => {
               ],
               containers: [
                 {
-                  name: 'host',
+                  name: COMPONENT_NAME,
                   image: `ghcr.io/no-trade-no-life/app-host:${ctx.version ?? envCtx.version}`,
                   imagePullPolicy: 'IfNotPresent',
                   env: makeK8sEnvs(ctx.env),
@@ -123,11 +127,12 @@ export default (context: IExtensionContext) => {
         apiVersion: 'v1',
         kind: 'Service',
         metadata: {
-          name: 'host',
+          name: `${COMPONENT_NAME}-${ctx.key}`,
           namespace: 'yuan',
           labels: {
             'y.ntnl.io/version': ctx.version ?? envCtx.version,
-            'y.ntnl.io/component': 'host',
+            'y.ntnl.io/component': COMPONENT_NAME,
+            'y.ntnl.io/instance': ctx.key,
           },
         },
         spec: {
@@ -141,7 +146,8 @@ export default (context: IExtensionContext) => {
             }))
             .filter(({ port }) => port != undefined),
           selector: {
-            'y.ntnl.io/component': 'host',
+            'y.ntnl.io/component': COMPONENT_NAME,
+            'y.ntnl.io/instance': ctx.key,
           },
         },
       },
@@ -149,7 +155,7 @@ export default (context: IExtensionContext) => {
         apiVersion: 'networking.k8s.io/v1',
         kind: 'Ingress',
         metadata: {
-          name: 'host',
+          name: `${COMPONENT_NAME}-${ctx.key}`,
           namespace: 'yuan',
           annotations: {
             'cert-manager.io/cluster-issuer': 'letsencrypt-prod', // TODO(wsy): make this a dependent value
@@ -161,7 +167,8 @@ export default (context: IExtensionContext) => {
           },
           labels: {
             'y.ntnl.io/version': ctx.version ?? envCtx.version,
-            'y.ntnl.io/component': 'host',
+            'y.ntnl.io/component': COMPONENT_NAME,
+            'y.ntnl.io/instance': ctx.key,
           },
         },
         spec: {
@@ -197,7 +204,7 @@ export default (context: IExtensionContext) => {
           tls: [
             {
               hosts: Object.values(ctx.network!.backward_proxy ?? {}).map((v) => new URL(v).host),
-              secretName: 'host-tls',
+              secretName: `${COMPONENT_NAME}-${ctx.key}-tls`,
             },
           ],
         },
@@ -207,11 +214,12 @@ export default (context: IExtensionContext) => {
         apiVersion: 'v1',
         kind: 'Secret',
         metadata: {
-          name: `host-config`,
+          name: `${COMPONENT_NAME}-${ctx.key}-config`,
           namespace: 'yuan',
           labels: {
             'y.ntnl.io/version': ctx.version ?? envCtx.version,
-            'y.ntnl.io/component': 'host',
+            'y.ntnl.io/component': COMPONENT_NAME,
+            'y.ntnl.io/instance': ctx.key,
           },
         },
         stringData: {
@@ -227,7 +235,8 @@ export default (context: IExtensionContext) => {
           namespace: 'yuan',
           labels: {
             'y.ntnl.io/version': ctx.version ?? envCtx.version,
-            'y.ntnl.io/component': 'host',
+            'y.ntnl.io/component': COMPONENT_NAME,
+            'y.ntnl.io/instance': ctx.key,
           },
         },
         spec: {
@@ -247,7 +256,8 @@ export default (context: IExtensionContext) => {
           },
           selector: {
             matchLabels: {
-              'y.ntnl.io/component': 'host',
+              'y.ntnl.io/component': COMPONENT_NAME,
+              'y.ntnl.io/instance': ctx.key,
             },
           },
         },
