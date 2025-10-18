@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-aster",
-  "version": "0.3.8",
+  "version": "0.3.9",
   "bin": "lib/cli.js",
   "main": "lib/index.js",
   "files": [
