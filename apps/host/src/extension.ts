@@ -173,7 +173,7 @@ export default (context: IExtensionContext) => {
         },
         spec: {
           ingressClassName: 'nginx',
-          rules: ['host']
+          rules: [`${COMPONENT_NAME}-${ctx.key}`]
             .filter(
               (v) =>
                 ctx.network?.backward_proxy?.[v] !== undefined &&
