@@ -104,32 +104,6 @@ const Popup: React.FC = () => {
           placeholder="http://localhost:3000"
         />
       </div>
-
-      <div>
-        <label htmlFor="publicKey">公钥:</label>
-        <code id="publicKey">{keyPair ? keyPair.public_key : '无效的私钥'}</code>
-      </div>
-
-      <div className="form-group">
-        <label htmlFor="hostUrl">ED25519 私钥</label>
-        <input
-          type="password"
-          id="privateKey"
-          value={config.privateKey}
-          onChange={(e) => handleInputChange('privateKey', e.target.value)}
-          placeholder="请输入 ED25519 私钥"
-        />
-      </div>
-
-      <button
-        onClick={() => {
-          const newKeyPair = createKeyPair();
-          handleInputChange('privateKey', newKeyPair.private_key);
-        }}
-      >
-        随机生成新的私钥
-      </button>
-
       {/* 操作按钮 */}
       <div className="form-group">
         <button id="saveConfig" className="btn-primary" onClick={handleSaveConfig} disabled={isSaving}>
