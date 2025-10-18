@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-host
 
-This log was last generated on Sat, 18 Oct 2025 04:14:30 GMT and should not be manually modified.
+This log was last generated on Sat, 18 Oct 2025 17:04:03 GMT and should not be manually modified.
+
+## 0.9.6
+Sat, 18 Oct 2025 17:04:03 GMT
+
+### Patches
+
+- fix ingress service selector
 
 ## 0.9.5
 Sat, 18 Oct 2025 04:14:30 GMT
