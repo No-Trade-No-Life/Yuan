@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-host
 
-This log was last generated on Sat, 18 Oct 2025 17:04:03 GMT and should not be manually modified.
+This log was last generated on Sat, 18 Oct 2025 17:21:22 GMT and should not be manually modified.
+
+## 0.9.7
+Sat, 18 Oct 2025 17:21:22 GMT
+
+### Patches
+
+- fix svc ports
 
 ## 0.9.6
 Sat, 18 Oct 2025 17:04:03 GMT

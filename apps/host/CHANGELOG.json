@@ -2,6 +2,23 @@
   "name": "@yuants/app-host",
   "entries": [
     {
+      "version": "0.9.7",
+      "tag": "@yuants/app-host_v0.9.7",
+      "date": "Sat, 18 Oct 2025 17:21:22 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix svc ports"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.9.6",
       "tag": "@yuants/app-host_v0.9.6",
       "date": "Sat, 18 Oct 2025 17:04:03 GMT",
