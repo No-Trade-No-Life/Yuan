@@ -34,7 +34,7 @@ export default (context: IExtensionContext) => {
     make_docker_compose_file: async (ctx, envCtx) => ({
       [`${COMPONENT_NAME}-${ctx.key}`]: {
         image: `ghcr.io/no-trade-no-life/app-host:${ctx.version ?? envCtx.version}`,
-        ports: [['host', 8888]]
+        ports: [[`${COMPONENT_NAME}-${ctx.key}`, 8888]]
           .filter(([name]) => ctx.network?.port_forward?.[name] !== undefined)
           .map(([name, targetPort]) => `${ctx.network!.port_forward![name]}:${targetPort}`),
         environment: makeDockerEnvs(ctx.env),
@@ -102,7 +102,7 @@ export default (context: IExtensionContext) => {
                   env: makeK8sEnvs(ctx.env),
                   ports: [
                     {
-                      name: 'host',
+                      name: `${COMPONENT_NAME}-${ctx.key}`,
                       containerPort: 8888,
                       protocol: 'TCP',
                     },
@@ -137,7 +137,7 @@ export default (context: IExtensionContext) => {
         },
         spec: {
           type: 'ClusterIP',
-          ports: ['host']
+          ports: [`${COMPONENT_NAME}-${ctx.key}`]
             .map((name) => ({
               port: ctx.network?.port_forward?.[name],
               targetPort: name,
@@ -231,7 +231,7 @@ export default (context: IExtensionContext) => {
         apiVersion: 'monitoring.coreos.com/v1',
         kind: 'ServiceMonitor',
         metadata: {
-          name: 'host',
+          name: `${COMPONENT_NAME}-${ctx.key}`,
           namespace: 'yuan',
           labels: {
             'y.ntnl.io/version': ctx.version ?? envCtx.version,
@@ -243,7 +243,7 @@ export default (context: IExtensionContext) => {
           endpoints: [
             {
               interval: '30s',
-              port: 'host',
+              port: `${COMPONENT_NAME}-${ctx.key}`,
               path: '/external/prometheus/metrics',
               bearerTokenSecret: {
                 key: 'host_token',
