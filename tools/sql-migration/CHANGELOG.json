@@ -2,6 +2,23 @@
   "name": "@yuants/tool-sql-migration",
   "entries": [
     {
+      "version": "0.3.0",
+      "tag": "@yuants/tool-sql-migration_v0.3.0",
+      "date": "Sun, 19 Oct 2025 13:44:36 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add portal_config"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.6",
       "tag": "@yuants/tool-sql-migration_v0.2.6",
       "date": "Sat, 18 Oct 2025 04:14:30 GMT",

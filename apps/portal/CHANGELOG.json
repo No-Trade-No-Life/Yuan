@@ -2,6 +2,23 @@
   "name": "@yuants/app-portal",
   "entries": [
     {
+      "version": "0.2.0",
+      "tag": "@yuants/app-portal_v0.2.0",
+      "date": "Sun, 19 Oct 2025 13:44:36 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "rewrite and support filter schema and external terminal disposing"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.55",
       "tag": "@yuants/app-portal_v0.1.55",
       "date": "Sat, 18 Oct 2025 04:14:30 GMT",

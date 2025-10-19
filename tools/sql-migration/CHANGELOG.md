@@ -1,6 +1,13 @@
 # Change Log - @yuants/tool-sql-migration
 
-This log was last generated on Sat, 18 Oct 2025 04:14:30 GMT and should not be manually modified.
+This log was last generated on Sun, 19 Oct 2025 13:44:36 GMT and should not be manually modified.
+
+## 0.3.0
+Sun, 19 Oct 2025 13:44:36 GMT
+
+### Minor changes
+
+- add portal_config
 
 ## 0.2.6
 Sat, 18 Oct 2025 04:14:30 GMT
