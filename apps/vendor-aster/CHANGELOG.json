@@ -2,6 +2,47 @@
   "name": "@yuants/vendor-aster",
   "entries": [
     {
+      "version": "0.3.13",
+      "tag": "@yuants/vendor-aster_v0.3.13",
+      "date": "Sun, 19 Oct 2025 22:06:19 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.48.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.6.7`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.3.38`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.17`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.4.6`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-ohlc\" to `0.4.9`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.3.5`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-interest-rate\" to `0.1.35`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/transfer\" to `0.2.26`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.12",
       "tag": "@yuants/vendor-aster_v0.3.12",
       "date": "Sun, 19 Oct 2025 21:27:23 GMT",
