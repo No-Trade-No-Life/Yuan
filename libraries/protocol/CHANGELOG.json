@@ -2,6 +2,23 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.48.0",
+      "tag": "@yuants/protocol_v0.48.0",
+      "date": "Sun, 19 Oct 2025 21:27:23 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add security module"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.47.0",
       "tag": "@yuants/protocol_v0.47.0",
       "date": "Sun, 19 Oct 2025 18:33:32 GMT",
