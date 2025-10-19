@@ -4,6 +4,7 @@
 
 ```ts
 
+import { IEd25519KeyPair } from '@yuants/utils';
 import { JSONSchema7 } from 'json-schema';
 import { MeterProvider } from '@opentelemetry/sdk-metrics';
 import { MetricReader } from '@opentelemetry/sdk-metrics';
@@ -145,7 +146,7 @@ export const MetricsMeterProvider: MeterProvider;
 // @public
 export const PromRegistry: Registry;
 
-// @public
+// @public @deprecated
 export const requestSharedKey: (terminal: Terminal, ed25519_public_key: string) => Promise<{
     public_key: string;
     private_key: string;
@@ -153,13 +154,14 @@ export const requestSharedKey: (terminal: Terminal, ed25519_public_key: string) 
     shared_key: string;
 }>;
 
-// @public
+// @public @deprecated
 export const setupHandShakeService: (terminal: Terminal, private_key: string) => Map<string, string>;
 
 // @public
 export class Terminal {
     constructor(host_url: string, terminalInfo: ITerminalInfo, options?: {
         verbose?: boolean;
+        private_key?: string;
         disableTerminate?: boolean;
         disableMetrics?: boolean;
         connection?: IConnection<string>;
@@ -175,9 +177,11 @@ export class Terminal {
     host_url: string;
     input$: Subject<ITerminalMessage>;
     isConnected$: Observable<boolean>;
+    keyPair: IEd25519KeyPair;
     // (undocumented)
     options: {
         verbose?: boolean;
+        private_key?: string;
         disableTerminate?: boolean;
         disableMetrics?: boolean;
         connection?: IConnection<string>;
@@ -189,6 +193,10 @@ export class Terminal {
     provideService<TReq = {}, TRes = void, TFrame = void>(method: string, requestSchema: JSONSchema7, handler: IServiceHandler<TReq, TRes, TFrame>, options?: IServiceOptions): {
         dispose: () => void;
     };
+    // Warning: (ae-forgotten-export) The symbol "TerminalSecurity" needs to be exported by the entry point index.d.ts
+    //
+    // (undocumented)
+    security: TerminalSecurity;
     // (undocumented)
     server: TerminalServer;
     terminal_id: string;

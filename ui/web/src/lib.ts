@@ -46,4 +46,4 @@ export const libs = {
   ethers: ethers,
 };
 
-Object.assign(globalThis, { Libs: libs });
+Object.assign(globalThis, { Libs: libs, utils: yuantsUtils, protocol, rxjs });

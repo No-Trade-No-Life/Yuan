@@ -1,6 +1,6 @@
 import '@yuants/deploy';
 import { IDeployment } from '@yuants/deploy';
-import { setupHandShakeService, Terminal } from '@yuants/protocol';
+import { Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import {
   createKeyPair,
@@ -227,7 +227,9 @@ defer(async () => {
     );
   }
 
-  const terminal = new Terminal(process.env.HOST_URL!, {
+  const terminal = new Terminal(
+    process.env.HOST_URL!,
+    {
     terminal_id: encodePath('NodeUnit', nodeKeyPair.public_key),
     name: '@yuants/node-unit',
     tags: {
@@ -236,9 +238,11 @@ defer(async () => {
       node_unit_name: process.env.NODE_UNIT_NAME || hostname(),
       node_unit_version: require('../package.json').version,
     },
-  });
-
-  setupHandShakeService(terminal, nodeKeyPair.private_key);
+    },
+    {
+      private_key: nodeKeyPair.private_key,
+    },
+  );
 
   terminal.server.provideService(
     'NodeUnit/DecryptForChild',
