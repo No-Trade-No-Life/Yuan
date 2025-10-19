@@ -1,6 +1,13 @@
 # Change Log - @yuants/cache
 
-This log was last generated on Sun, 19 Oct 2025 17:48:04 GMT and should not be manually modified.
+This log was last generated on Sun, 19 Oct 2025 23:16:12 GMT and should not be manually modified.
+
+## 0.2.0
+Sun, 19 Oct 2025 23:16:12 GMT
+
+### Minor changes
+
+- add set method to cache
 
 ## 0.1.8
 Sun, 19 Oct 2025 17:48:04 GMT

@@ -2,6 +2,23 @@
   "name": "@yuants/cache",
   "entries": [
     {
+      "version": "0.2.0",
+      "tag": "@yuants/cache_v0.2.0",
+      "date": "Sun, 19 Oct 2025 23:16:12 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add set method to cache"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.8",
       "tag": "@yuants/cache_v0.1.8",
       "date": "Sun, 19 Oct 2025 17:48:04 GMT",

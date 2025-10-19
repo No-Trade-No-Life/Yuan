@@ -1,6 +1,17 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Sun, 19 Oct 2025 22:06:19 GMT and should not be manually modified.
+This log was last generated on Sun, 19 Oct 2025 23:16:12 GMT and should not be manually modified.
+
+## 0.49.0
+Sun, 19 Oct 2025 23:16:12 GMT
+
+### Minor changes
+
+- hide X25519 details
+
+### Patches
+
+- use cache to manage promise
 
 ## 0.48.1
 Sun, 19 Oct 2025 22:06:19 GMT
