@@ -2,8 +2,8 @@ import { Modal, Space } from '@douyinfe/semi-ui';
 import { IServiceInfo } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
-import React, { useMemo } from 'react';
-import { firstValueFrom, from, scan, switchMap } from 'rxjs';
+import React from 'react';
+import { debounceTime, firstValueFrom, from, map, of, scan, switchMap } from 'rxjs';
 import { showForm } from '../Form';
 import { Button, DataView } from '../Interactive';
 import { registerPage } from '../Pages';
@@ -11,28 +11,33 @@ import { terminal$ } from './create-connection';
 import { InlineTerminalId } from './InlineTerminalId';
 
 registerPage('ServiceList', () => {
-  const terminalInfos = useObservableState(
+  const providedServices = useObservableState(
     useObservable(
       () =>
         terminal$.pipe(
           //
-          switchMap((terminal) => terminal?.terminalInfos$ ?? []),
+          switchMap((terminal) =>
+            !terminal
+              ? of([])
+              : terminal.terminalInfos$.pipe(
+                  debounceTime(500),
+                  map((terminalInfos) => {
+                    const ret: { terminal_id: string; serviceInfo: IServiceInfo }[] = [];
+                    if (!terminalInfos) return [];
+                    for (const terminalInfo of terminalInfos)
+                      for (const serviceInfo of Object.values(terminalInfo?.serviceInfo || {})) {
+                        if (!serviceInfo.service_id) continue;
+                        if (ret.find((x) => x.serviceInfo.service_id === serviceInfo.service_id)) continue;
+                        ret.push({ terminal_id: terminalInfo.terminal_id, serviceInfo });
+                      }
+                    return ret;
+                  }),
+                ),
+          ),
         ),
       [],
     ),
   );
-
-  const providedServices = useMemo(() => {
-    const ret: { terminal_id: string; serviceInfo: IServiceInfo }[] = [];
-    if (!terminalInfos) return undefined;
-    for (const terminalInfo of terminalInfos)
-      for (const serviceInfo of Object.values(terminalInfo?.serviceInfo || {})) {
-        if (!serviceInfo.service_id) continue;
-        if (ret.find((x) => x.serviceInfo.service_id === serviceInfo.service_id)) continue;
-        ret.push({ terminal_id: terminalInfo.terminal_id, serviceInfo });
-      }
-    return ret;
-  }, [terminalInfos]);
 
   return (
     <DataView
