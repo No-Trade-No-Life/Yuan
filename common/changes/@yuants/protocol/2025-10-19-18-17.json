@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "support service_id to directly routing service (speed up and avoid ambiguous)",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

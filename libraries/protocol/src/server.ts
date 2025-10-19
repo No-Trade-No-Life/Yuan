@@ -405,25 +405,30 @@ export class TerminalServer {
     });
 
     const { message, output$ } = requestContext;
-    const method = message.method!;
-    // find the service
-    const candidates = this._mapMethodToServiceIds.get(method);
-    if (!candidates) {
-      output$.next({ res: { code: 400, message: 'Bad Request: Method Not Found' } });
-      this._finalizeRequest(requestContext);
-      return;
-    }
     let targetService: IServiceInfoServerSide | undefined;
-    for (const serviceId of candidates) {
-      const serviceInfo = this.mapServiceIdToService.get(serviceId);
-      if (!serviceInfo) continue;
-      if (serviceInfo.validator(message.req!)) {
-        if (targetService) {
-          output$.next({ res: { code: 400, message: 'Bad Request: Ambiguous Service' } });
-          this._finalizeRequest(requestContext);
-          return;
+    if (message.service_id) {
+      // direct service_id routing
+      targetService = this.mapServiceIdToService.get(message.service_id);
+    } else {
+      const method = message.method!;
+      // find the service
+      const candidates = this._mapMethodToServiceIds.get(method);
+      if (!candidates) {
+        output$.next({ res: { code: 400, message: 'Bad Request: Method Not Found' } });
+        this._finalizeRequest(requestContext);
+        return;
+      }
+      for (const serviceId of candidates) {
+        const serviceInfo = this.mapServiceIdToService.get(serviceId);
+        if (!serviceInfo) continue;
+        if (serviceInfo.validator(message.req!)) {
+          if (targetService) {
+            output$.next({ res: { code: 400, message: 'Bad Request: Ambiguous Service' } });
+            this._finalizeRequest(requestContext);
+            return;
+          }
+          targetService = serviceInfo;
         }
-        targetService = serviceInfo;
       }
     }
     if (!targetService) {

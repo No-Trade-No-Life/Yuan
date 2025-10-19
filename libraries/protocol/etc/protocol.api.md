@@ -215,7 +215,7 @@ export class TerminalChannel {
 // @public
 export class TerminalClient {
     constructor(terminal: Terminal);
-    request<TReq, TRes = void, TFrame = void>(method: string, target_terminal_id: string, req: TReq): Observable<ITerminalMessage & {
+    request<TReq, TRes = void, TFrame = void>(method: string, target_terminal_id: string, req: TReq, service_id?: string): Observable<ITerminalMessage & {
         res?: IResponse<TRes>;
         frame?: TFrame;
     }>;
@@ -229,6 +229,10 @@ export class TerminalClient {
         res?: IResponse<TRes>;
         frame?: TFrame;
     }>;
+    resolveTargetServices: (method: string, req: ITerminalMessage['req']) => Promise<{
+        terminal_id: string;
+        service_id: string;
+    }[]>;
     resolveTargetTerminalIds: (method: string, req: ITerminalMessage['req']) => Promise<string[]>;
     // (undocumented)
     readonly terminal: Terminal;
