@@ -22,6 +22,7 @@ export * as Interactive from './modules/Interactive';
 export * as Kernel from './modules/Kernel';
 export * as Market from './modules/Market';
 export * as Network from './modules/Network';
+export * as OHLC from './modules/OHLC';
 export * as Order from './modules/Order';
 export * as Pages from './modules/Pages';
 export * as Products from './modules/Products';
