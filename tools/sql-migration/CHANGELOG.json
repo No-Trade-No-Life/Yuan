@@ -2,6 +2,29 @@
   "name": "@yuants/tool-sql-migration",
   "entries": [
     {
+      "version": "0.3.1",
+      "tag": "@yuants/tool-sql-migration_v0.3.1",
+      "date": "Sun, 19 Oct 2025 17:48:04 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.46.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.14`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.9.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.0",
       "tag": "@yuants/tool-sql-migration_v0.3.0",
       "date": "Sun, 19 Oct 2025 13:44:36 GMT",

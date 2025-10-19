@@ -2,6 +2,29 @@
   "name": "@yuants/utils",
   "entries": [
     {
+      "version": "0.9.0",
+      "tag": "@yuants/utils_v0.9.0",
+      "date": "Sun, 19 Oct 2025 17:48:04 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "update README"
+          },
+          {
+            "comment": "add comment for listWatch"
+          },
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "add base64 utils"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.8.0",
       "tag": "@yuants/utils_v0.8.0",
       "date": "Tue, 16 Sep 2025 15:38:41 GMT",

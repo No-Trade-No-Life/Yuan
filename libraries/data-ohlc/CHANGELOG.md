@@ -1,6 +1,11 @@
 # Change Log - @yuants/data-ohlc
 
-This log was last generated on Sat, 18 Oct 2025 04:14:30 GMT and should not be manually modified.
+This log was last generated on Sun, 19 Oct 2025 17:48:04 GMT and should not be manually modified.
+
+## 0.4.6
+Sun, 19 Oct 2025 17:48:04 GMT
+
+_Version update only_
 
 ## 0.4.5
 Sat, 18 Oct 2025 04:14:30 GMT

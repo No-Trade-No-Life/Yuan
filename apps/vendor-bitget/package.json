@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-bitget",
-  "version": "0.5.28",
+  "version": "0.5.29",
   "bin": "lib/cli.js",
   "main": "lib/index.js",
   "files": [
