@@ -14,6 +14,8 @@ export interface ICache<T> {
     // (undocumented)
     query: (key: string, force_update?: boolean) => Promise<T | undefined>;
     // (undocumented)
+    set: (key: string, data: T) => void;
+    // (undocumented)
     stats: Record<string, number>;
 }
 

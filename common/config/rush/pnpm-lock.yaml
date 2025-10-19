@@ -2110,6 +2110,7 @@ importers:
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
       '@types/simple-peer': ~9.11.8
+      '@yuants/cache': workspace:*
       '@yuants/prometheus-client': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
@@ -2127,6 +2128,7 @@ importers:
       '@opentelemetry/exporter-prometheus': 0.200.0_@opentelemetry+api@1.9.0
       '@opentelemetry/sdk-metrics': 2.0.0_@opentelemetry+api@1.9.0
       '@roamhq/wrtc': 0.8.0
+      '@yuants/cache': link:../cache
       '@yuants/prometheus-client': link:../prometheus-client
       '@yuants/utils': link:../utils
       ajv: 8.12.0
@@ -18191,7 +18193,7 @@ packages:
       pretty-format: 29.6.3
       slash: 3.0.0
       strip-json-comments: 3.1.1
-      ts-node: 10.9.2_24c227b0eb5752a64240dae09531dbef
+      ts-node: 10.9.2_a718138a4c76ef7ef00ec6bb7815892b
     transitivePeerDependencies:
       - babel-plugin-macros
       - supports-color

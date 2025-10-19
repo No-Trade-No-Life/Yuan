@@ -1,11 +1,8 @@
 import { Terminal } from '@yuants/protocol';
 import {
   decodeBase64,
-  decodePath,
-  decrypt,
   encodeBase64,
   encodePath,
-  encrypt,
   formatTime,
   fromPrivateKey,
   listWatch,
@@ -58,35 +55,21 @@ defer(() => getConfig())
 
           terminal.server.provideService<
             {
-              public_key: string;
               seq_id: string;
               signature: string;
-              x25519_public_key: string;
             },
             string
           >(
             encodePath('ListTabs', keyPair.public_key),
             {
               type: 'object',
-              required: ['seq_id', 'signature', 'x25519_public_key'],
+              required: ['seq_id', 'signature'],
               properties: {
-                x25519_public_key: { type: 'string' },
                 seq_id: { type: 'string' },
                 signature: { type: 'string' },
               },
             },
             async ({ req }) => {
-              const shared_key = terminal.security.mapX25519PublicKeyToSharedKey.get(req.x25519_public_key);
-
-              if (!shared_key) {
-                return {
-                  res: {
-                    code: 400,
-                    message: 'No shared key found for the provided x25519_public_key',
-                  },
-                };
-              }
-
               const t1 = Date.now();
               // 验证请求签名
               const isValid = verifyMessage(req.seq_id, req.signature, trusted_public_key);
@@ -114,7 +97,7 @@ defer(() => getConfig())
               const tabs = await chrome.tabs.query({});
               const data = new TextEncoder().encode(JSON.stringify(tabs));
               const t3 = Date.now();
-              const _t = await encrypt(data, shared_key);
+              const _t = await terminal.security.encryptDataWithRemotePublicKey(data, trusted_public_key);
               const t4 = Date.now();
               const encrypted_data = encodeBase64(_t);
 
@@ -142,8 +125,6 @@ defer(() => getConfig())
 
           terminal.server.provideService<
             {
-              public_key: string;
-              x25519_public_key: string;
               signature: string;
               encrypted_data: string;
               seq_id: string;
@@ -153,26 +134,14 @@ defer(() => getConfig())
             encodePath('ExecuteUserScript', keyPair.public_key),
             {
               type: 'object',
-              required: ['x25519_public_key', 'seq_id', 'signature', 'encrypted_data'],
+              required: ['seq_id', 'signature', 'encrypted_data'],
               properties: {
-                x25519_public_key: { type: 'string' },
                 seq_id: { type: 'string' },
                 signature: { type: 'string' },
                 encrypted_data: { type: 'string' },
               },
             },
             async ({ req }) => {
-              const shared_key = terminal.security.mapX25519PublicKeyToSharedKey.get(req.x25519_public_key);
-
-              if (!shared_key) {
-                return {
-                  res: {
-                    code: 400,
-                    message: 'No shared key found for the provided x25519_public_key',
-                  },
-                };
-              }
-
               // 验证请求签名
               const isValid = verifyMessage(req.seq_id, req.signature, trusted_public_key);
               if (!isValid) {
@@ -195,7 +164,10 @@ defer(() => getConfig())
               }
               ack_seq_id = req.seq_id;
 
-              const decrypted = await decrypt(decodeBase64(req.encrypted_data), shared_key);
+              const decrypted = await terminal.security.decryptDataWithRemotePublicKey(
+                decodeBase64(req.encrypted_data),
+                trusted_public_key,
+              );
 
               if (!decrypted) {
                 return {
@@ -217,7 +189,10 @@ defer(() => getConfig())
               });
 
               const data = encodeBase64(
-                await encrypt(new TextEncoder().encode(JSON.stringify(ret)), shared_key),
+                await terminal.security.encryptDataWithRemotePublicKey(
+                  new TextEncoder().encode(JSON.stringify(ret)),
+                  trusted_public_key,
+                ),
               );
 
               return { res: { code: 0, message: 'OK', data: data } };
@@ -272,35 +247,17 @@ defer(() => getConfig())
           }).pipe(
             //
             map((event) => new TextEncoder().encode(JSON.stringify(event))),
+            // 加密
+            concatMap(async (data) =>
+              encodeBase64(await terminal.security.encryptDataWithRemotePublicKey(data, trusted_public_key)),
+            ),
             share({ resetOnRefCountZero: true }),
           );
 
           terminal.channel.publishChannel(
             encodePath('NetworkEvents', keyPair.public_key),
             {},
-            (channelId) => {
-              const [x25519_public_key, signature] = decodePath(channelId);
-
-              if (!x25519_public_key) {
-                throw new Error('No x25519_public_key provided in channelId[1]');
-              }
-
-              if (!signature) {
-                throw new Error('No signature provided in channelId[2]');
-              }
-
-              // 验证 signature
-              const isValid = verifyMessage(x25519_public_key, signature, trusted_public_key);
-              if (!isValid) {
-                throw new Error('Invalid signature for channel subscription');
-              }
-
-              const shared_key = terminal.security.mapX25519PublicKeyToSharedKey.get(x25519_public_key);
-              if (!shared_key) {
-                throw new Error('No shared key found for the provided x25519_public_key');
-              }
-              return network$.pipe(concatMap(async (data) => encodeBase64(await encrypt(data, shared_key))));
-            },
+            () => network$,
           );
 
           sub.add(() => {

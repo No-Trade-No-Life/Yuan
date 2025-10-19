@@ -4,6 +4,7 @@
 
 ```ts
 
+import { ICache } from '@yuants/cache';
 import { IEd25519KeyPair } from '@yuants/utils';
 import { JSONSchema7 } from 'json-schema';
 import { MeterProvider } from '@opentelemetry/sdk-metrics';
