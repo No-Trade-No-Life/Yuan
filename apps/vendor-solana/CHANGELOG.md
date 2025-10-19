@@ -1,6 +1,11 @@
 # Change Log - @yuants/vendor-solana
 
-This log was last generated on Sun, 19 Oct 2025 22:06:20 GMT and should not be manually modified.
+This log was last generated on Sun, 19 Oct 2025 23:16:12 GMT and should not be manually modified.
+
+## 0.1.101
+Sun, 19 Oct 2025 23:16:12 GMT
+
+_Version update only_
 
 ## 0.1.100
 Sun, 19 Oct 2025 22:06:20 GMT

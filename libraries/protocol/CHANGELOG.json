@@ -2,6 +2,33 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.49.0",
+      "tag": "@yuants/protocol_v0.49.0",
+      "date": "Sun, 19 Oct 2025 23:16:12 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "hide X25519 details"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "use cache to manage promise"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/cache\" to `0.2.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.48.1",
       "tag": "@yuants/protocol_v0.48.1",
       "date": "Sun, 19 Oct 2025 22:06:19 GMT",

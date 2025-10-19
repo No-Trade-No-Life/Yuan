@@ -2,6 +2,23 @@
   "name": "@yuants/app-openai",
   "entries": [
     {
+      "version": "0.1.22",
+      "tag": "@yuants/app-openai_v0.1.22",
+      "date": "Sun, 19 Oct 2025 23:16:12 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.49.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.21",
       "tag": "@yuants/app-openai_v0.1.21",
       "date": "Sun, 19 Oct 2025 22:06:19 GMT",
