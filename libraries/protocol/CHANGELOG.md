@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Sun, 19 Oct 2025 18:33:32 GMT and should not be manually modified.
+This log was last generated on Sun, 19 Oct 2025 21:27:23 GMT and should not be manually modified.
+
+## 0.48.0
+Sun, 19 Oct 2025 21:27:23 GMT
+
+### Minor changes
+
+- add security module
 
 ## 0.47.0
 Sun, 19 Oct 2025 18:33:32 GMT
