@@ -7,6 +7,7 @@ import { defer, repeat, retry, timer } from 'rxjs';
 export interface ICache<T> {
   stats: Record<string, number>;
   get: (key: string) => T | undefined;
+  set: (key: string, data: T) => void;
   query: (key: string, force_update?: boolean) => Promise<T | undefined>;
 }
 
@@ -101,6 +102,12 @@ export const createCache = <T>(
       // Check if the key has expired
       if (checkExpired(key)) return undefined;
       return mapKeyToData[key];
+    },
+    set: (key: string, data: T): void => {
+      mapKeyToData[key] = data;
+      if (options?.expire) {
+        mapKeyToExpireTime[key] = Date.now() + options.expire;
+      }
     },
     query: async (key: string, force_update = false): Promise<T | undefined> => {
       stats.query++;

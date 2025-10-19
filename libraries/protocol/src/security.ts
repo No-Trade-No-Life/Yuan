@@ -1,3 +1,4 @@
+import { createCache } from '@yuants/cache';
 import {
   decrypt,
   deriveSharedKey,
@@ -18,7 +19,7 @@ export class TerminalSecurity {
   /**
    * 保存远程 ED25519 公钥到共享密钥的映射
    */
-  mapRemotePublicKeyToSharedKey = new Map<string, string>();
+  sharedKeyCache = createCache<string>((remote_public_key) => this.requestSharedKey(remote_public_key));
 
   constructor(public readonly terminal: Terminal) {
     setTimeout(() => this._setupHandShakeService());
@@ -53,7 +54,7 @@ export class TerminalSecurity {
 
         const sharedKey = deriveSharedKey(x25519_public_key, localKeyPair.private_key);
 
-        this.mapRemotePublicKeyToSharedKey.set(public_key, sharedKey);
+        this.sharedKeyCache.set(public_key, sharedKey);
 
         const message = `${x25519_public_key}${localKeyPair.public_key}`;
 
@@ -95,7 +96,8 @@ export class TerminalSecurity {
     }
 
     const shared_key = deriveSharedKey(data.x25519_public_key, myPair.private_key);
-    this.mapRemotePublicKeyToSharedKey.set(ed25519_public_key, shared_key);
+
+    return shared_key;
   }
 
   /**
@@ -114,12 +116,12 @@ export class TerminalSecurity {
     // 数据已经加密，说明交换过共享密钥
     try {
       // 乐观估计密钥有效
-      const shared_key = this.mapRemotePublicKeyToSharedKey.get(remote_public_key);
+      const shared_key = this.sharedKeyCache.get(remote_public_key);
       if (!shared_key) throw new Error(`LocalSharedKeyNotFound: remote_public_key=${remote_public_key}`);
       return decrypt(encrypted_data, shared_key);
     } catch (err) {
-      // 可能是密钥无效，重新请求共享密钥 (不阻塞)
-      this.requestSharedKey(remote_public_key);
+      // 可能是密钥无效，重新请求共享密钥 (不阻塞，不抛异常)
+      this.sharedKeyCache.query(remote_public_key, true);
       throw err;
     }
   }
@@ -133,12 +135,8 @@ export class TerminalSecurity {
    * @public
    */
   async encryptDataWithRemotePublicKey(data: Uint8Array, remote_public_key: string): Promise<Uint8Array> {
-    let shared_key = this.mapRemotePublicKeyToSharedKey.get(remote_public_key);
-    if (!shared_key) {
-      // 主动请求共享密钥
-      await this.requestSharedKey(remote_public_key);
-      shared_key = this.mapRemotePublicKeyToSharedKey.get(remote_public_key)!;
-    }
+    const shared_key = await this.sharedKeyCache.query(remote_public_key, false);
+    if (!shared_key) throw new Error(`RemoteSharedKeyNotFound: remote_public_key=${remote_public_key}`);
     return encrypt(data, shared_key);
   }
 }
