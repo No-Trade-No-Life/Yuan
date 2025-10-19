@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-portal",
+      "comment": "rewrite and support filter schema and external terminal disposing",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/app-portal"
+}
