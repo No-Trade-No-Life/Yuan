@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "fix security module init issue",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
