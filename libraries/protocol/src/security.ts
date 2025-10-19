@@ -19,7 +19,11 @@ export class TerminalSecurity {
   mapX25519PublicKeyToSharedKey = new Map<string, string>();
 
   constructor(public readonly terminal: Terminal) {
-    terminal.server.provideService<
+    setTimeout(() => this._setupHandShakeService());
+  }
+
+  private _setupHandShakeService() {
+    this.terminal.server.provideService<
       {
         x25519_public_key: string;
       },
@@ -28,7 +32,7 @@ export class TerminalSecurity {
         signature: string;
       }
     >(
-      encodePath('HandShake', terminal.keyPair.public_key),
+      encodePath('HandShake', this.terminal.keyPair.public_key),
       {
         type: 'object',
         required: ['x25519_public_key'],
@@ -50,7 +54,7 @@ export class TerminalSecurity {
             message: 'OK',
             data: {
               x25519_public_key: localKeyPair.public_key,
-              signature: signMessage(message, terminal.keyPair.private_key),
+              signature: signMessage(message, this.terminal.keyPair.private_key),
             },
           },
         };
