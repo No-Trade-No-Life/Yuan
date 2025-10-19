@@ -1,6 +1,13 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Sun, 19 Oct 2025 17:48:04 GMT and should not be manually modified.
+This log was last generated on Sun, 19 Oct 2025 18:33:32 GMT and should not be manually modified.
+
+## 0.47.0
+Sun, 19 Oct 2025 18:33:32 GMT
+
+### Minor changes
+
+- support service_id to directly routing service (speed up and avoid ambiguous)
 
 ## 0.46.4
 Sun, 19 Oct 2025 17:48:04 GMT
