@@ -2,6 +2,23 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.47.0",
+      "tag": "@yuants/protocol_v0.47.0",
+      "date": "Sun, 19 Oct 2025 18:33:32 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "support service_id to directly routing service (speed up and avoid ambiguous)"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.46.4",
       "tag": "@yuants/protocol_v0.46.4",
       "date": "Sun, 19 Oct 2025 17:48:04 GMT",
