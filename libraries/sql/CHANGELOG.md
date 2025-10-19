@@ -1,6 +1,11 @@
 # Change Log - @yuants/sql
 
-This log was last generated on Sun, 19 Oct 2025 21:27:23 GMT and should not be manually modified.
+This log was last generated on Sun, 19 Oct 2025 22:06:19 GMT and should not be manually modified.
+
+## 0.9.17
+Sun, 19 Oct 2025 22:06:19 GMT
+
+_Version update only_
 
 ## 0.9.16
 Sun, 19 Oct 2025 21:27:23 GMT
