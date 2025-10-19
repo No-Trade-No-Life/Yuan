@@ -7,6 +7,7 @@ import { fromUint8Array, toUint8Array } from 'js-base64';
  * @public
  */
 export const encodeBase64 = (data: Uint8Array): string => {
+  if (!(data instanceof Uint8Array)) throw new TypeError('encodeBase64(data), data must be a Uint8Array');
   // Uint8Array.prototype.toBase64 方法存在时优先使用 (chrome 140+ 和 Node.js 25+ 支持)
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/toBase64
 
@@ -37,6 +38,8 @@ export const encodeBase64 = (data: Uint8Array): string => {
  * @public
  */
 export const decodeBase64 = (data: string): Uint8Array => {
+  if (typeof data !== 'string') throw new TypeError('decodeBase64(data), data must be a string');
+
   // Uint8Array.fromBase64 方法存在时优先使用 (chrome 140+ 和 Node.js 25+ 支持)
   // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Uint8Array/fromBase64
 
