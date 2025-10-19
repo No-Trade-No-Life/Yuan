@@ -2,6 +2,53 @@
   "name": "@yuants/vendor-binance",
   "entries": [
     {
+      "version": "0.6.30",
+      "tag": "@yuants/vendor-binance_v0.6.30",
+      "date": "Sun, 19 Oct 2025 17:48:04 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.46.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.6.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.9.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.3.35`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.14`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.4.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-ohlc\" to `0.4.6`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.3.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-interest-rate\" to `0.1.32`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/transfer\" to `0.2.23`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.25`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.6.29",
       "tag": "@yuants/vendor-binance_v0.6.29",
       "date": "Sat, 18 Oct 2025 04:14:30 GMT",

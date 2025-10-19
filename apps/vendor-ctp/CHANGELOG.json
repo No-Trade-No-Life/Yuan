@@ -2,6 +2,47 @@
   "name": "@yuants/vendor-ctp",
   "entries": [
     {
+      "version": "0.10.8",
+      "tag": "@yuants/vendor-ctp_v0.10.8",
+      "date": "Sun, 19 Oct 2025 17:48:04 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.6.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.3.2`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-quote\" to `0.2.27`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.46.4`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.9.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.14`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.4.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/cache\" to `0.1.8`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/extension\" to `0.2.25`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.10.7",
       "tag": "@yuants/vendor-ctp_v0.10.7",
       "date": "Sat, 18 Oct 2025 04:14:30 GMT",
