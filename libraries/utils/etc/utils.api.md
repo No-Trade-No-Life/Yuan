@@ -27,6 +27,9 @@ export const createKeyPair: () => {
 export const decodeBase58: (data: string) => Uint8Array;
 
 // @public
+export const decodeBase64: (data: string) => Uint8Array;
+
+// @public
 export const decodePath: (path: string) => string[];
 
 // @public
@@ -40,6 +43,9 @@ export const deriveSharedKey: (publicKey: string, privateKey: string) => string;
 
 // @public
 export const encodeBase58: (data: Uint8Array) => string;
+
+// @public
+export const encodeBase64: (data: Uint8Array) => string;
 
 // @public
 export const encodePath: (...params: any[]) => string;
