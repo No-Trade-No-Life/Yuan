@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/utils",
+      "comment": "add base64 utils",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/utils"
+}

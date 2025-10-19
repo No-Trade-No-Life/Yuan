@@ -2296,6 +2296,7 @@ importers:
       date-fns: ~2.30.0
       date-fns-tz: ~2.0.0
       ed2curve: ~0.3.0
+      js-base64: ~3.7.8
       rxjs: ~7.5.6
       tweetnacl: ~1.0.3
       typescript: ~4.7.4
@@ -2304,6 +2305,7 @@ importers:
       date-fns: 2.30.0
       date-fns-tz: 2.0.0_date-fns@2.30.0
       ed2curve: 0.3.0
+      js-base64: 3.7.8
       rxjs: 7.5.7
       tweetnacl: 1.0.3
     devDependencies:
@@ -19013,6 +19015,10 @@ packages:
 
   /jose/6.1.0:
     resolution: {integrity: sha512-TTQJyoEoKcC1lscpVDCSsVgYzUDg/0Bt3WE//WiTPK6uOCQC2KZS4MpugbMWt/zyjkopgZoXhZuCi00gLudfUA==}
+    dev: false
+
+  /js-base64/3.7.8:
+    resolution: {integrity: sha512-hNngCeKxIUQiEUN3GPJOkz4wF/YvdUdbNL9hsBcMQTkKzboD7T/q3OYOuuPZLUE6dBxSGpwhk5mwuDud7JVAow==}
     dev: false
 
   /js-string-escape/1.0.1:

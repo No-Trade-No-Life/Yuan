@@ -1,6 +1,6 @@
-import bs58 from 'bs58';
 import { convertPublicKey, convertSecretKey } from 'ed2curve';
 import { box, sign } from 'tweetnacl';
+import { decodeBase58, encodeBase58 } from './base58';
 /**
  * create a new key pair
  *
@@ -11,7 +11,7 @@ import { box, sign } from 'tweetnacl';
  */
 export const createKeyPair = (): { public_key: string; private_key: string } => {
   const { publicKey, secretKey } = sign.keyPair();
-  return { public_key: bs58.encode(publicKey), private_key: bs58.encode(secretKey) };
+  return { public_key: encodeBase58(publicKey), private_key: encodeBase58(secretKey) };
 };
 
 /**
@@ -34,8 +34,8 @@ export const fromSeed = (seed: Uint8Array): IEd25519KeyPair => {
     throw new Error('Seed must be 32 bytes');
   }
   const pair = sign.keyPair.fromSeed(seed);
-  const public_key = bs58.encode(pair.publicKey);
-  const private_key = bs58.encode(pair.secretKey);
+  const public_key = encodeBase58(pair.publicKey);
+  const private_key = encodeBase58(pair.secretKey);
   return { public_key, private_key };
 };
 
@@ -46,14 +46,14 @@ export const fromSeed = (seed: Uint8Array): IEd25519KeyPair => {
  * @public
  */
 export const fromPrivateKey = (privateKey: string): IEd25519KeyPair => {
-  const buffer = bs58.decode(privateKey);
+  const buffer = decodeBase58(privateKey);
   if (buffer.length !== 64) {
     throw new Error('Invalid private key: wrong size');
   }
   const seed = buffer.slice(0, 32);
   const pair = fromSeed(seed);
   const public_key = pair.public_key;
-  const the_public_key = bs58.encode(buffer.slice(32, 64));
+  const the_public_key = encodeBase58(buffer.slice(32, 64));
   if (public_key !== the_public_key) {
     throw new Error(
       `Invalid private key: public key mismatch: expected ${public_key}, got ${the_public_key}`,
@@ -71,10 +71,10 @@ export const fromPrivateKey = (privateKey: string): IEd25519KeyPair => {
  * @public
  */
 export const signMessage = (message: string, privateKey: string): string => {
-  const secretKeyUint8Array = bs58.decode(privateKey);
+  const secretKeyUint8Array = decodeBase58(privateKey);
   const messageUint8Array = new TextEncoder().encode(message);
   const signedMessage = sign.detached(messageUint8Array, secretKeyUint8Array);
-  return bs58.encode(signedMessage);
+  return encodeBase58(signedMessage);
 };
 
 /**
@@ -88,7 +88,7 @@ export const signMessage = (message: string, privateKey: string): string => {
  */
 export const encryptByPublicKey = (data: Uint8Array, publicKey: string) => {
   const tempKeyPair = box.keyPair();
-  const curvePublicKey = convertPublicKey(bs58.decode(publicKey));
+  const curvePublicKey = convertPublicKey(decodeBase58(publicKey));
   if (!curvePublicKey) throw new Error('Failed to convert public key to curve25519');
   const nonce = crypto.getRandomValues(new Uint8Array(24));
   const sharedKey = box.before(curvePublicKey, tempKeyPair.secretKey);
@@ -108,7 +108,7 @@ export const encryptByPublicKey = (data: Uint8Array, publicKey: string) => {
  * @public
  */
 export const decryptByPrivateKey = (data: Uint8Array, privateKey: string) => {
-  const privateKeyUint8Array = bs58.decode(privateKey);
+  const privateKeyUint8Array = decodeBase58(privateKey);
   const curvePrivateKey = convertSecretKey(privateKeyUint8Array);
   if (!curvePrivateKey) throw new Error('Failed to convert private key to curve25519');
   // data = nonce(24) + publicKey(32) + encryptedData
@@ -128,9 +128,9 @@ export const decryptByPrivateKey = (data: Uint8Array, privateKey: string) => {
  * @public
  */
 export const verifyMessage = (message: string, signature: string, publicKey: string): boolean => {
-  const publicKeyUint8Array = bs58.decode(publicKey);
+  const publicKeyUint8Array = decodeBase58(publicKey);
   const messageUint8Array = new TextEncoder().encode(message);
-  const signatureUint8Array = bs58.decode(signature);
+  const signatureUint8Array = decodeBase58(signature);
   return sign.detached.verify(messageUint8Array, signatureUint8Array, publicKeyUint8Array);
 };
 
@@ -142,7 +142,7 @@ export const verifyMessage = (message: string, signature: string, publicKey: str
  */
 export const generateX25519KeyPair = (): { public_key: string; private_key: string } => {
   const { publicKey, secretKey } = box.keyPair();
-  return { public_key: bs58.encode(publicKey), private_key: bs58.encode(secretKey) };
+  return { public_key: encodeBase58(publicKey), private_key: encodeBase58(secretKey) };
 };
 
 /**
@@ -153,30 +153,10 @@ export const generateX25519KeyPair = (): { public_key: string; private_key: stri
  * @public
  */
 export const deriveSharedKey = (publicKey: string, privateKey: string): string => {
-  const publicKeyUint8Array = bs58.decode(publicKey);
-  const privateKeyUint8Array = bs58.decode(privateKey);
+  const publicKeyUint8Array = decodeBase58(publicKey);
+  const privateKeyUint8Array = decodeBase58(privateKey);
   const sharedKey = box.before(publicKeyUint8Array, privateKeyUint8Array);
-  return bs58.encode(sharedKey);
-};
-
-/**
- * Convert a Uint8Array to a base58 encoded string
- * @param data - the data to encode
- * @returns the base58 encoded string
- * @public
- */
-export const encodeBase58 = (data: Uint8Array): string => {
-  return bs58.encode(data);
-};
-
-/**
- * Convert a base58 encoded string to a Uint8Array
- * @param data - the base58 data to decode
- * @returns the decoded Uint8Array
- * @public
- */
-export const decodeBase58 = (data: string): Uint8Array => {
-  return bs58.decode(data);
+  return encodeBase58(sharedKey);
 };
 
 // isomorphic crypto both in browser and nodejs
@@ -191,7 +171,7 @@ const crypto: typeof import('crypto') = globalThis.crypto || require('crypto');
  * @public
  */
 export const encrypt = async (data: Uint8Array, base58_key: string): Promise<Uint8Array> => {
-  const keyUint8Array = bs58.decode(base58_key);
+  const keyUint8Array = decodeBase58(base58_key);
   const iv = crypto.getRandomValues(new Uint8Array(12)); // 初始化向量
   const theKey = await crypto.subtle.importKey('raw', keyUint8Array, 'AES-GCM', false, [
     'encrypt',
@@ -214,7 +194,7 @@ export const encrypt = async (data: Uint8Array, base58_key: string): Promise<Uin
 export const decrypt = async (data: Uint8Array, base58_key: string): Promise<Uint8Array> => {
   const iv = data.slice(0, 12);
   const encryptedData = data.slice(12);
-  const keyUint8Array = bs58.decode(base58_key);
+  const keyUint8Array = decodeBase58(base58_key);
   const theKey = await crypto.subtle.importKey('raw', keyUint8Array, 'AES-GCM', false, [
     'encrypt',
     'decrypt',
