@@ -64,6 +64,27 @@ export class TerminalClient {
     return result;
   };
 
+  /**
+   * Resolve candidate target services for a request
+   */
+  resolveTargetServices = async (
+    method: string,
+    req: ITerminalMessage['req'],
+  ): Promise<{ terminal_id: string; service_id: string }[]> => {
+    await firstValueFrom(this._generateCandidates$);
+    const candidates = this._mapMethodToServiceIdToCandidateClientSide.get(method);
+    if (!candidates) return [];
+    const result: { terminal_id: string; service_id: string }[] = [];
+    for (const candidate of candidates.values()) {
+      // ISSUE: Ajv is very slow and cause a lot CPU utilization, so we must cache the compiled validator
+      candidate.validator ??= createValidator(candidate.serviceInfo.schema);
+      if (candidate.validator(req)) {
+        result.push({ terminal_id: candidate.terminal_id, service_id: candidate.service_id });
+      }
+    }
+    return result;
+  };
+
   private _generateCandidates$ = new ReplaySubject<void>(1);
 
   /**
@@ -139,7 +160,7 @@ export class TerminalClient {
     method: string,
     req: TReq,
   ): Observable<ITerminalMessage & { res?: IResponse<TRes>; frame?: TFrame }> {
-    return defer(() => this.resolveTargetTerminalIds(method, req)).pipe(
+    return defer(() => this.resolveTargetServices(method, req)).pipe(
       map((arr) => {
         if (arr.length === 0) {
           throw Error(`No terminal available for request: method=${method} req=${JSON.stringify(req)}`);
@@ -147,7 +168,9 @@ export class TerminalClient {
         const target = arr[~~(Math.random() * arr.length)]; // Simple Random Load Balancer
         return target;
       }),
-      mergeMap((target_terminal_id) => this.request<TReq, TRes, TFrame>(method, target_terminal_id, req)),
+      mergeMap((target) =>
+        this.request<TReq, TRes, TFrame>(method, target.terminal_id, req, target.service_id),
+      ),
     );
   }
 
@@ -160,6 +183,7 @@ export class TerminalClient {
     method: string,
     target_terminal_id: string,
     req: TReq,
+    service_id?: string,
   ): Observable<ITerminalMessage & { res?: IResponse<TRes>; frame?: TFrame }> {
     const trace_id = UUID();
     const msg = {
@@ -168,6 +192,7 @@ export class TerminalClient {
       method,
       target_terminal_id,
       source_terminal_id: this.terminal.terminal_id,
+      service_id,
       req,
     };
     const response$ = new Subject<ITerminalMessage>();

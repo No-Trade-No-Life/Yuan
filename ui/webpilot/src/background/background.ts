@@ -1,8 +1,9 @@
 import { setupHandShakeService, Terminal } from '@yuants/protocol';
 import {
+  decodeBase64,
   decodePath,
   decrypt,
-  decryptByPrivateKey,
+  encodeBase64,
   encodePath,
   encrypt,
   formatTime,
@@ -12,38 +13,6 @@ import {
 } from '@yuants/utils';
 import { concatMap, defer, map, Observable, repeat, retry, share } from 'rxjs';
 import { getConfig } from '../storage/storage.js';
-
-function uint8ArrayToBase64(uint8Array: Uint8Array): string {
-  // @ts-ignore
-  if (typeof uint8Array.toBase64 === 'function') {
-    // @ts-ignore
-    return uint8Array.toBase64();
-  }
-
-  // 将 Uint8Array 转换为二进制字符串
-  const binaryString = Array.from(uint8Array, (byte) => String.fromCharCode(byte)).join('');
-
-  // 使用 btoa 编码为 Base64
-  return btoa(binaryString);
-}
-
-function base64ToUint8Array(base64: string): Uint8Array {
-  // @ts-ignore
-  if (typeof Uint8Array.fromBase64 === 'function') {
-    // @ts-ignore
-    return Uint8Array.fromBase64(base64);
-  }
-
-  // 使用 atob 解码 Base64 为二进制字符串
-  const binaryString = atob(base64);
-
-  // 将二进制字符串转换为 Uint8Array
-  const uint8Array = new Uint8Array(binaryString.length);
-  for (let i = 0; i < binaryString.length; i++) {
-    uint8Array[i] = binaryString.charCodeAt(i);
-  }
-  return uint8Array;
-}
 
 // 初始化后台脚本
 chrome.runtime.onInstalled.addListener(() => {
@@ -144,7 +113,7 @@ defer(() => getConfig())
               const t3 = Date.now();
               const _t = await encrypt(data, shared_key);
               const t4 = Date.now();
-              const encrypted_data = uint8ArrayToBase64(_t);
+              const encrypted_data = encodeBase64(_t);
 
               const t5 = Date.now();
 
@@ -224,7 +193,7 @@ defer(() => getConfig())
               }
               ack_seq_id = req.seq_id;
 
-              const decrypted = await decrypt(base64ToUint8Array(req.encrypted_data), shared_key);
+              const decrypted = await decrypt(decodeBase64(req.encrypted_data), shared_key);
 
               if (!decrypted) {
                 return {
@@ -245,7 +214,7 @@ defer(() => getConfig())
                 js: [{ code: execReq.script }],
               });
 
-              const data = uint8ArrayToBase64(
+              const data = encodeBase64(
                 await encrypt(new TextEncoder().encode(JSON.stringify(ret)), shared_key),
               );
 
@@ -328,9 +297,7 @@ defer(() => getConfig())
               if (!shared_key) {
                 throw new Error('No shared key found for the provided x25519_public_key');
               }
-              return network$.pipe(
-                concatMap(async (data) => uint8ArrayToBase64(await encrypt(data, shared_key))),
-              );
+              return network$.pipe(concatMap(async (data) => encodeBase64(await encrypt(data, shared_key))));
             },
           );
 
