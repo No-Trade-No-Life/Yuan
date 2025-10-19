@@ -1,4 +1,4 @@
-import { setupHandShakeService, Terminal } from '@yuants/protocol';
+import { Terminal } from '@yuants/protocol';
 import {
   decodeBase64,
   decodePath,
@@ -41,14 +41,18 @@ defer(() => getConfig())
           }
 
           const keyPair = fromPrivateKey(config.privateKey);
-          const terminal = new Terminal(config.hostUrl, {
-            terminal_id: `WebPilot/${keyPair.public_key}`,
-            name: 'WebPilot Extension Background Script',
-          });
+          const terminal = new Terminal(
+            config.hostUrl,
+            {
+              terminal_id: `WebPilot/${keyPair.public_key}`,
+              name: 'WebPilot Extension Background Script',
+            },
+            {
+              private_key: keyPair.private_key,
+            },
+          );
 
-          const mapX25519PublicKeyToSharedKey = setupHandShakeService(terminal, keyPair.private_key);
-
-          Object.assign(globalThis, { mapX25519PublicKeyToSharedKey });
+          Object.assign(globalThis, { terminal });
 
           let ack_seq_id = '';
 
@@ -61,19 +65,18 @@ defer(() => getConfig())
             },
             string
           >(
-            'ListTabs',
+            encodePath('ListTabs', keyPair.public_key),
             {
               type: 'object',
-              required: ['public_key', 'seq_id', 'signature', 'x25519_public_key'],
+              required: ['seq_id', 'signature', 'x25519_public_key'],
               properties: {
-                public_key: { type: 'string', const: keyPair.public_key },
                 x25519_public_key: { type: 'string' },
                 seq_id: { type: 'string' },
                 signature: { type: 'string' },
               },
             },
             async ({ req }) => {
-              const shared_key = mapX25519PublicKeyToSharedKey.get(req.x25519_public_key);
+              const shared_key = terminal.security.mapX25519PublicKeyToSharedKey.get(req.x25519_public_key);
 
               if (!shared_key) {
                 return {
@@ -147,12 +150,11 @@ defer(() => getConfig())
             },
             any
           >(
-            'ExecuteUserScript',
+            encodePath('ExecuteUserScript', keyPair.public_key),
             {
               type: 'object',
-              required: ['public_key', 'encrypted_data', 'seq_id', 'signature', 'x25519_public_key'],
+              required: ['x25519_public_key', 'seq_id', 'signature', 'encrypted_data'],
               properties: {
-                public_key: { type: 'string', const: keyPair.public_key },
                 x25519_public_key: { type: 'string' },
                 seq_id: { type: 'string' },
                 signature: { type: 'string' },
@@ -160,7 +162,7 @@ defer(() => getConfig())
               },
             },
             async ({ req }) => {
-              const shared_key = mapX25519PublicKeyToSharedKey.get(req.x25519_public_key);
+              const shared_key = terminal.security.mapX25519PublicKeyToSharedKey.get(req.x25519_public_key);
 
               if (!shared_key) {
                 return {
@@ -293,7 +295,7 @@ defer(() => getConfig())
                 throw new Error('Invalid signature for channel subscription');
               }
 
-              const shared_key = mapX25519PublicKeyToSharedKey.get(x25519_public_key);
+              const shared_key = terminal.security.mapX25519PublicKeyToSharedKey.get(x25519_public_key);
               if (!shared_key) {
                 throw new Error('No shared key found for the provided x25519_public_key');
               }

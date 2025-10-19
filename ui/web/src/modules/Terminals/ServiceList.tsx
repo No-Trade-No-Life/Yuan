@@ -73,7 +73,12 @@ registerPage('ServiceList', () => {
                   const value = await showForm(schema, {}, { immediateSubmit: true });
 
                   const a$ = from(
-                    terminal.client.request(service.serviceInfo.method, service.terminal_id, value),
+                    terminal.client.request(
+                      service.serviceInfo.method,
+                      service.terminal_id,
+                      value,
+                      service.serviceInfo.service_id,
+                    ),
                   ).pipe(
                     scan(
                       (acc, x) => [

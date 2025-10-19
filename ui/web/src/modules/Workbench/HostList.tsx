@@ -4,6 +4,7 @@ import {
   IconEdit,
   IconLink,
   IconPlus,
+  IconServer,
   IconShareStroked,
   IconTerminal,
   IconUnlink,
@@ -156,6 +157,9 @@ registerPage('HostList', () => {
         </Button>
         <Button icon={<IconTerminal />} onClick={() => executeCommand('TerminalList')}>
           终端列表
+        </Button>
+        <Button icon={<IconServer />} onClick={() => executeCommand('ServiceList')}>
+          服务列表
         </Button>
         <Button icon={<IconApps />} onClick={() => executeCommand('DeploySettings')}>
           应用部署列表

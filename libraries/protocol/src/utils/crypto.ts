@@ -12,6 +12,9 @@ import { Terminal } from '../terminal';
  * @param terminal - terminal
  * @param private_key - ED25519 private key (base58)
  * @returns map of X25519 public key to shared key
+ *
+ * @deprecated - use TerminalSecurity class instead
+ *
  * @public
  */
 export const setupHandShakeService = (terminal: Terminal, private_key: string) => {
@@ -63,6 +66,9 @@ export const setupHandShakeService = (terminal: Terminal, private_key: string) =
  * Request shared key
  * @param terminal - terminal
  * @param ed25519_public_key - ed25519 public key (base58)
+ *
+ * @deprecated - use TerminalSecurity.requestSharedKey instead
+ *
  * @public
  */
 export const requestSharedKey = async (terminal: Terminal, ed25519_public_key: string) => {

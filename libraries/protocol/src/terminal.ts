@@ -1,4 +1,4 @@
-import { UUID, formatTime } from '@yuants/utils';
+import { IEd25519KeyPair, UUID, createKeyPair, formatTime, fromPrivateKey } from '@yuants/utils';
 import { isNode } from 'browser-or-node';
 import { JSONSchema7 } from 'json-schema';
 import {
@@ -22,7 +22,6 @@ import {
   mergeWith,
   partition,
   repeat,
-  repeatWhen,
   retry,
   share,
   switchMap,
@@ -40,6 +39,7 @@ import { TerminalClient } from './client';
 import { IConnection, createConnectionWs } from './create-connection';
 import { MetricsExporter, MetricsMeterProvider, PromRegistry } from './metrics';
 import { IServiceHandler, IServiceOptions, ITerminalInfo, ITerminalMessage } from './model';
+import { TerminalSecurity } from './security';
 import { TerminalServer } from './server';
 import { inferNodePackageTags } from './tags/inferVersionTags';
 import { getSimplePeerInstance } from './webrtc';
@@ -86,17 +86,26 @@ export class Terminal {
    */
   isConnected$: Observable<boolean>;
 
+  /**
+   * Terminal Key Pair
+   */
+  keyPair: IEd25519KeyPair;
+
   constructor(
     public host_url: string,
     public terminalInfo: ITerminalInfo,
     public options: {
       verbose?: boolean;
+      private_key?: string;
       disableTerminate?: boolean;
       disableMetrics?: boolean;
       connection?: IConnection<string>;
     } = {},
   ) {
     this.terminal_id = this.terminalInfo.terminal_id || UUID();
+
+    this.keyPair = this.options.private_key ? fromPrivateKey(this.options.private_key) : createKeyPair();
+
     const tags: Record<string, string> = {};
     this.terminalInfo = {
       ...terminalInfo,
@@ -107,6 +116,10 @@ export class Terminal {
 
     Object.assign(tags, inferNodePackageTags());
     Object.assign(tags, terminalInfo.tags);
+    // 对外公布 terminal_public_key 标签
+    Object.assign(tags, {
+      terminal_public_key: this.keyPair.public_key,
+    });
 
     // Infer Public IP
     defer(() =>
@@ -123,10 +136,6 @@ export class Terminal {
         takeUntil(this.dispose$),
       )
       .subscribe();
-
-    if (isNode) {
-      this.options.verbose ??= true;
-    }
 
     const url = new URL(host_url);
     url.searchParams.set('terminal_id', this.terminal_id); // make sure terminal_id is in the connection parameters
@@ -167,11 +176,20 @@ export class Terminal {
     if (!HOST_URL) {
       throw new Error('env HOST_URL is not set');
     }
-    return (this._terminal = new Terminal(HOST_URL, {
-      terminal_id: process.env.TERMINAL_ID || `DefaultTerminal/${UUID()}`,
-      name: process.env.TERMINAL_NAME || '',
-      enable_WebRTC: process.env.ENABLE_WEBRTC === 'true',
-    }));
+    return (this._terminal = new Terminal(
+      HOST_URL,
+      {
+        terminal_id: process.env.TERMINAL_ID || `DefaultTerminal/${UUID()}`,
+        name: process.env.TERMINAL_NAME || '',
+        enable_WebRTC: process.env.ENABLE_WEBRTC === 'true',
+      },
+      {
+        verbose: process.env.TERMINAL_LOG_LEVEL ? process.env.TERMINAL_LOG_LEVEL === 'verbose' : isNode,
+        private_key: process.env.TERMINAL_PRIVATE_KEY,
+        disableTerminate: process.env.TERMINAL_DISABLE_TERMINATE === 'true',
+        disableMetrics: process.env.TERMINAL_DISABLE_METRICS === 'true',
+      },
+    ));
   }
 
   private _mapTerminalIdToPeer: Record<
@@ -983,4 +1001,5 @@ export class Terminal {
   server: TerminalServer = new TerminalServer(this);
   client: TerminalClient = new TerminalClient(this);
   channel: TerminalChannel = new TerminalChannel(this);
+  security: TerminalSecurity = new TerminalSecurity(this);
 }
