@@ -412,18 +412,20 @@ provideAccountInfoService(
         });
       }
 
-      if (msg.YdPosition !== 0) {
+      const realYDPosition = msg.Position - msg.TodayPosition;
+
+      if (realYDPosition !== 0) {
         positions.push({
-          position_id: encodePath(product_id, direction, 'TD'),
+          position_id: encodePath(product_id, direction, 'YD'),
           datasource_id: DATASOURCE_ID,
           product_id: product_id,
           direction,
-          volume: msg.YdPosition,
-          free_volume: msg.YdPosition,
+          volume: realYDPosition,
+          free_volume: msg.Position - msg.TodayPosition,
           closable_price: msg.SettlementPrice,
           floating_profit:
             (msg.SettlementPrice - position_price) *
-            msg.YdPosition *
+            realYDPosition *
             value_scale *
             (msg.PosiDirection === TThostFtdcPosiDirectionType.THOST_FTDC_PD_Long ? 1 : -1),
           position_price,
