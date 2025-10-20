@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-ctp
 
-This log was last generated on Sun, 19 Oct 2025 23:16:12 GMT and should not be manually modified.
+This log was last generated on Mon, 20 Oct 2025 06:03:22 GMT and should not be manually modified.
+
+## 0.10.13
+Mon, 20 Oct 2025 06:03:22 GMT
+
+### Patches
+
+- fix yd position
 
 ## 0.10.12
 Sun, 19 Oct 2025 23:16:12 GMT
