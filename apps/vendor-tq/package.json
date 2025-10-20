@@ -18,6 +18,7 @@
     "@yuants/data-ohlc": "workspace:*",
     "@yuants/utils": "workspace:*",
     "@yuants/sql": "workspace:*",
+    "ws": "~8.11.0",
     "rxjs": "~7.5.6"
   },
   "devDependencies": {
@@ -27,6 +28,7 @@
     "@rushstack/heft-node-rig": "~1.10.7",
     "@types/heft-jest": "1.0.3",
     "@types/node": "22",
+    "@types/ws": "~8.5.3",
     "@yuants/extension": "workspace:*",
     "@yuants/tool-kit": "workspace:*",
     "typescript": "~4.7.4"

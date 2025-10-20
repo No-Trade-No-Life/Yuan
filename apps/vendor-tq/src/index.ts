@@ -3,25 +3,24 @@ import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
 import { decodePath, formatTime, UUID } from '@yuants/utils';
 import {
-  catchError,
   defer,
-  delayWhen,
   EMPTY,
   filter,
   firstValueFrom,
-  from,
   map,
   mergeAll,
   mergeMap,
+  mergeWith,
   of,
   repeat,
+  switchMap,
   takeWhile,
   tap,
   timeout,
   toArray,
 } from 'rxjs';
 import { ITQResponse } from './common/tq-datatype';
-import { createConnectionTq } from './common/ws';
+import { useTQ } from './common/ws';
 import './product'; // Import the new product service
 
 const terminal = Terminal.fromNodeEnv();
@@ -31,10 +30,9 @@ const DATASOURCE_ID = 'TQ';
 // const realtimePeriods: Record<string, Observable<IOHLC>> = {};
 const queryChart = (product_id: string, period_in_sec: number, periods_length: number) => {
   const id = UUID();
-  console.info(new Date(), 'QueryChart', id, product_id, period_in_sec, periods_length);
-  return defer(() => of(createConnectionTq())).pipe(
-    delayWhen((conn) => from(conn.connection$)),
-    mergeMap((conn) => {
+  console.info(formatTime(Date.now()), 'QueryChart', id, product_id, period_in_sec, periods_length);
+  return defer(() => useTQ()).pipe(
+    switchMap((conn) => {
       const period_in_ns = period_in_sec * 1e9;
       conn.output$.next({
         aid: 'set_chart',
@@ -44,70 +42,35 @@ const queryChart = (product_id: string, period_in_sec: number, periods_length: n
         view_width: periods_length,
       });
 
-      const loop$ = defer(() => {
-        console.debug(new Date(), 'QueryChart', 'Peek', id);
-        conn.output$.next({ aid: 'peek_message' });
-        return EMPTY;
-      }).pipe(
-        //
-        repeat({ delay: 1000 }),
+      return conn.input$.pipe(
+        // 轮询获取数据
+        mergeWith(
+          defer(() => {
+            conn.output$.next({ aid: 'peek_message' });
+            return EMPTY;
+          }).pipe(
+            //
+            repeat({ delay: 1000 }),
+          ),
+        ),
+        filter((msg): msg is ITQResponse => msg.aid === 'rtn_data'),
+        // 如果 mdhis_more_data 为 true，则继续等待下一条数据
+        takeWhile((msg) => {
+          if (
+            msg.data.find((x) => x.klines) &&
+            msg.data.find((x) => x.charts?.[id])?.mdhis_more_data !== true
+          ) {
+            return false;
+          }
+          return true;
+        }, true),
+        mergeMap((x) => x.data),
+        map((msg) => msg?.klines?.[product_id]?.[period_in_ns]?.data),
+        filter((x): x is Exclude<typeof x, undefined | null> => !!x),
+        map((records) => Object.values(records)),
+        mergeAll(),
+        toArray(),
       );
-      const sub = loop$.subscribe();
-
-      return conn.input$
-        .pipe(
-          //
-          filter((msg): msg is ITQResponse => msg.aid === 'rtn_data'),
-          // 如果 mdhis_more_data 为 true，则继续等待下一条数据
-          takeWhile((msg) => {
-            if (
-              msg.data.find((x) => x.klines) &&
-              msg.data.find((x) => x.charts?.[id])?.mdhis_more_data !== true
-            ) {
-              return false;
-            }
-            return true;
-          }, true),
-          mergeMap((x) => x.data),
-          map((msg) => msg?.klines?.[product_id]?.[period_in_ns]?.data),
-          filter((x): x is Exclude<typeof x, undefined | null> => !!x),
-          map((records) => Object.values(records)),
-        )
-        .pipe(
-          tap({
-            next: (records) => {
-              console.info(new Date(), 'QueryChart', '拉回结果', id, records.length);
-            },
-            finalize: () => {
-              sub.unsubscribe();
-              // cancel chart
-              conn.output$.next({
-                aid: 'set_chart',
-                chart_id: id,
-                ins_list: '',
-                duration: period_in_ns,
-                view_width: 1,
-              });
-              console.info(new Date(), 'QueryChart', 'COMPLETE', id);
-              conn.output$.complete();
-            },
-          }),
-          mergeAll(),
-          toArray(),
-        )
-        .pipe(
-          // ISSUE: 可能会有一些请求没有成功完成任务，为了防止泄漏堆积，加上一个超时，并将轮询和连接中止掉，防止最终被 TQ 封 IP。
-          timeout({
-            meta: `request Timeout for query product_id=${product_id} period_in_sec=${period_in_sec}`,
-            each: 60_000,
-          }),
-          catchError((err) => {
-            console.error(err);
-            sub.unsubscribe();
-            conn.output$.complete();
-            throw err;
-          }),
-        );
     }),
   );
 };
@@ -205,12 +168,10 @@ const queryChart = (product_id: string, period_in_sec: number, periods_length: n
 //     ));
 // })();
 
-defer(() => of(createConnectionTq()))
+defer(() => useTQ())
   .pipe(
-    delayWhen((conn) => from(conn.connection$)),
     tap((conn) => {
-      console.info(new Date(), 'Ctrl', '连接 TQ 服务器成功');
-      conn.output$.complete();
+      console.info(formatTime(Date.now()), 'Ctrl', '连接 TQ 服务器成功', conn.ws.readyState);
     }),
   )
   .subscribe();
@@ -248,7 +209,15 @@ createSeriesProvider<IOHLC>(terminal, {
     const period_in_sec = mapDurationToSec[duration];
     if (!period_in_sec) throw new Error(`Unsupported duration: ${duration}`);
     const count = calcNumPeriods(started_at, period_in_sec);
-    const data = await firstValueFrom(queryChart(product_id, period_in_sec, count));
+    const data = await firstValueFrom(
+      defer(() => queryChart(product_id, period_in_sec, count)).pipe(
+        timeout({
+          meta: `Timeout when querying OHLC for series_id=${series_id} started_at=${started_at}`,
+          each: 30_000,
+        }),
+      ),
+    );
+    console.info(formatTime(Date.now()), 'Collect_OHLC_Complete', series_id, data.length);
 
     return data.map((x) => ({
       series_id,
