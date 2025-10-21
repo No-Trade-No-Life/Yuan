@@ -187,6 +187,8 @@ export class FeishuClient {
       receive_id: user_id,
       receive_id_type: 'user_id',
       msg_type: 'text',
-      content: { text },
+      content: JSON.stringify({ text }),
+      urgent: 'phone',
+      urgent_user_list: [user_id],
     });
 }

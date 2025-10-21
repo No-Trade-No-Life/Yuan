@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-feishu-notifier",
+      "comment": "default alert when host connection lost",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-feishu-notifier"
+}

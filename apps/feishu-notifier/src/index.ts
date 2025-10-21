@@ -4,7 +4,7 @@ import { FeishuClient } from './api';
 
 const APP_ID = process.env.APP_ID!;
 const APP_SECRET = process.env.APP_SECRET!;
-const EMERGENCY_RECEIVER_ID = process.env.EMERGENCY_RECEIVER_ID!;
+const EMERGENCY_RECEIVER_ID = process.env.EMERGENCY_RECEIVER_ID ?? '';
 const terminal = Terminal.fromNodeEnv();
 
 const client = new FeishuClient({
