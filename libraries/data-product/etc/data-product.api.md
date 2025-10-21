@@ -53,6 +53,7 @@ export interface IProductCacheOptions {
 
 // @public
 export interface IQueryProductsRequest {
+    force_update?: boolean;
     market_id?: string;
     product_id_pattern?: string;
 }
