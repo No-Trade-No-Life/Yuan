@@ -18,6 +18,12 @@ export interface IQueryProductsRequest {
   market_id?: string;
 
   /**
+   * Force update the product list
+   * 强制更新品种列表
+   */
+  force_update?: boolean;
+
+  /**
    * Product ID pattern to filter products by
    * 品种ID模式，用于筛选品种
    */
@@ -127,17 +133,7 @@ export function provideQueryProductsService(
 
   // Set up auto refresh if interval is provided
   if (options?.auto_refresh_interval) {
-    defer(async () => {
-      const products = await terminal.client.requestForResponseData<{ datasource_id: string }, IProduct[]>(
-        'QueryProducts',
-        {
-          datasource_id,
-        },
-      );
-      // 或许会从别的终端执行，所以需要更新本地缓存
-      const filteredProducts = products.filter((product) => product.datasource_id === datasource_id);
-      products$.next(filteredProducts);
-    })
+    defer(() => productCache.query('', true))
       .pipe(
         takeUntil(terminal.dispose$),
         repeat({ delay: options.auto_refresh_interval }),
@@ -157,6 +153,10 @@ export function provideQueryProductsService(
           const: datasource_id,
           description: 'Data source ID to filter products by',
         },
+        force_update: {
+          type: 'boolean',
+          description: 'Force update the product list',
+        },
         market_id: {
           type: 'string',
           description: 'Market ID to filter products by',
@@ -168,9 +168,9 @@ export function provideQueryProductsService(
       },
       additionalProperties: false,
     },
-    async () => {
+    async ({ req }) => {
       // Query products from external API with filter conditions
-      const products = await productCache.query('', true);
+      const products = await productCache.query('', req.force_update);
 
       if (!products) throw new Error('Failed to load products');
 

@@ -11,11 +11,9 @@ import {
   mergeAll,
   mergeMap,
   mergeWith,
-  of,
   repeat,
   switchMap,
   takeWhile,
-  tap,
   timeout,
   toArray,
 } from 'rxjs';
@@ -167,14 +165,6 @@ const queryChart = (product_id: string, period_in_sec: number, periods_length: n
 //       shareReplay(1),
 //     ));
 // })();
-
-defer(() => useTQ())
-  .pipe(
-    tap((conn) => {
-      console.info(formatTime(Date.now()), 'Ctrl', '连接 TQ 服务器成功', conn.ws.readyState);
-    }),
-  )
-  .subscribe();
 
 const calcNumPeriods = (start_time: number, period_in_sec: number) => {
   const now = Date.now();
