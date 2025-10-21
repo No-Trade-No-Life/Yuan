@@ -22,7 +22,7 @@ defer(() => terminal.input$)
     catchError(() =>
       from(EMERGENCY_RECEIVER_ID.split(';')).pipe(
         mergeMap((v) =>
-          client.sendFeishuMessage(
+          client.sendTextMessage(
             v,
             `CRITICAL ALERTING: HOST connection lost\nHOST_URL: ${terminal.host_url}`,
           ),
@@ -32,30 +32,31 @@ defer(() => terminal.input$)
   )
   .subscribe();
 
-terminal.server.provideService<{
-  /**
-   * Receiver ID parsed by Transport
-   * 由 Transport 解析的接收者 ID
-   */
-  receiver_id: string;
-  /**
-   * Message content
-   * 消息正文
-   */
-  message: string;
-}>(
-  'Notify',
+terminal.server.provideService<
+  {
+    message_id?: string;
+    user_id?: string;
+    msg_type: string;
+    content: string;
+    uuid?: string;
+    urgent?: string;
+  },
+  {
+    message_id: string;
+  }
+>(
+  'Feishu/Send',
   {
     type: 'object',
-    required: ['type', 'receiver_id', 'message'],
+    required: ['msg_type', 'content'],
     properties: {
-      type: { const: 'feishu' },
-      receiver_id: { type: 'string' },
-      message: { type: 'string' },
+      message_id: { type: 'string' },
+      user_id: { type: 'string' },
+      msg_type: { type: 'string' },
+      content: { type: 'string' },
+      uuid: { type: 'string' },
+      urgent: { type: 'string', enum: ['app', 'sms', 'phone'] },
     },
   },
-  (msg) =>
-    from(client.sendFeishuMessage(msg.req.receiver_id, msg.req.message)).pipe(
-      map(() => ({ res: { code: 0, message: 'OK' } })),
-    ),
+  (msg) => from(client.sendMessage(msg.req)).pipe(map((data) => ({ res: { code: 0, message: 'OK', data } }))),
 );
