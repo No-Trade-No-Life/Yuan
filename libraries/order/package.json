@@ -1,6 +1,6 @@
 {
   "name": "@yuants/order",
-  "version": "0.3.32",
+  "version": "0.3.33",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [
