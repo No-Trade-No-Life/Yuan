@@ -2,6 +2,23 @@
   "name": "@yuants/node-unit",
   "entries": [
     {
+      "version": "0.12.12",
+      "tag": "@yuants/node-unit_v0.12.12",
+      "date": "Tue, 21 Oct 2025 19:14:29 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/secret\" to `0.3.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.12.11",
       "tag": "@yuants/node-unit_v0.12.11",
       "date": "Tue, 21 Oct 2025 18:37:31 GMT",
