@@ -1,6 +1,13 @@
 # Change Log - @yuants/utils
 
-This log was last generated on Sun, 19 Oct 2025 17:48:04 GMT and should not be manually modified.
+This log was last generated on Tue, 21 Oct 2025 11:23:00 GMT and should not be manually modified.
+
+## 0.10.0
+Tue, 21 Oct 2025 11:23:00 GMT
+
+### Minor changes
+
+- add encrypt/decrypt by public/private key async mode
 
 ## 0.9.0
 Sun, 19 Oct 2025 17:48:04 GMT

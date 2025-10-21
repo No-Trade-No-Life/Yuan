@@ -2,6 +2,26 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.49.1",
+      "tag": "@yuants/protocol_v0.49.1",
+      "date": "Tue, 21 Oct 2025 11:23:00 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.10.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/cache\" to `0.2.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.49.0",
       "tag": "@yuants/protocol_v0.49.0",
       "date": "Sun, 19 Oct 2025 23:16:12 GMT",

@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx-web3
 
-This log was last generated on Sun, 19 Oct 2025 23:16:12 GMT and should not be manually modified.
+This log was last generated on Tue, 21 Oct 2025 11:23:00 GMT and should not be manually modified.
+
+## 0.1.17
+Tue, 21 Oct 2025 11:23:00 GMT
+
+### Patches
+
+- remove secret
 
 ## 0.1.16
 Sun, 19 Oct 2025 23:16:12 GMT

@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Tue, 21 Oct 2025 09:05:08 GMT and should not be manually modified.
+This log was last generated on Tue, 21 Oct 2025 11:23:00 GMT and should not be manually modified.
+
+## 0.23.20
+Tue, 21 Oct 2025 11:23:00 GMT
+
+### Patches
+
+- remove secret and cluster mode
 
 ## 0.23.19
 Tue, 21 Oct 2025 09:05:08 GMT
