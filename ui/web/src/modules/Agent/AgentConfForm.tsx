@@ -18,9 +18,9 @@ import {
   Series,
   SeriesDataUnit,
 } from '@yuants/kernel';
-import { ISecret } from '@yuants/secret';
+import { writeSecret } from '@yuants/secret';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
-import { encodeBase58, encryptByPublicKey, formatTime } from '@yuants/utils';
+import { formatTime } from '@yuants/utils';
 import Ajv from 'ajv';
 import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
@@ -402,31 +402,10 @@ registerPage('AgentConfForm', () => {
                 })),
               });
 
-              const encrypted_code = encodeBase58(
-                encryptByPublicKey(new TextEncoder().encode(bundled_code), address),
-              );
-
-              const secrets = await requestSQL<ISecret[]>(
-                terminal,
-                buildInsertManyIntoTableSQL(
-                  [
-                    {
-                      public_data: {},
-                      encrypted_data_base58: encrypted_code,
-                      encryption_key_sha256_base58: address,
-                    },
-                  ],
-                  'secret',
-                  {
-                    returningAll: true,
-                  },
-                ),
-              );
-
-              const theSecret = secrets[0];
+              const secret = await writeSecret(terminal, address, {}, new TextEncoder().encode(bundled_code));
 
               const env = {
-                SECRET_CODE_ID: theSecret.id!,
+                CODE: secret.sign,
                 AGENT_PARAMS: JSON.stringify(agentConf?.agent_params || {}),
                 STARTED_AT: agentConf.start_time ? formatTime(agentConf.start_time) : '',
                 KERNEL_ID: agentConf.kernel_id || '',

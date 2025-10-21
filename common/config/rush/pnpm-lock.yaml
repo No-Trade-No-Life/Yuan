@@ -371,6 +371,7 @@ importers:
       '@yuants/deploy': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
+      '@yuants/secret': workspace:*
       '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
@@ -381,6 +382,7 @@ importers:
       '@yuants/cache': link:../../libraries/cache
       '@yuants/deploy': link:../../libraries/deploy
       '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/secret': link:../../libraries/secret
       '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
       rxjs: 7.5.7

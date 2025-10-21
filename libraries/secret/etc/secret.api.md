@@ -8,36 +8,21 @@ import { Terminal } from '@yuants/protocol';
 
 // @public
 export interface ISecret {
-    created_at: string;
-    encrypted_data_base58: string;
-    encryption_key_sha256_base58: string;
-    id: string;
-    public_data: any;
-    updated_at: string;
+    data: string;
+    reader: string;
+    sign: string;
+    signer: string;
+    tags: Record<string, string>;
 }
 
 // @public
-export const loadSecrets: <T>(ctx: {
-    terminal: Terminal;
-    encryption_key_base58: string;
-    updated_after?: string | undefined;
-    id?: string | undefined;
-    deserialize?: ((data: Uint8Array) => T) | undefined;
-}) => Promise<{
-    secret: ISecret;
-    decrypted_data: T | null;
-    err: any;
-}[]>;
+export const readSecret: (terminal: Terminal, secret: ISecret, reader_private_key?: string) => Promise<Uint8Array>;
 
 // @public
-export const saveSecret: <T>(ctx: {
-    terminal: Terminal;
-    public_data: any;
-    decrypted_data: T;
-    encryption_key_base58: string;
-    serialize?: ((data: T) => Uint8Array) | undefined;
-    id?: string | undefined;
-}) => Promise<ISecret[]>;
+export const setupSecretProxyService: (terminal: Terminal, trusted_public_keys?: Set<string>) => Set<string>;
+
+// @public
+export const writeSecret: (terminal: Terminal, reader: string, tags: Record<string, string>, secret: Uint8Array, signer_private_key?: string) => Promise<ISecret>;
 
 // (No @packageDocumentation comment for this package)
 
