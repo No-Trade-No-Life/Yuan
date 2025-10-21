@@ -22,7 +22,7 @@ defer(() => terminal.input$)
     catchError(() =>
       from(EMERGENCY_RECEIVER_ID.split(';')).pipe(
         mergeMap((v) =>
-          client.sendFeishuMessage(
+          client.sendTextMessage(
             v,
             `CRITICAL ALERTING: HOST connection lost\nHOST_URL: ${terminal.host_url}`,
           ),
@@ -39,6 +39,7 @@ terminal.server.provideService<
     msg_type: string;
     content: string;
     uuid?: string;
+    urgent?: string;
   },
   {
     message_id: string;
@@ -47,18 +48,15 @@ terminal.server.provideService<
   'Feishu/Send',
   {
     type: 'object',
-    required: ['type', 'receiver_id', 'message'],
+    required: ['msg_type', 'content'],
     properties: {
       message_id: { type: 'string' },
       user_id: { type: 'string' },
       msg_type: { type: 'string' },
       content: { type: 'string' },
       uuid: { type: 'string' },
+      urgent: { type: 'string', enum: ['app', 'sms', 'phone'] },
     },
   },
-  (msg) =>
-    defer(() => client.sendMessage(msg.req)).pipe(
-      //
-      map((data) => ({ res: { code: 0, message: 'OK', data } })),
-    ),
+  (msg) => from(client.sendMessage(msg.req)).pipe(map((data) => ({ res: { code: 0, message: 'OK', data } }))),
 );

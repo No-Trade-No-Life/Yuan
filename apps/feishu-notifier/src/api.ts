@@ -7,7 +7,14 @@ export interface SendFeishuMessagePayload {
   msg_type: string;
   content: unknown;
   uuid?: string;
+  urgent?: string;
 }
+
+const URGENT_ENDPOINTS: Record<string, string> = {
+  app: 'urgent_app',
+  sms: 'urgent_sms',
+  phone: 'urgent_phone',
+};
 
 export class FeishuClient {
   constructor(
@@ -57,7 +64,7 @@ export class FeishuClient {
   );
 
   sendMessage = async (payload: SendFeishuMessagePayload): Promise<{ message_id: string }> => {
-    const { message_id, user_id, msg_type, content, uuid } = payload;
+    const { message_id, user_id, msg_type, content, uuid, urgent } = payload;
     console.info(
       formatTime(Date.now()),
       'Feishu/Send',
@@ -65,6 +72,8 @@ export class FeishuClient {
       message_id ?? user_id,
     );
     const token = await firstValueFrom(this.token$);
+
+    let targetMessageId = message_id;
 
     if (message_id) {
       const updateResp: { code: number; msg: string } = (await fetch(
@@ -83,33 +92,61 @@ export class FeishuClient {
         },
       ).then((x) => x.json())) as any;
       if (updateResp.code !== 0) throw updateResp;
-      return { message_id };
-    }
+    } else {
+      if (!user_id) {
+        throw new Error('user_id is required when message_id is not provided');
+      }
 
-    if (!user_id) {
-      throw new Error('user_id is required when message_id is not provided');
-    }
-
-    const sendResp: { code: number; msg: string; data: { message_id: string } } = (await fetch(
-      'https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=user_id',
-      {
-        method: 'POST',
-        body: JSON.stringify({
-          receive_id: user_id,
-          msg_type,
-          content,
-          ...(uuid ? { uuid } : {}),
-        }),
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          charset: 'utf-8',
+      const sendResp: { code: number; msg: string; data: { message_id: string } } = (await fetch(
+        'https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=user_id',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            receive_id: user_id,
+            msg_type,
+            content,
+            ...(uuid ? { uuid } : {}),
+          }),
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            charset: 'utf-8',
+          },
         },
-      },
-    ).then((x) => x.json())) as any;
-    if (sendResp.code !== 0) throw sendResp;
+      ).then((x) => x.json())) as any;
+      if (sendResp.code !== 0) throw sendResp;
 
-    return { message_id: sendResp.data?.message_id };
+      targetMessageId = sendResp.data?.message_id;
+    }
+
+    if (!targetMessageId) {
+      throw new Error('message_id is missing from Feishu response');
+    }
+
+    if (urgent) {
+      if (!user_id) {
+        throw new Error('user_id is required when urgent is specified');
+      }
+      const urgentEndpoint = URGENT_ENDPOINTS[urgent];
+      if (!urgentEndpoint) {
+        throw new Error(`Unsupported urgent type: ${urgent}`);
+      }
+      const urgentResp: { code: number; msg: string } = (await fetch(
+        `https://open.feishu.cn/open-apis/im/v1/messages/${targetMessageId}/${urgentEndpoint}?user_id_type=user_id`,
+        {
+          method: 'PATCH',
+          body: JSON.stringify({ user_id_list: [user_id] }),
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            charset: 'utf-8',
+          },
+        },
+      ).then((x) => x.json())) as any;
+      if (urgentResp.code !== 0) throw urgentResp;
+    }
+
+    return { message_id: targetMessageId };
   };
 
   sendTextMessage = async (user_id: string, text: string) =>
