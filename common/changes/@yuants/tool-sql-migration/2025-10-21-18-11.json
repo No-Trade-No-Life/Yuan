@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/tool-sql-migration",
+      "comment": "rewrite secret",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/tool-sql-migration"
+}

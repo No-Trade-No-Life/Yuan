@@ -1,6 +1,16 @@
 import { Terminal } from '@yuants/protocol';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
-import { decodeBase58, decrypt, encodeBase58, encrypt, sha256 } from '@yuants/utils';
+import {
+  decodeBase64,
+  decryptByPrivateKeyAsync,
+  encodeBase64,
+  encodePath,
+  encryptByPublicKeyAsync,
+  fromPrivateKey,
+  signMessage,
+  verifyMessage,
+} from '@yuants/utils';
+
 /**
  * Arbitrary secret data storage interface
  *
@@ -8,115 +18,155 @@ import { decodeBase58, decrypt, encodeBase58, encrypt, sha256 } from '@yuants/ut
  */
 export interface ISecret {
   /**
-   * Unique identifier for the secret
+   * Signature of the secret record (signer + reader + tags + data) (Primary Key)
    */
-  id: string;
-
+  sign: string;
   /**
-   * Public data associated with the secret, stored as JSON
+   * Public key of the signer of the secret record (Indexed)
    */
-  public_data: any;
-
+  signer: string;
   /**
-   * Encrypted data in base58 format
+   * Public key of the reader authorized to decrypt the secret data (Indexed)
    */
-  encrypted_data_base58: string;
-
+  reader: string;
   /**
-   * SHA-256 hash of the encryption key in base58 format
+   * JSONB object of tags (GIN indexed)
    */
-  encryption_key_sha256_base58: string;
-
+  tags: Record<string, string>;
   /**
-   * Timestamp when the secret was created
+   * Base64 encoded encrypted data
    */
-  created_at: string;
-
-  /**
-   * Timestamp when the secret was last updated (Automatically updated on modification)
-   */
-  updated_at: string;
+  data: string;
 }
 
+const getTagsText = (tags: Record<string, string>) =>
+  Object.entries(tags)
+    .sort(([k1], [k2]) => k1.localeCompare(k2))
+    .map(([k, v]) => `${k}=${v}`)
+    .join('');
+
 /**
- * Saves a secret with public data and encrypted data.
+ * Write a secret to the database
+ * @param terminal - The terminal instance
+ * @param tags - The tags associated with the secret
+ * @param secret - The secret data
+ * @param reader - The public key of the reader
  *
  * @public
  */
-export const saveSecret = async <T>(ctx: {
-  terminal: Terminal;
-  public_data: any;
-  decrypted_data: T;
-  encryption_key_base58: string;
-  serialize?: (data: T) => Uint8Array;
-  id?: string;
-}) => {
-  const encryption_key_sha256 = await sha256(decodeBase58(ctx.encryption_key_base58));
-  const encryption_key_sha256_base58 = encodeBase58(encryption_key_sha256);
+export const writeSecret = async (
+  terminal: Terminal,
+  reader: string,
+  tags: Record<string, string>,
+  secret: Uint8Array,
+  signer_private_key: string = terminal.keyPair.private_key,
+): Promise<ISecret> => {
+  const data = encodeBase64(await encryptByPublicKeyAsync(secret, reader));
+  const tagsText = getTagsText(tags);
+  const signer = terminal.keyPair.public_key;
+  const message = signer + reader + tagsText + data;
+  const signature = signMessage(message, signer_private_key);
 
-  // Use the provided serialize function or default to JSON.stringify
-  const serialize = ctx.serialize || ((data: T) => new TextEncoder().encode(JSON.stringify(data)));
-
-  const encrypted_data = await encrypt(serialize(ctx.decrypted_data), ctx.encryption_key_base58);
-  const encrypted_data_base58 = encodeBase58(encrypted_data);
-
-  const secret: Partial<ISecret> = {
-    public_data: ctx.public_data,
-    encrypted_data_base58,
-    encryption_key_sha256_base58,
+  const record: ISecret = {
+    sign: signature,
+    signer: signer,
+    reader: reader,
+    tags: tags,
+    data: data,
   };
 
-  if (ctx.id) {
-    secret.id = ctx.id;
-  }
-
-  return requestSQL<ISecret[]>(
-    ctx.terminal,
-    buildInsertManyIntoTableSQL([secret], 'secret', { conflictKeys: ['id'], returningAll: true }),
+  await requestSQL(
+    terminal,
+    buildInsertManyIntoTableSQL([record], 'secret', {
+      ignoreConflict: true,
+    }),
   );
+
+  return record;
 };
 
 /**
- *  Loads secrets based on the provided encryption key and optional updated_after timestamp.
+ * Read and decrypt a secret
+ * @param terminal - The terminal instance
+ * @param secret - The secret record to read
+ * @param reader_private_key - The private key of the reader
+ * @returns The decrypted secret data
  *
  * @public
  */
-export const loadSecrets = async <T>(ctx: {
-  terminal: Terminal;
-  encryption_key_base58: string;
-  updated_after?: string;
-  id?: string;
-  deserialize?: (data: Uint8Array) => T;
-}): Promise<Array<{ secret: ISecret; decrypted_data: T | null; err: any }>> => {
-  const encryption_key_sha256 = await sha256(decodeBase58(ctx.encryption_key_base58));
-  const encryption_key_sha256_base58 = encodeBase58(encryption_key_sha256);
-  // Use the provided deserialize function or default to JSON.parse
-  const deserialize = ctx.deserialize || ((data: Uint8Array) => JSON.parse(new TextDecoder().decode(data)));
+export const readSecret = async (
+  terminal: Terminal,
+  secret: ISecret,
+  reader_private_key: string = terminal.keyPair.private_key,
+): Promise<Uint8Array> => {
+  const message = secret.signer + secret.reader + getTagsText(secret.tags) + secret.data;
 
-  const sql =
-    `SELECT * FROM secret WHERE encryption_key_sha256_base58 = ${escapeSQL(encryption_key_sha256_base58)}` +
-    (ctx.updated_after ? ` AND updated_at > ${escapeSQL(ctx.updated_after)}` : '') +
-    (ctx.id ? ` AND id = ${escapeSQL(ctx.id)}` : '');
-  console.debug('loadSecrets SQL:', sql);
-  const secrets = await requestSQL<ISecret[]>(ctx.terminal, sql);
+  const valid = verifyMessage(message, secret.sign, secret.signer);
+  if (!valid) throw new Error('Invalid secret signature');
 
-  return Promise.all(
-    secrets.map(async (secret) => {
-      try {
-        const encrypted_data = decodeBase58(secret.encrypted_data_base58);
-        const decrypted_data = deserialize(await decrypt(encrypted_data, ctx.encryption_key_base58));
-        return {
-          secret,
-          decrypted_data,
-          err: null,
-        };
-      } catch (err) {
-        return {
-          secret,
-          decrypted_data: null,
-          err,
-        };
-      }
-    }),
+  const keyPair = fromPrivateKey(reader_private_key);
+
+  if (secret.reader !== keyPair.public_key) {
+    const data_base64 = await terminal.client.requestForResponseData<
+      { secret_sign: string; public_key: string },
+      string
+    >(encodePath('ReadSecret', secret.reader), {
+      secret_sign: secret.sign,
+      public_key: terminal.keyPair.public_key,
+    });
+    return decodeBase64(data_base64);
+  }
+  const decrypted = await decryptByPrivateKeyAsync(decodeBase64(secret.data), reader_private_key);
+  return decrypted;
+};
+
+/**
+ * Setup secret proxy service on the terminal
+ *
+ * @param terminal - The terminal instance
+ * @param trusted_public_keys - Set of trusted public keys allowed to read secrets
+ * @returns Set of trusted public keys
+ *
+ * @public
+ */
+export const setupSecretProxyService = (terminal: Terminal, trusted_public_keys = new Set<string>()) => {
+  trusted_public_keys.add(terminal.keyPair.public_key);
+
+  terminal.server.provideService<
+    {
+      secret_sign: string;
+      public_key: string;
+    },
+    string
+  >(
+    encodePath('ReadSecret', terminal.keyPair.public_key),
+    {
+      properties: {
+        secret_sign: { type: 'string' },
+        public_key: { type: 'string' },
+      },
+    },
+    async ({ req }) => {
+      //
+      if (!trusted_public_keys.has(req.public_key))
+        throw new Error(`Public key not trusted: ${req.public_key}`);
+
+      const [secret] = await requestSQL<ISecret[]>(
+        terminal,
+        `select * from secret where sign = ${escapeSQL(req.secret_sign)}`,
+      );
+
+      if (!secret) throw new Error(`Secret not found: ${req.secret_sign}`);
+
+      const data = await readSecret(terminal, secret);
+
+      const dataForRemote = await terminal.security.encryptDataWithRemotePublicKey(data, req.public_key);
+
+      const data_base64 = encodeBase64(dataForRemote);
+
+      return { res: { code: 0, message: 'OK', data: data_base64 } };
+    },
   );
+
+  return trusted_public_keys;
 };

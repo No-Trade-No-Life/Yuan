@@ -1,14 +1,11 @@
 import '@yuants/deploy';
 import { IDeployment } from '@yuants/deploy';
 import { Terminal } from '@yuants/protocol';
+import { setupSecretProxyService } from '@yuants/secret';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import {
   createKeyPair,
-  decodeBase58,
-  decryptByPrivateKey,
-  encodeBase58,
   encodePath,
-  encryptByPublicKey,
   formatTime,
   fromSeed,
   IEd25519KeyPair,
@@ -121,8 +118,7 @@ const runDeployment = (nodeKeyPair: IEd25519KeyPair, deployment: IDeployment) =>
               HOST_URL: process.env.HOST_URL,
               TERMINAL_ID: encodePath('Deployment', deployment.id),
               TERMINAL_NAME: terminalName,
-              DEPLOYMENT_NODE_UNIT_ADDRESS: nodeKeyPair.public_key,
-              DEPLOYMENT_PRIVATE_KEY: childKeyPair.private_key,
+              TERMINAL_PRIVATE_KEY: childKeyPair.private_key,
             },
             deployment.env,
           ),
@@ -244,42 +240,7 @@ defer(async () => {
     },
   );
 
-  terminal.server.provideService(
-    'NodeUnit/DecryptForChild',
-    {
-      type: 'object',
-      required: ['node_unit_address', 'encrypted_data_base58', 'child_public_key'],
-      properties: {
-        node_unit_address: { type: 'string', const: nodeKeyPair.public_key },
-        encrypted_data_base58: { type: 'string' },
-        child_public_key: { type: 'string' },
-      },
-    },
-    async (msg) => {
-      const { encrypted_data_base58, child_public_key } = msg.req as {
-        encrypted_data_base58: string;
-        child_public_key: string;
-      };
-      if (!childPublicKeys.has(child_public_key)) {
-        return { res: { code: 403, message: 'Child public key not recognized' } };
-      }
-      const encrypted_data = decodeBase58(encrypted_data_base58);
-      // decrypt with parent private key
-      const decrypted_data = decryptByPrivateKey(encrypted_data, nodeKeyPair.private_key);
-      if (!decrypted_data) {
-        return { res: { code: 403, message: 'NodeUnit decryption failed: wrong parent private key' } };
-      }
-      // re-encrypt with child's public key
-      const data = encodeBase58(encryptByPublicKey(decrypted_data, child_public_key));
-      return {
-        res: {
-          code: 0,
-          message: 'OK',
-          data: { data },
-        },
-      };
-    },
-  );
+  setupSecretProxyService(terminal, childPublicKeys);
 
   terminal.server.provideService(
     'Deployment/ReadLogSlice',
