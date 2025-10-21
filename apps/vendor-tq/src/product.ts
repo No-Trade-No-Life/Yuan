@@ -1,5 +1,6 @@
 import { IProduct, provideQueryProductsService } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
+import { formatTime, UUID } from '@yuants/utils';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -9,8 +10,11 @@ export const productService = provideQueryProductsService(
   'TQ',
   async () => {
     // Fetch product data from TQ API
+    const id = UUID();
+    console.info(formatTime(Date.now()), 'Fetching product data from TQ API...', id);
     const response = await fetch('https://openmd.shinnytech.com/t/md/symbols/latest.json');
     const symbols = await response.json();
+    console.info(formatTime(Date.now()), 'Fetched product data from TQ API.', id);
 
     // Convert TQ symbols to IProduct format
     return Object.values(symbols)
