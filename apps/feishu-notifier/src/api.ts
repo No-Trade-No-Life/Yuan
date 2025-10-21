@@ -1,6 +1,14 @@
 import { formatTime } from '@yuants/utils';
 import { expand, firstValueFrom, map, mergeMap, of, retry, shareReplay, skip, tap, timer } from 'rxjs';
 
+export interface SendFeishuMessagePayload {
+  message_id?: string;
+  user_id?: string;
+  msg_type: string;
+  content: unknown;
+  uuid?: string;
+}
+
 export class FeishuClient {
   constructor(
     public ctx: {
@@ -48,36 +56,49 @@ export class FeishuClient {
     shareReplay(1),
   );
 
-  sendFeishuMessage = async (receiver_id: string, msg: string): Promise<void> => {
-    const [type, userId] = receiver_id.match(/^(?:(app|phone)-)(\w+)$/)?.slice(1) ?? [];
-    const isUrgent = type === 'app' || type === 'phone';
-    console.info(formatTime(Date.now()), 'Sending', type, userId, msg);
+  sendMessage = async (payload: SendFeishuMessagePayload): Promise<{ message_id: string }> => {
+    const { message_id, user_id, msg_type, content, uuid } = payload;
+    console.info(
+      formatTime(Date.now()),
+      'Feishu/Send',
+      message_id ? 'update' : 'create',
+      message_id ?? user_id,
+    );
     const token = await firstValueFrom(this.token$);
-    const [subject, ...content] = msg.split('\n');
-    const message = {
-      header: {
-        template: isUrgent ? 'red' : 'blue',
-        title: { content: subject, tag: 'plain_text' },
-      },
-      elements: [
+
+    if (message_id) {
+      const updateResp: { code: number; msg: string } = (await fetch(
+        `https://open.feishu.cn/open-apis/im/v1/messages/${message_id}`,
         {
-          tag: 'div',
-          text: {
-            content: content.join('\n'),
-            tag: 'lark_md',
+          method: 'PATCH',
+          body: JSON.stringify({
+            msg_type,
+            content,
+          }),
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+            charset: 'utf-8',
           },
         },
-      ],
-    };
-    // https://open.feishu.cn/document/server-docs/im-v1/message/create
-    const resp: { code: number; msg: string; data: { message_id: string } } = (await fetch(
+      ).then((x) => x.json())) as any;
+      if (updateResp.code !== 0) throw updateResp;
+      return { message_id };
+    }
+
+    if (!user_id) {
+      throw new Error('user_id is required when message_id is not provided');
+    }
+
+    const sendResp: { code: number; msg: string; data: { message_id: string } } = (await fetch(
       'https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=user_id',
       {
         method: 'POST',
         body: JSON.stringify({
-          receive_id: userId,
-          content: JSON.stringify(message),
-          msg_type: 'interactive',
+          receive_id: user_id,
+          msg_type,
+          content,
+          ...(uuid ? { uuid } : {}),
         }),
         headers: {
           Authorization: `Bearer ${token}`,
@@ -86,37 +107,15 @@ export class FeishuClient {
         },
       },
     ).then((x) => x.json())) as any;
-    if (resp.code !== 0) throw resp;
+    if (sendResp.code !== 0) throw sendResp;
 
-    // 应用内加急
-    if (type === 'app') {
-      const resp1: { code: number; msg: string; data: { message_id: string } } = (await fetch(
-        `https://open.feishu.cn/open-apis/im/v1/messages/${resp.data.message_id}/urgent_app?user_id_type=user_id`,
-        {
-          method: 'PATCH',
-          body: JSON.stringify({ user_id_list: [userId] }),
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            charset: 'utf-8',
-          },
-        },
-      ).then((x) => x.json())) as any;
-    }
-    // 电话加急
-    if (type === 'phone') {
-      const resp1: { code: number; msg: string; data: { message_id: string } } = (await fetch(
-        `https://open.feishu.cn/open-apis/im/v1/messages/${resp.data.message_id}/urgent_phone?user_id_type=user_id`,
-        {
-          method: 'PATCH',
-          body: JSON.stringify({ user_id_list: [userId] }),
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'application/json',
-            charset: 'utf-8',
-          },
-        },
-      ).then((x) => x.json())) as any;
-    }
+    return { message_id: sendResp.data?.message_id };
   };
+
+  sendTextMessage = async (user_id: string, text: string) =>
+    this.sendMessage({
+      user_id,
+      msg_type: 'text',
+      content: { text },
+    });
 }

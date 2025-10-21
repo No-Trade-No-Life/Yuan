@@ -32,30 +32,33 @@ defer(() => terminal.input$)
   )
   .subscribe();
 
-terminal.server.provideService<{
-  /**
-   * Receiver ID parsed by Transport
-   * 由 Transport 解析的接收者 ID
-   */
-  receiver_id: string;
-  /**
-   * Message content
-   * 消息正文
-   */
-  message: string;
-}>(
-  'Notify',
+terminal.server.provideService<
+  {
+    message_id?: string;
+    user_id?: string;
+    msg_type: string;
+    content: string;
+    uuid?: string;
+  },
+  {
+    message_id: string;
+  }
+>(
+  'Feishu/Send',
   {
     type: 'object',
     required: ['type', 'receiver_id', 'message'],
     properties: {
-      type: { const: 'feishu' },
-      receiver_id: { type: 'string' },
-      message: { type: 'string' },
+      message_id: { type: 'string' },
+      user_id: { type: 'string' },
+      msg_type: { type: 'string' },
+      content: { type: 'string' },
+      uuid: { type: 'string' },
     },
   },
   (msg) =>
-    from(client.sendFeishuMessage(msg.req.receiver_id, msg.req.message)).pipe(
-      map(() => ({ res: { code: 0, message: 'OK' } })),
+    defer(() => client.sendMessage(msg.req)).pipe(
+      //
+      map((data) => ({ res: { code: 0, message: 'OK', data } })),
     ),
 );
