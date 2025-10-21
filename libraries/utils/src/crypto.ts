@@ -101,13 +101,50 @@ export const encryptByPublicKey = (data: Uint8Array, publicKey: string) => {
 };
 
 /**
+ * Encrypt data with a public key (ED25519, base58 encoded)
+ * @param data - data to be encrypted
+ * @param publicKey - the public key to encrypt the data with (base58 encoded)
+ * @returns the encrypted data (Uint8Array)
+ * @public
+ */
+export const encryptByPublicKeyAsync = async (data: Uint8Array, publicKey: string) => {
+  const aes_gcm_key = crypto.getRandomValues(new Uint8Array(32));
+  const encrypted_data = await encrypt(data, encodeBase58(aes_gcm_key));
+  const encrypted_key = encryptByPublicKey(aes_gcm_key, publicKey);
+  const combinedData = new Uint8Array(4 + encrypted_key.length + encrypted_data.length);
+  const encrypted_key_length = encrypted_key.length;
+  const dataView = new DataView(combinedData.buffer);
+  dataView.setUint32(0, encrypted_key_length, false);
+  combinedData.set(encrypted_key, 4);
+  combinedData.set(encrypted_data, 4 + encrypted_key.length);
+  return combinedData;
+};
+
+/**
  * Decrypt data with a private key (ED25519, base58 encoded)
  * @param data - encrypted data (Uint8Array)
  * @param privateKey - the private key to decrypt the data with (base58 encoded)
  * @returns the decrypted data (Uint8Array)
  * @public
  */
-export const decryptByPrivateKey = (data: Uint8Array, privateKey: string) => {
+export const decryptByPrivateKeyAsync = async (data: Uint8Array, privateKey: string): Promise<Uint8Array> => {
+  const dataView = new DataView(data.buffer);
+  const encrypted_key_length = dataView.getUint32(0, false);
+  const encrypted_key = data.slice(4, 4 + encrypted_key_length);
+  const encrypted_data = data.slice(4 + encrypted_key_length);
+  const aes_gcm_key = decryptByPrivateKey(encrypted_key, privateKey);
+  const decrypted_data = await decrypt(encrypted_data, encodeBase58(aes_gcm_key));
+  return decrypted_data;
+};
+
+/**
+ * Decrypt data with a private key (ED25519, base58 encoded)
+ * @param data - encrypted data (Uint8Array)
+ * @param privateKey - the private key to decrypt the data with (base58 encoded)
+ * @returns the decrypted data (Uint8Array)
+ * @public
+ */
+export const decryptByPrivateKey = (data: Uint8Array, privateKey: string): Uint8Array => {
   const privateKeyUint8Array = decodeBase58(privateKey);
   const curvePrivateKey = convertSecretKey(privateKeyUint8Array);
   if (!curvePrivateKey) throw new Error('Failed to convert private key to curve25519');
@@ -116,7 +153,9 @@ export const decryptByPrivateKey = (data: Uint8Array, privateKey: string) => {
   const publicKey = data.slice(24, 56);
   const encryptedData = data.slice(56);
   const sharedKey = box.before(publicKey, curvePrivateKey);
-  return box.open.after(encryptedData, nonce, sharedKey);
+  const res = box.open.after(encryptedData, nonce, sharedKey);
+  if (!res) throw new Error('Failed to decrypt data with private key');
+  return res;
 };
 
 /**
