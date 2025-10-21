@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-agent
 
-This log was last generated on Tue, 21 Oct 2025 11:23:00 GMT and should not be manually modified.
+This log was last generated on Tue, 21 Oct 2025 18:37:31 GMT and should not be manually modified.
+
+## 0.8.0
+Tue, 21 Oct 2025 18:37:31 GMT
+
+### Minor changes
+
+- use readSecret
 
 ## 0.7.36
 Tue, 21 Oct 2025 11:23:00 GMT
