@@ -1,6 +1,13 @@
 # Change Log - @yuants/node-unit
 
-This log was last generated on Tue, 21 Oct 2025 11:23:00 GMT and should not be manually modified.
+This log was last generated on Tue, 21 Oct 2025 18:37:31 GMT and should not be manually modified.
+
+## 0.12.11
+Tue, 21 Oct 2025 18:37:31 GMT
+
+### Patches
+
+- add TERMINAL_PRIVATE_KEY
 
 ## 0.12.10
 Tue, 21 Oct 2025 11:23:00 GMT
