@@ -1,7 +1,8 @@
 import { Terminal } from '@yuants/protocol';
-import { requestSQL } from '@yuants/sql';
-import { formatTime } from '@yuants/utils';
+import { escapeSQL, requestSQL, writeToSQL } from '@yuants/sql';
+import { formatTime, listWatch } from '@yuants/utils';
 import {
+  Subject,
   catchError,
   defer,
   delay,
@@ -15,11 +16,12 @@ import {
   repeat,
   retry,
   shareReplay,
-  Subject,
   tap,
   timeout,
   toArray,
 } from 'rxjs';
+import { renderAlertMessageCard } from './feishu/render-alert-message-card';
+import type { IAlertGroup, IAlertRecord } from './types';
 
 /// Alert manager 消息
 interface IAlertManagerMessage {
@@ -45,38 +47,6 @@ interface IAlertManagerItem {
   fingerprint: string;
 }
 
-interface IAlertInfo {
-  /** current value of the alerting metrics */
-  metric_value?: number;
-  /** alert start time */
-  start_time: number;
-  /** alert end time */
-  end_time: number;
-  /** description of alert */
-  description?: string;
-  /** status of the alert */
-  resolved: boolean;
-}
-
-interface IAlertGroup {
-  name: string;
-  /** Severity */
-  severity: AlertSeverity;
-  env: string;
-  summary: string;
-  run_book_url?: string;
-  alerts: IAlertInfo[];
-  external_url?: string;
-}
-
-enum AlertSeverity {
-  UNKNOWN = 'UNKNOWN',
-  INFO = 'INFO',
-  WARNING = 'WARNING',
-  ERROR = 'ERROR',
-  CRITICAL = 'CRITICAL',
-}
-
 interface IAlertReceiverConfig {
   type: string;
   receiver_id: string;
@@ -92,154 +62,436 @@ interface IAlertReceiverConfig {
   created_at: string;
   updated_at: string;
 }
-const makeNotifyMessage = (ctx: IAlertGroup) => {
-  return [
-    //
-    `${ctx.severity} Alerting: ${ctx.name}`,
-    `env: ${ctx.env}`,
-    `summary: ${ctx.summary}`,
-    `url: ${ctx.external_url ?? 'None'}`,
-    `run_book_url: ${ctx.run_book_url ?? 'None'}`,
-    `details:`,
-    ...ctx.alerts.map((alert) => {
-      return [
-        //
-        `###########`,
-        `- description: ${alert.description ?? 'None'}`,
-        `  status: ${alert.resolved ? 'resolved' : 'firing'}`,
-        `  start_time: ${formatTime(alert.start_time)}`,
-        `  end_time: ${alert.end_time !== 0 ? formatTime(alert.end_time) : 'still firing'}`,
-        `  metric_value: ${alert.metric_value ?? 'None'}`,
-        `###########`,
-      ].join('\n');
-    }),
-  ].join('\n');
-};
 
-const ENV = process.env.ENV!;
+const terminal = Terminal.fromNodeEnv();
+
+const ENV = process.env.ENV ?? 'unknown';
+const SEVERITY_ORDER = ['UNKNOWN', 'CRITICAL', 'ERROR', 'WARNING', 'INFO'] as const;
+const getSeverityIndex = (value: string) => SEVERITY_ORDER.indexOf(value as (typeof SEVERITY_ORDER)[number]);
+
+const alertProcessing$ = new Subject<IAlertManagerMessage>();
+
+alertProcessing$
+  .pipe(
+    tap((msg) => {
+      if (msg.commonLabels['alertname'] === 'Watchdog') {
+        keepAliveSignal$.next();
+      }
+    }),
+  )
+  .subscribe();
+
+alertProcessing$
+  .pipe(
+    mergeMap((alertMsg) =>
+      from(alertMsg.alerts).pipe(
+        filter((alertItem) => !!alertItem.labels['alertname'] && alertItem.labels['severity'] !== 'none'),
+        map((alertItem) => makeAlertRecord(alertMsg, alertItem)),
+      ),
+    ),
+    writeToSQL<IAlertRecord>({
+      terminal,
+      tableName: 'alert_record',
+      writeInterval: 1_000,
+      columns: [
+        'id',
+        'alert_name',
+        'current_value',
+        'status',
+        'severity',
+        'description',
+        'env',
+        'runbook_url',
+        'group_name',
+        'finalized',
+        'start_time',
+        'end_time',
+      ],
+      conflictKeys: ['id'],
+    }),
+  )
+  .subscribe();
+
+defer(() =>
+  requestSQL<IAlertRecord[]>(
+    terminal,
+    `
+    SELECT * FROM alert_record
+    WHERE finalized = FALSE
+    ORDER BY updated_at DESC
+  `,
+  ),
+)
+  .pipe(
+    retry({ delay: 1_000 }),
+    repeat({ delay: 5_000 }),
+    map((records) => aggregateAlertsByGroup(records)),
+  )
+  .pipe(
+    listWatch(
+      (group) => group.group_key,
+      (group) => defer(() => handleAlertGroup(group)),
+      (a, b) => a.version === b.version,
+    ),
+  )
+  .subscribe({
+    error: (e) => console.error(formatTime(Date.now()), 'HandleAlertGroupFailed', e),
+  });
 
 const config$ = defer(() =>
   requestSQL<IAlertReceiverConfig[]>(terminal, `select * from alert_receiver_config where enabled = true`),
-).pipe(
-  //
-  retry({ delay: 1_000 }),
-  repeat({ delay: 10_000 }),
-  shareReplay(1),
-);
-
-const terminal = Terminal.fromNodeEnv();
+).pipe(retry({ delay: 1_000 }), repeat({ delay: 10_000 }), shareReplay(1));
 
 const keepAliveSignal$ = new Subject<void>();
 
 defer(() => keepAliveSignal$.pipe(first()))
   .pipe(
-    //
     tap(() => {
       console.info(formatTime(Date.now()), 'WatchdogReceived');
     }),
     timeout(5 * 60_000),
-    catchError((e) => {
+    catchError(() => {
       console.error(formatTime(Date.now()), 'WatchdogFailed', '超过 300 秒没有收到 Watchdog');
-      const alert: IAlertGroup = {
-        name: 'WatchdogFailed',
-        // TODO: read from alertmanager
-        env: ENV,
-        severity: AlertSeverity.CRITICAL,
-        summary: 'AlertReceiver 超过 5 分钟未收到 Watchdog 消息',
-        run_book_url: 'https://tradelife.feishu.cn/wiki/wikcn8hGhnA1fPBztoGyh6rRzqe',
+
+      const now = new Date();
+      const syntheticMessage: IAlertManagerMessage = {
+        receiver: 'watchdog',
+        status: 'firing',
         alerts: [
           {
-            start_time: Date.now(),
-            end_time: 0,
-            description: 'AlertReceiver 超过 5 分钟未收到 Watchdog 消息',
-            resolved: false,
+            status: 'firing',
+            labels: { alertname: 'WatchdogFailed' },
+            annotations: {
+              description: 'AlertReceiver 超过 5 分钟未收到 Watchdog 消息',
+              runbook_url: 'https://tradelife.feishu.cn/wiki/wikcn8hGhnA1fPBztoGyh6rRzqe',
+            },
+            startsAt: now.toISOString(),
+            endsAt: '0001-01-01T00:00:00Z',
+            generatorURL: '',
+            fingerprint: `watchdog-${now.getTime()}`,
           },
         ],
+        groupLabels: {},
+        commonLabels: {
+          alertname: 'WatchdogFailed',
+          severity: 'CRITICAL',
+          env: ENV,
+        },
+        commonAnnotations: {
+          summary: 'AlertReceiver 超过 5 分钟未收到 Watchdog 消息',
+          runbook_url: 'https://tradelife.feishu.cn/wiki/wikcn8hGhnA1fPBztoGyh6rRzqe',
+        },
+        externalURL: '',
+        version: '4',
+        groupKey: `watchdog-${ENV}`,
+        truncatedAlerts: 0,
       };
-      return defer(() => sendAlert(alert)).pipe(
-        // cool down for 30 minutes
-        delay(30 * 60_000),
-      );
+
+      alertProcessing$.next(syntheticMessage);
+      return defer(() => of(null)).pipe(delay(30 * 60_000));
     }),
     repeat(),
   )
   .subscribe();
 
 terminal.server.provideService('/external/alertmanager/webhook', {}, async (msg) => {
-  //
   const { body } = msg.req as { body: string };
   console.info(formatTime(Date.now()), 'AlertReceived', body);
   const alertMsg = JSON.parse(body) as IAlertManagerMessage;
 
-  await firstValueFrom(
-    of(alertMsg).pipe(
-      // keep alive signal
-      tap((msg) => {
-        if (msg.commonLabels['alertname'] === 'Watchdog') {
-          keepAliveSignal$.next();
-        }
-      }),
-      filter((msg) => msg.commonLabels['alertname'] !== undefined && msg.commonLabels['severity'] !== 'none'),
-      mergeMap((msg) => {
-        return from(msg.alerts).pipe(
-          //
-          filter((item) => !!item.labels['alertname']),
-          map(
-            (item): IAlertInfo => ({
-              metric_value: item.annotations['current_value']
-                ? +item.annotations['current_value']
-                : undefined,
-              start_time: new Date(item.startsAt).getTime(),
-              end_time: item.endsAt !== '0001-01-01T00:00:00Z' ? new Date(item.endsAt).getTime() : 0,
-              description: item.annotations['description'],
-              resolved: item.endsAt !== '0001-01-01T00:00:00Z',
-            }),
-          ),
-          toArray(),
-          map(
-            (alerts): IAlertGroup => ({
-              name: msg.commonLabels['alertname'],
-              severity: (msg.commonLabels['severity'].toUpperCase() ?? 'UNKNOWN') as AlertSeverity,
-              env: ENV,
-              summary: msg.commonAnnotations['summary'] ?? 'None',
-              run_book_url: msg.commonAnnotations['runbook_url'] ?? 'None',
-              external_url: msg.externalURL,
-              alerts,
-            }),
-          ),
-        );
-      }),
-      mergeMap(sendAlert),
-      toArray(),
-    ),
-  );
+  alertProcessing$.next(alertMsg);
+
   return { res: { code: 0, message: 'OK', data: { status: 204 } } };
 });
 
-const SEVERITY_LEVEL = ['UNKNOWN', 'CRITICAL', 'ERROR', 'WARNING', 'INFO'];
+const makeAlertRecord = (alertMsg: IAlertManagerMessage, alertItem: IAlertManagerItem): IAlertRecord => {
+  const status = alertItem.endsAt !== '0001-01-01T00:00:00Z' ? 'resolved' : 'firing';
 
-async function sendAlert(alert: IAlertGroup) {
+  return {
+    id: alertItem.fingerprint,
+    alert_name: alertMsg.commonLabels['alertname'] ?? alertItem.labels['alertname'] ?? 'unknown',
+    current_value: alertItem.annotations['current_value'],
+    status,
+    severity: normalizeSeverity(alertMsg.commonLabels['severity']),
+    description: alertItem.annotations['description'],
+    env: alertMsg.commonLabels['env'] ?? ENV,
+    runbook_url: alertMsg.commonAnnotations['runbook_url'],
+    group_name: alertMsg.groupKey,
+    finalized: false,
+    start_time: formatTime(new Date(alertItem.startsAt)),
+    end_time: status === 'resolved' ? formatTime(new Date(alertItem.endsAt)) : undefined,
+  };
+};
+
+const aggregateAlertsByGroup = (records: IAlertRecord[]): IAlertGroup[] => {
+  const normalizedRecords = records.map(normalizeRecordFromDb);
+  const groups = new Map<string, IAlertGroup>();
+
+  for (const record of normalizedRecords) {
+    const groupName = record.group_name || record.alert_name;
+
+    if (!groups.has(groupName)) {
+      groups.set(groupName, {
+        alert_name: record.alert_name,
+        group_key: groupName,
+        severity: 'UNKNOWN',
+        alerts: [],
+        status: 'Resolved',
+        finalized: false,
+        version: '',
+      });
+    }
+
+    const group = groups.get(groupName)!;
+    group.alerts.push(record);
+  }
+
+  for (const group of groups.values()) {
+    group.alerts.sort((a, b) => a.start_time.localeCompare(b.start_time));
+
+    const firingCount = group.alerts.filter((alert) => alert.status === 'firing').length;
+    const resolvedCount = group.alerts.length - firingCount;
+
+    group.severity = group.alerts[0].severity;
+
+    if (firingCount > 0 && resolvedCount > 0) {
+      group.status = 'PartialResolved';
+    } else if (firingCount > 0) {
+      group.status = 'Firing';
+    } else {
+      group.status = 'Resolved';
+    }
+
+    group.finalized = firingCount === 0;
+    group.version = JSON.stringify(
+      group.alerts.map((alert) => ({
+        id: alert.id,
+        status: alert.status,
+        end_time: alert.end_time,
+        current_value: alert.current_value,
+      })),
+    );
+  }
+
+  return Array.from(groups.values());
+};
+
+const buildAlertCard = (group: IAlertGroup) => {
+  const card = renderAlertMessageCard({
+    ...group,
+    alerts: group.alerts.map((alert) => ({
+      ...alert,
+      start_time: formatTime(alert.start_time),
+      end_time: alert.end_time ? formatTime(alert.end_time) : undefined,
+    })),
+  });
+  return card.dsl;
+};
+
+const handleAlertGroup = async (group: IAlertGroup) => {
+  if (group.alerts.length === 0) {
+    return;
+  }
+
   const config = await firstValueFrom(config$);
 
-  const receivers = config.filter(
-    (v) => SEVERITY_LEVEL.indexOf(alert.severity) <= SEVERITY_LEVEL.indexOf(v.severity),
-  );
-  console.info(
-    formatTime(Date.now()),
-    'MatchingAlertsWithReceivers',
-    JSON.stringify({
-      alert,
-      receivers,
-    }),
-  );
+  const receiverList = config.filter((item) => {
+    if (item.type !== 'feishu') return false;
+    return getSeverityIndex(group.severity) <= getSeverityIndex(normalizeSeverity(item.severity));
+  });
 
-  await Promise.allSettled(
-    receivers.map((v) =>
-      terminal.client.requestForResponse('Notify', {
-        type: v.type,
-        receiver_id: v.receiver_id,
-        message: makeNotifyMessage(alert),
+  if (receiverList.length === 0) {
+    console.info(
+      formatTime(Date.now()),
+      'NoEligibleFeishuReceiver',
+      JSON.stringify({
+        group: group.group_key,
+        alertName: group.alert_name,
       }),
+    );
+    return;
+  }
+
+  const cardDSL = JSON.stringify(buildAlertCard(group));
+  const mapReceiveIdToMessageId = new Map<string, string>();
+  for (const alert of group.alerts) {
+    const entries = alert.message_ids ?? [];
+    for (const entry of entries) {
+      mapReceiveIdToMessageId.set(entry.receiver_id, entry.message_id);
+    }
+  }
+
+  await firstValueFrom(
+    from(receiverList).pipe(
+      mergeMap(async (receiver) => {
+        // TODO: separate urgent tag from receiver_id
+        const parts = receiver.receiver_id.split('-');
+        const receiver_id = parts[parts.length - 1];
+        const urgent = parts.length > 1 ? parts[0] : undefined;
+        const existingMessageId = mapReceiveIdToMessageId.get(receiver.receiver_id);
+        const payload = existingMessageId
+          ? {
+              message_id: existingMessageId,
+              msg_type: 'interactive',
+              content: cardDSL,
+              ...(urgent ? { urgent, urgent_user_list: [receiver_id] } : {}),
+            }
+          : {
+              receive_id: receiver_id,
+              receive_id_type: 'user_id',
+              msg_type: 'interactive',
+              content: cardDSL,
+              ...(urgent ? { urgent, urgent_user_list: [receiver_id] } : {}),
+            };
+
+        const serviceName = existingMessageId ? 'Feishu/UpdateMessage' : 'Feishu/SendMessage';
+
+        const result = await terminal.client.requestForResponse<typeof payload, { message_id: string }>(
+          serviceName,
+          payload,
+        );
+
+        if (result.code !== 0) {
+          throw new Error(`SendFeishuCardFailed: ${result.message}`);
+        }
+
+        const messageId = result.data?.message_id ?? existingMessageId;
+        if (messageId) {
+          mapReceiveIdToMessageId.set(receiver.receiver_id, messageId);
+        }
+      }),
+      toArray(),
     ),
   );
-}
+
+  const messageEntries = Array.from(mapReceiveIdToMessageId.entries()).map(([receiver_id, message_id]) => ({
+    receiver_id,
+    message_id,
+  }));
+
+  console.info(
+    formatTime(Date.now()),
+    'FeishuAlertMessageIdsUpdated',
+    JSON.stringify(messageEntries),
+    'for group',
+    group.group_key,
+    'version',
+    group.version,
+  );
+
+  await requestSQL(
+    terminal,
+    `
+        UPDATE alert_record
+        SET message_ids = ${escapeSQL(JSON.stringify(messageEntries))}::jsonb
+        WHERE group_name = ${escapeSQL(group.group_key)}
+      `,
+  );
+
+  if (group.finalized) {
+    await requestSQL(
+      terminal,
+      `
+          UPDATE alert_record
+          SET finalized = TRUE
+          WHERE group_name = ${escapeSQL(group.group_key)}
+        `,
+    );
+  }
+};
+
+// const getHighestSeverity = (alerts: IAlertRecord[]): string =>
+//   alerts.reduce<string>((current, alert) => {
+//     if (getSeverityIndex(alert.severity) < getSeverityIndex(current)) {
+//       return alert.severity;
+//     }
+//     return current;
+//   }, 'INFO');
+
+const normalizeRecordFromDb = (record: IAlertRecord): IAlertRecord => {
+  const rawMessageIds = (record as any).message_ids;
+  let messageIds: Array<{ receiver_id: string; message_id: string }> | undefined;
+  if (Array.isArray(rawMessageIds)) {
+    messageIds = rawMessageIds
+      .map((entry) =>
+        entry && typeof entry === 'object'
+          ? { receiver_id: String(entry.receiver_id), message_id: String(entry.message_id) }
+          : undefined,
+      )
+      .filter((entry): entry is { receiver_id: string; message_id: string } => !!entry);
+  } else if (typeof rawMessageIds === 'string') {
+    try {
+      const parsed = JSON.parse(rawMessageIds);
+      if (Array.isArray(parsed)) {
+        messageIds = parsed
+          .map((entry) =>
+            entry && typeof entry === 'object'
+              ? { receiver_id: String(entry.receiver_id), message_id: String(entry.message_id) }
+              : undefined,
+          )
+          .filter((entry): entry is { receiver_id: string; message_id: string } => !!entry);
+      }
+    } catch (e) {
+      console.warn(formatTime(Date.now()), 'ParseMessageIdsFailed', rawMessageIds, e);
+    }
+  }
+
+  return {
+    ...record,
+    current_value: record.current_value ?? undefined,
+    status: record.status === 'resolved' ? 'resolved' : 'firing',
+    severity: normalizeSeverity(record.severity),
+    description: record.description ?? undefined,
+    runbook_url: record.runbook_url ?? undefined,
+    end_time: record.end_time ?? undefined,
+    message_ids: messageIds ?? [],
+  };
+};
+
+const normalizeSeverity = (severity: string | undefined): string => {
+  if (!severity) return 'UNKNOWN';
+  const upper = severity.toUpperCase();
+  if (getSeverityIndex(upper) !== -1) {
+    return upper;
+  }
+  return 'UNKNOWN';
+};
+
+// const determineGroupName = (alertMsg: IAlertManagerMessage, alertItem: IAlertManagerItem): string => {
+//   if (alertMsg.groupKey) {
+//     return alertMsg.groupKey;
+//   }
+
+//   const alertName = alertMsg.commonLabels['alertname'] ?? alertItem.labels['alertname'] ?? 'unknown';
+//   const env = alertMsg.commonLabels['env'] ?? ENV;
+//   const baseGroup = `${alertName}_${env}`;
+
+//   const instance =
+//     alertItem.labels['instance'] ??
+//     alertItem.labels['pod'] ??
+//     alertItem.labels['service'] ??
+//     alertItem.labels['job'];
+
+//   if (alertName === 'Watchdog') {
+//     return `${baseGroup}_watchdog`;
+//   }
+
+//   if (instance) {
+//     return `${baseGroup}_${instance}`;
+//   }
+
+//   return baseGroup;
+// };
+
+// const generateAlertId = (alertMsg: IAlertManagerMessage, alertItem: IAlertManagerItem): string => {
+//   if (alertItem.fingerprint) {
+//     return alertItem.fingerprint;
+//   }
+//   const labelPart = Object.entries(alertItem.labels || {})
+//     .map(([key, value]) => `${key}=${value}`)
+//     .sort()
+//     .join(',');
+//   return `${alertMsg.commonLabels['alertname'] ?? alertItem.labels['alertname'] ?? 'unknown'}:${labelPart}:${
+//     alertItem.startsAt ?? Date.now()
+//   }`;
+// };
