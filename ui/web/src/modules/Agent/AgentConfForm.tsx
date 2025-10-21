@@ -405,7 +405,7 @@ registerPage('AgentConfForm', () => {
               const secret = await writeSecret(terminal, address, {}, new TextEncoder().encode(bundled_code));
 
               const env = {
-                CODE: secret.sign,
+                CODE_SECRET_ID: secret.sign,
                 AGENT_PARAMS: JSON.stringify(agentConf?.agent_params || {}),
                 STARTED_AT: agentConf.start_time ? formatTime(agentConf.start_time) : '',
                 KERNEL_ID: agentConf.kernel_id || '',

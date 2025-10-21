@@ -141,13 +141,14 @@ export const setupSecretProxyService = (terminal: Terminal, trusted_public_keys 
   >(
     encodePath('ReadSecret', terminal.keyPair.public_key),
     {
+      type: 'object',
+      required: ['secret_sign', 'public_key'],
       properties: {
         secret_sign: { type: 'string' },
         public_key: { type: 'string' },
       },
     },
     async ({ req }) => {
-      //
       if (!trusted_public_keys.has(req.public_key))
         throw new Error(`Public key not trusted: ${req.public_key}`);
 
