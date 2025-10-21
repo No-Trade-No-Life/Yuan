@@ -1,6 +1,6 @@
 {
   "name": "@yuants/vendor-huobi",
-  "version": "0.11.35",
+  "version": "0.11.36",
   "bin": "lib/cli.js",
   "main": "lib/index.js",
   "files": [

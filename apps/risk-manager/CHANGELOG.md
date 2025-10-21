@@ -1,6 +1,11 @@
 # Change Log - @yuants/app-risk-manager
 
-This log was last generated on Sun, 19 Oct 2025 23:16:12 GMT and should not be manually modified.
+This log was last generated on Tue, 21 Oct 2025 11:23:00 GMT and should not be manually modified.
+
+## 0.6.32
+Tue, 21 Oct 2025 11:23:00 GMT
+
+_Version update only_
 
 ## 0.6.31
 Sun, 19 Oct 2025 23:16:12 GMT
