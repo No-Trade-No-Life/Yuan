@@ -114,7 +114,7 @@ export const readSecret = async (
       secret_sign: secret.sign,
       public_key: terminal.keyPair.public_key,
     });
-    return decodeBase64(data_base64);
+    return terminal.security.decryptDataWithRemotePublicKey(decodeBase64(data_base64), secret.reader);
   }
   const decrypted = await decryptByPrivateKeyAsync(decodeBase64(secret.data), reader_private_key);
   return decrypted;
