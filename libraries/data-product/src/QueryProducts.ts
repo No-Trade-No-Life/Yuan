@@ -1,3 +1,4 @@
+import { createCache } from '@yuants/cache';
 import { IServiceOptions, Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
 import { Observable, ReplaySubject, Subject, defer, map, repeat, retry, shareReplay, takeUntil } from 'rxjs';
@@ -99,6 +100,18 @@ export function provideQueryProductsService(
   const products$ = new ReplaySubject<IProduct[]>(1);
   const productToWrite$ = new Subject<IProduct>();
 
+  const productCache = createCache<IProduct[]>(
+    () => queryProduct({}).then((x) => x.filter((xx) => xx.datasource_id === datasource_id)),
+    {
+      writeLocal: async (key, data) => {
+        data.forEach((product) => {
+          productToWrite$.next(product);
+        });
+        products$.next(data);
+      },
+    },
+  );
+
   const mapProductIdToProduct$ = products$.pipe(
     map((products) => new Map(products.map((v) => [v.product_id, v]))),
     shareReplay(1),
@@ -155,27 +168,18 @@ export function provideQueryProductsService(
       },
       additionalProperties: false,
     },
-    async (msg) => {
+    async () => {
       // Query products from external API with filter conditions
-      const products = await queryProduct(msg.req);
+      const products = await productCache.query('', true);
 
-      // Filter products by datasource_id and write to SQL
-      products
-        .filter((product) => product.datasource_id === datasource_id)
-        .forEach((product) => {
-          productToWrite$.next(product);
-        });
-
-      // Update local cache with filtered products
-      const filteredProducts = products.filter((product) => product.datasource_id === datasource_id);
-      products$.next(filteredProducts);
+      if (!products) throw new Error('Failed to load products');
 
       return {
         res: {
           code: 0,
           message: 'OK',
           data: {
-            products: filteredProducts,
+            products,
           },
         },
       };

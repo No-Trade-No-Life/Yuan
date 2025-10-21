@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-product",
+      "comment": "use product cache to manage product query",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/data-product"
+}
