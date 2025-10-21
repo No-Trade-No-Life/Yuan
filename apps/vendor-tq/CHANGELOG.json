@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-tq",
   "entries": [
     {
+      "version": "0.4.29",
+      "tag": "@yuants/vendor-tq_v0.4.29",
+      "date": "Tue, 21 Oct 2025 07:18:10 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.4.8`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.28",
       "tag": "@yuants/vendor-tq_v0.4.28",
       "date": "Mon, 20 Oct 2025 16:14:42 GMT",
