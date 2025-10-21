@@ -2,6 +2,23 @@
   "name": "@yuants/app-feishu-notifier",
   "entries": [
     {
+      "version": "0.4.1",
+      "tag": "@yuants/app-feishu-notifier_v0.4.1",
+      "date": "Tue, 21 Oct 2025 18:12:50 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "default alert when host connection lost"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.0",
       "tag": "@yuants/app-feishu-notifier_v0.4.0",
       "date": "Tue, 21 Oct 2025 17:06:59 GMT",

@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-feishu-notifier
 
-This log was last generated on Tue, 21 Oct 2025 17:06:59 GMT and should not be manually modified.
+This log was last generated on Tue, 21 Oct 2025 18:12:50 GMT and should not be manually modified.
+
+## 0.4.1
+Tue, 21 Oct 2025 18:12:50 GMT
+
+### Patches
+
+- default alert when host connection lost
 
 ## 0.4.0
 Tue, 21 Oct 2025 17:06:59 GMT
