@@ -34,29 +34,65 @@ defer(() => terminal.input$)
 
 terminal.server.provideService<
   {
-    message_id?: string;
-    user_id?: string;
+    receive_id: string;
+    receive_id_type: string;
     msg_type: string;
     content: string;
     uuid?: string;
     urgent?: string;
+    urgent_user_list?: string[];
   },
   {
     message_id: string;
   }
 >(
-  'Feishu/Send',
+  'Feishu/SendMessage',
   {
     type: 'object',
-    required: ['msg_type', 'content'],
+    required: ['receive_id', 'receive_id_type', 'msg_type', 'content'],
     properties: {
-      message_id: { type: 'string' },
-      user_id: { type: 'string' },
+      receive_id: { type: 'string' },
+      receive_id_type: { type: 'string', enum: ['user_id', 'open_id', 'union_id', 'email', 'chat_id'] },
       msg_type: { type: 'string' },
       content: { type: 'string' },
       uuid: { type: 'string' },
       urgent: { type: 'string', enum: ['app', 'sms', 'phone'] },
+      urgent_user_list: {
+        type: 'array',
+        items: { type: 'string' },
+      },
     },
   },
   (msg) => from(client.sendMessage(msg.req)).pipe(map((data) => ({ res: { code: 0, message: 'OK', data } }))),
+);
+
+terminal.server.provideService<
+  {
+    message_id: string;
+    msg_type: string;
+    content: string;
+    urgent?: string;
+    urgent_user_list?: string[];
+  },
+  {
+    message_id: string;
+  }
+>(
+  'Feishu/UpdateMessage',
+  {
+    type: 'object',
+    required: ['message_id', 'msg_type', 'content'],
+    properties: {
+      message_id: { type: 'string' },
+      msg_type: { type: 'string' },
+      content: { type: 'string' },
+      urgent: { type: 'string', enum: ['app', 'sms', 'phone'] },
+      urgent_user_list: {
+        type: 'array',
+        items: { type: 'string' },
+      },
+    },
+  },
+  (msg) =>
+    from(client.updateMessage(msg.req)).pipe(map((data) => ({ res: { code: 0, message: 'OK', data } }))),
 );
