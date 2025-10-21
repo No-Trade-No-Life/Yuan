@@ -47,6 +47,7 @@ import { accountPerformance$ } from '../AccountInfo/model';
 import { ITimeSeriesChartConfig } from '../Chart/components/model';
 import { executeCommand, registerCommand } from '../CommandCenter';
 import { availableNodeUnit$ } from '../Deploy/model';
+import { resolveVersion } from '../Extensions';
 import { createFileSystemBehaviorSubject } from '../FileSystem';
 import { fs } from '../FileSystem/api';
 import Form, { showForm } from '../Form';
@@ -385,6 +386,7 @@ registerPage('AgentConfForm', () => {
             onClick={async () => {
               const entry = agentConf?.entry;
               if (!entry) throw 'Entry is empty';
+              const { version } = await resolveVersion({ name: '@yuants/app-agent' });
               const bundled_code = await bundleCode(entry);
 
               const terminal = await firstValueFrom(terminal$);
@@ -417,7 +419,7 @@ registerPage('AgentConfForm', () => {
                   [
                     {
                       package_name: '@yuants/app-agent',
-                      package_version: 'latest',
+                      package_version: version,
                       address,
                       env,
                       enabled: false,
