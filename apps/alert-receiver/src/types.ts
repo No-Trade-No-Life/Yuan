@@ -36,6 +36,13 @@ export interface IAlertGroup {
 
 export interface IAlertReceiveRoute {
   chat_id: string;
+  /**
+   * 接收者会被加急的最低告警级别
+   *
+   * UNKNOWN > CRITICAL > ERROR > WARNING > INFO
+   *
+   * 例如，route 设置为 ERROR，则 ERROR, CRITICAL, UNKNOWN 级别的告警都会加急发送给该接收者
+   */
   urgent_on_severity: string;
   urgent_user_list: Array<{
     user_id: string;
