@@ -72,7 +72,7 @@ const makeUrgentPayload = (
     return undefined;
   }
 
-  return { urgent: route.urgent_type, userIds: route.urgent_user_list.map((v) => v.user_id) };
+  return { urgent: route.urgent_type, userIds: route.urgent_user_list };
 };
 
 const alertProcessing$ = new Subject<IAlertManagerMessage>();
