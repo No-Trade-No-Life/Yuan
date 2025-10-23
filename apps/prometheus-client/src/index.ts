@@ -119,3 +119,9 @@ terminal.server.provideService(
     return { res: { code: 0, message: 'OK', data } };
   },
 );
+
+// List Alerts
+terminal.server.provideService('prometheus/alerts', {}, async (msg) => {
+  const data = await request('/api/v1/alerts', {});
+  return { res: { code: 0, message: 'OK', data } };
+});
