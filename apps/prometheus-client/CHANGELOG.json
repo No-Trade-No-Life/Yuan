@@ -2,6 +2,23 @@
   "name": "@yuants/app-prometheus-client",
   "entries": [
     {
+      "version": "0.2.0",
+      "tag": "@yuants/app-prometheus-client_v0.2.0",
+      "date": "Thu, 23 Oct 2025 11:05:43 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add list alert service"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.23",
       "tag": "@yuants/app-prometheus-client_v0.1.23",
       "date": "Tue, 21 Oct 2025 11:23:00 GMT",
