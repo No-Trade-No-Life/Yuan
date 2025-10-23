@@ -6,13 +6,13 @@ import { stringify } from 'querystring';
 const terminal = Terminal.fromNodeEnv();
 
 // See: https://prometheus.io/docs/prometheus/latest/querying/api/
-const request = async (path: string, params: any) => {
+const request = async (method: string, path: string, params: any) => {
   const url = new URL(process.env.PROM_API_ENDPOINT!);
   url.pathname = join(url.pathname, path);
   const body = stringify(params);
   console.info(formatTime(Date.now()), path, body);
   const res = await fetch(url.toString(), {
-    method: 'POST',
+    method,
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded',
       Authorization: `Basic ${btoa(`${process.env.BASIC_AUTH_USERNAME}:${process.env.BASIC_AUTH_PASSWORD}`)}`,
@@ -35,7 +35,7 @@ terminal.server.provideService(
     },
   },
   async (msg) => {
-    const data = await request('/api/v1/query', msg.req);
+    const data = await request('POST', '/api/v1/query', msg.req);
     return { res: { code: 0, message: 'OK', data } };
   },
 );
@@ -54,7 +54,7 @@ terminal.server.provideService(
     },
   },
   async (msg) => {
-    const data = await request('/api/v1/query_range', msg.req);
+    const data = await request('POST', '/api/v1/query_range', msg.req);
     return { res: { code: 0, message: 'OK', data } };
   },
 );
@@ -72,7 +72,7 @@ terminal.server.provideService(
     },
   },
   async (msg) => {
-    const data = await request('/api/v1/series', msg.req);
+    const data = await request('POST', '/api/v1/series', msg.req);
     return { res: { code: 0, message: 'OK', data } };
   },
 );
@@ -89,7 +89,7 @@ terminal.server.provideService(
     },
   },
   async (msg) => {
-    const data = await request('/api/v1/labels', msg.req);
+    const data = await request('POST', '/api/v1/labels', msg.req);
     return { res: { code: 0, message: 'OK', data } };
   },
 );
@@ -115,13 +115,13 @@ terminal.server.provideService(
       matchers?: string[];
       limit?: number;
     };
-    const data = await request(`/api/v1/label/${label_name}/values`, rest);
+    const data = await request('POST', `/api/v1/label/${label_name}/values`, rest);
     return { res: { code: 0, message: 'OK', data } };
   },
 );
 
 // List Alerts
 terminal.server.provideService('prometheus/alerts', {}, async (msg) => {
-  const data = await request('/api/v1/alerts', {});
+  const data = await request('GET', '/api/v1/alerts', {});
   return { res: { code: 0, message: 'OK', data } };
 });
