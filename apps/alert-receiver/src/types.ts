@@ -44,9 +44,7 @@ export interface IAlertReceiveRoute {
    * 例如，route 设置为 ERROR，则 ERROR, CRITICAL, UNKNOWN 级别的告警都会加急发送给该接收者
    */
   urgent_on_severity: string;
-  urgent_user_list: Array<{
-    user_id: string;
-  }>;
+  urgent_user_list: string[];
   // 'app' | 'sms' | 'phone'
   urgent_type: string;
   enabled: boolean;
