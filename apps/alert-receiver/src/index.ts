@@ -18,6 +18,7 @@ import {
   shareReplay,
   tap,
   timeout,
+  timer,
   toArray,
 } from 'rxjs';
 import { renderAlertMessageCard } from './feishu/render-alert-message-card';
@@ -52,6 +53,14 @@ const terminal = Terminal.fromNodeEnv();
 const ENV = process.env.ENV ?? 'unknown';
 const SEVERITY_ORDER = ['UNKNOWN', 'CRITICAL', 'ERROR', 'WARNING', 'INFO'] as const;
 const getSeverityIndex = (value: string) => SEVERITY_ORDER.indexOf(value as (typeof SEVERITY_ORDER)[number]);
+
+const mapSeverityToRepeatInterval: Record<string, number> = {
+  UNKNOWN: 30 * 60_000,
+  CRITICAL: 30 * 60_000,
+  ERROR: 60 * 60_000,
+  WARNING: 120 * 60_000,
+  INFO: 360 * 60_000,
+};
 
 const makeUrgentPayload = (
   route: IAlertReceiveRoute,
@@ -127,7 +136,20 @@ defer(() =>
   .pipe(
     listWatch(
       (group) => group.group_key,
-      (group) => defer(() => handleAlertGroup(group)),
+      (group) =>
+        defer(() => handleAlertGroup(group)).pipe(
+          tap({
+            error: (e) => {
+              console.error(formatTime(Date.now()), 'HandleAlertGroupFailed', group.group_key, e);
+            },
+          }),
+          repeat({
+            delay: () => {
+              const interval = mapSeverityToRepeatInterval[group.severity] ?? 60 * 60_000;
+              return timer(interval);
+            },
+          }),
+        ),
       (a, b) => a.version === b.version,
     ),
   )
