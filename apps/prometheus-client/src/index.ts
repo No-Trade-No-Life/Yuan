@@ -9,7 +9,14 @@ const terminal = Terminal.fromNodeEnv();
 const request = async (method: string, path: string, params: any) => {
   const url = new URL(process.env.PROM_API_ENDPOINT!);
   url.pathname = join(url.pathname, path);
-  const body = stringify(params);
+  let body: string | undefined;
+  if (method === 'GET' || method === 'HEAD') {
+    for (const [k, v] of Object.entries(params)) {
+      url.searchParams.set(k, v as any);
+    }
+  } else {
+    body = stringify(params);
+  }
   console.info(formatTime(Date.now()), path, body);
   const res = await fetch(url.toString(), {
     method,
