@@ -21,7 +21,7 @@ import {
   toArray,
 } from 'rxjs';
 import { renderAlertMessageCard } from './feishu/render-alert-message-card';
-import type { IAlertGroup, IAlertRecord } from './types';
+import type { IAlertGroup, IAlertMessageEntry, IAlertReceiveRoute, IAlertRecord } from './types';
 
 /// Alert manager 消息
 interface IAlertManagerMessage {
@@ -47,27 +47,24 @@ interface IAlertManagerItem {
   fingerprint: string;
 }
 
-interface IAlertReceiverConfig {
-  type: string;
-  receiver_id: string;
-  /**
-   * 接收者想要接收的最低等级的告警
-   *
-   * UNKNOWN > CRITICAL > ERROR > WARNING > INFO
-   *
-   * 例如，route 设置为 ERROR，则 ERROR, CRITICAL, UNKNOWN 级别的告警都会发送给该接收者
-   */
-  severity: string;
-  enabled: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
 const terminal = Terminal.fromNodeEnv();
 
 const ENV = process.env.ENV ?? 'unknown';
 const SEVERITY_ORDER = ['UNKNOWN', 'CRITICAL', 'ERROR', 'WARNING', 'INFO'] as const;
 const getSeverityIndex = (value: string) => SEVERITY_ORDER.indexOf(value as (typeof SEVERITY_ORDER)[number]);
+
+const makeUrgentPayload = (
+  route: IAlertReceiveRoute,
+  groupSeverity: string,
+): { urgent: string; userIds: string[] } | undefined => {
+  if (route.urgent_user_list.length === 0) return undefined;
+  if (getSeverityIndex(groupSeverity) === -1) return undefined;
+  if (getSeverityIndex(groupSeverity) > getSeverityIndex(route.urgent_on_severity)) {
+    return undefined;
+  }
+
+  return { urgent: route.urgent_type, userIds: route.urgent_user_list.map((v) => v.user_id) };
+};
 
 const alertProcessing$ = new Subject<IAlertManagerMessage>();
 
@@ -138,8 +135,8 @@ defer(() =>
     error: (e) => console.error(formatTime(Date.now()), 'HandleAlertGroupFailed', e),
   });
 
-const config$ = defer(() =>
-  requestSQL<IAlertReceiverConfig[]>(terminal, `select * from alert_receiver_config where enabled = true`),
+const routeConfig$ = defer(() =>
+  requestSQL<IAlertReceiveRoute[]>(terminal, `select * from alert_receive_route where enabled = TRUE`),
 ).pipe(retry({ delay: 1_000 }), repeat({ delay: 10_000 }), shareReplay(1));
 
 const keepAliveSignal$ = new Subject<void>();
@@ -293,17 +290,11 @@ const handleAlertGroup = async (group: IAlertGroup) => {
     return;
   }
 
-  const config = await firstValueFrom(config$);
-
-  const receiverList = config.filter((item) => {
-    if (item.type !== 'feishu') return false;
-    return getSeverityIndex(group.severity) <= getSeverityIndex(normalizeSeverity(item.severity));
-  });
-
-  if (receiverList.length === 0) {
+  const routes = await firstValueFrom(routeConfig$);
+  if (routes.length === 0) {
     console.info(
       formatTime(Date.now()),
-      'NoEligibleFeishuReceiver',
+      'NoAlertReceiveRouteConfigured',
       JSON.stringify({
         group: group.group_key,
         alertName: group.alert_name,
@@ -311,37 +302,37 @@ const handleAlertGroup = async (group: IAlertGroup) => {
     );
     return;
   }
-
   const cardDSL = JSON.stringify(buildAlertCard(group));
-  const mapReceiveIdToMessageId = new Map<string, string>();
+  const mapRouteIdToMessageId = new Map<string, string>();
   for (const alert of group.alerts) {
-    const entries = alert.message_ids ?? [];
+    const entries: IAlertMessageEntry[] = alert.message_ids ?? [];
     for (const entry of entries) {
-      mapReceiveIdToMessageId.set(entry.receiver_id, entry.message_id);
+      mapRouteIdToMessageId.set(entry.route_id, entry.message_id);
     }
   }
 
   await firstValueFrom(
-    from(receiverList).pipe(
-      mergeMap(async (receiver) => {
-        // TODO: separate urgent tag from receiver_id
-        const parts = receiver.receiver_id.split('-');
-        const receiver_id = parts[parts.length - 1];
-        const urgent = parts.length > 1 ? parts[0] : undefined;
-        const existingMessageId = mapReceiveIdToMessageId.get(receiver.receiver_id);
+    from(routes).pipe(
+      mergeMap(async (route) => {
+        const existingMessageId = mapRouteIdToMessageId.get(route.chat_id);
+        const urgentPayload = makeUrgentPayload(route, group.severity);
         const payload = existingMessageId
           ? {
               message_id: existingMessageId,
               msg_type: 'interactive',
               content: cardDSL,
-              ...(urgent ? { urgent, urgent_user_list: [receiver_id] } : {}),
+              ...(urgentPayload
+                ? { urgent: urgentPayload.urgent, urgent_user_list: urgentPayload.userIds }
+                : {}),
             }
           : {
-              receive_id: receiver_id,
-              receive_id_type: 'user_id',
+              receive_id: route.chat_id,
+              receive_id_type: 'chat_id',
               msg_type: 'interactive',
               content: cardDSL,
-              ...(urgent ? { urgent, urgent_user_list: [receiver_id] } : {}),
+              ...(urgentPayload
+                ? { urgent: urgentPayload.urgent, urgent_user_list: urgentPayload.userIds }
+                : {}),
             };
 
         const serviceName = existingMessageId ? 'Feishu/UpdateMessage' : 'Feishu/SendMessage';
@@ -357,15 +348,15 @@ const handleAlertGroup = async (group: IAlertGroup) => {
 
         const messageId = result.data?.message_id ?? existingMessageId;
         if (messageId) {
-          mapReceiveIdToMessageId.set(receiver.receiver_id, messageId);
+          mapRouteIdToMessageId.set(route.chat_id, messageId);
         }
       }),
       toArray(),
     ),
   );
 
-  const messageEntries = Array.from(mapReceiveIdToMessageId.entries()).map(([receiver_id, message_id]) => ({
-    receiver_id,
+  const messageEntries = Array.from(mapRouteIdToMessageId.entries()).map(([route_id, message_id]) => ({
+    route_id,
     message_id,
   }));
 
@@ -400,36 +391,34 @@ const handleAlertGroup = async (group: IAlertGroup) => {
   }
 };
 
-// const getHighestSeverity = (alerts: IAlertRecord[]): string =>
-//   alerts.reduce<string>((current, alert) => {
-//     if (getSeverityIndex(alert.severity) < getSeverityIndex(current)) {
-//       return alert.severity;
-//     }
-//     return current;
-//   }, 'INFO');
-
 const normalizeRecordFromDb = (record: IAlertRecord): IAlertRecord => {
   const rawMessageIds = (record as any).message_ids;
-  let messageIds: Array<{ receiver_id: string; message_id: string }> | undefined;
+  let messageIds: IAlertMessageEntry[] | undefined;
   if (Array.isArray(rawMessageIds)) {
     messageIds = rawMessageIds
       .map((entry) =>
-        entry && typeof entry === 'object'
-          ? { receiver_id: String(entry.receiver_id), message_id: String(entry.message_id) }
+        entry &&
+        typeof entry === 'object' &&
+        typeof (entry as any).route_id === 'string' &&
+        typeof (entry as any).message_id === 'string'
+          ? { route_id: String((entry as any).route_id), message_id: String((entry as any).message_id) }
           : undefined,
       )
-      .filter((entry): entry is { receiver_id: string; message_id: string } => !!entry);
+      .filter((entry): entry is IAlertMessageEntry => !!entry);
   } else if (typeof rawMessageIds === 'string') {
     try {
       const parsed = JSON.parse(rawMessageIds);
       if (Array.isArray(parsed)) {
         messageIds = parsed
           .map((entry) =>
-            entry && typeof entry === 'object'
-              ? { receiver_id: String(entry.receiver_id), message_id: String(entry.message_id) }
+            entry &&
+            typeof entry === 'object' &&
+            typeof (entry as any).route_id === 'string' &&
+            typeof (entry as any).message_id === 'string'
+              ? { route_id: String((entry as any).route_id), message_id: String((entry as any).message_id) }
               : undefined,
           )
-          .filter((entry): entry is { receiver_id: string; message_id: string } => !!entry);
+          .filter((entry): entry is IAlertMessageEntry => !!entry);
       }
     } catch (e) {
       console.warn(formatTime(Date.now()), 'ParseMessageIdsFailed', rawMessageIds, e);
@@ -456,42 +445,3 @@ const normalizeSeverity = (severity: string | undefined): string => {
   }
   return 'UNKNOWN';
 };
-
-// const determineGroupName = (alertMsg: IAlertManagerMessage, alertItem: IAlertManagerItem): string => {
-//   if (alertMsg.groupKey) {
-//     return alertMsg.groupKey;
-//   }
-
-//   const alertName = alertMsg.commonLabels['alertname'] ?? alertItem.labels['alertname'] ?? 'unknown';
-//   const env = alertMsg.commonLabels['env'] ?? ENV;
-//   const baseGroup = `${alertName}_${env}`;
-
-//   const instance =
-//     alertItem.labels['instance'] ??
-//     alertItem.labels['pod'] ??
-//     alertItem.labels['service'] ??
-//     alertItem.labels['job'];
-
-//   if (alertName === 'Watchdog') {
-//     return `${baseGroup}_watchdog`;
-//   }
-
-//   if (instance) {
-//     return `${baseGroup}_${instance}`;
-//   }
-
-//   return baseGroup;
-// };
-
-// const generateAlertId = (alertMsg: IAlertManagerMessage, alertItem: IAlertManagerItem): string => {
-//   if (alertItem.fingerprint) {
-//     return alertItem.fingerprint;
-//   }
-//   const labelPart = Object.entries(alertItem.labels || {})
-//     .map(([key, value]) => `${key}=${value}`)
-//     .sort()
-//     .join(',');
-//   return `${alertMsg.commonLabels['alertname'] ?? alertItem.labels['alertname'] ?? 'unknown'}:${labelPart}:${
-//     alertItem.startsAt ?? Date.now()
-//   }`;
-// };
