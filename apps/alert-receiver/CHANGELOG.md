@@ -1,6 +1,18 @@
 # Change Log - @yuants/app-alert-receiver
 
-This log was last generated on Tue, 21 Oct 2025 18:12:50 GMT and should not be manually modified.
+This log was last generated on Thu, 23 Oct 2025 09:54:16 GMT and should not be manually modified.
+
+## 0.4.0
+Thu, 23 Oct 2025 09:54:16 GMT
+
+### Minor changes
+
+- alert for feishu group instead of dm
+
+### Patches
+
+- add repeat for severity
+- fix urgent user list
 
 ## 0.3.0
 Tue, 21 Oct 2025 18:12:50 GMT
