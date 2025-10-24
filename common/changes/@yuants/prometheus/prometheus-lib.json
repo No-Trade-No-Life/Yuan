@@ -3,7 +3,7 @@
     {
       "packageName": "@yuants/prometheus",
       "comment": "Implement high-performance, cross-platform Prometheus metrics library",
-      "type": "feature"
+      "type": "minor"
     }
   ],
   "packageName": "@yuants/prometheus"
