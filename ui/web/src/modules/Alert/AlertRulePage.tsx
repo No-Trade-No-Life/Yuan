@@ -1,7 +1,7 @@
 import { IconDelete, IconEdit, IconMinusCircle, IconPlusCircle } from '@douyinfe/semi-icons';
 import { ArrayField, Form, Modal, Space } from '@douyinfe/semi-ui';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
-import { formatTime, UUID } from '@yuants/utils';
+import { UUID } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import {
@@ -15,7 +15,7 @@ import {
   switchMap,
 } from 'rxjs';
 import { escapeForBash } from '../Deploy/utils';
-import { Button, Switch, Toast } from '../Interactive';
+import { Button, InlineTime, Switch, Toast } from '../Interactive';
 import { terminal$ } from '../Network';
 import { registerPage } from '../Pages';
 import { IPrometheusRule } from './model';
@@ -181,12 +181,12 @@ registerPage('AlertRulePage', () => {
           {
             header: 'Created At',
             accessorKey: 'created_at',
-            cell: (ctx) => formatTime(ctx.getValue()),
+            cell: (ctx) => <InlineTime time={ctx.getValue()} />,
           },
           {
             header: 'Updated At',
             accessorKey: 'updated_at',
-            cell: (ctx) => formatTime(ctx.getValue()),
+            cell: (ctx) => <InlineTime time={ctx.getValue()} />,
           },
           {
             header: 'Action',

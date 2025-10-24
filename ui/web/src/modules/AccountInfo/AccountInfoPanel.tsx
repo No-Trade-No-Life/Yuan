@@ -29,7 +29,7 @@ import {
 } from 'rxjs';
 import { TimeSeriesChart } from '../Chart/components/TimeSeriesChart';
 import { executeCommand } from '../CommandCenter';
-import { Button, DataView } from '../Interactive';
+import { Button, DataView, InlineTime } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
 import { InlineProductId } from '../Products/InlineProductId';
 import { terminal$, useTick } from '../Terminals';
@@ -331,7 +331,7 @@ registerPage('AccountInfoPanel', () => {
       helper.accessor('order_id', { header: () => '委托单号' }),
       helper.accessor('submit_at', {
         header: () => '提交时间',
-        cell: (ctx) => formatTime(ctx.getValue() || 0),
+        cell: (ctx) => <InlineTime time={ctx.getValue() || NaN} />,
       }),
       helper.accessor('product_id', { header: () => '委托品种' }),
       helper.accessor('order_type', { header: () => '委托类型' }),
@@ -394,7 +394,7 @@ registerPage('AccountInfoPanel', () => {
     <Space vertical align="start" style={{ padding: '1em', width: '100%', boxSizing: 'border-box' }}>
       <h3 style={{ color: 'var(--semi-color-text-0)', fontWeight: 500 }}>{accountId}</h3>
       <Typography.Text>
-        最后更新时间: {formatTime(updatedAt)} (Ping {renderedAt - updatedAt}ms){' '}
+        最后更新时间: <InlineTime time={updatedAt} /> (Ping {renderedAt - updatedAt}ms){' '}
         {accountInfo ? null : <Spin />}
       </Typography.Text>
       {/* <InlineTerminalId terminal_id={targetTerminalId || ''} /> */}

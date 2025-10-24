@@ -1,11 +1,10 @@
 import { createColumnHelper } from '@tanstack/react-table';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
-import { formatTime } from '@yuants/utils';
 import { JSONSchema7 } from 'json-schema';
 import { firstValueFrom } from 'rxjs';
 import { InlineAccountId } from '../AccountInfo';
 import { DataRecordView } from '../DataRecord';
-import { DataView, Switch, Toast } from '../Interactive';
+import { DataView, InlineTime, Switch, Toast } from '../Interactive';
 import { terminal$ } from '../Network';
 import { registerPage } from '../Pages';
 import { IAccountComposerConfig } from './interface';
@@ -140,11 +139,11 @@ registerPage('AccountComposerConfigList', () => {
 
           columnHelper.accessor('created_at', {
             header: () => '创建时间',
-            cell: (ctx) => formatTime(ctx.getValue()),
+            cell: (ctx) => <InlineTime time={ctx.getValue()} />,
           }),
           columnHelper.accessor('updated_at', {
             header: () => '更新时间',
-            cell: (ctx) => formatTime(ctx.getValue()),
+            cell: (ctx) => <InlineTime time={ctx.getValue()} />,
           }),
         ];
       }}

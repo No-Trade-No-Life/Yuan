@@ -1,9 +1,9 @@
 import { ISeriesCollectingTask } from '@yuants/data-series';
 import { requestSQL } from '@yuants/sql';
-import { encodePath, formatTime } from '@yuants/utils';
+import { encodePath } from '@yuants/utils';
 import { useObservableState } from 'observable-hooks';
 import { BehaviorSubject, first, firstValueFrom, of, switchMap, timeout } from 'rxjs';
-import { Button, DataView, Toast } from '../Interactive';
+import { Button, DataView, InlineTime, Toast } from '../Interactive';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
 
@@ -118,17 +118,17 @@ registerPage('SeriesCollectingTaskList', () => {
         {
           header: '本次拉取开始时间',
           accessorKey: 'started_at',
-          cell: (ctx) => formatTime(ctx.getValue()),
+          cell: (ctx) => <InlineTime time={ctx.getValue()} />,
         },
         {
           header: '上次完成时间',
           accessorKey: 'completed_at',
-          cell: (ctx) => formatTime(ctx.getValue()),
+          cell: (ctx) => <InlineTime time={ctx.getValue()} />,
         },
         {
           header: '本次拉取起点',
           accessorKey: 'last_created_at',
-          cell: (ctx) => formatTime(ctx.getValue()),
+          cell: (ctx) => <InlineTime time={ctx.getValue()} />,
         },
         {
           header: '本次已拉取',
@@ -141,22 +141,22 @@ registerPage('SeriesCollectingTaskList', () => {
         {
           header: '本次拉取至',
           accessorKey: 'api_status.fetched_at',
-          cell: (ctx) => formatTime(ctx.getValue()),
+          cell: (ctx) => <InlineTime time={ctx.getValue()} />,
         },
         {
           header: '本次保存至',
           accessorKey: 'api_status.saved_at',
-          cell: (ctx) => formatTime(ctx.getValue()),
+          cell: (ctx) => <InlineTime time={ctx.getValue()} />,
         },
         {
           header: '创建时间',
           accessorKey: 'created_at',
-          cell: (ctx) => formatTime(ctx.getValue()),
+          cell: (ctx) => <InlineTime time={ctx.getValue()} />,
         },
         {
           header: '更新时间',
           accessorKey: 'updated_at',
-          cell: (ctx) => formatTime(ctx.getValue()),
+          cell: (ctx) => <InlineTime time={ctx.getValue()} />,
         },
       ]}
     />

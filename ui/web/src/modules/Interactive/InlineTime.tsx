@@ -2,11 +2,7 @@ import { Tooltip } from '@douyinfe/semi-ui';
 import { formatTime } from '@yuants/utils';
 import { useEffect, useState } from 'react';
 
-/**
- * 将时间戳解析成人类易读的格式
- * @param t 时间戳
- */
-export const formatDurationFromNow = (t: number | string | Date): { text: string; updatingAfter: number } => {
+const formatDurationFromNow = (t: number | string | Date): { text: string; updatingAfter: number } => {
   const time = new Date(t).getTime();
   const now = Date.now();
   const duration = now - time;

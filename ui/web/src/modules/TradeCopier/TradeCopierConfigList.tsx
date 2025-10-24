@@ -1,8 +1,7 @@
 import { createColumnHelper } from '@tanstack/react-table';
-import { formatTime } from '@yuants/utils';
 import { InlineAccountId } from '../AccountInfo';
 import { DataRecordView } from '../DataRecord';
-import { Switch } from '../Interactive';
+import { InlineTime, Switch } from '../Interactive';
 import { registerPage } from '../Pages';
 import { ITradeCopierConfig } from './interface';
 import { schemaOfTradeCopierConfig } from './schema';
@@ -30,11 +29,11 @@ registerPage('TradeCopierConfigList', () => {
           }),
           columnHelper.accessor('created_at', {
             header: '创建时间',
-            cell: (ctx) => formatTime(ctx.getValue()),
+            cell: (ctx) => <InlineTime time={ctx.getValue()} />,
           }),
           columnHelper.accessor('updated_at', {
             header: '更新时间',
-            cell: (ctx) => formatTime(ctx.getValue()),
+            cell: (ctx) => <InlineTime time={ctx.getValue()} />,
           }),
         ];
       }}
