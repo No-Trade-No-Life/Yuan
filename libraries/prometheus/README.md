@@ -1,78 +1,64 @@
 # @yuants/prometheus
 
-一个高性能、跨平台的 Prometheus 埋点库，专为现代 JavaScript 应用设计。
+This package implements a high-performance, cross-platform Prometheus metrics library for modern JavaScript applications.
 
-## 特性
+## Features
 
-- 🚀 **高性能**: 使用 curry 化预计算标签键，最小化运行时开销
-- 🌐 **跨平台**: 兼容 Browser / NodeJS / 各种 JavaScript 环境，只使用标准 JS 功能
-- 🏷️ **Curry 化标签**: 在多次设置度量值之间缓存标签拼接字符串
-- 📊 **完整指标类型**: 支持 Counter、Gauge、Histogram 三种标准 Prometheus 指标
-- 🔧 **灵活管理**: 支持注册表管理、数据删除、重置和序列化
+- 🚀 **High Performance**: Uses currying to pre-calculate label keys, minimizing runtime overhead
+- 🌐 **Cross-Platform**: Compatible with Browser / NodeJS / various JavaScript environments, using only standard JS features
+- 🏷️ **Curried Labels**: Caches label concatenation strings between multiple metric value settings
+- 📊 **Complete Metric Types**: Supports Counter, Gauge, and Histogram standard Prometheus metrics
+- 🔧 **Flexible Management**: Supports registry management, data deletion, reset, and serialization
 
-## 设计理念
-
-### 性能优化
-
-1. **预计算标签键**: 在创建时使用 `makeLabelKey` 预计算标签字符串，避免运行时重复计算
-2. **Curry 化设计**: 标签设置采用函数式编程范式，缓存中间结果
-3. **零依赖**: 只使用标准 JavaScript 功能，确保最小化包体积和最佳性能
-
-### 跨平台兼容
-
-- 无 Node.js 特定依赖
-- 无浏览器特定 API
-- 纯 TypeScript/JavaScript 实现
-
-## 安装
+## Installation
 
 ```bash
 npm install @yuants/prometheus
 ```
 
-## 快速开始
+## Quick Start
 
-### 基本使用
+### Basic Usage
 
 ```typescript
 import { createRegistry } from '@yuants/prometheus';
 
-// 创建注册表
+// Create registry
 const registry = createRegistry();
 
-// 创建计数器
+// Create counter
 const requests = registry.counter('http_requests', 'Total HTTP requests');
-requests.inc(); // 增加 1
-requests.add(5); // 增加 5
+requests.inc(); // Increment by 1
+requests.add(5); // Add 5
 
-// 创建仪表盘
+// Create gauge
 const memory = registry.gauge('memory_usage', 'Memory usage in bytes');
-memory.set(1024 * 1024); // 设置值
-memory.inc(); // 增加 1
-memory.dec(); // 减少 1
+memory.set(1024 * 1024); // Set value
+memory.inc(); // Increment by 1
+memory.dec(); // Decrement by 1
 
-// 创建直方图
+// Create histogram
 const latency = registry.histogram('latency_seconds', 'Request latency', [0.1, 0.5, 1.0]);
 latency.observe(0.05);
 latency.observe(0.3);
 
-// 序列化输出
+// Serialize output
 console.log(registry.serialize());
 ```
 
-### 使用标签
+### Using Labels
 
 ```typescript
 const requests = registry.counter('http_requests', 'HTTP requests');
 
-// 使用标签
+// Use labels
 const getRequests = requests.labels({ method: 'GET', status: '200' });
 const postRequests = requests.labels({ method: 'POST', status: '201' });
 
 getRequests.inc(100);
 postRequests.inc(50);
 
-// Curry 化标签链
+// Curried label chaining
 const apiRequests = requests
   .labels({ service: 'api' })
   .labels({ version: 'v1' })
@@ -81,142 +67,142 @@ const apiRequests = requests
 apiRequests.inc(25);
 ```
 
-### 数据管理
+### Data Management
 
 ```typescript
-// 删除特定标签组合的数据
+// Delete data for specific label combination
 registry.delete('http_requests', { method: 'GET', status: '200' });
 
-// 删除所有 http_requests 数据
+// Delete all http_requests data
 registry.delete('http_requests');
 
-// 清空所有数据
+// Clear all data
 registry.clear();
 
-// 重置所有数据为初始值
+// Reset all data to initial values
 registry.reset();
 ```
 
-## API 文档
+## API Documentation
 
 ### Registry
 
 #### `createRegistry(): IRegistry`
 
-创建新的指标注册表。
+Create a new metrics registry.
 
 #### `registry.counter(name: string, help: string): Counter`
 
-创建并注册计数器。
+Create and register a counter.
 
 #### `registry.gauge(name: string, help: string): Gauge`
 
-创建并注册仪表盘。
+Create and register a gauge.
 
 #### `registry.histogram(name: string, help: string, buckets?: number[]): Histogram`
 
-创建并注册直方图。如果不提供桶，使用默认桶：`[0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]`
+Create and register a histogram. If buckets are not provided, default buckets are used: `[0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]`
 
 #### `registry.delete(name: string, labels?: Record<string, string>): void`
 
-删除特定指标的数据。
+Delete data for a specific metric.
 
 #### `registry.clear(): void`
 
-清空所有数据。
+Clear all data.
 
 #### `registry.reset(): void`
 
-重置所有数据为初始值。
+Reset all data to initial values.
 
 #### `registry.serialize(): string`
 
-序列化所有指标为 Prometheus 文本格式。
+Serialize all metrics to Prometheus text format.
 
 ### Counter
 
 #### `counter.inc(value = 1): void`
 
-增加计数器值。
+Increment counter value.
 
 #### `counter.add(value: number): void`
 
-增加指定值（必须 >= 0）。
+Add specified value (must be >= 0).
 
 #### `counter.set(value: number): void`
 
-设置计数器值。
+Set counter value.
 
 #### `counter.get(): number`
 
-获取当前值。
+Get current value.
 
 #### `counter.delete(): void`
 
-删除此标签组合的数据。
+Delete data for this label combination.
 
 #### `counter.labels(labelObj: Labels): Counter`
 
-返回带有新标签的计数器实例。
+Return a counter instance with new labels.
 
 ### Gauge
 
 #### `gauge.inc(value = 1): void`
 
-增加仪表盘值。
+Increment gauge value.
 
 #### `gauge.dec(value = 1): void`
 
-减少仪表盘值。
+Decrement gauge value.
 
 #### `gauge.add(value: number): void`
 
-增加指定值。
+Add specified value.
 
 #### `gauge.sub(value: number): void`
 
-减少指定值。
+Subtract specified value.
 
 #### `gauge.set(value: number): void`
 
-设置仪表盘值。
+Set gauge value.
 
 #### `gauge.get(): number`
 
-获取当前值。
+Get current value.
 
 #### `gauge.delete(): void`
 
-删除此标签组合的数据。
+Delete data for this label combination.
 
 #### `gauge.labels(labelObj: Labels): Gauge`
 
-返回带有新标签的仪表盘实例。
+Return a gauge instance with new labels.
 
 ### Histogram
 
 #### `histogram.observe(value: number): void`
 
-观察一个值并更新直方图。
+Observe a value and update the histogram.
 
 #### `histogram.get(): HistogramData`
 
-获取直方图数据。
+Get histogram data.
 
 #### `histogram.delete(): void`
 
-删除此标签组合的数据。
+Delete data for this label combination.
 
 #### `histogram.labels(labelObj: Labels): Histogram`
 
-返回带有新标签的直方图实例。
+Return a histogram instance with new labels.
 
-## 性能特点
+## Performance Characteristics
 
-### 标签键预计算
+### Label Key Pre-calculation
 
 ```typescript
-// 在创建时预计算，避免运行时重复计算
+// Pre-calculate at creation time to avoid runtime recalculation
 const makeLabelKey = (name: string, labels: Labels): string => {
   const labelStr = Object.entries(labels)
     .sort(([a], [b]) => a.localeCompare(b))
@@ -226,22 +212,22 @@ const makeLabelKey = (name: string, labels: Labels): string => {
 };
 ```
 
-### Curry 化性能优势
+### Currying Performance Benefits
 
 ```typescript
-// 传统方式 - 每次都需要重新计算标签
+// Traditional approach - labels need to be recalculated each time
 counter.inc({ method: 'GET', status: '200' }, 1);
 counter.inc({ method: 'GET', status: '200' }, 1);
 
-// Curry 化方式 - 标签键在创建时预计算
+// Curried approach - label key pre-calculated at creation time
 const getCounter = counter.labels({ method: 'GET', status: '200' });
-getCounter.inc(1); // 快速操作，标签键已缓存
-getCounter.inc(1); // 再次快速操作
+getCounter.inc(1); // Fast operation, label key cached
+getCounter.inc(1); // Fast operation again
 ```
 
-## 序列化格式
+## Serialization Format
 
-库输出标准的 Prometheus 文本格式：
+The library outputs standard Prometheus text format:
 
 ```
 # HELP http_requests_total Total HTTP requests
@@ -259,14 +245,14 @@ latency_seconds_bucket{le="1.0"} 3
 latency_seconds_bucket{le="+Inf"} 3
 ```
 
-## 测试
+## Testing
 
-运行测试：
+Run tests:
 
 ```bash
 npm run build
 ```
 
-## 许可证
+## License
 
 MIT
