@@ -161,53 +161,6 @@ registerPage('DeploySettings', () => {
         }
         columns={[
           {
-            header: '动作',
-            cell: (ctx) => (
-              <Space vertical>
-                <Switch
-                  checked={ctx.row.original.enabled}
-                  onChange={async (checked) => {
-                    await onUpdate([{ ...ctx.row.original, enabled: checked }]);
-                  }}
-                />
-                <Button
-                  icon={<IconFile />}
-                  onClick={() =>
-                    executeCommand('DeploymentRealtimeLog', {
-                      node_unit_address: ctx.row.original.address,
-                      deployment_id: ctx.row.original.id,
-                    })
-                  }
-                >
-                  日志
-                </Button>
-                <Button icon={<IconEdit />} onClick={() => onEdit(ctx.row.original)}>
-                  编辑
-                </Button>
-                <Button
-                  type="danger"
-                  icon={<IconDelete />}
-                  doubleCheck={{
-                    title: '确认删除此配置？',
-                    description: (
-                      <pre
-                        style={{
-                          width: '100%',
-                          overflow: 'auto',
-                        }}
-                      >
-                        {JSON.stringify(ctx.row.original, null, 2)}
-                      </pre>
-                    ),
-                  }}
-                  onClick={() => onDelete(ctx.row.original.id)}
-                >
-                  删除
-                </Button>
-              </Space>
-            ),
-          },
-          {
             header: '部署地址',
             accessorKey: 'address',
             cell: (ctx) => <InlineNodeUnitAddress address={ctx.getValue()} />,
@@ -267,6 +220,53 @@ registerPage('DeploySettings', () => {
           {
             header: '命令参数',
             accessorFn: (x) => (x.args || []).join(' '),
+          },
+          {
+            header: '动作',
+            id: 'actions',
+            meta: {
+              fixed: 'right',
+            },
+            cell: (ctx) => (
+              <Space>
+                <Switch
+                  checked={ctx.row.original.enabled}
+                  onChange={async (checked) => {
+                    await onUpdate([{ ...ctx.row.original, enabled: checked }]);
+                  }}
+                />
+                <Button
+                  icon={<IconFile />}
+                  onClick={() =>
+                    executeCommand('DeploymentRealtimeLog', {
+                      node_unit_address: ctx.row.original.address,
+                      deployment_id: ctx.row.original.id,
+                    })
+                  }
+                >
+                  日志
+                </Button>
+                <Button icon={<IconEdit />} onClick={() => onEdit(ctx.row.original)} />
+                <Button
+                  type="danger"
+                  icon={<IconDelete />}
+                  doubleCheck={{
+                    title: '确认删除此配置？',
+                    description: (
+                      <pre
+                        style={{
+                          width: '100%',
+                          overflow: 'auto',
+                        }}
+                      >
+                        {JSON.stringify(ctx.row.original, null, 2)}
+                      </pre>
+                    ),
+                  }}
+                  onClick={() => onDelete(ctx.row.original.id)}
+                />
+              </Space>
+            ),
           },
         ]}
       />

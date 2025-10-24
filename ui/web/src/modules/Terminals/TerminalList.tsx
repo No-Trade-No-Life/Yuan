@@ -1,17 +1,15 @@
 import { Space, Typography } from '@douyinfe/semi-ui';
 import { createColumnHelper } from '@tanstack/react-table';
 import { ITerminalInfo } from '@yuants/protocol';
-import { formatTime } from '@yuants/utils';
 import { useObservableState } from 'observable-hooks';
 import { useMemo } from 'react';
 import { map, of, shareReplay, switchMap } from 'rxjs';
 import { executeCommand } from '../CommandCenter';
-import { Button, DataView } from '../Interactive';
+import { Button, DataView, InlineTime } from '../Interactive';
 import { registerPage } from '../Pages';
 import { InlineIPv4 } from './InlineIPv4';
 import { terminate } from './TerminalListItem';
 import { terminal$ } from './create-connection';
-import { formatDuration } from './utils';
 
 export const terminalList$ = terminal$.pipe(
   switchMap((terminal) => terminal?.terminalInfos$ ?? of([])),
@@ -34,17 +32,12 @@ registerPage('TerminalList', () => {
         header: () => '终端名',
       }),
       columnHelper.accessor('updated_at', {
-        header: () => '最近更新时间',
-        cell: (info) => formatTime(info.getValue() || NaN),
+        header: () => '最近更新',
+        cell: (info) => <InlineTime time={info.getValue() || NaN} />,
       }),
       columnHelper.accessor('created_at', {
-        header: () => '启动时间',
-        cell: (info) => formatTime(info.getValue() || NaN),
-      }),
-      columnHelper.accessor((x) => Date.now() - (x.created_at || Date.now()), {
-        id: 'start_time',
-        header: () => '启动时长',
-        cell: (ctx) => formatDuration(ctx.getValue()),
+        header: () => '已启动',
+        cell: (info) => <InlineTime time={info.getValue() || NaN} />,
       }),
       columnHelper.accessor((x) => Object.values(x.serviceInfo || {}).length, {
         id: 'serviceLength',
@@ -69,8 +62,14 @@ registerPage('TerminalList', () => {
         header: () => '终端公网 IP',
         cell: (info) => <InlineIPv4 ipv4={info.getValue()} />,
       }),
+      columnHelper.accessor('tags.terminal_public_key', {
+        header: () => '终端公钥',
+      }),
       columnHelper.accessor((x) => 0, {
         id: 'actions',
+        meta: {
+          fixed: 'right',
+        },
         header: () => '操作',
         cell: (x) => {
           const terminal = x.row.original;
