@@ -8,11 +8,9 @@ import { useState } from 'react';
 import { debounceTime, filter, firstValueFrom, pipe, Subject, switchMap, timeout } from 'rxjs';
 import { showForm } from '../../Form';
 import { Button } from '../../Interactive';
-import { terminal$ } from '../../Network';
-import { CSV } from '../../Util';
 import { ChartComponent } from './ChartComponent';
 import { ILoadedData, ITimeSeriesChartConfig } from './model';
-import { loadSqlData } from './utils';
+import { loadTimeSeriesData } from './utils';
 
 const schemaOfChartConfig: JSONSchema7 = {
   type: 'object',
@@ -165,109 +163,21 @@ export const TimeSeriesChart = (props: {
       debounceTime(500),
       switchMap(([data]) =>
         Promise.allSettled(
-          (data ?? [])
-            .map(async (s, index): Promise<ILoadedData> => {
-              if (s.type === 'csv') {
-                return CSV.readFile(s.filename).then((records) => {
-                  const series: Map<string, any[]> = new Map();
-                  records.forEach((record) => {
-                    for (const key in record) {
-                      if (!series.has(key)) {
-                        series.set(key, []);
-                      }
-                      series.get(key)!.push(record[key]);
-                    }
-                  });
-                  return {
-                    //
-                    filename: s.filename,
-                    data_index: index,
-                    data_length: records.length,
-                    time_column_name: s.time_column_name,
-                    series,
-                  };
-                });
-              }
-              if (s.type === 'promql') {
-                const terminal = await firstValueFrom(terminal$);
-                if (!terminal) throw new Error('No terminal available for Prometheus query');
-                const data = await terminal.client.requestForResponseData<
-                  { query: string; start: string; end: string; step: string },
-                  {
-                    data: {
-                      resultType: string;
-                      result: Array<{ metric: Record<string, string>; values: [number, string][] }>;
-                    };
-                    status: string;
-                  }
-                >('prometheus/query_range', {
-                  query: s.query,
-                  start: new Date(s.start_time).getTime() / 1000 + '',
-                  end: new Date(s.end_time).getTime() / 1000 + '',
-                  step: s.step,
-                });
-
-                const series = new Map<string, any[]>();
-
-                const times = new Set<number>();
-                data.data.result.forEach((s) => {
-                  s.values.forEach(([t, v]) => {
-                    times.add(t);
-                  });
-                });
-
-                const timeSeries = Array.from(times).sort((a, b) => a - b);
-                series.set(
-                  '__time',
-                  timeSeries.map((t) => t * 1000),
-                );
-
-                data.data.result.forEach((s) => {
-                  const seriesName = JSON.stringify(s.metric);
-                  const map = new Map(s.values);
-                  series.set(
-                    seriesName,
-                    timeSeries.map((t) => map.get(t)),
-                  );
-                });
-
-                return {
-                  filename: `promql:${s.query}`,
-                  data_index: index,
-                  data_length: data.data.result[0].values.length,
-                  time_column_name: '__time',
-                  series,
-                };
-              }
-              if (s.type === 'sql') {
-                return await loadSqlData(s, index);
-              }
-              if (s.type === 'data') {
-                return {
-                  filename: s.name,
-                  data_index: index,
-                  data_length: s.data_length,
-                  series: s.series,
-                  time_column_name: s.time_column_name,
-                };
-              }
-              throw new Error(`Unsupported data source type: ${(s as any).type}`);
-            })
-            .map((p) =>
-              p.then((v) => {
-                console.info(
-                  formatTime(Date.now()),
-                  'DataLoaded',
-                  v.filename,
-                  'with',
-                  v.data_length,
-                  'rows and ',
-                  v.series.size,
-                  'series',
-                );
-                return v;
-              }),
-            ),
+          (data ?? []).map((s, index) =>
+            loadTimeSeriesData(s, index).then((v) => {
+              console.info(
+                formatTime(Date.now()),
+                'DataLoaded',
+                v.filename,
+                'with',
+                v.data_length,
+                'rows and ',
+                v.series.size,
+                'series',
+              );
+              return v;
+            }),
+          ),
         ).then((results) => {
           const fulfilled = results
             .filter((r): r is PromiseFulfilledResult<ILoadedData> => r.status === 'fulfilled')

@@ -61,6 +61,10 @@ registerPage('ServiceList', () => {
           accessorFn: (x) => JSON.stringify(x.serviceInfo.schema),
         },
         {
+          id: 'actions',
+          meta: {
+            fixed: 'right',
+          },
           header: '操作',
           cell: (ctx) => (
             <Space>

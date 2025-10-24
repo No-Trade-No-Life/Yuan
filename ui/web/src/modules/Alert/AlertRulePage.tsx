@@ -1,7 +1,9 @@
-import React, { useState } from 'react';
-import { registerPage } from '../Pages';
+import { IconDelete, IconEdit, IconMinusCircle, IconPlusCircle } from '@douyinfe/semi-icons';
+import { ArrayField, Form, Modal, Space } from '@douyinfe/semi-ui';
+import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
+import { formatTime, UUID } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
-import { terminal$ } from '../Network';
+import { useState } from 'react';
 import {
   BehaviorSubject,
   combineLatest,
@@ -12,13 +14,11 @@ import {
   retry,
   switchMap,
 } from 'rxjs';
-import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
-import { IPrometheusRule } from './model';
-import { formatTime, UUID } from '@yuants/utils';
 import { escapeForBash } from '../Deploy/utils';
-import { ArrayField, Form, Modal, Space } from '@douyinfe/semi-ui';
-import { IconDelete, IconEdit, IconMinusCircle, IconPlusCircle } from '@douyinfe/semi-icons';
-import { Switch, Button, Toast } from '../Interactive';
+import { Button, Switch, Toast } from '../Interactive';
+import { terminal$ } from '../Network';
+import { registerPage } from '../Pages';
+import { IPrometheusRule } from './model';
 export const refresh$ = new BehaviorSubject<void>(undefined);
 
 registerPage('AlertRulePage', () => {
@@ -125,46 +125,11 @@ registerPage('AlertRulePage', () => {
       <Modules.Interactive.DataView
         topSlot={
           <Button icon={<IconPlusCircle />} onClick={onCreate} style={{ margin: '10px 0' }}>
-            创建新部署
+            创建
           </Button>
         }
         data={alertRules}
         columns={[
-          {
-            header: 'Action',
-            accessorKey: 'enabled',
-            cell: (ctx) => {
-              return (
-                <Space vertical>
-                  <Switch
-                    checked={ctx.row.original.enabled}
-                    onChange={async (checked) => {
-                      await onUpdate([{ ...ctx.row.original, enabled: checked }]);
-                    }}
-                  />
-                  <Button icon={<IconEdit />} onClick={() => onEdit(ctx.row.original)} />
-                  <Button
-                    icon={<IconDelete />}
-                    type="danger"
-                    doubleCheck={{
-                      title: '确认删除此配置？',
-                      description: (
-                        <pre
-                          style={{
-                            width: '100%',
-                            overflow: 'auto',
-                          }}
-                        >
-                          {JSON.stringify(ctx.row.original, null, 2)}
-                        </pre>
-                      ),
-                    }}
-                    onClick={() => onDelete(ctx.row.original.id)}
-                  />
-                </Space>
-              );
-            },
-          },
           {
             header: 'Id',
             accessorKey: 'id',
@@ -222,6 +187,44 @@ registerPage('AlertRulePage', () => {
             header: 'Updated At',
             accessorKey: 'updated_at',
             cell: (ctx) => formatTime(ctx.getValue()),
+          },
+          {
+            header: 'Action',
+            accessorKey: 'enabled',
+            meta: {
+              fixed: 'right',
+            },
+            cell: (ctx) => {
+              return (
+                <Space>
+                  <Switch
+                    checked={ctx.row.original.enabled}
+                    onChange={async (checked) => {
+                      await onUpdate([{ ...ctx.row.original, enabled: checked }]);
+                    }}
+                  />
+                  <Button icon={<IconEdit />} onClick={() => onEdit(ctx.row.original)} />
+                  <Button
+                    icon={<IconDelete />}
+                    type="danger"
+                    doubleCheck={{
+                      title: '确认删除此配置？',
+                      description: (
+                        <pre
+                          style={{
+                            width: '100%',
+                            overflow: 'auto',
+                          }}
+                        >
+                          {JSON.stringify(ctx.row.original, null, 2)}
+                        </pre>
+                      ),
+                    }}
+                    onClick={() => onDelete(ctx.row.original.id)}
+                  />
+                </Space>
+              );
+            },
           },
         ]}
       />

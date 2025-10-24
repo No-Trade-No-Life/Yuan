@@ -15,7 +15,7 @@ import { RadioChangeEvent } from '@douyinfe/semi-ui/lib/es/radio';
 import { useAccountInfo } from '../AccountInfo';
 import { AccountProfit } from './AccountProfit';
 import { createFileSystemBehaviorSubject } from '../FileSystem';
-import { loadSqlData } from '../Chart/components/utils';
+import { loadTimeSeriesData } from '../Chart/components/utils';
 import { generateAccountOrders } from './utils';
 import { ITimeSeriesChartConfig } from '../Chart/components/model';
 import { seriesIdList$ } from '../OHLC';
@@ -231,16 +231,13 @@ registerPage('TradingBoard', () => {
     pipe(
       switchMap(async ([seriesId, drawOrders, accountId, productId, productInfo]) => {
         if (!seriesId || !productInfo) return { data: [], views: [] };
-        const ohlc = await loadSqlData(
-          {
-            type: 'sql' as const,
-            query: `select * from ohlc where series_id = ${escapeSQL(
-              seriesId,
-            )} order by created_at desc limit 5000`,
-            time_column_name: 'created_at',
-          },
-          0,
-        );
+        const ohlc = await loadTimeSeriesData({
+          type: 'sql' as const,
+          query: `select * from ohlc where series_id = ${escapeSQL(
+            seriesId,
+          )} order by created_at desc limit 5000`,
+          time_column_name: 'created_at',
+        });
 
         const data = [
           {

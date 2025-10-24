@@ -1,17 +1,17 @@
 import { DatePicker, Layout, Space } from '@douyinfe/semi-ui';
 import '@yuants/data-series';
 import { escapeSQL, requestSQL } from '@yuants/sql';
-import { convertDurationToOffset, decodePath, encodePath, formatTime } from '@yuants/utils';
+import { decodePath, formatTime } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { useState } from 'react';
 import { defer, filter, map, pipe, retry, shareReplay, switchMap } from 'rxjs';
 import { TimeSeriesChart } from '../Chart/components/TimeSeriesChart';
-import { AutoComplete, Button } from '../Interactive';
+import { loadTimeSeriesData } from '../Chart/components/utils';
+import { AutoComplete } from '../Interactive';
+import { seriesIdList$ } from '../OHLC';
 import { registerPage } from '../Pages';
 import { terminal$ } from '../Terminals';
-import { loadSqlData } from '../Chart/components/utils';
 import { generateAccountNetValue } from './GenerateAccountNetValue';
-import { seriesIdList$ } from '../OHLC';
 
 const accountIds$ = terminal$.pipe(
   filter((x): x is Exclude<typeof x, null> => !!x),
@@ -39,16 +39,13 @@ registerPage('Audit', () => {
       switchMap(async ([seriesId, timeRange, accountId, expectedAccountId]) => {
         const [datasource_id, product_id] = decodePath(seriesId);
         if (!timeRange || !seriesId || !accountId) return { data: [], views: [] };
-        const ohlc = await loadSqlData(
-          {
-            type: 'sql' as const,
-            query: `select * from ohlc where series_id = ${escapeSQL(seriesId)} and created_at>=${escapeSQL(
-              formatTime(timeRange[0]),
-            )} and created_at<=${escapeSQL(formatTime(timeRange[1]))} order by created_at`,
-            time_column_name: 'created_at',
-          },
-          0,
-        );
+        const ohlc = await loadTimeSeriesData({
+          type: 'sql' as const,
+          query: `select * from ohlc where series_id = ${escapeSQL(seriesId)} and created_at>=${escapeSQL(
+            formatTime(timeRange[0]),
+          )} and created_at<=${escapeSQL(formatTime(timeRange[1]))} order by created_at`,
+          time_column_name: 'created_at',
+        });
         const [expectedAccountNetSeries, expectedAccountOrderSeries] = await generateAccountNetValue(
           ohlc.series.get('created_at') ?? [],
           ohlc.series.get('close') ?? [],
