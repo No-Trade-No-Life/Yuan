@@ -22,7 +22,7 @@ import { loadObjectArrayData } from '../Chart/components/utils';
 import { executeCommand } from '../CommandCenter';
 import { fs } from '../FileSystem/api';
 import { showForm } from '../Form';
-import { Button, DataView } from '../Interactive';
+import { Button, DataView, InlineTime } from '../Interactive';
 import { registerPage, usePageParams } from '../Pages';
 import { registerAssociationRule } from '../System';
 import { useTerminal } from '../Terminals';
@@ -523,7 +523,11 @@ registerPage('FundStatements', () => {
                 accessorKey: 'account_id',
                 cell: (ctx) => <InlineAccountId account_id={ctx.getValue()} />,
               },
-              { header: '更新时间', accessorKey: 'updated_at', cell: (ctx) => formatTime(ctx.getValue()) },
+              {
+                header: '更新时间',
+                accessorKey: 'updated_at',
+                cell: (ctx) => <InlineTime time={ctx.getValue()} />,
+              },
               { header: '总资产', accessorKey: 'total_assets' },
               { header: '总份额', accessorKey: 'total_share' },
               { header: '净入金', accessorKey: 'total_deposit' },
@@ -710,7 +714,7 @@ registerPage('FundStatements', () => {
               {
                 header: '时间',
                 accessorKey: 'updated_at',
-                cell: (ctx) => formatTime(ctx.getValue()),
+                cell: (ctx) => <InlineTime time={ctx.getValue()} />,
               },
               {
                 header: '总资产',
@@ -735,7 +739,7 @@ registerPage('FundStatements', () => {
               {
                 header: '时间',
                 accessorKey: 'updated_at',
-                cell: (ctx) => formatTime(ctx.getValue()),
+                cell: (ctx) => <InlineTime time={ctx.getValue()} />,
               },
               {
                 header: '类型',

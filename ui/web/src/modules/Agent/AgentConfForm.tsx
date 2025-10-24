@@ -20,7 +20,7 @@ import {
 } from '@yuants/kernel';
 import { writeSecret } from '@yuants/secret';
 import { buildInsertManyIntoTableSQL, requestSQL } from '@yuants/sql';
-import { formatTime } from '@yuants/utils';
+import { encodeBase58, formatTime, sha256 } from '@yuants/utils';
 import Ajv from 'ajv';
 import { t } from 'i18next';
 import { JSONSchema7 } from 'json-schema';
@@ -388,6 +388,7 @@ registerPage('AgentConfForm', () => {
               if (!entry) throw 'Entry is empty';
               const { version } = await resolveVersion({ name: '@yuants/app-agent' });
               const bundled_code = await bundleCode(entry);
+              const code_sha256_base58 = encodeBase58(await sha256(new TextEncoder().encode(bundled_code)));
 
               const terminal = await firstValueFrom(terminal$);
 
@@ -407,6 +408,8 @@ registerPage('AgentConfForm', () => {
               const secret = await writeSecret(terminal, address, {}, new TextEncoder().encode(bundled_code));
 
               const env = {
+                CODE_ENTRY: entry,
+                CODE_SHA256_BASE58: code_sha256_base58,
                 CODE_SECRET_ID: secret.sign,
                 AGENT_PARAMS: JSON.stringify(agentConf?.agent_params || {}),
                 STARTED_AT: agentConf.start_time ? formatTime(agentConf.start_time) : '',

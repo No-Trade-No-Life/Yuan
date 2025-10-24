@@ -1,8 +1,7 @@
 import { requestSQL } from '@yuants/sql';
-import { formatTime } from '@yuants/utils';
 import { useObservable, useObservableState } from 'observable-hooks';
 import { concat, defer, of, repeat, retry, switchMap } from 'rxjs';
-import { DataView } from '../Interactive';
+import { DataView, InlineTime } from '../Interactive';
 import { terminal$ } from '../Network';
 import { registerPage } from '../Pages';
 import { InlineAccountId } from './InlineAccountId';
@@ -89,7 +88,7 @@ registerPage('AccountList', () => {
         {
           accessorKey: 'updated_at',
           header: '更新时间',
-          cell: (x) => formatTime(x.getValue()),
+          cell: (x) => <InlineTime time={x.getValue()} />,
         },
       ]}
     />
