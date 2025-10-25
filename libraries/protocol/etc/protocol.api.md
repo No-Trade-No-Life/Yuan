@@ -147,17 +147,6 @@ export const MetricsMeterProvider: MeterProvider;
 // @public
 export const PromRegistry: Registry;
 
-// @public @deprecated
-export const requestSharedKey: (terminal: Terminal, ed25519_public_key: string) => Promise<{
-    public_key: string;
-    private_key: string;
-    remote_public_key: string;
-    shared_key: string;
-}>;
-
-// @public @deprecated
-export const setupHandShakeService: (terminal: Terminal, private_key: string) => Map<string, string>;
-
 // @public
 export class Terminal {
     constructor(host_url: string, terminalInfo: ITerminalInfo, options?: {

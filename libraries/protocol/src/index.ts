@@ -13,4 +13,3 @@ export * from './metrics';
 export * from './model';
 export * from './server';
 export * from './terminal';
-export * from './utils';
