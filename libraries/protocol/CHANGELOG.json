@@ -2,6 +2,33 @@
   "name": "@yuants/protocol",
   "entries": [
     {
+      "version": "0.50.0",
+      "tag": "@yuants/protocol_v0.50.0",
+      "date": "Sat, 25 Oct 2025 06:32:46 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "remove some function"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "refactor to new prom"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/prometheus\" to `0.1.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.49.1",
       "tag": "@yuants/protocol_v0.49.1",
       "date": "Tue, 21 Oct 2025 11:23:00 GMT",

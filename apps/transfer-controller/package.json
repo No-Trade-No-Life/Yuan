@@ -1,6 +1,6 @@
 {
   "name": "@yuants/app-transfer-controller",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "main": "lib/index.js",
   "bin": "lib/cli.js",
   "files": [

@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-account
 
-This log was last generated on Tue, 21 Oct 2025 11:23:00 GMT and should not be manually modified.
+This log was last generated on Sat, 25 Oct 2025 06:32:46 GMT and should not be manually modified.
+
+## 0.6.10
+Sat, 25 Oct 2025 06:32:46 GMT
+
+### Patches
+
+- refactor to new prom
 
 ## 0.6.9
 Tue, 21 Oct 2025 11:23:00 GMT
