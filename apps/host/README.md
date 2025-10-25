@@ -49,7 +49,7 @@
 
 ## 监控
 
-Host 通过 `MetricsMeterProvider` 注册多项指标（如连接建立数量、消息大小直方图等），并在终端通道中发布，便于 Prometheus 或其他监控系统拉取。src/host-manager.ts:37
+Host 通过 `GlobalPrometheusRegistry` 注册多项指标（如连接建立数量、消息大小直方图等），并在终端通道中发布，便于 Prometheus 或其他监控系统拉取。src/host-manager.ts:37
 
 ## 开发与调试
 

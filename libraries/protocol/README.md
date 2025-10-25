@@ -6,7 +6,7 @@
 - **智能寻址**：`TerminalClient` 基于 JSON Schema 自动筛选可用终端，内建随机负载均衡与断线重试逻辑。
 - **自描述生态**：`TerminalServer` 通过 `IServiceInfo` 广播接口契约，Host 即时感知终端能力，实现零配置编排。
 - **双通道容错**：同时支持 WebSocket 与 WebRTC，自动降级回退，保障大流量与跨网络场景稳定。
-- **可观测性先行**：`MetricsMeterProvider` 默认集成 OpenTelemetry，终端伸缩、性能瓶颈一目了然。
+- **可观测性先行**：默认集成 Prometheus，终端伸缩、性能瓶颈一目了然。
 
 ## 快速上手
 
@@ -66,8 +66,8 @@ terminal.channel.publishChannel('Heartbeat', { const: '' }, () => interval(1000)
 
 ### 指标与监控
 
-- `MetricsExporter`：基于 OpenTelemetry 的自定义 MetricReader，可将采集结果序列化为 Prometheus 文本格式。
-- `MetricsMeterProvider`：全局 MeterProvider，终端及其子模块通过它创建计数器、直方图、仪表等指标。
+- `GlobalPrometheusRegistry`： 全局 Prometheus 指标注册表，预定义多项终端与服务相关指标，供终端实例直接使用。
+- `terminal.metrics`：终端实例的 Prometheus 指标集合，终端私有指标可通过该对象创建并注册。
 - `PromRegistry`：历史遗留的 Prometheus 注册表（已标记为弃用），保留给旧版代码渐进迁移。
 
 ### 安全握手与密钥协商
@@ -79,4 +79,3 @@ terminal.channel.publishChannel('Heartbeat', { const: '' }, () => interval(1000)
 
 - 建议通过环境变量配置 `HOST_URL`、`TERMINAL_ID` 等参数，并统一使用 `Terminal.fromNodeEnv()` 创建终端实例。
 - 为保证类型安全，请在 `provideService()` 时提供完整的 JSON Schema，终端客户端会利用它自动选择匹配的服务实例。
-- 指标默认通过 `MetricsMeterProvider` 暴露，可配合 `MetricsExporter.export()` 输出 Prometheus 兼容文本，实现监控集成。

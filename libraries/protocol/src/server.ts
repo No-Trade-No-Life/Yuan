@@ -1,4 +1,3 @@
-import { ValueType } from '@opentelemetry/api';
 import { formatTime, UUID } from '@yuants/utils';
 import { JSONSchema7 } from 'json-schema';
 import {
@@ -14,7 +13,6 @@ import {
   tap,
   timeout,
 } from 'rxjs';
-import { MetricsMeterProvider } from './metrics';
 import {
   IServiceHandler,
   IServiceInfo,
@@ -122,20 +120,30 @@ export class TerminalServer {
   }
 
   private _setMetrics() {
+    const TerminalRequestProcessingTotal = this.terminal.metrics.gauge(
+      'terminal_request_processing_total',
+      'terminal_request_processing_total Request Processing',
+    );
+    const TerminalRequestPendingTotal = this.terminal.metrics.gauge(
+      'terminal_request_pending_total',
+      'terminal_request_pending_total Request Pending',
+    );
+
     interval(5000)
       .pipe(takeUntil(this.terminal.dispose$))
       .subscribe(() => {
         this._mapServiceIdToServiceRuntimeContext.forEach((serviceContext) => {
-          RequestPendingTotal.record(serviceContext.pending.length, {
+          TerminalRequestPendingTotal.labels({
             method: serviceContext.method,
             service_id: serviceContext.service_id,
             terminal_id: this.terminal.terminal_id,
-          });
-          RequestProcessingTotal.record(serviceContext.processing.size, {
+          }).set(serviceContext.pending.length);
+
+          TerminalRequestProcessingTotal.labels({
             method: serviceContext.method,
             service_id: serviceContext.service_id,
             terminal_id: this.terminal.terminal_id,
-          });
+          }).set(serviceContext.processing.size);
         });
       });
   }
@@ -398,11 +406,14 @@ export class TerminalServer {
   private _routeRequest(requestContext: IRequestContext) {
     requestContext.initialized_at = Date.now();
     requestContext.stage = 'initialized';
-    RequestReceivedTotal.add(1, {
-      method: requestContext.message.method!,
-      source_terminal_id: requestContext.message.source_terminal_id,
-      target_terminal_id: this.terminal.terminal_id,
-    });
+    this.terminal.metrics
+      .counter('terminal_request_received_total', 'terminal_request_received_total Request Received')
+      .labels({
+        method: requestContext.message.method!,
+        source_terminal_id: requestContext.message.source_terminal_id,
+        target_terminal_id: this.terminal.terminal_id,
+      })
+      .inc();
 
     const { message, output$ } = requestContext;
     let targetService: IServiceInfoServerSide | undefined;
@@ -547,22 +558,32 @@ export class TerminalServer {
       console.info(formatTime(Date.now()), 'Server', 'RequestFinalized', requestContext.message.trace_id);
     }
 
-    RequestFinalizedTotal.add(1, {
-      method: requestContext.message.method!,
-      source_terminal_id: requestContext.message.source_terminal_id,
-      target_terminal_id: this.terminal.terminal_id,
-    });
+    this.terminal.metrics
+      .counter('terminal_request_finalized_total', 'terminal_request_finalized_total Request Finalized')
+      .labels({
+        method: requestContext.message.method!,
+        source_terminal_id: requestContext.message.source_terminal_id,
+        target_terminal_id: this.terminal.terminal_id,
+      })
+      .inc();
 
     this._mapTraceIdToRequestContext.delete(requestContext.trace_id);
 
     const duration = requestContext.finalized_at - requestContext.initialized_at;
     if (isNaN(duration)) return;
-    RequestDurationBucket.record(duration, {
-      method: requestContext.message.method!,
-      source_terminal_id: requestContext.message.source_terminal_id,
-      target_terminal_id: this.terminal.terminal_id,
-      code: requestContext.response?.code ?? 520,
-    });
+    this.terminal.metrics
+      .histogram(
+        'terminal_request_duration_milliseconds',
+        'terminal_request_duration_milliseconds Request Duration bucket in 1, 10, 100, 1000, 10000 ms',
+        [1, 10, 100, 1000, 10000],
+      )
+      .labels({
+        method: requestContext.message.method!,
+        source_terminal_id: requestContext.message.source_terminal_id,
+        target_terminal_id: this.terminal.terminal_id,
+        code: (requestContext.response?.code ?? 520).toString(),
+      })
+      .observe(duration);
   }
 
   private _setupHeartbeat() {
@@ -585,29 +606,3 @@ export class TerminalServer {
       });
   }
 }
-
-const TerminalMeter = MetricsMeterProvider.getMeter('terminal-server');
-
-const RequestDurationBucket = TerminalMeter.createHistogram('terminal_request_duration_milliseconds', {
-  description: 'terminal_request_duration_milliseconds Request Duration bucket in 1, 10, 100, 1000, 10000 ms',
-  valueType: ValueType.INT,
-  advice: {
-    explicitBucketBoundaries: [1, 10, 100, 1000, 10000],
-  },
-});
-
-const RequestReceivedTotal = TerminalMeter.createCounter('terminal_request_received_total', {
-  description: 'terminal_request_received_total Request Received',
-});
-
-const RequestFinalizedTotal = TerminalMeter.createCounter('terminal_request_finalized_total', {
-  description: 'terminal_request_finalized_total Request Finalized',
-});
-
-const RequestPendingTotal = TerminalMeter.createGauge('terminal_request_pending_total', {
-  description: 'terminal_request_pending_total Request Pending',
-});
-
-const RequestProcessingTotal = TerminalMeter.createGauge('terminal_request_processing_total', {
-  description: 'terminal_request_processing_total Request Processing',
-});

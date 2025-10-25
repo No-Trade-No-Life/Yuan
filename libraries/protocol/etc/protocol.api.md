@@ -6,9 +6,8 @@
 
 import { ICache } from '@yuants/cache';
 import { IEd25519KeyPair } from '@yuants/utils';
+import { IRegistry } from '@yuants/prometheus';
 import { JSONSchema7 } from 'json-schema';
-import { MeterProvider } from '@opentelemetry/sdk-metrics';
-import { MetricReader } from '@opentelemetry/sdk-metrics';
 import { Observable } from 'rxjs';
 import { ObservableInput } from 'rxjs';
 import { Registry } from '@yuants/prometheus-client';
@@ -19,6 +18,9 @@ export function createConnectionJson<T = any>(URL: string): IConnection<T>;
 
 // @public
 export function createConnectionWs<T = any>(URL: string): IConnection<T>;
+
+// @public
+export const GlobalPrometheusRegistry: IRegistry;
 
 // @public
 export interface IConnection<T> {
@@ -136,15 +138,7 @@ export interface ITerminalMessage {
     trace_id: string;
 }
 
-// Warning: (ae-forgotten-export) The symbol "YuanMetricsReader" needs to be exported by the entry point index.d.ts
-//
-// @public (undocumented)
-export const MetricsExporter: YuanMetricsReader;
-
-// @public (undocumented)
-export const MetricsMeterProvider: MeterProvider;
-
-// @public
+// @public @deprecated
 export const PromRegistry: Registry;
 
 // @public
@@ -168,6 +162,7 @@ export class Terminal {
     input$: Subject<ITerminalMessage>;
     isConnected$: Observable<boolean>;
     keyPair: IEd25519KeyPair;
+    metrics: IRegistry;
     // (undocumented)
     options: {
         verbose?: boolean;

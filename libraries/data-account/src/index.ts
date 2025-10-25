@@ -1,6 +1,5 @@
-import { Meter } from '@opentelemetry/api';
 import { createCache } from '@yuants/cache';
-import { MetricsMeterProvider, Terminal } from '@yuants/protocol';
+import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
 import {
@@ -24,18 +23,22 @@ import './interface';
 import { IAccountInfo, IAccountMoney, IPosition, IPositionDiff } from './interface';
 export * from './interface';
 
-const AccountMeter: Meter = MetricsMeterProvider.getMeter('account');
-
-const AccountInfoEquity = AccountMeter.createGauge('account_info_equity');
-const AccountInfoBalance = AccountMeter.createGauge('account_info_balance');
-const AccountInfoProfit = AccountMeter.createGauge('account_info_profit');
-const AccountInfoUsed = AccountMeter.createGauge('account_info_used');
-const AccountInfoFree = AccountMeter.createGauge('account_info_free');
-const AccountInfoPositionVolume = AccountMeter.createGauge('account_info_position_volume');
-const AccountInfoPositionPrice = AccountMeter.createGauge('account_info_position_price');
-const AccountInfoPositionClosablePrice = AccountMeter.createGauge('account_info_position_closable_price');
-const AccountInfoPositionFloatingProfit = AccountMeter.createGauge('account_info_position_floating_profit');
-const AccountInfoPositionValuation = AccountMeter.createGauge('account_info_position_valuation');
+const AccountInfoEquity = GlobalPrometheusRegistry.gauge('account_info_equity', '');
+const AccountInfoBalance = GlobalPrometheusRegistry.gauge('account_info_balance', '');
+const AccountInfoProfit = GlobalPrometheusRegistry.gauge('account_info_profit', '');
+const AccountInfoUsed = GlobalPrometheusRegistry.gauge('account_info_used', '');
+const AccountInfoFree = GlobalPrometheusRegistry.gauge('account_info_free', '');
+const AccountInfoPositionVolume = GlobalPrometheusRegistry.gauge('account_info_position_volume', '');
+const AccountInfoPositionPrice = GlobalPrometheusRegistry.gauge('account_info_position_price', '');
+const AccountInfoPositionClosablePrice = GlobalPrometheusRegistry.gauge(
+  'account_info_position_closable_price',
+  '',
+);
+const AccountInfoPositionFloatingProfit = GlobalPrometheusRegistry.gauge(
+  'account_info_position_floating_profit',
+  '',
+);
+const AccountInfoPositionValuation = GlobalPrometheusRegistry.gauge('account_info_position_valuation', '');
 
 /**
  * Provide a AccountInfo service, which can be queried and auto-updated
@@ -243,26 +246,30 @@ export const publishAccountInfo = (
       takeUntil(terminal.dispose$),
     )
     .subscribe(([lastAccountInfo, accountInfo]) => {
-      AccountInfoBalance.record(accountInfo.money.balance, {
+      AccountInfoBalance.labels({
         account_id,
         currency: accountInfo.money.currency,
-      });
-      AccountInfoEquity.record(accountInfo.money.equity, {
+      }).set(accountInfo.money.balance);
+
+      AccountInfoEquity.labels({
         account_id,
         currency: accountInfo.money.currency,
-      });
-      AccountInfoProfit.record(accountInfo.money.profit, {
+      }).set(accountInfo.money.equity);
+
+      AccountInfoProfit.labels({
         account_id,
         currency: accountInfo.money.currency,
-      });
-      AccountInfoUsed.record(accountInfo.money.used, {
+      }).set(accountInfo.money.profit);
+
+      AccountInfoUsed.labels({
         account_id,
         currency: accountInfo.money.currency,
-      });
-      AccountInfoFree.record(accountInfo.money.free, {
+      }).set(accountInfo.money.used);
+
+      AccountInfoFree.labels({
         account_id,
         currency: accountInfo.money.currency,
-      });
+      }).set(accountInfo.money.free);
 
       // ISSUE: https://github.com/open-telemetry/opentelemetry-js/issues/2997
       // for (const currency of lastAccountInfo.currencies || []) {
@@ -290,59 +297,63 @@ export const publishAccountInfo = (
 
       // ISSUE: https://github.com/open-telemetry/opentelemetry-js/issues/2997
       for (const position of lastAccountInfo.positions) {
-        AccountInfoPositionVolume.record(0, {
+        AccountInfoPositionVolume.labels({
           account_id,
           product_id: position.product_id,
           direction: position.direction || '',
-        });
-        AccountInfoPositionPrice.record(0, {
+        }).set(0);
+        AccountInfoPositionPrice.labels({
           account_id,
           product_id: position.product_id,
           direction: position.direction || '',
-        });
-        AccountInfoPositionClosablePrice.record(0, {
+        }).set(0);
+        AccountInfoPositionClosablePrice.labels({
           account_id,
           product_id: position.product_id,
           direction: position.direction || '',
-        });
-        AccountInfoPositionFloatingProfit.record(0, {
+        }).set(0);
+        AccountInfoPositionFloatingProfit.labels({
           account_id,
           product_id: position.product_id,
           direction: position.direction || '',
-        });
-        AccountInfoPositionValuation.record(0, {
+        }).set(0);
+        AccountInfoPositionValuation.labels({
           account_id,
           product_id: position.product_id,
           direction: position.direction || '',
-        });
+        }).set(0);
       }
 
       for (const position of accountInfo.positions) {
-        AccountInfoPositionVolume.record(position.volume || 0, {
+        AccountInfoPositionVolume.labels({
           account_id,
           product_id: position.product_id,
           direction: position.direction || '',
-        });
-        AccountInfoPositionPrice.record(position.position_price || 0, {
+        }).set(position.volume);
+
+        AccountInfoPositionPrice.labels({
           account_id,
           product_id: position.product_id,
           direction: position.direction || '',
-        });
-        AccountInfoPositionClosablePrice.record(position.closable_price || 0, {
+        }).set(position.position_price || 0);
+
+        AccountInfoPositionClosablePrice.labels({
           account_id,
           product_id: position.product_id,
           direction: position.direction || '',
-        });
-        AccountInfoPositionFloatingProfit.record(position.floating_profit || 0, {
+        }).set(position.closable_price || 0);
+
+        AccountInfoPositionFloatingProfit.labels({
           account_id,
           product_id: position.product_id,
           direction: position.direction || '',
-        });
-        AccountInfoPositionValuation.record(position.valuation || 0, {
+        }).set(position.floating_profit || 0);
+
+        AccountInfoPositionValuation.labels({
           account_id,
           product_id: position.product_id,
           direction: position.direction || '',
-        });
+        }).set(position.valuation || 0);
       }
     });
 

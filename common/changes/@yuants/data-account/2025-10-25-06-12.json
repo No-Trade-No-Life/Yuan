@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-account",
+      "comment": "refactor to new prom",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/data-account"
+}
