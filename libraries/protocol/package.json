@@ -21,11 +21,9 @@
     "url": "~0.11.0",
     "ws": "~8.11.0",
     "@yuants/prometheus-client": "workspace:*",
+    "@yuants/prometheus": "workspace:*",
     "simple-peer": "~9.11.1",
     "@roamhq/wrtc": "~0.8.0",
-    "@opentelemetry/api": "~1.9.0",
-    "@opentelemetry/sdk-metrics": "~2.0.0",
-    "@opentelemetry/exporter-prometheus": "~0.200.0",
     "@cfworker/json-schema": "~4.1.1"
   },
   "devDependencies": {

@@ -17,19 +17,6 @@ import {
   tap,
 } from 'rxjs';
 import { Terminal } from './terminal';
-import { PromRegistry } from './metrics';
-
-const MetricChannelPayloadCounter = PromRegistry.create(
-  'counter',
-  'terminal_channel_payload_total',
-  'Count of payload messages sent through channels',
-);
-
-const MetricChannelSubscribersGauge = PromRegistry.create(
-  'gauge',
-  'terminal_channel_subscribers',
-  'Number of subscribers for each channel',
-);
 
 /**
  * Channel Manager
@@ -85,6 +72,9 @@ export class TerminalChannel {
 
         const typeAndChannelId = encodePath(type, channel_id);
         if (!this._mapTypeAndChannelIdToPublishedObservable$.get(typeAndChannelId)) {
+          const payloadCounter = this.terminal.metrics
+            .counter('terminal_channel_payload_total', 'Count of payload messages sent through channels')
+            .labels({ type, channel_id });
           this._mapTypeAndChannelIdToPublishedObservable$.set(
             typeAndChannelId,
             defer(() => handler(channel_id)).pipe(
@@ -92,7 +82,7 @@ export class TerminalChannel {
               map((value) => ({ frame: { value } })),
               tap({
                 next: () => {
-                  MetricChannelPayloadCounter.inc({ type, channel_id });
+                  payloadCounter.inc();
                 },
               }),
               mergeWith(interval(30_000).pipe(map(() => ({})))), // ISSUE: Heartbeat KeepAlive, Ensure the connection is not closed
@@ -122,6 +112,12 @@ export class TerminalChannel {
             ),
           );
         }
+
+        const terminalChannelSubscribers = this.terminal.metrics.gauge(
+          'terminal_channel_subscribers',
+          'Number of subscribers for each channel',
+        );
+
         return this._mapTypeAndChannelIdToPublishedObservable$.get(typeAndChannelId)!.pipe(
           tap({
             subscribe: () => {
@@ -132,7 +128,7 @@ export class TerminalChannel {
                   `type=${type} channel_id=${channel_id} is subscribed by ${msg.source_terminal_id}`,
                 );
               }
-              MetricChannelSubscribersGauge.inc({ type, channel_id });
+              terminalChannelSubscribers.labels({ type, channel_id }).inc();
             },
             finalize: () => {
               if (this.terminal.options.verbose) {
@@ -142,7 +138,7 @@ export class TerminalChannel {
                   `type=${type} channel_id=${channel_id} is unsubscribed by ${msg.source_terminal_id}`,
                 );
               }
-              MetricChannelSubscribersGauge.dec({ type, channel_id });
+              terminalChannelSubscribers.labels({ type, channel_id }).dec();
             },
           }),
           // 直到发起订阅的终端不在主机中，自动关闭频道

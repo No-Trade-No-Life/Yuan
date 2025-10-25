@@ -1,4 +1,4 @@
-import { ITerminalInfo, MetricsMeterProvider, Terminal } from '@yuants/protocol';
+import { GlobalPrometheusRegistry, ITerminalInfo, Terminal } from '@yuants/protocol';
 import { formatTime, UUID, verifyMessage } from '@yuants/utils';
 import { readFileSync } from 'fs';
 import { createServer, IncomingMessage, RequestListener } from 'http';
@@ -28,8 +28,6 @@ import {
 } from 'rxjs';
 import WebSocket from 'ws';
 
-const meter = MetricsMeterProvider.getMeter('yuants.host-manager');
-
 interface IHostTerminalConnection {
   terminal_id: string;
   send: (raw_message: string) => void;
@@ -46,11 +44,15 @@ interface IHost {
   dispose: () => void;
 }
 
-const MetricsHostManagerMessageSize = meter.createHistogram('host_manager_message_size');
-const MetricsHostManagerConnectionEstablishedCounter = meter.createCounter(
+const MetricsHostManagerMessageSize = GlobalPrometheusRegistry.histogram('host_manager_message_size', '', []);
+const MetricsHostManagerConnectionEstablishedCounter = GlobalPrometheusRegistry.counter(
   'host_manager_connection_established',
+  '',
 );
-const MetricsHostManagerConnectionErrorCounter = meter.createCounter('host_manager_connection_error');
+const MetricsHostManagerConnectionErrorCounter = GlobalPrometheusRegistry.counter(
+  'host_manager_connection_error',
+  '',
+);
 
 /**
  * @public
@@ -221,10 +223,10 @@ export const createNodeJSHostManager = () => {
       const dispose$ = new Subject<void>();
       const { terminal_id } = conn;
       console.info(formatTime(Date.now()), 'Host', host_id, 'terminal connected', terminal_id);
-      MetricsHostManagerConnectionEstablishedCounter.add(1, {
+      MetricsHostManagerConnectionEstablishedCounter.labels({
         host_id,
         terminal_id,
-      });
+      }).inc();
       // Replace old connection if exists
       const oldTerminal = mapTerminalIdToConn[terminal_id];
       if (oldTerminal) {
@@ -234,10 +236,10 @@ export const createNodeJSHostManager = () => {
       mapTerminalIdToConn[conn.terminal_id] = conn;
       // Forward Terminal Messages
       conn.message$.pipe(takeUntil(dispose$)).subscribe((raw_message) => {
-        MetricsHostManagerMessageSize.record(raw_message.length, {
+        MetricsHostManagerMessageSize.labels({
           host_id,
           source_terminal_id: terminal_id,
-        });
+        }).observe(raw_message.length);
         const idx = raw_message.indexOf('\n');
         const raw_headers = raw_message.slice(0, idx + 1);
         let target_terminal_id;
