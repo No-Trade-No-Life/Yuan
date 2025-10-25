@@ -1,6 +1,17 @@
 # Change Log - @yuants/protocol
 
-This log was last generated on Tue, 21 Oct 2025 11:23:00 GMT and should not be manually modified.
+This log was last generated on Sat, 25 Oct 2025 06:32:46 GMT and should not be manually modified.
+
+## 0.50.0
+Sat, 25 Oct 2025 06:32:46 GMT
+
+### Minor changes
+
+- remove some function
+
+### Patches
+
+- refactor to new prom
 
 ## 0.49.1
 Tue, 21 Oct 2025 11:23:00 GMT

@@ -1,6 +1,11 @@
 # Change Log - @yuants/app-prometheus-client
 
-This log was last generated on Thu, 23 Oct 2025 19:22:34 GMT and should not be manually modified.
+This log was last generated on Sat, 25 Oct 2025 06:32:46 GMT and should not be manually modified.
+
+## 0.2.3
+Sat, 25 Oct 2025 06:32:46 GMT
+
+_Version update only_
 
 ## 0.2.2
 Thu, 23 Oct 2025 19:22:34 GMT

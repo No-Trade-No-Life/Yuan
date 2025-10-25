@@ -1,0 +1,25 @@
+{
+  "name": "@yuants/prometheus",
+  "entries": [
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/prometheus_v0.1.0",
+      "date": "Sat, 25 Oct 2025 06:32:46 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "new package"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "docs"
+          },
+          {
+            "comment": "fix"
+          }
+        ]
+      }
+    }
+  ]
+}
