@@ -31,13 +31,16 @@ export class TreeNode<T = any> {
       child.key = key;
       this.mapKeyToChild.set(key, child);
       this.children.push(child);
+
+      this.invalidate();
     }
     return child;
   }
 
-  invalidateAncestors() {
+  invalidate() {
+    this._cached = null;
     for (let ptr = this.parent; ptr; ptr = ptr.parent) {
-      //   if (ptr._cached === null) break; // already invalidated
+      if (ptr._cached === null) break; // already invalidated
       ptr._cached = null;
     }
   }
@@ -48,7 +51,7 @@ export class TreeNode<T = any> {
 
   setValue(value: T) {
     if (this.value !== value) {
-      this.invalidateAncestors();
+      this.invalidate();
       this.value = value;
     }
   }
@@ -61,8 +64,7 @@ export class TreeNode<T = any> {
       this.mapKeyToChild.delete(key);
       this.children.splice(this.children.indexOf(child), 1);
 
-      this.invalidateAncestors();
-      this.value = null;
+      this.invalidate();
     }
   }
 
