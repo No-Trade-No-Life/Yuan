@@ -2083,6 +2083,7 @@ importers:
       '@rushstack/heft-node-rig': ~1.10.7
       '@types/heft-jest': 1.0.3
       '@types/node': '22'
+      '@yuants/prometheus-client': workspace:*
       '@yuants/tool-kit': workspace:*
       typescript: ~4.7.4
     devDependencies:
@@ -2092,6 +2093,7 @@ importers:
       '@rushstack/heft-node-rig': 1.10.13_@rushstack+heft@0.47.11
       '@types/heft-jest': 1.0.3
       '@types/node': 22.7.5
+      '@yuants/prometheus-client': link:../prometheus-client
       '@yuants/tool-kit': link:../../tools/toolkit
       typescript: 4.7.4
 
