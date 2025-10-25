@@ -22,6 +22,8 @@ import {
   toArray,
 } from 'rxjs';
 import { renderAlertMessageCard } from './feishu/render-alert-message-card';
+import { computeAlertFingerprint } from './fingerprint';
+import { computeAlertGroupKey } from './group-key';
 import type { IAlertGroup, IAlertMessageEntry, IAlertReceiveRoute, IAlertRecord } from './types';
 
 /// Alert manager 消息
@@ -173,13 +175,23 @@ defer(() => keepAliveSignal$.pipe(first()))
       console.error(formatTime(Date.now()), 'WatchdogFailed', '超过 300 秒没有收到 Watchdog');
 
       const now = new Date();
+      const syntheticAlertLabels = {
+        alertname: 'WatchdogFailed',
+        severity: 'CRITICAL',
+        env: ENV,
+      };
+      const syntheticGroupLabels = {
+        alertname: syntheticAlertLabels.alertname,
+        severity: syntheticAlertLabels.severity,
+        env: syntheticAlertLabels.env,
+      };
       const syntheticMessage: IAlertManagerMessage = {
         receiver: 'watchdog',
         status: 'firing',
         alerts: [
           {
             status: 'firing',
-            labels: { alertname: 'WatchdogFailed' },
+            labels: syntheticAlertLabels,
             annotations: {
               description: 'AlertReceiver 超过 5 分钟未收到 Watchdog 消息',
               runbook_url: 'https://tradelife.feishu.cn/wiki/wikcn8hGhnA1fPBztoGyh6rRzqe',
@@ -187,22 +199,18 @@ defer(() => keepAliveSignal$.pipe(first()))
             startsAt: now.toISOString(),
             endsAt: '0001-01-01T00:00:00Z',
             generatorURL: '',
-            fingerprint: `watchdog-${now.getTime()}`,
+            fingerprint: computeAlertFingerprint(syntheticAlertLabels),
           },
         ],
-        groupLabels: {},
-        commonLabels: {
-          alertname: 'WatchdogFailed',
-          severity: 'CRITICAL',
-          env: ENV,
-        },
+        groupLabels: syntheticGroupLabels,
+        commonLabels: syntheticGroupLabels,
         commonAnnotations: {
           summary: 'AlertReceiver 超过 5 分钟未收到 Watchdog 消息',
           runbook_url: 'https://tradelife.feishu.cn/wiki/wikcn8hGhnA1fPBztoGyh6rRzqe',
         },
         externalURL: '',
         version: '4',
-        groupKey: `watchdog-${ENV}`,
+        groupKey: computeAlertGroupKey('{}', syntheticGroupLabels),
         truncatedAlerts: 0,
       };
 
@@ -223,11 +231,17 @@ terminal.server.provideService('/external/alertmanager/webhook', {}, async (msg)
   return { res: { code: 0, message: 'OK', data: { status: 204 } } };
 });
 
+terminal.server.provideService('/external/alertmanager/origin', {}, async (msg) => {
+  const { body } = msg.req as { body: string };
+  console.info(formatTime(Date.now()), 'AlertOriginReceived', JSON.stringify(body));
+  return { res: { code: 0, message: 'OK', data: { status: 204 } } };
+});
+
 const makeAlertRecord = (alertMsg: IAlertManagerMessage, alertItem: IAlertManagerItem): IAlertRecord => {
   const status = alertItem.endsAt !== '0001-01-01T00:00:00Z' ? 'resolved' : 'firing';
 
   return {
-    id: alertItem.fingerprint,
+    id: alertItem.fingerprint || computeAlertFingerprint(alertItem.labels),
     alert_name: alertMsg.commonLabels['alertname'] ?? alertItem.labels['alertname'] ?? 'unknown',
     current_value: alertItem.annotations['current_value'],
     status,
