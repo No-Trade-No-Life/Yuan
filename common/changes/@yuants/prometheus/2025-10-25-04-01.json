@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/prometheus",
+      "comment": "new package",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/prometheus"
+}

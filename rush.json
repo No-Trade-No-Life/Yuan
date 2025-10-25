@@ -490,6 +490,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/prometheus",
+      "projectFolder": "libraries/prometheus",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/account-info-resolver",
       "projectFolder": "libraries/account-info-resolver",
       "shouldPublish": true
