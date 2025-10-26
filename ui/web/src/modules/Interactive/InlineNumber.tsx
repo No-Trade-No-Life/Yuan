@@ -3,7 +3,7 @@
  */
 export const InlineNumber = (props: { number: number | string }) => {
   if (typeof props.number === 'string') return <InlineNumber number={parseFloat(props.number)} />;
-  if (typeof props.number !== 'number') return '---';
+  if (typeof props.number !== 'number') return <span>---</span>;
 
   if (props.number === Infinity) {
     return <span>∞</span>;
