@@ -1,1 +1,2 @@
 import './AlertRulePage';
+import './AlertList';

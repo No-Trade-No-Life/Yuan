@@ -2,6 +2,7 @@ export * from './AutoComplete';
 export * from './Button';
 export * from './DataView';
 export * from './Description';
+export * from './InlineNumber';
 export * from './InlineTime';
 export * from './ListView';
 export * from './PivotTable';
