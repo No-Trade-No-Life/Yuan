@@ -1,6 +1,20 @@
 # Change Log - @yuants/app-alert-receiver
 
-This log was last generated on Sat, 25 Oct 2025 06:32:46 GMT and should not be manually modified.
+This log was last generated on Mon, 27 Oct 2025 12:03:21 GMT and should not be manually modified.
+
+## 0.5.0
+Mon, 27 Oct 2025 12:03:21 GMT
+
+### Minor changes
+
+- list watch prometheus directly
+
+### Patches
+
+- add helper functions add endpoint to listen directly from prometheus
+- feat(prometheus-alert): update alert handling logic and improve event processing
+- add label filters
+- update handleAlertGroup to maintain message_ids in alerts
 
 ## 0.4.1
 Sat, 25 Oct 2025 06:32:46 GMT

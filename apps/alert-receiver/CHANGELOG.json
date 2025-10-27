@@ -2,6 +2,37 @@
   "name": "@yuants/app-alert-receiver",
   "entries": [
     {
+      "version": "0.5.0",
+      "tag": "@yuants/app-alert-receiver_v0.5.0",
+      "date": "Mon, 27 Oct 2025 12:03:21 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add helper functions add endpoint to listen directly from prometheus"
+          },
+          {
+            "comment": "feat(prometheus-alert): update alert handling logic and improve event processing"
+          },
+          {
+            "comment": "add label filters"
+          },
+          {
+            "comment": "update handleAlertGroup to maintain message_ids in alerts"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "list watch prometheus directly"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.4.1",
       "tag": "@yuants/app-alert-receiver_v0.4.1",
       "date": "Sat, 25 Oct 2025 06:32:46 GMT",
