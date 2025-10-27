@@ -282,6 +282,11 @@ const handleAlertGroup = async (group: IAlertGroup) => {
     group.version,
   );
 
+  // anti-pattern but easier to maintain
+  group.alerts.forEach((alert) => {
+    alert.message_ids = messageEntries;
+  });
+
   await requestSQL(
     terminal,
     `
@@ -296,7 +301,8 @@ const handleAlertGroup = async (group: IAlertGroup) => {
       terminal,
       `
           UPDATE alert_record
-          SET finalized = TRUE
+          SET finalized = TRUE,
+              message_ids = '[]'::jsonb
           WHERE group_name = ${escapeSQL(group.group_key)}
         `,
     );
