@@ -132,8 +132,6 @@ const aggregateAlertsByGroup = (records: IAlertRecord[]): IAlertGroup[] => {
       group.alerts.map((alert) => ({
         id: alert.id,
         status: alert.status,
-        end_time: alert.end_time,
-        current_value: alert.current_value,
       })),
     );
   }

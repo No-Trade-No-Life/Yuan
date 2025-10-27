@@ -1,7 +1,20 @@
 import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
-import { formatTime, listWatch } from '@yuants/utils';
-import { Observable, defer, map, merge, repeat, retry, shareReplay, tap, timer } from 'rxjs';
+import { formatTime, listWatchEvent } from '@yuants/utils';
+import {
+  Subject,
+  defer,
+  filter,
+  from,
+  map,
+  merge,
+  mergeMap,
+  repeat,
+  retry,
+  shareReplay,
+  tap,
+  timer,
+} from 'rxjs';
 import { computeAlertFingerprint, computeAlertGroupKey } from '../alertmanager-compatible-utils';
 import type { IAlertRecord } from '../types';
 import { normalizeSeverity } from '../utils';
@@ -101,23 +114,34 @@ const activeAlertRecords$ = defer(() =>
 );
 
 const alertRecordEvents$ = activeAlertRecords$.pipe(
-  listWatch(
+  listWatchEvent(
     (record) => record.id,
-    (record) =>
-      new Observable<IAlertRecord>((subscriber) => {
-        subscriber.next(record);
-        return () => {
-          subscriber.next({
-            ...record,
-            status: 'resolved',
-            end_time: formatTime(Date.now()),
-            finalized: false,
-          });
-          subscriber.complete();
-        };
-      }),
     (a, b) => a.id === b.id && a.current_value === b.current_value,
   ),
+  mergeMap((events) => from(events)),
+  map(([oldRecord, newRecord]) => {
+    if (newRecord && oldRecord) {
+      return {
+        ...oldRecord,
+        current_value: newRecord.current_value,
+        description: newRecord.description,
+        summary: newRecord.summary,
+      };
+    }
+    if (newRecord) {
+      return newRecord;
+    }
+    if (oldRecord) {
+      return {
+        ...oldRecord,
+        status: 'resolved',
+        end_time: formatTime(Date.now()),
+        finalized: false,
+      };
+    }
+    return undefined;
+  }),
+  filter((record): record is IAlertRecord => !!record),
 );
 
 merge(alertRecordEvents$, watchdogRecordSubject)
