@@ -220,7 +220,11 @@ export const renderAlertMessageCard = (group: IAlertGroup) => {
                 elements: [
                   {
                     tag: 'markdown',
-                    content: `<font color="grey">告警内容</font>\n共 ${group.alerts.length} 条告警`,
+                    content: `<font color="grey">告警内容</font>${
+                      group.alerts[0]?.summary
+                        ? `\n${group.alerts[0]?.summary}\n共 ${group.alerts.length} 条告警`
+                        : ''
+                    }`,
                     text_align: 'left',
                     text_size: 'normal_v2',
                     margin,
