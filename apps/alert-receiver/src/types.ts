@@ -6,6 +6,7 @@ export interface IAlertRecord {
   status: string;
   /** 'UNKNOWN' | 'INFO' | 'WARNING' | 'ERROR' | 'CRITICAL' */
   severity: string;
+  summary?: string;
   description?: string;
   env: string;
   runbook_url?: string;

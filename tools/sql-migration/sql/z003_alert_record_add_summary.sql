@@ -1,0 +1,2 @@
+ALTER TABLE alert_record
+ADD COLUMN IF NOT EXISTS summary TEXT;
