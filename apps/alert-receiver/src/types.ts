@@ -11,6 +11,7 @@ export interface IAlertRecord {
   env: string;
   runbook_url?: string;
   group_name: string;
+  labels: Record<string, string>;
   finalized: boolean;
   start_time: string;
   end_time?: string;
@@ -22,6 +23,12 @@ export interface IAlertRecord {
 export interface IAlertMessageEntry {
   route_id: string;
   message_id: string;
+}
+
+export interface IAlertLabelRule {
+  key: string;
+  operator: string;
+  value: string;
 }
 
 export interface IAlertGroup {
@@ -48,6 +55,7 @@ export interface IAlertReceiveRoute {
   urgent_user_list: string[];
   // 'app' | 'sms' | 'phone'
   urgent_type: string;
+  label_filters: IAlertLabelRule[];
   enabled: boolean;
   created_at: string;
   updated_at: string;

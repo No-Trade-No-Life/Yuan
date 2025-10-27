@@ -56,6 +56,7 @@ const emitWatchdogRecord = (status: 'firing' | 'resolved') => {
     env: WATCHDOG_LABELS.env,
     runbook_url: WATCHDOG_RUNBOOK_URL,
     group_name: WATCHDOG_GROUP_NAME,
+    labels: WATCHDOG_LABELS,
     finalized: false,
     start_time: startTime,
     end_time: status === 'resolved' ? formatTime(Date.now()) : undefined,
