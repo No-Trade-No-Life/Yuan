@@ -1,20 +1,7 @@
 import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { formatTime, listWatchEvent } from '@yuants/utils';
-import {
-  Subject,
-  defer,
-  filter,
-  from,
-  map,
-  merge,
-  mergeMap,
-  repeat,
-  retry,
-  shareReplay,
-  tap,
-  timer,
-} from 'rxjs';
+import { defer, filter, from, map, merge, mergeMap, repeat, retry, shareReplay, tap, timer } from 'rxjs';
 import { computeAlertFingerprint, computeAlertGroupKey } from '../alertmanager-compatible-utils';
 import type { IAlertRecord } from '../types';
 import { normalizeSeverity } from '../utils';
@@ -83,6 +70,7 @@ const normalizePrometheusAlert = (alert: IPrometheusAlert): IAlertRecord | undef
     current_value: alert.value,
     runbook_url: runbookUrl,
     group_name: groupName,
+    labels,
     start_time: startTime,
     status: 'firing',
     finalized: false,
@@ -161,6 +149,7 @@ merge(alertRecordEvents$, watchdogRecordSubject)
         'env',
         'runbook_url',
         'group_name',
+        'labels',
         'finalized',
         'start_time',
         'end_time',

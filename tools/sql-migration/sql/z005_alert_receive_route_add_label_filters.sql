@@ -1,0 +1,2 @@
+ALTER TABLE alert_receive_route
+ADD COLUMN IF NOT EXISTS label_filters JSONB NOT NULL DEFAULT '[]'::JSONB;

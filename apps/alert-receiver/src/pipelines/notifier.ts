@@ -17,6 +17,7 @@ import {
 import { renderAlertMessageCard } from '../feishu/render-alert-message-card';
 import type { IAlertGroup, IAlertMessageEntry, IAlertReceiveRoute, IAlertRecord } from '../types';
 import { getSeverityIndex, normalizeSeverity } from '../utils';
+import { normalizeLabelFilters, shouldDeliver } from './label-filters';
 
 const mapSeverityToRepeatInterval: Record<string, number> = {
   UNKNOWN: 30 * 60_000,
@@ -27,6 +28,11 @@ const mapSeverityToRepeatInterval: Record<string, number> = {
 };
 
 const terminal = Terminal.fromNodeEnv();
+
+const normalizeRouteFromDb = (route: IAlertReceiveRoute): IAlertReceiveRoute => ({
+  ...route,
+  label_filters: normalizeLabelFilters((route as any).label_filters),
+});
 
 const makeUrgentPayload = (
   route: IAlertReceiveRoute,
@@ -43,9 +49,12 @@ const makeUrgentPayload = (
 
 const normalizeRecordFromDb = (record: IAlertRecord): IAlertRecord => {
   const rawMessageIds = (record as any).message_ids;
+  const rawLabels = (record as any).labels;
   let messageIds: IAlertMessageEntry[] | undefined;
-  if (Array.isArray(rawMessageIds)) {
-    messageIds = rawMessageIds
+  let labels: Record<string, string> = {};
+
+  const parseMessageEntries = (entries: any[]): IAlertMessageEntry[] =>
+    entries
       .map((entry) =>
         entry &&
         typeof entry === 'object' &&
@@ -55,23 +64,37 @@ const normalizeRecordFromDb = (record: IAlertRecord): IAlertRecord => {
           : undefined,
       )
       .filter((entry): entry is IAlertMessageEntry => !!entry);
+
+  if (Array.isArray(rawMessageIds)) {
+    messageIds = parseMessageEntries(rawMessageIds);
   } else if (typeof rawMessageIds === 'string') {
     try {
       const parsed = JSON.parse(rawMessageIds);
       if (Array.isArray(parsed)) {
-        messageIds = parsed
-          .map((entry) =>
-            entry &&
-            typeof entry === 'object' &&
-            typeof (entry as any).route_id === 'string' &&
-            typeof (entry as any).message_id === 'string'
-              ? { route_id: String((entry as any).route_id), message_id: String((entry as any).message_id) }
-              : undefined,
-          )
-          .filter((entry): entry is IAlertMessageEntry => !!entry);
+        messageIds = parseMessageEntries(parsed);
       }
     } catch (e) {
       console.warn(formatTime(Date.now()), 'ParseMessageIdsFailed', rawMessageIds, e);
+    }
+  }
+
+  if (rawLabels && typeof rawLabels === 'object' && !Array.isArray(rawLabels)) {
+    labels = Object.fromEntries(
+      Object.entries(rawLabels).map(([key, value]) => [String(key), String(value)]),
+    );
+  } else if (typeof rawLabels === 'string') {
+    try {
+      const parsed = JSON.parse(rawLabels);
+      if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+        labels = Object.fromEntries(
+          Object.entries(parsed as Record<string, unknown>).map(([key, value]) => [
+            String(key),
+            String(value),
+          ]),
+        );
+      }
+    } catch (e) {
+      console.warn(formatTime(Date.now()), 'ParseLabelsFailed', rawLabels, e);
     }
   }
 
@@ -84,6 +107,7 @@ const normalizeRecordFromDb = (record: IAlertRecord): IAlertRecord => {
     description: record.description ?? undefined,
     runbook_url: record.runbook_url ?? undefined,
     end_time: record.end_time ?? undefined,
+    labels,
     message_ids: messageIds ?? [],
   };
 };
@@ -153,7 +177,12 @@ const buildAlertCard = (group: IAlertGroup) => {
 
 const routeConfig$ = defer(() =>
   requestSQL<IAlertReceiveRoute[]>(terminal, `select * from alert_receive_route where enabled = TRUE`),
-).pipe(retry({ delay: 1_000 }), repeat({ delay: 10_000 }), shareReplay(1));
+).pipe(
+  retry({ delay: 1_000 }),
+  repeat({ delay: 10_000 }),
+  map((routes) => routes.map((route) => normalizeRouteFromDb(route))),
+  shareReplay(1),
+);
 
 const handleAlertGroup = async (group: IAlertGroup) => {
   if (group.alerts.length === 0) {
@@ -172,6 +201,19 @@ const handleAlertGroup = async (group: IAlertGroup) => {
     );
     return;
   }
+  const filteredRoutes = routes.filter((route) => shouldDeliver(route.label_filters, group.alerts));
+  if (filteredRoutes.length === 0) {
+    console.info(
+      formatTime(Date.now()),
+      'NoAlertReceiveRouteMatched',
+      JSON.stringify({
+        group: group.group_key,
+        alertName: group.alert_name,
+      }),
+    );
+    return;
+  }
+
   const cardDSL = JSON.stringify(buildAlertCard(group));
   const mapRouteIdToMessageId = new Map<string, string>();
   for (const alert of group.alerts) {
@@ -182,7 +224,7 @@ const handleAlertGroup = async (group: IAlertGroup) => {
   }
 
   await firstValueFrom(
-    from(routes).pipe(
+    from(filteredRoutes).pipe(
       mergeMap(async (route) => {
         const existingMessageId = mapRouteIdToMessageId.get(route.chat_id);
         const urgentPayload = makeUrgentPayload(route, group.severity);
