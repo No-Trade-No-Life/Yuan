@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/tool-sql-migration",
+      "comment": "replace label_filters with label_schema in alert routes",
+      "type": "none"
+    }
+  ],
+  "packageName": "@yuants/tool-sql-migration"
+}

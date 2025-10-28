@@ -17,7 +17,7 @@ import {
 import { renderAlertMessageCard } from '../feishu/render-alert-message-card';
 import type { IAlertGroup, IAlertMessageEntry, IAlertReceiveRoute, IAlertRecord } from '../types';
 import { getSeverityIndex, normalizeSeverity } from '../utils';
-import { normalizeLabelFilters, shouldDeliver } from './label-filters';
+import { filterAlertsByRoute } from './label-filters';
 
 const mapSeverityToRepeatInterval: Record<string, number> = {
   UNKNOWN: 30 * 60_000,
@@ -29,10 +29,13 @@ const mapSeverityToRepeatInterval: Record<string, number> = {
 
 const terminal = Terminal.fromNodeEnv();
 
-const normalizeRouteFromDb = (route: IAlertReceiveRoute): IAlertReceiveRoute => ({
-  ...route,
-  label_filters: normalizeLabelFilters((route as any).label_filters),
-});
+const normalizeRouteFromDb = (route: IAlertReceiveRoute): IAlertReceiveRoute => {
+  const normalizedRoute: IAlertReceiveRoute = {
+    ...route,
+    label_schema: (route as any).label_schema ?? undefined,
+  };
+  return normalizedRoute;
+};
 
 const makeUrgentPayload = (
   route: IAlertReceiveRoute,
@@ -184,11 +187,166 @@ const routeConfig$ = defer(() =>
   shareReplay(1),
 );
 
+const summarizeAlerts = (alerts: IAlertRecord[]) => {
+  const sortedAlerts = [...alerts].sort((a, b) => a.start_time.localeCompare(b.start_time));
+  const firingCount = sortedAlerts.filter((alert) => alert.status === 'firing').length;
+  const resolvedCount = sortedAlerts.length - firingCount;
+
+  let status: IAlertGroup['status'] = 'Resolved';
+  if (firingCount > 0 && resolvedCount > 0) {
+    status = 'PartialResolved';
+  } else if (firingCount > 0) {
+    status = 'Firing';
+  }
+
+  const severity = sortedAlerts[0]?.severity ?? 'UNKNOWN';
+  const finalized = firingCount === 0;
+  const version = JSON.stringify(
+    sortedAlerts.map((alert) => ({
+      id: alert.id,
+      status: alert.status,
+    })),
+  );
+
+  return { alerts: sortedAlerts, firingCount, status, severity, finalized, version };
+};
+
+type MatchedRoute = { route: IAlertReceiveRoute; routeGroup: IAlertGroup };
+type MessageIndex = Map<string, string>;
+
+const matchRoutesWithSummary = (group: IAlertGroup, routes: IAlertReceiveRoute[]): MatchedRoute[] =>
+  routes
+    .map((route) => {
+      const matchedAlerts = filterAlertsByRoute(route, group.alerts);
+      if (matchedAlerts.length === 0) return undefined;
+      const summary = summarizeAlerts(matchedAlerts);
+      const routeGroup: IAlertGroup = {
+        ...group,
+        alerts: summary.alerts,
+        severity: summary.severity,
+        status: summary.status,
+        finalized: summary.finalized,
+        version: summary.version,
+      };
+      return { route, routeGroup };
+    })
+    .filter((entry): entry is MatchedRoute => !!entry);
+
+const collectMessageIndex = (alerts: IAlertRecord[]): MessageIndex => {
+  const mapRouteIdToMessageId = new Map<string, string>();
+  for (const alert of alerts) {
+    const entries: IAlertMessageEntry[] = alert.message_ids ?? [];
+    for (const entry of entries) {
+      mapRouteIdToMessageId.set(entry.route_id, entry.message_id);
+    }
+  }
+  return mapRouteIdToMessageId;
+};
+
+const sendOrUpdateMessage = async (
+  route: IAlertReceiveRoute,
+  routeGroup: IAlertGroup,
+  messageIndex: MessageIndex,
+) => {
+  const existingMessageId = messageIndex.get(route.chat_id);
+  const urgentPayload = makeUrgentPayload(route, routeGroup.severity);
+  const cardDSL = JSON.stringify(buildAlertCard(routeGroup));
+  const basePayload = {
+    msg_type: 'interactive',
+    content: cardDSL,
+    ...(urgentPayload ? { urgent: urgentPayload.urgent, urgent_user_list: urgentPayload.userIds } : {}),
+  };
+
+  const payload = existingMessageId
+    ? {
+        ...basePayload,
+        message_id: existingMessageId,
+      }
+    : {
+        ...basePayload,
+        receive_id: route.chat_id,
+        receive_id_type: 'chat_id',
+      };
+
+  const serviceName = existingMessageId ? 'Feishu/UpdateMessage' : 'Feishu/SendMessage';
+
+  const result = await terminal.client.requestForResponse<typeof payload, { message_id: string }>(
+    serviceName,
+    payload,
+  );
+
+  if (result.code !== 0) {
+    throw new Error(`SendFeishuCardFailed: ${result.message}`);
+  }
+
+  const messageId = result.data?.message_id ?? existingMessageId;
+  if (messageId) {
+    messageIndex.set(route.chat_id, messageId);
+  }
+};
+
+const collectAlertMessageUpdates = (
+  group: IAlertGroup,
+  matches: MatchedRoute[],
+  messageIndex: MessageIndex,
+): { id: string; entriesJson: string }[] => {
+  const alertIdToEntries = new Map<string, IAlertMessageEntry[]>();
+
+  for (const { route, routeGroup } of matches) {
+    const messageId = messageIndex.get(route.chat_id);
+    if (!messageId) continue;
+    for (const alert of routeGroup.alerts) {
+      const existingEntries = alertIdToEntries.get(alert.id) ?? [];
+      const entry = { route_id: route.chat_id, message_id: messageId };
+      const nextEntries = [...existingEntries, entry];
+      alertIdToEntries.set(alert.id, nextEntries);
+      alert.message_ids = nextEntries;
+    }
+  }
+
+  return group.alerts.map((alert) => {
+    const entries = alertIdToEntries.get(alert.id) ?? [];
+    alert.message_ids = entries;
+    return {
+      id: alert.id,
+      entriesJson: JSON.stringify(entries),
+    };
+  });
+};
+
+const updateAlertMessageIds = async (updates: { id: string; entriesJson: string }[]) => {
+  const updateSQL = `
+        UPDATE alert_record
+        SET message_ids = CASE id
+        ${updates
+          .map(({ id, entriesJson }) => `WHEN ${escapeSQL(id)} THEN ${escapeSQL(entriesJson)}::jsonb`)
+          .join('\n')}
+          ELSE message_ids
+        END
+        WHERE id IN (${updates.map(({ id }) => escapeSQL(id)).join(', ')})
+      `;
+  await requestSQL(terminal, updateSQL);
+};
+
+const finalizeGroupRecords = async (group: IAlertGroup) => {
+  await requestSQL(
+    terminal,
+    `
+          UPDATE alert_record
+          SET finalized = TRUE,
+              message_ids = '[]'::jsonb
+          WHERE group_name = ${escapeSQL(group.group_key)}
+        `,
+  );
+};
+
 const handleAlertGroup = async (group: IAlertGroup) => {
+  // Step 1: 快速跳过空告警组
   if (group.alerts.length === 0) {
     return;
   }
 
+  // Step 2: 获取启用的路由配置，若缺失则记录并返回
   const routes = await firstValueFrom(routeConfig$);
   if (routes.length === 0) {
     console.info(
@@ -201,8 +359,11 @@ const handleAlertGroup = async (group: IAlertGroup) => {
     );
     return;
   }
-  const filteredRoutes = routes.filter((route) => shouldDeliver(route.label_filters, group.alerts));
-  if (filteredRoutes.length === 0) {
+
+  // Step 3: 基于路由筛选符合条件的告警并生成汇总
+  const matches = matchRoutesWithSummary(group, routes);
+
+  if (matches.length === 0) {
     console.info(
       formatTime(Date.now()),
       'NoAlertReceiveRouteMatched',
@@ -214,60 +375,19 @@ const handleAlertGroup = async (group: IAlertGroup) => {
     return;
   }
 
-  const cardDSL = JSON.stringify(buildAlertCard(group));
-  const mapRouteIdToMessageId = new Map<string, string>();
-  for (const alert of group.alerts) {
-    const entries: IAlertMessageEntry[] = alert.message_ids ?? [];
-    for (const entry of entries) {
-      mapRouteIdToMessageId.set(entry.route_id, entry.message_id);
-    }
-  }
+  // Step 4: 收集现有 messageId，后续用于更新或发送
+  const messageIndex = collectMessageIndex(group.alerts);
 
+  // Step 5: 并行发送或更新消息卡片
   await firstValueFrom(
-    from(filteredRoutes).pipe(
-      mergeMap(async (route) => {
-        const existingMessageId = mapRouteIdToMessageId.get(route.chat_id);
-        const urgentPayload = makeUrgentPayload(route, group.severity);
-        const payload = existingMessageId
-          ? {
-              message_id: existingMessageId,
-              msg_type: 'interactive',
-              content: cardDSL,
-              ...(urgentPayload
-                ? { urgent: urgentPayload.urgent, urgent_user_list: urgentPayload.userIds }
-                : {}),
-            }
-          : {
-              receive_id: route.chat_id,
-              receive_id_type: 'chat_id',
-              msg_type: 'interactive',
-              content: cardDSL,
-              ...(urgentPayload
-                ? { urgent: urgentPayload.urgent, urgent_user_list: urgentPayload.userIds }
-                : {}),
-            };
-
-        const serviceName = existingMessageId ? 'Feishu/UpdateMessage' : 'Feishu/SendMessage';
-
-        const result = await terminal.client.requestForResponse<typeof payload, { message_id: string }>(
-          serviceName,
-          payload,
-        );
-
-        if (result.code !== 0) {
-          throw new Error(`SendFeishuCardFailed: ${result.message}`);
-        }
-
-        const messageId = result.data?.message_id ?? existingMessageId;
-        if (messageId) {
-          mapRouteIdToMessageId.set(route.chat_id, messageId);
-        }
-      }),
+    from(matches).pipe(
+      mergeMap(({ route, routeGroup }) => defer(() => sendOrUpdateMessage(route, routeGroup, messageIndex))),
       toArray(),
     ),
   );
 
-  const messageEntries = Array.from(mapRouteIdToMessageId.entries()).map(([route_id, message_id]) => ({
+  // Step 6: 记录更新后的 route-message 映射
+  const messageEntries = Array.from(messageIndex.entries()).map(([route_id, message_id]) => ({
     route_id,
     message_id,
   }));
@@ -282,30 +402,16 @@ const handleAlertGroup = async (group: IAlertGroup) => {
     group.version,
   );
 
-  // anti-pattern but easier to maintain
-  group.alerts.forEach((alert) => {
-    alert.message_ids = messageEntries;
-  });
+  // Step 7: 汇总需要写回数据库的 message_id 信息
+  const updates = collectAlertMessageUpdates(group, matches, messageIndex);
 
-  await requestSQL(
-    terminal,
-    `
-        UPDATE alert_record
-        SET message_ids = ${escapeSQL(JSON.stringify(messageEntries))}::jsonb
-        WHERE group_name = ${escapeSQL(group.group_key)}
-      `,
-  );
+  if (updates.length > 0) {
+    await updateAlertMessageIds(updates);
+  }
 
+  // Step 8: 若所有告警已终态则统一标记 finalized
   if (group.finalized) {
-    await requestSQL(
-      terminal,
-      `
-          UPDATE alert_record
-          SET finalized = TRUE,
-              message_ids = '[]'::jsonb
-          WHERE group_name = ${escapeSQL(group.group_key)}
-        `,
-    );
+    await finalizeGroupRecords(group);
   }
 };
 

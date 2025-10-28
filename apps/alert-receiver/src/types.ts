@@ -1,3 +1,5 @@
+import type { JSONSchema7 } from 'json-schema';
+
 export interface IAlertRecord {
   id: string;
   alert_name: string;
@@ -25,12 +27,6 @@ export interface IAlertMessageEntry {
   message_id: string;
 }
 
-export interface IAlertLabelRule {
-  key: string;
-  operator: string;
-  value: string;
-}
-
 export interface IAlertGroup {
   alert_name: string;
   group_key: string;
@@ -55,7 +51,7 @@ export interface IAlertReceiveRoute {
   urgent_user_list: string[];
   // 'app' | 'sms' | 'phone'
   urgent_type: string;
-  label_filters: IAlertLabelRule[];
+  label_schema?: JSONSchema7;
   enabled: boolean;
   created_at: string;
   updated_at: string;

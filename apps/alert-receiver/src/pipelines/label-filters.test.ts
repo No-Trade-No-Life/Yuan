@@ -1,8 +1,10 @@
-import type { IAlertLabelRule, IAlertRecord } from '../types';
-import { matchLabelRule, normalizeLabelFilters, shouldDeliver } from './label-filters';
+import * as schemaModule from '@yuants/protocol/lib/schema';
+import type { JSONSchema7 } from 'json-schema';
+import type { IAlertReceiveRoute, IAlertRecord } from '../types';
+import { filterAlertsByRoute } from './label-filters';
 
 const makeAlert = (overrides: Partial<IAlertRecord>): IAlertRecord => ({
-  id: overrides.id ?? 'alert-1',
+  id: overrides.id ?? `alert-${Math.random()}`,
   alert_name: overrides.alert_name ?? 'TestAlert',
   current_value: overrides.current_value,
   status: overrides.status ?? 'firing',
@@ -21,7 +23,18 @@ const makeAlert = (overrides: Partial<IAlertRecord>): IAlertRecord => ({
   updated_at: overrides.updated_at,
 });
 
-describe('normalizeLabelFilters', () => {
+const makeRoute = (schema?: JSONSchema7): IAlertReceiveRoute => ({
+  chat_id: 'chat-id',
+  urgent_on_severity: 'UNKNOWN',
+  urgent_user_list: [],
+  urgent_type: 'app',
+  label_schema: schema,
+  enabled: true,
+  created_at: '2024-01-01T00:00:00.000Z',
+  updated_at: '2024-01-01T00:00:00.000Z',
+});
+
+describe('filterAlertsByRoute', () => {
   let infoSpy: jest.SpyInstance;
 
   beforeEach(() => {
@@ -30,61 +43,54 @@ describe('normalizeLabelFilters', () => {
 
   afterEach(() => {
     infoSpy.mockRestore();
+    jest.restoreAllMocks();
   });
 
-  it('ignores unsupported operators', () => {
-    const filters = normalizeLabelFilters([{ key: 'env', operator: '>=', value: 'prod' }]);
-    expect(filters).toHaveLength(0);
+  it('passes through when schema missing', () => {
+    const route = makeRoute();
+    const alerts = [makeAlert({ labels: { env: 'dev' } })];
+    expect(filterAlertsByRoute(route, alerts)).toEqual(alerts);
   });
 
-  it('keeps only the first rule per key', () => {
-    const filters = normalizeLabelFilters([
-      { key: 'env', operator: '==', value: 'prod' },
-      { key: 'env', operator: '!=', value: 'dev' },
-    ]);
-    expect(filters).toEqual([{ key: 'env', operator: '==', value: 'prod' }]);
-  });
-});
-
-describe('matchLabelRule', () => {
-  it('matches equality operator', () => {
-    expect(matchLabelRule({ env: 'prod' }, { key: 'env', operator: '==', value: 'prod' })).toBe(true);
-  });
-
-  it('matches inequality operator when value differs', () => {
-    expect(matchLabelRule({ env: 'prod' }, { key: 'env', operator: '!=', value: 'dev' })).toBe(true);
-  });
-
-  it('matches regex operator', () => {
-    expect(
-      matchLabelRule({ service: 'order' }, { key: 'service', operator: '=~', value: '^(order|trade)$' }),
-    ).toBe(true);
-  });
-
-  it('matches negative regex operator', () => {
-    expect(matchLabelRule({ service: 'order' }, { key: 'service', operator: '!~', value: '^test-' })).toBe(
-      true,
-    );
-  });
-});
-
-describe('shouldDeliver', () => {
-  it('delivers when filters empty', () => {
-    expect(shouldDeliver([], [makeAlert({ labels: { env: 'prod' } })])).toBe(true);
-  });
-
-  it('delivers when any alert satisfies all rules', () => {
-    const filters: IAlertLabelRule[] = [{ key: 'env', operator: '==', value: 'prod' }];
+  it('passes through using allow-all schema', () => {
+    const allowAllSchema: JSONSchema7 = { type: 'object' };
+    const route = makeRoute(allowAllSchema);
     const alerts = [
       makeAlert({ id: 'a1', labels: { env: 'dev' } }),
-      makeAlert({ id: 'a2', labels: { env: 'prod' } }),
+      makeAlert({ id: 'a2', labels: { env: 'prod', team: 'ops' } }),
     ];
-    expect(shouldDeliver(filters, alerts)).toBe(true);
+    expect(filterAlertsByRoute(route, alerts)).toEqual(alerts);
   });
 
-  it('blocks delivery when no alerts satisfy rules', () => {
-    const filters: IAlertLabelRule[] = [{ key: 'env', operator: '==', value: 'prod' }];
-    const alerts = [makeAlert({ labels: { env: 'test' } })];
-    expect(shouldDeliver(filters, alerts)).toBe(false);
+  it('returns only alerts matching schema constraints', () => {
+    const route = makeRoute({
+      type: 'object',
+      required: ['env'],
+      properties: {
+        env: { const: 'prod' },
+      },
+      additionalProperties: true,
+    });
+
+    const matching = makeAlert({ id: 'match', labels: { env: 'prod' } });
+    const nonMatching = makeAlert({ id: 'miss', labels: { env: 'test' } });
+
+    expect(filterAlertsByRoute(route, [nonMatching, matching])).toEqual([matching]);
+  });
+
+  it('falls back to passthrough when validator creation throws', () => {
+    jest.spyOn(schemaModule, 'createValidator').mockImplementation(() => {
+      throw new Error('boom');
+    });
+
+    const route = makeRoute({ type: 'object' });
+    const alerts = [makeAlert({ labels: { env: 'prod' } })];
+
+    expect(filterAlertsByRoute(route, alerts)).toEqual(alerts);
+    expect(infoSpy).toHaveBeenCalledWith(
+      expect.any(Number),
+      'LabelSchemaValidatorCreationFailed',
+      expect.any(Error),
+    );
   });
 });
