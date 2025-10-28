@@ -1,6 +1,14 @@
 # Change Log - @yuants/app-alert-receiver
 
-This log was last generated on Mon, 27 Oct 2025 12:03:21 GMT and should not be manually modified.
+This log was last generated on Tue, 28 Oct 2025 11:17:50 GMT and should not be manually modified.
+
+## 0.5.1
+Tue, 28 Oct 2025 11:17:50 GMT
+
+### Patches
+
+- streamline fingerprint computation and improve efficiency
+- replace label_filters with label_schema in alert routes
 
 ## 0.5.0
 Mon, 27 Oct 2025 12:03:21 GMT
