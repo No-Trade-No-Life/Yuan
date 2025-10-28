@@ -27,58 +27,39 @@ import { TextEncoder } from 'util';
 const FNV_OFFSET_64 = 14695981039346656037n;
 const FNV_PRIME_64 = 1099511628211n;
 const MASK_64 = (1n << 64n) - 1n;
-const SEP_BYTE = 0xff;
-
-const textEncoder = new TextEncoder();
-
-const fnv1a64Update = (h: bigint, bytes: Uint8Array): bigint => {
-  let x = h;
-  for (let i = 0; i < bytes.length; i++) {
-    x ^= BigInt(bytes[i]);
+const fnv1a64Hex = (bytes: Uint8Array): string => {
+  let x = FNV_OFFSET_64;
+  for (const byte of bytes) {
+    x ^= BigInt(byte);
     x = (x * FNV_PRIME_64) & MASK_64;
   }
-  return x;
+  return x.toString(16).padStart(16, '0');
 };
 
-const fnv1a64AddSep = (h: bigint): bigint => {
-  let x = h ^ BigInt(SEP_BYTE);
-  x = (x * FNV_PRIME_64) & MASK_64;
-  return x;
-};
-
-export const computeAlertFingerprint = (labels: Record<string, string>): string => {
-  let h = FNV_OFFSET_64;
+const SEP_BYTE = new Uint8Array([0xff]);
+function encodeLabels(labels: Record<string, string>): Uint8Array {
+  const buffers: Uint8Array[] = [];
   const keys = Object.keys(labels).sort();
   for (const k of keys) {
     const v = labels[k] ?? '';
-    h = fnv1a64Update(h, textEncoder.encode(k));
-    h = fnv1a64AddSep(h);
-    h = fnv1a64Update(h, textEncoder.encode(v));
-    h = fnv1a64AddSep(h);
+    buffers.push(new TextEncoder().encode(k));
+    buffers.push(SEP_BYTE);
+    buffers.push(new TextEncoder().encode(v));
+    buffers.push(SEP_BYTE);
   }
-  // Format as 16-digit, zero-padded lowercase hex
-  let hex = h.toString(16);
-  if (hex.length < 16) hex = '0'.repeat(16 - hex.length) + hex;
-  return hex;
-};
+  // concat all
+  // return Uint8Array.from(buffers.flatMap((b) => Array.from(b)));   // 不够高效
 
-// Convenience: decimal form if needed by callers
-export const computeAlertFingerprintDecimal = (labels: Record<string, string>): string => {
-  // Return unsigned decimal string
-  return (function toUnsignedDecimal(x: bigint): string {
-    return x.toString(10);
-  })(
-    (() => {
-      let h = FNV_OFFSET_64;
-      const keys = Object.keys(labels).sort();
-      for (const k of keys) {
-        const v = labels[k] ?? '';
-        h = fnv1a64Update(h, textEncoder.encode(k));
-        h = fnv1a64AddSep(h);
-        h = fnv1a64Update(h, textEncoder.encode(v));
-        h = fnv1a64AddSep(h);
-      }
-      return h & MASK_64;
-    })(),
-  );
-};
+  // 预计算总长度以避免多次内存分配，高效拼接
+  const totalLength = buffers.reduce((sum, b) => sum + b.length, 0);
+  const result = new Uint8Array(totalLength);
+  let offset = 0;
+  for (const b of buffers) {
+    result.set(b, offset);
+    offset += b.length;
+  }
+  return result;
+}
+
+export const computeAlertFingerprint = (labels: Record<string, string>): string =>
+  fnv1a64Hex(encodeLabels(labels));
