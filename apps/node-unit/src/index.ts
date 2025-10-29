@@ -15,7 +15,7 @@ import {
 } from '@yuants/utils';
 import { spawn } from 'child_process';
 import { createReadStream } from 'fs';
-import { mkdir, rename, stat } from 'fs/promises';
+import { mkdir, stat } from 'fs/promises';
 import { hostname } from 'os';
 import { join } from 'path';
 import {
@@ -36,6 +36,7 @@ import {
 } from 'rxjs';
 import treeKill from 'tree-kill';
 import { getAbsolutePath, NODE_PATH, WORKSPACE_DIR } from './const';
+import { DEFAULT_LOG_ROTATE_OPTIONS, RotatingLogStream } from './logging';
 import { installWorkspaceTo } from './prepare-workspace';
 import { spawnChild } from './spawnChild';
 
@@ -65,6 +66,7 @@ kill$.subscribe(() => {
 });
 
 const childPublicKeys = new Set<string>();
+const LOG_ROTATE_OPTIONS = DEFAULT_LOG_ROTATE_OPTIONS;
 
 const runDeployment = (nodeKeyPair: IEd25519KeyPair, deployment: IDeployment) => {
   const terminalName = `${deployment.package_name}@${deployment.package_version}`;
@@ -78,15 +80,7 @@ const runDeployment = (nodeKeyPair: IEd25519KeyPair, deployment: IDeployment) =>
   return defer(() =>
     concat(
       defer(async () => {
-        // EnsureDir log
         await mkdir(logHome, { recursive: true });
-        // Rename old log file if exists
-        await rename(join(logHome, `${deployment.id}.log`), join(logHome, `${deployment.id}.prev.log`)).catch(
-          (err) => {
-            // File log not exists
-            console.info(formatTime(Date.now()), 'No previous log file to rename', err);
-          },
-        );
       }).pipe(mergeMap(() => EMPTY)), // suppress signal
       // Install workspace
       defer(() =>
@@ -125,7 +119,8 @@ const runDeployment = (nodeKeyPair: IEd25519KeyPair, deployment: IDeployment) =>
           // Current working directory is the installed package directory
           cwd: join(deploymentDir, 'node_modules', deployment.package_name),
           stdoutFilename: join(logHome, `${deployment.id}.log`),
-          stderrFilename: join(logHome, `${deployment.id}.log`),
+          stderrFilename: join(logHome, `${deployment.id}.error.log`),
+          streamFactory: (filename) => new RotatingLogStream(filename, LOG_ROTATE_OPTIONS),
         }).pipe(
           tap({
             finalize: () => {
@@ -226,14 +221,14 @@ defer(async () => {
   const terminal = new Terminal(
     process.env.HOST_URL!,
     {
-    terminal_id: encodePath('NodeUnit', nodeKeyPair.public_key),
-    name: '@yuants/node-unit',
-    tags: {
-      node_unit: 'true',
-      node_unit_address: nodeKeyPair.public_key,
-      node_unit_name: process.env.NODE_UNIT_NAME || hostname(),
-      node_unit_version: require('../package.json').version,
-    },
+      terminal_id: encodePath('NodeUnit', nodeKeyPair.public_key),
+      name: '@yuants/node-unit',
+      tags: {
+        node_unit: 'true',
+        node_unit_address: nodeKeyPair.public_key,
+        node_unit_name: process.env.NODE_UNIT_NAME || hostname(),
+        node_unit_version: require('../package.json').version,
+      },
     },
     {
       private_key: nodeKeyPair.private_key,
