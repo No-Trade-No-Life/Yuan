@@ -481,10 +481,6 @@
       "shouldPublish": true
     },
     {
-      "packageName": "@yuants/docs",
-      "projectFolder": "ui/docs"
-    },
-    {
       "packageName": "@yuants/utils",
       "projectFolder": "libraries/utils",
       "shouldPublish": true
