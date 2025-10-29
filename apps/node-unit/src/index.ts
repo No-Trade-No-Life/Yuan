@@ -119,7 +119,7 @@ const runDeployment = (nodeKeyPair: IEd25519KeyPair, deployment: IDeployment) =>
           // Current working directory is the installed package directory
           cwd: join(deploymentDir, 'node_modules', deployment.package_name),
           stdoutFilename: join(logHome, `${deployment.id}.log`),
-          stderrFilename: join(logHome, `${deployment.id}.error.log`),
+          stderrFilename: join(logHome, `${deployment.id}.log`),
           streamFactory: (filename) => new RotatingLogStream(filename, LOG_ROTATE_OPTIONS),
         }).pipe(
           tap({
