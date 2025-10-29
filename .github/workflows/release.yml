@@ -67,30 +67,6 @@ jobs:
           publish_dir: ./ui/web/dist
           cname: y.ntnl.tech
 
-  gh-pages-docs-global:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Get artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: docs-artifacts
-          path: ./ui/docs/build
-
-      - name: Deploy UI Web on gh-pages
-        uses: peaceiris/actions-gh-pages@v3
-        if: ${{ github.ref == 'refs/heads/main' }}
-        with:
-          deploy_key: ${{ secrets.ACTIONS_DEPLOY_KEY_DOC }}
-          external_repository: No-Trade-No-Life/home-page
-          publish_branch: main
-          publish_dir: ./ui/docs/build
-          cname: www.ntnl.io
-
   docker-build:
     runs-on: ubuntu-latest
     needs: build

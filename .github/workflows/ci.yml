@@ -126,15 +126,6 @@ jobs:
             ./ui/web/dist
           if-no-files-found: error
 
-      - name: Upload docs artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: docs-artifacts
-          retention-days: 1
-          path: |
-            ./ui/docs/build
-          if-no-files-found: error
-
       - name: Publish NPM Package
         if: ${{ github.ref == 'refs/heads/main' }}
         env:
