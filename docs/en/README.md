@@ -33,14 +33,21 @@ Welcome to the English documentation for the Yuan project! This includes detaile
 - [Toolkit](toolkit.md) - Development tools and CLI
 - [Documentation](documentation.md) - Project documentation system
 
+### Getting Started
+
+- [Deployment Guide](deployment.md) - Quick deployment and setup guide
+- [Developer Guide](development.md) - Development environment setup and workflow
+- [Project Motivation](motivation.md) - Project philosophy and design principles
+
 ## Quick Start
 
 If you're new to the Yuan project, we recommend reading in the following order:
 
-1. [Architecture Overview](architecture-overview.md) - Understand the overall system design
-2. [Quick Start](../../README.md#getting-started-standalone-deployment-🚀) - Check the quick start guide
-3. [Web UI](web-ui.md) - Learn about user interface functionality
-4. [Agents](agents.md) - Learn strategy development
+1. [Project Motivation](motivation.md) - Understand the project philosophy and design principles
+2. [Deployment Guide](deployment.md) - Quick deployment and setup guide
+3. [Architecture Overview](architecture-overview.md) - Understand the overall system design
+4. [Web UI](web-ui.md) - Learn about user interface functionality
+5. [Agents](agents.md) - Learn strategy development
 
 ## Project Resources
 
