@@ -30,4 +30,4 @@ Yuan 通过一套 RPC 框架来实现分布式系统中终端之间的通信。�
 - ED25519 签名验证
 - 私钥保护机制
 
-<p align="right">(<a href="../../README.zh-Hans.md">返回 README</a>) | <a href="architecture-overview.md">架构概述</a></p>
+<p align="right">(<a href="../../README.md">返回 README</a>) | <a href="architecture-overview.md">架构概述</a></p>

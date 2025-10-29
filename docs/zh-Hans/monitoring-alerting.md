@@ -42,4 +42,4 @@
 - 服务质量监控
 - 异常检测和报警
 
-<p align="right">(<a href="../../README.zh-Hans.md">返回 README</a>) | <a href="architecture-overview.md">架构概述</a></p>
+<p align="right">(<a href="../../README.md">返回 README</a>) | <a href="architecture-overview.md">架构概述</a></p>

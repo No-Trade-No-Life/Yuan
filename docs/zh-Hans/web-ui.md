@@ -109,4 +109,4 @@ GUI 使用的工作区的内容是完全保密的：
 
 通过移动浏览器访问，获得优化的移动体验。
 
-<p align="right">(<a href="../../README.zh-Hans.md">返回 README</a>) | <a href="architecture-overview.md">架构概述</a></p>
+<p align="right">(<a href="../../README.md">返回 README</a>) | <a href="architecture-overview.md">架构概述</a></p>

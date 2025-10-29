@@ -73,5 +73,5 @@ Yuan 项目采用 MIT 许可证。详细信息请参阅 [LICENSE](../LICENSE) �
 ---
 
 <p align="center">
-  <a href="../../README.zh-Hans.md">返回主 README</a>
+  <a href="../../README.md">返回主 README</a>
 </p>

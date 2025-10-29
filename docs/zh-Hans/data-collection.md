@@ -45,4 +45,4 @@
 - **可靠**: 具备错误处理和重试机制
 - **高效**: 优化数据存储和查询性能
 
-<p align="right">(<a href="../../README.zh-Hans.md">返回 README</a>) | <a href="architecture-overview.md">架构概述</a></p>
+<p align="right">(<a href="../../README.md">返回 README</a>) | <a href="architecture-overview.md">架构概述</a></p>

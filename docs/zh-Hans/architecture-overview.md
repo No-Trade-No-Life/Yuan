@@ -29,4 +29,4 @@ Yuan 是一个"个人投资操作系统"，采用分布式架构设计，通过 
 - 云原生设计
 - AI 赋能
 
-<p align="right">(<a href="../../README.zh-Hans.md">返回 README</a>)</p>
+<p align="right">(<a href="../../README.md">返回 README</a>)</p>
