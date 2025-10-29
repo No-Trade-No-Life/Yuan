@@ -37,11 +37,6 @@ Welcome to the English documentation for the Yuan project! This includes detaile
 - [Toolkit](toolkit.md) - Development tools and CLI
 - [Documentation](documentation.md) - Project documentation system
 
-### Getting Started
-
-- [Deployment Guide](deployment.md) - Quick deployment and setup guide
-- [Developer Guide](development.md) - Development environment setup and workflow
-
 ## Quick Start
 
 If you're new to the Yuan project, we recommend reading in the following order:
