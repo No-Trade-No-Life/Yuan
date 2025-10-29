@@ -38,7 +38,7 @@
 如果您是第一次接触 Yuan 项目，建议按以下顺序阅读：
 
 1. [架构概述](architecture-overview.md) - 了解系统整体设计
-2. [快速开始](../README.zh-Hans.md#开始使用-单机部署-🚀) - 查看快速入门指南
+2. [快速开始](../../README.zh-Hans.md#开始使用-单机部署-🚀) - 查看快速入门指南
 3. [Web UI](web-ui.md) - 了解用户界面功能
 4. [智能体](agents.md) - 学习策略开发
 
@@ -64,5 +64,5 @@ Yuan 项目采用 MIT 许可证。详细信息请参阅 [LICENSE](../LICENSE) �
 ---
 
 <p align="center">
-  <a href="../README.zh-Hans.md">返回主 README</a>
+  <a href="../../README.zh-Hans.md">返回主 README</a>
 </p>
