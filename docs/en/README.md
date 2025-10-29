@@ -4,6 +4,10 @@ Welcome to the English documentation for the Yuan project! This includes detaile
 
 ## Documentation Navigation
 
+### Project Introduction
+
+- [Project Motivation](motivation.md) - Project design philosophy and industry pain point analysis
+
 ### Architecture Overview
 
 - [Architecture Overview](architecture-overview.md) - System overall architecture and design philosophy
@@ -37,17 +41,20 @@ Welcome to the English documentation for the Yuan project! This includes detaile
 
 - [Deployment Guide](deployment.md) - Quick deployment and setup guide
 - [Developer Guide](development.md) - Development environment setup and workflow
-- [Project Motivation](motivation.md) - Project philosophy and design principles
 
 ## Quick Start
 
 If you're new to the Yuan project, we recommend reading in the following order:
 
-1. [Project Motivation](motivation.md) - Understand the project philosophy and design principles
+1. [Architecture Overview](architecture-overview.md) - Understand the overall system design
 2. [Deployment Guide](deployment.md) - Quick deployment and setup guide
-3. [Architecture Overview](architecture-overview.md) - Understand the overall system design
-4. [Web UI](web-ui.md) - Learn about user interface functionality
-5. [Agents](agents.md) - Learn strategy development
+3. [Web UI](web-ui.md) - Learn about user interface functionality
+4. [Agents](agents.md) - Learn strategy development
+
+### By User Type
+
+- **Regular Users**: [Deployment Guide](deployment.md) - Quick deployment and setup guide
+- **Developers**: [Developer Guide](development.md) - Development environment setup and project building
 
 ## Project Resources
 
