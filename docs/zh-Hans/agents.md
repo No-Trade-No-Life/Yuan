@@ -72,4 +72,4 @@
 - **可靠运行**: 具备自动纠错和重启机制
 - **性能监控**: 提供详细的运行统计和监控
 
-<p align="right">(<a href="../../README.zh-Hans.md">返回 README</a>) | <a href="architecture-overview.md">架构概述</a></p>
+<p align="right">(<a href="../../README.md">返回 README</a>) | <a href="architecture-overview.md">架构概述</a></p>

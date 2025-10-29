@@ -1,4 +1,4 @@
-[English](./README.md) | [简体中文](./README.zh-Hans.md)
+[English](./README.md) | [简体中文](#简体中文)
 
 <a name="readme-top"></a>
 
@@ -31,6 +31,8 @@
   </p>
 </div>
 
+## English
+
 Yuan is a "Personal Investment Operating System" that includes all the basic software and infrastructure needed for various personal investment activities.
 Yuan provides foundational platform support for many quantitative trading projects. The revenue from these projects is used to maintain Yuan's development, and some of the code is contributed back to the Yuan project to enhance the platform's capabilities.
 For project design philosophy and motivation, please refer to: [Project Motivation](docs/en/motivation.md).
@@ -41,6 +43,19 @@ Please choose the appropriate entry method based on your needs:
 - **Developers**: [Developer Guide](docs/en/development.md) - Thank you for preparing to contribute to this project, please refer to this guide to set up the development environment and build the project
 
 For more information, [read the full documentation 📖](docs/en/README.md)
+
+## 简体中文
+
+Yuan 是一个"个人投资操作系统"，包含各式各样的个人投资行为所需的一切基础软件和基础设施。
+Yuan 为许多量化交易项目提供基础平台支持，这些项目的收入用于维持 Yuan 的开发，并将部分代码回馈到 Yuan 项目中，增强平台的能力。
+关于项目的设计理念和动机，请参阅：[项目动机](docs/zh-Hans/motivation.md)。
+
+请根据您的需求选择合适的入门方式：
+
+- **普通用户**：[部署指南](docs/zh-Hans/deployment.md) - 快速部署和使用系统，无需编程经验
+- **开发者**：[开发者指南](docs/zh-Hans/development.md) - 非常感谢您准备为本项目做出贡献，请参考此指南以搭建开发环境和构建项目
+
+更多信息，请[阅读完整文档 📖](docs/zh-Hans/README.md)
 
 <!-- CONTRIBUTING -->
 

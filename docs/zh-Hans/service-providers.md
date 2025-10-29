@@ -81,4 +81,4 @@
 - **数据控制**: 数据仅存储在您主机内的存储中
 - **全球覆盖**: 支持多种市场和交易所
 
-<p align="right">(<a href="../../README.zh-Hans.md">返回 README</a>) | <a href="architecture-overview.md">架构概述</a></p>
+<p align="right">(<a href="../../README.md">返回 README</a>) | <a href="architecture-overview.md">架构概述</a></p>

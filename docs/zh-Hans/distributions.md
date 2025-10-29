@@ -89,4 +89,4 @@ https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin&version=>=0.0.2
 - **社区贡献**: 鼓励社区创建和分享发行版
 - **持续更新**: 官方维护，定期更新
 
-<p align="right">(<a href="../../README.zh-Hans.md">返回 README</a>) | <a href="architecture-overview.md">架构概述</a></p>
+<p align="right">(<a href="../../README.md">返回 README</a>) | <a href="architecture-overview.md">架构概述</a></p>
