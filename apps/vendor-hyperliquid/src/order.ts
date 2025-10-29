@@ -112,18 +112,12 @@ terminal.server.provideService<IOrder>(
     const s = `${order.volume}`;
     const r = order.order_direction === 'CLOSE_LONG' || order.order_direction === 'CLOSE_SHORT';
     // other method
-    const t =
-      order.order_type === 'MARKET'
-        ? {
-            limit: {
-              tif: 'Ioc',
-            },
-          }
-        : {
-            limit: {
-              tif: 'Gtc',
-            },
-          };
+    const tif = order.order_type === 'MARKET' ? 'Ioc' : order.order_type === 'MAKER' ? 'Alo' : 'Gtc';
+    const t = {
+      limit: {
+        tif,
+      },
+    };
     const params = {
       orders: [
         {
