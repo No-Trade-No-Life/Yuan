@@ -153,182 +153,28 @@ rush update && rush build
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
-### Packages
-
-#### RPC Framework
-
-Yuan implements communication between terminals in a distributed system through an RPC framework. It natively supports both browser and NodeJS environments. It uses a star topology where all terminals connect to a central Host node. Terminals can send messages to other terminals via the Host, which is responsible for message forwarding. Meanwhile, terminals utilize WebRTC to establish peer-to-peer connections for more efficient communication, reducing the Host's load. The Host acts as a signaling service to facilitate P2P connection establishment.
-
-- [@yuants/protocol](libraries/protocol) Network protocols, service definitions, and infrastructure.
-- [@yuants/app-host](apps/host) An ultra-lightweight in-memory message broker and service discovery. Terminals connected to the same host can send messages to each other. Supports connection authentication control via the environment variable `HOST_TOKEN`. Supports enabling a multi-tenancy environment through the environment variable `MULTI_TENANCY=ED25519`, which can automatically accept terminals with valid ED25519 signatures without requiring terminals to send private keys to the host.
-- [@yuants/app-portal](apps/portal) Deploys a service that shares existing services (and channels) from one Host to others. Acts as an intermediary to forward messages between Hosts. A powerful tool for building data sharing scenarios.
-
-#### Storage
-
-Yuan uses PostgreSQL for general-purpose scenarios, Prometheus for telemetry metrics, and Redis for cached data.
-
-##### Databases
-
-Due to SQL complexity and significant variations between SQL databases, complex SQL statements are often incompatible. We default to only ensuring compatibility with PostgreSQL, sometimes requiring specific extensions (e.g., TimeScale DB).
-
-- [@yuants/postgres-storage](apps/postgres-storage) A PostgreSQL storage service that connects PostgreSQL instances to Host services while hiding connection credentials.
-- [@yuants/sql](libraries/sql) Client-side SQL library providing convenient read/write capabilities for PostgreSQL data in Hosts.
-
-##### Telemetry
-
-We plan to adopt OpenTelemetry as the telemetry standard while continuing to use Prometheus for metric storage.
-
-- [@yuants/app-metrics-collector](apps/metrics-collector) Deploys a terminal as a metrics collection service, continuously gathering metrics from terminals. Works with Prometheus.
-- [@yuants/prometheus-client](libraries/prometheus-client) Prometheus client for browser/Node, outperforming `promjs`.
-- [@yuants/app-prometheus-client](apps/prometheus-client) Deploys a terminal as a Prometheus client service for querying Prometheus data, ideal for building monitoring dashboards.
-
-#### Data Modeling
-
-To unify global markets, we need a universal data model to represent market data. This data model facilitates data conversion and mapping across different markets.
-
-The data modeling includes TypeScript types and SQL table definitions.
-
-- [@yuants/data-product](libraries/data-product) Tradable products in markets.
-- [@yuants/data-ohlc](libraries/data-ohlc) OHLC(V) data (Open, High, Low, Close with optional Volume) - a common market data format also known as candlestick charts.
-- [@yuants/data-quote](libraries/data-quote) Level-1 quote data, specifically referring to a product's latest price and top-of-book market quotes.
-- [@yuants/data-interest-rate](libraries/data-interest-rate) Interest rate data. Interest refers to the charges incurred when traders hold positions through settlement points. It's commonly used in forex trading and CFD (Contract for Difference) trading, and also applies to funding rates in perpetual contracts.
-- [@yuants/data-account](libraries/data-account) Account and position data.
-- [@yuants/data-order](libraries/data-order) Order data. An order represents a buy or sell instruction submitted by a trader to the market.
-
-Additionally, private data models that don't need to be shared between packages will be kept within their respective domain-specific packages.
-
-We have identified two particularly useful properties of data: hierarchical structure and time-series nature.
-
-**Hierarchical Structure**
-For example, product hierarchies stem from different markets and various asset categories. Account information hierarchies originate from different brokers, parent-child account relationships, fund component structures, etc. Hierarchical properties enable us to store and manage vast amounts of data efficiently. The hierarchical nature also provides intuitive understanding - we only need to work within a specific subdirectory at any time.
-
-**Time-Series Nature**
-Data is typically generated chronologically and continuously aggregated by time periods. Taking OHLC data as an example, we can leverage time-series characteristics for data management across different time slices. For instance, we can periodically fetch data from providers and store it in databases. Time-series data offers highly efficient storage and query performance.
-
-#### Data Collection
-
-For relatively static data, we can retrieve it through data providers' APIs and store it in databases.
-
-For time-series data, we need to periodically fetch data from providers and store it in databases.
-
-We've defined constraints that time-series data should satisfy: [@yuants/data-series](libraries/data-series) - A generic time-series data model that defines fundamental properties and methods. Data service providers can use this to create their own time-series models and quickly implement data collection tasks.
-
-We've introduced a time-series data collection scheduler: [@yuants/series-collector](apps/series-collector) - A universal time-series data collector that uses CronJob scheduled tasks to fetch data from various providers and store it in databases. Simply add a record to the `series_collecting_task` table in the database, and the collector will automatically fetch and store the data periodically.
-
-#### Service Providers
-
-Service providers act as connectors to external systems that interact with Yuan. These systems operate independently and generate new data autonomously.
-
-Providers proxy requests/responses to external systems, which may include exchanges, data sources, or other external services. They store data locally and communicate with other terminals via the RPC framework.
-
-Providers encompass exchanges, data sources, or any external data/services. Yuan's capabilities expand as more providers are added.
-
-Access global markets through various providers. Each provider serves as a direct gateway to external services. Private data (account info, market data) isn't stored in Yuan cloud services - you can deploy providers on your own cloud or local machines. Data remains exclusively in your Host's storage.
-
-- [@yuants/vendor-ctp](apps/vendor-ctp) Connects to the "Comprehensive Transaction Platform" (CTP) developed by Shanghai Futures Exchange (SHFE) for Chinese futures trading. Regulatory compliance may require broker permissions.
-- [@yuants/vendor-ccxt](apps/vendor-ccxt) Connects to the "Cryptocurrency Exchange Trading Library" (CCXT), supporting numerous crypto exchanges via JavaScript/Python/PHP.
-- [@yuants/vendor-binance](apps/vendor-binance) Connects to _Binance_, a leading cryptocurrency exchange.
-- [@yuants/vendor-okx](apps/vendor-okx) Connects to _OKX_, a prominent cryptocurrency exchange.
-- [@yuants/vendor-huobi](apps/vendor-huobi) Connects to _Huobi_, a well-known cryptocurrency exchange.
-- [@yuants/vendor-gate](apps/vendor-gate) Connects to _Gate_, a notable cryptocurrency exchange.
-- [@yuants/vendor-bitget](apps/vendor-bitget) Connects to _BitGet_, a significant cryptocurrency exchange.
-- [@yuants/vendor-coinex](apps/vendor-coinex) Connects to _CoinEX_, a recognized cryptocurrency exchange.
-- [@yuants/vendor-hyperliquid](apps/vendor-hyperliquid) Connects to _Hyperliquid_, a prominent on-chain cryptocurrency exchange.
-- [@yuants/vendor-trading-view](apps/vendor-trading-view) Connects to _TradingView_, a renowned financial charting and trading platform. Enables usage of TradingView charts and indicators.
-- [@yuants/vendor-tq](apps/vendor-tq) Connects to _TQ_, a prominent financial data provider. Allows access to TQ data services.
-- [@yuants/app-email-notifier](apps/email-notifier) Email notification service supporting SMTP/IMAP protocols, storing messages in storage automatically.
-- [@yuants/app-feishu-notifier](apps/feishu-notifier) Integrates with Feishu (Lark) bot system for notifications.
-- [@yuants/app-openai](apps/openai) Deploys a terminal as an OpenAI service for text/image generation via OpenAI APIs.
-- [@yuants/app-telegram-monitor](apps/telegram-monitor) Deploys a Telegram monitoring service to relay messages to other terminals.
-- [@yuants/app-alert-receiver](apps/alert-receiver) Deploys an alert reception service that forwards alerts to notification terminals.
-
-#### Agent
-
-An Agent is a trading bot/strategy program that can automatically execute trading strategies and make decisions based on market data and account information. Agents can backtest on historical data or perform live trading with real-time data. You can customize an Agent's behavior and strategies.
-
-- [@yuants/kernel](libraries/kernel) Provides a time-series simulation environment that can be combined with modules for different purposes.
-- [@yuants/agent](libraries/agent) A Kernel-based trading bot containing the core trading strategy logic.
-- [@yuants/app-agent](apps/agent) Deploys a standalone terminal as an Agent daemon service. You can run Agents in **live mode**, which automatically corrects historical data errors and restarts Agents after crashes.
-
-#### Trade Execution
-
-The agent is responsible for outputting simulated account positions in real-time, but it does not interact directly with the market. This is to maintain a stateless design and simplify the agent's logic.
-
-We use an account composer to combine information from simulated accounts and derive the planned account information required for live trading. Then, a trade executor is used to align the positions of the real trading account with those of the planned account.
-
-- [@yuants/app-account-composer](apps/account-composer) Account Composer. It can derive a new account information from several accounts. It has a wide range of applications, such as consolidating multiple agent accounts into a single account.
-
-- [@yuants/app-trade-copier](apps/trade-copier) Trade Copier. It **sends orders to the market** to ensure the real account follows the planned account, with the goal of keeping their positions consistent. It supports configuring various micro-strategies, such as market price chasing, limiting single-order volume, rolling optimal pending orders, etc. Of course, you can also use one real account to follow another real account.
-
-For multiple accounts, a transfer controller handles inter-account fund movements:
-
-- [@yuants/app-transfer-controller](apps/transfer-controller) A service that monitors transfer requests and ensures completion of inter-account transfers.
-
-You can even build a logistics network to automatically balance funds between accounts according to strategies:
-
-- [@yuants/app-risk-manager](apps/risk-manager) Deploys a terminal as a risk management service that makes transfer decisions based on configured risk parameters.
-
-#### Utilities
-
-- [@yuants/utils](libraries/utils) General utilities not found in community packages.
-- [@yuants/extension](libraries/extension) Defines extension interfaces for enhanced functionality.
-- [@yuants/app-k8s-manifest-operator](apps/k8s-manifest-operator) Deploys a Kubernetes manifest operator that ensures cluster state matches CRD definitions.
-
-#### Web UI
-
-[@yuants/ui-web](ui/web), you can directly access https://y.ntnl.io to access the Yuan GUI.
-
-The graphical user interface (GUI) is the most widely used human-computer interaction interface today. It can do everything that command-line interfaces (CLI), natural language interfaces (NUI, LUI), and other interfaces can do.
-
-- **Single-line Deployment**: All users use the same, latest version of the GUI.
-- **Strong Privacy**: The content of the workspace used by the GUI is completely confidential.
-- **Extensibility**: You can install extensions to enhance your workspace.
-- **Multi-device Adaptation**: Any device with a modern browser can access the GUI and its features. We will continuously improve multi-device adaptability.
-- **PWA Support**: The GUI can be installed as a desktop application via PWA. Mobile devices can also use PWA to install to the home screen.
-
-#### Distributions
-
-Yuan is a powerful operating system, but it is also too low-level, primitive, and difficult to use. Only tech-savvy users can handle it, and it is not suitable for direct use by ordinary users.
-
-For different user scenarios, it is best to provide specific distributions that are pre-configured with some features so that users can use them directly.
-
-Below are some distributions we provide as references. You can create your own distributions based on your needs.
-
-- [@yuants/dist-origin](distributions/origin): Native distribution [Click to experience online](https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin)
-
-##### Creating a Distribution
-
-The essence of a distribution is a workspace, and the essence of a workspace is a file directory and its contents. We can package the workspace into a distribution, and then users can download and unzip it to use. We recommend using the npm package management tool to manage distributions, i.e., distributions will be published to the npm repository, and users can install distributions via npm.
-
-In the Web GUI's address parameters, we can specify installing the distribution from npm using the `from_npm` parameter. For example, `https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin`.
-
-**URL Parameters**:
-
-- `from_npm`: Whether to install the distribution from npm. `1` for yes, leave empty for no.
-- `scope`: The scope of the npm package, optional parameter.
-- `name`: The name of the npm package, required parameter.
-- `version`: The version of the npm package, in the format of a [semver](https://semver.org/) compliant version range, optional parameter. Defaults to the latest version.
-
-```
-// Install the latest version of the @yuants/dist-origin distribution
-https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin
-
-// Install a specific version (0.0.2) of the @yuants/dist-origin distribution
-https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin&version=0.0.2
-
-// Install a specific version (>=0.0.2) of the @yuants/dist-origin distribution
-https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin&version=>=0.0.2
-```
-
-#### Documents
-
-[@yuants/docs](ui/docs) is the document of Yuan.
-
-It's built by [Docusaurus](https://docusaurus.io/). You can find the latest documents [here](https://www.ntnl.io/).
-
-#### Toolkit
-
-[@yuants/tool-kit](tools/toolkit) is all you need. This provides a CLI when you need to build an extension. It helps you to build a docker image, create a bundle and more. To ensure your extension is ready to use.
+### Code Introduction
+
+To keep the README file concise, detailed code introduction and architecture explanations have been moved to specialized documentation. Please visit the following documentation for detailed information:
+
+#### 📚 [View Complete English Documentation](docs/en/README.md)
+
+**Main Documentation Categories:**
+
+- [**Architecture Overview**](docs/en/architecture-overview.md) - System overall architecture and design philosophy
+- [**RPC Framework**](docs/en/rpc-framework.md) - Distributed communication framework
+- [**Database**](docs/en/database.md) - Data storage and management
+- [**Monitoring and Alerting**](docs/en/monitoring-alerting.md) - System monitoring and alerting mechanisms
+- [**Data Modeling**](docs/en/data-modeling.md) - Unified data model design
+- [**Data Collection**](docs/en/data-collection.md) - Time series data collection system
+- [**Service Providers**](docs/en/service-providers.md) - External system connectors
+- [**Agents**](docs/en/agents.md) - Trading bots and strategy programs
+- [**Trading Execution**](docs/en/trading-execution.md) - Trading execution and risk management
+- [**Web UI**](docs/en/web-ui.md) - Graphical user interface
+- [**Distributions**](docs/en/distributions.md) - Pre-configured system versions
+- [**Development Tools**](docs/en/toolkit.md) - Development tools and CLI
+
+Each document includes detailed component descriptions, usage guides, and best practices.
 
 <p align="right">(<a href="#readme-top">back to top</a>)</p>
 
