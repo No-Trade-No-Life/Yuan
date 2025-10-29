@@ -61,4 +61,4 @@ Level-1 报价数据，具体是指产品的最新价格和最优报价等信息
 - 时间序列特性优化数据存储和查询
 - 模块化设计便于扩展和维护
 
-<p align="right">(<a href="../README.zh-Hans.md">返回 README</a>) | <a href="architecture-overview.md">架构概述</a></p>
+<p align="right">(<a href="../../README.zh-Hans.md">返回 README</a>) | <a href="architecture-overview.md">架构概述</a></p>

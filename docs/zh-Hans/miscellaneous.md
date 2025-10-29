@@ -66,4 +66,4 @@
 - **自定义工作流**: 根据需求定制工作流程
 - **实验性功能**: 在不影响核心系统的情况下测试新功能
 
-<p align="right">(<a href="../README.zh-Hans.md">返回 README</a>) | <a href="architecture-overview.md">架构概述</a></p>
+<p align="right">(<a href="../../README.zh-Hans.md">返回 README</a>) | <a href="architecture-overview.md">架构概述</a></p>
