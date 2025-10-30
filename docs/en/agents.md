@@ -4,15 +4,15 @@ An agent is a trading bot / strategy program. It can automatically execute tradi
 
 ## Core Components
 
-### [@yuants/kernel](libraries/kernel)
+### [@yuants/kernel](./packages/@yuants-kernel.md)
 
 Provides a time series simulation environment. Can be combined with modules to achieve different purposes.
 
-### [@yuants/agent](libraries/agent)
+### [@yuants/agent](./packages/@yuants-agent.md)
 
 Trading bot based on Kernel. Agent contains the core trading strategy.
 
-### [@yuants/app-agent](apps/agent)
+### [@yuants/app-agent](./packages/@yuants-app-agent.md)
 
 This deploys a standalone terminal as a daemon service for Agent. You can run Agent in **real mode**. It can automatically correct historical data errors. It can also automatically restart when the Agent crashes.
 

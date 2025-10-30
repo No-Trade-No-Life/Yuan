@@ -6,7 +6,7 @@
 
 ## 核心组件
 
-### [@yuants/data-series](libraries/data-series)
+### [@yuants/data-series](./packages/@yuants-data-series.md)
 
 这是一个通用的时间序列数据模型。它定义了时间序列数据的基本属性和方法。数据服务提供商可以使用它来创建自己的时间序列数据模型，并快速完成数据采集任务。
 

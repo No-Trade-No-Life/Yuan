@@ -4,19 +4,19 @@
 
 ## 核心组件
 
-### [@yuants/prometheus](libraries/prometheus)
+### [@yuants/prometheus](./packages/@yuants-prometheus.md)
 
 高性能 Prometheus 埋点客户端库。支持所有 JS 运行时下使用。支持 currying 风格的指标定义和使用。性能优异，适合高频调用场景。
 
-### [@yuants/app-metrics-collector](apps/metrics-collector)
+### [@yuants/app-metrics-collector](./packages/@yuants-app-metrics-collector.md)
 
 这将部署一个终端作为指标收集服务。指标收集器持续从终端收集指标。它与 Prometheus 配合工作。
 
-### [@yuants/app-prometheus-client](apps/prometheus-client)
+### [@yuants/app-prometheus-client](./packages/@yuants-app-prometheus-client.md)
 
 这将部署一个终端作为 Prometheus 客户端。它提供了从 Prometheus 数据库查询数据的服务。适合于构建监控面板。
 
-### [@yuants/app-alert-receiver](apps/alert-receiver)
+### [@yuants/app-alert-receiver](./packages/@yuants-app-alert-receiver.md)
 
 这将部署一个终端作为警报接收服务。它从警报终端接收警报并发送给通知终端。
 

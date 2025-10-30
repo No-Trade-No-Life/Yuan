@@ -1,6 +1,6 @@
 # Web UI
 
-[@yuants/ui-web](ui/web), you can directly access https://y.ntnl.io to access the Yuan GUI.
+[@yuants/ui-web](./packages/@yuants-ui-web.md), you can directly access https://y.ntnl.io to access the Yuan GUI.
 
 Graphical User Interface (GUI) is currently the most widely used human-computer interaction interface. It can do everything that Command Line Interface (CLI) and Natural Language Interface (NUI, LUI) can do.
 

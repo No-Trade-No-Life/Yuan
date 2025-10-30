@@ -4,15 +4,15 @@
 
 ## 核心组件
 
-### [@yuants/kernel](libraries/kernel)
+### [@yuants/kernel](./packages/@yuants-kernel.md)
 
 提供一个时序模拟环境。可以搭配模块达成不同的目的。
 
-### [@yuants/agent](libraries/agent)
+### [@yuants/agent](./packages/@yuants-agent.md)
 
 基于 Kernel 的交易机器人。Agent 包含交易策略的核心。
 
-### [@yuants/app-agent](apps/agent)
+### [@yuants/app-agent](./packages/@yuants-app-agent.md)
 
 这将部署一个独立终端作为 Agent 的守护服务。您可以在 **真实模式** 下运行 Agent。它可以自动纠正历史数据错误。它还可以在 Agent 崩溃时自动重启。
 

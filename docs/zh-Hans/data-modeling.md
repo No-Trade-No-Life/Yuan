@@ -6,31 +6,31 @@
 
 ## 核心数据模型
 
-### [@yuants/data-product](libraries/data-product)
+### [@yuants/data-product](./packages/@yuants-data-product.md)
 
 市场中可交易的产品。
 
-### [@yuants/data-ohlc](libraries/data-ohlc)
+### [@yuants/data-ohlc](./packages/@yuants-data-ohlc.md)
 
 OHLC(V) 数据。OHLC 是 Open、High、Low、Close 的缩写，是一种常用的市场数据格式，也称为 K 线。
 
-### [@yuants/data-quote](libraries/data-quote)
+### [@yuants/data-quote](./packages/@yuants-data-quote.md)
 
 Level-1 报价数据，具体是指产品的最新价格和最优报价等信息。
 
-### [@yuants/data-interest-rate](libraries/data-interest-rate)
+### [@yuants/data-interest-rate](./packages/@yuants-data-interest-rate.md)
 
 利率数据。利率是指交易者持有头寸经过结算点时产生的利息。它通常用于外汇交易和差价合约 (CFD) 交易，同时也适用于永续合约的资金费率。
 
-### [@yuants/data-account](libraries/data-account)
+### [@yuants/data-account](./packages/@yuants-data-account.md)
 
 账户和持仓信息。
 
-### [@yuants/data-order](libraries/data-order)
+### [@yuants/data-order](./packages/@yuants-data-order.md)
 
 订单数据。订单是指交易者在市场中提交的买入或卖出指令。
 
-### [@yuants/data-trade](libraries/data-trade)
+### [@yuants/data-trade](./packages/@yuants-data-trade.md)
 
 成交数据。成交是指订单在市场中被执行的结果。
 

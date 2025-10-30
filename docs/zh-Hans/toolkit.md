@@ -1,6 +1,6 @@
 # 工具包
 
-[@yuants/tool-kit](tools/toolkit) 是您所需要的一切。当您需要构建扩展时，这提供了 CLI。它帮助您构建 docker 镜像，创建捆绑包等等。以确保您的扩展已准备好使用。
+[@yuants/tool-kit](./packages/@yuants-tool-kit.md) 是您所需要的一切。当您需要构建扩展时，这提供了 CLI。它帮助您构建 docker 镜像，创建捆绑包等等。以确保您的扩展已准备好使用。
 
 ## 核心功能
 

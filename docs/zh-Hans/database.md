@@ -8,11 +8,11 @@
 
 这是一个 PostgreSQL 存储服务。它将 PostgreSQL 数据库实例接入主机服务，同时隐藏连接 PostgreSQL 所需的登录凭证。
 
-### [@yuants/sql](libraries/sql)
+### [@yuants/sql](./packages/@yuants-sql.md)
 
 客户端侧的 SQL 库，提供向主机中的 PostgreSQL 读写数据的快捷能力。
 
-### [@yuants/tool-sql-migration](tools/sql-migration)
+### [@yuants/tool-sql-migration](./packages/@yuants-tool-sql-migration.md)
 
 这是一个用于管理 SQL 数据库模式迁移的工具。它可以帮助您创建和应用数据库迁移脚本，以确保数据库模式与应用程序代码保持同步。
 

@@ -25,7 +25,7 @@ $ docker run -v </a/local/data/folder>:/pgdata -e PGDATA=/pgdata \
 $ POSTGRES_URI="<your-postgres-uri>" npx @yuants/node-unit
 ```
 
-For more configuration options, please refer to [@yuants/node-unit](../../apps/node-unit).
+For more configuration options, please refer to [@yuants/node-unit](./packages/@yuants-node-unit.md).
 
 ### 2. Manually execute the database table creation script
 
