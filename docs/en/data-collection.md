@@ -6,7 +6,7 @@ For data with time series attributes, we need to periodically collect data from 
 
 ## Core Components
 
-### [@yuants/data-series](./packages/yuants-data-series.md)
+### [@yuants/data-series](./packages/@yuants-data-series.md)
 
 This is a general time series data model. It defines the basic attributes and methods for time series data. Data service providers can use it to create their own time series data models and quickly complete data collection tasks.
 

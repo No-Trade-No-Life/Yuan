@@ -10,67 +10,67 @@
 
 ## 交易所提供商
 
-### [@yuants/vendor-ctp](./packages/yuants-vendor-ctp.md)
+### [@yuants/vendor-ctp](./packages/@yuants-vendor-ctp.md)
 
 这连接到"综合交易平台"（CTP）。CTP 平台由上海期货交易所（SHFE）开发。CTP 提供中国的期货交易所。为了遵守法规，您可能需要从您的经纪公司请求许可。
 
-### [@yuants/vendor-ccxt](./packages/yuants-vendor-ccxt.md)
+### [@yuants/vendor-ccxt](./packages/@yuants-vendor-ccxt.md)
 
 这连接到"加密货币交易所交易库"（CCXT）。CCXT 是一个支持许多加密货币交易所和交易市场的 JavaScript / Python / PHP 加密货币交易库。您可以使用它进行加密货币交易。
 
-### [@yuants/vendor-binance](./packages/yuants-vendor-binance.md)
+### [@yuants/vendor-binance](./packages/@yuants-vendor-binance.md)
 
 这连接到 _Binance_，这是一个著名的加密货币交易所。
 
-### [@yuants/vendor-okx](./packages/yuants-vendor-okx.md)
+### [@yuants/vendor-okx](./packages/@yuants-vendor-okx.md)
 
 这连接到 _OKX_，这是一个著名的加密货币交易所。
 
-### [@yuants/vendor-huobi](./packages/yuants-vendor-huobi.md)
+### [@yuants/vendor-huobi](./packages/@yuants-vendor-huobi.md)
 
 这连接到 _Huobi_，这是一个著名的加密货币交易所。
 
-### [@yuants/vendor-gate](./packages/yuants-vendor-gate.md)
+### [@yuants/vendor-gate](./packages/@yuants-vendor-gate.md)
 
 这连接到 _Gate_，这是一个著名的加密货币交易所。
 
-### [@yuants/vendor-bitget](./packages/yuants-vendor-bitget.md)
+### [@yuants/vendor-bitget](./packages/@yuants-vendor-bitget.md)
 
 这连接到 _BitGet_，这是一个著名的加密货币交易所。
 
-### [@yuants/vendor-coinex](./packages/yuants-vendor-coinex.md)
+### [@yuants/vendor-coinex](./packages/@yuants-vendor-coinex.md)
 
 这连接到 _CoinEX_，这是一个著名的加密货币交易所。
 
-### [@yuants/vendor-hyperliquid](./packages/yuants-vendor-hyperliquid.md)
+### [@yuants/vendor-hyperliquid](./packages/@yuants-vendor-hyperliquid.md)
 
 这连接到 _Hyperliquid_，这是一个著名的链上加密货币交易所。
 
 ## 数据和服务提供商
 
-### [@yuants/vendor-trading-view](./packages/yuants-vendor-trading-view.md)
+### [@yuants/vendor-trading-view](./packages/@yuants-vendor-trading-view.md)
 
 这连接到 _TradingView_，这是一个著名的金融图表和交易平台。它允许您使用 TradingView 的图表和指标。
 
-### [@yuants/vendor-tq](./packages/yuants-vendor-tq.md)
+### [@yuants/vendor-tq](./packages/@yuants-vendor-tq.md)
 
 这连接到 _TQ_，这是一个著名的金融数据提供商。它允许您使用 TQ 的数据。
 
 ## 通知服务
 
-### [@yuants/app-email-notifier](./packages/yuants-app-email-notifier.md)
+### [@yuants/app-email-notifier](./packages/@yuants-app-email-notifier.md)
 
 支持 SMTP / IMAP 协议的电子邮件通知服务。它允许您通过电子邮件发送通知，并将邮件内容自动存入存储。
 
-### [@yuants/app-feishu-notifier](./packages/yuants-app-feishu-notifier.md)
+### [@yuants/app-feishu-notifier](./packages/@yuants-app-feishu-notifier.md)
 
 连接到飞书，接入飞书机器人体系。它允许您通过飞书发送通知等。
 
-### [@yuants/app-openai](./packages/yuants-app-openai.md)
+### [@yuants/app-openai](./packages/@yuants-app-openai.md)
 
 这将部署一个终端作为 OpenAI 服务。它允许您使用 OpenAI 的 API 来生成文本、图像等。
 
-### [@yuants/app-telegram-monitor](./packages/yuants-app-telegram-monitor.md)
+### [@yuants/app-telegram-monitor](./packages/@yuants-app-telegram-monitor.md)
 
 这将部署一个终端作为 Telegram 监控服务。它允许您监控 Telegram 消息，并将其发送到其他终端。
 

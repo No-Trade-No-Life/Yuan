@@ -2,17 +2,17 @@
 
 ## 核心组件
 
-### [@yuants/utils](./packages/yuants-utils.md)
+### [@yuants/utils](./packages/@yuants-utils.md)
 
 社区中未找到的一些通用工具。
 
-### [@yuants/extension](./packages/yuants-extension.md)
+### [@yuants/extension](./packages/@yuants-extension.md)
 
 这定义了扩展接口。您可以使用扩展来增强您的体验。
 
 ## 工具库
 
-### [@yuants/utils](./packages/yuants-utils.md)
+### [@yuants/utils](./packages/@yuants-utils.md)
 
 提供了一系列在社区中未找到的通用工具函数，包括：
 
@@ -27,7 +27,7 @@
 
 ## 扩展系统
 
-### [@yuants/extension](./packages/yuants-extension.md)
+### [@yuants/extension](./packages/@yuants-extension.md)
 
 定义了 Yuan 系统的扩展接口，允许开发者：
 

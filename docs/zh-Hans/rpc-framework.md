@@ -4,15 +4,15 @@ Yuan 通过一套 RPC 框架来实现分布式系统中终端之间的通信。�
 
 ## 核心组件
 
-### [@yuants/protocol](./packages/yuants-protocol.md)
+### [@yuants/protocol](./packages/@yuants-protocol.md)
 
 网络协议、服务定义和基础设施。
 
-### [@yuants/app-host](./packages/yuants-app-host.md)
+### [@yuants/app-host](./packages/@yuants-app-host.md)
 
 超轻量级的内存型消息代理和服务发现。连接到同一主机的终端之间可以相互发送消息。支持通过环境变量 `HOST_TOKEN` 进行连接权限控制。支持通过环境变量 `MULTI_TENANCY=ED25519` 开启多租户环境，可以自动接受符合 ED25519 签名的终端，终端不需要向主机发送私钥。
 
-### [@yuants/app-portal](./packages/yuants-app-portal.md)
+### [@yuants/app-portal](./packages/@yuants-app-portal.md)
 
 这将部署一个允许将主机中已有的服务（和频道）分享给其他主机的服务。它是一个中间人，它可以将消息从一个主机转发到另一个主机。它是一个非常强大的工具，可以帮助您构建数据分享场景。
 

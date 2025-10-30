@@ -2,17 +2,17 @@
 
 ## Core Components
 
-### [@yuants/utils](./packages/yuants-utils.md)
+### [@yuants/utils](./packages/@yuants-utils.md)
 
 General utilities not found in the community.
 
-### [@yuants/extension](./packages/yuants-extension.md)
+### [@yuants/extension](./packages/@yuants-extension.md)
 
 This defines the extension interface. You can use extensions to enhance your experience.
 
 ## Utility Libraries
 
-### [@yuants/utils](./packages/yuants-utils.md)
+### [@yuants/utils](./packages/@yuants-utils.md)
 
 Provides a series of general utility functions not found in the community, including:
 
@@ -27,7 +27,7 @@ These utility functions are carefully designed and tested to ensure reliability 
 
 ## Extension System
 
-### [@yuants/extension](./packages/yuants-extension.md)
+### [@yuants/extension](./packages/@yuants-extension.md)
 
 Defines the extension interface for the Yuan system, allowing developers to:
 

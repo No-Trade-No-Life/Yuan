@@ -8,11 +8,11 @@ Due to the complexity of SQL, various SQL databases have significant differences
 
 This is a PostgreSQL storage service. It connects PostgreSQL database instances to the host service while hiding the login credentials required to connect to PostgreSQL.
 
-### [@yuants/sql](./packages/yuants-sql.md)
+### [@yuants/sql](./packages/@yuants-sql.md)
 
 Client-side SQL library that provides convenient capabilities for reading and writing data to PostgreSQL in the host.
 
-### [@yuants/tool-sql-migration](./packages/yuants-tool-sql-migration.md)
+### [@yuants/tool-sql-migration](./packages/@yuants-tool-sql-migration.md)
 
 This is a tool for managing SQL database schema migrations. It helps you create and apply database migration scripts to ensure the database schema stays synchronized with the application code.
 

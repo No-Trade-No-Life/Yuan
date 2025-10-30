@@ -6,31 +6,31 @@ Data modeling includes common code such as TypeScript types, utilities, etc.
 
 ## Core Data Models
 
-### [@yuants/data-product](./packages/yuants-data-product.md)
+### [@yuants/data-product](./packages/@yuants-data-product.md)
 
 Tradable products in the market.
 
-### [@yuants/data-ohlc](./packages/yuants-data-ohlc.md)
+### [@yuants/data-ohlc](./packages/@yuants-data-ohlc.md)
 
 OHLC(V) data. OHLC stands for Open, High, Low, Close, which is a common market data format, also known as K-line.
 
-### [@yuants/data-quote](./packages/yuants-data-quote.md)
+### [@yuants/data-quote](./packages/@yuants-data-quote.md)
 
 Level-1 quote data, specifically referring to a product's latest price and best bid/ask information.
 
-### [@yuants/data-interest-rate](./packages/yuants-data-interest-rate.md)
+### [@yuants/data-interest-rate](./packages/@yuants-data-interest-rate.md)
 
 Interest rate data. Interest rate refers to the interest generated when a trader holds a position through settlement points. It's commonly used in forex trading and CFD (Contract for Difference) trading, and also applies to perpetual contract funding rates.
 
-### [@yuants/data-account](./packages/yuants-data-account.md)
+### [@yuants/data-account](./packages/@yuants-data-account.md)
 
 Account and position information.
 
-### [@yuants/data-order](./packages/yuants-data-order.md)
+### [@yuants/data-order](./packages/@yuants-data-order.md)
 
 Order data. Orders refer to buy or sell instructions submitted by traders in the market.
 
-### [@yuants/data-trade](./packages/yuants-data-trade.md)
+### [@yuants/data-trade](./packages/@yuants-data-trade.md)
 
 Trade data. Trades refer to the results of orders being executed in the market.
 

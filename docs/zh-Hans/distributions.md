@@ -8,7 +8,7 @@ Yuan 是一个功能强大的操作系统，但它也太过于底层、原始和
 
 ## 官方发行版
 
-### [@yuants/dist-origin](./packages/yuants-dist-origin.md): 原生发行版
+### [@yuants/dist-origin](./packages/@yuants-dist-origin.md): 原生发行版
 
 [点击在线体验](https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin)
 

@@ -26,9 +26,9 @@ def load_rush_projects(rush_json_path):
         project_folder = project.get('projectFolder')
         if package_name and project_folder:
             # Convert package name to filename format:
-            # @yuants/data-series -> yuants-data-series
-            # Remove @ symbol and replace / with -
-            filename = package_name.replace('@', '').replace('/', '-')
+            # @yuants/data-series -> @yuants-data-series
+            # Keep @ symbol and replace / with -
+            filename = package_name.replace('/', '-')
             package_mapping[package_name] = filename
     
     return package_mapping
@@ -83,12 +83,15 @@ def fix_links_in_file(file_path, package_mapping):
         with open(file_path, 'r', encoding='utf-8') as f:
             content = f.read()
         
-        # Pattern to match [@yuants/package-name](path) format
+        # Pattern to match [@yuants/package-name](path) or [@yuants/package-name](path) format
         # This pattern captures the package name and the path
-        pattern = r'\[@(yuants/[^@\[\]\(\)]+)\]\([^)]*\)'
+        pattern = r'\[(@?yuants/[^@\[\]\(\)]+)\]\([^)]*\)'
         
         def replace_link(match):
-            package_name = '@' + match.group(1)
+            package_name = match.group(1)
+            # Add @ prefix if it's missing
+            if not package_name.startswith('@'):
+                package_name = '@' + package_name
             if package_name in package_mapping:
                 new_filename = package_mapping[package_name]
                 return f'[{package_name}](./packages/{new_filename}.md)'
@@ -98,6 +101,20 @@ def fix_links_in_file(file_path, package_mapping):
         
         # Replace all occurrences
         new_content = re.sub(pattern, replace_link, content)
+        
+        # Also handle the case where the package name already has @
+        pattern_with_at = r'\[@(yuants/[^@\[\]\(\)]+)\]\([^)]*\)'
+        def replace_link_with_at(match):
+            package_name = '@' + match.group(1)
+            if package_name in package_mapping:
+                new_filename = package_mapping[package_name]
+                return f'[{package_name}](./packages/{new_filename}.md)'
+            else:
+                # If package not found in mapping, return original
+                return match.group(0)
+        
+        # Apply both patterns
+        new_content = re.sub(pattern_with_at, replace_link_with_at, new_content)
         
         # Only write if content has changed
         if new_content != content:
