@@ -8,7 +8,7 @@ Below are some distributions we provide as references. You can create your own d
 
 ## Official Distributions
 
-### [@yuants/dist-origin](distributions/origin): Native Distribution
+### [@yuants/dist-origin](./packages/yuants-dist-origin.md): Native Distribution
 
 [Click to experience online](https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin)
 

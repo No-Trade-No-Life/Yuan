@@ -6,19 +6,19 @@ We use an account composer to combine simulated account information to obtain th
 
 ## Core Components
 
-### [@yuants/app-account-composer](apps/account-composer)
+### [@yuants/app-account-composer](./packages/yuants-app-account-composer.md)
 
 Account composer. It can derive new account information from several accounts. It has wide applications and can merge accounts from multiple agents into one account.
 
-### [@yuants/app-trade-copier](apps/trade-copier)
+### [@yuants/app-trade-copier](./packages/yuants-app-trade-copier.md)
 
 Trade copier. It **sends orders to the market** to ensure that the real account follows the planned account, with the goal of keeping their positions consistent. Supports configuring multiple micro-strategies, such as market price chasing, limiting single trade volume, rolling optimal pending orders, etc. Of course, you can also use one real account to follow another real account.
 
-### [@yuants/app-transfer-controller](apps/transfer-controller)
+### [@yuants/app-transfer-controller](./packages/yuants-app-transfer-controller.md)
 
 The transfer controller is a service that transfers funds between accounts. It monitors transfer requests and ensures transfers are completed.
 
-### [@yuants/app-risk-manager](apps/risk-manager)
+### [@yuants/app-risk-manager](./packages/yuants-app-risk-manager.md)
 
 This deploys a terminal as a risk manager. It makes transfer decisions based on configured risk information.
 

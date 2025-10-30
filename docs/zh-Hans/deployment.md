@@ -25,7 +25,7 @@ $ docker run -v </a/local/data/folder>:/pgdata -e PGDATA=/pgdata \
 $ POSTGRES_URI="<your-postgres-uri>" npx @yuants/node-unit
 ```
 
-更多的配置选项，请参考 [@yuants/node-unit](../../apps/node-unit) 。
+更多的配置选项，请参考 [@yuants/node-unit](./packages/yuants-node-unit.md) 。
 
 ### 2. 手动执行创建数据库表的脚本
 

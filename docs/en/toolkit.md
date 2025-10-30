@@ -1,6 +1,6 @@
 # Toolkit
 
-[@yuants/tool-kit](tools/toolkit) is everything you need. When you need to build extensions, this provides the CLI. It helps you build docker images, create bundles, and more. To ensure your extensions are ready to use.
+[@yuants/tool-kit](./packages/yuants-tool-kit.md) is everything you need. When you need to build extensions, this provides the CLI. It helps you build docker images, create bundles, and more. To ensure your extensions are ready to use.
 
 ## Core Features
 

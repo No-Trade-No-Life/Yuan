@@ -38,7 +38,7 @@ For different user scenarios, it is best to provide specific distributions that 
 
 Below are some distributions we provide as references. You can create your own distributions based on your needs.
 
-- [@yuants/dist-origin](https://github.com/No-Trade-No-Life/Yuan/tree/main/distributions/origin): Native distribution [Click to experience online](https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin)
+- [@yuants/dist-origin](./packages/yuants-dist-origin.md): Native distribution [Click to experience online](https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin)
 
 The essence of a distribution is a workspace, and the essence of a workspace is a file directory and its contents. We can package a workspace into a distribution, and then users can download and unzip it to use. We recommend using the npm package management tool to manage distributions, i.e., distributions will be published to the npm repository, and users can install distributions via npm.
 

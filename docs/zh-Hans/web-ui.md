@@ -1,6 +1,6 @@
 # Web UI
 
-[@yuants/ui-web](ui/web)，您可以直接访问 https://y.ntnl.io 来访问 Yuan GUI。
+[@yuants/ui-web](./packages/yuants-ui-web.md)，您可以直接访问 https://y.ntnl.io 来访问 Yuan GUI。
 
 图形用户界面（GUI）是目前应用最广泛的人机交互界面。它可以做到 命令行界面（CLI）、自然语言界面 (NUI, LUI) 能做到的一切事情。
 

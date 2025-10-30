@@ -6,19 +6,19 @@
 
 ## 核心组件
 
-### [@yuants/app-account-composer](apps/account-composer)
+### [@yuants/app-account-composer](./packages/yuants-app-account-composer.md)
 
 账户组合器。它可以从若干账户计算派生出一个新的账户信息。用途广泛，可以将多个智能体的账户合并为一个账户。
 
-### [@yuants/app-trade-copier](apps/trade-copier)
+### [@yuants/app-trade-copier](./packages/yuants-app-trade-copier.md)
 
 跟单器。它**向市场发送订单**确保真实账户跟随计划账户，其目标是保持两者的仓位一致。支持配置多种微策略，例如市价追入、限制单笔成交量、滚动最优挂单等。当然，你也可以使用一个真实账户跟随另一个真实账户。
 
-### [@yuants/app-transfer-controller](apps/transfer-controller)
+### [@yuants/app-transfer-controller](./packages/yuants-app-transfer-controller.md)
 
 转账控制器是一个在账户之间转账的服务。它监视转账请求并确保转账完成。
 
-### [@yuants/app-risk-manager](apps/risk-manager)
+### [@yuants/app-risk-manager](./packages/yuants-app-risk-manager.md)
 
 这将部署一个终端作为风险管理器。它根据配置的风险信息做出转账决策。
 

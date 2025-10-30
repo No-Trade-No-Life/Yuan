@@ -38,7 +38,7 @@ Yuan 是一个功能强大的操作系统，但它也太过于底层、原始和
 
 以下，是我们提供的一些发行版，作为参考。您可以根据自己的需求，创建自己的发行版。
 
-- [@yuants/dist-origin](https://github.com/No-Trade-No-Life/Yuan/tree/main/distributions/origin): 原生发行版 [点击在线体验](https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin)
+- [@yuants/dist-origin](./packages/yuants-dist-origin.md): 原生发行版 [点击在线体验](https://y.ntnl.io?from_npm=1&scope=yuants&name=dist-origin)
 
 发行版的本质是一个工作区，工作区的本质是一个文件目录及其中的内容。我们可以将工作区打包成一个发行版，然后用户可以下载并解压缩，即可使用。我们推荐使用 npm 包管理工具来管理发行版，即发行版会发布到 npm 仓库，用户可以通过 npm 安装发行版。
 

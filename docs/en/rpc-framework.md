@@ -4,15 +4,15 @@ Yuan implements communication between terminals in a distributed system through 
 
 ## Core Components
 
-### [@yuants/protocol](libraries/protocol)
+### [@yuants/protocol](./packages/yuants-protocol.md)
 
 Network protocols, service definitions, and infrastructure.
 
-### [@yuants/app-host](apps/host)
+### [@yuants/app-host](./packages/yuants-app-host.md)
 
 Ultra-lightweight in-memory message broker and service discovery. Terminals connected to the same host can send messages to each other. Supports connection permission control through the `HOST_TOKEN` environment variable. Supports enabling multi-tenant environment through the `MULTI_TENANCY=ED25519` environment variable, which can automatically accept terminals with valid ED25519 signatures, and terminals don't need to send private keys to the host.
 
-### [@yuants/app-portal](apps/portal)
+### [@yuants/app-portal](./packages/yuants-app-portal.md)
 
 This deploys a service that allows sharing existing services (and channels) in the host with other hosts. It's a middleman that can forward messages from one host to another. It's a very powerful tool that can help you build data sharing scenarios.
 
