@@ -2,6 +2,26 @@
   "name": "@yuants/vendor-aster",
   "entries": [
     {
+      "version": "0.3.19",
+      "tag": "@yuants/vendor-aster_v0.3.19",
+      "date": "Mon, 03 Nov 2025 13:45:52 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add pending order & cancel order"
+          },
+          {
+            "comment": "Ensure ASTER uses encoded product identifiers for storage while decoding them before submitting orders."
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.18",
       "tag": "@yuants/vendor-aster_v0.3.18",
       "date": "Sat, 25 Oct 2025 06:32:46 GMT",
