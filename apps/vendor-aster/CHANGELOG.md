@@ -1,6 +1,14 @@
 # Change Log - @yuants/vendor-aster
 
-This log was last generated on Sat, 25 Oct 2025 06:32:46 GMT and should not be manually modified.
+This log was last generated on Mon, 03 Nov 2025 13:45:52 GMT and should not be manually modified.
+
+## 0.3.19
+Mon, 03 Nov 2025 13:45:52 GMT
+
+### Patches
+
+- add pending order & cancel order
+- Ensure ASTER uses encoded product identifiers for storage while decoding them before submitting orders.
 
 ## 0.3.18
 Sat, 25 Oct 2025 06:32:46 GMT
