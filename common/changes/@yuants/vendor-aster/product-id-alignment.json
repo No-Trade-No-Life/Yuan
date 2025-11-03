@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "comment": "Ensure ASTER uses encoded product identifiers for storage while decoding them before submitting orders.",
+      "type": "patch",
+      "packageName": "@yuants/vendor-aster"
+    }
+  ],
+  "packageName": "@yuants/vendor-aster"
+}

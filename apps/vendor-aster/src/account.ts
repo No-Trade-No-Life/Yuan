@@ -1,5 +1,6 @@
 import { IPosition, provideAccountInfoService } from '@yuants/data-account';
 import { Terminal } from '@yuants/protocol';
+import { encodePath } from '@yuants/utils';
 import { getFApiV4Account } from './api';
 
 const ADDRESS = process.env.ADDRESS!;
@@ -19,7 +20,7 @@ provideAccountInfoService(
       .map(
         (p): IPosition => ({
           position_id: p.symbol,
-          product_id: p.symbol,
+          product_id: encodePath('PERPETUAL', p.symbol),
           datasource_id: 'ASTER',
           direction: p.positionSide === 'BOTH' ? (+p.positionAmt > 0 ? 'LONG' : 'SHORT') : p.positionSide,
           volume: Math.abs(+p.positionAmt),
