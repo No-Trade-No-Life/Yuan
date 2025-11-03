@@ -2,7 +2,7 @@ import { Terminal } from '@yuants/protocol';
 import { IOrder } from '@yuants/data-order';
 import { decodePath } from '@yuants/utils';
 import { ACCOUNT_ID } from './account';
-import { postFApiV1Order } from './api';
+import { deleteFApiV1Order, postFApiV1Order } from './api';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -39,6 +39,35 @@ terminal.server.provideService<IOrder>(
       quantity,
       price,
       timeInForce,
+    });
+
+    return { res: { code: 0, message: 'OK' } };
+  },
+);
+
+terminal.server.provideService<IOrder>(
+  'CancelOrder',
+  {
+    required: ['account_id', 'order_id', 'product_id'],
+    properties: {
+      account_id: { type: 'string', const: ACCOUNT_ID },
+      order_id: { type: ['string', 'number'] },
+      product_id: { type: 'string' },
+    },
+  },
+  async (msg) => {
+    const order = msg.req;
+    const [, decodedSymbol] = decodePath(order.product_id);
+    if (!decodedSymbol) {
+      throw new Error(`Invalid product_id: unable to decode symbol from "${order.product_id}"`);
+    }
+    if (!order.order_id) {
+      throw new Error('order_id is required for CancelOrder');
+    }
+
+    await deleteFApiV1Order({
+      symbol: decodedSymbol,
+      orderId: order.order_id,
     });
 
     return { res: { code: 0, message: 'OK' } };
