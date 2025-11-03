@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/tool-yuanctl",
+  "entries": [
+    {
+      "version": "0.2.0",
+      "tag": "@yuants/tool-yuanctl_v0.2.0",
+      "date": "Mon, 03 Nov 2025 08:10:44 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "init yuanctl"
+          }
+        ]
+      }
+    }
+  ]
+}
