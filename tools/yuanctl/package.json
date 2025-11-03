@@ -1,0 +1,45 @@
+{
+  "name": "@yuants/tool-yuanctl",
+  "version": "0.1.0",
+  "description": "Kubectl-inspired CLI for managing Yuants deployments",
+  "main": "lib/index.js",
+  "module": "dist/index.js",
+  "bin": {
+    "yuanctl": "lib/bin/yuanctl.js"
+  },
+  "files": [
+    "dist",
+    "lib",
+    "temp"
+  ],
+  "scripts": {
+    "build": "heft test --clean",
+    "lint": "heft lint --clean",
+    "test": "heft test --clean"
+  },
+  "dependencies": {
+    "@yuants/protocol": "workspace:*",
+    "@yuants/sql": "workspace:*",
+    "@yuants/deploy": "workspace:*",
+    "@yuants/utils": "workspace:*",
+    "clipanion": "~4.0.0-rc.2",
+    "fs-extra": "~11.2.0",
+    "rxjs": "~7.5.6",
+    "toml": "~3.0.0",
+    "yaml": "~2.4.1"
+  },
+  "devDependencies": {
+    "@microsoft/api-extractor": "~7.30.0",
+    "@rushstack/heft": "~0.47.5",
+    "@rushstack/heft-jest-plugin": "~0.16.8",
+    "@rushstack/heft-node-rig": "~1.10.7",
+    "@types/fs-extra": "~11.0.1",
+    "@types/heft-jest": "1.0.3",
+    "@types/node": "22",
+    "typescript": "~4.7.4"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  }
+}

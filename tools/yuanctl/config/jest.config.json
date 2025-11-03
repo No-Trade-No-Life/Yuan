@@ -1,0 +1,4 @@
+{
+  "extends": "@rushstack/heft-node-rig/profiles/default/config/jest.config.json",
+  "testMatch": ["<rootDir>/src/**/__tests__/**/*.test.[jt]s?(x)"]
+}

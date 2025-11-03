@@ -2413,6 +2413,45 @@ importers:
       '@types/node': 22.7.5
       typescript: 4.7.4
 
+  ../../tools/yuanctl:
+    specifiers:
+      '@microsoft/api-extractor': ~7.30.0
+      '@rushstack/heft': ~0.47.5
+      '@rushstack/heft-jest-plugin': ~0.16.8
+      '@rushstack/heft-node-rig': ~1.10.7
+      '@types/fs-extra': ~11.0.1
+      '@types/heft-jest': 1.0.3
+      '@types/node': '22'
+      '@yuants/deploy': workspace:*
+      '@yuants/protocol': workspace:*
+      '@yuants/sql': workspace:*
+      '@yuants/utils': workspace:*
+      clipanion: ~4.0.0-rc.2
+      fs-extra: ~11.2.0
+      rxjs: ~7.5.6
+      toml: ~3.0.0
+      yaml: ~2.4.1
+      typescript: ~4.7.4
+    dependencies:
+      '@yuants/deploy': link:../../libraries/deploy
+      '@yuants/protocol': link:../../libraries/protocol
+      '@yuants/sql': link:../../libraries/sql
+      '@yuants/utils': link:../../libraries/utils
+      clipanion: 4.0.0-rc.2
+      fs-extra: 11.2.0
+      rxjs: 7.5.7
+      toml: 3.0.0
+      yaml: 2.4.1
+    devDependencies:
+      '@microsoft/api-extractor': 7.30.1
+      '@rushstack/heft': 0.47.11
+      '@rushstack/heft-jest-plugin': 0.16.8_cd919cf15781346720f8e992576a8e2b
+      '@rushstack/heft-node-rig': 1.10.13_@rushstack+heft@0.47.11
+      '@types/fs-extra': 11.0.1
+      '@types/heft-jest': 1.0.3
+      '@types/node': 22.7.5
+      typescript: 4.7.4
+
   ../../ui/web:
     specifiers:
       '@dnd-kit/core': ~6.3.1
@@ -7584,7 +7623,6 @@ packages:
 
   /@types/js-yaml/4.0.9:
     resolution: {integrity: sha512-k4MGaQl5TGo/iipqb2UDG2UwjXziSWkh0uysQelTlJpX1qGlpUZYm8PnO4DxG1qBomtJUdYJ6qR6xdIah10JLg==}
-    dev: false
 
   /@types/json-schema/7.0.11:
     resolution: {integrity: sha512-wOuvG1SN4Us4rez+tylwwwCV1psiNVOkJeM3AUWUNWg/jDQY2+HE/444y5gc+jBmRqASOm2Oeh5c1axHobwRKQ==}
@@ -9387,6 +9425,11 @@ packages:
   /commander/10.0.0:
     resolution: {integrity: sha512-zS5PnTI22FIRM6ylNW8G4Ap0IEOyk62fhLSD0+uHRT9McRCLGpkVNvao4bjimpK/GShynyQkFFxHhwMcETmduA==}
     engines: {node: '>=14'}
+    dev: false
+
+  /commander/12.1.0:
+    resolution: {integrity: sha512-Vw8qHK3bZM9y/P10u3Vib8o/DdkvA2OtPtZvD871QKjy74Wj1WSKFILMPRPSdUSx5RFK1arlJzEtA4PkFgnbuA==}
+    engines: {node: '>=18'}
     dev: false
 
   /commander/2.20.3:
@@ -11331,6 +11374,15 @@ packages:
 
   /fs-extra/11.1.1:
     resolution: {integrity: sha512-MGIE4HOvQCeUCzmlHs0vXpih4ysz4wg9qiSAu6cd42lVwPbTM1TjV7RusoyQqMmk/95gdQZX72u+YW+c3eEpFQ==}
+    engines: {node: '>=14.14'}
+    dependencies:
+      graceful-fs: 4.2.11
+      jsonfile: 6.1.0
+      universalify: 2.0.0
+    dev: false
+
+  /fs-extra/11.2.0:
+    resolution: {integrity: sha512-PmDi3uwK5nFuXh7XDTlVnS17xJS7vW36is2+w3xcv8SVxiB4NyATf4ctkVY5bkSjX0Y4nbvZCq1/EjtEyr9ktw==}
     engines: {node: '>=14.14'}
     dependencies:
       graceful-fs: 4.2.11
@@ -17513,6 +17565,10 @@ packages:
 
   /toggle-selection/1.0.6:
     resolution: {integrity: sha512-BiZS+C1OS8g/q2RRbJmy59xpyghNBqrr6k5L/uKBGRsTfxmu3ffiRnd8mlGPUVayg8pvfi5urfnu8TU7DVOkLQ==}
+    dev: false
+
+  /toml/3.0.0:
+    resolution: {integrity: sha512-y/mWCZinnvxjTKYhJ+pYxwD0mRLVvOtdS2Awbgxln6iEnt4rk0yBxeSBHkGJcPucRiG0e55mwWp+g/05rsrd6w==}
     dev: false
 
   /tough-cookie/4.1.3:
