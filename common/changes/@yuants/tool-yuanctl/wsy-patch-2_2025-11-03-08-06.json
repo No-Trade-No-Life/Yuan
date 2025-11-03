@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/tool-yuanctl",
+      "comment": "init yuanctl",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/tool-yuanctl"
+}

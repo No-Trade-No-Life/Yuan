@@ -1,0 +1,12 @@
+/**
+ * Configures the TypeScript plugin for Heft.
+ */
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/heft/typescript.schema.json",
+  "additionalModuleKindsToEmit": [
+    {
+      "moduleKind": "esnext",
+      "outFolderName": "dist"
+    }
+  ]
+}
