@@ -1,5 +1,6 @@
 import { Terminal } from '@yuants/protocol';
 import { IOrder } from '@yuants/data-order';
+import { decodePath } from '@yuants/utils';
 import { ACCOUNT_ID } from './account';
 import { postFApiV1Order } from './api';
 
@@ -11,7 +12,8 @@ terminal.server.provideService<IOrder>(
   async (msg) => {
     const order = msg.req;
 
-    const symbol = order.product_id;
+    const [, decodedSymbol] = decodePath(order.product_id ?? '');
+    const symbol = decodedSymbol ?? order.product_id;
 
     const side = ({ OPEN_LONG: 'BUY', OPEN_SHORT: 'SELL', CLOSE_LONG: 'SELL', CLOSE_SHORT: 'BUY' } as const)[
       order.order_direction!
