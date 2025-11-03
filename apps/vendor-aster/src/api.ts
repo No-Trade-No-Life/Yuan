@@ -148,6 +148,42 @@ export const postFApiV1Order = createApi<
   {}
 >('TRADE', 'POST', '/fapi/v1/order');
 
+export const getFApiV1OpenOrders = createApi<
+  {
+    symbol?: string;
+  },
+  {
+    orderId: number;
+    clientOrderId: string;
+    price: string;
+    origQty: string;
+    executedQty: string;
+    status: string;
+    timeInForce: string;
+    type: string;
+    side: 'BUY' | 'SELL';
+    updateTime: number;
+    avgPrice: string;
+    reduceOnly?: boolean;
+    closePosition?: boolean;
+    positionSide?: 'BOTH' | 'LONG' | 'SHORT';
+    workingType?: string;
+    priceProtect?: boolean;
+    origType?: string;
+    stopPrice?: string;
+    symbol: string;
+  }[]
+>('USER_DATA', 'GET', '/fapi/v1/openOrders');
+
+export const deleteFApiV1Order = createApi<
+  {
+    symbol: string;
+    orderId?: string | number;
+    origClientOrderId?: string;
+  },
+  {}
+>('TRADE', 'DELETE', '/fapi/v1/order');
+
 /**
  * 获取交易对信息
  *
