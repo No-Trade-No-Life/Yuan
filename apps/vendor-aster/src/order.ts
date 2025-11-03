@@ -12,8 +12,11 @@ terminal.server.provideService<IOrder>(
   async (msg) => {
     const order = msg.req;
 
-    const [, decodedSymbol] = decodePath(order.product_id ?? '');
-    const symbol = decodedSymbol ?? order.product_id;
+    const [, decodedSymbol] = decodePath(order.product_id);
+    if (!decodedSymbol) {
+      throw new Error(`Invalid product_id: unable to decode symbol from "${order.product_id}"`);
+    }
+    const symbol = decodedSymbol;
 
     const side = ({ OPEN_LONG: 'BUY', OPEN_SHORT: 'SELL', CLOSE_LONG: 'SELL', CLOSE_SHORT: 'BUY' } as const)[
       order.order_direction!
