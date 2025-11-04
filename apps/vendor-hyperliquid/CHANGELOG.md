@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-hyperliquid
 
-This log was last generated on Wed, 29 Oct 2025 16:05:09 GMT and should not be manually modified.
+This log was last generated on Tue, 04 Nov 2025 17:23:13 GMT and should not be manually modified.
+
+## 0.4.0
+Tue, 04 Nov 2025 17:23:13 GMT
+
+### Minor changes
+
+- add pending order for hyperliquid
 
 ## 0.3.38
 Wed, 29 Oct 2025 16:05:09 GMT

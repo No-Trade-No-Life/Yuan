@@ -1,6 +1,17 @@
 # Change Log - @yuants/vendor-aster
 
-This log was last generated on Mon, 03 Nov 2025 13:45:52 GMT and should not be manually modified.
+This log was last generated on Tue, 04 Nov 2025 17:23:13 GMT and should not be manually modified.
+
+## 0.4.0
+Tue, 04 Nov 2025 17:23:13 GMT
+
+### Minor changes
+
+- implement quote for aster
+
+### Patches
+
+- add quote write control
 
 ## 0.3.19
 Mon, 03 Nov 2025 13:45:52 GMT

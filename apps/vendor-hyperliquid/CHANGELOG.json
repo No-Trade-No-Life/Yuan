@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-hyperliquid",
   "entries": [
     {
+      "version": "0.4.0",
+      "tag": "@yuants/vendor-hyperliquid_v0.4.0",
+      "date": "Tue, 04 Nov 2025 17:23:13 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add pending order for hyperliquid"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.38",
       "tag": "@yuants/vendor-hyperliquid_v0.3.38",
       "date": "Wed, 29 Oct 2025 16:05:09 GMT",
