@@ -24,21 +24,23 @@ const quote$ = defer(() => getFApiV1TickerPrice({})).pipe(
   shareReplay({ bufferSize: 1, refCount: true }),
 );
 
-quote$
-  .pipe(
-    writeToSQL({
-      terminal,
-      tableName: 'quote',
-      writeInterval: 1000,
-      conflictKeys: ['datasource_id', 'product_id'],
-    }),
-  )
-  .subscribe();
+if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
+  quote$
+    .pipe(
+      writeToSQL({
+        terminal,
+        tableName: 'quote',
+        writeInterval: 1000,
+        conflictKeys: ['datasource_id', 'product_id'],
+      }),
+    )
+    .subscribe();
 
-terminal.channel.publishChannel('quote', { pattern: '^ASTER/' }, (channel_id) => {
-  const [datasourceId, productId] = decodePath(channel_id);
-  if (!datasourceId || !productId) {
-    throw new Error(`Invalid channel_id: ${channel_id}`);
-  }
-  return quote$.pipe(filter((quote) => quote.product_id === productId));
-});
+  terminal.channel.publishChannel('quote', { pattern: '^ASTER/' }, (channel_id) => {
+    const [datasourceId, productId] = decodePath(channel_id);
+    if (!datasourceId || !productId) {
+      throw new Error(`Invalid channel_id: ${channel_id}`);
+    }
+    return quote$.pipe(filter((quote) => quote.product_id === productId));
+  });
+}
