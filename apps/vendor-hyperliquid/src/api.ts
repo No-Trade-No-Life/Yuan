@@ -250,6 +250,26 @@ export class HyperliquidClient {
   }> => this.request('POST', 'info', { ...params, type: 'tokenBalances' });
 
   /**
+   * info
+   *
+   * Retrieve user's open orders
+   *
+   * https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/info-endpoint#open-orders
+   */
+  getUserOpenOrders = (params: {
+    user: string;
+  }): Promise<
+    {
+      coin: string;
+      limitPx: string;
+      oid: number;
+      side: string;
+      sz: string;
+      timestamp: number;
+    }[]
+  > => this.request('POST', 'info', { ...params, type: 'openOrders' });
+
+  /**
    * info - Get Historical Funding Rates
    *
    * https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/info-endpoint/perpetuals#retrieve-historical-funding-rates
