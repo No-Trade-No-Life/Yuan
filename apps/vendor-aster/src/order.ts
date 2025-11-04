@@ -6,7 +6,7 @@ import { deleteFApiV1Order, postFApiV1Order } from './api';
 
 const terminal = Terminal.fromNodeEnv();
 
-terminal.server.provideService<IOrder>(
+terminal.server.provideService<IOrder, { order_id?: string }>(
   'SubmitOrder',
   { required: ['account_id'], properties: { account_id: { type: 'string', const: ACCOUNT_ID } } },
   async (msg) => {
@@ -29,19 +29,43 @@ terminal.server.provideService<IOrder>(
     const quantity = order.volume;
     const price = order.price;
 
+    const positionSide =
+      order.order_direction === 'OPEN_LONG' || order.order_direction === 'CLOSE_LONG'
+        ? 'LONG'
+        : order.order_direction === 'OPEN_SHORT' || order.order_direction === 'CLOSE_SHORT'
+        ? 'SHORT'
+        : undefined;
+
+    const reduceOnly =
+      order.order_direction === 'CLOSE_LONG' || order.order_direction === 'CLOSE_SHORT' ? 'true' : undefined;
+
     const timeInForce =
       order.order_type === 'MAKER' ? 'GTX' : order.order_type === 'LIMIT' ? 'GTC' : undefined;
 
-    await postFApiV1Order({
+    const res = await postFApiV1Order({
       symbol,
       side,
       type,
       quantity,
       price,
       timeInForce,
+      positionSide,
+      reduceOnly,
     });
 
-    return { res: { code: 0, message: 'OK' } };
+    const orderId =
+      (res as any)?.orderId ??
+      (res as any)?.order_id ??
+      (res as any)?.data?.orderId ??
+      (res as any)?.data?.order_id;
+
+    return {
+      res: {
+        code: 0,
+        message: 'OK',
+        data: orderId ? { order_id: `${orderId}` } : undefined,
+      },
+    };
   },
 );
 

@@ -127,6 +127,15 @@ export const getFApiV2Balance = createApi<
   }[]
 >('USER_DATA', 'GET', '/fapi/v2/balance');
 
+export const getFApiV1TickerPrice = createApi<
+  {},
+  {
+    symbol: string;
+    price: string;
+    time?: number;
+  }[]
+>('MARKET_DATA', 'GET', '/fapi/v1/ticker/price');
+
 export const postFApiV1Order = createApi<
   {
     symbol: string;
