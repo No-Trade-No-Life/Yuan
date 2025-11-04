@@ -4,3 +4,4 @@ import './order';
 import './order-spot';
 import './product'; // Import the new product service
 import './pending-orders';
+import './quote';
