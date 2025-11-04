@@ -5,6 +5,8 @@ import { client } from './api';
 import './interest_rate';
 import './order';
 import './product';
+import './pending-orders';
+import './quote';
 
 const terminal = Terminal.fromNodeEnv();
 

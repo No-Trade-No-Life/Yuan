@@ -1,6 +1,6 @@
 import { IOrder } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
-import { formatTime } from '@yuants/utils';
+import { decodePath, formatTime } from '@yuants/utils';
 import { client } from './api';
 
 const terminal = Terminal.fromNodeEnv();
@@ -63,7 +63,7 @@ const roundPrice = (price: number, instType: 'PERPETUAL' | 'SPOT', szDecimals: n
   return finalPrice.toString();
 };
 
-terminal.server.provideService<IOrder>(
+terminal.server.provideService<IOrder, { order_id?: string }>(
   'SubmitOrder',
   {
     required: ['account_id'],
@@ -133,10 +133,96 @@ terminal.server.provideService<IOrder>(
 
     const res = await client.placeOrder(params);
     console.info(formatTime(Date.now()), 'SubmitOrder', JSON.stringify(res));
+    const status = res.response?.data?.statuses?.[0];
+    const orderId =
+      status?.resting?.oid ?? status?.filled?.oid ?? (status as any)?.oid ?? (status as any)?.orderId;
     return {
       res: {
         code: res.status === 'ok' && res.response.data.statuses[0]?.error === undefined ? 0 : 1,
         message: res.status !== 'ok' ? 'API ERROR' : res.response.data.statuses[0]?.error || 'OK',
+        data: orderId !== undefined ? { order_id: `${orderId}` } : undefined,
+      },
+    };
+  },
+);
+
+const assetIdMap: { value?: Map<string, number> } = {};
+const getAssetIdMap = async () => {
+  if (!assetIdMap.value) {
+    const meta = await client.getPerpetualsMetaData();
+    const map = new Map<string, number>();
+    meta.universe.forEach((token, index) => {
+      map.set(token.name, index);
+    });
+    assetIdMap.value = map;
+  }
+  return assetIdMap.value;
+};
+
+terminal.server.provideService<IOrder>(
+  'CancelOrder',
+  {
+    required: ['account_id', 'order_id', 'product_id'],
+    properties: {
+      account_id: { const: `Hyperliquid/${client.public_key}` },
+      order_id: { type: ['string', 'number'] },
+      product_id: { type: 'string' },
+    },
+  },
+  async (msg) => {
+    const order = msg.req;
+    if (!order.order_id) {
+      throw new Error('order_id is required for CancelOrder');
+    }
+
+    const [instType, symbol] = decodePath(order.product_id);
+    if (instType !== 'PERPETUAL') {
+      throw new Error(`Unsupported instrument type for cancel: ${instType}`);
+    }
+    const baseCurrency = symbol.split('-')[0];
+    const assetId =
+      (() => {
+        try {
+          if (order.comment) {
+            const parsed = JSON.parse(order.comment);
+            if (typeof parsed?.asset_id === 'number') {
+              return parsed.asset_id;
+            }
+          }
+        } catch {
+          // ignore parse error
+        }
+        return undefined;
+      })() ?? (await getAssetIdMap()).get(baseCurrency);
+
+    if (assetId === undefined) {
+      throw new Error(`Unable to resolve asset id for ${baseCurrency}`);
+    }
+
+    const orderId = Number(order.order_id);
+    if (!Number.isFinite(orderId)) {
+      throw new Error(`Invalid order_id: ${order.order_id}`);
+    }
+
+    const res = await client.cancelOrder({
+      cancels: [
+        {
+          a: assetId,
+          o: orderId,
+        },
+      ],
+    });
+    const error =
+      res.status !== 'ok'
+        ? 'API ERROR'
+        : Array.isArray(res.response?.data?.statuses) && typeof res.response.data.statuses[0] !== 'string'
+        ? res.response.data.statuses[0]?.error
+        : undefined;
+
+    return {
+      res: {
+        code: error ? 1 : 0,
+        message: error || 'OK',
       },
     };
   },
