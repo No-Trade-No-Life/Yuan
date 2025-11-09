@@ -168,14 +168,18 @@ export const buildDockerImage = async () => {
         ];
 
         const target = Object.fromEntries(
-          imageSpecs.map((imageSpec) => [
-            imageSpec.name,
-            {
-              dockerfile: path.resolve(thisProject.projectFolder, imageSpec.dockerfile),
-              context: path.resolve(rushJsonFolder, 'common/temp'),
-              tags: [`${registry}/${namespace}/${imageSpec.name}:${version}`],
-            },
-          ]),
+          imageSpecs.map((imageSpec) => {
+            const baseTag = `${registry}/${namespace}/${imageSpec.name}`;
+            const tags = Array.from(new Set([`${baseTag}:${version}`, `${baseTag}:latest`]));
+            return [
+              imageSpec.name,
+              {
+                dockerfile: path.resolve(thisProject.projectFolder, imageSpec.dockerfile),
+                context: path.resolve(rushJsonFolder, 'common/temp'),
+                tags,
+              },
+            ];
+          }),
         );
 
         const group = {
