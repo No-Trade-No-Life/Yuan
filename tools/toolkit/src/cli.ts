@@ -1,5 +1,4 @@
-import { Cli } from 'clipanion';
-import { HelpCommand } from 'clipanion/lib/advanced/builtins';
+import { Builtins, Cli } from 'clipanion';
 import { PostBuildCommand } from './commands/post-build';
 
 const [node, app, ...args] = process.argv;
@@ -11,5 +10,5 @@ const cli = new Cli({
 });
 
 cli.register(PostBuildCommand);
-cli.register(HelpCommand);
+cli.register(Builtins.HelpCommand);
 cli.runExit(args);
