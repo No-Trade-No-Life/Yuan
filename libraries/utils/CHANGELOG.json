@@ -2,6 +2,23 @@
   "name": "@yuants/utils",
   "entries": [
     {
+      "version": "0.11.0",
+      "tag": "@yuants/utils_v0.11.0",
+      "date": "Mon, 10 Nov 2025 15:12:36 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add HmacSHA256 sign util"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.10.1",
       "tag": "@yuants/utils_v0.10.1",
       "date": "Mon, 10 Nov 2025 08:01:57 GMT",
