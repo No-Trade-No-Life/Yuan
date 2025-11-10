@@ -38,10 +38,16 @@ export class ApiClient {
     if (!this.config.auth) {
       console.info(formatTime(Date.now()), method, url.href);
       const res = await fetch(url.href, { method });
-      console.info(formatTime(Date.now()), 'response', method, url.href, res.status);
       const usedWeight1M = res.headers.get('x-mbx-used-weight-1m');
+      console.info(
+        formatTime(Date.now()),
+        'response',
+        method,
+        url.href,
+        res.status,
+        `usedWeight1M=${usedWeight1M ?? 'N/A'}`,
+      );
       if (usedWeight1M) {
-        // console.info('usedWeight1M', method, url.href, usedWeight1M);
         MetricBinanceApiUsedWeight.set(+usedWeight1M, {});
       }
       return res.json();
@@ -69,9 +75,15 @@ export class ApiClient {
       headers,
     });
     const usedWeight1M = res.headers.get('x-mbx-used-weight-1m');
-    console.info(formatTime(Date.now()), 'response', method, url.href, res.status);
+    console.info(
+      formatTime(Date.now()),
+      'response',
+      method,
+      url.href,
+      res.status,
+      `usedWeight1M=${usedWeight1M ?? 'N/A'}`,
+    );
     if (usedWeight1M) {
-      // console.info('usedWeight1M', method, url.href, res.status, usedWeight1M);
       MetricBinanceApiUsedWeight.set(+usedWeight1M, {});
     }
     return res.json();
