@@ -2,6 +2,32 @@
   "name": "@yuants/tool-yuanctl",
   "entries": [
     {
+      "version": "0.2.1",
+      "tag": "@yuants/tool-yuanctl_v0.2.1",
+      "date": "Mon, 10 Nov 2025 08:01:57 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.50.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.21`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/deploy\" to `0.3.24`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.10.1`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.0",
       "tag": "@yuants/tool-yuanctl_v0.2.0",
       "date": "Mon, 03 Nov 2025 08:10:44 GMT",
