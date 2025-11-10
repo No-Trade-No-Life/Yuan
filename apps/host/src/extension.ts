@@ -231,7 +231,7 @@ export default (context: IExtensionContext) => {
         apiVersion: 'monitoring.coreos.com/v1',
         kind: 'ServiceMonitor',
         metadata: {
-          name: 'host',
+          name: `${COMPONENT_NAME}-${ctx.key}-host`,
           namespace: 'yuan',
           labels: {
             'y.ntnl.io/version': ctx.version ?? envCtx.version,
@@ -247,7 +247,7 @@ export default (context: IExtensionContext) => {
               path: '/external/prometheus/metrics',
               bearerTokenSecret: {
                 key: 'host_token',
-                name: 'host-config',
+                name: `${COMPONENT_NAME}-${ctx.key}-config`,
               },
             },
           ],
