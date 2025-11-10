@@ -27,6 +27,7 @@ export const akToUidCache = createCache(async (access_key) => {
 
 export const akToAccountIdCache = createCache(async (access_key) => {
   const uid = await akToUidCache.query(access_key);
+  if (!uid) throw new Error('UID not found');
   return {
     trading: `okx/${uid}/trading`,
     funding: `okx/${uid}/funding/USDT`,
