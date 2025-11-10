@@ -15,6 +15,7 @@
   "dependencies": {
     "@yuants/protocol": "workspace:*",
     "@yuants/data-account": "workspace:*",
+    "@yuants/data-quote": "workspace:*",
     "@yuants/utils": "workspace:*",
     "@yuants/data-series": "workspace:*",
     "@yuants/sql": "workspace:*",
