@@ -20,24 +20,24 @@ import {
   tap,
   toArray,
 } from 'rxjs';
-import { client } from './api';
+import { getInstruments, getMarketTickers, getOpenInterest } from './public-api';
 import { useOpenInterest, useTicker } from './ws';
 // import { useOpenInterest, useTicker } from './websocket';
 
-const swapInstruments$ = defer(() => client.getInstruments({ instType: 'SWAP' })).pipe(
+const swapInstruments$ = defer(() => getInstruments({ instType: 'SWAP' })).pipe(
   repeat({ delay: 3600_000 }),
   retry({ delay: 10_000 }),
   map((x) => x.data),
   shareReplay(1),
 );
-const spotInstruments$ = defer(() => client.getInstruments({ instType: 'SPOT' })).pipe(
+const spotInstruments$ = defer(() => getInstruments({ instType: 'SPOT' })).pipe(
   repeat({ delay: 3600_000 }),
   retry({ delay: 10_000 }),
   map((x) => x.data),
   shareReplay(1),
 );
 
-const spotTickers$ = defer(() => client.getMarketTickers({ instType: 'SPOT' })).pipe(
+const spotTickers$ = defer(() => getMarketTickers({ instType: 'SPOT' })).pipe(
   repeat({ delay: 5000 }),
   retry({ delay: 5000 }),
   shareReplay(1),
@@ -69,7 +69,7 @@ const spotTicker$ = spotInstruments$.pipe(
   share(),
 );
 
-const quoteOfSwapFromRest$ = defer(() => client.getMarketTickers({ instType: 'SWAP' })).pipe(
+const quoteOfSwapFromRest$ = defer(() => getMarketTickers({ instType: 'SWAP' })).pipe(
   mergeMap((x) => x.data || []),
   map(
     (x): Partial<IQuote> => ({
@@ -86,7 +86,7 @@ const quoteOfSwapFromRest$ = defer(() => client.getMarketTickers({ instType: 'SW
   retry({ delay: 1000 }),
 );
 
-const quoteOfSpotAndMarginFromRest$ = defer(() => client.getMarketTickers({ instType: 'SPOT' })).pipe(
+const quoteOfSpotAndMarginFromRest$ = defer(() => getMarketTickers({ instType: 'SPOT' })).pipe(
   mergeMap((x) => x.data || []),
   mergeMap((x): Partial<IQuote>[] => [
     {
@@ -154,7 +154,7 @@ const quoteOfSpotAndMarginFromWs$ = spotTicker$.pipe(
   ]),
 );
 
-const swapOpenInterests$ = defer(() => client.getOpenInterest({ instType: 'SWAP' })).pipe(
+const swapOpenInterests$ = defer(() => getOpenInterest({ instType: 'SWAP' })).pipe(
   repeat({ delay: 10_000 }),
   retry({ delay: 10_000 }),
   shareReplay(1),

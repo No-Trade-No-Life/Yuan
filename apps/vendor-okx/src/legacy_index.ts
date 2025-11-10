@@ -6,6 +6,7 @@ import { defer, filter, firstValueFrom, from, map, mergeMap, repeat, retry, shar
 import { accountConfig$, tradingAccountId$ } from './account';
 import { client } from './api';
 import { productService } from './product';
+import { getFundingRate, getInterestRateLoanQuota } from './public-api';
 import { spotMarketTickers$ } from './quote';
 
 const terminal = Terminal.fromNodeEnv();
@@ -26,7 +27,7 @@ const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
 };
 
 const fundingRate$ = memoizeMap((product_id: string) =>
-  defer(() => client.getFundingRate({ instId: decodePath(product_id)[1] })).pipe(
+  defer(() => getFundingRate({ instId: decodePath(product_id)[1] })).pipe(
     mergeMap((x) => x.data),
     repeat({ delay: 5000 }),
     retry({ delay: 5000 }),
@@ -34,7 +35,7 @@ const fundingRate$ = memoizeMap((product_id: string) =>
   ),
 );
 
-const interestRateLoanQuota$ = defer(() => client.getInterestRateLoanQuota()).pipe(
+const interestRateLoanQuota$ = defer(() => getInterestRateLoanQuota()).pipe(
   repeat({ delay: 60_000 }),
   retry({ delay: 60_000 }),
   shareReplay(1),

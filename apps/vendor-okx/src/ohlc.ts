@@ -4,8 +4,8 @@ import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { convertDurationToOffset, decodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, map, timer } from 'rxjs';
-import { client } from './api';
 import { provideOHLCFromTimeBackwardService } from './provideOHLCFromTimeBackwardService';
+import { getHistoryCandles } from './public-api';
 import { useOHLC } from './ws';
 // import { useOHLC } from './websocket';
 
@@ -83,7 +83,7 @@ createSeriesProvider<IOHLC>(terminal, {
 
     while (true) {
       // 向前翻页，时间降序，不含 after 时间点
-      const res = await client.getHistoryCandles({
+      const res = await getHistoryCandles({
         instId,
         bar,
         after: `${currentStartTime}`,
@@ -181,7 +181,7 @@ provideOHLCFromTimeBackwardService({
     }
 
     // 从指定时间点向过去获取一页数据
-    const res = await client.getHistoryCandles({
+    const res = await getHistoryCandles({
       instId,
       bar,
       after: `${new Date(time).getTime()}`, // 不包含该时间点 (标准的右开)
