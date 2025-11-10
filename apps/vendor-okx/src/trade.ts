@@ -1,12 +1,19 @@
-import { defer, first, of, repeat, retry, tap, timeout } from 'rxjs';
-import { client } from './api';
-import { ITrade } from '@yuants/data-trade';
-import { accountUid$ } from './account';
-import { encodePath, formatTime } from '@yuants/utils';
-import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
-import { Terminal } from '@yuants/protocol';
 import { IProduct } from '@yuants/data-product';
-const tradeParser = async (accountId: string, params: Record<string, string>): Promise<ITrade[]> => {
+import { ITrade } from '@yuants/data-trade';
+import { Terminal } from '@yuants/protocol';
+import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
+import { encodePath, formatTime } from '@yuants/utils';
+import { defer, repeat, retry, tap, timeout } from 'rxjs';
+import { akToAccountIdCache } from './account';
+import { client$, clientCache } from './api';
+
+const tradeParser = async (
+  ak: string,
+  accountId: string,
+  params: Record<string, string>,
+): Promise<ITrade[]> => {
+  const client = await clientCache.query(ak);
+  if (!client) throw new Error('Client not found');
   const tradeList: ITrade[] = [];
   const result = await client.getAccountBillsArchive(params);
   const productIdToProduct = new Map<string, IProduct>();
@@ -98,7 +105,7 @@ const tradeParser = async (accountId: string, params: Record<string, string>): P
   return tradeList;
 };
 
-const getAccountTradeWithAccountId = async (accountId: string) => {
+const getAccountTradeWithAccountId = async (ak: string, accountId: string) => {
   const currentTrade = await requestSQL<ITrade[]>(
     Terminal.fromNodeEnv(),
     `
@@ -113,8 +120,11 @@ const getAccountTradeWithAccountId = async (accountId: string) => {
     params['begin'] = new Date(currentTrade[0].created_at ?? 0).getTime().toString();
   }
   console.log(formatTime(Date.now()), 'getAccountTrade', `params: ${JSON.stringify(params)}`);
-  const tradeList = await tradeParser(accountId, params);
+  const tradeList = await tradeParser(ak, accountId, params);
   console.log(formatTime(Date.now()), 'getAccountTrade', `tradeList: ${JSON.stringify(tradeList)}`);
+  if (tradeList.length === 0) {
+    return;
+  }
   await requestSQL(
     Terminal.fromNodeEnv(),
     buildInsertManyIntoTableSQL(tradeList, 'trade', {
@@ -135,22 +145,21 @@ const getAccountTradeWithAccountId = async (accountId: string) => {
   );
 };
 
-defer(() => accountUid$)
-  .pipe(first())
-  .subscribe((uid) => {
-    const account_id = `okx/${uid}/trading`;
-    console.log(formatTime(Date.now()), 'getAccountTrade', `AccountID: ${account_id}`);
-    defer(() => getAccountTradeWithAccountId(account_id))
-      .pipe(
-        //
-        timeout(10_000), //  超时设定：10 秒
-        tap({
-          error: (err) => {
-            console.error(formatTime(Date.now()), 'getAccountTradeError', err);
-          },
-        }),
-        repeat({ delay: 30_000 }),
-        retry({ delay: 5000 }),
-      )
-      .subscribe();
-  });
+client$.subscribe(async (client) => {
+  const ak = client.auth.access_key;
+  const account_id = await akToAccountIdCache.query(ak).then((x) => x!.trading);
+  console.log(formatTime(Date.now()), 'getAccountTrade', `AccountID: ${account_id}`);
+  defer(() => getAccountTradeWithAccountId(ak, account_id))
+    .pipe(
+      //
+      timeout(10_000), //  超时设定：10 秒
+      tap({
+        error: (err) => {
+          console.error(formatTime(Date.now()), 'getAccountTradeError', err);
+        },
+      }),
+      repeat({ delay: 30_000 }),
+      retry({ delay: 5000 }),
+    )
+    .subscribe();
+});

@@ -1,64 +1,72 @@
-import { encodeBase64, formatTime, HmacSHA256 } from '@yuants/utils';
+import { createCache } from '@yuants/cache';
+import { Terminal } from '@yuants/protocol';
+import { ISecret, readSecret, writeSecret } from '@yuants/secret';
+import { requestSQL } from '@yuants/sql';
+import { encodeBase64, formatTime, HmacSHA256, listWatch } from '@yuants/utils';
+import { catchError, defer, EMPTY, repeat, retry, Subject } from 'rxjs';
+
+interface IApiKeyAuthToken {
+  access_key: string;
+  secret_key: string;
+  passphrase: string;
+}
+
+const requestPrivateApi = async (authToken: IApiKeyAuthToken, method: string, path: string, params?: any) => {
+  const url = new URL('https://www.okx.com');
+  url.pathname = path;
+  if (method === 'GET') {
+    for (const key in params) {
+      url.searchParams.set(key, params[key]);
+    }
+  }
+  const timestamp = formatTime(Date.now(), 'UTC').replace(' ', 'T');
+  const secret_key = authToken.secret_key;
+  const body = method === 'GET' ? '' : JSON.stringify(params);
+  const signData = timestamp + method + url.pathname + url.search + body;
+
+  const str = encodeBase64(
+    await HmacSHA256(
+      //
+      new TextEncoder().encode(signData),
+      new TextEncoder().encode(secret_key),
+    ),
+  );
+
+  const headers = {
+    'Content-Type': 'application/json',
+    'OK-ACCESS-KEY': authToken.access_key,
+    'OK-ACCESS-SIGN': str,
+    'OK-ACCESS-TIMESTAMP': timestamp,
+    'OK-ACCESS-PASSPHRASE': authToken.passphrase,
+  };
+
+  console.info(
+    formatTime(Date.now()),
+    'PrivateRequest',
+    authToken.access_key,
+    method,
+    url.href,
+    JSON.stringify(headers),
+    body,
+    signData,
+  );
+
+  const res = await fetch(url.href, {
+    method,
+    headers,
+    body: body || undefined,
+  });
+  return res.json();
+};
 
 /**
  * API v5: https://www.okx.com/docs-v5/#overview
  */
 export class OkxClient {
-  noAuth = true;
-  constructor(
-    public config: {
-      auth: {
-        public_key: string;
-        secret_key: string;
-        passphrase: string;
-      };
-    },
-  ) {
-    if (config.auth.public_key && config.auth.secret_key && config.auth.passphrase) {
-      this.noAuth = false;
-    }
-  }
+  constructor(public auth: IApiKeyAuthToken) {}
 
   async request(method: string, path: string, params?: any) {
-    const url = new URL('https://www.okx.com');
-    url.pathname = path;
-    if (method === 'GET') {
-      for (const key in params) {
-        url.searchParams.set(key, params[key]);
-      }
-    }
-    if (this.noAuth) {
-      console.info(formatTime(Date.now()), method, url.href);
-      const res = await fetch(url.href, { method });
-      return res.json();
-    }
-    const timestamp = formatTime(Date.now(), 'UTC').replace(' ', 'T');
-    const secret_key = this.config.auth.secret_key;
-    const body = method === 'GET' ? '' : JSON.stringify(params);
-    const signData = timestamp + method + url.pathname + url.search + body;
-    const str = encodeBase64(
-      await HmacSHA256(
-        //
-        new TextEncoder().encode(signData),
-        new TextEncoder().encode(secret_key),
-      ),
-    );
-
-    const headers = {
-      'Content-Type': 'application/json',
-      'OK-ACCESS-KEY': this.config.auth.public_key!,
-      'OK-ACCESS-SIGN': str,
-      'OK-ACCESS-TIMESTAMP': timestamp,
-      'OK-ACCESS-PASSPHRASE': this.config.auth.passphrase,
-    };
-
-    console.info(formatTime(Date.now()), method, url.href, JSON.stringify(headers), body, signData);
-    const res = await fetch(url.href, {
-      method,
-      headers,
-      body: body || undefined,
-    });
-    return res.json();
+    return requestPrivateApi(this.auth, method, path, params);
   }
 
   /**
@@ -1412,10 +1420,82 @@ type AccountBillType =
   | '250'
   | '251';
 
-export const client = new OkxClient({
-  auth: {
-    public_key: process.env.ACCESS_KEY!,
-    secret_key: process.env.SECRET_KEY!,
-    passphrase: process.env.PASSPHRASE!,
-  },
+const terminal = Terminal.fromNodeEnv();
+
+export const client$ = new Subject<OkxClient>();
+
+export const clientCache = createCache<OkxClient>(() => {
+  throw new Error('No OKX client available');
 });
+
+terminal.server.provideService<{
+  access_key: string;
+  secret_key: string;
+  passphrase: string;
+}>(
+  'OKX/AddApiKey',
+  {
+    type: 'object',
+    required: ['access_key', 'secret_key', 'passphrase'],
+    properties: {
+      access_key: { type: 'string' },
+      secret_key: { type: 'string' },
+      passphrase: { type: 'string' },
+    },
+  },
+  async (msg) => {
+    const { access_key, secret_key, passphrase } = msg.req;
+    const client = new OkxClient({ access_key, secret_key, passphrase });
+    const res = await client.getAccountConfig();
+
+    const uid = res.data[0].uid;
+    if (!uid) throw new Error('Invalid API Key');
+    // 至少有读取权限，需要检查是否有提币权限和交易权限
+    const perm = res.data[0].perm;
+    // read_only,withdraw,trade
+    const can_withdraw = perm.includes('withdraw') ? 'true' : 'false';
+    const can_trade = perm.includes('trade') ? 'true' : 'false';
+
+    const secret = new TextEncoder().encode(JSON.stringify({ secret_key, passphrase }));
+    await writeSecret(
+      terminal,
+      process.env.API_KEY_READER || terminal.keyPair.public_key, // 可以解读 secret 的 ED25519 公钥
+      { type: 'okx_api_key', uid, access_key, can_withdraw, can_trade },
+      secret,
+    );
+    return { res: { code: 0, message: 'OK' } };
+  },
+);
+
+defer(() => requestSQL<ISecret[]>(terminal, `select * from secret where tags->>'type' = 'okx_api_key'`))
+  .pipe(
+    repeat({ delay: 10_000 }),
+    retry({ delay: 5_000 }),
+    listWatch(
+      (x) => x.sign,
+      (secret) =>
+        defer(async () => {
+          const access_key = secret.tags['access_key'];
+          if (!access_key) throw new Error(`Missing access_key tag: ${secret.sign}`);
+          const info = await readSecret(terminal, secret);
+          const { secret_key, passphrase } = JSON.parse(new TextDecoder().decode(info));
+
+          if (!secret_key || !passphrase) throw new Error(`Invalid secret content: ${secret.sign}`);
+
+          console.info(formatTime(new Date()), 'OKX Client Loaded', access_key);
+
+          const client = new OkxClient({
+            access_key,
+            secret_key,
+            passphrase,
+          });
+
+          client$.next(client);
+
+          clientCache.set(access_key, client);
+
+          return client;
+        }).pipe(catchError(() => EMPTY)),
+    ),
+  )
+  .subscribe();

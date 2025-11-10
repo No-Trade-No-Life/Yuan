@@ -1,30 +1,14 @@
 import { addAccountMarket, IPosition, provideAccountInfoService } from '@yuants/data-account';
 import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
-import { defer, filter, first, firstValueFrom, map, repeat, retry, shareReplay } from 'rxjs';
-import { client } from './api';
+import { akToAccountIdCache } from './account';
+import { client$ } from './api';
 
 const terminal = Terminal.fromNodeEnv();
 
-export const accountConfig$ = defer(() => client.getAccountConfig()).pipe(
-  repeat({ delay: 10_000 }),
-  retry({ delay: 10_000 }),
-  shareReplay(1),
-);
-
-export const accountUid$ = accountConfig$.pipe(
-  map((x) => x.data[0].uid),
-  filter((x) => !!x),
-  shareReplay(1),
-);
-
-export const strategyAccountId$ = accountUid$.pipe(
-  map((uid) => `okx/${uid}/strategy`),
-  shareReplay(1),
-);
-
-defer(async () => {
-  const strategyAccountId = await firstValueFrom(strategyAccountId$);
+client$.subscribe(async (client) => {
+  const ak = client.auth.access_key;
+  const strategyAccountId = await akToAccountIdCache.query(ak).then((x) => x!.strategy);
 
   type InferPromise<T> = T extends Promise<infer U> ? U : T;
 
@@ -55,6 +39,8 @@ defer(async () => {
       egress_token_refill_interval: 4000, // 每 4 秒恢复 20 个令牌 (双倍冗余限流)
     },
   );
+
+  addAccountMarket(terminal, { account_id: strategyAccountId, market_id: 'OKX' });
 
   provideAccountInfoService(
     terminal,
@@ -126,11 +112,4 @@ defer(async () => {
     },
     { auto_refresh_interval: 5000 },
   );
-}).subscribe();
-
-const sub = defer(() => accountUid$)
-  .pipe(first())
-  .subscribe((uid) => {
-    addAccountMarket(terminal, { account_id: `okx/${uid}/strategy`, market_id: 'OKX' });
-  });
-defer(() => terminal.dispose$).subscribe(() => sub.unsubscribe());
+});

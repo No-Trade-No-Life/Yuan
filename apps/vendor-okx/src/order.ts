@@ -2,21 +2,9 @@ import { IOrder } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { encodePath, formatTime } from '@yuants/utils';
-import {
-  defer,
-  firstValueFrom,
-  from,
-  map,
-  merge,
-  mergeMap,
-  repeat,
-  retry,
-  shareReplay,
-  Subject,
-  tap,
-} from 'rxjs';
-import { accountUid$ } from './account';
-import { client } from './api';
+import { defer, from, map, merge, mergeMap, repeat, retry, shareReplay, Subject, tap } from 'rxjs';
+import { akToAccountIdCache } from './account';
+import { client$ } from './api';
 
 export const order$ = new Subject<IOrder>();
 
@@ -105,12 +93,9 @@ const makeOrder = (
   };
 };
 
-(async () => {
-  const uid = await firstValueFrom(accountUid$);
-
-  const TRADING_ACCOUNT_ID = `okx/${uid}/trading`;
-  const FUNDING_ACCOUNT_ID = `okx/${uid}/funding/USDT`;
-  const EARNING_ACCOUNT_ID = `okx/${uid}/earning/USDT`;
+client$.subscribe(async (client) => {
+  const access_key = client.auth.access_key;
+  const TRADING_ACCOUNT_ID = await akToAccountIdCache.query(access_key).then((x) => x!.trading);
 
   const swapHistoryOrders = defer(() => client.getTradeOrdersHistory({ instType: 'SWAP' })).pipe(
     repeat({ delay: 1000 }),
@@ -152,4 +137,4 @@ const makeOrder = (
       }),
     )
     .subscribe();
-})();
+});
