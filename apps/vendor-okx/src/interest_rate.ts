@@ -4,8 +4,8 @@ import { Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, map, mergeAll, timer } from 'rxjs';
-import { client } from './api';
 import { productService } from './product';
+import { getFundingRateHistory, getLendingRateHistory } from './public-api';
 
 createSQLWriter<ISeriesCollectingTask>(Terminal.fromNodeEnv(), {
   data$: productService.products$.pipe(
@@ -41,7 +41,7 @@ createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
       let current_end = end;
       while (true) {
         // 接口行为备注：向前翻页，时间降序，不含 after 当前时间点
-        const res = await client.getFundingRateHistory({
+        const res = await getFundingRateHistory({
           instId: instId,
           after: `${current_end}`,
         });
@@ -79,8 +79,8 @@ createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
       const [base, quote] = instId.split('-');
       let current_end = end;
       while (true) {
-        const resBase = await client.getLendingRateHistory({ ccy: base, after: `${current_end}` });
-        const resQuote = await client.getLendingRateHistory({ ccy: quote, after: `${current_end}` });
+        const resBase = await getLendingRateHistory({ ccy: base, after: `${current_end}` });
+        const resQuote = await getLendingRateHistory({ ccy: quote, after: `${current_end}` });
 
         if (resBase.code !== '0') {
           throw `getLendingRateHistory failed: ${resBase.code} ${resBase.msg}`;

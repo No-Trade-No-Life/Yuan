@@ -1,7 +1,7 @@
 import { IProduct, IQueryProductsRequest, provideQueryProductsService } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
-import { client } from './api';
+import { getInstruments } from './public-api';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -14,9 +14,9 @@ export const productService = provideQueryProductsService(
 
     // Get all instrument types in parallel
     const [swapInstruments, marginInstruments, spotInstruments] = await Promise.all([
-      client.getInstruments({ instType: 'SWAP' }),
-      client.getInstruments({ instType: 'MARGIN' }),
-      client.getInstruments({ instType: 'SPOT' }),
+      getInstruments({ instType: 'SWAP' }),
+      getInstruments({ instType: 'MARGIN' }),
+      getInstruments({ instType: 'SPOT' }),
     ]);
 
     // Get USDT swap products

@@ -5,6 +5,7 @@ import { encodePath } from '@yuants/utils';
 import { defer, filter, firstValueFrom, map, repeat, retry, shareReplay } from 'rxjs';
 import { client } from './api';
 import { productService } from './product';
+import { getMarketIndexTicker } from './public-api';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -64,7 +65,7 @@ defer(async () => {
   );
 }).subscribe();
 
-const marketIndexTickerUSDT$ = defer(() => client.getMarketIndexTicker({ quoteCcy: 'USDT' })).pipe(
+const marketIndexTickerUSDT$ = defer(() => getMarketIndexTicker({ quoteCcy: 'USDT' })).pipe(
   map((x) => {
     const mapInstIdToPrice = new Map<string, number>();
     x.data.forEach((inst) => mapInstIdToPrice.set(inst.instId, Number(inst.idxPx)));
