@@ -1,35 +1,45 @@
+import { createCache } from '@yuants/cache';
 import { addAccountMarket, IPosition, provideAccountInfoService } from '@yuants/data-account';
 import { providePendingOrdersService } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
-import { defer, filter, firstValueFrom, map, repeat, retry, shareReplay } from 'rxjs';
-import { client } from './api';
+import { defer, firstValueFrom, map, repeat, retry, shareReplay } from 'rxjs';
+import { client$, clientCache } from './api';
 import { productService } from './product';
 import { getMarketIndexTicker } from './public-api';
 
 const terminal = Terminal.fromNodeEnv();
 
-export const accountConfig$ = defer(() => client.getAccountConfig()).pipe(
-  repeat({ delay: 10_000 }),
-  retry({ delay: 10_000 }),
-  shareReplay(1),
+export const accountConfigCache = createCache(
+  async (access_key) => {
+    const client = await clientCache.query(access_key);
+    return client?.getAccountConfig();
+  },
+  {
+    expire: 10_000,
+  },
 );
 
-const subAccountUids$ = defer(() => client.getSubAccountList()).pipe(
-  repeat({ delay: 10_000 }),
-  retry({ delay: 10_000 }),
-  shareReplay(1),
-);
+export const akToUidCache = createCache(async (access_key) => {
+  const config = await accountConfigCache.query(access_key);
+  return config?.data[0].uid;
+});
 
-export const accountUid$ = accountConfig$.pipe(
-  map((x) => x.data[0].uid),
-  filter((x) => !!x),
-  shareReplay(1),
-);
+export const akToAccountIdCache = createCache(async (access_key) => {
+  const uid = await akToUidCache.query(access_key);
+  return {
+    trading: `okx/${uid}/trading`,
+    funding: `okx/${uid}/funding/USDT`,
+    earning: `okx/${uid}/earning/USDT`,
+    loan: `okx/${uid}/loan/USDT`,
+    strategy: `okx/${uid}/strategy`,
+  };
+});
 
-defer(async () => {
-  const uid = await firstValueFrom(accountUid$);
-  const account_id = `okx/${uid}/trading`;
+const setupTradingAccountPendingOrdersService = async (access_key: string) => {
+  const client = await clientCache.query(access_key);
+  if (!client) throw new Error('Client not found');
+  const account_id = await akToAccountIdCache.query(access_key).then((x) => x?.trading!);
   providePendingOrdersService(
     terminal,
     account_id,
@@ -63,7 +73,7 @@ defer(async () => {
     },
     { auto_refresh_interval: 5000 },
   );
-}).subscribe();
+};
 
 const marketIndexTickerUSDT$ = defer(() => getMarketIndexTicker({ quoteCcy: 'USDT' })).pipe(
   map((x) => {
@@ -76,13 +86,10 @@ const marketIndexTickerUSDT$ = defer(() => getMarketIndexTicker({ quoteCcy: 'USD
   shareReplay(1),
 );
 
-export const tradingAccountId$ = accountUid$.pipe(
-  map((uid) => `okx/${uid}/trading`),
-  shareReplay(1),
-);
+// setupTradingAccountInfo
+client$.subscribe(async (client) => {
+  const tradingAccountId = await akToAccountIdCache.query(client.auth.access_key).then((x) => x!.trading);
 
-defer(async () => {
-  const tradingAccountId = await firstValueFrom(tradingAccountId$);
   addAccountMarket(terminal, { account_id: tradingAccountId, market_id: 'OKX' });
 
   provideAccountInfoService(
@@ -170,12 +177,13 @@ defer(async () => {
     },
     { auto_refresh_interval: 1000 },
   );
-}).subscribe();
 
-defer(async () => {
-  const uid = await firstValueFrom(accountUid$);
+  await setupTradingAccountPendingOrdersService(client.auth.access_key);
+});
 
-  const fundingAccountId = `okx/${uid}/funding/USDT`;
+// setupFundingAccountInfo
+client$.subscribe(async (client) => {
+  const fundingAccountId = await akToAccountIdCache.query(client.auth.access_key).then((x) => x!.funding);
 
   provideAccountInfoService(
     terminal,
@@ -229,11 +237,11 @@ defer(async () => {
     },
     { auto_refresh_interval: 1000 },
   );
-}).subscribe();
+});
 
-defer(async () => {
-  const uid = await firstValueFrom(accountUid$);
-  const earningAccountId = `okx/${uid}/earning/USDT`;
+// setupEarningAccountInfo
+client$.subscribe(async (client) => {
+  const earningAccountId = await akToAccountIdCache.query(client.auth.access_key).then((x) => x!.earning);
   provideAccountInfoService(
     terminal,
     earningAccountId,
@@ -252,4 +260,4 @@ defer(async () => {
     },
     { auto_refresh_interval: 5000 },
   );
-}).subscribe();
+});

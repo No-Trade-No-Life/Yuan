@@ -1,11 +1,12 @@
 import './account';
 import './interest_rate';
-import './legacy_index';
 import './loan-account';
+import './market-order';
 import './ohlc';
 import './order';
+import './order-actions';
 import './quote';
-import './trade';
 import './services';
 import './strategy-account';
-import './market-order';
+import './trade';
+import './transfer';

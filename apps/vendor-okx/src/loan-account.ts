@@ -1,13 +1,11 @@
 import { IPosition, provideAccountInfoService } from '@yuants/data-account';
 import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
-import { defer, firstValueFrom } from 'rxjs';
-import { accountUid$ } from './account';
-import { client } from './api';
+import { akToAccountIdCache } from './account';
+import { client$ } from './api';
 
-defer(async () => {
-  const uid = await firstValueFrom(accountUid$);
-  const loanAccountId = `okx/${uid}/loan/USDT`;
+client$.subscribe(async (client) => {
+  const loanAccountId = await akToAccountIdCache.query(client.auth.access_key).then((x) => x!.loan);
 
   provideAccountInfoService(
     Terminal.fromNodeEnv(),
@@ -60,4 +58,4 @@ defer(async () => {
       auto_refresh_interval: 1000,
     },
   );
-}).subscribe();
+});

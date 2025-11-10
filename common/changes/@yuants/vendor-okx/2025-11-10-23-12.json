@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-okx",
+      "comment": "support multi api key",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/vendor-okx"
+}
