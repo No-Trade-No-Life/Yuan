@@ -1,6 +1,13 @@
 # Change Log - @yuants/tool-kit
 
-This log was last generated on Thu, 04 Sep 2025 15:24:17 GMT and should not be manually modified.
+This log was last generated on Mon, 10 Nov 2025 08:01:57 GMT and should not be manually modified.
+
+## 0.2.1
+Mon, 10 Nov 2025 08:01:57 GMT
+
+### Patches
+
+- add latest tag for docker build
 
 ## 0.2.0
 Thu, 04 Sep 2025 15:24:17 GMT
