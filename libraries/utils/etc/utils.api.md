@@ -81,6 +81,9 @@ export const generateX25519KeyPair: () => {
 };
 
 // @public
+export function HmacSHA256(data: Uint8Array, key: Uint8Array): Promise<Uint8Array>;
+
+// @public
 export interface IEd25519KeyPair {
     // (undocumented)
     private_key: string;
