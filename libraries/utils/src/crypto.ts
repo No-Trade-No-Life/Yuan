@@ -263,3 +263,27 @@ export async function sha256(data: Uint8Array): Promise<Uint8Array> {
 
   throw new Error('Unsupported environment: No crypto implementation found');
 }
+
+/**
+ * Sign data with HMAC-SHA256
+ * @param data - data to be signed (Uint8Array)
+ * @param key - secret key (Uint8Array)
+ * @returns the HMAC-SHA256 signature (Uint8Array)
+ * @public
+ */
+export async function HmacSHA256(data: Uint8Array, key: Uint8Array): Promise<Uint8Array> {
+  // Web Crypto API (browsers and Node.js >= 18)
+  if (typeof globalThis.crypto.subtle.importKey === 'function') {
+    const cryptoKey = await globalThis.crypto.subtle.importKey(
+      'raw',
+      key,
+      { name: 'HMAC', hash: 'SHA-256' },
+      false,
+      ['sign', 'verify'],
+    );
+    const signature = await globalThis.crypto.subtle.sign('HMAC', cryptoKey, data);
+    return new Uint8Array(signature);
+  }
+
+  throw new Error('Unsupported environment: No crypto implementation found');
+}
