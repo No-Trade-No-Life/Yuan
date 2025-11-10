@@ -1,6 +1,13 @@
 # Change Log - @yuants/utils
 
-This log was last generated on Mon, 10 Nov 2025 08:01:57 GMT and should not be manually modified.
+This log was last generated on Mon, 10 Nov 2025 15:12:36 GMT and should not be manually modified.
+
+## 0.11.0
+Mon, 10 Nov 2025 15:12:36 GMT
+
+### Minor changes
+
+- add HmacSHA256 sign util
 
 ## 0.10.1
 Mon, 10 Nov 2025 08:01:57 GMT

@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-binance
 
-This log was last generated on Mon, 10 Nov 2025 13:25:16 GMT and should not be manually modified.
+This log was last generated on Mon, 10 Nov 2025 15:12:36 GMT and should not be manually modified.
+
+## 0.7.1
+Mon, 10 Nov 2025 15:12:36 GMT
+
+### Patches
+
+- add open interest for binance
 
 ## 0.7.0
 Mon, 10 Nov 2025 13:25:16 GMT
