@@ -25,6 +25,7 @@
 - [服务提供商](service-providers.md) - 外部系统连接器
 - [智能体](agents.md) - 交易机器人和策略程序
 - [交易执行环节](trading-execution.md) - 交易执行和风险管理
+- [Trade-Copier 适配清单](vendor-guide/trade-copier-vendor-requirements.md) - 汇总 copier 需要的接口和服务
 
 ### 用户界面
 

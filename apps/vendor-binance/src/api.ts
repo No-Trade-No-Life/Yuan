@@ -616,6 +616,31 @@ export class ApiClient {
     | errorResult
   > => this.request('POST', 'https://papi.binance.com/papi/v1/um/order', params);
 
+  deleteUmOrder = (params: {
+    symbol: string;
+    orderId?: string | number;
+    origClientOrderId?: string;
+  }): Promise<
+    | {
+        clientOrderId: string;
+        cumQty: string;
+        cumQuote: string;
+        executedQty: string;
+        orderId: number;
+        origQty: string;
+        price: string;
+        reduceOnly: boolean;
+        side: string;
+        positionSide: string;
+        status: string;
+        symbol: string;
+        timeInForce: string;
+        type: string;
+        updateTime: number;
+      }
+    | errorResult
+  > => this.request('DELETE', 'https://papi.binance.com/papi/v1/um/order', params);
+
   /**
    * 获取所有全仓杠杆交易对(MARKET_DATA)
    *

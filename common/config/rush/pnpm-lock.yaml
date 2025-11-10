@@ -882,6 +882,7 @@ importers:
       '@yuants/data-ohlc': workspace:*
       '@yuants/data-order': workspace:*
       '@yuants/data-product': workspace:*
+      '@yuants/data-quote': workspace:*
       '@yuants/data-series': workspace:*
       '@yuants/extension': workspace:*
       '@yuants/protocol': workspace:*
@@ -899,6 +900,7 @@ importers:
       '@yuants/data-ohlc': link:../../libraries/data-ohlc
       '@yuants/data-order': link:../../libraries/data-order
       '@yuants/data-product': link:../../libraries/data-product
+      '@yuants/data-quote': link:../../libraries/data-quote
       '@yuants/data-series': link:../../libraries/data-series
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/sql': link:../../libraries/sql

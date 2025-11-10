@@ -1,43 +1,13 @@
 import { addAccountMarket, IPosition, provideAccountInfoService } from '@yuants/data-account';
-import { IOrder } from '@yuants/data-order';
+import { IOrder, providePendingOrdersService } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { defer, from, map, mergeMap, repeat, retry, shareReplay, toArray } from 'rxjs';
+import { createHash } from 'crypto';
 import { client, isError } from './api';
 
 const terminal = Terminal.fromNodeEnv();
-
-const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
-  const cache: Record<string, any> = {};
-  return ((...params: any[]) => (cache[encodePath(params)] ??= fn(...params))) as T;
-};
-
-const mapSymbolToFuturePremiumIndex$ = defer(() => client.getFuturePremiumIndex({})).pipe(
-  repeat({ delay: 1_000 }),
-  retry({ delay: 30_000 }),
-  mergeMap((x) =>
-    from(x).pipe(
-      map((v) => [v.symbol, v] as const),
-      toArray(),
-      map((v) => new Map(v)),
-    ),
-  ),
-  shareReplay(1),
-);
-
-const mapSymbolToFutureBookTicker$ = defer(() => client.getFutureBookTicker({})).pipe(
-  repeat({ delay: 1_000 }),
-  retry({ delay: 30_000 }),
-  mergeMap((x) =>
-    from(x).pipe(
-      map((v) => [v.symbol, v] as const),
-      toArray(),
-      map((v) => new Map(v)),
-    ),
-  ),
-  shareReplay(1),
-);
 
 const _mapSymbolToOpenInterest: Record<string, { value: number; updated_at: number }> = {};
 const getOpenInterest = async (symbol: string) => {
@@ -52,6 +22,82 @@ const getOpenInterest = async (symbol: string) => {
   const value = +data.openInterest || 0;
   _mapSymbolToOpenInterest[symbol] = { value, updated_at: Date.now() };
   return value;
+};
+
+const mapOrderDirectionToSide = (direction?: string) => {
+  switch (direction) {
+    case 'OPEN_LONG':
+    case 'CLOSE_SHORT':
+      return 'BUY';
+    case 'OPEN_SHORT':
+    case 'CLOSE_LONG':
+      return 'SELL';
+  }
+  throw new Error(`Unknown direction: ${direction}`);
+};
+
+const mapOrderDirectionToPosSide = (direction?: string) => {
+  switch (direction) {
+    case 'OPEN_LONG':
+    case 'CLOSE_LONG':
+      return 'LONG';
+    case 'OPEN_SHORT':
+    case 'CLOSE_SHORT':
+      return 'SHORT';
+  }
+  throw new Error(`Unknown direction: ${direction}`);
+};
+
+const mapOrderTypeToOrdType = (order_type?: string) => {
+  switch (order_type) {
+    case 'LIMIT':
+    case 'MAKER':
+      return 'LIMIT';
+    case 'MARKET':
+      return 'MARKET';
+  }
+  throw new Error(`Unknown order type: ${order_type}`);
+};
+
+const mapBinanceOrderTypeToYuants = (binanceType?: string): IOrder['order_type'] => {
+  switch (binanceType) {
+    case 'LIMIT':
+      return 'LIMIT';
+    case 'MARKET':
+      return 'MARKET';
+    default:
+      return 'LIMIT';
+  }
+};
+
+const mapBinanceSideToYuantsDirection = (
+  side?: string,
+  positionSide?: string,
+): IOrder['order_direction'] | undefined => {
+  if (!side || !positionSide) {
+    return undefined;
+  }
+  if (positionSide === 'LONG') {
+    return side === 'BUY' ? 'OPEN_LONG' : 'CLOSE_LONG';
+  }
+  if (positionSide === 'SHORT') {
+    return side === 'SELL' ? 'OPEN_SHORT' : 'CLOSE_SHORT';
+  }
+  return undefined;
+};
+
+const deriveClientOrderId = (order: IOrder) => {
+  if (order.order_id) return `${order.order_id}`;
+  if (order.comment) return order.comment;
+  const payload = JSON.stringify({
+    account_id: order.account_id,
+    product_id: order.product_id,
+    order_direction: order.order_direction,
+    order_type: order.order_type,
+    price: order.price,
+    volume: order.volume,
+  });
+  return `YUANTS${createHash('sha256').update(payload).digest('hex').slice(0, 24)}`;
 };
 
 // provideTicks(terminal, 'binance', (product_id) => {
@@ -287,6 +333,32 @@ const getOpenInterest = async (symbol: string) => {
 
   // order related
   {
+    providePendingOrdersService(
+      terminal,
+      UNIFIED_ACCOUNT_ID,
+      async () => {
+        const openOrders = await client.getUnifiedUmOpenOrders();
+        return openOrders.map((order): IOrder => {
+          const order_direction =
+            mapBinanceSideToYuantsDirection(order.side, order.positionSide) ?? 'OPEN_LONG';
+          return {
+            order_id: `${order.orderId}`,
+            account_id: UNIFIED_ACCOUNT_ID,
+            product_id: encodePath('usdt-future', order.symbol),
+            order_type: mapBinanceOrderTypeToYuants(order.type),
+            order_direction,
+            volume: +order.origQty,
+            traded_volume: +order.executedQty,
+            price: order.price === undefined ? undefined : +order.price,
+            submit_at: order.time,
+            updated_at: new Date(order.updateTime).toISOString(),
+            order_status: order.status,
+          };
+        });
+      },
+      { auto_refresh_interval: 1000 },
+    );
+
     terminal.server.provideService<IOrder>(
       'SubmitOrder',
       {
@@ -300,46 +372,16 @@ const getOpenInterest = async (symbol: string) => {
         const order = msg.req;
         const [instType, symbol] = decodePath(order.product_id);
         if (instType === 'usdt-future') {
-          const mapOrderDirectionToSide = (direction?: string) => {
-            switch (direction) {
-              case 'OPEN_LONG':
-              case 'CLOSE_SHORT':
-                return 'BUY';
-              case 'OPEN_SHORT':
-              case 'CLOSE_LONG':
-                return 'SELL';
-            }
-            throw new Error(`Unknown direction: ${direction}`);
-          };
-          const mapOrderDirectionToPosSide = (direction?: string) => {
-            switch (direction) {
-              case 'OPEN_LONG':
-              case 'CLOSE_LONG':
-                return 'LONG';
-              case 'CLOSE_SHORT':
-              case 'OPEN_SHORT':
-                return 'SHORT';
-            }
-            throw new Error(`Unknown direction: ${direction}`);
-          };
-          const mapOrderTypeToOrdType = (order_type?: string) => {
-            switch (order_type) {
-              case 'LIMIT':
-                return 'LIMIT';
-              case 'MARKET':
-                return 'MARKET';
-            }
-            throw new Error(`Unknown order type: ${order_type}`);
-          };
-          // return
           const params = {
             symbol,
             side: mapOrderDirectionToSide(order.order_direction),
             positionSide: mapOrderDirectionToPosSide(order.order_direction),
             type: mapOrderTypeToOrdType(order.order_type),
-            timeInForce: order.order_type === 'LIMIT' ? 'GTC' : undefined,
+            timeInForce:
+              order.order_type === 'MAKER' ? 'GTX' : order.order_type === 'LIMIT' ? 'GTC' : undefined,
             quantity: order.volume,
             price: order.price,
+            newClientOrderId: deriveClientOrderId(order),
           };
 
           console.info(formatTime(Date.now()), 'SubmitOrder', 'params', JSON.stringify(params));
@@ -350,6 +392,36 @@ const getOpenInterest = async (symbol: string) => {
           return { res: { code: 0, message: 'OK', order_id: orderResult.orderId } };
         }
         return { res: { code: 400, message: `unsupported type: ${instType}` } };
+      },
+    );
+  }
+
+  {
+    terminal.server.provideService<IOrder>(
+      'CancelOrder',
+      {
+        required: ['account_id', 'order_id', 'product_id'],
+        properties: {
+          account_id: { const: UNIFIED_ACCOUNT_ID },
+        },
+      },
+      async (msg) => {
+        const order = msg.req;
+        if (!order.order_id) {
+          return { res: { code: 400, message: 'order_id is required' } };
+        }
+        const [instType, symbol] = decodePath(order.product_id);
+        if (instType !== 'usdt-future') {
+          return { res: { code: 400, message: `unsupported type: ${instType}` } };
+        }
+        const cancelResult = await client.deleteUmOrder({
+          symbol,
+          orderId: order.order_id,
+        });
+        if (isError(cancelResult)) {
+          return { res: { code: cancelResult.code, message: cancelResult.msg } };
+        }
+        return { res: { code: 0, message: 'OK' } };
       },
     );
   }
