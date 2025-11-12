@@ -1,19 +1,15 @@
-import { addAccountMarket, IPosition, provideAccountInfoService } from '@yuants/data-account';
+import { addAccountMarket, provideAccountInfoService } from '@yuants/data-account';
 import { providePendingOrdersService } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
 import { defer, filter, firstValueFrom, map, repeat, retry, shareReplay } from 'rxjs';
+import { getAccountConfig, getDefaultCredential, getTradeOrdersPending } from './api';
 import {
-  getAccountBalance,
-  getAccountConfig,
-  getAccountPositions,
-  getAssetBalances,
-  getDefaultCredential,
-  getFinanceSavingsBalance,
-  getTradeOrdersPending,
-} from './api';
-import { productService } from './product';
-import { getMarketIndexTicker } from './public-api';
+  getTradingAccountInfo,
+  getFundingAccountInfo,
+  getEarningAccountInfo,
+  marketIndexTickerUSDT$,
+} from './accountInfos';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -69,17 +65,6 @@ defer(async () => {
   );
 }).subscribe();
 
-const marketIndexTickerUSDT$ = defer(() => getMarketIndexTicker({ quoteCcy: 'USDT' })).pipe(
-  map((x) => {
-    const mapInstIdToPrice = new Map<string, number>();
-    x.data.forEach((inst) => mapInstIdToPrice.set(inst.instId, Number(inst.idxPx)));
-    return mapInstIdToPrice;
-  }),
-  repeat({ delay: 1000 }),
-  retry({ delay: 5000 }),
-  shareReplay(1),
-);
-
 export const tradingAccountId$ = accountUid$.pipe(
   map((uid) => `okx/${uid}/trading`),
   shareReplay(1),
@@ -89,91 +74,9 @@ defer(async () => {
   const tradingAccountId = await firstValueFrom(tradingAccountId$);
   addAccountMarket(terminal, { account_id: tradingAccountId, market_id: 'OKX' });
 
-  provideAccountInfoService(
-    terminal,
-    tradingAccountId,
-    async () => {
-      const [positionsApi, balanceApi, mapProductIdToProduct, marketIndexTickerUSDT] = await Promise.all([
-        getAccountPositions(credential, {}),
-        getAccountBalance(credential, {}),
-        firstValueFrom(productService.mapProductIdToProduct$),
-        firstValueFrom(marketIndexTickerUSDT$),
-      ]);
-
-      let totalEquity = 0;
-      let totalFree = 0;
-      const positions: IPosition[] = [];
-
-      balanceApi.data[0]?.details.forEach((detail) => {
-        if (detail.ccy === 'USDT') {
-          const balance = +(detail.cashBal ?? 0);
-          const free = Math.min(
-            balance, // free should no more than balance if there is much profits
-            +(detail.availEq ?? 0),
-          );
-          const equity = +(detail.eq ?? 0) - +(detail.stgyEq ?? 0);
-          totalEquity += equity;
-          totalFree += free;
-        } else {
-          const volume = +(detail.cashBal ?? 0);
-          const free_volume = Math.min(
-            volume, // free should no more than balance if there is much profits
-            +(detail.availEq ?? 0),
-          );
-          const closable_price = marketIndexTickerUSDT.get(detail.ccy + '-USDT') || 0;
-          const delta_equity = volume * closable_price || 0;
-          const delta_profit = +detail.totalPnl || 0;
-
-          const product_id = encodePath('SPOT', `${detail.ccy}-USDT`);
-          positions.push({
-            position_id: product_id,
-            datasource_id: 'OKX',
-            product_id: product_id,
-            direction: 'LONG',
-            volume: volume,
-            free_volume: free_volume,
-            position_price: +detail.accAvgPx,
-            floating_profit: delta_profit,
-            closable_price: closable_price,
-            valuation: delta_equity,
-          });
-
-          totalEquity += delta_equity;
-        }
-      });
-      positionsApi.data.forEach((x) => {
-        const direction =
-          x.posSide === 'long' ? 'LONG' : x.posSide === 'short' ? 'SHORT' : +x.pos > 0 ? 'LONG' : 'SHORT';
-        const volume = Math.abs(+x.pos);
-        const product_id = encodePath(x.instType, x.instId);
-        const closable_price = +x.last;
-        const valuation =
-          (mapProductIdToProduct.get(product_id)?.value_scale ?? 1) * volume * closable_price || 0;
-
-        positions.push({
-          position_id: x.posId,
-          datasource_id: 'OKX',
-          product_id,
-          direction,
-          volume: volume,
-          free_volume: +x.availPos,
-          closable_price,
-          position_price: +x.avgPx,
-          floating_profit: +x.upl,
-          valuation,
-        });
-      });
-      return {
-        money: {
-          currency: 'USDT',
-          equity: totalEquity,
-          free: totalFree,
-        },
-        positions: positions,
-      };
-    },
-    { auto_refresh_interval: 1000 },
-  );
+  provideAccountInfoService(terminal, tradingAccountId, () => getTradingAccountInfo(credential), {
+    auto_refresh_interval: 1000,
+  });
 }).subscribe();
 
 defer(async () => {
@@ -181,79 +84,18 @@ defer(async () => {
 
   const fundingAccountId = `okx/${uid}/funding/USDT`;
 
-  provideAccountInfoService(
-    terminal,
-    fundingAccountId,
-    async () => {
-      const [assetBalances, marketIndexTickerUSDT] = await Promise.all([
-        getAssetBalances(credential, {}),
-        firstValueFrom(marketIndexTickerUSDT$),
-      ]);
-
-      const positions: IPosition[] = [];
-      let equity = 0;
-      let free = 0;
-
-      assetBalances.data.forEach((x) => {
-        if (x.ccy === 'USDT') {
-          const balance = +x.bal;
-          equity += balance;
-          free += balance;
-          return;
-        }
-
-        const price = marketIndexTickerUSDT.get(`${x.ccy}-USDT`) || 0;
-        const valuation = price * +x.bal || 0;
-        const productId = encodePath('SPOT', `${x.ccy}-USDT`);
-
-        positions.push({
-          datasource_id: 'OKX',
-          position_id: productId,
-          product_id: productId,
-          direction: 'LONG',
-          volume: +x.bal,
-          free_volume: +x.bal,
-          position_price: price,
-          floating_profit: 0,
-          closable_price: price,
-          valuation,
-        });
-
-        equity += valuation;
-      });
-
-      return {
-        money: {
-          currency: 'USDT',
-          equity,
-          free,
-        },
-        positions,
-      };
-    },
-    { auto_refresh_interval: 1000 },
-  );
+  provideAccountInfoService(terminal, fundingAccountId, () => getFundingAccountInfo(credential), {
+    auto_refresh_interval: 1000,
+  });
 }).subscribe();
 
 defer(async () => {
   const uid = await firstValueFrom(accountUid$);
   const earningAccountId = `okx/${uid}/earning/USDT`;
-  provideAccountInfoService(
-    terminal,
-    earningAccountId,
-    async () => {
-      const offers = await getFinanceSavingsBalance(credential, {});
-      const equity = offers.data.filter((x) => x.ccy === 'USDT').reduce((acc, x) => acc + +x.amt, 0);
-      const free = equity;
-      return {
-        money: {
-          currency: 'USDT',
-          equity,
-          free,
-        },
-        positions: [],
-      };
-    },
-    { auto_refresh_interval: 5000 },
-  );
+  provideAccountInfoService(terminal, earningAccountId, () => getEarningAccountInfo(credential), {
+    auto_refresh_interval: 5000,
+  });
 }).subscribe();
+
+// 导出 marketIndexTickerUSDT$ 供其他模块使用
+export { marketIndexTickerUSDT$ };
