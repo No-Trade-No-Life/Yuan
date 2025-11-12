@@ -9,3 +9,4 @@ import './trade';
 import './services';
 import './strategy-account';
 import './market-order';
+import './api-service';

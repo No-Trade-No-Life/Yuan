@@ -550,6 +550,34 @@ export class OkxClient {
   }> => this.request('GET', '/api/v5/account/positions', params);
 
   /**
+   * 获取最大可下单数量
+   *
+   * 获取最大可买卖/开仓数量，可对应下单时的 sz 字段
+   *
+   * 限速：20次/2s
+   * 限速规则：UserID
+   *
+   * https://www.okx.com/docs-v5/zh/#trading-account-rest-api-get-maximum-tradable-size
+   */
+  getAccountMaxSize = (params: {
+    instId: string;
+    tdMode: string;
+    ccy?: string;
+    px?: string;
+    leverage?: string;
+    tradeQuoteCcy?: string;
+  }): Promise<{
+    code: string;
+    msg: string;
+    data: Array<{
+      instId: string;
+      ccy: string;
+      maxBuy: string;
+      maxSell: string;
+    }>;
+  }> => this.request('GET', '/api/v5/account/max-size', params);
+
+  /**
    * 赚币
    * GET / 查看项目
    *
