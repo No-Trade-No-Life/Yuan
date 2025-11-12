@@ -351,3 +351,40 @@ export const getMarketBooks = (params: {
   }[];
   msg: string;
 }> => publicRequest('GET', '/api/v5/market/books', params);
+
+/**
+ * 获取衍生品仓位档位
+ *
+ * 获取全部仓位档位对应信息
+ *
+ * 限速：10次/2s
+ * 限速规则：IP
+ *
+ * https://www.okx.com/docs-v5/zh/#public-data-rest-api-get-position-tiers
+ */
+export const getPositionTiers = (params: {
+  instType: string;
+  tdMode: string;
+  instFamily?: string;
+  instId?: string;
+  uly?: string;
+  ccy?: string;
+  tier?: string;
+}): Promise<{
+  code: string;
+  msg: string;
+  data: Array<{
+    uly: string;
+    instFamily: string;
+    instId: string;
+    tier: string;
+    minSz: string;
+    maxSz: string;
+    mmr: string;
+    imr: string;
+    maxLever: string;
+    optMgnFactor: string;
+    quoteMaxLoan: string;
+    baseMaxLoan: string;
+  }>;
+}> => publicRequest('GET', '/api/v5/public/position-tiers', params);

@@ -1,28 +1,36 @@
 import { IQuote } from '@yuants/data-quote';
 import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
-import { decodePath, encodePath, listWatch } from '@yuants/utils';
+import { decodePath, encodePath, formatTime, listWatch } from '@yuants/utils';
 import {
   catchError,
+  concatMap,
   defer,
+  distinctUntilChanged,
   EMPTY,
   filter,
+  first,
+  firstValueFrom,
   from,
   groupBy,
   map,
   merge,
   mergeMap,
+  reduce,
   repeat,
   retry,
   scan,
   share,
   shareReplay,
+  switchMap,
   tap,
   toArray,
 } from 'rxjs';
-import { getInstruments, getMarketTickers, getOpenInterest } from './public-api';
+import { getInstruments, getMarketTickers, getOpenInterest, getPositionTiers } from './public-api';
 import { useOpenInterest, useTicker } from './ws';
 // import { useOpenInterest, useTicker } from './websocket';
+
+const terminal = Terminal.fromNodeEnv();
 
 const swapInstruments$ = defer(() => getInstruments({ instType: 'SWAP' })).pipe(
   repeat({ delay: 3600_000 }),
@@ -34,6 +42,14 @@ const spotInstruments$ = defer(() => getInstruments({ instType: 'SPOT' })).pipe(
   repeat({ delay: 3600_000 }),
   retry({ delay: 10_000 }),
   map((x) => x.data),
+  shareReplay(1),
+);
+
+const shallowEqual = (a: string[], b: string[]) => a.length === b.length && a.every((v, i) => v === b[i]);
+
+const spotInstIds$ = spotInstruments$.pipe(
+  map((items) => items.map((item) => item.instId)),
+  distinctUntilChanged(shallowEqual),
   shareReplay(1),
 );
 
@@ -176,12 +192,116 @@ const interestRateOfSwapFromWS$ = swapInstruments$.pipe(
   share(),
 );
 
+type PositionTiersResponse = Awaited<ReturnType<typeof getPositionTiers>>;
+type PositionTiersEntry = PositionTiersResponse['data'];
+
+const marginPositionTiersMap$ = defer(() =>
+  spotInstIds$.pipe(
+    first(),
+    map((instIds) => instIds.filter((id) => id.endsWith('USDT') || id.endsWith('USDC'))),
+    switchMap((instIds) => {
+      const total = instIds.length;
+      let processed = 0;
+      return from(instIds).pipe(
+        concatMap((instId) =>
+          defer(async () => {
+            const tiers = await terminal.client.requestForResponseData<
+              { instType: string; tdMode: string; instId: string },
+              PositionTiersResponse
+            >('OKX/PositionTiers', {
+              instType: 'MARGIN',
+              tdMode: 'cross',
+              instId,
+            });
+            if (!tiers?.data) {
+              throw new Error(`Failed to load position tiers for ${instId}: ${tiers.msg}`);
+            }
+            return {
+              instId,
+              tiers,
+            };
+          }).pipe(retry({ delay: 2000 })),
+        ),
+        reduce((map, { instId, tiers }) => {
+          processed += 1;
+          console.info(
+            formatTime(Date.now()),
+            `Loaded margin position tiers ${processed}/${total} (${instId})`,
+          );
+          if (tiers?.data) {
+            map.set(instId, tiers.data);
+          }
+          return map;
+        }, new Map<string, PositionTiersEntry>()),
+      );
+    }),
+  ),
+).pipe(
+  //
+  retry({ delay: 60_000 }),
+  repeat({ delay: 86400_000 }),
+  shareReplay(1),
+);
+
+// Margin 的 open interest 只依赖 position-tier：
+// 1) 启动时先拉全量 MARGIN 仓位档位并缓存，下次直接命中；
+// 2) 档位内只保留同 tier 杠杆最高的记录；
+// 3) 当前策略只使用 tier=1 的 quoteMaxLoan 作为持仓上限，不再混合 /account/max-size；
+// 4) 每个 instId 60 秒刷新一次，并在接口报错时 10 秒重试。
+const marginOpenInterest$ = spotInstIds$.pipe(
+  mergeMap((instIds) =>
+    from(instIds).pipe(
+      mergeMap((instId) =>
+        defer(async () => {
+          const tiersMap = await firstValueFrom(marginPositionTiersMap$);
+          const tiers = tiersMap.get(instId);
+          if (!tiers?.length) {
+            return null;
+          }
+
+          const tierByLevel = tiers
+            .filter((tier) => !tier.instId || tier.instId === instId)
+            .reduce((mapTierToTierInfo, tierInfo) => {
+              const existing = mapTierToTierInfo.get(tierInfo.tier);
+              if (!existing || +tierInfo.maxLever > +existing.maxLever) {
+                mapTierToTierInfo.set(tierInfo.tier, tierInfo);
+              }
+              return mapTierToTierInfo;
+            }, new Map<string, (typeof tiers)[number]>());
+          // 获取一级杠杆的最大可借贷额度作为持仓量
+          const openInterest = +(tierByLevel.get('1')?.quoteMaxLoan || 0);
+
+          return {
+            instId,
+            openInterest,
+          };
+        }).pipe(retry({ delay: 10_000 }), repeat({ delay: 60_000 })),
+      ),
+    ),
+  ),
+  filter((result): result is { instId: string; openInterest: number } => result !== null),
+  map(({ instId, openInterest }) => {
+    const partial: Partial<IQuote> = {
+      datasource_id: 'OKX',
+      product_id: encodePath('MARGIN', instId),
+    };
+    if (typeof openInterest === 'number' && Number.isFinite(openInterest)) {
+      partial.open_interest = `${openInterest}`;
+    }
+    return partial;
+  }),
+  share(),
+);
+
+marginOpenInterest$.subscribe();
+
 const quoteSources$ = [
   quoteOfSwapFromWs$,
   interestRateOfSwapFromWS$,
   quoteOfSwapFromRest$,
   quoteOfSpotAndMarginFromWs$,
   quoteOfSpotAndMarginFromRest$,
+  marginOpenInterest$,
 ];
 
 const quote$ = defer(() =>
@@ -206,7 +326,7 @@ const quote$ = defer(() =>
 
 // 合并不同来源的数据并进行合并，避免死锁
 if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
-  Terminal.fromNodeEnv().channel.publishChannel('quote', { pattern: `^OKX/` }, (channel_id) => {
+  terminal.channel.publishChannel('quote', { pattern: `^OKX/` }, (channel_id) => {
     const [datasource_id, product_id] = decodePath(channel_id);
     if (!datasource_id) {
       throw 'datasource_id is required';
@@ -220,7 +340,7 @@ if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
   quote$
     .pipe(
       writeToSQL({
-        terminal: Terminal.fromNodeEnv(),
+        terminal,
         writeInterval: 1000,
         tableName: 'quote',
         conflictKeys: ['datasource_id', 'product_id'],
