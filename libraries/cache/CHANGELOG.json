@@ -2,6 +2,23 @@
   "name": "@yuants/cache",
   "entries": [
     {
+      "version": "0.3.0",
+      "tag": "@yuants/cache_v0.3.0",
+      "date": "Wed, 12 Nov 2025 21:50:44 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "support swr"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.4",
       "tag": "@yuants/cache_v0.2.4",
       "date": "Wed, 12 Nov 2025 17:32:29 GMT",
