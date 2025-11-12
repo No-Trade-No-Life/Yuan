@@ -350,6 +350,6 @@ if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
 }
 
 export const swapOpenInterest$ = defer(() => swapOpenInterests$).pipe(
-  map((x) => new Map(x.data.map((x: any) => [x.instId, +x.oi] as const))),
+  map((x) => new Map(x.data.map((x) => [x.instId, +x.oi] as const))),
   shareReplay(1),
 );

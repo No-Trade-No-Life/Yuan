@@ -3,7 +3,7 @@ import { formatTime } from '@yuants/utils';
 /**
  * 基础公共请求函数
  */
-async function publicRequest(method: string, path: string, params?: any) {
+async function publicRequest(method: string, path: string, params?: Record<string, string>) {
   const url = new URL('https://www.okx.com');
   url.pathname = path;
   if (method === 'GET') {

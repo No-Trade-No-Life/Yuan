@@ -3,19 +3,30 @@ import { providePendingOrdersService } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
 import { defer, filter, firstValueFrom, map, repeat, retry, shareReplay } from 'rxjs';
-import { client } from './api';
+import {
+  getAccountConfig,
+  getAccountBalance,
+  getAccountPositions,
+  getAssetBalances,
+  getFinanceSavingsBalance,
+  getSubAccountList,
+  getDefaultCredential,
+  getTradeOrdersPending,
+} from './api';
 import { productService } from './product';
 import { getMarketIndexTicker } from './public-api';
 
 const terminal = Terminal.fromNodeEnv();
 
-export const accountConfig$ = defer(() => client.getAccountConfig()).pipe(
+const credential = getDefaultCredential();
+
+export const accountConfig$ = defer(() => getAccountConfig(credential)).pipe(
   repeat({ delay: 10_000 }),
   retry({ delay: 10_000 }),
   shareReplay(1),
 );
 
-const subAccountUids$ = defer(() => client.getSubAccountList()).pipe(
+const subAccountUids$ = defer(() => getSubAccountList(credential)).pipe(
   repeat({ delay: 10_000 }),
   retry({ delay: 10_000 }),
   shareReplay(1),
@@ -34,7 +45,7 @@ defer(async () => {
     terminal,
     account_id,
     async () => {
-      const orders = await client.getTradeOrdersPending({});
+      const orders = await getTradeOrdersPending(credential, {});
       return orders.data.map((x) => {
         const order_type = x.ordType === 'market' ? 'MARKET' : x.ordType === 'limit' ? 'LIMIT' : 'UNKNOWN';
 
@@ -90,8 +101,8 @@ defer(async () => {
     tradingAccountId,
     async () => {
       const [positionsApi, balanceApi, mapProductIdToProduct, marketIndexTickerUSDT] = await Promise.all([
-        client.getAccountPositions({}),
-        client.getAccountBalance({}),
+        getAccountPositions(credential, {}),
+        getAccountBalance(credential, {}),
         firstValueFrom(productService.mapProductIdToProduct$),
         firstValueFrom(marketIndexTickerUSDT$),
       ]);
@@ -182,7 +193,7 @@ defer(async () => {
     fundingAccountId,
     async () => {
       const [assetBalances, marketIndexTickerUSDT] = await Promise.all([
-        client.getAssetBalances({}),
+        getAssetBalances(credential, {}),
         firstValueFrom(marketIndexTickerUSDT$),
       ]);
 
@@ -238,7 +249,7 @@ defer(async () => {
     terminal,
     earningAccountId,
     async () => {
-      const offers = await client.getFinanceSavingsBalance({});
+      const offers = await getFinanceSavingsBalance(credential, {});
       const equity = offers.data.filter((x) => x.ccy === 'USDT').reduce((acc, x) => acc + +x.amt, 0);
       const free = equity;
       return {

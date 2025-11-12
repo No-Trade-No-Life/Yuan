@@ -3,17 +3,18 @@ import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
 import { defer, firstValueFrom } from 'rxjs';
 import { accountUid$ } from './account';
-import { client } from './api';
+import { getDefaultCredential, getFlexibleLoanInfo } from './api';
 
 defer(async () => {
   const uid = await firstValueFrom(accountUid$);
   const loanAccountId = `okx/${uid}/loan/USDT`;
+  const credential = getDefaultCredential();
 
   provideAccountInfoService(
     Terminal.fromNodeEnv(),
     loanAccountId,
     async () => {
-      const res = await client.getFlexibleLoanInfo();
+      const res = await getFlexibleLoanInfo(credential);
       const data = res.data[0];
 
       const positions: IPosition[] = [];
