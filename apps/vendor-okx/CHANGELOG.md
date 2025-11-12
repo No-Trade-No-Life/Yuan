@@ -1,6 +1,14 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Wed, 12 Nov 2025 17:32:29 GMT and should not be manually modified.
+This log was last generated on Wed, 12 Nov 2025 21:50:44 GMT and should not be manually modified.
+
+## 0.23.26
+Wed, 12 Nov 2025 21:50:44 GMT
+
+### Patches
+
+- extract stateless helpers of order actions
+- refactor account info services and add new account info retrieval methods
 
 ## 0.23.25
 Wed, 12 Nov 2025 17:32:29 GMT

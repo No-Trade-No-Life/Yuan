@@ -1,6 +1,13 @@
 # Change Log - @yuants/cache
 
-This log was last generated on Wed, 12 Nov 2025 17:32:29 GMT and should not be manually modified.
+This log was last generated on Wed, 12 Nov 2025 21:50:44 GMT and should not be manually modified.
+
+## 0.3.0
+Wed, 12 Nov 2025 21:50:44 GMT
+
+### Minor changes
+
+- support swr
 
 ## 0.2.4
 Wed, 12 Nov 2025 17:32:29 GMT
