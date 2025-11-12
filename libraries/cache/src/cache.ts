@@ -1,5 +1,3 @@
-import { defer, repeat, retry, timer } from 'rxjs';
-
 /**
  * Cache Interface
  * @public
@@ -70,31 +68,6 @@ export const createCache = <T>(
 
     return expired;
   };
-
-  const clearExpiredData = () => {
-    const t = Date.now();
-    let clearedCount = 0;
-    for (const [k, v] of Object.entries(mapKeyToExpireTime)) {
-      if (t > v) {
-        clearedCount++;
-        delete mapKeyToData[k];
-        delete mapKeyToExpireTime[k];
-      }
-    }
-    return clearedCount;
-  };
-
-  defer(async () => {
-    const cleared = clearExpiredData();
-    if (cleared === 0) throw new Error('No expired data found to clear');
-  })
-    .pipe(
-      // 指数退避重试
-      // 最长等待时间为 1 小时，初始延迟为 30秒，指数增长
-      retry({ delay: (err, count) => timer(Math.min(3600_000, 30_000 * 2 ** count)) }),
-      repeat({ delay: 30_000 }),
-    )
-    .subscribe();
 
   return {
     stats,
