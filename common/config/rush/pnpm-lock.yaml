@@ -1268,6 +1268,7 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/node': '22'
       '@types/ws': ~8.5.3
+      '@yuants/cache': workspace:*
       '@yuants/data-account': workspace:*
       '@yuants/data-interest-rate': workspace:*
       '@yuants/data-ohlc': workspace:*
@@ -1288,6 +1289,7 @@ importers:
       typescript: ~4.7.4
       ws: ~8.8.1
     dependencies:
+      '@yuants/cache': link:../../libraries/cache
       '@yuants/data-account': link:../../libraries/data-account
       '@yuants/data-interest-rate': link:../../libraries/data-interest-rate
       '@yuants/data-ohlc': link:../../libraries/data-ohlc
@@ -2438,8 +2440,8 @@ importers:
       fs-extra: ~11.2.0
       rxjs: ~7.5.6
       toml: ~3.0.0
-      yaml: ~2.4.1
       typescript: ~4.7.4
+      yaml: ~2.4.1
     dependencies:
       '@yuants/deploy': link:../../libraries/deploy
       '@yuants/protocol': link:../../libraries/protocol
@@ -7631,6 +7633,7 @@ packages:
 
   /@types/js-yaml/4.0.9:
     resolution: {integrity: sha512-k4MGaQl5TGo/iipqb2UDG2UwjXziSWkh0uysQelTlJpX1qGlpUZYm8PnO4DxG1qBomtJUdYJ6qR6xdIah10JLg==}
+    dev: false
 
   /@types/json-schema/7.0.11:
     resolution: {integrity: sha512-wOuvG1SN4Us4rez+tylwwwCV1psiNVOkJeM3AUWUNWg/jDQY2+HE/444y5gc+jBmRqASOm2Oeh5c1axHobwRKQ==}
@@ -9433,11 +9436,6 @@ packages:
   /commander/10.0.0:
     resolution: {integrity: sha512-zS5PnTI22FIRM6ylNW8G4Ap0IEOyk62fhLSD0+uHRT9McRCLGpkVNvao4bjimpK/GShynyQkFFxHhwMcETmduA==}
     engines: {node: '>=14'}
-    dev: false
-
-  /commander/12.1.0:
-    resolution: {integrity: sha512-Vw8qHK3bZM9y/P10u3Vib8o/DdkvA2OtPtZvD871QKjy74Wj1WSKFILMPRPSdUSx5RFK1arlJzEtA4PkFgnbuA==}
-    engines: {node: '>=18'}
     dev: false
 
   /commander/2.20.3:
