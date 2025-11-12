@@ -23,6 +23,7 @@ export interface ICache<T> {
 export interface ICacheOptions<T> {
     expire?: number;
     readLocal?: (key: string) => Promise<T | undefined>;
+    swrAfter?: number;
     writeLocal?: (key: string, data: T) => Promise<void>;
 }
 

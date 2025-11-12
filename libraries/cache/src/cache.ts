@@ -18,8 +18,15 @@ export interface ICacheOptions<T> {
   readLocal?: (key: string) => Promise<T | undefined>;
   /** 可选的本地数据写入函数，如果存在则在获取到远程数据后同步到本地 */
   writeLocal?: (key: string, data: T) => Promise<void>;
-  /** 可选的数据过期时间（毫秒） */
+  /**
+   * 可选的数据过期时间（毫秒），在此时间后旧数据完全无法读取
+   */
   expire?: number;
+  /**
+   * 可选的缓存预刷新时间（毫秒），在此时间内数据过期时会触发后台刷新，但立即仍然返回旧数据
+   * 通常而言，应当设置为小于 `expire` 的值，以实现类似 HTTP 的 stale-while-revalidate 语义
+   */
+  swrAfter?: number;
 }
 
 /**
@@ -43,7 +50,7 @@ export const createCache = <T>(
   const mapKeyToReadStoragePromise: Record<string, Promise<T | undefined>> = {};
   const mapKeyToWriteStoragePromise: Record<string, Promise<void>> = {};
   const mapKeyToData: Record<string, T> = {};
-  const mapKeyToExpireTime: Record<string, number> = {};
+  const mapKeyToSetTime: Record<string, number> = {};
 
   const stats = {
     readLocal: 0,
@@ -56,19 +63,82 @@ export const createCache = <T>(
 
   // Helper function to check if a key has expired
   const checkExpired = (key: string): boolean => {
-    if (!options?.expire || !(key in mapKeyToExpireTime)) return false;
+    if (!options?.expire || !(key in mapKeyToSetTime)) return false;
 
     stats.expire_check++;
-    const expired = Date.now() > mapKeyToExpireTime[key];
+    const expired = Date.now() > mapKeyToSetTime[key] + options.expire;
 
     if (expired) {
       delete mapKeyToData[key];
-      delete mapKeyToExpireTime[key];
+      delete mapKeyToSetTime[key];
     }
 
     return expired;
   };
 
+  const set = (key: string, data: T): void => {
+    mapKeyToData[key] = data;
+    mapKeyToSetTime[key] = Date.now();
+  };
+
+  const query = async (key: string, force_update: boolean | undefined = false): Promise<T | undefined> => {
+    stats.query++;
+
+    if (!force_update) {
+      // Check if the key has expired, if not expired and data exists, return it
+      if (!checkExpired(key) && mapKeyToData[key]) {
+        if (options?.swrAfter && Date.now() > mapKeyToSetTime[key] + options.swrAfter) {
+          // Trigger background refresh if within stale-while-revalidate window
+          query(key, true).catch(() => {});
+        }
+        return mapKeyToData[key];
+      }
+
+      const readLocal = options?.readLocal;
+      if (readLocal) {
+        const data = await (mapKeyToReadStoragePromise[key] ??= new Promise<void>((resolve) => {
+          stats.readLocal++;
+          resolve();
+        })
+          .then(() => readLocal(key))
+          .catch(() => undefined));
+        delete mapKeyToReadStoragePromise[key];
+        if (data) {
+          set(key, data);
+          return data;
+        }
+      }
+    } else {
+      stats.force_update++;
+    }
+
+    const data = await (mapKeyToReadRemotePromise[key] ??= new Promise<void>((resolve) => {
+      stats.readRemote++;
+      resolve();
+    })
+      .then(() => readRemote(key, force_update))
+      .catch(() => undefined));
+    delete mapKeyToReadRemotePromise[key];
+
+    if (!data) {
+      return undefined;
+    }
+
+    const writeLocal = options?.writeLocal;
+    if (writeLocal) {
+      await (mapKeyToWriteStoragePromise[key] ??= new Promise<void>((resolve) => {
+        stats.writeLocal++;
+        resolve();
+      })
+        .then(() => writeLocal(key, data))
+        .catch(() => {}));
+      delete mapKeyToWriteStoragePromise[key];
+    }
+
+    set(key, data);
+
+    return data;
+  };
   return {
     stats,
     get: (key: string): T | undefined => {
@@ -76,69 +146,7 @@ export const createCache = <T>(
       if (checkExpired(key)) return undefined;
       return mapKeyToData[key];
     },
-    set: (key: string, data: T): void => {
-      mapKeyToData[key] = data;
-      if (options?.expire) {
-        mapKeyToExpireTime[key] = Date.now() + options.expire;
-      }
-    },
-    query: async (key: string, force_update = false): Promise<T | undefined> => {
-      stats.query++;
-
-      if (!force_update) {
-        // Check if the key has expired, if not expired and data exists, return it
-        if (!checkExpired(key) && mapKeyToData[key]) return mapKeyToData[key];
-
-        const readLocal = options?.readLocal;
-        if (readLocal) {
-          const data = await (mapKeyToReadStoragePromise[key] ??= new Promise<void>((resolve) => {
-            stats.readLocal++;
-            resolve();
-          })
-            .then(() => readLocal(key))
-            .catch(() => undefined));
-          delete mapKeyToReadStoragePromise[key];
-          if (data) {
-            mapKeyToData[key] = data;
-            if (options.expire) {
-              mapKeyToExpireTime[key] = Date.now() + options.expire;
-            }
-            return data;
-          }
-        }
-      } else {
-        stats.force_update++;
-      }
-
-      const data = await (mapKeyToReadRemotePromise[key] ??= new Promise<void>((resolve) => {
-        stats.readRemote++;
-        resolve();
-      })
-        .then(() => readRemote(key, force_update))
-        .catch(() => undefined));
-      delete mapKeyToReadRemotePromise[key];
-
-      if (!data) {
-        return undefined;
-      }
-
-      const writeLocal = options?.writeLocal;
-      if (writeLocal) {
-        await (mapKeyToWriteStoragePromise[key] ??= new Promise<void>((resolve) => {
-          stats.writeLocal++;
-          resolve();
-        })
-          .then(() => writeLocal(key, data))
-          .catch(() => {}));
-        delete mapKeyToWriteStoragePromise[key];
-      }
-
-      mapKeyToData[key] = data;
-      if (options?.expire) {
-        mapKeyToExpireTime[key] = Date.now() + options.expire;
-      }
-
-      return data;
-    },
+    set,
+    query,
   };
 };
