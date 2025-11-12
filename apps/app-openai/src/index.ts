@@ -48,6 +48,21 @@ terminal.server.provideService<
         type: 'string',
         enum: availableModels,
       },
+      messages: {
+        type: 'array',
+        items: {
+          type: 'object',
+          properties: {
+            role: {
+              type: 'string',
+              enum: ['system', 'user', 'assistant'],
+            },
+            content: {
+              type: 'string',
+            },
+          },
+        },
+      },
     },
   },
   async function* (msg, { isAborted$ }) {
