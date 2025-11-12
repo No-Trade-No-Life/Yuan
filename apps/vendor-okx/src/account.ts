@@ -4,13 +4,12 @@ import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
 import { defer, filter, firstValueFrom, map, repeat, retry, shareReplay } from 'rxjs';
 import {
-  getAccountConfig,
   getAccountBalance,
+  getAccountConfig,
   getAccountPositions,
   getAssetBalances,
-  getFinanceSavingsBalance,
-  getSubAccountList,
   getDefaultCredential,
+  getFinanceSavingsBalance,
   getTradeOrdersPending,
 } from './api';
 import { productService } from './product';
@@ -21,12 +20,6 @@ const terminal = Terminal.fromNodeEnv();
 const credential = getDefaultCredential();
 
 export const accountConfig$ = defer(() => getAccountConfig(credential)).pipe(
-  repeat({ delay: 10_000 }),
-  retry({ delay: 10_000 }),
-  shareReplay(1),
-);
-
-const subAccountUids$ = defer(() => getSubAccountList(credential)).pipe(
   repeat({ delay: 10_000 }),
   retry({ delay: 10_000 }),
   shareReplay(1),
