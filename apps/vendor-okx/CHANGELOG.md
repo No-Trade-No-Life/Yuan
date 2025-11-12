@@ -1,6 +1,14 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Mon, 10 Nov 2025 15:12:36 GMT and should not be manually modified.
+This log was last generated on Wed, 12 Nov 2025 07:50:09 GMT and should not be manually modified.
+
+## 0.23.24
+Wed, 12 Nov 2025 07:50:09 GMT
+
+### Patches
+
+- extract public api
+- add open interest for margin
 
 ## 0.23.23
 Mon, 10 Nov 2025 15:12:36 GMT
