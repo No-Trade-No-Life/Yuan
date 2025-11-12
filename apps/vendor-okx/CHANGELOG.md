@@ -1,6 +1,14 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Wed, 12 Nov 2025 07:50:09 GMT and should not be manually modified.
+This log was last generated on Wed, 12 Nov 2025 17:32:29 GMT and should not be manually modified.
+
+## 0.23.25
+Wed, 12 Nov 2025 17:32:29 GMT
+
+### Patches
+
+- refactor private api
+- refactor
 
 ## 0.23.24
 Wed, 12 Nov 2025 07:50:09 GMT

@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-openai
 
-This log was last generated on Wed, 12 Nov 2025 07:50:09 GMT and should not be manually modified.
+This log was last generated on Wed, 12 Nov 2025 17:32:29 GMT and should not be manually modified.
+
+## 0.2.1
+Wed, 12 Nov 2025 17:32:29 GMT
+
+### Patches
+
+- add schema
 
 ## 0.2.0
 Wed, 12 Nov 2025 07:50:09 GMT
