@@ -68,7 +68,7 @@ class OKXWsClient {
   }
 
   // 处理消息
-  handleMessage(raw: any) {
+  handleMessage(raw: { data: string }) {
     if (raw.data === 'pong') {
       return;
     }

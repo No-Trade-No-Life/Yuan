@@ -16,7 +16,7 @@ import {
   tap,
 } from 'rxjs';
 import { accountUid$ } from './account';
-import { client } from './api';
+import { getDefaultCredential, getTradeOrdersHistory, getTradeOrdersPending } from './api';
 
 export const order$ = new Subject<IOrder>();
 
@@ -112,17 +112,13 @@ const makeOrder = (
   const FUNDING_ACCOUNT_ID = `okx/${uid}/funding/USDT`;
   const EARNING_ACCOUNT_ID = `okx/${uid}/earning/USDT`;
 
-  const swapHistoryOrders = defer(() => client.getTradeOrdersHistory({ instType: 'SWAP' })).pipe(
-    repeat({ delay: 1000 }),
-    retry({ delay: 1000 }),
-    shareReplay(1),
-  );
+  const swapHistoryOrders = defer(() =>
+    getTradeOrdersHistory(getDefaultCredential(), { instType: 'SWAP' }),
+  ).pipe(repeat({ delay: 1000 }), retry({ delay: 1000 }), shareReplay(1));
 
-  const swapPendingOrders = defer(() => client.getTradeOrdersPending({ instType: 'SWAP' })).pipe(
-    repeat({ delay: 1000 }),
-    retry({ delay: 1000 }),
-    shareReplay(1),
-  );
+  const swapPendingOrders = defer(() =>
+    getTradeOrdersPending(getDefaultCredential(), { instType: 'SWAP' }),
+  ).pipe(repeat({ delay: 1000 }), retry({ delay: 1000 }), shareReplay(1));
 
   const ordersFromHistoryOrder$ = swapHistoryOrders.pipe(
     //

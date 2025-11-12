@@ -4,7 +4,20 @@ import { addAccountTransferAddress } from '@yuants/transfer';
 import { decodePath, encodePath, formatTime, roundToStep } from '@yuants/utils';
 import { defer, filter, firstValueFrom, from, map, mergeMap, repeat, retry, shareReplay } from 'rxjs';
 import { accountConfig$, tradingAccountId$ } from './account';
-import { client } from './api';
+import {
+  getDefaultCredential,
+  getAssetCurrencies,
+  getAssetDepositAddress,
+  postAssetWithdrawal,
+  getAssetWithdrawalHistory,
+  getAssetDepositHistory,
+  postAssetTransfer,
+  postFinanceSavingsPurchaseRedempt,
+  getSubAccountList,
+  postTradeOrder,
+  postTradeAmendOrder,
+  postTradeCancelOrder,
+} from './api';
 import { productService } from './product';
 import { getFundingRate, getInterestRateLoanQuota } from './public-api';
 import { spotMarketTickers$ } from './quote';
@@ -13,7 +26,9 @@ const terminal = Terminal.fromNodeEnv();
 
 console.info(formatTime(Date.now()), 'Terminal', terminal.terminalInfo.terminal_id);
 
-const resOfAssetCurrencies = defer(() => client.getAssetCurrencies()).pipe(
+const credential = getDefaultCredential();
+
+const resOfAssetCurrencies = defer(() => getAssetCurrencies(credential)).pipe(
   repeat({ delay: 3600_000 }),
   retry({ delay: 10_000 }),
   shareReplay(1),
@@ -21,9 +36,9 @@ const resOfAssetCurrencies = defer(() => client.getAssetCurrencies()).pipe(
 
 resOfAssetCurrencies.subscribe(); // make it hot
 
-const memoizeMap = <T extends (...params: any[]) => any>(fn: T): T => {
-  const cache: Record<string, any> = {};
-  return ((...params: any[]) => (cache[encodePath(params)] ??= fn(...params))) as T;
+const memoizeMap = <T extends (...params: string[]) => unknown>(fn: T): T => {
+  const cache: Record<string, unknown> = {};
+  return ((...params: string[]) => (cache[encodePath(params)] ??= fn(...params))) as T;
 };
 
 const fundingRate$ = memoizeMap((product_id: string) =>
@@ -54,80 +69,6 @@ const interestRateByCurrency$ = memoizeMap((currency: string) =>
   ),
 );
 
-// provideTicks(terminal, 'OKX', (product_id) => {
-//   const [instType, instId] = decodePath(product_id);
-//   if (instType === 'SWAP') {
-//     return defer(async () => {
-//       const products = await firstValueFrom(usdtSwapProducts$);
-//       const theProduct = products.find((x) => x.product_id === product_id);
-//       if (!theProduct) throw `No Found ProductID ${product_id}`;
-//       const theTicker$ = swapMarketTickers$.pipe(
-//         map((x) => x[instId]),
-//         shareReplay(1),
-//       );
-//       return [of(theProduct), theTicker$, fundingRate$(product_id), swapOpenInterest$] as const;
-//     }).pipe(
-//       catchError(() => EMPTY),
-//       mergeMap((x) =>
-//         combineLatest(x).pipe(
-//           map(([theProduct, ticker, fundingRate, swapOpenInterest]): ITick => {
-//             return {
-//               datasource_id: 'OKX',
-//               product_id,
-//               updated_at: Date.now(),
-//               settlement_scheduled_at: +fundingRate.fundingTime,
-//               price: +ticker.last,
-//               ask: +ticker.askPx,
-//               bid: +ticker.bidPx,
-//               volume: +ticker.lastSz,
-//               interest_rate_for_long: -+fundingRate.fundingRate,
-//               interest_rate_for_short: +fundingRate.fundingRate,
-//               open_interest: swapOpenInterest.get(instId),
-//             };
-//           }),
-//         ),
-//       ),
-//     );
-//   }
-//   if (instType === 'MARGIN') {
-//     return defer(async () => {
-//       const products = await firstValueFrom(marginProducts$);
-//       const theProduct = products.find((x) => x.product_id === product_id);
-//       if (!theProduct) throw `No Found ProductID ${product_id}`;
-//       const theTicker$ = spotMarketTickers$.pipe(
-//         map((x) => x[instId]),
-//         shareReplay(1),
-//       );
-//       return [
-//         of(theProduct),
-//         theTicker$,
-//         interestRateByCurrency$(theProduct.base_currency!),
-//         interestRateByCurrency$(theProduct.quote_currency!),
-//       ] as const;
-//     }).pipe(
-//       catchError(() => EMPTY),
-//       mergeMap((x) =>
-//         combineLatest(x).pipe(
-//           map(
-//             ([theProduct, ticker, interestRateForBase, interestRateForQuote]): ITick => ({
-//               datasource_id: 'OKX',
-//               product_id,
-//               updated_at: Date.now(),
-//               price: +ticker.last,
-//               volume: +ticker.lastSz,
-//               // 在下一个整点扣除利息 See 如何计算利息 https://www.okx.com/zh-hans/help/how-to-calculate-borrowing-interest
-//               settlement_scheduled_at: new Date().setMinutes(0, 0, 0) + 3600_000,
-//               interest_rate_for_long: -interestRateForQuote / 24,
-//               interest_rate_for_short: -interestRateForBase / 24,
-//             }),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-//   return EMPTY;
-// });
-
 defer(async () => {
   const account_config = await firstValueFrom(accountConfig$);
   console.info(formatTime(Date.now()), 'AccountConfig', JSON.stringify(account_config));
@@ -140,7 +81,7 @@ defer(async () => {
 
   // BLOCK_CHAIN: only available for main account
   if (isMainAccount) {
-    const depositAddressRes = await client.getAssetDepositAddress({ ccy: 'USDT' });
+    const depositAddressRes = await getAssetDepositAddress(credential, { ccy: 'USDT' });
     console.info(formatTime(Date.now()), 'DepositAddress', JSON.stringify(depositAddressRes.data));
     const addresses = depositAddressRes.data.filter((v) => v.chain === 'USDT-TRC20' && v.to === '6');
     for (const address of addresses) {
@@ -164,7 +105,7 @@ defer(async () => {
             if (!_fee) return { state: 'ERROR', message: 'Currency Info not found, cannot get fee' };
             const fee = +_fee;
             const amt = Math.floor(order.current_amount - fee);
-            const transferResult = await client.postAssetWithdrawal({
+            const transferResult = await postAssetWithdrawal(credential, {
               amt: `${amt}`,
               ccy: 'USDT',
               chain: 'USDT-TRC20',
@@ -180,7 +121,7 @@ defer(async () => {
           },
           AWAIT_TX_ID: async (transferOrder) => {
             const wdId = transferOrder.current_tx_context;
-            const withdrawalHistory = await client.getAssetWithdrawalHistory({ wdId });
+            const withdrawalHistory = await getAssetWithdrawalHistory(credential, { wdId });
             const txId = withdrawalHistory.data?.[0]?.txId;
             if (!txId) {
               return { state: 'AWAIT_TX_ID', context: wdId };
@@ -189,7 +130,7 @@ defer(async () => {
           },
         },
         onEval: async (transferOrder) => {
-          const checkResult = await client.getAssetDepositHistory({
+          const checkResult = await getAssetDepositHistory(credential, {
             ccy: 'USDT',
             txId: transferOrder.current_transaction_id,
             type: '4',
@@ -222,7 +163,7 @@ defer(async () => {
       address: 'funding',
       onApply: {
         INIT: async (order) => {
-          const transferResult = await client.postAssetTransfer({
+          const transferResult = await postAssetTransfer(credential, {
             type: '0',
             ccy: 'USDT',
             amt: `${order.current_amount}`,
@@ -248,7 +189,7 @@ defer(async () => {
       address: 'trading',
       onApply: {
         INIT: async (order) => {
-          const transferResult = await client.postAssetTransfer({
+          const transferResult = await postAssetTransfer(credential, {
             type: '0',
             ccy: order.currency,
             amt: `${order.current_amount}`,
@@ -278,7 +219,7 @@ defer(async () => {
       address: 'funding',
       onApply: {
         INIT: async (order) => {
-          const transferResult = await client.postFinanceSavingsPurchaseRedempt({
+          const transferResult = await postFinanceSavingsPurchaseRedempt(credential, {
             ccy: 'USDT',
             amt: `${order.current_amount}`,
             side: 'purchase',
@@ -302,7 +243,7 @@ defer(async () => {
       address: 'earning',
       onApply: {
         INIT: async (order) => {
-          const transferResult = await client.postFinanceSavingsPurchaseRedempt({
+          const transferResult = await postFinanceSavingsPurchaseRedempt(credential, {
             ccy: 'USDT',
             amt: `${order.current_amount}`,
             side: 'redempt',
@@ -324,7 +265,7 @@ defer(async () => {
   {
     const getSubAccountNetworkId = (subUid: string) => `OKX/${mainUid}/SubAccount/${subUid}`;
     if (isMainAccount) {
-      const subAcctsRes = await client.getSubAccountList();
+      const subAcctsRes = await getSubAccountList(credential);
       for (const item of subAcctsRes.data || []) {
         addAccountTransferAddress({
           terminal,
@@ -334,7 +275,7 @@ defer(async () => {
           address: 'main',
           onApply: {
             INIT: async (order) => {
-              const transferResult = await client.postAssetTransfer({
+              const transferResult = await postAssetTransfer(credential, {
                 type: '1',
                 ccy: 'USDT',
                 amt: `${order.current_amount}`,
@@ -373,7 +314,7 @@ defer(async () => {
         address: 'sub',
         onApply: {
           INIT: async (order) => {
-            const transferResult = await client.postAssetTransfer({
+            const transferResult = await postAssetTransfer(credential, {
               type: '3',
               ccy: 'USDT',
               amt: `${order.current_amount}`,
@@ -525,7 +466,7 @@ defer(async () => {
         ccy: instType === 'MARGIN' ? 'USDT' : undefined,
       };
       console.info(formatTime(Date.now()), 'SubmitOrder', 'params', JSON.stringify(params));
-      const res = await client.postTradeOrder(params);
+      const res = await postTradeOrder(credential, params);
       if (res.code === '0' && res.data?.[0]?.ordId) {
         return {
           res: {
@@ -554,9 +495,14 @@ defer(async () => {
       const order = msg.req;
       const [instType, instId] = decodePath(order.product_id);
 
-      const params: any = {
+      const params: {
+        instId: string;
+        ordId: string;
+        newPx?: string;
+        newSz?: string;
+      } = {
         instId,
-        ordId: order.order_id, // 使用现有订单ID
+        ordId: order.order_id!, // 使用现有订单ID
       };
 
       // 如果需要修改价格
@@ -608,7 +554,7 @@ defer(async () => {
 
       console.info(formatTime(Date.now()), 'ModifyOrder', 'params', JSON.stringify(params));
 
-      const res = await client.postTradeAmendOrder(params);
+      const res = await postTradeAmendOrder(credential, params);
       if (res.code !== '0') {
         return {
           res: {
@@ -634,9 +580,9 @@ defer(async () => {
       defer(async () => {
         const order = msg.req;
         const [instType, instId] = decodePath(order.product_id);
-        const res = await client.postTradeCancelOrder({
+        const res = await postTradeCancelOrder(credential, {
           instId,
-          ordId: order.order_id,
+          ordId: order.order_id!,
         });
         if (res.code !== '0') {
           return { res: { code: +res.code, message: res.msg } };

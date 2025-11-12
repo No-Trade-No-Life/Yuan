@@ -1,14 +1,16 @@
-import { defer, first, of, repeat, retry, tap, timeout } from 'rxjs';
-import { client } from './api';
-import { ITrade } from '@yuants/data-trade';
-import { accountUid$ } from './account';
-import { encodePath, formatTime } from '@yuants/utils';
-import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
-import { Terminal } from '@yuants/protocol';
 import { IProduct } from '@yuants/data-product';
+import { ITrade } from '@yuants/data-trade';
+import { Terminal } from '@yuants/protocol';
+import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
+import { encodePath, formatTime } from '@yuants/utils';
+import { defer, first, repeat, retry, tap, timeout } from 'rxjs';
+import { accountUid$ } from './account';
+import { getAccountBillsArchive, getDefaultCredential } from './api';
+
 const tradeParser = async (accountId: string, params: Record<string, string>): Promise<ITrade[]> => {
   const tradeList: ITrade[] = [];
-  const result = await client.getAccountBillsArchive(params);
+  const credential = getDefaultCredential();
+  const result = await getAccountBillsArchive(credential, params);
   const productIdToProduct = new Map<string, IProduct>();
   const productIdSet = new Set<string>();
   if (result.code === '0' && result.data) {

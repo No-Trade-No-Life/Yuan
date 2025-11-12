@@ -2,11 +2,12 @@ import { addAccountMarket, IPosition, provideAccountInfoService } from '@yuants/
 import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
 import { defer, filter, first, firstValueFrom, map, repeat, retry, shareReplay } from 'rxjs';
-import { client } from './api';
+import { getAccountConfig, getDefaultCredential, getGridOrdersAlgoPending, getGridPositions } from './api';
 
 const terminal = Terminal.fromNodeEnv();
+const credential = getDefaultCredential();
 
-export const accountConfig$ = defer(() => client.getAccountConfig()).pipe(
+export const accountConfig$ = defer(() => getAccountConfig(credential)).pipe(
   repeat({ delay: 10_000 }),
   retry({ delay: 10_000 }),
   shareReplay(1),
@@ -30,7 +31,7 @@ defer(async () => {
 
   terminal.server.provideService<
     { account_id: string; algoId: string },
-    InferPromise<ReturnType<typeof client.getGridPositions>>
+    InferPromise<ReturnType<typeof getGridPositions>>
   >(
     `OKX/QueryGridPositions`,
     {
@@ -46,7 +47,7 @@ defer(async () => {
         res: {
           code: 0,
           message: 'OK',
-          data: await client.getGridPositions({ algoOrdType: 'contract_grid', algoId: msg.req.algoId }),
+          data: await getGridPositions(credential, { algoOrdType: 'contract_grid', algoId: msg.req.algoId }),
         },
       };
     },
@@ -62,7 +63,7 @@ defer(async () => {
     async () => {
       // TODO: 需要分页获取所有的网格订单 (每页 100 条)
       const [gridAlgoOrders] = await Promise.all([
-        client.getGridOrdersAlgoPending({
+        getGridOrdersAlgoPending(credential, {
           algoOrdType: 'contract_grid',
         }),
       ]);
@@ -74,7 +75,7 @@ defer(async () => {
         gridAlgoOrders.data.map((item) =>
           terminal.client.requestForResponseData<
             { account_id: string; algoId: string },
-            InferPromise<ReturnType<typeof client.getGridPositions>>
+            InferPromise<ReturnType<typeof getGridPositions>>
           >('OKX/QueryGridPositions', {
             account_id: strategyAccountId,
             algoId: item.algoId,
