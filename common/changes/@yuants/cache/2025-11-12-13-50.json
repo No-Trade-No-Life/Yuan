@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/cache",
+      "comment": "clear auto removal of cache",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/cache"
+}
