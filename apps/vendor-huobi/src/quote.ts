@@ -3,9 +3,14 @@ import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { encodePath, formatTime } from '@yuants/utils';
 import { defer, from, groupBy, map, merge, mergeMap, repeat, retry, scan, shareReplay, toArray } from 'rxjs';
-import { client } from './api';
+import {
+  getSwapBatchFundingRate,
+  getSwapMarketBbo,
+  getSwapMarketTrade,
+  getSwapOpenInterest,
+} from './api/public-api';
 
-const swapBboTick$ = defer(() => client.getSwapMarketBbo({})).pipe(
+const swapBboTick$ = defer(() => getSwapMarketBbo({})).pipe(
   repeat({ delay: 1000 }),
   retry({ delay: 1000 }),
   shareReplay(1),
@@ -41,7 +46,7 @@ const mapSwapContractCodeToBboTick$ = defer(() => swapBboTick$).pipe(
   shareReplay(1),
 );
 
-const swapTradeTick$ = defer(() => client.getSwapMarketTrade({})).pipe(
+const swapTradeTick$ = defer(() => getSwapMarketTrade({})).pipe(
   repeat({ delay: 1000 }),
   retry({ delay: 1000 }),
   shareReplay(1),
@@ -71,7 +76,7 @@ const mapSwapContractCodeToTradeTick$ = defer(() => swapTradeTick$).pipe(
   retry({ delay: 1000 }),
   shareReplay(1),
 );
-const swapFundingRateTick$ = defer(() => client.getSwapBatchFundingRate({})).pipe(
+const swapFundingRateTick$ = defer(() => getSwapBatchFundingRate({})).pipe(
   repeat({ delay: 1000 }),
   retry({ delay: 1000 }),
   shareReplay(1),
@@ -104,7 +109,7 @@ const mapSwapContractCodeToFundingRateTick$ = defer(() => swapFundingRateTick$).
   shareReplay(1),
 );
 
-const swapOpenInterest$ = defer(() => client.getSwapOpenInterest({})).pipe(
+const swapOpenInterest$ = defer(() => getSwapOpenInterest({})).pipe(
   repeat({ delay: 1000 }),
   retry({ delay: 1000 }),
   shareReplay(1),

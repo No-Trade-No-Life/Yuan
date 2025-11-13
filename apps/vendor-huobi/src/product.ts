@@ -1,6 +1,6 @@
 import { IProduct, IQueryProductsRequest, provideQueryProductsService } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
-import { client } from './api';
+import { getPerpetualContractSymbols, getSwapCrossLadderMargin, getSpotSymbols } from './api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -13,8 +13,8 @@ export const swapProductService = provideQueryProductsService(
 
     // Get perpetual contract products and cross leverage data in parallel
     const [swapSymbols, crossLeverage] = await Promise.all([
-      client.getPerpetualContractSymbols(),
-      client.getSwapCrossLadderMargin(),
+      getPerpetualContractSymbols(),
+      getSwapCrossLadderMargin(),
     ]);
 
     for (const symbol of swapSymbols?.data || []) {
@@ -61,7 +61,7 @@ export const spotProductService = provideQueryProductsService(
     const products: IProduct[] = [];
 
     // Get spot products
-    const spotSymbols = await client.getSpotSymbols();
+    const spotSymbols = await getSpotSymbols();
 
     for (const symbol of spotSymbols?.data || []) {
       if (symbol.state !== 'online') continue; // Only include online symbols
