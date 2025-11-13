@@ -1,6 +1,6 @@
 import { IOrder } from '@yuants/data-order';
 import { decodePath } from '@yuants/utils';
-import { ICredential, postTradeCancelOrder } from '../api';
+import { ICredential, postTradeCancelOrder } from '../api/private-api';
 
 export const cancelOrder = async (credential: ICredential, order: IOrder) => {
   const [, instId] = decodePath(order.product_id);

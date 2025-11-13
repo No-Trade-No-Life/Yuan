@@ -1,7 +1,7 @@
 import { IProduct, IQueryProductsRequest, provideQueryProductsService } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
-import { getInstruments } from './public-api';
+import { getInstruments } from '../api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
 

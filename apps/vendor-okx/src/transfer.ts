@@ -14,7 +14,7 @@ import {
   postAssetTransfer,
   postAssetWithdrawal,
   postFinanceSavingsPurchaseRedempt,
-} from './api';
+} from './api/private-api';
 
 const terminal = Terminal.fromNodeEnv();
 

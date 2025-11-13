@@ -4,7 +4,7 @@ import { writeToSQL } from '@yuants/sql';
 import { encodePath, formatTime } from '@yuants/utils';
 import { defer, from, map, merge, mergeMap, repeat, retry, shareReplay, Subject, tap } from 'rxjs';
 import { getTradingAccountId } from './account';
-import { getDefaultCredential, getTradeOrdersHistory, getTradeOrdersPending } from './api';
+import { getDefaultCredential, getTradeOrdersHistory, getTradeOrdersPending } from './api/private-api';
 
 export const order$ = new Subject<IOrder>();
 

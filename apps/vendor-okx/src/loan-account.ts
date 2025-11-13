@@ -3,7 +3,7 @@ import { Terminal } from '@yuants/protocol';
 import { defer } from 'rxjs';
 import { accountUidCache } from './account';
 import { getLoanAccountInfo } from './accountInfos';
-import { getDefaultCredential } from './api';
+import { getDefaultCredential } from './api/private-api';
 
 defer(async () => {
   const uid = await accountUidCache.query('');

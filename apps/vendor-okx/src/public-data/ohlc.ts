@@ -4,10 +4,9 @@ import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { convertDurationToOffset, decodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, map, timer } from 'rxjs';
-import { provideOHLCFromTimeBackwardService } from './provideOHLCFromTimeBackwardService';
-import { getHistoryCandles } from './public-api';
-import { useOHLC } from './ws';
-// import { useOHLC } from './websocket';
+import { getHistoryCandles } from '../api/public-api';
+import { provideOHLCFromTimeBackwardService } from '../utils/provideOHLCFromTimeBackwardService';
+import { useOHLC } from '../ws';
 
 const terminal = Terminal.fromNodeEnv();
 

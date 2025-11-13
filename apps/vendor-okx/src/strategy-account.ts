@@ -3,7 +3,7 @@ import { Terminal } from '@yuants/protocol';
 import { defer } from 'rxjs';
 import { getStrategyAccountId } from './account';
 import { getStrategyAccountInfo } from './accountInfos';
-import { getDefaultCredential, getGridPositions } from './api';
+import { getDefaultCredential, getGridPositions } from './api/private-api';
 
 const terminal = Terminal.fromNodeEnv();
 const credential = getDefaultCredential();

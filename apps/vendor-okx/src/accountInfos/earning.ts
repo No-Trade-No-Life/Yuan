@@ -1,4 +1,4 @@
-import { ICredential, getFinanceSavingsBalance } from '../api';
+import { ICredential, getFinanceSavingsBalance } from '../api/private-api';
 import { IAccountInfoCore } from './types';
 
 export const getEarningAccountInfo = async (credential: ICredential): Promise<IAccountInfoCore> => {

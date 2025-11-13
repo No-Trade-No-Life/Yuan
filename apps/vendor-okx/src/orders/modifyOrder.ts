@@ -1,9 +1,9 @@
 import { IOrder } from '@yuants/data-order';
 import { formatTime, decodePath, roundToStep } from '@yuants/utils';
 import { firstValueFrom, map } from 'rxjs';
-import { ICredential, postTradeAmendOrder } from '../api';
-import { productService } from '../product';
-import { spotMarketTickers$ } from '../quote';
+import { ICredential, postTradeAmendOrder } from '../api/private-api';
+import { productService } from '../public-data/product';
+import { spotMarketTickers$ } from '../public-data/quote';
 
 export const modifyOrder = async (credential: ICredential, order: IOrder) => {
   const [instType, instId] = decodePath(order.product_id);

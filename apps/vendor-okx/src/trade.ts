@@ -5,7 +5,7 @@ import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql'
 import { encodePath, formatTime } from '@yuants/utils';
 import { defer, repeat, retry, tap, timeout } from 'rxjs';
 import { getTradingAccountId } from './account';
-import { getAccountBillsArchive, getDefaultCredential } from './api';
+import { getAccountBillsArchive, getDefaultCredential } from './api/private-api';
 
 const tradeParser = async (accountId: string, params: Record<string, string>): Promise<ITrade[]> => {
   const tradeList: ITrade[] = [];

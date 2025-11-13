@@ -1,5 +1,5 @@
 import { Terminal } from '@yuants/protocol';
-import { getPositionTiers } from './public-api';
+import { getPositionTiers } from './api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
 
