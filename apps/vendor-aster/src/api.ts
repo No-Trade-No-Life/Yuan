@@ -136,6 +136,17 @@ export const getFApiV1TickerPrice = createApi<
   }[]
 >('MARKET_DATA', 'GET', '/fapi/v1/ticker/price');
 
+export const getFApiV1OpenInterest = createApi<
+  {
+    symbol: string;
+  },
+  {
+    symbol: string;
+    openInterest: string;
+    time: number;
+  }
+>('MARKET_DATA', 'GET', '/fapi/v1/openInterest');
+
 export const getFApiV1FundingRate = createApi<
   {
     symbol?: string;
