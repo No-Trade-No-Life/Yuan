@@ -3,8 +3,8 @@ import { ITrade } from '@yuants/data-trade';
 import { Terminal } from '@yuants/protocol';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { encodePath, formatTime } from '@yuants/utils';
-import { defer, first, repeat, retry, tap, timeout } from 'rxjs';
-import { accountUid$ } from './account';
+import { defer, repeat, retry, tap, timeout } from 'rxjs';
+import { getTradingAccountId } from './account';
 import { getAccountBillsArchive, getDefaultCredential } from './api';
 
 const tradeParser = async (accountId: string, params: Record<string, string>): Promise<ITrade[]> => {
@@ -137,22 +137,20 @@ const getAccountTradeWithAccountId = async (accountId: string) => {
   );
 };
 
-defer(() => accountUid$)
-  .pipe(first())
-  .subscribe((uid) => {
-    const account_id = `okx/${uid}/trading`;
-    console.log(formatTime(Date.now()), 'getAccountTrade', `AccountID: ${account_id}`);
-    defer(() => getAccountTradeWithAccountId(account_id))
-      .pipe(
-        //
-        timeout(10_000), //  超时设定：10 秒
-        tap({
-          error: (err) => {
-            console.error(formatTime(Date.now()), 'getAccountTradeError', err);
-          },
-        }),
-        repeat({ delay: 30_000 }),
-        retry({ delay: 5000 }),
-      )
-      .subscribe();
-  });
+(async () => {
+  const account_id = await getTradingAccountId();
+  console.log(formatTime(Date.now()), 'getAccountTrade', `AccountID: ${account_id}`);
+  defer(() => getAccountTradeWithAccountId(account_id))
+    .pipe(
+      //
+      timeout(10_000), //  超时设定：10 秒
+      tap({
+        error: (err) => {
+          console.error(formatTime(Date.now()), 'getAccountTradeError', err);
+        },
+      }),
+      repeat({ delay: 30_000 }),
+      retry({ delay: 5000 }),
+    )
+    .subscribe();
+})();

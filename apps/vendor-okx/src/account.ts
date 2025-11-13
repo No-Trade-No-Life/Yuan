@@ -1,34 +1,33 @@
+import { createCache } from '@yuants/cache';
 import { addAccountMarket, provideAccountInfoService } from '@yuants/data-account';
 import { providePendingOrdersService } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
-import { defer, filter, firstValueFrom, map, repeat, retry, shareReplay } from 'rxjs';
-import { getAccountConfig, getDefaultCredential, getTradeOrdersPending } from './api';
+import { defer } from 'rxjs';
 import {
-  getTradingAccountInfo,
-  getFundingAccountInfo,
   getEarningAccountInfo,
+  getFundingAccountInfo,
+  getTradingAccountInfo,
   marketIndexTickerUSDT$,
 } from './accountInfos';
+import { getAccountConfig, getDefaultCredential, getTradeOrdersPending } from './api';
 
 const terminal = Terminal.fromNodeEnv();
 
 const credential = getDefaultCredential();
 
-export const accountConfig$ = defer(() => getAccountConfig(credential)).pipe(
-  repeat({ delay: 10_000 }),
-  retry({ delay: 10_000 }),
-  shareReplay(1),
-);
+export const accountConfigCache = createCache(() => getAccountConfig(credential), {
+  expire: 100_000,
+  swrAfter: 10_000,
+});
 
-export const accountUid$ = accountConfig$.pipe(
-  map((x) => x.data[0].uid),
-  filter((x) => !!x),
-  shareReplay(1),
-);
+export const accountUidCache = createCache(async () => {
+  const config = await accountConfigCache.query('');
+  return config?.data[0].uid;
+});
 
 defer(async () => {
-  const uid = await firstValueFrom(accountUid$);
+  const uid = await accountUidCache.query('');
   const account_id = `okx/${uid}/trading`;
   providePendingOrdersService(
     terminal,
@@ -65,13 +64,18 @@ defer(async () => {
   );
 }).subscribe();
 
-export const tradingAccountId$ = accountUid$.pipe(
-  map((uid) => `okx/${uid}/trading`),
-  shareReplay(1),
-);
+export const getTradingAccountId = async () => {
+  const uid = await accountUidCache.query('');
+  return `okx/${uid}/trading`;
+};
+
+export const getStrategyAccountId = async () => {
+  const uid = await accountUidCache.query('');
+  return `okx/${uid}/strategy`;
+};
 
 defer(async () => {
-  const tradingAccountId = await firstValueFrom(tradingAccountId$);
+  const tradingAccountId = await getTradingAccountId();
   addAccountMarket(terminal, { account_id: tradingAccountId, market_id: 'OKX' });
 
   provideAccountInfoService(terminal, tradingAccountId, () => getTradingAccountInfo(credential), {
@@ -80,7 +84,7 @@ defer(async () => {
 }).subscribe();
 
 defer(async () => {
-  const uid = await firstValueFrom(accountUid$);
+  const uid = await accountUidCache.query('');
 
   const fundingAccountId = `okx/${uid}/funding/USDT`;
 
@@ -90,7 +94,7 @@ defer(async () => {
 }).subscribe();
 
 defer(async () => {
-  const uid = await firstValueFrom(accountUid$);
+  const uid = await accountUidCache.query('');
   const earningAccountId = `okx/${uid}/earning/USDT`;
   provideAccountInfoService(terminal, earningAccountId, () => getEarningAccountInfo(credential), {
     auto_refresh_interval: 5000,
