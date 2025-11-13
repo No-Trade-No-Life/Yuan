@@ -4,8 +4,8 @@ import { Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, map, mergeAll, timer } from 'rxjs';
+import { getFundingRateHistory, getLendingRateHistory } from '../api/public-api';
 import { productService } from './product';
-import { getFundingRateHistory, getLendingRateHistory } from './public-api';
 
 createSQLWriter<ISeriesCollectingTask>(Terminal.fromNodeEnv(), {
   data$: productService.products$.pipe(

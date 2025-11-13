@@ -1,7 +1,7 @@
 import { IPosition } from '@yuants/data-account';
 import { encodePath } from '@yuants/utils';
 import { firstValueFrom } from 'rxjs';
-import { ICredential, getAssetBalances } from '../api';
+import { ICredential, getAssetBalances } from '../api/private-api';
 import { marketIndexTickerUSDT$ } from './trading';
 import { IAccountInfoCore } from './types';
 

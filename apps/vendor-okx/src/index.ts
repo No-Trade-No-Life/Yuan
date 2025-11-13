@@ -1,12 +1,12 @@
 import './account';
 import './api-service';
-import './interest_rate';
+import './public-data/interest_rate';
 import './loan-account';
-import './market-order';
-import './ohlc';
+import './public-data/market-order';
+import './public-data/ohlc';
 import './order';
 import './order-actions';
-import './quote';
+import './public-data/quote';
 import './services';
 import './strategy-account';
 import './trade';

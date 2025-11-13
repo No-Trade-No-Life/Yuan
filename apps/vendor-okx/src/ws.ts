@@ -1,7 +1,7 @@
 import { PromRegistry, Terminal } from '@yuants/protocol';
 import { encodePath, formatTime } from '@yuants/utils';
 import { catchError, defer, EMPTY, filter, interval, Observable, Subscription, tap, timeout } from 'rxjs';
-import { IWSOrderBook } from './market-order';
+import { IWSOrderBook } from './public-data/market-order';
 
 const MetricsWebSocketConnectionsGauge = PromRegistry.create(
   'gauge',

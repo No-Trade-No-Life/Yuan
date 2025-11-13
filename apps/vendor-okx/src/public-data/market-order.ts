@@ -1,7 +1,7 @@
 import { Terminal } from '@yuants/protocol';
 import { decodePath, formatTime } from '@yuants/utils';
 import { map, tap } from 'rxjs';
-import { useMarketBooks } from './ws';
+import { useMarketBooks } from '../ws';
 
 const terminal = Terminal.fromNodeEnv();
 

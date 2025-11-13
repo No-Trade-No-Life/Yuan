@@ -1,9 +1,9 @@
 import { IOrder } from '@yuants/data-order';
 import { decodePath, formatTime, roundToStep } from '@yuants/utils';
 import { firstValueFrom, map } from 'rxjs';
-import { ICredential, postTradeOrder } from '../api';
-import { productService } from '../product';
-import { spotMarketTickers$ } from '../quote';
+import { ICredential, postTradeOrder } from '../api/private-api';
+import { productService } from '../public-data/product';
+import { spotMarketTickers$ } from '../public-data/quote';
 
 const mapOrderDirectionToSide = (direction?: string) => {
   switch (direction) {

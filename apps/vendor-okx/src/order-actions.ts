@@ -2,7 +2,7 @@ import { IOrder } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { defer } from 'rxjs';
 import { getTradingAccountId } from './account';
-import { getDefaultCredential } from './api';
+import { getDefaultCredential } from './api/private-api';
 import { cancelOrder } from './orders/cancelOrder';
 import { modifyOrder } from './orders/modifyOrder';
 import { submitOrder } from './orders/submitOrder';

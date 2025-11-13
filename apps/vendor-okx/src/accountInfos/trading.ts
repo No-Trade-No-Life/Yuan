@@ -1,9 +1,9 @@
-import { IAccountMoney, IPosition } from '@yuants/data-account';
+import { IPosition } from '@yuants/data-account';
 import { encodePath } from '@yuants/utils';
 import { defer, firstValueFrom, map, repeat, retry, shareReplay } from 'rxjs';
-import { ICredential, getAccountBalance, getAccountPositions } from '../api';
-import { productService } from '../product';
-import { getMarketIndexTicker } from '../public-api';
+import { ICredential, getAccountBalance, getAccountPositions } from '../api/private-api';
+import { getMarketIndexTicker } from '../api/public-api';
+import { productService } from '../public-data/product';
 import { IAccountInfoCore } from './types';
 
 export const marketIndexTickerUSDT$ = defer(() => getMarketIndexTicker({ quoteCcy: 'USDT' })).pipe(

@@ -26,9 +26,8 @@ import {
   tap,
   toArray,
 } from 'rxjs';
-import { getInstruments, getMarketTickers, getOpenInterest, getPositionTiers } from './public-api';
-import { useOpenInterest, useTicker } from './ws';
-// import { useOpenInterest, useTicker } from './websocket';
+import { getInstruments, getMarketTickers, getOpenInterest, getPositionTiers } from '../api/public-api';
+import { useOpenInterest, useTicker } from '../ws';
 
 const terminal = Terminal.fromNodeEnv();
 

@@ -1,7 +1,7 @@
 import { Terminal } from '@yuants/protocol';
 import { defer } from 'rxjs';
 import { getTradingAccountId } from './account';
-import { getDefaultCredential, postGridAlgoOrder } from './api';
+import { getDefaultCredential, postGridAlgoOrder } from './api/private-api';
 
 const terminal = Terminal.fromNodeEnv();
 

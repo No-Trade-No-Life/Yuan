@@ -1,6 +1,6 @@
 import { IPosition } from '@yuants/data-account';
 import { encodePath } from '@yuants/utils';
-import { ICredential, getGridOrdersAlgoPending, getGridPositions } from '../api';
+import { ICredential, getGridOrdersAlgoPending, getGridPositions } from '../api/private-api';
 import { IAccountInfoCore } from './types';
 
 export const getStrategyAccountInfo = async (credential: ICredential): Promise<IAccountInfoCore> => {

@@ -10,7 +10,7 @@ import {
   getTradingAccountInfo,
   marketIndexTickerUSDT$,
 } from './accountInfos';
-import { getAccountConfig, getDefaultCredential, getTradeOrdersPending } from './api';
+import { getAccountConfig, getDefaultCredential, getTradeOrdersPending } from './api/private-api';
 
 const terminal = Terminal.fromNodeEnv();
 

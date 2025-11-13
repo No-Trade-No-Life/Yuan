@@ -1,6 +1,6 @@
 import { IPosition } from '@yuants/data-account';
 import { encodePath } from '@yuants/utils';
-import { ICredential, getFlexibleLoanInfo } from '../api';
+import { ICredential, getFlexibleLoanInfo } from '../api/private-api';
 import { IAccountInfoCore } from './types';
 
 export const getLoanAccountInfo = async (credential: ICredential): Promise<IAccountInfoCore> => {
