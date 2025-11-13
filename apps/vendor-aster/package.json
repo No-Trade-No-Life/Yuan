@@ -14,6 +14,7 @@
   },
   "dependencies": {
     "@yuants/protocol": "workspace:*",
+    "@yuants/cache": "workspace:*",
     "@yuants/data-account": "workspace:*",
     "@yuants/utils": "workspace:*",
     "@yuants/data-series": "workspace:*",

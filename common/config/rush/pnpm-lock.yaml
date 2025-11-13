@@ -828,6 +828,7 @@ importers:
       '@rushstack/heft-node-rig': ~1.10.7
       '@types/heft-jest': 1.0.3
       '@types/node': '22'
+      '@yuants/cache': workspace:*
       '@yuants/data-account': workspace:*
       '@yuants/data-interest-rate': workspace:*
       '@yuants/data-ohlc': workspace:*
@@ -845,6 +846,7 @@ importers:
       ts-node: ~10.9.2
       typescript: ~4.7.4
     dependencies:
+      '@yuants/cache': link:../../libraries/cache
       '@yuants/data-account': link:../../libraries/data-account
       '@yuants/data-interest-rate': link:../../libraries/data-interest-rate
       '@yuants/data-ohlc': link:../../libraries/data-ohlc
