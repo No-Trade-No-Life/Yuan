@@ -1,62 +1,36 @@
-import { addAccountMarket, IPosition, provideAccountInfoService } from '@yuants/data-account';
-import { IOrder } from '@yuants/data-order';
+import { addAccountMarket } from '@yuants/data-account';
 import { Terminal } from '@yuants/protocol';
-import { addAccountTransferAddress } from '@yuants/transfer';
-import { formatTime, roundToStep } from '@yuants/utils';
+import { formatTime } from '@yuants/utils';
 import {
-  catchError,
-  combineLatestWith,
-  defer,
-  distinct,
-  filter,
-  first,
-  firstValueFrom,
-  from,
-  map,
-  mergeMap,
-  of,
-  reduce,
-  repeat,
-  retry,
-  shareReplay,
-  tap,
-  timeout,
-  toArray,
-} from 'rxjs';
-import { client } from './api';
+  provideSpotAccountInfoService,
+  provideSuperMarginAccountInfoService,
+  provideSwapAccountInfoService,
+} from './account-info';
 import {
   getAccount,
-  getUid,
-  getUnifiedAccountInfo,
-  getSwapCrossPositionInfo,
-  getSwapOpenOrders,
-  getSpotAccountBalance,
-  getCrossMarginLoanInfo,
-  getSpotTick,
-  postSpotOrder,
-  postSwapOrder,
-  getSpotAccountDepositAddresses,
-  getV2ReferenceCurrencies,
-  postWithdraw,
-  getDepositWithdrawHistory,
-  postSuperMarginAccountTransferIn,
-  postSuperMarginAccountTransferOut,
-  postSpotAccountTransfer,
-  postSubUserTransfer,
+  getDefaultCredential,
   getSubUserList,
   getSwapUnifiedAccountType,
+  getUid,
+  ICredential,
   postSwapSwitchAccountType,
-  getDefaultCredential,
 } from './api/private-api';
 import './interest_rate';
-import { spotProductService, swapProductService } from './product';
+import { provideOrderSubmitService } from './order-actions';
 import './quote';
+import {
+  setupSpotSuperMarginTransfer,
+  setupSpotSwapTransfer,
+  setupSubAccountTransfers,
+  setupTrc20WithdrawalAddresses,
+} from './transfer';
 
 const terminal = Terminal.fromNodeEnv();
 
 (async () => {
   const credential = getDefaultCredential();
 
+  // 账户类型切换
   const swapAccountTypeRes = await getSwapUnifiedAccountType(credential);
   if (swapAccountTypeRes.data?.account_type === 1) {
     console.info(
@@ -86,614 +60,37 @@ const terminal = Terminal.fromNodeEnv();
   const isMainAccount = subUsersRes.ok;
   console.info(formatTime(Date.now()), 'subAccounts', JSON.stringify(subAccounts));
 
-  provideAccountInfoService(
-    terminal,
-    SWAP_ACCOUNT_ID,
-    async () => {
-      // balance
-      const balance = await getUnifiedAccountInfo(credential);
-      if (!balance.data) {
-        throw new Error('Failed to get unified account info');
-      }
-      const balanceData = balance.data.find((v) => v.margin_asset === 'USDT');
-      if (!balanceData) {
-        throw new Error('No USDT balance found in unified account');
-      }
-      const equity = balanceData.margin_balance;
-      const free = balanceData.withdraw_available;
-
-      // positions
-      const positionsRes = await getSwapCrossPositionInfo(credential);
-      const mapProductIdToPerpetualProduct = await firstValueFrom(swapProductService.mapProductIdToProduct$);
-      const positions: IPosition[] = (positionsRes.data || []).map((v): IPosition => {
-        const product_id = v.contract_code;
-        const theProduct = mapProductIdToPerpetualProduct?.get(product_id);
-        const valuation = v.volume * v.last_price * (theProduct?.value_scale || 1);
-        return {
-          position_id: `${v.contract_code}/${v.contract_type}/${v.direction}/${v.margin_mode}`,
-          datasource_id: 'HUOBI-SWAP',
-          product_id,
-          direction: v.direction === 'buy' ? 'LONG' : 'SHORT',
-          volume: v.volume,
-          free_volume: v.available,
-          position_price: v.cost_hold,
-          closable_price: v.last_price,
-          floating_profit: v.profit_unreal,
-          valuation,
-        };
-      });
-
-      // orders
-      // const orders: IOrder[] = [];
-      // let page_index = 1;
-      // const page_size = 50;
-
-      // while (true) {
-      //   const ordersRes = await client.getSwapOpenOrders({ page_index, page_size });
-      //   if (!ordersRes.data?.orders || ordersRes.data.orders.length === 0) {
-      //     break;
-      //   }
-
-      //   const pageOrders: IOrder[] = ordersRes.data.orders.map((v): IOrder => {
-      //     return {
-      //       order_id: v.order_id_str,
-      //       account_id: SWAP_ACCOUNT_ID,
-      //       product_id: v.contract_code,
-      //       order_type: ['lightning'].includes(v.order_price_type)
-      //         ? 'MARKET'
-      //         : ['limit', 'opponent', 'post_only', 'optimal_5', 'optimal_10', 'optimal_20'].includes(
-      //             v.order_price_type,
-      //           )
-      //         ? 'LIMIT'
-      //         : ['fok'].includes(v.order_price_type)
-      //         ? 'FOK'
-      //         : v.order_price_type.includes('ioc')
-      //         ? 'IOC'
-      //         : 'STOP', // unreachable code
-      //       order_direction:
-      //         v.direction === 'open'
-      //           ? v.offset === 'buy'
-      //             ? 'OPEN_LONG'
-      //             : 'OPEN_SHORT'
-      //           : v.offset === 'buy'
-      //           ? 'CLOSE_SHORT'
-      //           : 'CLOSE_LONG',
-      //       volume: v.volume,
-      //       submit_at: v.created_at,
-      //       price: v.price,
-      //       traded_volume: v.trade_volume,
-      //     };
-      //   });
-
-      //   orders.push(...pageOrders);
-      //   page_index++;
-      // }
-
-      return {
-        money: {
-          currency: 'USDT',
-          equity,
-          free,
-        },
-        positions,
-      };
-    },
-    { auto_refresh_interval: 1000 },
-  );
-
-  const superMarginUnifiedRawAccountBalance$ = defer(() =>
-    getSpotAccountBalance(credential, superMarginAccountUid),
-  ).pipe(
-    //
-    map((res) => res.data),
-    repeat({ delay: 1000 }),
-    tap({
-      error: (e) => {
-        console.error(formatTime(Date.now()), 'unifiedRaw', e);
-      },
-    }),
-    retry({ delay: 5000 }),
-    shareReplay(1),
-  );
-
+  // 设置账户信息服务
   const subscriptions: Set<string> = new Set();
-  from(client.spot_ws.connection$).subscribe(() => {
-    subscriptions.clear();
-  });
-  // subscribe the symbols of positions we held
-  superMarginUnifiedRawAccountBalance$
-    .pipe(
-      //
-      mergeMap((res) =>
-        from(res?.list || []).pipe(
-          filter((v) => v.currency !== 'usdt'),
-          map((v) => v.currency),
-          distinct(),
-          toArray(),
-          map((v) => new Set(v)),
-        ),
-      ),
-    )
-    .subscribe((v: Set<string>) => {
-      const toUnsubscribe = [...subscriptions].filter((x) => !v.has(x));
-      const toSubscribe = [...v].filter((x) => !subscriptions.has(x));
 
-      for (const symbol of toUnsubscribe) {
-        client.spot_ws.output$.next({
-          unsub: `market.${symbol}usdt.ticker`,
-        });
-        subscriptions.delete(symbol);
-      }
-      for (const symbol of toSubscribe) {
-        client.spot_ws.output$.next({
-          sub: `market.${symbol}usdt.ticker`,
-        });
-        subscriptions.add(symbol);
-      }
-    });
-
-  provideAccountInfoService(
+  provideSwapAccountInfoService(terminal, SWAP_ACCOUNT_ID, credential);
+  const superMarginAccountBalance$ = provideSuperMarginAccountInfoService(
     terminal,
     SUPER_MARGIN_ACCOUNT_ID,
-    async () => {
-      // get account balance
-      const accountBalance = await getSpotAccountBalance(credential, superMarginAccountUid);
-      const balanceList = accountBalance.data?.list || [];
-
-      // calculate usdt balance
-      const usdtBalance = balanceList
-        .filter((v) => v.currency === 'usdt')
-        .reduce((acc, cur) => acc + +cur.balance, 0);
-
-      // get positions (non-usdt currencies)
-      const positions: IPosition[] = [];
-      const nonUsdtCurrencies = balanceList
-        .filter((v) => v.currency !== 'usdt')
-        .reduce((acc, cur) => {
-          const existing = acc.find((item) => item.currency === cur.currency);
-          if (existing) {
-            existing.balance += +cur.balance;
-          } else {
-            acc.push({ currency: cur.currency, balance: +cur.balance });
-          }
-          return acc;
-        }, [] as { currency: string; balance: number }[]);
-
-      // get prices and create positions
-      for (const currencyData of nonUsdtCurrencies) {
-        if (currencyData.balance > 0) {
-          try {
-            // get current price from websocket or fallback to REST API
-            let price: number;
-            try {
-              const tickPrice = await firstValueFrom(
-                client.spot_ws.input$.pipe(
-                  //
-                  first((v) => v.ch?.includes('ticker') && v.ch?.includes(currencyData.currency) && v.tick),
-                  map((v): number => v.tick.bid),
-                  timeout(5000),
-                  tap({
-                    error: (e) => {
-                      subscriptions.clear();
-                    },
-                  }),
-                ),
-              );
-              price = tickPrice;
-            } catch {
-              // fallback to REST API
-              const tickerRes = await getSpotTick(credential, { symbol: `${currencyData.currency}usdt` });
-              price = tickerRes.tick.close;
-            }
-
-            positions.push({
-              position_id: `${currencyData.currency}/usdt/spot`,
-              product_id: `${currencyData.currency}usdt`,
-              direction: 'LONG',
-              volume: currencyData.balance,
-              free_volume: currencyData.balance,
-              position_price: price,
-              closable_price: price,
-              floating_profit: 0,
-              valuation: currencyData.balance * price,
-            });
-          } catch (error) {
-            console.warn(formatTime(Date.now()), `Failed to get price for ${currencyData.currency}:`, error);
-          }
-        }
-      }
-
-      // calculate equity
-      const equity = positions.reduce((acc, cur) => acc + cur.closable_price * cur.volume, 0) + usdtBalance;
-
-      return {
-        money: {
-          currency: 'USDT',
-          equity,
-          free: equity,
-        },
-        positions,
-      };
-    },
-    { auto_refresh_interval: 1000 },
+    credential,
+    superMarginAccountUid,
+    subscriptions,
   );
+  provideSpotAccountInfoService(terminal, SPOT_ACCOUNT_ID, credential, spotAccountUid);
 
-  provideAccountInfoService(
-    terminal,
-    SPOT_ACCOUNT_ID,
-    async () => {
-      const spotBalance = await getSpotAccountBalance(credential, spotAccountUid);
-
-      const equity = +(spotBalance.data.list.find((v) => v.currency === 'usdt')?.balance ?? 0);
-      const free = equity;
-      return {
-        money: {
-          currency: 'USDT',
-          equity,
-          free,
-        },
-        positions: [],
-      };
-    },
-    { auto_refresh_interval: 1000 },
-  );
+  // 设置账户市场关联
   addAccountMarket(terminal, { account_id: SPOT_ACCOUNT_ID, market_id: 'HUOBI/SPOT' });
   addAccountMarket(terminal, { account_id: SUPER_MARGIN_ACCOUNT_ID, market_id: 'HUOBI/SUPER-MARGIN' });
   addAccountMarket(terminal, { account_id: SWAP_ACCOUNT_ID, market_id: 'HUOBI/SWAP' });
 
-  // Submit order
-  terminal.server.provideService<IOrder>(
-    'SubmitOrder',
-    {
-      required: ['account_id'],
-      properties: {
-        account_id: {
-          enum: [SUPER_MARGIN_ACCOUNT_ID, SWAP_ACCOUNT_ID],
-        },
-      },
-    },
-    (msg) => {
-      const { account_id: req_account_id } = msg.req;
-      console.info(formatTime(Date.now()), `SubmitOrder for ${account_id}`, JSON.stringify(msg));
-
-      if (req_account_id === SWAP_ACCOUNT_ID) {
-        return defer(() => getSwapCrossPositionInfo(credential)).pipe(
-          mergeMap((res) => res.data),
-          map((v) => [v.contract_code, v.lever_rate]),
-          toArray(),
-          map((v) => Object.fromEntries(v)),
-          mergeMap((mapContractCodeToRate) => {
-            const lever_rate = mapContractCodeToRate[msg.req.product_id] ?? 20;
-            const params = {
-              contract_code: msg.req.product_id,
-              contract_type: 'swap',
-              price: msg.req.price,
-              volume: msg.req.volume,
-              offset:
-                msg.req.order_direction === 'OPEN_LONG' || msg.req.order_direction === 'OPEN_SHORT'
-                  ? 'open'
-                  : 'close',
-              direction:
-                msg.req.order_direction === 'OPEN_LONG' || msg.req.order_direction === 'CLOSE_SHORT'
-                  ? 'buy'
-                  : 'sell',
-              // dynamically adjust the leverage
-              lever_rate,
-              order_price_type: msg.req.order_type === 'MARKET' ? 'market' : 'limit',
-            };
-            return postSwapOrder(credential, params).then((v) => {
-              console.info(formatTime(Date.now()), 'SubmitOrder', JSON.stringify(v), JSON.stringify(params));
-              return v;
-            });
-          }),
-          map((v) => {
-            if (v.status !== 'ok') {
-              return { res: { code: 500, message: v.status } };
-            }
-            return { res: { code: 0, message: 'OK' } };
-          }),
-          catchError((e) => {
-            console.error(formatTime(Date.now()), 'SubmitOrder', e);
-            return of({ res: { code: 500, message: `${e}` } });
-          }),
-        );
-      }
-      // for super-margin orders, we need to denote the amount of usdt to borrow, therefore we need to:
-      // 1. get the loanable amount
-      // 2. get the current balance
-      // 3. get the current price
-      // 4. combine the information to submit the order
-      return defer(() => getCrossMarginLoanInfo(credential)).pipe(
-        //
-        mergeMap((res) => res.data),
-        first((v) => v.currency === 'usdt'),
-        map((v) => +v['loanable-amt']),
-        combineLatestWith(
-          superMarginUnifiedRawAccountBalance$.pipe(
-            first(),
-            mergeMap((res) =>
-              from(res.list).pipe(
-                // we only need the amount of usdt that can be used to trade
-                filter((v) => v.currency === 'usdt' && v.type === 'trade'),
-                reduce((acc, cur) => acc + +cur.balance, 0),
-              ),
-            ),
-          ),
-        ),
-        combineLatestWith(spotProductService.mapProductIdToProduct$.pipe(first())),
-        mergeMap(async ([[loanable, balance], mapProductIdToProduct]) => {
-          const priceRes = await getSpotTick(credential, { symbol: msg.req.product_id });
-          const theProduct = mapProductIdToProduct.get(msg.req.product_id);
-          const price: number = priceRes.tick.close;
-          const borrow_amount =
-            msg.req.order_direction === 'OPEN_LONG' || msg.req.order_direction === 'CLOSE_SHORT'
-              ? Math.max(Math.min(loanable, msg.req.volume * price - balance), 0)
-              : undefined;
-          const params = {
-            symbol: msg.req.product_id,
-            'account-id': '' + superMarginAccountUid,
-            // amount: msg.req.type === OrderType.MARKET ? 0 : '' + msg.req.volume,
-            // 'market-amount': msg.req.type === OrderType.MARKET ? '' + msg.req.volume : undefined,
-            amount:
-              '' +
-              (msg.req.order_direction === 'OPEN_LONG' || msg.req.order_direction === 'CLOSE_SHORT'
-                ? roundToStep(msg.req.volume * price, theProduct?.volume_step!)
-                : msg.req.volume),
-            'borrow-amount': '' + borrow_amount,
-            type: `${
-              msg.req.order_direction === 'OPEN_LONG' || msg.req.order_direction === 'CLOSE_SHORT'
-                ? 'buy'
-                : 'sell'
-            }-${'LIMIT' === msg.req.order_type ? 'limit' : 'market'}`,
-            'trade-purpose':
-              msg.req.order_direction === 'OPEN_LONG' || msg.req.order_direction === 'CLOSE_SHORT'
-                ? '1' // auto borrow
-                : '2', // auto repay
-            price: msg.req.order_type === 'MARKET' ? undefined : '' + msg.req.price,
-            source: 'super-margin-api',
-          };
-          return postSpotOrder(credential, params).then((v) => {
-            console.info(formatTime(Date.now()), 'SubmitOrder', JSON.stringify(v), JSON.stringify(params));
-            return v;
-          });
-        }),
-        map((v) => {
-          if (v.success === false) {
-            return { res: { code: v.code, message: v.message } };
-          }
-          return { res: { code: 0, message: 'OK' } };
-        }),
-        catchError((e) => {
-          console.error(formatTime(Date.now()), 'SubmitOrder', e);
-          return of({ res: { code: 500, message: `${e}` } });
-        }),
-      );
-    },
+  // 设置订单提交服务
+  provideOrderSubmitService(
+    terminal,
+    SWAP_ACCOUNT_ID,
+    SUPER_MARGIN_ACCOUNT_ID,
+    credential,
+    superMarginAccountUid,
+    superMarginAccountBalance$,
   );
 
-  // Update Spot TRC20 Addresses (Only Main Account)
-  if (isMainAccount) {
-    const res = await getSpotAccountDepositAddresses(credential, { currency: 'usdt' });
-    const addresses = res.data.filter((v) => v.chain === 'trc20usdt').map((v) => v.address);
-
-    for (const address of addresses) {
-      addAccountTransferAddress({
-        terminal,
-        account_id: SPOT_ACCOUNT_ID,
-        currency: 'USDT',
-        address: address,
-        network_id: 'TRC20',
-        onApply: {
-          INIT: async (order) => {
-            const res0 = await getV2ReferenceCurrencies(credential, { currency: 'usdt' });
-            const fee = res0.data
-              .find((v) => v.currency === 'usdt')
-              ?.chains.find((v) => v.chain === 'trc20usdt')?.transactFeeWithdraw;
-            if (!fee) {
-              return { state: 'ERROR', message: 'MISSING FEE' };
-            }
-            const res = await postWithdraw(credential, {
-              address: order.current_rx_address!,
-              amount: '' + (order.expected_amount - +fee),
-              currency: 'usdt',
-              fee: fee,
-              chain: 'trc20usdt',
-            });
-            if (res.status != 'ok') {
-              return { state: 'INIT', message: `${res.status}` };
-            }
-            return { state: 'PENDING', context: `${res.data}` };
-          },
-          PENDING: async (order) => {
-            if (!order.current_tx_context) {
-              return { state: 'ERROR', message: 'MISSING CONTEXT' };
-            }
-            const wdId = +order.current_tx_context;
-            const res = await getDepositWithdrawHistory(credential, {
-              currency: 'usdt',
-              type: 'withdraw',
-              from: `${wdId}`,
-            });
-            const txId = res.data.find((v) => v.id === wdId)?.['tx-hash'];
-            if (!txId) {
-              return { state: 'PENDING', context: `${wdId}` };
-            }
-            return {
-              state: 'COMPLETE',
-              transaction_id: txId,
-            };
-          },
-        },
-        onEval: async (order) => {
-          const res = await getDepositWithdrawHistory(credential, {
-            currency: 'usdt',
-            type: 'deposit',
-            direct: 'next',
-          });
-
-          const theItem = res.data.find(
-            (v) => v['tx-hash'] === order.current_transaction_id && v.state === 'safe',
-          );
-          if (!theItem) {
-            return { state: 'PENDING' };
-          }
-          return { received_amount: +theItem.amount, state: 'COMPLETE' };
-        },
-      });
-    }
-  }
-
-  addAccountTransferAddress({
-    terminal,
-    account_id: SPOT_ACCOUNT_ID,
-    currency: 'USDT',
-    network_id: `Huobi/${huobiUid}/SPOT-SUPER_MARGIN`,
-    address: 'SPOT',
-    onApply: {
-      INIT: async (order) => {
-        const transferInResult = await postSuperMarginAccountTransferIn(credential, {
-          currency: 'usdt',
-          amount: '' + (order.current_amount || order.expected_amount),
-        });
-        if (transferInResult.status !== 'ok') {
-          return { state: 'INIT' };
-        }
-        return { state: 'COMPLETE' };
-      },
-    },
-    onEval: async (order) => {
-      return { received_amount: order.current_amount || order.expected_amount, state: 'COMPLETE' };
-    },
-  });
-
-  addAccountTransferAddress({
-    terminal,
-    account_id: SUPER_MARGIN_ACCOUNT_ID,
-    currency: 'USDT',
-    network_id: `Huobi/${huobiUid}/SPOT-SUPER_MARGIN`,
-    address: 'SUPER_MARGIN',
-    onApply: {
-      INIT: async (order) => {
-        const transferOutResult = await postSuperMarginAccountTransferOut(credential, {
-          currency: 'usdt',
-          amount: '' + (order.current_amount || order.expected_amount),
-        });
-        if (transferOutResult.status !== 'ok') {
-          return { state: 'INIT' };
-        }
-        return { state: 'COMPLETE' };
-      },
-    },
-    onEval: async (order) => {
-      return { received_amount: order.current_amount || order.expected_amount, state: 'COMPLETE' };
-    },
-  });
-
-  addAccountTransferAddress({
-    terminal,
-    account_id: SPOT_ACCOUNT_ID,
-    currency: 'USDT',
-    network_id: `Huobi/${huobiUid}/SPOT-SWAP`,
-    address: 'SPOT',
-    onApply: {
-      INIT: async (order) => {
-        const transferResult = await postSpotAccountTransfer(credential, {
-          from: 'spot',
-          to: 'linear-swap',
-          currency: 'usdt',
-          amount: order.current_amount || order.expected_amount,
-          'margin-account': 'USDT',
-        });
-        if (!transferResult.success) {
-          return { state: 'INIT' };
-        }
-        return { state: 'COMPLETE' };
-      },
-    },
-    onEval: async (order) => {
-      return { received_amount: order.current_amount || order.expected_amount, state: 'COMPLETE' };
-    },
-  });
-
-  addAccountTransferAddress({
-    terminal,
-    account_id: SWAP_ACCOUNT_ID,
-    currency: 'USDT',
-    network_id: `Huobi/${huobiUid}/SPOT-SWAP`,
-    address: 'SWAP',
-    onApply: {
-      INIT: async (order) => {
-        const transferResult = await postSpotAccountTransfer(credential, {
-          from: 'linear-swap',
-          to: 'spot',
-          currency: 'usdt',
-          amount: order.current_amount || order.expected_amount,
-          'margin-account': 'USDT',
-        });
-        if (!transferResult.success) {
-          return { state: 'INIT' };
-        }
-        return { state: 'COMPLETE' };
-      },
-    },
-    onEval: async (order) => {
-      return { received_amount: order.current_amount || order.expected_amount, state: 'COMPLETE' };
-    },
-  });
-
-  if (isMainAccount) {
-    for (const subAccount of subAccounts) {
-      const SPOT_SUB_ACCOUNT_ID = `huobi/${subAccount.uid}/spot/usdt`;
-
-      const SUB_ACCOUNT_NETWORK_ID = `Huobi/${huobiUid}/SubAccount/${subAccount.uid}`;
-      addAccountTransferAddress({
-        terminal,
-        account_id: SPOT_ACCOUNT_ID,
-        currency: 'USDT',
-        network_id: SUB_ACCOUNT_NETWORK_ID,
-        address: '#main',
-        onApply: {
-          INIT: async (order) => {
-            const transferResult = await postSubUserTransfer(credential, {
-              'sub-uid': +order.current_rx_address!,
-              currency: 'usdt',
-              amount: order.current_amount || order.expected_amount,
-              type: 'master-transfer-out',
-            });
-            if (transferResult.status !== 'ok') {
-              return { state: 'INIT' };
-            }
-            return { state: 'COMPLETE' };
-          },
-        },
-        onEval: async (order) => {
-          return { received_amount: order.current_amount || order.expected_amount, state: 'COMPLETE' };
-        },
-      });
-      addAccountTransferAddress({
-        terminal,
-        account_id: SPOT_SUB_ACCOUNT_ID,
-        currency: 'USDT',
-        network_id: SUB_ACCOUNT_NETWORK_ID,
-        address: `${subAccount.uid}`,
-        onApply: {
-          INIT: async (order) => {
-            const transferResult = await postSubUserTransfer(credential, {
-              'sub-uid': +order.current_tx_address!,
-              currency: 'usdt',
-              amount: order.current_amount || order.expected_amount,
-              type: 'master-transfer-in',
-            });
-            if (transferResult.status !== 'ok') {
-              return { state: 'INIT' };
-            }
-            return { state: 'COMPLETE' };
-          },
-        },
-        onEval: async (order) => {
-          return { received_amount: order.current_amount || order.expected_amount, state: 'COMPLETE' };
-        },
-      });
-    }
-  }
+  // 设置转账功能
+  await setupTrc20WithdrawalAddresses(terminal, SPOT_ACCOUNT_ID, credential, isMainAccount);
+  setupSpotSuperMarginTransfer(terminal, SPOT_ACCOUNT_ID, SUPER_MARGIN_ACCOUNT_ID, credential, huobiUid);
+  setupSpotSwapTransfer(terminal, SPOT_ACCOUNT_ID, SWAP_ACCOUNT_ID, credential, huobiUid);
+  setupSubAccountTransfers(terminal, SPOT_ACCOUNT_ID, credential, huobiUid, subAccounts, isMainAccount);
 })();
