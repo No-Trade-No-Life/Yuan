@@ -24,6 +24,30 @@ import {
   toArray,
 } from 'rxjs';
 import { client } from './api';
+import {
+  getAccount,
+  getUid,
+  getUnifiedAccountInfo,
+  getSwapCrossPositionInfo,
+  getSwapOpenOrders,
+  getSpotAccountBalance,
+  getCrossMarginLoanInfo,
+  getSpotTick,
+  postSpotOrder,
+  postSwapOrder,
+  getSpotAccountDepositAddresses,
+  getV2ReferenceCurrencies,
+  postWithdraw,
+  getDepositWithdrawHistory,
+  postSuperMarginAccountTransferIn,
+  postSuperMarginAccountTransferOut,
+  postSpotAccountTransfer,
+  postSubUserTransfer,
+  getSubUserList,
+  getSwapUnifiedAccountType,
+  postSwapSwitchAccountType,
+  getDefaultCredential,
+} from './api/private-api';
 import './interest_rate';
 import { spotProductService, swapProductService } from './product';
 import './quote';
@@ -31,21 +55,23 @@ import './quote';
 const terminal = Terminal.fromNodeEnv();
 
 (async () => {
-  const swapAccountTypeRes = await client.getSwapUnifiedAccountType();
+  const credential = getDefaultCredential();
+
+  const swapAccountTypeRes = await getSwapUnifiedAccountType(credential);
   if (swapAccountTypeRes.data?.account_type === 1) {
     console.info(
       formatTime(Date.now()),
       'SwitchingAccountType',
       `previous: ${swapAccountTypeRes.data.account_type}, switching to 2 (unified account)`,
     );
-    const switchRes = await client.postSwapSwitchAccountType({ account_type: 2 });
+    const switchRes = await postSwapSwitchAccountType(credential, { account_type: 2 });
     console.info(formatTime(Date.now()), 'SwitchingAccountType', `current: ${switchRes.data.account_type}`);
   }
 
-  const huobiUid: number = (await client.getUid()).data;
+  const huobiUid: number = (await getUid(credential)).data;
   console.info(formatTime(Date.now()), 'UID', huobiUid);
 
-  const huobiAccounts = await client.getAccount();
+  const huobiAccounts = await getAccount(credential);
   const superMarginAccountUid = huobiAccounts.data.find((v) => v.type === 'super-margin')?.id!;
   const spotAccountUid = huobiAccounts.data.find((v) => v.type === 'spot')?.id!;
   console.info(formatTime(Date.now()), 'huobiAccount', JSON.stringify(huobiAccounts));
@@ -55,7 +81,7 @@ const terminal = Terminal.fromNodeEnv();
   const SUPER_MARGIN_ACCOUNT_ID = `${account_id}/super-margin`;
   const SWAP_ACCOUNT_ID = `${account_id}/swap`;
 
-  const subUsersRes = await client.getSubUserList();
+  const subUsersRes = await getSubUserList(credential);
   const subAccounts = subUsersRes.data;
   const isMainAccount = subUsersRes.ok;
   console.info(formatTime(Date.now()), 'subAccounts', JSON.stringify(subAccounts));
@@ -65,7 +91,7 @@ const terminal = Terminal.fromNodeEnv();
     SWAP_ACCOUNT_ID,
     async () => {
       // balance
-      const balance = await client.getUnifiedAccountInfo();
+      const balance = await getUnifiedAccountInfo(credential);
       if (!balance.data) {
         throw new Error('Failed to get unified account info');
       }
@@ -77,7 +103,7 @@ const terminal = Terminal.fromNodeEnv();
       const free = balanceData.withdraw_available;
 
       // positions
-      const positionsRes = await client.getSwapCrossPositionInfo();
+      const positionsRes = await getSwapCrossPositionInfo(credential);
       const mapProductIdToPerpetualProduct = await firstValueFrom(swapProductService.mapProductIdToProduct$);
       const positions: IPosition[] = (positionsRes.data || []).map((v): IPosition => {
         const product_id = v.contract_code;
@@ -156,7 +182,7 @@ const terminal = Terminal.fromNodeEnv();
   );
 
   const superMarginUnifiedRawAccountBalance$ = defer(() =>
-    client.getSpotAccountBalance(superMarginAccountUid),
+    getSpotAccountBalance(credential, superMarginAccountUid),
   ).pipe(
     //
     map((res) => res.data),
@@ -211,7 +237,7 @@ const terminal = Terminal.fromNodeEnv();
     SUPER_MARGIN_ACCOUNT_ID,
     async () => {
       // get account balance
-      const accountBalance = await client.getSpotAccountBalance(superMarginAccountUid);
+      const accountBalance = await getSpotAccountBalance(credential, superMarginAccountUid);
       const balanceList = accountBalance.data?.list || [];
 
       // calculate usdt balance
@@ -256,7 +282,7 @@ const terminal = Terminal.fromNodeEnv();
               price = tickPrice;
             } catch {
               // fallback to REST API
-              const tickerRes = await client.getSpotTick({ symbol: `${currencyData.currency}usdt` });
+              const tickerRes = await getSpotTick(credential, { symbol: `${currencyData.currency}usdt` });
               price = tickerRes.tick.close;
             }
 
@@ -296,7 +322,7 @@ const terminal = Terminal.fromNodeEnv();
     terminal,
     SPOT_ACCOUNT_ID,
     async () => {
-      const spotBalance = await client.getSpotAccountBalance(spotAccountUid);
+      const spotBalance = await getSpotAccountBalance(credential, spotAccountUid);
 
       const equity = +(spotBalance.data.list.find((v) => v.currency === 'usdt')?.balance ?? 0);
       const free = equity;
@@ -331,7 +357,7 @@ const terminal = Terminal.fromNodeEnv();
       console.info(formatTime(Date.now()), `SubmitOrder for ${account_id}`, JSON.stringify(msg));
 
       if (req_account_id === SWAP_ACCOUNT_ID) {
-        return defer(() => client.getSwapCrossPositionInfo()).pipe(
+        return defer(() => getSwapCrossPositionInfo(credential)).pipe(
           mergeMap((res) => res.data),
           map((v) => [v.contract_code, v.lever_rate]),
           toArray(),
@@ -355,7 +381,7 @@ const terminal = Terminal.fromNodeEnv();
               lever_rate,
               order_price_type: msg.req.order_type === 'MARKET' ? 'market' : 'limit',
             };
-            return client.postSwapOrder(params).then((v) => {
+            return postSwapOrder(credential, params).then((v) => {
               console.info(formatTime(Date.now()), 'SubmitOrder', JSON.stringify(v), JSON.stringify(params));
               return v;
             });
@@ -377,7 +403,7 @@ const terminal = Terminal.fromNodeEnv();
       // 2. get the current balance
       // 3. get the current price
       // 4. combine the information to submit the order
-      return defer(() => client.getCrossMarginLoanInfo()).pipe(
+      return defer(() => getCrossMarginLoanInfo(credential)).pipe(
         //
         mergeMap((res) => res.data),
         first((v) => v.currency === 'usdt'),
@@ -396,7 +422,7 @@ const terminal = Terminal.fromNodeEnv();
         ),
         combineLatestWith(spotProductService.mapProductIdToProduct$.pipe(first())),
         mergeMap(async ([[loanable, balance], mapProductIdToProduct]) => {
-          const priceRes = await client.getSpotTick({ symbol: msg.req.product_id });
+          const priceRes = await getSpotTick(credential, { symbol: msg.req.product_id });
           const theProduct = mapProductIdToProduct.get(msg.req.product_id);
           const price: number = priceRes.tick.close;
           const borrow_amount =
@@ -426,7 +452,7 @@ const terminal = Terminal.fromNodeEnv();
             price: msg.req.order_type === 'MARKET' ? undefined : '' + msg.req.price,
             source: 'super-margin-api',
           };
-          return client.postSpotOrder(params).then((v) => {
+          return postSpotOrder(credential, params).then((v) => {
             console.info(formatTime(Date.now()), 'SubmitOrder', JSON.stringify(v), JSON.stringify(params));
             return v;
           });
@@ -447,7 +473,7 @@ const terminal = Terminal.fromNodeEnv();
 
   // Update Spot TRC20 Addresses (Only Main Account)
   if (isMainAccount) {
-    const res = await client.getSpotAccountDepositAddresses({ currency: 'usdt' });
+    const res = await getSpotAccountDepositAddresses(credential, { currency: 'usdt' });
     const addresses = res.data.filter((v) => v.chain === 'trc20usdt').map((v) => v.address);
 
     for (const address of addresses) {
@@ -459,14 +485,14 @@ const terminal = Terminal.fromNodeEnv();
         network_id: 'TRC20',
         onApply: {
           INIT: async (order) => {
-            const res0 = await client.getV2ReferenceCurrencies({ currency: 'usdt' });
+            const res0 = await getV2ReferenceCurrencies(credential, { currency: 'usdt' });
             const fee = res0.data
               .find((v) => v.currency === 'usdt')
               ?.chains.find((v) => v.chain === 'trc20usdt')?.transactFeeWithdraw;
             if (!fee) {
               return { state: 'ERROR', message: 'MISSING FEE' };
             }
-            const res = await client.postWithdraw({
+            const res = await postWithdraw(credential, {
               address: order.current_rx_address!,
               amount: '' + (order.expected_amount - +fee),
               currency: 'usdt',
@@ -483,7 +509,7 @@ const terminal = Terminal.fromNodeEnv();
               return { state: 'ERROR', message: 'MISSING CONTEXT' };
             }
             const wdId = +order.current_tx_context;
-            const res = await client.getDepositWithdrawHistory({
+            const res = await getDepositWithdrawHistory(credential, {
               currency: 'usdt',
               type: 'withdraw',
               from: `${wdId}`,
@@ -499,7 +525,7 @@ const terminal = Terminal.fromNodeEnv();
           },
         },
         onEval: async (order) => {
-          const res = await client.getDepositWithdrawHistory({
+          const res = await getDepositWithdrawHistory(credential, {
             currency: 'usdt',
             type: 'deposit',
             direct: 'next',
@@ -525,7 +551,7 @@ const terminal = Terminal.fromNodeEnv();
     address: 'SPOT',
     onApply: {
       INIT: async (order) => {
-        const transferInResult = await client.postSuperMarginAccountTransferIn({
+        const transferInResult = await postSuperMarginAccountTransferIn(credential, {
           currency: 'usdt',
           amount: '' + (order.current_amount || order.expected_amount),
         });
@@ -548,7 +574,7 @@ const terminal = Terminal.fromNodeEnv();
     address: 'SUPER_MARGIN',
     onApply: {
       INIT: async (order) => {
-        const transferOutResult = await client.postSuperMarginAccountTransferOut({
+        const transferOutResult = await postSuperMarginAccountTransferOut(credential, {
           currency: 'usdt',
           amount: '' + (order.current_amount || order.expected_amount),
         });
@@ -571,7 +597,7 @@ const terminal = Terminal.fromNodeEnv();
     address: 'SPOT',
     onApply: {
       INIT: async (order) => {
-        const transferResult = await client.postSpotAccountTransfer({
+        const transferResult = await postSpotAccountTransfer(credential, {
           from: 'spot',
           to: 'linear-swap',
           currency: 'usdt',
@@ -597,7 +623,7 @@ const terminal = Terminal.fromNodeEnv();
     address: 'SWAP',
     onApply: {
       INIT: async (order) => {
-        const transferResult = await client.postSpotAccountTransfer({
+        const transferResult = await postSpotAccountTransfer(credential, {
           from: 'linear-swap',
           to: 'spot',
           currency: 'usdt',
@@ -628,7 +654,7 @@ const terminal = Terminal.fromNodeEnv();
         address: '#main',
         onApply: {
           INIT: async (order) => {
-            const transferResult = await client.postSubUserTransfer({
+            const transferResult = await postSubUserTransfer(credential, {
               'sub-uid': +order.current_rx_address!,
               currency: 'usdt',
               amount: order.current_amount || order.expected_amount,
@@ -652,7 +678,7 @@ const terminal = Terminal.fromNodeEnv();
         address: `${subAccount.uid}`,
         onApply: {
           INIT: async (order) => {
-            const transferResult = await client.postSubUserTransfer({
+            const transferResult = await postSubUserTransfer(credential, {
               'sub-uid': +order.current_tx_address!,
               currency: 'usdt',
               amount: order.current_amount || order.expected_amount,
