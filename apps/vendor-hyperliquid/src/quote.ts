@@ -1,25 +1,48 @@
-import type { IQuote } from '../../../libraries/data-quote/lib';
 import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { decodePath, encodePath } from '@yuants/utils';
-import { defer, filter, map, mergeMap, repeat, retry, shareReplay } from 'rxjs';
+import { defer, filter, map, mergeMap, repeat, retry, shareReplay, withLatestFrom } from 'rxjs';
+import type { IQuote } from '../../../libraries/data-quote/lib';
 import { client } from './api';
 
 const terminal = Terminal.fromNodeEnv();
+const ASSET_CTX_REFRESH_INTERVAL = process.env.ASSET_CTX_REFRESH_INTERVAL
+  ? Number(process.env.ASSET_CTX_REFRESH_INTERVAL)
+  : 5_000;
+
+type HyperliquidAssetContext = Awaited<ReturnType<typeof client.getMetaAndAssetCtxs>>[1][number];
+
+const assetCtxMap$ = defer(() => client.getMetaAndAssetCtxs()).pipe(
+  map(([meta, assetCtxs]) => {
+    const entries =
+      meta?.universe?.map<[string, HyperliquidAssetContext | undefined]>((asset, index) => [
+        asset.name,
+        assetCtxs?.[index],
+      ]) ?? [];
+    return new Map(entries.filter(([, ctx]) => !!ctx));
+  }),
+  repeat({ delay: ASSET_CTX_REFRESH_INTERVAL }),
+  retry({ delay: 5000 }),
+  shareReplay({ bufferSize: 1, refCount: true }),
+);
 
 const quote$ = defer(() => client.getAllMids()).pipe(
   map((mids) => Object.entries(mids ?? {})),
   mergeMap((entries) => entries),
-  map(
-    ([coin, price]): Partial<IQuote> => ({
+  withLatestFrom(assetCtxMap$),
+  map(([entry, assetCtxMap]): Partial<IQuote> => {
+    const [coin, price] = entry;
+    const ctx = assetCtxMap.get(coin);
+    return {
       datasource_id: 'HYPERLIQUID',
       product_id: encodePath('PERPETUAL', `${coin}-USD`),
       last_price: `${price}`,
       bid_price: `${price}`,
       ask_price: `${price}`,
+      open_interest: `${ctx?.openInterest ?? 0}`,
       updated_at: new Date().toISOString(),
-    }),
-  ),
+    };
+  }),
   repeat({ delay: 1000 }),
   retry({ delay: 5000 }),
   shareReplay({ bufferSize: 1, refCount: true }),
