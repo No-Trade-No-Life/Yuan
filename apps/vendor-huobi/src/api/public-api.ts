@@ -8,18 +8,16 @@ const SPOT_API_ROOT = 'api.huobi.pro';
  * 公共 API 请求方法
  */
 async function publicRequest(method: string, path: string, api_root: string, params?: any) {
-  const requestParams = `${
-    method === 'GET' && params !== undefined
-      ? `&${Object.entries(params)
-          .sort(([a], [b]) => a.localeCompare(b))
-          .map(([k, v]) => `${k}=${v}`)
-          .join('&')}`
-      : ''
-  }`;
+  const url = new URL(`https://${api_root}${path}`);
+
+  if (method === 'GET') {
+    for (const [k, v] of Object.entries(params || {})) {
+      url.searchParams.append(k, String(v));
+    }
+  }
 
   const body = method === 'GET' ? '' : JSON.stringify(params);
 
-  const url = new URL(`https://${api_root}${path}?${requestParams}`);
   console.info(formatTime(Date.now()), method, url.href, body);
 
   const res = await fetch(url.href, {
@@ -27,6 +25,8 @@ async function publicRequest(method: string, path: string, api_root: string, par
     headers: { 'Content-Type': 'application/json' },
     body: body || undefined,
   });
+
+  console.info(formatTime(Date.now()), 'PublicResponse', url.toString(), res.status);
 
   const retStr = await res.text();
   try {

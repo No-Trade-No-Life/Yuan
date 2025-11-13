@@ -53,7 +53,7 @@ export const privateRequest = async (
   });
 
   const retStr = await res.text();
-  // console.info(formatTime(Date.now()), 'response', url.href, retStr);
+  console.info(formatTime(Date.now()), 'PrivateResponse', url.toString(), res.status);
   try {
     return JSON.parse(retStr);
   } catch (e) {
