@@ -1,12 +1,12 @@
 import { Terminal } from '@yuants/protocol';
-import { defer, firstValueFrom } from 'rxjs';
-import { tradingAccountId$ } from './account';
+import { defer } from 'rxjs';
+import { getTradingAccountId } from './account';
 import { getDefaultCredential, postGridAlgoOrder } from './api';
 
 const terminal = Terminal.fromNodeEnv();
 
 defer(async () => {
-  const tradingAccountId = await firstValueFrom(tradingAccountId$);
+  const tradingAccountId = await getTradingAccountId();
   const credential = getDefaultCredential();
 
   terminal.server.provideService(

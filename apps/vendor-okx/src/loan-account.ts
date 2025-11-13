@@ -1,12 +1,12 @@
 import { provideAccountInfoService } from '@yuants/data-account';
 import { Terminal } from '@yuants/protocol';
-import { defer, firstValueFrom } from 'rxjs';
-import { accountUid$ } from './account';
-import { getDefaultCredential } from './api';
+import { defer } from 'rxjs';
+import { accountUidCache } from './account';
 import { getLoanAccountInfo } from './accountInfos';
+import { getDefaultCredential } from './api';
 
 defer(async () => {
-  const uid = await firstValueFrom(accountUid$);
+  const uid = await accountUidCache.query('');
   const loanAccountId = `okx/${uid}/loan/USDT`;
   const credential = getDefaultCredential();
 
