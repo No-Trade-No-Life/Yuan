@@ -1,23 +1,45 @@
-import type { IQuote } from '../../../libraries/data-quote/lib';
+import { createCache } from '@yuants/cache';
 import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { decodePath, encodePath } from '@yuants/utils';
-import { defer, filter, map, mergeMap, repeat, retry, shareReplay } from 'rxjs';
-import { getFApiV1TickerPrice } from './api';
+import { defer, filter, from, map, mergeMap, repeat, retry, shareReplay } from 'rxjs';
+import type { IQuote } from '../../../libraries/data-quote/lib';
+import { getFApiV1OpenInterest, getFApiV1TickerPrice } from './api';
 
 const terminal = Terminal.fromNodeEnv();
+const OPEN_INTEREST_TTL = process.env.OPEN_INTEREST_TTL ? Number(process.env.OPEN_INTEREST_TTL) : 120_000;
+
+const openInterestCache = createCache<string>(
+  async (symbol: string) => {
+    try {
+      const data = await getFApiV1OpenInterest({ symbol });
+      return data.openInterest;
+    } catch (error) {
+      console.warn('getFApiV1OpenInterest failed', symbol, error);
+      return undefined;
+    }
+  },
+  { expire: OPEN_INTEREST_TTL },
+);
 
 const quote$ = defer(() => getFApiV1TickerPrice({})).pipe(
   mergeMap((tickers) => tickers || []),
-  map(
-    (ticker): Partial<IQuote> => ({
-      datasource_id: 'ASTER',
-      product_id: encodePath('PERPETUAL', ticker.symbol),
-      last_price: `${ticker.price}`,
-      bid_price: `${ticker.price}`,
-      ask_price: `${ticker.price}`,
-      updated_at: new Date(ticker.time ?? Date.now()).toISOString(),
-    }),
+  mergeMap(
+    (ticker) =>
+      from(openInterestCache.query(ticker.symbol)).pipe(
+        map(
+          (openInterest): Partial<IQuote> => ({
+            datasource_id: 'ASTER',
+            product_id: encodePath('PERPETUAL', ticker.symbol),
+            last_price: `${ticker.price}`,
+            bid_price: `${ticker.price}`,
+            ask_price: `${ticker.price}`,
+            open_interest: `${openInterest ?? 0}`,
+            updated_at: new Date(ticker.time ?? Date.now()).toISOString(),
+          }),
+        ),
+      ),
+    5,
   ),
   repeat({ delay: 1000 }),
   retry({ delay: 5000 }),
