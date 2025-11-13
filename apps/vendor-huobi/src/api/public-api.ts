@@ -65,7 +65,7 @@ export function getPerpetualContractSymbols(params?: {
     contract_type: string;
     pair: string;
     business_type: string;
-    dilivery_date: string;
+    delivery_date: string;
   }[];
   ts: string;
 }> {
