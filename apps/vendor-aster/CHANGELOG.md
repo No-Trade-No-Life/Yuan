@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-aster
 
-This log was last generated on Wed, 12 Nov 2025 21:50:44 GMT and should not be manually modified.
+This log was last generated on Thu, 13 Nov 2025 08:02:29 GMT and should not be manually modified.
+
+## 0.5.5
+Thu, 13 Nov 2025 08:02:29 GMT
+
+### Patches
+
+- add open interest for hyperliquid 
 
 ## 0.5.4
 Wed, 12 Nov 2025 21:50:44 GMT
