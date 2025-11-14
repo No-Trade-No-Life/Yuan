@@ -1,102 +1,113 @@
 # Vendor Implementation Checklist
 
-Every vendor process must implement the same infrastructure so that both `trade-copier` and the transfer stack can reuse it. Missing any interface breaks order execution, reconciliation, or fund transfers. Use this checklist whenever you onboard, audit, or extend a vendor.
+Every vendor process must expose the same set of services, channels, and configuration hooks so `trade-copier` and the transfer stack can interoperate without venue-specific patches. Use this checklist whenever you onboard, audit, or extend a vendor.
 
-## 1. Account Snapshot Service
+## 0. Runtime & API Layering
+
+- **Why:** Keeps CLI vs. daemon behavior aligned, prevents hidden global state, and makes multi-account extensions trivial.
+- **Requirements:**
+
+  - `src/index.ts` must only aggregate modules (`import './account'; import './order-actions'; …`). Business logic lives inside the imported files.
+  - Inject credentials via environment variables (`ACCESS_KEY`, `SECRET_KEY`, `PASSPHRASE`, …) and split REST helpers:
+    - `src/api/public-api.ts`: pure functions for unauthenticated endpoints—**never** accept credentials.
+    - `src/api/private-api.ts`: every function explicitly receives a `credential`, making credential rotation obvious.
+  - Cache UID/parent info via `@yuants/cache`, generate account IDs as `vendor/<uid>/<scope>`, and reuse the cache across accounts, transfers, and credential-aware RPCs.
 
 - **API:** `provideAccountInfoService` (`@yuants/data-account`)
-- **Why:** `runStrategyBboMaker*` (see `apps/trade-copier/src/BBO_MAKER.ts`) uses `useAccountInfo` to compare expected vs. actual exposure, while the Web UI (`ui/web/src/modules/TradingBoard/AccountInfo.tsx`) and `yuanctl` inspections rely on the same stream.
-- **Dependents:** `trade-copier`, GUI account dashboards, CLI tooling, any strategy that calls `useAccountInfo`.
+- **Why:** Maker strategies (`apps/trade-copier/src/BBO_MAKER.ts`), the Web UI (`ui/web/src/modules/TradingBoard/AccountInfo.tsx`), and CLI inspections subscribe to the same stream.
 - **Requirements:**
-  - Expose every copier-driven trading account with up-to-date balances and per-product positions.
-  - Include direction, volume, average price, equity, available balance, and credit lines when available.
-  - Refresh automatically (≈1 s for derivatives) via polling or push channels; handle reconnect logic.
 
-## 2. Pending Order Service
+  - Publish every copier-controlled account with live balances and per-product positions (direction, volume, free volume, average price, mark price, floating PnL, equity/free funds).
+  - Refresh automatically (≈1 s for derivatives). Handle reconnects and throttle according to venue limits.
+  - Call `addAccountMarket` so downstream tooling knows which market the account belongs to.
 
 - **API:** `providePendingOrdersService` (`@yuants/data-order`)
-- **Why:** `queryPendingOrders` feeds both maker strategies (`apps/trade-copier/src/BBO_MAKER_BY_DIRECTION.ts`) and manual troubleshooting to decide when to cancel or adjust in-flight orders.
-- **Dependents:** `trade-copier`, `yuanctl query pending-orders`, Web TradingBoard overlays.
+- **Why:** `queryPendingOrders` feeds both maker loops and manual troubleshooting; stale data causes runaway exposure.
 - **Requirements:**
-  - Return all live orders for each account with `order_id`, `product_id`, `order_type`, `order_direction`, `volume`, `price`, `submit_at`, and venue-specific metadata if needed.
-  - Refresh at a cadence allowed by the venue (prefer ≤3 s); deduplicate updates to avoid flapping.
-  - Keep `order_id` consistent with what Submit/Cancel RPCs return.
 
-## 3. Product Catalog
+  - Always call the venue’s _official_ “open orders” REST (e.g., `/mix/order/orders-pending`, `/spot/trade/orders-pending`). Do **not** reconstruct from submissions.
+  - Map `product_id` using `encodePath(instType, instId)` (or `encodePath('SPOT', symbol)`), convert `side/posSide/tradeSide` to Yuan’s `OPEN_*` / `CLOSE_*` directions, surface `submit_at`, `price`, and `traded_volume`.
+  - Register one service per account (futures, spot, funding, etc.) and refresh every ≤5 s within rate limits.
 
-- **API:** `provideQueryProductsService` (`@yuants/data-product`)
-- **Why:** The copier reads product specs from SQL to clamp price/volume steps, calculate margin, and populate UI selectors.
-- **Dependents:** `trade-copier`, `apps/vendor-*/src/e2e/submit-order.e2e.test.ts`, GUI product pickers, risk monitors.
-- **Requirements:**
-  - Provide `product_id`, `datasource_id`, `volume_step`, `price_step`, `margin_rate`, contract size, allowed directions, etc.; follow existing refs such as `apps/vendor-okx/src/product.ts` and `apps/vendor-hyperliquid/src/product.ts`.
-  - Auto-refresh at least hourly (swap listings change quickly); use `auto_refresh_interval` like other vendors.
-  - Keep `datasource_id` identical across services (`ASTER`, `HYPERLIQUID`, `OKX`, …) so downstream joins work.
+- **API:** `provideQueryProductsService` / SQL writer (`@yuants/data-product`)
+- **Why:** Copier clamps price/volume steps, calculates margin, and populates UI selectors from this feed.
+- **Implementation:** Fetch products in `src/public-data/product.ts`, map them to `IProduct`, and write to the `product` table via `createSQLWriter`. Refresh at least hourly (`repeat({ delay: 3600_000 })`) and keep `datasource_id` consistent.
 
-## 4. Quote Channel (mandatory for BBO strategies)
+- **Directory:** `src/public-data/*`
+- **Why:** Prevents duplicated quote writers and keeps SQL/channel publishers consistent for every vendor.
+- **Expectations:**
+  - Group quote, funding-rate, OHLC, market-order scripts under this folder and import them from `src/index.ts`.
+  - Quote publishers must write to SQL when `WRITE_QUOTE_TO_SQL` is enabled and always publish `quote/{datasource_id}/{product_id}` with `last/bid/ask/open_interest/updated_at`.
+  - When WebSocket feeds fail, fall back to REST polling with monotonic timestamps.
 
-- **API:** Publish `quote` channel via `terminal.channel.publishChannel('quote', { pattern: '^VENDOR/' }, …)`
-- **Why:** `runStrategyBboMaker` subscribes to `quote/{datasource_id}/{product_id}` for bid/ask spreads, while analytics jobs reuse the same feed.
-- **Dependents:** `trade-copier`, discretionary agents, monitoring dashboards, SQL snapshots (`quote` table).
-- **Requirements:**
-  - Stream `last_price`, `bid_price`, `ask_price`, `open_interest`/depth if available, and `updated_at`.
-  - Follow the gating pattern from `apps/vendor-hyperliquid/src/quote.ts` using `WRITE_QUOTE_TO_SQL` to avoid dual publishing.
-  - Respect venue throttling—fall back to REST polling when WebSocket is unavailable, but keep timestamps monotonic.
+### 5.1 Default Account RPCs (`order-actions.ts`)
 
-## 5. Trading RPCs
+- **Why:** Copier/CLI rely on a predictable account ID; logging and schema validation keep audits simple.
 
-### SubmitOrder
+- Provide `SubmitOrder` and `CancelOrder` services bound to the cached default credential/account ID. Schema must pin `account_id`.
+- Translate `IOrder` to venue parameters via helper functions (e.g., `order-utils.ts`). Log both the Yuan payload and translated request for audits.
+- Return `{ res: { code: 0, message: 'OK', data?: { order_id } } }` and propagate venue errors verbatim.
 
-- **API:** `terminal.server.provideService<IOrder>('SubmitOrder', …)`
-- **Why:** All automated strategies and ops scripts send their orders through this RPC to keep auditing centralized.
-- **Dependents:** `trade-copier`, `yuanctl submit-order`, integration tests such as `apps/vendor-aster/src/e2e/submit-order.e2e.test.ts`.
-- **Requirements:**
-  - Support `OPEN_LONG`, `CLOSE_LONG`, `OPEN_SHORT`, `CLOSE_SHORT` with `MARKET`, `LIMIT`, `MAKER` at minimum.
-  - Return `{ res: { code: 0, message: 'OK', data?: { order_id } } }`; propagate venue-side error codes verbatim.
-  - Log both the Yuan order payload and translated venue request for incident triage.
-  - If you must support multiple or dynamic accounts, mirror `apps/vendor-okx/src/order-actions-with-credential.ts`: provide an alternate RPC that validates `account_id` via regex and requires `credential` objects (`access_key` / `secret_key` / `passphrase`) per request, so you are not limited by environment variables while keeping parity with the legacy single-account service.
+### 5.2 Credential-Aware RPCs (`order-actions-with-credential.ts`)
 
-### CancelOrder
+- **Why:** Enables arbitrary accounts without redeploying, removing environment-variable scaling limits.
 
-- **API:** `terminal.server.provideService<IOrder>('CancelOrder', …)`
-- **Why:** Maker loops continuously cancel/repost; without reliable cancels, the copier cannot converge to target exposure.
-- **Dependents:** `trade-copier`, `yuanctl cancel-order`, manual kill-switch tooling.
-- **Requirements:**
-  - Accept `order_id`, `product_id`, `account_id`; reject unknown orders explicitly.
-  - Return `code = 0` on success; include venue error payload for observability on failure.
+- Expose alternate `SubmitOrder` / `CancelOrder` (and `ModifyOrder` when needed) that validate `account_id` with a regex (e.g., `^vendor/`) and require a `credential` object containing `access_key`, `secret_key`, and `passphrase`.
+- Use the provided credential per request to support arbitrary accounts without redeploying.
 
-## 6. Transfer Interface
+## 6. Transfer Interface (`src/transfer.ts`)
 
-- **API:** `addAccountTransferAddress` helper or the underlying `TransferApply` / `TransferEval` services (`@yuants/transfer`).
-- **Why:** `@yuants/app-transfer-controller` (`apps/transfer-controller/src/index.ts`) orchestrates multi-hop fund flows and needs each vendor to execute and reconcile steps for the routes it plans.
-- **Dependents:** Transfer Controller, bespoke funding automations, cross-venue treasury bots.
-- **Requirements:**
-  - Register every (`account_id`, `network_id`, `currency`, `address`) tuple exposed in `account_address_info` so the controller can plan routes.
-  - Implement state machines for long-running withdrawals (e.g., `INIT` → `AWAIT_TX_ID` → `COMPLETE`) and return context via `current_tx_context` as shown in `docs/en/vendor-guide/vendor-transfer.md`.
-  - Surface reconciliation via `onEval`/`TransferEval`, including `received_amount` or `transaction_id` when available.
+- **Why:** `@yuants/app-transfer-controller` needs vendors to execute on-chain/internal moves and report status for every route.
 
-## Additional Guidance
+- Register every (`account_id`, `network_id`, `currency`, `address`) tuple via `addAccountTransferAddress` so `@yuants/app-transfer-controller` can plan multi-hop routes.
+- Implement long-running withdrawals as state machines (`INIT → PENDING → COMPLETE`), storing context in `current_tx_context` and returning `transaction_id` / `received_amount` via `onEval`.
+- Cover on-chain withdrawals, internal spot↔derivatives transfers, and parent/child account shuffles using the same cached credential.
 
-### Supporting Configuration
+## 7. CLI & Operational Alignment
 
-- Document all credentials/endpoints (`API_KEY`, `SECRET_KEY`, `PASSPHRASE`, `HOST_URL`, …) and reuse them across trading and transfer modules.
-- When introducing caching or secret management, follow the OKX pattern (`apps/vendor-okx/src/account.ts`)—use `@yuants/cache` for SWR/TTL polling and `@yuants/secret` to store sensitive keys, reducing API throttling while keeping multi-account expansion safe.
-- Ensure `Terminal.fromNodeEnv()` can discover the correct host, namespace, and instance tags.
-- Keep feature flags aligned with existing vendors (`WRITE_QUOTE_TO_SQL`, `DISABLE_TRANSFER`, etc.) so ops can toggle workloads consistently.
-- Group public market data scripts under a `public-data/*` style folder and import them centrally via `index.ts`, similar to the OKX vendor, to avoid scattered quote/interest workers that cannot be reused.
+- **Why:** Uniform entrypoints and feature flags avoid deployment drift and reduce debugging friction.
 
-### Validation Steps
+- `src/cli.ts` should only import `./index`.
+- All modules must instantiate `Terminal` via `Terminal.fromNodeEnv()` so tags (host/namespace/instance) remain consistent.
+- Mirror existing feature flags (`WRITE_QUOTE_TO_SQL`, `DISABLE_TRANSFER`, …) to keep operational controls uniform.
 
-`yuanctl`-based smoke tests are TBD. During the interim, perform the following manual end-to-end verification before routing production flow:
+## 8. Validation Steps
 
-1. Compile-time safety: `npx tsc --noEmit --project apps/vendor-<vendor>/tsconfig.json`.
-2. Interface-by-interface checks (run against a staging host or sandbox account):
-   - **Account Snapshot**: call `terminal.client.requestForResponse('QueryAccountInfo', { account_id })` or subscribe via a short script using `useAccountInfo`; verify positions/balances match the venue portal.
-   - **Pending Orders**: invoke `queryPendingOrders(terminal, account_id, true)` and compare with the venue’s open-order list.
-   - **Product Catalog**: hit `terminal.client.requestForResponse('QueryProducts', { datasource_id: 'VENDOR_ID', force_update: true })` and confirm step sizes / margin fields align with the exchange docs.
-   - **Quote Channel**: run a temporary subscriber for `quote/{datasource_id}/{product_id}` (e.g., via `terminal.channel.subscribeChannel`) to ensure bid/ask fields update each second and timestamps are monotonic.
-   - **SubmitOrder / CancelOrder**: execute the existing E2E script (`apps/vendor-*/src/e2e/submit-order.e2e.test.ts`) or an equivalent manual script to place and cancel a tiny order; confirm the RPC returns `code = 0`, the order appears in the pending list, and cancellation clears it.
-3. Transfer path checks:
-   - For every (`account_id`, `network_id`, `currency`, `address`) tuple, run `TransferApply` once (via `@yuants/app-transfer-controller` dry run or a custom script), ensuring the state machine progresses `INIT → … → COMPLETE`.
-   - Invoke `TransferEval` afterward to verify `received_amount` or `transaction_id` is populated; reconcile with the venue’s transfer history.
+- **Why:** Until automated smoke tests exist, manual verification is the only way to guarantee production readiness.
 
-Clearing this checklist keeps vendors compatible with both the trading and transfer controllers without venue-specific hotfixes.
+`yuanctl`-based smoke tests are still TBD. Until then, verify each vendor manually:
+
+1. **Compile:** `npx tsc --noEmit --project apps/vendor-<vendor>/tsconfig.json`.
+2. **Interface checks:**
+   - `QueryAccountInfo` or `useAccountInfo` script → compare with the venue portal.
+   - `queryPendingOrders(terminal, account_id, true)` → ensure it matches the venue’s open-order page.
+   - `QueryProducts` (`force_update: true`) → validate step sizes/margin fields against docs.
+   - Subscribe to `quote/{datasource_id}/{product_id}` → confirm 1 Hz updates and monotonic timestamps.
+   - Run `apps/vendor-*/src/e2e/submit-order.e2e.test.ts` (or equivalent) → submit & cancel a small order; expect `code = 0` and consistent pending orders.
+3. **Transfer checks:** For every (`account_id`, `network_id`, `currency`, `address`), run a dry `TransferApply` via the transfer controller and follow up with `TransferEval` to confirm `received_amount` or `transaction_id`.
+
+## 9. Recommended Layout
+
+```
+src/
+├── account.ts                      # UID cache + account/pending services
+├── api/
+│   ├── public-api.ts               # Unauthenticated REST helpers
+│   └── private-api.ts              # Authenticated REST helpers (function-based)
+├── order-actions.ts                # Default Submit/Cancel RPCs
+├── order-actions-with-credential.ts# Credential-aware RPCs
+├── order-utils.ts                  # Order direction/param helpers
+├── public-data/
+│   ├── product.ts
+│   ├── quote.ts
+│   ├── interest-rate.ts
+│   └── utils/…
+└── transfer.ts                     # On-chain + internal transfers
+```
+
+## 10. Reference Implementations
+
+- **`apps/vendor-okx`** – fully modular architecture with credential-aware RPCs, cache usage, and comprehensive public-data workers.
+- **`apps/vendor-bitget`** – recent refactor showcasing how to migrate to the public/private API split, `public-data/*` layout, and multi-account order services.
+
+Use these projects as blueprints when adding new vendors; mirroring their structure greatly simplifies reviews and reduces back-and-forth.

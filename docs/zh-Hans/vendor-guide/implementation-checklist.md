@@ -1,100 +1,118 @@
 # Vendor 实现检查清单
 
-为了让 `trade-copier` 与转账链路复用同一套能力，每个 vendor 进程都必须实现相同的服务、频道和配置。缺少其中任何一项，都会在下单、对账或资金调拨时出现缺口。请在接入、巡检或扩展 vendor 时逐条核对本清单。
+为了让 `trade-copier` 与转账链路直接复用，每个 vendor 进程都必须暴露一致的服务、频道和配置。接入、巡检或扩展 vendor 时，请逐条核对本清单。
+
+## 0. 运行期与 API 分层
+
+- **原因：** 保证 CLI、常驻进程与多账户扩展在行为上绝对一致，避免凭证泄露或全局状态污染。
+- **要求：**
+  - `src/index.ts` 只负责聚合（`import './account'; import './order-actions'; …`），具体逻辑放在各模块，保证 CLI 与常驻服务一致。
+  - 凭证通过环境变量注入（`ACCESS_KEY`、`SECRET_KEY`、`PASSPHRASE` 等），并按以下方式拆分 REST helper：
+    - `src/api/public-api.ts`：纯函数、无凭证参数，处理所有公共接口。
+    - `src/api/private-api.ts`：每个函数显式接收 `credential`，方便多账户/凭证轮转。
+  - 使用 `@yuants/cache` 缓存 UID/母账号，统一生成 `vendor/<uid>/<scope>` 的 `account_id`，账户、转账、凭证化 RPC 等场景全部复用。
 
 ## 1. 账户快照服务
 
 - **接口：** `provideAccountInfoService`（`@yuants/data-account`）
-- **原因：** `runStrategyBboMaker*`（见 `apps/trade-copier/src/BBO_MAKER.ts`）依赖 `useAccountInfo` 对比目标头寸，Web UI（`ui/web/src/modules/TradingBoard/AccountInfo.tsx`）和 `yuanctl` 查询也都订阅同一数据源。
-- **依赖组件：** `trade-copier`、账户看板、CLI 巡检、所有调用 `useAccountInfo` 的策略。
+- **原因：** 做市策略（`apps/trade-copier/src/BBO_MAKER.ts`）、Web UI 与 CLI 巡检都依赖统一账户流，缺失信息会导致仓位失控。
 - **要求：**
-  - 暴露所有由 copier 驱动的账户，包含实时余额和逐品种持仓。
-  - 字段需覆盖方向、手数、均价、权益、可用资金、授信等基础信息。
-  - 通过轮询或推送自动刷新（期货建议 ≈1 秒）；注意断线重连。
+  - 覆盖 copier 管控的所有账户，字段包含方向、持仓量、可平数量、均价、标记价格、浮盈、权益/可用资金等。
+  - 按交易所限速自动刷新（期货建议 ≈1 秒），并处理断线重连。
+  - 调用 `addAccountMarket` 注册账户归属市场。
 
 ## 2. 挂单列表服务
 
 - **接口：** `providePendingOrdersService`（`@yuants/data-order`）
-- **原因：** `queryPendingOrders` 同时驱动做市策略（`apps/trade-copier/src/BBO_MAKER_BY_DIRECTION.ts`）与人工排障，决定是否撤单或调价。
-- **依赖组件：** `trade-copier`、`yuanctl query pending-orders`、Web TradingBoard 可视化。
+- **原因：** `trade-copier` 与人工排障都依赖 `queryPendingOrders`，错误数据会导致撤单失灵或爆仓。
 - **要求：**
-  - 返回全部在途订单，字段包含 `order_id`, `product_id`, `order_type`, `order_direction`, `volume`, `price`, `submit_at` 等。
-  - 按交易所限速尽量高频刷新（优选 ≤3 秒），并保证 `order_id` 与下单 RPC 一致。
-  - 对完全成交/撤销的订单及时下线，避免脏数据。
+  - 必须调用交易所官方 “未成交订单” 接口（如 `/mix/order/orders-pending`、`/spot/trade/orders-pending`），禁止自行拼装。
+  - 用 `encodePath(instType, instId)`（或 `encodePath('SPOT', symbol)`）生成 `product_id`；根据 `side + posSide/tradeSide` 映射为 `OPEN_*` / `CLOSE_*`；补充 `submit_at`、`price`、`traded_volume`。
+  - 不同账户（合约/现货等）分别注册服务，刷新频率 ≤5 秒并满足限频。
 
 ## 3. 品种目录
 
-- **接口：** `provideQueryProductsService`（`@yuants/data-product`）
-- **原因：** copier 依赖产品元数据来限制价格/数量步长、计算保证金，并驱动 UI 选择器。
-- **依赖组件：** `trade-copier`、`apps/vendor-*/src/e2e/submit-order.e2e.test.ts`、GUI 产品筛选、风险监控。
-- **要求：**
-  - 输出 `product_id`, `datasource_id`, `volume_step`, `price_step`, `margin_rate`, 合约面值、可开方向等；可参考 `apps/vendor-okx/src/product.ts`、`apps/vendor-hyperliquid/src/product.ts`。
-  - 通过 `auto_refresh_interval` 至少每小时刷新一次，保持与交易所上市变更同步。
-  - `datasource_id` 在所有服务中保持一致（如 `ASTER`、`HYPERLIQUID`、`OKX`），方便 SQL 联表。
+- **接口：** `provideQueryProductsService` / SQL writer (`@yuants/data-product`)
+- **原因：** copier 需依赖统一的产品元数据限制价格/数量步长、计算保证金、驱动 UI 选择器。
+- **实现：** 在 `src/public-data/product.ts` 中调用公共产品接口 → 映射为 `IProduct` → 通过 `createSQLWriter` 写入 `product` 表；至少每小时刷新一次，并保证 `datasource_id` 在系统内一致。
 
-## 4. 行情频道（BBO 策略必需）
+## 4. 公共行情与 Quote 频道
 
-- **接口：** `terminal.channel.publishChannel('quote', { pattern: '^VENDOR/' }, …)`
-- **原因：** `runStrategyBboMaker` 订阅 `quote/{datasource_id}/{product_id}` 获取买卖价，行情分析与 SQL 也沿用该通道。
-- **依赖组件：** `trade-copier`、其他做市代理、监控大屏、`quote` 表。
+- **目录：** `src/public-data/*`
+- **原因：** `trade-copier`、分析作业与 SQL 表都依赖 `quote/{datasource_id}/{product_id}`；脚本散落会造成双写或遗漏。
 - **要求：**
-  - 推送 `last_price`, `bid_price`, `ask_price`, `open_interest`（如可用）与 `updated_at`。
-  - 复用 `apps/vendor-hyperliquid/src/quote.ts` 的开关模式（`WRITE_QUOTE_TO_SQL`），避免重复写库。
-  - 在 WebSocket 不可用时降级到 REST 轮询，并保持时间戳单调。
+  - 将 quote、资金费率、OHLC、market-order 等脚本统一放在 `public-data`，由 `index.ts` 引入。
+  - Quote 发布时，若设置了 `WRITE_QUOTE_TO_SQL=1` 则写库，否则只发 Channel；通道需提供 `last/bid/ask/open_interest/updated_at`。
+  - WebSocket 异常时要降级 REST 轮询并保持时间戳单调。
 
 ## 5. 交易 RPC
 
-### SubmitOrder
+### 5.1 默认账户 RPC（`order-actions.ts`）
 
-- **接口：** `terminal.server.provideService<IOrder>('SubmitOrder', …)`
-- **原因：** 所有自动化策略和运维脚本都通过该 RPC 下单，便于审计。
-- **依赖组件：** `trade-copier`、`yuanctl submit-order`、如 `apps/vendor-aster/src/e2e/submit-order.e2e.test.ts` 等端到端测试。
-- **要求：**
-  - 支持 `OPEN_LONG` / `CLOSE_LONG` / `OPEN_SHORT` / `CLOSE_SHORT` 以及至少 `MARKET`、`LIMIT`、`MAKER`。
-  - 返回 `{ res: { code: 0, message: 'OK', data?: { order_id } } }`，异常时透传交易所错误。
-  - 打印原始请求与转换后的交易所参数，方便排障。
-  - 若需要支持多账户/动态账户，参考 `apps/vendor-okx/src/order-actions-with-credential.ts` 提供带 `credential` 的服务版本：校验 `account_id` 正则，强制包含 `access_key` / `secret_key` / `passphrase` 等字段，避免环境变量限制账户数量；保留默认服务时确保两套接口行为一致。
+- **原因：** copier 与 CLI 通过固定账户 ID 下单，需确保行为稳定可审计。
 
-### CancelOrder
+- 基于缓存凭证注册 `SubmitOrder`、`CancelOrder`，Schema 限定 `account_id`。
+- 使用 `order-utils.ts` 等工具将 `IOrder` 翻译为交易所参数，并记录原始/翻译后的日志。
+- 返回 `{ res: { code: 0, message: 'OK', data?: { order_id } } }`，失败时透传交易所错误。
 
-- **接口：** `terminal.server.provideService<IOrder>('CancelOrder', …)`
-- **原因：** 做市循环需要稳定撤单才能收敛仓位。
-- **依赖组件：** `trade-copier`、`yuanctl cancel-order`、人工 kill-switch。
-- **要求：**
-  - 接受 `order_id`, `product_id`, `account_id`，对未知订单给出显式失败。
-  - 成功返回 `code = 0`，失败时附带交易所错误信息。
+### 5.2 凭证化 RPC（`order-actions-with-credential.ts`）
 
-## 6. 转账接口
+- **原因：** 多租户/动态账户场景依赖请求级凭证，减少环境变量扩容成本。
 
-- **接口：** `addAccountTransferAddress` 或底层 `TransferApply` / `TransferEval`（`@yuants/transfer`）
-- **原因：** `@yuants/app-transfer-controller`（`apps/transfer-controller/src/index.ts`）会规划多跳调拨路径，要求 vendor 执行并对账每一步。
-- **依赖组件：** Transfer Controller、定制资金调度脚本、跨所资金机器人。
-- **要求：**
-  - 将所有 (`account_id`, `network_id`, `currency`, `address`) 组合注册到 `account_address_info`，供控制器路由。
-  - 对长流程提现实现状态机（如 `INIT` → `AWAIT_TX_ID` → `COMPLETE`），通过 `current_tx_context` 传递上下文，参考 `docs/zh-Hans/vendor-guide/vendor-transfer.md`。
-  - `onEval`/`TransferEval` 返回到账金额或链上 `transaction_id`，确保风控可追踪。
+- 提供携带 `credential` 的 `SubmitOrder` / `CancelOrder`（及可选 `ModifyOrder`），Schema 校验 `account_id` 正则（如 `^vendor/`）并要求 `access_key` / `secret_key` / `passphrase`。
+- 每次请求使用调用方提供的凭证，突破环境变量限制，实现任意账户下单。
 
-## 附加指引
+## 6. 转账接口（`src/transfer.ts`）
 
-### 配置要求
+- **原因：** `@yuants/app-transfer-controller` 需要 vendor 执行链上/内部划转并反馈状态，否则调拨链路无法闭环。
 
-- 统一记录凭证/地址（`API_KEY`, `SECRET_KEY`, `PASSPHRASE`, `HOST_URL` 等），供交易与转账模块共用。
-- 引入缓存与机密管理时，可仿照 `apps/vendor-okx/src/account.ts` 使用 `@yuants/cache` 做 SWR/TTL 轮询、用 `@yuants/secret` 托管敏感凭证，以减少 API 限频并确保多账户扩展不会泄露 key。
-- 确保 `Terminal.fromNodeEnv()` 能获取 Host、命名空间、实例标签等元数据。
-- 特性开关与现有 vendor 保持一致（如 `WRITE_QUOTE_TO_SQL`, `DISABLE_TRANSFER`），便于统一运维。
-- 公共市场数据建议集中在 `public-data/*` 风格目录，向 OKX 那样通过 `index.ts` 统一入口，避免行情/利率脚本散落各处导致无法复用。
+- 用 `addAccountTransferAddress` 注册所有 (`account_id`, `network_id`, `currency`, `address`) 组合，供 `@yuants/app-transfer-controller` 规划多跳路线。
+- 链上提现需实现 `INIT → PENDING → COMPLETE` 状态机，依赖 `current_tx_context` 记录上下文并在 `onEval` 中返回 `transaction_id` / `received_amount`。
+- 覆盖链上提现、spot↔ 合约内部划转、母子账号互转，均复用缓存凭证。
 
-### 验收流程
+## 7. CLI 与运维约束
 
-`yuanctl` 的一键冒烟仍在规划中（TBD）。在此之前，请按接口逐项完成以下手动端到端验证：
+- **原因：** 统一的运行方式能减少部署差异，避免调试噪音。
 
-1. 编译检查：`npx tsc --noEmit --project apps/vendor-<vendor>/tsconfig.json`。
-2. 逐接口自测（建议在预发布或沙盒账户执行）：
-   - **账户快照**：使用脚本调用 `terminal.client.requestForResponse('QueryAccountInfo', { account_id })` 或订阅 `useAccountInfo`，核对持仓/余额与交易所后台一致。
-   - **挂单列表**：执行 `queryPendingOrders(terminal, account_id, true)`，比对交易所未成交订单页面。
-   - **品种目录**：调用 `terminal.client.requestForResponse('QueryProducts', { datasource_id: 'VENDOR_ID', force_update: true })`，确认价格/数量步长和保证金字段与官方文档匹配。
-   - **行情频道**：临时订阅 `quote/{datasource_id}/{product_id}`（如用 `terminal.channel.subscribeChannel`），确保每秒更新、时间戳单调。
-   - **SubmitOrder / CancelOrder**：运行 `apps/vendor-*/src/e2e/submit-order.e2e.test.ts` 或等价脚本，下发并撤销一笔小额订单，确认 RPC 返回 `code = 0` 且挂单列表及时更新。
-3. 转账路径：针对每条 (`account_id`, `network_id`, `currency`, `address`) 组合，通过 `@yuants/app-transfer-controller` 的演练模式或自研脚本触发 `TransferApply`，观察状态机从 `INIT` 走到 `COMPLETE`，并在随后调用 `TransferEval` 核对到账金额或链上 `transaction_id`。
+- `src/cli.ts` 仅 `import './index'`。
+- 所有模块的 `Terminal` 均来自 `Terminal.fromNodeEnv()`，保证 host/namespace/instance 标记一致。
+- 继承现有特性开关（如 `WRITE_QUOTE_TO_SQL`、`DISABLE_TRANSFER`），确保运维一致性。
 
-逐项通过本清单，才能保证 vendor 同时适配交易与转账控制器，而无需额外补丁。
+## 8. 验证步骤
+
+- **原因：** 目前没有一键冒烟，必须手动逐项验证才能保证上线质量。
+
+1. **编译检查：** `npx tsc --noEmit --project apps/vendor-<vendor>/tsconfig.json`。
+2. **接口逐项自测：**
+   - `QueryAccountInfo` / `useAccountInfo` → 对照交易所后台。
+   - `queryPendingOrders(terminal, account_id, true)` → 与交易所未成交列表一致。
+   - `QueryProducts`（`force_update: true`）→ 核对步长/保证金等字段。
+   - 订阅 `quote/{datasource_id}/{product_id}` → 确保 1Hz 更新且时间戳单调。
+   - 运行 `apps/vendor-*/src/e2e/submit-order.e2e.test.ts` 或等效脚本 → 下发与撤销一笔小单，`code = 0` 且挂单列表同步更新。
+3. **转账验证：** 对每条 (`account_id`, `network_id`, `currency`, `address`) 组合，借助 Transfer Controller 的演练模式执行 `TransferApply`，观察状态从 `INIT` 走到 `COMPLETE`；随后调用 `TransferEval` 核对 `received_amount` 或 `transaction_id`。
+
+## 9. 推荐目录结构
+
+```
+src/
+├── account.ts                      # UID 缓存 + 账户/挂单服务
+├── api/
+│   ├── public-api.ts               # 无需认证的 REST 函数
+│   └── private-api.ts              # 需认证的 REST 函数
+├── order-actions.ts                # 默认 Submit/Cancel
+├── order-actions-with-credential.ts# 凭证化 Submit/Cancel
+├── order-utils.ts                  # 方向/参数映射
+├── public-data/
+│   ├── product.ts
+│   ├── quote.ts
+│   ├── interest-rate.ts
+│   └── utils/…
+└── transfer.ts                     # 链上 + 内部划转
+```
+
+## 10. 参考实现
+
+- **`apps/vendor-okx`**：完整展示模块化架构、凭证化 RPC、缓存体系与 `public-data/*` 工程化写法。
+- **`apps/vendor-bitget`**：近期重构版本，演示如何落地 public/private API 分层、`public-data` 目录以及多账户挂单服务。
+
+按上述结构开发，可显著减少评审与反复沟通成本。
