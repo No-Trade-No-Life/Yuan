@@ -3,24 +3,24 @@ import { Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
 import { encodePath, formatTime } from '@yuants/utils';
 import { Subject, defer, repeat, retry, shareReplay, tap } from 'rxjs';
-import { client } from './api';
+import { getMarketContracts } from '../api/public-api';
 
 const product$ = new Subject<IProduct>();
 
 // product
 const futureProducts$ = defer(async () => {
   // usdt-m swap
-  const usdtFuturesProductRes = await client.getMarketContracts({ productType: 'USDT-FUTURES' });
+  const usdtFuturesProductRes = await getMarketContracts({ productType: 'USDT-FUTURES' });
   if (usdtFuturesProductRes.msg !== 'success') {
     throw new Error(usdtFuturesProductRes.msg);
   }
   // mixed-coin swap, (including coin-m and coin-f)
-  const coinFuturesProductRes = await client.getMarketContracts({ productType: 'COIN-FUTURES' });
+  const coinFuturesProductRes = await getMarketContracts({ productType: 'COIN-FUTURES' });
   if (coinFuturesProductRes.msg !== 'success') {
     throw new Error(coinFuturesProductRes.msg);
   }
   const usdtFutures = usdtFuturesProductRes.data.map(
-    (product): IProduct => ({
+    (product: any): IProduct => ({
       product_id: encodePath(`USDT-FUTURES`, product.symbol),
       datasource_id: 'BITGET',
       quote_currency: product.quoteCoin,
@@ -42,7 +42,7 @@ const futureProducts$ = defer(async () => {
     }),
   );
   const coinFutures = coinFuturesProductRes.data.map(
-    (product): IProduct => ({
+    (product: any): IProduct => ({
       product_id: encodePath(`COIN-FUTURES`, product.symbol),
       datasource_id: 'BITGET',
       quote_currency: product.quoteCoin,

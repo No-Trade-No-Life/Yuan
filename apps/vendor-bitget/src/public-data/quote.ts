@@ -3,25 +3,25 @@ import { Terminal } from '@yuants/protocol';
 import { requestSQL, writeToSQL } from '@yuants/sql';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { defer, groupBy, map, merge, mergeMap, repeat, retry, scan, shareReplay, Subject, tap } from 'rxjs';
-import { client } from './api';
-import { createCyclicTask } from './cyclic-task';
+import { getFutureMarketTickers, getNextFundingTime } from '../api/public-api';
+import { createCyclicTask } from './utils/cyclic-task';
 
-const usdtFuturesTickers$ = defer(() => client.getFutureMarketTickers({ productType: 'USDT-FUTURES' })).pipe(
+const usdtFuturesTickers$ = defer(() => getFutureMarketTickers({ productType: 'USDT-FUTURES' })).pipe(
   retry({ delay: 5000 }),
   repeat({ delay: 5000 }),
   shareReplay(1),
 );
 
-const coinFuturesTickers$ = defer(() => client.getFutureMarketTickers({ productType: 'COIN-FUTURES' })).pipe(
+const coinFuturesTickers$ = defer(() => getFutureMarketTickers({ productType: 'COIN-FUTURES' })).pipe(
   retry({ delay: 5000 }),
   repeat({ delay: 5000 }),
   shareReplay(1),
 );
 
 const usdtFuturesQuote$ = usdtFuturesTickers$.pipe(
-  mergeMap((x) => x.data || []),
+  mergeMap((x: any) => x.data || []),
   map(
-    (x): Partial<IQuote> => ({
+    (x: any): Partial<IQuote> => ({
       datasource_id: 'BITGET',
       product_id: encodePath('USDT-FUTURES', x.symbol),
       last_price: x.lastPr,
@@ -37,9 +37,9 @@ const usdtFuturesQuote$ = usdtFuturesTickers$.pipe(
 );
 
 const coinFuturesQuote$ = coinFuturesTickers$.pipe(
-  mergeMap((x) => x.data || []),
+  mergeMap((x: any) => x.data || []),
   map(
-    (x): Partial<IQuote> => ({
+    (x: any): Partial<IQuote> => ({
       datasource_id: 'BITGET',
       product_id: encodePath('COIN-FUTURES', x.symbol),
       last_price: x.lastPr,
@@ -100,7 +100,7 @@ createCyclicTask({
   interval: 1000,
   task: async (product_id) => {
     const [instType, instId] = decodePath(product_id);
-    const res = await client.getNextFundingTime({
+    const res = await getNextFundingTime({
       symbol: instId,
       productType: instType,
     });

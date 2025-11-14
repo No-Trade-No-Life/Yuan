@@ -3,7 +3,7 @@ import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
 import { decodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, timer } from 'rxjs';
-import { client } from './api';
+import { getHistoricalFundingRate } from '../api/public-api';
 
 createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
   tableName: 'interest_rate',
@@ -16,7 +16,7 @@ createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
     let current_page = 0;
     while (true) {
       // 向前翻页，时间降序
-      const res = await client.getHistoricalFundingRate({
+      const res = await getHistoricalFundingRate({
         symbol: instId,
         productType: instType,
         pageSize: '100',
@@ -27,7 +27,7 @@ createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
       }
       if (res.data.length === 0) break;
       yield res.data.map(
-        (v): IInterestRate => ({
+        (v: any): IInterestRate => ({
           series_id,
           datasource_id,
           product_id,
