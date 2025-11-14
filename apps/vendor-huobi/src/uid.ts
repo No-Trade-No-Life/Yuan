@@ -1,24 +1,20 @@
 import { createCache } from '@yuants/cache';
-import { getAccount, getDefaultCredential, getUid, ICredential } from './api/private-api';
+import { getAccount, getUid } from './api/private-api';
 
-const credential = getDefaultCredential();
+export const uidCache = createCache((key) => getUid(JSON.parse(key)));
 
-export const akToCredential = new Map<string, ICredential>();
+const huobiAccounts = createCache((key) => getAccount(JSON.parse(key)));
 
-export const uidCache = createCache((ak) => getUid(akToCredential.get(ak) || credential));
-
-const huobiAccounts = createCache((ak) => getAccount(akToCredential.get(ak) || credential));
-
-export const superMarginAccountUidCache = createCache((ak) =>
-  huobiAccounts.query(ak).then((x) => x?.data.find((v) => v.type === 'super-margin')?.id),
+export const superMarginAccountUidCache = createCache((key) =>
+  huobiAccounts.query(key).then((x) => x?.data.find((v) => v.type === 'super-margin')?.id),
 );
 
-export const spotAccountUidCache = createCache((ak) =>
-  huobiAccounts.query(ak).then((x) => x?.data.find((v) => v.type === 'spot')?.id),
+export const spotAccountUidCache = createCache((key) =>
+  huobiAccounts.query(key).then((x) => x?.data.find((v) => v.type === 'spot')?.id),
 );
 
-export const getAccountIds = async (ak = '') => {
-  const uid = await uidCache.query(ak);
+export const getAccountIds = async (key: string) => {
+  const uid = await uidCache.query(key);
   if (!uid) throw new Error('Failed to get UID');
 
   const account_id = `huobi/${uid}`;

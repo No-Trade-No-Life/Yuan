@@ -51,7 +51,7 @@ export async function handleSwapOrder(order: IOrder, credential: ICredential) {
  */
 export async function handleSuperMarginOrder(order: IOrder, credential: ICredential) {
   // 获取可贷款金额
-  const superMarginAccountUid = await superMarginAccountUidCache.query(credential.access_key);
+  const superMarginAccountUid = await superMarginAccountUidCache.query(JSON.stringify(credential));
   if (!superMarginAccountUid) throw new Error('Super margin account UID not found');
   const loanInfo = await getCrossMarginLoanInfo(credential);
   const usdtLoanable = loanInfo.data.find((v) => v.currency === 'usdt');

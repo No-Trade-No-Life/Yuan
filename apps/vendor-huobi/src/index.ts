@@ -42,7 +42,7 @@ const credential = getDefaultCredential();
   console.info(formatTime(Date.now()), 'UID', huobiUid);
 
   const huobiAccounts = await getAccount(credential);
-  const spotAccountUid = (await spotAccountUidCache.query(''))!;
+  const spotAccountUid = (await spotAccountUidCache.query(JSON.stringify(credential)))!;
   console.info(formatTime(Date.now()), 'huobiAccount', JSON.stringify(huobiAccounts));
 
   const account_id = `huobi/${huobiUid}`;
