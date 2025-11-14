@@ -25,7 +25,7 @@ Welcome to the English documentation for the Yuan project! This includes detaile
 - [Service Providers](service-providers.md) - External system connectors
 - [Agents](agents.md) - Trading bots and strategy programs
 - [Trading Execution](trading-execution.md) - Trading execution and risk management
-- [Vendor Implementation Checklist](vendor-guide/trade-copier-vendor-requirements.md) - Checklist for vendor integrations
+- [Vendor Implementation Checklist](vendor-guide/implementation-checklist.md) - Checklist for vendor integrations
 
 ### User Interface
 
