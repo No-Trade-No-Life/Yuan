@@ -1,6 +1,19 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Wed, 12 Nov 2025 21:50:44 GMT and should not be manually modified.
+This log was last generated on Fri, 14 Nov 2025 00:58:31 GMT and should not be manually modified.
+
+## 0.12.0
+Fri, 14 Nov 2025 00:58:31 GMT
+
+### Minor changes
+
+- implement order actions with credentials
+
+### Patches
+
+- refactor reorg
+- refactor
+- reorg
 
 ## 0.11.41
 Wed, 12 Nov 2025 21:50:44 GMT
