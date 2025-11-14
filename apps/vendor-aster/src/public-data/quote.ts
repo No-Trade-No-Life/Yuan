@@ -3,8 +3,8 @@ import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { decodePath, encodePath } from '@yuants/utils';
 import { defer, filter, from, map, mergeMap, repeat, retry, shareReplay } from 'rxjs';
-import type { IQuote } from '../../../libraries/data-quote/lib';
-import { getFApiV1OpenInterest, getFApiV1TickerPrice } from './api';
+import { IQuote } from '@yuants/data-quote';
+import { getFApiV1OpenInterest, getFApiV1TickerPrice } from '../api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
 const OPEN_INTEREST_TTL = process.env.OPEN_INTEREST_TTL ? Number(process.env.OPEN_INTEREST_TTL) : 120_000;
@@ -22,7 +22,7 @@ const openInterestCache = createCache<string>(
   { expire: OPEN_INTEREST_TTL },
 );
 
-const quote$ = defer(() => getFApiV1TickerPrice({})).pipe(
+const quote$ = defer(() => getFApiV1TickerPrice()).pipe(
   mergeMap((tickers) => tickers || []),
   mergeMap(
     (ticker) =>
@@ -57,12 +57,12 @@ if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
       }),
     )
     .subscribe();
-
-  terminal.channel.publishChannel('quote', { pattern: '^ASTER/' }, (channel_id) => {
-    const [datasourceId, productId] = decodePath(channel_id);
-    if (!datasourceId || !productId) {
-      throw new Error(`Invalid channel_id: ${channel_id}`);
-    }
-    return quote$.pipe(filter((quote) => quote.product_id === productId));
-  });
 }
+
+terminal.channel.publishChannel('quote', { pattern: '^ASTER/' }, (channel_id) => {
+  const [datasourceId, productId] = decodePath(channel_id);
+  if (!datasourceId || !productId) {
+    throw new Error(`Invalid channel_id: ${channel_id}`);
+  }
+  return quote$.pipe(filter((quote) => quote.product_id === productId));
+});

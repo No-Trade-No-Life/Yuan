@@ -1,9 +1,12 @@
 import { IProduct, IQueryProductsRequest, provideQueryProductsService } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
+import { createSQLWriter } from '@yuants/sql';
 import { encodePath } from '@yuants/utils';
-import { getFApiV1ExchangeInfo } from './api';
+import { Subject } from 'rxjs';
+import { getFApiV1ExchangeInfo } from '../api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
+const product$ = new Subject<IProduct>();
 
 // Provide QueryProducts service for ASTER
 export const productService = provideQueryProductsService(
@@ -11,7 +14,7 @@ export const productService = provideQueryProductsService(
   'ASTER',
   async (req: IQueryProductsRequest): Promise<IProduct[]> => {
     // Fetch exchange info from ASTER API
-    const exchangeInfo = await getFApiV1ExchangeInfo({});
+    const exchangeInfo = await getFApiV1ExchangeInfo();
 
     // Convert symbols to IProduct format
     return exchangeInfo.symbols
@@ -51,3 +54,14 @@ export const productService = provideQueryProductsService(
     auto_refresh_interval: 3600_000, // Refresh hourly
   },
 );
+
+productService.products$.subscribe((products) => {
+  products.forEach((product) => product$.next(product));
+});
+
+createSQLWriter<IProduct>(terminal, {
+  data$: product$,
+  tableName: 'product',
+  conflictKeys: ['datasource_id', 'product_id'],
+  writeInterval: 1000,
+});

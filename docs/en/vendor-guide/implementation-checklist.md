@@ -10,6 +10,7 @@ Every vendor process must expose the same set of services, channels, and configu
   - Inject credentials via environment variables (`ACCESS_KEY`, `SECRET_KEY`, `PASSPHRASE`, …) and split REST helpers:
     - `src/api/public-api.ts`: pure functions for unauthenticated endpoints—**never** accept credentials.
     - `src/api/private-api.ts`: every function explicitly receives a `credential`, making credential rotation obvious.
+    - `src/api/client.ts`: centralize signing, timestamp injection, and flow control. Export `getDefaultCredential()` so every module reuses the same env-derived credential object instead of re-reading process env.
   - Cache UID/parent info via `@yuants/cache`, generate account IDs as `vendor/<uid>/<scope>`, and reuse the cache across accounts, transfers, and credential-aware RPCs.
 
 ## 1. Account Snapshot Service
@@ -20,6 +21,7 @@ Every vendor process must expose the same set of services, channels, and configu
   - Publish every copier-controlled account with live balances and per-product positions (direction, volume, free volume, average price, mark price, floating PnL, equity/free funds).
   - Refresh automatically (≈1 s for derivatives). Handle reconnects and throttle according to venue limits.
   - Call `addAccountMarket` so downstream tooling knows which market the account belongs to.
+  - Resolve the venue UID once via `createCache` (e.g., `/fapi/v2/balance → accountAlias`) and derive `vendor/<uid>/<scope>` account IDs for every scope (perp, spot, funding…). Share the cache across account info, pending orders, transfers, and RPCs so multi-account features stay in sync.
 
 ## 2. Pending Order Service
 
@@ -29,6 +31,7 @@ Every vendor process must expose the same set of services, channels, and configu
   - Always call the venue’s _official_ “open orders” REST (e.g., `/mix/order/orders-pending`, `/spot/trade/orders-pending`). Do **not** reconstruct from submissions.
   - Map `product_id` using `encodePath(instType, instId)` (or `encodePath('SPOT', symbol)`), convert `side/posSide/tradeSide` to Yuan’s `OPEN_*` / `CLOSE_*` directions, surface `submit_at`, `price`, and `traded_volume`.
   - Register one service per account (futures, spot, funding, etc.) and refresh every ≤5 s within rate limits.
+  - Pair each `providePendingOrdersService` with an `addAccountMarket` call so downstream consumers can map account IDs to the right market.
 
 ## 3. Product Catalog
 
@@ -44,6 +47,7 @@ Every vendor process must expose the same set of services, channels, and configu
   - Group quote, funding-rate, OHLC, market-order scripts under this folder and import them from `src/index.ts`.
   - Quote publishers must write to SQL when `WRITE_QUOTE_TO_SQL` is enabled and always publish `quote/{datasource_id}/{product_id}` with `last/bid/ask/open_interest/updated_at`.
   - When WebSocket feeds fail, fall back to REST polling with monotonic timestamps.
+  - `product.ts` should feed both `provideQueryProductsService` and a `createSQLWriter` pipeline so the `product` table stays synchronized without ad-hoc scripts.
 
 ## 5. Trading RPCs
 
