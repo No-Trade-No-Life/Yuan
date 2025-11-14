@@ -2,6 +2,23 @@
   "name": "@yuants/app-account-composer",
   "entries": [
     {
+      "version": "0.6.31",
+      "tag": "@yuants/app-account-composer_v0.6.31",
+      "date": "Fri, 14 Nov 2025 21:14:46 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.6.15`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.6.30",
       "tag": "@yuants/app-account-composer_v0.6.30",
       "date": "Wed, 12 Nov 2025 21:50:44 GMT",

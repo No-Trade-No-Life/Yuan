@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Fri, 14 Nov 2025 00:58:31 GMT and should not be manually modified.
+This log was last generated on Fri, 14 Nov 2025 21:14:46 GMT and should not be manually modified.
+
+## 0.13.0
+Fri, 14 Nov 2025 21:14:46 GMT
+
+### Minor changes
+
+- refactor with credentials
 
 ## 0.12.0
 Fri, 14 Nov 2025 00:58:31 GMT
