@@ -43,7 +43,7 @@ export async function request(
 
   const headers = {
     'Content-Type': 'application/json',
-    'OK-ACCESS-KEY': credential.access_key!,
+    'OK-ACCESS-KEY': credential.access_key,
     'OK-ACCESS-SIGN': str,
     'OK-ACCESS-TIMESTAMP': timestamp,
     'OK-ACCESS-PASSPHRASE': credential.passphrase,

@@ -22,7 +22,7 @@ defer(async () => {
       },
     },
     async (msg) => {
-      return { res: { code: 0, message: 'OK', data: { order_id: await submitOrder(credential, msg.req) } } };
+      return { res: { code: 0, message: 'OK', data: await submitOrder(credential, msg.req) } };
     },
   );
 

@@ -1,6 +1,6 @@
 import { createCache } from '@yuants/cache';
 import { Terminal } from '@yuants/protocol';
-import { ObservableInput, Subject, defer, retry, takeUntil, tap, timeout } from 'rxjs';
+import { Subject, defer, retry, takeUntil, tap, timeout } from 'rxjs';
 import './interface';
 import { IOrder } from './interface';
 export * from './interface';
@@ -119,3 +119,5 @@ export const queryPendingOrders = async (terminal: Terminal, account_id: string,
       force_update,
     },
   );
+
+export * from './order-actions-with-credential';
