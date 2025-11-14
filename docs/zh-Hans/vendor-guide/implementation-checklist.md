@@ -42,7 +42,8 @@
 - **原因：** `trade-copier`、分析作业与 SQL 表都依赖 `quote/{datasource_id}/{product_id}`；脚本散落会造成双写或遗漏。
 - **要求：**
   - 将 quote、资金费率、OHLC、market-order 等脚本统一放在 `public-data`，由 `index.ts` 引入。
-  - Quote 发布时，若设置了 `WRITE_QUOTE_TO_SQL=1` 则写库，否则只发 Channel；通道需提供 `last/bid/ask/open_interest/updated_at`。
+  - Quote 发布时，若设置了 `WRITE_QUOTE_TO_SQL=1/true` 则借助 `@yuants/sql` 的 `writeToSQL` 写库，否则只发 Channel；通道需提供 `last/bid/ask/open_interest/updated_at` 并使用 `@yuants/data-quote` 的结构。
+  - 统一使用 `terminal.channel.publishChannel('quote', { pattern: '^DATASOURCE/' }, …)` 暴露 `quote/{datasource_id}/{product_id}`，避免散落在自定义 Subject 里。
   - WebSocket 异常时要降级 REST 轮询并保持时间戳单调。
 
 ## 5. 交易 RPC

@@ -42,7 +42,8 @@ Every vendor process must expose the same set of services, channels, and configu
 - **Why:** Prevents duplicated quote writers and keeps SQL/channel publishers consistent for every vendor.
 - **Expectations:**
   - Group quote, funding-rate, OHLC, market-order scripts under this folder and import them from `src/index.ts`.
-  - Quote publishers must write to SQL when `WRITE_QUOTE_TO_SQL` is enabled and always publish `quote/{datasource_id}/{product_id}` with `last/bid/ask/open_interest/updated_at`.
+  - Quote publishers must write to SQL via `@yuants/sql`’s `writeToSQL` when `WRITE_QUOTE_TO_SQL` equals `1` or `true`, otherwise only publish Channels. Channels must include `last/bid/ask/open_interest/updated_at` and follow the `@yuants/data-quote` schema.
+  - Always expose `quote/{datasource_id}/{product_id}` through `terminal.channel.publishChannel('quote', { pattern: '^DATASOURCE/' }, …)` to avoid ad-hoc Subjects.
   - When WebSocket feeds fail, fall back to REST polling with monotonic timestamps.
 
 ## 5. Trading RPCs
