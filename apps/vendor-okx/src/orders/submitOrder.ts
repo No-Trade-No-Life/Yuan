@@ -41,7 +41,7 @@ const mapOrderTypeToOrdType = (order_type?: string) => {
   throw new Error(`Unknown order type: ${order_type}`);
 };
 
-export const submitOrder = async (credential: ICredential, order: IOrder): Promise<string> => {
+export const submitOrder = async (credential: ICredential, order: IOrder): Promise<{ order_id: string }> => {
   const [instType, instId] = decodePath(order.product_id);
 
   // 交易数量，表示要购买或者出售的数量。
@@ -119,7 +119,7 @@ export const submitOrder = async (credential: ICredential, order: IOrder): Promi
   console.info(formatTime(Date.now()), 'SubmitOrder', 'params', JSON.stringify(params));
   const res = await postTradeOrder(credential, params);
   if (res.code === '0' && res.data?.[0]?.ordId) {
-    return res.data[0].ordId;
+    return { order_id: res.data[0].ordId };
   }
   throw `Failed to submit order: ${res.code} ${res.msg}`;
 };

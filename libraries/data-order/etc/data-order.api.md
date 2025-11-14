@@ -4,6 +4,7 @@
 
 ```ts
 
+import { JSONSchema7 } from 'json-schema';
 import { Observable } from 'rxjs';
 import { Subject } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
@@ -35,6 +36,15 @@ export interface IOrder {
     updated_at?: string;
     volume: number;
 }
+
+// @public
+export const provideOrderActionsWithCredential: <T>(terminal: Terminal, type: string, credentialSchema: JSONSchema7, actions: {
+    submitOrder?: ((credential: T, order: IOrder) => Promise<{
+        order_id: string;
+    }>) | undefined;
+    modifyOrder?: ((credential: T, order: IOrder) => Promise<void>) | undefined;
+    cancelOrder?: ((credential: T, order: IOrder) => Promise<void>) | undefined;
+}) => void;
 
 // @public
 export const providePendingOrdersService: (terminal: Terminal, account_id: string, query: () => Promise<IOrder[]>, options?: {
