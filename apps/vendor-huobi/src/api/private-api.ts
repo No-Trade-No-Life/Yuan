@@ -263,7 +263,7 @@ export const postSpotOrder = (
     price?: string;
     source: string;
   },
-): Promise<{ success: boolean; code: number; message: string }> => {
+): Promise<{ success: boolean; code: number; message: string; data: { orderId: number } }> => {
   return privateRequest(credential, 'POST', `/v1/order/auto/place`, 'api.huobi.pro', params);
 };
 

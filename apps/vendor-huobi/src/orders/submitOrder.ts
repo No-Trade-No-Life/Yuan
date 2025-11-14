@@ -16,7 +16,7 @@ import { superMarginAccountUidCache } from '../uid';
 /**
  * 处理 swap 账户订单提交
  */
-export async function handleSwapOrder(order: IOrder, credential: ICredential) {
+async function handleSwapOrder(order: IOrder, credential: ICredential): Promise<{ order_id: string }> {
   // 获取仓位信息
   const positionInfo = await getSwapCrossPositionInfo(credential);
   const mapContractCodeToRate = Object.fromEntries(
@@ -44,12 +44,13 @@ export async function handleSwapOrder(order: IOrder, credential: ICredential) {
   if (result.status !== 'ok') {
     throw new Error(`Failed to submit swap order: status=${result.status}`);
   }
+  return { order_id: result.data.order_id_str };
 }
 
 /**
  * 处理 super-margin 账户订单提交
  */
-export async function handleSuperMarginOrder(order: IOrder, credential: ICredential) {
+async function handleSuperMarginOrder(order: IOrder, credential: ICredential): Promise<{ order_id: string }> {
   // 获取可贷款金额
   const superMarginAccountUid = await superMarginAccountUidCache.query(JSON.stringify(credential));
   if (!superMarginAccountUid) throw new Error('Super margin account UID not found');
@@ -104,4 +105,16 @@ export async function handleSuperMarginOrder(order: IOrder, credential: ICredent
   if (result.success === false) {
     throw new Error(`Failed to submit super margin order: code=${result.code} message=${result.message}`);
   }
+
+  return { order_id: result.data.orderId.toString() };
 }
+
+export const submitOrder = (credential: ICredential, order: IOrder): Promise<{ order_id: string }> => {
+  if (order.account_id.includes('swap')) {
+    return handleSwapOrder(order, credential);
+  }
+  if (order.account_id.includes('super-margin')) {
+    return handleSuperMarginOrder(order, credential);
+  }
+  throw new Error(`Unsupported account_id for order submission: ${order.account_id}`);
+};
