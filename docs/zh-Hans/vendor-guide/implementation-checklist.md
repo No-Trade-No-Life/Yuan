@@ -11,6 +11,7 @@
     - `src/api/public-api.ts`：纯函数、无凭证参数，处理所有公共接口。
     - `src/api/private-api.ts`：每个函数显式接收 `credential`，方便多账户/凭证轮转。
   - 使用 `@yuants/cache` 缓存 UID/母账号，统一生成 `vendor/<uid>/<scope>` 的 `account_id`，账户、转账、凭证化 RPC 等场景全部复用。
+  - DEX/链上类 vendor 即使只有地址也必须沿用 `vendor/<address>/<scope>` 命名，地址或母账号都可充当 `uid`，确保 copier 能稳定路由。
 
 ## 1. 账户快照服务
 
@@ -42,7 +43,7 @@
 - **原因：** `trade-copier`、分析作业与 SQL 表都依赖 `quote/{datasource_id}/{product_id}`；脚本散落会造成双写或遗漏。
 - **要求：**
   - 将 quote、资金费率、OHLC、market-order 等脚本统一放在 `public-data`，由 `index.ts` 引入。
-  - Quote 发布时，若设置了 `WRITE_QUOTE_TO_SQL=1` 则写库，否则只发 Channel；通道需提供 `last/bid/ask/open_interest/updated_at`。
+  - Quote 服务无条件发布 `quote/{datasource_id}/{product_id}` Channel；若设置了 `WRITE_QUOTE_TO_SQL=1` 则额外写库，否则仅发送 Channel；通道需提供 `last/bid/ask/open_interest/updated_at`。
   - WebSocket 异常时要降级 REST 轮询并保持时间戳单调。
 
 ## 5. 交易 RPC
