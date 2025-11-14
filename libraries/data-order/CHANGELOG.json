@@ -2,6 +2,23 @@
   "name": "@yuants/data-order",
   "entries": [
     {
+      "version": "0.4.0",
+      "tag": "@yuants/data-order_v0.4.0",
+      "date": "Fri, 14 Nov 2025 21:14:46 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "order actions with credential"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.12",
       "tag": "@yuants/data-order_v0.3.12",
       "date": "Wed, 12 Nov 2025 21:50:44 GMT",
