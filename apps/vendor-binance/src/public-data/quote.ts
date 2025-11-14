@@ -17,7 +17,7 @@ import {
   share,
   shareReplay,
 } from 'rxjs';
-import { client } from './api';
+import { getFutureBookTicker, getFutureOpenInterest, getFuturePremiumIndex } from '../api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
 const OPEN_INTEREST_TTL = process.env.OPEN_INTEREST_TTL ? Number(process.env.OPEN_INTEREST_TTL) : 120_000;
@@ -25,7 +25,7 @@ const OPEN_INTEREST_TTL = process.env.OPEN_INTEREST_TTL ? Number(process.env.OPE
 const openInterestCache = createCache<number>(
   async (symbol: string) => {
     try {
-      const data = await client.getFutureOpenInterest({ symbol });
+      const data = await getFutureOpenInterest({ symbol });
       return Number(data.openInterest ?? 0);
     } catch (err) {
       console.warn('getFutureOpenInterest failed', symbol, err);
@@ -37,13 +37,13 @@ const openInterestCache = createCache<number>(
   },
 );
 
-const futurePremiumIndex$ = defer(() => client.getFuturePremiumIndex({})).pipe(
+const futurePremiumIndex$ = defer(() => getFuturePremiumIndex({})).pipe(
   repeat({ delay: 1_000 }),
   retry({ delay: 30_000 }),
   shareReplay({ bufferSize: 1, refCount: true }),
 );
 
-const futureBookTicker$ = defer(() => client.getFutureBookTicker({})).pipe(
+const futureBookTicker$ = defer(() => getFutureBookTicker({})).pipe(
   repeat({ delay: 1_000 }),
   retry({ delay: 30_000 }),
   shareReplay({ bufferSize: 1, refCount: true }),

@@ -6,11 +6,13 @@ Every vendor process must expose the same set of services, channels, and configu
 
 - **Why:** Keeps CLI vs. daemon behavior aligned, prevents hidden global state, and makes multi-account extensions trivial.
 - **Requirements:**
-  - `src/index.ts` must only aggregate modules (`import './account'; import './order-actions'; …`). Business logic lives inside the imported files.
+  - `src/index.ts` must only aggregate modules (`import './account'; import './order-actions'; …`). Business logic lives inside the imported files—**do not** keep `legacy_index.ts` or similar glue files around.
   - Inject credentials via environment variables (`ACCESS_KEY`, `SECRET_KEY`, `PASSPHRASE`, …) and split REST helpers:
+    - `src/api/client.ts`: exports a factory returning signed/unsigned `fetchJSON` helpers with throttling/logging, reused by both public/private APIs.
     - `src/api/public-api.ts`: pure functions for unauthenticated endpoints—**never** accept credentials.
     - `src/api/private-api.ts`: every function explicitly receives a `credential`, making credential rotation obvious.
   - Cache UID/parent info via `@yuants/cache`, generate account IDs as `vendor/<uid>/<scope>`, and reuse the cache across accounts, transfers, and credential-aware RPCs.
+  - Look at `apps/vendor-okx` / `apps/vendor-bitget` when in doubt—their layouts are canonical.
 
 ## 1. Account Snapshot Service
 
@@ -41,7 +43,7 @@ Every vendor process must expose the same set of services, channels, and configu
 - **Directory:** `src/public-data/*`
 - **Why:** Prevents duplicated quote writers and keeps SQL/channel publishers consistent for every vendor.
 - **Expectations:**
-  - Group quote, funding-rate, OHLC, market-order scripts under this folder and import them from `src/index.ts`.
+  - Group quote, funding-rate, OHLC, market-order scripts under this folder and import them from `src/index.ts`. Root-level loose scripts (`quote.ts`, `product.ts`, `interest_rate.ts`, …) are forbidden; move them into `public-data/` like `vendor-okx` and `vendor-bitget`.
   - Quote publishers must write to SQL when `WRITE_QUOTE_TO_SQL` is enabled and always publish `quote/{datasource_id}/{product_id}` with `last/bid/ask/open_interest/updated_at`.
   - When WebSocket feeds fail, fall back to REST polling with monotonic timestamps.
 
