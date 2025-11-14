@@ -1,19 +1,160 @@
 import { getDefaultCredential, requestPrivate } from './client';
 import { ICredential } from './types';
 
-export const getAllAccountBalance = (credential: ICredential): Promise<any> =>
-  requestPrivate(credential, 'GET', '/api/v2/account/all-account-balance');
+type ApiResponse<T> = {
+  code: string;
+  msg: string;
+  requestTime: number;
+  data: T;
+};
 
-export const getAccountInfo = (credential: ICredential): Promise<any> =>
-  requestPrivate(credential, 'GET', '/api/v2/spot/account/info');
+interface IFuturePendingOrder {
+  orderId: string;
+  clientOid: string;
+  symbol: string;
+  productType: string;
+  marginCoin: string;
+  size: string;
+  filledQty: string;
+  price: string;
+  priceAvg: string;
+  state: string;
+  orderType: string;
+  side: string;
+  tradeSide?: string;
+  posSide?: string;
+  marginMode?: string;
+  reduceOnly?: string;
+  createdTime?: string;
+  cTime?: string;
+  uTime?: string;
+}
 
-export const getFutureAccounts = (credential: ICredential, params: { productType: string }): Promise<any> =>
-  requestPrivate(credential, 'GET', '/api/v2/mix/account/accounts', params);
+interface ISpotPendingOrder {
+  orderId?: string;
+  clientOid?: string;
+  symbol?: string;
+  instId?: string;
+  orderType?: string;
+  side?: string;
+  size?: string;
+  quantity?: string;
+  baseSz?: string;
+  baseAmount?: string;
+  fillSz?: string;
+  filledQty?: string;
+  baseFilled?: string;
+  cTime?: string;
+  createTime?: string;
+  createdTime?: string;
+  price?: string;
+}
+
+interface IWithdrawalRecord {
+  orderId: string;
+  tradeId: string;
+  coin: string;
+  clientOid: string;
+  type: string;
+  dest: string;
+  size: string;
+  status: string;
+  fromAddress: string;
+  toAddress: string;
+  chain: string;
+  cTime: string;
+}
+
+interface IDepositRecord {
+  orderId: string;
+  tradeId: string;
+  coin: string;
+  type: string;
+  dest: string;
+  size: string;
+  status: string;
+  fromAddress: string;
+  toAddress: string;
+  chain: string;
+  cTime: string;
+}
+
+export const getAllAccountBalance = (credential: ICredential) =>
+  requestPrivate<
+    ApiResponse<
+      {
+        accountType: string;
+        usdtBalance: string;
+      }[]
+    >
+  >(credential, 'GET', '/api/v2/account/all-account-balance');
+
+export const getAccountInfo = (credential: ICredential) =>
+  requestPrivate<
+    ApiResponse<{
+      userId: string;
+      inviterId: string;
+      channelCode: string;
+      channel: string;
+      ips: string;
+      authorities: string[];
+      parentId: number;
+      traderType: string;
+      regisTime: string;
+    }>
+  >(credential, 'GET', '/api/v2/spot/account/info');
+
+export const getFutureAccounts = (credential: ICredential, params: { productType: string }) =>
+  requestPrivate<
+    ApiResponse<
+      {
+        marginCoin: string;
+        locked: string;
+        available: string;
+        crossedMaxAvailable: string;
+        isolatedMaxAvailable: string;
+        maxTransferOut: string;
+        accountEquity: string;
+        usdtEquity: string;
+        btcEquity: string;
+        crossedRiskRate: string;
+        unrealizedPL: string;
+        coupon: string;
+      }[]
+    >
+  >(credential, 'GET', '/api/v2/mix/account/accounts', params);
 
 export const getAllPositions = (
   credential: ICredential,
   params: { productType: string; marginCoin: string },
-): Promise<any> => requestPrivate(credential, 'GET', '/api/v2/mix/position/all-position', params);
+) =>
+  requestPrivate<
+    ApiResponse<
+      {
+        symbol: string;
+        marginCoin: string;
+        holdSide: string;
+        openDelegateSize: string;
+        marginSize: string;
+        available: string;
+        locked: string;
+        total: string;
+        leverage: string;
+        achievedProfits: string;
+        openPriceAvg: string;
+        marginMode: string;
+        posMode: string;
+        unrealizedPL: string;
+        liquidationPrice: string;
+        keepMarginRate: string;
+        markPrice: string;
+        breakEvenPrice: string;
+        totalFee: string;
+        deductedFee: string;
+        cTime: string;
+      }[]
+    >
+  >(credential, 'GET', '/api/v2/mix/position/all-position', params);
 
 export const getFutureOrdersPending = (
   credential: ICredential,
@@ -28,7 +169,14 @@ export const getFutureOrdersPending = (
     pageSize?: string;
     lastEndId?: string;
   },
-) => requestPrivate(credential, 'GET', '/api/v2/mix/order/orders-pending', params);
+) =>
+  requestPrivate<
+    ApiResponse<{
+      nextFlag: boolean;
+      endId: string;
+      orderList: IFuturePendingOrder[];
+    }>
+  >(credential, 'GET', '/api/v2/mix/order/orders-pending', params);
 
 export const getSpotOrdersPending = (
   credential: ICredential,
@@ -40,7 +188,14 @@ export const getSpotOrdersPending = (
     after?: string;
     before?: string;
   },
-) => requestPrivate(credential, 'GET', '/api/v2/spot/trade/orders-pending', params);
+) =>
+  requestPrivate<
+    ApiResponse<{
+      orderList?: ISpotPendingOrder[];
+      orders?: ISpotPendingOrder[];
+      resultList?: ISpotPendingOrder[];
+    }>
+  >(credential, 'GET', '/api/v2/spot/trade/orders-pending', params);
 
 export const postFuturePlaceOrder = (
   credential: ICredential,
@@ -60,7 +215,13 @@ export const postFuturePlaceOrder = (
     presetStopSurplusPrice?: string;
     presetStopLossPrice?: string;
   },
-) => requestPrivate(credential, 'POST', '/api/v2/mix/order/place-order', params);
+) =>
+  requestPrivate<ApiResponse<{ orderId: string; clientOid: string }>>(
+    credential,
+    'POST',
+    '/api/v2/mix/order/place-order',
+    params,
+  );
 
 export const postFutureCancelOrder = (
   credential: ICredential,
@@ -71,7 +232,13 @@ export const postFutureCancelOrder = (
     orderId?: string;
     clientOid?: string;
   },
-) => requestPrivate(credential, 'POST', '/api/v2/mix/order/cancel-order', params);
+) =>
+  requestPrivate<ApiResponse<{ orderId: string; clientOid: string }>>(
+    credential,
+    'POST',
+    '/api/v2/mix/order/cancel-order',
+    params,
+  );
 
 export const postTransfer = (
   credential: ICredential,
@@ -83,7 +250,13 @@ export const postTransfer = (
     symbol?: string;
     clientOid?: string;
   },
-) => requestPrivate(credential, 'POST', '/api/v2/spot/wallet/transfer', params);
+) =>
+  requestPrivate<ApiResponse<{ transferId: string; clientOid: string }>>(
+    credential,
+    'POST',
+    '/api/v2/spot/wallet/transfer',
+    params,
+  );
 
 export const postSubAccountTransfer = (
   credential: ICredential,
@@ -97,7 +270,13 @@ export const postSubAccountTransfer = (
     fromUserId: string;
     toUserId: string;
   },
-) => requestPrivate(credential, 'POST', '/api/v2/spot/wallet/subaccount-transfer', params);
+) =>
+  requestPrivate<ApiResponse<{ transferId: string; clientOid: string }>>(
+    credential,
+    'POST',
+    '/api/v2/spot/wallet/subaccount-transfer',
+    params,
+  );
 
 export const postWithdraw = (
   credential: ICredential,
@@ -113,12 +292,24 @@ export const postWithdraw = (
     remark?: string;
     clientOid?: string;
   },
-) => requestPrivate(credential, 'POST', '/api/v2/spot/wallet/withdrawal', params);
+) =>
+  requestPrivate<ApiResponse<{ orderId: string; clientOid: string }>>(
+    credential,
+    'POST',
+    '/api/v2/spot/wallet/withdrawal',
+    params,
+  );
 
-export const getDepositAddress = (
-  credential: ICredential,
-  params: { coin: string; chain?: string },
-): Promise<any> => requestPrivate(credential, 'GET', '/api/v2/spot/wallet/deposit-address', params);
+export const getDepositAddress = (credential: ICredential, params: { coin: string; chain?: string }) =>
+  requestPrivate<
+    ApiResponse<{
+      address: string;
+      chain: string;
+      coin: string;
+      tag: string;
+      url: string;
+    }>
+  >(credential, 'GET', '/api/v2/spot/wallet/deposit-address', params);
 
 export const getWithdrawalRecords = (
   credential: ICredential,
@@ -131,7 +322,13 @@ export const getWithdrawalRecords = (
     idLessThan?: string;
     limit?: string;
   },
-) => requestPrivate(credential, 'GET', '/api/v2/spot/wallet/withdrawal-records', params);
+) =>
+  requestPrivate<ApiResponse<IWithdrawalRecord[]>>(
+    credential,
+    'GET',
+    '/api/v2/spot/wallet/withdrawal-records',
+    params,
+  );
 
 export const getDepositRecords = (
   credential: ICredential,
@@ -143,20 +340,57 @@ export const getDepositRecords = (
     idLessThan?: string;
     limit?: string;
   },
-) => requestPrivate(credential, 'GET', '/api/v2/spot/wallet/deposit-records', params);
+) =>
+  requestPrivate<ApiResponse<IDepositRecord[]>>(
+    credential,
+    'GET',
+    '/api/v2/spot/wallet/deposit-records',
+    params,
+  );
 
-export const getSpotAssets = (
-  credential: ICredential,
-  params?: { coin?: string; assetType?: string },
-): Promise<any> => requestPrivate(credential, 'GET', '/api/v2/spot/account/assets', params);
+export const getSpotAssets = (credential: ICredential, params?: { coin?: string; assetType?: string }) =>
+  requestPrivate<
+    ApiResponse<
+      {
+        coin: string;
+        available: string;
+        frozen: string;
+        locked: string;
+        limitAvailable: string;
+        uTime: string;
+      }[]
+    >
+  >(credential, 'GET', '/api/v2/spot/account/assets', params);
 
-export const getSubAccountSpotAssets = (credential: ICredential): Promise<any> =>
-  requestPrivate(credential, 'GET', '/api/v2/spot/account/subaccount-assets');
+export const getSubAccountSpotAssets = (credential: ICredential) =>
+  requestPrivate<
+    ApiResponse<{
+      userId: string;
+      assetsList: {
+        coin: string;
+        available: string;
+        limitAvailable: string;
+        frozen: string;
+        locked: string;
+        uTime: string;
+      }[];
+    }>
+  >(credential, 'GET', '/api/v2/spot/account/subaccount-assets');
 
 export const getVirtualSubAccountList = (
   credential: ICredential,
   params?: { status?: string; limit?: string; idLessThan?: string },
-) => requestPrivate(credential, 'GET', '/api/v2/user/virtual-subaccount-list', params);
+) =>
+  requestPrivate<
+    ApiResponse<{
+      subAccountList?: {
+        subAccountUid: string;
+        subAccountName: string;
+        label: string;
+        status: string;
+      }[];
+    }>
+  >(credential, 'GET', '/api/v2/user/virtual-subaccount-list', params);
 
 export const getAccountFinancialRecord = (
   credential: ICredential,
@@ -169,7 +403,7 @@ export const getAccountFinancialRecord = (
     limit?: string;
     cursor?: string;
   },
-) => requestPrivate(credential, 'GET', '/api/v3/account/financial-records', params);
+) => requestPrivate<ApiResponse<unknown>>(credential, 'GET', '/api/v3/account/financial-records', params);
 
 export { getDefaultCredential };
 export type { ICredential };

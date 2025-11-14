@@ -10,8 +10,8 @@ import {
   getDefaultCredential,
   getFutureAccounts,
   getFutureOrdersPending,
-  getSpotOrdersPending,
   getSpotAssets,
+  getSpotOrdersPending,
 } from './api/private-api';
 
 const terminal = Terminal.fromNodeEnv();
@@ -25,8 +25,15 @@ interface IAccountProfile {
 
 export const accountProfileCache = createCache<IAccountProfile>(async () => {
   const res = await getAccountInfo(credential);
-  const uid = res.data.userId;
-  const parentId = '' + res.data.parentId;
+  if (res.msg !== 'success') {
+    throw new Error(`Bitget getAccountInfo failed: ${res.code} ${res.msg}`);
+  }
+  const data = res.data;
+  if (!data?.userId) {
+    throw new Error(`Bitget getAccountInfo returned invalid payload: ${JSON.stringify(data)}`);
+  }
+  const uid = data.userId;
+  const parentId = `${data.parentId ?? data.userId}`;
   return { uid, parentId, isMainAccount: uid === parentId };
 });
 

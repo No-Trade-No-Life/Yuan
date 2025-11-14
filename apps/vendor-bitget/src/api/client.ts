@@ -132,10 +132,14 @@ const requestWithFlowControl = async (
   return (await firstValueFrom(res$)).response;
 };
 
-export const requestPublic = (method: HttpMethod, path: string, params?: any) =>
-  callApi(undefined, method, path, params);
-export const requestPrivate = (credential: ICredential, method: HttpMethod, path: string, params?: any) =>
-  callApi(credential, method, path, params);
+export const requestPublic = <T = any>(method: HttpMethod, path: string, params?: any) =>
+  callApi(undefined, method, path, params) as Promise<T>;
+export const requestPrivate = <T = any>(
+  credential: ICredential,
+  method: HttpMethod,
+  path: string,
+  params?: any,
+) => callApi(credential, method, path, params) as Promise<T>;
 export const requestPublicWithFlowControl = (
   method: HttpMethod,
   path: string,
