@@ -1,22 +1,18 @@
 import { addAccountMarket } from '@yuants/data-account';
 import { Terminal } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
-import {
-  provideSpotAccountInfoService,
-  provideSuperMarginAccountInfoService,
-  provideSwapAccountInfoService,
-} from './account-info';
+import { provideSpotAccountInfoService, provideSwapAccountInfoService } from './account-info';
 import {
   getAccount,
   getDefaultCredential,
   getSubUserList,
   getSwapUnifiedAccountType,
   getUid,
-  ICredential,
   postSwapSwitchAccountType,
 } from './api/private-api';
 import './interest_rate';
 import { provideOrderSubmitService } from './order-actions';
+import './order-actions-with-credentials';
 import './quote';
 import {
   setupSpotSuperMarginTransfer,
@@ -24,12 +20,12 @@ import {
   setupSubAccountTransfers,
   setupTrc20WithdrawalAddresses,
 } from './transfer';
+import { spotAccountUidCache } from './uid';
 
 const terminal = Terminal.fromNodeEnv();
+const credential = getDefaultCredential();
 
 (async () => {
-  const credential = getDefaultCredential();
-
   // 账户类型切换
   const swapAccountTypeRes = await getSwapUnifiedAccountType(credential);
   if (swapAccountTypeRes.data?.account_type === 1) {
@@ -46,8 +42,7 @@ const terminal = Terminal.fromNodeEnv();
   console.info(formatTime(Date.now()), 'UID', huobiUid);
 
   const huobiAccounts = await getAccount(credential);
-  const superMarginAccountUid = huobiAccounts.data.find((v) => v.type === 'super-margin')?.id!;
-  const spotAccountUid = huobiAccounts.data.find((v) => v.type === 'spot')?.id!;
+  const spotAccountUid = (await spotAccountUidCache.query(JSON.stringify(credential)))!;
   console.info(formatTime(Date.now()), 'huobiAccount', JSON.stringify(huobiAccounts));
 
   const account_id = `huobi/${huobiUid}`;
@@ -61,16 +56,9 @@ const terminal = Terminal.fromNodeEnv();
   console.info(formatTime(Date.now()), 'subAccounts', JSON.stringify(subAccounts));
 
   // 设置账户信息服务
-  const subscriptions: Set<string> = new Set();
 
   provideSwapAccountInfoService(terminal, SWAP_ACCOUNT_ID, credential);
-  const superMarginAccountBalance$ = provideSuperMarginAccountInfoService(
-    terminal,
-    SUPER_MARGIN_ACCOUNT_ID,
-    credential,
-    superMarginAccountUid,
-    subscriptions,
-  );
+
   provideSpotAccountInfoService(terminal, SPOT_ACCOUNT_ID, credential, spotAccountUid);
 
   // 设置账户市场关联
@@ -79,14 +67,7 @@ const terminal = Terminal.fromNodeEnv();
   addAccountMarket(terminal, { account_id: SWAP_ACCOUNT_ID, market_id: 'HUOBI/SWAP' });
 
   // 设置订单提交服务
-  provideOrderSubmitService(
-    terminal,
-    SWAP_ACCOUNT_ID,
-    SUPER_MARGIN_ACCOUNT_ID,
-    credential,
-    superMarginAccountUid,
-    superMarginAccountBalance$,
-  );
+  provideOrderSubmitService(terminal, SWAP_ACCOUNT_ID, SUPER_MARGIN_ACCOUNT_ID, credential);
 
   // 设置转账功能
   await setupTrc20WithdrawalAddresses(terminal, SPOT_ACCOUNT_ID, credential, isMainAccount);
