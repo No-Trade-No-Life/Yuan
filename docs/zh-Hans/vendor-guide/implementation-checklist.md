@@ -53,6 +53,7 @@
   - 支持 `OPEN_LONG` / `CLOSE_LONG` / `OPEN_SHORT` / `CLOSE_SHORT` 以及至少 `MARKET`、`LIMIT`、`MAKER`。
   - 返回 `{ res: { code: 0, message: 'OK', data?: { order_id } } }`，异常时透传交易所错误。
   - 打印原始请求与转换后的交易所参数，方便排障。
+  - 若需要支持多账户/动态账户，参考 `apps/vendor-okx/src/order-actions-with-credential.ts` 提供带 `credential` 的服务版本：校验 `account_id` 正则，强制包含 `access_key` / `secret_key` / `passphrase` 等字段，避免环境变量限制账户数量；保留默认服务时确保两套接口行为一致。
 
 ### CancelOrder
 
@@ -78,8 +79,10 @@
 ### 配置要求
 
 - 统一记录凭证/地址（`API_KEY`, `SECRET_KEY`, `PASSPHRASE`, `HOST_URL` 等），供交易与转账模块共用。
+- 引入缓存与机密管理时，可仿照 `apps/vendor-okx/src/account.ts` 使用 `@yuants/cache` 做 SWR/TTL 轮询、用 `@yuants/secret` 托管敏感凭证，以减少 API 限频并确保多账户扩展不会泄露 key。
 - 确保 `Terminal.fromNodeEnv()` 能获取 Host、命名空间、实例标签等元数据。
 - 特性开关与现有 vendor 保持一致（如 `WRITE_QUOTE_TO_SQL`, `DISABLE_TRANSFER`），便于统一运维。
+- 公共市场数据建议集中在 `public-data/*` 风格目录，向 OKX 那样通过 `index.ts` 统一入口，避免行情/利率脚本散落各处导致无法复用。
 
 ### 验收流程
 

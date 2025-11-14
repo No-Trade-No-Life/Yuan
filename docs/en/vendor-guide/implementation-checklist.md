@@ -53,6 +53,7 @@ Every vendor process must implement the same infrastructure so that both `trade-
   - Support `OPEN_LONG`, `CLOSE_LONG`, `OPEN_SHORT`, `CLOSE_SHORT` with `MARKET`, `LIMIT`, `MAKER` at minimum.
   - Return `{ res: { code: 0, message: 'OK', data?: { order_id } } }`; propagate venue-side error codes verbatim.
   - Log both the Yuan order payload and translated venue request for incident triage.
+  - If you must support multiple or dynamic accounts, mirror `apps/vendor-okx/src/order-actions-with-credential.ts`: provide an alternate RPC that validates `account_id` via regex and requires `credential` objects (`access_key` / `secret_key` / `passphrase`) per request, so you are not limited by environment variables while keeping parity with the legacy single-account service.
 
 ### CancelOrder
 
@@ -78,8 +79,10 @@ Every vendor process must implement the same infrastructure so that both `trade-
 ### Supporting Configuration
 
 - Document all credentials/endpoints (`API_KEY`, `SECRET_KEY`, `PASSPHRASE`, `HOST_URL`, …) and reuse them across trading and transfer modules.
+- When introducing caching or secret management, follow the OKX pattern (`apps/vendor-okx/src/account.ts`)—use `@yuants/cache` for SWR/TTL polling and `@yuants/secret` to store sensitive keys, reducing API throttling while keeping multi-account expansion safe.
 - Ensure `Terminal.fromNodeEnv()` can discover the correct host, namespace, and instance tags.
 - Keep feature flags aligned with existing vendors (`WRITE_QUOTE_TO_SQL`, `DISABLE_TRANSFER`, etc.) so ops can toggle workloads consistently.
+- Group public market data scripts under a `public-data/*` style folder and import them centrally via `index.ts`, similar to the OKX vendor, to avoid scattered quote/interest workers that cannot be reused.
 
 ### Validation Steps
 
