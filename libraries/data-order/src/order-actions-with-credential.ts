@@ -1,6 +1,16 @@
-import { Terminal } from '@yuants/protocol';
+import { IResponse, Terminal } from '@yuants/protocol';
 import { JSONSchema7 } from 'json-schema';
 import { IOrder } from './interface';
+
+/**
+ * Typed wrapped credential interface
+ *
+ * @public
+ */
+export interface ITypedCredential<T> {
+  type: string;
+  payload: T;
+}
 
 const makeCredentialSchema = (type: string, payloadSchema: JSONSchema7): JSONSchema7 => {
   return {
@@ -30,17 +40,15 @@ export const provideOrderActionsWithCredential = <T>(
     submitOrder?: (credential: T, order: IOrder) => Promise<{ order_id: string }>;
     modifyOrder?: (credential: T, order: IOrder) => Promise<void>;
     cancelOrder?: (credential: T, order: IOrder) => Promise<void>;
+    listOrders?: (credential: T) => Promise<IOrder[]>;
   },
 ) => {
-  const { submitOrder, modifyOrder, cancelOrder } = actions;
+  const { submitOrder, modifyOrder, cancelOrder, listOrders } = actions;
   if (submitOrder) {
     terminal.server.provideService<
       {
         order: IOrder;
-        credential: {
-          type: string;
-          payload: T;
-        };
+        credential: ITypedCredential<T>;
       },
       { order_id?: string }
     >(
@@ -61,10 +69,7 @@ export const provideOrderActionsWithCredential = <T>(
   if (modifyOrder) {
     terminal.server.provideService<{
       order: IOrder;
-      credential: {
-        type: string;
-        payload: T;
-      };
+      credential: ITypedCredential<T>;
     }>(
       'ModifyOrder',
       {
@@ -83,10 +88,7 @@ export const provideOrderActionsWithCredential = <T>(
   if (cancelOrder) {
     terminal.server.provideService<{
       order: IOrder;
-      credential: {
-        type: string;
-        payload: T;
-      };
+      credential: ITypedCredential<T>;
     }>(
       'CancelOrder',
       {
@@ -101,4 +103,114 @@ export const provideOrderActionsWithCredential = <T>(
       },
     );
   }
+
+  if (listOrders) {
+    terminal.server.provideService<
+      {
+        credential: ITypedCredential<T>;
+      },
+      { orders: IOrder[] }
+    >(
+      'ListOrders',
+      {
+        required: ['credential'],
+        properties: {
+          credential: makeCredentialSchema(type, credentialSchema),
+        },
+      },
+      async (msg) => {
+        const orders = await listOrders(msg.req.credential.payload);
+        return { res: { code: 0, message: 'OK', data: { orders } } };
+      },
+    );
+  }
+};
+
+/**
+ * Submit an order with credentials.
+ * @param terminal - The Terminal instance.
+ * @param credential - The credential object.
+ * @param order - The order to be submitted.
+ * @returns A promise that resolves to the response of the submit order request.
+ * @public
+ */
+export const submitOrder = async <T>(
+  terminal: Terminal,
+  credential: ITypedCredential<T>,
+  order: IOrder,
+): Promise<IResponse<{ order_id: string }>> => {
+  const res = await terminal.client.requestForResponse<
+    {
+      order: IOrder;
+      credential: ITypedCredential<T>;
+    },
+    { order_id: string }
+  >('SubmitOrder', { credential, order });
+  return res;
+};
+
+/**
+ * Modify an order with credentials.
+ * @param terminal - The Terminal instance.
+ * @param credential - The credential object.
+ * @param order - The order to be modified.
+ * @returns A promise that resolves to the response of the modify order request.
+ * @public
+ */
+export const modifyOrder = async <T>(
+  terminal: Terminal,
+  credential: ITypedCredential<T>,
+  order: IOrder,
+): Promise<IResponse<void>> => {
+  const res = await terminal.client.requestForResponse<
+    {
+      order: IOrder;
+      credential: ITypedCredential<T>;
+    },
+    void
+  >('ModifyOrder', { credential, order });
+  return res;
+};
+
+/**
+ * Cancel an order with credentials.
+ * @param terminal - The Terminal instance.
+ * @param credential - The credential object.
+ * @param order - The order to be canceled.
+ * @returns A promise that resolves to the response of the cancel order request.
+ * @public
+ */
+export const cancelOrder = async <T>(
+  terminal: Terminal,
+  credential: ITypedCredential<T>,
+  order: IOrder,
+): Promise<IResponse<void>> => {
+  const res = await terminal.client.requestForResponse<
+    {
+      order: IOrder;
+      credential: ITypedCredential<T>;
+    },
+    void
+  >('CancelOrder', { credential, order });
+  return res;
+};
+
+/**
+ * List orders with credentials.
+ * @param terminal - The Terminal instance.
+ * @param credential - The credential object.
+ * @returns A promise that resolves to the response of the list orders request.
+ * @public
+ */
+export const listOrders = async <T>(
+  terminal: Terminal,
+  credential: ITypedCredential<T>,
+): Promise<IResponse<{ orders: IOrder[] }>> => {
+  const res = await terminal.client.requestForResponse<
+    {
+      credential: ITypedCredential<T>;
+    },
+    { orders: IOrder[] }
+  >('ListOrders', { credential });
+  return res;
 };

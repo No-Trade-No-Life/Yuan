@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-order",
+      "comment": "add listOrders action",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-order"
+}

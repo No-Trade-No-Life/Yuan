@@ -4,10 +4,14 @@
 
 ```ts
 
+import { IResponse } from '@yuants/protocol';
 import { JSONSchema7 } from 'json-schema';
 import { Observable } from 'rxjs';
 import { Subject } from 'rxjs';
 import { Terminal } from '@yuants/protocol';
+
+// @public
+export const cancelOrder: <T>(terminal: Terminal, credential: ITypedCredential<T>, order: IOrder) => Promise<IResponse<void>>;
 
 // @public
 export interface IOrder {
@@ -38,12 +42,29 @@ export interface IOrder {
 }
 
 // @public
+export interface ITypedCredential<T> {
+    // (undocumented)
+    payload: T;
+    // (undocumented)
+    type: string;
+}
+
+// @public
+export const listOrders: <T>(terminal: Terminal, credential: ITypedCredential<T>) => Promise<IResponse<{
+    orders: IOrder[];
+}>>;
+
+// @public
+export const modifyOrder: <T>(terminal: Terminal, credential: ITypedCredential<T>, order: IOrder) => Promise<IResponse<void>>;
+
+// @public
 export const provideOrderActionsWithCredential: <T>(terminal: Terminal, type: string, credentialSchema: JSONSchema7, actions: {
     submitOrder?: ((credential: T, order: IOrder) => Promise<{
         order_id: string;
     }>) | undefined;
     modifyOrder?: ((credential: T, order: IOrder) => Promise<void>) | undefined;
     cancelOrder?: ((credential: T, order: IOrder) => Promise<void>) | undefined;
+    listOrders?: ((credential: T) => Promise<IOrder[]>) | undefined;
 }) => void;
 
 // @public
@@ -55,6 +76,11 @@ export const providePendingOrdersService: (terminal: Terminal, account_id: strin
 
 // @public
 export const queryPendingOrders: (terminal: Terminal, account_id: string, force_update?: boolean) => Promise<IOrder[]>;
+
+// @public
+export const submitOrder: <T>(terminal: Terminal, credential: ITypedCredential<T>, order: IOrder) => Promise<IResponse<{
+    order_id: string;
+}>>;
 
 // @public
 export const usePendingOrders: (terminal: Terminal, account_id: string) => Observable<IOrder[]>;
