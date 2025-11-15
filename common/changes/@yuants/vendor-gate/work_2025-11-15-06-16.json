@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Modularize Gate vendor into public/private API layers, add account/pending-order services, trading RPCs, transfers, public data, and implementation checklist updates.",
+      "type": "minor",
+      "packageName": "@yuants/vendor-gate"
+    }
+  ],
+  "packageName": "@yuants/vendor-gate",
+  "email": "codex@openai.com"
+}
