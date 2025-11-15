@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "comment": "Remove completed implementation plan per process guidance.",
+      "type": "minor",
+      "packageName": "@yuants/vendor-aster"
+    }
+  ],
+  "packageName": "@yuants/vendor-aster"
+}
