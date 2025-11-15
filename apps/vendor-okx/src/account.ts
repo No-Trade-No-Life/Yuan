@@ -24,7 +24,7 @@ const credential = getDefaultCredential();
 
 defer(async () => {
   const account_id = await getTradingAccountId(credential);
-  providePendingOrdersService(terminal, account_id, async () => listOrders(credential), {
+  providePendingOrdersService(terminal, account_id, async () => listOrders(credential, account_id), {
     auto_refresh_interval: 5000,
   });
 }).subscribe();

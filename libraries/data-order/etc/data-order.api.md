@@ -50,7 +50,7 @@ export interface ITypedCredential<T> {
 }
 
 // @public
-export const listOrders: <T>(terminal: Terminal, credential: ITypedCredential<T>) => Promise<IResponse<{
+export const listOrders: <T>(terminal: Terminal, credential: ITypedCredential<T>, account_id: string) => Promise<IResponse<{
     orders: IOrder[];
 }>>;
 
@@ -64,7 +64,7 @@ export const provideOrderActionsWithCredential: <T>(terminal: Terminal, type: st
     }>) | undefined;
     modifyOrder?: ((credential: T, order: IOrder) => Promise<void>) | undefined;
     cancelOrder?: ((credential: T, order: IOrder) => Promise<void>) | undefined;
-    listOrders?: ((credential: T) => Promise<IOrder[]>) | undefined;
+    listOrders?: ((credential: T, account_id: string) => Promise<IOrder[]>) | undefined;
 }) => void;
 
 // @public
