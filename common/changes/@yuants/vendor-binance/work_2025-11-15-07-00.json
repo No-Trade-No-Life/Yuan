@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Refactor vendor services and align documentation",
+      "type": "minor",
+      "packageName": "@yuants/vendor-binance"
+    }
+  ],
+  "packageName": "@yuants/vendor-binance",
+  "email": "codex@openai.com"
+}
