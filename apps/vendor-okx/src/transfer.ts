@@ -3,8 +3,8 @@ import { Terminal } from '@yuants/protocol';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import { formatTime } from '@yuants/utils';
 import { defer } from 'rxjs';
-import { accountConfigCache } from './account';
 import {
+  getAccountConfig,
   getAssetCurrencies,
   getAssetDepositAddress,
   getAssetDepositHistory,
@@ -23,7 +23,7 @@ const credential = getDefaultCredential();
 const cacheOfAssetCurrencies = createCache(() => getAssetCurrencies(credential), { expire: 3600_000 });
 
 defer(async () => {
-  const account_config = await accountConfigCache.query('');
+  const account_config = await getAccountConfig(credential);
   if (!account_config) throw new Error('Failed to get account config');
   console.info(formatTime(Date.now()), 'AccountConfig', JSON.stringify(account_config));
   const { mainUid, uid } = account_config.data[0];
