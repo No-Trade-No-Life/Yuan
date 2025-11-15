@@ -12,7 +12,7 @@ type OrderPayload = {
   t: {
     limit?: { tif: string };
     trigger?: {
-      isMarke: boolean;
+      isMarket: boolean;
       triggerPx: string;
       tpsl: string;
     };

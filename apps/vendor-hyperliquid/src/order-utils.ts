@@ -97,7 +97,6 @@ export const roundPrice = (price: number, instType: 'PERPETUAL' | 'SPOT', szDeci
   const significantFigures = priceStr.replace(/^0+\.?0*/, '').replace(/\./g, '').length;
   let roundedPrice = price;
   if (significantFigures > 5) {
-    const firstNonZeroIndex = priceStr.match(/[1-9]/)?.index ?? 0;
     const decimalIndex = priceStr.indexOf('.');
     if (decimalIndex === -1) {
       const magnitude = Math.floor(Math.log10(Math.abs(price)));
