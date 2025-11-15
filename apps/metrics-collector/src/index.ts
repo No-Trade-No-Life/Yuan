@@ -1,4 +1,4 @@
-import { PromRegistry, Terminal } from '@yuants/protocol';
+import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
 import {
   EMPTY,
@@ -16,8 +16,7 @@ import {
 
 const terminal = Terminal.fromNodeEnv();
 
-const MetricTerminalMetricFetchErrorsTotal = PromRegistry.create(
-  'counter',
+const MetricTerminalMetricFetchErrorsTotal = GlobalPrometheusRegistry.counter(
   'terminal_metrics_fetch_errors_total',
   'terminal_metrics_fetch_errors_total terminal metrics fetch error',
 );
@@ -46,12 +45,12 @@ terminal.server.provideService<{}, { status: number; headers?: Record<string, st
                 ].join('\n'),
               ),
               tap(() => {
-                MetricTerminalMetricFetchErrorsTotal.add(0, { terminal_id: info.terminal_id });
+                MetricTerminalMetricFetchErrorsTotal.labels({ terminal_id: info.terminal_id }).add(0);
               }),
               timeout({ each: 5000, meta: `RequestMetrics for ${info.terminal_id} Timeout` }),
               catchError((err) => {
                 console.error(`RequestMetrics for ${info.terminal_id} timeout`, err);
-                MetricTerminalMetricFetchErrorsTotal.inc({ terminal_id: info.terminal_id });
+                MetricTerminalMetricFetchErrorsTotal.labels({ terminal_id: info.terminal_id }).inc();
                 return EMPTY;
               }),
             ),

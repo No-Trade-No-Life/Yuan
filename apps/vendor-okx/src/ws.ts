@@ -1,16 +1,14 @@
-import { PromRegistry, Terminal } from '@yuants/protocol';
+import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { encodePath, formatTime } from '@yuants/utils';
 import { catchError, defer, EMPTY, filter, interval, Observable, Subscription, tap, timeout } from 'rxjs';
 import { IWSOrderBook } from './public-data/market-order';
 
-const MetricsWebSocketConnectionsGauge = PromRegistry.create(
-  'gauge',
+const MetricsWebSocketConnectionsGauge = GlobalPrometheusRegistry.gauge(
   'okx_websocket_connections',
   'Number of active OKX WebSocket connections',
 );
 
-const MetricsWebSocketChannelGauge = PromRegistry.create(
-  'gauge',
+const MetricsWebSocketChannelGauge = GlobalPrometheusRegistry.gauge(
   'okx_websocket_channel',
   'Number of OKX WebSocket channels subscribed',
 );
@@ -99,7 +97,7 @@ class OKXWsClient {
 
   private readonly handleClose = (event: CloseEvent) => {
     console.error(formatTime(Date.now()), '❌ WS closed', event);
-    MetricsWebSocketConnectionsGauge.dec({ path: this.path });
+    MetricsWebSocketConnectionsGauge.labels({ path: this.path }).dec();
 
     const closedSocket = event.target as WebSocket;
     if (closedSocket !== this.ws) {
@@ -144,7 +142,7 @@ class OKXWsClient {
   private initSocket() {
     this.connectStatus = 'connecting';
     this.ws = new WebSocket(`${this.baseURL}/${this.path}`);
-    MetricsWebSocketConnectionsGauge.inc({ path: this.path, terminal_id: terminal.terminal_id });
+    MetricsWebSocketConnectionsGauge.labels({ path: this.path, terminal_id: terminal.terminal_id }).inc();
 
     this.ws.addEventListener('open', this.handleOpen);
     this.ws.addEventListener('message', this.handleMessage);
@@ -221,7 +219,7 @@ class OKXWsClient {
     }
 
     this.subscriptions.set(channelId, { channel, instId });
-    MetricsWebSocketChannelGauge.inc({ channel, terminal_id: terminal.terminal_id });
+    MetricsWebSocketChannelGauge.labels({ channel, terminal_id: terminal.terminal_id }).inc();
 
     if (handler) {
       this.handlers[channelId] = handler;
@@ -246,7 +244,7 @@ class OKXWsClient {
       this.sendUnsubscribeMessage(channel, instId);
     }
     this.subscriptions.delete(channelId);
-    MetricsWebSocketChannelGauge.dec({ channel });
+    MetricsWebSocketChannelGauge.labels({ channel }).dec();
     delete this.handlers[channelId];
 
     if (this.subscriptions.size === 0) {

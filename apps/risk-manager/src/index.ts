@@ -1,5 +1,5 @@
 import { useAccountInfo } from '@yuants/data-account';
-import { PromRegistry, Terminal } from '@yuants/protocol';
+import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { ITransferOrder } from '@yuants/transfer';
 import { UUID, formatTime } from '@yuants/utils';
@@ -24,10 +24,10 @@ import { IAccountRiskInfo } from './models';
 import { generateCandidateTransfer } from './utils/generateCandidateTransfer';
 import { resolveRiskState } from './utils/resolveRiskState';
 const terminal = Terminal.fromNodeEnv();
-const MetricActiveDemand = PromRegistry.create('gauge', 'risk_manager_active_demand');
-const MetricPassiveDemand = PromRegistry.create('gauge', 'risk_manager_passive_demand');
-const MetricActiveSupply = PromRegistry.create('gauge', 'risk_manager_active_supply');
-const MetricPassiveSupply = PromRegistry.create('gauge', 'risk_manager_passive_supply');
+const MetricActiveDemand = GlobalPrometheusRegistry.gauge('risk_manager_active_demand', '');
+const MetricPassiveDemand = GlobalPrometheusRegistry.gauge('risk_manager_passive_demand', '');
+const MetricActiveSupply = GlobalPrometheusRegistry.gauge('risk_manager_active_supply', '');
+const MetricPassiveSupply = GlobalPrometheusRegistry.gauge('risk_manager_passive_supply', '');
 
 function mapRiskInfoToState$(riskInfo: IAccountRiskInfo) {
   const labels = {
@@ -40,24 +40,25 @@ function mapRiskInfoToState$(riskInfo: IAccountRiskInfo) {
     map((x) => resolveRiskState(riskInfo, x)),
     tap((state) => {
       if (!Number.isNaN(state.active_supply)) {
-        MetricActiveSupply.set(state.active_supply, labels);
+        MetricActiveSupply.labels(labels).set(state.active_supply);
       } else {
-        MetricActiveSupply.reset(labels);
+        // NOTE: GlobalPrometheusRegistry doesn't have reset, so we set to 0 instead
+        MetricActiveSupply.labels(labels).set(0);
       }
       if (!Number.isNaN(state.passive_supply)) {
-        MetricPassiveSupply.set(state.passive_supply, labels);
+        MetricPassiveSupply.labels(labels).set(state.passive_supply);
       } else {
-        MetricPassiveSupply.reset(labels);
+        MetricPassiveSupply.labels(labels).set(0);
       }
       if (!Number.isNaN(state.active_demand)) {
-        MetricActiveDemand.set(state.active_demand, labels);
+        MetricActiveDemand.labels(labels).set(state.active_demand);
       } else {
-        MetricActiveDemand.reset(labels);
+        MetricActiveDemand.labels(labels).set(0);
       }
       if (!Number.isNaN(state.passive_demand)) {
-        MetricPassiveDemand.set(state.passive_demand, labels);
+        MetricPassiveDemand.labels(labels).set(state.passive_demand);
       } else {
-        MetricPassiveDemand.reset(labels);
+        MetricPassiveDemand.labels(labels).set(0);
       }
     }),
   );

@@ -1,12 +1,12 @@
-import { PromRegistry, Terminal } from '@yuants/protocol';
+import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { Subscription } from 'rxjs';
 import { Kernel } from '../kernel';
 import { BasicUnit } from './BasicUnit';
 import { PeriodDataUnit } from './PeriodDataUnit';
 
-const MetricPeriodDataCheckingUnitPeriodSelfCheckTotal = PromRegistry.create(
-  'gauge',
+const MetricPeriodDataCheckingUnitPeriodSelfCheckTotal = GlobalPrometheusRegistry.gauge(
   'period_data_checking_unit_period_self_check_total',
+  '',
 );
 
 /**

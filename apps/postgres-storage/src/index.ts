@@ -1,13 +1,15 @@
-import { PromRegistry, Terminal } from '@yuants/protocol';
+import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import type {} from '@yuants/sql';
 import { formatTime } from '@yuants/utils';
 import postgres from 'postgres';
 import { first, from, tap } from 'rxjs';
 
 // 创建指标
-const MetricsPostgresStorageRequestTotal = PromRegistry.create('counter', 'postgres_storage_request_total');
-const MetricsPostgresStorageRequestDurationMs = PromRegistry.create(
-  'histogram',
+const MetricsPostgresStorageRequestTotal = GlobalPrometheusRegistry.counter(
+  'postgres_storage_request_total',
+  '',
+);
+const MetricsPostgresStorageRequestDurationMs = GlobalPrometheusRegistry.histogram(
   'postgres_storage_request_duration_milliseconds',
   'postgres_storage_request_duration',
   [10, 50, 100, 500, 1000, 2000, 5000, 10000],
@@ -60,8 +62,10 @@ terminal.server.provideService(
       console.info(formatTime(Date.now()), 'SQL RESPONSE', msg.trace_id, results.length);
 
       // 记录成功请求，添加source_terminal_id标签
-      MetricsPostgresStorageRequestTotal.inc({ status: 'success', source_terminal_id });
-      MetricsPostgresStorageRequestDurationMs.observe(duration, { status: 'success', source_terminal_id });
+      MetricsPostgresStorageRequestTotal.labels({ status: 'success', source_terminal_id }).inc();
+      MetricsPostgresStorageRequestDurationMs.labels({ status: 'success', source_terminal_id }).observe(
+        duration,
+      );
 
       return { res: { code: 0, message: 'OK', data: results } };
     } catch (e) {
@@ -69,8 +73,10 @@ terminal.server.provideService(
       console.error(formatTime(Date.now()), 'SQL ERROR', msg.trace_id, e);
 
       // 记录失败请求，添加source_terminal_id标签
-      MetricsPostgresStorageRequestTotal.inc({ status: 'error', source_terminal_id });
-      MetricsPostgresStorageRequestDurationMs.observe(duration, { status: 'error', source_terminal_id });
+      MetricsPostgresStorageRequestTotal.labels({ status: 'error', source_terminal_id }).inc();
+      MetricsPostgresStorageRequestDurationMs.labels({ status: 'error', source_terminal_id }).observe(
+        duration,
+      );
 
       throw e;
     }
