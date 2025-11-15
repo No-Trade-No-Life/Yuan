@@ -1,18 +1,18 @@
 import { IOrder } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { defer } from 'rxjs';
-import { getTradingAccountId } from './account';
 import { getDefaultCredential } from './api/private-api';
 import { cancelOrder } from './orders/cancelOrder';
 import { modifyOrder } from './orders/modifyOrder';
 import { submitOrder } from './orders/submitOrder';
+import { getTradingAccountId } from './accountInfos/uid';
 
 const terminal = Terminal.fromNodeEnv();
 
 const credential = getDefaultCredential();
 
 defer(async () => {
-  const tradingAccountId = await getTradingAccountId();
+  const tradingAccountId = await getTradingAccountId(credential);
   terminal.server.provideService<IOrder, { order_id?: string }>(
     'SubmitOrder',
     {

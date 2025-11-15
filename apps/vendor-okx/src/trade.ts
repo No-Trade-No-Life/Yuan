@@ -4,12 +4,13 @@ import { Terminal } from '@yuants/protocol';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import { encodePath, formatTime } from '@yuants/utils';
 import { defer, repeat, retry, tap, timeout } from 'rxjs';
-import { getTradingAccountId } from './account';
 import { getAccountBillsArchive, getDefaultCredential } from './api/private-api';
+import { getTradingAccountId } from './accountInfos/uid';
+
+const credential = getDefaultCredential();
 
 const tradeParser = async (accountId: string, params: Record<string, string>): Promise<ITrade[]> => {
   const tradeList: ITrade[] = [];
-  const credential = getDefaultCredential();
   const result = await getAccountBillsArchive(credential, params);
   const productIdToProduct = new Map<string, IProduct>();
   const productIdSet = new Set<string>();
@@ -138,7 +139,7 @@ const getAccountTradeWithAccountId = async (accountId: string) => {
 };
 
 (async () => {
-  const account_id = await getTradingAccountId();
+  const account_id = await getTradingAccountId(credential);
   console.log(formatTime(Date.now()), 'getAccountTrade', `AccountID: ${account_id}`);
   defer(() => getAccountTradeWithAccountId(account_id))
     .pipe(

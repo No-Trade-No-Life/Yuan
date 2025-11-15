@@ -3,10 +3,12 @@ import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { encodePath, formatTime } from '@yuants/utils';
 import { defer, from, map, merge, mergeMap, repeat, retry, shareReplay, Subject, tap } from 'rxjs';
-import { getTradingAccountId } from './account';
 import { getDefaultCredential, getTradeOrdersHistory, getTradeOrdersPending } from './api/private-api';
+import { getTradingAccountId } from './accountInfos/uid';
 
 export const order$ = new Subject<IOrder>();
+
+const credential = getDefaultCredential();
 
 order$
   .pipe(
@@ -94,15 +96,19 @@ const makeOrder = (
 };
 
 (async () => {
-  const TRADING_ACCOUNT_ID = await getTradingAccountId();
+  const TRADING_ACCOUNT_ID = await getTradingAccountId(credential);
 
-  const swapHistoryOrders = defer(() =>
-    getTradeOrdersHistory(getDefaultCredential(), { instType: 'SWAP' }),
-  ).pipe(repeat({ delay: 1000 }), retry({ delay: 1000 }), shareReplay(1));
+  const swapHistoryOrders = defer(() => getTradeOrdersHistory(credential, { instType: 'SWAP' })).pipe(
+    repeat({ delay: 1000 }),
+    retry({ delay: 1000 }),
+    shareReplay(1),
+  );
 
-  const swapPendingOrders = defer(() =>
-    getTradeOrdersPending(getDefaultCredential(), { instType: 'SWAP' }),
-  ).pipe(repeat({ delay: 1000 }), retry({ delay: 1000 }), shareReplay(1));
+  const swapPendingOrders = defer(() => getTradeOrdersPending(credential, { instType: 'SWAP' })).pipe(
+    repeat({ delay: 1000 }),
+    retry({ delay: 1000 }),
+    shareReplay(1),
+  );
 
   const ordersFromHistoryOrder$ = swapHistoryOrders.pipe(
     //

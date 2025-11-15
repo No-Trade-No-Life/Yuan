@@ -1,15 +1,15 @@
 import { addAccountMarket, provideAccountInfoService } from '@yuants/data-account';
 import { Terminal } from '@yuants/protocol';
 import { defer } from 'rxjs';
-import { getStrategyAccountId } from './account';
 import { getStrategyAccountInfo } from './accountInfos';
 import { getDefaultCredential, getGridPositions } from './api/private-api';
+import { getStrategyAccountId } from './accountInfos/uid';
 
 const terminal = Terminal.fromNodeEnv();
 const credential = getDefaultCredential();
 
 defer(async () => {
-  const strategyAccountId = await getStrategyAccountId();
+  const strategyAccountId = await getStrategyAccountId(credential);
 
   addAccountMarket(terminal, { account_id: strategyAccountId, market_id: 'OKX' });
 

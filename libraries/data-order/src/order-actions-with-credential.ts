@@ -40,7 +40,7 @@ export const provideOrderActionsWithCredential = <T>(
     submitOrder?: (credential: T, order: IOrder) => Promise<{ order_id: string }>;
     modifyOrder?: (credential: T, order: IOrder) => Promise<void>;
     cancelOrder?: (credential: T, order: IOrder) => Promise<void>;
-    listOrders?: (credential: T) => Promise<IOrder[]>;
+    listOrders?: (credential: T, account_id: string) => Promise<IOrder[]>;
   },
 ) => {
   const { submitOrder, modifyOrder, cancelOrder, listOrders } = actions;
@@ -107,19 +107,21 @@ export const provideOrderActionsWithCredential = <T>(
   if (listOrders) {
     terminal.server.provideService<
       {
+        account_id: string;
         credential: ITypedCredential<T>;
       },
       { orders: IOrder[] }
     >(
       'ListOrders',
       {
-        required: ['credential'],
+        required: ['credential', 'account_id'],
         properties: {
           credential: makeCredentialSchema(type, credentialSchema),
+          account_id: { type: 'string' },
         },
       },
       async (msg) => {
-        const orders = await listOrders(msg.req.credential.payload);
+        const orders = await listOrders(msg.req.credential.payload, msg.req.account_id);
         return { res: { code: 0, message: 'OK', data: { orders } } };
       },
     );
@@ -205,12 +207,14 @@ export const cancelOrder = async <T>(
 export const listOrders = async <T>(
   terminal: Terminal,
   credential: ITypedCredential<T>,
+  account_id: string,
 ): Promise<IResponse<{ orders: IOrder[] }>> => {
   const res = await terminal.client.requestForResponse<
     {
       credential: ITypedCredential<T>;
+      account_id: string;
     },
     { orders: IOrder[] }
-  >('ListOrders', { credential });
+  >('ListOrders', { credential, account_id });
   return res;
 };
