@@ -5,63 +5,111 @@ description: 总结指定 git 提交区间的变更，输出含聚焦领域、�
 
 # Recent Changes Digest
 
-## 适用场景
+## 目标与交付物
 
-- 用户要求“总结某段提交/近期改动/版本更新”等，并给出 commit 范围或默认使用最新 commit。
-- 需要产出结构化 Markdown 文档，让读者快速了解改动聚焦点、贡献者与设计动机。
+- 产出一份结构化 Markdown 文档，概览指定提交区间（`<old>`..`<new>`）的关键改动。
+- 报告应至少包含：整体概览、改动聚焦领域、贡献者、设计意图、改动速览表；必要时补充技术影响、测试验证、后续建议。
+- 确保读者“开卷即得”，能快速定位目录与重点文件。
+
+## 触发条件（When to load this Skill）
+
+- 用户提及“近期改动 / commit 摘要 / release note”等需求。
+- 用户提供具体 commit、tag、分支或默认最新提交，需要在仓库上下文内梳理变更。
+- 需要跨多个目录梳理主题、作者与动机，而不仅仅是列出 `git log`。
+
+## 输入预期
+
+- 一个可访问的 Git 仓库（默认 `/home/c1/Work/Yuan`）。
+- 至少一个提交范围：
+  - `old..new`（标准范围）；
+  - 单一起点或终点时，可用 `git rev-parse` 补齐；
+  - 若完全缺省，可提示用户或默认使用 `HEAD~10..HEAD`。
 
 ## 前置检查
 
-1. 确认仓库根目录（通常 `/home/c1/Work/Yuan`）。
-2. 明确 commit 区间：
-   - 若用户提供 `<old>..<new>`，直接使用。
-   - 若只给起点或终点，使用 `git rev-parse` / `git log -1` 补齐。
-3. 创建输出目录 `docs/reports/`（若不存在）。
+1. `git status --short`，确认无必要的未提交文件影响判断。
+2. `git rev-parse --show-toplevel`，确保在仓库根目录执行命令。
+3. 创建输出目录：`docs/reports/`；若无权限需提示用户。
 
-## 工作流
+## 用法
 
-1. **列出提交**
-   ```bash
-   git log --oneline <old>..<new>
-   ```
-   - 记录提交顺序、作者与主题，过滤掉起点自身。
-   - 可选：运行 `skills/recent-changes-digest/scripts/list-commits-between.sh <old> <new>` 一次性输出 oneline 与 `--stat` 详情，便于快速取数。
-2. **逐条调研**
-   - 使用 `git show --stat <sha>` 获取触及文件与改动量。
-   - 需要深入理解时 `git show <sha> -- <path>` 或 `nl -ba <file>` 阅读关键片段。
-   - 重点整理：涉及目录/项目、功能点、作者与潜在意图。
-3. **提炼主题**
-   - 按项目/目录聚类（如 `apps/vendor-*`, `libraries/cache`, `docs/*`）。
-   - 归纳设计动机（例如：引入 open interest、重构 OKX helper、增强 cache swr）。
-4. **撰写 Markdown**
-   - 推荐放在 `docs/reports/recent-changes-<YYYY-MM-DD>.md`。
-   - 报告至少包含：
-     1. 概览（时间范围、提交数量、总体趋势）。
-     2. 改动聚焦领域（问题 1）。
-     3. 贡献者与对应工作（问题 2）。
-     4. 设计意图（问题 3）。
-     5. 改动速览/表格（问题 4）。
-   - 视需要附加：技术影响/风险、测试验证、后续建议。
-5. **验证输出**
-   - `git status --short docs/reports` 确认新文件可追踪。
-   - 快速自检 Markdown 结构，确保四个问题与额外要点覆盖。
+- `scripts/list-commits-between.sh`：一次性输出 oneline + `--stat`，方便粗略勘察。使用方式：
+  ```bash
+  skills/recent-changes-digest/scripts/list-commits-between.sh <old> <new>
+  ```
 
-## 输出示例骨架
+## 工作流（遵循渐进披露理念）
 
-```
-# 近期变动摘要（<range>）
-## 1. 概览
-## 2. 改动聚焦领域
-## 3. 贡献者
-## 4. 设计意图
-## 5. 改动速览
-## 6. 技术影响与风险
-## 7. 测试与验证
-## 8. 后续建议
-```
+1. **界定范围**
 
-## 补充建议
+   - 解析用户输入，将 `<old>` `<new>` 映射为合法 commit。
+   - 若范围过大（>100 提交），先提醒用户确认或拆分。
 
-- 适度引用文件路径（如 `apps/vendor-aster/src/quote.ts:1-40`）以便读者定位。
-- 如果提交体量大，可按主题分组多张表格，确保“让人一目了然”。
-- 遇到自动版本提交，可简述为“版本号同步，无业务逻辑变动”。
+2. **列出提交（Level 2 信息）**
+
+   - `git log --oneline <old>..<new>` 获取顺序、作者、主题。
+   - 如需统计文件：`git log --stat --reverse <old>..<new>`。
+   - 记录显著主题（feature、refactor、chore）。
+
+3. **逐条调研**
+
+   - 对关键 commit 使用 `git show --stat`、必要时 `git show <sha> -- <path>`。
+   - 关注：
+     - 涉及目录/项目（`apps/`, `libraries/`, `docs/`）。
+     - 技术焦点（功能、重构、依赖更新）。
+     - 作者与潜在动机（从 commit message / diff 推断）。
+
+4. **主题归纳**
+
+   - 将 commits 按项目或问题域聚类（如“OKX 重构”、“缓存策略”、“Vendor Open Interest”）。
+   - 给出每个聚类的设计意图、风险点。
+
+5. **撰写报告（Level 3 资源加载）**
+
+   - 输出文件命名建议：`docs/reports/recent-changes-<YYYY-MM-DD>.md`。
+   - 推荐结构：
+     ```
+     # 近期变动摘要（<range>）
+     ## 1. 概览
+     ## 2. 改动聚焦领域
+     ## 3. 贡献者
+     ## 4. 设计意图
+     ## 5. 改动速览（表格）
+     ## 6. 技术影响与风险
+     ## 7. 测试与验证
+     ## 8. 后续建议
+     ## 9. 参考资料（可选）
+     ```
+   - 适当引用文件路径（`apps/vendor-aster/src/quote.ts:1-40`）方便跳转。
+   - 自动化提交（版本号 bump）可简述为“无业务逻辑改动”。
+
+6. **自检与交付**
+   - `git status --short docs/reports`，确认文件生成位置正确。
+   - 人检：
+     - 四个核心问题是否回答。
+     - 是否覆盖关键作者、目录、意图。
+     - 表述是否简明、无堆砌。
+
+## 写作风格指南
+
+- **语气**：客观、面向工程同事；突出事实与洞察。
+- **结构**：短段落 + 列表优先；表格用于比较提交。
+- **引用**：路径 + 行号（如 `apps/vendor-okx/src/account.ts:1-80`）。
+- **语言**：保持中文输出，如需引用代码/命令使用英文。
+
+## 质量检查清单
+
+- [ ] 范围无误，起止 commit 正确。
+- [ ] 每个主题附带至少一个具体文件或模块引用。
+- [ ] 明确列出作者与角色（个人 / bot）。
+- [ ] 给出潜在风险或下一步建议。
+- [ ] 脚本或命令在仓库根目录可直接执行。
+
+## 常见错误 & 规避
+
+- **仅罗列 commit**：需抽象出主题与意图。
+- **忽视自动化提交**：虽无逻辑变更，仍需说明“版本同步”。
+- **引用路径不准确**：使用 `rg -n` 或 `nl -ba` 确认行号。
+- **上下文缺失**：必要时说明链路（例如“先新增 cache，再在 vendors 引入”）。
+
+> 若需扩展更多自动化（如生成表格、同步到文档系统），可在 `skills/recent-changes-digest/scripts/` 内继续添加脚本，并在上述工作流中引用。
