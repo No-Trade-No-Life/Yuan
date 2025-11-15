@@ -2,6 +2,23 @@
   "name": "@yuants/app-postgres-storage",
   "entries": [
     {
+      "version": "0.2.32",
+      "tag": "@yuants/app-postgres-storage_v0.2.32",
+      "date": "Sat, 15 Nov 2025 14:36:00 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor metrics"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.31",
       "tag": "@yuants/app-postgres-storage_v0.2.31",
       "date": "Wed, 12 Nov 2025 21:50:44 GMT",
