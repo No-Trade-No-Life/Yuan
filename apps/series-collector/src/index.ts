@@ -1,6 +1,6 @@
 import '@yuants/data-series';
 import { ISeriesCollectingTask } from '@yuants/data-series';
-import { PromRegistry, Terminal } from '@yuants/protocol';
+import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import { encodePath, formatTime, listWatch } from '@yuants/utils';
 import CronJob from 'cron';
@@ -24,8 +24,12 @@ import {
   timer,
 } from 'rxjs';
 
-const MetricDataCollectorLatencyMsBucket = PromRegistry.create('histogram', 'series_collector_latency_ms');
-const MetricCronjobStatus = PromRegistry.create('gauge', 'series_collector_cronjob_status');
+const MetricDataCollectorLatencyMsBucket = GlobalPrometheusRegistry.histogram(
+  'series_collector_latency_ms',
+  '',
+  [1000, 5000, 30000],
+);
+const MetricCronjobStatus = GlobalPrometheusRegistry.gauge('series_collector_cronjob_status', '');
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -160,10 +164,10 @@ const runTask = (task: ISeriesCollectingTask) =>
 
     const reportStatus = () => {
       for (const s of ['running', 'error', 'success']) {
-        MetricCronjobStatus.set(taskContext.status === s ? 1 : 0, {
+        MetricCronjobStatus.labels({
           series_id: task.series_id,
           status: s,
-        });
+        }).set(taskContext.status === s ? 1 : 0);
       }
     };
 
@@ -285,10 +289,10 @@ const runTask = (task: ISeriesCollectingTask) =>
 
     // Metrics Latency
     taskFinalize$.pipe(takeUntil(dispose$)).subscribe(() => {
-      MetricDataCollectorLatencyMsBucket.observe(taskContext.completed_at - taskContext.started_at, {
+      MetricDataCollectorLatencyMsBucket.labels({
         status: taskContext.status,
         series_id: task.series_id,
-      });
+      }).observe(taskContext.completed_at - taskContext.started_at);
     });
 
     // Retry Task if error

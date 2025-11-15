@@ -50,7 +50,7 @@
 
 ## 监控
 
-服务使用 `PromRegistry` 暴露以下指标：
+服务使用 `GlobalPrometheusRegistry` 暴露以下指标：
 
 - `postgres_storage_request_total`：按 `status`、`source_terminal_id` 统计成功/失败次数。
 - `postgres_storage_request_duration_milliseconds`：记录查询耗时直方图，可用于定位慢查询。

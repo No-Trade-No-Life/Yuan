@@ -1,4 +1,4 @@
-import { PromRegistry, Terminal } from '@yuants/protocol';
+import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
 import { buildInsertManyIntoTableSQL, escapeSQL, requestSQL } from '@yuants/sql';
 import {
   IAccountAddressInfo,
@@ -26,6 +26,7 @@ import {
   repeat,
   retry,
   shareReplay,
+  switchMap,
   tap,
   toArray,
 } from 'rxjs';
@@ -473,8 +474,7 @@ const dispatchTransfer = (order: ITransferOrder): Observable<void> => {
   });
 };
 
-const MetricFailedTransferOrders = PromRegistry.create(
-  'gauge',
+const MetricFailedTransferOrders = GlobalPrometheusRegistry.gauge(
   'failed_transfer_orders',
   'Failed Transfer Orders',
 );
@@ -484,11 +484,6 @@ defer(() => requestSQL<ITransferOrder[]>(terminal, `SELECT * FROM transfer_order
   .pipe(
     repeat({ delay: 10_000 }),
     retry({ delay: 5000 }),
-    tap(() => {
-      // ISSUE: reset the metric before fetching new records,
-      // otherwise the metric will not be updated correctly
-      MetricFailedTransferOrders.resetAll();
-    }),
     mergeMap((records) =>
       from(records).pipe(
         groupBy((record) => `${record.debit_account_id}-${record.credit_account_id}`),
@@ -496,12 +491,19 @@ defer(() => requestSQL<ITransferOrder[]>(terminal, `SELECT * FROM transfer_order
           group.pipe(
             //
             toArray(),
-            tap((v) => {
-              MetricFailedTransferOrders.set(v.length, {
-                debit_account_id: v[0].debit_account_id,
-                credit_account_id: v[0].credit_account_id,
-              });
-            }),
+            switchMap(
+              (v) =>
+                new Observable((sub) => {
+                  const failed = MetricFailedTransferOrders.labels({
+                    debit_account_id: v[0].debit_account_id,
+                    credit_account_id: v[0].credit_account_id,
+                  });
+                  failed.set(v.length);
+                  sub.add(() => {
+                    failed.delete();
+                  });
+                }),
+            ),
           ),
         ),
       ),

@@ -1,9 +1,9 @@
-import { PromRegistry } from '@yuants/protocol';
+import { GlobalPrometheusRegistry } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
 // @ts-ignore
 import CryptoJS from 'crypto-js';
 
-const MetricBinanceApiUsedWeight = PromRegistry.create('gauge', 'binance_api_used_weight');
+const MetricBinanceApiUsedWeight = GlobalPrometheusRegistry.gauge('binance_api_used_weight', '');
 
 interface errorResult {
   code: number;
@@ -48,7 +48,7 @@ export class ApiClient {
         `usedWeight1M=${usedWeight1M ?? 'N/A'}`,
       );
       if (usedWeight1M) {
-        MetricBinanceApiUsedWeight.set(+usedWeight1M, {});
+        MetricBinanceApiUsedWeight.set(+usedWeight1M);
       }
       return res.json();
     }
@@ -84,7 +84,7 @@ export class ApiClient {
       `usedWeight1M=${usedWeight1M ?? 'N/A'}`,
     );
     if (usedWeight1M) {
-      MetricBinanceApiUsedWeight.set(+usedWeight1M, {});
+      MetricBinanceApiUsedWeight.set(+usedWeight1M);
     }
     return res.json();
   }
