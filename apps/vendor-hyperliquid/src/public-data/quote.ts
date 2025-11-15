@@ -1,32 +1,29 @@
+import { IQuote } from '@yuants/data-quote';
 import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { decodePath, encodePath } from '@yuants/utils';
 import { defer, filter, map, mergeMap, repeat, retry, shareReplay, withLatestFrom } from 'rxjs';
-import type { IQuote } from '../../../libraries/data-quote/lib';
-import { client } from './api';
+import { getAllMids, getMetaAndAssetCtxs } from '../api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
-const ASSET_CTX_REFRESH_INTERVAL = process.env.ASSET_CTX_REFRESH_INTERVAL
-  ? Number(process.env.ASSET_CTX_REFRESH_INTERVAL)
-  : 5_000;
+const ASSET_CTX_REFRESH_INTERVAL = Number(process.env.ASSET_CTX_REFRESH_INTERVAL ?? 5_000);
 
-type HyperliquidAssetContext = Awaited<ReturnType<typeof client.getMetaAndAssetCtxs>>[1][number];
+type HyperliquidAssetContext = Awaited<ReturnType<typeof getMetaAndAssetCtxs>>[1][number];
 
-const assetCtxMap$ = defer(() => client.getMetaAndAssetCtxs()).pipe(
+const assetCtxMap$ = defer(() => getMetaAndAssetCtxs()).pipe(
   map(([meta, assetCtxs]) => {
-    const entries =
-      meta?.universe?.map<[string, HyperliquidAssetContext | undefined]>((asset, index) => [
-        asset.name,
-        assetCtxs?.[index],
-      ]) ?? [];
-    return new Map(entries.filter(([, ctx]) => !!ctx));
+    const entries = meta?.universe?.map<[string, HyperliquidAssetContext | undefined]>((asset, index) => [
+      asset.name,
+      assetCtxs?.[index],
+    ]);
+    return new Map(entries?.filter(([, ctx]) => !!ctx) ?? []);
   }),
   repeat({ delay: ASSET_CTX_REFRESH_INTERVAL }),
   retry({ delay: 5000 }),
   shareReplay({ bufferSize: 1, refCount: true }),
 );
 
-const quote$ = defer(() => client.getAllMids()).pipe(
+const quote$ = defer(() => getAllMids()).pipe(
   map((mids) => Object.entries(mids ?? {})),
   mergeMap((entries) => entries),
   withLatestFrom(assetCtxMap$),
@@ -48,7 +45,9 @@ const quote$ = defer(() => client.getAllMids()).pipe(
   shareReplay({ bufferSize: 1, refCount: true }),
 );
 
-if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
+const shouldWriteQuoteToSQL = /^(1|true)$/i.test(process.env.WRITE_QUOTE_TO_SQL ?? '');
+
+if (shouldWriteQuoteToSQL) {
   quote$
     .pipe(
       writeToSQL({
@@ -59,12 +58,12 @@ if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
       }),
     )
     .subscribe();
-
-  terminal.channel.publishChannel('quote', { pattern: '^HYPERLIQUID/' }, (channel_id) => {
-    const [datasourceId, productId] = decodePath(channel_id);
-    if (!datasourceId || !productId) {
-      throw new Error(`Invalid channel_id: ${channel_id}`);
-    }
-    return quote$.pipe(filter((quote) => quote.product_id === productId));
-  });
 }
+
+terminal.channel.publishChannel('quote', { pattern: '^HYPERLIQUID/' }, (channel_id) => {
+  const [datasourceId, productId] = decodePath(channel_id);
+  if (!datasourceId || !productId) {
+    throw new Error(`Invalid channel_id: ${channel_id}`);
+  }
+  return quote$.pipe(filter((quote) => quote.product_id === productId));
+});
