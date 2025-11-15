@@ -43,7 +43,7 @@
 - **原因：** `trade-copier`、分析作业与 SQL 表都依赖 `quote/{datasource_id}/{product_id}`；脚本散落会造成双写或遗漏。
 - **要求：**
   - 将 quote、资金费率、OHLC、market-order 等脚本统一放在 `public-data`，由 `index.ts` 引入。
-  - Quote 服务无条件发布 `quote/{datasource_id}/{product_id}` Channel；若设置了 `WRITE_QUOTE_TO_SQL=1` 则额外写库，否则仅发送 Channel；通道需提供 `last/bid/ask/open_interest/updated_at`。
+  - Quote 服务无条件发布 `quote/{datasource_id}/{product_id}` Channel；若 `WRITE_QUOTE_TO_SQL` 设为 `1` 或 `true` 则额外写库，否则仅发送 Channel；通道需提供 `last/bid/ask/open_interest/updated_at`。
   - WebSocket 异常时要降级 REST 轮询并保持时间戳单调。
 
 ## 5. 交易 RPC

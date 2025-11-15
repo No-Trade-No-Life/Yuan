@@ -43,7 +43,7 @@ Every vendor process must expose the same set of services, channels, and configu
 - **Why:** Prevents duplicated quote writers and keeps SQL/channel publishers consistent for every vendor.
 - **Expectations:**
   - Group quote, funding-rate, OHLC, market-order scripts under this folder and import them from `src/index.ts`.
-  - Quote publishers must always emit the `quote/{datasource_id}/{product_id}` channel with `last/bid/ask/open_interest/updated_at`; when `WRITE_QUOTE_TO_SQL=1`, append SQL writes in addition to the channel broadcast.
+  - Quote publishers must always emit the `quote/{datasource_id}/{product_id}` channel with `last/bid/ask/open_interest/updated_at`; set `WRITE_QUOTE_TO_SQL` to `1` or `true` to append SQL writes in addition to the channel broadcast.
   - When WebSocket feeds fail, fall back to REST polling with monotonic timestamps.
 
 ## 5. Trading RPCs

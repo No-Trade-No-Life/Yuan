@@ -45,7 +45,9 @@ const quote$ = defer(() => getAllMids()).pipe(
   shareReplay({ bufferSize: 1, refCount: true }),
 );
 
-if (process.env.WRITE_QUOTE_TO_SQL === 'true') {
+const shouldWriteQuoteToSQL = /^(1|true)$/i.test(process.env.WRITE_QUOTE_TO_SQL ?? '');
+
+if (shouldWriteQuoteToSQL) {
   quote$
     .pipe(
       writeToSQL({
