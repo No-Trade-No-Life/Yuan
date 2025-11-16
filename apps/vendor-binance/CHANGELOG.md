@@ -1,6 +1,11 @@
 # Change Log - @yuants/vendor-binance
 
-This log was last generated on Sat, 15 Nov 2025 23:00:39 GMT and should not be manually modified.
+This log was last generated on Sun, 16 Nov 2025 17:02:25 GMT and should not be manually modified.
+
+## 0.7.7
+Sun, 16 Nov 2025 17:02:25 GMT
+
+_Version update only_
 
 ## 0.7.6
 Sat, 15 Nov 2025 23:00:39 GMT
