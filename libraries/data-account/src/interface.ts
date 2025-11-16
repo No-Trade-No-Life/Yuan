@@ -278,3 +278,16 @@ export interface IPositionDiff {
   /** Error Volume */
   error_volume: number;
 }
+
+/**
+ * IAccountInfoInput: Input structure for account information.
+ * 账户信息的输入结构
+ *
+ * @public
+ */
+export type IAccountInfoInput = {
+  account_id: string;
+  updated_at: number;
+  money: Pick<IAccountMoney, 'currency' | 'equity' | 'free'>;
+  positions: IPosition[];
+};

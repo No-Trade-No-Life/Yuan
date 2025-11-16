@@ -4,6 +4,7 @@
 
 ```ts
 
+import { JSONSchema7 } from 'json-schema';
 import { Observable } from 'rxjs';
 import { ObservableInput } from 'rxjs';
 import { Subject } from 'rxjs';
@@ -28,6 +29,14 @@ export interface IAccountInfo {
     positions: IPosition[];
     updated_at: number;
 }
+
+// @public
+export type IAccountInfoInput = {
+    account_id: string;
+    updated_at: number;
+    money: Pick<IAccountMoney, 'currency' | 'equity' | 'free'>;
+    positions: IPosition[];
+};
 
 // @public
 export interface IAccountMoney {
@@ -77,6 +86,14 @@ export interface IPositionDiff {
 export const mergeAccountInfoPositions: (info: IAccountInfo) => Observable<IAccountInfo>;
 
 // @public
+export const provideAccountActionsWithCredential: <T>(terminal: Terminal, type: string, credentialSchema: JSONSchema7, actions: {
+    listAccounts: (credential: T) => Promise<Array<{
+        account_id: string;
+    }>>;
+    getAccountInfo: (credential: T, account_id: string) => Promise<Omit<IAccountInfoInput, 'account_id' | 'updated_at'>>;
+}) => void;
+
+// @public
 export const provideAccountInfoService: (terminal: Terminal, account_id: string, query: () => Promise<{
     money: Pick<IAccountMoney, 'currency' | 'equity' | 'free'>;
     positions: IPosition[];
@@ -93,6 +110,9 @@ export const publishAccountInfo: (terminal: Terminal, account_id: string, accoun
 
 // @public
 export const useAccountInfo: (terminal: Terminal, account_id: string) => Observable<IAccountInfo>;
+
+// @public
+export const wrapAccountInfoInput: (data: IAccountInfoInput) => IAccountInfo;
 
 // (No @packageDocumentation comment for this package)
 
