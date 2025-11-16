@@ -5,7 +5,7 @@ import { Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, map, mergeAll, timer } from 'rxjs';
-import { getFApiV1FundingRate } from './api';
+import { getFApiV1FundingRate } from '../../api/public-api';
 import { productService } from './product';
 
 const terminal = Terminal.fromNodeEnv();
