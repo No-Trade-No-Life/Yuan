@@ -4,17 +4,15 @@ import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { decodePath, encodePath } from '@yuants/utils';
 import { defer, filter, from, map, mergeMap, repeat, retry, shareReplay } from 'rxjs';
-import { getDefaultCredential, getFApiV1OpenInterest, getFApiV1TickerPrice } from '../../api/private-api';
+import { getFApiV1OpenInterest, getFApiV1TickerPrice } from '../../api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
 const OPEN_INTEREST_TTL = process.env.OPEN_INTEREST_TTL ? Number(process.env.OPEN_INTEREST_TTL) : 120_000;
 
-const credential = getDefaultCredential();
-
 const openInterestCache = createCache<string>(
   async (symbol: string) => {
     try {
-      const data = await getFApiV1OpenInterest(credential, { symbol });
+      const data = await getFApiV1OpenInterest({ symbol });
       return data.openInterest;
     } catch (error) {
       console.warn('getFApiV1OpenInterest failed', symbol, error);
@@ -24,7 +22,7 @@ const openInterestCache = createCache<string>(
   { expire: OPEN_INTEREST_TTL },
 );
 
-const quote$ = defer(() => getFApiV1TickerPrice(credential, {})).pipe(
+const quote$ = defer(() => getFApiV1TickerPrice({})).pipe(
   mergeMap((tickers) => tickers || []),
   mergeMap(
     (ticker) =>
