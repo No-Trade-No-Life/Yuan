@@ -24,6 +24,35 @@ const makeCredentialSchema = (type: string, payloadSchema: JSONSchema7): JSONSch
 };
 
 /**
+ * Submit order action handler type
+ * @public
+ */
+export type IActionHandlerOfSubmitOrder<T> = (
+  credential: T,
+  order: IOrder,
+) => Promise<{
+  order_id: string;
+}>;
+
+/**
+ * Modify order action handler type
+ * @public
+ */
+export type IActionHandlerOfModifyOrder<T> = (credential: T, order: IOrder) => Promise<void>;
+
+/**
+ * Cancel order action handler type
+ * @public
+ */
+export type IActionHandlerOfCancelOrder<T> = (credential: T, order: IOrder) => Promise<void>;
+
+/**
+ * List orders action handler type
+ * @public
+ */
+export type IActionHandlerOfListOrders<T> = (credential: T, account_id: string) => Promise<IOrder[]>;
+
+/**
  * Provide order action services (submit, modify, cancel) with credentials.
  *
  * @param terminal - The Terminal instance.
@@ -37,10 +66,10 @@ export const provideOrderActionsWithCredential = <T>(
   type: string,
   credentialSchema: JSONSchema7,
   actions: {
-    submitOrder?: (credential: T, order: IOrder) => Promise<{ order_id: string }>;
-    modifyOrder?: (credential: T, order: IOrder) => Promise<void>;
-    cancelOrder?: (credential: T, order: IOrder) => Promise<void>;
-    listOrders?: (credential: T, account_id: string) => Promise<IOrder[]>;
+    submitOrder?: IActionHandlerOfSubmitOrder<T>;
+    modifyOrder?: IActionHandlerOfModifyOrder<T>;
+    cancelOrder?: IActionHandlerOfCancelOrder<T>;
+    listOrders?: IActionHandlerOfListOrders<T>;
   },
 ) => {
   const { submitOrder, modifyOrder, cancelOrder, listOrders } = actions;

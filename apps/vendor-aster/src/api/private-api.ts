@@ -1,41 +1,47 @@
-import { opensslEquivalentHMAC } from './utils';
+import { HmacSHA256 } from '@yuants/utils';
+import { uint8ArrayToHex } from '../utils';
 
-const API_KEY = process.env.API_KEY!;
-const SECRET_KEY = process.env.SECRET_KEY!;
+export interface ICredential {
+  address: string;
+  api_key: string;
+  secret_key: string;
+}
 
-const BASE_URL = 'https://fapi.asterdex.com';
+export const getDefaultCredential = (): ICredential => {
+  return {
+    address: process.env.API_ADDRESS || '',
+    api_key: process.env.API_KEY || '',
+    secret_key: process.env.SECRET_KEY || '',
+  };
+};
 
 const request = async <T>(
-  type: 'NONE' | 'TRADE' | 'USER_DATA' | 'USER_STREAM' | 'MARKET_DATA',
+  credential: ICredential,
   method: string,
+  baseURL: string,
   endpoint: string,
   params: any = {},
 ): Promise<T> => {
-  const needApiKey = type !== 'NONE';
-  const needSign = type === 'TRADE' || type === 'USER_DATA';
-
-  const url = new URL(BASE_URL);
+  const url = new URL(baseURL);
   url.pathname = endpoint;
   for (const [key, value] of Object.entries(params)) {
     if (value === undefined) continue;
     url.searchParams.set(key, `${value}`);
   }
 
-  if (needSign) {
-    url.searchParams.set('timestamp', `${Date.now()}`);
-    const msg = url.search.slice(1); // 去掉开头的 '?'
-    const signature = await opensslEquivalentHMAC(msg, SECRET_KEY);
-    url.searchParams.set('signature', signature);
-  }
+  url.searchParams.set('timestamp', `${Date.now()}`);
+  const msg = url.search.slice(1); // 去掉开头的 '?'
+  const signature = uint8ArrayToHex(
+    await HmacSHA256(new TextEncoder().encode(msg), new TextEncoder().encode(credential.secret_key)),
+  );
+  url.searchParams.set('signature', signature);
 
   console.info(url.toString());
   const res = await fetch(url.toString(), {
     method,
-    headers: needApiKey
-      ? {
-          'X-MBX-APIKEY': API_KEY,
-        }
-      : {},
+    headers: {
+      'X-MBX-APIKEY': credential.api_key,
+    },
   }).then((response) => response.json());
   if (res.code && res.code !== 0) {
     throw JSON.stringify(res);
@@ -44,20 +50,20 @@ const request = async <T>(
 };
 
 const createApi =
-  <TReq, TRes>(
-    type: 'NONE' | 'TRADE' | 'USER_DATA' | 'USER_STREAM' | 'MARKET_DATA',
-    method: string,
-    endpoint: string,
-  ) =>
-  (params: TReq) =>
-    request<TRes>(type, method, endpoint, params);
+  (baseURL: string) =>
+  <TReq, TRes>(method: string, endpoint: string) =>
+  (credential: ICredential, params: TReq) =>
+    request<TRes>(credential, method, baseURL, endpoint, params);
+
+const createFutureApi = createApi('https://fapi.asterdex.com');
+const createSpotApi = createApi('https://sapi.asterdex.com');
 
 /**
  * 获取账户信息
  *
  * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#%E8%B4%A6%E6%88%B7%E4%BF%A1%E6%81%AFv4-user_data
  */
-export const getFApiV4Account = createApi<
+export const getFApiV4Account = createFutureApi<
   {},
   {
     feeTier: number;
@@ -110,9 +116,9 @@ export const getFApiV4Account = createApi<
       updateTime: number;
     }[];
   }
->('USER_DATA', 'GET', '/fapi/v4/account');
+>('GET', '/fapi/v4/account');
 
-export const getFApiV2Balance = createApi<
+export const getFApiV2Balance = createFutureApi<
   {},
   {
     accountAlias: string; // 账户唯一识别码
@@ -125,18 +131,18 @@ export const getFApiV2Balance = createApi<
     marginAvailable: boolean; // 是否可用作联合保证金
     updateTime: number;
   }[]
->('USER_DATA', 'GET', '/fapi/v2/balance');
+>('GET', '/fapi/v2/balance');
 
-export const getFApiV1TickerPrice = createApi<
+export const getFApiV1TickerPrice = createFutureApi<
   {},
   {
     symbol: string;
     price: string;
     time?: number;
   }[]
->('MARKET_DATA', 'GET', '/fapi/v1/ticker/price');
+>('GET', '/fapi/v1/ticker/price');
 
-export const getFApiV1OpenInterest = createApi<
+export const getFApiV1OpenInterest = createFutureApi<
   {
     symbol: string;
   },
@@ -145,23 +151,9 @@ export const getFApiV1OpenInterest = createApi<
     openInterest: string;
     time: number;
   }
->('MARKET_DATA', 'GET', '/fapi/v1/openInterest');
+>('GET', '/fapi/v1/openInterest');
 
-export const getFApiV1FundingRate = createApi<
-  {
-    symbol?: string;
-    startTime?: number;
-    endTime?: number;
-    limit?: number;
-  },
-  {
-    symbol: string;
-    fundingRate: string;
-    fundingTime: number;
-  }[]
->('NONE', 'GET', '/fapi/v1/fundingRate');
-
-export const postFApiV1Order = createApi<
+export const postFApiV1Order = createFutureApi<
   {
     symbol: string;
     side: 'BUY' | 'SELL';
@@ -180,9 +172,9 @@ export const postFApiV1Order = createApi<
     timeInForce?: 'GTC' | 'IOC' | 'FOK' | 'GTX' | 'HIDDEN';
   },
   {}
->('TRADE', 'POST', '/fapi/v1/order');
+>('POST', '/fapi/v1/order');
 
-export const getFApiV1OpenOrders = createApi<
+export const getFApiV1OpenOrders = createFutureApi<
   {
     symbol?: string;
   },
@@ -207,38 +199,63 @@ export const getFApiV1OpenOrders = createApi<
     stopPrice?: string;
     symbol: string;
   }[]
->('USER_DATA', 'GET', '/fapi/v1/openOrders');
+>('GET', '/fapi/v1/openOrders');
 
-export const deleteFApiV1Order = createApi<
+export const deleteFApiV1Order = createFutureApi<
   {
     symbol: string;
     orderId?: string | number;
     origClientOrderId?: string;
   },
   {}
->('TRADE', 'DELETE', '/fapi/v1/order');
+>('DELETE', '/fapi/v1/order');
 
 /**
- * 获取交易对信息
+ * 获取账户信息 (现货)
  *
- * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#%E4%BA%A4%E6%98%93%E5%AF%B9%E4%BF%A1%E6%81%AF
+ * https://github.com/asterdex/api-docs/blob/master/aster-finance-spot-api_CN.md#%E8%B4%A6%E6%88%B7%E4%BF%A1%E6%81%AF-user_data
  */
-export const getFApiV1ExchangeInfo = createApi<
+export const getApiV1Account = createSpotApi<
   {},
   {
-    symbols: {
-      symbol: string;
-      status: 'TRADING' | 'BREAK' | 'HALT';
-      baseAsset: string;
-      quoteAsset: string;
-      pricePrecision: number;
-      quantityPrecision: number;
-      baseAssetPrecision: number;
-      quotePrecision: number;
-      filters: {
-        filterType: string;
-        [key: string]: any;
-      }[];
+    feeTier: number;
+    canTrade: boolean;
+    canDeposit: boolean;
+    canWithdraw: boolean;
+    canBurnAsset: boolean;
+    updateTime: number;
+    balances: {
+      asset: string;
+      free: string;
+      locked: string;
     }[];
   }
->('NONE', 'GET', '/fapi/v1/exchangeInfo');
+>('GET', '/api/v1/account');
+
+/**
+ * 获取最新价格
+ * https://github.com/asterdex/api-docs/blob/master/aster-finance-spot-api_CN.md#%E6%9C%80%E6%96%B0%E4%BB%B7%E6%A0%BC
+ */
+export const getApiV1TickerPrice = createSpotApi<
+  {},
+  {
+    symbol: string;
+    price: string;
+    time: number;
+  }[]
+>('GET', '/api/v1/ticker/price');
+
+export const postApiV1Order = createSpotApi<
+  {
+    symbol: string;
+    side: 'BUY' | 'SELL';
+    type: 'MARKET' | 'LIMIT' | 'STOP' | 'STOP_MARKET' | 'TAKE_PROFIT' | 'TAKE_PROFIT_MARKET';
+    timeInForce?: 'GTC' | 'IOC' | 'FOK' | 'GTX';
+    quantity?: number;
+    quoteOrderQty?: number;
+    price?: number;
+  },
+  {
+    orderId: number; // 系统的订单ID
+  }
+>('POST', '/api/v1/order');

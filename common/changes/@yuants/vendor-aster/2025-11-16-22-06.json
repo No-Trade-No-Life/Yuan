@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-aster",
+      "comment": "rewrite",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/vendor-aster"
+}

@@ -14,6 +14,20 @@ import { Terminal } from '@yuants/protocol';
 export const cancelOrder: <T>(terminal: Terminal, credential: ITypedCredential<T>, order: IOrder) => Promise<IResponse<void>>;
 
 // @public
+export type IActionHandlerOfCancelOrder<T> = (credential: T, order: IOrder) => Promise<void>;
+
+// @public
+export type IActionHandlerOfListOrders<T> = (credential: T, account_id: string) => Promise<IOrder[]>;
+
+// @public
+export type IActionHandlerOfModifyOrder<T> = (credential: T, order: IOrder) => Promise<void>;
+
+// @public
+export type IActionHandlerOfSubmitOrder<T> = (credential: T, order: IOrder) => Promise<{
+    order_id: string;
+}>;
+
+// @public
 export interface IOrder {
     account_id: string;
     comment?: string;
@@ -59,12 +73,10 @@ export const modifyOrder: <T>(terminal: Terminal, credential: ITypedCredential<T
 
 // @public
 export const provideOrderActionsWithCredential: <T>(terminal: Terminal, type: string, credentialSchema: JSONSchema7, actions: {
-    submitOrder?: ((credential: T, order: IOrder) => Promise<{
-        order_id: string;
-    }>) | undefined;
-    modifyOrder?: ((credential: T, order: IOrder) => Promise<void>) | undefined;
-    cancelOrder?: ((credential: T, order: IOrder) => Promise<void>) | undefined;
-    listOrders?: ((credential: T, account_id: string) => Promise<IOrder[]>) | undefined;
+    submitOrder?: IActionHandlerOfSubmitOrder<T> | undefined;
+    modifyOrder?: IActionHandlerOfModifyOrder<T> | undefined;
+    cancelOrder?: IActionHandlerOfCancelOrder<T> | undefined;
+    listOrders?: IActionHandlerOfListOrders<T> | undefined;
 }) => void;
 
 // @public
