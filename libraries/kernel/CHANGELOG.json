@@ -2,6 +2,23 @@
   "name": "@yuants/kernel",
   "entries": [
     {
+      "version": "0.15.51",
+      "tag": "@yuants/kernel_v0.15.51",
+      "date": "Sun, 16 Nov 2025 20:48:32 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.7.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.15.50",
       "tag": "@yuants/kernel_v0.15.50",
       "date": "Sat, 15 Nov 2025 23:00:39 GMT",

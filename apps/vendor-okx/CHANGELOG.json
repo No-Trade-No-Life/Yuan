@@ -2,6 +2,28 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.27.0",
+      "tag": "@yuants/vendor-okx_v0.27.0",
+      "date": "Sun, 16 Nov 2025 20:48:32 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "support account actions with credential"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.7.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.26.0",
       "tag": "@yuants/vendor-okx_v0.26.0",
       "date": "Sat, 15 Nov 2025 23:00:39 GMT",

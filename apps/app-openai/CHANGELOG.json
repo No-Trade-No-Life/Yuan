@@ -2,6 +2,23 @@
   "name": "@yuants/app-openai",
   "entries": [
     {
+      "version": "0.2.3",
+      "tag": "@yuants/app-openai_v0.2.3",
+      "date": "Sun, 16 Nov 2025 20:48:32 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add main entry"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.2.2",
       "tag": "@yuants/app-openai_v0.2.2",
       "date": "Wed, 12 Nov 2025 21:50:44 GMT",
