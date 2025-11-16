@@ -229,23 +229,6 @@ export const getCrossMarginLoanInfo = (
 };
 
 /**
- * 获取现货行情
- *
- * https://www.htx.com/zh-cn/opend/newApiPages/?id=7ec3fc25-7773-11ed-9966-0242ac110003
- */
-export const getSpotTick = (
-  credential: ICredential,
-  params: { symbol: string },
-): Promise<{
-  status: string;
-  tick: {
-    close: number;
-  };
-}> => {
-  return privateRequest(credential, 'GET', `/market/detail/merged`, 'api.huobi.pro', params);
-};
-
-/**
  * 现货下单
  *
  * https://www.htx.com/zh-cn/opend/newApiPages/?id=10000065-77b7-11ed-9966-0242ac110003

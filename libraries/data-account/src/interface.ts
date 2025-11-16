@@ -1,5 +1,3 @@
-import { IOrder } from '@yuants/data-order';
-
 /**
  * Position: Atomic position information.
  * 原子性的持仓头寸信息
@@ -278,3 +276,16 @@ export interface IPositionDiff {
   /** Error Volume */
   error_volume: number;
 }
+
+/**
+ * IAccountInfoInput: Input structure for account information.
+ * 账户信息的输入结构
+ *
+ * @public
+ */
+export type IAccountInfoInput = {
+  account_id: string;
+  updated_at: number;
+  money: Pick<IAccountMoney, 'currency' | 'equity' | 'free'>;
+  positions: IPosition[];
+};

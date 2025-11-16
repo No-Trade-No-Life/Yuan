@@ -1,4 +1,5 @@
 import './account';
+import './account-actions-with-credential';
 import './api-service';
 import './order';
 import './order-actions';

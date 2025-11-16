@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-account",
+      "comment": "refactor and account-actions-with-credential",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-account"
+}

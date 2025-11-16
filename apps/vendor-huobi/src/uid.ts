@@ -23,7 +23,6 @@ export const getAccountIds = async (key: string) => {
   const SWAP_ACCOUNT_ID = `${account_id}/swap`;
 
   return {
-    main: account_id,
     spot: SPOT_ACCOUNT_ID,
     superMargin: SUPER_MARGIN_ACCOUNT_ID,
     swap: SWAP_ACCOUNT_ID,

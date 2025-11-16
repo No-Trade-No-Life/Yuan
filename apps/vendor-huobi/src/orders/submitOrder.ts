@@ -5,11 +5,11 @@ import {
   ICredential,
   getCrossMarginLoanInfo,
   getSpotAccountBalance,
-  getSpotTick,
   getSwapCrossPositionInfo,
   postSpotOrder,
   postSwapOrder,
 } from '../api/private-api';
+import { getSpotTick } from '../api/public-api';
 import { spotProductService } from '../product';
 import { superMarginAccountUidCache } from '../uid';
 
@@ -63,7 +63,7 @@ async function handleSuperMarginOrder(order: IOrder, credential: ICredential): P
   const [balanceRes, mapProductIdToProduct, priceRes] = await Promise.all([
     getSpotAccountBalance(credential, superMarginAccountUid),
     firstValueFrom(spotProductService.mapProductIdToProduct$),
-    getSpotTick(credential, { symbol: order.product_id }),
+    getSpotTick({ symbol: order.product_id }),
   ]);
 
   const balance = balanceRes.data.list
