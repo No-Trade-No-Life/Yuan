@@ -2,6 +2,7 @@
   "name": "@yuants/app-openai",
   "version": "0.2.2",
   "bin": "lib/cli.js",
+  "main": "lib/index.js",
   "files": [
     "dist",
     "lib",
