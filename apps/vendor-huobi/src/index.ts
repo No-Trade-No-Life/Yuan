@@ -1,7 +1,9 @@
-import { addAccountMarket } from '@yuants/data-account';
+import { addAccountMarket, provideAccountInfoService } from '@yuants/data-account';
 import { Terminal } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
+import './account-actions-with-credentials';
 import { provideSpotAccountInfoService, provideSwapAccountInfoService } from './account-info';
+import { getSuperMarginAccountInfo } from './accounts/super-margin';
 import {
   getAccount,
   getDefaultCredential,
@@ -20,7 +22,6 @@ import {
   setupSubAccountTransfers,
   setupTrc20WithdrawalAddresses,
 } from './transfer';
-import { spotAccountUidCache } from './uid';
 
 const terminal = Terminal.fromNodeEnv();
 const credential = getDefaultCredential();
@@ -42,7 +43,6 @@ const credential = getDefaultCredential();
   console.info(formatTime(Date.now()), 'UID', huobiUid);
 
   const huobiAccounts = await getAccount(credential);
-  const spotAccountUid = (await spotAccountUidCache.query(JSON.stringify(credential)))!;
   console.info(formatTime(Date.now()), 'huobiAccount', JSON.stringify(huobiAccounts));
 
   const account_id = `huobi/${huobiUid}`;
@@ -59,7 +59,14 @@ const credential = getDefaultCredential();
 
   provideSwapAccountInfoService(terminal, SWAP_ACCOUNT_ID, credential);
 
-  provideSpotAccountInfoService(terminal, SPOT_ACCOUNT_ID, credential, spotAccountUid);
+  provideAccountInfoService(
+    terminal,
+    SUPER_MARGIN_ACCOUNT_ID,
+    async () => getSuperMarginAccountInfo(credential, SUPER_MARGIN_ACCOUNT_ID),
+    { auto_refresh_interval: 1000 },
+  );
+
+  provideSpotAccountInfoService(terminal, SPOT_ACCOUNT_ID, credential);
 
   // 设置账户市场关联
   addAccountMarket(terminal, { account_id: SPOT_ACCOUNT_ID, market_id: 'HUOBI/SPOT' });

@@ -17,6 +17,25 @@ const makeCredentialSchema = (type: string, payloadSchema: JSONSchema7): JSONSch
 };
 
 /**
+ * Action handler for getting account information.
+ * @public
+ */
+export type IActionHandlerOfGetAccountInfo<T> = (
+  credential: T,
+  account_id: string,
+) => Promise<Omit<IAccountInfoInput, 'account_id' | 'updated_at'>>;
+
+/**
+ * Action handler for listing accounts.
+ * @public
+ */
+export type IActionHandlerOfListAccounts<T> = (credential: T) => Promise<
+  Array<{
+    account_id: string;
+  }>
+>;
+
+/**
  * Provide account action services (list accounts, get account info) with credentials.
  * @param terminal - The Terminal instance.
  * @param type - credential type for routing, e.g. 'BINANCE', 'OKX'.
@@ -29,11 +48,8 @@ export const provideAccountActionsWithCredential = <T>(
   type: string,
   credentialSchema: JSONSchema7,
   actions: {
-    listAccounts: (credential: T) => Promise<Array<{ account_id: string }>>;
-    getAccountInfo: (
-      credential: T,
-      account_id: string,
-    ) => Promise<Omit<IAccountInfoInput, 'account_id' | 'updated_at'>>;
+    listAccounts: IActionHandlerOfListAccounts<T>;
+    getAccountInfo: IActionHandlerOfGetAccountInfo<T>;
   },
 ) => {
   terminal.server.provideService<{ credential: ITypedCredential<T> }, Array<{ account_id: string }>>(

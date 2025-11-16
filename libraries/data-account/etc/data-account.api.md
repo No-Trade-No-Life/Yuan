@@ -50,6 +50,14 @@ export interface IAccountMoney {
 }
 
 // @public
+export type IActionHandlerOfGetAccountInfo<T> = (credential: T, account_id: string) => Promise<Omit<IAccountInfoInput, 'account_id' | 'updated_at'>>;
+
+// @public
+export type IActionHandlerOfListAccounts<T> = (credential: T) => Promise<Array<{
+    account_id: string;
+}>>;
+
+// @public
 export interface IPosition {
     account_id?: string;
     closable_price: number;
@@ -87,10 +95,8 @@ export const mergeAccountInfoPositions: (info: IAccountInfo) => Observable<IAcco
 
 // @public
 export const provideAccountActionsWithCredential: <T>(terminal: Terminal, type: string, credentialSchema: JSONSchema7, actions: {
-    listAccounts: (credential: T) => Promise<Array<{
-        account_id: string;
-    }>>;
-    getAccountInfo: (credential: T, account_id: string) => Promise<Omit<IAccountInfoInput, 'account_id' | 'updated_at'>>;
+    listAccounts: IActionHandlerOfListAccounts<T>;
+    getAccountInfo: IActionHandlerOfGetAccountInfo<T>;
 }) => void;
 
 // @public

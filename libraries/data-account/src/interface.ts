@@ -1,5 +1,3 @@
-import { IOrder } from '@yuants/data-order';
-
 /**
  * Position: Atomic position information.
  * 原子性的持仓头寸信息
