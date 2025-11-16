@@ -2,6 +2,23 @@
   "name": "@yuants/data-order",
   "entries": [
     {
+      "version": "0.6.0",
+      "tag": "@yuants/data-order_v0.6.0",
+      "date": "Sun, 16 Nov 2025 22:36:18 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add types exports"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.0",
       "tag": "@yuants/data-order_v0.5.0",
       "date": "Sat, 15 Nov 2025 23:00:39 GMT",
