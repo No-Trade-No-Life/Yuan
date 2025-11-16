@@ -7,14 +7,6 @@ export interface ICredential {
   secret_key: string;
 }
 
-export const getDefaultCredential = (): ICredential => {
-  return {
-    address: process.env.API_ADDRESS || '',
-    api_key: process.env.API_KEY || '',
-    secret_key: process.env.SECRET_KEY || '',
-  };
-};
-
 const request = async <T>(
   credential: ICredential,
   method: string,
