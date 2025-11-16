@@ -66,3 +66,33 @@ export const getFApiV1ExchangeInfo = createApi<
     }[];
   }
 >('GET', '/fapi/v1/exchangeInfo');
+
+/**
+ * 获取未平仓合约数量
+ *
+ * 无 API 文档 (weird)
+ */
+export const getFApiV1OpenInterest = createApi<
+  {
+    symbol: string;
+  },
+  {
+    symbol: string;
+    openInterest: string;
+    time: number;
+  }
+>('GET', '/fapi/v1/openInterest');
+
+/**
+ * 获取最新价格
+ *
+ * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#%E6%9C%80%E6%96%B0%E4%BB%B7%E6%A0%BC
+ */
+export const getFApiV1TickerPrice = createApi<
+  {},
+  {
+    symbol: string;
+    price: string;
+    time?: number;
+  }[]
+>('GET', '/fapi/v1/ticker/price');

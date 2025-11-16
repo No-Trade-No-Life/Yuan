@@ -133,26 +133,6 @@ export const getFApiV2Balance = createFutureApi<
   }[]
 >('GET', '/fapi/v2/balance');
 
-export const getFApiV1TickerPrice = createFutureApi<
-  {},
-  {
-    symbol: string;
-    price: string;
-    time?: number;
-  }[]
->('GET', '/fapi/v1/ticker/price');
-
-export const getFApiV1OpenInterest = createFutureApi<
-  {
-    symbol: string;
-  },
-  {
-    symbol: string;
-    openInterest: string;
-    time: number;
-  }
->('GET', '/fapi/v1/openInterest');
-
 export const postFApiV1Order = createFutureApi<
   {
     symbol: string;
