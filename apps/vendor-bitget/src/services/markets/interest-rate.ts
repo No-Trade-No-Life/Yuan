@@ -3,7 +3,7 @@ import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
 import { decodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, timer } from 'rxjs';
-import { getHistoricalFundingRate } from '../api/public-api';
+import { IHistoricalFundingRate, getHistoricalFundingRate } from '../../api/public-api';
 
 createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
   tableName: 'interest_rate',
@@ -27,13 +27,13 @@ createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
       }
       if (res.data.length === 0) break;
       yield res.data.map(
-        (v: any): IInterestRate => ({
+        (v: IHistoricalFundingRate): IInterestRate => ({
           series_id,
           datasource_id,
           product_id,
           created_at: formatTime(+v.fundingTime),
-          long_rate: `${-v.fundingRate}`,
-          short_rate: `${v.fundingRate}`,
+          long_rate: `${-Number(v.fundingRate)}`,
+          short_rate: `${Number(v.fundingRate)}`,
           settlement_price: '',
         }),
       );

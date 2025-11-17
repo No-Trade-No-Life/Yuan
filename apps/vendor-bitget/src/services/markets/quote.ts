@@ -3,7 +3,12 @@ import { Terminal } from '@yuants/protocol';
 import { requestSQL, writeToSQL } from '@yuants/sql';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { defer, groupBy, map, merge, mergeMap, repeat, retry, scan, shareReplay, Subject, tap } from 'rxjs';
-import { getFutureMarketTickers, getNextFundingTime } from '../api/public-api';
+import {
+  IFundingTimeInfo,
+  IFutureMarketTicker,
+  getFutureMarketTickers,
+  getNextFundingTime,
+} from '../../api/public-api';
 import { createCyclicTask } from './utils/cyclic-task';
 
 const usdtFuturesTickers$ = defer(() => getFutureMarketTickers({ productType: 'USDT-FUTURES' })).pipe(
@@ -18,40 +23,29 @@ const coinFuturesTickers$ = defer(() => getFutureMarketTickers({ productType: 'C
   shareReplay(1),
 );
 
+const mapTickerToQuote =
+  (instType: string) =>
+  (ticker: IFutureMarketTicker): Partial<IQuote> => ({
+    datasource_id: 'BITGET',
+    product_id: encodePath(instType, ticker.symbol),
+    last_price: ticker.lastPr,
+    ask_price: ticker.askPr,
+    ask_volume: ticker.askSz,
+    bid_price: ticker.bidPr,
+    bid_volume: ticker.bidSz,
+    interest_rate_long: `${-Number(ticker.fundingRate)}`,
+    interest_rate_short: `${Number(ticker.fundingRate)}`,
+    open_interest: ticker.holdingAmount,
+  });
+
 const usdtFuturesQuote$ = usdtFuturesTickers$.pipe(
-  mergeMap((x: any) => x.data || []),
-  map(
-    (x: any): Partial<IQuote> => ({
-      datasource_id: 'BITGET',
-      product_id: encodePath('USDT-FUTURES', x.symbol),
-      last_price: x.lastPr,
-      ask_price: x.askPr,
-      ask_volume: x.askSz,
-      bid_price: x.bidPr,
-      bid_volume: x.bidSz,
-      interest_rate_long: `${-x.fundingRate}`,
-      interest_rate_short: `${x.fundingRate}`,
-      open_interest: x.holdingAmount,
-    }),
-  ),
+  mergeMap((res) => res.data || []),
+  map(mapTickerToQuote('USDT-FUTURES')),
 );
 
 const coinFuturesQuote$ = coinFuturesTickers$.pipe(
-  mergeMap((x: any) => x.data || []),
-  map(
-    (x: any): Partial<IQuote> => ({
-      datasource_id: 'BITGET',
-      product_id: encodePath('COIN-FUTURES', x.symbol),
-      last_price: x.lastPr,
-      ask_price: x.askPr,
-      ask_volume: x.askSz,
-      bid_price: x.bidPr,
-      bid_volume: x.bidSz,
-      interest_rate_long: `${-x.fundingRate}`,
-      interest_rate_short: `${x.fundingRate}`,
-      open_interest: x.holdingAmount,
-    }),
-  ),
+  mergeMap((res) => res.data || []),
+  map(mapTickerToQuote('COIN-FUTURES')),
 );
 
 const fundingTimeQuote$ = new Subject<Partial<IQuote>>();
@@ -111,7 +105,10 @@ createCyclicTask({
 
     console.info(formatTime(Date.now()), 'FundingTime', product_id, res.data[0].nextFundingTime);
 
-    const data = res.data[0];
+    const data: IFundingTimeInfo | undefined = res.data[0];
+    if (!data) {
+      return;
+    }
 
     fundingTimeQuote$.next({
       datasource_id: 'BITGET',

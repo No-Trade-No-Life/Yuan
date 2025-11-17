@@ -11,8 +11,14 @@ import {
   postSubAccountTransfer,
   postTransfer,
   postWithdraw,
-} from './api/private-api';
-import { getFuturesAccountId, getParentAccountId, getSpotAccountId, getUid, isMainAccount } from './account';
+} from '../api/private-api';
+import {
+  getFuturesAccountId,
+  getParentAccountId,
+  getSpotAccountId,
+  getUid,
+  isMainAccount,
+} from './accounts/profile';
 
 const terminal = Terminal.fromNodeEnv();
 const credential = getDefaultCredential();
