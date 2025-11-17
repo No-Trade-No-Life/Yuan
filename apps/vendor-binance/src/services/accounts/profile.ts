@@ -1,3 +1,4 @@
+import { createCache } from '@yuants/cache';
 import { isApiError } from '../../api/client';
 import { getSpotAccountInfo, ICredential } from '../../api/private-api';
 
@@ -5,21 +6,28 @@ interface IAccountProfile {
   uid: string;
 }
 
-const cache = new Map<string, { profile: IAccountProfile; updated_at: number }>();
 const PROFILE_TTL = 60_000;
+const credentialStore = new Map<string, ICredential>();
+
+const accountProfileCache = createCache<IAccountProfile>(
+  async (key) => {
+    const credential = credentialStore.get(key);
+    if (!credential) return undefined;
+    const spotAccountInfo = await getSpotAccountInfo(credential);
+    if (isApiError(spotAccountInfo)) {
+      throw new Error(spotAccountInfo.msg);
+    }
+    return { uid: `${spotAccountInfo.uid}` };
+  },
+  { expire: PROFILE_TTL },
+);
 
 export const resolveAccountProfile = async (credential: ICredential): Promise<IAccountProfile> => {
-  const cacheKey = credential.access_key;
-  const cached = cache.get(cacheKey);
-  const now = Date.now();
-  if (cached && now - cached.updated_at < PROFILE_TTL) {
-    return cached.profile;
+  const key = credential.access_key;
+  credentialStore.set(key, credential);
+  const profile = await accountProfileCache.query(key);
+  if (!profile) {
+    throw new Error('Unable to resolve Binance account profile');
   }
-  const spotAccountInfo = await getSpotAccountInfo(credential);
-  if (isApiError(spotAccountInfo)) {
-    throw new Error(spotAccountInfo.msg);
-  }
-  const profile: IAccountProfile = { uid: `${spotAccountInfo.uid}` };
-  cache.set(cacheKey, { profile, updated_at: now });
   return profile;
 };

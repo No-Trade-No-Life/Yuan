@@ -7,7 +7,7 @@
 ## 0. 元信息
 
 - **项目名称**：@yuants/vendor-binance
-- **最近更新时间**：2025-11-17 14:51（由 Codex Agent 创建）
+- **最近更新时间**：2025-11-17 15:25（由 Codex Agent 更新账户 Profile 缓存）
 - **当前状态标签**：重构中（credential 化 & 上下文治理）
 
 ---
@@ -92,6 +92,20 @@
 ---
 
 ## 6. 最近几轮工作记录
+
+### 2025-11-17 — Codex
+
+- **本轮摘要**：
+  - 使用 `@yuants/cache` 取代手写 Map，按 `access_key` 缓存 Binance 账户 Profile；缓存失效后自动刷新，避免多次调用 `getSpotAccountInfo`；
+  - 凭证化 Account Actions 现在可以稳定复用 UID（`binance/<uid>/...`）而不重复命中限频。
+- **修改的文件**：
+  - `apps/vendor-binance/src/services/accounts/profile.ts`
+- **详细备注**：
+  - Profile TTL 设为 60 秒，缓存 miss 时会抛出明确错误；缓存依赖 credential store，确保刷新时仍能获取 secret；
+  - 仅文档/逻辑修改，未更改 API Schema。
+- **运行的测试 / 检查**：
+  - 命令：`n/a`
+  - 结果：未运行（纯缓存重构，后续改动建议执行 `npx tsc --noEmit --project apps/vendor-binance/tsconfig.json`）
 
 ### 2025-11-17 — Codex Agent
 
