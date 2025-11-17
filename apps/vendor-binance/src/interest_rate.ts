@@ -3,7 +3,7 @@ import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
 import { decodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, timer } from 'rxjs';
-import { client } from './api';
+import { getFutureFundingRate } from './api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -18,7 +18,7 @@ createSeriesProvider<IInterestRate>(terminal, {
     const [instType, symbol] = decodePath(product_id);
     while (true) {
       // 向前翻页，时间降序
-      const res = await client.getFutureFundingRate({
+      const res = await getFutureFundingRate({
         symbol: symbol,
         startTime: current_start,
         endTime: ended_at,

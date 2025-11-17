@@ -1,7 +1,7 @@
 import { IProduct, IQueryProductsRequest, provideQueryProductsService } from '@yuants/data-product';
 import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
-import { client } from './api';
+import { getFutureExchangeInfo } from './api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -11,7 +11,7 @@ const cache = provideQueryProductsService(
   'BINANCE',
   async (req: IQueryProductsRequest): Promise<IProduct[]> => {
     // Directly call the external API to get exchange info
-    const exchangeInfo = await client.getFutureExchangeInfo();
+    const exchangeInfo = await getFutureExchangeInfo();
 
     // Convert symbols to IProduct format
     return exchangeInfo.symbols.map((symbol): IProduct => {
