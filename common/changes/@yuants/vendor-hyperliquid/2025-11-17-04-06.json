@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-hyperliquid",
+      "comment": "update doc",
+      "type": "none"
+    }
+  ],
+  "packageName": "@yuants/vendor-hyperliquid"
+}
