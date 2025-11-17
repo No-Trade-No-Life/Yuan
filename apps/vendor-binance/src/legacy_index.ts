@@ -226,21 +226,50 @@ if (isPublicOnly) {
     {
       // spot account info
 
-      provideAccountInfoService(terminal, SPOT_ACCOUNT_ID, async () => {
-        const spotAccountResult = await getSpotAccountInfo(credential, { omitZeroBalances: true });
-        if (isApiError(spotAccountResult)) {
-          throw new Error(spotAccountResult.msg);
-        }
-        const usdtAssets = spotAccountResult.balances.find((v) => v.asset === 'USDT');
-        return {
-          money: {
-            currency: 'USDT',
-            equity: +(usdtAssets?.free || 0),
-            free: +(usdtAssets?.free || 0),
-          },
-          positions: [],
-        };
-      });
+      provideAccountInfoService(
+        terminal,
+        SPOT_ACCOUNT_ID,
+        async () => {
+          const spotAccountResult = await getSpotAccountInfo(credential, { omitZeroBalances: true });
+          if (isApiError(spotAccountResult)) {
+            throw new Error(spotAccountResult.msg);
+          }
+          const usdtAssets = spotAccountResult.balances.find((v) => v.asset === 'USDT');
+          const positions = spotAccountResult.balances
+            .filter((balance) => balance.asset !== 'USDT')
+            .map((balance) => {
+              const volume = +balance.free + +balance.locked;
+              if (!volume) {
+                return undefined;
+              }
+              const position: IPosition = {
+                position_id: `spot/${balance.asset}`,
+                datasource_id: 'BINANCE',
+                product_id: encodePath('spot', `${balance.asset}USDT`),
+                direction: 'LONG',
+                volume,
+                free_volume: +balance.free,
+                position_price: 0,
+                closable_price: 0,
+                floating_profit: 0,
+                valuation: 0,
+              };
+              return position;
+            })
+            .filter((position): position is IPosition => Boolean(position));
+          return {
+            money: {
+              currency: 'USDT',
+              equity: +(usdtAssets?.free || 0) + +(usdtAssets?.locked || 0),
+              free: +(usdtAssets?.free || 0),
+            },
+            positions,
+          };
+        },
+        {
+          auto_refresh_interval: 5_000,
+        },
+      );
 
       addAccountMarket(terminal, { account_id: SPOT_ACCOUNT_ID, market_id: 'BINANCE/SPOT' });
     }

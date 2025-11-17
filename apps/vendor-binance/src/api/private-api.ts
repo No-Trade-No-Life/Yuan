@@ -111,6 +111,34 @@ export interface ISpotAccountInfo {
   uid: number;
 }
 
+export interface ISpotOrder {
+  symbol: string;
+  orderId: number;
+  orderListId: number;
+  clientOrderId: string;
+  price: string;
+  origQty: string;
+  executedQty: string;
+  origQuoteOrderQty: string;
+  cummulativeQuoteQty: string;
+  status: string;
+  timeInForce: string;
+  type: string;
+  side: string;
+  stopPrice: string;
+  icebergQty: string;
+  time: number;
+  updateTime: number;
+  isWorking: boolean;
+}
+
+export interface ISpotNewOrderResponse {
+  symbol: string;
+  orderId: number;
+  clientOrderId: string;
+  transactTime: number;
+}
+
 export interface IAssetTransferResponse {
   tranId: number;
 }
@@ -238,6 +266,8 @@ export const getUnifiedUmAccount = (credential: ICredential): Promise<IUnifiedUm
  * 查看当前全部UM挂单，请小心使用不带symbol参数的调用
  *
  * 权重: 带symbol 1 - 不带 40
+ *
+ * https://developers.binance.com/docs/zh-CN/derivatives/portfolio-margin/trade/Query-All-Current-UM-Open-Orders
  */
 export const getUnifiedUmOpenOrders = (
   credential: ICredential,
@@ -291,6 +321,87 @@ export const getSpotAccountInfo = (
     credential,
     'GET',
     'https://api.binance.com/api/v3/account',
+    params,
+  );
+
+/**
+ * Current open orders (USER_DATA)
+ *
+ * 权重: 带symbol: 6 不带: 80
+ *
+ * https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/rest-api/account-endpoints#%E6%9F%A5%E7%9C%8B%E8%B4%A6%E6%88%B7%E5%BD%93%E5%89%8D%E6%8C%82%E5%8D%95-user_data
+ */
+export const getSpotOpenOrders = (
+  credential: ICredential,
+  params?: {
+    symbol?: string;
+  },
+): Promise<ISpotOrder[] | IApiError> =>
+  requestPrivate<ISpotOrder[] | IApiError>(
+    credential,
+    'GET',
+    'https://api.binance.com/api/v3/openOrders',
+    params,
+  );
+
+/**
+ * New order (TRADE)
+ *
+ * 权重: 1
+ *
+ * https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/rest-api/trading-endpoints#%E4%B8%8B%E5%8D%95-trade
+ */
+export const postSpotOrder = (
+  credential: ICredential,
+  params: {
+    symbol: string;
+    side: string;
+    type: string;
+    timeInForce?: string;
+    quantity?: number;
+    quoteOrderQty?: number;
+    price?: number;
+    newClientOrderId?: string;
+    strategyId?: number;
+    strategyType?: number;
+    stopPrice?: number;
+    trailingDelta?: number;
+    icebergQty?: number;
+    newOrderRespType?: string;
+    selfTradePreventionMode?: string;
+    pegPriceType?: string;
+    pegOffsetValue?: number;
+    pegOffsetType?: string;
+  },
+): Promise<ISpotNewOrderResponse | IApiError> =>
+  requestPrivate<ISpotNewOrderResponse | IApiError>(
+    credential,
+    'POST',
+    'https://api.binance.com/api/v3/order',
+    params,
+  );
+
+/**
+ * Cancel order (TRADE)
+ *
+ * 权重: 1
+ *
+ * https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/rest-api/trading-endpoints#%E6%92%A4%E9%94%80%E8%AE%A2%E5%8D%95-trade
+ */
+export const deleteSpotOrder = (
+  credential: ICredential,
+  params: {
+    symbol: string;
+    orderId?: string | number;
+    origClientOrderId?: string;
+    newClientOrderId?: string;
+    cancelRestrictions?: string;
+  },
+): Promise<ISpotOrder | IApiError> =>
+  requestPrivate<ISpotOrder | IApiError>(
+    credential,
+    'DELETE',
+    'https://api.binance.com/api/v3/order',
     params,
   );
 

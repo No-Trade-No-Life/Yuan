@@ -24,10 +24,17 @@ export const isApiError = <T>(value: T | IApiError): value is IApiError =>
 
 const appendParams = (url: URL, params?: RequestParams) => {
   if (!params) return;
-  Object.entries(params).forEach(([key, value]) => {
-    if (value === undefined) return;
-    url.searchParams.set(key, String(value));
-  });
+  const entries = Object.entries(params).filter(([, value]) => value !== undefined);
+  const timestampEntry = entries.find(([key]) => key === 'timestamp');
+  const restEntries = entries.filter(([key]) => key !== 'timestamp');
+  restEntries
+    .sort(([keyA], [keyB]) => keyA.localeCompare(keyB))
+    .forEach(([key, value]) => {
+      url.searchParams.set(key, String(value));
+    });
+  if (timestampEntry) {
+    url.searchParams.set(timestampEntry[0], String(timestampEntry[1]));
+  }
 };
 
 const callApi = async <T>(

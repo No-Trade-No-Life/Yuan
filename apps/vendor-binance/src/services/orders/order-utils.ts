@@ -10,6 +10,21 @@ export const decodeFutureSymbol = (product_id: string) => {
   return symbol;
 };
 
+export const decodeSpotSymbol = (product_id: string) => {
+  try {
+    const [instType, symbol] = decodePath(product_id);
+    if (instType?.toLowerCase() === 'spot' && symbol) {
+      return symbol;
+    }
+  } catch (err) {
+    // ignore decode errors and fall back to raw product id
+  }
+  if (!product_id.includes('/')) {
+    return product_id;
+  }
+  throw new Error(`Unsupported product_id for Binance spot: ${product_id}`);
+};
+
 export const mapOrderDirectionToSide = (direction?: IOrder['order_direction']) => {
   switch (direction) {
     case 'OPEN_LONG':
@@ -75,6 +90,13 @@ export const mapBinanceSideToYuantsDirection = (
   return undefined;
 };
 
+export const mapSpotSideToOrderDirection = (side?: string): IOrder['order_direction'] => {
+  if (side === 'SELL') {
+    return 'CLOSE_LONG';
+  }
+  return 'OPEN_LONG';
+};
+
 export const deriveClientOrderId = (order: IOrder) => {
   if (order.order_id) return `${order.order_id}`;
   const payload = JSON.stringify({
@@ -86,4 +108,21 @@ export const deriveClientOrderId = (order: IOrder) => {
     volume: order.volume,
   });
   return `YUANTS${createHash('sha256').update(payload).digest('hex').slice(0, 24)}`;
+};
+
+const BinanceOrderStatusMap: Record<string, IOrder['order_status']> = {
+  NEW: 'ACCEPTED',
+  PARTIALLY_FILLED: 'TRADED',
+  FILLED: 'TRADED',
+  PENDING_NEW: 'ACCEPTED',
+  PENDING_CANCEL: 'CANCELLED',
+  CANCELED: 'CANCELLED',
+  CANCELLED: 'CANCELLED',
+  REJECTED: 'CANCELLED',
+  EXPIRED: 'CANCELLED',
+};
+
+export const mapBinanceOrderStatus = (status?: string): IOrder['order_status'] => {
+  if (!status) return 'ACCEPTED';
+  return BinanceOrderStatusMap[status] ?? 'ACCEPTED';
 };

@@ -7,13 +7,12 @@ interface IAccountProfile {
 }
 
 const PROFILE_TTL = 60_000;
-const credentialStore = new Map<string, ICredential>();
+const serializeCredential = (credential: ICredential) => JSON.stringify(credential);
+const deserializeCredential = (key: string): ICredential => JSON.parse(key) as ICredential;
 
 const accountProfileCache = createCache<IAccountProfile>(
   async (key) => {
-    const credential = credentialStore.get(key);
-    if (!credential) return undefined;
-    const spotAccountInfo = await getSpotAccountInfo(credential);
+    const spotAccountInfo = await getSpotAccountInfo(deserializeCredential(key));
     if (isApiError(spotAccountInfo)) {
       throw new Error(spotAccountInfo.msg);
     }
@@ -23,8 +22,7 @@ const accountProfileCache = createCache<IAccountProfile>(
 );
 
 export const resolveAccountProfile = async (credential: ICredential): Promise<IAccountProfile> => {
-  const key = credential.access_key;
-  credentialStore.set(key, credential);
+  const key = serializeCredential(credential);
   const profile = await accountProfileCache.query(key);
   if (!profile) {
     throw new Error('Unable to resolve Binance account profile');

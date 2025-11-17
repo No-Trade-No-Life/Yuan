@@ -96,6 +96,31 @@
 ### 2025-11-17 — Codex
 
 - **本轮摘要**：
+  - spot account 现在会把 USDT 之外的资产暴露为 `positions`，legacy 服务与新 credential 服务一致。
+  - order actions 补齐现货账户：`listOrders`、`submitOrder`、`cancelOrder` 支持 `/spot/`，并为 futures/spot 统一映射 `order_status` 为 ACCEPTED/TRADED/CANCELLED。
+  - 私有 API 新增 spot 下单/撤单/查询接口，order utils 补充 spot product_id 解码与状态映射。
+  - 修正 REST 签名顺序：统一先追加除 timestamp 之外的参数，再在末尾加入 `timestamp`，避免 Binance Spot `openOrders` 校验失败。
+- **修改的文件**：
+  - `apps/vendor-binance/src/legacy_index.ts`
+  - `apps/vendor-binance/src/services/accounts/spot.ts`
+  - `apps/vendor-binance/src/api/private-api.ts`
+  - `apps/vendor-binance/src/services/orders/{order-utils,listOrders,submitOrder,cancelOrder}.ts`
+  - `apps/vendor-binance/src/api/client.ts`
+- **运行的测试 / 检查**：
+  - `npx tsc --noEmit --project apps/vendor-binance/tsconfig.json`
+
+### 2025-11-17 — Codex
+
+- **本轮摘要**：
+  - Profile 缓存改为直接对 credential 序列化并作为 cache key，移除 credentialStore 依赖以避免状态不一致。
+- **修改的文件**：
+  - `apps/vendor-binance/src/services/accounts/profile.ts`
+- **运行的测试 / 检查**：
+  - `npx tsc --noEmit --project apps/vendor-binance/tsconfig.json`
+
+### 2025-11-17 — Codex
+
+- **本轮摘要**：
   - 使用 `@yuants/cache` 取代手写 Map，按 `access_key` 缓存 Binance 账户 Profile；缓存失效后自动刷新，避免多次调用 `getSpotAccountInfo`；
   - 凭证化 Account Actions 现在可以稳定复用 UID（`binance/<uid>/...`）而不重复命中限频。
 - **修改的文件**：

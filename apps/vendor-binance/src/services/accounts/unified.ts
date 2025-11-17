@@ -35,14 +35,18 @@ export const getUnifiedAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> 
       position_id: `${position.symbol}/${position.positionSide}`,
       datasource_id: 'BINANCE',
       product_id: encodePath('usdt-future', position.symbol),
-      direction: position.positionSide === 'LONG' ? 'LONG' : 'SHORT',
+      direction:
+        position.positionSide === 'LONG'
+          ? 'LONG'
+          : position.positionSide === 'SHORT'
+          ? 'SHORT'
+          : position.positionSide === 'BOTH'
+          ? 'BOTH'
+          : 'UNKNOWN',
       volume: +position.positionAmt,
       free_volume: +position.positionAmt,
       position_price: +position.entryPrice,
-      closable_price:
-        +position.positionAmt === 0
-          ? +position.entryPrice
-          : +position.entryPrice + +position.unrealizedProfit / +position.positionAmt,
+      closable_price: +position.entryPrice + +position.unrealizedProfit / +position.positionAmt,
       floating_profit: +position.unrealizedProfit,
       valuation:
         +position.positionAmt *
