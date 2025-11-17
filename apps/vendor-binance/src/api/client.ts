@@ -40,6 +40,7 @@ const callApi = async <T>(
   const normalizedParams: RequestParams = { ...params };
   if (credential) {
     if (normalizedParams.recvWindow === undefined) {
+      // FYI https://developers.binance.com/docs/derivatives/usds-margined-futures/general-info#timing-security
       normalizedParams.recvWindow = 5000;
     }
     if (normalizedParams.timestamp === undefined) {
