@@ -7,7 +7,8 @@ export interface IAccountProfile {
   isMainAccount: boolean;
 }
 
-export const resolveAccountProfile = async (credential: ICredential): Promise<IAccountProfile> => {
+const PROFILE_TTL = 60_000;
+const fetchAccountProfile = async (credential: ICredential): Promise<IAccountProfile> => {
   const res = await getAccountInfo(credential);
   if (res.msg !== 'success') {
     throw new Error(`Bitget getAccountInfo failed: ${res.code} ${res.msg}`);
@@ -21,16 +22,29 @@ export const resolveAccountProfile = async (credential: ICredential): Promise<IA
   return { uid, parentId, isMainAccount: uid === parentId };
 };
 
-export const accountProfileCache = createCache<IAccountProfile>(() =>
-  resolveAccountProfile(getDefaultCredential()),
+const serializeCredential = (credential: ICredential) => JSON.stringify(credential);
+const deserializeCredential = (key: string): ICredential => JSON.parse(key) as ICredential;
+
+export const accountProfileCache = createCache<IAccountProfile>(
+  async (key) => {
+    const credential = deserializeCredential(key);
+    if (!credential) return undefined;
+    return fetchAccountProfile(credential);
+  },
+  { expire: PROFILE_TTL },
 );
 
-const requireDefaultProfile = async (): Promise<IAccountProfile> => {
-  const profile = await accountProfileCache.query('');
+export const resolveAccountProfile = async (credential: ICredential): Promise<IAccountProfile> => {
+  const cacheKey = serializeCredential(credential);
+  const profile = await accountProfileCache.query(cacheKey);
   if (!profile) {
     throw new Error('Unable to resolve Bitget account profile');
   }
   return profile;
+};
+
+const requireDefaultProfile = async (): Promise<IAccountProfile> => {
+  return resolveAccountProfile(getDefaultCredential());
 };
 
 export const getFuturesAccountId = async () => {

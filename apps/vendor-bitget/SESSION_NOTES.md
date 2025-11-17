@@ -7,7 +7,7 @@
 ## 0. 元信息（Meta）
 
 - **项目名称**：@yuants/vendor-bitget
-- **最近更新时间**：2025-11-17 13:30（由 Codex 更新，重构 services 目录并新增 account-actions-with-credential）
+- **最近更新时间**：2025-11-17 15:25（由 Codex 更新账户 profile 缓存策略）
 - **当前状态标签**：实现中
 
 ---
@@ -99,6 +99,20 @@
 ## 6. 最近几轮工作记录（Recent Sessions）
 
 > 仅记录已结束的会话；进行中的内容放在第 11 节，收尾后再搬运；最新记录置顶。
+
+### 2025-11-17 — Codex
+
+- **本轮摘要**：
+  - 为 `services/accounts/profile.ts` 引入按凭证 key（`access_key:passphrase`）驱动的 `createCache`，解决凭证化 account actions 反复触发 `getAccountInfo` 的问题；
+  - 默认账户 helper（`getFuturesAccountId`, `getSpotAccountId`, `getUid`, `isMainAccount` 等）改为复用新的 `resolveAccountProfile`，减少 TTL 内的 API 调用。
+- **修改的文件**：
+  - `apps/vendor-bitget/src/services/accounts/profile.ts`
+- **详细备注**：
+  - Profile TTL 设为 60 秒，cache miss 会抛错；`accountProfileCache` 仍导出供其他模块共享；
+  - 未涉及 API Schema 或指令调整。
+- **运行的测试 / 检查**：
+  - 命令：`n/a`
+  - 结果：未运行（建议后续变更执行 `npx tsc --noEmit --project apps/vendor-bitget/tsconfig.json`）
 
 ### 2025-11-17 — Codex
 
