@@ -77,7 +77,6 @@ export const mapBinanceSideToYuantsDirection = (
 
 export const deriveClientOrderId = (order: IOrder) => {
   if (order.order_id) return `${order.order_id}`;
-  if (order.comment) return order.comment;
   const payload = JSON.stringify({
     account_id: order.account_id,
     product_id: order.product_id,
