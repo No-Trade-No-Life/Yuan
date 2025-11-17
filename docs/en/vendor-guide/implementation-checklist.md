@@ -6,7 +6,7 @@ Every vendor process must expose the same set of services, channels, and configu
 
 - **Why:** Keeps CLI vs. daemon behavior aligned, prevents hidden global state, and makes multi-account extensions trivial.
 - **Requirements:**
-  - `src/index.ts` must only aggregate modules (`import './account'; import './order-actions'; …`). Business logic lives inside the imported files.
+- `src/index.ts` must only aggregate modules (e.g., `import './services/legacy'`, `import './services/order-actions-with-credential'`, `import './services/markets/quote'`). Business logic belongs in `services/*`; legacy single-file entrypoints (`account.ts`, `order-actions.ts`) can act as compatibility shims but should be phased out in favor of the modular layout.
   - Inject credentials via environment variables (`ACCESS_KEY`, `SECRET_KEY`, `PASSPHRASE`, …) and split REST helpers:
     - `src/api/public-api.ts`: pure functions for unauthenticated endpoints—**never** accept credentials.
     - `src/api/private-api.ts`: every function explicitly receives a `credential`, making credential rotation obvious.
@@ -43,8 +43,8 @@ Every vendor process must expose the same set of services, channels, and configu
 - **Directory:** `src/public-data/*`
 - **Why:** Prevents duplicated quote writers and keeps SQL/channel publishers consistent for every vendor.
 - **Expectations:**
-  - Group quote, funding-rate, OHLC, market-order scripts under this folder and import them from `src/index.ts`.
-  - Quote publishers must always emit the `quote/{datasource_id}/{product_id}` channel with `last/bid/ask/open_interest/updated_at`; set `WRITE_QUOTE_TO_SQL` to `1` or `true` to append SQL writes in addition to the channel broadcast.
+- Group quote, funding-rate, OHLC, market-order scripts under this folder (or `services/markets/*`) and import them from `src/index.ts`.
+- Quote publishers must always emit the `quote/{datasource_id}/{product_id}` channel with `last/bid/ask/open_interest/updated_at`; set `WRITE_QUOTE_TO_SQL` to `1` or `true` to append SQL writes _in addition_ to the channel broadcast—do not disable the channel when SQL writes are off.
   - When WebSocket feeds fail, fall back to REST polling with monotonic timestamps.
 
 ## 5. Trading RPCs
@@ -61,9 +61,9 @@ Every vendor process must expose the same set of services, channels, and configu
 
 - **Why:** Enables arbitrary accounts without redeploying, removing environment-variable scaling limits.
 
-- Expose alternate `SubmitOrder` / `CancelOrder` (and `ModifyOrder` when needed) that validate `account_id` with a regex (e.g., `^vendor/`) and require a `credential` object containing `access_key`, `secret_key`, and `passphrase`.
+- Expose alternate `SubmitOrder` / `CancelOrder` (optionally `ModifyOrder` / `ListOrders`) that validate `account_id` with a regex (e.g., `^vendor/`) and require a `credential` object containing `access_key`, `secret_key`, and `passphrase`.
 - Use the provided credential per request to support arbitrary accounts without redeploying.
-- Always register these RPCs through `provideOrderActionsWithCredential` so the protocol schema (`credential.type = '<VENDOR>'`, `credential.payload = { ... }`) stays consistent across vendors, enabling shared tooling (`trade-copier`, CLI) to route credentials safely.
+- Always register these RPCs through `provideOrderActionsWithCredential` so the protocol schema (`credential.type = '<VENDOR>'`, `credential.payload = { ... }`) stays consistent across vendors, enabling shared tooling (`trade-copier`, CLI) to route credentials safely. Implement handlers via the `@yuants/data-order` types (`IActionHandlerOfSubmitOrder`, `IActionHandlerOfCancelOrder`, `IActionHandlerOfListOrders`, …) so the wiring layer can simply forward to `services/orders/*`.
 
 ## 6. Transfer Interface (`src/transfer.ts`)
 
@@ -100,20 +100,27 @@ Every vendor process must expose the same set of services, channels, and configu
 
 ```
 src/
-├── account.ts                      # UID cache + account/pending services
 ├── api/
 │   ├── public-api.ts               # Unauthenticated REST helpers
-│   └── private-api.ts              # Authenticated REST helpers (function-based)
-├── order-actions.ts                # Default Submit/Cancel RPCs
-├── order-actions-with-credential.ts# Credential-aware RPCs
-├── order-utils.ts                  # Order direction/param helpers
-├── public-data/
-│   ├── product.ts
-│   ├── quote.ts
-│   ├── interest-rate.ts
-│   └── utils/…
-└── transfer.ts                     # On-chain + internal transfers
+│   └── private-api.ts              # Authenticated REST helpers
+├── services/
+│   ├── legacy.ts                   # Default account snapshots/pending orders/Submit&Cancel
+│   ├── account-actions-with-credential.ts
+│   ├── order-actions-with-credential.ts
+│   ├── orders/
+│   │   ├── submitOrder.ts
+│   │   ├── cancelOrder.ts
+│   │   └── listOrders.ts
+│   ├── markets/
+│   │   ├── product.ts
+│   │   ├── quote.ts
+│   │   └── interest-rate.ts
+│   └── transfer.ts
+├── index.ts                        # only `import './services/...';`
+└── e2e/                            # submit/cancel or transfer verification scripts
 ```
+
+> Projects still using the legacy `account.ts` + `public-data/*` layout can migrate gradually toward `services/*` to match modern vendors (e.g., vendor-aster) and keep responsibilities isolated.
 
 ## 10. Reference Implementations
 

@@ -6,7 +6,7 @@
 
 - **原因：** 保证 CLI、常驻进程与多账户扩展在行为上绝对一致，避免凭证泄露或全局状态污染。
 - **要求：**
-  - `src/index.ts` 只负责聚合（`import './account'; import './order-actions'; …`），具体逻辑放在各模块，保证 CLI 与常驻服务一致。
+  - `src/index.ts` 只负责聚合（如 `import './services/legacy'`、`import './services/order-actions-with-credential'`、`import './services/markets/quote'`），具体逻辑放在 `services/*` 模块，保证 CLI 与常驻服务一致；旧版 `account.ts` / `order-actions.ts` 等可保留为兼容层，但请逐步迁移到模块化目录。
   - 凭证通过环境变量注入（`ACCESS_KEY`、`SECRET_KEY`、`PASSPHRASE` 等），并按以下方式拆分 REST helper：
     - `src/api/public-api.ts`：纯函数、无凭证参数，处理所有公共接口。
     - `src/api/private-api.ts`：每个函数显式接收 `credential`，方便多账户/凭证轮转。
@@ -43,8 +43,8 @@
 - **目录：** `src/public-data/*`
 - **原因：** `trade-copier`、分析作业与 SQL 表都依赖 `quote/{datasource_id}/{product_id}`；脚本散落会造成双写或遗漏。
 - **要求：**
-  - 将 quote、资金费率、OHLC、market-order 等脚本统一放在 `public-data`，由 `index.ts` 引入。
-  - Quote 服务无条件发布 `quote/{datasource_id}/{product_id}` Channel；若 `WRITE_QUOTE_TO_SQL` 设为 `1` 或 `true` 则额外写库，否则仅发送 Channel；通道需提供 `last/bid/ask/open_interest/updated_at`。
+  - 将 quote、资金费率、OHLC、market-order 等脚本统一放在 `public-data`（或 `services/markets/*`），由 `index.ts` 引入。
+  - Quote 服务无条件发布 `quote/{datasource_id}/{product_id}` Channel；若 `WRITE_QUOTE_TO_SQL` 设为 `1` 或 `true` 则额外写库，否则仅发送 Channel；通道需提供 `last/bid/ask/open_interest/updated_at`，并在未写 SQL 时依旧保持实时 Channel。
   - WebSocket 异常时要降级 REST 轮询并保持时间戳单调。
 
 ## 5. 交易 RPC
@@ -61,9 +61,9 @@
 
 - **原因：** 多租户/动态账户场景依赖请求级凭证，减少环境变量扩容成本。
 
-- 提供携带 `credential` 的 `SubmitOrder` / `CancelOrder`（及可选 `ModifyOrder`），Schema 校验 `account_id` 正则（如 `^vendor/`）并要求 `access_key` / `secret_key` / `passphrase`。
+- 提供携带 `credential` 的 `SubmitOrder` / `CancelOrder`（及可选 `ModifyOrder` / `ListOrders`），Schema 校验 `account_id` 正则（如 `^vendor/`）并要求 `access_key` / `secret_key` / `passphrase`。
 - 每次请求使用调用方提供的凭证，突破环境变量限制，实现任意账户下单。
-- 必须通过 `provideOrderActionsWithCredential` 注册服务，统一使用 `credential.type = '<VENDOR>'` + `credential.payload = { ... }` 的协议，以便 `trade-copier` / CLI 在不同 vendor 之间复用同一套凭证路由逻辑。
+- 必须通过 `provideOrderActionsWithCredential` 注册服务，统一使用 `credential.type = '<VENDOR>'` + `credential.payload = { ... }` 的协议，以便 `trade-copier` / CLI 在不同 vendor 之间复用同一套凭证路由逻辑；handler 应使用 `@yuants/data-order` 暴露的 `IActionHandlerOfSubmitOrder` / `IActionHandlerOfCancelOrder` / `IActionHandlerOfListOrders` 类型，方便在 `services/orders/*` 中复用具体实现。
 
 ## 6. 转账接口（`src/transfer.ts`）
 
@@ -98,20 +98,27 @@
 
 ```
 src/
-├── account.ts                      # UID 缓存 + 账户/挂单服务
 ├── api/
 │   ├── public-api.ts               # 无需认证的 REST 函数
 │   └── private-api.ts              # 需认证的 REST 函数
-├── order-actions.ts                # 默认 Submit/Cancel
-├── order-actions-with-credential.ts# 凭证化 Submit/Cancel
-├── order-utils.ts                  # 方向/参数映射
-├── public-data/
-│   ├── product.ts
-│   ├── quote.ts
-│   ├── interest-rate.ts
-│   └── utils/…
-└── transfer.ts                     # 链上 + 内部划转
+├── services/
+│   ├── legacy.ts                   # 默认账户：account/pending/Submit/Cancel
+│   ├── account-actions-with-credential.ts
+│   ├── order-actions-with-credential.ts
+│   ├── orders/
+│   │   ├── submitOrder.ts
+│   │   ├── cancelOrder.ts
+│   │   └── listOrders.ts
+│   ├── markets/
+│   │   ├── product.ts
+│   │   ├── quote.ts
+│   │   └── interest-rate.ts
+│   └── transfer.ts
+├── index.ts                        # 仅 `import './services/...';`
+└── e2e/                            # Submit/Cancel 或转账验证脚本
 ```
+
+> 旧项目若仍在 `account.ts` / `public-data/*` 结构，可逐步迁移到 `services/*`，降低耦合并统一与 vendor-aster 等新实现的做法。
 
 ## 10. 参考实现
 
