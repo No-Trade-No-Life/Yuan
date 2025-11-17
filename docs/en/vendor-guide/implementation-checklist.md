@@ -12,6 +12,7 @@ Every vendor process must expose the same set of services, channels, and configu
     - `src/api/private-api.ts`: every function explicitly receives a `credential`, making credential rotation obvious.
   - Cache UID/parent info via `@yuants/cache`, generate account IDs as `vendor/<uid>/<scope>`, and reuse the cache across accounts, transfers, and credential-aware RPCs.
   - For DEX/on-chain venues, treat wallet addresses (or parent accounts) as the `uid` and keep the `vendor/<uid>/<scope>` naming so copier routing stays stable.
+  - Every REST helper must include a doc comment with the endpoint path + official URL, and response/parameter types may **not** fall back to `any`—declare explicit interfaces or use `unknown` plus downstream parsing.
 
 ## 1. Account Snapshot Service
 
@@ -62,6 +63,7 @@ Every vendor process must expose the same set of services, channels, and configu
 
 - Expose alternate `SubmitOrder` / `CancelOrder` (and `ModifyOrder` when needed) that validate `account_id` with a regex (e.g., `^vendor/`) and require a `credential` object containing `access_key`, `secret_key`, and `passphrase`.
 - Use the provided credential per request to support arbitrary accounts without redeploying.
+- Always register these RPCs through `provideOrderActionsWithCredential` so the protocol schema (`credential.type = '<VENDOR>'`, `credential.payload = { ... }`) stays consistent across vendors, enabling shared tooling (`trade-copier`, CLI) to route credentials safely.
 
 ## 6. Transfer Interface (`src/transfer.ts`)
 

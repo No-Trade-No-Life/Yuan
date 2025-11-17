@@ -1,0 +1,265 @@
+# Bitget Vendor — Session Notes
+
+> 单一真相源：记录 `apps/vendor-bitget` 的目标、指令、决策、TODO 与风险。结构与 `skills/context-management/SESSION_NOTES.template.md` 对齐，亦参考 `apps/vendor-hyperliquid/docs/context/SESSION_NOTES.md`。
+
+---
+
+## 0. 元信息（Meta）
+
+- **项目名称**：@yuants/vendor-bitget
+- **最近更新时间**：2025-11-17 13:30（由 Codex 更新，重构 services 目录并新增 account-actions-with-credential）
+- **当前状态标签**：实现中
+
+---
+
+## 1. 项目整体目标（High-level Goal）
+
+- 构建 Bitget 交易所的统一 vendor adapter，为 `trade-copier`、`transfer-controller`、CLI 与 Web UI 提供账户、挂单、行情、下单、转账服务。
+- 通过模块化（`services/legacy` + `services/account-actions-with-credential` + `services/order-actions-with-credential` + `services/markets/*` + `services/transfer`）与 `@yuants/*` 通用接口实现复用。
+- 确保实时性、错误透传与审计可追踪性，满足 checklist 要求。
+- 当前阶段聚焦 USDT 永续与 Spot，不含期权/保证金融资。
+
+---
+
+## 2. 指令与约束（Instructions & Constraints）
+
+### 2.1 长期指令快照
+
+- 中文对话/文档，英文源码/接口。
+- `src/index.ts` 仅导入模块；公共 REST 在 `api/public-api.ts`，私有 REST 在 `api/private-api.ts`，所有私有函数显式传 `ICredential`。
+- 账户 ID 统一 `bitget/<uid>/<scope>`，`@yuants/cache` 缓存 UID/parentId，供账户、转账、凭证下单复用。
+- `provideAccountInfoService` & `providePendingOrdersService` 每账户独立，刷新约 1s / ≤5s；`product_id` 必须来自 `encodePath`。
+- `services/legacy.ts`（默认）与 `services/order-actions-with-credential.ts`（凭证化）同时存在，日志记录请求参数并透传 Bitget 错误。
+- `services/markets/*` 负责产品/行情/资金费率，支持 `WRITE_QUOTE_TO_SQL` Flag；Quote 至少 5s 刷新。
+- `services/transfer.ts` 注册 TRC20 链上提现、Spot↔Futures 内部调拨、Parent/Sub Account 互转。
+
+### 2.2 当前阶段指令
+
+- Commit `b00e9aa7` 完成模块化重构；今后改动须保持分层、同步更新 README 与文档，并记录在 4/6/7 节。
+- 需优先补齐 credential-aware RPC、TRC20 提现、子账户调拨的回归脚本与手动验证记录。
+- 所有新的 Feature Flag / 环境变量务必写入本文件与 `apps/vendor-bitget/README.md`。
+
+### 2.3 临时指令（短期有效）
+
+- 当前会话需对齐 vendor-aster 的 services 目录，迁移 Bitget 默认账户/行情/转账逻辑至 `src/services/*`，新增 account-actions-with-credential，并同步 AGENTS / Session Notes。
+
+### 2.4 指令冲突与变更记录
+
+- 暂无冲突记录。若 checklist 与用户指令冲突，依流程记录 C# 编号并更新 AGENTS/Session Notes。
+
+---
+
+## 3. 当前阶段的重点目标（Current Focus）
+
+- 巩固 commit `b00e9aa7` 引入的模块化 Bitget 结构，确保账户、挂单、行情、下单、转账稳定运行。
+- 为 credential-aware Submit/Cancel 与转账状态机补充 E2E/脚本验证，并同步到文档。
+- 整理运维手册，帮助 `trade-copier`/`transfer-controller` 团队快速接入。
+
+---
+
+## 4. 重要背景与关键决策（Context & Decisions）
+
+### 4.1 架构 / 模块概览
+
+- `src/services/accounts/profile.ts`：缓存 UID / parentId / main-account 状态，提供 `getFuturesAccountId`、`isMainAccount` 等 helper。
+- `src/services/accounts/futures.ts` / `spot.ts`：封装账户查询与 pending-order mapping，供默认服务与凭证化服务复用。
+- `src/services/legacy.ts`：默认凭证下注册账户快照、挂单、SubmitOrder / CancelOrder。
+- `src/services/account-actions-with-credential.ts`：暴露 `ListAccounts` / `GetAccountInfo`，支持任意 Bitget API key。
+- `src/services/order-actions-with-credential.ts` 与 `src/services/orders/order-utils.ts`：凭证化 Submit/Cancel 及参数映射。
+- `src/services/markets/product.ts` / `quote.ts` / `interest-rate.ts`：REST 轮询 + SQL 写入 + quote channel。
+- `src/services/transfer.ts`：注册 TRC20 提现、Spot↔Futures 内部调拨、Parent/Sub 互转。
+- `src/api/client.ts`：REST 基础设施（签名、日志、简易限流占位），`api/public-api.ts`/`private-api.ts` 暴露具体接口。
+
+### 4.2 已做出的关键决策
+
+- **[D1] 引入 vendor implementation checklist 结构**：删除旧版 `src/api.ts`，新增 `api/client.ts` + `public/private-api.ts`，`src/index.ts` 只聚合模块。
+- **[D2] 增加 credential-aware Submit/Cancel**：允许运行期注入任意 Bitget 凭证，无需 redeploy；account_id 以 `^bitget/` 限制。
+- **[D3] 扩展 transfer 状态机**：覆盖 TRC20 链上提现（INIT→PENDING→COMPLETE），Spot↔Futures 内部转账，以及 Parent/Sub Account 调拨。
+
+### 4.3 已接受的折衷 / 技术债
+
+- **T1**：行情/资金费率使用 REST 轮询（5s）而非 WebSocket，存在延迟；后续视需求补 WS。
+- **T2**：`request*WithFlowControl` 已实现但未应用到高频私有接口，429 时会抛错；TODO 中需跟进。
+
+---
+
+## 5. 关键文件与模块说明（Files & Modules）
+
+- `apps/vendor-bitget/README.md`：能力列表、目录结构、运行期望。
+- `apps/vendor-bitget/src/services/accounts/*.ts`：账户 profile 缓存、期货/现货账户与挂单映射。
+- `apps/vendor-bitget/src/services/legacy.ts`：默认账户的 Account/Pending/Submit/Cancel。
+- `apps/vendor-bitget/src/services/account-actions-with-credential.ts`：凭证化账户快照服务。
+- `apps/vendor-bitget/src/services/order-actions-with-credential.ts` 与 `services/orders/order-utils.ts`：凭证化下单与参数映射。
+- `apps/vendor-bitget/src/services/markets/*`：产品、行情、资金费率脚本。
+- `apps/vendor-bitget/src/services/transfer.ts`：转账接口注册。
+- `docs/en/vendor-guide/implementation-checklist.md`：适配规范。
+
+---
+
+## 6. 最近几轮工作记录（Recent Sessions）
+
+> 仅记录已结束的会话；进行中的内容放在第 11 节，收尾后再搬运；最新记录置顶。
+
+### 2025-11-17 — Codex
+
+- **本轮摘要**：
+  - 参照 vendor-aster 的 services 分层迁移 Bitget 默认账户、挂单、行情、转账逻辑：新增 `src/services/accounts/*`, `services/legacy.ts`, `services/markets/*`, `services/transfer.ts`，`index.ts` 仅聚合 services。
+  - 增加 `services/account-actions-with-credential.ts`，复用期货/现货快照 helper，支持凭证化 `ListAccounts/GetAccountInfo`。
+  - 同步 `apps/vendor-bitget/docs/context/AGENTS.md` 与 `SESSION_NOTES.md`，更新架构描述与临时指令。
+- **修改的文件**：
+  - `apps/vendor-bitget/src/index.ts`, `apps/vendor-bitget/src/services/**/*`
+  - `apps/vendor-bitget/docs/context/AGENTS.md`, `apps/vendor-bitget/docs/context/SESSION_NOTES.md`
+- **详细备注**：
+  - `services/accounts/profile.ts` 缓存 UID/parentId，供 transfer、legacy、凭证化服务共享；
+  - `services/legacy.ts` 合并默认账户快照与 Submit/Cancel，避免重复注册 Terminal；
+  - `services/markets/*` 纯粹负责产品/行情/资金费率，路径与 vendor-aster 保持一致。
+- **运行的测试 / 检查**：
+  - 命令：`npx tsc --noEmit --project apps/vendor-bitget/tsconfig.json`
+  - 结果：通过
+
+### 2025-11-17 — Codex
+
+- **本轮摘要**：
+  - 将 `order-actions-with-credential.ts` 对齐 vendor-okx：使用 `provideOrderActionsWithCredential` 并强制 `credential.type = 'BITGET'` 协议，避免重复注册 Schema。
+  - 在 `AGENTS.md` 与中英文 implementation checklist 中记录“凭证化 RPC 必须通过 helper 注册”的原则。
+  - 逐条核对 public/private API 注释：修正 `getMarginCurrencies` 返回类型并确认文档链接；对 404 的 `Get-Symbols`/`Get-Order-Pending`/`spot Get-Pending-Orders` 改为可访问的 bitgetlimited GitHub 备份文档；`getSpotOrdersPending` 按官方 `Get-Unfilled-Orders` 重新实现。
+- **修改的文件**：
+  - `apps/vendor-bitget/src/order-actions-with-credential.ts`, `apps/vendor-bitget/src/api/public-api.ts`, `apps/vendor-bitget/src/api/private-api.ts`
+  - `apps/vendor-bitget/docs/context/AGENTS.md`
+  - `docs/en/vendor-guide/implementation-checklist.md`, `docs/zh-Hans/vendor-guide/implementation-checklist.md`
+- **详细备注**：
+  - Submit/Cancel 失败会抛出错误，由框架返回非 0 code；
+  - 未来如需 `ModifyOrder` / `ListOrders` 可在 helper actions 中扩展。
+- **运行的测试 / 检查**：
+  - 命令：未运行
+  - 结果：n/a（待下一轮运行 `npx tsc --noEmit --project apps/vendor-bitget/tsconfig.json`）
+
+### 2025-11-17 — Codex
+
+- **本轮摘要**：
+  - 从 commit `b00e9aa7` 前的 `src/api.ts` 恢复 Bitget API 文档注释（限频、用途、官方链接），并同步到 `api/public-api.ts` / `api/private-api.ts`。
+  - 为缺失的 pending-order 接口补充官方文档注释，保持与旧实现一致的描述风格。
+- **修改的文件**：
+  - `apps/vendor-bitget/src/api/public-api.ts`, `apps/vendor-bitget/src/api/private-api.ts`
+- **详细备注**：
+  - 文档内容与原版一致（中文描述 + 限速提示 + 链接），避免再次出现“any 无注释”的回归；
+  - 其余类型逻辑沿用上一轮更新。
+- **运行的测试 / 检查**：
+  - 命令：无
+  - 结果：n/a（可在后续类型检查中一并验证）
+
+### 2025-11-17 — Codex
+
+- **本轮摘要**：
+  - 恢复并补充 Bitget public/private API 的文档注释，列出 REST 路径及官方链接；所有 helper 均定义显式类型，移除 `any`。
+  - 为公共数据与 interest-rate 脚本接入新的响应类型；更新 implementation checklist（中英）强调“禁止使用 any”与“API helper 必须携带 doc”。
+- **修改的文件**：
+  - `apps/vendor-bitget/src/api/client.ts`, `apps/vendor-bitget/src/api/public-api.ts`, `apps/vendor-bitget/src/api/private-api.ts`
+  - `apps/vendor-bitget/src/services/markets/product.ts`, `apps/vendor-bitget/src/services/markets/quote.ts`, `apps/vendor-bitget/src/services/markets/interest-rate.ts`
+  - `docs/en/vendor-guide/implementation-checklist.md`, `docs/zh-Hans/vendor-guide/implementation-checklist.md`
+- **详细备注**：
+  - `requestPublic*` 等 helper 现以泛型替代 `any`，保持响应推断；
+  - 文档要求明确记录 API URL，避免误删注释的回归。
+- **运行的测试 / 检查**：
+  - 命令：未运行（类型与文档调整）
+  - 结果：n/a（建议下轮执行 `npx tsc --noEmit --project apps/vendor-bitget/tsconfig.json` 验证类型更改）
+
+### 2025-11-17 — Codex
+
+- **本轮摘要**：
+  - 创建 `apps/vendor-bitget/docs/context/AGENTS.md` 与 `SESSION_NOTES.md`，将 commit `b00e9aa7` 的架构、指令、风险固化到上下文文档。
+  - 收敛指令范围到 Bitget 项目，删除根目录临时文件。
+- **修改的文件**：
+  - `apps/vendor-bitget/docs/context/AGENTS.md`
+  - `apps/vendor-bitget/docs/context/SESSION_NOTES.md`
+  - （删除）`AGENTS.md`, `codex/SESSION_NOTES.md`
+- **详细备注**：
+  - 本轮仅文档调整；临时指令“只整理文档”已写入 2.3 节。
+- **运行的测试 / 检查**：
+  - 命令：无（文档工作）
+  - 结果：n/a
+
+### 2025-11-14 — Siyuan Wang（commit b00e9aa7）
+
+- **本轮摘要**：
+  - 重构 Bitget vendor，拆分 public/private API，新增账户缓存、pending services、credential-aware RPC、公用数据模块与 transfer 状态机。
+  - 更新 README、vendor docs 与 implementation checklist。
+- **修改的文件**：
+  - `apps/vendor-bitget/README.md`, `apps/vendor-bitget/src/account.ts（2025-11-17 起拆分为 services/accounts/* 与 services/legacy.ts）`, `apps/vendor-bitget/src/api/*`, `apps/vendor-bitget/src/order-actions*.ts（现位于 services/*）`, `apps/vendor-bitget/src/public-data/*（现位于 services/markets/*）`, `apps/vendor-bitget/src/transfer.ts（现位于 services/transfer.ts）`, `docs/en|zh-Hans/packages/@yuants-vendor-bitget.md`, `docs/en/vendor-guide/implementation-checklist.md`
+- **详细备注**：
+  - 删除旧 `src/api.ts`；`src/index.ts` 仅导入模块。
+  - Transfer 模块覆盖 TRC20、Spot↔Futures、Parent/Sub 通路。
+- **运行的测试 / 检查**：
+  - 命令：未在提交信息中提供
+  - 结果：未知（需按 7.1 TODO 补测）
+
+---
+
+## 7. 当前 TODO / 任务列表（Tasks & TODO）
+
+### 7.1 高优先级
+
+- [ ] 依据 `docs/en/vendor-guide/implementation-checklist.md` 执行完整手动验证：账户、挂单、产品、Quote、Submit/Cancel、TransferApply/Eval，并在 6 节记录结果。
+- [ ] 为 credential-aware Submit/Cancel 添加 e2e/smoke 测试脚本（最小下单+撤单），验证多凭证流程。
+- [ ] 在 `private-api.ts` 高频接口（pending orders、funding time、spot/futures 资产）启用 `request*WithFlowControl`，避免 429。
+
+### 7.2 中优先级
+
+- [ ] 编写运维手册/CLI 示例文档，解释 transfer-controller 如何选择 TRC20 / 内部 / 子账号通路。
+- [ ] 统一 `services/markets/quote.ts` 与 SQL `product` 表的同步机制，确保冷启动时 funding 任务能获取 product 列表。
+
+### 7.3 想法 / Nice-to-have
+
+- [ ] 引入 Bitget WebSocket 报价 + REST fallback，降低延迟。
+- [ ] 评估是否需要现货的 credential-aware RPC（当前仅支持 USDT Futures）。
+
+---
+
+## 8. 风险点 / 容易踩坑的地方（Risks & Gotchas）
+
+- **链上提现仅主账户可用**
+
+  - 影响：子账户凭证将导致 TRC20 Withdraw 卡在 INIT；
+  - 建议：部署前确认使用主账户凭证；若需子账户提现需额外授权并记录。
+
+- **API 限速 / 流控缺失**
+
+  - 背景：pending orders、funding time 等仍直接调用 `requestPrivate`；
+  - 影响：Bitget 429 会终止服务，导致账户/挂单断更；
+  - 建议：实现 TODO 中的 flow-control，日志保留 trace_id。
+
+- **SQL 写入压力**
+  - 背景：`quote.ts` 在 `WRITE_QUOTE_TO_SQL=1` 时每秒写库；
+  - 建议：确认数据库 IOPS；必要时调低 `writeInterval` 或分批写入。
+
+---
+
+## 9. 尚未解决的问题（Open Questions）
+
+- **O1：Credential-aware RPC 是否需要支持 Spot/Margin？**
+
+  - 现状：仅覆盖 USDT Futures；
+  - 方案 A：在 `order-actions-with-credential.ts` 按 `product_id` 分路，扩展 Spot API；
+  - 方案 B：保持期货优先，等待业务需求。
+
+- **O2：公共数据是否需要 WebSocket？**
+  - 现状：REST 轮询；
+  - 方案 A：维持现状，依赖 retry；
+  - 方案 B：使用 Bitget WebSocket，REST 作为备援。
+
+---
+
+## 10. 下一位 Agent 的建议行动（Next Steps）
+
+1. 阅读本文件 2/3/4/7 节与 `AGENTS.md`，确认指令范围。
+2. 优先执行 7.1 的手动验证和 credential-aware 测试，记录结果。
+3. 开始任何 API 调用前确认凭证来自主账户并在 8 节登记潜在风险。
+4. 完成改动后更新 6/7/8/9/10 节，并在 11 节清理草稿。
+
+---
+
+## 11. 当前会话草稿 / Scratchpad
+
+### 2025-11-17 12:21 — Codex
+
+- 草稿内容已结算至各章节，本节暂留空。

@@ -1,7 +1,7 @@
-import './account';
-import './order-actions';
-import './order-actions-with-credential';
-import './public-data/interest-rate';
-import './public-data/product';
-import './public-data/quote';
-import './transfer';
+import './services/account-actions-with-credential';
+import './services/legacy';
+import './services/order-actions-with-credential';
+import './services/markets/interest-rate';
+import './services/markets/product';
+import './services/markets/quote';
+import './services/transfer';

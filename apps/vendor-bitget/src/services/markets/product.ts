@@ -3,7 +3,7 @@ import { Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
 import { encodePath, formatTime } from '@yuants/utils';
 import { Subject, defer, repeat, retry, shareReplay, tap } from 'rxjs';
-import { getMarketContracts } from '../api/public-api';
+import { IMixMarketContract, getMarketContracts } from '../../api/public-api';
 
 const product$ = new Subject<IProduct>();
 
@@ -20,7 +20,7 @@ const futureProducts$ = defer(async () => {
     throw new Error(coinFuturesProductRes.msg);
   }
   const usdtFutures = usdtFuturesProductRes.data.map(
-    (product: any): IProduct => ({
+    (product: IMixMarketContract): IProduct => ({
       product_id: encodePath(`USDT-FUTURES`, product.symbol),
       datasource_id: 'BITGET',
       quote_currency: product.quoteCoin,
@@ -42,7 +42,7 @@ const futureProducts$ = defer(async () => {
     }),
   );
   const coinFutures = coinFuturesProductRes.data.map(
-    (product: any): IProduct => ({
+    (product: IMixMarketContract): IProduct => ({
       product_id: encodePath(`COIN-FUTURES`, product.symbol),
       datasource_id: 'BITGET',
       quote_currency: product.quoteCoin,

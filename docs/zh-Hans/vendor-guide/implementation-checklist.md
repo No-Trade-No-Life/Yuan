@@ -12,6 +12,7 @@
     - `src/api/private-api.ts`：每个函数显式接收 `credential`，方便多账户/凭证轮转。
   - 使用 `@yuants/cache` 缓存 UID/母账号，统一生成 `vendor/<uid>/<scope>` 的 `account_id`，账户、转账、凭证化 RPC 等场景全部复用。
   - DEX/链上类 vendor 即使只有地址也必须沿用 `vendor/<address>/<scope>` 命名，地址或母账号都可充当 `uid`，确保 copier 能稳定路由。
+  - 所有 REST helper 必须写注释说明接口路径和官方文档链接；禁止在 API 中使用 `any`，需要定义明确的请求/响应类型（或使用 `unknown` + 手工解析）。
 
 ## 1. 账户快照服务
 
@@ -62,6 +63,7 @@
 
 - 提供携带 `credential` 的 `SubmitOrder` / `CancelOrder`（及可选 `ModifyOrder`），Schema 校验 `account_id` 正则（如 `^vendor/`）并要求 `access_key` / `secret_key` / `passphrase`。
 - 每次请求使用调用方提供的凭证，突破环境变量限制，实现任意账户下单。
+- 必须通过 `provideOrderActionsWithCredential` 注册服务，统一使用 `credential.type = '<VENDOR>'` + `credential.payload = { ... }` 的协议，以便 `trade-copier` / CLI 在不同 vendor 之间复用同一套凭证路由逻辑。
 
 ## 6. 转账接口（`src/transfer.ts`）
 

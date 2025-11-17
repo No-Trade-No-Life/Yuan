@@ -15,10 +15,10 @@ type QueueItem = {
   credential?: ICredential;
   method: HttpMethod;
   path: string;
-  params?: any;
+  params?: Record<string, unknown>;
 };
 
-type QueueResponse = { trace_id: string; response?: any; error?: Error };
+type QueueResponse = { trace_id: string; response?: unknown; error?: Error };
 
 type FlowController = {
   requestQueue: QueueItem[];
@@ -27,7 +27,7 @@ type FlowController = {
 
 const flowControllers = new Map<string, FlowController>();
 
-const createUrl = (path: string, method: HttpMethod, params?: any) => {
+const createUrl = (path: string, method: HttpMethod, params?: Record<string, unknown>) => {
   const url = new URL(BASE_URL);
   url.pathname = path;
   if (method === 'GET' && params) {
@@ -55,12 +55,12 @@ const buildHeaders = (credential: ICredential | undefined, method: HttpMethod, u
   };
 };
 
-const callApi = async (
+const callApi = async <TResponse>(
   credential: ICredential | undefined,
   method: HttpMethod,
   path: string,
-  params?: any,
-) => {
+  params?: Record<string, unknown>,
+): Promise<TResponse> => {
   const url = createUrl(path, method, params);
   const body = method === 'GET' || params === undefined ? '' : JSON.stringify(params);
   const headers = buildHeaders(credential, method, url, body);
@@ -76,7 +76,7 @@ const callApi = async (
     if (process.env.LOG_LEVEL === 'DEBUG') {
       console.debug(formatTime(Date.now()), 'BitgetResponse', path, JSON.stringify(params), retStr);
     }
-    return JSON.parse(retStr);
+    return JSON.parse(retStr) as TResponse;
   } catch (err) {
     console.error(formatTime(Date.now()), 'BitgetRequestFailed', path, JSON.stringify(params), retStr);
     throw err;
@@ -112,13 +112,13 @@ const ensureFlowController = (key: string, config: FlowControlConfig) => {
   return controller;
 };
 
-const requestWithFlowControl = async (
+const requestWithFlowControl = async <TResponse>(
   credential: ICredential | undefined,
   method: HttpMethod,
   path: string,
   config: FlowControlConfig,
-  params?: any,
-) => {
+  params?: Record<string, unknown>,
+): Promise<TResponse> => {
   const key = getFlowControllerKey(credential, path);
   const controller = ensureFlowController(key, config);
   const trace_id = UUID();
@@ -129,30 +129,33 @@ const requestWithFlowControl = async (
     shareReplay(1),
   );
   controller.requestQueue.push({ trace_id, credential, method, path, params });
-  return (await firstValueFrom(res$)).response;
+  return (await firstValueFrom(res$)).response as TResponse;
 };
 
-export const requestPublic = <T = any>(method: HttpMethod, path: string, params?: any) =>
-  callApi(undefined, method, path, params) as Promise<T>;
-export const requestPrivate = <T = any>(
+export const requestPublic = <T = unknown>(
+  method: HttpMethod,
+  path: string,
+  params?: Record<string, unknown>,
+) => callApi<T>(undefined, method, path, params);
+export const requestPrivate = <T = unknown>(
   credential: ICredential,
   method: HttpMethod,
   path: string,
-  params?: any,
-) => callApi(credential, method, path, params) as Promise<T>;
-export const requestPublicWithFlowControl = (
+  params?: Record<string, unknown>,
+) => callApi<T>(credential, method, path, params);
+export const requestPublicWithFlowControl = <T = unknown>(
   method: HttpMethod,
   path: string,
   config: FlowControlConfig,
-  params?: any,
-) => requestWithFlowControl(undefined, method, path, config, params);
-export const requestPrivateWithFlowControl = (
+  params?: Record<string, unknown>,
+) => requestWithFlowControl<T>(undefined, method, path, config, params);
+export const requestPrivateWithFlowControl = <T = unknown>(
   credential: ICredential,
   method: HttpMethod,
   path: string,
   config: FlowControlConfig,
-  params?: any,
-) => requestWithFlowControl(credential, method, path, config, params);
+  params?: Record<string, unknown>,
+) => requestWithFlowControl<T>(credential, method, path, config, params);
 
 export const getDefaultCredential = (): ICredential => {
   const access_key = process.env.ACCESS_KEY;
