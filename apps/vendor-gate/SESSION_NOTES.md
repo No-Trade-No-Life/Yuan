@@ -7,8 +7,8 @@
 ## 0. 元信息（Meta）
 
 - **项目名称**：@yuants/vendor-gate
-- **最近更新时间**：2025-11-17 15:20（由 Codex 更新，完成目录重构 + 文档补全）
-- **当前状态标签**：重构中（已迁移到 services/api 分层，待补公共行情等能力）
+- **最近更新时间**：2025-11-18 15:40（由 Codex 更新，完善限速与账户缓存，并补回现货账户逻辑）
+- **当前状态标签**：重构中（API/Service 分层已稳定，继续补公共行情与验证）
 
 ---
 
@@ -62,7 +62,7 @@
 - `src/api/http-client.ts`：封装 Gate 请求签名 / 日志；复用在 public/private API 中。
 - `src/api/public-api.ts`：无鉴权 REST（合约列表、资金费率、order book、tickers）。
 - `src/api/private-api.ts`：凭证化 REST（账户、仓位、订单、转账、充值/提现）。
-- `src/services/accounts/*`：按账户类型拆分（future/unified/spot），供 legacy + credential actions 共用。
+- `src/services/accounts/*`：按账户类型拆分（future/unified/spot + profile 缓存），供 legacy + credential actions 共用。
 - `src/services/orders/*`：submit/cancel/listOrders 逻辑（仅永续）。
 - `src/services/legacy.ts`：默认凭证 wiring（account info、pending orders、Submit/Cancel RPC）。
 - `src/services/order-actions-with-credential.ts`：`provideOrderActionsWithCredential('GATE')`。
@@ -80,6 +80,10 @@
   - 背景：既有 host 使用 `gate/<uid>/future/USDT` 作为固定 ID。
   - 方案：`getAccountIds` 统一生成旧格式，避免影响 Terminal 配置；未来如需升级再另起兼容层。
   - 影响：凭证化服务与 legacy 完全一致，copier 无需额外映射。
+- **[D3] 以 credential 为 key 缓存账户档案**
+  - 背景：凭证化 API 需要频繁解析 UID/账户 ID，之前用 Map + access_key 作为 key，无法控制过期也难以序列化完整凭证。
+  - 方案：引入 `services/accounts/profile.ts`，使用 `createCache` + JSON 序列化 credential 缓存 UID/未来/现货/统一账户 ID，并统一供 legacy 与凭证化服务使用。
+  - 影响：避免重复调用 `getAccountDetail`，也能按 TTL 更新；credential 变动时自动失效。
 
 ### 4.3 已接受的折衷 / 技术债
 
@@ -92,7 +96,8 @@
 ## 5. 关键文件与模块说明（Files & Modules）
 
 - `src/api/http-client.ts`: 统一请求签名/日志/限流输入，public/private API 均依赖。
-- `src/services/accounts/account-ids.ts`: 缓存 UID → account_id，供 legacy 与凭证化服务共享。
+- `src/services/accounts/profile.ts`: 通过 `createCache` 缓存 UID 及 future/spot/unified account_id，供各服务共享。
+- `src/services/accounts/spot.ts`: 拉取现货余额，提供 `getSpotAccountInfo`（已恢复丢失的实现）。
 - `src/services/orders/listOrders.ts`: 将 Gate open orders 映射为 `IOrder`，供 pending service 与 credential handler 使用。
 - `src/services/legacy.ts`: 默认凭证入口（account info、pending orders、Submit/Cancel wiring）。
 - `src/services/transfer.ts`: 注册账户互转与链上提现地址，涵盖内转与 TRC20 出入金。
@@ -106,6 +111,13 @@
 - 按 checklist 重构目录：新增 `api/http-client.ts`、`api/public-api.ts`、`api/private-api.ts`、`services/accounts/*`、`services/orders/*`、`services/markets/*`、`services/legacy.ts`、`services/transfer.ts`，并移除旧 `api.ts` / `product.ts` / `interest_rate.ts` / 旧 `index.ts`。
 - 实现 `account-actions-with-credential` + `order-actions-with-credential`，默认凭证服务使用相同 handler；凭证缺失时自动跳过 legacy/transfer。
 - 补齐 AGENTS / SESSION_NOTES 文档，记录长期指令与风险。
+- 验证：`npx tsc --noEmit --project apps/vendor-gate/tsconfig.json` ✅。
+
+### 2025-11-18 — Codex
+
+- 将 `RateLimiter` 重写为 class + RxJS 通道，支持每个 `(path, period, limit)` 自动建立/销毁 `Subject`，更贴近旧实现且方便清理。
+- 新增 `services/accounts/profile.ts`，使用 `createCache` 按 credential 缓存 UID 和 future/spot/unified account IDs，并统一供 legacy、account-actions-with-credential、transfer 复用；同步在 `package.json` 中声明 `@yuants/cache` 依赖。
+- 还原 `services/accounts/spot.ts`，修复误删的现货账户读取逻辑，确保 `getSpotAccountInfo` 可用。
 - 验证：`npx tsc --noEmit --project apps/vendor-gate/tsconfig.json` ✅。
 
 ---
