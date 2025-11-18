@@ -1,5 +1,7 @@
 # 基于 Credential 的规则
 
+> ⚠️ 本文件仅摘录自 `apps/AGENTS.md`、`libraries/AGENTS.md`、`tools/AGENTS.md`，供其他工具查阅。若发现冲突或需更新，请以对应目录下的 `AGENTS.md` 为准并先修改原文件。
+
 本规则文件定义了如何使用 Credential（凭证）来管理和应用访问控制策略。通过配置不同的 Credential，可以实现对资源的细粒度控制，确保只有授权用户能够访问特定的资源。
 
 Credential 用于进行外部 API 调用时的身份验证和授权。每个 Credential 包含必要的认证信息，如 API 密钥、令牌或用户名和密码。
