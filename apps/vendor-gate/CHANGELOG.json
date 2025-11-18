@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-gate",
   "entries": [
     {
+      "version": "0.4.0",
+      "tag": "@yuants/vendor-gate_v0.4.0",
+      "date": "Tue, 18 Nov 2025 07:32:09 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "align gate with new standard and add credential"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.3.95",
       "tag": "@yuants/vendor-gate_v0.3.95",
       "date": "Sun, 16 Nov 2025 22:36:18 GMT",

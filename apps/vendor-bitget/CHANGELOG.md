@@ -1,6 +1,17 @@
 # Change Log - @yuants/vendor-bitget
 
-This log was last generated on Sun, 16 Nov 2025 22:36:18 GMT and should not be manually modified.
+This log was last generated on Tue, 18 Nov 2025 07:32:09 GMT and should not be manually modified.
+
+## 0.7.0
+Tue, 18 Nov 2025 07:32:09 GMT
+
+### Minor changes
+
+- align vendor bitget add account with credentials
+
+### Patches
+
+- update doc & cache key
 
 ## 0.6.3
 Sun, 16 Nov 2025 22:36:18 GMT

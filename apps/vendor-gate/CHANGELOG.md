@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-gate
 
-This log was last generated on Sun, 16 Nov 2025 22:36:18 GMT and should not be manually modified.
+This log was last generated on Tue, 18 Nov 2025 07:32:09 GMT and should not be manually modified.
+
+## 0.4.0
+Tue, 18 Nov 2025 07:32:09 GMT
+
+### Minor changes
+
+- align gate with new standard and add credential
 
 ## 0.3.95
 Sun, 16 Nov 2025 22:36:18 GMT
