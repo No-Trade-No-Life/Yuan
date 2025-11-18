@@ -37,9 +37,32 @@ provideAccountInfoService(
   { auto_refresh_interval: 1000 },
 );
 
+providePendingOrdersService(terminal, SPOT_ACCOUNT_ID, async () => listOrders(credential, SPOT_ACCOUNT_ID), {
+  auto_refresh_interval: 1000,
+});
+
 providePendingOrdersService(terminal, PERP_ACCOUNT_ID, async () => listOrders(credential, PERP_ACCOUNT_ID), {
   auto_refresh_interval: 2000,
 });
+
+Terminal.fromNodeEnv().server.provideService<IOrder>(
+  'CancelOrder',
+  {
+    required: ['account_id', 'order_id', 'product_id'],
+    properties: {
+      account_id: { type: 'string', const: SPOT_ACCOUNT_ID },
+      order_id: { type: ['string', 'number'] },
+      product_id: { type: 'string' },
+    },
+  },
+  async (msg) => {
+    const order = msg.req;
+
+    await handleCancelOrder(credential, order);
+
+    return { res: { code: 0, message: 'OK' } };
+  },
+);
 
 Terminal.fromNodeEnv().server.provideService<IOrder, { order_id: string }>(
   'SubmitOrder',

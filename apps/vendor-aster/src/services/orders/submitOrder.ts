@@ -2,8 +2,23 @@ import { IActionHandlerOfSubmitOrder } from '@yuants/data-order';
 import { decodePath, roundToStep } from '@yuants/utils';
 import { getApiV1TickerPrice, ICredential, postApiV1Order, postFApiV1Order } from '../../api/private-api';
 
+const parseProductId = (productId?: string) => {
+  if (!productId) {
+    return { category: undefined as string | undefined, symbol: undefined as string | undefined };
+  }
+  const parts = decodePath(productId);
+  if (parts.length >= 2) {
+    return { category: parts[0], symbol: parts.slice(1).join('/') };
+  }
+  return { category: undefined, symbol: parts[0] };
+};
+
 const handleSubmitOrderOfSpot: IActionHandlerOfSubmitOrder<ICredential> = async (credential, order) => {
-  const symbol = order.product_id;
+  const { symbol } = parseProductId(order.product_id);
+  const resolvedSymbol = symbol ?? order.product_id;
+  if (!resolvedSymbol) {
+    throw new Error(`Invalid product_id: unable to resolve spot symbol from "${order.product_id}"`);
+  }
 
   const type = ({ MARKET: 'MARKET', LIMIT: 'LIMIT', MAKER: 'LIMIT' } as const)[order.order_type!];
   if (!type) throw new Error(`Unsupported order_type: ${order.order_type}`);
@@ -22,14 +37,14 @@ const handleSubmitOrderOfSpot: IActionHandlerOfSubmitOrder<ICredential> = async 
 
   if (type === 'MARKET' && side === 'BUY') {
     const spotPrice = await getApiV1TickerPrice(credential, {});
-    const thePrice = spotPrice.find((x) => x.symbol === symbol)?.price;
-    if (!thePrice) throw new Error(`Cannot get price for symbol ${symbol}`);
+    const thePrice = spotPrice.find((x) => x.symbol === resolvedSymbol)?.price;
+    if (!thePrice) throw new Error(`Cannot get price for symbol ${resolvedSymbol}`);
     quantity = undefined;
     quoteOrderQty = roundToStep(order.volume * +thePrice, 0.01);
   }
 
   const res = await postApiV1Order(credential, {
-    symbol,
+    symbol: resolvedSymbol,
     type,
     side,
     timeInForce,
@@ -46,11 +61,10 @@ const handleSubmitOrderOfSpot: IActionHandlerOfSubmitOrder<ICredential> = async 
 };
 
 const handleSubmitOrderOfPerp: IActionHandlerOfSubmitOrder<ICredential> = async (credential, order) => {
-  const [, decodedSymbol] = decodePath(order.product_id);
-  if (!decodedSymbol) {
+  const { symbol } = parseProductId(order.product_id);
+  if (!symbol) {
     throw new Error(`Invalid product_id: unable to decode symbol from "${order.product_id}"`);
   }
-  const symbol = decodedSymbol;
 
   const side = ({ OPEN_LONG: 'BUY', OPEN_SHORT: 'SELL', CLOSE_LONG: 'SELL', CLOSE_SHORT: 'BUY' } as const)[
     order.order_direction!
@@ -98,10 +112,14 @@ const handleSubmitOrderOfPerp: IActionHandlerOfSubmitOrder<ICredential> = async 
 };
 
 export const handleSubmitOrder: IActionHandlerOfSubmitOrder<ICredential> = async (credential, order) => {
-  if (order.account_id.includes('/SPOT')) {
+  const accountId = order.account_id?.toUpperCase() ?? order.account_id;
+  const { category } = parseProductId(order.product_id);
+  const productType = category?.toUpperCase();
+
+  if (accountId?.includes('/SPOT') || productType === 'SPOT') {
     return handleSubmitOrderOfSpot(credential, order);
   }
-  if (order.account_id.includes('/PERP')) {
+  if (accountId?.includes('/PERP') || productType === 'PERPETUAL') {
     return handleSubmitOrderOfPerp(credential, order);
   }
   throw new Error(`Unsupported account_id for SubmitOrder: ${order.account_id}`);

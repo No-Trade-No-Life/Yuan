@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-aster",
+      "comment": "align aster with vendor-supporting add missing function",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/vendor-aster"
+}
