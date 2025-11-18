@@ -41,7 +41,7 @@ description: SQL 迁移编写与执行准则，是 `tools/sql-migration/` 目录
 
 1. **主键必须存在**，且列包含 `NOT NULL`。
 2. **字符串统一 TEXT**，避免 `VARCHAR(n)`。
-3. **时间戳统一 TIMESTAMPTZ`**。
+3. **时间戳统一 TIMESTAMPTZ**。
 4. **禁止外键**，关联关系由应用层维护。
 5. **建议字段**：
    - `created_at TIMESTAMPTZ NOT NULL DEFAULT CURRENT_TIMESTAMP`
