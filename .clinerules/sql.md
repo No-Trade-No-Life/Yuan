@@ -1,3 +1,5 @@
+> ⚠️ 本文件仅镜像 `tools/sql-migration/AGENTS.md`，供校验脚本和阅读者速览。若需修改规则，请先更新 `tools/sql-migration/AGENTS.md` 并再同步到此处。
+
 ### 关于 SQL 文件组织方式
 
 1. SQL DDL 必须写入 /tools/sql-migration/sql 目录下的 .sql 文件中。
