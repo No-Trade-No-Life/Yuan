@@ -2,6 +2,7 @@ import { provideOrderActionsWithCredential } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { handleCancelOrder } from './orders/cancelOrder';
 import { handleSubmitOrder } from './orders/submitOrder';
+import { listOrders } from './orders/listOrders';
 
 provideOrderActionsWithCredential(
   Terminal.fromNodeEnv(),
@@ -18,5 +19,6 @@ provideOrderActionsWithCredential(
   {
     submitOrder: handleSubmitOrder,
     cancelOrder: handleCancelOrder,
+    listOrders,
   },
 );

@@ -7,6 +7,48 @@ export interface ICredential {
   secret_key: string;
 }
 
+export interface IAsterFutureOpenOrder {
+  orderId: number;
+  clientOrderId: string;
+  price: string;
+  origQty: string;
+  executedQty: string;
+  status: string;
+  timeInForce: string;
+  type: string;
+  side: 'BUY' | 'SELL';
+  updateTime: number;
+  avgPrice: string;
+  reduceOnly?: boolean;
+  closePosition?: boolean;
+  positionSide?: 'BOTH' | 'LONG' | 'SHORT';
+  workingType?: string;
+  priceProtect?: boolean;
+  origType?: string;
+  stopPrice?: string;
+  symbol: string;
+}
+
+export interface IAsterSpotOpenOrder {
+  orderId: number;
+  clientOrderId: string;
+  price: string;
+  origQty: string;
+  executedQty: string;
+  cummulativeQuoteQty?: string;
+  status: string;
+  timeInForce: string;
+  type: string;
+  side: 'BUY' | 'SELL';
+  stopPrice?: string;
+  icebergQty?: string;
+  time: number;
+  updateTime: number;
+  isWorking?: boolean;
+  avgPrice?: string;
+  symbol: string;
+}
+
 const request = async <T>(
   credential: ICredential,
   method: string,
@@ -146,32 +188,29 @@ export const postFApiV1Order = createFutureApi<
   {}
 >('POST', '/fapi/v1/order');
 
+/**
+ * 查询当前挂单 (永续)
+ *
+ * https://github.com/asterdex/api-docs/blob/master/aster-finance-futures-api_CN.md#L2728-L2766
+ */
 export const getFApiV1OpenOrders = createFutureApi<
   {
     symbol?: string;
   },
-  {
-    orderId: number;
-    clientOrderId: string;
-    price: string;
-    origQty: string;
-    executedQty: string;
-    status: string;
-    timeInForce: string;
-    type: string;
-    side: 'BUY' | 'SELL';
-    updateTime: number;
-    avgPrice: string;
-    reduceOnly?: boolean;
-    closePosition?: boolean;
-    positionSide?: 'BOTH' | 'LONG' | 'SHORT';
-    workingType?: string;
-    priceProtect?: boolean;
-    origType?: string;
-    stopPrice?: string;
-    symbol: string;
-  }[]
+  IAsterFutureOpenOrder[]
 >('GET', '/fapi/v1/openOrders');
+
+/**
+ * 查询当前挂单 (现货)
+ *
+ * https://github.com/asterdex/api-docs/blob/master/aster-finance-spot-api_CN.md#L1196-L1234
+ */
+export const getApiV1OpenOrders = createSpotApi<
+  {
+    symbol?: string;
+  },
+  IAsterSpotOpenOrder[]
+>('GET', '/api/v1/openOrders');
 
 export const deleteFApiV1Order = createFutureApi<
   {
@@ -231,3 +270,17 @@ export const postApiV1Order = createSpotApi<
     orderId: number; // 系统的订单ID
   }
 >('POST', '/api/v1/order');
+
+/**
+ * 取消有效订单 (现货)
+ *
+ * https://github.com/asterdex/api-docs/blob/master/aster-finance-spot-api_CN.md#L1040-L1074
+ */
+export const deleteApiV1Order = createSpotApi<
+  {
+    symbol: string;
+    orderId?: string | number;
+    origClientOrderId?: string;
+  },
+  {}
+>('DELETE', '/api/v1/order');

@@ -7,7 +7,7 @@
 ## 0. 元信息（Meta）
 
 - **项目名称**：@yuants/vendor-aster
-- **最近更新时间**：2025-11-17 14:20（由 Codex 更新，补齐上下文文档并整理 commit 15b8c2a1 背景）
+- **最近更新时间**：2025-11-19 01:15（由 GitHub Copilot 扩展 Spot Submit/Cancel 能力并更新文档）
 - **当前状态标签**：实现中（services 重写完成，待验证与补文档）
 
 ---
@@ -63,7 +63,7 @@
 - `src/services/legacy.ts`：以默认凭证注册 Spot/Perp 的 `provideAccountInfoService`、`providePendingOrdersService` 以及 Submit/Cancel RPC。
 - `src/services/account-actions-with-credential.ts`：暴露凭证化 `ListAccounts` / `GetAccountInfo`，根据 account_id 后缀派发到 Spot/Perp handler。
 - `src/services/order-actions-with-credential.ts`：通过 `provideOrderActionsWithCredential('ASTER')` 注册 Submit/Cancel；handler 位于 `services/orders/*`。
-- `src/services/orders/submitOrder.ts` / `cancelOrder.ts` / `listOrders.ts`：统一的订单行为实现，分别处理 Spot/Perp 下单、Perp 撤单、open orders 映射。
+- `src/services/orders/submitOrder.ts` / `cancelOrder.ts` / `listOrders.ts`：统一的订单行为实现，分别处理 Spot/Perp 下单、Perp 撤单、open orders 映射（listOrders 已支持 Spot + Perp）。
 - `src/services/markets/product.ts` / `quote.ts` / `interest_rate.ts`：REST 轮询 + `@yuants/sql` 写库；quote 结合 open interest 缓存。
 - `src/api/public-api.ts` / `private-api.ts`：REST helper 与签名逻辑；`utils.ts` 仅保留 `uint8ArrayToHex`。
 - `src/e2e/submit-order.e2e.test.ts`：最小 SubmitOrder 端到端测试脚本（需显式提供 `ASTER_E2E_*` 环境变量）。
@@ -91,7 +91,7 @@
 
 - Quote 默认为单价（last price 同时作为 bid/ask），需要后续引入真实深度或 WebSocket。
 - `WRITE_QUOTE_TO_SQL` 为 `'true'` 时才会写库并发布 Channel，目前缺乏只读模式，部署需确保 Flag 打开。
-- `provideOrderActionsWithCredential` 尚未暴露 `listOrders`，凭证化 pending orders 功能缺失。
+- Spot 撤单已接入（默认凭证 + 凭证化 RPC 共用 `handleCancelOrder`），并在 `legacy.ts` 注册对应服务入口。
 - 未实现 transfer / withdraw 状态机；如上游需要，需新增服务并记录风险。
 
 ---
@@ -111,6 +111,48 @@
 ---
 
 ## 6. 最近几轮工作记录（Recent Sessions）
+
+### 2025-11-19 — GitHub Copilot
+
+- **本轮摘要**：
+  - Spot Submit/Cancel 全量对齐：为 `handleSubmitOrder` / `handleCancelOrder` 引入 `decodePath` 解析逻辑，根据 `account_id` 与 `product_id` 自动路由 Spot / Perp，并为 Spot Cancel 新增 `deleteApiV1Order` helper。
+  - 默认凭证 `legacy.ts` 新增 Spot `CancelOrder` 服务，自带凭证化 RPC 也可取消 Spot 挂单；Aster 支持矩阵同步更新。
+  - `SESSION_NOTES` 记录能力变更与残余 TODO。
+- **修改的文件**：
+  - `apps/vendor-aster/src/api/private-api.ts`
+  - `apps/vendor-aster/src/services/orders/cancelOrder.ts`
+  - `apps/vendor-aster/src/services/orders/submitOrder.ts`
+  - `apps/vendor-aster/src/services/legacy.ts`
+  - `docs/zh-Hans/vendor-supporting.md`
+  - `apps/vendor-aster/SESSION_NOTES.md`
+- **详细备注**：
+  - `handleSubmitOrder` 通过 `product_id` 推断合约类型，兼容历史 `ASTER/<ADDRESS>`（未带 `/PERP`）账户标识；Spot 下单在提交与市价换算时均使用解码后的 symbol。
+  - Spot Cancel 复用同一 handler，`legacy.ts` 已校验 account_id，并沿用 `order_id`/`product_id` 校验逻辑。
+  - `deleteApiV1Order` / `getFApiV1OpenOrders` 等新增私有 REST helper 都附带官方文档链接，方便排障。
+- **运行的测试 / 检查**：
+  - 命令：`npx tsc --noEmit --project apps/vendor-aster/tsconfig.json`
+  - 结果：通过（无 TypeScript 报错）。
+
+### 2025-11-17 — GitHub Copilot
+
+- **本轮摘要**：
+  - 为 pending orders 补齐 typed REST helper：`IAsterFutureOpenOrder`、`IAsterSpotOpenOrder`、`getApiV1OpenOrders`，并扩展 `listOrders` 同时支持 Spot/Perp。
+  - 凭证化 RPC (`provideOrderActionsWithCredential`) 暴露 `listOrders`，`legacy.ts` 为默认 Spot 账户注册 `providePendingOrdersService`，并复用新的映射逻辑。
+  - 更新 `docs/zh-Hans/vendor-supporting.md` 描述，标记 Aster Spot/Perp 已支持未成交订单；补写 Session Notes，记录检查与残余风险。
+- **修改的文件**：
+  - `apps/vendor-aster/src/api/private-api.ts`
+  - `apps/vendor-aster/src/services/orders/listOrders.ts`
+  - `apps/vendor-aster/src/services/legacy.ts`
+  - `apps/vendor-aster/src/services/order-actions-with-credential.ts`
+  - `docs/zh-Hans/vendor-supporting.md`
+  - `apps/vendor-aster/SESSION_NOTES.md`
+- **详细备注**：
+  - Spot pending orders 方向固定为 `BUY → OPEN_LONG / SELL → CLOSE_LONG`；Perp 逻辑沿用 reduceOnly + positionSide 判定。
+  - `legacy.ts` 仍沿用 `ASTER/<ADDRESS>` 作为默认 Perp account_id，避免影响既有调用；后续若需调整为 `/PERP`，需先约定迁移方案。
+  - Credential-based `listOrders` 直接调用共享 handler，可供 trade-copier 等按账户轮询 pending orders。
+- **运行的测试 / 检查**：
+  - 命令：`npx tsc --noEmit --project apps/vendor-aster/tsconfig.json`
+  - 结果：通过（无 TypeScript 报错）。
 
 ### 2025-11-17 — Codex
 
@@ -153,9 +195,10 @@
 
 ### 7.1 高优先级（下一轮优先处理）
 
-- [ ] 为凭证化 RPC 接入 `services/orders/listOrders.ts`，在 `provideOrderActionsWithCredential` 注册 `listOrders`，并验证 trade-copier 能查询自定义账户的 pending orders。
+- [x] 为凭证化 RPC 接入 `services/orders/listOrders.ts`，在 `provideOrderActionsWithCredential` 注册 `listOrders`，并验证 trade-copier 能查询自定义账户的 pending orders。（2025-11-17）
 - [ ] 运行并文档化 `src/e2e/submit-order.e2e.test.ts`（至少在测试环境），确认 commit 15b8c2a1 的 Submit/Cancel 行为可闭环。
 - [ ] 决定 quote Channel 的默认输出策略：在未设置 `WRITE_QUOTE_TO_SQL` 时是否仍需发布 Channel；若需要，调整 `services/markets/quote.ts` 并记录 Feature Flag。
+- [x] 允许 Spot 账户撤单（默认凭证与凭证化 RPC），扩展 `handleCancelOrder` 并记录兼容策略。（2025-11-19）
 
 ### 7.2 中优先级 / 待排期
 
