@@ -35,7 +35,7 @@ const createRequestArtifacts = (method: HttpMethod, path: string, params?: GateP
     Object.entries(searchParams).forEach(([key, value]) => url.searchParams.set(key, value));
   }
   const rawBody = method === 'GET' ? '' : JSON.stringify(params);
-  const body = rawBody ?? '';
+  const body = rawBody;
   return { url, body };
 };
 

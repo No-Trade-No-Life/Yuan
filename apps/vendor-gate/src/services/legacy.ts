@@ -2,7 +2,7 @@ import { addAccountMarket, provideAccountInfoService } from '@yuants/data-accoun
 import { IOrder, providePendingOrdersService } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
-import { getAccountIds } from './accounts/account-ids';
+import { resolveAccountProfile } from './accounts/profile';
 import { getFutureAccountInfo } from './accounts/future';
 import { getUnifiedAccountInfo } from './accounts/unified';
 import { getSpotAccountInfo } from './accounts/spot';
@@ -16,7 +16,7 @@ const credential = getDefaultCredential();
 if (credential) {
   (async () => {
     const terminal = Terminal.fromNodeEnv();
-    const accountIds = await getAccountIds(credential);
+    const accountIds = await resolveAccountProfile(credential);
 
     provideAccountInfoService(
       terminal,

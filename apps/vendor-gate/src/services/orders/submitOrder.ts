@@ -46,7 +46,7 @@ export const submitOrder: IActionHandlerOfSubmitOrder<ICredential> = async (cred
   });
 
   if (res.label) {
-    const detail = [res.label, res.message, res.detail].filter(Boolean).join(': ');
+    const detail = [res.label, res.message, res.detail].filter((v) => !!v).join(': ');
     throw new Error(detail);
   }
 

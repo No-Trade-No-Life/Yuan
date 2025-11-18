@@ -10,7 +10,7 @@ import {
   postWalletTransfer,
   postWithdrawals,
 } from '../api/private-api';
-import { getAccountIds } from './accounts/account-ids';
+import { resolveAccountProfile } from './accounts/profile';
 import { getDefaultCredential } from './default-credential';
 
 const credential = getDefaultCredential();
@@ -68,16 +68,9 @@ const registerInternalTransfer = (
 if (credential) {
   (async () => {
     const terminal = Terminal.fromNodeEnv();
-    const accountIds = await getAccountIds(credential);
+    const accountIds = await resolveAccountProfile(credential);
     const ACCOUNT_INTERNAL_NETWORK_ID = `Gate/${accountIds.uid}/ACCOUNT_INTERNAL`;
 
-    registerInternalTransfer(
-      terminal,
-      credential,
-      accountIds.spot,
-      'spot_to_future',
-      ACCOUNT_INTERNAL_NETWORK_ID,
-    );
     registerInternalTransfer(
       terminal,
       credential,
