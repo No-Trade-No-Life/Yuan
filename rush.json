@@ -441,6 +441,11 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@yuants/time-series",
+      "projectFolder": "libraries/time-series",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@yuants/data-series",
       "projectFolder": "libraries/data-series",
       "shouldPublish": true
