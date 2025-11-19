@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-gate
 
-This log was last generated on Tue, 18 Nov 2025 07:32:09 GMT and should not be manually modified.
+This log was last generated on Wed, 19 Nov 2025 08:22:39 GMT and should not be manually modified.
+
+## 0.4.1
+Wed, 19 Nov 2025 08:22:39 GMT
+
+### Patches
+
+- gate add channel id
 
 ## 0.4.0
 Tue, 18 Nov 2025 07:32:09 GMT

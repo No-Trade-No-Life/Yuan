@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/time-series",
+  "entries": [
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/time-series_v0.1.0",
+      "date": "Wed, 19 Nov 2025 08:22:39 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "new"
+          }
+        ]
+      }
+    }
+  ]
+}
