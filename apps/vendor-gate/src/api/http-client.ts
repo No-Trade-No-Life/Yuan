@@ -108,6 +108,11 @@ export const requestPrivate = async <TResponse>(
     Timestamp: `${timestamp}`,
   };
 
+  // Add Channel ID header if exists
+  if (process.env.CHANNEL_ID) {
+    headers['X-Gate-Channel-Id'] = process.env.CHANNEL_ID;
+  }
+
   console.info(formatTime(Date.now()), method, url.href, JSON.stringify(headers), body);
 
   const response = await fetch(url.href, {
