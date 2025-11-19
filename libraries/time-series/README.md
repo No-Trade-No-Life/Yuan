@@ -173,6 +173,43 @@ const csvData = [
 - **Incremental Updates**: Only recalculates from the pivot index forward
 - **Memory Efficient**: Uses JavaScript Proxy for reactive behavior
 
+## Important Notes
+
+### Time Data Requirement
+
+**⚠️ CRITICAL**: All time series operations require time data to be set in the TimeFrame's `time` series. Without time data, combine and scan operations will not execute correctly.
+
+```typescript
+// ✅ Correct usage
+const tf = new TimeFrame();
+const price = tf.createTimeSeries<number>({ id: 'price' });
+
+// Set time data first
+tf.time[0] = 1000;
+tf.time[1] = 1001;
+
+// Then set series data
+price[0] = 100;
+price[1] = 102;
+
+tf.commit(); // Computations will execute correctly
+
+// ❌ Incorrect usage (will not work)
+const tf = new TimeFrame();
+const price = tf.createTimeSeries<number>({ id: 'price' });
+
+price[0] = 100; // No time data set
+tf.commit(); // combine/scan operations won't execute
+```
+
+### Technical Indicators
+
+Technical indicators require sufficient data points to produce meaningful results:
+
+- Moving averages need at least the specified period length
+- RSI and other oscillators need more data for accurate calculations
+- Always verify you have enough data before using indicators
+
 ## Development
 
 ### Building
