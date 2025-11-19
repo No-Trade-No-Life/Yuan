@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "WebSearch",
+      "WebFetch(domain:hyperliquid.gitbook.io)",
+      "Bash(npx tsc:*)",
+      "Bash(tree:*)",
+      "Skill(context-management)",
+      "Skill(recent-changes-digest)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
