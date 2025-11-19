@@ -1,3 +1,4 @@
+import { createCache } from '@yuants/cache';
 import { IOrder } from '@yuants/data-order';
 import { decodePath } from '@yuants/utils';
 import { getAllMids, getPerpetualsMetaData, getSpotMetaData } from './api/public-api';
@@ -9,43 +10,39 @@ const enum InstrumentType {
 
 type AssetInfo = { assetId: number; szDecimals: number; instType: InstrumentType; baseCurrency: string };
 
-let perpMetaCache:
-  | { expires_at: number; map: Map<string, { assetId: number; szDecimals: number }> }
-  | undefined;
-let spotMetaCache:
-  | { expires_at: number; map: Map<string, { assetId: number; szDecimals: number }> }
-  | undefined;
-let midPriceCache: { expires_at: number; map: Map<string, number> } | undefined;
-
 const CACHE_TTL = 60_000;
 const MID_TTL = 5_000;
 
-const ensurePerpMeta = async () => {
-  if (!perpMetaCache || perpMetaCache.expires_at < Date.now()) {
+// Create caches using createCache utility
+const perpMetaCache = createCache<Map<string, { assetId: number; szDecimals: number }>>(
+  async () => {
+    console.info(`[Hyperliquid] Refreshing perpetual metadata cache`);
     const meta = await getPerpetualsMetaData();
     const map = new Map<string, { assetId: number; szDecimals: number }>();
     meta.universe.forEach((token, index) =>
       map.set(token.name, { assetId: index, szDecimals: token.szDecimals }),
     );
-    perpMetaCache = { map, expires_at: Date.now() + CACHE_TTL };
-  }
-  return perpMetaCache.map;
-};
+    return map;
+  },
+  { expire: CACHE_TTL },
+);
 
-const ensureSpotMeta = async () => {
-  if (!spotMetaCache || spotMetaCache.expires_at < Date.now()) {
+const spotMetaCache = createCache<Map<string, { assetId: number; szDecimals: number }>>(
+  async () => {
+    console.info(`[Hyperliquid] Refreshing spot metadata cache`);
     const meta = await getSpotMetaData();
     const map = new Map<string, { assetId: number; szDecimals: number }>();
     meta.tokens.forEach((token) =>
       map.set(token.name, { assetId: token.index, szDecimals: token.szDecimals }),
     );
-    spotMetaCache = { map, expires_at: Date.now() + CACHE_TTL };
-  }
-  return spotMetaCache.map;
-};
+    return map;
+  },
+  { expire: CACHE_TTL },
+);
 
-const ensureMidPrices = async () => {
-  if (!midPriceCache || midPriceCache.expires_at < Date.now()) {
+const midPriceCache = createCache<Map<string, number>>(
+  async () => {
+    console.info(`[Hyperliquid] Refreshing mid price cache`);
     const mids = await getAllMids();
     const map = new Map<string, number>();
     for (const [coin, price] of Object.entries(mids ?? {})) {
@@ -54,10 +51,10 @@ const ensureMidPrices = async () => {
         map.set(coin, value);
       }
     }
-    midPriceCache = { map, expires_at: Date.now() + MID_TTL };
-  }
-  return midPriceCache.map;
-};
+    return map;
+  },
+  { expire: MID_TTL },
+);
 
 export const resolveAssetInfo = async (product_id: string): Promise<AssetInfo> => {
   const [instType, symbol] = decodePath(product_id);
@@ -66,19 +63,13 @@ export const resolveAssetInfo = async (product_id: string): Promise<AssetInfo> =
   }
   const baseCurrency = symbol.split('-')[0];
   if (instType === InstrumentType.PERPETUAL) {
-    const map = await ensurePerpMeta();
-    const info = map.get(baseCurrency);
-    if (!info) {
-      throw new Error(`Unable to resolve Hyperliquid asset id for ${baseCurrency}`);
-    }
+    const map = (await perpMetaCache.query('perp'))!;
+    const info = map.get(baseCurrency)!;
     return { ...info, instType: InstrumentType.PERPETUAL, baseCurrency };
   }
   if (instType === InstrumentType.SPOT) {
-    const map = await ensureSpotMeta();
-    const info = map.get(baseCurrency);
-    if (!info) {
-      throw new Error(`Unable to resolve Hyperliquid spot asset id for ${baseCurrency}`);
-    }
+    const map = (await spotMetaCache.query('spot'))!;
+    const info = map.get(baseCurrency)!;
     return { ...info, instType: InstrumentType.SPOT, baseCurrency };
   }
   throw new Error(`Unsupported instrument type: ${instType}`);
@@ -159,11 +150,8 @@ export const buildOrderPayload = async (order: IOrder) => {
 };
 
 export const getMidPriceWithSlippage = async (coin: string, isBuy: boolean) => {
-  const mids = await ensureMidPrices();
-  const mid = mids.get(coin);
-  if (!mid) {
-    throw new Error(`Unable to resolve Hyperliquid mid price for ${coin}`);
-  }
+  const mids = (await midPriceCache.query('mids'))!;
+  const mid = mids.get(coin)!;
   const slippage = isBuy ? 1.05 : 0.95;
   return mid * slippage;
 };

@@ -3,7 +3,7 @@ import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
 import { decodePath, encodePath } from '@yuants/utils';
 import { defer, filter, map, mergeMap, repeat, retry, shareReplay, withLatestFrom } from 'rxjs';
-import { getAllMids, getMetaAndAssetCtxs } from '../api/public-api';
+import { getAllMids, getMetaAndAssetCtxs } from '../../api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
 const ASSET_CTX_REFRESH_INTERVAL = Number(process.env.ASSET_CTX_REFRESH_INTERVAL ?? 5_000);

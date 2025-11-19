@@ -2,12 +2,12 @@ import { addAccountMarket, IPosition, provideAccountInfoService } from '@yuants/
 import { IOrder, providePendingOrdersService } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { encodePath } from '@yuants/utils';
-import { getUserOpenOrders, getUserPerpetualsAccountSummary } from './api/public-api';
-import { getDefaultCredential } from './api/types';
+import { getUserOpenOrders, getUserPerpetualsAccountSummary } from '../../api/public-api';
+import { getDefaultCredential, getAddressFromCredential } from '../../api/types';
 
 const terminal = Terminal.fromNodeEnv();
 const credential = getDefaultCredential();
-const walletAddress = credential.address.toLowerCase();
+const walletAddress = getAddressFromCredential(credential).toLowerCase();
 export const defaultPerpAccountId = `hyperliquid/${walletAddress}/perp/USDC`;
 
 addAccountMarket(terminal, { account_id: defaultPerpAccountId, market_id: 'HYPERLIQUID/PERP' });
@@ -30,7 +30,7 @@ provideAccountInfoService(
   terminal,
   defaultPerpAccountId,
   async () => {
-    const summary = await getUserPerpetualsAccountSummary({ user: credential.address });
+    const summary = await getUserPerpetualsAccountSummary({ user: getAddressFromCredential(credential) });
     return {
       money: {
         currency: 'USDC',
@@ -58,7 +58,7 @@ providePendingOrdersService(
   terminal,
   defaultPerpAccountId,
   async () => {
-    const orders = await getUserOpenOrders({ user: credential.address });
+    const orders = await getUserOpenOrders({ user: getAddressFromCredential(credential) });
     return orders.map(
       (order): IOrder => ({
         order_id: `${order.oid}`,

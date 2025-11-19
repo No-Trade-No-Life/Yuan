@@ -1,7 +1,7 @@
 import { IOrder } from '@yuants/data-order';
-import { placeOrder } from '../api/private-api';
-import { ICredential } from '../api/types';
-import { buildOrderPayload } from '../order-utils';
+import { placeOrder } from '../../api/private-api';
+import { ICredential } from '../../api/types';
+import { buildOrderPayload } from '../../utils';
 
 export const submitOrder = async (credential: ICredential, order: IOrder): Promise<{ order_id: string }> => {
   const { orderParams } = await buildOrderPayload(order);
