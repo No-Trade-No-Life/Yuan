@@ -5,6 +5,16 @@
 ```ts
 
 // @public
+export const ATR: (high: ITimeSeries<number>, low: ITimeSeries<number>, close: ITimeSeries<number>, length?: number) => ITimeSeries<number>;
+
+// @public
+export const BB: (source: ITimeSeries<number>, length?: number, stdDev?: number) => {
+    middleBand: ITimeSeries<number>;
+    upperBand: ITimeSeries<number>;
+    lowerBand: ITimeSeries<number>;
+};
+
+// @public
 export const combine: <T>(tags: Record<string, string>, mapper: (index: number, self: ITimeSeries<T>) => T, sources: ITimeSeries<any>[]) => ITimeSeries<T>;
 
 // @public
@@ -39,10 +49,26 @@ export interface ITimeSeries<T> extends ReadonlyArray<T> {
 }
 
 // @public
+export const MACD: (source: ITimeSeries<number>, fastLength?: number, slowLength?: number, signalLength?: number) => {
+    macdLine: ITimeSeries<number>;
+    signalLine: ITimeSeries<number>;
+    histogram: ITimeSeries<number>;
+};
+
+// @public
+export const RSI: (source: ITimeSeries<number>, length: number) => ITimeSeries<number>;
+
+// @public
 export const scan: <T>(tags: Record<string, string>, init: () => T, reducer: (acc: T, index: number, self: ITimeSeries<T>) => T, sources: ITimeSeries<any>[]) => ITimeSeries<T>;
 
 // @public
 export const SMA: (source: ITimeSeries<number>, length: number) => ITimeSeries<number>;
+
+// @public
+export const Stochastic: (high: ITimeSeries<number>, low: ITimeSeries<number>, close: ITimeSeries<number>, kPeriod?: number, dPeriod?: number) => {
+    kLine: ITimeSeries<number>;
+    dLine: ITimeSeries<number>;
+};
 
 // @public
 export class TimeFrame implements ITimeFrame {

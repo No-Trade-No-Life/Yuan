@@ -49,6 +49,11 @@ Built-in technical indicators including:
 
 - **SMA** (Simple Moving Average)
 - **EMA** (Exponential Moving Average)
+- **RSI** (Relative Strength Index)
+- **MACD** (Moving Average Convergence Divergence)
+- **BB** (Bollinger Bands)
+- **ATR** (Average True Range)
+- **Stochastic** (Stochastic Oscillator)
 
 ### Data Combination and Scanning
 
@@ -86,6 +91,21 @@ const ema10 = EMA(price, 10);
 
 // Create a signal based on indicator comparison
 const signal = combine({ id: 'signal' }, (i) => (sma10[i] > ema10[i] ? 1 : 0), [sma10, ema10]);
+
+// Calculate RSI
+const rsi14 = RSI(price, 14);
+
+// Calculate MACD
+const { macdLine, signalLine, histogram } = MACD(price);
+
+// Calculate Bollinger Bands
+const { middleBand, upperBand, lowerBand } = BB(price);
+
+// Calculate ATR (requires OHLC data)
+const atr14 = ATR(high, low, close, 14);
+
+// Calculate Stochastic Oscillator
+const { kLine, dLine } = Stochastic(high, low, close);
 ```
 
 ### Advanced Operations
@@ -141,6 +161,11 @@ const csvData = [
 - `scan(tags, init, reducer, sources)`: Perform cumulative operations
 - `SMA(source, length)`: Simple Moving Average
 - `EMA(source, length)`: Exponential Moving Average
+- `RSI(source, length)`: Relative Strength Index
+- `MACD(source, fastLength?, slowLength?, signalLength?)`: Moving Average Convergence Divergence
+- `BB(source, length?, stdDev?)`: Bollinger Bands
+- `ATR(high, low, close, length?)`: Average True Range
+- `Stochastic(high, low, close, kPeriod?, dPeriod?)`: Stochastic Oscillator
 
 ## Performance Characteristics
 
