@@ -1,5 +1,13 @@
 import { request } from './client';
 
+/**
+ * Get user's perpetual account summary including positions, margin, and portfolio information
+ * API Docs: https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/info-endpoint/perpetuals#retrieve-users-perpetuals-account-summary
+ * API Endpoint: POST /info (type: clearinghouseState)
+ * @param params - Query parameters
+ * @param params.user - User's wallet address
+ * @returns Promise resolving to account summary with margin information, positions, and portfolio details
+ */
 export const getUserPerpetualsAccountSummary = (params: { user: string }) =>
   request<{
     marginSummary: {
@@ -39,6 +47,14 @@ export const getUserPerpetualsAccountSummary = (params: { user: string }) =>
     time: number;
   }>('POST', 'info', { ...params, type: 'clearinghouseState' });
 
+/**
+ * Get perpetual market metadata including available assets, their specifications, and margin tiers
+ * API Docs: https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/info-endpoint/perpetuals#retrieve-perpetuals-metadata
+ * API Endpoint: POST /info (type: meta)
+ * @param params - Optional query parameters
+ * @param params.dex - Optional DEX identifier
+ * @returns Promise resolving to universe of perpetual assets and margin configuration
+ */
 export const getPerpetualsMetaData = (params?: { dex?: string }) =>
   request<{
     universe: {
@@ -60,6 +76,12 @@ export const getPerpetualsMetaData = (params?: { dex?: string }) =>
     ][];
   }>('POST', 'info', { ...(params ?? {}), type: 'meta' });
 
+/**
+ * Get spot market metadata including available tokens and trading pairs
+ * API Docs: https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/info-endpoint/spot#retrieve-spot-metadata
+ * API Endpoint: POST /info (type: spotMeta)
+ * @returns Promise resolving to spot universe with token information and pair configurations
+ */
 export const getSpotMetaData = () =>
   request<{
     tokens: {
@@ -80,6 +102,16 @@ export const getSpotMetaData = () =>
     }[];
   }>('POST', 'info', { type: 'spotMeta' });
 
+/**
+ * Get user's funding rate payment history for perpetual positions
+ * API Docs: https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/info-endpoint/perpetuals#retrieve-a-users-funding-history-or-non-funding-ledger-updates
+ * API Endpoint: POST /info (type: fundingHistory)
+ * @param params - Query parameters
+ * @param params.user - User's wallet address
+ * @param params.startTime - Optional start timestamp in milliseconds
+ * @param params.endTime - Optional end timestamp in milliseconds
+ * @returns Promise resolving to array of funding payment records with amounts and rates
+ */
 export const getUserFundingHistory = (params: { user: string; startTime?: number; endTime?: number }) =>
   request<
     {
@@ -89,16 +121,32 @@ export const getUserFundingHistory = (params: { user: string; startTime?: number
     }[]
   >('POST', 'info', { ...params, type: 'fundingHistory' });
 
+/**
+ * Get user's token balances for both spot and perpetual accounts
+ * API Docs: https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/info-endpoint/spot#retrieve-a-users-token-balances
+ * API Endpoint: POST /info (type: tokenBalances)
+ * @param params - Query parameters
+ * @param params.user - User's wallet address
+ * @returns Promise resolving to array of token balances with held and total amounts
+ */
 export const getUserTokenBalances = (params: { user: string }) =>
   request<{ balances: { coin: string; token: number; hold: string; total: string; entryNtl: string }[] }>(
     'POST',
     'info',
     {
       ...params,
-      type: 'tokenBalances',
+      type: 'spotClearinghouseState',
     },
   );
 
+/**
+ * Get user's currently open orders across all markets
+ * API Docs: https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/info-endpoint#open-orders
+ * API Endpoint: POST /info (type: openOrders)
+ * @param params - Query parameters
+ * @param params.user - User's wallet address
+ * @returns Promise resolving to array of open order details with prices, sizes, and timestamps
+ */
 export const getUserOpenOrders = (params: { user: string }) =>
   request<{ coin: string; limitPx: string; oid: number; side: string; sz: string; timestamp: number }[]>(
     'POST',
@@ -109,14 +157,36 @@ export const getUserOpenOrders = (params: { user: string }) =>
     },
   );
 
+/**
+ * Get historical funding rates for a specific perpetual asset
+ * API Docs: https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/info-endpoint/perpetuals#retrieve-historical-funding-rates
+ * API Endpoint: POST /info (type: fundingHistory)
+ * @param params - Query parameters
+ * @param params.coin - Asset symbol (e.g., "BTC", "ETH")
+ * @param params.startTime - Start timestamp in milliseconds
+ * @param params.endTime - Optional end timestamp in milliseconds
+ * @returns Promise resolving to array of historical funding rate records
+ */
 export const getHistoricalFundingRates = (params: { coin: string; startTime: number; endTime?: number }) =>
   request<{ coin: string; fundingRate: string; premium: string; time: number }[]>('POST', 'info', {
     ...params,
     type: 'fundingHistory',
   });
 
+/**
+ * Get current mid prices for all tradable assets
+ * API Docs: https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/info-endpoint#retrieve-mids-for-all-coins
+ * API Endpoint: POST /info (type: allMids)
+ * @returns Promise resolving to record of asset symbols mapped to their mid prices
+ */
 export const getAllMids = () => request<Record<string, string>>('POST', 'info', { type: 'allMids' });
 
+/**
+ * Get metadata and asset contexts (prices, funding, OI) for all perpetuals
+ * API Docs: https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/info-endpoint/perpetuals#retrieve-perpetuals-asset-contexts-includes-mark-price-current-funding-open-interest-etc.
+ * API Endpoint: POST /info (type: metaAndAssetCtxs)
+ * @returns Promise resolving to metadata and current asset contexts
+ */
 export const getMetaAndAssetCtxs = () =>
   request<
     [
@@ -143,6 +213,18 @@ export const getMetaAndAssetCtxs = () =>
     ]
   >('POST', 'info', { type: 'metaAndAssetCtxs' });
 
+/**
+ * Get candle/K-line data for a specific asset and time range
+ * API Docs: https://hyperliquid.gitbook.io/hyperliquid-docs/for-developers/api/info-endpoint#candle-snapshot
+ * API Endpoint: POST /info (type: candleSnapshot)
+ * @param params - Query parameters
+ * @param params.req - Request object with candle parameters
+ * @param params.req.coin - Asset symbol
+ * @param params.req.interval - Time interval (e.g., "1m", "5m", "1h", "1d")
+ * @param params.req.startTime - Start timestamp in milliseconds
+ * @param params.req.endTime - End timestamp in milliseconds
+ * @returns Promise resolving to candle data with OHLCV information
+ */
 export const getCandleSnapshot = (params: {
   req: { coin: string; interval: string; startTime: number; endTime: number };
 }) =>

@@ -1,7 +1,7 @@
 import { IOrder } from '@yuants/data-order';
-import { ICredential } from '../api/types';
-import { resolveAssetInfo } from '../order-utils';
-import { cancelOrder } from '../api/private-api';
+import { ICredential } from '../../api/types';
+import { resolveAssetInfo } from '../../utils';
+import { cancelOrder } from '../../api/private-api';
 
 export const cancelOrderAction = async (credential: ICredential, order: IOrder) => {
   const orderId = Number(order.order_id);

@@ -43,9 +43,65 @@
 
 ---
 
-## 3. 指令与约束
+## 3. 代码设计原则
 
-### 3.1 长期指令
+### 3.1 接口设计原则
+
+1. **Interface 保持纯粹性**
+
+   - 接口（interface）应该只包含核心数据字段，避免包含方法
+   - 行为逻辑通过独立的辅助函数（helper functions）提供
+   - 这样可以保持接口的简洁性和可序列化性
+
+2. **数据与行为分离**
+
+   ```typescript
+   // ✅ 推荐：纯数据接口
+   export interface ICredential {
+     private_key: string;
+   }
+
+   // 行为通过辅助函数提供
+   export const getAddressFromCredential = (credential: ICredential): string => {
+     const wallet = new Wallet(credential.private_key);
+     return wallet.address;
+   };
+
+   // ❌ 避免：接口包含方法
+   export interface ICredential {
+     private_key: string;
+     getAddress(): string; // 混合了数据与行为
+   }
+   ```
+
+3. **辅助函数命名规范**
+
+   - 使用 `get[Property]From[Type]` 的命名模式
+   - 例如：`getAddressFromCredential()`, `getSymbolFromOrderId()`
+   - 保持函数的单一职责和纯函数特性
+
+4. **向后兼容性**
+   - 当接口变更时，提供转换函数确保向后兼容
+   - 例如：`credentialToLegacy()` 用于格式转换
+
+### 3.2 类型安全原则
+
+1. **避免冗余数据状态**
+
+   - 可计算的字段不要存储在接口中
+   - 通过函数动态计算，确保数据一致性
+   - 减少状态管理的复杂度
+
+2. **类型推导优于显式声明**
+   - 优先使用 TypeScript 的类型推导
+   - 减少不必要的类型断言
+   - 让编译器帮助发现潜在问题
+
+---
+
+## 4. 指令与约束
+
+### 4.1 长期指令
 
 1. **沟通**：对话及 `SESSION_NOTES` 使用中文；对外 API/注释保持英文；不可泄露真实凭证。
 2. **架构**：
@@ -61,17 +117,17 @@
    - 对外部接口的异常打印要包含 `formatTime` 和请求体，方便排障；
    - 不在未记录的情况下禁用告警或限频器。
 
-### 3.2 当前阶段指令
+### 4.2 当前阶段指令
 
 - 当前重点是**巩固 Hyperliquid Vendor 与 checklist 的一致性并完善上下文管理文档**：新增能力时优先更新 `SESSION_NOTES`、`AGENTS`，并检查各段文档是否同步；
 - 尚未实现的转账接口与 E2E 测试需要列入 TODO，不要在没有上下游确认前私自实现。
 
-### 3.3 临时 / 一次性指令
+### 4.3 临时 / 一次性指令
 
 - 本轮会话的新增指令写在 `SESSION_NOTES` → 「临时指令」并注明生效/失效条件；
 - 遇到需要跨仓/跨项目的信息（如新的 checklist 条目）时，只在 `SESSION_NOTES` 放摘要并链接原文档。
 
-### 3.4 指令冲突记录流程
+### 4.4 指令冲突记录流程
 
 1. 在回复中指出冲突（旧指令 + 新指令 + 冲突点）；
 2. 暂停执行冲突部分，等待人类明确决议；
@@ -80,7 +136,7 @@
 
 ---
 
-## 4. 会话生命周期约定
+## 5. 会话生命周期约定
 
 1. **启动**：读取本文件、`apps/vendor-hyperliquid/docs/context/SESSION_NOTES.md`、最新 checklist；拆分指令 vs 项目状态；
 2. **计划**：简单任务直接写 3–5 步；复杂任务创建/维护 `IMPLEMENTATION_PLAN.md`（如有）并在 Session Notes 中引用；
@@ -89,7 +145,7 @@
 
 ---
 
-## 5. 多 Agent 协作
+## 6. 多 Agent 协作
 
 - 所有角色（实现 / QA / 文档）都要遵守本文件；
 - 不得覆盖他人刚写入的 `SESSION_NOTES` 段落，若需调整请在原段落追加说明；
@@ -97,7 +153,7 @@
 
 ---
 
-## 6. 工具链与环境
+## 7. 工具链与环境
 
 - **运行/调试**：`rushx dev`（或 `node dist/index.js`），默认依赖 `PRIVATE_KEY`、`TERMINAL_HOST/NAMESPACE/INSTANCE`。
 - **编译检查**：`npx tsc --noEmit --project apps/vendor-hyperliquid/tsconfig.json`。
@@ -111,7 +167,7 @@
 
 ---
 
-## 7. 参考资料
+## 8. 参考资料
 
 - `docs/zh-Hans/vendor-guide/implementation-checklist.md` — 单一规范来源；
 - `apps/vendor-okx` / `apps/vendor-bitget` — 参考实现；

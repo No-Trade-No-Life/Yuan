@@ -34,7 +34,14 @@ const callApi = async (method: HttpMethod, path: string, params?: any) => {
     }
     return JSON.parse(retStr);
   } catch (err) {
-    console.error(formatTime(Date.now()), 'HyperliquidRequestFailed', path, JSON.stringify(params), retStr);
+    console.error(
+      formatTime(Date.now()),
+      'HyperliquidRequestFailed',
+      path,
+      JSON.stringify(params),
+      retStr,
+      err,
+    );
     throw err;
   }
 };

@@ -3,7 +3,7 @@ import { Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
 import { encodePath, formatTime } from '@yuants/utils';
 import { Subject, defer, repeat, retry, shareReplay, tap } from 'rxjs';
-import { getPerpetualsMetaData, getSpotMetaData } from '../api/public-api';
+import { getPerpetualsMetaData, getSpotMetaData } from '../../api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
 const product$ = new Subject<IProduct>();

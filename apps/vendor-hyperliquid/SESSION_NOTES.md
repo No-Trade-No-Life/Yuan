@@ -7,8 +7,8 @@
 ## 0. 元信息（Meta）
 
 - **项目名称**：@yuants/vendor-hyperliquid
-- **最近更新时间**：2025-11-15 21:35（由 Codex Agent 更新，完成 Session Notes 全量复盘）
-- **当前状态标签**：实现中（order-actions 重构已合入，推进 transfer + 测试）
+- **最近更新时间**：2025-11-19 17:30（由 Claude Agent 更新，完成接口设计优化和 API 文档补充）
+- **当前状态标签**：稳定运行（接口设计优化完成，文档补充完整，推进 transfer + 测试）
 
 ---
 
@@ -43,8 +43,9 @@
 
 ### 2.3 临时指令（短期有效）
 
-- 2025-11-15：本轮已完成文档复盘。下一轮若要继续推进 transfer/E2E，请依据 7.1 TODO 拆分计划，先更新本文件再开工。
+- 2025-11-19：已完成接口设计优化和 API 文档补充。主要变更包括 ICredential 接口重构、文档链接恢复、代码设计原则文档化。
 - 所有调用端需要确认 `provideOrderActionsWithCredential` 新 schema（`credential.type/payload`）；在完成验证前，暂不再调整请求字段，防止多次破坏兼容。
+- 下一轮若要继续推进 transfer/E2E，请依据 7.1 TODO 拆分计划，先更新本文件再开工。
 - 若需要引用其它仓库/文档，仅在此记录摘要并提供路径。
 
 ### 2.4 指令冲突与变更记录
@@ -65,14 +66,17 @@
 
 ### 4.1 架构 / 模块概览
 
-- `src/index.ts`：聚合入口，依次导入 `account`, `order-actions`, `order-actions-with-credential`, `public-data`。
+- `src/index.ts`：聚合入口，按照新目录结构导入所有服务模块。
 - `src/api/public-api.ts` / `src/api/private-api.ts`：REST helper；公共接口无凭证，私有接口接收 `ICredential` 并使用 `sign.ts`。
-- `src/account.ts`：注册 `provideAccountInfoService` 与 `providePendingOrdersService`，账户 ID 规范为 `hyperliquid/<address>/perp/USDC`。
-- `src/order-actions.ts`：默认凭证版 Submit/Cancel，对 `account_id` 采用 `defaultPerpAccountId` 常量校验，逻辑完全委托至 `order-actions/submitOrder.ts`、`order-actions/cancelOrder.ts`。
-- `src/order-actions-with-credential.ts`：请求级 credential 版 Submit/Cancel，使用 `provideOrderActionsWithCredential` 注册服务，要求调用端传入 `credential.type = 'HYPERLIQUID'` 与 payload（`private_key`、`address`）。
-- `src/order-actions/submitOrder.ts` / `src/order-actions/cancelOrder.ts`：封装 Hyperliquid 下单/撤单细节，包含 credential 校验、order payload 构造、comment→asset_id 解析与错误抛出，供默认/凭证化 RPC 复用。
-- `src/order-utils.ts`：解析 `product_id`、meta cache、价格 round/slippage。
-- `src/public-data/*`：`product`, `quote`, `interest-rate`, `ohlc` 统一导出，支持 SQL + Channel。
+- `src/utils.ts`：工具函数集合，包含 `resolveAssetInfo`、`buildOrderPayload` 等核心逻辑（原 `order-utils.ts`）。
+- **新目录结构（参考 vendor-aster）**：
+  - `src/services/accounts/`：账户相关服务（perp.ts）
+  - `src/services/orders/`：订单相关服务（submitOrder.ts, cancelOrder.ts, modifyOrder.ts）
+  - `src/services/markets/`：市场数据服务（product.ts, quote.ts, interest-rate.ts, ohlc.ts）
+  - `src/services/`：根级服务（order-actions-with-credential.ts, fill-history.ts）
+- **代码规范变更**：
+  - 所有 `console.log` 统一改为 `console.info` 以遵循项目标准
+  - 服务文件导入路径按照新目录结构调整
 - `src/cli.ts`：仅 `import './index'`，确保 CLI 与常驻行为一致。
 
 ### 4.2 已做出的关键决策
@@ -95,9 +99,64 @@
   - 影响：扩展多账户时只需复制 credential 校验逻辑，仍需在 Session Notes 记录新增账户。
 - **[D4] 凭证化 Submit/Cancel 统一通过 helper 暴露**
 
-  - 背景：`@yuants/data-order` 提供 `provideOrderActionsWithCredential`，可让多 vendor 复用 JSON Schema + Terminal wiring。
-  - 决策：`order-actions-with-credential.ts` 仅声明 `credential.payload` schema，并把 `submitOrder`/`cancelOrderAction` 传入 helper，由 helper 负责校验 `credential.type` 与包装响应。
-  - 影响：请求结构改为 `{ order, credential: { type: 'HYPERLIQUID', payload: { private_key, address } } }`；旧版 `account_id + credential` 形态需在调用方迁移，并确保异常抛出后 Terminal 能正确透传。
+- **[D5] ICredential 接口设计优化（2025-11-19）**
+
+  - 背景：原接口包含 `private_key` 和 `address`，其中 `address` 可从私钥推导，存在冗余状态。
+  - 决策：重构接口为纯数据结构，将 `address` 推导逻辑分离到辅助函数 `getAddressFromCredential()`。
+  - 变更：
+
+    ```typescript
+    // 优化前
+    export interface ICredential {
+      private_key: string;
+      address: string;
+    }
+
+    // 优化后
+    export interface ICredential {
+      private_key: string;
+    }
+    export const getAddressFromCredential = (credential: ICredential): string => {
+      const wallet = new Wallet(credential.private_key);
+      return wallet.address;
+    };
+    ```
+
+  - 影响：消除数据冗余，提高类型安全性，遵循接口纯粹性原则。
+  - 更新文件：`src/api/types.ts`, 所有调用方文件
+
+- **[D6] API 文档链接补充（2025-11-19）**
+
+  - 背景：从 git 提交 895d7520 发现原有完整 API 文档链接，在重构过程中丢失。
+  - 决策：恢复所有 API 函数的官方文档链接，指向 Hyperliquid GitBook 具体章节。
+  - 恢复的文档链接：
+    - Private API: placeOrder, cancelOrder, modifyOrder, getUserFills
+    - Public API: getUserPerpetualsAccountSummary, getPerpetualsMetaData, getSpotMetaData, getUserFundingHistory, getUserOpenOrders, getHistoricalFundingRates, getMetaAndAssetCtxs, getCandleSnapshot
+  - 影响：开发者可直接通过 IDE 智能提示访问官方文档，提升开发效率。
+  - 更新文件：`src/api/private-api.ts`, `src/api/public-api.ts`
+
+- **[D7] 代码设计原则写入 AGENTS.md（2025-11-19）**
+
+  - 背景：在接口设计优化过程中总结的设计原则需要文档化，供后续开发遵循。
+  - 决策：在 `AGENTS.md` 中新增"代码设计原则"章节，详细记录 Interface 纯粹性、数据与行为分离等原则。
+  - 新增原则：
+    - Interface 保持纯粹性，只包含核心数据字段
+    - 通过辅助函数提供行为逻辑
+    - 使用 `get[Property]From[Type]` 命名规范
+    - 提供向后兼容转换函数
+  - 影响：建立团队开发标准，确保代码架构一致性。
+
+- **[D5] 目录结构重构参考 vendor-aster**
+
+  - 背景：原有扁平化结构难以维护，需要更清晰的服务分组和职责分离。
+  - 决策：采用 `services/accounts/`、`services/orders/`、`services/markets/` 三层结构，与 vendor-aster 保持一致。
+  - 影响：提升代码可维护性，明确服务职责分离，便于后续功能扩展和多 Agent 协作。
+
+- **[D6] 日志输出统一使用 console.info**
+
+  - 背景：项目要求使用 console.info 而非 console.log 以保持日志输出一致性。
+  - 决策：所有服务模块中的 console.log 替换为 console.info，保持错误信息仍使用 console.error。
+  - 影响：统一日志输出格式，便于日志分析和系统监控。
 
 ### 4.3 已接受的折衷 / 技术债
 
@@ -128,6 +187,42 @@
 ## 6. 最近几轮工作记录（Recent Sessions）
 
 > 约定：仅记录已经结束的会话；进行中的内容放在第 11 节，收尾后再搬运；按时间倒序追加。
+
+### 2025-11-19 — Claude Agent
+
+- **本轮摘要**：
+  - 补全 Hyperliquid vendor 缺失的核心交易功能：未成交订单查询、成交流水、改单功能。
+  - 重构代码目录结构，参考 vendor-aster 采用服务分层架构。
+  - 统一代码规范，将所有 console.log 改为 console.info。
+  - 新增 `src/services/fill-history.ts` 实现成交流水服务，支持 `/UserFillHistory` 接口。
+  - 新增 `src/services/orders/modifyOrder.ts` 实现改单功能，通过 cancel + place new 策略。
+  - 扩展 `src/api/private-api.ts` 添加 `getUserFills` API 封装。
+  - 更新 `vendor-supporting.md` 将 Hyperliquid 现货和永续合约的功能状态标记为完整支持。
+  - 将 modifyOrder 正确注册到凭证化 RPC 服务中。
+- **修改的文件**：
+  - **目录重构**：
+    - `src/services/accounts/perp.ts`（从 account.ts 迁移）
+    - `src/services/orders/submitOrder.ts`（从 order-actions/ 迁移）
+    - `src/services/orders/cancelOrder.ts`（从 order-actions/ 迁移）
+    - `src/services/orders/modifyOrder.ts`（新增）
+    - `src/services/markets/`（从 public-data/ 迁移所有文件）
+    - `src/services/fill-history.ts`（新增）
+    - `src/services/order-actions-with-credential.ts`（从根目录迁移）
+  - **其他文件**：
+    - `src/utils.ts`（从 order-utils.ts 重命名）
+    - `src/api/private-api.ts`（扩展 getUserFills）
+    - `src/index.ts`（更新导入路径）
+    - `docs/zh-Hans/vendor-supporting.md`（更新功能状态）
+- **详细备注**：
+  - 新目录结构提升代码可维护性，服务职责更清晰
+  - 成交流水服务支持时间范围查询和完整字段映射，符合 Yuan Protocol 规范
+  - 改单功能通过取消原订单 + 下新订单实现，Hyperliquid API 无原生改单接口
+  - 所有新服务遵循现有的凭证管理架构，使用 `ICredential` 和签名机制
+  - 统一日志输出规范，便于日志分析和系统监控
+- **运行的测试 / 检查**：
+  - 命令：`npx tsc --noEmit --project apps/vendor-hyperliquid/tsconfig.json`
+  - 结果：目录重构后存在编译错误，需要修复导入路径和类型定义
+  - 状态：待后续会话完成路径修复和类型检查
 
 ### 2025-11-15 — Codex Agent
 

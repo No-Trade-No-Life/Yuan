@@ -4,7 +4,7 @@ import { Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { defer, map, mergeAll, repeat, retry, shareReplay, tap } from 'rxjs';
-import { getHistoricalFundingRates, getPerpetualsMetaData } from '../api/public-api';
+import { getHistoricalFundingRates, getPerpetualsMetaData } from '../../api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
 
