@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/time-series",
+      "comment": "add normalize functions",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/time-series"
+}
