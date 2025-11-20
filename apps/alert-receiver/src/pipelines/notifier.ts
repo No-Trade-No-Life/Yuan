@@ -2,7 +2,9 @@ import { Terminal } from '@yuants/protocol';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import { formatTime, listWatch } from '@yuants/utils';
 import {
+  catchError,
   defer,
+  EMPTY,
   firstValueFrom,
   from,
   map,
@@ -446,6 +448,8 @@ defer(() =>
               return timer(interval);
             },
           }),
+          // 防止带崩整个 listWatch 流
+          catchError(() => EMPTY),
         ),
       (a, b) => a.version === b.version,
     ),
