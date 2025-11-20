@@ -56,6 +56,18 @@ export const MACD: (source: ITimeSeries<number>, fastLength?: number, slowLength
 };
 
 // @public
+export const maxabs_scale: (source: ITimeSeries<number>, windowSize: number) => ITimeSeries<number>;
+
+// @public
+export const minmax_scale: (source: ITimeSeries<number>, windowSize: number) => ITimeSeries<number>;
+
+// @public
+export const quantile_transform: (source: ITimeSeries<number>, windowSize: number) => ITimeSeries<number>;
+
+// @public
+export const robust_scale: (source: ITimeSeries<number>, windowSize: number) => ITimeSeries<number>;
+
+// @public
 export const RSI: (source: ITimeSeries<number>, length: number) => ITimeSeries<number>;
 
 // @public
@@ -63,6 +75,9 @@ export const scan: <T>(tags: Record<string, string>, init: () => T, reducer: (ac
 
 // @public
 export const SMA: (source: ITimeSeries<number>, length: number) => ITimeSeries<number>;
+
+// @public
+export const standard_scale: (source: ITimeSeries<number>, windowSize: number) => ITimeSeries<number>;
 
 // @public
 export const Stochastic: (high: ITimeSeries<number>, low: ITimeSeries<number>, close: ITimeSeries<number>, kPeriod?: number, dPeriod?: number) => {
