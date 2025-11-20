@@ -165,6 +165,14 @@ defer(() =>
                     timeout(30_000),
                     tap({
                       error: (err) => {
+                        terminal.metrics
+                          .counter('account_composer_source_error', '')
+                          .labels({
+                            target_account: x.account_id,
+                            source_account: y.account_id,
+                          })
+                          .inc();
+
                         console.info(
                           formatTime(Date.now()),
                           'AccountInfoError',
