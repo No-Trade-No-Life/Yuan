@@ -668,5 +668,34 @@ export const postFutureModifyOrder = (
     params,
   );
 
+export interface ISpotCrossInterestRate {
+  coin: string;
+  interestRate: string;
+  dailyInterestRate: string;
+  annualInterestRate: string;
+  borrowable: boolean;
+  maxBorrowableAmount: string;
+}
+
+/**
+ * 获取全仓杠杆利率和限额
+ *
+ * 限速规则: 20次/1s (IP)
+ *
+ * https://www.bitget.com/zh-CN/api-doc/margin/cross/account/Get-Cross-Margin-Interest-Rate-And-Borrowable
+ */
+export const getSpotCrossInterestRate = (
+  credential: ICredential,
+  params: {
+    coin: string;
+  },
+) =>
+  requestPrivate<ApiResponse<ISpotCrossInterestRate[]>>(
+    credential,
+    'GET',
+    '/api/v2/margin/crossed/interest-rate-and-limit',
+    params,
+  );
+
 export { getDefaultCredential };
 export type { ICredential };

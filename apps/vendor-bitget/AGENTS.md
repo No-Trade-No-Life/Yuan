@@ -31,6 +31,15 @@
 4. **透明可追溯**  
    下单/撤单 RPC 必须记录请求与 Bitget 返回体（敏感字段除外），错误码保持原样；转账状态机在日志与 `SESSION_NOTES` 中都要可追踪。
 
+5. **参考现有实现 (Reference Implementation)**
+   遇到未决的设计细节（如 Interest Rate 映射、OHLC duration 格式），优先参考已成熟的 Vendor（如 OKX）实现，保持生态内的一致性。
+
+6. **文档同步 (Documentation Sync)**
+   完成功能开发后，必须同步更新 `docs/zh-Hans/vendor-supporting.md`（外部能力表）与 `SESSION_NOTES.md`（内部上下文），确保文档与代码状态一致。
+
+7. **类型安全 (Type Safety)**
+   严禁使用 `any`。所有 API 响应必须定义明确的 Interface，并在开发过程中持续运行 `tsc` 检查，尽早发现类型错误。
+
 ---
 
 ## 3. 指令与约束

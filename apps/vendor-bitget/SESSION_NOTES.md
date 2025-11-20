@@ -107,6 +107,8 @@
   - 实现行情数据服务：Spot/Future 的 `ohlc`；Spot 的借贷利率（`interest-rate`）。
   - 修复 Spot 利率实现，正确拆分 Base/Quote 并映射 Long/Short 利率。
   - 修复 OHLC duration 格式，采用 RFC 3339 标准（如 `PT1M`）。
+  - 修复 `listOrders` 返回类型，严格对齐 `IOrder` 接口（移除 `client_order_id`，修正 `type`/`side`/`status` 映射）。
+  - 重构 Spot 利率实现：新增 `getSpotSymbols` API，使用 `createCache` 缓存 Spot 交易对信息；切换至 `private-api` 调用 `getSpotCrossInterestRate` (需鉴权)，并正确映射 `dailyInterestRate` 为小时利率。
   - 更新 `vendor-supporting.md` 反映最新支持状态。
 - **修改的文件**：
   - `apps/vendor-bitget/src/api/private-api.ts`, `apps/vendor-bitget/src/api/public-api.ts`

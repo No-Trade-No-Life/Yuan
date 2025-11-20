@@ -17,15 +17,22 @@ export const listOrders = async (credential: ICredential, account_id: string): P
       res.data.orderList?.map((v) => ({
         account_id,
         order_id: v.orderId,
-        client_order_id: v.clientOid,
         product_id: `BITGET/USDT-FUTURES/${v.symbol}`,
-        type: 'LIMIT', // Bitget pending orders are mostly LIMIT or STOP
-        side: v.side === 'buy' ? 'LONG' : 'SHORT', // Simplified mapping
+        order_type: v.orderType.toUpperCase(),
+        order_direction:
+          v.tradeSide === 'open'
+            ? v.side === 'buy'
+              ? 'OPEN_LONG'
+              : 'OPEN_SHORT'
+            : v.side === 'buy'
+            ? 'CLOSE_SHORT'
+            : 'CLOSE_LONG',
         price: Number(v.price),
         volume: Number(v.size),
         traded_volume: Number(v.filledQty),
-        status: 'ACCEPTED',
-        timestamp: Number(v.cTime),
+        order_status: 'ACCEPTED',
+        created_at: new Date(Number(v.cTime)).toISOString(),
+        submit_at: Number(v.cTime),
       })) ?? []
     );
   }
@@ -41,15 +48,15 @@ export const listOrders = async (credential: ICredential, account_id: string): P
       res.data?.map((v) => ({
         account_id,
         order_id: v.orderId!,
-        client_order_id: v.clientOid,
         product_id: `BITGET/SPOT/${v.symbol}`,
-        type: 'LIMIT',
-        side: v.side === 'buy' ? 'LONG' : 'SHORT',
+        order_type: v.orderType?.toUpperCase(),
+        order_direction: v.side === 'buy' ? 'OPEN_LONG' : 'CLOSE_LONG',
         price: Number(v.price),
-        volume: Number(v.quantity), // Spot quantity is base currency for buy/sell limit
-        traded_volume: Number(v.filledQty), // Spot filled quantity
-        status: 'ACCEPTED',
-        timestamp: Number(v.cTime),
+        volume: Number(v.quantity),
+        traded_volume: Number(v.filledQty),
+        order_status: 'ACCEPTED',
+        created_at: new Date(Number(v.cTime)).toISOString(),
+        submit_at: Number(v.cTime),
       })) ?? []
     );
   }

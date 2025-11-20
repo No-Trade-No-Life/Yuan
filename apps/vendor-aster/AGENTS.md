@@ -27,8 +27,17 @@
 3. **凭证显式、账户清晰**  
    所有需要鉴权的 handler 都接受 `ICredential = { address, api_key, secret_key }`；凭证化账户与订单行为统一通过 `provideAccountActionsWithCredential` 与 `provideOrderActionsWithCredential` 暴露。
 
-4. **透明可追踪**  
+4. **透明可追溯**  
    Submit/Cancel RPC 必须记录请求与交易所返回（敏感字段打码）；市场数据通过 `services/markets/*` 输出 Channel/SQL，且在 Session Notes 中记录 Feature Flag 与限频设置。
+
+5. **参考现有实现 (Reference Implementation)**
+   遇到未决的设计细节，优先参考已成熟的 Vendor（如 OKX, Bitget）实现，保持生态内的一致性。
+
+6. **文档同步 (Documentation Sync)**
+   完成功能开发后，必须同步更新 `docs/zh-Hans/vendor-supporting.md`（外部能力表）与 `SESSION_NOTES.md`（内部上下文），确保文档与代码状态一致。
+
+7. **类型安全 (Type Safety)**
+   严禁使用 `any`。所有 API 响应必须定义明确的 Interface，并在开发过程中持续运行 `tsc` 检查，尽早发现类型错误。
 
 ---
 

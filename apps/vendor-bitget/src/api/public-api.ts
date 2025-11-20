@@ -230,30 +230,19 @@ export const getSpotCandles = (params: {
     params,
   );
 
+export interface ISpotSymbol {
+  symbol: string;
+  baseCoin: string;
+  quoteCoin: string;
+  status: string;
+}
+
 /**
- * 获取全仓杠杆利率和限额
+ * 获取所有现货交易对
  *
  * 限速规则: 20次/1s (IP)
  *
- * https://www.bitget.com/zh-CN/api-doc/margin/cross/Get-Interest-Rate-And-Limit
+ * https://www.bitget.com/zh-CN/api-doc/spot/market/Get-Symbols
  */
-export const getSpotCrossInterestRate = (params: {
-  coin: string;
-}): Promise<
-  ApiResponse<
-    {
-      coin: string;
-      interestRate: string;
-      maxBorrowableAmount: string;
-    }[]
-  >
-> =>
-  requestPublic<
-    ApiResponse<
-      {
-        coin: string;
-        interestRate: string;
-        maxBorrowableAmount: string;
-      }[]
-    >
-  >('GET', '/api/v2/margin/crossed/interest-rate-and-limit', params);
+export const getSpotSymbols = (): Promise<ApiResponse<ISpotSymbol[]>> =>
+  requestPublic<ApiResponse<ISpotSymbol[]>>('GET', '/api/v2/spot/public/symbols');
