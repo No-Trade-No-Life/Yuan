@@ -2,6 +2,23 @@
   "name": "@yuants/time-series",
   "entries": [
     {
+      "version": "0.2.0",
+      "tag": "@yuants/time-series_v0.2.0",
+      "date": "Thu, 20 Nov 2025 00:25:53 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add normalize functions"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.0",
       "tag": "@yuants/time-series_v0.1.0",
       "date": "Wed, 19 Nov 2025 08:22:39 GMT",

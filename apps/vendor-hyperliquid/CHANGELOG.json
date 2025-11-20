@@ -2,6 +2,29 @@
   "name": "@yuants/vendor-hyperliquid",
   "entries": [
     {
+      "version": "0.6.0",
+      "tag": "@yuants/vendor-hyperliquid_v0.6.0",
+      "date": "Thu, 20 Nov 2025 00:25:53 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "update doc"
+          },
+          {
+            "comment": "update doc location"
+          },
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "amend missing functionality for hyperliquid"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.5.3",
       "tag": "@yuants/vendor-hyperliquid_v0.5.3",
       "date": "Sun, 16 Nov 2025 22:36:18 GMT",
