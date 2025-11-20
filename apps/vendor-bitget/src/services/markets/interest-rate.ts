@@ -40,7 +40,7 @@ createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
           pageNo: '' + current_page,
         });
         if (res.msg !== 'success') {
-          throw `API failed: ${res.code} ${res.msg}`;
+          throw new Error(`API failed: ${res.code} ${res.msg}`);
         }
         if (res.data.length === 0) break;
         yield res.data.map(
@@ -74,10 +74,10 @@ createSeriesProvider<IInterestRate>(Terminal.fromNodeEnv(), {
       const resQuote = await getSpotCrossInterestRate(credential, { coin: quote });
 
       if (resBase.msg !== 'success') {
-        throw `API failed for Base ${base}: ${resBase.code} ${resBase.msg}`;
+        throw new Error(`API failed for Base ${base}: ${resBase.code} ${resBase.msg}`);
       }
       if (resQuote.msg !== 'success') {
-        throw `API failed for Quote ${quote}: ${resQuote.code} ${resQuote.msg}`;
+        throw new Error(`API failed for Quote ${quote}: ${resQuote.code} ${resQuote.msg}`);
       }
 
       // Bitget returns daily interest rate. Convert to hourly.
