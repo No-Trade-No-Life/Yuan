@@ -188,3 +188,72 @@ export const getHistoricalFundingRate = (params: {
     { period: 1000, limit: 20 },
     params,
   );
+
+/**
+ * 获取合约 K 线数据
+ *
+ * 限速规则: 20次/1s (IP)
+ *
+ * https://www.bitget.com/zh-CN/api-doc/contract/market/Get-Candle-Data
+ */
+export const getMixCandles = (params: {
+  symbol: string;
+  productType: string;
+  granularity: string;
+  startTime?: string;
+  endTime?: string;
+  limit?: string;
+}): Promise<ApiResponse<[string, string, string, string, string, string, string][]>> =>
+  requestPublic<ApiResponse<[string, string, string, string, string, string, string][]>>(
+    'GET',
+    '/api/v2/mix/market/candles',
+    params,
+  );
+
+/**
+ * 获取现货 K 线数据
+ *
+ * 限速规则: 20次/1s (IP)
+ *
+ * https://www.bitget.com/zh-CN/api-doc/spot/market/Get-Candle-Data
+ */
+export const getSpotCandles = (params: {
+  symbol: string;
+  granularity: string;
+  startTime?: string;
+  endTime?: string;
+  limit?: string;
+}): Promise<ApiResponse<[string, string, string, string, string, string, string][]>> =>
+  requestPublic<ApiResponse<[string, string, string, string, string, string, string][]>>(
+    'GET',
+    '/api/v2/spot/market/candles',
+    params,
+  );
+
+/**
+ * 获取全仓杠杆利率和限额
+ *
+ * 限速规则: 20次/1s (IP)
+ *
+ * https://www.bitget.com/zh-CN/api-doc/margin/cross/Get-Interest-Rate-And-Limit
+ */
+export const getSpotCrossInterestRate = (params: {
+  coin: string;
+}): Promise<
+  ApiResponse<
+    {
+      coin: string;
+      interestRate: string;
+      maxBorrowableAmount: string;
+    }[]
+  >
+> =>
+  requestPublic<
+    ApiResponse<
+      {
+        coin: string;
+        interestRate: string;
+        maxBorrowableAmount: string;
+      }[]
+    >
+  >('GET', '/api/v2/margin/crossed/interest-rate-and-limit', params);
