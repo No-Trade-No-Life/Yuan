@@ -89,9 +89,9 @@ export class Terminal {
       connection?: IConnection<string>;
     } = {},
   ) {
-    this.terminal_id = this.terminalInfo.terminal_id || UUID();
-
     this.keyPair = this.options.private_key ? fromPrivateKey(this.options.private_key) : createKeyPair();
+    // @host is reserved terminal_id for the host server
+    this.terminal_id = terminalInfo.terminal_id || this.keyPair.public_key;
 
     const tags: Record<string, string> = {};
     this.terminalInfo = {
@@ -166,7 +166,7 @@ export class Terminal {
     return (this._terminal = new Terminal(
       HOST_URL,
       {
-        terminal_id: process.env.TERMINAL_ID || `DefaultTerminal/${UUID()}`,
+        terminal_id: '', // will be overwritten
         name: process.env.TERMINAL_NAME || '',
         enable_WebRTC: process.env.ENABLE_WEBRTC === 'true',
       },
