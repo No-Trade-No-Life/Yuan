@@ -1,7 +1,6 @@
 {
   "name": "@yuants/app-openai",
   "version": "0.2.3",
-  "bin": "lib/cli.js",
   "main": "lib/index.js",
   "files": [
     "dist",
@@ -31,12 +30,5 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
     "access": "public"
-  },
-  "io_ntnl": {
-    "deploy_files": [
-      "dist",
-      "lib",
-      "temp"
-    ]
   }
 }

@@ -1,7 +1,6 @@
 {
   "name": "@yuants/vendor-okx",
   "version": "0.27.1",
-  "bin": "lib/cli.js",
   "main": "lib/index.js",
   "files": [
     "dist",
@@ -47,12 +46,5 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
     "access": "public"
-  },
-  "io_ntnl": {
-    "deploy_files": [
-      "dist",
-      "lib",
-      "temp"
-    ]
   }
 }

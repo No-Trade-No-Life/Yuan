@@ -2,7 +2,9 @@
   "name": "@yuants/vendor-ccxt",
   "version": "0.3.123",
   "files": [
-    "dist/extension.bundle.js"
+    "dist",
+    "lib",
+    "temp"
   ],
   "scripts": {
     "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
@@ -33,12 +35,5 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
     "access": "public"
-  },
-  "io_ntnl": {
-    "deploy_files": [
-      "dist",
-      "lib",
-      "temp"
-    ]
   }
 }
