@@ -1,5 +1,4 @@
 import { Terminal } from '@yuants/protocol';
-import { UUID } from '@yuants/utils';
 import { BehaviorSubject, Observable, shareReplay, switchMap } from 'rxjs';
 
 const url = new URL(window?.location.href ?? 'https://y.ntnl.io');
@@ -17,7 +16,6 @@ export const terminal$: Observable<Terminal | null> = hostUrl$.pipe(
       const terminal = new Terminal(
         host_url,
         {
-          terminal_id: `@GUI/${UUID()}`,
           name: 'Workbench GUI' + (typeof window === 'undefined' ? `(worker)` : ''),
         },
         {

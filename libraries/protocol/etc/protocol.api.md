@@ -143,7 +143,7 @@ export const PromRegistry: Registry;
 
 // @public
 export class Terminal {
-    constructor(host_url: string, terminalInfo: ITerminalInfo, options?: {
+    constructor(host_url: string, terminalInfo?: Partial<ITerminalInfo>, options?: {
         verbose?: boolean;
         private_key?: string;
         disableTerminate?: boolean;

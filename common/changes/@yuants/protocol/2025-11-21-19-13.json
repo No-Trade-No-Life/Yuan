@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "allow no terminal_id",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-portal",
+      "comment": "remove terminal_id",
+      "type": "patch"
+    }
+  ],
+  "packageName": "@yuants/app-portal"
+}

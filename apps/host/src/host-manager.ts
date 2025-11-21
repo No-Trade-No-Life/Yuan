@@ -246,14 +246,12 @@ export const createNodeJSHostManager = () => {
         try {
           const headers = JSON.parse(raw_headers);
           target_terminal_id = headers.target_terminal_id;
-          if (!target_terminal_id) return; // Skip if target_terminal_id not defined
-          if (!terminalInfos.has(target_terminal_id)) return; // Skip if Terminal Not Found
-
-          // forward the message as is
-          if (target_terminal_id === '@host') {
-            hostTerminalConnection.input$.next(raw_message);
+          // forward to target terminal if exists
+          if (mapTerminalIdToConn[target_terminal_id]) {
+            mapTerminalIdToConn[target_terminal_id].send(raw_message);
           } else {
-            mapTerminalIdToConn[target_terminal_id]?.send(raw_message);
+            // otherwise, send to host terminal itself
+            hostTerminalConnection.input$.next(raw_message);
           }
         } catch (e) {
           console.error(formatTime(Date.now()), 'InvalidHeader', raw_headers);
