@@ -9,7 +9,8 @@ export const submitOrder = async (credential: ICredential, order: IOrder): Promi
   const status = res?.response?.data?.statuses?.[0];
   const orderId =
     status?.resting?.oid ?? status?.filled?.oid ?? (status as any)?.oid ?? (status as any)?.orderId;
-  const error = res?.status !== 'ok' ? 'API ERROR' : status?.error ? status.error : undefined;
+  const error =
+    res?.status !== 'ok' ? `API ERROR: ${JSON.stringify(res)}` : status?.error ? status.error : undefined;
   if (error) throw new Error(error);
   if (orderId === undefined) throw new Error('No order ID returned from API');
   return { order_id: `${orderId}` };

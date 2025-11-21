@@ -81,34 +81,31 @@ export const roundPrice = (price: number, instType: 'PERPETUAL' | 'SPOT', szDeci
   if (!Number.isFinite(price)) {
     throw new Error(`Invalid price: ${price}`);
   }
-  if (Number.isInteger(price)) {
-    return price.toString();
-  }
+
+  // Handle significant figures (max 5)
   const priceStr = price.toString();
   const significantFigures = priceStr.replace(/^0+\.?0*/, '').replace(/\./g, '').length;
+
   let roundedPrice = price;
   if (significantFigures > 5) {
-    const decimalIndex = priceStr.indexOf('.');
-    if (decimalIndex === -1) {
-      const magnitude = Math.floor(Math.log10(Math.abs(price)));
-      const factor = Math.pow(10, magnitude - 4);
-      roundedPrice = Math.round(price / factor) * factor;
-    } else {
-      const beforeDecimal = priceStr.substring(0, decimalIndex);
-      const afterDecimal = priceStr.substring(decimalIndex + 1);
-      if (beforeDecimal !== '0') {
-        const integerDigits = beforeDecimal.replace('-', '').length;
-        const neededDecimalDigits = Math.max(0, 5 - integerDigits);
-        roundedPrice = parseFloat(price.toFixed(neededDecimalDigits));
-      } else {
-        const leadingZeros = afterDecimal.match(/^0*/)?.[0].length ?? 0;
-        const precision = leadingZeros + 5;
-        roundedPrice = parseFloat(price.toFixed(precision));
-      }
-    }
+    // Logic to round to 5 sig figs
+    // This is complex to do perfectly with just numbers, but let's try to be safe
+    const magnitude = Math.floor(Math.log10(Math.abs(price)));
+    // We want 5 sig figs.
+    // e.g. 123456 -> 123460 (mag 5, round to 10^(5-4)=10^1)
+    // e.g. 0.00123456 -> 0.0012346 (mag -3, round to 10^(-3-4)=10^-7)
+    const factor = Math.pow(10, magnitude - 4);
+    roundedPrice = Math.round(price / factor) * factor;
   }
-  const finalPrice = parseFloat(roundedPrice.toFixed(maxDecimalPlaces));
-  return finalPrice.toString();
+
+  // Now format to maxDecimalPlaces without scientific notation
+  // Use toFixed which returns fixed point notation
+  let s = roundedPrice.toFixed(maxDecimalPlaces);
+  // Remove trailing zeros and decimal point if integer
+  if (s.includes('.')) {
+    s = s.replace(/\.?0+$/, '');
+  }
+  return s;
 };
 
 const resolvePrice = async (
