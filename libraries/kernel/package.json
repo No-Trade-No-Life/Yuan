@@ -1,6 +1,6 @@
 {
   "name": "@yuants/kernel",
-  "version": "0.15.53",
+  "version": "0.15.54",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [

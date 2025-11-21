@@ -1,6 +1,6 @@
 {
   "name": "@yuants/data-trade",
-  "version": "0.1.16",
+  "version": "0.1.17",
   "main": "lib/index.js",
   "module": "dist/index.js",
   "files": [
