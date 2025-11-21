@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-coinex",
+      "comment": "simplify package.json",
+      "type": "none"
+    }
+  ],
+  "packageName": "@yuants/vendor-coinex"
+}
