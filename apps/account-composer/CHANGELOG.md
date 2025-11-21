@@ -1,6 +1,13 @@
 # Change Log - @yuants/app-account-composer
 
-This log was last generated on Sun, 16 Nov 2025 22:36:18 GMT and should not be manually modified.
+This log was last generated on Thu, 20 Nov 2025 22:56:23 GMT and should not be manually modified.
+
+## 0.7.0
+Thu, 20 Nov 2025 22:56:23 GMT
+
+### Minor changes
+
+- add error counter
 
 ## 0.6.34
 Sun, 16 Nov 2025 22:36:18 GMT
