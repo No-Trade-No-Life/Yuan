@@ -17,8 +17,10 @@
 
 1. **Checklist 先于实现**：逐条对齐 `docs/zh-Hans/vendor-guide/implementation-checklist.md` 的分层、账户/订单服务、公共数据与转账约定，再做优化。
 2. **Credential-first**：一切私有能力都显式接收 `TypedCredential` (`type = 'GATE'`)；默认凭证只存在 `legacy.ts`，其他入口通过 `provideAccountActionsWithCredential` / `provideOrderActionsWithCredential` 暴露。
-3. **API 文档就是可执行规范**：`src/api/public-api.ts`、`src/api/private-api.ts` 中的 JSDoc 视为“协议说明”，禁止删除；API 层不允许出现 `any`，不确定的字段使用 `unknown` + 手工解析。
+3. **API 文档就是可执行规范 (Type Safety)**：`src/api/public-api.ts`、`src/api/private-api.ts` 中的 JSDoc 视为“协议说明”，禁止删除；API 层不允许出现 `any`，不确定的字段使用 `unknown` + 手工解析。
 4. **Context-Management 落地**：指令写入 AGENTS，现状/决策/TODO 写入 SESSION_NOTES；发现冲突先记录再执行。
+5. **参考现有实现 (Reference Implementation)**：遇到未决的设计细节，优先参考已成熟的 Vendor（如 OKX, Bitget）实现，保持生态内的一致性。
+6. **文档同步 (Documentation Sync)**：完成功能开发后，必须同步更新 `docs/zh-Hans/vendor-supporting.md`（外部能力表）与 `SESSION_NOTES.md`（内部上下文），确保文档与代码状态一致。
 
 ---
 

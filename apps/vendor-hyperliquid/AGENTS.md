@@ -38,8 +38,16 @@
    - 默认账户 `account_id` 格式固定为 `hyperliquid/<address>/perp/USDC`。
 
 4. **透明可追溯**
+
    - 下单/撤单 RPC 要打印关键参数与交易所响应（已有日志逻辑，新增逻辑时保持一致）；
    - 变更涉及风险开关或凭证策略时，务必更新 `SESSION_NOTES` 的「指令与约束」或「冲突记录」。
+
+5. **文档同步 (Documentation Sync)**
+
+   - 完成功能开发后，必须同步更新 `docs/zh-Hans/vendor-supporting.md`（外部能力表）与 `SESSION_NOTES.md`（内部上下文），确保文档与代码状态一致。
+
+6. **类型安全 (Type Safety)**
+   - 严禁使用 `any`。所有 API 响应必须定义明确的 Interface，并在开发过程中持续运行 `tsc` 检查。
 
 ---
 

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-gate",
+      "comment": "update session notes",
+      "type": "none"
+    }
+  ],
+  "packageName": "@yuants/vendor-gate"
+}

@@ -570,5 +570,132 @@ export const getAccountFinancialRecord = (
   },
 ) => requestPrivate<ApiResponse<unknown>>(credential, 'GET', '/api/v3/account/financial-records', params);
 
+/**
+ * 现货下单
+ *
+ * 限速规则: 20次/1s (UID)
+ *
+ * https://www.bitget.com/zh-CN/api-doc/spot/trade/Place-Order
+ */
+export const postSpotPlaceOrder = (
+  credential: ICredential,
+  params: {
+    symbol: string;
+    side: string;
+    orderType: string;
+    force?: string;
+    price?: string;
+    quantity?: string;
+    clientOid?: string;
+  },
+) =>
+  requestPrivate<ApiResponse<{ orderId: string; clientOid: string }>>(
+    credential,
+    'POST',
+    '/api/v2/spot/trade/place-order',
+    params,
+  );
+
+/**
+ * 现货撤单
+ *
+ * 限速规则: 20次/1s (UID)
+ *
+ * https://www.bitget.com/zh-CN/api-doc/spot/trade/Cancel-Order
+ */
+export const postSpotCancelOrder = (
+  credential: ICredential,
+  params: {
+    symbol: string;
+    orderId?: string;
+    clientOid?: string;
+  },
+) =>
+  requestPrivate<ApiResponse<{ orderId: string; clientOid: string }>>(
+    credential,
+    'POST',
+    '/api/v2/spot/trade/cancel-order',
+    params,
+  );
+
+/**
+ * 现货改单 (Cancel-Replace)
+ *
+ * 限速规则: 20次/1s (UID)
+ *
+ * https://www.bitget.com/zh-CN/api-doc/spot/trade/cancel-replace-order
+ */
+export const postSpotCancelReplaceOrder = (
+  credential: ICredential,
+  params: {
+    symbol: string;
+    orderId?: string;
+    clientOid?: string;
+    newSize?: string;
+    newPrice?: string;
+    newClientOid?: string;
+  },
+) =>
+  requestPrivate<ApiResponse<{ orderId: string; clientOid: string }>>(
+    credential,
+    'POST',
+    '/api/v2/spot/trade/cancel-replace-order',
+    params,
+  );
+
+/**
+ * 合约改单
+ *
+ * 限速规则: 20次/1s (UID)
+ *
+ * https://www.bitget.com/zh-CN/api-doc/contract/trade/Modify-Order
+ */
+export const postFutureModifyOrder = (
+  credential: ICredential,
+  params: {
+    symbol: string;
+    productType: string;
+    orderId?: string;
+    clientOid?: string;
+    newSize?: string;
+    newPrice?: string;
+  },
+) =>
+  requestPrivate<ApiResponse<{ orderId: string; clientOid: string }>>(
+    credential,
+    'POST',
+    '/api/v2/mix/order/modify-order',
+    params,
+  );
+
+export interface ISpotCrossInterestRate {
+  coin: string;
+  interestRate: string;
+  dailyInterestRate: string;
+  annualInterestRate: string;
+  borrowable: boolean;
+  maxBorrowableAmount: string;
+}
+
+/**
+ * 获取全仓杠杆利率和限额
+ *
+ * 限速规则: 20次/1s (IP)
+ *
+ * https://www.bitget.com/zh-CN/api-doc/margin/cross/account/Get-Cross-Margin-Interest-Rate-And-Borrowable
+ */
+export const getSpotCrossInterestRate = (
+  credential: ICredential,
+  params: {
+    coin: string;
+  },
+) =>
+  requestPrivate<ApiResponse<ISpotCrossInterestRate[]>>(
+    credential,
+    'GET',
+    '/api/v2/margin/crossed/interest-rate-and-limit',
+    params,
+  );
+
 export { getDefaultCredential };
 export type { ICredential };

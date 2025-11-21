@@ -20,10 +20,11 @@
 ## 2. 开发哲学（Binance 专属）
 
 1. **Checklist 优先**：严格按 `docs/zh-Hans/vendor-guide/implementation-checklist.md`，先补齐 API 与服务分层，再做性能/美化。
-2. **对标实现**：结构、命名、目录参考 `apps/vendor-bitget` 与 `apps/vendor-okx`；凭证逻辑参考 `apps/vendor-aster`。
+2. **对标实现 (Reference Implementation)**：结构、命名、目录参考 `apps/vendor-bitget` 与 `apps/vendor-okx`；凭证逻辑参考 `apps/vendor-aster`。
 3. **Context-Management 先行**：长期指令写在本文件，阶段/临时要求写入 `SESSION_NOTES`；重要决策必须落在文档里。
-4. **类型安全**：API 层禁止 `any`；若来源字段不确定，使用 `unknown` + 手动解析。
+4. **类型安全 (Type Safety)**：API 层禁止 `any`；若来源字段不确定，使用 `unknown` + 手动解析。
 5. **透明日志**：REST 请求/响应需包含 `formatTime` 与关键参数，但不得泄露密钥。
+6. **文档同步 (Documentation Sync)**：完成功能开发后，必须同步更新 `docs/zh-Hans/vendor-supporting.md`（外部能力表）与 `SESSION_NOTES.md`（内部上下文），确保文档与代码状态一致。
 
 ---
 

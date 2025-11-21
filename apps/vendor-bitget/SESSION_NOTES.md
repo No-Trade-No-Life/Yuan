@@ -7,8 +7,8 @@
 ## 0. 元信息（Meta）
 
 - **项目名称**：@yuants/vendor-bitget
-- **最近更新时间**：2025-11-17 15:25（由 Codex 更新账户 profile 缓存策略）
-- **当前状态标签**：实现中
+- **最近更新时间**：2025-11-20 23:20（由 Antigravity 补全 Spot/Future 功能）
+- **当前状态标签**：已完成基础功能
 
 ---
 
@@ -52,7 +52,7 @@
 ## 3. 当前阶段的重点目标（Current Focus）
 
 - 巩固 commit `b00e9aa7` 引入的模块化 Bitget 结构，确保账户、挂单、行情、下单、转账稳定运行。
-- 为 credential-aware Submit/Cancel 与转账状态机补充 E2E/脚本验证，并同步到文档。
+- 已补全 Spot/Future 的 `listOrders`, `modifyOrder`, `placeOrder`, `cancelOrder` 及 OHLC/利率数据。
 - 整理运维手册，帮助 `trade-copier`/`transfer-controller` 团队快速接入。
 
 ---
@@ -99,6 +99,31 @@
 ## 6. 最近几轮工作记录（Recent Sessions）
 
 > 仅记录已结束的会话；进行中的内容放在第 11 节，收尾后再搬运；最新记录置顶。
+
+### 2025-11-20 — Antigravity
+
+- **本轮摘要**：
+  - 补全 Bitget 供应商缺失功能：Spot/Future 的 `listOrders`, `modifyOrder`；Spot 的 `placeOrder`, `cancelOrder`。
+  - 实现行情数据服务：Spot/Future 的 `ohlc`；Spot 的借贷利率（`interest-rate`）。
+  - 修复 Spot 利率实现，正确拆分 Base/Quote 并映射 Long/Short 利率。
+  - 修复 OHLC duration 格式，采用 RFC 3339 标准（如 `PT1M`）。
+  - 修复 `listOrders` 返回类型，严格对齐 `IOrder` 接口（移除 `client_order_id`，修正 `type`/`side`/`status` 映射）。
+  - 重构 Spot 利率实现：新增 `getSpotSymbols` API，使用 `createCache` 缓存 Spot 交易对信息；切换至 `private-api` 调用 `getSpotCrossInterestRate` (需鉴权)，并正确映射 `dailyInterestRate` 为小时利率。
+  - 更新 `vendor-supporting.md` 反映最新支持状态。
+- **修改的文件**：
+  - `apps/vendor-bitget/src/api/private-api.ts`, `apps/vendor-bitget/src/api/public-api.ts`
+  - `apps/vendor-bitget/src/services/orders/*`
+  - `apps/vendor-bitget/src/services/markets/*`
+  - `apps/vendor-bitget/src/services/order-actions-with-credential.ts`
+  - `apps/vendor-bitget/src/index.ts`
+  - `docs/zh-Hans/vendor-supporting.md`
+- **详细备注**：
+  - Spot 改单采用 `cancel-replace` 模式；
+  - OHLC 实现了 Bitget 粒度到内部标准秒数的映射；
+  - Spot 利率数据通过 `getSpotCrossInterestRate` 获取，并按 OKX 模式映射 Base/Quote 借贷利率。
+- **运行的测试 / 检查**：
+  - 命令：`npx tsc --noEmit --project apps/vendor-bitget/tsconfig.json`
+  - 结果：通过
 
 ### 2025-11-17 — Codex
 
@@ -252,9 +277,8 @@
 
 - **O1：Credential-aware RPC 是否需要支持 Spot/Margin？**
 
-  - 现状：仅覆盖 USDT Futures；
-  - 方案 A：在 `order-actions-with-credential.ts` 按 `product_id` 分路，扩展 Spot API；
-  - 方案 B：保持期货优先，等待业务需求。
+  - 现状：已支持 Spot/Margin 的下单、撤单、改单及利率查询。
+  - 结论：已解决。
 
 - **O2：公共数据是否需要 WebSocket？**
   - 现状：REST 轮询；
