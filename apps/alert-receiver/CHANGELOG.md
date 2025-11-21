@@ -1,6 +1,11 @@
 # Change Log - @yuants/app-alert-receiver
 
-This log was last generated on Thu, 20 Nov 2025 23:47:33 GMT and should not be manually modified.
+This log was last generated on Fri, 21 Nov 2025 19:27:19 GMT and should not be manually modified.
+
+## 0.5.7
+Fri, 21 Nov 2025 19:27:19 GMT
+
+_Version update only_
 
 ## 0.5.6
 Thu, 20 Nov 2025 23:47:33 GMT
