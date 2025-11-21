@@ -128,7 +128,9 @@ export class Terminal {
 
     const url = new URL(host_url);
     url.searchParams.set('terminal_id', this.terminal_id); // make sure terminal_id is in the connection parameters
-    url.searchParams.set('has_header', 'true'); // enforce header mode
+    const hostToken = url.searchParams.get('host_token') || '';
+    const signature = signMessage(hostToken, this.keyPair.private_key);
+    url.searchParams.set('signature', signature); // sign the host_token to prove the identity
     this.host_url = url.toString();
 
     this._conn = this.options.connection || createConnectionWs(this.host_url);
