@@ -12,7 +12,6 @@ import {
   first,
   from,
   fromEvent,
-  interval,
   last,
   map,
   merge,
@@ -20,7 +19,6 @@ import {
   Observable,
   repeat,
   retry,
-  shareReplay,
   Subject,
   takeUntil,
   tap,
@@ -109,17 +107,6 @@ export const createNodeJSHostManager = () => {
      */
     const terminalInfos = new Map<string, ITerminalInfo>();
 
-    const listTerminalsMessage$ = interval(1000).pipe(
-      map(() => ({ res: { code: 0, message: 'OK', data: [...terminalInfos.values()] } })),
-      shareReplay(1),
-    );
-
-    const terminalInfo$ = new Subject<ITerminalInfo>();
-
-    terminal.channel.publishChannel('TerminalInfo', { const: '' }, () => terminalInfo$);
-
-    terminal.server.provideService('ListTerminals', {}, () => listTerminalsMessage$.pipe(first()));
-
     /**
      * Host 事件序列 ID
      */
@@ -170,7 +157,6 @@ export const createNodeJSHostManager = () => {
     terminal.server.provideService<ITerminalInfo>('UpdateTerminalInfo', {}, async (msg) => {
       const oldTerminalInfo = terminalInfos.get(msg.req.terminal_id);
       terminalInfos.set(msg.req.terminal_id, msg.req);
-      terminalInfo$.next(msg.req);
 
       hostEvent$.next({
         seq_id: ++seq_id,
@@ -249,8 +235,10 @@ export const createNodeJSHostManager = () => {
           // forward to target terminal if exists
           if (mapTerminalIdToConn[target_terminal_id]) {
             mapTerminalIdToConn[target_terminal_id].send(raw_message);
-          } else {
-            // otherwise, send to host terminal itself
+          } else if (!target_terminal_id || target_terminal_id === '@host') {
+            // send to host terminal itself
+            // no target_terminal_id or empty string means send to host
+            // target_terminal_id === '@host' also means send to host (for compatibility)
             hostTerminalConnection.input$.next(raw_message);
           }
         } catch (e) {
