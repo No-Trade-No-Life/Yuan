@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/protocol",
+      "comment": "enforce terminal_id to be public_key",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/protocol"
+}
