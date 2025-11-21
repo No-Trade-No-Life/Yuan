@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/app-openai",
+      "comment": "simplify package.json",
+      "type": "none"
+    }
+  ],
+  "packageName": "@yuants/app-openai"
+}

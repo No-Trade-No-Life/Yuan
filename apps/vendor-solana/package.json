@@ -1,8 +1,11 @@
 {
   "name": "@yuants/vendor-solana",
   "version": "0.1.111",
+  "main": "lib/index.js",
   "files": [
-    "dist/extension.bundle.js"
+    "dist",
+    "lib",
+    "temp"
   ],
   "scripts": {
     "dev": "ts-node src/index.ts",
@@ -31,12 +34,5 @@
   "publishConfig": {
     "registry": "https://registry.npmjs.org",
     "access": "public"
-  },
-  "io_ntnl": {
-    "deploy_files": [
-      "dist",
-      "lib",
-      "temp"
-    ]
   }
 }

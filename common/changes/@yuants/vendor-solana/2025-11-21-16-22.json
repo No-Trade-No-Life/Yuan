@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-solana",
+      "comment": "simplify package.json",
+      "type": "none"
+    }
+  ],
+  "packageName": "@yuants/vendor-solana"
+}

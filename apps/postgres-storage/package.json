@@ -3,7 +3,6 @@
   "version": "0.2.32",
   "main": "lib/index.js",
   "module": "dist/index.js",
-  "bin": "lib/cli.js",
   "files": [
     "dist",
     "lib",
