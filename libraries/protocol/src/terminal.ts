@@ -90,7 +90,8 @@ export class Terminal {
     } = {},
   ) {
     this.keyPair = this.options.private_key ? fromPrivateKey(this.options.private_key) : createKeyPair();
-    this.terminal_id = this.keyPair.public_key;
+    // @host is reserved terminal_id for the host server
+    this.terminal_id = terminalInfo.terminal_id || this.keyPair.public_key;
 
     const tags: Record<string, string> = {};
     this.terminalInfo = {
