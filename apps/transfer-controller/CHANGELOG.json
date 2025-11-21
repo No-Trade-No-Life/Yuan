@@ -2,6 +2,32 @@
   "name": "@yuants/app-transfer-controller",
   "entries": [
     {
+      "version": "0.1.33",
+      "tag": "@yuants/app-transfer-controller_v0.1.33",
+      "date": "Fri, 21 Nov 2025 19:27:19 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "simplify package.json"
+          },
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.51.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.25`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/transfer\" to `0.2.34`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.1.32",
       "tag": "@yuants/app-transfer-controller_v0.1.32",
       "date": "Sat, 15 Nov 2025 14:36:00 GMT",
