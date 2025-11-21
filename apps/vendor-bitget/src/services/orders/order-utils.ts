@@ -4,10 +4,10 @@ import { decodePath } from '@yuants/utils';
 export const mapOrderDirectionToSide = (direction?: IOrder['order_direction']) => {
   switch (direction) {
     case 'OPEN_LONG':
-    case 'CLOSE_LONG':
+    case 'CLOSE_SHORT':
       return 'buy';
     case 'OPEN_SHORT':
-    case 'CLOSE_SHORT':
+    case 'CLOSE_LONG':
       return 'sell';
   }
   throw new Error(`Unknown order direction: ${direction}`);

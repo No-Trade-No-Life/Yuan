@@ -7,7 +7,7 @@
 ## 0. 元信息（Meta）
 
 - **项目名称**：@yuants/vendor-hyperliquid
-- **最近更新时间**：2025-11-19 17:30（由 Claude Agent 更新，完成接口设计优化和 API 文档补充）
+- **最近更新时间**：2025-11-22 00:35（由 Antigravity Agent 更新，完成账户服务重构与 Legacy 兼容层建立）
 - **当前状态标签**：稳定运行（接口设计优化完成，文档补充完整，推进 transfer + 测试）
 
 ---
@@ -187,6 +187,44 @@
 ## 6. 最近几轮工作记录（Recent Sessions）
 
 > 约定：仅记录已经结束的会话；进行中的内容放在第 11 节，收尾后再搬运；按时间倒序追加。
+
+### 2025-11-22 — Antigravity Agent
+
+- **本轮摘要**：
+  - 重构账户服务：将 `perp.ts` 和 `spot.ts` 重构为纯异步函数，移除副作用。
+  - 建立 Legacy 兼容层：创建 `src/services/legacy.ts`，承载原有的 `provideAccountInfoService` 和 `providePendingOrdersService`，并恢复了被删除的默认账户 `SubmitOrder` 和 `CancelOrder` 服务。
+  - 代码去重：清理 `account-actions-with-credential.ts`，复用新的纯函数逻辑。
+  - 提交分析：分析了 commit `94c6a267`，确认其引入了 `@yuants/cache` 并更新了文档。
+- **修改的文件**：
+  - `src/services/accounts/perp.ts`（重构为纯函数）
+  - `src/services/accounts/spot.ts`（重构为纯函数）
+  - `src/services/legacy.ts`（新增，承载旧服务）
+  - `src/services/account-actions-with-credential.ts`（清理重复代码）
+  - `src/index.ts`（更新导入）
+- **详细备注**：
+  - 此次重构对齐了 `vendor-aster` 的设计模式，实现了逻辑与服务注册的分离。
+  - 恢复 Legacy Order Actions 保证了对旧有调用方式的兼容性。
+- **运行的测试 / 检查**：
+  - 命令：`npx tsc --noEmit --project apps/vendor-hyperliquid/tsconfig.json`
+  - 结果：Passed
+
+### 2025-11-21 — Antigravity Agent
+
+- **本轮摘要**：
+  - 补全 Hyperliquid vendor 功能：Spot 账户信息、成交流水服务。
+  - 规范化 Account ID：移除 `/USDC` 后缀，统一使用 `hyperliquid/${walletAddress}/perp` 和 `hyperliquid/${walletAddress}/spot`。
+  - 统一账户估值货币：Perp 账户 money 字段 currency 调整为 `USD`。
+  - 新增 `src/services/accounts/spot.ts` 实现现货账户信息查询。
+- **修改的文件**：
+  - `src/services/accounts/perp.ts`（Account ID 格式调整，Currency 调整）
+  - `src/services/accounts/spot.ts`（新增）
+  - `src/index.ts`（导入新服务）
+- **详细备注**：
+  - Account ID 变更属于 Breaking Change，需通知下游依赖。
+  - Spot 账户目前仅支持余额查询，暂不支持下单（API 限制）。
+- **运行的测试 / 检查**：
+  - 命令：`npx tsc --noEmit --project apps/vendor-hyperliquid/tsconfig.json`
+  - 结果：Passed
 
 ### 2025-11-19 — Claude Agent
 
