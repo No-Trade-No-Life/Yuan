@@ -36,7 +36,6 @@ const useTerminal = (hostUrl: string) =>
     const terminal = new Terminal(
       hostUrl,
       {
-        terminal_id: `Portal/External/${UUID()}`,
         name: 'Portal-External',
       },
       { disableTerminate: true, disableMetrics: true },

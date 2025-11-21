@@ -221,7 +221,6 @@ defer(async () => {
   const terminal = new Terminal(
     process.env.HOST_URL!,
     {
-      terminal_id: encodePath('NodeUnit', nodeKeyPair.public_key),
       name: '@yuants/node-unit',
       tags: {
         node_unit: 'true',

@@ -1,5 +1,5 @@
 import { createRegistry } from '@yuants/prometheus';
-import { IEd25519KeyPair, UUID, createKeyPair, formatTime, fromPrivateKey } from '@yuants/utils';
+import { IEd25519KeyPair, UUID, createKeyPair, formatTime, fromPrivateKey, signMessage } from '@yuants/utils';
 import { isNode } from 'browser-or-node';
 import { JSONSchema7 } from 'json-schema';
 import {
@@ -78,9 +78,11 @@ export class Terminal {
    */
   metrics = createRegistry();
 
+  terminalInfo: ITerminalInfo;
+
   constructor(
     public host_url: string,
-    public terminalInfo: ITerminalInfo,
+    terminalInfo: Partial<ITerminalInfo> = {},
     public options: {
       verbose?: boolean;
       private_key?: string;
@@ -166,7 +168,6 @@ export class Terminal {
     return (this._terminal = new Terminal(
       HOST_URL,
       {
-        terminal_id: '', // will be overwritten
         name: process.env.TERMINAL_NAME || '',
         enable_WebRTC: process.env.ENABLE_WEBRTC === 'true',
       },

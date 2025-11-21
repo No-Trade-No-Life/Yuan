@@ -41,7 +41,6 @@ defer(() => getConfig())
           const terminal = new Terminal(
             config.hostUrl,
             {
-              terminal_id: `WebPilot/${keyPair.public_key}`,
               name: 'WebPilot Extension Background Script',
             },
             {
