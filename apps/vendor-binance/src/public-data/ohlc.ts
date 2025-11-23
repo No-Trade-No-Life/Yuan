@@ -47,8 +47,23 @@ createSeriesProvider<IOHLC>(terminal, {
         ? 'https://fapi.binance.com/fapi/v1/klines'
         : 'https://api.binance.com/api/v3/klines';
 
+    type IBinanceKline = [
+      number, // Open time
+      string, // Open
+      string, // High
+      string, // Low
+      string, // Close
+      string, // Volume
+      number, // Close time
+      string, // Quote asset volume
+      number, // Number of trades
+      string, // Taker buy base asset volume
+      string, // Taker buy quote asset volume
+      string, // Ignore
+    ];
+
     while (true) {
-      const res = await requestPublic<any[][]>('GET', baseUrl, {
+      const res = await requestPublic<IBinanceKline[]>('GET', baseUrl, {
         symbol,
         interval,
         endTime: current_end,
