@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-aster
 
-This log was last generated on Sun, 23 Nov 2025 11:00:09 GMT and should not be manually modified.
+This log was last generated on Sun, 23 Nov 2025 11:36:16 GMT and should not be manually modified.
+
+## 0.7.4
+Sun, 23 Nov 2025 11:36:16 GMT
+
+### Patches
+
+- enhance error message
 
 ## 0.7.3
 Sun, 23 Nov 2025 11:00:09 GMT
