@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-okx
 
-This log was last generated on Fri, 21 Nov 2025 22:22:24 GMT and should not be manually modified.
+This log was last generated on Sun, 23 Nov 2025 12:51:41 GMT and should not be manually modified.
+
+## 0.27.4
+Sun, 23 Nov 2025 12:51:41 GMT
+
+### Patches
+
+- fix uid and loan error
 
 ## 0.27.3
 Fri, 21 Nov 2025 22:22:24 GMT
