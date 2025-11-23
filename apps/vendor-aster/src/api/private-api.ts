@@ -76,7 +76,12 @@ const request = async <T>(
     headers: {
       'X-MBX-APIKEY': credential.api_key,
     },
-  }).then((response) => response.json());
+  }).then((response) =>
+    response.text().then(
+      (text) => JSON.parse(text),
+      (err) => `Failed to parse response: ${err}, response text: ${response.text}`,
+    ),
+  );
   if (res.code && res.code !== 0) {
     throw JSON.stringify(res);
   }
