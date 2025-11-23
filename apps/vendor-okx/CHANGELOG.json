@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-okx",
   "entries": [
     {
+      "version": "0.27.4",
+      "tag": "@yuants/vendor-okx_v0.27.4",
+      "date": "Sun, 23 Nov 2025 12:51:41 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "fix uid and loan error"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.27.3",
       "tag": "@yuants/vendor-okx_v0.27.3",
       "date": "Fri, 21 Nov 2025 22:22:24 GMT",
