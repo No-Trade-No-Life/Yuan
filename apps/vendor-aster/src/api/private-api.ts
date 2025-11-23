@@ -71,21 +71,23 @@ const request = async <T>(
   url.searchParams.set('signature', signature);
 
   console.info(url.toString());
-  const res = await fetch(url.toString(), {
+  const resText = await fetch(url.toString(), {
     method,
     headers: {
       'X-MBX-APIKEY': credential.api_key,
     },
-  }).then((response) =>
-    response.text().then(
-      (text) => JSON.parse(text),
-      (err) => `Failed to parse response: ${err}, response text: ${response.text}`,
-    ),
-  );
-  if (res.code && res.code !== 0) {
-    throw JSON.stringify(res);
+  }).then((response) => response.text());
+
+  try {
+    const res = JSON.parse(resText);
+
+    if (res.code && res.code !== 0) {
+      throw resText;
+    }
+    return res;
+  } catch (e) {
+    throw `APIError: ${resText}`;
   }
-  return res;
 };
 
 const createApi =
