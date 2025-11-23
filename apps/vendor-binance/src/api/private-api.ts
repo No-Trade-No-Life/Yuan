@@ -1,4 +1,4 @@
-import { IApiError, ICredential, requestPrivate } from './client';
+import { getDefaultCredential, IApiError, ICredential, requestPrivate } from './client';
 export type { ICredential };
 
 export interface IUnifiedAccountInfo {
@@ -646,3 +646,151 @@ export const getUMIncome = (
   },
 ): Promise<IUMIncomeRecord[]> =>
   requestPrivate<IUMIncomeRecord[]>(credential, 'GET', 'https://api.binance.com/papi/v1/um/income', params);
+
+/**
+ * Cancel an Existing Order and Send a New Order (TRADE)
+ *
+ * 权重: 1
+ *
+ * https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/rest-api/trading-endpoints#%E6%92%A4%E9%94%80%E5%B9%B6%E9%87%8D%E6%96%B0%E4%B8%8B%E5%8D%95-trade
+ */
+export const postSpotOrderCancelReplace = (
+  credential: ICredential,
+  params: {
+    symbol: string;
+    side: string;
+    type: string;
+    cancelReplaceMode: string;
+    timeInForce?: string;
+    quantity?: number;
+    quoteOrderQty?: number;
+    price?: number;
+    cancelNewClientOrderId?: string;
+    cancelOrigClientOrderId?: string;
+    cancelOrderId?: number;
+    newClientOrderId?: string;
+    strategyId?: number;
+    strategyType?: number;
+    stopPrice?: number;
+    trailingDelta?: number;
+    icebergQty?: number;
+    newOrderRespType?: string;
+    selfTradePreventionMode?: string;
+    pegPriceType?: string;
+    pegOffsetValue?: number;
+    pegOffsetType?: string;
+  },
+): Promise<ISpotNewOrderResponse | IApiError> =>
+  requestPrivate<ISpotNewOrderResponse | IApiError>(
+    credential,
+    'POST',
+    'https://api.binance.com/api/v3/order/cancelReplace',
+    params,
+  );
+
+/**
+ * Modify Order (TRADE)
+ *
+ * 权重: 1
+ *
+ * https://developers.binance.com/docs/zh-CN/derivatives/portfolio-margin/trade/Modify-UM-Order
+ */
+export const putUmOrder = (
+  credential: ICredential,
+  params: {
+    orderId?: number;
+    origClientOrderId?: string;
+    symbol: string;
+    side: string;
+    quantity?: number;
+    price?: number;
+    priceMatch?: string;
+    recvWindow?: number;
+    timestamp?: number;
+  },
+): Promise<IUnifiedUmOrderResponse | IApiError> =>
+  requestPrivate<IUnifiedUmOrderResponse | IApiError>(
+    credential,
+    'PUT',
+    'https://papi.binance.com/papi/v1/um/order',
+    params,
+  );
+export interface IMarginPair {
+  id: string;
+  symbol: string;
+  base: string;
+  quote: string;
+  isMarginTrade: boolean;
+  isBuyAllowed: boolean;
+  isSellAllowed: boolean;
+}
+
+/**
+ * 获取所有全仓杠杆交易对(MARKET_DATA)
+ *
+ * 权重: 1
+ *
+ * https://developers.binance.com/docs/zh-CN/margin_trading/market-data/Get-All-Cross-Margin-Pairs
+ */
+export const getMarginAllPairs = (params?: { symbol?: string }): Promise<IMarginPair[]> => {
+  const credential = getDefaultCredential();
+  return requestPrivate<IMarginPair[]>(
+    credential,
+    'GET',
+    'https://api.binance.com/sapi/v1/margin/allPairs',
+    params,
+  );
+};
+
+/**
+ * Get a future hourly interest rate
+ *
+ * https://developers.binance.com/docs/zh-CN/margin_trading/borrow-and-repay/Get-a-future-hourly-interest-rate
+ */
+export const getMarginNextHourlyInterestRate = (params: {
+  assets: string;
+  isIsolated: boolean;
+}): Promise<
+  {
+    asset: string;
+    nextHourlyInterestRate: string;
+  }[]
+> => {
+  const credential = getDefaultCredential();
+  return requestPrivate<
+    {
+      asset: string;
+      nextHourlyInterestRate: string;
+    }[]
+  >(credential, 'GET', 'https://api.binance.com/sapi/v1/margin/next-hourly-interest-rate', params);
+};
+
+/**
+ * Query Margin Interest Rate History
+ *
+ * https://developers.binance.com/docs/zh-CN/margin_trading/borrow-and-repay/Query-Margin-Interest-Rate-History
+ */
+export const getMarginInterestRateHistory = (params: {
+  asset: string;
+  vipLevel?: number;
+  startTime?: number;
+  endTime?: number;
+  limit?: number;
+}): Promise<
+  {
+    asset: string;
+    dailyInterestRate: string;
+    timestamp: number;
+    vipLevel: number;
+  }[]
+> => {
+  const credential = getDefaultCredential();
+  return requestPrivate<
+    {
+      asset: string;
+      dailyInterestRate: string;
+      timestamp: number;
+      vipLevel: number;
+    }[]
+  >(credential, 'GET', 'https://api.binance.com/sapi/v1/margin/interestRateHistory', params);
+};

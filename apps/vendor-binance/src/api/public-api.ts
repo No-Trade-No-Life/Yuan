@@ -154,13 +154,18 @@ export const getFutureBookTicker = (params?: { symbol?: string }): Promise<IFutu
  */
 export const getFutureOpenInterest = (params: { symbol: string }): Promise<IFutureOpenInterest> =>
   requestPublic<IFutureOpenInterest>('GET', 'https://fapi.binance.com/fapi/v1/openInterest', params);
+export interface ISpotBookTickerEntry {
+  symbol: string;
+  bidPrice: string;
+  bidQty: string;
+  askPrice: string;
+  askQty: string;
+}
 
 /**
- * 获取所有全仓杠杆交易对(MARKET_DATA)
+ * 当前最优挂单 (Spot)
  *
- * 权重: 1
- *
- * https://developers.binance.com/docs/zh-CN/margin_trading/market-data/Get-All-Cross-Margin-Pairs
+ * https://binance-docs.github.io/apidocs/spot/cn/#5393cd0851
  */
-export const getMarginAllPairs = (params?: { symbol?: string }): Promise<IMarginPair[]> =>
-  requestPublic<IMarginPair[]>('GET', 'https://api.binance.com/sapi/v1/margin/allPairs', params);
+export const getSpotBookTicker = (params?: { symbol?: string }): Promise<ISpotBookTickerEntry[]> =>
+  requestPublic<ISpotBookTickerEntry[]>('GET', 'https://api.binance.com/api/v3/ticker/bookTicker', params);

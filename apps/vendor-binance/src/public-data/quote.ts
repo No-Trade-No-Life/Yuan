@@ -2,7 +2,7 @@ import { createCache } from '@yuants/cache';
 import { IQuote } from '@yuants/data-quote';
 import { Terminal } from '@yuants/protocol';
 import { writeToSQL } from '@yuants/sql';
-import { decodePath, encodePath } from '@yuants/utils';
+import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import {
   defer,
   filter,
@@ -17,7 +17,13 @@ import {
   share,
   shareReplay,
 } from 'rxjs';
-import { getFutureBookTicker, getFutureOpenInterest, getFuturePremiumIndex } from './api/public-api';
+import { getMarginAllPairs, getMarginNextHourlyInterestRate, IMarginPair } from '../api/private-api';
+import {
+  getFutureBookTicker,
+  getFutureOpenInterest,
+  getFuturePremiumIndex,
+  getSpotBookTicker,
+} from '../api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
 const OPEN_INTEREST_TTL = process.env.OPEN_INTEREST_TTL ? Number(process.env.OPEN_INTEREST_TTL) : 120_000;
@@ -56,7 +62,14 @@ const quoteFromPremiumIndex$ = futurePremiumIndex$.pipe(
       datasource_id: 'BINANCE',
       product_id: encodePath('usdt-future', entry.symbol),
       last_price: entry.markPrice,
-      updated_at: new Date(entry.time ?? Date.now()).toISOString(),
+      // interestRate is the predicted funding rate for next settlement
+      // In perpetual futures: when funding rate > 0, longs pay shorts
+      // interest_rate_long: cost for holding long (negative of funding rate)
+      // interest_rate_short: income for holding short (positive of funding rate)
+      interest_rate_long: entry.interestRate,
+      interest_rate_short: `${-Number(entry.interestRate)}`,
+      interest_rate_next_settled_at: formatTime(entry.nextFundingTime),
+      updated_at: formatTime(entry.time ?? Date.now()),
     }),
   ),
 );
@@ -69,7 +82,7 @@ const quoteFromBookTicker$ = futureBookTicker$.pipe(
       product_id: encodePath('usdt-future', entry.symbol),
       bid_price: entry.bidPrice,
       ask_price: entry.askPrice,
-      updated_at: new Date(entry.time ?? Date.now()).toISOString(),
+      updated_at: formatTime(entry.time ?? Date.now()),
     }),
   ),
 );
@@ -91,7 +104,80 @@ const quoteFromOpenInterest$ = futureBookTicker$.pipe(
   ),
 );
 
-const quote$ = merge(quoteFromPremiumIndex$, quoteFromBookTicker$, quoteFromOpenInterest$).pipe(
+const quoteFromSpotBookTicker$ = defer(() => getSpotBookTicker({})).pipe(
+  repeat({ delay: 1_000 }),
+  retry({ delay: 30_000 }),
+  shareReplay({ bufferSize: 1, refCount: true }),
+  mergeMap((entries) => from(entries || [])),
+  map(
+    (entry): Partial<IQuote> => ({
+      datasource_id: 'BINANCE',
+      product_id: encodePath('spot', entry.symbol),
+      bid_price: entry.bidPrice,
+      ask_price: entry.askPrice,
+      bid_volume: entry.bidQty,
+      ask_volume: entry.askQty,
+      updated_at: formatTime(Date.now()),
+    }),
+  ),
+);
+
+const marginInterestRateCache = createCache<string>(
+  async (asset: string) => {
+    try {
+      const data = await getMarginNextHourlyInterestRate({
+        assets: asset,
+        isIsolated: false,
+      });
+      return data[0]?.nextHourlyInterestRate;
+    } catch (err) {
+      return undefined;
+    }
+  },
+  {
+    expire: 60_000,
+  },
+);
+
+const marginPairs$ = defer(() => getMarginAllPairs()).pipe(
+  repeat({ delay: 3600_000 }), // Refresh pair list hourly
+  retry({ delay: 60_000 }),
+  shareReplay({ bufferSize: 1, refCount: true }),
+);
+
+const quoteFromMarginRates$ = marginPairs$.pipe(
+  mergeMap((pairs: IMarginPair[]) =>
+    from(pairs).pipe(
+      mergeMap(
+        (pair) =>
+          defer(async () => {
+            const [baseRate, quoteRate] = await Promise.all([
+              marginInterestRateCache.query(pair.base),
+              marginInterestRateCache.query(pair.quote),
+            ]);
+            return {
+              datasource_id: 'BINANCE',
+              product_id: encodePath('spot', pair.symbol),
+              // User instruction: Long = Quote Rate, Short = Base Rate
+              interest_rate_long: quoteRate,
+              interest_rate_short: baseRate,
+              updated_at: formatTime(Date.now()),
+            } as Partial<IQuote>;
+          }),
+        5, // Concurrency
+      ),
+    ),
+  ),
+  repeat({ delay: 60_000 }),
+);
+
+const quote$ = merge(
+  quoteFromPremiumIndex$,
+  quoteFromBookTicker$,
+  quoteFromOpenInterest$,
+  quoteFromSpotBookTicker$,
+  quoteFromMarginRates$,
+).pipe(
   groupBy((quote) => quote.product_id),
   mergeMap((group$) =>
     group$.pipe(

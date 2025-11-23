@@ -1,44 +1,45 @@
-# @yuants/vendor-binance — Session Notes
+# Binance Vendor — Session Notes
 
-> 作为 Binance vendor 的单一真相源。请在每轮会话结束时更新最近工作、TODO、指令变化与下一步建议。
+> 单一真相源：记录 `apps/vendor-binance` 的目标、指令、决策、TODO 与风险。结构与 `skills/context-management/SESSION_NOTES.template.md` 对齐，亦参考 `apps/vendor-bitget/SESSION_NOTES.md`。
 
 ---
 
-## 0. 元信息
+## 0. 元信息（Meta）
 
 - **项目名称**：@yuants/vendor-binance
-- **最近更新时间**：2025-11-17 15:25（由 Codex Agent 更新账户 Profile 缓存）
+- **最近更新时间**：2025-11-23 20:40（由 Antigravity 补全 Spot/Future ModifyOrder & Public Data）
 - **当前状态标签**：重构中（credential 化 & 上下文治理）
 
 ---
 
-## 1. 项目整体目标
+## 1. 项目整体目标（High-level Goal）
 
-- 对齐 `docs/zh-Hans/vendor-guide/implementation-checklist.md` 的所有要求，让 Binance vendor 可被 trade-copier / CLI 复用；
-- 提供公共行情、利率、产品目录、账户、挂单、转账、订单动作（默认账户 + 凭证化）等服务；
-- 引入 context-management 规范，确保多轮协作可追踪；
+- 对齐 `docs/zh-Hans/vendor-guide/implementation-checklist.md` 的所有要求，让 Binance vendor 可被 trade-copier / CLI 复用。
+- 提供公共行情、利率、产品目录、账户、挂单、转账、订单动作（默认账户 + 凭证化）等服务。
+- 引入 context-management 规范，确保多轮协作可追踪。
 - 非目标：一次性完成所有模块重写；在未完成自测前上线生产环境。
 
 ---
 
-## 2. 指令与约束
+## 2. 指令与约束（Instructions & Constraints）
 
 ### 2.1 长期指令快照
 
-- 遵循 `docs/zh-Hans/vendor-guide/implementation-checklist.md`；
-- API 层禁止 `any`，保留官方注释链接；
-- 结构参考 vendor-bitget / vendor-okx：`api/` + `services/`；
-- credential 设计遵循 `.clinerules/credential.md`，`type = 'BINANCE'`；
+- 遵循 `docs/zh-Hans/vendor-guide/implementation-checklist.md`。
+- API 层禁止 `any`，保留官方注释链接。
+- 结构参考 vendor-bitget / vendor-okx：`api/` + `services/`。
+- credential 设计遵循 `.clinerules/credential.md`，`type = 'BINANCE'`。
 - 重要信息写入 AGENTS / Session Notes，不依赖聊天记录。
+- 公共数据（Quote/Product/InterestRate/OHLC）置于 `src/public-data/` 目录。
 
 ### 2.2 当前阶段指令
 
-- 补齐 `docs/context` 文档；
-- 将 Binance API 拆分 public/private + Typed credential；
-- 实现凭证化 Order Actions，并准备账户/挂单服务的 credential 版本；
+- 补齐 `docs/context` 文档。
+- 将 Binance API 拆分 public/private + Typed credential。
+- 实现凭证化 Order Actions，并准备账户/挂单服务的 credential 版本。
 - 保持 `PUBLIC_ONLY` 模式可运行公共数据。
 
-### 2.3 临时指令
+### 2.3 临时指令（短期有效）
 
 - 用户提醒（2025-11-17）：本轮重点是文档 + credential API，分阶段完成，不必一次重构全部；逐步对齐 vendor-bitget / vendor-okx。
 
@@ -48,50 +49,83 @@
 
 ---
 
-## 3. 当前阶段重点
+## 3. 当前阶段的重点目标（Current Focus）
 
-- Stage 1：建立 context 文档体系（AGENTS / SESSION_NOTES）并同步指令；
-- Stage 2：完成 API 层重构（public/private/typed credential）；
-- Stage 3：实现凭证化 order actions + account/pending services；
+- Stage 1：建立 context 文档体系（AGENTS / SESSION_NOTES）并同步指令。
+- Stage 2：完成 API 层重构（public/private/typed credential）。
+- Stage 3：实现凭证化 order actions + account/pending services。
 - Stage 4：迁移 legacy 逻辑到 services 目录并逐步淘汰。
 
 ---
 
-## 4. 重要背景与关键决策
+## 4. 重要背景与关键决策（Context & Decisions）
 
-### 4.1 架构概览
+### 4.1 架构 / 模块概览
 
-- `src/api/public-api.ts`：Binance 公共 REST helper；
-- `src/api/private-api.ts`：Binance 私有 REST helper，需凭证；
-- `src/legacy_index.ts`：旧版 account/order/transfer 逻辑（待迁移）；
-- `src/public-data/*`：quote / interest_rate / product；
-- （TODO）`src/services/*`：按 checklist 拆分 account/order/markets/transfer。
+- `src/api/public-api.ts`：Binance 公共 REST helper。
+- `src/api/private-api.ts`：Binance 私有 REST helper，需凭证。
+- `src/legacy_index.ts`：旧版 account/order/transfer 逻辑（待迁移）。
+- `src/public-data/*`：quote / interest_rate / product / ohlc。
+- `src/services/*`：按 checklist 拆分 account/order/markets/transfer。
 
-### 4.2 决策
+### 4.2 已做出的关键决策
 
-- [D1] 2025-11-17：沿用 vendor-bitget 结构，在 `apps/vendor-binance/src/api/` 下实现 typed API，并准备引入 `services/` 目录；
-- [D2] 2025-11-17：为 context-management 建立 `docs/context/AGENTS.md` 与 `SESSION_NOTES.md`，仅覆盖 vendor-binance。
+- **[D1] 2025-11-17**：沿用 vendor-bitget 结构，在 `apps/vendor-binance/src/api/` 下实现 typed API，并准备引入 `services/` 目录。
+- **[D2] 2025-11-17**：为 context-management 建立 `docs/context/AGENTS.md` 与 `SESSION_NOTES.md`，仅覆盖 vendor-binance。
+- **[D3] 2025-11-23**：公共数据文件（quote, product, interest_rate, ohlc）统一移至 `src/public-data/` 目录，保持根目录整洁。
+- **[D4] 2025-11-23**：Spot 改单使用 `cancelReplace` 接口，Futures 改单使用 `amend` 接口。
+- **[D5] 2025-11-23**：OHLC 数据源（Binance API）返回升序数据，`ohlc.ts` 不进行 reverse，直接 yield 升序数据，并调整分页逻辑（取 `periods[0]` 作为 oldest）。
+- **[D6] 2025-11-23**：Spot Quote 中的利率映射遵循用户指定规则：`interest_rate_long` = Quote Asset Rate, `interest_rate_short` = Base Asset Rate。
+- **[D7] 2025-11-23**：Margin 接口（如 `next-hourly-interest-rate`、`interestRateHistory`）属于 USER_DATA 安全类型（需 API Key 和签名）。这些 API 在 `private-api.ts` 中定义，内部使用 `getDefaultCredential()` + `requestPrivate` 调用。`callApi` 简化为：有 credential 就签名，保持语义清晰。
 
-### 4.3 技术债
+### 4.3 已接受的折衷 / 技术债
 
-- Legacy `legacy_index.ts` 仍包含默认账户逻辑，需要迁移至 `services/legacy.ts` 或新的模块；
-- 尚未实现凭证化 Account Actions / Order Actions；
-- 缺少 `services/orders/submitOrder.ts`、`cancelOrder.ts` 等模块；
+- Legacy `legacy_index.ts` 仍包含默认账户逻辑，需要迁移至 `services/legacy.ts` 或新的模块。
+- 尚未实现凭证化 Account Actions / Order Actions 的完整覆盖（如转账）。
 - 转账接口未对齐新的 credential 设计。
 
 ---
 
-## 5. 关键文件
+## 5. 关键文件与模块说明（Files & Modules）
 
-- `src/api/public-api.ts`: 各类公共 REST，禁止 any；
-- `src/api/private-api.ts`: 权限 REST，输出类型需补充；
-- `src/legacy_index.ts`: 旧服务实现，逐步拆分；
-- `src/quote.ts`, `src/product.ts`, `src/interest_rate.ts`: 公共数据脚本；
-- `docs/context/AGENTS.md`, `docs/context/SESSION_NOTES.md`: 指令与状态文件。
+- `src/api/public-api.ts`: 各类公共 REST，禁止 any。
+- `src/api/private-api.ts`: 权限 REST，输出类型需补充。
+- `src/legacy_index.ts`: 旧服务实现，逐步拆分。
+- `src/public-data/*`: 公共数据脚本 (Quote, Product, Interest Rate, OHLC)。
+- `src/services/orders/modifyOrder.ts`: 改单实现 (Spot & Futures)。
+- `docs/context/AGENTS.md`, `SESSION_NOTES.md`: 指令与状态文件。
 
 ---
 
-## 6. 最近几轮工作记录
+## 6. 最近几轮工作记录（Recent Sessions）
+
+> 仅记录已结束的会话；进行中的内容放在第 11 节，收尾后再搬运；最新记录置顶。
+
+### 2025-11-23 — Antigravity
+
+- **本轮摘要**：
+  - 实现 `modifyOrder`：Spot 使用 `cancelReplace`，Futures 使用 `amend`。
+  - 实现公共数据：OHLC (Spot & Futures) 和 Interest Rate (Spot Lending & Futures Funding)。
+  - 重构：将 `quote.ts`, `product.ts`, `interest_rate.ts` 移至 `src/public-data/`。
+  - 修复：`order-actions-with-credential.ts` 使用 `@yuants/data-order` 的 `provideOrderActionsWithCredential`。
+- **修改的文件**：
+  - `apps/vendor-binance/src/api/private-api.ts`
+  - `apps/vendor-binance/src/services/orders/modifyOrder.ts`
+  - `apps/vendor-binance/src/services/order-actions-with-credential.ts`
+  - `apps/vendor-binance/src/public-data/ohlc.ts`
+  - `apps/vendor-binance/src/public-data/interest_rate.ts`
+  - `apps/vendor-binance/src/index.ts`
+- **运行的测试 / 检查**：
+  - `npx tsc --noEmit --project apps/vendor-binance/tsconfig.json` (Passed)
+- **用户干预**：
+  - 用户手动移除了 `ohlc.ts` 中的 `.reverse()`，改为直接 yield 升序数据。
+  - 修正了分页逻辑：`current_end` 取 `periods[0]` (oldest) 而非 `periods[length-1]`。
+- **新增功能**：
+  - **Spot Quote**: 在 `quote.ts` 中通过 `getSpotBookTicker` 增加现货行情。
+  - **Margin Interest Rate**:
+    - API: 新增 `getMarginNextHourlyInterestRate` (Quote) 和 `getMarginInterestRateHistory` (History)。
+    - Quote: 实现 `marginInterestRateCache`，通过 `getMarginAllPairs` 获取资产列表，驱动缓存查询并生成 `margin/<asset>` 的利率报价。
+    - Interest Rate: `interest_rate.ts` 支持 `margin` 类型，使用 `getMarginInterestRateHistory`。
 
 ### 2025-11-17 — Codex
 
@@ -145,26 +179,46 @@
 
 ---
 
-## 7. TODO / Backlog
+## 7. 当前 TODO / 任务列表（Tasks & TODO）
 
-| 优先级 | 任务                      | 说明                                                                      |
-| ------ | ------------------------- | ------------------------------------------------------------------------- |
-| 高     | 引入 `services/` 目录结构 | 把 legacy pending/transfer 拆分；新增 `services/legacy` or dedicated 模块 |
-| 高     | 凭证化挂单服务            | 使用 `providePendingOrdersService`，复用 typed API                        |
-| 中     | 转账流程凭证化            | 对接 `.clinerules/credential.md`                                          |
-| 低     | e2e 测试脚本              | 参照 vendor-bitget / vendor-aster e2e 目录                                |
+### 7.1 高优先级
+
+- [ ] 引入 `services/` 目录结构：把 legacy pending/transfer 拆分；新增 `services/legacy` or dedicated 模块。
+- [ ] 凭证化挂单服务：使用 `providePendingOrdersService`，复用 typed API。
+- [ ] 转账流程凭证化：对接 `.clinerules/credential.md`。
+
+### 7.2 中优先级
+
+- [ ] e2e 测试脚本：参照 vendor-bitget / vendor-aster e2e 目录。
+
+### 7.3 想法 / Nice-to-have
+
+- [ ] 考虑为 Spot Interest Rate 寻找更好的数据源（目前仅占位或部分实现）。
 
 ---
 
-## 8. 指令冲突记录
+## 8. 风险点 / 容易踩坑的地方（Risks & Gotchas）
+
+- **Spot Interest Rate 数据源**
+  - 现状：Spot 借贷利率数据源可能需要鉴权或更复杂的获取方式，目前实现可能不完整。
+  - 建议：进一步调研 Binance Margin Interest Rate 的公共 API。
+
+---
+
+## 9. 尚未解决的问题（Open Questions）
 
 - 暂无。
 
 ---
 
-## 9. 下一位 Agent 的建议行动
+## 10. 下一位 Agent 的建议行动（Next Steps）
 
-1. 阅读第 7 节 TODO 并选择高优先级任务；
-2. 参考 vendor-bitget / vendor-okx / vendor-aster 的账户/挂单/转账实现；
-3. 拆分 legacy account/pending/transfer 到 `src/services/*`，并实现凭证化账户动作；
-4. 更新 SESSION_NOTES，记录进度、测试命令与仍未解决的阻塞。
+1. 继续拆分 legacy account/pending/transfer 到 `src/services/*`。
+2. 实现凭证化挂单服务。
+3. 完善 Spot Interest Rate 实现。
+
+---
+
+## 11. 当前会话草稿 / Scratchpad
+
+- 暂无。
