@@ -8,7 +8,9 @@ export const getLoanAccountInfo = async (credential: ICredential): Promise<IAcco
   const data = res.data[0];
 
   const positions: IPosition[] = [];
-  for (const loan of data.loanData) {
+
+  const loanData = data?.loanData || [];
+  for (const loan of loanData) {
     positions.push({
       datasource_id: 'OKX',
       product_id: `SPOT/${loan.ccy}-USDT`,
@@ -22,7 +24,8 @@ export const getLoanAccountInfo = async (credential: ICredential): Promise<IAcco
       valuation: 0,
     });
   }
-  for (const collateral of data.collateralData) {
+  const collateralData = data?.collateralData || [];
+  for (const collateral of collateralData) {
     positions.push({
       datasource_id: 'OKX',
       product_id: `SPOT/${collateral.ccy}-USDT`,
