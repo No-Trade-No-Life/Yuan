@@ -13,6 +13,7 @@ const accountUidCache = createCache(async (key) => {
 
 const accountIdCache = createCache(async (key) => {
   const uid = await accountUidCache.query(key);
+  if (!uid) throw new Error('Failed to get UID');
   return {
     trading: `okx/${uid}/trading`,
     strategy: `okx/${uid}/strategy`,

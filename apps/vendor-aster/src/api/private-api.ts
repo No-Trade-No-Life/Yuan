@@ -71,12 +71,14 @@ const request = async <T>(
   url.searchParams.set('signature', signature);
 
   console.info(url.toString());
-  const resText = await fetch(url.toString(), {
+  const response = await fetch(url.toString(), {
     method,
     headers: {
       'X-MBX-APIKEY': credential.api_key,
     },
-  }).then((response) => response.text());
+  });
+
+  const resText = await response.text();
 
   try {
     const res = JSON.parse(resText);
@@ -86,7 +88,7 @@ const request = async <T>(
     }
     return res;
   } catch (e) {
-    throw `APIError: ${resText}`;
+    throw `APIError: ${response.status} ${response.statusText} ${resText}`;
   }
 };
 
