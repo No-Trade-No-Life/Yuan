@@ -4,7 +4,7 @@
   "main": "lib/index.js",
   "scripts": {
     "dev": "ts-node src/index.ts",
-    "build": "heft test --clean && api-extractor run --local && yuan-toolkit post-build"
+    "build": "heft test --clean && yuan-toolkit post-build"
   },
   "dependencies": {
     "@yuants/protocol": "workspace:*",
