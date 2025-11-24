@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/utils",
+      "comment": "add raw sign by ed25519 util",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/utils"
+}
