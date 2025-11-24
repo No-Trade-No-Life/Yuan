@@ -2,6 +2,47 @@
   "name": "@yuants/kernel",
   "entries": [
     {
+      "version": "0.15.56",
+      "tag": "@yuants/kernel_v0.15.56",
+      "date": "Mon, 24 Nov 2025 11:58:37 GMT",
+      "comments": {
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/protocol\" to `0.52.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/utils\" to `0.12.0`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/sql\" to `0.9.27`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-series\" to `0.3.48`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-product\" to `0.4.18`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.8.1`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-order\" to `0.6.3`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-ohlc\" to `0.4.19`"
+          },
+          {
+            "comment": "Updating dependency \"@yuants/data-quote\" to `0.2.40`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.15.55",
       "tag": "@yuants/kernel_v0.15.55",
       "date": "Mon, 24 Nov 2025 08:05:14 GMT",
