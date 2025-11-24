@@ -1,5 +1,13 @@
 import { createRegistry } from '@yuants/prometheus';
-import { IEd25519KeyPair, UUID, createKeyPair, formatTime, fromPrivateKey, signMessage } from '@yuants/utils';
+import {
+  IEd25519KeyPair,
+  UUID,
+  createKeyPair,
+  errorRegistry,
+  formatTime,
+  fromPrivateKey,
+  signMessage,
+} from '@yuants/utils';
 import { isNode } from 'browser-or-node';
 import { JSONSchema7 } from 'json-schema';
 import {
@@ -926,7 +934,12 @@ export class Terminal {
               code: 0,
               message: 'OK',
               data: {
-                metrics: `${GlobalPrometheusRegistry.serialize()}\n${this.metrics.serialize()}\n${PromRegistry.metrics()}`,
+                metrics: [
+                  GlobalPrometheusRegistry.serialize(),
+                  this.metrics.serialize(),
+                  errorRegistry.serialize(),
+                  PromRegistry.metrics(),
+                ].join('\n'),
               },
             },
           };

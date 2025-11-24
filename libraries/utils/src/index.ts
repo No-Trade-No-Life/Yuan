@@ -17,3 +17,4 @@ export * from './path';
 export * from './roundToStep';
 export * from './rx-utils';
 export * from './uuid';
+export * from './error';
