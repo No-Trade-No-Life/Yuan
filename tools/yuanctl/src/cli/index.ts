@@ -1,5 +1,4 @@
-import { Cli } from 'clipanion';
-import { HelpCommand } from 'clipanion/lib/advanced/builtins';
+import { Cli, Builtins } from 'clipanion';
 import { createRequire } from 'module';
 import { GetCommand } from './verbs/get';
 import { DescribeCommand } from './verbs/describe';
@@ -41,7 +40,7 @@ const createCli = () => {
   cli.register(RestartCommand);
   cli.register(LogsCommand);
   cli.register(ConfigInitCommand);
-  cli.register(HelpCommand);
+  cli.register(Builtins.HelpCommand);
   configureRootHelp(cli);
   return cli;
 };
