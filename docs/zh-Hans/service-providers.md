@@ -14,10 +14,6 @@
 
 这连接到"综合交易平台"（CTP）。CTP 平台由上海期货交易所（SHFE）开发。CTP 提供中国的期货交易所。为了遵守法规，您可能需要从您的经纪公司请求许可。
 
-### [@yuants/vendor-ccxt](./packages/@yuants-vendor-ccxt.md)
-
-这连接到"加密货币交易所交易库"（CCXT）。CCXT 是一个支持许多加密货币交易所和交易市场的 JavaScript / Python / PHP 加密货币交易库。您可以使用它进行加密货币交易。
-
 ### [@yuants/vendor-binance](./packages/@yuants-vendor-binance.md)
 
 这连接到 _Binance_，这是一个著名的加密货币交易所。
