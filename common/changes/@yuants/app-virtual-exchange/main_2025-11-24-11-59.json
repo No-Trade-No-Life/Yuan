@@ -1,0 +1,11 @@
+{
+  "changes": [
+    {
+      "comment": "Bump Version",
+      "type": "none",
+      "packageName": "@yuants/app-virtual-exchange"
+    }
+  ],
+  "packageName": "@yuants/app-virtual-exchange",
+  "email": "41898282+github-actions[bot]@users.noreply.github.com"
+}

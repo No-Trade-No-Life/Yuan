@@ -1,6 +1,13 @@
 # Change Log - @yuants/utils
 
-This log was last generated on Mon, 10 Nov 2025 15:12:36 GMT and should not be manually modified.
+This log was last generated on Mon, 24 Nov 2025 11:58:37 GMT and should not be manually modified.
+
+## 0.12.0
+Mon, 24 Nov 2025 11:58:37 GMT
+
+### Minor changes
+
+- add raw sign by ed25519 util
 
 ## 0.11.0
 Mon, 10 Nov 2025 15:12:36 GMT
