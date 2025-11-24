@@ -2366,6 +2366,7 @@ importers:
       '@types/ed2curve': ~0.2.4
       '@types/heft-jest': 1.0.3
       '@types/node': '22'
+      '@yuants/prometheus': workspace:*
       '@yuants/tool-kit': workspace:*
       bs58: ~6.0.0
       date-fns: ~2.30.0
@@ -2376,6 +2377,7 @@ importers:
       tweetnacl: ~1.0.3
       typescript: ~4.7.4
     dependencies:
+      '@yuants/prometheus': link:../prometheus
       bs58: 6.0.0
       date-fns: 2.30.0
       date-fns-tz: 2.0.0_date-fns@2.30.0
@@ -12982,7 +12984,7 @@ packages:
       micromatch: 4.0.5
       pretty-format: 27.5.1
       slash: 3.0.0
-      ts-node: 10.9.2_24c227b0eb5752a64240dae09531dbef
+      ts-node: 10.9.2_8b03ecee800523adaf3df18ee3a13756
     transitivePeerDependencies:
       - bufferutil
       - canvas

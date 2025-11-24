@@ -4,6 +4,7 @@
 
 ```ts
 
+import { IRegistry } from '@yuants/prometheus';
 import { Observable } from 'rxjs';
 import { OperatorFunction } from 'rxjs';
 import { SchedulerLike } from 'rxjs';
@@ -62,6 +63,9 @@ export const encryptByPublicKey: (data: Uint8Array, publicKey: string) => Uint8A
 // @public
 export const encryptByPublicKeyAsync: (data: Uint8Array, publicKey: string) => Promise<Uint8Array>;
 
+// @public (undocumented)
+export const errorRegistry: IRegistry;
+
 // @public
 export const escapeRegExp: (string: string) => string;
 
@@ -102,6 +106,9 @@ export type NativeSubject<T> = AsyncIterable<T> & AsyncIterator<T, void, T>;
 
 // @public
 export const nativeSubjectToSubject: <T>(source: NativeSubject<T>) => Subject<T>;
+
+// @public
+export function newError(type: string, context: Record<string, any>): Error;
 
 // @public
 export const observableToAsyncIterable: <T>(source: Observable<T>) => AsyncIterable<T>;
