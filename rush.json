@@ -748,6 +748,11 @@
       "packageName": "@yuants/data-trade",
       "projectFolder": "libraries/data-trade",
       "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/app-virtual-exchange",
+      "projectFolder": "apps/virtual-exchange",
+      "shouldPublish": true
     }
   ]
 }
