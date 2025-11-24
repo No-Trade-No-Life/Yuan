@@ -374,6 +374,19 @@ provideAccountInfoService(
     ]);
 
     const positions: IPosition[] = [];
+
+    positions.push({
+      datasource_id: DATASOURCE_ID,
+      position_id: encodePath('MONEY', 'CNY'),
+      product_id: 'CNY',
+      volume: money1.Balance,
+      free_volume: money1.Available,
+      position_price: 0,
+      closable_price: 1,
+      floating_profit: money1.Balance,
+      valuation: money1.Balance,
+    });
+
     for (const msg of positionsRes) {
       // Lazy Load Product: 避免一次性查询所有合约信息 (可能有上万个合约)
       const theProduct = await cacheOfProduct.query(`${msg.ExchangeID}-${msg.InstrumentID}`);
@@ -434,14 +447,7 @@ provideAccountInfoService(
       }
     }
 
-    return {
-      money: {
-        currency: money1.CurrencyID,
-        equity: money1.Balance,
-        free: money1.Available,
-      },
-      positions,
-    };
+    return positions;
   },
   {
     auto_refresh_interval: 5000,

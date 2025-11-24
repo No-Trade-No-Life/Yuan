@@ -1,4 +1,4 @@
-import { IActionHandlerOfGetAccountInfo } from '@yuants/data-account';
+import { IActionHandlerOfGetAccountInfo, makeSpotPosition } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { encodePath } from '@yuants/utils';
 import { getSpotAssets, getSpotOrdersPending, type ICredential } from '../../api/private-api';
@@ -14,23 +14,20 @@ const mapSpotOrders = (data: any): any[] => {
 
 const mapSpotOrderDirection = (side?: string) => (side === 'sell' ? 'OPEN_SHORT' : 'OPEN_LONG');
 
-export const getSpotAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> = async (
-  credential,
-  _accountId,
-) => {
+export const getSpotAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> = async (credential) => {
   const res = await getSpotAssets(credential);
   if (res.msg !== 'success') {
     throw new Error(res.msg);
   }
-  const equity = +(res.data.find((v: any) => v.coin === 'USDT')?.available ?? 0);
-  return {
-    money: {
-      currency: 'USDT',
-      equity,
-      free: equity,
-    },
-    positions: [],
-  };
+  return res.data.map((v) => {
+    return makeSpotPosition({
+      position_id: v.coin,
+      product_id: encodePath('SPOT', `${v.coin}-USDT`),
+      volume: +v.available,
+      free_volume: +v.available,
+      closable_price: 1, // TODO: use real price
+    });
+  });
 };
 
 export const listSpotPendingOrders = async (

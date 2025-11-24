@@ -177,14 +177,7 @@ provideAccountInfoService(
     });
     console.info(formatTime(Date.now()), `TotalPositions ${positions.length}`);
 
-    return {
-      money: {
-        currency: 'USD',
-        equity: totalAssets,
-        free: 0,
-      },
-      positions,
-    };
+    return positions;
   },
   {
     auto_refresh_interval: process.env.ACCOUNT_AUTO_REFRESH_INTERVAL

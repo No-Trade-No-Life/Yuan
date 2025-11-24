@@ -1,4 +1,4 @@
-import type { IPosition } from '@yuants/data-account';
+import type { IActionHandlerOfGetAccountInfo, IPosition } from '@yuants/data-account';
 import { firstValueFrom } from 'rxjs';
 import { getFuturePositions, getFuturesAccounts, ICredential } from '../../api/private-api';
 import { mapProductIdToUsdtFutureProduct$ } from '../markets/product';
@@ -37,23 +37,11 @@ export const loadFuturePositions = async (credential: ICredential): Promise<IPos
   });
 };
 
-export const getFutureAccountInfo = async (credential: ICredential, account_id: string) => {
+export const getFutureAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> = async (credential) => {
   const [positions, rawAccount] = await Promise.all([
     loadFuturePositions(credential),
     getFuturesAccounts(credential, 'usdt'),
   ]);
 
-  const account = rawAccount?.available ? rawAccount : { available: '0', total: '0', unrealised_pnl: '0' };
-  const free = Number(account.available ?? 0);
-  const equity = Number(account.total ?? 0) + Number(account.unrealised_pnl ?? 0);
-
-  return {
-    account_id,
-    money: {
-      currency: 'USDT',
-      equity,
-      free,
-    },
-    positions,
-  };
+  return positions;
 };

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/data-account",
+      "comment": "simplify account info model",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/data-account"
+}

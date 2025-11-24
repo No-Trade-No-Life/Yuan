@@ -50,7 +50,7 @@ export interface IAccountMoney {
 }
 
 // @public
-export type IActionHandlerOfGetAccountInfo<T> = (credential: T, account_id: string) => Promise<Omit<IAccountInfoInput, 'account_id' | 'updated_at'>>;
+export type IActionHandlerOfGetAccountInfo<T> = (credential: T, account_id: string) => Promise<IPosition[]>;
 
 // @public
 export type IActionHandlerOfListAccounts<T> = (credential: T) => Promise<Array<{
@@ -91,6 +91,9 @@ export interface IPositionDiff {
 }
 
 // @public
+export const makeSpotPosition: (position: Omit<IPosition, 'position_price' | 'direction' | 'valuation' | 'floating_profit'>) => IPosition;
+
+// @public
 export const mergeAccountInfoPositions: (info: IAccountInfo) => Observable<IAccountInfo>;
 
 // @public
@@ -100,10 +103,7 @@ export const provideAccountActionsWithCredential: <T>(terminal: Terminal, type: 
 }) => void;
 
 // @public
-export const provideAccountInfoService: (terminal: Terminal, account_id: string, query: () => Promise<{
-    money: Pick<IAccountMoney, 'currency' | 'equity' | 'free'>;
-    positions: IPosition[];
-}>, options?: {
+export const provideAccountInfoService: (terminal: Terminal, account_id: string, query: () => Promise<IPosition[]>, options?: {
     auto_refresh_interval?: number;
 }) => {
     dispose$: Subject<void>;
@@ -118,7 +118,7 @@ export const publishAccountInfo: (terminal: Terminal, account_id: string, accoun
 export const useAccountInfo: (terminal: Terminal, account_id: string) => Observable<IAccountInfo>;
 
 // @public
-export const wrapAccountInfoInput: (data: IAccountInfoInput) => IAccountInfo;
+export const wrapAccountInfoInput: (updated_at: number, account_id: string, positions: IPosition[]) => IAccountInfo;
 
 // (No @packageDocumentation comment for this package)
 

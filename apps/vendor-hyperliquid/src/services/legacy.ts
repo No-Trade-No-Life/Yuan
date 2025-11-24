@@ -5,6 +5,7 @@ import { getAddressFromCredential, getDefaultCredential } from '../api/types';
 import { getPerpAccountInfo } from './accounts/perp';
 import { getSpotAccountInfo } from './accounts/spot';
 import { cancelOrderAction } from './orders/cancelOrder';
+import { listOrders } from './orders/listOrders';
 import { submitOrder } from './orders/submitOrder';
 
 const terminal = Terminal.fromNodeEnv();
@@ -21,11 +22,7 @@ provideAccountInfoService(
   defaultPerpAccountId,
   async () => {
     const info = await getPerpAccountInfo(credential, defaultPerpAccountId);
-    return {
-      money: info.money,
-      positions: info.positions,
-      orders: info.pending_orders,
-    };
+    return info;
   },
   { auto_refresh_interval: 1000 },
 );
@@ -33,23 +30,14 @@ provideAccountInfoService(
 providePendingOrdersService(
   terminal,
   defaultPerpAccountId,
-  async () => {
-    const info = await getPerpAccountInfo(credential, defaultPerpAccountId);
-    return info.pending_orders;
-  },
+  async () => listOrders(credential, defaultPerpAccountId),
   { auto_refresh_interval: 2000 },
 );
 
 provideAccountInfoService(
   terminal,
   defaultSpotAccountId,
-  async () => {
-    const info = await getSpotAccountInfo(credential, defaultSpotAccountId);
-    return {
-      money: info.money,
-      positions: info.positions,
-    };
-  },
+  async () => getSpotAccountInfo(credential, defaultSpotAccountId),
   { auto_refresh_interval: 5000 },
 );
 

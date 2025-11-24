@@ -20,11 +20,6 @@ export const getSuperMarginAccountInfo: IActionHandlerOfGetAccountInfo<ICredenti
   const accountBalance = await getSpotAccountBalance(credential, superMarginAccountUid);
   const balanceList = accountBalance.data?.list || [];
 
-  // calculate usdt balance
-  const usdtBalance = balanceList
-    .filter((v) => v.currency === 'usdt')
-    .reduce((acc, cur) => acc + +cur.balance, 0);
-
   // get positions (non-usdt currencies)
   const positions: IPosition[] = [];
   const nonUsdtCurrencies = balanceList
@@ -64,15 +59,5 @@ export const getSuperMarginAccountInfo: IActionHandlerOfGetAccountInfo<ICredenti
     }
   }
 
-  // calculate equity
-  const equity = positions.reduce((acc, cur) => acc + cur.closable_price * cur.volume, 0) + usdtBalance;
-
-  return {
-    money: {
-      currency: 'USDT',
-      equity,
-      free: equity,
-    },
-    positions,
-  };
+  return positions;
 };

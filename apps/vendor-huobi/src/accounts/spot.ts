@@ -1,4 +1,4 @@
-import { IActionHandlerOfGetAccountInfo } from '@yuants/data-account';
+import { IActionHandlerOfGetAccountInfo, makeSpotPosition } from '@yuants/data-account';
 import { getSpotAccountBalance, ICredential } from '../api/private-api';
 import { spotAccountUidCache } from '../uid';
 
@@ -7,14 +7,14 @@ export const getSpotAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> = a
   if (!spotAccountUid) throw new Error('Failed to get Spot Account UID');
   const spotBalance = await getSpotAccountBalance(credential, spotAccountUid);
 
-  const equity = +(spotBalance.data.list.find((v) => v.currency === 'usdt')?.balance ?? 0);
-  const free = equity;
-  return {
-    money: {
-      currency: 'USDT',
-      equity,
-      free,
-    },
-    positions: [],
-  };
+  return spotBalance.data.list.map((v) => {
+    return makeSpotPosition({
+      position_id: `${v.currency}`,
+      datasource_id: 'HTX',
+      product_id: `SPOT/${v.currency}-USDT`,
+      volume: +(v.balance ?? 0),
+      free_volume: +(v.balance ?? 0),
+      closable_price: 1, // TODO: 获取现货币对价格
+    });
+  });
 };

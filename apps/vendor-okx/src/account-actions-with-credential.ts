@@ -1,7 +1,5 @@
 import { provideAccountActionsWithCredential } from '@yuants/data-account';
 import { Terminal } from '@yuants/protocol';
-import { ICredential } from './api/private-api';
-import { getAccountIds } from './accountInfos/uid';
 import {
   getEarningAccountInfo,
   getFundingAccountInfo,
@@ -9,6 +7,8 @@ import {
   getStrategyAccountInfo,
   getTradingAccountInfo,
 } from './accountInfos';
+import { getAccountIds } from './accountInfos/uid';
+import { ICredential } from './api/private-api';
 
 provideAccountActionsWithCredential<ICredential>(
   Terminal.fromNodeEnv(),
@@ -33,15 +33,15 @@ provideAccountActionsWithCredential<ICredential>(
       if (!accountIds) throw new Error('Failed to get account IDs');
       switch (account_id) {
         case accountIds.trading:
-          return getTradingAccountInfo(credential);
+          return getTradingAccountInfo(credential, account_id);
         case accountIds.funding:
-          return getFundingAccountInfo(credential);
+          return getFundingAccountInfo(credential, account_id);
         case accountIds.earning:
-          return getEarningAccountInfo(credential);
+          return getEarningAccountInfo(credential, account_id);
         case accountIds.loan:
-          return getLoanAccountInfo(credential);
+          return getLoanAccountInfo(credential, account_id);
         case accountIds.strategy:
-          return getStrategyAccountInfo(credential);
+          return getStrategyAccountInfo(credential, account_id);
       }
       throw new Error(`Unsupported account_id: ${account_id}`);
     },
