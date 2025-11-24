@@ -63,8 +63,8 @@ const quoteFromPremiumIndex$ = futurePremiumIndex$.pipe(
       product_id: encodePath('usdt-future', entry.symbol),
       last_price: entry.markPrice,
       // Use the latest funding rate so that long pays when fundingRate > 0
-      interest_rate_long: entry.lastFundingRate,
-      interest_rate_short: `${-Number(entry.lastFundingRate)}`,
+      interest_rate_long: `${-Number(entry.lastFundingRate)}`,
+      interest_rate_short: entry.lastFundingRate,
       interest_rate_next_settled_at: formatTime(entry.nextFundingTime),
       updated_at: formatTime(entry.time ?? Date.now()),
     }),
