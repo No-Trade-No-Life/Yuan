@@ -123,6 +123,9 @@ export function sha256(data: Uint8Array): Promise<Uint8Array>;
 export const signMessage: (message: string, privateKey: string) => string;
 
 // @public
+export const signMessageByEd25519: (message: Uint8Array, privateKey: Uint8Array) => Uint8Array;
+
+// @public
 export const subjectToNativeSubject: <T>(subject$: Subject<T>) => NativeSubject<T>;
 
 // @public

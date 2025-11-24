@@ -73,8 +73,19 @@ export const fromPrivateKey = (privateKey: string): IEd25519KeyPair => {
 export const signMessage = (message: string, privateKey: string): string => {
   const secretKeyUint8Array = decodeBase58(privateKey);
   const messageUint8Array = new TextEncoder().encode(message);
-  const signedMessage = sign.detached(messageUint8Array, secretKeyUint8Array);
+  const signedMessage = signMessageByEd25519(messageUint8Array, secretKeyUint8Array);
   return encodeBase58(signedMessage);
+};
+
+/**
+ * sign a message with a private key
+ * @param message - message to be signed (Uint8Array)
+ * @param privateKey - private key to sign the message with (Uint8Array)
+ * @returns the signature (Uint8Array)
+ * @public
+ */
+export const signMessageByEd25519 = (message: Uint8Array, privateKey: Uint8Array): Uint8Array => {
+  return sign.detached(message, privateKey);
 };
 
 /**
