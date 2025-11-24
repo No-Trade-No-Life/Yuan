@@ -677,11 +677,6 @@
       "shouldPublish": true
     },
     {
-      "packageName": "@yuants/vendor-ccxt",
-      "projectFolder": "apps/vendor-ccxt",
-      "shouldPublish": true
-    },
-    {
       "packageName": "@yuants/vendor-aster",
       "projectFolder": "apps/vendor-aster",
       "shouldPublish": true

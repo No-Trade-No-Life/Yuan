@@ -977,49 +977,6 @@ importers:
       ts-node: 10.9.2_24c227b0eb5752a64240dae09531dbef
       typescript: 4.7.4
 
-  ../../apps/vendor-ccxt:
-    specifiers:
-      '@microsoft/api-extractor': ~7.30.0
-      '@rushstack/heft': ~0.47.5
-      '@rushstack/heft-jest-plugin': ~0.16.8
-      '@rushstack/heft-node-rig': ~1.10.7
-      '@types/heft-jest': 1.0.3
-      '@types/node': '22'
-      '@yuants/data-account': workspace:*
-      '@yuants/data-ohlc': workspace:*
-      '@yuants/data-order': workspace:*
-      '@yuants/data-product': workspace:*
-      '@yuants/data-series': workspace:*
-      '@yuants/extension': workspace:*
-      '@yuants/protocol': workspace:*
-      '@yuants/sql': workspace:*
-      '@yuants/tool-kit': workspace:*
-      '@yuants/utils': workspace:*
-      ccxt: ~4.2.48
-      rxjs: ~7.5.6
-      typescript: ~4.7.4
-    dependencies:
-      '@yuants/data-account': link:../../libraries/data-account
-      '@yuants/data-ohlc': link:../../libraries/data-ohlc
-      '@yuants/data-order': link:../../libraries/data-order
-      '@yuants/data-product': link:../../libraries/data-product
-      '@yuants/data-series': link:../../libraries/data-series
-      '@yuants/protocol': link:../../libraries/protocol
-      '@yuants/sql': link:../../libraries/sql
-      '@yuants/utils': link:../../libraries/utils
-      ccxt: 4.2.48
-      rxjs: 7.5.7
-    devDependencies:
-      '@microsoft/api-extractor': 7.30.1
-      '@rushstack/heft': 0.47.11
-      '@rushstack/heft-jest-plugin': 0.16.8_cd919cf15781346720f8e992576a8e2b
-      '@rushstack/heft-node-rig': 1.10.13_@rushstack+heft@0.47.11
-      '@types/heft-jest': 1.0.3
-      '@types/node': 22.7.5
-      '@yuants/extension': link:../../libraries/extension
-      '@yuants/tool-kit': link:../../tools/toolkit
-      typescript: 4.7.4
-
   ../../apps/vendor-coinex:
     specifiers:
       '@microsoft/api-extractor': ~7.30.0
@@ -9188,17 +9145,6 @@ packages:
 
   /ccount/2.0.1:
     resolution: {integrity: sha512-eyrF0jiFpY+3drT6383f1qhkbGsLSifNAjA61IUjZjmLCWjItY6LB9ft9YhoDgwfmclB2zhu51Lc7+95b8NRAg==}
-    dev: false
-
-  /ccxt/4.2.48:
-    resolution: {integrity: sha512-VuPCXIrFvemoEK8HxilA/IpANxUELN5cMMw3tTRS3mTD1rR9dVYCwSyeEfCF3w97EOMiE9tOUeM1YEGqaYvMLQ==}
-    engines: {node: '>=15.0.0'}
-    requiresBuild: true
-    dependencies:
-      ws: 8.16.0
-    transitivePeerDependencies:
-      - bufferutil
-      - utf-8-validate
     dev: false
 
   /chainsaw/0.1.0:
@@ -18776,19 +18722,6 @@ packages:
     peerDependencies:
       bufferutil: ^4.0.1
       utf-8-validate: ^5.0.2
-    peerDependenciesMeta:
-      bufferutil:
-        optional: true
-      utf-8-validate:
-        optional: true
-    dev: false
-
-  /ws/8.16.0:
-    resolution: {integrity: sha512-HS0c//TP7Ina87TfiPUz1rQzMhHrl/SG2guqRcTOIUYD2q8uhUdNHZYJUaQ8aTGPzCh+c6oawMKW35nFl1dxyQ==}
-    engines: {node: '>=10.0.0'}
-    peerDependencies:
-      bufferutil: ^4.0.1
-      utf-8-validate: '>=5.0.2'
     peerDependenciesMeta:
       bufferutil:
         optional: true

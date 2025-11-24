@@ -14,10 +14,6 @@ You can access global markets through various service providers. Each service pr
 
 This connects to the "Comprehensive Transaction Platform" (CTP). The CTP platform is developed by the Shanghai Futures Exchange (SHFE). CTP provides Chinese futures exchanges. To comply with regulations, you may need to request permission from your brokerage.
 
-### [@yuants/vendor-ccxt](./packages/@yuants-vendor-ccxt.md)
-
-This connects to the "CryptoCurrency eXchange Trading Library" (CCXT). CCXT is a JavaScript / Python / PHP cryptocurrency trading library that supports many cryptocurrency exchanges and trading markets. You can use it for cryptocurrency trading.
-
 ### [@yuants/vendor-binance](./packages/@yuants-vendor-binance.md)
 
 This connects to _Binance_, a well-known cryptocurrency exchange.
