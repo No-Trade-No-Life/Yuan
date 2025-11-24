@@ -16,7 +16,7 @@ const mapAccountIdToCredential = new Map<string, IExchangeCredential>();
 
 // 1. RegisterExchangeCredential
 terminal.server.provideService<IExchangeCredential, void>(
-  'RegisterExchangeCredential',
+  'VirtualExchange/RegisterExchangeCredential',
   {
     type: 'object',
     required: ['type', 'payload'],
@@ -34,25 +34,29 @@ terminal.server.provideService<IExchangeCredential, void>(
 );
 
 // 2. ListExchangeCredential
-terminal.server.provideService<void, IExchangeCredential[]>('ListExchangeCredential', {}, async () => {
-  const secrets = await requestSQL<ISecret[]>(
-    terminal,
-    `select * from secret where tags->>'type' = 'exchange_credential' and reader = ${escapeSQL(
-      terminal.keyPair.public_key,
-    )}`,
-  );
-  const credentials: IExchangeCredential[] = [];
-  for (const secret of secrets) {
-    try {
-      const decrypted = await readSecret(terminal, secret);
-      const credential = JSON.parse(new TextDecoder().decode(decrypted));
-      credentials.push(credential);
-    } catch (e) {
-      console.error('Failed to decrypt secret', e);
+terminal.server.provideService<void, IExchangeCredential[]>(
+  'VirtualExchange/ListExchangeCredential',
+  {},
+  async () => {
+    const secrets = await requestSQL<ISecret[]>(
+      terminal,
+      `select * from secret where tags->>'type' = 'exchange_credential' and reader = ${escapeSQL(
+        terminal.keyPair.public_key,
+      )}`,
+    );
+    const credentials: IExchangeCredential[] = [];
+    for (const secret of secrets) {
+      try {
+        const decrypted = await readSecret(terminal, secret);
+        const credential = JSON.parse(new TextDecoder().decode(decrypted));
+        credentials.push(credential);
+      } catch (e) {
+        console.error('Failed to decrypt secret', e);
+      }
     }
-  }
-  return { res: { code: 0, message: 'OK', data: credentials } };
-});
+    return { res: { code: 0, message: 'OK', data: credentials } };
+  },
+);
 
 // 9. Background listWatch
 const updateIndex = async () => {
@@ -90,13 +94,13 @@ timer(0, 60000)
   .subscribe();
 
 // 7. QueryAccounts
-terminal.server.provideService<void, string[]>('QueryAccounts', {}, async () => {
+terminal.server.provideService<void, string[]>('VirtualExchange/QueryAccounts', {}, async () => {
   return { res: { code: 0, message: 'OK', data: Array.from(mapAccountIdToCredential.keys()) } };
 });
 
 // 8. QueryAccountInfo
 terminal.server.provideService<{ account_id: string }, IAccountInfo>(
-  'QueryAccountInfo',
+  'VirtualExchange/QueryAccountInfo',
   {
     type: 'object',
     required: ['account_id'],
@@ -120,7 +124,7 @@ terminal.server.provideService<{ account_id: string }, IAccountInfo>(
 // 10. Proxy Orders
 // SubmitOrder
 terminal.server.provideService<{ order: IOrder }, { order_id: string }>(
-  'SubmitOrder',
+  'VirtualExchange/SubmitOrder',
   {
     type: 'object',
     required: ['order'],
@@ -143,7 +147,7 @@ terminal.server.provideService<{ order: IOrder }, { order_id: string }>(
 
 // ModifyOrder
 terminal.server.provideService<{ order: IOrder }, void>(
-  'ModifyOrder',
+  'VirtualExchange/ModifyOrder',
   {
     type: 'object',
     required: ['order'],
@@ -166,7 +170,7 @@ terminal.server.provideService<{ order: IOrder }, void>(
 
 // CancelOrder
 terminal.server.provideService<{ order: IOrder }, void>(
-  'CancelOrder',
+  'VirtualExchange/CancelOrder',
   {
     type: 'object',
     required: ['order'],
@@ -189,7 +193,7 @@ terminal.server.provideService<{ order: IOrder }, void>(
 
 // ListOrders
 terminal.server.provideService<{ account_id: string }, { orders: IOrder[] }>(
-  'ListOrders',
+  'VirtualExchange/ListOrders',
   {
     type: 'object',
     required: ['account_id'],
