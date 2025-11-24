@@ -1,9 +1,9 @@
-import type { IPosition } from '@yuants/data-account';
-import { getSpotTickers } from '../../api/public-api';
+import type { IActionHandlerOfGetAccountInfo, IPosition } from '@yuants/data-account';
 import { getUnifiedAccounts, ICredential } from '../../api/private-api';
+import { getSpotTickers } from '../../api/public-api';
 import { loadFuturePositions } from './future';
 
-export const getUnifiedAccountInfo = async (credential: ICredential, account_id: string) => {
+export const getUnifiedAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> = async (credential) => {
   const [futurePositions, unifiedAccount, spotTickers] = await Promise.all([
     loadFuturePositions(credential),
     getUnifiedAccounts(credential, {}),
@@ -39,16 +39,5 @@ export const getUnifiedAccountInfo = async (credential: ICredential, account_id:
     })
     .filter((item): item is IPosition => !!item);
 
-  const free = Number(balances['USDT']?.available || 0);
-  const equity = Number(unifiedAccount?.unified_account_total_equity || 0);
-
-  return {
-    account_id,
-    money: {
-      currency: 'USDT',
-      equity,
-      free,
-    },
-    positions: [...futurePositions, ...spotPositions],
-  };
+  return [...futurePositions, ...spotPositions];
 };

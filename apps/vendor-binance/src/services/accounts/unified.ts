@@ -54,12 +54,5 @@ export const getUnifiedAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> 
           (+position.positionAmt === 0 ? 0 : +position.unrealizedProfit / +position.positionAmt)),
     }));
 
-  return {
-    money: {
-      currency: 'USDT',
-      equity,
-      free,
-    },
-    positions,
-  };
+  return positions;
 };

@@ -24,12 +24,5 @@ export const getPerpAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> = a
         valuation: Math.abs(+p.notional),
       }),
     );
-  return {
-    money: {
-      currency: 'USD',
-      equity,
-      free,
-    },
-    positions,
-  };
+  return positions;
 };

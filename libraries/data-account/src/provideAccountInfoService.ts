@@ -1,7 +1,7 @@
 import { createCache } from '@yuants/cache';
 import { Terminal } from '@yuants/protocol';
 import { Subject, defer, retry, takeUntil, tap, timeout } from 'rxjs';
-import { IAccountInfo, IAccountMoney, IPosition } from './interface';
+import { IAccountInfo, IPosition } from './interface';
 import { publishAccountInfo } from './publishAccountInfo';
 import { wrapAccountInfoInput } from './wrap-account-info-input';
 
@@ -12,10 +12,7 @@ import { wrapAccountInfoInput } from './wrap-account-info-input';
 export const provideAccountInfoService = (
   terminal: Terminal,
   account_id: string,
-  query: () => Promise<{
-    money: Pick<IAccountMoney, 'currency' | 'equity' | 'free'>;
-    positions: IPosition[];
-  }>,
+  query: () => Promise<IPosition[]>,
   options?: {
     auto_refresh_interval?: number;
   },
@@ -25,7 +22,7 @@ export const provideAccountInfoService = (
   const cache = createCache<IAccountInfo>(
     async () => {
       const data = await query();
-      return wrapAccountInfoInput({ ...data, account_id, updated_at: Date.now() });
+      return wrapAccountInfoInput(Date.now(), account_id, data);
     },
     {
       writeLocal: async (_, data) => {

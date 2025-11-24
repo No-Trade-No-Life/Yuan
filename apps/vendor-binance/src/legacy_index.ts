@@ -3,7 +3,6 @@ import { IOrder, providePendingOrdersService } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { addAccountTransferAddress } from '@yuants/transfer';
 import { decodePath, encodePath, formatTime } from '@yuants/utils';
-import { defer, from, map, mergeMap, repeat, retry, shareReplay, toArray } from 'rxjs';
 import { createHash } from 'crypto';
 import { getDefaultCredential, isApiError } from './api/client';
 import {
@@ -208,14 +207,7 @@ if (isPublicOnly) {
               };
             });
 
-          return {
-            money: {
-              currency: 'USDT',
-              equity,
-              free,
-            },
-            positions,
-          };
+          return positions;
         },
         { auto_refresh_interval: 1000 },
       );
@@ -257,14 +249,7 @@ if (isPublicOnly) {
               return position;
             })
             .filter((position): position is IPosition => Boolean(position));
-          return {
-            money: {
-              currency: 'USDT',
-              equity: +(usdtAssets?.free || 0) + +(usdtAssets?.locked || 0),
-              free: +(usdtAssets?.free || 0),
-            },
-            positions,
-          };
+          return positions;
         },
         {
           auto_refresh_interval: 5_000,

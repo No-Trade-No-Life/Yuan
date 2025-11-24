@@ -1,15 +1,19 @@
-import { IPosition } from '@yuants/data-account';
+import { IActionHandlerOfGetAccountInfo, IPosition, makeSpotPosition } from '@yuants/data-account';
 import { encodePath } from '@yuants/utils';
 import { defer, firstValueFrom, map, repeat, retry, shareReplay } from 'rxjs';
 import { ICredential, getAccountBalance, getAccountPositions } from '../api/private-api';
 import { getMarketIndexTicker } from '../api/public-api';
 import { productService } from '../public-data/product';
-import { IAccountInfoCore } from './types';
+
+const priceCache = new Map<string, number>();
 
 export const marketIndexTickerUSDT$ = defer(() => getMarketIndexTicker({ quoteCcy: 'USDT' })).pipe(
   map((x) => {
     const mapInstIdToPrice = new Map<string, number>();
-    x.data.forEach((inst: any) => mapInstIdToPrice.set(inst.instId, Number(inst.idxPx)));
+    x.data.forEach((inst: any) => {
+      mapInstIdToPrice.set(inst.instId, Number(inst.idxPx));
+      priceCache.set(inst.instId, Number(inst.idxPx));
+    });
     return mapInstIdToPrice;
   }),
   repeat({ delay: 1000 }),
@@ -17,18 +21,23 @@ export const marketIndexTickerUSDT$ = defer(() => getMarketIndexTicker({ quoteCc
   shareReplay(1),
 );
 
-export const getTradingAccountInfo = async (credential: ICredential): Promise<IAccountInfoCore> => {
-  const [positionsApi, balanceApi, mapProductIdToProduct, marketIndexTickerUSDT] = await Promise.all([
+marketIndexTickerUSDT$.subscribe();
+
+export const getSpotPrice = (ccy: string) => {
+  if (ccy === 'USDT') return 1;
+  return priceCache.get(`${ccy}-USDT`) || 0;
+};
+
+export const getTradingAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> = async (credential) => {
+  const [positionsApi, balanceApi, mapProductIdToProduct] = await Promise.all([
     getAccountPositions(credential, {}),
     getAccountBalance(credential, {}),
     firstValueFrom(productService.mapProductIdToProduct$),
-    firstValueFrom(marketIndexTickerUSDT$),
   ]);
 
-  let totalEquity = 0;
-  let totalFree = 0;
   const positions: IPosition[] = [];
 
+  // 现货头寸
   balanceApi.data[0]?.details.forEach((detail) => {
     if (detail.ccy === 'USDT') {
       const balance = +(detail.cashBal ?? 0);
@@ -37,33 +46,34 @@ export const getTradingAccountInfo = async (credential: ICredential): Promise<IA
         +(detail.availEq ?? 0),
       );
       const equity = +(detail.eq ?? 0) - +(detail.stgyEq ?? 0);
-      totalEquity += equity;
-      totalFree += free;
+      positions.push(
+        makeSpotPosition({
+          position_id: encodePath('SPOT', 'USDT'),
+          datasource_id: 'OKX',
+          product_id: encodePath('SPOT', 'USDT'),
+          volume: equity,
+          free_volume: free,
+          closable_price: 1,
+        }),
+      );
     } else {
       const volume = +(detail.cashBal ?? 0);
       const free_volume = Math.min(
         volume, // free should no more than balance if there is much profits
         +(detail.availEq ?? 0),
       );
-      const closable_price = marketIndexTickerUSDT.get(detail.ccy + '-USDT') || 0;
-      const delta_equity = volume * closable_price || 0;
-      const delta_profit = +detail.totalPnl || 0;
 
       const product_id = encodePath('SPOT', `${detail.ccy}-USDT`);
-      positions.push({
-        position_id: product_id,
-        datasource_id: 'OKX',
-        product_id: product_id,
-        direction: 'LONG',
-        volume: volume,
-        free_volume: free_volume,
-        position_price: +detail.accAvgPx,
-        floating_profit: delta_profit,
-        closable_price: closable_price,
-        valuation: delta_equity,
-      });
-
-      totalEquity += delta_equity;
+      positions.push(
+        makeSpotPosition({
+          position_id: product_id,
+          datasource_id: 'OKX',
+          product_id: product_id,
+          volume: volume,
+          free_volume: free_volume,
+          closable_price: getSpotPrice(detail.ccy),
+        }),
+      );
     }
   });
   positionsApi.data.forEach((x) => {
@@ -88,12 +98,5 @@ export const getTradingAccountInfo = async (credential: ICredential): Promise<IA
       valuation,
     });
   });
-  return {
-    money: {
-      currency: 'USDT',
-      equity: totalEquity,
-      free: totalFree,
-    },
-    positions: positions,
-  };
+  return positions;
 };

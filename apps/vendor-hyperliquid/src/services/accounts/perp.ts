@@ -1,6 +1,6 @@
 import { IPosition } from '@yuants/data-account';
 import { encodePath, formatTime } from '@yuants/utils';
-import { getUserOpenOrders, getUserPerpetualsAccountSummary } from '../../api/public-api';
+import { getUserPerpetualsAccountSummary } from '../../api/public-api';
 import { getAddressFromCredential, ICredential } from '../../api/types';
 
 /**
@@ -10,7 +10,6 @@ export const getPerpAccountInfo = async (credential: ICredential, account_id: st
   console.info(`[${formatTime(Date.now())}] Getting perp account info for ${account_id}`);
 
   const summary = await getUserPerpetualsAccountSummary({ user: getAddressFromCredential(credential) });
-  const orders = await getUserOpenOrders({ user: getAddressFromCredential(credential) });
 
   // Map positions
   const positions = summary.assetPositions.map(
@@ -41,24 +40,5 @@ export const getPerpAccountInfo = async (credential: ICredential, account_id: st
     return 'OPEN_LONG';
   };
 
-  const pending_orders = orders.map((order) => ({
-    order_id: `${order.oid}`,
-    account_id,
-    product_id: encodePath('PERPETUAL', `${order.coin?.trim()}-USD`),
-    order_type: 'LIMIT',
-    order_direction: mapOrderDirection(order.side),
-    volume: Number(order.sz) || 0,
-    price: Number(order.limitPx) || undefined,
-    submit_at: Number(order.timestamp ?? Date.now()),
-  }));
-
-  return {
-    money: {
-      currency: 'USD',
-      equity: +summary.crossMarginSummary.accountValue,
-      free: +summary.withdrawable,
-    },
-    positions,
-    pending_orders,
-  };
+  return positions;
 };

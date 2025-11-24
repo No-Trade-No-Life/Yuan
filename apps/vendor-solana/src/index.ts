@@ -1,4 +1,4 @@
-import { provideAccountInfoService } from '@yuants/data-account';
+import { makeSpotPosition, provideAccountInfoService } from '@yuants/data-account';
 import { Terminal } from '@yuants/protocol';
 import { formatTime } from '@yuants/utils';
 
@@ -53,14 +53,15 @@ solanaAddress.forEach((address) => {
       console.info(formatTime(Date.now()), 'INFO', info);
       const lamports = info.result.value.lamports;
       const sol = lamports / 1e9;
-      return {
-        money: {
-          currency: 'SOL',
-          equity: sol,
-          free: sol,
-        },
-        positions: [],
-      };
+      return [
+        makeSpotPosition({
+          position_id: 'SOL',
+          product_id: 'SOL',
+          volume: sol,
+          free_volume: sol,
+          closable_price: 1,
+        }),
+      ];
     },
     { auto_refresh_interval: 10_000 },
   );

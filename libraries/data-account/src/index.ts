@@ -6,5 +6,6 @@ export * from './interface';
 export * from './mergeAccountInfoPositions';
 export * from './provideAccountInfoService';
 export * from './publishAccountInfo';
+export * from './spot-position';
 export * from './useAccountInfo';
 export * from './wrap-account-info-input';

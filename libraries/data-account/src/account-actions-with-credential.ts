@@ -1,7 +1,7 @@
 import { ITypedCredential } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { JSONSchema7 } from 'json-schema';
-import { IAccountInfo, IAccountInfoInput } from './interface';
+import { IAccountInfo, IPosition } from './interface';
 import { wrapAccountInfoInput } from './wrap-account-info-input';
 
 const makeCredentialSchema = (type: string, payloadSchema: JSONSchema7): JSONSchema7 => {
@@ -20,10 +20,7 @@ const makeCredentialSchema = (type: string, payloadSchema: JSONSchema7): JSONSch
  * Action handler for getting account information.
  * @public
  */
-export type IActionHandlerOfGetAccountInfo<T> = (
-  credential: T,
-  account_id: string,
-) => Promise<Omit<IAccountInfoInput, 'account_id' | 'updated_at'>>;
+export type IActionHandlerOfGetAccountInfo<T> = (credential: T, account_id: string) => Promise<IPosition[]>;
 
 /**
  * Action handler for listing accounts.
@@ -84,7 +81,7 @@ export const provideAccountActionsWithCredential = <T>(
         res: {
           code: 0,
           message: 'OK',
-          data: wrapAccountInfoInput({ ...data, account_id: msg.req.account_id, updated_at: Date.now() }),
+          data: wrapAccountInfoInput(Date.now(), msg.req.account_id, data),
         },
       };
     },

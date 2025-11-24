@@ -1,9 +1,8 @@
-import { IPosition } from '@yuants/data-account';
+import { IActionHandlerOfGetAccountInfo, IPosition } from '@yuants/data-account';
 import { encodePath } from '@yuants/utils';
 import { ICredential, getGridOrdersAlgoPending, getGridPositions } from '../api/private-api';
-import { IAccountInfoCore } from './types';
 
-export const getStrategyAccountInfo = async (credential: ICredential): Promise<IAccountInfoCore> => {
+export const getStrategyAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> = async (credential) => {
   // TODO: 需要分页获取所有的网格订单 (每页 100 条)
   const [gridAlgoOrders] = await Promise.all([
     getGridOrdersAlgoPending(credential, {
@@ -52,12 +51,5 @@ export const getStrategyAccountInfo = async (credential: ICredential): Promise<I
     }
   });
 
-  return {
-    money: {
-      currency: 'USDT',
-      equity: totalEquity,
-      free: 0, // TODO: 累计策略的可提取资金作为 free
-    },
-    positions,
-  };
+  return positions;
 };

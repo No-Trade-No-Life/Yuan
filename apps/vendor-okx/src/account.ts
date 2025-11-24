@@ -33,31 +33,51 @@ defer(async () => {
   const tradingAccountId = await getTradingAccountId(credential);
   addAccountMarket(terminal, { account_id: tradingAccountId, market_id: 'OKX' });
 
-  provideAccountInfoService(terminal, tradingAccountId, () => getTradingAccountInfo(credential), {
-    auto_refresh_interval: 1000,
-  });
+  provideAccountInfoService(
+    terminal,
+    tradingAccountId,
+    () => getTradingAccountInfo(credential, tradingAccountId),
+    {
+      auto_refresh_interval: 1000,
+    },
+  );
 }).subscribe();
 
 defer(async () => {
   const fundingAccountId = await getFundingAccountId(credential);
 
-  provideAccountInfoService(terminal, fundingAccountId, () => getFundingAccountInfo(credential), {
-    auto_refresh_interval: 1000,
-  });
+  provideAccountInfoService(
+    terminal,
+    fundingAccountId,
+    () => getFundingAccountInfo(credential, fundingAccountId),
+    {
+      auto_refresh_interval: 1000,
+    },
+  );
 }).subscribe();
 
 defer(async () => {
   const earningAccountId = await getEarningAccountId(credential);
-  provideAccountInfoService(terminal, earningAccountId, () => getEarningAccountInfo(credential), {
-    auto_refresh_interval: 5000,
-  });
+  provideAccountInfoService(
+    terminal,
+    earningAccountId,
+    () => getEarningAccountInfo(credential, earningAccountId),
+    {
+      auto_refresh_interval: 5000,
+    },
+  );
 }).subscribe();
 
 defer(async () => {
   const loanAccountId = await getLoanAccountId(credential);
-  provideAccountInfoService(Terminal.fromNodeEnv(), loanAccountId, () => getLoanAccountInfo(credential), {
-    auto_refresh_interval: 1000,
-  });
+  provideAccountInfoService(
+    Terminal.fromNodeEnv(),
+    loanAccountId,
+    () => getLoanAccountInfo(credential, loanAccountId),
+    {
+      auto_refresh_interval: 1000,
+    },
+  );
 }).subscribe();
 
 // 导出 marketIndexTickerUSDT$ 供其他模块使用

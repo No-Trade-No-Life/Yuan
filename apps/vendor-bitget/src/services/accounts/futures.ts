@@ -53,15 +53,7 @@ export const getFuturesAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> 
   if (positionsRes.msg !== 'success') {
     throw new Error(positionsRes.msg);
   }
-  const account = balanceRes.data[0];
-  return {
-    money: {
-      currency: 'USDT',
-      equity: +account.accountEquity,
-      free: +account.maxTransferOut,
-    },
-    positions: positionsRes.data.map(mapPosition),
-  };
+  return positionsRes.data.map(mapPosition);
 };
 
 export const listFuturePendingOrders = async (

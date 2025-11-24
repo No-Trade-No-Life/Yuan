@@ -2,8 +2,8 @@ import { addAccountMarket, provideAccountInfoService } from '@yuants/data-accoun
 import { Terminal } from '@yuants/protocol';
 import { defer } from 'rxjs';
 import { getStrategyAccountInfo } from './accountInfos';
-import { getDefaultCredential, getGridPositions } from './api/private-api';
 import { getStrategyAccountId } from './accountInfos/uid';
+import { getDefaultCredential, getGridPositions } from './api/private-api';
 
 const terminal = Terminal.fromNodeEnv();
 const credential = getDefaultCredential();
@@ -41,7 +41,12 @@ defer(async () => {
     },
   );
 
-  provideAccountInfoService(terminal, strategyAccountId, () => getStrategyAccountInfo(credential), {
-    auto_refresh_interval: 5000,
-  });
+  provideAccountInfoService(
+    terminal,
+    strategyAccountId,
+    () => getStrategyAccountInfo(credential, strategyAccountId),
+    {
+      auto_refresh_interval: 5000,
+    },
+  );
 }).subscribe();

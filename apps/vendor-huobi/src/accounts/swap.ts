@@ -83,12 +83,5 @@ export const getSwapAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> = a
   //   page_index++;
   // }
 
-  return {
-    money: {
-      currency: 'USDT',
-      equity,
-      free,
-    },
-    positions,
-  };
+  return positions;
 };
