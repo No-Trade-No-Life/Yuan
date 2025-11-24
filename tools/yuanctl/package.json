@@ -15,7 +15,8 @@
   "scripts": {
     "build": "heft test --clean",
     "lint": "heft lint --clean",
-    "test": "heft test --clean"
+    "test": "heft test --clean --debug",
+    "e2e": "node scripts/run-yuanctl-e2e.js"
   },
   "dependencies": {
     "@yuants/protocol": "workspace:*",

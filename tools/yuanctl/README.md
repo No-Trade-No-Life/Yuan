@@ -119,3 +119,21 @@ yuanctl logs deployment/<id> -f --timestamps
 - `Unable to determine node unit address`：在 `contexts.*` 中设置 `default_node_unit` 或执行命令时添加 `--node-unit`。
 
 若需更深入的实现细节与后续路线图，请参考 `docs/deployment-cli-design.md`。
+
+## E2E 测试
+
+`rushx e2e`（或 `npm run e2e`）将调用 `scripts/run-yuanctl-e2e.js`，默认使用 Docker Compose 启动 TimescaleDB 和 node-unit，并在临时配置下验证 `get/describe/enable/disable/restart/logs/config-init` 等命令。
+
+前置条件：
+
+- Docker (支持 compose)
+- 可访问 `ghcr.io/no-trade-no-life/node-unit` 与 `timescale/timescaledb-ha` 镜像的网络
+
+常用环境变量：
+
+- `YUANCTL_E2E_SKIP_COMPOSE=1`：跳过启动/停止容器，使用已有服务。
+- `YUANCTL_E2E_KEEP_SERVICES=1`：测试结束后保留容器。
+- `YUANCTL_E2E_HOST_URL` / `YUANCTL_E2E_DB_PORT` / `YUANCTL_E2E_HOST_PORT`：自定义 Host/DB 端口。
+- `YUANCTL_NODE_UNIT_IMAGE` / `YUANCTL_POSTGRES_IMAGE`：覆盖默认镜像。
+
+脚本默认禁用版本检查（`YUANCTL_DISABLE_UPDATE_CHECK=1`），运行完成会自动清理测试部署；若跳过 Compose，请自行确保 PostgreSQL 迁移与 node-unit 就绪。

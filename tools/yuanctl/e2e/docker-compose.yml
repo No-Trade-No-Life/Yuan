@@ -1,0 +1,25 @@
+services:
+  postgres:
+    image: ${YUANCTL_POSTGRES_IMAGE:-timescale/timescaledb-ha:pg17}
+    environment:
+      POSTGRES_USER: ${YUANCTL_DB_USER:-yuan}
+      POSTGRES_PASSWORD: ${YUANCTL_DB_PASSWORD:-yuan}
+      POSTGRES_DB: ${YUANCTL_DB_NAME:-yuan}
+    ports:
+      - '${YUANCTL_E2E_DB_PORT:-25432}:5432'
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${YUANCTL_DB_USER:-yuan}']
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  nodeunit:
+    image: ${YUANCTL_NODE_UNIT_IMAGE:-ghcr.io/no-trade-no-life/node-unit:0.12.16}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      POSTGRES_URI: postgresql://${YUANCTL_DB_USER:-yuan}:${YUANCTL_DB_PASSWORD:-yuan}@postgres:5432/${YUANCTL_DB_NAME:-yuan}
+      NODE_UNIT_NAME: yuanctl-e2e
+    ports:
+      - '${YUANCTL_E2E_HOST_PORT:-28888}:8888'
