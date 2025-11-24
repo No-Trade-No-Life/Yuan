@@ -2,6 +2,28 @@
   "name": "@yuants/vendor-hyperliquid",
   "entries": [
     {
+      "version": "0.6.3",
+      "tag": "@yuants/vendor-hyperliquid_v0.6.3",
+      "date": "Mon, 24 Nov 2025 08:05:14 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "refactor"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/data-account\" to `0.8.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.6.2",
       "tag": "@yuants/vendor-hyperliquid_v0.6.2",
       "date": "Fri, 21 Nov 2025 22:22:24 GMT",

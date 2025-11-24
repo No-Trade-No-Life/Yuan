@@ -1,6 +1,13 @@
 # Change Log - @yuants/data-account
 
-This log was last generated on Fri, 21 Nov 2025 22:22:24 GMT and should not be manually modified.
+This log was last generated on Mon, 24 Nov 2025 08:05:14 GMT and should not be manually modified.
+
+## 0.8.0
+Mon, 24 Nov 2025 08:05:14 GMT
+
+### Minor changes
+
+- simplify account info model
 
 ## 0.7.3
 Fri, 21 Nov 2025 22:22:24 GMT
