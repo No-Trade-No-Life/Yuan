@@ -1,0 +1,271 @@
+# 错误处理代码规范
+
+核心原则: 错误处理哲学
+
+1. 让错误显而易见：不要隐藏错误，让失败快速暴露
+
+2. 职责边界清晰：每个函数/组件应明确自己的错误处理责任
+
+3. 信息完整性：错误应包含足够信息用于调试和用户反馈
+
+4. 一致性：错误处理方式应在整个代码库中保持一致
+
+5. 简洁性：避免过度复杂的错误处理逻辑，避免华而不实的错误处理方案。
+
+## 抛出异常的具体风格
+
+1. 使用异常而非错误码：优先使用异常机制 (throw-catch) 处理错误，避免使用错误码 (如返回 -1 或 null, undefined 表示错误)
+2. 不使用自定义错误类：除非有特殊需求，否则避免创建自定义错误类，使用内置的 Error 类。
+
+   因为这会极大增加协议复杂度，且所有情况下都无必要。但是 Error Helper 函数是允许的。
+
+3. 错误信息应当包含 **错误分类** 和 **上下文参数信息**：错误信息应包含错误的类型（如网络错误、验证错误等）和相关上下文信息（如函数参数、状态等），以便于调试和用户反馈。所有的信息都应当以字符串形式包含在错误消息中。
+
+4. 避免构造复杂错误对象: **抛出异常仅仅是为了打断控制流，并传递错误信息**
+
+   不应当在抛出异常时构造复杂错误对象 (如 error.code, error.type 等)，添加 meta 信息会导致后续很难正确处理错误，且没有任何价值。
+
+   如果需要携带 extra meta，可以通过 error helper 函数将 extra meta 通过别的途径上报 (如日志系统、遥测系统等)，而不是通过异常对象传递。
+
+   无法假设所有被调用的函数都遵循同一套 extra meta 规范，因此不应当依赖异常对象携带 extra meta 信息。永远假设 Error 是 any / unknown 类型。
+
+```ts
+// 推荐做法
+throw new Error(`NetworkError: Failed to fetch data for userId=${userId}`);
+// 推荐做法, 使用辅助函数构建错误信息
+function Error(type: string, message: string, context: Record<string, any>) {
+  // error helper 必须是同步函数，避免异步调用导致堆栈信息丢失
+  const contextStr = Object.entries(context)
+    .map(([key, value]) => `${key}=${JSON.stringify(value)}`)
+    .join(', ');
+  // 可选: 遥测上报 (配合 Prometheus 使用)
+  return new Error(`${type}: ${message} | Context: ${contextStr}`);
+}
+throw Error('NetworkError', 'Failed to fetch data', { userId, retryCount });
+
+// 错误做法，会输出 [object Object]
+throw new Error(`Error: Failed to fetch data for context=${someComplexObject}`);
+// 不推荐做法，未使用 Error 类 (不会包含堆栈信息)
+throw `NetworkError: Failed to fetch data for userId=${userId}`;
+// 错误做法，不包含上下文，使得定位问题困难
+throw new Error('NetworkError');
+// 不推荐做法，不包含错误分类，使得定位问题困难
+throw new Error(`Failed to fetch data for userId=${userId}`);
+// 不推荐做法，使用自定义错误类
+class NetworkError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'NetworkError';
+  }
+}
+throw new NetworkError(`Failed to fetch data for userId=${userId}`);
+```
+
+## 捕获异常的具体风格
+
+错误处理永远只有 3 种选择:
+
+1. 知道如何应对 -> 使用备选方案；
+2. 认为是偶然性因素导致的 -> 重试；
+3. 认为是当前无法处理的 -> 汇报展示、控制影响面，通知外部介入处理错误。
+
+除此之外，永远不应当捕获异常。
+
+**因此，仅在如下情形捕获异常**:
+
+1.  提供备用方案：如果有备用方案可以使用（如使用缓存数据），可以捕获异常并执行备用方案。
+2.  重试：如果操作可能会暂时失败（如网络请求），可以捕获异常并重试操作。
+3.  展示：在接口层 (API, GUI, CLI, 以及 **Delegate 逻辑**) 捕获异常并展示给用户友好的错误信息，并防止错误扩散。
+
+为了澄清概念，特别说明不应当捕获异常的情形:
+
+1.  记录日志：记录日志应当在展示错误的地方进行。
+2.  转换异常类型：我们不使用这种风格，它总是应当抛出最原始的异常。
+3.  忽略异常：不应当捕获异常后忽略它，这会导致错误被隐藏，难以调试。
+
+```ts
+// 推荐做法：提供备用方案
+try {
+  const data = JSON.parse(input);
+  return data;
+} catch (error) {
+  return JSONC.parse(input); // 备用方案 (宽松解析)
+  // 再不然就抛出异常
+}
+
+// 推荐做法：重试
+async function withRetry(staff, retryCount = 3) {
+  try {
+    return await staff();
+  } catch (error) {
+    if (retryCount <= 0) throw error;
+    return withRetry(staff, retryCount - 1);
+  }
+}
+// 推荐做法: rxjs 重试 (支持丰富的重试策略)
+import { defer, retry } from 'rxjs/operators';
+
+defer(() => staff()).pipe(
+  retry({ count: 3, delay: 1000 }), // 重试 3 次, 每次间隔 1 秒
+);
+
+// 推荐做法: Service API 展示错误信息
+// 在 Yuan Server 中已经内置支持，不需要额外代码
+terminal.server.provideService('<METHOD>', '<JSON-SCHEMA', async (msg) => {
+  // 业务逻辑，如果抛出异常，Yuan Server 会捕获并展示错误信息，无需额外处理
+});
+
+// 推荐做法: GUI 展示错误信息 (React 组件，由用户操作触发，经过异步调用并失败)
+function MyComponent() {
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<Error | null>(null);
+  const handleClick = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      await api.callSomeService();
+    } catch (error) {
+      setError(error); // 展示错误信息
+      console.error(error); // 记录日志
+      reportError(error); // 可选: 上报错误
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div>
+      <button onClick={handleClick} disabled={isLoading}>
+        {isLoading ? 'Loading...' : 'Click Me'}
+      </button>
+      {error && <div className="error">Error: {error.message}</div>}
+    </div>
+  );
+}
+
+// 推荐做法: GUI 展示错误信息 (@tanstack/react-query)
+// 使用已经封装好的异步数据获取库，会自动处理加载状态和错误状态，简化代码
+// 还会有 caching, 重试等功能
+import { useQuery } from '@tanstack/react-query';
+
+function MyComponent() {
+  const { data, error, isLoading } = useQuery(['someData'], () => api.callSomeService(), {
+    onError: (error) => {
+      console.error(error); // 记录日志
+      reportError(error); // 可选: 上报错误
+    },
+  });
+
+  if (isLoading) return <div>Loading...</div>;
+  if (error) return <div className="error">Error: {(error as Error).message}</div>;
+
+  return <div>Data: {JSON.stringify(data)}</div>;
+}
+
+// 推荐做法: GUI 使用 ErrorBoundary 捕获渲染错误 (react-error-boundary)
+// 在页面级别捕获渲染错误，防止整个应用崩溃
+// 通常，会对 Layout 组件使用 ErrorBoundary，这样可以将错误限制在某个视觉区域内
+// 并允许用户重新尝试加载该区域
+// 提示: 根据视觉区域的设计大小，灵活使用不同的 Fallback 组件
+import { ErrorBoundary } from 'react-error-boundary';
+
+function ErrorFallback({ error, resetErrorBoundary }: { error: Error; resetErrorBoundary: () => void }) {
+  useEffect(() => {
+    console.error(error); // 记录日志
+    reportError(error); // 可选: 上报错误
+  }, []);
+
+  return (
+    <div role="alert">
+      <p>Something went wrong:</p>
+      <pre>{error.message}</pre>
+      <button onClick={resetErrorBoundary}>Try again</button>
+    </div>
+  );
+}
+
+function Layout() {
+  return (
+    <div>
+      <div>
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          {/** 可能的崩溃点 */}
+          <MyHeader />
+        </ErrorBoundary>
+      </div>
+      <div>
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          {/** 可能的崩溃点 */}
+          <MySidebar />
+        </ErrorBoundary>
+      </div>
+      <div>
+        <ErrorBoundary FallbackComponent={ErrorFallback}>
+          {/** 可能的崩溃点 */}
+          <MyMainContent />
+        </ErrorBoundary>
+      </div>
+    </div>
+  );
+}
+```
+
+不推荐做法: 捕获异常仅用于记录日志或转换异常类型。
+
+你永远只需要在展示错误信息的地方记录日志，其他情形下的日志都没有价值。
+
+转换异常类型只会增加调试难度，隐藏一部分调用堆栈，并且没有任何价值。
+
+```ts
+// 不推荐做法: 仅记录日志
+try {
+  const data = await fetchData();
+  return data;
+} catch (error) {
+  console.error('Failed to fetch data', error);
+  throw error; // 重新抛出异常，未提供任何处理
+}
+
+// 不推荐做法: 转换异常类型
+try {
+  const data = await fetchData();
+  return data;
+} catch (error) {
+  throw new Error(`DataFetchError: ${error.message}`); // 转换异常类型
+}
+
+// 不推荐做法: 转换异常时添加额外的上下文信息
+// 仍然是错误的，因为将 userId 汇报到错误信息里，是 fetchData 函数内部的责任，而不是调用者的责任
+try {
+  const data = await fetchData(userId);
+  return data;
+} catch (error) {
+  throw new Error(
+    `DataFetchError: Failed to fetch data for userId=${userId}, original error: ${error.message}`,
+  );
+}
+
+// 不推荐做法: 转换异常时添加额外的上下文信息，并且与 fetchData 参数不相关的情形
+// 仍然是错误的，fetchData 需要汇报 arg 参数的报错信息，调试者就应该知道什么样的 arg 参数会有问题 (如果顺利原封不动进入展示阶段)
+// 那么说明 someComputation 函数不应当输出那种 arg 参数。
+// 那么应当在 fetchData 之前检查 arg 参数是否合法，而不是在捕获异常时再添加上下文信息。
+// 当 fetchData 抛出异常时，如果无备选方案并且重试无效，就应该检查 arg 参数后抛出异常。
+
+for (let item of items) {
+  const arg = someComputation(item);
+  try {
+    await fetchData(arg);
+  } catch (error) {
+    throw new Error(`ProcessItemError: Failed to process item=${item}, original error: ${error.message}`);
+  }
+}
+
+// 推荐改为: (或者内化到 someComputation 函数里)
+for (let item of items) {
+  const arg = someComputation(item);
+  if (!isValidArg(arg)) {
+    throw new Error(`InvalidArgumentError: The computed argument is invalid for item=${item}, arg=${arg}`);
+  }
+  await fetchData(arg);
+}
+```
