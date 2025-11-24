@@ -62,12 +62,9 @@ const quoteFromPremiumIndex$ = futurePremiumIndex$.pipe(
       datasource_id: 'BINANCE',
       product_id: encodePath('usdt-future', entry.symbol),
       last_price: entry.markPrice,
-      // interestRate is the predicted funding rate for next settlement
-      // In perpetual futures: when funding rate > 0, longs pay shorts
-      // interest_rate_long: cost for holding long (negative of funding rate)
-      // interest_rate_short: income for holding short (positive of funding rate)
-      interest_rate_long: entry.interestRate,
-      interest_rate_short: `${-Number(entry.interestRate)}`,
+      // Use the latest funding rate so that long pays when fundingRate > 0
+      interest_rate_long: entry.lastFundingRate,
+      interest_rate_short: `${-Number(entry.lastFundingRate)}`,
       interest_rate_next_settled_at: formatTime(entry.nextFundingTime),
       updated_at: formatTime(entry.time ?? Date.now()),
     }),

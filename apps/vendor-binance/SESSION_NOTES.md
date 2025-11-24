@@ -7,7 +7,7 @@
 ## 0. 元信息（Meta）
 
 - **项目名称**：@yuants/vendor-binance
-- **最近更新时间**：2025-11-23 20:40（由 Antigravity 补全 Spot/Future ModifyOrder & Public Data）
+- **最近更新时间**：2025-11-24 14:29（修复 Futures Quote 资金费率）
 - **当前状态标签**：重构中（credential 化 & 上下文治理）
 
 ---
@@ -100,6 +100,16 @@
 ## 6. 最近几轮工作记录（Recent Sessions）
 
 > 仅记录已结束的会话；进行中的内容放在第 11 节，收尾后再搬运；最新记录置顶。
+
+### 2025-11-24 — Codex
+
+- **本轮摘要**：
+  - 修复 Futures Quote 资金费率，使用 `lastFundingRate` 而非恒定的 `interestRate` 字段，映射 long/short 时保留符号。
+  - 检查 `docs/zh-Hans/vendor-supporting.md` 暂无需要更新的项目状态。
+- **修改的文件**：
+  - `apps/vendor-binance/src/public-data/quote.ts`
+- **运行的测试 / 检查**：
+  - `npx tsc --noEmit --project apps/vendor-binance/tsconfig.json`
 
 ### 2025-11-23 — Antigravity
 
