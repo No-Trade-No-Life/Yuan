@@ -40,11 +40,12 @@ const packageVersionsCache = createCache<string[]>(
 );
 
 registerPage('DeploySettings', () => {
-  const terminal = useObservableState(terminal$);
   const deploySettings = useObservableState(deployments$);
   const [editDeployment, setEditDeployment] = useState<IDeployment>();
   const [visible, setVisible] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const [showEnabledOnly, setShowEnabledOnly] = useState(false);
 
   const availableNodeUnit = useObservableState(availableNodeUnit$);
 
@@ -148,7 +149,7 @@ registerPage('DeploySettings', () => {
   return (
     <>
       <DataView
-        data={deploySettings}
+        data={deploySettings?.filter((x) => (showEnabledOnly ? x.enabled : true))}
         topSlot={
           <>
             <Button icon={<IconPlusCircle />} onClick={onCreate} style={{ margin: '10px 0' }}>
@@ -157,6 +158,10 @@ registerPage('DeploySettings', () => {
             <Button icon={<IconPlusCircle />} onClick={updateToLatestVersion} style={{ margin: '10px 0' }}>
               版本一键更新
             </Button>
+            <div style={{ alignItems: 'center', marginLeft: 10, display: 'inline-flex' }}>
+              <span style={{ marginRight: 8 }}>只看已启用</span>
+              <Switch checked={showEnabledOnly} onChange={setShowEnabledOnly} />
+            </div>
           </>
         }
         columns={[
