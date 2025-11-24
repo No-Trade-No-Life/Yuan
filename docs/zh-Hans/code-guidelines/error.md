@@ -33,15 +33,8 @@
 // 推荐做法
 throw new Error(`NetworkError: Failed to fetch data for userId=${userId}`);
 // 推荐做法, 使用辅助函数构建错误信息
-function Error(type: string, message: string, context: Record<string, any>) {
-  // error helper 必须是同步函数，避免异步调用导致堆栈信息丢失
-  const contextStr = Object.entries(context)
-    .map(([key, value]) => `${key}=${JSON.stringify(value)}`)
-    .join(', ');
-  // 可选: 遥测上报 (配合 Prometheus 使用)
-  return new Error(`${type}: ${message} | Context: ${contextStr}`);
-}
-throw Error('NetworkError', 'Failed to fetch data', { userId, retryCount });
+import { newError } from '@yuants/utils';
+throw newError('NetworkError', { userId, retryCount });
 
 // 错误做法，会输出 [object Object]
 throw new Error(`Error: Failed to fetch data for context=${someComplexObject}`);
@@ -268,4 +261,31 @@ for (let item of items) {
   }
   await fetchData(arg);
 }
+```
+
+## Proposal: 使用 Error Helper 函数构建错误信息
+
+为了简化错误信息的构建，并确保错误信息的一致性，可以使用一个辅助函数 `newError` 来构建错误信息。这个函数接受错误类型、错误消息和上下文参数，并返回一个格式化的错误对象。
+
+1. 强制使用 context 参数，确保所有错误都包含足够的上下文信息。
+2. 使用遥测系统上报错误信息。
+3. 加入 @yuants/utils 豪华全家桶。
+
+```ts
+import { createRegistry } from '@yuants/prometheus';
+
+export const errorRegistry = createRegistry();
+const errorCounter = errorRegistry.counter('new_errors_total', 'Total number of errors');
+
+export function newError(type: string, context: Record<string, any>) {
+  const contextStr = Object.entries(context)
+    .map(([key, value]) => `${key}=${JSON.stringify(value)}`)
+    .join(', ');
+  errorCounter.labels({ type }).inc();
+  return new Error(`${type}: ${contextStr}`);
+}
+
+// 使用示例
+import { newError } from '@yuants/utils';
+throw newError('TimeoutError', { url: '...', timeout: 5000 }); // TimeoutError: url="...",
 ```
