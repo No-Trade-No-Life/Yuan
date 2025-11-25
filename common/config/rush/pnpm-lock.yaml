@@ -367,6 +367,7 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': ~7.0.11
       '@types/node': '22'
+      '@types/pidusage': ^2.0.5
       '@yuants/cache': workspace:*
       '@yuants/deploy': workspace:*
       '@yuants/extension': workspace:*
@@ -375,6 +376,7 @@ importers:
       '@yuants/sql': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
+      pidusage: ^4.0.1
       rxjs: ~7.5.6
       tree-kill: ~1.2.2
       typescript: ~4.7.4
@@ -385,6 +387,7 @@ importers:
       '@yuants/secret': link:../../libraries/secret
       '@yuants/sql': link:../../libraries/sql
       '@yuants/utils': link:../../libraries/utils
+      pidusage: 4.0.1
       rxjs: 7.5.7
       tree-kill: 1.2.2
     devDependencies:
@@ -395,6 +398,7 @@ importers:
       '@types/heft-jest': 1.0.3
       '@types/json-schema': 7.0.15
       '@types/node': 22.7.5
+      '@types/pidusage': 2.0.5
       '@yuants/extension': link:../../libraries/extension
       '@yuants/tool-kit': link:../../tools/toolkit
       typescript: 4.7.4
@@ -7798,6 +7802,10 @@ packages:
 
   /@types/path-browserify/1.0.0:
     resolution: {integrity: sha512-XMCcyhSvxcch8b7rZAtFAaierBYdeHXVvg2iYnxOV0MCQHmPuRRmGZPFDRzPayxcGiiSL1Te9UIO+f3cuj0tfw==}
+    dev: true
+
+  /@types/pidusage/2.0.5:
+    resolution: {integrity: sha512-MIiyZI4/MK9UGUXWt0jJcCZhVw7YdhBuTOuqP/BjuLDLZ2PmmViMIQgZiWxtaMicQfAz/kMrZ5T7PKxFSkTeUA==}
     dev: true
 
   /@types/prettier/2.7.3:
@@ -15823,6 +15831,13 @@ packages:
     resolution: {integrity: sha512-M7BAV6Rlcy5u+m6oPhAPFgJTzAioX/6B0DxyvDlo9l8+T3nLKbrczg2WLUyzd45L8RqfUMyGPzekbMvX2Ldkwg==}
     engines: {node: '>=12'}
     dev: true
+
+  /pidusage/4.0.1:
+    resolution: {integrity: sha512-yCH2dtLHfEBnzlHUJymR/Z1nN2ePG3m392Mv8TFlTP1B0xkpMQNHAnfkY0n2tAi6ceKO6YWhxYfZ96V4vVkh/g==}
+    engines: {node: '>=18'}
+    dependencies:
+      safe-buffer: 5.2.1
+    dev: false
 
   /pify/4.0.1:
     resolution: {integrity: sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==}

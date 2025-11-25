@@ -1,5 +1,5 @@
 import { formatTime } from '@yuants/utils';
-import { spawn } from 'child_process';
+import { ChildProcess, spawn } from 'child_process';
 import { createWriteStream } from 'fs';
 import { Observable } from 'rxjs';
 import { Writable } from 'stream';
@@ -13,6 +13,8 @@ export interface ISpawnChildContext {
   stdoutFilename?: string;
   stderrFilename?: string;
   streamFactory?: (filename: string) => Writable | null;
+  onSpawn?: (child: ChildProcess) => void;
+  onExit?: (code: number | null, signal: NodeJS.Signals | null) => void;
 }
 
 export const spawnChild = (ctx: ISpawnChildContext) => {
@@ -66,6 +68,7 @@ export const spawnChild = (ctx: ISpawnChildContext) => {
 
     child.on('spawn', () => {
       console.info(formatTime(Date.now()), 'Spawn', ctx.command, ctx.args, child.pid);
+      ctx.onSpawn?.(child);
       sub.next(); // 只发出一次，用于表示启动成功
     });
 
@@ -75,8 +78,9 @@ export const spawnChild = (ctx: ISpawnChildContext) => {
       sub.error(err);
     });
 
-    child.on('exit', async () => {
+    child.on('exit', async (code, signal) => {
       console.info(formatTime(Date.now()), 'Exit', ctx.command, ctx.args, child.pid);
+      ctx.onExit?.(code, signal);
       await cleanup();
       sub.complete();
     });

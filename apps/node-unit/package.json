@@ -20,6 +20,7 @@
     "@yuants/deploy": "workspace:*",
     "@yuants/cache": "workspace:*",
     "@yuants/secret": "workspace:*",
+    "pidusage": "^4.0.1",
     "rxjs": "~7.5.6",
     "tree-kill": "~1.2.2"
   },
@@ -28,6 +29,7 @@
     "@rushstack/heft": "~0.47.5",
     "@rushstack/heft-jest-plugin": "~0.16.8",
     "@rushstack/heft-node-rig": "~1.10.7",
+    "@types/pidusage": "^2.0.5",
     "@types/heft-jest": "1.0.3",
     "@types/json-schema": "~7.0.11",
     "@types/node": "22",
