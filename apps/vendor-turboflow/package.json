@@ -9,6 +9,8 @@
   "dependencies": {
     "@yuants/protocol": "workspace:*",
     "@yuants/utils": "workspace:*",
+    "@yuants/data-account": "workspace:*",
+    "@yuants/data-order": "workspace:*",
     "rxjs": "~7.5.6"
   },
   "devDependencies": {
