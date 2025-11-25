@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-binance",
   "entries": [
     {
+      "version": "0.9.0",
+      "tag": "@yuants/vendor-binance_v0.9.0",
+      "date": "Tue, 25 Nov 2025 11:53:28 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "refactor product_id"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.8.7",
       "tag": "@yuants/vendor-binance_v0.8.7",
       "date": "Tue, 25 Nov 2025 07:08:44 GMT",
