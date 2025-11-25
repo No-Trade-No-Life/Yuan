@@ -1,6 +1,7 @@
 import '@yuants/deploy';
 import { IDeployment } from '@yuants/deploy';
-import { Terminal } from '@yuants/protocol';
+import { GlobalPrometheusRegistry, Terminal } from '@yuants/protocol';
+import pidusage from 'pidusage';
 import { setupSecretProxyService } from '@yuants/secret';
 import { escapeSQL, requestSQL } from '@yuants/sql';
 import {
@@ -21,9 +22,11 @@ import { join } from 'path';
 import {
   concat,
   defer,
+  catchError,
   EMPTY,
   firstValueFrom,
   fromEvent,
+  interval,
   map,
   merge,
   mergeMap,
@@ -67,6 +70,106 @@ kill$.subscribe(() => {
 
 const childPublicKeys = new Set<string>();
 const LOG_ROTATE_OPTIONS = DEFAULT_LOG_ROTATE_OPTIONS;
+const NODE_UNIT_NAME = process.env.NODE_UNIT_NAME || hostname();
+let nodeUnitAddress = '';
+
+const MetricDeploymentCpuSecondsTotal = GlobalPrometheusRegistry.counter(
+  'node_unit_deployment_cpu_seconds_total',
+  'Cumulative CPU seconds consumed by deployment process',
+);
+const MetricDeploymentCpuUsageRatio = GlobalPrometheusRegistry.gauge(
+  'node_unit_deployment_cpu_usage_ratio',
+  'Deployment CPU usage ratio compared to host total jiffies',
+);
+const MetricDeploymentMemoryRssBytes = GlobalPrometheusRegistry.gauge(
+  'node_unit_deployment_memory_rss_bytes',
+  'Deployment process RSS bytes from /proc/[pid]/status',
+);
+// NOTE: Socket-level network metrics are temporarily disabled
+
+const mapDeploymentIdToProcess = new Map<
+  string,
+  { pid: number; package_name: string; package_version: string }
+>();
+let lastPidusageAt = Date.now();
+
+// NOTE: Socket-level network metrics are temporarily disabled
+
+const makeDeploymentMetricLabels = (
+  deploymentId: string,
+  meta: { pid: number; package_name: string; package_version: string },
+) => ({
+  deployment_id: deploymentId,
+  package_name: meta.package_name,
+  package_version: meta.package_version,
+  node_unit_name: NODE_UNIT_NAME,
+  node_unit_address: nodeUnitAddress,
+  pid: String(meta.pid),
+});
+
+const resetDeploymentGauges = (
+  deploymentId: string,
+  meta: { pid: number; package_name: string; package_version: string },
+) => {
+  const labels = makeDeploymentMetricLabels(deploymentId, meta);
+  MetricDeploymentCpuUsageRatio.labels(labels).set(0);
+  MetricDeploymentMemoryRssBytes.labels(labels).set(0);
+};
+
+const registerDeploymentProcess = (deployment: IDeployment, pid: number | undefined) => {
+  if (!pid) return;
+  const prev = mapDeploymentIdToProcess.get(deployment.id);
+  if (prev && prev.pid !== pid) {
+    resetDeploymentGauges(deployment.id, prev);
+  }
+  const meta = {
+    pid,
+    package_name: deployment.package_name,
+    package_version: deployment.package_version,
+  };
+  mapDeploymentIdToProcess.set(deployment.id, meta);
+};
+
+const unregisterDeploymentProcess = (deploymentId: string) => {
+  const meta = mapDeploymentIdToProcess.get(deploymentId);
+  if (!meta) return;
+  resetDeploymentGauges(deploymentId, meta);
+  mapDeploymentIdToProcess.delete(deploymentId);
+};
+
+const collectDeploymentMetrics = async () => {
+  if (mapDeploymentIdToProcess.size === 0) return;
+  const now = Date.now();
+  const wallDeltaSec = Math.max((now - lastPidusageAt) / 1000, 0);
+  lastPidusageAt = now;
+  for (const [deploymentId, meta] of mapDeploymentIdToProcess) {
+    const labels = makeDeploymentMetricLabels(deploymentId, meta);
+    const stats = await pidusage(meta.pid).catch(() => null);
+    if (!stats) {
+      unregisterDeploymentProcess(deploymentId);
+      continue;
+    }
+    const cpuSeconds = Math.max((stats.cpu / 100) * wallDeltaSec, 0);
+    if (cpuSeconds > 0) {
+      MetricDeploymentCpuSecondsTotal.labels(labels).inc(cpuSeconds);
+    }
+    MetricDeploymentCpuUsageRatio.labels(labels).set(Math.max(stats.cpu / 100, 0));
+    MetricDeploymentMemoryRssBytes.labels(labels).set(Math.max(stats.memory ?? 0, 0));
+  }
+};
+
+const startDeploymentMetricsCollector = () => {
+  interval(5000)
+    .pipe(
+      takeUntil(kill$),
+      mergeMap(() => defer(() => collectDeploymentMetrics())),
+      catchError((err) => {
+        console.error(formatTime(Date.now()), 'DeploymentMetricsError', err);
+        return EMPTY;
+      }),
+    )
+    .subscribe();
+};
 
 const runDeployment = (nodeKeyPair: IEd25519KeyPair, deployment: IDeployment) => {
   const terminalName = `${deployment.package_name}@${deployment.package_version}`;
@@ -121,6 +224,7 @@ const runDeployment = (nodeKeyPair: IEd25519KeyPair, deployment: IDeployment) =>
           stdoutFilename: join(logHome, `${deployment.id}.log`),
           stderrFilename: join(logHome, `${deployment.id}.log`),
           streamFactory: (filename) => new RotatingLogStream(filename, LOG_ROTATE_OPTIONS),
+          onSpawn: (child) => registerDeploymentProcess(deployment, child.pid),
         }).pipe(
           tap({
             finalize: () => {
@@ -131,6 +235,7 @@ const runDeployment = (nodeKeyPair: IEd25519KeyPair, deployment: IDeployment) =>
                 childKeyPair.public_key,
               );
               childPublicKeys.delete(childKeyPair.public_key);
+              unregisterDeploymentProcess(deployment.id);
             },
           }),
         );
@@ -165,6 +270,8 @@ defer(async () => {
   const nodeKeyPair = await getNodeKeyPairFromEnv();
 
   console.info(formatTime(Date.now()), 'Node Unit Address:', nodeKeyPair.public_key);
+  nodeUnitAddress = nodeKeyPair.public_key;
+  startDeploymentMetricsCollector();
 
   const localHostDeployment: IDeployment | null = !process.env.HOST_URL
     ? {
