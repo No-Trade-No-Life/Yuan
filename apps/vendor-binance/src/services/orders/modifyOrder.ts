@@ -8,6 +8,8 @@ import {
   mapOrderDirectionToSide,
   mapOrderTypeToOrdType,
 } from './order-utils';
+import { newError } from '@yuants/utils/lib/error';
+import { decodePath } from '@yuants/utils/lib/path';
 
 const modifyUnifiedOrder: IActionHandlerOfModifyOrder<ICredential> = async (credential, order) => {
   const symbol = decodeFutureSymbol(order.product_id);
@@ -61,11 +63,14 @@ const modifySpotOrder: IActionHandlerOfModifyOrder<ICredential> = async (credent
 };
 
 export const modifyOrder: IActionHandlerOfModifyOrder<ICredential> = async (credential, order) => {
-  if (order.account_id.includes('/unified/')) {
+  const [, TYPE] = decodePath(order.product_id);
+
+  if (TYPE === 'USDT-FUTURE') {
     return modifyUnifiedOrder(credential, order);
   }
-  if (order.account_id.includes('/spot/')) {
+  if (TYPE === 'SPOT') {
     return modifySpotOrder(credential, order);
   }
-  throw new Error(`Unsupported account_id for modifyOrder: ${order.account_id}`);
+
+  throw newError('BINANCE_MODIFY_ORDER_UNSUPPORTED_PRODUCT_TYPE', { order });
 };

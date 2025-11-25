@@ -2,6 +2,7 @@ import { IActionHandlerOfCancelOrder } from '@yuants/data-order';
 import { isApiError } from '../../api/client';
 import { deleteSpotOrder, deleteUmOrder, ICredential } from '../../api/private-api';
 import { decodeFutureSymbol, decodeSpotSymbol } from './order-utils';
+import { decodePath, newError } from '@yuants/utils';
 
 const cancelUnifiedOrder: IActionHandlerOfCancelOrder<ICredential> = async (credential, order) => {
   if (!order.order_id) {
@@ -32,11 +33,12 @@ const cancelSpotOrder: IActionHandlerOfCancelOrder<ICredential> = async (credent
 };
 
 export const cancelOrder: IActionHandlerOfCancelOrder<ICredential> = async (credential, order) => {
-  if (order.account_id.includes('/unified/')) {
+  const [, TYPE] = decodePath(order.product_id);
+  if (TYPE === 'USDT-FUTURE') {
     return cancelUnifiedOrder(credential, order);
   }
-  if (order.account_id.includes('/spot/')) {
+  if (TYPE === 'SPOT') {
     return cancelSpotOrder(credential, order);
   }
-  throw new Error(`Unsupported account_id for cancelOrder: ${order.account_id}`);
+  throw newError('BINANCE_CANCEL_ORDER_UNSUPPORTED_PRODUCT_TYPE', { order });
 };

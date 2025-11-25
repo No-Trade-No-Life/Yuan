@@ -3,18 +3,38 @@ import { decodePath } from '@yuants/utils';
 import { createHash } from 'crypto';
 
 export const decodeFutureSymbol = (product_id: string) => {
-  const [instType, symbol] = decodePath(product_id);
-  if (instType !== 'usdt-future' || !symbol) {
-    throw new Error(`Unsupported product_id for Binance futures: ${product_id}`);
+  const parts = decodePath(product_id);
+  // Support both old format (usdt-future/symbol) and new format (BINANCE/USDT-FUTURE/symbol)
+  if (parts.length === 2) {
+    const [instType, symbol] = parts;
+    if (instType !== 'usdt-future' || !symbol) {
+      throw new Error(`Unsupported product_id for Binance futures: ${product_id}`);
+    }
+    return symbol;
+  } else if (parts.length === 3) {
+    const [datasource, instType, symbol] = parts;
+    if (datasource !== 'BINANCE' || instType !== 'USDT-FUTURE' || !symbol) {
+      throw new Error(`Unsupported product_id for Binance futures: ${product_id}`);
+    }
+    return symbol;
   }
-  return symbol;
+  throw new Error(`Unsupported product_id for Binance futures: ${product_id}`);
 };
 
 export const decodeSpotSymbol = (product_id: string) => {
   try {
-    const [instType, symbol] = decodePath(product_id);
-    if (instType?.toLowerCase() === 'spot' && symbol) {
-      return symbol;
+    const parts = decodePath(product_id);
+    // Support both old format (spot/symbol) and new format (BINANCE/SPOT/symbol)
+    if (parts.length === 2) {
+      const [instType, symbol] = parts;
+      if (instType?.toLowerCase() === 'spot' && symbol) {
+        return symbol;
+      }
+    } else if (parts.length === 3) {
+      const [datasource, instType, symbol] = parts;
+      if (datasource === 'BINANCE' && instType === 'SPOT' && symbol) {
+        return symbol;
+      }
     }
   } catch (err) {
     // ignore decode errors and fall back to raw product id

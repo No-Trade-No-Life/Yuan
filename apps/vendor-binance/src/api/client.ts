@@ -1,7 +1,5 @@
 import { GlobalPrometheusRegistry } from '@yuants/protocol';
-import { formatTime } from '@yuants/utils';
-// @ts-ignore
-import CryptoJS from 'crypto-js';
+import { formatTime, HmacSHA256 } from '@yuants/utils';
 
 const MetricBinanceApiUsedWeight = GlobalPrometheusRegistry.gauge('binance_api_used_weight', '');
 
@@ -59,7 +57,10 @@ const callApi = async <T>(
   let headers: Record<string, string> | undefined;
   if (credential) {
     const signData = url.search.slice(1);
-    const signature = CryptoJS.enc.Hex.stringify(CryptoJS.HmacSHA256(signData, credential.secret_key));
+
+    const signature = Buffer.from(
+      await HmacSHA256(new TextEncoder().encode(signData), new TextEncoder().encode(credential.secret_key)),
+    ).toString('hex');
     url.searchParams.set('signature', signature);
     headers = {
       'Content-Type': 'application/json;charset=utf-8',

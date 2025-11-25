@@ -34,7 +34,7 @@ export const getUnifiedAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> 
     .map((position) => ({
       position_id: `${position.symbol}/${position.positionSide}`,
       datasource_id: 'BINANCE',
-      product_id: encodePath('usdt-future', position.symbol),
+      product_id: encodePath('BINANCE', 'USDT-FUTURE', position.symbol),
       direction:
         position.positionSide === 'LONG'
           ? 'LONG'
