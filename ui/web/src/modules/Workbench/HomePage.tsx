@@ -5,13 +5,15 @@ import { dirname, join } from 'path-browserify';
 import React from 'react';
 import { Observable, defer, map, mergeMap, pipe, repeat, retry, switchMap } from 'rxjs';
 import { registerCommand } from '../CommandCenter';
-import { layoutModelJson$ } from '../DesktopLayout/layout-model';
+import { layoutModelJson$, loadPageFromURL } from '../DesktopLayout/layout-model';
 import { createFileSystemBehaviorSubject, fs } from '../FileSystem';
 import { showForm } from '../Form';
 import { pageRegistered$ } from '../Pages';
 import { executeAssociatedRule } from '../System';
 
-export const isShowHome$ = createFileSystemBehaviorSubject('show-home', true);
+const initialPage = loadPageFromURL();
+
+export const isShowHome$ = createFileSystemBehaviorSubject('show-home', !initialPage);
 
 export const toggleShowHome = () => {
   isShowHome$.next(!isShowHome$.value);

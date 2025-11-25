@@ -3,42 +3,13 @@ import { decodeBase58, encodeBase58, formatTime } from '@yuants/utils';
 import * as FlexLayout from 'flexlayout-react';
 import hotkeys from 'hotkeys-js';
 import { resolve } from 'path-browserify';
-import { filter, first, firstValueFrom, map, shareReplay } from 'rxjs';
-import { executeCommand, registerCommand } from '../CommandCenter';
+import { filter, firstValueFrom, map, shareReplay } from 'rxjs';
+import { registerCommand } from '../CommandCenter';
 import { createFileSystemBehaviorSubject } from '../FileSystem';
 import { fs } from '../FileSystem/api';
 import { showForm } from '../Form';
 
-const initialJson = (): FlexLayout.IJsonModel => ({
-  global: {
-    // FIXED: multiple-window will cause terminals conflict, so disable it
-    tabEnableFloat: true,
-  },
-  layout: {
-    type: 'row',
-    weight: 100,
-    children: [
-      {
-        type: 'tabset',
-        children: [],
-        active: true,
-      },
-    ],
-  },
-});
-
-/**
- * the Single Truth of Layout Model
- *
- * All Model operations should be done through this
- */
-export const layoutModelJson$ = createFileSystemBehaviorSubject('layout', initialJson());
-
-layoutModelJson$.subscribe((v) => {
-  console.info(formatTime(Date.now()), '##layoutModelJson$', JSON.stringify(v));
-});
-
-const loadPageFromURL = () => {
+export const loadPageFromURL = () => {
   const url = new URL(document.location.href);
   const page = url.searchParams.get('page');
   const page_params = url.searchParams.get('page_params');
@@ -52,6 +23,56 @@ const loadPageFromURL = () => {
   };
   return { type: page, params: params() };
 };
+
+const initialJson = (): FlexLayout.IJsonModel => {
+  const model = FlexLayout.Model.fromJson({
+    global: {
+      // FIXED: multiple-window will cause terminals conflict, so disable it
+      tabEnableFloat: true,
+    },
+    layout: {
+      type: 'row',
+      weight: 100,
+      children: [
+        {
+          type: 'tabset',
+          children: [],
+          active: true,
+        },
+      ],
+    },
+  });
+  const initialPage = loadPageFromURL();
+  if (initialPage) {
+    model.doAction(
+      FlexLayout.Actions.addNode(
+        {
+          id: JSON.stringify({ pageKey: initialPage.type, params: initialPage.params }),
+          type: 'tab',
+          component: initialPage.type,
+          enableRename: false,
+          config: initialPage.params,
+        },
+        model.getRoot().getChildren()[0].getId(),
+        FlexLayout.DockLocation.CENTER,
+        -1,
+        true,
+      ),
+    );
+  }
+  return model.toJson();
+};
+
+/**
+ * the Single Truth of Layout Model
+ *
+ * All Model operations should be done through this
+ */
+export const layoutModelJson$ = createFileSystemBehaviorSubject('layout', initialJson());
+
+layoutModelJson$.subscribe((v) => {
+  console.info(formatTime(Date.now()), '##layoutModelJson$', JSON.stringify(v), new Error());
+});
 
 // Sync layout model to ActivePage$
 export const activePage$ = layoutModelJson$.pipe(
@@ -82,15 +103,6 @@ activePage$.subscribe((x) => {
     encodeBase58(new TextEncoder().encode(JSON.stringify(x.pageParams))),
   );
   window.history.pushState({}, '', currentURL.href);
-});
-
-const initialPage = loadPageFromURL();
-// 当初次加载持久化的 layoutModelJson$ 时触发
-layoutModelJson$.pipe(first((json) => json !== undefined)).subscribe(() => {
-  if (initialPage) {
-    // console.info(formatTime(Date.now()), '##loadPageFromURL', initialPage);
-    executeCommand('Page.open', initialPage);
-  }
 });
 
 // 后退历史时触发
