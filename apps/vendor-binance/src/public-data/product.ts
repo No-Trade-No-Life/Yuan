@@ -17,7 +17,7 @@ const cache = provideQueryProductsService(
     return exchangeInfo.symbols.map((symbol): IProduct => {
       return {
         datasource_id: 'BINANCE',
-        product_id: encodePath('usdt-future', symbol.symbol),
+        product_id: encodePath('BINANCE', 'USDT-FUTURE', symbol.symbol),
         base_currency: symbol.baseAsset,
         quote_currency: symbol.quoteAsset,
         price_step: +`1e-${symbol.pricePrecision}`,

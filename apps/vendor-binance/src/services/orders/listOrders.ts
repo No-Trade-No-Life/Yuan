@@ -19,7 +19,7 @@ export const listOrders: IActionHandlerOfListOrders<ICredential> = async (creden
       (order): IOrder => ({
         order_id: `${order.orderId}`,
         account_id,
-        product_id: encodePath('usdt-future', order.symbol),
+        product_id: encodePath('BINANCE', 'USDT-FUTURE', order.symbol),
         order_type: mapBinanceOrderTypeToYuants(order.type),
         order_direction:
           mapBinanceSideToYuantsDirection(order.side, order.positionSide) ??
@@ -42,7 +42,7 @@ export const listOrders: IActionHandlerOfListOrders<ICredential> = async (creden
       (order): IOrder => ({
         order_id: `${order.orderId}`,
         account_id,
-        product_id: encodePath('spot', order.symbol),
+        product_id: encodePath('BINANCE', 'SPOT', order.symbol),
         order_type: mapBinanceOrderTypeToYuants(order.type),
         order_direction: mapSpotSideToOrderDirection(order.side),
         volume: +order.origQty,

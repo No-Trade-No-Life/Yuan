@@ -1,4 +1,5 @@
 import { IActionHandlerOfSubmitOrder } from '@yuants/data-order';
+import { decodePath, newError } from '@yuants/utils';
 import { isApiError } from '../../api/client';
 import { ICredential, postSpotOrder, postUmOrder } from '../../api/private-api';
 import {
@@ -72,11 +73,14 @@ const submitSpotOrder: IActionHandlerOfSubmitOrder<ICredential> = async (credent
 };
 
 export const submitOrder: IActionHandlerOfSubmitOrder<ICredential> = async (credential, order) => {
-  if (order.account_id.includes('/unified/')) {
+  const [, TYPE] = decodePath(order.product_id);
+
+  if (TYPE === 'USDT-FUTURE') {
     return submitUnifiedOrder(credential, order);
   }
-  if (order.account_id.includes('/spot/')) {
+  if (TYPE === 'SPOT') {
     return submitSpotOrder(credential, order);
   }
-  throw new Error(`Unsupported account_id for submitOrder: ${order.account_id}`);
+
+  throw newError('BINANCE_SUBMIT_ORDER_UNSUPPORTED_PRODUCT_TYPE', { order });
 };

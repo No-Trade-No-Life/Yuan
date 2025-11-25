@@ -1,118 +1,24 @@
-import { addAccountMarket, IPosition, provideAccountInfoService } from '@yuants/data-account';
+import { addAccountMarket, provideAccountInfoService } from '@yuants/data-account';
 import { IOrder, providePendingOrdersService } from '@yuants/data-order';
 import { Terminal } from '@yuants/protocol';
 import { addAccountTransferAddress } from '@yuants/transfer';
-import { decodePath, encodePath, formatTime } from '@yuants/utils';
-import { createHash } from 'crypto';
 import { getDefaultCredential, isApiError } from './api/client';
 import {
-  deleteUmOrder,
   getDepositAddress,
   getDepositHistory,
   getSpotAccountInfo,
   getSubAccountList,
-  getUnifiedAccountBalance,
-  getUnifiedUmAccount,
-  getUnifiedUmOpenOrders,
   getWithdrawHistory,
   postAssetTransfer,
-  postUmOrder,
   postWithdraw,
 } from './api/private-api';
-import { getFutureOpenInterest } from './api/public-api';
+import { getSpotAccountInfoSnapshot } from './services/accounts/spot';
+import { getUnifiedAccountInfo } from './services/accounts/unified';
+import { cancelOrder } from './services/orders/cancelOrder';
+import { listOrders } from './services/orders/listOrders';
+import { submitOrder } from './services/orders/submitOrder';
 
 const terminal = Terminal.fromNodeEnv();
-
-const _mapSymbolToOpenInterest: Record<string, { value: number; updated_at: number }> = {};
-const getOpenInterest = async (symbol: string) => {
-  const expired_at = Date.now() - 600_000; // 10min expired
-  const cache = _mapSymbolToOpenInterest[symbol];
-  if (cache) {
-    if (cache.updated_at > expired_at) {
-      return cache.value;
-    }
-  }
-  const data = await getFutureOpenInterest({ symbol });
-  const value = +data.openInterest || 0;
-  _mapSymbolToOpenInterest[symbol] = { value, updated_at: Date.now() };
-  return value;
-};
-
-const mapOrderDirectionToSide = (direction?: string) => {
-  switch (direction) {
-    case 'OPEN_LONG':
-    case 'CLOSE_SHORT':
-      return 'BUY';
-    case 'OPEN_SHORT':
-    case 'CLOSE_LONG':
-      return 'SELL';
-  }
-  throw new Error(`Unknown direction: ${direction}`);
-};
-
-const mapOrderDirectionToPosSide = (direction?: string) => {
-  switch (direction) {
-    case 'OPEN_LONG':
-    case 'CLOSE_LONG':
-      return 'LONG';
-    case 'OPEN_SHORT':
-    case 'CLOSE_SHORT':
-      return 'SHORT';
-  }
-  throw new Error(`Unknown direction: ${direction}`);
-};
-
-const mapOrderTypeToOrdType = (order_type?: string) => {
-  switch (order_type) {
-    case 'LIMIT':
-    case 'MAKER':
-      return 'LIMIT';
-    case 'MARKET':
-      return 'MARKET';
-  }
-  throw new Error(`Unknown order type: ${order_type}`);
-};
-
-const mapBinanceOrderTypeToYuants = (binanceType?: string): IOrder['order_type'] => {
-  switch (binanceType) {
-    case 'LIMIT':
-      return 'LIMIT';
-    case 'MARKET':
-      return 'MARKET';
-    default:
-      return 'LIMIT';
-  }
-};
-
-const mapBinanceSideToYuantsDirection = (
-  side?: string,
-  positionSide?: string,
-): IOrder['order_direction'] | undefined => {
-  if (!side || !positionSide) {
-    return undefined;
-  }
-  if (positionSide === 'LONG') {
-    return side === 'BUY' ? 'OPEN_LONG' : 'CLOSE_LONG';
-  }
-  if (positionSide === 'SHORT') {
-    return side === 'SELL' ? 'OPEN_SHORT' : 'CLOSE_SHORT';
-  }
-  return undefined;
-};
-
-const deriveClientOrderId = (order: IOrder) => {
-  if (order.order_id) return `${order.order_id}`;
-  if (order.comment) return order.comment;
-  const payload = JSON.stringify({
-    account_id: order.account_id,
-    product_id: order.product_id,
-    order_direction: order.order_direction,
-    order_type: order.order_type,
-    price: order.price,
-    volume: order.volume,
-  });
-  return `YUANTS${createHash('sha256').update(payload).digest('hex').slice(0, 24)}`;
-};
 
 const isPublicOnly = process.env.PUBLIC_ONLY === 'true';
 
@@ -168,47 +74,7 @@ if (isPublicOnly) {
       provideAccountInfoService(
         terminal,
         UNIFIED_ACCOUNT_ID,
-        async () => {
-          const [accountResult, umAccountResult] = await Promise.all([
-            getUnifiedAccountBalance(credential),
-            getUnifiedUmAccount(credential),
-          ]);
-          if (isApiError(accountResult)) {
-            throw new Error(accountResult.msg);
-          }
-          const usdtAssets = accountResult.find((v) => v.asset === 'USDT');
-          if (!usdtAssets) {
-            throw new Error('USDT not found');
-          }
-          if (isApiError(umAccountResult)) {
-            throw new Error(umAccountResult.msg);
-          }
-          const usdtUmAssets = umAccountResult.assets.find((v) => v.asset === 'USDT');
-          if (!usdtUmAssets) {
-            throw new Error('um USDT not found');
-          }
-          const equity = +usdtAssets.totalWalletBalance + +usdtAssets.umUnrealizedPNL;
-          const free = equity - +usdtUmAssets.initialMargin;
-
-          const positions = umAccountResult.positions
-            .filter((v) => +v.positionAmt !== 0)
-            .map((v): IPosition => {
-              return {
-                position_id: `${v.symbol}/${v.positionSide}`,
-                datasource_id: 'BINANCE',
-                product_id: encodePath('usdt-future', v.symbol),
-                direction: v.positionSide,
-                volume: +v.positionAmt,
-                free_volume: +v.positionAmt,
-                position_price: +v.entryPrice,
-                closable_price: +v.entryPrice + +v.unrealizedProfit / +v.positionAmt,
-                floating_profit: +v.unrealizedProfit,
-                valuation: +v.positionAmt * (+v.entryPrice + +v.unrealizedProfit / +v.positionAmt),
-              };
-            });
-
-          return positions;
-        },
+        async () => getUnifiedAccountInfo(credential, UNIFIED_ACCOUNT_ID),
         { auto_refresh_interval: 1000 },
       );
 
@@ -221,36 +87,7 @@ if (isPublicOnly) {
       provideAccountInfoService(
         terminal,
         SPOT_ACCOUNT_ID,
-        async () => {
-          const spotAccountResult = await getSpotAccountInfo(credential, { omitZeroBalances: true });
-          if (isApiError(spotAccountResult)) {
-            throw new Error(spotAccountResult.msg);
-          }
-          const usdtAssets = spotAccountResult.balances.find((v) => v.asset === 'USDT');
-          const positions = spotAccountResult.balances
-            .filter((balance) => balance.asset !== 'USDT')
-            .map((balance) => {
-              const volume = +balance.free + +balance.locked;
-              if (!volume) {
-                return undefined;
-              }
-              const position: IPosition = {
-                position_id: `spot/${balance.asset}`,
-                datasource_id: 'BINANCE',
-                product_id: encodePath('spot', `${balance.asset}USDT`),
-                direction: 'LONG',
-                volume,
-                free_volume: +balance.free,
-                position_price: 0,
-                closable_price: 0,
-                floating_profit: 0,
-                valuation: 0,
-              };
-              return position;
-            })
-            .filter((position): position is IPosition => Boolean(position));
-          return positions;
-        },
+        async () => getSpotAccountInfoSnapshot(credential, SPOT_ACCOUNT_ID),
         {
           auto_refresh_interval: 5_000,
         },
@@ -371,26 +208,7 @@ if (isPublicOnly) {
       providePendingOrdersService(
         terminal,
         UNIFIED_ACCOUNT_ID,
-        async () => {
-          const openOrders = await getUnifiedUmOpenOrders(credential);
-          return openOrders.map((order): IOrder => {
-            const order_direction =
-              mapBinanceSideToYuantsDirection(order.side, order.positionSide) ?? 'OPEN_LONG';
-            return {
-              order_id: `${order.orderId}`,
-              account_id: UNIFIED_ACCOUNT_ID,
-              product_id: encodePath('usdt-future', order.symbol),
-              order_type: mapBinanceOrderTypeToYuants(order.type),
-              order_direction,
-              volume: +order.origQty,
-              traded_volume: +order.executedQty,
-              price: order.price === undefined ? undefined : +order.price,
-              submit_at: order.time,
-              updated_at: new Date(order.updateTime).toISOString(),
-              order_status: order.status,
-            };
-          });
-        },
+        async () => listOrders(credential, UNIFIED_ACCOUNT_ID),
         { auto_refresh_interval: 1000 },
       );
 
@@ -403,30 +221,7 @@ if (isPublicOnly) {
           },
         },
         async (msg) => {
-          console.info(formatTime(Date.now()), 'SubmitOrder', msg.req);
-          const order = msg.req;
-          const [instType, symbol] = decodePath(order.product_id);
-          if (instType === 'usdt-future') {
-            const params = {
-              symbol,
-              side: mapOrderDirectionToSide(order.order_direction),
-              positionSide: mapOrderDirectionToPosSide(order.order_direction),
-              type: mapOrderTypeToOrdType(order.order_type),
-              timeInForce:
-                order.order_type === 'MAKER' ? 'GTX' : order.order_type === 'LIMIT' ? 'GTC' : undefined,
-              quantity: order.volume,
-              price: order.price,
-              newClientOrderId: deriveClientOrderId(order),
-            };
-
-            console.info(formatTime(Date.now()), 'SubmitOrder', 'params', JSON.stringify(params));
-            const orderResult = await postUmOrder(credential, params);
-            if (isApiError(orderResult)) {
-              return { res: { code: orderResult.code, message: orderResult.msg } };
-            }
-            return { res: { code: 0, message: 'OK', order_id: orderResult.orderId } };
-          }
-          return { res: { code: 400, message: `unsupported type: ${instType}` } };
+          return { res: { code: 0, message: 'OK', order_id: await submitOrder(credential, msg.req) } };
         },
       );
     }
@@ -441,22 +236,7 @@ if (isPublicOnly) {
           },
         },
         async (msg) => {
-          const order = msg.req;
-          if (!order.order_id) {
-            return { res: { code: 400, message: 'order_id is required' } };
-          }
-          const [instType, symbol] = decodePath(order.product_id);
-          if (instType !== 'usdt-future') {
-            return { res: { code: 400, message: `unsupported type: ${instType}` } };
-          }
-          const cancelResult = await deleteUmOrder(credential, {
-            symbol,
-            orderId: order.order_id,
-          });
-          if (isApiError(cancelResult)) {
-            return { res: { code: cancelResult.code, message: cancelResult.msg } };
-          }
-          return { res: { code: 0, message: 'OK' } };
+          return { res: { code: 0, message: 'OK', data: await cancelOrder(credential, msg.req) } };
         },
       );
     }

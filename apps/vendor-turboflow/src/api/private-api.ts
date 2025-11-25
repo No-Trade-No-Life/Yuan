@@ -1,4 +1,4 @@
-import { decodeBase58, fromPrivateKey, HmacSHA256, signMessageByEd25519 } from '@yuants/utils';
+import { decodeBase58, fromPrivateKey, HmacSHA256, scopeError, signMessageByEd25519 } from '@yuants/utils';
 
 export interface ICredential {
   /**
@@ -9,9 +9,20 @@ export interface ICredential {
 
 const BASE_URL = 'https://surfv2-api.surf.one';
 
-export const privateRequest = async (credential: ICredential, method: string, path: string, params: any) => {
+export const privateRequest = async (
+  credential: ICredential,
+  method: string,
+  path: string,
+  params: any = {},
+) => {
   const url = new URL(BASE_URL);
   url.pathname = path;
+
+  if (method === 'GET') {
+    for (const [key, value] of Object.entries(params)) {
+      url.searchParams.set(key, `${value}`);
+    }
+  }
 
   const publicKey = fromPrivateKey(credential.private_key).public_key;
   const publicKeyBinary = decodeBase58(publicKey);
@@ -23,7 +34,12 @@ export const privateRequest = async (credential: ICredential, method: string, pa
 
   const timestamp = Math.floor(Date.now() / 1000).toString();
 
-  const data = `method=${method}&path=${path}&timestamp=${timestamp}&access-key=${publicKeyHex}`;
+  // 除了 host 之外的所有内容
+  const _path = url.pathname + url.search;
+
+  const data =
+    `method=${method}&path=${_path}&timestamp=${timestamp}&access-key=${publicKeyHex}` +
+    (method === 'POST' ? `&body=${JSON.stringify(params)}` : '');
   const hashData = await HmacSHA256(new TextEncoder().encode(data), publicKeyBinary);
 
   const signature = signMessageByEd25519(hashData, privateKeyBinary);
@@ -34,14 +50,6 @@ export const privateRequest = async (credential: ICredential, method: string, pa
   headers['SIGN'] = signatureHex;
   headers['LANG'] = 'zh-cn';
 
-  console.info(url.toString(), headers);
-
-  if (method === 'GET') {
-    for (const [key, value] of Object.entries(params)) {
-      url.searchParams.set(key, `${value}`);
-    }
-  }
-
   const response = await fetch(url.toString(), {
     method,
     headers,
@@ -50,12 +58,11 @@ export const privateRequest = async (credential: ICredential, method: string, pa
 
   const text = await response.text();
 
-  try {
-    const res = JSON.parse(text);
-    return res;
-  } catch (e) {
-    throw `APIError: ${response.status} ${response.statusText} ${text}`;
-  }
+  console.info(url.toString(), headers, text);
+
+  return scopeError('TurboAPIError', { status: response.status, statusText: response.statusText, text }, () =>
+    JSON.parse(text),
+  );
 };
 
 export const createPrivateApi =
@@ -460,7 +467,7 @@ export const getPositionList = createPrivateApi<
       page_num: number;
       count: number;
       page_count: number;
-      data: Array<{
+      data?: Array<{
         id: string;
         pool_id: number;
         pair_id: string;

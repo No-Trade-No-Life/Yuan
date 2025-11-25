@@ -60,7 +60,7 @@ const quoteFromPremiumIndex$ = futurePremiumIndex$.pipe(
   map(
     (entry): Partial<IQuote> => ({
       datasource_id: 'BINANCE',
-      product_id: encodePath('usdt-future', entry.symbol),
+      product_id: encodePath('BINANCE', 'USDT-FUTURE', entry.symbol),
       last_price: entry.markPrice,
       // Use the latest funding rate so that long pays when fundingRate > 0
       interest_rate_long: `${-Number(entry.lastFundingRate)}`,
@@ -76,7 +76,7 @@ const quoteFromBookTicker$ = futureBookTicker$.pipe(
   map(
     (entry): Partial<IQuote> => ({
       datasource_id: 'BINANCE',
-      product_id: encodePath('usdt-future', entry.symbol),
+      product_id: encodePath('BINANCE', 'USDT-FUTURE', entry.symbol),
       bid_price: entry.bidPrice,
       ask_price: entry.askPrice,
       updated_at: formatTime(entry.time ?? Date.now()),
@@ -92,7 +92,7 @@ const quoteFromOpenInterest$ = futureBookTicker$.pipe(
         map(
           (openInterest): Partial<IQuote> => ({
             datasource_id: 'BINANCE',
-            product_id: encodePath('usdt-future', entry.symbol),
+            product_id: encodePath('BINANCE', 'USDT-FUTURE', entry.symbol),
             open_interest: `${openInterest ?? 0}`,
           }),
         ),
@@ -109,7 +109,7 @@ const quoteFromSpotBookTicker$ = defer(() => getSpotBookTicker({})).pipe(
   map(
     (entry): Partial<IQuote> => ({
       datasource_id: 'BINANCE',
-      product_id: encodePath('spot', entry.symbol),
+      product_id: encodePath('BINANCE', 'SPOT', entry.symbol),
       bid_price: entry.bidPrice,
       ask_price: entry.askPrice,
       bid_volume: entry.bidQty,
@@ -154,7 +154,7 @@ const quoteFromMarginRates$ = marginPairs$.pipe(
             ]);
             return {
               datasource_id: 'BINANCE',
-              product_id: encodePath('spot', pair.symbol),
+              product_id: encodePath('BINANCE', 'SPOT', pair.symbol),
               // User instruction: Long = Quote Rate, Short = Base Rate
               interest_rate_long: quoteRate,
               interest_rate_short: baseRate,
