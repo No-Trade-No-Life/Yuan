@@ -37,7 +37,7 @@ createSeriesProvider<IOHLC>(terminal, {
       throw new Error(`Unsupported duration: ${duration}`);
     }
     const offset = convertDurationToOffset(duration);
-    const [instType, symbol] = decodePath(product_id);
+    const [, instType, symbol] = decodePath(product_id);
 
     let current_end = ended_at || Date.now();
     const start = started_at || 0;

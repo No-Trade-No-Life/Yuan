@@ -15,7 +15,7 @@ export const getSpotAccountInfoSnapshot: IActionHandlerOfGetAccountInfo<ICredent
       const position: IPosition = makeSpotPosition({
         position_id: `spot/${balance.asset}`,
         datasource_id: 'BINANCE',
-        product_id: encodePath('spot', `${balance.asset}USDT`),
+        product_id: encodePath('BINANCE', 'SPOT', `${balance.asset}USDT`),
         volume,
         free_volume: +balance.free,
         closable_price: 0, // TODO: fetch price later
