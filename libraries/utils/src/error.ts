@@ -22,24 +22,31 @@ export function newError(type: string, context: Record<string, any>, originalErr
 }
 
 /**
- * Wrap a function with error context
+ * Execute a function within an error scope.
+ * Any error thrown will be wrapped with the provided type and context.
  *
  * @public
  * @param type - Error type
- * @param context - Error context
+ * @param context - Error context or a function that returns the context
  * @param staff - Function to execute
  * @returns Result of the function
  */
-export function withErrorContext<T>(type: string, context: Record<string, any>, staff: () => T): T {
+export function scopeError<T>(
+  type: string,
+  context: Record<string, any> | (() => Record<string, any>),
+  staff: () => T,
+): T {
   try {
     const result = staff();
     if (result instanceof Promise) {
       return result.catch((e) => {
-        throw newError(type, context, e);
+        const ctx = typeof context === 'function' ? context() : context;
+        throw newError(type, ctx, e);
       }) as any;
     }
     return result;
   } catch (e) {
-    throw newError(type, context, e);
+    const ctx = typeof context === 'function' ? context() : context;
+    throw newError(type, ctx, e);
   }
 }

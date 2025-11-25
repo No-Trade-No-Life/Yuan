@@ -124,6 +124,9 @@ export function roundToStep(value: number, step: number,
 roundFn?: (x: number) => number): number;
 
 // @public
+export function scopeError<T>(type: string, context: Record<string, any> | (() => Record<string, any>), staff: () => T): T;
+
+// @public
 export function sha256(data: Uint8Array): Promise<Uint8Array>;
 
 // @public
@@ -143,8 +146,5 @@ export const UUID: () => string;
 
 // @public
 export const verifyMessage: (message: string, signature: string, publicKey: string) => boolean;
-
-// @public
-export function withErrorContext<T>(type: string, context: Record<string, any>, staff: () => T): T;
 
 ```
