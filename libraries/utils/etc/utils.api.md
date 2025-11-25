@@ -108,7 +108,7 @@ export type NativeSubject<T> = AsyncIterable<T> & AsyncIterator<T, void, T>;
 export const nativeSubjectToSubject: <T>(source: NativeSubject<T>) => Subject<T>;
 
 // @public
-export function newError(type: string, context: Record<string, any>): Error;
+export function newError(type: string, context: Record<string, any>, originalError?: unknown): Error;
 
 // @public
 export const observableToAsyncIterable: <T>(source: Observable<T>) => AsyncIterable<T>;
@@ -122,6 +122,9 @@ export const rateLimitMap: <A, B, C>(fn: (obj: A) => Observable<B>, reject: (obj
 // @public (undocumented)
 export function roundToStep(value: number, step: number,
 roundFn?: (x: number) => number): number;
+
+// @public
+export function scopeError<T>(type: string, context: Record<string, any> | (() => Record<string, any>), staff: () => T): T;
 
 // @public
 export function sha256(data: Uint8Array): Promise<Uint8Array>;

@@ -56,11 +56,12 @@ throw new NetworkError(`Failed to fetch data for userId=${userId}`);
 
 ## 捕获异常的具体风格
 
-错误处理永远只有 3 种选择:
+错误处理永远只有 4 种选择:
 
 1. 知道如何应对 -> 使用备选方案；
 2. 认为是偶然性因素导致的 -> 重试；
-3. 认为是当前无法处理的 -> 汇报展示、控制影响面，通知外部介入处理错误。
+3. 需要补充上下文信息 -> 捕获并包装异常 (必须保留原始错误堆栈)。
+4. 认为是当前无法处理的 -> 汇报展示、控制影响面，通知外部介入处理错误；
 
 除此之外，永远不应当捕获异常。
 
@@ -68,13 +69,16 @@ throw new NetworkError(`Failed to fetch data for userId=${userId}`);
 
 1.  提供备用方案：如果有备用方案可以使用（如使用缓存数据），可以捕获异常并执行备用方案。
 2.  重试：如果操作可能会暂时失败（如网络请求），可以捕获异常并重试操作。
-3.  展示：在接口层 (API, GUI, CLI, 以及 **Delegate 逻辑**) 捕获异常并展示给用户友好的错误信息，并防止错误扩散。
+3.  补充上下文：如果当前层级有关键信息（如 Loop 变量、配置 ID）有助于定位问题，可以捕获异常，使用 `newError` 包装并重新抛出，或者使用 `scopeError` 自动处理。
+4.  展示：在接口层 (API, GUI, CLI, 以及 **Delegate 逻辑**) 捕获异常并展示给用户友好的错误信息，并防止错误扩散。
 
 为了澄清概念，特别说明不应当捕获异常的情形:
 
 1.  记录日志：记录日志应当在展示错误的地方进行。
-2.  转换异常类型：我们不使用这种风格，它总是应当抛出最原始的异常。
+2.  **丢失原始信息的**转换异常类型：禁止直接 `throw new Error(msg)` 而丢弃原始 `error`。如果需要转换，必须使用 `cause` 属性保留原始堆栈。
 3.  忽略异常：不应当捕获异常后忽略它，这会导致错误被隐藏，难以调试。
+
+### 提供备用方案
 
 ```ts
 // 推荐做法：提供备用方案
@@ -85,7 +89,11 @@ try {
   return JSONC.parse(input); // 备用方案 (宽松解析)
   // 再不然就抛出异常
 }
+```
 
+### 重试
+
+```ts
 // 推荐做法：重试
 async function withRetry(staff, retryCount = 3) {
   try {
@@ -101,7 +109,51 @@ import { defer, retry } from 'rxjs/operators';
 defer(() => staff()).pipe(
   retry({ count: 3, delay: 1000 }), // 重试 3 次, 每次间隔 1 秒
 );
+```
 
+### 补充上下文信息
+
+**丢失原始信息的**转换异常类型只会增加调试难度，隐藏一部分调用堆栈，并且没有任何价值，必须使用 `cause` 参数保留原始堆栈信息。
+
+```ts
+// 推荐做法: 补充上下文信息 (使用 newError, scopeError 辅助函数)
+import { newError, scopeError } from '@yuants/utils';
+
+await scopeError('FetchDataError', { url, retryCount }, async () => {
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw newError('HTTPError', { status: response.status, statusText: response.statusText });
+  }
+  return await response.json();
+});
+
+// 错误做法: 转换异常类型，丢失原始堆栈信息
+try {
+  const data = await fetchData();
+  return data;
+} catch (error) {
+  throw new Error(`DataFetchError: ${error.message}`);
+}
+
+// 不推荐做法: 模版代码多 (try-catch)
+try {
+  const data = await fetchData(userId);
+  return data;
+} catch (error) {
+  throw new Error(
+    `DataFetchError: Failed to fetch data for userId=${userId}, original error: ${error.message}`,
+    { cause: error },
+  );
+}
+```
+
+### 展示错误信息
+
+不推荐做法: 捕获异常仅用于记录日志，或进行丢失信息的异常转换。
+
+你永远只需要在展示错误信息的地方记录日志，其他情形下的日志都没有价值。
+
+```ts
 // 推荐做法: Service API 展示错误信息
 // 在 Yuan Server 中已经内置支持，不需要额外代码
 terminal.server.provideService('<METHOD>', '<JSON-SCHEMA', async (msg) => {
@@ -201,15 +253,7 @@ function Layout() {
     </div>
   );
 }
-```
 
-不推荐做法: 捕获异常仅用于记录日志或转换异常类型。
-
-你永远只需要在展示错误信息的地方记录日志，其他情形下的日志都没有价值。
-
-转换异常类型只会增加调试难度，隐藏一部分调用堆栈，并且没有任何价值。
-
-```ts
 // 不推荐做法: 仅记录日志
 try {
   const data = await fetchData();
@@ -218,58 +262,20 @@ try {
   console.error('Failed to fetch data', error);
   throw error; // 重新抛出异常，未提供任何处理
 }
-
-// 不推荐做法: 转换异常类型
-try {
-  const data = await fetchData();
-  return data;
-} catch (error) {
-  throw new Error(`DataFetchError: ${error.message}`); // 转换异常类型
-}
-
-// 不推荐做法: 转换异常时添加额外的上下文信息
-// 仍然是错误的，因为将 userId 汇报到错误信息里，是 fetchData 函数内部的责任，而不是调用者的责任
-try {
-  const data = await fetchData(userId);
-  return data;
-} catch (error) {
-  throw new Error(
-    `DataFetchError: Failed to fetch data for userId=${userId}, original error: ${error.message}`,
-  );
-}
-
-// 不推荐做法: 转换异常时添加额外的上下文信息，并且与 fetchData 参数不相关的情形
-// 仍然是错误的，fetchData 需要汇报 arg 参数的报错信息，调试者就应该知道什么样的 arg 参数会有问题 (如果顺利原封不动进入展示阶段)
-// 那么说明 someComputation 函数不应当输出那种 arg 参数。
-// 那么应当在 fetchData 之前检查 arg 参数是否合法，而不是在捕获异常时再添加上下文信息。
-// 当 fetchData 抛出异常时，如果无备选方案并且重试无效，就应该检查 arg 参数后抛出异常。
-
-for (let item of items) {
-  const arg = someComputation(item);
-  try {
-    await fetchData(arg);
-  } catch (error) {
-    throw new Error(`ProcessItemError: Failed to process item=${item}, original error: ${error.message}`);
-  }
-}
-
-// 推荐改为: (或者内化到 someComputation 函数里)
-for (let item of items) {
-  const arg = someComputation(item);
-  if (!isValidArg(arg)) {
-    throw new Error(`InvalidArgumentError: The computed argument is invalid for item=${item}, arg=${arg}`);
-  }
-  await fetchData(arg);
-}
 ```
 
 ## Proposal: 使用 Error Helper 函数构建错误信息
 
-为了简化错误信息的构建，并确保错误信息的一致性，可以使用一个辅助函数 `newError` 来构建错误信息。这个函数接受错误类型、错误消息和上下文参数，并返回一个格式化的错误对象。
+为了简化错误信息的构建，并确保错误信息的一致性，可以使用辅助函数 `newError` 和 `scopeError`。
 
-1. 强制使用 context 参数，确保所有错误都包含足够的上下文信息。
-2. 使用遥测系统上报错误信息。
-3. 加入 @yuants/utils 豪华全家桶。
+1. **`newError`**: 用于手动构建错误对象，支持 `cause` 参数保留原始堆栈。
+2. **`scopeError`**: 高阶函数，用于创建一个错误作用域。自动捕获作用域内的异常，附加 Context 后重新抛出。
+
+### 优势
+
+1. **减少样板代码**: 避免了显式的 `try-catch` 块，代码更线性。
+2. **强制 Context**: 开发者被迫思考 `type` 和 `context`。
+3. **统一处理**: 同时支持同步和异步函数。
 
 ```ts
 import { createRegistry } from '@yuants/prometheus';
@@ -277,15 +283,52 @@ import { createRegistry } from '@yuants/prometheus';
 export const errorRegistry = createRegistry();
 const errorCounter = errorRegistry.counter('new_errors_total', 'Total number of errors');
 
-export function newError(type: string, context: Record<string, any>) {
+export function newError(type: string, context: Record<string, any>, originalError?: unknown) {
   const contextStr = Object.entries(context)
     .map(([key, value]) => `${key}=${JSON.stringify(value)}`)
     .join(', ');
   errorCounter.labels({ type }).inc();
-  return new Error(`${type}: ${contextStr}`);
+  return new Error(`${type}: ${contextStr}`, { cause: originalError });
+}
+
+export function scopeError<T>(
+  type: string,
+  context: Record<string, any> | (() => Record<string, any>),
+  staff: () => T,
+): T {
+  try {
+    const result = staff();
+    if (result instanceof Promise) {
+      return result.catch((e) => {
+        throw newError(type, context, e);
+      }) as any;
+    }
+    return result;
+  } catch (e) {
+    throw newError(type, context, e);
+  }
 }
 
 // 使用示例
-import { newError } from '@yuants/utils';
-throw newError('TimeoutError', { url: '...', timeout: 5000 }); // TimeoutError: url="...",
+import { newError, scopeError } from '@yuants/utils';
+
+// 场景 1: 业务逻辑主动抛错
+throw newError('TimeoutError', { url: '...', timeout: 5000 });
+
+// 场景 2: 使用 scopeError 自动捕获并补充上下文 (推荐)
+// 读作: "Scope this error as 'NetworkError' with context { url }, then do fetch"
+await scopeError('NetworkError', { url }, async () => {
+  await fetch(url);
+  // ... 其他逻辑
+});
+
+// 场景 3: Lazy Context (高性能场景)
+// 只有在报错时才会计算 Context，避免无谓的序列化开销
+await scopeError(
+  'HeavyComputationError',
+  () => ({ result: heavySerialize(data) }),
+  async () => {
+    // ...
+  },
+);
 ```
