@@ -1,4 +1,5 @@
 import { Terminal } from '@yuants/protocol';
+import { newError } from '@yuants/utils';
 
 /**
  * 执行 SQL 语句
@@ -11,7 +12,7 @@ export const requestSQL = async <T = unknown>(terminal: Terminal, query: string)
   });
 
   if (result.code !== 0) {
-    throw new Error(`Failed to run SQL query: ${query}, message: ${result.message}`);
+    throw newError('FailedToRunSQLQuery', { query, message: result.message });
   }
 
   return result.data as any as T;

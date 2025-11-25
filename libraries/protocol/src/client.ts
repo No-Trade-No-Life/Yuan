@@ -1,4 +1,4 @@
-import { formatTime, UUID } from '@yuants/utils';
+import { formatTime, newError, UUID } from '@yuants/utils';
 import {
   defer,
   filter,
@@ -163,7 +163,7 @@ export class TerminalClient {
     return defer(() => this.resolveTargetServices(method, req)).pipe(
       map((arr) => {
         if (arr.length === 0) {
-          throw Error(`No terminal available for request: method=${method} req=${JSON.stringify(req)}`);
+          throw newError(`NO_TERMINAL_AVAILABLE_FOR_REQUEST`, { method, req });
         }
         const target = arr[~~(Math.random() * arr.length)]; // Simple Random Load Balancer
         return target;

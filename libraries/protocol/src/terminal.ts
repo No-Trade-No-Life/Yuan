@@ -6,9 +6,10 @@ import {
   errorRegistry,
   formatTime,
   fromPrivateKey,
+  newError,
   signMessage,
 } from '@yuants/utils';
-import { isNode } from 'browser-or-node';
+import { isBrowser, isNode } from 'browser-or-node';
 import { JSONSchema7 } from 'json-schema';
 import {
   EMPTY,
@@ -167,13 +168,13 @@ export class Terminal {
    * - `ENABLE_WEBRTC`: enable WebRTC connection (default false)
    */
   static fromNodeEnv(): Terminal {
-    if (!isNode) throw new Error('Terminal.fromNodeEnv() can only be used in Node.js environment');
+    if (!isNode) throw newError('ENV_NOT_NODE', { isBrowser, isSecureContext });
     if (this._terminal) {
       return this._terminal;
     }
     const HOST_URL = process.env.HOST_URL;
     if (!HOST_URL) {
-      throw new Error('env HOST_URL is not set');
+      throw newError('ENV_HOST_URL_NOT_SET', { HOST_URL });
     }
     return (this._terminal = new Terminal(
       HOST_URL,

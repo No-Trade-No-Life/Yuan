@@ -5,6 +5,7 @@ import {
   encodePath,
   encrypt,
   generateX25519KeyPair,
+  newError,
   signMessage,
   verifyMessage,
 } from '@yuants/utils';
@@ -47,7 +48,7 @@ export class TerminalSecurity {
       },
       async ({ req: { x25519_public_key, public_key, signature } }) => {
         if (!verifyMessage(x25519_public_key, signature, public_key)) {
-          throw new Error('Invalid signature');
+          throw newError('INVALID_SIGNATURE', { x25519_public_key, public_key, signature });
         }
 
         const localKeyPair = generateX25519KeyPair();
@@ -92,7 +93,11 @@ export class TerminalSecurity {
     });
 
     if (!verifyMessage(`${myPair.public_key}${data.x25519_public_key}`, data.signature, ed25519_public_key)) {
-      throw new Error('Invalid signature');
+      throw newError('INVALID_SIGNATURE', {
+        x25519_public_key: data.x25519_public_key,
+        public_key: ed25519_public_key,
+        signature: data.signature,
+      });
     }
 
     const shared_key = deriveSharedKey(data.x25519_public_key, myPair.private_key);
@@ -117,7 +122,7 @@ export class TerminalSecurity {
     try {
       // 乐观估计密钥有效
       const shared_key = this.sharedKeyCache.get(remote_public_key);
-      if (!shared_key) throw new Error(`LocalSharedKeyNotFound: remote_public_key=${remote_public_key}`);
+      if (!shared_key) throw newError('LocalSharedKeyNotFound', { remote_public_key });
       return decrypt(encrypted_data, shared_key);
     } catch (err) {
       // 可能是密钥无效，重新请求共享密钥 (不阻塞，不抛异常)
@@ -136,7 +141,7 @@ export class TerminalSecurity {
    */
   async encryptDataWithRemotePublicKey(data: Uint8Array, remote_public_key: string): Promise<Uint8Array> {
     const shared_key = await this.sharedKeyCache.query(remote_public_key, false);
-    if (!shared_key) throw new Error(`RemoteSharedKeyNotFound: remote_public_key=${remote_public_key}`);
+    if (!shared_key) throw newError('RemoteSharedKeyNotFound', { remote_public_key });
     return encrypt(data, shared_key);
   }
 }

@@ -7,6 +7,7 @@ import {
   encodePath,
   encryptByPublicKeyAsync,
   fromPrivateKey,
+  newError,
   signMessage,
   verifyMessage,
 } from '@yuants/utils';
@@ -102,7 +103,7 @@ export const readSecret = async (
   const message = secret.signer + secret.reader + getTagsText(secret.tags) + secret.data;
 
   const valid = verifyMessage(message, secret.sign, secret.signer);
-  if (!valid) throw new Error('Invalid secret signature');
+  if (!valid) throw newError('InvalidSecretSignature', { message });
 
   const keyPair = fromPrivateKey(reader_private_key);
 
@@ -150,14 +151,14 @@ export const setupSecretProxyService = (terminal: Terminal, trusted_public_keys 
     },
     async ({ req }) => {
       if (!trusted_public_keys.has(req.public_key))
-        throw new Error(`Public key not trusted: ${req.public_key}`);
+        throw newError('PublicKeyNotTrusted', { public_key: req.public_key });
 
       const [secret] = await requestSQL<ISecret[]>(
         terminal,
         `select * from secret where sign = ${escapeSQL(req.secret_sign)}`,
       );
 
-      if (!secret) throw new Error(`Secret not found: ${req.secret_sign}`);
+      if (!secret) throw newError('SecretNotFound', { secret_sign: req.secret_sign });
 
       const data = await readSecret(terminal, secret);
 

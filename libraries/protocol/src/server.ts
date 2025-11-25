@@ -1,4 +1,4 @@
-import { formatTime, UUID } from '@yuants/utils';
+import { formatTime, newError, UUID } from '@yuants/utils';
 import { JSONSchema7 } from 'json-schema';
 import {
   BehaviorSubject,
@@ -492,7 +492,7 @@ export class TerminalServer {
     requestContext.processing_at = Date.now();
     requestContext.stage = 'processing';
     const { message, serviceContext, output$ } = requestContext;
-    if (!serviceContext) throw new Error('ServiceContext Not Found');
+    if (!serviceContext) throw newError('SERVICE_CONTEXT_NOT_FOUND', { message });
     serviceContext.processing.add(requestContext);
     requestContext.output$.next({ event: { type: 'in_processing' } });
 
@@ -538,7 +538,7 @@ export class TerminalServer {
     requestContext.processed_at = Date.now();
     requestContext.stage = 'processed';
     const { serviceContext } = requestContext;
-    if (!serviceContext) throw new Error('ServiceContext Not Found');
+    if (!serviceContext) throw newError('SERVICE_CONTEXT_NOT_FOUND', { requestContext });
 
     serviceContext.processing.delete(requestContext);
     serviceContext.total_processed++;
