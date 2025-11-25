@@ -13,10 +13,16 @@ const errorCounter = errorRegistry.counter('new_errors_total', 'Total number of 
  * @returns Error object
  */
 export function newError(type: string, context: Record<string, any>, originalError?: unknown) {
-  const contextStr = Object.entries(context)
-    .map(([key, value]) => `${key}=${JSON.stringify(value)}`)
-    .join(', ');
   errorCounter.labels({ type }).inc();
+  const contextStr = Object.entries(context)
+    .map(([key, value]) => {
+      try {
+        return `${key}=${JSON.stringify(value)}`;
+      } catch (e) {
+        return `${key}=<SerializationError>`;
+      }
+    })
+    .join(', ');
   // 使用 cause 传递原始错误信息 (ES2022)
   return new Error(`${type}: ${contextStr}`, { cause: originalError } as ErrorOptions);
 }

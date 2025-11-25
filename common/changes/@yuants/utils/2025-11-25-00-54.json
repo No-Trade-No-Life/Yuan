@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/utils",
+      "comment": "enhance error handling",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/utils"
+}
