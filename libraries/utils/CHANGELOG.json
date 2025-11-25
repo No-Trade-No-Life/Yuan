@@ -2,6 +2,31 @@
   "name": "@yuants/utils",
   "entries": [
     {
+      "version": "0.13.0",
+      "tag": "@yuants/utils_v0.13.0",
+      "date": "Tue, 25 Nov 2025 07:08:44 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "add error registry"
+          },
+          {
+            "comment": "enhance error handling"
+          }
+        ],
+        "patch": [
+          {
+            "comment": "refactor"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.12.0",
       "tag": "@yuants/utils_v0.12.0",
       "date": "Mon, 24 Nov 2025 11:58:37 GMT",

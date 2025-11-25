@@ -1,6 +1,11 @@
 # Change Log - @yuants/tool-yuanctl
 
-This log was last generated on Mon, 24 Nov 2025 16:41:12 GMT and should not be manually modified.
+This log was last generated on Tue, 25 Nov 2025 07:08:44 GMT and should not be manually modified.
+
+## 0.2.9
+Tue, 25 Nov 2025 07:08:44 GMT
+
+_Version update only_
 
 ## 0.2.8
 Mon, 24 Nov 2025 16:41:12 GMT
