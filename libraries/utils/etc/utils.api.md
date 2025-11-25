@@ -108,7 +108,7 @@ export type NativeSubject<T> = AsyncIterable<T> & AsyncIterator<T, void, T>;
 export const nativeSubjectToSubject: <T>(source: NativeSubject<T>) => Subject<T>;
 
 // @public
-export function newError(type: string, context: Record<string, any>): Error;
+export function newError(type: string, context: Record<string, any>, originalError?: unknown): Error;
 
 // @public
 export const observableToAsyncIterable: <T>(source: Observable<T>) => AsyncIterable<T>;
@@ -143,5 +143,8 @@ export const UUID: () => string;
 
 // @public
 export const verifyMessage: (message: string, signature: string, publicKey: string) => boolean;
+
+// @public
+export function withErrorContext<T>(type: string, context: Record<string, any>, staff: () => T): T;
 
 ```
