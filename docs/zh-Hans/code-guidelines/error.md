@@ -116,10 +116,10 @@ defer(() => staff()).pipe(
 **丢失原始信息的**转换异常类型只会增加调试难度，隐藏一部分调用堆栈，并且没有任何价值，必须使用 `cause` 参数保留原始堆栈信息。
 
 ```ts
-// 推荐做法: 补充上下文信息 (使用 newError, withErrorContext 辅助函数)
-import { newError, withErrorContext } from '@yuants/utils';
+// 推荐做法: 补充上下文信息 (使用 newError, scopeError 辅助函数)
+import { newError, scopeError } from '@yuants/utils';
 
-await withErrorContext('FetchDataError', { url, retryCount }, async () => {
+await scopeError('FetchDataError', { url, retryCount }, async () => {
   const response = await fetch(url);
   if (!response.ok) {
     throw newError('HTTPError', { status: response.status, statusText: response.statusText });
