@@ -2,13 +2,14 @@ import { AgentScene, IAgentConf } from '@yuants/agent';
 import { Terminal } from '@yuants/protocol';
 import { ISecret, readSecret } from '@yuants/secret';
 import { escapeSQL, requestSQL } from '@yuants/sql';
+import { newError } from '@yuants/utils';
 import { defer, of } from 'rxjs';
 
 const terminal = Terminal.fromNodeEnv();
 
 defer(async () => {
   const code_secret_id = process.env.CODE_SECRET_ID;
-  if (!code_secret_id) throw new Error(`CODE_SECRET_ID is not set`);
+  if (!code_secret_id) throw newError(`CODE_SECRET_ID_NOT_SET`, { terminal_id: terminal.terminal_id });
   const agent_params = JSON.parse(process.env.AGENT_PARAMS!);
   const start_time = process.env.STARTED_AT!;
   const kernel_id = process.env.KERNEL_ID!;

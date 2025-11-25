@@ -1,6 +1,7 @@
 import { convertPublicKey, convertSecretKey } from 'ed2curve';
 import { box, sign } from 'tweetnacl';
 import { decodeBase58, encodeBase58 } from './base58';
+import { newError } from './error';
 /**
  * create a new key pair
  *
@@ -31,7 +32,7 @@ export interface IEd25519KeyPair {
  */
 export const fromSeed = (seed: Uint8Array): IEd25519KeyPair => {
   if (seed.length !== 32) {
-    throw new Error('Seed must be 32 bytes');
+    throw newError('InvalidSeedLength', { seed });
   }
   const pair = sign.keyPair.fromSeed(seed);
   const public_key = encodeBase58(pair.publicKey);
@@ -41,23 +42,21 @@ export const fromSeed = (seed: Uint8Array): IEd25519KeyPair => {
 
 /**
  * create a key pair from a secret key
- * @param privateKey - the private key to create the key pair from (base58 encoded)
+ * @param privateKey - the private key to create the key pair from (base58 encoded, 64 bytes)
  * @returns the public key and the private key (both base58 encoded)
  * @public
  */
 export const fromPrivateKey = (privateKey: string): IEd25519KeyPair => {
   const buffer = decodeBase58(privateKey);
   if (buffer.length !== 64) {
-    throw new Error('Invalid private key: wrong size');
+    throw newError('InvalidPrivateKeyLength', { privateKey });
   }
   const seed = buffer.slice(0, 32);
   const pair = fromSeed(seed);
   const public_key = pair.public_key;
   const the_public_key = encodeBase58(buffer.slice(32, 64));
   if (public_key !== the_public_key) {
-    throw new Error(
-      `Invalid private key: public key mismatch: expected ${public_key}, got ${the_public_key}`,
-    );
+    throw newError('PublicKeyMismatch', { public_key, the_public_key });
   }
   return pair;
 };
@@ -100,7 +99,7 @@ export const signMessageByEd25519 = (message: Uint8Array, privateKey: Uint8Array
 export const encryptByPublicKey = (data: Uint8Array, publicKey: string) => {
   const tempKeyPair = box.keyPair();
   const curvePublicKey = convertPublicKey(decodeBase58(publicKey));
-  if (!curvePublicKey) throw new Error('Failed to convert public key to curve25519');
+  if (!curvePublicKey) throw newError('FailedToConvertPublicKeyToCurve25519', { publicKey });
   const nonce = crypto.getRandomValues(new Uint8Array(24));
   const sharedKey = box.before(curvePublicKey, tempKeyPair.secretKey);
   const encryptedData = box.after(data, nonce, sharedKey);
@@ -158,14 +157,14 @@ export const decryptByPrivateKeyAsync = async (data: Uint8Array, privateKey: str
 export const decryptByPrivateKey = (data: Uint8Array, privateKey: string): Uint8Array => {
   const privateKeyUint8Array = decodeBase58(privateKey);
   const curvePrivateKey = convertSecretKey(privateKeyUint8Array);
-  if (!curvePrivateKey) throw new Error('Failed to convert private key to curve25519');
+  if (!curvePrivateKey) throw newError('FailedToConvertPrivateKeyToCurve25519', { privateKey });
   // data = nonce(24) + publicKey(32) + encryptedData
   const nonce = data.slice(0, 24);
   const publicKey = data.slice(24, 56);
   const encryptedData = data.slice(56);
   const sharedKey = box.before(publicKey, curvePrivateKey);
   const res = box.open.after(encryptedData, nonce, sharedKey);
-  if (!res) throw new Error('Failed to decrypt data with private key');
+  if (!res) throw newError('FailedToDecryptDataWithPrivateKey', { data, privateKey });
   return res;
 };
 
@@ -272,7 +271,7 @@ export async function sha256(data: Uint8Array): Promise<Uint8Array> {
     return new Uint8Array(crypto.createHash('sha256').update(data).digest());
   }
 
-  throw new Error('Unsupported environment: No crypto implementation found');
+  throw newError('UnsupportedEnvironment', { message: 'No crypto implementation found' });
 }
 
 /**
@@ -296,5 +295,5 @@ export async function HmacSHA256(data: Uint8Array, key: Uint8Array): Promise<Uin
     return new Uint8Array(signature);
   }
 
-  throw new Error('Unsupported environment: No crypto implementation found');
+  throw newError('UnsupportedEnvironment', { message: 'No crypto implementation found' });
 }
