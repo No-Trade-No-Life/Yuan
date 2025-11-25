@@ -12,7 +12,7 @@ interface IExchangeCredential {
   payload: any;
 }
 
-const mapAccountIdToCredential = new Map<string, IExchangeCredential>();
+const mapCredentialIdToCredential = new Map<string, IExchangeCredential>();
 
 // 1. RegisterExchangeCredential
 terminal.server.provideService<IExchangeCredential, void>(
@@ -58,6 +58,10 @@ terminal.server.provideService<void, IExchangeCredential[]>(
   },
 );
 
+terminal.server.provideService<void, string[]>('VirtualExchange/ListCredentials', {}, async () => {
+  return { res: { code: 0, message: 'OK', data: [...mapCredentialIdToCredential.keys()] } };
+});
+
 // 9. Background listWatch
 const updateIndex = async () => {
   const secrets = await requestSQL<ISecret[]>(
@@ -71,16 +75,15 @@ const updateIndex = async () => {
       const decrypted = await readSecret(terminal, secret);
       const credential = JSON.parse(new TextDecoder().decode(decrypted)) as IExchangeCredential;
 
-      // Call ListAccounts to get account_ids
-      const res = await terminal.client.requestForResponse<
-        { credential: ITypedCredential<any> },
-        Array<{ account_id: string }>
-      >('ListAccounts', { credential });
+      // Call GetCredentialId to get credential id
+      const res = await terminal.client.requestForResponse<{ credential: ITypedCredential<any> }, string>(
+        'GetCredentialId',
+        { credential },
+      );
 
       if (res.code === 0 && res.data) {
-        for (const account of res.data) {
-          mapAccountIdToCredential.set(account.account_id, credential);
-        }
+        const credentialId = res.data;
+        mapCredentialIdToCredential.set(credentialId, credential);
       }
     } catch (e) {
       console.error('Failed to process secret', e);
@@ -93,49 +96,72 @@ timer(0, 60000)
   .pipe(mergeMap(() => defer(updateIndex).pipe(retry({ delay: 5000 }))))
   .subscribe();
 
-// 7. QueryAccounts
-terminal.server.provideService<void, string[]>('VirtualExchange/QueryAccounts', {}, async () => {
-  return { res: { code: 0, message: 'OK', data: Array.from(mapAccountIdToCredential.keys()) } };
-});
-
 // 8. QueryAccountInfo
-terminal.server.provideService<{ account_id: string }, IAccountInfo>(
-  'VirtualExchange/QueryAccountInfo',
+terminal.server.provideService<{ credential_id: string; product_id?: string }, IAccountInfo>(
+  'VirtualExchange/QueryPositions',
   {
     type: 'object',
-    required: ['account_id'],
+    required: ['credential_id'],
     properties: {
-      account_id: { type: 'string' },
+      credential_id: { type: 'string' },
+      product_id: { type: 'string' },
     },
   },
   async (msg) => {
-    const credential = mapAccountIdToCredential.get(msg.req.account_id);
+    const credential = mapCredentialIdToCredential.get(msg.req.credential_id);
     if (!credential) {
-      return { res: { code: 404, message: 'Account not found' } };
+      return { res: { code: 404, message: 'Credential not found' } };
     }
     const res = await terminal.client.requestForResponse<
-      { credential: ITypedCredential<any>; account_id: string },
+      { credential: ITypedCredential<any>; product_id?: string },
       IAccountInfo
-    >('GetAccountInfo', { credential, account_id: msg.req.account_id });
+    >('QueryPositions', { credential, product_id: msg.req.product_id });
+    return { res };
+  },
+);
+
+terminal.server.provideService<{ credential_id: string; product_id?: string }, { orders: IOrder[] }>(
+  'VirtualExchange/QueryOrders',
+  {
+    type: 'object',
+    required: ['credential_id'],
+    properties: {
+      credential_id: { type: 'string' },
+      product_id: { type: 'string' },
+    },
+  },
+  async (msg) => {
+    const credential = mapCredentialIdToCredential.get(msg.req.credential_id);
+    if (!credential) {
+      return { res: { code: 404, message: 'Credential not found' } };
+    }
+    const res = await terminal.client.requestForResponse<
+      { credential: ITypedCredential<any>; product_id?: string },
+      { orders: IOrder[] }
+    >('QueryOrders', {
+      credential,
+      product_id: msg.req.product_id,
+    });
     return { res };
   },
 );
 
 // 10. Proxy Orders
 // SubmitOrder
-terminal.server.provideService<{ order: IOrder }, { order_id: string }>(
+terminal.server.provideService<{ order: IOrder; credential_id: string }, { order_id: string }>(
   'VirtualExchange/SubmitOrder',
   {
     type: 'object',
-    required: ['order'],
+    required: ['order', 'credential_id'],
     properties: {
       order: { type: 'object' },
+      credential_id: { type: 'string' },
     },
   },
   async (msg) => {
-    const credential = mapAccountIdToCredential.get(msg.req.order.account_id);
+    const credential = mapCredentialIdToCredential.get(msg.req.credential_id);
     if (!credential) {
-      return { res: { code: 404, message: 'Account not found' } };
+      return { res: { code: 404, message: 'Credential not found' } };
     }
     const res = await terminal.client.requestForResponse<
       { credential: ITypedCredential<any>; order: IOrder },
@@ -146,19 +172,20 @@ terminal.server.provideService<{ order: IOrder }, { order_id: string }>(
 );
 
 // ModifyOrder
-terminal.server.provideService<{ order: IOrder }, void>(
+terminal.server.provideService<{ order: IOrder; credential_id: string }, void>(
   'VirtualExchange/ModifyOrder',
   {
     type: 'object',
-    required: ['order'],
+    required: ['order', 'credential_id'],
     properties: {
       order: { type: 'object' },
+      credential_id: { type: 'string' },
     },
   },
   async (msg) => {
-    const credential = mapAccountIdToCredential.get(msg.req.order.account_id);
+    const credential = mapCredentialIdToCredential.get(msg.req.credential_id);
     if (!credential) {
-      return { res: { code: 404, message: 'Account not found' } };
+      return { res: { code: 404, message: 'Credential not found' } };
     }
     const res = await terminal.client.requestForResponse<
       { credential: ITypedCredential<any>; order: IOrder },
@@ -169,19 +196,20 @@ terminal.server.provideService<{ order: IOrder }, void>(
 );
 
 // CancelOrder
-terminal.server.provideService<{ order: IOrder }, void>(
+terminal.server.provideService<{ order: IOrder; credential_id: string }, void>(
   'VirtualExchange/CancelOrder',
   {
     type: 'object',
-    required: ['order'],
+    required: ['order', 'credential_id'],
     properties: {
       order: { type: 'object' },
+      credential_id: { type: 'string' },
     },
   },
   async (msg) => {
-    const credential = mapAccountIdToCredential.get(msg.req.order.account_id);
+    const credential = mapCredentialIdToCredential.get(msg.req.credential_id);
     if (!credential) {
-      return { res: { code: 404, message: 'Account not found' } };
+      return { res: { code: 404, message: 'Credential not found' } };
     }
     const res = await terminal.client.requestForResponse<
       { credential: ITypedCredential<any>; order: IOrder },
@@ -192,27 +220,3 @@ terminal.server.provideService<{ order: IOrder }, void>(
 );
 
 // ListOrders
-terminal.server.provideService<{ account_id: string }, { orders: IOrder[] }>(
-  'VirtualExchange/ListOrders',
-  {
-    type: 'object',
-    required: ['account_id'],
-    properties: {
-      account_id: { type: 'string' },
-    },
-  },
-  async (msg) => {
-    const credential = mapAccountIdToCredential.get(msg.req.account_id);
-    if (!credential) {
-      return { res: { code: 404, message: 'Account not found' } };
-    }
-    const res = await terminal.client.requestForResponse<
-      { credential: ITypedCredential<any>; account_id: string },
-      { orders: IOrder[] }
-    >('ListOrders', {
-      credential,
-      account_id: msg.req.account_id,
-    });
-    return { res };
-  },
-);
