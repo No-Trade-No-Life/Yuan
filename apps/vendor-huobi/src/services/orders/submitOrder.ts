@@ -1,5 +1,5 @@
 import { IOrder } from '@yuants/data-order';
-import { formatTime, roundToStep } from '@yuants/utils';
+import { decodePath, formatTime, newError, roundToStep } from '@yuants/utils';
 import { firstValueFrom } from 'rxjs';
 import {
   ICredential,
@@ -8,9 +8,9 @@ import {
   getSwapCrossPositionInfo,
   postSpotOrder,
   postSwapOrder,
-} from '../api/private-api';
-import { getSpotTick } from '../api/public-api';
-import { spotProductService } from '../product';
+} from '../../api/private-api';
+import { getSpotTick } from '../../api/public-api';
+import { productService } from '../product';
 import { superMarginAccountUidCache } from '../uid';
 
 /**
@@ -62,7 +62,7 @@ async function handleSuperMarginOrder(order: IOrder, credential: ICredential): P
   // 获取账户余额, 产品信息和价格
   const [balanceRes, mapProductIdToProduct, priceRes] = await Promise.all([
     getSpotAccountBalance(credential, superMarginAccountUid),
-    firstValueFrom(spotProductService.mapProductIdToProduct$),
+    firstValueFrom(productService.mapProductIdToProduct$),
     getSpotTick({ symbol: order.product_id }),
   ]);
 
@@ -110,11 +110,12 @@ async function handleSuperMarginOrder(order: IOrder, credential: ICredential): P
 }
 
 export const submitOrder = (credential: ICredential, order: IOrder): Promise<{ order_id: string }> => {
-  if (order.account_id.includes('swap')) {
+  const [, instType] = decodePath(order.product_id);
+  if (instType === 'SWAP') {
     return handleSwapOrder(order, credential);
   }
-  if (order.account_id.includes('super-margin')) {
+  if (instType === 'SUPER-MARGIN') {
     return handleSuperMarginOrder(order, credential);
   }
-  throw new Error(`Unsupported account_id for order submission: ${order.account_id}`);
+  throw newError('UNSUPPORTED_INST_TYPE', { order_type: instType });
 };

@@ -1,0 +1,10 @@
+{
+  "changes": [
+    {
+      "packageName": "@yuants/vendor-huobi",
+      "comment": "renew HTX",
+      "type": "minor"
+    }
+  ],
+  "packageName": "@yuants/vendor-huobi"
+}
