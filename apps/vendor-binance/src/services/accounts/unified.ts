@@ -1,12 +1,9 @@
-import { IActionHandlerOfGetAccountInfo, IPosition } from '@yuants/data-account';
+import { IPosition } from '@yuants/data-account';
 import { encodePath } from '@yuants/utils';
 import { isApiError } from '../../api/client';
 import { getUnifiedAccountBalance, getUnifiedUmAccount, ICredential } from '../../api/private-api';
 
-export const getUnifiedAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> = async (
-  credential,
-  _accountId,
-) => {
+export const getUnifiedAccountInfo = async (credential: ICredential): Promise<IPosition[]> => {
   const [balanceRes, umAccountRes] = await Promise.all([
     getUnifiedAccountBalance(credential),
     getUnifiedUmAccount(credential),

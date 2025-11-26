@@ -29,3 +29,8 @@ export const resolveAccountProfile = async (credential: ICredential): Promise<IA
   }
   return profile;
 };
+
+export const getCredentialId = async (credential: ICredential): Promise<string> => {
+  const profile = await resolveAccountProfile(credential);
+  return profile.uid;
+};

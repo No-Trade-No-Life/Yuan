@@ -1,9 +1,9 @@
-import { IActionHandlerOfGetAccountInfo, IPosition, makeSpotPosition } from '@yuants/data-account';
+import { IPosition, makeSpotPosition } from '@yuants/data-account';
 import { encodePath } from '@yuants/utils';
 import { isApiError } from '../../api/client';
 import { getSpotAccountInfo, ICredential } from '../../api/private-api';
 
-export const getSpotAccountInfoSnapshot: IActionHandlerOfGetAccountInfo<ICredential> = async (credential) => {
+export const getSpotAccountInfoSnapshot = async (credential: ICredential): Promise<IPosition[]> => {
   const res = await getSpotAccountInfo(credential, { omitZeroBalances: true });
   if (isApiError(res)) {
     throw new Error(res.msg);
