@@ -1,4 +1,5 @@
 import { createCache } from '@yuants/cache';
+import { encodePath } from '@yuants/utils';
 import { isApiError } from '../../api/client';
 import { getSpotAccountInfo, ICredential } from '../../api/private-api';
 
@@ -32,5 +33,5 @@ export const resolveAccountProfile = async (credential: ICredential): Promise<IA
 
 export const getCredentialId = async (credential: ICredential): Promise<string> => {
   const profile = await resolveAccountProfile(credential);
-  return profile.uid;
+  return encodePath('BINANCE', profile.uid);
 };
