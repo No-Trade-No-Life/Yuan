@@ -1,5 +1,5 @@
-import { IActionHandlerOfListOrders, IOrder } from '@yuants/data-order';
-import { encodePath, formatTime } from '@yuants/utils';
+import { IOrder } from '@yuants/data-order';
+import { encodePath } from '@yuants/utils';
 import { ICredential, getOrderList } from '../../api/private-api';
 
 type OrderDirection = 'OPEN_LONG' | 'OPEN_SHORT' | 'CLOSE_LONG' | 'CLOSE_SHORT';
@@ -26,13 +26,13 @@ const mapOrderDirection = (order_way: number): OrderDirection => {
 /**
  * Map TurboFlow order to Yuan IOrder format
  */
-const mapOrder = (order: any, account_id: string): IOrder => {
+const mapOrder = (order: any): IOrder => {
   const volume = parseFloat(order.size) || 0;
   const price = parseFloat(order.price) || 0;
 
   return {
     order_id: order.id,
-    account_id,
+    account_id: '', // Will be filled in listOrders
     product_id: encodePath('PERPETUAL', order.pair_id),
     order_type: order.order_type.toUpperCase() as any,
     order_direction: mapOrderDirection(order.order_way),
@@ -56,29 +56,12 @@ const mapOrder = (order: any, account_id: string): IOrder => {
 /**
  * List orders implementation
  */
-export const listOrders: IActionHandlerOfListOrders<ICredential> = async (credential, account_id) => {
-  console.info(`[${formatTime(Date.now())}] Listing orders for account: ${account_id}`);
+export const listOrders = async (credential: ICredential): Promise<IOrder[]> => {
+  const response = await getOrderList(credential, {
+    page_num: 1,
+    page_size: 100,
+    status: 'Pending',
+  });
 
-  try {
-    // Get pending orders
-    const response = await getOrderList(credential, {
-      page_num: 1,
-      page_size: 100,
-      status: 'Pending',
-    });
-
-    if (response.errno !== '0') {
-      throw new Error(`Failed to list orders: ${response.msg}`);
-    }
-
-    const orders = response.data.data.map((order) => mapOrder(order, account_id));
-
-    console.info(`[${formatTime(Date.now())}] Found ${orders.length} orders`);
-
-    return orders;
-  } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    console.error(`[${formatTime(Date.now())}] Failed to list orders for ${account_id}: ${errorMessage}`);
-    throw new Error(`Failed to list orders: ${errorMessage}`);
-  }
+  return response.data.data.map((order) => mapOrder(order));
 };

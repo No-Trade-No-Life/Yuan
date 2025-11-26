@@ -1,11 +1,10 @@
 import { IOrder } from '@yuants/data-order';
-import { formatTime } from '@yuants/utils';
+import { decodePath, formatTime, newError } from '@yuants/utils';
 import { ICredential, submitOrder as submitOrderApi } from '../../api/private-api';
 
 export const submitOrder = async (credential: ICredential, order: IOrder): Promise<{ order_id: string }> => {
   // Parse product_id to get pair_id
-  const productParts = order.product_id.split('/');
-  const pair_id = productParts[productParts.length - 1];
+  const [, _SWAP, _NAME, pair_id] = decodePath(order.product_id);
 
   // Determine order_way based on order_direction
   // 1: 开多 (Open Long), 2: 平空 (Close Short), 3: 开空 (Open Short), 4: 平多 (Close Long)
@@ -50,14 +49,16 @@ export const submitOrder = async (credential: ICredential, order: IOrder): Promi
     order_type,
     order_way,
     margin_type: 2, // Default to cross margin
-    leverage: 100,
-    size: order.volume.toString(), // usdc value
+    leverage: 1,
+    vol: order.volume, // usdc value
     position_mode: 1, // Default to one-way
     time_in_force: 'GTC' as const,
     fee_mode: 1,
     order_mode: 1 as const, // Normal order
     price: order.price?.toString(),
   });
+
+  if (!response.data?.order) throw newError('TURBOFLOW_SUBMIT_ORDER_FAILED', { response });
 
   return { order_id: response.data.order.id };
 };
