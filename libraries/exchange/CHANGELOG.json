@@ -1,0 +1,17 @@
+{
+  "name": "@yuants/exchange",
+  "entries": [
+    {
+      "version": "0.1.0",
+      "tag": "@yuants/exchange_v0.1.0",
+      "date": "Wed, 26 Nov 2025 04:05:13 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "new"
+          }
+        ]
+      }
+    }
+  ]
+}
