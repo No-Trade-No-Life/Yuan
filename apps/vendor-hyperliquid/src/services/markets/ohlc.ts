@@ -1,7 +1,7 @@
 import { IOHLC } from '@yuants/data-ohlc';
 import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
-import { decodePath, formatTime } from '@yuants/utils';
+import { decodePath, encodePath, formatTime } from '@yuants/utils';
 import { getCandleSnapshot } from '../../api/public-api';
 
 const terminal = Terminal.fromNodeEnv();
@@ -46,16 +46,19 @@ createSeriesProvider<IOHLC>(terminal, {
   reversed: true,
   serviceOptions: { concurrent: 1 },
   queryFn: async function* ({ series_id, ended_at }) {
-    const [datasource_id, product_id, duration] = decodePath(series_id);
+    const [datasource_id, instType, symbol, duration] = decodePath(series_id);
+    const product_id = encodePath(datasource_id, instType, symbol);
     const period_in_sec = DURATION_TO_PERIOD_IN_SEC[duration];
-    if (!datasource_id || !product_id || !period_in_sec) {
+    if (!datasource_id || !instType || !symbol || !duration || !period_in_sec) {
       throw new Error(`Invalid series_id: ${series_id}`);
     }
-    const [, instId] = decodePath(product_id);
-    if (!instId) {
-      throw new Error(`Invalid product_id: ${product_id}`);
+    if (datasource_id !== 'HYPERLIQUID') {
+      throw new Error(`Invalid datasource for series_id: ${series_id}`);
     }
-    const coin = instId.split('-')[0];
+    const coin = symbol?.split('-')?.[0];
+    if (!coin) {
+      throw new Error(`Invalid product symbol: ${symbol}`);
+    }
     const interval = DURATION_TO_HYPERLIQUID_INTERVAL[duration];
     if (!interval) {
       throw new Error(`Unsupported duration: ${duration}`);

@@ -1,7 +1,7 @@
 import { createCache } from '@yuants/cache';
 import { IOrder } from '@yuants/data-order';
 import { decodePath } from '@yuants/utils';
-import { getAllMids, getPerpetualsMetaData, getSpotMetaData } from './api/public-api';
+import { getAllMids, getPerpetualsMetaData, getSpotMetaData } from '../api/public-api';
 
 const enum InstrumentType {
   PERPETUAL = 'PERPETUAL',
@@ -9,6 +9,18 @@ const enum InstrumentType {
 }
 
 type AssetInfo = { assetId: number; szDecimals: number; instType: InstrumentType; baseCurrency: string };
+
+export const parseProductPath = (product_id: string): { instType: InstrumentType; baseCurrency: string } => {
+  const [exchange, instType, symbol] = decodePath(product_id);
+  if (exchange !== 'HYPERLIQUID' || !instType || !symbol) {
+    throw new Error(`Invalid product_id: ${product_id}`);
+  }
+  if (instType !== InstrumentType.PERPETUAL && instType !== InstrumentType.SPOT) {
+    throw new Error(`Unsupported instrument type: ${instType}`);
+  }
+  const baseCurrency = symbol.split('-')[0];
+  return { instType, baseCurrency };
+};
 
 const CACHE_TTL = 60_000;
 const MID_TTL = 5_000;
@@ -57,11 +69,7 @@ const midPriceCache = createCache<Map<string, number>>(
 );
 
 export const resolveAssetInfo = async (product_id: string): Promise<AssetInfo> => {
-  const [instType, symbol] = decodePath(product_id);
-  if (!instType || !symbol) {
-    throw new Error(`Invalid product_id: ${product_id}`);
-  }
-  const baseCurrency = symbol.split('-')[0];
+  const { instType, baseCurrency } = parseProductPath(product_id);
   if (instType === InstrumentType.PERPETUAL) {
     const map = (await perpMetaCache.query('perp'))!;
     const info = map.get(baseCurrency)!;

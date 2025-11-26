@@ -3,6 +3,11 @@
   "compilerOptions": {
     "lib": ["DOM", "ESNext"],
     "types": ["heft-jest", "node"],
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "rootDir": "./src",
+    "paths": {
+      "@yuants/exchange": ["../../libraries/exchange/lib/index"],
+      "@yuants/exchange/*": ["../../libraries/exchange/lib/*"]
+    }
   }
 }

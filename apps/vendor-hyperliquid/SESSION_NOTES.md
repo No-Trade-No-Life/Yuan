@@ -7,8 +7,8 @@
 ## 0. 元信息（Meta）
 
 - **项目名称**：@yuants/vendor-hyperliquid
-- **最近更新时间**：2025-11-22 00:35（由 Antigravity Agent 更新，完成账户服务重构与 Legacy 兼容层建立）
-- **当前状态标签**：稳定运行（接口设计优化完成，文档补充完整，推进 transfer + 测试）
+- **最近更新时间**：2025-11-26 18:30（由 Codex Agent 更新，接入 Exchange 服务并全局化 Product ID）
+- **当前状态标签**：重构进行中（provideExchangeServices 接入、product_id 全局路径调整，等待完整编译验证）
 
 ---
 
@@ -43,6 +43,7 @@
 
 ### 2.3 临时指令（短期有效）
 
+- 2025-11-26：交易/账户服务已改为 `@yuants/exchange::provideExchangeServices`，product_id 采用 `HYPERLIQUID/<instType>/<symbol>` 的全局路径；路由一律使用 `decodePath(product_id)`，account_id 仅作标签不做路由；旧的 account actions / order actions / legacy 服务已删除。
 - 2025-11-19：已完成接口设计优化和 API 文档补充。主要变更包括 ICredential 接口重构、文档链接恢复、代码设计原则文档化。
 - 所有调用端需要确认 `provideOrderActionsWithCredential` 新 schema（`credential.type/payload`）；在完成验证前，暂不再调整请求字段，防止多次破坏兼容。
 - 下一轮若要继续推进 transfer/E2E，请依据 7.1 TODO 拆分计划，先更新本文件再开工。
@@ -68,7 +69,7 @@
 
 - `src/index.ts`：聚合入口，按照新目录结构导入所有服务模块。
 - `src/api/public-api.ts` / `src/api/private-api.ts`：REST helper；公共接口无凭证，私有接口接收 `ICredential` 并使用 `sign.ts`。
-- `src/utils.ts`：工具函数集合，包含 `resolveAssetInfo`、`buildOrderPayload` 等核心逻辑（原 `order-utils.ts`）。
+- `src/services/utils.ts`：工具函数集合，包含 `resolveAssetInfo`、`buildOrderPayload` 等核心逻辑（原 `order-utils.ts`）。
 - **新目录结构（参考 vendor-aster）**：
   - `src/services/accounts/`：账户相关服务（perp.ts）
   - `src/services/orders/`：订单相关服务（submitOrder.ts, cancelOrder.ts, modifyOrder.ts）
@@ -171,22 +172,34 @@
 
 ## 5. 关键文件与模块说明（Files & Modules）
 
-- `apps/vendor-hyperliquid/src/account.ts`：账户权益 + 未成交订单服务，刷新间隔 1s/2s，依赖 `getUserPerpetualsAccountSummary` 与 `getUserOpenOrders`。
-- `apps/vendor-hyperliquid/src/order-actions.ts`：默认账户 Submit/Cancel 的 RPC，对 `account_id` 做常量校验，并复用 `order-actions/*.ts` 封装。
-- `apps/vendor-hyperliquid/src/order-actions-with-credential.ts`：凭证化 Submit/Cancel，通过 `provideOrderActionsWithCredential` 统一注册；请求需携带 `credential.type = 'HYPERLIQUID'`。
-- `apps/vendor-hyperliquid/src/order-actions/submitOrder.ts`：构造 order payload、调用 `placeOrder` 并提取 `order_id`，若交易所返回 error 则抛出异常。
-- `apps/vendor-hyperliquid/src/order-actions/cancelOrder.ts`：解析 `order.comment` 中的 `asset_id`，必要时调用 `resolveAssetInfo`，调用 `cancelOrder` 并在 error 时抛出。
-- `apps/vendor-hyperliquid/src/order-utils.ts`：产品元数据缓存、价格 round、mid price with slippage。
-- `apps/vendor-hyperliquid/src/public-data/quote.ts`：Quote Channel + SQL 写入开关。
-- `apps/vendor-hyperliquid/src/public-data/product.ts`：Spot/Perp 产品同步与 SQL writer。
-- `apps/vendor-hyperliquid/src/public-data/interest-rate.ts`：资金费率采集任务与 Series provider。
-- `apps/vendor-hyperliquid/src/public-data/ohlc.ts`：K 线 series provider（REST snapshot）。
+- `src/services/exchange.ts`：通过 `provideExchangeServices` 暴露交易/账户接口，强制使用凭证 + 全局 product_id 路由。
+- `src/services/accounts/{perp,spot}.ts`：基于 `getUserPerpetualsAccountSummary` / `getUserTokenBalances` 的持仓快照。
+- `src/services/orders/{submitOrder,cancelOrder,modifyOrder,listOrders}.ts`：下单/撤单/改单与未成交订单查询，依赖 `resolveAssetInfo` 与全局 product_id。
+- `src/services/markets/{product,quote,interest-rate,ohlc}.ts`：产品列表、行情、资金费率、K 线等公共数据服务。
+- `src/services/utils.ts`：产品路径解析、资产元数据缓存、价格 round/中间价估算。
 
 ---
 
 ## 6. 最近几轮工作记录（Recent Sessions）
 
 > 约定：仅记录已经结束的会话；进行中的内容放在第 11 节，收尾后再搬运；按时间倒序追加。
+
+### 2025-11-26 — Codex Agent
+
+- **本轮摘要**：
+  - 交易与账户服务改用 `@yuants/exchange::provideExchangeServices` 统一暴露，移除 legacy/account-actions/order-actions 旧入口。
+  - 全量切换 product_id 为全局路径 `HYPERLIQUID/<instType>/<symbol>`，quote/interest-rate/ohlc/订单/持仓均通过 `decodePath(product_id)` 路由，移除对 account_id 的路由依赖。
+  - 更新 product/quote/interest-rate/ohlc 数据服务以匹配新的 product_id 结构，并补充 exchange 层的 product 列表复用。
+  - 凭证接口 `ICredential` 增加 `address` 字段并删除 `getAddressFromCredential`，所有账户/订单请求直接使用 `credential.address`。
+  - CredentialId 前缀改为大写 `HYPERLIQUID/`，列表订单的 `account_id` 输出统一置空字符串（下游不再用 account_id 路由）。
+- **修改的文件**：
+  - `src/services/exchange.ts`（新增 exchange 入口）
+  - `src/index.ts`、`src/services/markets/*`、`src/services/orders/*`、`src/services/accounts/*`、`src/services/utils.ts`（product_id 与路由调整）
+  - `package.json`、`tsconfig.json`（依赖与路径配置）
+  - `AGENTS.md`、`SESSION_NOTES.md`
+- **运行的测试 / 检查**：
+  - 命令：`rushx build`（含 tsc + api-extractor + yuan-toolkit post-build）
+  - 结果：TypeScript 编译通过，但 `yuan-toolkit post-build` 报错 `TypeError: Cannot read properties of undefined (reading 'model')`（未生成错误日志）。需要后续排查 post-build 依赖（可能与 docker 镜像或工具链配置有关）。
 
 ### 2025-11-22 — Antigravity Agent
 
@@ -247,7 +260,7 @@
     - `src/services/fill-history.ts`（新增）
     - `src/services/order-actions-with-credential.ts`（从根目录迁移）
   - **其他文件**：
-    - `src/utils.ts`（从 order-utils.ts 重命名）
+    - `src/services/utils.ts`（从 order-utils.ts 重命名）
     - `src/api/private-api.ts`（扩展 getUserFills）
     - `src/index.ts`（更新导入路径）
     - `docs/zh-Hans/vendor-supporting.md`（更新功能状态）
@@ -320,6 +333,7 @@
 
 ### 7.1 高优先级（下一轮优先处理）
 
+- [ ] 补齐 `@yuants/exchange` 依赖链接/构建（建议 rush install/update 后跑 `tsc --noEmit --project apps/vendor-hyperliquid/tsconfig.json` 验证）。
 - [ ] 设计并实现 `src/transfer.ts`（地址注册 + TransferApply/Eval 状态机），与 checklist 第 6 节对齐。
 - [ ] 为 Submit/Cancel 编写最小 E2E/集成测试或脚本（可参考其他 vendor 的 `src/e2e`），并记录运行方式。
 - [ ] 与 trade-copier / CLI 调用方确认 `provideOrderActionsWithCredential` 新 schema（`credential.type/payload` + `order` 包装），并在 README 或示例脚本中同步调用方式。
@@ -401,10 +415,10 @@
 
 1. 阅读本文件第 2 节与 `apps/vendor-hyperliquid/docs/context/AGENTS.md`，确认指令是否有更新；如存在 `IMPLEMENTATION_PLAN.md`，一并同步进度。
 2. 从 7.1 高优先级列表顶部开始处理，特别是确认 `provideOrderActionsWithCredential` 兼容性与 transfer 方案；若需要更多上下文，可参考 4.1/4.2 的模块说明与决策。
-3. 在动手前，审查 `src/account.ts`、`src/order-actions*.ts`、`src/public-data/*` 是否会受到影响，并根据风险 2 校验环境变量。
+3. 在动手前，审查 `src/services/exchange.ts`、`src/services/orders/*`、`src/services/markets/*` 是否会受到影响，并根据风险 2 校验环境变量。
 4. 处理完成后，更新本文件的第 6/7/8/9/10 节，附上测试记录；若任务尚未完成，请在第 11 节记录阻塞点。
 
-当前阻塞：transfer 需求缺少明确方案（问题 1），且凭证化 Submit/Cancel 的新请求结构（问题 4）需要调用端确认才能继续推进代码改动。
+当前阻塞：transfer 需求缺少明确方案（问题 1），凭证化 Submit/Cancel 的新请求结构（问题 4）需要调用端确认，同时本地 `tsc` 编译因 `@yuants/exchange` 未构建/未链接而失败（需先完成 rush/pnpm 安装与依赖构建）。
 
 ---
 

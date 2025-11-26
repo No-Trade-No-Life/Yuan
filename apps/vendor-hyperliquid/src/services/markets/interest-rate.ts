@@ -11,7 +11,7 @@ const terminal = Terminal.fromNodeEnv();
 const perpetualProducts$ = defer(async () => {
   const meta = await getPerpetualsMetaData();
   return meta.universe.map((product) => ({
-    product_id: encodePath('PERPETUAL', `${product.name}-USD`),
+    product_id: encodePath('HYPERLIQUID', 'PERPETUAL', `${product.name}-USD`),
     datasource_id: 'HYPERLIQUID',
     no_interest_rate: false,
   }));
@@ -28,7 +28,7 @@ createSQLWriter<ISeriesCollectingTask>(terminal, {
     mergeAll(),
     map(
       (product): ISeriesCollectingTask => ({
-        series_id: encodePath(product.datasource_id, product.product_id),
+        series_id: product.product_id,
         table_name: 'interest_rate',
         cron_pattern: '0 * * * *',
         cron_timezone: 'UTC',
@@ -50,9 +50,14 @@ createSeriesProvider<IInterestRate>(terminal, {
   queryFn: async function* ({ series_id, started_at, ended_at }) {
     const start = started_at || 0;
     const end = ended_at || Date.now();
-    const [datasource_id, product_id] = decodePath(series_id);
-    const [, instId] = decodePath(product_id);
-    const coin = instId.split('-')[0];
+    const [datasource_id, , instId] = decodePath(series_id);
+    if (datasource_id !== 'HYPERLIQUID') {
+      throw new Error(`Invalid datasource: ${datasource_id}`);
+    }
+    const coin = instId?.split('-')?.[0];
+    if (!coin) {
+      throw new Error(`Invalid product in series_id: ${series_id}`);
+    }
     let current = start;
     while (current <= end) {
       const res = await getHistoricalFundingRates({ coin, startTime: current, endTime: end });
@@ -66,8 +71,8 @@ createSeriesProvider<IInterestRate>(terminal, {
       yield filtered.map(
         (v): IInterestRate => ({
           series_id,
-          product_id,
-          datasource_id,
+          product_id: series_id,
+          datasource_id: 'HYPERLIQUID',
           created_at: formatTime(v.time),
           long_rate: `${-parseFloat(v.fundingRate)}`,
           short_rate: `${v.fundingRate}`,

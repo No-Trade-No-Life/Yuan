@@ -129,6 +129,7 @@
 
 - 当前重点是**巩固 Hyperliquid Vendor 与 checklist 的一致性并完善上下文管理文档**：新增能力时优先更新 `SESSION_NOTES`、`AGENTS`，并检查各段文档是否同步；
 - 尚未实现的转账接口与 E2E 测试需要列入 TODO，不要在没有上下游确认前私自实现。
+- 服务接入已改为 `@yuants/exchange` 的 `provideExchangeServices`，Product ID 采用 `HYPERLIQUID/<instType>/<symbol>` 的全局路径；路由一律使用 `decodePath(product_id)`，旧的 account/order actions 与 legacy 层已移除。
 
 ### 4.3 临时 / 一次性指令
 
