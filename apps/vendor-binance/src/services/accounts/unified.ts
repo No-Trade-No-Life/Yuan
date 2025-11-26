@@ -14,17 +14,6 @@ export const getUnifiedAccountInfo = async (credential: ICredential): Promise<IP
   if (isApiError(umAccountRes)) {
     throw new Error(umAccountRes.msg);
   }
-  const usdtBalance = balanceRes.find((item) => item.asset === 'USDT');
-  if (!usdtBalance) {
-    throw new Error('USDT balance not found');
-  }
-  const usdtAsset = umAccountRes.assets.find((item) => item.asset === 'USDT');
-  if (!usdtAsset) {
-    throw new Error('USDT asset not found in UM account');
-  }
-
-  const equity = +usdtBalance.totalWalletBalance + +usdtBalance.umUnrealizedPNL;
-  const free = equity - +usdtAsset.initialMargin;
 
   const positions: IPosition[] = umAccountRes.positions
     .filter((position) => +position.positionAmt !== 0)

@@ -169,3 +169,49 @@ export interface ISpotBookTickerEntry {
  */
 export const getSpotBookTicker = (params?: { symbol?: string }): Promise<ISpotBookTickerEntry[]> =>
   requestPublic<ISpotBookTickerEntry[]>('GET', 'https://api.binance.com/api/v3/ticker/bookTicker', params);
+
+export interface ISpotExchangeFilter extends Record<string, string | number | boolean | undefined> {
+  filterType: string;
+}
+
+export interface ISpotExchangeSymbol {
+  symbol: string;
+  status: string;
+  baseAsset: string;
+  baseAssetPrecision: number;
+  quoteAsset: string;
+  quotePrecision: number;
+  baseCommissionPrecision: number;
+  quoteCommissionPrecision: number;
+  orderTypes: string[];
+  icebergAllowed: boolean;
+  ocoAllowed: boolean;
+  quoteOrderQtyMarketAllowed: boolean;
+  allowTrailingStop: boolean;
+  cancelReplaceAllowed: boolean;
+  isSpotTradingAllowed: boolean;
+  isMarginTradingAllowed: boolean;
+  filters: ISpotExchangeFilter[];
+  permissions: string[];
+}
+
+export interface ISpotExchangeInfo {
+  timezone: string;
+  serverTime: number;
+  rateLimits: {
+    rateLimitType: string;
+    interval: string;
+    intervalNum: number;
+    limit: number;
+  }[];
+  exchangeFilters: unknown[];
+  symbols: ISpotExchangeSymbol[];
+}
+
+/**
+ * 获取现货交易规则和交易对
+ *
+ * https://developers.binance.com/docs/zh-CN/binance-spot-api-docs/rest-api/general-endpoints#%E4%BA%A4%E6%98%93%E8%A7%84%E8%8C%83%E4%BF%A1%E6%81%AF
+ */
+export const getSpotExchangeInfo = (): Promise<ISpotExchangeInfo> =>
+  requestPublic<ISpotExchangeInfo>('GET', 'https://api.binance.com/api/v3/exchangeInfo');
