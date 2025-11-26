@@ -168,3 +168,30 @@ export const getSpotTickers = (params: {
     etf_leverage: string;
   }>
 > => requestPublic('GET', `/api/v4/spot/tickers`, params);
+
+/**
+ * 查询支持的所有现货交易对
+ * https://www.gate.com/docs/developers/apiv4/zh_CN/#%E6%9F%A5%E8%AF%A2%E6%94%AF%E6%8C%81%E7%9A%84%E6%89%80%E6%9C%89%E4%BA%A4%E6%98%93%E5%AF%B9
+ */
+export const getSpotCurrencyPairs = (): Promise<
+  Array<{
+    id: string;
+    base: string;
+    base_name: string;
+    quote: string;
+    quote_name: string;
+    fee: string;
+    min_base_amount: string;
+    min_quote_amount: string;
+    max_base_amount: string;
+    max_quote_amount: string;
+    amount_precision: Number;
+    precision: Number;
+    trade_status: string;
+    sell_start: Number;
+    buy_start: number;
+    delisting_time: number;
+    trade_url: string;
+    st_tag: boolean;
+  }>
+> => requestPublic('GET', `/spot/currency_pairs`);

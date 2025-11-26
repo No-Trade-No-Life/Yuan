@@ -1,5 +1,6 @@
 import { IActionHandlerOfSubmitOrder } from '@yuants/data-order';
 import { ICredential, postFutureOrders } from '../../api/private-api';
+import { decodePath } from '@yuants/utils';
 
 const resolveSizeSign = (order_direction?: string): number => {
   switch (order_direction) {
@@ -36,21 +37,23 @@ export const submitOrder: IActionHandlerOfSubmitOrder<ICredential> = async (cred
   if (price === undefined) {
     throw new Error('Limit/Maker order requires price');
   }
+  const [, TYPE] = decodePath(order.product_id);
+  if (TYPE === 'FUTURE') {
+    const res = await postFutureOrders(credential, 'usdt', {
+      contract: order.product_id,
+      size,
+      price,
+      tif,
+      reduce_only,
+    });
 
-  const res = await postFutureOrders(credential, 'usdt', {
-    contract: order.product_id,
-    size,
-    price,
-    tif,
-    reduce_only,
-  });
-
-  if (res.label) {
-    const detail = [res.label, res.message, res.detail].filter((v) => !!v).join(': ');
-    throw new Error(detail);
+    if (res.label) {
+      const detail = [res.label, res.message, res.detail].filter((v) => !!v).join(': ');
+      throw new Error(detail);
+    }
+    return {
+      order_id: `${res.id}`,
+    };
   }
-
-  return {
-    order_id: `${res.id}`,
-  };
+  throw new Error('Product type not support');
 };

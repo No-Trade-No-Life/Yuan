@@ -3,7 +3,7 @@ import { getUnifiedAccounts, ICredential } from '../../api/private-api';
 import { getSpotTickers } from '../../api/public-api';
 import { loadFuturePositions } from './future';
 
-export const getUnifiedAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> = async (credential) => {
+export const getUnifiedAccountInfo = async (credential: ICredential) => {
   const [futurePositions, unifiedAccount, spotTickers] = await Promise.all([
     loadFuturePositions(credential),
     getUnifiedAccounts(credential, {}),

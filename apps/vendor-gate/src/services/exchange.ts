@@ -1,0 +1,66 @@
+import { IPosition } from '@yuants/data-account';
+import { IOrder } from '@yuants/data-order';
+import { provideExchangeServices } from '@yuants/exchange';
+import { Terminal } from '@yuants/protocol';
+import { decodePath } from '@yuants/utils';
+import { getCredentialId } from './accounts/profile';
+import { getSpotAccountInfo } from './accounts/spot';
+import { getUnifiedAccountInfo } from './accounts/unified';
+import { cancelOrder } from './orders/cancelOrder';
+import { submitOrder } from './orders/submitOrder';
+import { getFutureAccountInfo } from './accounts/future';
+import { ICredential } from '../api/private-api';
+import { listOrders, getOrdersByProductId } from './orders/listOrders';
+import { listProducts } from './markets/product';
+
+const terminal = Terminal.fromNodeEnv();
+
+provideExchangeServices<ICredential>(terminal, {
+  name: 'GATE',
+  credentialSchema: {
+    type: 'object',
+    required: ['access_key', 'secret_key'],
+    properties: {
+      access_key: { type: 'string' },
+      secret_key: { type: 'string' },
+    },
+  },
+  getCredentialId,
+  listProducts,
+  getPositions: async function (credential: ICredential): Promise<IPosition[]> {
+    const [uFuturePositions, spotPositions, unifiedPositions] = await Promise.all([
+      getFutureAccountInfo(credential),
+      getSpotAccountInfo(credential),
+      getUnifiedAccountInfo(credential),
+    ]);
+    return [...uFuturePositions, ...spotPositions, ...unifiedPositions];
+  },
+  getOrders: async function (credential: ICredential): Promise<IOrder[]> {
+    const [umOrders] = await Promise.all([
+      listOrders(credential),
+      //   listSpotOrders(credential),
+    ]);
+    return [...umOrders];
+  },
+  getPositionsByProductId: async function (
+    credential: ICredential,
+    product_id: string,
+  ): Promise<IPosition[]> {
+    const [_, instType] = decodePath(product_id); // BINANCE/USDT-FUTURE/ADAUSDT
+    // if (instType === 'SPOT') {
+    //   const positions = await getSpotAccountInfoSnapshot(credential);
+    //   return positions.filter((position) => position.product_id === product_id);
+    // }
+    if (instType === 'FUTURE') {
+      const positions = await getFutureAccountInfo(credential);
+      return positions.filter((position) => position.product_id === product_id);
+    }
+    throw new Error(`Unsupported instType: ${instType}`);
+  },
+  getOrdersByProductId,
+  submitOrder,
+  modifyOrder: () => {
+    throw new Error('Not implemented');
+  },
+  cancelOrder,
+});

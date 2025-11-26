@@ -1,5 +1,6 @@
 import { createCache } from '@yuants/cache';
 import { getAccountDetail, ICredential } from '../../api/private-api';
+import { encodePath } from '@yuants/utils';
 
 export interface IAccountProfile {
   uid: string;
@@ -37,3 +38,8 @@ export const resolveAccountProfile = async (credential: ICredential): Promise<IA
 };
 
 export const getAccountIds = resolveAccountProfile;
+
+export const getCredentialId = async (credential: ICredential): Promise<string> => {
+  const spotAccountInfo = await resolveAccountProfile(credential);
+  return encodePath('GATE', spotAccountInfo.uid);
+};

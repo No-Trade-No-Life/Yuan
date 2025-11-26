@@ -21,6 +21,7 @@
     "@yuants/utils": "workspace:*",
     "@yuants/data-series": "workspace:*",
     "@yuants/data-interest-rate": "workspace:*",
+    "@yuants/exchange": "workspace:*",
     "rxjs": "~7.5.6",
     "crypto-js": "^4.2.0"
   },

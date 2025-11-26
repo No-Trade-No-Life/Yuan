@@ -2,6 +2,7 @@ import type { IActionHandlerOfGetAccountInfo, IPosition } from '@yuants/data-acc
 import { firstValueFrom } from 'rxjs';
 import { getFuturePositions, getFuturesAccounts, ICredential } from '../../api/private-api';
 import { mapProductIdToUsdtFutureProduct$ } from '../markets/product';
+import { encodePath } from '@yuants/utils';
 
 export const loadFuturePositions = async (credential: ICredential): Promise<IPosition[]> => {
   const [positionsRes, productMap] = await Promise.all([
@@ -10,13 +11,13 @@ export const loadFuturePositions = async (credential: ICredential): Promise<IPos
   ]);
   const positions = Array.isArray(positionsRes) ? positionsRes : [];
   return positions.map((position): IPosition => {
-    const product_id = position.contract;
+    const product_id = encodePath('GATE', 'FUTURE', position.contract);
     const theProduct = productMap.get(product_id);
     const volume = Math.abs(position.size);
     const closable_price = Number(position.mark_price);
     const valuation = volume * closable_price * (theProduct?.value_scale ?? 1);
     return {
-      datasource_id: 'GATE-FUTURE',
+      datasource_id: 'GATE',
       position_id: `${position.contract}-${position.leverage}-${position.mode}`,
       product_id,
       direction:
@@ -37,7 +38,7 @@ export const loadFuturePositions = async (credential: ICredential): Promise<IPos
   });
 };
 
-export const getFutureAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> = async (credential) => {
+export const getFutureAccountInfo = async (credential: ICredential) => {
   const [positions, rawAccount] = await Promise.all([
     loadFuturePositions(credential),
     getFuturesAccounts(credential, 'usdt'),
