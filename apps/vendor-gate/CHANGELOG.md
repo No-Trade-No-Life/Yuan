@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-gate
 
-This log was last generated on Tue, 25 Nov 2025 07:08:44 GMT and should not be manually modified.
+This log was last generated on Wed, 26 Nov 2025 13:16:51 GMT and should not be manually modified.
+
+## 0.4.8
+Wed, 26 Nov 2025 13:16:51 GMT
+
+### Patches
+
+- refactor gate to new exchange interface
 
 ## 0.4.7
 Tue, 25 Nov 2025 07:08:44 GMT

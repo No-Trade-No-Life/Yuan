@@ -2,6 +2,23 @@
   "name": "@yuants/vendor-bitget",
   "entries": [
     {
+      "version": "0.9.0",
+      "tag": "@yuants/vendor-bitget_v0.9.0",
+      "date": "Wed, 26 Nov 2025 13:16:51 GMT",
+      "comments": {
+        "minor": [
+          {
+            "comment": "Refactor Bitget vendor integration"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.8.4",
       "tag": "@yuants/vendor-bitget_v0.8.4",
       "date": "Tue, 25 Nov 2025 07:08:44 GMT",
