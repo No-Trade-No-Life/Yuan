@@ -7,7 +7,7 @@
 ## 0. 元信息（Meta）
 
 - **项目名称**：@yuants/vendor-binance
-- **最近更新时间**：2025-11-24 14:29（修复 Futures Quote 资金费率）
+- **最近更新时间**：2025-11-25 22:50(添加 Spot/Margin 产品支持)
 - **当前状态标签**：重构中（credential 化 & 上下文治理）
 
 ---
@@ -99,7 +99,18 @@
 
 ## 6. 最近几轮工作记录（Recent Sessions）
 
-> 仅记录已结束的会话；进行中的内容放在第 11 节，收尾后再搬运；最新记录置顶。
+> 仅记录已结束的会话;进行中的内容放在第 11 节,收尾后再搬运;最新记录置顶。
+
+### 2025-11-25 — Antigravity
+
+- **本轮摘要**:
+  - 在 `product.ts` 中添加 Spot 和 Margin 产品支持,现在同时获取 Futures、Spot 和 Margin 三种产品。
+  - 在 `public-api.ts` 中新增 `getSpotExchangeInfo` 及相关类型定义。
+- **修改的文件**:
+  - `apps/vendor-binance/src/api/public-api.ts`
+  - `apps/vendor-binance/src/public-data/product.ts`
+- **运行的测试 / 检查**:
+  - `npx tsc --noEmit --project apps/vendor-binance/tsconfig.json` (Passed)
 
 ### 2025-11-24 — Codex
 
