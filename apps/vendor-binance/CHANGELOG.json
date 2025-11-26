@@ -2,6 +2,39 @@
   "name": "@yuants/vendor-binance",
   "entries": [
     {
+      "version": "0.10.0",
+      "tag": "@yuants/vendor-binance_v0.10.0",
+      "date": "Wed, 26 Nov 2025 05:41:11 GMT",
+      "comments": {
+        "patch": [
+          {
+            "comment": "add product"
+          },
+          {
+            "comment": "fix credential id"
+          },
+          {
+            "comment": "fix api rate limit"
+          }
+        ],
+        "minor": [
+          {
+            "comment": "refactor to new API"
+          }
+        ],
+        "none": [
+          {
+            "comment": "Bump Version"
+          }
+        ],
+        "dependency": [
+          {
+            "comment": "Updating dependency \"@yuants/exchange\" to `0.1.0`"
+          }
+        ]
+      }
+    },
+    {
       "version": "0.9.0",
       "tag": "@yuants/vendor-binance_v0.9.0",
       "date": "Tue, 25 Nov 2025 11:53:28 GMT",
