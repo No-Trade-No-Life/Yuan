@@ -1,10 +1,7 @@
-import type { GateParams, HttpMethod } from './http-client';
+import type { GateParams, HttpMethod, IGateCredential } from './http-client';
 import { requestPrivate } from './http-client';
 
-export type ICredential = {
-  access_key: string;
-  secret_key: string;
-};
+export type ICredential = IGateCredential;
 
 const callPrivate = <TResponse>(
   credential: ICredential,

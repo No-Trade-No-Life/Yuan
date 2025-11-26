@@ -1,5 +1,6 @@
-import { IActionHandlerOfListOrders, IOrder } from '@yuants/data-order';
+import { IOrder } from '@yuants/data-order';
 import { getFuturesOrders, ICredential } from '../../api/private-api';
+import { decodePath } from '@yuants/utils';
 
 type OrderDirection = 'OPEN_LONG' | 'OPEN_SHORT' | 'CLOSE_LONG' | 'CLOSE_SHORT';
 
@@ -11,7 +12,7 @@ const resolveOrderDirection = (order: { size: number; is_close: boolean }): Orde
   return isLong ? 'OPEN_LONG' : 'OPEN_SHORT';
 };
 
-export const listOrders: IActionHandlerOfListOrders<ICredential> = async (credential, account_id) => {
+export const listOrders = async (credential: ICredential) => {
   const orders = await getFuturesOrders(credential, 'usdt', { status: 'open' });
   return orders.map((order): IOrder => {
     const volume = Math.abs(order.size);
@@ -21,7 +22,7 @@ export const listOrders: IActionHandlerOfListOrders<ICredential> = async (creden
     const traded_price = Number(order.fill_price);
     return {
       order_id: `${order.id}`,
-      account_id,
+      account_id: '',
       product_id: order.contract,
       order_direction: resolveOrderDirection(order),
       volume,
@@ -32,4 +33,20 @@ export const listOrders: IActionHandlerOfListOrders<ICredential> = async (creden
       order_status: order.status,
     };
   });
+};
+
+export const getOrdersByProductId = async function (
+  credential: ICredential,
+  product_id: string,
+): Promise<IOrder[]> {
+  const [_, instType] = decodePath(product_id); // GATE/FUTURE/ADAUSDT
+  // if (instType === 'SPOT') {
+  //   const orders = await listSpotOrders(credential);
+  //   return orders.filter((order) => order.product_id === product_id);
+  // }
+  if (instType === 'FUTURE') {
+    const orders = await listOrders(credential);
+    return orders.filter((order) => order.product_id === product_id);
+  }
+  throw new Error(`Unsupported instType: ${instType}`);
 };

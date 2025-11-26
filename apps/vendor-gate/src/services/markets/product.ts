@@ -3,6 +3,7 @@ import { Terminal } from '@yuants/protocol';
 import { createSQLWriter } from '@yuants/sql';
 import { defer, from, map, mergeMap, repeat, retry, shareReplay, Subject, tap, toArray } from 'rxjs';
 import { getFuturesContracts } from '../../api/public-api';
+import { encodePath } from '@yuants/utils';
 
 const terminal = Terminal.fromNodeEnv();
 
@@ -14,8 +15,8 @@ const usdtFutureProducts$ = defer(() => getFuturesContracts('usdt', {})).pipe(
       map((contract): IProduct => {
         const [base, quote] = contract.name.split('_');
         return {
-          datasource_id: 'GATE-FUTURE',
-          product_id: contract.name,
+          datasource_id: 'GATE',
+          product_id: encodePath('GATE', 'FUTURE', contract.name),
           base_currency: base,
           quote_currency: quote,
           value_scale: Number(contract.quanto_multiplier),
