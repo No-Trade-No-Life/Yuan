@@ -1,5 +1,5 @@
 import { GlobalPrometheusRegistry } from '@yuants/protocol';
-import { formatTime, HmacSHA256 } from '@yuants/utils';
+import { formatTime, HmacSHA256, newError } from '@yuants/utils';
 
 const MetricBinanceApiUsedWeight = GlobalPrometheusRegistry.gauge('binance_api_used_weight', '');
 
@@ -16,6 +16,8 @@ export interface IApiError {
   code: number;
   msg: string;
 }
+
+let retryAfterUntil: number | null = null;
 
 export const isApiError = <T>(value: T | IApiError): value is IApiError =>
   typeof (value as IApiError)?.code === 'number' && typeof (value as IApiError)?.msg === 'string';
@@ -78,17 +80,29 @@ const callApi = async <T>(
     console.info(formatTime(Date.now()), method, url.href);
   }
 
+  if (retryAfterUntil) {
+    if (Date.now() <= retryAfterUntil) {
+      throw newError('ACTIVE_RATE_LIMIT', { retryAfterUntil, now: Date.now(), url: url.href });
+    }
+    retryAfterUntil = null;
+  }
+
   const res = await fetch(url.href, {
     method,
     headers,
   });
   const usedWeight1M = res.headers.get('x-mbx-used-weight-1m');
+  const retryAfter = res.headers.get('Retry-After');
+  if (retryAfter) {
+    retryAfterUntil = Date.now() + parseInt(retryAfter, 10) * 1000;
+  }
   console.info(
     formatTime(Date.now()),
     'response',
     method,
     url.href,
-    res.status,
+    `status=${res.status}`,
+    retryAfter ? `retryAfter=${retryAfter}` : '',
     `usedWeight1M=${usedWeight1M ?? 'N/A'}`,
   );
   if (usedWeight1M) {

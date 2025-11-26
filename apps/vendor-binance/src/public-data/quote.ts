@@ -102,9 +102,6 @@ const quoteFromOpenInterest$ = futureBookTicker$.pipe(
 );
 
 const quoteFromSpotBookTicker$ = defer(() => getSpotBookTicker({})).pipe(
-  repeat({ delay: 1_000 }),
-  retry({ delay: 30_000 }),
-  shareReplay({ bufferSize: 1, refCount: true }),
   mergeMap((entries) => from(entries || [])),
   map(
     (entry): Partial<IQuote> => ({
@@ -117,6 +114,9 @@ const quoteFromSpotBookTicker$ = defer(() => getSpotBookTicker({})).pipe(
       updated_at: formatTime(Date.now()),
     }),
   ),
+  repeat({ delay: 1_000 }),
+  retry({ delay: 30_000 }),
+  shareReplay({ bufferSize: 1, refCount: true }),
 );
 
 const marginInterestRateCache = createCache<string>(
