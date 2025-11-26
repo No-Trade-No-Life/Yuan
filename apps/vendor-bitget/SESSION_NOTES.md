@@ -63,9 +63,8 @@
 
 - `src/services/accounts/profile.ts`：缓存 UID / parentId / main-account 状态，提供 `getFuturesAccountId`、`isMainAccount` 等 helper。
 - `src/services/accounts/futures.ts` / `spot.ts`：封装账户查询与 pending-order mapping，供默认服务与凭证化服务复用。
-- `src/services/legacy.ts`：默认凭证下注册账户快照、挂单、SubmitOrder / CancelOrder。
-- `src/services/account-actions-with-credential.ts`：暴露 `ListAccounts` / `GetAccountInfo`，支持任意 Bitget API key。
-- `src/services/order-actions-with-credential.ts` 与 `src/services/orders/order-utils.ts`：凭证化 Submit/Cancel 及参数映射。
+- `src/services/exchange.ts`：统一入口，使用 `provideExchangeServices` 注册所有服务。
+- `src/services/orders/order-utils.ts`：参数映射。
 - `src/services/markets/product.ts` / `quote.ts` / `interest-rate.ts`：REST 轮询 + SQL 写入 + quote channel。
 - `src/services/transfer.ts`：注册 TRC20 提现、Spot↔Futures 内部调拨、Parent/Sub 互转。
 - `src/api/client.ts`：REST 基础设施（签名、日志、简易限流占位），`api/public-api.ts`/`private-api.ts` 暴露具体接口。
@@ -99,6 +98,31 @@
 ## 6. 最近几轮工作记录（Recent Sessions）
 
 > 仅记录已结束的会话；进行中的内容放在第 11 节，收尾后再搬运；最新记录置顶。
+
+### 2025-11-26 — Antigravity
+
+- **本轮摘要**：
+  - 重构 vendor-bitget 以使用 `@yuants/exchange` 的 `provideExchangeServices`，实现统一的服务注册与管理。
+  - 引入 Globalized Product ID 格式 `BITGET/InstType/Symbol`，替代旧的 `InstType/Symbol`，并移除 `account_id` 路由依赖。
+  - 清理 `services/legacy.ts`、`account-actions-with-credential.ts`、`order-actions-with-credential.ts`，保留 `services/transfer.ts`。
+  - 更新所有订单操作（Submit/Cancel/Modify）及账户服务（Futures/Spot）以适配新的 Product ID 格式。
+  - 拆分 `listOrders` 为 `listSpotOrders` 和 `listFuturesOrders`，移除 `account_id` 依赖。
+  - 修正 `credentialId` 格式为 `BITGET/<uid>`。
+- **修改的文件**：
+  - `apps/vendor-bitget/package.json`（新增 `@yuants/exchange`）
+  - `apps/vendor-bitget/src/index.ts`
+  - `apps/vendor-bitget/src/services/exchange.ts`（新增）
+  - `apps/vendor-bitget/src/services/markets/product.ts`
+  - `apps/vendor-bitget/src/services/orders/*`
+  - `apps/vendor-bitget/src/services/accounts/*`
+  - `apps/vendor-bitget/AGENTS.md`
+- **详细备注**：
+  - `provideExchangeServices` 统一了凭证管理与服务分发；
+  - 所有 `product_id` 均通过 `encodePath` 生成，确保格式统一；
+  - 遗留的 transfer 代码保留在 `services/transfer.ts` 中，未做逻辑变更。
+- **运行的测试 / 检查**：
+  - 命令：`npx tsc --noEmit --project apps/vendor-bitget/tsconfig.json`
+  - 结果：通过
 
 ### 2025-11-20 — Antigravity
 

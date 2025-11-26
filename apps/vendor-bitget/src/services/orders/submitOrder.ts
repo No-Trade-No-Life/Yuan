@@ -1,11 +1,11 @@
 import { IOrder } from '@yuants/data-order';
 import { decodePath } from '@yuants/utils';
-import { postFuturePlaceOrder, postSpotPlaceOrder, type ICredential } from '../../api/private-api';
+import { postFuturePlaceOrder, postSpotPlaceOrder } from '../../api/private-api';
+import { ICredential } from '../../api/types';
 import { buildFutureOrderParams, mapOrderDirectionToSide } from './order-utils';
 
 export const submitOrder = async (credential: ICredential, order: IOrder) => {
-  const [datasource_id, product_id] = decodePath(order.product_id);
-  const [instType, instId] = decodePath(product_id);
+  const [datasource_id, instType, instId] = decodePath(order.product_id);
 
   if (instType === 'USDT-FUTURES') {
     const params = buildFutureOrderParams(order);

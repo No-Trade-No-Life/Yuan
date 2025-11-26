@@ -26,7 +26,7 @@ export const mapOrderDirectionToTradeSide = (direction?: IOrder['order_direction
 };
 
 export const buildFutureOrderParams = (order: IOrder) => {
-  const [instType, instId] = decodePath(order.product_id);
+  const [datasource_id, instType, instId] = decodePath(order.product_id);
   return {
     symbol: instId,
     productType: instType,

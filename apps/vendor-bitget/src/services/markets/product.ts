@@ -8,7 +8,7 @@ import { IMixMarketContract, getMarketContracts } from '../../api/public-api';
 const product$ = new Subject<IProduct>();
 
 // product
-const futureProducts$ = defer(async () => {
+export const listProducts = async (): Promise<IProduct[]> => {
   // usdt-m swap
   const usdtFuturesProductRes = await getMarketContracts({ productType: 'USDT-FUTURES' });
   if (usdtFuturesProductRes.msg !== 'success') {
@@ -21,7 +21,7 @@ const futureProducts$ = defer(async () => {
   }
   const usdtFutures = usdtFuturesProductRes.data.map(
     (product: IMixMarketContract): IProduct => ({
-      product_id: encodePath(`USDT-FUTURES`, product.symbol),
+      product_id: encodePath('BITGET', `USDT-FUTURES`, product.symbol),
       datasource_id: 'BITGET',
       quote_currency: product.quoteCoin,
       base_currency: product.baseCoin,
@@ -43,7 +43,7 @@ const futureProducts$ = defer(async () => {
   );
   const coinFutures = coinFuturesProductRes.data.map(
     (product: IMixMarketContract): IProduct => ({
-      product_id: encodePath(`COIN-FUTURES`, product.symbol),
+      product_id: encodePath('BITGET', `COIN-FUTURES`, product.symbol),
       datasource_id: 'BITGET',
       quote_currency: product.quoteCoin,
       base_currency: product.baseCoin,
@@ -65,7 +65,9 @@ const futureProducts$ = defer(async () => {
   );
 
   return [...usdtFutures, ...coinFutures];
-}).pipe(
+};
+
+const futureProducts$ = defer(listProducts).pipe(
   tap((list) => {
     list.forEach((product) => product$.next(product));
   }),

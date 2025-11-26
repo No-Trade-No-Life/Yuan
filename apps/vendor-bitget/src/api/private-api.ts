@@ -1,4 +1,4 @@
-import { getDefaultCredential, requestPrivate } from './client';
+import { requestPrivate } from './client';
 import { ICredential } from './types';
 
 type ApiResponse<T> = {
@@ -696,6 +696,3 @@ export const getSpotCrossInterestRate = (
     '/api/v2/margin/crossed/interest-rate-and-limit',
     params,
   );
-
-export { getDefaultCredential };
-export type { ICredential };
