@@ -8,7 +8,7 @@ import {
   getSwapMarketBbo,
   getSwapMarketTrade,
   getSwapOpenInterest,
-} from './api/public-api';
+} from '../../api/public-api';
 
 const swapBboTick$ = defer(() => getSwapMarketBbo({})).pipe(
   repeat({ delay: 1000 }),
@@ -22,8 +22,8 @@ const quote1$ = swapBboTick$.pipe(
     const [ask_price = '', ask_volume = ''] = tick.ask || [];
     const [bid_price = '', bid_volume = ''] = tick.bid || [];
     return {
-      datasource_id: 'HUOBI-SWAP',
-      product_id: tick.contract_code,
+      datasource_id: 'HTX',
+      product_id: encodePath('HTX', 'SWAP', tick.contract_code),
       ask_price: `${ask_price}`,
       bid_price: `${bid_price}`,
       ask_volume: `${ask_volume}`,
@@ -56,8 +56,8 @@ const quote2$ = swapTradeTick$.pipe(
   mergeMap((res) => res.tick?.data || []),
   map(
     (tick): Partial<IQuote> => ({
-      datasource_id: 'HUOBI-SWAP',
-      product_id: tick.contract_code,
+      datasource_id: 'HTX',
+      product_id: encodePath('HTX', 'SWAP', tick.contract_code),
       last_price: `${tick.price}`,
     }),
   ),
@@ -86,8 +86,8 @@ const quote3$ = swapFundingRateTick$.pipe(
   mergeMap((res) => res.data || []),
   map(
     (tick): Partial<IQuote> => ({
-      datasource_id: 'HUOBI-SWAP',
-      product_id: tick.contract_code,
+      datasource_id: 'HTX',
+      product_id: encodePath('HTX', 'SWAP', tick.contract_code),
       interest_rate_long: `${-tick.funding_rate}`,
       interest_rate_short: `${tick.funding_rate}`,
       interest_rate_next_settled_at: formatTime(+tick.funding_time),
@@ -119,8 +119,8 @@ const quote4$ = swapOpenInterest$.pipe(
   mergeMap((res) => res.data || []),
   map(
     (tick): Partial<IQuote> => ({
-      datasource_id: 'HUOBI-SWAP',
-      product_id: tick.contract_code,
+      datasource_id: 'HTX',
+      product_id: encodePath('HTX', 'SWAP', tick.contract_code),
       open_interest: `${tick.volume}`,
     }),
   ),

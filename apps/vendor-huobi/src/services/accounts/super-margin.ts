@@ -1,8 +1,8 @@
 import { createCache } from '@yuants/cache';
 import { IActionHandlerOfGetAccountInfo, IPosition } from '@yuants/data-account';
 import { formatTime } from '@yuants/utils';
-import { getSpotAccountBalance, ICredential } from '../api/private-api';
-import { getSpotTick } from '../api/public-api';
+import { getSpotAccountBalance, ICredential } from '../../api/private-api';
+import { getSpotTick } from '../../api/public-api';
 import { superMarginAccountUidCache } from '../uid';
 
 const spotTickCache = createCache((currency) => getSpotTick({ symbol: `${currency}usdt` }), {
