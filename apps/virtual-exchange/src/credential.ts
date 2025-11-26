@@ -2,8 +2,7 @@ import { getCredentialId } from '@yuants/exchange';
 import { Terminal } from '@yuants/protocol';
 import { ISecret, readSecret, writeSecret } from '@yuants/secret';
 import { escapeSQL, requestSQL } from '@yuants/sql';
-import { formatTime, scopeError } from '@yuants/utils';
-import { defer, firstValueFrom, repeat, retry, shareReplay } from 'rxjs';
+import { defer, firstValueFrom, map, repeat, retry, shareReplay } from 'rxjs';
 
 export interface IExchangeCredential {
   type: string;
@@ -11,6 +10,42 @@ export interface IExchangeCredential {
 }
 
 const terminal = Terminal.fromNodeEnv();
+
+interface ICredentialResolvedStatus {
+  secret: ISecret;
+  credential?: IExchangeCredential;
+  credentialId?: string;
+  reason?: string;
+}
+
+export const listAllCredentials = async () => {
+  const secrets = await requestSQL<ISecret[]>(
+    terminal,
+    `select * from secret where tags->>'type' = 'exchange_credential' and reader = ${escapeSQL(
+      terminal.keyPair.public_key,
+    )}`,
+  );
+
+  const results = secrets.map((secret): ICredentialResolvedStatus => ({ secret }));
+
+  await Promise.all(
+    results.map(async (result) => {
+      try {
+        const decrypted = await readSecret(terminal, result.secret);
+        const credential = JSON.parse(new TextDecoder().decode(decrypted)) as IExchangeCredential;
+        result.credential = credential;
+
+        const res = await getCredentialId(terminal, credential);
+        const credentialId = res.data;
+        result.credentialId = credentialId;
+      } catch (e) {
+        result.reason = `${e}`;
+      }
+    }),
+  );
+
+  return results;
+};
 
 terminal.server.provideService<IExchangeCredential, void>(
   'VEX/RegisterExchangeCredential',
@@ -29,63 +64,31 @@ terminal.server.provideService<IExchangeCredential, void>(
     return { res: { code: 0, message: 'OK' } };
   },
 );
-terminal.server.provideService<void, IExchangeCredential[]>('VEX/ListExchangeCredential', {}, async () => {
-  const secrets = await requestSQL<ISecret[]>(
-    terminal,
-    `select * from secret where tags->>'type' = 'exchange_credential' and reader = ${escapeSQL(
-      terminal.keyPair.public_key,
-    )}`,
-  );
-  const credentials: IExchangeCredential[] = [];
-  for (const secret of secrets) {
-    try {
-      const decrypted = await readSecret(terminal, secret);
-      const credential = JSON.parse(new TextDecoder().decode(decrypted));
-      credentials.push(credential);
-    } catch (e) {
-      console.error('Failed to decrypt secret', e);
-    }
-  }
-  return { res: { code: 0, message: 'OK', data: credentials } };
-});
+
+terminal.server.provideService<void, ICredentialResolvedStatus[]>(
+  'VEX/ListExchangeCredential',
+  {},
+  async () => {
+    return { res: { code: 0, message: 'OK', data: await listAllCredentials() } };
+  },
+);
 
 terminal.server.provideService<void, string[]>('VEX/ListCredentials', {}, async () => {
   const credentials = await firstValueFrom(validCredentials$);
   return { res: { code: 0, message: 'OK', data: [...credentials.keys()] } };
 });
 
-export const listValidCredentials = async () => {
-  const credentials = new Map<string, IExchangeCredential>();
-  const secrets = await requestSQL<ISecret[]>(
-    terminal,
-    `select * from secret where tags->>'type' = 'exchange_credential' and reader = ${escapeSQL(
-      terminal.keyPair.public_key,
-    )}`,
-  );
-  console.info(formatTime(Date.now()), `Found ${secrets.length} exchange credential secrets`);
-  for (const secret of secrets) {
-    try {
-      const decrypted = await readSecret(terminal, secret);
-      const credential = JSON.parse(new TextDecoder().decode(decrypted)) as IExchangeCredential;
-
-      // Call GetCredentialId to get credential id
-      const res = await getCredentialId(terminal, credential);
-
-      scopeError('GET_CREDENTIAL_ID_FAILED', { res }, () => {
-        const credentialId = res.data;
-        if (!credentialId) throw new Error('Credential ID is empty');
-        credentials.set(credentialId, credential);
-        console.info(formatTime(Date.now()), `Valid credential found: ${credentialId}`);
-      });
-    } catch (e) {
-      console.info(formatTime(Date.now()), 'Failed to process secret', e);
+export const validCredentials$ = defer(() => listAllCredentials()).pipe(
+  map((x) => {
+    const map = new Map<string, IExchangeCredential>();
+    for (const xx of x) {
+      if (xx.credentialId && xx.credential) {
+        map.set(xx.credentialId, xx.credential);
+      }
     }
-  }
-  return credentials;
-};
-
-export const validCredentials$ = defer(() => listValidCredentials()).pipe(
-  repeat({ delay: 60000 }),
+    return map;
+  }),
+  repeat({ delay: 10000 }),
   retry({ delay: 5000 }),
   shareReplay(1),
 );
