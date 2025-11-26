@@ -11,7 +11,7 @@ import { submitOrder } from './orders/submitOrder';
 import { getFutureAccountInfo } from './accounts/future';
 import { ICredential } from '../api/private-api';
 import { listOrders, getOrdersByProductId } from './orders/listOrders';
-import { listProducts } from '../public-data/product';
+import { listProducts } from './markets/product';
 
 const terminal = Terminal.fromNodeEnv();
 
