@@ -1493,6 +1493,8 @@ importers:
       '@types/node': '18'
       '@yuants/data-account': workspace:*
       '@yuants/data-order': workspace:*
+      '@yuants/data-product': workspace:*
+      '@yuants/exchange': workspace:*
       '@yuants/protocol': workspace:*
       '@yuants/tool-kit': workspace:*
       '@yuants/utils': workspace:*
@@ -1502,6 +1504,8 @@ importers:
     dependencies:
       '@yuants/data-account': link:../../libraries/data-account
       '@yuants/data-order': link:../../libraries/data-order
+      '@yuants/data-product': link:../../libraries/data-product
+      '@yuants/exchange': link:../../libraries/exchange
       '@yuants/protocol': link:../../libraries/protocol
       '@yuants/utils': link:../../libraries/utils
       rxjs: 7.5.7

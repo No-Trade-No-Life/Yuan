@@ -50,15 +50,16 @@ export const privateRequest = async (
   headers['SIGN'] = signatureHex;
   headers['LANG'] = 'zh-cn';
 
+  const body = method === 'POST' ? JSON.stringify(params) : undefined;
   const response = await fetch(url.toString(), {
     method,
     headers,
-    body: method === 'POST' ? JSON.stringify(params) : undefined,
+    body,
   });
 
   const text = await response.text();
 
-  console.info(url.toString(), headers, text);
+  console.info(url.toString(), headers, text, params, body);
 
   return scopeError('TurboAPIError', { status: response.status, statusText: response.statusText, text }, () =>
     JSON.parse(text),
@@ -152,7 +153,7 @@ export const submitOrder = createPrivateApi<
     order_way: 1 | 2 | 3 | 4; // 1:开多 2:平空 3:开空 4:平多
     margin_type: 1 | 2; // 1:逐仓 2:全仓
     leverage: number;
-    size: string; // 交易数量
+    vol: number; // 交易数量
     position_mode: 1 | 2 | 3; // 1:单向 2:双向 3:原子
     time_in_force: 'GTC' | 'IOC' | 'FOK';
     fee_mode: 1 | 2; // 1:固定 2:利润分层
