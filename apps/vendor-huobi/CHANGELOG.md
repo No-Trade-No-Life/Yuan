@@ -1,6 +1,13 @@
 # Change Log - @yuants/vendor-huobi
 
-This log was last generated on Tue, 25 Nov 2025 07:08:44 GMT and should not be manually modified.
+This log was last generated on Wed, 26 Nov 2025 07:31:03 GMT and should not be manually modified.
+
+## 0.15.0
+Wed, 26 Nov 2025 07:31:03 GMT
+
+### Minor changes
+
+- renew HTX
 
 ## 0.14.6
 Tue, 25 Nov 2025 07:08:44 GMT
