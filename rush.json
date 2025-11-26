@@ -734,6 +734,11 @@
       "packageName": "@yuants/vendor-turboflow",
       "projectFolder": "apps/vendor-turboflow",
       "shouldPublish": true
+    },
+    {
+      "packageName": "@yuants/exchange",
+      "projectFolder": "libraries/exchange",
+      "shouldPublish": true
     }
   ]
 }
