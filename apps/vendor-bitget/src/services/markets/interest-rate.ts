@@ -4,8 +4,9 @@ import { createSeriesProvider } from '@yuants/data-series';
 import { Terminal } from '@yuants/protocol';
 import { decodePath, formatTime } from '@yuants/utils';
 import { firstValueFrom, timer } from 'rxjs';
+import { getDefaultCredential } from '../../api/client';
+import { getSpotCrossInterestRate } from '../../api/private-api';
 import { IHistoricalFundingRate, getHistoricalFundingRate, getSpotSymbols } from '../../api/public-api';
-import { getDefaultCredential, getSpotCrossInterestRate } from '../../api/private-api';
 
 const spotSymbolCache = createCache(
   async () => {

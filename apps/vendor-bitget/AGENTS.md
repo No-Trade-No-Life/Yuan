@@ -23,7 +23,7 @@
    对齐 `docs/en/vendor-guide/implementation-checklist.md`（0–8 节）：先保证账户快照、挂单、公共数据、交易 RPC、转账接口全部可用，再考虑优化。
 
 2. **模块化 + 最小职责**  
-   `src/index.ts` 只导入 `services/legacy`, `services/account-actions-with-credential`, `services/order-actions-with-credential`, `services/markets/*`, `services/transfer`；公共/私有 API 拆在 `src/api/public-api.ts` 与 `src/api/private-api.ts`。
+   `src/index.ts` 只导入 `services/exchange`, `services/markets/*`, `services/transfer`；公共/私有 API 拆在 `src/api/public-api.ts` 与 `src/api/private-api.ts`。
 
 3. **凭证显式、账户统一**  
    每个私有请求函数都接受 `ICredential`；默认凭证通过 `ACCESS_KEY/SECRET_KEY/PASSPHRASE`，并用 `@yuants/cache` 缓存 `uid/parentId`，账户 ID 固定 `bitget/<uid>/<scope>`。
@@ -55,17 +55,16 @@
 
    - 所有模块调用 `Terminal.fromNodeEnv()`；禁止手动创建额外 Terminal；
    - 公共 REST helper 写在 `api/public-api.ts`，私有接口写在 `api/private-api.ts`（每个函数一个 endpoint，显式传 credential）；
-   - 不得恢复到旧的 `src/api.ts` 单文件模式。
+   - 使用 `provideExchangeServices` 统一注册服务。
 
 3. **账户与挂单服务**
 
-   - `provideAccountInfoService`、`providePendingOrdersService` 每个账户单独注册，刷新频率分别 ≈1s / ≤5s；
-   - 产品 ID 统一 `encodePath(instType, instId)`；Spot 用 `encodePath('SPOT', symbol)`；订单方向映射走 `services/orders/order-utils.ts`。
+   - 通过 `provideExchangeServices` 统一管理；
+   - 产品 ID 统一 `encodePath('BITGET', instType, instId)`；Spot 用 `encodePath('BITGET', 'SPOT', symbol)`；订单方向映射走 `services/orders/order-utils.ts`。
 
 4. **交易 RPC**
 
-   - `services/legacy.ts`：默认凭证/账号，Schema 固定 `account_id`；日志记录请求与翻译后的参数；
-   - `services/order-actions-with-credential.ts`：使用 `provideOrderActionsWithCredential`，要求 `credential = { type: 'BITGET', payload: { access_key, secret_key, passphrase } }`，所有请求仅通过 payload 下发到 Bitget；
+   - `services/exchange.ts`：统一入口，使用 `provideExchangeServices`；
    - 返回 `{ code, message, data? }`，严禁吞掉 Bitget 的错误信息。
 
 5. **公共数据**

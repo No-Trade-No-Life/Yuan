@@ -1,10 +1,10 @@
 import { IOrder } from '@yuants/data-order';
 import { decodePath } from '@yuants/utils';
-import { postFutureCancelOrder, postSpotCancelOrder, type ICredential } from '../../api/private-api';
+import { postFutureCancelOrder, postSpotCancelOrder } from '../../api/private-api';
+import { ICredential } from '../../api/types';
 
 export const cancelOrder = async (credential: ICredential, order: IOrder) => {
-  const [datasource_id, product_id] = decodePath(order.product_id);
-  const [instType, instId] = decodePath(product_id);
+  const [datasource_id, instType, instId] = decodePath(order.product_id);
 
   if (instType === 'USDT-FUTURES') {
     const res = await postFutureCancelOrder(credential, {

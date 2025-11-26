@@ -1,5 +1,7 @@
 import { createCache } from '@yuants/cache';
-import { getAccountInfo, getDefaultCredential, type ICredential } from '../../api/private-api';
+import { getDefaultCredential } from '../../api/client';
+import { getAccountInfo } from '../../api/private-api';
+import { ICredential } from '../../api/types';
 
 export interface IAccountProfile {
   uid: string;

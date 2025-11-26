@@ -1,7 +1,8 @@
-import { IActionHandlerOfGetAccountInfo, makeSpotPosition } from '@yuants/data-account';
+import { makeSpotPosition } from '@yuants/data-account';
 import { IOrder } from '@yuants/data-order';
 import { encodePath } from '@yuants/utils';
-import { getSpotAssets, getSpotOrdersPending, type ICredential } from '../../api/private-api';
+import { getSpotAssets, getSpotOrdersPending } from '../../api/private-api';
+import { ICredential } from '../../api/types';
 
 const mapSpotOrders = (data: any): any[] => {
   if (!data) return [];
@@ -14,7 +15,7 @@ const mapSpotOrders = (data: any): any[] => {
 
 const mapSpotOrderDirection = (side?: string) => (side === 'sell' ? 'OPEN_SHORT' : 'OPEN_LONG');
 
-export const getSpotAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> = async (credential) => {
+export const getSpotAccountInfo = async (credential: ICredential) => {
   const res = await getSpotAssets(credential);
   if (res.msg !== 'success') {
     throw new Error(res.msg);
@@ -22,7 +23,7 @@ export const getSpotAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> = a
   return res.data.map((v) => {
     return makeSpotPosition({
       position_id: v.coin,
-      product_id: encodePath('SPOT', `${v.coin}-USDT`),
+      product_id: encodePath('BITGET', 'SPOT', `${v.coin}-USDT`),
       volume: +v.available,
       free_volume: +v.available,
       closable_price: 1, // TODO: use real price
@@ -30,10 +31,7 @@ export const getSpotAccountInfo: IActionHandlerOfGetAccountInfo<ICredential> = a
   });
 };
 
-export const listSpotPendingOrders = async (
-  credential: ICredential,
-  accountId: string,
-): Promise<IOrder[]> => {
+export const listSpotPendingOrders = async (credential: ICredential): Promise<IOrder[]> => {
   const res = await getSpotOrdersPending(credential);
   if (res.msg !== 'success') {
     throw new Error(res.msg);
@@ -45,8 +43,8 @@ export const listSpotPendingOrders = async (
       if (!symbol) return null;
       return {
         order_id: order.orderId ?? order.clientOid,
-        account_id: accountId,
-        product_id: encodePath('SPOT', symbol),
+        account_id: '',
+        product_id: encodePath('BITGET', 'SPOT', symbol),
         order_type: order.orderType === 'market' ? 'MARKET' : 'LIMIT',
         order_direction: mapSpotOrderDirection(order.side),
         volume: +(order.size ?? order.quantity ?? order.baseSz ?? order.baseAmount ?? 0),
