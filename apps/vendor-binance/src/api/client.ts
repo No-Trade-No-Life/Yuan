@@ -1,5 +1,5 @@
 import { GlobalPrometheusRegistry } from '@yuants/protocol';
-import { formatTime, HmacSHA256, newError } from '@yuants/utils';
+import { encodeHex, formatTime, HmacSHA256, newError } from '@yuants/utils';
 
 const MetricBinanceApiUsedWeight = GlobalPrometheusRegistry.gauge('binance_api_used_weight', '');
 
@@ -60,9 +60,9 @@ const callApi = async <T>(
   if (credential) {
     const signData = url.search.slice(1);
 
-    const signature = Buffer.from(
+    const signature = encodeHex(
       await HmacSHA256(new TextEncoder().encode(signData), new TextEncoder().encode(credential.secret_key)),
-    ).toString('hex');
+    );
     url.searchParams.set('signature', signature);
     headers = {
       'Content-Type': 'application/json;charset=utf-8',

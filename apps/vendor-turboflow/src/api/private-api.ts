@@ -1,4 +1,11 @@
-import { decodeBase58, fromPrivateKey, HmacSHA256, scopeError, signMessageByEd25519 } from '@yuants/utils';
+import {
+  decodeBase58,
+  encodeHex,
+  fromPrivateKey,
+  HmacSHA256,
+  scopeError,
+  signMessageByEd25519,
+} from '@yuants/utils';
 
 export interface ICredential {
   /**
@@ -26,7 +33,7 @@ export const privateRequest = async (
 
   const publicKey = fromPrivateKey(credential.private_key).public_key;
   const publicKeyBinary = decodeBase58(publicKey);
-  const publicKeyHex = Buffer.from(publicKeyBinary).toString('hex');
+  const publicKeyHex = encodeHex(publicKeyBinary);
 
   const privateKeyBinary = decodeBase58(credential.private_key);
 
@@ -43,7 +50,7 @@ export const privateRequest = async (
   const hashData = await HmacSHA256(new TextEncoder().encode(data), publicKeyBinary);
 
   const signature = signMessageByEd25519(hashData, privateKeyBinary);
-  const signatureHex = Buffer.from(signature).toString('hex');
+  const signatureHex = encodeHex(signature);
 
   headers['API-KEY'] = publicKeyHex;
   headers['TIMESTAMP'] = timestamp;

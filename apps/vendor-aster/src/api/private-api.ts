@@ -1,5 +1,4 @@
-import { HmacSHA256 } from '@yuants/utils';
-import { uint8ArrayToHex } from '../utils';
+import { encodeHex, HmacSHA256 } from '@yuants/utils';
 
 export interface ICredential {
   address: string;
@@ -65,7 +64,7 @@ const request = async <T>(
 
   url.searchParams.set('timestamp', `${Date.now()}`);
   const msg = url.search.slice(1); // 去掉开头的 '?'
-  const signature = uint8ArrayToHex(
+  const signature = encodeHex(
     await HmacSHA256(new TextEncoder().encode(msg), new TextEncoder().encode(credential.secret_key)),
   );
   url.searchParams.set('signature', signature);
